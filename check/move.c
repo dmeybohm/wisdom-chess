@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -21,7 +22,8 @@ static inline unsigned char char_to_col (char chr)
 char *move_str (move_t move)
 {
 	coord_t src, dst;
-	static char buf[128];
+	static char buf[256];
+	char tmp[32];
 
 	src = MOVE_SRC (move);
 	dst = MOVE_DST (move);
@@ -54,8 +56,18 @@ char *move_str (move_t move)
 	buf[4] = row_to_char (ROW (dst));
 	buf[5] = 0;
 
+	if (is_en_passant_move (&move))
+	{
+		snprintf (tmp, sizeof(tmp)-1, " ep");
+		strcat (buf, tmp);
+	}
+
 	if (is_promoting_move (&move))
-		strcat (buf, "(Promoted)");
+	{
+		snprintf (tmp, sizeof(tmp)-1, "(%c)", 
+				  piece_chr (move_get_promoted (&move)));
+		strcat (buf, tmp);
+	}
 
 	return buf;
 }
@@ -92,6 +104,7 @@ int move_parse (char *str, color_t who, move_t *move)
 	int         en_passant       = 0;
 	piece_t     promoted         = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
 	char       *tok;
+	char       *p;
 
 	if (strlen (str) < 1)
 		return 0;
@@ -102,29 +115,40 @@ int move_parse (char *str, color_t who, move_t *move)
 	if (strlen (str) < 4)
 		return 0;
 
+	p = str;
+
 	/* convert between row/col and coordinate */
-	src_col = char_to_col (str[0]);
-	src_row = char_to_row (str[1]);
+	src_col = char_to_col (*p++);
+	src_row = char_to_row (*p++);
 
-	dst_col = char_to_col (str[2]);
-	dst_row = char_to_row (str[3]);
+	/* allow any number of spaces/tabs between the two coordinates */
+	while (*p == ' ' || *p == '\t')
+		p++;
 
-	tok = strtok (str, " \n\t");
-	tok = strtok (NULL, " \n\t");
+	/* allow an 'x' between coordinates, which is used to indicate a capture
+	 * TODO: we should set some bit on the move that it is a capture */
+	if (*p == 'x')
+		p++;
+
+	dst_col = char_to_col (*p++);
+	dst_row = char_to_row (*p);
+
+	/* now we search for promotion manuevers */
+	tok = strtok (p, " \n\t");
 
 	*move = move_create (src_row, src_col, dst_row, dst_col);
 
-	if (tok)
+	while ((tok = strtok (NULL, " \n\t")))
 	{
 		if (!strcasecmp (tok, "ep"))
 			en_passant = 1;
-		else if (!strcasecmp (tok, "q"))
+		else if (!strcasecmp (tok, "(Q)"))
 			promoted = MAKE_PIECE (who, PIECE_QUEEN);
-		else if (!strcasecmp (tok, "n"))
+		else if (!strcasecmp (tok, "(N)"))
 			promoted = MAKE_PIECE (who, PIECE_KNIGHT);
-		else if (!strcasecmp (tok, "b"))
+		else if (!strcasecmp (tok, "(B)"))
 			promoted = MAKE_PIECE (who, PIECE_BISHOP);
-		else if (!strcasecmp (tok, "r"))
+		else if (!strcasecmp (tok, "(R)"))
 			promoted = MAKE_PIECE (who, PIECE_ROOK);
 	}
 
