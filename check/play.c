@@ -143,6 +143,8 @@ int main (int argc, char **argv)
 	{
 		skip = 0;
 
+		board_print (game->board);
+
 		if (is_checkmated (game->board, game->turn))
 		{
 			printf ("%s wins the game\n", game->turn == COLOR_WHITE ? "Black" : 
@@ -152,12 +154,10 @@ int main (int argc, char **argv)
 
 		if (game->turn != game->player)
 		{
-			board_print (game->board);
 			ok = read_move (&game, &good, &skip, &move);
 		}
 		else
 		{
-			board_print (game->board);
 			move = find_best_move (game->board, game->player, game->history);
 
 			printf ("move selected: [%s]\n", move_str (move));
