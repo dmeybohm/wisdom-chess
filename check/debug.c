@@ -16,7 +16,7 @@ void debug_print (struct debug_channel *channel, char *func,
 	if (!outputf)
 		outputf = stdout;
 
-	va_start (&args, fmt);
+	va_start (args, fmt);
 
 	if (!channel->multiline_mode)
 	{
@@ -26,7 +26,7 @@ void debug_print (struct debug_channel *channel, char *func,
 	
 	vfprintf (outputf, fmt, args);
 
-	va_end (&args);
+	va_end (args);
 }
 
 void debug_multi_line_start (struct debug_channel *channel)
