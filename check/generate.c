@@ -406,7 +406,7 @@ MOVES_HANDLER (en_passant)
 			continue;
 
 		if (PIECE_TYPE (PIECE_AT (board, row, take_col)) != PIECE_NONE && 
-				PIECE_COLOR (piece) != who)
+		    PIECE_COLOR (piece) != who)
 		{
 			ret_move = move_create (piece_row, piece_col, row, take_col);
 
