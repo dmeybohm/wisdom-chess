@@ -58,16 +58,37 @@ void game_move (struct game *game, move_t *move)
 	game->turn = color_invert (game->turn);
 }
 
+static int prompt (const char *prompt, char *out, size_t len)
+{
+	printf ("%s? ", prompt);
+	fflush (stdout);
+
+	if (fgets (out, len - 1, stdin) == NULL)
+		return 0;
+
+	chomp (out);
+	return 1;
+}
+
+static int save_history_recursively (move_tree_t *history, FILE *f)
+{
+	int ret;
+
+	if (!history || is_null_move (history->move))
+		return 1;
+
+	ret = save_history_recursively (history->parent, f);
+	fprintf (f, "%s\n", move_str (history->move));
+
+	return ret;
+}
+
 int game_save (struct game *game)
 {
 	FILE *out;
 	char buf[128];
-	move_tree_t *history;
 
-	printf ("save to what file? ");
-	fflush (stdout);
-
-	if (fgets (buf, sizeof (buf)-1, stdin) == NULL)
+	if (!prompt ("save to what file", buf, sizeof (buf - 1)))
 		return 0;
 
 	chomp (buf);
@@ -78,12 +99,10 @@ int game_save (struct game *game)
 		return 0;
 	}
 
-	history = game->history;
-
-	while (!is_null_move (history->move))
+	if (!save_history_recursively (game->history, out))
 	{
-		fprintf (out, "%s\n", move_str (history->move));
-		history = history->parent;
+		fclose (out);
+		return 0;
 	}
 
 	fclose (out);
@@ -91,26 +110,57 @@ int game_save (struct game *game)
 	return 1; /* need to check for failure here */
 }
 
-struct game *game_load (const char *file, color_t player)
+struct game *game_load (color_t player)
 {
 	struct game *game;
+	char file[128];
 	char buf[128];
 	FILE *f;
 	move_t move;
 
-	if (!(f = fopen (file, "r")))
+	if (!prompt ("load what file", file, sizeof (file) - 1))
 		return NULL;
 
-	game = game_new (player, COLOR_NONE);
+	if (!(f = fopen (file, "r")))
+	{
+		printf ("Couldn't open %s: %s\n", file, strerror (errno));
+		return NULL;
+	}
+
+	game = game_new (COLOR_NONE, player);
 
 	while (fgets (buf, sizeof (buf) - 1, f) != NULL)
 	{
+		coord_t dst;
+		piece_t piece;
+
+		if (!strncasecmp (buf, "stop", strlen ("stop")))
+			break;
+
 		if (!move_parse (buf, game->turn, &move))
 		{
 			printf ("Error parsing game file %s: invalid move \"%s\"",
 					file, buf);
 			game_free (game);
 			return NULL;
+		}
+
+		/*
+		 * We need to check if there's a piece at the destination, and
+		 * set the move as taking it. Otherwise, we'll trip over some
+		 * consistency checks that make sure we don't erase pieces.
+		 */
+		dst = MOVE_DST (move);
+		piece = PIECE_AT_COORD (game->board, dst);
+
+#if 0
+		printf ("%s (%s)\n", buf, move_str (move));
+#endif
+
+		if (PIECE_TYPE(piece) != PIECE_NONE)
+		{
+			assert (PIECE_COLOR(piece) != game->turn);
+			move_set_taken (&move, piece);
 		}
 
 		game_move (game, &move);
