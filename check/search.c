@@ -23,6 +23,10 @@ DEFINE_DEBUG_CHANNEL (quiesce, 1);
 
 #define SEARCH_TIME   15 /* seconds */
 
+#ifndef RANDOMNESS
+#define RANDOMNESS    0
+#endif
+
 static int              nodes_visited, cutoffs;
 static volatile int     signalled;
 
@@ -128,7 +132,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 			else
 #endif
 				score = evaluate (board, side, 0, move) +
-#if RANDOMNESS
+#if RANDOMNESS > 0
 					-(RANDOMNESS / 2) + 
 					  (RANDOMNESS * 1.0 * rand() / (1.0+RAND_MAX));
 #else
@@ -147,7 +151,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 
 		move_tree_free (new_leaf);
 
-#if RANDOMNESS
+#if RANDOMNESS > 0
 		if (score > best || best == -INFINITY)/* || (score == best && 
 							 (1.0 * rand()/ (RAND_MAX+1.0) < 1)))*/
 
@@ -330,7 +334,7 @@ move_t iterate (struct board *board, color_t side,
 
 	gettimeofday (&start, NULL);
 
-#if RANDOMNESS
+#if RANDOMNESS > 0
 	srand (start.tv_sec >> 10 ^ start.tv_usec);
 #endif
 
