@@ -49,6 +49,14 @@ static inline color_t color_invert (color_t color)
 	return !color;
 }
 
+static inline int is_color_invalid (color_t color)
+{
+	if (color == COLOR_WHITE || color == COLOR_BLACK)
+		return 0;
+
+	return 1;
+}
+
 char *piece_str (piece_t piece);
 
 #endif /* EVOLVE_CHESS_PIECE_H */
