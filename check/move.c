@@ -138,10 +138,15 @@ int move_parse (char *str, color_t who, move_t *move)
 	if (*p == 'x')
 		p++;
 
-	if (*p)
-		dst_col = char_to_col (*p++);
-	if (*p)
-		dst_row = char_to_row (*p++);
+	if (!*p)
+		return 0;
+
+	dst_col = char_to_col (*p++);
+
+	if (!*p)
+		return 0;
+
+	dst_row = char_to_row (*p++);
 
 	*move = move_create (src_row, src_col, dst_row, dst_col);
 
