@@ -19,15 +19,19 @@
 DEFINE_DEBUG_CHANNEL (search, 0);
 DEFINE_DEBUG_CHANNEL (quiesce, 1);
 
+#define MAX_DEPTH     5 /* temporarily low to catch a bug */
+
+#define SEARCH_TIME   15 /* seconds */
+
+static int              nodes_visited, cutoffs;
+static volatile int     signalled;
+
 int search (struct board *board, color_t side, int depth, int start_depth,
             move_t *ret, int alpha, int beta, unsigned long pseudo_rand,
             move_tree_t **ret_variation, int no_quiesce, 
 			move_tree_t *history);
 int quiesce (struct board *board, color_t side, int alpha, int beta, int depth, 
              move_tree_t *history);
-
-static int              nodes_visited, cutoffs;
-static volatile int     signalled;
 
 void print_tree_recur (move_tree_t *tree)
 {
@@ -72,7 +76,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 			move_tree_t *history) 
 {
 	int          score;
-	int          best   = -INFINITY;
+	int          best   = -INFINITY; /* make sure to select something */
 	move_list_t *moves;
 	move_tree_t *new_leaf;
 	move_t      *move;
@@ -123,7 +127,13 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 				score = quiesce (board, side, alpha, beta, 0, new_leaf);
 			else
 #endif
-				score = evaluate (board, side, 0, move);
+				score = evaluate (board, side, 0, move) +
+#if RANDOMNESS
+					-(RANDOMNESS / 2) + 
+					  (RANDOMNESS * 1.0 * rand() / (1.0+RAND_MAX));
+#else
+					0;
+#endif
 		}
 		else
 		{
@@ -137,11 +147,13 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 
 		move_tree_free (new_leaf);
 
-#if 0
-		if (score > best || (score == best && 
-			(pseudo_rand >> 16) > (pseudo_rand & 0xffff)))
+#if RANDOMNESS
+		if (score > best || best == -INFINITY)/* || (score == best && 
+							 (1.0 * rand()/ (RAND_MAX+1.0) < 1)))*/
+
+#else
+		if (score > best || best == -INFINITY)
 #endif
-		if (score > best)
 		{
 			best           = score;
 			best_move      = *move;
@@ -149,12 +161,11 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 			if (best_variation)
 				move_tree_destroy (best_variation);
 
-#if 0
+#if 0 /*RANDOMNESS*/
 			printf ("pseudo_rand >> 16 > pseudo_rand & 0xffff: %d\n",
 			        (pseudo_rand >> 16) > (pseudo_rand & 0xffff));
 #endif
 
-			pseudo_rand ^= (pseudo_rand << 7 | pseudo_rand >> 7);
 
 			best_variation = move_tree_new (new_variation, *move);
 		}
@@ -319,6 +330,10 @@ move_t iterate (struct board *board, color_t side,
 
 	gettimeofday (&start, NULL);
 
+#if RANDOMNESS
+	srand (start.tv_sec >> 10 ^ start.tv_usec);
+#endif
+
 	best_score = search (board, side, depth, depth, &best_move, 
 	                     -INFINITY, INFINITY, 
 	                     (start.tv_usec >> 16) | (start.tv_sec << 16),
@@ -349,6 +364,8 @@ move_t iterate (struct board *board, color_t side,
 
 void stop_search (int signum)
 {
+	/* TEMPORARY HACK: to see if it's really SIGALRM that's
+	 * causing no move to get selected */
 	signalled = 1;
 }
 
@@ -356,12 +373,12 @@ move_t find_best_move (struct board *board, color_t side,
                        move_tree_t *history)
 {
 	int d;
-	int max_depth = 12;
+	int max_depth = MAX_DEPTH;
 	move_t move, best_move;
 
 	signalled = 0;
 	signal (SIGALRM, stop_search);
-	alarm (10);
+	alarm (SEARCH_TIME);
 
 	/*
 	 * 2003-08-28: We should search by depths that are multiples
@@ -382,6 +399,12 @@ move_t find_best_move (struct board *board, color_t side,
 		{
 			printf ("exiting early with depth %d\n", d);
 			break;
+		}
+
+		if (is_null_move (move))
+		{
+			printf ("selected null move at depth %d\n", d);
+			abort ();
 		}
 
 		do_move (board, side, &move);
