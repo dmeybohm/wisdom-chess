@@ -14,6 +14,9 @@
 #include "game.h"
 #include "str.h"
 
+/* the color the computer is playing as */
+static color_t comp_player = COLOR_BLACK;
+
 static void print_available_moves (struct game *game)
 {
 	move_list_t *moves = NULL;
@@ -31,7 +34,7 @@ static void print_available_moves (struct game *game)
 	printf("\n\n");
 }
 
-static int read_move (struct game *game, int *good, int *skip, move_t *move)
+static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 {
 	char         buf[128];
 #if 0
@@ -39,6 +42,7 @@ static int read_move (struct game *game, int *good, int *skip, move_t *move)
 #endif
 	move_list_t *moves = NULL;
 	move_t      *mptr;
+	struct game *game  = *g_out;
 
 	printf ("move? ");
 	fflush (stdout);
@@ -61,6 +65,21 @@ static int read_move (struct game *game, int *good, int *skip, move_t *move)
 	{
 		game_save (game);
 		*skip = 1;
+		return 1;
+	}
+	else if (!strncmp (buf, "load", strlen ("load")))
+	{
+		struct game *new_game;
+
+		*skip = 1;
+
+		if (!(new_game = game_load (comp_player)))
+			return 1;
+
+		/* this breaks because we have a null move atop the history tree */
+		//game_free (game);
+
+		*g_out = new_game;
 		return 1;
 	}
 
@@ -112,9 +131,11 @@ int main (int argc, char **argv)
 	int           ok = 1, good;
 	int           skip;
 	move_t        move;
-	color_t       comp_player = COLOR_BLACK;
 
 	move_nullify (&move);
+
+	/* initialize computer to black */
+	comp_player = COLOR_BLACK;
 
 	game = game_new (COLOR_WHITE, comp_player);
 
@@ -132,7 +153,7 @@ int main (int argc, char **argv)
 		if (game->turn != game->player)
 		{
 			board_print (game->board);
-			ok = read_move (game, &good, &skip, &move);
+			ok = read_move (&game, &good, &skip, &move);
 		}
 		else
 		{
