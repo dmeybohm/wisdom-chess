@@ -6,8 +6,6 @@ ifdef OPTIMIZE
 #CFLAGS = -g -Wall
 #CFLAGS = -O6 -mcpu=i686 -march=i686 -fforce-addr -fomit-frame-pointer -funroll-loops -frerun-cse-after-loop -frerun-loop-opt -malign-functions=4
 CFLAGS = -g -Wall -O6 -funroll-loops -finline-functions -march=i686 -fomit-frame-pointer
-else
-CFLAGS += -pg -g3 -Wall
 endif
 
 ifdef USE_EFENCE
