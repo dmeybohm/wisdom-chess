@@ -1,0 +1,3 @@
+do sorting with qsort(), and then remove dupes in a single traversal
+Ok, pinning pieces is probably fixed (at a subsequent performance loss)
+Pinning pieces to the king is probably broken
