@@ -49,7 +49,6 @@ static move_list_t *move_list_alloc (void)
 		move_list_cache->len = 0;
 
 		new_moves = move_list_cache;
-
 		move_list_cache = NULL;
 
 		return new_moves;
