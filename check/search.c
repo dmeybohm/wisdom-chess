@@ -363,7 +363,18 @@ move_t find_best_move (struct board *board, color_t side,
 	signal (SIGALRM, stop_search);
 	alarm (10);
 
-	for (d = 1; d <= max_depth; d++)
+	/*
+	 * 2003-08-28: We should search by depths that are multiples
+	 * of two. This way, we won't artificially inflate a line
+	 * of play by not looking at the response (e.g. We see at
+	 * the end of a sequence we can take the opponents queen with
+	 * our own, we don't see that he can take back on the next move)
+	 *
+	 * The only exception is that we want to select SOME move quickly.
+	 * TODO: we should pick a random move instead if we don't
+	 * get a chance to look.
+	 */
+	for (d = 0; d <= max_depth; (d == 0 ? (d++) : (d += 2)))
 	{
 		move = iterate (board, side, history, d);
 
