@@ -201,7 +201,7 @@ int main (int argc, char **argv)
 			history = move_tree_new (history, move);
 		}
 		else if (ok)
-			printf("\nIllegal move\n\n");
+			printf("\nInvalid move\n\n");
 	}
 	while (ok);
 
