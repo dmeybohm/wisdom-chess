@@ -19,25 +19,25 @@ OBJ := generate.o move_list.o move.o piece.o search.o evaluate.o board.o \
 SRC := $(OBJ:.o=.c)
 DEP := $(OBJ:%.o=.%.d)
 
-HEADERS := $(wildcard *.h)
-
 chess: $(OBJ)
 	$(CC) $^ $(LDFLAGS) -o $@ 
 
 ctags:
-	ctags *.c *.h
+	ctags $(SRC)
 
 .%.d: %.c
-	./depend.sh $(CFLAGS) $*.c >$@
-
-ifneq ($(MAKECMDGOALS),clean)
-#include $(foreach dep,$(DEP),\
-#$(shell set -e; if [ ! -e $(dep) ]; then ./depend.sh $(dep:.%.d=%.c) >$(dep); fi ;  echo $(dep)))
-include $(DEP)
-endif
+	./depend.sh $*.c >$@
 
 clean:
 	rm -f $(OBJ) chess
 
 distclean: clean
-	rm -f $(DEP)
+	rm -f $(DEP) tags
+
+#
+# Include dependencies
+# The '-' in front of include skips it if the dep files do not exist
+#
+ifneq ($(findstring clean,$(MAKECMDGOALS)),clean)
+-include $(DEP)
+endif
