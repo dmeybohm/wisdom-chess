@@ -393,6 +393,17 @@ struct board *board_new ()
 	return new_board;
 }
 
+void board_free (struct board *board)
+{
+	if (!board)
+		return;
+
+	/* 
+	 * 2003-08-28: I forgot if this is all i need to free..
+	 */
+	free (board);
+}
+
 static void print_divider (FILE *file)
 {
 	int col;
