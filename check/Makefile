@@ -27,12 +27,14 @@ chess: $(OBJ)
 ctags:
 	ctags *.c *.h
 
-ifneq $(TARGET,clean)
-include $(DEP)
-endif
-
 .%.d: %.c
 	./depend.sh $(CFLAGS) $*.c >$@
+
+ifneq ($(MAKECMDGOALS),clean)
+#include $(foreach dep,$(DEP),\
+#$(shell set -e; if [ ! -e $(dep) ]; then ./depend.sh $(dep:.%.d=%.c) >$(dep); fi ;  echo $(dep)))
+include $(DEP)
+endif
 
 clean:
 	rm -f $(OBJ) chess
