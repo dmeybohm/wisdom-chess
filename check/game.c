@@ -88,12 +88,13 @@ int game_save (struct game *game)
 	FILE *out;
 	char buf[128];
 
-	if (!prompt ("save to what file", buf, sizeof (buf - 1)))
+	if (!prompt ("save to what file", buf, sizeof (buf) - 1))
 		return 0;
 
-	chomp (buf);
-
-	if (!(out = fopen (buf, "w+")))
+	/*
+	 * Kludgily use append mode to preserve files
+	 */
+	if (!(out = fopen (buf, "a+")))
 	{
 		printf ("error opening file: %s", strerror (errno));
 		return 0;
