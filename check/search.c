@@ -380,7 +380,6 @@ move_t find_best_move (struct board *board, color_t side,
 		best_move = move;
 	}
 
-
 	do_move (board, side, &best_move);
 	board_print (board);
 	undo_move (board, side, &best_move);
