@@ -1,15 +1,23 @@
+ifdef OPTIMIZE
 #CFLAGS = -g -Wall -O6 -funroll-loops -finline -march=i686
 #CFLAGS = -g -Wall
 #CFLAGS = -O6 -mcpu=i686 -march=i686 -fforce-addr -fomit-frame-pointer -funroll-loops -frerun-cse-after-loop -frerun-loop-opt -malign-functions=4
-#CFLAGS = -g -Wall -O6 -funroll-loops -finline-functions -march=i686 -fomit-frame-pointer
+CFLAGS = -g -Wall -O6 -funroll-loops -finline-functions -march=i686 -fomit-frame-pointer
+else
 CFLAGS = -g3 -Wall
-#LDFLAGS = -lefence
+endif
+
+ifdef USE_EFENCE
+LDFLAGS = -lefence
+endif
 
 .PHONY: ctags
 
-SRC := generate.c move_list.o move.o piece.o search.o evaluate.o board.o \
-      play.c check.o move.o piece.o debug.o move_tree.o
-OBJ := $(SRC:.c=.o)
+OBJ := generate.o move_list.o move.o piece.o search.o evaluate.o board.o \
+       play.o check.o move.o piece.o debug.o move_tree.o game.o
+
+SRC := $(OBJ:.o=.c)
+DEP := $(OBJ:%.o=.%.d)
 
 HEADERS := $(wildcard *.h)
 
@@ -19,10 +27,15 @@ chess: $(OBJ)
 ctags:
 	ctags *.c *.h
 
-include $(OBJ:.o=.d)
+ifneq $(TARGET,clean)
+include $(DEP)
+endif
 
-%.d: %.c
-	./depend.sh $(CFLAGS) $<  >$@
+.%.d: %.c
+	./depend.sh $(CFLAGS) $*.c >$@
 
 clean:
 	rm -f $(OBJ) chess
+
+distclean: clean
+	rm -f $(DEP)
