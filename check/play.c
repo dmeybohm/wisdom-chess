@@ -11,67 +11,27 @@
 #include "search.h"
 #include "piece.h"
 #include "check.h"
+#include "game.h"
+#include "str.h"
 
-static void chomp (char *str)
-{
-	if (str)
-		if (str[strlen(str)-1] == '\n')
-			str[strlen(str)-1] = 0;
-}
-
-static void save_game (struct board *board, color_t side, 
-                       move_tree_t *history)
-{
-	FILE *out;
-	static char buf[128];
-
-	printf ("save to what file? ");
-	fflush (stdout);
-
-	if (fgets (buf, sizeof (buf)-1, stdin) == NULL)
-		return;
-
-	chomp (buf);
-
-	if (!(out = fopen (buf, "w+")))
-	{
-		printf ("error opening file: %s", strerror (errno));
-		return;
-	}
-
-	while (!is_null_move (history->move))
-	{
-		fprintf (out, "%s\n", move_str (history->move));
-		history = history->parent;
-	}
-
-	fclose (out);
-}
-
-#if 0
-static void load_game (struct board **r_board, color_t *r_side, 
-                       move_tree_t *history)
-{
-}
-#endif
-
-static void print_available_moves (struct board *board, color_t side, 
-                                   move_tree_t *history)
+static void print_available_moves (struct game *game)
 {
 	move_list_t *moves = NULL;
 	move_t      *mptr;
 
-	moves = generate_legal_moves (board, side, history);
+	moves = generate_legal_moves (game->board, game->turn, game->history);
 
 	printf ("\nAvailable moves: ");
+
 	for_each_move (mptr, moves)
 		printf ("[%s] ", move_str (*mptr));
+
+	move_list_destroy (moves);
 
 	printf("\n\n");
 }
 
-static int read_move (struct board *board, color_t side, 
-                      move_tree_t *history, int *good, int *skip, move_t *move)
+static int read_move (struct game *game, int *good, int *skip, move_t *move)
 {
 	char         buf[128];
 #if 0
@@ -93,13 +53,13 @@ static int read_move (struct board *board, color_t side,
 
 	if (!strncmp (buf, "moves", strlen ("moves")))
 	{
-		print_available_moves (board, side, history);
+		print_available_moves (game);
 		*skip = 1;
 		return 1;
 	}
 	else if (!strncmp (buf, "save", strlen ("save")))
 	{
-		save_game (board, side, history);
+		game_save (game);
 		*skip = 1;
 		return 1;
 	}
@@ -129,13 +89,13 @@ static int read_move (struct board *board, color_t side,
 	}
 
 #endif
-	if (!move_parse (buf, side, move))
+	if (!move_parse (buf, game->turn, move))
 		move_nullify (move);
 
 	*good = 0;
 
 	/* check the generated move list for this move to see if its valid */
-	moves = generate_legal_moves (board, side, history);
+	moves = generate_legal_moves (game->board, game->turn, game->history);
 
 	for_each_move (mptr, moves)
 		if (move_equal (mptr, move))
@@ -148,39 +108,36 @@ static int read_move (struct board *board, color_t side,
 
 int main (int argc, char **argv)
 {
-	struct board *board;
-	int           ok, good;
-	int           turn, skip;
-	color_t       side = COLOR_WHITE;
-	move_tree_t  *history;
+	struct game  *game;
+	int           ok = 1, good;
+	int           skip;
 	move_t        move;
+	color_t       comp_player = COLOR_BLACK;
 
 	move_nullify (&move);
 
-	history = move_tree_new (NULL, move);
+	game = game_new (COLOR_WHITE, comp_player);
 
-	board   = board_new ();
-
-	turn = 0;
-	do
+	while (ok)
 	{
 		skip = 0;
-		if (is_checkmated (board, side))
+
+		if (is_checkmated (game->board, game->turn))
 		{
-			printf ("%s wins the game\n", side == COLOR_WHITE ? "Black" : 
+			printf ("%s wins the game\n", game->turn == COLOR_WHITE ? "Black" : 
 			        "White");
 			return 0;
 		}
 
-		if (!turn)
+		if (game->turn != game->player)
 		{
-			board_print (board);
-			ok = read_move (board, side, history, &good, &skip, &move);
+			board_print (game->board);
+			ok = read_move (game, &good, &skip, &move);
 		}
 		else
 		{
-			board_print (board);
-			move = find_best_move (board, side, history);
+			board_print (game->board);
+			move = find_best_move (game->board, game->player, game->history);
 
 			printf ("move selected: [%s]\n", move_str (move));
 			good = 1;
@@ -191,19 +148,10 @@ int main (int argc, char **argv)
 			continue;
 
 		if (good)
-		{
-			do_move (board, side, &move);
-
-			side = !side;
-			turn = !turn;
-
-			/* TODO: make do_move call move_tree_new() */
-			history = move_tree_new (history, move);
-		}
+			game_move (game, &move);
 		else if (ok)
 			printf("\nInvalid move\n\n");
 	}
-	while (ok);
 
 	return 0;
 }
