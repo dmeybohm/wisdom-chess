@@ -59,4 +59,20 @@ static inline int is_color_invalid (color_t color)
 
 char *piece_str (piece_t piece);
 
+static inline char piece_chr (piece_t piece)
+{
+	enum piece p = PIECE_TYPE(piece);
+
+	switch (p)
+	{
+	case PIECE_KING:   return 'K';
+	case PIECE_QUEEN:  return 'Q';
+	case PIECE_ROOK:   return 'R';
+	case PIECE_BISHOP: return 'B';
+	case PIECE_KNIGHT: return 'N';
+	case PIECE_PAWN:   return 'p';
+	default:           return '?';
+	}
+}
+
 #endif /* EVOLVE_CHESS_PIECE_H */
