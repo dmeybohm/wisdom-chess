@@ -393,14 +393,28 @@ struct board *board_new ()
 	return new_board;
 }
 
+static void print_divider (FILE *file)
+{
+	int col;
+	int i;
+
+	fprintf (file, " ");
+
+	for (col = 0; col < BOARD_LENGTH; col += 4)
+	{
+		for (i = 0; i < 3; i++)
+			putc ('-', file);
+		putc (' ', file);
+	}
+
+	fprintf (file, "\n");
+}
+
 void board_print_to_file (struct board *board, FILE *file)
 {
 	int row, col;
 
-	fprintf (file, " ");
-	for (row = 0; row < BOARD_LENGTH; row++)
-		fprintf (file, "-");
-	fprintf (file, "\n");
+	print_divider (file);
 
 	for (row = 0; row < NR_ROWS; row++)
 	{
@@ -437,13 +451,9 @@ void board_print_to_file (struct board *board, FILE *file)
 		}
 
 		fprintf (file, "\n");
+
+		print_divider (file);
 	}
-
-	fprintf (file, " ");
-	for (row = 0; row < BOARD_LENGTH; row++)
-		fprintf (file, "-");
-	fprintf (file, "\n");
-
 }
 
 void board_print (struct board *board)
