@@ -92,6 +92,8 @@ static inline int is_pawn_unmoved (struct board *board,
 /**************************************/
 
 struct board *board_new       (void);
+void          board_free      (struct board *board);
+
 void          board_print     (struct board *board);
 void          board_print_err (struct board *board);
 
