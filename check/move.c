@@ -97,6 +97,14 @@ static int castle_parse (char *str, color_t who, move_t *move)
 	return 1;
 }
 
+static char *skip_whitespace (char *p)
+{
+	while (*p == ' ' || *p == '\t')
+		p++;
+
+	return p;
+}
+
 int move_parse (char *str, color_t who, move_t *move)
 {
 	int         src_row, src_col;
@@ -115,26 +123,29 @@ int move_parse (char *str, color_t who, move_t *move)
 	if (strlen (str) < 4)
 		return 0;
 
-	p = str;
+	/* allow any number of spaces/tabs before the two coordinates */
+	p = skip_whitespace (str);
 
 	/* convert between row/col and coordinate */
 	src_col = char_to_col (*p++);
 	src_row = char_to_row (*p++);
 
 	/* allow any number of spaces/tabs between the two coordinates */
-	while (*p == ' ' || *p == '\t')
-		p++;
+	p = skip_whitespace (p);
 
 	/* allow an 'x' between coordinates, which is used to indicate a capture
 	 * TODO: we should set some bit on the move that it is a capture */
 	if (*p == 'x')
 		p++;
 
-	dst_col = char_to_col (*p++);
-	dst_row = char_to_row (*p++);
+	if (*p)
+		dst_col = char_to_col (*p++);
+	if (*p)
+		dst_row = char_to_row (*p++);
 
 	*move = move_create (src_row, src_col, dst_row, dst_col);
 
+	/* grab extra identifiers describing the move */
 	while ((tok = strtok (p, " \n\t")))
 	{
 		/* strtok's weird parameter passing convention */
@@ -157,9 +168,6 @@ int move_parse (char *str, color_t who, move_t *move)
 
 	if (en_passant)
 		move_set_en_passant (move);
-
-	if (strtok (NULL, " \n\t"))
-		return 0;
 
 	return 1;
 }
