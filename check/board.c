@@ -399,7 +399,7 @@ void board_free (struct board *board)
 		return;
 
 	/* 
-	 * 2003-08-28: I forgot if this is all i need to free..
+	 * 2003-08-30: I have forgotten if this is all that needs freeing..
 	 */
 	free (board);
 }
@@ -483,9 +483,9 @@ void check (void)
 	enum color c; 
 	enum piece p;
 
-	for (c = COLOR_WHITE; c <= COLOR_BLACK; c++)
+	for_each_color (c)
 	{
-		for (p = PIECE_NONE; p < PIECE_LAST; p++)
+		for_each_piece (p)
 		{
 			assert (PIECE_COLOR (MAKE_PIECE (c, p)) == c);
 			assert (PIECE_TYPE (MAKE_PIECE (c, p)) == p);

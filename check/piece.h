@@ -75,4 +75,10 @@ static inline char piece_chr (piece_t piece)
 	}
 }
 
+#define for_each_color(c) \
+	for (c = COLOR_WHITE; c <= COLOR_BLACK; c++)
+
+#define for_each_piece(p) \
+	for (p = PIECE_NONE; p < PIECE_LAST; p++)
+
 #endif /* EVOLVE_CHESS_PIECE_H */
