@@ -6,6 +6,7 @@
 #include "board.h"
 #include "move.h"
 #include "piece.h"
+#include "material.h"
 #include "debug.h"
 
 /* board length in characters */
@@ -15,7 +16,7 @@ DEFINE_DEBUG_CHANNEL (board, 0);
 
 static inline void set_piece (struct board *board, coord_t place, piece_t piece)
 {
-	board->board[ROW (place)][COLUMN (place)] = piece;
+	board->board[ROW(place)][COLUMN(place)] = piece;
 }
 
 void handle_en_passant (struct board *board, color_t who, move_t *move, 
@@ -188,21 +189,46 @@ void update_king_position (struct board *board, color_t who, move_t *move,
 	}
 }
 
-void update_rook_position (struct board *board, color_t who, move_t *move,
-                           coord_t src, coord_t dst, int undo)
+static void update_rook_position (struct board *board, color_t who, 
+								  move_t *move, coord_t src, coord_t dst, 
+								  int undo)
 {
-	if (undo)
+	enum castle castle_state;
+
+	/* 
+	 * Ugh, this needs to distinguish between captures that end
+	 * up on the rook and moves from the rook itself.
+	 */
+	if (!is_capture_move (move))
 	{
+		if (COLUMN(src) == 0)
+			castle_state = CASTLE_QUEENSIDE;
+		else
+			castle_state = CASTLE_KINGSIDE;
 	}
 	else
 	{
-		/* XXX: determine which rook this is */
-		if (able_to_castle (board, who, CASTLE_KINGSIDE | CASTLE_QUEENSIDE))
-		{
-			/* set unable to castle */
-			board->castled[who] = CASTLE_KINGSIDE | CASTLE_QUEENSIDE;
-		}
+		if (COLUMN(dst) == 0)
+			castle_state = CASTLE_QUEENSIDE;
+		else
+			castle_state = CASTLE_KINGSIDE;
+	}
 
+	if (undo)
+	{
+		/* need to put castle status back...its saved in the move
+		 * from do_move()... */
+	}
+	else
+	{
+		/* 
+		 * Set inability to castle on one side. Note that
+		 * CASTLE_QUEENSIDE/KINGSIDE are _negative_ flags, indicating the
+		 * player cannot castle.  This is a bit confusing, not sure why i did
+		 * this.
+		 */
+		if (able_to_castle (board, who, castle_state))
+			board->castled[who] |= castle_state;
 	}
 }
 
@@ -268,9 +294,15 @@ void do_move (struct board *board, color_t who, move_t *move)
 	if (PIECE_TYPE (src_piece) == PIECE_ROOK)
 		update_rook_position (board, who, move, src, dst, 0);
 
-	/* also update if somebody takes the rook */
-	if (is_capture_move (move) && PIECE_TYPE (dst_piece) == PIECE_ROOK)
-		update_rook_position (board, color_invert (who), move, src, dst, 0);
+	if (is_capture_move (move))
+	{
+		/* update material estimate */
+		material_del (board->material, dst_piece);
+
+		/* update castle state if somebody takes the rook */
+		if (PIECE_TYPE (dst_piece) == PIECE_ROOK)
+			update_rook_position (board, color_invert (who), move, src, dst, 0);
+	}
 }
 
 void undo_move (struct board *board, color_t who, move_t *move)
@@ -316,8 +348,13 @@ void undo_move (struct board *board, color_t who, move_t *move)
 	if (PIECE_TYPE (src_piece) == PIECE_ROOK)
 		update_rook_position (board, who, move, src, dst, 1);
 
-	if (is_capture_move (move) && PIECE_TYPE (dst_piece) == PIECE_ROOK)
-		update_rook_position (board, color_invert (who), move, src, dst, 1);
+	if (is_capture_move (move))
+	{
+		material_add (board->material, dst_piece);
+
+		if (PIECE_TYPE (dst_piece) == PIECE_ROOK)
+			update_rook_position (board, color_invert (who), move, src, dst, 1);
+	}
 
 	if (unlikely (is_en_passant_move (move)))
 	{
@@ -367,6 +404,9 @@ struct board *board_new ()
 	assert (new_board);
 	memset (new_board, 0, sizeof (struct board));
 
+	new_board->material = material_new ();
+	assert (new_board->material != NULL);
+
 	for (ptr = init_board; ptr->pieces; ptr++)
 	{
 		piece_t *pptr;
@@ -375,10 +415,13 @@ struct board *board_new ()
 
 		for (pptr = ptr->pieces; *pptr != PIECE_LAST; pptr++)
 		{
-			int col = pptr - ptr->pieces;
+			int     col       = pptr - ptr->pieces;
+			piece_t new_piece;
 
-			set_piece (new_board, coord_create (row, col), 
-			                      MAKE_PIECE (color, *pptr));
+			new_piece = MAKE_PIECE (color, *pptr);
+
+			set_piece (new_board, coord_create (row, col), new_piece);
+			material_add (new_board->material, new_piece);
 
 			if (PIECE_TYPE (*pptr) == PIECE_KING)
 			{
@@ -397,6 +440,8 @@ void board_free (struct board *board)
 {
 	if (!board)
 		return;
+
+	material_free (board->material);
 
 	/* 
 	 * 2003-08-30: I have forgotten if this is all that needs freeing..

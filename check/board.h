@@ -25,15 +25,20 @@
 
 /**************************************/
 
+struct material;
+
 struct board
 {
-	piece_t      board[NR_ROWS][NR_COLUMNS];
+	piece_t            board[NR_ROWS][NR_COLUMNS];
 
 	/* positions of the kings */
-	coord_t      king_pos[NR_PLAYERS];
+	coord_t            king_pos[NR_PLAYERS];
 
 	/* castle state of the board */
-	enum castle  castled[NR_PLAYERS];
+	enum castle        castled[NR_PLAYERS];
+
+	/* keep track of the material on the board */
+	struct material   *material;
 };
 
 /**************************************/
@@ -67,8 +72,15 @@ static inline int need_pawn_promotion (unsigned char row, color_t who)
 static inline int able_to_castle (struct board *board, color_t who,
                                   enum castle castle_type)
 {
-	return board->castled[who] != CASTLE_CASTLED && 
-	       (board->castled[who] & castle_type) == 0;
+	int didnt_castle;
+	int neg_not_set;
+
+	didnt_castle = !!(board->castled[who] != CASTLE_CASTLED);
+	neg_not_set  = !!(((~board->castled[who]) & castle_type) != 0);
+
+	return didnt_castle && neg_not_set;
+	//board->castled[who] != CASTLE_CASTLED && 
+	//      (board->castled[who] & castle_type) == 0;
 }
 
 static inline int may_do_en_passant (unsigned char row, color_t who)
