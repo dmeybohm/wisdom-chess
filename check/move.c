@@ -131,15 +131,15 @@ int move_parse (char *str, color_t who, move_t *move)
 		p++;
 
 	dst_col = char_to_col (*p++);
-	dst_row = char_to_row (*p);
-
-	/* now we search for promotion manuevers */
-	tok = strtok (p, " \n\t");
+	dst_row = char_to_row (*p++);
 
 	*move = move_create (src_row, src_col, dst_row, dst_col);
 
-	while ((tok = strtok (NULL, " \n\t")))
+	while ((tok = strtok (p, " \n\t")))
 	{
+		/* strtok's weird parameter passing convention */
+		p = NULL;
+
 		if (!strcasecmp (tok, "ep"))
 			en_passant = 1;
 		else if (!strcasecmp (tok, "(Q)"))
