@@ -8,6 +8,6 @@ void chomp (char *str)
 		size_t len = strlen (str);
 
 		if (str[len-1] == '\n')
-			str[len] = 0;
+			str[len-1] = 0;
 	}
 }
