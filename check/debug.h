@@ -32,8 +32,8 @@ struct debug_channel CHANNEL_NAME(name) = \
 #define DBG(channel, fmt, args...)
 #endif /* DEBUG */
 
-void debug_print (struct debug_channel *channel, char *func, int line, 
-                  char *fmt, ...)
+void debug_print (struct debug_channel *channel, const char *func, int line,
+                  const char *fmt, ...)
 	__attribute__ ((format (printf, 4, 5)));
 
 void debug_multi_line_start (struct debug_channel *channel);

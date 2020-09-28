@@ -476,11 +476,10 @@ move_list_t *generate_legal_moves (struct board *board, color_t who,
 	{
 		do_move (board, who, mptr);
 
-		if (!is_king_threatened (board, who, ROW (board->king_pos[who]),
-		                                     COLUMN (board->king_pos[who])))
-		{
-			non_checks = move_list_append_move (non_checks, *mptr);
-		}
+        if (was_legal_move (board, who, mptr))
+        {
+            non_checks = move_list_append_move (non_checks, *mptr);
+        }
 
 		undo_move (board, who, mptr);
 	}

@@ -5,8 +5,8 @@
 
 static FILE *outputf;
 
-void debug_print (struct debug_channel *channel, char *func,
-                  int line, char *fmt, ...)
+void debug_print (struct debug_channel *channel, const char *func,
+                  int line, const char *fmt, ...)
 {
 	va_list args;
 

@@ -29,7 +29,7 @@ DEFINE_DEBUG_CHANNEL (quiesce, 1);
 #endif
 
 static int              nodes_visited, cutoffs;
-static struct timeval   last_time;
+static struct timeval   overdue_time;
 
 int search (struct board *board, color_t side, int depth, int start_depth,
             move_t *ret, int alpha, int beta, unsigned long pseudo_rand,
@@ -237,7 +237,7 @@ int quiesce (struct board *board, color_t side, int alpha, int beta, int depth,
 	if (!captures)
 	{
 		printf ("null captures, history:");
-		print_tree (history);
+		move_list_print (history);
 		return evaluate (board, side);
 	}
 
@@ -374,7 +374,7 @@ move_t find_best_move (struct board *board, color_t side,
 	int max_depth = MAX_DEPTH;
 	move_t move, best_move;
 
-	if (gettimeofday (&last_time, NULL) == -1)
+	if (gettimeofday (&overdue_time, NULL) == -1)
 	{
 	    perror("gettimeofday");
 	    exit(1);
@@ -436,7 +436,7 @@ int is_overdue()
 
     if (overdue_calls == 0)
     {
-        if (gettimeofday (&last_time, NULL) == -1)
+        if (gettimeofday (&overdue_time, NULL) == -1)
         {
             perror("gettimeofday");
             exit(1);
@@ -454,7 +454,7 @@ int is_overdue()
         exit(1);
     }
 
-    double diff = difftime(this_time.tv_sec, last_time.tv_sec);
+    double diff = difftime(this_time.tv_sec, overdue_time.tv_sec);
 
     if (diff >= SEARCH_TIME)
     {

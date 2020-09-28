@@ -121,6 +121,12 @@ static inline int is_castling_move (move_t *move)
 	return move->promoted & (0x1 << (PIECE_SHIFT+1));
 }
 
+static inline int is_castling_move_on_king_side (move_t *move)
+{
+	coord_t coord = COLUMN (MOVE_DST (*move));
+	return is_castling_move(move) && COLUMN (coord) >= 6;
+}
+
 static inline move_t move_promote (move_t move, piece_t piece)
 {
 	move.promoted = (move.promoted & ~PIECE_MASK) | piece;

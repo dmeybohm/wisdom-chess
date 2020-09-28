@@ -25,7 +25,7 @@ ifdef RANDOMNESS
 CFLAGS += -DRANDOMNESS=$(RANDOMNESS)
 endif
 
-.PHONY: ctags all
+.PHONY: ctags all tests
 
 OBJ := generate.o move_list.o move.o piece.o search.o evaluate.o board.o \
        play.o check.o move.o piece.o debug.o move_tree.o game.o str.o \
