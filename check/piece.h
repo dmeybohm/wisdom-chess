@@ -7,30 +7,30 @@ typedef unsigned char   color_t;
 
 enum piece
 {
-	PIECE_NONE   = 0,
-	PIECE_KING   = 1,
-	PIECE_QUEEN  = 2,
-	PIECE_ROOK   = 3,
-	PIECE_BISHOP = 4,
-	PIECE_KNIGHT = 5,
-	PIECE_PAWN   = 6,
-	PIECE_LAST   = 7,
+	PIECE_NONE   = 0U,
+	PIECE_KING   = 1U,
+	PIECE_QUEEN  = 2U,
+	PIECE_ROOK   = 3U,
+	PIECE_BISHOP = 4U,
+	PIECE_KNIGHT = 5U,
+	PIECE_PAWN   = 6U,
+	PIECE_LAST   = 7U,
 };
 
 enum color
 {
-	COLOR_WHITE = 0,
-	COLOR_BLACK = 1,
-	COLOR_LAST  = 2,
-	COLOR_NONE  = 3,
+	COLOR_WHITE = 0U,
+	COLOR_BLACK = 1U,
+	COLOR_LAST  = 2U,
+	COLOR_NONE  = 3U,
 };
 
 /* 3 bits for type of piece */
-#define PIECE_TYPE_MASK    (0x08-1)
+#define PIECE_TYPE_MASK    (0x08U-1)
 
 /* 2 bits for color */
-#define PIECE_COLOR_MASK   (0x18)
-#define PIECE_COLOR_SHIFT  (3)
+#define PIECE_COLOR_MASK   (0x18U)
+#define PIECE_COLOR_SHIFT  (3U)
 
 #define PIECE_COLOR(piece) \
 	(((piece) & PIECE_COLOR_MASK) >> PIECE_COLOR_SHIFT)
@@ -39,7 +39,7 @@ enum color
 	((piece) & PIECE_TYPE_MASK)
 
 #define PIECE_SHIFT     (5)
-#define PIECE_MASK      (0x1f)
+#define PIECE_MASK      (0x1fU)
 
 #define MAKE_PIECE(color, type) \
 	(((color) << PIECE_COLOR_SHIFT) | ((type) & PIECE_TYPE_MASK))
