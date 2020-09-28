@@ -191,6 +191,9 @@ int was_legal_move (struct board *board, color_t who, move_t *mv)
 
 	    int castled_row = ROW (castled_pos);
 	    int castled_col = COLUMN (castled_pos);
+	    assert (ROW (board->king_pos[who]) == castled_row);
+	    assert (COLUMN (board->king_pos[who]) == castled_col);
+
         int direction = is_castling_move_on_king_side(mv) ? -1 : 1;
 
         if (is_king_threatened (board, who, castled_row, castled_col + direction) ||
