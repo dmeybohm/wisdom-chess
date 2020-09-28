@@ -27,6 +27,7 @@ void debug_print (struct debug_channel *channel, char *func,
 	vfprintf (outputf, fmt, args);
 
 	va_end (args);
+	fflush (outputf);
 }
 
 void debug_multi_line_start (struct debug_channel *channel)

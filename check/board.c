@@ -510,6 +510,8 @@ void board_print_to_file (struct board *board, FILE *file)
 
 		print_divider (file);
 	}
+
+	fflush (file);
 }
 
 void board_print (struct board *board)

@@ -19,16 +19,17 @@
 DEFINE_DEBUG_CHANNEL (search, 0);
 DEFINE_DEBUG_CHANNEL (quiesce, 1);
 
-#define MAX_DEPTH     5 /* temporarily low to catch a bug */
+#define MAX_DEPTH               6
 
-#define SEARCH_TIME   15 /* seconds */
+#define SEARCH_TIME             10.0    /* seconds */
+#define SEARCH_CHECK_COUNT      50000    /* number of iterations before checking */
 
 #ifndef RANDOMNESS
 #define RANDOMNESS    0
 #endif
 
 static int              nodes_visited, cutoffs;
-static volatile int     signalled;
+static struct timeval   last_time;
 
 int search (struct board *board, color_t side, int depth, int start_depth,
             move_t *ret, int alpha, int beta, unsigned long pseudo_rand,
@@ -100,7 +101,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 
 	for_each_move (move, moves)
 	{
-		if (signalled)
+		if (is_overdue())
 		{
 			if (best_variation)
 			{
@@ -206,7 +207,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 	if (unlikely (depth == start_depth))
 	{
 		move_nullify (ret);
-		if (!signalled)
+		if (!is_overdue())
 			*ret = best_move;
 #if 0
 		print_tree (history, &best_move, best);
@@ -366,13 +367,6 @@ move_t iterate (struct board *board, color_t side,
 	return best_move;
 }
 
-void stop_search (int signum)
-{
-	/* TEMPORARY HACK: to see if it's really SIGALRM that's
-	 * causing no move to get selected */
-	signalled = 1;
-}
-
 move_t find_best_move (struct board *board, color_t side,
                        move_tree_t *history)
 {
@@ -380,9 +374,10 @@ move_t find_best_move (struct board *board, color_t side,
 	int max_depth = MAX_DEPTH;
 	move_t move, best_move;
 
-	signalled = 0;
-	signal (SIGALRM, stop_search);
-	alarm (SEARCH_TIME);
+	if (gettimeofday (&last_time, NULL) == -1) {
+	    perror("gettimeofday");
+	    exit(1);
+	}
 
 	/*
 	 * 2003-08-28: We should search by depths that are multiples
@@ -399,7 +394,7 @@ move_t find_best_move (struct board *board, color_t side,
 	{
 		move = iterate (board, side, history, d);
 
-		if (signalled)
+		if (is_overdue())
 		{
 			printf ("exiting early with depth %d\n", d);
 			break;
@@ -425,4 +420,40 @@ move_t find_best_move (struct board *board, color_t side,
 	return best_move;
 }
 
+int is_overdue()
+{
+    static int overdue_calls = 0;
+    struct timeval this_time;
+
+    if (overdue_calls == 0) {
+        if (gettimeofday (&last_time, NULL) == -1) {
+            perror("gettimeofday");
+            exit(1);
+        }
+//        printf ("loading gettimeofday: %ld\n", (long)last_time.tv_sec);
+    }
+
+    if (++overdue_calls % SEARCH_CHECK_COUNT != 0) {
+        return 0;
+    }
+//    printf("overdue_calls: %d\n", overdue_calls);
+    if (gettimeofday (&this_time, NULL) == -1) {
+        perror("gettimeofday");
+        exit(1);
+    }
+
+//    printf ("this_time.tv_sec: %ld\n", (long)this_time.tv_sec);
+//    printf ("last_time.tv_sec: %ld\n", (long)last_time.tv_sec);
+//
+    double diff = difftime(this_time.tv_sec, last_time.tv_sec);
+
+//    printf ("is_overdue: %f\n", (float)diff);
+
+    if (diff >= SEARCH_TIME) {
+        return 1;
+    } else {
+        return 0;
+    }
+
+}
 /* vi: set ts=4 sw=4: */

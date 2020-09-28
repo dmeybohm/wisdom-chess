@@ -34,6 +34,8 @@ OBJ := generate.o move_list.o move.o piece.o search.o evaluate.o board.o \
 SRC := $(OBJ:.o=.c)
 DEP := $(OBJ:%.o=.%.d)
 
+all: chess
+
 chess: $(OBJ)
 	$(CC) $^ $(LDFLAGS) -o $@ 
 
