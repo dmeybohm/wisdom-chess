@@ -374,7 +374,8 @@ move_t find_best_move (struct board *board, color_t side,
 	int max_depth = MAX_DEPTH;
 	move_t move, best_move;
 
-	if (gettimeofday (&last_time, NULL) == -1) {
+	if (gettimeofday (&last_time, NULL) == -1)
+	{
 	    perror("gettimeofday");
 	    exit(1);
 	}
@@ -402,8 +403,9 @@ move_t find_best_move (struct board *board, color_t side,
 
 		if (is_null_move (move))
 		{
-			printf ("selected null move at depth %d\n", d);
-			abort ();
+		    // I think this can probably happen if we run out of time at just the right time.
+		    printf("Next best move is null move. Terminating.");
+		    break;
 		}
 
 		do_move (board, side, &move);
@@ -412,6 +414,13 @@ move_t find_best_move (struct board *board, color_t side,
 
 		best_move = move;
 	}
+
+    if (is_null_move (best_move))
+    {
+        // TODO: select random move in this case.
+        printf ("best selected null move at depth %d\n", d);
+        abort ();
+    }
 
 	do_move (board, side, &best_move);
 	board_print (board);
@@ -425,35 +434,35 @@ int is_overdue()
     static int overdue_calls = 0;
     struct timeval this_time;
 
-    if (overdue_calls == 0) {
-        if (gettimeofday (&last_time, NULL) == -1) {
+    if (overdue_calls == 0)
+    {
+        if (gettimeofday (&last_time, NULL) == -1)
+        {
             perror("gettimeofday");
             exit(1);
         }
-//        printf ("loading gettimeofday: %ld\n", (long)last_time.tv_sec);
     }
 
-    if (++overdue_calls % SEARCH_CHECK_COUNT != 0) {
+    if (++overdue_calls % SEARCH_CHECK_COUNT != 0)
+    {
         return 0;
     }
-//    printf("overdue_calls: %d\n", overdue_calls);
-    if (gettimeofday (&this_time, NULL) == -1) {
+
+    if (gettimeofday (&this_time, NULL) == -1)
+    {
         perror("gettimeofday");
         exit(1);
     }
 
-//    printf ("this_time.tv_sec: %ld\n", (long)this_time.tv_sec);
-//    printf ("last_time.tv_sec: %ld\n", (long)last_time.tv_sec);
-//
     double diff = difftime(this_time.tv_sec, last_time.tv_sec);
 
-//    printf ("is_overdue: %f\n", (float)diff);
-
-    if (diff >= SEARCH_TIME) {
+    if (diff >= SEARCH_TIME)
+    {
         return 1;
-    } else {
+    }
+    else
+    {
         return 0;
     }
-
 }
 /* vi: set ts=4 sw=4: */
