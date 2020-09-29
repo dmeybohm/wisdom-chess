@@ -15,13 +15,14 @@
 #include "move_tree.h"
 #include "debug.h"
 #include "search.h"
+#include "timer.h"
 
 DEFINE_DEBUG_CHANNEL (search, 0);
 DEFINE_DEBUG_CHANNEL (quiesce, 1);
 
 #define MAX_DEPTH               6
 
-#define SEARCH_TIME             10.0    /* seconds */
+#define MAX_SEARCH_SECONDS      10.0    /* seconds */
 #define SEARCH_CHECK_COUNT      50000    /* number of iterations before checking */
 
 #ifndef RANDOMNESS
@@ -30,6 +31,7 @@ DEFINE_DEBUG_CHANNEL (quiesce, 1);
 
 static int              nodes_visited, cutoffs;
 static struct timeval   overdue_time;
+static struct timer     overdue_timer;
 
 int search (struct board *board, color_t side, int depth, int start_depth,
             move_t *ret, int alpha, int beta, unsigned long pseudo_rand,
@@ -101,7 +103,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 
 	for_each_move (move, moves)
 	{
-		if (is_overdue())
+		if (timer_is_triggered (&overdue_timer))
 		{
 			if (best_variation)
 			{
@@ -207,7 +209,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 	if (unlikely (depth == start_depth))
 	{
 		move_nullify (ret);
-		if (!is_overdue())
+		if (!timer_is_triggered (&overdue_timer))
 			*ret = best_move;
 #if 0
 		print_tree (history, &best_move, best);
@@ -374,11 +376,7 @@ move_t find_best_move (struct board *board, color_t side,
 	int max_depth = MAX_DEPTH;
 	move_t move, best_move;
 
-	if (gettimeofday (&overdue_time, NULL) == -1)
-	{
-	    perror("gettimeofday");
-	    exit(1);
-	}
+	timer_init (&overdue_timer, MAX_SEARCH_SECONDS);
 
 	/*
 	 * 2003-08-28: We should search by depths that are multiples
@@ -395,7 +393,7 @@ move_t find_best_move (struct board *board, color_t side,
 	{
 		move = iterate (board, side, history, d);
 
-		if (is_overdue())
+		if (timer_is_triggered (&overdue_timer))
 		{
 			printf ("exiting early with depth %d\n", d);
 			break;
@@ -429,40 +427,4 @@ move_t find_best_move (struct board *board, color_t side,
 	return best_move;
 }
 
-int is_overdue()
-{
-    static int overdue_calls = 0;
-    struct timeval this_time;
-
-    if (overdue_calls == 0)
-    {
-        if (gettimeofday (&overdue_time, NULL) == -1)
-        {
-            perror("gettimeofday");
-            exit(1);
-        }
-    }
-
-    if (++overdue_calls % SEARCH_CHECK_COUNT != 0)
-    {
-        return 0;
-    }
-
-    if (gettimeofday (&this_time, NULL) == -1)
-    {
-        perror("gettimeofday");
-        exit(1);
-    }
-
-    double diff = difftime(this_time.tv_sec, overdue_time.tv_sec);
-
-    if (diff >= SEARCH_TIME)
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
 /* vi: set ts=4 sw=4: */
