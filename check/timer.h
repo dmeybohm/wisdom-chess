@@ -18,8 +18,6 @@ struct timer
 
 void timer_init (struct timer *timer, int seconds);
 
-void timer_reset (struct timer *timer);
-
 bool timer_is_triggered (struct timer *timer);
 
 #endif //CHECK_TIMER_H

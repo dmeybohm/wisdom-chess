@@ -20,7 +20,7 @@
 DEFINE_DEBUG_CHANNEL (search, 0);
 DEFINE_DEBUG_CHANNEL (quiesce, 1);
 
-#define MAX_DEPTH               6
+#define MAX_DEPTH               16
 
 #define MAX_SEARCH_SECONDS      10.0    /* seconds */
 #define SEARCH_CHECK_COUNT      50000    /* number of iterations before checking */
