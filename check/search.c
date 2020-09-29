@@ -30,7 +30,6 @@ DEFINE_DEBUG_CHANNEL (quiesce, 1);
 #endif
 
 static int              nodes_visited, cutoffs;
-static struct timeval   overdue_time;
 static struct timer     overdue_timer;
 
 int search (struct board *board, color_t side, int depth, int start_depth,
