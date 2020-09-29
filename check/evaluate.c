@@ -7,7 +7,6 @@
 #include "check.h"
 #include "search.h"
 #include "material.h"
-
 #include "debug.h"
 
 DEFINE_DEBUG_CHANNEL (evaluate, 0);
@@ -131,6 +130,21 @@ int evaluate (struct board *board, color_t who, int examine_checkmate,
 #endif
 
 	return score;
+}
+
+/* stupid piece player
+ * this could be improved by just keeping the piece count in the board */
+int evaluate_and_check_draw (struct board *board, color_t who, int examine_checkmate,
+              move_t *move, move_tree_t *history)
+{
+    if (is_drawing_move (history, move))
+    {
+        return 0;
+    }
+    else
+    {
+        return evaluate (board, who, examine_checkmate, move);
+    }
 }
 
 /* vi: set ts=4 sw=4: */

@@ -133,7 +133,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 				score = quiesce (board, side, alpha, beta, 0, new_leaf);
 			else
 #endif
-				score = evaluate (board, side, 0, move) +
+				score = evaluate_and_check_draw (board, side, 0, move, history) +
 #if RANDOMNESS > 0
 					-(RANDOMNESS / 2) + 
 					  (RANDOMNESS * 1.0 * rand() / (1.0+RAND_MAX));

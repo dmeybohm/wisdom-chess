@@ -196,8 +196,8 @@ int was_legal_move (struct board *board, color_t who, move_t *mv)
 
         int direction = is_castling_move_on_king_side(mv) ? -1 : 1;
 
-        if (is_king_threatened (board, who, castled_row, castled_col + direction) ||
-            is_king_threatened (board, who, castled_row, castled_col + direction + direction))
+        if (is_king_threatened (board, who, castled_row, NEXT (castled_col, direction)) ||
+            is_king_threatened (board, who, castled_row, NEXT (NEXT (castled_col, direction), direction)))
         {
             return 0;
         }
@@ -205,6 +205,11 @@ int was_legal_move (struct board *board, color_t who, move_t *mv)
     }
 
 	return 1;
+}
+
+int is_drawing_move (move_tree_t *move_tree, move_t *move)
+{
+    return 0;
 }
 
 /* vi: set ts=4 sw=4: */
