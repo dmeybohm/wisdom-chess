@@ -394,7 +394,7 @@ static struct init_board
 	{ 0, 0, NULL }
 };
 
-struct board *board_new ()
+struct board *board_new (void)
 {
 	struct board *new_board;
 	struct init_board *ptr;
@@ -432,6 +432,8 @@ struct board *board_new ()
 
 	for (i = 0; i < NR_PLAYERS; i++)
 		new_board->castled[i] = CASTLE_NOTCASTLED;
+
+	board_hash_init (&new_board->board_hash, new_board);
 
 	return new_board;
 }
