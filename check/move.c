@@ -72,7 +72,7 @@ char *move_str (move_t move)
 	return buf;
 }
 
-static int castle_parse (char *str, color_t who, move_t *move)
+static int castle_parse (const char *str, color_t who, move_t *move)
 {
 	unsigned char src_row, dst_col;
 

@@ -2,10 +2,11 @@
 #define EVOLVE_CHESS_PIECE_H
 
 #include <assert.h>
+#include <stdint.h>
 
-typedef unsigned char   piece_t;
+typedef uint8_t   piece_t;
 
-typedef unsigned char   color_t;
+typedef uint8_t   color_t;
 
 enum piece
 {
@@ -28,7 +29,7 @@ enum color
 };
 
 /* 3 bits for type of piece */
-#define PIECE_TYPE_MASK    (0x08U-1)
+#define PIECE_TYPE_MASK    (0x08U-1U)
 
 /* 2 bits for color */
 #define PIECE_COLOR_MASK   (0x18U)
@@ -40,7 +41,7 @@ enum color
 #define PIECE_TYPE(piece) \
 	((piece) & PIECE_TYPE_MASK)
 
-#define PIECE_SHIFT     (5)
+#define PIECE_SHIFT     (5U)
 #define PIECE_MASK      (0x1fU)
 #define NR_PIECES       (6U)
 

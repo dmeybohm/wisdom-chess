@@ -9,13 +9,13 @@
 
 enum castle
 {
-	CASTLE_NOTCASTLED    = 0,
-	CASTLE_CASTLED       = 0x01,
-	CASTLE_KINGSIDE      = 0x02,
-	CASTLE_QUEENSIDE     = 0x04,
+	CASTLE_NOTCASTLED    = 0U,
+	CASTLE_CASTLED       = 0x01U,
+	CASTLE_KINGSIDE      = 0x02U,
+	CASTLE_QUEENSIDE     = 0x04U,
 };
 
-#define CASTLE_MASK     (0x8-1)
+#define CASTLE_MASK     ((unsigned int)(0x8U-1U))
 
 typedef struct move
 {
@@ -36,17 +36,17 @@ static inline coord_t MOVE_DST (move_t mv)
 	return mv.dst;
 }
 
-static inline int is_promoting_move (move_t *move)
+static inline int is_promoting_move (const move_t *move)
 {
 	return (PIECE_TYPE (move->promoted) != PIECE_NONE);
 }
 
-static inline piece_t move_get_promoted (move_t *move)
+static inline piece_t move_get_promoted (const move_t *move)
 {
 	return move->promoted & PIECE_MASK;
 }
 
-static inline piece_t move_get_taken (move_t *move)
+static inline piece_t move_get_taken (const move_t *move)
 {
 	return move->taken & PIECE_MASK;
 #if 0
@@ -62,7 +62,7 @@ static inline void move_set_taken (move_t *move, piece_t taken)
 #endif
 }
 
-static inline int is_capture_move (move_t *move)
+static inline int is_capture_move (const move_t *move)
 {
 #if 0
 	printf ("is_capture_move: piece = %d\n", move->taken);
@@ -79,7 +79,7 @@ static inline void move_set_en_passant (move_t *move)
 	move->promoted |= 0x1 << PIECE_SHIFT;
 }
 
-static inline int is_en_passant_move (move_t *move)
+static inline int is_en_passant_move (const move_t *move)
 {
 	return move->promoted & (0x1 << PIECE_SHIFT);
 }
@@ -87,7 +87,7 @@ static inline int is_en_passant_move (move_t *move)
 static inline void move_set_castling (move_t *move)
 {
 	/* use the 7th bit of ->promoted */
-	move->promoted |= 0x1 << (PIECE_SHIFT+1);
+	move->promoted |= 0x1U << (PIECE_SHIFT+1);
 }
 
 static inline void move_set_castle_state (move_t *move, enum castle c_state)
@@ -111,20 +111,20 @@ static inline void move_set_castle_state (move_t *move, enum castle c_state)
 	assert (color == PIECE_COLOR (move->taken));
 }
 
-static inline enum castle move_get_castle_state (move_t *move)
+static inline enum castle move_get_castle_state (const move_t *move)
 {
 	return (move->taken >> PIECE_SHIFT) & CASTLE_MASK;
 }
 
-static inline int is_castling_move (move_t *move)
+static inline int is_castling_move (const move_t *move)
 {
-	return move->promoted & (0x1 << (PIECE_SHIFT+1));
+	return (move->promoted & (0x1U << (PIECE_SHIFT+1))) != 0;
 }
 
-static inline int is_castling_move_on_king_side (move_t *move)
+static inline int is_castling_move_on_king_side (const move_t *move)
 {
 	coord_t coord = COLUMN (MOVE_DST (*move));
-	return is_castling_move(move) && COLUMN (coord) >= 6;
+	return is_castling_move(move) && COLUMN (coord) == 6;
 }
 
 static inline move_t move_promote (move_t move, piece_t piece)
@@ -160,7 +160,7 @@ static inline void move_nullify (move_t *move)
 	*move = move_create (0, 0, 0, 0);
 }
 
-static inline int move_equal (move_t *a, move_t *b)
+static inline int move_equal (const move_t *a, const move_t *b)
 {
 	/* Hm, don't compare the taken piece */
 	return a->src == b->src && a->dst == b->dst && 
