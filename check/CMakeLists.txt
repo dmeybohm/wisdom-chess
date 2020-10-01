@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 #set_property(TARGET tgt PROPERTY C_STANDARD 11)
 
+
 # set the project name
 project(WizDumb)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 
 # add the executable
 add_executable(chess

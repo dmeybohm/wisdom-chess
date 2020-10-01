@@ -3,7 +3,6 @@
 #include <assert.h>
 
 #include "move_tree.h"
-#include "board.h"
 
 move_tree_t *tree_cache;
 

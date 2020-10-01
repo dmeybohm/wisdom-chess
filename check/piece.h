@@ -1,6 +1,8 @@
 #ifndef EVOLVE_CHESS_PIECE_H
 #define EVOLVE_CHESS_PIECE_H
 
+#include <assert.h>
+
 typedef unsigned char   piece_t;
 
 typedef unsigned char   color_t;
@@ -40,6 +42,7 @@ enum color
 
 #define PIECE_SHIFT     (5)
 #define PIECE_MASK      (0x1fU)
+#define NR_PIECES       (6U)
 
 #define MAKE_PIECE(color, type) \
 	(((color) << PIECE_COLOR_SHIFT) | ((type) & PIECE_TYPE_MASK))

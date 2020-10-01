@@ -3,3 +3,8 @@ chess.exe
 chess
 *.gam
 .*.d
+.idea
+CMakeFiles/*
+cmake_install.cmake
+CMakeCache.txt
+Makefile

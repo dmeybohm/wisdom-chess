@@ -9,8 +9,8 @@ struct cmd
 	CommandFunc func;
 };
 
-COMMAND_HANDLER (moves);
-COMMAND_HANDLER (edit);
+void command_moves (void);
+void command_edit (void);
 
 struct cmd commands[] =
 {
