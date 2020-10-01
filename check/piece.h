@@ -19,10 +19,10 @@ enum piece
 
 enum color
 {
-	COLOR_WHITE = 0U,
-	COLOR_BLACK = 1U,
-	COLOR_LAST  = 2U,
-	COLOR_NONE  = 3U,
+	COLOR_NONE  = 0U,
+	COLOR_WHITE = 1U,
+	COLOR_BLACK = 2U,
+	COLOR_LAST  = 3U,
 };
 
 /* 3 bits for type of piece */
@@ -46,7 +46,8 @@ enum color
 
 static inline color_t color_invert (color_t color)
 {
-	return !color;
+    assert (color == COLOR_WHITE || color == COLOR_BLACK);
+	return color == COLOR_WHITE ? COLOR_BLACK : COLOR_WHITE;
 }
 
 static inline int is_color_invalid (color_t color)

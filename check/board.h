@@ -6,6 +6,7 @@
 #include "coord.h"
 #include "move.h"
 #include "piece.h"
+#include "board_hash.h"
 
 /**************************************/
 
@@ -39,6 +40,9 @@ struct board
 
 	/* keep track of the material on the board */
 	struct material   *material;
+
+	/* keep track of hashing information */
+	struct board_hash  board_hash;
 };
 
 /**************************************/
@@ -61,12 +65,13 @@ struct board
  * black moves down (+) */
 static inline int PAWN_DIRECTION (color_t color)
 {
-	return (-1 + 2 * color);
+    assert (color == COLOR_WHITE || color == COLOR_BLACK);
+	return color == COLOR_BLACK ? 1 : -1;
 }
 
 static inline int need_pawn_promotion (unsigned char row, color_t who) 
 {
-	return (row - 7 * who == 0);
+	return (row - 7 * who == COLOR_WHITE);
 }
 
 static inline int able_to_castle (struct board *board, color_t who,
@@ -86,7 +91,8 @@ static inline int able_to_castle (struct board *board, color_t who,
 static inline int may_do_en_passant (unsigned char row, color_t who)
 {
 	/* if WHITE rank 3, black rank 4 */
-	return (3 + who == row);
+	assert (who == COLOR_WHITE || who == COLOR_BLACK);
+	return (who == COLOR_WHITE ? 3 : 4) == row;
 }
 
 static inline int is_pawn_unmoved (struct board *board, 
