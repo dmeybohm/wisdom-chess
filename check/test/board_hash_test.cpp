@@ -1,13 +1,17 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
 
 #include "catch.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "../piece.h"
 #include "../board_hash.h"
 #include "../board.h"
 }
 
-TEST_CASE( "Board hashes can be initialized", "[single-file]" ) {
+TEST_CASE( "Board hashes can be initialized", "[single-file]" )
+{
     struct board_hash board_hash;
     struct board *board = board_new();
 
@@ -18,7 +22,8 @@ TEST_CASE( "Board hashes can be initialized", "[single-file]" ) {
     REQUIRE( board_hash.hash != 0 );
 }
 
-TEST_CASE( "Board hashes return to the same hash with a normal move", "[single-file]" ) {
+TEST_CASE( "Board hashes return to the same hash with a normal move", "[single-file]" )
+{
     struct board_hash board_hash;
     struct board *board = board_new();
 
@@ -38,3 +43,4 @@ TEST_CASE( "Board hashes return to the same hash with a normal move", "[single-f
 
     REQUIRE( board_hash.hash == orig_board_hash );
 }
+#pragma clang diagnostic pop
