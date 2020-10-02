@@ -15,7 +15,7 @@ TEST_CASE( "Board hashes can be initialized", "[single-file]" ) {
 
     board_hash_init(&board_hash, board);
 
-    REQUIRE( board_hash.hash == 0 );
+    REQUIRE( board_hash.hash != 0 );
 }
 
 TEST_CASE( "Board hashes return to the same hash with a normal move", "[single-file]" ) {
