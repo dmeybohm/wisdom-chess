@@ -8,10 +8,6 @@
 #include "piece.h"
 #include "board_hash.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**************************************/
 
 /* place holders for branch prediction optimization */
@@ -119,14 +115,10 @@ void          board_free      (struct board *board);
 void          board_print     (struct board *board);
 void          board_print_err (struct board *board);
 
-void          do_move   (struct board *board, color_t who, move_t *m);
-void          undo_move (struct board *board, color_t who, move_t *m);
+void          do_move   (struct board *board, color_t who, struct move *m);
+void          undo_move (struct board *board, color_t who, struct move *m);
 
 
 /**************************************/
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* EVOLVE_CHESS_BOARD_H_ */
