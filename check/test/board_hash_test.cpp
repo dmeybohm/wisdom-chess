@@ -1,5 +1,5 @@
 
-#include "catch.h"
+#include "catch.hpp"
 
 extern "C" {
 #include "../piece.h"
@@ -46,11 +46,11 @@ TEST_CASE( "Board hashes return to the same hash with a normal move", "[single-f
     move_t mv = move_create (1, 4, 3, 4);
 
     uint64_t orig_board_hash = board_hash.hash;
-    board_hash_move (board_hash, board, &mv);
+    board_hash_move (&board_hash, board, &mv);
 
     REQUIRE( board_hash.hash != orig_board_hash );
 
-    board_hash_unmove (board_hash, board, &mv);
+    board_hash_unmove (&board_hash, board, &mv);
 
     REQUIRE( board_hash.hash == orig_board_hash );
 }

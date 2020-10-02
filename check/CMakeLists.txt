@@ -1,4 +1,6 @@
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/") 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/")
 INCLUDE(CheckIncludeFiles)
 
 cmake_minimum_required(VERSION 3.10)
@@ -17,7 +19,7 @@ add_executable(chess
     move_list.c move_tree.c piece.c play.c search.c sha1.c str.c timer.c
 )
 
-set_property(TARGET chess PROPERTY C_STANDARD 11)
+#set_property(TARGET chess PROPERTY C_STANDARD 11)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 #
