@@ -76,12 +76,12 @@ static inline int is_capture_move (const move_t *move)
 static inline void move_set_en_passant (move_t *move)
 {
 	/* use the 6th bit of ->promoted */
-	move->promoted |= 0x1 << PIECE_SHIFT;
+	move->promoted |= 0x1U << PIECE_SHIFT;
 }
 
 static inline int is_en_passant_move (const move_t *move)
 {
-	return move->promoted & (0x1 << PIECE_SHIFT);
+	return move->promoted & (0x1U << PIECE_SHIFT);
 }
 
 static inline void move_set_castling (move_t *move)
@@ -113,7 +113,9 @@ static inline void move_set_castle_state (move_t *move, enum castle c_state)
 
 static inline enum castle move_get_castle_state (const move_t *move)
 {
-	return (move->taken >> PIECE_SHIFT) & CASTLE_MASK;
+    unsigned int raw_piece = move->taken;
+	enum castle result = (enum castle)((raw_piece >> PIECE_SHIFT) & CASTLE_MASK);
+	return result;
 }
 
 static inline int is_castling_move (const move_t *move)

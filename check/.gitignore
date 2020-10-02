@@ -9,3 +9,6 @@ cmake_install.cmake
 CMakeCache.txt
 Makefile
 config.h
+chess_tests.exe
+chess_tests
+CTestTestfile.cmake

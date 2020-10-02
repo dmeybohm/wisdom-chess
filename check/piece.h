@@ -35,18 +35,24 @@ enum color
 #define PIECE_COLOR_MASK   (0x18U)
 #define PIECE_COLOR_SHIFT  (3U)
 
-#define PIECE_COLOR(piece) \
-	(((piece) & PIECE_COLOR_MASK) >> PIECE_COLOR_SHIFT)
-
-#define PIECE_TYPE(piece) \
-	((piece) & PIECE_TYPE_MASK)
-
 #define PIECE_SHIFT     (5U)
 #define PIECE_MASK      (0x1fU)
 #define NR_PIECES       (6U)
 
 #define MAKE_PIECE(color, type) \
 	(((color) << PIECE_COLOR_SHIFT) | ((type) & PIECE_TYPE_MASK))
+
+static inline enum piece PIECE_TYPE (piece_t piece)
+{
+    unsigned int raw_piece = piece;
+    return (enum piece) (raw_piece & PIECE_TYPE_MASK);
+}
+
+static inline enum color PIECE_COLOR (piece_t piece)
+{
+    unsigned int raw_piece = piece;
+	return (enum color) ((raw_piece & PIECE_COLOR_MASK) >> PIECE_COLOR_SHIFT);
+}
 
 static inline color_t color_invert (color_t color)
 {
