@@ -57,7 +57,7 @@ static move_t get_castling_rook_move (struct board *board, move_t *move)
 	dst = MOVE_DST (*move);
 
 	src_row = ROW (src);
-	dst_row = ROW (src);
+	dst_row = ROW (dst);
 	
 	if (COLUMN (src) < COLUMN (dst))
 	{
