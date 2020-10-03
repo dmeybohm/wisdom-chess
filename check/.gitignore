@@ -12,3 +12,4 @@ config.h
 chess_tests.exe
 chess_tests
 CTestTestfile.cmake
+Testing
