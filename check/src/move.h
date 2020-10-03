@@ -54,12 +54,16 @@ static inline int is_promoting_move (const move_t *move)
 
 static inline piece_t move_get_promoted (const move_t *move)
 {
-	return MAKE_PIECE (move->promoted_color, move->promoted_piece_type);
+    enum color color = (enum color)move->promoted_color;
+    enum piece_type piece_type = (enum piece_type)move->promoted_piece_type;
+	return MAKE_PIECE (color, piece_type);
 }
 
 static inline piece_t move_get_taken (const move_t *move)
 {
-	return MAKE_PIECE (move->taken_color, move->taken_piece_type);
+    enum color color = (enum color)move->taken_color;
+    enum piece_type piece_type = (enum piece_type)move->taken_piece_type;
+	return MAKE_PIECE (color, piece_type);
 }
 
 static inline void move_set_taken (move_t *move, piece_t taken)
@@ -89,7 +93,7 @@ static inline void move_set_castling (move_t *move)
     move->is_castling = 1;
 }
 
-static inline void move_set_castle_state (move_t *move, enum castle c_state)
+static inline void move_set_castle_state (move_t *move, castle_state_t c_state)
 {
     move->castle_state = c_state;
     move->affects_castle_state = 1;
@@ -100,9 +104,10 @@ static inline int move_affects_castling (move_t move)
     return move.affects_castle_state;
 }
 
-static inline enum castle move_get_castle_state (const move_t *move)
+static inline castle_state_t move_get_castle_state (const move_t *move)
 {
-    return move->castle_state;
+    castle_state_t result = move->castle_state;
+    return result;
 }
 
 static inline int is_castling_move (const move_t *move)

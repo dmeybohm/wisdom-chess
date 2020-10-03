@@ -122,26 +122,27 @@ static void handle_castling (struct board *board, color_t who,
 void update_king_position (struct board *board, color_t who, move_t *move,
                            coord_t src, coord_t dst, int undo)
 {
+    color_index_t c_index = color_index(who);
 	if (undo)
 	{
-		board->king_pos[who] = src;
+		board->king_pos[c_index] = src;
 
 		// retrieve the old board castle status
 		if (move_affects_castling(*move)) {
-            board->castled[who] = move_get_castle_state(move);
+		    board_undo_castle_change (board, who, move_get_castle_state(move));
         }
 	}
 	else
 	{
-		board->king_pos[who] = dst;
+		board->king_pos[c_index] = dst;
 
 		// set as not able to castle
 		if (able_to_castle (board, who, (CASTLE_KINGSIDE | CASTLE_QUEENSIDE)))
 		{
-			uint8_t castle_status;
+			castle_state_t castle_status;
 
 			// save the old castle status
-			move_set_castle_state (move, board->castled[who]);
+			move_set_castle_state (move, board_get_castle_state(board, who));
 
 			if (!is_castling_move (move))
 				castle_status = CASTLE_KINGSIDE | CASTLE_QUEENSIDE;
@@ -149,7 +150,7 @@ void update_king_position (struct board *board, color_t who, move_t *move,
 				castle_status = CASTLE_CASTLED;
 
 			// set the new castle status
-			board->castled[who] = (enum castle)castle_status;
+			board_apply_castle_change (board, who, castle_status);
 		}
 	}
 }
@@ -158,18 +159,17 @@ static void update_rook_position (struct board *board, color_t who,
 								  move_t *move, coord_t src, coord_t dst, 
 								  int undo)
 {
-
-
 	if (undo)
 	{
 		// need to put castle status back...its saved in the move
 		// from do_move()...
 		if (move_affects_castling(*move))
-            board->castled[who] = move_get_castle_state(move);
+            board_undo_castle_change(board, who, move_get_castle_state(move));
 	}
 	else
 	{
         enum castle castle_state;
+
         //
         // This needs distinguishes between captures that end
         // up on the rook and moves from the rook itself.
@@ -198,9 +198,8 @@ static void update_rook_position (struct board *board, color_t who,
 		if (able_to_castle (board, who, castle_state))
 		{
             // save the current castle state
-            move_set_castle_state (move, board->castled[who]);
-
-            board->castled[who] |= castle_state;
+            move_set_castle_state (move, board_get_castle_state(board, who));
+            board_apply_castle_change (board, who, castle_state);
         }
 	}
 }
@@ -218,7 +217,8 @@ void do_move (struct board *board, color_t who, move_t *move)
 
 	/* save the taken piece in the move 
 	 * This may be a bad idea to set here */
-	move_set_taken (move, dst_piece);
+	if (PIECE_TYPE (dst_piece) != PIECE_NONE)
+	    move_set_taken (move, dst_piece);
 
 	if (PIECE_TYPE (src_piece) != PIECE_NONE && 
 	    PIECE_TYPE (dst_piece) != PIECE_NONE)
@@ -334,12 +334,7 @@ static enum piece_type pawns[] =
 	PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_LAST
 };
 
-static struct init_board 
-{
-	int               rank;
-	color_t           piece_color;
-	enum piece_type  *pieces;
-} init_board[] =
+static struct board_positions init_board[] =
 {
 	{ 0, COLOR_BLACK, back_rank, },
 	{ 1, COLOR_BLACK, pawns,     },
@@ -351,7 +346,6 @@ static struct init_board
 struct board *board_new (void)
 {
 	struct board *new_board;
-	struct init_board *ptr;
 	int i;
 
 	new_board = malloc (sizeof (struct board));
@@ -364,35 +358,42 @@ struct board *board_new (void)
 
     material_init (&new_board->material);
 
-	for (ptr = init_board; ptr->pieces; ptr++)
-	{
-		enum piece_type *pptr;
-		color_t  color = ptr->piece_color;
-		int      row   = ptr->rank;
-
-		for (pptr = ptr->pieces; *pptr != PIECE_LAST; pptr++)
-		{
-			uint8_t col       = (uint8_t) (pptr - ptr->pieces);
-			piece_t new_piece;
-
-			new_piece = MAKE_PIECE (color, *pptr);
-
-			set_piece (new_board, coord_create (row, col), new_piece);
-			material_add (&new_board->material, new_piece);
-
-			if (*pptr == PIECE_KING)
-			{
-				new_board->king_pos[color] = coord_create (row, col);
-			}
-		}
-	}
-
 	for (i = 0; i < NR_PLAYERS; i++)
 		new_board->castled[i] = CASTLE_NONE;
 
-	board_hash_init (&new_board->hash, new_board);
+    board_init_from_positions (new_board, init_board);
 
 	return new_board;
+}
+
+void board_init_from_positions (struct board *board, struct board_positions *positions)
+{
+    struct board_positions *ptr;
+
+    for (ptr = positions; ptr->pieces; ptr++)
+    {
+        enum piece_type *pptr;
+        color_t  color = ptr->piece_color;
+        int      row   = ptr->rank;
+
+        for (pptr = ptr->pieces; *pptr != PIECE_LAST; pptr++)
+        {
+            uint8_t col       = (uint8_t) (pptr - ptr->pieces);
+            piece_t new_piece;
+
+            new_piece = MAKE_PIECE (color, *pptr);
+
+            set_piece (board, coord_create (row, col), new_piece);
+            material_add (&board->material, new_piece);
+
+            if (*pptr == PIECE_KING)
+            {
+                board->king_pos[color_index(color)] = coord_create (row, col);
+            }
+        }
+    }
+
+	board_hash_init (&board->hash, board);
 }
 
 void board_free (struct board *board)

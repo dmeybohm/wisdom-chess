@@ -48,18 +48,18 @@ enum color_index
 
 static inline piece_t MAKE_PIECE (enum color color, enum piece_type piece_type)
 {
-    struct piece_with_color piece_with_color = { .color = color, .piece_type = piece_type };
+    struct piece_with_color piece_with_color = { .piece_type = piece_type, .color = color };
     return piece_with_color;
 }
 
 static inline enum piece_type PIECE_TYPE (piece_t piece)
 {
-    return piece.piece_type;
+    return (enum piece_type)piece.piece_type;
 }
 
 static inline enum color PIECE_COLOR (piece_t piece)
 {
-    return piece.color;
+    return (enum color)piece.color;
 }
 
 static inline color_t color_invert (color_t color)

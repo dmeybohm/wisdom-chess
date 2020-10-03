@@ -29,13 +29,20 @@ struct board
 	coord_t            king_pos[NR_PLAYERS];
 
 	// castle state of the board
-	enum castle        castled[NR_PLAYERS];
+	castle_state_t     castled[NR_PLAYERS];
 
 	// keep track of the material on the board
 	struct material    material;
 
 	// keep track of hashing information
 	struct board_hash  hash;
+};
+
+struct board_positions
+{
+    int               rank;
+    color_t           piece_color;
+    enum piece_type  *pieces;
 };
 
 /**************************************/
@@ -52,8 +59,8 @@ struct board
 
 /**************************************/
 
-/* white moves up (-)
- * black moves down (+) */
+// white moves up (-)
+// black moves down (+)
 static inline int PAWN_DIRECTION (color_t color)
 {
     assert (color == COLOR_WHITE || color == COLOR_BLACK);
@@ -67,17 +74,36 @@ static inline int need_pawn_promotion (unsigned char row, color_t who)
 }
 
 static inline int able_to_castle (struct board *board, color_t who,
-                                  enum castle castle_type)
+                                  castle_state_t castle_type)
 {
 	int didnt_castle;
 	int neg_not_set;
+    color_index_t c_index = color_index(who);
 
-	didnt_castle = !!(board->castled[who] != CASTLE_CASTLED);
-	neg_not_set  = !!(((~board->castled[who]) & castle_type) != 0);
+	didnt_castle = !!(board->castled[c_index] != CASTLE_CASTLED);
+	neg_not_set  = !!(((~board->castled[c_index]) & castle_type) != 0);
 
 	return didnt_castle && neg_not_set;
 	//board->castled[who] != CASTLE_CASTLED && 
 	//      (board->castled[who] & castle_type) == 0;
+}
+
+static inline castle_state_t board_get_castle_state (struct board *board, color_t who)
+{
+    color_index_t index = color_index(who);
+    return board->castled[index];
+}
+
+static inline void board_apply_castle_change (struct board *board, color_t who, castle_state_t castle_state)
+{
+    color_index_t index = color_index(who);
+    board->castled[index] |= castle_state;
+}
+
+static inline void board_undo_castle_change (struct board *board, color_t who, castle_state_t castle_state)
+{
+    color_index_t index = color_index(who);
+    board->castled[index] = castle_state;
 }
 
 static inline int may_do_en_passant (unsigned char row, color_t who)
@@ -103,6 +129,7 @@ static inline int is_pawn_unmoved (struct board *board,
 
 struct board *board_new       (void);
 void          board_free      (struct board *board);
+void          board_init_from_positions (struct board *board, struct board_positions *positions);
 
 void          board_print     (struct board *board);
 void          board_print_err (struct board *board);
