@@ -116,7 +116,7 @@ static inline void board_undo_castle_change (struct board *board, color_t who, c
 
 static inline int may_do_en_passant (unsigned char row, color_t who)
 {
-	/* if WHITE rank 3, black rank 4 */
+	// if WHITE rank 4, black rank 3
 	assert (who == COLOR_WHITE || who == COLOR_BLACK);
 	return (who == COLOR_WHITE ? 3 : 4) == row;
 }

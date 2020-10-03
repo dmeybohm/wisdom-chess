@@ -13,6 +13,7 @@ add_executable(chess_tests
         board_hash_test.cpp
         piece_test.cpp
         coord_test.cpp
+        en_passant_test.cpp
         material_test.cpp castle_test.cpp pawn_promotion_test.cpp)
 
 if (HAVE_WINSOCK2_H)

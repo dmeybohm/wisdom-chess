@@ -8,6 +8,8 @@
 #include "piece.h"
 #include "material.h"
 #include "debug.h"
+#include "generate.h"
+#include "coord.h"
 
 /* board length in characters */
 #define BOARD_LENGTH            31
@@ -19,25 +21,27 @@ static inline void set_piece (struct board *board, coord_t place, piece_t piece)
 	board->board[ROW(place)][COLUMN(place)] = piece;
 }
 
-void handle_en_passant (struct board *board, color_t who, move_t *move, 
-                        coord_t src, coord_t dst, int undo)
+piece_t handle_en_passant (struct board *board, color_t who, move_t *move,
+                           coord_t src, coord_t dst, int undo)
 {
-	coord_t   taken_pos;
-	piece_t   piece;
+    // get the position of the pawn adjacent to the taking pawn
+    coord_t taken_pawn_pos = coord_create (ROW(src), COLUMN (dst));
 
-	// get the position of the pawn adjacent to the taking pawn
-	taken_pos = coord_create (ROW (src), COLUMN (dst));
-
-	// get rid of the the pawn
 	if (undo)
 	{
-		piece = move_get_taken (move);
-		set_piece (board, taken_pos, piece);
+		piece_t taken = move_get_taken (move);
+        set_piece (board, taken_pawn_pos, taken);
+
+		return PIECE_AND_COLOR_NONE; // restore empty square where piece was replaced
 	}
 	else
 	{
-		move_set_taken (move, PIECE_AT_COORD (board, taken_pos));
-		set_piece (board, taken_pos, PIECE_AND_COLOR_NONE);
+        piece_t taken = PIECE_AT_COORD (board, taken_pawn_pos);
+
+        move_set_taken (move, taken);
+        set_piece (board, taken_pawn_pos, PIECE_AND_COLOR_NONE);
+
+        return taken;
 	}
 }
 
@@ -241,7 +245,7 @@ void do_move (struct board *board, color_t who, move_t *move)
 
 	/* check for en passant */
 	if (unlikely (is_en_passant_move (move)))
-		handle_en_passant (board, who, move, src, dst, 0);
+        dst_piece = handle_en_passant(board, who, move, src, dst, 0);
 
 	/* check for castling */
 	if (unlikely (is_castling_move (move)))
@@ -260,7 +264,7 @@ void do_move (struct board *board, color_t who, move_t *move)
 
 	if (is_capture_move (move))
 	{
-		/* update material estimate */
+		// update material estimate
 		material_del (&board->material, dst_piece);
 
 		/* update castle state if somebody takes the rook */
@@ -293,13 +297,10 @@ void undo_move (struct board *board, color_t who, move_t *move)
 	/* check for castling */
 	if (unlikely (is_castling_move (move)))
 		handle_castling (board, who, move, src, dst, 1);
-		
+
 	/* check for en passant */
 	if (unlikely (is_en_passant_move (move)))
-	{
-		handle_en_passant (board, who, move, src, dst, 1);
-		dst_piece = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
-	}
+		dst_piece = handle_en_passant (board, who, move, src, dst, 1);
 
 	/* put the pieces back */
 	set_piece (board, dst, dst_piece);
@@ -314,7 +315,8 @@ void undo_move (struct board *board, color_t who, move_t *move)
 
 	if (is_capture_move (move))
 	{
-		material_add (&board->material, dst_piece);
+        // NOTE: we reload from the move in case of en-passant, since dst_piece could be none.
+        material_add (&board->material, move_get_taken(move));
 
 		if (PIECE_TYPE (dst_piece) == PIECE_ROOK)
 			update_rook_position (board, color_invert (who), move, src, dst, 1);
@@ -355,7 +357,7 @@ struct board *board_new (void)
 	assert (new_board);
 	memset (new_board, 0, sizeof (struct board));
 
-    material_init (&new_board->material);
+
 
 	for (i = 0; i < NR_PLAYERS; i++)
 		new_board->castled[i] = CASTLE_NONE;
@@ -368,7 +370,12 @@ struct board *board_new (void)
 void board_init_from_positions (struct board *board, struct board_positions *positions)
 {
     struct board_positions *ptr;
+    uint8_t row, col;
 
+    for_each_position (row, col)
+        board->board[row][col] = PIECE_AND_COLOR_NONE;
+
+    material_init (&board->material);
     for (ptr = positions; ptr->pieces; ptr++)
     {
         enum piece_type *pptr;
@@ -380,8 +387,10 @@ void board_init_from_positions (struct board *board, struct board_positions *pos
             uint8_t col       = (uint8_t) (pptr - ptr->pieces);
             piece_t new_piece;
 
-            new_piece = MAKE_PIECE (color, *pptr);
+            if (*pptr == PIECE_NONE)
+                continue;
 
+            new_piece = MAKE_PIECE (color, *pptr);
             set_piece (board, coord_create (row, col), new_piece);
             material_add (&board->material, new_piece);
 

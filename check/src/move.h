@@ -130,8 +130,8 @@ static inline move_t move_promote (move_t move, piece_t piece)
 }
 
 // run-of-the-mill move with no promotion involved
-static inline move_t move_create (unsigned char src_row, unsigned char src_col,
-                                  unsigned char dst_row, unsigned char dst_col)
+static inline move_t move_create (uint8_t src_row, uint8_t src_col,
+                                  uint8_t dst_row, uint8_t dst_col)
 {
 	move_t tmp = { 0 };
 
