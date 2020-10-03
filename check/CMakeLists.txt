@@ -15,9 +15,9 @@ CHECK_INCLUDE_FILES("winsock2.h" HAVE_WINSOCK2_H)
 
 # add the executable
 add_executable(chess
-    board.c board_hash.c check.c debug.c evaluate.c game.c generate.c material.c move.c
-    move_list.c move_tree.c piece.c play.c search.c sha1.c str.c timer.c
-        global.h)
+        src/board.c src/board_hash.c src/check.c src/debug.c src/evaluate.c src/game.c src/generate.c src/material.c src/move.c
+        src/move_list.c src/move_tree.c src/piece.c src/play.c src/search.c src/sha1.c src/str.c src/timer.c
+        src/global.h)
 
 #set_property(TARGET chess PROPERTY C_STANDARD 11)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)

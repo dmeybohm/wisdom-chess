@@ -5,7 +5,7 @@
 
 extern "C"
 {
-#include "../piece.h"
+#include "../src/piece.h"
 }
 
 TEST_CASE( "A piece can be converted", "[piece]" )

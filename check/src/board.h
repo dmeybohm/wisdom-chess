@@ -4,7 +4,7 @@
 #include <assert.h>
 
 #include "global.h"
-#include "config.h"
+#include "../config.h"
 #include "coord.h"
 #include "move.h"
 #include "piece.h"

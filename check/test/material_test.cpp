@@ -2,7 +2,7 @@
 
 extern "C"
 {
-#include "../material.h"
+#include "../src/material.h"
 }
 
 TEST_CASE( "Adding material works", "[material]" )
