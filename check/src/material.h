@@ -32,8 +32,6 @@ static inline int material_piece_weight (enum piece_type piece)
 		case PIECE_PAWN:    return MATERIAL_WEIGHT_PAWN;
 		default: abort();
 	}
-	
-	return 0;
 }
 
 static inline void material_del (struct material *material, piece_t piece)
@@ -50,7 +48,9 @@ static inline void material_add (struct material *material, piece_t piece)
 
 static inline int material_score (struct material *material, color_t who)
 {
-	return material->score[who] - material->score[color_invert(who)];
+    color_index_t my_index = color_index(who);
+    color_index_t opponent_index = color_index(color_invert(who));
+	return material->score[my_index] - material->score[opponent_index];
 }
 
 void material_init  (struct material *material);

@@ -14,8 +14,9 @@ int is_checkmated (struct board *board, color_t who)
 	int          row, col;
 	move_list_t *legal_moves;
 
-	row = ROW    (board->king_pos[who]);
-	col = COLUMN (board->king_pos[who]);
+	coord_t king_pos = king_position (board, who);
+	row = ROW    (king_pos);
+	col = COLUMN (king_pos);
 
 	if (!is_king_threatened (board, who, row, col))
 		return 0;
@@ -179,8 +180,10 @@ int is_king_threatened (struct board *board, color_t who,
 
 int was_legal_move (struct board *board, color_t who, move_t *mv)
 {
-	if (is_king_threatened (board, who, ROW    (board->king_pos[who]),
-		                                COLUMN (board->king_pos[who])))
+    color_index_t c_index = color_index(who);
+    coord_t king_pos = king_position (board, who);
+
+	if (is_king_threatened (board, who, ROW (king_pos), COLUMN (king_pos)))
 	{
 		return 0;
 	}
@@ -191,8 +194,8 @@ int was_legal_move (struct board *board, color_t who, move_t *mv)
 
 	    int castled_row = ROW (castled_pos);
 	    int castled_col = COLUMN (castled_pos);
-	    assert (ROW (board->king_pos[who]) == castled_row);
-	    assert (COLUMN (board->king_pos[who]) == castled_col);
+	    assert (ROW (king_pos) == castled_row);
+	    assert (COLUMN (king_pos) == castled_col);
 
         int direction = is_castling_move_on_king_side(mv) ? -1 : 1;
 

@@ -123,13 +123,13 @@ MOVES_HANDLER (king)
 		for (i = 0; i < sizeof (castled_moves)/sizeof (move_t); i++)
 			move_nullify (&castled_moves[i]);
 
-		if (!(board->castled[who] & CASTLE_QUEENSIDE))
+		if (able_to_castle (board, who, CASTLE_QUEENSIDE))
 		{
 			castled_moves[0] = move_create (piece_row, piece_col, piece_row,
 			                                piece_col - 2);
 		}
 
-		if (!(board->castled[who] & CASTLE_KINGSIDE))
+		if (able_to_castle (board, who, CASTLE_KINGSIDE))
 		{
 			castled_moves[1] = move_create (piece_row, piece_col, piece_row,
 			                                piece_col + 2);

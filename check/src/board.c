@@ -122,10 +122,9 @@ static void handle_castling (struct board *board, color_t who,
 void update_king_position (struct board *board, color_t who, move_t *move,
                            coord_t src, coord_t dst, int undo)
 {
-    color_index_t c_index = color_index(who);
 	if (undo)
 	{
-		board->king_pos[c_index] = src;
+	    king_position_set (board, who, src);
 
 		// retrieve the old board castle status
 		if (move_affects_castling(*move)) {
@@ -134,7 +133,7 @@ void update_king_position (struct board *board, color_t who, move_t *move,
 	}
 	else
 	{
-		board->king_pos[c_index] = dst;
+	    king_position_set (board, who, dst);
 
 		// set as not able to castle
 		if (able_to_castle (board, who, (CASTLE_KINGSIDE | CASTLE_QUEENSIDE)))
@@ -388,7 +387,7 @@ void board_init_from_positions (struct board *board, struct board_positions *pos
 
             if (*pptr == PIECE_KING)
             {
-                board->king_pos[color_index(color)] = coord_create (row, col);
+                king_position_set (board, color, coord_create (row, col));
             }
         }
     }
