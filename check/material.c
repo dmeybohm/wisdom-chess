@@ -3,12 +3,11 @@
 
 #include "material.h"
 
-struct material *material_new (void)
+void material_init (struct material *material)
 {
-	return calloc (1, sizeof (struct material));
+    for (int i = 0; i < NR_PLAYERS; i++)
+    {
+        material->score[i] = 0;
+    }
 }
 
-void material_free (struct material *material)
-{
-	free (material);
-}

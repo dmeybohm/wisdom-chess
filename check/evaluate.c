@@ -120,7 +120,7 @@ int evaluate (struct board *board, color_t who, int examine_checkmate,
 	}
 #endif /* USE_MATERIAL */
 
-	score += material_score (board->material, who);
+	score += material_score (&board->material, who);
 
 #if 0
 	if (move)

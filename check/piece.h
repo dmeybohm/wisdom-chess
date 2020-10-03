@@ -3,10 +3,13 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 typedef uint8_t   piece_t;
 
 typedef uint8_t   color_t;
+
+typedef uint8_t   color_index_t;
 
 enum piece
 {
@@ -28,19 +31,29 @@ enum color
 	COLOR_LAST  = 3U,
 };
 
-/* 3 bits for type of piece */
-#define PIECE_TYPE_MASK    (0x08U-1U)
+enum color_index
+{
+	COLOR_INDEX_WHITE = 0U,
+	COLOR_INDEX_BLACK = 1U,
+};
 
-/* 2 bits for color */
-#define PIECE_COLOR_MASK   (0x18U)
-#define PIECE_COLOR_SHIFT  (3U)
+// 3 bits for type of piece
+#define PIECE_TYPE_MASK     (0x08U-1U)
 
-#define PIECE_SHIFT     (5U)
-#define PIECE_MASK      (0x1fU)
-#define NR_PIECES       (6U)
+// 2 bits for color
+#define PIECE_COLOR_MASK    (0x18U)
+#define PIECE_COLOR_SHIFT   (3U)
 
-#define MAKE_PIECE(color, type) \
-	(((color) << PIECE_COLOR_SHIFT) | ((type) & PIECE_TYPE_MASK))
+#define PIECE_SHIFT         (5U)
+#define PIECE_MASK          (0x1fU)
+#define NR_PIECES           (6U)
+
+static inline piece_t MAKE_PIECE (enum color color, enum piece piece)
+{
+    uint8_t raw_piece = (piece & PIECE_TYPE_MASK);
+    uint8_t raw_color = (color << PIECE_COLOR_SHIFT);
+    return (enum piece)(raw_piece | raw_color);
+}
 
 static inline enum piece PIECE_TYPE (piece_t piece)
 {
@@ -58,6 +71,16 @@ static inline color_t color_invert (color_t color)
 {
     assert (color == COLOR_WHITE || color == COLOR_BLACK);
 	return color == COLOR_WHITE ? COLOR_BLACK : COLOR_WHITE;
+}
+
+static inline color_index_t color_index (color_t who)
+{
+	switch (who)
+	{
+		case COLOR_WHITE: return COLOR_INDEX_WHITE;
+		case COLOR_BLACK: return COLOR_INDEX_BLACK;
+		default: abort();
+	}
 }
 
 static inline int is_color_invalid (color_t color)
@@ -92,4 +115,4 @@ static inline char piece_chr (piece_t piece)
 #define for_each_piece(p) \
 	for (p = PIECE_NONE; p < PIECE_LAST; p++)
 
-#endif /* EVOLVE_CHESS_PIECE_H */
+#endif // EVOLVE_CHESS_PIECE_H

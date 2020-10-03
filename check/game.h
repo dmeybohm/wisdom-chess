@@ -1,16 +1,16 @@
 #ifndef EVOLVE_CHESS_GAME_H_
 #define EVOLVE_CHESS_GAME_H_
 
-struct board;
-struct move_tree;
+#include "piece.h"
+
 struct move;
 
 struct game
 {
 	struct board      *board;
 	struct move_tree  *history;
-	color_t            player;   /* side the computer is playing as */
-	color_t            turn;
+	enum color         player;   /* side the computer is playing as */
+	enum color         turn;
 };
 
 struct game *game_new   (color_t turn, color_t computer_player);

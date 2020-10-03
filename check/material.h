@@ -1,7 +1,9 @@
 #ifndef EVOLVE_CHESS_MATERIAL_H_
 #define EVOLVE_CHESS_MATERIAL_H_
 
-#include "board.h"
+#include <stdlib.h>
+
+#include "global.h"
 #include "piece.h"
 
 #define MATERIAL_WEIGHT_NONE       0
@@ -36,13 +38,13 @@ static inline int material_piece_weight (piece_t piece)
 
 static inline void material_del (struct material *material, piece_t piece)
 {
-	material->score[PIECE_COLOR(piece)] 
+	material->score[color_index(PIECE_COLOR(piece))]
 		-= material_piece_weight (PIECE_TYPE(piece));
 }
 
 static inline void material_add (struct material *material, piece_t piece)
 {
-	material->score[PIECE_COLOR(piece)] += 
+	material->score[color_index(PIECE_COLOR(piece))] +=
 		material_piece_weight (PIECE_TYPE(piece));
 }
 
@@ -51,7 +53,6 @@ static inline int material_score (struct material *material, color_t who)
 	return material->score[who] - material->score[color_invert(who)];
 }
 
-struct material *material_new  (void);
-void             material_free (struct material *material);
+void material_init  (struct material *material);
 
 #endif /* EVOLVE_CHESS_MATERIAL_H_ */

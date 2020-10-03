@@ -1,2 +1,7 @@
+#ifdef EVOLVE_CHESS_CONFIG_IN_H
+#define EVOLVE_CHESS_CONFIG_IN_H
+
 #cmakedefine HAVE_NETINET_H 1
 #cmakedefine HAVE_WINSOCK2_H 1
+
+#endif // EVOLVE_CHESS_CONFIG_IN_H

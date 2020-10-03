@@ -1,26 +1,31 @@
 #ifndef EVOLVE_CHESS_COORD_H
 #define EVOLVE_CHESS_COORD_H
 
-/* lower three bits are the column, upper three are the row */
-typedef unsigned char coord_t;
+#include <stdint.h>
 
-/* three bits for the row and column each */
-#define COORD_MASK   (0x08-1)
-#define COORD_SHIFT  3
+// lower three bits are the column, upper three are the row
+typedef uint8_t coord_t;
 
-static inline unsigned char ROW (coord_t pos)
+// three bits for the row and column each
+#define COORD_MASK   (0x7U)
+#define COORD_SHIFT  (3U)
+
+static inline uint8_t ROW (coord_t pos)
 {
-	return ((unsigned char) pos >> COORD_SHIFT) & COORD_MASK;
+	uint8_t raw_pos = pos >> COORD_SHIFT;
+	return raw_pos & COORD_MASK;
 }
 
-static inline unsigned char COLUMN (coord_t pos)
+static inline uint8_t COLUMN (coord_t pos)
 {
-	return ((unsigned char) pos) & COORD_MASK;
+	return ((uint8_t) pos) & COORD_MASK;
 }
 
-static inline coord_t coord_create (unsigned char row, unsigned char col)
+static inline coord_t coord_create (uint8_t row, uint8_t col)
 {
-	return (row << COORD_SHIFT) | (col & COORD_MASK);
+	uint8_t raw_row = row << COORD_SHIFT;
+	uint8_t raw_col = col & COORD_MASK;
+	return raw_row | raw_col;
 }
 
 #endif /* EVOLVE_CHESS_COORD_H */

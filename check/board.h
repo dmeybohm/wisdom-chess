@@ -3,26 +3,19 @@
 
 #include <assert.h>
 
+#include "global.h"
+#include "config.h"
 #include "coord.h"
 #include "move.h"
 #include "piece.h"
 #include "board_hash.h"
+#include "material.h"
 
 /**************************************/
 
 /* place holders for branch prediction optimization */
 #define likely(x)        (x)
 #define unlikely(x)      (x)
-
-#define NR_PLAYERS       2
-
-#define NR_ROWS          8
-#define NR_COLUMNS       8
-
-#define LAST_ROW         (NR_ROWS-1)
-#define LAST_COLUMN      (NR_COLUMNS-1)
-
-#define KING_COLUMN      4
 
 /**************************************/
 
@@ -39,7 +32,7 @@ struct board
 	enum castle        castled[NR_PLAYERS];
 
 	/* keep track of the material on the board */
-	struct material   *material;
+	struct material    material;
 
 	/* keep track of hashing information */
 	struct board_hash  board_hash;
@@ -59,9 +52,7 @@ struct board
 
 /**************************************/
 
-/* COLOR_WHITE (0) needs to map to -1
- * COLOR_BLACK (1) to map to 1
- * because white moves up (-)
+/* white moves up (-)
  * black moves down (+) */
 static inline int PAWN_DIRECTION (color_t color)
 {

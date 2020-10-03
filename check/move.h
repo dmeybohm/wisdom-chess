@@ -167,7 +167,6 @@ static inline int move_equal (const move_t *a, const move_t *b)
 	/* Hm, don't compare the taken piece */
 	return a->src == b->src && a->dst == b->dst && 
 	       a->promoted == b->promoted;
-	
 }
 
 extern char *move_str (move_t move);

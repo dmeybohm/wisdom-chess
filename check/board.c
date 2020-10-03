@@ -297,7 +297,7 @@ void do_move (struct board *board, color_t who, move_t *move)
 	if (is_capture_move (move))
 	{
 		/* update material estimate */
-		material_del (board->material, dst_piece);
+		material_del (&board->material, dst_piece);
 
 		/* update castle state if somebody takes the rook */
 		if (PIECE_TYPE (dst_piece) == PIECE_ROOK)
@@ -350,7 +350,7 @@ void undo_move (struct board *board, color_t who, move_t *move)
 
 	if (is_capture_move (move))
 	{
-		material_add (board->material, dst_piece);
+		material_add (&board->material, dst_piece);
 
 		if (PIECE_TYPE (dst_piece) == PIECE_ROOK)
 			update_rook_position (board, color_invert (who), move, src, dst, 1);
@@ -404,8 +404,7 @@ struct board *board_new (void)
 	assert (new_board);
 	memset (new_board, 0, sizeof (struct board));
 
-	new_board->material = material_new ();
-	assert (new_board->material != NULL);
+    material_init (&new_board->material);
 
 	for (ptr = init_board; ptr->pieces; ptr++)
 	{
@@ -421,7 +420,7 @@ struct board *board_new (void)
 			new_piece = MAKE_PIECE (color, *pptr);
 
 			set_piece (new_board, coord_create (row, col), new_piece);
-			material_add (new_board->material, new_piece);
+			material_add (&new_board->material, new_piece);
 
 			if (PIECE_TYPE (*pptr) == PIECE_KING)
 			{
@@ -443,9 +442,7 @@ void board_free (struct board *board)
 	if (!board)
 		return;
 
-	material_free (board->material);
-
-	/* 
+	/*
 	 * 2003-08-30: I have forgotten if this is all that needs freeing..
 	 */
 	free (board);
