@@ -10,6 +10,7 @@
 #include "check.h"
 #include "generate.h"
 #include "debug.h"
+#include "board_check.h"
 
 /**************************************/
 
@@ -382,44 +383,6 @@ MOVES_HANDLER (en_passant)
 	moves = move_list_append_move (moves, new_move);
 	
 	return moves;
-
-#if 0
-	for (c_dir = -1; c_dir <= 1; c_dir += 2)
-	{
-		piece_t   type;
-		move_t    mv;
-
-		take_col = NEXT (piece_col, c_dir);
-
-		if (INVALID (take_col))
-			continue;
-
-		piece = PIECE_AT (board, piece_row, take_col);
-		type  = PIECE_TYPE (piece);
-
-		if (PIECE_TYPE (piece) != PIECE_PAWN)
-			continue;
-
-		if (PIECE_COLOR (piece) != who)
-			continue;
-
-		if (ROW (dst) != piece_row || COLUMN (dst) != take_col)
-			continue;
-
-		if (PIECE_TYPE (PIECE_AT (board, row, take_col)) != PIECE_NONE && 
-		    PIECE_COLOR (piece) != who)
-		{
-			ret_move = move_create (piece_row, piece_col, row, take_col);
-
-			break;
-		}
-	}
-
-	if (!is_move_null (&ret_move))
-		moves = move_list_append (moves, ret_move);
-
-	return moves;
-#endif
 }
 
 /**************************************/
@@ -470,11 +433,12 @@ move_list_t *generate_legal_moves (struct board *board, color_t who,
 	move_list_t *all_moves  = NULL;
 	move_list_t *non_checks = NULL;
 	move_t      *mptr;
-
+    board_check_t board_check;
 	all_moves = generate_moves (board, who, history);
 
 	for_each_move (mptr, all_moves)
 	{
+	    board_check_init (&board_check, board);
 		do_move (board, who, mptr);
 
         if (was_legal_move (board, who, mptr))
@@ -483,19 +447,8 @@ move_list_t *generate_legal_moves (struct board *board, color_t who,
         }
 
 		undo_move (board, who, mptr);
+        board_check_validate (&board_check, board, who, mptr);
 	}
-
-#if 0
-	printf ("original moves: { ");
-	for_each_move (mptr, move_list)
-		printf ("[%s] ", move_str (*mptr));
-	printf("}\n");
-
-	printf ("filtered checks: { ");
-	for_each_move (mptr, non_checks)
-		printf ("[%s] ", move_str (*mptr));
-	printf("}\n");
-#endif
 
 	move_list_destroy (all_moves);
 	

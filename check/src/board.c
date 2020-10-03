@@ -45,7 +45,7 @@ piece_t handle_en_passant (struct board *board, color_t who, move_t *move,
 	}
 }
 
-static move_t get_castling_rook_move (struct board *board, move_t *move)
+static move_t get_castling_rook_move (struct board *board, move_t *move, color_t who)
 {
 	unsigned char    src_row, src_col;
 	unsigned char    dst_row, dst_col;
@@ -75,7 +75,9 @@ static move_t get_castling_rook_move (struct board *board, move_t *move)
 	if (!((PIECE_TYPE (PIECE_AT (board, src_row, src_col)) == PIECE_ROOK
 		|| PIECE_TYPE (PIECE_AT (board, dst_row, dst_col)) == PIECE_ROOK)))
 	{
-		board_print (board);
+	    printf ("move considering: %s (%s to move)\n", move_str(*move),
+             who == COLOR_WHITE ? "White" : "Black");
+		board_dump (board);
 		assert (0);
 	}
 
@@ -90,7 +92,7 @@ static void handle_castling (struct board *board, color_t who,
 	coord_t rook_src, rook_dst;
 	piece_t rook, empty_piece;
 
-	rook_move = get_castling_rook_move (board, king_move);
+	rook_move = get_castling_rook_move (board, king_move, who);
 
 	if (undo)
 		assert (PIECE_TYPE (PIECE_AT_COORD (board, dst)) == PIECE_KING);
@@ -483,6 +485,26 @@ void board_print_to_file (struct board *board, FILE *file)
 void board_print (struct board *board)
 {
 	board_print_to_file (board, stdout);
+}
+
+void board_print_castle_state (struct board *board)
+{
+    printf("castle_state: White: %02x Black: %02x\n",
+           board->castled[COLOR_INDEX_WHITE], board->castled[COLOR_INDEX_BLACK]);
+}
+
+void board_print_material (struct board *board)
+{
+    printf("material score: White: %d Black: %d\n",
+           board->material.score[COLOR_INDEX_WHITE],
+           board->material.score[COLOR_INDEX_BLACK]);
+}
+
+void board_dump (struct board *board)
+{
+    board_print_castle_state (board);
+    board_print_material (board);
+    board_print_to_file (board, stdout);
 }
 
 /* for printing the board from gdb */

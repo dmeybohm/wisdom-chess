@@ -22,6 +22,7 @@
 /**************************************/
 
 struct material;
+struct move_tree;
 
 struct board
 {
@@ -92,8 +93,6 @@ static inline int able_to_castle (struct board *board, color_t who,
 	neg_not_set  = !!(((~board->castled[c_index]) & castle_type) != 0);
 
 	return didnt_castle && neg_not_set;
-	//board->castled[who] != CASTLE_CASTLED && 
-	//      (board->castled[who] & castle_type) == 0;
 }
 
 static inline castle_state_t board_get_castle_state (struct board *board, color_t who)
@@ -132,7 +131,7 @@ static inline int is_pawn_unmoved (struct board *board,
 		return row == 1;
 }
 
-static inline coord_t king_position(struct board *board, color_t who)
+static inline coord_t king_position (struct board *board, color_t who)
 {
 	return board->king_pos[color_index(who)];
 }
@@ -150,10 +149,10 @@ void          board_init_from_positions (struct board *board, struct board_posit
 
 void          board_print     (struct board *board);
 void          board_print_err (struct board *board);
+void          board_dump      (struct board *board);
 
 void          do_move   (struct board *board, color_t who, struct move *m);
 void          undo_move (struct board *board, color_t who, struct move *m);
-
 
 /**************************************/
 

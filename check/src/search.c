@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "search.h"
 #include "timer.h"
+#include "board_check.h"
 
 DEFINE_DEBUG_CHANNEL (search, 0);
 DEFINE_DEBUG_CHANNEL (quiesce, 1);
@@ -87,7 +88,8 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 	move_t       best_move;
 	move_t       his_best;
 	move_tree_t *best_variation = NULL, *new_variation = NULL;
-	
+	board_check_t board_check;
+
 	move_nullify (&best_move);
 
 	moves = generate_moves (board, side, history);
@@ -113,12 +115,14 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 
 		new_leaf = move_tree_new (history, *move);
 
+		board_check_init (&board_check, board);
 		do_move (board, side, move);
 
 		if (!was_legal_move (board, side, move))
 		{
 			move_tree_free (new_leaf);
 			undo_move (board, side, move);
+            board_check_validate(&board_check, board, side, move);
 			continue;
 		}
 
@@ -148,6 +152,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 		}
 
 		undo_move (board, side, move);
+        board_check_validate(&board_check, board, side, move);
 
 		move_tree_free (new_leaf);
 
@@ -372,6 +377,7 @@ move_t find_best_move (struct board *board, color_t side,
 	int d;
 	int max_depth = MAX_DEPTH;
 	move_t move, best_move;
+    board_check_t board_check;
 
 	timer_init (&overdue_timer, MAX_SEARCH_SECONDS);
 
@@ -404,9 +410,11 @@ move_t find_best_move (struct board *board, color_t side,
 		    break;
 		}
 
+		board_check_init (&board_check, board);
 		do_move (board, side, &move);
 		board_print (board);
 		undo_move (board, side, &move);
+        board_check_validate (&board_check, board, side, &move);
 
 		best_move = move;
 	}
@@ -418,9 +426,11 @@ move_t find_best_move (struct board *board, color_t side,
         abort ();
     }
 
+    board_check_init (&board_check, board);
 	do_move (board, side, &best_move);
 	board_print (board);
 	undo_move (board, side, &best_move);
+    board_check_validate(&board_check, board, side, &best_move);
 
 	return best_move;
 }
