@@ -4,6 +4,8 @@ chess
 *.gam
 .*.d
 .idea
+.cmake
+test/CMakeFiles/*
 CMakeFiles/*
 cmake_install.cmake
 CMakeCache.txt
