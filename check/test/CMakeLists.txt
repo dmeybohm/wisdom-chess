@@ -13,7 +13,7 @@ add_executable(chess_tests
         board_hash_test.cpp
         piece_test.cpp
         coord_test.cpp
-        material_test.cpp)
+        material_test.cpp castle_test.cpp)
 
 if (HAVE_WINSOCK2_H)
     TARGET_LINK_LIBRARIES(chess_tests ws2_32)

@@ -7,154 +7,140 @@
 #include "coord.h"
 #include "piece.h"
 
+typedef uint8_t castle_state_t;
+
 enum castle
 {
-	CASTLE_NOTCASTLED    = 0U,
-	CASTLE_CASTLED       = 0x01U,
-	CASTLE_KINGSIDE      = 0x02U,
-	CASTLE_QUEENSIDE     = 0x04U,
+	CASTLE_NONE          = 0U,      // still eligible to castle on both sides
+	CASTLE_CASTLED       = 0x01U,   // castled - use by move_t to indicate the move is castling
+	CASTLE_KINGSIDE      = 0x02U,   // ineligible for further castling kingside
+	CASTLE_QUEENSIDE     = 0x04U,   // ineligible for further castling queenside
 };
-
-#define CASTLE_MASK     ((unsigned int)(0x8U-1U))
 
 typedef struct move
 {
-	coord_t    src;
-	coord_t    dst;
+	uint8_t    src_row : 3;
+	uint8_t    src_col : 3;
+	uint8_t    dst_row : 3;
+	uint8_t    dst_col : 3;
 
-	piece_t    taken;
-	piece_t    promoted;
+	uint8_t    affects_castle_state : 1;
+	uint8_t    is_en_passant : 1;
+
+	uint8_t    taken_color: 2;
+	uint8_t    taken_piece_type: 3;
+
+	uint8_t    promoted_color: 2;
+	uint8_t    promoted_piece_type: 3;
+
+	uint8_t    is_castling : 1;
+	uint8_t    castle_state : 3;
 } move_t;
 
 static inline coord_t MOVE_SRC (move_t mv)
 {
-	return mv.src;
+	return coord_create(mv.src_row, mv.src_col);
 }
 
 static inline coord_t MOVE_DST (move_t mv)
 {
-	return mv.dst;
+	return coord_create(mv.dst_row, mv.dst_col);
 }
 
 static inline int is_promoting_move (const move_t *move)
 {
-	return (PIECE_TYPE (move->promoted) != PIECE_NONE);
+	return move->promoted_piece_type != PIECE_NONE;
 }
 
 static inline piece_t move_get_promoted (const move_t *move)
 {
-	return move->promoted & PIECE_MASK;
+	return MAKE_PIECE (move->promoted_color, move->promoted_piece_type);
 }
 
 static inline piece_t move_get_taken (const move_t *move)
 {
-	return move->taken & PIECE_MASK;
-#if 0
-	return move->taken;
-#endif
+	return MAKE_PIECE (move->taken_color, move->taken_piece_type);
 }
 
 static inline void move_set_taken (move_t *move, piece_t taken)
 {
-	move->taken = (move->taken & ~PIECE_MASK) | taken;
-#if 0
-	move->taken = taken;
-#endif
+	move->taken_piece_type = PIECE_TYPE(taken);
+	move->taken_color = PIECE_COLOR(taken);
 }
 
 static inline int is_capture_move (const move_t *move)
 {
-#if 0
-	printf ("is_capture_move: piece = %d\n", move->taken);
-	printf ("piece type = %d\n", PIECE_TYPE (move->taken));
-	printf ("PIECE_TYPE (move->taken) != PIECE_NONE = %d\n",
-		PIECE_TYPE (move->taken) != PIECE_NONE);
-#endif
-	return (PIECE_TYPE (move->taken) != PIECE_NONE);
+	return move->taken_piece_type != PIECE_NONE;
 }
 
 static inline void move_set_en_passant (move_t *move)
 {
-	/* use the 6th bit of ->promoted */
-	move->promoted |= 0x1U << PIECE_SHIFT;
+    move->is_en_passant = 1;
 }
 
 static inline int is_en_passant_move (const move_t *move)
 {
-	return move->promoted & (0x1U << PIECE_SHIFT);
+	return move->is_en_passant;
 }
 
 static inline void move_set_castling (move_t *move)
 {
-	/* use the 7th bit of ->promoted */
-	move->promoted |= 0x1U << (PIECE_SHIFT+1);
+    move->affects_castle_state = 1;
+    move->is_castling = 1;
 }
 
 static inline void move_set_castle_state (move_t *move, enum castle c_state)
 {
-	enum piece type;
-	enum color color;
-	piece_t old_piece;
-	move_t  old_move;
+    move->castle_state = c_state;
+    move->affects_castle_state = 1;
+}
 
-	old_piece = move->taken;
-	old_move  = *move;
-
-	type = PIECE_TYPE (move->taken);
-	color = PIECE_COLOR (move->taken);
-
-	/* use the 6th bit of taken */
-	move->taken = (move->taken & ~(CASTLE_MASK << PIECE_SHIFT)) |
-		      ((c_state & CASTLE_MASK) << PIECE_SHIFT);
-
-	assert (type == PIECE_TYPE (move->taken));
-	assert (color == PIECE_COLOR (move->taken));
+static inline int move_affects_castling (move_t move)
+{
+    return move.affects_castle_state;
 }
 
 static inline enum castle move_get_castle_state (const move_t *move)
 {
-    unsigned int raw_piece = move->taken;
-	enum castle result = (enum castle)((raw_piece >> PIECE_SHIFT) & CASTLE_MASK);
-	return result;
+    return move->castle_state;
 }
 
 static inline int is_castling_move (const move_t *move)
 {
-	return (move->promoted & (0x1U << (PIECE_SHIFT+1))) != 0;
+	return move->is_castling;
 }
 
 static inline int is_castling_move_on_king_side (const move_t *move)
 {
-	coord_t coord = COLUMN (MOVE_DST (*move));
-	return is_castling_move(move) && COLUMN (coord) == 6;
+	return is_castling_move(move) && move->dst_col == 6;
 }
 
 static inline move_t move_promote (move_t move, piece_t piece)
 {
-	move.promoted = (move.promoted & ~PIECE_MASK) | piece;
-
-	return move;
+    move_t result = move;
+    result.promoted_piece_type = PIECE_TYPE(piece);
+    result.promoted_color = PIECE_COLOR(piece);
+	return result;
 }
 
-/* run-of-the-mill move with no promotion involved */
+// run-of-the-mill move with no promotion involved
 static inline move_t move_create (unsigned char src_row, unsigned char src_col,
                                   unsigned char dst_row, unsigned char dst_col)
 {
-	move_t tmp;
-       
-	tmp.src      = coord_create (src_row, src_col);
-	tmp.dst      = coord_create (dst_row, dst_col);
+	move_t tmp = { 0 };
 
-	tmp.promoted = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
-	tmp.taken    = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
+	tmp.src_row = src_row;
+	tmp.src_col = src_col;
+	tmp.dst_row = dst_row;
+	tmp.dst_col = dst_col;
 
 	return tmp;
 }
 
 static inline int is_null_move (move_t move)
 {
-	/* no move has the same position for src and dst */
-	return (move.src == 0 && move.dst == 0);
+	// no move has the same position for src and dst
+	return move.src_row == 0 && move.src_col == 0 && move.dst_row == 0 && move.dst_col == 0;
 }
 
 static inline void move_nullify (move_t *move)
@@ -164,9 +150,11 @@ static inline void move_nullify (move_t *move)
 
 static inline int move_equal (const move_t *a, const move_t *b)
 {
-	/* Hm, don't compare the taken piece */
-	return a->src == b->src && a->dst == b->dst && 
-	       a->promoted == b->promoted;
+	// Hm, don't compare the taken piece
+	return a->src_row == b->src_row && a->dst_row == b->dst_row &&
+	        a->src_col == b->src_col && a->dst_col == b->dst_col &&
+	       a->promoted_color == b->promoted_color &&
+	       a->promoted_piece_type == b->promoted_piece_type;
 }
 
 extern char *move_str (move_t move);

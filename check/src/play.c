@@ -76,44 +76,19 @@ static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 		if (!(new_game = game_load (comp_player)))
 			return 1;
 
-		/* this breaks because we have a null move atop the history tree */
+		// this breaks because we have a null move atop the history tree
 		//game_free (game);
 
 		*g_out = new_game;
 		return 1;
 	}
 
-#if 0
-	printf ("src_row = %d src_col = %d\n", src_row, dst_col);
-	printf ("dst_row = %d dst_col = %d\n", dst_row, dst_col);
-	*good = 1;
-
-	if (INVALID (src_row) || INVALID (src_col))
-		*good = 0;
-
-	if (INVALID (dst_row) || INVALID (dst_col))
-		*good = 0;
-
-	src_piece = PIECE_AT (board, src_row, src_col);
-	dst_piece = PIECE_AT (board, dst_row, dst_col);
-
-	if (PIECE_COLOR (src_piece) != side)
-	{
-		*good = 0;
-	}
-	else if (PIECE_TYPE (dst_piece) != PIECE_NONE && 
-	         PIECE_COLOR (src_piece) == PIECE_COLOR (dst_piece))
-	{
-		*good = 0;
-	}
-
-#endif
 	if (!move_parse (buf, game->turn, move))
 		move_nullify (move);
 
 	*good = 0;
 
-	/* check the generated move list for this move to see if its valid */
+	// check the generated move list for this move to see if its valid
 	moves = generate_legal_moves (game->board, game->turn, game->history);
 
 	for_each_move (mptr, moves)

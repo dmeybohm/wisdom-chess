@@ -25,17 +25,17 @@ struct board
 {
 	piece_t            board[NR_ROWS][NR_COLUMNS];
 
-	/* positions of the kings */
+	// positions of the kings
 	coord_t            king_pos[NR_PLAYERS];
 
-	/* castle state of the board */
+	// castle state of the board
 	enum castle        castled[NR_PLAYERS];
 
-	/* keep track of the material on the board */
+	// keep track of the material on the board
 	struct material    material;
 
-	/* keep track of hashing information */
-	struct board_hash  board_hash;
+	// keep track of hashing information
+	struct board_hash  hash;
 };
 
 /**************************************/
@@ -62,7 +62,8 @@ static inline int PAWN_DIRECTION (color_t color)
 
 static inline int need_pawn_promotion (unsigned char row, color_t who) 
 {
-	return (row - 7 * who == COLOR_WHITE);
+    assert (who == COLOR_WHITE || who == COLOR_BLACK);
+	return (row - 7 * (who == COLOR_WHITE));
 }
 
 static inline int able_to_castle (struct board *board, color_t who,

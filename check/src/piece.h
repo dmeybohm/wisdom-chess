@@ -5,13 +5,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-typedef uint8_t   piece_t;
+struct piece_with_color
+{
+    uint8_t piece_type : 3;
+    uint8_t color: 2;
+};
 
 typedef uint8_t   color_t;
 
 typedef uint8_t   color_index_t;
 
-enum piece
+typedef struct piece_with_color piece_t;
+
+enum piece_type
 {
 	PIECE_NONE   = 0U,
 	PIECE_KING   = 1U,
@@ -37,34 +43,23 @@ enum color_index
 	COLOR_INDEX_BLACK = 1U,
 };
 
-// 3 bits for type of piece
-#define PIECE_TYPE_MASK     (0x08U-1U)
+#define NR_PIECES             (6U)
+#define PIECE_AND_COLOR_NONE  (MAKE_PIECE (COLOR_NONE, PIECE_NONE))
 
-// 2 bits for color
-#define PIECE_COLOR_MASK    (0x18U)
-#define PIECE_COLOR_SHIFT   (3U)
-
-#define PIECE_SHIFT         (5U)
-#define PIECE_MASK          (0x1fU)
-#define NR_PIECES           (6U)
-
-static inline piece_t MAKE_PIECE (enum color color, enum piece piece)
+static inline piece_t MAKE_PIECE (enum color color, enum piece_type piece_type)
 {
-    uint8_t raw_piece = (piece & PIECE_TYPE_MASK);
-    uint8_t raw_color = (color << PIECE_COLOR_SHIFT);
-    return (enum piece)(raw_piece | raw_color);
+    struct piece_with_color piece_with_color = { .color = color, .piece_type = piece_type };
+    return piece_with_color;
 }
 
-static inline enum piece PIECE_TYPE (piece_t piece)
+static inline enum piece_type PIECE_TYPE (piece_t piece)
 {
-    unsigned int raw_piece = piece;
-    return (enum piece) (raw_piece & PIECE_TYPE_MASK);
+    return piece.piece_type;
 }
 
 static inline enum color PIECE_COLOR (piece_t piece)
 {
-    unsigned int raw_piece = piece;
-	return (enum color) ((raw_piece & PIECE_COLOR_MASK) >> PIECE_COLOR_SHIFT);
+    return piece.color;
 }
 
 static inline color_t color_invert (color_t color)
@@ -95,7 +90,7 @@ char *piece_str (piece_t piece);
 
 static inline char piece_chr (piece_t piece)
 {
-	enum piece p = PIECE_TYPE(piece);
+	enum piece_type p = PIECE_TYPE(piece);
 
 	switch (p)
 	{

@@ -237,13 +237,14 @@ MOVES_HANDLER (knight)
 
 MOVES_HANDLER (pawn)
 {
-	int        dir;
-	int        row;
-	int        take_col;
-	int        c_dir;
-	move_t     move[4];        /* 4 possible pawn moves */
-	piece_t    piece;
-	int        i;
+	int                dir;
+	int                row;
+	int                take_col;
+	int                c_dir;
+	move_t             move[4];        /* 4 possible pawn moves */
+	enum piece_type    piece_type;
+	piece_t            piece;
+	int                i;
 
 	dir = PAWN_DIRECTION (who);
 
@@ -296,11 +297,11 @@ MOVES_HANDLER (pawn)
 	/* promotion */
 	if (unlikely (need_pawn_promotion (row, who)))
 	{
-		for (piece = PIECE_QUEEN; piece < PIECE_PAWN; piece++)
+		for (piece_type = PIECE_QUEEN; piece_type < PIECE_PAWN; piece_type++)
 		{
-			piece = MAKE_PIECE (who, piece);
+			piece = MAKE_PIECE (who, piece_type);
 
-			/* promotion moves dont include en passant */
+			// promotion moves dont include en passant
 			for (i = 0; i < 4; i++)
 			{
 				if (!is_null_move (move[i]))
@@ -376,7 +377,7 @@ MOVES_HANDLER (en_passant)
 
 	move_set_en_passant (&new_move);
 
-	move_set_taken (&new_move, PIECE_PAWN);
+	move_set_taken (&new_move, MAKE_PIECE(color_invert(who), PIECE_PAWN));
 
 	moves = move_list_append_move (moves, new_move);
 	
@@ -455,7 +456,7 @@ void print_the_board (struct board *board)
 
 	for_each_position (row, col)
 	{
-		DBG (generate, "%2d ", PIECE_AT (board, row, col));
+//		DBG (generate, "%2d ", PIECE_AT (board, row, col));
 		if (col == 7)
 			DBG (generate, "\n");
 	}

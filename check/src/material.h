@@ -19,9 +19,9 @@ struct material
 	int score[NR_PLAYERS];
 };
 
-static inline int material_piece_weight (piece_t piece)
+static inline int material_piece_weight (enum piece_type piece)
 {
-	switch (PIECE_TYPE(piece))
+	switch (piece)
 	{
 		case PIECE_NONE:    return MATERIAL_WEIGHT_NONE;
 		case PIECE_KING:    return MATERIAL_WEIGHT_KING;
