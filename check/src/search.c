@@ -390,6 +390,7 @@ move_t find_best_move (struct board *board, color_t side,
 	 */
 	for (d = 0; d <= max_depth; (d == 0 ? (d++) : (d += 2)))
 	{
+	    // todo check if the move is checkmate and exit early
 		move = iterate (board, side, history, d);
 
 		if (timer_is_triggered (&overdue_timer))
