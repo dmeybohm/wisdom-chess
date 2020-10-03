@@ -67,10 +67,14 @@ static inline int PAWN_DIRECTION (color_t color)
 	return color == COLOR_BLACK ? 1 : -1;
 }
 
-static inline int need_pawn_promotion (unsigned char row, color_t who) 
+static inline int need_pawn_promotion (uint8_t row, color_t who)
 {
-    assert (who == COLOR_WHITE || who == COLOR_BLACK);
-	return (row - 7 * (who == COLOR_WHITE));
+    switch (who)
+    {
+        case COLOR_WHITE: return 0 == row;
+        case COLOR_BLACK: return 7 == row;
+        default: abort();
+    }
 }
 
 static inline int able_to_castle (struct board *board, color_t who,
@@ -118,7 +122,6 @@ static inline int is_pawn_unmoved (struct board *board,
 {
 	piece_t piece = PIECE_AT (board, row, col);
 
-	/* -1 -> white, 1 -> black */
 	if (PIECE_COLOR (piece) == COLOR_WHITE)
 		return row == 6;
 	else

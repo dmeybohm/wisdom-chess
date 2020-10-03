@@ -651,9 +651,6 @@ move_list_t *generate_moves (struct board *board, color_t who,
 	move_list_t *new_moves    = NULL;
 	
 	DBG (generate, "calling print_board\n");
-#if 0
-	print_the_board (board);
-#endif
 	DBG (generate, "done calling print_board\n");
 
 	for_each_position (row, col)
@@ -666,14 +663,6 @@ move_list_t *generate_moves (struct board *board, color_t who,
 
 		if (color != who)
 			continue;
-
-#if 0
-		printf ("piece = %d\n", piece);
-		printf ("color = %d\n", PIECE_COLOR (piece));
-		printf ("type  = %d\n", PIECE_TYPE (piece));
-
-		print_the_board (board);
-#endif
 
 		assert (PIECE_TYPE (piece) < PIECE_LAST);
 

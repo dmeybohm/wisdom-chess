@@ -156,8 +156,10 @@ static inline void move_nullify (move_t *move)
 static inline int move_equal (const move_t *a, const move_t *b)
 {
 	// Hm, don't compare the taken piece
-	return a->src_row == b->src_row && a->dst_row == b->dst_row &&
-	        a->src_col == b->src_col && a->dst_col == b->dst_col &&
+	return a->src_row == b->src_row
+	        && a->dst_row == b->dst_row &&
+	        a->src_col == b->src_col &&
+	        a->dst_col == b->dst_col &&
 	       a->promoted_color == b->promoted_color &&
 	       a->promoted_piece_type == b->promoted_piece_type;
 }
