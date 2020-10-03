@@ -2,6 +2,7 @@
 // Created by David Meybohm on 9/28/20.
 //
 
+#include "global.h"
 #include "timer.h"
 
 #include <stdio.h>

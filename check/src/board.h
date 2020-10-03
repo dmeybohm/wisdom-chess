@@ -1,6 +1,8 @@
 #ifndef EVOLVE_CHESS_BOARD_H_
 #define EVOLVE_CHESS_BOARD_H_
 
+#include <stdio.h>
+
 #include <assert.h>
 
 #include "global.h"
@@ -35,6 +37,7 @@ struct board
 	struct material    material;
 
 	// keep track of hashing information
+	// TODO maybe move this higher up for better performance
 	struct board_hash  hash;
 };
 
@@ -73,6 +76,7 @@ static inline int need_pawn_promotion (uint8_t row, color_t who)
     {
         case COLOR_WHITE: return 0 == row;
         case COLOR_BLACK: return 7 == row;
+        case COLOR_NONE: fprintf (stderr, "oops\n"); abort();
         default: abort();
     }
 }

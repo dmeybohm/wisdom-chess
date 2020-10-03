@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 struct piece_with_color
 {
@@ -74,7 +75,11 @@ static inline color_index_t color_index (color_t who)
 	{
 		case COLOR_WHITE: return COLOR_INDEX_WHITE;
 		case COLOR_BLACK: return COLOR_INDEX_BLACK;
-		default: abort();
+		default:
+        {
+            fprintf (stderr, "Invalid color passed to color_index(): %d\n", who);
+            abort();
+        }
 	}
 }
 

@@ -12,6 +12,9 @@ project(WizDumb)
 
 CHECK_INCLUDE_FILES("netinet/in.h" HAVE_NETINET_H)
 CHECK_INCLUDE_FILES("winsock2.h" HAVE_WINSOCK2_H)
+CHECK_INCLUDE_FILES("time.h" HAVE_TIME_H)
+CHECK_INCLUDE_FILES("sys/time.h" HAVE_SYS_TIME_H)
+CHECK_INCLUDE_FILES("unistd.h" HAVE_UNISTD_H)
 
 # add the executable
 add_executable(chess

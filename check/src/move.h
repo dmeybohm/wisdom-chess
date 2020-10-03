@@ -21,6 +21,7 @@ typedef struct move
 {
 	uint8_t    src_row : 3;
 	uint8_t    src_col : 3;
+
 	uint8_t    dst_row : 3;
 	uint8_t    dst_col : 3;
 
@@ -39,12 +40,12 @@ typedef struct move
 
 static inline coord_t MOVE_SRC (move_t mv)
 {
-	return coord_create(mv.src_row, mv.src_col);
+	return coord_create (mv.src_row, mv.src_col);
 }
 
 static inline coord_t MOVE_DST (move_t mv)
 {
-	return coord_create(mv.dst_row, mv.dst_col);
+	return coord_create (mv.dst_row, mv.dst_col);
 }
 
 static inline int is_promoting_move (const move_t *move)
@@ -156,12 +157,12 @@ static inline void move_nullify (move_t *move)
 static inline int move_equal (const move_t *a, const move_t *b)
 {
 	// Hm, don't compare the taken piece
-	return a->src_row == b->src_row
-	        && a->dst_row == b->dst_row &&
-	        a->src_col == b->src_col &&
-	        a->dst_col == b->dst_col &&
-	       a->promoted_color == b->promoted_color &&
-	       a->promoted_piece_type == b->promoted_piece_type;
+	return a->src_row == b->src_row &&
+	    a->dst_row == b->dst_row &&
+	    a->src_col == b->src_col &&
+	    a->dst_col == b->dst_col &&
+	    a->promoted_color == b->promoted_color &&
+	    a->promoted_piece_type == b->promoted_piece_type;
 }
 
 extern char *move_str (move_t move);

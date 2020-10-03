@@ -92,8 +92,13 @@ static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 	moves = generate_legal_moves (game->board, game->turn, game->history);
 
 	for_each_move (mptr, moves)
-		if (move_equal (mptr, move))
-			*good = 1;
+	{
+        if (move_equal(mptr, move))
+        {
+            *good = 1;
+            break;
+        }
+    }
 
 	move_list_destroy (moves);
 

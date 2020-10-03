@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <assert.h>
 #include <sys/time.h>
-#include <signal.h>
-#include <unistd.h>
 
 #include "piece.h"
 #include "board.h"
