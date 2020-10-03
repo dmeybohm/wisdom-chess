@@ -1,6 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
-
 #include "catch.hpp"
 
 extern "C"
@@ -17,5 +14,3 @@ TEST_CASE( "A piece can be converted", "[piece]" )
     CHECK( PIECE_TYPE(combined) == piece );
     CHECK( PIECE_COLOR(combined) == color );
 }
-
-#pragma clang diagnostic pop
