@@ -4,12 +4,14 @@
 #include <string.h>
 
 #include "board.h"
+#include "board_positions.h"
 #include "move.h"
 #include "piece.h"
 #include "material.h"
 #include "debug.h"
 #include "generate.h"
 #include "coord.h"
+#include "validate.h"
 
 /* board length in characters */
 #define BOARD_LENGTH            31
@@ -273,6 +275,8 @@ void do_move (struct board *board, color_t who, move_t *move)
 		if (PIECE_TYPE (dst_piece) == PIECE_ROOK)
 			update_rook_position (board, color_invert (who), move, src, dst, 0);
 	}
+
+	validate_castle_state (board, move);
 }
 
 void undo_move (struct board *board, color_t who, move_t *move)
@@ -323,6 +327,7 @@ void undo_move (struct board *board, color_t who, move_t *move)
 		if (PIECE_TYPE (dst_piece) == PIECE_ROOK)
 			update_rook_position (board, color_invert (who), move, src, dst, 1);
 	}
+	validate_castle_state (board, move);
 }
 
 static enum piece_type back_rank[] =

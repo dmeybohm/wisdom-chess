@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <assert.h>
+#include <ctype.h>
 
 #include "coord.h"
 #include "piece.h"
@@ -124,6 +125,16 @@ static inline int is_castling_move (const move_t *move)
 static inline int is_castling_move_on_king_side (const move_t *move)
 {
 	return is_castling_move(move) && move->dst_col == 6;
+}
+
+static inline unsigned char char_to_row (char chr)
+{
+    return 8 - (tolower (chr) - '0');
+}
+
+static inline unsigned char char_to_col (char chr)
+{
+    return tolower (chr) - 'a';
 }
 
 static inline move_t move_promote (move_t move, piece_t piece)

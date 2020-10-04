@@ -23,6 +23,7 @@
 
 struct material;
 struct move_tree;
+struct board_positions;
 
 struct board
 {
@@ -42,12 +43,6 @@ struct board
 	struct board_hash  hash;
 };
 
-struct board_positions
-{
-    int               rank;
-    color_t           piece_color;
-    enum piece_type  *pieces;
-};
 
 /**************************************/
 

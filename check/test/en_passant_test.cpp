@@ -3,6 +3,7 @@
 extern "C"
 {
 #include "../src/board.h"
+#include "../src/board_positions.h"
 #include "../src/move_tree.h"
 #include "../src/generate.h"
 }
@@ -32,7 +33,7 @@ TEST_CASE( "En passant moves work", "[en-passant]" )
         { 1, COLOR_BLACK, black_pawns },
         { 3, COLOR_WHITE, fifth_rank },
         { 7, COLOR_WHITE, back_rank },
-        { 0, PIECE_NONE, NULL }
+        { 0, COLOR_NONE, NULL }
     };
 
     board_init_from_positions (board, positions);

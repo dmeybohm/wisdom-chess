@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "move.h"
 #include "coord.h"
@@ -8,16 +7,6 @@
 
 extern char col_to_char (int col);
 extern char row_to_char (int row);
-
-static inline unsigned char char_to_row (char chr)
-{
-	return 8 - (tolower (chr) - '0');
-}
-
-static inline unsigned char char_to_col (char chr)
-{
-	return tolower (chr) - 'a';
-}
 
 char *move_str (move_t move)
 {

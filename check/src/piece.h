@@ -115,4 +115,7 @@ static inline char piece_chr (piece_t piece)
 #define for_each_piece(p) \
 	for (p = PIECE_NONE; p < PIECE_LAST; p++)
 
+#define for_each_color_index(c) \
+    for (c = COLOR_INDEX_WHITE; c <= COLOR_INDEX_BLACK; c++)
+
 #endif // EVOLVE_CHESS_PIECE_H
