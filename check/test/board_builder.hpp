@@ -7,7 +7,7 @@ extern "C"
 #include "../src/move.h"
 }
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -28,9 +28,16 @@ public:
     void add_piece(const char *coord_str, enum color who, enum piece_type piece_type);
     void add_piece(uint8_t row, uint8_t col, enum color who, enum piece_type piece_type);
     void add_row_of_same_color(int row, enum color who, vector<enum piece_type> piece_types);
-    void add_row_of_same_color_and_piece(int row, enum color who, enum piece_type piece_type);
+    void add_row_of_same_color_and_piece(int row, enum color who, enum piece_type piece_type) ;
 
     struct board *build();
+};
+
+class board_builder_exception : public exception {
+    const char *message;
+public:
+    board_builder_exception(const char *message) { this->message = message; }
+    virtual const char *what() const throw() { return this->message; }
 };
 
 #endif //WIZDUMB_BOARD_BUILDER_HPP

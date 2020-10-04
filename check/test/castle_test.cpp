@@ -202,32 +202,19 @@ TEST_CASE("Castling state is modified and restored for castling kingside", "[cas
 
 TEST_CASE("Opponent's castling state is modified when his rook is taken", "[castling]")
 {
-    struct board *board = board_new();
-    enum piece_type black_back_rank[] =
-    {
-        PIECE_ROOK,   PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_KING,
-        PIECE_NONE, PIECE_NONE, PIECE_ROOK, PIECE_LAST
-    };
-    enum piece_type white_bishop_b7[] =
-    {
-        PIECE_NONE, PIECE_BISHOP, PIECE_LAST
-    };
-    enum piece_type white_back_rank[] =
-    {
-        PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_KING,
-        PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_LAST
-    };
+    board_builder builder{};
 
-    struct board_positions positions[] =
-    {
-        { 0, COLOR_BLACK, black_back_rank },
-        { 1, COLOR_WHITE, white_bishop_b7 },
-        { 7, COLOR_WHITE, white_back_rank },
-        { 0, COLOR_NONE, NULL }
-    };
+    builder.add_piece("a8", COLOR_BLACK, PIECE_ROOK);
+    builder.add_piece("e8", COLOR_BLACK, PIECE_KING);
+    builder.add_piece("h8", COLOR_BLACK, PIECE_ROOK);
+    builder.add_piece("a1", COLOR_WHITE, PIECE_ROOK);
+    builder.add_piece("e1", COLOR_WHITE, PIECE_KING);
+    builder.add_piece("h1", COLOR_WHITE, PIECE_ROOK);
 
-    board_init_from_positions (board, positions);
+    // add bishop to capture rook:
+    builder.add_piece("b7", COLOR_WHITE, PIECE_BISHOP);
 
+    struct board *board = builder.build();
     move_t mv = move_create (1, 1, 0, 0);
 
     // TODO: need to update the castle state on initialization if the white rooks are missing from
@@ -269,32 +256,19 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken", "[cast
 
 TEST_CASE("Castling state is updated when rook captures a piece", "[castling]")
 {
-    struct board *board = board_new();
-    enum piece_type black_back_rank[] =
-    {
-        PIECE_ROOK, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_KING,
-        PIECE_NONE, PIECE_NONE, PIECE_ROOK, PIECE_LAST
-    };
-    enum piece_type white_bishop_b8[] =
-    {
-        PIECE_BISHOP, PIECE_NONE, PIECE_LAST
-    };
-    enum piece_type white_back_rank[] =
-    {
-        PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_KING,
-        PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_LAST
-    };
+    board_builder builder{};
 
-    struct board_positions positions[] =
-    {
-        { 0, COLOR_BLACK, black_back_rank },
-        { 1, COLOR_WHITE, white_bishop_b8 },
-        { 7, COLOR_WHITE, white_back_rank },
-        { 0, COLOR_NONE, NULL }
-    };
+    builder.add_piece("a8", COLOR_BLACK, PIECE_ROOK);
+    builder.add_piece("e8", COLOR_BLACK, PIECE_KING);
+    builder.add_piece("h8", COLOR_BLACK, PIECE_ROOK);
+    builder.add_piece("a1", COLOR_WHITE, PIECE_ROOK);
+    builder.add_piece("e1", COLOR_WHITE, PIECE_KING);
+    builder.add_piece("h1", COLOR_WHITE, PIECE_ROOK);
 
-    board_init_from_positions (board, positions);
+    // add bishop for rook to capture:
+    builder.add_piece("a7", COLOR_WHITE, PIECE_BISHOP);
 
+    struct board *board = builder.build();
     move_t mv = move_create (0, 0, 1, 0);
 
     // TODO: need to update the castle state on initialization if the white rooks are missing from
@@ -346,9 +320,6 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
         PIECE_PAWN, PIECE_NONE, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN,
         PIECE_PAWN, PIECE_PAWN, PIECE_PAWN
     });
-    builder.add_piece ("a3", COLOR_BLACK, PIECE_PAWN);
-    builder.add_piece ("e5", COLOR_BLACK, PIECE_BISHOP);
-    builder.add_piece ("d3", COLOR_WHITE, PIECE_PAWN);
     builder.add_row_of_same_color (6, COLOR_WHITE, {
         PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_NONE, PIECE_NONE,
         PIECE_PAWN, PIECE_PAWN, PIECE_PAWN
@@ -357,6 +328,10 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
         PIECE_ROOK, PIECE_KNIGHT, PIECE_BISHOP, PIECE_NONE, PIECE_KING,
         PIECE_NONE, PIECE_KNIGHT, PIECE_ROOK
     });
+
+    builder.add_piece ("a6", COLOR_BLACK, PIECE_PAWN);
+    builder.add_piece ("e5", COLOR_BLACK, PIECE_BISHOP);
+    builder.add_piece ("d3", COLOR_WHITE, PIECE_PAWN);
     // add the queen ready for rook to capture:
     builder.add_piece ("b8", COLOR_WHITE, PIECE_QUEEN);
 
@@ -376,7 +351,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
     CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_NONE );
 
-    do_move (board, COLOR_WHITE, &mv);
+    do_move (board, COLOR_BLACK, &mv);
 
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );
@@ -388,7 +363,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
     CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_QUEENSIDE );
 
-    undo_move (board, COLOR_WHITE, &mv);
+    undo_move (board, COLOR_BLACK, &mv);
 
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );

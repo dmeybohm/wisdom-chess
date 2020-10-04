@@ -29,6 +29,12 @@ void board_builder::add_piece(uint8_t row, uint8_t col, enum color who, enum pie
         .piece_type = piece_type,
     };
 
+    if (row < 0 || row >= NR_ROWS) {
+        throw board_builder_exception("Invalid row!");
+    }
+    if (col < 0 || col >= NR_COLUMNS) {
+        throw board_builder_exception("Invalid column!");
+    }
     this->pieces_with_coords.push_back(new_piece);
 }
 
@@ -65,12 +71,10 @@ struct board *board_builder::build()
     {
         struct piece_with_coord piece_with_coord = this->pieces_with_coords[i];
         size_t col = COLUMN(piece_with_coord.coord);
-        enum piece_type *pptr = &piece_types[i][0];
 
         for (uint8_t c = 0; c < NR_COLUMNS; c++)
-        {
             piece_types[i][c] = PIECE_NONE;
-        }
+
         piece_types[i][col] = piece_with_coord.piece_type;
         piece_types[i][NR_COLUMNS] = PIECE_LAST;
 

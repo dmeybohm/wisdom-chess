@@ -163,8 +163,8 @@ void update_king_position (struct board *board, color_t who, move_t *move,
 }
 
 static void update_rook_position (struct board *board, color_t who,
-								  move_t *move, coord_t src, coord_t dst,
-								  int undo)
+								  piece_t src_piece, move_t *move, coord_t src,
+								  coord_t dst,int undo)
 {
 	if (undo)
 	{
@@ -181,7 +181,7 @@ static void update_rook_position (struct board *board, color_t who,
         // This needs distinguishes between captures that end
         // up on the rook and moves from the rook itself.
         ///
-        if (!is_capture_move (move))
+        if (PIECE_COLOR(src_piece) == who && PIECE_TYPE(src_piece) == PIECE_ROOK)
         {
             if (COLUMN(src) == 0)
                 castle_state = CASTLE_QUEENSIDE;
@@ -213,13 +213,13 @@ static void update_rook_position (struct board *board, color_t who,
 
 void do_move (struct board *board, color_t who, move_t *move)
 {
-	piece_t    src_piece, dst_piece;
+	piece_t    orig_src_piece, src_piece, dst_piece;
 	coord_t    src, dst;
 
 	src = MOVE_SRC (*move);
 	dst = MOVE_DST (*move);
 
-	src_piece = PIECE_AT_COORD (board, src);
+	orig_src_piece = src_piece = PIECE_AT_COORD (board, src);
 	dst_piece = PIECE_AT_COORD (board, dst);
 
 	/* save the taken piece in the move
@@ -264,7 +264,7 @@ void do_move (struct board *board, color_t who, move_t *move)
 
 	/* update rook position -- for castling */
 	if (PIECE_TYPE (src_piece) == PIECE_ROOK)
-		update_rook_position (board, who, move, src, dst, 0);
+		update_rook_position (board, who, orig_src_piece, move, src, dst, 0);
 
 	if (is_capture_move (move))
 	{
@@ -273,7 +273,7 @@ void do_move (struct board *board, color_t who, move_t *move)
 
 		// update castle state if somebody takes the rook
 		if (PIECE_TYPE (dst_piece) == PIECE_ROOK)
-			update_rook_position (board, color_invert (who), move, src, dst, 0);
+			update_rook_position (board, color_invert (who), orig_src_piece, move, src, dst, 0);
 	}
 
 	validate_castle_state (board, move);
@@ -281,14 +281,14 @@ void do_move (struct board *board, color_t who, move_t *move)
 
 void undo_move (struct board *board, color_t who, move_t *move)
 {
-	piece_t     src_piece, dst_piece;
+	piece_t     orig_src_piece, src_piece, dst_piece;
 	coord_t     src, dst;
 
 	src = MOVE_SRC (*move);
 	dst = MOVE_DST (*move);
 
 	dst_piece = move_get_taken (move);
-	src_piece = PIECE_AT_COORD (board, dst);
+	orig_src_piece = src_piece = PIECE_AT_COORD (board, dst);
 
 	if (PIECE_TYPE (src_piece) != PIECE_NONE &&
 	    PIECE_TYPE (dst_piece) != PIECE_NONE)
@@ -317,7 +317,7 @@ void undo_move (struct board *board, color_t who, move_t *move)
 		update_king_position (board, who, move, src, dst, 1);
 
 	if (PIECE_TYPE (src_piece) == PIECE_ROOK)
-		update_rook_position (board, who, move, src, dst, 1);
+		update_rook_position (board, who, orig_src_piece, move, src, dst, 1);
 
 	if (is_capture_move (move))
 	{
@@ -325,7 +325,7 @@ void undo_move (struct board *board, color_t who, move_t *move)
         material_add (&board->material, move_get_taken(move));
 
 		if (PIECE_TYPE (dst_piece) == PIECE_ROOK)
-			update_rook_position (board, color_invert (who), move, src, dst, 1);
+			update_rook_position (board, color_invert (who), orig_src_piece, move, src, dst, 1);
 	}
 	validate_castle_state (board, move);
 }
