@@ -15,7 +15,10 @@ enum castle
 	CASTLE_CASTLED       = 0x01U,   // castled - use by move_t to indicate the move is castling
 	CASTLE_KINGSIDE      = 0x02U,   // ineligible for further castling kingside
 	CASTLE_QUEENSIDE     = 0x04U,   // ineligible for further castling queenside
+	CASTLE_OPPONENT      = 0x08U,   // whether the new castle state is for the opponent or current player
 };
+
+#define MAX_CASTLE_STATES 16
 
 typedef struct move
 {
@@ -35,7 +38,9 @@ typedef struct move
 	uint8_t    promoted_piece_type: 3;
 
 	uint8_t    is_castling : 1;
-	uint8_t    castle_state : 3;
+	uint8_t    castle_state : 4;
+
+	uint8_t    _rest : 2; // 2 bits left in 32-bit word
 } move_t;
 
 static inline coord_t MOVE_SRC (move_t mv)

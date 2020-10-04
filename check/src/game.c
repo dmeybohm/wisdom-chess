@@ -9,6 +9,7 @@
 #include "move_tree.h"
 #include "str.h"
 #include "game.h"
+#include "board_check.h"
 
 struct game *game_new (color_t turn, color_t computer_player)
 {
@@ -154,10 +155,6 @@ struct game *game_load (color_t player)
 		 */
 		dst = MOVE_DST (move);
 		piece = PIECE_AT_COORD (game->board, dst);
-
-#if 0
-		printf ("%s (%s)\n", buf, move_str (move));
-#endif
 
 		if (PIECE_TYPE(piece) != PIECE_NONE)
 		{

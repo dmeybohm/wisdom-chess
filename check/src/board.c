@@ -269,7 +269,7 @@ void do_move (struct board *board, color_t who, move_t *move)
 		// update material estimate
 		material_del (&board->material, dst_piece);
 
-		/* update castle state if somebody takes the rook */
+		// update castle state if somebody takes the rook
 		if (PIECE_TYPE (dst_piece) == PIECE_ROOK)
 			update_rook_position (board, color_invert (who), move, src, dst, 0);
 	}
