@@ -58,7 +58,7 @@ static move_t get_castling_rook_move (struct board *board, move_t *move, color_t
 
 	src_row = ROW (src);
 	dst_row = ROW (dst);
-	
+
 	if (COLUMN (src) < COLUMN (dst))
 	{
 		// castle to the right (kingside)
@@ -84,8 +84,8 @@ static move_t get_castling_rook_move (struct board *board, move_t *move, color_t
 	return move_create (src_row, src_col, dst_row, dst_col);
 }
 
-static void handle_castling (struct board *board, color_t who, 
-                             move_t *king_move, coord_t src, coord_t dst, 
+static void handle_castling (struct board *board, color_t who,
+                             move_t *king_move, coord_t src, coord_t dst,
                              int undo)
 {
 	move_t  rook_move;
@@ -160,8 +160,8 @@ void update_king_position (struct board *board, color_t who, move_t *move,
 	}
 }
 
-static void update_rook_position (struct board *board, color_t who, 
-								  move_t *move, coord_t src, coord_t dst, 
+static void update_rook_position (struct board *board, color_t who,
+								  move_t *move, coord_t src, coord_t dst,
 								  int undo)
 {
 	if (undo)
@@ -203,7 +203,7 @@ static void update_rook_position (struct board *board, color_t who,
 		if (able_to_castle (board, who, castle_state))
 		{
             // save the current castle state
-            move_set_castle_state (move, board_get_castle_state(board, who));
+            move_set_castle_state (move, board_get_castle_state (board, who));
             board_apply_castle_change (board, who, castle_state);
         }
 	}
@@ -220,12 +220,12 @@ void do_move (struct board *board, color_t who, move_t *move)
 	src_piece = PIECE_AT_COORD (board, src);
 	dst_piece = PIECE_AT_COORD (board, dst);
 
-	/* save the taken piece in the move 
+	/* save the taken piece in the move
 	 * This may be a bad idea to set here */
 	if (PIECE_TYPE (dst_piece) != PIECE_NONE)
 	    move_set_taken (move, dst_piece);
 
-	if (PIECE_TYPE (src_piece) != PIECE_NONE && 
+	if (PIECE_TYPE (src_piece) != PIECE_NONE &&
 	    PIECE_TYPE (dst_piece) != PIECE_NONE)
 	{
 		if (PIECE_COLOR (src_piece) == PIECE_COLOR (dst_piece))
@@ -286,7 +286,7 @@ void undo_move (struct board *board, color_t who, move_t *move)
 	dst_piece = move_get_taken (move);
 	src_piece = PIECE_AT_COORD (board, dst);
 
-	if (PIECE_TYPE (src_piece) != PIECE_NONE && 
+	if (PIECE_TYPE (src_piece) != PIECE_NONE &&
 	    PIECE_TYPE (dst_piece) != PIECE_NONE)
 	{
 		assert (PIECE_COLOR (src_piece) != PIECE_COLOR (dst_piece));
@@ -333,7 +333,7 @@ static enum piece_type back_rank[] =
 
 static enum piece_type pawns[] =
 {
-	PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, 
+	PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN,
 	PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_LAST
 };
 
@@ -449,7 +449,7 @@ void board_print_to_file (struct board *board, FILE *file)
 			if (!col)
 				fprintf (file, "|");
 
-			if (PIECE_TYPE (piece) != PIECE_NONE && 
+			if (PIECE_TYPE (piece) != PIECE_NONE &&
 				PIECE_COLOR (piece) == COLOR_BLACK)
 			{
 				fprintf (file, "*");
@@ -515,7 +515,7 @@ void board_print_err (struct board *board)
 
 void check (void)
 {
-	enum color c; 
+	enum color c;
 	enum piece_type p;
 
 	for_each_color (c)
