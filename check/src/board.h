@@ -99,7 +99,7 @@ static inline castle_state_t board_get_castle_state (struct board *board, color_
 static inline void board_apply_castle_change (struct board *board, color_t who, castle_state_t castle_state)
 {
     color_index_t index = color_index(who);
-    board->castled[index] |= castle_state;
+    board->castled[index] = castle_state;
 }
 
 static inline void board_undo_castle_change (struct board *board, color_t who, castle_state_t castle_state)

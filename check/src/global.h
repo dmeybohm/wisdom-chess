@@ -12,4 +12,7 @@
 
 #define KING_COLUMN      4
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #endif //WIZDUMB_GLOBAL_H

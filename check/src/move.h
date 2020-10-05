@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <ctype.h>
 
+#include "global.h"
 #include "coord.h"
 #include "piece.h"
 
@@ -12,14 +13,14 @@ typedef uint8_t castle_state_t;
 
 enum castle
 {
-	CASTLE_NONE          = 0U,      // still eligible to castle on both sides
-	CASTLE_CASTLED       = 0x01U,   // castled - use by move_t to indicate the move is castling
-	CASTLE_KINGSIDE      = 0x02U,   // ineligible for further castling kingside
-	CASTLE_QUEENSIDE     = 0x04U,   // ineligible for further castling queenside
-	CASTLE_OPPONENT      = 0x08U,   // whether the new castle state is for the opponent or current player
+	CASTLE_NONE            = 0U,      // still eligible to castle on both sides
+	CASTLE_CASTLED         = 0x01U,   // castled - use by move_t to indicate the move is castling
+	CASTLE_KINGSIDE        = 0x02U,   // ineligible for further castling kingside
+	CASTLE_QUEENSIDE       = 0x04U,   // ineligible for further castling queenside
+	CASTLE_PREVIOUSLY_NONE = 0x07U,   // previously was none - used for determining if a move affects castling
 };
 
-#define MAX_CASTLE_STATES 16
+#define MAX_CASTLE_STATES 8
 
 typedef struct move
 {
@@ -29,19 +30,17 @@ typedef struct move
 	uint8_t    dst_row : 3;
 	uint8_t    dst_col : 3;
 
-	uint8_t    affects_castle_state : 1;
-	uint8_t    is_en_passant : 1;
-
 	uint8_t    taken_color: 2;
 	uint8_t    taken_piece_type: 3;
 
 	uint8_t    promoted_color: 2;
 	uint8_t    promoted_piece_type: 3;
 
+	uint8_t    is_en_passant : 1;
 	uint8_t    is_castling : 1;
-	uint8_t    castle_state : 4;
 
-	uint8_t    _rest : 2; // 2 bits left in 32-bit word
+	uint8_t    current_castle_state : 3;
+	uint8_t    opponent_castle_state : 3;
 } move_t;
 
 static inline coord_t MOVE_SRC (move_t mv)
@@ -96,25 +95,17 @@ static inline int is_en_passant_move (const move_t *move)
 
 static inline void move_set_castling (move_t *move)
 {
-    move->affects_castle_state = 1;
     move->is_castling = 1;
 }
 
-static inline void move_set_castle_state (move_t *move, castle_state_t c_state)
+static inline int move_affects_current_castle_state (move_t move)
 {
-    move->castle_state = c_state;
-    move->affects_castle_state = 1;
+    return move.current_castle_state != CASTLE_NONE;
 }
 
-static inline int move_affects_castling (move_t move)
+static inline int move_affects_opponent_castle_state (move_t move)
 {
-    return move.affects_castle_state;
-}
-
-static inline castle_state_t move_get_castle_state (const move_t *move)
-{
-    castle_state_t result = move->castle_state;
-    return result;
+    return move.opponent_castle_state != CASTLE_NONE;
 }
 
 static inline int is_castling_move (const move_t *move)
@@ -180,6 +171,40 @@ static inline int move_equal (const move_t *a, const move_t *b)
 	    a->promoted_color == b->promoted_color &&
 	    a->promoted_piece_type == b->promoted_piece_type;
 }
+
+// Pack the castle state into the move.
+static inline castle_state_t unpack_castle_state (castle_state_t state)
+{
+    return state == CASTLE_PREVIOUSLY_NONE ? CASTLE_NONE : state;
+}
+
+// Unpack the castle state from the move.
+static inline castle_state_t pack_castle_state (castle_state_t state)
+{
+    return state == CASTLE_NONE ? CASTLE_PREVIOUSLY_NONE : state;
+}
+
+static inline castle_state_t current_castle_state (const move_t *move)
+{
+    return unpack_castle_state(move->current_castle_state);
+}
+
+static inline castle_state_t opponent_castle_state (const move_t *move)
+{
+    return unpack_castle_state(move->opponent_castle_state);
+}
+
+static inline void save_current_castle_state (move_t *move, castle_state_t state)
+{
+    move->current_castle_state = pack_castle_state(state);
+}
+
+static inline void save_opponent_castle_state (move_t *move, castle_state_t state)
+{
+    move->opponent_castle_state = pack_castle_state(state);
+}
+
+/*********************************************************************/
 
 extern char *move_str (move_t move);
 
