@@ -6,12 +6,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-struct piece_with_color
-{
-    uint8_t piece_type : 3;
-    uint8_t color: 2;
-};
-
 typedef uint8_t   color_t;
 
 typedef uint8_t   color_index_t;
@@ -36,6 +30,12 @@ enum color
 	COLOR_WHITE = 1U,
 	COLOR_BLACK = 2U,
 	COLOR_LAST  = 3U,
+};
+
+struct piece_with_color
+{
+    enum piece_type piece_type : 3;
+    enum color color: 2;
 };
 
 enum color_index
