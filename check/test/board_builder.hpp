@@ -18,7 +18,7 @@ struct piece_with_coord
     enum piece_type piece_type;
 };
 
-class board_builder
+class board_builder final
 {
     std::vector<piece_with_coord> pieces_with_coords;
 
