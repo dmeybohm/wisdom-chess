@@ -74,17 +74,18 @@ struct board *board_builder::build ()
     for (size_t i = 0; i < sz; i++)
     {
         struct piece_with_coord piece_with_coord = this->pieces_with_coords[i];
+        vector<enum piece_type> &current_piece_row = piece_types[i].types;
 
         size_t col = COLUMN(piece_with_coord.coord);
 
         for (uint8_t c = 0; c < NR_COLUMNS; c++)
-            piece_types[i].types[col] = PIECE_NONE;
+           current_piece_row[col] = PIECE_NONE;
 
-        piece_types[i].types[col] = piece_with_coord.piece_type;
-        piece_types[i].types[NR_COLUMNS] = PIECE_LAST;
+        current_piece_row[col] = piece_with_coord.piece_type;
+        current_piece_row[NR_COLUMNS] = PIECE_LAST;
 
         positions[i].rank = ROW(piece_with_coord.coord);
-        positions[i].pieces = &piece_types[i].types[0];
+        positions[i].pieces = &current_piece_row[0];
         positions[i].piece_color = piece_with_coord.color;
     }
 
