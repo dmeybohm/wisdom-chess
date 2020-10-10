@@ -11,8 +11,6 @@ extern "C"
 #include <string>
 #include <vector>
 
-using namespace std;
-
 struct piece_with_coord
 {
     coord_t coord;
@@ -22,7 +20,7 @@ struct piece_with_coord
 
 class board_builder
 {
-    vector<piece_with_coord> pieces_with_coords;
+    std::vector<piece_with_coord> pieces_with_coords;
 
 public:
     board_builder() = default;
@@ -31,20 +29,20 @@ public:
 
     void add_piece (uint8_t row, uint8_t col, enum color who, enum piece_type piece_type);
 
-    void add_row_of_same_color (int row, enum color who, vector<enum piece_type> piece_types);
+    void add_row_of_same_color (int row, enum color who, std::vector<enum piece_type> piece_types);
 
     void add_row_of_same_color_and_piece (int row, enum color who, enum piece_type piece_type);
 
     struct board *build();
 };
 
-class board_builder_exception : public exception
+class board_builder_exception : public std::exception
 {
     const char *message;
 
 public:
     explicit board_builder_exception (const char *message) { this->message = message; }
-    const char *what() const noexcept { return this->message; }
+    const char *what() const noexcept override { return this->message; }
 };
 
 #endif //WIZDUMB_BOARD_BUILDER_HPP

@@ -55,12 +55,12 @@ static inline piece_t MAKE_PIECE (enum color color, enum piece_type piece_type)
 
 static inline enum piece_type PIECE_TYPE (piece_t piece)
 {
-    return (enum piece_type)piece.piece_type;
+    return piece.piece_type;
 }
 
 static inline enum color PIECE_COLOR (piece_t piece)
 {
-    return (enum color)piece.color;
+    return piece.color;
 }
 
 static inline color_t color_invert (color_t color)

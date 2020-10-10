@@ -13,7 +13,7 @@ void board_builder::add_piece (const char *coord_str, enum color who, enum piece
     uint8_t col = char_to_col(coord_str[0]);
     uint8_t row = char_to_row(coord_str[1]);
 
-    this->add_piece(row, col, who, piece_type);
+    this->add_piece (row, col, who, piece_type);
 }
 
 void board_builder::add_piece (uint8_t row, uint8_t col, enum color who, enum piece_type piece_type)
@@ -31,7 +31,7 @@ void board_builder::add_piece (uint8_t row, uint8_t col, enum color who, enum pi
     if (col < 0 || col >= NR_COLUMNS)
         throw board_builder_exception("Invalid column!");
 
-    this->pieces_with_coords.push_back(new_piece);
+    this->pieces_with_coords.push_back (new_piece);
 }
 
 void board_builder::add_row_of_same_color_and_piece (int row, enum color who, enum piece_type piece_type)
@@ -40,47 +40,42 @@ void board_builder::add_row_of_same_color_and_piece (int row, enum color who, en
         this->add_piece (row, col, who, piece_type);
 }
 
-void board_builder::add_row_of_same_color (int row, enum color who, vector<enum piece_type> piece_types)
+void board_builder::add_row_of_same_color (int row, enum color who, std::vector<enum piece_type> piece_types)
 {
     size_t col = 0;
 
     for (auto it = piece_types.begin(); it != piece_types.end(); it++, col++)
-        this->add_piece(row, col, who, *it);
+        this->add_piece (row, col, who, *it);
 }
 
 struct board *board_builder::build ()
 {
     struct piece_row
     {
-        vector<enum piece_type> types;
-        piece_row() : types { NR_COLUMNS + 1 } {}
+        std::vector<enum piece_type> row;
+        piece_row() : row { NR_COLUMNS + 1 } {}
     };
 
     size_t sz = this->pieces_with_coords.size();
 
-    vector<piece_row> piece_types { sz };
-    vector<struct board_positions> positions { sz + 1 };
+    std::vector<piece_row> piece_types { sz };
+    std::vector<struct board_positions> positions { sz + 1 };
 
-    positions[sz].rank = 0;
-    positions[sz].pieces = nullptr;
-    positions[sz].piece_color = COLOR_NONE;
+    positions[sz] = { 0, COLOR_NONE, nullptr };
 
     for (size_t i = 0; i < sz; i++)
     {
-        struct piece_with_coord piece_with_coord = this->pieces_with_coords[i];
-        vector<enum piece_type> &current_piece_row = piece_types[i].types;
+        struct piece_with_coord &piece_with_coord = this->pieces_with_coords[i];
+        std::vector<enum piece_type> &current_piece_row = piece_types[i].row;
 
-        size_t col = COLUMN(piece_with_coord.coord);
+        uint8_t col = COLUMN(piece_with_coord.coord);
+        uint8_t row = ROW(piece_with_coord.coord);
 
-        for (uint8_t c = 0; c < NR_COLUMNS; c++)
-           current_piece_row[col] = PIECE_NONE;
-
+        current_piece_row.assign (NR_COLUMNS, PIECE_NONE);
         current_piece_row[col] = piece_with_coord.piece_type;
         current_piece_row[NR_COLUMNS] = PIECE_LAST;
 
-        positions[i].rank = ROW(piece_with_coord.coord);
-        positions[i].pieces = &current_piece_row[0];
-        positions[i].piece_color = piece_with_coord.color;
+        positions[i] = { row, piece_with_coord.color, &current_piece_row[0] };
     }
 
     return board_from_positions (&positions[0]);
