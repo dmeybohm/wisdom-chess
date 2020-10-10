@@ -4,7 +4,6 @@
 extern "C"
 {
 #include "../src/board.h"
-#include "../src/board_positions.h"
 }
 
 TEST_CASE("Castling state is modified and restored for rooks", "[castling]")

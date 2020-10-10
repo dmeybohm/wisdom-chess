@@ -3,7 +3,6 @@
 extern "C"
 {
 #include "../src/board.h"
-#include "../src/board_positions.h"
 #include "../src/move_tree.h"
 #include "../src/generate.h"
 }

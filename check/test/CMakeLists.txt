@@ -14,7 +14,7 @@ add_executable(chess_tests
         piece_test.cpp
         coord_test.cpp
         en_passant_test.cpp
-        material_test.cpp castle_test.cpp pawn_promotion_test.cpp board_builder.cpp board_builder.hpp ../src/board_positions.c board_builder_test.cpp)
+        material_test.cpp castle_test.cpp pawn_promotion_test.cpp board_builder.cpp board_builder.hpp board_builder_test.cpp)
 
 if (HAVE_WINSOCK2_H)
     TARGET_LINK_LIBRARIES(chess_tests ws2_32)

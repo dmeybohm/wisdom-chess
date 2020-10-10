@@ -21,7 +21,7 @@ CHECK_INCLUDE_FILES("unistd.h" HAVE_UNISTD_H)
 add_executable(chess
         src/board.c src/board_hash.c src/check.c src/debug.c src/evaluate.c src/game.c src/generate.c src/material.c src/move.c
         src/move_list.c src/move_tree.c src/piece.c src/play.c src/search.c src/sha1.c src/str.c src/timer.c
-        src/global.h src/board_check.c src/board_check.h  src/validate.c src/validate.h src/board_positions.c src/board_positions.c src/board_positions.h)
+        src/global.h src/board_check.c src/board_check.h  src/validate.c src/validate.h)
 
 set_property(TARGET chess PROPERTY C_STANDARD 11)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)

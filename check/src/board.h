@@ -43,6 +43,12 @@ struct board
 	struct board_hash  hash;
 };
 
+struct board_positions
+{
+    int               rank;
+    enum color        piece_color;
+    enum piece_type  *pieces;
+};
 
 /**************************************/
 

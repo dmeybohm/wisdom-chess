@@ -3,7 +3,6 @@
 extern "C"
 {
 #include "../src/board.h"
-#include "../src/board_positions.h"
 }
 
 void board_builder::add_piece (const char *coord_str, enum color who, enum piece_type piece_type)

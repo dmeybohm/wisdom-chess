@@ -4,7 +4,6 @@
 #include <string.h>
 
 #include "board.h"
-#include "board_positions.h"
 #include "move.h"
 #include "piece.h"
 #include "material.h"
