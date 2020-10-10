@@ -267,8 +267,6 @@ TEST_CASE("Castling state is updated when rook captures a piece", "[castling]")
     struct board *board = builder.build();
     move_t mv = move_create (0, 0, 1, 0);
 
-    // TODO: need to update the castle state on initialization if the white rooks are missing from
-    // starting positions:
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
