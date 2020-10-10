@@ -6,21 +6,21 @@ extern "C"
 #include "../src/board_positions.h"
 }
 
-void board_builder::add_piece(const char *coord_str, enum color who, enum piece_type piece_type)
+void board_builder::add_piece (const char *coord_str, enum color who, enum piece_type piece_type)
 {
     if (strlen(coord_str) != 2)
-    {
-        fprintf (stderr, "Invalid coordinate string! (%s)\n", coord_str);
-        abort ();
-    }
+        throw board_builder_exception("Invalid coordinate string!");
 
     uint8_t col = char_to_col(coord_str[0]);
     uint8_t row = char_to_row(coord_str[1]);
 
+    if (col >= NR_COLUMNS || row >= NR_ROWS)
+        throw board_builder_exception("Invalid coordinate string!");
+
     this->add_piece(row, col, who, piece_type);
 }
 
-void board_builder::add_piece(uint8_t row, uint8_t col, enum color who, enum piece_type piece_type)
+void board_builder::add_piece (uint8_t row, uint8_t col, enum color who, enum piece_type piece_type)
 {
     struct piece_with_coord new_piece
     {
@@ -38,7 +38,7 @@ void board_builder::add_piece(uint8_t row, uint8_t col, enum color who, enum pie
     this->pieces_with_coords.push_back(new_piece);
 }
 
-void board_builder::add_row_of_same_color_and_piece(int row, enum color who, enum piece_type piece_type)
+void board_builder::add_row_of_same_color_and_piece (int row, enum color who, enum piece_type piece_type)
 {
     for (uint8_t col = 0; col < NR_COLUMNS; col++)
     {
@@ -46,16 +46,15 @@ void board_builder::add_row_of_same_color_and_piece(int row, enum color who, enu
     }
 }
 
-void board_builder::add_row_of_same_color(int row, enum color who, vector<enum piece_type> piece_types)
+void board_builder::add_row_of_same_color (int row, enum color who, vector<enum piece_type> piece_types)
 {
     size_t col = 0;
+
     for (auto it = piece_types.begin(); it != piece_types.end(); it++, col++)
-    {
         this->add_piece(row, col, who, *it);
-    }
 }
 
-struct board *board_builder::build()
+struct board *board_builder::build ()
 {
     size_t sz = this->pieces_with_coords.size();
 

@@ -39,7 +39,7 @@ public:
 class board_builder_exception : public exception {
     const char *message;
 public:
-    board_builder_exception(const char *message) { this->message = message; }
+    board_builder_exception (const char *message) { this->message = message; }
     virtual const char *what() const throw() { return this->message; }
 };
 
