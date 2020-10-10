@@ -65,7 +65,7 @@ struct board *board_builder::build ()
     size_t sz = this->pieces_with_coords.size();
 
     vector<piece_row> piece_types { sz };
-    vector<struct board_positions> positions {sz + 1 };
+    vector<struct board_positions> positions { sz + 1 };
 
     positions[sz].rank = 0;
     positions[sz].pieces = nullptr;
