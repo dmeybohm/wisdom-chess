@@ -56,10 +56,16 @@ void board_builder::add_row_of_same_color (int row, enum color who, vector<enum 
 
 struct board *board_builder::build ()
 {
+    struct piece_row
+    {
+        vector<enum piece_type> types;
+        piece_row() : types { NR_COLUMNS + 1 } {}
+    };
+
     size_t sz = this->pieces_with_coords.size();
 
-    struct board_positions positions[sz + 1];
-    enum piece_type piece_types[sz + 1][NR_COLUMNS + 1];
+    vector<piece_row> piece_types { sz };
+    vector<struct board_positions> positions {sz + 1 };
 
     positions[sz].rank = 0;
     positions[sz].pieces = nullptr;
@@ -68,21 +74,22 @@ struct board *board_builder::build ()
     for (size_t i = 0; i < sz; i++)
     {
         struct piece_with_coord piece_with_coord = this->pieces_with_coords[i];
+
         size_t col = COLUMN(piece_with_coord.coord);
 
         for (uint8_t c = 0; c < NR_COLUMNS; c++)
-            piece_types[i][c] = PIECE_NONE;
+            piece_types[i].types[col] = PIECE_NONE;
 
-        piece_types[i][col] = piece_with_coord.piece_type;
-        piece_types[i][NR_COLUMNS] = PIECE_LAST;
+        piece_types[i].types[col] = piece_with_coord.piece_type;
+        piece_types[i].types[NR_COLUMNS] = PIECE_LAST;
 
         positions[i].rank = ROW(piece_with_coord.coord);
-        positions[i].pieces = &piece_types[i][0];
+        positions[i].pieces = &piece_types[i].types[0];
         positions[i].piece_color = piece_with_coord.color;
     }
 
     struct board *board = board_new ();
-    board_init_from_positions (board, positions);
+    board_init_from_positions (board, &positions[0]);
 
     return board;
 }
