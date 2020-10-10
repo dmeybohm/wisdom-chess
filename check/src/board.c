@@ -478,9 +478,9 @@ void board_init_from_positions (struct board *board, const struct board_position
     {
         enum piece_type *pptr = ptr->pieces;
         color_t  color = ptr->piece_color;
-        int      row   = ptr->rank;
+        row = ptr->rank;
 
-        for (uint8_t col = 0; col < NR_COLUMNS && pptr[col] != PIECE_LAST; col++)
+        for (col = 0; col < NR_COLUMNS && pptr[col] != PIECE_LAST; col++)
         {
             piece_t new_piece;
 
