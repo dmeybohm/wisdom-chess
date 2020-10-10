@@ -62,7 +62,7 @@ struct board *board_builder::build ()
     enum piece_type piece_types[sz + 1][NR_COLUMNS + 1];
 
     positions[sz].rank = 0;
-    positions[sz].pieces = NULL;
+    positions[sz].pieces = nullptr;
     positions[sz].piece_color = COLOR_NONE;
 
     for (size_t i = 0; i < sz; i++)
