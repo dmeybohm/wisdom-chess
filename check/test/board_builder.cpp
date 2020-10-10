@@ -13,9 +13,6 @@ void board_builder::add_piece (const char *coord_str, enum color who, enum piece
     uint8_t col = char_to_col(coord_str[0]);
     uint8_t row = char_to_row(coord_str[1]);
 
-    if (col >= NR_COLUMNS || row >= NR_ROWS)
-        throw board_builder_exception("Invalid coordinate string!");
-
     this->add_piece(row, col, who, piece_type);
 }
 
@@ -40,9 +37,7 @@ void board_builder::add_piece (uint8_t row, uint8_t col, enum color who, enum pi
 void board_builder::add_row_of_same_color_and_piece (int row, enum color who, enum piece_type piece_type)
 {
     for (uint8_t col = 0; col < NR_COLUMNS; col++)
-    {
         this->add_piece (row, col, who, piece_type);
-    }
 }
 
 void board_builder::add_row_of_same_color (int row, enum color who, vector<enum piece_type> piece_types)
