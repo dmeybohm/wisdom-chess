@@ -25,6 +25,8 @@ class board_builder
     vector<piece_with_coord> pieces_with_coords{};
 
 public:
+    board_builder() {}
+
     void add_piece (const char *coord_str, enum color who, enum piece_type piece_type);
 
     void add_piece (uint8_t row, uint8_t col, enum color who, enum piece_type piece_type);
