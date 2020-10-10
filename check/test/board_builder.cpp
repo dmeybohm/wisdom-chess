@@ -29,12 +29,12 @@ void board_builder::add_piece(uint8_t row, uint8_t col, enum color who, enum pie
         .piece_type = piece_type,
     };
 
-    if (row < 0 || row >= NR_ROWS) {
+    if (row < 0 || row >= NR_ROWS)
         throw board_builder_exception("Invalid row!");
-    }
-    if (col < 0 || col >= NR_COLUMNS) {
+
+    if (col < 0 || col >= NR_COLUMNS)
         throw board_builder_exception("Invalid column!");
-    }
+
     this->pieces_with_coords.push_back(new_piece);
 }
 
