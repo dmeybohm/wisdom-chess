@@ -476,22 +476,22 @@ void board_init_from_positions (struct board *board, const struct board_position
 
     for (ptr = positions; ptr->pieces != NULL; ptr++)
     {
-        enum piece_type *pptr = ptr->pieces;
+        enum piece_type *pieces = ptr->pieces;
         color_t  color = ptr->piece_color;
         row = ptr->rank;
 
-        for (col = 0; col < NR_COLUMNS && pptr[col] != PIECE_LAST; col++)
+        for (col = 0; col < NR_COLUMNS && pieces[col] != PIECE_LAST; col++)
         {
             piece_t new_piece;
 
-            if (pptr[col] == PIECE_NONE)
+            if (pieces[col] == PIECE_NONE)
                 continue;
 
-            new_piece = MAKE_PIECE (color, pptr[col]);
+            new_piece = MAKE_PIECE (color, pieces[col]);
             set_piece (board, coord_create (row, col), new_piece);
             material_add (&board->material, new_piece);
 
-            if (pptr[col] == PIECE_KING)
+            if (pieces[col] == PIECE_KING)
             {
                 king_position_set (board, color, coord_create (row, col));
             }
