@@ -10,7 +10,6 @@ extern "C"
 
 TEST_CASE( "En passant moves work", "[en-passant]" )
 {
-    struct board *board = board_new();
     enum piece_type back_rank[] =
     {
         PIECE_ROOK,   PIECE_KNIGHT, PIECE_BISHOP, PIECE_QUEEN, PIECE_KING,
@@ -36,7 +35,7 @@ TEST_CASE( "En passant moves work", "[en-passant]" )
         { 0, COLOR_NONE, NULL }
     };
 
-    board_init_from_positions (board, positions);
+    struct board *board = board_from_positions (positions);
 
     move_t pawn_move = move_create (1, 5, 3, 5);
     do_move (board, COLOR_BLACK, &pawn_move);

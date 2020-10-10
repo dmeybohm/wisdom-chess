@@ -9,7 +9,6 @@ extern "C"
 
 TEST_CASE("Castling state is modified and restored for rooks", "[castling]")
 {
-    struct board *board = board_new();
     enum piece_type back_rank[] =
     {
         PIECE_ROOK,   PIECE_NONE, PIECE_BISHOP, PIECE_QUEEN, PIECE_KING,
@@ -23,32 +22,31 @@ TEST_CASE("Castling state is modified and restored for rooks", "[castling]")
         { 0, COLOR_NONE, NULL }
     };
 
-    board_init_from_positions(board, positions);
+    struct board *board = board_from_positions (positions);
     move_t mv = move_create (0, 0, 0, 1);
 
-    CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_QUEENSIDE) == 1 );
-    CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_KINGSIDE) == 1 );
-    CHECK( able_to_castle(board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
+    CHECK( able_to_castle (board, COLOR_BLACK, CASTLE_QUEENSIDE) == 1 );
+    CHECK( able_to_castle (board, COLOR_BLACK, CASTLE_KINGSIDE) == 1 );
+    CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_NONE );
 
     do_move(board, COLOR_BLACK, &mv);
 
-    CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_QUEENSIDE) == 0 );
-    CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_KINGSIDE) == 1 );
-    CHECK( able_to_castle(board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
+    CHECK( able_to_castle (board, COLOR_BLACK, CASTLE_QUEENSIDE) == 0 );
+    CHECK( able_to_castle (board, COLOR_BLACK, CASTLE_KINGSIDE) == 1 );
+    CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_QUEENSIDE );
 
     undo_move(board, COLOR_BLACK, &mv);
 
-    CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_QUEENSIDE) == 1 );
-    CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_KINGSIDE) == 1 );
-    CHECK( able_to_castle(board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
+    CHECK( able_to_castle (board, COLOR_BLACK, CASTLE_QUEENSIDE) == 1 );
+    CHECK( able_to_castle (board, COLOR_BLACK, CASTLE_KINGSIDE) == 1 );
+    CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_NONE );
 }
 
 TEST_CASE("Castling state is modified and restored for kings", "[castling]")
 {
-    struct board *board = board_new();
     enum piece_type back_rank[] =
     {
         PIECE_ROOK,   PIECE_NONE, PIECE_BISHOP, PIECE_NONE, PIECE_KING,
@@ -62,7 +60,7 @@ TEST_CASE("Castling state is modified and restored for kings", "[castling]")
         { 0, COLOR_NONE, NULL }
     };
 
-    board_init_from_positions(board, positions);
+    struct board *board = board_from_positions (positions);
 
     move_t mv = move_create (0, 4, 0, 3);
 
@@ -71,7 +69,7 @@ TEST_CASE("Castling state is modified and restored for kings", "[castling]")
     CHECK( able_to_castle(board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_NONE );
 
-    do_move(board, COLOR_BLACK, &mv);
+    do_move (board, COLOR_BLACK, &mv);
 
     CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_QUEENSIDE) == 0 );
     CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_KINGSIDE) == 0 );
@@ -88,7 +86,6 @@ TEST_CASE("Castling state is modified and restored for kings", "[castling]")
 
 TEST_CASE("Castling state is modified and restored for castling queenside", "[castling]")
 {
-    struct board *board = board_new();
     enum piece_type back_rank[] =
     {
         PIECE_ROOK,   PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_KING,
@@ -102,7 +99,7 @@ TEST_CASE("Castling state is modified and restored for castling queenside", "[ca
         { 0, COLOR_NONE, NULL }
     };
 
-    board_init_from_positions(board, positions);
+    struct board *board = board_from_positions (positions);
 
     move_t mv = move_create (0, 4, 0, 2);
     move_set_castling (&mv);
@@ -145,7 +142,6 @@ TEST_CASE("Castling state is modified and restored for castling queenside", "[ca
 
 TEST_CASE("Castling state is modified and restored for castling kingside", "[castling]")
 {
-    struct board *board = board_new();
     enum piece_type back_rank[] =
     {
         PIECE_ROOK,   PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_KING,
@@ -159,7 +155,7 @@ TEST_CASE("Castling state is modified and restored for castling kingside", "[cas
         { 0, COLOR_NONE, NULL }
     };
 
-    board_init_from_positions(board, positions);
+    struct board *board = board_from_positions (positions);
 
     move_t mv = move_create (7, 4, 7, 6);
     move_set_castling (&mv);
@@ -202,7 +198,7 @@ TEST_CASE("Castling state is modified and restored for castling kingside", "[cas
 
 TEST_CASE("Opponent's castling state is modified when his rook is taken", "[castling]")
 {
-    board_builder builder{};
+    board_builder builder;
 
     builder.add_piece("a8", COLOR_BLACK, PIECE_ROOK);
     builder.add_piece("e8", COLOR_BLACK, PIECE_KING);
@@ -256,7 +252,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken", "[cast
 
 TEST_CASE("Castling state is updated when rook captures a piece", "[castling]")
 {
-    board_builder builder{};
+    board_builder builder;
 
     builder.add_piece("a8", COLOR_BLACK, PIECE_ROOK);
     builder.add_piece("e8", COLOR_BLACK, PIECE_KING);
@@ -310,7 +306,7 @@ TEST_CASE("Castling state is updated when rook captures a piece", "[castling]")
 
 TEST_CASE("Opponent's castling state is modified when his rook is taken (failure scenario)", "[castling]")
 {
-    board_builder builder{};
+    board_builder builder;
 
     builder.add_row_of_same_color (0, COLOR_BLACK, {
         PIECE_ROOK, PIECE_NONE, PIECE_QUEEN, PIECE_NONE, PIECE_KING,
@@ -378,7 +374,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
 
 TEST_CASE("Castling state is modified when rook takes a piece on same column (scenario 2)", "[castling]")
 {
-    board_builder builder{};
+    board_builder builder;
 
     builder.add_row_of_same_color (0, COLOR_BLACK, {
             PIECE_NONE, PIECE_NONE, PIECE_BISHOP, PIECE_QUEEN, PIECE_KING,

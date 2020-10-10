@@ -89,8 +89,5 @@ struct board *board_builder::build ()
         positions[i].piece_color = piece_with_coord.color;
     }
 
-    struct board *board = board_new ();
-    board_init_from_positions (board, &positions[0]);
-
-    return board;
+    return board_from_positions (&positions[0]);
 }

@@ -18,6 +18,8 @@
 
 DEFINE_DEBUG_CHANNEL (board, 0);
 
+static void board_init_from_positions (struct board *board, const struct board_positions *positions);
+
 static inline void set_piece (struct board *board, coord_t place, piece_t piece)
 {
 	board->board[ROW(place)][COLUMN(place)] = piece;
@@ -398,34 +400,22 @@ static struct board_positions init_board[] =
 
 struct board *board_new (void)
 {
-	struct board *new_board;
-	int i;
-
-	new_board = malloc (sizeof (struct board));
-	if (!new_board)
-    {
-	    abort ();
-    }
-	assert (new_board);
-	memset (new_board, 0, sizeof (struct board));
-
-	for (i = 0; i < NR_PLAYERS; i++)
-		new_board->castled[i] = CASTLE_NONE;
-
-    board_init_from_positions (new_board, init_board);
-
-	return new_board;
+    return board_from_positions (init_board);
 }
 
-struct board *board_from_positions (struct board_positions *positions)
+struct board *board_from_positions (const struct board_positions *positions)
 {
     struct board *new_board;
+    size_t i;
 
     new_board = malloc (sizeof(*new_board));
     assert (new_board);
     memset (new_board, 0, sizeof (struct board));
 
-    board_init_from_positions (new_board, init_board);
+    for (i = 0; i < NR_PLAYERS; i++)
+        new_board->castled[i] = CASTLE_NONE;
+
+    board_init_from_positions (new_board, positions);
 
     return new_board;
 }
@@ -462,7 +452,6 @@ static castle_state_t init_castle_state (struct board *board, color_t who)
 
     return state;
 }
-
 
 void board_init_from_positions (struct board *board, const struct board_positions *positions)
 {
