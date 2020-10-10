@@ -19,7 +19,7 @@ TEST_CASE("Castling state is modified and restored for rooks", "[castling]")
     {
         { 0, COLOR_BLACK, back_rank },
         { 7, COLOR_WHITE, back_rank },
-        { 0, COLOR_NONE, NULL }
+        { 0, COLOR_NONE, nullptr }
     };
 
     struct board *board = board_from_positions (positions);
@@ -57,7 +57,7 @@ TEST_CASE("Castling state is modified and restored for kings", "[castling]")
     {
         { 0, COLOR_BLACK, back_rank },
         { 7, COLOR_WHITE, back_rank },
-        { 0, COLOR_NONE, NULL }
+        { 0, COLOR_NONE, nullptr }
     };
 
     struct board *board = board_from_positions (positions);
@@ -96,7 +96,7 @@ TEST_CASE("Castling state is modified and restored for castling queenside", "[ca
     {
         { 0, COLOR_BLACK, back_rank },
         { 7, COLOR_WHITE, back_rank },
-        { 0, COLOR_NONE, NULL }
+        { 0, COLOR_NONE, nullptr }
     };
 
     struct board *board = board_from_positions (positions);
@@ -152,7 +152,7 @@ TEST_CASE("Castling state is modified and restored for castling kingside", "[cas
     {
         { 0, COLOR_BLACK, back_rank },
         { 7, COLOR_WHITE, back_rank },
-        { 0, COLOR_NONE, NULL }
+        { 0, COLOR_NONE, nullptr }
     };
 
     struct board *board = board_from_positions (positions);

@@ -32,14 +32,14 @@ TEST_CASE( "En passant moves work", "[en-passant]" )
         { 1, COLOR_BLACK, black_pawns },
         { 3, COLOR_WHITE, fifth_rank },
         { 7, COLOR_WHITE, back_rank },
-        { 0, COLOR_NONE, NULL }
+        { 0, COLOR_NONE, nullptr }
     };
 
     struct board *board = board_from_positions (positions);
 
     move_t pawn_move = move_create (1, 5, 3, 5);
     do_move (board, COLOR_BLACK, &pawn_move);
-    move_tree_t *history = move_tree_new (NULL, pawn_move);
+    move_tree_t *history = move_tree_new (nullptr, pawn_move);
 
     move_list_t *move_list = generate_moves (board, COLOR_WHITE, history);
     move_t *mv, *en_passant_move;
