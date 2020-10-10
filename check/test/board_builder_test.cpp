@@ -32,3 +32,16 @@ TEST_CASE( "Initializing the board builder", "[board-builder]")
     CHECK( PIECE_TYPE(center) == PIECE_NONE );
 }
 
+TEST_CASE( "Board builder throws exception for invalid coordindate", "[board-builder]")
+{
+    board_builder builder;
+    bool no_throw = false;
+    try {
+        builder.add_piece ("a9", COLOR_WHITE, PIECE_PAWN);
+        no_throw = true;
+    } catch (board_builder_exception &board_builder_exception) {
+        CHECK( board_builder_exception.what() != nullptr );
+    }
+    REQUIRE( no_throw == false );
+}
+
