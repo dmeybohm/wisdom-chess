@@ -22,7 +22,7 @@ struct piece_with_coord
 
 class board_builder
 {
-    vector<piece_with_coord> pieces_with_coords{};
+    vector<piece_with_coord> pieces_with_coords;
 
 public:
     board_builder() = default;
