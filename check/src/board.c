@@ -464,9 +464,9 @@ static castle_state_t init_castle_state (struct board *board, color_t who)
 }
 
 
-void board_init_from_positions (struct board *board, struct board_positions *positions)
+void board_init_from_positions (struct board *board, const struct board_positions *positions)
 {
-    struct board_positions *ptr;
+    const struct board_positions *ptr;
     uint8_t row, col;
 
     for_each_position (row, col)

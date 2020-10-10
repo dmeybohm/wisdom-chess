@@ -140,7 +140,7 @@ static void king_position_set (struct board *board, color_t who, coord_t pos)
 
 struct board *board_new       (void);
 void          board_free      (struct board *board);
-void          board_init_from_positions (struct board *board, struct board_positions *positions);
+void          board_init_from_positions (struct board *board, const struct board_positions *positions);
 
 void          board_print     (struct board *board);
 void          board_print_err (struct board *board);

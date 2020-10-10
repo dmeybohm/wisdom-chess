@@ -6,7 +6,7 @@ extern "C"
 #include "../src/board.h"
 }
 
-TEST_CASE( "Initializing the board builder", "[board-builder]")
+TEST_CASE( "Initializing the board builder", "[board-builder]" )
 {
     board_builder builder;
 
@@ -32,7 +32,7 @@ TEST_CASE( "Initializing the board builder", "[board-builder]")
     CHECK( PIECE_TYPE(center) == PIECE_NONE );
 }
 
-TEST_CASE( "Board builder throws exception for invalid coordindate", "[board-builder]")
+TEST_CASE( "Board builder throws exception for invalid coordindate", "[board-builder]" )
 {
     board_builder builder;
     bool no_throw = false;
