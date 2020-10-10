@@ -473,25 +473,25 @@ void board_init_from_positions (struct board *board, struct board_positions *pos
         board->board[row][col] = PIECE_AND_COLOR_NONE;
 
     material_init (&board->material);
-    for (ptr = positions; ptr->pieces; ptr++)
+
+    for (ptr = positions; ptr->pieces != NULL; ptr++)
     {
-        enum piece_type *pptr;
+        enum piece_type *pptr = ptr->pieces;
         color_t  color = ptr->piece_color;
         int      row   = ptr->rank;
 
-        for (pptr = ptr->pieces; *pptr != PIECE_LAST; pptr++)
+        for (uint8_t col = 0; col < NR_COLUMNS && pptr[col] != PIECE_LAST; col++)
         {
-            uint8_t col       = (uint8_t) (pptr - ptr->pieces);
             piece_t new_piece;
 
-            if (*pptr == PIECE_NONE)
+            if (pptr[col] == PIECE_NONE)
                 continue;
 
-            new_piece = MAKE_PIECE (color, *pptr);
+            new_piece = MAKE_PIECE (color, pptr[col]);
             set_piece (board, coord_create (row, col), new_piece);
             material_add (&board->material, new_piece);
 
-            if (*pptr == PIECE_KING)
+            if (pptr[col] == PIECE_KING)
             {
                 king_position_set (board, color, coord_create (row, col));
             }

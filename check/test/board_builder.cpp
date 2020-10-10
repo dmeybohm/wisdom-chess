@@ -59,12 +59,11 @@ struct board *board_builder::build()
 {
     size_t sz = this->pieces_with_coords.size();
 
-    enum piece_type last_piece_types[] = { PIECE_LAST };
     struct board_positions positions[sz + 1];
     enum piece_type piece_types[sz + 1][NR_COLUMNS + 1];
 
     positions[sz].rank = 0;
-    positions[sz].pieces = last_piece_types;
+    positions[sz].pieces = NULL;
     positions[sz].piece_color = COLOR_NONE;
 
     for (size_t i = 0; i < sz; i++)
