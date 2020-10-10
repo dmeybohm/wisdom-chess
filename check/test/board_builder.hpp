@@ -41,7 +41,7 @@ class board_builder_exception : public std::exception
     const char *message;
 
 public:
-    explicit board_builder_exception (const char *message) { this->message = message; }
+    explicit board_builder_exception (const char *message) : message { message } {}
     const char *what() const noexcept override { return this->message; }
 };
 

@@ -6,6 +6,8 @@ extern "C"
 #include "../src/board.h"
 }
 
+using Catch::Matchers::Contains;
+
 TEST_CASE( "Initializing the board builder", "[board-builder]" )
 {
     board_builder builder;
@@ -41,6 +43,25 @@ TEST_CASE( "Board builder throws exception for invalid coordinate", "[board-buil
         no_throw = true;
     } catch (const board_builder_exception &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );
+        CHECK_THAT( board_builder_exception.what(), Contains("Invalid row") );
+    }
+    REQUIRE( no_throw == false );
+
+    try {
+        builder.add_piece ("j7", COLOR_WHITE, PIECE_PAWN);
+        no_throw = true;
+    } catch (const board_builder_exception &board_builder_exception) {
+        CHECK( board_builder_exception.what() != nullptr );
+        CHECK_THAT( board_builder_exception.what(), Contains("Invalid column") );
+    }
+    REQUIRE( no_throw == false );
+
+    try {
+        builder.add_piece ("asdf", COLOR_WHITE, PIECE_PAWN);
+        no_throw = true;
+    } catch (const board_builder_exception &board_builder_exception) {
+        CHECK( board_builder_exception.what() != nullptr );
+        CHECK_THAT( board_builder_exception.what(), Contains("Invalid coordinate") );
     }
     REQUIRE( no_throw == false );
 }
