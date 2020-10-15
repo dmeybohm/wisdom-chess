@@ -3,45 +3,45 @@
 
 #include <memory.h>
 
-static void update_pawn   (struct attack_vector *attacks, enum color who, coord_t at, int change);
-static void update_knight (struct attack_vector *attacks, enum color who, coord_t at, int change);
-static void update_bishop (struct attack_vector *attacks, enum color who, coord_t at, int change);
-static void update_rook   (struct attack_vector *attacks, enum color who, coord_t at, int change);
-static void update_queen  (struct attack_vector *attacks, enum color who, coord_t at, int change);
-static void update_king   (struct attack_vector *attacks, enum color who, coord_t at, int change);
+static void update_pawn   (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
+static void update_knight (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
+static void update_bishop (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
+static void update_rook   (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
+static void update_queen  (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
+static void update_king   (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
 
 void attack_vector_init (struct attack_vector *attacks)
 {
     memset (attacks, 0, sizeof(*attacks));
 }
 
-static void attack_vector_change (
-        struct attack_vector *attacks, enum color who, coord_t coord, enum piece_type piece, int change)
+static void attack_vector_change (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
+                                  enum piece_type piece, int change)
 {
     switch (piece)
     {
         case PIECE_PAWN:
-            update_pawn (attacks, who, coord, change);
+            update_pawn (attacks, board, who, coord, change);
             break;
 
         case PIECE_KNIGHT:
-            update_knight (attacks, who, coord, change);
+            update_knight (attacks, board, who, coord, change);
             break;
 
         case PIECE_BISHOP:
-            update_bishop (attacks, who, coord, change);
+            update_bishop (attacks, board, who, coord, change);
             break;
 
         case PIECE_ROOK:
-            update_rook (attacks, who, coord, change);
+            update_rook (attacks, board, who, coord, change);
             break;
 
         case PIECE_QUEEN:
-            update_queen (attacks, who, coord, change);
+            update_queen (attacks, board, who, coord, change);
             break;
 
         case PIECE_KING:
-            update_king (attacks, who, coord, change);
+            update_king (attacks, board, who, coord, change);
             break;
 
         default:
@@ -50,17 +50,19 @@ static void attack_vector_change (
     }
 }
 
-void attack_vector_add (struct attack_vector *attacks, enum color who, coord_t coord, enum piece_type piece)
+void attack_vector_add (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
+                        enum piece_type piece)
 {
-    attack_vector_change (attacks, who, coord, piece, +1);
+    attack_vector_change (attacks, board, who, coord, piece, +1);
 }
 
-void attack_vector_remove (struct attack_vector *attacks, enum color who, coord_t coord, enum piece_type piece)
+void attack_vector_remove (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
+                           enum piece_type piece)
 {
-    attack_vector_change (attacks, who, coord, piece, -1);
+    attack_vector_change (attacks, board, who, coord, piece, -1);
 }
 
-uint8_t attack_vector_count (struct attack_vector *attacks, enum color who, coord_t coord)
+uint8_t attack_vector_count (const struct attack_vector *attacks, enum color who, coord_t coord)
 {
     assert (VALID(ROW(coord)) && VALID(COLUMN(coord)));
     return attacks->attack_counts[color_index(who)][ROW(coord)][COLUMN(coord)];
@@ -68,7 +70,7 @@ uint8_t attack_vector_count (struct attack_vector *attacks, enum color who, coor
 
 //////////////////////////////
 
-static void update_pawn (struct attack_vector *attacks, enum color who, coord_t at, int change)
+static void update_pawn (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
 {
     int direction = PAWN_DIRECTION(who);
     int next_row = NEXT (ROW(at), direction);
@@ -82,28 +84,36 @@ static void update_pawn (struct attack_vector *attacks, enum color who, coord_t 
         attacks->attack_counts[color_index(who)][next_row][right_col] += change;
 }
 
-static void update_knight (struct attack_vector *attacks, enum color who, coord_t at, int change)
+static void update_knight (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
+{
+    const move_list_t *knight_moves = generate_knight_moves (ROW(at), COLUMN(at));
+    const move_t *mv;
+    color_index_t player_index = color_index(who);
+
+    for_each_move (mv, knight_moves)
+    {
+        coord_t dst = MOVE_DST(*mv);
+        attacks->attack_counts[player_index][ROW(dst)][COLUMN(dst)] += change;
+    }
+}
+
+static void update_bishop (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
 {
 
 }
 
-static void update_bishop (struct attack_vector *attacks, enum color who, coord_t at, int change)
+static void update_rook (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
 {
 
 }
 
-static void update_rook (struct attack_vector *attacks, enum color who, coord_t at, int change)
-{
-
-}
-
-static void update_queen (struct attack_vector *attacks, enum color who, coord_t at, int change)
+static void update_queen (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
 {
     update_bishop (attacks, who, at, change);
     update_rook (attacks, who, at, change);
 }
 
-static void update_king (struct attack_vector *attacks, enum color who, coord_t at, int change)
+static void update_king (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
 {
     uint8_t king_row = ROW(at);
     uint8_t king_col = COLUMN(at);

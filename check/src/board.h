@@ -12,6 +12,7 @@
 #include "piece.h"
 #include "board_hash.h"
 #include "material.h"
+#include "attack_vector.h"
 
 /**************************************/
 
@@ -27,20 +28,23 @@ struct board_positions;
 
 struct board
 {
-	piece_t            board[NR_ROWS][NR_COLUMNS];
+	piece_t              board[NR_ROWS][NR_COLUMNS];
 
 	// positions of the kings
-	coord_t            king_pos[NR_PLAYERS];
+	coord_t              king_pos[NR_PLAYERS];
 
 	// castle state of the board
-	castle_state_t     castled[NR_PLAYERS];
+	castle_state_t       castled[NR_PLAYERS];
 
 	// keep track of the material on the board
-	struct material    material;
+	struct material      material;
+
+	// keep track of attack vectors for king endangerment:
+	struct attack_vector attacks;
 
 	// keep track of hashing information
 	// TODO maybe move this higher up for better performance
-	struct board_hash  hash;
+	struct board_hash    hash;
 };
 
 struct board_positions

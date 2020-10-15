@@ -1,4 +1,3 @@
-
 #ifndef WIZDUMB_GLOBAL_H
 #define WIZDUMB_GLOBAL_H
 
