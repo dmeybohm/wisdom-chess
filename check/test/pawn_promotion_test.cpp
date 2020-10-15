@@ -2,7 +2,7 @@
 
 extern "C"
 {
-#include "../src/board.h"
+#include "board.h"
 }
 
 TEST_CASE( "Pawn promotion works on appropriate rows", "[pawn promotion]" )

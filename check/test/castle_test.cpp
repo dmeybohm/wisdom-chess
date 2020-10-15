@@ -3,7 +3,7 @@
 
 extern "C"
 {
-#include "../src/board.h"
+#include "board.h"
 }
 
 TEST_CASE("Castling state is modified and restored for rooks", "[castling]")

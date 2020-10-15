@@ -1,7 +1,7 @@
 #ifndef CHECK_TIMER_H
 #define CHECK_TIMER_H
 
-#include "../config.h"
+#include "config.h"
 
 #ifdef HAVE_TIME_H
 #include <time.h>

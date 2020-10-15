@@ -4,7 +4,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/")
 INCLUDE(CheckIncludeFiles)
 
 cmake_minimum_required(VERSION 3.10)
-
+include_directories(. src)
 
 set(CMAKE_BUILD_TYPE Debug)
 

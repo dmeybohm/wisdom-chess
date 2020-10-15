@@ -2,9 +2,9 @@
 
 extern "C"
 {
-#include "../src/board.h"
-#include "../src/move_tree.h"
-#include "../src/generate.h"
+#include "board.h"
+#include "move_tree.h"
+#include "generate.h"
 }
 
 TEST_CASE( "En passant moves work", "[en-passant]" )

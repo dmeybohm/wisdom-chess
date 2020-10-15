@@ -3,7 +3,7 @@
 
 extern "C"
 {
-#include "../src/board.h"
+#include "board.h"
 }
 
 using Catch::Matchers::Contains;

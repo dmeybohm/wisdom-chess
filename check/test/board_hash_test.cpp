@@ -3,9 +3,9 @@
 
 extern "C"
 {
-#include "../src/piece.h"
-#include "../src/board_hash.h"
-#include "../src/board.h"
+#include "piece.h"
+#include "board_hash.h"
+#include "board.h"
 }
 
 TEST_CASE( "Board hashes can be initialized", "[single-file]" )

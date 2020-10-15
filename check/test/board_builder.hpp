@@ -3,8 +3,8 @@
 
 extern "C"
 {
-#include "../src/piece.h"
-#include "../src/move.h"
+#include "piece.h"
+#include "move.h"
 }
 
 #include <cstdint>

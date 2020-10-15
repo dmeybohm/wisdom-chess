@@ -2,7 +2,7 @@
 
 extern "C"
 {
-#include "../src/coord.h"
+#include "coord.h"
 }
 
 TEST_CASE( "A coordinate can be generated", "[coord]" )
