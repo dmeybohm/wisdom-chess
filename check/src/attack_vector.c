@@ -99,7 +99,8 @@ static void update_rook (struct attack_vector *attacks, enum color who, coord_t 
 
 static void update_queen (struct attack_vector *attacks, enum color who, coord_t at, int change)
 {
-
+    update_bishop (attacks, who, at, change);
+    update_rook (attacks, who, at, change);
 }
 
 static void update_king (struct attack_vector *attacks, enum color who, coord_t at, int change)

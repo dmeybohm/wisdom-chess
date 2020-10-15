@@ -57,7 +57,7 @@ static MoveFunc move_functions[] =
 	NULL,
 };
 
-static move_list_t *knight_moves[8][8];
+static move_list_t *knight_moves[NR_ROWS][NR_COLUMNS];
 
 /**************************************/
 
@@ -390,7 +390,7 @@ MOVES_HANDLER (en_passant)
 move_list_t *generate_knight_moves (unsigned char row, unsigned char col)
 {
 	/* Check f3 */
-	if (unlikely (!knight_moves[4][5]))
+	if (unlikely (!knight_moves[0][0]))
 		knight_move_list_init ();
 
 	return knight_moves[row][col];
