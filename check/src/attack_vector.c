@@ -3,6 +3,30 @@
 
 #include <memory.h>
 
+uint8_t ne_to_sw_coord_to_diagonal_table[NR_ROWS][NR_COLUMNS] =
+{
+    {  0,  1,  2,  3,  4,  5,  6,  7  },
+    {  1,  2,  3,  4,  5,  6,  7,  8  },
+    {  2,  3,  4,  5,  6,  7,  8,  9  },
+    {  3,  4,  5,  6,  7,  8,  9,  10 },
+    {  4,  5,  6,  7,  8,  9,  10, 11 },
+    {  5,  6,  7,  8,  9,  10, 11, 12 },
+    {  6,  7,  8,  9,  10, 11, 12, 13 },
+    {  7,  8,  9,  10, 11, 12, 13, 14 },
+};
+
+uint8_t nw_to_se_coord_to_diagonal_table[NR_ROWS][NR_COLUMNS] =
+{
+    {  0,  1,  2,  3,  4,  5,  6,  7  },
+    {  8,  0,  1,  2,  3,  4,  5,  6  },
+    {  9,  8,  0,  1,  2,  3,  4,  5  },
+    {  10, 9,  8,  0,  1,  2,  3,  4  },
+    {  11, 10, 9,  8,  0,  1,  2,  3  },
+    {  12, 11, 10, 9,  8,  0,  1,  2  },
+    {  13, 12, 11, 10, 9,  8 , 0,  1  },
+    {  14, 13, 12, 11, 10, 9,  8,  0  },
+};
+
 static void update_pawn   (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
 static void update_knight (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
 static void update_bishop (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
@@ -64,8 +88,19 @@ void attack_vector_remove (struct attack_vector *attacks, struct board *board, e
 
 uint8_t attack_vector_count (const struct attack_vector *attacks, enum color who, coord_t coord)
 {
-    assert (VALID(ROW(coord)) && VALID(COLUMN(coord)));
-    return attacks->attack_counts[color_index(who)][ROW(coord)][COLUMN(coord)];
+    uint8_t row = ROW (coord);
+    uint8_t col = COLUMN (coord);
+    assert (VALID(row) && VALID(col));
+    color_index_t cindex = color_index (who);
+
+    uint8_t ne_to_sw_index = ne_to_sw_coord_to_diagonal_table[row][col];
+    uint8_t nw_to_se_index = nw_to_se_coord_to_diagonal_table[row][col];
+
+    return attacks->other[cindex][row][col] +
+           attacks->ne_to_sw_diagonals[cindex][ne_to_sw_index] +
+           attacks->nw_to_se_diagonals[cindex][nw_to_se_index] +
+           attacks->horizontals[cindex][row] +
+           attacks->verticals[cindex][col];
 }
 
 //////////////////////////////
@@ -78,10 +113,10 @@ static void update_pawn (struct attack_vector *attacks, struct board *board, enu
     int right_col = NEXT (COLUMN(at), +1);
 
     if (VALID(left_col))
-        attacks->attack_counts[color_index(who)][next_row][left_col] += change;
+        attacks->other[color_index(who)][next_row][left_col] += change;
 
     if (VALID(right_col))
-        attacks->attack_counts[color_index(who)][next_row][right_col] += change;
+        attacks->other[color_index(who)][next_row][right_col] += change;
 }
 
 static void update_knight (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
@@ -93,7 +128,7 @@ static void update_knight (struct attack_vector *attacks, struct board *board, e
     for_each_move (mv, knight_moves)
     {
         coord_t dst = MOVE_DST(*mv);
-        attacks->attack_counts[player_index][ROW(dst)][COLUMN(dst)] += change;
+        attacks->other[player_index][ROW(dst)][COLUMN(dst)] += change;
     }
 }
 
@@ -109,8 +144,8 @@ static void update_rook (struct attack_vector *attacks, struct board *board, enu
 
 static void update_queen (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
 {
-    update_bishop (attacks, who, at, change);
-    update_rook (attacks, who, at, change);
+    update_bishop (attacks, board, who, at, change);
+    update_rook (attacks, board, who, at, change);
 }
 
 static void update_king (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
@@ -133,7 +168,7 @@ static void update_king (struct attack_vector *attacks, struct board *board, enu
             if (!VALID(row) || !VALID(col))
                 continue;
 
-            attacks->attack_counts[index][row][col] += change;
+            attacks->other[index][row][col] += change;
         }
     }
 }
