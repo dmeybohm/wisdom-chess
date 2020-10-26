@@ -24,10 +24,10 @@ static void update_knight (struct attack_vector *attacks, struct board *board, e
     color_index_t player_index = color_index(who);
 
     for_each_move (mv, knight_moves)
-        {
-            coord_t dst = MOVE_DST(*mv);
-            attacks->other[player_index][ROW(dst)][COLUMN(dst)] += change;
-        }
+    {
+        coord_t dst = MOVE_DST(*mv);
+        attacks->other[player_index][ROW(dst)][COLUMN(dst)] += change;
+    }
 }
 
 static void update_king (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
@@ -161,11 +161,96 @@ static void update_ne_to_sw (struct attack_vector *attacks, struct board *board,
 
 static void update_horizontal (struct attack_vector *attacks, struct board *board, coord_t coord)
 {
+    uint8_t row, col;
+    piece_t piece;
+    enum piece_type piece_type;
+    enum color piece_color;
+    piece_t attacker = PIECE_AND_COLOR_NONE;
 
+    for (row = ROW(coord), col = 0; VALID(col); col = NEXT (col, +1))
+    {
+        piece = PIECE_AT (board, row, col);
+        piece_color = PIECE_COLOR(piece);
+        piece_type = PIECE_TYPE(piece);
+        attacks->horizontals[COLOR_INDEX_BLACK][row][col] = 0;
+        attacks->horizontals[COLOR_INDEX_WHITE][row][col] = 0;
+
+        if (PIECE_COLOR(attacker) != COLOR_NONE)
+            attacks->horizontals[color_index(PIECE_COLOR(attacker))][row][col] = 1;
+
+        if (piece_color != COLOR_NONE)
+        {
+            if (piece_type == PIECE_ROOK || piece_type == PIECE_QUEEN)
+                attacker = piece;
+            else
+                attacker = PIECE_AND_COLOR_NONE;
+        }
+    }
+
+    for (row = ROW(coord), col = LAST_COLUMN; VALID(col); col = NEXT (col, -1))
+    {
+        piece = PIECE_AT (board, row, col);
+        piece_color = PIECE_COLOR(piece);
+        piece_type = PIECE_TYPE(piece);
+
+        if (PIECE_COLOR(attacker) != COLOR_NONE)
+            attacks->horizontals[color_index(PIECE_COLOR(attacker))][row][col] += 1;
+
+        if (piece_color != COLOR_NONE)
+        {
+            if (piece_type == PIECE_ROOK || piece_type == PIECE_QUEEN)
+                attacker = piece;
+            else
+                attacker = PIECE_AND_COLOR_NONE;
+        }
+    }
 }
 
 static void update_vertical (struct attack_vector *attacks, struct board *board, coord_t coord)
 {
+//    uint8_t row, col;
+//    piece_t piece;
+//    enum piece_type piece_type;
+//    enum color piece_color;
+//    piece_t attacker = PIECE_AND_COLOR_NONE;
+//
+//    for (row = 0, col = COLUMN(coord); VALID(row); row = NEXT (row, +1))
+//    {
+//        piece = PIECE_AT (board, row, col);
+//        piece_color = PIECE_COLOR(piece);
+//        piece_type = PIECE_TYPE(piece);
+//        attacks->verticals[COLOR_INDEX_BLACK][row][col] = 0;
+//        attacks->verticals[COLOR_INDEX_WHITE][row][col] = 0;
+//
+//        if (PIECE_COLOR(attacker) != COLOR_NONE)
+//            attacks->verticals[color_index(PIECE_COLOR(attacker))][row][col] = 1;
+//
+//        if (piece_color != COLOR_NONE)
+//        {
+//            if (piece_type == PIECE_ROOK || piece_type == PIECE_QUEEN)
+//                attacker = piece;
+//            else
+//                attacker = PIECE_AND_COLOR_NONE;
+//        }
+//    }
+//
+//    for (row = LAST_ROW, col = 0; VALID(row); row = NEXT (row, -1))
+//    {
+//        piece = PIECE_AT (board, row, col);
+//        piece_color = PIECE_COLOR(piece);
+//        piece_type = PIECE_TYPE(piece);
+//
+//        if (PIECE_COLOR(attacker) != COLOR_NONE)
+//            attacks->verticals[color_index(PIECE_COLOR(attacker))][row][col] += 1;
+//
+//        if (piece_color != COLOR_NONE)
+//        {
+//            if (piece_type == PIECE_ROOK || piece_type == PIECE_QUEEN)
+//                attacker = piece;
+//            else
+//                attacker = PIECE_AND_COLOR_NONE;
+//        }
+//    }
 
 }
 
@@ -222,15 +307,14 @@ void attack_vector_remove (struct attack_vector *attacks, struct board *board, e
                            enum piece_type piece)
 {
     attack_vector_change (attacks, board, who, coord, piece, -1);
-
 }
 
 uint8_t attack_vector_count (const struct attack_vector *attacks, enum color who, coord_t coord)
 {
-    uint8_t row = ROW (coord);
-    uint8_t col = COLUMN (coord);
+    uint8_t row = ROW(coord);
+    uint8_t col = COLUMN(coord);
     assert (VALID(row) && VALID(col));
-    color_index_t cindex = color_index (who);
+    color_index_t cindex = color_index(who);
 
     return attacks->other[cindex][row][col] +
            attacks->ne_to_sw[cindex][row][col] +

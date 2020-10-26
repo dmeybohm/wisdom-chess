@@ -133,3 +133,25 @@ TEST_CASE("Northeast to southwest bishop and queen attack vectors calculate corr
     CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("a2")) == 0 );
     CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("b3")) == 0 );
 }
+
+TEST_CASE("Horizontal rook and queen attack vectors calculate correctly", "[attack-vector]")
+{
+    board_builder builder;
+
+    builder.add_piece ("a5", COLOR_WHITE, PIECE_QUEEN);
+    builder.add_piece ("h5", COLOR_WHITE, PIECE_ROOK);
+
+    struct board *board = builder.build();
+
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("a5")) == 1 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("b5")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("c5")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("d5")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("e5")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("f5")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("g5")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("h5")) == 1 );
+
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("a2")) == 0 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("b3")) == 0 );
+}
