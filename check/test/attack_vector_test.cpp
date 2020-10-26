@@ -87,12 +87,15 @@ TEST_CASE("Northwest to southeast bishop and queen attack vectors calculate corr
     attack_vector_add (&board->attacks, board, COLOR_WHITE, coord_alg ("a8"), PIECE_QUEEN);
     attack_vector_add (&board->attacks, board, COLOR_WHITE, coord_alg ("h1"), PIECE_BISHOP);
 
-    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("a8")) == 1 );
-    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("b7")) == 2 );
-    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("c6")) == 2 );
-    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("d5")) == 2 );
-    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("e4")) == 2 );
-    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("f3")) == 2 );
-    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("g2")) == 2 );
-    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("h1")) == 1 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("a8")) == 1 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("b7")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("c6")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("d5")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("e4")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("f3")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("g2")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("h1")) == 1 );
+
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("h2")) == 0 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("g3")) == 0 );
 }
