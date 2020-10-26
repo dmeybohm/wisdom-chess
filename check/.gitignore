@@ -15,3 +15,5 @@ chess_tests.exe
 chess_tests
 CTestTestfile.cmake
 Testing
+cmake-build-release
+cmake-build-debug
