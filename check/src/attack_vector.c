@@ -3,7 +3,7 @@
 
 #include <memory.h>
 
-static void update_pawn (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
+static void update_pawn (struct attack_vector *attacks, enum color who, coord_t at, int change)
 {
     int direction = PAWN_DIRECTION(who);
     int next_row = NEXT (ROW(at), direction);
@@ -17,7 +17,7 @@ static void update_pawn (struct attack_vector *attacks, struct board *board, enu
         attacks->other[color_index(who)][next_row][right_col] += change;
 }
 
-static void update_knight (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
+static void update_knight (struct attack_vector *attacks, enum color who, coord_t at, int change)
 {
     const move_list_t *knight_moves = generate_knight_moves (ROW(at), COLUMN(at));
     const move_t *mv;
@@ -30,7 +30,7 @@ static void update_knight (struct attack_vector *attacks, struct board *board, e
     }
 }
 
-static void update_king (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
+static void update_king (struct attack_vector *attacks, enum color who, coord_t at, int change)
 {
     uint8_t king_row = ROW(at);
     uint8_t king_col = COLUMN(at);
@@ -125,8 +125,8 @@ static void update_ne_to_sw (struct attack_vector *attacks, struct board *board,
         piece = PIECE_AT (board, row, col);
         piece_color = PIECE_COLOR(piece);
         piece_type = PIECE_TYPE(piece);
-        attacks->nw_to_se[COLOR_INDEX_BLACK][row][col] = 0;
-        attacks->nw_to_se[COLOR_INDEX_WHITE][row][col] = 0;
+        attacks->ne_to_sw[COLOR_INDEX_BLACK][row][col] = 0;
+        attacks->ne_to_sw[COLOR_INDEX_WHITE][row][col] = 0;
 
         if (PIECE_COLOR(attacker) != COLOR_NONE)
             attacks->nw_to_se[color_index(PIECE_COLOR(attacker))][row][col] = 1;
@@ -151,7 +151,7 @@ static void update_ne_to_sw (struct attack_vector *attacks, struct board *board,
         piece_type = PIECE_TYPE(piece);
 
         if (PIECE_COLOR(attacker) != COLOR_NONE)
-            attacks->nw_to_se[color_index(PIECE_COLOR(attacker))][row][col] += 1;
+            attacks->ne_to_sw[color_index(PIECE_COLOR(attacker))][row][col] += 1;
 
         if (piece_color != COLOR_NONE)
         {
@@ -273,15 +273,15 @@ static void attack_vector_change (struct attack_vector *attacks, struct board *b
     switch (piece)
     {
         case PIECE_PAWN:
-            update_pawn (attacks, board, who, coord, change);
+            update_pawn (attacks, who, coord, change);
             break;
 
         case PIECE_KNIGHT:
-            update_knight (attacks, board, who, coord, change);
+            update_knight (attacks, who, coord, change);
             break;
 
         case PIECE_KING:
-            update_king (attacks, board, who, coord, change);
+            update_king (attacks, who, coord, change);
             break;
 
         default:
