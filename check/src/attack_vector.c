@@ -55,7 +55,7 @@ static void update_king (struct attack_vector *attacks, enum color who, coord_t 
     }
 }
 
-static void update_nw_to_se (struct attack_vector *attacks, struct board *board, coord_t position)
+static void update_nw_to_se (struct attack_vector *attacks, const struct board *board, coord_t position)
 {
     coord_t start_coord = first_nw_to_se_coord(position);
     uint8_t row, col;
@@ -109,7 +109,7 @@ static void update_nw_to_se (struct attack_vector *attacks, struct board *board,
     }
 }
 
-static void update_ne_to_sw (struct attack_vector *attacks, struct board *board, coord_t position)
+static void update_ne_to_sw (struct attack_vector *attacks, const struct board *board, coord_t position)
 {
     coord_t start_coord = first_ne_to_sw_coord(position);
     uint8_t row, col;
@@ -163,7 +163,7 @@ static void update_ne_to_sw (struct attack_vector *attacks, struct board *board,
     }
 }
 
-static void update_horizontal (struct attack_vector *attacks, struct board *board, coord_t coord)
+static void update_horizontal (struct attack_vector *attacks, const struct board *board, coord_t coord)
 {
     uint8_t row, col;
     piece_t piece;
@@ -212,7 +212,7 @@ static void update_horizontal (struct attack_vector *attacks, struct board *boar
     }
 }
 
-static void update_vertical (struct attack_vector *attacks, struct board *board, coord_t coord)
+static void update_vertical (struct attack_vector *attacks, const struct board *board, coord_t coord)
 {
     uint8_t row, col;
     piece_t piece;
@@ -262,8 +262,8 @@ static void update_vertical (struct attack_vector *attacks, struct board *board,
 
 }
 
-static void attack_vector_change (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
-                                  enum piece_type piece, int change)
+static void attack_vector_change (struct attack_vector *attacks, const struct board *board,
+                                  enum color who, coord_t coord, enum piece_type piece, int change)
 {
     update_nw_to_se (attacks, board, coord);
     update_ne_to_sw (attacks, board, coord);
