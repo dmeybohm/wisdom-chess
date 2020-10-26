@@ -45,4 +45,7 @@ public:
     const char *what() const noexcept override { return this->message; }
 };
 
+coord_t coord_algebraic (const char *coord_str);
+
+
 #endif //WIZDUMB_BOARD_BUILDER_HPP

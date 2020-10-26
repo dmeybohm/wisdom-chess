@@ -3,108 +3,6 @@
 
 #include <memory.h>
 
-uint8_t ne_to_sw_coord_to_diagonal_table[NR_ROWS][NR_COLUMNS] =
-{
-    {  0,  1,  2,  3,  4,  5,  6,  7  },
-    {  1,  2,  3,  4,  5,  6,  7,  8  },
-    {  2,  3,  4,  5,  6,  7,  8,  9  },
-    {  3,  4,  5,  6,  7,  8,  9,  10 },
-    {  4,  5,  6,  7,  8,  9,  10, 11 },
-    {  5,  6,  7,  8,  9,  10, 11, 12 },
-    {  6,  7,  8,  9,  10, 11, 12, 13 },
-    {  7,  8,  9,  10, 11, 12, 13, 14 },
-};
-
-uint8_t nw_to_se_coord_to_diagonal_table[NR_ROWS][NR_COLUMNS] =
-{
-    {  0,  1,  2,  3,  4,  5,  6,  7  },
-    {  8,  0,  1,  2,  3,  4,  5,  6  },
-    {  9,  8,  0,  1,  2,  3,  4,  5  },
-    {  10, 9,  8,  0,  1,  2,  3,  4  },
-    {  11, 10, 9,  8,  0,  1,  2,  3  },
-    {  12, 11, 10, 9,  8,  0,  1,  2  },
-    {  13, 12, 11, 10, 9,  8 , 0,  1  },
-    {  14, 13, 12, 11, 10, 9,  8,  0  },
-};
-
-static void update_pawn   (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
-static void update_knight (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
-static void update_bishop (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
-static void update_rook   (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
-static void update_queen  (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
-static void update_king   (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change);
-
-void attack_vector_init (struct attack_vector *attacks)
-{
-    memset (attacks, 0, sizeof(*attacks));
-}
-
-static void attack_vector_change (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
-                                  enum piece_type piece, int change)
-{
-    switch (piece)
-    {
-        case PIECE_PAWN:
-            update_pawn (attacks, board, who, coord, change);
-            break;
-
-        case PIECE_KNIGHT:
-            update_knight (attacks, board, who, coord, change);
-            break;
-
-        case PIECE_BISHOP:
-            update_bishop (attacks, board, who, coord, change);
-            break;
-
-        case PIECE_ROOK:
-            update_rook (attacks, board, who, coord, change);
-            break;
-
-        case PIECE_QUEEN:
-            update_queen (attacks, board, who, coord, change);
-            break;
-
-        case PIECE_KING:
-            update_king (attacks, board, who, coord, change);
-            break;
-
-        default:
-            assert (0);
-            break;
-    }
-}
-
-void attack_vector_add (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
-                        enum piece_type piece)
-{
-    attack_vector_change (attacks, board, who, coord, piece, +1);
-}
-
-void attack_vector_remove (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
-                           enum piece_type piece)
-{
-    attack_vector_change (attacks, board, who, coord, piece, -1);
-}
-
-uint8_t attack_vector_count (const struct attack_vector *attacks, enum color who, coord_t coord)
-{
-    uint8_t row = ROW (coord);
-    uint8_t col = COLUMN (coord);
-    assert (VALID(row) && VALID(col));
-    color_index_t cindex = color_index (who);
-
-    uint8_t ne_to_sw_index = ne_to_sw_coord_to_diagonal_table[row][col];
-    uint8_t nw_to_se_index = nw_to_se_coord_to_diagonal_table[row][col];
-
-    return attacks->other[cindex][row][col] +
-           attacks->ne_to_sw_diagonals[cindex][ne_to_sw_index] +
-           attacks->nw_to_se_diagonals[cindex][nw_to_se_index] +
-           attacks->horizontals[cindex][row] +
-           attacks->verticals[cindex][col];
-}
-
-//////////////////////////////
-
 static void update_pawn (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
 {
     int direction = PAWN_DIRECTION(who);
@@ -126,26 +24,10 @@ static void update_knight (struct attack_vector *attacks, struct board *board, e
     color_index_t player_index = color_index(who);
 
     for_each_move (mv, knight_moves)
-    {
-        coord_t dst = MOVE_DST(*mv);
-        attacks->other[player_index][ROW(dst)][COLUMN(dst)] += change;
-    }
-}
-
-static void update_bishop (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
-{
-
-}
-
-static void update_rook (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
-{
-
-}
-
-static void update_queen (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
-{
-    update_bishop (attacks, board, who, at, change);
-    update_rook (attacks, board, who, at, change);
+        {
+            coord_t dst = MOVE_DST(*mv);
+            attacks->other[player_index][ROW(dst)][COLUMN(dst)] += change;
+        }
 }
 
 static void update_king (struct attack_vector *attacks, struct board *board, enum color who, coord_t at, int change)
@@ -171,4 +53,136 @@ static void update_king (struct attack_vector *attacks, struct board *board, enu
             attacks->other[index][row][col] += change;
         }
     }
+}
+
+static void
+update_nw_to_se (struct attack_vector *attacks, struct board *board, coord_t position)
+{
+    coord_t start_coord = first_nw_to_se_coord(position);
+    uint8_t row, col;
+    piece_t piece;
+    enum piece_type piece_type;
+    enum color piece_color;
+    piece_t attacker = PIECE_AND_COLOR_NONE;
+
+    for (row = ROW(start_coord), col = COLUMN(start_coord);
+        VALID(row) && VALID(col);
+        row = NEXT (row, +1), col = NEXT (col, +1))
+    {
+        piece = PIECE_AT (board, row, col);
+        piece_color = PIECE_COLOR(piece);
+        piece_type = PIECE_TYPE(piece);
+        attacks->nw_to_se[COLOR_INDEX_BLACK][row][col] = 0;
+        attacks->nw_to_se[COLOR_INDEX_WHITE][row][col] = 0;
+
+        if (PIECE_COLOR(attacker) != COLOR_NONE)
+            attacks->nw_to_se[color_index(PIECE_COLOR(attacker))][row][col] = 1;
+
+        if (piece_color != COLOR_NONE)
+        {
+            if (piece_type == PIECE_BISHOP || piece_type == PIECE_QUEEN)
+                attacker = piece;
+            else
+                attacker = PIECE_AND_COLOR_NONE;
+        }
+    }
+
+    for (row = row - 1, col = col - 1, attacker = PIECE_AND_COLOR_NONE;
+        VALID(row) && VALID(col);
+        row = NEXT (row, -1), col = NEXT (col, -1))
+    {
+        piece = PIECE_AT (board, row, col);
+        piece_color = PIECE_COLOR(piece);
+        piece_type = PIECE_TYPE(piece);
+
+        if (PIECE_COLOR(attacker) != COLOR_NONE)
+            attacks->nw_to_se[color_index(PIECE_COLOR(attacker))][row][col] += 1;
+
+        if (piece_color != COLOR_NONE)
+        {
+            if (piece_type == PIECE_BISHOP || piece_type == PIECE_QUEEN)
+                attacker = piece;
+            else
+                attacker = PIECE_AND_COLOR_NONE;
+        }
+    }
+}
+
+static void
+update_ne_to_sw (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord)
+{
+
+}
+
+static void
+update_horizontal (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord)
+{
+
+}
+
+static void
+update_vertical (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord)
+{
+
+}
+
+static void attack_vector_change (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
+                                  enum piece_type piece, int change)
+{
+    update_nw_to_se (attacks, board, coord);
+    update_ne_to_sw (attacks, board, who, coord);
+    update_horizontal (attacks, board, who, coord);
+    update_vertical (attacks, board, who, coord);
+
+    switch (piece)
+    {
+        case PIECE_PAWN:
+            update_pawn (attacks, board, who, coord, change);
+            break;
+
+        case PIECE_KNIGHT:
+            update_knight (attacks, board, who, coord, change);
+            break;
+
+        case PIECE_KING:
+            update_king (attacks, board, who, coord, change);
+            break;
+
+        default:
+            break;
+    }
+}
+
+//////////////////////////////////////////////////////////////////////
+
+void attack_vector_init (struct attack_vector *attacks)
+{
+    memset (attacks, 0, sizeof(*attacks));
+}
+
+void attack_vector_add (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
+                        enum piece_type piece)
+{
+    attack_vector_change (attacks, board, who, coord, piece, +1);
+}
+
+void attack_vector_remove (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
+                           enum piece_type piece)
+{
+    attack_vector_change (attacks, board, who, coord, piece, -1);
+
+}
+
+uint8_t attack_vector_count (const struct attack_vector *attacks, enum color who, coord_t coord)
+{
+    uint8_t row = ROW (coord);
+    uint8_t col = COLUMN (coord);
+    assert (VALID(row) && VALID(col));
+    color_index_t cindex = color_index (who);
+
+    return attacks->other[cindex][row][col] +
+           attacks->ne_to_sw[cindex][row][col] +
+           attacks->nw_to_se[cindex][row][col] +
+           attacks->horizontals[cindex][row][col] +
+           attacks->verticals[cindex][row][col];
 }
