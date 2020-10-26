@@ -259,7 +259,6 @@ static void update_vertical (struct attack_vector *attacks, const struct board *
                 attacker = PIECE_AND_COLOR_NONE;
         }
     }
-
 }
 
 static void attack_vector_change (struct attack_vector *attacks, const struct board *board,

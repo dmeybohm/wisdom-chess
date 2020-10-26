@@ -11,4 +11,4 @@ move_t  find_best_move   (struct board *board, color_t side,
 
 #define INFINITY  	65536
 
-#endif /* EVOLVE_CHESS_SEARCH_H_ */
+#endif // EVOLVE_CHESS_SEARCH_H_

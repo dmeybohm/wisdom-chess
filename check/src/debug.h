@@ -39,4 +39,4 @@ void debug_print (struct debug_channel *channel, const char *func, int line,
 void debug_multi_line_start (struct debug_channel *channel);
 void debug_multi_line_stop  (struct debug_channel *channel);
 
-#endif /* EVOLVE_CHESS_LOG_H */
+#endif // EVOLVE_CHESS_LOG_H

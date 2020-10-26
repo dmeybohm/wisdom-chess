@@ -40,4 +40,4 @@ static inline unsigned char char_to_col (char chr)
     return tolower (chr) - 'a';
 }
 
-#endif /* EVOLVE_CHESS_COORD_H */
+#endif // EVOLVE_CHESS_COORD_H

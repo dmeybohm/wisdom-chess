@@ -36,4 +36,4 @@ void          move_list_destroy (move_list_t *move_list);
 
 void          move_list_print   (move_list_t *move_list);
 
-#endif /* EVOLVE_CHESS_MOVE_LIST_H */
+#endif // EVOLVE_CHESS_MOVE_LIST_H

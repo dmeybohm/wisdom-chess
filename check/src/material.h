@@ -55,4 +55,4 @@ static inline int material_score (struct material *material, color_t who)
 
 void material_init  (struct material *material);
 
-#endif /* EVOLVE_CHESS_MATERIAL_H_ */
+#endif // EVOLVE_CHESS_MATERIAL_H_

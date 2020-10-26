@@ -161,4 +161,4 @@ void          undo_move (struct board *board, color_t who, struct move *m);
 
 ///////////////////////////////////////////////
 
-#endif /* EVOLVE_CHESS_BOARD_H_ */
+#endif // EVOLVE_CHESS_BOARD_H_

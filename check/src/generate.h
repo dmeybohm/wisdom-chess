@@ -26,4 +26,4 @@ move_list_t    *generate_knight_moves (unsigned char row, unsigned char col);
 
 ///////////////////////////////////////////////
 
-#endif /* EVOLVE_CHESS_BOARD_H */
+#endif // EVOLVE_CHESS_BOARD_H

@@ -19,4 +19,4 @@ void           move_tree_destroy (move_tree_t *tree);
 move_tree_t   *move_tree_copy    (move_tree_t *src);
 move_tree_t   *move_tree_prepend (move_tree_t *parent, move_tree_t *child);
 
-#endif /* EVOLVE_CHESS_MOVE_TREE_H */
+#endif // EVOLVE_CHESS_MOVE_TREE_H

@@ -199,4 +199,4 @@ extern char *move_str (move_t move);
 
 extern int   move_parse (char *str, color_t who, move_t *ret_move);
 
-#endif /* EVOLVE_CHESS_MOVE_H */
+#endif // EVOLVE_CHESS_MOVE_H
