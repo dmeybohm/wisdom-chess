@@ -14,13 +14,13 @@
 #include "material.h"
 #include "attack_vector.h"
 
-/**************************************/
+///////////////////////////////////////////////
 
 /* place holders for branch prediction optimization */
 #define likely(x)        (x)
 #define unlikely(x)      (x)
 
-/**************************************/
+///////////////////////////////////////////////
 
 struct material;
 struct move_tree;
@@ -54,7 +54,7 @@ struct board_positions
     enum piece_type  *pieces;
 };
 
-/**************************************/
+///////////////////////////////////////////////
 
 #define for_each_position(row_i, col_i) \
 	for ((row_i) = 0; (row_i) < NR_ROWS; (row_i)++) \
@@ -66,7 +66,7 @@ struct board_positions
 #define PIECE_AT_COORD(_board, _coord) \
     ((_board)->board)[ROW ((_coord))][COLUMN ((_coord))]
 
-/**************************************/
+///////////////////////////////////////////////
 
 // white moves up (-)
 // black moves down (+)
@@ -146,7 +146,7 @@ static void king_position_set (struct board *board, color_t who, coord_t pos)
 	board->king_pos[color_index(who)] = pos;
 }
 
-/**************************************/
+///////////////////////////////////////////////
 
 struct board *board_new            (void);
 struct board *board_from_positions (const struct board_positions *positions);
@@ -159,6 +159,6 @@ void          board_dump      (struct board *board);
 void          do_move   (struct board *board, color_t who, struct move *m);
 void          undo_move (struct board *board, color_t who, struct move *m);
 
-/**************************************/
+///////////////////////////////////////////////
 
 #endif /* EVOLVE_CHESS_BOARD_H_ */

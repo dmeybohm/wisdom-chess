@@ -12,11 +12,11 @@
 #include "debug.h"
 #include "board_check.h"
 
-/**************************************/
+///////////////////////////////////////////////
 
 DEFINE_DEBUG_CHANNEL (generate, 0);
 
-/**************************************/
+///////////////////////////////////////////////
 
 #define Move_Func_Arguments \
 	struct board *board, color_t who, \
@@ -28,7 +28,7 @@ DEFINE_DEBUG_CHANNEL (generate, 0);
 #define MOVES_HANDLER(name) \
 	static move_list_t *moves_##name (Move_Func_Arguments)
 
-/**************************************/
+///////////////////////////////////////////////
 
 typedef move_list_t *(*MoveFunc) (Move_Func_Arguments);
 
@@ -43,23 +43,23 @@ MOVES_HANDLER (en_passant);
 
 static void knight_move_list_init (void);
 
-/**************************************/
+///////////////////////////////////////////////
 
 static MoveFunc move_functions[] = 
 {
-	moves_none,    /* PIECE_NONE   [0] */
-	moves_king,    /* PIECE_KING   [1] */
-	moves_queen,   /* PIECE_QUEEN  [2] */
-	moves_rook,    /* PIECE_ROOK   [3] */
-	moves_bishop,  /* PIECE_BISHOP [4] */
-	moves_knight,  /* PIECE_KNIGHT [5] */
-	moves_pawn,    /* PIECE_PAWN   [6] */
+	moves_none,    // PIECE_NONE   [0]
+	moves_king,    // PIECE_KING   [1]
+	moves_queen,   // PIECE_QUEEN  [2]
+	moves_rook,    // PIECE_ROOK   [3]
+	moves_bishop,  // PIECE_BISHOP [4]
+	moves_knight,  // PIECE_KNIGHT [5]
+	moves_pawn,    // PIECE_PAWN   [6]
 	NULL,
 };
 
 static move_list_t *knight_moves[NR_ROWS][NR_COLUMNS];
 
-/**************************************/
+///////////////////////////////////////////////
 
 /* generate a lookup table for knight moves */
 static void knight_move_list_init (void)
@@ -116,7 +116,7 @@ MOVES_HANDLER (king)
 		}
 	}
 			
-	/* castling */
+	// castling
 	if (able_to_castle (board, who, CASTLE_KINGSIDE | CASTLE_QUEENSIDE))
 	{
 		int i;
@@ -151,7 +151,7 @@ MOVES_HANDLER (king)
 
 MOVES_HANDLER (queen)
 {
-	/* use the generators for bishop and rook */
+	// use the generators for bishop and rook
 	moves = moves_bishop (Move_Func_Param_Names);
 	moves = moves_rook   (Move_Func_Param_Names);
 
@@ -249,9 +249,9 @@ MOVES_HANDLER (pawn)
 
 	dir = PAWN_DIRECTION (who);
 
-	/* row is _guaranteed_ to be on the board, because
-	 * a pawn on the eight rank can't remain a pawn, and that's 
-	 * the only direction moved in */
+	// row is _guaranteed_ to be on the board, because
+	// a pawn on the eight rank can't remain a pawn, and that's
+	// the only direction moved in
 	assert (VALID (piece_row));
 
 	row = NEXT (piece_row, dir);
@@ -274,7 +274,7 @@ MOVES_HANDLER (pawn)
 		}
 	}
 
-	/* take pieces */
+	// take pieces
 	for (c_dir = -1; c_dir <= 1; c_dir += 2)
 	{
 		take_col = NEXT (piece_col, c_dir);
@@ -295,7 +295,7 @@ MOVES_HANDLER (pawn)
 		}
 	}
 
-	/* promotion */
+	// promotion
 	if (unlikely (need_pawn_promotion (row, who)))
 	{
 		for (piece_type = PIECE_QUEEN; piece_type < PIECE_PAWN; piece_type++)
@@ -317,7 +317,7 @@ MOVES_HANDLER (pawn)
 		return moves;
 	}
 	
-	/* en passant */
+	// en passant
 	if (unlikely (may_do_en_passant (piece_row, who)))
 		moves = moves_en_passant (Move_Func_Param_Names);
 
@@ -328,8 +328,8 @@ MOVES_HANDLER (pawn)
 	return moves;
 }
 
-/* put en passant in a separate handler 
- * in order to not pollute instruction cache with it */
+// put en passant in a separate handler
+// in order to not pollute instruction cache with it
 MOVES_HANDLER (en_passant)
 {
 	coord_t       src, dst;
@@ -385,7 +385,7 @@ MOVES_HANDLER (en_passant)
 	return moves;
 }
 
-/**************************************/
+///////////////////////////////////////////////
 
 move_list_t *generate_knight_moves (unsigned char row, unsigned char col)
 {
@@ -457,7 +457,7 @@ move_list_t *generate_legal_moves (struct board *board, color_t who,
 
 static int valid_castling_move (struct board *board, color_t who, move_t *move)
 {
-	/* check for an intervening piece */
+	// check for an intervening piece
 	int     direction;
 	coord_t src, dst;
 	piece_t piece1, piece2, piece3;
@@ -475,7 +475,7 @@ static int valid_castling_move (struct board *board, color_t who, move_t *move)
 	
 	if (direction < 0)
 	{
-		/* check for piece next to rook on queenside */
+		// check for piece next to rook on queenside
 		piece3 = PIECE_AT (board, ROW (src), COLUMN (dst) - 1);
 	}
 
@@ -524,7 +524,7 @@ move_list_t *validate_moves (move_list_t *move_list, struct board *board,
 			continue;
 		}
 
-		/* check for an illegal king capture */
+		// check for an illegal king capture
 		if (PIECE_TYPE (dst_piece) == PIECE_KING)
 		{
 			assert (is_capture);
@@ -642,4 +642,4 @@ move_list_t *generate_moves (struct board *board, color_t who,
 	return validate_moves (new_moves, board, who);
 }
 
-/* vim: set ts=4 sw=4: */
+// vim: set ts=4 sw=4:
