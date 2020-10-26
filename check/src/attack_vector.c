@@ -86,7 +86,9 @@ static void update_nw_to_se (struct attack_vector *attacks, struct board *board,
         }
     }
 
-    for (row = row - 1, col = col - 1, attacker = PIECE_AND_COLOR_NONE;
+    attacker = PIECE_AND_COLOR_NONE;
+
+    for (row = row - 1, col = col - 1;
         VALID(row) && VALID(col);
         row = NEXT (row, -1), col = NEXT (col, -1))
     {
@@ -138,7 +140,9 @@ static void update_ne_to_sw (struct attack_vector *attacks, struct board *board,
         }
     }
 
-    for (row = row - 1, col = col + 1, attacker = PIECE_AND_COLOR_NONE;
+    attacker = PIECE_AND_COLOR_NONE;
+
+    for (row = row - 1, col = col + 1;
          VALID(row) && VALID(col);
          row = NEXT (row, -1), col = NEXT (col, +1))
     {
@@ -187,6 +191,8 @@ static void update_horizontal (struct attack_vector *attacks, struct board *boar
         }
     }
 
+    attacker = PIECE_AND_COLOR_NONE;
+
     for (row = ROW(coord), col = LAST_COLUMN; VALID(col); col = NEXT (col, -1))
     {
         piece = PIECE_AT (board, row, col);
@@ -208,49 +214,51 @@ static void update_horizontal (struct attack_vector *attacks, struct board *boar
 
 static void update_vertical (struct attack_vector *attacks, struct board *board, coord_t coord)
 {
-//    uint8_t row, col;
-//    piece_t piece;
-//    enum piece_type piece_type;
-//    enum color piece_color;
-//    piece_t attacker = PIECE_AND_COLOR_NONE;
-//
-//    for (row = 0, col = COLUMN(coord); VALID(row); row = NEXT (row, +1))
-//    {
-//        piece = PIECE_AT (board, row, col);
-//        piece_color = PIECE_COLOR(piece);
-//        piece_type = PIECE_TYPE(piece);
-//        attacks->verticals[COLOR_INDEX_BLACK][row][col] = 0;
-//        attacks->verticals[COLOR_INDEX_WHITE][row][col] = 0;
-//
-//        if (PIECE_COLOR(attacker) != COLOR_NONE)
-//            attacks->verticals[color_index(PIECE_COLOR(attacker))][row][col] = 1;
-//
-//        if (piece_color != COLOR_NONE)
-//        {
-//            if (piece_type == PIECE_ROOK || piece_type == PIECE_QUEEN)
-//                attacker = piece;
-//            else
-//                attacker = PIECE_AND_COLOR_NONE;
-//        }
-//    }
-//
-//    for (row = LAST_ROW, col = 0; VALID(row); row = NEXT (row, -1))
-//    {
-//        piece = PIECE_AT (board, row, col);
-//        piece_color = PIECE_COLOR(piece);
-//        piece_type = PIECE_TYPE(piece);
-//
-//        if (PIECE_COLOR(attacker) != COLOR_NONE)
-//            attacks->verticals[color_index(PIECE_COLOR(attacker))][row][col] += 1;
-//
-//        if (piece_color != COLOR_NONE)
-//        {
-//            if (piece_type == PIECE_ROOK || piece_type == PIECE_QUEEN)
-//                attacker = piece;
-//            else
-//                attacker = PIECE_AND_COLOR_NONE;
-//        }
-//    }
+    uint8_t row, col;
+    piece_t piece;
+    enum piece_type piece_type;
+    enum color piece_color;
+    piece_t attacker = PIECE_AND_COLOR_NONE;
+
+    for (row = 0, col = COLUMN(coord); VALID(row); row = NEXT (row, +1))
+    {
+        piece = PIECE_AT (board, row, col);
+        piece_color = PIECE_COLOR(piece);
+        piece_type = PIECE_TYPE(piece);
+        attacks->verticals[COLOR_INDEX_BLACK][row][col] = 0;
+        attacks->verticals[COLOR_INDEX_WHITE][row][col] = 0;
+
+        if (PIECE_COLOR(attacker) != COLOR_NONE)
+            attacks->verticals[color_index(PIECE_COLOR(attacker))][row][col] = 1;
+
+        if (piece_color != COLOR_NONE)
+        {
+            if (piece_type == PIECE_ROOK || piece_type == PIECE_QUEEN)
+                attacker = piece;
+            else
+                attacker = PIECE_AND_COLOR_NONE;
+        }
+    }
+
+    attacker = PIECE_AND_COLOR_NONE;
+
+    for (row = LAST_ROW, col = COLUMN(coord); VALID(row); row = NEXT (row, -1))
+    {
+        piece = PIECE_AT (board, row, col);
+        piece_color = PIECE_COLOR(piece);
+        piece_type = PIECE_TYPE(piece);
+
+        if (PIECE_COLOR(attacker) != COLOR_NONE)
+            attacks->verticals[color_index(PIECE_COLOR(attacker))][row][col] += 1;
+
+        if (piece_color != COLOR_NONE)
+        {
+            if (piece_type == PIECE_ROOK || piece_type == PIECE_QUEEN)
+                attacker = piece;
+            else
+                attacker = PIECE_AND_COLOR_NONE;
+        }
+    }
 
 }
 

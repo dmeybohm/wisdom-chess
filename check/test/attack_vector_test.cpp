@@ -152,6 +152,28 @@ TEST_CASE("Horizontal rook and queen attack vectors calculate correctly", "[atta
     CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("g5")) == 2 );
     CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("h5")) == 1 );
 
-    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("a2")) == 0 );
-    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("b3")) == 0 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("e4")) == 0 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg("d3")) == 0 );
+}
+
+TEST_CASE("Vertical rook and queen attack vectors calculate correctly", "[attack-vector]")
+{
+    board_builder builder;
+
+    builder.add_piece ("e8", COLOR_BLACK, PIECE_QUEEN);
+    builder.add_piece ("e1", COLOR_BLACK, PIECE_ROOK);
+
+    struct board *board = builder.build();
+
+    CHECK( attack_vector_count (&board->attacks, COLOR_BLACK, coord_alg("e8")) == 1 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_BLACK, coord_alg("e7")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_BLACK, coord_alg("e6")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_BLACK, coord_alg("e5")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_BLACK, coord_alg("e4")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_BLACK, coord_alg("e3")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_BLACK, coord_alg("e2")) == 2 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_BLACK, coord_alg("e1")) == 1 );
+
+    CHECK( attack_vector_count (&board->attacks, COLOR_BLACK, coord_alg("a2")) == 0 );
+    CHECK( attack_vector_count (&board->attacks, COLOR_BLACK, coord_alg("h4")) == 0 );
 }
