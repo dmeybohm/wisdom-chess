@@ -122,7 +122,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 		{
 			move_tree_free (new_leaf);
 			undo_move (board, side, move);
-            board_check_validate(&board_check, board, side, move);
+            board_check_validate (&board_check, board, side, move);
 			continue;
 		}
 
@@ -152,7 +152,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 		}
 
 		undo_move (board, side, move);
-        board_check_validate(&board_check, board, side, move);
+        board_check_validate (&board_check, board, side, move);
 
 		move_tree_free (new_leaf);
 
@@ -430,7 +430,7 @@ move_t find_best_move (struct board *board, color_t side,
 	do_move (board, side, &best_move);
 	board_print (board);
 	undo_move (board, side, &best_move);
-    board_check_validate(&board_check, board, side, &best_move);
+    board_check_validate (&board_check, board, side, &best_move);
 
 	return best_move;
 }

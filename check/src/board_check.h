@@ -6,7 +6,7 @@ struct move;
 
 // Do a hash function run every board to check if state was updated correctly
 
-#define CHECK_BOARD_EVERY_MOVE 1
+#define CHECK_BOARD_EVERY_MOVE 0
 
 #include "board_hash.h"
 
