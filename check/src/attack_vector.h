@@ -34,6 +34,15 @@ uint8_t attack_vector_count (const struct attack_vector *attacks, enum color who
 
 static inline coord_t first_nw_to_se_coord (coord_t coord)
 {
+    // 0  1  2  3  4  5  6  7
+    // 8  0  1  2  3  4  5  6
+    // 2  8  0  1  2  3  4  5
+    // 3  4  8  0  1  2  3  4
+    // 4  5  6  8  0  1  2  3
+    // 5  6  7  8  8  0  1  2
+    // 6  7  8  9 10  8  0  1
+    // 7  8  9 10 11 12  8  0
+
     // 0, 0 -> 0, 0
     // 1, 1, -> 0, 0
     // 2, 2, -> 0, 0
@@ -54,5 +63,31 @@ static inline coord_t first_nw_to_se_coord (coord_t coord)
     }
 }
 
+static inline coord_t first_ne_to_sw_coord (coord_t coord)
+{
+    // 0  1  2  3  4  5  6  7
+    // 1  2  3  4  5  6  7  8
+    // 2  3  4  5  6  7  8  9
+    // 3  4  5  6  7  8  9 10
+    // 4  5  6  7  8  9 10 11
+    // 5  6  7  8  9 10 11 12
+    // 6  7  8  9 10 11 12 13
+    // 7  8  9 10 11 12 13 14
+
+    uint8_t row = ROW(coord), col = COLUMN(coord);
+
+    // 7, 7 -> (7, 7)
+    // 6, 7 -> (6, 7)
+    // 7, 6 -> (6, 7)
+    // 5, 7 -> (5, 7)
+
+    uint8_t sum = row + col;
+
+    if (sum < NR_COLUMNS) {
+        return coord_create(0, sum);
+    } else {
+        return coord_create (sum - 7, 7);
+    }
+}
 
 #endif //WIZDUMB_ATTACK_VECTOR_H
