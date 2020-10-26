@@ -55,8 +55,7 @@ static void update_king (struct attack_vector *attacks, struct board *board, enu
     }
 }
 
-static void
-update_nw_to_se (struct attack_vector *attacks, struct board *board, coord_t position)
+static void update_nw_to_se (struct attack_vector *attacks, struct board *board, coord_t position)
 {
     coord_t start_coord = first_nw_to_se_coord(position);
     uint8_t row, col;
@@ -108,20 +107,17 @@ update_nw_to_se (struct attack_vector *attacks, struct board *board, coord_t pos
     }
 }
 
-static void
-update_ne_to_sw (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord)
+static void update_ne_to_sw (struct attack_vector *attacks, struct board *board, coord_t coord)
 {
 
 }
 
-static void
-update_horizontal (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord)
+static void update_horizontal (struct attack_vector *attacks, struct board *board, coord_t coord)
 {
 
 }
 
-static void
-update_vertical (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord)
+static void update_vertical (struct attack_vector *attacks, struct board *board, coord_t coord)
 {
 
 }
@@ -130,9 +126,9 @@ static void attack_vector_change (struct attack_vector *attacks, struct board *b
                                   enum piece_type piece, int change)
 {
     update_nw_to_se (attacks, board, coord);
-    update_ne_to_sw (attacks, board, who, coord);
-    update_horizontal (attacks, board, who, coord);
-    update_vertical (attacks, board, who, coord);
+    update_ne_to_sw (attacks, board, coord);
+    update_horizontal (attacks, board, coord);
+    update_vertical (attacks, board, coord);
 
     switch (piece)
     {
@@ -155,9 +151,18 @@ static void attack_vector_change (struct attack_vector *attacks, struct board *b
 
 //////////////////////////////////////////////////////////////////////
 
-void attack_vector_init (struct attack_vector *attacks)
+void attack_vector_init (struct attack_vector *attacks, struct board *board)
 {
+    uint8_t row, col;
+
     memset (attacks, 0, sizeof(*attacks));
+
+    for_each_position (row, col)
+    {
+        piece_t piece = PIECE_AT (board, row, col);
+        if (PIECE_TYPE(piece) != PIECE_NONE)
+            attack_vector_add (attacks, board, PIECE_COLOR(piece), coord_create (row, col), PIECE_TYPE(piece));
+    }
 }
 
 void attack_vector_add (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,

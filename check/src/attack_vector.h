@@ -17,7 +17,7 @@ struct attack_vector
 };
 
 // Initialize the attack vector.
-void attack_vector_init (struct attack_vector *attacks);
+void attack_vector_init (struct attack_vector *attacks, struct board *board);
 
 // Add the piece's contribution to the attacks at the coordinate.
 void attack_vector_add (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,

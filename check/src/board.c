@@ -416,7 +416,7 @@ struct board *board_from_positions (const struct board_positions *positions)
         new_board->castled[i] = CASTLE_NONE;
 
     board_init_from_positions (new_board, positions);
-    attack_vector_init (&new_board->attacks);
+    attack_vector_init (&new_board->attacks, new_board);
 
     return new_board;
 }
