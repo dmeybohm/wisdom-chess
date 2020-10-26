@@ -84,15 +84,15 @@ TEST_CASE("Northwest to southeast bishop and queen attack vectors calculate corr
 
     struct board *board = builder.build();
 
-    attack_vector_add (&board->attacks, board, COLOR_WHITE, coord_algebraic("a8"), PIECE_QUEEN);
-    attack_vector_add (&board->attacks, board, COLOR_WHITE, coord_algebraic("h1"), PIECE_BISHOP);
+    attack_vector_add (&board->attacks, board, COLOR_WHITE, coord_alg ("a8"), PIECE_QUEEN);
+    attack_vector_add (&board->attacks, board, COLOR_WHITE, coord_alg ("h1"), PIECE_BISHOP);
 
-    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_algebraic("a8")) == 1 );
-    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_algebraic("b7")) == 2 );
-    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_algebraic("c6")) == 2 );
-    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_algebraic("d5")) == 2 );
-    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_algebraic("e4")) == 2 );
-    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_algebraic("f3")) == 2 );
-    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_algebraic("g2")) == 2 );
-    CHECK( attack_vector_count (&board->attacks, COLOR_WHITE, coord_algebraic("h1")) == 1 );
+    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("a8")) == 1 );
+    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("b7")) == 2 );
+    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("c6")) == 2 );
+    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("d5")) == 2 );
+    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("e4")) == 2 );
+    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("f3")) == 2 );
+    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("g2")) == 2 );
+    CHECK(attack_vector_count (&board->attacks, COLOR_WHITE, coord_alg ("h1")) == 1 );
 }

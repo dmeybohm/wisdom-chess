@@ -5,7 +5,7 @@ extern "C"
 #include "../src/board.h"
 }
 
-coord_t coord_algebraic (const char *coord_str)
+coord_t coord_alg (const char *coord_str)
 {
     if (strlen(coord_str) != 2)
         throw board_builder_exception("Invalid coordinate string!");
@@ -27,7 +27,7 @@ void board_builder::add_piece (const char *coord_str, enum color who, enum piece
     if (strlen(coord_str) != 2)
         throw board_builder_exception("Invalid coordinate string!");
 
-    coord_t algebraic = coord_algebraic (coord_str);
+    coord_t algebraic = coord_alg (coord_str);
 
     this->add_piece (ROW(algebraic), COLUMN(algebraic), who, piece_type);
 }
