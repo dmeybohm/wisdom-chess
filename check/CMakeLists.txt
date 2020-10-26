@@ -24,6 +24,10 @@ add_executable(chess
         src/global.h src/board_check.c src/board_check.h  src/validate.c src/validate.h src/attack_vector.c src/attack_vector.h)
 
 set_property(TARGET chess PROPERTY C_STANDARD 11)
+set(CMAKE_C_FLAGS "-Wall -Wno-unused-parameter -Wno-unused-function")
+set(CMAKE_C_FLAGS_DEBUG "-g")
+set(CMAKE_C_FLAGS_RELEASE "-O3")
+
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 
 if (HAVE_WINSOCK2_H)

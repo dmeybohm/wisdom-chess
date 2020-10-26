@@ -141,7 +141,7 @@ static inline coord_t king_position (struct board *board, color_t who)
 	return board->king_pos[color_index(who)];
 }
 
-static void king_position_set (struct board *board, color_t who, coord_t pos)
+static inline void king_position_set (struct board *board, color_t who, coord_t pos)
 {
 	board->king_pos[color_index(who)] = pos;
 }
