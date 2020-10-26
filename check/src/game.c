@@ -15,7 +15,7 @@ struct game *game_new (color_t turn, color_t computer_player)
 {
 	struct game *game;
 
-	game = malloc (sizeof (struct game));
+	game = malloc (sizeof(*game));
 	assert (game != NULL);
 
 	game->board = board_new ();
@@ -23,11 +23,11 @@ struct game *game_new (color_t turn, color_t computer_player)
 
 	game->history = NULL;
 
-	/* if 'turn' is something bogus, use white */
+	// if 'turn' is something bogus, use white
 	if (is_color_invalid (turn))
 		turn = COLOR_WHITE;
 
-	/* if 'computer_player' is bogus, use black */
+	// if 'computer_player' is bogus, use black
 	if (is_color_invalid (computer_player))
 		computer_player = COLOR_BLACK;
 
@@ -50,13 +50,13 @@ void game_free (struct game *game)
 
 void game_move (struct game *game, move_t *move)
 {
-	/* add this move to the history */
+	// add this move to the history
 	game->history = move_tree_new (game->history, *move);
 
-	/* do the move */
+	// do the move
 	do_move (game->board, game->turn, move);
 
-	/* take our turn */
+	// take our turn
 	game->turn = color_invert (game->turn);
 }
 
@@ -93,9 +93,9 @@ int game_save (struct game *game)
 	if (!prompt ("save to what file", buf, sizeof (buf) - 1))
 		return 0;
 
-	/*
-	 * Kludgily use append mode to preserve files
-	 */
+	//
+	// Kludgily use append mode to preserve files
+	//
 	if (!(out = fopen (buf, "a+")))
 	{
 		printf ("error opening file: %s", strerror (errno));
@@ -110,7 +110,7 @@ int game_save (struct game *game)
 
 	fclose (out);
 
-	return 1; /* need to check for failure here */
+	return 1; // need to check for failure here
 }
 
 struct game *game_load (color_t player)
@@ -148,11 +148,11 @@ struct game *game_load (color_t player)
 			return NULL;
 		}
 
-		/*
-		 * We need to check if there's a piece at the destination, and
-		 * set the move as taking it. Otherwise, we'll trip over some
-		 * consistency checks that make sure we don't erase pieces.
-		 */
+		//
+		// We need to check if there's a piece at the destination, and
+		// set the move as taking it. Otherwise, we'll trip over some
+		// consistency checks that make sure we don't erase pieces.
+		//
 		dst = MOVE_DST (move);
 		piece = PIECE_AT_COORD (game->board, dst);
 
@@ -170,4 +170,4 @@ struct game *game_load (color_t player)
 	return game;
 }
 
-/* vi: set ts=4 sw=4: */
+// vi: set ts=4 sw=4:

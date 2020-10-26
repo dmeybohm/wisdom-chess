@@ -14,7 +14,7 @@
 #include "game.h"
 #include "str.h"
 
-/* the color the computer is playing as */
+// the color the computer is playing as
 static color_t comp_player = COLOR_BLACK;
 
 static void print_available_moves (struct game *game)
@@ -114,7 +114,7 @@ int main (int argc, char **argv)
 
 	move_nullify (&move);
 
-	/* initialize computer to black */
+	// initialize computer to black
 	comp_player = COLOR_BLACK;
 
 	game = game_new (COLOR_WHITE, comp_player);
@@ -157,4 +157,4 @@ int main (int argc, char **argv)
 	return 0;
 }
 
-/* vi: set ts=4 sw=4: */
+// vi: set ts=4 sw=4:

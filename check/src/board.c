@@ -410,7 +410,7 @@ struct board *board_from_positions (const struct board_positions *positions)
 
     new_board = malloc (sizeof(*new_board));
     assert (new_board);
-    memset (new_board, 0, sizeof (struct board));
+    memset (new_board, 0, sizeof(*new_board));
 
     for (i = 0; i < NR_PLAYERS; i++)
         new_board->castled[i] = CASTLE_NONE;
