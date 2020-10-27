@@ -22,7 +22,7 @@ add_executable(chess_tests
         board_builder.hpp
         board_builder_test.cpp
         attack_vector_test.cpp
-        )
+        bitboard_test.cpp)
 
 if (HAVE_WINSOCK2_H)
     TARGET_LINK_LIBRARIES(chess_tests ws2_32)

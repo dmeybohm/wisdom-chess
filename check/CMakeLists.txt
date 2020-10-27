@@ -21,7 +21,7 @@ CHECK_INCLUDE_FILES("unistd.h" HAVE_UNISTD_H)
 add_executable(chess
         src/board.c src/board_hash.c src/check.c src/debug.c src/evaluate.c src/game.c src/generate.c src/material.c src/move.c
         src/move_list.c src/move_tree.c src/piece.c src/play.c src/search.c src/sha1.c src/str.c src/timer.c
-        src/global.h src/board_check.c src/board_check.h  src/validate.c src/validate.h src/attack_vector.c src/attack_vector.h)
+        src/global.h src/board_check.c src/board_check.h  src/validate.c src/validate.h src/attack_vector.c src/attack_vector.h src/bitboard.c src/bitboard.h)
 
 set_property(TARGET chess PROPERTY C_STANDARD 11)
 set(CMAKE_C_FLAGS "-Wall -Wno-unused-parameter -Wno-unused-function")

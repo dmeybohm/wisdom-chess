@@ -6,12 +6,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef uint8_t   color_t;
-
-typedef uint8_t   color_index_t;
-
-typedef struct piece_with_color piece_t;
-
 enum piece_type
 {
 	PIECE_NONE   = 0U,
@@ -44,8 +38,31 @@ enum color_index
 	COLOR_INDEX_BLACK = 1U,
 };
 
+enum player_index
+{
+    PLAYER_INDEX_WHITE = 0U,
+    PLAYER_INDEX_BLACK = 1U,
+};
+
+struct player_index_struct
+{
+    enum player_index index;
+};
+
+typedef uint8_t   color_t;
+
+typedef uint8_t   color_index_t;
+
+typedef struct piece_with_color piece_t;
+
+typedef struct player_index_struct player_index_t;
+
+////////////////////////////////////////////////
+
 #define NR_PIECES             (6U)
 #define PIECE_AND_COLOR_NONE  (MAKE_PIECE (COLOR_NONE, PIECE_NONE))
+
+/////////////////////////////////////////////////
 
 static inline piece_t MAKE_PIECE (enum color color, enum piece_type piece_type)
 {
@@ -108,6 +125,26 @@ static inline char piece_chr (piece_t piece)
 	default:           return '?';
 	}
 }
+
+static player_index_t color_to_player_index (enum color color)
+{
+    player_index_t result;
+
+    switch (color)
+    {
+        case COLOR_WHITE:
+            result.index = PLAYER_INDEX_WHITE;
+            break;
+        case COLOR_BLACK:
+            result.index = PLAYER_INDEX_BLACK;
+            break;
+        default:
+            assert (0);
+    }
+    return result;
+}
+
+////////////////////////////////////////////////////
 
 #define for_each_color(c) \
 	for (c = COLOR_WHITE; c <= COLOR_BLACK; c++)
