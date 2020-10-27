@@ -230,16 +230,23 @@ static void update_horizontal (struct attack_vector *attacks, const struct board
     enum color piece_color;
     piece_t attacker = PIECE_AND_COLOR_NONE;
 
+    player_index_t white_index = color_to_player_index(COLOR_WHITE);
+    player_index_t black_index = color_to_player_index(COLOR_BLACK);
+
     for (row = ROW(coord), col = 0; VALID(col); col = NEXT (col, +1))
     {
         piece = PIECE_AT (board, row, col);
         piece_color = PIECE_COLOR(piece);
         piece_type = PIECE_TYPE(piece);
-        attacks->horizontals[COLOR_INDEX_BLACK][row][col] = 0;
-        attacks->horizontals[COLOR_INDEX_WHITE][row][col] = 0;
+
+        set_attack_vector (attacks->horizontals, white_index, row, col, 0);
+        set_attack_vector (attacks->horizontals, black_index, row, col, 0);
 
         if (PIECE_COLOR(attacker) != COLOR_NONE)
-            attacks->horizontals[color_index(PIECE_COLOR(attacker))][row][col] = 1;
+        {
+            player_index_t attacker_index = color_to_player_index(PIECE_COLOR(attacker));
+            set_attack_vector (attacks->horizontals, attacker_index, row, col, 1);
+        }
 
         if (piece_color != COLOR_NONE)
         {
@@ -259,7 +266,10 @@ static void update_horizontal (struct attack_vector *attacks, const struct board
         piece_type = PIECE_TYPE(piece);
 
         if (PIECE_COLOR(attacker) != COLOR_NONE)
-            attacks->horizontals[color_index(PIECE_COLOR(attacker))][row][col] += 1;
+        {
+            player_index_t attacker_index = color_to_player_index(PIECE_COLOR(attacker));
+            add_to_attack_vector (attacks->horizontals, attacker_index, row, col, 1);
+        }
 
         if (piece_color != COLOR_NONE)
         {
@@ -279,16 +289,23 @@ static void update_vertical (struct attack_vector *attacks, const struct board *
     enum color piece_color;
     piece_t attacker = PIECE_AND_COLOR_NONE;
 
+    player_index_t white_index = color_to_player_index(COLOR_WHITE);
+    player_index_t black_index = color_to_player_index(COLOR_BLACK);
+
     for (row = 0, col = COLUMN(coord); VALID(row); row = NEXT (row, +1))
     {
         piece = PIECE_AT (board, row, col);
         piece_color = PIECE_COLOR(piece);
         piece_type = PIECE_TYPE(piece);
-        attacks->verticals[COLOR_INDEX_BLACK][row][col] = 0;
-        attacks->verticals[COLOR_INDEX_WHITE][row][col] = 0;
+
+        set_attack_vector (attacks->verticals, white_index, row, col, 0);
+        set_attack_vector (attacks->verticals, black_index, row, col, 0);
 
         if (PIECE_COLOR(attacker) != COLOR_NONE)
-            attacks->verticals[color_index(PIECE_COLOR(attacker))][row][col] = 1;
+        {
+            player_index_t attacker_index = color_to_player_index(PIECE_COLOR(attacker));
+            set_attack_vector (attacks->verticals, attacker_index, row, col, 1);
+        }
 
         if (piece_color != COLOR_NONE)
         {
@@ -308,7 +325,10 @@ static void update_vertical (struct attack_vector *attacks, const struct board *
         piece_type = PIECE_TYPE(piece);
 
         if (PIECE_COLOR(attacker) != COLOR_NONE)
-            attacks->verticals[color_index(PIECE_COLOR(attacker))][row][col] += 1;
+        {
+            player_index_t attacker_index = color_to_player_index(PIECE_COLOR(attacker));
+            add_to_attack_vector (attacks->verticals, attacker_index, row, col, 1);
+        }
 
         if (piece_color != COLOR_NONE)
         {
@@ -380,13 +400,11 @@ uint8_t attack_vector_count (const struct attack_vector *attacks, enum color who
     uint8_t row = ROW(coord);
     uint8_t col = COLUMN(coord);
     assert (VALID(row) && VALID(col));
-
-    color_index_t cindex = color_index(who);
     player_index_t player_index = color_to_player_index(who);
 
     return get_other (attacks, player_index, row, col) +
            get_attack_vector (attacks->nw_to_se, player_index, row, col) +
            get_attack_vector (attacks->ne_to_sw, player_index, row, col) +
-           attacks->horizontals[cindex][row][col] +
-           attacks->verticals[cindex][row][col];
+           get_attack_vector (attacks->horizontals, player_index, row, col) +
+           get_attack_vector (attacks->verticals, player_index, row, col);
 }

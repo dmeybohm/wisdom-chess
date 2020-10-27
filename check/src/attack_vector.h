@@ -26,18 +26,14 @@ struct attack_vector
 
     per_player_bitboard_t nw_to_se[per_player_bitboard_total_units(2)];    // bishop, queen
     per_player_bitboard_t ne_to_sw[per_player_bitboard_total_units(2)];    // bishop, queen
-//    per_player_bitboard_t horizontals[per_player_bitboard_total_units(2)]; // rook, queen
-//    per_player_bitboard_t verticals[per_player_bitboard_total_units(2)];   // rook, queen
+    per_player_bitboard_t horizontals[per_player_bitboard_total_units(2)]; // rook, queen
+    per_player_bitboard_t verticals[per_player_bitboard_total_units(2)];   // rook, queen
 
-//    uint8_t   nw_to_se[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
-//    uint8_t   ne_to_sw[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
-    uint8_t   horizontals[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
-    uint8_t   verticals[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
-//    uint8_t   other[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
-
+    // Count of the number of relevant pieces (bishop, queen) on the diagonal.
     compact_bitboard_t nw_to_se_relevant_count[ATTACK_VECTOR_DIAG_RELEVANT_UNITS];
     compact_bitboard_t ne_to_sw_relevant_count[ATTACK_VECTOR_DIAG_RELEVANT_UNITS];
 
+    // Count of the number of relevant pieces (rook, queen) on the horizontal / vertical axis.
     compact_bitboard_t horizontal_relevant_count[ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS];
     compact_bitboard_t vertical_relevant_count[ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS];
 };
