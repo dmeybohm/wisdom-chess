@@ -17,6 +17,7 @@ TEST_CASE( "Bitboard size", "[bitboard]" )
 TEST_CASE( "Bitboard get/set", "[bitboard]" )
 {
     per_player_bitboard_t  bitboard[bits_per_unit(4)];
+    memset(&bitboard, 0xff, sizeof(bitboard));
 
     player_index_t player_index = color_to_player_index(COLOR_WHITE);
     coord_t zero_coord = coord_alg("a8");
