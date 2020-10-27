@@ -24,13 +24,13 @@ struct attack_vector
     // pawn, knight, king
     per_player_bitboard_t other[per_player_bitboard_total_units(4)]; // 4 bits - max 16 pieces on one square.
 
-//    per_player_bitboard_t nw_to_se[per_player_bitboard_total_units(2)];    // bishop, queen
-//    per_player_bitboard_t ne_to_sw[per_player_bitboard_total_units(2)];    // bishop, queen
+    per_player_bitboard_t nw_to_se[per_player_bitboard_total_units(2)];    // bishop, queen
+    per_player_bitboard_t ne_to_sw[per_player_bitboard_total_units(2)];    // bishop, queen
 //    per_player_bitboard_t horizontals[per_player_bitboard_total_units(2)]; // rook, queen
 //    per_player_bitboard_t verticals[per_player_bitboard_total_units(2)];   // rook, queen
 
-    uint8_t   nw_to_se[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
-    uint8_t   ne_to_sw[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
+//    uint8_t   nw_to_se[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
+//    uint8_t   ne_to_sw[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
     uint8_t   horizontals[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
     uint8_t   verticals[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
 //    uint8_t   other[NR_PLAYERS][NR_ROWS][NR_COLUMNS];

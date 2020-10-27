@@ -21,6 +21,26 @@ static inline uint8_t get_other (const struct attack_vector *attacks, player_ind
     return per_player_bitboard_get (attacks->other, player_index, coord_create (row, col), 4);
 }
 
+static inline void add_to_attack_vector (per_player_bitboard_t *vector, player_index_t player_index,
+                                         uint8_t row, uint8_t col, int change)
+{
+    per_player_bitboard_add (vector, player_index, coord_create (row, col), 2, change);
+}
+
+static inline void set_attack_vector (per_player_bitboard_t *vector, player_index_t player_index,
+                                         uint8_t row, uint8_t col, uint8_t value)
+{
+    per_player_bitboard_set (vector, player_index, coord_create (row, col), 2, value);
+}
+
+static inline uint8_t get_attack_vector (const per_player_bitboard_t *vector, player_index_t player_index,
+                                         uint8_t row, uint8_t col)
+{
+    return per_player_bitboard_get (vector, player_index, coord_create (row, col), 2);
+}
+
+//////////////////////////////////////////////////////////////////////
+
 static void update_pawn (struct attack_vector *attacks, enum color who, coord_t at, int change)
 {
     player_index_t player_index = color_to_player_index(who);
@@ -84,6 +104,9 @@ static void update_nw_to_se (struct attack_vector *attacks, const struct board *
     enum color piece_color;
     piece_t attacker = PIECE_AND_COLOR_NONE;
 
+    player_index_t white_index = color_to_player_index(COLOR_WHITE);
+    player_index_t black_index = color_to_player_index(COLOR_BLACK);
+
     for (row = ROW(start_coord), col = COLUMN(start_coord);
         VALID(row) && VALID(col);
         row = NEXT (row, +1), col = NEXT (col, +1))
@@ -91,11 +114,14 @@ static void update_nw_to_se (struct attack_vector *attacks, const struct board *
         piece = PIECE_AT (board, row, col);
         piece_color = PIECE_COLOR(piece);
         piece_type = PIECE_TYPE(piece);
-        attacks->nw_to_se[COLOR_INDEX_BLACK][row][col] = 0;
-        attacks->nw_to_se[COLOR_INDEX_WHITE][row][col] = 0;
+        set_attack_vector (attacks->nw_to_se, white_index, row, col, 0);
+        set_attack_vector (attacks->nw_to_se, black_index, row, col, 0);
 
         if (PIECE_COLOR(attacker) != COLOR_NONE)
-            attacks->nw_to_se[color_index(PIECE_COLOR(attacker))][row][col] = 1;
+        {
+            player_index_t attacker_index = color_to_player_index(PIECE_COLOR(attacker));
+            set_attack_vector (attacks->nw_to_se, attacker_index, row, col, 1);
+        }
 
         if (piece_color != COLOR_NONE)
         {
@@ -117,7 +143,10 @@ static void update_nw_to_se (struct attack_vector *attacks, const struct board *
         piece_type = PIECE_TYPE(piece);
 
         if (PIECE_COLOR(attacker) != COLOR_NONE)
-            attacks->nw_to_se[color_index(PIECE_COLOR(attacker))][row][col] += 1;
+        {
+            player_index_t attacker_index = color_to_player_index(PIECE_COLOR(attacker));
+            add_to_attack_vector (attacks->nw_to_se, attacker_index, row, col, 1);
+        }
 
         if (piece_color != COLOR_NONE)
         {
@@ -138,6 +167,9 @@ static void update_ne_to_sw (struct attack_vector *attacks, const struct board *
     enum color piece_color;
     piece_t attacker = PIECE_AND_COLOR_NONE;
 
+    player_index_t white_index = color_to_player_index(COLOR_WHITE);
+    player_index_t black_index = color_to_player_index(COLOR_BLACK);
+
     for (row = ROW(start_coord), col = COLUMN(start_coord);
          VALID(row) && VALID(col);
          row = NEXT (row, +1), col = NEXT (col, -1))
@@ -145,11 +177,15 @@ static void update_ne_to_sw (struct attack_vector *attacks, const struct board *
         piece = PIECE_AT (board, row, col);
         piece_color = PIECE_COLOR(piece);
         piece_type = PIECE_TYPE(piece);
-        attacks->ne_to_sw[COLOR_INDEX_BLACK][row][col] = 0;
-        attacks->ne_to_sw[COLOR_INDEX_WHITE][row][col] = 0;
+
+        set_attack_vector (attacks->ne_to_sw, white_index, row, col, 0);
+        set_attack_vector (attacks->ne_to_sw, black_index, row, col, 0);
 
         if (PIECE_COLOR(attacker) != COLOR_NONE)
-            attacks->nw_to_se[color_index(PIECE_COLOR(attacker))][row][col] = 1;
+        {
+            player_index_t attacker_index = color_to_player_index(PIECE_COLOR(attacker));
+            set_attack_vector (attacks->ne_to_sw, attacker_index, row, col, 1);
+        }
 
         if (piece_color != COLOR_NONE)
         {
@@ -171,7 +207,10 @@ static void update_ne_to_sw (struct attack_vector *attacks, const struct board *
         piece_type = PIECE_TYPE(piece);
 
         if (PIECE_COLOR(attacker) != COLOR_NONE)
-            attacks->ne_to_sw[color_index(PIECE_COLOR(attacker))][row][col] += 1;
+        {
+            player_index_t attacker_index = color_to_player_index(PIECE_COLOR(attacker));
+            add_to_attack_vector (attacks->ne_to_sw, attacker_index, row, col, 1);
+        }
 
         if (piece_color != COLOR_NONE)
         {
@@ -341,12 +380,13 @@ uint8_t attack_vector_count (const struct attack_vector *attacks, enum color who
     uint8_t row = ROW(coord);
     uint8_t col = COLUMN(coord);
     assert (VALID(row) && VALID(col));
+
     color_index_t cindex = color_index(who);
     player_index_t player_index = color_to_player_index(who);
 
     return get_other (attacks, player_index, row, col) +
-           attacks->ne_to_sw[cindex][row][col] +
-           attacks->nw_to_se[cindex][row][col] +
+           get_attack_vector (attacks->nw_to_se, player_index, row, col) +
+           get_attack_vector (attacks->ne_to_sw, player_index, row, col) +
            attacks->horizontals[cindex][row][col] +
            attacks->verticals[cindex][row][col];
 }

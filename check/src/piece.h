@@ -126,7 +126,7 @@ static inline char piece_chr (piece_t piece)
 	}
 }
 
-static player_index_t color_to_player_index (enum color color)
+static inline player_index_t color_to_player_index (enum color color)
 {
     player_index_t result;
 
