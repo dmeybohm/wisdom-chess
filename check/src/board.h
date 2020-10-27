@@ -2,7 +2,6 @@
 #define EVOLVE_CHESS_BOARD_H_
 
 #include <stdio.h>
-
 #include <assert.h>
 
 #include "global.h"
@@ -136,7 +135,7 @@ static inline int is_pawn_unmoved (struct board *board,
 		return row == 1;
 }
 
-static inline coord_t king_position (struct board *board, color_t who)
+static inline coord_t king_position (const struct board *board, color_t who)
 {
 	return board->king_pos[color_index(who)];
 }

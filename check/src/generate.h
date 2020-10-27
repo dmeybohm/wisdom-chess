@@ -1,6 +1,7 @@
 #ifndef EVOLVE_CHESS_BOARD_H
 #define EVOLVE_CHESS_BOARD_H
 
+#include "global.h"
 #include "board.h"
 #include "move.h"
 #include "move_list.h"
@@ -22,7 +23,7 @@ move_list_t    *generate_legal_moves  (struct board *position, color_t who,
 move_list_t    *generate_captures     (struct board *position, color_t who,
                                        move_tree_t *history);
 
-move_list_t    *generate_knight_moves (unsigned char row, unsigned char col);
+move_list_t    *generate_knight_moves (uint8_t row, uint8_t col);
 
 ///////////////////////////////////////////////
 

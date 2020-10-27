@@ -597,7 +597,7 @@ move_list_t *generate_captures (struct board *board, color_t who,
 	return captures;
 }
 
-move_list_t *generate_moves (struct board *board, color_t who, 
+move_list_t *generate_moves (struct board *board, color_t who,
                              move_tree_t *history)
 {
 	int          row, col;
