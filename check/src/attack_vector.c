@@ -3,30 +3,50 @@
 
 #include <memory.h>
 
+static inline void add_other (struct attack_vector *attacks, player_index_t player_index,
+                              uint8_t row, uint8_t col, int change)
+{
+    per_player_bitboard_add (attacks->other, player_index, coord_create (row, col), 4, change);
+}
+
+static inline void set_other (struct attack_vector *attacks, player_index_t player_index,
+                              uint8_t row, uint8_t col, int change)
+{
+    per_player_bitboard_set (attacks->other, player_index, coord_create (row, col), 4, change);
+}
+
+static inline uint8_t get_other (const struct attack_vector *attacks, player_index_t player_index,
+                                 uint8_t row, uint8_t col)
+{
+    return per_player_bitboard_get (attacks->other, player_index, coord_create (row, col), 4);
+}
+
 static void update_pawn (struct attack_vector *attacks, enum color who, coord_t at, int change)
 {
+    player_index_t player_index = color_to_player_index(who);
+
     int direction = PAWN_DIRECTION(who);
     int next_row = NEXT (ROW(at), direction);
     int left_col = NEXT (COLUMN(at), -1);
     int right_col = NEXT (COLUMN(at), +1);
 
     if (VALID(left_col))
-        attacks->other[color_index(who)][next_row][left_col] += change;
+        add_other (attacks, player_index, next_row, left_col, change);
 
     if (VALID(right_col))
-        attacks->other[color_index(who)][next_row][right_col] += change;
+        add_other (attacks, player_index, next_row, right_col, change);
 }
 
 static void update_knight (struct attack_vector *attacks, enum color who, coord_t at, int change)
 {
     const move_list_t *knight_moves = generate_knight_moves (ROW(at), COLUMN(at));
     const move_t *mv;
-    color_index_t player_index = color_index(who);
+    player_index_t player_index = color_to_player_index(who);
 
     for_each_move (mv, knight_moves)
     {
         coord_t dst = MOVE_DST(*mv);
-        attacks->other[player_index][ROW(dst)][COLUMN(dst)] += change;
+        add_other (attacks, player_index, ROW(dst), COLUMN(dst), change);
     }
 }
 
@@ -38,7 +58,7 @@ static void update_king (struct attack_vector *attacks, enum color who, coord_t 
     uint8_t first_col = NEXT (king_col, -1);
     uint8_t last_row = NEXT (king_row, +1);
     uint8_t last_col = NEXT (king_col, +1);
-    color_index_t index = color_index(who);
+    player_index_t player_index = color_to_player_index(who);
 
     for (uint8_t row = first_row; row <= last_row; row = NEXT (row, +1))
     {
@@ -50,7 +70,7 @@ static void update_king (struct attack_vector *attacks, enum color who, coord_t 
             if (!VALID(row) || !VALID(col))
                 continue;
 
-            attacks->other[index][row][col] += change;
+            add_other (attacks, player_index, row, col, change);
         }
     }
 }
@@ -322,8 +342,9 @@ uint8_t attack_vector_count (const struct attack_vector *attacks, enum color who
     uint8_t col = COLUMN(coord);
     assert (VALID(row) && VALID(col));
     color_index_t cindex = color_index(who);
+    player_index_t player_index = color_to_player_index(who);
 
-    return attacks->other[cindex][row][col] +
+    return get_other (attacks, player_index, row, col) +
            attacks->ne_to_sw[cindex][row][col] +
            attacks->nw_to_se[cindex][row][col] +
            attacks->horizontals[cindex][row][col] +

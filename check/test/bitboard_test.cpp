@@ -8,7 +8,7 @@ extern "C"
 
 TEST_CASE( "Bitboard size", "[bitboard]" )
 {
-    per_player_bitboard_t  bitboard[bits_per_unit(4)];
+    per_player_bitboard_t  bitboard[per_player_bitboard_total_units(4)];
 
     CHECK( sizeof(per_player_bitboard_t) == 8 );
     CHECK( sizeof(bitboard) == 64 ); // NR_ROWS * NR_COLUMNS * nr_bits_per_unit * NR_PLAYERS / 8
@@ -16,7 +16,7 @@ TEST_CASE( "Bitboard size", "[bitboard]" )
 
 TEST_CASE( "Bitboard get/set", "[bitboard]" )
 {
-    per_player_bitboard_t  bitboard[bits_per_unit(4)];
+    per_player_bitboard_t  bitboard[per_player_bitboard_total_units(4)];
     memset(&bitboard, 0xff, sizeof(bitboard));
 
     player_index_t player_index = color_to_player_index(COLOR_WHITE);

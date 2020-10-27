@@ -12,8 +12,11 @@ typedef struct per_player_bitboard
 
 ////////////////////////////////////////////////////////////
 
-#define bits_per_unit(_bits) \
-    (((NR_ROWS * NR_COLUMNS) * 64U / ((_bits) * 2U)) / 64)
+#define bitboard_units_for_bits(_nr_rows, _nr_cols, _nr_players, _bits) \
+    (((_nr_rows) * (_nr_cols) * (_bits) * (_nr_players)) / 64)
+
+#define per_player_bitboard_total_units(_bits) \
+    bitboard_units_for_bits (NR_ROWS, NR_COLUMNS, NR_PLAYERS, _bits)
 
 #define per_player_bitboard_index(_row, _col, _player_index, _bits_per_unit) \
     ( (( (_row << 4U) + ( (_col) << 1U) + (_player_index) ) * (_bits_per_unit)) / 64U)
@@ -33,7 +36,7 @@ static inline uint8_t per_player_bitboard_get (const per_player_bitboard_t *bitb
     uint8_t row = ROW(coord);
     uint8_t col = COLUMN(coord);
 
-    uint64_t total_units = bits_per_unit(bits_per_unit);
+    uint64_t total_units = per_player_bitboard_total_units(bits_per_unit);
     uint64_t index = per_player_bitboard_index (row, col, player_index.index, bits_per_unit);
     uint64_t offset = per_player_bitboard_offset (row, col, player_index.index, bits_per_unit);
     uint64_t mask = per_player_bitboard_mask (bits_per_unit);
@@ -49,7 +52,7 @@ static inline void per_player_bitboard_set (per_player_bitboard_t *bitboard,
     uint8_t row = ROW(coord);
     uint8_t col = COLUMN(coord);
 
-    uint64_t total_units = bits_per_unit(bits_per_unit);
+    uint64_t total_units = per_player_bitboard_total_units(bits_per_unit);
     uint64_t index = per_player_bitboard_index (row, col, player_index.index, bits_per_unit);
     uint64_t offset = per_player_bitboard_offset (row, col, player_index.index, bits_per_unit);
     uint64_t mask = per_player_bitboard_mask(bits_per_unit);
@@ -62,6 +65,14 @@ static inline void per_player_bitboard_set (per_player_bitboard_t *bitboard,
     bits &= ~(mask << offset);
     bits |= (value64 << offset);
     bitboard[index].bits = bits;
+}
+
+static inline void per_player_bitboard_add (per_player_bitboard_t *bitboard,
+                                            player_index_t player_index, coord_t coord,
+                                            uint8_t bits_per_unit, int8_t value)
+{
+    uint8_t new_value = value + per_player_bitboard_get (bitboard, player_index, coord, bits_per_unit);
+    per_player_bitboard_set (bitboard, player_index, coord, bits_per_unit, new_value);
 }
 
 #endif //WIZDUMB_BITBOARD_H

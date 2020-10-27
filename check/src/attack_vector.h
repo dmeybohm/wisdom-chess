@@ -4,16 +4,42 @@
 #include "global.h"
 #include "piece.h"
 #include "coord.h"
+#include "bitboard.h"
+#include "compact_bitboard.h"
 
 struct board;
 
+#define NR_DIAGONAL_ROWS     (2U)
+
+#define ATTACK_VECTOR_HORIZ_VERT_ROWS   (1U)
+
+#define ATTACK_VECTOR_DIAG_RELEVANT_UNITS \
+    compact_bitboard_total_units(NR_DIAGONAL_ROWS, NR_PLAYERS, 4)
+
+#define ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS \
+    compact_bitboard_total_units(1, NR_PLAYERS, 4)
+
 struct attack_vector
 {
-    uint8_t   nw_to_se[NR_PLAYERS][NR_ROWS][NR_COLUMNS];       // bishop, queen
-    uint8_t   ne_to_sw[NR_PLAYERS][NR_ROWS][NR_COLUMNS];       // bishop, queen
-    uint8_t   horizontals[NR_PLAYERS][NR_ROWS][NR_COLUMNS];    // rook, queen
-    uint8_t   verticals[NR_PLAYERS][NR_ROWS][NR_COLUMNS];      // rook, queen
-    uint8_t   other[NR_PLAYERS][NR_ROWS][NR_COLUMNS];          // pawn, knight, king
+    // pawn, knight, king
+    per_player_bitboard_t other[per_player_bitboard_total_units(4)]; // 4 bits - max 16 pieces on one square.
+
+//    per_player_bitboard_t nw_to_se[per_player_bitboard_total_units(2)];    // bishop, queen
+//    per_player_bitboard_t ne_to_sw[per_player_bitboard_total_units(2)];    // bishop, queen
+//    per_player_bitboard_t horizontals[per_player_bitboard_total_units(2)]; // rook, queen
+//    per_player_bitboard_t verticals[per_player_bitboard_total_units(2)];   // rook, queen
+
+    uint8_t   nw_to_se[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
+    uint8_t   ne_to_sw[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
+    uint8_t   horizontals[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
+    uint8_t   verticals[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
+//    uint8_t   other[NR_PLAYERS][NR_ROWS][NR_COLUMNS];
+
+    compact_bitboard_t nw_to_se_relevant_count[ATTACK_VECTOR_DIAG_RELEVANT_UNITS];
+    compact_bitboard_t ne_to_sw_relevant_count[ATTACK_VECTOR_DIAG_RELEVANT_UNITS];
+
+    compact_bitboard_t horizontal_relevant_count[ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS];
+    compact_bitboard_t vertical_relevant_count[ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS];
 };
 
 // Initialize the attack vector.
