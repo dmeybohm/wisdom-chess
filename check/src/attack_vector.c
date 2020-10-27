@@ -3,6 +3,8 @@
 
 #include <memory.h>
 
+static void update_bishop (struct attack_vector *attacks, enum color color, coord_t coord, int change);
+
 static inline void add_other (struct attack_vector *attacks, player_index_t player_index,
                               uint8_t row, uint8_t col, int change)
 {
@@ -94,6 +96,19 @@ static void update_king (struct attack_vector *attacks, enum color who, coord_t 
         }
     }
 }
+
+static void update_bishop (struct attack_vector *attacks, enum color color, coord_t coord, int change)
+{
+    if (change)
+    {
+    }
+}
+
+static void update_rook (struct attack_vector *attacks, enum color color, coord_t coord, int change)
+{
+
+}
+
 
 static void update_nw_to_se (struct attack_vector *attacks, const struct board *board, coord_t position)
 {
@@ -343,29 +358,67 @@ static void update_vertical (struct attack_vector *attacks, const struct board *
 static void attack_vector_change (struct attack_vector *attacks, const struct board *board,
                                   enum color who, coord_t coord, enum piece_type piece, int change)
 {
-    update_nw_to_se (attacks, board, coord);
-    update_ne_to_sw (attacks, board, coord);
-    update_horizontal (attacks, board, coord);
-    update_vertical (attacks, board, coord);
 
-    switch (piece)
-    {
-        case PIECE_PAWN:
-            update_pawn (attacks, who, coord, change);
-            break;
-
-        case PIECE_KNIGHT:
-            update_knight (attacks, who, coord, change);
-            break;
-
-        case PIECE_KING:
-            update_king (attacks, who, coord, change);
-            break;
-
-        default:
-            break;
-    }
 }
+
+static inline uint8_t attack_vector_nw_to_se_relevant_count (const struct attack_vector *attacks,
+                                                             enum color who, coord_t coord)
+{
+    coord_t first_coord = first_nw_to_se_coord(coord);
+    uint8_t row = ROW(first_coord);
+    uint8_t col = COLUMN(first_coord);
+
+    if (row >= 1)
+    {
+        col = row - 1;
+        row = 1;
+    }
+
+    coord_t target = coord_create (row, col);
+    return compact_bitboard_get (attacks->nw_to_se_relevant_count, color_to_player_index(who), target,
+                                 NR_DIAGONAL_ROWS, NR_PLAYERS, 4);
+}
+
+static inline uint8_t attack_vector_ne_to_sw_relevant_count (const struct attack_vector *attacks,
+                                                             enum color who, coord_t coord)
+{
+    coord_t first_coord = first_ne_to_sw_coord(coord);
+    uint8_t row = ROW(first_coord);
+    uint8_t col = COLUMN(first_coord);
+
+    if (row >= 1)
+    {
+        col = row - 1;
+        row = 1;
+    }
+
+    coord_t target = coord_create (row, col);
+    return compact_bitboard_get (attacks->ne_to_sw_relevant_count, color_to_player_index(who), target,
+                                 NR_DIAGONAL_ROWS, NR_PLAYERS, 4);
+}
+
+static inline uint8_t attack_vector_horizontal_relevant_count (const compact_bitboard_t *diag_relevant,
+                                                               enum color who, coord_t coord)
+{
+    uint8_t row = ROW(coord);
+
+    // use row as col because bitboard is only a single row.
+    coord_t bitboard_coord = coord_create (1, row);
+
+    return compact_bitboard_get (diag_relevant, color_to_player_index(who), bitboard_coord,
+                                 1, NR_PLAYERS, 4);
+}
+
+static inline uint8_t attack_vector_vertical_relevant_count (const compact_bitboard_t *diag_relevant,
+                                                               enum color who, coord_t coord)
+{
+    uint8_t col = COLUMN(coord);
+    coord_t bitboard_coord = coord_create (1, col);
+
+    return compact_bitboard_get (diag_relevant, color_to_player_index(who), bitboard_coord,
+                                 1, NR_PLAYERS, 4);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -386,7 +439,55 @@ void attack_vector_init (struct attack_vector *attacks, struct board *board)
 void attack_vector_add (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
                         enum piece_type piece)
 {
-    attack_vector_change (attacks, board, who, coord, piece, +1);
+    int change = 1;
+
+    if (attack_vector_nw_to_se_relevant_count(attacks, who, coord) > 0 ||
+        piece == PIECE_BISHOP ||
+        piece == PIECE_QUEEN)
+    {
+        update_nw_to_se (attacks, board, coord);
+    }
+
+    if (attack_vector_ne_to_sw_relevant_count(attacks, who, coord) > 0 ||
+        piece == PIECE_BISHOP ||
+        piece == PIECE_QUEEN)
+    {
+        update_ne_to_sw (attacks, board, coord);
+    }
+
+    update_horizontal (attacks, board, coord);
+    update_vertical (attacks, board, coord);
+
+    switch (piece)
+    {
+        case PIECE_PAWN:
+            update_pawn (attacks, who, coord, change);
+            break;
+
+        case PIECE_KNIGHT:
+            update_knight (attacks, who, coord, change);
+            break;
+
+        case PIECE_KING:
+            update_king (attacks, who, coord, change);
+            break;
+
+        case PIECE_BISHOP:
+            update_bishop (attacks, who, coord, change);
+            break;
+
+        case PIECE_ROOK:
+            update_rook (attacks, who, coord, change);
+            break;
+
+        case PIECE_QUEEN:
+            update_bishop (attacks, who, coord, change);
+            update_rook (attacks, who, coord, change);
+            break;
+
+        default:
+            break;
+    }
 }
 
 void attack_vector_remove (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,

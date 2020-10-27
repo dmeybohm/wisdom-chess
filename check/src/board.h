@@ -75,7 +75,7 @@ static inline int PAWN_DIRECTION (color_t color)
 	return color == COLOR_BLACK ? 1 : -1;
 }
 
-static inline int need_pawn_promotion (uint8_t row, color_t who)
+static inline bool need_pawn_promotion (uint8_t row, color_t who)
 {
     switch (who)
     {
