@@ -17,27 +17,20 @@ TEST_CASE( "Bitboard size", "[bitboard]" )
 TEST_CASE( "Bitboard get/set", "[bitboard]" )
 {
     per_player_bitboard_t  bitboard[per_player_bitboard_total_units(4)];
-    memset(&bitboard, 0xff, sizeof(bitboard));
+    memset (&bitboard, 0xff, sizeof(bitboard));
 
-    player_index_t player_index = color_to_player_index(COLOR_WHITE);
-    coord_t zero_coord = coord_alg("a8");
-    coord_t one_coord = coord_alg("b8");
-    coord_t two_coord = coord_alg("c8");
-    coord_t next_row = coord_alg("a7");
-    coord_t last_row = coord_alg("e1");
+    auto row = GENERATE(0, 7);
+    auto col = GENERATE(0, 7);
+    auto value = GENERATE(0, 0xf);
+    auto color = GENERATE(COLOR_WHITE, COLOR_BLACK);
+
+    player_index_t player_index = color_to_player_index(color);
+    coord_t coord = coord_create (row, col);
 
     // Test memset worked
-    CHECK( per_player_bitboard_get (bitboard, player_index, last_row, 4) == 0xf );
+    REQUIRE( per_player_bitboard_get (bitboard, player_index, coord, 4) == 0xf );
 
-    per_player_bitboard_set (bitboard, player_index, zero_coord, 4, 15);
-    per_player_bitboard_set (bitboard, player_index, one_coord, 4, 11);
-    per_player_bitboard_set (bitboard, player_index, two_coord, 4, 12);
-    per_player_bitboard_set (bitboard, player_index, next_row, 4, 11);
-    per_player_bitboard_set (bitboard, player_index, last_row, 4, 7);
+    per_player_bitboard_set (bitboard, player_index, coord, 4, value );
 
-    CHECK( per_player_bitboard_get (bitboard, player_index, zero_coord, 4) == 15 );
-    CHECK( per_player_bitboard_get (bitboard, player_index, one_coord, 4) == 11 );
-    CHECK( per_player_bitboard_get (bitboard, player_index, two_coord, 4) == 12 );
-    CHECK( per_player_bitboard_get (bitboard, player_index, next_row, 4) == 11 );
-    CHECK( per_player_bitboard_get (bitboard, player_index, last_row, 4) == 7 );
+    REQUIRE( per_player_bitboard_get (bitboard, player_index, coord, 4) == value );
 }
