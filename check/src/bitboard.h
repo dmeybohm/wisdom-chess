@@ -13,7 +13,7 @@ typedef struct per_player_bitboard
 ////////////////////////////////////////////////////////////
 
 #define bits_per_unit(_bits) \
-    ((NR_ROWS * NR_COLUMNS) * 64U / ((_bits) * 2U))
+    (((NR_ROWS * NR_COLUMNS) * 64U / ((_bits) * 2U)) / 64)
 
 #define per_player_bitboard_index(_row, _col, _player_index, _bits_per_unit) \
     ( (( (_row << 4U) + ( (_col) << 1U) + (_player_index) ) * (_bits_per_unit)) / 64U)
@@ -22,7 +22,7 @@ typedef struct per_player_bitboard
     ( (( (_row << 4U) + ( (_col) << 1U) + (_player_index) ) * (_bits_per_unit)) % 64U)
 
 #define per_player_bitboard_mask(_bits_per_unit) \
-    ((1U << (_bits_per_unit)) - 1U)
+    ((uint64_t)((1ULL << (_bits_per_unit)) - 1ULL))
 
 ////////////////////////////////////////////////////////////
 
@@ -52,7 +52,7 @@ static inline void per_player_bitboard_set (per_player_bitboard_t *bitboard,
     uint64_t total_units = bits_per_unit(bits_per_unit);
     uint64_t index = per_player_bitboard_index (row, col, player_index.index, bits_per_unit);
     uint64_t offset = per_player_bitboard_offset (row, col, player_index.index, bits_per_unit);
-    uint64_t mask = per_player_bitboard_mask (bits_per_unit);
+    uint64_t mask = per_player_bitboard_mask(bits_per_unit);
     uint64_t value64 = value;
 
     assert (index < total_units);

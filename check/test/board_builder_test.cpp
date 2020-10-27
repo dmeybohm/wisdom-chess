@@ -8,6 +8,18 @@ extern "C"
 
 using Catch::Matchers::Contains;
 
+TEST_CASE( "Specifying coordinates in algebraic notation", "[board-builder]" )
+{
+    CHECK( ROW(coord_alg("a8")) == 0 );
+    CHECK( ROW(coord_alg("a1")) == 7 );
+    CHECK( COLUMN(coord_alg("a8")) == 0 );
+    CHECK( COLUMN(coord_alg("a1")) == 0 );
+    CHECK( ROW(coord_alg("h1")) == 7 );
+    CHECK( ROW(coord_alg("h8")) == 0 );
+    CHECK( COLUMN(coord_alg("h1")) == 7 );
+    CHECK( COLUMN(coord_alg("h8")) == 7 );
+}
+
 TEST_CASE( "Initializing the board builder", "[board-builder]" )
 {
     board_builder builder;
