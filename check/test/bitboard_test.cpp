@@ -11,7 +11,7 @@ TEST_CASE( "Bitboard size", "[bitboard]" )
     per_player_bitboard_t  bitboard[bits_per_unit(4)];
 
     CHECK( sizeof(per_player_bitboard_t) == 8 );
-    CHECK( sizeof(bitboard) == 8 * 8 * 4 * 2 / 8 );
+    CHECK( sizeof(bitboard) == 64 ); // 8 * 8 * 4 * 2 / 8
 }
 
 TEST_CASE( "Bitboard get/set", "[bitboard]" )
