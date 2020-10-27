@@ -26,6 +26,9 @@ TEST_CASE( "Bitboard get/set", "[bitboard]" )
     coord_t next_row = coord_alg("a7");
     coord_t last_row = coord_alg("e1");
 
+    // Test memset worked
+    CHECK( per_player_bitboard_get (bitboard, player_index, last_row, 4) == 0xf );
+
     per_player_bitboard_set (bitboard, player_index, zero_coord, 4, 15);
     per_player_bitboard_set (bitboard, player_index, one_coord, 4, 11);
     per_player_bitboard_set (bitboard, player_index, two_coord, 4, 12);
