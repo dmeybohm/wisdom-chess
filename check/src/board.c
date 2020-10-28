@@ -323,6 +323,7 @@ void do_move (struct board *board, color_t who, move_t *move)
 			update_opponent_rook_position (board, color_invert(who), dst_piece, move, src, dst, 0);
 	}
 
+	attack_vector_do_move (&board->attacks, board, who, PIECE_TYPE(src_piece), move);
 	validate_castle_state (board, move);
 }
 
@@ -374,7 +375,11 @@ void undo_move (struct board *board, color_t who, move_t *move)
 		if (PIECE_TYPE(dst_piece) == PIECE_ROOK)
 			update_opponent_rook_position (board, color_invert(who), dst_piece, move, src, dst, 1);
 	}
+
+    attack_vector_do_move (&board->attacks, board, who, PIECE_TYPE(src_piece), move);
 	validate_castle_state (board, move);
+
+	// TODO - reset move state that was set in do_move?
 }
 
 static enum piece_type back_rank[] =

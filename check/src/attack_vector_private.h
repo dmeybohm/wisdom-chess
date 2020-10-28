@@ -71,14 +71,14 @@ static inline uint8_t get_nw_to_se_relevant_count (const struct attack_vector *a
     coord_t target = get_nw_to_se_bitboard_coord (coord);
 
     return bitboard_get (attacks->nw_to_se_relevant_count,  target,
-                         NR_DIAGONAL_ROWS, NR_COLUMNS, 4);
+                         2, NR_COLUMNS, 4);
 }
 
 static inline void add_to_nw_to_se_relevant_count (struct attack_vector *attacks, coord_t coord, int change)
 {
     coord_t target = get_nw_to_se_bitboard_coord (coord);
     return bitboard_add (attacks->nw_to_se_relevant_count, target,
-                                 NR_DIAGONAL_ROWS, NR_COLUMNS, 4, change);
+                         2, NR_COLUMNS, 4, change);
 }
 
 static coord_t get_nw_to_sw_bitboard_coord (coord_t coord)
@@ -102,14 +102,14 @@ static inline uint8_t get_ne_to_sw_relevant_count (const struct attack_vector *a
     coord_t target = get_nw_to_sw_bitboard_coord (coord);
 
     return bitboard_get (attacks->ne_to_sw_relevant_count, target,
-                                 NR_DIAGONAL_ROWS, NR_COLUMNS, 4);
+                         2, NR_COLUMNS, 4);
 }
 
 static inline void add_to_ne_to_sw_relevant_count (struct attack_vector *attacks, coord_t coord, int change)
 {
     coord_t target = get_nw_to_se_bitboard_coord (coord);
     return bitboard_add (attacks->nw_to_se_relevant_count, target,
-                                 NR_DIAGONAL_ROWS, NR_COLUMNS, 4, change);
+                         2, NR_COLUMNS, 4, change);
 }
 
 static coord_t get_horizontal_relevant_bitboard_coord (coord_t coord)
@@ -125,14 +125,14 @@ static inline uint8_t get_horizontal_relevant_count (const struct attack_vector 
     coord_t bitboard_coord = get_horizontal_relevant_bitboard_coord (coord);
 
     return bitboard_get (attacks->horizontal_relevant_count, bitboard_coord,
-                                 1, NR_COLUMNS, 8);
+                         1, NR_COLUMNS, 8);
 }
 
 static inline void add_to_horizontal_relevant_count (struct attack_vector *attacks, coord_t coord, int change)
 {
     coord_t target = get_horizontal_relevant_bitboard_coord(coord);
     return bitboard_add (attacks->horizontal_relevant_count, target,
-                                 1, NR_COLUMNS, 8, change);
+                         1, NR_COLUMNS, 8, change);
 }
 
 static coord_t get_vertical_relevant_bitboard_coord (coord_t coord)
@@ -146,12 +146,12 @@ static inline uint8_t get_vertical_relevant_count (const struct attack_vector *a
 {
     coord_t bitboard_coord = get_vertical_relevant_bitboard_coord (coord);
     return bitboard_get (attacks->vertical_relevant_count, bitboard_coord,
-                                 1, NR_COLUMNS, 8);
+                         1, NR_COLUMNS, 8);
 }
 
 static inline void add_to_vertical_relevant_count (struct attack_vector *attacks, coord_t coord, int change)
 {
     coord_t target = get_vertical_relevant_bitboard_coord(coord);
     return bitboard_add (attacks->vertical_relevant_count, target,
-                                 1, NR_COLUMNS, 8, change);
+                         1, NR_COLUMNS, 8, change);
 }

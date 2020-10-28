@@ -1,6 +1,7 @@
 #include "attack_vector.h"
 #include "attack_vector_private.h"
 #include "generate.h"
+#include "move.h"
 
 #include <memory.h>
 
@@ -400,6 +401,42 @@ void attack_vector_remove (struct attack_vector *attacks, struct board *board, e
                            enum piece_type piece)
 {
     attack_vector_change (attacks, board, who, coord, piece, -1);
+}
+
+void attack_vector_do_move (struct attack_vector *attacks, struct board *board, enum color color,
+                            enum piece_type piece_type, move_t *move)
+{
+    coord_t src = MOVE_SRC(*move);
+    coord_t dst = MOVE_DST(*move);
+
+    attack_vector_remove (attacks, board, color, src, piece_type);
+
+    if (is_capture_move(move))
+    {
+        piece_t piece = move_get_taken(move);
+
+        attack_vector_remove (attacks, board, PIECE_COLOR(piece), dst, PIECE_TYPE(piece));
+    }
+
+    attack_vector_add (attacks, board, color, dst, piece_type);
+}
+
+void attack_vector_undo_move (struct attack_vector *attacks, struct board *board, enum color color,
+                              enum piece_type piece_type, move_t *move)
+{
+    coord_t src = MOVE_SRC(*move);
+    coord_t dst = MOVE_DST(*move);
+
+    attack_vector_remove (attacks, board, color, dst, piece_type);
+
+    if (is_capture_move(move))
+    {
+        piece_t piece = move_get_taken(move);
+
+        attack_vector_add (attacks, board, PIECE_COLOR(piece), dst, PIECE_TYPE(piece));
+    }
+
+    attack_vector_add (attacks, board, color, src, piece_type);
 }
 
 uint8_t attack_vector_count (const struct attack_vector *attacks, enum color who, coord_t coord)

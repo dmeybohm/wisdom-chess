@@ -164,7 +164,7 @@ TEST_CASE("Castling state is modified and restored for castling kingside", "[cas
     CHECK( able_to_castle(board, COLOR_WHITE, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_WHITE)] == CASTLE_NONE );
 
-    do_move(board, COLOR_WHITE, &mv);
+    do_move (board, COLOR_WHITE, &mv);
 
     CHECK( able_to_castle(board, COLOR_WHITE, CASTLE_QUEENSIDE) == 0 );
     CHECK( able_to_castle(board, COLOR_WHITE, CASTLE_KINGSIDE) == 0 );
@@ -179,7 +179,7 @@ TEST_CASE("Castling state is modified and restored for castling kingside", "[cas
     CHECK( PIECE_TYPE(PIECE_AT(board, 7, 5)) == PIECE_ROOK );
     CHECK( PIECE_COLOR(PIECE_AT(board, 7, 5)) == COLOR_WHITE );
 
-    undo_move(board, COLOR_WHITE, &mv);
+    undo_move (board, COLOR_WHITE, &mv);
 
     CHECK( able_to_castle(board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle(board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );

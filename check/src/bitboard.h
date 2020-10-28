@@ -17,10 +17,7 @@ typedef struct per_player_bitboard
 
 ////////////////////////////////////////////////////////////
 
-#define bitboard_units_for_bits(_nr_rows, _nr_cols, _nr_players, _bits) \
-    (((_nr_rows) * (_nr_cols) * (_bits) * (_nr_players)) / 64)
-
-#define bitboard_total_units(_nr_rows, _nr_cols, _bits) \
+#define bitboard_units(_nr_rows, _nr_cols, _bits) \
     (((_nr_rows) * (_nr_cols) * (_bits)) / 64)
 
 #define bitboard_index(_row, _col, _bits_per_unit) \
@@ -41,7 +38,7 @@ static inline uint8_t bitboard_get (const bitboard_t *bitboard,
     uint8_t row = ROW(coord);
     uint8_t col = COLUMN(coord);
 
-    uint64_t total_units = bitboard_total_units (nr_rows, nr_cols, bits_per_unit);
+    uint64_t total_units = bitboard_units (nr_rows, nr_cols, bits_per_unit);
     uint64_t index = bitboard_index (row, col,  bits_per_unit);
     uint64_t offset = bitboard_offset (row, col,  bits_per_unit);
     uint64_t mask = bitboard_mask (bits_per_unit);
@@ -57,7 +54,7 @@ static inline void bitboard_set (bitboard_t *bitboard, coord_t coord,
     uint8_t row = ROW(coord);
     uint8_t col = COLUMN(coord);
 
-    uint64_t total_units = bitboard_total_units (nr_rows, nr_cols, bits_per_unit);
+    uint64_t total_units = bitboard_units (nr_rows, nr_cols, bits_per_unit);
     uint64_t index = bitboard_index (row, col, bits_per_unit);
     uint64_t offset = bitboard_offset (row, col, bits_per_unit);
     uint64_t mask = bitboard_mask(bits_per_unit);
@@ -83,8 +80,8 @@ static inline void bitboard_add (bitboard_t *bitboard, coord_t coord,
 
 ////////////////////////////////////////////////////////////
 
-#define per_player_bitboard_total_units(_bits) \
-    bitboard_units_for_bits (NR_ROWS, NR_COLUMNS, NR_PLAYERS, _bits)
+#define per_player_bitboard_units(_bits) \
+    ((NR_ROWS * NR_COLUMNS * (_bits) * NR_PLAYERS) / 64U)
 
 #define per_player_bitboard_index(_row, _col, _player_index, _bits_per_unit) \
     ( (( (_row << 4U) + ( (_col) << 1U) + (_player_index) ) * (_bits_per_unit)) / 64U)
@@ -104,7 +101,7 @@ static inline uint8_t per_player_bitboard_get (const per_player_bitboard_t *bitb
     uint8_t row = ROW(coord);
     uint8_t col = COLUMN(coord);
 
-    uint64_t total_units = per_player_bitboard_total_units(bits_per_unit);
+    uint64_t total_units = per_player_bitboard_units(bits_per_unit);
     uint64_t index = per_player_bitboard_index (row, col, player_index.index, bits_per_unit);
     uint64_t offset = per_player_bitboard_offset (row, col, player_index.index, bits_per_unit);
     uint64_t mask = per_player_bitboard_mask (bits_per_unit);
@@ -120,7 +117,7 @@ static inline void per_player_bitboard_set (per_player_bitboard_t *bitboard,
     uint8_t row = ROW(coord);
     uint8_t col = COLUMN(coord);
 
-    uint64_t total_units = per_player_bitboard_total_units(bits_per_unit);
+    uint64_t total_units = per_player_bitboard_units(bits_per_unit);
     uint64_t index = per_player_bitboard_index (row, col, player_index.index, bits_per_unit);
     uint64_t offset = per_player_bitboard_offset (row, col, player_index.index, bits_per_unit);
     uint64_t mask = per_player_bitboard_mask(bits_per_unit);

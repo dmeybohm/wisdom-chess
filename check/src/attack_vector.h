@@ -5,38 +5,30 @@
 #include "piece.h"
 #include "coord.h"
 #include "bitboard.h"
-#include "compact_bitboard.h"
 
 struct board;
-
-#define NR_DIAGONAL_ROWS     (2U)
-
-#define ATTACK_VECTOR_HORIZ_VERT_ROWS   (1U)
-
-#define ATTACK_VECTOR_DIAG_RELEVANT_UNITS \
-    bitboard_total_units(NR_DIAGONAL_ROWS, NR_COLUMNS, 4)
-
-#define ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS \
-    bitboard_total_units(1, NR_COLUMNS, 8)
+struct move;
 
 struct attack_vector
 {
     // pawn, knight, king
-    per_player_bitboard_t other[per_player_bitboard_total_units(4)]; // 4 bits - max 16 pieces on one square.
+    per_player_bitboard_t other[per_player_bitboard_units(4)]; // 4 bits - max 16 pieces on one square.
 
-    per_player_bitboard_t nw_to_se[per_player_bitboard_total_units(2)];    // bishop, queen
-    per_player_bitboard_t ne_to_sw[per_player_bitboard_total_units(2)];    // bishop, queen
-    per_player_bitboard_t horizontals[per_player_bitboard_total_units(2)]; // rook, queen
-    per_player_bitboard_t verticals[per_player_bitboard_total_units(2)];   // rook, queen
+    per_player_bitboard_t nw_to_se[per_player_bitboard_units(2)];    // bishop, queen
+    per_player_bitboard_t ne_to_sw[per_player_bitboard_units(2)];    // bishop, queen
+    per_player_bitboard_t horizontals[per_player_bitboard_units(2)]; // rook, queen
+    per_player_bitboard_t verticals[per_player_bitboard_units(2)];   // rook, queen
 
     // Count of the number of relevant pieces (bishop, queen) on the diagonal.
-    bitboard_t nw_to_se_relevant_count[ATTACK_VECTOR_DIAG_RELEVANT_UNITS];
-    bitboard_t ne_to_sw_relevant_count[ATTACK_VECTOR_DIAG_RELEVANT_UNITS];
+    bitboard_t nw_to_se_relevant_count[bitboard_units(2, NR_COLUMNS, 4)];
+    bitboard_t ne_to_sw_relevant_count[bitboard_units(2, NR_COLUMNS, 4)];
 
     // Count of the number of relevant pieces (rook, queen) on the horizontal / vertical axis.
-    bitboard_t horizontal_relevant_count[ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS];
-    bitboard_t vertical_relevant_count[ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS];
+    bitboard_t horizontal_relevant_count[bitboard_units(1, NR_COLUMNS, 8)];
+    bitboard_t vertical_relevant_count[bitboard_units(1, NR_COLUMNS, 8)];
 };
+
+////////////////////////////////////////////////////////////////
 
 // Initialize the attack vector.
 void attack_vector_init (struct attack_vector *attacks, struct board *board);
@@ -52,7 +44,15 @@ void attack_vector_remove (struct attack_vector *attacks, struct board *board, e
 // Get the number of pieces attacking a coordinate.
 uint8_t attack_vector_count (const struct attack_vector *attacks, enum color who, coord_t coord);
 
-/////////////////////////////////////////
+// Update the attack vectors after performing a move.
+void attack_vector_do_move   (struct attack_vector *attacks, struct board *board, enum color color,
+                              enum piece_type piece_type, struct move *move);
+
+// Update the attack vectors after undoing a move.
+void attack_vector_undo_move (struct attack_vector *attacks, struct board *board, enum color color,
+                              enum piece_type piece_type, struct move *move);
+
+////////////////////////////////////////////////////////////////
 
 static inline coord_t first_nw_to_se_coord (coord_t coord)
 {
