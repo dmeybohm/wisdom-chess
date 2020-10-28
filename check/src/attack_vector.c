@@ -1,47 +1,8 @@
 #include "attack_vector.h"
+#include "attack_vector_private.h"
 #include "generate.h"
 
 #include <memory.h>
-
-static void update_bishop (struct attack_vector *attacks, enum color color, coord_t coord, int change);
-
-static inline void add_other (struct attack_vector *attacks, player_index_t player_index,
-                              uint8_t row, uint8_t col, int change)
-{
-    per_player_bitboard_add (attacks->other, player_index, coord_create (row, col), 4, change);
-}
-
-static inline void set_other (struct attack_vector *attacks, player_index_t player_index,
-                              uint8_t row, uint8_t col, int change)
-{
-    per_player_bitboard_set (attacks->other, player_index, coord_create (row, col), 4, change);
-}
-
-static inline uint8_t get_other (const struct attack_vector *attacks, player_index_t player_index,
-                                 uint8_t row, uint8_t col)
-{
-    return per_player_bitboard_get (attacks->other, player_index, coord_create (row, col), 4);
-}
-
-static inline void add_to_attack_vector (per_player_bitboard_t *vector, player_index_t player_index,
-                                         uint8_t row, uint8_t col, int change)
-{
-    per_player_bitboard_add (vector, player_index, coord_create (row, col), 2, change);
-}
-
-static inline void set_attack_vector (per_player_bitboard_t *vector, player_index_t player_index,
-                                         uint8_t row, uint8_t col, uint8_t value)
-{
-    per_player_bitboard_set (vector, player_index, coord_create (row, col), 2, value);
-}
-
-static inline uint8_t get_attack_vector (const per_player_bitboard_t *vector, player_index_t player_index,
-                                         uint8_t row, uint8_t col)
-{
-    return per_player_bitboard_get (vector, player_index, coord_create (row, col), 2);
-}
-
-//////////////////////////////////////////////////////////////////////
 
 static void update_pawn (struct attack_vector *attacks, enum color who, coord_t at, int change)
 {
@@ -99,16 +60,15 @@ static void update_king (struct attack_vector *attacks, enum color who, coord_t 
 
 static void update_bishop (struct attack_vector *attacks, enum color color, coord_t coord, int change)
 {
-    if (change)
-    {
-    }
+    add_to_ne_to_sw_relevant_count (attacks, coord, change);
+    add_to_nw_to_se_relevant_count (attacks, coord, change);
 }
 
 static void update_rook (struct attack_vector *attacks, enum color color, coord_t coord, int change)
 {
-
+    add_to_horizontal_relevant_count (attacks, coord, change);
+    add_to_vertical_relevant_count (attacks, coord, change);
 }
-
 
 static void update_nw_to_se (struct attack_vector *attacks, const struct board *board, coord_t position)
 {
@@ -358,105 +318,29 @@ static void update_vertical (struct attack_vector *attacks, const struct board *
 static void attack_vector_change (struct attack_vector *attacks, const struct board *board,
                                   enum color who, coord_t coord, enum piece_type piece, int change)
 {
-
-}
-
-static inline uint8_t attack_vector_nw_to_se_relevant_count (const struct attack_vector *attacks,
-                                                             enum color who, coord_t coord)
-{
-    coord_t first_coord = first_nw_to_se_coord(coord);
-    uint8_t row = ROW(first_coord);
-    uint8_t col = COLUMN(first_coord);
-
-    if (row >= 1)
-    {
-        col = row - 1;
-        row = 1;
-    }
-
-    coord_t target = coord_create (row, col);
-    return compact_bitboard_get (attacks->nw_to_se_relevant_count, color_to_player_index(who), target,
-                                 NR_DIAGONAL_ROWS, NR_PLAYERS, 4);
-}
-
-static inline uint8_t attack_vector_ne_to_sw_relevant_count (const struct attack_vector *attacks,
-                                                             enum color who, coord_t coord)
-{
-    coord_t first_coord = first_ne_to_sw_coord(coord);
-    uint8_t row = ROW(first_coord);
-    uint8_t col = COLUMN(first_coord);
-
-    if (row >= 1)
-    {
-        col = row - 1;
-        row = 1;
-    }
-
-    coord_t target = coord_create (row, col);
-    return compact_bitboard_get (attacks->ne_to_sw_relevant_count, color_to_player_index(who), target,
-                                 NR_DIAGONAL_ROWS, NR_PLAYERS, 4);
-}
-
-static inline uint8_t attack_vector_horizontal_relevant_count (const compact_bitboard_t *diag_relevant,
-                                                               enum color who, coord_t coord)
-{
-    uint8_t row = ROW(coord);
-
-    // use row as col because bitboard is only a single row.
-    coord_t bitboard_coord = coord_create (1, row);
-
-    return compact_bitboard_get (diag_relevant, color_to_player_index(who), bitboard_coord,
-                                 1, NR_PLAYERS, 4);
-}
-
-static inline uint8_t attack_vector_vertical_relevant_count (const compact_bitboard_t *diag_relevant,
-                                                               enum color who, coord_t coord)
-{
-    uint8_t col = COLUMN(coord);
-    coord_t bitboard_coord = coord_create (1, col);
-
-    return compact_bitboard_get (diag_relevant, color_to_player_index(who), bitboard_coord,
-                                 1, NR_PLAYERS, 4);
-}
-
-
-//////////////////////////////////////////////////////////////////////
-
-void attack_vector_init (struct attack_vector *attacks, struct board *board)
-{
-    uint8_t row, col;
-
-    memset (attacks, 0, sizeof(*attacks));
-
-    for_each_position (row, col)
-    {
-        piece_t piece = PIECE_AT (board, row, col);
-        if (PIECE_TYPE(piece) != PIECE_NONE)
-            attack_vector_add (attacks, board, PIECE_COLOR(piece), coord_create (row, col), PIECE_TYPE(piece));
-     }
-}
-
-void attack_vector_add (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
-                        enum piece_type piece)
-{
-    int change = 1;
-
-    if (attack_vector_nw_to_se_relevant_count(attacks, who, coord) > 0 ||
-        piece == PIECE_BISHOP ||
-        piece == PIECE_QUEEN)
+    if (piece == PIECE_BISHOP || piece == PIECE_QUEEN ||
+            get_nw_to_se_relevant_count (attacks, coord) > 0)
     {
         update_nw_to_se (attacks, board, coord);
     }
 
-    if (attack_vector_ne_to_sw_relevant_count(attacks, who, coord) > 0 ||
-        piece == PIECE_BISHOP ||
-        piece == PIECE_QUEEN)
+    if (piece == PIECE_BISHOP || piece == PIECE_QUEEN ||
+        get_ne_to_sw_relevant_count (attacks, coord) > 0)
     {
         update_ne_to_sw (attacks, board, coord);
     }
 
-    update_horizontal (attacks, board, coord);
-    update_vertical (attacks, board, coord);
+    if (piece == PIECE_ROOK || piece == PIECE_QUEEN ||
+        get_horizontal_relevant_count (attacks, coord) > 0)
+    {
+        update_horizontal (attacks, board, coord);
+    }
+
+    if (piece == PIECE_ROOK || piece == PIECE_QUEEN ||
+        get_vertical_relevant_count (attacks, coord) > 0)
+    {
+        update_vertical (attacks, board, coord);
+    }
 
     switch (piece)
     {
@@ -488,6 +372,28 @@ void attack_vector_add (struct attack_vector *attacks, struct board *board, enum
         default:
             break;
     }
+}
+
+//////////////////////////////////////////////////////////////////////
+
+void attack_vector_init (struct attack_vector *attacks, struct board *board)
+{
+    uint8_t row, col;
+
+    memset (attacks, 0, sizeof(*attacks));
+
+    for_each_position (row, col)
+    {
+        piece_t piece = PIECE_AT (board, row, col);
+        if (PIECE_TYPE(piece) != PIECE_NONE)
+            attack_vector_add (attacks, board, PIECE_COLOR(piece), coord_create (row, col), PIECE_TYPE(piece));
+     }
+}
+
+void attack_vector_add (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,
+                        enum piece_type piece)
+{
+    attack_vector_change (attacks, board, who, coord, piece, +1);
 }
 
 void attack_vector_remove (struct attack_vector *attacks, struct board *board, enum color who, coord_t coord,

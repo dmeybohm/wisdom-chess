@@ -30,12 +30,14 @@ typedef struct compact_bitboard
 static inline uint8_t compact_bitboard_get (const compact_bitboard_t *bitboard,
                                             player_index_t player_index, coord_t coord,
                                             uint8_t nr_rows, uint8_t nr_players,
-                                            uint8_t bits_per_unit)
+                                             uint8_t bits_per_unit)
 {
     uint8_t row = ROW(coord);
     uint8_t col = COLUMN(coord);
 
     uint64_t total_units = compact_bitboard_total_units (nr_rows, nr_players, bits_per_unit);
+    assert (total_units > 0);
+
     uint64_t index = compact_bitboard_index (row, col, player_index.index, bits_per_unit);
     uint64_t offset = compact_bitboard_offset (row, col, player_index.index, bits_per_unit);
     uint64_t mask = compact_bitboard_mask (bits_per_unit);
@@ -70,10 +72,11 @@ static inline void compact_bitboard_set (compact_bitboard_t *bitboard,
 static inline void compact_bitboard_add (compact_bitboard_t *bitboard,
                                          player_index_t player_index, coord_t coord,
                                          uint8_t nr_rows, uint8_t nr_players,
-                                         uint8_t bits_per_unit, uint8_t value)
+                                         uint8_t bits_per_unit, int8_t value)
 {
-    value += compact_bitboard_get (bitboard, player_index, coord, nr_rows, nr_players, bits_per_unit);
-    compact_bitboard_set (bitboard, player_index, coord, nr_rows, nr_players, bits_per_unit, value);
+    int result = value + compact_bitboard_get (bitboard, player_index, coord, nr_rows, nr_players, bits_per_unit);
+    assert (result >= 0 && result <= 255);
+    compact_bitboard_set (bitboard, player_index, coord, nr_rows, nr_players, bits_per_unit, result);
 }
 
 #endif //WIZDUMB_COMPACT_BITBOARD_H

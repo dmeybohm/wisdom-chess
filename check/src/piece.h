@@ -144,6 +144,12 @@ static inline player_index_t color_to_player_index (enum color color)
     return result;
 }
 
+static inline player_index_t default_player_index (void)
+{
+    player_index_t result = { .index = PLAYER_INDEX_WHITE };
+    return result;
+}
+
 ////////////////////////////////////////////////////
 
 #define for_each_color(c) \

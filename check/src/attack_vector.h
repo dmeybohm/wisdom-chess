@@ -14,10 +14,10 @@ struct board;
 #define ATTACK_VECTOR_HORIZ_VERT_ROWS   (1U)
 
 #define ATTACK_VECTOR_DIAG_RELEVANT_UNITS \
-    compact_bitboard_total_units(NR_DIAGONAL_ROWS, NR_PLAYERS, 4)
+    bitboard_total_units(NR_DIAGONAL_ROWS, NR_COLUMNS, 4)
 
 #define ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS \
-    compact_bitboard_total_units(1, NR_PLAYERS, 4)
+    bitboard_total_units(1, NR_COLUMNS, 8)
 
 struct attack_vector
 {
@@ -30,12 +30,12 @@ struct attack_vector
     per_player_bitboard_t verticals[per_player_bitboard_total_units(2)];   // rook, queen
 
     // Count of the number of relevant pieces (bishop, queen) on the diagonal.
-    compact_bitboard_t nw_to_se_relevant_count[ATTACK_VECTOR_DIAG_RELEVANT_UNITS];
-    compact_bitboard_t ne_to_sw_relevant_count[ATTACK_VECTOR_DIAG_RELEVANT_UNITS];
+    bitboard_t nw_to_se_relevant_count[ATTACK_VECTOR_DIAG_RELEVANT_UNITS];
+    bitboard_t ne_to_sw_relevant_count[ATTACK_VECTOR_DIAG_RELEVANT_UNITS];
 
     // Count of the number of relevant pieces (rook, queen) on the horizontal / vertical axis.
-    compact_bitboard_t horizontal_relevant_count[ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS];
-    compact_bitboard_t vertical_relevant_count[ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS];
+    bitboard_t horizontal_relevant_count[ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS];
+    bitboard_t vertical_relevant_count[ATTACK_VECTOR_HORIZ_VERT_RELEVANT_UNITS];
 };
 
 // Initialize the attack vector.

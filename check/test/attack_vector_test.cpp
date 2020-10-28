@@ -1,6 +1,7 @@
 extern "C"
 {
 #include "board.h"
+#include "attack_vector_private.h"
 }
 
 #include "catch.hpp"
@@ -176,4 +177,41 @@ TEST_CASE("Vertical rook and queen attack vectors calculate correctly", "[attack
 
     CHECK( attack_vector_count (&board->attacks, COLOR_BLACK, coord_alg("a2")) == 0 );
     CHECK( attack_vector_count (&board->attacks, COLOR_BLACK, coord_alg("h4")) == 0 );
+}
+
+TEST_CASE("Relevant counts are initialized correctly", "[attack-vector]")
+{
+    struct board *board = board_new();
+
+    // Ensure kings are in the right positions:
+    coord_t white_king_pos = board->king_pos[COLOR_INDEX_WHITE];
+    coord_t black_king_pos = board->king_pos[COLOR_INDEX_BLACK];
+
+    CHECK( PIECE_TYPE(PIECE_AT_COORD (board, white_king_pos)) == PIECE_KING );
+    CHECK( PIECE_TYPE(PIECE_AT_COORD (board, black_king_pos)) == PIECE_KING );
+
+    CHECK( get_vertical_relevant_count (&board->attacks, white_king_pos) == 0 );
+    CHECK( get_vertical_relevant_count (&board->attacks, black_king_pos) == 0 );
+    CHECK( get_horizontal_relevant_count (&board->attacks, white_king_pos) == 3 );
+    CHECK( get_horizontal_relevant_count (&board->attacks, black_king_pos) == 3 );
+
+    coord_t left_white_rook_pos = coord_alg("a1");
+    coord_t left_black_rook_pos = coord_alg("a8");
+    coord_t right_white_rook_pos = coord_alg("h1");
+    coord_t right_black_rook_pos = coord_alg("h8");
+
+    CHECK( get_horizontal_relevant_count (&board->attacks, left_white_rook_pos) == 3 );
+    CHECK( get_horizontal_relevant_count (&board->attacks, right_white_rook_pos) == 3 );
+    CHECK( get_horizontal_relevant_count (&board->attacks, left_black_rook_pos) == 3 );
+    CHECK( get_horizontal_relevant_count (&board->attacks, right_black_rook_pos) == 3 );
+
+    CHECK( get_vertical_relevant_count (&board->attacks, left_white_rook_pos) == 2 );
+    CHECK( get_vertical_relevant_count (&board->attacks, right_white_rook_pos) == 2 );
+    CHECK( get_vertical_relevant_count (&board->attacks, left_black_rook_pos) == 2 );
+    CHECK( get_vertical_relevant_count (&board->attacks, right_black_rook_pos) == 2 );
+
+    coord_t white_queen_coord = coord_alg("d1");
+    coord_t black_queen_coord = coord_alg("d8");
+
+//    CHECK( get_vertical_relevant_count (&board->attacks, COLOR_WHITE) == 3 );
 }

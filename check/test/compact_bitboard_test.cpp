@@ -1,6 +1,7 @@
 extern "C"
 {
 #include "compact_bitboard.h"
+#include "piece.h"
 }
 
 #include "catch.hpp"
@@ -33,4 +34,17 @@ TEST_CASE( "Compact bitboard get/set", "[compact-bitboard]" )
     compact_bitboard_set (bitboard, player_index, coord, 2, 2, 2, value );
 
     REQUIRE( compact_bitboard_get (bitboard, player_index, coord, 2, 2, 2) == value );
+}
+
+TEST_CASE( "Macros with a smaller single index work ok", "[compact-bitboard]")
+{
+    compact_bitboard_t bitboard[compact_bitboard_total_units (1, 1, 8)];
+    memset (&bitboard, 0xff, sizeof(bitboard));
+
+    auto row = 0;
+    auto col = 3;
+    auto player_index = default_player_index();
+
+    // Test memset worked
+    CHECK( compact_bitboard_index (row, col, player_index.index, 8) == 0 );
 }
