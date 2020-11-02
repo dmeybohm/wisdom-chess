@@ -327,7 +327,7 @@ void do_move (struct board *board, color_t who, move_t *move)
 			update_opponent_rook_position (board, color_invert(who), dst_piece, move, src, dst, 0);
 	}
 
-	attack_vector_do_move (&board->attacks, board, who, PIECE_TYPE(src_piece), move);
+	attack_vector_do_move (&board->attacks, board, who, PIECE_TYPE(orig_src_piece), move);
 	validate_castle_state (board, move);
 }
 

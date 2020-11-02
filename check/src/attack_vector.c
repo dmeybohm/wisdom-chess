@@ -436,7 +436,10 @@ void attack_vector_do_move (struct attack_vector *attacks, struct board *board, 
         attack_vector_add (attacks, board, color, dst_rook_coord, PIECE_ROOK);
     }
 
-    attack_vector_add (attacks, board, color, dst, piece_type);
+    enum piece_type dst_piece_type = is_promoting_move(move) ?
+            PIECE_TYPE(move_get_promoted(move)) : piece_type;
+
+    attack_vector_add (attacks, board, color, dst, dst_piece_type);
 }
 
 void attack_vector_undo_move (struct attack_vector *attacks, struct board *board, enum color color,
@@ -445,7 +448,10 @@ void attack_vector_undo_move (struct attack_vector *attacks, struct board *board
     coord_t src = MOVE_SRC(*move);
     coord_t dst = MOVE_DST(*move);
 
-    attack_vector_remove (attacks, board, color, dst, piece_type);
+    enum piece_type dst_piece_type = is_promoting_move(move) ?
+                             PIECE_TYPE(move_get_promoted(move)) : piece_type;
+
+    attack_vector_remove (attacks, board, color, dst, dst_piece_type);
 
     if (is_capture_move(move))
     {

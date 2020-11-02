@@ -74,6 +74,10 @@ static inline void bitboard_add (bitboard_t *bitboard, coord_t coord,
                                  uint8_t bits_per_unit, int8_t value)
 {
     int new_value = value + bitboard_get (bitboard, coord, nr_rows, nr_cols, bits_per_unit);
+    if (new_value < 0 || new_value > 255)
+    {
+        assert(0);
+    }
     assert (new_value >= 0 && new_value <= 255);
     bitboard_set (bitboard, coord, nr_rows, nr_cols, bits_per_unit, new_value);
 }
