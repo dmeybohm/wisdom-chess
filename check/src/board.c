@@ -25,11 +25,15 @@ static inline void set_piece (struct board *board, coord_t place, piece_t piece)
 	board->board[ROW(place)][COLUMN(place)] = piece;
 }
 
+coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst)
+{
+    return coord_create (ROW(src), COLUMN (dst));
+}
+
 piece_t handle_en_passant (struct board *board, color_t who, move_t *move,
                            coord_t src, coord_t dst, int undo)
 {
-    // get the position of the pawn adjacent to the taking pawn
-    coord_t taken_pawn_pos = coord_create (ROW(src), COLUMN (dst));
+    coord_t taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
 
 	if (undo)
 	{
@@ -296,7 +300,7 @@ void do_move (struct board *board, color_t who, move_t *move)
 
 	/* check for en passant */
 	if (unlikely (is_en_passant_move (move)))
-        dst_piece = handle_en_passant(board, who, move, src, dst, 0);
+        dst_piece = handle_en_passant (board, who, move, src, dst, 0);
 
 	/* check for castling */
 	if (unlikely (is_castling_move (move)))
@@ -376,10 +380,10 @@ void undo_move (struct board *board, color_t who, move_t *move)
 			update_opponent_rook_position (board, color_invert(who), dst_piece, move, src, dst, 1);
 	}
 
-    attack_vector_do_move (&board->attacks, board, who, PIECE_TYPE(src_piece), move);
+    attack_vector_undo_move (&board->attacks, board, who, PIECE_TYPE(src_piece), move);
 	validate_castle_state (board, move);
 
-	// TODO - reset move state that was set in do_move?
+	// TODO - reset move state in the move that was set in do_move?
 }
 
 static enum piece_type back_rank[] =

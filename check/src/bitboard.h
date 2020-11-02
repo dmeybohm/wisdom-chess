@@ -74,7 +74,7 @@ static inline void bitboard_add (bitboard_t *bitboard, coord_t coord,
                                  uint8_t bits_per_unit, int8_t value)
 {
     int new_value = value + bitboard_get (bitboard, coord, nr_rows, nr_cols, bits_per_unit);
-    assert (new_value >= 0 && value <= 255);
+    assert (new_value >= 0 && new_value <= 255);
     bitboard_set (bitboard, coord, nr_rows, nr_cols, bits_per_unit, new_value);
 }
 
@@ -137,7 +137,7 @@ static inline void per_player_bitboard_add (per_player_bitboard_t *bitboard,
                                             uint8_t bits_per_unit, int8_t value)
 {
     int new_value = value + per_player_bitboard_get (bitboard, player_index, coord, bits_per_unit);
-    assert (new_value >= 0 && value <= 255);
+    assert (new_value >= 0 && new_value <= 255);
     per_player_bitboard_set (bitboard, player_index, coord, bits_per_unit, new_value);
 }
 

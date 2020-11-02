@@ -414,8 +414,26 @@ void attack_vector_do_move (struct attack_vector *attacks, struct board *board, 
     if (is_capture_move(move))
     {
         piece_t piece = move_get_taken(move);
+        coord_t taken_piece_coord = dst;
 
-        attack_vector_remove (attacks, board, PIECE_COLOR(piece), dst, PIECE_TYPE(piece));
+        if (is_en_passant_move(move))
+            taken_piece_coord = en_passant_taken_pawn_coord (src, dst);
+
+        attack_vector_remove (attacks, board, PIECE_COLOR(piece), taken_piece_coord, PIECE_TYPE(piece));
+    }
+
+    if (is_castling_move(move))
+    {
+        uint8_t rook_src_row = castling_row_from_color(color);
+        uint8_t rook_src_col = is_castling_move_on_king_side(move) ?
+            KING_ROOK_COLUMN : QUEEN_ROOK_COLUMN;
+        uint8_t rook_dst_col = is_castling_move_on_king_side(move) ?
+            KING_CASTLED_ROOK_COLUMN : QUEEN_CASTLED_ROOK_COLUMN;
+
+        coord_t src_rook_coord = coord_create (rook_src_row, rook_src_col);
+        coord_t dst_rook_coord = coord_create (rook_src_row, rook_dst_col);
+        attack_vector_remove (attacks, board, color, src_rook_coord, PIECE_ROOK);
+        attack_vector_add (attacks, board, color, dst_rook_coord, PIECE_ROOK);
     }
 
     attack_vector_add (attacks, board, color, dst, piece_type);
@@ -432,8 +450,26 @@ void attack_vector_undo_move (struct attack_vector *attacks, struct board *board
     if (is_capture_move(move))
     {
         piece_t piece = move_get_taken(move);
+        coord_t taken_piece_coord = dst;
 
-        attack_vector_add (attacks, board, PIECE_COLOR(piece), dst, PIECE_TYPE(piece));
+        if (is_en_passant_move(move))
+            taken_piece_coord = en_passant_taken_pawn_coord (src, dst);
+
+        attack_vector_add (attacks, board, PIECE_COLOR(piece), taken_piece_coord, PIECE_TYPE(piece));
+    }
+
+    if (is_castling_move(move))
+    {
+        uint8_t rook_src_row = castling_row_from_color(color);
+        uint8_t rook_src_col = is_castling_move_on_king_side(move) ?
+                               KING_ROOK_COLUMN : QUEEN_ROOK_COLUMN;
+        uint8_t rook_dst_col = is_castling_move_on_king_side(move) ?
+                               KING_CASTLED_ROOK_COLUMN : QUEEN_CASTLED_ROOK_COLUMN;
+
+        coord_t src_rook_coord = coord_create (rook_src_row, rook_src_col);
+        coord_t dst_rook_coord = coord_create (rook_src_row, rook_dst_col);
+        attack_vector_remove (attacks, board, color, dst_rook_coord, PIECE_ROOK);
+        attack_vector_add (attacks, board, color, src_rook_coord, PIECE_ROOK);
     }
 
     attack_vector_add (attacks, board, color, src, piece_type);

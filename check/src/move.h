@@ -117,6 +117,18 @@ static inline int is_castling_move_on_king_side (const move_t *move)
 	return is_castling_move(move) && move->dst_col == 6;
 }
 
+static inline uint8_t castling_row_from_color (color_t color)
+{
+    switch (color)
+    {
+        case COLOR_WHITE:
+            return 7;
+        case COLOR_BLACK:
+            return 0;
+        default:
+            assert (0);
+    }
+}
 static inline move_t move_promote (move_t move, piece_t piece)
 {
     move_t result = move;

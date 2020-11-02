@@ -158,6 +158,8 @@ void          board_dump      (struct board *board);
 void          do_move   (struct board *board, color_t who, struct move *m);
 void          undo_move (struct board *board, color_t who, struct move *m);
 
+coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst);
+
 ///////////////////////////////////////////////
 
 #endif // EVOLVE_CHESS_BOARD_H_

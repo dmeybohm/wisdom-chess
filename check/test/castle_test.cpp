@@ -143,8 +143,8 @@ TEST_CASE("Castling state is modified and restored for castling kingside", "[cas
 {
     enum piece_type back_rank[] =
     {
-        PIECE_ROOK,   PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_KING,
-        PIECE_BISHOP, PIECE_NONE, PIECE_ROOK, PIECE_LAST
+        PIECE_ROOK,  PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_KING,
+        PIECE_NONE, PIECE_NONE, PIECE_ROOK, PIECE_LAST
     };
 
     struct board_positions positions[] =
