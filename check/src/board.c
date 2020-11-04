@@ -262,7 +262,8 @@ static void update_current_rook_position (struct board *board, color_t player,
 	}
 }
 
-void do_move (struct board *board, color_t who, move_t *move)
+void do_move (struct board *board, color_t who,
+              move_t *move, struct move_options options)
 {
 	piece_t    orig_src_piece, src_piece, dst_piece;
 	coord_t    src, dst;
@@ -327,11 +328,14 @@ void do_move (struct board *board, color_t who, move_t *move)
 			update_opponent_rook_position (board, color_invert(who), dst_piece, move, src, dst, 0);
 	}
 
-	attack_vector_do_move (&board->attacks, board, who, PIECE_TYPE(orig_src_piece), move);
+	if (!options.skip_attack_vectors)
+	    attack_vector_do_move (&board->attacks, board, who, PIECE_TYPE(orig_src_piece), move);
+
 	validate_castle_state (board, move);
 }
 
-void undo_move (struct board *board, color_t who, move_t *move)
+void undo_move (struct board *board, color_t who,
+                move_t *move, struct move_options options)
 {
 	piece_t     orig_src_piece, src_piece, dst_piece;
 	coord_t     src, dst;
@@ -380,9 +384,10 @@ void undo_move (struct board *board, color_t who, move_t *move)
 			update_opponent_rook_position (board, color_invert(who), dst_piece, move, src, dst, 1);
 	}
 
-    attack_vector_undo_move (&board->attacks, board, who, PIECE_TYPE(src_piece), move);
-	validate_castle_state (board, move);
+	if (!options.skip_attack_vectors)
+        attack_vector_undo_move (&board->attacks, board, who, PIECE_TYPE(src_piece), move);
 
+	validate_castle_state (board, move);
 	// TODO - reset move state in the move that was set in do_move?
 }
 

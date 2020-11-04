@@ -53,6 +53,14 @@ struct board_positions
     enum piece_type  *pieces;
 };
 
+struct move_options
+{
+    bool skip_attack_vectors : 1;
+};
+
+#define NO_MOVE_OPTIONS \
+    ((struct move_options){ 0 })
+
 ///////////////////////////////////////////////
 
 #define for_each_position(row_i, col_i) \
@@ -155,8 +163,8 @@ void          board_print     (struct board *board);
 void          board_print_err (struct board *board);
 void          board_dump      (struct board *board);
 
-void          do_move   (struct board *board, color_t who, struct move *m);
-void          undo_move (struct board *board, color_t who, struct move *m);
+void          do_move   (struct board *board, color_t who, struct move *m, struct move_options options);
+void          undo_move (struct board *board, color_t who, struct move *m, struct move_options options);
 
 coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst);
 

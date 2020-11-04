@@ -37,7 +37,7 @@ TEST_CASE( "En passant moves work", "[en-passant]" )
     struct board *board = board_from_positions (positions);
 
     move_t pawn_move = move_create (1, 5, 3, 5);
-    do_move (board, COLOR_BLACK, &pawn_move);
+    do_move (board, COLOR_BLACK, &pawn_move, NO_MOVE_OPTIONS);
     move_tree_t *history = move_tree_new (nullptr, pawn_move);
 
     move_list_t *move_list = generate_moves (board, COLOR_WHITE, history);
@@ -65,7 +65,7 @@ TEST_CASE( "En passant moves work", "[en-passant]" )
     CHECK( ROW(MOVE_DST(*en_passant_move)) == 2 );
     CHECK( COLUMN(MOVE_DST(*en_passant_move)) == 5 );
 
-    do_move (board, COLOR_WHITE, en_passant_move);
+    do_move (board, COLOR_WHITE, en_passant_move, NO_MOVE_OPTIONS);
 
     piece_t en_passant_pawn = PIECE_AT (board, 2, 5);
     CHECK( PIECE_TYPE(en_passant_pawn) == PIECE_PAWN );
@@ -74,7 +74,7 @@ TEST_CASE( "En passant moves work", "[en-passant]" )
     CHECK( PIECE_COLOR(taken_pawn) == COLOR_NONE );
     CHECK( PIECE_TYPE(taken_pawn) == PIECE_NONE );
 
-    undo_move (board, COLOR_WHITE, en_passant_move);
+    undo_move (board, COLOR_WHITE, en_passant_move, NO_MOVE_OPTIONS);
 
     piece_t en_passant_pawn_space = PIECE_AT (board, 2, 5);
     CHECK( PIECE_TYPE(en_passant_pawn_space) == PIECE_NONE );
@@ -85,5 +85,4 @@ TEST_CASE( "En passant moves work", "[en-passant]" )
     piece_t taken_pawn_undone = PIECE_AT (board, 3, 5);
     CHECK( PIECE_COLOR(taken_pawn_undone) == COLOR_BLACK );
     CHECK( PIECE_TYPE(taken_pawn_undone) == PIECE_PAWN );
-
 }
