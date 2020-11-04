@@ -29,11 +29,6 @@ bool is_checkmated (struct board *board, color_t who)
 	return result;
 }
 
-// check if the the king indicated by the WHO argument is in trouble
-// in this position
-//
-// this could be broken up for maintainability, but would probably
-// be slower.
 bool is_king_threatened (struct board *board, color_t who,
                          uint8_t king_row, uint8_t king_col)
 {
