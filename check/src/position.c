@@ -1,70 +1,77 @@
 #include "position.h"
 #include "board.h"
 
-static int knight_positions[NR_ROWS][NR_COLUMNS] = {
-        { -5, -4, -3, -3, -3, -3, -4, -5  },
-        { -4, -2,  0,  0,  0,  0, -2, -4  },
-        { -1,  0,  1,  2,  2,  1,  0, -6  },
-        { -1,  1,  0,  3,  3,  0,  1, -6  },
-        { -2,  0,  2,  3,  3,  2,  0, -3  },
-        { -2,  1,  2,  2,  2,  2,  1, -3  },
-        { -4, -2,  0,  1,  1,  0,  0, -4  },
-        { -5, -4, -3, -3, -3,  0, -4, -5  },
+static int pawn_positions[NR_ROWS][NR_COLUMNS] =
+{
+    {  0,  0,  0,  0,  0,  0,  0,  0 },
+    { +9, +9, +9, +9, +9, +9, +9, +9 },
+    { +2, +2, +4, +6, +6, +4, +2, +2 },
+    { +1, +1, +2, +5, +5, +2, +1, +1 },
+    {  0,  0,  0, +4, +4,  0,  0,  0 },
+    { +1, -1, -2,  0,  0, -2, -1, +1 },
+    { +1, +2, +2, -4, -4, +2, +2, +1 },
+    {  0,  0,  0,  0,  0,  0,  0,  0 },
 };
 
-static int bishop_positions[NR_ROWS][NR_COLUMNS] = {
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  2,  0,  0,  2,  0,  0  },
-        {  0,  0,  3,  0,  0,  3,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  1,  0,  0,  0,  0,  1,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
+static int king_positions[NR_ROWS][NR_COLUMNS] =
+{
+    { -6, -8, -8, -9, -9, -4, -4, -6 },
+    { -6, -8, -8, -9, -9, -4, -4, -6 },
+    { -6, -8, -8, -9, -9, -4, -4, -6 },
+    { -6, -8, -8, -9, -9, -8, -8, -6 },
+    { -4, -6, -6, -8, -8, -6, -6, -2 },
+    { -2, -4, -4, -4, -4, -4, -4, -2 },
+    { +4, +4,  0,  0,  0,  0, +4, +4 },
+    { +4, +6, +2,  0,  0, +2, +6, +4 },
 };
 
-static int rook_positions[NR_ROWS][NR_COLUMNS] = {
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  7,  8,  8,  8,  8,  8,  8,  7  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
+
+static int knight_positions[NR_ROWS][NR_COLUMNS] =
+{
+    { -9, -8, -6, -6, -6, -6, -8, -9  },
+    { -8, -4,  0,  0,  0,  0, -4, -8  },
+    { -6,  0, +2, +3, +3, +2,  0, -6  },
+    { -6, +1, +3, +4, +4, +3, +1, -6  },
+    { -6,  0, +3, +4, +4, +3,  0, -6  },
+    { -6, +1, +2, +3, +3, +2, +1, -6  },
+    { -8, -4,  0, +1, +1,  0, -4, -8  },
+    { -9, -8, -6, -6, -6, -6, -8, -9  },
 };
 
-static int pawn_positions[NR_ROWS][NR_COLUMNS] = {
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  9,  9,  9,  9,  9,  9,  9,  9  },
-        {  0,  0,  1,  5,  5,  1,  0,  0  },
-        {  0,  0,  5,  8,  8,  5,  0,  0  },
-        {  0,  0,  5,  8,  8,  5,  0,  0  },
-        {  0,  0,  1,  5,  5,  1,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
+static int bishop_positions[NR_ROWS][NR_COLUMNS] =
+{
+    { -4, -2, -2, -2, -2, -2, -2, -2  },
+    { -2,  0,  0,  0,  0,  0,  0, -2  },
+    { -2,  0, +1, +2, +2, +1,  0, -2  },
+    { -2,  0, +1, +2, +2, +1, +1, -2  },
+    { -2,  0, +2, +2, +2, +2,  0, -2  },
+    { -2, +2, +2, +2, +2, +2, +2, -2  },
+    { -2, +1,  0,  0,  0,  0, +1, -2  },
+    { -4, -2, -2, -2, -2, -2, -2, -2  },
 };
 
-static int king_positions[NR_ROWS][NR_COLUMNS] = {
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        { -3, -4, -4, -5, -5, -4, -4, -3  },
-        { -2, -3, -3, -4, -4, -3, -3, -2  },
-        { -1, -2, -2, -2, -2, -2, -2, -1  },
-        {  2,  2,  0,  0,  0,  0,  0,  0  },
-        {  2,  3,  1,  0,  0,  1,  3,  2  },
+static int rook_positions[NR_ROWS][NR_COLUMNS] =
+{
+    {  0,  0,  0,  0,  0,  0,  0,  0  },
+    { +1, +2, +2, +2, +2, +2, +2, +1  },
+    { -1,  0,  0,  0,  0,  0,  0, -1  },
+    { -1,  0,  0,  0,  0,  0,  0, -1  },
+    { -1,  0,  0,  0,  0,  0,  0, -1  },
+    { -1,  0,  0,  0,  0,  0,  0, -1  },
+    { -1,  0,  0,  0,  0,  0,  0, -1  },
+    {  0,  0,  0, +1, +1,  0,  0,  0  },
 };
 
-static int queen_positions[NR_ROWS][NR_COLUMNS] = {
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  7,  8,  8,  8,  8,  8,  8,  7  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
-        {  0,  0,  0,  0,  0,  0,  0,  0  },
+static int queen_positions[NR_ROWS][NR_COLUMNS] =
+{
+    { -4, -2, -2, -1, -1, -2, -2, -4  },
+    { -2,  0,  0,  0,  0,  0,  0, -2  },
+    { -2,  0, +1, +1, +1, +1,  0, -2  },
+    { -1,  0, +1, +1, +1, +1,  0, -1  },
+    {  0,  0, +1, +1, +1, +1,  0, -1  },
+    { -2,  0, +1, +1, +1, +1,  0, -2  },
+    { -2,  0, +1,  0,  0,  0,  0, -2  },
+    { -4, -2, -2, -1, -1, -2, -2, -4  },
 };
 
 static coord_t translate_position (coord_t coord, enum color who)
@@ -152,7 +159,7 @@ void position_do_move (struct position *position, color_t color,
         piece_t rook = MAKE_PIECE (color, PIECE_ROOK);
 
         position_remove (position, color, src_rook_coord, rook);
-        position_remove (position, color, dst_rook_coord, rook);
+        position_add (position, color, dst_rook_coord, rook);
     }
 
     piece_t dst_piece = is_promoting_move(move) ?
@@ -205,5 +212,9 @@ int position_score (struct position *position, color_t who)
 {
     color_index_t index = color_index(who);
     color_index_t inverted = color_index(color_invert(who));
-    return position->score[index] - position->score[inverted];
+    assert (position->score[index] < 3000 && position->score[index] > -3000);
+    assert (position->score[inverted] < 3000 && position->score[inverted] > -3000);
+    int result = position->score[index] - position->score[inverted];
+    assert (result < 3000);
+    return result;
 }

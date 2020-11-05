@@ -47,7 +47,7 @@ static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 	printf ("move? ");
 	fflush (stdout);
 
-	if (fgets (buf, sizeof (buf)-1, stdin) == NULL)
+	if (fgets (buf, sizeof(buf)-1, stdin) == NULL)
 	{
 		*good = 0;
 		return 0;

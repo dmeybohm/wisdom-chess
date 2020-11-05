@@ -26,7 +26,7 @@ bool is_checkmated (struct board *board, color_t who)
 
 	move_list_destroy (legal_moves);
 
-	return result;
+    return result;
 }
 
 bool is_king_threatened (struct board *board, color_t who,
