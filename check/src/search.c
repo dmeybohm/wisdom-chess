@@ -116,12 +116,12 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 		new_leaf = move_tree_new (history, *move);
 
 		board_check_init (&board_check, board);
-		do_move (board, side, move, NO_MOVE_OPTIONS);
+        do_move (board, side, move);
 
 		if (!was_legal_move (board, side, move))
 		{
 			move_tree_free (new_leaf);
-			undo_move (board, side, move, NO_MOVE_OPTIONS);
+            undo_move (board, side, move);
             board_check_validate (&board_check, board, side, move);
 			continue;
 		}
@@ -151,7 +151,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 			                   no_quiesce, new_leaf));
 		}
 
-		undo_move (board, side, move, NO_MOVE_OPTIONS);
+        undo_move (board, side, move);
         board_check_validate (&board_check, board, side, move);
 
 		move_tree_free (new_leaf);
@@ -411,9 +411,9 @@ move_t find_best_move (struct board *board, color_t side,
 		}
 
 		board_check_init (&board_check, board);
-		do_move (board, side, &move, NO_MOVE_OPTIONS);
+        do_move (board, side, &move);
 		board_print (board);
-		undo_move (board, side, &move, NO_MOVE_OPTIONS);
+        undo_move (board, side, &move);
         board_check_validate (&board_check, board, side, &move);
 
 		best_move = move;
@@ -427,9 +427,9 @@ move_t find_best_move (struct board *board, color_t side,
     }
 
     board_check_init (&board_check, board);
-	do_move (board, side, &best_move, NO_MOVE_OPTIONS);
+    do_move (board, side, &best_move);
 	board_print (board);
-	undo_move (board, side, &best_move, NO_MOVE_OPTIONS);
+    undo_move (board, side, &best_move);
     board_check_validate (&board_check, board, side, &best_move);
 
 	return best_move;

@@ -54,7 +54,7 @@ void game_move (struct game *game, move_t *move)
 	game->history = move_tree_new (game->history, *move);
 
 	// do the move
-	do_move (game->board, game->turn, move, NO_MOVE_OPTIONS);
+    do_move (game->board, game->turn, move);
 
 	// take our turn
 	game->turn = color_invert (game->turn);

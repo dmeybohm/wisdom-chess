@@ -11,7 +11,6 @@
 #include "piece.h"
 #include "board_hash.h"
 #include "material.h"
-#include "attack_vector.h"
 
 ///////////////////////////////////////////////
 
@@ -38,9 +37,6 @@ struct board
 	// keep track of the material on the board
 	struct material      material;
 
-	// keep track of attack vectors for king endangerment:
-	struct attack_vector attacks;
-
 	// keep track of hashing information
 	// TODO maybe move this higher up for better performance
 	struct board_hash    hash;
@@ -52,14 +48,6 @@ struct board_positions
     enum color        piece_color;
     enum piece_type  *pieces;
 };
-
-struct move_options
-{
-    bool skip_attack_vectors : 1;
-};
-
-#define NO_MOVE_OPTIONS \
-    ((struct move_options){ 0 })
 
 ///////////////////////////////////////////////
 
@@ -137,7 +125,7 @@ static inline int is_pawn_unmoved (struct board *board,
 {
 	piece_t piece = PIECE_AT (board, row, col);
 
-	if (PIECE_COLOR (piece) == COLOR_WHITE)
+	if (PIECE_COLOR(piece) == COLOR_WHITE)
 		return row == 6;
 	else
 		return row == 1;
@@ -163,8 +151,8 @@ void          board_print     (struct board *board);
 void          board_print_err (struct board *board);
 void          board_dump      (struct board *board);
 
-void          do_move   (struct board *board, color_t who, struct move *m, struct move_options options);
-void          undo_move (struct board *board, color_t who, struct move *m, struct move_options options);
+void do_move (struct board *board, color_t who, move_t *move);
+void undo_move (struct board *board, color_t who, move_t *move);
 
 coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst);
 

@@ -38,7 +38,7 @@ bool is_king_threatened (struct board *board, color_t who,
 	move_list_t  *kt_moves;
 	move_t       *move;
 
-	/* check each side of the king's row */
+	// check each side of the king's row
 	col = king_col;
 	for (r_dir = -1; r_dir <= 1; r_dir += 2)
 	{
@@ -60,7 +60,7 @@ bool is_king_threatened (struct board *board, color_t who,
 		}
 	}
 
-	/* check each side of the king's column */
+	// check each side of the king's column
 	row = king_row;
 	for (c_dir = -1; c_dir <= 1; c_dir += 2)
 	{
@@ -82,7 +82,7 @@ bool is_king_threatened (struct board *board, color_t who,
 		}
 	}
 
-	/* check each diagonal direction */
+	// check each diagonal direction
 	for (r_dir = -1; r_dir <= 1; r_dir += 2)
 	{
 		for (c_dir = -1; c_dir <= 1; c_dir += 2)
@@ -110,7 +110,7 @@ bool is_king_threatened (struct board *board, color_t who,
 		}
 	}
 
-	/* check for knight checks */
+	// check for knight checks
 	kt_moves = generate_knight_moves (king_row, king_col);
 
 	for_each_move (move, kt_moves)
@@ -131,7 +131,7 @@ bool is_king_threatened (struct board *board, color_t who,
 			return true;
 	}
 	
-	/* check for pawn checks */
+	// check for pawn checks
 	r_dir = PAWN_DIRECTION (who);
 
 	for (c_dir = -1; c_dir <= 1; c_dir += 2)
@@ -148,7 +148,7 @@ bool is_king_threatened (struct board *board, color_t who,
 			return true;
 	}
 
-	/* check for king checks */
+	// check for king checks
 	for (row = king_row-1; row <= king_row+1; row++)
 	{
 		if (INVALID (row))

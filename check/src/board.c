@@ -11,7 +11,6 @@
 #include "generate.h"
 #include "coord.h"
 #include "validate.h"
-#include "attack_vector.h"
 
 /* board length in characters */
 #define BOARD_LENGTH            31
@@ -262,8 +261,7 @@ static void update_current_rook_position (struct board *board, color_t player,
 	}
 }
 
-void do_move (struct board *board, color_t who,
-              move_t *move, struct move_options options)
+void do_move (struct board *board, color_t who, move_t *move)
 {
 	piece_t    orig_src_piece, src_piece, dst_piece;
 	coord_t    src, dst;
@@ -328,14 +326,10 @@ void do_move (struct board *board, color_t who,
 			update_opponent_rook_position (board, color_invert(who), dst_piece, move, src, dst, 0);
 	}
 
-	if (!options.skip_attack_vectors)
-	    attack_vector_do_move (&board->attacks, board, who, PIECE_TYPE(orig_src_piece), move);
-
 	validate_castle_state (board, move);
 }
 
-void undo_move (struct board *board, color_t who,
-                move_t *move, struct move_options options)
+void undo_move (struct board *board, color_t who, move_t *move)
 {
 	piece_t     orig_src_piece, src_piece, dst_piece;
 	coord_t     src, dst;
@@ -384,9 +378,6 @@ void undo_move (struct board *board, color_t who,
 			update_opponent_rook_position (board, color_invert(who), dst_piece, move, src, dst, 1);
 	}
 
-	if (!options.skip_attack_vectors)
-        attack_vector_undo_move (&board->attacks, board, who, PIECE_TYPE(src_piece), move);
-
 	validate_castle_state (board, move);
 	// TODO - reset move state in the move that was set in do_move?
 }
@@ -430,7 +421,6 @@ struct board *board_from_positions (const struct board_positions *positions)
         new_board->castled[i] = CASTLE_NONE;
 
     board_init_from_positions (new_board, positions);
-    attack_vector_init (&new_board->attacks, new_board);
 
     return new_board;
 }
