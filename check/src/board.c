@@ -4,15 +4,10 @@
 #include <string.h>
 
 #include "board.h"
-#include "move.h"
-#include "piece.h"
-#include "material.h"
 #include "debug.h"
-#include "generate.h"
-#include "coord.h"
 #include "validate.h"
 
-/* board length in characters */
+// board length in characters
 #define BOARD_LENGTH            31
 
 DEFINE_DEBUG_CHANNEL (board, 0);
@@ -26,7 +21,7 @@ static inline void set_piece (struct board *board, coord_t place, piece_t piece)
 
 coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst)
 {
-    return coord_create (ROW(src), COLUMN (dst));
+    return coord_create (ROW(src), COLUMN(dst));
 }
 
 piece_t handle_en_passant (struct board *board, color_t who, move_t *move,
@@ -266,21 +261,21 @@ void do_move (struct board *board, color_t who, move_t *move)
 	piece_t    orig_src_piece, src_piece, dst_piece;
 	coord_t    src, dst;
 
-	src = MOVE_SRC (*move);
-	dst = MOVE_DST (*move);
+	src = MOVE_SRC(*move);
+	dst = MOVE_DST(*move);
 
 	orig_src_piece = src_piece = PIECE_AT_COORD (board, src);
 	dst_piece = PIECE_AT_COORD (board, dst);
 
-	/* save the taken piece in the move
-	 * This may be a bad idea to set here */
-	if (PIECE_TYPE (dst_piece) != PIECE_NONE)
+	// save the taken piece in the move
+	// This may be a bad idea to set here
+	if (PIECE_TYPE(dst_piece) != PIECE_NONE)
 	    move_set_taken (move, dst_piece);
 
-	if (PIECE_TYPE (src_piece) != PIECE_NONE &&
-	    PIECE_TYPE (dst_piece) != PIECE_NONE)
+	if (PIECE_TYPE(src_piece) != PIECE_NONE &&
+	    PIECE_TYPE(dst_piece) != PIECE_NONE)
 	{
-		if (PIECE_COLOR (src_piece) == PIECE_COLOR (dst_piece))
+		if (PIECE_COLOR(src_piece) == PIECE_COLOR(dst_piece))
 		{
 			printf ("ERROR: piece tried to take same color\n");
 			printf ("src piece; %s\n", piece_str (src_piece));
@@ -293,30 +288,30 @@ void do_move (struct board *board, color_t who, move_t *move)
 		}
 	}
 
-	/* check for promotion */
-	if (unlikely (is_promoting_move (move)))
-		src_piece = move_get_promoted (move);
+	// check for promotion
+	if (unlikely (is_promoting_move(move)))
+		src_piece = move_get_promoted(move);
 
 	/* check for en passant */
-	if (unlikely (is_en_passant_move (move)))
+	if (unlikely (is_en_passant_move(move)))
         dst_piece = handle_en_passant (board, who, move, src, dst, 0);
 
-	/* check for castling */
-	if (unlikely (is_castling_move (move)))
+	// check for castling
+	if (unlikely (is_castling_move(move)))
 		handle_castling (board, who, move, src, dst, 0);
 
 	set_piece (board, src, PIECE_AND_COLOR_NONE);
 	set_piece (board, dst, src_piece);
 
-	/* update king position */
+	// update king position
 	if (PIECE_TYPE(src_piece) == PIECE_KING)
 		update_king_position (board, who, move, src, dst, 0);
 
-	/* update rook position -- for castling */
+	// update rook position -- for castling
 	if (PIECE_TYPE(orig_src_piece) == PIECE_ROOK)
 		update_current_rook_position (board, who, orig_src_piece, move, src, dst, 0);
 
-	if (is_capture_move (move))
+	if (is_capture_move(move))
 	{
 		// update material estimate
 		material_del (&board->material, dst_piece);
@@ -326,7 +321,8 @@ void do_move (struct board *board, color_t who, move_t *move)
 			update_opponent_rook_position (board, color_invert(who), dst_piece, move, src, dst, 0);
 	}
 
-	validate_castle_state (board, move);
+    position_do_move (&board->position, who, orig_src_piece, move);
+    validate_castle_state (board, move);
 }
 
 void undo_move (struct board *board, color_t who, move_t *move)
@@ -378,7 +374,9 @@ void undo_move (struct board *board, color_t who, move_t *move)
 			update_opponent_rook_position (board, color_invert(who), dst_piece, move, src, dst, 1);
 	}
 
-	validate_castle_state (board, move);
+    position_undo_move (&board->position, who, src_piece, move);
+
+    validate_castle_state (board, move);
 	// TODO - reset move state in the move that was set in do_move?
 }
 
@@ -467,7 +465,8 @@ void board_init_from_positions (struct board *board, const struct board_position
         board->board[row][col] = PIECE_AND_COLOR_NONE;
 
     material_init (&board->material);
-
+    position_init (&board->position);
+    
     for (ptr = positions; ptr->pieces != NULL; ptr++)
     {
         enum piece_type *pieces = ptr->pieces;
@@ -482,13 +481,14 @@ void board_init_from_positions (struct board *board, const struct board_position
                 continue;
 
             new_piece = MAKE_PIECE (color, pieces[col]);
-            set_piece (board, coord_create (row, col), new_piece);
+            coord_t place = coord_create (row, col);
+            set_piece (board, place, new_piece);
+
             material_add (&board->material, new_piece);
+            position_add (&board->position, color, place, new_piece);
 
             if (pieces[col] == PIECE_KING)
-            {
-                king_position_set (board, color, coord_create (row, col));
-            }
+                king_position_set (board, color, place);
         }
     }
 
@@ -599,7 +599,7 @@ void board_dump (struct board *board)
     board_print_to_file (board, stdout);
 }
 
-/* for printing the board from gdb */
+// for printing the board from gdb
 void board_print_err (struct board *board)
 {
 	board_print_to_file (board, stderr);
@@ -620,4 +620,4 @@ void check (void)
 	}
 }
 
-/* vi: set ts=4 sw=4: */
+// vi: set ts=4 sw=4:

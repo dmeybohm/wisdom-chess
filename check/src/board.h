@@ -11,6 +11,7 @@
 #include "piece.h"
 #include "board_hash.h"
 #include "material.h"
+#include "position.h"
 
 ///////////////////////////////////////////////
 
@@ -36,6 +37,9 @@ struct board
 
 	// keep track of the material on the board
 	struct material      material;
+
+	// keep track of the positions on the board
+	struct position      position;
 
 	// keep track of hashing information
 	// TODO maybe move this higher up for better performance

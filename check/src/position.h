@@ -4,6 +4,7 @@
 
 #include "global.h"
 #include "coord.h"
+#include "move.h"
 #include "piece.h"
 
 struct position
@@ -13,9 +14,18 @@ struct position
 
 /////////////////////////////////////////////////////////
 
-void position_init (struct position *position);
-void position_add (struct position *position, coord_t coord, color_t who, piece_t piece);
-void position_remove (struct position *position, coord_t coord, color_t who, piece_t piece);
+void position_init      (struct position *position);
+void position_add       (struct position *position, color_t who,
+                         coord_t coord, piece_t piece);
+void position_remove    (struct position *position, color_t who,
+                         coord_t coord, piece_t piece);
+
+void position_do_move   (struct position *position, color_t who,
+                         piece_t piece, move_t *move);
+void position_undo_move (struct position *position, color_t who,
+                         piece_t piece, move_t *move);
+
+int  position_score     (struct position *position, color_t who);
 
 /////////////////////////////////////////////////////////
 

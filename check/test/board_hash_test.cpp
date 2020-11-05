@@ -15,7 +15,7 @@ TEST_CASE( "Board hashes can be initialized", "[single-file]" )
 
     board_hash.hash = 0;
 
-    board_hash_init(&board_hash, board);
+    board_hash_init (&board_hash, board);
 
     REQUIRE( board_hash.hash != 0 );
 }
