@@ -89,6 +89,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 	move_t       his_best;
 	move_tree_t *best_variation = NULL, *new_variation = NULL;
 	board_check_t board_check;
+    size_t        illegal_move_count = 0;
 
 	move_nullify (&best_move);
 
@@ -120,6 +121,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 
 		if (!was_legal_move (board, side, move))
 		{
+		    illegal_move_count++;
 			move_tree_free (new_leaf);
             undo_move (board, side, move);
             board_check_validate (&board_check, board, side, move);
@@ -161,7 +163,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 							 (1.0 * rand()/ (RAND_MAX+1.0) < 1)))*/
 
 #else
-		if (score > best || best == -INFINITY)
+		if (score > best || best == -INFINITY * 2)
 #endif
 		{
 			best           = score;
@@ -205,6 +207,10 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 		move_tree_destroy (best_variation);
 #endif
 
+	// if there are no legal moves, then the current player is in a stalement position.
+	if (moves->len == illegal_move_count)
+	    best = 0;
+	
 	move_list_destroy (moves);
 
 	/* return the move if this is the last iteration */
@@ -214,7 +220,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 		if (!timer_is_triggered (&overdue_timer))
 			*ret = best_move;
 #if 0
-		print_tree (history, &best_move, best);
+		print_tree (history);
 #endif
 	}
 			
