@@ -37,15 +37,16 @@ TEST_CASE( "En passant moves work", "[en-passant]" )
     struct board *board = board_from_positions (positions);
 
     move_t pawn_move = move_create (1, 5, 3, 5);
-    do_move (board, COLOR_BLACK, &pawn_move);
+    do_move (board, COLOR_BLACK, pawn_move);
     move_tree_t *history = move_tree_new (nullptr, pawn_move);
 
     move_list_t *move_list = generate_moves (board, COLOR_WHITE, history);
-    move_t *mv, *en_passant_move;
+    move_t *mptr, en_passant_move, mv;
 
     int en_passant_count = 0;
-    for_each_move (mv, move_list)
+    for_each_move (mptr, move_list)
     {
+        mv = *mptr;
         if (is_en_passant_move(mv))
         {
             en_passant_move = mv;
@@ -56,16 +57,16 @@ TEST_CASE( "En passant moves work", "[en-passant]" )
     REQUIRE( en_passant_count == 1 );
     // Check move types:
     CHECK( is_capture_move(en_passant_move) );
-    CHECK( PIECE_TYPE(move_get_taken(en_passant_move)) == PIECE_PAWN );
-    CHECK( PIECE_COLOR(move_get_taken(en_passant_move)) == COLOR_BLACK );
 
     // Check position:
-    CHECK( ROW(MOVE_SRC(*en_passant_move)) == 3 );
-    CHECK( COLUMN(MOVE_SRC(*en_passant_move)) == 4 );
-    CHECK( ROW(MOVE_DST(*en_passant_move)) == 2 );
-    CHECK( COLUMN(MOVE_DST(*en_passant_move)) == 5 );
+    CHECK( ROW(MOVE_SRC(en_passant_move)) == 3 );
+    CHECK( COLUMN(MOVE_SRC(en_passant_move)) == 4 );
+    CHECK( ROW(MOVE_DST(en_passant_move)) == 2 );
+    CHECK( COLUMN(MOVE_DST(en_passant_move)) == 5 );
 
     undo_move_t undo_state = do_move (board, COLOR_WHITE, en_passant_move);
+
+    CHECK( undo_state.category == MOVE_CATEGORY_EN_PASSANT );
 
     piece_t en_passant_pawn = PIECE_AT (board, 2, 5);
     CHECK( PIECE_TYPE(en_passant_pawn) == PIECE_PAWN );

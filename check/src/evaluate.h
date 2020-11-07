@@ -7,10 +7,9 @@
 
 struct board;
 
-int    evaluate (struct board *board, color_t who, int examine_checkmate,
-                 move_t *move);
+int evaluate (struct board *board, color_t who, int examine_checkmate);
 
 int    evaluate_and_check_draw (struct board *board, color_t who, int examine_checkmate,
-                                move_t *move, move_tree_t *history);
+                                move_t move, move_tree_t *history);
 
 #endif // EVOLVE_CHESS_EVALUATE_H

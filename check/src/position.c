@@ -128,22 +128,24 @@ void position_remove (struct position *position, color_t who, coord_t coord, pie
 }
 
 void position_do_move (struct position *position, color_t color,
-                       piece_t piece, move_t *move)
+                       piece_t piece, move_t move, undo_move_t undo_state)
 {
-    coord_t src = MOVE_SRC(*move);
-    coord_t dst = MOVE_DST(*move);
+    enum color opponent = color_invert(color);
+
+    coord_t src = MOVE_SRC(move);
+    coord_t dst = MOVE_DST(move);
 
     position_remove (position, color, src, piece);
 
     if (is_capture_move(move))
     {
-        piece_t taken_piece = move_get_taken(move);
+        piece_t taken_piece = MAKE_PIECE( opponent, undo_state.taken_piece_type );
         coord_t taken_piece_coord = dst;
 
         if (is_en_passant_move(move))
             taken_piece_coord = en_passant_taken_pawn_coord (src, dst);
 
-        position_remove (position, PIECE_COLOR(piece), taken_piece_coord, taken_piece);
+        position_remove (position, opponent, taken_piece_coord, taken_piece);
     }
 
     if (is_castling_move(move))
@@ -163,25 +165,26 @@ void position_do_move (struct position *position, color_t color,
     }
 
     piece_t dst_piece = is_promoting_move(move) ?
-                                     move_get_promoted(move) : piece;
+                        move_get_promoted_piece (move) : piece;
 
     position_add (position, color, dst, dst_piece);
 }
 
 void position_undo_move (struct position *position, color_t color,
-                         piece_t piece, move_t *move)
+                         piece_t piece, move_t move, undo_move_t undo_state)
 {
-    coord_t src = MOVE_SRC(*move);
-    coord_t dst = MOVE_DST(*move);
+    enum color opponent = color_invert(color);
+    coord_t src = MOVE_SRC(move);
+    coord_t dst = MOVE_DST(move);
 
     piece_t dst_piece = is_promoting_move(move) ?
-                                     move_get_promoted(move) : piece;
+                        move_get_promoted_piece (move) : piece;
 
     position_remove (position, color, dst, dst_piece);
 
     if (is_capture_move(move))
     {
-        piece_t taken_piece = move_get_taken(move);
+        piece_t taken_piece = MAKE_PIECE( opponent, undo_state.taken_piece_type);
         coord_t taken_piece_coord = dst;
 
         if (is_en_passant_move(move))

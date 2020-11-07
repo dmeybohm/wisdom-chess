@@ -173,18 +173,18 @@ bool is_king_threatened (struct board *board, color_t who,
 	return false;
 }
 
-bool was_legal_move (struct board *board, color_t who, move_t *mv)
+bool was_legal_move (struct board *board, color_t who, move_t mv)
 {
     coord_t king_pos = king_position (board, who);
 
-	if (is_king_threatened (board, who, ROW(king_pos), COLUMN(king_pos)))
+	if (is_king_threatened(board, who, ROW(king_pos), COLUMN(king_pos)))
 	{
 		return false;
 	}
 
-	if (is_castling_move (mv))
+	if (is_castling_move(mv))
     {
-	    coord_t castled_pos = MOVE_DST (*mv);
+	    coord_t castled_pos = MOVE_DST (mv);
 
 	    int castled_row = ROW(castled_pos);
 	    int castled_col = COLUMN(castled_pos);
@@ -204,7 +204,7 @@ bool was_legal_move (struct board *board, color_t who, move_t *mv)
 	return true;
 }
 
-bool is_drawing_move (const move_tree_t *move_tree, const move_t *move)
+bool is_drawing_move (const move_tree_t *move_tree, move_t move)
 {
     return false;
 }

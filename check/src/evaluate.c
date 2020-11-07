@@ -10,8 +10,7 @@ DEFINE_DEBUG_CHANNEL (evaluate, 0);
 #define CASTLE_POSITIVE_WEIGHT        60
 #define CASTLE_NEGATIVE_WEIGHT        60
 
-int evaluate (struct board *board, color_t who, int examine_checkmate,
-              move_t *move)
+int evaluate (struct board *board, color_t who, int examine_checkmate)
 {
 	int score = 0;
 	int opponent = color_invert (who);
@@ -60,7 +59,7 @@ int evaluate (struct board *board, color_t who, int examine_checkmate,
 }
 
 int evaluate_and_check_draw (struct board *board, color_t who, int examine_checkmate,
-              move_t *move, move_tree_t *history)
+                             move_t move, move_tree_t *history)
 {
     if (is_drawing_move (history, move))
     {
@@ -68,7 +67,7 @@ int evaluate_and_check_draw (struct board *board, color_t who, int examine_check
     }
     else
     {
-        return evaluate (board, who, examine_checkmate, move);
+        return evaluate (board, who, examine_checkmate);
     }
 }
 

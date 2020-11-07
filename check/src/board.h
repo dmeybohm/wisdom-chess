@@ -145,6 +145,11 @@ static inline void king_position_set (struct board *board, color_t who, coord_t 
 	board->king_pos[color_index(who)] = pos;
 }
 
+static inline void board_set_piece (struct board *board, coord_t place, piece_t piece)
+{
+    board->board[ROW(place)][COLUMN(place)] = piece;
+}
+
 ///////////////////////////////////////////////
 
 struct board *board_new            (void);
@@ -154,12 +159,6 @@ void          board_free           (struct board *board);
 void          board_print     (struct board *board);
 void          board_print_err (struct board *board);
 void          board_dump      (struct board *board);
-
-undo_move_t   do_move         (struct board *board, color_t who, move_t *move);
-void          undo_move       (struct board *board, color_t who, move_t *move,
-                               undo_move_t undo_state);
-
-coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst);
 
 ///////////////////////////////////////////////
 

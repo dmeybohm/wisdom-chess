@@ -8,6 +8,8 @@
 #include "coord.h"
 #include "piece.h"
 
+struct board;
+
 typedef uint8_t castle_state_t;
 
 enum castle
@@ -33,32 +35,34 @@ typedef struct undo_move
 {
     enum move_category category;
     enum piece_type    taken_piece_type;
-
-    bool               is_promoting;
-    enum piece_type    promoted_piece_type;
+    
     castle_state_t     current_castle_state;
     castle_state_t     opponent_castle_state;
 } undo_move_t;
 
+static inline undo_move_t empty_undo_state (void)
+{
+    undo_move_t undo_state = {
+            .category = MOVE_CATEGORY_NON_CAPTURE,
+            .taken_piece_type = PIECE_NONE,
+            .current_castle_state = CASTLE_NONE,
+            .opponent_castle_state = CASTLE_NONE,
+    };
+    return undo_state;
+}
+
 typedef struct move
 {
-	uint8_t    src_row : 3;
-	uint8_t    src_col : 3;
+	uint8_t            src_row : 3;
+	uint8_t            src_col : 3;
 
-	uint8_t    dst_row : 3;
-	uint8_t    dst_col : 3;
+	uint8_t            dst_row : 3;
+	uint8_t            dst_col : 3;
 
-	uint8_t    taken_color: 2;
-	uint8_t    taken_piece_type: 3;
+	uint8_t            promoted_color: 2;
+	uint8_t            promoted_piece_type: 3;
 
-	uint8_t    promoted_color: 2;
-	uint8_t    promoted_piece_type: 3;
-
-	uint8_t    is_en_passant : 1;
-	uint8_t    is_castling : 1;
-
-	uint8_t    current_castle_state : 3;
-	uint8_t    opponent_castle_state : 3;
+	enum move_category move_category : 3;
 } move_t;
 
 static inline coord_t MOVE_SRC (move_t mv)
@@ -71,39 +75,21 @@ static inline coord_t MOVE_DST (move_t mv)
 	return coord_create (mv.dst_row, mv.dst_col);
 }
 
-static inline int is_promoting_move (const move_t *move)
+static inline int is_promoting_move (move_t move)
 {
-	return move->promoted_piece_type != PIECE_NONE;
+	return move.promoted_piece_type != PIECE_NONE;
 }
 
-static inline piece_t move_get_promoted (const move_t *move)
+static inline piece_t move_get_promoted_piece (move_t move)
 {
-    enum color color = (enum color)move->promoted_color;
-    enum piece_type piece_type = (enum piece_type)move->promoted_piece_type;
+    enum color color = (enum color)move.promoted_color;
+    enum piece_type piece_type = (enum piece_type)move.promoted_piece_type;
 	return MAKE_PIECE (color, piece_type);
 }
 
-static inline piece_t move_get_taken (const move_t *move)
+static inline int is_capture_move (move_t move)
 {
-    enum color color = (enum color)move->taken_color;
-    enum piece_type piece_type = (enum piece_type)move->taken_piece_type;
-	return MAKE_PIECE (color, piece_type);
-}
-
-static inline void move_set_taken (move_t *move, piece_t taken)
-{
-	move->taken_piece_type = PIECE_TYPE(taken);
-	move->taken_color = PIECE_COLOR(taken);
-}
-
-static inline int is_capture_move (const move_t *move)
-{
-	return move->taken_piece_type != PIECE_NONE;
-}
-
-static inline void move_set_en_passant (move_t *move)
-{
-    move->is_en_passant = 1;
+	return move.move_category == MOVE_CATEGORY_NORMAL_CAPTURE;
 }
 
 static piece_t captured_material (undo_move_t undo_state, enum color opponent)
@@ -121,14 +107,10 @@ static piece_t captured_material (undo_move_t undo_state, enum color opponent)
         return PIECE_AND_COLOR_NONE;
     }
 }
-static inline int is_en_passant_move (const move_t *move)
-{
-	return move->is_en_passant;
-}
 
-static inline void move_set_castling (move_t *move)
+static inline int is_en_passant_move (move_t move)
 {
-    move->is_castling = 1;
+	return move.move_category == MOVE_CATEGORY_EN_PASSANT;
 }
 
 static inline int move_affects_current_castle_state (undo_move_t move)
@@ -141,14 +123,14 @@ static inline int move_affects_opponent_castle_state (undo_move_t move)
     return move.opponent_castle_state != CASTLE_NONE;
 }
 
-static inline int is_castling_move (const move_t *move)
+static inline int is_castling_move (move_t move)
 {
-	return move->is_castling;
+	return move.move_category == MOVE_CATEGORY_CASTLING;
 }
 
-static inline int is_castling_move_on_king_side (const move_t *move)
+static inline int is_castling_move_on_king_side (move_t move)
 {
-	return is_castling_move(move) && move->dst_col == 6;
+	return is_castling_move(move) && move.dst_col == 6;
 }
 
 static inline uint8_t castling_row_from_color (color_t color)
@@ -164,7 +146,7 @@ static inline uint8_t castling_row_from_color (color_t color)
     }
 }
 
-static inline move_t move_promote (move_t move, piece_t piece)
+static inline move_t move_with_promotion (move_t move, piece_t piece)
 {
     move_t result = move;
     result.promoted_piece_type = PIECE_TYPE(piece);
@@ -176,36 +158,70 @@ static inline move_t move_promote (move_t move, piece_t piece)
 static inline move_t move_create (uint8_t src_row, uint8_t src_col,
                                   uint8_t dst_row, uint8_t dst_col)
 {
-	move_t tmp = { 0 };
+	move_t result = { 0 };
 
-	tmp.src_row = src_row;
-	tmp.src_col = src_col;
-	tmp.dst_row = dst_row;
-	tmp.dst_col = dst_col;
+    result.src_row = src_row;
+    result.src_col = src_col;
+    result.dst_row = dst_row;
+    result.dst_col = dst_col;
 
-	return tmp;
+	return result;
+}
+
+static inline move_t move_create_capturing (uint8_t src_row, uint8_t src_col,
+                                            uint8_t dst_row, uint8_t dst_col)
+{
+    move_t move = move_create (src_row, src_col, dst_row, dst_col);
+    move.move_category = MOVE_CATEGORY_NORMAL_CAPTURE;
+    return move;
+}
+
+static inline move_t move_create_castling (uint8_t src_row, uint8_t src_col,
+                                           uint8_t dst_row, uint8_t dst_col)
+{
+    move_t move = move_create (src_row, src_col, dst_row, dst_col);
+    move.move_category = MOVE_CATEGORY_CASTLING;
+    return move;
+}
+
+static inline move_t move_with_capture (move_t move)
+{
+    coord_t src = MOVE_SRC(move);
+    coord_t dst = MOVE_DST(move);
+    move_t result = move_create (ROW(src), COLUMN(src), ROW(dst), COLUMN(dst));
+    result.move_category = MOVE_CATEGORY_NORMAL_CAPTURE;
+    return result;
+}
+
+static inline move_t move_create_en_passant (int8_t src_row, uint8_t src_col,
+                                             uint8_t dst_row, uint8_t dst_col)
+{
+    move_t move = move_create( src_row, src_col, dst_row, dst_col);
+    move.move_category = MOVE_CATEGORY_EN_PASSANT;
+    return move;
 }
 
 static inline int is_null_move (move_t move)
 {
 	// no move has the same position for src and dst
-	return move.src_row == 0 && move.src_col == 0 && move.dst_row == 0 && move.dst_col == 0;
+	return move.src_row == 0 && move.src_col == 0 &&
+	    move.dst_row == 0 && move.dst_col == 0;
 }
 
-static inline void move_nullify (move_t *move)
+static inline move_t move_null (void)
 {
-	*move = move_create (0, 0, 0, 0);
+    return move_create (0, 0, 0, 0);
 }
 
-static inline int move_equal (const move_t *a, const move_t *b)
+static inline int move_equal (move_t a, move_t b)
 {
-	// Hm, don't compare the taken piece
-	return a->src_row == b->src_row &&
-	    a->dst_row == b->dst_row &&
-	    a->src_col == b->src_col &&
-	    a->dst_col == b->dst_col &&
-	    a->promoted_color == b->promoted_color &&
-	    a->promoted_piece_type == b->promoted_piece_type;
+	return a.src_row == b.src_row &&
+	    a.dst_row == b.dst_row &&
+	    a.src_col == b.src_col &&
+	    a.dst_col == b.dst_col &&
+	    a.move_category == b.move_category &&
+	    a.promoted_color == b.promoted_color &&
+	    a.promoted_piece_type == b.promoted_piece_type;
 }
 
 // Pack the castle state into the move.
@@ -240,10 +256,17 @@ static inline void save_opponent_castle_state (undo_move_t *undo_state, castle_s
     undo_state->opponent_castle_state = pack_castle_state(state);
 }
 
-/*********************************************************************/
+/////////////////////////////////////////////////////////////////////
 
-extern char *move_str (move_t move);
+undo_move_t   do_move         (struct board *board, color_t who, move_t move);
+void          undo_move       (struct board *board, color_t who, move_t move,
+                               undo_move_t undo_state);
 
-extern int   move_parse (char *str, color_t who, move_t *ret_move);
+coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst);
+char *move_str (move_t move);
+
+int   move_parse (char *str, color_t who, move_t *ret_move);
+
+/////////////////////////////////////////////////////////////////////
 
 #endif // EVOLVE_CHESS_MOVE_H

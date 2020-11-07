@@ -33,11 +33,13 @@ TEST_CASE( "Board hashes return to the same hash with a normal move", "[single-f
     move_t mv = move_create (1, 4, 3, 4);
 
     uint64_t orig_board_hash = board_hash.hash;
-    board_hash_move (&board_hash, board, &mv);
+    undo_move_t undo_state = empty_undo_state();
+
+    board_hash_move (&board_hash, board, mv, undo_state);
 
     REQUIRE( board_hash.hash != orig_board_hash );
 
-    board_hash_unmove (&board_hash, board, &mv);
+    board_hash_unmove (&board_hash, board, mv, undo_state);
 
     REQUIRE( board_hash.hash == orig_board_hash );
 }

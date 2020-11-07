@@ -100,11 +100,10 @@ MOVES_HANDLER (none)
 MOVES_HANDLER (king)
 {
 	int    row, col;
-	move_t castled_moves[2];
 	
 	for (row = piece_row-1; row < 8 && row <= piece_row+1; row++)
 	{
-		if (INVALID (row))
+		if (INVALID(row))
 			continue;
 
 		for (col = piece_col-1; col < 8 && col <= piece_col+1; col++)
@@ -115,36 +114,20 @@ MOVES_HANDLER (king)
 			moves = move_list_append (moves, piece_row, piece_col, row, col);
 		}
 	}
-			
-	// castling
-	if (able_to_castle (board, who, CASTLE_KINGSIDE | CASTLE_QUEENSIDE))
-	{
-		int i;
 
-		for (i = 0; i < sizeof (castled_moves)/sizeof (move_t); i++)
-			move_nullify (&castled_moves[i]);
+    if (able_to_castle (board, who, CASTLE_QUEENSIDE))
+    {
+        move_t queenside_castle = move_create_castling (piece_row, piece_col,
+                                                        piece_row, piece_col - 2);
+        moves = move_list_append_move (moves, queenside_castle);
+    }
 
-		if (able_to_castle (board, who, CASTLE_QUEENSIDE))
-		{
-			castled_moves[0] = move_create (piece_row, piece_col, piece_row,
-			                                piece_col - 2);
-		}
-
-		if (able_to_castle (board, who, CASTLE_KINGSIDE))
-		{
-			castled_moves[1] = move_create (piece_row, piece_col, piece_row,
-			                                piece_col + 2);
-		}
-
-		for (i = 0; i < sizeof (castled_moves)/sizeof (move_t); i++)
-		{
-				if (!is_null_move (castled_moves[i]))
-				{
-					move_set_castling (&castled_moves[i]);
-					moves = move_list_append_move (moves, castled_moves[i]);
-				}
-		}
-	}
+    if (able_to_castle (board, who, CASTLE_KINGSIDE))
+    {
+        move_t kingside_castle = move_create_castling (piece_row, piece_col,
+                                                       piece_row, piece_col + 2);
+        moves = move_list_append_move (moves, kingside_castle);
+    }
 
 	return moves;
 }
@@ -307,7 +290,7 @@ MOVES_HANDLER (pawn)
 			{
 				if (!is_null_move (move[i]))
 				{
-					move[i] = move_promote (move[i], piece);
+					move[i] = move_with_promotion (move[i], piece);
 
 					moves = move_list_append_move (moves, move[i]); 
 				}
@@ -371,14 +354,10 @@ MOVES_HANDLER (en_passant)
 
 	assert (PIECE_COLOR (piece) != who);
 
-	/* ok, looks like the previous move could yield en passant */
+	// ok, looks like the previous move could yield en passant
 	take_row = NEXT (piece_row, direction);
 
-	new_move = move_create (piece_row, piece_col, take_row, take_col);
-
-	move_set_en_passant (&new_move);
-
-	move_set_taken (&new_move, MAKE_PIECE(color_invert(who), PIECE_PAWN));
+	new_move = move_create_en_passant(piece_row, piece_col, take_row, take_col);
 
 	moves = move_list_append_move (moves, new_move);
 	
@@ -438,16 +417,17 @@ move_list_t *generate_legal_moves (struct board *board, color_t who,
 
 	for_each_move (mptr, all_moves)
 	{
+	    move_t move_value = *mptr;
 	    board_check_init (&board_check, board);
-        undo_move_t undo_state = do_move (board, who, mptr);
+        undo_move_t undo_state = do_move (board, who, move_value);
 
-        if (was_legal_move (board, who, mptr))
+        if (was_legal_move (board, who, move_value))
         {
-            non_checks = move_list_append_move (non_checks, *mptr);
+            non_checks = move_list_append_move (non_checks, move_value);
         }
 
-        undo_move (board, who, mptr, undo_state);
-        board_check_validate (&board_check, board, who, mptr);
+        undo_move (board, who, move_value, undo_state);
+        board_check_validate (&board_check, board, who, move_value);
 	}
 
 	move_list_destroy (all_moves);
@@ -455,63 +435,64 @@ move_list_t *generate_legal_moves (struct board *board, color_t who,
 	return non_checks;
 }
 
-static int valid_castling_move (struct board *board, color_t who, move_t *move)
+static int valid_castling_move (struct board *board, color_t who, move_t move)
 {
 	// check for an intervening piece
 	int     direction;
 	coord_t src, dst;
 	piece_t piece1, piece2, piece3;
 
-	src = MOVE_SRC (*move);
-	dst = MOVE_DST (*move);
+	src = MOVE_SRC(move);
+	dst = MOVE_DST(move);
 
 	piece3 = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
 
-	/* find which direction the king was castling in */
-	direction = (COLUMN (dst) - COLUMN (src)) / 2;
+	// find which direction the king was castling in
+	direction = (COLUMN(dst) - COLUMN(src)) / 2;
 
-	piece1 = PIECE_AT (board, ROW (src), COLUMN (dst) - direction);
-	piece2 = PIECE_AT (board, ROW (src), COLUMN (dst));
+	piece1 = PIECE_AT (board, ROW(src), COLUMN(dst) - direction);
+	piece2 = PIECE_AT (board, ROW(src), COLUMN(dst));
 	
 	if (direction < 0)
 	{
 		// check for piece next to rook on queenside
-		piece3 = PIECE_AT (board, ROW (src), COLUMN (dst) - 1);
+		piece3 = PIECE_AT (board, ROW(src), COLUMN(dst) - 1);
 	}
 
-	return PIECE_TYPE (piece1) == PIECE_NONE && 
-	       PIECE_TYPE (piece2) == PIECE_NONE &&
-		   PIECE_TYPE (piece3) == PIECE_NONE;
+	return PIECE_TYPE(piece1) == PIECE_NONE &&
+	       PIECE_TYPE(piece2) == PIECE_NONE &&
+		   PIECE_TYPE(piece3) == PIECE_NONE;
 }
 
 move_list_t *validate_moves (move_list_t *move_list, struct board *board,
                              color_t who)
 {
-	move_t      *move;
+	move_t      *move_ptr;
 	move_list_t *captures = NULL, *non_captures = NULL;
 
 	move_list_print (move_list);
 
-	for_each_move (move, move_list)
+	for_each_move (move_ptr, move_list)
 	{
+	    move_t  move = *move_ptr;
 		coord_t src, dst;
 		piece_t src_piece, dst_piece;
 		int     is_capture = 0;
 
-		src = MOVE_SRC (*move);
-		dst = MOVE_DST (*move);
+		src = MOVE_SRC(move);
+		dst = MOVE_DST(move);
 
 		src_piece = PIECE_AT_COORD (board, src);
 		dst_piece = PIECE_AT_COORD (board, dst);
 
-		assert (PIECE_TYPE (src_piece) != PIECE_NONE);
+		assert (PIECE_TYPE(src_piece) != PIECE_NONE);
 
-		is_capture = (PIECE_TYPE (dst_piece) != PIECE_NONE);
+		is_capture = (PIECE_TYPE(dst_piece) != PIECE_NONE);
 
-		if (unlikely (is_en_passant_move (move)))
+		if (is_en_passant_move(move))
 			is_capture = 1;
 
-		if (unlikely (is_castling_move (move)))
+		if (is_castling_move(move))
 			if (!valid_castling_move (board, who, move))
 				continue;
 
@@ -525,7 +506,7 @@ move_list_t *validate_moves (move_list_t *move_list, struct board *board,
 		}
 
 		// check for an illegal king capture
-		if (PIECE_TYPE (dst_piece) == PIECE_KING)
+		if (PIECE_TYPE(dst_piece) == PIECE_KING)
 		{
 			assert (is_capture);
 
@@ -538,23 +519,23 @@ move_list_t *validate_moves (move_list_t *move_list, struct board *board,
 
 		if (is_capture)
 		{
-			if (!is_capture_move (move))
-				move_set_taken (move, dst_piece);
+			if (!is_capture_move(move))
+				move = move_with_capture (move);
 
-			captures = move_list_append_move (captures, *move);
+			captures = move_list_append_move (captures, move);
 		}
 		else
 		{
 #if 0
 			non_captures = move_list_append_move (non_captures, *move);	
 #endif
-			captures = move_list_append_move (captures, *move);	
+			captures = move_list_append_move (captures, move);
 		}
 
-		if (is_promoting_move (move))
+		if (is_promoting_move(move))
 		{
 			DBG (generate, "PROMOTION MOVE: %s -> %s", move_str (*move), 
-			     piece_str (move_get_promoted (move)));
+			     piece_str (move_get_promoted_piece (move)));
 		}
 	}
 
@@ -582,15 +563,18 @@ move_list_t *validate_moves (move_list_t *move_list, struct board *board,
 move_list_t *generate_captures (struct board *board, color_t who,
                                 move_tree_t *history)
 {
-	move_list_t *move_list = NULL;
-	move_list_t *captures  = NULL;
-	move_t      *mv;
+    move_list_t *move_list = NULL;
+    move_list_t *captures = NULL;
+    move_t *mv_ptr;
 
-	move_list = generate_moves (board, who, history);
+    move_list = generate_moves (board, who, history);
 
-	for_each_move (mv, move_list)
-		if (is_capture_move (mv))
-			captures = move_list_append_move (captures, *mv);
+    for_each_move (mv_ptr, move_list)
+    {
+        move_t move = *mv_ptr;
+        if (is_capture_move (move))
+            captures = move_list_append_move (captures, move);
+    }
 
 	move_list_destroy (move_list);
 

@@ -21,9 +21,9 @@ void position_remove    (struct position *position, color_t who,
                          coord_t coord, piece_t piece);
 
 void position_do_move   (struct position *position, color_t who,
-                         piece_t piece, move_t *move);
+                         piece_t piece, move_t move, undo_move_t undo_state);
 void position_undo_move (struct position *position, color_t who,
-                         piece_t piece, move_t *move);
+                         piece_t piece, move_t move, undo_move_t undo_state);
 
 int  position_score     (struct position *position, color_t who);
 

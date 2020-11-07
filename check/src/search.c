@@ -84,25 +84,26 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 	int          best   = -INFINITY; /* make sure to select something */
 	move_list_t *moves;
 	move_tree_t *new_leaf;
-	move_t      *move;
+	move_t      *move_ptr;
 	move_t       best_move;
 	move_t       his_best;
 	move_tree_t *best_variation = NULL, *new_variation = NULL;
 	board_check_t board_check;
 	size_t        illegal_move_count = 0;
 
-	move_nullify (&best_move);
+	best_move = move_null();
 
 	moves = generate_moves (board, side, history);
 	if (!moves)
 	{
 		*ret_variation = NULL;
 
-		return evaluate (board, side, 1, NULL);
+		return evaluate (board, side, 1);
 	}
 
-	for_each_move (move, moves)
+	for_each_move (move_ptr, moves)
 	{
+	    move_t move = *move_ptr;
 		if (timer_is_triggered (&overdue_timer))
 		{
 			if (best_variation)
@@ -114,7 +115,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 			break;
 		}
 
-		new_leaf = move_tree_new (history, *move);
+		new_leaf = move_tree_new (history, move);
 
 		board_check_init (&board_check, board);
         undo_move_t undo_state = do_move (board, side, move);
@@ -167,7 +168,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 #endif
 		{
 			best           = score;
-			best_move      = *move;
+			best_move      = move;
 
 			if (best_variation)
 				move_tree_destroy (best_variation);
@@ -178,7 +179,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 #endif
 
 
-			best_variation = move_tree_new (new_variation, *move);
+			best_variation = move_tree_new (new_variation, move);
 		}
 		else
 		{
@@ -214,9 +215,9 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 	move_list_destroy (moves);
 
 	/* return the move if this is the last iteration */
-	if (unlikely (depth == start_depth))
+	if (depth == start_depth)
 	{
-		move_nullify (ret);
+		*ret = move_null ();
 		if (!timer_is_triggered (&overdue_timer))
 			*ret = best_move;
 #if 0
@@ -341,7 +342,7 @@ move_t iterate (struct board *board, color_t side,
 
 	nodes_visited = 0; cutoffs = 0;
 
-	move_nullify (&best_move);
+	best_move = move_null ();
 
 	gettimeofday (&start, NULL);
 
@@ -403,13 +404,13 @@ move_t find_best_move (struct board *board, color_t side,
 	{
 		move = iterate (board, side, history, d);
 
-		if (timer_is_triggered (&overdue_timer))
+		if (timer_is_triggered(&overdue_timer))
 		{
 			printf ("exiting early with depth %d\n", d);
 			break;
 		}
 
-		if (is_null_move (move))
+		if (is_null_move(move))
 		{
 		    // I think this can probably happen if we run out of time at just the right time.
 		    printf("Next best move is null move. Terminating.");
@@ -417,32 +418,33 @@ move_t find_best_move (struct board *board, color_t side,
 		}
 
 		board_check_init (&board_check, board);
-        undo_move_t undo_state = do_move (board, side, &move);
+        undo_move_t undo_state = do_move (board, side, move);
 		board_print (board);
 
 		best_move = move;
 		if (d == 0 && is_checkmated(board, color_invert(side)))
             stop_early = true;
 
-        undo_move (board, side, &move, undo_state);
-        board_check_validate (&board_check, board, side, &move);
+        undo_move (board, side, move, undo_state);
+        board_check_validate (&board_check, board, side, move);
 
         if (stop_early)
             break;
 	}
 
-    if (is_null_move (best_move))
+    if (is_null_move(best_move))
     {
+        // TODO: this is possible in a stalement position
         // TODO: select random move in this case.
         printf ("best selected null move at depth %d\n", d);
         abort ();
     }
 
     board_check_init (&board_check, board);
-    undo_move_t undo_state = do_move (board, side, &best_move);
+    undo_move_t undo_state = do_move (board, side, best_move);
 	board_print (board);
-    undo_move (board, side, &best_move, undo_state);
-    board_check_validate (&board_check, board, side, &best_move);
+    undo_move (board, side, best_move, undo_state);
+    board_check_validate (&board_check, board, side, best_move);
 
 	return best_move;
 }

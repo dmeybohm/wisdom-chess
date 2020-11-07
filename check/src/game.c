@@ -48,10 +48,10 @@ void game_free (struct game *game)
 	free (game);
 }
 
-void game_move (struct game *game, move_t *move)
+void game_move (struct game *game, move_t move)
 {
 	// add this move to the history
-	game->history = move_tree_new (game->history, *move);
+	game->history = move_tree_new (game->history, move);
 
 	// do the move
     do_move (game->board, game->turn, move);
@@ -159,10 +159,10 @@ struct game *game_load (color_t player)
 		if (PIECE_TYPE(piece) != PIECE_NONE)
 		{
 			assert (PIECE_COLOR(piece) != game->turn);
-			move_set_taken (&move, piece);
+			move = move_with_capture (move);
 		}
 
-		game_move (game, &move);
+		game_move (game, move);
 	}
 
 	fclose (f);

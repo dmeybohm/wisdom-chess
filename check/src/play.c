@@ -84,7 +84,7 @@ static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 	}
 
 	if (!move_parse (buf, game->turn, move))
-		move_nullify (move);
+		*move = move_null ();
 
 	*good = 0;
 
@@ -93,7 +93,7 @@ static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 
 	for_each_move (mptr, moves)
 	{
-        if (move_equal(mptr, move))
+        if (move_equal(*mptr, *move))
         {
             *good = 1;
             break;
@@ -110,9 +110,7 @@ int main (int argc, char **argv)
 	struct game  *game;
 	int           ok = 1, good;
 	int           skip;
-	move_t        move;
-
-	move_nullify (&move);
+	move_t        move = move_null();
 
 	// initialize computer to black
 	comp_player = COLOR_BLACK;
@@ -149,7 +147,7 @@ int main (int argc, char **argv)
 			continue;
 
 		if (good)
-			game_move (game, &move);
+			game_move (game, move);
 		else if (ok)
 			printf("\nInvalid move\n\n");
 	}

@@ -18,6 +18,6 @@ void         game_free  (struct game *game);
 
 int          game_save  (struct game *game);
 struct game *game_load  (color_t player);
-void         game_move  (struct game *game, struct move *move);
+void         game_move  (struct game *game, struct move move);
 
 #endif // EVOLVE_CHESS_GAME_H_
