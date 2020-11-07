@@ -155,8 +155,9 @@ void          board_print     (struct board *board);
 void          board_print_err (struct board *board);
 void          board_dump      (struct board *board);
 
-void do_move (struct board *board, color_t who, move_t *move);
-void undo_move (struct board *board, color_t who, move_t *move);
+undo_move_t   do_move         (struct board *board, color_t who, move_t *move);
+void          undo_move       (struct board *board, color_t who, move_t *move,
+                               undo_move_t undo_state);
 
 coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst);
 

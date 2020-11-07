@@ -439,14 +439,14 @@ move_list_t *generate_legal_moves (struct board *board, color_t who,
 	for_each_move (mptr, all_moves)
 	{
 	    board_check_init (&board_check, board);
-        do_move (board, who, mptr);
+        undo_move_t undo_state = do_move (board, who, mptr);
 
         if (was_legal_move (board, who, mptr))
         {
             non_checks = move_list_append_move (non_checks, *mptr);
         }
 
-        undo_move (board, who, mptr);
+        undo_move (board, who, mptr, undo_state);
         board_check_validate (&board_check, board, who, mptr);
 	}
 

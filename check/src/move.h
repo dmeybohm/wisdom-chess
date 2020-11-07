@@ -26,16 +26,16 @@ enum move_category
     MOVE_CATEGORY_NON_CAPTURE = 0,
     MOVE_CATEGORY_NORMAL_CAPTURE = 1,
     MOVE_CATEGORY_EN_PASSANT = 2,
-    MOVE_CATEGORY_CASTLE_KINGSIDE = 3,
-    MOVE_CATEGORY_CASTLE_QUEENSIDE = 4,
+    MOVE_CATEGORY_CASTLING = 3,
 };
 
 typedef struct undo_move
 {
     enum move_category category;
-    enum color         taken_color;
     enum piece_type    taken_piece_type;
 
+    bool               is_promoting;
+    enum piece_type    promoted_piece_type;
     castle_state_t     current_castle_state;
     castle_state_t     opponent_castle_state;
 } undo_move_t;
@@ -106,6 +106,21 @@ static inline void move_set_en_passant (move_t *move)
     move->is_en_passant = 1;
 }
 
+static piece_t captured_material (undo_move_t undo_state, enum color opponent)
+{
+    if (undo_state.category == MOVE_CATEGORY_NORMAL_CAPTURE)
+    {
+        return MAKE_PIECE( opponent, undo_state.taken_piece_type );
+    }
+    else if (undo_state.category == MOVE_CATEGORY_EN_PASSANT)
+    {
+        return MAKE_PIECE( opponent, PIECE_PAWN);
+    }
+    else
+    {
+        return PIECE_AND_COLOR_NONE;
+    }
+}
 static inline int is_en_passant_move (const move_t *move)
 {
 	return move->is_en_passant;
@@ -116,12 +131,12 @@ static inline void move_set_castling (move_t *move)
     move->is_castling = 1;
 }
 
-static inline int move_affects_current_castle_state (move_t move)
+static inline int move_affects_current_castle_state (undo_move_t move)
 {
     return move.current_castle_state != CASTLE_NONE;
 }
 
-static inline int move_affects_opponent_castle_state (move_t move)
+static inline int move_affects_opponent_castle_state (undo_move_t move)
 {
     return move.opponent_castle_state != CASTLE_NONE;
 }
@@ -205,24 +220,24 @@ static inline castle_state_t pack_castle_state (castle_state_t state)
     return state == CASTLE_NONE ? CASTLE_PREVIOUSLY_NONE : state;
 }
 
-static inline castle_state_t current_castle_state (const move_t *move)
+static inline castle_state_t current_castle_state (undo_move_t move)
 {
-    return unpack_castle_state(move->current_castle_state);
+    return unpack_castle_state(move.current_castle_state);
 }
 
-static inline castle_state_t opponent_castle_state (const move_t *move)
+static inline castle_state_t opponent_castle_state (undo_move_t undo_state)
 {
-    return unpack_castle_state(move->opponent_castle_state);
+    return unpack_castle_state(undo_state.opponent_castle_state);
 }
 
-static inline void save_current_castle_state (move_t *move, castle_state_t state)
+static inline void save_current_castle_state (undo_move_t *undo_state, castle_state_t state)
 {
-    move->current_castle_state = pack_castle_state(state);
+    undo_state->current_castle_state = pack_castle_state(state);
 }
 
-static inline void save_opponent_castle_state (move_t *move, castle_state_t state)
+static inline void save_opponent_castle_state (undo_move_t *undo_state, castle_state_t state)
 {
-    move->opponent_castle_state = pack_castle_state(state);
+    undo_state->opponent_castle_state = pack_castle_state(state);
 }
 
 /*********************************************************************/

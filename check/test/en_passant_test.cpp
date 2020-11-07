@@ -65,7 +65,7 @@ TEST_CASE( "En passant moves work", "[en-passant]" )
     CHECK( ROW(MOVE_DST(*en_passant_move)) == 2 );
     CHECK( COLUMN(MOVE_DST(*en_passant_move)) == 5 );
 
-    do_move (board, COLOR_WHITE, en_passant_move);
+    undo_move_t undo_state = do_move (board, COLOR_WHITE, en_passant_move);
 
     piece_t en_passant_pawn = PIECE_AT (board, 2, 5);
     CHECK( PIECE_TYPE(en_passant_pawn) == PIECE_PAWN );
@@ -74,7 +74,7 @@ TEST_CASE( "En passant moves work", "[en-passant]" )
     CHECK( PIECE_COLOR(taken_pawn) == COLOR_NONE );
     CHECK( PIECE_TYPE(taken_pawn) == PIECE_NONE );
 
-    undo_move (board, COLOR_WHITE, en_passant_move);
+    undo_move (board, COLOR_WHITE, en_passant_move, undo_state);
 
     piece_t en_passant_pawn_space = PIECE_AT (board, 2, 5);
     CHECK( PIECE_TYPE(en_passant_pawn_space) == PIECE_NONE );

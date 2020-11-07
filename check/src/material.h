@@ -31,7 +31,7 @@ static inline int material_piece_weight (enum piece_type piece)
 		case PIECE_KNIGHT:  return MATERIAL_WEIGHT_KNIGHT;
 		case PIECE_PAWN:    return MATERIAL_WEIGHT_PAWN;
 		default: abort();
-	}
+    }
 }
 
 static inline void material_del (struct material *material, piece_t piece)

@@ -117,13 +117,13 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 		new_leaf = move_tree_new (history, *move);
 
 		board_check_init (&board_check, board);
-        do_move (board, side, move);
+        undo_move_t undo_state = do_move (board, side, move);
 
 		if (!was_legal_move (board, side, move))
 		{
 		    illegal_move_count++;
 			move_tree_free (new_leaf);
-            undo_move (board, side, move);
+            undo_move (board, side, move, undo_state);
             board_check_validate (&board_check, board, side, move);
 			continue;
 		}
@@ -153,7 +153,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 			                   no_quiesce, new_leaf));
 		}
 
-        undo_move (board, side, move);
+        undo_move (board, side, move, undo_state);
         board_check_validate (&board_check, board, side, move);
 
 		move_tree_free (new_leaf);
@@ -417,14 +417,14 @@ move_t find_best_move (struct board *board, color_t side,
 		}
 
 		board_check_init (&board_check, board);
-        do_move (board, side, &move);
+        undo_move_t undo_state = do_move (board, side, &move);
 		board_print (board);
 
 		best_move = move;
 		if (d == 0 && is_checkmated(board, color_invert(side)))
             stop_early = true;
 
-        undo_move (board, side, &move);
+        undo_move (board, side, &move, undo_state);
         board_check_validate (&board_check, board, side, &move);
 
         if (stop_early)
@@ -439,9 +439,9 @@ move_t find_best_move (struct board *board, color_t side,
     }
 
     board_check_init (&board_check, board);
-    do_move (board, side, &best_move);
+    undo_move_t undo_state = do_move (board, side, &best_move);
 	board_print (board);
-    undo_move (board, side, &best_move);
+    undo_move (board, side, &best_move, undo_state);
     board_check_validate (&board_check, board, side, &best_move);
 
 	return best_move;

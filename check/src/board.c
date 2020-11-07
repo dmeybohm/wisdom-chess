@@ -31,8 +31,8 @@ piece_t handle_en_passant (struct board *board, color_t who, move_t *move,
 
 	if (undo)
 	{
-		piece_t taken = move_get_taken (move);
-        set_piece (board, taken_pawn_pos, taken);
+        piece_t taken_pawn = MAKE_PIECE( color_invert(who), PIECE_PAWN );
+        set_piece (board, taken_pawn_pos, taken_pawn);
 
 		return PIECE_AND_COLOR_NONE; // restore empty square where piece was replaced
 	}
@@ -40,14 +40,16 @@ piece_t handle_en_passant (struct board *board, color_t who, move_t *move,
 	{
         piece_t taken = PIECE_AT_COORD (board, taken_pawn_pos);
 
-        move_set_taken (move, taken);
+        assert( PIECE_TYPE(taken) == PIECE_PAWN );
+        assert( PIECE_COLOR(taken) != who );
         set_piece (board, taken_pawn_pos, PIECE_AND_COLOR_NONE);
 
         return taken;
 	}
 }
 
-static move_t get_castling_rook_move (struct board *board, move_t *move, color_t who)
+static move_t get_castling_rook_move (struct board *board, move_t *move,
+                                      color_t who)
 {
 	unsigned char    src_row, src_col;
 	unsigned char    dst_row, dst_col;
@@ -55,8 +57,8 @@ static move_t get_castling_rook_move (struct board *board, move_t *move, color_t
 
 	assert (is_castling_move (move));
 
-	src = MOVE_SRC (*move);
-	dst = MOVE_DST (*move);
+	src = MOVE_SRC(*move);
+	dst = MOVE_DST(*move);
 
 	src_row = ROW (src);
 	dst_row = ROW (dst);
@@ -86,9 +88,8 @@ static move_t get_castling_rook_move (struct board *board, move_t *move, color_t
 	return move_create (src_row, src_col, dst_row, dst_col);
 }
 
-static void handle_castling (struct board *board, color_t who,
-                             move_t *king_move, coord_t src, coord_t dst,
-                             int undo)
+static void handle_castling (struct board *board, enum color who,
+                             move_t *king_move, coord_t src, coord_t dst, int undo)
 {
 	move_t  rook_move;
 	coord_t rook_src, rook_dst;
@@ -97,23 +98,23 @@ static void handle_castling (struct board *board, color_t who,
 	rook_move = get_castling_rook_move (board, king_move, who);
 
 	if (undo)
-		assert (PIECE_TYPE (PIECE_AT_COORD (board, dst)) == PIECE_KING);
+		assert (PIECE_TYPE(PIECE_AT_COORD (board, dst)) == PIECE_KING);
 	else
-		assert (PIECE_TYPE (PIECE_AT_COORD (board, src)) == PIECE_KING);
+		assert (PIECE_TYPE(PIECE_AT_COORD (board, src)) == PIECE_KING);
 
-	assert (abs (COLUMN (src) - COLUMN (dst)) == 2);
+	assert (abs(COLUMN(src) - COLUMN(dst)) == 2);
 
-	rook_src = MOVE_SRC (rook_move);
-	rook_dst = MOVE_DST (rook_move);
+	rook_src = MOVE_SRC(rook_move);
+	rook_dst = MOVE_DST(rook_move);
 
 	empty_piece = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
 
 	if (undo)
 	{
-		/* undo the rook move */
+		// undo the rook move
 		rook = PIECE_AT_COORD (board, rook_dst);
 
-		/* undo the rook move */
+		// undo the rook move
 		set_piece (board, rook_dst, empty_piece);
 		set_piece (board, rook_src, rook);
 	}
@@ -128,15 +129,18 @@ static void handle_castling (struct board *board, color_t who,
 }
 
 void update_king_position (struct board *board, color_t who, move_t *move,
-                           coord_t src, coord_t dst, int undo)
+                           undo_move_t *undo_state, coord_t src, coord_t dst,
+                           int undo)
 {
 	if (undo)
 	{
+	    undo_move_t undo_state_value = *undo_state;
+
 	    king_position_set (board, who, src);
 
 		// retrieve the old board castle status
-		if (move_affects_current_castle_state(*move)) {
-		    board_undo_castle_change (board, who, current_castle_state(move));
+		if (move_affects_current_castle_state(undo_state_value)) {
+		    board_undo_castle_change (board, who, current_castle_state(undo_state_value));
         }
 	}
 	else
@@ -148,9 +152,9 @@ void update_king_position (struct board *board, color_t who, move_t *move,
 		{
 			// save the old castle status
             castle_state_t old_castle_state = board_get_castle_state(board, who);
-            save_current_castle_state (move, old_castle_state);
+            save_current_castle_state (undo_state, old_castle_state);
 
-			if (!is_castling_move (move))
+			if (!is_castling_move(move))
 				old_castle_state |= CASTLE_KINGSIDE | CASTLE_QUEENSIDE;
 			else
 				old_castle_state = CASTLE_CASTLED;
@@ -162,17 +166,20 @@ void update_king_position (struct board *board, color_t who, move_t *move,
 }
 
 static void update_opponent_rook_position (struct board *board, color_t opponent,
-                                           piece_t dst_piece, move_t *move, coord_t src,
+                                           piece_t dst_piece, move_t *move,
+                                           undo_move_t *undo_state, coord_t src,
                                            coord_t dst, int undo)
 {
     assert( PIECE_COLOR(dst_piece) == opponent && PIECE_TYPE(dst_piece) == PIECE_ROOK );
 
     if (undo)
     {
+        undo_move_t undo_state_value = *undo_state;
+
         // need to put castle status back...its saved in the move
         // from do_move()...
-        if (move_affects_opponent_castle_state(*move))
-            board_undo_castle_change (board, opponent, opponent_castle_state(move));
+        if (move_affects_opponent_castle_state(undo_state_value))
+            board_undo_castle_change (board, opponent, opponent_castle_state(undo_state_value));
     }
     else
     {
@@ -197,7 +204,7 @@ static void update_opponent_rook_position (struct board *board, color_t opponent
         {
             // save the current castle state
             castle_state_t orig_castle_state = board_get_castle_state (board, opponent);
-            save_opponent_castle_state (move, orig_castle_state);
+            save_opponent_castle_state (undo_state, orig_castle_state);
 
             castle_state |= orig_castle_state;
             board_apply_castle_change (board, opponent, castle_state);
@@ -206,10 +213,12 @@ static void update_opponent_rook_position (struct board *board, color_t opponent
 }
 
 static void update_current_rook_position (struct board *board, color_t player,
-                                           piece_t src_piece, move_t *move, coord_t src,
-                                           coord_t dst,int undo)
+                                           piece_t src_piece, move_t *move,
+                                           undo_move_t *undo_state,
+                                           coord_t src, coord_t dst, int undo)
 {
-    if (!( PIECE_COLOR(src_piece) == player && PIECE_TYPE(src_piece) == PIECE_ROOK))
+    if (!( PIECE_COLOR(src_piece) == player &&
+         PIECE_TYPE(src_piece) == PIECE_ROOK))
     {
         printf ("update_current_rook_position failed: move %s\n", move_str(*move));
         board_dump (board);
@@ -220,10 +229,11 @@ static void update_current_rook_position (struct board *board, color_t player,
 
 	if (undo)
 	{
+	    undo_move_t undo_state_value = *undo_state;
 		// need to put castle status back...its saved in the move
 		// from do_move()...
-		if (move_affects_current_castle_state(*move))
-            board_undo_castle_change(board, player, current_castle_state(move));
+		if (move_affects_current_castle_state (undo_state_value))
+            board_undo_castle_change(board, player, current_castle_state(undo_state_value));
 	}
 	else
 	{
@@ -248,7 +258,7 @@ static void update_current_rook_position (struct board *board, color_t player,
 		{
             // save the current castle state
             castle_state_t orig_castle_state = board_get_castle_state (board, player);
-            save_current_castle_state (move, orig_castle_state);
+            save_current_castle_state (undo_state, orig_castle_state);
 
             castle_state |= orig_castle_state;
             board_apply_castle_change (board, player, castle_state);
@@ -256,21 +266,24 @@ static void update_current_rook_position (struct board *board, color_t player,
 	}
 }
 
-void do_move (struct board *board, color_t who, move_t *move)
+undo_move_t do_move (struct board *board, color_t who, move_t *move)
 {
-	piece_t    orig_src_piece, src_piece, dst_piece;
-	coord_t    src, dst;
-
+	piece_t      orig_src_piece, src_piece, dst_piece;
+	coord_t      src, dst;
+    undo_move_t  undo_state = { 0 };
+    enum color   opponent = color_invert(who);
+    
 	src = MOVE_SRC(*move);
 	dst = MOVE_DST(*move);
 
 	orig_src_piece = src_piece = PIECE_AT_COORD (board, src);
 	dst_piece = PIECE_AT_COORD (board, dst);
 
-	// save the taken piece in the move
-	// This may be a bad idea to set here
 	if (PIECE_TYPE(dst_piece) != PIECE_NONE)
-	    move_set_taken (move, dst_piece);
+	{
+        undo_state.category = MOVE_CATEGORY_NORMAL_CAPTURE;
+        undo_state.taken_piece_type = PIECE_TYPE (dst_piece);
+    }
 
 	if (PIECE_TYPE(src_piece) != PIECE_NONE &&
 	    PIECE_TYPE(dst_piece) != PIECE_NONE)
@@ -289,95 +302,122 @@ void do_move (struct board *board, color_t who, move_t *move)
 	}
 
 	// check for promotion
-	if (unlikely (is_promoting_move(move)))
+	if (is_promoting_move(move))
+    {
 		src_piece = move_get_promoted(move);
+		undo_state.is_promoting = true;
+		undo_state.promoted_piece_type = PIECE_TYPE(src_piece);
+    }
 
-	/* check for en passant */
-	if (unlikely (is_en_passant_move(move)))
+	// check for en passant
+	if (is_en_passant_move(move))
+    {
         dst_piece = handle_en_passant (board, who, move, src, dst, 0);
+        undo_state.category = MOVE_CATEGORY_EN_PASSANT;
+    }
 
 	// check for castling
-	if (unlikely (is_castling_move(move)))
-		handle_castling (board, who, move, src, dst, 0);
+	if (is_castling_move(move))
+    {
+        handle_castling (board, who, move, src, dst, 0);
+        undo_state.category = MOVE_CATEGORY_CASTLING;
+    }
 
 	set_piece (board, src, PIECE_AND_COLOR_NONE);
 	set_piece (board, dst, src_piece);
 
 	// update king position
 	if (PIECE_TYPE(src_piece) == PIECE_KING)
-		update_king_position (board, who, move, src, dst, 0);
+		update_king_position (board, who, move, &undo_state, src, dst, 0);
 
 	// update rook position -- for castling
 	if (PIECE_TYPE(orig_src_piece) == PIECE_ROOK)
-		update_current_rook_position (board, who, orig_src_piece, move, src, dst, 0);
-
-	if (is_capture_move(move))
+    {
+        update_current_rook_position (board, who, orig_src_piece,
+                                      move, &undo_state, src, dst, 0);
+    }
+	
+	piece_t captured_piece = captured_material (undo_state, opponent);
+	if (PIECE_TYPE(captured_piece) != PIECE_NONE)
 	{
 		// update material estimate
-		material_del (&board->material, dst_piece);
+		material_del (&board->material, captured_piece);
 
 		// update castle state if somebody takes the rook
-		if (PIECE_TYPE(dst_piece) == PIECE_ROOK)
-			update_opponent_rook_position (board, color_invert(who), dst_piece, move, src, dst, 0);
+		if (PIECE_TYPE(captured_piece) == PIECE_ROOK)
+        {
+            update_opponent_rook_position (board, color_invert (who), dst_piece, move,
+                                           &undo_state, src, dst, 0);
+        }
 	}
 
     position_do_move (&board->position, who, orig_src_piece, move);
     validate_castle_state (board, move);
+
+    return undo_state;
 }
 
-void undo_move (struct board *board, color_t who, move_t *move)
+void undo_move (struct board *board, color_t who, move_t *move, undo_move_t undo_state)
 {
-	piece_t     orig_src_piece, src_piece, dst_piece;
-	coord_t     src, dst;
+	piece_t         orig_src_piece, src_piece, dst_piece = PIECE_AND_COLOR_NONE;
+	enum piece_type dst_piece_type;
+	coord_t         src, dst;
+	enum color      opponent = color_invert(who);
 
 	src = MOVE_SRC(*move);
 	dst = MOVE_DST(*move);
 
-	dst_piece = move_get_taken(move);
+	dst_piece_type = undo_state.taken_piece_type;
 	orig_src_piece = src_piece = PIECE_AT_COORD (board, dst);
 
-	if (PIECE_TYPE(src_piece) != PIECE_NONE &&
-	    PIECE_TYPE(dst_piece) != PIECE_NONE)
-	{
-		assert( PIECE_COLOR (src_piece) != PIECE_COLOR (dst_piece) );
-	}
+	assert( PIECE_TYPE(src_piece) != PIECE_NONE );
+    assert( PIECE_COLOR(src_piece) == who );
+	if (dst_piece_type != PIECE_NONE)
+		dst_piece = MAKE_PIECE( opponent, dst_piece_type );
 
-	/* check for promotion */
-	if (unlikely(is_promoting_move (move)))
-		src_piece = MAKE_PIECE (PIECE_COLOR (src_piece), PIECE_PAWN);
+	// check for promotion
+	if (is_promoting_move(move))
+		src_piece = MAKE_PIECE( PIECE_COLOR(src_piece), PIECE_PAWN );
 
-	/* check for castling */
-	if (unlikely(is_castling_move(move)))
+	// check for castling
+	if (is_castling_move(move))
 		handle_castling (board, who, move, src, dst, 1);
 
-	/* check for en passant */
-	if (unlikely(is_en_passant_move(move)))
+	// check for en passant
+	if (is_en_passant_move(move))
 		dst_piece = handle_en_passant (board, who, move, src, dst, 1);
 
-	/* put the pieces back */
+	// put the pieces back
 	set_piece (board, dst, dst_piece);
 	set_piece (board, src, src_piece);
 
-	/* update king position */
-	if (unlikely(PIECE_TYPE(src_piece) == PIECE_KING))
-		update_king_position (board, who, move, src, dst, 1);
+	// update king position
+	if (PIECE_TYPE(src_piece) == PIECE_KING)
+		update_king_position (board, who, move, &undo_state, src, dst, 1);
 
 	if (PIECE_TYPE(orig_src_piece) == PIECE_ROOK)
-		update_current_rook_position (board, who, orig_src_piece, move, src, dst, 1);
+    {
+        update_current_rook_position (board, who, orig_src_piece, move, &undo_state,
+                                      src, dst, 1);
+    }
 
-	if (is_capture_move(move))
+    piece_t captured_piece = captured_material (undo_state, opponent);
+	if (PIECE_TYPE(captured_piece) != PIECE_NONE)
 	{
-        // NOTE: we reload from the move in case of en-passant, since dst_piece could be none.
-        material_add (&board->material, move_get_taken(move));
+        // NOTE: we reload from the move in case of en-passant, since dst_piece
+        // could be none.
+        material_add (&board->material, captured_piece);
 
 		if (PIECE_TYPE(dst_piece) == PIECE_ROOK)
-			update_opponent_rook_position (board, color_invert(who), dst_piece, move, src, dst, 1);
+        {
+            update_opponent_rook_position (board, color_invert (who), dst_piece,
+                                           move, &undo_state, src, dst, 1);
+        }
 	}
 
     position_undo_move (&board->position, who, src_piece, move);
 
     validate_castle_state (board, move);
-	// TODO - reset move state in the move that was set in do_move?
 }
 
 static enum piece_type back_rank[] =

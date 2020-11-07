@@ -29,14 +29,14 @@ TEST_CASE("Castling state is modified and restored for rooks", "[castling]")
     CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_NONE );
 
-    do_move (board, COLOR_BLACK, &mv);
+    undo_move_t undo_state = do_move (board, COLOR_BLACK, &mv);
 
     CHECK( able_to_castle (board, COLOR_BLACK, CASTLE_QUEENSIDE) == 0 );
     CHECK( able_to_castle (board, COLOR_BLACK, CASTLE_KINGSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_QUEENSIDE );
 
-    undo_move (board, COLOR_BLACK, &mv);
+    undo_move (board, COLOR_BLACK, &mv, undo_state);
 
     CHECK( able_to_castle (board, COLOR_BLACK, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_BLACK, CASTLE_KINGSIDE) == 1 );
@@ -68,14 +68,14 @@ TEST_CASE("Castling state is modified and restored for kings", "[castling]")
     CHECK( able_to_castle(board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_NONE );
 
-    do_move (board, COLOR_BLACK, &mv);
+    undo_move_t undo_state = do_move (board, COLOR_BLACK, &mv);;
 
     CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_QUEENSIDE) == 0 );
     CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_KINGSIDE) == 0 );
     CHECK( able_to_castle(board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 0 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == (CASTLE_QUEENSIDE | CASTLE_KINGSIDE) );
 
-    undo_move (board, COLOR_BLACK, &mv);
+    undo_move (board, COLOR_BLACK, &mv, undo_state);
 
     CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_KINGSIDE) == 1 );
@@ -108,7 +108,7 @@ TEST_CASE("Castling state is modified and restored for castling queenside", "[ca
     CHECK( able_to_castle(board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_NONE );
 
-    do_move (board, COLOR_BLACK, &mv);
+    undo_move_t undo_state = do_move (board, COLOR_BLACK, &mv);;
 
     CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_QUEENSIDE) == 0 );
     CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_KINGSIDE) == 0 );
@@ -123,7 +123,7 @@ TEST_CASE("Castling state is modified and restored for castling queenside", "[ca
     CHECK( PIECE_TYPE(PIECE_AT(board, 0, 3)) == PIECE_ROOK );
     CHECK( PIECE_COLOR(PIECE_AT(board, 0, 3)) == COLOR_BLACK );
 
-    undo_move (board, COLOR_BLACK, &mv);
+    undo_move (board, COLOR_BLACK, &mv, undo_state);
 
     CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle(board, COLOR_BLACK, CASTLE_KINGSIDE) == 1 );
@@ -164,7 +164,7 @@ TEST_CASE("Castling state is modified and restored for castling kingside", "[cas
     CHECK( able_to_castle(board, COLOR_WHITE, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_WHITE)] == CASTLE_NONE );
 
-    do_move (board, COLOR_WHITE, &mv);
+    undo_move_t undo_state = do_move (board, COLOR_WHITE, &mv);
 
     CHECK( able_to_castle(board, COLOR_WHITE, CASTLE_QUEENSIDE) == 0 );
     CHECK( able_to_castle(board, COLOR_WHITE, CASTLE_KINGSIDE) == 0 );
@@ -179,7 +179,7 @@ TEST_CASE("Castling state is modified and restored for castling kingside", "[cas
     CHECK( PIECE_TYPE(PIECE_AT(board, 7, 5)) == PIECE_ROOK );
     CHECK( PIECE_COLOR(PIECE_AT(board, 7, 5)) == COLOR_WHITE );
 
-    undo_move (board, COLOR_WHITE, &mv);
+    undo_move (board, COLOR_WHITE, &mv, undo_state);
 
     CHECK( able_to_castle(board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle(board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );
@@ -222,7 +222,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken", "[cast
     CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_NONE );
 
-    do_move (board, COLOR_WHITE, &mv);
+    undo_move_t undo_state = do_move (board, COLOR_WHITE, &mv);
 
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );
@@ -234,7 +234,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken", "[cast
     CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_QUEENSIDE );
 
-    undo_move (board, COLOR_WHITE, &mv);
+    undo_move (board, COLOR_WHITE, &mv, undo_state);
 
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );
@@ -274,7 +274,7 @@ TEST_CASE("Castling state is updated when rook captures a piece", "[castling]")
     CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_NONE );
 
-    do_move (board, COLOR_BLACK, &mv);
+    undo_move_t undo_state = do_move (board, COLOR_BLACK, &mv);;
 
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );
@@ -286,7 +286,7 @@ TEST_CASE("Castling state is updated when rook captures a piece", "[castling]")
     CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_QUEENSIDE );
 
-    undo_move (board, COLOR_BLACK, &mv);
+    undo_move (board, COLOR_BLACK, &mv, undo_state);
 
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );
@@ -340,7 +340,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
     CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_NONE );
 
-    do_move (board, COLOR_BLACK, &mv);
+    undo_move_t undo_state = do_move (board, COLOR_BLACK, &mv);;
 
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );
@@ -352,7 +352,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
     CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_QUEENSIDE );
 
-    undo_move (board, COLOR_BLACK, &mv);
+    undo_move (board, COLOR_BLACK, &mv, undo_state);
 
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );
@@ -404,7 +404,7 @@ TEST_CASE("Castling state is modified when rook takes a piece on same column (sc
     CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_QUEENSIDE );
 
-    do_move (board, COLOR_WHITE, &mv);
+    undo_move_t undo_state = do_move (board, COLOR_WHITE, &mv);
 
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 0 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );
@@ -416,7 +416,7 @@ TEST_CASE("Castling state is modified when rook takes a piece on same column (sc
     CHECK( able_to_castle (board, COLOR_BLACK, (CASTLE_KINGSIDE|CASTLE_KINGSIDE)) == 1 );
     CHECK( board->castled[color_index(COLOR_BLACK)] == CASTLE_QUEENSIDE );
 
-    undo_move (board, COLOR_WHITE, &mv);
+    undo_move (board, COLOR_WHITE, &mv, undo_state);
 
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );
