@@ -82,7 +82,7 @@ static coord_t translate_position (coord_t coord, enum color who)
     uint8_t row = ROW(coord);
     uint8_t col = COLUMN(coord);
 
-    return coord_create (7 - row, col);
+    return coord_create (7 - row, 7 - col);
 }
 
 void position_init (struct position *positions)

@@ -14,14 +14,9 @@ int evaluate (struct board *board, color_t who, int examine_checkmate,
               move_t *move)
 {
 	int score = 0;
+	int opponent = color_invert (who);
 
-	// this makes white -> -1, black -> 1
-	const int  direction  = PAWN_DIRECTION (who);
-	const int  opponent   = color_invert (who);
-
-	DBG (evaluate, "direction = %d\n", direction);
-
-	if (board_get_castle_state(board, who) == CASTLE_CASTLED)
+	if (board_get_castle_state (board, who) == CASTLE_CASTLED)
 	{
         score += CASTLE_POSITIVE_WEIGHT;
     }
@@ -33,7 +28,7 @@ int evaluate (struct board *board, color_t who, int examine_checkmate,
 			score -= CASTLE_NEGATIVE_WEIGHT;
 	}
 
-	if (board_get_castle_state(board, opponent) == CASTLE_CASTLED)
+	if (board_get_castle_state (board, opponent) == CASTLE_CASTLED)
 	{
         score -= CASTLE_NEGATIVE_WEIGHT;
     }
@@ -49,11 +44,17 @@ int evaluate (struct board *board, color_t who, int examine_checkmate,
     score += position_score (&board->position, who);
 
 	coord_t king_pos = king_position (board, who);
+	coord_t opponent_king_pos = king_position (board, opponent);
 	if (is_king_threatened (board, who, ROW(king_pos), COLUMN(king_pos)))
 	{
 		if (is_checkmated (board, who))
 			score = -INFINITY;
 	}
+	else if (is_king_threatened (board, opponent, ROW(opponent_king_pos), COLUMN(opponent_king_pos)))
+    {
+        if (is_checkmated (board, opponent))
+            score = INFINITY;
+    }
 
 	return score;
 }

@@ -13,13 +13,32 @@ typedef uint8_t castle_state_t;
 enum castle
 {
 	CASTLE_NONE            = 0U,      // still eligible to castle on both sides
-	CASTLE_CASTLED         = 0x01U,   // castled - use by move_t to indicate the move is castling
+	CASTLE_CASTLED         = 0x01U,   // castled
 	CASTLE_KINGSIDE        = 0x02U,   // ineligible for further castling kingside
 	CASTLE_QUEENSIDE       = 0x04U,   // ineligible for further castling queenside
 	CASTLE_PREVIOUSLY_NONE = 0x07U,   // previously was none - used for determining if a move affects castling
 };
 
-#define MAX_CASTLE_STATES 8
+#define MAX_CASTLE_STATES  8
+
+enum move_category
+{
+    MOVE_CATEGORY_NON_CAPTURE = 0,
+    MOVE_CATEGORY_NORMAL_CAPTURE = 1,
+    MOVE_CATEGORY_EN_PASSANT = 2,
+    MOVE_CATEGORY_CASTLE_KINGSIDE = 3,
+    MOVE_CATEGORY_CASTLE_QUEENSIDE = 4,
+};
+
+typedef struct undo_move
+{
+    enum move_category category;
+    enum color         taken_color;
+    enum piece_type    taken_piece_type;
+
+    castle_state_t     current_castle_state;
+    castle_state_t     opponent_castle_state;
+} undo_move_t;
 
 typedef struct move
 {
@@ -129,6 +148,7 @@ static inline uint8_t castling_row_from_color (color_t color)
             assert (0);
     }
 }
+
 static inline move_t move_promote (move_t move, piece_t piece)
 {
     move_t result = move;

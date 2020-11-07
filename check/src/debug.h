@@ -21,7 +21,7 @@ struct debug_channel CHANNEL_NAME(name) = \
 	0 \
 } \
 
-#define DEBUG 0
+#undef DEBUG
 
 #ifdef DEBUG
 #define DBG(channel_name, fmt, args...) \

@@ -21,6 +21,7 @@ bool is_checkmated (struct board *board, color_t who)
 	if (!is_king_threatened (board, who, row, col))
 		return false;
 
+	// todo: need history here to be correct with en-passant.
 	legal_moves = generate_legal_moves (board, who, NULL);
 	bool result = !legal_moves;
 

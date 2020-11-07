@@ -89,7 +89,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 	move_t       his_best;
 	move_tree_t *best_variation = NULL, *new_variation = NULL;
 	board_check_t board_check;
-    size_t        illegal_move_count = 0;
+	size_t        illegal_move_count = 0;
 
 	move_nullify (&best_move);
 
@@ -163,7 +163,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 							 (1.0 * rand()/ (RAND_MAX+1.0) < 1)))*/
 
 #else
-		if (score > best || best == -INFINITY * 2)
+		if (score > best || best == -INFINITY)
 #endif
 		{
 			best           = score;
@@ -209,7 +209,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 
 	// if there are no legal moves, then the current player is in a stalement position.
 	if (moves->len == illegal_move_count)
-	    best = 0;
+		best = 0;
 	
 	move_list_destroy (moves);
 
@@ -384,6 +384,7 @@ move_t find_best_move (struct board *board, color_t side,
 	int max_depth = MAX_DEPTH;
 	move_t move, best_move;
     board_check_t board_check;
+    bool stop_early = false;
 
 	timer_init (&overdue_timer, MAX_SEARCH_SECONDS);
 
@@ -398,9 +399,8 @@ move_t find_best_move (struct board *board, color_t side,
 	 * TODO: we should pick a random move instead if we don't
 	 * get a chance to look.
 	 */
-	for (d = 0; d <= max_depth; (d == 0 ? (d++) : (d += 2)))
+    for (d = 0; d <= max_depth; (d == 0 ? (d++) : (d += 2)))
 	{
-	    // todo check if the move is checkmate and exit early
 		move = iterate (board, side, history, d);
 
 		if (timer_is_triggered (&overdue_timer))
@@ -419,10 +419,16 @@ move_t find_best_move (struct board *board, color_t side,
 		board_check_init (&board_check, board);
         do_move (board, side, &move);
 		board_print (board);
+
+		best_move = move;
+		if (d == 0 && is_checkmated(board, color_invert(side)))
+            stop_early = true;
+
         undo_move (board, side, &move);
         board_check_validate (&board_check, board, side, &move);
 
-		best_move = move;
+        if (stop_early)
+            break;
 	}
 
     if (is_null_move (best_move))
