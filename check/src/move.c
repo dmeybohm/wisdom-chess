@@ -408,7 +408,7 @@ void undo_move (struct board *board, color_t who,
     validate_castle_state (board, move);
 }
 
-char *move_str (move_t move)
+const char *move_str (move_t move)
 {
 	coord_t src, dst;
 	static char buf[256];
