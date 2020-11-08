@@ -33,12 +33,12 @@ TEST_CASE( "Can find mate in 3", "[search]" )
 
     move_t result;
     move_tree_t *variation = nullptr;
-    int score = search (board, COLOR_WHITE, 5, 0, &result,
+    int score = search (board, COLOR_WHITE, 4, 0, &result,
                         -INFINITE, INFINITE, 0,
                         &variation, 0, &large_timer, nullptr);
 
     CHECK( !move_equals (result, move_null ()) );
-    print_reverse_recur (variation);
+
     int equal_result = move_equals (result, move_parse ("f6 a6", COLOR_WHITE));
     CHECK( equal_result != 0 );
     CHECK( score == INFINITE );
