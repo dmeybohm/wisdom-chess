@@ -160,7 +160,8 @@ struct game *game_load (color_t player)
 		if (PIECE_TYPE(piece) != PIECE_NONE)
 		{
 			assert (PIECE_COLOR(piece) != game->turn);
-			assert (is_capture_move(move));
+			if (!is_capture_move(move))
+			    move = move_with_capture(move);
 		}
 
 		game_move (game, move);
