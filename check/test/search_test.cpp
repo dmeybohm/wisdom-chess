@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "board_builder.hpp"
+#include "parse_simple_move.hpp"
 
 extern "C"
 {
@@ -40,7 +41,7 @@ TEST_CASE( "Can find mate in 3", "[search]" )
 
     CHECK( !move_equals (result, move_null ()) );
 
-    int equal_result = move_equals (result, move_parse ("f6 a6", COLOR_WHITE));
+    int equal_result = move_equals (result, parse_simple_move("f6 a6"));
     CHECK( equal_result != 0 );
     CHECK( score == INFINITE );
 }
@@ -81,7 +82,7 @@ TEST_CASE( "Can find mate in 1 1/2", "[search]" )
     move_tree_destroy (variation);
     CHECK( !move_equals (result, move_null ()) );
 
-    int equal_result = move_equals (result, move_parse ("b4 d4", COLOR_BLACK));
+    int equal_result = move_equals (result, parse_simple_move("b4 d4"));
     CHECK( equal_result != 0 );
     CHECK( score == INFINITE );
 }

@@ -518,6 +518,11 @@ move_t move_parse (const char *str, enum color who)
 	src_col = char_to_col (*p++);
 	src_row = char_to_row (*p++);
 
+	if (src_col < 0 || src_col >= NR_COLUMNS)
+	    return move_null();
+	if (src_row < 0 || src_row >= NR_ROWS)
+	    return move_null();
+
 	// allow any number of spaces/tabs between the two coordinates
 	p = skip_whitespace (p);
 
@@ -542,9 +547,9 @@ move_t move_parse (const char *str, enum color who)
     if (is_capturing)
         move = move_with_capture(move);
 
-	strncpy (buf, p, sizeof(buf) - 1);
-	buf[sizeof(buf) - 1] = 0;
-	ptok = buf;
+    strncpy (buf, p, sizeof(buf) - 1);
+    buf[sizeof(buf) - 1] = 0;
+    ptok = buf;
 
 	// grab extra identifiers describing the move
 	while ((tok = strtok (ptok, " \n\t")))

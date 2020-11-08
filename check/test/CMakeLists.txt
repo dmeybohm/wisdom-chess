@@ -21,7 +21,17 @@ add_executable(chess_tests
         board_builder.cpp
         board_builder.hpp
         board_builder_test.cpp
-        check_test.cpp position_test.cpp move_test.cpp move_list_test.cpp search_test.cpp)
+        check_test.cpp position_test.cpp move_test.cpp move_list_test.cpp search_test.cpp parse_simple_move.cpp parse_simple_move.hpp parse_simple_move_test.cpp)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -fsanitize=address")
+
+# Speed up linking on Linux
+execute_process(COMMAND ${CMAKE_C_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE ld_version)
+if ("${ld_version}" MATCHES "GNU gold")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
+endif()
 
 if (HAVE_WINSOCK2_H)
     TARGET_LINK_LIBRARIES(chess_tests ws2_32)
