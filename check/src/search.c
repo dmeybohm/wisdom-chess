@@ -22,21 +22,12 @@ DEFINE_DEBUG_CHANNEL (quiesce, 1);
 #define MAX_DEPTH               16
 
 #define MAX_SEARCH_SECONDS      10.0    /* seconds */
-#define SEARCH_CHECK_COUNT      50000    /* number of iterations before checking */
 
 #ifndef RANDOMNESS
 #define RANDOMNESS    0
 #endif
 
-static int              nodes_visited, cutoffs;
-static struct timer     overdue_timer;
-
-int search (struct board *board, color_t side, int depth, int start_depth,
-            move_t *ret, int alpha, int beta, unsigned long pseudo_rand,
-            move_tree_t **ret_variation, int no_quiesce, 
-			move_tree_t *history);
-int quiesce (struct board *board, color_t side, int alpha, int beta, int depth, 
-             move_tree_t *history);
+static int nodes_visited, cutoffs;
 
 void print_tree_recur (move_tree_t *tree)
 {
@@ -77,7 +68,7 @@ void print_reversed_tree (move_tree_t *tree)
 
 int search (struct board *board, color_t side, int depth, int start_depth,
             move_t *ret, int alpha, int beta, unsigned long pseudo_rand,
-            move_tree_t **ret_variation, int no_quiesce, 
+            move_tree_t **ret_variation, int no_quiesce, struct timer *timer,
 			move_tree_t *history) 
 {
 	int          score;
@@ -104,7 +95,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 	for_each_move (move_ptr, moves)
 	{
 	    move_t move = *move_ptr;
-		if (timer_is_triggered (&overdue_timer))
+		if (timer_is_triggered (timer))
 		{
 			if (best_variation)
 			{
@@ -151,7 +142,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 			score = (- search (board, color_invert (side), depth-1, 
 			                   start_depth, &his_best, -beta, -alpha, 
 			                   pseudo_rand, &new_variation,
-			                   no_quiesce, new_leaf));
+			                   no_quiesce, timer, new_leaf));
 		}
 
         undo_move (board, side, move, undo_state);
@@ -214,11 +205,11 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 	
 	move_list_destroy (moves);
 
-	/* return the move if this is the last iteration */
+	// return the move if this is the last iteration
 	if (depth == start_depth)
 	{
 		*ret = move_null ();
-		if (!timer_is_triggered (&overdue_timer))
+		if (!timer_is_triggered (timer))
 			*ret = best_move;
 #if 0
 		print_tree (history);
@@ -331,7 +322,7 @@ static void calc_time (int nodes, struct timeval *start, struct timeval *end)
 }
 
 move_t iterate (struct board *board, color_t side,
-                move_tree_t *history, int depth)
+                move_tree_t *history, struct timer *timer, int depth)
 {
 	move_t         best_move;
 	int            best_score;
@@ -353,7 +344,7 @@ move_t iterate (struct board *board, color_t side,
 	best_score = search (board, side, depth, depth, &best_move, 
 	                     -INFINITY, INFINITY, 
 	                     (start.tv_usec >> 16) | (start.tv_sec << 16),
-						 &principal_variation, 0, history);
+						 &principal_variation, 0, timer, history);
 
 	gettimeofday (&end, NULL);
 
@@ -386,6 +377,7 @@ move_t find_best_move (struct board *board, color_t side,
 	move_t move, best_move;
     board_check_t board_check;
     bool stop_early = false;
+    struct timer overdue_timer;
 
 	timer_init (&overdue_timer, MAX_SEARCH_SECONDS);
 
@@ -402,7 +394,7 @@ move_t find_best_move (struct board *board, color_t side,
 	 */
     for (d = 0; d <= max_depth; (d == 0 ? (d++) : (d += 2)))
 	{
-		move = iterate (board, side, history, d);
+		move = iterate (board, side, history, &overdue_timer, d);
 
 		if (timer_is_triggered(&overdue_timer))
 		{

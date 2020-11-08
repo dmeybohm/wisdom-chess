@@ -23,8 +23,8 @@ typedef struct move_list
 		     (move_ptr)++)
 
 move_list_t  *move_list_append  (move_list_t *move_list, 
-                                 unsigned char src_row, unsigned char src_col,
-                                 unsigned char dst_row, unsigned char dst_col);
+                                 uint8_t src_row, uint8_t src_col,
+                                 uint8_t dst_row, uint8_t dst_col);
 
 /* use this for promoting moves, and when copying moves between lists */
 move_list_t  *move_list_append_move (move_list_t *move_list, move_t mv);

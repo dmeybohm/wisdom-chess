@@ -21,7 +21,7 @@ add_executable(chess_tests
         board_builder.cpp
         board_builder.hpp
         board_builder_test.cpp
-        check_test.cpp position_test.cpp move_test.cpp)
+        check_test.cpp position_test.cpp move_test.cpp move_list_test.cpp)
 
 if (HAVE_WINSOCK2_H)
     TARGET_LINK_LIBRARIES(chess_tests ws2_32)

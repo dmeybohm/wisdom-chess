@@ -36,7 +36,11 @@ DEFINE_DEBUG_CHANNEL(move_list, 0);
  *  messier to me.
  */
 
-static move_list_t *move_list_cache;
+#define MAX_MOVE_LIST_CACHE_SIZE 16
+
+static move_list_t *move_list_cache[MAX_MOVE_LIST_CACHE_SIZE];
+static size_t move_list_cache_size = 0;
+
 
 #define SIZE_INCREMENT    4
 
@@ -44,33 +48,24 @@ static move_list_t *move_list_alloc (void)
 {
 	move_list_t *new_moves;
 
-	if (move_list_cache)
+	if (move_list_cache_size)
 	{
-		move_list_cache->len = 0;
-
-		new_moves = move_list_cache;
-		move_list_cache = NULL;
-
+	    move_list_cache_size--;
+	    new_moves = move_list_cache[move_list_cache_size];
+		new_moves->len = 0;
+        move_list_cache[move_list_cache_size] = NULL;
 		return new_moves;
 	}
 
 	new_moves = malloc (sizeof (move_list_t));
+    assert (new_moves);
+    memset (new_moves, 0, sizeof (move_list_t));
 
-	if (new_moves)
-	{
-		memset (new_moves, 0, sizeof (move_list_t));
+    new_moves->move_array = malloc (SIZE_INCREMENT * sizeof (move_t));
+    assert (new_moves->move_array);
 
-		new_moves->move_array = malloc (SIZE_INCREMENT * sizeof (move_t));
+    new_moves->size = SIZE_INCREMENT;
 
-		if (!new_moves->move_array)
-		{
-			free (new_moves);
-			return NULL;
-		}
-
-		new_moves->size = SIZE_INCREMENT;
-	}
-	
 	return new_moves;
 }
 
@@ -78,9 +73,9 @@ static void move_list_dealloc (move_list_t *moves)
 {
 	if (moves)
 	{
-		if (!move_list_cache)
+		if (move_list_cache_size < MAX_MOVE_LIST_CACHE_SIZE)
 		{
-			move_list_cache = moves;
+			move_list_cache[move_list_cache_size++] = moves;
 			return;
 		}
 
@@ -96,9 +91,9 @@ void move_list_destroy (move_list_t *moves)
 	move_list_dealloc (moves);
 }
 
-move_list_t *move_list_append (move_list_t *moves, unsigned char s_row, 
-                               unsigned char s_col, unsigned char d_row, 
-                               unsigned char d_col)
+move_list_t *move_list_append (move_list_t *moves, uint8_t s_row,
+                               uint8_t s_col, uint8_t d_row,
+                               uint8_t d_col)
 {
 	move_t  move;
 
@@ -173,15 +168,24 @@ void move_list_print (move_list_t *move_list)
 	debug_multi_line_stop (&CHANNEL_NAME (move_list));
 }
 
-/* TODO: optmize this with memcpy */
 move_list_t *move_list_append_list (move_list_t *dst, move_list_t *src)
 {
-	move_t *mv;
+	if (!src)
+	    return dst;
 
-	for_each_move (mv, src)
-		dst = move_list_append_move (dst, *mv);
+	if (!dst)
+	    dst = move_list_alloc ();
+
+	size_t required = dst->len + src->len;
+	if (dst->size < required) {
+	    dst->move_array = realloc (dst->move_array, required * sizeof(dst->move_array[0]));
+	    assert (dst->move_array);
+	    dst->size = required;
+	}
+	memcpy (&dst->move_array[dst->len], src->move_array, src->len * sizeof(src->move_array[0]));
+    dst->len += src->len;
 
 	return dst;
 }
 
-/* vi: set ts=4 sw=4: */
+// vi: set ts=4 sw=4:
