@@ -519,7 +519,7 @@ move_list_t *validate_moves (move_list_t *move_list, struct board *board,
 
 		if (is_capture)
 		{
-			if (!is_capture_move(move))
+			if (!is_capture_move(move) && !is_en_passant_move(move))
 				move = move_with_capture (move);
 
 			captures = move_list_append_move (captures, move);

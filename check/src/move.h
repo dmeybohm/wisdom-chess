@@ -188,6 +188,7 @@ static inline move_t move_with_capture (move_t move)
 {
     coord_t src = MOVE_SRC(move);
     coord_t dst = MOVE_DST(move);
+    assert (move.move_category == MOVE_CATEGORY_NON_CAPTURE);
     move_t result = move_create (ROW(src), COLUMN(src), ROW(dst), COLUMN(dst));
     result.move_category = MOVE_CATEGORY_NORMAL_CAPTURE;
     return result;

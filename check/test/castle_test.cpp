@@ -208,7 +208,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken", "[cast
     builder.add_piece("b7", COLOR_WHITE, PIECE_BISHOP);
 
     struct board *board = builder.build();
-    move_t mv = move_create (1, 1, 0, 0);
+    move_t mv = move_create_capturing (1, 1, 0, 0);
 
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );
@@ -326,7 +326,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
 
     struct board *board = builder.build();
 
-    move_t mv = move_create (0, 0, 0, 1);
+    move_t mv = move_create_capturing (0, 0, 0, 1);
 
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_QUEENSIDE) == 1 );
     CHECK( able_to_castle (board, COLOR_WHITE, CASTLE_KINGSIDE) == 1 );

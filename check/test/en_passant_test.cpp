@@ -56,7 +56,7 @@ TEST_CASE( "En passant moves work", "[en-passant]" )
 
     REQUIRE( en_passant_count == 1 );
     // Check move types:
-    CHECK( is_capture_move(en_passant_move) );
+    CHECK( is_en_passant_move(en_passant_move) );
 
     // Check position:
     CHECK( ROW(MOVE_SRC(en_passant_move)) == 3 );
