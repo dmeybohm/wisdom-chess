@@ -108,25 +108,23 @@ TEST_CASE( "Castling updates position score correctly", "[position-test]")
     CHECK( initial_score_black == position_score (&board->position, COLOR_BLACK) );
 }
 
-TEST_CASE( "Castling updates position score correctly", "[position-test]")
+TEST_CASE( "Promoting move updates position score correctly", "[position-test]")
 {
     board_builder builder;
 
     builder.add_piece("e1", COLOR_WHITE, PIECE_KING);
     builder.add_piece("e8", COLOR_BLACK, PIECE_KING);
 
-    builder.add_piece("h1", COLOR_WHITE, PIECE_ROOK);
-    builder.add_piece("a1", COLOR_WHITE, PIECE_ROOK);
-    builder.add_piece("d5", COLOR_BLACK, PIECE_PAWN);
+    builder.add_piece("h7", COLOR_WHITE, PIECE_PAWN);
 
     struct board *board = builder.build();
 
     int initial_score_white = position_score (&board->position, COLOR_WHITE);
     int initial_score_black = position_score (&board->position, COLOR_BLACK);
 
-    auto castling_move_in = GENERATE( "o-o", "o-o-o");
-    move_t castling_move = move_parse (castling_move_in, COLOR_WHITE);
-    CHECK( is_castling_move(castling_move) );
+    auto promoting_move_in = GENERATE( "h7h8 (Q)", "h7h8 (R)", "h7h8 (B)", "h7h8 (N)");
+    move_t castling_move = move_parse (promoting_move_in, COLOR_WHITE);
+    CHECK( is_promoting_move(castling_move) );
 
     undo_move_t undo_state = do_move (board, COLOR_WHITE, castling_move);
     undo_move (board, COLOR_WHITE, castling_move, undo_state);
