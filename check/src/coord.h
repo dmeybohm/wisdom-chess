@@ -30,12 +30,12 @@ static inline coord_t coord_create (uint8_t row, uint8_t col)
 	return raw_row | raw_col;
 }
 
-static inline unsigned char char_to_row (char chr)
+static inline uint8_t char_to_row (char chr)
 {
     return 8 - (tolower (chr) - '0');
 }
 
-static inline unsigned char char_to_col (char chr)
+static inline uint8_t char_to_col (char chr)
 {
     return tolower (chr) - 'a';
 }

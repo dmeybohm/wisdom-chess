@@ -141,11 +141,13 @@ void position_do_move (struct position *position, color_t color,
     {
         piece_t taken_piece = MAKE_PIECE( opponent, undo_state.taken_piece_type );
         coord_t taken_piece_coord = dst;
-
-        if (is_en_passant_move(move))
-            taken_piece_coord = en_passant_taken_pawn_coord (src, dst);
-
         position_remove (position, opponent, taken_piece_coord, taken_piece);
+    }
+
+    if (is_en_passant_move(move))
+    {
+        coord_t taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
+        position_remove (position, opponent, taken_pawn_coord, MAKE_PIECE (opponent, PIECE_PAWN));
     }
 
     if (is_castling_move(move))
@@ -187,10 +189,13 @@ void position_undo_move (struct position *position, color_t color,
         piece_t taken_piece = MAKE_PIECE( opponent, undo_state.taken_piece_type);
         coord_t taken_piece_coord = dst;
 
-        if (is_en_passant_move(move))
-            taken_piece_coord = en_passant_taken_pawn_coord (src, dst);
+        position_add (position, opponent, taken_piece_coord, taken_piece);
+    }
 
-        position_add (position, PIECE_COLOR(piece), taken_piece_coord, taken_piece);
+    if (is_en_passant_move(move))
+    {
+        coord_t taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
+        position_add (position, opponent, taken_pawn_coord, MAKE_PIECE (opponent, PIECE_PAWN));
     }
 
     if (is_castling_move(move))

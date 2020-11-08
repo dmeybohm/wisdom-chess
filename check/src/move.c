@@ -232,7 +232,7 @@ static void update_current_rook_position (struct board *board, color_t player,
         //
         // This needs distinguishes between captures that end
         // up on the rook and moves from the rook itself.
-        ///
+        //
         if (COLUMN(src) == 0)
             castle_state = CASTLE_QUEENSIDE;
         else
@@ -398,7 +398,8 @@ void undo_move (struct board *board, color_t who,
 
         if (PIECE_TYPE(dst_piece) == PIECE_ROOK)
         {
-            update_opponent_rook_position (board, color_invert (who), dst_piece, &undo_state, src, dst, 1);
+            update_opponent_rook_position (board, color_invert (who), dst_piece,
+                                           &undo_state, src, dst, 1);
         }
     }
 
@@ -420,12 +421,12 @@ char *move_str (move_t move)
 	{
 		if (COLUMN(dst) - COLUMN(src) < 0)
 		{
-			/* queenside */
+			// queenside
 			strcpy (buf, "O-O-O");
 		}
 		else
 		{
-			/* kingside */
+			// kingside
 			strcpy (buf, "O-O");
 		}
 
@@ -495,7 +496,7 @@ move_t move_parse (const char *str, enum color who)
 	int         dst_row, dst_col;
 	int         en_passant       = 0;
 	piece_t     promoted         = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
-	char       *tok;
+	char       *tok, *ptok;
 	const char *p;
     move_t      move;
     char        buf[32];
@@ -521,7 +522,6 @@ move_t move_parse (const char *str, enum color who)
 	p = skip_whitespace (p);
 
 	// allow an 'x' between coordinates, which is used to indicate a capture
-	// TODO: we should set some bit on the move that it is a capture
 	if (*p == 'x')
     {
         p++;
@@ -544,12 +544,13 @@ move_t move_parse (const char *str, enum color who)
 
 	strncpy (buf, p, sizeof(buf) - 1);
 	buf[sizeof(buf) - 1] = 0;
+	ptok = buf;
 
 	// grab extra identifiers describing the move
-	while ((tok = strtok (buf, " \n\t")))
+	while ((tok = strtok (ptok, " \n\t")))
 	{
 		// strtok's weird parameter passing convention
-		p = NULL;
+		ptok = NULL;
 
 		if (!strcasecmp (tok, "ep"))
 			en_passant = 1;
