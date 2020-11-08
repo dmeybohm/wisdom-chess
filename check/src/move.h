@@ -261,11 +261,10 @@ static inline void save_opponent_castle_state (undo_move_t *undo_state, castle_s
 undo_move_t   do_move         (struct board *board, color_t who, move_t move);
 void          undo_move       (struct board *board, color_t who, move_t move,
                                undo_move_t undo_state);
+move_t        move_parse      (const char *str, enum color who);
+char         *move_str        (move_t move);
 
 coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst);
-char *move_str (move_t move);
-
-int   move_parse (char *str, color_t who, move_t *ret_move);
 
 /////////////////////////////////////////////////////////////////////
 

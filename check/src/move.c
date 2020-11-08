@@ -460,9 +460,9 @@ char *move_str (move_t move)
 	return buf;
 }
 
-static int castle_parse (const char *str, color_t who, move_t *move)
+static move_t castle_parse (const char *str, color_t who)
 {
-	unsigned char src_row, dst_col;
+	uint8_t src_row, dst_col;
 
 	if (who == COLOR_WHITE)
 		src_row = LAST_ROW;
@@ -476,14 +476,12 @@ static int castle_parse (const char *str, color_t who, move_t *move)
 	else if (!strncasecmp (str, "O-O", strlen ("O-O")))
 		dst_col = KING_COLUMN + 2;
 	else
-		return 0;
+		return move_null();
 
-	*move = move_create_castling (src_row, KING_COLUMN, src_row, dst_col);
-
-	return 1;
+	return move_create_castling (src_row, KING_COLUMN, src_row, dst_col);
 }
 
-static char *skip_whitespace (char *p)
+static const char *skip_whitespace (const char *p)
 {
 	while (*p == ' ' || *p == '\t')
 		p++;
@@ -491,55 +489,66 @@ static char *skip_whitespace (char *p)
 	return p;
 }
 
-int move_parse (char *str, color_t who, move_t *move)
+move_t move_parse (const char *str, enum color who)
 {
 	int         src_row, src_col;
 	int         dst_row, dst_col;
 	int         en_passant       = 0;
 	piece_t     promoted         = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
 	char       *tok;
-	char       *p;
+	const char *p;
+    move_t      move;
+    char        buf[32];
+    bool        is_capturing = false;
 
-	if (strlen (str) < 1)
-		return 0;
+	if (strlen(str) < 1)
+		return move_null();
 
-	if (tolower (str[0]) == 'o')
-		return castle_parse (str, who, move);
+	if (tolower(str[0]) == 'o')
+		return castle_parse (str, who);
 
-	if (strlen (str) < 4)
-		return 0;
+	if (strlen(str) < 4)
+		return move_null();
 
-	/* allow any number of spaces/tabs before the two coordinates */
+	// allow any number of spaces/tabs before the two coordinates
 	p = skip_whitespace (str);
 
-	/* convert between row/col and coordinate */
+	// convert between row/col and coordinate
 	src_col = char_to_col (*p++);
 	src_row = char_to_row (*p++);
 
-	/* allow any number of spaces/tabs between the two coordinates */
+	// allow any number of spaces/tabs between the two coordinates
 	p = skip_whitespace (p);
 
-	/* allow an 'x' between coordinates, which is used to indicate a capture
-	 * TODO: we should set some bit on the move that it is a capture */
+	// allow an 'x' between coordinates, which is used to indicate a capture
+	// TODO: we should set some bit on the move that it is a capture
 	if (*p == 'x')
-		p++;
+    {
+        p++;
+        is_capturing = true;
+    }
 
 	if (!*p)
-		return 0;
+		return move_null();
 
 	dst_col = char_to_col (*p++);
 
 	if (!*p)
-		return 0;
+		return move_null();
 
 	dst_row = char_to_row (*p++);
 
-	*move = move_create (src_row, src_col, dst_row, dst_col);
+    move = move_create (src_row, src_col, dst_row, dst_col);
+    if (is_capturing)
+        move = move_with_capture(move);
 
-	/* grab extra identifiers describing the move */
-	while ((tok = strtok (p, " \n\t")))
+	strncpy (buf, p, sizeof(buf) - 1);
+	buf[sizeof(buf) - 1] = 0;
+
+	// grab extra identifiers describing the move
+	while ((tok = strtok (buf, " \n\t")))
 	{
-		/* strtok's weird parameter passing convention */
+		// strtok's weird parameter passing convention
 		p = NULL;
 
 		if (!strcasecmp (tok, "ep"))
@@ -555,12 +564,12 @@ int move_parse (char *str, color_t who, move_t *move)
 	}
 
 	if (PIECE_TYPE(promoted) != PIECE_NONE)
-		*move = move_with_promotion (*move, promoted);
+		move = move_with_promotion (move, promoted);
 
 	if (en_passant)
-	    *move = move_create_en_passant (src_row, src_col, dst_row, dst_col);
+	    move = move_create_en_passant (src_row, src_col, dst_row, dst_col);
 
-	return 1;
+	return move;
 }
 
-/* vi: set ts=4 sw=4: */
+// vi: set ts=4 sw=4:

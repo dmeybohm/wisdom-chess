@@ -140,7 +140,8 @@ struct game *game_load (color_t player)
 		if (!strncasecmp (buf, "stop", strlen ("stop")))
 			break;
 
-		if (!move_parse (buf, game->turn, &move))
+		move = move_parse (buf, game->turn);
+		if (is_null_move(move))
 		{
 			printf ("Error parsing game file %s: invalid move \"%s\"",
 					file, buf);

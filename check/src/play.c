@@ -83,8 +83,7 @@ static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 		return 1;
 	}
 
-	if (!move_parse (buf, game->turn, move))
-		*move = move_null ();
+	*move = move_parse (buf, game->turn);
 
 	*good = 0;
 
