@@ -22,6 +22,9 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 int quiesce (struct board *board, color_t side, int alpha, int beta, int depth,
              struct timer *timer, move_tree_t *history);
 
-#define INFINITY  	65536
+
+void print_reverse_recur (move_tree_t *tree);
+
+#define INFINITE  	65536
 
 #endif // EVOLVE_CHESS_SEARCH_H_

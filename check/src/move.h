@@ -214,7 +214,7 @@ static inline move_t move_null (void)
     return move_create (0, 0, 0, 0);
 }
 
-static inline int move_equal (move_t a, move_t b)
+static inline int move_equals (move_t a, move_t b)
 {
 	return a.src_row == b.src_row &&
 	    a.dst_row == b.dst_row &&

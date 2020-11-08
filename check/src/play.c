@@ -92,7 +92,7 @@ static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 
 	for_each_move (mptr, moves)
 	{
-        if (move_equal(*mptr, *move))
+        if (move_equals (*mptr, *move))
         {
             *good = 1;
             break;

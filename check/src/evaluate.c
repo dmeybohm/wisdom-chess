@@ -47,12 +47,12 @@ int evaluate (struct board *board, color_t who, int examine_checkmate)
 	if (is_king_threatened (board, who, ROW(king_pos), COLUMN(king_pos)))
 	{
 		if (is_checkmated (board, who))
-			score = -INFINITY;
+			score = -INFINITE;
 	}
 	else if (is_king_threatened (board, opponent, ROW(opponent_king_pos), COLUMN(opponent_king_pos)))
     {
         if (is_checkmated (board, opponent))
-            score = INFINITY;
+            score = INFINITE;
     }
 
 	return score;

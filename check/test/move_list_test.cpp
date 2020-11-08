@@ -24,6 +24,6 @@ TEST_CASE( "Copying move lists works", "[move-list]" )
     
     CHECK( dst->len == 5 );
     
-    CHECK( move_equal(dst->move_array[0], e2e4) != 0);
-    CHECK( move_equal(dst->move_array[4], d7d5) != 0);
+    CHECK(move_equals (dst->move_array[0], e2e4) != 0);
+    CHECK(move_equals (dst->move_array[4], d7d5) != 0);
 }

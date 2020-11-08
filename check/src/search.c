@@ -71,18 +71,19 @@ int search (struct board *board, color_t side, int depth, int start_depth,
             move_tree_t **ret_variation, int no_quiesce, struct timer *timer,
 			move_tree_t *history) 
 {
-	int          score;
-	int          best   = -INFINITY; /* make sure to select something */
-	move_list_t *moves;
-	move_tree_t *new_leaf;
-	move_t      *move_ptr;
-	move_t       best_move;
-	move_t       his_best;
-	move_tree_t *best_variation = NULL, *new_variation = NULL;
+	int           score;
+	int           best   = -INFINITE; /* make sure to select something */
+	move_list_t  *moves;
+	move_tree_t  *new_leaf;
+	move_t       *move_ptr;
+	move_t        best_move;
+	move_t        his_best;
+	move_tree_t  *best_variation = NULL, *new_variation = NULL;
 	board_check_t board_check;
 	size_t        illegal_move_count = 0;
 
 	best_move = move_null();
+    *ret = move_null();
 
 	moves = generate_moves (board, side, history);
 	if (!moves)
@@ -129,13 +130,8 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 				score = quiesce (board, side, alpha, beta, 0, new_leaf);
 			else
 #endif
-				score = evaluate_and_check_draw (board, side, 0, move, history) +
-#if RANDOMNESS > 0
-					-(RANDOMNESS / 2) + 
-					  (RANDOMNESS * 1.0 * rand() / (1.0+RAND_MAX));
-#else
-					0;
-#endif
+				score = evaluate_and_check_draw (board, side, 0, move, history);
+
 		}
 		else
 		{
@@ -150,25 +146,13 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 
 		move_tree_free (new_leaf);
 
-#if RANDOMNESS > 0
-		if (score > best || best == -INFINITY)/* || (score == best && 
-							 (1.0 * rand()/ (RAND_MAX+1.0) < 1)))*/
-
-#else
-		if (score > best || best == -INFINITY)
-#endif
+		if (score > best || best == -INFINITE)
 		{
 			best           = score;
 			best_move      = move;
 
 			if (best_variation)
 				move_tree_destroy (best_variation);
-
-#if 0 /*RANDOMNESS*/
-			printf ("pseudo_rand >> 16 > pseudo_rand & 0xffff: %d\n",
-			        (pseudo_rand >> 16) > (pseudo_rand & 0xffff));
-#endif
-
 
 			best_variation = move_tree_new (new_variation, move);
 		}
@@ -190,33 +174,22 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 
 	assert (ret_variation != NULL);
 
-/* ARGH! No idea why principal variation is crashing things */
-#if 1
 	*ret_variation = best_variation;
-#else
-	*ret_variation = NULL;
-	if (best_variation)
-		move_tree_destroy (best_variation);
-#endif
 
-	// if there are no legal moves, then the current player is in a stalement position.
+	// if there are no legal moves, then the current player is in a stalemate or checkmate position.
 	if (moves->len == illegal_move_count)
-		best = 0;
+    {
+	    coord_t my_king_pos = king_position (board, side);
+        best = is_king_threatened (board, side, ROW(my_king_pos), COLUMN(side)) ? -INFINITE : 0;
+    }
 	
 	move_list_destroy (moves);
 
 	// return the move if this is the last iteration
-	if (depth == start_depth)
-	{
-		*ret = move_null ();
-		if (!timer_is_triggered (timer))
-			*ret = best_move;
-#if 0
-		print_tree (history);
-#endif
-	}
+    if (!timer_is_triggered (timer))
+        *ret = best_move;
 			
-	return best;
+    return best;
 }
 
 #if 0
@@ -341,10 +314,10 @@ move_t iterate (struct board *board, color_t side,
 	srand (start.tv_sec >> 10 ^ start.tv_usec);
 #endif
 
-	best_score = search (board, side, depth, depth, &best_move, 
-	                     -INFINITY, INFINITY, 
+	best_score = search (board, side, depth, depth, &best_move,
+                         -INFINITE, INFINITE,
 	                     (start.tv_usec >> 16) | (start.tv_sec << 16),
-						 &principal_variation, 0, timer, history);
+                         &principal_variation, 0, timer, history);
 
 	gettimeofday (&end, NULL);
 
