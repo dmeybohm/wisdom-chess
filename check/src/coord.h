@@ -13,10 +13,6 @@ typedef struct coord {
     uint8_t _col : 3;
 } coord_t;
 
-// three bits for the row and column each
-#define COORD_MASK   (0x7U)
-#define COORD_SHIFT  (3U)
-
 static inline uint8_t ROW (coord_t pos)
 {
     return pos._row;
