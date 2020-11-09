@@ -22,8 +22,11 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 int quiesce (struct board *board, color_t side, int alpha, int beta, int depth,
              struct timer *timer, move_tree_t *history);
 
+// Get the score for checkmate in X moves.
+int  checkmate_score_in_moves (size_t moves);
 
 void print_reverse_recur (move_tree_t *tree);
+
 
 #define INFINITE  	65536
 

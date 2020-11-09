@@ -34,8 +34,8 @@ TEST_CASE( "Can find mate in 3", "[search]" )
 
     move_t result;
     move_tree_t *variation = nullptr;
-    int score = search (board, COLOR_WHITE, 4, 0, &result,
-                        -INFINITE, INFINITE, 0,
+    int score = search (board, COLOR_WHITE, 4, 4, &result,
+                        INT_MIN, INT_MAX, 0,
                         &variation, 0, &large_timer, nullptr);
     move_tree_destroy (variation);
 
@@ -43,7 +43,7 @@ TEST_CASE( "Can find mate in 3", "[search]" )
 
     int equal_result = move_equals (result, parse_simple_move("f6 a6"));
     CHECK( equal_result != 0 );
-    CHECK( score == INFINITE );
+    CHECK( score > INFINITE );
 }
 
 //
@@ -54,7 +54,7 @@ TEST_CASE( "Can find mate in 3", "[search]" )
 // ... Rd4+ 2. Ke5 f6#
 // ... Bb7+ 2. Ke5 Re4#
 //
-TEST_CASE( "Can find mate in 1 1/2", "[search]" )
+TEST_CASE( "Can find mate in 2 1/2", "[search]" )
 {
     board_builder builder;
     struct timer large_timer {};
@@ -75,17 +75,18 @@ TEST_CASE( "Can find mate in 1 1/2", "[search]" )
 
     move_t result;
     move_tree_t *variation = nullptr;
-    int score = search (board, COLOR_BLACK, 9, 0, &result,
-                        -INFINITE, INFINITE, 0,
+    int score = search (board, COLOR_BLACK, 5, 5, &result,
+                        INT_MIN, INT_MAX, 0,
                         &variation, 0, &large_timer, nullptr);
 
     print_reverse_recur (variation);
     move_tree_destroy (variation);
+
     CHECK( !move_equals (result, move_null ()) );
 
-    // todo update for removal of bishop
-    CHECK( (move_equals (result, parse_simple_move("b4 d4")) != 0 ||
-        move_equals (result, parse_simple_move("c8 b7"))
-   ));
-    CHECK( score == INFINITE );
+    CHECK((
+        move_equals (result, parse_simple_move("b4 d4")) != 0 ||
+        move_equals (result, parse_simple_move("c8 b7")) != 0
+    ));
+    CHECK( score > INFINITE );
 }

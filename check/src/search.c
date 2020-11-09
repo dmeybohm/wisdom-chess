@@ -90,7 +90,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 	{
 		*ret_variation = NULL;
 
-		return evaluate (board, side, 1);
+		return evaluate (board, side, start_depth - depth);
 	}
 
 	for_each_move (move_ptr, moves)
@@ -130,12 +130,13 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 				score = quiesce (board, side, alpha, beta, 0, new_leaf);
 			else
 #endif
-				score = evaluate_and_check_draw (board, side, 0, move, history);
+				score = evaluate_and_check_draw (board, side, start_depth - depth,
+                                     move, history);
 
 		}
 		else
 		{
-			score = (- search (board, color_invert (side), depth-1, 
+			score = (- search (board, color_invert (side), depth - 1,
 			                   start_depth, &his_best, -beta, -alpha, 
 			                   pseudo_rand, &new_variation,
 			                   no_quiesce, timer, new_leaf));
@@ -180,7 +181,8 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 	if (moves->len == illegal_move_count)
     {
 	    coord_t my_king_pos = king_position (board, side);
-        best = is_king_threatened (board, side, ROW(my_king_pos), COLUMN(my_king_pos)) ? -INFINITE : 0;
+        best = is_king_threatened (board, side, ROW(my_king_pos), COLUMN(my_king_pos)) ?
+                -1 * checkmate_score_in_moves (start_depth - depth) : 0;
     }
 	
 	move_list_destroy (moves);
@@ -315,7 +317,7 @@ move_t iterate (struct board *board, color_t side,
 #endif
 
 	best_score = search (board, side, depth, depth, &best_move,
-                         -INFINITE, INFINITE,
+                        INT_MIN, INT_MAX,
 	                     (start.tv_usec >> 16) | (start.tv_sec << 16),
                          &principal_variation, 0, timer, history);
 
@@ -387,7 +389,7 @@ move_t find_best_move (struct board *board, color_t side,
 		board_print (board);
 
 		best_move = move;
-		if (d == 0 && is_checkmated(board, color_invert(side)))
+		if (d == 0 && is_checkmated (board, color_invert(side)))
             stop_early = true;
 
         undo_move (board, side, move, undo_state);
@@ -414,4 +416,12 @@ move_t find_best_move (struct board *board, color_t side,
 	return best_move;
 }
 
-/* vi: set ts=4 sw=4: */
+// Get the score for a checkmate discovered X moves away.
+// Checkmates closer to the current position are more valuable than those
+// further away.
+int checkmate_score_in_moves (size_t moves)
+{
+    return INFINITE + INFINITE / (1 + moves);
+}
+
+// vi: set ts=4 sw=4:
