@@ -60,7 +60,6 @@ TEST_CASE( "Can find mate in 1 1/2", "[search]" )
     struct timer large_timer {};
     timer_init (&large_timer, 30);
 
-    builder.add_piece ("c8", COLOR_BLACK, PIECE_BISHOP);
     builder.add_piece ("e8", COLOR_BLACK, PIECE_KNIGHT);
     builder.add_piece ("c7", COLOR_BLACK, PIECE_KING);
     builder.add_piece ("f7", COLOR_BLACK, PIECE_PAWN);
@@ -76,7 +75,7 @@ TEST_CASE( "Can find mate in 1 1/2", "[search]" )
 
     move_t result;
     move_tree_t *variation = nullptr;
-    int score = search (board, COLOR_BLACK, 4, 0, &result,
+    int score = search (board, COLOR_BLACK, 9, 0, &result,
                         -INFINITE, INFINITE, 0,
                         &variation, 0, &large_timer, nullptr);
 
@@ -84,6 +83,7 @@ TEST_CASE( "Can find mate in 1 1/2", "[search]" )
     move_tree_destroy (variation);
     CHECK( !move_equals (result, move_null ()) );
 
+    // todo update for removal of bishop
     CHECK( (move_equals (result, parse_simple_move("b4 d4")) != 0 ||
         move_equals (result, parse_simple_move("c8 b7"))
    ));
