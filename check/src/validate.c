@@ -25,7 +25,7 @@ void validate_castle (struct board *board, castle_state_t state, color_t who, mo
         check_it( board, who, mv, PIECE_TYPE(supposed_rook) == PIECE_ROOK );
         check_it( board, who, mv, PIECE_COLOR(supposed_king) == who );
         check_it( board, who, mv, PIECE_COLOR(supposed_rook) == who );
-        check_it( board, who, mv, king_position(board, who) == coord_create(row, 4));
+        check_it( board, who, mv, coord_equals (king_position(board, who), coord_create(row, 4)) );
     }
 }
 

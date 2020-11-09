@@ -2,7 +2,7 @@
 
 move_t parse_simple_move (const char *str)
 {
-    move_t result = move_parse(str, COLOR_WHITE);
+    move_t result = move_parse (str, COLOR_WHITE);
     if (is_null_move(result))
     {
         throw parse_simple_move_exception("Error parsing move");

@@ -180,7 +180,7 @@ int search (struct board *board, color_t side, int depth, int start_depth,
 	if (moves->len == illegal_move_count)
     {
 	    coord_t my_king_pos = king_position (board, side);
-        best = is_king_threatened (board, side, ROW(my_king_pos), COLUMN(side)) ? -INFINITE : 0;
+        best = is_king_threatened (board, side, ROW(my_king_pos), COLUMN(my_king_pos)) ? -INFINITE : 0;
     }
 	
 	move_list_destroy (moves);

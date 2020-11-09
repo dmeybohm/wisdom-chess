@@ -125,7 +125,7 @@ static inline int may_do_en_passant (unsigned char row, color_t who)
 }
 
 static inline int is_pawn_unmoved (struct board *board, 
-                                   coord_t row, coord_t col)
+                                   uint8_t row, uint8_t col)
 {
 	piece_t piece = PIECE_AT (board, row, col);
 
