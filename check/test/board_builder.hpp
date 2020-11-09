@@ -31,7 +31,11 @@ public:
 
     void add_row_of_same_color (int row, enum color who, std::vector<enum piece_type> piece_types);
 
+    void add_row_of_same_color (const char *coord_str, enum color who, std::vector<enum piece_type> piece_types);
+
     void add_row_of_same_color_and_piece (int row, enum color who, enum piece_type piece_type);
+
+    void add_row_of_same_color_and_piece (const char *coord_str, enum color who, enum piece_type piece_type);
 
     struct board *build();
 };

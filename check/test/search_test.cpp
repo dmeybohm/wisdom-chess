@@ -50,7 +50,9 @@ TEST_CASE( "Can find mate in 3", "[search]" )
 // This position has multiple mating chances, as well as stalements, so this will test if the
 // search can find the most efficient mate.
 //
-// Mating moves: ... Rd4+  2. Ke5 f6#
+// Mating moves:
+// ... Rd4+ 2. Ke5 f6#
+// ... Bb7+ 2. Ke5 Re4#
 //
 TEST_CASE( "Can find mate in 1 1/2", "[search]" )
 {
@@ -82,7 +84,8 @@ TEST_CASE( "Can find mate in 1 1/2", "[search]" )
     move_tree_destroy (variation);
     CHECK( !move_equals (result, move_null ()) );
 
-    int equal_result = move_equals (result, parse_simple_move("b4 d4"));
-    CHECK( equal_result != 0 );
+    CHECK( (move_equals (result, parse_simple_move("b4 d4")) != 0 ||
+        move_equals (result, parse_simple_move("c8 b7"))
+   ));
     CHECK( score == INFINITE );
 }

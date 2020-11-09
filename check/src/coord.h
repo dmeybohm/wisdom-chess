@@ -8,7 +8,8 @@
 #include "global.h"
 
 // lower three bits are the column, upper three are the row
-typedef struct coord {
+typedef struct coord
+{
     uint8_t _row : 3;
     uint8_t _col : 3;
 } coord_t;

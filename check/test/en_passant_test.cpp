@@ -1,4 +1,6 @@
 #include "catch.hpp"
+#include "board_builder.hpp"
+#include "parse_simple_move.hpp"
 
 extern "C"
 {
@@ -9,32 +11,17 @@ extern "C"
 
 TEST_CASE( "En passant moves work", "[en-passant]" )
 {
-    enum piece_type back_rank[] =
-    {
-        PIECE_ROOK,   PIECE_KNIGHT, PIECE_BISHOP, PIECE_QUEEN, PIECE_KING,
-        PIECE_BISHOP, PIECE_KNIGHT, PIECE_ROOK, PIECE_LAST
+    board_builder builder;
+    std::vector<enum piece_type> back_rank {
+            PIECE_ROOK,   PIECE_KNIGHT, PIECE_BISHOP, PIECE_QUEEN, PIECE_KING,
+            PIECE_BISHOP, PIECE_KNIGHT, PIECE_ROOK
     };
-    enum piece_type black_pawns[] =
-    {
-        PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN,
-        PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_LAST
-    };
-    enum piece_type fifth_rank[] =
-    {
-        PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_PAWN,
-        PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_LAST
-    };
+    builder.add_row_of_same_color ("a8", COLOR_BLACK, back_rank);
+    builder.add_row_of_same_color_and_piece ("a7", COLOR_BLACK, PIECE_PAWN);
+    builder.add_piece ("e5", COLOR_WHITE, PIECE_PAWN);
+    builder.add_row_of_same_color ("a1", COLOR_WHITE, back_rank);
 
-    struct board_positions positions[] =
-    {
-        { 0, COLOR_BLACK, back_rank },
-        { 1, COLOR_BLACK, black_pawns },
-        { 3, COLOR_WHITE, fifth_rank },
-        { 7, COLOR_WHITE, back_rank },
-        { 0, COLOR_NONE, nullptr }
-    };
-
-    struct board *board = board_from_positions (positions);
+    struct board *board = builder.build();
 
     move_t pawn_move = move_create (1, 5, 3, 5);
     do_move (board, COLOR_BLACK, pawn_move);

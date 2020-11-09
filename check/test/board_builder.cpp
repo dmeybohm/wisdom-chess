@@ -57,6 +57,14 @@ void board_builder::add_row_of_same_color_and_piece (int row, enum color who, en
         this->add_piece (row, col, who, piece_type);
 }
 
+void board_builder::add_row_of_same_color_and_piece (const char *coord_str, enum color who, enum piece_type piece_type)
+{
+    coord_t coord = coord_alg (coord_str);
+
+    for (uint8_t col = 0; col < NR_COLUMNS; col++)
+        this->add_piece (ROW(coord), col, who, piece_type);
+}
+
 void board_builder::add_row_of_same_color (int row, enum color who, std::vector<enum piece_type> piece_types)
 {
     size_t col = 0;
@@ -65,12 +73,20 @@ void board_builder::add_row_of_same_color (int row, enum color who, std::vector<
         this->add_piece (row, col, who, *it);
 }
 
+void board_builder::add_row_of_same_color (const char *coord_str, enum color who, std::vector<enum piece_type> piece_types)
+{
+    coord_t coord = coord_alg (coord_str);
+    size_t col = 0;
+
+    for (auto it = piece_types.begin(); it != piece_types.end(); it++, col++)
+        this->add_piece (ROW(coord), col, who, *it);
+}
+
 struct board *board_builder::build ()
 {
     struct piece_row
     {
         std::vector<enum piece_type> row;
-        piece_row() : row { NR_COLUMNS + 1 } {}
     };
 
     size_t sz = this->pieces_with_coords.size();
@@ -88,7 +104,7 @@ struct board *board_builder::build ()
         uint8_t col = COLUMN(piece_with_coord.coord);
         uint8_t row = ROW(piece_with_coord.coord);
 
-        current_piece_row.assign (NR_COLUMNS, PIECE_NONE);
+        current_piece_row.assign (NR_COLUMNS + 1, PIECE_NONE);
         current_piece_row[col] = piece_with_coord.piece_type;
         current_piece_row[NR_COLUMNS] = PIECE_LAST;
 
