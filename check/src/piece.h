@@ -80,13 +80,13 @@ static inline enum color PIECE_COLOR (piece_t piece)
     return piece.color;
 }
 
-static inline color_t color_invert (color_t color)
+static inline enum color color_invert (enum color color)
 {
     assert (color == COLOR_WHITE || color == COLOR_BLACK);
 	return color == COLOR_WHITE ? COLOR_BLACK : COLOR_WHITE;
 }
 
-static inline color_index_t color_index (color_t who)
+static inline color_index_t color_index (enum color who)
 {
 	switch (who)
 	{

@@ -46,7 +46,7 @@ static inline void material_add (struct material *material, piece_t piece)
 		material_piece_weight (PIECE_TYPE(piece));
 }
 
-static inline int material_score (struct material *material, color_t who)
+static inline int material_score (struct material *material, enum color who)
 {
     color_index_t my_index = color_index(who);
     color_index_t opponent_index = color_index(color_invert(who));

@@ -58,7 +58,7 @@ struct board *board_from_positions (const struct board_positions *positions)
     return new_board;
 }
 
-static castle_state_t init_castle_state (struct board *board, color_t who)
+static castle_state_t init_castle_state (struct board *board, enum color who)
 {
     int row = (who == COLOR_WHITE ? 7 : 0);
     int king_col = 4;
@@ -105,7 +105,7 @@ void board_init_from_positions (struct board *board, const struct board_position
     for (ptr = positions; ptr->pieces != NULL; ptr++)
     {
         enum piece_type *pieces = ptr->pieces;
-        color_t  color = ptr->piece_color;
+        enum color color = ptr->piece_color;
         row = ptr->rank;
 
         for (col = 0; col < NR_COLUMNS && pieces[col] != PIECE_LAST; col++)

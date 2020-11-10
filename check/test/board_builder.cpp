@@ -51,6 +51,12 @@ void board_builder::add_piece (uint8_t row, uint8_t col, enum color who, enum pi
     this->pieces_with_coords.push_back (new_piece);
 }
 
+void board_builder::add_pieces (enum color who, std::vector<struct piece_coord_string_with_type> pieces)
+{
+    for (auto it : pieces)
+        this->add_piece (it.coord, who, it.piece_type);
+}
+
 void board_builder::add_row_of_same_color_and_piece (int row, enum color who, enum piece_type piece_type)
 {
     for (uint8_t col = 0; col < NR_COLUMNS; col++)

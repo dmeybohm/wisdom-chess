@@ -18,6 +18,12 @@ struct piece_with_coord
     enum piece_type piece_type;
 };
 
+struct piece_coord_string_with_type
+{
+    const char *coord;
+    enum piece_type piece_type;
+};
+
 class board_builder final
 {
     std::vector<piece_with_coord> pieces_with_coords;
@@ -28,6 +34,8 @@ public:
     void add_piece (const char *coord_str, enum color who, enum piece_type piece_type);
 
     void add_piece (uint8_t row, uint8_t col, enum color who, enum piece_type piece_type);
+
+    void add_pieces (enum color who, std::vector<struct piece_coord_string_with_type> pieces);
 
     void add_row_of_same_color (int row, enum color who, std::vector<enum piece_type> piece_types);
 

@@ -86,7 +86,7 @@ static inline bool need_pawn_promotion (uint8_t row, color_t who)
     }
 }
 
-static inline int able_to_castle (struct board *board, color_t who,
+static inline int able_to_castle (struct board *board, enum color who,
                                   castle_state_t castle_type)
 {
 	int didnt_castle;
@@ -99,25 +99,25 @@ static inline int able_to_castle (struct board *board, color_t who,
 	return didnt_castle && neg_not_set;
 }
 
-static inline castle_state_t board_get_castle_state (struct board *board, color_t who)
+static inline castle_state_t board_get_castle_state (struct board *board, enum color who)
 {
     color_index_t index = color_index(who);
     return board->castled[index];
 }
 
-static inline void board_apply_castle_change (struct board *board, color_t who, castle_state_t castle_state)
+static inline void board_apply_castle_change (struct board *board, enum color who, castle_state_t castle_state)
 {
     color_index_t index = color_index(who);
     board->castled[index] = castle_state;
 }
 
-static inline void board_undo_castle_change (struct board *board, color_t who, castle_state_t castle_state)
+static inline void board_undo_castle_change (struct board *board, enum color who, castle_state_t castle_state)
 {
     color_index_t index = color_index(who);
     board->castled[index] = castle_state;
 }
 
-static inline int may_do_en_passant (unsigned char row, color_t who)
+static inline int may_do_en_passant (unsigned char row, enum color who)
 {
 	// if WHITE rank 4, black rank 3
 	assert (who == COLOR_WHITE || who == COLOR_BLACK);
@@ -135,12 +135,12 @@ static inline int is_pawn_unmoved (struct board *board,
 		return row == 1;
 }
 
-static inline coord_t king_position (const struct board *board, color_t who)
+static inline coord_t king_position (const struct board *board, enum color who)
 {
 	return board->king_pos[color_index(who)];
 }
 
-static inline void king_position_set (struct board *board, color_t who, coord_t pos)
+static inline void king_position_set (struct board *board, enum color who, coord_t pos)
 {
 	board->king_pos[color_index(who)] = pos;
 }

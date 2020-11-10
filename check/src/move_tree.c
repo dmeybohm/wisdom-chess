@@ -39,7 +39,20 @@ move_tree_t *move_tree_new (move_tree_t *parent, move_t move)
 	return tree;
 }
 
-/* this is only safe to call if all our children are gone */
+size_t move_tree_length (move_tree_t *tree)
+{
+    size_t result = 0;
+
+    while (tree != NULL)
+    {
+        result++;
+        tree = tree->parent;
+    }
+
+    return result;
+}
+
+// this is only safe to call if all our children are gone
 void move_tree_free (move_tree_t *move_tree)
 {
 	assert (move_tree);
