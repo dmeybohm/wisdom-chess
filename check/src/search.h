@@ -28,6 +28,7 @@ int  checkmate_score_in_moves (size_t moves);
 void print_reverse_recur (move_tree_t *tree);
 
 
-#define INFINITE  	65536
+#define INFINITE  	   65536
+#define INITIAL_ALPHA  (INFINITE * 3)
 
 #endif // EVOLVE_CHESS_SEARCH_H_

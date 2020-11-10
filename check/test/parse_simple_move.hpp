@@ -39,7 +39,7 @@ public:
 
     friend bool operator==(const my_move_list &first, const my_move_list &second)
     {
-        return std::equal (
+        return first.moves.size() == second.moves.size() && std::equal (
                 first.moves.begin(),
                 first.moves.end(),
                 second.moves.begin(),

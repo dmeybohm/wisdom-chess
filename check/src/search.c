@@ -72,7 +72,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 			move_tree_t *history) 
 {
 	int           score;
-	int           best   = -INFINITE; /* make sure to select something */
+	int           best   = -INITIAL_ALPHA; // make sure to select something
 	move_list_t  *moves;
 	move_tree_t  *new_leaf;
 	move_t       *move_ptr;
@@ -317,7 +317,7 @@ move_t iterate (struct board *board, enum color side,
 #endif
 
 	best_score = search (board, side, depth, depth, &best_move,
-                        INT_MIN, INT_MAX,
+                        -INITIAL_ALPHA, INITIAL_ALPHA,
 	                     (start.tv_usec >> 16) | (start.tv_sec << 16),
                          &principal_variation, 0, timer, history);
 
@@ -332,7 +332,7 @@ move_t iterate (struct board *board, enum color side,
 		printf ("nodes visited = %d, cutoffs = %d\n", nodes_visited, cutoffs);
 	}
 
-	/* principal variation could be null if search was interrupted */
+	// principal variation could be null if search was interrupted
 	if (principal_variation)
 	{
 		printf ("principal variation: ");

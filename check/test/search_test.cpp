@@ -48,7 +48,7 @@ TEST_CASE( "Can find mate in 3", "[search]" )
     move_tree_destroy (variation);
 
     REQUIRE( expected_moves == computed_moves );
-    CHECK( score > INFINITE );
+    REQUIRE( score > INFINITE );
 }
 
 //
@@ -83,7 +83,7 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
     move_t result;
     move_tree_t *variation = nullptr;
     int score = search (board, COLOR_BLACK, 5, 5, &result,
-                        INT_MIN, INT_MAX, 0,
+                        -INITIAL_ALPHA, INITIAL_ALPHA, 0,
                         &variation, 0, &large_timer, nullptr);
 
     REQUIRE( !move_equals (result, move_null ()) );
