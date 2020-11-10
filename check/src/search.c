@@ -147,7 +147,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 
 		move_tree_free (new_leaf);
 
-		if (score > best || best == -INFINITE)
+		if (score > best || best == -INITIAL_ALPHA)
 		{
 			best           = score;
 			best_move      = move;
