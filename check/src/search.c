@@ -66,7 +66,7 @@ void print_reversed_tree (move_tree_t *tree)
 	printf("}\n");
 }
 
-int search (struct board *board, color_t side, int depth, int start_depth,
+int search (struct board *board, enum color side, int depth, int start_depth,
             move_t *ret, int alpha, int beta, unsigned long pseudo_rand,
             move_tree_t **ret_variation, int no_quiesce, struct timer *timer,
 			move_tree_t *history) 
@@ -296,7 +296,7 @@ static void calc_time (int nodes, struct timeval *start, struct timeval *end)
 			time, rate);
 }
 
-move_t iterate (struct board *board, color_t side,
+move_t iterate (struct board *board, enum color side,
                 move_tree_t *history, struct timer *timer, int depth)
 {
 	move_t         best_move;
@@ -344,7 +344,7 @@ move_t iterate (struct board *board, color_t side,
 	return best_move;
 }
 
-move_t find_best_move (struct board *board, color_t side,
+move_t find_best_move (struct board *board, enum color side,
                        move_tree_t *history)
 {
 	int d;
