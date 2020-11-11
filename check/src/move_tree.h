@@ -20,4 +20,23 @@ move_tree_t   *move_tree_copy    (move_tree_t *src);
 size_t         move_tree_length  (move_tree_t *tree);
 move_tree_t   *move_tree_prepend (move_tree_t *parent, move_tree_t *child);
 
+struct move_tree_head
+{
+    move_tree_t *tree;
+
+    move_tree_head () : tree (nullptr)
+    {}
+
+    ~move_tree_head ()
+    {
+        if (tree != nullptr)
+            move_tree_destroy (tree);
+    }
+
+    size_t size()
+    {
+        return move_tree_length (tree);
+    }
+};
+
 #endif // EVOLVE_CHESS_MOVE_TREE_H

@@ -32,17 +32,16 @@ TEST_CASE( "Can find mate in 3", "[search]" )
     struct board *board = builder.build();
 
     move_t result;
-    move_tree_t *variation = nullptr;
+    move_tree_head variation;
     int score = search (board, COLOR_WHITE, 4, 4, &result,
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
-                        &variation, 0, &large_timer, nullptr);
+                        &variation.tree, 0, &large_timer, nullptr);
 
     REQUIRE( !move_equals (result, move_null ()) );
-    REQUIRE( move_tree_length(variation) == 5 );
+    REQUIRE( variation.size() == 5 );
 
     my_move_list expected_moves { COLOR_WHITE, {"f6 a6", "f7 f6", "e5xf6", "g8 g7", "a6xa8" }};
-    my_move_list computed_moves { variation };
-    move_tree_destroy (variation);
+    my_move_list computed_moves { variation.tree };
 
     REQUIRE( expected_moves == computed_moves );
     REQUIRE( score > INFINITE );
@@ -78,17 +77,16 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
     struct board *board = builder.build();
 
     move_t result;
-    move_tree_t *variation = nullptr;
+    move_tree_head variation;
     int score = search (board, COLOR_BLACK, 5, 5, &result,
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
-                        &variation, 0, &large_timer, nullptr);
+                        &variation.tree, 0, &large_timer, nullptr);
 
     REQUIRE( !move_equals (result, move_null ()) );
-    REQUIRE( move_tree_length(variation) == 5 );
+    REQUIRE( variation.size() == 5 );
 
     my_move_list expected_moves { COLOR_BLACK, {"e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
-    my_move_list computed_moves { variation };
-    move_tree_destroy (variation);
+    my_move_list computed_moves { variation.tree };
 
     REQUIRE( expected_moves == computed_moves );
     REQUIRE( score > INFINITE );
