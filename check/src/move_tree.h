@@ -29,11 +29,10 @@ struct move_tree_head
 
     ~move_tree_head ()
     {
-        if (tree != nullptr)
-            move_tree_destroy (tree);
+        move_tree_destroy (tree);
     }
 
-    size_t size()
+    [[nodiscard]] size_t size() const
     {
         return move_tree_length (tree);
     }

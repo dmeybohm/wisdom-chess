@@ -2,7 +2,7 @@
 
 move_t parse_move (const char *str, enum color color)
 {
-    move_t result = move_parse (str, COLOR_WHITE);
+    move_t result = move_parse (str, color);
     if (color == COLOR_NONE &&
         result.move_category != MOVE_CATEGORY_NORMAL_CAPTURE &&
         result.move_category != MOVE_CATEGORY_NON_CAPTURE)
