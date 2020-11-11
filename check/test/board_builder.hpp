@@ -51,7 +51,7 @@ class board_builder_exception : public std::exception
 
 public:
     explicit board_builder_exception (const char *message) : message { message } {}
-    const char *what() const noexcept override { return this->message; }
+    [[nodiscard]] const char *what() const noexcept override { return this->message; }
 };
 
 coord_t coord_alg (const char *coord_str);

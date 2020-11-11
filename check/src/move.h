@@ -152,12 +152,15 @@ static inline move_t move_with_promotion (move_t move, piece_t piece)
 static inline move_t move_create (uint8_t src_row, uint8_t src_col,
                                   uint8_t dst_row, uint8_t dst_col)
 {
-	move_t result = { 0 };
-
-    result.src_row = src_row;
-    result.src_col = src_col;
-    result.dst_row = dst_row;
-    result.dst_col = dst_col;
+	move_t result = {
+	        .src_row = src_row,
+	        .src_col = src_col,
+	        .dst_row = dst_row,
+	        .dst_col = dst_col,
+	        .promoted_color = COLOR_NONE,
+	        .promoted_piece_type = PIECE_NONE,
+	        .move_category = MOVE_CATEGORY_NON_CAPTURE,
+	};
 
 	return result;
 }

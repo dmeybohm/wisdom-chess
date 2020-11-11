@@ -27,8 +27,8 @@ TEST_CASE("parse_move throws an exception for en-passant moves", "[parse-move]")
 TEST_CASE("parse_move throws an exception for castling moves", "[parse-move]")
 {
     REQUIRE_THROWS_AS( parse_move ("o-o"), parse_move_exception );
-    REQUIRE_THROWS_WITH( parse_move ("o-o"), Catch::Contains("Invalid type of move"));
-    REQUIRE_THROWS_WITH( parse_move ("o-o-o"), Catch::Contains("Invalid type of move") );
+    REQUIRE_THROWS_WITH( parse_move ("o-o"), Catch::Contains("Move requires color"));
+    REQUIRE_THROWS_WITH( parse_move ("o-o-o"), Catch::Contains("Move requires color") );
 }
 
 TEST_CASE("Invalid moves throw an exception", "[parse-move]")

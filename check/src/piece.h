@@ -1,10 +1,10 @@
 #ifndef EVOLVE_CHESS_PIECE_H
 #define EVOLVE_CHESS_PIECE_H
 
-#include <assert.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdint>
+#include <cstdlib>
+#include <cstdio>
 
 enum piece_type
 {
@@ -57,28 +57,29 @@ typedef struct player_index_struct player_index_t;
 
 ////////////////////////////////////////////////
 
-#define NR_PIECES             (6U)
-#define PIECE_AND_COLOR_NONE  (MAKE_PIECE (COLOR_NONE, PIECE_NONE))
-
-/////////////////////////////////////////////////
-
-static inline piece_t MAKE_PIECE (enum color color, enum piece_type piece_type)
+constexpr piece_t MAKE_PIECE (enum color color, enum piece_type piece_type)
 {
     struct piece_with_color piece_with_color = { .piece_type = piece_type, .color = color };
     return piece_with_color;
 }
 
-static inline enum piece_type PIECE_TYPE (piece_t piece)
+constexpr unsigned int NR_PIECES = 6;
+
+constexpr piece_t PIECE_AND_COLOR_NONE = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
+
+/////////////////////////////////////////////////
+
+constexpr enum piece_type PIECE_TYPE (piece_t piece)
 {
     return piece.piece_type;
 }
 
-static inline enum color PIECE_COLOR (piece_t piece)
+constexpr enum color PIECE_COLOR (piece_t piece)
 {
     return piece.color;
 }
 
-static inline enum color color_invert (enum color who)
+constexpr enum color color_invert (enum color who)
 {
     assert (who == COLOR_WHITE || who == COLOR_BLACK);
 	return who == COLOR_WHITE ? COLOR_BLACK : COLOR_WHITE;

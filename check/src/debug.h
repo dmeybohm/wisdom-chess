@@ -3,9 +3,9 @@
 
 struct debug_channel
 {
-	char *name;
-	int   enabled;
-	int   multiline_mode;
+	const char *name;
+	int         enabled;
+	int         multiline_mode;
 };
 
 #define STRINGIFY(x)  #x
