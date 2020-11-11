@@ -61,32 +61,32 @@ typedef struct move
 	enum move_category move_category : 3;
 } move_t;
 
-static inline coord_t MOVE_SRC (move_t mv)
+constexpr coord_t MOVE_SRC (move_t mv)
 {
 	return coord_create (mv.src_row, mv.src_col);
 }
 
-static inline coord_t MOVE_DST (move_t mv)
+constexpr coord_t MOVE_DST (move_t mv)
 {
 	return coord_create (mv.dst_row, mv.dst_col);
 }
 
-static inline int is_promoting_move (move_t move)
+constexpr int is_promoting_move (move_t move)
 {
 	return move.promoted_piece_type != PIECE_NONE;
 }
 
-static inline piece_t move_get_promoted_piece (move_t move)
+constexpr piece_t move_get_promoted_piece (move_t move)
 {
 	return MAKE_PIECE (move.promoted_color, move.promoted_piece_type);
 }
 
-static inline int is_capture_move (move_t move)
+constexpr int is_capture_move (move_t move)
 {
 	return move.move_category == MOVE_CATEGORY_NORMAL_CAPTURE;
 }
 
-static piece_t captured_material (undo_move_t undo_state, enum color opponent)
+constexpr piece_t captured_material (undo_move_t undo_state, enum color opponent)
 {
     if (undo_state.category == MOVE_CATEGORY_NORMAL_CAPTURE)
     {
@@ -140,7 +140,7 @@ static inline uint8_t castling_row_from_color (enum color who)
     }
 }
 
-static inline move_t move_with_promotion (move_t move, piece_t piece)
+constexpr move_t move_with_promotion (move_t move, piece_t piece)
 {
     move_t result = move;
     result.promoted_piece_type = PIECE_TYPE(piece);
@@ -149,7 +149,7 @@ static inline move_t move_with_promotion (move_t move, piece_t piece)
 }
 
 // run-of-the-mill move with no promotion involved
-static inline move_t move_create (uint8_t src_row, uint8_t src_col,
+constexpr move_t move_create (uint8_t src_row, uint8_t src_col,
                                   uint8_t dst_row, uint8_t dst_col)
 {
 	move_t result = {
@@ -165,7 +165,7 @@ static inline move_t move_create (uint8_t src_row, uint8_t src_col,
 	return result;
 }
 
-static inline move_t move_create_capturing (uint8_t src_row, uint8_t src_col,
+constexpr move_t move_create_capturing (uint8_t src_row, uint8_t src_col,
                                             uint8_t dst_row, uint8_t dst_col)
 {
     move_t move = move_create (src_row, src_col, dst_row, dst_col);
@@ -173,7 +173,7 @@ static inline move_t move_create_capturing (uint8_t src_row, uint8_t src_col,
     return move;
 }
 
-static inline move_t move_create_castling (uint8_t src_row, uint8_t src_col,
+constexpr move_t move_create_castling (uint8_t src_row, uint8_t src_col,
                                            uint8_t dst_row, uint8_t dst_col)
 {
     move_t move = move_create (src_row, src_col, dst_row, dst_col);
@@ -191,7 +191,7 @@ static inline move_t move_with_capture (move_t move)
     return result;
 }
 
-static inline move_t move_create_en_passant (int8_t src_row, uint8_t src_col,
+constexpr move_t move_create_en_passant (int8_t src_row, uint8_t src_col,
                                              uint8_t dst_row, uint8_t dst_col)
 {
     move_t move = move_create( src_row, src_col, dst_row, dst_col);
@@ -199,19 +199,19 @@ static inline move_t move_create_en_passant (int8_t src_row, uint8_t src_col,
     return move;
 }
 
-static inline int is_null_move (move_t move)
+constexpr bool is_null_move (move_t move)
 {
 	// no move has the same position for src and dst
 	return move.src_row == 0 && move.src_col == 0 &&
 	    move.dst_row == 0 && move.dst_col == 0;
 }
 
-static inline move_t move_null (void)
+constexpr move_t move_null ()
 {
     return move_create (0, 0, 0, 0);
 }
 
-static inline bool move_equals (move_t a, move_t b)
+constexpr bool move_equals (move_t a, move_t b)
 {
 	return a.src_row == b.src_row &&
 	    a.dst_row == b.dst_row &&
@@ -223,23 +223,23 @@ static inline bool move_equals (move_t a, move_t b)
 }
 
 // Pack the castle state into the move.
-static inline castle_state_t unpack_castle_state (castle_state_t state)
+constexpr castle_state_t unpack_castle_state (castle_state_t state)
 {
     return state == CASTLE_PREVIOUSLY_NONE ? CASTLE_NONE : state;
 }
 
 // Unpack the castle state from the move.
-static inline castle_state_t pack_castle_state (castle_state_t state)
+constexpr castle_state_t pack_castle_state (castle_state_t state)
 {
     return state == CASTLE_NONE ? CASTLE_PREVIOUSLY_NONE : state;
 }
 
-static inline castle_state_t current_castle_state (undo_move_t move)
+constexpr castle_state_t current_castle_state (undo_move_t move)
 {
     return unpack_castle_state(move.current_castle_state);
 }
 
-static inline castle_state_t opponent_castle_state (undo_move_t undo_state)
+constexpr castle_state_t opponent_castle_state (undo_move_t undo_state)
 {
     return unpack_castle_state(undo_state.opponent_castle_state);
 }

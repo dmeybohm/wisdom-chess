@@ -14,23 +14,23 @@ typedef struct coord
     uint8_t _col : 3;
 } coord_t;
 
-static inline uint8_t ROW (coord_t pos)
+constexpr uint8_t ROW (coord_t pos)
 {
     return pos._row;
 }
 
-static inline uint8_t COLUMN (coord_t pos)
+constexpr uint8_t COLUMN (coord_t pos)
 {
 	return pos._col;
 }
 
-static inline coord_t coord_create (uint8_t row, uint8_t col)
+constexpr coord_t coord_create (uint8_t row, uint8_t col)
 {
     coord_t result = { ._row = row, ._col = col };
     return result;
 }
 
-static bool coord_equals (coord_t a, coord_t b)
+constexpr bool coord_equals (coord_t a, coord_t b)
 {
     return a._row == b._row && a._col == b._col;
 }
