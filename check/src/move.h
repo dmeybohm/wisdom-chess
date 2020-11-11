@@ -102,27 +102,27 @@ constexpr piece_t captured_material (undo_move_t undo_state, enum color opponent
     }
 }
 
-static inline int is_en_passant_move (move_t move)
+constexpr bool is_en_passant_move (move_t move)
 {
 	return move.move_category == MOVE_CATEGORY_EN_PASSANT;
 }
 
-static inline int move_affects_current_castle_state (undo_move_t move)
+constexpr bool move_affects_current_castle_state (undo_move_t move)
 {
     return move.current_castle_state != CASTLE_NONE;
 }
 
-static inline int move_affects_opponent_castle_state (undo_move_t move)
+constexpr bool move_affects_opponent_castle_state (undo_move_t move)
 {
     return move.opponent_castle_state != CASTLE_NONE;
 }
 
-static inline int is_castling_move (move_t move)
+constexpr bool is_castling_move (move_t move)
 {
 	return move.move_category == MOVE_CATEGORY_CASTLING;
 }
 
-static inline int is_castling_move_on_king_side (move_t move)
+constexpr bool is_castling_move_on_king_side (move_t move)
 {
 	return is_castling_move(move) && move.dst_col == 6;
 }
