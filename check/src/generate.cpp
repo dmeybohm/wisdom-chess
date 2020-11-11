@@ -14,12 +14,8 @@
 
 ///////////////////////////////////////////////
 
-DEFINE_DEBUG_CHANNEL (generate, 0);
-
-///////////////////////////////////////////////
-
 #define Move_Func_Arguments \
-	struct board *board, color_t who, \
+	struct board *board, enum color who, \
 	int piece_row, int piece_col, move_tree_t *history, move_list_t *moves
 
 #define Move_Func_Param_Names \
@@ -281,7 +277,7 @@ MOVES_HANDLER (pawn)
 	// promotion
 	if (unlikely (need_pawn_promotion (row, who)))
 	{
-		for (piece_type = PIECE_QUEEN; piece_type < PIECE_PAWN; piece_type++)
+		for_each_promotable_piece (piece_type)
 		{
 			piece = MAKE_PIECE (who, piece_type);
 
@@ -375,7 +371,7 @@ move_list_t *generate_knight_moves (unsigned char row, unsigned char col)
 	return knight_moves[row][col];
 }
 
-static char *piece_type_str (piece_t piece)
+static const char *piece_type_str (piece_t piece)
 {
 	switch (PIECE_TYPE (piece))
 	{
@@ -394,8 +390,6 @@ void print_the_board (struct board *board)
 {
 	int row, col;
 
-	debug_multi_line_start (&CHANNEL_NAME (generate));
-
 	for_each_position (row, col)
 	{
 //		DBG (generate, "%2d ", PIECE_AT (board, row, col));
@@ -403,10 +397,9 @@ void print_the_board (struct board *board)
 			DBG (generate, "\n");
 	}
 
-	debug_multi_line_stop (&CHANNEL_NAME (generate));
 }
 
-move_list_t *generate_legal_moves (struct board *board, color_t who,
+move_list_t *generate_legal_moves (struct board *board, enum color who,
                                    move_tree_t *history)
 {
 	move_list_t *all_moves  = NULL;
@@ -435,7 +428,7 @@ move_list_t *generate_legal_moves (struct board *board, color_t who,
 	return non_checks;
 }
 
-static int valid_castling_move (struct board *board, color_t who, move_t move)
+static int valid_castling_move (struct board *board, enum color who, move_t move)
 {
 	// check for an intervening piece
 	int     direction;
@@ -465,12 +458,12 @@ static int valid_castling_move (struct board *board, color_t who, move_t move)
 }
 
 move_list_t *validate_moves (move_list_t *move_list, struct board *board,
-                             color_t who)
+                             enum color who)
 {
 	move_t      *move_ptr;
 	move_list_t *captures = NULL, *non_captures = NULL;
 
-	move_list_print (move_list);
+//	move_list_print (move_list);
 
 	for_each_move (move_ptr, move_list)
 	{
@@ -555,12 +548,12 @@ move_list_t *validate_moves (move_list_t *move_list, struct board *board,
 	}
 #endif
 
-	move_list_print (captures);
+//	move_list_print (captures);
 
 	return captures;
 }
 
-move_list_t *generate_captures (struct board *board, color_t who,
+move_list_t *generate_captures (struct board *board, enum color who,
                                 move_tree_t *history)
 {
     move_list_t *move_list = NULL;
@@ -581,7 +574,7 @@ move_list_t *generate_captures (struct board *board, color_t who,
 	return captures;
 }
 
-move_list_t *generate_moves (struct board *board, color_t who,
+move_list_t *generate_moves (struct board *board, enum color who,
                              move_tree_t *history)
 {
 	int          row, col;
@@ -592,8 +585,8 @@ move_list_t *generate_moves (struct board *board, color_t who,
 
 	for_each_position (row, col)
 	{
-		piece_t           piece     = PIECE_AT (board, row, col);
-		color_t           color     = PIECE_COLOR (piece);
+		piece_t    piece  = PIECE_AT (board, row, col);
+		enum color color  = PIECE_COLOR (piece);
 
 		if (PIECE_TYPE (piece) == PIECE_NONE)
 			continue;

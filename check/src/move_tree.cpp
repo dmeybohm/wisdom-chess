@@ -19,7 +19,7 @@ move_tree_t *move_tree_new (move_tree_t *parent, move_t move)
 	else
 	{
 #endif
-		tree = malloc (sizeof (move_tree_t));
+		tree = static_cast<move_tree_t *>(malloc (sizeof (move_tree_t)));
 #if 0
 	}
 #endif
@@ -89,7 +89,7 @@ move_tree_t *move_tree_copy (move_tree_t *move_tree)
 		return NULL;
 	else
 	{
-		copy = malloc (sizeof (move_tree_t));
+		copy = static_cast<move_tree_t *>(malloc (sizeof (move_tree_t)));
 		
 		copy->depth  = move_tree->depth;
 		copy->move   = move_tree->move;

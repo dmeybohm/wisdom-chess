@@ -5,15 +5,13 @@
 #include "debug.h"
 #include "position.h"
 
-DEFINE_DEBUG_CHANNEL (evaluate, 0);
-
 #define CASTLE_POSITIVE_WEIGHT        60
 #define CASTLE_NEGATIVE_WEIGHT        60
 
-int evaluate (struct board *board, color_t who, size_t moves_away)
+int evaluate (struct board *board, enum color who, size_t moves_away)
 {
 	int score = 0;
-	int opponent = color_invert (who);
+	enum color opponent = color_invert (who);
 
 	if (board_get_castle_state (board, who) == CASTLE_CASTLED)
 	{
@@ -58,7 +56,7 @@ int evaluate (struct board *board, color_t who, size_t moves_away)
 	return score;
 }
 
-int evaluate_and_check_draw (struct board *board, color_t who, size_t moves_away,
+int evaluate_and_check_draw (struct board *board, enum color who, size_t moves_away,
                              move_t move, move_tree_t *history)
 {
     if (is_drawing_move (history, move))

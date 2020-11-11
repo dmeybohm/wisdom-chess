@@ -2,7 +2,7 @@
 #include "move.h"
 #include "validate.h"
 
-static void check_it (struct board *board, color_t who, move_t mv, int expr)
+static void check_it (struct board *board, enum color who, move_t mv, int expr)
 {
     if (!expr)
     {
@@ -12,7 +12,7 @@ static void check_it (struct board *board, color_t who, move_t mv, int expr)
     }
 }
 
-void validate_castle (struct board *board, castle_state_t state, color_t who, move_t mv)
+static void validate_castle (struct board *board, castle_state_t state, enum color who, move_t mv)
 {
     // check positions of the pieces:
     uint8_t row = who == COLOR_WHITE ? 7 : 0;

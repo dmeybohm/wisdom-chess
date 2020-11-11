@@ -15,12 +15,12 @@
 
 ///////////////////////////////////////////////
 
-move_list_t    *generate_moves        (struct board *position, color_t who,
+move_list_t    *generate_moves        (struct board *position, enum color who,
                                        move_tree_t *history);
-move_list_t    *generate_legal_moves  (struct board *position, color_t who,
+move_list_t    *generate_legal_moves  (struct board *position, enum color who,
                                        move_tree_t *history);
 
-move_list_t    *generate_captures     (struct board *position, color_t who,
+move_list_t    *generate_captures     (struct board *position, enum color who,
                                        move_tree_t *history);
 
 move_list_t    *generate_knight_moves (uint8_t row, uint8_t col);

@@ -1,9 +1,6 @@
 #include "catch.hpp"
 
-extern "C"
-{
 #include "material.h"
-}
 
 TEST_CASE( "Adding material works", "[material]" )
 {

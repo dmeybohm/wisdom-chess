@@ -2,12 +2,9 @@
 #include "board_builder.hpp"
 #include "parse_simple_move.hpp"
 
-extern "C"
-{
 #include "board.h"
 #include "move_tree.h"
 #include "generate.h"
-}
 
 TEST_CASE( "En passant moves work", "[en-passant]" )
 {

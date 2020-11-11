@@ -2,11 +2,8 @@
 #include "board_builder.hpp"
 #include <iostream>
 
-extern "C"
-{
 #include "board.h"
 #include "check.h"
-}
 
 TEST_CASE("is_king_threatened works for bishop, rook, and king", "[check]")
 {

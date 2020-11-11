@@ -1,11 +1,8 @@
 #ifndef WIZDUMB_PARSE_SIMPLE_MOVE_HPP
 #define WIZDUMB_PARSE_SIMPLE_MOVE_HPP
 
-extern "C"
-{
 #include "move.h"
 #include "move_tree.h"
-};
 
 #include <vector>
 #include <algorithm>

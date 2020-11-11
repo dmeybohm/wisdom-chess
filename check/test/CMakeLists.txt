@@ -5,10 +5,10 @@
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/")
 
 add_executable(chess_tests
-        ../src/board.c ../src/board_hash.c ../src/check.c ../src/debug.c ../src/evaluate.c ../src/generate.c
-        ../src/material.c ../src/move.c ../src/move_list.c ../src/move_tree.c ../src/piece.c ../src/search.c
-        ../src/sha1.c ../src/str.c ../src/timer.c ../src/global.h ../src/board_check.c ../src/board_check.h
-        ../src/validate.c ../src/position.c
+        ../src/board.cpp ../src/board_hash.cpp ../src/check.cpp ../src/debug.cpp ../src/evaluate.cpp ../src/generate.cpp
+        ../src/material.cpp ../src/move.cpp ../src/move_list.cpp ../src/move_tree.cpp ../src/piece.cpp ../src/search.cpp
+        ../src/sha1.cpp ../src/str.cpp ../src/timer.cpp ../src/global.h ../src/board_check.cpp ../src/board_check.h
+        ../src/validate.cpp ../src/position.cpp
 
         test_main.cpp
         board_hash_test.cpp

@@ -2,14 +2,11 @@
 #include "board_builder.hpp"
 #include "parse_simple_move.hpp"
 
-extern "C"
-{
 #include "board.h"
 #include "search.h"
 #include "move.h"
 #include "timer.h"
 #include "move_tree.h"
-}
 
 // Mating moves: : 1.Ra6 f6 2.Bxf6 Rg7 3.Rxa8#
 TEST_CASE( "Can find mate in 3", "[search]" )

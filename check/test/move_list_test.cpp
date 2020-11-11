@@ -1,9 +1,6 @@
 #include "catch.hpp"
 
-extern "C"
-{
 #include "move_list.h"
-}
 
 TEST_CASE( "Copying move lists works", "[move-list]" )
 {

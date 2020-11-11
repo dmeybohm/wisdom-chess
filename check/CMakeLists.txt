@@ -19,15 +19,23 @@ CHECK_INCLUDE_FILES("unistd.h" HAVE_UNISTD_H)
 
 # add the executable
 add_executable(chess
-        src/board.c src/board_hash.c src/check.c src/debug.c src/evaluate.c src/game.c src/generate.c src/material.c src/move.c
-        src/move_list.c src/move_tree.c src/piece.c src/play.c src/search.c src/sha1.c src/str.c src/timer.c
-        src/global.h src/board_check.c src/board_check.h  src/validate.c src/validate.h src/position.c src/position.h)
+        src/board.cpp src/board_hash.cpp src/check.cpp src/debug.cpp src/evaluate.cpp src/game.cpp src/generate.cpp src/material.cpp src/move.cpp
+        src/move_list.cpp src/move_tree.cpp src/piece.cpp src/play.cpp src/search.cpp src/sha1.cpp src/str.cpp src/timer.cpp
+        src/global.h src/board_check.cpp src/board_check.h src/validate.cpp src/validate.h src/position.cpp src/position.h)
 
 set_property(TARGET chess PROPERTY C_STANDARD 11)
 set(CMAKE_C_FLAGS "-Wall -Wno-unused-parameter -Wno-unused-function")
 set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 set(CMAKE_C_FLAGS_RELEASE "-O3 -march=native")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -fsanitize=address")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address")
+
+# Speed up linking on Linux
+execute_process(COMMAND ${CMAKE_C_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE ld_version)
+if ("${ld_version}" MATCHES "GNU gold")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
+endif()
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 

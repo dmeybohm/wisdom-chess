@@ -11,11 +11,11 @@
 #include "game.h"
 #include "board_check.h"
 
-struct game *game_new (color_t turn, color_t computer_player)
+struct game *game_new (enum color turn, enum color computer_player)
 {
 	struct game *game;
 
-	game = malloc (sizeof(*game));
+	game = static_cast<struct game *>(malloc (sizeof(*game)));
 	assert (game != NULL);
 
 	game->board = board_new ();
@@ -113,7 +113,7 @@ int game_save (struct game *game)
 	return 1; // need to check for failure here
 }
 
-struct game *game_load (color_t player)
+struct game *game_load (enum color player)
 {
 	struct game *game;
 	char file[128];

@@ -21,7 +21,7 @@ enum castle
 	CASTLE_PREVIOUSLY_NONE = 0x07U,   // previously was none - used for determining if a move affects castling
 };
 
-#define MAX_CASTLE_STATES  8
+constexpr int MAX_CASTLE_STATES = 8;
 
 enum move_category
 {
@@ -40,16 +40,12 @@ typedef struct undo_move
     castle_state_t     opponent_castle_state;
 } undo_move_t;
 
-static inline undo_move_t empty_undo_state (void)
-{
-    undo_move_t undo_state = {
-            .category = MOVE_CATEGORY_NON_CAPTURE,
-            .taken_piece_type = PIECE_NONE,
-            .current_castle_state = CASTLE_NONE,
-            .opponent_castle_state = CASTLE_NONE,
-    };
-    return undo_state;
-}
+constexpr undo_move_t empty_undo_state = {
+    .category = MOVE_CATEGORY_NON_CAPTURE,
+    .taken_piece_type = PIECE_NONE,
+    .current_castle_state = CASTLE_NONE,
+    .opponent_castle_state = CASTLE_NONE,
+};
 
 typedef struct move
 {
@@ -59,8 +55,8 @@ typedef struct move
 	uint8_t            dst_row : 3;
 	uint8_t            dst_col : 3;
 
-	uint8_t            promoted_color: 2;
-	uint8_t            promoted_piece_type: 3;
+	enum color         promoted_color: 2;
+	enum piece_type    promoted_piece_type: 3;
 
 	enum move_category move_category : 3;
 } move_t;
@@ -82,9 +78,7 @@ static inline int is_promoting_move (move_t move)
 
 static inline piece_t move_get_promoted_piece (move_t move)
 {
-    enum color color = (enum color)move.promoted_color;
-    enum piece_type piece_type = (enum piece_type)move.promoted_piece_type;
-	return MAKE_PIECE (color, piece_type);
+	return MAKE_PIECE (move.promoted_color, move.promoted_piece_type);
 }
 
 static inline int is_capture_move (move_t move)
@@ -133,9 +127,9 @@ static inline int is_castling_move_on_king_side (move_t move)
 	return is_castling_move(move) && move.dst_col == 6;
 }
 
-static inline uint8_t castling_row_from_color (color_t color)
+static inline uint8_t castling_row_from_color (enum color who)
 {
-    switch (color)
+    switch (who)
     {
         case COLOR_WHITE:
             return 7;
@@ -259,8 +253,8 @@ static inline void save_opponent_castle_state (undo_move_t *undo_state, castle_s
 
 /////////////////////////////////////////////////////////////////////
 
-undo_move_t   do_move         (struct board *board, color_t who, move_t move);
-void          undo_move       (struct board *board, color_t who, move_t move,
+undo_move_t   do_move         (struct board *board, enum color who, move_t move);
+void          undo_move       (struct board *board, enum color who, move_t move,
                                undo_move_t undo_state);
 move_t        move_parse      (const char *str, enum color who);
 const char   *move_str        (move_t move);

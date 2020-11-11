@@ -69,13 +69,13 @@ struct board_positions
 
 // white moves up (-)
 // black moves down (+)
-static inline int PAWN_DIRECTION (color_t color)
+static inline int PAWN_DIRECTION (enum color color)
 {
     assert (color == COLOR_WHITE || color == COLOR_BLACK);
 	return color == COLOR_BLACK ? 1 : -1;
 }
 
-static inline bool need_pawn_promotion (uint8_t row, color_t who)
+static inline bool need_pawn_promotion (uint8_t row, enum color who)
 {
     switch (who)
     {

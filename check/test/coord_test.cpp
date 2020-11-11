@@ -1,9 +1,6 @@
 #include "catch.hpp"
 
-extern "C"
-{
 #include "coord.h"
-}
 
 TEST_CASE( "A coordinate can be generated", "[coord]" )
 {

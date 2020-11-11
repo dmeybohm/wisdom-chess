@@ -90,7 +90,7 @@ void position_init (struct position *positions)
     positions->score[0] = positions->score[1] = 0;
 }
 
-static int change (coord_t coord, color_t who, piece_t piece)
+static int change (coord_t coord, enum color who, piece_t piece)
 {
     coord_t translated_pos = translate_position (coord, who);
     uint8_t row = ROW(translated_pos);
@@ -115,19 +115,19 @@ static int change (coord_t coord, color_t who, piece_t piece)
     }
 }
 
-void position_add (struct position *position, color_t who, coord_t coord,piece_t piece)
+void position_add (struct position *position, enum color who, coord_t coord,piece_t piece)
 {
     color_index_t index = color_index(who);
     position->score[index] += change (coord, who, piece);
 }
 
-void position_remove (struct position *position, color_t who, coord_t coord, piece_t piece)
+void position_remove (struct position *position, enum color who, coord_t coord, piece_t piece)
 {
     color_index_t index = color_index(who);
     position->score[index] -= change (coord, who, piece);
 }
 
-void position_do_move (struct position *position, color_t color,
+void position_do_move (struct position *position, enum color color,
                        piece_t piece, move_t move, undo_move_t undo_state)
 {
     enum color opponent = color_invert(color);
@@ -172,7 +172,7 @@ void position_do_move (struct position *position, color_t color,
     position_add (position, color, dst, dst_piece);
 }
 
-void position_undo_move (struct position *position, color_t color,
+void position_undo_move (struct position *position, enum color color,
                          piece_t piece, move_t move, undo_move_t undo_state)
 {
     enum color opponent = color_invert(color);
@@ -216,7 +216,7 @@ void position_undo_move (struct position *position, color_t color,
     position_add (position, color, src, piece);
 }
 
-int position_score (struct position *position, color_t who)
+int position_score (struct position *position, enum color who)
 {
     color_index_t index = color_index(who);
     color_index_t inverted = color_index(color_invert(who));

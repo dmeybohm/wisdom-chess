@@ -1,12 +1,9 @@
 #include "catch.hpp"
 #include "board_builder.hpp"
 
-extern "C"
-{
 #include "board.h"
 #include "position.h"
 #include "move.h"
-}
 
 TEST_CASE("Position is initialized correctly", "[position-test]")
 {

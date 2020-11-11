@@ -15,7 +15,7 @@
 #include "str.h"
 
 // the color the computer is playing as
-static color_t comp_player = COLOR_BLACK;
+static const enum color comp_player = COLOR_BLACK;
 
 static void print_available_moves (struct game *game)
 {
@@ -110,9 +110,6 @@ int main (int argc, char **argv)
 	int           ok = 1, good;
 	int           skip;
 	move_t        move = move_null();
-
-	// initialize computer to black
-	comp_player = COLOR_BLACK;
 
 	game = game_new (COLOR_WHITE, comp_player);
 

@@ -1,11 +1,8 @@
 #ifndef WIZDUMB_BOARD_BUILDER_HPP
 #define WIZDUMB_BOARD_BUILDER_HPP
 
-extern "C"
-{
 #include "piece.h"
 #include "move.h"
-}
 
 #include <cstdint>
 #include <string>

@@ -33,7 +33,7 @@ static struct board_positions init_board[] =
 	{ 1, COLOR_BLACK, pawns,     },
 	{ 6, COLOR_WHITE, pawns,     },
 	{ 7, COLOR_WHITE, back_rank, },
-	{ 0, 0, NULL }
+	{ 0, COLOR_NONE, NULL }
 };
 
 struct board *board_new (void)
@@ -46,7 +46,7 @@ struct board *board_from_positions (const struct board_positions *positions)
     struct board *new_board;
     size_t i;
 
-    new_board = malloc (sizeof(*new_board));
+    new_board = (struct board *) malloc (sizeof(*new_board));
     assert (new_board);
     memset (new_board, 0, sizeof(*new_board));
 

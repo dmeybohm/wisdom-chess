@@ -1,12 +1,9 @@
 
 #include "catch.hpp"
 
-extern "C"
-{
 #include "piece.h"
 #include "board_hash.h"
 #include "board.h"
-}
 
 TEST_CASE( "Board hashes can be initialized", "[single-file]" )
 {
@@ -33,7 +30,7 @@ TEST_CASE( "Board hashes return to the same hash with a normal move", "[single-f
     move_t mv = move_create (1, 4, 3, 4);
 
     uint64_t orig_board_hash = board_hash.hash;
-    undo_move_t undo_state = empty_undo_state();
+    undo_move_t undo_state = empty_undo_state;
 
     board_hash_move (&board_hash, board, mv, undo_state);
 

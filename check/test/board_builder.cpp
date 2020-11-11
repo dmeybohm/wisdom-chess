@@ -1,10 +1,7 @@
 #include "board_builder.hpp"
 
-extern "C"
-{
 #include "board.h"
 #include "move.h"
-}
 
 coord_t coord_alg (const char *coord_str)
 {

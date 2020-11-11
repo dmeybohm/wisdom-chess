@@ -9,7 +9,7 @@
 #include "move_list.h"
 #include "check.h"
 
-bool is_checkmated (struct board *board, color_t who)
+bool is_checkmated (struct board *board, enum color who)
 {
 	int          row, col;
 	move_list_t *legal_moves;
@@ -30,7 +30,7 @@ bool is_checkmated (struct board *board, color_t who)
     return result;
 }
 
-bool is_king_threatened (struct board *board, color_t who,
+bool is_king_threatened (struct board *board, enum color who,
                          uint8_t king_row, uint8_t king_col)
 {
 	int           row, col;
@@ -173,14 +173,12 @@ bool is_king_threatened (struct board *board, color_t who,
 	return false;
 }
 
-bool was_legal_move (struct board *board, color_t who, move_t mv)
+bool was_legal_move (struct board *board, enum color who, move_t mv)
 {
     coord_t king_pos = king_position (board, who);
 
-	if (is_king_threatened(board, who, ROW(king_pos), COLUMN(king_pos)))
-	{
+	if (is_king_threatened (board, who, ROW(king_pos), COLUMN(king_pos)))
 		return false;
-	}
 
 	if (is_castling_move(mv))
     {

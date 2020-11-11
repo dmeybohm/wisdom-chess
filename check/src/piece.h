@@ -49,8 +49,6 @@ struct player_index_struct
     enum player_index index;
 };
 
-typedef uint8_t   color_t;
-
 typedef uint8_t   color_index_t;
 
 typedef struct piece_with_color piece_t;
@@ -80,10 +78,10 @@ static inline enum color PIECE_COLOR (piece_t piece)
     return piece.color;
 }
 
-static inline enum color color_invert (enum color color)
+static inline enum color color_invert (enum color who)
 {
-    assert (color == COLOR_WHITE || color == COLOR_BLACK);
-	return color == COLOR_WHITE ? COLOR_BLACK : COLOR_WHITE;
+    assert (who == COLOR_WHITE || who == COLOR_BLACK);
+	return who == COLOR_WHITE ? COLOR_BLACK : COLOR_WHITE;
 }
 
 static inline color_index_t color_index (enum color who)
@@ -100,12 +98,12 @@ static inline color_index_t color_index (enum color who)
 	}
 }
 
-static inline int is_color_invalid (color_t color)
+static inline bool is_color_invalid (enum color color)
 {
 	if (color == COLOR_WHITE || color == COLOR_BLACK)
-		return 0;
+		return false;
 
-	return 1;
+	return true;
 }
 
 char *piece_str (piece_t piece);
@@ -153,12 +151,17 @@ static inline player_index_t default_player_index (void)
 ////////////////////////////////////////////////////
 
 #define for_each_color(c) \
-	for (c = COLOR_WHITE; c <= COLOR_BLACK; c++)
+	for (c = COLOR_WHITE; c <= COLOR_BLACK; (c) = static_cast<enum color>(static_cast<int>((c))+ 1))
 
 #define for_each_piece(p) \
-	for (p = PIECE_NONE; p < PIECE_LAST; p++)
+	for (p = PIECE_NONE; p < PIECE_LAST; (p) = static_cast<enum piece_type>(static_cast<int>((p)) + 1))
 
 #define for_each_color_index(c) \
     for (c = COLOR_INDEX_WHITE; c <= COLOR_INDEX_BLACK; c++)
+
+#define for_each_promotable_piece(p) \
+    for (p = PIECE_QUEEN; \
+    p < PIECE_PAWN; \
+    (p) = static_cast<enum piece_type>(static_cast<int>((p)) + 1))
 
 #endif // EVOLVE_CHESS_PIECE_H

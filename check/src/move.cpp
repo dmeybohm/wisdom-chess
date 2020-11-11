@@ -14,7 +14,7 @@ coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst)
     return coord_create (ROW(src), COLUMN(dst));
 }
 
-piece_t handle_en_passant (struct board *board, color_t who,
+piece_t handle_en_passant (struct board *board, enum color who,
                            coord_t src, coord_t dst, int undo)
 {
     coord_t taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
@@ -39,7 +39,7 @@ piece_t handle_en_passant (struct board *board, color_t who,
 }
 
 static move_t get_castling_rook_move (struct board *board, move_t move,
-                                      color_t who)
+                                      enum color who)
 {
     uint8_t    src_row, src_col;
     uint8_t    dst_row, dst_col;
@@ -118,7 +118,7 @@ static void handle_castling (struct board *board, enum color who,
     }
 }
 
-void update_king_position (struct board *board, color_t who, move_t move,
+void update_king_position (struct board *board, enum color who, move_t move,
                            undo_move_t *undo_state, coord_t src, coord_t dst,
                            int undo)
 {
@@ -156,7 +156,7 @@ void update_king_position (struct board *board, color_t who, move_t move,
 }
 
 static void
-update_opponent_rook_position (struct board *board, color_t opponent,
+update_opponent_rook_position (struct board *board, enum color opponent,
                                piece_t dst_piece, undo_move_t *undo_state,
                                coord_t src, coord_t dst, int undo)
 {
@@ -173,7 +173,7 @@ update_opponent_rook_position (struct board *board, color_t opponent,
     }
     else
     {
-        enum castle castle_state;
+        castle_state_t castle_state;
 
         //
         // This needs distinguishes between captures that end
@@ -202,7 +202,7 @@ update_opponent_rook_position (struct board *board, color_t opponent,
     }
 }
 
-static void update_current_rook_position (struct board *board, color_t player,
+static void update_current_rook_position (struct board *board, enum color player,
                                           piece_t src_piece, move_t move,
                                           undo_move_t *undo_state,
                                           coord_t src, coord_t dst, int undo)
@@ -227,7 +227,7 @@ static void update_current_rook_position (struct board *board, color_t player,
     }
     else
     {
-        enum castle castle_state;
+        castle_state_t castle_state;
 
         //
         // This needs distinguishes between captures that end
@@ -256,11 +256,11 @@ static void update_current_rook_position (struct board *board, color_t player,
     }
 }
 
-undo_move_t do_move (struct board *board, color_t who, move_t move)
+undo_move_t do_move (struct board *board, enum color who, move_t move)
 {
     piece_t      orig_src_piece, src_piece, dst_piece;
     coord_t      src, dst;
-    undo_move_t  undo_state = { 0 };
+    undo_move_t  undo_state = empty_undo_state;
     enum color   opponent = color_invert(who);
 
     src = MOVE_SRC(move);
@@ -344,7 +344,7 @@ undo_move_t do_move (struct board *board, color_t who, move_t move)
     return undo_state;
 }
 
-void undo_move (struct board *board, color_t who,
+void undo_move (struct board *board, enum color who,
                 move_t move, undo_move_t undo_state)
 {
     piece_t         orig_src_piece, src_piece, dst_piece = PIECE_AND_COLOR_NONE;
@@ -461,7 +461,7 @@ const char *move_str (move_t move)
 	return buf;
 }
 
-static move_t castle_parse (const char *str, color_t who)
+static move_t castle_parse (const char *str, enum color who)
 {
 	uint8_t src_row, dst_col;
 

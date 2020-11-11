@@ -7,8 +7,6 @@
 #include "board.h"
 #include "debug.h"
 
-DEFINE_DEBUG_CHANNEL(move_list, 0);
-
 /*
  * TODO: implement a cache for allocating.  This would have an
  * extremley high hit rate:
@@ -57,11 +55,11 @@ static move_list_t *move_list_alloc (void)
 		return new_moves;
 	}
 
-	new_moves = malloc (sizeof (move_list_t));
+	new_moves = static_cast<move_list_t *>(malloc (sizeof (move_list_t)));
     assert (new_moves);
     memset (new_moves, 0, sizeof (move_list_t));
 
-    new_moves->move_array = malloc (SIZE_INCREMENT * sizeof (move_t));
+    new_moves->move_array = static_cast<move_t *>(malloc (SIZE_INCREMENT * sizeof (move_t)));
     assert (new_moves->move_array);
 
     new_moves->size = SIZE_INCREMENT;
@@ -114,8 +112,8 @@ move_list_t *move_list_append_move (move_list_t *moves, move_t move)
 		if (moves->len == moves->size)
 		{
 			moves->size += SIZE_INCREMENT;
-			moves->move_array = realloc (moves->move_array, 
-			                             moves->size * sizeof (move_t));
+			moves->move_array = static_cast<move_t *>(realloc (moves->move_array,
+                                                      moves->size * sizeof (move_t)));
 
 			if (!moves->move_array)
 			{
@@ -140,34 +138,6 @@ char col_to_char (int col)
 	    return col + 'a';
 }
 
-void move_list_print (move_list_t *move_list)
-{
-	move_t    *mv;
-	
-	return;
-
-	debug_multi_line_start (&CHANNEL_NAME (move_list));
-
-	DBG (move_list, "move_list: { ");
-
-	for_each_move (mv, move_list)
-	{
-		coord_t src, dst;
-
-		src = MOVE_SRC (*mv);
-		dst = MOVE_DST (*mv);
-
-		DBG (move_list, "[%c%c %c%c] ", col_to_char (COLUMN (src)), 
-		                                row_to_char (ROW (src)),
-		                                col_to_char (COLUMN (dst)),
-		                                row_to_char (ROW (dst)));
-	}
-
-	DBG (move_list, "}\n");
-
-	debug_multi_line_stop (&CHANNEL_NAME (move_list));
-}
-
 move_list_t *move_list_append_list (move_list_t *dst, move_list_t *src)
 {
 	if (!src)
@@ -178,7 +148,7 @@ move_list_t *move_list_append_list (move_list_t *dst, move_list_t *src)
 
 	size_t required = dst->len + src->len;
 	if (dst->size < required) {
-	    dst->move_array = realloc (dst->move_array, required * sizeof(dst->move_array[0]));
+	    dst->move_array = static_cast<move_t*>(realloc (dst->move_array, required * sizeof(dst->move_array[0])));
 	    assert (dst->move_array);
 	    dst->size = required;
 	}

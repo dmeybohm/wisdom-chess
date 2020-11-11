@@ -1,11 +1,8 @@
 #include "catch.hpp"
 
-extern "C"
-{
 #include "board.h"
 #include "move.h"
 #include "generate.h"
-}
 
 TEST_CASE( "Moving and undoing a move works", "[move]" )
 {

@@ -1,9 +1,6 @@
 #include "catch.hpp"
 
-extern "C"
-{
 #include "piece.h"
-}
 
 TEST_CASE( "A piece can be converted", "[piece]" )
 {

@@ -13,11 +13,11 @@ struct game
 	enum color         turn;
 };
 
-struct game *game_new   (color_t turn, color_t computer_player);
+struct game *game_new   (enum color turn, enum color computer_player);
 void         game_free  (struct game *game);
 
 int          game_save  (struct game *game);
-struct game *game_load  (color_t player);
+struct game *game_load  (enum color player);
 void         game_move  (struct game *game, struct move move);
 
 #endif // EVOLVE_CHESS_GAME_H_

@@ -1,10 +1,7 @@
 #include "catch.hpp"
 #include "board_builder.hpp"
 
-extern "C"
-{
 #include "board.h"
-}
 
 using Catch::Matchers::Contains;
 
