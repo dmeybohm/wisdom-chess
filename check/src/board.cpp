@@ -1,14 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
+#include <cstring>
 
 #include "board.h"
 #include "debug.h"
 #include "validate.h"
 
 // board length in characters
-#define BOARD_LENGTH            31
+constexpr unsigned int BOARD_LENGTH = 31;
 
 DEFINE_DEBUG_CHANNEL (board, 0);
 
@@ -33,10 +33,10 @@ static struct board_positions init_board[] =
 	{ 1, COLOR_BLACK, pawns,     },
 	{ 6, COLOR_WHITE, pawns,     },
 	{ 7, COLOR_WHITE, back_rank, },
-	{ 0, COLOR_NONE, NULL }
+	{ 0, COLOR_NONE, nullptr }
 };
 
-struct board *board_new (void)
+struct board *board_new ()
 {
     return board_from_positions (init_board);
 }
@@ -102,7 +102,7 @@ void board_init_from_positions (struct board *board, const struct board_position
     material_init (&board->material);
     position_init (&board->position);
     
-    for (ptr = positions; ptr->pieces != NULL; ptr++)
+    for (ptr = positions; ptr->pieces != nullptr; ptr++)
     {
         enum piece_type *pieces = ptr->pieces;
         enum color color = ptr->piece_color;
@@ -129,6 +129,9 @@ void board_init_from_positions (struct board *board, const struct board_position
 
     board->castled[COLOR_INDEX_WHITE] = init_castle_state (board, COLOR_WHITE);
     board->castled[COLOR_INDEX_BLACK] = init_castle_state (board, COLOR_BLACK);
+
+    board->en_passant_columns[COLOR_INDEX_WHITE][0] = board->en_passant_columns[COLOR_INDEX_WHITE][1] = -1;
+    board->en_passant_columns[COLOR_INDEX_BLACK][0] = board->en_passant_columns[COLOR_INDEX_BLACK][1] = -1;
 
 	board_hash_init (&board->hash, board);
 }
@@ -238,21 +241,6 @@ void board_dump (struct board *board)
 void board_print_err (struct board *board)
 {
 	board_print_to_file (board, stderr);
-}
-
-void check (void)
-{
-	enum color c;
-	enum piece_type p;
-
-	for_each_color (c)
-	{
-		for_each_piece (p)
-		{
-			assert (PIECE_COLOR (MAKE_PIECE (c, p)) == c);
-			assert (PIECE_TYPE (MAKE_PIECE (c, p)) == p);
-		}
-	}
 }
 
 // vi: set ts=4 sw=4:

@@ -82,7 +82,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 	best_move = move_null();
     *ret = move_null();
 
-	moves = generate_moves (board, side, history);
+	moves = generate_moves (board, side);
 	if (!moves)
 	{
 		*ret_variation = NULL;

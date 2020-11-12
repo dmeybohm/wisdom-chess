@@ -1,8 +1,8 @@
 #ifndef EVOLVE_CHESS_MOVE_H
 #define EVOLVE_CHESS_MOVE_H
 
-#include <string.h>
-#include <assert.h>
+#include <cstring>
+#include <cassert>
 
 #include "global.h"
 #include "coord.h"
@@ -23,6 +23,12 @@ enum castle
 
 constexpr int MAX_CASTLE_STATES = 8;
 
+enum en_passant_eligible
+{
+    EN_PASSANT_NOT_ELIGIBLE = 0,
+    EN_PASSANT_ELIGIBLE = 1,
+};
+
 enum move_category
 {
     MOVE_CATEGORY_NON_CAPTURE = 0,
@@ -33,18 +39,21 @@ enum move_category
 
 typedef struct undo_move
 {
-    enum move_category category;
-    enum piece_type    taken_piece_type;
+    enum move_category          category;
+    enum piece_type             taken_piece_type;
     
-    castle_state_t     current_castle_state;
-    castle_state_t     opponent_castle_state;
+    castle_state_t              current_castle_state;
+    castle_state_t              opponent_castle_state;
+    int8_t                      en_passant_columns[NR_PLAYERS][2];
 } undo_move_t;
 
-constexpr undo_move_t empty_undo_state = {
+constexpr undo_move_t empty_undo_state =
+{
     .category = MOVE_CATEGORY_NON_CAPTURE,
     .taken_piece_type = PIECE_NONE,
     .current_castle_state = CASTLE_NONE,
     .opponent_castle_state = CASTLE_NONE,
+    .en_passant_columns = { { -1, -1 }, { -1, -1 } },
 };
 
 typedef struct move
@@ -120,6 +129,13 @@ constexpr bool move_affects_opponent_castle_state (undo_move_t move)
 constexpr bool is_castling_move (move_t move)
 {
 	return move.move_category == MOVE_CATEGORY_CASTLING;
+}
+
+constexpr bool is_double_square_pawn_move (piece_t src_piece, move_t move)
+{
+    coord_t src = MOVE_SRC(move);
+    coord_t dst = MOVE_DST(move);
+    return PIECE_TYPE(src_piece) == PIECE_PAWN && abs(ROW(src) - ROW(dst)) == 2;
 }
 
 constexpr bool is_castling_move_on_king_side (move_t move)
@@ -210,6 +226,8 @@ constexpr move_t move_null ()
 {
     return move_create (0, 0, 0, 0);
 }
+
+constexpr move_t null_move = move_create (0, 0, 0, 0);
 
 constexpr bool move_equals (move_t a, move_t b)
 {

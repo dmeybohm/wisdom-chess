@@ -5,6 +5,7 @@
 #include "coord.h"
 #include "board.h"
 #include "validate.h"
+#include "generate.h"
 
 extern char col_to_char (int col);
 extern char row_to_char (int row);
@@ -256,6 +257,39 @@ static void update_current_rook_position (struct board *board, enum color player
     }
 }
 
+static void handle_en_passant_eligibility (struct board *board, enum color who, piece_t src_piece,
+                                           move_t move, undo_move_t *undo_state, int undo)
+{
+    color_index_t c_index = color_index(who);
+    color_index_t o_index = color_index(color_invert(who));
+
+    if (undo)
+    {
+        board->en_passant_columns[c_index][0] = undo_state->en_passant_columns[c_index][0];
+        board->en_passant_columns[c_index][1] = undo_state->en_passant_columns[c_index][1];
+        board->en_passant_columns[o_index][0] = undo_state->en_passant_columns[o_index][0];
+        board->en_passant_columns[o_index][1] = undo_state->en_passant_columns[o_index][1];
+    }
+    else
+    {
+        int8_t new_state[2] = { -1, -1 };
+        if (is_double_square_pawn_move (src_piece, move))
+        {
+            uint8_t column = COLUMN(MOVE_SRC(move));
+            new_state[0] = VALID(column - 1) ? column - 1 : -1;
+            new_state[1] = VALID(column + 1) ? column + 1 : -1;
+        }
+        undo_state->en_passant_columns[c_index][0] = board->en_passant_columns[c_index][0];
+        undo_state->en_passant_columns[c_index][1] = board->en_passant_columns[c_index][1];
+        undo_state->en_passant_columns[o_index][0] = board->en_passant_columns[o_index][0];
+        undo_state->en_passant_columns[o_index][1] = board->en_passant_columns[o_index][1];
+        board->en_passant_columns[c_index][0] = new_state[0];
+        board->en_passant_columns[c_index][1] = new_state[1];
+        board->en_passant_columns[o_index][0] = -1;
+        board->en_passant_columns[o_index][1] = -1;
+    }
+}
+
 undo_move_t do_move (struct board *board, enum color who, move_t move)
 {
     piece_t      orig_src_piece, src_piece, dst_piece;
@@ -309,6 +343,8 @@ undo_move_t do_move (struct board *board, enum color who, move_t move)
         handle_castling (board, who, move, src, dst, 0);
         undo_state.category = MOVE_CATEGORY_CASTLING;
     }
+
+    handle_en_passant_eligibility (board, who, src_piece, move, &undo_state, 0);
 
     board_set_piece (board, src, PIECE_AND_COLOR_NONE);
     board_set_piece (board, dst, src_piece);
@@ -370,6 +406,9 @@ void undo_move (struct board *board, enum color who,
     // check for castling
     if (is_castling_move(move))
         handle_castling (board, who, move, src, dst, 1);
+
+    // Update en passant eligibility:
+    handle_en_passant_eligibility (board, who, src_piece, move, &undo_state, 1);
 
     // check for en passant
     if (is_en_passant_move(move))

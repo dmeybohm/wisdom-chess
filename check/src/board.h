@@ -1,8 +1,8 @@
 #ifndef EVOLVE_CHESS_BOARD_H_
 #define EVOLVE_CHESS_BOARD_H_
 
-#include <stdio.h>
-#include <assert.h>
+#include <cstdio>
+#include <cassert>
 
 #include "global.h"
 #include "config.h"
@@ -25,25 +25,29 @@ struct material;
 struct move_tree;
 struct board_positions;
 
+
 struct board
 {
-	piece_t              board[NR_ROWS][NR_COLUMNS];
+	piece_t                  board[NR_ROWS][NR_COLUMNS];
 
 	// positions of the kings
-	coord_t              king_pos[NR_PLAYERS];
+	coord_t                  king_pos[NR_PLAYERS];
 
 	// castle state of the board
-	castle_state_t       castled[NR_PLAYERS];
+	castle_state_t           castled[NR_PLAYERS];
 
 	// keep track of the material on the board
-	struct material      material;
+	struct material          material;
 
 	// keep track of the positions on the board
-	struct position      position;
+	struct position          position;
+
+	// The columns which are eligible for en_passant
+	int8_t                   en_passant_columns[NR_PLAYERS][2];
 
 	// keep track of hashing information
 	// TODO maybe move this higher up for better performance
-	struct board_hash    hash;
+	struct board_hash        hash;
 };
 
 struct board_positions
@@ -117,14 +121,7 @@ static inline void board_undo_castle_change (struct board *board, enum color who
     board->castled[index] = castle_state;
 }
 
-static inline int may_do_en_passant (unsigned char row, enum color who)
-{
-	// if WHITE rank 4, black rank 3
-	assert (who == COLOR_WHITE || who == COLOR_BLACK);
-	return (who == COLOR_WHITE ? 3 : 4) == row;
-}
-
-static inline int is_pawn_unmoved (struct board *board, 
+static inline int is_pawn_unmoved (struct board *board,
                                    uint8_t row, uint8_t col)
 {
 	piece_t piece = PIECE_AT (board, row, col);

@@ -16,10 +16,10 @@
 
 #define Move_Func_Arguments \
 	struct board *board, enum color who, \
-	int piece_row, int piece_col, move_tree_t *history, move_list_t *moves
+	int piece_row, int piece_col, move_list_t *moves
 
 #define Move_Func_Param_Names \
-	board, who, piece_row, piece_col, history, moves
+	board, who, piece_row, piece_col, moves
 
 #define MOVES_HANDLER(name) \
 	static move_list_t *moves_##name (Move_Func_Arguments)
@@ -35,9 +35,8 @@ MOVES_HANDLER (rook);
 MOVES_HANDLER (bishop);
 MOVES_HANDLER (knight);
 MOVES_HANDLER (pawn);
-MOVES_HANDLER (en_passant);
 
-static void knight_move_list_init (void);
+static void knight_move_list_init ();
 
 ///////////////////////////////////////////////
 
@@ -50,10 +49,13 @@ static MoveFunc move_functions[] =
 	moves_bishop,  // PIECE_BISHOP [4]
 	moves_knight,  // PIECE_KNIGHT [5]
 	moves_pawn,    // PIECE_PAWN   [6]
-	NULL,
+	nullptr,
 };
 
 static move_list_t *knight_moves[NR_ROWS][NR_COLUMNS];
+
+static move_list_t *add_en_passant_move (const struct board *board, enum color who, uint8_t piece_row, uint8_t piece_col,
+                                         move_list_t *moves, uint8_t en_passant_column);
 
 ///////////////////////////////////////////////
 
@@ -297,8 +299,9 @@ MOVES_HANDLER (pawn)
 	}
 	
 	// en passant
-	if (unlikely (may_do_en_passant (piece_row, who)))
-		moves = moves_en_passant (Move_Func_Param_Names);
+	int8_t en_passant_column = eligible_en_passant_column (board, piece_row, piece_col, who);
+	if (VALID(en_passant_column))
+		moves = add_en_passant_move (board, who, piece_row, piece_col, moves, en_passant_column);
 
 	for (i = 0; i < sizeof (move) / sizeof (move[0]); i++)
 		if (!is_null_move (move[i]))
@@ -309,55 +312,27 @@ MOVES_HANDLER (pawn)
 
 // put en passant in a separate handler
 // in order to not pollute instruction cache with it
-MOVES_HANDLER (en_passant)
+static move_list_t *
+add_en_passant_move (const struct board *board, enum color who, uint8_t piece_row, uint8_t piece_col,
+                     move_list_t *moves, uint8_t en_passant_column)
 {
-	coord_t       src, dst;
-	move_t        mv;
 	move_t        new_move;
 	int           direction;
-	piece_t       piece;
-	unsigned char take_row, take_col;
-	unsigned char start_row;
+	uint8_t       take_row, take_col;
 
 	direction = PAWN_DIRECTION (who);
 
-	if (unlikely (!history))
-		return moves;
-
-	mv = history->move;
-
-	dst = MOVE_DST (mv);
-	src = MOVE_SRC (mv);
-
-	start_row = ROW (src);
-
-	take_col  = COLUMN (dst);
-	take_row  = ROW (dst);
-
-	if (abs (start_row - take_row) != 2)
-		return moves;
-
-	if (piece_row != take_row)
-		return moves;
-
-	if (abs (take_col - piece_col) != 1)
-		return moves;
-
-	piece = PIECE_AT (board, take_row, take_col);
-
-	if (PIECE_TYPE (piece) != PIECE_PAWN)
-		return moves;
-
-	assert (PIECE_COLOR (piece) != who);
-
-	// ok, looks like the previous move could yield en passant
 	take_row = NEXT (piece_row, direction);
+	take_col = en_passant_column;
 
-	new_move = move_create_en_passant(piece_row, piece_col, take_row, take_col);
+	piece_t take_piece = PIECE_AT (board, piece_row, take_col);
 
-	moves = move_list_append_move (moves, new_move);
-	
-	return moves;
+	assert (PIECE_TYPE(take_piece) == PIECE_PAWN);
+	assert (PIECE_COLOR(take_piece) == color_invert(who));
+
+	new_move = move_create_en_passant (piece_row, piece_col, take_row, take_col);
+
+	return move_list_append_move (moves, new_move);
 }
 
 ///////////////////////////////////////////////
@@ -406,7 +381,7 @@ move_list_t *generate_legal_moves (struct board *board, enum color who,
 	move_list_t *non_checks = NULL;
 	move_t      *mptr;
     board_check_t board_check;
-	all_moves = generate_moves (board, who, history);
+	all_moves = generate_moves (board, who);
 
 	for_each_move (mptr, all_moves)
 	{
@@ -560,7 +535,7 @@ move_list_t *generate_captures (struct board *board, enum color who,
     move_list_t *captures = NULL;
     move_t *mv_ptr;
 
-    move_list = generate_moves (board, who, history);
+    move_list = generate_moves (board, who);
 
     for_each_move (mv_ptr, move_list)
     {
@@ -574,8 +549,7 @@ move_list_t *generate_captures (struct board *board, enum color who,
 	return captures;
 }
 
-move_list_t *generate_moves (struct board *board, enum color who,
-                             move_tree_t *history)
+move_list_t *generate_moves (struct board *board, enum color who)
 {
 	int          row, col;
 	move_list_t *new_moves    = NULL;
@@ -606,7 +580,7 @@ move_list_t *generate_moves (struct board *board, enum color who,
 		}
 
 		new_moves = (*move_functions[PIECE_TYPE (piece)])
-			(board, who, row, col, history, new_moves);
+			(board, who, row, col, new_moves);
 
 #if 0
 		for_each_move (move, new_moves)
