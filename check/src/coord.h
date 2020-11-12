@@ -1,9 +1,9 @@
 #ifndef EVOLVE_CHESS_COORD_H
 #define EVOLVE_CHESS_COORD_H
 
-#include <stdint.h>
-#include <ctype.h>
-#include <string.h>
+#include <cstdint>
+#include <cctype>
+#include <cstring>
 
 #include "global.h"
 
