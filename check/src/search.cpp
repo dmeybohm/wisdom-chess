@@ -79,7 +79,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 	best_move = null_move;
     *ret = null_move;
 
-	std::vector<move_t> moves = generate_moves (board, side);
+	move_list_t moves = generate_moves (board, side);
 	if (moves.empty())
 	{
 		*ret_variation = nullptr;

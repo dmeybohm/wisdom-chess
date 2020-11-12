@@ -20,7 +20,7 @@ static const enum color comp_player = COLOR_BLACK;
 
 static void print_available_moves (struct game *game)
 {
-	std::vector<move_t> moves = generate_legal_moves (game->board, game->turn);
+	move_list_t moves = generate_legal_moves (game->board, game->turn);
 
 	printf ("\nAvailable moves: ");
 
@@ -36,7 +36,7 @@ static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 #if 0
 	piece_t src_piece, dst_piece;
 #endif
-	std::vector<move_t> moves;
+	move_list_t moves;
 	struct game        *game  = *g_out;
 
 	printf ("move? ");

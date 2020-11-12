@@ -8,6 +8,8 @@
 #include "coord.h"
 #include "piece.h"
 
+#include "realloc_vector.hpp"
+
 struct board;
 
 typedef uint8_t castle_state_t;
@@ -69,6 +71,10 @@ typedef struct move
 
 	enum move_category move_category : 3;
 } move_t;
+
+using move_list_t = realloc_vector<move_t>;
+
+////////////////////////////////////////////////////////////////////
 
 constexpr coord_t MOVE_SRC (move_t mv)
 {

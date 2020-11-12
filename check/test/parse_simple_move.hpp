@@ -13,7 +13,7 @@ move_t parse_move (const char *str, enum color color = COLOR_NONE);
 
 class my_move_list
 {
-    std::vector<move_t> moves;
+    move_list_t moves;
 
 public:
     my_move_list (enum color color, std::initializer_list<const char *> list)

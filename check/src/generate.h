@@ -46,11 +46,11 @@ static inline int8_t eligible_en_passant_column (const struct board *board, uint
 ///////////////////////////////////////////////
 
 
-std::vector<move_t> generate_moves        (struct board *board, enum color who);
-std::vector<move_t> generate_legal_moves (struct board *board, enum color who);
+move_list_t generate_moves        (struct board *board, enum color who);
+move_list_t generate_legal_moves (struct board *board, enum color who);
 
-std::vector<move_t> generate_captures (struct board *board, enum color who);
-std::vector<move_t> generate_knight_moves (uint8_t row, uint8_t col);
+move_list_t generate_captures (struct board *board, enum color who);
+move_list_t generate_knight_moves (uint8_t row, uint8_t col);
 
 ///////////////////////////////////////////////
 

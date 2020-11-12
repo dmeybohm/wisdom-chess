@@ -21,7 +21,7 @@ add_executable(chess_tests
         board_builder.cpp
         board_builder.hpp
         board_builder_test.cpp
-        check_test.cpp position_test.cpp move_test.cpp search_test.cpp parse_simple_move.cpp parse_simple_move.hpp parse_simple_move_test.cpp)
+        check_test.cpp position_test.cpp move_test.cpp search_test.cpp parse_simple_move.cpp parse_simple_move.hpp parse_simple_move_test.cpp ../src/realloc_vector.cpp ../src/realloc_vector.hpp)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -O3 -fsanitize=address -march=native")

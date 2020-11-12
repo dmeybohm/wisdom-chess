@@ -14,7 +14,7 @@
 
 #define Move_Func_Arguments \
 	struct board *board, enum color who, \
-	int piece_row, int piece_col, std::vector<move_t> &moves
+	int piece_row, int piece_col, move_list_t &moves
 
 #define Move_Func_Param_Names \
 	board, who, piece_row, piece_col, moves
@@ -50,10 +50,10 @@ static MoveFunc move_functions[] =
 	nullptr,
 };
 
-std::vector<move_t> knight_moves[NR_ROWS][NR_COLUMNS];
+move_list_t knight_moves[NR_ROWS][NR_COLUMNS];
 
 void add_en_passant_move (const struct board *board, enum color who, uint8_t piece_row, uint8_t piece_col,
-                          std::vector<move_t> &moves, uint8_t en_passant_column);
+                          move_list_t &moves, uint8_t en_passant_column);
 
 ///////////////////////////////////////////////
 
@@ -186,7 +186,7 @@ MOVES_HANDLER (bishop)
 
 MOVES_HANDLER (knight)
 {
-	std::vector<move_t> kt_moves = generate_knight_moves (piece_row, piece_col);
+	move_list_t kt_moves = generate_knight_moves (piece_row, piece_col);
 
 	for (auto move : kt_moves)
 		moves.push_back (move);
@@ -286,7 +286,7 @@ MOVES_HANDLER (pawn)
 // put en passant in a separate handler
 // in order to not pollute instruction cache with it
 void add_en_passant_move (const struct board *board, enum color who, uint8_t piece_row, uint8_t piece_col,
-                          std::vector<move_t> &moves, uint8_t en_passant_column)
+                          move_list_t &moves, uint8_t en_passant_column)
 {
 	move_t        new_move;
 	int           direction;
@@ -309,7 +309,7 @@ void add_en_passant_move (const struct board *board, enum color who, uint8_t pie
 
 ///////////////////////////////////////////////
 
-std::vector<move_t> generate_knight_moves (uint8_t row, uint8_t col)
+move_list_t generate_knight_moves (uint8_t row, uint8_t col)
 {
 	// Check f3
 	if (knight_moves[0][0].size() == 0)
@@ -346,12 +346,12 @@ void print_the_board (struct board *board)
 
 }
 
-std::vector<move_t> generate_legal_moves (struct board *board, enum color who)
+move_list_t generate_legal_moves (struct board *board, enum color who)
 {
     board_check_t       board_check;
-    std::vector<move_t> non_checks;
+    move_list_t non_checks;
 
-	std::vector<move_t> all_moves = generate_moves (board, who);
+	move_list_t all_moves = generate_moves (board, who);
 	for (auto move : all_moves)
 	{
 	    board_check_init (&board_check, board);
@@ -396,10 +396,10 @@ static int valid_castling_move (struct board *board, enum color who, move_t move
 		   PIECE_TYPE(piece3) == PIECE_NONE;
 }
 
-std::vector<move_t> validate_moves (const std::vector<move_t> &move_list, struct board *board,
+move_list_t validate_moves (const move_list_t &move_list, struct board *board,
                                     enum color who)
 {
-    std::vector<move_t> captures;
+    move_list_t captures;
 
 	for (auto move : move_list)
 	{
@@ -470,11 +470,11 @@ std::vector<move_t> validate_moves (const std::vector<move_t> &move_list, struct
 	return captures;
 }
 
-std::vector<move_t> generate_captures (struct board *board, enum color who)
+move_list_t generate_captures (struct board *board, enum color who)
 {
-    std::vector<move_t> captures;
+    move_list_t captures;
 
-    std::vector<move_t> move_list = generate_moves (board, who);
+    move_list_t move_list = generate_moves (board, who);
 
     for (auto move : move_list)
     {
@@ -485,10 +485,10 @@ std::vector<move_t> generate_captures (struct board *board, enum color who)
 	return captures;
 }
 
-std::vector<move_t> generate_moves (struct board *board, enum color who)
+move_list_t generate_moves (struct board *board, enum color who)
 {
 	uint8_t             row, col;
-	std::vector<move_t> new_moves;
+	move_list_t new_moves;
 
 	for_each_position (row, col)
 	{

@@ -19,7 +19,7 @@ bool is_checkmated (struct board *board, enum color who)
 	if (!is_king_threatened (board, who, row, col))
 		return false;
 
-	std::vector<move_t> legal_moves = generate_legal_moves (board, who);
+	move_list_t legal_moves = generate_legal_moves (board, who);
 
     return legal_moves.empty ();
 }
@@ -104,7 +104,7 @@ bool is_king_threatened (struct board *board, enum color who,
 	}
 
 	// check for knight checks
-	std::vector<move_t> kt_moves = generate_knight_moves (king_row, king_col);
+	move_list_t kt_moves = generate_knight_moves (king_row, king_col);
 
 	for (auto move : kt_moves)
 	{

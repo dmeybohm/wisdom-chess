@@ -52,7 +52,7 @@ TEST_CASE( "En passant moves work on the right", "[en-passant]" )
     REQUIRE( first_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] == -1 );
     REQUIRE( first_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] == -1 );
 
-    std::vector<move_t> move_list = generate_moves (board, COLOR_WHITE);
+    move_list_t move_list = generate_moves (board, COLOR_WHITE);
     move_t en_passant_move = null_move;
 
     for (auto move : move_list)
@@ -119,7 +119,7 @@ TEST_CASE( "En passant moves work on the left", "[en-passant]" )
     REQUIRE( first_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] == -1 );
     REQUIRE( first_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] == -1 );
 
-    std::vector<move_t> move_list = generate_moves (board, COLOR_WHITE);
+    move_list_t move_list = generate_moves (board, COLOR_WHITE);
     move_t en_passant_move = null_move;
 
     for (auto move : move_list)
