@@ -10,29 +10,29 @@
 // lower three bits are the column, upper three are the row
 typedef struct coord
 {
-    uint8_t _row : 3;
-    uint8_t _col : 3;
+    uint8_t row : 3;
+    uint8_t col : 3;
 } coord_t;
 
 constexpr uint8_t ROW (coord_t pos)
 {
-    return pos._row;
+    return pos.row;
 }
 
 constexpr uint8_t COLUMN (coord_t pos)
 {
-	return pos._col;
+	return pos.col;
 }
 
 constexpr coord_t coord_create (uint8_t row, uint8_t col)
 {
-    coord_t result = { ._row = row, ._col = col };
+    coord_t result = { .row = row, .col = col };
     return result;
 }
 
 constexpr bool coord_equals (coord_t a, coord_t b)
 {
-    return a._row == b._row && a._col == b._col;
+    return a.row == b.row && a.col == b.col;
 }
 
 static inline uint8_t char_to_row (char chr)
