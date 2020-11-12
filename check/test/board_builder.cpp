@@ -116,9 +116,9 @@ struct board *board_builder::build ()
 
     struct board *result = board_from_positions (&positions[0]);
 
-    if (!en_passant_state.empty())
+    if (!en_passant_states.empty())
     {
-        for (auto & state : en_passant_state)
+        for (auto state : en_passant_states)
         {
             color_index_t index = color_index(state.player);
             result->en_passant_columns[index][0] = state.columns[0];
@@ -132,5 +132,5 @@ struct board *board_builder::build ()
 void board_builder::set_en_passant_state (enum color who, std::array<int8_t, 2> columns)
 {
     struct en_passant_state new_state { who, { columns[0], columns[1] } };
-    this->en_passant_state.push_back(new_state);
+    this->en_passant_states.push_back(new_state);
 }

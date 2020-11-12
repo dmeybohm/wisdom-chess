@@ -31,7 +31,7 @@ struct en_passant_state
 class board_builder final
 {
     std::vector<piece_with_coord> pieces_with_coords;
-    std::vector<en_passant_state> en_passant_state;
+    std::vector<en_passant_state> en_passant_states;
 
 public:
     board_builder() = default;

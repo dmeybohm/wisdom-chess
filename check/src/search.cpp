@@ -76,8 +76,8 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 	board_check_t board_check;
 	size_t        illegal_move_count = 0;
 
-	best_move = move_null();
-    *ret = move_null();
+	best_move = null_move;
+    *ret = null_move;
 
 	std::vector<move_t> moves = generate_moves (board, side);
 	if (moves.empty())

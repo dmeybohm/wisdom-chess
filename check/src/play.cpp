@@ -116,6 +116,7 @@ int main (int argc, char **argv)
 		{
 			printf ("%s wins the game\n", game->turn == COLOR_WHITE ? "Black" : 
 			        "White");
+			game_free (game);
 			return 0;
 		}
 

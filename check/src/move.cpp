@@ -617,4 +617,14 @@ move_t move_parse (const char *str, enum color who)
 	return move;
 }
 
+char row_to_char (int row)
+{
+    return 8-row + '0';
+}
+
+char col_to_char (int col)
+{
+    return col + 'a';
+}
+
 // vi: set ts=4 sw=4:
