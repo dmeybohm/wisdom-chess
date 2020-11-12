@@ -6,7 +6,7 @@
 #include <algorithm>
 
 constexpr size_t REALLOC_VECTOR_INITIAL_SIZE = 16;
-constexpr size_t REALLOC_VECTOR_INCREMENT_SIZE = 32;
+constexpr size_t REALLOC_VECTOR_INCREMENT_SIZE = 64;
 
 template <class T>
 class realloc_vector
@@ -39,40 +39,27 @@ public:
     {
     }
 
-    friend void swap(realloc_vector<T> &first, realloc_vector<T> &second)
-    {
-        std::swap (first.my_array, second.my_array);
-        std::swap (first.my_size, second.my_size);
-        std::swap (first.my_allocated_size, second.my_allocated_size);
-    }
-
-    realloc_vector<T> & operator=(realloc_vector<T> other)
-    {
-        swap (*this, other);
-        return *this;
-    }
-
     ~realloc_vector ()
     {
         free (my_array);
     }
 
-    [[nodiscard]] size_t size() const
+    [[nodiscard]] size_t size () const
     {
         return my_size;
     }
 
-    const T *begin() const
+    const T *begin () const
     {
         return my_array;
     }
 
-    const T *end() const
+    const T *end () const
     {
         return my_array + my_size;
     }
 
-    [[nodiscard]] bool empty() const
+    [[nodiscard]] bool empty () const
     {
         return my_size == 0;
     }

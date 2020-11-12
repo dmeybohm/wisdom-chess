@@ -121,16 +121,6 @@ static inline void board_undo_castle_change (struct board *board, enum color who
     board->castled[index] = castle_state;
 }
 
-static inline int is_pawn_unmoved (struct board *board,
-                                   uint8_t row, uint8_t col)
-{
-	piece_t piece = PIECE_AT (board, row, col);
-
-	if (PIECE_COLOR(piece) == COLOR_WHITE)
-		return row == 6;
-	else
-		return row == 1;
-}
 
 static inline coord_t king_position (const struct board *board, enum color who)
 {

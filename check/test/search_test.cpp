@@ -91,3 +91,43 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
     REQUIRE( expected_moves == computed_moves );
     REQUIRE( score > INFINITE );
 }
+
+TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
+{
+    board_builder builder;
+
+    builder.add_pieces (COLOR_BLACK, {
+            {"c8", PIECE_ROOK},
+            {"f8", PIECE_ROOK},
+            {"h8", PIECE_KING}
+    });
+    builder.add_pieces (COLOR_BLACK, {
+            {"c7", PIECE_PAWN},
+            {"h7", PIECE_KNIGHT},
+    });
+    builder.add_pieces (COLOR_BLACK, {
+            {"a6", PIECE_PAWN},
+            {"c6", PIECE_BISHOP},
+            {"b5", PIECE_PAWN},
+            {"d5", PIECE_PAWN}
+    });
+
+    builder.add_pieces (COLOR_WHITE, {
+            {"e5", PIECE_PAWN},
+            {"a3", PIECE_KNIGHT},
+            {"c3", PIECE_PAWN},
+            {"e3", PIECE_PAWN},
+            {"a2", PIECE_PAWN},
+            {"b2", PIECE_PAWN},
+            {"h2", PIECE_PAWN},
+            {"b1", PIECE_KING},
+            {"g1", PIECE_ROOK}
+    });
+
+    struct board *board = builder.build();
+
+    struct timer timer {};
+    timer_init (&timer, 300);
+    move_t best_move = iterate (board, COLOR_BLACK, NULL, &timer, 7);
+    REQUIRE( !move_equals(best_move, null_move) );
+}

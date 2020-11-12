@@ -208,13 +208,13 @@ MOVES_HANDLER (pawn)
 	// row is _guaranteed_ to be on the board, because
 	// a pawn on the eight rank can't remain a pawn, and that's
 	// the only direction moved in
-	assert (VALID (piece_row));
+	assert (VALID(piece_row));
 
 	row = NEXT (piece_row, dir);
 
 	memset (move, 0, sizeof (move));
 
-	/* single move */
+	// single move
 	if (PIECE_TYPE (PIECE_AT (board, row, piece_col)) == PIECE_NONE)
 		move[0] = move_create (piece_row, piece_col, row, piece_col);
 
@@ -241,9 +241,8 @@ MOVES_HANDLER (pawn)
 		piece = PIECE_AT (board, row, take_col);
 
 		if (PIECE_TYPE (PIECE_AT (board, row, take_col)) != PIECE_NONE && 
-		    PIECE_COLOR (piece) != who)
+		    PIECE_COLOR(piece) != who)
 		{
-			/* Hmm, it would be nice to do this without a branch... */
 			if (c_dir == -1)
 				move[2] = move_create (piece_row, piece_col, row, take_col);
 			else
@@ -487,7 +486,7 @@ move_list_t generate_captures (struct board *board, enum color who)
 
 move_list_t generate_moves (struct board *board, enum color who)
 {
-	uint8_t             row, col;
+	uint8_t     row, col;
 	move_list_t new_moves;
 
 	for_each_position (row, col)
