@@ -75,7 +75,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 	move_t       *move_ptr;
 	move_t        best_move;
 	move_t        his_best;
-	move_tree_t  *best_variation = NULL, *new_variation = NULL;
+	move_tree_t  *best_variation = nullptr, *new_variation = nullptr;
 	board_check_t board_check;
 	size_t        illegal_move_count = 0;
 
@@ -85,7 +85,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 	moves = generate_moves (board, side);
 	if (!moves)
 	{
-		*ret_variation = NULL;
+		*ret_variation = nullptr;
 
 		return evaluate (board, side, start_depth - depth);
 	}
@@ -98,7 +98,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 			if (best_variation)
 			{
 				move_tree_destroy (new_variation);
-				best_variation = NULL;
+				best_variation = nullptr;
 			}
 
 			break;
@@ -157,7 +157,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 		else
 		{
 			move_tree_destroy (new_variation);
-			new_variation = NULL;
+			new_variation = nullptr;
 		}
 
 		if (best > alpha)
@@ -170,7 +170,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 		}
 	}
 
-	assert (ret_variation != NULL);
+	assert (ret_variation != nullptr);
 
 	*ret_variation = best_variation;
 
@@ -224,7 +224,7 @@ int quiesce (struct board *board, color_t side, int alpha, int beta, int depth,
 	/* try the "null" move -- if no move is better than any move we
 	 * have, then dont check any of the captures */
 	null_score = (- search (board, !side, 1, 1, &best_move, -beta, -alpha,
-	                        0, NULL, 1, history));
+	                        0, nullptr, 1, history));
 
 	printf ("quiesce: searching for null move\n");
 	print_tree (history);
@@ -307,7 +307,7 @@ move_t iterate (struct board *board, enum color side,
 
 	best_move = move_null ();
 
-	gettimeofday (&start, NULL);
+	gettimeofday (&start, nullptr);
 
 #if RANDOMNESS > 0
 	srand (start.tv_sec >> 10 ^ start.tv_usec);
@@ -318,7 +318,7 @@ move_t iterate (struct board *board, enum color side,
 	                     (start.tv_usec >> 16) | (start.tv_sec << 16),
                          &principal_variation, 0, timer, history);
 
-	gettimeofday (&end, NULL);
+	gettimeofday (&end, nullptr);
 
 	calc_time (nodes_visited, &start, &end);
 

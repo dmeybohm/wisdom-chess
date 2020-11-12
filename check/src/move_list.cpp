@@ -51,7 +51,7 @@ static move_list_t *move_list_alloc (void)
 	    move_list_cache_size--;
 	    new_moves = move_list_cache[move_list_cache_size];
 		new_moves->len = 0;
-        move_list_cache[move_list_cache_size] = NULL;
+        move_list_cache[move_list_cache_size] = nullptr;
 		return new_moves;
 	}
 
@@ -118,7 +118,7 @@ move_list_t *move_list_append_move (move_list_t *moves, move_t move)
 			if (!moves->move_array)
 			{
 				free (moves);
-				return NULL;
+				return nullptr;
 			}
 		}
 

@@ -14,7 +14,7 @@ move_tree_t *move_tree_new (move_tree_t *parent, move_t move)
 	if (tree_cache)
 	{
 		tree = tree_cache;
-		tree_cache = NULL;
+		tree_cache = nullptr;
 	}
 	else
 	{
@@ -26,7 +26,7 @@ move_tree_t *move_tree_new (move_tree_t *parent, move_t move)
 	
 	assert (tree);
 	if (!tree)
-		return NULL;
+		return nullptr;
 
 	tree->move   = move;
 	tree->parent = parent;
@@ -43,7 +43,7 @@ size_t move_tree_length (move_tree_t *tree)
 {
     size_t result = 0;
 
-    while (tree != NULL)
+    while (tree != nullptr)
     {
         result++;
         tree = tree->parent;
@@ -86,7 +86,7 @@ move_tree_t *move_tree_copy (move_tree_t *move_tree)
 	move_tree_t *copy;
 
 	if (!move_tree)
-		return NULL;
+		return nullptr;
 	else
 	{
 		copy = static_cast<move_tree_t *>(malloc (sizeof (move_tree_t)));

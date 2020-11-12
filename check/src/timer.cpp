@@ -12,7 +12,7 @@
 
 void timer_init (struct timer *timer, int seconds)
 {
-    if (gettimeofday (&timer->last_check_time, NULL) == -1)
+    if (gettimeofday (&timer->last_check_time, nullptr) == -1)
     {
         perror ("gettimeofday");
         exit (1);
@@ -32,7 +32,7 @@ bool timer_is_triggered (struct timer *timer)
     if (++timer->check_calls % TIMER_CHECK_COUNT != 0)
         return false;
 
-    if (gettimeofday (&next_time, NULL) == -1)
+    if (gettimeofday (&next_time, nullptr) == -1)
     {
         perror ("gettimeofday");
         exit (1);

@@ -594,7 +594,7 @@ move_t move_parse (const char *str, enum color who)
 	while ((tok = strtok (ptok, " \n\t")))
 	{
 		// strtok's weird parameter passing convention
-		ptok = NULL;
+		ptok = nullptr;
 
 		if (!strcasecmp (tok, "ep"))
 			en_passant = 1;

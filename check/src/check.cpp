@@ -22,7 +22,7 @@ bool is_checkmated (struct board *board, enum color who)
 		return false;
 
 	// todo: need history here to be correct with en-passant.
-	legal_moves = generate_legal_moves (board, who, NULL);
+	legal_moves = generate_legal_moves (board, who, nullptr);
 	bool result = !legal_moves;
 
 	move_list_destroy (legal_moves);

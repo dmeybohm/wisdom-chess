@@ -17,7 +17,7 @@ typedef struct move_list
 /* this could be optimized more because the move list length 
  * is constant across the loop */
 #define for_each_move(move_ptr, moves) \
-	if (likely (moves != NULL)) \
+	if (likely (moves != nullptr)) \
 		for ((move_ptr) = &(moves)->move_array[0]; \
 		     (move_ptr) != ((moves)->move_array+(moves)->len); \
 		     (move_ptr)++)

@@ -377,8 +377,8 @@ void print_the_board (struct board *board)
 move_list_t *generate_legal_moves (struct board *board, enum color who,
                                    move_tree_t *history)
 {
-	move_list_t *all_moves  = NULL;
-	move_list_t *non_checks = NULL;
+	move_list_t *all_moves  = nullptr;
+	move_list_t *non_checks = nullptr;
 	move_t      *mptr;
     board_check_t board_check;
 	all_moves = generate_moves (board, who);
@@ -436,7 +436,7 @@ move_list_t *validate_moves (move_list_t *move_list, struct board *board,
                              enum color who)
 {
 	move_t      *move_ptr;
-	move_list_t *captures = NULL, *non_captures = NULL;
+	move_list_t *captures = nullptr, *non_captures = nullptr;
 
 //	move_list_print (move_list);
 
@@ -482,7 +482,7 @@ move_list_t *validate_moves (move_list_t *move_list, struct board *board,
 			move_list_destroy (non_captures);
 			move_list_destroy (move_list);
 
-			return NULL;
+			return nullptr;
 		}
 
 		if (is_capture)
@@ -531,8 +531,8 @@ move_list_t *validate_moves (move_list_t *move_list, struct board *board,
 move_list_t *generate_captures (struct board *board, enum color who,
                                 move_tree_t *history)
 {
-    move_list_t *move_list = NULL;
-    move_list_t *captures = NULL;
+    move_list_t *move_list = nullptr;
+    move_list_t *captures = nullptr;
     move_t *mv_ptr;
 
     move_list = generate_moves (board, who);
@@ -552,7 +552,7 @@ move_list_t *generate_captures (struct board *board, enum color who,
 move_list_t *generate_moves (struct board *board, enum color who)
 {
 	int          row, col;
-	move_list_t *new_moves    = NULL;
+	move_list_t *new_moves    = nullptr;
 	
 	DBG (generate, "calling print_board\n");
 	DBG (generate, "done calling print_board\n");

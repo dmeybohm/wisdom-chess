@@ -19,7 +19,7 @@ static const enum color comp_player = COLOR_BLACK;
 
 static void print_available_moves (struct game *game)
 {
-	move_list_t *moves = NULL;
+	move_list_t *moves = nullptr;
 	move_t      *mptr;
 
 	moves = generate_legal_moves (game->board, game->turn, game->history);
@@ -40,14 +40,14 @@ static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 #if 0
 	piece_t src_piece, dst_piece;
 #endif
-	move_list_t *moves = NULL;
+	move_list_t *moves = nullptr;
 	move_t      *mptr;
 	struct game *game  = *g_out;
 
 	printf ("move? ");
 	fflush (stdout);
 
-	if (fgets (buf, sizeof(buf)-1, stdin) == NULL)
+	if (fgets (buf, sizeof(buf)-1, stdin) == nullptr)
 	{
 		*good = 0;
 		return 0;

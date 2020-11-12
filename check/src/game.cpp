@@ -16,12 +16,12 @@ struct game *game_new (enum color turn, enum color computer_player)
 	struct game *game;
 
 	game = static_cast<struct game *>(malloc (sizeof(*game)));
-	assert (game != NULL);
+	assert (game != nullptr);
 
 	game->board = board_new ();
-	assert (game->board != NULL);
+	assert (game->board != nullptr);
 
-	game->history = NULL;
+	game->history = nullptr;
 
 	// if 'turn' is something bogus, use white
 	if (is_color_invalid (turn))
@@ -65,7 +65,7 @@ static int prompt (const char *prompt, char *out, size_t len)
 	printf ("%s? ", prompt);
 	fflush (stdout);
 
-	if (fgets (out, len - 1, stdin) == NULL)
+	if (fgets (out, len - 1, stdin) == nullptr)
 		return 0;
 
 	chomp (out);
@@ -122,17 +122,17 @@ struct game *game_load (enum color player)
 	move_t move;
 
 	if (!prompt ("load what file", file, sizeof (file) - 1))
-		return NULL;
+		return nullptr;
 
 	if (!(f = fopen (file, "r")))
 	{
 		printf ("Couldn't open %s: %s\n", file, strerror (errno));
-		return NULL;
+		return nullptr;
 	}
 
 	game = game_new (COLOR_NONE, player);
 
-	while (fgets (buf, sizeof (buf) - 1, f) != NULL)
+	while (fgets (buf, sizeof (buf) - 1, f) != nullptr)
 	{
 		coord_t dst;
 		piece_t piece;
@@ -146,7 +146,7 @@ struct game *game_load (enum color player)
 			printf ("Error parsing game file %s: invalid move \"%s\"",
 					file, buf);
 			game_free (game);
-			return NULL;
+			return nullptr;
 		}
 
 		//
