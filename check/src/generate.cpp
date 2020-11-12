@@ -312,7 +312,7 @@ void add_en_passant_move (const struct board *board, enum color who, uint8_t pie
 move_list_t generate_knight_moves (uint8_t row, uint8_t col)
 {
 	// Check f3
-	if (knight_moves[0][0].size() == 0)
+	if (knight_moves[0][0].empty())
 		knight_move_list_init ();
 
 	return knight_moves[row][col];

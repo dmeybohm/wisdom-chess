@@ -18,17 +18,17 @@ class realloc_vector
 public:
     realloc_vector ()
     {
-        my_array = static_cast<T*>(calloc (sizeof(T), REALLOC_VECTOR_INITIAL_SIZE));
+        my_array = static_cast<T*>(malloc (sizeof(T) * REALLOC_VECTOR_INITIAL_SIZE));
         my_size = 0;
         my_allocated_size = REALLOC_VECTOR_INITIAL_SIZE;
         assert (my_array != nullptr);
     }
 
     realloc_vector (const realloc_vector &other) :
-        my_size {other.my_size},
-        my_allocated_size {other.my_allocated_size}
+        my_size { other.my_size },
+        my_allocated_size { other.my_allocated_size }
     {
-        my_array = static_cast<T*>(calloc (sizeof(T), other.my_size));
+        my_array = static_cast<T*>(malloc (sizeof(T) * other.my_size));
         memcpy (&my_array[0], &other.my_array[0], sizeof(T) * other.my_size);
     }
 
@@ -41,14 +41,14 @@ public:
 
     friend void swap(realloc_vector<T> &first, realloc_vector<T> &second)
     {
-        std::swap(first.my_array, second.my_array);
-        std::swap(first.my_size, second.my_size);
-        std::swap(first.my_allocated_size, second.my_allocated_size);
+        std::swap (first.my_array, second.my_array);
+        std::swap (first.my_size, second.my_size);
+        std::swap (first.my_allocated_size, second.my_allocated_size);
     }
 
     realloc_vector<T> & operator=(realloc_vector<T> other)
     {
-        swap(*this, other);
+        swap (*this, other);
         return *this;
     }
 
