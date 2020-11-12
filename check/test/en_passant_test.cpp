@@ -52,22 +52,16 @@ TEST_CASE( "En passant moves work on the right", "[en-passant]" )
     REQUIRE( first_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] == -1 );
     REQUIRE( first_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] == -1 );
 
-    move_list_t *move_list = generate_moves (board, COLOR_WHITE);
-    move_t *mptr, en_passant_move, mv;
+    std::vector<move_t> move_list = generate_moves (board, COLOR_WHITE);
+    move_t en_passant_move = null_move;
 
-    int en_passant_count = 0;
-    for_each_move (mptr, move_list)
+    for (auto move : move_list)
     {
-        mv = *mptr;
-        if (is_en_passant_move(mv))
-        {
-            en_passant_move = mv;
-            en_passant_count++;
-        }
+        if (is_en_passant_move(move))
+            en_passant_move = move;
     }
 
-    REQUIRE( en_passant_count == 1 );
-    move_list_destroy (move_list);
+    REQUIRE( !is_null_move(en_passant_move) );
 
     // Check move types:
     REQUIRE( is_en_passant_move(en_passant_move) );
@@ -125,22 +119,17 @@ TEST_CASE( "En passant moves work on the left", "[en-passant]" )
     REQUIRE( first_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] == -1 );
     REQUIRE( first_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] == -1 );
 
-    move_list_t *move_list = generate_moves (board, COLOR_WHITE);
-    move_t *mptr, en_passant_move, mv;
+    std::vector<move_t> move_list = generate_moves (board, COLOR_WHITE);
+    move_t en_passant_move = null_move;
 
-    int en_passant_count = 0;
-    for_each_move (mptr, move_list)
+    for (auto move : move_list)
     {
-        mv = *mptr;
-        if (is_en_passant_move(mv))
-        {
-            en_passant_move = mv;
-            en_passant_count++;
-        }
+        if (is_en_passant_move(move))
+            en_passant_move = move;
     }
 
-    REQUIRE( en_passant_count == 1 );
-    move_list_destroy (move_list);
+    REQUIRE( !is_null_move(en_passant_move) );
+
 
     // Check move types:
     REQUIRE( is_en_passant_move(en_passant_move) );

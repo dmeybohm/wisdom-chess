@@ -20,15 +20,12 @@ CHECK_INCLUDE_FILES("unistd.h" HAVE_UNISTD_H)
 # add the executable
 add_executable(chess
         src/board.cpp src/board_hash.cpp src/check.cpp src/debug.cpp src/evaluate.cpp src/game.cpp src/generate.cpp src/material.cpp src/move.cpp
-        src/move_list.cpp src/move_tree.cpp src/piece.cpp src/play.cpp src/search.cpp src/sha1.cpp src/str.cpp src/timer.cpp
+        src/move_tree.cpp src/piece.cpp src/play.cpp src/search.cpp src/sha1.cpp src/str.cpp src/timer.cpp
         src/global.h src/board_check.cpp src/board_check.h src/validate.cpp src/validate.h src/position.cpp src/position.h)
 
 set_property(TARGET chess PROPERTY C_STANDARD 11)
-set(CMAKE_C_FLAGS "-Wall -Wno-unused-parameter -Wno-unused-function")
-set(CMAKE_C_FLAGS_DEBUG "-g -O0")
-set(CMAKE_C_FLAGS_RELEASE "-O3 -march=native")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -fsanitize=address")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address -Wall -Wno-unused-parameter -Wno-unused-function")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -O3 -fsanitize=address -march=native")
 
 # Speed up linking on Linux
 execute_process(COMMAND ${CMAKE_C_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE ld_version)

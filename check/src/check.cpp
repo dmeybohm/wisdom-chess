@@ -6,13 +6,11 @@
 #include "move.h"
 #include "board.h"
 #include "generate.h"
-#include "move_list.h"
 #include "check.h"
 
 bool is_checkmated (struct board *board, enum color who)
 {
-	int          row, col;
-	move_list_t *legal_moves;
+	uint8_t row, col;
 
 	coord_t king_pos = king_position (board, who);
 	row = ROW    (king_pos);
@@ -21,13 +19,9 @@ bool is_checkmated (struct board *board, enum color who)
 	if (!is_king_threatened (board, who, row, col))
 		return false;
 
-	// todo: need history here to be correct with en-passant.
-	legal_moves = generate_legal_moves (board, who, nullptr);
-	bool result = !legal_moves;
+	std::vector<move_t> legal_moves = generate_legal_moves (board, who);
 
-	move_list_destroy (legal_moves);
-
-    return result;
+    return legal_moves.empty ();
 }
 
 bool is_king_threatened (struct board *board, enum color who,
@@ -36,8 +30,6 @@ bool is_king_threatened (struct board *board, enum color who,
 	int           row, col;
 	piece_t       what;
 	int           c_dir, r_dir;
-	move_list_t  *kt_moves;
-	move_t       *move;
 
 	// check each side of the king's row
 	col = king_col;
@@ -112,23 +104,23 @@ bool is_king_threatened (struct board *board, enum color who,
 	}
 
 	// check for knight checks
-	kt_moves = generate_knight_moves (king_row, king_col);
+	std::vector<move_t> kt_moves = generate_knight_moves (king_row, king_col);
 
-	for_each_move (move, kt_moves)
+	for (auto move : kt_moves)
 	{
 		coord_t dst;
 
-		dst = MOVE_DST (*move);
+		dst = MOVE_DST(move);
 
-		row = ROW (dst);
-		col = COLUMN (dst);
+		row = ROW(dst);
+		col = COLUMN(dst);
 
 		what = PIECE_AT (board, row, col);
 
-		if (PIECE_TYPE (what) == PIECE_NONE)
+		if (PIECE_TYPE(what) == PIECE_NONE)
 			continue;
 
-		if (PIECE_TYPE (what) == PIECE_KNIGHT && PIECE_COLOR (what) != who)
+		if (PIECE_TYPE(what) == PIECE_KNIGHT && PIECE_COLOR(what) != who)
 			return true;
 	}
 	

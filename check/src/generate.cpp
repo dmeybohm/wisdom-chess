@@ -4,8 +4,6 @@
 
 #include "piece.h"
 #include "move.h"
-#include "move_list.h"
-#include "move_tree.h"
 #include "board.h"
 #include "check.h"
 #include "generate.h"
@@ -16,17 +14,17 @@
 
 #define Move_Func_Arguments \
 	struct board *board, enum color who, \
-	int piece_row, int piece_col, move_list_t *moves
+	int piece_row, int piece_col, std::vector<move_t> &moves
 
 #define Move_Func_Param_Names \
 	board, who, piece_row, piece_col, moves
 
 #define MOVES_HANDLER(name) \
-	static move_list_t *moves_##name (Move_Func_Arguments)
+	static void moves_##name (Move_Func_Arguments)
 
 ///////////////////////////////////////////////
 
-typedef move_list_t *(*MoveFunc) (Move_Func_Arguments);
+typedef void (*MoveFunc) (Move_Func_Arguments);
 
 MOVES_HANDLER (none);
 MOVES_HANDLER (king);
@@ -52,15 +50,15 @@ static MoveFunc move_functions[] =
 	nullptr,
 };
 
-static move_list_t *knight_moves[NR_ROWS][NR_COLUMNS];
+std::vector<move_t> knight_moves[NR_ROWS][NR_COLUMNS];
 
-static move_list_t *add_en_passant_move (const struct board *board, enum color who, uint8_t piece_row, uint8_t piece_col,
-                                         move_list_t *moves, uint8_t en_passant_column);
+void add_en_passant_move (const struct board *board, enum color who, uint8_t piece_row, uint8_t piece_col,
+                          std::vector<move_t> &moves, uint8_t en_passant_column);
 
 ///////////////////////////////////////////////
 
-/* generate a lookup table for knight moves */
-static void knight_move_list_init (void)
+// generate a lookup table for knight moves
+static void knight_move_list_init ()
 {
 	int row, col;
 	int k_row, k_col;
@@ -80,9 +78,8 @@ static void knight_move_list_init (void)
 				if (INVALID (k_col + col))
 					continue;
 
-				knight_moves[k_row+row][k_col+col] = 
-				   move_list_append (knight_moves[k_row+row][k_col+col], 
-				                     k_row+row, k_col+col, row, col);
+				move_t knight_move = move_create (k_row+row, k_col+col, row, col);
+				knight_moves[k_row+row][k_col+col].push_back (knight_move);
 			}
 		}
 	}
@@ -91,8 +88,6 @@ static void knight_move_list_init (void)
 MOVES_HANDLER (none)
 {
 	assert (0);
-
-	return moves;
 }
 
 MOVES_HANDLER (king)
@@ -109,7 +104,7 @@ MOVES_HANDLER (king)
 			if (INVALID (col))
 				continue;
 
-			moves = move_list_append (moves, piece_row, piece_col, row, col);
+			moves.push_back (move_create (piece_row, piece_col, row, col));
 		}
 	}
 
@@ -117,26 +112,22 @@ MOVES_HANDLER (king)
     {
         move_t queenside_castle = move_create_castling (piece_row, piece_col,
                                                         piece_row, piece_col - 2);
-        moves = move_list_append_move (moves, queenside_castle);
+        moves.push_back (queenside_castle);
     }
 
     if (able_to_castle (board, who, CASTLE_KINGSIDE))
     {
         move_t kingside_castle = move_create_castling (piece_row, piece_col,
                                                        piece_row, piece_col + 2);
-        moves = move_list_append_move (moves, kingside_castle);
+        moves.push_back (kingside_castle);
     }
-
-	return moves;
 }
 
 MOVES_HANDLER (queen)
 {
 	// use the generators for bishop and rook
-	moves = moves_bishop (Move_Func_Param_Names);
-	moves = moves_rook   (Move_Func_Param_Names);
-
-	return moves;
+	moves_bishop (Move_Func_Param_Names);
+	moves_rook   (Move_Func_Param_Names);
 }
 
 MOVES_HANDLER (rook)
@@ -151,10 +142,9 @@ MOVES_HANDLER (rook)
 		{
 			piece = PIECE_AT (board, row, piece_col);
 
-			moves = move_list_append (moves, piece_row, piece_col, row, 
-			                          piece_col);
+			moves.push_back (move_create (piece_row, piece_col, row, piece_col));
 
-			if (PIECE_TYPE (piece) != PIECE_NONE)
+			if (PIECE_TYPE(piece) != PIECE_NONE)
 				break;
 		}
 
@@ -162,15 +152,12 @@ MOVES_HANDLER (rook)
 		{
 			piece = PIECE_AT (board, piece_row, col);
 
-			moves = move_list_append (moves, piece_row, piece_col, piece_row, 
-			                          col);
+			moves.push_back (move_create (piece_row, piece_col, piece_row, col));
 
-			if (PIECE_TYPE (piece) != PIECE_NONE)
+			if (PIECE_TYPE(piece) != PIECE_NONE)
 				break;
 		}
 	}
-
-	return moves;
 }
 
 MOVES_HANDLER (bishop)
@@ -188,33 +175,21 @@ MOVES_HANDLER (bishop)
 			{
 				piece_t    piece = PIECE_AT (board, row, col);
 				
-				moves = move_list_append (moves, piece_row, piece_col,
-				                          row, col);
+				moves.push_back (move_create (piece_row, piece_col, row, col));
 
 				if (PIECE_TYPE (piece) != PIECE_NONE)
 					break;
 			}
 		}
 	}
-
-	return moves;
 }
 
 MOVES_HANDLER (knight)
 {
-	move_list_t  *kt_moves;
-	move_t       *move;
+	std::vector<move_t> kt_moves = generate_knight_moves (piece_row, piece_col);
 
-	kt_moves = generate_knight_moves (piece_row, piece_col);
-
-	assert (kt_moves);
-
-	DBG (generate, "length of knight move list = %d\n", kt_moves->len);
-
-	for_each_move (move, kt_moves)
-		moves = move_list_append_move (moves, *move);
-
-	return moves;
+	for (auto move : kt_moves)
+		moves.push_back (move);
 }
 
 MOVES_HANDLER (pawn)
@@ -277,7 +252,7 @@ MOVES_HANDLER (pawn)
 	}
 
 	// promotion
-	if (unlikely (need_pawn_promotion (row, who)))
+	if (need_pawn_promotion (row, who))
 	{
 		for_each_promotable_piece (piece_type)
 		{
@@ -290,31 +265,28 @@ MOVES_HANDLER (pawn)
 				{
 					move[i] = move_with_promotion (move[i], piece);
 
-					moves = move_list_append_move (moves, move[i]); 
+					moves.push_back (move[i]);
 				}
 			}
 		}
 
-		return moves;
+		return;
 	}
 	
 	// en passant
 	int8_t en_passant_column = eligible_en_passant_column (board, piece_row, piece_col, who);
 	if (VALID(en_passant_column))
-		moves = add_en_passant_move (board, who, piece_row, piece_col, moves, en_passant_column);
+		add_en_passant_move (board, who, piece_row, piece_col, moves, en_passant_column);
 
 	for (i = 0; i < sizeof (move) / sizeof (move[0]); i++)
 		if (!is_null_move (move[i]))
-			moves = move_list_append_move (moves, move[i]);
-
-	return moves;
+			moves.push_back (move[i]);
 }
 
 // put en passant in a separate handler
 // in order to not pollute instruction cache with it
-static move_list_t *
-add_en_passant_move (const struct board *board, enum color who, uint8_t piece_row, uint8_t piece_col,
-                     move_list_t *moves, uint8_t en_passant_column)
+void add_en_passant_move (const struct board *board, enum color who, uint8_t piece_row, uint8_t piece_col,
+                          std::vector<move_t> &moves, uint8_t en_passant_column)
 {
 	move_t        new_move;
 	int           direction;
@@ -332,15 +304,15 @@ add_en_passant_move (const struct board *board, enum color who, uint8_t piece_ro
 
 	new_move = move_create_en_passant (piece_row, piece_col, take_row, take_col);
 
-	return move_list_append_move (moves, new_move);
+	moves.push_back (new_move);
 }
 
 ///////////////////////////////////////////////
 
-move_list_t *generate_knight_moves (unsigned char row, unsigned char col)
+std::vector<move_t> generate_knight_moves (uint8_t row, uint8_t col)
 {
-	/* Check f3 */
-	if (unlikely (!knight_moves[0][0]))
+	// Check f3
+	if (knight_moves[0][0].size() == 0)
 		knight_move_list_init ();
 
 	return knight_moves[row][col];
@@ -374,32 +346,24 @@ void print_the_board (struct board *board)
 
 }
 
-move_list_t *generate_legal_moves (struct board *board, enum color who,
-                                   move_tree_t *history)
+std::vector<move_t> generate_legal_moves (struct board *board, enum color who)
 {
-	move_list_t *all_moves  = nullptr;
-	move_list_t *non_checks = nullptr;
-	move_t      *mptr;
-    board_check_t board_check;
-	all_moves = generate_moves (board, who);
+    board_check_t       board_check;
+    std::vector<move_t> non_checks;
 
-	for_each_move (mptr, all_moves)
+	std::vector<move_t> all_moves = generate_moves (board, who);
+	for (auto move : all_moves)
 	{
-	    move_t move_value = *mptr;
 	    board_check_init (&board_check, board);
-        undo_move_t undo_state = do_move (board, who, move_value);
+        undo_move_t undo_state = do_move (board, who, move);
 
-        if (was_legal_move (board, who, move_value))
-        {
-            non_checks = move_list_append_move (non_checks, move_value);
-        }
+        if (was_legal_move (board, who, move))
+            non_checks.push_back (move);
 
-        undo_move (board, who, move_value, undo_state);
-        board_check_validate (&board_check, board, who, move_value);
+        undo_move (board, who, move, undo_state);
+        board_check_validate (&board_check, board, who, move);
 	}
 
-	move_list_destroy (all_moves);
-	
 	return non_checks;
 }
 
@@ -432,17 +396,13 @@ static int valid_castling_move (struct board *board, enum color who, move_t move
 		   PIECE_TYPE(piece3) == PIECE_NONE;
 }
 
-move_list_t *validate_moves (move_list_t *move_list, struct board *board,
-                             enum color who)
+std::vector<move_t> validate_moves (const std::vector<move_t> &move_list, struct board *board,
+                                    enum color who)
 {
-	move_t      *move_ptr;
-	move_list_t *captures = nullptr, *non_captures = nullptr;
+    std::vector<move_t> captures;
 
-//	move_list_print (move_list);
-
-	for_each_move (move_ptr, move_list)
+	for (auto move : move_list)
 	{
-	    move_t  move = *move_ptr;
 		coord_t src, dst;
 		piece_t src_piece, dst_piece;
 		int     is_capture = 0;
@@ -474,40 +434,24 @@ move_list_t *validate_moves (move_list_t *move_list, struct board *board,
 		}
 
 		// check for an illegal king capture
-		if (PIECE_TYPE(dst_piece) == PIECE_KING)
-		{
-			assert (is_capture);
-
-			move_list_destroy (captures);
-			move_list_destroy (non_captures);
-			move_list_destroy (move_list);
-
-			return nullptr;
-		}
+		assert (PIECE_TYPE(dst_piece) != PIECE_KING);
 
 		if (is_capture)
 		{
 			if (!is_capture_move(move) && !is_en_passant_move(move))
 				move = move_with_capture (move);
 
-			captures = move_list_append_move (captures, move);
+			captures.push_back (move);
 		}
 		else
 		{
 #if 0
 			non_captures = move_list_append_move (non_captures, *move);	
 #endif
-			captures = move_list_append_move (captures, move);
+			captures.push_back (move);
 		}
 
-		if (is_promoting_move(move))
-		{
-			DBG (generate, "PROMOTION MOVE: %s -> %s", move_str (*move), 
-			     piece_str (move_get_promoted_piece (move)));
-		}
 	}
-
-	move_list_destroy (move_list);
 
 #if 0
 	captures = move_list_append_list (captures, non_captures);
@@ -523,71 +467,42 @@ move_list_t *validate_moves (move_list_t *move_list, struct board *board,
 	}
 #endif
 
-//	move_list_print (captures);
-
 	return captures;
 }
 
-move_list_t *generate_captures (struct board *board, enum color who,
-                                move_tree_t *history)
+std::vector<move_t> generate_captures (struct board *board, enum color who)
 {
-    move_list_t *move_list = nullptr;
-    move_list_t *captures = nullptr;
-    move_t *mv_ptr;
+    std::vector<move_t> captures;
 
-    move_list = generate_moves (board, who);
+    std::vector<move_t> move_list = generate_moves (board, who);
 
-    for_each_move (mv_ptr, move_list)
+    for (auto move : move_list)
     {
-        move_t move = *mv_ptr;
         if (is_capture_move (move))
-            captures = move_list_append_move (captures, move);
+            captures.push_back (move);
     }
 
-	move_list_destroy (move_list);
-
 	return captures;
 }
 
-move_list_t *generate_moves (struct board *board, enum color who)
+std::vector<move_t> generate_moves (struct board *board, enum color who)
 {
-	int          row, col;
-	move_list_t *new_moves    = nullptr;
-	
-	DBG (generate, "calling print_board\n");
-	DBG (generate, "done calling print_board\n");
+	uint8_t             row, col;
+	std::vector<move_t> new_moves;
 
 	for_each_position (row, col)
 	{
 		piece_t    piece  = PIECE_AT (board, row, col);
 		enum color color  = PIECE_COLOR (piece);
 
-		if (PIECE_TYPE (piece) == PIECE_NONE)
+		if (PIECE_TYPE(piece) == PIECE_NONE)
 			continue;
 
 		if (color != who)
 			continue;
 
-		assert (PIECE_TYPE (piece) < PIECE_LAST);
-
-		color = PIECE_COLOR (piece);
-
-		if (PIECE_TYPE (piece) != PIECE_NONE)
-		{
-			DBG (generate, "piece color[%d][%d] = %s [%s]\n", row, col, 
-			     color == COLOR_WHITE ?  "white" : "black",
-			     piece_type_str (piece));
-		}
-
-		new_moves = (*move_functions[PIECE_TYPE (piece)])
-			(board, who, row, col, new_moves);
-
-#if 0
-		for_each_move (move, new_moves)
-			if (is_legal_move (board, who, move))
-				moves = move_list_append_move (moves, *move);
-
-#endif
+		(*move_functions[PIECE_TYPE(piece)])
+		    (board, who, row, col, new_moves);
 	}
 
 	return validate_moves (new_moves, board, who);

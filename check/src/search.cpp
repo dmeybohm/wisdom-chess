@@ -6,7 +6,6 @@
 
 #include "piece.h"
 #include "board.h"
-#include "move_list.h"
 #include "generate.h"
 #include "evaluate.h"
 #include "check.h"
@@ -70,9 +69,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 {
 	int           score;
 	int           best   = -INITIAL_ALPHA; // make sure to select something
-	move_list_t  *moves;
 	move_tree_t  *new_leaf;
-	move_t       *move_ptr;
 	move_t        best_move;
 	move_t        his_best;
 	move_tree_t  *best_variation = nullptr, *new_variation = nullptr;
@@ -82,17 +79,15 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 	best_move = move_null();
     *ret = move_null();
 
-	moves = generate_moves (board, side);
-	if (!moves)
+	std::vector<move_t> moves = generate_moves (board, side);
+	if (moves.empty())
 	{
 		*ret_variation = nullptr;
-
 		return evaluate (board, side, start_depth - depth);
 	}
 
-	for_each_move (move_ptr, moves)
+	for (auto move : moves)
 	{
-	    move_t move = *move_ptr;
 		if (timer_is_triggered (timer))
 		{
 			if (best_variation)
@@ -175,14 +170,12 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 	*ret_variation = best_variation;
 
 	// if there are no legal moves, then the current player is in a stalemate or checkmate position.
-	if (moves->len == illegal_move_count)
+	if (moves.size() == illegal_move_count)
     {
 	    coord_t my_king_pos = king_position (board, side);
         best = is_king_threatened (board, side, ROW(my_king_pos), COLUMN(my_king_pos)) ?
                 -1 * checkmate_score_in_moves (start_depth - depth) : 0;
     }
-	
-	move_list_destroy (moves);
 
 	// return the move if this is the last iteration
     if (!timer_is_triggered (timer))

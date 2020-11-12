@@ -1,9 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-#include <assert.h>
-#include <errno.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cctype>
+#include <cstring>
+#include <cassert>
+#include <cerrno>
+#include <iostream>
 
 #include "move.h"
 #include "board.h"
@@ -19,17 +20,12 @@ static const enum color comp_player = COLOR_BLACK;
 
 static void print_available_moves (struct game *game)
 {
-	move_list_t *moves = nullptr;
-	move_t      *mptr;
-
-	moves = generate_legal_moves (game->board, game->turn, game->history);
+	std::vector<move_t> moves = generate_legal_moves (game->board, game->turn);
 
 	printf ("\nAvailable moves: ");
 
-	for_each_move (mptr, moves)
-		printf ("[%s] ", move_str (*mptr));
-
-	move_list_destroy (moves);
+	for (auto move : moves)
+		printf ("[%s] ", move_str (move));
 
 	printf("\n\n");
 }
@@ -40,9 +36,8 @@ static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 #if 0
 	piece_t src_piece, dst_piece;
 #endif
-	move_list_t *moves = nullptr;
-	move_t      *mptr;
-	struct game *game  = *g_out;
+	std::vector<move_t> moves;
+	struct game        *game  = *g_out;
 
 	printf ("move? ");
 	fflush (stdout);
@@ -88,18 +83,16 @@ static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 	*good = 0;
 
 	// check the generated move list for this move to see if its valid
-	moves = generate_legal_moves (game->board, game->turn, game->history);
+	moves = generate_legal_moves (game->board, game->turn);
 
-	for_each_move (mptr, moves)
+	for (auto legal_move : moves)
 	{
-        if (move_equals (*mptr, *move))
+        if (move_equals (legal_move, *move))
         {
             *good = 1;
             break;
         }
     }
-
-	move_list_destroy (moves);
 
 	return 1;
 }

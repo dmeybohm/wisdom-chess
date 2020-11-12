@@ -1,10 +1,11 @@
 #ifndef EVOLVE_CHESS_BOARD_H
 #define EVOLVE_CHESS_BOARD_H
 
+#include <vector>
+
 #include "global.h"
 #include "board.h"
 #include "move.h"
-#include "move_list.h"
 #include "move_tree.h"
 
 ///////////////////////////////////////////////
@@ -45,14 +46,11 @@ static inline int8_t eligible_en_passant_column (const struct board *board, uint
 ///////////////////////////////////////////////
 
 
-move_list_t *generate_moves (struct board *board, enum color who);
-move_list_t    *generate_legal_moves  (struct board *position, enum color who,
-                                       move_tree_t *history);
+std::vector<move_t> generate_moves        (struct board *board, enum color who);
+std::vector<move_t> generate_legal_moves (struct board *board, enum color who);
 
-move_list_t    *generate_captures     (struct board *position, enum color who,
-                                       move_tree_t *history);
-
-move_list_t    *generate_knight_moves (uint8_t row, uint8_t col);
+std::vector<move_t> generate_captures (struct board *board, enum color who);
+std::vector<move_t> generate_knight_moves (uint8_t row, uint8_t col);
 
 ///////////////////////////////////////////////
 

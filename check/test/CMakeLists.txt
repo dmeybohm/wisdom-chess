@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/")
 
 add_executable(chess_tests
         ../src/board.cpp ../src/board_hash.cpp ../src/check.cpp ../src/debug.cpp ../src/evaluate.cpp ../src/generate.cpp
-        ../src/material.cpp ../src/move.cpp ../src/move_list.cpp ../src/move_tree.cpp ../src/piece.cpp ../src/search.cpp
+        ../src/material.cpp ../src/move.cpp ../src/move_tree.cpp ../src/piece.cpp ../src/search.cpp
         ../src/sha1.cpp ../src/str.cpp ../src/timer.cpp ../src/global.h ../src/board_check.cpp ../src/board_check.h
         ../src/validate.cpp ../src/position.cpp
 
@@ -21,10 +21,10 @@ add_executable(chess_tests
         board_builder.cpp
         board_builder.hpp
         board_builder_test.cpp
-        check_test.cpp position_test.cpp move_test.cpp move_list_test.cpp search_test.cpp parse_simple_move.cpp parse_simple_move.hpp parse_simple_move_test.cpp)
+        check_test.cpp position_test.cpp move_test.cpp search_test.cpp parse_simple_move.cpp parse_simple_move.hpp parse_simple_move_test.cpp)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -fsanitize=address")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -O3 -fsanitize=address -march=native")
 
 # Speed up linking on Linux
 execute_process(COMMAND ${CMAKE_C_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE ld_version)
