@@ -72,7 +72,7 @@ public:
         return my_array + my_size;
     }
 
-    bool empty() const
+    [[nodiscard]] bool empty() const
     {
         return my_size == 0;
     }
