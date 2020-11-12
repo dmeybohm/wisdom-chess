@@ -77,7 +77,7 @@ public:
         return my_size == 0;
     }
 
-    void push_back(T move)
+    void push_back (T new_value)
     {
         if (my_size == my_allocated_size)
         {
@@ -88,7 +88,7 @@ public:
             my_array = new_array;
             my_allocated_size = new_size;
         }
-        my_array[my_size++] = move;
+        my_array[my_size++] = new_value;
     }
 };
 
