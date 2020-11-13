@@ -11,8 +11,6 @@ struct game *fen::build ()
 
     board_free (game->board);
     game->board = builder.build();
-//    game->board->half_move_clock = half_move_clock;
-//    game->board->full_moves = full_moves;
 
     return game;
 }
@@ -51,14 +49,58 @@ enum color fen::parse_active_player (char ch)
     }
 }
 
+void fen::parse_pieces (std::string_view str)
+{
+    char ch;
+    uint8_t row = 0, col = 0;
+
+    // read pieces
+    for (;!str.empty();
+         str = str.substr(1))
+    {
+        ch = str[0];
+
+        if (ch == '/')
+        {
+            row++;
+            if (row > NR_ROWS)
+                throw fen_exception("Invalid row!");
+            col = 0;
+        }
+        else if (ch == ' ')
+        {
+            break;
+        }
+        else if (isalpha(ch))
+        {
+            piece_t piece = parse_piece (ch);
+            builder.add_piece (row, col, PIECE_COLOR(piece), PIECE_TYPE(piece));
+            col++;
+            if (col > NR_COLUMNS)
+                throw fen_exception("Invalid columns!");
+        }
+        else if (isdigit(ch))
+        {
+            col += ch - '0';
+            if (col > NR_COLUMNS)
+                throw fen_exception("Invalid columns!");
+        }
+        else
+        {
+            throw fen_exception("Invalid character!");
+        }
+    }
+
+}
+
 // en passant target square:
-std::string_view fen::parse_en_passant (std::string_view str)
+void fen::parse_en_passant (std::string_view str)
 {
     if (str.empty())
-        return str;
+        return;
 
     if (str[0] == '-')
-        return str.substr(1);
+        return;
 
     try {
         std::string cstr { str.substr(0, 2) };
@@ -66,15 +108,12 @@ std::string_view fen::parse_en_passant (std::string_view str)
     } catch (const board_builder_exception &e) {
         throw fen_exception("Error parsing en passant coordinate!");
     }
-
-    return str.substr(3);
 }
 
-std::string_view fen::parse_castling (std::string_view str)
+void fen::parse_castling (std::string_view str)
 {
     castle_state_t white_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
     castle_state_t black_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
-
 
     for (;!str.empty() && isalpha(str[0]); str = str.substr(1))
     {
@@ -105,80 +144,51 @@ std::string_view fen::parse_castling (std::string_view str)
 
     builder.set_castling (COLOR_WHITE, white_castle);
     builder.set_castling (COLOR_BLACK, black_castle);
-
-    return str.substr(1);
 }
 
 // halfmove clock:
-std::string_view fen::parse_halfmove (std::string_view str)
+void fen::parse_halfmove (int half_moves)
 {
-
+    builder.set_half_moves (half_moves);
 }
 
 // fullmove number:
-std::string_view fen::parse_fullmove (std::string_view str)
+void fen::parse_fullmove (int full_moves)
 {
-
+    builder.set_full_moves (full_moves);
 }
 
 void fen::parse (const std::string &source)
 {
-    uint8_t row = 0, col = 0;
-    std::string_view str { source };
+    std::stringstream input { source };
 
-    // read pieces
-    for (; str.size() > 0; str = str.substr(1))
-    {
-        char c = str[0];
-
-        if (c == '/')
-        {
-            row++;
-            if (row > NR_ROWS)
-                throw fen_exception("Invalid row!");
-            col = 0;
-        }
-        else if (c == ' ')
-        {
-            break;
-        }
-        else if (isalpha(c))
-        {
-            piece_t piece = parse_piece (c);
-            builder.add_piece (row, col, PIECE_COLOR(piece), PIECE_TYPE(piece));
-            col++;
-            if (col > NR_COLUMNS)
-                throw fen_exception("Invalid columns!");
-        }
-        else if (isdigit(c))
-        {
-            col += c - '0';
-            if (col > NR_COLUMNS)
-                throw fen_exception("Invalid columns!");
-        }
-        else
-        {
-            throw fen_exception("Invalid character!");
-        }
-    }
-
-    // skip space:
-    str = str.substr (1);
+    // Read the pieces:
+    std::string pieces_str;
+    input >> pieces_str;
+    parse_pieces (pieces_str);
 
     // read active player:
-    active_player = parse_active_player (str[0]);
-    str = str.substr (2);
+    std::string active_player_str;
+    input >> active_player_str;
+    active_player = parse_active_player (active_player_str[0]);
 
     // castling:
-    str = parse_castling (str);
+    std::string castling_str;
+    input >> castling_str;
+    parse_castling (castling_str);
 
     // en passant target square:
-    str = parse_en_passant (str);
+    std::string en_passant_str;
+    input >> en_passant_str;
+    parse_en_passant (en_passant_str);
 
     // halfmove clock:
-    str = parse_halfmove (str);
+    int half_moves;
+    input >> half_moves;
+    parse_halfmove (half_moves);
 
     // fullmove number:
-    str = parse_fullmove (str);
+    int full_moves;
+    input >> full_moves;
+    parse_fullmove (full_moves);
 }
-

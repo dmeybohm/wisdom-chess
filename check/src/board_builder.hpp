@@ -40,6 +40,8 @@ class board_builder final
     std::vector<piece_with_coord> pieces_with_coords;
     std::vector<en_passant_state> en_passant_states;
     std::vector<bb_castle_state> castle_states;
+    int half_moves_clock = 0;
+    int full_moves = 0;
 
 public:
     board_builder() = default;
@@ -61,6 +63,10 @@ public:
     void set_en_passant_target (enum color who, const char *coord_str);
 
     void set_castling (enum color who, castle_state_t state);
+
+    void set_half_moves (int half_moves);
+
+    void set_full_moves (int full_moves);
 
     struct board *build();
 };

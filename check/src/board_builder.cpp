@@ -93,8 +93,18 @@ void board_builder::set_en_passant_target (enum color who, const char *coord_str
 
 void board_builder::set_castling (enum color who, castle_state_t state)
 {
-    struct bb_castle_state new_state { .player = who, state = state };
+    struct bb_castle_state new_state { .player = who, .castle_state = state };
     castle_states.push_back (new_state);
+}
+
+void board_builder::set_half_moves (int half_moves)
+{
+    this->half_moves_clock = half_moves;
+}
+
+void board_builder::set_full_moves (int full_moves)
+{
+    this->full_moves = full_moves;
 }
 
 struct board *board_builder::build ()
@@ -145,6 +155,9 @@ struct board *board_builder::build ()
             result->castled[index] = state.castle_state;
         }
     }
+
+    result->half_move_clock = this->half_moves_clock;
+    result->full_moves = this->full_moves;
 
     return result;
 }

@@ -6,6 +6,7 @@
 #include "board_builder.hpp"
 
 #include <string>
+#include <sstream>
 
 struct game;
 
@@ -26,10 +27,13 @@ private:
 
     void parse(const std::string &input);
     static piece_t parse_piece (char ch);
-    std::string_view parse_en_passant (std::string_view str);
-    std::string_view parse_castling (std::string_view str);
-    std::string_view parse_halfmove (std::string_view str);
-    std::string_view parse_fullmove (std::string_view str);
+
+    void parse_pieces (std::string_view pieces_str);
+    void parse_en_passant (std::string_view en_passant_str);
+    void parse_castling (std::string_view castling_str);
+
+    void parse_halfmove (int half_moves);
+    void parse_fullmove (int full_moves);
     static enum color parse_active_player (char ch);
 };
 

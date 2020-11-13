@@ -18,7 +18,7 @@ TEST_CASE( "FEN notation for the starting position", "[fen-test]" )
 
 TEST_CASE( "FEN notation for non-starting position", "[fen-test]" )
 {
-    fen parser { "4r2/8/8/8/8/8/k7/4K2R w KQkq - 0 1" };
+    fen parser { "4r2/8/8/8/8/8/k7/4K2R w K - 0 1" };
 
     struct game *game = parser.build();
 
@@ -32,8 +32,13 @@ TEST_CASE( "FEN notation for non-starting position", "[fen-test]" )
     struct board *expected = builder.build();
     CHECK( board_equals (*game->board, *expected) );
 
-    int castled_result = memcmp (game->board->castled, expected->castled, sizeof (*expected->castled));
-    CHECK( castled_result == 0 );
+    castle_state_t white_state = board_get_castle_state (game->board, COLOR_WHITE);
+    castle_state_t black_state = board_get_castle_state (game->board, COLOR_BLACK);
+    castle_state_t exp_white_state = board_get_castle_state (expected, COLOR_WHITE);
+    castle_state_t exp_black_state = board_get_castle_state (expected, COLOR_BLACK);
+
+    CHECK( white_state == exp_white_state );
+    CHECK( black_state == exp_black_state );
 }
 
 TEST_CASE( "FEN notation for castling", "[fen-test]" )
