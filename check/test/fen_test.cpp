@@ -1,7 +1,7 @@
 #include "catch.hpp"
-#include "fen.hpp"
 #include "game.h"
 #include "board.h"
+#include "fen.hpp"
 
 TEST_CASE( "FEN notation for the starting position", "[fen-test]" )
 {

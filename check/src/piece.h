@@ -126,12 +126,12 @@ constexpr bool piece_equals (piece_t a, piece_t b)
     return a.color == b.color && a.piece_type == b.piece_type;
 }
 
-bool operator == (piece_t a, piece_t b)
+constexpr bool operator == (piece_t a, piece_t b)
 {
     return piece_equals (a, b);
 }
 
-bool operator != (piece_t a, piece_t b)
+constexpr bool operator != (piece_t a, piece_t b)
 {
     return !piece_equals (a, b);
 }
