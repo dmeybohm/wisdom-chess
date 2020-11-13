@@ -54,13 +54,27 @@ enum color fen::parse_active_player (char ch)
 // en passant target square:
 std::string_view fen::parse_en_passant (std::string_view str)
 {
+    if (str.empty())
+        return str;
 
+    if (str[0] == '-')
+        return str.substr(1);
+
+    try {
+        std::string cstr { str.substr(0, 2) };
+        builder.set_en_passant_target (color_invert(active_player), cstr.c_str());
+    } catch (const board_builder_exception &e) {
+        throw fen_exception("Error parsing en passant coordinate!");
+    }
+
+    return str.substr(3);
 }
 
 std::string_view fen::parse_castling (std::string_view str)
 {
     castle_state_t white_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
     castle_state_t black_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
+
 
     for (;!str.empty() && isalpha(str[0]); str = str.substr(1))
     {
@@ -91,8 +105,9 @@ std::string_view fen::parse_castling (std::string_view str)
 
     builder.set_castling (COLOR_WHITE, white_castle);
     builder.set_castling (COLOR_BLACK, black_castle);
-}
 
+    return str.substr(1);
+}
 
 // halfmove clock:
 std::string_view fen::parse_halfmove (std::string_view str)

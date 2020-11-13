@@ -38,7 +38,7 @@ TEST_CASE( "FEN notation for non-starting position", "[fen-test]" )
 
 TEST_CASE( "FEN notation for castling", "[fen-test]" )
 {
-    fen parser_full{"4r2/8/8/8/8/8/k7/4K2R w KQkq - 0 1"};
+    fen parser_full { "4r2/8/8/8/8/8/k7/4K2R w KQkq - 0 1" };
 
     struct game *game = parser_full.build();
 
@@ -65,4 +65,15 @@ TEST_CASE( "FEN notation for castling", "[fen-test]" )
 
     REQUIRE( game->board->castled[COLOR_INDEX_WHITE] == (CASTLE_KINGSIDE | CASTLE_QUEENSIDE) );
     REQUIRE( game->board->castled[COLOR_INDEX_BLACK] == (CASTLE_KINGSIDE | CASTLE_QUEENSIDE) );
+}
+
+TEST_CASE( "FEN notation for en passant", "[fen-test]" )
+{
+    fen parser_with_black_target {"4r2/8/8/8/8/8/k7/4K2R w KQkq e6 0 1"};
+
+    struct game *game = parser_with_black_target.build();
+
+    REQUIRE( !is_en_passant_vulnerable (game->board, COLOR_WHITE) );
+    REQUIRE( is_en_passant_vulnerable (game->board, COLOR_BLACK) );
+    REQUIRE( game->board->en_passant_target[COLOR_INDEX_BLACK] == coord_parse("e6") );
 }

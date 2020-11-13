@@ -30,7 +30,7 @@ private:
     std::string_view parse_castling (std::string_view str);
     std::string_view parse_halfmove (std::string_view str);
     std::string_view parse_fullmove (std::string_view str);
-    enum color parse_active_player (char ch);
+    static enum color parse_active_player (char ch);
 };
 
 class fen_exception : public std::exception
