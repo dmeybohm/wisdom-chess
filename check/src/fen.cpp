@@ -78,13 +78,12 @@ std::string_view fen::parse_fullmove (std::string_view str)
 void fen::parse (const std::string &source)
 {
     uint8_t row = 0, col = 0;
-    string_size_t i = 0;
     std::string_view str { source };
 
     // read pieces
-    for (i = 0; i < str.size(); i++)
+    for (; str.size() > 0; str = str.substr(1))
     {
-        char c = str[i];
+        char c = str[0];
 
         if (c == '/')
         {
@@ -117,11 +116,12 @@ void fen::parse (const std::string &source)
         }
     }
 
-    str = str.substr (i);
+    // skip space:
+    str = str.substr (1);
 
     // read active player:
     active_player = parse_active_player (str[0]);
-    str = str.substr (1);
+    str = str.substr (2);
 
     // castling:
     str = parse_castling (str);

@@ -128,6 +128,6 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
 
     struct timer timer {};
     timer_init (&timer, 300);
-    move_t best_move = iterate (board, COLOR_BLACK, NULL, &timer, 7);
+    move_t best_move = iterate (board, COLOR_BLACK, nullptr, &timer, 7);
     REQUIRE( !move_equals(best_move, null_move) );
 }

@@ -218,7 +218,7 @@ MOVES_HANDLER (pawn)
 	if (PIECE_TYPE (PIECE_AT (board, row, piece_col)) == PIECE_NONE)
 		move[0] = move_create (piece_row, piece_col, row, piece_col);
 
-	/* double move */
+	// double move
 	if (is_pawn_unmoved (board, piece_row, piece_col))
 	{
 		int next_row = NEXT (row, dir);

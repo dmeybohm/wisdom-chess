@@ -9,7 +9,7 @@
 
 struct game;
 
-class fen
+class fen final
 {
 public:
     explicit fen(const std::string &input) : active_player { COLOR_WHITE }

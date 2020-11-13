@@ -121,28 +121,19 @@ static inline char piece_chr (piece_t piece)
 	}
 }
 
-static inline player_index_t color_to_player_index (enum color color)
+constexpr bool piece_equals (piece_t a, piece_t b)
 {
-    player_index_t result;
-
-    switch (color)
-    {
-        case COLOR_WHITE:
-            result.index = PLAYER_INDEX_WHITE;
-            break;
-        case COLOR_BLACK:
-            result.index = PLAYER_INDEX_BLACK;
-            break;
-        default:
-            assert (0);
-    }
-    return result;
+    return a.color == b.color && a.piece_type == b.piece_type;
 }
 
-static inline player_index_t default_player_index (void)
+bool operator == (piece_t a, piece_t b)
 {
-    player_index_t result = { .index = PLAYER_INDEX_WHITE };
-    return result;
+    return piece_equals (a, b);
+}
+
+bool operator != (piece_t a, piece_t b)
+{
+    return !piece_equals (a, b);
 }
 
 ////////////////////////////////////////////////////

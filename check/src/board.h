@@ -141,9 +141,24 @@ static inline void board_set_piece (struct board *board, coord_t place, piece_t 
     board->board[ROW(place)][COLUMN(place)] = piece;
 }
 
-static inline bool is_en_passant_vulnerable (const struct board *board, enum color who)
+constexpr bool is_en_passant_vulnerable (const struct board *board, enum color who)
 {
     return board->en_passant_target[color_index(who)] != no_en_passant_coord;
+}
+
+static inline bool board_equals (const struct board &a, const struct board &b)
+{
+    for (uint8_t row = 0; row < NR_ROWS; row++)
+    {
+		for (uint8_t col = 0; col < NR_COLUMNS; col++)
+        {
+            if (a.board[row][col] != b.board[row][col])
+                return false;
+        }
+    }
+
+    // todo check more
+    return true;
 }
 
 ///////////////////////////////////////////////

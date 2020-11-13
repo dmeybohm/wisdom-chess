@@ -66,7 +66,8 @@ typedef struct move
 	enum move_category move_category : 3;
 } move_t;
 
-using move_list_t = realloc_vector<move_t>;
+//using move_list_t = realloc_vector<move_t>;
+using move_list_t = std::vector<move_t>;
 
 ////////////////////////////////////////////////////////////////////
 
