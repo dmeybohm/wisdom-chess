@@ -85,17 +85,13 @@ constexpr enum color color_invert (enum color who)
 	return who == COLOR_WHITE ? COLOR_BLACK : COLOR_WHITE;
 }
 
-static inline color_index_t color_index (enum color who)
+constexpr color_index_t color_index (enum color who)
 {
 	switch (who)
 	{
 		case COLOR_WHITE: return COLOR_INDEX_WHITE;
 		case COLOR_BLACK: return COLOR_INDEX_BLACK;
-		default:
-        {
-            fprintf (stderr, "Invalid color passed to color_index(): %d\n", who);
-            abort();
-        }
+		default: assert(false);
 	}
 }
 

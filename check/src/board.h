@@ -25,7 +25,6 @@ struct material;
 struct move_tree;
 struct board_positions;
 
-
 struct board
 {
 	piece_t                  board[NR_ROWS][NR_COLUMNS];
@@ -43,11 +42,17 @@ struct board
 	struct position          position;
 
 	// The columns which are eligible for en_passant
-	int8_t                   en_passant_columns[NR_PLAYERS][2];
+	coord_t                  en_passant_target[NR_PLAYERS];
 
 	// keep track of hashing information
 	// TODO maybe move this higher up for better performance
 	struct board_hash        hash;
+
+	// Number of half moves since pawn or capture.
+	size_t                   half_moves_since_pawn_or_capture;
+
+	// Number of full moves, updated after black moves.
+	size_t                   full_moves;
 };
 
 struct board_positions
@@ -67,7 +72,7 @@ struct board_positions
     ((_board)->board)[(_row)][(_col)]
 
 #define PIECE_AT_COORD(_board, _coord) \
-    ((_board)->board)[ROW ((_coord))][COLUMN ((_coord))]
+    ((_board)->board)[ROW((_coord))][COLUMN((_coord))]
 
 ///////////////////////////////////////////////
 
@@ -121,7 +126,6 @@ static inline void board_undo_castle_change (struct board *board, enum color who
     board->castled[index] = castle_state;
 }
 
-
 static inline coord_t king_position (const struct board *board, enum color who)
 {
 	return board->king_pos[color_index(who)];
@@ -137,15 +141,20 @@ static inline void board_set_piece (struct board *board, coord_t place, piece_t 
     board->board[ROW(place)][COLUMN(place)] = piece;
 }
 
+static inline bool is_en_passant_vulnerable (const struct board *board, enum color who)
+{
+    return board->en_passant_target[color_index(who)] != no_en_passant_coord;
+}
+
 ///////////////////////////////////////////////
 
-struct board *board_new            (void);
+struct board *board_new            ();
 struct board *board_from_positions (const struct board_positions *positions);
 void          board_free           (struct board *board);
 
-void          board_print     (struct board *board);
-void          board_print_err (struct board *board);
-void          board_dump      (struct board *board);
+void          board_print          (struct board *board);
+void          board_print_err      (struct board *board);
+void          board_dump           (struct board *board);
 
 ///////////////////////////////////////////////
 

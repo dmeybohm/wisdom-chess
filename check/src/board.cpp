@@ -14,7 +14,6 @@ DEFINE_DEBUG_CHANNEL (board, 0);
 
 static void board_init_from_positions (struct board *board, const struct board_positions *positions);
 
-
 static enum piece_type back_rank[] =
 {
 	PIECE_ROOK,   PIECE_KNIGHT, PIECE_BISHOP, PIECE_QUEEN, PIECE_KING,
@@ -130,8 +129,8 @@ void board_init_from_positions (struct board *board, const struct board_position
     board->castled[COLOR_INDEX_WHITE] = init_castle_state (board, COLOR_WHITE);
     board->castled[COLOR_INDEX_BLACK] = init_castle_state (board, COLOR_BLACK);
 
-    board->en_passant_columns[COLOR_INDEX_WHITE][0] = board->en_passant_columns[COLOR_INDEX_WHITE][1] = -1;
-    board->en_passant_columns[COLOR_INDEX_BLACK][0] = board->en_passant_columns[COLOR_INDEX_BLACK][1] = -1;
+    board->en_passant_target[COLOR_INDEX_WHITE] = no_en_passant_coord;
+    board->en_passant_target[COLOR_INDEX_BLACK] = no_en_passant_coord;
 
 	board_hash_init (&board->hash, board);
 }
@@ -179,8 +178,8 @@ void board_print_to_file (struct board *board, FILE *file)
 			if (!col)
 				fprintf (file, "|");
 
-			if (PIECE_TYPE (piece) != PIECE_NONE &&
-				PIECE_COLOR (piece) == COLOR_BLACK)
+			if (PIECE_TYPE(piece) != PIECE_NONE &&
+				PIECE_COLOR(piece) == COLOR_BLACK)
 			{
 				fprintf (file, "*");
 			}
@@ -189,7 +188,7 @@ void board_print_to_file (struct board *board, FILE *file)
 				fprintf (file, " ");
 			}
 
-			switch (PIECE_TYPE (piece))
+			switch (PIECE_TYPE(piece))
 			{
 			 case PIECE_PAWN:    fprintf (file, "p"); break;
 			 case PIECE_KNIGHT:  fprintf (file, "N"); break;

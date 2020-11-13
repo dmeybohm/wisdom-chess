@@ -30,9 +30,21 @@ constexpr coord_t coord_create (uint8_t row, uint8_t col)
     return result;
 }
 
+constexpr coord_t no_en_passant_coord = coord_create (0, 0);
+
 constexpr bool coord_equals (coord_t a, coord_t b)
 {
     return a.row == b.row && a.col == b.col;
+}
+
+constexpr bool operator == (coord_t a, coord_t b)
+{
+    return coord_equals (a, b);
+}
+
+constexpr bool operator != (coord_t a, coord_t b)
+{
+    return !coord_equals (a, b);
 }
 
 static inline uint8_t char_to_row (char chr)

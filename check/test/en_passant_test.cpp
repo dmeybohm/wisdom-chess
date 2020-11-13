@@ -10,10 +10,8 @@ TEST_CASE( "En passant state starts out as negative 1", "[en-passant]")
 {
     struct board *board = board_new();
 
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_WHITE][0] == -1 );
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_WHITE][1] == -1 );
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][1] == -1 );
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][1] == -1 );
+    REQUIRE( !is_en_passant_vulnerable (board, COLOR_WHITE) );
+    REQUIRE( !is_en_passant_vulnerable (board, COLOR_BLACK) );
 
     board_builder builder;
     std::vector<enum piece_type> back_rank {
@@ -27,10 +25,8 @@ TEST_CASE( "En passant state starts out as negative 1", "[en-passant]")
 
     struct board *builder_board = builder.build();
 
-    REQUIRE( builder_board->en_passant_columns[COLOR_INDEX_WHITE][0] == -1 );
-    REQUIRE( builder_board->en_passant_columns[COLOR_INDEX_WHITE][1] == -1 );
-    REQUIRE( builder_board->en_passant_columns[COLOR_INDEX_BLACK][1] == -1 );
-    REQUIRE( builder_board->en_passant_columns[COLOR_INDEX_BLACK][1] == -1 );
+    REQUIRE( !is_en_passant_vulnerable(builder_board, COLOR_WHITE) );
+    REQUIRE( !is_en_passant_vulnerable(builder_board, COLOR_BLACK) );
 }
 
 TEST_CASE( "En passant moves work on the right", "[en-passant]" )
@@ -49,8 +45,8 @@ TEST_CASE( "En passant moves work on the right", "[en-passant]" )
 
     move_t pawn_move = parse_move ("f7f5");
     undo_move_t first_undo_state = do_move (board, COLOR_BLACK, pawn_move);
-    REQUIRE( first_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] == -1 );
-    REQUIRE( first_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] == -1 );
+    REQUIRE( !is_en_passant_vulnerable (first_undo_state, COLOR_BLACK) );
+    REQUIRE( !is_en_passant_vulnerable (first_undo_state, COLOR_WHITE) );
 
     move_list_t move_list = generate_moves (board, COLOR_WHITE);
     move_t en_passant_move = null_move;
@@ -75,8 +71,8 @@ TEST_CASE( "En passant moves work on the right", "[en-passant]" )
     undo_move_t en_passant_undo_state = do_move (board, COLOR_WHITE, en_passant_move);
 
     REQUIRE( en_passant_undo_state.category == MOVE_CATEGORY_EN_PASSANT );
-    REQUIRE( en_passant_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] > -1 );
-    REQUIRE( en_passant_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] > -1 );
+    REQUIRE( is_en_passant_vulnerable (en_passant_undo_state, COLOR_BLACK) );
+    REQUIRE( !is_en_passant_vulnerable (en_passant_undo_state, COLOR_WHITE) );
 
     piece_t en_passant_pawn = PIECE_AT (board, 2, 5);
     REQUIRE( PIECE_TYPE(en_passant_pawn) == PIECE_PAWN );
@@ -86,8 +82,7 @@ TEST_CASE( "En passant moves work on the right", "[en-passant]" )
     REQUIRE( PIECE_TYPE(taken_pawn) == PIECE_NONE );
 
     undo_move (board, COLOR_WHITE, en_passant_move, en_passant_undo_state);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][0] > -1 );
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][0] > -1 );
+    REQUIRE( is_en_passant_vulnerable (board, COLOR_BLACK) );
 
     piece_t en_passant_pawn_space = PIECE_AT (board, 2, 5);
     REQUIRE( PIECE_TYPE(en_passant_pawn_space) == PIECE_NONE );
@@ -116,8 +111,8 @@ TEST_CASE( "En passant moves work on the left", "[en-passant]" )
 
     move_t pawn_move = parse_move ("d7d5");
     undo_move_t first_undo_state = do_move (board, COLOR_BLACK, pawn_move);
-    REQUIRE( first_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] == -1 );
-    REQUIRE( first_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] == -1 );
+    REQUIRE( !is_en_passant_vulnerable (first_undo_state, COLOR_BLACK) );
+    REQUIRE( !is_en_passant_vulnerable (first_undo_state, COLOR_WHITE) );
 
     move_list_t move_list = generate_moves (board, COLOR_WHITE);
     move_t en_passant_move = null_move;
@@ -129,7 +124,6 @@ TEST_CASE( "En passant moves work on the left", "[en-passant]" )
     }
 
     REQUIRE( !is_null_move(en_passant_move) );
-
 
     // Check move types:
     REQUIRE( is_en_passant_move(en_passant_move) );
@@ -143,8 +137,8 @@ TEST_CASE( "En passant moves work on the left", "[en-passant]" )
     undo_move_t en_passant_undo_state = do_move (board, COLOR_WHITE, en_passant_move);
 
     REQUIRE( en_passant_undo_state.category == MOVE_CATEGORY_EN_PASSANT );
-    REQUIRE( en_passant_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] > -1 );
-    REQUIRE( en_passant_undo_state.en_passant_columns[COLOR_INDEX_BLACK][0] > -1 );
+    REQUIRE( is_en_passant_vulnerable (en_passant_undo_state, COLOR_BLACK) );
+    REQUIRE( !is_en_passant_vulnerable (en_passant_undo_state, COLOR_WHITE) );
 
     piece_t en_passant_pawn = PIECE_AT (board, 2, 3);
     REQUIRE( PIECE_TYPE(en_passant_pawn) == PIECE_PAWN );
@@ -154,8 +148,7 @@ TEST_CASE( "En passant moves work on the left", "[en-passant]" )
     REQUIRE( PIECE_TYPE(taken_pawn) == PIECE_NONE );
 
     undo_move (board, COLOR_WHITE, en_passant_move, en_passant_undo_state);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][0] > -1 );
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][0] > -1 );
+    REQUIRE( is_en_passant_vulnerable (board, COLOR_BLACK) );
 
     piece_t en_passant_pawn_space = PIECE_AT (board, 2, 5);
     REQUIRE( PIECE_TYPE(en_passant_pawn_space) == PIECE_NONE );
@@ -186,26 +179,18 @@ TEST_CASE( "En passant state is reset after en passant", "[en-passant]" )
     move_t en_passant = parse_move ("e5 d4 (ep)");
 
     undo_move_t first_undo = do_move (board, COLOR_BLACK, first_move);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][0] > -1);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][1] > -1);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_WHITE][0] == -1);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_WHITE][1] == -1);
+    REQUIRE( is_en_passant_vulnerable (board, COLOR_BLACK) );
+    REQUIRE( !is_en_passant_vulnerable (board, COLOR_WHITE) );
 
     undo_move_t second_undo = do_move (board, COLOR_WHITE, en_passant);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][0] == -1);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][1] == -1);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_WHITE][0] == -1);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_WHITE][1] == -1);
+    REQUIRE( !is_en_passant_vulnerable (board, COLOR_BLACK) );
+    REQUIRE( !is_en_passant_vulnerable (board, COLOR_WHITE) );
 
     undo_move (board, COLOR_WHITE, en_passant, second_undo);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][0] > -1);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][1] > -1);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_WHITE][0] == -1);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_WHITE][1] == -1);
+    REQUIRE( is_en_passant_vulnerable (board, COLOR_BLACK) );
+    REQUIRE( !is_en_passant_vulnerable (board, COLOR_WHITE) );
 
     undo_move (board, COLOR_BLACK, first_move, first_undo);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][0] == -1);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_BLACK][1] == -1);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_WHITE][0] == -1);
-    REQUIRE( board->en_passant_columns[COLOR_INDEX_WHITE][1] == -1);
+    REQUIRE( !is_en_passant_vulnerable (board, COLOR_BLACK) );
+    REQUIRE( !is_en_passant_vulnerable (board, COLOR_WHITE) );
 }

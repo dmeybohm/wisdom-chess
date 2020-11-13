@@ -85,6 +85,12 @@ void board_builder::add_row_of_same_color (const char *coord_str, enum color who
         this->add_piece (ROW(coord), col, who, *it);
 }
 
+void board_builder::set_en_passant_target (enum color who, const char *coord_str)
+{
+    struct en_passant_state new_state { who, coord_alg(coord_str) };
+    this->en_passant_states.push_back(new_state);
+}
+
 struct board *board_builder::build ()
 {
     struct piece_row
@@ -121,16 +127,9 @@ struct board *board_builder::build ()
         for (auto state : en_passant_states)
         {
             color_index_t index = color_index(state.player);
-            result->en_passant_columns[index][0] = state.columns[0];
-            result->en_passant_columns[index][1] = state.columns[1];
+            result->en_passant_target[index] = state.coord;
         }
     }
 
     return result;
-}
-
-void board_builder::set_en_passant_state (enum color who, std::array<int8_t, 2> columns)
-{
-    struct en_passant_state new_state { who, { columns[0], columns[1] } };
-    this->en_passant_states.push_back(new_state);
 }

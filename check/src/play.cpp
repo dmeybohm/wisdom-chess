@@ -76,6 +76,12 @@ static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
 		*g_out = new_game;
 		return 1;
 	}
+	else if (!strncmp (buf, "fenload", strlen ("fenload")))
+    {
+	    struct game *new_game;
+
+	    *skip = 1;
+    }
 
 	*move = move_parse (buf, game->turn);
 

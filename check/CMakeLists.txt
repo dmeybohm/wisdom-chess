@@ -21,10 +21,10 @@ CHECK_INCLUDE_FILES("unistd.h" HAVE_UNISTD_H)
 add_executable(chess
         src/board.cpp src/board_hash.cpp src/check.cpp src/debug.cpp src/evaluate.cpp src/game.cpp src/generate.cpp src/material.cpp src/move.cpp
         src/move_tree.cpp src/piece.cpp src/play.cpp src/search.cpp src/sha1.cpp src/str.cpp src/timer.cpp
-        src/global.h src/board_check.cpp src/board_check.h src/validate.cpp src/validate.h src/position.cpp src/position.h src/realloc_vector.cpp src/realloc_vector.hpp)
+        src/global.h src/board_check.cpp src/board_check.h src/validate.cpp src/validate.h src/position.cpp src/position.h src/realloc_vector.cpp src/realloc_vector.hpp src/fen.cpp src/fen.hpp)
 
 set_property(TARGET chess PROPERTY C_STANDARD 11)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3 -fsanitize=address -Wall -Wno-unused-parameter -Wno-unused-function")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address -Wall -Wno-unused-parameter -Wno-unused-function")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -O3 -fsanitize=address -march=native")
 
 # Speed up linking on Linux

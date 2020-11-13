@@ -265,28 +265,23 @@ static void handle_en_passant_eligibility (struct board *board, enum color who, 
 
     if (undo)
     {
-        board->en_passant_columns[c_index][0] = undo_state->en_passant_columns[c_index][0];
-        board->en_passant_columns[c_index][1] = undo_state->en_passant_columns[c_index][1];
-        board->en_passant_columns[o_index][0] = undo_state->en_passant_columns[o_index][0];
-        board->en_passant_columns[o_index][1] = undo_state->en_passant_columns[o_index][1];
+        board->en_passant_target[c_index] = undo_state->en_passant_target[c_index];
+        board->en_passant_target[o_index] = undo_state->en_passant_target[o_index];
     }
     else
     {
-        int8_t new_state[2] = { -1, -1 };
+        int direction = PAWN_DIRECTION(who);
+        coord_t new_state = no_en_passant_coord;
         if (is_double_square_pawn_move (src_piece, move))
         {
-            uint8_t column = COLUMN(MOVE_SRC(move));
-            new_state[0] = VALID(column - 1) ? column - 1 : -1;
-            new_state[1] = VALID(column + 1) ? column + 1 : -1;
+            coord_t src = MOVE_SRC(move);
+            uint8_t prev_row = NEXT (ROW(src), direction);
+            new_state = coord_create (prev_row, COLUMN(src));
         }
-        undo_state->en_passant_columns[c_index][0] = board->en_passant_columns[c_index][0];
-        undo_state->en_passant_columns[c_index][1] = board->en_passant_columns[c_index][1];
-        undo_state->en_passant_columns[o_index][0] = board->en_passant_columns[o_index][0];
-        undo_state->en_passant_columns[o_index][1] = board->en_passant_columns[o_index][1];
-        board->en_passant_columns[c_index][0] = new_state[0];
-        board->en_passant_columns[c_index][1] = new_state[1];
-        board->en_passant_columns[o_index][0] = -1;
-        board->en_passant_columns[o_index][1] = -1;
+        undo_state->en_passant_target[c_index] = board->en_passant_target[c_index];
+        undo_state->en_passant_target[o_index] = board->en_passant_target[o_index];
+        board->en_passant_target[c_index] = new_state;
+        board->en_passant_target[o_index] = no_en_passant_coord;
     }
 }
 

@@ -25,7 +25,7 @@ struct piece_coord_string_with_type
 struct en_passant_state
 {
     enum color player;
-    std::array<int8_t, 2> columns;
+    coord_t coord;
 };
 
 class board_builder final
@@ -50,7 +50,7 @@ public:
 
     void add_row_of_same_color_and_piece (const char *coord_str, enum color who, enum piece_type piece_type);
 
-    void set_en_passant_state (enum color who, std::array<int8_t, 2> columns);
+    void set_en_passant_target (enum color who, const char *coord_str);
 
     struct board *build();
 };

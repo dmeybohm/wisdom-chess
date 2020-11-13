@@ -25,12 +25,6 @@ enum castle
 
 constexpr int MAX_CASTLE_STATES = 8;
 
-enum en_passant_eligible
-{
-    EN_PASSANT_NOT_ELIGIBLE = 0,
-    EN_PASSANT_ELIGIBLE = 1,
-};
-
 enum move_category
 {
     MOVE_CATEGORY_NON_CAPTURE = 0,
@@ -46,7 +40,7 @@ typedef struct undo_move
     
     castle_state_t              current_castle_state;
     castle_state_t              opponent_castle_state;
-    int8_t                      en_passant_columns[NR_PLAYERS][2];
+    coord_t                     en_passant_target[NR_PLAYERS];
 } undo_move_t;
 
 constexpr undo_move_t empty_undo_state =
@@ -55,7 +49,7 @@ constexpr undo_move_t empty_undo_state =
     .taken_piece_type = PIECE_NONE,
     .current_castle_state = CASTLE_NONE,
     .opponent_castle_state = CASTLE_NONE,
-    .en_passant_columns = { { -1, -1 }, { -1, -1 } },
+    .en_passant_target = { no_en_passant_coord, no_en_passant_coord },
 };
 
 typedef struct move
@@ -246,6 +240,16 @@ constexpr bool move_equals (move_t a, move_t b)
 	    a.promoted_piece_type == b.promoted_piece_type;
 }
 
+constexpr bool operator ==(move_t a, move_t b)
+{
+    return move_equals (a, b);
+}
+
+constexpr bool operator !=(move_t a, move_t b)
+{
+    return !move_equals (a, b);
+}
+
 // Pack the castle state into the move.
 constexpr castle_state_t unpack_castle_state (castle_state_t state)
 {
@@ -276,6 +280,11 @@ static inline void save_current_castle_state (undo_move_t *undo_state, castle_st
 static inline void save_opponent_castle_state (undo_move_t *undo_state, castle_state_t state)
 {
     undo_state->opponent_castle_state = pack_castle_state(state);
+}
+
+constexpr bool is_en_passant_vulnerable (undo_move_t undo_state, enum color who)
+{
+    return undo_state.en_passant_target[color_index(who)] != no_en_passant_coord;
 }
 
 /////////////////////////////////////////////////////////////////////

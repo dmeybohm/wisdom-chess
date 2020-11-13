@@ -291,7 +291,7 @@ void add_en_passant_move (const struct board *board, enum color who, uint8_t pie
 	int           direction;
 	uint8_t       take_row, take_col;
 
-	direction = PAWN_DIRECTION (who);
+	direction = PAWN_DIRECTION(who);
 
 	take_row = NEXT (piece_row, direction);
 	take_col = en_passant_column;

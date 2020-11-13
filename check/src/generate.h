@@ -21,23 +21,27 @@ static inline int8_t eligible_en_passant_column (const struct board *board, uint
 {
     color_index_t opponent_index = color_index(color_invert(who));
 
+    if (coord_equals (board->en_passant_target[opponent_index], no_en_passant_coord))
+        return -1;
+
     // if WHITE rank 4, black rank 3
     if ((who == COLOR_WHITE ? 3 : 4) != row)
         return -1;
 
-    if (column == board->en_passant_columns[opponent_index][0])
+    int8_t left_column = column - 1;
+    int8_t right_column = column + 1;
+    uint8_t target_column = COLUMN(board->en_passant_target[opponent_index]);
+
+    if (left_column == target_column)
     {
-        // *this* pawn is to the left of the taken pawn, so the take column is +1
-        int8_t result = column + 1;
-        assert (VALID(result));
-        return result;
+        assert (VALID(left_column));
+        return left_column;
     }
 
-    if (column == board->en_passant_columns[opponent_index][1])
+    if (right_column == target_column)
     {
-        int8_t result = column - 1;
-        assert (VALID(result));
-        return result;
+        assert (VALID(right_column));
+        return right_column;
     }
 
     return -1;
