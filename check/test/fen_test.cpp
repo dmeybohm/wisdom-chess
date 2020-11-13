@@ -25,7 +25,7 @@ TEST_CASE( "FEN notation for non-starting position", "[fen-test]" )
     board_builder builder;
 
     builder.add_piece ("e8", COLOR_BLACK, PIECE_ROOK);
-    builder.add_piece ("a2                          ", COLOR_BLACK, PIECE_KING);
+    builder.add_piece ("a2", COLOR_BLACK, PIECE_KING);
     builder.add_piece ("e1", COLOR_WHITE, PIECE_KING);
     builder.add_piece ("h1", COLOR_WHITE, PIECE_ROOK);
 
