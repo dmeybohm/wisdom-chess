@@ -210,7 +210,7 @@ static inline move_t move_with_capture (move_t move)
 constexpr move_t move_create_en_passant (int8_t src_row, uint8_t src_col,
                                              uint8_t dst_row, uint8_t dst_col)
 {
-    move_t move = move_create( src_row, src_col, dst_row, dst_col);
+    move_t move = move_create (src_row, src_col, dst_row, dst_col);
     move.move_category = MOVE_CATEGORY_EN_PASSANT;
     return move;
 }
@@ -240,12 +240,12 @@ constexpr bool move_equals (move_t a, move_t b)
 	    a.promoted_piece_type == b.promoted_piece_type;
 }
 
-constexpr bool operator ==(move_t a, move_t b)
+constexpr bool operator == (move_t a, move_t b)
 {
     return move_equals (a, b);
 }
 
-constexpr bool operator !=(move_t a, move_t b)
+constexpr bool operator != (move_t a, move_t b)
 {
     return !move_equals (a, b);
 }

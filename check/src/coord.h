@@ -1,11 +1,12 @@
 #ifndef EVOLVE_CHESS_COORD_H
 #define EVOLVE_CHESS_COORD_H
 
+#include "global.h"
+
 #include <cstdint>
 #include <cctype>
 #include <cstring>
-
-#include "global.h"
+#include <exception>
 
 // lower three bits are the column, upper three are the row
 typedef struct coord
@@ -56,5 +57,20 @@ static inline uint8_t char_to_col (char chr)
 {
     return tolower(chr) - 'a';
 }
+
+/////////////////////////////////////////////////////////////////////
+
+coord_t coord_parse (const char *str);
+
+/////////////////////////////////////////////////////////////////////
+
+class coord_parse_exception : public std::exception
+{
+    const char *message;
+
+public:
+    explicit coord_parse_exception (const char *message) : message { message } {}
+    [[nodiscard]] const char *what() const noexcept override { return this->message; }
+};
 
 #endif // EVOLVE_CHESS_COORD_H

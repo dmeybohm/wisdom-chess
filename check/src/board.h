@@ -49,7 +49,7 @@ struct board
 	struct board_hash        hash;
 
 	// Number of half moves since pawn or capture.
-	size_t                   half_moves_since_pawn_or_capture;
+	size_t                   half_move_clock;
 
 	// Number of full moves, updated after black moves.
 	size_t                   full_moves;

@@ -3,26 +3,46 @@
 #define WIZDUMB_FEN_HPP
 
 #include "global.h"
-//#include "board_builder.hpp"
+#include "board_builder.hpp"
 
 #include <string>
 
-struct board;
+struct game;
 
 class fen
 {
-    std::string input;
-//    board_builder builder;
-
 public:
-    fen(std::string input) { validate(input); }
+    explicit fen(const std::string &input) : active_player { COLOR_WHITE }
+    {
+        parse(input);
+    }
 
-    struct board *build();
+    // Build the game:
+    struct game *build();
 
-    void validate(std::string input);
+private:
+    board_builder builder;
+    enum color active_player;
+
+    void parse(const std::string &input);
+    static piece_t parse_piece (char ch);
+    std::string_view parse_en_passant (std::string_view str);
+    std::string_view parse_castling (std::string_view str);
+    std::string_view parse_halfmove (std::string_view str);
+    std::string_view parse_fullmove (std::string_view str);
+    enum color parse_active_player (char ch);
 };
 
-class fen_exception : public chess_exception
-{};
+class fen_exception : public std::exception
+{
+    const char *message;
+
+public:
+    explicit fen_exception (const char *message) : message { message }
+    {}
+
+    [[nodiscard]] const char *what () const noexcept override
+    { return this->message; }
+};
 
 #endif //WIZDUMB_FEN_HPP

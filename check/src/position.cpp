@@ -1,7 +1,7 @@
 #include "position.h"
 #include "board.h"
 
-static int pawn_positions[NR_ROWS][NR_COLUMNS] =
+constexpr int pawn_positions[NR_ROWS][NR_COLUMNS] =
 {
     {  0,  0,  0,  0,  0,  0,  0,  0 },
     { +9, +9, +9, +9, +9, +9, +9, +9 },
@@ -13,7 +13,7 @@ static int pawn_positions[NR_ROWS][NR_COLUMNS] =
     {  0,  0,  0,  0,  0,  0,  0,  0 },
 };
 
-static int king_positions[NR_ROWS][NR_COLUMNS] =
+constexpr int king_positions[NR_ROWS][NR_COLUMNS] =
 {
     { -6, -8, -8, -9, -9, -4, -4, -6 },
     { -6, -8, -8, -9, -9, -4, -4, -6 },
@@ -26,7 +26,7 @@ static int king_positions[NR_ROWS][NR_COLUMNS] =
 };
 
 
-static int knight_positions[NR_ROWS][NR_COLUMNS] =
+constexpr int knight_positions[NR_ROWS][NR_COLUMNS] =
 {
     { -9, -8, -6, -6, -6, -6, -8, -9  },
     { -8, -4,  0,  0,  0,  0, -4, -8  },
@@ -38,7 +38,7 @@ static int knight_positions[NR_ROWS][NR_COLUMNS] =
     { -9, -8, -6, -6, -6, -6, -8, -9  },
 };
 
-static int bishop_positions[NR_ROWS][NR_COLUMNS] =
+constexpr int bishop_positions[NR_ROWS][NR_COLUMNS] =
 {
     { -4, -2, -2, -2, -2, -2, -2, -2  },
     { -2,  0,  0,  0,  0,  0,  0, -2  },
@@ -50,7 +50,7 @@ static int bishop_positions[NR_ROWS][NR_COLUMNS] =
     { -4, -2, -2, -2, -2, -2, -2, -2  },
 };
 
-static int rook_positions[NR_ROWS][NR_COLUMNS] =
+constexpr int rook_positions[NR_ROWS][NR_COLUMNS] =
 {
     {  0,  0,  0,  0,  0,  0,  0,  0  },
     { +1, +2, +2, +2, +2, +2, +2, +1  },
@@ -62,7 +62,7 @@ static int rook_positions[NR_ROWS][NR_COLUMNS] =
     {  0,  0,  0, +1, +1,  0,  0,  0  },
 };
 
-static int queen_positions[NR_ROWS][NR_COLUMNS] =
+constexpr int queen_positions[NR_ROWS][NR_COLUMNS] =
 {
     { -4, -2, -2, -1, -1, -2, -2, -4  },
     { -2,  0,  0,  0,  0,  0,  0, -2  },

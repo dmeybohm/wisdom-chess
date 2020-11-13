@@ -5,7 +5,7 @@
 
 coord_t coord_alg (const char *coord_str)
 {
-    if (strlen(coord_str) != 2)
+    if (!coord_str || strlen(coord_str) != 2)
         throw board_builder_exception("Invalid coordinate string!");
 
     uint8_t col = char_to_col(coord_str[0]);

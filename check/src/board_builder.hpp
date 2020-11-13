@@ -1,6 +1,7 @@
 #ifndef WIZDUMB_BOARD_BUILDER_HPP
 #define WIZDUMB_BOARD_BUILDER_HPP
 
+#include "global.h"
 #include "piece.h"
 #include "move.h"
 
@@ -65,6 +66,5 @@ public:
 };
 
 coord_t coord_alg (const char *coord_str);
-
 
 #endif //WIZDUMB_BOARD_BUILDER_HPP

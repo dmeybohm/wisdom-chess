@@ -20,15 +20,4 @@ constexpr unsigned int QUEEN_ROOK_COLUMN = 0;
 constexpr unsigned int KING_CASTLED_ROOK_COLUMN = 5;
 constexpr unsigned int QUEEN_CASTLED_ROOK_COLUMN = 3;
 
-class chess_exception : public std::exception
-{
-protected:
-    const char *message;
-
-public:
-    explicit chess_exception (const char *message) : message { message } {}
-    [[nodiscard]] const char *what() const noexcept override { return this->message; }
-};
-
-
 #endif //WIZDUMB_GLOBAL_H
