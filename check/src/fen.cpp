@@ -52,11 +52,10 @@ enum color fen::parse_active_player (char ch)
 void fen::parse_pieces (std::string_view str)
 {
     char ch;
-    uint8_t row = 0, col = 0;
+
 
     // read pieces
-    for (;!str.empty();
-         str = str.substr(1))
+    for (uint8_t row = 0, col = 0; !str.empty(); str = str.substr(1))
     {
         ch = str[0];
 
