@@ -38,22 +38,9 @@ enum color_index
 	COLOR_INDEX_BLACK = 1U,
 };
 
-enum player_index
-{
-    PLAYER_INDEX_WHITE = 0U,
-    PLAYER_INDEX_BLACK = 1U,
-};
-
-struct player_index_struct
-{
-    enum player_index index;
-};
-
 typedef uint8_t   color_index_t;
 
 typedef struct piece_with_color piece_t;
-
-typedef struct player_index_struct player_index_t;
 
 ////////////////////////////////////////////////
 
@@ -79,28 +66,31 @@ constexpr enum color PIECE_COLOR (piece_t piece)
     return piece.color;
 }
 
+constexpr bool is_color_valid (enum color who)
+{
+    return (who == COLOR_WHITE || who == COLOR_BLACK);
+}
+
 constexpr enum color color_invert (enum color who)
 {
-    assert (who == COLOR_WHITE || who == COLOR_BLACK);
+    assert (is_color_valid(who));
 	return who == COLOR_WHITE ? COLOR_BLACK : COLOR_WHITE;
+}
+
+constexpr bool is_color_invalid (enum color color)
+{
+	return !is_color_valid (color);
 }
 
 constexpr color_index_t color_index (enum color who)
 {
+    assert (is_color_valid(who));
 	switch (who)
 	{
+	    default:
 		case COLOR_WHITE: return COLOR_INDEX_WHITE;
 		case COLOR_BLACK: return COLOR_INDEX_BLACK;
-		default: assert(false);
 	}
-}
-
-static inline bool is_color_invalid (enum color color)
-{
-	if (color == COLOR_WHITE || color == COLOR_BLACK)
-		return false;
-
-	return true;
 }
 
 char *piece_str (piece_t piece);

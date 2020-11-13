@@ -29,10 +29,17 @@ struct en_passant_state
     coord_t coord;
 };
 
+struct bb_castle_state
+{
+    enum color player;
+    castle_state_t castle_state;
+};
+
 class board_builder final
 {
     std::vector<piece_with_coord> pieces_with_coords;
     std::vector<en_passant_state> en_passant_states;
+    std::vector<bb_castle_state> castle_states;
 
 public:
     board_builder() = default;
@@ -52,6 +59,8 @@ public:
     void add_row_of_same_color_and_piece (const char *coord_str, enum color who, enum piece_type piece_type);
 
     void set_en_passant_target (enum color who, const char *coord_str);
+
+    void set_castling (enum color who, castle_state_t state);
 
     struct board *build();
 };

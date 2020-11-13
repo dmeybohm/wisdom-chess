@@ -95,20 +95,18 @@ static inline bool need_pawn_promotion (uint8_t row, enum color who)
     }
 }
 
-static inline int able_to_castle (struct board *board, enum color who,
+constexpr int able_to_castle (struct board *board, enum color who,
                                   castle_state_t castle_type)
 {
-	int didnt_castle;
-	int neg_not_set;
     color_index_t c_index = color_index(who);
 
-	didnt_castle = !!(board->castled[c_index] != CASTLE_CASTLED);
-	neg_not_set  = !!(((~board->castled[c_index]) & castle_type) != 0);
+	int didnt_castle = !!(board->castled[c_index] != CASTLE_CASTLED);
+	int neg_not_set  = !!(((~board->castled[c_index]) & castle_type) != 0);
 
 	return didnt_castle && neg_not_set;
 }
 
-static inline castle_state_t board_get_castle_state (struct board *board, enum color who)
+constexpr castle_state_t board_get_castle_state (struct board *board, enum color who)
 {
     color_index_t index = color_index(who);
     return board->castled[index];

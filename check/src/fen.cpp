@@ -59,7 +59,38 @@ std::string_view fen::parse_en_passant (std::string_view str)
 
 std::string_view fen::parse_castling (std::string_view str)
 {
+    castle_state_t white_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
+    castle_state_t black_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
 
+    for (;!str.empty() && isalpha(str[0]); str = str.substr(1))
+    {
+        char ch = str[0];
+
+        if (ch == ' ' || ch == '-')
+            break;
+
+        enum color who = islower(ch) ? COLOR_BLACK : COLOR_WHITE;
+        castle_state_t new_state = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
+
+        switch (tolower(ch))
+        {
+            case 'k':
+                new_state &= ~CASTLE_KINGSIDE;
+                break;
+            case 'q':
+                new_state &= ~CASTLE_QUEENSIDE;
+                break;
+        }
+
+        if (who == COLOR_BLACK)
+            black_castle &= new_state;
+        else
+            white_castle &= new_state;
+
+    }
+
+    builder.set_castling (COLOR_WHITE, white_castle);
+    builder.set_castling (COLOR_BLACK, black_castle);
 }
 
 

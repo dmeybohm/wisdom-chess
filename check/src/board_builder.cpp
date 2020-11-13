@@ -88,7 +88,13 @@ void board_builder::add_row_of_same_color (const char *coord_str, enum color who
 void board_builder::set_en_passant_target (enum color who, const char *coord_str)
 {
     struct en_passant_state new_state { who, coord_alg(coord_str) };
-    this->en_passant_states.push_back(new_state);
+    this->en_passant_states.push_back (new_state);
+}
+
+void board_builder::set_castling (enum color who, castle_state_t state)
+{
+    struct bb_castle_state new_state { .player = who, state = state };
+    castle_states.push_back (new_state);
 }
 
 struct board *board_builder::build ()
@@ -128,6 +134,15 @@ struct board *board_builder::build ()
         {
             color_index_t index = color_index(state.player);
             result->en_passant_target[index] = state.coord;
+        }
+    }
+
+    if (!castle_states.empty())
+    {
+        for (auto state : castle_states)
+        {
+            color_index_t index = color_index(state.player);
+            result->castled[index] = state.castle_state;
         }
     }
 

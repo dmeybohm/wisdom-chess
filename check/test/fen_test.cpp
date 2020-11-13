@@ -11,6 +11,58 @@ TEST_CASE( "FEN notation for the starting position", "[fen-test]" )
     struct board *default_board = board_new ();
 
     CHECK( board_equals (*game->board, *default_board) );
+
     int castled_result = memcmp (game->board->castled, default_board->castled, sizeof (*default_board->castled));
-    CHECK( castled_result == 0);
+    CHECK( castled_result == 0 );
+}
+
+TEST_CASE( "FEN notation for non-starting position", "[fen-test]" )
+{
+    fen parser { "4r2/8/8/8/8/8/k7/4K2R w KQkq - 0 1" };
+
+    struct game *game = parser.build();
+
+    board_builder builder;
+
+    builder.add_piece ("e8", COLOR_BLACK, PIECE_ROOK);
+    builder.add_piece ("a2                          ", COLOR_BLACK, PIECE_KING);
+    builder.add_piece ("e1", COLOR_WHITE, PIECE_KING);
+    builder.add_piece ("h1", COLOR_WHITE, PIECE_ROOK);
+
+    struct board *expected = builder.build();
+    CHECK( board_equals (*game->board, *expected) );
+
+    int castled_result = memcmp (game->board->castled, expected->castled, sizeof (*expected->castled));
+    CHECK( castled_result == 0 );
+}
+
+TEST_CASE( "FEN notation for castling", "[fen-test]" )
+{
+    fen parser_full{"4r2/8/8/8/8/8/k7/4K2R w KQkq - 0 1"};
+
+    struct game *game = parser_full.build();
+
+    REQUIRE( game->board->castled[COLOR_INDEX_WHITE] == CASTLE_NONE );
+    REQUIRE( game->board->castled[COLOR_INDEX_BLACK] == CASTLE_NONE );
+
+    fen parser_no_black_king { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
+
+    game = parser_no_black_king.build();
+
+    REQUIRE( game->board->castled[COLOR_INDEX_WHITE] == CASTLE_NONE );
+    REQUIRE( game->board->castled[COLOR_INDEX_BLACK] == CASTLE_KINGSIDE );
+
+    fen parser_no_black { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
+
+    game = parser_no_black.build();
+
+    REQUIRE( game->board->castled[COLOR_INDEX_WHITE] == CASTLE_NONE );
+    REQUIRE( game->board->castled[COLOR_INDEX_BLACK] == CASTLE_KINGSIDE );
+
+    fen parser_nothing { "4r2/8/8/8/8/8/k7/4K2R w - - 0 1" };
+
+    game = parser_nothing.build();
+
+    REQUIRE( game->board->castled[COLOR_INDEX_WHITE] == (CASTLE_KINGSIDE | CASTLE_QUEENSIDE) );
+    REQUIRE( game->board->castled[COLOR_INDEX_BLACK] == (CASTLE_KINGSIDE | CASTLE_QUEENSIDE) );
 }
