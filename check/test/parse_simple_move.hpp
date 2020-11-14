@@ -25,7 +25,7 @@ public:
         }
     }
 
-    explicit my_move_list (move_tree_t *tree)
+    explicit my_move_list (const move_tree_t *tree)
     {
         while (tree != nullptr)
         {
@@ -42,6 +42,14 @@ public:
                 second.moves.begin(),
                 move_equals
         );
+    }
+
+    [[nodiscard]] std::string to_string() const
+    {
+        std::string result;
+        for (auto move : moves)
+            result += ::to_string(move) + " ";
+        return result;
     }
 };
 

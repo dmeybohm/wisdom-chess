@@ -302,10 +302,6 @@ move_t iterate (struct board *board, enum color side,
 
 	gettimeofday (&start, nullptr);
 
-#if RANDOMNESS > 0
-	srand (start.tv_sec >> 10 ^ start.tv_usec);
-#endif
-
 	best_score = search (board, side, depth, depth, &best_move,
                         -INITIAL_ALPHA, INITIAL_ALPHA,
 	                     (start.tv_usec >> 16) | (start.tv_sec << 16),

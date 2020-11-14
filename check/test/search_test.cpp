@@ -83,11 +83,13 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
                         &variation.tree, 0, &large_timer, nullptr);
 
     REQUIRE( !move_equals (result, move_null ()) );
-    REQUIRE( variation.size() == 5 );
 
     my_move_list expected_moves { COLOR_BLACK, {"e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
     my_move_list computed_moves { variation.tree };
+    printf ("computed moves: %s\n", computed_moves.to_string().c_str());
+    printf ("expected moves: %s\n", expected_moves.to_string().c_str());
 
+    REQUIRE( variation.size() == 5 );
     REQUIRE( expected_moves == computed_moves );
     REQUIRE( score > INFINITE );
 }

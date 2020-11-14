@@ -66,8 +66,8 @@ typedef struct move
 	enum move_category move_category : 3;
 } move_t;
 
-//using move_list_t = realloc_vector<move_t>;
-using move_list_t = std::vector<move_t>;
+using move_list_t = realloc_vector<move_t>;
+//using move_list_t = std::vector<move_t>;
 
 ////////////////////////////////////////////////////////////////////
 
@@ -299,5 +299,15 @@ const char   *move_str        (move_t move);
 coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst);
 
 /////////////////////////////////////////////////////////////////////
+
+static inline std::string to_string (const move_t &move)
+{
+    const char *str = move_str (move);
+    return { str };
+}
+
+/////////////////////////////////////////////////////////////////////
+
+
 
 #endif // EVOLVE_CHESS_MOVE_H
