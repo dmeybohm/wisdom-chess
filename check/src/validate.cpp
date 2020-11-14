@@ -35,4 +35,14 @@ void validate_castle_state (struct board *board, move_t mv)
     validate_castle (board, CASTLE_KINGSIDE, COLOR_WHITE, mv);
     validate_castle (board, CASTLE_QUEENSIDE, COLOR_BLACK, mv);
     validate_castle (board, CASTLE_KINGSIDE, COLOR_BLACK, mv);
+
+    // make sure there are no pawns in invalid positions:
+    for (uint8_t col = 0; col < NR_COLUMNS; col++)
+    {
+        piece_t top_piece = PIECE_AT (board, 0, col);
+        piece_t bottom_piece = PIECE_AT (board, 7, col);
+
+        assert (PIECE_TYPE(top_piece) != PIECE_PAWN);
+        assert (PIECE_TYPE(bottom_piece) != PIECE_PAWN);
+    }
 }

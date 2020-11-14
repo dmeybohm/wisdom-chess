@@ -245,9 +245,9 @@ MOVES_HANDLER (pawn)
 		    PIECE_COLOR(piece) != who)
 		{
 			if (c_dir == -1)
-				move[2] = move_create (piece_row, piece_col, row, take_col);
+				move[2] = move_create_capturing (piece_row, piece_col, row, take_col);
 			else
-				move[3] = move_create (piece_row, piece_col, row, take_col);
+				move[3] = move_create_capturing (piece_row, piece_col, row, take_col);
 		}
 	}
 
@@ -288,23 +288,23 @@ MOVES_HANDLER (pawn)
 void add_en_passant_move (const struct board *board, enum color who, uint8_t piece_row, uint8_t piece_col,
                           move_list_t &moves, uint8_t en_passant_column)
 {
-	move_t        new_move;
-	int           direction;
-	uint8_t       take_row, take_col;
+    move_t new_move;
+    int direction;
+    uint8_t take_row, take_col;
 
-	direction = PAWN_DIRECTION(who);
+    direction = PAWN_DIRECTION (who);
 
-	take_row = NEXT (piece_row, direction);
-	take_col = en_passant_column;
+    take_row = NEXT (piece_row, direction);
+    take_col = en_passant_column;
 
-	piece_t take_piece = PIECE_AT (board, piece_row, take_col);
+    piece_t take_piece = PIECE_AT (board, piece_row, take_col);
 
-	assert (PIECE_TYPE(take_piece) == PIECE_PAWN);
-	assert (PIECE_COLOR(take_piece) == color_invert(who));
+    assert (PIECE_TYPE(take_piece) == PIECE_PAWN);
+    assert (PIECE_COLOR(take_piece) == color_invert (who));
 
-	new_move = move_create_en_passant (piece_row, piece_col, take_row, take_col);
+    new_move = move_create_en_passant (piece_row, piece_col, take_row, take_col);
 
-	moves.push_back (new_move);
+    moves.push_back (new_move);
 }
 
 ///////////////////////////////////////////////
