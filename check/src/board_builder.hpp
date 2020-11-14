@@ -64,9 +64,9 @@ public:
 
     void set_castling (enum color who, castle_state_t state);
 
-    void set_half_moves (int half_moves);
+    void set_half_moves (int new_half_moves_clock);
 
-    void set_full_moves (int full_moves);
+    void set_full_moves (int new_full_moves);
 
     struct board *build();
 };

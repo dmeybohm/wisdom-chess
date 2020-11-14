@@ -97,14 +97,14 @@ void board_builder::set_castling (enum color who, castle_state_t state)
     castle_states.push_back (new_state);
 }
 
-void board_builder::set_half_moves (int half_moves)
+void board_builder::set_half_moves (int new_half_moves_clock)
 {
-    this->half_moves_clock = half_moves;
+    this->half_moves_clock = new_half_moves_clock;
 }
 
-void board_builder::set_full_moves (int full_moves)
+void board_builder::set_full_moves (int new_full_moves)
 {
-    this->full_moves = full_moves;
+    this->full_moves = new_full_moves;
 }
 
 struct board *board_builder::build ()

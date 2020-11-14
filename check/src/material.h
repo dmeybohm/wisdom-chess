@@ -1,18 +1,21 @@
 #ifndef EVOLVE_CHESS_MATERIAL_H_
 #define EVOLVE_CHESS_MATERIAL_H_
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "global.h"
 #include "piece.h"
 
-#define MATERIAL_WEIGHT_NONE       0
-#define MATERIAL_WEIGHT_KING       1500
-#define MATERIAL_WEIGHT_QUEEN      1000
-#define MATERIAL_WEIGHT_ROOK       500
-#define MATERIAL_WEIGHT_BISHOP     320
-#define MATERIAL_WEIGHT_KNIGHT     320
-#define MATERIAL_WEIGHT_PAWN       100
+enum material_weight
+{
+    MATERIAL_WEIGHT_NONE   = 0,
+    MATERIAL_WEIGHT_KING   = 1500,
+    MATERIAL_WEIGHT_QUEEN  = 1000,
+    MATERIAL_WEIGHT_ROOK   = 500,
+    MATERIAL_WEIGHT_BISHOP = 320,
+    MATERIAL_WEIGHT_KNIGHT = 320,
+    MATERIAL_WEIGHT_PAWN   = 100,
+};
 
 struct material
 {
