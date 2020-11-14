@@ -19,10 +19,6 @@
 
 #define MAX_SEARCH_SECONDS      10.0    /* seconds */
 
-#ifndef RANDOMNESS
-#define RANDOMNESS    0
-#endif
-
 static int nodes_visited, cutoffs;
 
 void print_tree_recur (move_tree_t *tree)

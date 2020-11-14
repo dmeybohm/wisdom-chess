@@ -177,7 +177,7 @@ MOVES_HANDLER (bishop)
 				
 				moves.push_back (move_create (piece_row, piece_col, row, col));
 
-				if (PIECE_TYPE (piece) != PIECE_NONE)
+				if (PIECE_TYPE(piece) != PIECE_NONE)
 					break;
 			}
 		}
@@ -198,7 +198,7 @@ MOVES_HANDLER (pawn)
 	int                row;
 	int                take_col;
 	int                c_dir;
-	move_t             move[4];        /* 4 possible pawn moves */
+	move_t             move[4];        // 4 possible pawn moves
 	enum piece_type    piece_type;
 	piece_t            piece;
 	int                i;
@@ -211,6 +211,7 @@ MOVES_HANDLER (pawn)
 	assert (VALID(piece_row));
 
 	row = NEXT (piece_row, dir);
+	assert (VALID(row));
 
 	memset (move, 0, sizeof (move));
 
@@ -332,23 +333,10 @@ static const char *piece_type_str (piece_t piece)
 	}
 }
 
-void print_the_board (struct board *board)
-{
-	uint8_t row, col;
-
-	for_each_position (row, col)
-	{
-//		DBG (generate, "%2d ", PIECE_AT (board, row, col));
-		if (col == 7)
-			DBG (generate, "\n");
-	}
-
-}
-
 move_list_t generate_legal_moves (struct board *board, enum color who)
 {
-    board_check_t       board_check;
-    move_list_t non_checks;
+    board_check_t  board_check;
+    move_list_t    non_checks;
 
 	move_list_t all_moves = generate_moves (board, who);
 	for (auto move : all_moves)
@@ -444,27 +432,10 @@ move_list_t validate_moves (const move_list_t &move_list, struct board *board,
 		}
 		else
 		{
-#if 0
-			non_captures = move_list_append_move (non_captures, *move);	
-#endif
 			captures.push_back (move);
 		}
 
 	}
-
-#if 0
-	captures = move_list_append_list (captures, non_captures);
-
-	move_list_destroy (non_captures);
-#endif
-
-#if 0
-	if (unlikely (is_king_threatened (board, who, ROW (board->king_pos[who]),
-		                              COLUMN (board->king_pos[who]))))
-	{
-		captures = remove_checks (captures, board, who);
-	}
-#endif
 
 	return captures;
 }
@@ -486,7 +457,6 @@ move_list_t generate_captures (struct board *board, enum color who)
 
 move_list_t generate_moves (struct board *board, enum color who)
 {
-	uint8_t     row, col;
 	move_list_t new_moves;
 
 	for (auto it = board->begin(); it != board->end(); ++it)
@@ -507,5 +477,3 @@ move_list_t generate_moves (struct board *board, enum color who)
 
 	return validate_moves (new_moves, board, who);
 }
-
-// vim: set ts=4 sw=4:

@@ -99,4 +99,16 @@ move_tree_t *move_tree_copy (move_tree_t *move_tree)
 	}
 }
 
-/* vi: set ts=4 sw=4: */
+move_list_t move_tree_to_list (const move_tree_t *tree)
+{
+    move_list_t result;
+
+    while (tree != nullptr)
+    {
+        result.push_back (tree->move);
+        tree = tree->parent;
+    }
+
+    return result;
+}
+

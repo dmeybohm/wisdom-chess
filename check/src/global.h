@@ -12,6 +12,9 @@ enum : unsigned
     NR_ROWS = 8,
     NR_COLUMNS = 8,
 
+    FIRST_ROW = 0,
+    FIRST_COLUMN = 0,
+
     LAST_ROW = 7,
     LAST_COLUMN = 7,
 

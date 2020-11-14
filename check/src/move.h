@@ -66,8 +66,14 @@ typedef struct move
 	enum move_category move_category : 3;
 } move_t;
 
-using move_list_t = realloc_vector<move_t>;
-//using move_list_t = std::vector<move_t>;
+class parse_move_exception : public std::exception
+{
+    const char *message;
+
+public:
+    explicit parse_move_exception (const char *message) : message { message } {}
+    [[nodiscard]] const char *what() const noexcept override { return this->message; }
+};
 
 ////////////////////////////////////////////////////////////////////
 
@@ -297,6 +303,10 @@ move_t        move_parse      (const char *str, enum color who);
 const char   *move_str        (move_t move);
 
 coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst);
+
+// Parse a move
+move_t parse_move (const char *str, enum color color = COLOR_NONE);
+
 
 /////////////////////////////////////////////////////////////////////
 

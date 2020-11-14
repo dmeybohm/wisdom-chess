@@ -58,6 +58,7 @@ struct board
 
 	board_iterator begin();
 	board_iterator end();
+	[[nodiscard]] std::string to_string();
 };
 
 struct board_positions

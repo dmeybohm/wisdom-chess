@@ -2,6 +2,7 @@
 #define EVOLVE_CHESS_MOVE_TREE_H
 
 #include "move.h"
+#include "move_list.hpp"
 
 typedef struct move_tree
 {
@@ -37,5 +38,7 @@ struct move_tree_head
         return move_tree_length (tree);
     }
 };
+
+move_list_t move_tree_to_list (const move_tree_t *tree);
 
 #endif // EVOLVE_CHESS_MOVE_TREE_H

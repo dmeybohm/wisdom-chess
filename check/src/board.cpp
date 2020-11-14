@@ -251,3 +251,68 @@ board_iterator board::end()
 {
     return board_iterator { this, NR_ROWS, 0 };
 }
+
+void add_divider (std::string &result)
+{
+    uint8_t col;
+    int i;
+
+    result += " ";
+
+    for (col = 0; col < BOARD_LENGTH; col += 4)
+    {
+        for (i = 0; i < 3; i++)
+            result += '-';
+        result += ' ';
+    }
+
+    result += "\n";
+}
+
+std::string board::to_string()
+{
+    std::string result;
+    uint8_t row, col;
+
+    add_divider (result);
+    for (row = 0; row < NR_ROWS; row++)
+    {
+        for (col = 0; col < NR_COLUMNS; col++)
+        {
+            piece_t piece = PIECE_AT (this, row, col);
+
+            if (!col)
+                result += "|";
+
+            if (PIECE_TYPE(piece) != PIECE_NONE &&
+                PIECE_COLOR(piece) == COLOR_BLACK)
+            {
+                result += "*";
+            }
+            else
+            {
+                result += " ";
+            }
+
+            switch (PIECE_TYPE(piece))
+            {
+                case PIECE_PAWN:    result += "p"; break;
+                case PIECE_KNIGHT:  result += "N"; break;
+                case PIECE_BISHOP:  result += "B"; break;
+                case PIECE_ROOK:    result += "R"; break;
+                case PIECE_QUEEN:   result += "Q"; break;
+                case PIECE_KING:    result += "K"; break;
+                case PIECE_NONE:    result += " "; break;
+                default:            assert (0);  break;
+            }
+
+            result += " |";
+        }
+
+        result += "\n";
+
+        add_divider (result);;
+    }
+
+    return result;
+}
