@@ -80,6 +80,8 @@ public:
             my_row { row },
             my_col { col }
     {
+        assert (my_row <= NR_ROWS);
+        assert (my_col < NR_COLUMNS);
     }
 
     piece_t operator*() const
@@ -108,6 +110,11 @@ public:
             my_col = 0;
         }
         return *this;
+    }
+
+    [[nodiscard]] coord_t coord() const
+    {
+        return coord_create (my_row, my_col);
     }
 
     [[nodiscard]] uint8_t row() const
