@@ -54,11 +54,11 @@ constexpr undo_move_t empty_undo_state =
 
 typedef struct move
 {
-	uint8_t            src_row : 3;
-	uint8_t            src_col : 3;
+	uint8_t            src_row : 4;
+	uint8_t            src_col : 4;
 
-	uint8_t            dst_row : 3;
-	uint8_t            dst_col : 3;
+	uint8_t            dst_row : 4;
+	uint8_t            dst_col : 4;
 
 	enum color         promoted_color: 2;
 	enum piece_type    promoted_piece_type: 3;

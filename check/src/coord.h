@@ -8,11 +8,10 @@
 #include <cstring>
 #include <exception>
 
-// lower three bits are the column, upper three are the row
 typedef struct coord
 {
-    uint8_t row : 3;
-    uint8_t col : 3;
+    uint8_t row;
+    uint8_t col;
 } coord_t;
 
 constexpr uint8_t ROW (coord_t pos)

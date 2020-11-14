@@ -84,7 +84,7 @@ public:
         assert (my_col < NR_COLUMNS);
     }
 
-    piece_t operator*() const
+    piece_t& operator*() const
     {
         return my_board->board[my_row][my_col];
     }
@@ -134,11 +134,16 @@ public:
 	for ((row_i) = 0; (row_i) < NR_ROWS; (row_i)++) \
 		for ((col_i) = 0; (col_i) < NR_COLUMNS; (col_i)++)
 
-#define PIECE_AT(_board,_row,_col) \
-    ((_board)->board)[(_row)][(_col)]
+static inline piece_t PIECE_AT (const struct board *board, uint8_t row, uint8_t col)
+{
+    assert (row < NR_ROWS && col < NR_COLUMNS);
+    return board->board[row][col];
+}
 
-#define PIECE_AT_COORD(_board, _coord) \
-    ((_board)->board)[ROW((_coord))][COLUMN((_coord))]
+static inline piece_t PIECE_AT_COORD (const struct board *board, coord_t coord)
+{
+    return PIECE_AT (board, ROW(coord), COLUMN(coord));
+}
 
 ///////////////////////////////////////////////
 

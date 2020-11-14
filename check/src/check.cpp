@@ -10,18 +10,14 @@
 
 bool is_checkmated (struct board *board, enum color who)
 {
-	uint8_t row, col;
-
-	coord_t king_pos = king_position (board, who);
-	row = ROW    (king_pos);
-	col = COLUMN (king_pos);
+	auto [row, col] = king_position (board, who);
 
 	if (!is_king_threatened (board, who, row, col))
 		return false;
 
 	move_list_t legal_moves = generate_legal_moves (board, who);
 
-    return legal_moves.empty ();
+    return legal_moves.empty();
 }
 
 bool is_king_threatened (struct board *board, enum color who,
@@ -167,19 +163,19 @@ bool is_king_threatened (struct board *board, enum color who,
 
 bool was_legal_move (struct board *board, enum color who, move_t mv)
 {
-    coord_t king_pos = king_position (board, who);
+    auto [king_row, king_col] = king_position (board, who);
 
-	if (is_king_threatened (board, who, ROW(king_pos), COLUMN(king_pos)))
+	if (is_king_threatened (board, who, king_row, king_col))
 		return false;
 
 	if (is_castling_move(mv))
     {
-	    coord_t castled_pos = MOVE_DST (mv);
+	    coord_t castled_pos = MOVE_DST(mv);
 
 	    int castled_row = ROW(castled_pos);
 	    int castled_col = COLUMN(castled_pos);
-	    assert (ROW(king_pos) == castled_row);
-	    assert (COLUMN(king_pos) == castled_col);
+	    assert (king_row == castled_row);
+	    assert (king_col == castled_col);
 
         int direction = is_castling_move_on_king_side(mv) ? -1 : 1;
 

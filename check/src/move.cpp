@@ -526,9 +526,9 @@ static const char *skip_whitespace (const char *p)
 
 move_t move_parse (const char *str, enum color who)
 {
-	int         src_row, src_col;
-	int         dst_row, dst_col;
-	int         en_passant       = 0;
+	uint8_t     src_row, src_col;
+	uint8_t     dst_row, dst_col;
+	bool        en_passant       = false;
 	piece_t     promoted         = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
 	char       *tok, *ptok;
 	const char *p;
@@ -592,7 +592,7 @@ move_t move_parse (const char *str, enum color who)
 		ptok = nullptr;
 
 		if (!strcasecmp (tok, "ep"))
-			en_passant = 1;
+			en_passant = true;
 		else if (!strcasecmp (tok, "(Q)"))
 			promoted = MAKE_PIECE (who, PIECE_QUEEN);
 		else if (!strcasecmp (tok, "(N)"))

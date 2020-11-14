@@ -95,8 +95,8 @@ void board_init_from_positions (struct board *board, const struct board_position
     const struct board_positions *ptr;
     uint8_t row, col;
 
-    for_each_position (row, col)
-        board->board[row][col] = PIECE_AND_COLOR_NONE;
+    for (auto& piece : *board)
+        piece = PIECE_AND_COLOR_NONE;
 
     material_init (&board->material);
     position_init (&board->position);

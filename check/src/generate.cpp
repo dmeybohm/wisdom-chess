@@ -61,9 +61,9 @@ void add_en_passant_move (const struct board *board, enum color who, uint8_t pie
 static void knight_move_list_init ()
 {
 	uint8_t row, col;
-	uint8_t k_row, k_col;
+	int k_row, k_col;
 
-	for_each_position (row, col)
+ 	for_each_position (row, col)
 	{
 		for (k_row = -2; k_row <= 2; k_row++)
 		{
@@ -489,10 +489,11 @@ move_list_t generate_moves (struct board *board, enum color who)
 	uint8_t     row, col;
 	move_list_t new_moves;
 
-	for_each_position (row, col)
+	for (auto it = board->begin(); it != board->end(); ++it)
 	{
-		piece_t    piece  = PIECE_AT (board, row, col);
-		enum color color  = PIECE_COLOR (piece);
+	    piece_t    piece = *it;
+	    auto [row, col]  = it.coord();
+		enum color color = PIECE_COLOR(piece);
 
 		if (PIECE_TYPE(piece) == PIECE_NONE)
 			continue;

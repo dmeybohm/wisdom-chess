@@ -37,7 +37,7 @@ TEST_CASE( "Can find mate in 3", "[search]" )
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
                         &variation.tree, 0, &large_timer, nullptr);
 
-    REQUIRE( !move_equals (result, move_null ()) );
+    REQUIRE( result != null_move );
     REQUIRE( variation.size() == 5 );
 
     my_move_list expected_moves { COLOR_WHITE, {"f6 a6", "f7 f6", "e5xf6", "g8 g7", "a6xa8" }};
@@ -82,7 +82,7 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
                         &variation.tree, 0, &large_timer, nullptr);
 
-    REQUIRE( !move_equals (result, move_null ()) );
+    REQUIRE( result != null_move );
 
     my_move_list expected_moves { COLOR_BLACK, {"e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
     my_move_list computed_moves { variation.tree };
@@ -131,5 +131,5 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
     struct timer timer {};
     timer_init (&timer, 300);
     move_t best_move = iterate (board, COLOR_BLACK, nullptr, &timer, 7);
-    REQUIRE( !move_equals(best_move, null_move) );
+    REQUIRE( best_move != null_move );
 }

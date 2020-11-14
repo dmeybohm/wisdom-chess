@@ -172,8 +172,8 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 	// if there are no legal moves, then the current player is in a stalemate or checkmate position.
 	if (moves.size() == illegal_move_count)
     {
-	    coord_t my_king_pos = king_position (board, side);
-        best = is_king_threatened (board, side, ROW(my_king_pos), COLUMN(my_king_pos)) ?
+	    auto [my_king_row, my_king_col] = king_position (board, side);
+        best = is_king_threatened (board, side, my_king_row, my_king_col) ?
                 -1 * checkmate_score_in_moves (start_depth - depth) : 0;
     }
 
