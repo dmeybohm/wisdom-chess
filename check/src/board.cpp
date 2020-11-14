@@ -6,6 +6,7 @@
 #include "board.h"
 #include "debug.h"
 #include "validate.h"
+#include "board_iterator.h"
 
 // board length in characters
 constexpr unsigned int BOARD_LENGTH = 31;
@@ -242,4 +243,12 @@ void board_print_err (struct board *board)
 	board_print_to_file (board, stderr);
 }
 
-// vi: set ts=4 sw=4:
+board_iterator board::begin()
+{
+    return board_iterator { this, 0, 0 };
+}
+
+board_iterator board::end()
+{
+    return board_iterator { this, NR_ROWS, NR_COLUMNS };
+}

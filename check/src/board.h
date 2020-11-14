@@ -25,6 +25,8 @@ struct material;
 struct move_tree;
 struct board_positions;
 
+class board_iterator;
+
 struct board
 {
 	piece_t                  board[NR_ROWS][NR_COLUMNS];
@@ -53,6 +55,9 @@ struct board
 
 	// Number of full moves, updated after black moves.
 	size_t                   full_moves;
+
+	board_iterator begin();
+	board_iterator end();
 };
 
 struct board_positions
