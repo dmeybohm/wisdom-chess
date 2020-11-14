@@ -60,8 +60,8 @@ void add_en_passant_move (const struct board *board, enum color who, uint8_t pie
 // generate a lookup table for knight moves
 static void knight_move_list_init ()
 {
-	int row, col;
-	int k_row, k_col;
+	uint8_t row, col;
+	uint8_t k_row, k_col;
 
 	for_each_position (row, col)
 	{
@@ -334,7 +334,7 @@ static const char *piece_type_str (piece_t piece)
 
 void print_the_board (struct board *board)
 {
-	int row, col;
+	uint8_t row, col;
 
 	for_each_position (row, col)
 	{

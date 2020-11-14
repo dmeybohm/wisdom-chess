@@ -6,7 +6,6 @@
 #include "board.h"
 #include "debug.h"
 #include "validate.h"
-#include "board_iterator.h"
 
 // board length in characters
 constexpr unsigned int BOARD_LENGTH = 31;
@@ -149,7 +148,7 @@ void board_free (struct board *board)
 
 static void print_divider (FILE *file)
 {
-	int col;
+	uint8_t col;
 	int i;
 
 	fprintf (file, " ");
@@ -166,7 +165,7 @@ static void print_divider (FILE *file)
 
 void board_print_to_file (struct board *board, FILE *file)
 {
-	int row, col;
+	uint8_t row, col;
 
 	print_divider (file);
 
@@ -250,5 +249,5 @@ board_iterator board::begin()
 
 board_iterator board::end()
 {
-    return board_iterator { this, NR_ROWS, NR_COLUMNS };
+    return board_iterator { this, NR_ROWS, 0 };
 }

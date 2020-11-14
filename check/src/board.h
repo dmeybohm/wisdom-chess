@@ -67,6 +67,60 @@ struct board_positions
     enum piece_type  *pieces;
 };
 
+class board_iterator final
+{
+private:
+    struct board *my_board;
+    uint8_t my_row;
+    uint8_t my_col;
+
+public:
+    board_iterator(struct board *board, uint8_t row, uint8_t col) :
+            my_board { board },
+            my_row { row },
+            my_col { col }
+    {
+    }
+
+    piece_t operator*() const
+    {
+        return my_board->board[my_row][my_col];
+    }
+
+    bool operator == (const board_iterator & other) const
+    {
+        return my_board == other.my_board &&
+               my_row == other.my_row &&
+               my_col == other.my_col;
+    }
+
+    bool operator != (const board_iterator & other) const
+    {
+        return !(*this == other);
+    }
+
+    board_iterator& operator++()
+    {
+        my_col++;
+        if (my_col == NR_COLUMNS)
+        {
+            my_row++;
+            my_col = 0;
+        }
+        return *this;
+    }
+
+    [[nodiscard]] uint8_t row() const
+    {
+        return my_row;
+    }
+
+    [[nodiscard]] uint8_t col() const
+    {
+        return my_col;
+    };
+};
+
 ///////////////////////////////////////////////
 
 #define for_each_position(row_i, col_i) \
