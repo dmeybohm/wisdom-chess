@@ -48,27 +48,22 @@ void print_reversed_tree (move_tree_t *tree)
 	printf("}\n");
 }
 
-int search (struct board *board, enum color side, int depth, int start_depth,
-            move_t *ret, int alpha, int beta, unsigned long pseudo_rand,
-            move_tree_t **ret_variation, int no_quiesce, struct timer *timer,
-			move_history_t &move_history)
+search_result_t search (struct board *board, enum color side, int depth, int start_depth,
+                        int alpha, int beta, unsigned long pseudo_rand,
+                        move_tree_t **ret_variation, int no_quiesce, struct timer *timer,
+                        move_history_t &move_history)
 {
-	int           score;
-	int           best   = -INITIAL_ALPHA; // make sure to select something
-	move_t        best_move;
-	move_t        his_best;
-	move_tree_t  *best_variation = nullptr, *new_variation = nullptr;
-	board_check_t board_check;
-	size_t        illegal_move_count = 0;
-
-	best_move = null_move;
-    *ret = null_move;
+	move_tree_t  *   best_variation = nullptr, *new_variation = nullptr;
+	board_check_t    board_check;
+	size_t           illegal_move_count = 0;
+    search_result_t  result;
 
 	move_list_t moves = generate_moves (board, side);
 	if (moves.empty())
 	{
 		*ret_variation = nullptr;
-		return evaluate (board, side, start_depth - depth);
+		result.score = evaluate (board, side, start_depth - depth);
+		return result;
 	}
 
 	for (auto move : moves)
@@ -99,6 +94,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 
 		nodes_visited++;
 
+		search_result_t other_search_result { .move = move };
 		if (depth <= 0)
 		{
 #if 0
@@ -106,16 +102,17 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 				score = quiesce (board, side, alpha, beta, 0, new_leaf);
 			else
 #endif
-				score = evaluate_and_check_draw (board, side, start_depth - depth,
-                                     move, move_history);
 
+				other_search_result.score = evaluate_and_check_draw (board, side, start_depth - depth,
+                                     move, move_history);
 		}
 		else
 		{
-			score = (- search (board, color_invert (side), depth - 1,
-			                   start_depth, &his_best, -beta, -alpha, 
+			other_search_result = search (board, color_invert (side),
+                               depth - 1, start_depth, -beta, -alpha,
 			                   pseudo_rand, &new_variation,
-			                   no_quiesce, timer, move_history));
+			                   no_quiesce, timer, move_history);
+			other_search_result.score *= -1;
 		}
 
         undo_move (board, side, move, undo_state);
@@ -123,10 +120,10 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 
 		move_history.pop_back ();
 
-		if (score > best || best == -INITIAL_ALPHA)
+		if (other_search_result.score > result.score || result.score == -INITIAL_ALPHA)
 		{
-			best           = score;
-			best_move      = move;
+			result.score = other_search_result.score;
+			result.move = move;
 
 			if (best_variation)
 				move_tree_destroy (best_variation);
@@ -139,8 +136,8 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 			new_variation = nullptr;
 		}
 
-		if (best > alpha)
-			alpha = best;
+		if (result.score > alpha)
+			alpha = result.score;
 
 		if (alpha >= beta)
 		{
@@ -157,15 +154,17 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 	if (moves.size() == illegal_move_count)
     {
 	    auto [my_king_row, my_king_col] = king_position (board, side);
-        best = is_king_threatened (board, side, my_king_row, my_king_col) ?
+        result.score = is_king_threatened (board, side, my_king_row, my_king_col) ?
                 -1 * checkmate_score_in_moves (start_depth - depth) : 0;
     }
 
-	// return the move if this is the last iteration
-    if (!timer_is_triggered (timer))
-        *ret = best_move;
-			
-    return best;
+	if (timer_is_triggered(timer))
+	{
+        result.move = null_move;
+        result.score = -INITIAL_ALPHA;
+    }
+
+    return result;
 }
 
 static void calc_time (int nodes, struct timeval *start, struct timeval *end)
@@ -198,8 +197,8 @@ move_t iterate (struct board *board, enum color side,
 
 	gettimeofday (&start, nullptr);
 
-	best_score = search (board, side, depth, depth, &best_move,
-                        -INITIAL_ALPHA, INITIAL_ALPHA,
+	search_result_t result = search (board, side, depth, depth,
+                         -INITIAL_ALPHA, INITIAL_ALPHA,
 	                     (start.tv_usec >> 16) | (start.tv_sec << 16),
                          &principal_variation, 0, timer, move_history);
 
@@ -207,10 +206,10 @@ move_t iterate (struct board *board, enum color side,
 
 	calc_time (nodes_visited, &start, &end);
 
-	if (!is_null_move (best_move))
+	if (!is_null_move (result.move))
 	{
 		printf ("move selected = %s [ score: %d ]\n", move_str (best_move), 
-	            best_score);
+	            result.score);
 		printf ("nodes visited = %d, cutoffs = %d\n", nodes_visited, cutoffs);
 	}
 
@@ -223,7 +222,7 @@ move_t iterate (struct board *board, enum color side,
 		move_tree_destroy (principal_variation);
 	}
 
-	return best_move;
+	return result.move;
 }
 
 move_t find_best_move (struct board *board, enum color side, move_history_t &move_history)

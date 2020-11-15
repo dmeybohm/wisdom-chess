@@ -31,21 +31,20 @@ TEST_CASE( "Can find mate in 3", "[search]" )
 
     struct board board_state { builder.build() }; struct board *board = &board_state;
 
-    move_t result;
     move_tree_head variation;
     move_history_t history;
-    int score = search (board, COLOR_WHITE, 4, 4, &result,
+    search_result_t result = search (board, COLOR_WHITE, 4, 4,
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
                         &variation.tree, 0, &large_timer, history);
 
-    REQUIRE( result != null_move );
+    REQUIRE( result.move != null_move );
     REQUIRE( variation.size() == 5 );
 
     move_list_t expected_moves = { COLOR_WHITE, {"f6 a6", "f7 f6", "e5xf6", "g8 g7", "a6xa8" }};
     move_list_t computed_moves = move_tree_to_list(variation.tree);
 
     REQUIRE( expected_moves == computed_moves );
-    REQUIRE( score > INFINITE );
+    REQUIRE( result.score > INFINITE );
 }
 
 //
@@ -77,24 +76,20 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
 
     struct board board_state { builder.build() }; struct board *board = &board_state;
 
-    move_t result;
     move_tree_head variation;
     move_history_t history;
-    int score = search (board, COLOR_BLACK, 5, 5, &result,
+    search_result_t result = search (board, COLOR_BLACK, 5, 5,
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
                         &variation.tree, 0, &large_timer, history);
 
-    REQUIRE( result != null_move );
+    REQUIRE( result.move != null_move );
 
     move_list_t expected_moves = { COLOR_BLACK, {"e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
     move_list_t computed_moves = move_tree_to_list(variation.tree);
 
-    printf ("computed moves: %s\n", computed_moves.to_string().c_str());
-    printf ("expected moves: %s\n", expected_moves.to_string().c_str());
-
     REQUIRE( variation.size() == 5 );
     REQUIRE( expected_moves == computed_moves );
-    REQUIRE( score > INFINITE );
+    REQUIRE( result.score > INFINITE );
 }
 
 TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
