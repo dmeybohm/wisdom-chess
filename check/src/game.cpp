@@ -1,7 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <assert.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cerrno>
+#include <cassert>
+#include <iostream>
 
 #include "piece.h"
 #include "board.h"
@@ -11,117 +12,48 @@
 #include "game.h"
 #include "board_check.h"
 
-struct game *game_new (enum color turn, enum color computer_player)
-{
-	struct game *game;
-
-	game = static_cast<struct game *>(malloc (sizeof(*game)));
-	assert (game != nullptr);
-
-	game->board = board_new ();
-	assert (game->board != nullptr);
-
-	game->history = nullptr;
-
-	// if 'turn' is something bogus, use white
-	if (is_color_invalid (turn))
-		turn = COLOR_WHITE;
-
-	// if 'computer_player' is bogus, use black
-	if (is_color_invalid (computer_player))
-		computer_player = COLOR_BLACK;
-
-	game->player = computer_player;
-	game->turn   = turn;
-
-	return game;
-}
-
-void game_free (struct game *game)
-{
-	if (!game)
-		return;
-
-	board_free (game->board);
-	move_tree_free (game->history);
-
-	free (game);
-}
-
-void game_move (struct game *game, move_t move)
+void game::move (move_t move)
 {
 	// add this move to the history
-	game->history = move_tree_new (game->history, move);
+	history.push_back (move);
 
 	// do the move
-    do_move (game->board, game->turn, move);
+    do_move (board, turn, move);
 
 	// take our turn
-	game->turn = color_invert (game->turn);
+	turn = color_invert (turn);
 }
 
-static int prompt (const char *prompt, char *out, size_t len)
+static std::string prompt (const char *prompt)
 {
-	printf ("%s? ", prompt);
-	fflush (stdout);
+    std::string input;
+    std::cout << prompt << "? ";
 
-	if (fgets (out, len - 1, stdin) == nullptr)
-		return 0;
+    if (!std::getline(std::cin, input))
+        return "";
 
-	chomp (out);
-	return 1;
+    return chomp (input);
 }
 
-static int save_history_recursively (move_tree_t *history, FILE *f)
+bool game::save ()
 {
-	int ret;
+	std::string input = prompt ("save to what file");
+	if (input.size() == 0)
+		return false;
 
-	if (!history || is_null_move (history->move))
-		return 1;
-
-	ret = save_history_recursively (history->parent, f);
-	fprintf (f, "%s\n", move_str (history->move));
-
-	return ret;
+	history.save(input);
+	return true; // need to check for failure here
 }
 
-int game_save (struct game *game)
+std::unique_ptr<game> game::load (enum color player)
 {
-	FILE *out;
-	char buf[128];
-
-	if (!prompt ("save to what file", buf, sizeof (buf) - 1))
-		return 0;
-
-	//
-	// Kludgily use append mode to preserve files
-	//
-	if (!(out = fopen (buf, "a+")))
-	{
-		printf ("error opening file: %s", strerror (errno));
-		return 0;
-	}
-
-	if (!save_history_recursively (game->history, out))
-	{
-		fclose (out);
-		return 0;
-	}
-
-	fclose (out);
-
-	return 1; // need to check for failure here
-}
-
-struct game *game_load (enum color player)
-{
-	struct game *game;
 	char file[128];
 	char buf[128];
 	FILE *f;
 	move_t move;
 
-	if (!prompt ("load what file", file, sizeof (file) - 1))
+	std::string input = prompt ("load what file");
+	if (input.size() == 0)
 		return nullptr;
 
 	if (!(f = fopen (file, "r")))
@@ -130,9 +62,9 @@ struct game *game_load (enum color player)
 		return nullptr;
 	}
 
-	game = game_new (COLOR_NONE, player);
+    auto result = std::make_unique<game>(COLOR_NONE, player);
 
-	while (fgets (buf, sizeof (buf) - 1, f) != nullptr)
+    while (fgets (buf, sizeof (buf) - 1, f) != nullptr)
 	{
 		coord_t dst;
 		piece_t piece;
@@ -140,12 +72,11 @@ struct game *game_load (enum color player)
 		if (!strncasecmp (buf, "stop", strlen ("stop")))
 			break;
 
-		move = move_parse (buf, game->turn);
+		move = move_parse (buf, result->turn);
 		if (is_null_move(move))
 		{
 			printf ("Error parsing game file %s: invalid move \"%s\"",
 					file, buf);
-			game_free (game);
 			return nullptr;
 		}
 
@@ -154,22 +85,23 @@ struct game *game_load (enum color player)
 		// set the move as taking it. Otherwise, we'll trip over some
 		// consistency checks that make sure we don't erase pieces.
 		//
-		dst = MOVE_DST (move);
-		piece = PIECE_AT_COORD (game->board, dst);
+		dst = MOVE_DST(move);
+		piece = PIECE_AT_COORD (result->board, dst);
 
 		if (PIECE_TYPE(piece) != PIECE_NONE)
 		{
-			assert (PIECE_COLOR(piece) != game->turn);
+			assert (PIECE_COLOR(piece) != result->turn);
+
+			// for historical reasons, we automatically convert to capture move
+			// here. but should probably throw an exception instead.
 			if (!is_capture_move(move))
 			    move = move_with_capture(move);
 		}
 
-		game_move (game, move);
+		result->move (move);
 	}
 
 	fclose (f);
 	
-	return game;
+	return result;
 }
-
-// vi: set ts=4 sw=4:

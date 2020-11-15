@@ -33,9 +33,10 @@ TEST_CASE( "Can find mate in 3", "[search]" )
 
     move_t result;
     move_tree_head variation;
+    move_history_t history;
     int score = search (board, COLOR_WHITE, 4, 4, &result,
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
-                        &variation.tree, 0, &large_timer, nullptr);
+                        &variation.tree, 0, &large_timer, history);
 
     REQUIRE( result != null_move );
     REQUIRE( variation.size() == 5 );
@@ -78,9 +79,10 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
 
     move_t result;
     move_tree_head variation;
+    move_history_t history;
     int score = search (board, COLOR_BLACK, 5, 5, &result,
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
-                        &variation.tree, 0, &large_timer, nullptr);
+                        &variation.tree, 0, &large_timer, history);
 
     REQUIRE( result != null_move );
 
@@ -131,6 +133,7 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
 
     struct timer timer {};
     timer_init (&timer, 300);
-    move_t best_move = iterate (board, COLOR_BLACK, nullptr, &timer, 3);
+    move_history_t history;
+    move_t best_move = iterate (board, COLOR_BLACK, history, &timer, 3);
     REQUIRE( best_move != null_move );
 }

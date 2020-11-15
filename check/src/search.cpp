@@ -14,6 +14,7 @@
 #include "search.h"
 #include "timer.h"
 #include "board_check.h"
+#include "move_history.hpp"
 
 #define MAX_DEPTH               16
 
@@ -61,11 +62,10 @@ void print_reversed_tree (move_tree_t *tree)
 int search (struct board *board, enum color side, int depth, int start_depth,
             move_t *ret, int alpha, int beta, unsigned long pseudo_rand,
             move_tree_t **ret_variation, int no_quiesce, struct timer *timer,
-			move_tree_t *history) 
+			move_history_t &move_history)
 {
 	int           score;
 	int           best   = -INITIAL_ALPHA; // make sure to select something
-	move_tree_t  *new_leaf;
 	move_t        best_move;
 	move_t        his_best;
 	move_tree_t  *best_variation = nullptr, *new_variation = nullptr;
@@ -95,7 +95,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 			break;
 		}
 
-		new_leaf = move_tree_new (history, move);
+		move_history.push_back (move);
 
 		board_check_init (&board_check, board);
         undo_move_t undo_state = do_move (board, side, move);
@@ -103,7 +103,6 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 		if (!was_legal_move (board, side, move))
 		{
 		    illegal_move_count++;
-			move_tree_free (new_leaf);
             undo_move (board, side, move, undo_state);
             board_check_validate (&board_check, board, side, move);
 			continue;
@@ -119,7 +118,7 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 			else
 #endif
 				score = evaluate_and_check_draw (board, side, start_depth - depth,
-                                     move, history);
+                                     move, move_history);
 
 		}
 		else
@@ -127,13 +126,13 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 			score = (- search (board, color_invert (side), depth - 1,
 			                   start_depth, &his_best, -beta, -alpha, 
 			                   pseudo_rand, &new_variation,
-			                   no_quiesce, timer, new_leaf));
+			                   no_quiesce, timer, move_history));
 		}
 
         undo_move (board, side, move, undo_state);
         board_check_validate (&board_check, board, side, move);
 
-		move_tree_free (new_leaf);
+		move_history.pop_back ();
 
 		if (score > best || best == -INITIAL_ALPHA)
 		{
@@ -283,7 +282,7 @@ static void calc_time (int nodes, struct timeval *start, struct timeval *end)
 }
 
 move_t iterate (struct board *board, enum color side,
-                move_tree_t *history, struct timer *timer, int depth)
+                move_history_t &move_history, struct timer *timer, int depth)
 {
 	move_t         best_move;
 	int            best_score;
@@ -301,7 +300,7 @@ move_t iterate (struct board *board, enum color side,
 	best_score = search (board, side, depth, depth, &best_move,
                         -INITIAL_ALPHA, INITIAL_ALPHA,
 	                     (start.tv_usec >> 16) | (start.tv_sec << 16),
-                         &principal_variation, 0, timer, history);
+                         &principal_variation, 0, timer, move_history);
 
 	gettimeofday (&end, nullptr);
 
@@ -326,8 +325,7 @@ move_t iterate (struct board *board, enum color side,
 	return best_move;
 }
 
-move_t find_best_move (struct board *board, enum color side,
-                       move_tree_t *history)
+move_t find_best_move (struct board *board, enum color side, move_history_t &move_history)
 {
 	int d;
 	int max_depth = MAX_DEPTH;
@@ -351,7 +349,7 @@ move_t find_best_move (struct board *board, enum color side,
 	 */
     for (d = 0; d <= max_depth; (d == 0 ? (d++) : (d += 2)))
 	{
-		move = iterate (board, side, history, &overdue_timer, d);
+		move = iterate (board, side, move_history, &overdue_timer, d);
 
 		if (timer_is_triggered(&overdue_timer))
 		{

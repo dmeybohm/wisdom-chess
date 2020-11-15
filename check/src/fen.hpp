@@ -7,6 +7,7 @@
 
 #include <string>
 #include <sstream>
+#include <memory>
 
 struct game;
 
@@ -19,7 +20,7 @@ public:
     }
 
     // Build the game:
-    struct game *build();
+    std::unique_ptr<game> build();
 
 private:
     board_builder builder;

@@ -31,6 +31,11 @@ public:
         my_moves.push_back (move);
     }
 
+    void pop_back ()
+    {
+        my_moves.pop_back();
+    }
+
     [[nodiscard]] auto begin() const noexcept
     {
         return my_moves.begin();

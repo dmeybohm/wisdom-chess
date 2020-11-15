@@ -1,13 +1,11 @@
-#include <string.h>
-#include <stdio.h>
+#include <string>
 
-void chomp (char *str)
+std::string chomp (std::string str)
 {
-	if (str)
-	{
-		size_t len = strlen (str);
-
-		if (str[len-1] == '\n')
-			str[len-1] = 0;
-	}
+    std::string result { str };
+    if (result.size() == 0)
+        return result;
+    if (result[result.size() - 1] == '\n')
+        result = result.substr(0, result.size() - 1);
+    return result;
 }

@@ -7,7 +7,7 @@ TEST_CASE( "FEN notation for the starting position", "[fen-test]" )
 {
     fen parser { "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" };
 
-    struct game *game = parser.build();
+    std::unique_ptr<game> game = parser.build();
     struct board *default_board = board_new ();
 
     CHECK( board_equals (*game->board, *default_board) );
@@ -20,7 +20,7 @@ TEST_CASE( "FEN notation for non-starting position", "[fen-test]" )
 {
     fen parser { "4r2/8/8/8/8/8/k7/4K2R w K - 0 1" };
 
-    struct game *game = parser.build();
+    std::unique_ptr<game> game  = parser.build();
 
     board_builder builder;
 
@@ -45,7 +45,7 @@ TEST_CASE( "FEN notation for castling", "[fen-test]" )
 {
     fen parser_full { "4r2/8/8/8/8/8/k7/4K2R w KQkq - 0 1" };
 
-    struct game *game = parser_full.build();
+    std::unique_ptr<game> game = parser_full.build();
 
     REQUIRE( game->board->castled[COLOR_INDEX_WHITE] == CASTLE_NONE );
     REQUIRE( game->board->castled[COLOR_INDEX_BLACK] == CASTLE_NONE );
@@ -76,7 +76,7 @@ TEST_CASE( "FEN notation for en passant", "[fen-test]" )
 {
     fen parser_with_black_target {"4r2/8/8/8/8/8/k7/4K2R w KQkq e6 0 1"};
 
-    struct game *game = parser_with_black_target.build();
+    std::unique_ptr<game> game = parser_with_black_target.build();
 
     REQUIRE( !is_en_passant_vulnerable (game->board, COLOR_WHITE) );
     REQUIRE( is_en_passant_vulnerable (game->board, COLOR_BLACK) );

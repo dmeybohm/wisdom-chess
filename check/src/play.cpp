@@ -5,6 +5,8 @@
 #include <cassert>
 #include <cerrno>
 #include <iostream>
+#include <memory>
+#include <iostream>
 
 #include "move.h"
 #include "board.h"
@@ -18,7 +20,7 @@
 // the color the computer is playing as
 static const enum color comp_player = COLOR_BLACK;
 
-static void print_available_moves (struct game *game)
+static void print_available_moves (std::unique_ptr<game> &game)
 {
 	move_list_t moves = generate_legal_moves (game->board, game->turn);
 
@@ -30,124 +32,128 @@ static void print_available_moves (struct game *game)
 	printf("\n\n");
 }
 
-static int read_move (struct game **g_out, int *good, int *skip, move_t *move)
+struct input_state_t
 {
-	char         buf[128];
-#if 0
-	piece_t src_piece, dst_piece;
-#endif
-	struct game        *game  = *g_out;
+    bool ok;
+    bool good;
+    bool skip;
+    move_t move;
+};
 
-	printf ("move? ");
-	fflush (stdout);
+struct read_move_state_t
+{
+    input_state_t state;
+    std::unique_ptr<game> new_game;
+};
 
-	if (fgets (buf, sizeof(buf)-1, stdin) == nullptr)
-	{
-		*good = 0;
-		return 0;
-	}
+static input_state_t initial_input_state {
+        .ok = false,
+        .good = false,
+        .skip = false,
+        .move = null_move
+};
 
-	chomp (buf);
+static read_move_state_t read_move (std::unique_ptr<game> &game)
+{
+    read_move_state_t result {
+        .state = initial_input_state,
+        .new_game = nullptr
+    } ;
+    std::string        input;
 
-	if (!strncmp (buf, "moves", strlen ("moves")))
-	{
+	std::cout << "move? ";
+
+	if (!std::getline(std::cin, input))
+	    return result;
+
+	input = chomp (input);
+
+	if (input == "moves") {
 		print_available_moves (game);
-		*skip = 1;
-		return 1;
+        result.state.skip = true;
+		return result;
 	}
-	else if (!strncmp (buf, "save", strlen ("save")))
+	else if (input == "save")
 	{
-		game_save (game);
-		*skip = 1;
-		return 1;
+		game->save();
+        result.state.skip = true;
+		return result;
 	}
-	else if (!strncmp (buf, "load", strlen ("load")))
+	else if (input == "load")
 	{
-		struct game *new_game;
-
-		*skip = 1;
-
-		if (!(new_game = game_load (comp_player)))
-			return 1;
-
-		// this breaks because we have a null move atop the history tree
-		//game_free (game);
-
-		*g_out = new_game;
-		return 1;
+        result.state.skip = true;
+        result.new_game = std::move (game::load (comp_player));
+		return result;
 	}
-	else if (!strncmp (buf, "fenload", strlen ("fenload")))
+	else if (input == "fenload")
     {
-	    struct game *new_game;
-
-	    *skip = 1;
+	    // todo
+	    result.state.skip = true;
     }
 
-	*move = move_parse (buf, game->turn);
+    result.state.move = move_parse (input.c_str(), game->turn);
 
-	*good = 0;
+    result.state.good = false;
 
 	// check the generated move list for this move to see if its valid
 	move_list_t moves = generate_legal_moves (game->board, game->turn);
 
 	for (auto legal_move : moves)
 	{
-        if (move_equals (legal_move, *move))
+        if (move_equals (legal_move, result.state.move))
         {
-            *good = 1;
+            result.state.good = true;
             break;
         }
     }
 
-	return 1;
+	return result;
 }
 
 int main (int argc, char **argv)
 {
-	struct game  *game;
-	int           ok = 1, good;
-	int           skip;
-	move_t        move = move_null();
+    auto game = std::make_unique<struct game> (COLOR_WHITE, comp_player);
+    input_state_t input_state { initial_input_state };
 
-	game = game_new (COLOR_WHITE, comp_player);
-
-	while (ok)
+	while (input_state.ok)
 	{
-		skip = 0;
-
+        input_state = initial_input_state;
 		board_print (game->board);
 
 		if (is_checkmated (game->board, game->turn))
 		{
 			printf ("%s wins the game\n", game->turn == COLOR_WHITE ? "Black" : 
 			        "White");
-			game_free (game);
+			printf ("Save the game? ");
 			return 0;
 		}
 
 		if (game->turn != game->player)
 		{
-			ok = read_move (&game, &good, &skip, &move);
+			read_move_state_t read_move_state = read_move (game);
+			input_state = read_move_state.state;
+
+            if (read_move_state.new_game != nullptr)
+                game = std::move(read_move_state.new_game);
 		}
 		else
 		{
-			move = find_best_move (game->board, game->player, game->history);
+			input_state.move = find_best_move (game->board, game->player, game->history);
 
-			printf ("move selected: [%s]\n", move_str (move));
-			good = 1;
-			ok = 1;
+			printf ("move selected: [%s]\n", move_str (input_state.move));
+			input_state.good = true;
+			input_state.ok = true;
 		}
 
-		if (skip)
+		if (input_state.skip)
 			continue;
 
-		if (good)
-			game_move (game, move);
-		else if (ok)
+		if (input_state.good)
+			game->move (input_state.move);
+		else if (input_state.ok)
 			printf("\nInvalid move\n\n");
 	}
 
 	return 0;
 }
 
-// vi: set ts=4 sw=4:

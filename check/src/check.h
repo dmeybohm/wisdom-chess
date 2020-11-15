@@ -3,6 +3,7 @@
 
 #include "global.h"
 #include "move.h"
+#include "move_history.hpp"
 
 struct move_tree;
 
@@ -18,6 +19,6 @@ bool    is_king_threatened  (struct board *board, enum color who, uint8_t row,
 bool    is_checkmated       (struct board *board, enum color who);
 
 // Whether this move could cause a draw.
-bool    is_drawing_move     (const struct move_tree *history, move_t move);
+bool    is_drawing_move     (move_history_t history, move_t move);
 
 #endif // EVOLVE_CHESS_CHECK_H
