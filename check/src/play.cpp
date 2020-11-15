@@ -47,8 +47,8 @@ struct read_move_state_t
 };
 
 static input_state_t initial_input_state {
-        .ok = false,
-        .good = false,
+        .ok = true,
+        .good = true,
         .skip = false,
         .move = null_move
 };

@@ -15,21 +15,13 @@ struct game
 	enum color         player;   // side the computer is playing as
 	enum color         turn;
 
-	game(enum color human_player, enum color _turn)
+	game(enum color _turn, enum color computer_player)
     {
-        board = board_new ();
-        enum color computer_player = color_invert(human_player);
-
-        // if 'turn' is something bogus, use white
-        if (is_color_invalid (_turn))
-            _turn = COLOR_WHITE;
-
-        // if 'computer_player' is bogus, use black
-        if (is_color_invalid (computer_player))
-            computer_player = COLOR_BLACK;
-
+        assert (is_color_valid (_turn));
+        assert (is_color_valid(computer_player));
+        board = board_new();
         player = computer_player;
-        turn   = _turn;
+        turn = _turn;
     }
 
 	~game()
@@ -42,6 +34,5 @@ struct game
 
 	void move(move_t move);
 };
-
 
 #endif // EVOLVE_CHESS_GAME_H_
