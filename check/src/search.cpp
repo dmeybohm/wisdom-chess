@@ -184,16 +184,12 @@ static void calc_time (int nodes, struct timeval *start, struct timeval *end)
 move_t iterate (struct board *board, enum color side,
                 move_history_t &move_history, struct timer *timer, int depth)
 {
-	move_t         best_move;
-	int            best_score;
 	struct timeval start, end;
 	move_tree_t   *principal_variation;
 
 	printf ("finding moves for %s\n", (side == COLOR_WHITE) ? "white":"black");
 
 	nodes_visited = 0; cutoffs = 0;
-
-	best_move = move_null ();
 
 	gettimeofday (&start, nullptr);
 
@@ -208,7 +204,7 @@ move_t iterate (struct board *board, enum color side,
 
 	if (!is_null_move (result.move))
 	{
-		printf ("move selected = %s [ score: %d ]\n", move_str (best_move), 
+		printf ("move selected = %s [ score: %d ]\n", move_str (result.move),
 	            result.score);
 		printf ("nodes visited = %d, cutoffs = %d\n", nodes_visited, cutoffs);
 	}

@@ -26,7 +26,7 @@ add_executable(chess_tests
         ../src/fen.cpp ../src/fen.hpp fen_test.cpp ../src/move_list.cpp ../src/move_list.hpp move_list_test.cpp ../src/move_history.hpp ../src/move_history.cpp)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -O3 -fsanitize=address -march=native")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")
 
 # Speed up linking on Linux
 execute_process(COMMAND ${CMAKE_C_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE ld_version)
