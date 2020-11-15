@@ -1,8 +1,6 @@
-#include <cstdio>
-#include <cstdlib>
-#include <cerrno>
 #include <cassert>
 #include <iostream>
+#include <fstream>
 
 #include "piece.h"
 #include "board.h"
@@ -10,7 +8,6 @@
 #include "move_tree.h"
 #include "str.h"
 #include "game.h"
-#include "board_check.h"
 
 void game::move (move_t move)
 {
@@ -18,13 +15,13 @@ void game::move (move_t move)
 	history.push_back (move);
 
 	// do the move
-    do_move (board, turn, move);
+    do_move (&board, turn, move);
 
 	// take our turn
 	turn = color_invert (turn);
 }
 
-static std::string prompt (const char *prompt)
+static std::string prompt (const std::string &prompt)
 {
     std::string input;
     std::cout << prompt << "? ";
@@ -45,39 +42,37 @@ bool game::save ()
 	return true; // need to check for failure here
 }
 
-std::unique_ptr<game> game::load (enum color player)
+std::optional<game> game::load (enum color player)
 {
-	char file[128];
-	char buf[128];
-	FILE *f;
+	std::string input_buf;
 	move_t move;
+	std::ifstream istream;
 
-	std::string input = prompt ("load what file");
-	if (input.size() == 0)
-		return nullptr;
+	std::string input_file = prompt ("load what file");
+	if (input_file.size () == 0)
+		return {};
 
-	if (!(f = fopen (file, "r")))
-	{
-		printf ("Couldn't open %s: %s\n", file, strerror (errno));
-		return nullptr;
-	}
+	istream.open (input_file, std::ios::in);
 
-    auto result = std::make_unique<game>(COLOR_NONE, player);
+    struct game result { COLOR_WHITE, player };
 
-    while (fgets (buf, sizeof (buf) - 1, f) != nullptr)
+    while (std::getline(istream, input_buf))
 	{
 		coord_t dst;
 		piece_t piece;
 
-		if (!strncasecmp (buf, "stop", strlen ("stop")))
+		input_buf = chomp (input_buf);
+
+		if (input_buf == "stop")
 			break;
 
-		move = move_parse (buf, result->turn);
+		move = move_parse (input_buf.c_str(), result.turn);
+
 		if (is_null_move(move))
 		{
-			printf ("Error parsing game file %s: invalid move \"%s\"",
-					file, buf);
-			return nullptr;
+			std::cout << "Error parsing game file " << input_file
+			  << ": invalid move \"" << input_buf << "\"";
+			return {};
 		}
 
 		//
@@ -86,11 +81,11 @@ std::unique_ptr<game> game::load (enum color player)
 		// consistency checks that make sure we don't erase pieces.
 		//
 		dst = MOVE_DST(move);
-		piece = PIECE_AT_COORD (result->board, dst);
+		piece = PIECE_AT_COORD (&result.board, dst);
 
 		if (PIECE_TYPE(piece) != PIECE_NONE)
 		{
-			assert (PIECE_COLOR(piece) != result->turn);
+			assert (PIECE_COLOR(piece) != result.turn);
 
 			// for historical reasons, we automatically convert to capture move
 			// here. but should probably throw an exception instead.
@@ -98,10 +93,8 @@ std::unique_ptr<game> game::load (enum color player)
 			    move = move_with_capture(move);
 		}
 
-		result->move (move);
+		result.move (move);
 	}
 
-	fclose (f);
-	
 	return result;
 }

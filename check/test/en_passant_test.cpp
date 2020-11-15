@@ -41,7 +41,7 @@ TEST_CASE( "En passant moves work on the right", "[en-passant]" )
     builder.add_piece ("e5", COLOR_WHITE, PIECE_PAWN);
     builder.add_row_of_same_color ("a1", COLOR_WHITE, back_rank);
 
-    struct board *board = builder.build();
+    struct board board = builder.build();
 
     move_t pawn_move = parse_move ("f7f5");
     undo_move_t first_undo_state = do_move (board, COLOR_BLACK, pawn_move);
@@ -107,7 +107,7 @@ TEST_CASE( "En passant moves work on the left", "[en-passant]" )
     builder.add_piece ("e5", COLOR_WHITE, PIECE_PAWN);
     builder.add_row_of_same_color ("a1", COLOR_WHITE, back_rank);
 
-    struct board *board = builder.build();
+    struct board board = builder.build();
 
     move_t pawn_move = parse_move ("d7d5");
     undo_move_t first_undo_state = do_move (board, COLOR_BLACK, pawn_move);
@@ -173,7 +173,7 @@ TEST_CASE( "En passant state is reset after en passant", "[en-passant]" )
     builder.add_piece ("e5", COLOR_WHITE, PIECE_PAWN);
     builder.add_row_of_same_color ("a1", COLOR_WHITE, back_rank);
 
-    struct board *board = builder.build();
+    struct board board = builder.build();
 
     move_t first_move = parse_move ("d7d5");
     move_t en_passant = parse_move ("e5 d4 (ep)");

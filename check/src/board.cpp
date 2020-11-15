@@ -35,26 +35,14 @@ static struct board_positions init_board[] =
 	{ 0, COLOR_NONE, nullptr }
 };
 
-struct board *board_new ()
+board::board()
 {
-    return board_from_positions (init_board);
+    board_init_from_positions (this, init_board);
 }
 
-struct board *board_from_positions (const struct board_positions *positions)
+board::board (const struct board_positions *positions)
 {
-    struct board *new_board;
-    size_t i;
-
-    new_board = (struct board *) malloc (sizeof(*new_board));
-    assert (new_board);
-    memset (new_board, 0, sizeof(*new_board));
-
-    for (i = 0; i < NR_PLAYERS; i++)
-        new_board->castled[i] = CASTLE_NONE;
-
-    board_init_from_positions (new_board, positions);
-
-    return new_board;
+    board_init_from_positions (this, positions);
 }
 
 static castle_state_t init_castle_state (struct board *board, enum color who)
@@ -94,6 +82,9 @@ void board_init_from_positions (struct board *board, const struct board_position
 {
     const struct board_positions *ptr;
     uint8_t row, col;
+
+    for (uint8_t & i : board->castled)
+        i = CASTLE_NONE;
 
     for (auto& piece : *board)
         piece = PIECE_AND_COLOR_NONE;

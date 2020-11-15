@@ -24,7 +24,7 @@ TEST_CASE( "Center pawn elevates position score", "[position-test]" )
 
     builder.add_piece("e4", COLOR_WHITE, PIECE_PAWN);
     builder.add_piece("a6", COLOR_BLACK, PIECE_PAWN);
-    struct board *board = builder.build();
+    struct board board = builder.build();
 
     CHECK( board->position.score[COLOR_INDEX_WHITE] > board->position.score[COLOR_INDEX_BLACK]);
 }
@@ -39,7 +39,7 @@ TEST_CASE( "Capture updates position score correctly", "[position-test]")
     builder.add_piece("e4", COLOR_WHITE, PIECE_KNIGHT);
     builder.add_piece("d6", COLOR_BLACK, PIECE_PAWN);
 
-    struct board *board = builder.build();
+    struct board board = builder.build();
 
     int initial_score_white = position_score (&board->position, COLOR_WHITE);
     int initial_score_black = position_score (&board->position, COLOR_BLACK);
@@ -63,7 +63,7 @@ TEST_CASE( "En passant updates position score correctly", "[position-test]")
     builder.add_piece("e5", COLOR_WHITE, PIECE_PAWN);
     builder.add_piece("d5", COLOR_BLACK, PIECE_PAWN);
 
-    struct board *board = builder.build();
+    struct board board = builder.build();
 
     int initial_score_white = position_score (&board->position, COLOR_WHITE);
     int initial_score_black = position_score (&board->position, COLOR_BLACK);
@@ -89,7 +89,7 @@ TEST_CASE( "Castling updates position score correctly", "[position-test]")
     builder.add_piece("a1", COLOR_WHITE, PIECE_ROOK);
     builder.add_piece("d5", COLOR_BLACK, PIECE_PAWN);
 
-    struct board *board = builder.build();
+    struct board board = builder.build();
 
     int initial_score_white = position_score (&board->position, COLOR_WHITE);
     int initial_score_black = position_score (&board->position, COLOR_BLACK);
@@ -114,7 +114,7 @@ TEST_CASE( "Promoting move updates position score correctly", "[position-test]")
 
     builder.add_piece("h7", COLOR_WHITE, PIECE_PAWN);
 
-    struct board *board = builder.build();
+    struct board board = builder.build();
 
     int initial_score_white = position_score (&board->position, COLOR_WHITE);
     int initial_score_black = position_score (&board->position, COLOR_BLACK);

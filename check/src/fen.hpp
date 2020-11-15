@@ -20,7 +20,7 @@ public:
     }
 
     // Build the game:
-    std::unique_ptr<game> build();
+    game build();
 
 private:
     board_builder builder;

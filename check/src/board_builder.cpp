@@ -107,7 +107,7 @@ void board_builder::set_full_moves (int new_full_moves)
     this->full_moves = new_full_moves;
 }
 
-struct board *board_builder::build ()
+struct board board_builder::build ()
 {
     struct piece_row
     {
@@ -136,14 +136,14 @@ struct board *board_builder::build ()
         positions[i] = { row, piece_with_coord.color, &current_piece_row[0] };
     }
 
-    struct board *result = board_from_positions (&positions[0]);
+    struct board result = board { &positions[0] };
 
     if (!en_passant_states.empty())
     {
         for (auto state : en_passant_states)
         {
             color_index_t index = color_index(state.player);
-            result->en_passant_target[index] = state.coord;
+            result.en_passant_target[index] = state.coord;
         }
     }
 
@@ -152,12 +152,12 @@ struct board *board_builder::build ()
         for (auto state : castle_states)
         {
             color_index_t index = color_index(state.player);
-            result->castled[index] = state.castle_state;
+            result.castled[index] = state.castle_state;
         }
     }
 
-    result->half_move_clock = this->half_moves_clock;
-    result->full_moves = this->full_moves;
+    result.half_move_clock = this->half_moves_clock;
+    result.full_moves = this->full_moves;
 
     return result;
 }

@@ -21,15 +21,20 @@
 
 ///////////////////////////////////////////////
 
-struct material;
 struct move_tree;
-struct board_positions;
 
 class board_iterator;
 
+struct board_positions
+{
+    int               rank;
+    enum color        piece_color;
+    enum piece_type  *pieces;
+};
+
 struct board
 {
-	piece_t                  board[NR_ROWS][NR_COLUMNS];
+	piece_t                  squares[NR_ROWS][NR_COLUMNS];
 
 	// positions of the kings
 	coord_t                  king_pos[NR_PLAYERS];
@@ -56,16 +61,12 @@ struct board
 	// Number of full moves, updated after black moves.
 	size_t                   full_moves;
 
+	board();
+	explicit board(const struct board_positions *positions);
+
 	board_iterator begin();
 	board_iterator end();
 	[[nodiscard]] std::string to_string();
-};
-
-struct board_positions
-{
-    int               rank;
-    enum color        piece_color;
-    enum piece_type  *pieces;
 };
 
 class board_iterator final
@@ -87,7 +88,7 @@ public:
 
     piece_t& operator*() const
     {
-        return my_board->board[my_row][my_col];
+        return my_board->squares[my_row][my_col];
     }
 
     bool operator == (const board_iterator & other) const
@@ -138,7 +139,7 @@ public:
 static inline piece_t PIECE_AT (const struct board *board, uint8_t row, uint8_t col)
 {
     assert (row < NR_ROWS && col < NR_COLUMNS);
-    return board->board[row][col];
+    return board->squares[row][col];
 }
 
 static inline piece_t PIECE_AT_COORD (const struct board *board, coord_t coord)
@@ -208,7 +209,7 @@ static inline void king_position_set (struct board *board, enum color who, coord
 
 static inline void board_set_piece (struct board *board, coord_t place, piece_t piece)
 {
-    board->board[ROW(place)][COLUMN(place)] = piece;
+    board->squares[ROW (place)][COLUMN (place)] = piece;
 }
 
 constexpr bool is_en_passant_vulnerable (const struct board *board, enum color who)
@@ -222,7 +223,7 @@ static inline bool board_equals (const struct board &a, const struct board &b)
     {
 		for (uint8_t col = 0; col < NR_COLUMNS; col++)
         {
-            if (a.board[row][col] != b.board[row][col])
+            if (a.squares[row][col] != b.squares[row][col])
                 return false;
         }
     }

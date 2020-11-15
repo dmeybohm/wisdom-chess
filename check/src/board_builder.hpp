@@ -68,7 +68,7 @@ public:
 
     void set_full_moves (int new_full_moves);
 
-    struct board *build();
+    struct board build();
 };
 
 class board_builder_exception : public std::exception

@@ -5,18 +5,15 @@
 
 using string_size_t = std::string::size_type;
 
-std::unique_ptr<game> fen::build ()
+game fen::build ()
 {
-    auto game = std::make_unique<struct game> (
-            active_player,
-            color_invert(active_player)
-    );
+    struct game result {
+        active_player,
+        color_invert(active_player),
+        builder
+    };
 
-    // todo pass the new board into the game constructor instead.
-    board_free (game->board);
-    game->board = builder.build();
-
-    return game;
+    return result;
 }
 
 piece_t fen::parse_piece (char ch)

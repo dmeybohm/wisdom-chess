@@ -7,30 +7,36 @@
 #include "move.h"
 #include "board.h"
 #include "move_history.hpp"
+#include "board_builder.hpp"
 
 struct game
 {
-	struct board      *board;
+	struct board       board;
 	move_history_t     history;
 	enum color         player;   // side the computer is playing as
 	enum color         turn;
 
-	game(enum color _turn, enum color computer_player)
+	game(enum color _turn, enum color computer_player) :
+	        player { computer_player },
+	        turn { _turn }
     {
         assert (is_color_valid (_turn));
         assert (is_color_valid(computer_player));
-        board = board_new();
         player = computer_player;
         turn = _turn;
     }
 
-	~game()
+    game(enum color _turn, enum color computer_player, board_builder builder)
+            : board { builder.build() },
+            player { computer_player},
+            turn { _turn }
     {
-	    board_free (board);
+        assert (is_color_valid (_turn));
+        assert (is_color_valid(computer_player));
     }
 
     bool save();
-	static std::unique_ptr<game> load(enum color player);
+	static std::optional<game> load(enum color player);
 
 	void move(move_t move);
 };
