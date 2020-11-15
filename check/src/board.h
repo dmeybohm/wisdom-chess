@@ -234,9 +234,6 @@ static inline bool board_equals (const struct board &a, const struct board &b)
 
 ///////////////////////////////////////////////
 
-struct board *board_new            ();
-struct board *board_from_positions (const struct board_positions *positions);
-void          board_free           (struct board *board);
 
 void          board_print          (struct board *board);
 void          board_print_err      (struct board *board);

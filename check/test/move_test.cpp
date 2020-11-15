@@ -6,7 +6,8 @@
 
 TEST_CASE( "Moving and undoing a move works", "[move]" )
 {
-    struct board *board = board_new();
+    struct board board_state;
+    struct board *board = &board_state;
 
     move_t e2e4 = move_parse ("e2e4", COLOR_WHITE);
     move_t d6d8 = move_parse ("d7d5", COLOR_BLACK);
@@ -35,7 +36,6 @@ TEST_CASE( "Moving and undoing a move works", "[move]" )
     undo_state = do_move (board, COLOR_WHITE, c3xe4);
     undo_move (board, COLOR_WHITE, c3xe4, undo_state);
     do_move (board, COLOR_WHITE, c3xe4);
-
 }
 
 

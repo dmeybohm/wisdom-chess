@@ -29,7 +29,7 @@ TEST_CASE( "Can find mate in 3", "[search]" )
             {"h1", PIECE_KING},
     });
 
-    struct board board = builder.build();
+    struct board board_state { builder.build() }; struct board *board = &board_state;
 
     move_t result;
     move_tree_head variation;
@@ -75,7 +75,7 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
 
     builder.add_piece ("d5", COLOR_WHITE, PIECE_KING);
 
-    struct board board = builder.build();
+    struct board board_state { builder.build() }; struct board *board = &board_state;
 
     move_t result;
     move_tree_head variation;
@@ -129,7 +129,7 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
             {"g1", PIECE_ROOK}
     });
 
-    struct board board = builder.build();
+    struct board board_state { builder.build() }; struct board *board = &board_state;
 
     struct timer timer {};
     timer_init (&timer, 300);

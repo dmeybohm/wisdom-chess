@@ -75,7 +75,7 @@ static input_state_t read_move (game &game)
         result.skip = true;
         auto optional_game = game::load (comp_player);
         if (optional_game.has_value())
-            game = optional_game.value();
+            game = *optional_game;
 		return result;
 	}
 	else if (input == "fenload")

@@ -2,6 +2,7 @@
 #define EVOLVE_CHESS_GAME_H_
 
 #include <memory>
+#include <optional>
 
 #include "piece.h"
 #include "move.h"

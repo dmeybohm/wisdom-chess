@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <cassert>
+#include <string>
 
 #include "global.h"
 #include "coord.h"

@@ -1,7 +1,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
-#include <cstring>
 
 #include "board.h"
 #include "debug.h"

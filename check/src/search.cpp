@@ -1,8 +1,8 @@
-#include <stdlib.h>
-#include <limits.h>
-#include <stdio.h>
-#include <assert.h>
-#include <sys/time.h>
+#include <cstdlib>
+#include <climits>
+#include <cstdio>
+#include <cassert>
+#include <ctime>
 
 #include "piece.h"
 #include "board.h"
@@ -16,9 +16,10 @@
 #include "board_check.h"
 #include "move_history.hpp"
 
-#define MAX_DEPTH               16
-
-#define MAX_SEARCH_SECONDS      10.0    /* seconds */
+enum {
+    MAX_DEPTH = 16,
+    MAX_SEARCH_SECONDS = 10,
+};
 
 static int nodes_visited, cutoffs;
 
@@ -30,18 +31,6 @@ void print_tree_recur (move_tree_t *tree)
 	if (!is_null_move (tree->move))
 		printf ("[%s] ", move_str (tree->move));
 }
-
-#if 0
-static void print_tree (move_tree_t *tree)
-{
-	printf ("{ ");
-	print_tree_recur (tree);
-#if 0
-	printf("} best move: [%s] score: %d\n", move_str (*best), best_score);
-#endif
-	printf("}\n");
-}
-#endif
 
 void print_reverse_recur (move_tree_t *tree)
 {
@@ -178,94 +167,6 @@ int search (struct board *board, enum color side, int depth, int start_depth,
 			
     return best;
 }
-
-#if 0
-int quiesce (struct board *board, color_t side, int alpha, int beta, int depth, 
-             move_tree_t *history)
-{
-	move_list_t *captures;
-	move_tree_t *new_leaf;
-	move_t      *move;
-	int          score;
-	int          best_score;
-	int          null_score;
-	move_t       best_move;
-
-	best_score = evaluate (board, side);
-	if (best_score >= beta)
-		return best_score;
-
-	captures = generate_captures (board, side, history);
-	if (!captures)
-	{
-		printf ("null captures, history:");
-		move_list_print (history);
-		return evaluate (board, side);
-	}
-
-	DBG (quiesce, "depth = %d\n", depth);
-
-	if (best_score > alpha)
-		alpha = best_score;
-			
-#if 0
-	/* try the "null" move -- if no move is better than any move we
-	 * have, then dont check any of the captures */
-	null_score = (- search (board, !side, 1, 1, &best_move, -beta, -alpha,
-	                        0, nullptr, 1, history));
-
-	printf ("quiesce: searching for null move\n");
-	print_tree (history);
-
-	for_each_move (move, captures)
-	{
-		do_move (board, side, move);
-
-		score = evaluate (board, side);
-
-		undo_move (board, side, move);
-	}
-
-	printf ("null_score: %d, best_score: %d\n", null_score, best_score);
-	if (null_score > best_score)
-	{
-		printf ("quiesce: null move cutoff\n");
-		return null_score;
-	}
-
-#endif
-
-	for_each_move (move, captures)
-	{
-		nodes_visited++;
-
-		new_leaf = move_tree_new (history, *move);
-
-		do_move (board, side, move);
-
-		score = (- quiesce (board, !side, -beta, -alpha, depth+1, new_leaf));
-
-		undo_move (board, side, move);
-
-		move_tree_free (new_leaf);
-
-		if (score > best_score)
-		{
-			best_score = score;
-
-			if (best_score >= beta)
-				break;
-
-			if (score > alpha)
-				alpha = score;
-		}
-	}
-
-	move_list_destroy (captures);
-
-	return best_score;
-}
-#endif
 
 static void calc_time (int nodes, struct timeval *start, struct timeval *end)
 {
