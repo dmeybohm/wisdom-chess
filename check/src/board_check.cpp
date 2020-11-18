@@ -18,7 +18,7 @@ void board_check_validate (struct board_check *board_check, struct board *restor
     board_hash_init (&updated_hash, restored_board);
     if (updated_hash.hash != board_check->hash.hash)
     {
-        printf ("move considering: %s (%s to move)\n", move_str(*mv),
+        printf ("move considering: %s (%s to move)\n", to_string(*mv).c_str(),
                 who == COLOR_WHITE ? "White" : "Black");
         board_dump (restored_board);
         assert (0);

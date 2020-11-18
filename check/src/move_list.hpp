@@ -17,6 +17,11 @@ public:
         my_moves.reserve(32);
     }
 
+    move_list_t(const move_list_t &other)
+    {
+        my_moves = other.my_moves;
+    }
+
     move_list_t (enum color color, std::initializer_list<const char *> list)
     {
         for (auto it : list)

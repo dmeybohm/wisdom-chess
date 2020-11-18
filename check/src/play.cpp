@@ -1,12 +1,6 @@
 #include <cstdio>
-#include <cstdlib>
-#include <cctype>
-#include <cstring>
-#include <cassert>
-#include <cerrno>
 #include <iostream>
 #include <memory>
-#include <iostream>
 
 #include "move.h"
 #include "board.h"
@@ -27,7 +21,7 @@ static void print_available_moves (game &game)
 	std::cout << "\nAvailable moves: ";
 
 	for (auto move : moves)
-	    std::cout << "[" << move_str(move) << "] ";
+	    std::cout << "[" << to_string(move) << "] ";
 
 	std::cout <<"\n\n";
 }
@@ -111,7 +105,7 @@ int main (int argc, char **argv)
 	while (input_state.ok)
 	{
         input_state = initial_input_state;
-		board_print (&game.board);
+		game.board.print();
 
 		if (is_checkmated (&game.board, game.turn))
 		{
@@ -129,7 +123,7 @@ int main (int argc, char **argv)
 		{
 			input_state.move = find_best_move (&game.board, game.player, game.history);
 
-			printf ("move selected: [%s]\n", move_str (input_state.move));
+			std::cout << "move selected: [" << to_string (input_state.move) << "]\n";
 			input_state.good = true;
 			input_state.ok = true;
 		}

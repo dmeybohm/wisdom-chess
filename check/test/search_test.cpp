@@ -132,3 +132,30 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
     move_t best_move = iterate (board, COLOR_BLACK, history, &timer, 3);
     REQUIRE( best_move != null_move );
 }
+
+TEST_CASE( "Promoting move is taken if possible", "[search-test]")
+{
+    board_builder builder;
+    struct timer large_timer {};
+    timer_init (&large_timer, 30);
+
+    builder.add_pieces (COLOR_BLACK, {
+            {"d7", PIECE_KING},
+            {"d2", PIECE_PAWN}
+    });
+    builder.add_pieces (COLOR_WHITE, {
+            {"a4", PIECE_KING},
+            {"h4", PIECE_PAWN}
+    });
+
+    move_tree_head variation;
+    move_history_t history;
+    struct board board_state = builder.build();
+    struct board *board = &board_state;
+    search_result_t result = search (board, COLOR_BLACK, 1, 1,
+                                     -INITIAL_ALPHA, INITIAL_ALPHA, 0,
+                                     &variation.tree, 0, &large_timer, history);
+
+    std::cout << "Move: " << to_string(result.move) << "\n";
+    REQUIRE( result.move == parse_move("d2 d1 (Q)") );
+}

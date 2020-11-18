@@ -11,6 +11,10 @@ private:
 
 public:
 
+    move_history_t() = default;
+
+    move_history_t(const move_history_t &_other);
+
     void push_back (move_t move)
     {
         my_moves.push_back (move);

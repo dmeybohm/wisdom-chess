@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
+#include <iostream>
 
 #include "board.h"
 #include "debug.h"
@@ -42,6 +43,11 @@ board::board()
 board::board (const struct board_positions *positions)
 {
     board_init_from_positions (this, positions);
+}
+
+board::board (const board &board)
+{
+    *this = board;
 }
 
 static castle_state_t init_castle_state (struct board *board, enum color who)
@@ -136,74 +142,21 @@ void board_free (struct board *board)
 	free (board);
 }
 
-static void print_divider (FILE *file)
+
+void board::print_to_file (std::ostream &out)
 {
-	uint8_t col;
-	int i;
-
-	fprintf (file, " ");
-
-	for (col = 0; col < BOARD_LENGTH; col += 4)
-	{
-		for (i = 0; i < 3; i++)
-			putc ('-', file);
-		putc (' ', file);
-	}
-
-	fprintf (file, "\n");
+	out << this->to_string();
+	out.flush();
 }
 
-void board_print_to_file (struct board *board, FILE *file)
+void board::print ()
 {
-	uint8_t row, col;
-
-	print_divider (file);
-
-	for (row = 0; row < NR_ROWS; row++)
-	{
-		for (col = 0; col < NR_COLUMNS; col++)
-		{
-			piece_t  piece = PIECE_AT (board, row, col);
-
-			if (!col)
-				fprintf (file, "|");
-
-			if (PIECE_TYPE(piece) != PIECE_NONE &&
-				PIECE_COLOR(piece) == COLOR_BLACK)
-			{
-				fprintf (file, "*");
-			}
-			else
-			{
-				fprintf (file, " ");
-			}
-
-			switch (PIECE_TYPE(piece))
-			{
-			 case PIECE_PAWN:    fprintf (file, "p"); break;
-			 case PIECE_KNIGHT:  fprintf (file, "N"); break;
-			 case PIECE_BISHOP:  fprintf (file, "B"); break;
-			 case PIECE_ROOK:    fprintf (file, "R"); break;
-			 case PIECE_QUEEN:   fprintf (file, "Q"); break;
-			 case PIECE_KING:    fprintf (file, "K"); break;
-			 case PIECE_NONE:    fprintf (file, " "); break;
-			 default:            assert (0);  break;
-			}
-
-			fprintf (file, " |");
-		}
-
-		fprintf (file, "\n");
-
-		print_divider (file);
-	}
-
-	fflush (file);
+	this->print_to_file(std::cout);
 }
 
-void board_print (struct board *board)
+void board::dump ()
 {
-	board_print_to_file (board, stdout);
+    this->print_to_file(std::cerr);
 }
 
 void board_print_castle_state (struct board *board)
@@ -217,19 +170,6 @@ void board_print_material (struct board *board)
     printf("material score: White: %d Black: %d\n",
            board->material.score[COLOR_INDEX_WHITE],
            board->material.score[COLOR_INDEX_BLACK]);
-}
-
-void board_dump (struct board *board)
-{
-    board_print_castle_state (board);
-    board_print_material (board);
-    board_print_to_file (board, stdout);
-}
-
-// for printing the board from gdb
-void board_print_err (struct board *board)
-{
-	board_print_to_file (board, stderr);
 }
 
 board_iterator board::begin()
@@ -259,7 +199,7 @@ void add_divider (std::string &result)
     result += "\n";
 }
 
-std::string board::to_string()
+std::string board::to_string() const
 {
     std::string result;
     uint8_t row, col;

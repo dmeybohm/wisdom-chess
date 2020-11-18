@@ -4,6 +4,11 @@
 #include <iostream>
 #include <fstream>
 
+move_history_t::move_history_t(const move_history_t &other)
+{
+    this->my_moves = other.my_moves;
+}
+
 void move_history_t::save(std::string filename)
 {
     std::ofstream file;

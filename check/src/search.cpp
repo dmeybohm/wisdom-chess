@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cassert>
 #include <ctime>
+#include <iostream>
 
 #include "piece.h"
 #include "board.h"
@@ -15,6 +16,7 @@
 #include "timer.h"
 #include "board_check.h"
 #include "move_history.hpp"
+#include "multithread_search.h"
 
 enum {
     MAX_DEPTH = 16,
@@ -29,12 +31,12 @@ void print_tree_recur (move_tree_t *tree)
 		print_tree_recur (tree->parent);
 
 	if (!is_null_move (tree->move))
-		printf ("[%s] ", move_str (tree->move));
+	    std::cout << "[" << to_string(tree->move) << "] ";
 }
 
 void print_reverse_recur (move_tree_t *tree)
 {
-	printf ("[%s] ", move_str (tree->move));
+    std::cout << "[" << to_string(tree->move) << "] ";
 
 	if (tree->parent)
 		print_reverse_recur (tree->parent);
@@ -159,10 +161,7 @@ search_result_t search (struct board *board, enum color side, int depth, int sta
     }
 
 	if (timer_is_triggered(timer))
-	{
         result.move = null_move;
-        result.score = -INITIAL_ALPHA;
-    }
 
     return result;
 }
@@ -204,7 +203,7 @@ move_t iterate (struct board *board, enum color side,
 
 	if (!is_null_move (result.move))
 	{
-		printf ("move selected = %s [ score: %d ]\n", move_str (result.move),
+		printf ("move selected = %s [ score: %d ]\n", to_string(result.move).c_str(),
 	            result.score);
 		printf ("nodes visited = %d, cutoffs = %d\n", nodes_visited, cutoffs);
 	}
@@ -231,6 +230,7 @@ move_t find_best_move (struct board *board, enum color side, move_history_t &mov
     struct timer overdue_timer;
 
 	timer_init (&overdue_timer, MAX_SEARCH_SECONDS);
+    return multithread_search (*board, side, move_history, &overdue_timer, MAX_DEPTH);
 
 	/*
 	 * 2003-08-28: We should search by depths that are multiples
@@ -262,7 +262,7 @@ move_t find_best_move (struct board *board, enum color side, move_history_t &mov
 
 		board_check_init (&board_check, board);
         undo_move_t undo_state = do_move (board, side, move);
-		board_print (board);
+		board->print();
 
 		best_move = move;
 		if (d == 0 && is_checkmated (board, color_invert(side)))
@@ -285,7 +285,7 @@ move_t find_best_move (struct board *board, enum color side, move_history_t &mov
 
     board_check_init (&board_check, board);
     undo_move_t undo_state = do_move (board, side, best_move);
-	board_print (board);
+	board->print ();
     undo_move (board, side, best_move, undo_state);
     board_check_validate (&board_check, board, side, best_move);
 

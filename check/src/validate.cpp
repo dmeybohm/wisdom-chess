@@ -6,8 +6,8 @@ static void check_it (struct board *board, enum color who, move_t mv, int expr)
 {
     if (!expr)
     {
-        printf ("move considering: %s \n", move_str(mv));
-        board_dump (board);
+        printf ("move considering: %s \n", to_string(mv).c_str());
+        board->dump ();
         abort ();
     }
 }
@@ -31,18 +31,10 @@ static void validate_castle (struct board *board, castle_state_t state, enum col
 
 void validate_castle_state (struct board *board, move_t mv)
 {
+#ifndef NDEBUG
     validate_castle (board, CASTLE_QUEENSIDE, COLOR_WHITE, mv);
     validate_castle (board, CASTLE_KINGSIDE, COLOR_WHITE, mv);
     validate_castle (board, CASTLE_QUEENSIDE, COLOR_BLACK, mv);
     validate_castle (board, CASTLE_KINGSIDE, COLOR_BLACK, mv);
-
-    // make sure there are no pawns in invalid positions:
-    for (uint8_t col = 0; col < NR_COLUMNS; col++)
-    {
-        piece_t top_piece = PIECE_AT (board, 0, col);
-        piece_t bottom_piece = PIECE_AT (board, 7, col);
-
-        assert (PIECE_TYPE(top_piece) != PIECE_PAWN);
-        assert (PIECE_TYPE(bottom_piece) != PIECE_PAWN);
-    }
+#endif
 }

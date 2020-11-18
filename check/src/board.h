@@ -15,12 +15,6 @@
 
 ///////////////////////////////////////////////
 
-/* place holders for branch prediction optimization */
-#define likely(x)        (x)
-#define unlikely(x)      (x)
-
-///////////////////////////////////////////////
-
 struct move_tree;
 
 class board_iterator;
@@ -42,6 +36,9 @@ struct board
 	// castle state of the board
 	castle_state_t           castled[NR_PLAYERS];
 
+	// keep track of hashing information
+	struct board_hash        hash;
+
 	// keep track of the material on the board
 	struct material          material;
 
@@ -51,10 +48,6 @@ struct board
 	// The columns which are eligible for en_passant
 	coord_t                  en_passant_target[NR_PLAYERS];
 
-	// keep track of hashing information
-	// TODO maybe move this higher up for better performance
-	struct board_hash        hash;
-
 	// Number of half moves since pawn or capture.
 	size_t                   half_move_clock;
 
@@ -62,11 +55,16 @@ struct board
 	size_t                   full_moves;
 
 	board();
+	board(const board &board);
 	explicit board(const struct board_positions *positions);
 
 	board_iterator begin();
 	board_iterator end();
-	[[nodiscard]] std::string to_string();
+	[[nodiscard]] std::string to_string() const;
+
+    void  print          ();
+    void  print_to_file  (std::ostream &out);
+    void  dump           ();
 };
 
 class board_iterator final
@@ -234,11 +232,5 @@ static inline bool board_equals (const struct board &a, const struct board &b)
 
 ///////////////////////////////////////////////
 
-
-void          board_print          (struct board *board);
-void          board_print_err      (struct board *board);
-void          board_dump           (struct board *board);
-
-///////////////////////////////////////////////
 
 #endif // EVOLVE_CHESS_BOARD_H_

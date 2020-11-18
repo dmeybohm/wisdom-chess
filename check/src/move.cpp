@@ -1,5 +1,7 @@
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
+#include <mutex>
+#include <iostream>
 
 #include "move.h"
 #include "coord.h"
@@ -9,6 +11,8 @@
 
 extern char col_to_char (int col);
 extern char row_to_char (int row);
+
+static std::mutex output_mutex;
 
 coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst)
 {
@@ -70,9 +74,9 @@ static move_t get_castling_rook_move (struct board *board, move_t move,
     if (!((PIECE_TYPE (PIECE_AT (board, src_row, src_col)) == PIECE_ROOK
            || PIECE_TYPE (PIECE_AT (board, dst_row, dst_col)) == PIECE_ROOK)))
     {
-        printf ("move considering: %s (%s to move)\n", move_str(move),
+        printf ("move considering: %s (%s to move)\n", to_string(move).c_str(),
                 who == COLOR_WHITE ? "White" : "Black");
-        board_dump (board);
+        board->dump();
         assert (0);
     }
 
@@ -211,8 +215,8 @@ static void update_current_rook_position (struct board *board, enum color player
     if (!( PIECE_COLOR(src_piece) == player &&
            PIECE_TYPE(src_piece) == PIECE_ROOK))
     {
-        printf ("update_current_rook_position failed: move %s\n", move_str(move));
-        board_dump (board);
+        std::cout << "update_current_rook_position failed: move " << to_string(move) << "\n";
+        board->dump();
         abort ();
     }
 
@@ -314,7 +318,7 @@ undo_move_t do_move (struct board *board, enum color who, move_t move)
             printf ("src piece; %s\n", piece_str (src_piece));
             printf ("dst piece: %s\n", piece_str (dst_piece));
             printf ("src piece_type: %d, dst_piece_type: %d\n", PIECE_TYPE(src_piece), PIECE_TYPE(dst_piece));
-            printf ("move was [%s]\n", move_str (move));
+            printf ("move was [%s]\n", to_string(move).c_str());
             printf ("src color: %d, dst color: %d\n", PIECE_COLOR (src_piece),
                     PIECE_COLOR (dst_piece));
             assert (0);
@@ -442,7 +446,8 @@ void undo_move (struct board *board, enum color who,
     validate_castle_state (board, move);
 }
 
-const char *move_str (move_t move)
+
+static const char *move_str (move_t move)
 {
 	coord_t src, dst;
 	static char buf[256];
@@ -638,4 +643,11 @@ move_t parse_move (const char *str, enum color color)
         throw parse_move_exception ("Error parsing move");
     }
     return result;
+}
+
+std::string to_string (const move_t &move)
+{
+    std::lock_guard lock_guard { output_mutex };
+    const char *str = move_str (move);
+    return { str };
 }
