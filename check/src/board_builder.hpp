@@ -46,7 +46,7 @@ class board_builder final
 public:
     board_builder() = default;
 
-    void add_piece (const char *coord_str, enum color who, enum piece_type piece_type);
+    void add_piece (const std::string &coord_str, enum color who, enum piece_type piece_type);
 
     void add_piece (uint8_t row, uint8_t col, enum color who, enum piece_type piece_type);
 
@@ -54,13 +54,13 @@ public:
 
     void add_row_of_same_color (int row, enum color who, std::vector<enum piece_type> piece_types);
 
-    void add_row_of_same_color (const char *coord_str, enum color who, std::vector<enum piece_type> piece_types);
+    void add_row_of_same_color (const std::string &coord_str, enum color who, std::vector<enum piece_type> piece_types);
 
     void add_row_of_same_color_and_piece (int row, enum color who, enum piece_type piece_type);
 
-    void add_row_of_same_color_and_piece (const char *coord_str, enum color who, enum piece_type piece_type);
+    void add_row_of_same_color_and_piece (const std::string &coord_str, enum color who, enum piece_type piece_type);
 
-    void set_en_passant_target (enum color who, const char *coord_str);
+    void set_en_passant_target (enum color who, const std::string &coord_str);
 
     void set_castling (enum color who, castle_state_t state);
 
@@ -80,6 +80,6 @@ public:
     [[nodiscard]] const char *what() const noexcept override { return this->message; }
 };
 
-coord_t coord_alg (const char *coord_str);
+coord_t coord_alg (const std::string &coord_str);
 
 #endif //WIZDUMB_BOARD_BUILDER_HPP

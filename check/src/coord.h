@@ -7,6 +7,7 @@
 #include <cctype>
 #include <cstring>
 #include <exception>
+#include <string>
 
 typedef struct coord
 {
@@ -59,7 +60,7 @@ static inline uint8_t char_to_col (char chr)
 
 /////////////////////////////////////////////////////////////////////
 
-coord_t coord_parse (const char *str);
+coord_t coord_parse (const std::string &str);
 
 /////////////////////////////////////////////////////////////////////
 

@@ -12,3 +12,16 @@ TEST_CASE( "A coordinate can be generated", "[coord]" )
     CHECK( ROW(coord) == row );
     CHECK( COLUMN(coord) == col );
 }
+
+
+TEST_CASE( "Coord_parse specifying coordinates in algebraic notation", "[coord]" )
+{
+    CHECK( ROW(coord_parse("a8")) == 0 );
+    CHECK( ROW(coord_parse("a1")) == 7 );
+    CHECK( COLUMN(coord_parse("a8")) == 0 );
+    CHECK( COLUMN(coord_parse("a1")) == 0 );
+    CHECK( ROW(coord_parse("h1")) == 7 );
+    CHECK( ROW(coord_parse("h8")) == 0 );
+    CHECK( COLUMN(coord_parse("h1")) == 7 );
+    CHECK( COLUMN(coord_parse("h8")) == 7 );
+}

@@ -3,9 +3,9 @@
 #include "board.h"
 #include "move.h"
 
-coord_t coord_alg (const char *coord_str)
+coord_t coord_alg (const std::string &coord_str)
 {
-    if (!coord_str || strlen(coord_str) != 2)
+    if (coord_str.size() != 2)
         throw board_builder_exception("Invalid coordinate string!");
 
     uint8_t col = char_to_col(coord_str[0]);
@@ -20,9 +20,9 @@ coord_t coord_alg (const char *coord_str)
     return coord_create (row, col);
 }
 
-void board_builder::add_piece (const char *coord_str, enum color who, enum piece_type piece_type)
+void board_builder::add_piece (const std::string &coord_str, enum color who, enum piece_type piece_type)
 {
-    if (strlen(coord_str) != 2)
+    if (coord_str.size() != 2)
         throw board_builder_exception("Invalid coordinate string!");
 
     coord_t algebraic = coord_alg (coord_str);
@@ -60,7 +60,7 @@ void board_builder::add_row_of_same_color_and_piece (int row, enum color who, en
         this->add_piece (row, col, who, piece_type);
 }
 
-void board_builder::add_row_of_same_color_and_piece (const char *coord_str, enum color who, enum piece_type piece_type)
+void board_builder::add_row_of_same_color_and_piece (const std::string &coord_str, enum color who, enum piece_type piece_type)
 {
     coord_t coord = coord_alg (coord_str);
 
@@ -76,7 +76,7 @@ void board_builder::add_row_of_same_color (int row, enum color who, std::vector<
         this->add_piece (row, col, who, *it);
 }
 
-void board_builder::add_row_of_same_color (const char *coord_str, enum color who, std::vector<enum piece_type> piece_types)
+void board_builder::add_row_of_same_color (const std::string &coord_str, enum color who, std::vector<enum piece_type> piece_types)
 {
     coord_t coord = coord_alg (coord_str);
     size_t col = 0;
@@ -85,7 +85,7 @@ void board_builder::add_row_of_same_color (const char *coord_str, enum color who
         this->add_piece (ROW(coord), col, who, *it);
 }
 
-void board_builder::set_en_passant_target (enum color who, const char *coord_str)
+void board_builder::set_en_passant_target (enum color who, const std::string &coord_str)
 {
     struct en_passant_state new_state { who, coord_alg(coord_str) };
     this->en_passant_states.push_back (new_state);
