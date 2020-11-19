@@ -1,13 +1,12 @@
 #include "multithread_search.h"
 #include "timer.h"
 
+#include <mutex>
 #include <thread>
 #include <iostream>
 #include <sstream>
 #include <memory>
-#include <mutex>
 #include <vector>
-#include <thread>
 #include <chrono>
 
 constexpr int MAX_DEPTH = 16;
