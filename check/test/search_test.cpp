@@ -12,8 +12,7 @@
 TEST_CASE( "Can find mate in 3", "[search]" )
 {
     board_builder builder;
-    struct timer large_timer {};
-    timer_init (&large_timer, 30);
+    struct timer large_timer { 30 };
 
     builder.add_pieces (COLOR_BLACK, {
             {"a8", PIECE_ROOK},
@@ -35,7 +34,7 @@ TEST_CASE( "Can find mate in 3", "[search]" )
     move_history_t history;
     search_result_t result = search (board, COLOR_WHITE, 4, 4,
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
-                        &variation.tree, 0, &large_timer, history);
+                        &variation.tree, 0, large_timer, history);
 
     REQUIRE( result.move != null_move );
     REQUIRE( variation.size() == 5 );
@@ -58,8 +57,7 @@ TEST_CASE( "Can find mate in 3", "[search]" )
 TEST_CASE( "Can find mate in 2 1/2", "[search]" )
 {
     board_builder builder;
-    struct timer large_timer {};
-    timer_init (&large_timer, 30);
+    timer large_timer { 10 };
 
     builder.add_pieces (COLOR_BLACK, {
             {"e8", PIECE_KNIGHT},
@@ -80,7 +78,7 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
     move_history_t history;
     search_result_t result = search (board, COLOR_BLACK, 5, 5,
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
-                        &variation.tree, 0, &large_timer, history);
+                        &variation.tree, 0, large_timer, history);
 
     REQUIRE( result.move != null_move );
 
@@ -126,18 +124,16 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
 
     struct board board_state { builder.build() }; struct board *board = &board_state;
 
-    struct timer timer {};
-    timer_init (&timer, 300);
+    struct timer timer { 300 };
     move_history_t history;
-    move_t best_move = iterate (board, COLOR_BLACK, history, &timer, 3);
+    move_t best_move = iterate (board, COLOR_BLACK, history, timer, 3);
     REQUIRE( best_move != null_move );
 }
 
 TEST_CASE( "Promoting move is taken if possible", "[search-test]")
 {
     board_builder builder;
-    struct timer large_timer {};
-    timer_init (&large_timer, 30);
+    struct timer large_timer { 30 };
 
     builder.add_pieces (COLOR_BLACK, {
             {"d7", PIECE_KING},
@@ -154,7 +150,7 @@ TEST_CASE( "Promoting move is taken if possible", "[search-test]")
     struct board *board = &board_state;
     search_result_t result = search (board, COLOR_BLACK, 1, 1,
                                      -INITIAL_ALPHA, INITIAL_ALPHA, 0,
-                                     &variation.tree, 0, &large_timer, history);
+                                     &variation.tree, 0, large_timer, history);
 
     std::cout << "Move: " << to_string(result.move) << "\n";
     REQUIRE( result.move == parse_move("d2 d1 (Q)") );

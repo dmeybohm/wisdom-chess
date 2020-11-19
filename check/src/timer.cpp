@@ -2,47 +2,31 @@
 // Created by David Meybohm on 9/28/20.
 //
 
-#include "global.h"
 #include "timer.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+using std::chrono::high_resolution_clock;
+using std::chrono::duration_cast;
+using std::chrono::duration;
 
-#define TIMER_CHECK_COUNT      50000    /* number of iterations before checking */
+enum {
+    TIMER_CHECK_COUNT = 50000    // number of iterations before checking
+};
 
-void timer_init (struct timer *timer, int seconds)
+bool timer::is_triggered()
 {
-    if (gettimeofday (&timer->last_check_time, nullptr) == -1)
-    {
-        perror ("gettimeofday");
-        exit (1);
-    }
-    timer->check_calls = 0;
-    timer->seconds = (double)seconds;
-    timer->triggered = false;
-}
-
-bool timer_is_triggered (struct timer *timer)
-{
-    struct timeval next_time;
-
-    if (timer->triggered)
+    if (this->triggered)
         return true;
 
-    if (++timer->check_calls % TIMER_CHECK_COUNT != 0)
+    if (++this->check_calls % TIMER_CHECK_COUNT != 0)
         return false;
 
-    if (gettimeofday (&next_time, nullptr) == -1)
-    {
-        perror ("gettimeofday");
-        exit (1);
-    }
+    high_resolution_clock::time_point next_check_time = high_resolution_clock::now();
 
-    double seconds = difftime (next_time.tv_sec, timer->last_check_time.tv_sec);
+    duration<double> time_span = duration_cast<duration<double>>(next_check_time - this->last_check_time);
 
-    if (seconds >= timer->seconds)
+    if (time_span >= this->seconds)
     {
-        timer->triggered = true;
+        this->triggered = true;
         return true;
     }
     else

@@ -4,6 +4,7 @@
 #include <cassert>
 #include <ctime>
 #include <iostream>
+#include <chrono>
 
 #include "piece.h"
 #include "board.h"
@@ -24,6 +25,12 @@ enum {
 };
 
 static int nodes_visited, cutoffs;
+
+using system_clock_t = std::chrono::time_point<std::chrono::system_clock>;
+using std::chrono::duration_cast;
+using std::chrono::duration;
+using std::chrono::milliseconds;
+using std::chrono::seconds;
 
 void print_tree_recur (move_tree_t *tree)
 {
@@ -52,7 +59,7 @@ void print_reversed_tree (move_tree_t *tree)
 
 search_result_t search (struct board *board, enum color side, int depth, int start_depth,
                         int alpha, int beta, unsigned long pseudo_rand,
-                        move_tree_t **ret_variation, int no_quiesce, struct timer *timer,
+                        move_tree_t **ret_variation, int no_quiesce, struct timer &timer,
                         move_history_t &move_history)
 {
 	move_tree_t  *   best_variation = nullptr, *new_variation = nullptr;
@@ -70,7 +77,7 @@ search_result_t search (struct board *board, enum color side, int depth, int sta
 
 	for (auto move : moves)
 	{
-		if (timer_is_triggered (timer))
+		if (timer.is_triggered())
 		{
 			if (best_variation)
 			{
@@ -160,46 +167,39 @@ search_result_t search (struct board *board, enum color side, int depth, int sta
                 -1 * checkmate_score_in_moves (start_depth - depth) : 0;
     }
 
-	if (timer_is_triggered(timer))
+	if (timer.is_triggered())
         result.move = null_move;
 
     return result;
 }
 
-static void calc_time (int nodes, struct timeval *start, struct timeval *end)
+static void calc_time (int nodes, system_clock_t start, system_clock_t end)
 {
-	double time;
-	double rate;
-
-	time = (double) end->tv_sec - start->tv_sec + 
-	       (double) (end->tv_usec - start->tv_usec) / 1000000.0;
-
-	rate = (time == 0 ? nodes : (double) nodes / time);
-
-	printf ("search took %.3f seconds, %.3f nodes/sec\n", 
-			time, rate);
+    auto duration = end - start;
+    milliseconds ms = std::chrono::duration_cast<milliseconds>(duration);
+    double seconds = ms.count() / 1000;
+	std::cout << "search took " << seconds << ", " << nodes / seconds << " nodes/sec\n";
 }
 
 move_t iterate (struct board *board, enum color side,
-                move_history_t &move_history, struct timer *timer, int depth)
+                move_history_t &move_history, struct timer &timer, int depth)
 {
-	struct timeval start, end;
 	move_tree_t   *principal_variation;
 
 	printf ("finding moves for %s\n", (side == COLOR_WHITE) ? "white":"black");
 
-	nodes_visited = 0; cutoffs = 0;
+	nodes_visited = 0;
+	cutoffs = 0;
 
-	gettimeofday (&start, nullptr);
+	auto start = std::chrono::system_clock::now();
 
 	search_result_t result = search (board, side, depth, depth,
-                         -INITIAL_ALPHA, INITIAL_ALPHA,
-	                     (start.tv_usec >> 16) | (start.tv_sec << 16),
+                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
                          &principal_variation, 0, timer, move_history);
 
-	gettimeofday (&end, nullptr);
+    auto end = std::chrono::system_clock::now();
 
-	calc_time (nodes_visited, &start, &end);
+	calc_time (nodes_visited, start, end);
 
 	if (!is_null_move (result.move))
 	{
@@ -222,74 +222,12 @@ move_t iterate (struct board *board, enum color side,
 
 move_t find_best_move (struct board *board, enum color side, move_history_t &move_history)
 {
-	int d;
-	int max_depth = MAX_DEPTH;
-	move_t move, best_move;
-    board_check_t board_check;
-    bool stop_early = false;
-    struct timer overdue_timer;
+    timer overdue_timer { MAX_SEARCH_SECONDS };
 
-	timer_init (&overdue_timer, MAX_SEARCH_SECONDS);
-    return multithread_search (*board, side, move_history, &overdue_timer, MAX_DEPTH);
+    class multithread_search search { *board, side, move_history, overdue_timer };
+    search_result_t result = search.result();
 
-	/*
-	 * 2003-08-28: We should search by depths that are multiples
-	 * of two. This way, we won't artificially inflate a line
-	 * of play by not looking at the response (e.g. We see at
-	 * the end of a sequence we can take the opponents queen with
-	 * our own, we don't see that he can take back on the next move)
-	 *
-	 * The only exception is that we want to select SOME move quickly.
-	 * TODO: we should pick a random move instead if we don't
-	 * get a chance to look.
-	 */
-    for (d = 0; d <= max_depth; (d == 0 ? (d++) : (d += 2)))
-	{
-		move = iterate (board, side, move_history, &overdue_timer, d);
-
-		if (timer_is_triggered(&overdue_timer))
-		{
-			printf ("exiting early with depth %d\n", d);
-			break;
-		}
-
-		if (is_null_move(move))
-		{
-		    // I think this can probably happen if we run out of time at just the right time.
-		    printf("Next best move is null move. Terminating.");
-		    break;
-		}
-
-		board_check_init (&board_check, board);
-        undo_move_t undo_state = do_move (board, side, move);
-		board->print();
-
-		best_move = move;
-		if (d == 0 && is_checkmated (board, color_invert(side)))
-            stop_early = true;
-
-        undo_move (board, side, move, undo_state);
-        board_check_validate (&board_check, board, side, move);
-
-        if (stop_early)
-            break;
-	}
-
-    if (is_null_move(best_move))
-    {
-        // TODO: this is possible in a stalement position
-        // TODO: select random move in this case.
-        printf ("best selected null move at depth %d\n", d);
-        abort ();
-    }
-
-    board_check_init (&board_check, board);
-    undo_move_t undo_state = do_move (board, side, best_move);
-	board->print ();
-    undo_move (board, side, best_move, undo_state);
-    board_check_validate (&board_check, board, side, best_move);
-
-	return best_move;
+    return result.move;
 }
 
 // Get the score for a checkmate discovered X moves away.

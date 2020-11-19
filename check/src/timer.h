@@ -1,32 +1,32 @@
 #ifndef CHECK_TIMER_H
 #define CHECK_TIMER_H
 
-#include "config.h"
-
-#ifdef HAVE_TIME_H
-#include <time.h>
-#endif
-
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#include <stdbool.h>
+#include <chrono>
 
 struct timer
 {
-    struct timeval last_check_time;
+    std::chrono::high_resolution_clock::time_point last_check_time;
     int check_calls;
-    double seconds;
+    std::chrono::seconds seconds;
     bool triggered;
+
+    timer(int _seconds) :
+        last_check_time { std::chrono::high_resolution_clock::now() },
+        check_calls { 0 },
+        seconds { _seconds },
+        triggered { false }
+    {
+    }
+
+    timer(std::chrono::seconds _seconds) :
+        last_check_time { std::chrono::high_resolution_clock::now() },
+        check_calls { 0 },
+        seconds { _seconds },
+        triggered { false }
+    {
+    }
+
+    bool is_triggered();
 };
-
-void timer_init (struct timer *timer, int seconds);
-
-bool timer_is_triggered (struct timer *timer);
 
 #endif //CHECK_TIMER_H

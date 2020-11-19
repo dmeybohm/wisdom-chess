@@ -14,6 +14,7 @@ struct search_result_t
 {
     move_t move = null_move;
     int score = -INITIAL_ALPHA;
+    int depth = 0;
 };
 
 struct timer;
@@ -22,11 +23,11 @@ move_t  find_best_move   (struct board *board, enum color side,
                           move_history_t &history);
 
 move_t iterate (struct board *board, enum color side,
-                move_history_t &move_history, struct timer *timer, int depth);
+                move_history_t &move_history, struct timer &timer, int depth);
 
 search_result_t search (struct board *board, enum color side, int depth, int start_depth,
                         int alpha, int beta, unsigned long pseudo_rand,
-                        move_tree_t **ret_variation, int no_quiesce, struct timer *timer,
+                        move_tree_t **ret_variation, int no_quiesce, struct timer &timer,
                         move_history_t &history);
 
 int quiesce (struct board *board, enum color side, int alpha, int beta, int depth,
@@ -39,4 +40,3 @@ void print_reverse_recur (move_tree_t *tree);
 
 
 #endif // EVOLVE_CHESS_SEARCH_H_
-1
