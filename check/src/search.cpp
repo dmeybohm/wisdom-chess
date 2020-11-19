@@ -1,5 +1,4 @@
-#include <cstdlib>
-#include <climits>
+
 #include <cstdio>
 #include <cassert>
 #include <ctime>
@@ -12,7 +11,6 @@
 #include "evaluate.h"
 #include "check.h"
 #include "move_tree.h"
-#include "debug.h"
 #include "search.h"
 #include "timer.h"
 #include "board_check.h"
@@ -224,8 +222,8 @@ move_t find_best_move (struct board *board, enum color side, move_history_t &mov
 {
     timer overdue_timer { MAX_SEARCH_SECONDS };
 
-    class multithread_search search { *board, side, move_history, overdue_timer };
-    search_result_t result = search.result();
+    multithread_search search { *board, side, move_history, overdue_timer };
+    search_result_t result = search.search();
 
     return result.move;
 }
