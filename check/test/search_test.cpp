@@ -152,6 +152,5 @@ TEST_CASE( "Promoting move is taken if possible", "[search-test]")
                                      -INITIAL_ALPHA, INITIAL_ALPHA, 0,
                                      &variation.tree, 0, large_timer, history);
 
-    std::cout << "Move: " << to_string(result.move) << "\n";
-    REQUIRE( result.move == parse_move("d2 d1 (Q)") );
+    REQUIRE( to_string(result.move) == "d2 d1(Q)" );
 }

@@ -10,7 +10,7 @@ struct timer
     std::chrono::seconds seconds;
     bool triggered;
 
-    timer(int _seconds) :
+    explicit timer(int _seconds) :
         last_check_time { std::chrono::high_resolution_clock::now() },
         check_calls { 0 },
         seconds { _seconds },
@@ -18,7 +18,7 @@ struct timer
     {
     }
 
-    timer(std::chrono::seconds _seconds) :
+    explicit timer(std::chrono::seconds _seconds) :
         last_check_time { std::chrono::high_resolution_clock::now() },
         check_calls { 0 },
         seconds { _seconds },

@@ -53,7 +53,7 @@ private:
     struct board board;
     enum color side;
     move_history_t move_history;
-    timer timer;
+    struct timer timer;
     search_result_t search_result;
 
     // Mutex to protect next_depth
