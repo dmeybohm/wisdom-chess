@@ -311,7 +311,6 @@ void add_en_passant_move (const struct board *board, enum color who, uint8_t pie
 
 move_list_t generate_knight_moves (uint8_t row, uint8_t col)
 {
-	// Check f3
 	if (knight_moves[0][0].empty())
 		knight_move_list_init ();
 
@@ -384,7 +383,7 @@ static int valid_castling_move (struct board *board, enum color who, move_t move
 }
 
 move_list_t validate_moves (const move_list_t &move_list, struct board *board,
-                                    enum color who)
+                            enum color who)
 {
     move_list_t captures;
 
@@ -443,7 +442,6 @@ move_list_t validate_moves (const move_list_t &move_list, struct board *board,
 move_list_t generate_captures (struct board *board, enum color who)
 {
     move_list_t captures;
-
     move_list_t move_list = generate_moves (board, who);
 
     for (auto move : move_list)
@@ -461,16 +459,16 @@ move_list_t generate_moves (struct board *board, enum color who)
 
 	for (auto it = board->begin(); it != board->end(); ++it)
 	{
-	    piece_t    piece = *it;
-	    auto [row, col]  = it.coord();
-		enum color color = PIECE_COLOR(piece);
+	    piece_t piece = *it;
 
 		if (PIECE_TYPE(piece) == PIECE_NONE)
 			continue;
 
+		enum color color = PIECE_COLOR(piece);
 		if (color != who)
 			continue;
 
+	    auto [row, col]  = it.coord();
 		(*move_functions[PIECE_TYPE(piece)])
 		    (board, who, row, col, new_moves);
 	}

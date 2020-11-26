@@ -88,7 +88,7 @@ void board_init_from_positions (struct board *board, const struct board_position
     const struct board_positions *ptr;
     uint8_t row, col;
 
-    for (uint8_t & i : board->castled)
+    for (uint8_t &i : board->castled)
         i = CASTLE_NONE;
 
     for (auto& piece : *board)

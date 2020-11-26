@@ -1,8 +1,9 @@
 #ifndef WIZDUMB_MOVE_HISTORY_HPP
 #define WIZDUMB_MOVE_HISTORY_HPP
 
-#include "move_list.hpp"
 #include <string>
+
+#include "move_list.hpp"
 
 struct move_history_t
 {

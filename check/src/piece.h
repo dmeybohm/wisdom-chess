@@ -28,8 +28,13 @@ enum color
 
 struct piece_with_color
 {
-    enum piece_type piece_type : 3;
-    enum color color: 2;
+#ifdef _GNUC
+    enum piece_type piece_type : 4;
+    enum color color : 3;
+#else // MSVC doesn't support unsigned enums :-(
+	enum piece_type piece_type;
+	enum color color;
+#endif
 };
 
 enum color_index

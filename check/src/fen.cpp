@@ -104,7 +104,7 @@ void fen::parse_en_passant (std::string_view str)
     try {
         std::string cstr { str.substr(0, 2) };
         builder.set_en_passant_target (color_invert(active_player), cstr.c_str());
-    } catch (const board_builder_exception &e) {
+    } catch ([[maybe_unused]] const board_builder_exception &e) {
         throw fen_exception("Error parsing en passant coordinate!");
     }
 }

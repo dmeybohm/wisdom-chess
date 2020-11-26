@@ -1,6 +1,8 @@
 #ifndef WIZDUMB_MULTITHREAD_SEARCH_H
 #define WIZDUMB_MULTITHREAD_SEARCH_H
 
+#include <memory>
+
 #include "board.h"
 #include "search.h"
 #include "timer.h"

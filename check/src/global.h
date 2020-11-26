@@ -26,4 +26,9 @@ enum : unsigned
     QUEEN_CASTLED_ROOK_COLUMN = 3,
 };
 
+#ifdef _MSC_VER
+ #define strncasecmp _strnicmp
+ #define strcasecmp _stricmp
+#endif
+
 #endif //WIZDUMB_GLOBAL_H

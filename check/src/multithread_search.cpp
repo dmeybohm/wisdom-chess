@@ -155,10 +155,10 @@ void multithread_search_handler::do_thread(unsigned index)
     do_thread(index);
 }
 
-multithread_search::multithread_search(struct board &_board, enum color _side,
-                                       const move_history_t &_move_history, const timer &_timer) :
-    handler { std::make_unique<multithread_search_handler>(_board, _side, _move_history, _timer) }
+multithread_search::multithread_search (struct board &_board, enum color _side,
+                                        const move_history_t &_move_history, const timer &_timer)
 {
+	handler = std::make_unique<multithread_search_handler>(_board, _side, _move_history, _timer);
 }
 
 search_result_t multithread_search::search()

@@ -21,7 +21,7 @@ struct game
 	        player { computer_player },
 	        turn { _turn }
     {
-        assert (is_color_valid (_turn));
+        assert (is_color_valid(_turn));
         assert (is_color_valid(computer_player));
         player = computer_player;
         turn = _turn;

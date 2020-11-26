@@ -61,10 +61,17 @@ typedef struct move
 	uint8_t            dst_row : 4;
 	uint8_t            dst_col : 4;
 
+#ifdef _GNUC
 	enum color         promoted_color: 2;
 	enum piece_type    promoted_piece_type: 3;
 
 	enum move_category move_category : 3;
+#else
+	enum color         promoted_color;
+	enum piece_type    promoted_piece_type;
+
+	enum move_category move_category;
+#endif
 } move_t;
 
 class parse_move_exception : public std::exception

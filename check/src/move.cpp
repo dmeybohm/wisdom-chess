@@ -326,8 +326,12 @@ undo_move_t do_move (struct board *board, enum color who, move_t move)
     }
 
     // check for promotion
-    if (is_promoting_move(move))
-        src_piece = move_get_promoted_piece(move);
+	if (is_promoting_move(move))
+	{
+		src_piece = move_get_promoted_piece(move);
+		material_add (&board->material, src_piece);
+		material_del (&board->material, MAKE_PIECE(who, PIECE_PAWN));
+	}
 
     // check for en passant
     if (is_en_passant_move(move))
@@ -399,8 +403,12 @@ void undo_move (struct board *board, enum color who,
         dst_piece = MAKE_PIECE( opponent, dst_piece_type );
 
     // check for promotion
-    if (is_promoting_move(move))
-        src_piece = MAKE_PIECE( PIECE_COLOR(src_piece), PIECE_PAWN );
+	if (is_promoting_move(move))
+	{
+		src_piece = MAKE_PIECE(PIECE_COLOR(src_piece), PIECE_PAWN);
+		material_del (&board->material, orig_src_piece);
+		material_add (&board->material, src_piece);
+	}
 
     // check for castling
     if (is_castling_move(move))
