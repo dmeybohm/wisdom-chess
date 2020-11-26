@@ -61,7 +61,7 @@ typedef struct move
 	uint8_t            dst_row : 4;
 	uint8_t            dst_col : 4;
 
-#ifdef _GNUC
+#ifdef __GNUC__
 	enum color         promoted_color: 2;
 	enum piece_type    promoted_piece_type: 3;
 

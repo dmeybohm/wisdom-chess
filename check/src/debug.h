@@ -23,7 +23,7 @@ struct debug_channel CHANNEL_NAME(name) = \
 
 #undef DEBUG
 
-#ifndef _GNUC
+#ifndef __GNUC__
 static inline void DBG(struct debug_channel* channel_name, const char* fmt, ...)
 {
 
@@ -36,11 +36,11 @@ static inline void DBG(struct debug_channel* channel_name, const char* fmt, ...)
 #else
 #define DBG(channel, fmt, args...)
 #endif // _DEBUG
-#endif // _GNUC
+#endif // __GNUC__
 
 void debug_print(struct debug_channel* channel, const char* func, int line,
 	const char* fmt, ...)
-#ifdef _GNUC
+#ifdef __GNUC__
 	__attribute__((format(printf, 4, 5)));
 #else
 	;
