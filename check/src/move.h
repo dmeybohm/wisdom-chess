@@ -237,11 +237,6 @@ constexpr bool is_null_move (move_t move)
 	    move.dst_row == 0 && move.dst_col == 0;
 }
 
-constexpr move_t move_null ()
-{
-    return move_create (0, 0, 0, 0);
-}
-
 constexpr move_t null_move = move_create (0, 0, 0, 0);
 
 constexpr bool move_equals (move_t a, move_t b)

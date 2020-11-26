@@ -524,7 +524,7 @@ static move_t castle_parse (const char *str, enum color who)
 	else if (!strncasecmp (str, "O-O", strlen ("O-O")))
 		dst_col = KING_COLUMN + 2;
 	else
-		return move_null();
+		return null_move;
 
 	return move_create_castling (src_row, KING_COLUMN, src_row, dst_col);
 }
@@ -550,13 +550,13 @@ move_t move_parse (const char *str, enum color who)
     bool        is_capturing = false;
 
 	if (strlen(str) < 1)
-		return move_null();
+		return null_move;
 
 	if (tolower(str[0]) == 'o')
 		return castle_parse (str, who);
 
 	if (strlen(str) < 4)
-		return move_null();
+		return null_move;
 
 	// allow any number of spaces/tabs before the two coordinates
 	p = skip_whitespace (str);
@@ -566,9 +566,9 @@ move_t move_parse (const char *str, enum color who)
 	src_row = char_to_row (*p++);
 
 	if (src_col < 0 || src_col >= NR_COLUMNS)
-	    return move_null();
+	    return null_move;
 	if (src_row < 0 || src_row >= NR_ROWS)
-	    return move_null();
+	    return null_move;
 
 	// allow any number of spaces/tabs between the two coordinates
 	p = skip_whitespace (p);
@@ -581,12 +581,12 @@ move_t move_parse (const char *str, enum color who)
     }
 
 	if (!*p)
-		return move_null();
+		return null_move;
 
 	dst_col = char_to_col (*p++);
 
 	if (!*p)
-		return move_null();
+		return null_move;
 
 	dst_row = char_to_row (*p++);
 

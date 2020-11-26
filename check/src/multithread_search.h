@@ -5,7 +5,7 @@
 
 #include "board.h"
 #include "search.h"
-#include "timer.h"
+#include "move_timer.h"
 
 class multithread_search_handler;
 
@@ -17,7 +17,7 @@ private:
 
 public:
     multithread_search (struct board &_board, enum color _side,
-                        const move_history_t &_move_history, const timer &_timer);
+                        const move_history_t &_move_history, const move_timer &_timer);
 
     ~multithread_search();
 

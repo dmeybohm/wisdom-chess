@@ -12,7 +12,7 @@
 #include "check.h"
 #include "move_tree.h"
 #include "search.h"
-#include "timer.h"
+#include "move_timer.h"
 #include "board_check.h"
 #include "move_history.hpp"
 #include "multithread_search.h"
@@ -57,7 +57,7 @@ void print_reversed_tree (move_tree_t *tree)
 
 search_result_t search (struct board *board, enum color side, int depth, int start_depth,
                         int alpha, int beta, unsigned long pseudo_rand,
-                        move_tree_t **ret_variation, int no_quiesce, struct timer &timer,
+                        move_tree_t **ret_variation, int no_quiesce, struct move_timer &timer,
                         move_history_t &move_history)
 {
 	move_tree_t  *   best_variation = nullptr, *new_variation = nullptr;
@@ -180,7 +180,7 @@ static void calc_time (int nodes, system_clock_t start, system_clock_t end)
 }
 
 move_t iterate (struct board *board, enum color side,
-                move_history_t &move_history, struct timer &timer, int depth)
+                move_history_t &move_history, struct move_timer &timer, int depth)
 {
 	move_tree_t   *principal_variation;
 
@@ -220,7 +220,7 @@ move_t iterate (struct board *board, enum color side,
 
 move_t find_best_move (struct board *board, enum color side, move_history_t &move_history)
 {
-    timer overdue_timer { MAX_SEARCH_SECONDS };
+    move_timer overdue_timer { MAX_SEARCH_SECONDS };
 
     multithread_search search { *board, side, move_history, overdue_timer };
     search_result_t result = search.search();

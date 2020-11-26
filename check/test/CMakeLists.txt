@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/")
 add_executable(chess_tests
         ../src/board.cpp ../src/board_hash.cpp ../src/check.cpp ../src/debug.cpp ../src/evaluate.cpp ../src/generate.cpp
         ../src/material.cpp ../src/move.cpp ../src/move_tree.cpp ../src/piece.cpp ../src/search.cpp
-        ../src/sha1.cpp ../src/str.cpp ../src/timer.cpp ../src/global.h ../src/board_check.cpp ../src/board_check.h
+        ../src/sha1.cpp ../src/str.cpp ../src/move_timer.cpp ../src/global.h ../src/board_check.cpp ../src/board_check.h
         ../src/validate.cpp ../src/position.cpp ../src/board_builder.cpp ../src/game.cpp ../src/game.h
         ../src/board_builder.hpp
 

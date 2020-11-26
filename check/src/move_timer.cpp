@@ -2,7 +2,7 @@
 // Created by David Meybohm on 9/28/20.
 //
 
-#include "timer.h"
+#include "move_timer.h"
 
 using std::chrono::high_resolution_clock;
 using std::chrono::duration_cast;
@@ -12,7 +12,7 @@ enum {
     TIMER_CHECK_COUNT = 50000    // number of iterations before checking
 };
 
-bool timer::is_triggered()
+bool move_timer::is_triggered ()
 {
     if (this->triggered)
         return true;

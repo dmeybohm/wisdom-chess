@@ -5,14 +5,14 @@
 #include "board.h"
 #include "search.h"
 #include "move.h"
-#include "timer.h"
+#include "move_timer.h"
 #include "move_tree.h"
 
 // Mating moves: : 1.Ra6 f6 2.Bxf6 Rg7 3.Rxa8#
 TEST_CASE( "Can find mate in 3", "[search]" )
 {
     board_builder builder;
-    struct timer large_timer { 30 };
+    struct move_timer large_timer { 30 };
 
     builder.add_pieces (COLOR_BLACK, {
             {"a8", PIECE_ROOK},
@@ -57,7 +57,7 @@ TEST_CASE( "Can find mate in 3", "[search]" )
 TEST_CASE( "Can find mate in 2 1/2", "[search]" )
 {
     board_builder builder;
-    timer large_timer { 10 };
+    move_timer large_timer { 10 };
 
     builder.add_pieces (COLOR_BLACK, {
             {"e8", PIECE_KNIGHT},
@@ -124,7 +124,7 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
 
     struct board board_state { builder.build() }; struct board *board = &board_state;
 
-    struct timer timer { 300 };
+    struct move_timer timer { 300 };
     move_history_t history;
     move_t best_move = iterate (board, COLOR_BLACK, history, timer, 3);
     REQUIRE( best_move != null_move );
@@ -133,7 +133,7 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
 TEST_CASE( "Promoting move is taken if possible", "[search-test]")
 {
     board_builder builder;
-    struct timer large_timer { 30 };
+    struct move_timer large_timer { 30 };
 
     builder.add_pieces (COLOR_BLACK, {
             {"d7", PIECE_KING},
