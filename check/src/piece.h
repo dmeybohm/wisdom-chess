@@ -47,6 +47,28 @@ typedef uint8_t   color_index_t;
 
 typedef struct piece_with_color piece_t;
 
+constexpr enum piece_type all_promotable_piece_types[] = {
+    PIECE_BISHOP,
+    PIECE_KNIGHT,
+    PIECE_ROOK,
+    PIECE_QUEEN
+};
+
+constexpr enum piece_type all_piece_types[] = {
+    PIECE_NONE,
+    PIECE_KING,
+    PIECE_QUEEN,
+    PIECE_ROOK,
+    PIECE_BISHOP,
+    PIECE_KNIGHT,
+    PIECE_PAWN,
+};
+
+constexpr enum color all_colors[] = {
+    COLOR_WHITE,
+    COLOR_BLACK
+};
+
 ////////////////////////////////////////////////
 
 constexpr piece_t MAKE_PIECE (enum color color, enum piece_type piece_type)
@@ -130,21 +152,5 @@ constexpr bool operator != (piece_t a, piece_t b)
 {
     return !piece_equals (a, b);
 }
-
-////////////////////////////////////////////////////
-
-#define for_each_color(c) \
-	for (c = COLOR_WHITE; c <= COLOR_BLACK; (c) = static_cast<enum color>(static_cast<int>((c))+ 1))
-
-#define for_each_piece(p) \
-	for (p = PIECE_NONE; p < PIECE_LAST; (p) = static_cast<enum piece_type>(static_cast<int>((p)) + 1))
-
-#define for_each_color_index(c) \
-    for (c = COLOR_INDEX_WHITE; c <= COLOR_INDEX_BLACK; c++)
-
-#define for_each_promotable_piece(p) \
-    for (p = PIECE_QUEEN; \
-    p < PIECE_PAWN; \
-    (p) = static_cast<enum piece_type>(static_cast<int>((p)) + 1))
 
 #endif // EVOLVE_CHESS_PIECE_H

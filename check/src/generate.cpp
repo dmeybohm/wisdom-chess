@@ -199,9 +199,8 @@ MOVES_HANDLER (pawn)
 	int                take_col;
 	int                c_dir;
 	move_t             move[4];        // 4 possible pawn moves
-	enum piece_type    piece_type;
 	piece_t            piece;
-	int                i;
+	size_t             i;
 
 	dir = PAWN_DIRECTION (who);
 
@@ -254,16 +253,16 @@ MOVES_HANDLER (pawn)
 	// promotion
 	if (need_pawn_promotion (row, who))
 	{
-		for_each_promotable_piece (piece_type)
+		for (auto promotable_piece_type : all_promotable_piece_types)
 		{
-			piece = MAKE_PIECE (who, piece_type);
+			auto promoted_piece = MAKE_PIECE (who, promotable_piece_type);
 
 			// promotion moves dont include en passant
 			for (i = 0; i < 4; i++)
 			{
 				if (!is_null_move (move[i]))
 				{
-					move[i] = move_with_promotion (move[i], piece);
+					move[i] = move_with_promotion (move[i], promoted_piece);
 
 					moves.push_back (move[i]);
 				}
