@@ -14,7 +14,7 @@ private:
 public:
     move_list_t ()
     {
-        my_moves.reserve(32);
+        my_moves.reserve(64);
     }
 
     move_list_t (const move_list_t &other)
@@ -22,7 +22,7 @@ public:
         my_moves = other.my_moves;
     }
 
-	move_list_t(enum color color, std::initializer_list<const char*> list);
+	move_list_t (enum color color, std::initializer_list<const char*> list);
 
     void push_back (move_t move)
     {
@@ -34,29 +34,29 @@ public:
         my_moves.pop_back();
     }
 
-    [[nodiscard]] auto begin() const noexcept
+    [[nodiscard]] auto begin () const noexcept
     {
         return my_moves.begin();
     }
 
-    [[nodiscard]] auto end() const noexcept
+    [[nodiscard]] auto end () const noexcept
     {
         return my_moves.end();
     }
 
-    [[nodiscard]] bool empty() const noexcept
+    [[nodiscard]] bool empty () const noexcept
     {
         return my_moves.empty();
     }
 
-    [[nodiscard]] size_t size() const noexcept
+    [[nodiscard]] size_t size () const noexcept
     {
         return my_moves.size();
     }
 
-	[[nodiscard]] std::string to_string() const;
+	[[nodiscard]] std::string to_string () const;
 
-    bool operator== (const move_list_t &other) const
+    bool operator == (const move_list_t &other) const
     {
         return my_moves.size() == other.my_moves.size () && std::equal (
                 my_moves.begin(),
@@ -66,7 +66,7 @@ public:
 		);
     }
 
-	bool operator!= (const move_list_t &other) const
+	bool operator != (const move_list_t &other) const
 	{
 		return !(*this == other);
 	}

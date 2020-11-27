@@ -131,10 +131,10 @@ int main (int argc, char **argv)
 		if (input_state.skip)
 			continue;
 
-		if (input_state.good)
+		if (input_state.good && !is_null_move(input_state.move))
 			game.move (input_state.move);
-		else if (input_state.ok)
-			std::cout << "\nInvalid move\n\n";
+		else
+            std::cout << "\nInvalid move\n\n";
 	}
 
 	return 0;
