@@ -228,7 +228,7 @@ std::string board::to_string() const
                 case PIECE_ROOK:    result += "R"; break;
                 case PIECE_QUEEN:   result += "Q"; break;
                 case PIECE_KING:    result += "K"; break;
-                case PIECE_NONE:
+                case PIECE_NONE:    result += " "; break;
                 default:            assert (0);  break;
             }
 
