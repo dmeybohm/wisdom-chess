@@ -179,7 +179,6 @@ static void add_coords (std::string &result)
 {
     uint8_t col;
 
-
     result += " ";
 
     char col_name = 'a';
