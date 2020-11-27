@@ -12,7 +12,8 @@ constexpr unsigned int BOARD_LENGTH = 31;
 
 DEFINE_DEBUG_CHANNEL (board, 0);
 
-static void board_init_from_positions (struct board *board, const struct board_positions *positions);
+static void board_init_from_positions (board &board,
+                                       const struct board_positions *positions);
 
 static enum piece_type back_rank[] =
 {
@@ -37,12 +38,12 @@ static struct board_positions init_board[] =
 
 board::board()
 {
-    board_init_from_positions (this, init_board);
+    board_init_from_positions (*this, init_board);
 }
 
 board::board (const struct board_positions *positions)
 {
-    board_init_from_positions (this, positions);
+    board_init_from_positions (*this, positions);
 }
 
 board::board (const board &board)
@@ -50,7 +51,7 @@ board::board (const board &board)
     *this = board;
 }
 
-static castle_state_t init_castle_state (struct board *board, enum color who)
+static castle_state_t init_castle_state (board &board, enum color who)
 {
     int row = (who == COLOR_WHITE ? 7 : 0);
     int king_col = 4;
@@ -61,9 +62,9 @@ static castle_state_t init_castle_state (struct board *board, enum color who)
     castle_state_t state = CASTLE_NONE;
 
     // todo set CASTLED flag if rook/king in right position:
-    prospective_king = PIECE_AT (board, row, king_col);
-    prospective_queen_rook = PIECE_AT (board, row, 0);
-    prospective_king_rook = PIECE_AT (board, row, 7);
+    prospective_king = PIECE_AT (&board, row, king_col);
+    prospective_queen_rook = PIECE_AT (&board, row, 0);
+    prospective_king_rook = PIECE_AT (&board, row, 7);
 
     if (PIECE_TYPE(prospective_king) != PIECE_KING ||
         PIECE_COLOR(prospective_king) != who ||
@@ -83,19 +84,19 @@ static castle_state_t init_castle_state (struct board *board, enum color who)
     return state;
 }
 
-void board_init_from_positions (struct board *board, const struct board_positions *positions)
+void board_init_from_positions (board &board, const struct board_positions *positions)
 {
     const struct board_positions *ptr;
     uint8_t row, col;
 
-    for (uint8_t &i : board->castled)
+    for (uint8_t &i : board.castled)
         i = CASTLE_NONE;
 
-    for (auto& piece : *board)
+    for (auto& piece : board)
         piece = PIECE_AND_COLOR_NONE;
 
-    material_init (&board->material);
-    position_init (&board->position);
+    material_init (&board.material);
+    position_init (&board.position);
     
     for (ptr = positions; ptr->pieces != nullptr; ptr++)
     {
@@ -112,38 +113,26 @@ void board_init_from_positions (struct board *board, const struct board_position
 
             new_piece = MAKE_PIECE (color, pieces[col]);
             coord_t place = coord_create (row, col);
-            board_set_piece (board, place, new_piece);
+            board_set_piece (&board, place, new_piece);
 
-            material_add (&board->material, new_piece);
-            position_add (&board->position, color, place, new_piece);
+            material_add (&board.material, new_piece);
+            position_add (&board.position, color, place, new_piece);
 
             if (pieces[col] == PIECE_KING)
-                king_position_set (board, color, place);
+                king_position_set (&board, color, place);
         }
     }
 
-    board->castled[COLOR_INDEX_WHITE] = init_castle_state (board, COLOR_WHITE);
-    board->castled[COLOR_INDEX_BLACK] = init_castle_state (board, COLOR_BLACK);
+    board.castled[COLOR_INDEX_WHITE] = init_castle_state (board, COLOR_WHITE);
+    board.castled[COLOR_INDEX_BLACK] = init_castle_state (board, COLOR_BLACK);
 
-    board->en_passant_target[COLOR_INDEX_WHITE] = no_en_passant_coord;
-    board->en_passant_target[COLOR_INDEX_BLACK] = no_en_passant_coord;
+    board.en_passant_target[COLOR_INDEX_WHITE] = no_en_passant_coord;
+    board.en_passant_target[COLOR_INDEX_BLACK] = no_en_passant_coord;
 
-	board_hash_init (&board->hash, board);
+	board_hash_init (&board.hash, &board);
 }
 
-void board_free (struct board *board)
-{
-	if (!board)
-		return;
-
-	/*
-	 * 2003-08-30: I have forgotten if this is all that needs freeing..
-	 */
-	free (board);
-}
-
-
-void board::print_to_file (std::ostream &out)
+void board::print_to_file (std::ostream &out) const
 {
 	out << this->to_string();
 	out.flush();
@@ -159,19 +148,6 @@ void board::dump ()
     this->print_to_file(std::cerr);
 }
 
-void board_print_castle_state (struct board *board)
-{
-    printf("castle_state: White: %02x Black: %02x\n",
-           board->castled[COLOR_INDEX_WHITE], board->castled[COLOR_INDEX_BLACK]);
-}
-
-void board_print_material (struct board *board)
-{
-    printf("material score: White: %d Black: %d\n",
-           board->material.score[COLOR_INDEX_WHITE],
-           board->material.score[COLOR_INDEX_BLACK]);
-}
-
 board_iterator board::begin()
 {
     return board_iterator { this, 0, 0 };
@@ -182,7 +158,7 @@ board_iterator board::end()
     return board_iterator { this, NR_ROWS, 0 };
 }
 
-void add_divider (std::string &result)
+static void add_divider (std::string &result)
 {
     uint8_t col;
     int i;
@@ -199,10 +175,31 @@ void add_divider (std::string &result)
     result += "\n";
 }
 
+static void add_coords (std::string &result)
+{
+    uint8_t col;
+
+
+    result += " ";
+
+    char col_name = 'a';
+    for (col = 0; col < NR_COLUMNS; col++)
+    {
+        result += " ";
+        result += col_name;
+        result += "  ";
+        col_name++;
+    }
+
+    result += "\n";
+}
+
 std::string board::to_string() const
 {
     std::string result;
     uint8_t row, col;
+
+    char row_coord = '8';
 
     add_divider (result);
     for (row = 0; row < NR_ROWS; row++)
@@ -232,17 +229,21 @@ std::string board::to_string() const
                 case PIECE_ROOK:    result += "R"; break;
                 case PIECE_QUEEN:   result += "Q"; break;
                 case PIECE_KING:    result += "K"; break;
-                case PIECE_NONE:    result += " "; break;
+                case PIECE_NONE:
                 default:            assert (0);  break;
             }
 
             result += " |";
         }
 
+        result += " ";
+        result += row_coord;
+        row_coord--;
         result += "\n";
 
         add_divider (result);;
     }
 
+    add_coords (result);
     return result;
 }

@@ -312,17 +312,7 @@ undo_move_t do_move (struct board *board, enum color who, move_t move)
     if (PIECE_TYPE(src_piece) != PIECE_NONE &&
         PIECE_TYPE(dst_piece) != PIECE_NONE)
     {
-        if (PIECE_COLOR(src_piece) == PIECE_COLOR(dst_piece))
-        {
-            printf ("ERROR: piece tried to take same color\n");
-            printf ("src piece; %s\n", piece_str (src_piece));
-            printf ("dst piece: %s\n", piece_str (dst_piece));
-            printf ("src piece_type: %d, dst_piece_type: %d\n", PIECE_TYPE(src_piece), PIECE_TYPE(dst_piece));
-            printf ("move was [%s]\n", to_string(move).c_str());
-            printf ("src color: %d, dst color: %d\n", PIECE_COLOR (src_piece),
-                    PIECE_COLOR (dst_piece));
-            assert (0);
-        }
+        assert (PIECE_COLOR(src_piece) != PIECE_COLOR(dst_piece));
     }
 
     // check for promotion

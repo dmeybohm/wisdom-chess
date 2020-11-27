@@ -61,7 +61,6 @@ static inline int is_pawn_unmoved (struct board *board,
 
 ///////////////////////////////////////////////
 
-
 move_list_t generate_moves        (struct board *board, enum color who);
 move_list_t generate_legal_moves  (struct board *board, enum color who);
 

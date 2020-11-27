@@ -60,11 +60,13 @@ void add_en_passant_move (const struct board *board, enum color who, uint8_t pie
 // generate a lookup table for knight moves
 static void knight_move_list_init ()
 {
-	uint8_t row, col;
 	int k_row, k_col;
+    coord_iterator all_coords;
 
- 	for_each_position (row, col)
+    for (auto [row8, col8] : all_coords)
 	{
+        int row = row8, col = col8;
+
 		for (k_row = -2; k_row <= 2; k_row++)
 		{
 			if (!k_row)

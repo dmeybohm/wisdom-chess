@@ -7,6 +7,7 @@
 #include "global.h"
 #include "config.h"
 #include "coord.h"
+#include "coord_iterator.hpp"
 #include "move.h"
 #include "piece.h"
 #include "board_hash.h"
@@ -63,7 +64,7 @@ struct board
 	[[nodiscard]] std::string to_string() const;
 
     void  print          ();
-    void  print_to_file  (std::ostream &out);
+    void  print_to_file  (std::ostream &out) const;
     void  dump           ();
 };
 
@@ -129,10 +130,6 @@ public:
 };
 
 ///////////////////////////////////////////////
-
-#define for_each_position(row_i, col_i) \
-	for ((row_i) = 0; (row_i) < NR_ROWS; (row_i)++) \
-		for ((col_i) = 0; (col_i) < NR_COLUMNS; (col_i)++)
 
 static inline piece_t PIECE_AT (const struct board *board, uint8_t row, uint8_t col)
 {

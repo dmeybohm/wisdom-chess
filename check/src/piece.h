@@ -47,14 +47,16 @@ typedef uint8_t   color_index_t;
 
 typedef struct piece_with_color piece_t;
 
-constexpr enum piece_type all_promotable_piece_types[] = {
+constexpr enum piece_type all_promotable_piece_types[] =
+{
     PIECE_BISHOP,
     PIECE_KNIGHT,
     PIECE_ROOK,
     PIECE_QUEEN
 };
 
-constexpr enum piece_type all_piece_types[] = {
+constexpr enum piece_type all_piece_types_with_none[] =
+{
     PIECE_NONE,
     PIECE_KING,
     PIECE_QUEEN,
@@ -64,7 +66,8 @@ constexpr enum piece_type all_piece_types[] = {
     PIECE_PAWN,
 };
 
-constexpr enum color all_colors[] = {
+constexpr enum color all_colors[] =
+{
     COLOR_WHITE,
     COLOR_BLACK
 };
@@ -119,8 +122,6 @@ constexpr color_index_t color_index (enum color who)
 		case COLOR_BLACK: return COLOR_INDEX_BLACK;
 	}
 }
-
-char *piece_str (piece_t piece);
 
 static inline char piece_chr (piece_t piece)
 {
