@@ -218,11 +218,11 @@ move_t iterate (struct board *board, enum color side,
 	return result.move;
 }
 
-move_t find_best_move (struct board *board, enum color side, move_history_t &move_history)
+move_t find_best_move (struct board &board, enum color side, move_history_t &move_history)
 {
     move_timer overdue_timer { MAX_SEARCH_SECONDS };
 
-    multithread_search search { *board, side, move_history, overdue_timer };
+    multithread_search search { board, side, move_history, overdue_timer };
     search_result_t result = search.search();
 
     return result.move;

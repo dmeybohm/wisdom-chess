@@ -121,7 +121,7 @@ int main (int argc, char **argv)
 		}
 		else
 		{
-			input_state.move = find_best_move (&game.board, game.player, game.history);
+			input_state.move = find_best_move (game.board, game.player, game.history);
 
 			std::cout << "move selected: [" << to_string (input_state.move) << "]\n";
 			input_state.good = true;

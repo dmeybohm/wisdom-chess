@@ -19,7 +19,7 @@ struct search_result_t
 
 struct move_timer;
 
-move_t  find_best_move   (struct board *board, enum color side,
+move_t  find_best_move   (struct board &board, enum color side,
                           move_history_t &history);
 
 move_t iterate (struct board *board, enum color side,

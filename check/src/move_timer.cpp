@@ -9,7 +9,7 @@ using std::chrono::duration_cast;
 using std::chrono::duration;
 
 enum {
-    TIMER_CHECK_COUNT = 50000    // number of iterations before checking
+    TIMER_CHECK_COUNT = 10000    // number of iterations before checking
 };
 
 bool move_timer::is_triggered ()
