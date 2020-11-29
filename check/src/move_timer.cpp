@@ -21,10 +21,10 @@ bool move_timer::is_triggered ()
         return false;
 
     high_resolution_clock::time_point next_check_time = high_resolution_clock::now();
-
+    auto diff_time = next_check_time - this->last_check_time;
     duration<double> time_span = duration_cast<duration<double>>(next_check_time - this->last_check_time);
 
-    if (time_span >= this->seconds)
+    if (diff_time >= this->seconds)
     {
         this->triggered = true;
         return true;

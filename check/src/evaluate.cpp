@@ -57,7 +57,7 @@ int evaluate (struct board *board, enum color who, size_t moves_away)
 }
 
 int evaluate_and_check_draw (struct board *board, enum color who, size_t moves_away,
-                             move_t move, move_history_t history)
+                             move_t move, const move_history_t &history)
 {
     if (is_drawing_move (history, move))
     {
