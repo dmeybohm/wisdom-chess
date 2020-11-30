@@ -65,16 +65,16 @@ private:
     std::vector<std::thread> threads;
     std::vector<search_result_t> result_moves;
 
-    search_result_t do_multithread_search();
+    search_result_t do_multithread_search ();
 
-    int get_next_depth();
+    int get_next_depth ();
 
-    void do_thread(unsigned index);
+    void do_thread (unsigned index);
 
-    void add_result(search_result_t result);
+    void add_result (search_result_t result);
 };
 
-search_result_t multithread_search_handler::do_multithread_search()
+search_result_t multithread_search_handler::do_multithread_search ()
 {
     unsigned int max_nr_threads = std::thread::hardware_concurrency();
 
@@ -101,7 +101,9 @@ search_result_t multithread_search_handler::do_multithread_search()
         thr.join();
     }
 
-    search_result_t result;
+    // todo handle empty case
+    assert (result_moves.size() > 0);
+    search_result_t result = result_moves.front();
 
     for (auto &result_move : result_moves)
     {
@@ -112,7 +114,7 @@ search_result_t multithread_search_handler::do_multithread_search()
     return result;
 }
 
-int multithread_search_handler::get_next_depth()
+int multithread_search_handler::get_next_depth ()
 {
     std::lock_guard guard { mutex };
 

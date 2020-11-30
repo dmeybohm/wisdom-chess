@@ -176,7 +176,7 @@ static void calc_time (int nodes, system_clock_t start, system_clock_t end)
 {
     auto duration = end - start;
     milliseconds ms = std::chrono::duration_cast<milliseconds>(duration);
-    double seconds = ms.count() / 1000;
+    double seconds = ms.count() / 1000.0;
 	std::cout << "search took " << seconds << ", " << nodes / seconds << " nodes/sec\n";
 }
 
