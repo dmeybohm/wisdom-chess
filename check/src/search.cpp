@@ -86,8 +86,6 @@ search_result_t search (struct board *board, enum color side, int depth, int sta
 			break;
 		}
 
-		move_history.push_back (move);
-
 		board_check_init (&board_check, board);
         undo_move_t undo_state = do_move (board, side, move);
 
@@ -95,13 +93,13 @@ search_result_t search (struct board *board, enum color side, int depth, int sta
 		{
 		    illegal_move_count++;
             undo_move (board, side, move, undo_state);
-            move_history.pop_back ();
             board_check_validate (&board_check, board, side, move);
 			continue;
 		}
 
 		nodes_visited++;
 
+		move_history.push_back (move);
 		search_result_t other_search_result { .move = move };
 		if (depth <= 0)
 		{
