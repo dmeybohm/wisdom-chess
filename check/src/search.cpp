@@ -95,6 +95,7 @@ search_result_t search (struct board *board, enum color side, int depth, int sta
 		{
 		    illegal_move_count++;
             undo_move (board, side, move, undo_state);
+            move_history.pop_back ();
             board_check_validate (&board_check, board, side, move);
 			continue;
 		}

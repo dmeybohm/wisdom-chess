@@ -1,6 +1,10 @@
 #include "catch.hpp"
 
+#include <iostream>
+
 #include "move_list.hpp"
+#include "board.h"
+#include "generate.h"
 
 TEST_CASE( "Initializing move list", "[move-list]")
 {
@@ -14,4 +18,23 @@ TEST_CASE( "Initializing move list", "[move-list]")
     }
     std::vector expected = { parse_move("e4 d4"), parse_move("d2 d1")};
     REQUIRE( moves == expected );
+}
+
+move_list_t copy_moves_and_ptr (const move_t **ptr)
+{
+    struct board board;
+    move_list_t moves = generate_moves (&board, COLOR_WHITE);
+    std::cout << "Moves first" << &moves.get_my_moves()[0] << "\n";
+    *ptr = &moves.get_my_moves()[0];
+    return moves;
+}
+
+TEST_CASE( "Returning move list moves ptr", "[move-list]")
+{
+    const move_t *ptr;
+    move_list_t result = copy_moves_and_ptr (&ptr);
+    std::cout << "Moves first" << &result.get_my_moves()[0] << "\n";
+
+    REQUIRE( &result.get_my_moves()[0] == ptr );
+    REQUIRE( result.size() > 0 );
 }

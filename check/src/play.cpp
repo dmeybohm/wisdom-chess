@@ -99,7 +99,7 @@ static input_state_t read_move (game &game)
 
 int main (int argc, char **argv)
 {
-    struct game game {COLOR_WHITE, comp_player };
+    struct game game { COLOR_WHITE, comp_player };
     input_state_t input_state { initial_input_state };
 
 	while (input_state.ok)

@@ -70,7 +70,13 @@ public:
 	{
 		return !(*this == other);
 	}
+
+	[[nodiscard]] const std::vector<move_t> &get_my_moves () const noexcept
+    {
+        return my_moves;
+    }
 };
 
+std::string to_string (const move_list_t &list);
 
 #endif //WIZDUMB_MOVE_LIST_HPP

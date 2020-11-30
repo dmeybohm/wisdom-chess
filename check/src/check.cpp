@@ -190,7 +190,7 @@ bool was_legal_move (struct board *board, enum color who, move_t mv)
 	return true;
 }
 
-bool is_drawing_move (move_history_t move_history, move_t move)
+    bool is_drawing_move (const move_history_t &move_history, move_t move)
 {
     return false;
 }
