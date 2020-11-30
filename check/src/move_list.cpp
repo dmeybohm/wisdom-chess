@@ -16,3 +16,12 @@ std::string move_list_t::to_string () const
 		result += ::to_string(move) + " ";
 	return result;
 }
+
+std::string to_string (const move_list_t &list)
+{
+    std::string result = "{ ";
+    for (auto move : list)
+        result += to_string(move) + " ";
+    result += " }";
+    return result;
+}
