@@ -22,7 +22,7 @@ enum {
     MAX_SEARCH_SECONDS = 10,
 };
 
-static int nodes_visited, cutoffs;
+thread_local int nodes_visited, cutoffs;
 
 using system_clock_t = std::chrono::time_point<std::chrono::system_clock>;
 using std::chrono::duration_cast;
