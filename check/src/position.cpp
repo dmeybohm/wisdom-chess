@@ -216,7 +216,7 @@ void position_undo_move (struct position *position, enum color color,
     position_add (position, color, src, piece);
 }
 
-int position_score (struct position *position, enum color who)
+int position_score (const struct position *position, enum color who)
 {
     color_index_t index = color_index(who);
     color_index_t inverted = color_index(color_invert(who));

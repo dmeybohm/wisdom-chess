@@ -299,8 +299,8 @@ constexpr bool is_en_passant_vulnerable (undo_move_t undo_state, enum color who)
 
 /////////////////////////////////////////////////////////////////////
 
-undo_move_t   do_move         (struct board *board, enum color who, move_t move);
-void          undo_move       (struct board *board, enum color who, move_t move,
+undo_move_t   do_move         (struct board &board, enum color who, move_t move);
+void          undo_move       (struct board &board, enum color who, move_t move,
                                undo_move_t undo_state);
 move_t        move_parse      (const char *str, enum color who);
 

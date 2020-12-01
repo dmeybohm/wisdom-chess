@@ -16,7 +16,7 @@ static const enum color comp_player = COLOR_BLACK;
 
 static void print_available_moves (game &game)
 {
-	move_list_t moves = generate_legal_moves (&game.board, game.turn);
+	move_list_t moves = generate_legal_moves (game.board, game.turn);
 
 	std::cout << "\nAvailable moves: ";
 
@@ -83,7 +83,7 @@ static input_state_t read_move (game &game)
     result.good = false;
 
 	// check the generated move list for this move to see if its valid
-	move_list_t moves = generate_legal_moves (&game.board, game.turn);
+	move_list_t moves = generate_legal_moves (game.board, game.turn);
 
 	for (auto legal_move : moves)
 	{
@@ -107,7 +107,7 @@ int main (int argc, char **argv)
         input_state = initial_input_state;
 		game.board.print();
 
-		if (is_checkmated (&game.board, game.turn))
+		if (is_checkmated (game.board, game.turn))
 		{
 			printf ("%s wins the game\n", game.turn == COLOR_WHITE ? "Black" :
 			        "White");

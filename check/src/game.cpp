@@ -15,7 +15,7 @@ void game::move (move_t move)
 	history.push_back (move);
 
 	// do the move
-    do_move (&board, turn, move);
+    do_move (board, turn, move);
 
 	// take our turn
 	turn = color_invert (turn);
@@ -81,7 +81,7 @@ std::optional<game> game::load (enum color player)
 		// consistency checks that make sure we don't erase pieces.
 		//
 		dst = MOVE_DST(move);
-		piece = PIECE_AT_COORD (&result.board, dst);
+		piece = PIECE_AT (result.board, dst);
 
 		if (PIECE_TYPE(piece) != PIECE_NONE)
 		{

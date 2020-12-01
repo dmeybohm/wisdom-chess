@@ -32,10 +32,10 @@ TEST_CASE( "FEN notation for non-starting position", "[fen-test]" )
     struct board expected = builder.build();
     CHECK( board_equals (game.board, expected) );
 
-    castle_state_t white_state = board_get_castle_state (&game.board, COLOR_WHITE);
-    castle_state_t black_state = board_get_castle_state (&game.board, COLOR_BLACK);
-    castle_state_t exp_white_state = board_get_castle_state (&expected, COLOR_WHITE);
-    castle_state_t exp_black_state = board_get_castle_state (&expected, COLOR_BLACK);
+    castle_state_t white_state = board_get_castle_state (game.board, COLOR_WHITE);
+    castle_state_t black_state = board_get_castle_state (game.board, COLOR_BLACK);
+    castle_state_t exp_white_state = board_get_castle_state (expected, COLOR_WHITE);
+    castle_state_t exp_black_state = board_get_castle_state (expected, COLOR_BLACK);
 
     CHECK( white_state == exp_white_state );
     CHECK( black_state == exp_black_state );
@@ -78,7 +78,7 @@ TEST_CASE( "FEN notation for en passant", "[fen-test]" )
 
     game game = parser_with_black_target.build();
 
-    REQUIRE( !is_en_passant_vulnerable (&game.board, COLOR_WHITE) );
-    REQUIRE( is_en_passant_vulnerable (&game.board, COLOR_BLACK) );
+    REQUIRE( !is_en_passant_vulnerable (game.board, COLOR_WHITE) );
+    REQUIRE( is_en_passant_vulnerable (game.board, COLOR_BLACK) );
     REQUIRE( game.board.en_passant_target[COLOR_INDEX_BLACK] == coord_parse("e6") );
 }

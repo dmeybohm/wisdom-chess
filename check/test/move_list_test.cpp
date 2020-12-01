@@ -23,7 +23,7 @@ TEST_CASE( "Initializing move list", "[move-list]")
 move_list_t copy_moves_and_ptr (const move_t **ptr)
 {
     struct board board;
-    move_list_t moves = generate_moves (&board, COLOR_WHITE);
+    move_list_t moves = generate_moves (board, COLOR_WHITE);
     std::cout << "Moves first" << &moves.get_my_moves()[0] << "\n";
     *ptr = &moves.get_my_moves()[0];
     return moves;

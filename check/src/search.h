@@ -22,15 +22,15 @@ struct move_timer;
 move_t  find_best_move   (struct board &board, enum color side,
                           move_history_t &history);
 
-move_t iterate (struct board *board, enum color side,
+move_t iterate (struct board &board, enum color side,
                 move_history_t &move_history, struct move_timer &timer, int depth);
 
-search_result_t search (struct board *board, enum color side, int depth, int start_depth,
+search_result_t search (struct board &board, enum color side, int depth, int start_depth,
                         int alpha, int beta, unsigned long pseudo_rand,
                         move_tree_t **ret_variation, int no_quiesce, struct move_timer &timer,
                         move_history_t &history);
 
-int quiesce (struct board *board, enum color side, int alpha, int beta, int depth,
+int quiesce (struct board &board, enum color side, int alpha, int beta, int depth,
              struct move_timer *timer, move_history_t &history);
 
 // Get the score for checkmate in X moves.

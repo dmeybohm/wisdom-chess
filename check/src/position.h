@@ -25,7 +25,7 @@ void position_do_move   (struct position *position, enum color who,
 void position_undo_move (struct position *position, enum color who,
                          piece_t piece, move_t move, undo_move_t undo_state);
 
-int  position_score     (struct position *position, enum color who);
+int  position_score     (const struct position *position, enum color who);
 
 /////////////////////////////////////////////////////////
 

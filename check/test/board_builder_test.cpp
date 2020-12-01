@@ -25,8 +25,7 @@ TEST_CASE( "Initializing the board builder", "[board-builder]" )
     builder.add_piece ("g8", COLOR_WHITE, PIECE_KING);
     builder.add_piece ("a1", COLOR_BLACK, PIECE_KING);
 
-    struct board board_state = builder.build();
-    struct board *board = &board_state;
+    struct board board = builder.build();
 
     piece_t pawn = PIECE_AT (board, 1, 0);
     piece_t white_king = PIECE_AT (board, 0, 6);

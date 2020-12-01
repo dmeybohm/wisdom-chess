@@ -8,7 +8,7 @@
 #include "generate.h"
 #include "check.h"
 
-bool is_checkmated (struct board *board, enum color who)
+bool is_checkmated (struct board &board, enum color who)
 {
 	auto [row, col] = king_position (board, who);
 
@@ -20,7 +20,7 @@ bool is_checkmated (struct board *board, enum color who)
     return legal_moves.empty();
 }
 
-bool is_king_threatened (struct board *board, enum color who,
+bool is_king_threatened (struct board &board, enum color who,
                          uint8_t king_row, uint8_t king_col)
 {
 	int           row, col;
@@ -161,7 +161,7 @@ bool is_king_threatened (struct board *board, enum color who,
 	return false;
 }
 
-bool was_legal_move (struct board *board, enum color who, move_t mv)
+bool was_legal_move (struct board &board, enum color who, move_t mv)
 {
     auto [king_row, king_col] = king_position (board, who);
 

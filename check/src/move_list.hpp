@@ -44,6 +44,11 @@ public:
         return my_moves.end();
     }
 
+    void append (const move_list_t &other)
+    {
+        my_moves.insert (my_moves.end(), other.begin(), other.end());
+    }
+
     [[nodiscard]] bool empty () const noexcept
     {
         return my_moves.empty();

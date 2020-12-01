@@ -62,9 +62,9 @@ static castle_state_t init_castle_state (board &board, enum color who)
     castle_state_t state = CASTLE_NONE;
 
     // todo set CASTLED flag if rook/king in right position:
-    prospective_king = PIECE_AT (&board, row, king_col);
-    prospective_queen_rook = PIECE_AT (&board, row, 0);
-    prospective_king_rook = PIECE_AT (&board, row, 7);
+    prospective_king = PIECE_AT (board, row, king_col);
+    prospective_queen_rook = PIECE_AT (board, row, 0);
+    prospective_king_rook = PIECE_AT (board, row, 7);
 
     if (PIECE_TYPE(prospective_king) != PIECE_KING ||
         PIECE_COLOR(prospective_king) != who ||
@@ -88,12 +88,13 @@ void board_init_from_positions (board &board, const struct board_positions *posi
 {
     const struct board_positions *ptr;
     uint8_t row, col;
+    coord_iterator my_coord_iterator;
 
     for (uint8_t &i : board.castled)
         i = CASTLE_NONE;
 
-    for (auto& piece : board)
-        piece = PIECE_AND_COLOR_NONE;
+    for (const auto& coord : my_coord_iterator)
+        board_set_piece (board, coord, PIECE_AND_COLOR_NONE);
 
     material_init (&board.material);
     position_init (&board.position);
@@ -113,13 +114,13 @@ void board_init_from_positions (board &board, const struct board_positions *posi
 
             new_piece = MAKE_PIECE (color, pieces[col]);
             coord_t place = coord_create (row, col);
-            board_set_piece (&board, place, new_piece);
+            board_set_piece (board, place, new_piece);
 
             material_add (&board.material, new_piece);
             position_add (&board.position, color, place, new_piece);
 
             if (pieces[col] == PIECE_KING)
-                king_position_set (&board, color, place);
+                king_position_set (board, color, place);
         }
     }
 
@@ -129,7 +130,7 @@ void board_init_from_positions (board &board, const struct board_positions *posi
     board.en_passant_target[COLOR_INDEX_WHITE] = no_en_passant_coord;
     board.en_passant_target[COLOR_INDEX_BLACK] = no_en_passant_coord;
 
-	board_hash_init (&board.hash, &board);
+	board_hash_init (&board.hash, board);
 }
 
 void board::print_to_file (std::ostream &out) const
@@ -148,14 +149,14 @@ void board::dump ()
     this->print_to_file(std::cerr);
 }
 
-board_iterator board::begin()
+board_iterator board::begin () const
 {
-    return board_iterator { this, 0, 0 };
+    return board_iterator { *this, 0, 0 };
 }
 
-board_iterator board::end()
+board_iterator board::end () const
 {
-    return board_iterator { this, NR_ROWS, 0 };
+    return board_iterator { *this, NR_ROWS, 0 };
 }
 
 static void add_divider (std::string &result)
@@ -205,7 +206,7 @@ std::string board::to_string() const
     {
         for (col = 0; col < NR_COLUMNS; col++)
         {
-            piece_t piece = PIECE_AT (this, row, col);
+            piece_t piece = PIECE_AT (*this, row, col);
 
             if (!col)
                 result += "|";

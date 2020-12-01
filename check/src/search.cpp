@@ -55,7 +55,7 @@ void print_reversed_tree (move_tree_t *tree)
 	printf("}\n");
 }
 
-search_result_t search (struct board *board, enum color side, int depth, int start_depth,
+search_result_t search (struct board &board, enum color side, int depth, int start_depth,
                         int alpha, int beta, unsigned long pseudo_rand,
                         move_tree_t **ret_variation, int no_quiesce, struct move_timer &timer,
                         move_history_t &move_history)
@@ -178,7 +178,7 @@ static void calc_time (int nodes, system_clock_t start, system_clock_t end)
 	std::cout << "search took " << seconds << ", " << nodes / seconds << " nodes/sec\n";
 }
 
-move_t iterate (struct board *board, enum color side,
+move_t iterate (struct board &board, enum color side,
                 move_history_t &move_history, struct move_timer &timer, int depth)
 {
 	move_tree_t   *principal_variation;

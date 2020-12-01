@@ -8,7 +8,7 @@
 #define CASTLE_POSITIVE_WEIGHT        60
 #define CASTLE_NEGATIVE_WEIGHT        60
 
-int evaluate (struct board *board, enum color who, size_t moves_away)
+int evaluate (struct board &board, enum color who, std::size_t moves_away)
 {
 	int score = 0;
 	enum color opponent = color_invert (who);
@@ -37,8 +37,8 @@ int evaluate (struct board *board, enum color who, size_t moves_away)
 			score += CASTLE_POSITIVE_WEIGHT;
 	}
 
-	score += material_score (&board->material, who);
-    score += position_score (&board->position, who);
+	score += material_score (&board.material, who);
+    score += position_score (&board.position, who);
 
 	coord_t king_pos = king_position (board, who);
 	coord_t opponent_king_pos = king_position (board, opponent);
@@ -56,7 +56,7 @@ int evaluate (struct board *board, enum color who, size_t moves_away)
 	return score;
 }
 
-int evaluate_and_check_draw (struct board *board, enum color who, size_t moves_away,
+int evaluate_and_check_draw (struct board &board, enum color who, std::size_t moves_away,
                              move_t move, const move_history_t &history)
 {
     if (is_drawing_move (history, move))

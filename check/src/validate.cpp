@@ -2,17 +2,17 @@
 #include "move.h"
 #include "validate.h"
 
-static void check_it (struct board *board, enum color who, move_t mv, int expr)
+static void check_it (struct board &board, enum color who, move_t mv, int expr)
 {
     if (!expr)
     {
         printf ("move considering: %s \n", to_string(mv).c_str());
-        board->dump ();
+        board.dump ();
         abort ();
     }
 }
 
-static void validate_castle (struct board *board, castle_state_t state, enum color who, move_t mv)
+static void validate_castle (struct board &board, castle_state_t state, enum color who, move_t mv)
 {
     // check positions of the pieces:
     uint8_t row = who == COLOR_WHITE ? 7 : 0;
@@ -29,7 +29,7 @@ static void validate_castle (struct board *board, castle_state_t state, enum col
     }
 }
 
-void validate_castle_state (struct board *board, move_t mv)
+void validate_castle_state (struct board &board, move_t mv)
 {
 #ifndef NDEBUG
     validate_castle (board, CASTLE_QUEENSIDE, COLOR_WHITE, mv);

@@ -17,11 +17,11 @@
 ///////////////////////////////////////////////
 
 // Returns -1 if no column is eligible.
-static inline int8_t eligible_en_passant_column (const struct board *board, uint8_t row, uint8_t column, enum color who)
+static inline int8_t eligible_en_passant_column (const struct board &board, uint8_t row, uint8_t column, enum color who)
 {
     color_index_t opponent_index = color_index(color_invert(who));
 
-    if (coord_equals (board->en_passant_target[opponent_index], no_en_passant_coord))
+    if (coord_equals (board.en_passant_target[opponent_index], no_en_passant_coord))
         return -1;
 
     // if WHITE rank 4, black rank 3
@@ -30,7 +30,7 @@ static inline int8_t eligible_en_passant_column (const struct board *board, uint
 
     int8_t left_column = column - 1;
     int8_t right_column = column + 1;
-    uint8_t target_column = COLUMN(board->en_passant_target[opponent_index]);
+    uint8_t target_column = COLUMN(board.en_passant_target[opponent_index]);
 
     if (left_column == target_column)
     {
@@ -47,7 +47,7 @@ static inline int8_t eligible_en_passant_column (const struct board *board, uint
     return -1;
 }
 
-static inline int is_pawn_unmoved (struct board *board,
+static inline int is_pawn_unmoved (const struct board &board,
                                    uint8_t row, uint8_t col)
 {
     assert (VALID(row) && VALID(col));
@@ -61,11 +61,11 @@ static inline int is_pawn_unmoved (struct board *board,
 
 ///////////////////////////////////////////////
 
-move_list_t generate_moves        (struct board *board, enum color who);
-move_list_t generate_legal_moves  (struct board *board, enum color who);
+move_list_t        generate_moves         (struct board &board, enum color who);
+move_list_t        generate_legal_moves   (struct board &board, enum color who);
 
-move_list_t generate_captures     (struct board *board, enum color who);
-move_list_t generate_knight_moves (uint8_t row, uint8_t col);
+move_list_t        generate_captures      (struct board &board, enum color who);
+const move_list_t &generate_knight_moves  (uint8_t row, uint8_t col);
 
 ///////////////////////////////////////////////
 

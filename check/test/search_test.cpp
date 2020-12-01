@@ -28,8 +28,7 @@ TEST_CASE( "Can find mate in 3", "[search]" )
             {"h1", PIECE_KING},
     });
 
-    struct board board_state { builder.build() }; struct board *board = &board_state;
-
+    struct board board = builder.build();
     move_tree_head variation;
     move_history_t history;
     search_result_t result = search (board, COLOR_WHITE, 4, 4,
@@ -72,8 +71,7 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
 
     builder.add_piece ("d5", COLOR_WHITE, PIECE_KING);
 
-    struct board board_state { builder.build() }; struct board *board = &board_state;
-
+    struct board board = builder.build();
     move_tree_head variation;
     move_history_t history;
     search_result_t result = search (board, COLOR_BLACK, 5, 5,
@@ -122,8 +120,7 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
             {"g1", PIECE_ROOK}
     });
 
-    struct board board_state { builder.build() }; struct board *board = &board_state;
-
+    struct board board = builder.build();
     struct move_timer timer { 300 };
     move_history_t history;
     move_t best_move = iterate (board, COLOR_BLACK, history, timer, 3);
@@ -146,8 +143,7 @@ TEST_CASE( "Promoting move is taken if possible", "[search-test]")
 
     move_tree_head variation;
     move_history_t history;
-    struct board board_state = builder.build();
-    struct board *board = &board_state;
+    struct board board = builder.build();
     search_result_t result = search (board, COLOR_BLACK, 1, 1,
                                      -INITIAL_ALPHA, INITIAL_ALPHA, 0,
                                      &variation.tree, 0, large_timer, history);

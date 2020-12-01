@@ -138,7 +138,7 @@ void multithread_search_handler::do_thread(unsigned index)
     if (params.depth >= MAX_DEPTH)
         return;
 
-    move_t result = iterate (&params.board, params.side,
+    move_t result = iterate (params.board, params.side,
                              params.move_history, params.timer, params.depth);
     output << "Finished thread " << std::this_thread::get_id() << " with depth " << params.depth << "\n";
     output << "Move: " << to_string(result) << "\n";
