@@ -1,6 +1,8 @@
 #ifndef EVOLVE_CHESS_SEARCH_H_
 #define EVOLVE_CHESS_SEARCH_H_
 
+#include <memory>
+
 #include "board.h"
 #include "piece.h"
 #include "move.h"
@@ -27,7 +29,7 @@ move_t iterate (struct board &board, enum color side,
 
 search_result_t search (struct board &board, enum color side, int depth, int start_depth,
                         int alpha, int beta, unsigned long pseudo_rand,
-                        move_tree_t **ret_variation, int no_quiesce, struct move_timer &timer,
+                        std::unique_ptr<move_tree_t> &variation, int no_quiesce, struct move_timer &timer,
                         move_history_t &history);
 
 int quiesce (struct board &board, enum color side, int alpha, int beta, int depth,

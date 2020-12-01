@@ -4,6 +4,7 @@
 #include <ctime>
 #include <iostream>
 #include <chrono>
+#include <memory>
 
 #include "piece.h"
 #include "board.h"
@@ -30,45 +31,21 @@ using std::chrono::duration;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
 
-void print_tree_recur (move_tree_t *tree)
-{
-	if (tree->parent)
-		print_tree_recur (tree->parent);
-
-	if (!is_null_move (tree->move))
-	    std::cout << "[" << to_string(tree->move) << "] ";
-}
-
-void print_reverse_recur (move_tree_t *tree)
-{
-    std::cout << "[" << to_string(tree->move) << "] ";
-
-	if (tree->parent)
-		print_reverse_recur (tree->parent);
-}
-
-void print_reversed_tree (move_tree_t *tree)
-{
-	printf ("{ ");
-	if (tree)
-		print_reverse_recur (tree);
-	printf("}\n");
-}
-
 search_result_t search (struct board &board, enum color side, int depth, int start_depth,
                         int alpha, int beta, unsigned long pseudo_rand,
-                        move_tree_t **ret_variation, int no_quiesce, struct move_timer &timer,
+                        std::unique_ptr<move_tree_t> &best_variation, int no_quiesce, struct move_timer &timer,
                         move_history_t &move_history)
 {
-	move_tree_t  *   best_variation = nullptr, *new_variation = nullptr;
-	board_check_t    board_check;
-	size_t           illegal_move_count = 0;
-    search_result_t  result;
+    std::unique_ptr<move_tree_t> new_variation { nullptr };
+	board_check_t                board_check;
+	size_t                       illegal_move_count = 0;
+    search_result_t              result;
 
+    best_variation.reset (nullptr);
 	move_list_t moves = generate_moves (board, side);
+
 	if (moves.empty())
 	{
-		*ret_variation = nullptr;
 		result.score = evaluate (board, side, start_depth - depth);
 		return result;
 	}
@@ -76,15 +53,7 @@ search_result_t search (struct board &board, enum color side, int depth, int sta
 	for (auto move : moves)
 	{
 		if (timer.is_triggered())
-		{
-			if (best_variation)
-			{
-				move_tree_destroy (new_variation);
-				best_variation = nullptr;
-			}
-
 			break;
-		}
 
 		board_check_init (&board_check, board);
         undo_move_t undo_state = do_move (board, side, move);
@@ -103,6 +72,7 @@ search_result_t search (struct board &board, enum color side, int depth, int sta
 		search_result_t other_search_result { .move = move };
 		if (depth <= 0)
 		{
+
 #if 0
 			if (!no_quiesce)
 				score = quiesce (board, side, alpha, beta, 0, new_leaf);
@@ -111,12 +81,13 @@ search_result_t search (struct board &board, enum color side, int depth, int sta
 
 				other_search_result.score = evaluate_and_check_draw (board, side, start_depth - depth,
                                      move, move_history);
+
 		}
 		else
 		{
 			other_search_result = search (board, color_invert (side),
                                depth - 1, start_depth, -beta, -alpha,
-			                   pseudo_rand, &new_variation,
+			                   pseudo_rand, new_variation,
 			                   no_quiesce, timer, move_history);
 			other_search_result.score *= -1;
 		}
@@ -131,15 +102,16 @@ search_result_t search (struct board &board, enum color side, int depth, int sta
 			result.score = other_search_result.score;
 			result.move = move;
 
-			if (best_variation)
-				move_tree_destroy (best_variation);
+			if (new_variation == nullptr)
+			    new_variation = std::make_unique<move_tree_t>();
 
-			best_variation = move_tree_new (new_variation, move);
+			new_variation->push_front (move);
+			best_variation = std::move (new_variation);
+			new_variation.reset( nullptr );
 		}
 		else
 		{
-			move_tree_destroy (new_variation);
-			new_variation = nullptr;
+			new_variation.reset (nullptr);
 		}
 
 		if (result.score > alpha)
@@ -151,10 +123,6 @@ search_result_t search (struct board &board, enum color side, int depth, int sta
 			break;
 		}
 	}
-
-	assert (ret_variation != nullptr);
-
-	*ret_variation = best_variation;
 
 	// if there are no legal moves, then the current player is in a stalemate or checkmate position.
 	if (moves.size() == illegal_move_count)
@@ -181,7 +149,7 @@ static void calc_time (int nodes, system_clock_t start, system_clock_t end)
 move_t iterate (struct board &board, enum color side,
                 move_history_t &move_history, struct move_timer &timer, int depth)
 {
-	move_tree_t   *principal_variation;
+	std::unique_ptr<move_tree_t>   principal_variation;
 
 	printf ("finding moves for %s\n", (side == COLOR_WHITE) ? "white":"black");
 
@@ -192,7 +160,7 @@ move_t iterate (struct board &board, enum color side,
 
 	search_result_t result = search (board, side, depth, depth,
                          -INITIAL_ALPHA, INITIAL_ALPHA, 0,
-                         &principal_variation, 0, timer, move_history);
+                         principal_variation, 0, timer, move_history);
 
     auto end = std::chrono::system_clock::now();
 
@@ -206,13 +174,8 @@ move_t iterate (struct board &board, enum color side,
 	}
 
 	// principal variation could be null if search was interrupted
-	if (principal_variation)
-	{
-		printf ("principal variation: ");
-		print_reversed_tree (principal_variation);
-
-		move_tree_destroy (principal_variation);
-	}
+	if (principal_variation != nullptr)
+		std::cout << "principal variation: " << principal_variation->to_string() << "\n";
 
 	return result.move;
 }

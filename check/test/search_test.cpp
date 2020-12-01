@@ -29,17 +29,18 @@ TEST_CASE( "Can find mate in 3", "[search]" )
     });
 
     struct board board = builder.build();
-    move_tree_head variation;
+    std::unique_ptr<move_tree_t> variation;
+
     move_history_t history;
     search_result_t result = search (board, COLOR_WHITE, 4, 4,
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
-                        &variation.tree, 0, large_timer, history);
+                        variation, 0, large_timer, history);
 
     REQUIRE( result.move != null_move );
-    REQUIRE( variation.size() == 5 );
+    REQUIRE( variation->size() == 5 );
 
     move_list_t expected_moves = { COLOR_WHITE, {"f6 a6", "f7 f6", "e5xf6", "g8 g7", "a6xa8" }};
-    move_list_t computed_moves = move_tree_to_list(variation.tree);
+    move_list_t computed_moves = variation->to_list();
 
     REQUIRE( expected_moves == computed_moves );
     REQUIRE( result.score > INFINITE );
@@ -72,18 +73,18 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
     builder.add_piece ("d5", COLOR_WHITE, PIECE_KING);
 
     struct board board = builder.build();
-    move_tree_head variation;
+    std::unique_ptr<move_tree_t> variation;
     move_history_t history;
     search_result_t result = search (board, COLOR_BLACK, 5, 5,
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
-                        &variation.tree, 0, large_timer, history);
+                        variation, 0, large_timer, history);
 
     REQUIRE( result.move != null_move );
 
     move_list_t expected_moves = { COLOR_BLACK, {"e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
-    move_list_t computed_moves = move_tree_to_list(variation.tree);
+    move_list_t computed_moves = variation->to_list();
 
-    REQUIRE( variation.size() == 5 );
+    REQUIRE( variation->size() == 5 );
     REQUIRE( expected_moves == computed_moves );
     REQUIRE( result.score > INFINITE );
 }
@@ -141,12 +142,12 @@ TEST_CASE( "Promoting move is taken if possible", "[search-test]")
             {"h4", PIECE_PAWN}
     });
 
-    move_tree_head variation;
+    std::unique_ptr<move_tree_t> variation;
     move_history_t history;
     struct board board = builder.build();
     search_result_t result = search (board, COLOR_BLACK, 1, 1,
                                      -INITIAL_ALPHA, INITIAL_ALPHA, 0,
-                                     &variation.tree, 0, large_timer, history);
+                                     variation, 0, large_timer, history);
 
     REQUIRE( to_string(result.move) == "d2 d1(Q)" );
 }
