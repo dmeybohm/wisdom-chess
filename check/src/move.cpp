@@ -319,8 +319,8 @@ undo_move_t do_move (struct board &board, enum color who, move_t move)
 	if (is_promoting_move(move))
 	{
 		src_piece = move_get_promoted_piece(move);
-		material_add (&board.material, src_piece);
-		material_del (&board.material, MAKE_PIECE(who, PIECE_PAWN));
+		board.material.add (src_piece);
+		board.material.remove (MAKE_PIECE(who, PIECE_PAWN));
 	}
 
     // check for en passant
@@ -357,7 +357,7 @@ undo_move_t do_move (struct board &board, enum color who, move_t move)
     if (PIECE_TYPE(captured_piece) != PIECE_NONE)
     {
         // update material estimate
-        material_del (&board.material, captured_piece);
+        board.material.remove (captured_piece);
 
         // update castle state if somebody takes the rook
         if (PIECE_TYPE(captured_piece) == PIECE_ROOK)
@@ -396,8 +396,8 @@ void undo_move (struct board &board, enum color who,
 	if (is_promoting_move(move))
 	{
 		src_piece = MAKE_PIECE(PIECE_COLOR(src_piece), PIECE_PAWN);
-		material_del (&board.material, orig_src_piece);
-		material_add (&board.material, src_piece);
+		board.material.remove (orig_src_piece);
+		board.material.add (src_piece);
 	}
 
     // check for castling
@@ -430,7 +430,7 @@ void undo_move (struct board &board, enum color who,
     {
         // NOTE: we reload from the move in case of en-passant, since dst_piece
         // could be none.
-        material_add (&board.material, captured_piece);
+        board.material.add (captured_piece);
 
         if (PIECE_TYPE(dst_piece) == PIECE_ROOK)
         {

@@ -96,7 +96,6 @@ void board_init_from_positions (board &board, const struct board_positions *posi
     for (const auto& coord : my_coord_iterator)
         board_set_piece (board, coord, PIECE_AND_COLOR_NONE);
 
-    material_init (&board.material);
     position_init (&board.position);
     
     for (ptr = positions; ptr->pieces != nullptr; ptr++)
@@ -116,7 +115,7 @@ void board_init_from_positions (board &board, const struct board_positions *posi
             coord_t place = coord_create (row, col);
             board_set_piece (board, place, new_piece);
 
-            material_add (&board.material, new_piece);
+            board.material.add (new_piece);
             position_add (&board.position, color, place, new_piece);
 
             if (pieces[col] == PIECE_KING)

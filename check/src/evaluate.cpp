@@ -37,7 +37,7 @@ int evaluate (struct board &board, enum color who, std::size_t moves_away)
 			score += CASTLE_POSITIVE_WEIGHT;
 	}
 
-	score += material_score (&board.material, who);
+	score += board.material.score (who);
     score += position_score (&board.position, who);
 
 	coord_t king_pos = king_position (board, who);
