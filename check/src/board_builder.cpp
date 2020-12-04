@@ -117,9 +117,7 @@ struct board board_builder::build ()
     size_t sz = this->pieces_with_coords.size();
 
     std::vector<struct piece_row> piece_types { sz };
-    std::vector<struct board_positions> positions { sz + 1 };
-
-    positions[sz] = { 0, COLOR_NONE, nullptr };
+    std::vector<struct board_positions> positions { sz };
 
     for (size_t i = 0; i < sz; i++)
     {
@@ -129,14 +127,13 @@ struct board board_builder::build ()
         int8_t col = COLUMN(piece_with_coord.coord);
         int8_t row = ROW(piece_with_coord.coord);
 
-        current_piece_row.assign (NR_COLUMNS + 1, PIECE_NONE);
+        current_piece_row.assign (NR_COLUMNS, PIECE_NONE);
         current_piece_row[col] = piece_with_coord.piece_type;
-        current_piece_row[NR_COLUMNS] = PIECE_LAST;
 
-        positions[i] = { row, piece_with_coord.color, &current_piece_row[0] };
+        positions[i] = { row, piece_with_coord.color, current_piece_row };
     }
 
-    struct board result = board { &positions[0] };
+    struct board result = board { positions };
 
     if (!en_passant_states.empty())
     {

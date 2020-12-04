@@ -18,18 +18,16 @@
 
 struct move_tree;
 
-class board_iterator;
-
 struct board_positions
 {
-    int               rank;
-    enum color        piece_color;
-    enum piece_type  *pieces;
+    int  rank;
+    enum color piece_color;
+    std::vector<enum piece_type> pieces;
 };
 
 struct board
 {
-	piece_t                  squares[NR_ROWS][NR_COLUMNS];
+    piece_t                  squares[NR_ROWS][NR_COLUMNS];
 
 	// positions of the kings
 	coord_t                  king_pos[NR_PLAYERS];
@@ -55,15 +53,15 @@ struct board
 	// Number of full moves, updated after black moves.
 	size_t                   full_moves;
 
-	board();
-	board(const board &board);
-	explicit board(const struct board_positions *positions);
+	board ();
+	board (const board &board);
+    explicit board (const std::vector<board_positions> &positions);
+
+    void print () const;
+    void print_to_file  (std::ostream &out) const;
+    void dump () const;
 
 	[[nodiscard]] std::string to_string() const;
-
-    void  print          () const;
-    void  print_to_file  (std::ostream &out) const;
-    void  dump           () const;
 };
 
 

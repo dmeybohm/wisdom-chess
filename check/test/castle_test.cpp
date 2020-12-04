@@ -6,17 +6,16 @@
 
 TEST_CASE("Castling state is modified and restored for rooks", "[castling]")
 {
-    enum piece_type back_rank[] =
+    std::vector<enum piece_type> back_rank =
     {
         PIECE_ROOK,   PIECE_NONE, PIECE_BISHOP, PIECE_QUEEN, PIECE_KING,
-        PIECE_BISHOP, PIECE_NONE, PIECE_ROOK, PIECE_LAST
+        PIECE_BISHOP, PIECE_NONE, PIECE_ROOK
     };
 
-    struct board_positions positions[] =
+    struct std::vector<board_positions> positions =
     {
         { 0, COLOR_BLACK, back_rank },
         { 7, COLOR_WHITE, back_rank },
-        { 0, COLOR_NONE, nullptr }
     };
 
     struct board board { positions };
@@ -44,17 +43,16 @@ TEST_CASE("Castling state is modified and restored for rooks", "[castling]")
 
 TEST_CASE("Castling state is modified and restored for kings", "[castling]")
 {
-    enum piece_type back_rank[] =
+    std::vector<enum piece_type> back_rank =
     {
         PIECE_ROOK,   PIECE_NONE, PIECE_BISHOP, PIECE_NONE, PIECE_KING,
-        PIECE_BISHOP, PIECE_NONE, PIECE_ROOK, PIECE_LAST
+        PIECE_BISHOP, PIECE_NONE, PIECE_ROOK
     };
 
-    struct board_positions positions[] =
+    std::vector<struct board_positions> positions =
     {
         { 0, COLOR_BLACK, back_rank },
         { 7, COLOR_WHITE, back_rank },
-        { 0, COLOR_NONE, nullptr }
     };
 
     struct board board { positions };
@@ -82,17 +80,16 @@ TEST_CASE("Castling state is modified and restored for kings", "[castling]")
 
 TEST_CASE("Castling state is modified and restored for castling queenside", "[castling]")
 {
-    enum piece_type back_rank[] =
+    std::vector<enum piece_type> back_rank =
     {
         PIECE_ROOK,   PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_KING,
-        PIECE_BISHOP, PIECE_NONE, PIECE_ROOK, PIECE_LAST
+        PIECE_BISHOP, PIECE_NONE, PIECE_ROOK
     };
 
-    struct board_positions positions[] =
+    std::vector<struct board_positions> positions =
     {
         { 0, COLOR_BLACK, back_rank },
         { 7, COLOR_WHITE, back_rank },
-        { 0, COLOR_NONE, nullptr }
     };
 
     struct board board { positions };
@@ -136,17 +133,16 @@ TEST_CASE("Castling state is modified and restored for castling queenside", "[ca
 
 TEST_CASE("Castling state is modified and restored for castling kingside", "[castling]")
 {
-    enum piece_type back_rank[] =
+    std::vector<enum piece_type> back_rank =
     {
         PIECE_ROOK,  PIECE_NONE, PIECE_NONE, PIECE_NONE, PIECE_KING,
-        PIECE_NONE, PIECE_NONE, PIECE_ROOK, PIECE_LAST
+        PIECE_NONE, PIECE_NONE, PIECE_ROOK
     };
 
-    struct board_positions positions[] =
+    std::vector<struct board_positions> positions =
     {
         { 0, COLOR_BLACK, back_rank },
         { 7, COLOR_WHITE, back_rank },
-        { 0, COLOR_NONE, nullptr }
     };
 
     struct board board { positions };

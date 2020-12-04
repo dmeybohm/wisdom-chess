@@ -6,7 +6,7 @@
 
 TEST_CASE( "Moving and undoing a move works", "[move]" )
 {
-struct board board;
+    struct board board;
 
     move_t e2e4 = move_parse ("e2e4", COLOR_WHITE);
     move_t d6d8 = move_parse ("d7d5", COLOR_BLACK);

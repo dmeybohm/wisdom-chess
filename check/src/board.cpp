@@ -15,33 +15,39 @@ DEFINE_DEBUG_CHANNEL (board, 0);
 static void board_init_from_positions (board &board,
                                        const struct board_positions *positions);
 
-static enum piece_type back_rank[] =
-{
-	PIECE_ROOK,   PIECE_KNIGHT, PIECE_BISHOP, PIECE_QUEEN, PIECE_KING,
-	PIECE_BISHOP, PIECE_KNIGHT, PIECE_ROOK, PIECE_LAST
-};
+static void board_init_from_positions (board &board, const std::vector<board_positions> &positions);
 
-static enum piece_type pawns[] =
+std::vector<board_positions> initial_board_position ()
 {
-	PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN,
-	PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_LAST
-};
+    std::vector<enum piece_type> back_rank =
+    {
+        PIECE_ROOK,   PIECE_KNIGHT, PIECE_BISHOP, PIECE_QUEEN, PIECE_KING,
+        PIECE_BISHOP, PIECE_KNIGHT, PIECE_ROOK,
+    };
 
-static struct board_positions init_board[] =
-{
-	{ 0, COLOR_BLACK, back_rank, },
-	{ 1, COLOR_BLACK, pawns,     },
-	{ 6, COLOR_WHITE, pawns,     },
-	{ 7, COLOR_WHITE, back_rank, },
-	{ 0, COLOR_NONE, nullptr }
-};
+    std::vector<enum piece_type> pawns =
+    {
+        PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN,
+        PIECE_PAWN, PIECE_PAWN, PIECE_PAWN,
+    };
+
+    std::vector<board_positions> init_board =
+    {
+        { 0, COLOR_BLACK, back_rank, },
+        { 1, COLOR_BLACK, pawns,     },
+        { 6, COLOR_WHITE, pawns,     },
+        { 7, COLOR_WHITE, back_rank, },
+    };
+
+    return init_board;
+}
 
 board::board()
 {
-    board_init_from_positions (*this, init_board);
+    board_init_from_positions (*this, initial_board_position());
 }
 
-board::board (const struct board_positions *positions)
+board::board (const std::vector<board_positions> &positions)
 {
     board_init_from_positions (*this, positions);
 }
@@ -84,10 +90,9 @@ static castle_state_t init_castle_state (board &board, enum color who)
     return state;
 }
 
-void board_init_from_positions (board &board, const struct board_positions *positions)
+static void board_init_from_positions (board &board, const std::vector<board_positions> &positions)
 {
-    const struct board_positions *ptr;
-    int8_t row, col;
+    int8_t row;
 
     for (int8_t &i : board.castled)
         i = CASTLE_NONE;
@@ -96,14 +101,14 @@ void board_init_from_positions (board &board, const struct board_positions *posi
         board_set_piece (board, coord, PIECE_AND_COLOR_NONE);
 
     position_init (&board.position);
-    
-    for (ptr = positions; ptr->pieces != nullptr; ptr++)
-    {
-        enum piece_type *pieces = ptr->pieces;
-        enum color color = ptr->piece_color;
-        row = ptr->rank;
 
-        for (col = 0; col < NR_COLUMNS && pieces[col] != PIECE_LAST; col++)
+    for (auto &position : positions)
+    {
+        auto &pieces = position.pieces;
+        enum color color = position.piece_color;
+        row = position.rank;
+
+        for (uint8_t col = 0; col < NR_COLUMNS && col < pieces.size(); col++)
         {
             piece_t new_piece;
 
@@ -128,7 +133,7 @@ void board_init_from_positions (board &board, const struct board_positions *posi
     board.en_passant_target[COLOR_INDEX_WHITE] = no_en_passant_coord;
     board.en_passant_target[COLOR_INDEX_BLACK] = no_en_passant_coord;
 
-	board_hash_init (board);
+    board_hash_init (board);
 }
 
 void board::print_to_file (std::ostream &out) const

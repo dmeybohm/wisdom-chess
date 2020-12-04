@@ -196,6 +196,11 @@ constexpr move_t move_create (int8_t src_row, int8_t src_col,
 	return result;
 }
 
+constexpr move_t move_create (coord_t src, coord_t dst)
+{
+    return move_create (ROW(src), COLUMN(src), ROW(dst), COLUMN(dst));
+}
+
 constexpr move_t move_create_capturing (int8_t src_row, int8_t src_col,
                                             int8_t dst_row, int8_t dst_col)
 {
