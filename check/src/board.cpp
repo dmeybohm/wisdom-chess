@@ -9,9 +9,6 @@
 // board length in characters
 constexpr int BOARD_LENGTH = 31;
 
-static void board_init_from_positions (board &board,
-                                       const struct board_positions *positions);
-
 static void board_init_from_positions (board &board, const std::vector<board_positions> &positions);
 
 std::vector<board_positions> initial_board_position ()
@@ -91,7 +88,7 @@ static void board_init_from_positions (board &board, const std::vector<board_pos
 {
     int8_t row;
 
-    for (int8_t &i : board.castled)
+    for (castle_state_t &i : board.castled)
         i = CASTLE_NONE;
 
     for (const auto& coord : all_coords_iterator)
