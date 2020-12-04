@@ -8,7 +8,7 @@
 #include "validate.h"
 
 // board length in characters
-constexpr unsigned int BOARD_LENGTH = 31;
+constexpr int BOARD_LENGTH = 31;
 
 DEFINE_DEBUG_CHANNEL (board, 0);
 
@@ -87,13 +87,12 @@ static castle_state_t init_castle_state (board &board, enum color who)
 void board_init_from_positions (board &board, const struct board_positions *positions)
 {
     const struct board_positions *ptr;
-    uint8_t row, col;
-    coord_iterator my_coord_iterator;
+    int8_t row, col;
 
-    for (uint8_t &i : board.castled)
+    for (int8_t &i : board.castled)
         i = CASTLE_NONE;
 
-    for (const auto& coord : my_coord_iterator)
+    for (const auto& coord : all_coords_iterator)
         board_set_piece (board, coord, PIECE_AND_COLOR_NONE);
 
     position_init (&board.position);
@@ -129,7 +128,7 @@ void board_init_from_positions (board &board, const struct board_positions *posi
     board.en_passant_target[COLOR_INDEX_WHITE] = no_en_passant_coord;
     board.en_passant_target[COLOR_INDEX_BLACK] = no_en_passant_coord;
 
-	board_hash_init (&board.hash, board);
+	board_hash_init (board);
 }
 
 void board::print_to_file (std::ostream &out) const
@@ -148,19 +147,9 @@ void board::dump ()
     this->print_to_file(std::cerr);
 }
 
-board_iterator board::begin () const
-{
-    return board_iterator { *this, 0, 0 };
-}
-
-board_iterator board::end () const
-{
-    return board_iterator { *this, NR_ROWS, 0 };
-}
-
 static void add_divider (std::string &result)
 {
-    uint8_t col;
+    int8_t col;
     int i;
 
     result += " ";
@@ -177,7 +166,7 @@ static void add_divider (std::string &result)
 
 static void add_coords (std::string &result)
 {
-    uint8_t col;
+    int8_t col;
 
     result += " ";
 
@@ -196,7 +185,7 @@ static void add_coords (std::string &result)
 std::string board::to_string() const
 {
     std::string result;
-    uint8_t row, col;
+    int8_t row, col;
 
     char row_coord = '8';
 

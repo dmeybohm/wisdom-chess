@@ -43,7 +43,7 @@ enum color_index
 	COLOR_INDEX_BLACK = 1U,
 };
 
-typedef uint8_t   color_index_t;
+typedef int8_t   color_index_t;
 
 typedef struct piece_with_color piece_t;
 
@@ -70,6 +70,13 @@ constexpr enum color all_colors[] =
 {
     COLOR_WHITE,
     COLOR_BLACK
+};
+
+constexpr enum color all_colors_with_none[] =
+{
+        COLOR_NONE,
+        COLOR_WHITE,
+        COLOR_BLACK,
 };
 
 ////////////////////////////////////////////////

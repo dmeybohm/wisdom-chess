@@ -79,8 +79,8 @@ static coord_t translate_position (coord_t coord, enum color who)
     if (who == COLOR_WHITE)
         return coord;
 
-    uint8_t row = ROW(coord);
-    uint8_t col = COLUMN(coord);
+    int8_t row = ROW(coord);
+    int8_t col = COLUMN(coord);
 
     return coord_create (7 - row, 7 - col);
 }
@@ -93,8 +93,8 @@ void position_init (struct position *positions)
 static int change (coord_t coord, enum color who, piece_t piece)
 {
     coord_t translated_pos = translate_position (coord, who);
-    uint8_t row = ROW(translated_pos);
-    uint8_t col = COLUMN(translated_pos);
+    int8_t row = ROW(translated_pos);
+    int8_t col = COLUMN(translated_pos);
 
     switch (PIECE_TYPE(piece))
     {
@@ -152,10 +152,10 @@ void position_do_move (struct position *position, enum color color,
 
     if (is_castling_move(move))
     {
-        uint8_t rook_src_row = castling_row_from_color(color);
-        uint8_t rook_src_col = is_castling_move_on_king_side(move) ?
+        int8_t rook_src_row = castling_row_from_color(color);
+        int8_t rook_src_col = is_castling_move_on_king_side(move) ?
                                KING_ROOK_COLUMN : QUEEN_ROOK_COLUMN;
-        uint8_t rook_dst_col = is_castling_move_on_king_side(move) ?
+        int8_t rook_dst_col = is_castling_move_on_king_side(move) ?
                                KING_CASTLED_ROOK_COLUMN : QUEEN_CASTLED_ROOK_COLUMN;
 
         coord_t src_rook_coord = coord_create (rook_src_row, rook_src_col);
@@ -200,10 +200,10 @@ void position_undo_move (struct position *position, enum color color,
 
     if (is_castling_move(move))
     {
-        uint8_t rook_src_row = castling_row_from_color(color);
-        uint8_t rook_src_col = is_castling_move_on_king_side(move) ?
+        int8_t rook_src_row = castling_row_from_color(color);
+        int8_t rook_src_col = is_castling_move_on_king_side(move) ?
                                KING_ROOK_COLUMN : QUEEN_ROOK_COLUMN;
-        uint8_t rook_dst_col = is_castling_move_on_king_side(move) ?
+        int8_t rook_dst_col = is_castling_move_on_king_side(move) ?
                                KING_CASTLED_ROOK_COLUMN : QUEEN_CASTLED_ROOK_COLUMN;
 
         coord_t src_rook_coord = coord_create (rook_src_row, rook_src_col);

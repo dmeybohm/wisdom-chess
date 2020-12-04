@@ -13,7 +13,7 @@
 
 struct board;
 
-typedef uint8_t castle_state_t;
+typedef int8_t castle_state_t;
 
 enum castle
 {
@@ -55,11 +55,11 @@ constexpr undo_move_t empty_undo_state =
 
 typedef struct move
 {
-	uint8_t            src_row : 4;
-	uint8_t            src_col : 4;
+	int8_t            src_row : 4;
+	int8_t            src_col : 4;
 
-	uint8_t            dst_row : 4;
-	uint8_t            dst_col : 4;
+	int8_t            dst_row : 4;
+	int8_t            dst_col : 4;
 
 #ifdef __GNUC__
 	enum color         promoted_color: 2;
@@ -158,7 +158,7 @@ constexpr bool is_castling_move_on_king_side (move_t move)
 	return is_castling_move(move) && move.dst_col == 6;
 }
 
-static inline uint8_t castling_row_from_color (enum color who)
+static inline int8_t castling_row_from_color (enum color who)
 {
     switch (who)
     {
@@ -180,8 +180,8 @@ constexpr move_t move_with_promotion (move_t move, piece_t piece)
 }
 
 // run-of-the-mill move with no promotion involved
-constexpr move_t move_create (uint8_t src_row, uint8_t src_col,
-                                  uint8_t dst_row, uint8_t dst_col)
+constexpr move_t move_create (int8_t src_row, int8_t src_col,
+                                  int8_t dst_row, int8_t dst_col)
 {
 	move_t result = {
 	        .src_row = src_row,
@@ -196,16 +196,16 @@ constexpr move_t move_create (uint8_t src_row, uint8_t src_col,
 	return result;
 }
 
-constexpr move_t move_create_capturing (uint8_t src_row, uint8_t src_col,
-                                            uint8_t dst_row, uint8_t dst_col)
+constexpr move_t move_create_capturing (int8_t src_row, int8_t src_col,
+                                            int8_t dst_row, int8_t dst_col)
 {
     move_t move = move_create (src_row, src_col, dst_row, dst_col);
     move.move_category = MOVE_CATEGORY_NORMAL_CAPTURE;
     return move;
 }
 
-constexpr move_t move_create_castling (uint8_t src_row, uint8_t src_col,
-                                           uint8_t dst_row, uint8_t dst_col)
+constexpr move_t move_create_castling (int8_t src_row, int8_t src_col,
+                                           int8_t dst_row, int8_t dst_col)
 {
     move_t move = move_create (src_row, src_col, dst_row, dst_col);
     move.move_category = MOVE_CATEGORY_CASTLING;
@@ -222,8 +222,8 @@ static inline move_t move_with_capture (move_t move)
     return result;
 }
 
-constexpr move_t move_create_en_passant (int8_t src_row, uint8_t src_col,
-                                             uint8_t dst_row, uint8_t dst_col)
+constexpr move_t move_create_en_passant (int8_t src_row, int8_t src_col,
+                                             int8_t dst_row, int8_t dst_col)
 {
     move_t move = move_create (src_row, src_col, dst_row, dst_col);
     move.move_category = MOVE_CATEGORY_EN_PASSANT;

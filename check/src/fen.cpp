@@ -55,7 +55,7 @@ void fen::parse_pieces (std::string_view str)
     char ch;
 
     // read pieces
-    for (uint8_t row = 0, col = 0; !str.empty(); str = str.substr(1))
+    for (int8_t row = 0, col = 0; !str.empty(); str = str.substr(1))
     {
         ch = str[0];
 

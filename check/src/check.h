@@ -13,7 +13,7 @@ bool    was_legal_move      (struct board &board, enum color who, move_t mv);
 // check if the the king indicated by the WHO argument is in trouble
 // in this position
 bool    is_king_threatened  (struct board &board, enum color who,
-                             uint8_t row, uint8_t col);
+                             int8_t row, int8_t col);
 
 // Whether the board is in a checkmated position for the player.
 bool    is_checkmated       (struct board &board, enum color who);

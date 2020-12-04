@@ -3,13 +3,13 @@
 #include "board.h"
 #include "move.h"
 
-coord_t coord_alg (const std::string &coord_str)
+coord_t coord_alg (std::string_view coord_str)
 {
     if (coord_str.size() != 2)
         throw board_builder_exception("Invalid coordinate string!");
 
-    uint8_t col = char_to_col(coord_str[0]);
-    uint8_t row = char_to_row(coord_str[1]);
+    int8_t col = char_to_col(coord_str[0]);
+    int8_t row = char_to_row(coord_str[1]);
 
     if (row < 0 || row >= NR_ROWS)
         throw board_builder_exception("Invalid row!");
@@ -20,7 +20,7 @@ coord_t coord_alg (const std::string &coord_str)
     return coord_create (row, col);
 }
 
-void board_builder::add_piece (const std::string &coord_str, enum color who, enum piece_type piece_type)
+void board_builder::add_piece (std::string_view coord_str, enum color who, enum piece_type piece_type)
 {
     if (coord_str.size() != 2)
         throw board_builder_exception("Invalid coordinate string!");
@@ -30,7 +30,7 @@ void board_builder::add_piece (const std::string &coord_str, enum color who, enu
     this->add_piece (ROW(algebraic), COLUMN(algebraic), who, piece_type);
 }
 
-void board_builder::add_piece (uint8_t row, uint8_t col, enum color who, enum piece_type piece_type)
+void board_builder::add_piece (int8_t row, int8_t col, enum color who, enum piece_type piece_type)
 {
     struct piece_with_coord new_piece
     {
@@ -48,7 +48,7 @@ void board_builder::add_piece (uint8_t row, uint8_t col, enum color who, enum pi
     this->pieces_with_coords.push_back (new_piece);
 }
 
-void board_builder::add_pieces (enum color who, std::vector<struct piece_coord_string_with_type> pieces)
+void board_builder::add_pieces (enum color who, const std::vector<struct piece_coord_string_with_type> &pieces)
 {
     for (auto it : pieces)
         this->add_piece (it.coord, who, it.piece_type);
@@ -56,15 +56,15 @@ void board_builder::add_pieces (enum color who, std::vector<struct piece_coord_s
 
 void board_builder::add_row_of_same_color_and_piece (int row, enum color who, enum piece_type piece_type)
 {
-    for (uint8_t col = 0; col < NR_COLUMNS; col++)
+    for (int8_t col = 0; col < NR_COLUMNS; col++)
         this->add_piece (row, col, who, piece_type);
 }
 
-void board_builder::add_row_of_same_color_and_piece (const std::string &coord_str, enum color who, enum piece_type piece_type)
+void board_builder::add_row_of_same_color_and_piece (std::string_view coord_str, enum color who, enum piece_type piece_type)
 {
     coord_t coord = coord_alg (coord_str);
 
-    for (uint8_t col = 0; col < NR_COLUMNS; col++)
+    for (int8_t col = 0; col < NR_COLUMNS; col++)
         this->add_piece (ROW(coord), col, who, piece_type);
 }
 
@@ -76,7 +76,7 @@ void board_builder::add_row_of_same_color (int row, enum color who, std::vector<
         this->add_piece (row, col, who, *it);
 }
 
-void board_builder::add_row_of_same_color (const std::string &coord_str, enum color who, std::vector<enum piece_type> piece_types)
+void board_builder::add_row_of_same_color (std::string_view coord_str, enum color who, std::vector<enum piece_type> piece_types)
 {
     coord_t coord = coord_alg (coord_str);
     size_t col = 0;
@@ -85,7 +85,7 @@ void board_builder::add_row_of_same_color (const std::string &coord_str, enum co
         this->add_piece (ROW(coord), col, who, *it);
 }
 
-void board_builder::set_en_passant_target (enum color who, const std::string &coord_str)
+void board_builder::set_en_passant_target (enum color who, std::string_view coord_str)
 {
     struct en_passant_state new_state { who, coord_alg(coord_str) };
     this->en_passant_states.push_back (new_state);
@@ -116,7 +116,7 @@ struct board board_builder::build ()
 
     size_t sz = this->pieces_with_coords.size();
 
-    std::vector<piece_row> piece_types { sz };
+    std::vector<struct piece_row> piece_types { sz };
     std::vector<struct board_positions> positions { sz + 1 };
 
     positions[sz] = { 0, COLOR_NONE, nullptr };
@@ -126,8 +126,8 @@ struct board board_builder::build ()
         struct piece_with_coord &piece_with_coord = this->pieces_with_coords[i];
         std::vector<enum piece_type> &current_piece_row = piece_types[i].row;
 
-        uint8_t col = COLUMN(piece_with_coord.coord);
-        uint8_t row = ROW(piece_with_coord.coord);
+        int8_t col = COLUMN(piece_with_coord.coord);
+        int8_t row = ROW(piece_with_coord.coord);
 
         current_piece_row.assign (NR_COLUMNS + 1, PIECE_NONE);
         current_piece_row[col] = piece_with_coord.piece_type;

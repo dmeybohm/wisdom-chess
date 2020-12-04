@@ -5,7 +5,7 @@
 #include <cassert>
 #include <exception>
 
-enum : unsigned
+enum
 {
     NR_PLAYERS = 2,
 

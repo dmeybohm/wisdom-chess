@@ -52,8 +52,8 @@ static MoveFunc move_functions[] =
 
 move_list_t knight_moves[NR_ROWS][NR_COLUMNS];
 
-void add_en_passant_move (const struct board &board, enum color who, uint8_t piece_row, uint8_t piece_col,
-                          move_list_t &moves, uint8_t en_passant_column);
+void add_en_passant_move (const struct board &board, enum color who, int8_t piece_row, int8_t piece_col,
+                          move_list_t &moves, int8_t en_passant_column);
 
 ///////////////////////////////////////////////
 
@@ -63,10 +63,8 @@ static void knight_move_list_init ()
 	int k_row, k_col;
     coord_iterator all_coords;
 
-    for (auto [row8, col8] : all_coords)
+    for (auto [row, col] : all_coords)
 	{
-        int row = row8, col = col8;
-
 		for (k_row = -2; k_row <= 2; k_row++)
 		{
 			if (!k_row)
@@ -194,6 +192,37 @@ static void moves_knight (struct board &board, enum color who,
     moves.append (kt_moves);
 }
 
+// Returns -1 if no column is eligible.
+static int8_t eligible_en_passant_column (const struct board &board, int8_t row, int8_t column, enum color who)
+{
+    color_index_t opponent_index = color_index(color_invert(who));
+
+    if (coord_equals (board.en_passant_target[opponent_index], no_en_passant_coord))
+        return -1;
+
+    // if WHITE rank 4, black rank 3
+    if ((who == COLOR_WHITE ? 3 : 4) != row)
+        return -1;
+
+    int8_t left_column = column - 1;
+    int8_t right_column = column + 1;
+    int8_t target_column = COLUMN(board.en_passant_target[opponent_index]);
+
+    if (left_column == target_column)
+    {
+        assert (VALID(left_column));
+        return left_column;
+    }
+
+    if (right_column == target_column)
+    {
+        assert (VALID(right_column));
+        return right_column;
+    }
+
+    return -1;
+}
+
 MOVES_HANDLER (pawn)
 {
 	int                dir;
@@ -286,12 +315,12 @@ MOVES_HANDLER (pawn)
 
 // put en passant in a separate handler
 // in order to not pollute instruction cache with it
-void add_en_passant_move (const struct board &board, enum color who, uint8_t piece_row, uint8_t piece_col,
-                          move_list_t &moves, uint8_t en_passant_column)
+void add_en_passant_move (const struct board &board, enum color who, int8_t piece_row, int8_t piece_col,
+                          move_list_t &moves, int8_t en_passant_column)
 {
     move_t new_move;
     int direction;
-    uint8_t take_row, take_col;
+    int8_t take_row, take_col;
 
     direction = PAWN_DIRECTION (who);
 
@@ -310,7 +339,7 @@ void add_en_passant_move (const struct board &board, enum color who, uint8_t pie
 
 ///////////////////////////////////////////////
 
-const move_list_t &generate_knight_moves (uint8_t row, uint8_t col)
+const move_list_t &generate_knight_moves (int8_t row, int8_t col)
 {
 	if (knight_moves[0][0].empty())
 		knight_move_list_init ();
@@ -455,9 +484,9 @@ move_list_t generate_moves (struct board &board, enum color who)
 {
 	move_list_t new_moves;
 
-	for (auto it = board.begin(); it != board.end(); ++it)
+	for (const auto coord : all_coords_iterator)
 	{
-	    piece_t piece = *it;
+	    piece_t piece = PIECE_AT (board, coord);
 
 		if (PIECE_TYPE(piece) == PIECE_NONE)
 			continue;
@@ -466,7 +495,7 @@ move_list_t generate_moves (struct board &board, enum color who)
 		if (color != who)
 			continue;
 
-	    auto [row, col]  = it.coord();
+	    auto [row, col]  = coord;
 		(*move_functions[PIECE_TYPE(piece)])
 		    (board, who, row, col, new_moves);
 	}

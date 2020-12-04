@@ -10,7 +10,7 @@ void board_check_init (struct board_check *board_check, struct board &board)
 #endif
 }
 
-void board_check_validate (struct board_check *board_check, struct board &restored_board, uint8_t who, struct move mv)
+void board_check_validate (struct board_check *board_check, struct board &restored_board, int8_t who, struct move mv)
 {
 #ifdef CHECK_BOARD_EVERY_MOVE
     struct board_hash updated_hash;

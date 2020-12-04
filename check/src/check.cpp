@@ -21,11 +21,11 @@ bool is_checkmated (struct board &board, enum color who)
 }
 
 bool is_king_threatened (struct board &board, enum color who,
-                         uint8_t king_row, uint8_t king_col)
+                         int8_t king_row, int8_t king_col)
 {
-	int           row, col;
+	int8_t        row, col;
 	piece_t       what;
-	int           c_dir, r_dir;
+	int8_t        c_dir, r_dir;
 
 	// check each side of the king's row
 	col = king_col;
@@ -171,13 +171,12 @@ bool was_legal_move (struct board &board, enum color who, move_t mv)
 	if (is_castling_move(mv))
     {
 	    coord_t castled_pos = MOVE_DST(mv);
+	    auto [castled_row, castled_col] = castled_pos;
 
-	    int castled_row = ROW(castled_pos);
-	    int castled_col = COLUMN(castled_pos);
 	    assert (king_row == castled_row);
 	    assert (king_col == castled_col);
 
-        int direction = is_castling_move_on_king_side(mv) ? -1 : 1;
+        int8_t direction = is_castling_move_on_king_side(mv) ? -1 : 1;
 
         if (is_king_threatened (board, who, castled_row, NEXT (castled_col, direction)) ||
             is_king_threatened (board, who, castled_row, NEXT (NEXT (castled_col, direction), direction)))
@@ -190,7 +189,7 @@ bool was_legal_move (struct board &board, enum color who, move_t mv)
 	return true;
 }
 
-    bool is_drawing_move (const move_history_t &move_history, move_t move)
+bool is_drawing_move (const move_history_t &move_history, move_t move)
 {
     return false;
 }

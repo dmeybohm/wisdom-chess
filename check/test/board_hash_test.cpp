@@ -7,36 +7,32 @@
 
 TEST_CASE( "Board hashes can be initialized", "[single-file]" )
 {
-    struct board_hash board_hash{};
     struct board board;
 
-    board_hash.hash = 0;
+    board.hash.hash = 0;
 
-    board_hash_init (&board_hash, board);
+    board_hash_init (board);
 
-    REQUIRE( board_hash.hash != 0 );
+    REQUIRE( board.hash.hash != 0 );
 }
 
 TEST_CASE( "Board hashes return to the same hash with a normal move", "[single-file]" )
 {
-    struct board_hash board_hash{};
     struct board board;
 
-    board_hash.hash = 0;
-
-    board_hash_init (&board_hash, board);
+    board_hash_init (board);
 
     // move a pawn.
-    move_t mv = move_create (1, 4, 3, 4);
+    move_t mv = move_parse ("e2 e4", COLOR_WHITE);
 
-    uint64_t orig_board_hash = board_hash.hash;
+    uint64_t orig_board_hash = board.hash.hash;
     undo_move_t undo_state = empty_undo_state;
 
-    board_hash_move (&board_hash, board, mv, undo_state);
+    board_hash_apply_move (board, mv);
 
-    REQUIRE( board_hash.hash != orig_board_hash );
+    REQUIRE( board.hash.hash != orig_board_hash );
 
-    board_hash_unmove (&board_hash, board, mv, undo_state);
+    board_hash_unapply_move (board, mv, undo_state);
 
-    REQUIRE( board_hash.hash == orig_board_hash );
+    REQUIRE( board.hash.hash == orig_board_hash );
 }

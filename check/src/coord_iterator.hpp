@@ -3,25 +3,25 @@
 
 #include "coord.h"
 
-struct coord_iterator
+class coord_iterator final
 {
 private:
-    uint8_t row = 0;
-    uint8_t col = 0;
+    int8_t row = 0;
+    int8_t col = 0;
 
 public:
-    constexpr coord_iterator () = default;
+    coord_iterator () = default;
 
-    constexpr coord_iterator (uint8_t _row, uint8_t _col)
-        : row(_row), col(_col)
+    coord_iterator (int8_t row_, int8_t col_)
+        : row(row_), col(col_)
     {}
 
-    [[nodiscard]] constexpr coord_iterator begin () // NOLINT(readability-convert-member-functions-to-static)
+    [[nodiscard]] coord_iterator begin () // NOLINT(readability-convert-member-functions-to-static)
     {
         return coord_iterator (0, 0);
     }
 
-    [[nodiscard]] constexpr coord_iterator end () // NOLINT(readability-convert-member-functions-to-static)
+    [[nodiscard]] coord_iterator end () // NOLINT(readability-convert-member-functions-to-static)
     {
         return coord_iterator (8, 0);
     }
@@ -52,5 +52,7 @@ public:
         return !(*this == other);
     }
 };
+
+extern coord_iterator all_coords_iterator;
 
 #endif //WIZDUMB_COORD_ITERATOR_HPP

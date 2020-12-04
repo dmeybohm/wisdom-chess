@@ -46,8 +46,8 @@ piece_t handle_en_passant (struct board &board, enum color who,
 static move_t get_castling_rook_move (struct board &board, move_t move,
                                       enum color who)
 {
-    uint8_t    src_row, src_col;
-    uint8_t    dst_row, dst_col;
+    int8_t    src_row, src_col;
+    int8_t    dst_row, dst_col;
     coord_t    src, dst;
 
     assert (is_castling_move (move));
@@ -279,7 +279,7 @@ static void handle_en_passant_eligibility (struct board &board, enum color who, 
         if (is_double_square_pawn_move (src_piece, move))
         {
             coord_t src = MOVE_SRC(move);
-            uint8_t prev_row = NEXT (ROW(src), direction);
+            int8_t prev_row = NEXT (ROW(src), direction);
             new_state = coord_create (prev_row, COLUMN(src));
         }
         undo_state->en_passant_target[c_index] = board.en_passant_target[c_index];
@@ -500,7 +500,7 @@ static const char *move_str (move_t move)
 
 static move_t castle_parse (const char *str, enum color who)
 {
-	uint8_t src_row, dst_col;
+	int8_t src_row, dst_col;
 
 	if (who == COLOR_WHITE)
 		src_row = LAST_ROW;
@@ -529,8 +529,8 @@ static const char *skip_whitespace (const char *p)
 
 move_t move_parse (const char *str, enum color who)
 {
-	uint8_t     src_row, src_col;
-	uint8_t     dst_row, dst_col;
+	int8_t     src_row, src_col;
+	int8_t     dst_row, dst_col;
 	bool        en_passant       = false;
 	piece_t     promoted         = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
 	char       *tok, *ptok;
