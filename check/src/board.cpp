@@ -137,12 +137,12 @@ void board::print_to_file (std::ostream &out) const
 	out.flush();
 }
 
-void board::print ()
+void board::print () const
 {
 	this->print_to_file(std::cout);
 }
 
-void board::dump ()
+void board::dump () const
 {
     this->print_to_file(std::cerr);
 }

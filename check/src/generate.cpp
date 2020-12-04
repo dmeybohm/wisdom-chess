@@ -225,10 +225,10 @@ static int8_t eligible_en_passant_column (const struct board &board, int8_t row,
 
 MOVES_HANDLER (pawn)
 {
-	int                dir;
-	int                row;
-	int                take_col;
-	int                c_dir;
+	int8_t             dir;
+	int8_t             row;
+	int8_t             take_col;
+	int8_t             c_dir;
 	move_t             move[4];        // 4 possible pawn moves
 	piece_t            piece;
 	size_t             i;

@@ -59,13 +59,11 @@ struct board
 	board(const board &board);
 	explicit board(const struct board_positions *positions);
 
-	[[nodiscard]] board_iterator begin() const;
-	[[nodiscard]] board_iterator end() const;
 	[[nodiscard]] std::string to_string() const;
 
-    void  print          ();
+    void  print          () const;
     void  print_to_file  (std::ostream &out) const;
-    void  dump           ();
+    void  dump           () const;
 };
 
 

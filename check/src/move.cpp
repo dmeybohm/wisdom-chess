@@ -444,7 +444,6 @@ void undo_move (struct board &board, enum color who,
     validate_castle_state (board, move);
 }
 
-
 static const char *move_str (move_t move)
 {
 	coord_t src, dst;
@@ -529,8 +528,8 @@ static const char *skip_whitespace (const char *p)
 
 move_t move_parse (const char *str, enum color who)
 {
-	int8_t     src_row, src_col;
-	int8_t     dst_row, dst_col;
+	int8_t      src_row, src_col;
+	int8_t      dst_row, dst_col;
 	bool        en_passant       = false;
 	piece_t     promoted         = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
 	char       *tok, *ptok;
