@@ -2,6 +2,7 @@
 #include <cstring>
 #include <mutex>
 #include <iostream>
+#include <algorithm>
 
 #include "move.h"
 #include "coord.h"
@@ -497,20 +498,24 @@ static const char *move_str (move_t move)
 	return buf;
 }
 
-static move_t castle_parse (const char *str, enum color who)
+static move_t castle_parse (std::string_view str, enum color who)
 {
 	int8_t src_row, dst_col;
 
 	if (who == COLOR_WHITE)
 		src_row = LAST_ROW;
 	else if (who == COLOR_BLACK)
-		src_row = 0;
+		src_row = FIRST_ROW;
 	else
 		assert (0);
 
-	if (!strncasecmp (str, "O-O-O", strlen ("O-O-O")))
+	std::string transformed { str };
+	std::transform (transformed.begin(), transformed.end(), transformed.begin(),
+                    [](auto c) -> auto { return ::toupper(c); });
+
+	if (transformed == "O-O-O")
 		dst_col = KING_COLUMN - 2;
-	else if (!strncasecmp (str, "O-O", strlen ("O-O")))
+	else if (transformed == "O-O")
 		dst_col = KING_COLUMN + 2;
 	else
 		return null_move;
@@ -526,90 +531,82 @@ static const char *skip_whitespace (const char *p)
 	return p;
 }
 
-move_t move_parse (const char *str, enum color who)
+move_t move_parse (std::string_view str, enum color who)
 {
-	int8_t      src_row, src_col;
-	int8_t      dst_row, dst_col;
-	bool        en_passant       = false;
-	piece_t     promoted         = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
-	char       *tok, *ptok;
-	const char *p;
-    move_t      move;
-    char        buf[32];
-    bool        is_capturing = false;
+	bool en_passant   = false;
+    bool is_capturing = false;
 
-	if (strlen(str) < 1)
+	if (str.empty())
 		return null_move;
 
 	if (tolower(str[0]) == 'o')
 		return castle_parse (str, who);
 
-	if (strlen(str) < 4)
-		return null_move;
+	if (str.size() < 4)
+	    return null_move;
 
 	// allow any number of spaces/tabs before the two coordinates
-	p = skip_whitespace (str);
+	std::string tmp { str };
 
-	// convert between row/col and coordinate
-	src_col = char_to_col (*p++);
-	src_row = char_to_row (*p++);
+    tmp.erase(std::remove_if(tmp.begin(), tmp.end(), isspace), tmp.end());
 
-	if (src_col < 0 || src_col >= NR_COLUMNS)
-	    return null_move;
-	if (src_row < 0 || src_row >= NR_ROWS)
-	    return null_move;
-
-	// allow any number of spaces/tabs between the two coordinates
-	p = skip_whitespace (p);
-
-	// allow an 'x' between coordinates, which is used to indicate a capture
-	if (*p == 'x')
+    coord_t src;
+    int offset = 0;
+    try
     {
-        p++;
+        src = coord_parse (tmp.substr (0, 2));
+        offset += 2;
+    }
+    catch (const coord_parse_exception &e)
+    {
+        return null_move;
+    }
+
+    std::string_view next { tmp.substr(2) };
+	// allow an 'x' between coordinates, which is used to indicate a capture
+	if (tmp[offset] == 'x')
+    {
+        offset++;
         is_capturing = true;
     }
 
-	if (!*p)
+	std::string_view rest { tmp.substr(offset) };
+	if (rest.empty())
 		return null_move;
 
-	dst_col = char_to_col (*p++);
+	coord_t dst;
+    try
+    {
+        dst = coord_parse (rest.substr(0, 2));
+        rest = rest.substr(2);
+    }
+    catch (const coord_parse_exception &e)
+    {
+        return null_move;
+    }
 
-	if (!*p)
-		return null_move;
-
-	dst_row = char_to_row (*p++);
-
-    move = move_create (src_row, src_col, dst_row, dst_col);
+    move_t move = move_create (src, dst);
     if (is_capturing)
         move = move_with_capture(move);
 
-    strncpy (buf, p, sizeof(buf) - 1);
-    buf[sizeof(buf) - 1] = 0;
-    ptok = buf;
-
 	// grab extra identifiers describing the move
-	while ((tok = strtok (ptok, " \n\t")))
-	{
-		// strtok's weird parameter passing convention
-		ptok = nullptr;
+	piece_t promoted = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
+    if (rest == "ep")
+        en_passant = true;
+    else if (rest == "(Q)")
+        promoted = MAKE_PIECE (who, PIECE_QUEEN);
+    else if (rest ==  "(N)")
+        promoted = MAKE_PIECE (who, PIECE_KNIGHT);
+    else if (rest == "(B)")
+        promoted = MAKE_PIECE (who, PIECE_BISHOP);
+    else if (rest == "(R)")
+        promoted = MAKE_PIECE (who, PIECE_ROOK);
 
-		if (!strcasecmp (tok, "ep"))
-			en_passant = true;
-		else if (!strcasecmp (tok, "(Q)"))
-			promoted = MAKE_PIECE (who, PIECE_QUEEN);
-		else if (!strcasecmp (tok, "(N)"))
-			promoted = MAKE_PIECE (who, PIECE_KNIGHT);
-		else if (!strcasecmp (tok, "(B)"))
-			promoted = MAKE_PIECE (who, PIECE_BISHOP);
-		else if (!strcasecmp (tok, "(R)"))
-			promoted = MAKE_PIECE (who, PIECE_ROOK);
-	}
+    if (PIECE_TYPE(promoted) != PIECE_NONE)
+        move = move_with_promotion (move, promoted);
 
-	if (PIECE_TYPE(promoted) != PIECE_NONE)
-		move = move_with_promotion (move, promoted);
-
-	if (en_passant)
-	    move = move_create_en_passant (src_row, src_col, dst_row, dst_col);
+    if (en_passant)
+        move = move_create_en_passant (ROW(src), COLUMN(src), ROW(dst), COLUMN(dst));
 
 	return move;
 }
@@ -624,10 +621,11 @@ char col_to_char (int col)
     return col + 'a';
 }
 
-move_t parse_move (const char *str, enum color color)
+move_t parse_move (std::string_view str, enum color color)
 {
     if (tolower(str[0]) == 'o' && color == COLOR_NONE)
         throw parse_move_exception("Move requires color, but no color provided");
+
     move_t result = move_parse (str, color);
     if (color == COLOR_NONE &&
         result.move_category != MOVE_CATEGORY_NORMAL_CAPTURE &&
@@ -635,10 +633,10 @@ move_t parse_move (const char *str, enum color color)
     {
         throw parse_move_exception("Invalid type of move in parse_simple_move");
     }
+
     if (is_null_move(result))
-    {
         throw parse_move_exception ("Error parsing move");
-    }
+
     return result;
 }
 
