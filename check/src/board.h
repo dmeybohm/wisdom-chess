@@ -64,7 +64,6 @@ struct board
 	[[nodiscard]] std::string to_string() const;
 };
 
-
 ///////////////////////////////////////////////
 
 static inline piece_t piece_at (const struct board &board, int8_t row, int8_t col)
@@ -75,7 +74,7 @@ static inline piece_t piece_at (const struct board &board, int8_t row, int8_t co
 
 static inline piece_t piece_at (const struct board &board, coord_t coord)
 {
-    return piece_at (board, ROW(coord), COLUMN(coord));
+    return piece_at (board, coord.row, coord.col);
 }
 
 ///////////////////////////////////////////////

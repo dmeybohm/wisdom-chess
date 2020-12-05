@@ -3,7 +3,7 @@
 #include "board.h"
 #include "move.h"
 
-coord_t coord_alg (std::string_view coord_str)
+coord_t coord_alg (const std::string &coord_str)
 {
     if (coord_str.size() != 2)
         throw board_builder_exception("Invalid coordinate string!");
@@ -20,7 +20,7 @@ coord_t coord_alg (std::string_view coord_str)
     return make_coord (row, col);
 }
 
-void board_builder::add_piece (std::string_view coord_str, Color who, Piece piece_type)
+void board_builder::add_piece (const std::string &coord_str, Color who, Piece piece_type)
 {
     if (coord_str.size() != 2)
         throw board_builder_exception("Invalid coordinate string!");
@@ -60,7 +60,7 @@ void board_builder::add_row_of_same_color_and_piece (int row, Color who, Piece p
         this->add_piece (row, col, who, piece_type);
 }
 
-void board_builder::add_row_of_same_color_and_piece (std::string_view coord_str, Color who, Piece piece_type)
+void board_builder::add_row_of_same_color_and_piece (const std::string &coord_str, Color who, Piece piece_type)
 {
     coord_t coord = coord_alg (coord_str);
 
@@ -76,7 +76,7 @@ void board_builder::add_row_of_same_color (int row, Color who, std::vector<Piece
         this->add_piece (row, col, who, *it);
 }
 
-void board_builder::add_row_of_same_color (std::string_view coord_str, Color who, std::vector<Piece> piece_types)
+void board_builder::add_row_of_same_color (const std::string &coord_str, Color who, std::vector<Piece> piece_types)
 {
     coord_t coord = coord_alg (coord_str);
     size_t col = 0;
@@ -85,7 +85,7 @@ void board_builder::add_row_of_same_color (std::string_view coord_str, Color who
         this->add_piece (ROW(coord), col, who, *it);
 }
 
-void board_builder::set_en_passant_target (Color who, std::string_view coord_str)
+void board_builder::set_en_passant_target (Color who, const std::string &coord_str)
 {
     struct en_passant_state new_state { who, coord_alg(coord_str) };
     this->en_passant_states.push_back (new_state);

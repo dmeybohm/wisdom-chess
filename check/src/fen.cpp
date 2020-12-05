@@ -50,7 +50,7 @@ Color fen::parse_active_player (char ch)
     }
 }
 
-void fen::parse_pieces (std::string_view str)
+void fen::parse_pieces (std::string str)
 {
     char ch;
 
@@ -93,7 +93,7 @@ void fen::parse_pieces (std::string_view str)
 }
 
 // en passant target square:
-void fen::parse_en_passant (std::string_view str)
+void fen::parse_en_passant (std::string str)
 {
     if (str.empty())
         return;
@@ -109,7 +109,7 @@ void fen::parse_en_passant (std::string_view str)
     }
 }
 
-void fen::parse_castling (std::string_view str)
+void fen::parse_castling (std::string str)
 {
     castle_state_t white_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
     castle_state_t black_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;

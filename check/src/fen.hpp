@@ -29,9 +29,9 @@ private:
     void parse(const std::string &input);
     static piece_t parse_piece (char ch);
 
-    void parse_pieces (std::string_view pieces_str);
-    void parse_en_passant (std::string_view en_passant_str);
-    void parse_castling (std::string_view castling_str);
+    void parse_pieces (std::string pieces_str);
+    void parse_en_passant (std::string en_passant_str);
+    void parse_castling (std::string castling_str);
 
     void parse_halfmove (int half_moves);
     void parse_fullmove (int full_moves);

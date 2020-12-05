@@ -47,7 +47,7 @@ private:
 public:
     board_builder() = default;
 
-    void add_piece (std::string_view coord_str, Color who, Piece piece_type);
+    void add_piece (const std::string &coord_str, Color who, Piece piece_type);
 
     void add_piece (int8_t row, int8_t col, Color who, Piece piece_type);
 
@@ -55,13 +55,13 @@ public:
 
     void add_row_of_same_color (int row, Color who, std::vector<Piece> piece_types);
 
-    void add_row_of_same_color (std::string_view coord_str, Color who, std::vector<Piece> piece_types);
+    void add_row_of_same_color (const std::string &coord_str, Color who, std::vector<Piece> piece_types);
 
     void add_row_of_same_color_and_piece (int row, Color who, Piece piece_type);
 
-    void add_row_of_same_color_and_piece (std::string_view coord_str, Color who, Piece piece_type);
+    void add_row_of_same_color_and_piece (const std::string &coord_str, Color who, Piece piece_type);
 
-    void set_en_passant_target (Color who, std::string_view coord_str);
+    void set_en_passant_target (Color who, const std::string &coord_str);
 
     void set_castling (Color who, castle_state_t state);
 
@@ -82,6 +82,6 @@ public:
     [[nodiscard]] const char *what() const noexcept override { return this->message; }
 };
 
-coord_t coord_alg (std::string_view coord_str);
+coord_t coord_alg (const std::string & coord_str);
 
 #endif //WIZDUMB_BOARD_BUILDER_HPP

@@ -42,7 +42,7 @@ static move_t get_castling_rook_move (struct board &board, move_t move,
 {
     int8_t    src_row, src_col;
     int8_t    dst_row, dst_col;
-    coord_t    src, dst;
+    coord_t   src, dst;
 
     assert (is_castling_move (move));
 
