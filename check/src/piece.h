@@ -2,6 +2,7 @@
 #define EVOLVE_CHESS_PIECE_H
 
 #include <cassert>
+#include <string>
 
 enum class Piece
 {
@@ -150,7 +151,8 @@ constexpr color_index_t color_index_with_none (Color who)
     }
 }
 
-static inline char piece_chr (piece_t piece)
+
+static inline char piece_char (piece_t piece)
 {
 	Piece p = piece_type (piece);
 
@@ -180,5 +182,7 @@ constexpr bool operator != (piece_t a, piece_t b)
 {
     return !piece_equals (a, b);
 }
+
+std::string to_string (Color who);
 
 #endif // EVOLVE_CHESS_PIECE_H

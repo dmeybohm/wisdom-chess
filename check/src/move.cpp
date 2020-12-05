@@ -1,16 +1,12 @@
-#include <cstdio>
-#include <cstring>
-#include <mutex>
 #include <iostream>
 #include <algorithm>
+#include <sstream>
 
 #include "move.h"
 #include "coord.h"
 #include "board.h"
 #include "validate.h"
 #include "generate.h"
-
-static std::mutex output_mutex;
 
 coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst)
 {
@@ -72,8 +68,8 @@ static move_t get_castling_rook_move (struct board &board, move_t move,
     if (!((piece_type (piece_at (board, src_row, src_col)) == Piece::Rook
            || piece_type (piece_at (board, dst_row, dst_col)) == Piece::Rook)))
     {
-        printf ("move considering: %s (%s to move)\n", to_string(move).c_str(),
-                who == Color::White ? "White" : "Black");
+        std::stringstream ostr;
+        ostr << "move considering: " << to_string(move) << "(" << to_string(who) << " to move)\n";
         board.dump();
         assert (0);
     }
@@ -163,7 +159,7 @@ update_opponent_rook_position (struct board &board, Color opponent,
                                piece_t dst_piece, undo_move_t *undo_state,
                                coord_t src, coord_t dst, int undo)
 {
-    assert(piece_color (dst_piece) == opponent && piece_type (dst_piece) == Piece::Rook );
+    assert (piece_color(dst_piece) == opponent && piece_type(dst_piece) == Piece::Rook);
 
     if (undo)
     {
@@ -181,7 +177,7 @@ update_opponent_rook_position (struct board &board, Color opponent,
         //
         // This needs distinguishes between captures that end
         // up on the rook and moves from the rook itself.
-        ///
+        //
         if (COLUMN(dst) == 0)
             castle_state = CASTLE_QUEENSIDE;
         else
@@ -210,15 +206,15 @@ static void update_current_rook_position (struct board &board, Color player,
                                           undo_move_t *undo_state,
                                           coord_t src, coord_t dst, int undo)
 {
-    if (!(piece_color (src_piece) == player &&
-            piece_type (src_piece) == Piece::Rook))
+    if (!(piece_color(src_piece) == player &&
+            piece_type(src_piece) == Piece::Rook))
     {
         std::cout << "update_current_rook_position failed: move " << to_string(move) << "\n";
         board.dump();
         abort ();
     }
 
-    assert(piece_color (src_piece) == player && piece_type (src_piece) == Piece::Rook );
+    assert (piece_color(src_piece) == player && piece_type(src_piece) == Piece::Rook );
 
     if (undo)
     {
@@ -292,7 +288,7 @@ undo_move_t do_move (struct board &board, Color who, move_t move)
     piece_t      orig_src_piece, src_piece, dst_piece;
     coord_t      src, dst;
     undo_move_t  undo_state = empty_undo_state;
-    Color   opponent = color_invert(who);
+    Color        opponent = color_invert(who);
 
     src = MOVE_SRC(move);
     dst = MOVE_DST(move);
@@ -300,15 +296,15 @@ undo_move_t do_move (struct board &board, Color who, move_t move)
     orig_src_piece = src_piece = piece_at (board, src);
     dst_piece = piece_at (board, dst);
 
-    if (piece_type (dst_piece) != Piece::None)
+    if (piece_type(dst_piece) != Piece::None)
     {
         assert( is_capture_move(move) );
         undo_state.category = MoveCategory::NormalCapture;
         undo_state.taken_piece_type = piece_type (dst_piece);
     }
 
-    if (piece_type (src_piece) != Piece::None &&
-            piece_type (dst_piece) != Piece::None)
+    if (piece_type(src_piece) != Piece::None &&
+            piece_type(dst_piece) != Piece::None)
     {
         assert (piece_color (src_piece) != piece_color (dst_piece));
     }
@@ -374,9 +370,9 @@ undo_move_t do_move (struct board &board, Color who, move_t move)
 void undo_move (struct board &board, Color who,
                 move_t move, undo_move_t undo_state)
 {
-    piece_t         orig_src_piece, src_piece, dst_piece = piece_and_color_none;
-    Piece dst_piece_type;
-    coord_t         src, dst;
+    piece_t    orig_src_piece, src_piece, dst_piece = piece_and_color_none;
+    Piece      dst_piece_type;
+    coord_t    src, dst;
     Color      opponent = color_invert(who);
 
     src = MOVE_SRC(move);
@@ -385,8 +381,8 @@ void undo_move (struct board &board, Color who,
     dst_piece_type = undo_state.taken_piece_type;
     orig_src_piece = src_piece = piece_at (board, dst);
 
-    assert(piece_type (src_piece) != Piece::None );
-    assert(piece_color (src_piece) == who );
+    assert (piece_type(src_piece) != Piece::None );
+    assert (piece_color(src_piece) == who );
     if (dst_piece_type != Piece::None)
         dst_piece = make_piece (opponent, dst_piece_type);
 
@@ -440,59 +436,6 @@ void undo_move (struct board &board, Color who,
     position_undo_move (&board.position, who, src_piece, move, undo_state);
 
     validate_castle_state (board, move);
-}
-
-static const char *move_str (move_t move)
-{
-	coord_t src, dst;
-	static char buf[256];
-	char tmp[32];
-
-	src = MOVE_SRC (move);
-	dst = MOVE_DST (move);
-
-	if (is_castling_move(move))
-	{
-		if (COLUMN(dst) - COLUMN(src) < 0)
-		{
-			// queenside
-			strcpy (buf, "O-O-O");
-		}
-		else
-		{
-			// kingside
-			strcpy (buf, "O-O");
-		}
-
-		return buf;
-	}
-		
-	buf[0] = col_to_char(COLUMN(src));
-	buf[1] = row_to_char(ROW(src));
-	
-	if (is_capture_move(move))
-		buf[2] = 'x';
-	else
-		buf[2] = ' ';
-
-	buf[3] = col_to_char (COLUMN (dst));
-	buf[4] = row_to_char (ROW (dst));
-	buf[5] = 0;
-
-	if (is_en_passant_move(move))
-	{
-		snprintf (tmp, sizeof(tmp)-1, " ep");
-		strcat (buf, tmp);
-	}
-
-	if (is_promoting_move(move))
-	{
-		snprintf (tmp, sizeof(tmp)-1, "(%c)", 
-				  piece_chr(move_get_promoted_piece(move)));
-		strcat (buf, tmp);
-	}
-
-	return buf;
 }
 
 static move_t castle_parse (std::string_view str, Color who)
@@ -626,7 +569,45 @@ move_t parse_move (std::string_view str, Color color)
 
 std::string to_string (const move_t &move)
 {
-    std::lock_guard lock_guard { output_mutex };
-    const char *str = move_str (move);
-    return { str };
+    coord_t src, dst;
+
+    src = MOVE_SRC (move);
+    dst = MOVE_DST (move);
+
+    if (is_castling_move(move))
+    {
+        if (COLUMN(dst) - COLUMN(src) < 0)
+        {
+            // queenside
+            return "O-O-O";
+        }
+        else
+        {
+            // kingside
+            return "O-O";
+        }
+    }
+
+    std::string result;
+    result += to_string (src);
+
+    if (is_capture_move(move))
+        result += "x";
+    else
+        result += " ";
+
+    result += to_string (dst);
+
+    if (is_en_passant_move(move))
+    {
+        result += " ep";
+    }
+
+    if (is_promoting_move(move))
+    {
+        std::string promoted_piece { piece_char (move_get_promoted_piece (move)) };
+        result += "(" + promoted_piece + ")";
+    }
+
+    return result;
 }

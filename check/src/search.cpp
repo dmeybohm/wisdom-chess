@@ -3,6 +3,7 @@
 #include <cassert>
 #include <ctime>
 #include <iostream>
+#include <sstream>
 #include <chrono>
 #include <memory>
 
@@ -143,7 +144,10 @@ static void calc_time (int nodes, system_clock_t start, system_clock_t end)
     auto duration = end - start;
     milliseconds ms = std::chrono::duration_cast<milliseconds>(duration);
     double seconds = ms.count() / 1000.0;
-	std::cout << "search took " << seconds << ", " << nodes / seconds << " nodes/sec\n";
+
+    std::stringstream progress_str;
+	progress_str << "search took " << seconds << ", " << nodes / seconds << " nodes/sec\n";
+	std::cout << progress_str.str();
 }
 
 move_t iterate (struct board &board, Color side,
@@ -151,7 +155,9 @@ move_t iterate (struct board &board, Color side,
 {
 	std::unique_ptr<move_tree_t>   principal_variation;
 
-	printf ("finding moves for %s\n", (side == Color::White) ? "white":"black");
+	std::stringstream outstr;
+	outstr << "finding moves for " << to_string(side) << "\n";
+	std::cout << outstr.str();
 
 	nodes_visited = 0;
 	cutoffs = 0;
@@ -168,14 +174,20 @@ move_t iterate (struct board &board, Color side,
 
 	if (!is_null_move (result.move))
 	{
-		printf ("move selected = %s [ score: %d ]\n", to_string(result.move).c_str(),
-	            result.score);
-		printf ("nodes visited = %d, cutoffs = %d\n", nodes_visited, cutoffs);
+	    std::stringstream progress_str;
+	    progress_str << "move selected = " << to_string(result.move) << " [ score: "
+	        << result.score << " ]\n";
+	    progress_str << "nodes visited = " << nodes_visited << ", cutoffs = " << cutoffs << "\n";
+	    std::cout << progress_str.str();
 	}
 
 	// principal variation could be null if search was interrupted
 	if (principal_variation != nullptr)
-		std::cout << "principal variation: " << principal_variation->to_string() << "\n";
+    {
+	    std::stringstream variation_str;
+		variation_str << "principal variation: " << principal_variation->to_string() << "\n";
+		std::cout << variation_str.str();
+    }
 
 	return result.move;
 }
@@ -193,9 +205,7 @@ move_t find_best_move (struct board &board, Color side, move_history_t &move_his
 // Get the score for a checkmate discovered X moves away.
 // Checkmates closer to the current position are more valuable than those
 // further away.
-int checkmate_score_in_moves (size_t moves)
+int checkmate_score_in_moves (int moves)
 {
     return INFINITE + INFINITE / (1 + moves);
 }
-
-// vi: set ts=4 sw=4:

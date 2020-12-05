@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <iostream>
 #include <memory>
 
@@ -109,9 +108,7 @@ int main (int argc, char **argv)
 
 		if (is_checkmated (game.board, game.turn))
 		{
-			printf ("%s wins the game\n", game.turn == Color::White ? "Black" :
-			        "White");
-			printf ("Save the game? ");
+		    std::cout << to_string(game.turn) << " wins the game.\n";
 			return 0;
 		}
 

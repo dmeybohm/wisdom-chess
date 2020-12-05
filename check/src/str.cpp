@@ -1,9 +1,9 @@
 #include <string>
 
-std::string chomp (std::string str)
+std::string chomp (const std::string &str)
 {
     std::string result { str };
-    if (result.size() == 0)
+    if (result.empty())
         return result;
     if (result[result.size() - 1] == '\n')
         result = result.substr(0, result.size() - 1);

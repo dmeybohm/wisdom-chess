@@ -1,3 +1,14 @@
 #include "piece.h"
 
-// vi: set ts=4 sw=4:
+std::string to_string (Color who)
+{
+    switch (who)
+    {
+        case Color::White:
+            return "White";
+        case Color::Black:
+            return "Black";
+        case Color::None:
+            return "None";
+    }
+}

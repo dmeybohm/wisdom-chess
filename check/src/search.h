@@ -36,9 +36,8 @@ int quiesce (struct board &board, Color side, int alpha, int beta, int depth,
              struct move_timer *timer, move_history_t &history);
 
 // Get the score for checkmate in X moves.
-int  checkmate_score_in_moves (size_t moves);
+int  checkmate_score_in_moves (int moves);
 
 void print_reverse_recur (move_tree_t *tree);
-
 
 #endif // EVOLVE_CHESS_SEARCH_H_

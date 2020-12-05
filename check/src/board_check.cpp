@@ -18,8 +18,7 @@ void board_check_validate (struct board_check *board_check, struct board &restor
     board_hash_init (&updated_hash, restored_board);
     if (updated_hash.hash != board_check->hash.hash)
     {
-        printf ("move considering: %s (%s to move)\n", to_string(*mv).c_str(),
-                who == Color::White ? "White" : "Black");
+        std::cout << "move considering: " << to_string(*mv) << "(" << to_string(who) << " to move)\n";
         board_dump (restored_board);
         assert (0);
     }

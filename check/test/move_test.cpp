@@ -38,6 +38,16 @@ TEST_CASE( "Parsing a castling move", "[move]")
     REQUIRE( castling == expected );
 }
 
+TEST_CASE( "Converting a move to a string", "[move]" )
+{
+    move_t with_spaces = move_parse ("   e2e4", Color::White);
+    REQUIRE( to_string(with_spaces) == "e2 e4" );
+    move_t en_passant = move_parse ("   e4d5 ep   ", Color::White);
+    REQUIRE( to_string(en_passant) == "e4 d5 ep" );
+    move_t castling = move_parse ("   o-o-o ", Color::Black);
+    REQUIRE( to_string(castling) == "O-O-O" );
+}
+
 TEST_CASE( "Moving and undoing a move works", "[move]" )
 {
     struct board board;

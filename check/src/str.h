@@ -3,6 +3,6 @@
 
 #include <string>
 
-std::string chomp (std::string str);
+std::string chomp (const std::string &str);
 
 #endif
