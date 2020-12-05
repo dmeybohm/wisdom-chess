@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <assert.h>
-#include <stdlib.h>
-
 #include "coord.h"
 #include "move.h"
 #include "board.h"
@@ -193,5 +189,3 @@ bool is_drawing_move (const move_history_t &move_history, move_t move)
 {
     return false;
 }
-
-// vi: set ts=4 sw=4:

@@ -1,4 +1,3 @@
-#include <cassert>
 #include <array>
 
 #include "piece.h"
@@ -181,7 +180,7 @@ static void moves_bishop (struct board &board, Color who,
 				
 				moves.push_back (make_move (piece_row, piece_col, row, col));
 
-				if (piece_type (piece) != Piece::None)
+				if (piece_type(piece) != Piece::None)
 					break;
 			}
 		}
@@ -475,14 +474,14 @@ move_list_t generate_moves (board &board, Color who)
 	{
 	    piece_t piece = piece_at (board, coord);
 
-		if (piece_type (piece) == Piece::None)
+		if (piece_type(piece) == Piece::None)
 			continue;
 
-		Color color = piece_color (piece);
+		Color color = piece_color(piece);
 		if (color != who)
 			continue;
 
-	    auto [row, col]  = coord;
+	    auto [row, col] = coord;
 
 		(*move_functions[piece_index(piece_type(piece))])
 		    (board, who, row, col, new_moves);

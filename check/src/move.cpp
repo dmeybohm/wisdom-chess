@@ -68,8 +68,9 @@ static move_t get_castling_rook_move (struct board &board, move_t move,
     if (!((piece_type (piece_at (board, src_row, src_col)) == Piece::Rook
            || piece_type (piece_at (board, dst_row, dst_col)) == Piece::Rook)))
     {
-        std::stringstream ostr;
-        ostr << "move considering: " << to_string(move) << "(" << to_string(who) << " to move)\n";
+        std::stringstream output;
+        output << "move considering: " << to_string(move) << "(" << to_string(who) << " to move)\n";
+        std::cerr << output.str();
         board.dump();
         assert (0);
     }

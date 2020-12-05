@@ -34,18 +34,17 @@ public:
             case Piece::Bishop:  return MATERIAL_WEIGHT_BISHOP;
             case Piece::Knight:  return MATERIAL_WEIGHT_KNIGHT;
             case Piece::Pawn:    return MATERIAL_WEIGHT_PAWN;
-            default: abort();
         }
     }
 
     void add (piece_t piece)
     {
-        my_score[color_index(piece_color (piece))] += weight (piece_type (piece));
+        my_score[color_index(piece_color(piece))] += weight (piece_type(piece));
     }
 
     void remove (piece_t piece)
     {
-        my_score[color_index(piece_color (piece))] -= weight (piece_type (piece));
+        my_score[color_index(piece_color(piece))] -= weight (piece_type(piece));
     }
 
     [[nodiscard]] int score (Color who) const
