@@ -9,8 +9,6 @@
 #include "coord.h"
 #include "piece.h"
 
-#include "realloc_vector.hpp"
-
 struct board;
 
 typedef int8_t castle_state_t;

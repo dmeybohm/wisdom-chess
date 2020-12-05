@@ -21,7 +21,7 @@ add_executable(chess_tests
         pawn_promotion_test.cpp
         board_builder_test.cpp
         check_test.cpp position_test.cpp move_test.cpp search_test.cpp parse_simple_move.cpp parse_simple_move.hpp
-        parse_simple_move_test.cpp ../src/realloc_vector.cpp ../src/realloc_vector.hpp ../src/coord.cpp
+        parse_simple_move_test.cpp ../src/coord.cpp
         ../src/fen.cpp ../src/fen.hpp fen_test.cpp ../src/move_list.cpp ../src/move_list.hpp move_list_test.cpp ../src/move_history.hpp ../src/move_history.cpp ../src/multithread_search.cpp ../src/multithread_search.h ../src/coord_iterator.cpp ../src/coord_iterator.hpp)
 
 		if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
