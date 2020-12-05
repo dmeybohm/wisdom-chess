@@ -26,18 +26,18 @@ enum castle
 
 constexpr int MAX_CASTLE_STATES = 8;
 
-enum move_category
+enum class MoveCategory
 {
-    MOVE_CATEGORY_NON_CAPTURE = 0,
-    MOVE_CATEGORY_NORMAL_CAPTURE = 1,
-    MOVE_CATEGORY_EN_PASSANT = 2,
-    MOVE_CATEGORY_CASTLING = 3,
+    NonCapture = 0,
+    NormalCapture = 1,
+    EnPassant = 2,
+    Castling = 3,
 };
 
 typedef struct undo_move
 {
-    enum move_category          category;
-    Piece             taken_piece_type;
+    MoveCategory                category;
+    Piece                       taken_piece_type;
     
     castle_state_t              current_castle_state;
     castle_state_t              opponent_castle_state;
@@ -46,7 +46,7 @@ typedef struct undo_move
 
 constexpr undo_move_t empty_undo_state =
 {
-    .category = MOVE_CATEGORY_NON_CAPTURE,
+    .category = MoveCategory::NonCapture,
     .taken_piece_type = Piece::None,
     .current_castle_state = CASTLE_NONE,
     .opponent_castle_state = CASTLE_NONE,
@@ -61,10 +61,10 @@ typedef struct move
 	int8_t            dst_row : 4;
 	int8_t            dst_col : 4;
 
-	Color         promoted_color: 4;
-	Piece    promoted_piece_type: 4;
+	Color             promoted_color: 4;
+	Piece             promoted_piece_type: 4;
 
-	enum move_category move_category : 4;
+	MoveCategory      move_category : 4;
 } move_t;
 
 class parse_move_exception : public std::exception
@@ -100,16 +100,16 @@ constexpr piece_t move_get_promoted_piece (move_t move)
 
 constexpr int is_capture_move (move_t move)
 {
-	return move.move_category == MOVE_CATEGORY_NORMAL_CAPTURE;
+	return move.move_category == MoveCategory::NormalCapture;
 }
 
 constexpr piece_t captured_material (undo_move_t undo_state, Color opponent)
 {
-    if (undo_state.category == MOVE_CATEGORY_NORMAL_CAPTURE)
+    if (undo_state.category == MoveCategory::NormalCapture)
     {
         return make_piece (opponent, undo_state.taken_piece_type);
     }
-    else if (undo_state.category == MOVE_CATEGORY_EN_PASSANT)
+    else if (undo_state.category == MoveCategory::EnPassant)
     {
         return make_piece (opponent, Piece::Pawn);
     }
@@ -121,7 +121,7 @@ constexpr piece_t captured_material (undo_move_t undo_state, Color opponent)
 
 constexpr bool is_en_passant_move (move_t move)
 {
-	return move.move_category == MOVE_CATEGORY_EN_PASSANT;
+	return move.move_category == MoveCategory::EnPassant;
 }
 
 constexpr bool move_affects_current_castle_state (undo_move_t move)
@@ -136,7 +136,7 @@ constexpr bool move_affects_opponent_castle_state (undo_move_t move)
 
 constexpr bool is_castling_move (move_t move)
 {
-	return move.move_category == MOVE_CATEGORY_CASTLING;
+	return move.move_category == MoveCategory::Castling;
 }
 
 constexpr bool is_double_square_pawn_move (piece_t src_piece, move_t move)
@@ -183,7 +183,7 @@ constexpr move_t move_create (int8_t src_row, int8_t src_col,
 	        .dst_col = dst_col,
 	        .promoted_color = Color::None,
 	        .promoted_piece_type = Piece::None,
-	        .move_category = MOVE_CATEGORY_NON_CAPTURE,
+	        .move_category = MoveCategory::NonCapture,
 	};
 
 	return result;
@@ -198,7 +198,7 @@ constexpr move_t move_create_capturing (int8_t src_row, int8_t src_col,
                                             int8_t dst_row, int8_t dst_col)
 {
     move_t move = move_create (src_row, src_col, dst_row, dst_col);
-    move.move_category = MOVE_CATEGORY_NORMAL_CAPTURE;
+    move.move_category = MoveCategory::NormalCapture;
     return move;
 }
 
@@ -206,7 +206,7 @@ constexpr move_t move_create_castling (int8_t src_row, int8_t src_col,
                                        int8_t dst_row, int8_t dst_col)
 {
     move_t move = move_create (src_row, src_col, dst_row, dst_col);
-    move.move_category = MOVE_CATEGORY_CASTLING;
+    move.move_category = MoveCategory::Castling;
     return move;
 }
 
@@ -214,9 +214,9 @@ static inline move_t move_with_capture (move_t move)
 {
     coord_t src = MOVE_SRC(move);
     coord_t dst = MOVE_DST(move);
-    assert (move.move_category == MOVE_CATEGORY_NON_CAPTURE);
+    assert (move.move_category == MoveCategory::NonCapture);
     move_t result = move_create (ROW(src), COLUMN(src), ROW(dst), COLUMN(dst));
-    result.move_category = MOVE_CATEGORY_NORMAL_CAPTURE;
+    result.move_category = MoveCategory::NormalCapture;
     return result;
 }
 
@@ -224,7 +224,7 @@ constexpr move_t move_create_en_passant (int8_t src_row, int8_t src_col,
                                              int8_t dst_row, int8_t dst_col)
 {
     move_t move = move_create (src_row, src_col, dst_row, dst_col);
-    move.move_category = MOVE_CATEGORY_EN_PASSANT;
+    move.move_category = MoveCategory::EnPassant;
     return move;
 }
 

@@ -69,7 +69,7 @@ TEST_CASE( "En passant moves work on the right", "[en-passant]" )
 
     undo_move_t en_passant_undo_state = do_move (board, Color::White, en_passant_move);
 
-    REQUIRE( en_passant_undo_state.category == MOVE_CATEGORY_EN_PASSANT );
+    REQUIRE( en_passant_undo_state.category == MoveCategory::EnPassant );
     REQUIRE( is_en_passant_vulnerable (en_passant_undo_state, Color::Black) );
     REQUIRE( !is_en_passant_vulnerable (en_passant_undo_state, Color::White) );
 
@@ -134,7 +134,7 @@ TEST_CASE( "En passant moves work on the left", "[en-passant]" )
 
     undo_move_t en_passant_undo_state = do_move (board, Color::White, en_passant_move);
 
-    REQUIRE( en_passant_undo_state.category == MOVE_CATEGORY_EN_PASSANT );
+    REQUIRE( en_passant_undo_state.category == MoveCategory::EnPassant );
     REQUIRE( is_en_passant_vulnerable (en_passant_undo_state, Color::Black) );
     REQUIRE( !is_en_passant_vulnerable (en_passant_undo_state, Color::White) );
 

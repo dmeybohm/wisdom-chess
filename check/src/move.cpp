@@ -303,7 +303,7 @@ undo_move_t do_move (struct board &board, Color who, move_t move)
     if (piece_type (dst_piece) != Piece::None)
     {
         assert( is_capture_move(move) );
-        undo_state.category = MOVE_CATEGORY_NORMAL_CAPTURE;
+        undo_state.category = MoveCategory::NormalCapture;
         undo_state.taken_piece_type = piece_type (dst_piece);
     }
 
@@ -325,14 +325,14 @@ undo_move_t do_move (struct board &board, Color who, move_t move)
     if (is_en_passant_move(move))
     {
         dst_piece = handle_en_passant (board, who, src, dst, 0);
-        undo_state.category = MOVE_CATEGORY_EN_PASSANT;
+        undo_state.category = MoveCategory::EnPassant;
     }
 
     // check for castling
     if (is_castling_move(move))
     {
         handle_castling (board, who, move, src, dst, 0);
-        undo_state.category = MOVE_CATEGORY_CASTLING;
+        undo_state.category = MoveCategory::Castling;
     }
 
     handle_en_passant_eligibility (board, who, src_piece, move, &undo_state, 0);
@@ -612,8 +612,8 @@ move_t parse_move (std::string_view str, Color color)
 
     move_t result = move_parse (str, color);
     if (color == Color::None &&
-        result.move_category != MOVE_CATEGORY_NORMAL_CAPTURE &&
-        result.move_category != MOVE_CATEGORY_NON_CAPTURE)
+        result.move_category != MoveCategory::NormalCapture &&
+        result.move_category != MoveCategory::NonCapture)
     {
         throw parse_move_exception("Invalid type of move in parse_simple_move");
     }
