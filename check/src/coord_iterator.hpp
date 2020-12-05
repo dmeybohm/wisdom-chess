@@ -28,7 +28,7 @@ public:
 
     coord_t operator* () const
     {
-        return coord_create (row, col);
+        return make_coord (row, col);
     }
 
     coord_iterator& operator++ ()

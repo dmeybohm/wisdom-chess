@@ -82,7 +82,7 @@ static coord_t translate_position (coord_t coord, Color who)
     int8_t row = ROW(coord);
     int8_t col = COLUMN(coord);
 
-    return coord_create (7 - row, 7 - col);
+    return make_coord (7 - row, 7 - col);
 }
 
 void position_init (struct position *positions)
@@ -132,8 +132,8 @@ void position_do_move (struct position *position, Color color,
 {
     Color opponent = color_invert(color);
 
-    coord_t src = MOVE_SRC(move);
-    coord_t dst = MOVE_DST(move);
+    coord_t src = move_src (move);
+    coord_t dst = move_dst (move);
 
     position_remove (position, color, src, piece);
 
@@ -158,8 +158,8 @@ void position_do_move (struct position *position, Color color,
         int8_t rook_dst_col = is_castling_move_on_king_side(move) ?
                                KING_CASTLED_ROOK_COLUMN : QUEEN_CASTLED_ROOK_COLUMN;
 
-        coord_t src_rook_coord = coord_create (rook_src_row, rook_src_col);
-        coord_t dst_rook_coord = coord_create (rook_src_row, rook_dst_col);
+        coord_t src_rook_coord = make_coord (rook_src_row, rook_src_col);
+        coord_t dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
         piece_t rook = make_piece (color, Piece::Rook);
 
         position_remove (position, color, src_rook_coord, rook);
@@ -176,8 +176,8 @@ void position_undo_move (struct position *position, Color color,
                          piece_t piece, move_t move, undo_move_t undo_state)
 {
     Color opponent = color_invert(color);
-    coord_t src = MOVE_SRC(move);
-    coord_t dst = MOVE_DST(move);
+    coord_t src = move_src (move);
+    coord_t dst = move_dst (move);
 
     piece_t dst_piece = is_promoting_move(move) ?
                         move_get_promoted_piece (move) : piece;
@@ -206,8 +206,8 @@ void position_undo_move (struct position *position, Color color,
         int8_t rook_dst_col = is_castling_move_on_king_side(move) ?
                                KING_CASTLED_ROOK_COLUMN : QUEEN_CASTLED_ROOK_COLUMN;
 
-        coord_t src_rook_coord = coord_create (rook_src_row, rook_src_col);
-        coord_t dst_rook_coord = coord_create (rook_src_row, rook_dst_col);
+        coord_t src_rook_coord = make_coord (rook_src_row, rook_src_col);
+        coord_t dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
         piece_t rook = make_piece (color, Piece::Rook);
         position_remove (position, color, dst_rook_coord, rook);
         position_add (position, color, src_rook_coord, rook);

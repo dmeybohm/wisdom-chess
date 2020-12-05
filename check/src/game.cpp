@@ -80,7 +80,7 @@ std::optional<game> game::load (Color player)
 		// set the move as taking it. Otherwise, we'll trip over some
 		// consistency checks that make sure we don't erase pieces.
 		//
-		dst = MOVE_DST(move);
+		dst = move_dst (move);
 		piece = piece_at (result.board, dst);
 
 		if (piece_type (piece) != Piece::None)
@@ -90,7 +90,7 @@ std::optional<game> game::load (Color player)
 			// for historical reasons, we automatically convert to capture move
 			// here. but should probably throw an exception instead.
 			if (!is_capture_move(move))
-			    move = move_with_capture(move);
+			    move = copy_move_with_capture (move);
 		}
 
 		result.move (move);

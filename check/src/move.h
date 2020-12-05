@@ -76,14 +76,14 @@ public:
 
 ////////////////////////////////////////////////////////////////////
 
-constexpr coord_t MOVE_SRC (move_t mv)
+constexpr coord_t move_src (move_t mv)
 {
-	return coord_create (mv.src_row, mv.src_col);
+	return make_coord (mv.src_row, mv.src_col);
 }
 
-constexpr coord_t MOVE_DST (move_t mv)
+constexpr coord_t move_dst (move_t mv)
 {
-	return coord_create (mv.dst_row, mv.dst_col);
+	return make_coord (mv.dst_row, mv.dst_col);
 }
 
 constexpr int is_promoting_move (move_t move)
@@ -139,8 +139,8 @@ constexpr bool is_castling_move (move_t move)
 
 constexpr bool is_double_square_pawn_move (piece_t src_piece, move_t move)
 {
-    coord_t src = MOVE_SRC(move);
-    coord_t dst = MOVE_DST(move);
+    coord_t src = move_src (move);
+    coord_t dst = move_dst (move);
     return piece_type (src_piece) == Piece::Pawn && abs(ROW(src) - ROW(dst)) == 2;
 }
 
@@ -162,7 +162,7 @@ static inline int8_t castling_row_from_color (Color who)
     }
 }
 
-constexpr move_t move_with_promotion (move_t move, piece_t piece)
+constexpr move_t copy_move_with_promotion (move_t move, piece_t piece)
 {
     move_t result = move;
     result.promoted_piece_type = piece_type (piece);
@@ -171,8 +171,8 @@ constexpr move_t move_with_promotion (move_t move, piece_t piece)
 }
 
 // run-of-the-mill move with no promotion involved
-constexpr move_t move_create (int8_t src_row, int8_t src_col,
-                                  int8_t dst_row, int8_t dst_col)
+constexpr move_t make_move (int8_t src_row, int8_t src_col,
+                            int8_t dst_row, int8_t dst_col)
 {
 	move_t result = {
 	        .src_row = src_row,
@@ -187,41 +187,41 @@ constexpr move_t move_create (int8_t src_row, int8_t src_col,
 	return result;
 }
 
-constexpr move_t move_create (coord_t src, coord_t dst)
+constexpr move_t make_move (coord_t src, coord_t dst)
 {
-    return move_create (ROW(src), COLUMN(src), ROW(dst), COLUMN(dst));
+    return make_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
 }
 
-constexpr move_t move_create_capturing (int8_t src_row, int8_t src_col,
-                                            int8_t dst_row, int8_t dst_col)
+constexpr move_t make_capturing_move (int8_t src_row, int8_t src_col,
+                                      int8_t dst_row, int8_t dst_col)
 {
-    move_t move = move_create (src_row, src_col, dst_row, dst_col);
+    move_t move = make_move (src_row, src_col, dst_row, dst_col);
     move.move_category = MoveCategory::NormalCapture;
     return move;
 }
 
-constexpr move_t move_create_castling (int8_t src_row, int8_t src_col,
-                                       int8_t dst_row, int8_t dst_col)
+constexpr move_t make_castling_move (int8_t src_row, int8_t src_col,
+                                     int8_t dst_row, int8_t dst_col)
 {
-    move_t move = move_create (src_row, src_col, dst_row, dst_col);
+    move_t move = make_move (src_row, src_col, dst_row, dst_col);
     move.move_category = MoveCategory::Castling;
     return move;
 }
 
-static inline move_t move_with_capture (move_t move)
+static inline move_t copy_move_with_capture (move_t move)
 {
-    coord_t src = MOVE_SRC(move);
-    coord_t dst = MOVE_DST(move);
+    coord_t src = move_src (move);
+    coord_t dst = move_dst (move);
     assert (move.move_category == MoveCategory::NonCapture);
-    move_t result = move_create (ROW(src), COLUMN(src), ROW(dst), COLUMN(dst));
+    move_t result = make_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
     result.move_category = MoveCategory::NormalCapture;
     return result;
 }
 
-constexpr move_t move_create_en_passant (int8_t src_row, int8_t src_col,
-                                             int8_t dst_row, int8_t dst_col)
+constexpr move_t make_en_passant_move (int8_t src_row, int8_t src_col,
+                                       int8_t dst_row, int8_t dst_col)
 {
-    move_t move = move_create (src_row, src_col, dst_row, dst_col);
+    move_t move = make_move (src_row, src_col, dst_row, dst_col);
     move.move_category = MoveCategory::EnPassant;
     return move;
 }
@@ -233,7 +233,7 @@ constexpr bool is_null_move (move_t move)
 	    move.dst_row == 0 && move.dst_col == 0;
 }
 
-constexpr move_t null_move = move_create (0, 0, 0, 0);
+constexpr move_t null_move = make_move (0, 0, 0, 0);
 
 constexpr bool move_equals (move_t a, move_t b)
 {
@@ -304,7 +304,6 @@ coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst);
 
 // Parse a move
 move_t parse_move (std::string_view str, Color color = Color::None);
-
 
 /////////////////////////////////////////////////////////////////////
 

@@ -32,14 +32,14 @@ constexpr bool INVALID (int8_t row_or_col)
     return !VALID(row_or_col);
 }
 
-constexpr coord_t coord_create (int8_t row, int8_t col)
+constexpr coord_t make_coord (int8_t row, int8_t col)
 {
     assert (VALID(row) && VALID(col));
     coord_t result = { .row = row, .col = col };
     return result;
 }
 
-constexpr coord_t no_en_passant_coord = coord_create (0, 0);
+constexpr coord_t no_en_passant_coord = make_coord (0, 0);
 
 ///////////////////////////////////////////////
 

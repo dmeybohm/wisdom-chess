@@ -17,7 +17,7 @@ coord_t coord_alg (std::string_view coord_str)
     if (col < 0 || col >= NR_COLUMNS)
         throw board_builder_exception("Invalid column!");
 
-    return coord_create (row, col);
+    return make_coord (row, col);
 }
 
 void board_builder::add_piece (std::string_view coord_str, Color who, Piece piece_type)
@@ -34,7 +34,7 @@ void board_builder::add_piece (int8_t row, int8_t col, Color who, Piece piece_ty
 {
     struct piece_with_coord new_piece
     {
-        .coord = coord_create (row, col),
+        .coord = make_coord (row, col),
         .color = who,
         .piece_type = piece_type,
     };

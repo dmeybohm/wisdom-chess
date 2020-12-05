@@ -113,7 +113,7 @@ static void board_init_from_positions (board &board, const std::vector<board_pos
                 continue;
 
             new_piece = make_piece (color, pieces[col]);
-            coord_t place = coord_create (row, col);
+            coord_t place = make_coord (row, col);
             board_set_piece (board, place, new_piece);
 
             board.material.add (new_piece);

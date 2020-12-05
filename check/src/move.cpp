@@ -10,7 +10,7 @@
 
 coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst)
 {
-    return coord_create (ROW(src), COLUMN(dst));
+    return make_coord (ROW (src), COLUMN (dst));
 }
 
 piece_t handle_en_passant (struct board &board, Color who,
@@ -46,8 +46,8 @@ static move_t get_castling_rook_move (struct board &board, move_t move,
 
     assert (is_castling_move (move));
 
-    src = MOVE_SRC(move);
-    dst = MOVE_DST(move);
+    src = move_src (move);
+    dst = move_dst (move);
 
     src_row = ROW(src);
     dst_row = ROW(dst);
@@ -74,7 +74,7 @@ static move_t get_castling_rook_move (struct board &board, move_t move,
         assert (0);
     }
 
-    return move_create (src_row, src_col, dst_row, dst_col);
+    return make_move (src_row, src_col, dst_row, dst_col);
 }
 
 static void handle_castling (struct board &board, Color who,
@@ -93,8 +93,8 @@ static void handle_castling (struct board &board, Color who,
 
     assert (abs(COLUMN(src) - COLUMN(dst)) == 2);
 
-    rook_src = MOVE_SRC(rook_move);
-    rook_dst = MOVE_DST(rook_move);
+    rook_src = move_src (rook_move);
+    rook_dst = move_dst (rook_move);
 
     empty_piece = make_piece (Color::None, Piece::None);
 
@@ -272,9 +272,9 @@ static void handle_en_passant_eligibility (struct board &board, Color who, piece
         coord_t new_state = no_en_passant_coord;
         if (is_double_square_pawn_move (src_piece, move))
         {
-            coord_t src = MOVE_SRC(move);
+            coord_t src = move_src (move);
             int8_t prev_row = NEXT (ROW(src), direction);
-            new_state = coord_create (prev_row, COLUMN(src));
+            new_state = make_coord (prev_row, COLUMN (src));
         }
         undo_state->en_passant_target[c_index] = board.en_passant_target[c_index];
         undo_state->en_passant_target[o_index] = board.en_passant_target[o_index];
@@ -290,8 +290,8 @@ undo_move_t do_move (struct board &board, Color who, move_t move)
     undo_move_t  undo_state = empty_undo_state;
     Color        opponent = color_invert(who);
 
-    src = MOVE_SRC(move);
-    dst = MOVE_DST(move);
+    src = move_src (move);
+    dst = move_dst (move);
 
     orig_src_piece = src_piece = piece_at (board, src);
     dst_piece = piece_at (board, dst);
@@ -375,8 +375,8 @@ void undo_move (struct board &board, Color who,
     coord_t    src, dst;
     Color      opponent = color_invert(who);
 
-    src = MOVE_SRC(move);
-    dst = MOVE_DST(move);
+    src = move_src (move);
+    dst = move_dst (move);
 
     dst_piece_type = undo_state.taken_piece_type;
     orig_src_piece = src_piece = piece_at (board, dst);
@@ -460,7 +460,7 @@ static move_t castle_parse (std::string_view str, Color who)
 	else
 		return null_move;
 
-	return move_create_castling (src_row, KING_COLUMN, src_row, dst_col);
+	return make_castling_move (src_row, KING_COLUMN, src_row, dst_col);
 }
 
 move_t move_parse (std::string_view str, Color who)
@@ -521,9 +521,9 @@ move_t move_parse (std::string_view str, Color who)
         return null_move;
     }
 
-    move_t move = move_create (src, dst);
+    move_t move = make_move (src, dst);
     if (is_capturing)
-        move = move_with_capture(move);
+        move = copy_move_with_capture (move);
 
 	// grab extra identifiers describing the move
 	piece_t promoted = make_piece (Color::None, Piece::None);
@@ -539,10 +539,10 @@ move_t move_parse (std::string_view str, Color who)
         promoted = make_piece (who, Piece::Rook);
 
     if (piece_type (promoted) != Piece::None)
-        move = move_with_promotion (move, promoted);
+        move = copy_move_with_promotion (move, promoted);
 
     if (en_passant)
-        move = move_create_en_passant (ROW(src), COLUMN(src), ROW(dst), COLUMN(dst));
+        move = make_en_passant_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
 
 	return move;
 }
@@ -571,8 +571,8 @@ std::string to_string (const move_t &move)
 {
     coord_t src, dst;
 
-    src = MOVE_SRC (move);
-    dst = MOVE_DST (move);
+    src = move_src (move);
+    dst = move_dst (move);
 
     if (is_castling_move(move))
     {

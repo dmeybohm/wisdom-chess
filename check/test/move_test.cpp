@@ -6,7 +6,7 @@
 TEST_CASE( "Parsing a move", "[move]" )
 {
     move_t with_spaces = move_parse ("   e2e4", Color::White);
-    REQUIRE( move_create (coord_parse("e2"), coord_parse("e4")) == with_spaces );
+    REQUIRE(make_move (coord_parse ("e2"), coord_parse ("e4")) == with_spaces );
 }
 
 TEST_CASE( "Parsing an en-passant move", "[move]" )
@@ -14,7 +14,7 @@ TEST_CASE( "Parsing an en-passant move", "[move]" )
     move_t en_passant = move_parse ("   e4d5 ep   ", Color::White);
     coord_t src = coord_parse("e4");
     coord_t dst = coord_parse("d5");
-    move_t expected = move_create_en_passant (ROW(src), COLUMN(src), ROW(dst), COLUMN(dst));
+    move_t expected = make_en_passant_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
     REQUIRE( en_passant == expected );
 }
 
@@ -23,8 +23,8 @@ TEST_CASE( "Parsing a promoting move", "[move]" )
     move_t promoting = move_parse ("   d7d8 (B) ", Color::White);
     coord_t src = coord_parse("d7");
     coord_t dst = coord_parse("d8");
-    move_t expected = move_create (src, dst);
-    expected = move_with_promotion (expected, make_piece (Color::White, Piece::Bishop));
+    move_t expected = make_move (src, dst);
+    expected = copy_move_with_promotion (expected, make_piece (Color::White, Piece::Bishop));
     REQUIRE( promoting == expected );
 }
 
@@ -33,7 +33,7 @@ TEST_CASE( "Parsing a castling move", "[move]")
     move_t castling = move_parse ("   o-o-o ", Color::Black);
     coord_t src = coord_parse("e8");
     coord_t dst = coord_parse("c8");
-    move_t expected = move_create_castling (ROW(src), COLUMN(src), ROW(dst), COLUMN(dst));
+    move_t expected = make_castling_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
 
     REQUIRE( castling == expected );
 }

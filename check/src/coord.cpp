@@ -12,7 +12,7 @@ coord_t coord_parse (std::string_view str)
     if (!VALID(row) || !VALID(col))
         throw coord_parse_exception("Invalid algebraic coordinate!");
 
-    return coord_create (row, col);
+    return make_coord (row, col);
 }
 
 std::string to_string (coord_t coord)

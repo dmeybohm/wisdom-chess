@@ -106,7 +106,7 @@ bool is_king_threatened (struct board &board, Color who,
 	{
 		coord_t dst;
 
-		dst = MOVE_DST(move);
+		dst = move_dst (move);
 
 		row = ROW(dst);
 		col = COLUMN(dst);
@@ -170,7 +170,7 @@ bool was_legal_move (struct board &board, Color who, move_t mv)
 
 	if (is_castling_move(mv))
     {
-	    coord_t castled_pos = MOVE_DST(mv);
+	    coord_t castled_pos = move_dst (mv);
 	    auto [castled_row, castled_col] = castled_pos;
 
 	    assert (king_row == castled_row);

@@ -62,10 +62,10 @@ TEST_CASE( "En passant moves work on the right", "[en-passant]" )
     REQUIRE( is_en_passant_move(en_passant_move) );
 
     // Check position:
-    REQUIRE( ROW(MOVE_SRC(en_passant_move)) == 3 );
-    REQUIRE( COLUMN(MOVE_SRC(en_passant_move)) == 4 );
-    REQUIRE( ROW(MOVE_DST(en_passant_move)) == 2 );
-    REQUIRE( COLUMN(MOVE_DST(en_passant_move)) == 5 );
+    REQUIRE(ROW(move_src (en_passant_move)) == 3 );
+    REQUIRE(COLUMN(move_src (en_passant_move)) == 4 );
+    REQUIRE(ROW(move_dst (en_passant_move)) == 2 );
+    REQUIRE(COLUMN(move_dst (en_passant_move)) == 5 );
 
     undo_move_t en_passant_undo_state = do_move (board, Color::White, en_passant_move);
 
@@ -127,10 +127,10 @@ TEST_CASE( "En passant moves work on the left", "[en-passant]" )
     REQUIRE( is_en_passant_move(en_passant_move) );
 
     // Check position:
-    REQUIRE( ROW(MOVE_SRC(en_passant_move)) == 3 );
-    REQUIRE( COLUMN(MOVE_SRC(en_passant_move)) == 4 );
-    REQUIRE( ROW(MOVE_DST(en_passant_move)) == 2 );
-    REQUIRE( COLUMN(MOVE_DST(en_passant_move)) == 3 );
+    REQUIRE(ROW(move_src (en_passant_move)) == 3 );
+    REQUIRE(COLUMN(move_src (en_passant_move)) == 4 );
+    REQUIRE(ROW(move_dst (en_passant_move)) == 2 );
+    REQUIRE(COLUMN(move_dst (en_passant_move)) == 3 );
 
     undo_move_t en_passant_undo_state = do_move (board, Color::White, en_passant_move);
 

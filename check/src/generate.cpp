@@ -1,6 +1,5 @@
-#include <stdlib.h>
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
+#include <array>
 
 #include "piece.h"
 #include "move.h"
@@ -11,29 +10,34 @@
 
 ///////////////////////////////////////////////
 
-#define Move_Func_Arguments \
-	struct board &board, Color who, \
-	int piece_row, int piece_col, move_list_t &moves
+typedef void (*MoveFunc) (board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
 
-#define Move_Func_Param_Names \
-	board, who, piece_row, piece_col, moves
+static void moves_none   (board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
 
-#define MOVES_HANDLER(name) \
-	static void moves_##name (Move_Func_Arguments)
+static void moves_king   (board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
 
-///////////////////////////////////////////////
+static void moves_queen  (board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
 
-typedef void (*MoveFunc) (Move_Func_Arguments);
+static void moves_rook   (board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
 
-MOVES_HANDLER (none);
-MOVES_HANDLER (king);
-MOVES_HANDLER (queen);
-MOVES_HANDLER (rook);
-MOVES_HANDLER (bishop);
-MOVES_HANDLER (knight);
-MOVES_HANDLER (pawn);
+static void moves_bishop (board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
+
+static void moves_knight (board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
+
+static void moves_pawn   (board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
 
 static void knight_move_list_init ();
+
+static void add_en_passant_move (const board &board, Color who, int8_t piece_row, int8_t piece_col,
+                                 move_list_t &moves, int8_t en_passant_column);
 
 ///////////////////////////////////////////////
 
@@ -49,20 +53,16 @@ static MoveFunc move_functions[] =
 	nullptr,
 };
 
-move_list_t knight_moves[NR_ROWS][NR_COLUMNS];
-
-void add_en_passant_move (const struct board &board, Color who, int8_t piece_row, int8_t piece_col,
-                          move_list_t &moves, int8_t en_passant_column);
+move_list_t knight_moves[NR_ROWS][NR_COLUMNS]; // NOLINT(cert-err58-cpp)
 
 ///////////////////////////////////////////////
 
 // generate a lookup table for knight moves
 static void knight_move_list_init ()
 {
-	int k_row, k_col;
-    coord_iterator all_coords;
+	int8_t k_row, k_col;
 
-    for (auto [row, col] : all_coords)
+    for (auto [row, col] : all_coords_iterator)
 	{
 		for (k_row = -2; k_row <= 2; k_row++)
 		{
@@ -77,21 +77,23 @@ static void knight_move_list_init ()
 				if (INVALID (k_col + col))
 					continue;
 
-				move_t knight_move = move_create (k_row+row, k_col+col, row, col);
+				move_t knight_move = make_move (k_row + row, k_col + col, row, col);
 				knight_moves[k_row+row][k_col+col].push_back (knight_move);
 			}
 		}
 	}
 }
 
-MOVES_HANDLER (none)
+static void moves_none ([[maybe_unused]] board &board, [[maybe_unused]] Color who,
+                        [[maybe_unused]] int8_t piece_row, [[maybe_unused]] int8_t piece_col, move_list_t &moves)
 {
 	assert (0);
 }
 
-MOVES_HANDLER (king)
+static void moves_king (board &board, Color who,
+                        int8_t piece_row, int8_t piece_col, move_list_t &moves)
 {
-	int    row, col;
+	int8_t row, col;
 	
 	for (row = piece_row-1; row < 8 && row <= piece_row+1; row++)
 	{
@@ -103,33 +105,35 @@ MOVES_HANDLER (king)
 			if (INVALID (col))
 				continue;
 
-			moves.push_back (move_create (piece_row, piece_col, row, col));
+			moves.push_back (make_move (piece_row, piece_col, row, col));
 		}
 	}
 
     if (able_to_castle (board, who, CASTLE_QUEENSIDE))
     {
-        move_t queenside_castle = move_create_castling (piece_row, piece_col,
-                                                        piece_row, piece_col - 2);
+        move_t queenside_castle = make_castling_move (piece_row, piece_col,
+                                                      piece_row, piece_col - 2);
         moves.push_back (queenside_castle);
     }
 
     if (able_to_castle (board, who, CASTLE_KINGSIDE))
     {
-        move_t kingside_castle = move_create_castling (piece_row, piece_col,
-                                                       piece_row, piece_col + 2);
+        move_t kingside_castle = make_castling_move (piece_row, piece_col,
+                                                     piece_row, piece_col + 2);
         moves.push_back (kingside_castle);
     }
 }
 
-MOVES_HANDLER (queen)
+static void moves_queen (board &board, Color who,
+                         int8_t piece_row, int8_t piece_col, move_list_t &moves)
 {
 	// use the generators for bishop and rook
-	moves_bishop (Move_Func_Param_Names);
-	moves_rook   (Move_Func_Param_Names);
+	moves_bishop (board, who, piece_row, piece_col, moves);
+	moves_rook   (board, who, piece_row, piece_col, moves);
 }
 
-MOVES_HANDLER (rook)
+static void moves_rook (board &board, Color who,
+                        int8_t piece_row, int8_t piece_col, move_list_t &moves)
 {
 	int8_t       dir;
 	int8_t       row, col;
@@ -141,7 +145,7 @@ MOVES_HANDLER (rook)
 		{
 			piece = piece_at (board, row, piece_col);
 
-			moves.push_back (move_create (piece_row, piece_col, row, piece_col));
+			moves.push_back (make_move (piece_row, piece_col, row, piece_col));
 
 			if (piece_type (piece) != Piece::None)
 				break;
@@ -151,7 +155,7 @@ MOVES_HANDLER (rook)
 		{
 			piece = piece_at (board, piece_row, col);
 
-			moves.push_back (move_create (piece_row, piece_col, piece_row, col));
+			moves.push_back (make_move (piece_row, piece_col, piece_row, col));
 
 			if (piece_type (piece) != Piece::None)
 				break;
@@ -159,10 +163,11 @@ MOVES_HANDLER (rook)
 	}
 }
 
-MOVES_HANDLER (bishop)
+static void moves_bishop (struct board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, move_list_t &moves)
 {
 	int8_t r_dir, c_dir;
-	int8_t row,   col;
+	int8_t row, col;
 
 	for (r_dir = -1; r_dir <= 1; r_dir += 2)
 	{
@@ -174,7 +179,7 @@ MOVES_HANDLER (bishop)
 			{
 				piece_t  piece = piece_at (board, row, col);
 				
-				moves.push_back (move_create (piece_row, piece_col, row, col));
+				moves.push_back (make_move (piece_row, piece_col, row, col));
 
 				if (piece_type (piece) != Piece::None)
 					break;
@@ -184,7 +189,7 @@ MOVES_HANDLER (bishop)
 }
 
 static void moves_knight (struct board &board, Color who,
-	int piece_row, int piece_col, move_list_t &moves)
+	                      int8_t piece_row, int8_t piece_col, move_list_t &moves)
 {
     move_list_t kt_moves = generate_knight_moves (piece_row, piece_col);
 
@@ -222,15 +227,14 @@ static int8_t eligible_en_passant_column (const struct board &board, int8_t row,
     return -1;
 }
 
-MOVES_HANDLER (pawn)
+static void moves_pawn (board &board, Color who,
+                        int8_t piece_row, int8_t piece_col, move_list_t &moves)
 {
-	int8_t             dir;
-	int8_t             row;
-	int8_t             take_col;
-	int8_t             c_dir;
-	move_t             move[4];        // 4 possible pawn moves
-	piece_t            piece;
-	size_t             i;
+	int8_t   dir;
+	int8_t   row;
+	int8_t   take_col;
+	int8_t   c_dir;
+	piece_t  piece;
 
 	dir = pawn_direction (who);
 
@@ -242,21 +246,21 @@ MOVES_HANDLER (pawn)
 	row = NEXT (piece_row, dir);
 	assert (VALID(row));
 
-	memset (move, 0, sizeof (move));
+	std::array<move_t, 4> all_pawn_moves { null_move, null_move, null_move, null_move };
 
 	// single move
 	if (piece_type (piece_at (board, row, piece_col)) == Piece::None)
-		move[0] = move_create (piece_row, piece_col, row, piece_col);
+        all_pawn_moves[0] = make_move (piece_row, piece_col, row, piece_col);
 
 	// double move
 	if (is_pawn_unmoved (board, piece_row, piece_col))
 	{
-		int next_row = NEXT (row, dir);
+		int8_t next_row = NEXT (row, dir);
 
-		if (!is_null_move (move[0]) &&
+		if (!is_null_move (all_pawn_moves[0]) &&
             piece_type (piece_at (board, next_row, piece_col)) == Piece::None)
 		{
-			move[1] = move_create (piece_row, piece_col, next_row, piece_col);
+            all_pawn_moves[1] = make_move (piece_row, piece_col, next_row, piece_col);
 		}
 	}
 
@@ -274,9 +278,9 @@ MOVES_HANDLER (pawn)
                 piece_color (piece) != who)
 		{
 			if (c_dir == -1)
-				move[2] = move_create_capturing (piece_row, piece_col, row, take_col);
+                all_pawn_moves[2] = make_capturing_move (piece_row, piece_col, row, take_col);
 			else
-				move[3] = move_create_capturing (piece_row, piece_col, row, take_col);
+                all_pawn_moves[3] = make_capturing_move (piece_row, piece_col, row, take_col);
 		}
 	}
 
@@ -288,13 +292,13 @@ MOVES_HANDLER (pawn)
 			auto promoted_piece = make_piece (who, promotable_piece_type);
 
 			// promotion moves dont include en passant
-			for (i = 0; i < 4; i++)
+			for (auto &move : all_pawn_moves)
 			{
-				if (!is_null_move (move[i]))
+				if (!is_null_move (move))
 				{
-					move[i] = move_with_promotion (move[i], promoted_piece);
+                    move = copy_move_with_promotion (move, promoted_piece);
 
-					moves.push_back (move[i]);
+					moves.push_back (move);
 				}
 			}
 		}
@@ -307,18 +311,18 @@ MOVES_HANDLER (pawn)
 	if (VALID(en_passant_column))
 		add_en_passant_move (board, who, piece_row, piece_col, moves, en_passant_column);
 
-	for (i = 0; i < sizeof (move) / sizeof (move[0]); i++)
-		if (!is_null_move (move[i]))
-			moves.push_back (move[i]);
+	for (auto &check_pawn_move : all_pawn_moves)
+		if (!is_null_move (check_pawn_move))
+			moves.push_back (check_pawn_move);
 }
 
 // put en passant in a separate handler
 // in order to not pollute instruction cache with it
-void add_en_passant_move (const struct board &board, Color who, int8_t piece_row, int8_t piece_col,
-                          move_list_t &moves, int8_t en_passant_column)
+static void add_en_passant_move (const board &board, Color who, int8_t piece_row, int8_t piece_col,
+                                 move_list_t &moves, int8_t en_passant_column)
 {
     move_t new_move;
-    int direction;
+    int8_t direction;
     int8_t take_row, take_col;
 
     direction = pawn_direction (who);
@@ -331,7 +335,7 @@ void add_en_passant_move (const struct board &board, Color who, int8_t piece_row
     assert (piece_type (take_piece) == Piece::Pawn);
     assert (piece_color (take_piece) == color_invert (who));
 
-    new_move = move_create_en_passant (piece_row, piece_col, take_row, take_col);
+    new_move = make_en_passant_move (piece_row, piece_col, take_row, take_col);
 
     moves.push_back (new_move);
 }
@@ -346,22 +350,7 @@ const move_list_t &generate_knight_moves (int8_t row, int8_t col)
 	return knight_moves[row][col];
 }
 
-static const char *piece_type_str (piece_t piece)
-{
-	switch (piece_type (piece))
-	{
-	 case Piece::King: return "king";
-	 case Piece::Queen: return "queen";
-	 case Piece::Rook: return "rook";
-	 case Piece::Bishop: return "bishop";
-	 case Piece::Knight: return "knight";
-	 case Piece::Pawn: return "pawn";
-	 case Piece::None: return "<none>";
-	 default: assert(0);
-	}
-}
-
-move_list_t generate_legal_moves (struct board &board, Color who)
+move_list_t generate_legal_moves (board &board, Color who)
 {
     move_list_t    non_checks;
 
@@ -379,15 +368,15 @@ move_list_t generate_legal_moves (struct board &board, Color who)
 	return non_checks;
 }
 
-static int valid_castling_move (const struct board &board, Color who, move_t move)
+static int valid_castling_move (const board &board, Color who, move_t move)
 {
 	// check for an intervening piece
-	int     direction;
+	int8_t  direction;
 	coord_t src, dst;
 	piece_t piece1, piece2, piece3;
 
-	src = MOVE_SRC(move);
-	dst = MOVE_DST(move);
+	src = move_src (move);
+	dst = move_dst (move);
 
 	piece3 = make_piece (Color::None, Piece::None);
 
@@ -408,7 +397,7 @@ static int valid_castling_move (const struct board &board, Color who, move_t mov
             piece_type (piece3) == Piece::None;
 }
 
-move_list_t validate_moves (const move_list_t &move_list, const struct board &board,
+move_list_t validate_moves (const move_list_t &move_list, const board &board,
                             Color who)
 {
     move_list_t captures;
@@ -419,8 +408,8 @@ move_list_t validate_moves (const move_list_t &move_list, const struct board &bo
 		piece_t src_piece, dst_piece;
 		int     is_capture = 0;
 
-		src = MOVE_SRC(move);
-		dst = MOVE_DST(move);
+		src = move_src (move);
+		dst = move_dst (move);
 
 		src_piece = piece_at (board, src);
 		dst_piece = piece_at (board, dst);
@@ -436,8 +425,8 @@ move_list_t validate_moves (const move_list_t &move_list, const struct board &bo
 			if (!valid_castling_move (board, who, move))
 				continue;
 
-		if (piece_color (src_piece) == piece_color (dst_piece) &&
-                piece_type (dst_piece) != Piece::None &&
+		if (piece_color(src_piece) == piece_color(dst_piece) &&
+            piece_type(dst_piece) != Piece::None &&
             is_capture)
 		{
 			assert (is_capture);
@@ -451,7 +440,7 @@ move_list_t validate_moves (const move_list_t &move_list, const struct board &bo
 		if (is_capture)
 		{
 			if (!is_capture_move(move) && !is_en_passant_move(move))
-				move = move_with_capture (move);
+				move = copy_move_with_capture (move);
 
 			captures.push_back (move);
 		}
@@ -459,13 +448,12 @@ move_list_t validate_moves (const move_list_t &move_list, const struct board &bo
 		{
 			captures.push_back (move);
 		}
-
 	}
 
 	return captures;
 }
 
-move_list_t generate_captures (struct board &board, Color who)
+move_list_t generate_captures (board &board, Color who)
 {
     move_list_t captures;
     move_list_t move_list = generate_moves (board, who);
@@ -479,7 +467,7 @@ move_list_t generate_captures (struct board &board, Color who)
 	return captures;
 }
 
-move_list_t generate_moves (struct board &board, Color who)
+move_list_t generate_moves (board &board, Color who)
 {
 	move_list_t new_moves;
 
@@ -495,6 +483,7 @@ move_list_t generate_moves (struct board &board, Color who)
 			continue;
 
 	    auto [row, col]  = coord;
+
 		(*move_functions[piece_index(piece_type(piece))])
 		    (board, who, row, col, new_moves);
 	}
