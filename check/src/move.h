@@ -52,16 +52,16 @@ constexpr undo_move_t empty_undo_state =
 
 typedef struct move
 {
-	int8_t            src_row : 4;
-	int8_t            src_col : 4;
+	int8_t             src_row : 4;
+	int8_t             src_col : 4;
 
-	int8_t            dst_row : 4;
-	int8_t            dst_col : 4;
+	int8_t             dst_row : 4;
+	int8_t             dst_col : 4;
 
-	Color             promoted_color: 4;
-	Piece             promoted_piece_type: 4;
+	Color              promoted_color: 4;
+	Piece              promoted_piece_type: 4;
 
-	MoveCategory      move_category : 4;
+	MoveCategory       move_category : 4;
 } move_t;
 
 class parse_move_exception : public std::exception
