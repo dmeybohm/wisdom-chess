@@ -6,16 +6,16 @@ TEST_CASE("parse_simple_move parses captures and non-captures", "[parse-move]")
     move_t capture = parse_move("a6xb7");
     move_t non_capture = parse_move("e4 e8");
 
-    REQUIRE( move_equals (capture, move_parse ("a6xb7", COLOR_WHITE)) );
-    REQUIRE( move_equals (non_capture, move_parse ("e4 e8", COLOR_WHITE)) );
+    REQUIRE( move_equals (capture, move_parse ("a6xb7", Color::White)) );
+    REQUIRE( move_equals (non_capture, move_parse ("e4 e8", Color::White)) );
 }
 
 TEST_CASE("color matters in parse_move", "[parse-move]")
 {
-    move_t castle = parse_move("o-o", COLOR_BLACK);
+    move_t castle = parse_move("o-o", Color::Black);
     REQUIRE( ROW(MOVE_SRC(castle)) == 0 );
     REQUIRE( ROW(MOVE_DST(castle)) == 0 );
-    REQUIRE( move_equals (castle, move_parse ("o-o", COLOR_BLACK)));
+    REQUIRE( move_equals (castle, move_parse ("o-o", Color::Black)));
 }
 
 TEST_CASE("parse_move throws an exception for en-passant moves", "[parse-move]")

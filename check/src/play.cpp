@@ -12,7 +12,7 @@
 #include "str.h"
 
 // the color the computer is playing as
-static const enum color comp_player = COLOR_BLACK;
+static const Color comp_player = Color::Black;
 
 static void print_available_moves (game &game)
 {
@@ -99,7 +99,7 @@ static input_state_t read_move (game &game)
 
 int main (int argc, char **argv)
 {
-    struct game game { COLOR_WHITE, comp_player };
+    struct game game { Color::White, comp_player };
     input_state_t input_state { initial_input_state };
 
 	while (input_state.ok)
@@ -109,7 +109,7 @@ int main (int argc, char **argv)
 
 		if (is_checkmated (game.board, game.turn))
 		{
-			printf ("%s wins the game\n", game.turn == COLOR_WHITE ? "Black" :
+			printf ("%s wins the game\n", game.turn == Color::White ? "Black" :
 			        "White");
 			printf ("Save the game? ");
 			return 0;

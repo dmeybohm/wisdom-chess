@@ -14,10 +14,10 @@ struct game
 {
 	struct board       board;
 	move_history_t     history;
-	enum color         player;   // side the computer is playing as
-	enum color         turn;
+	Color         player;   // side the computer is playing as
+	Color         turn;
 
-	game(enum color _turn, enum color computer_player) :
+	game(Color _turn, Color computer_player) :
 	        player { computer_player },
 	        turn { _turn }
     {
@@ -27,7 +27,7 @@ struct game
         turn = _turn;
     }
 
-    game(enum color _turn, enum color computer_player, board_builder builder)
+    game(Color _turn, Color computer_player, board_builder builder)
             : board { builder.build() },
             player { computer_player},
             turn { _turn }
@@ -37,7 +37,7 @@ struct game
     }
 
     bool save();
-	static std::optional<game> load(enum color player);
+	static std::optional<game> load(Color player);
 
 	void move(move_t move);
 };

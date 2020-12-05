@@ -20,7 +20,7 @@ coord_t coord_alg (std::string_view coord_str)
     return coord_create (row, col);
 }
 
-void board_builder::add_piece (std::string_view coord_str, enum color who, enum piece_type piece_type)
+void board_builder::add_piece (std::string_view coord_str, Color who, Piece piece_type)
 {
     if (coord_str.size() != 2)
         throw board_builder_exception("Invalid coordinate string!");
@@ -30,7 +30,7 @@ void board_builder::add_piece (std::string_view coord_str, enum color who, enum 
     this->add_piece (ROW(algebraic), COLUMN(algebraic), who, piece_type);
 }
 
-void board_builder::add_piece (int8_t row, int8_t col, enum color who, enum piece_type piece_type)
+void board_builder::add_piece (int8_t row, int8_t col, Color who, Piece piece_type)
 {
     struct piece_with_coord new_piece
     {
@@ -48,19 +48,19 @@ void board_builder::add_piece (int8_t row, int8_t col, enum color who, enum piec
     this->pieces_with_coords.push_back (new_piece);
 }
 
-void board_builder::add_pieces (enum color who, const std::vector<struct piece_coord_string_with_type> &pieces)
+void board_builder::add_pieces (Color who, const std::vector<struct piece_coord_string_with_type> &pieces)
 {
     for (auto it : pieces)
         this->add_piece (it.coord, who, it.piece_type);
 }
 
-void board_builder::add_row_of_same_color_and_piece (int row, enum color who, enum piece_type piece_type)
+void board_builder::add_row_of_same_color_and_piece (int row, Color who, Piece piece_type)
 {
     for (int8_t col = 0; col < NR_COLUMNS; col++)
         this->add_piece (row, col, who, piece_type);
 }
 
-void board_builder::add_row_of_same_color_and_piece (std::string_view coord_str, enum color who, enum piece_type piece_type)
+void board_builder::add_row_of_same_color_and_piece (std::string_view coord_str, Color who, Piece piece_type)
 {
     coord_t coord = coord_alg (coord_str);
 
@@ -68,7 +68,7 @@ void board_builder::add_row_of_same_color_and_piece (std::string_view coord_str,
         this->add_piece (ROW(coord), col, who, piece_type);
 }
 
-void board_builder::add_row_of_same_color (int row, enum color who, std::vector<enum piece_type> piece_types)
+void board_builder::add_row_of_same_color (int row, Color who, std::vector<Piece> piece_types)
 {
     size_t col = 0;
 
@@ -76,7 +76,7 @@ void board_builder::add_row_of_same_color (int row, enum color who, std::vector<
         this->add_piece (row, col, who, *it);
 }
 
-void board_builder::add_row_of_same_color (std::string_view coord_str, enum color who, std::vector<enum piece_type> piece_types)
+void board_builder::add_row_of_same_color (std::string_view coord_str, Color who, std::vector<Piece> piece_types)
 {
     coord_t coord = coord_alg (coord_str);
     size_t col = 0;
@@ -85,13 +85,13 @@ void board_builder::add_row_of_same_color (std::string_view coord_str, enum colo
         this->add_piece (ROW(coord), col, who, *it);
 }
 
-void board_builder::set_en_passant_target (enum color who, std::string_view coord_str)
+void board_builder::set_en_passant_target (Color who, std::string_view coord_str)
 {
     struct en_passant_state new_state { who, coord_alg(coord_str) };
     this->en_passant_states.push_back (new_state);
 }
 
-void board_builder::set_castling (enum color who, castle_state_t state)
+void board_builder::set_castling (Color who, castle_state_t state)
 {
     struct bb_castle_state new_state { .player = who, .castle_state = state };
     castle_states.push_back (new_state);
@@ -111,7 +111,7 @@ struct board board_builder::build ()
 {
     struct piece_row
     {
-        std::vector<enum piece_type> row;
+        std::vector<Piece> row;
     };
 
     size_t sz = this->pieces_with_coords.size();
@@ -122,12 +122,12 @@ struct board board_builder::build ()
     for (size_t i = 0; i < sz; i++)
     {
         struct piece_with_coord &piece_with_coord = this->pieces_with_coords[i];
-        std::vector<enum piece_type> &current_piece_row = piece_types[i].row;
+        std::vector<Piece> &current_piece_row = piece_types[i].row;
 
         int8_t col = COLUMN(piece_with_coord.coord);
         int8_t row = ROW(piece_with_coord.coord);
 
-        current_piece_row.assign (NR_COLUMNS, PIECE_NONE);
+        current_piece_row.assign (NR_COLUMNS, Piece::None);
         current_piece_row[col] = piece_with_coord.piece_type;
 
         positions[i] = { row, piece_with_coord.color, current_piece_row };

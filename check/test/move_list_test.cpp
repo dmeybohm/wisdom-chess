@@ -8,7 +8,7 @@
 
 TEST_CASE( "Initializing move list", "[move-list]")
 {
-    move_list_t move_list { COLOR_BLACK, {"e4 d4", "d2 d1"}};
+    move_list_t move_list { Color::Black, {"e4 d4", "d2 d1"}};
     REQUIRE( move_list.size() == 2 );
 
     std::vector<move_t> moves;
@@ -23,7 +23,7 @@ TEST_CASE( "Initializing move list", "[move-list]")
 move_list_t copy_moves_and_ptr (const move_t **ptr)
 {
     struct board board;
-    move_list_t moves = generate_moves (board, COLOR_WHITE);
+    move_list_t moves = generate_moves (board, Color::White);
     std::cout << "Moves first" << &moves.get_my_moves()[0] << "\n";
     *ptr = &moves.get_my_moves()[0];
     return moves;

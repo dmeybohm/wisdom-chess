@@ -8,7 +8,7 @@
 #include "generate.h"
 #include "check.h"
 
-bool is_checkmated (struct board &board, enum color who)
+bool is_checkmated (struct board &board, Color who)
 {
 	auto [row, col] = king_position (board, who);
 
@@ -20,7 +20,7 @@ bool is_checkmated (struct board &board, enum color who)
     return legal_moves.empty();
 }
 
-bool is_king_threatened (struct board &board, enum color who,
+bool is_king_threatened (struct board &board, Color who,
                          int8_t king_row, int8_t king_col)
 {
 	int8_t        row, col;
@@ -33,16 +33,16 @@ bool is_king_threatened (struct board &board, enum color who,
 	{
 		for (row = NEXT (king_row, r_dir); VALID (row); row = NEXT (row, r_dir))
 		{
-			what = PIECE_AT (board, row, col);
+			what = piece_at (board, row, col);
 
-			if (PIECE_TYPE (what) == PIECE_NONE)
+			if (piece_type (what) == Piece::None)
 				continue;
 
-			if (PIECE_COLOR (what) == who)
+			if (piece_color (what) == who)
 				break;
 
-			if (PIECE_TYPE (what) == PIECE_ROOK || 
-				PIECE_TYPE (what) == PIECE_QUEEN)
+			if (piece_type (what) == Piece::Rook ||
+                    piece_type (what) == Piece::Queen)
 				return true;
 
 			break;
@@ -55,16 +55,16 @@ bool is_king_threatened (struct board &board, enum color who,
 	{
 		for (col = NEXT (king_col, c_dir); VALID (col); col = NEXT (col, c_dir))
 		{
-			what = PIECE_AT (board, row, col);
+			what = piece_at (board, row, col);
 
-			if (PIECE_TYPE (what) == PIECE_NONE)
+			if (piece_type (what) == Piece::None)
 				continue;
 
-			if (PIECE_COLOR (what) == who)
+			if (piece_color (what) == who)
 				break;
 
-			if (PIECE_TYPE (what) == PIECE_ROOK || 
-				PIECE_TYPE (what) == PIECE_QUEEN)
+			if (piece_type (what) == Piece::Rook ||
+                    piece_type (what) == Piece::Queen)
 				return true;
 
 			break;
@@ -80,16 +80,16 @@ bool is_king_threatened (struct board &board, enum color who,
 				 VALID (row) && VALID (col); 
                  row = NEXT (row, r_dir), col = NEXT (col, c_dir))
 			{
-				what = PIECE_AT (board, row, col);
+				what = piece_at (board, row, col);
 
-				if (PIECE_TYPE (what) == PIECE_NONE)
+				if (piece_type (what) == Piece::None)
 					continue;
 
-				if (PIECE_COLOR (what) == who)
+				if (piece_color (what) == who)
 					break;
 
-				if (PIECE_TYPE (what) == PIECE_BISHOP || 
-				    PIECE_TYPE (what) == PIECE_QUEEN)
+				if (piece_type (what) == Piece::Bishop ||
+                        piece_type (what) == Piece::Queen)
 				{
 					return true;
 				}
@@ -111,17 +111,17 @@ bool is_king_threatened (struct board &board, enum color who,
 		row = ROW(dst);
 		col = COLUMN(dst);
 
-		what = PIECE_AT (board, row, col);
+		what = piece_at (board, row, col);
 
-		if (PIECE_TYPE(what) == PIECE_NONE)
+		if (piece_type (what) == Piece::None)
 			continue;
 
-		if (PIECE_TYPE(what) == PIECE_KNIGHT && PIECE_COLOR(what) != who)
+		if (piece_type (what) == Piece::Knight && piece_color (what) != who)
 			return true;
 	}
 	
 	// check for pawn checks
-	r_dir = PAWN_DIRECTION (who);
+	r_dir = pawn_direction (who);
 
 	for (c_dir = -1; c_dir <= 1; c_dir += 2)
 	{
@@ -131,9 +131,9 @@ bool is_king_threatened (struct board &board, enum color who,
 		if (INVALID (row) || INVALID (col))
 			continue;
 
-		what = PIECE_AT (board, row, col);
+		what = piece_at (board, row, col);
 
-		if (PIECE_TYPE (what) == PIECE_PAWN && PIECE_COLOR (what) != who)
+		if (piece_type (what) == Piece::Pawn && piece_color (what) != who)
 			return true;
 	}
 
@@ -151,9 +151,9 @@ bool is_king_threatened (struct board &board, enum color who,
 			if (col == king_col && row == king_row)
 				continue;
 
-			what = PIECE_AT (board, row, col);
+			what = piece_at (board, row, col);
 			
-			if (PIECE_TYPE (what) == PIECE_KING && PIECE_COLOR (what) != who)
+			if (piece_type (what) == Piece::King && piece_color (what) != who)
 				return true;
 		}
 	}
@@ -161,7 +161,7 @@ bool is_king_threatened (struct board &board, enum color who,
 	return false;
 }
 
-bool was_legal_move (struct board &board, enum color who, move_t mv)
+bool was_legal_move (struct board &board, Color who, move_t mv)
 {
     auto [king_row, king_col] = king_position (board, who);
 

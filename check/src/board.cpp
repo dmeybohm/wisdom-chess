@@ -19,24 +19,24 @@ static void board_init_from_positions (board &board, const std::vector<board_pos
 
 std::vector<board_positions> initial_board_position ()
 {
-    std::vector<enum piece_type> back_rank =
+    std::vector<Piece> back_rank =
     {
-        PIECE_ROOK,   PIECE_KNIGHT, PIECE_BISHOP, PIECE_QUEEN, PIECE_KING,
-        PIECE_BISHOP, PIECE_KNIGHT, PIECE_ROOK,
+        Piece::Rook,   Piece::Knight, Piece::Bishop, Piece::Queen, Piece::King,
+        Piece::Bishop, Piece::Knight, Piece::Rook,
     };
 
-    std::vector<enum piece_type> pawns =
+    std::vector<Piece> pawns =
     {
-        PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN, PIECE_PAWN,
-        PIECE_PAWN, PIECE_PAWN, PIECE_PAWN,
+        Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::Pawn,
+        Piece::Pawn, Piece::Pawn, Piece::Pawn,
     };
 
     std::vector<board_positions> init_board =
     {
-        { 0, COLOR_BLACK, back_rank, },
-        { 1, COLOR_BLACK, pawns,     },
-        { 6, COLOR_WHITE, pawns,     },
-        { 7, COLOR_WHITE, back_rank, },
+        { 0, Color::Black, back_rank, },
+        { 1, Color::Black, pawns,     },
+        { 6, Color::White, pawns,     },
+        { 7, Color::White, back_rank, },
     };
 
     return init_board;
@@ -57,9 +57,9 @@ board::board (const board &board)
     *this = board;
 }
 
-static castle_state_t init_castle_state (board &board, enum color who)
+static castle_state_t init_castle_state (board &board, Color who)
 {
-    int row = (who == COLOR_WHITE ? 7 : 0);
+    int row = (who == Color::White ? 7 : 0);
     int king_col = 4;
     piece_t prospective_king;
     piece_t prospective_queen_rook;
@@ -68,21 +68,21 @@ static castle_state_t init_castle_state (board &board, enum color who)
     castle_state_t state = CASTLE_NONE;
 
     // todo set CASTLED flag if rook/king in right position:
-    prospective_king = PIECE_AT (board, row, king_col);
-    prospective_queen_rook = PIECE_AT (board, row, 0);
-    prospective_king_rook = PIECE_AT (board, row, 7);
+    prospective_king = piece_at (board, row, king_col);
+    prospective_queen_rook = piece_at (board, row, 0);
+    prospective_king_rook = piece_at (board, row, 7);
 
-    if (PIECE_TYPE(prospective_king) != PIECE_KING ||
-        PIECE_COLOR(prospective_king) != who ||
-        PIECE_TYPE(prospective_queen_rook) != PIECE_ROOK ||
-        PIECE_COLOR(prospective_queen_rook) != who
+    if (piece_type (prospective_king) != Piece::King ||
+            piece_color (prospective_king) != who ||
+            piece_type (prospective_queen_rook) != Piece::Rook ||
+            piece_color (prospective_queen_rook) != who
     ) {
         state |= CASTLE_QUEENSIDE;
     }
-    if (PIECE_TYPE(prospective_king) != PIECE_KING ||
-        PIECE_COLOR(prospective_king) != who ||
-        PIECE_TYPE(prospective_king_rook) != PIECE_ROOK ||
-        PIECE_COLOR(prospective_king_rook) != who
+    if (piece_type (prospective_king) != Piece::King ||
+            piece_color (prospective_king) != who ||
+            piece_type (prospective_king_rook) != Piece::Rook ||
+            piece_color (prospective_king_rook) != who
     ) {
         state |= CASTLE_KINGSIDE;
     }
@@ -98,37 +98,37 @@ static void board_init_from_positions (board &board, const std::vector<board_pos
         i = CASTLE_NONE;
 
     for (const auto& coord : all_coords_iterator)
-        board_set_piece (board, coord, PIECE_AND_COLOR_NONE);
+        board_set_piece (board, coord, piece_and_color_none);
 
     position_init (&board.position);
 
     for (auto &position : positions)
     {
         auto &pieces = position.pieces;
-        enum color color = position.piece_color;
+        Color color = position.piece_color;
         row = position.rank;
 
         for (uint8_t col = 0; col < NR_COLUMNS && col < pieces.size(); col++)
         {
             piece_t new_piece;
 
-            if (pieces[col] == PIECE_NONE)
+            if (pieces[col] == Piece::None)
                 continue;
 
-            new_piece = MAKE_PIECE (color, pieces[col]);
+            new_piece = make_piece (color, pieces[col]);
             coord_t place = coord_create (row, col);
             board_set_piece (board, place, new_piece);
 
             board.material.add (new_piece);
             position_add (&board.position, color, place, new_piece);
 
-            if (pieces[col] == PIECE_KING)
+            if (pieces[col] == Piece::King)
                 king_position_set (board, color, place);
         }
     }
 
-    board.castled[COLOR_INDEX_WHITE] = init_castle_state (board, COLOR_WHITE);
-    board.castled[COLOR_INDEX_BLACK] = init_castle_state (board, COLOR_BLACK);
+    board.castled[COLOR_INDEX_WHITE] = init_castle_state (board, Color::White);
+    board.castled[COLOR_INDEX_BLACK] = init_castle_state (board, Color::Black);
 
     board.en_passant_target[COLOR_INDEX_WHITE] = no_en_passant_coord;
     board.en_passant_target[COLOR_INDEX_BLACK] = no_en_passant_coord;
@@ -199,13 +199,13 @@ std::string board::to_string() const
     {
         for (col = 0; col < NR_COLUMNS; col++)
         {
-            piece_t piece = PIECE_AT (*this, row, col);
+            piece_t piece = piece_at (*this, row, col);
 
             if (!col)
                 result += "|";
 
-            if (PIECE_TYPE(piece) != PIECE_NONE &&
-                PIECE_COLOR(piece) == COLOR_BLACK)
+            if (piece_type (piece) != Piece::None &&
+                    piece_color (piece) == Color::Black)
             {
                 result += "*";
             }
@@ -214,15 +214,15 @@ std::string board::to_string() const
                 result += " ";
             }
 
-            switch (PIECE_TYPE(piece))
+            switch (piece_type (piece))
             {
-                case PIECE_PAWN:    result += "p"; break;
-                case PIECE_KNIGHT:  result += "N"; break;
-                case PIECE_BISHOP:  result += "B"; break;
-                case PIECE_ROOK:    result += "R"; break;
-                case PIECE_QUEEN:   result += "Q"; break;
-                case PIECE_KING:    result += "K"; break;
-                case PIECE_NONE:    result += " "; break;
+                case Piece::Pawn:    result += "p"; break;
+                case Piece::Knight:  result += "N"; break;
+                case Piece::Bishop:  result += "B"; break;
+                case Piece::Rook:    result += "R"; break;
+                case Piece::Queen:   result += "Q"; break;
+                case Piece::King:    result += "K"; break;
+                case Piece::None:    result += " "; break;
                 default:            assert (0);  break;
             }
 

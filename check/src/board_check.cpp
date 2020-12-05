@@ -10,7 +10,7 @@ void board_check_init (struct board_check *board_check, struct board &board)
 #endif
 }
 
-void board_check_validate (struct board_check *board_check, struct board &restored_board, int8_t who, struct move mv)
+void board_check_validate (struct board_check *board_check, struct board &restored_board, Color who, struct move mv)
 {
 #ifdef CHECK_BOARD_EVERY_MOVE
     struct board_hash updated_hash;
@@ -19,7 +19,7 @@ void board_check_validate (struct board_check *board_check, struct board &restor
     if (updated_hash.hash != board_check->hash.hash)
     {
         printf ("move considering: %s (%s to move)\n", to_string(*mv).c_str(),
-                who == COLOR_WHITE ? "White" : "Black");
+                who == Color::White ? "White" : "Black");
         board_dump (restored_board);
         assert (0);
     }

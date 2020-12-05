@@ -4,10 +4,10 @@
 
 TEST_CASE( "A piece can be converted", "[piece]" )
 {
-    auto color = GENERATE (COLOR_NONE, COLOR_WHITE, COLOR_BLACK);
-    auto piece = GENERATE (PIECE_NONE, PIECE_PAWN, PIECE_BISHOP, PIECE_KNIGHT, PIECE_ROOK, PIECE_QUEEN, PIECE_KING);
+    auto color = GENERATE (Color::None, Color::White, Color::Black);
+    auto piece = GENERATE (Piece::None, Piece::Pawn, Piece::Bishop, Piece::Knight, Piece::Rook, Piece::Queen, Piece::King);
 
-    piece_t combined = MAKE_PIECE (color, piece);
-    CHECK( PIECE_TYPE(combined) == piece );
-    CHECK( PIECE_COLOR(combined) == color );
+    piece_t combined = make_piece (color, piece);
+    CHECK(piece_type (combined) == piece );
+    CHECK(piece_color (combined) == color );
 }

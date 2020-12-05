@@ -23,7 +23,7 @@ TEST_CASE( "Board hashes return to the same hash with a normal move", "[single-f
     board_hash_init (board);
 
     // move a pawn.
-    move_t mv = move_parse ("e2 e4", COLOR_WHITE);
+    move_t mv = move_parse ("e2 e4", Color::White);
 
     uint64_t orig_board_hash = board.hash.hash;
     undo_move_t undo_state = empty_undo_state;

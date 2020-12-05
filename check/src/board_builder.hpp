@@ -13,25 +13,25 @@
 struct piece_with_coord
 {
     coord_t coord;
-    enum color color;
-    enum piece_type piece_type;
+    Color color;
+    Piece piece_type;
 };
 
 struct piece_coord_string_with_type
 {
     const char *coord;
-    enum piece_type piece_type;
+    Piece piece_type;
 };
 
 struct en_passant_state
 {
-    enum color player;
+    Color player;
     coord_t coord;
 };
 
 struct bb_castle_state
 {
-    enum color player;
+    Color player;
     castle_state_t castle_state;
 };
 
@@ -47,23 +47,23 @@ private:
 public:
     board_builder() = default;
 
-    void add_piece (std::string_view coord_str, enum color who, enum piece_type piece_type);
+    void add_piece (std::string_view coord_str, Color who, Piece piece_type);
 
-    void add_piece (int8_t row, int8_t col, enum color who, enum piece_type piece_type);
+    void add_piece (int8_t row, int8_t col, Color who, Piece piece_type);
 
-    void add_pieces (enum color who, const std::vector<struct piece_coord_string_with_type> &pieces);
+    void add_pieces (Color who, const std::vector<struct piece_coord_string_with_type> &pieces);
 
-    void add_row_of_same_color (int row, enum color who, std::vector<enum piece_type> piece_types);
+    void add_row_of_same_color (int row, Color who, std::vector<Piece> piece_types);
 
-    void add_row_of_same_color (std::string_view coord_str, enum color who, std::vector<enum piece_type> piece_types);
+    void add_row_of_same_color (std::string_view coord_str, Color who, std::vector<Piece> piece_types);
 
-    void add_row_of_same_color_and_piece (int row, enum color who, enum piece_type piece_type);
+    void add_row_of_same_color_and_piece (int row, Color who, Piece piece_type);
 
-    void add_row_of_same_color_and_piece (std::string_view coord_str, enum color who, enum piece_type piece_type);
+    void add_row_of_same_color_and_piece (std::string_view coord_str, Color who, Piece piece_type);
 
-    void set_en_passant_target (enum color who, std::string_view coord_str);
+    void set_en_passant_target (Color who, std::string_view coord_str);
 
-    void set_castling (enum color who, castle_state_t state);
+    void set_castling (Color who, castle_state_t state);
 
     void set_half_moves (int new_half_moves_clock);
 

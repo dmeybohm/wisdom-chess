@@ -8,10 +8,10 @@
 #define CASTLE_POSITIVE_WEIGHT        60
 #define CASTLE_NEGATIVE_WEIGHT        60
 
-int evaluate (struct board &board, enum color who, std::size_t moves_away)
+int evaluate (struct board &board, Color who, std::size_t moves_away)
 {
 	int score = 0;
-	enum color opponent = color_invert (who);
+	Color opponent = color_invert (who);
 
 	if (board_get_castle_state (board, who) == CASTLE_CASTLED)
 	{
@@ -56,7 +56,7 @@ int evaluate (struct board &board, enum color who, std::size_t moves_away)
 	return score;
 }
 
-int evaluate_and_check_draw (struct board &board, enum color who, std::size_t moves_away,
+int evaluate_and_check_draw (struct board &board, Color who, std::size_t moves_away,
                              move_t move, const move_history_t &history)
 {
     if (is_drawing_move (history, move))

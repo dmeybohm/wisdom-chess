@@ -14,32 +14,32 @@ TEST_CASE( "Can find mate in 3", "[search]" )
     board_builder builder;
     struct move_timer large_timer { 30 };
 
-    builder.add_pieces (COLOR_BLACK, {
-            {"a8", PIECE_ROOK},
-            {"g8", PIECE_ROOK},
-            {"h8", PIECE_KING},
-            {"f7", PIECE_PAWN},
-            {"h7", PIECE_PAWN},
+    builder.add_pieces (Color::Black, {
+            {"a8", Piece::Rook},
+            {"g8", Piece::Rook},
+            {"h8", Piece::King},
+            {"f7", Piece::Pawn},
+            {"h7", Piece::Pawn},
     });
-    builder.add_pieces (COLOR_WHITE, {
-            {"f6", PIECE_ROOK},
-            {"e5", PIECE_BISHOP},
-            {"h2", PIECE_PAWN},
-            {"h1", PIECE_KING},
+    builder.add_pieces (Color::White, {
+            {"f6", Piece::Rook},
+            {"e5", Piece::Bishop},
+            {"h2", Piece::Pawn},
+            {"h1", Piece::King},
     });
 
     struct board board = builder.build();
     std::unique_ptr<move_tree_t> variation;
 
     move_history_t history;
-    search_result_t result = search (board, COLOR_WHITE, 4, 4,
+    search_result_t result = search (board, Color::White, 4, 4,
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
                         variation, 0, large_timer, history);
 
     REQUIRE( result.move != null_move );
     REQUIRE( variation->size() == 5 );
 
-    move_list_t expected_moves = { COLOR_WHITE, {"f6 a6", "f7 f6", "e5xf6", "g8 g7", "a6xa8" }};
+    move_list_t expected_moves = { Color::White, {"f6 a6", "f7 f6", "e5xf6", "g8 g7", "a6xa8" }};
     move_list_t computed_moves = variation->to_list();
 
     REQUIRE( expected_moves == computed_moves );
@@ -59,29 +59,29 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
     board_builder builder;
     move_timer large_timer { 10 };
 
-    builder.add_pieces (COLOR_BLACK, {
-            {"e8", PIECE_KNIGHT},
-            {"c7", PIECE_KING},
-            {"f7", PIECE_PAWN},
-            {"a6", PIECE_PAWN},
-            {"g6", PIECE_PAWN},
-            {"c5", PIECE_PAWN},
-            {"b4", PIECE_ROOK},
-            {"b3", PIECE_KNIGHT},
+    builder.add_pieces (Color::Black, {
+            {"e8", Piece::Knight},
+            {"c7", Piece::King},
+            {"f7", Piece::Pawn},
+            {"a6", Piece::Pawn},
+            {"g6", Piece::Pawn},
+            {"c5", Piece::Pawn},
+            {"b4", Piece::Rook},
+            {"b3", Piece::Knight},
     });
 
-    builder.add_piece ("d5", COLOR_WHITE, PIECE_KING);
+    builder.add_piece ("d5", Color::White, Piece::King);
 
     struct board board = builder.build();
     std::unique_ptr<move_tree_t> variation;
     move_history_t history;
-    search_result_t result = search (board, COLOR_BLACK, 5, 5,
+    search_result_t result = search (board, Color::Black, 5, 5,
                         -INITIAL_ALPHA, INITIAL_ALPHA, 0,
                         variation, 0, large_timer, history);
 
     REQUIRE( result.move != null_move );
 
-    move_list_t expected_moves = { COLOR_BLACK, {"e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
+    move_list_t expected_moves = { Color::Black, {"e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
     move_list_t computed_moves = variation->to_list();
 
     REQUIRE( variation->size() == 5 );
@@ -93,38 +93,38 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
 {
     board_builder builder;
 
-    builder.add_pieces (COLOR_BLACK, {
-            {"c8", PIECE_ROOK},
-            {"f8", PIECE_ROOK},
-            {"h8", PIECE_KING}
+    builder.add_pieces (Color::Black, {
+            {"c8", Piece::Rook},
+            {"f8", Piece::Rook},
+            {"h8", Piece::King}
     });
-    builder.add_pieces (COLOR_BLACK, {
-            {"c7", PIECE_PAWN},
-            {"h7", PIECE_KNIGHT},
+    builder.add_pieces (Color::Black, {
+            {"c7", Piece::Pawn},
+            {"h7", Piece::Knight},
     });
-    builder.add_pieces (COLOR_BLACK, {
-            {"a6", PIECE_PAWN},
-            {"c6", PIECE_BISHOP},
-            {"b5", PIECE_PAWN},
-            {"d5", PIECE_PAWN}
+    builder.add_pieces (Color::Black, {
+            {"a6", Piece::Pawn},
+            {"c6", Piece::Bishop},
+            {"b5", Piece::Pawn},
+            {"d5", Piece::Pawn}
     });
 
-    builder.add_pieces (COLOR_WHITE, {
-            {"e5", PIECE_PAWN},
-            {"a3", PIECE_KNIGHT},
-            {"c3", PIECE_PAWN},
-            {"e3", PIECE_PAWN},
-            {"a2", PIECE_PAWN},
-            {"b2", PIECE_PAWN},
-            {"h2", PIECE_PAWN},
-            {"b1", PIECE_KING},
-            {"g1", PIECE_ROOK}
+    builder.add_pieces (Color::White, {
+            {"e5", Piece::Pawn},
+            {"a3", Piece::Knight},
+            {"c3", Piece::Pawn},
+            {"e3", Piece::Pawn},
+            {"a2", Piece::Pawn},
+            {"b2", Piece::Pawn},
+            {"h2", Piece::Pawn},
+            {"b1", Piece::King},
+            {"g1", Piece::Rook}
     });
 
     struct board board = builder.build();
     struct move_timer timer { 300 };
     move_history_t history;
-    move_t best_move = iterate (board, COLOR_BLACK, history, timer, 3);
+    move_t best_move = iterate (board, Color::Black, history, timer, 3);
     REQUIRE( best_move != null_move );
 }
 
@@ -133,19 +133,19 @@ TEST_CASE( "Promoting move is taken if possible", "[search-test]")
     board_builder builder;
     struct move_timer large_timer { 30 };
 
-    builder.add_pieces (COLOR_BLACK, {
-            {"d7", PIECE_KING},
-            {"d2", PIECE_PAWN}
+    builder.add_pieces (Color::Black, {
+            {"d7", Piece::King},
+            {"d2", Piece::Pawn}
     });
-    builder.add_pieces (COLOR_WHITE, {
-            {"a4", PIECE_KING},
-            {"h4", PIECE_PAWN}
+    builder.add_pieces (Color::White, {
+            {"a4", Piece::King},
+            {"h4", Piece::Pawn}
     });
 
     std::unique_ptr<move_tree_t> variation;
     move_history_t history;
     struct board board = builder.build();
-    search_result_t result = search (board, COLOR_BLACK, 1, 1,
+    search_result_t result = search (board, Color::Black, 1, 1,
                                      -INITIAL_ALPHA, INITIAL_ALPHA, 0,
                                      variation, 0, large_timer, history);
 

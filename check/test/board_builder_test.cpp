@@ -21,26 +21,26 @@ TEST_CASE( "Initializing the board builder", "[board-builder]" )
 {
     board_builder builder;
 
-    builder.add_piece ("a7", COLOR_WHITE, PIECE_PAWN);
-    builder.add_piece ("g8", COLOR_WHITE, PIECE_KING);
-    builder.add_piece ("a1", COLOR_BLACK, PIECE_KING);
+    builder.add_piece ("a7", Color::White, Piece::Pawn);
+    builder.add_piece ("g8", Color::White, Piece::King);
+    builder.add_piece ("a1", Color::Black, Piece::King);
 
     struct board board = builder.build();
 
-    piece_t pawn = PIECE_AT (board, 1, 0);
-    piece_t white_king = PIECE_AT (board, 0, 6);
-    piece_t black_king = PIECE_AT (board, 7, 0);
-    piece_t center = PIECE_AT (board, 4, 5);
+    piece_t pawn = piece_at (board, 1, 0);
+    piece_t white_king = piece_at (board, 0, 6);
+    piece_t black_king = piece_at (board, 7, 0);
+    piece_t center = piece_at (board, 4, 5);
 
-    CHECK( PIECE_COLOR(pawn) == COLOR_WHITE );
-    CHECK( PIECE_COLOR(white_king) == COLOR_WHITE );
-    CHECK( PIECE_COLOR(black_king) == COLOR_BLACK );
-    CHECK( PIECE_COLOR(center) == COLOR_NONE );
+    CHECK(piece_color (pawn) == Color::White );
+    CHECK(piece_color (white_king) == Color::White );
+    CHECK(piece_color (black_king) == Color::Black );
+    CHECK(piece_color (center) == Color::None );
 
-    CHECK( PIECE_TYPE(pawn) == PIECE_PAWN );
-    CHECK( PIECE_TYPE(white_king) == PIECE_KING );
-    CHECK( PIECE_TYPE(black_king) == PIECE_KING );
-    CHECK( PIECE_TYPE(center) == PIECE_NONE );
+    CHECK(piece_type (pawn) == Piece::Pawn );
+    CHECK(piece_type (white_king) == Piece::King );
+    CHECK(piece_type (black_king) == Piece::King );
+    CHECK(piece_type (center) == Piece::None );
 }
 
 TEST_CASE( "Board builder throws exception for invalid coordinate", "[board-builder]" )
@@ -48,7 +48,7 @@ TEST_CASE( "Board builder throws exception for invalid coordinate", "[board-buil
     board_builder builder;
     bool no_throw = false;
     try {
-        builder.add_piece ("a9", COLOR_WHITE, PIECE_PAWN);
+        builder.add_piece ("a9", Color::White, Piece::Pawn);
         no_throw = true;
     } catch (const board_builder_exception &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );
@@ -57,7 +57,7 @@ TEST_CASE( "Board builder throws exception for invalid coordinate", "[board-buil
     REQUIRE( no_throw == false );
 
     try {
-        builder.add_piece ("j7", COLOR_WHITE, PIECE_PAWN);
+        builder.add_piece ("j7", Color::White, Piece::Pawn);
         no_throw = true;
     } catch (const board_builder_exception &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );
@@ -66,7 +66,7 @@ TEST_CASE( "Board builder throws exception for invalid coordinate", "[board-buil
     REQUIRE( no_throw == false );
 
     try {
-        builder.add_piece ("asdf", COLOR_WHITE, PIECE_PAWN);
+        builder.add_piece ("asdf", Color::White, Piece::Pawn);
         no_throw = true;
     } catch (const board_builder_exception &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );

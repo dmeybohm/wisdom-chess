@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////
 
 #define Move_Func_Arguments \
-	struct board &board, enum color who, \
+	struct board &board, Color who, \
 	int piece_row, int piece_col, move_list_t &moves
 
 #define Move_Func_Param_Names \
@@ -40,19 +40,19 @@ static void knight_move_list_init ();
 
 static MoveFunc move_functions[] = 
 {
-	moves_none,    // PIECE_NONE   [0]
-	moves_king,    // PIECE_KING   [1]
-	moves_queen,   // PIECE_QUEEN  [2]
-	moves_rook,    // PIECE_ROOK   [3]
-	moves_bishop,  // PIECE_BISHOP [4]
-	moves_knight,  // PIECE_KNIGHT [5]
-	moves_pawn,    // PIECE_PAWN   [6]
+	moves_none,    // Piece::None   [0]
+	moves_king,    // Piece::King   [1]
+	moves_queen,   // Piece::Queen  [2]
+	moves_rook,    // Piece::Rook   [3]
+	moves_bishop,  // Piece::Bishop [4]
+	moves_knight,  // Piece::Knight [5]
+	moves_pawn,    // Piece::Pawn   [6]
 	nullptr,
 };
 
 move_list_t knight_moves[NR_ROWS][NR_COLUMNS];
 
-void add_en_passant_move (const struct board &board, enum color who, int8_t piece_row, int8_t piece_col,
+void add_en_passant_move (const struct board &board, Color who, int8_t piece_row, int8_t piece_col,
                           move_list_t &moves, int8_t en_passant_column);
 
 ///////////////////////////////////////////////
@@ -132,29 +132,29 @@ MOVES_HANDLER (queen)
 
 MOVES_HANDLER (rook)
 {
-	int          dir;
-	int          row,   col;
+	int8_t       dir;
+	int8_t       row, col;
 	piece_t      piece;
 
 	for (dir = -1; dir <= 1; dir += 2)
 	{
 		for (row = NEXT (piece_row, dir); VALID (row); row = NEXT (row, dir))
 		{
-			piece = PIECE_AT (board, row, piece_col);
+			piece = piece_at (board, row, piece_col);
 
 			moves.push_back (move_create (piece_row, piece_col, row, piece_col));
 
-			if (PIECE_TYPE(piece) != PIECE_NONE)
+			if (piece_type (piece) != Piece::None)
 				break;
 		}
 
 		for (col = NEXT (piece_col, dir); VALID (col); col = NEXT (col, dir))
 		{
-			piece = PIECE_AT (board, piece_row, col);
+			piece = piece_at (board, piece_row, col);
 
 			moves.push_back (move_create (piece_row, piece_col, piece_row, col));
 
-			if (PIECE_TYPE(piece) != PIECE_NONE)
+			if (piece_type (piece) != Piece::None)
 				break;
 		}
 	}
@@ -162,8 +162,8 @@ MOVES_HANDLER (rook)
 
 MOVES_HANDLER (bishop)
 {
-	int          r_dir, c_dir;
-	int          row,   col;
+	int8_t r_dir, c_dir;
+	int8_t row,   col;
 
 	for (r_dir = -1; r_dir <= 1; r_dir += 2)
 	{
@@ -173,18 +173,18 @@ MOVES_HANDLER (bishop)
 			     VALID (row) && VALID (col);
 			     row = NEXT (row, r_dir), col = NEXT (col, c_dir))
 			{
-				piece_t    piece = PIECE_AT (board, row, col);
+				piece_t  piece = piece_at (board, row, col);
 				
 				moves.push_back (move_create (piece_row, piece_col, row, col));
 
-				if (PIECE_TYPE(piece) != PIECE_NONE)
+				if (piece_type (piece) != Piece::None)
 					break;
 			}
 		}
 	}
 }
 
-static void moves_knight (struct board &board, enum color who,
+static void moves_knight (struct board &board, Color who,
 	int piece_row, int piece_col, move_list_t &moves)
 {
     move_list_t kt_moves = generate_knight_moves (piece_row, piece_col);
@@ -193,7 +193,7 @@ static void moves_knight (struct board &board, enum color who,
 }
 
 // Returns -1 if no column is eligible.
-static int8_t eligible_en_passant_column (const struct board &board, int8_t row, int8_t column, enum color who)
+static int8_t eligible_en_passant_column (const struct board &board, int8_t row, int8_t column, Color who)
 {
     color_index_t opponent_index = color_index(color_invert(who));
 
@@ -201,7 +201,7 @@ static int8_t eligible_en_passant_column (const struct board &board, int8_t row,
         return -1;
 
     // if WHITE rank 4, black rank 3
-    if ((who == COLOR_WHITE ? 3 : 4) != row)
+    if ((who == Color::White ? 3 : 4) != row)
         return -1;
 
     int8_t left_column = column - 1;
@@ -233,7 +233,7 @@ MOVES_HANDLER (pawn)
 	piece_t            piece;
 	size_t             i;
 
-	dir = PAWN_DIRECTION (who);
+	dir = pawn_direction (who);
 
 	// row is _guaranteed_ to be on the board, because
 	// a pawn on the eight rank can't remain a pawn, and that's
@@ -246,7 +246,7 @@ MOVES_HANDLER (pawn)
 	memset (move, 0, sizeof (move));
 
 	// single move
-	if (PIECE_TYPE (PIECE_AT (board, row, piece_col)) == PIECE_NONE)
+	if (piece_type (piece_at (board, row, piece_col)) == Piece::None)
 		move[0] = move_create (piece_row, piece_col, row, piece_col);
 
 	// double move
@@ -255,7 +255,7 @@ MOVES_HANDLER (pawn)
 		int next_row = NEXT (row, dir);
 
 		if (!is_null_move (move[0]) &&
-			PIECE_TYPE (PIECE_AT (board, next_row, piece_col)) == PIECE_NONE)
+            piece_type (piece_at (board, next_row, piece_col)) == Piece::None)
 		{
 			move[1] = move_create (piece_row, piece_col, next_row, piece_col);
 		}
@@ -269,10 +269,10 @@ MOVES_HANDLER (pawn)
 		if (INVALID (take_col))
 			continue;
 
-		piece = PIECE_AT (board, row, take_col);
+		piece = piece_at (board, row, take_col);
 
-		if (PIECE_TYPE (PIECE_AT (board, row, take_col)) != PIECE_NONE &&
-		    PIECE_COLOR(piece) != who)
+		if (piece_type (piece_at (board, row, take_col)) != Piece::None &&
+                piece_color (piece) != who)
 		{
 			if (c_dir == -1)
 				move[2] = move_create_capturing (piece_row, piece_col, row, take_col);
@@ -286,7 +286,7 @@ MOVES_HANDLER (pawn)
 	{
 		for (auto promotable_piece_type : all_promotable_piece_types)
 		{
-			auto promoted_piece = MAKE_PIECE (who, promotable_piece_type);
+			auto promoted_piece = make_piece (who, promotable_piece_type);
 
 			// promotion moves dont include en passant
 			for (i = 0; i < 4; i++)
@@ -315,22 +315,22 @@ MOVES_HANDLER (pawn)
 
 // put en passant in a separate handler
 // in order to not pollute instruction cache with it
-void add_en_passant_move (const struct board &board, enum color who, int8_t piece_row, int8_t piece_col,
+void add_en_passant_move (const struct board &board, Color who, int8_t piece_row, int8_t piece_col,
                           move_list_t &moves, int8_t en_passant_column)
 {
     move_t new_move;
     int direction;
     int8_t take_row, take_col;
 
-    direction = PAWN_DIRECTION (who);
+    direction = pawn_direction (who);
 
     take_row = NEXT (piece_row, direction);
     take_col = en_passant_column;
 
-    piece_t take_piece = PIECE_AT (board, piece_row, take_col);
+    piece_t take_piece = piece_at (board, piece_row, take_col);
 
-    assert (PIECE_TYPE(take_piece) == PIECE_PAWN);
-    assert (PIECE_COLOR(take_piece) == color_invert (who));
+    assert (piece_type (take_piece) == Piece::Pawn);
+    assert (piece_color (take_piece) == color_invert (who));
 
     new_move = move_create_en_passant (piece_row, piece_col, take_row, take_col);
 
@@ -349,20 +349,20 @@ const move_list_t &generate_knight_moves (int8_t row, int8_t col)
 
 static const char *piece_type_str (piece_t piece)
 {
-	switch (PIECE_TYPE (piece))
+	switch (piece_type (piece))
 	{
-	 case PIECE_KING: return "king";
-	 case PIECE_QUEEN: return "queen";
-	 case PIECE_ROOK: return "rook";
-	 case PIECE_BISHOP: return "bishop";
-	 case PIECE_KNIGHT: return "knight";
-	 case PIECE_PAWN: return "pawn";
-	 case PIECE_NONE: return "<none>";
+	 case Piece::King: return "king";
+	 case Piece::Queen: return "queen";
+	 case Piece::Rook: return "rook";
+	 case Piece::Bishop: return "bishop";
+	 case Piece::Knight: return "knight";
+	 case Piece::Pawn: return "pawn";
+	 case Piece::None: return "<none>";
 	 default: assert(0);
 	}
 }
 
-move_list_t generate_legal_moves (struct board &board, enum color who)
+move_list_t generate_legal_moves (struct board &board, Color who)
 {
     move_list_t    non_checks;
 
@@ -380,7 +380,7 @@ move_list_t generate_legal_moves (struct board &board, enum color who)
 	return non_checks;
 }
 
-static int valid_castling_move (const struct board &board, enum color who, move_t move)
+static int valid_castling_move (const struct board &board, Color who, move_t move)
 {
 	// check for an intervening piece
 	int     direction;
@@ -390,27 +390,27 @@ static int valid_castling_move (const struct board &board, enum color who, move_
 	src = MOVE_SRC(move);
 	dst = MOVE_DST(move);
 
-	piece3 = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
+	piece3 = make_piece (Color::None, Piece::None);
 
 	// find which direction the king was castling in
 	direction = (COLUMN(dst) - COLUMN(src)) / 2;
 
-	piece1 = PIECE_AT (board, ROW(src), COLUMN(dst) - direction);
-	piece2 = PIECE_AT (board, ROW(src), COLUMN(dst));
+	piece1 = piece_at (board, ROW (src), COLUMN (dst) - direction);
+	piece2 = piece_at (board, ROW (src), COLUMN (dst));
 	
 	if (direction < 0)
 	{
 		// check for piece next to rook on queenside
-		piece3 = PIECE_AT (board, ROW(src), COLUMN(dst) - 1);
+		piece3 = piece_at (board, ROW (src), COLUMN (dst) - 1);
 	}
 
-	return PIECE_TYPE(piece1) == PIECE_NONE &&
-	       PIECE_TYPE(piece2) == PIECE_NONE &&
-		   PIECE_TYPE(piece3) == PIECE_NONE;
+	return piece_type (piece1) == Piece::None &&
+            piece_type (piece2) == Piece::None &&
+            piece_type (piece3) == Piece::None;
 }
 
 move_list_t validate_moves (const move_list_t &move_list, const struct board &board,
-                            enum color who)
+                            Color who)
 {
     move_list_t captures;
 
@@ -423,12 +423,12 @@ move_list_t validate_moves (const move_list_t &move_list, const struct board &bo
 		src = MOVE_SRC(move);
 		dst = MOVE_DST(move);
 
-		src_piece = PIECE_AT (board, src);
-		dst_piece = PIECE_AT (board, dst);
+		src_piece = piece_at (board, src);
+		dst_piece = piece_at (board, dst);
 
-		assert (PIECE_TYPE(src_piece) != PIECE_NONE);
+		assert (piece_type (src_piece) != Piece::None);
 
-		is_capture = (PIECE_TYPE(dst_piece) != PIECE_NONE);
+		is_capture = (piece_type (dst_piece) != Piece::None);
 
 		if (is_en_passant_move(move))
 			is_capture = 1;
@@ -437,9 +437,9 @@ move_list_t validate_moves (const move_list_t &move_list, const struct board &bo
 			if (!valid_castling_move (board, who, move))
 				continue;
 
-		if (PIECE_COLOR (src_piece) == PIECE_COLOR (dst_piece) && 
-		    PIECE_TYPE (dst_piece) != PIECE_NONE &&
-			is_capture)
+		if (piece_color (src_piece) == piece_color (dst_piece) &&
+                piece_type (dst_piece) != Piece::None &&
+            is_capture)
 		{
 			assert (is_capture);
 
@@ -447,7 +447,7 @@ move_list_t validate_moves (const move_list_t &move_list, const struct board &bo
 		}
 
 		// check for an illegal king capture
-		assert (PIECE_TYPE(dst_piece) != PIECE_KING);
+		assert (piece_type (dst_piece) != Piece::King);
 
 		if (is_capture)
 		{
@@ -466,7 +466,7 @@ move_list_t validate_moves (const move_list_t &move_list, const struct board &bo
 	return captures;
 }
 
-move_list_t generate_captures (struct board &board, enum color who)
+move_list_t generate_captures (struct board &board, Color who)
 {
     move_list_t captures;
     move_list_t move_list = generate_moves (board, who);
@@ -480,23 +480,23 @@ move_list_t generate_captures (struct board &board, enum color who)
 	return captures;
 }
 
-move_list_t generate_moves (struct board &board, enum color who)
+move_list_t generate_moves (struct board &board, Color who)
 {
 	move_list_t new_moves;
 
 	for (const auto coord : all_coords_iterator)
 	{
-	    piece_t piece = PIECE_AT (board, coord);
+	    piece_t piece = piece_at (board, coord);
 
-		if (PIECE_TYPE(piece) == PIECE_NONE)
+		if (piece_type (piece) == Piece::None)
 			continue;
 
-		enum color color = PIECE_COLOR(piece);
+		Color color = piece_color (piece);
 		if (color != who)
 			continue;
 
 	    auto [row, col]  = coord;
-		(*move_functions[PIECE_TYPE(piece)])
+		(*move_functions[piece_index(piece_type(piece))])
 		    (board, who, row, col, new_moves);
 	}
 

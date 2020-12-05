@@ -22,7 +22,7 @@ public:
        my_moves = other.my_moves;
     }
 
-	move_list_t (enum color color, std::initializer_list<const char*> list);
+	move_list_t (Color color, std::initializer_list<const char*> list);
 
     void push_back (move_t move)
     {

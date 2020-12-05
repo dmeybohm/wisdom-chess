@@ -17,12 +17,12 @@ struct thread_params
 {
     struct board board;
     move_history_t move_history;
-    enum color side;
+    Color side;
     int depth;
     struct move_timer timer;
 
     thread_params (const struct board &_board, const move_history_t &_move_history, struct move_timer _timer,
-                   enum color _side, int _depth) :
+                   Color _side, int _depth) :
             board { _board },
             move_history { _move_history }, side { _side }, depth { _depth },
             timer { _timer }
@@ -34,7 +34,7 @@ struct thread_params
 class multithread_search_handler
 {
 public:
-    multithread_search_handler (struct board &_board, enum color _side,
+    multithread_search_handler (struct board &_board, Color _side,
                         const move_history_t &_move_history, const move_timer &_timer) :
             board { _board }, side { _side }, move_history { _move_history }, timer { _timer }
     {}
@@ -51,7 +51,7 @@ public:
 
 private:
     struct board board;
-    enum color side;
+    Color side;
     move_history_t move_history;
     struct move_timer timer;
     search_result_t search_result;
@@ -157,7 +157,7 @@ void multithread_search_handler::do_thread(unsigned index)
     do_thread(index);
 }
 
-multithread_search::multithread_search (struct board &_board, enum color _side,
+multithread_search::multithread_search (struct board &_board, Color _side,
                                         const move_history_t &_move_history, const move_timer &_timer)
 {
 	handler = std::make_unique<multithread_search_handler>(_board, _side, _move_history, _timer);

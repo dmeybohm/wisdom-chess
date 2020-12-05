@@ -22,8 +22,8 @@ struct move_tree;
 struct board_positions
 {
     int  rank;
-    enum color piece_color;
-    std::vector<enum piece_type> pieces;
+    Color piece_color;
+    std::vector<Piece> pieces;
 };
 
 struct board
@@ -68,39 +68,39 @@ struct board
 
 ///////////////////////////////////////////////
 
-static inline piece_t PIECE_AT (const struct board &board, int8_t row, int8_t col)
+static inline piece_t piece_at (const struct board &board, int8_t row, int8_t col)
 {
     assert (row < NR_ROWS && col < NR_COLUMNS);
     return board.squares[row][col];
 }
 
-static inline piece_t PIECE_AT (const struct board &board, coord_t coord)
+static inline piece_t piece_at (const struct board &board, coord_t coord)
 {
-    return PIECE_AT (board, ROW(coord), COLUMN(coord));
+    return piece_at (board, ROW (coord), COLUMN (coord));
 }
 
 ///////////////////////////////////////////////
 
 // white moves up (-)
 // black moves down (+)
-static inline int PAWN_DIRECTION (enum color color)
+static inline int pawn_direction (Color color)
 {
-    assert (color == COLOR_WHITE || color == COLOR_BLACK);
-	return color == COLOR_BLACK ? 1 : -1;
+    assert (color == Color::White || color == Color::Black);
+	return color == Color::Black ? 1 : -1;
 }
 
-static inline bool need_pawn_promotion (int8_t row, enum color who)
+static inline bool need_pawn_promotion (int8_t row, Color who)
 {
     switch (who)
     {
-        case COLOR_WHITE: return 0 == row;
-        case COLOR_BLACK: return 7 == row;
-        case COLOR_NONE: fprintf (stderr, "oops\n"); abort();
+        case Color::White: return 0 == row;
+        case Color::Black: return 7 == row;
+        case Color::None: fprintf (stderr, "oops\n"); abort();
         default: abort();
     }
 }
 
-constexpr int able_to_castle (const struct board &board, enum color who,
+constexpr int able_to_castle (const struct board &board, Color who,
                               castle_state_t castle_type)
 {
     color_index_t c_index = color_index(who);
@@ -111,30 +111,30 @@ constexpr int able_to_castle (const struct board &board, enum color who,
 	return didnt_castle && neg_not_set;
 }
 
-constexpr castle_state_t board_get_castle_state (const struct board &board, enum color who)
+constexpr castle_state_t board_get_castle_state (const struct board &board, Color who)
 {
     color_index_t index = color_index(who);
     return board.castled[index];
 }
 
-static inline void board_apply_castle_change (struct board &board, enum color who, castle_state_t castle_state)
+static inline void board_apply_castle_change (struct board &board, Color who, castle_state_t castle_state)
 {
     color_index_t index = color_index(who);
     board.castled[index] = castle_state;
 }
 
-static inline void board_undo_castle_change (struct board &board, enum color who, castle_state_t castle_state)
+static inline void board_undo_castle_change (struct board &board, Color who, castle_state_t castle_state)
 {
     color_index_t index = color_index(who);
     board.castled[index] = castle_state;
 }
 
-static inline coord_t king_position (const struct board &board, enum color who)
+static inline coord_t king_position (const struct board &board, Color who)
 {
 	return board.king_pos[color_index(who)];
 }
 
-static inline void king_position_set (struct board &board, enum color who, coord_t pos)
+static inline void king_position_set (struct board &board, Color who, coord_t pos)
 {
 	board.king_pos[color_index(who)] = pos;
 }
@@ -144,7 +144,7 @@ static inline void board_set_piece (struct board &board, coord_t place, piece_t 
     board.squares[ROW(place)][COLUMN(place)] = piece;
 }
 
-constexpr bool is_en_passant_vulnerable (const struct board &board, enum color who)
+constexpr bool is_en_passant_vulnerable (const struct board &board, Color who)
 {
     return board.en_passant_target[color_index(who)] != no_en_passant_coord;
 }

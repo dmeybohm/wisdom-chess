@@ -23,32 +23,32 @@ private:
 public:
     material () = default;
 
-    [[nodiscard]] static int weight (enum piece_type piece) noexcept
+    [[nodiscard]] static int weight (Piece piece) noexcept
     {
         switch (piece)
         {
-            case PIECE_NONE:    return MATERIAL_WEIGHT_NONE;
-            case PIECE_KING:    return MATERIAL_WEIGHT_KING;
-            case PIECE_QUEEN:   return MATERIAL_WEIGHT_QUEEN;
-            case PIECE_ROOK:    return MATERIAL_WEIGHT_ROOK;
-            case PIECE_BISHOP:  return MATERIAL_WEIGHT_BISHOP;
-            case PIECE_KNIGHT:  return MATERIAL_WEIGHT_KNIGHT;
-            case PIECE_PAWN:    return MATERIAL_WEIGHT_PAWN;
+            case Piece::None:    return MATERIAL_WEIGHT_NONE;
+            case Piece::King:    return MATERIAL_WEIGHT_KING;
+            case Piece::Queen:   return MATERIAL_WEIGHT_QUEEN;
+            case Piece::Rook:    return MATERIAL_WEIGHT_ROOK;
+            case Piece::Bishop:  return MATERIAL_WEIGHT_BISHOP;
+            case Piece::Knight:  return MATERIAL_WEIGHT_KNIGHT;
+            case Piece::Pawn:    return MATERIAL_WEIGHT_PAWN;
             default: abort();
         }
     }
 
     void add (piece_t piece)
     {
-        my_score[color_index(PIECE_COLOR(piece))] += weight (PIECE_TYPE(piece));
+        my_score[color_index(piece_color (piece))] += weight (piece_type (piece));
     }
 
     void remove (piece_t piece)
     {
-        my_score[color_index(PIECE_COLOR(piece))] -= weight (PIECE_TYPE(piece));
+        my_score[color_index(piece_color (piece))] -= weight (piece_type (piece));
     }
 
-    [[nodiscard]] int score (enum color who) const
+    [[nodiscard]] int score (Color who) const
     {
         color_index_t my_index = color_index(who);
         color_index_t opponent_index = color_index(color_invert(who));

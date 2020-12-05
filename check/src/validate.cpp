@@ -2,7 +2,7 @@
 #include "move.h"
 #include "validate.h"
 
-static void check_it (struct board &board, enum color who, move_t mv, int expr)
+static void check_it (struct board &board, Color who, move_t mv, int expr)
 {
     if (!expr)
     {
@@ -12,19 +12,19 @@ static void check_it (struct board &board, enum color who, move_t mv, int expr)
     }
 }
 
-static void validate_castle (struct board &board, castle_state_t state, enum color who, move_t mv)
+static void validate_castle (struct board &board, castle_state_t state, Color who, move_t mv)
 {
     // check positions of the pieces:
-    int8_t row = who == COLOR_WHITE ? 7 : 0;
+    int8_t row = who == Color::White ? 7 : 0;
     int8_t col = state == CASTLE_QUEENSIDE ? 0 : 7;
-    piece_t supposed_king = PIECE_AT (board, row, 4);
-    piece_t supposed_rook = PIECE_AT (board, row, col);
+    piece_t supposed_king = piece_at (board, row, 4);
+    piece_t supposed_rook = piece_at (board, row, col);
     if (able_to_castle (board, who, state))
     {
-        check_it( board, who, mv, PIECE_TYPE(supposed_king) == PIECE_KING );
-        check_it( board, who, mv, PIECE_TYPE(supposed_rook) == PIECE_ROOK );
-        check_it( board, who, mv, PIECE_COLOR(supposed_king) == who );
-        check_it( board, who, mv, PIECE_COLOR(supposed_rook) == who );
+        check_it(board, who, mv, piece_type (supposed_king) == Piece::King );
+        check_it(board, who, mv, piece_type (supposed_rook) == Piece::Rook );
+        check_it(board, who, mv, piece_color (supposed_king) == who );
+        check_it(board, who, mv, piece_color (supposed_rook) == who );
         check_it( board, who, mv, coord_equals (king_position(board, who), coord_create(row, 4)) );
     }
 }
@@ -32,9 +32,9 @@ static void validate_castle (struct board &board, castle_state_t state, enum col
 void validate_castle_state (struct board &board, move_t mv)
 {
 #ifndef NDEBUG
-    validate_castle (board, CASTLE_QUEENSIDE, COLOR_WHITE, mv);
-    validate_castle (board, CASTLE_KINGSIDE, COLOR_WHITE, mv);
-    validate_castle (board, CASTLE_QUEENSIDE, COLOR_BLACK, mv);
-    validate_castle (board, CASTLE_KINGSIDE, COLOR_BLACK, mv);
+    validate_castle (board, CASTLE_QUEENSIDE, Color::White, mv);
+    validate_castle (board, CASTLE_KINGSIDE, Color::White, mv);
+    validate_castle (board, CASTLE_QUEENSIDE, Color::Black, mv);
+    validate_castle (board, CASTLE_KINGSIDE, Color::Black, mv);
 #endif
 }

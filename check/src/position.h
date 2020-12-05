@@ -15,17 +15,17 @@ struct position
 /////////////////////////////////////////////////////////
 
 void position_init      (struct position *position);
-void position_add       (struct position *position, enum color who,
+void position_add       (struct position *position, Color who,
                          coord_t coord, piece_t piece);
-void position_remove    (struct position *position, enum color who,
+void position_remove    (struct position *position, Color who,
                          coord_t coord, piece_t piece);
 
-void position_do_move   (struct position *position, enum color who,
+void position_do_move   (struct position *position, Color who,
                          piece_t piece, move_t move, undo_move_t undo_state);
-void position_undo_move (struct position *position, enum color who,
+void position_undo_move (struct position *position, Color who,
                          piece_t piece, move_t move, undo_move_t undo_state);
 
-int  position_score     (const struct position *position, enum color who);
+int  position_score     (const struct position *position, Color who);
 
 /////////////////////////////////////////////////////////
 

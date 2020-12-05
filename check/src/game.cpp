@@ -42,7 +42,7 @@ bool game::save ()
 	return true; // need to check for failure here
 }
 
-std::optional<game> game::load (enum color player)
+std::optional<game> game::load (Color player)
 {
 	std::string input_buf;
 	move_t move;
@@ -54,7 +54,7 @@ std::optional<game> game::load (enum color player)
 
 	istream.open (input_file, std::ios::in);
 
-    struct game result { COLOR_WHITE, player };
+    struct game result { Color::White, player };
 
     while (std::getline(istream, input_buf))
 	{
@@ -81,11 +81,11 @@ std::optional<game> game::load (enum color player)
 		// consistency checks that make sure we don't erase pieces.
 		//
 		dst = MOVE_DST(move);
-		piece = PIECE_AT (result.board, dst);
+		piece = piece_at (result.board, dst);
 
-		if (PIECE_TYPE(piece) != PIECE_NONE)
+		if (piece_type (piece) != Piece::None)
 		{
-			assert (PIECE_COLOR(piece) != result.turn);
+			assert (piece_color (piece) != result.turn);
 
 			// for historical reasons, we automatically convert to capture move
 			// here. but should probably throw an exception instead.

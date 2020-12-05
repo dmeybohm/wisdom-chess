@@ -16,7 +16,7 @@ private:
     std::unique_ptr<multithread_search_handler> handler;
 
 public:
-    multithread_search (struct board &_board, enum color _side,
+    multithread_search (struct board &_board, Color _side,
                         const move_history_t &_move_history, const move_timer &_timer);
 
     ~multithread_search();

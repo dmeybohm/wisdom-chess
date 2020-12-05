@@ -2,39 +2,29 @@
 #define EVOLVE_CHESS_PIECE_H
 
 #include <cassert>
-#include <cstdint>
-#include <cstdlib>
-#include <cstdio>
 
-enum piece_type
+enum class Piece
 {
-	PIECE_NONE   = 0U,
-	PIECE_KING   = 1U,
-	PIECE_QUEEN  = 2U,
-	PIECE_ROOK   = 3U,
-	PIECE_BISHOP = 4U,
-	PIECE_KNIGHT = 5U,
-	PIECE_PAWN   = 6U,
-	PIECE_LAST   = 7U,
+    None,
+    King,
+    Queen,
+    Rook,
+    Bishop,
+    Knight,
+    Pawn,
 };
 
-enum color
+enum class Color
 {
-	COLOR_NONE  = 0U,
-	COLOR_WHITE = 1U,
-	COLOR_BLACK = 2U,
-	COLOR_LAST  = 3U,
+    None,
+    White,
+    Black
 };
 
 struct piece_with_color
 {
-#ifdef __GNUC__
-    enum piece_type piece_type : 4;
-    enum color color : 3;
-#else // MSVC doesn't support unsigned enums :-(
-	enum piece_type piece_type;
-	enum color color;
-#endif
+    Piece piece_type : 4;
+    Color color : 4;
 };
 
 enum color_index
@@ -47,41 +37,41 @@ typedef int8_t   color_index_t;
 
 typedef struct piece_with_color piece_t;
 
-constexpr enum piece_type all_promotable_piece_types[] =
+constexpr Piece all_promotable_piece_types[] =
 {
-    PIECE_BISHOP,
-    PIECE_KNIGHT,
-    PIECE_ROOK,
-    PIECE_QUEEN
+    Piece::Bishop,
+    Piece::Knight,
+    Piece::Rook,
+    Piece::Queen
 };
 
-constexpr enum piece_type all_piece_types_with_none[] =
+constexpr Piece all_piece_types_with_none[] =
 {
-    PIECE_NONE,
-    PIECE_KING,
-    PIECE_QUEEN,
-    PIECE_ROOK,
-    PIECE_BISHOP,
-    PIECE_KNIGHT,
-    PIECE_PAWN,
+    Piece::None,
+    Piece::King,
+    Piece::Queen,
+    Piece::Rook,
+    Piece::Bishop,
+    Piece::Knight,
+    Piece::Pawn,
 };
 
-constexpr enum color all_colors[] =
+constexpr Color all_colors[] =
 {
-    COLOR_WHITE,
-    COLOR_BLACK
+    Color::White,
+    Color::Black
 };
 
-constexpr enum color all_colors_with_none[] =
+constexpr Color all_colors_with_none[] =
 {
-        COLOR_NONE,
-        COLOR_WHITE,
-        COLOR_BLACK,
+    Color::None,
+    Color::White,
+    Color::Black,
 };
 
 ////////////////////////////////////////////////
 
-constexpr piece_t MAKE_PIECE (enum color color, enum piece_type piece_type)
+constexpr piece_t make_piece (Color color, Piece piece_type)
 {
     struct piece_with_color piece_with_color = { .piece_type = piece_type, .color = color };
     return piece_with_color;
@@ -89,60 +79,90 @@ constexpr piece_t MAKE_PIECE (enum color color, enum piece_type piece_type)
 
 constexpr unsigned int NR_PIECES = 6;
 
-constexpr piece_t PIECE_AND_COLOR_NONE = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
+constexpr piece_t piece_and_color_none = make_piece (Color::None, Piece::None);
+
+constexpr int piece_index (Piece piece)
+{
+    switch (piece)
+    {
+        case Piece::None:
+            return 0;
+        case Piece::King:
+            return 1;
+        case Piece::Queen:
+            return 2;
+        case Piece::Rook:
+            return 3;
+        case Piece::Bishop:
+            return 4;
+        case Piece::Knight:
+            return 5;
+        case Piece::Pawn:
+            return 6;
+    }
+}
 
 /////////////////////////////////////////////////
 
-constexpr enum piece_type PIECE_TYPE (piece_t piece)
+constexpr Piece piece_type (piece_t piece)
 {
     return piece.piece_type;
 }
 
-constexpr enum color PIECE_COLOR (piece_t piece)
+constexpr Color piece_color (piece_t piece)
 {
     return piece.color;
 }
 
-constexpr bool is_color_valid (enum color who)
+constexpr bool is_color_valid (Color who)
 {
-    return (who == COLOR_WHITE || who == COLOR_BLACK);
+    return (who == Color::White || who == Color::Black);
 }
 
-constexpr enum color color_invert (enum color who)
+constexpr Color color_invert (Color who)
 {
     assert (is_color_valid(who));
-	return who == COLOR_WHITE ? COLOR_BLACK : COLOR_WHITE;
+	return who == Color::White ? Color::Black : Color::White;
 }
 
-constexpr bool is_color_invalid (enum color color)
+constexpr bool is_color_invalid (Color color)
 {
 	return !is_color_valid (color);
 }
 
-constexpr color_index_t color_index (enum color who)
+constexpr color_index_t color_index (Color who)
 {
-    assert (is_color_valid(who));
 	switch (who)
 	{
-	    default:
-		case COLOR_WHITE: return COLOR_INDEX_WHITE;
-		case COLOR_BLACK: return COLOR_INDEX_BLACK;
+		case Color::White: return COLOR_INDEX_WHITE;
+		case Color::Black: return COLOR_INDEX_BLACK;
+    	case Color::None: assert(0);
 	}
+}
+
+constexpr color_index_t color_index_with_none (Color who)
+{
+    switch (who)
+    {
+        case Color::None:  return 0;
+        case Color::White: return COLOR_INDEX_WHITE + 1;
+        case Color::Black: return COLOR_INDEX_BLACK + 1;
+    }
 }
 
 static inline char piece_chr (piece_t piece)
 {
-	enum piece_type p = PIECE_TYPE(piece);
+	Piece p = piece_type (piece);
 
 	switch (p)
 	{
-	case PIECE_KING:   return 'K';
-	case PIECE_QUEEN:  return 'Q';
-	case PIECE_ROOK:   return 'R';
-	case PIECE_BISHOP: return 'B';
-	case PIECE_KNIGHT: return 'N';
-	case PIECE_PAWN:   return 'p';
-	default:           return '?';
+        case Piece::King:   return 'K';
+        case Piece::Queen:  return 'Q';
+        case Piece::Rook:   return 'R';
+        case Piece::Bishop: return 'B';
+        case Piece::Knight: return 'N';
+        case Piece::Pawn:   return 'p';
+    	default:            return '?';
 	}
 }
 

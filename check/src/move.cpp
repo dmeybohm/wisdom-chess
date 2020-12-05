@@ -17,32 +17,32 @@ coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst)
     return coord_create (ROW(src), COLUMN(dst));
 }
 
-piece_t handle_en_passant (struct board &board, enum color who,
+piece_t handle_en_passant (struct board &board, Color who,
                            coord_t src, coord_t dst, int undo)
 {
     coord_t taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
 
     if (undo)
     {
-        piece_t taken_pawn = MAKE_PIECE( color_invert(who), PIECE_PAWN );
+        piece_t taken_pawn = make_piece (color_invert (who), Piece::Pawn);
         board_set_piece (board, taken_pawn_pos, taken_pawn);
 
-        return PIECE_AND_COLOR_NONE; // restore empty square where piece was replaced
+        return piece_and_color_none; // restore empty square where piece was replaced
     }
     else
     {
-        piece_t taken = PIECE_AT (board, taken_pawn_pos);
+        piece_t taken = piece_at (board, taken_pawn_pos);
 
-        assert( PIECE_TYPE(taken) == PIECE_PAWN );
-        assert( PIECE_COLOR(taken) != who );
-        board_set_piece (board, taken_pawn_pos, PIECE_AND_COLOR_NONE);
+        assert(piece_type (taken) == Piece::Pawn );
+        assert(piece_color (taken) != who );
+        board_set_piece (board, taken_pawn_pos, piece_and_color_none);
 
         return taken;
     }
 }
 
 static move_t get_castling_rook_move (struct board &board, move_t move,
-                                      enum color who)
+                                      Color who)
 {
     int8_t    src_row, src_col;
     int8_t    dst_row, dst_col;
@@ -69,11 +69,11 @@ static move_t get_castling_rook_move (struct board &board, move_t move,
         dst_col = COLUMN (dst) + 1;
     }
 
-    if (!((PIECE_TYPE (PIECE_AT (board, src_row, src_col)) == PIECE_ROOK
-           || PIECE_TYPE (PIECE_AT (board, dst_row, dst_col)) == PIECE_ROOK)))
+    if (!((piece_type (piece_at (board, src_row, src_col)) == Piece::Rook
+           || piece_type (piece_at (board, dst_row, dst_col)) == Piece::Rook)))
     {
         printf ("move considering: %s (%s to move)\n", to_string(move).c_str(),
-                who == COLOR_WHITE ? "White" : "Black");
+                who == Color::White ? "White" : "Black");
         board.dump();
         assert (0);
     }
@@ -81,7 +81,7 @@ static move_t get_castling_rook_move (struct board &board, move_t move,
     return move_create (src_row, src_col, dst_row, dst_col);
 }
 
-static void handle_castling (struct board &board, enum color who,
+static void handle_castling (struct board &board, Color who,
                              move_t king_move, coord_t src, coord_t dst, int undo)
 {
     move_t  rook_move;
@@ -91,21 +91,21 @@ static void handle_castling (struct board &board, enum color who,
     rook_move = get_castling_rook_move (board, king_move, who);
 
     if (undo)
-        assert (PIECE_TYPE (PIECE_AT (board, dst)) == PIECE_KING);
+        assert (piece_type (piece_at (board, dst)) == Piece::King);
     else
-        assert (PIECE_TYPE (PIECE_AT (board, src)) == PIECE_KING);
+        assert (piece_type (piece_at (board, src)) == Piece::King);
 
     assert (abs(COLUMN(src) - COLUMN(dst)) == 2);
 
     rook_src = MOVE_SRC(rook_move);
     rook_dst = MOVE_DST(rook_move);
 
-    empty_piece = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
+    empty_piece = make_piece (Color::None, Piece::None);
 
     if (undo)
     {
         // undo the rook move
-        rook = PIECE_AT (board, rook_dst);
+        rook = piece_at (board, rook_dst);
 
         // undo the rook move
         board_set_piece (board, rook_dst, empty_piece);
@@ -113,7 +113,7 @@ static void handle_castling (struct board &board, enum color who,
     }
     else
     {
-        rook = PIECE_AT (board, rook_src);
+        rook = piece_at (board, rook_src);
 
         /* do the rook move */
         board_set_piece (board, rook_dst, rook);
@@ -121,7 +121,7 @@ static void handle_castling (struct board &board, enum color who,
     }
 }
 
-void update_king_position (struct board &board, enum color who, move_t move,
+void update_king_position (struct board &board, Color who, move_t move,
                            undo_move_t *undo_state, coord_t src, coord_t dst,
                            int undo)
 {
@@ -159,11 +159,11 @@ void update_king_position (struct board &board, enum color who, move_t move,
 }
 
 static void
-update_opponent_rook_position (struct board &board, enum color opponent,
+update_opponent_rook_position (struct board &board, Color opponent,
                                piece_t dst_piece, undo_move_t *undo_state,
                                coord_t src, coord_t dst, int undo)
 {
-    assert( PIECE_COLOR(dst_piece) == opponent && PIECE_TYPE(dst_piece) == PIECE_ROOK );
+    assert(piece_color (dst_piece) == opponent && piece_type (dst_piece) == Piece::Rook );
 
     if (undo)
     {
@@ -205,20 +205,20 @@ update_opponent_rook_position (struct board &board, enum color opponent,
     }
 }
 
-static void update_current_rook_position (struct board &board, enum color player,
+static void update_current_rook_position (struct board &board, Color player,
                                           piece_t src_piece, move_t move,
                                           undo_move_t *undo_state,
                                           coord_t src, coord_t dst, int undo)
 {
-    if (!( PIECE_COLOR(src_piece) == player &&
-           PIECE_TYPE(src_piece) == PIECE_ROOK))
+    if (!(piece_color (src_piece) == player &&
+            piece_type (src_piece) == Piece::Rook))
     {
         std::cout << "update_current_rook_position failed: move " << to_string(move) << "\n";
         board.dump();
         abort ();
     }
 
-    assert( PIECE_COLOR(src_piece) == player && PIECE_TYPE(src_piece) == PIECE_ROOK );
+    assert(piece_color (src_piece) == player && piece_type (src_piece) == Piece::Rook );
 
     if (undo)
     {
@@ -259,7 +259,7 @@ static void update_current_rook_position (struct board &board, enum color player
     }
 }
 
-static void handle_en_passant_eligibility (struct board &board, enum color who, piece_t src_piece,
+static void handle_en_passant_eligibility (struct board &board, Color who, piece_t src_piece,
                                            move_t move, undo_move_t *undo_state, int undo)
 {
     color_index_t c_index = color_index(who);
@@ -272,7 +272,7 @@ static void handle_en_passant_eligibility (struct board &board, enum color who, 
     }
     else
     {
-        int direction = PAWN_DIRECTION(who);
+        int direction = pawn_direction (who);
         coord_t new_state = no_en_passant_coord;
         if (is_double_square_pawn_move (src_piece, move))
         {
@@ -287,30 +287,30 @@ static void handle_en_passant_eligibility (struct board &board, enum color who, 
     }
 }
 
-undo_move_t do_move (struct board &board, enum color who, move_t move)
+undo_move_t do_move (struct board &board, Color who, move_t move)
 {
     piece_t      orig_src_piece, src_piece, dst_piece;
     coord_t      src, dst;
     undo_move_t  undo_state = empty_undo_state;
-    enum color   opponent = color_invert(who);
+    Color   opponent = color_invert(who);
 
     src = MOVE_SRC(move);
     dst = MOVE_DST(move);
 
-    orig_src_piece = src_piece = PIECE_AT (board, src);
-    dst_piece = PIECE_AT (board, dst);
+    orig_src_piece = src_piece = piece_at (board, src);
+    dst_piece = piece_at (board, dst);
 
-    if (PIECE_TYPE(dst_piece) != PIECE_NONE)
+    if (piece_type (dst_piece) != Piece::None)
     {
         assert( is_capture_move(move) );
         undo_state.category = MOVE_CATEGORY_NORMAL_CAPTURE;
-        undo_state.taken_piece_type = PIECE_TYPE(dst_piece);
+        undo_state.taken_piece_type = piece_type (dst_piece);
     }
 
-    if (PIECE_TYPE(src_piece) != PIECE_NONE &&
-        PIECE_TYPE(dst_piece) != PIECE_NONE)
+    if (piece_type (src_piece) != Piece::None &&
+            piece_type (dst_piece) != Piece::None)
     {
-        assert (PIECE_COLOR(src_piece) != PIECE_COLOR(dst_piece));
+        assert (piece_color (src_piece) != piece_color (dst_piece));
     }
 
     // check for promotion
@@ -318,7 +318,7 @@ undo_move_t do_move (struct board &board, enum color who, move_t move)
 	{
 		src_piece = move_get_promoted_piece(move);
 		board.material.add (src_piece);
-		board.material.remove (MAKE_PIECE(who, PIECE_PAWN));
+		board.material.remove (make_piece (who, Piece::Pawn));
 	}
 
     // check for en passant
@@ -337,28 +337,28 @@ undo_move_t do_move (struct board &board, enum color who, move_t move)
 
     handle_en_passant_eligibility (board, who, src_piece, move, &undo_state, 0);
 
-    board_set_piece (board, src, PIECE_AND_COLOR_NONE);
+    board_set_piece (board, src, piece_and_color_none);
     board_set_piece (board, dst, src_piece);
 
     // update king position
-    if (PIECE_TYPE(src_piece) == PIECE_KING)
+    if (piece_type (src_piece) == Piece::King)
         update_king_position (board, who, move, &undo_state, src, dst, 0);
 
     // update rook position -- for castling
-    if (PIECE_TYPE(orig_src_piece) == PIECE_ROOK)
+    if (piece_type (orig_src_piece) == Piece::Rook)
     {
         update_current_rook_position (board, who, orig_src_piece,
                                       move, &undo_state, src, dst, 0);
     }
 
     piece_t captured_piece = captured_material (undo_state, opponent);
-    if (PIECE_TYPE(captured_piece) != PIECE_NONE)
+    if (piece_type (captured_piece) != Piece::None)
     {
         // update material estimate
         board.material.remove (captured_piece);
 
         // update castle state if somebody takes the rook
-        if (PIECE_TYPE(captured_piece) == PIECE_ROOK)
+        if (piece_type (captured_piece) == Piece::Rook)
         {
             update_opponent_rook_position (board, color_invert (who), dst_piece,
                                            &undo_state, src, dst, 0);
@@ -371,29 +371,29 @@ undo_move_t do_move (struct board &board, enum color who, move_t move)
     return undo_state;
 }
 
-void undo_move (struct board &board, enum color who,
+void undo_move (struct board &board, Color who,
                 move_t move, undo_move_t undo_state)
 {
-    piece_t         orig_src_piece, src_piece, dst_piece = PIECE_AND_COLOR_NONE;
-    enum piece_type dst_piece_type;
+    piece_t         orig_src_piece, src_piece, dst_piece = piece_and_color_none;
+    Piece dst_piece_type;
     coord_t         src, dst;
-    enum color      opponent = color_invert(who);
+    Color      opponent = color_invert(who);
 
     src = MOVE_SRC(move);
     dst = MOVE_DST(move);
 
     dst_piece_type = undo_state.taken_piece_type;
-    orig_src_piece = src_piece = PIECE_AT (board, dst);
+    orig_src_piece = src_piece = piece_at (board, dst);
 
-    assert( PIECE_TYPE(src_piece) != PIECE_NONE );
-    assert( PIECE_COLOR(src_piece) == who );
-    if (dst_piece_type != PIECE_NONE)
-        dst_piece = MAKE_PIECE( opponent, dst_piece_type );
+    assert(piece_type (src_piece) != Piece::None );
+    assert(piece_color (src_piece) == who );
+    if (dst_piece_type != Piece::None)
+        dst_piece = make_piece (opponent, dst_piece_type);
 
     // check for promotion
 	if (is_promoting_move(move))
 	{
-		src_piece = MAKE_PIECE(PIECE_COLOR(src_piece), PIECE_PAWN);
+		src_piece = make_piece (piece_color (src_piece), Piece::Pawn);
 		board.material.remove (orig_src_piece);
 		board.material.add (src_piece);
 	}
@@ -414,23 +414,23 @@ void undo_move (struct board &board, enum color who,
     board_set_piece (board, src, src_piece);
 
     // update king position
-    if (PIECE_TYPE(src_piece) == PIECE_KING)
+    if (piece_type (src_piece) == Piece::King)
         update_king_position (board, who, move, &undo_state, src, dst, 1);
 
-    if (PIECE_TYPE(orig_src_piece) == PIECE_ROOK)
+    if (piece_type (orig_src_piece) == Piece::Rook)
     {
         update_current_rook_position (board, who, orig_src_piece, move, &undo_state,
                                       src, dst, 1);
     }
 
     piece_t captured_piece = captured_material (undo_state, opponent);
-    if (PIECE_TYPE(captured_piece) != PIECE_NONE)
+    if (piece_type (captured_piece) != Piece::None)
     {
         // NOTE: we reload from the move in case of en-passant, since dst_piece
         // could be none.
         board.material.add (captured_piece);
 
-        if (PIECE_TYPE(dst_piece) == PIECE_ROOK)
+        if (piece_type (dst_piece) == Piece::Rook)
         {
             update_opponent_rook_position (board, color_invert (who), dst_piece,
                                            &undo_state, src, dst, 1);
@@ -495,13 +495,13 @@ static const char *move_str (move_t move)
 	return buf;
 }
 
-static move_t castle_parse (std::string_view str, enum color who)
+static move_t castle_parse (std::string_view str, Color who)
 {
 	int8_t src_row, dst_col;
 
-	if (who == COLOR_WHITE)
+	if (who == Color::White)
 		src_row = LAST_ROW;
-	else if (who == COLOR_BLACK)
+	else if (who == Color::Black)
 		src_row = FIRST_ROW;
 	else
 		assert (0);
@@ -520,7 +520,7 @@ static move_t castle_parse (std::string_view str, enum color who)
 	return move_create_castling (src_row, KING_COLUMN, src_row, dst_col);
 }
 
-move_t move_parse (std::string_view str, enum color who)
+move_t move_parse (std::string_view str, Color who)
 {
 	bool en_passant   = false;
     bool is_capturing = false;
@@ -583,19 +583,19 @@ move_t move_parse (std::string_view str, enum color who)
         move = move_with_capture(move);
 
 	// grab extra identifiers describing the move
-	piece_t promoted = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
+	piece_t promoted = make_piece (Color::None, Piece::None);
     if (rest == "EP")
         en_passant = true;
     else if (rest == "(Q)")
-        promoted = MAKE_PIECE (who, PIECE_QUEEN);
+        promoted = make_piece (who, Piece::Queen);
     else if (rest == "(N)")
-        promoted = MAKE_PIECE (who, PIECE_KNIGHT);
+        promoted = make_piece (who, Piece::Knight);
     else if (rest == "(B)")
-        promoted = MAKE_PIECE (who, PIECE_BISHOP);
+        promoted = make_piece (who, Piece::Bishop);
     else if (rest == "(R)")
-        promoted = MAKE_PIECE (who, PIECE_ROOK);
+        promoted = make_piece (who, Piece::Rook);
 
-    if (PIECE_TYPE(promoted) != PIECE_NONE)
+    if (piece_type (promoted) != Piece::None)
         move = move_with_promotion (move, promoted);
 
     if (en_passant)
@@ -605,13 +605,13 @@ move_t move_parse (std::string_view str, enum color who)
 }
 
 
-move_t parse_move (std::string_view str, enum color color)
+move_t parse_move (std::string_view str, Color color)
 {
-    if (tolower(str[0]) == 'o' && color == COLOR_NONE)
+    if (tolower(str[0]) == 'o' && color == Color::None)
         throw parse_move_exception("Move requires color, but no color provided");
 
     move_t result = move_parse (str, color);
-    if (color == COLOR_NONE &&
+    if (color == Color::None &&
         result.move_category != MOVE_CATEGORY_NORMAL_CAPTURE &&
         result.move_category != MOVE_CATEGORY_NON_CAPTURE)
     {

@@ -14,7 +14,7 @@ struct game;
 class fen final
 {
 public:
-    explicit fen(const std::string &input) : active_player { COLOR_WHITE }
+    explicit fen(const std::string &input) : active_player { Color::White }
     {
         parse(input);
     }
@@ -24,7 +24,7 @@ public:
 
 private:
     board_builder builder;
-    enum color active_player;
+    Color active_player;
 
     void parse(const std::string &input);
     static piece_t parse_piece (char ch);
@@ -35,7 +35,7 @@ private:
 
     void parse_halfmove (int half_moves);
     void parse_fullmove (int full_moves);
-    static enum color parse_active_player (char ch);
+    static Color parse_active_player (char ch);
 };
 
 class fen_exception : public std::exception

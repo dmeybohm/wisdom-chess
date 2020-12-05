@@ -19,33 +19,33 @@ game fen::build ()
 piece_t fen::parse_piece (char ch)
 {
     int lower = tolower(ch);
-    enum color who = islower(ch) ? COLOR_BLACK : COLOR_WHITE;
+    Color who = islower(ch) ? Color::Black : Color::White;
 
     switch (lower)
     {
         case 'k':
-            return MAKE_PIECE (who, PIECE_KING);
+            return make_piece (who, Piece::King);
         case 'q':
-            return MAKE_PIECE (who, PIECE_QUEEN);
+            return make_piece (who, Piece::Queen);
         case 'r':
-            return MAKE_PIECE (who, PIECE_ROOK);
+            return make_piece (who, Piece::Rook);
         case 'b':
-            return MAKE_PIECE (who, PIECE_BISHOP);
+            return make_piece (who, Piece::Bishop);
         case 'n':
-            return MAKE_PIECE (who, PIECE_KNIGHT);
+            return make_piece (who, Piece::Knight);
         case 'p':
-            return MAKE_PIECE (who, PIECE_PAWN);
+            return make_piece (who, Piece::Pawn);
         default:
             throw fen_exception("Invalid piece type!");
     }
 }
 
-enum color fen::parse_active_player (char ch)
+Color fen::parse_active_player (char ch)
 {
     switch (ch)
     {
-        case 'w': return COLOR_WHITE;
-        case 'b': return COLOR_BLACK;
+        case 'w': return Color::White;
+        case 'b': return Color::Black;
         default: throw fen_exception ("Invalid active color!");
     }
 }
@@ -73,7 +73,7 @@ void fen::parse_pieces (std::string_view str)
         else if (isalpha(ch))
         {
             piece_t piece = parse_piece (ch);
-            builder.add_piece (row, col, PIECE_COLOR(piece), PIECE_TYPE(piece));
+            builder.add_piece (row, col, piece_color (piece), piece_type (piece));
             col++;
             if (col > NR_COLUMNS)
                 throw fen_exception("Invalid columns!");
@@ -121,7 +121,7 @@ void fen::parse_castling (std::string_view str)
         if (ch == ' ' || ch == '-')
             break;
 
-        enum color who = islower(ch) ? COLOR_BLACK : COLOR_WHITE;
+        Color who = islower(ch) ? Color::Black : Color::White;
         castle_state_t new_state = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
 
         switch (tolower(ch))
@@ -134,15 +134,15 @@ void fen::parse_castling (std::string_view str)
                 break;
         }
 
-        if (who == COLOR_BLACK)
+        if (who == Color::Black)
             black_castle &= new_state;
         else
             white_castle &= new_state;
 
     }
 
-    builder.set_castling (COLOR_WHITE, white_castle);
-    builder.set_castling (COLOR_BLACK, black_castle);
+    builder.set_castling (Color::White, white_castle);
+    builder.set_castling (Color::Black, black_castle);
 }
 
 // halfmove clock:
