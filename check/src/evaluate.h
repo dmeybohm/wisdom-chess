@@ -9,13 +9,11 @@
 struct board;
 
 // Evaluate the board.
-int evaluate                (struct board &board, Color who,
-                             std::size_t moves_away);
+int evaluate                (struct board &board, Color who, int moves_away);
 
 // Evaluate the board and check if it's a draw (the latter being a time
 // consuming process potentially).
-int evaluate_and_check_draw (struct board &board, Color who,
-                             std::size_t moves_away,
+int evaluate_and_check_draw (struct board &board, Color who, int moves_away,
                              move_t move, const move_history_t &history);
 
 #endif // EVOLVE_CHESS_EVALUATE_H
