@@ -1,7 +1,6 @@
 #ifndef EVOLVE_CHESS_BOARD_H_
 #define EVOLVE_CHESS_BOARD_H_
 
-#include <cstdio>
 #include <cassert>
 #include <vector>
 

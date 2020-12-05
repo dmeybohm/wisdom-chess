@@ -1,7 +1,6 @@
 #ifndef EVOLVE_CHESS_MOVE_H
 #define EVOLVE_CHESS_MOVE_H
 
-#include <cstring>
 #include <cassert>
 #include <string>
 
