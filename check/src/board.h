@@ -69,13 +69,13 @@ struct board
 
 static inline piece_t piece_at (const struct board &board, int8_t row, int8_t col)
 {
-    assert (row < NR_ROWS && col < NR_COLUMNS);
+    assert (VALID(row) && VALID(col));
     return board.squares[row][col];
 }
 
 static inline piece_t piece_at (const struct board &board, coord_t coord)
 {
-    return piece_at (board, ROW (coord), COLUMN (coord));
+    return piece_at (board, ROW(coord), COLUMN(coord));
 }
 
 ///////////////////////////////////////////////
