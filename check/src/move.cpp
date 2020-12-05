@@ -439,7 +439,7 @@ void undo_move (struct board &board, Color who,
     validate_castle_state (board, move);
 }
 
-static move_t castle_parse (std::string_view str, Color who)
+static move_t castle_parse (const std::string &str, Color who)
 {
 	int8_t src_row, dst_col;
 
