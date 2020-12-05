@@ -147,10 +147,10 @@ constexpr color_index_t color_index_with_none (Color who)
 {
     switch (who)
     {
-        default:
         case Color::None:  return 0;
         case Color::White: return COLOR_INDEX_WHITE + 1;
         case Color::Black: return COLOR_INDEX_BLACK + 1;
+        default: abort();
     }
 }
 
