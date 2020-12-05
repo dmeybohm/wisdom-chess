@@ -34,6 +34,7 @@ public:
             case Piece::Bishop:  return MATERIAL_WEIGHT_BISHOP;
             case Piece::Knight:  return MATERIAL_WEIGHT_KNIGHT;
             case Piece::Pawn:    return MATERIAL_WEIGHT_PAWN;
+            default: abort();
         }
     }
 

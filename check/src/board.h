@@ -90,11 +90,11 @@ static inline int pawn_direction (Color color)
 
 static inline bool need_pawn_promotion (int8_t row, Color who)
 {
+    assert (is_color_valid(who));
     switch (who)
     {
         case Color::White: return 0 == row;
         case Color::Black: return 7 == row;
-        case Color::None: fprintf (stderr, "oops\n"); abort();
         default: abort();
     }
 }
