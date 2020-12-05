@@ -7,7 +7,6 @@
 #include "board.h"
 #include "check.h"
 #include "generate.h"
-#include "debug.h"
 #include "board_check.h"
 
 ///////////////////////////////////////////////

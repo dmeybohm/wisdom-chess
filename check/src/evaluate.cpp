@@ -2,7 +2,6 @@
 #include "board.h"
 #include "check.h"
 #include "search.h"
-#include "debug.h"
 #include "position.h"
 
 #define CASTLE_POSITIVE_WEIGHT        60

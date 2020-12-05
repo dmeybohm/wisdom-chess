@@ -4,13 +4,10 @@
 #include <iostream>
 
 #include "board.h"
-#include "debug.h"
 #include "validate.h"
 
 // board length in characters
 constexpr int BOARD_LENGTH = 31;
-
-DEFINE_DEBUG_CHANNEL (board, 0);
 
 static void board_init_from_positions (board &board,
                                        const struct board_positions *positions);

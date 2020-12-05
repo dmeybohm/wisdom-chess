@@ -2,11 +2,13 @@
 #include "move.h"
 #include "validate.h"
 
+#include <iostream>
+
 static void check_it (struct board &board, Color who, move_t mv, int expr)
 {
     if (!expr)
     {
-        printf ("move considering: %s \n", to_string(mv).c_str());
+        std::cerr << "move considering: " << to_string(mv) << "\n";
         board.dump ();
         abort ();
     }
@@ -31,7 +33,7 @@ static void validate_castle (struct board &board, castle_state_t state, Color wh
 
 void validate_castle_state (struct board &board, move_t mv)
 {
-#ifndef NDEBUG
+#ifdef VALIDATE_CASTLE_STATE
     validate_castle (board, CASTLE_QUEENSIDE, Color::White, mv);
     validate_castle (board, CASTLE_KINGSIDE, Color::White, mv);
     validate_castle (board, CASTLE_QUEENSIDE, Color::Black, mv);
