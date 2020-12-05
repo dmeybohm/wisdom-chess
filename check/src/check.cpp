@@ -27,7 +27,7 @@ bool is_king_threatened (struct board &board, Color who,
 	col = king_col;
 	for (r_dir = -1; r_dir <= 1; r_dir += 2)
 	{
-		for (row = NEXT (king_row, r_dir); VALID (row); row = NEXT (row, r_dir))
+		for (row = next_row (king_row, r_dir); is_valid_row (row); row = next_row (row, r_dir))
 		{
 			what = piece_at (board, row, col);
 
@@ -49,7 +49,7 @@ bool is_king_threatened (struct board &board, Color who,
 	row = king_row;
 	for (c_dir = -1; c_dir <= 1; c_dir += 2)
 	{
-		for (col = NEXT (king_col, c_dir); VALID (col); col = NEXT (col, c_dir))
+		for (col = next_column (king_col, c_dir); is_valid_column (col); col = next_column (col, c_dir))
 		{
 			what = piece_at (board, row, col);
 
@@ -72,9 +72,9 @@ bool is_king_threatened (struct board &board, Color who,
 	{
 		for (c_dir = -1; c_dir <= 1; c_dir += 2)
 		{
-			for (row = NEXT (king_row, r_dir), col = NEXT (king_col, c_dir); 
-				 VALID (row) && VALID (col); 
-                 row = NEXT (row, r_dir), col = NEXT (col, c_dir))
+			for (row = next_row (king_row, r_dir), col = next_column (king_col, c_dir);
+                 is_valid_row (row) && is_valid_column (col);
+                 row = next_row (row, r_dir), col = next_column (col, c_dir))
 			{
 				what = piece_at (board, row, col);
 
@@ -121,10 +121,10 @@ bool is_king_threatened (struct board &board, Color who,
 
 	for (c_dir = -1; c_dir <= 1; c_dir += 2)
 	{
-		row = NEXT (king_row, r_dir);
-		col = NEXT (king_col, c_dir);
+		row = next_row (king_row, r_dir);
+		col = next_column (king_col, c_dir);
 
-		if (INVALID (row) || INVALID (col))
+		if (!is_valid_row(row) || !is_valid_column(col))
 			continue;
 
 		what = piece_at (board, row, col);
@@ -136,12 +136,12 @@ bool is_king_threatened (struct board &board, Color who,
 	// check for king checks
 	for (row = king_row-1; row <= king_row+1; row++)
 	{
-		if (INVALID (row))
+		if (!is_valid_row (row))
 			continue;
 
 		for (col = king_col-1; col <= king_col+1; col++)
 		{
-			if (INVALID (col))
+			if (!is_valid_column (col))
 				continue;
 
 			if (col == king_col && row == king_row)
@@ -174,8 +174,10 @@ bool was_legal_move (struct board &board, Color who, move_t mv)
 
         int8_t direction = is_castling_move_on_king_side(mv) ? -1 : 1;
 
-        if (is_king_threatened (board, who, castled_row, NEXT (castled_col, direction)) ||
-            is_king_threatened (board, who, castled_row, NEXT (NEXT (castled_col, direction), direction)))
+        int8_t plus_one_column = next_column (castled_col, direction);
+        int8_t plus_two_column = next_column (plus_one_column, direction);
+        if (is_king_threatened (board, who, castled_row, plus_one_column) ||
+            is_king_threatened (board, who, castled_row, plus_two_column))
         {
             return false;
         }

@@ -14,24 +14,29 @@ typedef struct coord
 
 ///////////////////////////////////////////////
 
-constexpr bool VALID (int8_t row_or_col)
+constexpr bool is_valid_row (int8_t row)
 {
-    return ((row_or_col) >= 0 && (row_or_col) < 8);
+    return row >= 0 && row < NR_ROWS;
 }
 
-constexpr int8_t NEXT (int8_t row_or_col, int8_t direction)
+constexpr bool is_valid_column (int8_t col)
 {
-    return row_or_col + direction;
+    return col >= 0 && col < NR_COLUMNS;
 }
 
-constexpr bool INVALID (int8_t row_or_col)
+constexpr int8_t next_row (int8_t row, int8_t direction)
 {
-    return !VALID(row_or_col);
+    return row + direction;
+}
+
+constexpr int8_t next_column (int8_t col, int8_t direction)
+{
+    return col + direction;
 }
 
 constexpr coord_t make_coord (int8_t row, int8_t col)
 {
-    assert (VALID(row) && VALID(col));
+    assert (is_valid_row (row) && is_valid_column (col));
     coord_t result = { .row = row, .col = col };
     return result;
 }
@@ -89,7 +94,7 @@ constexpr char col_to_char (int col)
 
 std::string to_string (coord_t coord);
 
-coord_t coord_parse (std::string_view str);
+coord_t coord_parse (const std::string &str);
 
 /////////////////////////////////////////////////////////////////////
 

@@ -100,6 +100,8 @@ constexpr int piece_index (Piece piece)
             return 5;
         case Piece::Pawn:
             return 6;
+        default:
+            abort();
     }
 }
 
@@ -137,7 +139,7 @@ constexpr color_index_t color_index (Color who)
 	{
 		case Color::White: return COLOR_INDEX_WHITE;
 		case Color::Black: return COLOR_INDEX_BLACK;
-    	case Color::None: assert(0);
+		default: abort();
 	}
 }
 
@@ -145,12 +147,12 @@ constexpr color_index_t color_index_with_none (Color who)
 {
     switch (who)
     {
+        default:
         case Color::None:  return 0;
         case Color::White: return COLOR_INDEX_WHITE + 1;
         case Color::Black: return COLOR_INDEX_BLACK + 1;
     }
 }
-
 
 static inline char piece_char (piece_t piece)
 {

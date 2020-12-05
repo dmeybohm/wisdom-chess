@@ -15,10 +15,10 @@
 static inline int is_pawn_unmoved (const struct board &board,
                                    int8_t row, int8_t col)
 {
-    assert (VALID(row) && VALID(col));
+    assert (is_valid_row(row) && is_valid_column(col));
     piece_t piece = piece_at (board, row, col);
 
-    if (piece_color (piece) == Color::White)
+    if (piece_color(piece) == Color::White)
         return row == 6;
     else
         return row == 1;

@@ -297,12 +297,12 @@ constexpr bool is_en_passant_vulnerable (undo_move_t undo_state, Color who)
 undo_move_t   do_move         (struct board &board, Color who, move_t move);
 void          undo_move       (struct board &board, Color who, move_t move,
                                undo_move_t undo_state);
-move_t        move_parse      (std::string_view str, Color who);
+move_t        move_parse      (const std::string &str, Color who);
 
 coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst);
 
 // Parse a move
-move_t parse_move (std::string_view str, Color color = Color::None);
+move_t parse_move (const std::string &str, Color color = Color::None);
 
 /////////////////////////////////////////////////////////////////////
 

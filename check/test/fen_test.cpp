@@ -3,6 +3,8 @@
 #include "board.h"
 #include "fen.hpp"
 
+#include <cstring>
+
 TEST_CASE( "FEN notation for the starting position", "[fen-test]" )
 {
     fen parser { "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" };
@@ -12,7 +14,7 @@ TEST_CASE( "FEN notation for the starting position", "[fen-test]" )
 
     CHECK( board_equals (game.board, default_board) );
 
-    int castled_result = memcmp (game.board.castled, default_board.castled, sizeof (default_board.castled));
+    int castled_result = std::memcmp (game.board.castled, default_board.castled, sizeof (default_board.castled));
     CHECK( castled_result == 0 );
 }
 

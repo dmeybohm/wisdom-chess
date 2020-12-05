@@ -68,12 +68,12 @@ static void knight_move_list_init ()
 			if (!k_row)
 				continue;
 
-			if (INVALID (k_row + row))
+			if (!is_valid_row (k_row + row))
 				continue;
 
 			for (k_col = 3-abs(k_row); k_col >= -2; k_col -= 2*abs(k_col))
 			{
-				if (INVALID (k_col + col))
+				if (!is_valid_column (k_col + col))
 					continue;
 
 				move_t knight_move = make_move (k_row + row, k_col + col, row, col);
@@ -96,12 +96,12 @@ static void moves_king (board &board, Color who,
 	
 	for (row = piece_row-1; row < 8 && row <= piece_row+1; row++)
 	{
-		if (INVALID(row))
+		if (!is_valid_row(row))
 			continue;
 
 		for (col = piece_col-1; col < 8 && col <= piece_col+1; col++)
 		{
-			if (INVALID (col))
+			if (!is_valid_column(col))
 				continue;
 
 			moves.push_back (make_move (piece_row, piece_col, row, col));
@@ -140,7 +140,7 @@ static void moves_rook (board &board, Color who,
 
 	for (dir = -1; dir <= 1; dir += 2)
 	{
-		for (row = NEXT (piece_row, dir); VALID (row); row = NEXT (row, dir))
+		for (row = next_row (piece_row, dir); is_valid_row (row); row = next_row (row, dir))
 		{
 			piece = piece_at (board, row, piece_col);
 
@@ -150,7 +150,7 @@ static void moves_rook (board &board, Color who,
 				break;
 		}
 
-		for (col = NEXT (piece_col, dir); VALID (col); col = NEXT (col, dir))
+		for (col = next_column (piece_col, dir); is_valid_column (col); col = next_column (col, dir))
 		{
 			piece = piece_at (board, piece_row, col);
 
@@ -172,9 +172,9 @@ static void moves_bishop (struct board &board, Color who,
 	{
 		for (c_dir = -1; c_dir <= 1; c_dir += 2)
 		{
-			for (row = NEXT (piece_row, r_dir), col = NEXT (piece_col, c_dir);
-			     VALID (row) && VALID (col);
-			     row = NEXT (row, r_dir), col = NEXT (col, c_dir))
+			for (row = next_row (piece_row, r_dir), col = next_column (piece_col, c_dir);
+                 is_valid_row (row) && is_valid_column (col);
+			     row = next_row (row, r_dir), col = next_column (col, c_dir))
 			{
 				piece_t  piece = piece_at (board, row, col);
 				
@@ -213,13 +213,13 @@ static int8_t eligible_en_passant_column (const struct board &board, int8_t row,
 
     if (left_column == target_column)
     {
-        assert (VALID(left_column));
+        assert (is_valid_column (left_column));
         return left_column;
     }
 
     if (right_column == target_column)
     {
-        assert (VALID(right_column));
+        assert (is_valid_column (right_column));
         return right_column;
     }
 
@@ -240,10 +240,10 @@ static void moves_pawn (board &board, Color who,
 	// row is _guaranteed_ to be on the board, because
 	// a pawn on the eight rank can't remain a pawn, and that's
 	// the only direction moved in
-	assert (VALID(piece_row));
+	assert (is_valid_row (piece_row));
 
-	row = NEXT (piece_row, dir);
-	assert (VALID(row));
+	row = next_row (piece_row, dir);
+	assert (is_valid_row (row));
 
 	std::array<move_t, 4> all_pawn_moves { null_move, null_move, null_move, null_move };
 
@@ -254,27 +254,27 @@ static void moves_pawn (board &board, Color who,
 	// double move
 	if (is_pawn_unmoved (board, piece_row, piece_col))
 	{
-		int8_t next_row = NEXT (row, dir);
+		int8_t double_row = next_row (row, dir);
 
 		if (!is_null_move (all_pawn_moves[0]) &&
-            piece_type (piece_at (board, next_row, piece_col)) == Piece::None)
+            piece_type (piece_at (board, double_row, piece_col)) == Piece::None)
 		{
-            all_pawn_moves[1] = make_move (piece_row, piece_col, next_row, piece_col);
+            all_pawn_moves[1] = make_move (piece_row, piece_col, double_row, piece_col);
 		}
 	}
 
 	// take pieces
 	for (c_dir = -1; c_dir <= 1; c_dir += 2)
 	{
-		take_col = NEXT (piece_col, c_dir);
+		take_col = next_column (piece_col, c_dir);
 
-		if (INVALID (take_col))
+		if (!is_valid_column (take_col))
 			continue;
 
 		piece = piece_at (board, row, take_col);
 
 		if (piece_type (piece_at (board, row, take_col)) != Piece::None &&
-                piece_color (piece) != who)
+            piece_color (piece) != who)
 		{
 			if (c_dir == -1)
                 all_pawn_moves[2] = make_capturing_move (piece_row, piece_col, row, take_col);
@@ -307,7 +307,7 @@ static void moves_pawn (board &board, Color who,
 	
 	// en passant
 	int8_t en_passant_column = eligible_en_passant_column (board, piece_row, piece_col, who);
-	if (VALID(en_passant_column))
+	if (is_valid_column(en_passant_column))
 		add_en_passant_move (board, who, piece_row, piece_col, moves, en_passant_column);
 
 	for (auto &check_pawn_move : all_pawn_moves)
@@ -326,7 +326,7 @@ static void add_en_passant_move (const board &board, Color who, int8_t piece_row
 
     direction = pawn_direction (who);
 
-    take_row = NEXT (piece_row, direction);
+    take_row = next_row (piece_row, direction);
     take_col = en_passant_column;
 
     piece_t take_piece = piece_at (board, piece_row, take_col);

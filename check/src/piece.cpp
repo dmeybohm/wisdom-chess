@@ -10,5 +10,7 @@ std::string to_string (Color who)
             return "Black";
         case Color::None:
             return "None";
+        default:
+            abort();
     }
 }

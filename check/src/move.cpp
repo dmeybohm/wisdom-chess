@@ -274,8 +274,8 @@ static void handle_en_passant_eligibility (struct board &board, Color who, piece
         if (is_double_square_pawn_move (src_piece, move))
         {
             coord_t src = move_src (move);
-            int8_t prev_row = NEXT (ROW(src), direction);
-            new_state = make_coord (prev_row, COLUMN (src));
+            int8_t prev_row = next_row (ROW(src), direction);
+            new_state = make_coord (prev_row, COLUMN(src));
         }
         undo_state->en_passant_target[c_index] = board.en_passant_target[c_index];
         undo_state->en_passant_target[o_index] = board.en_passant_target[o_index];
@@ -464,7 +464,7 @@ static move_t castle_parse (std::string_view str, Color who)
 	return make_castling_move (src_row, KING_COLUMN, src_row, dst_col);
 }
 
-move_t move_parse (std::string_view str, Color who)
+move_t move_parse (const std::string &str, Color who)
 {
 	bool en_passant   = false;
     bool is_capturing = false;
@@ -507,21 +507,22 @@ move_t move_parse (std::string_view str, Color who)
         is_capturing = true;
     }
 
-	std::string_view rest { tmp.substr(offset) };
-	if (rest.empty())
+	std::string dst_coord { tmp.substr(offset, 2) };
+	offset += 2;
+	if (dst_coord.empty())
 		return null_move;
 
 	coord_t dst;
     try
     {
-        dst = coord_parse (rest.substr(0, 2));
-        rest = rest.substr(2);
+        dst = coord_parse (dst_coord);
     }
     catch (const coord_parse_exception &e)
     {
         return null_move;
     }
 
+    std::string rest { tmp.substr(offset) };
     move_t move = make_move (src, dst);
     if (is_capturing)
         move = copy_move_with_capture (move);
@@ -549,7 +550,7 @@ move_t move_parse (std::string_view str, Color who)
 }
 
 
-move_t parse_move (std::string_view str, Color color)
+move_t parse_move (const std::string &str, Color color)
 {
     if (tolower(str[0]) == 'o' && color == Color::None)
         throw parse_move_exception("Move requires color, but no color provided");

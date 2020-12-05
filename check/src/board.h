@@ -69,7 +69,7 @@ struct board
 
 static inline piece_t piece_at (const struct board &board, int8_t row, int8_t col)
 {
-    assert (VALID(row) && VALID(col));
+    assert (is_valid_row(row) && is_valid_column(col));
     return board.squares[row][col];
 }
 

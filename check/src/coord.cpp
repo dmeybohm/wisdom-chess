@@ -1,15 +1,15 @@
 #include "coord.h"
 #include "move.h"
 
-coord_t coord_parse (std::string_view str)
+coord_t coord_parse (const std::string &str)
 {
     if (str.size() != 2)
         throw coord_parse_exception("Invalid algebraic coordinate!");
 
-    int8_t col = char_to_col(str[0]);
-    int8_t row = char_to_row(str[1]);
+    int8_t col = char_to_col(str.at(0));
+    int8_t row = char_to_row(str.at(1));
 
-    if (!VALID(row) || !VALID(col))
+    if (!is_valid_row(row) || !is_valid_column(col))
         throw coord_parse_exception("Invalid algebraic coordinate!");
 
     return make_coord (row, col);
