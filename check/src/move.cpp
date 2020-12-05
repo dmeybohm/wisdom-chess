@@ -10,9 +10,6 @@
 #include "validate.h"
 #include "generate.h"
 
-extern char col_to_char (int col);
-extern char row_to_char (int row);
-
 static std::mutex output_mutex;
 
 coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst)
@@ -523,32 +520,29 @@ static move_t castle_parse (std::string_view str, enum color who)
 	return move_create_castling (src_row, KING_COLUMN, src_row, dst_col);
 }
 
-static const char *skip_whitespace (const char *p)
-{
-	while (*p == ' ' || *p == '\t')
-		p++;
-
-	return p;
-}
-
 move_t move_parse (std::string_view str, enum color who)
 {
 	bool en_passant   = false;
     bool is_capturing = false;
 
-	if (str.empty())
-		return null_move;
-
-	if (tolower(str[0]) == 'o')
-		return castle_parse (str, who);
-
-	if (str.size() < 4)
-	    return null_move;
-
 	// allow any number of spaces/tabs before the two coordinates
 	std::string tmp { str };
 
+	if (tmp.empty())
+		return null_move;
+
     tmp.erase(std::remove_if(tmp.begin(), tmp.end(), isspace), tmp.end());
+    std::transform (tmp.begin(), tmp.end(), tmp.begin(),
+                    [](auto c) -> auto { return ::toupper(c); });
+
+    if (tmp.empty())
+        return null_move;
+
+	if (tolower(tmp[0]) == 'o')
+		return castle_parse (tmp, who);
+
+	if (tmp.size() < 4)
+	    return null_move;
 
     coord_t src;
     int offset = 0;
@@ -562,9 +556,8 @@ move_t move_parse (std::string_view str, enum color who)
         return null_move;
     }
 
-    std::string_view next { tmp.substr(2) };
 	// allow an 'x' between coordinates, which is used to indicate a capture
-	if (tmp[offset] == 'x')
+	if (tmp[offset] == 'X')
     {
         offset++;
         is_capturing = true;
@@ -591,11 +584,11 @@ move_t move_parse (std::string_view str, enum color who)
 
 	// grab extra identifiers describing the move
 	piece_t promoted = MAKE_PIECE (COLOR_NONE, PIECE_NONE);
-    if (rest == "ep")
+    if (rest == "EP")
         en_passant = true;
     else if (rest == "(Q)")
         promoted = MAKE_PIECE (who, PIECE_QUEEN);
-    else if (rest ==  "(N)")
+    else if (rest == "(N)")
         promoted = MAKE_PIECE (who, PIECE_KNIGHT);
     else if (rest == "(B)")
         promoted = MAKE_PIECE (who, PIECE_BISHOP);
@@ -611,15 +604,6 @@ move_t move_parse (std::string_view str, enum color who)
 	return move;
 }
 
-char row_to_char (int row)
-{
-    return 8-row + '0';
-}
-
-char col_to_char (int col)
-{
-    return col + 'a';
-}
 
 move_t parse_move (std::string_view str, enum color color)
 {

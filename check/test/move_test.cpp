@@ -2,7 +2,41 @@
 
 #include "board.h"
 #include "move.h"
-#include "generate.h"
+
+TEST_CASE( "Parsing a move", "[move]" )
+{
+    move_t with_spaces = move_parse ("   e2e4", COLOR_WHITE);
+    REQUIRE( move_create (coord_parse("e2"), coord_parse("e4")) == with_spaces );
+}
+
+TEST_CASE( "Parsing an en-passant move", "[move]" )
+{
+    move_t en_passant = move_parse ("   e4d5 ep   ", COLOR_WHITE);
+    coord_t src = coord_parse("e4");
+    coord_t dst = coord_parse("d5");
+    move_t expected = move_create_en_passant (ROW(src), COLUMN(src), ROW(dst), COLUMN(dst));
+    REQUIRE( en_passant == expected );
+}
+
+TEST_CASE( "Parsing a promoting move", "[move]" )
+{
+    move_t promoting = move_parse ("   d7d8 (B) ", COLOR_WHITE);
+    coord_t src = coord_parse("d7");
+    coord_t dst = coord_parse("d8");
+    move_t expected = move_create (src, dst);
+    expected = move_with_promotion (expected, MAKE_PIECE (COLOR_WHITE, PIECE_BISHOP));
+    REQUIRE( promoting == expected );
+}
+
+TEST_CASE( "Parsing a castling move", "[move]")
+{
+    move_t castling = move_parse ("   o-o-o ", COLOR_BLACK);
+    coord_t src = coord_parse("e8");
+    coord_t dst = coord_parse("c8");
+    move_t expected = move_create_castling (ROW(src), COLUMN(src), ROW(dst), COLUMN(dst));
+
+    REQUIRE( castling == expected );
+}
 
 TEST_CASE( "Moving and undoing a move works", "[move]" )
 {

@@ -78,7 +78,19 @@ static inline int8_t char_to_col (char chr)
     return tolower(chr) - 'a';
 }
 
+constexpr char row_to_char (int row)
+{
+    return 8-row + '0';
+}
+
+constexpr char col_to_char (int col)
+{
+    return col + 'a';
+}
+
 /////////////////////////////////////////////////////////////////////
+
+std::string to_string (coord_t coord);
 
 coord_t coord_parse (std::string_view str);
 

@@ -61,17 +61,10 @@ typedef struct move
 	int8_t            dst_row : 4;
 	int8_t            dst_col : 4;
 
-#ifdef __GNUC__
-	enum color         promoted_color: 2;
-	enum piece_type    promoted_piece_type: 3;
+	enum color         promoted_color: 4;
+	enum piece_type    promoted_piece_type: 4;
 
-	enum move_category move_category : 3;
-#else
-	enum color         promoted_color;
-	enum piece_type    promoted_piece_type;
-
-	enum move_category move_category;
-#endif
+	enum move_category move_category : 4;
 } move_t;
 
 class parse_move_exception : public std::exception
@@ -210,7 +203,7 @@ constexpr move_t move_create_capturing (int8_t src_row, int8_t src_col,
 }
 
 constexpr move_t move_create_castling (int8_t src_row, int8_t src_col,
-                                           int8_t dst_row, int8_t dst_col)
+                                       int8_t dst_row, int8_t dst_col)
 {
     move_t move = move_create (src_row, src_col, dst_row, dst_col);
     move.move_category = MOVE_CATEGORY_CASTLING;

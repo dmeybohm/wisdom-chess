@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <cassert>
+#include <vector>
 
 #include "global.h"
 #include "config.h"

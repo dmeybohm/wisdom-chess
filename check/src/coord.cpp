@@ -1,4 +1,5 @@
 #include "coord.h"
+#include "move.h"
 
 coord_t coord_parse (std::string_view str)
 {
@@ -12,4 +13,12 @@ coord_t coord_parse (std::string_view str)
         throw coord_parse_exception("Invalid algebraic coordinate!");
 
     return coord_create (row, col);
+}
+
+std::string to_string (coord_t coord)
+{
+    std::string result = "";
+    result += col_to_char(COLUMN(coord));
+    result += row_to_char(ROW(coord));
+    return result;
 }
