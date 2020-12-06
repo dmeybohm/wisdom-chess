@@ -385,7 +385,9 @@ void undo_move (struct board &board, Color who,
     assert (piece_type(src_piece) != Piece::None );
     assert (piece_color(src_piece) == who );
     if (dst_piece_type != Piece::None)
+    {
         dst_piece = make_piece (opponent, dst_piece_type);
+    }
 
     // check for promotion
 	if (is_promoting_move(move))

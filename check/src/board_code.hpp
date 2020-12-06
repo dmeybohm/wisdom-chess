@@ -37,12 +37,9 @@ public:
 
         size_t bit_index = (coord.row * Num_Columns + coord.col) * Board_Code_Bits_Per_Piece;
 
-        for (uint8_t i = 0; i < 4; i++)
+        for (uint8_t i = 0; i < Board_Code_Bits_Per_Piece; i++)
         {
-            if (new_value & (1 << i))
-                bits.set (bit_index + i);
-            else
-                bits.reset (bit_index + i);
+            bits.set (bit_index + i, (new_value & (1 << i)) > 0);
         }
     }
 
@@ -73,6 +70,7 @@ public:
 
     void apply_move (const struct board &board, move_t move);
     void unapply_move (const struct board &board, move_t move, undo_move_t undo_state);
+    size_t count_ones ();
 };
 
 #endif //WIZDUMB_BOARD_CODE_HPP
