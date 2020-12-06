@@ -9,7 +9,7 @@
 #include <vector>
 #include <chrono>
 
-constexpr int MAX_DEPTH = 16;
+constexpr int Max_Depth = 16;
 
 using std::chrono::seconds;
 
@@ -135,7 +135,7 @@ void multithread_search_handler::do_thread(unsigned index)
     thread_params &params = all_thread_params[index];
     std::stringstream output;
 
-    if (params.depth >= MAX_DEPTH)
+    if (params.depth >= Max_Depth)
         return;
 
     move_t result = iterate (params.board, params.side,

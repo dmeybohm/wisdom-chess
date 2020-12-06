@@ -20,8 +20,8 @@
 #include "multithread_search.h"
 
 enum {
-    MAX_DEPTH = 16,
-    MAX_SEARCH_SECONDS = 10,
+    Max_Depth = 16,
+    Max_Search_Seconds = 10,
 };
 
 thread_local int nodes_visited, cutoffs;
@@ -186,7 +186,7 @@ move_t iterate (struct board &board, Color side,
 
 move_t find_best_move (struct board &board, Color side, move_history_t &move_history)
 {
-    move_timer overdue_timer { MAX_SEARCH_SECONDS };
+    move_timer overdue_timer { Max_Search_Seconds };
 
     multithread_search search { board, side, move_history, overdue_timer };
     search_result_t result = search.search();
