@@ -30,4 +30,7 @@ TEST_CASE( "Board code is able to be set", "[board-code]" )
     std::string result = code.to_string();
     result = result.substr (0, 4);
     REQUIRE( result == "0001" );
+    code.remove_piece (h1);
+    result = code.to_string().substr(0, 4);
+    REQUIRE( result == "0000" );
 }
