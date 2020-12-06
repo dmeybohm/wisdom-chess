@@ -1,10 +1,6 @@
 
-#include <cstdio>
-#include <cassert>
-#include <ctime>
 #include <iostream>
 #include <sstream>
-#include <chrono>
 #include <memory>
 
 #include "piece.h"
