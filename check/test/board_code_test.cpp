@@ -10,7 +10,7 @@ TEST_CASE( "Board code is able to be set", "[board-code]" )
     board_code code, initial;
 
     auto initial_str = code.to_string ();
-    auto num_zeroes = std::count (initial_str.begin(), initial_str.end(), '0');
+    std::size_t num_zeroes = std::count (initial_str.begin(), initial_str.end(), '0');
     REQUIRE( num_zeroes == initial_str.size () );
 
     coord_t a8 = coord_parse ("a8");

@@ -31,8 +31,7 @@ public:
         Color color = piece_color(piece);
         Piece type = piece_type (piece);
 
-        color_index_t cindex = color_index_with_none (color);
-        uint8_t new_value = cindex == 0 ? 0
+        uint8_t new_value = color == Color::None ? 0
                 : piece_index (type) | (color_index(color) << 3);
         assert (new_value < 16);
 
