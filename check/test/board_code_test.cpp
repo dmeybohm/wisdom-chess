@@ -32,6 +32,7 @@ TEST_CASE( "Board code is able to be set", "[board-code]" )
     std::string result = code.to_string();
     result = result.substr (0, 4);
     REQUIRE( result == "0001" );
+
     code.remove_piece (h1);
     result = code.to_string().substr(0, 4);
     REQUIRE( result == "0000" );
@@ -57,9 +58,7 @@ TEST_CASE( "Capturing moves are applied and undone correctly", "[board-code]" )
     REQUIRE( initial != code );
 
     undo_move_t undo_state = do_move (brd, Color::White, a8xb7);
-
     code.unapply_move (brd, a8xb7, undo_state);
-
     REQUIRE( initial == code );
 }
 
@@ -83,12 +82,9 @@ TEST_CASE( "Promoting moves are applied and undone correctly", "[board-code]" )
     REQUIRE( initial != code );
 
     undo_move_t undo_state = do_move (brd, Color::Black, b7b8_Q);
-
     code.unapply_move (brd, b7b8_Q, undo_state);
-
     REQUIRE( initial == code );
 }
-
 
 TEST_CASE( "Castling moves are applied and undone correctly", "[board-code]" )
 {
@@ -110,9 +106,7 @@ TEST_CASE( "Castling moves are applied and undone correctly", "[board-code]" )
     REQUIRE( initial != code );
 
     undo_move_t undo_state = do_move (brd, Color::White, castle_queenside);
-
     code.unapply_move (brd, castle_queenside, undo_state);
-
     REQUIRE( initial == code );
 }
 
@@ -139,8 +133,6 @@ TEST_CASE( "Promoting+Capturing moves are applied and undone correctly", "[board
     REQUIRE( initial != code );
 
     undo_move_t undo_state = do_move (brd, Color::Black, promote_castle_move);
-
     code.unapply_move (brd, promote_castle_move, undo_state);
-
     REQUIRE( initial == code );
 }
