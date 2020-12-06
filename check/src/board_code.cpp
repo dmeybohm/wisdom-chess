@@ -1,6 +1,16 @@
 
 #include "board_code.hpp"
 #include "board.h"
+#include "coord.h"
+
+board_code::board_code (const board &board)
+{
+    for (auto coord : all_coords_iterator)
+    {
+        piece_t piece = piece_at (board, coord);
+        this->add_piece (coord, piece);
+    }
+}
 
 void board_code::apply_move (const struct board &board, move_t move)
 {
@@ -58,8 +68,7 @@ void board_code::unapply_move (const struct board &board,
     coord_t src = move_src (move);
     coord_t dst = move_dst (move);
 
-    piece_t src_piece = piece_at (board, src);
-    piece_t dst_piece = piece_at (board, dst);
+    piece_t src_piece = piece_at (board, dst);
 
     Color src_piece_color = piece_color (src_piece);
     Color opponent_color = color_invert (src_piece_color);

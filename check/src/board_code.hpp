@@ -26,6 +26,9 @@ private:
     board_code_bitset bits;
 
 public:
+    board_code() = default;
+    explicit board_code (const board &board);
+
     void add_piece (coord_t coord, piece_t piece)
     {
         Color color = piece_color(piece);

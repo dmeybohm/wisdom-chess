@@ -34,9 +34,9 @@ enum color_index
 	COLOR_INDEX_BLACK = 1U,
 };
 
-typedef int8_t   color_index_t;
+using color_index_t = int8_t;
 
-typedef struct piece_with_color piece_t;
+using piece_t = struct piece_with_color;
 
 constexpr Piece all_promotable_piece_types[] =
 {
