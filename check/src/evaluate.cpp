@@ -39,12 +39,14 @@ int evaluate (struct board &board, Color who, int moves_away)
 	score += board.material.score (who);
     score += position_score (&board.position, who);
 
-	coord_t king_pos = king_position (board, who);
-	coord_t opponent_king_pos = king_position (board, opponent);
     if (is_checkmated (board, who))
+    {
         score = -1 * checkmate_score_in_moves (moves_away);
+    }
     else if (is_checkmated (board, opponent))
+    {
         score = checkmate_score_in_moves (moves_away);
+    }
 
 	return score;
 }

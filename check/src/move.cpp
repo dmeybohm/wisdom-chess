@@ -480,10 +480,14 @@ move_t move_parse (const std::string &str, Color who)
                     [](auto c) -> auto { return ::toupper(c); });
 
     if (tmp.empty())
+    {
         return null_move;
+    }
 
 	if (tolower(tmp[0]) == 'o')
-		return castle_parse (tmp, who);
+    {
+        return castle_parse (tmp, who);
+    }
 
 	if (tmp.size() < 4)
 	    return null_move;
@@ -525,26 +529,42 @@ move_t move_parse (const std::string &str, Color who)
     std::string rest { tmp.substr(offset) };
     move_t move = make_move (src, dst);
     if (is_capturing)
+    {
         move = copy_move_with_capture (move);
+    }
 
 	// grab extra identifiers describing the move
 	piece_t promoted = make_piece (Color::None, Piece::None);
     if (rest == "EP")
+    {
         en_passant = true;
+    }
     else if (rest == "(Q)")
+    {
         promoted = make_piece (who, Piece::Queen);
+    }
     else if (rest == "(N)")
+    {
         promoted = make_piece (who, Piece::Knight);
+    }
     else if (rest == "(B)")
+    {
         promoted = make_piece (who, Piece::Bishop);
+    }
     else if (rest == "(R)")
+    {
         promoted = make_piece (who, Piece::Rook);
+    }
 
     if (piece_type (promoted) != Piece::None)
+    {
         move = copy_move_with_promotion (move, promoted);
+    }
 
     if (en_passant)
+    {
         move = make_en_passant_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
+    }
 
 	return move;
 }
