@@ -55,7 +55,7 @@ static move_t get_castling_rook_move (struct board &board, move_t move,
     if (COLUMN(src) < COLUMN(dst))
     {
         // castle to the right (kingside)
-        src_col = LAST_COLUMN;
+        src_col = Last_Column;
         dst_col = COLUMN(dst) - 1;
     }
     else
@@ -444,9 +444,9 @@ static move_t castle_parse (const std::string &str, Color who)
 	int8_t src_row, dst_col;
 
 	if (who == Color::White)
-		src_row = LAST_ROW;
+		src_row = Last_Row;
 	else if (who == Color::Black)
-		src_row = FIRST_ROW;
+		src_row = First_Row;
 	else
 		assert (0);
 
@@ -455,13 +455,13 @@ static move_t castle_parse (const std::string &str, Color who)
                     [](auto c) -> auto { return ::toupper(c); });
 
 	if (transformed == "O-O-O")
-		dst_col = KING_COLUMN - 2;
+		dst_col = King_Column - 2;
 	else if (transformed == "O-O")
-		dst_col = KING_COLUMN + 2;
+		dst_col = King_Column + 2;
 	else
 		return null_move;
 
-	return make_castling_move (src_row, KING_COLUMN, src_row, dst_col);
+	return make_castling_move (src_row, King_Column, src_row, dst_col);
 }
 
 move_t move_parse (const std::string &str, Color who)

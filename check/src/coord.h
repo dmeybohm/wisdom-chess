@@ -16,12 +16,12 @@ typedef struct coord
 
 constexpr bool is_valid_row (int8_t row)
 {
-    return row >= 0 && row < NR_ROWS;
+    return row >= 0 && row < Num_Rows;
 }
 
 constexpr bool is_valid_column (int8_t col)
 {
-    return col >= 0 && col < NR_COLUMNS;
+    return col >= 0 && col < Num_Columns;
 }
 
 constexpr int8_t next_row (int8_t row, int8_t direction)

@@ -27,13 +27,13 @@ struct board_positions
 
 struct board
 {
-    piece_t                  squares[NR_ROWS][NR_COLUMNS];
+    piece_t                  squares[Num_Rows][Num_Columns];
 
 	// positions of the kings
-	coord_t                  king_pos[NR_PLAYERS];
+	coord_t                  king_pos[Num_Players];
 
 	// castle state of the board
-	castle_state_t           castled[NR_PLAYERS];
+	castle_state_t           castled[Num_Players];
 
 	// keep track of hashing information
 	struct board_hash        hash;
@@ -45,7 +45,7 @@ struct board
 	struct position          position;
 
 	// The columns which are eligible for en_passant
-	coord_t                  en_passant_target[NR_PLAYERS];
+	coord_t                  en_passant_target[Num_Players];
 
 	// Number of half moves since pawn or capture.
 	size_t                   half_move_clock;
@@ -149,9 +149,9 @@ constexpr bool is_en_passant_vulnerable (const struct board &board, Color who)
 
 static inline bool board_equals (const struct board &a, const struct board &b)
 {
-    for (int8_t row = 0; row < NR_ROWS; row++)
+    for (int8_t row = 0; row < Num_Rows; row++)
     {
-		for (int8_t col = 0; col < NR_COLUMNS; col++)
+		for (int8_t col = 0; col < Num_Columns; col++)
         {
             if (a.squares[row][col] != b.squares[row][col])
                 return false;

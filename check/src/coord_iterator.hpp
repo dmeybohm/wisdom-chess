@@ -34,7 +34,7 @@ public:
     coord_iterator& operator++ ()
     {
         col++;
-        if (col == NR_COLUMNS)
+        if (col == Num_Columns)
         {
             row++;
             col = 0;

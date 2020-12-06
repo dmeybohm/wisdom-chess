@@ -62,7 +62,7 @@ void fen::parse_pieces (std::string str)
         if (ch == '/')
         {
             row++;
-            if (row > NR_ROWS)
+            if (row > Num_Rows)
                 throw fen_exception("Invalid row!");
             col = 0;
         }
@@ -75,13 +75,13 @@ void fen::parse_pieces (std::string str)
             piece_t piece = parse_piece (ch);
             builder.add_piece (row, col, piece_color (piece), piece_type (piece));
             col++;
-            if (col > NR_COLUMNS)
+            if (col > Num_Columns)
                 throw fen_exception("Invalid columns!");
         }
         else if (isdigit(ch))
         {
             col += ch - '0';
-            if (col > NR_COLUMNS)
+            if (col > Num_Columns)
                 throw fen_exception("Invalid columns!");
         }
         else

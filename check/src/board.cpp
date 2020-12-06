@@ -102,7 +102,7 @@ static void board_init_from_positions (board &board, const std::vector<board_pos
         Color color = position.piece_color;
         row = position.rank;
 
-        for (uint8_t col = 0; col < NR_COLUMNS && col < pieces.size(); col++)
+        for (uint8_t col = 0; col < Num_Columns && col < pieces.size (); col++)
         {
             piece_t new_piece;
 
@@ -170,7 +170,7 @@ static void add_coords (std::string &result)
     result += " ";
 
     char col_name = 'a';
-    for (col = 0; col < NR_COLUMNS; col++)
+    for (col = 0; col < Num_Columns; col++)
     {
         result += " ";
         result += col_name;
@@ -189,9 +189,9 @@ std::string board::to_string() const
     char row_coord = '8';
 
     add_divider (result);
-    for (row = 0; row < NR_ROWS; row++)
+    for (row = 0; row < Num_Rows; row++)
     {
-        for (col = 0; col < NR_COLUMNS; col++)
+        for (col = 0; col < Num_Columns; col++)
         {
             piece_t piece = piece_at (*this, row, col);
 

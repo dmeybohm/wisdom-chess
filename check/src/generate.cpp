@@ -52,7 +52,7 @@ static MoveFunc move_functions[] =
 	nullptr,
 };
 
-move_list_t knight_moves[NR_ROWS][NR_COLUMNS]; // NOLINT(cert-err58-cpp)
+move_list_t knight_moves[Num_Rows][Num_Columns]; // NOLINT(cert-err58-cpp)
 
 ///////////////////////////////////////////////
 

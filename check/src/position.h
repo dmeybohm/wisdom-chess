@@ -9,7 +9,7 @@
 
 struct position
 {
-    int score[NR_PLAYERS];
+    int score[Num_Players];
 };
 
 /////////////////////////////////////////////////////////

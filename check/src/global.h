@@ -7,23 +7,23 @@
 
 enum
 {
-    NR_PLAYERS = 2,
+    Num_Players = 2,
 
-    NR_ROWS = 8,
-    NR_COLUMNS = 8,
+    Num_Rows = 8,
+    Num_Columns = 8,
 
-    FIRST_ROW = 0,
-    FIRST_COLUMN = 0,
+    First_Row = 0,
+    First_Column = 0,
 
-    LAST_ROW = 7,
-    LAST_COLUMN = 7,
+    Last_Row = 7,
+    Last_Column = 7,
 
-    KING_COLUMN = 4,
-    KING_ROOK_COLUMN = 7,
+    King_Column = 4,
+    King_Rook_Column = 7,
 
-    QUEEN_ROOK_COLUMN = 0,
-    KING_CASTLED_ROOK_COLUMN = 5,
-    QUEEN_CASTLED_ROOK_COLUMN = 3,
+    Queen_Rook_Column = 0,
+    King_Castled_Rook_Column = 5,
+    Queen_Castled_Rook_Column = 3,
 };
 
 #endif //WIZDUMB_GLOBAL_H

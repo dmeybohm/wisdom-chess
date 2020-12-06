@@ -11,10 +11,10 @@ coord_t coord_alg (const std::string &coord_str)
     int8_t col = char_to_col(coord_str[0]);
     int8_t row = char_to_row(coord_str[1]);
 
-    if (row < 0 || row >= NR_ROWS)
+    if (row < 0 || row >= Num_Rows)
         throw board_builder_exception("Invalid row!");
 
-    if (col < 0 || col >= NR_COLUMNS)
+    if (col < 0 || col >= Num_Columns)
         throw board_builder_exception("Invalid column!");
 
     return make_coord (row, col);
@@ -39,10 +39,10 @@ void board_builder::add_piece (int8_t row, int8_t col, Color who, Piece piece_ty
         .piece_type = piece_type,
     };
 
-    if (row < 0 || row >= NR_ROWS)
+    if (row < 0 || row >= Num_Rows)
         throw board_builder_exception("Invalid row!");
 
-    if (col < 0 || col >= NR_COLUMNS)
+    if (col < 0 || col >= Num_Columns)
         throw board_builder_exception("Invalid column!");
 
     this->pieces_with_coords.push_back (new_piece);
@@ -56,7 +56,7 @@ void board_builder::add_pieces (Color who, const std::vector<struct piece_coord_
 
 void board_builder::add_row_of_same_color_and_piece (int row, Color who, Piece piece_type)
 {
-    for (int8_t col = 0; col < NR_COLUMNS; col++)
+    for (int8_t col = 0; col < Num_Columns; col++)
         this->add_piece (row, col, who, piece_type);
 }
 
@@ -64,7 +64,7 @@ void board_builder::add_row_of_same_color_and_piece (const std::string &coord_st
 {
     coord_t coord = coord_alg (coord_str);
 
-    for (int8_t col = 0; col < NR_COLUMNS; col++)
+    for (int8_t col = 0; col < Num_Columns; col++)
         this->add_piece (ROW(coord), col, who, piece_type);
 }
 
@@ -127,7 +127,7 @@ struct board board_builder::build ()
         int8_t col = COLUMN(piece_with_coord.coord);
         int8_t row = ROW(piece_with_coord.coord);
 
-        current_piece_row.assign (NR_COLUMNS, Piece::None);
+        current_piece_row.assign (Num_Columns, Piece::None);
         current_piece_row[col] = piece_with_coord.piece_type;
 
         positions[i] = { row, piece_with_coord.color, current_piece_row };

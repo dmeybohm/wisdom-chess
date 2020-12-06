@@ -1,7 +1,7 @@
 #include "position.h"
 #include "board.h"
 
-constexpr int pawn_positions[NR_ROWS][NR_COLUMNS] =
+constexpr int pawn_positions[Num_Rows][Num_Columns] =
 {
     {  0,  0,  0,  0,  0,  0,  0,  0 },
     { +9, +9, +9, +9, +9, +9, +9, +9 },
@@ -13,7 +13,7 @@ constexpr int pawn_positions[NR_ROWS][NR_COLUMNS] =
     {  0,  0,  0,  0,  0,  0,  0,  0 },
 };
 
-constexpr int king_positions[NR_ROWS][NR_COLUMNS] =
+constexpr int king_positions[Num_Rows][Num_Columns] =
 {
     { -6, -8, -8, -9, -9, -4, -4, -6 },
     { -6, -8, -8, -9, -9, -4, -4, -6 },
@@ -26,7 +26,7 @@ constexpr int king_positions[NR_ROWS][NR_COLUMNS] =
 };
 
 
-constexpr int knight_positions[NR_ROWS][NR_COLUMNS] =
+constexpr int knight_positions[Num_Rows][Num_Columns] =
 {
     { -9, -8, -6, -6, -6, -6, -8, -9  },
     { -8, -4,  0,  0,  0,  0, -4, -8  },
@@ -38,7 +38,7 @@ constexpr int knight_positions[NR_ROWS][NR_COLUMNS] =
     { -9, -8, -6, -6, -6, -6, -8, -9  },
 };
 
-constexpr int bishop_positions[NR_ROWS][NR_COLUMNS] =
+constexpr int bishop_positions[Num_Rows][Num_Columns] =
 {
     { -4, -2, -2, -2, -2, -2, -2, -2  },
     { -2,  0,  0,  0,  0,  0,  0, -2  },
@@ -50,7 +50,7 @@ constexpr int bishop_positions[NR_ROWS][NR_COLUMNS] =
     { -4, -2, -2, -2, -2, -2, -2, -2  },
 };
 
-constexpr int rook_positions[NR_ROWS][NR_COLUMNS] =
+constexpr int rook_positions[Num_Rows][Num_Columns] =
 {
     {  0,  0,  0,  0,  0,  0,  0,  0  },
     { +1, +2, +2, +2, +2, +2, +2, +1  },
@@ -62,7 +62,7 @@ constexpr int rook_positions[NR_ROWS][NR_COLUMNS] =
     {  0,  0,  0, +1, +1,  0,  0,  0  },
 };
 
-constexpr int queen_positions[NR_ROWS][NR_COLUMNS] =
+constexpr int queen_positions[Num_Rows][Num_Columns] =
 {
     { -4, -2, -2, -1, -1, -2, -2, -4  },
     { -2,  0,  0,  0,  0,  0,  0, -2  },
@@ -154,9 +154,9 @@ void position_do_move (struct position *position, Color color,
     {
         int8_t rook_src_row = castling_row_from_color(color);
         int8_t rook_src_col = is_castling_move_on_king_side(move) ?
-                               KING_ROOK_COLUMN : QUEEN_ROOK_COLUMN;
+                              King_Rook_Column : Queen_Rook_Column;
         int8_t rook_dst_col = is_castling_move_on_king_side(move) ?
-                               KING_CASTLED_ROOK_COLUMN : QUEEN_CASTLED_ROOK_COLUMN;
+                              King_Castled_Rook_Column : Queen_Castled_Rook_Column;
 
         coord_t src_rook_coord = make_coord (rook_src_row, rook_src_col);
         coord_t dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
@@ -202,9 +202,9 @@ void position_undo_move (struct position *position, Color color,
     {
         int8_t rook_src_row = castling_row_from_color(color);
         int8_t rook_src_col = is_castling_move_on_king_side(move) ?
-                               KING_ROOK_COLUMN : QUEEN_ROOK_COLUMN;
+                              King_Rook_Column : Queen_Rook_Column;
         int8_t rook_dst_col = is_castling_move_on_king_side(move) ?
-                               KING_CASTLED_ROOK_COLUMN : QUEEN_CASTLED_ROOK_COLUMN;
+                              King_Castled_Rook_Column : Queen_Castled_Rook_Column;
 
         coord_t src_rook_coord = make_coord (rook_src_row, rook_src_col);
         coord_t dst_rook_coord = make_coord (rook_src_row, rook_dst_col);

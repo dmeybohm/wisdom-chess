@@ -38,7 +38,7 @@ typedef struct undo_move
     
     castle_state_t              current_castle_state;
     castle_state_t              opponent_castle_state;
-    coord_t                     en_passant_target[NR_PLAYERS];
+    coord_t                     en_passant_target[Num_Players];
 } undo_move_t;
 
 constexpr undo_move_t empty_undo_state =
