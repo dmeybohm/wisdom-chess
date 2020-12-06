@@ -73,16 +73,8 @@ search_result_t search (struct board &board, Color side, int depth, int start_de
 		search_result_t other_search_result { .move = move };
 		if (depth <= 0)
 		{
-
-#if 0
-			if (!no_quiesce)
-				score = quiesce (board, side, alpha, beta, 0, new_leaf);
-			else
-#endif
-
-				other_search_result.score = evaluate_and_check_draw (board, side, start_depth - depth,
-                                     move, move_history);
-
+            other_search_result.score = evaluate_and_check_draw (board, side, start_depth - depth,
+                                 move, move_history);
 		}
 		else
 		{
