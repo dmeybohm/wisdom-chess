@@ -41,16 +41,10 @@ int evaluate (struct board &board, Color who, int moves_away)
 
 	coord_t king_pos = king_position (board, who);
 	coord_t opponent_king_pos = king_position (board, opponent);
-	if (is_king_threatened (board, who, king_pos))
-	{
-		if (is_checkmated (board, who))
-			score = -1 * checkmate_score_in_moves (moves_away);
-	}
-	else if (is_king_threatened (board, opponent, opponent_king_pos))
-    {
-        if (is_checkmated (board, opponent))
-            score = checkmate_score_in_moves (moves_away);
-    }
+    if (is_checkmated (board, who))
+        score = -1 * checkmate_score_in_moves (moves_away);
+    else if (is_checkmated (board, opponent))
+        score = checkmate_score_in_moves (moves_away);
 
 	return score;
 }

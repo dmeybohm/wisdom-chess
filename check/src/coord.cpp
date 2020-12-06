@@ -17,7 +17,7 @@ coord_t coord_parse (const std::string &str)
 
 std::string to_string (coord_t coord)
 {
-    std::string result = "";
+    std::string result = ""; // NOLINT(readability-redundant-string-init)
     result += col_to_char(COLUMN(coord));
     result += row_to_char(ROW(coord));
     return result;
