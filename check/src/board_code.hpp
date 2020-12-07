@@ -73,7 +73,7 @@ public:
 
     void apply_move (const struct board &board, move_t move);
     void unapply_move (const struct board &board, move_t move, undo_move_t undo_state);
-    size_t count_ones ();
+    std::size_t count_ones ();
 };
 
 #endif //WIZDUMB_BOARD_CODE_HPP

@@ -48,10 +48,10 @@ struct board
 	coord_t                  en_passant_target[Num_Players];
 
 	// Number of half moves since pawn or capture.
-	size_t                   half_move_clock;
+    std::size_t              half_move_clock;
 
 	// Number of full moves, updated after black moves.
-	size_t                   full_moves;
+    std::size_t              full_moves;
 
 	board ();
 	board (const board &board);
@@ -61,7 +61,7 @@ struct board
     void print_to_file  (std::ostream &out) const;
     void dump () const;
 
-	[[nodiscard]] std::string to_string() const;
+	[[nodiscard]] std::string to_string () const;
 };
 
 ///////////////////////////////////////////////
@@ -149,13 +149,10 @@ constexpr bool is_en_passant_vulnerable (const struct board &board, Color who)
 
 static inline bool board_equals (const struct board &a, const struct board &b)
 {
-    for (int8_t row = 0; row < Num_Rows; row++)
+    for (auto coord : all_coords_iterator)
     {
-		for (int8_t col = 0; col < Num_Columns; col++)
-        {
-            if (a.squares[row][col] != b.squares[row][col])
-                return false;
-        }
+        if (a.squares[coord.row][coord.col] != b.squares[coord.row][coord.col])
+            return false;
     }
 
     // todo check more
