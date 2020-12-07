@@ -105,7 +105,7 @@ TEST_CASE( "Castling moves are applied and undone correctly", "[board-code]" )
     code.apply_move (brd, castle_queenside);
     REQUIRE( initial != code );
 
-    undo_move_t undo_state = do_move (brd, Color::White, castle_queenside);
+    undo_move_t undo_state = do_move (brd, Color::Black, castle_queenside);
     code.unapply_move (brd, castle_queenside, undo_state);
     REQUIRE( initial == code );
 }
