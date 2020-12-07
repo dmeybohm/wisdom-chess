@@ -11,7 +11,6 @@ private:
     move_list_t my_moves;
 
 public:
-
     move_history_t () = default;
 
     move_history_t (const move_history_t &_other);
@@ -31,7 +30,7 @@ public:
         return my_moves;
     }
 
-    void save (std::string filename);
+    void save (const std::string &filename);
 };
 
 #endif //WIZDUMB_MOVE_HISTORY_HPP

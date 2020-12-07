@@ -9,6 +9,7 @@
 #include "check.h"
 #include "game.h"
 #include "str.h"
+#include "output.hpp"
 
 // the color the computer is playing as
 static const Color comp_player = Color::Black;
@@ -100,6 +101,7 @@ int main (int argc, char **argv)
 {
     struct game game { Color::White, comp_player };
     input_state_t input_state { initial_input_state };
+    wisdom::standard_output output;
 
 	while (input_state.ok)
 	{
@@ -118,7 +120,7 @@ int main (int argc, char **argv)
 		}
 		else
 		{
-			input_state.move = find_best_move (game.board, game.player, game.history);
+			input_state.move = find_best_move (game.board, game.player, output, game.history);
 
 			std::cout << "move selected: [" << to_string (input_state.move) << "]\n";
 			input_state.good = true;

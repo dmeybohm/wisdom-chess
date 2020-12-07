@@ -1,5 +1,6 @@
 #include "multithread_search.h"
 #include "move_timer.h"
+#include "output.hpp"
 
 #include <mutex>
 #include <thread>
@@ -12,20 +13,23 @@
 constexpr int Max_Depth = 16;
 
 using std::chrono::seconds;
+using wisdom::output;
 
 struct thread_params
 {
     struct board board;
-    move_history_t move_history;
     Color side;
+    class output &output;
+    move_history_t move_history;
     int depth;
     struct move_timer timer;
 
-    thread_params (const struct board &_board, const move_history_t &_move_history, struct move_timer _timer,
-                   Color _side, int _depth) :
-            board { _board },
-            move_history { _move_history }, side { _side }, depth { _depth },
-            timer { _timer }
+    thread_params (const struct board &board_, Color side_, class output &output_,
+                   const move_history_t &move_history_, struct move_timer timer_,
+                    int depth_) :
+            board { board_ }, side { side_ }, output { output_ },
+            move_history { move_history_ },  depth { depth_ },
+            timer { timer_ }
     {
     }
 
@@ -34,9 +38,9 @@ struct thread_params
 class multithread_search_handler
 {
 public:
-    multithread_search_handler (struct board &_board, Color _side,
-                        const move_history_t &_move_history, const move_timer &_timer) :
-            board { _board }, side { _side }, move_history { _move_history }, timer { _timer }
+    multithread_search_handler (struct board &board_, Color side_, output &output_,
+                                const move_history_t &move_history_, const move_timer &timer_) :
+            board { board_ }, side { side_ }, output { output_ }, move_history { move_history_ }, timer { timer_ }
     {}
 
     search_result_t result()
@@ -52,6 +56,7 @@ public:
 private:
     struct board board;
     Color side;
+    class output &output;
     move_history_t move_history;
     struct move_timer timer;
     search_result_t search_result;
@@ -83,7 +88,7 @@ search_result_t multithread_search_handler::do_multithread_search ()
     // Create all the thread parameters first, to ensure they get allocated:
     for (unsigned i = 0; i < max_nr_threads; i++)
     {
-        thread_params params { board, move_history, timer, side, this->get_next_depth() };
+        thread_params params { board, side, output, move_history, timer, this->get_next_depth() };
         all_thread_params.push_back(params);
     }
 
@@ -102,7 +107,7 @@ search_result_t multithread_search_handler::do_multithread_search ()
     }
 
     // todo handle empty case
-    assert (result_moves.size() > 0);
+    assert (!result_moves.empty());
     search_result_t result = result_moves.front();
 
     for (auto &result_move : result_moves)
@@ -130,20 +135,21 @@ void multithread_search_handler::add_result(search_result_t result)
     result_moves.push_back (result);
 }
 
-void multithread_search_handler::do_thread(unsigned index)
+void multithread_search_handler::do_thread (unsigned index)
 {
     thread_params &params = all_thread_params[index];
-    std::stringstream output;
+    std::stringstream messages;
 
     if (params.depth >= Max_Depth)
         return;
 
-    move_t result = iterate (params.board, params.side,
+    move_t result = iterate (params.board, params.side, params.output,
                              params.move_history, params.timer, params.depth);
-    output << "Finished thread " << std::this_thread::get_id() << " with depth " << params.depth << "\n";
-    output << "Move: " << to_string(result) << "\n";
+    messages << "Finished thread " << std::this_thread::get_id() << " with depth " << params.depth << "\n";
+    messages << "Move: " << to_string(result);
 
-    std::cout << output.str();
+    params.output.println (messages.str ());
+
     if (result == null_move)
     {
         // probably timed out:
@@ -154,13 +160,13 @@ void multithread_search_handler::do_thread(unsigned index)
 
     // Continue with more depth:
     params.depth = get_next_depth();
-    do_thread(index);
+    do_thread (index);
 }
 
-multithread_search::multithread_search (struct board &_board, Color _side,
-                                        const move_history_t &_move_history, const move_timer &_timer)
+multithread_search::multithread_search (struct board &board, Color side, output &output,
+                                        const move_history_t &move_history, const move_timer &timer)
 {
-	handler = std::make_unique<multithread_search_handler>(_board, _side, _move_history, _timer);
+	handler = std::make_unique<multithread_search_handler> (board, side, output, move_history, timer);
 }
 
 search_result_t multithread_search::search()
@@ -170,7 +176,4 @@ search_result_t multithread_search::search()
     return result;
 }
 
-multithread_search::~multithread_search()
-{
-
-}
+multithread_search::~multithread_search() = default;

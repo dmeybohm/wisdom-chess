@@ -7,6 +7,11 @@
 #include "search.h"
 #include "move_timer.h"
 
+namespace wisdom
+{
+    class output;
+}
+
 class multithread_search_handler;
 
 class multithread_search
@@ -16,8 +21,8 @@ private:
     std::unique_ptr<multithread_search_handler> handler;
 
 public:
-    multithread_search (struct board &_board, Color _side,
-                        const move_history_t &_move_history, const move_timer &_timer);
+    multithread_search (struct board &board, Color side, wisdom::output &output,
+                        const move_history_t &move_history, const move_timer &timer);
 
     ~multithread_search();
 
