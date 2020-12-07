@@ -99,7 +99,7 @@ static input_state_t read_move (game &game)
 
 int main (int argc, char **argv)
 {
-    struct game game { Color::White, comp_player };
+    game game { Color::White, comp_player };
     input_state_t input_state { initial_input_state };
     wisdom::standard_output output;
 
@@ -110,7 +110,7 @@ int main (int argc, char **argv)
 
 		if (is_checkmated (game.board, game.turn))
 		{
-		    std::cout << to_string(game.turn) << " wins the game.\n";
+		    std::cout << to_string(color_invert(game.turn)) << " wins the game.\n";
 			return 0;
 		}
 
