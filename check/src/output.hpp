@@ -3,6 +3,7 @@
 #define WIZDUMB_OUTPUT_HPP
 
 #include <iostream>
+#include <mutex>
 
 namespace wisdom
 {
@@ -25,6 +26,7 @@ namespace wisdom
     {
     private:
         const std::ostream &out;
+        std::mutex output_mutex;
 
     public:
         standard_output () : out { std::cout }
@@ -32,6 +34,7 @@ namespace wisdom
 
         void println (const std::string &output) override
         {
+            std::lock_guard lock { output_mutex };
             std::cout << output << '\n';
         }
     };
