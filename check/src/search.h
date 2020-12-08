@@ -24,19 +24,23 @@ namespace wisdom
     class output;
 }
 
+class history;
 struct move_timer;
 
-move_t find_best_move (struct board &board, Color side, wisdom::output &output, move_history_t &move_history);
+// Find the best move.
+move_t find_best_move (board &board, Color side, wisdom::output &output,
+                       history &history);
 
-move_t iterate (struct board &board, Color side, wisdom::output &output,
-                move_history_t &move_history, struct move_timer &timer, int depth);
+// Iterate over each depth level.
+move_t iterate (board &board, Color side, wisdom::output &output,
+                history &history, move_timer &timer, int depth);
 
-search_result_t search (struct board &board, Color side, wisdom::output &output, int depth, int start_depth, int alpha, int beta,
-        std::unique_ptr<move_tree_t> &variation, struct move_timer &timer, move_history_t &history);
+// Search for the best move to a particular depth.
+search_result_t search (board &board, Color side, wisdom::output &output,
+                        history &history, move_timer &timer, int depth,
+                        int start_depth, int alpha, int beta, std::unique_ptr<move_tree_t> &variation);
 
 // Get the score for checkmate in X moves.
-int  checkmate_score_in_moves (int moves);
-
-void print_reverse_recur (move_tree_t *tree);
+int checkmate_score_in_moves (int moves);
 
 #endif // EVOLVE_CHESS_SEARCH_H_

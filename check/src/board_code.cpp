@@ -112,8 +112,7 @@ void board_code::unapply_move (const struct board &board,
 
     if (is_en_passant_move(move))
     {
-        piece_t captured_pawn = captured_material (undo_state, opponent_color);
-        assert (piece_type(captured_pawn) == Piece::Pawn);
+        piece_t captured_pawn = make_piece (opponent_color, Piece::Pawn);
         coord_t taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
         add_piece (taken_pawn_coord, captured_pawn);
     }

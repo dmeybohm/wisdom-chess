@@ -44,7 +44,7 @@ static input_state_t initial_input_state {
 static input_state_t read_move (game &game)
 {
     input_state_t result = initial_input_state;
-    std::string   input;
+    std::string input;
 
 	std::cout << "move? ";
 

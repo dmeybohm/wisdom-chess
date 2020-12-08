@@ -334,6 +334,8 @@ undo_move_t do_move (struct board &board, Color who, move_t move)
 
     handle_en_passant_eligibility (board, who, src_piece, move, &undo_state, 0);
 
+    board.code.apply_move (board, move);
+
     board_set_piece (board, src, piece_and_color_none);
     board_set_piece (board, dst, src_piece);
 
@@ -408,6 +410,9 @@ void undo_move (struct board &board, Color who,
     if (is_en_passant_move(move))
         dst_piece = handle_en_passant (board, who, src, dst, 1);
 
+    // Update the code:
+    board.code.unapply_move (board, move, undo_state);
+
     // put the pieces back
     board_set_piece (board, dst, dst_piece);
     board_set_piece (board, src, src_piece);
@@ -436,8 +441,8 @@ void undo_move (struct board &board, Color who,
         }
     }
 
-    position_undo_move (&board.position, who, src_piece, move, undo_state);
 
+    position_undo_move (&board.position, who, src_piece, move, undo_state);
     validate_castle_state (board, move);
 }
 

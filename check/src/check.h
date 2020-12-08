@@ -3,9 +3,10 @@
 
 #include "global.h"
 #include "move.h"
-#include "move_history.hpp"
+#include "history.hpp"
 
 struct move_tree;
+class history;
 
 // Whether this move was a legal move for the player.
 bool    was_legal_move      (board &board, Color who, move_t mv);
@@ -24,6 +25,10 @@ static inline bool is_king_threatened (board &board, Color who, coord_t pos)
 bool    is_checkmated       (board &board, Color who);
 
 // Whether this move could cause a draw.
-bool    is_drawing_move     (const move_history_t &history, move_t move);
+static inline bool is_drawing_move (board &board, Color who, move_t mv, const history &history)
+{
+    return history.is_third_repetition (mv, who) ||
+        history.is_fifty_move_repetition (board, who);
+}
 
 #endif // EVOLVE_CHESS_CHECK_H

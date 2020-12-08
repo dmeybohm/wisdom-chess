@@ -127,7 +127,7 @@ static void board_init_from_positions (board &board, const std::vector<board_pos
     board.en_passant_target[COLOR_INDEX_WHITE] = no_en_passant_coord;
     board.en_passant_target[COLOR_INDEX_BLACK] = no_en_passant_coord;
 
-    board_hash_init (board);
+    board.code = board_code { board };
 }
 
 void board::print_to_file (std::ostream &out) const

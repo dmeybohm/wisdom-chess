@@ -1,6 +1,7 @@
 #include "multithread_search.h"
 #include "move_timer.h"
 #include "output.hpp"
+#include "history.hpp"
 
 #include <mutex>
 #include <thread>
@@ -20,15 +21,15 @@ struct thread_params
     struct board board;
     Color side;
     class output &output;
-    move_history_t move_history;
+    class history history;
     int depth;
     struct move_timer timer;
 
     thread_params (const struct board &board_, Color side_, class output &output_,
-                   const move_history_t &move_history_, struct move_timer timer_,
+                   const class history &history_, struct move_timer timer_,
                     int depth_) :
             board { board_ }, side { side_ }, output { output_ },
-            move_history { move_history_ },  depth { depth_ },
+            history { history_ },  depth { depth_ },
             timer { timer_ }
     {
     }
@@ -39,8 +40,9 @@ class multithread_search_handler
 {
 public:
     multithread_search_handler (struct board &board_, Color side_, output &output_,
-                                const move_history_t &move_history_, const move_timer &timer_) :
-            board { board_ }, side { side_ }, output { output_ }, move_history { move_history_ }, timer { timer_ }
+                                const class history &history_, const move_timer &timer_) :
+            board { board_ }, side { side_ }, output { output_ },
+            history { history_ }, timer { timer_ }
     {}
 
     search_result_t result()
@@ -49,7 +51,7 @@ public:
         if (search_result.move != null_move)
             return search_result;
 
-        search_result = do_multithread_search();
+        search_result = do_multithread_search ();
         return search_result;
     }
 
@@ -57,7 +59,7 @@ private:
     struct board board;
     Color side;
     class output &output;
-    move_history_t move_history;
+    class history history;
     struct move_timer timer;
     search_result_t search_result;
 
@@ -88,8 +90,8 @@ search_result_t multithread_search_handler::do_multithread_search ()
     // Create all the thread parameters first, to ensure they get allocated:
     for (unsigned i = 0; i < max_nr_threads; i++)
     {
-        thread_params params { board, side, output, move_history, timer, this->get_next_depth() };
-        all_thread_params.push_back(params);
+        thread_params params { board, side, output, history, timer, this->get_next_depth() };
+        all_thread_params.push_back (params);
     }
 
     // Now create the threads:
@@ -103,7 +105,7 @@ search_result_t multithread_search_handler::do_multithread_search ()
     std::this_thread::sleep_for(timer.seconds);
     for (auto &thr: threads)
     {
-        thr.join();
+        thr.join ();
     }
 
     // todo handle empty case
@@ -144,7 +146,7 @@ void multithread_search_handler::do_thread (unsigned index)
         return;
 
     move_t result = iterate (params.board, params.side, params.output,
-                             params.move_history, params.timer, params.depth);
+                             params.history, params.timer, params.depth);
     messages << "Finished thread " << std::this_thread::get_id() << " with depth " << params.depth << "\n";
     messages << "Move: " << to_string(result);
 
@@ -164,9 +166,9 @@ void multithread_search_handler::do_thread (unsigned index)
 }
 
 multithread_search::multithread_search (struct board &board, Color side, output &output,
-                                        const move_history_t &move_history, const move_timer &timer)
+                                        const history &history, const move_timer &timer)
 {
-	handler = std::make_unique<multithread_search_handler> (board, side, output, move_history, timer);
+	handler = std::make_unique<multithread_search_handler> (board, side, output, history, timer);
 }
 
 search_result_t multithread_search::search()

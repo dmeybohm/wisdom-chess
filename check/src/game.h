@@ -9,11 +9,12 @@
 #include "board.h"
 #include "move_history.hpp"
 #include "board_builder.hpp"
+#include "history.hpp"
 
 struct game
 {
 	struct board       board;
-	move_history_t     history;
+	class history      history;
 	Color              player;   // side the computer is playing as
 	Color              turn;
 

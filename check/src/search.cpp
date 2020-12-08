@@ -10,10 +10,10 @@
 #include "move_tree.h"
 #include "search.h"
 #include "move_timer.h"
-#include "board_check.h"
 #include "move_history.hpp"
 #include "multithread_search.h"
 #include "output.hpp"
+#include "history.hpp"
 
 enum
 {
@@ -31,11 +31,11 @@ using std::chrono::seconds;
 using wisdom::output;
 
 search_result_t
-search (struct board &board, Color side, output &output, int depth, int start_depth, int alpha, int beta,
-        std::unique_ptr<move_tree_t> &variation, struct move_timer &timer, move_history_t &history)
+search (board &board, Color side, output &output, history &history, move_timer &timer,
+        int depth, int start_depth, int alpha, int beta,
+        std::unique_ptr<move_tree_t> &variation)
 {
     std::unique_ptr<move_tree_t> new_variation { nullptr };
-	board_check_t                board_check;
 	size_t                       illegal_move_count = 0;
     search_result_t              result;
 
@@ -53,20 +53,18 @@ search (struct board &board, Color side, output &output, int depth, int start_de
 		if (timer.is_triggered())
 			break;
 
-		board_check_init (&board_check, board);
         undo_move_t undo_state = do_move (board, side, move);
 
 		if (!was_legal_move (board, side, move))
 		{
 		    illegal_move_count++;
             undo_move (board, side, move, undo_state);
-            board_check_validate (&board_check, board, side, move);
 			continue;
 		}
 
 		nodes_visited++;
 
-		history.push_back (move);
+		history.add_position_and_move (board, move);
 		search_result_t other_search_result { .move = move };
 		if (depth <= 0)
 		{
@@ -76,15 +74,14 @@ search (struct board &board, Color side, output &output, int depth, int start_de
 		else
 		{
 			other_search_result = search (board, color_invert (side),
-                                          output,
-                                          depth - 1, start_depth, -beta, -alpha, new_variation, timer, history);
+                                          output, history, timer,
+                                          depth - 1, start_depth, -beta, -alpha, new_variation);
 			other_search_result.score *= -1;
 		}
 
         undo_move (board, side, move, undo_state);
-        board_check_validate (&board_check, board, side, move);
 
-		history.pop_back ();
+		history.remove_position_and_last_move (board);
 
 		if (other_search_result.score > result.score || result.score == -INITIAL_ALPHA)
 		{
@@ -138,8 +135,8 @@ static void calc_time (output &output, int nodes, system_clock_t start, system_c
     output.println (progress_str.str ());
 }
 
-move_t iterate (struct board &board, Color side, output &output,
-                move_history_t &move_history, struct move_timer &timer, int depth)
+move_t iterate (board &board, Color side, output &output,
+                history &history, move_timer &timer, int depth)
 {
 	std::unique_ptr<move_tree_t> principal_variation;
 
@@ -152,9 +149,9 @@ move_t iterate (struct board &board, Color side, output &output,
 
 	auto start = std::chrono::system_clock::now();
 
-	search_result_t result = search (board, side, output, depth, depth,
-                                     -INITIAL_ALPHA, INITIAL_ALPHA,
-                                     principal_variation, timer, move_history);
+	search_result_t result = search (board, side, output, history, timer,
+                                     depth, depth, -INITIAL_ALPHA, INITIAL_ALPHA,
+                                     principal_variation);
 
     auto end = std::chrono::system_clock::now();
 
@@ -180,11 +177,11 @@ move_t iterate (struct board &board, Color side, output &output,
 	return result.move;
 }
 
-move_t find_best_move (struct board &board, Color side, output &output, move_history_t &move_history)
+move_t find_best_move (board &board, Color side, output &output, history &history)
 {
     move_timer overdue_timer { Max_Search_Seconds };
 
-    multithread_search search { board, side, output, move_history, overdue_timer };
+    multithread_search search { board, side, output, history, overdue_timer };
     search_result_t result = search.search();
 
     return result.move;

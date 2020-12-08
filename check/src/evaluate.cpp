@@ -51,10 +51,10 @@ int evaluate (struct board &board, Color who, int moves_away)
 	return score;
 }
 
-int evaluate_and_check_draw (struct board &board, Color who, int moves_away,
-                             move_t move, const move_history_t &history)
+int evaluate_and_check_draw (board &board, Color who, int moves_away,
+                             move_t move, const history &history)
 {
-    if (is_drawing_move (history, move))
+    if (is_drawing_move (board, who, move, history))
     {
         return 0;
     }

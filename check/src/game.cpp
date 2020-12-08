@@ -11,11 +11,11 @@
 
 void game::move (move_t move)
 {
-	// add this move to the history
-	history.push_back (move);
-
 	// do the move
     do_move (board, turn, move);
+
+	// add this move to the history
+	history.add_position_and_move (board, move);
 
 	// take our turn
 	turn = color_invert (turn);
@@ -38,7 +38,7 @@ bool game::save ()
 	if (input.size() == 0)
 		return false;
 
-	history.save(input);
+	history.get_move_history().save (input);
 	return true; // need to check for failure here
 }
 

@@ -8,6 +8,7 @@
 #include "move_timer.h"
 #include "move_tree.h"
 #include "output.hpp"
+#include "history.hpp"
 
 wisdom::null_output discard_output;
 
@@ -34,10 +35,10 @@ TEST_CASE( "Can find mate in 3", "[search]" )
     struct board board = builder.build();
     std::unique_ptr<move_tree_t> variation;
 
-    move_history_t history;
-    search_result_t result = search (board, Color::White, discard_output, 4, 4,
+    class history history;
+    search_result_t result = search (board, Color::White, discard_output, history, large_timer, 4, 4,
                                      -INITIAL_ALPHA, INITIAL_ALPHA,
-                                     variation, large_timer, history);
+                                     variation);
 
     REQUIRE( result.move != null_move );
     REQUIRE( variation->size() == 5 );
@@ -77,10 +78,10 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
 
     struct board board = builder.build();
     std::unique_ptr<move_tree_t> variation;
-    move_history_t history;
-    search_result_t result = search (board, Color::Black, discard_output, 5, 5,
-                                     -INITIAL_ALPHA, INITIAL_ALPHA,
-                                     variation, large_timer, history);
+    class history history;
+    search_result_t result = search (board, Color::Black, discard_output, history, large_timer,
+                                     5, 5, -INITIAL_ALPHA, INITIAL_ALPHA,
+                                     variation);
 
     REQUIRE( result.move != null_move );
 
@@ -126,7 +127,7 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
 
     struct board board = builder.build();
     struct move_timer timer { 300 };
-    move_history_t history;
+    class history history;
     move_t best_move = iterate (board, Color::Black, discard_output, history, timer, 3);
     REQUIRE( best_move != null_move );
 }
@@ -146,11 +147,11 @@ TEST_CASE( "Promoting move is taken if possible", "[search-test]")
     });
 
     std::unique_ptr<move_tree_t> variation;
-    move_history_t history;
+    class history history;
     struct board board = builder.build();
-    search_result_t result = search (board, Color::Black, discard_output, 1, 1,
-                                     -INITIAL_ALPHA, INITIAL_ALPHA,
-                                     variation, large_timer, history);
+    search_result_t result = search (board, Color::Black, discard_output, history, large_timer,
+                                     1, 1, -INITIAL_ALPHA, INITIAL_ALPHA,
+                                     variation);
 
     REQUIRE( to_string(result.move) == "d2 d1(Q)" );
 }

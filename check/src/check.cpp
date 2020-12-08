@@ -3,6 +3,7 @@
 #include "board.h"
 #include "generate.h"
 #include "check.h"
+#include "history.hpp"
 
 bool is_checkmated (struct board &board, Color who)
 {
@@ -185,9 +186,4 @@ bool was_legal_move (struct board &board, Color who, move_t mv)
     }
 
 	return true;
-}
-
-bool is_drawing_move (const move_history_t &move_history, move_t move)
-{
-    return false;
 }

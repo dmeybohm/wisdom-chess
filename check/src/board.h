@@ -10,9 +10,9 @@
 #include "coord_iterator.hpp"
 #include "move.h"
 #include "piece.h"
-#include "board_hash.h"
 #include "material.h"
 #include "position.h"
+#include "board_code.hpp"
 
 ///////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ struct board
 	castle_state_t           castled[Num_Players];
 
 	// keep track of hashing information
-	struct board_hash        hash;
+	board_code               code;
 
 	// keep track of the material on the board
 	struct material          material;
