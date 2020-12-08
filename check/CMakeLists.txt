@@ -20,7 +20,7 @@ CHECK_INCLUDE_FILES("unistd.h" HAVE_UNISTD_H)
 # add the executable
 add_executable(chess
         src/board.cpp src/check.cpp src/evaluate.cpp src/game.cpp src/generate.cpp src/material.cpp src/move.cpp
-        src/move_tree.cpp src/piece.cpp src/play.cpp src/search.cpp src/sha1.cpp src/str.cpp src/move_timer.cpp
+        src/move_tree.cpp src/piece.cpp src/play.cpp src/search.cpp src/str.cpp src/move_timer.cpp
         src/global.h src/validate.cpp src/validate.h src/position.cpp src/position.h
         src/fen.cpp src/fen.hpp src/coord.cpp src/board_builder.cpp src/move_list.cpp src/move_list.hpp src/move_history.hpp src/move_history.cpp src/multithread_search.cpp src/multithread_search.h src/coord_iterator.cpp src/coord_iterator.hpp src/board_code.cpp src/board_code.hpp src/output.cpp src/output.hpp src/board_history.cpp src/board_history.hpp src/history.cpp src/history.hpp)
 
