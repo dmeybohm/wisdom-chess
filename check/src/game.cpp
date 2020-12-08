@@ -35,7 +35,7 @@ static std::string prompt (const std::string &prompt)
 bool game::save ()
 {
 	std::string input = prompt ("save to what file");
-	if (input.size() == 0)
+	if (input.empty())
 		return false;
 
 	history.get_move_history().save (input);
@@ -49,7 +49,7 @@ std::optional<game> game::load (Color player)
 	std::ifstream istream;
 
 	std::string input_file = prompt ("load what file");
-	if (input_file.size () == 0)
+	if (input_file.empty())
 		return {};
 
 	istream.open (input_file, std::ios::in);
@@ -66,7 +66,7 @@ std::optional<game> game::load (Color player)
 		if (input_buf == "stop")
 			break;
 
-		move = move_parse (input_buf.c_str(), result.turn);
+		move = move_parse (input_buf, result.turn);
 
 		if (is_null_move(move))
 		{

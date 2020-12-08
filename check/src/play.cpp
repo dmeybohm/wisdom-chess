@@ -34,7 +34,8 @@ struct input_state_t
     move_t move;
 };
 
-static input_state_t initial_input_state {
+static input_state_t initial_input_state
+{
         .ok = true,
         .good = true,
         .skip = false,
@@ -49,7 +50,10 @@ static input_state_t read_move (game &game)
 	std::cout << "move? ";
 
 	if (!std::getline(std::cin, input))
-	    return result;
+    {
+	    result.ok = false;
+        return result;
+    }
 
 	input = chomp (input);
 
@@ -78,7 +82,7 @@ static input_state_t read_move (game &game)
 	    result.skip = true;
     }
 
-    result.move = move_parse (input.c_str(), game.turn);
+    result.move = move_parse (input, game.turn);
 
     result.good = false;
 
@@ -117,6 +121,8 @@ int main (int argc, char **argv)
 		if (game.turn != game.player)
 		{
             input_state = read_move (game);
+            if (!input_state.ok)
+                break;
 		}
 		else
 		{
@@ -126,6 +132,7 @@ int main (int argc, char **argv)
 			input_state.good = true;
 			input_state.ok = true;
 		}
+
 
 		if (input_state.skip)
 			continue;
