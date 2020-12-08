@@ -25,12 +25,10 @@ namespace wisdom
     class standard_output : public output
     {
     private:
-        const std::ostream &out;
         std::mutex output_mutex;
 
     public:
-        standard_output () : out { std::cout }
-        {}
+        standard_output () = default;
 
         void println (const std::string &output) override
         {
