@@ -453,16 +453,8 @@ move_list_t validate_moves (const move_list_t &move_list, const board &board,
 
 move_list_t generate_captures (board &board, Color who)
 {
-    move_list_t captures;
     move_list_t move_list = generate_moves (board, who);
-
-    for (auto move : move_list)
-    {
-        if (is_capture_move (move))
-            captures.push_back (move);
-    }
-
-	return captures;
+    return move_list.only_captures ();
 }
 
 move_list_t generate_moves (board &board, Color who)

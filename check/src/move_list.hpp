@@ -80,6 +80,15 @@ public:
     {
         return my_moves;
     }
+
+    [[nodiscard]] move_list_t only_captures () const
+    {
+        move_list_t result;
+        std::copy_if (my_moves.begin(), my_moves.end(), std::back_inserter(result.my_moves), [](move_t mv) {
+            return is_capture_move(mv);
+        } );
+        return result;
+    }
 };
 
 std::string to_string (const move_list_t &list);
