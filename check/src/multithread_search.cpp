@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
+#include <utility>
 #include <vector>
 #include <chrono>
 
@@ -26,10 +27,11 @@ struct thread_params
     struct move_timer timer;
 
     thread_params (const struct board &board_, Color side_, class output &output_,
-                   const class history &history_, struct move_timer timer_,
+                   class history history_,
+                   struct move_timer timer_,
                     int depth_) :
             board { board_ }, side { side_ }, output { output_ },
-            history { history_ },  depth { depth_ },
+            history { std::move(history_) },  depth { depth_ },
             timer { timer_ }
     {
     }
@@ -59,7 +61,7 @@ private:
     struct board board;
     Color side;
     class output &output;
-    class history history;
+    const class history &history; // reference here, and copied into thread params.
     struct move_timer timer;
     search_result_t search_result;
 

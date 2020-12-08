@@ -23,7 +23,7 @@ private:
 
 public:
     multithread_search (board &board, Color side, wisdom::output &output,
-                        const history &history, const move_timer &timer);
+                        const class history &history, const move_timer &timer);
 
     ~multithread_search();
 
