@@ -27,9 +27,7 @@ struct thread_params
     struct move_timer timer;
 
     thread_params (const struct board &board_, Color side_, class output &output_,
-                   class history history_,
-                   struct move_timer timer_,
-                    int depth_) :
+                   class history history_, struct move_timer timer_, int depth_) :
             board { board_ }, side { side_ }, output { output_ },
             history { std::move(history_) },  depth { depth_ },
             timer { timer_ }
@@ -132,7 +130,7 @@ int multithread_search_handler::get_next_depth ()
     return next_depth;
 }
 
-void multithread_search_handler::add_result(search_result_t result)
+void multithread_search_handler::add_result (search_result_t result)
 {
     std::lock_guard guard (mutex);
 
