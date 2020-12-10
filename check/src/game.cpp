@@ -15,7 +15,7 @@ void game::move (move_t move)
     do_move (board, turn, move);
 
 	// add this move to the history
-	history.add_position_and_move (board, move);
+    history.add_position_and_move (board, move);
 
 	// take our turn
 	turn = color_invert (turn);

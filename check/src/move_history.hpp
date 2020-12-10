@@ -15,9 +15,21 @@ public:
 
     move_history_t (const move_history_t &_other);
 
+    move_history_t (const move_list_t &list);
+
     void push_back (move_t move)
     {
         my_moves.push_back (move);
+    }
+
+    [[nodiscard]] auto begin() const noexcept
+    {
+        return my_moves.begin ();
+    }
+
+    [[nodiscard]] auto end() const noexcept
+    {
+        return my_moves.end ();
     }
 
     void pop_back ()

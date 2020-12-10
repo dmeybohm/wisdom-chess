@@ -367,6 +367,7 @@ undo_move_t do_move (struct board &board, Color who, move_t move)
     position_do_move (&board.position, who, orig_src_piece, move, undo_state);
     validate_castle_state (board, move);
 
+    board.update_half_move_clock (piece_type(orig_src_piece), move, undo_state);
     return undo_state;
 }
 
@@ -444,6 +445,7 @@ void undo_move (struct board &board, Color who,
 
     position_undo_move (&board.position, who, src_piece, move, undo_state);
     validate_castle_state (board, move);
+    board.restore_half_move_clock (undo_state);
 }
 
 static move_t castle_parse (const std::string &str, Color who)

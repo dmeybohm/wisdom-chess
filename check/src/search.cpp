@@ -64,7 +64,7 @@ search (board &board, Color side, output &output, history &history, move_timer &
 
 		nodes_visited++;
 
-		history.add_position_and_move (board, move);
+        history.add_position_and_move (board, move);
 		search_result_t other_search_result { .move = move };
 		if (depth <= 0)
 		{
@@ -81,7 +81,7 @@ search (board &board, Color side, output &output, history &history, move_timer &
 
         undo_move (board, side, move, undo_state);
 
-		history.remove_position_and_last_move (board);
+        history.remove_position_and_last_move (board);
 
 		if (other_search_result.score > result.score || result.score == -INITIAL_ALPHA)
 		{

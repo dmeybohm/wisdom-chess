@@ -61,6 +61,21 @@ struct board
     void print_to_file  (std::ostream &out) const;
     void dump () const;
 
+    void update_half_move_clock (Piece orig_src_piece_type, move_t mv, undo_move_t &undo_state)
+    {
+        undo_state.half_move_clock = this->half_move_clock;
+        if (is_capture_move(mv) || orig_src_piece_type == Piece::Pawn)
+            this->half_move_clock = 0;
+        else
+            this->half_move_clock++;
+
+    }
+
+    void restore_half_move_clock (const undo_move_t &undo_state)
+    {
+        this->half_move_clock = undo_state.half_move_clock;
+    }
+
 	[[nodiscard]] std::string to_string () const;
 };
 

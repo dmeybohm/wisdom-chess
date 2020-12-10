@@ -57,7 +57,8 @@ static input_state_t read_move (game &game)
 
 	input = chomp (input);
 
-	if (input == "moves") {
+	if (input == "moves")
+	{
 		print_available_moves (game);
         result.skip = true;
 		return result;
@@ -101,6 +102,28 @@ static input_state_t read_move (game &game)
 	return result;
 }
 
+static input_state_t offer_draw ()
+{
+    input_state_t result = initial_input_state;
+    std::string input;
+    std::cout << "Third repetition detected. Would you like a draw? [y/n]\n";
+
+    if (!std::getline(std::cin, input))
+    {
+        result.ok = false;
+        return result;
+    }
+
+    if (result[0] == 'y' || result[1] == 'Y')
+    {
+        std::cout << "Draw accepted!\n";
+        result.ok = false;
+        return result;
+    }
+
+    return offer_draw();
+}
+
 int main (int argc, char **argv)
 {
     game game { Color::White, comp_player };
@@ -117,6 +140,18 @@ int main (int argc, char **argv)
 		    std::cout << to_string(color_invert(game.turn)) << " wins the game.\n";
 			return 0;
 		}
+
+		if (game.history.is_third_repetition(game.board))
+        {
+		    input_state = offer_draw ();
+		    continue;
+        }
+
+		if (game.history.is_fifty_move_repetition(game.board))
+        {
+		    std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
+		    break;
+        }
 
 		if (game.turn != game.player)
 		{
@@ -145,4 +180,5 @@ int main (int argc, char **argv)
 
 	return 0;
 }
+
 

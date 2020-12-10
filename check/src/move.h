@@ -31,15 +31,19 @@ enum class MoveCategory
     Castling = 3,
 };
 
-typedef struct undo_move
+struct undo_move
 {
     MoveCategory                category;
     Piece                       taken_piece_type;
     
     castle_state_t              current_castle_state;
     castle_state_t              opponent_castle_state;
+    int16_t                     half_move_clock;
+
     coord_t                     en_passant_target[Num_Players];
-} undo_move_t;
+};
+
+using undo_move_t = struct undo_move;
 
 constexpr undo_move_t empty_undo_state =
 {

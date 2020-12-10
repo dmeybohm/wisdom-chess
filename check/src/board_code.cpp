@@ -18,7 +18,6 @@ void board_code::apply_move (const struct board &board, move_t move)
     coord_t dst = move_dst (move);
 
     piece_t src_piece = piece_at (board, src);
-    piece_t dst_piece = piece_at (board, dst);
 
     Piece src_piece_type = piece_type (src_piece);
     Color src_piece_color = piece_color (src_piece);
@@ -53,7 +52,7 @@ void board_code::apply_move (const struct board &board, move_t move)
     }
 
     remove_piece (src);
-    add_piece (dst, dst_piece);
+    add_piece (dst, src_piece);
 
     if (is_promoting_move(move))
     {
