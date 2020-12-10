@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include <catch/catch.hpp>
 #include "game.h"
 #include "board.h"
 #include "fen.hpp"

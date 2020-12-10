@@ -1,4 +1,4 @@
-#include "lib/catch.hpp"
+#include "lib/catch/catch.hpp"
 
 #include "move_list.hpp"
 #include "history.hpp"

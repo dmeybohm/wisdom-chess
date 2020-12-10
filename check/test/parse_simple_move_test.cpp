@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include <catch/catch.hpp>
 #include "move.h"
 
 TEST_CASE("parse_simple_move parses captures and non-captures", "[parse-move]")

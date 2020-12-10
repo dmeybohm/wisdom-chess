@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include <catch/catch.hpp>
 #include "board_builder.hpp"
 #include "parse_simple_move.hpp"
 

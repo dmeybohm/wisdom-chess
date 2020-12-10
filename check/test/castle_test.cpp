@@ -1,8 +1,7 @@
-#include "catch.hpp"
+#include <catch/catch.hpp>
 #include "board_builder.hpp"
 
 #include "board.h"
-
 
 TEST_CASE("Castling state is modified and restored for rooks", "[castling]")
 {
