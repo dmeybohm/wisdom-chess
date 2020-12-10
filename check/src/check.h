@@ -28,7 +28,7 @@ bool    is_checkmated       (board &board, Color who);
 static inline bool is_drawing_move (board &board, Color who, move_t mv, const history &history)
 {
     return history.is_third_repetition (board) ||
-        history.is_fifty_move_repetition (board);
+        history::is_fifty_move_repetition (board);
 }
 
 #endif // EVOLVE_CHESS_CHECK_H
