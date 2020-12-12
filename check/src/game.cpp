@@ -50,9 +50,18 @@ std::optional<game> game::load (Color player)
 
 	std::string input_file = prompt ("load what file");
 	if (input_file.empty())
+    {
+	    std::cout << "File is empty\n";
 		return {};
+    }
 
 	istream.open (input_file, std::ios::in);
+
+	if (istream.fail())
+    {
+	    std::cout << "Failed reading " << input_file << "\n";
+	    return {};
+    }
 
     struct game result { Color::White, player };
 

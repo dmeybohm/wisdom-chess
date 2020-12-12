@@ -77,10 +77,10 @@ static input_state_t read_move (game &game)
             game = *optional_game;
 		return result;
 	}
-	else if (input == "fenload")
+	else if (input == "quit" || input == "exit")
     {
-	    // todo
-	    result.skip = true;
+	    result.ok = false;
+	    return result;
     }
 
     result.move = move_parse (input, game.turn);
@@ -110,7 +110,7 @@ static input_state_t offer_draw ()
 
     if (!std::getline(std::cin, input))
     {
-        result.ok = false;
+        result.ok = result.good = false;
         return result;
     }
 
@@ -133,7 +133,7 @@ int main (int argc, char **argv)
 	while (input_state.ok)
 	{
         input_state = initial_input_state;
-		game.board.print();
+		game.board.print ();
 
 		if (is_checkmated (game.board, game.turn))
 		{

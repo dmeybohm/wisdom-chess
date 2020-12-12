@@ -49,10 +49,10 @@ struct board
 	coord_t                  en_passant_target[Num_Players];
 
 	// Number of half moves since pawn or capture.
-    std::size_t              half_move_clock;
+    int                      half_move_clock = 0;
 
 	// Number of full moves, updated after black moves.
-    std::size_t              full_moves;
+    int                      full_moves = 0;
 
 	board ();
 	board (const board &board);
