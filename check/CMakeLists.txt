@@ -11,12 +11,6 @@ set(CMAKE_BUILD_TYPE Debug)
 # set the project name
 project(WizDumb)
 
-CHECK_INCLUDE_FILES("netinet/in.h" HAVE_NETINET_H)
-CHECK_INCLUDE_FILES("winsock2.h" HAVE_WINSOCK2_H)
-CHECK_INCLUDE_FILES("time.h" HAVE_TIME_H)
-CHECK_INCLUDE_FILES("sys/time.h" HAVE_SYS_TIME_H)
-CHECK_INCLUDE_FILES("unistd.h" HAVE_UNISTD_H)
-
 # add the executable
 add_executable(chess
         src/board.cpp src/check.cpp src/evaluate.cpp src/game.cpp src/generate.cpp src/material.cpp src/move.cpp
@@ -45,12 +39,5 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /std:c++latest")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 /std:c++latest")
 endif()
-
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
-
-if (HAVE_WINSOCK2_H)
-    TARGET_LINK_LIBRARIES(chess ws2_32)
-endif (HAVE_WINSOCK2_H)
-
 
 add_subdirectory(test)

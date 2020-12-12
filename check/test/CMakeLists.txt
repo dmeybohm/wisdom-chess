@@ -46,10 +46,5 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 /std:c++latest")
 endif()
 
-
-if (HAVE_WINSOCK2_H)
-    TARGET_LINK_LIBRARIES(chess_tests ws2_32)
-endif (HAVE_WINSOCK2_H)
-
 INCLUDE(ParseAndAddCatchTests)
 ParseAndAddCatchTests(chess_tests)
