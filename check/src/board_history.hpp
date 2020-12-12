@@ -3,6 +3,7 @@
 #define WIZDUMB_BOARD_HISTORY_HPP
 
 #include <unordered_map>
+#include <iostream>
 
 #include "board_code.hpp"
 
@@ -16,7 +17,14 @@ public:
 
     [[nodiscard]] int position_count (const board_code &code) const
     {
-        return position_counts.at (code.bitset_ref());
+        try
+        {
+            return position_counts.at (code.bitset_ref ());
+        }
+        catch (std::out_of_range &r)
+        {
+            return 0;
+        }
     }
 
     void add_board_code (const board_code &board_code)
@@ -29,14 +37,22 @@ public:
     {
         const auto &bits = board_code.bitset_ref();
 
-        auto count = position_counts.at(bits) - 1;
-        if (count <= 0)
+        try
         {
-            position_counts.erase (bits);
+            auto count = position_counts.at (bits) - 1;
+            if (count <= 0)
+            {
+                position_counts.erase (bits);
+            }
+            else
+            {
+                position_counts[bits] = count;
+            }
         }
-        else
+        catch (const std::out_of_range &e)
         {
-            position_counts[bits] = count;
+            std::cout << "Couldn't find " << board_code.to_string() << "\n";
+            throw e;
         }
     }
 };

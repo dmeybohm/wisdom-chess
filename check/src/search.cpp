@@ -79,9 +79,8 @@ search (board &board, Color side, output &output, history &history, move_timer &
 			other_search_result.score *= -1;
 		}
 
-        undo_move (board, side, move, undo_state);
-
         history.remove_position_and_last_move (board);
+        undo_move (board, side, move, undo_state);
 
 		if (other_search_result.score > result.score || result.score == -INITIAL_ALPHA)
 		{

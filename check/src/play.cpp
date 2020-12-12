@@ -114,7 +114,7 @@ static input_state_t offer_draw ()
         return result;
     }
 
-    if (result[0] == 'y' || result[1] == 'Y')
+    if (input[0] == 'y' || input[1] == 'Y')
     {
         std::cout << "Draw accepted!\n";
         result.ok = false;
@@ -167,7 +167,6 @@ int main (int argc, char **argv)
 			input_state.good = true;
 			input_state.ok = true;
 		}
-
 
 		if (input_state.skip)
 			continue;
