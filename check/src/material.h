@@ -18,7 +18,7 @@ enum material_weight
 struct material
 {
 private:
-	int my_score[Num_Players]{};
+	int my_score[Num_Players] = { 0, 0 };
 
 public:
     material () = default;

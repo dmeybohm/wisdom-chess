@@ -5,8 +5,6 @@
 #include "move_timer.h"
 
 using std::chrono::high_resolution_clock;
-using std::chrono::duration_cast;
-using std::chrono::duration;
 
 enum {
     TIMER_CHECK_COUNT = 10000    // number of iterations before checking
