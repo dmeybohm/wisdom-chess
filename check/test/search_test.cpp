@@ -9,6 +9,8 @@
 #include "move_tree.h"
 #include "output.hpp"
 #include "history.hpp"
+#include "fen.hpp"
+#include "game.h"
 
 wisdom::null_output discard_output;
 
@@ -154,4 +156,21 @@ TEST_CASE( "Promoting move is taken if possible", "[search-test]")
                                      variation);
 
     REQUIRE( to_string(result.move) == "d2 d1(Q)" );
+}
+
+TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing", "[search-test]" )
+{
+    fen parser { "rnb1kbnr/ppp1pppp/8/8/3B4/8/PPP1pPPP/RN2KB1R b KQkq - 0 1"};
+
+    auto game = parser.build();
+
+    std::unique_ptr<move_tree_t> variation;
+    class history history;
+    struct board &board = game.board;
+    struct move_timer large_timer { 30 };
+    search_result_t result = search (board, Color::Black, discard_output, history, large_timer,
+                                   1, 1, -INITIAL_ALPHA, INITIAL_ALPHA,
+                                   variation);
+
+    REQUIRE( to_string(result.move) == "e2xf2(Q)" );
 }
