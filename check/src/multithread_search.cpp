@@ -132,7 +132,7 @@ int multithread_search_handler::get_next_depth ()
 
 void multithread_search_handler::add_result (search_result_t result)
 {
-    std::lock_guard guard (mutex);
+    std::lock_guard guard { mutex };
 
     result_moves.push_back (result);
 }
