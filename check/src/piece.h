@@ -38,12 +38,14 @@ using color_index_t = int8_t;
 
 using piece_t = struct piece_with_color;
 
+// Order here is significant - it means computer will prefer the piece at the top
+// all else being equal, such as if the promoted piece cannot be saved from capture.
 constexpr Piece all_promotable_piece_types[] =
 {
+    Piece::Queen,
+    Piece::Rook,
     Piece::Bishop,
     Piece::Knight,
-    Piece::Rook,
-    Piece::Queen
 };
 
 constexpr Piece all_piece_types_with_none[] =

@@ -166,11 +166,10 @@ TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing
 
     std::unique_ptr<move_tree_t> variation;
     class history history;
-    struct board &board = game.board;
     struct move_timer large_timer { 30 };
-    search_result_t result = search (board, Color::Black, discard_output, history, large_timer,
-                                   1, 1, -INITIAL_ALPHA, INITIAL_ALPHA,
+    search_result_t result = search (game.board, Color::Black, discard_output, history, large_timer,
+                                   3, 3, -INITIAL_ALPHA, INITIAL_ALPHA,
                                    variation);
 
-    REQUIRE( to_string(result.move) == "e2xf2(Q)" );
+    REQUIRE( to_string(result.move) == "e2xf1(Q)" );
 }
