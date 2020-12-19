@@ -6,13 +6,13 @@
 
 enum material_weight
 {
-    MATERIAL_WEIGHT_NONE   = 0,
-    MATERIAL_WEIGHT_KING   = 1500,
-    MATERIAL_WEIGHT_QUEEN  = 1000,
-    MATERIAL_WEIGHT_ROOK   = 500,
-    MATERIAL_WEIGHT_BISHOP = 320,
-    MATERIAL_WEIGHT_KNIGHT = 320,
-    MATERIAL_WEIGHT_PAWN   = 100,
+    Material_Weight_None   = 0,
+    Material_Weight_King   = 1500,
+    Material_Weight_Queen  = 1000,
+    Material_Weight_Rook   = 500,
+    Material_Weight_Bishop = 320,
+    Material_Weight_Knight = 320,
+    Material_Weight_Pawn   = 100,
 };
 
 struct material
@@ -27,13 +27,13 @@ public:
     {
         switch (piece)
         {
-            case Piece::None:    return MATERIAL_WEIGHT_NONE;
-            case Piece::King:    return MATERIAL_WEIGHT_KING;
-            case Piece::Queen:   return MATERIAL_WEIGHT_QUEEN;
-            case Piece::Rook:    return MATERIAL_WEIGHT_ROOK;
-            case Piece::Bishop:  return MATERIAL_WEIGHT_BISHOP;
-            case Piece::Knight:  return MATERIAL_WEIGHT_KNIGHT;
-            case Piece::Pawn:    return MATERIAL_WEIGHT_PAWN;
+            case Piece::None:    return Material_Weight_None;
+            case Piece::King:    return Material_Weight_King;
+            case Piece::Queen:   return Material_Weight_Queen;
+            case Piece::Rook:    return Material_Weight_Rook;
+            case Piece::Bishop:  return Material_Weight_Bishop;
+            case Piece::Knight:  return Material_Weight_Knight;
+            case Piece::Pawn:    return Material_Weight_Pawn;
             default: abort();
         }
     }

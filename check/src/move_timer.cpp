@@ -7,7 +7,7 @@
 using std::chrono::high_resolution_clock;
 
 enum {
-    TIMER_CHECK_COUNT = 10000    // number of iterations before checking
+    Num_Calls_Per_Timer_Check = 10000    // number of iterations before checking
 };
 
 bool move_timer::is_triggered ()
@@ -15,7 +15,7 @@ bool move_timer::is_triggered ()
     if (this->triggered)
         return true;
 
-    if (++this->check_calls % TIMER_CHECK_COUNT != 0)
+    if (++this->check_calls % Num_Calls_Per_Timer_Check != 0)
         return false;
 
     high_resolution_clock::time_point next_check_time = high_resolution_clock::now();
