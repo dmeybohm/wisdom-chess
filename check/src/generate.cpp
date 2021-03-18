@@ -197,7 +197,7 @@ static void moves_knight (const Board &board, Color who,
 // Returns -1 if no column is eligible.
 static int8_t eligible_en_passant_column (const Board &board, int8_t row, int8_t column, Color who)
 {
-    color_index_t opponent_index = color_index(color_invert(who));
+    ColorIndex opponent_index = color_index (color_invert (who));
 
     if (coord_equals (board.en_passant_target[opponent_index], no_en_passant_coord))
         return -1;

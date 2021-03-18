@@ -1,6 +1,5 @@
 #include "doctest/doctest.h"
 #include "board_builder.hpp"
-#include "parse_simple_move.hpp"
 
 #include "board.h"
 #include "search.h"

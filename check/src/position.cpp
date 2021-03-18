@@ -117,13 +117,13 @@ static int change (Coord coord, Color who, ColoredPiece piece)
 
 void position_add (struct Position *position, Color who, Coord coord, ColoredPiece piece)
 {
-    color_index_t index = color_index(who);
+    ColorIndex index = color_index (who);
     position->score[index] += change (coord, who, piece);
 }
 
 void position_remove (struct Position *position, Color who, Coord coord, ColoredPiece piece)
 {
-    color_index_t index = color_index(who);
+    ColorIndex index = color_index (who);
     position->score[index] -= change (coord, who, piece);
 }
 
@@ -218,8 +218,8 @@ void position_undo_move (struct Position *position, Color color,
 
 int position_score (const struct Position *position, Color who)
 {
-    color_index_t index = color_index(who);
-    color_index_t inverted = color_index(color_invert(who));
+    ColorIndex index = color_index (who);
+    ColorIndex inverted = color_index (color_invert (who));
     assert (position->score[index] < 3000 && position->score[index] > -3000);
     assert (position->score[inverted] < 3000 && position->score[inverted] > -3000);
     int result = position->score[index] - position->score[inverted];

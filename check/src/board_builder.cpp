@@ -139,7 +139,7 @@ struct Board BoardBuilder::build ()
     {
         for (auto state : en_passant_states)
         {
-            color_index_t index = color_index(state.player);
+            ColorIndex index = color_index (state.player);
             result.en_passant_target[index] = state.coord;
         }
     }
@@ -148,7 +148,7 @@ struct Board BoardBuilder::build ()
     {
         for (auto state : castle_states)
         {
-            color_index_t index = color_index(state.player);
+            ColorIndex index = color_index (state.player);
             result.castled[index] = state.castle_state;
         }
     }

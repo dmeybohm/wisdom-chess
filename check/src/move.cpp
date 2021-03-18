@@ -258,8 +258,8 @@ static void update_current_rook_position (Board &board, Color player,
 static void handle_en_passant_eligibility (Board &board, Color who, ColoredPiece src_piece,
                                            Move move, UndoMove *undo_state, int undo)
 {
-    color_index_t c_index = color_index(who);
-    color_index_t o_index = color_index(color_invert(who));
+    ColorIndex c_index = color_index (who);
+    ColorIndex o_index = color_index (color_invert (who));
 
     if (undo)
     {

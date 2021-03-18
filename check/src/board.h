@@ -115,7 +115,7 @@ static inline bool need_pawn_promotion (int8_t row, Color who)
 
 constexpr int able_to_castle (const Board &board, Color who, CastlingState castle_type)
 {
-    color_index_t c_index = color_index(who);
+    ColorIndex c_index = color_index (who);
 
 	int didnt_castle = !!(board.castled[c_index] != CASTLE_CASTLED);
 	int neg_not_set  = !!(((~board.castled[c_index]) & castle_type) != 0);
@@ -125,19 +125,19 @@ constexpr int able_to_castle (const Board &board, Color who, CastlingState castl
 
 constexpr CastlingState board_get_castle_state (const struct Board &board, Color who)
 {
-    color_index_t index = color_index(who);
+    ColorIndex index = color_index (who);
     return board.castled[index];
 }
 
 static inline void board_apply_castle_change (Board &board, Color who, CastlingState castle_state)
 {
-    color_index_t index = color_index(who);
+    ColorIndex index = color_index (who);
     board.castled[index] = castle_state;
 }
 
 static inline void board_undo_castle_change (Board &board, Color who, CastlingState castle_state)
 {
-    color_index_t index = color_index(who);
+    ColorIndex index = color_index (who);
     board.castled[index] = castle_state;
 }
 

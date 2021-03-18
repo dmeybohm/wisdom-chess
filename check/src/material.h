@@ -50,8 +50,8 @@ public:
 
     [[nodiscard]] int score (Color who) const
     {
-        color_index_t my_index = color_index(who);
-        color_index_t opponent_index = color_index(color_invert(who));
+        ColorIndex my_index = color_index (who);
+        ColorIndex opponent_index = color_index (color_invert (who));
         return my_score[my_index] - my_score[opponent_index];
     }
 

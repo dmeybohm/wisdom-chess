@@ -34,7 +34,7 @@ enum color_index
 	COLOR_INDEX_BLACK = 1U,
 };
 
-using color_index_t = int8_t;
+using ColorIndex = int8_t;
 
 using ColoredPiece = struct colored_piece;
 
@@ -135,7 +135,7 @@ constexpr bool is_color_invalid (Color color)
 	return !is_color_valid (color);
 }
 
-constexpr color_index_t color_index (Color who)
+constexpr ColorIndex color_index (Color who)
 {
 	switch (who)
 	{
@@ -145,7 +145,7 @@ constexpr color_index_t color_index (Color who)
 	}
 }
 
-constexpr color_index_t color_index_with_none (Color who)
+constexpr ColorIndex color_index_with_none (Color who)
 {
     switch (who)
     {

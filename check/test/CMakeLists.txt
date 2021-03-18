@@ -18,18 +18,15 @@ add_executable(chess_tests
         position_test.cpp
         move_test.cpp
         search_test.cpp
-        parse_simple_move.cpp
-        parse_simple_move.hpp
         parse_simple_move_test.cpp
         fen_test.cpp
         move_list_test.cpp
         board_code_test.cpp
         history_test.cpp
-        base_test.hpp
         $<TARGET_OBJECTS:chess_lib>
-        )
+)
 
-		if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
