@@ -14,7 +14,7 @@
 struct Game
 {
 	Board            board;
-	MoveHistory      history;
+	History          history;
 	Color            player;   // side the computer is playing as
 	Color            turn;
 

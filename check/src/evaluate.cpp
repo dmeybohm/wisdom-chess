@@ -52,7 +52,7 @@ int evaluate (Board &board, Color who, int moves_away)
 }
 
 int evaluate_and_check_draw (Board &board, Color who, int moves_away,
-                             Move move, const MoveHistory &history)
+                             Move move, const History &history)
 {
     if (is_drawing_move (board, who, move, history))
     {

@@ -12,14 +12,17 @@ struct Board;
 
 using CastlingState = uint8_t;
 
-enum castle
-{
-	CASTLE_NONE            = 0U,      // still eligible to castle on both sides
-	CASTLE_CASTLED         = 0x01U,   // castled
-	CASTLE_KINGSIDE        = 0x02U,   // ineligible for further castling kingside
-	CASTLE_QUEENSIDE       = 0x04U,   // ineligible for further castling queenside
-	CASTLE_PREVIOUSLY_NONE = 0x07U,   // previously was none - used for determining if a move affects castling
-};
+constexpr uint8_t
+    CASTLE_NONE            = 0U;      // still eligible to castle on both sides
+constexpr uint8_t
+	CASTLE_CASTLED         = 0x01U;   // castled
+constexpr uint8_t
+	CASTLE_KINGSIDE        = 0x02U;   // ineligible for further castling kingside
+constexpr uint8_t
+	CASTLE_QUEENSIDE       = 0x04U;   // ineligible for further castling queenside
+constexpr uint8_t
+	CASTLE_PREVIOUSLY_NONE = 0x07U;   // previously was none - used for determining if a move affects castling
+
 
 constexpr int MAX_CASTLE_STATES = 8;
 
@@ -51,6 +54,7 @@ constexpr UndoMove empty_undo_state =
     .taken_piece_type = Piece::None,
     .current_castle_state = CASTLE_NONE,
     .opponent_castle_state = CASTLE_NONE,
+    .half_move_clock = 0,
     .en_passant_target = { no_en_passant_coord, no_en_passant_coord },
 };
 
@@ -300,10 +304,10 @@ constexpr bool is_en_passant_vulnerable (UndoMove undo_state, Color who)
 
 /////////////////////////////////////////////////////////////////////
 
-UndoMove   do_move (struct Board &board, Color who, Move move);
-void          undo_move (struct Board &board, Color who, Move move,
-                         UndoMove undo_state);
-Move        move_parse (const std::string &str, Color who);
+UndoMove      do_move    (Board &board, Color who, Move move);
+void          undo_move  (Board &board, Color who, Move move,
+                          UndoMove undo_state);
+Move          move_parse (const std::string &str, Color who);
 
 Coord en_passant_taken_pawn_coord (Coord src, Coord dst);
 

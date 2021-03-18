@@ -3,17 +3,12 @@
 #include <iostream>
 #include <fstream>
 
-move_history_t::move_history_t (const move_history_t &other)
-{
-    this->my_moves = other.my_moves;
-}
-
-move_history_t::move_history_t (const MoveList &list)
+MoveHistory::MoveHistory (const MoveList &list)
 {
     this->my_moves = list;
 }
 
-void move_history_t::save (const std::string &filename)
+void MoveHistory::save (const std::string &filename)
 {
     std::ofstream file;
     file.open(filename);

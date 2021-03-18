@@ -1,15 +1,15 @@
-#include <catch/catch.hpp>
+#include "base_test.hpp"
 
 #include "board.h"
 #include "move.h"
 
-TEST_CASE( "Parsing a move", "[move]" )
+TEST_CASE( "Parsing a move" )
 {
     Move with_spaces = move_parse ("   e2e4", Color::White);
     REQUIRE(make_move (coord_parse ("e2"), coord_parse ("e4")) == with_spaces );
 }
 
-TEST_CASE( "Parsing an en-passant move", "[move]" )
+TEST_CASE( "Parsing an en-passant move" )
 {
     Move en_passant = move_parse ("   e4d5 ep   ", Color::White);
     Coord src = coord_parse("e4");
@@ -18,7 +18,7 @@ TEST_CASE( "Parsing an en-passant move", "[move]" )
     REQUIRE( en_passant == expected );
 }
 
-TEST_CASE( "Parsing a promoting move", "[move]" )
+TEST_CASE( "Parsing a promoting move" )
 {
     Move promoting = move_parse ("   d7d8 (B) ", Color::White);
     Coord src = coord_parse("d7");
@@ -28,7 +28,7 @@ TEST_CASE( "Parsing a promoting move", "[move]" )
     REQUIRE( promoting == expected );
 }
 
-TEST_CASE( "Parsing a castling move", "[move]")
+TEST_CASE( "Parsing a castling move" )
 {
     Move castling = move_parse ("   o-o-o ", Color::Black);
     Coord src = coord_parse("e8");
@@ -38,7 +38,7 @@ TEST_CASE( "Parsing a castling move", "[move]")
     REQUIRE( castling == expected );
 }
 
-TEST_CASE( "Converting a move to a string", "[move]" )
+TEST_CASE( "Converting a move to a string" )
 {
     Move with_spaces = move_parse ("   e2e4", Color::White);
     REQUIRE( to_string(with_spaces) == "e2 e4" );
@@ -48,9 +48,9 @@ TEST_CASE( "Converting a move to a string", "[move]" )
     REQUIRE( to_string(castling) == "O-O-O" );
 }
 
-TEST_CASE( "Moving and undoing a move works", "[move]" )
+TEST_CASE( "Moving and undoing a move works" )
 {
-    struct Board board;
+    Board board;
 
     Move e2e4 = move_parse ("e2e4", Color::White);
     Move d6d8 = move_parse ("d7d5", Color::Black);

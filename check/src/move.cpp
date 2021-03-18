@@ -370,8 +370,7 @@ UndoMove do_move (Board &board, Color who, Move move)
     return undo_state;
 }
 
-void undo_move (Board &board, Color who,
-                Move move, UndoMove undo_state)
+void undo_move (Board &board, Color who, Move move, UndoMove undo_state)
 {
     ColoredPiece    orig_src_piece, src_piece, dst_piece = piece_and_color_none;
     Piece      dst_piece_type;

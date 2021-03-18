@@ -19,15 +19,15 @@ using wisdom::Output;
 
 struct thread_params
 {
-    struct Board board;
+    Board board;
     Color side;
-    class Output &output;
-    class MoveHistory history;
+    Output &output;
+    History history;
     int depth;
-    struct MoveTimer timer;
+    MoveTimer timer;
 
-    thread_params (const struct Board &board_, Color side_, class Output &output_,
-                   class MoveHistory history_, struct MoveTimer timer_, int depth_) :
+    thread_params (const Board &board_, Color side_, Output &output_,
+                   History history_, MoveTimer timer_, int depth_) :
             board { board_ }, side { side_ }, output { output_ },
             history { std::move(history_) },  depth { depth_ },
             timer { timer_ }
@@ -39,8 +39,8 @@ struct thread_params
 class MultithreadSearchHandler
 {
 public:
-    MultithreadSearchHandler (struct Board &board_, Color side_, Output &output_,
-                              const class MoveHistory &history_, const MoveTimer &timer_) :
+    MultithreadSearchHandler (Board &board_, Color side_, Output &output_,
+                              const History &history_, const MoveTimer &timer_) :
             board { board_ }, side { side_ }, output { output_ },
             history { history_ }, timer { timer_ }
     {}
@@ -56,10 +56,10 @@ public:
     }
 
 private:
-    struct Board board;
+    Board board;
     Color side;
-    class Output &output;
-    const class MoveHistory &history; // reference here, and copied into thread params.
+    Output &output;
+    const History &history; // reference here, and copied into thread params.
     struct MoveTimer timer;
     SearchResult search_result;
 
@@ -165,8 +165,8 @@ void MultithreadSearchHandler::do_thread (unsigned index)
     do_thread (index);
 }
 
-MultithreadSearch::MultithreadSearch (struct Board &board, Color side, Output &output,
-                                      const MoveHistory &history, const MoveTimer &timer)
+MultithreadSearch::MultithreadSearch (Board &board, Color side, Output &output,
+                                      const History &history, const MoveTimer &timer)
 {
 	handler = std::make_unique<MultithreadSearchHandler> (board, side, output, history, timer);
 }

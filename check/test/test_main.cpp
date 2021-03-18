@@ -1,4 +1,4 @@
 // Include
 #define CATCH_CONFIG_MAIN
-
-#include <catch/catch.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "base_test.hpp"

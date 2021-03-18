@@ -1,9 +1,9 @@
-#include <catch/catch.hpp>
+#include "base_test.hpp"
 #include "board_builder.hpp"
 
 #include "board.h"
 
-TEST_CASE("Castling state is modified and restored for rooks", "[castling]")
+TEST_CASE("Castling state is modified and restored for rooks")
 {
     std::vector<Piece> back_rank =
     {
@@ -17,7 +17,7 @@ TEST_CASE("Castling state is modified and restored for rooks", "[castling]")
         { 7, Color::White, back_rank },
     };
 
-    struct Board board {positions };
+    Board board {positions };
     Move mv = make_move (0, 0, 0, 1);
 
     CHECK( able_to_castle (board, Color::Black, CASTLE_QUEENSIDE) == 1 );
@@ -40,7 +40,7 @@ TEST_CASE("Castling state is modified and restored for rooks", "[castling]")
     CHECK( board.castled[color_index(Color::Black)] == CASTLE_NONE );
 }
 
-TEST_CASE("Castling state is modified and restored for kings", "[castling]")
+TEST_CASE("Castling state is modified and restored for kings")
 {
     std::vector<Piece> back_rank =
     {
@@ -54,7 +54,7 @@ TEST_CASE("Castling state is modified and restored for kings", "[castling]")
         { 7, Color::White, back_rank },
     };
 
-    struct Board board {positions };
+    Board board {positions };
     Move mv = make_move (0, 4, 0, 3);
 
     CHECK( able_to_castle(board, Color::Black, CASTLE_QUEENSIDE) == 1 );
@@ -77,7 +77,7 @@ TEST_CASE("Castling state is modified and restored for kings", "[castling]")
     CHECK( board.castled[color_index(Color::Black)] == CASTLE_NONE );
 }
 
-TEST_CASE("Castling state is modified and restored for castling queenside", "[castling]")
+TEST_CASE("Castling state is modified and restored for castling queenside")
 {
     std::vector<Piece> back_rank =
     {
@@ -91,7 +91,7 @@ TEST_CASE("Castling state is modified and restored for castling queenside", "[ca
         { 7, Color::White, back_rank },
     };
 
-    struct Board board {positions };
+    Board board {positions };
     Move mv = make_castling_move (0, 4, 0, 2);
 
     CHECK( able_to_castle(board, Color::Black, CASTLE_QUEENSIDE) == 1 );
@@ -130,7 +130,7 @@ TEST_CASE("Castling state is modified and restored for castling queenside", "[ca
     CHECK(piece_color (piece_at (board, 0, 0)) == Color::Black );
 }
 
-TEST_CASE("Castling state is modified and restored for castling kingside", "[castling]")
+TEST_CASE("Castling state is modified and restored for castling kingside")
 {
     std::vector<Piece> back_rank =
     {
@@ -144,7 +144,7 @@ TEST_CASE("Castling state is modified and restored for castling kingside", "[cas
         { 7, Color::White, back_rank },
     };
 
-    struct Board board {positions };
+    Board board {positions };
     Move mv = make_castling_move (7, 4, 7, 6);
 
     CHECK( able_to_castle(board, Color::White, CASTLE_QUEENSIDE) == 1 );
@@ -183,7 +183,7 @@ TEST_CASE("Castling state is modified and restored for castling kingside", "[cas
     CHECK(piece_color (piece_at (board, 7, 7)) == Color::White );
 }
 
-TEST_CASE("Opponent's castling state is modified when his rook is taken", "[castling]")
+TEST_CASE("Opponent's castling state is modified when his rook is taken")
 {
     BoardBuilder builder;
 
@@ -197,7 +197,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken", "[cast
     // add bishop to capture rook:
     builder.add_piece("b7", Color::White, Piece::Bishop);
 
-    struct Board board = builder.build();
+    Board board = builder.build();
     
     Move mv = make_capturing_move (1, 1, 0, 0);
 
@@ -236,7 +236,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken", "[cast
     CHECK( board.castled[color_index(Color::Black)] == CASTLE_NONE );
 }
 
-TEST_CASE("Castling state is updated when rook captures a piece", "[castling]")
+TEST_CASE("Castling state is updated when rook captures a piece")
 {
     BoardBuilder builder;
 
@@ -250,7 +250,7 @@ TEST_CASE("Castling state is updated when rook captures a piece", "[castling]")
     // add bishop for rook to capture:
     builder.add_piece("a7", Color::White, Piece::Bishop);
 
-    struct Board board = builder.build();
+    Board board = builder.build();
 
     Move mv = make_capturing_move (0, 0, 1, 0);
 
@@ -289,7 +289,7 @@ TEST_CASE("Castling state is updated when rook captures a piece", "[castling]")
     CHECK( board.castled[color_index(Color::Black)] == CASTLE_NONE );
 }
 
-TEST_CASE("Opponent's castling state is modified when his rook is taken (failure scenario)", "[castling]")
+TEST_CASE("Opponent's castling state is modified when his rook is taken (failure scenario)")
 {
     BoardBuilder builder;
 
@@ -316,7 +316,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
     // add the queen ready for rook to capture:
     builder.add_piece ("b8", Color::White, Piece::Queen);
 
-    struct Board board = builder.build();
+    Board board = builder.build();
     Move mv = make_capturing_move (0, 0, 0, 1);
 
     CHECK( able_to_castle (board, Color::White, CASTLE_QUEENSIDE) == 1 );
@@ -354,7 +354,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
     CHECK( board.castled[color_index(Color::Black)] == CASTLE_NONE );
 }
 
-TEST_CASE("Castling state is modified when rook takes a piece on same column (scenario 2)", "[castling]")
+TEST_CASE("Castling state is modified when rook takes a piece on same column (scenario 2)")
 {
     BoardBuilder builder;
 
@@ -380,7 +380,7 @@ TEST_CASE("Castling state is modified when rook takes a piece on same column (sc
     // Rook white will capture:
     builder.add_piece ("a2", Color::Black, Piece::Rook);
 
-    struct Board board = builder.build();
+    Board board = builder.build();
 
     Move mv = make_capturing_move (7, 0, 6, 0);
 

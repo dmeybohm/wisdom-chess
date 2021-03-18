@@ -1,7 +1,7 @@
-#include <catch/catch.hpp>
+#include "base_test.hpp"
 #include "move.h"
 
-TEST_CASE("parse_simple_move parses captures and non-captures", "[parse-move]")
+TEST_CASE("parse_simple_move parses captures and non-captures")
 {
     Move capture = parse_move("a6xb7");
     Move non_capture = parse_move("e4 e8");
@@ -10,29 +10,29 @@ TEST_CASE("parse_simple_move parses captures and non-captures", "[parse-move]")
     REQUIRE( move_equals (non_capture, move_parse ("e4 e8", Color::White)) );
 }
 
-TEST_CASE("color matters in parse_move", "[parse-move]")
+TEST_CASE("color matters in parse_move")
 {
     Move castle = parse_move("o-o", Color::Black);
-    REQUIRE(ROW(move_src (castle)) == 0 );
-    REQUIRE(ROW(move_dst (castle)) == 0 );
+    REQUIRE( ROW(move_src(castle)) == 0 );
+    REQUIRE( ROW(move_dst(castle)) == 0 );
     REQUIRE( move_equals (castle, move_parse ("o-o", Color::Black)));
 }
 
-TEST_CASE("parse_move throws an exception for en-passant moves", "[parse-move]")
+TEST_CASE("parse_move throws an exception for en-passant moves")
 {
-    REQUIRE_THROWS_AS(parse_move ("d5 d5 ep"), ParseMoveException );
-    REQUIRE_THROWS_WITH( parse_move ("d4 d5 ep"), Catch::Contains("Invalid type of move"));
+    REQUIRE_THROWS_AS( parse_move ("d5 d5 ep"), ParseMoveException );
+    REQUIRE_THROWS_WITH( parse_move ("d4 d5 ep"), "Invalid type of move in parse_simple_move");
 }
 
-TEST_CASE("parse_move throws an exception for castling moves", "[parse-move]")
+TEST_CASE("parse_move throws an exception for castling moves")
 {
-    REQUIRE_THROWS_AS(parse_move ("o-o"), ParseMoveException );
-    REQUIRE_THROWS_WITH( parse_move ("o-o"), Catch::Contains("Move requires color"));
-    REQUIRE_THROWS_WITH( parse_move ("o-o-o"), Catch::Contains("Move requires color") );
+    REQUIRE_THROWS_AS( parse_move ("o-o"), ParseMoveException );
+    REQUIRE_THROWS_WITH( parse_move ("o-o"), "Move requires color, but no color provided.");
+    REQUIRE_THROWS_WITH( parse_move ("o-o-o"), "Move requires color, but no color provided.");
 }
 
-TEST_CASE("Invalid moves throw an exception", "[parse-move]")
+TEST_CASE("Invalid moves throw an exception")
 {
-    REQUIRE_THROWS_AS(parse_move ("invalid"), ParseMoveException );
-    REQUIRE_THROWS_WITH( parse_move ("invalid"), Catch::Contains("Error parsing move"));
+    REQUIRE_THROWS_AS( parse_move ("invalid"), ParseMoveException );
+    REQUIRE_THROWS_WITH( parse_move ("invalid"), "Error parsing move" );
 }

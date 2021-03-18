@@ -1,4 +1,4 @@
-#include <catch/catch.hpp>
+#include "base_test.hpp"
 
 #include <iostream>
 
@@ -6,7 +6,7 @@
 #include "board.h"
 #include "generate.h"
 
-TEST_CASE( "Initializing move list", "[move-list]")
+TEST_CASE( "Initializing move list" )
 {
     MoveList move_list {Color::Black, {"e4 d4", "d2 d1"}};
     REQUIRE( move_list.size() == 2 );
@@ -22,14 +22,14 @@ TEST_CASE( "Initializing move list", "[move-list]")
 
 MoveList copy_moves_and_ptr (const Move **ptr)
 {
-    struct Board board;
+    Board board;
     MoveList moves = generate_moves (board, Color::White);
 //    std::cout << "Moves first" << &moves.get_my_moves()[0] << "\n";
     *ptr = &moves.get_my_moves()[0];
     return moves;
 }
 
-TEST_CASE( "Returning move list moves ptr", "[move-list]")
+TEST_CASE( "Returning move list moves ptr" )
 {
     const Move *ptr;
     MoveList result = copy_moves_and_ptr (&ptr);

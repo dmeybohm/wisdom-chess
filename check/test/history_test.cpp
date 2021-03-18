@@ -1,4 +1,4 @@
-#include "lib/catch/catch.hpp"
+#include "base_test.hpp"
 
 #include "move_list.hpp"
 #include "history.hpp"
@@ -6,15 +6,15 @@
 #include "move.h"
 #include "board_builder.hpp"
 
-TEST_CASE( "Third repetition is detected", "[history]" )
+TEST_CASE( "Third repetition is detected" )
 {
-    class MoveHistory history;
+    History history;
     BoardBuilder builder;
 
     builder.add_piece ("e8", Color::Black, Piece::King);
     builder.add_piece ("e1", Color::White, Piece::King);
 
-    struct Board board = builder.build();
+    Board board = builder.build();
 
     Move black_move = parse_move ("e8 d8");
     Move black_return_move = parse_move ("d8 e8");
@@ -58,15 +58,15 @@ TEST_CASE( "Third repetition is detected", "[history]" )
     REQUIRE( history.is_third_repetition (board) == true );
 }
 
-TEST_CASE( "Fifty move repetition is detected", "[history]" )
+TEST_CASE( "Fifty move repetition is detected" )
 {
-    class MoveHistory history;
+    History history;
     BoardBuilder builder;
 
     builder.add_piece ("e8", Color::Black, Piece::King);
     builder.add_piece ("e1", Color::White, Piece::King);
 
-    struct Board board = builder.build();
+    Board board = builder.build();
 
     Move black_move = parse_move ("e8 d8");
     Move black_return_move = parse_move ("d8 e8");
@@ -77,23 +77,23 @@ TEST_CASE( "Fifty move repetition is detected", "[history]" )
     for (auto i = 0; i < 24; i++)
     {
         do_move (board, Color::White, white_move);
-        REQUIRE(MoveHistory::is_fifty_move_repetition(board) == false );
+        REQUIRE(History::is_fifty_move_repetition(board) == false );
         do_move (board, Color::Black, black_move);
-        REQUIRE(MoveHistory::is_fifty_move_repetition(board) == false );
+        REQUIRE(History::is_fifty_move_repetition(board) == false );
         do_move (board, Color::White, white_return_move);
-        REQUIRE(MoveHistory::is_fifty_move_repetition(board) == false );
+        REQUIRE(History::is_fifty_move_repetition(board) == false );
         do_move (board, Color::Black, black_return_move);
-        REQUIRE(MoveHistory::is_fifty_move_repetition(board) == false );
+        REQUIRE(History::is_fifty_move_repetition(board) == false );
     }
 
     do_move (board, Color::White, white_move);
-    REQUIRE(MoveHistory::is_fifty_move_repetition(board) == false );
+    REQUIRE(History::is_fifty_move_repetition(board) == false );
     do_move (board, Color::Black, black_move);
-    REQUIRE(MoveHistory::is_fifty_move_repetition(board) == false );
+    REQUIRE(History::is_fifty_move_repetition(board) == false );
     do_move (board, Color::White, white_return_move);
-    REQUIRE(MoveHistory::is_fifty_move_repetition(board) == false );
+    REQUIRE(History::is_fifty_move_repetition(board) == false );
 
     do_move (board, Color::Black, black_return_move);
-    REQUIRE(MoveHistory::is_fifty_move_repetition(board) == true );
+    REQUIRE(History::is_fifty_move_repetition(board) == true );
 
 }

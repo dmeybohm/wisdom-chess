@@ -5,17 +5,16 @@
 
 #include "move_list.hpp"
 
-struct move_history_t
+class MoveHistory
 {
 private:
     MoveList my_moves;
 
 public:
-    move_history_t () = default;
+    MoveHistory () = default;
+    MoveHistory (const MoveHistory &_other) = default;
 
-    move_history_t (const move_history_t &_other);
-
-    move_history_t (const MoveList &list);
+    explicit MoveHistory (const MoveList &list);
 
     void push_back (Move move)
     {

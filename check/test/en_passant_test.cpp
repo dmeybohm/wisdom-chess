@@ -1,13 +1,13 @@
-#include <catch/catch.hpp>
+#include "base_test.hpp"
 #include "board_builder.hpp"
 
 #include "board.h"
 #include "move_tree.h"
 #include "generate.h"
 
-TEST_CASE( "En passant state starts out as negative 1", "[en-passant]")
+TEST_CASE( "En passant state starts out as negative 1" )
 {
-    struct Board board;
+    Board board;
 
     REQUIRE( !is_en_passant_vulnerable (board, Color::White) );
     REQUIRE( !is_en_passant_vulnerable (board, Color::Black) );
@@ -22,13 +22,13 @@ TEST_CASE( "En passant state starts out as negative 1", "[en-passant]")
     builder.add_piece ("e5", Color::White, Piece::Pawn);
     builder.add_row_of_same_color ("a1", Color::White, back_rank);
 
-    struct Board builder_board = builder.build();
+    Board builder_board = builder.build();
 
     REQUIRE( !is_en_passant_vulnerable (builder_board, Color::White) );
     REQUIRE( !is_en_passant_vulnerable (builder_board, Color::Black) );
 }
 
-TEST_CASE( "En passant moves work on the right", "[en-passant]" )
+TEST_CASE( "En passant moves work on the right" )
 {
     BoardBuilder builder;
     std::vector<Piece> back_rank {
@@ -40,7 +40,7 @@ TEST_CASE( "En passant moves work on the right", "[en-passant]" )
     builder.add_piece ("e5", Color::White, Piece::Pawn);
     builder.add_row_of_same_color ("a1", Color::White, back_rank);
 
-    struct Board board = builder.build();
+    Board board = builder.build();
 
     Move pawn_move = parse_move ("f7f5");
     UndoMove first_undo_state = do_move (board, Color::Black, pawn_move);
@@ -94,7 +94,7 @@ TEST_CASE( "En passant moves work on the right", "[en-passant]" )
     REQUIRE(piece_type(taken_pawn_undone) == Piece::Pawn );
 }
 
-TEST_CASE( "En passant moves work on the left", "[en-passant]" )
+TEST_CASE( "En passant moves work on the left" )
 {
     BoardBuilder builder;
     std::vector<Piece> back_rank {
@@ -106,7 +106,7 @@ TEST_CASE( "En passant moves work on the left", "[en-passant]" )
     builder.add_piece ("e5", Color::White, Piece::Pawn);
     builder.add_row_of_same_color ("a1", Color::White, back_rank);
 
-    struct Board board = builder.build();
+    Board board = builder.build();
     Move pawn_move = parse_move ("d7d5");
     UndoMove first_undo_state = do_move (board, Color::Black, pawn_move);
     REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::Black) );
@@ -159,7 +159,7 @@ TEST_CASE( "En passant moves work on the left", "[en-passant]" )
     REQUIRE(piece_type(taken_pawn_undone) == Piece::Pawn );
 }
 
-TEST_CASE( "En passant state is reset after en passant", "[en-passant]" )
+TEST_CASE( "En passant state is reset after en passant" )
 {
     BoardBuilder builder;
     std::vector<Piece> back_rank {
@@ -171,7 +171,7 @@ TEST_CASE( "En passant state is reset after en passant", "[en-passant]" )
     builder.add_piece ("e5", Color::White, Piece::Pawn);
     builder.add_row_of_same_color ("a1", Color::White, back_rank);
 
-    struct Board board = builder.build();
+    Board board = builder.build();
     Move first_move = parse_move ("d7d5");
     Move en_passant = parse_move ("e5 d4 (ep)");
 

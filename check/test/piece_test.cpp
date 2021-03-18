@@ -1,13 +1,25 @@
-#include <catch/catch.hpp>
+#include "base_test.hpp"
 
 #include "piece.h"
 
-TEST_CASE( "A piece can be converted", "[piece]" )
-{
-    auto color = GENERATE (Color::None, Color::White, Color::Black);
-    auto piece = GENERATE (Piece::None, Piece::Pawn, Piece::Bishop, Piece::Knight, Piece::Rook, Piece::Queen, Piece::King);
+#include <vector>
 
-    ColoredPiece combined = make_piece (color, piece);
-    CHECK(piece_type (combined) == piece );
-    CHECK(piece_color (combined) == color );
+using std::vector;
+
+TEST_CASE( "A piece can be converted" )
+{
+   vector<Color> colors {
+        Color::None, Color::White, Color::Black
+    };
+    vector<Piece> pieces {
+        Piece::None, Piece::Pawn, Piece::Bishop, Piece::Knight, Piece::Rook, Piece::Queen, Piece::King
+    };
+
+    for (auto color : colors) {
+        for (auto piece : pieces) {
+            ColoredPiece combined = make_piece (color, piece);
+            CHECK( piece_type(combined) == piece );
+            CHECK( piece_color(combined) == color );
+        }
+    }
 }

@@ -17,10 +17,7 @@ public:
         my_moves.reserve(64);
     }
 
-    MoveList (const MoveList &other)
-    {
-       my_moves = other.my_moves;
-    }
+    MoveList (const MoveList &other) = default;
 
 	MoveList (Color color, std::initializer_list<const char*> list);
 

@@ -24,20 +24,19 @@ namespace wisdom
     class Output;
 }
 
-class MoveHistory;
+class History;
 struct MoveTimer;
 
 // Find the best move.
-Move find_best_move (Board &board, Color side, wisdom::Output &output,
-                     MoveHistory &history);
+Move find_best_move (Board &board, Color side, wisdom::Output &output, History &history);
 
 // Iterate over each depth level.
 Move iterate (Board &board, Color side, wisdom::Output &output,
-              MoveHistory &history, MoveTimer &timer, int depth);
+              History &history, MoveTimer &timer, int depth);
 
 // Search for the best move to a particular depth.
 SearchResult search (Board &board, Color side, wisdom::Output &output,
-                     MoveHistory &history, MoveTimer &timer, int depth,
+                     History &history, MoveTimer &timer, int depth,
                      int start_depth, int alpha, int beta, std::unique_ptr<MoveTree> &variation);
 
 // Get the score for checkmate in X moves.

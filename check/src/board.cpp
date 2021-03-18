@@ -46,11 +46,6 @@ Board::Board (const std::vector<BoardPositions> &positions)
     board_init_from_positions (*this, positions);
 }
 
-Board::Board (const Board &board)
-{
-    *this = board;
-}
-
 static CastlingState init_castle_state (Board &board, Color who)
 {
     int row = (who == Color::White ? 7 : 0);

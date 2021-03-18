@@ -54,7 +54,7 @@ struct Board
     int16_t                  full_moves = 0;
 
 	Board ();
-	Board (const Board &board);
+	Board (const Board &board) = default;
     explicit Board (const std::vector<BoardPositions> &positions);
 
     void print () const;
@@ -113,8 +113,7 @@ static inline bool need_pawn_promotion (int8_t row, Color who)
     }
 }
 
-constexpr int able_to_castle (const Board &board, Color who,
-                              CastlingState castle_type)
+constexpr int able_to_castle (const Board &board, Color who, CastlingState castle_type)
 {
     color_index_t c_index = color_index(who);
 

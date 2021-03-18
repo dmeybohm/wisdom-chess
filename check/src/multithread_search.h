@@ -13,7 +13,7 @@ namespace wisdom
 }
 
 class MultithreadSearchHandler;
-class MoveHistory;
+class History;
 
 class MultithreadSearch
 {
@@ -23,7 +23,7 @@ private:
 
 public:
     MultithreadSearch (Board &board, Color side, wisdom::Output &output,
-                       const class MoveHistory &history, const MoveTimer &timer);
+                       const History &history, const MoveTimer &timer);
 
     ~MultithreadSearch ();
 

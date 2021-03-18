@@ -4,6 +4,13 @@
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/")
 
+# Prepare doctest for other targets to use
+find_package(doctest REQUIRED)
+
+target_compile_features(test PRIVATE cxx_std_17)
+target_link_libraries(test PRIVATE doctest::doctest)
+
+# Make test executable
 add_executable(chess_tests
         ../src/board.cpp ../src/check.cpp ../src/evaluate.cpp ../src/generate.cpp
         ../src/material.cpp ../src/move.cpp ../src/move_tree.cpp ../src/piece.cpp ../src/search.cpp
@@ -21,7 +28,7 @@ add_executable(chess_tests
         board_builder_test.cpp
         check_test.cpp position_test.cpp move_test.cpp search_test.cpp parse_simple_move.cpp parse_simple_move.hpp
         parse_simple_move_test.cpp ../src/coord.cpp
-        ../src/fen.cpp ../src/fen.hpp fen_test.cpp ../src/move_list.cpp ../src/move_list.hpp move_list_test.cpp ../src/move_history.hpp ../src/move_history.cpp ../src/multithread_search.cpp ../src/multithread_search.h ../src/coord_iterator.cpp ../src/coord_iterator.hpp ../src/board_code.cpp ../src/board_code.hpp board_code_test.cpp ../src/output.cpp ../src/output.hpp ../src/board_history.cpp ../src/board_history.hpp ../src/history.cpp ../src/history.hpp history_test.cpp)
+        ../src/fen.cpp ../src/fen.hpp fen_test.cpp ../src/move_list.cpp ../src/move_list.hpp move_list_test.cpp ../src/move_history.hpp ../src/move_history.cpp ../src/multithread_search.cpp ../src/multithread_search.h ../src/coord_iterator.cpp ../src/coord_iterator.hpp ../src/board_code.cpp ../src/board_code.hpp board_code_test.cpp ../src/output.cpp ../src/output.hpp ../src/board_history.cpp ../src/board_history.hpp ../src/history.cpp ../src/history.hpp history_test.cpp base_test.hpp)
 
 		if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
@@ -46,5 +53,3 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 /std:c++latest")
 endif()
 
-INCLUDE(ParseAndAddCatchTests)
-ParseAndAddCatchTests(chess_tests)

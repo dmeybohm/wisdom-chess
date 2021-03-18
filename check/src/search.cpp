@@ -1,7 +1,7 @@
-
 #include <iostream>
 #include <sstream>
 #include <memory>
+
 #include "piece.h"
 #include "board.h"
 #include "generate.h"
@@ -31,7 +31,7 @@ using std::chrono::seconds;
 using wisdom::Output;
 
 SearchResult
-search (Board &board, Color side, Output &output, MoveHistory &history, MoveTimer &timer,
+search (Board &board, Color side, Output &output, History &history, MoveTimer &timer,
         int depth, int start_depth, int alpha, int beta,
         std::unique_ptr<MoveTree> &variation)
 {
@@ -135,7 +135,7 @@ static void calc_time (Output &output, int nodes, system_clock_t start, system_c
 }
 
 Move iterate (Board &board, Color side, Output &output,
-              MoveHistory &history, MoveTimer &timer, int depth)
+              History &history, MoveTimer &timer, int depth)
 {
 	std::unique_ptr<MoveTree> principal_variation;
 
@@ -176,7 +176,7 @@ Move iterate (Board &board, Color side, Output &output,
 	return result.move;
 }
 
-Move find_best_move (Board &board, Color side, Output &output, MoveHistory &history)
+Move find_best_move (Board &board, Color side, Output &output, History &history)
 {
     MoveTimer overdue_timer {Max_Search_Seconds };
 

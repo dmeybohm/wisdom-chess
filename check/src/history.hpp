@@ -1,4 +1,3 @@
-
 #ifndef WIZDUMB_HISTORY_HPP
 #define WIZDUMB_HISTORY_HPP
 
@@ -7,11 +6,11 @@
 #include "piece.h"
 #include "board.h"
 
-class MoveHistory
+class History
 {
 private:
-    class BoardHistory my_board_history;
-    move_history_t my_move_history;
+    BoardHistory my_board_history;
+    MoveHistory my_move_history;
 
 public:
     static bool is_fifty_move_repetition (Board &board)
@@ -42,7 +41,7 @@ public:
         return my_board_history;
     }
 
-    move_history_t &get_move_history()
+    MoveHistory &get_move_history ()
     {
         return my_move_history;
     }

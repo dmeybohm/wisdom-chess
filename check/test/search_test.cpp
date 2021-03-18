@@ -1,4 +1,4 @@
-#include <catch/catch.hpp>
+#include "base_test.hpp"
 #include "board_builder.hpp"
 #include "parse_simple_move.hpp"
 
@@ -15,7 +15,7 @@
 wisdom::NullOutput discard_output;
 
 // Mating moves: : 1.Ra6 f6 2.Bxf6 Rg7 3.Rxa8#
-TEST_CASE( "Can find mate in 3", "[search]" )
+TEST_CASE( "Can find mate in 3" )
 {
     BoardBuilder builder;
     struct MoveTimer large_timer {30 };
@@ -34,10 +34,10 @@ TEST_CASE( "Can find mate in 3", "[search]" )
             {"h1", Piece::King},
     });
 
-    struct Board board = builder.build();
+    Board board = builder.build();
     std::unique_ptr<MoveTree> variation;
 
-    class MoveHistory history;
+    History history;
     SearchResult result = search (board, Color::White, discard_output, history, large_timer, 4, 4,
                                   -INITIAL_ALPHA, INITIAL_ALPHA,
                                   variation);
@@ -60,7 +60,7 @@ TEST_CASE( "Can find mate in 3", "[search]" )
 // ... Rd4+ 2. Ke5 f6#
 // ... Bb7+ 2. Ke5 Re4#
 //
-TEST_CASE( "Can find mate in 2 1/2", "[search]" )
+TEST_CASE( "Can find mate in 2 1/2" )
 {
     BoardBuilder builder;
     MoveTimer large_timer {10 };
@@ -78,9 +78,9 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
 
     builder.add_piece ("d5", Color::White, Piece::King);
 
-    struct Board board = builder.build();
+    Board board = builder.build();
     std::unique_ptr<MoveTree> variation;
-    class MoveHistory history;
+    History history;
     SearchResult result = search (board, Color::Black, discard_output, history, large_timer,
                                      5, 5, -INITIAL_ALPHA, INITIAL_ALPHA,
                                      variation);
@@ -95,7 +95,7 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
     REQUIRE( result.score > INFINITE );
 }
 
-TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
+TEST_CASE( "scenario with heap overflow 1" )
 {
     BoardBuilder builder;
 
@@ -127,14 +127,14 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
             {"g1", Piece::Rook}
     });
 
-    struct Board board = builder.build();
+    Board board = builder.build();
     struct MoveTimer timer {300 };
-    class MoveHistory history;
+    History history;
     Move best_move = iterate (board, Color::Black, discard_output, history, timer, 3);
     REQUIRE( best_move != null_move );
 }
 
-TEST_CASE( "Promoting move is taken if possible", "[search-test]")
+TEST_CASE( "Promoting move is taken if possible" )
 {
     BoardBuilder builder;
     struct MoveTimer large_timer {30 };
@@ -149,8 +149,8 @@ TEST_CASE( "Promoting move is taken if possible", "[search-test]")
     });
 
     std::unique_ptr<MoveTree> variation;
-    class MoveHistory history;
-    struct Board board = builder.build();
+    History history;
+    Board board = builder.build();
     SearchResult result = search (board, Color::Black, discard_output, history, large_timer,
                                      1, 1, -INITIAL_ALPHA, INITIAL_ALPHA,
                                      variation);
@@ -158,14 +158,14 @@ TEST_CASE( "Promoting move is taken if possible", "[search-test]")
     REQUIRE( to_string(result.move) == "d2 d1(Q)" );
 }
 
-TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing", "[search-test]" )
+TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing" )
 {
     Fen parser {"rnb1kbnr/ppp1pppp/8/8/3B4/8/PPP1pPPP/RN2KB1R b KQkq - 0 1"};
 
     auto game = parser.build();
 
     std::unique_ptr<MoveTree> variation;
-    class MoveHistory history;
+    History history;
     struct MoveTimer large_timer {30 };
     SearchResult result = search (game.board, Color::Black, discard_output, history, large_timer,
                                    3, 3, -INITIAL_ALPHA, INITIAL_ALPHA,

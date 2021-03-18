@@ -1,4 +1,4 @@
-#include <catch/catch.hpp>
+#include "base_test.hpp"
 #include "board.h"
 #include "board_builder.hpp"
 
@@ -7,7 +7,7 @@
 
 #include "board_code.hpp"
 
-TEST_CASE( "Board code is able to be set", "[board-code]" )
+TEST_CASE( "Board code is able to be set" )
 {
     BoardCode code, initial;
 
@@ -38,7 +38,7 @@ TEST_CASE( "Board code is able to be set", "[board-code]" )
     REQUIRE( result == "0000" );
 }
 
-TEST_CASE( "Capturing moves are applied and undone correctly", "[board-code]" )
+TEST_CASE( "Capturing moves are applied and undone correctly" )
 {
     BoardBuilder builder;
 
@@ -62,7 +62,7 @@ TEST_CASE( "Capturing moves are applied and undone correctly", "[board-code]" )
     REQUIRE( initial == code );
 }
 
-TEST_CASE( "Promoting moves are applied and undone correctly", "[board-code]" )
+TEST_CASE( "Promoting moves are applied and undone correctly" )
 {
     BoardBuilder builder;
 
@@ -86,7 +86,7 @@ TEST_CASE( "Promoting moves are applied and undone correctly", "[board-code]" )
     REQUIRE( initial == code );
 }
 
-TEST_CASE( "Castling moves are applied and undone correctly", "[board-code]" )
+TEST_CASE( "Castling moves are applied and undone correctly" )
 {
     BoardBuilder builder;
 
@@ -110,7 +110,7 @@ TEST_CASE( "Castling moves are applied and undone correctly", "[board-code]" )
     REQUIRE( initial == code );
 }
 
-TEST_CASE( "Promoting+Capturing moves are applied and undone correctly", "[board-code]" )
+TEST_CASE( "Promoting+Capturing moves are applied and undone correctly" )
 {
     BoardBuilder builder;
 

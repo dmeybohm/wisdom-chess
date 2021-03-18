@@ -147,7 +147,7 @@ int main (int argc, char **argv)
 		    continue;
         }
 
-		if (MoveHistory::is_fifty_move_repetition(game.board))
+		if (History::is_fifty_move_repetition(game.board))
         {
 		    std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
 		    break;

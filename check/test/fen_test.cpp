@@ -1,11 +1,11 @@
-#include <catch/catch.hpp>
+#include "base_test.hpp"
 #include "game.h"
 #include "board.h"
 #include "fen.hpp"
 
 #include <cstring>
 
-TEST_CASE( "FEN notation for the starting position", "[fen-test]" )
+TEST_CASE( "FEN notation for the starting position" )
 {
     Fen parser {"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" };
 
@@ -18,7 +18,7 @@ TEST_CASE( "FEN notation for the starting position", "[fen-test]" )
     CHECK( castled_result == 0 );
 }
 
-TEST_CASE( "FEN notation for non-starting position", "[fen-test]" )
+TEST_CASE( "FEN notation for non-starting position" )
 {
     Fen parser {"4r2/8/8/8/8/8/k7/4K2R w K - 0 1" };
 
@@ -43,7 +43,7 @@ TEST_CASE( "FEN notation for non-starting position", "[fen-test]" )
     CHECK( black_state == exp_black_state );
 }
 
-TEST_CASE( "FEN notation for castling", "[fen-test]" )
+TEST_CASE( "FEN notation for castling" )
 {
     Fen parser_full {"4r2/8/8/8/8/8/k7/4K2R w KQkq - 0 1" };
 
@@ -74,7 +74,7 @@ TEST_CASE( "FEN notation for castling", "[fen-test]" )
     REQUIRE( game.board.castled[COLOR_INDEX_BLACK] == (CASTLE_KINGSIDE | CASTLE_QUEENSIDE) );
 }
 
-TEST_CASE( "FEN notation for en passant", "[fen-test]" )
+TEST_CASE( "FEN notation for en passant" )
 {
     Fen parser_with_black_target {"4r2/8/8/8/8/8/k7/4K2R w KQkq e6 0 1"};
 
