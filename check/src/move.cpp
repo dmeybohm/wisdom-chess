@@ -13,8 +13,7 @@ Coord en_passant_taken_pawn_coord (Coord src, Coord dst)
     return make_coord (ROW (src), COLUMN (dst));
 }
 
-ColoredPiece handle_en_passant (struct Board &board, Color who,
-                                Coord src, Coord dst, int undo)
+ColoredPiece handle_en_passant (Board &board, Color who, Coord src, Coord dst, int undo)
 {
     Coord taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
 
@@ -37,12 +36,11 @@ ColoredPiece handle_en_passant (struct Board &board, Color who,
     }
 }
 
-static Move get_castling_rook_move (struct Board &board, Move move,
-                                    Color who)
+static Move get_castling_rook_move (Board &board, Move move, Color who)
 {
     int8_t    src_row, src_col;
     int8_t    dst_row, dst_col;
-    Coord   src, dst;
+    Coord     src, dst;
 
     assert (is_castling_move (move));
 
@@ -56,13 +54,13 @@ static Move get_castling_rook_move (struct Board &board, Move move,
     {
         // castle to the right (kingside)
         src_col = Last_Column;
-        dst_col = COLUMN(dst) - 1;
+        dst_col = static_cast<int8_t>(COLUMN(dst) - 1);
     }
     else
     {
         // castle to the left (queenside)
         src_col = 0;
-        dst_col = COLUMN (dst) + 1;
+        dst_col = static_cast<int8_t>(COLUMN (dst) + 1);
     }
 
     if (!((piece_type (piece_at (board, src_row, src_col)) == Piece::Rook
@@ -78,7 +76,7 @@ static Move get_castling_rook_move (struct Board &board, Move move,
     return make_move (src_row, src_col, dst_row, dst_col);
 }
 
-static void handle_castling (struct Board &board, Color who,
+static void handle_castling (Board &board, Color who,
                              Move king_move, Coord src, Coord dst, int undo)
 {
     Move  rook_move;
@@ -118,7 +116,7 @@ static void handle_castling (struct Board &board, Color who,
     }
 }
 
-void update_king_position (struct Board &board, Color who, Move move,
+void update_king_position (Board &board, Color who, Move move,
                            UndoMove *undo_state, Coord src, Coord dst,
                            int undo)
 {
@@ -156,9 +154,9 @@ void update_king_position (struct Board &board, Color who, Move move,
 }
 
 static void
-update_opponent_rook_position (struct Board &board, Color opponent,
+update_opponent_rook_position (Board &board, Color opponent,
                                ColoredPiece dst_piece, UndoMove *undo_state,
-                               Coord src, Coord dst, int undo)
+                               [[maybe_unused]] Coord src, Coord dst, int undo)
 {
     assert (piece_color(dst_piece) == opponent && piece_type(dst_piece) == Piece::Rook);
 
@@ -202,10 +200,11 @@ update_opponent_rook_position (struct Board &board, Color opponent,
     }
 }
 
-static void update_current_rook_position (struct Board &board, Color player,
+static void update_current_rook_position (Board &board, Color player,
                                           ColoredPiece src_piece, Move move,
                                           UndoMove *undo_state,
-                                          Coord src, Coord dst, int undo)
+                                          [[maybe_unused]] Coord src, [[maybe_unused]] Coord dst,
+                                          int undo)
 {
     if (!(piece_color(src_piece) == player &&
             piece_type(src_piece) == Piece::Rook))
@@ -256,7 +255,7 @@ static void update_current_rook_position (struct Board &board, Color player,
     }
 }
 
-static void handle_en_passant_eligibility (struct Board &board, Color who, ColoredPiece src_piece,
+static void handle_en_passant_eligibility (Board &board, Color who, ColoredPiece src_piece,
                                            Move move, UndoMove *undo_state, int undo)
 {
     color_index_t c_index = color_index(who);
@@ -284,7 +283,7 @@ static void handle_en_passant_eligibility (struct Board &board, Color who, Color
     }
 }
 
-UndoMove do_move (struct Board &board, Color who, Move move)
+UndoMove do_move (Board &board, Color who, Move move)
 {
     ColoredPiece      orig_src_piece, src_piece, dst_piece;
     Coord      src, dst;
@@ -371,7 +370,7 @@ UndoMove do_move (struct Board &board, Color who, Move move)
     return undo_state;
 }
 
-void undo_move (struct Board &board, Color who,
+void undo_move (Board &board, Color who,
                 Move move, UndoMove undo_state)
 {
     ColoredPiece    orig_src_piece, src_piece, dst_piece = piece_and_color_none;

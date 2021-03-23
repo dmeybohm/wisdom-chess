@@ -18,8 +18,16 @@ add_executable(chess
         src/global.h src/validate.cpp src/validate.h src/position.cpp src/position.h
         src/fen.cpp src/fen.hpp src/coord.cpp src/board_builder.cpp src/move_list.cpp src/move_list.hpp src/move_history.hpp src/move_history.cpp src/multithread_search.cpp src/multithread_search.h src/coord_iterator.cpp src/coord_iterator.hpp src/board_code.cpp src/board_code.hpp src/output.cpp src/output.hpp src/board_history.cpp src/board_history.hpp src/history.cpp src/history.hpp)
 
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
+  set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+  set(CMAKE_CXX_FLAGS_DEBUG "-g")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3 -march=native -Wall -Wno-unused-parameter -Wno-unused-function")

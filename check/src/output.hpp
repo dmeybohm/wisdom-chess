@@ -18,7 +18,7 @@ namespace wisdom
     public:
         NullOutput () = default;
 
-        void println (const std::string &output) override
+        void println ([[maybe_unused]] const std::string &output) override
         {}
     };
 

@@ -10,7 +10,7 @@
 
 struct Board;
 
-using CastlingState = int8_t;
+using CastlingState = uint8_t;
 
 enum castle
 {
@@ -36,11 +36,11 @@ struct undo_move
     MoveCategory                category;
     Piece                       taken_piece_type;
     
-    CastlingState              current_castle_state;
-    CastlingState              opponent_castle_state;
+    CastlingState               current_castle_state;
+    CastlingState               opponent_castle_state;
     int16_t                     half_move_clock;
 
-    Coord                     en_passant_target[Num_Players];
+    Coord                       en_passant_target[Num_Players];
 };
 
 using UndoMove = struct undo_move;
