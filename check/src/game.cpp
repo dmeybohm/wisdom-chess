@@ -92,6 +92,8 @@ std::optional<game> game::load (Color player)
 		dst = move_dst (move);
 		piece = piece_at (result.board, dst);
 
+		// TODO: have to handle en-passant here.
+
 		if (piece_type (piece) != Piece::None)
 		{
 			assert (piece_color (piece) != result.turn);
