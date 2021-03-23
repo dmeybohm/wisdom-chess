@@ -6,7 +6,6 @@
 #include <algorithm>
 
 #include "global.h"
-#include "config.h"
 #include "coord.h"
 #include "coord_iterator.hpp"
 #include "move.h"
