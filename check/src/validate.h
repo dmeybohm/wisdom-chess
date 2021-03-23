@@ -3,6 +3,8 @@
 
 #include "move.h"
 
-void validate_castle_state (struct board &board, struct move move);
+struct Board;
+
+void validate_castle_state (Board &board, struct move move);
 
 #endif //WIZDUMB_VALIDATE_H

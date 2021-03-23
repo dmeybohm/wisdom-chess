@@ -6,20 +6,20 @@
 
 #include <forward_list>
 
-class move_tree_t
+class MoveTree
 {
 private:
-    std::forward_list<move_t> list;
+    std::forward_list<Move> list;
 
 public:
-    void push_front (move_t move)
+    void push_front (Move move)
     {
         list.push_front (move);
     }
 
     [[nodiscard]] std::string to_string () const;
 
-    [[nodiscard]] move_list_t to_list () const;
+    [[nodiscard]] MoveList to_list () const;
 
     [[nodiscard]] int size () const;
 };

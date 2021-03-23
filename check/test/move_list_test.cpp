@@ -8,10 +8,10 @@
 
 TEST_CASE( "Initializing move list", "[move-list]")
 {
-    move_list_t move_list { Color::Black, {"e4 d4", "d2 d1"}};
+    MoveList move_list {Color::Black, {"e4 d4", "d2 d1"}};
     REQUIRE( move_list.size() == 2 );
 
-    std::vector<move_t> moves;
+    std::vector<Move> moves;
     for (auto move : move_list)
     {
         moves.push_back(move);
@@ -20,10 +20,10 @@ TEST_CASE( "Initializing move list", "[move-list]")
     REQUIRE( moves == expected );
 }
 
-move_list_t copy_moves_and_ptr (const move_t **ptr)
+MoveList copy_moves_and_ptr (const Move **ptr)
 {
-    struct board board;
-    move_list_t moves = generate_moves (board, Color::White);
+    struct Board board;
+    MoveList moves = generate_moves (board, Color::White);
 //    std::cout << "Moves first" << &moves.get_my_moves()[0] << "\n";
     *ptr = &moves.get_my_moves()[0];
     return moves;
@@ -31,8 +31,8 @@ move_list_t copy_moves_and_ptr (const move_t **ptr)
 
 TEST_CASE( "Returning move list moves ptr", "[move-list]")
 {
-    const move_t *ptr;
-    move_list_t result = copy_moves_and_ptr (&ptr);
+    const Move *ptr;
+    MoveList result = copy_moves_and_ptr (&ptr);
 //    std::cout << "Moves first" << &result.get_my_moves()[0] << "\n";
 
     REQUIRE( &result.get_my_moves()[0] == ptr );

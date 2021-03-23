@@ -74,7 +74,7 @@ constexpr int queen_positions[Num_Rows][Num_Columns] =
     { -4, -2, -2, -1, -1, -2, -2, -4  },
 };
 
-static coord_t translate_position (coord_t coord, Color who)
+static Coord translate_position (Coord coord, Color who)
 {
     if (who == Color::White)
         return coord;
@@ -85,14 +85,14 @@ static coord_t translate_position (coord_t coord, Color who)
     return make_coord (7 - row, 7 - col);
 }
 
-void position_init (struct position *positions)
+void position_init (struct Position *positions)
 {
     positions->score[0] = positions->score[1] = 0;
 }
 
-static int change (coord_t coord, Color who, piece_t piece)
+static int change (Coord coord, Color who, ColoredPiece piece)
 {
-    coord_t translated_pos = translate_position (coord, who);
+    Coord translated_pos = translate_position (coord, who);
     int8_t row = ROW(translated_pos);
     int8_t col = COLUMN(translated_pos);
 
@@ -115,38 +115,38 @@ static int change (coord_t coord, Color who, piece_t piece)
     }
 }
 
-void position_add (struct position *position, Color who, coord_t coord,piece_t piece)
+void position_add (struct Position *position, Color who, Coord coord, ColoredPiece piece)
 {
     color_index_t index = color_index(who);
     position->score[index] += change (coord, who, piece);
 }
 
-void position_remove (struct position *position, Color who, coord_t coord, piece_t piece)
+void position_remove (struct Position *position, Color who, Coord coord, ColoredPiece piece)
 {
     color_index_t index = color_index(who);
     position->score[index] -= change (coord, who, piece);
 }
 
-void position_do_move (struct position *position, Color color,
-                       piece_t piece, move_t move, undo_move_t undo_state)
+void position_do_move (struct Position *position, Color color,
+                       ColoredPiece piece, Move move, UndoMove undo_state)
 {
     Color opponent = color_invert(color);
 
-    coord_t src = move_src (move);
-    coord_t dst = move_dst (move);
+    Coord src = move_src (move);
+    Coord dst = move_dst (move);
 
     position_remove (position, color, src, piece);
 
     if (is_capture_move(move))
     {
-        piece_t taken_piece = make_piece (opponent, undo_state.taken_piece_type);
-        coord_t taken_piece_coord = dst;
+        ColoredPiece taken_piece = make_piece (opponent, undo_state.taken_piece_type);
+        Coord taken_piece_coord = dst;
         position_remove (position, opponent, taken_piece_coord, taken_piece);
     }
 
     if (is_en_passant_move(move))
     {
-        coord_t taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
+        Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
         position_remove (position, opponent, taken_pawn_coord, make_piece (opponent, Piece::Pawn));
     }
 
@@ -158,43 +158,43 @@ void position_do_move (struct position *position, Color color,
         int8_t rook_dst_col = is_castling_move_on_king_side(move) ?
                               King_Castled_Rook_Column : Queen_Castled_Rook_Column;
 
-        coord_t src_rook_coord = make_coord (rook_src_row, rook_src_col);
-        coord_t dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
-        piece_t rook = make_piece (color, Piece::Rook);
+        Coord src_rook_coord = make_coord (rook_src_row, rook_src_col);
+        Coord dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
+        ColoredPiece rook = make_piece (color, Piece::Rook);
 
         position_remove (position, color, src_rook_coord, rook);
         position_add (position, color, dst_rook_coord, rook);
     }
 
-    piece_t dst_piece = is_promoting_move(move) ?
-                        move_get_promoted_piece (move) : piece;
+    ColoredPiece dst_piece = is_promoting_move(move) ?
+                             move_get_promoted_piece (move) : piece;
 
     position_add (position, color, dst, dst_piece);
 }
 
-void position_undo_move (struct position *position, Color color,
-                         piece_t piece, move_t move, undo_move_t undo_state)
+void position_undo_move (struct Position *position, Color color,
+                         ColoredPiece piece, Move move, UndoMove undo_state)
 {
     Color opponent = color_invert(color);
-    coord_t src = move_src (move);
-    coord_t dst = move_dst (move);
+    Coord src = move_src (move);
+    Coord dst = move_dst (move);
 
-    piece_t dst_piece = is_promoting_move(move) ?
-                        move_get_promoted_piece (move) : piece;
+    ColoredPiece dst_piece = is_promoting_move(move) ?
+                             move_get_promoted_piece (move) : piece;
 
     position_remove (position, color, dst, dst_piece);
 
     if (is_capture_move(move))
     {
-        piece_t taken_piece = make_piece (opponent, undo_state.taken_piece_type);
-        coord_t taken_piece_coord = dst;
+        ColoredPiece taken_piece = make_piece (opponent, undo_state.taken_piece_type);
+        Coord taken_piece_coord = dst;
 
         position_add (position, opponent, taken_piece_coord, taken_piece);
     }
 
     if (is_en_passant_move(move))
     {
-        coord_t taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
+        Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
         position_add (position, opponent, taken_pawn_coord, make_piece (opponent, Piece::Pawn));
     }
 
@@ -206,9 +206,9 @@ void position_undo_move (struct position *position, Color color,
         int8_t rook_dst_col = is_castling_move_on_king_side(move) ?
                               King_Castled_Rook_Column : Queen_Castled_Rook_Column;
 
-        coord_t src_rook_coord = make_coord (rook_src_row, rook_src_col);
-        coord_t dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
-        piece_t rook = make_piece (color, Piece::Rook);
+        Coord src_rook_coord = make_coord (rook_src_row, rook_src_col);
+        Coord dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
+        ColoredPiece rook = make_piece (color, Piece::Rook);
         position_remove (position, color, dst_rook_coord, rook);
         position_add (position, color, src_rook_coord, rook);
     }
@@ -216,7 +216,7 @@ void position_undo_move (struct position *position, Color color,
     position_add (position, color, src, piece);
 }
 
-int position_score (const struct position *position, Color who)
+int position_score (const struct Position *position, Color who)
 {
     color_index_t index = color_index(who);
     color_index_t inverted = color_index(color_invert(who));

@@ -7,7 +7,7 @@
 
 TEST_CASE("is_king_threatened works for bishop, rook, and king", "[check]")
 {
-    board_builder builder;
+    BoardBuilder builder;
 
     builder.add_piece("a8", Color::Black, Piece::King);
     builder.add_piece("a1", Color::White, Piece::King);
@@ -15,7 +15,7 @@ TEST_CASE("is_king_threatened works for bishop, rook, and king", "[check]")
     builder.add_piece("c3", Color::Black, Piece::Bishop);
     builder.add_piece("d4", Color::White, Piece::Rook);
 
-    struct board board = builder.build();
+    struct Board board = builder.build();
     int white_king_threatened[Num_Rows][Num_Columns] = {
             { 0, 1, 0, 0, 0, 0, 0, 1 },
             { 1, 1, 0, 0, 0, 0, 1, 0 },

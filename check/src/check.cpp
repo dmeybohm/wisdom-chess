@@ -5,23 +5,23 @@
 #include "check.h"
 #include "history.hpp"
 
-bool is_checkmated (struct board &board, Color who)
+bool is_checkmated (struct Board &board, Color who)
 {
 	auto [row, col] = king_position (board, who);
 
 	if (!is_king_threatened (board, who, row, col))
 		return false;
 
-	move_list_t legal_moves = generate_legal_moves (board, who);
+	MoveList legal_moves = generate_legal_moves (board, who);
 
     return legal_moves.empty();
 }
 
-bool is_king_threatened (struct board &board, Color who,
+bool is_king_threatened (struct Board &board, Color who,
                          int8_t king_row, int8_t king_col)
 {
 	int8_t        row, col;
-	piece_t       what;
+	ColoredPiece       what;
 	int8_t        c_dir, r_dir;
 
 	// check each side of the king's row
@@ -97,11 +97,11 @@ bool is_king_threatened (struct board &board, Color who,
 	}
 
 	// check for knight checks
-	move_list_t kt_moves = generate_knight_moves (king_row, king_col);
+	MoveList kt_moves = generate_knight_moves (king_row, king_col);
 
 	for (auto move : kt_moves)
 	{
-		coord_t dst;
+		Coord dst;
 
 		dst = move_dst (move);
 
@@ -158,7 +158,7 @@ bool is_king_threatened (struct board &board, Color who,
 	return false;
 }
 
-bool was_legal_move (struct board &board, Color who, move_t mv)
+bool was_legal_move (struct Board &board, Color who, Move mv)
 {
     auto [king_row, king_col] = king_position (board, who);
 
@@ -167,7 +167,7 @@ bool was_legal_move (struct board &board, Color who, move_t mv)
 
 	if (is_castling_move(mv))
     {
-	    coord_t castled_pos = move_dst (mv);
+	    Coord castled_pos = move_dst (mv);
 	    auto [castled_row, castled_col] = castled_pos;
 
 	    assert (king_row == castled_row);

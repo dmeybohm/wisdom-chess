@@ -9,25 +9,25 @@
 #include <sstream>
 #include <memory>
 
-struct game;
+struct Game;
 
-class fen final
+class Fen final
 {
 public:
-    explicit fen(const std::string &input) : active_player { Color::White }
+    explicit Fen (const std::string &input) : active_player {Color::White }
     {
         parse(input);
     }
 
     // Build the game:
-    game build();
+    Game build ();
 
 private:
-    board_builder builder;
+    BoardBuilder builder;
     Color active_player;
 
     void parse(const std::string &input);
-    static piece_t parse_piece (char ch);
+    static ColoredPiece parse_piece (char ch);
 
     void parse_pieces (std::string pieces_str);
     void parse_en_passant (std::string en_passant_str);
@@ -38,12 +38,12 @@ private:
     static Color parse_active_player (char ch);
 };
 
-class fen_exception : public std::exception
+class FenException : public std::exception
 {
     const char *message;
 
 public:
-    explicit fen_exception (const char *message) : message { message }
+    explicit FenException (const char *message) : message {message }
     {}
 
     [[nodiscard]] const char *what () const noexcept override

@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-static void check_it (struct board &board, Color who, move_t mv, int expr)
+static void check_it (Board &board, Color who, Move mv, int expr)
 {
     if (!expr)
     {
@@ -14,13 +14,13 @@ static void check_it (struct board &board, Color who, move_t mv, int expr)
     }
 }
 
-static void validate_castle (struct board &board, castle_state_t state, Color who, move_t mv)
+static void validate_castle (Board &board, CastlingState state, Color who, Move mv)
 {
     // check positions of the pieces:
     int8_t row = who == Color::White ? 7 : 0;
     int8_t col = state == CASTLE_QUEENSIDE ? 0 : 7;
-    piece_t supposed_king = piece_at (board, row, 4);
-    piece_t supposed_rook = piece_at (board, row, col);
+    ColoredPiece supposed_king = piece_at (board, row, 4);
+    ColoredPiece supposed_rook = piece_at (board, row, col);
     if (able_to_castle (board, who, state))
     {
         check_it(board, who, mv, piece_type (supposed_king) == Piece::King );
@@ -31,7 +31,7 @@ static void validate_castle (struct board &board, castle_state_t state, Color wh
     }
 }
 
-void validate_castle_state (struct board &board, move_t mv)
+void validate_castle_state (Board &board, Move mv)
 {
 #ifdef VALIDATE_CASTLE_STATE
     validate_castle (board, CASTLE_QUEENSIDE, Color::White, mv);

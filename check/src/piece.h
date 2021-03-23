@@ -22,7 +22,7 @@ enum class Color
     Black
 };
 
-struct piece_with_color
+struct colored_piece
 {
     Piece piece_type : 4;
     Color color : 4;
@@ -36,7 +36,7 @@ enum color_index
 
 using color_index_t = int8_t;
 
-using piece_t = struct piece_with_color;
+using ColoredPiece = struct colored_piece;
 
 // Order here is significant - it means computer will prefer the piece at the top
 // all else being equal, such as if the promoted piece cannot be saved from capture.
@@ -74,15 +74,15 @@ constexpr Color all_colors_with_none[] =
 
 ////////////////////////////////////////////////
 
-constexpr piece_t make_piece (Color color, Piece piece_type)
+constexpr ColoredPiece make_piece (Color color, Piece piece_type)
 {
-    struct piece_with_color piece_with_color = { .piece_type = piece_type, .color = color };
+    ColoredPiece piece_with_color = { .piece_type = piece_type, .color = color };
     return piece_with_color;
 }
 
 constexpr unsigned int NR_PIECES = 6;
 
-constexpr piece_t piece_and_color_none = make_piece (Color::None, Piece::None);
+constexpr ColoredPiece piece_and_color_none = make_piece (Color::None, Piece::None);
 
 constexpr int piece_index (Piece piece)
 {
@@ -109,12 +109,12 @@ constexpr int piece_index (Piece piece)
 
 /////////////////////////////////////////////////
 
-constexpr Piece piece_type (piece_t piece)
+constexpr Piece piece_type (ColoredPiece piece)
 {
     return piece.piece_type;
 }
 
-constexpr Color piece_color (piece_t piece)
+constexpr Color piece_color (ColoredPiece piece)
 {
     return piece.color;
 }
@@ -156,7 +156,7 @@ constexpr color_index_t color_index_with_none (Color who)
     }
 }
 
-static inline char piece_char (piece_t piece)
+static inline char piece_char (ColoredPiece piece)
 {
 	Piece p = piece_type (piece);
 
@@ -172,17 +172,17 @@ static inline char piece_char (piece_t piece)
 	}
 }
 
-constexpr bool piece_equals (piece_t a, piece_t b)
+constexpr bool piece_equals (ColoredPiece a, ColoredPiece b)
 {
     return a.color == b.color && a.piece_type == b.piece_type;
 }
 
-constexpr bool operator == (piece_t a, piece_t b)
+constexpr bool operator == (ColoredPiece a, ColoredPiece b)
 {
     return piece_equals (a, b);
 }
 
-constexpr bool operator != (piece_t a, piece_t b)
+constexpr bool operator != (ColoredPiece a, ColoredPiece b)
 {
     return !piece_equals (a, b);
 }

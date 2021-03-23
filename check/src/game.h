@@ -11,14 +11,14 @@
 #include "board_builder.hpp"
 #include "history.hpp"
 
-struct game
+struct Game
 {
-	struct board       board;
-	class history      history;
-	Color              player;   // side the computer is playing as
-	Color              turn;
+	Board            board;
+	MoveHistory      history;
+	Color            player;   // side the computer is playing as
+	Color            turn;
 
-	game (Color _turn, Color computer_player) :
+	Game (Color _turn, Color computer_player) :
 	        player { computer_player },
 	        turn { _turn }
     {
@@ -28,7 +28,7 @@ struct game
         turn = _turn;
     }
 
-    game (Color _turn, Color computer_player, board_builder builder)
+    Game (Color _turn, Color computer_player, BoardBuilder builder)
             : board { builder.build() },
             player { computer_player},
             turn { _turn }
@@ -38,9 +38,9 @@ struct game
     }
 
     bool save();
-	static std::optional<game> load(Color player);
+	static std::optional<Game> load (Color player);
 
-	void move (move_t move);
+	void move (Move move);
 };
 
 #endif // EVOLVE_CHESS_GAME_H_

@@ -1,7 +1,7 @@
 #include "coord.h"
 #include "move.h"
 
-coord_t coord_parse (const std::string &str)
+Coord coord_parse (const std::string &str)
 {
     if (str.size() != 2)
         throw coord_parse_exception("Invalid algebraic coordinate!");
@@ -15,7 +15,7 @@ coord_t coord_parse (const std::string &str)
     return make_coord (row, col);
 }
 
-std::string to_string (coord_t coord)
+std::string to_string (Coord coord)
 {
     std::string result = ""; // NOLINT(readability-redundant-string-init)
     result += col_to_char(COLUMN(coord));

@@ -7,15 +7,15 @@
 
 #include "board_code.hpp"
 
-class board_history
+class BoardHistory
 {
 private:
-    std::unordered_map<board_code_bitset, int> position_counts;
+    std::unordered_map<BoardCodeBitset, int> position_counts;
 
 public:
-    board_history() = default;
+    BoardHistory () = default;
 
-    [[nodiscard]] int position_count (const board_code &code) const
+    [[nodiscard]] int position_count (const BoardCode &code) const
     {
         try
         {
@@ -27,13 +27,13 @@ public:
         }
     }
 
-    void add_board_code (const board_code &board_code)
+    void add_board_code (const BoardCode &board_code)
     {
         const auto &bits = board_code.bitset_ref();
         position_counts[bits]++;
     }
 
-    void remove_board_code (const board_code &board_code)
+    void remove_board_code (const BoardCode &board_code)
     {
         const auto &bits = board_code.bitset_ref();
 

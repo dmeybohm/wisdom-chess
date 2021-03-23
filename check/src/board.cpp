@@ -9,9 +9,9 @@
 // board length in characters
 constexpr int BOARD_LENGTH = 31;
 
-static void board_init_from_positions (board &board, const std::vector<board_positions> &positions);
+static void board_init_from_positions (Board &board, const std::vector<BoardPositions> &positions);
 
-std::vector<board_positions> initial_board_position ()
+std::vector<BoardPositions> initial_board_position ()
 {
     std::vector<Piece> back_rank =
     {
@@ -25,7 +25,7 @@ std::vector<board_positions> initial_board_position ()
         Piece::Pawn, Piece::Pawn, Piece::Pawn,
     };
 
-    std::vector<board_positions> init_board =
+    std::vector<BoardPositions> init_board =
     {
         { 0, Color::Black, back_rank, },
         { 1, Color::Black, pawns,     },
@@ -36,30 +36,30 @@ std::vector<board_positions> initial_board_position ()
     return init_board;
 }
 
-board::board()
+Board::Board ()
 {
     board_init_from_positions (*this, initial_board_position());
 }
 
-board::board (const std::vector<board_positions> &positions)
+Board::Board (const std::vector<BoardPositions> &positions)
 {
     board_init_from_positions (*this, positions);
 }
 
-board::board (const board &board)
+Board::Board (const Board &board)
 {
     *this = board;
 }
 
-static castle_state_t init_castle_state (board &board, Color who)
+static CastlingState init_castle_state (Board &board, Color who)
 {
     int row = (who == Color::White ? 7 : 0);
     int king_col = 4;
-    piece_t prospective_king;
-    piece_t prospective_queen_rook;
-    piece_t prospective_king_rook;
+    ColoredPiece prospective_king;
+    ColoredPiece prospective_queen_rook;
+    ColoredPiece prospective_king_rook;
 
-    castle_state_t state = CASTLE_NONE;
+    CastlingState state = CASTLE_NONE;
 
     // todo set CASTLED flag if rook/king in right position:
     prospective_king = piece_at (board, row, king_col);
@@ -84,11 +84,11 @@ static castle_state_t init_castle_state (board &board, Color who)
     return state;
 }
 
-static void board_init_from_positions (board &board, const std::vector<board_positions> &positions)
+static void board_init_from_positions (Board &board, const std::vector<BoardPositions> &positions)
 {
     int8_t row;
 
-    for (castle_state_t &i : board.castled)
+    for (CastlingState &i : board.castled)
         i = CASTLE_NONE;
 
     for (const auto& coord : all_coords_iterator)
@@ -104,13 +104,13 @@ static void board_init_from_positions (board &board, const std::vector<board_pos
 
         for (uint8_t col = 0; col < Num_Columns && col < pieces.size (); col++)
         {
-            piece_t new_piece;
+            ColoredPiece new_piece;
 
             if (pieces[col] == Piece::None)
                 continue;
 
             new_piece = make_piece (color, pieces[col]);
-            coord_t place = make_coord (row, col);
+            Coord place = make_coord (row, col);
             board_set_piece (board, place, new_piece);
 
             board.material.add (new_piece);
@@ -127,21 +127,21 @@ static void board_init_from_positions (board &board, const std::vector<board_pos
     board.en_passant_target[COLOR_INDEX_WHITE] = no_en_passant_coord;
     board.en_passant_target[COLOR_INDEX_BLACK] = no_en_passant_coord;
 
-    board.code = board_code { board };
+    board.code = BoardCode {board };
 }
 
-void board::print_to_file (std::ostream &out) const
+void Board::print_to_file (std::ostream &out) const
 {
 	out << this->to_string();
 	out.flush();
 }
 
-void board::print () const
+void Board::print () const
 {
 	this->print_to_file(std::cout);
 }
 
-void board::dump () const
+void Board::dump () const
 {
     this->print_to_file(std::cerr);
 }
@@ -181,7 +181,7 @@ static void add_coords (std::string &result)
     result += "\n";
 }
 
-std::string board::to_string() const
+std::string Board::to_string () const
 {
     std::string result;
     int8_t row, col;
@@ -193,7 +193,7 @@ std::string board::to_string() const
     {
         for (col = 0; col < Num_Columns; col++)
         {
-            piece_t piece = piece_at (*this, row, col);
+            ColoredPiece piece = piece_at (*this, row, col);
 
             if (!col)
                 result += "|";

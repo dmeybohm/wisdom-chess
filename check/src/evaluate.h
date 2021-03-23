@@ -6,15 +6,15 @@
 #include "move_tree.h"
 #include "move_history.hpp"
 
-struct board;
-class history;
+struct Board;
+class MoveHistory;
 
 // Evaluate the board.
-int evaluate                (board &board, Color who, int moves_away);
+int evaluate (Board &board, Color who, int moves_away);
 
 // Evaluate the board and check if it's a draw (the latter being a time
 // consuming process potentially).
-int evaluate_and_check_draw (board &board, Color who, int moves_away,
-                             move_t move, const history &history);
+int evaluate_and_check_draw (Board &board, Color who, int moves_away,
+                             Move move, const MoveHistory &history);
 
 #endif // EVOLVE_CHESS_EVALUATE_H

@@ -19,18 +19,18 @@ TEST_CASE( "Specifying coordinates in algebraic notation", "[board-builder]" )
 
 TEST_CASE( "Initializing the board builder", "[board-builder]" )
 {
-    board_builder builder;
+    BoardBuilder builder;
 
     builder.add_piece ("a7", Color::White, Piece::Pawn);
     builder.add_piece ("g8", Color::White, Piece::King);
     builder.add_piece ("a1", Color::Black, Piece::King);
 
-    struct board board = builder.build();
+    struct Board board = builder.build();
 
-    piece_t pawn = piece_at (board, 1, 0);
-    piece_t white_king = piece_at (board, 0, 6);
-    piece_t black_king = piece_at (board, 7, 0);
-    piece_t center = piece_at (board, 4, 5);
+    ColoredPiece pawn = piece_at (board, 1, 0);
+    ColoredPiece white_king = piece_at (board, 0, 6);
+    ColoredPiece black_king = piece_at (board, 7, 0);
+    ColoredPiece center = piece_at (board, 4, 5);
 
     CHECK(piece_color (pawn) == Color::White );
     CHECK(piece_color (white_king) == Color::White );
@@ -45,12 +45,12 @@ TEST_CASE( "Initializing the board builder", "[board-builder]" )
 
 TEST_CASE( "Board builder throws exception for invalid coordinate", "[board-builder]" )
 {
-    board_builder builder;
+    BoardBuilder builder;
     bool no_throw = false;
     try {
         builder.add_piece ("a9", Color::White, Piece::Pawn);
         no_throw = true;
-    } catch (const board_builder_exception &board_builder_exception) {
+    } catch (const BoardBuilderException &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );
         CHECK_THAT( board_builder_exception.what(), Contains("Invalid row") );
     }
@@ -59,7 +59,7 @@ TEST_CASE( "Board builder throws exception for invalid coordinate", "[board-buil
     try {
         builder.add_piece ("j7", Color::White, Piece::Pawn);
         no_throw = true;
-    } catch (const board_builder_exception &board_builder_exception) {
+    } catch (const BoardBuilderException &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );
         CHECK_THAT( board_builder_exception.what(), Contains("Invalid column") );
     }
@@ -68,7 +68,7 @@ TEST_CASE( "Board builder throws exception for invalid coordinate", "[board-buil
     try {
         builder.add_piece ("asdf", Color::White, Piece::Pawn);
         no_throw = true;
-    } catch (const board_builder_exception &board_builder_exception) {
+    } catch (const BoardBuilderException &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );
         CHECK_THAT( board_builder_exception.what(), Contains("Invalid coordinate") );
     }

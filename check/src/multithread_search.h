@@ -9,25 +9,25 @@
 
 namespace wisdom
 {
-    class output;
+    class Output;
 }
 
-class multithread_search_handler;
-class history;
+class MultithreadSearchHandler;
+class MoveHistory;
 
-class multithread_search
+class MultithreadSearch
 {
 private:
-    search_result_t result { null_move, 0, 0 };
-    std::unique_ptr<multithread_search_handler> handler;
+    SearchResult result {null_move, 0, 0 };
+    std::unique_ptr<MultithreadSearchHandler> handler;
 
 public:
-    multithread_search (board &board, Color side, wisdom::output &output,
-                        const class history &history, const move_timer &timer);
+    MultithreadSearch (Board &board, Color side, wisdom::Output &output,
+                       const class MoveHistory &history, const MoveTimer &timer);
 
-    ~multithread_search();
+    ~MultithreadSearch ();
 
-    search_result_t search();
+    SearchResult search ();
 };
 
 #endif //WIZDUMB_MULTITHREAD_SEARCH_H

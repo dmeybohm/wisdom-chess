@@ -16,20 +16,20 @@ constexpr int Board_Code_Bits_Per_Piece = 4;
 constexpr int Board_Code_Total_Bits = Board_Code_Bits_Per_Piece
             * Num_Rows * Num_Columns;
 
-using board_code_bitset = std::bitset<Board_Code_Total_Bits>;
+using BoardCodeBitset = std::bitset<Board_Code_Total_Bits>;
 
-struct board;
+struct Board;
 
-class board_code final
+class BoardCode final
 {
 private:
-    board_code_bitset bits;
+    BoardCodeBitset bits;
 
 public:
-    board_code() = default;
-    explicit board_code (const board &board);
+    BoardCode () = default;
+    explicit BoardCode (const Board &board);
 
-    void add_piece (coord_t coord, piece_t piece)
+    void add_piece (Coord coord, ColoredPiece piece)
     {
         Color color = piece_color(piece);
         Piece type = piece_type (piece);
@@ -46,7 +46,7 @@ public:
         }
     }
 
-    void remove_piece (coord_t coord)
+    void remove_piece (Coord coord)
     {
         return add_piece (coord, piece_and_color_none);
     }
@@ -56,23 +56,23 @@ public:
         return bits.to_string ();
     }
 
-    [[nodiscard]] const board_code_bitset &bitset_ref () const
+    [[nodiscard]] const BoardCodeBitset &bitset_ref () const
     {
         return bits;
     }
 
-    friend bool operator == (const board_code &first, const board_code &second)
+    friend bool operator == (const BoardCode &first, const BoardCode &second)
     {
         return first.bits == second.bits;
     }
 
-    friend bool operator != (const board_code &first, const board_code &second)
+    friend bool operator != (const BoardCode &first, const BoardCode &second)
     {
         return !(first == second);
     }
 
-    void apply_move (const struct board &board, move_t move);
-    void unapply_move (const struct board &board, move_t move, undo_move_t undo_state);
+    void apply_move (const Board &board, Move move);
+    void unapply_move (const Board &board, Move move, UndoMove undo_state);
     std::size_t count_ones ();
 };
 

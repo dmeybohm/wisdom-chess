@@ -7,7 +7,7 @@
 static const int Castle_Positive_Weight = 60;
 static const int Castle_Negative_Weight = 60;
 
-int evaluate (struct board &board, Color who, int moves_away)
+int evaluate (Board &board, Color who, int moves_away)
 {
 	int score = 0;
 	Color opponent = color_invert (who);
@@ -51,8 +51,8 @@ int evaluate (struct board &board, Color who, int moves_away)
 	return score;
 }
 
-int evaluate_and_check_draw (board &board, Color who, int moves_away,
-                             move_t move, const history &history)
+int evaluate_and_check_draw (Board &board, Color who, int moves_away,
+                             Move move, const MoveHistory &history)
 {
     if (is_drawing_move (board, who, move, history))
     {

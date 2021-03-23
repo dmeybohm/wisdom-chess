@@ -28,19 +28,19 @@ using std::chrono::duration_cast;
 using std::chrono::duration;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
-using wisdom::output;
+using wisdom::Output;
 
-search_result_t
-search (board &board, Color side, output &output, history &history, move_timer &timer,
+SearchResult
+search (Board &board, Color side, Output &output, MoveHistory &history, MoveTimer &timer,
         int depth, int start_depth, int alpha, int beta,
-        std::unique_ptr<move_tree_t> &variation)
+        std::unique_ptr<MoveTree> &variation)
 {
-    std::unique_ptr<move_tree_t> new_variation { nullptr };
+    std::unique_ptr<MoveTree> new_variation {nullptr };
 	size_t                       illegal_move_count = 0;
-    search_result_t              result;
+    SearchResult              result;
 
     variation.reset (nullptr);
-	move_list_t moves = generate_moves (board, side);
+	MoveList moves = generate_moves (board, side);
 
 	if (moves.empty())
 	{
@@ -53,7 +53,7 @@ search (board &board, Color side, output &output, history &history, move_timer &
 		if (timer.is_triggered())
 			break;
 
-        undo_move_t undo_state = do_move (board, side, move);
+        UndoMove undo_state = do_move (board, side, move);
 
 		if (!was_legal_move (board, side, move))
 		{
@@ -65,7 +65,7 @@ search (board &board, Color side, output &output, history &history, move_timer &
 		nodes_visited++;
 
         history.add_position_and_move (board, move);
-		search_result_t other_search_result { .move = move };
+		SearchResult other_search_result { .move = move };
 		if (depth <= 0)
 		{
             other_search_result.score = evaluate_and_check_draw (board, side, start_depth - depth,
@@ -88,7 +88,7 @@ search (board &board, Color side, output &output, history &history, move_timer &
 			result.move = move;
 
 			if (new_variation == nullptr)
-			    new_variation = std::make_unique<move_tree_t>();
+			    new_variation = std::make_unique<MoveTree>();
 
 			new_variation->push_front (move);
             variation = std::move (new_variation);
@@ -123,7 +123,7 @@ search (board &board, Color side, output &output, history &history, move_timer &
     return result;
 }
 
-static void calc_time (output &output, int nodes, system_clock_t start, system_clock_t end)
+static void calc_time (Output &output, int nodes, system_clock_t start, system_clock_t end)
 {
     auto duration = end - start;
     milliseconds ms = std::chrono::duration_cast<milliseconds>(duration);
@@ -134,10 +134,10 @@ static void calc_time (output &output, int nodes, system_clock_t start, system_c
     output.println (progress_str.str ());
 }
 
-move_t iterate (board &board, Color side, output &output,
-                history &history, move_timer &timer, int depth)
+Move iterate (Board &board, Color side, Output &output,
+              MoveHistory &history, MoveTimer &timer, int depth)
 {
-	std::unique_ptr<move_tree_t> principal_variation;
+	std::unique_ptr<MoveTree> principal_variation;
 
 	std::stringstream outstr;
 	outstr << "finding moves for " << to_string(side);
@@ -148,9 +148,9 @@ move_t iterate (board &board, Color side, output &output,
 
 	auto start = std::chrono::system_clock::now();
 
-	search_result_t result = search (board, side, output, history, timer,
-                                     depth, depth, -INITIAL_ALPHA, INITIAL_ALPHA,
-                                     principal_variation);
+	SearchResult result = search (board, side, output, history, timer,
+                                  depth, depth, -INITIAL_ALPHA, INITIAL_ALPHA,
+                                  principal_variation);
 
     auto end = std::chrono::system_clock::now();
 
@@ -176,12 +176,12 @@ move_t iterate (board &board, Color side, output &output,
 	return result.move;
 }
 
-move_t find_best_move (board &board, Color side, output &output, history &history)
+Move find_best_move (Board &board, Color side, Output &output, MoveHistory &history)
 {
-    move_timer overdue_timer { Max_Search_Seconds };
+    MoveTimer overdue_timer {Max_Search_Seconds };
 
-    multithread_search search { board, side, output, history, overdue_timer };
-    search_result_t result = search.search();
+    MultithreadSearch search {board, side, output, history, overdue_timer };
+    SearchResult result = search.search();
 
     return result.move;
 }

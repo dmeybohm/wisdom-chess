@@ -8,7 +8,7 @@ move_history_t::move_history_t (const move_history_t &other)
     this->my_moves = other.my_moves;
 }
 
-move_history_t::move_history_t (const move_list_t &list)
+move_history_t::move_history_t (const MoveList &list)
 {
     this->my_moves = list;
 }

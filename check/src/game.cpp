@@ -9,7 +9,7 @@
 #include "str.h"
 #include "game.h"
 
-void game::move (move_t move)
+void Game::move (Move move)
 {
 	// do the move
     do_move (board, turn, move);
@@ -32,7 +32,7 @@ static std::string prompt (const std::string &prompt)
     return chomp (input);
 }
 
-bool game::save ()
+bool Game::save ()
 {
 	std::string input = prompt ("save to what file");
 	if (input.empty())
@@ -42,10 +42,10 @@ bool game::save ()
 	return true; // need to check for failure here
 }
 
-std::optional<game> game::load (Color player)
+std::optional<Game> Game::load (Color player)
 {
 	std::string input_buf;
-	move_t move;
+	Move move;
 	std::ifstream istream;
 
 	std::string input_file = prompt ("load what file");
@@ -63,12 +63,12 @@ std::optional<game> game::load (Color player)
 	    return {};
     }
 
-    struct game result { Color::White, player };
+    struct Game result {Color::White, player };
 
     while (std::getline(istream, input_buf))
 	{
-		coord_t dst;
-		piece_t piece;
+		Coord dst;
+		ColoredPiece piece;
 
 		input_buf = chomp (input_buf);
 

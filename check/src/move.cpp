@@ -8,26 +8,26 @@
 #include "validate.h"
 #include "generate.h"
 
-coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst)
+Coord en_passant_taken_pawn_coord (Coord src, Coord dst)
 {
     return make_coord (ROW (src), COLUMN (dst));
 }
 
-piece_t handle_en_passant (struct board &board, Color who,
-                           coord_t src, coord_t dst, int undo)
+ColoredPiece handle_en_passant (struct Board &board, Color who,
+                                Coord src, Coord dst, int undo)
 {
-    coord_t taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
+    Coord taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
 
     if (undo)
     {
-        piece_t taken_pawn = make_piece (color_invert (who), Piece::Pawn);
+        ColoredPiece taken_pawn = make_piece (color_invert (who), Piece::Pawn);
         board_set_piece (board, taken_pawn_pos, taken_pawn);
 
         return piece_and_color_none; // restore empty square where piece was replaced
     }
     else
     {
-        piece_t taken = piece_at (board, taken_pawn_pos);
+        ColoredPiece taken = piece_at (board, taken_pawn_pos);
 
         assert(piece_type (taken) == Piece::Pawn );
         assert(piece_color (taken) != who );
@@ -37,12 +37,12 @@ piece_t handle_en_passant (struct board &board, Color who,
     }
 }
 
-static move_t get_castling_rook_move (struct board &board, move_t move,
-                                      Color who)
+static Move get_castling_rook_move (struct Board &board, Move move,
+                                    Color who)
 {
     int8_t    src_row, src_col;
     int8_t    dst_row, dst_col;
-    coord_t   src, dst;
+    Coord   src, dst;
 
     assert (is_castling_move (move));
 
@@ -78,12 +78,12 @@ static move_t get_castling_rook_move (struct board &board, move_t move,
     return make_move (src_row, src_col, dst_row, dst_col);
 }
 
-static void handle_castling (struct board &board, Color who,
-                             move_t king_move, coord_t src, coord_t dst, int undo)
+static void handle_castling (struct Board &board, Color who,
+                             Move king_move, Coord src, Coord dst, int undo)
 {
-    move_t  rook_move;
-    coord_t rook_src, rook_dst;
-    piece_t rook, empty_piece;
+    Move  rook_move;
+    Coord rook_src, rook_dst;
+    ColoredPiece rook, empty_piece;
 
     rook_move = get_castling_rook_move (board, king_move, who);
 
@@ -118,13 +118,13 @@ static void handle_castling (struct board &board, Color who,
     }
 }
 
-void update_king_position (struct board &board, Color who, move_t move,
-                           undo_move_t *undo_state, coord_t src, coord_t dst,
+void update_king_position (struct Board &board, Color who, Move move,
+                           UndoMove *undo_state, Coord src, Coord dst,
                            int undo)
 {
     if (undo)
     {
-        undo_move_t undo_state_value = *undo_state;
+        UndoMove undo_state_value = *undo_state;
 
         king_position_set (board, who, src);
 
@@ -141,7 +141,7 @@ void update_king_position (struct board &board, Color who, move_t move,
         if (able_to_castle (board, who, (CASTLE_KINGSIDE | CASTLE_QUEENSIDE)))
         {
             // save the old castle status
-            castle_state_t old_castle_state = board_get_castle_state (board, who);
+            CastlingState old_castle_state = board_get_castle_state (board, who);
             save_current_castle_state (undo_state, old_castle_state);
 
             if (!is_castling_move(move))
@@ -156,15 +156,15 @@ void update_king_position (struct board &board, Color who, move_t move,
 }
 
 static void
-update_opponent_rook_position (struct board &board, Color opponent,
-                               piece_t dst_piece, undo_move_t *undo_state,
-                               coord_t src, coord_t dst, int undo)
+update_opponent_rook_position (struct Board &board, Color opponent,
+                               ColoredPiece dst_piece, UndoMove *undo_state,
+                               Coord src, Coord dst, int undo)
 {
     assert (piece_color(dst_piece) == opponent && piece_type(dst_piece) == Piece::Rook);
 
     if (undo)
     {
-        undo_move_t undo_state_value = *undo_state;
+        UndoMove undo_state_value = *undo_state;
 
         // need to put castle status back...its saved in the move
         // from do_move()...
@@ -173,7 +173,7 @@ update_opponent_rook_position (struct board &board, Color opponent,
     }
     else
     {
-        castle_state_t castle_state;
+        CastlingState castle_state;
 
         //
         // This needs distinguishes between captures that end
@@ -193,7 +193,7 @@ update_opponent_rook_position (struct board &board, Color opponent,
         if (able_to_castle (board, opponent, castle_state))
         {
             // save the current castle state
-            castle_state_t orig_castle_state = board_get_castle_state (board, opponent);
+            CastlingState orig_castle_state = board_get_castle_state (board, opponent);
             save_opponent_castle_state (undo_state, orig_castle_state);
 
             castle_state |= orig_castle_state;
@@ -202,10 +202,10 @@ update_opponent_rook_position (struct board &board, Color opponent,
     }
 }
 
-static void update_current_rook_position (struct board &board, Color player,
-                                          piece_t src_piece, move_t move,
-                                          undo_move_t *undo_state,
-                                          coord_t src, coord_t dst, int undo)
+static void update_current_rook_position (struct Board &board, Color player,
+                                          ColoredPiece src_piece, Move move,
+                                          UndoMove *undo_state,
+                                          Coord src, Coord dst, int undo)
 {
     if (!(piece_color(src_piece) == player &&
             piece_type(src_piece) == Piece::Rook))
@@ -219,7 +219,7 @@ static void update_current_rook_position (struct board &board, Color player,
 
     if (undo)
     {
-        undo_move_t undo_state_value = *undo_state;
+        UndoMove undo_state_value = *undo_state;
         // need to put castle status back...its saved in the move
         // from do_move()...
         if (move_affects_current_castle_state (undo_state_value))
@@ -227,7 +227,7 @@ static void update_current_rook_position (struct board &board, Color player,
     }
     else
     {
-        castle_state_t castle_state;
+        CastlingState castle_state;
 
         //
         // This needs distinguishes between captures that end
@@ -247,7 +247,7 @@ static void update_current_rook_position (struct board &board, Color player,
         if (able_to_castle (board, player, castle_state))
         {
             // save the current castle state
-            castle_state_t orig_castle_state = board_get_castle_state (board, player);
+            CastlingState orig_castle_state = board_get_castle_state (board, player);
             save_current_castle_state (undo_state, orig_castle_state);
 
             castle_state |= orig_castle_state;
@@ -256,8 +256,8 @@ static void update_current_rook_position (struct board &board, Color player,
     }
 }
 
-static void handle_en_passant_eligibility (struct board &board, Color who, piece_t src_piece,
-                                           move_t move, undo_move_t *undo_state, int undo)
+static void handle_en_passant_eligibility (struct Board &board, Color who, ColoredPiece src_piece,
+                                           Move move, UndoMove *undo_state, int undo)
 {
     color_index_t c_index = color_index(who);
     color_index_t o_index = color_index(color_invert(who));
@@ -270,10 +270,10 @@ static void handle_en_passant_eligibility (struct board &board, Color who, piece
     else
     {
         int direction = pawn_direction (who);
-        coord_t new_state = no_en_passant_coord;
+        Coord new_state = no_en_passant_coord;
         if (is_double_square_pawn_move (src_piece, move))
         {
-            coord_t src = move_src (move);
+            Coord src = move_src (move);
             int8_t prev_row = next_row (ROW(src), direction);
             new_state = make_coord (prev_row, COLUMN(src));
         }
@@ -284,11 +284,11 @@ static void handle_en_passant_eligibility (struct board &board, Color who, piece
     }
 }
 
-undo_move_t do_move (struct board &board, Color who, move_t move)
+UndoMove do_move (struct Board &board, Color who, Move move)
 {
-    piece_t      orig_src_piece, src_piece, dst_piece;
-    coord_t      src, dst;
-    undo_move_t  undo_state = empty_undo_state;
+    ColoredPiece      orig_src_piece, src_piece, dst_piece;
+    Coord      src, dst;
+    UndoMove  undo_state = empty_undo_state;
     Color        opponent = color_invert(who);
 
     src = move_src (move);
@@ -350,7 +350,7 @@ undo_move_t do_move (struct board &board, Color who, move_t move)
                                       move, &undo_state, src, dst, 0);
     }
 
-    piece_t captured_piece = captured_material (undo_state, opponent);
+    ColoredPiece captured_piece = captured_material (undo_state, opponent);
     if (piece_type (captured_piece) != Piece::None)
     {
         // update material estimate
@@ -371,12 +371,12 @@ undo_move_t do_move (struct board &board, Color who, move_t move)
     return undo_state;
 }
 
-void undo_move (struct board &board, Color who,
-                move_t move, undo_move_t undo_state)
+void undo_move (struct Board &board, Color who,
+                Move move, UndoMove undo_state)
 {
-    piece_t    orig_src_piece, src_piece, dst_piece = piece_and_color_none;
+    ColoredPiece    orig_src_piece, src_piece, dst_piece = piece_and_color_none;
     Piece      dst_piece_type;
-    coord_t    src, dst;
+    Coord    src, dst;
     Color      opponent = color_invert(who);
 
     src = move_src (move);
@@ -428,7 +428,7 @@ void undo_move (struct board &board, Color who,
                                       src, dst, 1);
     }
 
-    piece_t captured_piece = captured_material (undo_state, opponent);
+    ColoredPiece captured_piece = captured_material (undo_state, opponent);
     if (piece_type (captured_piece) != Piece::None)
     {
         // NOTE: we reload from the move in case of en-passant, since dst_piece
@@ -448,7 +448,7 @@ void undo_move (struct board &board, Color who,
     board.restore_half_move_clock (undo_state);
 }
 
-static move_t castle_parse (const std::string &str, Color who)
+static Move castle_parse (const std::string &str, Color who)
 {
 	int8_t src_row, dst_col;
 
@@ -473,7 +473,7 @@ static move_t castle_parse (const std::string &str, Color who)
 	return make_castling_move (src_row, King_Column, src_row, dst_col);
 }
 
-move_t move_parse (const std::string &str, Color who)
+Move move_parse (const std::string &str, Color who)
 {
 	bool en_passant   = false;
     bool is_capturing = false;
@@ -501,7 +501,7 @@ move_t move_parse (const std::string &str, Color who)
 	if (tmp.size() < 4)
 	    return null_move;
 
-    coord_t src;
+    Coord src;
     int offset = 0;
     try
     {
@@ -525,7 +525,7 @@ move_t move_parse (const std::string &str, Color who)
 	if (dst_coord.empty())
 		return null_move;
 
-	coord_t dst;
+	Coord dst;
     try
     {
         dst = coord_parse (dst_coord);
@@ -536,14 +536,14 @@ move_t move_parse (const std::string &str, Color who)
     }
 
     std::string rest { tmp.substr(offset) };
-    move_t move = make_move (src, dst);
+    Move move = make_move (src, dst);
     if (is_capturing)
     {
         move = copy_move_with_capture (move);
     }
 
 	// grab extra identifiers describing the move
-	piece_t promoted = make_piece (Color::None, Piece::None);
+	ColoredPiece promoted = make_piece (Color::None, Piece::None);
     if (rest == "EP")
     {
         en_passant = true;
@@ -579,28 +579,28 @@ move_t move_parse (const std::string &str, Color who)
 }
 
 
-move_t parse_move (const std::string &str, Color color)
+Move parse_move (const std::string &str, Color color)
 {
     if (tolower(str[0]) == 'o' && color == Color::None)
-        throw parse_move_exception("Move requires color, but no color provided");
+        throw ParseMoveException("Move requires color, but no color provided");
 
-    move_t result = move_parse (str, color);
+    Move result = move_parse (str, color);
     if (color == Color::None &&
         result.move_category != MoveCategory::NormalCapture &&
         result.move_category != MoveCategory::NonCapture)
     {
-        throw parse_move_exception("Invalid type of move in parse_simple_move");
+        throw ParseMoveException("Invalid type of move in parse_simple_move");
     }
 
     if (is_null_move(result))
-        throw parse_move_exception ("Error parsing move");
+        throw ParseMoveException ("Error parsing move");
 
     return result;
 }
 
-std::string to_string (const move_t &move)
+std::string to_string (const Move &move)
 {
-    coord_t src, dst;
+    Coord src, dst;
 
     src = move_src (move);
     dst = move_dst (move);

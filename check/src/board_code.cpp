@@ -3,21 +3,21 @@
 #include "board.h"
 #include "coord.h"
 
-board_code::board_code (const board &board)
+BoardCode::BoardCode (const Board &board)
 {
     for (auto coord : all_coords_iterator)
     {
-        piece_t piece = piece_at (board, coord);
+        ColoredPiece piece = piece_at (board, coord);
         this->add_piece (coord, piece);
     }
 }
 
-void board_code::apply_move (const struct board &board, move_t move)
+void BoardCode::apply_move (const Board &board, Move move)
 {
-    coord_t src = move_src (move);
-    coord_t dst = move_dst (move);
+    Coord src = move_src (move);
+    Coord dst = move_dst (move);
 
-    piece_t src_piece = piece_at (board, src);
+    ColoredPiece src_piece = piece_at (board, src);
 
     Piece src_piece_type = piece_type (src_piece);
     Color src_piece_color = piece_color (src_piece);
@@ -39,15 +39,15 @@ void board_code::apply_move (const struct board &board, move_t move)
         }
         row = src_piece_color == Color::White ? Last_Row : First_Row;
 
-        coord_t rook_src = make_coord (row, src_col);
-        piece_t rook = make_piece (src_piece_color, Piece::Rook);
+        Coord rook_src = make_coord (row, src_col);
+        ColoredPiece rook = make_piece (src_piece_color, Piece::Rook);
         remove_piece (rook_src);
         add_piece (make_coord (row, dst_col), rook);
     }
     else if (is_en_passant_move(move))
     {
         // subtract horizontal pawn and add no piece there:
-        coord_t taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
+        Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
         remove_piece (taken_pawn_coord);
     }
 
@@ -61,13 +61,13 @@ void board_code::apply_move (const struct board &board, move_t move)
     }
 }
 
-void board_code::unapply_move (const struct board &board,
-                               move_t move, undo_move_t undo_state)
+void BoardCode::unapply_move (const Board &board,
+                              Move move, UndoMove undo_state)
 {
-    coord_t src = move_src (move);
-    coord_t dst = move_dst (move);
+    Coord src = move_src (move);
+    Coord dst = move_dst (move);
 
-    piece_t src_piece = piece_at (board, dst);
+    ColoredPiece src_piece = piece_at (board, dst);
 
     Color src_piece_color = piece_color (src_piece);
     Color opponent_color = color_invert (src_piece_color);
@@ -94,8 +94,8 @@ void board_code::unapply_move (const struct board &board,
         }
         row = src_piece_color == Color::White ? Last_Row : First_Row;
 
-        coord_t rook_src = make_coord (row, src_col);
-        piece_t rook = make_piece (src_piece_color, Piece::Rook);
+        Coord rook_src = make_coord (row, src_col);
+        ColoredPiece rook = make_piece (src_piece_color, Piece::Rook);
         add_piece (rook_src, rook);
         remove_piece (make_coord (row, dst_col));
     }
@@ -105,19 +105,19 @@ void board_code::unapply_move (const struct board &board,
 
     if (is_capture_move(move))
     {
-        piece_t captured = captured_material (undo_state, opponent_color);
+        ColoredPiece captured = captured_material (undo_state, opponent_color);
         add_piece (dst, captured);
     }
 
     if (is_en_passant_move(move))
     {
-        piece_t captured_pawn = make_piece (opponent_color, Piece::Pawn);
-        coord_t taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
+        ColoredPiece captured_pawn = make_piece (opponent_color, Piece::Pawn);
+        Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
         add_piece (taken_pawn_coord, captured_pawn);
     }
 }
 
-std::size_t board_code::count_ones ()
+std::size_t BoardCode::count_ones ()
 {
     std::string str = bits.to_string();
     return std::count (str.begin(), str.end(), '1');

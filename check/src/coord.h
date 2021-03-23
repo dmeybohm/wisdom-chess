@@ -6,11 +6,13 @@
 #include <exception>
 #include <string>
 
-typedef struct coord
+struct coord
 {
     int8_t row;
     int8_t col;
-} coord_t;
+};
+
+using Coord = struct coord;
 
 ///////////////////////////////////////////////
 
@@ -34,38 +36,38 @@ constexpr int8_t next_column (int8_t col, int8_t direction)
     return col + direction;
 }
 
-constexpr coord_t make_coord (int8_t row, int8_t col)
+constexpr Coord make_coord (int8_t row, int8_t col)
 {
     assert (is_valid_row (row) && is_valid_column (col));
-    coord_t result = { .row = row, .col = col };
+    Coord result = { .row = row, .col = col };
     return result;
 }
 
-constexpr coord_t no_en_passant_coord = make_coord (0, 0);
+constexpr Coord no_en_passant_coord = make_coord (0, 0);
 
 ///////////////////////////////////////////////
 
-constexpr int8_t ROW (coord_t pos)
+constexpr int8_t ROW (Coord pos)
 {
     return pos.row;
 }
 
-constexpr int8_t COLUMN (coord_t pos)
+constexpr int8_t COLUMN (Coord pos)
 {
 	return pos.col;
 }
 
-constexpr bool coord_equals (coord_t a, coord_t b)
+constexpr bool coord_equals (Coord a, Coord b)
 {
     return a.row == b.row && a.col == b.col;
 }
 
-constexpr bool operator == (coord_t a, coord_t b)
+constexpr bool operator == (Coord a, Coord b)
 {
     return coord_equals (a, b);
 }
 
-constexpr bool operator != (coord_t a, coord_t b)
+constexpr bool operator != (Coord a, Coord b)
 {
     return !coord_equals (a, b);
 }
@@ -92,9 +94,9 @@ constexpr char col_to_char (int col)
 
 /////////////////////////////////////////////////////////////////////
 
-std::string to_string (coord_t coord);
+std::string to_string (Coord coord);
 
-coord_t coord_parse (const std::string &str);
+Coord coord_parse (const std::string &str);
 
 /////////////////////////////////////////////////////////////////////
 

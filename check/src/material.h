@@ -15,13 +15,13 @@ enum material_weight
     Material_Weight_Pawn   = 100,
 };
 
-struct material
+struct Material
 {
 private:
 	int my_score[Num_Players]{};
 
 public:
-    material () = default;
+    Material () = default;
 
     [[nodiscard]] static int weight (Piece piece) noexcept
     {
@@ -38,12 +38,12 @@ public:
         }
     }
 
-    void add (piece_t piece)
+    void add (ColoredPiece piece)
     {
         my_score[color_index(piece_color(piece))] += weight (piece_type(piece));
     }
 
-    void remove (piece_t piece)
+    void remove (ColoredPiece piece)
     {
         my_score[color_index(piece_color(piece))] -= weight (piece_type(piece));
     }

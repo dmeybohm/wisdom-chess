@@ -6,25 +6,25 @@
 
 #include "move.h"
 
-class move_list_t
+class MoveList
 {
 private:
-    std::vector<move_t> my_moves;
+    std::vector<Move> my_moves;
 
 public:
-    move_list_t ()
+    MoveList ()
     {
         my_moves.reserve(64);
     }
 
-    move_list_t (const move_list_t &other)
+    MoveList (const MoveList &other)
     {
        my_moves = other.my_moves;
     }
 
-	move_list_t (Color color, std::initializer_list<const char*> list);
+	MoveList (Color color, std::initializer_list<const char*> list);
 
-    void push_back (move_t move)
+    void push_back (Move move)
     {
         my_moves.push_back (move);
     }
@@ -44,7 +44,7 @@ public:
         return my_moves.end();
     }
 
-    void append (const move_list_t &other)
+    void append (const MoveList &other)
     {
         my_moves.insert (my_moves.end(), other.begin(), other.end());
     }
@@ -61,7 +61,7 @@ public:
 
 	[[nodiscard]] std::string to_string () const;
 
-    bool operator == (const move_list_t &other) const
+    bool operator == (const MoveList &other) const
     {
         return my_moves.size() == other.my_moves.size () && std::equal (
                 my_moves.begin(),
@@ -71,26 +71,26 @@ public:
 		);
     }
 
-	bool operator != (const move_list_t &other) const
+	bool operator != (const MoveList &other) const
 	{
 		return !(*this == other);
 	}
 
-	[[nodiscard]] const std::vector<move_t> &get_my_moves () const noexcept
+	[[nodiscard]] const std::vector<Move> &get_my_moves () const noexcept
     {
         return my_moves;
     }
 
-    [[nodiscard]] move_list_t only_captures () const
+    [[nodiscard]] MoveList only_captures () const
     {
-        move_list_t result;
-        std::copy_if (my_moves.begin(), my_moves.end(), std::back_inserter(result.my_moves), [](move_t mv) {
+        MoveList result;
+        std::copy_if (my_moves.begin(), my_moves.end(), std::back_inserter(result.my_moves), [] (Move mv) {
             return is_capture_move(mv);
         } );
         return result;
     }
 };
 
-std::string to_string (const move_list_t &list);
+std::string to_string (const MoveList &list);
 
 #endif //WIZDUMB_MOVE_LIST_HPP

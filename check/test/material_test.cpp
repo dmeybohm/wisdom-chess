@@ -7,7 +7,7 @@ TEST_CASE( "Adding material works", "[material]" )
     auto piece_type = GENERATE (Piece::Bishop, Piece::Rook, Piece::Queen, Piece::Pawn);
     auto color = GENERATE (Color::White, Color::Black);
 
-    struct material my_material;
+    struct Material my_material;
 
     my_material.add (make_piece (color, piece_type));
 
@@ -20,7 +20,7 @@ TEST_CASE( "Deleting material works", "[material]" )
     auto piece_type = GENERATE (Piece::Bishop, Piece::Rook, Piece::Queen, Piece::Pawn);
     auto color = GENERATE (Color::White, Color::Black);
 
-    struct material my_material;
+    struct Material my_material;
 
     my_material.remove (make_piece (color, piece_type));
 

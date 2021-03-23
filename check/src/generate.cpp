@@ -8,34 +8,34 @@
 
 ///////////////////////////////////////////////
 
-typedef void (*MoveFunc) (board &board, Color who,
-                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
+typedef void (*MoveFunc) (const Board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, MoveList &moves);
 
-static void moves_none   (board &board, Color who,
-                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
+static void moves_none (const Board &board, Color who,
+                        int8_t piece_row, int8_t piece_col, MoveList &moves);
 
-static void moves_king   (board &board, Color who,
-                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
+static void moves_king (const Board &board, Color who,
+                        int8_t piece_row, int8_t piece_col, MoveList &moves);
 
-static void moves_queen  (board &board, Color who,
-                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
+static void moves_queen (const Board &board, Color who,
+                         int8_t piece_row, int8_t piece_col, MoveList &moves);
 
-static void moves_rook   (board &board, Color who,
-                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
+static void moves_rook (const Board &board, Color who,
+                        int8_t piece_row, int8_t piece_col, MoveList &moves);
 
-static void moves_bishop (board &board, Color who,
-                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
+static void moves_bishop (const Board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, MoveList &moves);
 
-static void moves_knight (board &board, Color who,
-                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
+static void moves_knight (const Board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, MoveList &moves);
 
-static void moves_pawn   (board &board, Color who,
-                          int8_t piece_row, int8_t piece_col, move_list_t &moves);
+static void moves_pawn (const Board &board, Color who,
+                        int8_t piece_row, int8_t piece_col, MoveList &moves);
 
 static void knight_move_list_init ();
 
-static void add_en_passant_move (const board &board, Color who, int8_t piece_row, int8_t piece_col,
-                                 move_list_t &moves, int8_t en_passant_column);
+static void add_en_passant_move (const Board &board, Color who, int8_t piece_row, int8_t piece_col,
+                                 MoveList &moves, int8_t en_passant_column);
 
 ///////////////////////////////////////////////
 
@@ -51,7 +51,7 @@ static MoveFunc move_functions[] =
 	nullptr,
 };
 
-move_list_t knight_moves[Num_Rows][Num_Columns]; // NOLINT(cert-err58-cpp)
+MoveList knight_moves[Num_Rows][Num_Columns]; // NOLINT(cert-err58-cpp)
 
 ///////////////////////////////////////////////
 
@@ -75,21 +75,21 @@ static void knight_move_list_init ()
 				if (!is_valid_column (k_col + col))
 					continue;
 
-				move_t knight_move = make_move (k_row + row, k_col + col, row, col);
+				Move knight_move = make_move (k_row + row, k_col + col, row, col);
 				knight_moves[k_row+row][k_col+col].push_back (knight_move);
 			}
 		}
 	}
 }
 
-static void moves_none ([[maybe_unused]] board &board, [[maybe_unused]] Color who,
-                        [[maybe_unused]] int8_t piece_row, [[maybe_unused]] int8_t piece_col, move_list_t &moves)
+static void moves_none ([[maybe_unused]] const Board &board, [[maybe_unused]] Color who,
+                        [[maybe_unused]] int8_t piece_row, [[maybe_unused]] int8_t piece_col, MoveList &moves)
 {
 	assert (0);
 }
 
-static void moves_king (board &board, Color who,
-                        int8_t piece_row, int8_t piece_col, move_list_t &moves)
+static void moves_king (const Board &board, Color who,
+                        int8_t piece_row, int8_t piece_col, MoveList &moves)
 {
 	int8_t row, col;
 	
@@ -109,33 +109,33 @@ static void moves_king (board &board, Color who,
 
     if (able_to_castle (board, who, CASTLE_QUEENSIDE))
     {
-        move_t queenside_castle = make_castling_move (piece_row, piece_col,
-                                                      piece_row, piece_col - 2);
+        Move queenside_castle = make_castling_move (piece_row, piece_col,
+                                                    piece_row, piece_col - 2);
         moves.push_back (queenside_castle);
     }
 
     if (able_to_castle (board, who, CASTLE_KINGSIDE))
     {
-        move_t kingside_castle = make_castling_move (piece_row, piece_col,
-                                                     piece_row, piece_col + 2);
+        Move kingside_castle = make_castling_move (piece_row, piece_col,
+                                                   piece_row, piece_col + 2);
         moves.push_back (kingside_castle);
     }
 }
 
-static void moves_queen (board &board, Color who,
-                         int8_t piece_row, int8_t piece_col, move_list_t &moves)
+static void moves_queen (const Board &board, Color who,
+                         int8_t piece_row, int8_t piece_col, MoveList &moves)
 {
 	// use the generators for bishop and rook
 	moves_bishop (board, who, piece_row, piece_col, moves);
 	moves_rook   (board, who, piece_row, piece_col, moves);
 }
 
-static void moves_rook (board &board, Color who,
-                        int8_t piece_row, int8_t piece_col, move_list_t &moves)
+static void moves_rook (const Board &board, Color who,
+                        int8_t piece_row, int8_t piece_col, MoveList &moves)
 {
 	int8_t       dir;
 	int8_t       row, col;
-	piece_t      piece;
+	ColoredPiece      piece;
 
 	for (dir = -1; dir <= 1; dir += 2)
 	{
@@ -161,8 +161,8 @@ static void moves_rook (board &board, Color who,
 	}
 }
 
-static void moves_bishop (struct board &board, Color who,
-                          int8_t piece_row, int8_t piece_col, move_list_t &moves)
+static void moves_bishop (const Board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, MoveList &moves)
 {
 	int8_t r_dir, c_dir;
 	int8_t row, col;
@@ -175,7 +175,7 @@ static void moves_bishop (struct board &board, Color who,
                  is_valid_row (row) && is_valid_column (col);
 			     row = next_row (row, r_dir), col = next_column (col, c_dir))
 			{
-				piece_t  piece = piece_at (board, row, col);
+				ColoredPiece  piece = piece_at (board, row, col);
 				
 				moves.push_back (make_move (piece_row, piece_col, row, col));
 
@@ -186,16 +186,16 @@ static void moves_bishop (struct board &board, Color who,
 	}
 }
 
-static void moves_knight (struct board &board, Color who,
-	                      int8_t piece_row, int8_t piece_col, move_list_t &moves)
+static void moves_knight (const Board &board, Color who,
+                          int8_t piece_row, int8_t piece_col, MoveList &moves)
 {
-    move_list_t kt_moves = generate_knight_moves (piece_row, piece_col);
+    MoveList kt_moves = generate_knight_moves (piece_row, piece_col);
 
     moves.append (kt_moves);
 }
 
 // Returns -1 if no column is eligible.
-static int8_t eligible_en_passant_column (const struct board &board, int8_t row, int8_t column, Color who)
+static int8_t eligible_en_passant_column (const Board &board, int8_t row, int8_t column, Color who)
 {
     color_index_t opponent_index = color_index(color_invert(who));
 
@@ -225,14 +225,14 @@ static int8_t eligible_en_passant_column (const struct board &board, int8_t row,
     return -1;
 }
 
-static void moves_pawn (board &board, Color who,
-                        int8_t piece_row, int8_t piece_col, move_list_t &moves)
+static void moves_pawn (const Board &board, Color who,
+                        int8_t piece_row, int8_t piece_col, MoveList &moves)
 {
 	int8_t   dir;
 	int8_t   row;
 	int8_t   take_col;
 	int8_t   c_dir;
-	piece_t  piece;
+	ColoredPiece  piece;
 
 	dir = pawn_direction (who);
 
@@ -244,7 +244,7 @@ static void moves_pawn (board &board, Color who,
 	row = next_row (piece_row, dir);
 	assert (is_valid_row (row));
 
-	std::array<move_t, 4> all_pawn_moves { null_move, null_move, null_move, null_move };
+	std::array<Move, 4> all_pawn_moves {null_move, null_move, null_move, null_move };
 
 	// single move
 	if (piece_type (piece_at (board, row, piece_col)) == Piece::None)
@@ -316,10 +316,10 @@ static void moves_pawn (board &board, Color who,
 
 // put en passant in a separate handler
 // in order to not pollute instruction cache with it
-static void add_en_passant_move (const board &board, Color who, int8_t piece_row, int8_t piece_col,
-                                 move_list_t &moves, int8_t en_passant_column)
+static void add_en_passant_move (const Board &board, Color who, int8_t piece_row, int8_t piece_col,
+                                 MoveList &moves, int8_t en_passant_column)
 {
-    move_t new_move;
+    Move new_move;
     int8_t direction;
     int8_t take_row, take_col;
 
@@ -328,7 +328,7 @@ static void add_en_passant_move (const board &board, Color who, int8_t piece_row
     take_row = next_row (piece_row, direction);
     take_col = en_passant_column;
 
-    piece_t take_piece = piece_at (board, piece_row, take_col);
+    ColoredPiece take_piece = piece_at (board, piece_row, take_col);
 
     assert (piece_type (take_piece) == Piece::Pawn);
     assert (piece_color (take_piece) == color_invert (who));
@@ -340,7 +340,7 @@ static void add_en_passant_move (const board &board, Color who, int8_t piece_row
 
 ///////////////////////////////////////////////
 
-const move_list_t &generate_knight_moves (int8_t row, int8_t col)
+const MoveList &generate_knight_moves (int8_t row, int8_t col)
 {
 	if (knight_moves[0][0].empty())
 		knight_move_list_init ();
@@ -348,14 +348,14 @@ const move_list_t &generate_knight_moves (int8_t row, int8_t col)
 	return knight_moves[row][col];
 }
 
-move_list_t generate_legal_moves (board &board, Color who)
+MoveList generate_legal_moves (Board &board, Color who)
 {
-    move_list_t    non_checks;
+    MoveList    non_checks;
 
-	move_list_t all_moves = generate_moves (board, who);
+	MoveList all_moves = generate_moves (board, who);
 	for (auto move : all_moves)
 	{
-        undo_move_t undo_state = do_move (board, who, move);
+        UndoMove undo_state = do_move (board, who, move);
 
         if (was_legal_move (board, who, move))
             non_checks.push_back (move);
@@ -366,12 +366,12 @@ move_list_t generate_legal_moves (board &board, Color who)
 	return non_checks;
 }
 
-static int valid_castling_move (const board &board, Color who, move_t move)
+static int valid_castling_move (const Board &board, Color who, Move move)
 {
 	// check for an intervening piece
 	int8_t  direction;
-	coord_t src, dst;
-	piece_t piece1, piece2, piece3;
+	Coord src, dst;
+	ColoredPiece piece1, piece2, piece3;
 
 	src = move_src (move);
 	dst = move_dst (move);
@@ -395,15 +395,15 @@ static int valid_castling_move (const board &board, Color who, move_t move)
             piece_type (piece3) == Piece::None;
 }
 
-move_list_t validate_moves (const move_list_t &move_list, const board &board,
-                            Color who)
+MoveList validate_moves (const MoveList &move_list, const Board &board,
+                         Color who)
 {
-    move_list_t captures;
+    MoveList captures;
 
 	for (auto move : move_list)
 	{
-		coord_t src, dst;
-		piece_t src_piece, dst_piece;
+		Coord src, dst;
+		ColoredPiece src_piece, dst_piece;
 		int     is_capture = 0;
 
 		src = move_src (move);
@@ -451,19 +451,19 @@ move_list_t validate_moves (const move_list_t &move_list, const board &board,
 	return captures;
 }
 
-move_list_t generate_captures (board &board, Color who)
+MoveList generate_captures (Board & Board, Color who)
 {
-    move_list_t move_list = generate_moves (board, who);
+    MoveList move_list = generate_moves (Board, who);
     return move_list.only_captures ();
 }
 
-move_list_t generate_moves (board &board, Color who)
+MoveList generate_moves (const Board &board, Color who)
 {
-	move_list_t new_moves;
+	MoveList new_moves;
 
 	for (const auto coord : all_coords_iterator)
 	{
-	    piece_t piece = piece_at (board, coord);
+	    ColoredPiece piece = piece_at (board, coord);
 
 		if (piece_type(piece) == Piece::None)
 			continue;

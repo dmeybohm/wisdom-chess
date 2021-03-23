@@ -10,7 +10,7 @@ enum {
     Num_Calls_Per_Timer_Check = 10000    // number of iterations before checking
 };
 
-bool move_timer::is_triggered ()
+bool MoveTimer::is_triggered ()
 {
     if (this->triggered)
         return true;

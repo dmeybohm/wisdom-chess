@@ -8,15 +8,13 @@
 #include "move.h"
 #include "move_tree.h"
 
+//////////////////////////////////////////////
 
-
-///////////////////////////////////////////////
-
-static inline int is_pawn_unmoved (const struct board &board,
+static inline int is_pawn_unmoved (const struct Board &board,
                                    int8_t row, int8_t col)
 {
     assert (is_valid_row(row) && is_valid_column(col));
-    piece_t piece = piece_at (board, row, col);
+    ColoredPiece piece = piece_at (board, row, col);
 
     if (piece_color(piece) == Color::White)
         return row == 6;
@@ -26,11 +24,11 @@ static inline int is_pawn_unmoved (const struct board &board,
 
 ///////////////////////////////////////////////
 
-move_list_t        generate_moves         (struct board &board, Color who);
-move_list_t        generate_legal_moves   (struct board &board, Color who);
+MoveList        generate_moves (const Board &board, Color who);
+MoveList        generate_legal_moves (Board &board, Color who);
 
-move_list_t        generate_captures      (struct board &board, Color who);
-const move_list_t &generate_knight_moves  (int8_t row, int8_t col);
+MoveList        generate_captures (const Board &board, Color who);
+const MoveList& generate_knight_moves (int8_t row, int8_t col);
 
 ///////////////////////////////////////////////
 

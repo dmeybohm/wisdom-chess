@@ -14,9 +14,9 @@
 // the color the computer is playing as
 static const Color comp_player = Color::Black;
 
-static void print_available_moves (game &game)
+static void print_available_moves (Game &game)
 {
-	move_list_t moves = generate_legal_moves (game.board, game.turn);
+	MoveList moves = generate_legal_moves (game.board, game.turn);
 
 	std::cout << "\nAvailable moves: ";
 
@@ -31,7 +31,7 @@ struct input_state_t
     bool ok;
     bool good;
     bool skip;
-    move_t move;
+    Move move;
 };
 
 static input_state_t initial_input_state
@@ -42,7 +42,7 @@ static input_state_t initial_input_state
         .move = null_move
 };
 
-static input_state_t read_move (game &game)
+static input_state_t read_move (Game &game)
 {
     input_state_t result = initial_input_state;
     std::string input;
@@ -72,7 +72,7 @@ static input_state_t read_move (game &game)
 	else if (input == "load")
 	{
         result.skip = true;
-        auto optional_game = game::load (comp_player);
+        auto optional_game = Game::load (comp_player);
         if (optional_game.has_value())
             game = *optional_game;
 		return result;
@@ -88,7 +88,7 @@ static input_state_t read_move (game &game)
     result.good = false;
 
 	// check the generated move list for this move to see if its valid
-	move_list_t moves = generate_legal_moves (game.board, game.turn);
+	MoveList moves = generate_legal_moves (game.board, game.turn);
 
 	for (auto legal_move : moves)
 	{
@@ -126,9 +126,9 @@ static input_state_t offer_draw ()
 
 int main (int argc, char **argv)
 {
-    game game { Color::White, comp_player };
+    Game game {Color::White, comp_player };
     input_state_t input_state { initial_input_state };
-    wisdom::standard_output output;
+    wisdom::StandardOutput output;
 
 	while (input_state.ok)
 	{
@@ -147,7 +147,7 @@ int main (int argc, char **argv)
 		    continue;
         }
 
-		if (history::is_fifty_move_repetition(game.board))
+		if (MoveHistory::is_fifty_move_repetition(game.board))
         {
 		    std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
 		    break;

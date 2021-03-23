@@ -7,28 +7,28 @@
 
 namespace wisdom
 {
-    class output
+    class Output
     {
     public:
         virtual void println (const std::string &output) = 0;
     };
 
-    class null_output : public output
+    class NullOutput : public Output
     {
     public:
-        null_output () = default;
+        NullOutput () = default;
 
         void println (const std::string &output) override
         {}
     };
 
-    class standard_output : public output
+    class StandardOutput : public Output
     {
     private:
         std::mutex output_mutex;
 
     public:
-        standard_output () = default;
+        StandardOutput () = default;
 
         void println (const std::string &output) override
         {

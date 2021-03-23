@@ -1,4 +1,4 @@
 
 #include "coord_iterator.hpp"
 
-coord_iterator all_coords_iterator;
+CoordIterator all_coords_iterator;

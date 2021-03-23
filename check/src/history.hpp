@@ -7,37 +7,37 @@
 #include "piece.h"
 #include "board.h"
 
-class history
+class MoveHistory
 {
 private:
-    class board_history my_board_history;
+    class BoardHistory my_board_history;
     move_history_t my_move_history;
 
 public:
-    static bool is_fifty_move_repetition (board &board)
+    static bool is_fifty_move_repetition (Board &board)
     {
         return board.half_move_clock >= 100;
     }
 
-    bool is_third_repetition (board &board) const
+    bool is_third_repetition (Board &board) const
     {
         auto count = my_board_history.position_count (board.code);
         return (count == 3);
     }
 
-    void add_position_and_move (board &board, move_t move)
+    void add_position_and_move (Board &board, Move move)
     {
         this->my_board_history.add_board_code (board.code);
         my_move_history.push_back (move);
     }
 
-    void remove_position_and_last_move (board &board)
+    void remove_position_and_last_move (Board &board)
     {
         this->my_board_history.remove_board_code (board.code);
         my_move_history.pop_back ();
     }
 
-    board_history &get_board_history()
+    BoardHistory &get_board_history ()
     {
         return my_board_history;
     }

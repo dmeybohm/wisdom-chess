@@ -8,9 +8,9 @@
 #include "coord.h"
 #include "piece.h"
 
-struct board;
+struct Board;
 
-typedef int8_t castle_state_t;
+using CastlingState = int8_t;
 
 enum castle
 {
@@ -36,16 +36,16 @@ struct undo_move
     MoveCategory                category;
     Piece                       taken_piece_type;
     
-    castle_state_t              current_castle_state;
-    castle_state_t              opponent_castle_state;
+    CastlingState              current_castle_state;
+    CastlingState              opponent_castle_state;
     int16_t                     half_move_clock;
 
-    coord_t                     en_passant_target[Num_Players];
+    Coord                     en_passant_target[Num_Players];
 };
 
-using undo_move_t = struct undo_move;
+using UndoMove = struct undo_move;
 
-constexpr undo_move_t empty_undo_state =
+constexpr UndoMove empty_undo_state =
 {
     .category = MoveCategory::NonCapture,
     .taken_piece_type = Piece::None,
@@ -54,7 +54,7 @@ constexpr undo_move_t empty_undo_state =
     .en_passant_target = { no_en_passant_coord, no_en_passant_coord },
 };
 
-typedef struct move
+struct move
 {
 	int8_t             src_row : 4;
 	int8_t             src_col : 4;
@@ -66,45 +66,47 @@ typedef struct move
 	Piece              promoted_piece_type: 4;
 
 	MoveCategory       move_category : 4;
-} move_t;
+};
 
-class parse_move_exception : public std::exception
+using Move = struct move;
+
+class ParseMoveException : public std::exception
 {
     const char *message;
 
 public:
-    explicit parse_move_exception (const char *message) : message { message } {}
+    explicit ParseMoveException (const char *message) : message {message } {}
     [[nodiscard]] const char *what() const noexcept override { return this->message; }
 };
 
 ////////////////////////////////////////////////////////////////////
 
-constexpr coord_t move_src (move_t mv)
+constexpr Coord move_src (Move mv)
 {
 	return make_coord (mv.src_row, mv.src_col);
 }
 
-constexpr coord_t move_dst (move_t mv)
+constexpr Coord move_dst (Move mv)
 {
 	return make_coord (mv.dst_row, mv.dst_col);
 }
 
-constexpr int is_promoting_move (move_t move)
+constexpr int is_promoting_move (Move move)
 {
 	return move.promoted_piece_type != Piece::None;
 }
 
-constexpr piece_t move_get_promoted_piece (move_t move)
+constexpr ColoredPiece move_get_promoted_piece (Move move)
 {
 	return make_piece (move.promoted_color, move.promoted_piece_type);
 }
 
-constexpr int is_capture_move (move_t move)
+constexpr int is_capture_move (Move move)
 {
 	return move.move_category == MoveCategory::NormalCapture;
 }
 
-constexpr piece_t captured_material (undo_move_t undo_state, Color opponent)
+constexpr ColoredPiece captured_material (UndoMove undo_state, Color opponent)
 {
     if (undo_state.category == MoveCategory::NormalCapture)
     {
@@ -120,34 +122,34 @@ constexpr piece_t captured_material (undo_move_t undo_state, Color opponent)
     }
 }
 
-constexpr bool is_en_passant_move (move_t move)
+constexpr bool is_en_passant_move (Move move)
 {
 	return move.move_category == MoveCategory::EnPassant;
 }
 
-constexpr bool move_affects_current_castle_state (undo_move_t move)
+constexpr bool move_affects_current_castle_state (UndoMove move)
 {
     return move.current_castle_state != CASTLE_NONE;
 }
 
-constexpr bool move_affects_opponent_castle_state (undo_move_t move)
+constexpr bool move_affects_opponent_castle_state (UndoMove move)
 {
     return move.opponent_castle_state != CASTLE_NONE;
 }
 
-constexpr bool is_castling_move (move_t move)
+constexpr bool is_castling_move (Move move)
 {
 	return move.move_category == MoveCategory::Castling;
 }
 
-constexpr bool is_double_square_pawn_move (piece_t src_piece, move_t move)
+constexpr bool is_double_square_pawn_move (ColoredPiece src_piece, Move move)
 {
-    coord_t src = move_src (move);
-    coord_t dst = move_dst (move);
+    Coord src = move_src (move);
+    Coord dst = move_dst (move);
     return piece_type (src_piece) == Piece::Pawn && abs(ROW(src) - ROW(dst)) == 2;
 }
 
-constexpr bool is_castling_move_on_king_side (move_t move)
+constexpr bool is_castling_move_on_king_side (Move move)
 {
 	return is_castling_move(move) && move.dst_col == 6;
 }
@@ -165,19 +167,19 @@ static inline int8_t castling_row_from_color (Color who)
     }
 }
 
-constexpr move_t copy_move_with_promotion (move_t move, piece_t piece)
+constexpr Move copy_move_with_promotion (Move move, ColoredPiece piece)
 {
-    move_t result = move;
+    Move result = move;
     result.promoted_piece_type = piece_type (piece);
     result.promoted_color = piece_color (piece);
 	return result;
 }
 
 // run-of-the-mill move with no promotion involved
-constexpr move_t make_move (int8_t src_row, int8_t src_col,
-                            int8_t dst_row, int8_t dst_col)
+constexpr Move make_move (int8_t src_row, int8_t src_col,
+                          int8_t dst_row, int8_t dst_col)
 {
-	move_t result = {
+	Move result = {
 	        .src_row = src_row,
 	        .src_col = src_col,
 	        .dst_row = dst_row,
@@ -190,55 +192,55 @@ constexpr move_t make_move (int8_t src_row, int8_t src_col,
 	return result;
 }
 
-constexpr move_t make_move (coord_t src, coord_t dst)
+constexpr Move make_move (Coord src, Coord dst)
 {
     return make_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
 }
 
-constexpr move_t make_capturing_move (int8_t src_row, int8_t src_col,
-                                      int8_t dst_row, int8_t dst_col)
+constexpr Move make_capturing_move (int8_t src_row, int8_t src_col,
+                                    int8_t dst_row, int8_t dst_col)
 {
-    move_t move = make_move (src_row, src_col, dst_row, dst_col);
+    Move move = make_move (src_row, src_col, dst_row, dst_col);
     move.move_category = MoveCategory::NormalCapture;
     return move;
 }
 
-constexpr move_t make_castling_move (int8_t src_row, int8_t src_col,
-                                     int8_t dst_row, int8_t dst_col)
+constexpr Move make_castling_move (int8_t src_row, int8_t src_col,
+                                   int8_t dst_row, int8_t dst_col)
 {
-    move_t move = make_move (src_row, src_col, dst_row, dst_col);
+    Move move = make_move (src_row, src_col, dst_row, dst_col);
     move.move_category = MoveCategory::Castling;
     return move;
 }
 
-static inline move_t copy_move_with_capture (move_t move)
+static inline Move copy_move_with_capture (Move move)
 {
-    coord_t src = move_src (move);
-    coord_t dst = move_dst (move);
+    Coord src = move_src (move);
+    Coord dst = move_dst (move);
     assert (move.move_category == MoveCategory::NonCapture);
-    move_t result = make_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
+    Move result = make_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
     result.move_category = MoveCategory::NormalCapture;
     return result;
 }
 
-constexpr move_t make_en_passant_move (int8_t src_row, int8_t src_col,
-                                       int8_t dst_row, int8_t dst_col)
+constexpr Move make_en_passant_move (int8_t src_row, int8_t src_col,
+                                     int8_t dst_row, int8_t dst_col)
 {
-    move_t move = make_move (src_row, src_col, dst_row, dst_col);
+    Move move = make_move (src_row, src_col, dst_row, dst_col);
     move.move_category = MoveCategory::EnPassant;
     return move;
 }
 
-constexpr bool is_null_move (move_t move)
+constexpr bool is_null_move (Move move)
 {
 	// no move has the same position for src and dst
 	return move.src_row == 0 && move.src_col == 0 &&
 	    move.dst_row == 0 && move.dst_col == 0;
 }
 
-constexpr move_t null_move = make_move (0, 0, 0, 0);
+constexpr Move null_move = make_move (0, 0, 0, 0);
 
-constexpr bool move_equals (move_t a, move_t b)
+constexpr bool move_equals (Move a, Move b)
 {
 	return a.src_row == b.src_row &&
 	    a.dst_row == b.dst_row &&
@@ -249,68 +251,68 @@ constexpr bool move_equals (move_t a, move_t b)
 	    a.promoted_piece_type == b.promoted_piece_type;
 }
 
-constexpr bool operator == (move_t a, move_t b)
+constexpr bool operator == (Move a, Move b)
 {
     return move_equals (a, b);
 }
 
-constexpr bool operator != (move_t a, move_t b)
+constexpr bool operator != (Move a, Move b)
 {
     return !move_equals (a, b);
 }
 
 // Pack the castle state into the move.
-constexpr castle_state_t unpack_castle_state (castle_state_t state)
+constexpr CastlingState unpack_castle_state (CastlingState state)
 {
     return state == CASTLE_PREVIOUSLY_NONE ? CASTLE_NONE : state;
 }
 
 // Unpack the castle state from the move.
-constexpr castle_state_t pack_castle_state (castle_state_t state)
+constexpr CastlingState pack_castle_state (CastlingState state)
 {
     return state == CASTLE_NONE ? CASTLE_PREVIOUSLY_NONE : state;
 }
 
-constexpr castle_state_t current_castle_state (undo_move_t move)
+constexpr CastlingState current_castle_state (UndoMove move)
 {
     return unpack_castle_state(move.current_castle_state);
 }
 
-constexpr castle_state_t opponent_castle_state (undo_move_t undo_state)
+constexpr CastlingState opponent_castle_state (UndoMove undo_state)
 {
     return unpack_castle_state(undo_state.opponent_castle_state);
 }
 
-static inline void save_current_castle_state (undo_move_t *undo_state, castle_state_t state)
+static inline void save_current_castle_state (UndoMove *undo_state, CastlingState state)
 {
     undo_state->current_castle_state = pack_castle_state(state);
 }
 
-static inline void save_opponent_castle_state (undo_move_t *undo_state, castle_state_t state)
+static inline void save_opponent_castle_state (UndoMove *undo_state, CastlingState state)
 {
     undo_state->opponent_castle_state = pack_castle_state(state);
 }
 
-constexpr bool is_en_passant_vulnerable (undo_move_t undo_state, Color who)
+constexpr bool is_en_passant_vulnerable (UndoMove undo_state, Color who)
 {
     return undo_state.en_passant_target[color_index(who)] != no_en_passant_coord;
 }
 
 /////////////////////////////////////////////////////////////////////
 
-undo_move_t   do_move         (struct board &board, Color who, move_t move);
-void          undo_move       (struct board &board, Color who, move_t move,
-                               undo_move_t undo_state);
-move_t        move_parse      (const std::string &str, Color who);
+UndoMove   do_move (struct Board &board, Color who, Move move);
+void          undo_move (struct Board &board, Color who, Move move,
+                         UndoMove undo_state);
+Move        move_parse (const std::string &str, Color who);
 
-coord_t en_passant_taken_pawn_coord (coord_t src, coord_t dst);
+Coord en_passant_taken_pawn_coord (Coord src, Coord dst);
 
 // Parse a move
-move_t parse_move (const std::string &str, Color color = Color::None);
+Move parse_move (const std::string &str, Color color = Color::None);
 
 /////////////////////////////////////////////////////////////////////
 
-std::string to_string (const move_t &move);
+std::string to_string (const Move &move);
 
 /////////////////////////////////////////////////////////////////////
 

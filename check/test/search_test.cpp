@@ -12,13 +12,13 @@
 #include "fen.hpp"
 #include "game.h"
 
-wisdom::null_output discard_output;
+wisdom::NullOutput discard_output;
 
 // Mating moves: : 1.Ra6 f6 2.Bxf6 Rg7 3.Rxa8#
 TEST_CASE( "Can find mate in 3", "[search]" )
 {
-    board_builder builder;
-    struct move_timer large_timer { 30 };
+    BoardBuilder builder;
+    struct MoveTimer large_timer {30 };
 
     builder.add_pieces (Color::Black, {
             {"a8", Piece::Rook},
@@ -34,19 +34,19 @@ TEST_CASE( "Can find mate in 3", "[search]" )
             {"h1", Piece::King},
     });
 
-    struct board board = builder.build();
-    std::unique_ptr<move_tree_t> variation;
+    struct Board board = builder.build();
+    std::unique_ptr<MoveTree> variation;
 
-    class history history;
-    search_result_t result = search (board, Color::White, discard_output, history, large_timer, 4, 4,
-                                     -INITIAL_ALPHA, INITIAL_ALPHA,
-                                     variation);
+    class MoveHistory history;
+    SearchResult result = search (board, Color::White, discard_output, history, large_timer, 4, 4,
+                                  -INITIAL_ALPHA, INITIAL_ALPHA,
+                                  variation);
 
     REQUIRE( result.move != null_move );
     REQUIRE( variation->size() == 5 );
 
-    move_list_t expected_moves = { Color::White, {"f6 a6", "f7 f6", "e5xf6", "g8 g7", "a6xa8" }};
-    move_list_t computed_moves = variation->to_list();
+    MoveList expected_moves = {Color::White, {"f6 a6", "f7 f6", "e5xf6", "g8 g7", "a6xa8" }};
+    MoveList computed_moves = variation->to_list();
 
     REQUIRE( expected_moves == computed_moves );
     REQUIRE( result.score > INFINITE );
@@ -62,8 +62,8 @@ TEST_CASE( "Can find mate in 3", "[search]" )
 //
 TEST_CASE( "Can find mate in 2 1/2", "[search]" )
 {
-    board_builder builder;
-    move_timer large_timer { 10 };
+    BoardBuilder builder;
+    MoveTimer large_timer {10 };
 
     builder.add_pieces (Color::Black, {
             {"e8", Piece::Knight},
@@ -78,17 +78,17 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
 
     builder.add_piece ("d5", Color::White, Piece::King);
 
-    struct board board = builder.build();
-    std::unique_ptr<move_tree_t> variation;
-    class history history;
-    search_result_t result = search (board, Color::Black, discard_output, history, large_timer,
+    struct Board board = builder.build();
+    std::unique_ptr<MoveTree> variation;
+    class MoveHistory history;
+    SearchResult result = search (board, Color::Black, discard_output, history, large_timer,
                                      5, 5, -INITIAL_ALPHA, INITIAL_ALPHA,
                                      variation);
 
     REQUIRE( result.move != null_move );
 
-    move_list_t expected_moves = { Color::Black, {"e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
-    move_list_t computed_moves = variation->to_list();
+    MoveList expected_moves = {Color::Black, {"e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
+    MoveList computed_moves = variation->to_list();
 
     REQUIRE( variation->size() == 5 );
     REQUIRE( expected_moves == computed_moves );
@@ -97,7 +97,7 @@ TEST_CASE( "Can find mate in 2 1/2", "[search]" )
 
 TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
 {
-    board_builder builder;
+    BoardBuilder builder;
 
     builder.add_pieces (Color::Black, {
             {"c8", Piece::Rook},
@@ -127,17 +127,17 @@ TEST_CASE( "scenario with heap overflow 1", "[search-test]" )
             {"g1", Piece::Rook}
     });
 
-    struct board board = builder.build();
-    struct move_timer timer { 300 };
-    class history history;
-    move_t best_move = iterate (board, Color::Black, discard_output, history, timer, 3);
+    struct Board board = builder.build();
+    struct MoveTimer timer {300 };
+    class MoveHistory history;
+    Move best_move = iterate (board, Color::Black, discard_output, history, timer, 3);
     REQUIRE( best_move != null_move );
 }
 
 TEST_CASE( "Promoting move is taken if possible", "[search-test]")
 {
-    board_builder builder;
-    struct move_timer large_timer { 30 };
+    BoardBuilder builder;
+    struct MoveTimer large_timer {30 };
 
     builder.add_pieces (Color::Black, {
             {"d7", Piece::King},
@@ -148,10 +148,10 @@ TEST_CASE( "Promoting move is taken if possible", "[search-test]")
             {"h4", Piece::Pawn}
     });
 
-    std::unique_ptr<move_tree_t> variation;
-    class history history;
-    struct board board = builder.build();
-    search_result_t result = search (board, Color::Black, discard_output, history, large_timer,
+    std::unique_ptr<MoveTree> variation;
+    class MoveHistory history;
+    struct Board board = builder.build();
+    SearchResult result = search (board, Color::Black, discard_output, history, large_timer,
                                      1, 1, -INITIAL_ALPHA, INITIAL_ALPHA,
                                      variation);
 
@@ -160,14 +160,14 @@ TEST_CASE( "Promoting move is taken if possible", "[search-test]")
 
 TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing", "[search-test]" )
 {
-    fen parser { "rnb1kbnr/ppp1pppp/8/8/3B4/8/PPP1pPPP/RN2KB1R b KQkq - 0 1"};
+    Fen parser {"rnb1kbnr/ppp1pppp/8/8/3B4/8/PPP1pPPP/RN2KB1R b KQkq - 0 1"};
 
     auto game = parser.build();
 
-    std::unique_ptr<move_tree_t> variation;
-    class history history;
-    struct move_timer large_timer { 30 };
-    search_result_t result = search (game.board, Color::Black, discard_output, history, large_timer,
+    std::unique_ptr<MoveTree> variation;
+    class MoveHistory history;
+    struct MoveTimer large_timer {30 };
+    SearchResult result = search (game.board, Color::Black, discard_output, history, large_timer,
                                    3, 3, -INITIAL_ALPHA, INITIAL_ALPHA,
                                    variation);
 

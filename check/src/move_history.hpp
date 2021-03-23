@@ -8,16 +8,16 @@
 struct move_history_t
 {
 private:
-    move_list_t my_moves;
+    MoveList my_moves;
 
 public:
     move_history_t () = default;
 
     move_history_t (const move_history_t &_other);
 
-    move_history_t (const move_list_t &list);
+    move_history_t (const MoveList &list);
 
-    void push_back (move_t move)
+    void push_back (Move move)
     {
         my_moves.push_back (move);
     }
@@ -37,7 +37,7 @@ public:
         my_moves.pop_back ();
     }
 
-    [[nodiscard]] const move_list_t& moves() const
+    [[nodiscard]] const MoveList& moves () const
     {
         return my_moves;
     }

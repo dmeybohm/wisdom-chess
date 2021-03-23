@@ -15,19 +15,19 @@
 constexpr int Max_Depth = 16;
 
 using std::chrono::seconds;
-using wisdom::output;
+using wisdom::Output;
 
 struct thread_params
 {
-    struct board board;
+    struct Board board;
     Color side;
-    class output &output;
-    class history history;
+    class Output &output;
+    class MoveHistory history;
     int depth;
-    struct move_timer timer;
+    struct MoveTimer timer;
 
-    thread_params (const struct board &board_, Color side_, class output &output_,
-                   class history history_, struct move_timer timer_, int depth_) :
+    thread_params (const struct Board &board_, Color side_, class Output &output_,
+                   class MoveHistory history_, struct MoveTimer timer_, int depth_) :
             board { board_ }, side { side_ }, output { output_ },
             history { std::move(history_) },  depth { depth_ },
             timer { timer_ }
@@ -36,16 +36,16 @@ struct thread_params
 
 };
 
-class multithread_search_handler
+class MultithreadSearchHandler
 {
 public:
-    multithread_search_handler (struct board &board_, Color side_, output &output_,
-                                const class history &history_, const move_timer &timer_) :
+    MultithreadSearchHandler (struct Board &board_, Color side_, Output &output_,
+                              const class MoveHistory &history_, const MoveTimer &timer_) :
             board { board_ }, side { side_ }, output { output_ },
             history { history_ }, timer { timer_ }
     {}
 
-    search_result_t result()
+    SearchResult result ()
     {
         // If already searched, return result.
         if (search_result.move != null_move)
@@ -56,12 +56,12 @@ public:
     }
 
 private:
-    struct board board;
+    struct Board board;
     Color side;
-    class output &output;
-    const class history &history; // reference here, and copied into thread params.
-    struct move_timer timer;
-    search_result_t search_result;
+    class Output &output;
+    const class MoveHistory &history; // reference here, and copied into thread params.
+    struct MoveTimer timer;
+    SearchResult search_result;
 
     // Mutex to protect next_depth
     std::mutex mutex;
@@ -70,18 +70,18 @@ private:
     // Per thread variables;
     std::vector<thread_params> all_thread_params;
     std::vector<std::thread> threads;
-    std::vector<search_result_t> result_moves;
+    std::vector<SearchResult> result_moves;
 
-    search_result_t do_multithread_search ();
+    SearchResult do_multithread_search ();
 
     int get_next_depth ();
 
     void do_thread (unsigned index);
 
-    void add_result (search_result_t result);
+    void add_result (SearchResult result);
 };
 
-search_result_t multithread_search_handler::do_multithread_search ()
+SearchResult MultithreadSearchHandler::do_multithread_search ()
 {
     unsigned int max_nr_threads = std::thread::hardware_concurrency();
 
@@ -97,7 +97,7 @@ search_result_t multithread_search_handler::do_multithread_search ()
     // Now create the threads:
     for (unsigned i = 0; i < max_nr_threads; i++)
     {
-        std::thread thr = std::thread (&multithread_search_handler::do_thread, this, i);
+        std::thread thr = std::thread (&MultithreadSearchHandler::do_thread, this, i);
         threads.push_back (std::move(thr));
     }
 
@@ -110,7 +110,7 @@ search_result_t multithread_search_handler::do_multithread_search ()
 
     // todo handle empty case
     assert (!result_moves.empty());
-    search_result_t result = result_moves.front();
+    SearchResult result = result_moves.front();
 
     for (auto &result_move : result_moves)
     {
@@ -121,7 +121,7 @@ search_result_t multithread_search_handler::do_multithread_search ()
     return result;
 }
 
-int multithread_search_handler::get_next_depth ()
+int MultithreadSearchHandler::get_next_depth ()
 {
     std::lock_guard guard { mutex };
 
@@ -130,14 +130,14 @@ int multithread_search_handler::get_next_depth ()
     return next_depth;
 }
 
-void multithread_search_handler::add_result (search_result_t result)
+void MultithreadSearchHandler::add_result (SearchResult result)
 {
     std::lock_guard guard { mutex };
 
     result_moves.push_back (result);
 }
 
-void multithread_search_handler::do_thread (unsigned index)
+void MultithreadSearchHandler::do_thread (unsigned index)
 {
     thread_params &params = all_thread_params[index];
     std::stringstream messages;
@@ -145,8 +145,8 @@ void multithread_search_handler::do_thread (unsigned index)
     if (params.depth >= Max_Depth)
         return;
 
-    move_t result = iterate (params.board, params.side, params.output,
-                             params.history, params.timer, params.depth);
+    Move result = iterate (params.board, params.side, params.output,
+                           params.history, params.timer, params.depth);
     messages << "Finished thread " << std::this_thread::get_id() << " with depth " << params.depth << "\n";
     messages << "Move: " << to_string(result);
 
@@ -157,7 +157,7 @@ void multithread_search_handler::do_thread (unsigned index)
         // probably timed out:
         return;
     }
-    search_result_t synthesized_result { .move = result, .score = 0, .depth = params.depth };
+    SearchResult synthesized_result { .move = result, .score = 0, .depth = params.depth };
     add_result (synthesized_result);
 
     // Continue with more depth:
@@ -165,17 +165,17 @@ void multithread_search_handler::do_thread (unsigned index)
     do_thread (index);
 }
 
-multithread_search::multithread_search (struct board &board, Color side, output &output,
-                                        const history &history, const move_timer &timer)
+MultithreadSearch::MultithreadSearch (struct Board &board, Color side, Output &output,
+                                      const MoveHistory &history, const MoveTimer &timer)
 {
-	handler = std::make_unique<multithread_search_handler> (board, side, output, history, timer);
+	handler = std::make_unique<MultithreadSearchHandler> (board, side, output, history, timer);
 }
 
-search_result_t multithread_search::search()
+SearchResult MultithreadSearch::search ()
 {
     if (result.move == null_move)
         result = handler->result();
     return result;
 }
 
-multithread_search::~multithread_search() = default;
+MultithreadSearch::~MultithreadSearch () = default;

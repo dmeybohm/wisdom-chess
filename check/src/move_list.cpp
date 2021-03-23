@@ -1,6 +1,6 @@
 #include "move_list.hpp"
 
-move_list_t::move_list_t (Color color, std::initializer_list<const char*> list)
+MoveList::MoveList (Color color, std::initializer_list<const char*> list)
 {
 	for (auto it : list)
 	{
@@ -9,7 +9,7 @@ move_list_t::move_list_t (Color color, std::initializer_list<const char*> list)
 	}
 }
 
-std::string move_list_t::to_string () const
+std::string MoveList::to_string () const
 {
 	std::string result;
 	for (auto move : my_moves)
@@ -17,7 +17,7 @@ std::string move_list_t::to_string () const
 	return result;
 }
 
-std::string to_string (const move_list_t &list)
+std::string to_string (const MoveList &list)
 {
     std::string result = "{ ";
     for (auto move : list)
