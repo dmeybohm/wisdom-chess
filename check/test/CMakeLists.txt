@@ -4,12 +4,6 @@
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/")
 
-# Prepare doctest for other targets to use
-find_package(doctest REQUIRED)
-
-target_compile_features(test PRIVATE cxx_std_17)
-target_link_libraries(test PRIVATE doctest::doctest)
-
 # Make test executable
 add_executable(chess_tests
         ../src/board.cpp ../src/check.cpp ../src/evaluate.cpp ../src/generate.cpp
@@ -52,4 +46,3 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /std:c++latest")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 /std:c++latest")
 endif()
-

@@ -1,4 +1,7 @@
-#include "base_test.hpp"
+#include "doctest/doctest.h"
+
+// needed for working around a doctest / macOS linking problem
+#include <iostream>
 
 #include "board.h"
 #include "move.h"
@@ -41,11 +44,11 @@ TEST_CASE( "Parsing a castling move" )
 TEST_CASE( "Converting a move to a string" )
 {
     Move with_spaces = move_parse ("   e2e4", Color::White);
-    REQUIRE( to_string(with_spaces) == "e2 e4" );
+    REQUIRE( to_string(with_spaces) == std::string("e2 e4") );
     Move en_passant = move_parse ("   e4d5 ep   ", Color::White);
-    REQUIRE( to_string(en_passant) == "e4 d5 ep" );
+    REQUIRE( to_string(en_passant) == std::string("e4 d5 ep") );
     Move castling = move_parse ("   o-o-o ", Color::Black);
-    REQUIRE( to_string(castling) == "O-O-O" );
+    REQUIRE( to_string(castling) == std::string("O-O-O") );
 }
 
 TEST_CASE( "Moving and undoing a move works" )
@@ -80,5 +83,3 @@ TEST_CASE( "Moving and undoing a move works" )
     undo_move (board, Color::White, c3xe4, undo_state);
     do_move (board, Color::White, c3xe4);
 }
-
-

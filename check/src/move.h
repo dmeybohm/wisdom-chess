@@ -318,8 +318,8 @@ Move parse_move (const std::string &str, Color color = Color::None);
 
 std::string to_string (const Move &move);
 
+std::ostream& operator<< (std::ostream& os, const Move& value);
+
 /////////////////////////////////////////////////////////////////////
-
-
 
 #endif // EVOLVE_CHESS_MOVE_H

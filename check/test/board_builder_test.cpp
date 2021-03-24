@@ -1,4 +1,4 @@
-#include "base_test.hpp"
+#include "doctest/doctest.h"
 #include "board_builder.hpp"
 
 #include "board.h"
@@ -51,7 +51,7 @@ TEST_CASE( "Board builder throws exception for invalid coordinate" )
         no_throw = true;
     } catch (const BoardBuilderException &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );
-        CHECK( !strcmp(board_builder_exception.what(), "Invalid row") );
+        CHECK( !strcmp(board_builder_exception.what(), "Invalid row!") );
     }
     REQUIRE( no_throw == false );
 
@@ -60,7 +60,7 @@ TEST_CASE( "Board builder throws exception for invalid coordinate" )
         no_throw = true;
     } catch (const BoardBuilderException &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );
-        CHECK( !strcmp(board_builder_exception.what(), "Invalid column") );
+        CHECK( !strcmp(board_builder_exception.what(), "Invalid column!") );
     }
     REQUIRE( no_throw == false );
 
@@ -69,7 +69,7 @@ TEST_CASE( "Board builder throws exception for invalid coordinate" )
         no_throw = true;
     } catch (const BoardBuilderException &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );
-        CHECK( !strcmp(board_builder_exception.what(), "Invalid coordinate") );
+        CHECK( !strcmp(board_builder_exception.what(), "Invalid coordinate string!") );
     }
     REQUIRE( no_throw == false );
 }

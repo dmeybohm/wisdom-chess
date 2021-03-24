@@ -5,7 +5,7 @@
 #include "check.h"
 #include "history.hpp"
 
-bool is_checkmated (struct Board &board, Color who)
+bool is_checkmated (Board &board, Color who)
 {
 	auto [row, col] = king_position (board, who);
 
@@ -17,7 +17,7 @@ bool is_checkmated (struct Board &board, Color who)
     return legal_moves.empty();
 }
 
-bool is_king_threatened (struct Board &board, Color who,
+bool is_king_threatened (Board &board, Color who,
                          int8_t king_row, int8_t king_col)
 {
 	int8_t        row, col;
@@ -158,7 +158,7 @@ bool is_king_threatened (struct Board &board, Color who,
 	return false;
 }
 
-bool was_legal_move (struct Board &board, Color who, Move mv)
+bool was_legal_move (Board &board, Color who, Move mv)
 {
     auto [king_row, king_col] = king_position (board, who);
 

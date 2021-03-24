@@ -1,4 +1,4 @@
-#include "base_test.hpp"
+#include "doctest/doctest.h"
 #include "move.h"
 
 TEST_CASE("parse_simple_move parses captures and non-captures")
@@ -27,8 +27,8 @@ TEST_CASE("parse_move throws an exception for en-passant moves")
 TEST_CASE("parse_move throws an exception for castling moves")
 {
     REQUIRE_THROWS_AS( parse_move ("o-o"), ParseMoveException );
-    REQUIRE_THROWS_WITH( parse_move ("o-o"), "Move requires color, but no color provided.");
-    REQUIRE_THROWS_WITH( parse_move ("o-o-o"), "Move requires color, but no color provided.");
+    REQUIRE_THROWS_WITH( parse_move ("o-o"), "Move requires color, but no color provided");
+    REQUIRE_THROWS_WITH( parse_move ("o-o-o"), "Move requires color, but no color provided");
 }
 
 TEST_CASE("Invalid moves throw an exception")

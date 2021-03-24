@@ -1,4 +1,4 @@
-#include "base_test.hpp"
+#include "doctest/doctest.h"
 #include "board.h"
 #include "board_builder.hpp"
 

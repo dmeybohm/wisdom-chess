@@ -640,3 +640,9 @@ std::string to_string (const Move &move)
 
     return result;
 }
+
+std::ostream& operator<< (std::ostream& os, const Move& value)
+{
+    os << to_string(value);
+    return os;
+}
