@@ -6,7 +6,6 @@
 #include "coord.hpp"
 #include "board.hpp"
 #include "validate.hpp"
-#include "generate.hpp"
 
 namespace wisdom
 {
@@ -272,7 +271,7 @@ namespace wisdom
         else
         {
             int direction = pawn_direction (who);
-            Coord new_state = no_en_passant_coord;
+            Coord new_state = No_En_Passant_Coord;
             if (is_double_square_pawn_move (src_piece, move))
             {
                 Coord src = move_src (move);
@@ -282,7 +281,7 @@ namespace wisdom
             undo_state->en_passant_target[c_index] = board.en_passant_target[c_index];
             undo_state->en_passant_target[o_index] = board.en_passant_target[o_index];
             board.en_passant_target[c_index] = new_state;
-            board.en_passant_target[o_index] = no_en_passant_coord;
+            board.en_passant_target[o_index] = No_En_Passant_Coord;
         }
     }
 
@@ -470,7 +469,7 @@ namespace wisdom
         else if (transformed == "O-O")
             dst_col = King_Column + 2;
         else
-            return null_move;
+            return Null_Move;
 
         return make_castling_move (src_row, King_Column, src_row, dst_col);
     }
@@ -484,7 +483,7 @@ namespace wisdom
         std::string tmp { str };
 
         if (tmp.empty ())
-            return null_move;
+            return Null_Move;
 
         tmp.erase (std::remove_if (tmp.begin (), tmp.end (), isspace), tmp.end ());
         std::transform (tmp.begin (), tmp.end (), tmp.begin (),
@@ -493,7 +492,7 @@ namespace wisdom
 
         if (tmp.empty ())
         {
-            return null_move;
+            return Null_Move;
         }
 
         if (tolower (tmp[0]) == 'o')
@@ -502,7 +501,7 @@ namespace wisdom
         }
 
         if (tmp.size () < 4)
-            return null_move;
+            return Null_Move;
 
         Coord src;
         int offset = 0;
@@ -511,9 +510,9 @@ namespace wisdom
             src = coord_parse (tmp.substr (0, 2));
             offset += 2;
         }
-        catch (const coord_parse_exception &e)
+        catch (const CoordParseException &e)
         {
-            return null_move;
+            return Null_Move;
         }
 
         // allow an 'x' between coordinates, which is used to indicate a capture
@@ -526,16 +525,16 @@ namespace wisdom
         std::string dst_coord { tmp.substr (offset, 2) };
         offset += 2;
         if (dst_coord.empty ())
-            return null_move;
+            return Null_Move;
 
         Coord dst;
         try
         {
             dst = coord_parse (dst_coord);
         }
-        catch (const coord_parse_exception &e)
+        catch (const CoordParseException &e)
         {
-            return null_move;
+            return Null_Move;
         }
 
         std::string rest { tmp.substr (offset) };

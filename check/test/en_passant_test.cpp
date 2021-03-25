@@ -50,7 +50,7 @@ TEST_CASE( "En passant moves work on the right" )
     REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
     MoveList move_list = generate_moves (board, Color::White);
-    Move en_passant_move = null_move;
+    Move en_passant_move = Null_Move;
 
     for (auto move : move_list)
     {
@@ -115,7 +115,7 @@ TEST_CASE( "En passant moves work on the left" )
     REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
     MoveList move_list = generate_moves (board, Color::White);
-    Move en_passant_move = null_move;
+    Move en_passant_move = Null_Move;
 
     for (auto move : move_list)
     {

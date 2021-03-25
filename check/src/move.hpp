@@ -57,7 +57,7 @@ namespace wisdom
                     .current_castle_state = CASTLE_NONE,
                     .opponent_castle_state = CASTLE_NONE,
                     .half_move_clock = 0,
-                    .en_passant_target = { no_en_passant_coord, no_en_passant_coord },
+                    .en_passant_target = { No_En_Passant_Coord, No_En_Passant_Coord },
             };
 
     struct move
@@ -181,7 +181,7 @@ namespace wisdom
         return result;
     }
 
-// run-of-the-mill move with no promotion involved
+    // run-of-the-mill move with no promotion involved
     constexpr Move make_move (int8_t src_row, int8_t src_col,
                               int8_t dst_row, int8_t dst_col)
     {
@@ -244,7 +244,7 @@ namespace wisdom
                move.dst_row == 0 && move.dst_col == 0;
     }
 
-    constexpr Move null_move = make_move (0, 0, 0, 0);
+    constexpr Move Null_Move = make_move (0, 0, 0, 0);
 
     constexpr bool move_equals (Move a, Move b)
     {
@@ -267,13 +267,13 @@ namespace wisdom
         return !move_equals (a, b);
     }
 
-// Pack the castle state into the move.
+    // Pack the castle state into the move.
     constexpr CastlingState unpack_castle_state (CastlingState state)
     {
         return state == CASTLE_PREVIOUSLY_NONE ? CASTLE_NONE : state;
     }
 
-// Unpack the castle state from the move.
+    // Unpack the castle state from the move.
     constexpr CastlingState pack_castle_state (CastlingState state)
     {
         return state == CASTLE_NONE ? CASTLE_PREVIOUSLY_NONE : state;
@@ -301,10 +301,10 @@ namespace wisdom
 
     constexpr bool is_en_passant_vulnerable (UndoMove undo_state, Color who)
     {
-        return undo_state.en_passant_target[color_index (who)] != no_en_passant_coord;
+        return undo_state.en_passant_target[color_index (who)] != No_En_Passant_Coord;
     }
 
-/////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     UndoMove do_move (Board &board, Color who, Move move);
 
@@ -315,15 +315,14 @@ namespace wisdom
 
     Coord en_passant_taken_pawn_coord (Coord src, Coord dst);
 
-// Parse a move
+    // Parse a move
     Move parse_move (const std::string &str, Color color = Color::None);
 
-/////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     std::string to_string (const Move &move);
 
     std::ostream &operator<< (std::ostream &os, const Move &value);
-
-/////////////////////////////////////////////////////////////////////
 }
+
 #endif // WISDOM_CHESS_MOVE_H

@@ -99,12 +99,12 @@ namespace wisdom
         castle_states.push_back (new_state);
     }
 
-    void BoardBuilder::set_half_moves (int new_half_moves_clock)
+    void BoardBuilder::set_half_moves (int16_t new_half_moves_clock)
     {
         this->half_moves_clock = new_half_moves_clock;
     }
 
-    void BoardBuilder::set_full_moves (int new_full_moves)
+    void BoardBuilder::set_full_moves (int16_t new_full_moves)
     {
         this->full_moves = new_full_moves;
     }

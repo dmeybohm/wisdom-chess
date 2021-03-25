@@ -55,7 +55,7 @@ namespace wisdom
     {
         int8_t k_row, k_col;
 
-        for (auto[row, col] : all_coords_iterator)
+        for (auto[row, col] : All_Coords_Iterator)
         {
             for (k_row = -2; k_row <= 2; k_row++)
             {
@@ -194,7 +194,7 @@ namespace wisdom
     {
         ColorIndex opponent_index = color_index (color_invert (who));
 
-        if (coord_equals (board.en_passant_target[opponent_index], no_en_passant_coord))
+        if (coord_equals (board.en_passant_target[opponent_index], No_En_Passant_Coord))
             return -1;
 
         // if WHITE rank 4, black rank 3
@@ -239,7 +239,7 @@ namespace wisdom
         row = next_row (piece_row, dir);
         assert (is_valid_row (row));
 
-        std::array<Move, 4> all_pawn_moves { null_move, null_move, null_move, null_move };
+        std::array<Move, 4> all_pawn_moves { Null_Move, Null_Move, Null_Move, Null_Move };
 
         // single move
         if (piece_type (piece_at (board, row, piece_col)) == Piece::None)
@@ -453,7 +453,7 @@ namespace wisdom
     {
         MoveList new_moves;
 
-        for (const auto coord : all_coords_iterator)
+        for (const auto coord : All_Coords_Iterator)
         {
             ColoredPiece piece = piece_at (board, coord);
 
@@ -475,7 +475,7 @@ namespace wisdom
 
     MoveList MoveGenerator::sort_moves (MoveList &list)
     {
-        my_transposition_table.
+//        my_transposition_table.
         return list;
     }
 }

@@ -7,7 +7,7 @@ namespace wisdom
 {
     BoardCode::BoardCode (const Board &board)
     {
-        for (auto coord : all_coords_iterator)
+        for (auto coord : All_Coords_Iterator)
         {
             ColoredPiece piece = piece_at (board, coord);
             this->add_piece (coord, piece);

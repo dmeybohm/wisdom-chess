@@ -18,7 +18,7 @@ namespace wisdom
     class MultithreadSearch
     {
     private:
-        SearchResult result { null_move, 0, 0 };
+        SearchResult result { Null_Move, 0, 0 };
         std::unique_ptr<MultithreadSearchHandler> handler;
 
     public:

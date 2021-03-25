@@ -50,7 +50,7 @@ namespace wisdom
         SearchResult result ()
         {
             // If already searched, return result.
-            if (search_result.move != null_move)
+            if (search_result.move != Null_Move)
                 return search_result;
 
             search_result = do_multithread_search ();
@@ -154,7 +154,7 @@ namespace wisdom
 
         params.output.println (messages.str ());
 
-        if (result == null_move)
+        if (result == Null_Move)
         {
             // probably timed out:
             return;
@@ -175,7 +175,7 @@ namespace wisdom
 
     SearchResult MultithreadSearch::search ()
     {
-        if (result.move == null_move)
+        if (result.move == Null_Move)
             result = handler->result ();
         return result;
     }

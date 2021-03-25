@@ -55,6 +55,6 @@ namespace wisdom
         }
     };
 
-    extern CoordIterator all_coords_iterator;
+    extern CoordIterator All_Coords_Iterator;
 }
 #endif //WISDOM_COORD_ITERATOR_HPP

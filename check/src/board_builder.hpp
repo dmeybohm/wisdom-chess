@@ -67,9 +67,9 @@ namespace wisdom
 
         void set_castling (Color who, CastlingState state);
 
-        void set_half_moves (int new_half_moves_clock);
+        void set_half_moves (int16_t new_half_moves_clock);
 
-        void set_full_moves (int new_full_moves);
+        void set_full_moves (int16_t new_full_moves);
 
         Board build ();
     };

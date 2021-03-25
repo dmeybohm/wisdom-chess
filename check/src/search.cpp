@@ -5,7 +5,7 @@
 #include "piece.hpp"
 #include "board.hpp"
 #include "generate.hpp"
-#include "evaluate.h"
+#include "evaluate.hpp"
 #include "check.hpp"
 #include "move_tree.hpp"
 #include "search.hpp"
@@ -120,7 +120,7 @@ namespace wisdom
         }
 
         if (timer.is_triggered ())
-            result.move = null_move;
+            result.move = Null_Move;
 
         return result;
     }

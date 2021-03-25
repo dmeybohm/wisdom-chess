@@ -36,13 +36,12 @@ namespace wisdom
         Move move;
     };
 
-    static input_state_t initial_input_state
-            {
-                    .ok = true,
-                    .good = true,
-                    .skip = false,
-                    .move = null_move
-            };
+    static input_state_t initial_input_state {
+            .ok = true,
+            .good = true,
+            .skip = false,
+            .move = Null_Move
+    };
 
     static input_state_t read_move (Game &game)
     {

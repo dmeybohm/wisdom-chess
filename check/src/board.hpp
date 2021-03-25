@@ -74,7 +74,6 @@ namespace wisdom
                 this->half_move_clock = 0;
             else
                 this->half_move_clock++;
-
         }
 
         void restore_half_move_clock (const UndoMove &undo_state)
@@ -85,7 +84,7 @@ namespace wisdom
         [[nodiscard]] std::string to_string () const;
     };
 
-///////////////////////////////////////////////
+    ///////////////////////////////////////////////
 
     static inline ColoredPiece piece_at (const Board &board, int8_t row, int8_t col)
     {
@@ -98,10 +97,10 @@ namespace wisdom
         return piece_at (board, coord.row, coord.col);
     }
 
-///////////////////////////////////////////////
+    ///////////////////////////////////////////////
 
-// white moves up (-)
-// black moves down (+)
+    // white moves up (-)
+    // black moves down (+)
     static inline int8_t pawn_direction (Color color)
     {
         assert (color == Color::White || color == Color::Black);
@@ -164,12 +163,12 @@ namespace wisdom
 
     constexpr bool is_en_passant_vulnerable (const Board &board, Color who)
     {
-        return board.en_passant_target[color_index (who)] != no_en_passant_coord;
+        return board.en_passant_target[color_index (who)] != No_En_Passant_Coord;
     }
 
     static inline bool board_equals (const Board &a, const Board &b)
     {
-        for (auto coord : all_coords_iterator)
+        for (auto coord : All_Coords_Iterator)
         {
             if (a.squares[coord.row][coord.col] != b.squares[coord.row][coord.col])
                 return false;

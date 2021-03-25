@@ -3,5 +3,5 @@
 
 namespace wisdom
 {
-    CoordIterator all_coords_iterator;
+    CoordIterator All_Coords_Iterator;
 }

@@ -7,7 +7,8 @@
 
 namespace wisdom
 {
-    class MoveHistory
+    // todo: this just wraps the move list - could maybe just extend or remove it
+    class MoveHistory final
     {
     private:
         MoveList my_moves;
@@ -47,4 +48,5 @@ namespace wisdom
         void save (const std::string &filename) const;
     };
 }
+
 #endif //WISDOM_MOVE_HISTORY_HPP

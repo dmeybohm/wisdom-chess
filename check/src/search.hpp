@@ -16,7 +16,7 @@ namespace wisdom
 
     struct SearchResult
     {
-        Move move = null_move;
+        Move move = Null_Move;
         int score = -INITIAL_ALPHA;
         int depth = 0;
     };
@@ -27,14 +27,14 @@ namespace wisdom
 
     struct MoveTimer;
 
-// Find the best move.
+    // Find the best move.
     Move find_best_move (Board &board, Color side, wisdom::Output &output, History &history);
 
-// Iterate over each depth level.
+    // Iterate over each depth level.
     Move iterate (Board &board, Color side, wisdom::Output &output,
                   History &history, MoveTimer &timer, int depth);
 
-// Search for the best move to a particular depth.
+    // Search for the best move to a particular depth.
     SearchResult search (Board &board, Color side, wisdom::Output &output,
                          History &history, MoveTimer &timer, int depth,
                          int start_depth, int alpha, int beta, std::unique_ptr<MoveTree> &variation);

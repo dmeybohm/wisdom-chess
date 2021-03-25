@@ -34,7 +34,7 @@ namespace wisdom
         return chomp (input);
     }
 
-    bool Game::save ()
+    bool Game::save () const
     {
         std::string input = prompt ("save to what file");
         if (input.empty ())
@@ -94,7 +94,7 @@ namespace wisdom
             dst = move_dst (move);
             piece = piece_at (result.board, dst);
 
-            // TODO: have to handle en-passant here.
+            // TODO: not sure if we have to handle en-passant here.
 
             if (piece_type (piece) != Piece::None)
             {

@@ -16,7 +16,7 @@ namespace wisdom
 
     using Coord = struct coord;
 
-///////////////////////////////////////////////
+    ///////////////////////////////////////////////
 
     constexpr bool is_valid_row (int8_t row)
     {
@@ -45,9 +45,9 @@ namespace wisdom
         return result;
     }
 
-    constexpr Coord no_en_passant_coord = make_coord (0, 0);
+    constexpr Coord No_En_Passant_Coord = make_coord (0, 0);
 
-///////////////////////////////////////////////
+    ///////////////////////////////////////////////
 
     constexpr int8_t ROW (Coord pos)
     {
@@ -94,21 +94,21 @@ namespace wisdom
         return col + 'a';
     }
 
-/////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     std::string to_string (Coord coord);
 
     Coord coord_parse (const std::string &str);
 
-/////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
-    class coord_parse_exception : public std::exception
+    class CoordParseException : public std::exception
     {
     private:
         const char *message;
 
     public:
-        explicit coord_parse_exception (const char *message) : message { message }
+        explicit CoordParseException (const char *message) : message { message }
         {}
 
         [[nodiscard]] const char *what () const noexcept override

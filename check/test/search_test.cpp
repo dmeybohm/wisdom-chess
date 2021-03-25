@@ -2,7 +2,7 @@
 #include "board_builder.hpp"
 
 #include "board.hpp"
-#include "search.h"
+#include "search.hpp"
 #include "move.hpp"
 #include "move_timer.hpp"
 #include "move_tree.hpp"
@@ -15,41 +15,47 @@ wisdom::NullOutput discard_output;
 using namespace wisdom;
 
 // Mating moves: : 1.Ra6 f6 2.Bxf6 Rg7 3.Rxa8#
-TEST_CASE( "Can find mate in 3" )
+TEST_CASE("Can find mate in 3")
 {
     BoardBuilder builder;
-    struct MoveTimer large_timer {30 };
+    MoveTimer large_timer { 30 };
 
-    builder.add_pieces (Color::Black, {
-            {"a8", Piece::Rook},
-            {"g8", Piece::Rook},
-            {"h8", Piece::King},
-            {"f7", Piece::Pawn},
-            {"h7", Piece::Pawn},
-    });
-    builder.add_pieces (Color::White, {
-            {"f6", Piece::Rook},
-            {"e5", Piece::Bishop},
-            {"h2", Piece::Pawn},
-            {"h1", Piece::King},
-    });
+    builder.add_pieces (
+            Color::Black, {
+                    { "a8", Piece::Rook },
+                    { "g8", Piece::Rook },
+                    { "h8", Piece::King },
+                    { "f7", Piece::Pawn },
+                    { "h7", Piece::Pawn },
+            }
+    );
+    builder.add_pieces (
+            Color::White, {
+                    { "f6", Piece::Rook },
+                    { "e5", Piece::Bishop },
+                    { "h2", Piece::Pawn },
+                    { "h1", Piece::King },
+            }
+    );
 
-    Board board = builder.build();
+    Board board = builder.build ();
     std::unique_ptr<MoveTree> variation;
 
     History history;
-    SearchResult result = search (board, Color::White, discard_output, history, large_timer, 4, 4,
-                                  -INITIAL_ALPHA, INITIAL_ALPHA,
-                                  variation);
+    SearchResult result = search (
+            board, Color::White, discard_output, history, large_timer, 4, 4,
+            -INITIAL_ALPHA, INITIAL_ALPHA,
+            variation
+    );
 
-    REQUIRE( result.move != null_move );
-    REQUIRE( variation->size() == 5 );
+    REQUIRE(result.move != Null_Move);
+    REQUIRE(variation->size () == 5);
 
-    MoveList expected_moves = {Color::White, {"f6 a6", "f7 f6", "e5xf6", "g8 g7", "a6xa8" }};
-    MoveList computed_moves = variation->to_list();
+    MoveList expected_moves = { Color::White, { "f6 a6", "f7 f6", "e5xf6", "g8 g7", "a6xa8" }};
+    MoveList computed_moves = variation->to_list ();
 
-    REQUIRE( expected_moves == computed_moves );
-    REQUIRE( result.score > INFINITE );
+    REQUIRE(expected_moves == computed_moves);
+    REQUIRE(result.score > INFINITE);
 }
 
 //
@@ -60,116 +66,135 @@ TEST_CASE( "Can find mate in 3" )
 // ... Rd4+ 2. Ke5 f6#
 // ... Bb7+ 2. Ke5 Re4#
 //
-TEST_CASE( "Can find mate in 2 1/2" )
+TEST_CASE("Can find mate in 2 1/2")
 {
     BoardBuilder builder;
-    MoveTimer large_timer {10 };
+    MoveTimer large_timer { 10 };
 
-    builder.add_pieces (Color::Black, {
-            {"e8", Piece::Knight},
-            {"c7", Piece::King},
-            {"f7", Piece::Pawn},
-            {"a6", Piece::Pawn},
-            {"g6", Piece::Pawn},
-            {"c5", Piece::Pawn},
-            {"b4", Piece::Rook},
-            {"b3", Piece::Knight},
-    });
+    builder.add_pieces (
+            Color::Black, {
+                    { "e8", Piece::Knight },
+                    { "c7", Piece::King },
+                    { "f7", Piece::Pawn },
+                    { "a6", Piece::Pawn },
+                    { "g6", Piece::Pawn },
+                    { "c5", Piece::Pawn },
+                    { "b4", Piece::Rook },
+                    { "b3", Piece::Knight },
+            }
+    );
 
     builder.add_piece ("d5", Color::White, Piece::King);
 
-    Board board = builder.build();
+    Board board = builder.build ();
     std::unique_ptr<MoveTree> variation;
     History history;
-    SearchResult result = search (board, Color::Black, discard_output, history, large_timer,
-                                     5, 5, -INITIAL_ALPHA, INITIAL_ALPHA,
-                                     variation);
+    SearchResult result = search (
+            board, Color::Black, discard_output, history, large_timer,
+            5, 5, -INITIAL_ALPHA, INITIAL_ALPHA,
+            variation
+    );
 
-    REQUIRE( result.move != null_move );
+    REQUIRE(result.move != Null_Move);
 
-    MoveList expected_moves = {Color::Black, {"e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
-    MoveList computed_moves = variation->to_list();
+    MoveList expected_moves = { Color::Black, { "e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
+    MoveList computed_moves = variation->to_list ();
 
-    REQUIRE( variation->size() == 5 );
-    REQUIRE( expected_moves == computed_moves );
-    REQUIRE( result.score > INFINITE );
+    REQUIRE(variation->size () == 5);
+    REQUIRE(expected_moves == computed_moves);
+    REQUIRE(result.score > INFINITE);
 }
 
-TEST_CASE( "scenario with heap overflow 1" )
+TEST_CASE("scenario with heap overflow 1")
 {
     BoardBuilder builder;
 
-    builder.add_pieces (Color::Black, {
-            {"c8", Piece::Rook},
-            {"f8", Piece::Rook},
-            {"h8", Piece::King}
-    });
-    builder.add_pieces (Color::Black, {
-            {"c7", Piece::Pawn},
-            {"h7", Piece::Knight},
-    });
-    builder.add_pieces (Color::Black, {
-            {"a6", Piece::Pawn},
-            {"c6", Piece::Bishop},
-            {"b5", Piece::Pawn},
-            {"d5", Piece::Pawn}
-    });
+    builder.add_pieces (
+            Color::Black, {
+                    { "c8", Piece::Rook },
+                    { "f8", Piece::Rook },
+                    { "h8", Piece::King }
+            }
+    );
+    builder.add_pieces (
+            Color::Black, {
+                    { "c7", Piece::Pawn },
+                    { "h7", Piece::Knight },
+            }
+    );
+    builder.add_pieces (
+            Color::Black, {
+                    { "a6", Piece::Pawn },
+                    { "c6", Piece::Bishop },
+                    { "b5", Piece::Pawn },
+                    { "d5", Piece::Pawn }
+            }
+    );
 
-    builder.add_pieces (Color::White, {
-            {"e5", Piece::Pawn},
-            {"a3", Piece::Knight},
-            {"c3", Piece::Pawn},
-            {"e3", Piece::Pawn},
-            {"a2", Piece::Pawn},
-            {"b2", Piece::Pawn},
-            {"h2", Piece::Pawn},
-            {"b1", Piece::King},
-            {"g1", Piece::Rook}
-    });
+    builder.add_pieces (
+            Color::White, {
+                    { "e5", Piece::Pawn },
+                    { "a3", Piece::Knight },
+                    { "c3", Piece::Pawn },
+                    { "e3", Piece::Pawn },
+                    { "a2", Piece::Pawn },
+                    { "b2", Piece::Pawn },
+                    { "h2", Piece::Pawn },
+                    { "b1", Piece::King },
+                    { "g1", Piece::Rook }
+            }
+    );
 
-    Board board = builder.build();
-    struct MoveTimer timer {300 };
+    Board board = builder.build ();
+    MoveTimer timer { 300 };
     History history;
     Move best_move = iterate (board, Color::Black, discard_output, history, timer, 3);
-    REQUIRE( best_move != null_move );
+    REQUIRE(best_move != Null_Move);
 }
 
-TEST_CASE( "Promoting move is taken if possible" )
+TEST_CASE("Promoting move is taken if possible")
 {
     BoardBuilder builder;
-    struct MoveTimer large_timer {30 };
+    MoveTimer large_timer { 30 };
 
-    builder.add_pieces (Color::Black, {
-            {"d7", Piece::King},
-            {"d2", Piece::Pawn}
-    });
-    builder.add_pieces (Color::White, {
-            {"a4", Piece::King},
-            {"h4", Piece::Pawn}
-    });
+    builder.add_pieces (
+            Color::Black, {
+                    { "d7", Piece::King },
+                    { "d2", Piece::Pawn }
+            }
+    );
+    builder.add_pieces (
+            Color::White, {
+                    { "a4", Piece::King },
+                    { "h4", Piece::Pawn }
+            }
+    );
 
     std::unique_ptr<MoveTree> variation;
     History history;
-    Board board = builder.build();
-    SearchResult result = search (board, Color::Black, discard_output, history, large_timer,
-                                     1, 1, -INITIAL_ALPHA, INITIAL_ALPHA,
-                                     variation);
+    Board board = builder.build ();
+    SearchResult result = search (
+            board, Color::Black, discard_output, history, large_timer,
+            1, 1, -INITIAL_ALPHA, INITIAL_ALPHA,
+            variation
+    );
 
-    REQUIRE( to_string(result.move) == "d2 d1(Q)" );
+    REQUIRE(to_string (result.move) == "d2 d1(Q)");
 }
 
-TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing" )
+TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing")
 {
-    Fen parser {"rnb1kbnr/ppp1pppp/8/8/3B4/8/PPP1pPPP/RN2KB1R b KQkq - 0 1"};
+    Fen parser { "rnb1kbnr/ppp1pppp/8/8/3B4/8/PPP1pPPP/RN2KB1R b KQkq - 0 1" };
 
-    auto game = parser.build();
+    auto game = parser.build ();
 
     std::unique_ptr<MoveTree> variation;
     History history;
-    struct MoveTimer large_timer {30 };
-    SearchResult result = search (game.board, Color::Black, discard_output, history, large_timer,
-                                   3, 3, -INITIAL_ALPHA, INITIAL_ALPHA,
-                                   variation);
+    MoveTimer large_timer { 30 };
+    SearchResult result = search (
+            game.board, Color::Black, discard_output, history, large_timer,
+            3, 3, -INITIAL_ALPHA, INITIAL_ALPHA,variation
+    );
 
-    REQUIRE( to_string(result.move) == "e2xf1(Q)" );
+    REQUIRE(to_string (result.move) == "e2xf1(Q)");
 }

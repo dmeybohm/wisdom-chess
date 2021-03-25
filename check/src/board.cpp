@@ -92,7 +92,7 @@ namespace wisdom
         for (CastlingState &i : board.castled)
             i = CASTLE_NONE;
 
-        for (const auto &coord : all_coords_iterator)
+        for (const auto &coord : All_Coords_Iterator)
             board_set_piece (board, coord, piece_and_color_none);
 
         position_init (&board.position);
@@ -125,8 +125,8 @@ namespace wisdom
         board.castled[COLOR_INDEX_WHITE] = init_castle_state (board, Color::White);
         board.castled[COLOR_INDEX_BLACK] = init_castle_state (board, Color::Black);
 
-        board.en_passant_target[COLOR_INDEX_WHITE] = no_en_passant_coord;
-        board.en_passant_target[COLOR_INDEX_BLACK] = no_en_passant_coord;
+        board.en_passant_target[COLOR_INDEX_WHITE] = No_En_Passant_Coord;
+        board.en_passant_target[COLOR_INDEX_BLACK] = No_En_Passant_Coord;
 
         board.code = BoardCode { board };
     }

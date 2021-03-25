@@ -25,7 +25,7 @@ TEST_CASE( "Third repetition is detected" )
     Move white_return_move = parse_move ("d1 e1");
 
     // Record initial position. we don't care about move here.
-    history.add_position_and_move (board, null_move);
+    history.add_position_and_move (board, Null_Move);
 
     do_move (board, Color::White, white_move);
     history.add_position_and_move (board, white_move);

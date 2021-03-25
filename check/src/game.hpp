@@ -39,7 +39,7 @@ namespace wisdom
             assert (is_color_valid (computer_player));
         }
 
-        bool save ();
+        bool save () const;
 
         static std::optional<Game> load (Color player);
 
