@@ -38,7 +38,7 @@ namespace wisdom
             std::unique_ptr<MoveTree> &variation)
     {
         std::unique_ptr<MoveTree> new_variation { nullptr };
-        size_t illegal_move_count = 0;
+        std::size_t illegal_move_count = 0;
         SearchResult result;
 
         variation.reset (nullptr);
@@ -47,6 +47,7 @@ namespace wisdom
         if (moves.empty ())
         {
             result.score = evaluate (board, side, start_depth - depth);
+            board.add_evaluation_to_transposition_table (result.score);
             return result;
         }
 
@@ -72,6 +73,7 @@ namespace wisdom
             {
                 other_search_result.score = evaluate_and_check_draw (board, side, start_depth - depth,
                                                                      move, history);
+                board.add_evaluation_to_transposition_table (other_search_result.score);
             }
             else
             {
@@ -114,7 +116,7 @@ namespace wisdom
         // if there are no legal moves, then the current player is in a stalemate or checkmate position.
         if (moves.size () == illegal_move_count)
         {
-            auto[my_king_row, my_king_col] = king_position (board, side);
+            auto [my_king_row, my_king_col] = king_position (board, side);
             result.score = is_king_threatened (board, side, my_king_row, my_king_col) ?
                            -1 * checkmate_score_in_moves (start_depth - depth) : 0;
         }
@@ -188,9 +190,9 @@ namespace wisdom
         return result.move;
     }
 
-// Get the score for a checkmate discovered X moves away.
-// Checkmates closer to the current position are more valuable than those
-// further away.
+    // Get the score for a checkmate discovered X moves away.
+    // Checkmates closer to the current position are more valuable than those
+    // further away.
     int checkmate_score_in_moves (int moves)
     {
         return INFINITE + INFINITE / (1 + moves);

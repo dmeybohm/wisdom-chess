@@ -1,4 +1,5 @@
 #include <array>
+#include <algorithm>
 
 #include "piece.hpp"
 #include "move.hpp"
@@ -75,6 +76,18 @@ namespace wisdom
                 }
             }
         }
+    }
+
+    static inline int is_pawn_unmoved (const struct Board &board,
+                                       int8_t row, int8_t col)
+    {
+        assert (is_valid_row (row) && is_valid_column (col));
+        ColoredPiece piece = piece_at (board, row, col);
+
+        if (piece_color (piece) == Color::White)
+            return row == 6;
+        else
+            return row == 1;
     }
 
     static void moves_none ([[maybe_unused]] const Board &board, [[maybe_unused]] Color who,
@@ -473,9 +486,34 @@ namespace wisdom
         return validate_moves (new_moves, board, who);
     }
 
-    MoveList MoveGenerator::sort_moves (MoveList &list)
+    void MoveGenerator::sort_moves (const Board &board, MoveList &list)
     {
-//        my_transposition_table.
-        return list;
+        auto moves = list.get_my_moves();
+        auto table = my_transposition_table;
+        BoardCode code = board.code;
+        Transposition empty {  BoardHashCode { 0 }, 0 };
+
+        std::sort (moves.begin(), moves.end(), [board, &table, code, empty](Move a, Move b){
+            auto first_code = code;
+            auto second_code = code;
+
+            first_code.apply_move (board, a);
+            second_code.apply_move (board, b);
+
+            auto first_hash = first_code.hash_code ();
+            auto second_hash = second_code.hash_code ();
+            auto first_value = table.lookup (first_hash).value_or (empty);
+            auto second_value = table.lookup (second_hash).value_or (empty);
+
+            return first_value.score < second_value.score;
+        });
     }
+
+    MoveList MoveGenerator::generate (const Board &board, Color who)
+    {
+        auto move_list = generate_moves (board, who);
+        sort_moves (move_list);
+        return move_list;
+    }
+
 }

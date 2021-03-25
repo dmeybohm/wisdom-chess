@@ -19,14 +19,11 @@ namespace wisdom
 
     using BoardCodeBitset = std::bitset<Board_Code_Total_Bits>;
 
+    using BoardHashCode = std::size_t;
+
     struct Board;
 
-    struct BoardHash final
-    {
-        BoardCodeBitset hash; // todo: rework this using Zobrist hashing
-
-        explicit BoardHash ( BoardCodeBitset bits ) : hash { bits } {}
-    };
+    static std::hash<BoardCodeBitset> hash_fn;
 
     class BoardCode final
     {
@@ -70,9 +67,9 @@ namespace wisdom
             return bits;
         }
 
-        [[nodiscard]] BoardHash hash_code () const
+        [[nodiscard]] BoardHashCode hash_code () const
         {
-            return BoardHash { bits };
+            return hash_fn (bits);
         }
 
         friend bool operator== (const BoardCode &first, const BoardCode &second)
@@ -92,4 +89,5 @@ namespace wisdom
         std::size_t count_ones ();
     };
 }
+
 #endif //WISDOM_BOARD_CODE_HPP

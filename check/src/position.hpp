@@ -26,6 +26,6 @@ namespace wisdom
         void apply_move (Color who, ColoredPiece piece, Move move, UndoMove undo_state);
         void unapply_move (Color who, ColoredPiece piece, Move move, UndoMove undo_state);
     };
-
 }
+
 #endif //WISDOM_POSITION_H

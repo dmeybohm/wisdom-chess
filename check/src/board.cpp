@@ -231,4 +231,10 @@ namespace wisdom
         add_coords (result);
         return result;
     }
+
+    void Board::add_evaluation_to_transposition_table (int score)
+    {
+        Transposition evaluation { *this, score };
+        my_transpositions.add ( evaluation );
+    }
 }

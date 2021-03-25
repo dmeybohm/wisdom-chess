@@ -1,5 +1,4 @@
 #include "position.hpp"
-#include "board.hpp"
 
 namespace wisdom
 {

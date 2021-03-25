@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "global.hpp"
-#include "board.hpp"
 #include "move.hpp"
 #include "move_tree.hpp"
 #include "board_code.hpp"
@@ -15,23 +14,16 @@ namespace wisdom
     class MoveGenerator final
     {
     private:
-        TranspositionTable my_transposition_table;
+        TranspositionTable &my_transposition_table;
+        void sort_moves (const Board &board, MoveList &list);
 
     public:
-        MoveList sort_moves (MoveList &list);
+        explicit MoveGenerator (TranspositionTable &transposition_table) :
+            my_transposition_table { transposition_table }
+        {}
+
+        MoveList generate (const Board &board, Color who);
     };
-
-    static inline int is_pawn_unmoved (const struct Board &board,
-                                       int8_t row, int8_t col)
-    {
-        assert (is_valid_row (row) && is_valid_column (col));
-        ColoredPiece piece = piece_at (board, row, col);
-
-        if (piece_color (piece) == Color::White)
-            return row == 6;
-        else
-            return row == 1;
-    }
 
     MoveList generate_moves (const Board &board, Color who);
 

@@ -50,15 +50,14 @@ namespace wisdom
 
     using UndoMove = struct undo_move;
 
-    constexpr UndoMove empty_undo_state =
-            {
-                    .category = MoveCategory::NonCapture,
-                    .taken_piece_type = Piece::None,
-                    .current_castle_state = CASTLE_NONE,
-                    .opponent_castle_state = CASTLE_NONE,
-                    .half_move_clock = 0,
-                    .en_passant_target = { No_En_Passant_Coord, No_En_Passant_Coord },
-            };
+    constexpr UndoMove empty_undo_state = {
+            .category = MoveCategory::NonCapture,
+            .taken_piece_type = Piece::None,
+            .current_castle_state = CASTLE_NONE,
+            .opponent_castle_state = CASTLE_NONE,
+            .half_move_clock = 0,
+            .en_passant_target = { No_En_Passant_Coord, No_En_Passant_Coord },
+    };
 
     struct move
     {

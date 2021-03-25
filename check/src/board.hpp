@@ -13,6 +13,8 @@
 #include "material.hpp"
 #include "position.hpp"
 #include "board_code.hpp"
+#include "transposition_table.hpp"
+#include "generate.hpp"
 
 ///////////////////////////////////////////////
 
@@ -27,8 +29,13 @@ namespace wisdom
         std::vector<Piece> pieces;
     };
 
-    struct Board
+    class Board
     {
+    private:
+        TranspositionTable my_transpositions;
+        MoveGenerator my_generator;
+
+    public:
         ColoredPiece squares[Num_Rows][Num_Columns];
 
         // positions of the kings
@@ -82,6 +89,8 @@ namespace wisdom
         }
 
         [[nodiscard]] std::string to_string () const;
+
+        void add_evaluation_to_transposition_table (int score);
     };
 
     ///////////////////////////////////////////////
