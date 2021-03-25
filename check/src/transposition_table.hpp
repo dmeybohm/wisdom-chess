@@ -16,7 +16,8 @@ namespace wisdom
 
         Transposition () = default;
         Transposition (const Board &board, int _score);
-        Transposition (BoardHashCode _code, int _score) : code { _code }, score { _score } {}
+        Transposition (BoardHashCode _code, int _score) :
+            code { _code }, score { _score } {}
     };
 
     using TranspositionList = std::list<Transposition>;
@@ -31,17 +32,22 @@ namespace wisdom
     private:
         TranspositionList my_list{};
         TranspositionMap my_map{};
-        std::size_t nr_elements{};
+        std::size_t my_num_elements{};
 
         void drop_last ();
         void drop_at_iterator (TranspositionMapIterator map_iterator);
 
     public:
         // Lookup the transposition.
-        std::optional<Transposition> lookup (BoardHashCode hash);
+        [[nodiscard]] std::optional<Transposition> lookup (BoardHashCode hash);
 
         // Add the transposition.
         void add (Transposition transposition);
+
+        [[nodiscard]] std::size_t size() const
+        {
+            return my_num_elements;
+        }
     };
 }
 

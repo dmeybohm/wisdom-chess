@@ -11,11 +11,11 @@ TEST_CASE("is_king_threatened works for bishop, rook, and king")
 {
     BoardBuilder builder;
 
-    builder.add_piece("a8", Color::Black, Piece::King);
-    builder.add_piece("a1", Color::White, Piece::King);
+    builder.add_piece ("a8", Color::Black, Piece::King);
+    builder.add_piece ("a1", Color::White, Piece::King);
 
-    builder.add_piece("c3", Color::Black, Piece::Bishop);
-    builder.add_piece("d4", Color::White, Piece::Rook);
+    builder.add_piece ("c3", Color::Black, Piece::Bishop);
+    builder.add_piece ("d4", Color::White, Piece::Rook);
 
     Board board = builder.build();
     int white_king_threatened[Num_Rows][Num_Columns] = {

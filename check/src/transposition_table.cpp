@@ -30,9 +30,9 @@ namespace wisdom
 
         auto new_iterator = my_list.insert (my_list.begin(), transposition);
         my_map[transposition.code] = new_iterator;
-        nr_elements++;
+        my_num_elements++;
 
-        if (nr_elements > Max_Transpositions)
+        if (my_num_elements > Max_Transpositions)
             drop_last ();
     }
 
@@ -40,7 +40,7 @@ namespace wisdom
     {
         auto last_iterator = my_list.end();
         last_iterator--;
-        auto map_iterator = my_map.find( last_iterator->code);
+        auto map_iterator = my_map.find (last_iterator->code);
         drop_at_iterator (map_iterator);
     }
 
@@ -50,7 +50,7 @@ namespace wisdom
         auto list_iterator = pair.second;
         my_list.erase (list_iterator);
         my_map.erase (map_iterator);
-        nr_elements--;
+        my_num_elements--;
     }
 
     Transposition::Transposition (const Board &board, int _score) :

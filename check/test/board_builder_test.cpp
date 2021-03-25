@@ -2,7 +2,7 @@
 #include "board_builder.hpp"
 
 #include "board.hpp"
-#include <cstring>
+#include "str.hpp"
 
 using namespace wisdom;
 
@@ -33,27 +33,28 @@ TEST_CASE( "Initializing the board builder" )
     ColoredPiece black_king = piece_at (board, 7, 0);
     ColoredPiece center = piece_at (board, 4, 5);
 
-    CHECK(piece_color (pawn) == Color::White );
-    CHECK(piece_color (white_king) == Color::White );
-    CHECK(piece_color (black_king) == Color::Black );
-    CHECK(piece_color (center) == Color::None );
+    CHECK( piece_color (pawn) == Color::White );
+    CHECK( piece_color (white_king) == Color::White );
+    CHECK( piece_color (black_king) == Color::Black );
+    CHECK( piece_color (center) == Color::None );
 
-    CHECK(piece_type (pawn) == Piece::Pawn );
-    CHECK(piece_type (white_king) == Piece::King );
-    CHECK(piece_type (black_king) == Piece::King );
-    CHECK(piece_type (center) == Piece::None );
+    CHECK( piece_type (pawn) == Piece::Pawn );
+    CHECK( piece_type (white_king) == Piece::King );
+    CHECK( piece_type (black_king) == Piece::King );
+    CHECK( piece_type (center) == Piece::None );
 }
 
 TEST_CASE( "Board builder throws exception for invalid coordinate" )
 {
     BoardBuilder builder;
     bool no_throw = false;
+
     try {
         builder.add_piece ("a9", Color::White, Piece::Pawn);
         no_throw = true;
     } catch (const BoardBuilderException &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );
-        CHECK( !strcmp(board_builder_exception.what(), "Invalid row!") );
+        CHECK( cstr_equals(board_builder_exception.what(), "Invalid row!") );
     }
     REQUIRE( no_throw == false );
 
@@ -62,7 +63,7 @@ TEST_CASE( "Board builder throws exception for invalid coordinate" )
         no_throw = true;
     } catch (const BoardBuilderException &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );
-        CHECK( !strcmp(board_builder_exception.what(), "Invalid column!") );
+        CHECK( cstr_equals(board_builder_exception.what(), "Invalid column!") );
     }
     REQUIRE( no_throw == false );
 
@@ -71,7 +72,7 @@ TEST_CASE( "Board builder throws exception for invalid coordinate" )
         no_throw = true;
     } catch (const BoardBuilderException &board_builder_exception) {
         CHECK( board_builder_exception.what() != nullptr );
-        CHECK( !strcmp(board_builder_exception.what(), "Invalid coordinate string!") );
+        CHECK( cstr_equals(board_builder_exception.what(), "Invalid coordinate string!") );
     }
     REQUIRE( no_throw == false );
 }
