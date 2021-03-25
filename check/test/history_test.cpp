@@ -6,6 +6,8 @@
 #include "move.h"
 #include "board_builder.hpp"
 
+using namespace wisdom;
+
 TEST_CASE( "Third repetition is detected" )
 {
     History history;

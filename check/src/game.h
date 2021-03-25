@@ -11,36 +11,40 @@
 #include "board_builder.hpp"
 #include "history.hpp"
 
-struct Game
+namespace wisdom
 {
-	Board            board;
-	History          history;
-	Color            player;   // side the computer is playing as
-	Color            turn;
-
-	Game (Color _turn, Color computer_player) :
-	        player { computer_player },
-	        turn { _turn }
+    struct Game
     {
-        assert (is_color_valid(_turn));
-        assert (is_color_valid(computer_player));
-        player = computer_player;
-        turn = _turn;
-    }
+        Board board;
+        History history;
+        Color player;   // side the computer is playing as
+        Color turn;
 
-    Game (Color _turn, Color computer_player, BoardBuilder builder)
-            : board { builder.build() },
-            player { computer_player},
-            turn { _turn }
-    {
-        assert (is_color_valid(_turn));
-        assert (is_color_valid(computer_player));
-    }
+        Game (Color _turn, Color computer_player) :
+                player { computer_player },
+                turn { _turn }
+        {
+            assert (is_color_valid (_turn));
+            assert (is_color_valid (computer_player));
+            player = computer_player;
+            turn = _turn;
+        }
 
-    bool save();
-	static std::optional<Game> load (Color player);
+        Game (Color _turn, Color computer_player, BoardBuilder builder)
+                : board { builder.build () },
+                  player { computer_player },
+                  turn { _turn }
+        {
+            assert (is_color_valid (_turn));
+            assert (is_color_valid (computer_player));
+        }
 
-	void move (Move move);
-};
+        bool save ();
+
+        static std::optional<Game> load (Color player);
+
+        void move (Move move);
+    };
+}
 
 #endif // EVOLVE_CHESS_GAME_H_

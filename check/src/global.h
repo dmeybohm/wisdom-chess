@@ -5,25 +5,27 @@
 #include <cassert>
 #include <exception>
 
-enum
+namespace wisdom
 {
-    Num_Players = 2,
+    enum
+    {
+        Num_Players = 2,
 
-    Num_Rows = 8,
-    Num_Columns = 8,
+        Num_Rows = 8,
+        Num_Columns = 8,
 
-    First_Row = 0,
-    First_Column = 0,
+        First_Row = 0,
+        First_Column = 0,
 
-    Last_Row = 7,
-    Last_Column = 7,
+        Last_Row = 7,
+        Last_Column = 7,
 
-    King_Column = 4,
-    King_Rook_Column = 7,
+        King_Column = 4,
+        King_Rook_Column = 7,
 
-    Queen_Rook_Column = 0,
-    King_Castled_Rook_Column = 5,
-    Queen_Castled_Rook_Column = 3,
-};
-
+        Queen_Rook_Column = 0,
+        King_Castled_Rook_Column = 5,
+        Queen_Castled_Rook_Column = 3,
+    };
+}
 #endif //WIZDUMB_GLOBAL_H

@@ -3,17 +3,20 @@
 #include <iostream>
 #include <fstream>
 
-MoveHistory::MoveHistory (const MoveList &list)
+namespace wisdom
 {
-    this->my_moves = list;
-}
+    MoveHistory::MoveHistory (const MoveList &list)
+    {
+        this->my_moves = list;
+    }
 
-void MoveHistory::save (const std::string &filename)
-{
-    std::ofstream file;
-    file.open(filename);
-    for (auto move : my_moves)
-        file << to_string(move) << "\n";
-    file.close();
+    void MoveHistory::save (const std::string &filename)
+    {
+        std::ofstream file;
+        file.open (filename);
+        for (auto move : my_moves)
+            file << to_string (move) << "\n";
+        file.close ();
+    }
 }
 

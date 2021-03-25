@@ -3,191 +3,187 @@
 #include "board.h"
 #include "game.h"
 
-using string_size_t = std::string::size_type;
-
-Game Fen::build ()
+namespace wisdom
 {
-    struct Game result {
-        active_player,
-        color_invert(active_player),
-        builder
-    };
+    using string_size_t = std::string::size_type;
 
-    return result;
-}
-
-ColoredPiece Fen::parse_piece (char ch)
-{
-    int lower = tolower(ch);
-    Color who = islower(ch) ? Color::Black : Color::White;
-
-    switch (lower)
+    Game Fen::build ()
     {
-        case 'k':
-            return make_piece (who, Piece::King);
-        case 'q':
-            return make_piece (who, Piece::Queen);
-        case 'r':
-            return make_piece (who, Piece::Rook);
-        case 'b':
-            return make_piece (who, Piece::Bishop);
-        case 'n':
-            return make_piece (who, Piece::Knight);
-        case 'p':
-            return make_piece (who, Piece::Pawn);
-        default:
-            throw FenException("Invalid piece type!");
+        struct Game result {
+                active_player,
+                color_invert (active_player),
+                builder
+        };
+
+        return result;
     }
-}
 
-Color Fen::parse_active_player (char ch)
-{
-    switch (ch)
+    ColoredPiece Fen::parse_piece (char ch)
     {
-        case 'w': return Color::White;
-        case 'b': return Color::Black;
-        default: throw FenException ("Invalid active color!");
-    }
-}
+        int lower = tolower (ch);
+        Color who = islower (ch) ? Color::Black : Color::White;
 
-void Fen::parse_pieces (std::string str)
-{
-    char ch;
-
-    // read pieces
-    for (int8_t row = 0, col = 0; !str.empty(); str = str.substr(1))
-    {
-        ch = str[0];
-
-        if (ch == '/')
+        switch (lower)
         {
-            row++;
-            if (row > Num_Rows)
-                throw FenException("Invalid row!");
-            col = 0;
-        }
-        else if (ch == ' ')
-        {
-            break;
-        }
-        else if (isalpha(ch))
-        {
-            ColoredPiece piece = parse_piece (ch);
-            builder.add_piece (row, col, piece_color (piece), piece_type (piece));
-            col++;
-            if (col > Num_Columns)
-                throw FenException("Invalid columns!");
-        }
-        else if (isdigit(ch))
-        {
-            col += ch - '0';
-            if (col > Num_Columns)
-                throw FenException("Invalid columns!");
-        }
-        else
-        {
-            throw FenException("Invalid character!");
+            case 'k':return make_piece (who, Piece::King);
+            case 'q':return make_piece (who, Piece::Queen);
+            case 'r':return make_piece (who, Piece::Rook);
+            case 'b':return make_piece (who, Piece::Bishop);
+            case 'n':return make_piece (who, Piece::Knight);
+            case 'p':return make_piece (who, Piece::Pawn);
+            default:throw FenException ("Invalid piece type!");
         }
     }
 
-}
+    Color Fen::parse_active_player (char ch)
+    {
+        switch (ch)
+        {
+            case 'w': return Color::White;
+            case 'b': return Color::Black;
+            default: throw FenException ("Invalid active color!");
+        }
+    }
+
+    void Fen::parse_pieces (std::string str)
+    {
+        char ch;
+
+        // read pieces
+        for (int8_t row = 0, col = 0; !str.empty (); str = str.substr (1))
+        {
+            ch = str[0];
+
+            if (ch == '/')
+            {
+                row++;
+                if (row > Num_Rows)
+                    throw FenException ("Invalid row!");
+                col = 0;
+            }
+            else if (ch == ' ')
+            {
+                break;
+            }
+            else if (isalpha (ch))
+            {
+                ColoredPiece piece = parse_piece (ch);
+                builder.add_piece (row, col, piece_color (piece), piece_type (piece));
+                col++;
+                if (col > Num_Columns)
+                    throw FenException ("Invalid columns!");
+            }
+            else if (isdigit (ch))
+            {
+                col += ch - '0';
+                if (col > Num_Columns)
+                    throw FenException ("Invalid columns!");
+            }
+            else
+            {
+                throw FenException ("Invalid character!");
+            }
+        }
+
+    }
 
 // en passant target square:
-void Fen::parse_en_passant (std::string str)
-{
-    if (str.empty())
-        return;
-
-    if (str[0] == '-')
-        return;
-
-    try {
-        std::string cstr { str.substr(0, 2) };
-        builder.set_en_passant_target (color_invert(active_player), cstr.c_str());
-    } catch ([[maybe_unused]] const BoardBuilderException &e) {
-        throw FenException("Error parsing en passant coordinate!");
-    }
-}
-
-void Fen::parse_castling (std::string str)
-{
-    CastlingState white_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
-    CastlingState black_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
-
-    for (;!str.empty() && isalpha(str[0]); str = str.substr(1))
+    void Fen::parse_en_passant (std::string str)
     {
-        char ch = str[0];
+        if (str.empty ())
+            return;
 
-        if (ch == ' ' || ch == '-')
-            break;
+        if (str[0] == '-')
+            return;
 
-        Color who = islower(ch) ? Color::Black : Color::White;
-        CastlingState new_state = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
-
-        switch (tolower(ch))
+        try
         {
-            case 'k':
-                new_state &= ~CASTLE_KINGSIDE;
+            std::string cstr { str.substr (0, 2) };
+            builder.set_en_passant_target (color_invert (active_player), cstr.c_str ());
+        } catch ([[maybe_unused]] const BoardBuilderException &e)
+        {
+            throw FenException ("Error parsing en passant coordinate!");
+        }
+    }
+
+    void Fen::parse_castling (std::string str)
+    {
+        CastlingState white_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
+        CastlingState black_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
+
+        for (; !str.empty () && isalpha (str[0]); str = str.substr (1))
+        {
+            char ch = str[0];
+
+            if (ch == ' ' || ch == '-')
                 break;
-            case 'q':
-                new_state &= ~CASTLE_QUEENSIDE;
-                break;
+
+            Color who = islower (ch) ? Color::Black : Color::White;
+            CastlingState new_state = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
+
+            switch (tolower (ch))
+            {
+                case 'k':new_state &= ~CASTLE_KINGSIDE;
+                    break;
+                case 'q':new_state &= ~CASTLE_QUEENSIDE;
+                    break;
+            }
+
+            if (who == Color::Black)
+                black_castle &= new_state;
+            else
+                white_castle &= new_state;
+
         }
 
-        if (who == Color::Black)
-            black_castle &= new_state;
-        else
-            white_castle &= new_state;
-
+        builder.set_castling (Color::White, white_castle);
+        builder.set_castling (Color::Black, black_castle);
     }
 
-    builder.set_castling (Color::White, white_castle);
-    builder.set_castling (Color::Black, black_castle);
-}
-
 // halfmove clock:
-void Fen::parse_halfmove (int half_moves)
-{
-    builder.set_half_moves (half_moves);
-}
+    void Fen::parse_halfmove (int half_moves)
+    {
+        builder.set_half_moves (half_moves);
+    }
 
 // fullmove number:
-void Fen::parse_fullmove (int full_moves)
-{
-    builder.set_full_moves (full_moves);
-}
+    void Fen::parse_fullmove (int full_moves)
+    {
+        builder.set_full_moves (full_moves);
+    }
 
-void Fen::parse (const std::string &source)
-{
-    std::stringstream input { source };
+    void Fen::parse (const std::string &source)
+    {
+        std::stringstream input { source };
 
-    // Read the pieces:
-    std::string pieces_str;
-    input >> pieces_str;
-    parse_pieces (pieces_str);
+        // Read the pieces:
+        std::string pieces_str;
+        input >> pieces_str;
+        parse_pieces (pieces_str);
 
-    // read active player:
-    std::string active_player_str;
-    input >> active_player_str;
-    active_player = parse_active_player (active_player_str[0]);
+        // read active player:
+        std::string active_player_str;
+        input >> active_player_str;
+        active_player = parse_active_player (active_player_str[0]);
 
-    // castling:
-    std::string castling_str;
-    input >> castling_str;
-    parse_castling (castling_str);
+        // castling:
+        std::string castling_str;
+        input >> castling_str;
+        parse_castling (castling_str);
 
-    // en passant target square:
-    std::string en_passant_str;
-    input >> en_passant_str;
-    parse_en_passant (en_passant_str);
+        // en passant target square:
+        std::string en_passant_str;
+        input >> en_passant_str;
+        parse_en_passant (en_passant_str);
 
-    // halfmove clock:
-    int half_moves;
-    input >> half_moves;
-    parse_halfmove (half_moves);
+        // halfmove clock:
+        int half_moves;
+        input >> half_moves;
+        parse_halfmove (half_moves);
 
-    // fullmove number:
-    int full_moves;
-    input >> full_moves;
-    parse_fullmove (full_moves);
+        // fullmove number:
+        int full_moves;
+        input >> full_moves;
+        parse_fullmove (full_moves);
+    }
 }

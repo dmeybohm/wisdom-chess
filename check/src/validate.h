@@ -3,8 +3,11 @@
 
 #include "move.h"
 
-struct Board;
+namespace wisdom
+{
+    struct Board;
 
-void validate_castle_state (Board &board, struct move move);
+    void validate_castle_state (Board &board, struct move move);
+}
 
 #endif //WIZDUMB_VALIDATE_H

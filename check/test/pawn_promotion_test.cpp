@@ -2,6 +2,8 @@
 
 #include "board.h"
 
+using namespace wisdom;
+
 TEST_CASE( "Pawn promotion works on appropriate rows" )
 {
     CHECK( need_pawn_promotion (0, Color::Black) == false );

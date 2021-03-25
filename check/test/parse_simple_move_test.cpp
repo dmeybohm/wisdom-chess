@@ -1,6 +1,8 @@
 #include "doctest/doctest.h"
 #include "move.h"
 
+using namespace wisdom;
+
 TEST_CASE("parse_simple_move parses captures and non-captures")
 {
     Move capture = parse_move("a6xb7");

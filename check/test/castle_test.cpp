@@ -3,6 +3,8 @@
 
 #include "board.h"
 
+using namespace wisdom;
+
 TEST_CASE("Castling state is modified and restored for rooks")
 {
     std::vector<Piece> back_rank =

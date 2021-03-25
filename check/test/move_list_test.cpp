@@ -6,6 +6,8 @@
 #include "board.h"
 #include "generate.h"
 
+using namespace wisdom;
+
 TEST_CASE( "Initializing move list" )
 {
     MoveList move_list {Color::Black, {"e4 d4", "d2 d1"}};

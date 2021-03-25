@@ -5,6 +5,8 @@
 
 #include <cstring>
 
+using namespace wisdom;
+
 TEST_CASE( "FEN notation for the starting position" )
 {
     Fen parser {"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" };

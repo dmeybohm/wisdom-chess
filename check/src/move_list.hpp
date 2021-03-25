@@ -6,88 +6,91 @@
 
 #include "move.h"
 
-class MoveList
+namespace wisdom
 {
-private:
-    std::vector<Move> my_moves;
-
-public:
-    MoveList ()
+    class MoveList
     {
-        my_moves.reserve(64);
-    }
+    private:
+        std::vector<Move> my_moves;
 
-    MoveList (const MoveList &other) = default;
+    public:
+        MoveList ()
+        {
+            my_moves.reserve (64);
+        }
 
-	MoveList (Color color, std::initializer_list<const char*> list);
+        MoveList (const MoveList &other) = default;
 
-    void push_back (Move move)
-    {
-        my_moves.push_back (move);
-    }
+        MoveList (Color color, std::initializer_list<const char *> list);
 
-    void pop_back ()
-    {
-        my_moves.pop_back();
-    }
+        void push_back (Move move)
+        {
+            my_moves.push_back (move);
+        }
 
-    [[nodiscard]] auto begin () const noexcept
-    {
-        return my_moves.begin();
-    }
+        void pop_back ()
+        {
+            my_moves.pop_back ();
+        }
 
-    [[nodiscard]] auto end () const noexcept
-    {
-        return my_moves.end();
-    }
+        [[nodiscard]] auto begin () const noexcept
+        {
+            return my_moves.begin ();
+        }
 
-    void append (const MoveList &other)
-    {
-        my_moves.insert (my_moves.end(), other.begin(), other.end());
-    }
+        [[nodiscard]] auto end () const noexcept
+        {
+            return my_moves.end ();
+        }
 
-    [[nodiscard]] bool empty () const noexcept
-    {
-        return my_moves.empty();
-    }
+        void append (const MoveList &other)
+        {
+            my_moves.insert (my_moves.end (), other.begin (), other.end ());
+        }
 
-    [[nodiscard]] size_t size () const noexcept
-    {
-        return my_moves.size();
-    }
+        [[nodiscard]] bool empty () const noexcept
+        {
+            return my_moves.empty ();
+        }
 
-	[[nodiscard]] std::string to_string () const;
+        [[nodiscard]] size_t size () const noexcept
+        {
+            return my_moves.size ();
+        }
 
-    bool operator == (const MoveList &other) const
-    {
-        return my_moves.size() == other.my_moves.size () && std::equal (
-                my_moves.begin(),
-                my_moves.end(),
-                other.my_moves.begin (),
-                move_equals
-		);
-    }
+        [[nodiscard]] std::string to_string () const;
 
-	bool operator != (const MoveList &other) const
-	{
-		return !(*this == other);
-	}
+        bool operator== (const MoveList &other) const
+        {
+            return my_moves.size () == other.my_moves.size () && std::equal (
+                    my_moves.begin (),
+                    my_moves.end (),
+                    other.my_moves.begin (),
+                    move_equals
+                                                                            );
+        }
 
-	[[nodiscard]] const std::vector<Move> &get_my_moves () const noexcept
-    {
-        return my_moves;
-    }
+        bool operator!= (const MoveList &other) const
+        {
+            return !(*this == other);
+        }
 
-    [[nodiscard]] MoveList only_captures () const
-    {
-        MoveList result;
-        std::copy_if (my_moves.begin(), my_moves.end(), std::back_inserter(result.my_moves), [] (Move mv) {
-            return is_capture_move(mv);
-        } );
-        return result;
-    }
-};
+        [[nodiscard]] const std::vector<Move> &get_my_moves () const noexcept
+        {
+            return my_moves;
+        }
 
-std::string to_string (const MoveList &list);
+        [[nodiscard]] MoveList only_captures () const
+        {
+            MoveList result;
+            std::copy_if (my_moves.begin (), my_moves.end (), std::back_inserter (result.my_moves), [] (Move mv)
+            {
+                return is_capture_move (mv);
+            });
+            return result;
+        }
+    };
 
+    std::string to_string (const MoveList &list);
+}
 #endif //WIZDUMB_MOVE_LIST_HPP

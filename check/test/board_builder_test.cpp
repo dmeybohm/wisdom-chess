@@ -4,6 +4,8 @@
 #include "board.h"
 #include <cstring>
 
+using namespace wisdom;
+
 TEST_CASE( "Specifying coordinates in algebraic notation" )
 {
     CHECK( ROW(coord_alg("a8")) == 0 );

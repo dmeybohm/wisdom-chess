@@ -3,56 +3,58 @@
 
 #include "coord.h"
 
-class CoordIterator final
+namespace wisdom
 {
-private:
-    int8_t row = 0;
-    int8_t col = 0;
-
-public:
-    CoordIterator () = default;
-
-    CoordIterator (int8_t row_, int8_t col_)
-        : row(row_), col(col_)
-    {}
-
-    [[nodiscard]] CoordIterator begin () // NOLINT(readability-convert-member-functions-to-static)
+    class CoordIterator final
     {
-        return CoordIterator (0, 0);
-    }
+    private:
+        int8_t row = 0;
+        int8_t col = 0;
 
-    [[nodiscard]] CoordIterator end () // NOLINT(readability-convert-member-functions-to-static)
-    {
-        return CoordIterator (8, 0);
-    }
+    public:
+        CoordIterator () = default;
 
-    Coord operator* () const
-    {
-        return make_coord (row, col);
-    }
+        CoordIterator (int8_t row_, int8_t col_)
+                : row (row_), col (col_)
+        {}
 
-    CoordIterator& operator++ ()
-    {
-        col++;
-        if (col == Num_Columns)
+        [[nodiscard]] CoordIterator begin () // NOLINT(readability-convert-member-functions-to-static)
         {
-            row++;
-            col = 0;
+            return CoordIterator (0, 0);
         }
-        return *this;
-    }
 
-    bool operator == (const CoordIterator &other) const
-    {
-        return row == other.row && col == other.col;
-    }
+        [[nodiscard]] CoordIterator end () // NOLINT(readability-convert-member-functions-to-static)
+        {
+            return CoordIterator (8, 0);
+        }
 
-    bool operator != (const CoordIterator &other) const
-    {
-        return !(*this == other);
-    }
-};
+        Coord operator* () const
+        {
+            return make_coord (row, col);
+        }
 
-extern CoordIterator all_coords_iterator;
+        CoordIterator &operator++ ()
+        {
+            col++;
+            if (col == Num_Columns)
+            {
+                row++;
+                col = 0;
+            }
+            return *this;
+        }
 
+        bool operator== (const CoordIterator &other) const
+        {
+            return row == other.row && col == other.col;
+        }
+
+        bool operator!= (const CoordIterator &other) const
+        {
+            return !(*this == other);
+        }
+    };
+
+    extern CoordIterator all_coords_iterator;
+}
 #endif //WIZDUMB_COORD_ITERATOR_HPP

@@ -3,6 +3,8 @@
 
 #include <string>
 
-std::string chomp (const std::string &str);
-
+namespace wisdom
+{
+    std::string chomp (const std::string &str);
+}
 #endif

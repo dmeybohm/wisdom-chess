@@ -5,6 +5,8 @@
 #include "move_tree.h"
 #include "generate.h"
 
+using namespace wisdom;
+
 TEST_CASE( "En passant state starts out as negative 1" )
 {
     Board board;

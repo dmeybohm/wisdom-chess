@@ -5,6 +5,8 @@
 #include "board.h"
 #include "check.h"
 
+using namespace wisdom;
+
 TEST_CASE("is_king_threatened works for bishop, rook, and king")
 {
     BoardBuilder builder;

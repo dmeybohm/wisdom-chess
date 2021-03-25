@@ -6,22 +6,25 @@
 
 #include <forward_list>
 
-class MoveTree
+namespace wisdom
 {
-private:
-    std::forward_list<Move> list;
-
-public:
-    void push_front (Move move)
+    class MoveTree
     {
-        list.push_front (move);
-    }
+    private:
+        std::forward_list<Move> list;
 
-    [[nodiscard]] std::string to_string () const;
+    public:
+        void push_front (Move move)
+        {
+            list.push_front (move);
+        }
 
-    [[nodiscard]] MoveList to_list () const;
+        [[nodiscard]] std::string to_string () const;
 
-    [[nodiscard]] int size () const;
-};
+        [[nodiscard]] MoveList to_list () const;
+
+        [[nodiscard]] int size () const;
+    };
+}
 
 #endif // EVOLVE_CHESS_MOVE_TREE_H

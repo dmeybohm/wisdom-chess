@@ -1,16 +1,15 @@
 #include "piece.h"
 
-std::string to_string (Color who)
+namespace wisdom
 {
-    switch (who)
+    std::string to_string (Color who)
     {
-        case Color::White:
-            return "White";
-        case Color::Black:
-            return "Black";
-        case Color::None:
-            return "None";
-        default:
-            abort();
+        switch (who)
+        {
+            case Color::White:return "White";
+            case Color::Black:return "Black";
+            case Color::None:return "None";
+            default:abort ();
+        }
     }
 }

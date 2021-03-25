@@ -7,6 +7,8 @@
 
 #include "board_code.hpp"
 
+using namespace wisdom;
+
 TEST_CASE( "Board code is able to be set" )
 {
     BoardCode code, initial;

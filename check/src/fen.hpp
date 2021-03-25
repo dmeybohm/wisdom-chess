@@ -9,45 +9,53 @@
 #include <sstream>
 #include <memory>
 
-struct Game;
-
-class Fen final
+namespace wisdom
 {
-public:
-    explicit Fen (const std::string &input) : active_player {Color::White }
+    struct Game;
+
+    class Fen final
     {
-        parse(input);
-    }
+    public:
+        explicit Fen (const std::string &input) : active_player { Color::White }
+        {
+            parse (input);
+        }
 
-    // Build the game:
-    Game build ();
+        // Build the game:
+        Game build ();
 
-private:
-    BoardBuilder builder;
-    Color active_player;
+    private:
+        BoardBuilder builder;
+        Color active_player;
 
-    void parse(const std::string &input);
-    static ColoredPiece parse_piece (char ch);
+        void parse (const std::string &input);
 
-    void parse_pieces (std::string pieces_str);
-    void parse_en_passant (std::string en_passant_str);
-    void parse_castling (std::string castling_str);
+        static ColoredPiece parse_piece (char ch);
 
-    void parse_halfmove (int half_moves);
-    void parse_fullmove (int full_moves);
-    static Color parse_active_player (char ch);
-};
+        void parse_pieces (std::string pieces_str);
 
-class FenException : public std::exception
-{
-    const char *message;
+        void parse_en_passant (std::string en_passant_str);
 
-public:
-    explicit FenException (const char *message) : message {message }
-    {}
+        void parse_castling (std::string castling_str);
 
-    [[nodiscard]] const char *what () const noexcept override
-    { return this->message; }
-};
+        void parse_halfmove (int half_moves);
+
+        void parse_fullmove (int full_moves);
+
+        static Color parse_active_player (char ch);
+    };
+
+    class FenException : public std::exception
+    {
+        const char *message;
+
+    public:
+        explicit FenException (const char *message) : message { message }
+        {}
+
+        [[nodiscard]] const char *what () const noexcept override
+        { return this->message; }
+    };
+}
 
 #endif //WIZDUMB_FEN_HPP

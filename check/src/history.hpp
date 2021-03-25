@@ -6,45 +6,47 @@
 #include "piece.h"
 #include "board.h"
 
-class History
+namespace wisdom
 {
-private:
-    BoardHistory my_board_history;
-    MoveHistory my_move_history;
-
-public:
-    static bool is_fifty_move_repetition (Board &board)
+    class History
     {
-        return board.half_move_clock >= 100;
-    }
+    private:
+        BoardHistory my_board_history;
+        MoveHistory my_move_history;
 
-    bool is_third_repetition (Board &board) const
-    {
-        auto count = my_board_history.position_count (board.code);
-        return (count == 3);
-    }
+    public:
+        static bool is_fifty_move_repetition (Board &board)
+        {
+            return board.half_move_clock >= 100;
+        }
 
-    void add_position_and_move (Board &board, Move move)
-    {
-        this->my_board_history.add_board_code (board.code);
-        my_move_history.push_back (move);
-    }
+        bool is_third_repetition (Board &board) const
+        {
+            auto count = my_board_history.position_count (board.code);
+            return (count == 3);
+        }
 
-    void remove_position_and_last_move (Board &board)
-    {
-        this->my_board_history.remove_board_code (board.code);
-        my_move_history.pop_back ();
-    }
+        void add_position_and_move (Board &board, Move move)
+        {
+            this->my_board_history.add_board_code (board.code);
+            my_move_history.push_back (move);
+        }
 
-    BoardHistory &get_board_history ()
-    {
-        return my_board_history;
-    }
+        void remove_position_and_last_move (Board &board)
+        {
+            this->my_board_history.remove_board_code (board.code);
+            my_move_history.pop_back ();
+        }
 
-    MoveHistory &get_move_history ()
-    {
-        return my_move_history;
-    }
-};
+        BoardHistory &get_board_history ()
+        {
+            return my_board_history;
+        }
 
+        MoveHistory &get_move_history ()
+        {
+            return my_move_history;
+        }
+    };
+}
 #endif //WIZDUMB_HISTORY_HPP

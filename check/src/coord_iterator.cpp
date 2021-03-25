@@ -1,4 +1,7 @@
 
 #include "coord_iterator.hpp"
 
-CoordIterator all_coords_iterator;
+namespace wisdom
+{
+    CoordIterator all_coords_iterator;
+}

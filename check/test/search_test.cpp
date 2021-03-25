@@ -12,6 +12,7 @@
 #include "game.h"
 
 wisdom::NullOutput discard_output;
+using namespace wisdom;
 
 // Mating moves: : 1.Ra6 f6 2.Bxf6 Rg7 3.Rxa8#
 TEST_CASE( "Can find mate in 3" )

@@ -6,6 +6,8 @@
 #include "board.h"
 #include "move.h"
 
+using namespace wisdom;
+
 TEST_CASE( "Parsing a move" )
 {
     Move with_spaces = move_parse ("   e2e4", Color::White);

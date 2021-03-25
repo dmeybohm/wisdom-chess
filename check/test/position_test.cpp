@@ -5,6 +5,8 @@
 #include "position.h"
 #include "move.h"
 
+using namespace wisdom;
+
 TEST_CASE("Position is initialized correctly")
 {
     Board board;

@@ -5,6 +5,7 @@
 #include <vector>
 
 using std::vector;
+using namespace wisdom;
 
 TEST_CASE( "A piece can be converted" )
 {

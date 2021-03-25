@@ -7,54 +7,56 @@
 
 #include "board_code.hpp"
 
-class BoardHistory
+namespace wisdom
 {
-private:
-    std::unordered_map<BoardCodeBitset, int> position_counts;
-
-public:
-    BoardHistory () = default;
-
-    [[nodiscard]] int position_count (const BoardCode &code) const
+    class BoardHistory
     {
-        try
-        {
-            return position_counts.at (code.bitset_ref ());
-        }
-        catch (std::out_of_range &r)
-        {
-            return 0;
-        }
-    }
+    private:
+        std::unordered_map<BoardCodeBitset, int> position_counts;
 
-    void add_board_code (const BoardCode &board_code)
-    {
-        const auto &bits = board_code.bitset_ref();
-        position_counts[bits]++;
-    }
+    public:
+        BoardHistory () = default;
 
-    void remove_board_code (const BoardCode &board_code)
-    {
-        const auto &bits = board_code.bitset_ref();
-
-        try
+        [[nodiscard]] int position_count (const BoardCode &code) const
         {
-            auto count = position_counts.at (bits) - 1;
-            if (count <= 0)
+            try
             {
-                position_counts.erase (bits);
+                return position_counts.at (code.bitset_ref ());
             }
-            else
+            catch (std::out_of_range &r)
             {
-                position_counts[bits] = count;
+                return 0;
             }
         }
-        catch (const std::out_of_range &e)
-        {
-            std::cout << "Couldn't find " << board_code.to_string() << "\n";
-            throw e;
-        }
-    }
-};
 
+        void add_board_code (const BoardCode &board_code)
+        {
+            const auto &bits = board_code.bitset_ref ();
+            position_counts[bits]++;
+        }
+
+        void remove_board_code (const BoardCode &board_code)
+        {
+            const auto &bits = board_code.bitset_ref ();
+
+            try
+            {
+                auto count = position_counts.at (bits) - 1;
+                if (count <= 0)
+                {
+                    position_counts.erase (bits);
+                }
+                else
+                {
+                    position_counts[bits] = count;
+                }
+            }
+            catch (const std::out_of_range &e)
+            {
+                std::cout << "Couldn't find " << board_code.to_string () << "\n";
+                throw e;
+            }
+        }
+    };
+}
 #endif //WIZDUMB_BOARD_HISTORY_HPP

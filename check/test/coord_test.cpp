@@ -2,6 +2,8 @@
 
 #include "coord.h"
 
+using namespace wisdom;
+
 TEST_CASE( "A coordinate can be generated" )
 {
     for (auto row = 0; row < 8; row++) {
