@@ -2,8 +2,8 @@
 
 #include "move_list.hpp"
 #include "history.hpp"
-#include "board.h"
-#include "move.h"
+#include "board.hpp"
+#include "move.hpp"
 #include "board_builder.hpp"
 
 using namespace wisdom;

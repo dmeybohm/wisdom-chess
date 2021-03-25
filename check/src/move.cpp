@@ -2,11 +2,11 @@
 #include <algorithm>
 #include <sstream>
 
-#include "move.h"
-#include "coord.h"
-#include "board.h"
-#include "validate.h"
-#include "generate.h"
+#include "move.hpp"
+#include "coord.hpp"
+#include "board.hpp"
+#include "validate.hpp"
+#include "generate.hpp"
 
 namespace wisdom
 {

@@ -2,8 +2,8 @@
 #include "board_builder.hpp"
 #include <iostream>
 
-#include "board.h"
-#include "check.h"
+#include "board.hpp"
+#include "check.hpp"
 
 using namespace wisdom;
 

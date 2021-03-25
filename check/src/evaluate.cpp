@@ -1,8 +1,8 @@
 #include "evaluate.h"
-#include "board.h"
-#include "check.h"
-#include "search.h"
-#include "position.h"
+#include "board.hpp"
+#include "check.hpp"
+#include "search.hpp"
+#include "position.hpp"
 
 namespace wisdom
 {

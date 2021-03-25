@@ -2,10 +2,10 @@
 #ifndef WIZDUMB_POSITION_H
 #define WIZDUMB_POSITION_H
 
-#include "global.h"
-#include "coord.h"
-#include "move.h"
-#include "piece.h"
+#include "global.hpp"
+#include "coord.hpp"
+#include "move.hpp"
+#include "piece.hpp"
 
 namespace wisdom
 {

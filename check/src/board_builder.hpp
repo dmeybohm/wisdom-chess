@@ -1,9 +1,9 @@
 #ifndef WIZDUMB_BOARD_BUILDER_HPP
 #define WIZDUMB_BOARD_BUILDER_HPP
 
-#include "global.h"
-#include "piece.h"
-#include "move.h"
+#include "global.hpp"
+#include "piece.hpp"
+#include "move.hpp"
 
 #include <cstdint>
 #include <string>

@@ -4,9 +4,9 @@
 #include <cassert>
 #include <string>
 
-#include "global.h"
-#include "coord.h"
-#include "piece.h"
+#include "global.hpp"
+#include "coord.hpp"
+#include "piece.hpp"
 
 namespace wisdom
 {

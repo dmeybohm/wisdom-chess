@@ -1,5 +1,5 @@
-#include "coord.h"
-#include "move.h"
+#include "coord.hpp"
+#include "move.hpp"
 
 namespace wisdom
 {

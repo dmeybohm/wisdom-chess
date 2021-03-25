@@ -3,8 +3,8 @@
 // needed for working around a doctest / macOS linking problem
 #include <iostream>
 
-#include "board.h"
-#include "move.h"
+#include "board.hpp"
+#include "move.hpp"
 
 using namespace wisdom;
 

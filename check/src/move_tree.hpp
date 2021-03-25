@@ -1,7 +1,7 @@
 #ifndef EVOLVE_CHESS_MOVE_TREE_H
 #define EVOLVE_CHESS_MOVE_TREE_H
 
-#include "move.h"
+#include "move.hpp"
 #include "move_list.hpp"
 
 #include <forward_list>

@@ -1,7 +1,7 @@
 
 #include "fen.hpp"
-#include "board.h"
-#include "game.h"
+#include "board.hpp"
+#include "game.hpp"
 
 namespace wisdom
 {

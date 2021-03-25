@@ -1,7 +1,7 @@
 #ifndef WIZDUMB_VALIDATE_H
 #define WIZDUMB_VALIDATE_H
 
-#include "move.h"
+#include "move.hpp"
 
 namespace wisdom
 {

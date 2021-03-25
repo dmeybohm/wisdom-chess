@@ -2,25 +2,31 @@
 #ifndef WIZDUMB_BOARD_CODE_HPP
 #define WIZDUMB_BOARD_CODE_HPP
 
-#include "global.h"
-#include "piece.h"
-#include "coord.h"
-#include "move.h"
+#include "global.hpp"
+#include "piece.hpp"
+#include "coord.hpp"
+#include "move.hpp"
 
 #include <bitset>
 
 namespace wisdom
 {
-// 3 Bits per piece type, +1 for color (special case: no piece == 0):
+    // 3 Bits per piece type, +1 for color (special case: no piece == 0):
     constexpr int Board_Code_Bits_Per_Piece = 4;
 
-// 4 bits per square * 64 squares = 256 bits
-    constexpr int Board_Code_Total_Bits = Board_Code_Bits_Per_Piece
-                                          * Num_Rows * Num_Columns;
+    // 4 bits per square * 64 squares = 256 bits
+    constexpr int Board_Code_Total_Bits = Board_Code_Bits_Per_Piece * Num_Rows * Num_Columns;
 
     using BoardCodeBitset = std::bitset<Board_Code_Total_Bits>;
 
     struct Board;
+
+    struct BoardHash final
+    {
+        BoardCodeBitset hash; // todo: rework this using Zobrist hashing
+
+        explicit BoardHash ( BoardCodeBitset bits ) : hash { bits } {}
+    };
 
     class BoardCode final
     {
@@ -62,6 +68,11 @@ namespace wisdom
         [[nodiscard]] const BoardCodeBitset &bitset_ref () const
         {
             return bits;
+        }
+
+        [[nodiscard]] BoardHash hash_code () const
+        {
+            return BoardHash { bits };
         }
 
         friend bool operator== (const BoardCode &first, const BoardCode &second)

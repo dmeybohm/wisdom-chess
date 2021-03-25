@@ -2,12 +2,12 @@
 #include <iostream>
 #include <fstream>
 
-#include "piece.h"
-#include "board.h"
-#include "move.h"
-#include "move_tree.h"
-#include "str.h"
-#include "game.h"
+#include "piece.hpp"
+#include "board.hpp"
+#include "move.hpp"
+#include "move_tree.hpp"
+#include "str.hpp"
+#include "game.hpp"
 
 namespace wisdom
 {

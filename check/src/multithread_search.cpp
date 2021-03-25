@@ -1,5 +1,5 @@
-#include "multithread_search.h"
-#include "move_timer.h"
+#include "multithread_search.hpp"
+#include "move_timer.hpp"
 #include "output.hpp"
 #include "history.hpp"
 

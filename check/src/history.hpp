@@ -3,8 +3,8 @@
 
 #include "board_history.hpp"
 #include "move_history.hpp"
-#include "piece.h"
-#include "board.h"
+#include "piece.hpp"
+#include "board.hpp"
 
 namespace wisdom
 {

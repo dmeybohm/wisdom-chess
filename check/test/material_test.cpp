@@ -1,6 +1,6 @@
 #include "doctest/doctest.h"
 
-#include "material.h"
+#include "material.hpp"
 
 #include <vector>
 using std::vector;

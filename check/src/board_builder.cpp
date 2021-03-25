@@ -1,7 +1,7 @@
 #include "board_builder.hpp"
 
-#include "board.h"
-#include "move.h"
+#include "board.hpp"
+#include "move.hpp"
 
 namespace wisdom
 {

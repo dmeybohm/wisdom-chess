@@ -1,5 +1,5 @@
 #include "doctest/doctest.h"
-#include "move.h"
+#include "move.hpp"
 
 using namespace wisdom;
 

@@ -1,9 +1,9 @@
 #include "doctest/doctest.h"
 #include "board_builder.hpp"
 
-#include "board.h"
-#include "move_tree.h"
-#include "generate.h"
+#include "board.hpp"
+#include "move_tree.hpp"
+#include "generate.hpp"
 
 using namespace wisdom;
 

@@ -3,13 +3,20 @@
 
 #include <vector>
 
-#include "global.h"
-#include "board.h"
-#include "move.h"
-#include "move_tree.h"
+#include "global.hpp"
+#include "board.hpp"
+#include "move.hpp"
+#include "move_tree.hpp"
+#include "board_code.hpp"
 
 namespace wisdom
 {
+    class MoveGenerator final
+    {
+    public:
+        MoveList sort_moves (MoveList &list);
+    };
+
     static inline int is_pawn_unmoved (const struct Board &board,
                                        int8_t row, int8_t col)
     {

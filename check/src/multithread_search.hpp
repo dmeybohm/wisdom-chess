@@ -3,9 +3,9 @@
 
 #include <memory>
 
-#include "board.h"
-#include "search.h"
-#include "move_timer.h"
+#include "board.hpp"
+#include "search.hpp"
+#include "move_timer.hpp"
 
 namespace wisdom
 {

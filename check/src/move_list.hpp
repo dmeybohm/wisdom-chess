@@ -4,7 +4,7 @@
 #include <exception>
 #include <vector>
 
-#include "move.h"
+#include "move.hpp"
 
 namespace wisdom
 {

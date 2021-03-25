@@ -2,7 +2,7 @@
 #ifndef WIZDUMB_FEN_HPP
 #define WIZDUMB_FEN_HPP
 
-#include "global.h"
+#include "global.hpp"
 #include "board_builder.hpp"
 
 #include <string>

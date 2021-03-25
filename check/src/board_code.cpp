@@ -1,7 +1,7 @@
 
 #include "board_code.hpp"
-#include "board.h"
-#include "coord.h"
+#include "board.hpp"
+#include "coord.hpp"
 
 namespace wisdom
 {

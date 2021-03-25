@@ -1,7 +1,7 @@
 #ifndef WIZDUMB_COORD_ITERATOR_HPP
 #define WIZDUMB_COORD_ITERATOR_HPP
 
-#include "coord.h"
+#include "coord.hpp"
 
 namespace wisdom
 {

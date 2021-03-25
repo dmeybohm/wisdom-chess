@@ -1,6 +1,6 @@
 #include "doctest/doctest.h"
 
-#include "coord.h"
+#include "coord.hpp"
 
 using namespace wisdom;
 

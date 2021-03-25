@@ -1,6 +1,6 @@
-#include "board.h"
-#include "move.h"
-#include "validate.h"
+#include "board.hpp"
+#include "move.hpp"
+#include "validate.hpp"
 
 #include <iostream>
 

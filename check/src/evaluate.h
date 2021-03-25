@@ -1,9 +1,9 @@
 #ifndef EVOLVE_CHESS_EVALUATE_H
 #define EVOLVE_CHESS_EVALUATE_H
 
-#include "piece.h"
-#include "move.h"
-#include "move_tree.h"
+#include "piece.hpp"
+#include "move.hpp"
+#include "move_tree.hpp"
 
 namespace wisdom
 {

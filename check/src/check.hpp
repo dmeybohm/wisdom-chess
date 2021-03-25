@@ -1,8 +1,8 @@
 #ifndef EVOLVE_CHESS_CHECK_H
 #define EVOLVE_CHESS_CHECK_H
 
-#include "global.h"
-#include "move.h"
+#include "global.hpp"
+#include "move.hpp"
 #include "history.hpp"
 
 namespace wisdom

@@ -2,16 +2,16 @@
 #include <sstream>
 #include <memory>
 
-#include "piece.h"
-#include "board.h"
-#include "generate.h"
+#include "piece.hpp"
+#include "board.hpp"
+#include "generate.hpp"
 #include "evaluate.h"
-#include "check.h"
-#include "move_tree.h"
-#include "search.h"
-#include "move_timer.h"
+#include "check.hpp"
+#include "move_tree.hpp"
+#include "search.hpp"
+#include "move_timer.hpp"
 #include "move_history.hpp"
-#include "multithread_search.h"
+#include "multithread_search.hpp"
 #include "output.hpp"
 #include "history.hpp"
 

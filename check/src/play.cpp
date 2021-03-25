@@ -1,14 +1,14 @@
 #include <iostream>
 #include <memory>
 
-#include "move.h"
-#include "board.h"
-#include "generate.h"
-#include "search.h"
-#include "piece.h"
-#include "check.h"
-#include "game.h"
-#include "str.h"
+#include "move.hpp"
+#include "board.hpp"
+#include "generate.hpp"
+#include "search.hpp"
+#include "piece.hpp"
+#include "check.hpp"
+#include "game.hpp"
+#include "str.hpp"
 #include "output.hpp"
 
 namespace wisdom

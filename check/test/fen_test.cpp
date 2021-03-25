@@ -1,6 +1,6 @@
 #include "doctest/doctest.h"
-#include "game.h"
-#include "board.h"
+#include "game.hpp"
+#include "board.hpp"
 #include "fen.hpp"
 
 #include <cstring>

@@ -4,9 +4,9 @@
 #include <memory>
 #include <optional>
 
-#include "piece.h"
-#include "move.h"
-#include "board.h"
+#include "piece.hpp"
+#include "move.hpp"
+#include "board.hpp"
 #include "move_history.hpp"
 #include "board_builder.hpp"
 #include "history.hpp"

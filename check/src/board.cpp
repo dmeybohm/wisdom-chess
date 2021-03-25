@@ -3,8 +3,8 @@
 #include <cassert>
 #include <iostream>
 
-#include "board.h"
-#include "validate.h"
+#include "board.hpp"
+#include "validate.hpp"
 
 namespace wisdom
 {

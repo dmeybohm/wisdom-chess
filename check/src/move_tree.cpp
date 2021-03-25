@@ -1,4 +1,4 @@
-#include "move_tree.h"
+#include "move_tree.hpp"
 
 namespace wisdom
 {

@@ -1,4 +1,4 @@
-#include "piece.h"
+#include "piece.hpp"
 
 namespace wisdom
 {

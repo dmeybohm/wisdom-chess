@@ -1,15 +1,15 @@
 #include "doctest/doctest.h"
 #include "board_builder.hpp"
 
-#include "board.h"
+#include "board.hpp"
 #include "search.h"
-#include "move.h"
-#include "move_timer.h"
-#include "move_tree.h"
+#include "move.hpp"
+#include "move_timer.hpp"
+#include "move_tree.hpp"
 #include "output.hpp"
 #include "history.hpp"
 #include "fen.hpp"
-#include "game.h"
+#include "game.hpp"
 
 wisdom::NullOutput discard_output;
 using namespace wisdom;

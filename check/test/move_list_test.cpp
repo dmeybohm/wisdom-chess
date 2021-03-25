@@ -3,8 +3,8 @@
 #include <iostream>
 
 #include "move_list.hpp"
-#include "board.h"
-#include "generate.h"
+#include "board.hpp"
+#include "generate.hpp"
 
 using namespace wisdom;
 

@@ -1,7 +1,7 @@
 #ifndef EVOLVE_CHESS_COORD_H
 #define EVOLVE_CHESS_COORD_H
 
-#include "global.h"
+#include "global.hpp"
 
 #include <exception>
 #include <string>

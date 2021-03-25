@@ -5,13 +5,13 @@
 #include <vector>
 #include <algorithm>
 
-#include "global.h"
-#include "coord.h"
+#include "global.hpp"
+#include "coord.hpp"
 #include "coord_iterator.hpp"
-#include "move.h"
-#include "piece.h"
-#include "material.h"
-#include "position.h"
+#include "move.hpp"
+#include "piece.hpp"
+#include "material.hpp"
+#include "position.hpp"
 #include "board_code.hpp"
 
 ///////////////////////////////////////////////

@@ -1,10 +1,10 @@
 #include <array>
 
-#include "piece.h"
-#include "move.h"
-#include "board.h"
-#include "check.h"
-#include "generate.h"
+#include "piece.hpp"
+#include "move.hpp"
+#include "board.hpp"
+#include "check.hpp"
+#include "generate.hpp"
 
 namespace wisdom
 {
@@ -37,25 +37,20 @@ namespace wisdom
     static void add_en_passant_move (const Board &board, Color who, int8_t piece_row, int8_t piece_col,
                                      MoveList &moves, int8_t en_passant_column);
 
-///////////////////////////////////////////////
-
-    static MoveFunc move_functions[] =
-            {
-                    moves_none,    // Piece::None   [0]
-                    moves_king,    // Piece::King   [1]
-                    moves_queen,   // Piece::Queen  [2]
-                    moves_rook,    // Piece::Rook   [3]
-                    moves_bishop,  // Piece::Bishop [4]
-                    moves_knight,  // Piece::Knight [5]
-                    moves_pawn,    // Piece::Pawn   [6]
-                    nullptr,
-            };
+    static MoveFunc move_functions[] = {
+            moves_none,    // Piece::None   [0]
+            moves_king,    // Piece::King   [1]
+            moves_queen,   // Piece::Queen  [2]
+            moves_rook,    // Piece::Rook   [3]
+            moves_bishop,  // Piece::Bishop [4]
+            moves_knight,  // Piece::Knight [5]
+            moves_pawn,    // Piece::Pawn   [6]
+            nullptr,
+    };
 
     MoveList knight_moves[Num_Rows][Num_Columns]; // NOLINT(cert-err58-cpp)
 
-///////////////////////////////////////////////
-
-// generate a lookup table for knight moves
+    // generate a lookup table for knight moves
     static void knight_move_list_init ()
     {
         int8_t k_row, k_col;
@@ -194,7 +189,7 @@ namespace wisdom
         moves.append (kt_moves);
     }
 
-// Returns -1 if no column is eligible.
+    // Returns -1 if no column is eligible.
     static int8_t eligible_en_passant_column (const Board &board, int8_t row, int8_t column, Color who)
     {
         ColorIndex opponent_index = color_index (color_invert (who));
@@ -314,8 +309,8 @@ namespace wisdom
                 moves.push_back (check_pawn_move);
     }
 
-// put en passant in a separate handler
-// in order to not pollute instruction cache with it
+    // put en passant in a separate handler
+    // in order to not pollute instruction cache with it
     static void add_en_passant_move (const Board &board, Color who, int8_t piece_row, int8_t piece_col,
                                      MoveList &moves, int8_t en_passant_column)
     {
@@ -337,8 +332,6 @@ namespace wisdom
 
         moves.push_back (new_move);
     }
-
-///////////////////////////////////////////////
 
     const MoveList &generate_knight_moves (int8_t row, int8_t col)
     {
@@ -395,8 +388,7 @@ namespace wisdom
                piece_type (piece3) == Piece::None;
     }
 
-    MoveList validate_moves (const MoveList &move_list, const Board &board,
-                             Color who)
+    MoveList validate_moves (const MoveList &move_list, const Board &board, Color who)
     {
         MoveList captures;
 
@@ -479,5 +471,11 @@ namespace wisdom
         }
 
         return validate_moves (new_moves, board, who);
+    }
+
+    MoveList MoveGenerator::sort_moves (MoveList &list)
+    {
+
+        return list;
     }
 }

@@ -1,8 +1,8 @@
 #ifndef EVOLVE_CHESS_MATERIAL_H_
 #define EVOLVE_CHESS_MATERIAL_H_
 
-#include "global.h"
-#include "piece.h"
+#include "global.hpp"
+#include "piece.hpp"
 
 namespace wisdom
 {

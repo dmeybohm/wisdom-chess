@@ -1,5 +1,5 @@
-#include "position.h"
-#include "board.h"
+#include "position.hpp"
+#include "board.hpp"
 
 namespace wisdom
 {

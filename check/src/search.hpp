@@ -3,10 +3,10 @@
 
 #include <memory>
 
-#include "board.h"
-#include "piece.h"
-#include "move.h"
-#include "move_tree.h"
+#include "board.hpp"
+#include "piece.hpp"
+#include "move.hpp"
+#include "move_tree.hpp"
 #include "move_history.hpp"
 
 namespace wisdom

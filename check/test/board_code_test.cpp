@@ -1,5 +1,5 @@
 #include "doctest/doctest.h"
-#include "board.h"
+#include "board.hpp"
 #include "board_builder.hpp"
 
 #include <algorithm>
