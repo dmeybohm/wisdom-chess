@@ -13,7 +13,7 @@ TEST_CASE("Castling state is modified and restored for rooks")
         Piece::Bishop, Piece::None, Piece::Rook
     };
 
-    struct std::vector<BoardPositions> positions =
+    std::vector<BoardPositions> positions =
     {
         { 0, Color::Black, back_rank },
         { 7, Color::White, back_rank },
@@ -81,14 +81,12 @@ TEST_CASE("Castling state is modified and restored for kings")
 
 TEST_CASE("Castling state is modified and restored for castling queenside")
 {
-    std::vector<Piece> back_rank =
-    {
+    std::vector<Piece> back_rank = {
         Piece::Rook,   Piece::None, Piece::None, Piece::None, Piece::King,
         Piece::Bishop, Piece::None, Piece::Rook
     };
 
-    std::vector<BoardPositions> positions =
-    {
+    std::vector<BoardPositions> positions = {
         { 0, Color::Black, back_rank },
         { 7, Color::White, back_rank },
     };
@@ -134,14 +132,12 @@ TEST_CASE("Castling state is modified and restored for castling queenside")
 
 TEST_CASE("Castling state is modified and restored for castling kingside")
 {
-    std::vector<Piece> back_rank =
-    {
+    std::vector<Piece> back_rank = {
         Piece::Rook,  Piece::None, Piece::None, Piece::None, Piece::King,
         Piece::None, Piece::None, Piece::Rook
     };
 
-    std::vector<BoardPositions> positions =
-    {
+    std::vector<BoardPositions> positions = {
         { 0, Color::Black, back_rank },
         { 7, Color::White, back_rank },
     };

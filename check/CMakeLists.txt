@@ -22,6 +22,10 @@ add_library(chess_lib OBJECT
         src/history.cpp src/transposition_table.cpp src/transposition_table.hpp)
 add_executable(chess src/play.cpp $<TARGET_OBJECTS:chess_lib>)
 
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -fsanitize=address")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
   set(CMAKE_CXX_FLAGS "-Wall -Wextra")

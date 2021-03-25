@@ -7,7 +7,7 @@
 
 namespace wisdom
 {
-    struct Board;
+    class Board;
 
     class History;
 

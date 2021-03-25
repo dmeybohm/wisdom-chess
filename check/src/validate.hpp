@@ -5,7 +5,7 @@
 
 namespace wisdom
 {
-    struct Board;
+    class Board;
 
     void validate_castle_state (Board &board, struct move move);
 }

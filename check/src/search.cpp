@@ -40,9 +40,10 @@ namespace wisdom
         std::unique_ptr<MoveTree> new_variation { nullptr };
         std::size_t illegal_move_count = 0;
         SearchResult result;
+        MoveGenerator generator = board.move_generator ();
 
         variation.reset (nullptr);
-        MoveList moves = generate_moves (board, side);
+        MoveList moves = generator.generate (board, side);
 
         if (moves.empty ())
         {

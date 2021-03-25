@@ -21,7 +21,7 @@ namespace wisdom
 
     using BoardHashCode = std::size_t;
 
-    struct Board;
+    class Board;
 
     static std::hash<BoardCodeBitset> hash_fn;
 

@@ -5,6 +5,7 @@
 #include <vector>
 using std::vector;
 using namespace wisdom;
+
 TEST_CASE( "Adding material works" )
 {
     vector piece_types  { Piece::Bishop, Piece::Rook, Piece::Queen, Piece::Pawn };

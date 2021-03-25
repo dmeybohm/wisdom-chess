@@ -10,7 +10,7 @@
 
 namespace wisdom
 {
-    struct Board;
+    class Board;
 
     using CastlingState = uint8_t;
 
@@ -43,7 +43,7 @@ namespace wisdom
 
         CastlingState current_castle_state;
         CastlingState opponent_castle_state;
-        int16_t half_move_clock;
+        int half_move_clock;
 
         Coord en_passant_target[Num_Players];
     };

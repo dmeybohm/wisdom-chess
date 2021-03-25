@@ -7,8 +7,6 @@
 
 namespace wisdom
 {
-    struct move_tree;
-
     // Whether this move was a legal move for the player.
     bool was_legal_move (Board &board, Color who, Move mv);
 
@@ -25,8 +23,8 @@ namespace wisdom
     bool is_checkmated (Board &board, Color who);
 
     // Whether this move could cause a draw.
-    static inline bool is_drawing_move (Board &board, Color who,
-                                        Move mv, const History &history)
+    static inline bool is_drawing_move (Board &board, [[maybe_unused]] Color who,
+                                        [[maybe_unused]] Move mv, const History &history)
     {
         return history.is_third_repetition (board) ||
                History::is_fifty_move_repetition (board);

@@ -1,5 +1,4 @@
 #include <array>
-#include <algorithm>
 
 #include "piece.hpp"
 #include "move.hpp"
@@ -78,8 +77,7 @@ namespace wisdom
         }
     }
 
-    static inline int is_pawn_unmoved (const struct Board &board,
-                                       int8_t row, int8_t col)
+    static inline int is_pawn_unmoved (const Board &board, int8_t row, int8_t col)
     {
         assert (is_valid_row (row) && is_valid_column (col));
         ColoredPiece piece = piece_at (board, row, col);
@@ -512,8 +510,7 @@ namespace wisdom
     MoveList MoveGenerator::generate (const Board &board, Color who)
     {
         auto move_list = generate_moves (board, who);
-        sort_moves (move_list);
+        sort_moves (board, move_list);
         return move_list;
     }
-
 }

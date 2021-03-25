@@ -20,11 +20,9 @@
 
 namespace wisdom
 {
-    struct move_tree;
-
     struct BoardPositions
     {
-        int8_t rank;
+        int rank;
         Color piece_color;
         std::vector<Piece> pieces;
     };
@@ -33,7 +31,6 @@ namespace wisdom
     {
     private:
         TranspositionTable my_transpositions;
-        MoveGenerator my_generator;
 
     public:
         ColoredPiece squares[Num_Rows][Num_Columns];
@@ -57,10 +54,10 @@ namespace wisdom
         Coord en_passant_target[Num_Players];
 
         // Number of half moves since pawn or capture.
-        int16_t half_move_clock = 0;
+        int half_move_clock = 0;
 
         // Number of full moves, updated after black moves.
-        int16_t full_moves = 0;
+        int full_moves = 0;
 
         Board ();
 
@@ -91,6 +88,11 @@ namespace wisdom
         [[nodiscard]] std::string to_string () const;
 
         void add_evaluation_to_transposition_table (int score);
+
+        [[nodiscard]] MoveGenerator move_generator ()
+        {
+            return MoveGenerator { my_transpositions };
+        }
     };
 
     ///////////////////////////////////////////////
@@ -137,7 +139,7 @@ namespace wisdom
         return didnt_castle && neg_not_set;
     }
 
-    constexpr CastlingState board_get_castle_state (const struct Board &board, Color who)
+    constexpr CastlingState board_get_castle_state (const Board &board, Color who)
     {
         ColorIndex index = color_index (who);
         return board.castled[index];

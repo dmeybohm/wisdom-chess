@@ -99,24 +99,24 @@ namespace wisdom
         castle_states.push_back (new_state);
     }
 
-    void BoardBuilder::set_half_moves (int16_t new_half_moves_clock)
+    void BoardBuilder::set_half_moves (int new_half_moves_clock)
     {
         this->half_moves_clock = new_half_moves_clock;
     }
 
-    void BoardBuilder::set_full_moves (int16_t new_full_moves)
+    void BoardBuilder::set_full_moves (int new_full_moves)
     {
         this->full_moves = new_full_moves;
     }
 
-    struct Board BoardBuilder::build ()
+    Board BoardBuilder::build ()
     {
         struct piece_row
         {
             std::vector<Piece> row;
         };
 
-        size_t sz = this->pieces_with_coords.size ();
+        std::size_t sz = this->pieces_with_coords.size ();
 
         std::vector<struct piece_row> piece_types { sz };
         std::vector<struct BoardPositions> positions { sz };
@@ -135,7 +135,7 @@ namespace wisdom
             positions[i] = { row, piece_with_coord.color, current_piece_row };
         }
 
-        struct Board result = Board { positions };
+        Board result = Board { positions };
 
         if (!en_passant_states.empty ())
         {

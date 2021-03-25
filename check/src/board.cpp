@@ -11,8 +11,6 @@ namespace wisdom
     // board length in characters
     constexpr int BOARD_LENGTH = 31;
 
-    static void board_init_from_positions (Board &board, const std::vector<BoardPositions> &positions);
-
     std::vector<BoardPositions> initial_board_position ()
     {
         std::vector<Piece> back_rank = {
@@ -90,7 +88,7 @@ namespace wisdom
             Color color = pos.piece_color;
             row = pos.rank;
 
-            for (int8_t col = 0; col < Num_Columns && col < pieces.size (); col++)
+            for (std::size_t col = 0; col < Num_Columns && col < pieces.size (); col++)
             {
                 ColoredPiece new_piece;
 
@@ -98,7 +96,7 @@ namespace wisdom
                     continue;
 
                 new_piece = make_piece (color, pieces[col]);
-                Coord place = make_coord (row, col);
+                Coord place = make_coord (row, static_cast<int8_t>(col));
                 board_set_piece (*this, place, new_piece);
 
                 this->material.add (new_piece);
@@ -117,7 +115,6 @@ namespace wisdom
 
         this->code = BoardCode { *this };
     }
-
 
     void Board::print_to_file (std::ostream &out) const
     {
