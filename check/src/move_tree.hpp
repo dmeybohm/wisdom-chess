@@ -1,5 +1,5 @@
-#ifndef EVOLVE_CHESS_MOVE_TREE_H
-#define EVOLVE_CHESS_MOVE_TREE_H
+#ifndef WISDOM_CHESS_MOVE_TREE_HPP
+#define WISDOM_CHESS_MOVE_TREE_HPP
 
 #include "move.hpp"
 #include "move_list.hpp"
@@ -27,4 +27,4 @@ namespace wisdom
     };
 }
 
-#endif // EVOLVE_CHESS_MOVE_TREE_H
+#endif // WISDOM_CHESS_MOVE_TREE_HPP

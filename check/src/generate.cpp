@@ -475,7 +475,7 @@ namespace wisdom
 
     MoveList MoveGenerator::sort_moves (MoveList &list)
     {
-
+        my_transposition_table.
         return list;
     }
 }

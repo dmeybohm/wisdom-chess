@@ -1,5 +1,5 @@
-#ifndef WIZDUMB_HISTORY_HPP
-#define WIZDUMB_HISTORY_HPP
+#ifndef WISDOM_HISTORY_HPP
+#define WISDOM_HISTORY_HPP
 
 #include "board_history.hpp"
 #include "move_history.hpp"
@@ -38,15 +38,15 @@ namespace wisdom
             my_move_history.pop_back ();
         }
 
-        BoardHistory &get_board_history ()
+        [[nodiscard]] const BoardHistory &get_board_history () const
         {
             return my_board_history;
         }
 
-        MoveHistory &get_move_history ()
+        [[nodiscard]] const MoveHistory &get_move_history () const
         {
             return my_move_history;
         }
     };
 }
-#endif //WIZDUMB_HISTORY_HPP
+#endif //WISDOM_HISTORY_HPP

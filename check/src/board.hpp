@@ -1,5 +1,5 @@
-#ifndef EVOLVE_CHESS_BOARD_H_
-#define EVOLVE_CHESS_BOARD_H_
+#ifndef WISDOM_CHESS_BOARD_H_
+#define WISDOM_CHESS_BOARD_H_
 
 #include <cassert>
 #include <vector>
@@ -180,4 +180,4 @@ namespace wisdom
     }
 }
 
-#endif // EVOLVE_CHESS_BOARD_H_
+#endif // WISDOM_CHESS_BOARD_H_

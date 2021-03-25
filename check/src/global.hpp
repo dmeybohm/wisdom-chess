@@ -1,5 +1,5 @@
-#ifndef WIZDUMB_GLOBAL_H
-#define WIZDUMB_GLOBAL_H
+#ifndef WISDOM_GLOBAL_H
+#define WISDOM_GLOBAL_H
 
 #include <cstdint>
 #include <cassert>
@@ -28,4 +28,4 @@ namespace wisdom
         Queen_Castled_Rook_Column = 3,
     };
 }
-#endif //WIZDUMB_GLOBAL_H
+#endif //WISDOM_GLOBAL_H

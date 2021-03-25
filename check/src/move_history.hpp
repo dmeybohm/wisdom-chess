@@ -1,5 +1,5 @@
-#ifndef WIZDUMB_MOVE_HISTORY_HPP
-#define WIZDUMB_MOVE_HISTORY_HPP
+#ifndef WISDOM_MOVE_HISTORY_HPP
+#define WISDOM_MOVE_HISTORY_HPP
 
 #include <string>
 
@@ -44,7 +44,7 @@ namespace wisdom
             return my_moves;
         }
 
-        void save (const std::string &filename);
+        void save (const std::string &filename) const;
     };
 }
-#endif //WIZDUMB_MOVE_HISTORY_HPP
+#endif //WISDOM_MOVE_HISTORY_HPP

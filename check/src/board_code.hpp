@@ -1,6 +1,6 @@
 
-#ifndef WIZDUMB_BOARD_CODE_HPP
-#define WIZDUMB_BOARD_CODE_HPP
+#ifndef WISDOM_BOARD_CODE_HPP
+#define WISDOM_BOARD_CODE_HPP
 
 #include "global.hpp"
 #include "piece.hpp"
@@ -92,4 +92,4 @@ namespace wisdom
         std::size_t count_ones ();
     };
 }
-#endif //WIZDUMB_BOARD_CODE_HPP
+#endif //WISDOM_BOARD_CODE_HPP

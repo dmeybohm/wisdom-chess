@@ -5,5 +5,4 @@ class TranspositionTable final
 {
 };
 
-
 #endif //WISDOM_TRANSPOSITION_TABLE_HPP

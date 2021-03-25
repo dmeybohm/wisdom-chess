@@ -1,5 +1,5 @@
-#ifndef WIZDUMB_COORD_ITERATOR_HPP
-#define WIZDUMB_COORD_ITERATOR_HPP
+#ifndef WISDOM_COORD_ITERATOR_HPP
+#define WISDOM_COORD_ITERATOR_HPP
 
 #include "coord.hpp"
 
@@ -57,4 +57,4 @@ namespace wisdom
 
     extern CoordIterator all_coords_iterator;
 }
-#endif //WIZDUMB_COORD_ITERATOR_HPP
+#endif //WISDOM_COORD_ITERATOR_HPP

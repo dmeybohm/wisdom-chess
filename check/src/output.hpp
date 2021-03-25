@@ -1,6 +1,6 @@
 
-#ifndef WIZDUMB_OUTPUT_HPP
-#define WIZDUMB_OUTPUT_HPP
+#ifndef WISDOM_OUTPUT_HPP
+#define WISDOM_OUTPUT_HPP
 
 #include <iostream>
 #include <mutex>
@@ -38,4 +38,4 @@ namespace wisdom
     };
 
 }
-#endif //WIZDUMB_OUTPUT_HPP
+#endif //WISDOM_OUTPUT_HPP

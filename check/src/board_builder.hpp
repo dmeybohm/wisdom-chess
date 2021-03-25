@@ -1,5 +1,5 @@
-#ifndef WIZDUMB_BOARD_BUILDER_HPP
-#define WIZDUMB_BOARD_BUILDER_HPP
+#ifndef WISDOM_BOARD_BUILDER_HPP
+#define WISDOM_BOARD_BUILDER_HPP
 
 #include "global.hpp"
 #include "piece.hpp"
@@ -90,4 +90,4 @@ namespace wisdom
     Coord coord_alg (const std::string &coord_str);
 }
 
-#endif //WIZDUMB_BOARD_BUILDER_HPP
+#endif //WISDOM_BOARD_BUILDER_HPP

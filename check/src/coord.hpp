@@ -1,5 +1,5 @@
-#ifndef EVOLVE_CHESS_COORD_H
-#define EVOLVE_CHESS_COORD_H
+#ifndef WISDOM_CHESS_COORD_H
+#define WISDOM_CHESS_COORD_H
 
 #include "global.hpp"
 
@@ -116,4 +116,4 @@ namespace wisdom
     };
 
 }
-#endif // EVOLVE_CHESS_COORD_H
+#endif // WISDOM_CHESS_COORD_H

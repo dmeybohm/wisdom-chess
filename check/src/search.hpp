@@ -1,5 +1,5 @@
-#ifndef EVOLVE_CHESS_SEARCH_H_
-#define EVOLVE_CHESS_SEARCH_H_
+#ifndef WISDOM_CHESS_SEARCH_H_
+#define WISDOM_CHESS_SEARCH_H_
 
 #include <memory>
 
@@ -43,4 +43,4 @@ namespace wisdom
     int checkmate_score_in_moves (int moves);
 }
 
-#endif // EVOLVE_CHESS_SEARCH_H_
+#endif // WISDOM_CHESS_SEARCH_H_

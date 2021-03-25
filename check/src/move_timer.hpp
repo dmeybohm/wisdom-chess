@@ -1,5 +1,5 @@
-#ifndef CHECK_TIMER_H
-#define CHECK_TIMER_H
+#ifndef WISDOM_TIMER_HPP
+#define WISDOM_TIMER_HPP
 
 #include <chrono>
 
@@ -31,4 +31,4 @@ namespace wisdom
         bool is_triggered ();
     };
 }
-#endif //CHECK_TIMER_H
+#endif //WISDOM_TIMER_HPP

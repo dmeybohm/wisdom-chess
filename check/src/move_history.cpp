@@ -10,7 +10,7 @@ namespace wisdom
         this->my_moves = list;
     }
 
-    void MoveHistory::save (const std::string &filename)
+    void MoveHistory::save (const std::string &filename) const
     {
         std::ofstream file;
         file.open (filename);

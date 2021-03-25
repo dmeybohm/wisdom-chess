@@ -1,5 +1,5 @@
-#ifndef EVOLVE_CHESS_PIECE_H
-#define EVOLVE_CHESS_PIECE_H
+#ifndef WISDOM_CHESS_PIECE_HPP
+#define WISDOM_CHESS_PIECE_HPP
 
 #include <cassert>
 #include <string>
@@ -183,4 +183,4 @@ namespace wisdom
 
     std::string to_string (Color who);
 }
-#endif // EVOLVE_CHESS_PIECE_H
+#endif // WISDOM_CHESS_PIECE_HPP

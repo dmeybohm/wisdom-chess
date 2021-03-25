@@ -1,5 +1,5 @@
-#ifndef WIZDUMB_VALIDATE_H
-#define WIZDUMB_VALIDATE_H
+#ifndef WISDOM_VALIDATE_HPP
+#define WISDOM_VALIDATE_HPP
 
 #include "move.hpp"
 
@@ -10,4 +10,4 @@ namespace wisdom
     void validate_castle_state (Board &board, struct move move);
 }
 
-#endif //WIZDUMB_VALIDATE_H
+#endif //WISDOM_VALIDATE_HPP

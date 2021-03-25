@@ -1,5 +1,5 @@
-#ifndef EVOLVE_CHESS_MOVE_H
-#define EVOLVE_CHESS_MOVE_H
+#ifndef WISDOM_CHESS_MOVE_H
+#define WISDOM_CHESS_MOVE_H
 
 #include <cassert>
 #include <string>
@@ -326,4 +326,4 @@ namespace wisdom
 
 /////////////////////////////////////////////////////////////////////
 }
-#endif // EVOLVE_CHESS_MOVE_H
+#endif // WISDOM_CHESS_MOVE_H

@@ -1,5 +1,5 @@
-#ifndef WIZDUMB_STR_H_
-#define WIZDUMB_STR_H_
+#ifndef WISDOM_STR_HPP
+#define WISDOM_STR_HPP
 
 #include <string>
 
@@ -7,4 +7,5 @@ namespace wisdom
 {
     std::string chomp (const std::string &str);
 }
-#endif
+
+#endif //WISDOM_STR_HPP

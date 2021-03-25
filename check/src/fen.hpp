@@ -1,6 +1,6 @@
 
-#ifndef WIZDUMB_FEN_HPP
-#define WIZDUMB_FEN_HPP
+#ifndef WISDOM_FEN_HPP
+#define WISDOM_FEN_HPP
 
 #include "global.hpp"
 #include "board_builder.hpp"
@@ -58,4 +58,4 @@ namespace wisdom
     };
 }
 
-#endif //WIZDUMB_FEN_HPP
+#endif //WISDOM_FEN_HPP

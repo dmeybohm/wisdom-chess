@@ -1,5 +1,5 @@
-#ifndef EVOLVE_CHESS_BOARD_H
-#define EVOLVE_CHESS_BOARD_H
+#ifndef WISDOM_GENERATE_HPP
+#define WISDOM_GENERATE_HPP
 
 #include <vector>
 
@@ -8,11 +8,15 @@
 #include "move.hpp"
 #include "move_tree.hpp"
 #include "board_code.hpp"
+#include "transposition_table.hpp"
 
 namespace wisdom
 {
     class MoveGenerator final
     {
+    private:
+        TranspositionTable my_transposition_table;
+
     public:
         MoveList sort_moves (MoveList &list);
     };
@@ -38,4 +42,4 @@ namespace wisdom
     const MoveList &generate_knight_moves (int8_t row, int8_t col);
 }
 
-#endif // EVOLVE_CHESS_BOARD_H
+#endif // WISDOM_GENERATE_HPP

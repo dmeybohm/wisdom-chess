@@ -1,5 +1,5 @@
-#ifndef EVOLVE_CHESS_GAME_H_
-#define EVOLVE_CHESS_GAME_H_
+#ifndef WISDOM_CHESS_GAME_H_
+#define WISDOM_CHESS_GAME_H_
 
 #include <memory>
 #include <optional>
@@ -47,4 +47,4 @@ namespace wisdom
     };
 }
 
-#endif // EVOLVE_CHESS_GAME_H_
+#endif // WISDOM_CHESS_GAME_H_

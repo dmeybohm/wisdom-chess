@@ -1,5 +1,5 @@
-#ifndef WIZDUMB_MOVE_LIST_HPP
-#define WIZDUMB_MOVE_LIST_HPP
+#ifndef WISDOM_MOVE_LIST_HPP
+#define WISDOM_MOVE_LIST_HPP
 
 #include <exception>
 #include <vector>
@@ -93,4 +93,4 @@ namespace wisdom
 
     std::string to_string (const MoveList &list);
 }
-#endif //WIZDUMB_MOVE_LIST_HPP
+#endif //WISDOM_MOVE_LIST_HPP
