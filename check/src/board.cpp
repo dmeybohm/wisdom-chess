@@ -8,46 +8,35 @@
 
 namespace wisdom
 {
-
-
-// board length in characters
+    // board length in characters
     constexpr int BOARD_LENGTH = 31;
 
     static void board_init_from_positions (Board &board, const std::vector<BoardPositions> &positions);
 
     std::vector<BoardPositions> initial_board_position ()
     {
-        std::vector<Piece> back_rank =
-                {
-                        Piece::Rook, Piece::Knight, Piece::Bishop, Piece::Queen, Piece::King,
-                        Piece::Bishop, Piece::Knight, Piece::Rook,
-                };
+        std::vector<Piece> back_rank = {
+                Piece::Rook, Piece::Knight, Piece::Bishop, Piece::Queen, Piece::King,
+                Piece::Bishop, Piece::Knight, Piece::Rook,
+        };
 
-        std::vector<Piece> pawns =
-                {
-                        Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::Pawn,
-                        Piece::Pawn, Piece::Pawn, Piece::Pawn,
-                };
+        std::vector<Piece> pawns = {
+                Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::Pawn,
+                Piece::Pawn, Piece::Pawn, Piece::Pawn,
+        };
 
-        std::vector<BoardPositions> init_board =
-                {
-                        { 0, Color::Black, back_rank, },
-                        { 1, Color::Black, pawns, },
-                        { 6, Color::White, pawns, },
-                        { 7, Color::White, back_rank, },
-                };
+        std::vector<BoardPositions> init_board = {
+                { 0, Color::Black, back_rank, },
+                { 1, Color::Black, pawns, },
+                { 6, Color::White, pawns, },
+                { 7, Color::White, back_rank, },
+        };
 
         return init_board;
     }
 
-    Board::Board ()
+    Board::Board () : Board { initial_board_position() }
     {
-        board_init_from_positions (*this, initial_board_position ());
-    }
-
-    Board::Board (const std::vector<BoardPositions> &positions)
-    {
-        board_init_from_positions (*this, positions);
     }
 
     static CastlingState init_castle_state (Board &board, Color who)
@@ -68,16 +57,14 @@ namespace wisdom
         if (piece_type (prospective_king) != Piece::King ||
             piece_color (prospective_king) != who ||
             piece_type (prospective_queen_rook) != Piece::Rook ||
-            piece_color (prospective_queen_rook) != who
-                )
+            piece_color (prospective_queen_rook) != who)
         {
             state |= CASTLE_QUEENSIDE;
         }
         if (piece_type (prospective_king) != Piece::King ||
             piece_color (prospective_king) != who ||
             piece_type (prospective_king_rook) != Piece::Rook ||
-            piece_color (prospective_king_rook) != who
-                )
+            piece_color (prospective_king_rook) != who)
         {
             state |= CASTLE_KINGSIDE;
         }
@@ -85,25 +72,25 @@ namespace wisdom
         return state;
     }
 
-    static void board_init_from_positions (Board &board, const std::vector<BoardPositions> &positions)
+    Board::Board (const std::vector<BoardPositions> &positions)
     {
         int8_t row;
 
-        for (CastlingState &i : board.castled)
+        for (CastlingState &i : this->castled)
             i = CASTLE_NONE;
 
         for (const auto &coord : All_Coords_Iterator)
-            board_set_piece (board, coord, piece_and_color_none);
+            board_set_piece (*this, coord, Piece_And_Color_None);
 
-        position_init (&board.position);
+        this->position = Position {};
 
-        for (auto &position : positions)
+        for (auto &pos : positions)
         {
-            auto &pieces = position.pieces;
-            Color color = position.piece_color;
-            row = position.rank;
+            auto &pieces = pos.pieces;
+            Color color = pos.piece_color;
+            row = pos.rank;
 
-            for (uint8_t col = 0; col < Num_Columns && col < pieces.size (); col++)
+            for (int8_t col = 0; col < Num_Columns && col < pieces.size (); col++)
             {
                 ColoredPiece new_piece;
 
@@ -112,24 +99,25 @@ namespace wisdom
 
                 new_piece = make_piece (color, pieces[col]);
                 Coord place = make_coord (row, col);
-                board_set_piece (board, place, new_piece);
+                board_set_piece (*this, place, new_piece);
 
-                board.material.add (new_piece);
-                position_add (&board.position, color, place, new_piece);
+                this->material.add (new_piece);
+                this->position.add (color, place, new_piece);
 
                 if (pieces[col] == Piece::King)
-                    king_position_set (board, color, place);
+                    king_position_set (*this, color, place);
             }
         }
 
-        board.castled[COLOR_INDEX_WHITE] = init_castle_state (board, Color::White);
-        board.castled[COLOR_INDEX_BLACK] = init_castle_state (board, Color::Black);
+        this->castled[COLOR_INDEX_WHITE] = init_castle_state (*this, Color::White);
+        this->castled[COLOR_INDEX_BLACK] = init_castle_state (*this, Color::Black);
 
-        board.en_passant_target[COLOR_INDEX_WHITE] = No_En_Passant_Coord;
-        board.en_passant_target[COLOR_INDEX_BLACK] = No_En_Passant_Coord;
+        this->en_passant_target[COLOR_INDEX_WHITE] = No_En_Passant_Coord;
+        this->en_passant_target[COLOR_INDEX_BLACK] = No_En_Passant_Coord;
 
-        board.code = BoardCode { board };
+        this->code = BoardCode { *this };
     }
+
 
     void Board::print_to_file (std::ostream &out) const
     {

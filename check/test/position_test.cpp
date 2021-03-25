@@ -11,10 +11,10 @@ TEST_CASE("Position is initialized correctly")
 {
     Board board;
 
-    CHECK( board.position.score[COLOR_INDEX_WHITE] < 0 );
-    CHECK( board.position.score[COLOR_INDEX_BLACK] < 0 );
-    CHECK( board.position.score[COLOR_INDEX_WHITE] ==
-           board.position.score[COLOR_INDEX_BLACK]);
+    CHECK(board.position.raw_score(Color::White) < 0 );
+    CHECK(board.position.raw_score(Color::Black) < 0 );
+    CHECK(board.position.raw_score(Color::White) ==
+          board.position.raw_score(Color::Black));
 }
 
 TEST_CASE( "Center pawn elevates position score" )
@@ -29,7 +29,7 @@ TEST_CASE( "Center pawn elevates position score" )
     
     Board board = builder.build();
 
-    CHECK( board.position.score[COLOR_INDEX_WHITE] > board.position.score[COLOR_INDEX_BLACK]);
+    CHECK(board.position.score(Color::White) > board.position.score(Color::Black));
 }
 
 TEST_CASE( "Capture updates position score correctly")
@@ -44,16 +44,16 @@ TEST_CASE( "Capture updates position score correctly")
 
     auto board = builder.build();
 
-    int initial_score_white = position_score (&board.position, Color::White);
-    int initial_score_black = position_score (&board.position, Color::Black);
+    int initial_score_white = board.position.score(Color::White);
+    int initial_score_black = board.position.score(Color::Black);
 
     Move e4xd6 = move_parse ("e4xd6", Color::White);
 
     UndoMove undo_state = do_move (board, Color::White, e4xd6);
     undo_move (board, Color::White, e4xd6, undo_state);
 
-    CHECK( initial_score_white == position_score (&board.position, Color::White) );
-    CHECK( initial_score_black == position_score (&board.position, Color::Black) );
+    CHECK( initial_score_white == board.position.score(Color::White) );
+    CHECK( initial_score_black == board.position.score(Color::Black) );
 }
 
 TEST_CASE( "En passant updates position score correctly")
@@ -68,8 +68,8 @@ TEST_CASE( "En passant updates position score correctly")
 
     auto board = builder.build();
 
-    int initial_score_white = position_score (&board.position, Color::White);
-    int initial_score_black = position_score (&board.position, Color::Black);
+    int initial_score_white = board.position.score(Color::White);
+    int initial_score_black = board.position.score(Color::Black);
 
     Move e5xd5 = move_parse ("e5d6 ep", Color::White);
     CHECK( is_en_passant_move(e5xd5) );
@@ -77,8 +77,8 @@ TEST_CASE( "En passant updates position score correctly")
     UndoMove undo_state = do_move (board, Color::White, e5xd5);
     undo_move (board, Color::White, e5xd5, undo_state);
 
-    CHECK( initial_score_white == position_score (&board.position, Color::White) );
-    CHECK( initial_score_black == position_score (&board.position, Color::Black) );
+    CHECK( initial_score_white == board.position.score(Color::White) );
+    CHECK( initial_score_black == board.position.score(Color::Black) );
 }
 
 TEST_CASE( "Castling updates position score correctly")
@@ -93,8 +93,8 @@ TEST_CASE( "Castling updates position score correctly")
     builder.add_piece("d5", Color::Black, Piece::Pawn);
 
     Board board = builder.build();
-    int initial_score_white = position_score (&board.position, Color::White);
-    int initial_score_black = position_score (&board.position, Color::Black);
+    int initial_score_white = board.position.score(Color::White);
+    int initial_score_black = board.position.score(Color::Black);
 
     std::vector castling_moves { "o-o", "o-o-o" };
     for (auto castling_move_in : castling_moves)
@@ -105,8 +105,8 @@ TEST_CASE( "Castling updates position score correctly")
         UndoMove undo_state = do_move (board, Color::White, castling_move);
         undo_move (board, Color::White, castling_move, undo_state);
 
-        CHECK(initial_score_white == position_score (&board.position, Color::White));
-        CHECK(initial_score_black == position_score (&board.position, Color::Black));
+        CHECK(initial_score_white == board.position.score(Color::White));
+        CHECK(initial_score_black == board.position.score(Color::Black));
     }
 }
 
@@ -120,8 +120,8 @@ TEST_CASE( "Promoting move updates position score correctly")
     builder.add_piece("h7", Color::White, Piece::Pawn);
 
     Board board = builder.build();
-    int initial_score_white = position_score (&board.position, Color::White);
-    int initial_score_black = position_score (&board.position, Color::Black);
+    int initial_score_white = board.position.score(Color::White);
+    int initial_score_black = board.position.score(Color::Black);
 
     std::vector promoting_moves { "h7h8 (Q)", "h7h8 (R)", "h7h8 (B)", "h7h8 (N)" };
     for (auto promoting_move_in : promoting_moves)
@@ -132,7 +132,7 @@ TEST_CASE( "Promoting move updates position score correctly")
         UndoMove undo_state = do_move (board, Color::White, castling_move);
         undo_move (board, Color::White, castling_move, undo_state);
 
-        CHECK(initial_score_white == position_score (&board.position, Color::White));
-        CHECK(initial_score_black == position_score (&board.position, Color::Black));
+        CHECK(initial_score_white == board.position.score(Color::White));
+        CHECK(initial_score_black == board.position.score(Color::Black));
     }
 }

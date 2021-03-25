@@ -114,6 +114,6 @@ namespace wisdom
         [[nodiscard]] const char *what () const noexcept override
         { return this->message; }
     };
-
 }
+
 #endif // WISDOM_CHESS_COORD_H

@@ -57,7 +57,7 @@ namespace wisdom
 
         void remove_piece (Coord coord)
         {
-            return add_piece (coord, piece_and_color_none);
+            return add_piece (coord, Piece_And_Color_None);
         }
 
         [[nodiscard]] std::string to_string () const

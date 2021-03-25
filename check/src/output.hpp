@@ -1,4 +1,3 @@
-
 #ifndef WISDOM_OUTPUT_HPP
 #define WISDOM_OUTPUT_HPP
 
@@ -36,6 +35,6 @@ namespace wisdom
             std::cout << output << '\n';
         }
     };
-
 }
+
 #endif //WISDOM_OUTPUT_HPP

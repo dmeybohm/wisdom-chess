@@ -22,7 +22,7 @@ namespace wisdom
 
     struct BoardPositions
     {
-        int rank;
+        int8_t rank;
         Color piece_color;
         std::vector<Piece> pieces;
     };

@@ -9,30 +9,23 @@
 
 namespace wisdom
 {
-    struct Position
+    class Position
     {
-        int score[Num_Players];
+    private:
+        int my_score[Num_Players]{};
+
+    public:
+        Position() = default;
+
+        [[nodiscard]] int score (Color who) const;
+
+        [[nodiscard]] int raw_score (Color who) const;
+
+        void add (Color who, Coord coord, ColoredPiece piece);
+        void remove (Color who, Coord coord, ColoredPiece piece);
+        void apply_move (Color who, ColoredPiece piece, Move move, UndoMove undo_state);
+        void unapply_move (Color who, ColoredPiece piece, Move move, UndoMove undo_state);
     };
-
-/////////////////////////////////////////////////////////
-
-    void position_init (struct Position *position);
-
-    void position_add (struct Position *position, Color who,
-                       Coord coord, ColoredPiece piece);
-
-    void position_remove (struct Position *position, Color who,
-                          Coord coord, ColoredPiece piece);
-
-    void position_do_move (struct Position *position, Color who,
-                           ColoredPiece piece, Move move, UndoMove undo_state);
-
-    void position_undo_move (struct Position *position, Color who,
-                             ColoredPiece piece, Move move, UndoMove undo_state);
-
-    int position_score (const struct Position *position, Color who);
-
-/////////////////////////////////////////////////////////
 
 }
 #endif //WISDOM_POSITION_H

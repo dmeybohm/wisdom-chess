@@ -127,7 +127,7 @@ namespace wisdom
         }
         else
         {
-            return piece_and_color_none;
+            return Piece_And_Color_None;
         }
     }
 

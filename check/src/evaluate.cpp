@@ -39,7 +39,7 @@ namespace wisdom
         }
 
         score += board.material.score (who);
-        score += position_score (&board.position, who);
+        score += board.position.score (who);
 
         if (is_checkmated (board, who))
         {

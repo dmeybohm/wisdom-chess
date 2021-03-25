@@ -23,7 +23,7 @@ namespace wisdom
             ColoredPiece taken_pawn = make_piece (color_invert (who), Piece::Pawn);
             board_set_piece (board, taken_pawn_pos, taken_pawn);
 
-            return piece_and_color_none; // restore empty square where piece was replaced
+            return Piece_And_Color_None; // restore empty square where piece was replaced
         }
         else
         {
@@ -31,7 +31,7 @@ namespace wisdom
 
             assert(piece_type (taken) == Piece::Pawn);
             assert(piece_color (taken) != who);
-            board_set_piece (board, taken_pawn_pos, piece_and_color_none);
+            board_set_piece (board, taken_pawn_pos, Piece_And_Color_None);
 
             return taken;
         }
@@ -337,7 +337,7 @@ namespace wisdom
 
         board.code.apply_move (board, move);
 
-        board_set_piece (board, src, piece_and_color_none);
+        board_set_piece (board, src, Piece_And_Color_None);
         board_set_piece (board, dst, src_piece);
 
         // update king position
@@ -365,7 +365,7 @@ namespace wisdom
             }
         }
 
-        position_do_move (&board.position, who, orig_src_piece, move, undo_state);
+        board.position.apply_move (who, orig_src_piece, move, undo_state);
         validate_castle_state (board, move);
 
         board.update_half_move_clock (piece_type (orig_src_piece), move, undo_state);
@@ -374,7 +374,7 @@ namespace wisdom
 
     void undo_move (Board &board, Color who, Move move, UndoMove undo_state)
     {
-        ColoredPiece orig_src_piece, src_piece, dst_piece = piece_and_color_none;
+        ColoredPiece orig_src_piece, src_piece, dst_piece = Piece_And_Color_None;
         Piece dst_piece_type;
         Coord src, dst;
         Color opponent = color_invert (who);
@@ -443,7 +443,7 @@ namespace wisdom
         }
 
 
-        position_undo_move (&board.position, who, src_piece, move, undo_state);
+        board.position.unapply_move (who, src_piece, move, undo_state);
         validate_castle_state (board, move);
         board.restore_half_move_clock (undo_state);
     }

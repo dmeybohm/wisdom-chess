@@ -28,4 +28,5 @@ namespace wisdom
         Queen_Castled_Rook_Column = 3,
     };
 }
+
 #endif //WISDOM_GLOBAL_H
