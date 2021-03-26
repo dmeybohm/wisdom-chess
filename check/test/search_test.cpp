@@ -40,14 +40,11 @@ TEST_CASE("Can find mate in 3")
 
     Board board = builder.build ();
     std::unique_ptr<MoveTree> variation;
-
     History history;
-    SearchResult result = search (
-            board, Color::White, discard_output, history, large_timer, 4, 4,
-            -INITIAL_ALPHA, INITIAL_ALPHA,
-            variation
-    );
+    IterativeSearch search { board, history, discard_output, large_timer, 4 };
 
+    SearchResult result = search.iterativelyDeepen (Color::White, variation);
+    REQUIRE(result.score > INFINITE);
     REQUIRE(result.move != Null_Move);
     REQUIRE(variation->size () == 5);
 
@@ -55,7 +52,6 @@ TEST_CASE("Can find mate in 3")
     MoveList computed_moves = variation->to_list ();
 
     REQUIRE(expected_moves == computed_moves);
-    REQUIRE(result.score > INFINITE);
 }
 
 //
@@ -69,7 +65,7 @@ TEST_CASE("Can find mate in 3")
 TEST_CASE("Can find mate in 2 1/2")
 {
     BoardBuilder builder;
-    MoveTimer large_timer { 10 };
+    MoveTimer large_timer { 30 };
 
     builder.add_pieces (
             Color::Black, {
@@ -89,20 +85,19 @@ TEST_CASE("Can find mate in 2 1/2")
     Board board = builder.build ();
     std::unique_ptr<MoveTree> variation;
     History history;
-    SearchResult result = search (
-            board, Color::Black, discard_output, history, large_timer,
-            5, 5, -INITIAL_ALPHA, INITIAL_ALPHA,
-            variation
-    );
+    IterativeSearch search { board, history, discard_output, large_timer, 5 };
 
+    SearchResult result = search.iterativelyDeepen (Color::Black, variation);
     REQUIRE(result.move != Null_Move);
 
-    MoveList expected_moves = { Color::Black, { "e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
+    // Used to return this before move reordering.
+    MoveList expected_mate = { Color::Black, { "e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
+//    MoveList expected_mate_two = { Color::Black, { "c7 d7", "d5 e5", "b4 b8", "e5 d5", "b8 c8" }};
     MoveList computed_moves = variation->to_list ();
 
-    REQUIRE(variation->size () == 5);
-    REQUIRE(expected_moves == computed_moves);
     REQUIRE(result.score > INFINITE);
+    REQUIRE(variation->size () == 5);
+    REQUIRE(expected_mate == computed_moves);
 }
 
 TEST_CASE("scenario with heap overflow 1")
@@ -193,11 +188,10 @@ TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing"
 
     std::unique_ptr<MoveTree> variation;
     History history;
-    MoveTimer large_timer { 30 };
-    SearchResult result = search (
-            game.board, Color::Black, discard_output, history, large_timer,
-            3, 3, -INITIAL_ALPHA, INITIAL_ALPHA,variation
-    );
+    MoveTimer timer { 30 };
+    IterativeSearch search { game.board, history, discard_output, timer, 3 };
+
+    SearchResult result = search.iterativelyDeepen (Color::Black, variation);
 
     REQUIRE(to_string (result.move) == "e2xf1(Q)");
 }

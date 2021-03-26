@@ -92,5 +92,7 @@ namespace wisdom
     };
 
     std::string to_string (const MoveList &list);
+
+    std::ostream &operator<< (std::ostream &os, const MoveList &list);
 }
 #endif //WISDOM_MOVE_LIST_HPP

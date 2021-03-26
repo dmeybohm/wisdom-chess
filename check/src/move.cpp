@@ -442,7 +442,6 @@ namespace wisdom
             }
         }
 
-
         board.position.unapply_move (who, src_piece, move, undo_state);
         validate_castle_state (board, move);
         board.restore_half_move_clock (undo_state);

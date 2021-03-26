@@ -143,7 +143,7 @@ namespace wisdom
     {
         SearchResult best_result{};
 
-        for (int depth = 1; depth < my_total_depth; depth++)
+        for (int depth = 0; depth <= my_total_depth; depth++)
         {
             SearchResult next_result = iterate (my_board, side, my_output, my_history, my_timer,
                                                 depth, variation);
@@ -151,6 +151,9 @@ namespace wisdom
                 best_result = next_result;
 
             if (my_timer.is_triggered ())
+                break;
+
+            if (is_checkmating_opponent_score(best_result.score))
                 break;
         }
 
@@ -217,6 +220,11 @@ namespace wisdom
     int checkmate_score_in_moves (int moves)
     {
         return INFINITE + INFINITE / (1 + moves);
+    }
+
+    bool is_checkmating_opponent_score (int score)
+    {
+        return score > INFINITE;
     }
 
 }

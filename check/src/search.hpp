@@ -46,6 +46,8 @@ namespace wisdom
     // Get the score for checkmate in X moves.
     int checkmate_score_in_moves (int moves);
 
+    bool is_checkmating_opponent_score (int score);
+
     class IterativeSearch
     {
     private:

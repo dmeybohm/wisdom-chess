@@ -23,8 +23,14 @@ namespace wisdom
     {
         std::string result = "{ ";
         for (auto move : list)
-            result += to_string (move) + " ";
+            result += "[" + to_string (move) + "] ";
         result += " }";
         return result;
+    }
+
+    std::ostream &operator<< (std::ostream &os, const MoveList &list)
+    {
+        os << to_string(list);
+        return os;
     }
 }
