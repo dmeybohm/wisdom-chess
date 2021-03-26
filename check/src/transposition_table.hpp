@@ -48,6 +48,8 @@ namespace wisdom
         {
             return my_num_elements;
         }
+
+        void verify () const;
     };
 }
 

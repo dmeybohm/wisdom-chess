@@ -23,7 +23,7 @@ namespace wisdom
 
     class Board;
 
-    static std::hash<BoardCodeBitset> hash_fn;
+    static std::hash<BoardCodeBitset> board_code_hash_fn;
 
     class BoardCode final
     {
@@ -69,7 +69,7 @@ namespace wisdom
 
         [[nodiscard]] BoardHashCode hash_code () const
         {
-            return hash_fn (bits);
+            return board_code_hash_fn (bits);
         }
 
         friend bool operator== (const BoardCode &first, const BoardCode &second)

@@ -22,10 +22,6 @@ add_library(chess_lib OBJECT
         src/history.cpp src/transposition_table.cpp src/transposition_table.hpp)
 add_executable(chess src/play.cpp $<TARGET_OBJECTS:chess_lib>)
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -fsanitize=address")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
   set(CMAKE_CXX_FLAGS "-Wall -Wextra")
@@ -34,9 +30,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3 -march=native -Wall -Wno-unused-parameter -Wno-unused-function")
   #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3 -Wall -Wno-unused-parameter -Wno-unused-function")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3 -march=native -Wall -Wno-unused-parameter -Wno-unused-function")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -Wall -Wextra")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native")
   # Speed up linking on Linux
   execute_process(COMMAND ${CMAKE_C_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE ld_version)
