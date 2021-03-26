@@ -147,20 +147,20 @@ namespace wisdom
         if (params.depth >= Max_Depth)
             return;
 
-        Move result = iterate (params.board, params.side, params.output,
-                               params.history, params.timer, params.depth);
+        std::unique_ptr<MoveTree> variation;
+        SearchResult result = iterate (params.board, params.side, params.output,
+                               params.history, params.timer, params.depth, variation);
         messages << "Finished thread " << std::this_thread::get_id () << " with depth " << params.depth << "\n";
-        messages << "Move: " << to_string (result);
+        messages << "Move: " << to_string (result.move);
 
         params.output.println (messages.str ());
 
-        if (result == Null_Move)
+        if (result.move == Null_Move)
         {
             // probably timed out:
             return;
         }
-        SearchResult synthesized_result { .move = result, .score = 0, .depth = params.depth };
-        add_result (synthesized_result);
+        add_result (result);
 
         // Continue with more depth:
         params.depth = get_next_depth ();

@@ -15,7 +15,7 @@ namespace wisdom
     {
     private:
         TranspositionTable &my_transposition_table;
-        void sort_moves (const Board &board, MoveList &list);
+        void sort_moves (const Board &board, MoveList &list, Color who);
 
     public:
         explicit MoveGenerator (TranspositionTable &transposition_table) :

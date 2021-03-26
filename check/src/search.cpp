@@ -39,7 +39,7 @@ namespace wisdom
     {
         std::unique_ptr<MoveTree> new_variation { nullptr };
         std::size_t illegal_move_count = 0;
-        SearchResult result;
+        SearchResult result{};
         MoveGenerator generator = board.move_generator ();
 
         variation.reset (nullptr);
@@ -48,7 +48,7 @@ namespace wisdom
         if (moves.empty ())
         {
             result.score = evaluate (board, side, start_depth - depth);
-            board.add_evaluation_to_transposition_table (result.score);
+            board.add_evaluation_to_transposition_table (result.score, side);
             return result;
         }
 
@@ -74,7 +74,7 @@ namespace wisdom
             {
                 other_search_result.score = evaluate_and_check_draw (board, side, start_depth - depth,
                                                                      move, history);
-                board.add_evaluation_to_transposition_table (other_search_result.score);
+                board.add_evaluation_to_transposition_table (other_search_result.score, side);
             }
             else
             {
@@ -139,8 +139,27 @@ namespace wisdom
         output.println (progress_str.str ());
     }
 
-    Move iterate (Board &board, Color side, Output &output,
-                  History &history, MoveTimer &timer, int depth)
+    SearchResult IterativeSearch::iterativelyDeepen (Color side, std::unique_ptr<MoveTree> &variation)
+    {
+        SearchResult best_result{};
+
+        for (int depth = 1; depth < my_total_depth; depth++)
+        {
+            SearchResult next_result = iterate (my_board, side, my_output, my_history, my_timer,
+                                                depth, variation);
+            if (next_result.move != Null_Move)
+                best_result = next_result;
+
+            if (my_timer.is_triggered ())
+                break;
+        }
+
+        return best_result;
+    }
+
+    SearchResult iterate (Board &board, Color side, Output &output,
+                          History &history, MoveTimer &timer, int depth,
+                          std::unique_ptr<MoveTree> &variation)
     {
         std::unique_ptr<MoveTree> principal_variation;
 
@@ -178,7 +197,8 @@ namespace wisdom
             output.println (variation_str.str ());
         }
 
-        return result.move;
+        variation = std::move (principal_variation);
+        return result;
     }
 
     Move find_best_move (Board &board, Color side, Output &output, History &history)
@@ -198,4 +218,5 @@ namespace wisdom
     {
         return INFINITE + INFINITE / (1 + moves);
     }
+
 }

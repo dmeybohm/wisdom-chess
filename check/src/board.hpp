@@ -87,7 +87,7 @@ namespace wisdom
 
         [[nodiscard]] std::string to_string () const;
 
-        void add_evaluation_to_transposition_table (int score);
+        void add_evaluation_to_transposition_table (int score, Color who);
 
         [[nodiscard]] MoveGenerator move_generator ()
         {

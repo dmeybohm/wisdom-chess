@@ -18,6 +18,13 @@ namespace wisdom
         Transposition (const Board &board, int _score);
         Transposition (BoardHashCode _code, int _score) :
             code { _code }, score { _score } {}
+
+        Transposition with_color (Color who)
+        {
+            Transposition result { *this };
+            result.code *= who == Color::Black ? -1 : 1;
+            return result;
+        }
     };
 
     using TranspositionList = std::list<Transposition>;
@@ -25,7 +32,7 @@ namespace wisdom
     using TranspositionMap = std::unordered_map<BoardHashCode, TranspositionListIterator>;
     using TranspositionMapIterator = TranspositionMap::iterator;
 
-    constexpr std::size_t Max_Transpositions = 100 * 1000;
+    constexpr std::size_t Max_Transpositions = 10 * 1000;
 
     class TranspositionTable final
     {
@@ -35,21 +42,19 @@ namespace wisdom
         std::size_t my_num_elements{};
 
         void drop_last ();
-        void drop_at_iterator (TranspositionMapIterator map_iterator);
+        void verify () const;
 
     public:
         // Lookup the transposition.
-        [[nodiscard]] std::optional<Transposition> lookup (BoardHashCode hash);
+        [[nodiscard]] std::optional<Transposition> lookup (BoardHashCode hash, Color who);
 
         // Add the transposition.
-        void add (Transposition transposition);
+        void add (Transposition transposition, Color who);
 
         [[nodiscard]] std::size_t size() const
         {
             return my_num_elements;
         }
-
-        void verify () const;
     };
 }
 

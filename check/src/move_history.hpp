@@ -45,6 +45,11 @@ namespace wisdom
             return my_moves;
         }
 
+        Move last_move_or_null () const
+        {
+            return my_moves.size() > 0 ? *(my_moves.end()) : Null_Move;
+        }
+
         void save (const std::string &filename) const;
     };
 }

@@ -229,9 +229,9 @@ namespace wisdom
         return result;
     }
 
-    void Board::add_evaluation_to_transposition_table (int score)
+    void Board::add_evaluation_to_transposition_table (int score, Color who)
     {
         Transposition evaluation { *this, score };
-        my_transpositions.add ( evaluation );
+        my_transpositions.add (evaluation, who);
     }
 }

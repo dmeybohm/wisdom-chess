@@ -484,14 +484,13 @@ namespace wisdom
         return validate_moves (new_moves, board, who);
     }
 
-    void MoveGenerator::sort_moves (const Board &board, MoveList &list)
+    void MoveGenerator::sort_moves (const Board &board, MoveList &list, Color who)
     {
         auto moves = list.get_my_moves();
-        auto table = my_transposition_table;
         BoardCode code = board.code;
         Transposition empty {  BoardHashCode { 0 }, 0 };
 
-        std::sort (moves.begin(), moves.end(), [board, &table, code, empty](Move a, Move b){
+        std::sort (moves.begin(), moves.end(), [this, board, who, code, empty](Move a, Move b){
             auto first_code = code;
             auto second_code = code;
 
@@ -500,8 +499,8 @@ namespace wisdom
 
             auto first_hash = first_code.hash_code ();
             auto second_hash = second_code.hash_code ();
-            auto first_value = table.lookup (first_hash).value_or (empty);
-            auto second_value = table.lookup (second_hash).value_or (empty);
+            auto first_value = my_transposition_table.lookup (first_hash, who).value_or (empty);
+            auto second_value = my_transposition_table.lookup (second_hash, who).value_or (empty);
 
             return first_value.score < second_value.score;
         });
@@ -510,7 +509,7 @@ namespace wisdom
     MoveList MoveGenerator::generate (const Board &board, Color who)
     {
         auto move_list = generate_moves (board, who);
-        sort_moves (board, move_list);
+        sort_moves (board, move_list, who);
         return move_list;
     }
 }

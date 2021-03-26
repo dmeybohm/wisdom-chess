@@ -148,8 +148,11 @@ TEST_CASE("scenario with heap overflow 1")
     Board board = builder.build ();
     MoveTimer timer { 300 };
     History history;
-    Move best_move = iterate (board, Color::Black, discard_output, history, timer, 3);
-    REQUIRE(best_move != Null_Move);
+    IterativeSearch search { board, history, discard_output, timer, 3 };
+
+    std::unique_ptr<MoveTree> variation;
+    SearchResult result = search.iterativelyDeepen (Color::Black, variation);
+    REQUIRE(result.move != Null_Move);
 }
 
 TEST_CASE("Promoting move is taken if possible")
