@@ -19,6 +19,7 @@ namespace wisdom
         auto new_iterator = my_list.insert (my_list.begin(), value);
         my_map[hash] = new_iterator;
 
+        assert (my_map.size() == my_list.size());
         return value;
     }
 
@@ -34,6 +35,8 @@ namespace wisdom
 
         if (my_num_elements > Max_Transpositions)
             drop_last ();
+
+        assert (my_map.size() == my_list.size());
     }
 
     void TranspositionTable::drop_last ()
@@ -41,6 +44,7 @@ namespace wisdom
         auto last_iterator = my_list.end();
         last_iterator--;
         auto map_iterator = my_map.find (last_iterator->code);
+        assert (last_iterator == map_iterator->second);
         drop_at_iterator (map_iterator);
     }
 

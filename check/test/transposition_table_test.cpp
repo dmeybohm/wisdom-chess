@@ -19,6 +19,23 @@ TEST_CASE("Initializing transposition table")
     CHECK(result->score == 10 );
 }
 
+TEST_CASE("Adding a value already added to a transposition table")
+{
+    Board board;
+    TranspositionTable table;
+
+    auto hash_code = board.code.hash_code ();
+
+    table.add( { board, 10 } );
+    auto result1 = table.lookup (hash_code);
+
+    table.add( { board, 10 } );
+    auto result2 = table.lookup (hash_code);
+    REQUIRE( result1.has_value() );
+    CHECK(table.size() == 1);
+    CHECK(result1->score == 10 );
+}
+
 TEST_CASE("Initializing transposition table")
 {
     std::vector<Transposition> positions;
