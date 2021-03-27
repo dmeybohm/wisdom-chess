@@ -501,7 +501,7 @@ namespace wisdom
             auto first_value = my_transposition_table.lookup (first_hash, who).value_or (empty);
             auto second_value = my_transposition_table.lookup (second_hash, who).value_or (empty);
 
-            return first_value.score < second_value.score;
+            return first_value.score > second_value.score;
         });
     }
 
