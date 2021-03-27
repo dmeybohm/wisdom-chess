@@ -486,11 +486,10 @@ namespace wisdom
 
     void MoveGenerator::sort_moves (const Board &board, MoveList &list, Color who)
     {
-        auto moves = list.get_my_moves();
         BoardCode code = board.code;
         Transposition empty {  BoardHashCode { 0 }, 0 };
 
-        std::sort (moves.begin(), moves.end(), [this, board, who, code, empty](Move a, Move b){
+        list.sort([this, board, who, code, empty](Move a, Move b){
             auto first_code = code;
             auto second_code = code;
 

@@ -74,7 +74,6 @@ namespace wisdom
             {
                 other_search_result.score = evaluate_and_check_draw (board, side, start_depth - depth,
                                                                      move, history);
-                board.add_evaluation_to_transposition_table (other_search_result.score, side);
             }
             else
             {
@@ -84,6 +83,7 @@ namespace wisdom
                 other_search_result.score *= -1;
             }
 
+            board.add_evaluation_to_transposition_table (other_search_result.score, side);
             history.remove_position_and_last_move (board);
             undo_move (board, side, move, undo_state);
 
@@ -139,12 +139,16 @@ namespace wisdom
         output.println (progress_str.str ());
     }
 
-    SearchResult IterativeSearch::iterativelyDeepen (Color side, std::unique_ptr<MoveTree> &variation)
+    SearchResult IterativeSearch::iteratively_deepen (Color side, std::unique_ptr<MoveTree> &variation)
     {
         SearchResult best_result{};
 
         for (int depth = 0; depth <= my_total_depth; depth++)
         {
+            std::ostringstream ostr;
+            ostr << "Searching depth " << depth;
+            my_output.println(ostr.str());
+
             SearchResult next_result = iterate (my_board, side, my_output, my_history, my_timer,
                                                 depth, variation);
             if (next_result.move != Null_Move)
@@ -204,12 +208,22 @@ namespace wisdom
         return result;
     }
 
-    Move find_best_move (Board &board, Color side, Output &output, History &history)
+    Move find_best_move_multithreaded (Board &board, Color side, Output &output, History &history)
     {
         MoveTimer overdue_timer { Max_Search_Seconds };
 
         MultithreadSearch search { board, side, output, history, overdue_timer };
         SearchResult result = search.search ();
+
+        return result.move;
+    }
+
+    Move find_best_move (Board &board, Color side, Output &output, History &history)
+    {
+        MoveTimer overdue_timer { Max_Search_Seconds };
+        IterativeSearch iterative_search { board, history, output, overdue_timer, Max_Depth };
+        std::unique_ptr<MoveTree> variation;
+        SearchResult result = iterative_search.iteratively_deepen (side, variation);
 
         return result.move;
     }

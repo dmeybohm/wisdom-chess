@@ -33,13 +33,11 @@ namespace wisdom
             result.score *= who == Color::Black ? -1 : 1;
             return result;
         }
-
     };
 
     using TranspositionList = std::list<Transposition>;
     using TranspositionListIterator = TranspositionList::iterator;
     using TranspositionMap = std::unordered_map<BoardHashCode, TranspositionListIterator>;
-    using TranspositionMapIterator = TranspositionMap::iterator;
 
     constexpr std::size_t Max_Transpositions = 100 * 1000;
 
@@ -65,9 +63,6 @@ namespace wisdom
             return my_num_elements;
         }
     };
-
-
-
 }
 
 namespace std

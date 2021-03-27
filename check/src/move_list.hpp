@@ -3,6 +3,7 @@
 
 #include <exception>
 #include <vector>
+#include <functional>
 
 #include "move.hpp"
 
@@ -89,10 +90,14 @@ namespace wisdom
             });
             return result;
         }
+
+        // Take a function to sort the moves:
+        void sort (std::function<bool(Move,Move)> compare_func);
     };
 
     std::string to_string (const MoveList &list);
 
     std::ostream &operator<< (std::ostream &os, const MoveList &list);
+
 }
 #endif //WISDOM_MOVE_LIST_HPP

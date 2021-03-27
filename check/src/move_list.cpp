@@ -19,6 +19,11 @@ namespace wisdom
         return result;
     }
 
+    void MoveList::sort (std::function<bool(Move,Move)> compare_func)
+    {
+        std::sort (my_moves.begin(), my_moves.end(), std::move(compare_func));
+    }
+
     std::string to_string (const MoveList &list)
     {
         std::string result = "{ ";

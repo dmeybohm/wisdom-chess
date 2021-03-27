@@ -29,8 +29,11 @@ namespace wisdom
 
     struct MoveTimer;
 
-    // Find the best move.
+    // Find the best move using default algorithm.
     Move find_best_move (Board &board, Color side, Output &output, History &history);
+
+    // Find the best move using multiple threads.
+    Move find_best_move_multithreaded (Board &board, Color side, Output &output, History &history);
 
     // Iterate over each depth level.
     SearchResult iterate (Board &board, Color side, Output &output,
@@ -70,7 +73,7 @@ namespace wisdom
             my_total_depth { total_depth }
         {}
 
-        SearchResult iterativelyDeepen (Color side, std::unique_ptr<MoveTree> &variation);
+        SearchResult iteratively_deepen (Color side, std::unique_ptr<MoveTree> &variation);
     };
 }
 

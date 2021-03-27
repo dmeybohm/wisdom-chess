@@ -43,7 +43,7 @@ TEST_CASE("Can find mate in 3")
     History history;
     IterativeSearch search { board, history, discard_output, large_timer, 4 };
 
-    SearchResult result = search.iterativelyDeepen (Color::White, variation);
+    SearchResult result = search.iteratively_deepen (Color::White, variation);
     REQUIRE(result.score > INFINITE);
     REQUIRE(result.move != Null_Move);
     REQUIRE(variation->size () == 5);
@@ -87,7 +87,7 @@ TEST_CASE("Can find mate in 2 1/2")
     History history;
     IterativeSearch search { board, history, discard_output, large_timer, 5 };
 
-    SearchResult result = search.iterativelyDeepen (Color::Black, variation);
+    SearchResult result = search.iteratively_deepen (Color::Black, variation);
     REQUIRE(result.move != Null_Move);
 
     // Used to return this before move reordering.
@@ -146,7 +146,7 @@ TEST_CASE("scenario with heap overflow 1")
     IterativeSearch search { board, history, discard_output, timer, 3 };
 
     std::unique_ptr<MoveTree> variation;
-    SearchResult result = search.iterativelyDeepen (Color::Black, variation);
+    SearchResult result = search.iteratively_deepen (Color::Black, variation);
     REQUIRE(result.move != Null_Move);
 }
 
@@ -191,7 +191,7 @@ TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing"
     MoveTimer timer { 30 };
     IterativeSearch search { game.board, history, discard_output, timer, 3 };
 
-    SearchResult result = search.iterativelyDeepen (Color::Black, variation);
+    SearchResult result = search.iteratively_deepen (Color::Black, variation);
 
     REQUIRE(to_string (result.move) == "e2xf1(Q)");
 }
