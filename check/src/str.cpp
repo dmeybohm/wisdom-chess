@@ -12,11 +12,4 @@ namespace wisdom
         return result;
     }
 
-    bool cstr_equals (const char *str1, const char *str2)
-    {
-        std::string s1 { str1 };
-        std::string s2 { str2 };
-        return s1 == s2;
-    }
-
 }

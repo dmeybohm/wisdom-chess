@@ -138,16 +138,16 @@ namespace wisdom
             king_position_set (board, who, dst);
 
             // set as not able to castle
-            if (able_to_castle (board, who, (CASTLE_KINGSIDE | CASTLE_QUEENSIDE)))
+            if (able_to_castle (board, who, (Castle_Kingside | Castle_Queenside)))
             {
                 // save the old castle status
                 CastlingState old_castle_state = board_get_castle_state (board, who);
                 save_current_castle_state (undo_state, old_castle_state);
 
                 if (!is_castling_move (move))
-                    old_castle_state |= CASTLE_KINGSIDE | CASTLE_QUEENSIDE;
+                    old_castle_state |= Castle_Kingside | Castle_Queenside;
                 else
-                    old_castle_state = CASTLE_CASTLED;
+                    old_castle_state = Castle_Castled;
 
                 // set the new castle status
                 board_apply_castle_change (board, who, old_castle_state);
@@ -180,13 +180,13 @@ namespace wisdom
             // up on the rook and moves from the rook itself.
             //
             if (COLUMN (dst) == 0)
-                castle_state = CASTLE_QUEENSIDE;
+                castle_state = Castle_Queenside;
             else
-                castle_state = CASTLE_KINGSIDE;
+                castle_state = Castle_Kingside;
 
             //
             // Set inability to castle on one side. Note that
-            // CASTLE_QUEENSIDE/KINGSIDE are _negative_ flags, indicating the
+            // Castle_Queenside/KINGSIDE are _negative_ flags, indicating the
             // player cannot castle.  This is a bit confusing, not sure why i did
             // this.
             //
@@ -235,13 +235,13 @@ namespace wisdom
             // up on the rook and moves from the rook itself.
             //
             if (COLUMN (src) == 0)
-                castle_state = CASTLE_QUEENSIDE;
+                castle_state = Castle_Queenside;
             else
-                castle_state = CASTLE_KINGSIDE;
+                castle_state = Castle_Kingside;
 
             //
             // Set inability to castle on one side. Note that
-            // CASTLE_QUEENSIDE/KINGSIDE are _negative_ flags, indicating the
+            // Castle_Queenside/KINGSIDE are _negative_ flags, indicating the
             // player cannot castle.  This is a bit confusing, not sure why i did
             // this.
             //
@@ -509,7 +509,7 @@ namespace wisdom
             src = coord_parse (tmp.substr (0, 2));
             offset += 2;
         }
-        catch (const CoordParseException &e)
+        catch (const CoordParseError &e)
         {
             return Null_Move;
         }
@@ -531,7 +531,7 @@ namespace wisdom
         {
             dst = coord_parse (dst_coord);
         }
-        catch (const CoordParseException &e)
+        catch (const CoordParseError &e)
         {
             return Null_Move;
         }
@@ -578,7 +578,6 @@ namespace wisdom
 
         return move;
     }
-
 
     Move parse_move (const std::string &str, Color color)
     {

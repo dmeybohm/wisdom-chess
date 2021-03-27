@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
 #include <array>
 
@@ -74,17 +75,12 @@ namespace wisdom
         Board build ();
     };
 
-    class BoardBuilderException : public std::exception
+    class BoardBuilderError : public Error
     {
-    private:
-        const char *message;
-
     public:
-        explicit BoardBuilderException (const char *message) : message { message }
+        explicit BoardBuilderError (const std::string &message) :
+            Error (message)
         {}
-
-        [[nodiscard]] const char *what () const noexcept override
-        { return this->message; }
     };
 
     Coord coord_alg (const std::string &coord_str);

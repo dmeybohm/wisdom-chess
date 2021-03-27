@@ -11,18 +11,26 @@
 
 namespace wisdom
 {
+    struct ScoredMove
+    {
+        Move move;
+        int score;
+    };
+
+    using ScoredMoveList = std::vector<ScoredMove>;
+
     class MoveGenerator final
     {
     private:
         TranspositionTable &my_transposition_table;
-        void sort_moves (const Board &board, MoveList &list, Color who);
+        ScoredMoveList to_scored_move_list (const Board &board, Color who, const MoveList &move_list);
 
     public:
         explicit MoveGenerator (TranspositionTable &transposition_table) :
             my_transposition_table { transposition_table }
         {}
 
-        MoveList generate (const Board &board, Color who);
+        ScoredMoveList generate (const Board &board, Color who);
     };
 
     MoveList generate_moves (const Board &board, Color who);

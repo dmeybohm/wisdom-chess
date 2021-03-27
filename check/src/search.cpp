@@ -43,7 +43,7 @@ namespace wisdom
         MoveGenerator generator = board.move_generator ();
 
         variation.reset (nullptr);
-        MoveList moves = generator.generate (board, side);
+        ScoredMoveList moves = generator.generate (board, side);
 
         if (moves.empty ())
         {
@@ -52,7 +52,7 @@ namespace wisdom
             return result;
         }
 
-        for (auto move : moves)
+        for (auto [move, score] : moves)
         {
             if (timer.is_triggered ())
                 break;
@@ -87,7 +87,7 @@ namespace wisdom
             history.remove_position_and_last_move (board);
             undo_move (board, side, move, undo_state);
 
-            if (other_search_result.score > result.score || result.score == -INITIAL_ALPHA)
+            if (other_search_result.score > result.score || result.score == -Initial_Alpha)
             {
                 result.score = other_search_result.score;
                 result.move = move;
@@ -180,7 +180,7 @@ namespace wisdom
         auto start = std::chrono::system_clock::now ();
 
         SearchResult result = search (board, side, output, history, timer,
-                                      depth, depth, -INITIAL_ALPHA, INITIAL_ALPHA,
+                                      depth, depth, -Initial_Alpha, Initial_Alpha,
                                       principal_variation);
 
         auto end = std::chrono::system_clock::now ();
@@ -233,12 +233,12 @@ namespace wisdom
     // further away.
     int checkmate_score_in_moves (int moves)
     {
-        return INFINITE + INFINITE / (1 + moves);
+        return Infinity + Infinity / (1 + moves);
     }
 
     bool is_checkmating_opponent_score (int score)
     {
-        return score > INFINITE;
+        return score > Infinity;
     }
 
 }

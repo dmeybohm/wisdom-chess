@@ -13,13 +13,10 @@
 
 namespace wisdom
 {
-    constexpr int INFINITE = 65536;
-    constexpr int INITIAL_ALPHA = INFINITE * 3;
-
     struct SearchResult
     {
         Move move = Null_Move;
-        int score = -INITIAL_ALPHA;
+        int score = -Initial_Alpha;
         int depth = 0;
     };
 

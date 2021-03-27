@@ -45,7 +45,7 @@ namespace wisdom
         ColoredPiece prospective_queen_rook;
         ColoredPiece prospective_king_rook;
 
-        CastlingState state = CASTLE_NONE;
+        CastlingState state = Castle_None;
 
         // todo set CASTLED flag if rook/king in right position:
         prospective_king = piece_at (board, row, king_col);
@@ -57,14 +57,14 @@ namespace wisdom
             piece_type (prospective_queen_rook) != Piece::Rook ||
             piece_color (prospective_queen_rook) != who)
         {
-            state |= CASTLE_QUEENSIDE;
+            state |= Castle_Queenside;
         }
         if (piece_type (prospective_king) != Piece::King ||
             piece_color (prospective_king) != who ||
             piece_type (prospective_king_rook) != Piece::Rook ||
             piece_color (prospective_king_rook) != who)
         {
-            state |= CASTLE_KINGSIDE;
+            state |= Castle_Kingside;
         }
 
         return state;
@@ -75,7 +75,7 @@ namespace wisdom
         int8_t row;
 
         for (CastlingState &i : this->castled)
-            i = CASTLE_NONE;
+            i = Castle_None;
 
         for (const auto &coord : All_Coords_Iterator)
             board_set_piece (*this, coord, Piece_And_Color_None);

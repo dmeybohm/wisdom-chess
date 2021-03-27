@@ -1,6 +1,6 @@
 
-#ifndef WISDOM_FEN_HPP
-#define WISDOM_FEN_HPP
+#ifndef WISDOM_FEN_PARSER_HPP
+#define WISDOM_FEN_PARSER_HPP
 
 #include "global.hpp"
 #include "board_builder.hpp"
@@ -13,10 +13,11 @@ namespace wisdom
 {
     struct Game;
 
-    class Fen final
+    class FenParser final
     {
     public:
-        explicit Fen (const std::string &input) : active_player { Color::White }
+        explicit FenParser (const std::string &input) :
+            active_player { Color::White }
         {
             parse (input);
         }
@@ -45,17 +46,13 @@ namespace wisdom
         static Color parse_active_player (char ch);
     };
 
-    class FenException : public std::exception
+    class FenParserError : public Error
     {
-        const char *message;
-
     public:
-        explicit FenException (const char *message) : message { message }
+        explicit FenParserError (const std::string &message) :
+            Error (message)
         {}
-
-        [[nodiscard]] const char *what () const noexcept override
-        { return this->message; }
     };
 }
 
-#endif //WISDOM_FEN_HPP
+#endif //WISDOM_FEN_PARSER_HPP

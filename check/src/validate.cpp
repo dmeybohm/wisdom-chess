@@ -20,7 +20,7 @@ namespace wisdom
     {
         // check positions of the pieces:
         int8_t row = who == Color::White ? 7 : 0;
-        int8_t col = state == CASTLE_QUEENSIDE ? 0 : 7;
+        int8_t col = state == Castle_Queenside ? 0 : 7;
         ColoredPiece supposed_king = piece_at (board, row, 4);
         ColoredPiece supposed_rook = piece_at (board, row, col);
         if (able_to_castle (board, who, state))
@@ -36,10 +36,10 @@ namespace wisdom
     void validate_castle_state (Board &board, Move mv)
     {
 #ifdef VALIDATE_CASTLE_STATE
-        validate_castle (board, CASTLE_QUEENSIDE, Color::White, mv);
-        validate_castle (board, CASTLE_KINGSIDE, Color::White, mv);
-        validate_castle (board, CASTLE_QUEENSIDE, Color::Black, mv);
-        validate_castle (board, CASTLE_KINGSIDE, Color::Black, mv);
+        validate_castle (board, Castle_Queenside, Color::White, mv);
+        validate_castle (board, Castle_Kingside, Color::White, mv);
+        validate_castle (board, Castle_Queenside, Color::Black, mv);
+        validate_castle (board, Castle_Kingside, Color::Black, mv);
 #endif
     }
 }

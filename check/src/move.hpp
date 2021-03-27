@@ -15,18 +15,15 @@ namespace wisdom
     using CastlingState = uint8_t;
 
     constexpr uint8_t
-            CASTLE_NONE = 0U;      // still eligible to castle on both sides
+            Castle_None = 0U;      // still eligible to castle on both sides
     constexpr uint8_t
-            CASTLE_CASTLED = 0x01U;   // castled
+            Castle_Castled = 0x01U;   // castled
     constexpr uint8_t
-            CASTLE_KINGSIDE = 0x02U;   // ineligible for further castling kingside
+            Castle_Kingside = 0x02U;   // ineligible for further castling kingside
     constexpr uint8_t
-            CASTLE_QUEENSIDE = 0x04U;   // ineligible for further castling queenside
+            Castle_Queenside = 0x04U;   // ineligible for further castling queenside
     constexpr uint8_t
-            CASTLE_PREVIOUSLY_NONE = 0x07U;   // previously was none - used for determining if a move affects castling
-
-
-    constexpr int MAX_CASTLE_STATES = 8;
+            Castle_Previously_None = 0x07U;   // previously was none - used for determining if a move affects castling
 
     enum class MoveCategory
     {
@@ -53,8 +50,8 @@ namespace wisdom
     constexpr UndoMove empty_undo_state = {
             .category = MoveCategory::NonCapture,
             .taken_piece_type = Piece::None,
-            .current_castle_state = CASTLE_NONE,
-            .opponent_castle_state = CASTLE_NONE,
+            .current_castle_state = Castle_None,
+            .opponent_castle_state = Castle_None,
             .half_move_clock = 0,
             .en_passant_target = { No_En_Passant_Coord, No_En_Passant_Coord },
     };
@@ -75,16 +72,11 @@ namespace wisdom
 
     using Move = struct move;
 
-    class ParseMoveException : public std::exception
+    class ParseMoveException : public Error
     {
-        const char *message;
-
     public:
-        explicit ParseMoveException (const char *message) : message { message }
+        explicit ParseMoveException (std::string message) : Error (std::move (message))
         {}
-
-        [[nodiscard]] const char *what () const noexcept override
-        { return this->message; }
     };
 
 ////////////////////////////////////////////////////////////////////
@@ -137,12 +129,12 @@ namespace wisdom
 
     constexpr bool move_affects_current_castle_state (UndoMove move)
     {
-        return move.current_castle_state != CASTLE_NONE;
+        return move.current_castle_state != Castle_None;
     }
 
     constexpr bool move_affects_opponent_castle_state (UndoMove move)
     {
-        return move.opponent_castle_state != CASTLE_NONE;
+        return move.opponent_castle_state != Castle_None;
     }
 
     constexpr bool is_castling_move (Move move)
@@ -166,9 +158,9 @@ namespace wisdom
     {
         switch (who)
         {
-            case Color::White:return 7;
-            case Color::Black:return 0;
-            default:assert (0);
+            case Color::White: return 7;
+            case Color::Black: return 0;
+            default: abort();
         }
     }
 
@@ -269,13 +261,13 @@ namespace wisdom
     // Pack the castle state into the move.
     constexpr CastlingState unpack_castle_state (CastlingState state)
     {
-        return state == CASTLE_PREVIOUSLY_NONE ? CASTLE_NONE : state;
+        return state == Castle_Previously_None ? Castle_None : state;
     }
 
     // Unpack the castle state from the move.
     constexpr CastlingState pack_castle_state (CastlingState state)
     {
-        return state == CASTLE_NONE ? CASTLE_PREVIOUSLY_NONE : state;
+        return state == Castle_None ? Castle_Previously_None : state;
     }
 
     constexpr CastlingState current_castle_state (UndoMove move)

@@ -52,27 +52,24 @@ TEST_CASE( "Board builder throws exception for invalid coordinate" )
     try {
         builder.add_piece ("a9", Color::White, Piece::Pawn);
         no_throw = true;
-    } catch (const BoardBuilderException &board_builder_exception) {
-        CHECK( board_builder_exception.what() != nullptr );
-        CHECK( cstr_equals(board_builder_exception.what(), "Invalid row!") );
+    } catch (const BoardBuilderError &board_builder_exception) {
+        CHECK( board_builder_exception.message() == "Invalid row!" );
     }
     REQUIRE( no_throw == false );
 
     try {
         builder.add_piece ("j7", Color::White, Piece::Pawn);
         no_throw = true;
-    } catch (const BoardBuilderException &board_builder_exception) {
-        CHECK( board_builder_exception.what() != nullptr );
-        CHECK( cstr_equals(board_builder_exception.what(), "Invalid column!") );
+    } catch (const BoardBuilderError &board_builder_exception) {
+        CHECK( board_builder_exception.message() == "Invalid column!" );
     }
     REQUIRE( no_throw == false );
 
     try {
         builder.add_piece ("asdf", Color::White, Piece::Pawn);
         no_throw = true;
-    } catch (const BoardBuilderException &board_builder_exception) {
-        CHECK( board_builder_exception.what() != nullptr );
-        CHECK( cstr_equals(board_builder_exception.what(), "Invalid coordinate string!") );
+    } catch (const BoardBuilderError &board_builder_exception) {
+        CHECK( board_builder_exception.message() == "Invalid coordinate string!" );
     }
     REQUIRE( no_throw == false );
 }

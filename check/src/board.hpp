@@ -133,7 +133,7 @@ namespace wisdom
     {
         ColorIndex c_index = color_index (who);
 
-        int didnt_castle = !!(board.castled[c_index] != CASTLE_CASTLED);
+        int didnt_castle = !!(board.castled[c_index] != Castle_Castled);
         int neg_not_set = !!(((~board.castled[c_index]) & castle_type) != 0);
 
         return didnt_castle && neg_not_set;

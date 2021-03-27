@@ -4,28 +4,55 @@
 #include <cstdint>
 #include <cassert>
 #include <exception>
+#include <string>
+#include <utility>
 
 namespace wisdom
 {
-    enum
+    constexpr int Num_Players = 2;
+
+    constexpr int Num_Rows = 8;
+    constexpr int Num_Columns = 8;
+
+    constexpr int First_Row = 0;
+    constexpr int First_Column = 0;
+
+    constexpr int Last_Row = 7;
+    constexpr int Last_Column = 7;
+
+    constexpr int King_Column = 4;
+    constexpr int King_Rook_Column = 7;
+
+    constexpr int Queen_Rook_Column = 0;
+    constexpr int King_Castled_Rook_Column = 5;
+    constexpr int Queen_Castled_Rook_Column = 3;
+
+    // Infinity score.
+    constexpr int Infinity = 65536;
+    constexpr int Negative_Infinity = -1 * Infinity;
+
+    // Initial Alpha value.
+    constexpr int Initial_Alpha = Infinity * 3;
+
+    // Errors in this application.
+    class Error : public std::exception
     {
-        Num_Players = 2,
+    private:
+        const std::string my_message;
 
-        Num_Rows = 8,
-        Num_Columns = 8,
+    public:
+        explicit Error (std::string message) : my_message {std::move( message )}
+        {}
 
-        First_Row = 0,
-        First_Column = 0,
+        [[nodiscard]] std::string message() const noexcept
+        {
+            return my_message;
+        }
 
-        Last_Row = 7,
-        Last_Column = 7,
-
-        King_Column = 4,
-        King_Rook_Column = 7,
-
-        Queen_Rook_Column = 0,
-        King_Castled_Rook_Column = 5,
-        Queen_Castled_Rook_Column = 3,
+        [[nodiscard]] const char *what () const noexcept override
+        {
+            return this->my_message.c_str();
+        }
     };
 }
 

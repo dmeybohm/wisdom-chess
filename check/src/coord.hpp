@@ -102,17 +102,12 @@ namespace wisdom
 
     /////////////////////////////////////////////////////////////////////
 
-    class CoordParseException : public std::exception
+    class CoordParseError : public Error
     {
-    private:
-        const char *message;
-
     public:
-        explicit CoordParseException (const char *message) : message { message }
+        explicit CoordParseError (std::string message) :
+                Error (std::move (message))
         {}
-
-        [[nodiscard]] const char *what () const noexcept override
-        { return this->message; }
     };
 }
 

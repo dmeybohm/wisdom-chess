@@ -8,7 +8,7 @@
 #include "move_tree.hpp"
 #include "output.hpp"
 #include "history.hpp"
-#include "fen.hpp"
+#include "fen_parser.hpp"
 #include "game.hpp"
 
 wisdom::NullOutput discard_output;
@@ -44,7 +44,7 @@ TEST_CASE("Can find mate in 3")
     IterativeSearch search { board, history, discard_output, large_timer, 4 };
 
     SearchResult result = search.iteratively_deepen (Color::White, variation);
-    REQUIRE(result.score > INFINITE);
+    REQUIRE(result.score > Infinity);
     REQUIRE(result.move != Null_Move);
     REQUIRE(variation->size () == 5);
 
@@ -96,7 +96,7 @@ TEST_CASE("Can find mate in 2 1/2")
 //    MoveList expected_mate_three = { Color::Black, { "c7 d7", "d5 e5", "b4 b8", "e5 d5", "b8 c8" }};
     MoveList computed_moves = variation->to_list ();
 
-    REQUIRE(result.score > INFINITE);
+    REQUIRE(result.score > Infinity);
     REQUIRE(variation->size () == 5);
     REQUIRE(expected_mate == computed_moves);
 }
@@ -174,7 +174,7 @@ TEST_CASE("Promoting move is taken if possible")
     Board board = builder.build ();
     SearchResult result = search (
             board, Color::Black, discard_output, history, large_timer,
-            1, 1, -INITIAL_ALPHA, INITIAL_ALPHA,
+            1, 1, -Initial_Alpha, Initial_Alpha,
             variation
     );
 
@@ -183,7 +183,7 @@ TEST_CASE("Promoting move is taken if possible")
 
 TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing")
 {
-    Fen parser { "rnb1kbnr/ppp1pppp/8/8/3B4/8/PPP1pPPP/RN2KB1R b KQkq - 0 1" };
+    FenParser parser { "rnb1kbnr/ppp1pppp/8/8/3B4/8/PPP1pPPP/RN2KB1R b KQkq - 0 1" };
 
     auto game = parser.build ();
 
@@ -195,4 +195,18 @@ TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing"
     SearchResult result = search.iteratively_deepen (Color::Black, variation);
 
     REQUIRE(to_string (result.move) == "e2xf1(Q)");
+}
+
+TEST_CASE("Finding moves regression test")
+{
+    FenParser parser { "r5rk/5p1p/5R2/4B3/8/8/7P/7K w - - 0 1" };
+
+    auto game = parser.build ();
+
+    std::unique_ptr<MoveTree> variation;
+    History history;
+    MoveTimer timer { 10 };
+    IterativeSearch search { game.board, history, discard_output, timer, 1 };
+
+    SearchResult result = search.iteratively_deepen (Color::White, variation);
 }

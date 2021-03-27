@@ -14,27 +14,27 @@ namespace wisdom
         int score = 0;
         Color opponent = color_invert (who);
 
-        if (board_get_castle_state (board, who) == CASTLE_CASTLED)
+        if (board_get_castle_state (board, who) == Castle_Castled)
         {
             score += Castle_Positive_Weight;
         }
         else
         {
-            if (!able_to_castle (board, who, CASTLE_KINGSIDE))
+            if (!able_to_castle (board, who, Castle_Kingside))
                 score -= Castle_Negative_Weight;
-            if (!able_to_castle (board, who, CASTLE_QUEENSIDE))
+            if (!able_to_castle (board, who, Castle_Queenside))
                 score -= Castle_Negative_Weight;
         }
 
-        if (board_get_castle_state (board, opponent) == CASTLE_CASTLED)
+        if (board_get_castle_state (board, opponent) == Castle_Castled)
         {
             score -= Castle_Negative_Weight;
         }
         else
         {
-            if (!able_to_castle (board, opponent, CASTLE_KINGSIDE))
+            if (!able_to_castle (board, opponent, Castle_Kingside))
                 score += Castle_Positive_Weight;
-            if (!able_to_castle (board, opponent, CASTLE_QUEENSIDE))
+            if (!able_to_castle (board, opponent, Castle_Queenside))
                 score += Castle_Positive_Weight;
         }
 

@@ -8,16 +8,16 @@ namespace wisdom
     Coord coord_alg (const std::string &coord_str)
     {
         if (coord_str.size () != 2)
-            throw BoardBuilderException ("Invalid coordinate string!");
+            throw BoardBuilderError ("Invalid coordinate string!");
 
         int8_t col = char_to_col (coord_str[0]);
         int8_t row = char_to_row (coord_str[1]);
 
         if (row < 0 || row >= Num_Rows)
-            throw BoardBuilderException ("Invalid row!");
+            throw BoardBuilderError ("Invalid row!");
 
         if (col < 0 || col >= Num_Columns)
-            throw BoardBuilderException ("Invalid column!");
+            throw BoardBuilderError ("Invalid column!");
 
         return make_coord (row, col);
     }
@@ -25,7 +25,7 @@ namespace wisdom
     void BoardBuilder::add_piece (const std::string &coord_str, Color who, Piece piece_type)
     {
         if (coord_str.size () != 2)
-            throw BoardBuilderException ("Invalid coordinate string!");
+            throw BoardBuilderError ("Invalid coordinate string!");
 
         Coord algebraic = coord_alg (coord_str);
 
@@ -42,10 +42,10 @@ namespace wisdom
                 };
 
         if (row < 0 || row >= Num_Rows)
-            throw BoardBuilderException ("Invalid row!");
+            throw BoardBuilderError ("Invalid row!");
 
         if (col < 0 || col >= Num_Columns)
-            throw BoardBuilderException ("Invalid column!");
+            throw BoardBuilderError ("Invalid column!");
 
         this->pieces_with_coords.push_back (new_piece);
     }

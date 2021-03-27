@@ -1,5 +1,5 @@
 
-#include "fen.hpp"
+#include "fen_parser.hpp"
 #include "board.hpp"
 #include "game.hpp"
 
@@ -7,7 +7,7 @@ namespace wisdom
 {
     using string_size_t = std::string::size_type;
 
-    Game Fen::build ()
+    Game FenParser::build ()
     {
         struct Game result {
                 active_player,
@@ -18,7 +18,7 @@ namespace wisdom
         return result;
     }
 
-    ColoredPiece Fen::parse_piece (char ch)
+    ColoredPiece FenParser::parse_piece (char ch)
     {
         int lower = tolower (ch);
         Color who = islower (ch) ? Color::Black : Color::White;
@@ -31,21 +31,21 @@ namespace wisdom
             case 'b':return make_piece (who, Piece::Bishop);
             case 'n':return make_piece (who, Piece::Knight);
             case 'p':return make_piece (who, Piece::Pawn);
-            default:throw FenException ("Invalid piece type!");
+            default:throw FenParserError ("Invalid piece type!");
         }
     }
 
-    Color Fen::parse_active_player (char ch)
+    Color FenParser::parse_active_player (char ch)
     {
         switch (ch)
         {
             case 'w': return Color::White;
             case 'b': return Color::Black;
-            default: throw FenException ("Invalid active color!");
+            default: throw FenParserError ("Invalid active color!");
         }
     }
 
-    void Fen::parse_pieces (std::string str)
+    void FenParser::parse_pieces (std::string str)
     {
         char ch;
 
@@ -58,7 +58,7 @@ namespace wisdom
             {
                 row++;
                 if (row > Num_Rows)
-                    throw FenException ("Invalid row!");
+                    throw FenParserError ("Invalid row!");
                 col = 0;
             }
             else if (ch == ' ')
@@ -71,24 +71,24 @@ namespace wisdom
                 builder.add_piece (row, col, piece_color (piece), piece_type (piece));
                 col++;
                 if (col > Num_Columns)
-                    throw FenException ("Invalid columns!");
+                    throw FenParserError ("Invalid columns!");
             }
             else if (isdigit (ch))
             {
                 col += ch - '0';
                 if (col > Num_Columns)
-                    throw FenException ("Invalid columns!");
+                    throw FenParserError ("Invalid columns!");
             }
             else
             {
-                throw FenException ("Invalid character!");
+                throw FenParserError ("Invalid character!");
             }
         }
 
     }
 
 // en passant target square:
-    void Fen::parse_en_passant (std::string str)
+    void FenParser::parse_en_passant (std::string str)
     {
         if (str.empty ())
             return;
@@ -100,16 +100,16 @@ namespace wisdom
         {
             std::string cstr { str.substr (0, 2) };
             builder.set_en_passant_target (color_invert (active_player), cstr.c_str ());
-        } catch ([[maybe_unused]] const BoardBuilderException &e)
+        } catch ([[maybe_unused]] const BoardBuilderError &e)
         {
-            throw FenException ("Error parsing en passant coordinate!");
+            throw FenParserError ("Error parsing en passant coordinate!");
         }
     }
 
-    void Fen::parse_castling (std::string str)
+    void FenParser::parse_castling (std::string str)
     {
-        CastlingState white_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
-        CastlingState black_castle = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
+        CastlingState white_castle = Castle_Queenside | Castle_Kingside;
+        CastlingState black_castle = Castle_Queenside | Castle_Kingside;
 
         for (; !str.empty () && isalpha (str[0]); str = str.substr (1))
         {
@@ -119,13 +119,13 @@ namespace wisdom
                 break;
 
             Color who = islower (ch) ? Color::Black : Color::White;
-            CastlingState new_state = CASTLE_QUEENSIDE | CASTLE_KINGSIDE;
+            CastlingState new_state = Castle_Queenside | Castle_Kingside;
 
             switch (tolower (ch))
             {
-                case 'k':new_state &= ~CASTLE_KINGSIDE;
+                case 'k':new_state &= ~Castle_Kingside;
                     break;
-                case 'q':new_state &= ~CASTLE_QUEENSIDE;
+                case 'q':new_state &= ~Castle_Queenside;
                     break;
             }
 
@@ -141,18 +141,18 @@ namespace wisdom
     }
 
 // halfmove clock:
-    void Fen::parse_halfmove (int half_moves)
+    void FenParser::parse_halfmove (int half_moves)
     {
         builder.set_half_moves (half_moves);
     }
 
 // fullmove number:
-    void Fen::parse_fullmove (int full_moves)
+    void FenParser::parse_fullmove (int full_moves)
     {
         builder.set_full_moves (full_moves);
     }
 
-    void Fen::parse (const std::string &source)
+    void FenParser::parse (const std::string &source)
     {
         std::stringstream input { source };
 
