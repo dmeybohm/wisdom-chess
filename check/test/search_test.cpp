@@ -91,8 +91,9 @@ TEST_CASE("Can find mate in 2 1/2")
     REQUIRE(result.move != Null_Move);
 
     // Used to return this before move reordering.
-    MoveList expected_mate = { Color::Black, { "e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
-//    MoveList expected_mate_two = { Color::Black, { "c7 d7", "d5 e5", "b4 b8", "e5 d5", "b8 c8" }};
+    MoveList expected_mate = { Color::Black, { "e8 f6", "d5 e5", "f6 g4", "e5 d5", "b4 d4" }};
+//    MoveList expected_mate_two = { Color::Black, { "e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
+//    MoveList expected_mate_three = { Color::Black, { "c7 d7", "d5 e5", "b4 b8", "e5 d5", "b8 c8" }};
     MoveList computed_moves = variation->to_list ();
 
     REQUIRE(result.score > INFINITE);
