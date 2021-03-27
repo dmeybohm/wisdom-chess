@@ -10,7 +10,7 @@ namespace wisdom
 
     enum
     {
-        Num_Calls_Per_Timer_Check = 10000    // number of iterations before checking
+        Num_Calls_Per_Timer_Check = 1000    // number of iterations before checking
     };
 
     bool MoveTimer::is_triggered ()
