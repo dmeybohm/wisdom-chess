@@ -91,14 +91,14 @@ TEST_CASE("Can find mate in 2 1/2")
     REQUIRE(result.move != Null_Move);
 
     // Used to return this before move reordering.
-    MoveList expected_mate = { Color::Black, { "e8 f6", "d5 e5", "f6 g4", "e5 d5", "b4 d4" }};
-//    MoveList expected_mate_two = { Color::Black, { "e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
+//    MoveList expected_mate_one = { Color::Black, { "e8 f6", "d5 e5", "f6 g4", "e5 d5", "b4 d4" }};
+    MoveList expected_mate_two = { Color::Black, { "e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
 //    MoveList expected_mate_three = { Color::Black, { "c7 d7", "d5 e5", "b4 b8", "e5 d5", "b8 c8" }};
     MoveList computed_moves = variation->to_list ();
 
     REQUIRE(result.score > Infinity);
     REQUIRE(variation->size () == 5);
-    REQUIRE(expected_mate == computed_moves);
+    REQUIRE(expected_mate_two == computed_moves);
 }
 
 TEST_CASE("scenario with heap overflow 1")
@@ -208,5 +208,5 @@ TEST_CASE("Finding moves regression test")
     MoveTimer timer { 10 };
     IterativeSearch search { game.board, history, discard_output, timer, 1 };
 
-    SearchResult result = search.iteratively_deepen (Color::White, variation);
+    search.iteratively_deepen (Color::White, variation);
 }

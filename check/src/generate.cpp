@@ -1,5 +1,6 @@
 #include <array>
 #include <optional>
+#include <algorithm>
 
 #include "piece.hpp"
 #include "move.hpp"
@@ -508,13 +509,14 @@ namespace wisdom
         ScoredMoveList result;
         Transposition default_transposition { 0, Negative_Infinity };
 
-        for (auto move : move_list)
+        for (auto maybe_valid_move : move_list)
         {
-            auto maybe_valid_move = validate_move (board, move);
+            auto optional_move = validate_move (board, maybe_valid_move);
 
-            if (maybe_valid_move.has_value ())
+            if (optional_move.has_value ())
             {
-                move = maybe_valid_move.value();
+                auto move = optional_move.value();
+
                 auto board_code_copy = board.code;
                 board_code_copy.apply_move (board, move);
                 Transposition transposition = my_transposition_table.lookup (board_code_copy.hash_code (), who)
@@ -532,7 +534,7 @@ namespace wisdom
         auto move_list = generate_moves_no_validate (board, who);
         auto scored_moves = to_scored_move_list (board, who, move_list);
 
-        std::sort(scored_moves.begin(), scored_moves.end(),[](ScoredMove a, ScoredMove b){
+        std::stable_sort(scored_moves.begin(), scored_moves.end(),[](ScoredMove a, ScoredMove b){
               return a.score > b.score;
         });
 
