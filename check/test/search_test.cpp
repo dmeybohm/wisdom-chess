@@ -43,8 +43,7 @@ TEST_CASE("Can find mate in 3")
     History history;
     IterativeSearch search { board, history, discard_output, large_timer, 5 };
 
-    SearchResult search_result = search.iteratively_deepen (Color::White);
-    auto result = std::get<Evaluation> (search_result);
+    SearchResult result = search.iteratively_deepen (Color::White);
 
     REQUIRE(result.score > Infinity);
     REQUIRE(result.move.has_value());
@@ -89,8 +88,7 @@ TEST_CASE("Can find mate in 2 1/2")
     History history;
     IterativeSearch search { board, history, discard_output, large_timer, 5 };
 
-    SearchResult search_result = search.iteratively_deepen (Color::Black);
-    auto result = std::get<Evaluation> (search_result);
+    SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE(result.move.has_value());
 
     // Used to return this before move reordering.
@@ -149,8 +147,7 @@ TEST_CASE("scenario with heap overflow 1")
     History history;
     IterativeSearch search { board, history, discard_output, timer, 3 };
 
-    SearchResult search_result = search.iteratively_deepen (Color::Black);
-    auto result = std::get<Evaluation> (search_result);
+    SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE(result.move.has_value());
 }
 
@@ -174,11 +171,10 @@ TEST_CASE("Promoting move is taken if possible")
 
     History history;
     Board board = builder.build ();
-    SearchResult search_result = search (
+    SearchResult result = search (
             board, Color::Black, discard_output, history, large_timer,
             1, 1, -Initial_Alpha, Initial_Alpha
     );
-    auto result = std::get<Evaluation> (search_result);
 
     REQUIRE(to_string (result.move.value ()) == "d2 d1(Q)");
 }
@@ -193,8 +189,7 @@ TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing"
     MoveTimer timer { 30 };
     IterativeSearch search { game.board, history, discard_output, timer, 3 };
 
-    SearchResult search_result = search.iteratively_deepen (Color::Black);
-    auto result = std::get<Evaluation> (search_result);
+    SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE(to_string (result.move.value ()) == "e2xf1(Q)");
 }
 
@@ -208,7 +203,6 @@ TEST_CASE("Finding moves regression test")
     MoveTimer timer { 10 };
     IterativeSearch search { game.board, history, discard_output, timer, 1 };
 
-    SearchResult search_result = search.iteratively_deepen (Color::White);
-    auto result = std::get<Evaluation> (search_result);
+    SearchResult result = search.iteratively_deepen (Color::White);
     REQUIRE( result.move.has_value () );
 }

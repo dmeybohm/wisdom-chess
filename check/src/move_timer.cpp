@@ -15,18 +15,18 @@ namespace wisdom
 
     bool MoveTimer::is_triggered ()
     {
-        if (this->triggered)
+        if (my_triggered)
             return true;
 
-        if (++this->check_calls % Num_Calls_Per_Timer_Check != 0)
+        if (++my_check_calls % Num_Calls_Per_Timer_Check != 0)
             return false;
 
         high_resolution_clock::time_point next_check_time = high_resolution_clock::now ();
-        auto diff_time = next_check_time - this->last_check_time;
+        auto diff_time = next_check_time - my_last_check_time;
 
-        if (diff_time >= this->seconds)
+        if (diff_time >= my_seconds)
         {
-            this->triggered = true;
+            my_triggered = true;
             return true;
         }
         else

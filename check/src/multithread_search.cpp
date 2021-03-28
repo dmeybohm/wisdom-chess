@@ -50,12 +50,8 @@ namespace wisdom
         SearchResult result ()
         {
             // If already searched, return result.
-            if (std::holds_alternative<Evaluation> (search_result))
-            {
-                auto evaluation = std::get<Evaluation> (search_result);
-                if (evaluation.score > -Initial_Alpha)
-                    return evaluation;
-            }
+            if (search_result.move.has_value())
+                return search_result;
 
             search_result = do_multithread_search ();
             return search_result;
@@ -76,7 +72,7 @@ namespace wisdom
         // Per thread variables;
         std::vector<thread_params> all_thread_params;
         std::vector<std::thread> threads;
-        std::vector<Evaluation> result_moves;
+        std::vector<SearchResult> result_moves;
 
         SearchResult do_multithread_search ();
 
@@ -84,7 +80,7 @@ namespace wisdom
 
         void do_thread (unsigned index);
 
-        void add_result (const Evaluation& result);
+        void add_result (const SearchResult& result);
     };
 
     SearchResult MultithreadSearchHandler::do_multithread_search ()
@@ -108,7 +104,7 @@ namespace wisdom
         }
 
         // kill all the threads:
-        std::this_thread::sleep_for (timer.seconds);
+        std::this_thread::sleep_for (timer.seconds ());
         for (auto &thr: threads)
         {
             thr.join ();
@@ -116,7 +112,7 @@ namespace wisdom
 
         // todo handle empty case
         assert (!result_moves.empty ());
-        Evaluation result = result_moves.front ();
+        SearchResult result = result_moves.front ();
 
         for (auto &result_move : result_moves)
         {
@@ -136,7 +132,7 @@ namespace wisdom
         return next_depth;
     }
 
-    void MultithreadSearchHandler::add_result (const Evaluation& result)
+    void MultithreadSearchHandler::add_result (const SearchResult& result)
     {
         std::lock_guard guard { mutex };
 
@@ -156,22 +152,21 @@ namespace wisdom
         messages << "Finished thread " << std::this_thread::get_id () << " with depth " << params.depth << "\n";
         params.output.println (messages.str ());
 
-        if (std::holds_alternative<SearchTimedOut> (result))
+        if (result.timed_out)
         {
             messages << "<Timed out>" << "\n";
             params.output.println (messages.str ());
             return;
         }
 
-        auto evaluation = std::get<Evaluation> (result);
-        if (evaluation.move.has_value ())
-            messages << "Move: " << to_string (evaluation.move.value ()) << "\n";
+        if (result.move.has_value ())
+            messages << "Move: " << to_string (result.move.value ()) << "\n";
         else
             messages << "<No move available>" << "\n";
 
         params.output.println (messages.str ());
 
-        add_result (evaluation);
+        add_result (result);
 
         // Continue with more depth:
         params.depth = get_next_depth ();
@@ -186,12 +181,8 @@ namespace wisdom
 
     SearchResult MultithreadSearch::search ()
     {
-        if (std::holds_alternative<Evaluation> (result))
-        {
-            auto evaluation = std::get<Evaluation> (result);
-            if (evaluation.score == -Initial_Alpha)
-                result = handler->result ();
-        }
+        if (result.move.has_value ())
+            result = handler->result ();
 
         return result;
     }

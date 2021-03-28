@@ -2,7 +2,6 @@
 #define WISDOM_CHESS_SEARCH_H_
 
 #include <memory>
-#include <variant>
 
 #include "board.hpp"
 #include "piece.hpp"
@@ -14,25 +13,32 @@
 
 namespace wisdom
 {
-    struct Evaluation
+    struct SearchResult
     {
         std::optional<Move> move;
+        bool timed_out;
         int score;
         int depth;
         std::shared_ptr<MoveTree> variation;
-    };
 
-    struct SearchTimedOut
-    {
-    };
+        static SearchResult from_initial () noexcept
+        {
+            SearchResult result { {}, false, -Initial_Alpha, 0, nullptr };
+            return result;
+        }
 
-    using SearchResult = std::variant<Evaluation, SearchTimedOut>;
+        static SearchResult from_timeout () noexcept
+        {
+            SearchResult result { {}, true, -Initial_Alpha, 0, nullptr };
+            return result;
+        }
+    };
 
     class Output;
 
     class History;
 
-    struct MoveTimer;
+    class MoveTimer;
 
     // Find the best move using default algorithm.
     std::optional<Move> find_best_move (Board &board, Color side, Output &output, History &history);

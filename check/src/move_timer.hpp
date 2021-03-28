@@ -5,30 +5,37 @@
 
 namespace wisdom
 {
-    struct MoveTimer
+    class MoveTimer
     {
-        std::chrono::high_resolution_clock::time_point last_check_time;
-        int check_calls;
-        std::chrono::seconds seconds;
-        bool triggered;
+    private:
+        std::chrono::high_resolution_clock::time_point my_last_check_time;
+        int my_check_calls;
+        std::chrono::seconds my_seconds;
+        bool my_triggered;
 
-        explicit MoveTimer (int _seconds) :
-                last_check_time { std::chrono::high_resolution_clock::now () },
-                check_calls { 0 },
-                seconds { _seconds },
-                triggered { false }
+    public:
+        explicit MoveTimer (int seconds) :
+                my_last_check_time { std::chrono::high_resolution_clock::now () },
+                my_check_calls { 0 },
+                my_seconds { seconds },
+                my_triggered { false }
         {
         }
 
-        explicit MoveTimer (std::chrono::seconds _seconds) :
-                last_check_time { std::chrono::high_resolution_clock::now () },
-                check_calls { 0 },
-                seconds { _seconds },
-                triggered { false }
+        explicit MoveTimer (std::chrono::seconds seconds) :
+                my_last_check_time { std::chrono::high_resolution_clock::now () },
+                my_check_calls { 0 },
+                my_seconds { seconds },
+                my_triggered { false }
         {
         }
 
         bool is_triggered ();
+
+        std::chrono::seconds seconds() const noexcept
+        {
+            return my_seconds;
+        }
     };
 }
 #endif //WISDOM_TIMER_HPP

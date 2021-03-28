@@ -18,7 +18,7 @@ namespace wisdom
     class MultithreadSearch
     {
     private:
-        SearchResult result = Evaluation { {}, -Initial_Alpha, 0, nullptr };
+        SearchResult result = SearchResult::from_initial ();
         std::unique_ptr<MultithreadSearchHandler> handler;
 
     public:
