@@ -25,6 +25,7 @@ namespace wisdom
 
         [[nodiscard]] int size () const;
     };
+
 }
 
 #endif // WISDOM_CHESS_MOVE_TREE_HPP

@@ -29,16 +29,6 @@ namespace wisdom
     using std::chrono::seconds;
     using wisdom::Output;
 
-    // Create a new variation. The closer_move is the one closer to the current position.
-    static std::shared_ptr<MoveTree> create_new_variation (std::shared_ptr<MoveTree> new_variation, Move closer_move)
-    {
-        if (new_variation == nullptr)
-            new_variation = std::make_shared<MoveTree> ();
-
-        new_variation->push_front (closer_move);
-        return new_variation;
-    }
-
     static SearchResult recurse_or_evaluate (Board &board, Color side, Output &output, History &history,
                                              MoveTimer &timer, int depth, int start_depth, int alpha, int beta,
                                              Move move)
@@ -47,7 +37,7 @@ namespace wisdom
         {
             int score = evaluate_and_check_draw (board, side, start_depth - depth,
                                                  move, history);
-            return SearchResult { move, false, score, start_depth - depth, nullptr };
+            return SearchResult { move, false, score, start_depth - depth, {} };
         }
         else
         {
@@ -68,7 +58,7 @@ namespace wisdom
     {
         int best_score = -Initial_Alpha;
         std::optional<Move> best_move {};
-        std::shared_ptr<MoveTree> best_variation { nullptr };
+        VariationGlimpse best_variation;
 
         for (auto [move, move_score] : moves)
         {
@@ -106,7 +96,9 @@ namespace wisdom
             {
                 best_score = score;
                 best_move = move;
-                best_variation = create_new_variation (other_search_result.variation, move);
+
+                other_search_result.variation_glimpse.push_front (move);
+                best_variation = other_search_result.variation_glimpse;
             }
 
             if (best_score > alpha)
@@ -222,10 +214,10 @@ namespace wisdom
         }
 
         // principal variation could be null if search was interrupted
-        if (result.variation != nullptr)
+        if (result.variation_glimpse.size () > 0)
         {
             std::stringstream variation_str;
-            variation_str << "principal variation: " << result.variation->to_string ();
+            variation_str << "principal variation: " << result.variation_glimpse.to_string ();
             output.println (variation_str.str ());
         }
 

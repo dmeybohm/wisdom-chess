@@ -10,6 +10,7 @@
 #include "move_history.hpp"
 #include "output.hpp"
 #include "move_timer.hpp"
+#include "variation_glimpse.hpp"
 
 namespace wisdom
 {
@@ -19,17 +20,17 @@ namespace wisdom
         bool timed_out;
         int score;
         int depth;
-        std::shared_ptr<MoveTree> variation;
+        VariationGlimpse variation_glimpse;
 
         static SearchResult from_initial () noexcept
         {
-            SearchResult result { {}, false, -Initial_Alpha, 0, nullptr };
+            SearchResult result { std::nullopt, false, -Initial_Alpha, 0, {} };
             return result;
         }
 
         static SearchResult from_timeout () noexcept
         {
-            SearchResult result { {}, true, -Initial_Alpha, 0, nullptr };
+            SearchResult result { std::nullopt, true, -Initial_Alpha, 0, {} };
             return result;
         }
     };

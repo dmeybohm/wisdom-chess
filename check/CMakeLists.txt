@@ -19,7 +19,7 @@ add_library(chess_lib OBJECT
         src/fen_parser.cpp src/fen_parser.hpp src/coord.cpp src/board_builder.cpp src/move_list.cpp src/move_list.hpp src/move_history.hpp
         src/move_history.cpp src/multithread_search.cpp src/multithread_search.hpp src/coord_iterator.cpp src/coord_iterator.hpp
         src/board_code.cpp src/board_code.hpp src/output.cpp src/output.hpp src/board_history.cpp src/board_history.hpp
-        src/history.cpp src/transposition_table.cpp src/transposition_table.hpp)
+        src/history.cpp src/transposition_table.cpp src/transposition_table.hpp src/variation_glimpse.cpp src/variation_glimpse.hpp)
 add_executable(chess src/play.cpp $<TARGET_OBJECTS:chess_lib>)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
