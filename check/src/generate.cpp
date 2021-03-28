@@ -388,7 +388,6 @@ namespace wisdom
     {
         Coord src, dst;
         ColoredPiece src_piece, dst_piece;
-        bool is_capture = false;
 
         src = move_src (move);
         dst = move_dst (move);
@@ -399,7 +398,7 @@ namespace wisdom
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) != Color::None);
 
-        is_capture = (piece_type (dst_piece) != Piece::None);
+        bool is_capture = (piece_type (dst_piece) != Piece::None);
 
         if (is_en_passant_move (move))
             is_capture = true;
@@ -525,7 +524,7 @@ namespace wisdom
         auto move_list = generate_moves_no_validate (board, who);
         auto scored_moves = to_scored_move_list (board, who, move_list);
 
-        std::stable_sort(scored_moves.begin(), scored_moves.end(),[](ScoredMove a, ScoredMove b){
+        std::stable_sort (scored_moves.begin(), scored_moves.end(),[](ScoredMove a, ScoredMove b){
               return a.score > b.score;
         });
 
