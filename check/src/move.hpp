@@ -229,15 +229,6 @@ namespace wisdom
         return move;
     }
 
-    constexpr bool is_null_move (Move move)
-    {
-        // no move has the same position for src and dst
-        return move.src_row == 0 && move.src_col == 0 &&
-               move.dst_row == 0 && move.dst_col == 0;
-    }
-
-    constexpr Move Null_Move = make_move (0, 0, 0, 0);
-
     constexpr bool move_equals (Move a, Move b)
     {
         return a.src_row == b.src_row &&

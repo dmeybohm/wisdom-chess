@@ -50,15 +50,16 @@ TEST_CASE( "En passant moves work on the right" )
     REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
     MoveList move_list = generate_moves (board, Color::White);
-    Move en_passant_move = Null_Move;
+    std::optional<Move> optional_en_passant_move = std::nullopt;
 
     for (auto move : move_list)
     {
         if (is_en_passant_move(move))
-            en_passant_move = move;
+            optional_en_passant_move = move;
     }
 
-    REQUIRE( !is_null_move(en_passant_move) );
+    REQUIRE( optional_en_passant_move.has_value() );
+    auto en_passant_move = optional_en_passant_move.value ();
 
     // Check move types:
     REQUIRE( is_en_passant_move(en_passant_move) );
@@ -115,15 +116,16 @@ TEST_CASE( "En passant moves work on the left" )
     REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
     MoveList move_list = generate_moves (board, Color::White);
-    Move en_passant_move = Null_Move;
+    std::optional<Move> optional_en_passant_move = std::nullopt;
 
     for (auto move : move_list)
     {
         if (is_en_passant_move(move))
-            en_passant_move = move;
+            optional_en_passant_move = move;
     }
 
-    REQUIRE( !is_null_move(en_passant_move) );
+    REQUIRE( optional_en_passant_move.has_value () );
+    auto en_passant_move = optional_en_passant_move.value ();
 
     // Check move types:
     REQUIRE( is_en_passant_move(en_passant_move) );

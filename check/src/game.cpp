@@ -79,13 +79,6 @@ namespace wisdom
 
             move = move_parse (input_buf, result.turn);
 
-            if (is_null_move (move))
-            {
-                std::cout << "Error parsing game file " << input_file
-                          << ": invalid move \"" << input_buf << "\"";
-                return {};
-            }
-
             //
             // We need to check if there's a piece at the destination, and
             // set the move as taking it. Otherwise, we'll trip over some

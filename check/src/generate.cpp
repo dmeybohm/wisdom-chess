@@ -254,7 +254,7 @@ namespace wisdom
         row = next_row (piece_row, dir);
         assert (is_valid_row (row));
 
-        std::array<Move, 4> all_pawn_moves { Null_Move, Null_Move, Null_Move, Null_Move };
+        std::array<std::optional<Move>, 4> all_pawn_moves { std::nullopt, std::nullopt, std::nullopt, std::nullopt };
 
         // single move
         if (piece_type (piece_at (board, row, piece_col)) == Piece::None)
@@ -265,7 +265,7 @@ namespace wisdom
         {
             int8_t double_row = next_row (row, dir);
 
-            if (!is_null_move (all_pawn_moves[0]) &&
+            if (!all_pawn_moves[0].has_value () &&
                 piece_type (piece_at (board, double_row, piece_col)) == Piece::None)
             {
                 all_pawn_moves[1] = make_move (piece_row, piece_col, double_row, piece_col);
@@ -300,12 +300,12 @@ namespace wisdom
                 auto promoted_piece = make_piece (who, promotable_piece_type);
 
                 // promotion moves dont include en passant
-                for (auto &move : all_pawn_moves)
+                for (auto &optional_move: all_pawn_moves)
                 {
-                    if (!is_null_move (move))
+                    if (optional_move.has_value ())
                     {
+                        auto move = optional_move.value ();
                         move = copy_move_with_promotion (move, promoted_piece);
-
                         moves.push_back (move);
                     }
                 }
@@ -320,8 +320,8 @@ namespace wisdom
             add_en_passant_move (board, who, piece_row, piece_col, moves, en_passant_column);
 
         for (auto &check_pawn_move : all_pawn_moves)
-            if (!is_null_move (check_pawn_move))
-                moves.push_back (check_pawn_move);
+            if (check_pawn_move.has_value ())
+                moves.push_back (check_pawn_move.value ());
     }
 
     // put en passant in a separate handler
