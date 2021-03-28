@@ -264,7 +264,7 @@ namespace wisdom
         {
             int8_t double_row = next_row (row, dir);
 
-            if (!all_pawn_moves[0].has_value () &&
+            if (all_pawn_moves[0].has_value () &&
                 piece_type (piece_at (board, double_row, piece_col)) == Piece::None)
             {
                 all_pawn_moves[1] = make_move (piece_row, piece_col, double_row, piece_col);
