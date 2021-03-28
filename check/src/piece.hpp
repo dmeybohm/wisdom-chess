@@ -76,8 +76,6 @@ namespace wisdom
         return piece_with_color;
     }
 
-    constexpr unsigned int NR_PIECES = 6;
-
     constexpr ColoredPiece Piece_And_Color_None = make_piece (Color::None, Piece::None);
 
     constexpr int piece_index (Piece piece)
