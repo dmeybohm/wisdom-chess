@@ -457,11 +457,10 @@ namespace wisdom
     {
         MoveList result;
 
-        for (auto move : move_list)
+        for (auto to_validate : move_list)
         {
-            auto maybe_valid_move = validate_move (board, move);
-            if (maybe_valid_move.has_value())
-                result.push_back (maybe_valid_move.value());
+            if (auto validated = validate_move (board, to_validate); validated.has_value())
+                result.push_back (validated.value());
         }
 
         return result;
@@ -503,23 +502,21 @@ namespace wisdom
         return validate_moves (new_moves, board);
     }
 
-    ScoredMoveList MoveGenerator::to_scored_move_list(const Board &board, Color who,
-                                                      const MoveList &move_list)
+    ScoredMoveList MoveGenerator::to_scored_move_list (const Board &board, Color who,
+                                                       const MoveList &move_list)
     {
         ScoredMoveList result;
         Transposition default_transposition { 0, Negative_Infinity };
 
-        for (auto maybe_valid_move : move_list)
+        result.reserve (move_list.size ());
+        for (auto to_validate : move_list)
         {
-            auto optional_move = validate_move (board, maybe_valid_move);
-
-            if (optional_move.has_value ())
+            if (auto validated = validate_move (board, to_validate); validated.has_value ())
             {
-                auto move = optional_move.value();
+                auto move = validated.value();
+                auto board_code = board.code.with_move (board, move);
 
-                auto board_code_copy = board.code;
-                board_code_copy.apply_move (board, move);
-                Transposition transposition = my_transposition_table.lookup (board_code_copy.hash_code (), who)
+                Transposition transposition = my_transposition_table.lookup (board_code.hash_code (), who)
                         .value_or (default_transposition);
 
                 result.push_back ({ move, transposition.score });
