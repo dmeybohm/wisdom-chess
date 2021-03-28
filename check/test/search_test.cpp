@@ -43,13 +43,15 @@ TEST_CASE("Can find mate in 3")
     History history;
     IterativeSearch search { board, history, discard_output, large_timer, 5 };
 
-    SearchResult result = search.iteratively_deepen (Color::White, variation);
+    SearchResult search_result = search.iteratively_deepen (Color::White);
+    auto result = std::get<Evaluation> (search_result);
+
     REQUIRE(result.score > Infinity);
-    REQUIRE(result.move != Null_Move);
-    REQUIRE(variation->size () == 5);
+    REQUIRE(result.move.has_value());
+    REQUIRE(result.variation->size () == 5);
 
     MoveList expected_moves = { Color::White, { "f6 a6", "f7 f6", "e5xf6", "g8 g7", "a6xa8" }};
-    MoveList computed_moves = variation->to_list ();
+    MoveList computed_moves = result.variation->to_list ();
 
     REQUIRE(expected_moves == computed_moves);
 }
@@ -87,17 +89,18 @@ TEST_CASE("Can find mate in 2 1/2")
     History history;
     IterativeSearch search { board, history, discard_output, large_timer, 5 };
 
-    SearchResult result = search.iteratively_deepen (Color::Black, variation);
-    REQUIRE(result.move != Null_Move);
+    SearchResult search_result = search.iteratively_deepen (Color::Black);
+    auto result = std::get<Evaluation> (search_result);
+    REQUIRE(result.move.has_value());
 
     // Used to return this before move reordering.
 //    MoveList expected_mate_one = { Color::Black, { "e8 f6", "d5 e5", "f6 g4", "e5 d5", "b4 d4" }};
     MoveList expected_mate_two = { Color::Black, { "e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
 //    MoveList expected_mate_three = { Color::Black, { "c7 d7", "d5 e5", "b4 b8", "e5 d5", "b8 c8" }};
-    MoveList computed_moves = variation->to_list ();
+    MoveList computed_moves = result.variation->to_list ();
 
     REQUIRE(result.score > Infinity);
-    REQUIRE(variation->size () == 5);
+    REQUIRE(result.variation->size () == 5);
     REQUIRE(expected_mate_two == computed_moves);
 }
 
@@ -146,9 +149,9 @@ TEST_CASE("scenario with heap overflow 1")
     History history;
     IterativeSearch search { board, history, discard_output, timer, 3 };
 
-    std::unique_ptr<MoveTree> variation;
-    SearchResult result = search.iteratively_deepen (Color::Black, variation);
-    REQUIRE(result.move != Null_Move);
+    SearchResult search_result = search.iteratively_deepen (Color::Black);
+    auto result = std::get<Evaluation> (search_result);
+    REQUIRE(result.move.has_value());
 }
 
 TEST_CASE("Promoting move is taken if possible")
@@ -169,16 +172,15 @@ TEST_CASE("Promoting move is taken if possible")
             }
     );
 
-    std::unique_ptr<MoveTree> variation;
     History history;
     Board board = builder.build ();
-    SearchResult result = search (
+    SearchResult search_result = search (
             board, Color::Black, discard_output, history, large_timer,
-            1, 1, -Initial_Alpha, Initial_Alpha,
-            variation
+            1, 1, -Initial_Alpha, Initial_Alpha
     );
+    auto result = std::get<Evaluation> (search_result);
 
-    REQUIRE(to_string (result.move) == "d2 d1(Q)");
+    REQUIRE(to_string (result.move.value ()) == "d2 d1(Q)");
 }
 
 TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing")
@@ -187,14 +189,13 @@ TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing"
 
     auto game = parser.build ();
 
-    std::unique_ptr<MoveTree> variation;
     History history;
     MoveTimer timer { 30 };
     IterativeSearch search { game.board, history, discard_output, timer, 3 };
 
-    SearchResult result = search.iteratively_deepen (Color::Black, variation);
-
-    REQUIRE(to_string (result.move) == "e2xf1(Q)");
+    SearchResult search_result = search.iteratively_deepen (Color::Black);
+    auto result = std::get<Evaluation> (search_result);
+    REQUIRE(to_string (result.move.value ()) == "e2xf1(Q)");
 }
 
 TEST_CASE("Finding moves regression test")
@@ -203,11 +204,11 @@ TEST_CASE("Finding moves regression test")
 
     auto game = parser.build ();
 
-    std::unique_ptr<MoveTree> variation;
     History history;
     MoveTimer timer { 10 };
     IterativeSearch search { game.board, history, discard_output, timer, 1 };
 
-    SearchResult result = search.iteratively_deepen (Color::White, variation);
-    REQUIRE( result.move != Null_Move );
+    SearchResult search_result = search.iteratively_deepen (Color::White);
+    auto result = std::get<Evaluation> (search_result);
+    REQUIRE( result.move.has_value () );
 }

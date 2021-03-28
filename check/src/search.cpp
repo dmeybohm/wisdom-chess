@@ -29,36 +29,57 @@ namespace wisdom
     using std::chrono::seconds;
     using wisdom::Output;
 
-    SearchResult
-    search (Board &board, Color side, Output &output, History &history, MoveTimer &timer,
-            int depth, int start_depth, int alpha, int beta,
-            std::unique_ptr<MoveTree> &variation)
+    // Create a new variation. The closer_move is the one closer to the current position.
+    static std::shared_ptr<MoveTree> create_new_variation (std::shared_ptr<MoveTree> new_variation, Move closer_move)
     {
-        std::unique_ptr<MoveTree> new_variation { nullptr };
-        std::size_t illegal_move_count = 0;
-        SearchResult result{};
-        MoveGenerator generator = board.move_generator ();
+        if (new_variation == nullptr)
+            new_variation = std::make_shared<MoveTree> ();
 
-        variation.reset (nullptr);
-        ScoredMoveList moves = generator.generate (board, side);
+        new_variation->push_front (closer_move);
+        return new_variation;
+    }
 
-        if (moves.empty ())
+    static SearchResult recurse_or_evaluate (Board &board, Color side, Output &output, History &history,
+                                             MoveTimer &timer, int depth, int start_depth, int alpha, int beta,
+                                             Move move)
+    {
+        if (depth <= 0)
         {
-            result.score = evaluate (board, side, start_depth - depth);
-            board.add_evaluation_to_transposition_table (result.score, side);
-            return result;
+            int score = evaluate_and_check_draw (board, side, start_depth - depth,
+                                                 move, history);
+            return Evaluation { move, score, start_depth - depth, nullptr };
         }
+        else
+        {
+            SearchResult other_search_result = search (board, color_invert (side),
+                                                       output, history, timer,
+                                                       depth - 1, start_depth, -beta, -alpha);
+            if (std::holds_alternative<SearchTimedOut> (other_search_result))
+                return other_search_result;
 
-        for (auto [move, score] : moves)
+            auto evaluation = std::get<Evaluation> (other_search_result);
+            evaluation.score *= -1;
+            return evaluation;
+        }
+    }
+
+    static SearchResult search_moves (Board &board, Color side, Output &output, History &history,
+                                      MoveTimer &timer, int depth, int start_depth, int alpha, int beta,
+                                      const ScoredMoveList &moves)
+    {
+        int best_score = -Initial_Alpha;
+        std::optional<Move> best_move {};
+        std::shared_ptr<MoveTree> best_variation { nullptr };
+
+        for (auto [move, move_score] : moves)
         {
             if (timer.is_triggered ())
-                break;
+                return SearchTimedOut {};
 
             UndoMove undo_state = do_move (board, side, move);
 
             if (!was_legal_move (board, side, move))
             {
-                illegal_move_count++;
                 undo_move (board, side, move, undo_state);
                 continue;
             }
@@ -66,43 +87,35 @@ namespace wisdom
             nodes_visited++;
 
             history.add_position_and_move (board, move);
-            SearchResult other_search_result { .move = move };
-            if (depth <= 0)
+
+            SearchResult other_search_result = recurse_or_evaluate (board, side, output, history, timer,
+                                                                    depth, start_depth, alpha, beta, move);
+
+
+            if (std::holds_alternative<Evaluation> (other_search_result))
             {
-                other_search_result.score = evaluate_and_check_draw (board, side, start_depth - depth,
-                                                                     move, history);
-            }
-            else
-            {
-                other_search_result = search (board, color_invert (side),
-                                              output, history, timer,
-                                              depth - 1, start_depth, -beta, -alpha, new_variation);
-                other_search_result.score *= -1;
+                auto evaluation = std::get<Evaluation> (other_search_result);
+                board.add_evaluation_to_transposition_table (evaluation.score, side);
             }
 
-            board.add_evaluation_to_transposition_table (other_search_result.score, side);
             history.remove_position_and_last_move (board);
             undo_move (board, side, move, undo_state);
 
-            if (other_search_result.score > result.score || result.score == -Initial_Alpha)
-            {
-                result.score = other_search_result.score;
-                result.move = move;
+            if (std::holds_alternative<SearchTimedOut> (other_search_result))
+                return other_search_result;
 
-                if (new_variation == nullptr)
-                    new_variation = std::make_unique<MoveTree> ();
+            auto evaluation = std::get<Evaluation> (other_search_result);
+            int score = evaluation.score;
 
-                new_variation->push_front (move);
-                variation = std::move (new_variation);
-                new_variation.reset (nullptr);
-            }
-            else
+            if (score > best_score)
             {
-                new_variation.reset (nullptr);
+                best_score = score;
+                best_move = move;
+                best_variation = create_new_variation (evaluation.variation, move);
             }
 
-            if (result.score > alpha)
-                alpha = result.score;
+            if (best_score > alpha)
+                alpha = best_score;
 
             if (alpha >= beta)
             {
@@ -111,16 +124,35 @@ namespace wisdom
             }
         }
 
-        // if there are no legal moves, then the current player is in a stalemate or checkmate position.
-        if (moves.size () == illegal_move_count)
-        {
-            auto [my_king_row, my_king_col] = king_position (board, side);
-            result.score = is_king_threatened (board, side, my_king_row, my_king_col) ?
-                           -1 * checkmate_score_in_moves (start_depth - depth) : 0;
-        }
+        return Evaluation { best_move, best_score, start_depth - depth, best_variation };
+    }
 
-        if (timer.is_triggered ())
-            result.move = Null_Move;
+    SearchResult
+    search (Board &board, Color side, Output &output, History &history, MoveTimer &timer,
+            int depth, int start_depth, int alpha, int beta)
+    {
+        MoveGenerator generator = board.move_generator ();
+
+        ScoredMoveList moves = generator.generate (board, side);
+
+        SearchResult result = search_moves (board, side, output, history, timer,
+                                            depth, start_depth, alpha, beta, moves);
+
+        if (std::holds_alternative<SearchTimedOut> (result))
+            return result;
+
+        auto evaluation = std::get<Evaluation> (result);
+
+        // if there are no legal moves, then the current player is in a stalemate or checkmate position.
+        if (!evaluation.move.has_value ())
+        {
+            Evaluation no_moves_available_result { evaluation };
+            auto [my_king_row, my_king_col] = king_position (board, side);
+            no_moves_available_result.score = is_king_threatened (board, side, my_king_row, my_king_col) ?
+                    -1 * checkmate_score_in_moves (start_depth - depth) : 0;
+            board.add_evaluation_to_transposition_table (no_moves_available_result.score, side);
+            return no_moves_available_result;
+        }
 
         return result;
     }
@@ -136,38 +168,34 @@ namespace wisdom
         output.println (progress_str.str ());
     }
 
-    SearchResult IterativeSearch::iteratively_deepen (Color side, std::unique_ptr<MoveTree> &variation)
+    SearchResult IterativeSearch::iteratively_deepen (Color side)
     {
-        SearchResult best_result{};
+        SearchResult best_result = Evaluation { {}, -Initial_Alpha,  0,nullptr };
 
         // For now, only look every other depth
-        for (int depth = 1; depth <= my_total_depth; depth += 2)
+        for (int depth = 0; depth <= my_total_depth; (depth == 0 ? depth++ : depth += 2))
         {
             std::ostringstream ostr;
             ostr << "Searching depth " << depth;
             my_output.println(ostr.str());
 
-            SearchResult next_result = iterate (my_board, side, my_output, my_history, my_timer,
-                                                depth, variation);
-            if (next_result.move != Null_Move)
-                best_result = next_result;
-
-            if (my_timer.is_triggered ())
+            SearchResult next_result = iterate (my_board, side, my_output, my_history, my_timer, depth);
+            if (std::holds_alternative<SearchTimedOut> (next_result))
                 break;
 
-            if (is_checkmating_opponent_score (best_result.score))
+            best_result = next_result;
+            Evaluation next_best_move = std::get<Evaluation> (next_result);
+            if (is_checkmating_opponent_score (next_best_move.score))
                 break;
+
         }
 
         return best_result;
     }
 
     SearchResult iterate (Board &board, Color side, Output &output,
-                          History &history, MoveTimer &timer, int depth,
-                          std::unique_ptr<MoveTree> &variation)
+                          History &history, MoveTimer &timer, int depth)
     {
-        std::unique_ptr<MoveTree> principal_variation;
-
         std::stringstream outstr;
         outstr << "finding moves for " << to_string (side);
         output.println (outstr.str ());
@@ -178,52 +206,71 @@ namespace wisdom
         auto start = std::chrono::system_clock::now ();
 
         SearchResult result = search (board, side, output, history, timer,
-                                      depth, depth, -Initial_Alpha, Initial_Alpha,
-                                      principal_variation);
+                                      depth, depth, -Initial_Alpha, Initial_Alpha);
 
         auto end = std::chrono::system_clock::now ();
-
         calc_time (output, nodes_visited, start, end);
 
-        if (!is_null_move (result.move))
+        if (std::holds_alternative<SearchTimedOut> (result))
         {
             std::stringstream progress_str;
-            progress_str << "move selected = " << to_string (result.move) << " [ score: "
-                         << result.score << " ]\n";
+            progress_str << "Search timed out" << "\n";
+            output.println (progress_str.str ());
+            return result;
+        }
+
+        auto evaluation = std::get<Evaluation> (result);
+
+        if (evaluation.move.has_value())
+        {
+            Move best_move = evaluation.move.value();
+            std::stringstream progress_str;
+            progress_str << "move selected = " << to_string (best_move) << " [ score: "
+                         << evaluation.score << " ]\n";
             progress_str << "nodes visited = " << nodes_visited << ", cutoffs = " << cutoffs;
             output.println (progress_str.str ());
         }
 
         // principal variation could be null if search was interrupted
-        if (principal_variation != nullptr)
+        if (evaluation.variation != nullptr)
         {
             std::stringstream variation_str;
-            variation_str << "principal variation: " << principal_variation->to_string ();
+            variation_str << "principal variation: " << evaluation.variation->to_string ();
             output.println (variation_str.str ());
         }
 
-        variation = std::move (principal_variation);
         return result;
     }
 
-    Move find_best_move_multithreaded (Board &board, Color side, Output &output, History &history)
+    std::optional<Move> find_best_move_multithreaded (Board &board, Color side, Output &output, History &history)
     {
         MoveTimer overdue_timer { Max_Search_Seconds };
 
         MultithreadSearch search { board, side, output, history, overdue_timer };
         SearchResult result = search.search ();
 
-        return result.move;
+        if (std::holds_alternative<Evaluation> (result))
+        {
+            auto evaluation = std::get<Evaluation> (result);
+            return evaluation.move;
+        }
+
+        return {};
     }
 
-    Move find_best_move (Board &board, Color side, Output &output, History &history)
+    std::optional<Move> find_best_move (Board &board, Color side, Output &output, History &history)
     {
         MoveTimer overdue_timer { Max_Search_Seconds };
         IterativeSearch iterative_search { board, history, output, overdue_timer, Max_Depth };
-        std::unique_ptr<MoveTree> variation;
-        SearchResult result = iterative_search.iteratively_deepen (side, variation);
+        SearchResult result = iterative_search.iteratively_deepen (side);
 
-        return result.move;
+        if (std::holds_alternative<Evaluation> (result))
+        {
+            auto evaluation = std::get<Evaluation> (result);
+            return evaluation.move;
+        }
+
+        return {};
     }
 
     // Get the score for a checkmate discovered X moves away.

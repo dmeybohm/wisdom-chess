@@ -165,8 +165,14 @@ int main (int argc, char **argv)
         }
         else
         {
-            input_state.move = find_best_move (game.board, game.player, output, game.history);
+            auto optional_move = find_best_move (game.board, game.player, output, game.history);
+            if (!optional_move.has_value ())
+            {
+                std::cout << "\nCouldn't find move!\n";
+                break;
+            }
 
+            input_state.move = optional_move.value();
             std::cout << "move selected: [" << to_string (input_state.move) << "]\n";
             input_state.good = true;
             input_state.ok = true;
