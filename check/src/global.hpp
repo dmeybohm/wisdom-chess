@@ -44,7 +44,7 @@ namespace wisdom
         explicit Error (std::string message) : my_message {std::move( message )}
         {}
 
-        [[nodiscard]] std::string message() const noexcept
+        [[nodiscard]] const std::string& message() const noexcept
         {
             return my_message;
         }
