@@ -411,11 +411,6 @@ namespace wisdom
                 return {};
         }
 
-        // Skip captures of same color pieces:
-        Coord dbg_coord = coord_parse ("f6");
-        if (dbg_coord == src)
-            assert (true);
-
         if (piece_color (src_piece) == piece_color (dst_piece))
         {
             assert (piece_type (dst_piece) != Piece::None);

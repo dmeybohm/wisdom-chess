@@ -40,41 +40,35 @@ namespace wisdom
 
     using ColoredPiece = struct colored_piece;
 
-// Order here is significant - it means computer will prefer the piece at the top
-// all else being equal, such as if the promoted piece cannot be saved from capture.
-    constexpr Piece all_promotable_piece_types[] =
-            {
-                    Piece::Queen,
-                    Piece::Rook,
-                    Piece::Bishop,
-                    Piece::Knight,
-            };
+    // Order here is significant - it means computer will prefer the piece at the top
+    // all else being equal, such as if the promoted piece cannot be saved from capture.
+    constexpr Piece all_promotable_piece_types[] = {
+            Piece::Queen,
+            Piece::Rook,
+            Piece::Bishop,
+            Piece::Knight,
+    };
 
-    constexpr Piece all_piece_types_with_none[] =
-            {
-                    Piece::None,
-                    Piece::King,
-                    Piece::Queen,
-                    Piece::Rook,
-                    Piece::Bishop,
-                    Piece::Knight,
-                    Piece::Pawn,
-            };
+    constexpr Piece all_piece_types_with_none[] = {
+            Piece::None,
+            Piece::King,
+            Piece::Queen,
+            Piece::Rook,
+            Piece::Bishop,
+            Piece::Knight,
+            Piece::Pawn,
+    };
 
-    constexpr Color all_colors[] =
-            {
-                    Color::White,
-                    Color::Black
-            };
+    constexpr Color all_colors[] = {
+            Color::White,
+            Color::Black
+    };
 
-    constexpr Color all_colors_with_none[] =
-            {
-                    Color::None,
-                    Color::White,
-                    Color::Black,
-            };
-
-////////////////////////////////////////////////
+    constexpr Color all_colors_with_none[] = {
+            Color::None,
+            Color::White,
+            Color::Black,
+    };
 
     constexpr ColoredPiece make_piece (Color color, Piece piece_type)
     {
@@ -90,18 +84,16 @@ namespace wisdom
     {
         switch (piece)
         {
-            case Piece::None:return 0;
-            case Piece::King:return 1;
-            case Piece::Queen:return 2;
-            case Piece::Rook:return 3;
-            case Piece::Bishop:return 4;
-            case Piece::Knight:return 5;
-            case Piece::Pawn:return 6;
-            default:abort ();
+            case Piece::None: return 0;
+            case Piece::King: return 1;
+            case Piece::Queen: return 2;
+            case Piece::Rook: return 3;
+            case Piece::Bishop: return 4;
+            case Piece::Knight: return 5;
+            case Piece::Pawn: return 6;
+            default: abort ();
         }
     }
-
-/////////////////////////////////////////////////
 
     constexpr Piece piece_type (ColoredPiece piece)
     {
@@ -150,7 +142,7 @@ namespace wisdom
         }
     }
 
-    static inline char piece_char (ColoredPiece piece)
+    constexpr char piece_char (ColoredPiece piece)
     {
         Piece p = piece_type (piece);
 

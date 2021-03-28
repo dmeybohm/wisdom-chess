@@ -17,11 +17,8 @@
 
 namespace wisdom
 {
-    enum
-    {
-        Max_Depth = 16,
-        Max_Search_Seconds = 10,
-    };
+    constexpr int Max_Depth = 16;
+    constexpr int Max_Search_Seconds = 10;
 
     thread_local int nodes_visited, cutoffs;
 
