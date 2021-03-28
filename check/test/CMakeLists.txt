@@ -19,7 +19,7 @@ add_executable(chess_tests
         move_test.cpp
         search_test.cpp
         parse_simple_move_test.cpp
-        fen_test.cpp
+        fen_parser_test.cpp
         move_list_test.cpp
         board_code_test.cpp
         history_test.cpp

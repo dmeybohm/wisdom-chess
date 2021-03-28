@@ -143,7 +143,8 @@ namespace wisdom
     {
         SearchResult best_result{};
 
-        for (int depth = 0; depth <= my_total_depth; depth++)
+        // For now, only look every other depth
+        for (int depth = 1; depth <= my_total_depth; depth += 2)
         {
             std::ostringstream ostr;
             ostr << "Searching depth " << depth;
@@ -157,7 +158,7 @@ namespace wisdom
             if (my_timer.is_triggered ())
                 break;
 
-            if (is_checkmating_opponent_score(best_result.score))
+            if (is_checkmating_opponent_score (best_result.score))
                 break;
         }
 
