@@ -10,7 +10,6 @@
 
 namespace wisdom
 {
-
     typedef void (*MoveFunc) (const Board &board, Color who,
                               int8_t piece_row, int8_t piece_col, MoveList &moves);
 
