@@ -28,24 +28,27 @@ namespace wisdom
         std::cout << "\n\n";
     }
 
-    struct input_state_t
+    struct InputState
     {
         bool ok;
         bool good;
         bool skip;
-        Move move;
+        std::optional<Move> move;
+
+        static InputState from_initial() noexcept
+        {
+            return InputState {
+                .ok = true,
+                .good = true,
+                .skip = false,
+                .move = {}
+            };
+        }
     };
 
-    static input_state_t initial_input_state {
-            .ok = true,
-            .good = true,
-            .skip = false,
-            .move = Null_Move
-    };
-
-    static input_state_t read_move (Game &game)
+    static InputState read_move (Game &game)
     {
-        input_state_t result = initial_input_state;
+        InputState result = InputState::from_initial ();
         std::string input;
 
         std::cout << "move? ";
@@ -84,8 +87,7 @@ namespace wisdom
             return result;
         }
 
-        result.move = move_parse (input, game.turn);
-
+        result.move = move_parse_optional (input, game.turn);
         result.good = false;
 
         // check the generated move list for this move to see if its valid
@@ -93,7 +95,7 @@ namespace wisdom
 
         for (auto legal_move : moves)
         {
-            if (move_equals (legal_move, result.move))
+            if (result.move.has_value () && move_equals (legal_move, result.move.value ()))
             {
                 result.good = true;
                 break;
@@ -103,9 +105,9 @@ namespace wisdom
         return result;
     }
 
-    static input_state_t offer_draw ()
+    static InputState offer_draw ()
     {
-        input_state_t result = initial_input_state;
+        InputState result = InputState::from_initial ();
         std::string input;
         std::cout << "Third repetition detected. Would you like a draw? [y/n]\n";
 
@@ -131,8 +133,9 @@ using namespace wisdom;
 int main (int argc, char **argv)
 {
     Game game { Color::White, comp_player };
-    input_state_t input_state { initial_input_state };
+    InputState initial_input_state = InputState::from_initial ();
     wisdom::StandardOutput output;
+    InputState input_state = initial_input_state;
 
     while (input_state.ok)
     {
@@ -172,8 +175,8 @@ int main (int argc, char **argv)
                 break;
             }
 
-            input_state.move = optional_move.value();
-            std::cout << "move selected: [" << to_string (input_state.move) << "]\n";
+            input_state.move = optional_move;
+            std::cout << "move selected: [" << to_string (input_state.move.value()) << "]\n";
             input_state.good = true;
             input_state.ok = true;
         }
@@ -181,8 +184,8 @@ int main (int argc, char **argv)
         if (input_state.skip)
             continue;
 
-        if (input_state.good && !is_null_move (input_state.move))
-            game.move (input_state.move);
+        if (input_state.good && input_state.move.has_value ())
+            game.move (input_state.move.value ());
         else
             std::cout << "\nInvalid move\n\n";
     }

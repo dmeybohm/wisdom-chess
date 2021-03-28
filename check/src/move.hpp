@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <string>
+#include <optional>
 
 #include "global.hpp"
 #include "coord.hpp"
@@ -302,14 +303,17 @@ namespace wisdom
     void undo_move (Board &board, Color who, Move move,
                     UndoMove undo_state);
 
-    Move move_parse (const std::string &str, Color who);
+    // Parse a move. Returns empty if the parse failed.
+    std::optional<Move> move_parse_optional (const std::string &str, Color who);
 
     Coord en_passant_taken_pawn_coord (Coord src, Coord dst);
 
-    // Parse a move
-    Move parse_move (const std::string &str, Color color = Color::None);
+    // Parse a move. Throws an exception if could not parse the move.
+    Move move_parse (const std::string &str, Color color = Color::None);
 
     /////////////////////////////////////////////////////////////////////
+
+    Move parse_move (const std::string &str, Color color = Color::None);
 
     std::string to_string (const Move &move);
 

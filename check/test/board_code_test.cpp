@@ -50,7 +50,7 @@ TEST_CASE( "Capturing moves are applied and undone correctly" )
     builder.add_piece ("e8", Color::White, Piece::King);
 
     Board brd = builder.build();
-    BoardCode code {brd };
+    BoardCode code { brd };
     BoardCode initial = code;
 
     REQUIRE( initial.count_ones() > 0 );
@@ -74,7 +74,7 @@ TEST_CASE( "Promoting moves are applied and undone correctly" )
     builder.add_piece ("e8", Color::White, Piece::King);
 
     Board brd = builder.build();
-    BoardCode code {brd };
+    BoardCode code { brd };
     BoardCode initial = code;
 
     REQUIRE( initial.count_ones() > 0 );

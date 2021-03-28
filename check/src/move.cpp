@@ -447,7 +447,7 @@ namespace wisdom
         board.restore_half_move_clock (undo_state);
     }
 
-    static Move castle_parse (const std::string &str, Color who)
+    static std::optional<Move> castle_parse (const std::string &str, Color who)
     {
         int8_t src_row, dst_col;
 
@@ -468,12 +468,12 @@ namespace wisdom
         else if (transformed == "O-O")
             dst_col = King_Column + 2;
         else
-            return Null_Move;
+            return {};
 
         return make_castling_move (src_row, King_Column, src_row, dst_col);
     }
 
-    Move move_parse (const std::string &str, Color who)
+    std::optional<Move> move_parse_optional (const std::string &str, Color who)
     {
         bool en_passant = false;
         bool is_capturing = false;
@@ -482,7 +482,7 @@ namespace wisdom
         std::string tmp { str };
 
         if (tmp.empty ())
-            return Null_Move;
+            return {};
 
         tmp.erase (std::remove_if (tmp.begin (), tmp.end (), isspace), tmp.end ());
         std::transform (tmp.begin (), tmp.end (), tmp.begin (),
@@ -490,17 +490,13 @@ namespace wisdom
                         { return ::toupper (c); });
 
         if (tmp.empty ())
-        {
-            return Null_Move;
-        }
+            return {};
 
         if (tolower (tmp[0]) == 'o')
-        {
             return castle_parse (tmp, who);
-        }
 
         if (tmp.size () < 4)
-            return Null_Move;
+            return {};
 
         Coord src;
         int offset = 0;
@@ -511,7 +507,7 @@ namespace wisdom
         }
         catch (const CoordParseError &e)
         {
-            return Null_Move;
+            return {};
         }
 
         // allow an 'x' between coordinates, which is used to indicate a capture
@@ -524,7 +520,7 @@ namespace wisdom
         std::string dst_coord { tmp.substr (offset, 2) };
         offset += 2;
         if (dst_coord.empty ())
-            return Null_Move;
+            return {};
 
         Coord dst;
         try
@@ -533,7 +529,7 @@ namespace wisdom
         }
         catch (const CoordParseError &e)
         {
-            return Null_Move;
+            return {};
         }
 
         std::string rest { tmp.substr (offset) };
@@ -579,12 +575,16 @@ namespace wisdom
         return move;
     }
 
-    Move parse_move (const std::string &str, Color color)
+    Move move_parse (const std::string &str, Color color)
     {
         if (tolower (str[0]) == 'o' && color == Color::None)
             throw ParseMoveException ("Move requires color, but no color provided");
 
-        Move result = move_parse (str, color);
+        auto optional_result = move_parse_optional (str, color);
+        if (!optional_result.has_value ())
+            throw ParseMoveException ("Error parsing move");
+
+        auto result = optional_result.value ();
         if (color == Color::None &&
             result.move_category != MoveCategory::NormalCapture &&
             result.move_category != MoveCategory::NonCapture)
@@ -592,10 +592,12 @@ namespace wisdom
             throw ParseMoveException ("Invalid type of move in parse_simple_move");
         }
 
-        if (is_null_move (result))
-            throw ParseMoveException ("Error parsing move");
-
         return result;
+    }
+
+    Move parse_move (const std::string &str, Color color)
+    {
+        return move_parse (str, color);
     }
 
     std::string to_string (const Move &move)
