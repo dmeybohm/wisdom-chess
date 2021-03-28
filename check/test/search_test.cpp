@@ -41,7 +41,7 @@ TEST_CASE("Can find mate in 3")
     Board board = builder.build ();
     std::unique_ptr<MoveTree> variation;
     History history;
-    IterativeSearch search { board, history, discard_output, large_timer, 4 };
+    IterativeSearch search { board, history, discard_output, large_timer, 5 };
 
     SearchResult result = search.iteratively_deepen (Color::White, variation);
     REQUIRE(result.score > Infinity);
@@ -208,5 +208,6 @@ TEST_CASE("Finding moves regression test")
     MoveTimer timer { 10 };
     IterativeSearch search { game.board, history, discard_output, timer, 1 };
 
-    search.iteratively_deepen (Color::White, variation);
+    SearchResult result = search.iteratively_deepen (Color::White, variation);
+    REQUIRE( result.move != Null_Move );
 }
