@@ -47,7 +47,6 @@ namespace wisdom
 
         CastlingState state = Castle_None;
 
-        // todo set CASTLED flag if rook/king in right position:
         prospective_king = piece_at (board, row, king_col);
         prospective_queen_rook = piece_at (board, row, 0);
         prospective_king_rook = piece_at (board, row, 7);
@@ -229,9 +228,35 @@ namespace wisdom
         return result;
     }
 
-    void Board::add_evaluation_to_transposition_table (int score, Color who)
+    void Board::add_evaluation_to_transposition_table (int score, Color who, int relative_depth)
     {
-        Transposition evaluation { *this, score };
+        Transposition evaluation { *this, score, relative_depth };
         my_transpositions.add (evaluation, who);
+    }
+
+    // If the relative depth of the looked up transposition has been searched deeper than the
+    // depth we're looking for, then return the transposition.
+    std::optional<Transposition> Board::check_transposition_table (Color who, int relative_depth)
+    {
+        auto optional_transposition = my_transpositions.lookup (this->code.hash_code (), who);
+
+        if (optional_transposition.has_value ())
+        {
+            // Check the board codes are equal:
+            if (optional_transposition->board_code != this->code)
+            {
+                my_transposition_dupe_hashes++;
+                return std::nullopt;
+            }
+
+            if (optional_transposition->relative_depth >= relative_depth)
+            {
+                my_transposition_misses++;
+                return optional_transposition;
+            }
+        }
+
+        my_transposition_hits++;
+        return std::nullopt;
     }
 }

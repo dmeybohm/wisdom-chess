@@ -41,6 +41,14 @@ namespace wisdom
         }
         else
         {
+            // Check the transposition table for the move:
+            auto optional_transposition = board.check_transposition_table (side, depth);
+            if (optional_transposition.has_value ())
+            {
+                return SearchResult { move, false, optional_transposition->score * -1,
+                                      start_depth - depth, {} };
+            }
+
             SearchResult other_search_result = search (board, color_invert (side),
                                                        output, history, timer,
                                                        depth - 1, start_depth, -beta, -alpha);
@@ -82,7 +90,7 @@ namespace wisdom
 
 
             if (!other_search_result.timed_out)
-                board.add_evaluation_to_transposition_table (other_search_result.score, side);
+                board.add_evaluation_to_transposition_table (other_search_result.score, side, depth);
 
             history.remove_position_and_last_move (board);
             undo_move (board, side, move, undo_state);
@@ -135,7 +143,7 @@ namespace wisdom
             auto [my_king_row, my_king_col] = king_position (board, side);
             no_moves_available_result.score = is_king_threatened (board, side, my_king_row, my_king_col) ?
                     -1 * checkmate_score_in_moves (start_depth - depth) : 0;
-            board.add_evaluation_to_transposition_table (no_moves_available_result.score, side);
+            board.add_evaluation_to_transposition_table (no_moves_available_result.score, side, depth);
             return no_moves_available_result;
         }
 
@@ -158,7 +166,7 @@ namespace wisdom
         SearchResult best_result = SearchResult::from_initial ();
 
         // For now, only look every other depth
-        for (int depth = 0; depth <= my_total_depth; (depth == 0 ? depth++ : depth += 2))
+        for (int depth = 0; depth <= my_total_depth; depth++) // (depth == 0 ? depth++ : depth += 2))
         {
             std::ostringstream ostr;
             ostr << "Searching depth " << depth;

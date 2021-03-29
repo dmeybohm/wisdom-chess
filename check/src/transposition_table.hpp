@@ -12,17 +12,39 @@ namespace wisdom
 {
     struct Transposition
     {
+        // The hash code identifying this position.
         BoardHashCode hash_code;
+
+        // The identifier for the board.
+        BoardCode board_code;
+
+        // The score for this position.
         int score;
+
+        // How deeply this position was analyzed.
+        int relative_depth;
 
         Transposition () = default;
         Transposition (const Transposition &other) = default;
 
-        Transposition (const Board &board, int _score);
-        Transposition (BoardHashCode _code, int _score) :
-                hash_code { _code }, score { _score } {}
+        static Transposition from_defaults ()
+        {
+            return Transposition { 0, BoardCode{}, Negative_Infinity, 0 };
+        }
 
-        bool operator==(const Transposition &other) const
+        Transposition (const Board &board, int _score, int _relative_depth);
+
+        Transposition (const BoardCode &_code, int _score, int _relative_depth) :
+                hash_code { _code.hash_code() }, board_code { _code }, score { _score },
+                relative_depth { _relative_depth }
+        {}
+
+        Transposition (BoardHashCode _hash_code, const BoardCode &_board_code, int _score, int _relative_depth) :
+                hash_code { _hash_code }, board_code { _board_code }, score { _score },
+                relative_depth { _relative_depth }
+        {}
+
+        bool operator== (const Transposition &other) const
         {
             return other.hash_code == this->hash_code;
         }
@@ -70,7 +92,7 @@ namespace std
     template<>
     struct hash<wisdom::Transposition>
     {
-        std::size_t operator()(const wisdom::Transposition &transposition) const
+        std::size_t operator() (const wisdom::Transposition &transposition) const
         {
             return transposition.hash_code;
         }

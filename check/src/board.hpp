@@ -31,26 +31,30 @@ namespace wisdom
     {
     private:
         TranspositionTable my_transpositions;
+        int my_transposition_hits = 0;
+        int my_transposition_misses = 0;
+        int my_transposition_dupe_hashes = 0;
 
     public:
+        // The representation of the board.
         ColoredPiece squares[Num_Rows][Num_Columns];
 
-        // positions of the kings
+        // positions of the kings.
         Coord king_pos[Num_Players];
 
-        // castle state of the board
+        // castle state of the board.
         CastlingState castled[Num_Players];
 
-        // keep track of hashing information
+        // Keep track of hashing information.
         BoardCode code;
 
-        // keep track of the material on the board
+        // Keep track of the material on the board.
         Material material;
 
-        // keep track of the positions on the board
+        // Keep track of the positions on the board.
         Position position;
 
-        // The columns which are eligible for en_passant
+        // The columns which are eligible for en_passant.
         Coord en_passant_target[Num_Players];
 
         // Number of half moves since pawn or capture.
@@ -85,10 +89,16 @@ namespace wisdom
             this->half_move_clock = undo_state.half_move_clock;
         }
 
+        // Convert the board to a string.
         [[nodiscard]] std::string to_string () const;
 
-        void add_evaluation_to_transposition_table (int score, Color who);
+        // Add an evaluation for the current board to the transposition table.
+        void add_evaluation_to_transposition_table (int score, Color who, int relative_depth);
 
+        // Lookup the current board's score in the transposition table.
+        [[nodiscard]] std::optional<Transposition> check_transposition_table (Color who, int relative_depth);
+
+        // Get a move generator for this board.
         [[nodiscard]] MoveGenerator move_generator ()
         {
             return MoveGenerator { my_transpositions };

@@ -41,7 +41,7 @@ namespace wisdom
             Piece type = piece_type (piece);
 
             uint8_t new_value = color == Color::None ? 0
-                                                     : piece_index (type) | (color_index (color) << 3);
+                                 : piece_index (type) | (color_index (color) << 3);
             assert (new_value < 16);
 
             size_t bit_index = (coord.row * Num_Columns + coord.col) * Board_Code_Bits_Per_Piece;

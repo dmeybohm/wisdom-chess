@@ -12,7 +12,7 @@ TEST_CASE("Initializing transposition table")
 
     auto hash_code = board.code.hash_code ();
 
-    table.add( { board, 10 }, Color::White );
+    table.add( { board, 10, 3 }, Color::White );
     auto result = table.lookup (hash_code, Color::White);
     REQUIRE(result.has_value() );
     CHECK(table.size() == 1);
@@ -26,10 +26,10 @@ TEST_CASE("Adding a value already added to a transposition table")
 
     auto hash_code = board.code.hash_code ();
 
-    table.add( { board, 10 }, Color::White );
+    table.add( { board, 10, 3 }, Color::White );
     auto result1 = table.lookup (hash_code, Color::White);
 
-    table.add( { board, 10 }, Color::White );
+    table.add( { board, 10, 3 }, Color::White );
     auto result2 = table.lookup (hash_code, Color::White);
     REQUIRE( result1.has_value() );
     CHECK(table.size() == 1);
@@ -44,7 +44,7 @@ TEST_CASE("Initializing transposition table")
 
     for (int i = 0; i < num_iterations; i++)
     {
-        Transposition position { static_cast<std::size_t>(i), i * num_iterations };
+        Transposition position { static_cast<std::size_t>(i), BoardCode{}, i * num_iterations, 3 };
         positions.push_back (position);
     }
 

@@ -499,7 +499,7 @@ namespace wisdom
                                                        const MoveList &move_list)
     {
         ScoredMoveList result;
-        Transposition default_transposition { 0, Negative_Infinity };
+        Transposition default_transposition = Transposition::from_defaults();
 
         result.reserve (move_list.size ());
         for (auto to_validate : move_list)

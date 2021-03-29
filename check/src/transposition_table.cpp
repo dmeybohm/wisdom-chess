@@ -13,7 +13,7 @@ namespace wisdom
 
         auto map_iterator = my_map.find (hash);
         if (map_iterator == my_map.end ())
-            return {};
+            return std::nullopt;
 
         auto list_iterator = map_iterator->second;
         auto value = *list_iterator;
@@ -90,9 +90,11 @@ namespace wisdom
 #endif
     }
 
-    Transposition::Transposition (const Board &board, int _score) :
+    Transposition::Transposition (const Board &board, int _score, int _relative_depth) :
             hash_code { board.code.hash_code () },
-            score { _score }
+            board_code { board.code },
+            score { _score },
+            relative_depth { _relative_depth }
     {
     }
 }
