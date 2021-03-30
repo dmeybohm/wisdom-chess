@@ -38,13 +38,13 @@ TEST_CASE("Adding a value already added to a transposition table")
 
 TEST_CASE("Initializing transposition table")
 {
-    std::vector<Transposition> positions;
+    std::vector<RelativeTransposition> positions;
     TranspositionTable table;
     int num_iterations = 10000;
 
     for (int i = 0; i < num_iterations; i++)
     {
-        Transposition position { static_cast<std::size_t>(i), BoardCode{}, i * num_iterations, 3 };
+        RelativeTransposition position { static_cast<std::size_t>(i), BoardCode{}, i * num_iterations, 3 };
         positions.push_back (position);
     }
 

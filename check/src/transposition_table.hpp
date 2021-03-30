@@ -10,7 +10,7 @@
 
 namespace wisdom
 {
-    struct Transposition
+    struct BaseTransposition
     {
         // The hash code identifying this position.
         BoardHashCode hash_code;
@@ -24,40 +24,55 @@ namespace wisdom
         // How deeply this position was analyzed.
         int relative_depth;
 
-        Transposition () = default;
-        Transposition (const Transposition &other) = default;
+        BaseTransposition () = default;
+        BaseTransposition (const BaseTransposition &other) = default;
 
-        static Transposition from_defaults ()
-        {
-            return Transposition { 0, BoardCode{}, Negative_Infinity, 0 };
-        }
-
-        Transposition (const Board &board, int _score, int _relative_depth);
-
-        Transposition (const BoardCode &_code, int _score, int _relative_depth) :
-                hash_code { _code.hash_code() }, board_code { _code }, score { _score },
-                relative_depth { _relative_depth }
-        {}
-
-        Transposition (BoardHashCode _hash_code, const BoardCode &_board_code, int _score, int _relative_depth) :
+        BaseTransposition (BoardHashCode _hash_code, const BoardCode &_board_code, int _score, int _relative_depth) :
                 hash_code { _hash_code }, board_code { _board_code }, score { _score },
                 relative_depth { _relative_depth }
         {}
 
-        bool operator== (const Transposition &other) const
+        bool operator== (const BaseTransposition &other) const
         {
             return other.hash_code == this->hash_code;
         }
+    };
 
-        Transposition with_color (Color who)
+    struct RelativeTransposition : BaseTransposition
+    {
+        RelativeTransposition (const Board &board, int _score, int _relative_depth);
+
+        RelativeTransposition (const BoardCode &_code, int _score, int _relative_depth) :
+            BaseTransposition (_code.hash_code(), _code, _score, _relative_depth)
+        {}
+
+        RelativeTransposition (BoardHashCode _hash_code, const BoardCode &_board_code, int _score, int _relative_depth) :
+            BaseTransposition (_hash_code, _board_code, _score, _relative_depth)
+        {}
+
+        static RelativeTransposition from_defaults ()
         {
-            Transposition result { *this };
+            return RelativeTransposition { 0, BoardCode{}, Negative_Infinity, 0 };
+        }
+    };
+
+    struct ColoredTransposition : BaseTransposition
+    {
+        explicit ColoredTransposition (const BaseTransposition &transposition, Color who) :
+            BaseTransposition (transposition)
+        {
+            this->score *= who == Color::Black ? -1 : 1;
+        }
+
+        RelativeTransposition to_relative_transposition (Color who)
+        {
+            RelativeTransposition result { this->hash_code, this->board_code, this->score, this->relative_depth };
             result.score *= who == Color::Black ? -1 : 1;
             return result;
         }
     };
 
-    using TranspositionList = std::list<Transposition>;
+    using TranspositionList = std::list<ColoredTransposition>;
     using TranspositionListIterator = TranspositionList::iterator;
     using TranspositionMap = std::unordered_map<BoardHashCode, TranspositionListIterator>;
 
@@ -68,17 +83,17 @@ namespace wisdom
     private:
         TranspositionList my_list{};
         TranspositionMap my_map{};
-        std::size_t my_num_elements{};
+        std::size_t my_num_elements = 0;
 
         void drop_last ();
         void verify () const;
 
     public:
         // Lookup the transposition.
-        [[nodiscard]] std::optional<Transposition> lookup (BoardHashCode hash, Color who);
+        [[nodiscard]] std::optional<RelativeTransposition> lookup (BoardHashCode hash, Color who);
 
         // Add the transposition.
-        void add (Transposition transposition, Color who);
+        void add (RelativeTransposition transposition, Color who);
 
         [[nodiscard]] std::size_t size() const
         {
@@ -90,9 +105,9 @@ namespace wisdom
 namespace std
 {
     template<>
-    struct hash<wisdom::Transposition>
+    struct hash<wisdom::ColoredTransposition>
     {
-        std::size_t operator() (const wisdom::Transposition &transposition) const
+        std::size_t operator() (const wisdom::ColoredTransposition &transposition) const
         {
             return transposition.hash_code;
         }

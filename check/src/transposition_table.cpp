@@ -7,7 +7,7 @@
 
 namespace wisdom
 {
-    std::optional<Transposition> TranspositionTable::lookup (BoardHashCode hash, Color who)
+    std::optional<RelativeTransposition> TranspositionTable::lookup (BoardHashCode hash, Color who)
     {
         verify();
 
@@ -16,15 +16,16 @@ namespace wisdom
             return std::nullopt;
 
         auto list_iterator = map_iterator->second;
-        auto value = *list_iterator;
+        ColoredTransposition value = *list_iterator;
 
         my_list.splice (my_list.begin(), my_list, list_iterator);
         verify();
 
-        return value.with_color (who);
+        // Re-invert back to original:
+        return value.to_relative_transposition (who);
     }
 
-    void TranspositionTable::add (Transposition transposition, Color who)
+    void TranspositionTable::add (RelativeTransposition transposition, Color who)
     {
         verify();
 
@@ -37,9 +38,9 @@ namespace wisdom
             verify ();
         }
 
-        transposition = transposition.with_color (who);
-        my_list.push_front (transposition);
-        my_map.insert (make_pair (transposition.hash_code, my_list.begin ()));
+        ColoredTransposition colored_transposition = ColoredTransposition { transposition, who };
+        my_list.push_front (colored_transposition);
+        my_map.insert (make_pair (colored_transposition.hash_code, my_list.begin ()));
         my_num_elements++;
 
         if (my_num_elements > Max_Transpositions)
@@ -90,11 +91,8 @@ namespace wisdom
 #endif
     }
 
-    Transposition::Transposition (const Board &board, int _score, int _relative_depth) :
-            hash_code { board.code.hash_code () },
-            board_code { board.code },
-            score { _score },
-            relative_depth { _relative_depth }
-    {
-    }
+    RelativeTransposition::RelativeTransposition (const Board &board, int _score, int _relative_depth) :
+            RelativeTransposition (board.code.hash_code(), board.code, _score, _relative_depth)
+    {}
+
 }

@@ -96,7 +96,7 @@ namespace wisdom
         void add_evaluation_to_transposition_table (int score, Color who, int relative_depth);
 
         // Lookup the current board's score in the transposition table.
-        [[nodiscard]] std::optional<Transposition> check_transposition_table (Color who, int relative_depth);
+        [[nodiscard]] std::optional<RelativeTransposition> check_transposition_table (Color who, int relative_depth);
 
         // Get a move generator for this board.
         [[nodiscard]] MoveGenerator move_generator ()

@@ -499,7 +499,7 @@ namespace wisdom
                                                        const MoveList &move_list)
     {
         ScoredMoveList result;
-        Transposition default_transposition = Transposition::from_defaults();
+        auto default_transposition = RelativeTransposition::from_defaults ();
 
         result.reserve (move_list.size ());
         for (auto to_validate : move_list)
@@ -509,7 +509,7 @@ namespace wisdom
                 auto move = validated.value();
                 auto board_code = board.code.with_move (board, move);
 
-                Transposition transposition = my_transposition_table.lookup (board_code.hash_code (), who)
+                RelativeTransposition transposition = my_transposition_table.lookup (board_code.hash_code (), who)
                         .value_or (default_transposition);
 
                 result.push_back ({ move, transposition.score });

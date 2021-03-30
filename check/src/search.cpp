@@ -42,10 +42,10 @@ namespace wisdom
         else
         {
             // Check the transposition table for the move:
-            auto optional_transposition = board.check_transposition_table (side, depth);
-            if (optional_transposition.has_value ())
+            auto tranposition = board.check_transposition_table (side, depth);
+            if (tranposition.has_value ())
             {
-                return SearchResult { move, false, optional_transposition->score * -1,
+                return SearchResult { move, false, tranposition->score * -1,
                                       start_depth - depth, {} };
             }
 

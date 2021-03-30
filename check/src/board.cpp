@@ -230,13 +230,13 @@ namespace wisdom
 
     void Board::add_evaluation_to_transposition_table (int score, Color who, int relative_depth)
     {
-        Transposition evaluation { *this, score, relative_depth };
+        RelativeTransposition evaluation { *this, score, relative_depth };
         my_transpositions.add (evaluation, who);
     }
 
     // If the relative depth of the looked up transposition has been searched deeper than the
     // depth we're looking for, then return the transposition.
-    std::optional<Transposition> Board::check_transposition_table (Color who, int relative_depth)
+    std::optional<RelativeTransposition> Board::check_transposition_table (Color who, int relative_depth)
     {
         auto optional_transposition = my_transpositions.lookup (this->code.hash_code (), who);
 
