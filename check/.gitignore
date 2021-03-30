@@ -1,7 +1,6 @@
 *.o
 chess.exe
 chess
-*.gam
 .*.d
 .idea
 .cmake
