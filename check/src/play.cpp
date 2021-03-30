@@ -126,7 +126,7 @@ namespace wisdom
 
         for (auto legal_move : moves)
         {
-            if (result.move.has_value () && move_equals (legal_move, result.move.value ()))
+            if (result.move.has_value () && move_equals (legal_move, *result.move))
             {
                 result.good = true;
                 break;
@@ -204,7 +204,8 @@ namespace wisdom
                 }
 
                 input_state.move = optional_move;
-                std::cout << "move selected: [" << to_string (input_state.move.value()) << "]\n";
+                if (input_state.move.has_value ())
+                    std::cout << "move selected: [" << to_string (*input_state.move) << "]\n";
                 input_state.good = true;
                 input_state.ok = true;
             }
@@ -213,7 +214,7 @@ namespace wisdom
                 continue;
 
             if (input_state.good && input_state.move.has_value ())
-                game.move (input_state.move.value ());
+                game.move (*input_state.move);
             else
                 std::cout << "\nInvalid move\n\n";
         }

@@ -303,7 +303,7 @@ namespace wisdom
                 {
                     if (optional_move.has_value ())
                     {
-                        auto move = optional_move.value ();
+                        auto move = *optional_move;
                         move = copy_move_with_promotion (move, promoted_piece);
                         moves.push_back (move);
                     }
@@ -320,7 +320,7 @@ namespace wisdom
 
         for (auto &check_pawn_move : all_pawn_moves)
             if (check_pawn_move.has_value ())
-                moves.push_back (check_pawn_move.value ());
+                moves.push_back (*check_pawn_move);
     }
 
     // put en passant in a separate handler
@@ -453,7 +453,7 @@ namespace wisdom
         for (auto to_validate : move_list)
         {
             if (auto validated = validate_move (board, to_validate); validated.has_value())
-                result.push_back (validated.value());
+                result.push_back (*validated);
         }
 
         return result;
@@ -506,7 +506,7 @@ namespace wisdom
         {
             if (auto validated = validate_move (board, to_validate); validated.has_value ())
             {
-                auto move = validated.value();
+                auto move = *validated;
                 auto board_code = board.code.with_move (board, move);
 
                 RelativeTransposition transposition = my_transposition_table.lookup (board_code.hash_code (), who)

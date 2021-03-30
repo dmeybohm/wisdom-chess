@@ -93,13 +93,13 @@ TEST_CASE("Can find mate in 2 1/2")
 
     // Used to return this before move reordering.
 //    MoveList expected_mate_one = { Color::Black, { "e8 f6", "d5 e5", "f6 g4", "e5 d5", "b4 d4" }};
-    MoveList expected_mate_two = { Color::Black, { "e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
-//    MoveList expected_mate_three = { Color::Black, { "c7 d7", "d5 e5", "b4 b8", "e5 d5", "b8 c8" }};
+//    MoveList expected_mate_two = { Color::Black, { "e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
+    MoveList expected_mate_three = { Color::Black, { "c7 d7", "d5 e5", "b4 b8", "e5 d5", "b8 c8" }};
     MoveList computed_moves = result.variation_glimpse.to_list ();
 
     REQUIRE(result.score > Infinity);
     REQUIRE(result.variation_glimpse.size () == 5);
-    REQUIRE(expected_mate_two == computed_moves);
+    REQUIRE(expected_mate_three == computed_moves);
 }
 
 TEST_CASE("scenario with heap overflow 1")
@@ -176,7 +176,7 @@ TEST_CASE("Promoting move is taken if possible")
             1, 1, -Initial_Alpha, Initial_Alpha
     );
 
-    REQUIRE(to_string (result.move.value ()) == "d2 d1(Q)");
+    REQUIRE(to_string (*result.move) == "d2 d1(Q)");
 }
 
 TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing")
@@ -190,7 +190,7 @@ TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing"
     IterativeSearch search { game.board, history, discard_output, timer, 3 };
 
     SearchResult result = search.iteratively_deepen (Color::Black);
-    REQUIRE(to_string (result.move.value ()) == "e2xf1(Q)");
+    REQUIRE(to_string (*result.move) == "e2xf1(Q)");
 }
 
 TEST_CASE("Finding moves regression test")

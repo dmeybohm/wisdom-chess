@@ -59,7 +59,7 @@ TEST_CASE( "En passant moves work on the right" )
     }
 
     REQUIRE( optional_en_passant_move.has_value() );
-    auto en_passant_move = optional_en_passant_move.value ();
+    auto en_passant_move = *optional_en_passant_move;
 
     // Check move types:
     REQUIRE( is_en_passant_move(en_passant_move) );
@@ -125,7 +125,7 @@ TEST_CASE( "En passant moves work on the left" )
     }
 
     REQUIRE( optional_en_passant_move.has_value () );
-    auto en_passant_move = optional_en_passant_move.value ();
+    auto en_passant_move = *optional_en_passant_move;
 
     // Check move types:
     REQUIRE( is_en_passant_move(en_passant_move) );

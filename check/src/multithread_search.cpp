@@ -160,7 +160,7 @@ namespace wisdom
         }
 
         if (result.move.has_value ())
-            messages << "Move: " << to_string (result.move.value ()) << "\n";
+            messages << "Move: " << to_string (*result.move) << "\n";
         else
             messages << "<No move available>" << "\n";
 

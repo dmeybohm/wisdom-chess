@@ -584,7 +584,7 @@ namespace wisdom
         if (!optional_result.has_value ())
             throw ParseMoveException ("Error parsing move");
 
-        auto result = optional_result.value ();
+        auto result = *optional_result;
         if (color == Color::None &&
             result.move_category != MoveCategory::NormalCapture &&
             result.move_category != MoveCategory::NonCapture)
