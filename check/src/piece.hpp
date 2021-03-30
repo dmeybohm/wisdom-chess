@@ -169,7 +169,12 @@ namespace wisdom
     }
 
     std::string to_string (Color who);
+    std::string to_string (ColoredPiece piece);
+    std::string to_string (Piece piece);
+
     void play (Color human_player);
+
+    std::ostream &operator<< (std::ostream &os, const ColoredPiece &value);
 }
 
 #endif // WISDOM_CHESS_PIECE_HPP

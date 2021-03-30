@@ -11,8 +11,8 @@ namespace wisdom
 {
     constexpr int Num_Players = 2;
 
-    constexpr int8_t Num_Rows = 8;
-    constexpr int8_t Num_Columns = 8;
+    constexpr int Num_Rows = 8;
+    constexpr int Num_Columns = 8;
 
     constexpr int First_Row = 0;
     constexpr int First_Column = 0;
@@ -20,12 +20,12 @@ namespace wisdom
     constexpr int Last_Row = 7;
     constexpr int Last_Column = 7;
 
-    constexpr int8_t King_Column = 4;
-    constexpr int8_t King_Rook_Column = 7;
+    constexpr int King_Column = 4;
+    constexpr int King_Rook_Column = 7;
 
-    constexpr int8_t Queen_Rook_Column = 0;
-    constexpr int8_t King_Castled_Rook_Column = 5;
-    constexpr int8_t Queen_Castled_Rook_Column = 3;
+    constexpr int Queen_Rook_Column = 0;
+    constexpr int King_Castled_Rook_Column = 5;
+    constexpr int Queen_Castled_Rook_Column = 3;
 
     // Infinity score.
     constexpr int Infinity = 65536;

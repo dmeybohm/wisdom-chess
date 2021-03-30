@@ -210,4 +210,18 @@ TEST_CASE("Finding moves regression test")
 TEST_CASE("Promoting to correct piece")
 {
     // todo: load test-messed-up.gam here and ensure promoted piece search with depth 3 is Queen
+    FenParser fen { "r1bqk1nr/ppp2ppp/8/4p3/1bpP4/2P5/PP2NPPP/RNBQ1RK1 w Qkq - 0 1" };
+    auto game = fen.build();
+
+    History history;
+    MoveTimer timer { 10 };
+    IterativeSearch search { game.board, history, discard_output, timer, 7 };
+
+    SearchResult result = search.iteratively_deepen (Color::Black);
+    REQUIRE( result.move.has_value () );
+
+    do_move (game.board, Color::Black, *result.move);
+    // assert the bishop has moved:
+    INFO("Info:", to_string (*result.move) );
+    REQUIRE( piece_at (game.board, coord_parse("b4")) != make_piece (Color::Black, Piece::Bishop) );
 }

@@ -155,7 +155,7 @@ namespace wisdom
         return is_castling_move (move) && move.dst_col == 6;
     }
 
-    static inline int8_t castling_row_from_color (Color who)
+    static inline int castling_row_from_color (Color who)
     {
         switch (who)
         {

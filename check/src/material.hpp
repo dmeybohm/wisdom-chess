@@ -59,4 +59,5 @@ namespace wisdom
 
     };
 }
+
 #endif // WISDOM_CHESS_MATERIAL_H_
