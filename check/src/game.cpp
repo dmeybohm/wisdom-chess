@@ -8,6 +8,7 @@
 #include "move_tree.hpp"
 #include "str.hpp"
 #include "game.hpp"
+#include "output_format.hpp"
 
 namespace wisdom
 {
@@ -23,45 +24,32 @@ namespace wisdom
         turn = color_invert (turn);
     }
 
-    static std::string prompt (const std::string &prompt)
+    bool Game::save (const std::string &input) const
     {
-        std::string input;
-        std::cout << prompt << "? ";
+        FenOutputFormat fen_output_format;
+        WisdomGameOutputFormat wisdom_game_output_format;
+        OutputFormat *output;
 
-        if (!std::getline (std::cin, input))
-            return "";
+        if (input.find (".fen") != std::string::npos)
+            output = &fen_output_format;
+        else
+            output = &wisdom_game_output_format;
 
-        return chomp (input);
-    }
+        output->save (input, board, history, turn);
 
-    bool Game::save () const
-    {
-        std::string input = prompt ("save to what file");
-        if (input.empty ())
-            return false;
-
-        history.get_move_history ().save (input);
         return true; // need to check for failure here
     }
 
-    std::optional<Game> Game::load (Color player)
+    std::optional<Game> Game::load (const std::string &filename, Color player)
     {
         std::string input_buf;
-        Move move;
         std::ifstream istream;
 
-        std::string input_file = prompt ("load what file");
-        if (input_file.empty ())
-        {
-            std::cout << "File is empty\n";
-            return {};
-        }
-
-        istream.open (input_file, std::ios::in);
+        istream.open (filename, std::ios::in);
 
         if (istream.fail ())
         {
-            std::cout << "Failed reading " << input_file << "\n";
+            std::cout << "Failed reading " << filename << "\n";
             return {};
         }
 
@@ -77,7 +65,7 @@ namespace wisdom
             if (input_buf == "stop")
                 break;
 
-            move = move_parse (input_buf, result.turn);
+            Move move = move_parse (input_buf, result.turn);
 
             //
             // We need to check if there's a piece at the destination, and

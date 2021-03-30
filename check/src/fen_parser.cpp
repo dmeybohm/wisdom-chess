@@ -25,13 +25,13 @@ namespace wisdom
 
         switch (lower)
         {
-            case 'k':return make_piece (who, Piece::King);
-            case 'q':return make_piece (who, Piece::Queen);
-            case 'r':return make_piece (who, Piece::Rook);
-            case 'b':return make_piece (who, Piece::Bishop);
-            case 'n':return make_piece (who, Piece::Knight);
-            case 'p':return make_piece (who, Piece::Pawn);
-            default:throw FenParserError ("Invalid piece type!");
+            case 'k': return make_piece (who, Piece::King);
+            case 'q': return make_piece (who, Piece::Queen);
+            case 'r': return make_piece (who, Piece::Rook);
+            case 'b': return make_piece (who, Piece::Bishop);
+            case 'n': return make_piece (who, Piece::Knight);
+            case 'p': return make_piece (who, Piece::Pawn);
+            default: throw FenParserError ("Invalid piece type!");
         }
     }
 
@@ -87,7 +87,7 @@ namespace wisdom
 
     }
 
-// en passant target square:
+    // en passant target square:
     void FenParser::parse_en_passant (std::string str)
     {
         if (str.empty ())
@@ -140,13 +140,13 @@ namespace wisdom
         builder.set_castling (Color::Black, black_castle);
     }
 
-// halfmove clock:
+    // halfmove clock:
     void FenParser::parse_halfmove (int half_moves)
     {
         builder.set_half_moves (half_moves);
     }
 
-// fullmove number:
+    // fullmove number:
     void FenParser::parse_fullmove (int full_moves)
     {
         builder.set_full_moves (full_moves);

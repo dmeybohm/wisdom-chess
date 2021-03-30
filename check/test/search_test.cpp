@@ -6,12 +6,12 @@
 #include "move.hpp"
 #include "move_timer.hpp"
 #include "move_tree.hpp"
-#include "output.hpp"
+#include "logger.hpp"
 #include "history.hpp"
 #include "fen_parser.hpp"
 #include "game.hpp"
 
-wisdom::NullOutput discard_output;
+wisdom::NullLogger discard_output;
 using namespace wisdom;
 
 // Mating moves: : 1.Ra6 f6 2.Bxf6 Rg7 3.Rxa8#
@@ -205,4 +205,9 @@ TEST_CASE("Finding moves regression test")
 
     SearchResult result = search.iteratively_deepen (Color::White);
     REQUIRE( result.move.has_value () );
+}
+
+TEST_CASE("Promoting to correct piece")
+{
+    // todo: load test-messed-up.gam here and ensure promoted piece search with depth 3 is Queen
 }

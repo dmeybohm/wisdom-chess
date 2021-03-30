@@ -9,7 +9,7 @@
 
 namespace wisdom
 {
-    class Output;
+    class Logger;
 
     class MultithreadSearchHandler;
 
@@ -22,7 +22,7 @@ namespace wisdom
         std::unique_ptr<MultithreadSearchHandler> handler;
 
     public:
-        MultithreadSearch (Board &board, Color side, wisdom::Output &output,
+        MultithreadSearch (Board &board, Color side, wisdom::Logger &output,
                            const History &history, const MoveTimer &timer);
 
         ~MultithreadSearch ();

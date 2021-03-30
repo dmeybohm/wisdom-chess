@@ -51,29 +51,29 @@ TEST_CASE( "FEN notation for castling" )
 
     Game game = parser_full.build();
 
-    REQUIRE(game.board.castled[COLOR_INDEX_WHITE] == Castle_None);
-    REQUIRE(game.board.castled[COLOR_INDEX_BLACK] == Castle_None);
+    REQUIRE(game.board.castled[Color_Index_White] == Castle_None);
+    REQUIRE(game.board.castled[Color_Index_Black] == Castle_None);
 
     FenParser parser_no_black_king { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black_king.build();
 
-    REQUIRE(game.board.castled[COLOR_INDEX_WHITE] == Castle_None);
-    REQUIRE(game.board.castled[COLOR_INDEX_BLACK] == Castle_Kingside);
+    REQUIRE(game.board.castled[Color_Index_White] == Castle_None);
+    REQUIRE(game.board.castled[Color_Index_Black] == Castle_Kingside);
 
     FenParser parser_no_black { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black.build();
 
-    REQUIRE(game.board.castled[COLOR_INDEX_WHITE] == Castle_None);
-    REQUIRE(game.board.castled[COLOR_INDEX_BLACK] == Castle_Kingside);
+    REQUIRE(game.board.castled[Color_Index_White] == Castle_None);
+    REQUIRE(game.board.castled[Color_Index_Black] == Castle_Kingside);
 
     FenParser parser_nothing { "4r2/8/8/8/8/8/k7/4K2R w - - 0 1" };
 
     game = parser_nothing.build();
 
-    REQUIRE( game.board.castled[COLOR_INDEX_WHITE] == (Castle_Kingside | Castle_Queenside));
-    REQUIRE( game.board.castled[COLOR_INDEX_BLACK] == (Castle_Kingside | Castle_Queenside));
+    REQUIRE(game.board.castled[Color_Index_White] == (Castle_Kingside | Castle_Queenside));
+    REQUIRE(game.board.castled[Color_Index_Black] == (Castle_Kingside | Castle_Queenside));
 }
 
 TEST_CASE( "FEN notation for en passant" )
@@ -84,5 +84,5 @@ TEST_CASE( "FEN notation for en passant" )
 
     REQUIRE( !is_en_passant_vulnerable (game.board, Color::White) );
     REQUIRE( is_en_passant_vulnerable (game.board, Color::Black) );
-    REQUIRE( game.board.en_passant_target[COLOR_INDEX_BLACK] == coord_parse("e6") );
+    REQUIRE(game.board.en_passant_target[Color_Index_Black] == coord_parse ("e6"));
 }

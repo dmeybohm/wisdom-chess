@@ -1,6 +1,6 @@
 #include "multithread_search.hpp"
 #include "move_timer.hpp"
-#include "output.hpp"
+#include "logger.hpp"
 #include "history.hpp"
 
 #include <mutex>
@@ -17,18 +17,18 @@ namespace wisdom
     constexpr int Max_Depth = 16;
 
     using std::chrono::seconds;
-    using wisdom::Output;
+    using wisdom::Logger;
 
     struct thread_params
     {
         Board board;
         Color side;
-        Output &output;
+        Logger &output;
         History history;
         int depth;
         MoveTimer timer;
 
-        thread_params (const Board &board_, Color side_, Output &output_,
+        thread_params (const Board &board_, Color side_, Logger &output_,
                        History history_, MoveTimer timer_, int depth_) :
                 board { board_ }, side { side_ }, output { output_ },
                 history { std::move (history_) }, depth { depth_ },
@@ -41,7 +41,7 @@ namespace wisdom
     class MultithreadSearchHandler
     {
     public:
-        MultithreadSearchHandler (Board &board_, Color side_, Output &output_,
+        MultithreadSearchHandler (Board &board_, Color side_, Logger &output_,
                                   const History &history_, const MoveTimer &timer_) :
                 board { board_ }, side { side_ }, output { output_ },
                 history { history_ }, timer { timer_ }
@@ -60,7 +60,7 @@ namespace wisdom
     private:
         Board board;
         Color side;
-        Output &output;
+        Logger &output;
         const History &history; // reference here, and copied into thread params.
         struct MoveTimer timer;
         SearchResult search_result;
@@ -173,7 +173,7 @@ namespace wisdom
         do_thread (index);
     }
 
-    MultithreadSearch::MultithreadSearch (Board &board, Color side, Output &output,
+    MultithreadSearch::MultithreadSearch (Board &board, Color side, Logger &output,
                                           const History &history, const MoveTimer &timer)
     {
         handler = std::make_unique<MultithreadSearchHandler> (board, side, output, history, timer);

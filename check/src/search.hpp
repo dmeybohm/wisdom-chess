@@ -8,7 +8,7 @@
 #include "move.hpp"
 #include "move_tree.hpp"
 #include "move_history.hpp"
-#include "output.hpp"
+#include "logger.hpp"
 #include "move_timer.hpp"
 #include "variation_glimpse.hpp"
 
@@ -35,24 +35,24 @@ namespace wisdom
         }
     };
 
-    class Output;
+    class Logger;
 
     class History;
 
     class MoveTimer;
 
     // Find the best move using default algorithm.
-    std::optional<Move> find_best_move (Board &board, Color side, Output &output, History &history);
+    std::optional<Move> find_best_move (Board &board, Color side, Logger &output, History &history);
 
     // Find the best move using multiple threads.
-    std::optional<Move> find_best_move_multithreaded (Board &board, Color side, Output &output, History &history);
+    std::optional<Move> find_best_move_multithreaded (Board &board, Color side, Logger &output, History &history);
 
     // Iterate over each depth level.
-    SearchResult iterate (Board &board, Color side, Output &output,
+    SearchResult iterate (Board &board, Color side, Logger &output,
                           History &history, MoveTimer &timer, int depth);
 
     // Search for the best move to a particular depth.
-    SearchResult search (Board &board, Color side, Output &output,
+    SearchResult search (Board &board, Color side, Logger &output,
                          History &history, MoveTimer &timer, int depth,
                          int start_depth, int alpha, int beta);
 
@@ -67,14 +67,14 @@ namespace wisdom
     private:
         Board &my_board;
         History &my_history;
-        Output &my_output;
+        Logger &my_output;
         MoveTimer my_timer;
         int my_total_depth;
 
     public:
         IterativeSearch (Board &board,
                          History &history,
-                         Output &output,
+                         Logger &output,
                          MoveTimer timer,
                          int total_depth) :
             my_board { board },

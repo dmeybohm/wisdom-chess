@@ -1,33 +1,33 @@
-#ifndef WISDOM_OUTPUT_HPP
-#define WISDOM_OUTPUT_HPP
+#ifndef WISDOM_LOGGER_HPP
+#define WISDOM_LOGGER_HPP
 
 #include <iostream>
 #include <mutex>
 
 namespace wisdom
 {
-    class Output
+    class Logger
     {
     public:
         virtual void println (const std::string &output) = 0;
     };
 
-    class NullOutput : public Output
+    class NullLogger : public Logger
     {
     public:
-        NullOutput () = default;
+        NullLogger () = default;
 
         void println ([[maybe_unused]] const std::string &output) override
         {}
     };
 
-    class StandardOutput : public Output
+    class StandardLogger : public Logger
     {
     private:
         std::mutex output_mutex;
 
     public:
-        StandardOutput () = default;
+        StandardLogger () = default;
 
         void println (const std::string &output) override
         {
@@ -37,4 +37,4 @@ namespace wisdom
     };
 }
 
-#endif //WISDOM_OUTPUT_HPP
+#endif //WISDOM_LOGGER_HPP

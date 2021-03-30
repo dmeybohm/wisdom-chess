@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <optional>
+#include <string>
 
 #include "piece.hpp"
 #include "move.hpp"
@@ -39,9 +40,9 @@ namespace wisdom
             assert (is_color_valid (computer_player));
         }
 
-        bool save () const;
+        bool save (const std::string &filename) const;
 
-        static std::optional<Game> load (Color player);
+        static std::optional<Game> load (const std::string &filename, Color player);
 
         void move (Move move);
     };

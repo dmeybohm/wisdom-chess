@@ -9,12 +9,30 @@
 #include "check.hpp"
 #include "game.hpp"
 #include "str.hpp"
-#include "output.hpp"
+#include "logger.hpp"
 
 namespace wisdom
 {
     // the color the computer is playing as
     static const Color comp_player = Color::Black;
+
+    struct InputState
+    {
+        bool ok;
+        bool good;
+        bool skip;
+        std::optional<Move> move;
+
+        static InputState from_initial() noexcept
+        {
+            return InputState {
+                    .ok = true,
+                    .good = true,
+                    .skip = false,
+                    .move = {}
+            };
+        }
+    };
 
     static void print_available_moves (Game &game)
     {
@@ -28,23 +46,32 @@ namespace wisdom
         std::cout << "\n\n";
     }
 
-    struct InputState
+    static std::string prompt (const std::string &prompt)
     {
-        bool ok;
-        bool good;
-        bool skip;
-        std::optional<Move> move;
+        std::string input;
+        std::cout << prompt << "? ";
 
-        static InputState from_initial() noexcept
-        {
-            return InputState {
-                .ok = true,
-                .good = true,
-                .skip = false,
-                .move = {}
-            };
-        }
-    };
+        if (!std::getline (std::cin, input))
+            return "";
+
+        return chomp (input);
+    }
+
+    static void save_game (const Game &game)
+    {
+        std::string input = prompt ("save to what file");
+        if (input.empty ())
+            return;
+        game.save (input);
+    }
+
+    static std::optional<Game> load_game ()
+    {
+        std::string input = prompt ("load what file");
+        if (input.empty ())
+            return std::nullopt;
+        return Game::load (input, comp_player);
+    }
 
     static InputState read_move (Game &game)
     {
@@ -69,14 +96,14 @@ namespace wisdom
         }
         else if (input == "save")
         {
-            game.save ();
+            save_game (game);
             result.skip = true;
             return result;
         }
         else if (input == "load")
         {
             result.skip = true;
-            auto optional_game = Game::load (comp_player);
+            auto optional_game = load_game ();
             if (optional_game.has_value ())
                 game = *optional_game;
             return result;
@@ -134,7 +161,7 @@ int main (int argc, char **argv)
 {
     Game game { Color::White, comp_player };
     InputState initial_input_state = InputState::from_initial ();
-    wisdom::StandardOutput output;
+    wisdom::StandardLogger output;
     InputState input_state = initial_input_state;
 
     while (input_state.ok)

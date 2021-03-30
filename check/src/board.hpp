@@ -61,7 +61,7 @@ namespace wisdom
         int half_move_clock = 0;
 
         // Number of full moves, updated after black moves.
-        int full_moves = 0;
+        int full_moves = 1;
 
         Board ();
 

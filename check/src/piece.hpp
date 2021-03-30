@@ -30,11 +30,8 @@ namespace wisdom
         Color color: 4;
     };
 
-    enum color_index
-    {
-        COLOR_INDEX_WHITE = 0U,
-        COLOR_INDEX_BLACK = 1U,
-    };
+    constexpr int Color_Index_White = 0;
+    constexpr int Color_Index_Black = 1;
 
     using ColorIndex = int8_t;
 
@@ -123,8 +120,8 @@ namespace wisdom
     {
         switch (who)
         {
-            case Color::White: return COLOR_INDEX_WHITE;
-            case Color::Black: return COLOR_INDEX_BLACK;
+            case Color::White: return Color_Index_White;
+            case Color::Black: return Color_Index_Black;
             default: abort ();
         }
     }
@@ -134,8 +131,8 @@ namespace wisdom
         switch (who)
         {
             case Color::None: return 0;
-            case Color::White: return COLOR_INDEX_WHITE + 1;
-            case Color::Black: return COLOR_INDEX_BLACK + 1;
+            case Color::White: return Color_Index_White + 1;
+            case Color::Black: return Color_Index_Black + 1;
             default: abort ();
         }
     }

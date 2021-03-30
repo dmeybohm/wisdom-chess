@@ -106,11 +106,11 @@ namespace wisdom
             }
         }
 
-        this->castled[COLOR_INDEX_WHITE] = init_castle_state (*this, Color::White);
-        this->castled[COLOR_INDEX_BLACK] = init_castle_state (*this, Color::Black);
+        this->castled[Color_Index_White] = init_castle_state (*this, Color::White);
+        this->castled[Color_Index_Black] = init_castle_state (*this, Color::Black);
 
-        this->en_passant_target[COLOR_INDEX_WHITE] = No_En_Passant_Coord;
-        this->en_passant_target[COLOR_INDEX_BLACK] = No_En_Passant_Coord;
+        this->en_passant_target[Color_Index_White] = No_En_Passant_Coord;
+        this->en_passant_target[Color_Index_Black] = No_En_Passant_Coord;
 
         this->code = BoardCode { *this };
     }

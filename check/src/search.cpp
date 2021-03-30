@@ -12,7 +12,7 @@
 #include "move_timer.hpp"
 #include "move_history.hpp"
 #include "multithread_search.hpp"
-#include "output.hpp"
+#include "logger.hpp"
 #include "history.hpp"
 
 namespace wisdom
@@ -27,9 +27,9 @@ namespace wisdom
     using std::chrono::duration;
     using std::chrono::milliseconds;
     using std::chrono::seconds;
-    using wisdom::Output;
+    using wisdom::Logger;
 
-    static SearchResult recurse_or_evaluate (Board &board, Color side, Output &output, History &history,
+    static SearchResult recurse_or_evaluate (Board &board, Color side, Logger &output, History &history,
                                              MoveTimer &timer, int depth, int start_depth, int alpha, int beta,
                                              Move move)
     {
@@ -60,7 +60,7 @@ namespace wisdom
         }
     }
 
-    static SearchResult search_moves (Board &board, Color side, Output &output, History &history,
+    static SearchResult search_moves (Board &board, Color side, Logger &output, History &history,
                                       MoveTimer &timer, int depth, int start_depth, int alpha, int beta,
                                       const ScoredMoveList &moves)
     {
@@ -123,7 +123,7 @@ namespace wisdom
     }
 
     SearchResult
-    search (Board &board, Color side, Output &output, History &history, MoveTimer &timer,
+    search (Board &board, Color side, Logger &output, History &history, MoveTimer &timer,
             int depth, int start_depth, int alpha, int beta)
     {
         MoveGenerator generator = board.move_generator ();
@@ -150,7 +150,7 @@ namespace wisdom
         return result;
     }
 
-    static void calc_time (Output &output, int nodes, system_clock_t start, system_clock_t end)
+    static void calc_time (Logger &output, int nodes, system_clock_t start, system_clock_t end)
     {
         auto duration = end - start;
         milliseconds ms = std::chrono::duration_cast<milliseconds> (duration);
@@ -166,7 +166,7 @@ namespace wisdom
         SearchResult best_result = SearchResult::from_initial ();
 
         // For now, only look every other depth
-        for (int depth = 0; depth <= my_total_depth; depth++) // (depth == 0 ? depth++ : depth += 2))
+        for (int depth = 0; depth <= my_total_depth; depth <= 2 ? depth++ : depth += 2)
         {
             std::ostringstream ostr;
             ostr << "Searching depth " << depth;
@@ -185,7 +185,7 @@ namespace wisdom
         return best_result;
     }
 
-    SearchResult iterate (Board &board, Color side, Output &output,
+    SearchResult iterate (Board &board, Color side, Logger &output,
                           History &history, MoveTimer &timer, int depth)
     {
         std::stringstream outstr;
@@ -232,7 +232,7 @@ namespace wisdom
         return result;
     }
 
-    std::optional<Move> find_best_move_multithreaded (Board &board, Color side, Output &output, History &history)
+    std::optional<Move> find_best_move_multithreaded (Board &board, Color side, Logger &output, History &history)
     {
         MoveTimer overdue_timer { Max_Search_Seconds };
 
@@ -241,7 +241,7 @@ namespace wisdom
         return result.move;
     }
 
-    std::optional<Move> find_best_move (Board &board, Color side, Output &output, History &history)
+    std::optional<Move> find_best_move (Board &board, Color side, Logger &output, History &history)
     {
         MoveTimer overdue_timer { Max_Search_Seconds };
         IterativeSearch iterative_search { board, history, output, overdue_timer, Max_Depth };
