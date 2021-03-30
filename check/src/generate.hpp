@@ -39,7 +39,7 @@ namespace wisdom
 
     MoveList generate_captures (const Board &board, Color who);
 
-    const MoveList &generate_knight_moves (int8_t row, int8_t col);
+    const MoveList &generate_knight_moves (int row, int col);
 }
 
 #endif // WISDOM_GENERATE_HPP

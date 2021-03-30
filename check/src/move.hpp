@@ -174,14 +174,18 @@ namespace wisdom
     }
 
     // run-of-the-mill move with no promotion involved
-    constexpr Move make_move (int8_t src_row, int8_t src_col,
-                              int8_t dst_row, int8_t dst_col)
+    constexpr Move make_move (int src_row, int src_col,
+                              int dst_row, int dst_col)
     {
+        assert (src_row >= 0 && src_row < Num_Rows);
+        assert (dst_row >= 0 && src_row < Num_Rows);
+        assert (src_col >= 0 && src_row < Num_Columns);
+        assert (dst_col >= 0 && src_row < Num_Columns);
         Move result = {
-                .src_row = src_row,
-                .src_col = src_col,
-                .dst_row = dst_row,
-                .dst_col = dst_col,
+                .src_row = static_cast<int8_t>(src_row),
+                .src_col = static_cast<int8_t>(src_col),
+                .dst_row = static_cast<int8_t>(dst_row),
+                .dst_col = static_cast<int8_t>(dst_col),
                 .promoted_color = Color::None,
                 .promoted_piece_type = Piece::None,
                 .move_category = MoveCategory::NonCapture,
@@ -195,16 +199,16 @@ namespace wisdom
         return make_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
     }
 
-    constexpr Move make_capturing_move (int8_t src_row, int8_t src_col,
-                                        int8_t dst_row, int8_t dst_col)
+    constexpr Move make_capturing_move (int src_row, int src_col,
+                                        int dst_row, int dst_col)
     {
         Move move = make_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::NormalCapture;
         return move;
     }
 
-    constexpr Move make_castling_move (int8_t src_row, int8_t src_col,
-                                       int8_t dst_row, int8_t dst_col)
+    constexpr Move make_castling_move (int src_row, int src_col,
+                                       int dst_row, int dst_col)
     {
         Move move = make_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::Castling;
@@ -221,8 +225,8 @@ namespace wisdom
         return result;
     }
 
-    constexpr Move make_en_passant_move (int8_t src_row, int8_t src_col,
-                                         int8_t dst_row, int8_t dst_col)
+    constexpr Move make_en_passant_move (int src_row, int src_col,
+                                         int dst_row, int dst_col)
     {
         Move move = make_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::EnPassant;

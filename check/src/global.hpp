@@ -14,11 +14,11 @@ namespace wisdom
     constexpr int8_t Num_Rows = 8;
     constexpr int8_t Num_Columns = 8;
 
-    constexpr int8_t First_Row = 0;
-    constexpr int8_t First_Column = 0;
+    constexpr int First_Row = 0;
+    constexpr int First_Column = 0;
 
-    constexpr int8_t Last_Row = 7;
-    constexpr int8_t Last_Column = 7;
+    constexpr int Last_Row = 7;
+    constexpr int Last_Column = 7;
 
     constexpr int8_t King_Column = 4;
     constexpr int8_t King_Rook_Column = 7;

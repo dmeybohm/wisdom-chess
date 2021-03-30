@@ -13,12 +13,12 @@ namespace wisdom
     {
         std::string output;
 
-        for (int8_t row = 0; row < Num_Rows; row++)
+        for (int row = 0; row < Num_Rows; row++)
         {
             std::string row_string;
             int none_count = 0;
 
-            for (int8_t col = 0; col < Num_Columns; col++)
+            for (int col = 0; col < Num_Columns; col++)
             {
                 ColoredPiece piece = piece_at (board, row, col);
                 if (piece == Piece_And_Color_None)

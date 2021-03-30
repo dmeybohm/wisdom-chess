@@ -73,8 +73,8 @@ namespace wisdom
         if (who == Color::White)
             return coord;
 
-        int8_t row = ROW (coord);
-        int8_t col = COLUMN (coord);
+        int row = ROW (coord);
+        int col = COLUMN (coord);
 
         return make_coord (7 - row, 7 - col);
     }
@@ -82,8 +82,8 @@ namespace wisdom
     static int change (Coord coord, Color who, ColoredPiece piece)
     {
         Coord translated_pos = translate_position (coord, who);
-        int8_t row = ROW (translated_pos);
-        int8_t col = COLUMN (translated_pos);
+        int row = ROW (translated_pos);
+        int col = COLUMN (translated_pos);
 
         switch (piece_type (piece))
         {
@@ -151,10 +151,10 @@ namespace wisdom
 
         if (is_castling_move (move))
         {
-            int8_t rook_src_row = castling_row_from_color (who);
-            int8_t rook_src_col = is_castling_move_on_king_side (move) ?
+            int rook_src_row = castling_row_from_color (who);
+            int rook_src_col = is_castling_move_on_king_side (move) ?
                                   King_Rook_Column : Queen_Rook_Column;
-            int8_t rook_dst_col = is_castling_move_on_king_side (move) ?
+            int rook_dst_col = is_castling_move_on_king_side (move) ?
                                   King_Castled_Rook_Column : Queen_Castled_Rook_Column;
 
             Coord src_rook_coord = make_coord (rook_src_row, rook_src_col);
@@ -198,10 +198,10 @@ namespace wisdom
 
         if (is_castling_move (move))
         {
-            int8_t rook_src_row = castling_row_from_color (who);
-            int8_t rook_src_col = is_castling_move_on_king_side (move) ?
+            int rook_src_row = castling_row_from_color (who);
+            int rook_src_col = is_castling_move_on_king_side (move) ?
                                   King_Rook_Column : Queen_Rook_Column;
-            int8_t rook_dst_col = is_castling_move_on_king_side (move) ?
+            int rook_dst_col = is_castling_move_on_king_side (move) ?
                                   King_Castled_Rook_Column : Queen_Castled_Rook_Column;
 
             Coord src_rook_coord = make_coord (rook_src_row, rook_src_col);

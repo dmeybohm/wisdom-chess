@@ -10,8 +10,8 @@ namespace wisdom
         if (coord_str.size () != 2)
             throw BoardBuilderError ("Invalid coordinate string!");
 
-        int8_t col = char_to_col (coord_str[0]);
-        int8_t row = char_to_row (coord_str[1]);
+        int col = char_to_col (coord_str[0]);
+        int row = char_to_row (coord_str[1]);
 
         if (row < 0 || row >= Num_Rows)
             throw BoardBuilderError ("Invalid row!");
@@ -34,12 +34,11 @@ namespace wisdom
 
     void BoardBuilder::add_piece (int8_t row, int8_t col, Color who, Piece piece_type)
     {
-        struct BBPieceWithCoordState new_piece
-                {
-                        .coord = make_coord (row, col),
-                        .color = who,
-                        .piece_type = piece_type,
-                };
+        struct BBPieceWithCoordState new_piece {
+                .coord = make_coord (row, col),
+                .color = who,
+                .piece_type = piece_type,
+        };
 
         if (row < 0 || row >= Num_Rows)
             throw BoardBuilderError ("Invalid row!");
@@ -58,7 +57,7 @@ namespace wisdom
 
     void BoardBuilder::add_row_of_same_color_and_piece (int row, Color who, Piece piece_type)
     {
-        for (int8_t col = 0; col < Num_Columns; col++)
+        for (int col = 0; col < Num_Columns; col++)
             this->add_piece (row, col, who, piece_type);
     }
 
@@ -66,7 +65,7 @@ namespace wisdom
     {
         Coord coord = coord_alg (coord_str);
 
-        for (int8_t col = 0; col < Num_Columns; col++)
+        for (int col = 0; col < Num_Columns; col++)
             this->add_piece (ROW (coord), col, who, piece_type);
     }
 
@@ -126,8 +125,8 @@ namespace wisdom
             struct BBPieceWithCoordState &piece_with_coord = this->pieces_with_coords[i];
             std::vector<Piece> &current_piece_row = piece_types[i].row;
 
-            int8_t col = COLUMN (piece_with_coord.coord);
-            int8_t row = ROW (piece_with_coord.coord);
+            int col = COLUMN (piece_with_coord.coord);
+            int row = ROW (piece_with_coord.coord);
 
             current_piece_row.assign (Num_Columns, Piece::None);
             current_piece_row[col] = piece_with_coord.piece_type;

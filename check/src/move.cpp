@@ -39,8 +39,8 @@ namespace wisdom
 
     static Move get_castling_rook_move (Board &board, Move move, Color who)
     {
-        int8_t src_row, src_col;
-        int8_t dst_row, dst_col;
+        int src_row, src_col;
+        int dst_row, dst_col;
         Coord src, dst;
 
         assert (is_castling_move (move));
@@ -55,13 +55,13 @@ namespace wisdom
         {
             // castle to the right (kingside)
             src_col = Last_Column;
-            dst_col = static_cast<int8_t>(COLUMN (dst) - 1);
+            dst_col = static_cast<int>(COLUMN (dst) - 1);
         }
         else
         {
             // castle to the left (queenside)
             src_col = 0;
-            dst_col = static_cast<int8_t>(COLUMN (dst) + 1);
+            dst_col = static_cast<int>(COLUMN (dst) + 1);
         }
 
         if (!((piece_type (piece_at (board, src_row, src_col)) == Piece::Rook
@@ -275,7 +275,7 @@ namespace wisdom
             if (is_double_square_pawn_move (src_piece, move))
             {
                 Coord src = move_src (move);
-                int8_t prev_row = next_row (ROW (src), direction);
+                int prev_row = next_row (ROW (src), direction);
                 new_state = make_coord (prev_row, COLUMN (src));
             }
             undo_state->en_passant_target[c_index] = board.en_passant_target[c_index];
@@ -449,7 +449,7 @@ namespace wisdom
 
     static std::optional<Move> castle_parse (const std::string &str, Color who)
     {
-        int8_t src_row, dst_col;
+        int src_row, dst_col;
 
         if (who == Color::White)
             src_row = Last_Row;

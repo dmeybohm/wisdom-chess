@@ -122,7 +122,7 @@ namespace wisdom
 
     // white moves up (-)
     // black moves down (+)
-    static inline int8_t pawn_direction (Color color)
+    static inline int pawn_direction (Color color)
     {
         assert (color == Color::White || color == Color::Black);
         return color == Color::Black ? 1 : -1;

@@ -18,30 +18,32 @@ namespace wisdom
 
     ///////////////////////////////////////////////
 
-    constexpr bool is_valid_row (int8_t row)
+    constexpr bool is_valid_row (int row)
     {
         return row >= 0 && row < Num_Rows;
     }
 
-    constexpr bool is_valid_column (int8_t col)
+    constexpr bool is_valid_column (int col)
     {
         return col >= 0 && col < Num_Columns;
     }
 
-    constexpr int8_t next_row (int8_t row, int8_t direction)
+    constexpr int next_row (int row, int direction)
     {
         return row + direction;
     }
 
-    constexpr int8_t next_column (int8_t col, int8_t direction)
+    constexpr int next_column (int col, int direction)
     {
         return col + direction;
     }
 
-    constexpr Coord make_coord (int8_t row, int8_t col)
+    constexpr Coord make_coord (int row, int col)
     {
         assert (is_valid_row (row) && is_valid_column (col));
-        Coord result = { .row = row, .col = col };
+        int8_t row8 = static_cast<int>(row);
+        int8_t col8 = static_cast<int>(col);
+        Coord result = { .row = row8, .col = col8 };
         return result;
     }
 
@@ -49,12 +51,12 @@ namespace wisdom
 
     ///////////////////////////////////////////////
 
-    constexpr int8_t ROW (Coord pos)
+    constexpr int ROW (Coord pos)
     {
         return pos.row;
     }
 
-    constexpr int8_t COLUMN (Coord pos)
+    constexpr int COLUMN (Coord pos)
     {
         return pos.col;
     }
@@ -74,23 +76,25 @@ namespace wisdom
         return !coord_equals (a, b);
     }
 
-    static inline int8_t char_to_row (char chr)
+    static inline int char_to_row (char chr)
     {
         return 8 - (tolower (chr) - '0');
     }
 
-    static inline int8_t char_to_col (char chr)
+    static inline int char_to_col (char chr)
     {
         return tolower (chr) - 'a';
     }
 
     constexpr char row_to_char (int row)
     {
+        assert (is_valid_row (row));
         return 8 - row + '0';
     }
 
     constexpr char col_to_char (int col)
     {
+        assert (is_valid_column (col));
         return col + 'a';
     }
 

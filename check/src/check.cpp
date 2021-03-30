@@ -20,11 +20,11 @@ namespace wisdom
     }
 
     bool is_king_threatened (Board &board, Color who,
-                             int8_t king_row, int8_t king_col)
+                             int king_row, int king_col)
     {
-        int8_t row, col;
+        int row, col;
         ColoredPiece what;
-        int8_t c_dir, r_dir;
+        int c_dir, r_dir;
 
         // check each side of the king's row
         col = king_col;
@@ -175,10 +175,10 @@ namespace wisdom
             assert (king_row == castled_row);
             assert (king_col == castled_col);
 
-            int8_t direction = is_castling_move_on_king_side (mv) ? -1 : 1;
+            int direction = is_castling_move_on_king_side (mv) ? -1 : 1;
 
-            int8_t plus_one_column = next_column (castled_col, direction);
-            int8_t plus_two_column = next_column (plus_one_column, direction);
+            int plus_one_column = next_column (castled_col, direction);
+            int plus_two_column = next_column (plus_one_column, direction);
             if (is_king_threatened (board, who, castled_row, plus_one_column) ||
                 is_king_threatened (board, who, castled_row, plus_two_column))
             {

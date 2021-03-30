@@ -153,69 +153,85 @@ namespace wisdom
 
         return offer_draw ();
     }
-}
 
-using namespace wisdom;
-
-int main (int argc, char **argv)
-{
-    Game game { Color::White, comp_player };
-    InputState initial_input_state = InputState::from_initial ();
-    wisdom::StandardLogger output;
-    InputState input_state = initial_input_state;
-
-    while (input_state.ok)
+    void play (Color human_player)
     {
-        input_state = initial_input_state;
-        game.board.print ();
+        Game game { Color::White, color_invert (human_player) };
+        InputState initial_input_state = InputState::from_initial ();
+        wisdom::StandardLogger output;
+        InputState input_state = initial_input_state;
 
-        if (is_checkmated (game.board, game.turn))
+        while (input_state.ok)
         {
-            std::cout << to_string (color_invert (game.turn)) << " wins the game.\n";
-            return 0;
-        }
+            input_state = initial_input_state;
+            game.board.print ();
 
-        if (game.history.is_third_repetition (game.board))
-        {
-            input_state = offer_draw ();
-            continue;
-        }
-
-        if (History::is_fifty_move_repetition (game.board))
-        {
-            std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
-            break;
-        }
-
-        if (game.turn != game.player)
-        {
-            input_state = read_move (game);
-            if (!input_state.ok)
-                break;
-        }
-        else
-        {
-            auto optional_move = find_best_move (game.board, game.player, output, game.history);
-            if (!optional_move.has_value ())
+            if (is_checkmated (game.board, game.turn))
             {
-                std::cout << "\nCouldn't find move!\n";
+                std::cout << to_string (color_invert (game.turn)) << " wins the game.\n";
+                return;
+            }
+
+            if (game.history.is_third_repetition (game.board))
+            {
+                input_state = offer_draw ();
+                continue;
+            }
+
+            if (History::is_fifty_move_repetition (game.board))
+            {
+                std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
                 break;
             }
 
-            input_state.move = optional_move;
-            std::cout << "move selected: [" << to_string (input_state.move.value()) << "]\n";
-            input_state.good = true;
-            input_state.ok = true;
+            if (game.turn != game.player)
+            {
+                input_state = read_move (game);
+                if (!input_state.ok)
+                    break;
+            }
+            else
+            {
+                auto optional_move = find_best_move (game.board, game.player, output, game.history);
+                if (!optional_move.has_value ())
+                {
+                    std::cout << "\nCouldn't find move!\n";
+                    break;
+                }
+
+                input_state.move = optional_move;
+                std::cout << "move selected: [" << to_string (input_state.move.value()) << "]\n";
+                input_state.good = true;
+                input_state.ok = true;
+            }
+
+            if (input_state.skip)
+                continue;
+
+            if (input_state.good && input_state.move.has_value ())
+                game.move (input_state.move.value ());
+            else
+                std::cout << "\nInvalid move\n\n";
         }
 
-        if (input_state.skip)
-            continue;
-
-        if (input_state.good && input_state.move.has_value ())
-            game.move (input_state.move.value ());
-        else
-            std::cout << "\nInvalid move\n\n";
     }
+}
+
+using wisdom::Color;
+
+int main (int argc, char **argv)
+{
+    Color human_player = Color::White;
+    if (argc > 1)
+    {
+        std::string color_param = argv[1];
+        if (color_param == "white")
+            human_player = Color::White;
+        else if (color_param == "black")
+            human_player = Color::Black;
+    }
+
+    wisdom::play (human_player);
 
     return 0;
 }

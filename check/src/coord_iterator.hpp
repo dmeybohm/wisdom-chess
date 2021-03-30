@@ -8,8 +8,8 @@ namespace wisdom
     class CoordIterator final
     {
     private:
-        int8_t row = 0;
-        int8_t col = 0;
+        int row = 0;
+        int col = 0;
 
     public:
         CoordIterator () = default;

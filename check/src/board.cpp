@@ -71,7 +71,7 @@ namespace wisdom
 
     Board::Board (const std::vector<BoardPositions> &positions)
     {
-        int8_t row;
+        int row;
 
         for (CastlingState &i : this->castled)
             i = Castle_None;
@@ -95,7 +95,7 @@ namespace wisdom
                     continue;
 
                 new_piece = make_piece (color, pieces[col]);
-                Coord place = make_coord (row, static_cast<int8_t>(col));
+                Coord place = make_coord (row, static_cast<int>(col));
                 board_set_piece (*this, place, new_piece);
 
                 this->material.add (new_piece);
@@ -133,7 +133,7 @@ namespace wisdom
 
     static void add_divider (std::string &result)
     {
-        int8_t col;
+        int col;
         int i;
 
         result += " ";
@@ -150,7 +150,7 @@ namespace wisdom
 
     static void add_coords (std::string &result)
     {
-        int8_t col;
+        int col;
 
         result += " ";
 
@@ -169,7 +169,7 @@ namespace wisdom
     std::string Board::to_string () const
     {
         std::string result;
-        int8_t row, col;
+        int row, col;
 
         char row_coord = '8';
 

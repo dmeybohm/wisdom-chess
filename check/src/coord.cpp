@@ -8,8 +8,8 @@ namespace wisdom
         if (str.size () != 2)
             throw CoordParseError ("Invalid algebraic coordinate!");
 
-        int8_t col = char_to_col (str.at (0));
-        int8_t row = char_to_row (str.at (1));
+        int col = char_to_col (str.at (0));
+        int row = char_to_row (str.at (1));
 
         if (!is_valid_row (row) || !is_valid_column (col))
             throw CoordParseError ("Invalid algebraic coordinate!");

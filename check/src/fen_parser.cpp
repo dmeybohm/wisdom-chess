@@ -50,7 +50,7 @@ namespace wisdom
         char ch;
 
         // read pieces
-        for (int8_t row = 0, col = 0; !str.empty (); str = str.substr (1))
+        for (int row = 0, col = 0; !str.empty (); str = str.substr (1))
         {
             ch = str[0];
 

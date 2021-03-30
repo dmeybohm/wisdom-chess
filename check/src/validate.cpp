@@ -6,7 +6,8 @@
 
 namespace wisdom
 {
-    static void check_it (Board &board, Color who, Move mv, int expr)
+    static void check_it ([[maybe_unused]] Board &board, [[maybe_unused]] Color who,
+                          [[maybe_unused]] Move mv, [[maybe_unused]] int expr)
     {
         if (!expr)
         {
@@ -16,11 +17,12 @@ namespace wisdom
         }
     }
 
+    [[maybe_unused]]
     static void validate_castle (Board &board, CastlingState state, Color who, Move mv)
     {
         // check positions of the pieces:
-        int8_t row = who == Color::White ? 7 : 0;
-        int8_t col = state == Castle_Queenside ? 0 : 7;
+        int row = who == Color::White ? 7 : 0;
+        int col = state == Castle_Queenside ? 0 : 7;
         ColoredPiece supposed_king = piece_at (board, row, 4);
         ColoredPiece supposed_rook = piece_at (board, row, col);
         if (able_to_castle (board, who, state))
@@ -33,7 +35,8 @@ namespace wisdom
         }
     }
 
-    void validate_castle_state (Board &board, Move mv)
+    [[maybe_unused]]
+    void validate_castle_state ([[maybe_unused]] Board &board, [[maybe_unused]] Move mv)
     {
 #ifdef VALIDATE_CASTLE_STATE
         validate_castle (board, Castle_Queenside, Color::White, mv);

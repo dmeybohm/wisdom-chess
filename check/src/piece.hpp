@@ -169,5 +169,7 @@ namespace wisdom
     }
 
     std::string to_string (Color who);
+    void play (Color human_player);
 }
+
 #endif // WISDOM_CHESS_PIECE_HPP
