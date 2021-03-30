@@ -103,9 +103,13 @@ namespace wisdom
         else if (input == "load")
         {
             result.skip = true;
+            Color orig_player = game.player;
             auto optional_game = load_game ();
             if (optional_game.has_value ())
+            {
                 game = *optional_game;
+                game.player = orig_player;
+            }
             return result;
         }
         else if (input == "quit" || input == "exit")
