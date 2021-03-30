@@ -24,7 +24,6 @@ namespace wisdom
         // How deeply this position was analyzed.
         int relative_depth;
 
-        BaseTransposition () = default;
         BaseTransposition (const BaseTransposition &other) = default;
 
         BaseTransposition (BoardHashCode _hash_code, const BoardCode &_board_code, int _score, int _relative_depth) :
