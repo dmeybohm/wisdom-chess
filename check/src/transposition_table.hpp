@@ -7,6 +7,7 @@
 #include <functional>
 
 #include "board_code.hpp"
+#include "variation_glimpse.hpp"
 
 namespace wisdom
 {
@@ -24,11 +25,16 @@ namespace wisdom
         // How deeply this position was analyzed.
         int relative_depth;
 
+        // Glimpse into what the engine was thinking for this position.
+        VariationGlimpse variation_glimpse;
+
         BaseTransposition (const BaseTransposition &other) = default;
 
-        BaseTransposition (BoardHashCode _hash_code, const BoardCode &_board_code, int _score, int _relative_depth) :
+        BaseTransposition (BoardHashCode _hash_code, const BoardCode &_board_code, int _score, int _relative_depth,
+                           const VariationGlimpse &_variation_glimpse ) :
                 hash_code { _hash_code }, board_code { _board_code }, score { _score },
-                relative_depth { _relative_depth }
+                relative_depth { _relative_depth },
+                variation_glimpse { _variation_glimpse }
         {}
 
         bool operator== (const BaseTransposition &other) const
@@ -39,19 +45,22 @@ namespace wisdom
 
     struct RelativeTransposition : BaseTransposition
     {
-        RelativeTransposition (const Board &board, int _score, int _relative_depth);
+        RelativeTransposition (const Board &board, int _score, int _relative_depth,
+                               const VariationGlimpse &_variation_glimpse);
 
-        RelativeTransposition (const BoardCode &_code, int _score, int _relative_depth) :
-            BaseTransposition (_code.hash_code(), _code, _score, _relative_depth)
+        RelativeTransposition (const BoardCode &_code, int _score, int _relative_depth,
+                               const VariationGlimpse &_variation_glimpse) :
+            BaseTransposition (_code.hash_code(), _code, _score, _relative_depth, _variation_glimpse)
         {}
 
-        RelativeTransposition (BoardHashCode _hash_code, const BoardCode &_board_code, int _score, int _relative_depth) :
-            BaseTransposition (_hash_code, _board_code, _score, _relative_depth)
+        RelativeTransposition (BoardHashCode _hash_code, const BoardCode &_board_code, int _score, int _relative_depth,
+                               const VariationGlimpse &_variation_glimpse) :
+            BaseTransposition (_hash_code, _board_code, _score, _relative_depth, _variation_glimpse)
         {}
 
         static RelativeTransposition from_defaults ()
         {
-            return RelativeTransposition { 0, BoardCode{}, Negative_Infinity, 0 };
+            return RelativeTransposition { 0, BoardCode{}, Negative_Infinity, 0, {} };
         }
     };
 
@@ -65,7 +74,9 @@ namespace wisdom
 
         RelativeTransposition to_relative_transposition (Color who)
         {
-            RelativeTransposition result { this->hash_code, this->board_code, this->score, this->relative_depth };
+            RelativeTransposition result {
+                this->hash_code, this->board_code, this->score, this->relative_depth, this->variation_glimpse
+            };
             result.score *= who == Color::Black ? -1 : 1;
             return result;
         }

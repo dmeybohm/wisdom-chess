@@ -15,6 +15,7 @@
 #include "board_code.hpp"
 #include "transposition_table.hpp"
 #include "generate.hpp"
+#include "variation_glimpse.hpp"
 
 ///////////////////////////////////////////////
 
@@ -93,7 +94,10 @@ namespace wisdom
         [[nodiscard]] std::string to_string () const;
 
         // Add an evaluation for the current board to the transposition table.
-        void add_evaluation_to_transposition_table (int score, Color who, int relative_depth);
+        void add_evaluation_to_transposition_table (
+                int score, Color who, int relative_depth,
+                const VariationGlimpse &variation_glimpse
+        );
 
         // Lookup the current board's score in the transposition table.
         [[nodiscard]] std::optional<RelativeTransposition> check_transposition_table (Color who, int relative_depth);

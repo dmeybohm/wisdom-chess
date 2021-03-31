@@ -46,7 +46,7 @@ namespace wisdom
             if (transposition.has_value ())
             {
                 return SearchResult { move, false, transposition->score * -1,
-                                      start_depth - depth, {} };
+                                      start_depth - depth, transposition->variation_glimpse };
             }
 
             SearchResult other_search_result = search (board, color_invert (side),
@@ -88,16 +88,6 @@ namespace wisdom
             SearchResult other_search_result = recurse_or_evaluate (board, side, output, history, timer,
                                                                     depth, start_depth, alpha, beta, move);
 
-
-            if (!other_search_result.timed_out)
-                board.add_evaluation_to_transposition_table (other_search_result.score, side, depth);
-
-            history.remove_position_and_last_move (board);
-            undo_move (board, side, move, undo_state);
-
-            if (other_search_result.timed_out)
-                return other_search_result;
-
             int score = other_search_result.score;
 
             if (score > best_score)
@@ -111,6 +101,15 @@ namespace wisdom
 
             if (best_score > alpha)
                 alpha = best_score;
+
+            if (!other_search_result.timed_out)
+                board.add_evaluation_to_transposition_table (other_search_result.score, side, depth, best_variation);
+
+            history.remove_position_and_last_move (board);
+            undo_move (board, side, move, undo_state);
+
+            if (other_search_result.timed_out)
+                return other_search_result;
 
             if (alpha >= beta)
             {
@@ -143,7 +142,8 @@ namespace wisdom
             auto [my_king_row, my_king_col] = king_position (board, side);
             no_moves_available_result.score = is_king_threatened (board, side, my_king_row, my_king_col) ?
                     -1 * checkmate_score_in_moves (start_depth - depth) : 0;
-            board.add_evaluation_to_transposition_table (no_moves_available_result.score, side, depth);
+            board.add_evaluation_to_transposition_table (no_moves_available_result.score, side, depth,
+                                                         result.variation_glimpse);
             return no_moves_available_result;
         }
 

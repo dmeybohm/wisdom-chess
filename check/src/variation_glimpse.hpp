@@ -11,7 +11,7 @@ namespace wisdom
 {
     constexpr int Max_Variation_Glimpse_Size = 6;
 
-    class VariationGlimpse
+    class VariationGlimpse // NOLINT(cppcoreguidelines-pro-type-member-init)
     {
     private:
         std::array<Move, Max_Variation_Glimpse_Size> my_moves;

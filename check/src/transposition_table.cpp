@@ -91,8 +91,9 @@ namespace wisdom
 #endif
     }
 
-    RelativeTransposition::RelativeTransposition (const Board &board, int _score, int _relative_depth) :
-            RelativeTransposition (board.code.hash_code(), board.code, _score, _relative_depth)
+    RelativeTransposition::RelativeTransposition (const Board &board, int _score, int _relative_depth,
+                                                  const VariationGlimpse &_variation_glimpse) :
+            RelativeTransposition (board.code.hash_code(), board.code, _score, _relative_depth, _variation_glimpse)
     {}
 
 }

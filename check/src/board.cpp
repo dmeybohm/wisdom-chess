@@ -5,6 +5,7 @@
 
 #include "board.hpp"
 #include "validate.hpp"
+#include "variation_glimpse.hpp"
 
 namespace wisdom
 {
@@ -228,9 +229,10 @@ namespace wisdom
         return result;
     }
 
-    void Board::add_evaluation_to_transposition_table (int score, Color who, int relative_depth)
+    void Board::add_evaluation_to_transposition_table (int score, Color who, int relative_depth,
+                                                       const VariationGlimpse &variation_glimpse)
     {
-        RelativeTransposition evaluation { *this, score, relative_depth };
+        RelativeTransposition evaluation { *this, score, relative_depth, variation_glimpse };
         my_transpositions.add (evaluation, who);
     }
 
