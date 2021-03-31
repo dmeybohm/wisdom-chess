@@ -416,3 +416,30 @@ TEST_CASE("Castling state is modified when rook takes a piece on same column (sc
     CHECK(able_to_castle (board, Color::Black, (Castle_Kingside | Castle_Kingside)) == 1);
     CHECK(board.castled[color_index(Color::Black)] == Castle_Queenside);
 }
+
+TEST_CASE( "Test can castle" )
+{
+    MoveList moves { Color::White, {"e2 e4",
+            "d7 d5","e4 e5",
+            "c8 d7","d2 d4","e7 e6","c2 c3","d7 c6","b1 a3","f8xa3","b2xa3","c6 a4",
+            "d1 d2","g8 e7","a1 b1","e7 c6","b1xb7","b8 d7","g1 f3","a8 b8","d2 b2",
+            "b8 a8","f1 e2","f7 f6","e5xf6","d7xf6"}
+    };
+
+    Board board;
+    Color color = Color::White;
+    REQUIRE(able_to_castle (board, Color::White, Castle_Kingside));
+
+    int i = 0;
+    for (auto move : moves)
+    {
+        INFO("Move : ");
+        CAPTURE(i);
+        i++;
+        do_move (board, color, move);
+        CHECK( able_to_castle (board, Color::White, Castle_Kingside) );
+        color = color_invert (color);
+    }
+    auto castling = move_parse ("o-o", Color::White);
+    do_move (board, Color::White, castling);
+}

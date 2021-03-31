@@ -143,12 +143,12 @@ namespace wisdom
         }
     }
 
-    constexpr int able_to_castle (const Board &board, Color who, CastlingState castle_type)
+    constexpr bool able_to_castle (const Board &board, Color who, CastlingState castle_type)
     {
         ColorIndex c_index = color_index (who);
 
-        int didnt_castle = !!(board.castled[c_index] != Castle_Castled);
-        int neg_not_set = !!(((~board.castled[c_index]) & castle_type) != 0);
+        bool didnt_castle = board.castled[c_index] != Castle_Castled;
+        bool neg_not_set = ((~board.castled[c_index]) & castle_type) == castle_type;
 
         return didnt_castle && neg_not_set;
     }

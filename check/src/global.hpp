@@ -22,8 +22,8 @@ namespace wisdom
 
     constexpr int King_Column = 4;
     constexpr int King_Rook_Column = 7;
-
     constexpr int Queen_Rook_Column = 0;
+
     constexpr int King_Castled_Rook_Column = 5;
     constexpr int Queen_Castled_Rook_Column = 3;
 

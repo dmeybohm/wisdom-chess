@@ -228,16 +228,20 @@ namespace wisdom
         }
         else
         {
-            CastlingState castle_state;
+            CastlingState affects_castle_state = 0;
+            int castle_src_row = player == Color::White ? Last_Row : First_Row;
 
             //
             // This needs distinguishes between captures that end
             // up on the rook and moves from the rook itself.
             //
-            if (COLUMN (src) == 0)
-                castle_state = Castle_Queenside;
-            else
-                castle_state = Castle_Kingside;
+            if (ROW(src) == castle_src_row)
+            {
+                if (COLUMN (src) == Queen_Rook_Column)
+                    affects_castle_state = Castle_Queenside;
+                else if (COLUMN (src) == King_Rook_Column)
+                    affects_castle_state = Castle_Kingside;
+            }
 
             //
             // Set inability to castle on one side. Note that
@@ -245,14 +249,14 @@ namespace wisdom
             // player cannot castle.  This is a bit confusing, not sure why i did
             // this.
             //
-            if (able_to_castle (board, player, castle_state))
+            if (affects_castle_state > 0 && able_to_castle (board, player, affects_castle_state))
             {
                 // save the current castle state
                 CastlingState orig_castle_state = board_get_castle_state (board, player);
                 save_current_castle_state (undo_state, orig_castle_state);
 
-                castle_state |= orig_castle_state;
-                board_apply_castle_change (board, player, castle_state);
+                affects_castle_state |= orig_castle_state;
+                board_apply_castle_change (board, player, affects_castle_state);
             }
         }
     }
