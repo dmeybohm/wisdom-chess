@@ -42,10 +42,10 @@ namespace wisdom
         else
         {
             // Check the transposition table for the move:
-            auto tranposition = board.check_transposition_table (side, depth);
-            if (tranposition.has_value ())
+            auto transposition = board.check_transposition_table (side, depth - 1);
+            if (transposition.has_value ())
             {
-                return SearchResult { move, false, tranposition->score * -1,
+                return SearchResult { move, false, transposition->score * -1,
                                       start_depth - depth, {} };
             }
 
@@ -179,7 +179,6 @@ namespace wisdom
             best_result = next_result;
             if (is_checkmating_opponent_score (next_result.score))
                 break;
-
         }
 
         return best_result;

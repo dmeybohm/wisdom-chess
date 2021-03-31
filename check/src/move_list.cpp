@@ -13,9 +13,10 @@ namespace wisdom
 
     std::string MoveList::to_string () const
     {
-        std::string result;
+        std::string result = "{ ";
         for (auto move : my_moves)
-            result += wisdom::to_string (move) + " ";
+            result += "[" + wisdom::to_string (move) + "] ";
+        result += "}";
         return result;
     }
 
@@ -26,11 +27,7 @@ namespace wisdom
 
     std::string to_string (const MoveList &list)
     {
-        std::string result = "{ ";
-        for (auto move : list)
-            result += "[" + to_string (move) + "] ";
-        result += " }";
-        return result;
+        return list.to_string ();
     }
 
     std::ostream &operator<< (std::ostream &os, const MoveList &list)

@@ -38,10 +38,15 @@ namespace wisdom
     {
         MoveList moves = generate_legal_moves (game.board, game.turn);
 
-        std::cout << "\nAvailable moves: ";
+        std::cout << "\nAvailable moves:\n    ";
 
+        int count = 0;
         for (auto move : moves)
+        {
             std::cout << "[" << to_string (move) << "] ";
+            if (++count % 10 == 0)
+                std::cout << "\n" << "    ";
+        }
 
         std::cout << "\n\n";
     }
@@ -111,6 +116,10 @@ namespace wisdom
                 game.player = orig_player;
             }
             return result;
+        }
+        else if (input == "fen")
+        {
+
         }
         else if (input == "quit" || input == "exit")
         {

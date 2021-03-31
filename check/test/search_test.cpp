@@ -214,10 +214,15 @@ TEST_CASE("Promoting to correct piece")
     auto game = fen.build();
 
     History history;
-    MoveTimer timer { 10 };
-    IterativeSearch search { game.board, history, discard_output, timer, 7 };
+    MoveTimer timer { 180, false };
+    StandardLogger logger;
+    IterativeSearch search { game.board, history, logger, timer, 3 };
 
     SearchResult result = search.iteratively_deepen (Color::Black);
+
+//    SearchResult result = search (game.board, Color::Black, logger, history, timer,
+//                                  3, 3, -Initial_Alpha, Initial_Alpha);
+
     REQUIRE( result.move.has_value () );
 
     do_move (game.board, Color::Black, *result.move);

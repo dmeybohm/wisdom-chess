@@ -15,6 +15,9 @@ namespace wisdom
 
     bool MoveTimer::is_triggered ()
     {
+        if (!my_started)
+            return false;
+
         if (my_triggered)
             return true;
 

@@ -12,6 +12,17 @@
 
 namespace wisdom
 {
+    static FenOutputFormat fen_output_format;
+    static WisdomGameOutputFormat wisdom_game_output_format;
+
+    static OutputFormat& make_output_format (const std::string &filename)
+    {
+        if (filename.find (".fen") != std::string::npos)
+            return fen_output_format;
+        else
+            return wisdom_game_output_format;
+    }
+
     void Game::move (Move move)
     {
         // do the move
@@ -26,18 +37,9 @@ namespace wisdom
 
     bool Game::save (const std::string &input) const
     {
-        FenOutputFormat fen_output_format;
-        WisdomGameOutputFormat wisdom_game_output_format;
-        OutputFormat *output;
-
-        if (input.find (".fen") != std::string::npos)
-            output = &fen_output_format;
-        else
-            output = &wisdom_game_output_format;
-
-        output->save (input, board, history, turn);
-
-        return true; // need to check for failure here
+        OutputFormat &output = make_output_format (input);
+        output.save (input, board, history, turn);
+        return true;
     }
 
     std::optional<Game> Game::load (const std::string &filename, Color player)
