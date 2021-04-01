@@ -80,6 +80,17 @@ namespace wisdom
         {}
     };
 
+    class MoveConsistencyProblem : public Error
+    {
+    public:
+        MoveConsistencyProblem () : Error ("Move consistency error.")
+        {}
+
+        MoveConsistencyProblem (std::string extra_info) :
+            Error ("Move consistency error.", std::move (extra_info) )
+        {}
+    };
+
 ////////////////////////////////////////////////////////////////////
 
     constexpr Coord move_src (Move mv)
@@ -161,7 +172,9 @@ namespace wisdom
         {
             case Color::White: return 7;
             case Color::Black: return 0;
-            default: abort();
+            default: throw Error {
+                "Invalid color in castling_row_from_color()"
+            };
         }
     }
 
@@ -276,14 +289,14 @@ namespace wisdom
         return unpack_castle_state (undo_state.opponent_castle_state);
     }
 
-    static inline void save_current_castle_state (UndoMove *undo_state, CastlingState state)
+    static inline void save_current_castle_state (UndoMove &undo_state, CastlingState state)
     {
-        undo_state->current_castle_state = pack_castle_state (state);
+        undo_state.current_castle_state = pack_castle_state (state);
     }
 
-    static inline void save_opponent_castle_state (UndoMove *undo_state, CastlingState state)
+    static inline void save_opponent_castle_state (UndoMove &undo_state, CastlingState state)
     {
-        undo_state->opponent_castle_state = pack_castle_state (state);
+        undo_state.opponent_castle_state = pack_castle_state (state);
     }
 
     constexpr bool is_en_passant_vulnerable (UndoMove undo_state, Color who)

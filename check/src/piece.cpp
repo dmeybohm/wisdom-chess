@@ -6,21 +6,10 @@ namespace wisdom
     {
         switch (who)
         {
-            case Color::White:return "White";
-            case Color::Black:return "Black";
-            case Color::None:return "None";
-            default:abort ();
+            case Color::White: return "White";
+            case Color::Black: return "Black";
+            case Color::None: return "None";
         }
-    }
-
-    std::string to_string (ColoredPiece piece)
-    {
-        std::string result;
-
-        result += to_string (piece_color (piece));
-        result += to_string (piece_type (piece));
-
-        return result;
     }
 
     std::string to_string (Piece piece)
@@ -42,6 +31,16 @@ namespace wisdom
             case Piece::None:
                 return "None";
         }
+    }
+
+    std::string to_string (ColoredPiece piece)
+    {
+        std::string result;
+
+        result += to_string (piece_color (piece));
+        result += to_string (piece_type (piece));
+
+        return result;
     }
 
     std::ostream &operator<< (std::ostream &os, const ColoredPiece &piece)

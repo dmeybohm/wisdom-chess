@@ -16,3 +16,4 @@ CTestTestfile.cmake
 Testing
 cmake-build-release
 cmake-build-debug
+/wasm/*

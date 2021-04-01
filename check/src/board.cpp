@@ -1,5 +1,3 @@
-#include <cstdio>
-#include <cstdlib>
 #include <cassert>
 #include <iostream>
 
@@ -209,8 +207,6 @@ namespace wisdom
                     case Piece::King: result += "K";
                         break;
                     case Piece::None: result += " ";
-                        break;
-                    default: assert (0);
                         break;
                 }
 

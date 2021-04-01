@@ -55,23 +55,21 @@ namespace wisdom
         {
             // castle to the right (kingside)
             src_col = Last_Column;
-            dst_col = static_cast<int>(COLUMN (dst) - 1);
+            dst_col = COLUMN (dst) - 1;
         }
         else
         {
             // castle to the left (queenside)
             src_col = 0;
-            dst_col = static_cast<int>(COLUMN (dst) + 1);
+            dst_col = COLUMN (dst) + 1;
         }
 
         if (!((piece_type (piece_at (board, src_row, src_col)) == Piece::Rook
                || piece_type (piece_at (board, dst_row, dst_col)) == Piece::Rook)))
         {
-            std::stringstream output;
-            output << "move considering: " << to_string (move) << "(" << to_string (who) << " to move)\n";
-            std::cerr << output.str ();
-            board.dump ();
-            assert (0);
+            throw MoveConsistencyProblem {
+                    "move considering: " + to_string (move) + "(" + to_string (who) + " to move)"
+            };
         }
 
         return make_move (src_row, src_col, dst_row, dst_col);
@@ -111,19 +109,19 @@ namespace wisdom
         {
             rook = piece_at (board, rook_src);
 
-            /* do the rook move */
+            // do the rook move
             board_set_piece (board, rook_dst, rook);
             board_set_piece (board, rook_src, empty_piece);
         }
     }
 
     void update_king_position (Board &board, Color who, Move move,
-                               UndoMove *undo_state, Coord src, Coord dst,
+                               UndoMove &undo_state, Coord src, Coord dst,
                                int undo)
     {
         if (undo)
         {
-            UndoMove undo_state_value = *undo_state;
+            UndoMove undo_state_value = undo_state;
 
             king_position_set (board, who, src);
 
@@ -157,14 +155,14 @@ namespace wisdom
 
     static void
     update_opponent_rook_position (Board &board, Color opponent,
-                                   ColoredPiece dst_piece, UndoMove *undo_state,
+                                   ColoredPiece dst_piece, UndoMove &undo_state,
                                    [[maybe_unused]] Coord src, Coord dst, int undo)
     {
         assert (piece_color (dst_piece) == opponent && piece_type (dst_piece) == Piece::Rook);
 
         if (undo)
         {
-            UndoMove undo_state_value = *undo_state;
+            UndoMove undo_state_value = undo_state;
 
             // need to put castle status back...its saved in the move
             // from do_move()...
@@ -204,23 +202,23 @@ namespace wisdom
 
     static void update_current_rook_position (Board &board, Color player,
                                               ColoredPiece src_piece, Move move,
-                                              UndoMove *undo_state,
+                                              UndoMove &undo_state,
                                               [[maybe_unused]] Coord src, [[maybe_unused]] Coord dst,
                                               int undo)
     {
         if (!(piece_color (src_piece) == player &&
               piece_type (src_piece) == Piece::Rook))
         {
-            std::cout << "update_current_rook_position failed: move " << to_string (move) << "\n";
-            board.dump ();
-            abort ();
+            throw MoveConsistencyProblem {
+                "update_current_rook_position failed: move " + to_string (move)
+            };
         }
 
         assert (piece_color (src_piece) == player && piece_type (src_piece) == Piece::Rook);
 
         if (undo)
         {
-            UndoMove undo_state_value = *undo_state;
+            UndoMove undo_state_value = undo_state;
             // need to put castle status back...its saved in the move
             // from do_move()...
             if (move_affects_current_castle_state (undo_state_value))
@@ -346,13 +344,13 @@ namespace wisdom
 
         // update king position
         if (piece_type (src_piece) == Piece::King)
-            update_king_position (board, who, move, &undo_state, src, dst, 0);
+            update_king_position (board, who, move, undo_state, src, dst, 0);
 
         // update rook position -- for castling
         if (piece_type (orig_src_piece) == Piece::Rook)
         {
             update_current_rook_position (board, who, orig_src_piece,
-                                          move, &undo_state, src, dst, 0);
+                                          move, undo_state, src, dst, 0);
         }
 
         ColoredPiece captured_piece = captured_material (undo_state, opponent);
@@ -365,7 +363,7 @@ namespace wisdom
             if (piece_type (captured_piece) == Piece::Rook)
             {
                 update_opponent_rook_position (board, color_invert (who), dst_piece,
-                                               &undo_state, src, dst, 0);
+                                               undo_state, src, dst, 0);
             }
         }
 
@@ -424,11 +422,11 @@ namespace wisdom
 
         // update king position
         if (piece_type (src_piece) == Piece::King)
-            update_king_position (board, who, move, &undo_state, src, dst, 1);
+            update_king_position (board, who, move, undo_state, src, dst, 1);
 
         if (piece_type (orig_src_piece) == Piece::Rook)
         {
-            update_current_rook_position (board, who, orig_src_piece, move, &undo_state,
+            update_current_rook_position (board, who, orig_src_piece, move, undo_state,
                                           src, dst, 1);
         }
 
@@ -442,7 +440,7 @@ namespace wisdom
             if (piece_type (dst_piece) == Piece::Rook)
             {
                 update_opponent_rook_position (board, color_invert (who), dst_piece,
-                                               &undo_state, src, dst, 1);
+                                               undo_state, src, dst, 1);
             }
         }
 
@@ -460,7 +458,7 @@ namespace wisdom
         else if (who == Color::Black)
             src_row = First_Row;
         else
-            assert (0);
+            throw ParseMoveException { "Invalid color parsing castling move." };
 
         std::string transformed { str };
         std::transform (transformed.begin (), transformed.end (), transformed.begin (),

@@ -4,8 +4,18 @@
 #include <cassert>
 #include <string>
 
+#include "global.hpp"
+
 namespace wisdom
 {
+    class PieceError : public Error
+    {
+    public:
+        explicit PieceError (std::string extra_info) :
+            Error("Piece error", std::move (extra_info))
+        {}
+    };
+
     enum class Piece
     {
         None,
@@ -75,6 +85,11 @@ namespace wisdom
 
     constexpr ColoredPiece Piece_And_Color_None = make_piece (Color::None, Piece::None);
 
+    constexpr int to_int (Piece piece)
+    {
+        return static_cast<int> (piece);
+    }
+
     constexpr int piece_index (Piece piece)
     {
         switch (piece)
@@ -86,7 +101,9 @@ namespace wisdom
             case Piece::Bishop: return 4;
             case Piece::Knight: return 5;
             case Piece::Pawn: return 6;
-            default: abort ();
+            default: throw PieceError {
+                "Invalid piece type: " + std::to_string (to_int (piece))
+            };
         }
     }
 
@@ -116,13 +133,20 @@ namespace wisdom
         return !is_color_valid (color);
     }
 
+    constexpr int to_int(Color who)
+    {
+        return static_cast<int>(who);
+    }
+
     constexpr ColorIndex color_index (Color who)
     {
         switch (who)
         {
             case Color::White: return Color_Index_White;
             case Color::Black: return Color_Index_Black;
-            default: abort ();
+            default: throw PieceError {
+                    "Invalid color index: " + std::to_string (to_int (who))
+            };
         }
     }
 
@@ -133,7 +157,9 @@ namespace wisdom
             case Color::None: return 0;
             case Color::White: return Color_Index_White + 1;
             case Color::Black: return Color_Index_Black + 1;
-            default: abort ();
+            default: throw PieceError {
+                "Invalid color: " + std::to_string (to_int (who))
+            };
         }
     }
 

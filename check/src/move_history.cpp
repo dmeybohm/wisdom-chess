@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 namespace wisdom
 {
@@ -15,8 +16,16 @@ namespace wisdom
         std::ofstream file;
         file.open (filename);
         for (auto move : my_moves)
-            file << to_string (move) << "\n";
+            file << wisdom::to_string (move) << "\n";
         file.close ();
+    }
+
+    std::string MoveHistory::to_string () const
+    {
+        std::stringstream sstream;
+        for (auto move : my_moves)
+            sstream << wisdom::to_string (move) << "\n";
+        return sstream.str();
     }
 }
 

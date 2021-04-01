@@ -6,14 +6,20 @@
 
 namespace wisdom
 {
+    class CastleConsistencyProblem : public Error
+    {
+    public:
+        CastleConsistencyProblem() : Error("Castling consistency problem.")
+        {}
+    };
+
     static void check_it ([[maybe_unused]] Board &board, [[maybe_unused]] Color who,
                           [[maybe_unused]] Move mv, [[maybe_unused]] int expr)
     {
         if (!expr)
         {
             std::cerr << "move considering: " << to_string (mv) << "\n";
-            board.dump ();
-            abort ();
+            throw CastleConsistencyProblem {};
         }
     }
 

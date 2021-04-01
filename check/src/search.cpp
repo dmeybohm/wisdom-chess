@@ -1,14 +1,12 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
-#include <cmath>
 
 #include "piece.hpp"
 #include "board.hpp"
 #include "generate.hpp"
 #include "evaluate.hpp"
 #include "check.hpp"
-#include "move_tree.hpp"
 #include "search.hpp"
 #include "move_timer.hpp"
 #include "move_history.hpp"
@@ -34,13 +32,11 @@ namespace wisdom
                                              MoveTimer &timer, int depth, int start_depth, int alpha, int beta,
                                              Move move)
     {
-        // TODO: move responsibility for the variation glimpse to this method, since its value depends on the
-        // transposition table.
-
         // Check the transposition table for the move:
         auto transposition = board.check_transposition_table (side, depth);
         if (transposition.has_value ())
         {
+            transposition->variation_glimpse.push_front (move);
             return SearchResult { move, false, transposition->score,
                     start_depth - depth, transposition->variation_glimpse };
         }
@@ -49,7 +45,9 @@ namespace wisdom
         {
             int score = evaluate_and_check_draw (board, side, start_depth - depth,
                                                  move, history);
-            return SearchResult { move, false, score, start_depth - depth, {} };
+            VariationGlimpse glimpse;
+            glimpse.push_front (move);
+            return SearchResult { move, false, score, start_depth - depth, glimpse };
         }
         else
         {
@@ -59,6 +57,7 @@ namespace wisdom
             if (other_search_result.timed_out)
                 return other_search_result;
 
+            other_search_result.variation_glimpse.push_front (move);
             other_search_result.score *= -1;
             return other_search_result;
         }
@@ -93,8 +92,6 @@ namespace wisdom
                                                                     depth, start_depth, alpha, beta, move);
 
             int score = other_search_result.score;
-
-            other_search_result.variation_glimpse.push_front (move);
 
             if (score > best_score)
             {
@@ -174,23 +171,35 @@ namespace wisdom
     {
         SearchResult best_result = SearchResult::from_initial ();
 
-        // For now, only look every other depth
-        for (int depth = 0; depth <= my_total_depth; depth <= 2 ? depth++ : depth += 2)
+        try
         {
-            std::ostringstream ostr;
-            ostr << "Searching depth " << depth;
-            my_output.println(ostr.str());
+            // For now, only look every other depth
+            for (int depth = 0; depth <= my_total_depth; depth <= 2 ? depth++ : depth += 2)
+            {
+                std::ostringstream ostr;
+                ostr << "Searching depth " << depth;
+                my_output.println (ostr.str ());
 
-            SearchResult next_result = iterate (my_board, side, my_output, my_history, my_timer, depth);
-            if (next_result.timed_out)
-                break;
+                SearchResult next_result = iterate (my_board, side, my_output, my_history, my_timer, depth);
+                if (next_result.timed_out)
+                    break;
 
-            best_result = next_result;
-            if (is_checkmating_opponent_score (next_result.score))
-                break;
+                best_result = next_result;
+                if (is_checkmating_opponent_score (next_result.score))
+                    break;
+            }
+
+            return best_result;
         }
-
-        return best_result;
+        catch (const Error &e)
+        {
+            std::cerr << "Uncaught error: " << e.message () << "\n";
+            std::cerr << e.extra_info () << "\n";
+            my_board.dump ();
+            std::cerr << "History leading up to move: " << "\n";
+            std::cerr << my_history.get_move_history ().to_string () << "\n";
+            std::terminate ();
+        }
     }
 
     SearchResult iterate (Board &board, Color side, Logger &output,

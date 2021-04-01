@@ -36,7 +36,6 @@ namespace wisdom
                 case Piece::Bishop: return Material_Weight_Bishop;
                 case Piece::Knight: return Material_Weight_Knight;
                 case Piece::Pawn: return Material_Weight_Pawn;
-                default: abort ();
             }
         }
 

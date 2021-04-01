@@ -81,7 +81,9 @@ namespace wisdom
             return color == Color::Black ? static_cast<char> (tolower(ch)) : ch;
         };
 
-        if (board.castled[index] == Castle_None)
+        if (board.castled[index] == Castle_Castled)
+            castled_state = "";
+        else if (board.castled[index] == Castle_None)
             castled_state.append(1, convert('K')), castled_state.append(1, convert('Q'));
         else if (board.castled[index] == Castle_Kingside)
             castled_state += "Q";

@@ -132,14 +132,14 @@ namespace wisdom
         return color == Color::Black ? 1 : -1;
     }
 
-    static inline bool need_pawn_promotion (int8_t row, Color who)
+    static inline bool need_pawn_promotion (int row, Color who)
     {
         assert (is_color_valid (who));
         switch (who)
         {
             case Color::White: return 0 == row;
             case Color::Black: return 7 == row;
-            default: abort ();
+            default: throw Error { "Invalid color in need_pawn_promotion" };
         }
     }
 
