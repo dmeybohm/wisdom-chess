@@ -9,7 +9,7 @@
 
 namespace wisdom
 {
-    constexpr int Max_Variation_Glimpse_Size = 6;
+    constexpr int Max_Variation_Glimpse_Size = 12;
 
     class VariationGlimpse // NOLINT(cppcoreguidelines-pro-type-member-init)
     {
