@@ -14,7 +14,7 @@ namespace wisdom
     public:
         CoordIterator () = default;
 
-        CoordIterator (int8_t row_, int8_t col_)
+        CoordIterator (int row_, int col_)
                 : row (row_), col (col_)
         {}
 

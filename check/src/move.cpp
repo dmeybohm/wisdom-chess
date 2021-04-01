@@ -144,10 +144,10 @@ namespace wisdom
                 CastlingState old_castle_state = board_get_castle_state (board, who);
                 save_current_castle_state (undo_state, old_castle_state);
 
-                if (!is_castling_move (move))
-                    old_castle_state |= Castle_Kingside | Castle_Queenside;
-                else
+                if (is_castling_move (move))
                     old_castle_state = Castle_Castled;
+                else
+                    old_castle_state |= Castle_Kingside | Castle_Queenside;
 
                 // set the new castle status
                 board_apply_castle_change (board, who, old_castle_state);

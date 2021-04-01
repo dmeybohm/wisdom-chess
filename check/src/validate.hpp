@@ -5,9 +5,17 @@
 
 namespace wisdom
 {
+    constexpr bool validate_castling = true;
+
+    void do_validate_castle_state (Board &board, Move move);
+
     class Board;
 
-    void validate_castle_state (Board &board, struct move move);
+    static inline void validate_castle_state (Board &board, Move move)
+    {
+        if (validate_castling)
+            do_validate_castle_state (board, move);
+    }
 }
 
 #endif //WISDOM_VALIDATE_HPP

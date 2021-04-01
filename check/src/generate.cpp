@@ -100,14 +100,12 @@ namespace wisdom
     static void moves_king (const Board &board, Color who,
                             int piece_row, int piece_col, MoveList &moves)
     {
-        int row, col;
-
-        for (row = piece_row - 1; row < 8 && row <= piece_row + 1; row++)
+        for (int row = piece_row - 1; row < 8 && row <= piece_row + 1; row++)
         {
             if (!is_valid_row (row))
                 continue;
 
-            for (col = piece_col - 1; col < 8 && col <= piece_col + 1; col++)
+            for (int col = piece_col - 1; col < 8 && col <= piece_col + 1; col++)
             {
                 if (!is_valid_column (col))
                     continue;
@@ -116,19 +114,22 @@ namespace wisdom
             }
         }
 
-        if (able_to_castle (board, who, Castle_Queenside))
+        if (able_to_castle (board, who, Castle_Queenside) && piece_col == King_Column)
         {
-            Move queenside_castle = make_castling_move (piece_row, piece_col,
-                                                        piece_row, piece_col - 2);
+            Move queenside_castle = make_castling_move (
+                    piece_row, piece_col,
+                    piece_row, piece_col - 2
+            );
             moves.push_back (queenside_castle);
         }
 
-        if (able_to_castle (board, who, Castle_Kingside))
+        if (able_to_castle (board, who, Castle_Kingside) && piece_col == King_Column)
         {
-            Move kingside_castle = make_castling_move (piece_row, piece_col,
-                                                       piece_row, piece_col + 2);
-            moves.push_back (kingside_castle);
-        }
+            Move kingside_castle = make_castling_move (
+                    piece_row, piece_col,
+                    piece_row, piece_col + 2
+            );
+            moves.push_back (kingside_castle);        }
     }
 
     static void moves_queen (const Board &board, Color who,

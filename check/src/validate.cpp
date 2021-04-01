@@ -36,13 +36,11 @@ namespace wisdom
     }
 
     [[maybe_unused]]
-    void validate_castle_state ([[maybe_unused]] Board &board, [[maybe_unused]] Move mv)
+    void do_validate_castle_state ([[maybe_unused]] Board &board, [[maybe_unused]] Move mv)
     {
-#ifdef VALIDATE_CASTLE_STATE
         validate_castle (board, Castle_Queenside, Color::White, mv);
         validate_castle (board, Castle_Kingside, Color::White, mv);
         validate_castle (board, Castle_Queenside, Color::Black, mv);
         validate_castle (board, Castle_Kingside, Color::Black, mv);
-#endif
     }
 }

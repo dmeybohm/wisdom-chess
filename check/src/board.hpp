@@ -111,13 +111,13 @@ namespace wisdom
 
     ///////////////////////////////////////////////
 
-    static inline ColoredPiece piece_at (const Board &board, int8_t row, int8_t col)
+    constexpr ColoredPiece piece_at (const Board &board, int row, int col)
     {
         assert (is_valid_row (row) && is_valid_column (col));
         return board.squares[row][col];
     }
 
-    static inline ColoredPiece piece_at (const Board &board, Coord coord)
+    constexpr ColoredPiece piece_at (const Board &board, Coord coord)
     {
         return piece_at (board, coord.row, coord.col);
     }
@@ -148,7 +148,7 @@ namespace wisdom
         ColorIndex c_index = color_index (who);
 
         bool didnt_castle = board.castled[c_index] != Castle_Castled;
-        bool neg_not_set = ((~board.castled[c_index]) & castle_type) == castle_type;
+        bool neg_not_set = ((~board.castled[c_index]) & castle_type) != 0;
 
         return didnt_castle && neg_not_set;
     }
