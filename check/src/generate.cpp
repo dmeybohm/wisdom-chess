@@ -94,7 +94,7 @@ namespace wisdom
                             [[maybe_unused]] int piece_row, [[maybe_unused]] int piece_col,
                             [[maybe_unused]] MoveList &moves)
     {
-        assert (0);
+        throw Error ("Generating moves for \"none\" piece.");
     }
 
     static void moves_king (const Board &board, Color who,

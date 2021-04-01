@@ -72,7 +72,7 @@ namespace wisdom
         file.close ();
     }
 
-    std::string FenOutputFormat::castled_string (const Board &board, Color color) const
+    std::string FenOutputFormat::castled_string (const Board &board, Color color)
     {
         ColorIndex index = color_index (color);
         std::string castled_state;
