@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
+#include <cmath>
 
 #include "piece.hpp"
 #include "board.hpp"
@@ -33,6 +34,17 @@ namespace wisdom
                                              MoveTimer &timer, int depth, int start_depth, int alpha, int beta,
                                              Move move)
     {
+        // TODO: move responsibility for the variation glimpse to this method, since its value depends on the
+        // transposition table.
+
+        // Check the transposition table for the move:
+        auto transposition = board.check_transposition_table (side, depth);
+        if (transposition.has_value ())
+        {
+            return SearchResult { move, false, transposition->score,
+                    start_depth - depth, transposition->variation_glimpse };
+        }
+
         if (depth <= 0)
         {
             int score = evaluate_and_check_draw (board, side, start_depth - depth,
@@ -41,14 +53,6 @@ namespace wisdom
         }
         else
         {
-            // Check the transposition table for the move:
-            auto transposition = board.check_transposition_table (side, depth - 1);
-            if (transposition.has_value ())
-            {
-                return SearchResult { move, false, transposition->score * -1,
-                                      start_depth - depth, transposition->variation_glimpse };
-            }
-
             SearchResult other_search_result = search (board, color_invert (side),
                                                        output, history, timer,
                                                        depth - 1, start_depth, -beta, -alpha);
@@ -90,12 +94,13 @@ namespace wisdom
 
             int score = other_search_result.score;
 
+            other_search_result.variation_glimpse.push_front (move);
+
             if (score > best_score)
             {
                 best_score = score;
                 best_move = move;
 
-                other_search_result.variation_glimpse.push_front (move);
                 best_variation = other_search_result.variation_glimpse;
             }
 
@@ -103,7 +108,12 @@ namespace wisdom
                 alpha = best_score;
 
             if (!other_search_result.timed_out)
-                board.add_evaluation_to_transposition_table (other_search_result.score, side, depth, best_variation);
+            {
+                board.add_evaluation_to_transposition_table (
+                        other_search_result.score, side, depth,
+                        other_search_result.variation_glimpse
+                );
+            }
 
             history.remove_position_and_last_move (board);
             undo_move (board, side, move, undo_state);
@@ -152,12 +162,11 @@ namespace wisdom
 
     static void calc_time (Logger &output, int nodes, system_clock_t start, system_clock_t end)
     {
-        auto duration = end - start;
-        milliseconds ms = std::chrono::duration_cast<milliseconds> (duration);
-        double seconds = ms.count () / 1000.0;
+        auto seconds_duration = std::chrono::duration<double> (end - start);
+        auto seconds = seconds_duration.count();
 
         std::stringstream progress_str;
-        progress_str << "search took " << seconds << ", " << nodes / seconds << " nodes/sec";
+        progress_str << "search took " << seconds << "s, " << nodes / seconds << " nodes/sec";
         output.println (progress_str.str ());
     }
 
