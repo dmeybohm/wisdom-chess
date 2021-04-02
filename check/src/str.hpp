@@ -1,7 +1,7 @@
 #ifndef WISDOM_STR_HPP
 #define WISDOM_STR_HPP
 
-#include <string>
+#include "global.hpp"
 
 namespace wisdom
 {

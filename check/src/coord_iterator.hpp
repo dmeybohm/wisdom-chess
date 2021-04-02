@@ -1,6 +1,7 @@
 #ifndef WISDOM_COORD_ITERATOR_HPP
 #define WISDOM_COORD_ITERATOR_HPP
 
+#include "global.hpp"
 #include "coord.hpp"
 
 namespace wisdom

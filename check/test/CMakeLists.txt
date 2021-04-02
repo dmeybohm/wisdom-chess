@@ -24,4 +24,4 @@ add_executable(chess_tests
         board_code_test.cpp
         history_test.cpp
         $<TARGET_OBJECTS:chess_lib>
-        transposition_table_test.cpp)
+        transposition_table_test.cpp assert_test.cpp)

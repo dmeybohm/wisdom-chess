@@ -1,8 +1,7 @@
 #ifndef WISDOM_CHESS_SEARCH_H_
 #define WISDOM_CHESS_SEARCH_H_
 
-#include <memory>
-
+#include "global.hpp"
 #include "board.hpp"
 #include "piece.hpp"
 #include "move.hpp"

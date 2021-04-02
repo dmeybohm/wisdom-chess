@@ -1,11 +1,11 @@
-#include <iostream>
-#include <algorithm>
-#include <sstream>
-
 #include "move.hpp"
 #include "coord.hpp"
 #include "board.hpp"
 #include "validate.hpp"
+
+#include <iostream>
+#include <algorithm>
+#include <sstream>
 
 namespace wisdom
 {

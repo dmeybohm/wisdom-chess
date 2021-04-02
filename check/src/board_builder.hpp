@@ -5,12 +5,6 @@
 #include "piece.hpp"
 #include "move.hpp"
 
-#include <cstdint>
-#include <string>
-#include <utility>
-#include <vector>
-#include <array>
-
 namespace wisdom
 {
     struct BBPieceWithCoordState

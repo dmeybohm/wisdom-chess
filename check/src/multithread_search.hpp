@@ -1,8 +1,7 @@
 #ifndef WISDOM_MULTITHREAD_SEARCH_HPP
 #define WISDOM_MULTITHREAD_SEARCH_HPP
 
-#include <memory>
-
+#include "global.hpp"
 #include "board.hpp"
 #include "search.hpp"
 #include "move_timer.hpp"

@@ -3,9 +3,6 @@
 
 #include "global.hpp"
 
-#include <exception>
-#include <string>
-
 namespace wisdom
 {
     struct coord

@@ -1,10 +1,8 @@
 #ifndef WISDOM_TRANSPOSITION_TABLE_HPP
 #define WISDOM_TRANSPOSITION_TABLE_HPP
 
-#include <list>
-#include <unordered_map>
-#include <optional>
-#include <functional>
+#include "global.hpp"
+
 
 #include "board_code.hpp"
 #include "variation_glimpse.hpp"

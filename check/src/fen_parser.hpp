@@ -5,10 +5,6 @@
 #include "global.hpp"
 #include "board_builder.hpp"
 
-#include <string>
-#include <sstream>
-#include <memory>
-
 namespace wisdom
 {
     struct Game;

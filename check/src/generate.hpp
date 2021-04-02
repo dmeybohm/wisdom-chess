@@ -1,8 +1,6 @@
 #ifndef WISDOM_GENERATE_HPP
 #define WISDOM_GENERATE_HPP
 
-#include <vector>
-
 #include "global.hpp"
 #include "move.hpp"
 #include "move_tree.hpp"

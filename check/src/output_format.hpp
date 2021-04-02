@@ -3,8 +3,6 @@
 
 #include "piece.hpp"
 
-#include <string>
-
 namespace wisdom
 {
     class History;

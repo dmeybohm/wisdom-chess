@@ -2,9 +2,7 @@
 #ifndef WISDOM_BOARD_HISTORY_HPP
 #define WISDOM_BOARD_HISTORY_HPP
 
-#include <unordered_map>
-#include <iostream>
-
+#include "global.hpp"
 #include "board_code.hpp"
 
 namespace wisdom

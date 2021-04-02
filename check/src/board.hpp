@@ -1,10 +1,6 @@
 #ifndef WISDOM_CHESS_BOARD_H_
 #define WISDOM_CHESS_BOARD_H_
 
-#include <cassert>
-#include <vector>
-#include <algorithm>
-
 #include "global.hpp"
 #include "coord.hpp"
 #include "coord_iterator.hpp"
@@ -16,6 +12,7 @@
 #include "transposition_table.hpp"
 #include "generate.hpp"
 #include "variation_glimpse.hpp"
+
 
 ///////////////////////////////////////////////
 

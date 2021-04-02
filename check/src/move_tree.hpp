@@ -4,7 +4,6 @@
 #include "move.hpp"
 #include "move_list.hpp"
 
-#include <forward_list>
 
 namespace wisdom
 {

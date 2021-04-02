@@ -1,10 +1,7 @@
 #ifndef WISDOM_CHESS_GAME_H_
 #define WISDOM_CHESS_GAME_H_
 
-#include <memory>
-#include <optional>
-#include <string>
-
+#include "global.hpp"
 #include "piece.hpp"
 #include "move.hpp"
 #include "board.hpp"

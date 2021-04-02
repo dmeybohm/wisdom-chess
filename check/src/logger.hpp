@@ -1,6 +1,8 @@
 #ifndef WISDOM_LOGGER_HPP
 #define WISDOM_LOGGER_HPP
 
+#include "global.hpp"
+
 #include <iostream>
 #include <mutex>
 

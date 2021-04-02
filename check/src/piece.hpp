@@ -1,9 +1,6 @@
 #ifndef WISDOM_CHESS_PIECE_HPP
 #define WISDOM_CHESS_PIECE_HPP
 
-#include <cassert>
-#include <string>
-
 #include "global.hpp"
 
 namespace wisdom

@@ -1,6 +1,7 @@
 #ifndef WISDOM_HISTORY_HPP
 #define WISDOM_HISTORY_HPP
 
+#include "global.hpp"
 #include "board_history.hpp"
 #include "move_history.hpp"
 #include "piece.hpp"

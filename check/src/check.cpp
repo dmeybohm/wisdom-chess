@@ -1,8 +1,8 @@
+#include "check.hpp"
 #include "coord.hpp"
 #include "move.hpp"
 #include "board.hpp"
 #include "generate.hpp"
-#include "check.hpp"
 #include "history.hpp"
 
 namespace wisdom

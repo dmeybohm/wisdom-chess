@@ -1,8 +1,7 @@
 #ifndef WISDOM_MOVE_HISTORY_HPP
 #define WISDOM_MOVE_HISTORY_HPP
 
-#include <string>
-
+#include "global.hpp"
 #include "move_list.hpp"
 
 namespace wisdom

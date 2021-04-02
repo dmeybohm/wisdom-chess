@@ -1,7 +1,5 @@
 #include "doctest/doctest.h"
 #include "board_builder.hpp"
-#include <iostream>
-
 #include "board.hpp"
 #include "check.hpp"
 

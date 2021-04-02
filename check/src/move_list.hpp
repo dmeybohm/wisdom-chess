@@ -1,10 +1,7 @@
 #ifndef WISDOM_MOVE_LIST_HPP
 #define WISDOM_MOVE_LIST_HPP
 
-#include <exception>
-#include <vector>
-#include <functional>
-
+#include "global.hpp"
 #include "move.hpp"
 
 namespace wisdom

@@ -1,7 +1,5 @@
 #include "doctest/doctest.h"
 
-#include <iostream>
-
 #include "move_list.hpp"
 #include "board.hpp"
 #include "generate.hpp"

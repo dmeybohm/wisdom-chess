@@ -1,6 +1,7 @@
 #ifndef EVOLVE_CHESS_EVALUATE_HPP
 #define EVOLVE_CHESS_EVALUATE_HPP
 
+#include "global.hpp"
 #include "piece.hpp"
 #include "move.hpp"
 #include "move_tree.hpp"

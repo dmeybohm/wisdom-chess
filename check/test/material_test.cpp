@@ -2,7 +2,6 @@
 
 #include "material.hpp"
 
-#include <vector>
 using std::vector;
 using namespace wisdom;
 

@@ -1,11 +1,21 @@
-#ifndef WISDOM_GLOBAL_H
-#define WISDOM_GLOBAL_H
+#ifndef WISDOM_CHESS_GLOBAL_H
+#define WISDOM_CHESS_GLOBAL_H
 
 #include <cstdint>
-#include <cassert>
 #include <exception>
 #include <string>
 #include <utility>
+#include <vector>
+#include <array>
+#include <optional>
+#include <memory>
+#include <list>
+#include <unordered_map>
+#include <functional>
+#include <forward_list>
+#include <sstream>
+#include <iostream>
+#include <algorithm>
 
 namespace wisdom
 {
@@ -64,6 +74,44 @@ namespace wisdom
             return this->my_message.c_str();
         }
     };
+
+    class AssertionError : public Error
+    {
+    private:
+        const std::string my_file;
+        int my_line;
+
+    public:
+        AssertionError (std::string extra_data, std::string file, int line) :
+            Error {"Assertion failed!", std::move(extra_data) },
+            my_file { std::move(file) },
+            my_line { line }
+        {}
+
+        [[nodiscard]] const std::string& file() const noexcept
+        {
+            return my_file;
+        }
+
+        [[nodiscard]] int line() const noexcept
+        {
+            return my_line;
+        }
+    };
 }
 
-#endif //WISDOM_GLOBAL_H
+#ifdef NDEBUG
+
+#define assert(condition)  do { } while(0)
+
+#else // NDEBUG
+
+#define assert(condition) \
+    do {                  \
+        if (!(condition)) \
+            throw AssertionError (#condition, __FILE__, __LINE__); \
+    } while (0)
+
+#endif // NDEBUG
+
+#endif //WISDOM_CHESS_GLOBAL_H
