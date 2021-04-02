@@ -13,9 +13,17 @@
 #include <unordered_map>
 #include <functional>
 #include <forward_list>
-#include <sstream>
-#include <iostream>
 #include <algorithm>
+#include <chrono>
+#include <mutex>
+#include <thread>
+#include <cctype>
+#include <bitset>
+#include <unordered_set>
+#include <map>
+#include <sstream>
+#include <fstream>
+#include <iostream>
 
 namespace wisdom
 {
@@ -82,9 +90,11 @@ namespace wisdom
         int my_line;
 
     public:
-        AssertionError (std::string extra_data, std::string file, int line) :
-            Error {"Assertion failed!", std::move(extra_data) },
-            my_file { std::move(file) },
+        AssertionError (const std::string &condition, const std::string &file, int line) :
+            Error {"Assertion " + condition + " failed at " + file + ":" + std::to_string(line) + " !",
+                   condition
+            },
+            my_file { file },
             my_line { line }
         {}
 

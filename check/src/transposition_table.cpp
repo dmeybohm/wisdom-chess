@@ -1,9 +1,6 @@
 #include "transposition_table.hpp"
 #include "board.hpp"
 
-#include <unordered_set>
-#include <functional>
-#include <map>
 
 namespace wisdom
 {

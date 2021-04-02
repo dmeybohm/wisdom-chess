@@ -1,4 +1,3 @@
-
 #include "fen_parser.hpp"
 #include "board.hpp"
 #include "game.hpp"

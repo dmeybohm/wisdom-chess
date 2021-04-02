@@ -1,7 +1,3 @@
-#include <iostream>
-#include <sstream>
-#include <memory>
-
 #include "piece.hpp"
 #include "board.hpp"
 #include "generate.hpp"

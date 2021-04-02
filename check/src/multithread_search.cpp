@@ -1,16 +1,5 @@
 #include "multithread_search.hpp"
-#include "move_timer.hpp"
-#include "logger.hpp"
 #include "history.hpp"
-
-#include <mutex>
-#include <thread>
-#include <iostream>
-#include <sstream>
-#include <memory>
-#include <utility>
-#include <vector>
-#include <chrono>
 
 namespace wisdom
 {

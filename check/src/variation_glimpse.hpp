@@ -1,9 +1,7 @@
-
 #ifndef WISDOM_VARIATION_GLIMPSE_HPP
 #define WISDOM_VARIATION_GLIMPSE_HPP
 
-#include <array>
-
+#include "global.hpp"
 #include "move.hpp"
 #include "move_list.hpp"
 

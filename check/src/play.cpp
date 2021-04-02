@@ -1,6 +1,4 @@
-#include <iostream>
-#include <memory>
-
+#include "global.hpp"
 #include "move.hpp"
 #include "board.hpp"
 #include "generate.hpp"

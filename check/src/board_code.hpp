@@ -7,8 +7,6 @@
 #include "coord.hpp"
 #include "move.hpp"
 
-#include <bitset>
-
 namespace wisdom
 {
     // 3 Bits per piece type, +1 for color (special case: no piece == 0):

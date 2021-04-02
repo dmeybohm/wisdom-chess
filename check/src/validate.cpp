@@ -1,8 +1,7 @@
+#include "validate.hpp"
 #include "board.hpp"
 #include "move.hpp"
 #include "validate.hpp"
-
-#include <iostream>
 
 namespace wisdom
 {

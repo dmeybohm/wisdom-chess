@@ -3,9 +3,6 @@
 
 #include "global.hpp"
 
-#include <iostream>
-#include <mutex>
-
 namespace wisdom
 {
     class Logger

@@ -21,6 +21,8 @@ add_library(chess_lib OBJECT
         src/board_code.cpp src/board_code.hpp src/logger.cpp src/logger.hpp src/board_history.cpp src/board_history.hpp
         src/history.cpp src/transposition_table.cpp src/transposition_table.hpp src/variation_glimpse.cpp src/variation_glimpse.hpp src/output_format.cpp src/output_format.hpp)
 add_executable(chess src/play.cpp $<TARGET_OBJECTS:chess_lib>)
+target_precompile_headers(chess_lib PUBLIC PUBLIC src/global.hpp)
+target_precompile_headers(chess REUSE_FROM chess_lib)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang

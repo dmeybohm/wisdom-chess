@@ -1,6 +1,7 @@
 #ifndef WISDOM_OUTPUT_FORMAT_HPP
 #define WISDOM_OUTPUT_FORMAT_HPP
 
+#include "global.hpp"
 #include "piece.hpp"
 
 namespace wisdom

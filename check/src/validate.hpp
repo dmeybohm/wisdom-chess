@@ -1,6 +1,7 @@
 #ifndef WISDOM_VALIDATE_HPP
 #define WISDOM_VALIDATE_HPP
 
+#include "global.hpp"
 #include "move.hpp"
 
 namespace wisdom

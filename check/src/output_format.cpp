@@ -2,10 +2,6 @@
 #include "output_format.hpp"
 #include "history.hpp"
 
-#include <iostream>
-#include <fstream>
-#include <cctype>
-
 namespace wisdom
 {
     void FenOutputFormat::save (const std::string &filename, const Board &board,

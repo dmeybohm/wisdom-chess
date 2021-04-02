@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "board.hpp"
 #include "validate.hpp"
 #include "variation_glimpse.hpp"

@@ -1,7 +1,4 @@
-
 #include "variation_glimpse.hpp"
-
-#include <list>
 
 namespace wisdom
 {

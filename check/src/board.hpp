@@ -13,7 +13,6 @@
 #include "generate.hpp"
 #include "variation_glimpse.hpp"
 
-
 ///////////////////////////////////////////////
 
 namespace wisdom

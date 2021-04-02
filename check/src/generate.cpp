@@ -1,12 +1,6 @@
-#include <array>
-#include <optional>
-#include <algorithm>
-
-#include "piece.hpp"
-#include "move.hpp"
+#include "generate.hpp"
 #include "board.hpp"
 #include "check.hpp"
-#include "generate.hpp"
 
 namespace wisdom
 {

@@ -1,4 +1,3 @@
-
 #include "coord_iterator.hpp"
 
 namespace wisdom

@@ -1,6 +1,7 @@
 #ifndef WISDOM_CHESS_MOVE_TREE_HPP
 #define WISDOM_CHESS_MOVE_TREE_HPP
 
+#include "global.hpp"
 #include "move.hpp"
 #include "move_list.hpp"
 

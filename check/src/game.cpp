@@ -1,6 +1,3 @@
-#include <iostream>
-#include <fstream>
-
 #include "piece.hpp"
 #include "board.hpp"
 #include "move.hpp"

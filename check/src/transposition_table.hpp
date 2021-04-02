@@ -2,8 +2,6 @@
 #define WISDOM_TRANSPOSITION_TABLE_HPP
 
 #include "global.hpp"
-
-
 #include "board_code.hpp"
 #include "variation_glimpse.hpp"
 

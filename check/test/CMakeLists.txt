@@ -6,6 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/")
 
 # Make test executable
 add_executable(chess_tests
+        $<TARGET_OBJECTS:chess_lib>
         test_main.cpp
         piece_test.cpp
         coord_test.cpp
@@ -23,5 +24,7 @@ add_executable(chess_tests
         move_list_test.cpp
         board_code_test.cpp
         history_test.cpp
-        $<TARGET_OBJECTS:chess_lib>
-        transposition_table_test.cpp assert_test.cpp)
+        transposition_table_test.cpp
+        assert_test.cpp)
+
+target_precompile_headers(chess_tests REUSE_FROM chess_lib)

@@ -1,7 +1,7 @@
 #ifndef WISDOM_TIMER_HPP
 #define WISDOM_TIMER_HPP
 
-#include <chrono>
+#include "global.hpp"
 
 namespace wisdom
 {

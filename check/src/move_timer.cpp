@@ -1,7 +1,3 @@
-//
-// Created by David Meybohm on 9/28/20.
-//
-
 #include "move_timer.hpp"
 
 namespace wisdom
