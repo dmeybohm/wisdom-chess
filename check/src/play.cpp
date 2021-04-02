@@ -9,6 +9,8 @@
 #include "str.hpp"
 #include "logger.hpp"
 
+#include <iostream>
+
 namespace wisdom
 {
     // the color the computer is playing as
@@ -169,7 +171,7 @@ namespace wisdom
     {
         Game game { Color::White, color_invert (human_player) };
         InputState initial_input_state = InputState::from_initial ();
-        wisdom::StandardLogger output;
+        Logger &output = make_standard_logger ();
         InputState input_state = initial_input_state;
 
         while (input_state.ok)

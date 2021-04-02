@@ -1,6 +1,10 @@
 #include "multithread_search.hpp"
 #include "history.hpp"
 
+#include <sstream>
+#include <mutex>
+#include <thread>
+
 namespace wisdom
 {
     constexpr int Max_Depth = 16;

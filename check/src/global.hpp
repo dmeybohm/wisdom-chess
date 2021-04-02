@@ -15,15 +15,11 @@
 #include <forward_list>
 #include <algorithm>
 #include <chrono>
-#include <mutex>
-#include <thread>
+//#include <mutex>
+//#include <thread>
 #include <cctype>
 #include <bitset>
-#include <unordered_set>
-#include <map>
-#include <sstream>
-#include <fstream>
-#include <iostream>
+
 
 namespace wisdom
 {

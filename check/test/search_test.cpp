@@ -11,7 +11,6 @@
 #include "fen_parser.hpp"
 #include "game.hpp"
 
-wisdom::NullLogger discard_output;
 using namespace wisdom;
 
 // Mating moves: : 1.Ra6 f6 2.Bxf6 Rg7 3.Rxa8#
@@ -41,7 +40,7 @@ TEST_CASE("Can find mate in 3")
     Board board = builder.build ();
     std::unique_ptr<MoveTree> variation;
     History history;
-    IterativeSearch search { board, history, discard_output, large_timer, 5 };
+    IterativeSearch search { board, history, make_null_logger (), large_timer, 5 };
 
     SearchResult result = search.iteratively_deepen (Color::White);
 
@@ -86,7 +85,7 @@ TEST_CASE("Can find mate in 2 1/2")
     Board board = builder.build ();
     std::unique_ptr<MoveTree> variation;
     History history;
-    IterativeSearch search { board, history, discard_output, large_timer, 5 };
+    IterativeSearch search { board, history, make_null_logger (), large_timer, 5 };
 
     SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE(result.move.has_value());
@@ -145,7 +144,7 @@ TEST_CASE("scenario with heap overflow 1")
     Board board = builder.build ();
     MoveTimer timer { 300 };
     History history;
-    IterativeSearch search { board, history, discard_output, timer, 3 };
+    IterativeSearch search { board, history, make_null_logger (), timer, 3 };
 
     SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE(result.move.has_value());
@@ -172,7 +171,7 @@ TEST_CASE("Promoting move is taken if possible")
     History history;
     Board board = builder.build ();
     SearchResult result = search (
-            board, Color::Black, discard_output, history, large_timer,
+            board, Color::Black, make_null_logger (), history, large_timer,
             1, 1, -Initial_Alpha, Initial_Alpha
     );
 
@@ -187,7 +186,7 @@ TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing"
 
     History history;
     MoveTimer timer { 30 };
-    IterativeSearch search { game.board, history, discard_output, timer, 3 };
+    IterativeSearch search { game.board, history, make_null_logger (), timer, 3 };
 
     SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE(to_string (*result.move) == "e2xf1(Q)");
@@ -201,7 +200,7 @@ TEST_CASE("Finding moves regression test")
 
     History history;
     MoveTimer timer { 10 };
-    IterativeSearch search { game.board, history, discard_output, timer, 1 };
+    IterativeSearch search { game.board, history, make_null_logger (), timer, 1 };
 
     SearchResult result = search.iteratively_deepen (Color::White);
     REQUIRE( result.move.has_value () );
@@ -214,8 +213,7 @@ TEST_CASE("Bishop is not sacrificed scenario 1")
 
     History history;
     MoveTimer timer { 180, false };
-    StandardLogger logger;
-    IterativeSearch search { game.board, history, logger, timer, 3 };
+    IterativeSearch search { game.board, history, make_null_logger(), timer, 3 };
 
     SearchResult result = search.iteratively_deepen (Color::Black);
 

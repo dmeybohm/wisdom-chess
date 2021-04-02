@@ -1,5 +1,8 @@
 #include "move_history.hpp"
 
+#include <fstream>
+#include <sstream>
+
 namespace wisdom
 {
     MoveHistory::MoveHistory (const MoveList &list)

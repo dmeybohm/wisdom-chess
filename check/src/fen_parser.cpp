@@ -2,6 +2,8 @@
 #include "board.hpp"
 #include "game.hpp"
 
+#include <sstream>
+
 namespace wisdom
 {
     using string_size_t = std::string::size_type;

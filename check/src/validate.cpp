@@ -3,6 +3,8 @@
 #include "move.hpp"
 #include "validate.hpp"
 
+#include <iostream>
+
 namespace wisdom
 {
     class CastleConsistencyProblem : public Error

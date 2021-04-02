@@ -37,24 +37,17 @@ namespace wisdom
         {
             const auto &bits = board_code.bitset_ref ();
 
-            try
+            auto count = position_counts.at (bits) - 1;
+            if (count <= 0)
             {
-                auto count = position_counts.at (bits) - 1;
-                if (count <= 0)
-                {
-                    position_counts.erase (bits);
-                }
-                else
-                {
-                    position_counts[bits] = count;
-                }
+                position_counts.erase (bits);
             }
-            catch (const std::out_of_range &e)
+            else
             {
-                std::cout << "Couldn't find " << board_code.to_string () << "\n";
-                throw e;
+                position_counts[bits] = count;
             }
         }
     };
 }
+
 #endif //WISDOM_BOARD_HISTORY_HPP

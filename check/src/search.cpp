@@ -10,6 +10,9 @@
 #include "logger.hpp"
 #include "history.hpp"
 
+#include <sstream>
+#include <iostream>
+
 namespace wisdom
 {
     constexpr int Max_Depth = 16;

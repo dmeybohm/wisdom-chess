@@ -2,6 +2,8 @@
 #include "validate.hpp"
 #include "variation_glimpse.hpp"
 
+#include <iostream>
+
 namespace wisdom
 {
     // board length in characters

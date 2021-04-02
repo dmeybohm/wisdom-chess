@@ -6,6 +6,9 @@
 #include "game.hpp"
 #include "output_format.hpp"
 
+#include <fstream>
+#include <iostream>
+
 namespace wisdom
 {
     static FenOutputFormat fen_output_format;
