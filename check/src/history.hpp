@@ -50,4 +50,5 @@ namespace wisdom
         }
     };
 }
+
 #endif //WISDOM_HISTORY_HPP

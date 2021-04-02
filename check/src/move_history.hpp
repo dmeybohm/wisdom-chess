@@ -46,7 +46,7 @@ namespace wisdom
 
         void save (const std::string &filename) const;
 
-        std::string to_string () const;
+        [[nodiscard]] std::string to_string () const;
     };
 }
 
