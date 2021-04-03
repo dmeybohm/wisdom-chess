@@ -217,13 +217,51 @@ TEST_CASE("Bishop is not sacrificed scenario 1")
 
     SearchResult result = search.iteratively_deepen (Color::Black);
 
-//    SearchResult result = search (game.board, Color::Black, logger, history, timer,
-//                                  3, 3, -Initial_Alpha, Initial_Alpha);
-
     REQUIRE( result.move.has_value () );
 
-    do_move (game.board, Color::Black, *result.move);
+    game.move ( *result.move );
+
     // assert the bishop has moved:
     INFO("Info:", to_string (*result.move) );
     REQUIRE( piece_at (game.board, coord_parse("b4")) != make_piece (Color::Black, Piece::Bishop) );
+}
+
+TEST_CASE("Bishop is not sacrificed scenario 2 (as white)")
+{
+    FenParser fen { "2b2bnr/pr1ppkpp/p1p5/q3P3/2P2N2/BP3N2/P2P1PPP/R3K2R w KQ - 2 1" };
+    auto game = fen.build();
+
+    History history;
+    MoveTimer timer { 180, false };
+    IterativeSearch search { game.board, history, make_null_logger(), timer, 3 };
+
+    SearchResult result = search.iteratively_deepen (Color::White);
+
+    REQUIRE( result.move.has_value () );
+
+    game.move ( *result.move );
+
+    // assert the bishop has moved:
+    INFO("Info:", to_string (*result.move) );
+    REQUIRE( piece_at (game.board, coord_parse("a3")) != make_piece (Color::White, Piece::Bishop) );
+}
+
+TEST_CASE("Advanced pawn should be captured")
+{
+    FenParser fen { "rnb1k2r/ppp1qppp/4p3/3pP3/3P4/P1Q5/1PP2PPP/R3KBNR w KQkq d6 0 1" };
+    auto game = fen.build ();
+    History history;
+    MoveTimer timer { 10 };
+    IterativeSearch search { game.board, history, make_null_logger(), timer, 3 };
+
+    game.move (move_parse ("e5 d6 ep", Color::White));
+
+    SearchResult result = search.iteratively_deepen (Color::Black);
+
+    REQUIRE( result.move.has_value () );
+
+    game.move (*result.move);
+    // assert the pawn at e6 has been taken:
+    INFO("Info:", to_string (*result.move) );
+    REQUIRE( piece_at (game.board, coord_parse("d6")) != make_piece (Color::White, Piece::Pawn) );
 }

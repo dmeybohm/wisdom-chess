@@ -9,6 +9,8 @@ namespace wisdom
             return result;
         if (result[result.size () - 1] == '\n')
             result = result.substr (0, result.size () - 1);
+        if (result[result.size () - 1] == '\r')
+            result = result.substr (0, result.size () - 1);
         return result;
     }
 

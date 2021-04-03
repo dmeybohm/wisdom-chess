@@ -365,7 +365,7 @@ namespace wisdom
         board.position.apply_move (who, orig_src_piece, move, undo_state);
         validate_castle_state (board, move);
 
-        board.update_half_move_clock (piece_type (orig_src_piece), move, undo_state);
+        board.update_move_clock (who, piece_type (orig_src_piece), move, undo_state);
         return undo_state;
     }
 
@@ -441,7 +441,7 @@ namespace wisdom
 
         board.position.unapply_move (who, src_piece, move, undo_state);
         validate_castle_state (board, move);
-        board.restore_half_move_clock (undo_state);
+        board.restore_move_clock (undo_state);
     }
 
     static std::optional<Move> castle_parse (const std::string &str, Color who)
@@ -579,7 +579,7 @@ namespace wisdom
 
         auto optional_result = move_parse_optional (str, color);
         if (!optional_result.has_value ())
-            throw ParseMoveException ("Error parsing move");
+            throw ParseMoveException ("Error parsing move: " + str);
 
         auto result = *optional_result;
         if (color == Color::None &&

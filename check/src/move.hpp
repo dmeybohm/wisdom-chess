@@ -38,7 +38,7 @@ namespace wisdom
         CastlingState current_castle_state;
         CastlingState opponent_castle_state;
         int half_move_clock;
-
+        bool full_move_clock_updated;
         Coord en_passant_target[Num_Players];
     };
 
@@ -50,6 +50,7 @@ namespace wisdom
             .current_castle_state = Castle_None,
             .opponent_castle_state = Castle_None,
             .half_move_clock = 0,
+            .full_move_clock_updated = false,
             .en_passant_target = { No_En_Passant_Coord, No_En_Passant_Coord },
     };
 

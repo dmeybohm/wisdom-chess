@@ -36,5 +36,5 @@ TEST_CASE("parse_move throws an exception for castling moves")
 TEST_CASE("Invalid moves throw an exception")
 {
     REQUIRE_THROWS_AS( parse_move ("invalid"), ParseMoveException );
-    REQUIRE_THROWS_WITH( parse_move ("invalid"), "Error parsing move" );
+    REQUIRE_THROWS_WITH( parse_move ("invalid"), "Error parsing move: invalid" );
 }

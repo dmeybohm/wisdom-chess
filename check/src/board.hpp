@@ -72,18 +72,26 @@ namespace wisdom
 
         void dump () const;
 
-        void update_half_move_clock (Piece orig_src_piece_type, Move mv, UndoMove &undo_state)
+        void update_move_clock (Color who, Piece orig_src_piece_type, Move mv, UndoMove &undo_state)
         {
             undo_state.half_move_clock = this->half_move_clock;
             if (is_capture_move (mv) || orig_src_piece_type == Piece::Pawn)
                 this->half_move_clock = 0;
             else
                 this->half_move_clock++;
+
+            if (who == Color::Black)
+            {
+                this->full_moves++;
+                undo_state.full_move_clock_updated = true;
+            }
         }
 
-        void restore_half_move_clock (const UndoMove &undo_state)
+        void restore_move_clock (const UndoMove &undo_state)
         {
             this->half_move_clock = undo_state.half_move_clock;
+            if (undo_state.full_move_clock_updated)
+                this->full_moves--;
         }
 
         // Convert the board to a string.
