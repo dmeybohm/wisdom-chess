@@ -75,7 +75,6 @@ namespace wisdom
 
     static inline int is_pawn_unmoved (const Board &board, int row, int col)
     {
-        assert (is_valid_row (row) && is_valid_column (col));
         ColoredPiece piece = piece_at (board, row, col);
 
         if (piece_color (piece) == Color::White)

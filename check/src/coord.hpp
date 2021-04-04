@@ -38,8 +38,8 @@ namespace wisdom
     constexpr Coord make_coord (int row, int col)
     {
         assert (is_valid_row (row) && is_valid_column (col));
-        int8_t row8 = static_cast<int>(row);
-        int8_t col8 = static_cast<int>(col);
+        int8_t row8 = static_cast<int8_t>(row);
+        int8_t col8 = static_cast<int8_t>(col);
         Coord result = { .row = row8, .col = col8 };
         return result;
     }
