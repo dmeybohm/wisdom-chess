@@ -10,6 +10,9 @@
 - [ ] Add better stats collection display 
   - [ ] Allow viewing positions in the transposition table from the bitset
   - [ ] Add interactive inspection of game state in console
+- [ ] Try switching to to clang to improve build speed on Windows
+  - [ ] Maybe try switching linker to LLD (clang linker) in combination with clang
+  - [ ] [[Also]] look at other linkers on Windows to link - e.g. IncrediBuild
 - [ ] Add profiling and document it
 - [ ] Use Zobrist hashing in the bitset class to incrementally build up board hash code
 - [ ] Improve move generation so fewer copies are generated and whole board isn't traversed
