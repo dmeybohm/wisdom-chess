@@ -13,6 +13,7 @@
 - [ ] Try switching to to clang to improve build speed on Windows
   - [ ] Maybe try switching linker to LLD (clang linker) in combination with clang
   - [ ] [[Also]] look at other linkers on Windows to link - e.g. IncrediBuild
+  - [ ] Try compiling clang itself with LTO and PGO (PGO compiling clang itself)
 - [ ] Add profiling and document it
 - [ ] Use Zobrist hashing in the bitset class to incrementally build up board hash code
 - [ ] Improve move generation so fewer copies are generated and whole board isn't traversed
