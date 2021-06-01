@@ -15,7 +15,7 @@ namespace wisdom
 
     public:
         MoveList () = default;
-        ~MoveList() {
+        ~MoveList () {
             if (my_moves)
                 deallocate_move_vector (std::move (my_moves));
         }
@@ -25,8 +25,11 @@ namespace wisdom
 
         MoveList (const MoveList &other)
         {
+            assert (my_moves);
             my_moves->reserve (other.my_moves->size());
-            std::copy (other.my_moves->begin (), other.my_moves->end (), this->my_moves->begin ());
+            for (const auto move : *other.my_moves)
+                this->my_moves->push_back (move);
+//            std::copy (other.my_moves->begin (), other.my_moves->end (), this->my_moves->begin ());
         }
 
         MoveList &operator= (MoveList other)

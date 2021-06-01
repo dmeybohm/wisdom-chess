@@ -46,7 +46,7 @@ namespace wisdom
 
     static void knight_move_list_init (MoveList knight_moves[Num_Rows][Num_Columns]);
 
-    static MoveList &get_knight_moves(int row, int col)
+    static MoveList &get_knight_moves (int row, int col)
     {
         static MoveList knight_moves[Num_Rows][Num_Columns];
 
@@ -202,7 +202,7 @@ namespace wisdom
     static void moves_knight ([[maybe_unused]] const Board &board, [[maybe_unused]] Color who,
                               int piece_row, int piece_col, MoveList &moves)
     {
-        MoveList kt_moves = generate_knight_moves (piece_row, piece_col);
+        const auto &kt_moves = generate_knight_moves (piece_row, piece_col);
 
         moves.append (kt_moves);
     }

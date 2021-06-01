@@ -38,3 +38,13 @@ TEST_CASE( "Returning move list moves ptr" )
     REQUIRE( result.data() == ptr );
     REQUIRE( result.size() > 0 );
 }
+
+TEST_CASE("Copying move list")
+{
+    MoveList first_move_list { Color::White, { "e4 e5", "d7 d6", "a8 b8" } };
+    MoveList copy = first_move_list;
+
+    REQUIRE( first_move_list.size() == copy.size() );
+    REQUIRE( first_move_list == copy );
+    REQUIRE( to_string(first_move_list) == to_string(copy) );
+}
