@@ -18,17 +18,10 @@ namespace wisdom
     std::string MoveList::to_string () const
     {
         std::string result = "{ ";
-        for (
-            auto move : *my_moves
-                )
+        for (auto move : *my_moves)
             result += "[" + wisdom::to_string (move) + "] ";
         result += "}";
         return result;
-    }
-
-    void MoveList::sort (std::function<bool (Move, Move)> compare_func)
-    {
-        std::sort (my_moves->begin (), my_moves->end (), std::move (compare_func));
     }
 
     static vector<unique_ptr<MoveVector>> my_move_vector_ptrs {};
@@ -45,7 +38,7 @@ namespace wisdom
         return make_unique<MoveVector>();
     }
 
-    void MoveList::deallocate_move_vector (std::unique_ptr<MoveVector> ptr)
+    void MoveList::deallocate_move_vector (unique_ptr<MoveVector> ptr)
     {
         my_move_vector_ptrs.push_back (std::move (ptr));
     }
@@ -57,7 +50,7 @@ namespace wisdom
 
     std::ostream &operator<< (std::ostream &os, const MoveList &list)
     {
-        os << to_string(list);
+        os << to_string (list);
         return os;
     }
 }

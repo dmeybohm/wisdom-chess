@@ -15,6 +15,8 @@ namespace wisdom
         int score;
     };
 
+    static_assert(std::is_trivial<ScoredMove>::value);
+
     using ScoredMoveList = std::vector<ScoredMove>;
 
     class MoveGenerator final
