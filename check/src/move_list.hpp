@@ -25,7 +25,6 @@ namespace wisdom
 
         MoveList (const MoveList &other)
         {
-            assert (my_moves);
             my_moves->reserve (other.my_moves->size());
             std::copy (other.my_moves->begin (), other.my_moves->end (), std::back_inserter (*this->my_moves));
         }
