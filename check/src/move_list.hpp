@@ -93,9 +93,6 @@ namespace wisdom
             return my_moves->data ();
         }
 
-        // Take a function to sort the moves:
-        void sort (std::function<bool (Move, Move)> compare_func);
-
         static std::unique_ptr<MoveVector> allocate_move_vector ();
         static void deallocate_move_vector (std::unique_ptr<MoveVector> ptr);
     };
