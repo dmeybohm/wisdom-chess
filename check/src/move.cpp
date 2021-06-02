@@ -71,7 +71,10 @@ namespace wisdom
     }
 
     static void handle_castling (Board &board, Color who,
-                                 Move king_move, Coord src, Coord dst, int undo)
+                                 Move king_move,
+                                 [[maybe_unused]] Coord src,
+                                 [[maybe_unused]] Coord dst,
+                                 int undo)
     {
         Move rook_move;
         Coord rook_src, rook_dst;
@@ -149,9 +152,13 @@ namespace wisdom
     }
 
     static void
-    update_opponent_rook_position (Board &board, Color opponent,
-                                   ColoredPiece dst_piece, UndoMove &undo_state,
-                                   [[maybe_unused]] Coord src, Coord dst, int undo)
+    update_opponent_rook_position (Board &board,
+                                   Color opponent,
+                                   [[maybe_unused]] ColoredPiece dst_piece,
+                                   UndoMove &undo_state,
+                                   [[maybe_unused]] Coord src,
+                                   Coord dst,
+                                   int undo)
     {
         assert (piece_color (dst_piece) == opponent && piece_type (dst_piece) == Piece::Rook);
 

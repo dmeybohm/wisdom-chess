@@ -28,8 +28,6 @@ namespace wisdom
     static void moves_pawn (const Board &board, Color who,
                             int piece_row, int piece_col, MoveList &moves);
 
-    static void knight_move_list_init ();
-
     static void add_en_passant_move (const Board &board, Color who, int piece_row, int piece_col,
                                      MoveList &moves, int en_passant_column);
 
@@ -341,6 +339,7 @@ namespace wisdom
         take_row = next_row (piece_row, direction);
         take_col = en_passant_column;
 
+        [[maybe_unused]]
         ColoredPiece take_piece = piece_at (board, piece_row, take_col);
 
         assert (piece_type (take_piece) == Piece::Pawn);
