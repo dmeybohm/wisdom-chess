@@ -1,15 +1,19 @@
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/")
+
 INCLUDE(CheckIncludeFiles)
 
 cmake_minimum_required(VERSION 3.10)
+
 include_directories(. src lib)
 
 set(CMAKE_BUILD_TYPE Debug)
 
 # set the project name
-project(Wisdom)
+project(Wisdom C CXX)
+
+find_package(Threads REQUIRED)
 
 # add the executable
 
@@ -27,14 +31,15 @@ target_precompile_headers(chess REUSE_FROM chess_lib)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
-  set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+  add_compile_options(-Wall -Wextra)
   set(CMAKE_CXX_FLAGS_DEBUG "-g")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
   #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3 -Wall -Wno-unused-parameter -Wno-unused-function")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -Wall -Wextra -fstrict-enums -DDOCTEST_CONFIG_SUPER_FAST_ASSERTS")
+  add_compile_options(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -Wall -Wextra -fstrict-enums -DDOCTEST_CONFIG_SUPER_FAST_ASSERTS")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native")
 
   # Using LLVM's linked
