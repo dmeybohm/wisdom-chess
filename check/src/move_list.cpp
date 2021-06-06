@@ -2,11 +2,15 @@
 
 namespace wisdom
 {
-    MoveList::MoveList (Color color, std::initializer_list<const char *> list)
+    using std::vector;
+    using std::unique_ptr;
+    using std::make_unique;
+
+    MoveList::MoveList (Color color, std::initializer_list<const char *> list) noexcept
     {
         for (auto it : list)
         {
-            my_moves.push_back (parse_move (it, color));
+            my_moves->push_back (parse_move (it, color));
             color = color_invert (color);
         }
     }
@@ -14,15 +18,29 @@ namespace wisdom
     std::string MoveList::to_string () const
     {
         std::string result = "{ ";
-        for (auto move : my_moves)
+        for (auto move : *my_moves)
             result += "[" + wisdom::to_string (move) + "] ";
         result += "}";
         return result;
     }
 
-    void MoveList::sort (std::function<bool(Move,Move)> compare_func)
+    static vector<unique_ptr<MoveVector>> my_move_vector_ptrs {};
+
+    unique_ptr<MoveVector> MoveList::allocate_move_vector ()
     {
-        std::sort (my_moves.begin(), my_moves.end(), std::move(compare_func));
+        // todo this isn't thread safe:
+        if (!my_move_vector_ptrs.empty()) {
+            unique_ptr<MoveVector> ptr = std::move (my_move_vector_ptrs.back());
+            my_move_vector_ptrs.pop_back();
+            ptr->resize(0);
+            return ptr;
+        }
+        return make_unique<MoveVector>();
+    }
+
+    void MoveList::deallocate_move_vector (unique_ptr<MoveVector> ptr)
+    {
+        my_move_vector_ptrs.push_back (std::move (ptr));
     }
 
     std::string to_string (const MoveList &list)
@@ -32,7 +50,7 @@ namespace wisdom
 
     std::ostream &operator<< (std::ostream &os, const MoveList &list)
     {
-        os << to_string(list);
+        os << to_string (list);
         return os;
     }
 }

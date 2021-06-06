@@ -3,12 +3,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/")
 
 INCLUDE(CheckIncludeFiles)
+INCLUDE(CMakeHelpers.cmake)
+
+# ??
+set(CMAKE_BUILD_TYPE Debug)
 
 cmake_minimum_required(VERSION 3.10)
 
 include_directories(. src lib)
-
-set(CMAKE_BUILD_TYPE Debug)
 
 # set the project name
 project(Wisdom C CXX)
@@ -29,10 +31,13 @@ add_executable(chess src/play.cpp $<TARGET_OBJECTS:chess_lib>)
 target_precompile_headers(chess_lib PUBLIC PUBLIC src/global.hpp)
 target_precompile_headers(chess REUSE_FROM chess_lib)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
   # using Clang
   add_compile_options(-Wall -Wextra)
-  set(CMAKE_CXX_FLAGS_DEBUG "-g")
+
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O1 -fno-omit-frame-pointer -fsanitize=address")
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
 

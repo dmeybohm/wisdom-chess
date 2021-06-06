@@ -28,8 +28,6 @@ namespace wisdom
     static void moves_pawn (const Board &board, Color who,
                             int piece_row, int piece_col, MoveList &moves);
 
-    static void knight_move_list_init ();
-
     static void add_en_passant_move (const Board &board, Color who, int piece_row, int piece_col,
                                      MoveList &moves, int en_passant_column);
 
@@ -44,10 +42,20 @@ namespace wisdom
             nullptr,
     };
 
-    MoveList knight_moves[Num_Rows][Num_Columns]; // NOLINT(cert-err58-cpp)
+    static void knight_move_list_init (MoveList knight_moves[Num_Rows][Num_Columns]);
+
+    static MoveList &get_knight_moves (int row, int col)
+    {
+        static MoveList knight_moves[Num_Rows][Num_Columns];
+
+        if (knight_moves[0][0].empty())
+            knight_move_list_init(knight_moves);
+
+        return knight_moves[row][col];
+    }
 
     // generate a lookup table for knight moves
-    static void knight_move_list_init ()
+    static void knight_move_list_init (MoveList knight_moves[Num_Rows][Num_Columns])
     {
         int k_row, k_col;
 
@@ -192,7 +200,7 @@ namespace wisdom
     static void moves_knight ([[maybe_unused]] const Board &board, [[maybe_unused]] Color who,
                               int piece_row, int piece_col, MoveList &moves)
     {
-        MoveList kt_moves = generate_knight_moves (piece_row, piece_col);
+        const auto &kt_moves = generate_knight_moves (piece_row, piece_col);
 
         moves.append (kt_moves);
     }
@@ -331,6 +339,7 @@ namespace wisdom
         take_row = next_row (piece_row, direction);
         take_col = en_passant_column;
 
+        [[maybe_unused]]
         ColoredPiece take_piece = piece_at (board, piece_row, take_col);
 
         assert (piece_type (take_piece) == Piece::Pawn);
@@ -343,10 +352,7 @@ namespace wisdom
 
     const MoveList &generate_knight_moves (int row, int col)
     {
-        if (knight_moves[0][0].empty ())
-            knight_move_list_init ();
-
-        return knight_moves[row][col];
+        return get_knight_moves (row, col);
     }
 
     static int valid_castling_move (const Board &board, Move move)
@@ -451,12 +457,6 @@ namespace wisdom
         }
 
         return result;
-    }
-
-    MoveList generate_captures (Board &Board, Color who)
-    {
-        MoveList move_list = generate_moves (Board, who);
-        return move_list.only_captures ();
     }
 
     MoveList generate_moves_no_validate (const Board &board, Color &who)

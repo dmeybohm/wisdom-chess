@@ -70,6 +70,8 @@ namespace wisdom
 
     using Move = struct move;
 
+    static_assert(std::is_trivial<Move>::value);
+
     class ParseMoveException : public Error
     {
     public:
@@ -323,6 +325,7 @@ namespace wisdom
     std::string to_string (const Move &move);
 
     std::ostream &operator<< (std::ostream &os, const Move &value);
+
 }
 
 #endif // WISDOM_CHESS_MOVE_H

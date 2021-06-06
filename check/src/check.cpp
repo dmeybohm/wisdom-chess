@@ -99,7 +99,7 @@ namespace wisdom
         }
 
         // check for knight checks
-        MoveList kt_moves = generate_knight_moves (king_row, king_col);
+        const auto &kt_moves = generate_knight_moves (king_row, king_col);
 
         for (auto move : kt_moves)
         {

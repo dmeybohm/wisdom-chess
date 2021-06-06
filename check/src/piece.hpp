@@ -44,6 +44,8 @@ namespace wisdom
 
     using ColoredPiece = struct colored_piece;
 
+    static_assert(std::is_trivial<ColoredPiece>::value);
+
     // Order here is significant - it means computer will prefer the piece at the top
     // all else being equal, such as if the promoted piece cannot be saved from capture.
     constexpr Piece all_promotable_piece_types[] = {

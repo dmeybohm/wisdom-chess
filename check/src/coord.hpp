@@ -13,6 +13,8 @@ namespace wisdom
 
     using Coord = struct coord;
 
+    static_assert(std::is_trivial<Coord>::value);
+
     ///////////////////////////////////////////////
 
     constexpr bool is_valid_row (int row)

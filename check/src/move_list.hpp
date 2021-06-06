@@ -6,66 +6,80 @@
 
 namespace wisdom
 {
+    using MoveVector = std::vector<Move>;
+
     class MoveList
     {
     private:
-        std::vector<Move> my_moves;
+        std::unique_ptr<MoveVector> my_moves = allocate_move_vector ();
 
     public:
-        MoveList ()
-        {
-            my_moves.reserve (64);
+        MoveList () = default;
+        ~MoveList () {
+            if (my_moves)
+                deallocate_move_vector (std::move (my_moves));
         }
 
-        MoveList (const MoveList &other) = default;
+        MoveList (Color color, std::initializer_list<const char *> list) noexcept;
+        MoveList (MoveList &&other) noexcept = default;
 
-        MoveList (Color color, std::initializer_list<const char *> list);
+        MoveList (const MoveList &other)
+        {
+            my_moves->reserve (other.my_moves->size());
+            std::copy (other.my_moves->begin (), other.my_moves->end (), std::back_inserter (*this->my_moves));
+        }
+
+        MoveList &operator= (MoveList other)
+        {
+            std::swap (this->my_moves, other.my_moves);
+            return *this;
+        }
 
         void push_back (Move move)
         {
-            my_moves.push_back (move);
+            my_moves->push_back (move);
         }
 
         void pop_back ()
         {
-            my_moves.pop_back ();
+            my_moves->pop_back ();
         }
 
         [[nodiscard]] auto begin () const noexcept
         {
-            return my_moves.begin ();
+            return my_moves->begin ();
         }
 
         [[nodiscard]] auto end () const noexcept
         {
-            return my_moves.end ();
+            return my_moves->end ();
         }
 
         void append (const MoveList &other)
         {
-            my_moves.insert (my_moves.end (), other.begin (), other.end ());
+            my_moves->insert (my_moves->end (), other.begin (), other.end ());
         }
 
         [[nodiscard]] bool empty () const noexcept
         {
-            return my_moves.empty ();
+            return my_moves->empty ();
         }
 
         [[nodiscard]] size_t size () const noexcept
         {
-            return my_moves.size ();
+            return my_moves->size ();
         }
 
         [[nodiscard]] std::string to_string () const;
 
         bool operator== (const MoveList &other) const
         {
-            return my_moves.size () == other.my_moves.size () && std::equal (
-                    my_moves.begin (),
-                    my_moves.end (),
-                    other.my_moves.begin (),
+            return my_moves->size () == other.my_moves->size () && std::equal (
+                    my_moves->begin (),
+                    my_moves->end (),
+                    other.my_moves->begin (),
                     move_equals
-                                                                            );
+            );
         }
 
         bool operator!= (const MoveList &other) const
@@ -73,28 +87,18 @@ namespace wisdom
             return !(*this == other);
         }
 
-        [[nodiscard]] const std::vector<Move> &get_my_moves () const noexcept
+        [[nodiscard]] auto data () const noexcept
         {
-            return my_moves;
+            return my_moves->data ();
         }
 
-        [[nodiscard]] MoveList only_captures () const
-        {
-            MoveList result;
-            std::copy_if (my_moves.begin (), my_moves.end (), std::back_inserter (result.my_moves), [] (Move mv)
-            {
-                return is_capture_move (mv);
-            });
-            return result;
-        }
-
-        // Take a function to sort the moves:
-        void sort (std::function<bool(Move,Move)> compare_func);
+        static std::unique_ptr<MoveVector> allocate_move_vector ();
+        static void deallocate_move_vector (std::unique_ptr<MoveVector> ptr);
     };
 
     std::string to_string (const MoveList &list);
 
     std::ostream &operator<< (std::ostream &os, const MoveList &list);
-
 }
+
 #endif //WISDOM_MOVE_LIST_HPP

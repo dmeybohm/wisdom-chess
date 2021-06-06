@@ -55,7 +55,7 @@ namespace wisdom
         Color side;
         Logger &output;
         const History &history; // reference here, and copied into thread params.
-        struct MoveTimer timer;
+        MoveTimer timer;
         SearchResult search_result;
 
         // Mutex to protect next_depth
