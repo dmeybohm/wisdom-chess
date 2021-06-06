@@ -82,7 +82,7 @@ namespace wisdom
     using TranspositionListIterator = TranspositionList::iterator;
     using TranspositionMap = std::unordered_map<BoardHashCode, TranspositionListIterator>;
 
-    constexpr std::size_t Max_Transpositions = 100 * 1000;
+    constexpr std::size_t Max_Transpositions = 1000 * 1000;
 
     class TranspositionTable final
     {

@@ -22,14 +22,13 @@ add_library(chess_tests_lib OBJECT
         board_code_test.cpp
         history_test.cpp
         transposition_table_test.cpp
-        assert_test.cpp)
+        assert_test.cpp
+        variation_glimpse_test.cpp)
 
 target_precompile_headers(chess_tests_lib PUBLIC PUBLIC ../src/global.hpp ../lib/doctest/doctest.h)
-
 
 # Make test executable
 add_executable(chess_tests
         test_main.cpp
         $<TARGET_OBJECTS:chess_lib>
-        $<TARGET_OBJECTS:chess_tests_lib>
-)
+        $<TARGET_OBJECTS:chess_tests_lib>)

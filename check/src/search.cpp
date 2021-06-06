@@ -183,7 +183,7 @@ namespace wisdom
                 if (next_result.timed_out)
                     break;
 
-                if (depth <= 2 || depth % 1 == 1)
+                if (depth <= 2 || depth % 2 == 1)
                     best_result = next_result;
                 if (is_checkmating_opponent_score (next_result.score))
                 {
