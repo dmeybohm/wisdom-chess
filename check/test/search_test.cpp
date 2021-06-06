@@ -10,6 +10,7 @@
 #include "history.hpp"
 #include "fen_parser.hpp"
 #include "game.hpp"
+#include "check.hpp"
 
 using namespace wisdom;
 
@@ -243,7 +244,10 @@ TEST_CASE("Bishop is not sacrificed scenario 2 (as white)")
 
     // assert the bishop has moved:
     INFO("Info:", to_string (*result.move) );
-    REQUIRE( piece_at (game.board, coord_parse("a3")) != make_piece (Color::White, Piece::Bishop) );
+    bool bishop_sac = piece_at (game.board, coord_parse ("a3")) != make_piece (Color::White, Piece::Bishop);
+    bool is_in_check = is_king_threatened (game.board, Color::Black, king_position (game.board, Color::Black));
+    bool bishop_sac_or_is_in_check = bishop_sac || is_in_check;
+    REQUIRE( bishop_sac_or_is_in_check );
 }
 
 TEST_CASE("Advanced pawn should be captured")
@@ -261,7 +265,7 @@ TEST_CASE("Advanced pawn should be captured")
     REQUIRE( result.move.has_value () );
 
     game.move (*result.move);
-    // assert the pawn at e6 has been taken:
+    // assert the pawn at d6 has been taken:
     INFO("Info:", to_string (*result.move) );
     REQUIRE( piece_at (game.board, coord_parse("d6")) != make_piece (Color::White, Piece::Pawn) );
 }
