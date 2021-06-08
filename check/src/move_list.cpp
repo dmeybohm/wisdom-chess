@@ -1,5 +1,7 @@
 #include "move_list.hpp"
 
+#include <iostream>
+
 namespace wisdom
 {
     using std::vector;

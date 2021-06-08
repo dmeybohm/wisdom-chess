@@ -1,5 +1,7 @@
 #include "piece.hpp"
 
+#include <iostream>
+
 namespace wisdom
 {
     std::string to_string (Color who)

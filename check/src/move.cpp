@@ -2,6 +2,8 @@
 #include "board.hpp"
 #include "validate.hpp"
 
+#include <iostream>
+
 namespace wisdom
 {
     Coord en_passant_taken_pawn_coord (Coord src, Coord dst)
