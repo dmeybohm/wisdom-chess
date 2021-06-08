@@ -1,4 +1,4 @@
-#include "doctest/doctest.h"
+#include "tests.hpp"
 #include "board.hpp"
 #include "variation_glimpse.hpp"
 

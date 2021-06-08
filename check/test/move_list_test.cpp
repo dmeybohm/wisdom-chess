@@ -1,5 +1,4 @@
-#include "doctest/doctest.h"
-
+#include "tests.hpp"
 #include "move_list.hpp"
 #include "board.hpp"
 #include "generate.hpp"

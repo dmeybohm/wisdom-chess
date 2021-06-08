@@ -1,6 +1,5 @@
-#include "doctest/doctest.h"
+#include "tests.hpp"
 #include "board_builder.hpp"
-
 #include "board.hpp"
 #include "search.hpp"
 #include "move.hpp"

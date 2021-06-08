@@ -1,8 +1,6 @@
-#include "doctest/doctest.h"
+#include "tests.hpp"
 #include "board_builder.hpp"
-
 #include "board.hpp"
-#include "str.hpp"
 
 using namespace wisdom;
 
