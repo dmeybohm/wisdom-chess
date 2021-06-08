@@ -282,7 +282,8 @@ namespace wisdom
     {
         const auto &kt_moves = generate_knight_moves (piece_row, piece_col);
 
-        moves.append (kt_moves);
+        for (auto knight_move : kt_moves)
+            append_move (board, moves, knight_move);
     }
 
     // Returns -1 if no column is eligible.
