@@ -304,7 +304,7 @@ namespace wisdom
 
         if (piece_type (dst_piece) != Piece::None)
         {
-            assert(is_capture_move (move));
+            assert (is_capture_move (move));
             undo_state.category = MoveCategory::NormalCapture;
             undo_state.taken_piece_type = piece_type (dst_piece);
         }
