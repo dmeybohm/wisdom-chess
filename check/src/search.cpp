@@ -27,32 +27,28 @@ namespace wisdom
     using std::chrono::seconds;
     using wisdom::Logger;
 
-    static SearchResult recurse_or_evaluate (Board &board, Color side, Logger &output, History &history,
-                                             MoveTimer &timer, int depth, int start_depth, int alpha, int beta,
-                                             Move move)
+    SearchResult IterativeSearch::recurse_or_evaluate ( Color side, int depth, int alpha, int beta, Move move)
     {
         // Check the transposition table for the move:
-        auto transposition = board.check_transposition_table (side, depth);
+        auto transposition = my_board.check_transposition_table (side, depth);
         if (transposition.has_value ())
         {
             transposition->variation_glimpse.push_front (move);
             return SearchResult { move, false, transposition->score,
-                    start_depth - depth, transposition->variation_glimpse };
+                    my_total_depth - depth, transposition->variation_glimpse };
         }
 
         if (depth <= 0)
         {
-            int score = evaluate_and_check_draw (board, side, start_depth - depth,
-                                                 move, history);
+            int score = evaluate_and_check_draw (my_board, side, my_total_depth - depth,
+                                                 move, my_history);
             VariationGlimpse glimpse;
             glimpse.push_front (move);
-            return SearchResult { move, false, score, start_depth - depth, glimpse };
+            return SearchResult { move, false, score, my_total_depth - depth, glimpse };
         }
         else
         {
-            SearchResult other_search_result = search (board, color_invert (side),
-                                                       output, history, timer,
-                                                       depth - 1, start_depth, -beta, -alpha);
+            SearchResult other_search_result = search (color_invert (side), depth - 1, -beta, -alpha);
             if (other_search_result.timed_out)
                 return other_search_result;
 
@@ -62,9 +58,8 @@ namespace wisdom
         }
     }
 
-    static SearchResult search_moves (Board &board, Color side, Logger &output, History &history,
-                                      MoveTimer &timer, int depth, int start_depth, int alpha, int beta,
-                                      const ScoredMoveList &moves)
+    SearchResult IterativeSearch::search_moves (Color side, int depth, int alpha, int beta,
+                                                const ScoredMoveList &moves)
     {
         int best_score = -Initial_Alpha;
         std::optional<Move> best_move {};
@@ -72,23 +67,22 @@ namespace wisdom
 
         for (auto [move, move_score] : moves)
         {
-            if (timer.is_triggered ())
+            if (my_timer.is_triggered ())
                 return SearchResult::from_timeout ();
 
-            UndoMove undo_state = do_move (board, side, move);
+            UndoMove undo_state = do_move (my_board, side, move);
 
-            if (!was_legal_move (board, side, move))
+            if (!was_legal_move (my_board, side, move))
             {
-                undo_move (board, side, move, undo_state);
+                undo_move (my_board, side, move, undo_state);
                 continue;
             }
 
             nodes_visited++;
 
-            history.add_position_and_move (board, move);
+            my_history.add_position_and_move (my_board, move);
 
-            SearchResult other_search_result = recurse_or_evaluate (board, side, output, history, timer,
-                                                                    depth, start_depth, alpha, beta, move);
+            SearchResult other_search_result = recurse_or_evaluate (side, depth, alpha, beta, move);
 
             int score = other_search_result.score;
 
@@ -105,14 +99,14 @@ namespace wisdom
 
             if (!other_search_result.timed_out)
             {
-                board.add_evaluation_to_transposition_table (
+                my_board.add_evaluation_to_transposition_table (
                         other_search_result.score, side, depth,
                         other_search_result.variation_glimpse
                 );
             }
 
-            history.remove_position_and_last_move (board);
-            undo_move (board, side, move, undo_state);
+            my_history.remove_position_and_last_move (my_board);
+            undo_move (my_board, side, move, undo_state);
 
             if (other_search_result.timed_out)
                 return other_search_result;
@@ -124,19 +118,16 @@ namespace wisdom
             }
         }
 
-        return SearchResult { best_move, false, best_score, start_depth - depth, best_variation };
+        return SearchResult { best_move, false, best_score, my_total_depth - depth, best_variation };
     }
 
-    SearchResult
-    search (Board &board, Color side, Logger &output, History &history, MoveTimer &timer,
-            int depth, int start_depth, int alpha, int beta)
+    SearchResult IterativeSearch::search (Color side, int depth, int alpha, int beta)
     {
-        MoveGenerator generator = board.move_generator ();
+        MoveGenerator generator = my_board.move_generator ();
 
-        ScoredMoveList moves = generator.generate (board, side);
+        ScoredMoveList moves = generator.generate (my_board, side);
 
-        SearchResult result = search_moves (board, side, output, history, timer,
-                                            depth, start_depth, alpha, beta, moves);
+        SearchResult result = search_moves (side, depth, alpha, beta, moves);
 
         if (result.timed_out)
             return result;
@@ -145,11 +136,13 @@ namespace wisdom
         if (!result.move.has_value ())
         {
             SearchResult no_moves_available_result { result };
-            auto [my_king_row, my_king_col] = king_position (board, side);
-            no_moves_available_result.score = is_king_threatened (board, side, my_king_row, my_king_col) ?
-                    -1 * checkmate_score_in_moves (start_depth - depth) : 0;
-            board.add_evaluation_to_transposition_table (no_moves_available_result.score, side, depth,
-                                                         result.variation_glimpse);
+            auto [my_king_row, my_king_col] = king_position (my_board, side);
+
+            no_moves_available_result.score = is_king_threatened (my_board, side, my_king_row, my_king_col) ?
+                    -1 * checkmate_score_in_moves (my_total_depth - depth) : 0;
+            my_board.add_evaluation_to_transposition_table (no_moves_available_result.score, side, depth,
+                                                            result.variation_glimpse);
+
             return no_moves_available_result;
         }
 
@@ -179,18 +172,18 @@ namespace wisdom
                 ostr << "Searching depth " << depth;
                 my_output.println (ostr.str ());
 
-                SearchResult next_result = iterate (my_board, side, my_output, my_history, my_timer, depth);
+                SearchResult next_result = iterate (side, depth);
                 if (next_result.timed_out)
                     break;
 
                 if (depth <= 2 || depth % 2 == 1)
                     best_result = next_result;
+
                 if (is_checkmating_opponent_score (next_result.score))
                 {
                     best_result = next_result;
                     break;
                 }
-
             }
 
             return best_result;
@@ -212,29 +205,27 @@ namespace wisdom
         }
     }
 
-    SearchResult iterate (Board &board, Color side, Logger &output,
-                          History &history, MoveTimer &timer, int depth)
+    SearchResult IterativeSearch::iterate (Color side, int depth)
     {
         std::stringstream outstr;
         outstr << "finding moves for " << to_string (side);
-        output.println (outstr.str ());
+        my_output.println (outstr.str ());
 
         nodes_visited = 0;
         cutoffs = 0;
 
         auto start = std::chrono::system_clock::now ();
 
-        SearchResult result = search (board, side, output, history, timer,
-                                      depth, depth, -Initial_Alpha, Initial_Alpha);
+        SearchResult result = search (side, depth, -Initial_Alpha, Initial_Alpha);
 
         auto end = std::chrono::system_clock::now ();
-        calc_time (output, nodes_visited, start, end);
+        calc_time (my_output, nodes_visited, start, end);
 
         if (result.timed_out)
         {
             std::stringstream progress_str;
             progress_str << "Search timed out" << "\n";
-            output.println (progress_str.str ());
+            my_output.println (progress_str.str ());
             return result;
         }
 
@@ -245,7 +236,7 @@ namespace wisdom
             progress_str << "move selected = " << to_string (best_move) << " [ score: "
                          << result.score << " ]\n";
             progress_str << "nodes visited = " << nodes_visited << ", cutoffs = " << cutoffs;
-            output.println (progress_str.str ());
+            my_output.println (progress_str.str ());
         }
 
         // principal variation could be null if search was interrupted
@@ -253,7 +244,7 @@ namespace wisdom
         {
             std::stringstream variation_str;
             variation_str << "principal variation: " << result.variation_glimpse.to_string ();
-            output.println (variation_str.str ());
+            my_output.println (variation_str.str ());
         }
 
         return result;
@@ -290,3 +281,4 @@ namespace wisdom
     }
 
 }
+

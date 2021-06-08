@@ -140,8 +140,8 @@ namespace wisdom
         if (params.depth >= Max_Depth)
             return;
 
-        SearchResult result = iterate (params.board, params.side, params.output,
-                               params.history, params.timer, params.depth);
+        IterativeSearch search { params.board, params.history, params.output, params.timer, params.depth };
+        SearchResult result = search.iteratively_deepen (params.side);
         messages << "Finished thread " << std::this_thread::get_id () << " with depth " << params.depth << "\n";
         params.output.println (messages.str ());
 

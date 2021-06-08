@@ -227,7 +227,6 @@ namespace wisdom
             else
                 std::cout << "\nInvalid move\n\n";
         }
-
     }
 
 }

@@ -9,9 +9,9 @@ namespace wisdom
 {
     bool is_checkmated (Board &board, Color who)
     {
-        auto[row, col] = king_position (board, who);
+        auto coord = king_position (board, who);
 
-        if (!is_king_threatened (board, who, row, col))
+        if (!is_king_threatened (board, who, coord))
             return false;
 
         MoveList legal_moves = generate_legal_moves (board, who);

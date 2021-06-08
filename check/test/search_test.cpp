@@ -170,10 +170,8 @@ TEST_CASE("Promoting move is taken if possible")
 
     History history;
     Board board = builder.build ();
-    SearchResult result = search (
-            board, Color::Black, make_null_logger (), history, large_timer,
-            1, 1, -Initial_Alpha, Initial_Alpha
-    );
+    IterativeSearch iterative_search { board, history, make_null_logger(), large_timer, 1 };
+    SearchResult result = iterative_search.search (Color::Black, 1, -Initial_Alpha, Initial_Alpha);
 
     REQUIRE(to_string (*result.move) == "d2 d1(Q)");
 }
