@@ -1,4 +1,4 @@
-#include "doctest/doctest.h"
+#include <doctest/doctest.h>
 
 // needed for working around a doctest / macOS linking problem
 #include <iostream>

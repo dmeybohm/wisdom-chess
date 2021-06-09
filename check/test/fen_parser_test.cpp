@@ -1,4 +1,4 @@
-#include "doctest/doctest.h"
+#include <doctest/doctest.h>
 #include "game.hpp"
 #include "board.hpp"
 #include "fen_parser.hpp"
