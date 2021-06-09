@@ -4,6 +4,7 @@
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/")
 
+
 add_library(chess_tests_lib OBJECT
         piece_test.cpp
         coord_test.cpp
@@ -25,10 +26,15 @@ add_library(chess_tests_lib OBJECT
         assert_test.cpp
         variation_glimpse_test.cpp tests.hpp)
 
-target_precompile_headers(chess_tests_lib PUBLIC PUBLIC ../src/global.hpp ../lib/doctest/doctest.h)
+target_precompile_headers(chess_tests_lib PUBLIC PUBLIC ../src/global.hpp)
 
 # Make test executable
 add_executable(chess_tests
         test_main.cpp
         $<TARGET_OBJECTS:chess_lib>
         $<TARGET_OBJECTS:chess_tests_lib>)
+
+find_package(doctest CONFIG REQUIRED)
+target_link_libraries(chess_tests PRIVATE doctest::doctest)
+target_link_libraries(chess_tests_lib PRIVATE doctest::doctest)
+
