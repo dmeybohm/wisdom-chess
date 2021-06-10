@@ -26,7 +26,7 @@ add_library(chess_tests_lib OBJECT
         assert_test.cpp
         variation_glimpse_test.cpp tests.hpp)
 
-target_precompile_headers(chess_tests_lib PUBLIC PUBLIC ../src/global.hpp)
+target_precompile_headers(chess_tests_lib PUBLIC PUBLIC ../src/global.hpp <doctest/doctest.h>)
 
 # Make test executable
 add_executable(chess_tests
