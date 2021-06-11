@@ -39,6 +39,7 @@ namespace wisdom
             transposition->variation_glimpse.push_front (move);
             auto result = SearchResult { transposition->variation_glimpse, move, transposition->score,
                     my_total_depth - depth, false };
+            position->finalize (result);
             decision->finalize (result);
             return result;
         }
@@ -51,6 +52,7 @@ namespace wisdom
             glimpse.push_front (move);
 
             auto result =  SearchResult { glimpse, move, score, my_total_depth - depth, false };
+            position->finalize (result);
             decision->finalize (result);
             return result;
         }
@@ -62,6 +64,7 @@ namespace wisdom
 
             other_search_result.variation_glimpse.push_front (move);
             other_search_result.score *= -1;
+            position->finalize (other_search_result);
             decision->finalize (other_search_result);
             return other_search_result;
         }

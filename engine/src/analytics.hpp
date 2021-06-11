@@ -36,12 +36,7 @@ namespace wisdom
     public:
         virtual ~AnalyzedPosition () = 0;
 
-        virtual void set_data ([[maybe_unused]] Move move, 
-                               [[maybe_unused]] int score,
-                               [[maybe_unused]] const VariationGlimpse &variation_glimpse,
-                               [[maybe_unused]] int depth,
-                               [[maybe_unused]] int alpha,
-                               [[maybe_unused]] int beta) = 0;
+        virtual void finalize (const SearchResult &result) = 0;
     };
 
     class Analytics
@@ -57,12 +52,7 @@ namespace wisdom
     public:
         ~DummyPosition () override = default;
 
-        void set_data ([[maybe_unused]] Move move,
-                       [[maybe_unused]] int score,
-                       [[maybe_unused]] const VariationGlimpse &variation_glimpse,
-                       [[maybe_unused]] int depth,
-                       [[maybe_unused]] int alpha,
-                       [[maybe_unused]] int beta) override
+        void finalize ([[maybe_unused]] const SearchResult &result) override
         {
         }
     };
