@@ -10,35 +10,22 @@
 #include "logger.hpp"
 #include "move_timer.hpp"
 #include "variation_glimpse.hpp"
+#include "analytics.hpp"
+#include "search_result.hpp"
 
 namespace wisdom
 {
-    struct SearchResult
-    {
-        std::optional<Move> move;
-        bool timed_out;
-        int score;
-        int depth;
-        VariationGlimpse variation_glimpse;
-
-        static SearchResult from_initial () noexcept
-        {
-            SearchResult result { std::nullopt, false, -Initial_Alpha, 0, {} };
-            return result;
-        }
-
-        static SearchResult from_timeout () noexcept
-        {
-            SearchResult result { std::nullopt, true, -Initial_Alpha, 0, {} };
-            return result;
-        }
-    };
-
     class Logger;
 
     class History;
 
     class MoveTimer;
+
+    class Analytics;
+
+    class AnalyzedDecision;
+
+    class AnalyzedPosition;
 
     // Find the best move using default algorithm.
     std::optional<Move> find_best_move (Board &board, Color side, Logger &output, History &history);
@@ -60,28 +47,49 @@ namespace wisdom
                          Logger &output,
                          MoveTimer timer,
                          int total_depth) :
-            my_board { board },
-            my_history { history },
-            my_output { output },
-            my_timer { timer },
-            my_total_depth { total_depth }
+                my_board { board },
+                my_history { history },
+                my_output { output },
+                my_analytics { make_dummy_analytics () },
+                my_timer { timer },
+                my_total_depth { total_depth }
+        {}
+
+        IterativeSearch (Board &board,
+                         History &history,
+                         Logger &output,
+                         Analytics *analytics,
+                         MoveTimer timer,
+                         int total_depth) :
+                my_board { board },
+                my_history { history },
+                my_output { output },
+                my_analytics { analytics },
+                my_timer { timer },
+                my_total_depth { total_depth }
         {}
 
         SearchResult iteratively_deepen (Color side);
+
         SearchResult iterate (Color side, int depth);
-        SearchResult search (Color side, int depth, int alpha, int beta);
+
+        SearchResult search (Color side, int depth, int alpha, int beta,
+                             AnalyzedDecision *parent);
 
     private:
         Board &my_board;
         History &my_history;
         Logger &my_output;
+        std::unique_ptr<Analytics> my_analytics;
         MoveTimer my_timer;
         int my_total_depth;
 
         SearchResult search_moves (Color side, int depth, int alpha, int beta,
-                                   const ScoredMoveList &moves);
+                                   const ScoredMoveList &moves,
+                                   AnalyzedDecision *decision);
+
         SearchResult recurse_or_evaluate (Color side, int depth, int alpha, int beta,
-                                          Move move);
+                                          Move move, AnalyzedDecision *parent, AnalyzedPosition *position);
     };
 }
 

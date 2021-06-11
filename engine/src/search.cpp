@@ -27,15 +27,20 @@ namespace wisdom
     using std::chrono::seconds;
     using wisdom::Logger;
 
-    SearchResult IterativeSearch::recurse_or_evaluate ( Color side, int depth, int alpha, int beta, Move move)
+    SearchResult IterativeSearch::recurse_or_evaluate (Color side, int depth, int alpha, int beta, Move move,
+                                                       AnalyzedDecision *parent, AnalyzedPosition *position)
     {
+        auto decision = parent->make_child (position);
+
         // Check the transposition table for the move:
         auto transposition = my_board.check_transposition_table (side, depth);
         if (transposition.has_value ())
         {
             transposition->variation_glimpse.push_front (move);
-            return SearchResult { move, false, transposition->score,
-                    my_total_depth - depth, transposition->variation_glimpse };
+            auto result = SearchResult { transposition->variation_glimpse, move, transposition->score,
+                    my_total_depth - depth, false };
+            decision->finalize (result);
+            return result;
         }
 
         if (depth <= 0)
@@ -44,22 +49,27 @@ namespace wisdom
                                                  move, my_history);
             VariationGlimpse glimpse;
             glimpse.push_front (move);
-            return SearchResult { move, false, score, my_total_depth - depth, glimpse };
+
+            auto result =  SearchResult { glimpse, move, score, my_total_depth - depth, false };
+            decision->finalize (result);
+            return result;
         }
         else
         {
-            SearchResult other_search_result = search (color_invert (side), depth - 1, -beta, -alpha);
+            SearchResult other_search_result = search (color_invert (side), depth - 1, -beta, -alpha, decision.get());
             if (other_search_result.timed_out)
                 return other_search_result;
 
             other_search_result.variation_glimpse.push_front (move);
             other_search_result.score *= -1;
+            decision->finalize (other_search_result);
             return other_search_result;
         }
     }
 
     SearchResult IterativeSearch::search_moves (Color side, int depth, int alpha, int beta,
-                                                const ScoredMoveList &moves)
+                                                const ScoredMoveList &moves,
+                                                AnalyzedDecision *decision)
     {
         int best_score = -Initial_Alpha;
         std::optional<Move> best_move {};
@@ -67,6 +77,8 @@ namespace wisdom
 
         for (auto [move, move_score] : moves)
         {
+            auto position = decision->make_position (move);
+
             if (my_timer.is_triggered ())
                 return SearchResult::from_timeout ();
 
@@ -82,7 +94,8 @@ namespace wisdom
 
             my_history.add_position_and_move (my_board, move);
 
-            SearchResult other_search_result = recurse_or_evaluate (side, depth, alpha, beta, move);
+            SearchResult other_search_result = recurse_or_evaluate (side, depth, alpha, beta, move,
+                                                                    decision, position.get());
 
             int score = other_search_result.score;
 
@@ -92,6 +105,7 @@ namespace wisdom
                 best_move = move;
 
                 best_variation = other_search_result.variation_glimpse;
+                decision->preliminary_choice (position.get ());
             }
 
             if (best_score > alpha)
@@ -118,16 +132,18 @@ namespace wisdom
             }
         }
 
-        return SearchResult { best_move, false, best_score, my_total_depth - depth, best_variation };
+        auto result = SearchResult { best_variation, best_move, best_score, my_total_depth - depth, false };
+        decision->finalize (result);
+        return result;
     }
 
-    SearchResult IterativeSearch::search (Color side, int depth, int alpha, int beta)
+    SearchResult IterativeSearch::search (Color side, int depth, int alpha, int beta, AnalyzedDecision *decision)
     {
         MoveGenerator generator = my_board.move_generator ();
 
         ScoredMoveList moves = generator.generate (my_board, side);
 
-        SearchResult result = search_moves (side, depth, alpha, beta, moves);
+        SearchResult result = search_moves (side, depth, alpha, beta, moves, decision);
 
         if (result.timed_out)
             return result;
@@ -214,11 +230,16 @@ namespace wisdom
         nodes_visited = 0;
         cutoffs = 0;
 
+        auto decision = my_analytics->make_decision (my_board);
+
         auto start = std::chrono::system_clock::now ();
 
-        SearchResult result = search (side, depth, -Initial_Alpha, Initial_Alpha);
+        SearchResult result = search (side, depth, -Initial_Alpha, Initial_Alpha, decision.get() );
 
         auto end = std::chrono::system_clock::now ();
+
+        decision->finalize (result);
+
         calc_time (my_output, nodes_visited, start, end);
 
         if (result.timed_out)

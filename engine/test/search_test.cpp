@@ -11,6 +11,7 @@
 #include "fen_parser.hpp"
 #include "game.hpp"
 #include "check.hpp"
+#include "analytics.hpp"
 
 using namespace wisdom;
 
@@ -171,8 +172,9 @@ TEST_CASE("Promoting move is taken if possible")
 
     History history;
     Board board = builder.build ();
+    std::unique_ptr<AnalyzedDecision> decision = make_dummy_analytics()->make_decision (board);
     IterativeSearch iterative_search { board, history, make_null_logger(), large_timer, 1 };
-    SearchResult result = iterative_search.search (Color::Black, 1, -Initial_Alpha, Initial_Alpha);
+    SearchResult result = iterative_search.search (Color::Black, 1, -Initial_Alpha, Initial_Alpha, decision.get ());
 
     REQUIRE(to_string (*result.move) == "d2 d1(Q)");
 }

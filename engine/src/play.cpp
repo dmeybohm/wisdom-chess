@@ -112,7 +112,7 @@ namespace wisdom
             auto optional_game = load_game ();
             if (optional_game.has_value ())
             {
-                game = *optional_game;
+                game = std::move (*optional_game);
                 game.player = orig_player;
             }
             return result;

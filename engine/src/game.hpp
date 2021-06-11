@@ -8,6 +8,7 @@
 #include "move_history.hpp"
 #include "board_builder.hpp"
 #include "history.hpp"
+#include "analytics.hpp"
 
 namespace wisdom
 {
@@ -17,10 +18,12 @@ namespace wisdom
         History history;
         Color player;   // side the computer is playing as
         Color turn;
+        std::unique_ptr<Analytics> analytics;
 
         Game (Color _turn, Color computer_player) :
                 player { computer_player },
-                turn { _turn }
+                turn { _turn },
+                analytics { make_dummy_analytics() }
         {
             assert (is_color_valid (_turn));
             assert (is_color_valid (computer_player));
@@ -31,7 +34,8 @@ namespace wisdom
         Game (Color _turn, Color computer_player, BoardBuilder builder)
                 : board { builder.build () },
                   player { computer_player },
-                  turn { _turn }
+                  turn { _turn },
+                  analytics { make_dummy_analytics() }
         {
             assert (is_color_valid (_turn));
             assert (is_color_valid (computer_player));
