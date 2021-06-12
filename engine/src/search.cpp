@@ -28,7 +28,7 @@ namespace wisdom
     using wisdom::Logger;
 
     SearchResult IterativeSearch::recurse_or_evaluate (Color side, int depth, int alpha, int beta, Move move,
-                                                       AnalyzedDecision *parent, AnalyzedPosition *position)
+                                                       analysis::Decision *parent, analysis::Position *position)
     {
         auto decision = parent->make_child (position);
 
@@ -72,7 +72,7 @@ namespace wisdom
 
     SearchResult IterativeSearch::search_moves (Color side, int depth, int alpha, int beta,
                                                 const ScoredMoveList &moves,
-                                                AnalyzedDecision *decision)
+                                                analysis::Decision *decision)
     {
         int best_score = -Initial_Alpha;
         std::optional<Move> best_move {};
@@ -140,7 +140,7 @@ namespace wisdom
         return result;
     }
 
-    SearchResult IterativeSearch::search (Color side, int depth, int alpha, int beta, AnalyzedDecision *decision)
+    SearchResult IterativeSearch::search (Color side, int depth, int alpha, int beta, analysis::Decision *decision)
     {
         MoveGenerator generator = my_board.move_generator ();
 
@@ -233,15 +233,16 @@ namespace wisdom
         nodes_visited = 0;
         cutoffs = 0;
 
-        auto decision = my_analytics->make_decision (my_board);
+        auto analyzed_search = my_analytics->make_search (my_board);
+        auto analyzed_decision = analyzed_search->make_decision (my_board);
 
         auto start = std::chrono::system_clock::now ();
 
-        SearchResult result = search (side, depth, -Initial_Alpha, Initial_Alpha, decision.get() );
+        SearchResult result = search (side, depth, -Initial_Alpha, Initial_Alpha, analyzed_decision.get() );
 
         auto end = std::chrono::system_clock::now ();
 
-        decision->finalize (result);
+        analyzed_decision->finalize (result);
 
         calc_time (my_output, nodes_visited, start, end);
 

@@ -21,12 +21,6 @@ namespace wisdom
 
     class MoveTimer;
 
-    class Analytics;
-
-    class AnalyzedDecision;
-
-    class AnalyzedPosition;
-
     // Find the best move using default algorithm.
     std::optional<Move> find_best_move (Board &board, Color side, Logger &output, History &history);
 
@@ -50,7 +44,7 @@ namespace wisdom
                 my_board { board },
                 my_history { history },
                 my_output { output },
-                my_analytics { make_dummy_analytics () },
+                my_analytics { analysis::make_dummy_analytics () },
                 my_timer { timer },
                 my_total_depth { total_depth }
         {}
@@ -58,7 +52,7 @@ namespace wisdom
         IterativeSearch (Board &board,
                          History &history,
                          Logger &output,
-                         Analytics *analytics,
+                         analysis::Analytics *analytics,
                          MoveTimer timer,
                          int total_depth) :
                 my_board { board },
@@ -74,22 +68,23 @@ namespace wisdom
         SearchResult iterate (Color side, int depth);
 
         SearchResult search (Color side, int depth, int alpha, int beta,
-                             AnalyzedDecision *parent);
+                             analysis::Decision *parent);
 
     private:
         Board &my_board;
         History &my_history;
         Logger &my_output;
-        std::unique_ptr<Analytics> my_analytics;
+        std::unique_ptr<analysis::Analytics> my_analytics;
         MoveTimer my_timer;
         int my_total_depth;
 
         SearchResult search_moves (Color side, int depth, int alpha, int beta,
                                    const ScoredMoveList &moves,
-                                   AnalyzedDecision *decision);
+                                   analysis::Decision *decision);
 
         SearchResult recurse_or_evaluate (Color side, int depth, int alpha, int beta,
-                                          Move move, AnalyzedDecision *parent, AnalyzedPosition *position);
+                                          Move move, analysis::Decision *parent,
+                                          analysis::Position *position);
     };
 }
 

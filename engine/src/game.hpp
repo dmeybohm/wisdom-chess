@@ -18,12 +18,12 @@ namespace wisdom
         History history;
         Color player;   // side the computer is playing as
         Color turn;
-        std::unique_ptr<Analytics> analytics;
+        std::unique_ptr<analysis::Analytics> analytics;
 
         Game (Color _turn, Color computer_player) :
                 player { computer_player },
                 turn { _turn },
-                analytics { make_dummy_analytics() }
+                analytics { analysis::make_dummy_analytics() }
         {
             assert (is_color_valid (_turn));
             assert (is_color_valid (computer_player));
@@ -35,7 +35,7 @@ namespace wisdom
                 : board { builder.build () },
                   player { computer_player },
                   turn { _turn },
-                  analytics { make_dummy_analytics() }
+                  analytics { analysis::make_dummy_analytics() }
         {
             assert (is_color_valid (_turn));
             assert (is_color_valid (computer_player));

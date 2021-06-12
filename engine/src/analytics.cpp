@@ -2,13 +2,12 @@
 
 #include <sqlite3.h>
 
-namespace wisdom
+namespace wisdom::analysis
 {
-    // destructors for interfaces:
-    AnalyzedPosition::~AnalyzedPosition () = default;
-
-    AnalyzedDecision::~AnalyzedDecision () = default;
-
+    // dummy destructors for interfaces:
+    Position::~Position () = default;
+    Search::~Search () = default;
+    Decision::~Decision () = default;
     Analytics::~Analytics () = default;
 
     std::unique_ptr<Analytics> make_dummy_analytics ()
