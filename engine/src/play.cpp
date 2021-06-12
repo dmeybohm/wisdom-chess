@@ -78,6 +78,14 @@ namespace wisdom
         return Game::load (input, comp_player);
     }
 
+    static void load_analysis (Game &game)
+    {
+        std::string input = prompt ("store analysis in what file");
+        if (input.empty ())
+            return;
+        return game.store_analysis (input);
+    }
+
     static InputState read_move (Game &game)
     {
         InputState result = InputState::from_initial ();
@@ -125,6 +133,10 @@ namespace wisdom
         {
             result.ok = false;
             return result;
+        }
+        else if (input == "analyze")
+        {
+            load_analysis (game);
         }
 
         result.move = move_parse_optional (input, game.turn);
@@ -205,7 +217,8 @@ namespace wisdom
             }
             else
             {
-                auto optional_move = find_best_move (game.board, game.player, output, game.history);
+                auto optional_move = find_best_move (game.board, game.player, output,
+                                                     game.analytics.get (), game.history);
                 if (!optional_move.has_value ())
                 {
                     std::cout << "\nCouldn't find move!\n";

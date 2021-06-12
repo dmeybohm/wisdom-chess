@@ -5,6 +5,8 @@
 #include "str.hpp"
 #include "game.hpp"
 #include "output_format.hpp"
+#include "analytics.hpp"
+#include "analytics_sqlite.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -39,6 +41,11 @@ namespace wisdom
         OutputFormat &output = make_output_format (input);
         output.save (input, board, history, turn);
         return true;
+    }
+
+    void Game::store_analysis (const std::string &file)
+    {
+        this->analytics = analysis::make_sqlite_analytics (file);
     }
 
     std::optional<Game> Game::load (const std::string &filename, Color player)

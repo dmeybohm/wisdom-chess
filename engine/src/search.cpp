@@ -1,14 +1,9 @@
 #include "piece.hpp"
 #include "board.hpp"
-#include "generate.hpp"
 #include "evaluate.hpp"
 #include "check.hpp"
 #include "search.hpp"
-#include "move_timer.hpp"
-#include "move_history.hpp"
 #include "multithread_search.hpp"
-#include "logger.hpp"
-#include "history.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -234,7 +229,7 @@ namespace wisdom
         cutoffs = 0;
 
         auto analyzed_search = my_analytics->make_search (my_board);
-        auto analyzed_decision = analyzed_search->make_decision (my_board);
+        auto analyzed_decision = analyzed_search->make_decision ();
 
         auto start = std::chrono::system_clock::now ();
 
@@ -284,10 +279,11 @@ namespace wisdom
         return result.move;
     }
 
-    std::optional<Move> find_best_move (Board &board, Color side, Logger &output, History &history)
+    std::optional<Move> find_best_move (Board &board, Color side, Logger &output,
+                                        analysis::Analytics *analytics, History &history)
     {
         MoveTimer overdue_timer { Max_Search_Seconds };
-        IterativeSearch iterative_search { board, history, output, overdue_timer, Max_Depth };
+        IterativeSearch iterative_search { board, history, output, analytics, overdue_timer, Max_Depth };
         SearchResult result = iterative_search.iteratively_deepen (side);
         return result.move;
     }

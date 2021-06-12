@@ -37,4 +37,6 @@ add_executable(chess_tests
 find_package(doctest CONFIG REQUIRED)
 target_link_libraries(chess_tests PRIVATE doctest::doctest)
 target_link_libraries(chess_tests_lib PRIVATE doctest::doctest)
+target_link_libraries(chess_tests_lib PRIVATE unofficial::sqlite3::sqlite3)
+target_link_libraries(chess_tests PRIVATE unofficial::sqlite3::sqlite3)
 

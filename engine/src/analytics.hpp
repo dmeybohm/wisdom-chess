@@ -20,7 +20,7 @@ namespace wisdom::analysis
     public:
         virtual ~Search() = 0;
 
-        virtual std::unique_ptr<Decision> make_decision ([[maybe_unused]] const Board &board) = 0;
+        virtual std::unique_ptr<Decision> make_decision () = 0;
     };
 
     class Decision
@@ -86,7 +86,8 @@ namespace wisdom::analysis
 
     class DummySearch : public Search
     {
-        std::unique_ptr<Decision> make_decision ([[maybe_unused]] const Board &board) override
+    public:
+        std::unique_ptr<Decision> make_decision () override
         {
             return std::make_unique<DummyDecision> ();
         }
@@ -103,9 +104,8 @@ namespace wisdom::analysis
         }
     };
 
-    std::unique_ptr<Analytics> make_dummy_analytics ();
+    Analytics *make_dummy_analytics ();
 
-    //    std::unique_ptr<Analytics> make_sqlite_analytics (const std::string &analytics_file);
 }
 
 #endif //WISDOM_ANALYTICS_HPP

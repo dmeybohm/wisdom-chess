@@ -10,8 +10,9 @@ namespace wisdom::analysis
     Decision::~Decision () = default;
     Analytics::~Analytics () = default;
 
-    std::unique_ptr<Analytics> make_dummy_analytics ()
+    Analytics *make_dummy_analytics ()
     {
-        return std::make_unique<DummyAnalytics> ();
+        static std::unique_ptr<DummyAnalytics> dummy_analytics = std::make_unique<DummyAnalytics> ();
+        return dummy_analytics.get ();
     }
 }

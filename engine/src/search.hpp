@@ -22,7 +22,8 @@ namespace wisdom
     class MoveTimer;
 
     // Find the best move using default algorithm.
-    std::optional<Move> find_best_move (Board &board, Color side, Logger &output, History &history);
+    std::optional<Move> find_best_move (Board &board, Color side, Logger &output,
+                                        analysis::Analytics *analytics, History &history);
 
     // Find the best move using multiple threads.
     std::optional<Move> find_best_move_multithreaded (Board &board, Color side, Logger &output, History &history);
@@ -74,7 +75,7 @@ namespace wisdom
         Board &my_board;
         History &my_history;
         Logger &my_output;
-        std::unique_ptr<analysis::Analytics> my_analytics;
+        analysis::Analytics *my_analytics;
         MoveTimer my_timer;
         int my_total_depth;
 
