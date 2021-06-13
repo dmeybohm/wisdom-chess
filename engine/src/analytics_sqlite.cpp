@@ -21,11 +21,11 @@ namespace wisdom::analysis
         {
             int result = sqlite3_open (path.c_str (), &my_sqlite);
             if (result != SQLITE_OK)
+            {
                 std::cerr << "Error closing: " << sqlite3_errmsg (my_sqlite) << "\n";
+                std::terminate ();
+            }
         }
-
-        explicit SqliteHandle (sqlite3 *handle) : my_sqlite { handle }
-        {}
 
         ~SqliteHandle ()
         {
@@ -73,15 +73,16 @@ namespace wisdom::analysis
     static void init_schema (SqliteHandle &db)
     {
         db.exec (
-                "CREATE TABLE searches ("
+                "CREATE TABLE IF NOT EXISTS searches ("
                 "    id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                "    fen varchar(50) "
+                "    fen varchar(50),  "
+                "    created DATETIME "
                 " )"
         );
         db.exec (
-                "CREATE TABLE decisions ("
+                "CREATE TABLE IF NOT EXISTS decisions ("
                 "    id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                "    move varchar(10) NOT NULL,   "
+                "    move varchar(10),   "
                 "    search_id INT NOT NULL, "
                 "    chosen_position_id INT, "
                 "    parent_position_id INT, "
@@ -89,7 +90,7 @@ namespace wisdom::analysis
                 " )"
         );
         db.exec (
-                "CREATE TABLE positions ( "
+                "CREATE TABLE IF NOT EXISTS positions ( "
                 "   id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 "   decision_id INT NOT NULL,"
                 "   move varchar(10), "
@@ -116,7 +117,7 @@ namespace wisdom::analysis
         {
             std::string insert = std::string("INSERT INTO positions (decision_id, move, score) VALUES (") +
                     std::to_string (my_decision_id) + "," +
-                    wisdom::to_string (move) + "," +
+                    "'" + wisdom::to_string (move) + "'," +
                     "0" +
                     ")";
 
@@ -221,6 +222,7 @@ namespace wisdom::analysis
         SqliteHandle open ()
         {
             SqliteHandle handle { my_file_path };
+            init_schema (handle);
             return std::move (handle);
         }
 
@@ -243,7 +245,7 @@ namespace wisdom::analysis
             my_handle { std::move (handle) },
             my_board { board }
     {
-        my_handle.exec ("INSERT INTO searches (fen) VALUES ('todo')");
+        my_handle.exec ("INSERT INTO searches (fen, created) VALUES ('todo', datetime('now'))");
         my_search_id = my_handle.last_insert_id ();
     }
 
