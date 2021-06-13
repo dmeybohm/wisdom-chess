@@ -23,7 +23,7 @@ add_library(chess_lib OBJECT
         src/fen_parser.cpp src/fen_parser.hpp src/coord.cpp src/board_builder.cpp src/move_list.cpp src/move_list.hpp src/move_history.hpp
         src/move_history.cpp src/multithread_search.cpp src/multithread_search.hpp src/coord_iterator.cpp src/coord_iterator.hpp
         src/board_code.cpp src/board_code.hpp src/logger.cpp src/logger.hpp src/board_history.cpp src/board_history.hpp
-        src/history.cpp src/transposition_table.cpp src/transposition_table.hpp src/variation_glimpse.cpp src/variation_glimpse.hpp src/output_format.cpp src/output_format.hpp src/analytics.cpp src/analytics.hpp src/search_result.cpp src/search_result.hpp src/analytics_sqlite.cpp src/analytics_sqlite.hpp)
+        src/history.cpp src/transposition_table.cpp src/transposition_table.hpp src/variation_glimpse.cpp src/variation_glimpse.hpp src/output_format.cpp src/output_format.hpp src/analytics.cpp src/analytics.hpp src/search_result.cpp src/search_result.hpp src/analytics_sqlite.cpp src/analytics_sqlite.hpp src/uuid.cpp src/uuid.hpp)
 add_executable(chess src/play.cpp $<TARGET_OBJECTS:chess_lib>)
 target_precompile_headers(chess_lib PUBLIC PUBLIC src/global.hpp)
 target_precompile_headers(chess REUSE_FROM chess_lib)

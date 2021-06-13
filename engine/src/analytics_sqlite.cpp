@@ -1,4 +1,5 @@
 #include "analytics_sqlite.hpp"
+#include "uuid.hpp"
 
 #include <sqlite3.h>
 #include <utility>
@@ -6,9 +7,9 @@
 
 namespace wisdom::analysis
 {
-    using SearchId = sqlite_int64;
-    using DecisionId = sqlite_int64;
-    using PositionId = sqlite_int64;
+    using SearchId = Uuid;
+    using DecisionId = Uuid;
+    using PositionId = Uuid;
 
     class SqliteAnalytics;
 
@@ -46,6 +47,11 @@ namespace wisdom::analysis
             other.my_sqlite = nullptr;
         }
 
+        void exec (const std::string &str)
+        {
+            exec (str.c_str());
+        }
+
         void exec (const char *query) // NOLINT(readability-make-member-function-const)
         {
             char *errmsg = nullptr;
@@ -63,25 +69,20 @@ namespace wisdom::analysis
                 throw Error { error };
             }
         }
-
-        [[nodiscard]] sqlite3_int64 last_insert_id () const
-        {
-            return sqlite3_last_insert_rowid (my_sqlite);
-        }
     };
 
     static void init_schema (SqliteHandle &db)
     {
         db.exec (
                 "CREATE TABLE IF NOT EXISTS searches ("
-                "    id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "    id char(36) PRIMARY KEY, "
                 "    fen varchar(50),  "
                 "    created DATETIME "
                 " )"
         );
         db.exec (
                 "CREATE TABLE IF NOT EXISTS decisions ("
-                "    id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "    id char(36) PRIMARY KEY, "
                 "    move varchar(10),   "
                 "    search_id INT NOT NULL, "
                 "    chosen_position_id INT, "
@@ -91,7 +92,7 @@ namespace wisdom::analysis
         );
         db.exec (
                 "CREATE TABLE IF NOT EXISTS positions ( "
-                "   id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "   id char(36) PRIMARY KEY, "
                 "   decision_id INT NOT NULL,"
                 "   move varchar(10), "
                 "   score int "
@@ -105,27 +106,27 @@ namespace wisdom::analysis
         SqlitePosition (
                 SqliteHandle &handle,
                 const Board &board,
-                SearchId search_id,
-                DecisionId decision_id,
+                SearchId &search_id,
+                DecisionId &decision_id,
                 Move move) :
                 my_handle { handle },
                 my_board { board },
                 my_search_id { search_id },
                 my_decision_id { decision_id },
-                my_position_id { 0 },
+                my_position_id { },
                 my_move { move }
+        {}
+
+        ~SqlitePosition () override
         {
-            std::string insert = std::string("INSERT INTO positions (decision_id, move, score) VALUES (") +
-                    std::to_string (my_decision_id) + "," +
-                    "'" + wisdom::to_string (move) + "'," +
+            std::string insert = std::string("INSERT INTO positions (id, decision_id, move, score) VALUES (") +
+                    my_position_id.to_string() + "," +
+                    my_decision_id.to_string () + "," +
+                    "'" + wisdom::to_string (my_move) + "'," +
                     "0" +
                     ")";
-
             my_handle.exec (insert.c_str ());
-            my_position_id = my_handle.last_insert_id ();
         }
-
-        ~SqlitePosition () override = default;
 
         SqlitePosition (const SqlitePosition &) = delete;
 
@@ -146,20 +147,22 @@ namespace wisdom::analysis
     class SqliteDecision : public Decision
     {
     public:
-        SqliteDecision (SqliteHandle &handle, const Board &board, SearchId search_id) :
+        SqliteDecision (SqliteHandle &handle, const Board &board, SearchId &search_id) :
                 my_handle { handle },
                 my_board { board },
-                my_search_id { search_id }
+                my_search_id { search_id },
+                my_decision_id {}
+        {}
+
+        ~SqliteDecision () override
         {
             std::string query =
-                    "INSERT INTO decisions (search_id, parent_position_id, parent_decision_id, move) "
+                    "INSERT INTO decisions (id, search_id, parent_position_id, parent_decision_id, move) "
                     " VALUES ("
-                    + std::to_string(my_search_id) + ", NULL, NULL, NULL )";
+                    + my_decision_id.to_string() + ","
+                    + my_search_id.to_string() + ", NULL, NULL, NULL )";
             my_handle.exec (query.c_str ());
-            my_decision_id = my_handle.last_insert_id ();
         }
-
-        ~SqliteDecision () override = default;
 
         SqliteDecision (const SqliteDecision &) = delete;
 
@@ -193,7 +196,12 @@ namespace wisdom::analysis
     public:
         SqliteSearch (SqliteHandle handle, const Board &board);
 
-        ~SqliteSearch () override = default;
+        ~SqliteSearch () override
+        {
+            my_handle.exec ("INSERT INTO searches (id, fen, created) VALUES (" +
+            my_search_id.to_string() +
+            ", 'todo', datetime('now'))");
+        }
 
         SqliteSearch (const SqliteSearch &) = delete;
 
@@ -207,7 +215,7 @@ namespace wisdom::analysis
     private:
         SqliteHandle my_handle;
         const Board &my_board;
-        SearchId my_search_id = 0;
+        SearchId my_search_id;
     };
 
     class SqliteAnalytics : public Analytics
@@ -243,11 +251,9 @@ namespace wisdom::analysis
 
     SqliteSearch::SqliteSearch (SqliteHandle handle, const Board &board) :
             my_handle { std::move (handle) },
-            my_board { board }
-    {
-        my_handle.exec ("INSERT INTO searches (fen, created) VALUES ('todo', datetime('now'))");
-        my_search_id = my_handle.last_insert_id ();
-    }
+            my_board { board },
+            my_search_id {}
+    {}
 
     std::unique_ptr<Analytics> make_sqlite_analytics (const std::string &analytics_file)
     {
