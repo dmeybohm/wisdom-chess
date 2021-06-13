@@ -137,6 +137,7 @@ namespace wisdom
         else if (input == "analyze")
         {
             load_analysis (game);
+            result.skip = true;
         }
 
         result.move = move_parse_optional (input, game.turn);
