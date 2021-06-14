@@ -12,15 +12,21 @@ namespace wisdom
             seeded = true;
         }
 
-        sprintf(
-                buf,
-                "'%08x-%04x-%04x-%04x-%08x%04x'",
-                rand(),
-                rand(),
+        int ints[] = {
                 rand(),
                 rand(),
                 rand(),
                 rand()
+        };
+        sprintf(
+                buf,
+                "'%08x-%04x-%04x-%04x-%08x%04x'",
+                ints[0] & 0xffffffff,
+                ints[1] & 0xffff,
+                (ints[1] >> 16) & 0xffff,
+                ints[2] & 0xffff,
+                ints[3],
+                (ints[2] >> 16) & 0xffff
         );
 
         my_buf = buf;
@@ -33,6 +39,7 @@ namespace wisdom
 
 }
 
+#ifdef UUID_TEST
 #include <iostream>
 
 int main()
@@ -43,3 +50,4 @@ int main()
         std::cout << uuid.to_string() << '\n';
     }
 }
+#endif
