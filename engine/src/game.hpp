@@ -23,7 +23,7 @@ namespace wisdom
         Game (Color _turn, Color computer_player) :
                 player { computer_player },
                 turn { _turn },
-                analytics { analysis::make_dummy_analytics() }
+                analytics { std::make_unique<analysis::DummyAnalytics>() }
         {
             assert (is_color_valid (_turn));
             assert (is_color_valid (computer_player));
@@ -35,7 +35,7 @@ namespace wisdom
                 : board { builder.build () },
                   player { computer_player },
                   turn { _turn },
-                  analytics { analysis::make_dummy_analytics() }
+                  analytics { std::make_unique<analysis::DummyAnalytics>() }
         {
             assert (is_color_valid (_turn));
             assert (is_color_valid (computer_player));
