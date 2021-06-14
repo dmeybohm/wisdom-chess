@@ -13,6 +13,8 @@ include_directories(. src lib)
 project(Wisdom C CXX)
 
 find_package(Threads REQUIRED)
+find_package (SQLite3 REQUIRED)
+find_package (doctest REQUIRED)
 
 # add the executable
 
@@ -28,18 +30,9 @@ add_executable(chess src/play.cpp $<TARGET_OBJECTS:chess_lib>)
 target_precompile_headers(chess_lib PUBLIC PUBLIC src/global.hpp)
 target_precompile_headers(chess REUSE_FROM chess_lib)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-  find_package (SQLite3)
 
-  find_package (doctest REQUIRED)
-  target_link_libraries (chess_lib PRIVATE ${SQLite3_LIBRARIES})
-  target_link_libraries (chess PRIVATE ${SQLite3_LIBRARIES})
-else()
-  find_package(unofficial-sqlite3 CONFIG REQUIRED)
-  find_package(doctest CONFIG REQUIRED)
-  target_link_libraries(chess_lib PRIVATE unofficial::sqlite3::sqlite3)
-  target_link_libraries(chess PRIVATE unofficial::sqlite3::sqlite3)
-endif()
+target_link_libraries (chess_lib PRIVATE ${SQLite3_LIBRARIES})
+target_link_libraries (chess PRIVATE ${SQLite3_LIBRARIES})
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
   # using Clang

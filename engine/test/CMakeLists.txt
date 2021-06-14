@@ -34,16 +34,8 @@ add_executable(chess_tests
         $<TARGET_OBJECTS:chess_lib>
         $<TARGET_OBJECTS:chess_tests_lib>)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    target_link_libraries(chess_tests PRIVATE doctest::doctest)
-    target_link_libraries(chess_tests_lib PRIVATE doctest::doctest)
+target_link_libraries(chess_tests PRIVATE doctest::doctest)
+target_link_libraries(chess_tests_lib PRIVATE doctest::doctest)
 
-    target_link_libraries (chess_tests_lib PRIVATE ${SQLite3_LIBRARIES})
-    target_link_libraries (chess_tests PRIVATE ${SQLite3_LIBRARIES})
-else()
-    target_link_libraries(chess_tests PRIVATE doctest::doctest)
-    target_link_libraries(chess_tests_lib PRIVATE doctest::doctest)
-
-    target_link_libraries(chess_tests_lib PRIVATE unofficial::sqlite3::sqlite3)
-    target_link_libraries(chess_tests PRIVATE unofficial::sqlite3::sqlite3)
-endif()
+target_link_libraries (chess_tests_lib PRIVATE ${SQLite3_LIBRARIES})
+target_link_libraries (chess_tests PRIVATE ${SQLite3_LIBRARIES})
