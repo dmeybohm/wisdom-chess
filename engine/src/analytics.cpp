@@ -12,7 +12,6 @@ namespace wisdom::analysis
 
     Analytics *make_dummy_analytics ()
     {
-        static std::unique_ptr<DummyAnalytics> dummy_analytics = std::make_unique<DummyAnalytics> ();
-        return dummy_analytics.get ();
+        return DummyAnalytics::get_analytics();
     }
 }

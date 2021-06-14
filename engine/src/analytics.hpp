@@ -98,16 +98,21 @@ namespace wisdom::analysis
     public:
         ~DummyAnalytics () override = default;
 
+        static Analytics *get_analytics () {
+            static auto dummy_analytics = new DummyAnalytics;
+            return dummy_analytics;
+        }
+
         std::unique_ptr<Search> make_search (
                 [[maybe_unused]] const Board &board,
                 [[maybe_unused]] Color turn) override
         {
             return std::make_unique<DummySearch> ();
         }
+
     };
 
     Analytics *make_dummy_analytics ();
-
 }
 
 #endif //WISDOM_ANALYTICS_HPP
