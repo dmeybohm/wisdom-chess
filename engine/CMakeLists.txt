@@ -32,7 +32,7 @@ add_executable(chess src/play.cpp $<TARGET_OBJECTS:chess_lib>)
 target_precompile_headers(chess_lib PUBLIC PUBLIC src/global.hpp)
 target_precompile_headers(chess REUSE_FROM chess_lib)
 
-target_link_libraries (chess_lib PRIVATE ${SQLite3_LIBRARIES})
-target_link_libraries (chess PRIVATE ${SQLite3_LIBRARIES})
+target_link_libraries (chess_lib PRIVATE SQLite::SQLite3)
+target_link_libraries (chess PRIVATE SQLite::SQLite3)
 
 add_subdirectory(test)
