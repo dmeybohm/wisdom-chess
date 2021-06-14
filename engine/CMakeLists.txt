@@ -12,7 +12,7 @@ include_directories(. src lib)
 # set the project name
 project(Wisdom C CXX)
 
-find_package(Threads REQUIRED)
+find_package (Threads REQUIRED)
 find_package (SQLite3 REQUIRED)
 find_package (doctest REQUIRED)
 
@@ -29,7 +29,6 @@ add_library(chess_lib OBJECT
 add_executable(chess src/play.cpp $<TARGET_OBJECTS:chess_lib>)
 target_precompile_headers(chess_lib PUBLIC PUBLIC src/global.hpp)
 target_precompile_headers(chess REUSE_FROM chess_lib)
-
 
 target_link_libraries (chess_lib PRIVATE ${SQLite3_LIBRARIES})
 target_link_libraries (chess PRIVATE ${SQLite3_LIBRARIES})
