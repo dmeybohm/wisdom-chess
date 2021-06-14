@@ -1,5 +1,6 @@
 #include "analytics_sqlite.hpp"
 #include "uuid.hpp"
+#include "board.hpp"
 
 #include <sqlite3.h>
 #include <utility>
@@ -194,13 +195,15 @@ namespace wisdom::analysis
     class SqliteSearch : public Search
     {
     public:
-        SqliteSearch (SqliteHandle handle, const Board &board);
+        SqliteSearch (SqliteHandle handle, const Board &board, Color side);
 
         ~SqliteSearch () override
         {
             my_handle.exec ("INSERT INTO searches (id, fen, created) VALUES (" +
-            my_search_id.to_string() +
-            ", 'todo', datetime('now'))");
+                my_search_id.to_string() +
+                "," +
+                "'" + my_fen + "'" + "," + "datetime('now'))"
+            );
         }
 
         SqliteSearch (const SqliteSearch &) = delete;
@@ -215,6 +218,7 @@ namespace wisdom::analysis
     private:
         SqliteHandle my_handle;
         const Board &my_board;
+        std::string my_fen;
         SearchId my_search_id;
     };
 
@@ -240,18 +244,19 @@ namespace wisdom::analysis
 
         SqliteAnalytics &operator= (const SqliteAnalytics &) = delete;
 
-        std::unique_ptr<Search> make_search ([[maybe_unused]] const Board &board) override
+        std::unique_ptr<Search> make_search (const Board &board, Color turn) override
         {
-            return std::make_unique<SqliteSearch> (SqliteHandle { open () }, board);
+            return std::make_unique<SqliteSearch> (SqliteHandle { open () }, board, turn);
         }
 
     private:
         std::string my_file_path;
     };
 
-    SqliteSearch::SqliteSearch (SqliteHandle handle, const Board &board) :
+    SqliteSearch::SqliteSearch (SqliteHandle handle, const Board &board, Color side) :
             my_handle { std::move (handle) },
             my_board { board },
+            my_fen { board.to_fen_string (side) },
             my_search_id {}
     {}
 

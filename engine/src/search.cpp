@@ -228,7 +228,7 @@ namespace wisdom
         nodes_visited = 0;
         cutoffs = 0;
 
-        auto analyzed_search = my_analytics->make_search (my_board);
+        auto analyzed_search = my_analytics->make_search (my_board, side);
         auto analyzed_decision = analyzed_search->make_decision ();
 
         auto start = std::chrono::system_clock::now ();

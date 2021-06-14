@@ -176,7 +176,7 @@ namespace wisdom
         {
             for (col = 0; col < Num_Columns; col++)
             {
-                ColoredPiece piece = piece_at (*this, row, col);
+                ColoredPiece piece = this->piece_at (row, col);
 
                 if (!col)
                     result += "|";
@@ -256,4 +256,87 @@ namespace wisdom
         my_transposition_hits++;
         return std::nullopt;
     }
+
+    [[nodiscard]] std::string Board::castled_string (Color color) const
+    {
+        ColorIndex index = color_index (color);
+        std::string castled_state;
+
+        auto convert = [color](char ch) -> char {
+            return color == Color::Black ? static_cast<char> (tolower(ch)) : ch;
+        };
+
+        if (this->castled[index] == Castle_Castled)
+            castled_state = "";
+        else if (this->castled[index] == Castle_None)
+            castled_state.append(1, convert('K')), castled_state.append(1, convert('Q'));
+        else if (this->castled[index] == Castle_Kingside)
+            castled_state += "Q";
+        else if (this->castled[index] == Castle_Queenside)
+            castled_state += "K";
+        else
+            castled_state += "";
+
+        return castled_state;
+    }
+
+    [[nodiscard]] std::string Board::to_fen_string (Color turn) const
+    {
+        std::string output;
+
+        for (int row = 0; row < Num_Rows; row++)
+        {
+            std::string row_string;
+            int none_count = 0;
+
+            for (int col = 0; col < Num_Columns; col++)
+            {
+                ColoredPiece piece = this->piece_at (row, col);
+                if (piece == Piece_And_Color_None)
+                {
+                    none_count++;
+                }
+                else
+                {
+                    if (none_count > 0)
+                        row_string += std::to_string (none_count);
+                    none_count = 0;
+                    char ch = static_cast<char> (toupper (piece_char (piece)));
+                    if (piece_color(piece) == Color::Black)
+                        ch = static_cast<char> (tolower(ch));
+                    row_string.append(1, ch);
+                }
+            }
+
+            if (none_count > 0)
+                row_string += std::to_string (none_count);
+
+            if (row < 7)
+                row_string += "/";
+
+            output += row_string;
+        }
+
+        output += turn == Color::White ? " w " : " b ";
+
+        std::string castled_white = castled_string (Color::White);
+        std::string castled_black = castled_string (Color::Black);
+
+        std::string castled = castled_white + castled_black;
+        if (castled.length() == 0)
+            castled = "-";
+
+        output += castled;
+
+        if (this->en_passant_target[Color_Index_White] != No_En_Passant_Coord)
+            output += " " + wisdom::to_string (this->en_passant_target[Color_Index_White]) + " ";
+        else if (this->en_passant_target[Color_Index_Black] != No_En_Passant_Coord)
+            output += " " + wisdom::to_string (this->en_passant_target[Color_Index_Black]) + " ";
+        else
+            output += " - ";
+
+        output += std::to_string (this->half_move_clock) + " " + std::to_string (this->full_moves);
+        return output;
+    }
+
 }

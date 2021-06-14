@@ -19,8 +19,6 @@ namespace wisdom
     {
     public:
         void save (const std::string &filename, const Board &board, const History &history, Color turn) override;
-
-        [[nodiscard]] static std::string castled_string (const Board &board, Color who) ;
     };
 
     class WisdomGameOutputFormat : public OutputFormat

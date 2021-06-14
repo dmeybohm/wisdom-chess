@@ -68,6 +68,16 @@ namespace wisdom
 
         void print () const;
 
+        constexpr ColoredPiece piece_at (int row, int col) const
+        {
+            return this->squares[row][col];
+        }
+
+        constexpr ColoredPiece piece_at (Coord coord) const
+        {
+            return this->squares[coord.row][coord.col];
+        }
+
         void print_to_file (std::ostream &out) const;
 
         void dump () const;
@@ -111,6 +121,9 @@ namespace wisdom
         {
             return MoveGenerator { my_transpositions };
         }
+
+        [[nodiscard]] std::string to_fen_string (Color turn) const;
+        [[nodiscard]] std::string castled_string (Color color) const;
     };
 
     ///////////////////////////////////////////////
