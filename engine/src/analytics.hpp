@@ -50,7 +50,7 @@ namespace wisdom::analysis
     public:
         virtual ~Analytics () = 0;
 
-        virtual std::unique_ptr<Search> make_search (const Board &board, Color turn) = 0;
+        virtual std::unique_ptr<Search> make_search (const Board &board, Color turn, int depth) = 0;
     };
 
     class DummyPosition : public Position
@@ -98,14 +98,16 @@ namespace wisdom::analysis
     public:
         ~DummyAnalytics () override = default;
 
-        static Analytics *get_analytics () {
-            static auto dummy_analytics = new DummyAnalytics;
-            return dummy_analytics;
+        static Analytics *get_analytics ()
+        {
+            static DummyAnalytics dummy_analytics;
+            return &dummy_analytics;
         }
 
         std::unique_ptr<Search> make_search (
                 [[maybe_unused]] const Board &board,
-                [[maybe_unused]] Color turn) override
+                [[maybe_unused]] Color turn,
+                [[maybe_unused]] int depth) override
         {
             return std::make_unique<DummySearch> ();
         }

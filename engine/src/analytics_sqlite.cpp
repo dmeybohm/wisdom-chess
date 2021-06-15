@@ -78,12 +78,14 @@ namespace wisdom::analysis
                 "CREATE TABLE IF NOT EXISTS searches ("
                 "    id char(36) PRIMARY KEY, "
                 "    fen varchar(50),  "
+                "    depth INT NOT NULL, "
                 "    created DATETIME "
                 " )"
         );
         db.exec (
                 "CREATE TABLE IF NOT EXISTS decisions ("
                 "    id char(36) PRIMARY KEY, "
+                "    depth int NOT NULL, "
                 "    move varchar(10),   "
                 "    search_id INT NOT NULL, "
                 "    chosen_position_id INT, "
@@ -115,7 +117,8 @@ namespace wisdom::analysis
                 my_search_id { search_id },
                 my_decision_id { decision_id },
                 my_position_id { },
-                my_move { move }
+                my_move { move },
+                my_score { Negative_Infinity }
         {}
 
         ~SqlitePosition () override
@@ -124,7 +127,7 @@ namespace wisdom::analysis
                     my_position_id.to_string() + "," +
                     my_decision_id.to_string () + "," +
                     "'" + wisdom::to_string (my_move) + "'," +
-                    "0" +
+                    std::to_string (my_score) +
                     ")";
             my_handle.exec (insert.c_str ());
         }
@@ -134,34 +137,52 @@ namespace wisdom::analysis
         SqlitePosition &operator= (const SqlitePosition &) = delete;
 
         void finalize ([[maybe_unused]] const SearchResult &result) override
-        {}
+        {
+            my_score = result.score;
+        }
 
     private:
         SqliteHandle &my_handle;
-        const Board &my_board;
+        [[maybe_unused]] const Board &my_board;
         SearchId my_search_id;
         DecisionId my_decision_id;
         PositionId my_position_id;
         Move my_move;
+        int my_score;
     };
 
     class SqliteDecision : public Decision
     {
     public:
-        SqliteDecision (SqliteHandle &handle, const Board &board, SearchId &search_id) :
+        SqliteDecision (
+                SqliteHandle &handle,
+                const Board &board,
+                const SearchId &search_id,
+                const DecisionId &parent_id,
+                int depth) :
                 my_handle { handle },
                 my_board { board },
                 my_search_id { search_id },
-                my_decision_id {}
+                my_decision_id {},
+                my_parent_id { parent_id },
+                my_depth { depth }
         {}
 
         ~SqliteDecision () override
         {
+            std::string parent_id_str = my_parent_id == Uuid::Nil()
+                    ? "NULL" : my_parent_id.to_string();
+            std::string move_str = my_move.has_value() ?
+                    "'" + to_string (my_move.value ()) + "'":
+                    "NULL";
             std::string query =
-                    "INSERT INTO decisions (id, search_id, parent_position_id, parent_decision_id, move) "
+                    "INSERT INTO decisions (id, search_id, parent_position_id, parent_decision_id, depth, move) "
                     " VALUES ("
                     + my_decision_id.to_string() + ","
-                    + my_search_id.to_string() + ", NULL, NULL, NULL )";
+                    + my_search_id.to_string() + ", NULL, "
+                    + parent_id_str + ", "
+                    + std::to_string (my_depth) + ","
+                    + move_str + ")";
             my_handle.exec (query.c_str ());
         }
 
@@ -171,15 +192,20 @@ namespace wisdom::analysis
 
         std::unique_ptr<Position> make_position ([[maybe_unused]] Move move) override
         {
-            return std::make_unique<SqlitePosition> (my_handle, my_board, my_search_id, my_decision_id, move);
+            return std::make_unique<SqlitePosition> (my_handle, my_board, my_search_id, my_decision_id,
+                                                     move);
         }
 
         void finalize ([[maybe_unused]] const SearchResult &result) override
-        {}
+        {
+            my_move = result.move;
+            my_score = result.score;
+        }
 
         std::unique_ptr<Decision> make_child ([[maybe_unused]] Position *position) override
         {
-            return std::make_unique<SqliteDecision> (my_handle, my_board, my_search_id);
+            return std::make_unique<SqliteDecision> (my_handle, my_board, my_search_id, my_decision_id,
+                                                     my_depth + 1);
         }
 
         void preliminary_choice ([[maybe_unused]] Position *position) override
@@ -190,19 +216,25 @@ namespace wisdom::analysis
         const Board &my_board;
         SearchId my_search_id;
         DecisionId my_decision_id;
+        DecisionId my_parent_id;
+        std::optional<Move> my_move;
+        int my_depth;
+        int my_score;
     };
 
     class SqliteSearch : public Search
     {
     public:
-        SqliteSearch (SqliteHandle handle, const Board &board, Color side);
+        SqliteSearch (SqliteHandle handle, const Board &board, Color side, int depth);
 
         ~SqliteSearch () override
         {
-            my_handle.exec ("INSERT INTO searches (id, fen, created) VALUES (" +
+            my_handle.exec ("INSERT INTO searches (id, fen, depth, created) VALUES (" +
                 my_search_id.to_string() +
                 "," +
-                "'" + my_fen + "'" + "," + "datetime('now'))"
+                "'" + my_fen + "'" + ","
+                + std::to_string (my_depth) + ","
+                + "datetime('now'))"
             );
         }
 
@@ -212,7 +244,7 @@ namespace wisdom::analysis
 
         std::unique_ptr<Decision> make_decision () override
         {
-            return std::make_unique<SqliteDecision> (my_handle, my_board, my_search_id);
+            return std::make_unique<SqliteDecision> (my_handle, my_board, my_search_id, Uuid::Nil(), 0);
         }
 
     private:
@@ -220,6 +252,7 @@ namespace wisdom::analysis
         const Board &my_board;
         std::string my_fen;
         SearchId my_search_id;
+        int my_depth;
     };
 
     class SqliteAnalytics : public Analytics
@@ -235,7 +268,7 @@ namespace wisdom::analysis
         {
             SqliteHandle handle { my_file_path };
             init_schema (handle);
-            return std::move (handle);
+            return handle;
         }
 
         ~SqliteAnalytics () override = default;
@@ -244,20 +277,21 @@ namespace wisdom::analysis
 
         SqliteAnalytics &operator= (const SqliteAnalytics &) = delete;
 
-        std::unique_ptr<Search> make_search (const Board &board, Color turn) override
+        std::unique_ptr<Search> make_search (const Board &board, Color turn, int depth) override
         {
-            return std::make_unique<SqliteSearch> (SqliteHandle { open () }, board, turn);
+            return std::make_unique<SqliteSearch> (SqliteHandle { open () }, board, turn, depth);
         }
 
     private:
         std::string my_file_path;
     };
 
-    SqliteSearch::SqliteSearch (SqliteHandle handle, const Board &board, Color side) :
+    SqliteSearch::SqliteSearch (SqliteHandle handle, const Board &board, Color side, int depth) :
             my_handle { std::move (handle) },
             my_board { board },
             my_fen { board.to_fen_string (side) },
-            my_search_id {}
+            my_search_id {},
+            my_depth { depth }
     {}
 
     std::unique_ptr<Analytics> make_sqlite_analytics (const std::string &analytics_file)

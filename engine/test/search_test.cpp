@@ -172,7 +172,7 @@ TEST_CASE("Promoting move is taken if possible")
 
     History history;
     Board board = builder.build ();
-    auto analyzed_search = analysis::make_dummy_analytics ()->make_search (board, Color::Black);
+    auto analyzed_search = analysis::make_dummy_analytics ()->make_search (board, Color::Black, 1);
     auto analyzed_decision = analyzed_search->make_decision ();
 
     IterativeSearch iterative_search { board, history, make_null_logger(), large_timer, 1 };
