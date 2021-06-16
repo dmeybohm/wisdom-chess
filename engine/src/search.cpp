@@ -25,8 +25,6 @@ namespace wisdom
     SearchResult IterativeSearch::recurse_or_evaluate (Color side, int depth, int alpha, int beta, Move move,
                                                        analysis::Decision *parent, analysis::Position *position)
     {
-        auto decision = parent->make_child (position);
-
         // Check the transposition table for the move:
         auto transposition = my_board.check_transposition_table (side, depth);
         if (transposition.has_value ())
@@ -35,32 +33,35 @@ namespace wisdom
             auto result = SearchResult { transposition->variation_glimpse, move, transposition->score,
                     my_total_depth - depth, false };
             position->finalize (result);
-            decision->finalize (result);
             return result;
         }
 
         if (depth <= 0)
         {
-            int score = evaluate_and_check_draw (my_board, side, my_total_depth - depth,
-                                                 move, my_history);
             VariationGlimpse glimpse;
             glimpse.push_front (move);
 
+            int score = evaluate_and_check_draw (my_board, side, my_total_depth - depth,
+                                                 move, my_history);
             auto result =  SearchResult { glimpse, move, score, my_total_depth - depth, false };
+
             position->finalize (result);
-            decision->finalize (result);
             return result;
         }
         else
         {
+            auto decision = parent->make_child (position);
+
             SearchResult other_search_result = search (color_invert (side), depth - 1, -beta, -alpha, decision.get());
             if (other_search_result.timed_out)
                 return other_search_result;
 
             other_search_result.variation_glimpse.push_front (move);
             other_search_result.score *= -1;
+
             position->finalize (other_search_result);
             decision->finalize (other_search_result);
+
             return other_search_result;
         }
     }

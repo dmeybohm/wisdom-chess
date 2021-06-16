@@ -167,7 +167,9 @@ namespace wisdom
     static void append_move (const Board &board, MoveList &list, Move move)
     {
         if (auto validated_move = validate_move (board, move); validated_move.has_value())
+        {
             list.push_back (*validated_move);
+        }
     }
 
     static void moves_none ([[maybe_unused]] const Board &board, [[maybe_unused]] Color who,
