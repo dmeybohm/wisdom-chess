@@ -49,7 +49,7 @@ namespace wisdom
         static MoveList knight_moves[Num_Rows][Num_Columns];
 
         if (knight_moves[0][0].empty())
-            knight_move_list_init(knight_moves);
+            knight_move_list_init (knight_moves);
 
         return knight_moves[row][col];
     }
@@ -452,19 +452,6 @@ namespace wisdom
         }
 
         return non_checks;
-    }
-
-    MoveList validate_moves (const MoveList &move_list, const Board &board)
-    {
-        MoveList result;
-
-        for (auto to_validate : move_list)
-        {
-            if (auto validated = validate_move (board, to_validate); validated.has_value())
-                result.push_back (*validated);
-        }
-
-        return result;
     }
 
     MoveList generate_moves (const Board &board, Color who)

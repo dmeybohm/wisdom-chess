@@ -70,6 +70,11 @@ namespace wisdom
             return my_moves->size ();
         }
 
+        [[nodiscard]] size_t capacity () const noexcept
+        {
+            return my_moves->capacity();
+        }
+
         [[nodiscard]] std::string to_string () const;
 
         bool operator== (const MoveList &other) const
