@@ -8,6 +8,7 @@
 #include "game.hpp"
 #include "str.hpp"
 #include "logger.hpp"
+#include "analytics_sqlite.hpp"
 
 #include <iostream>
 
@@ -83,7 +84,8 @@ namespace wisdom
         std::string input = prompt ("store analysis in what file");
         if (input.empty ())
             return;
-        return game.store_analysis (input);
+        auto sqlite_analytics = analysis::make_sqlite_analytics (input);
+        game.set_analytics (std::move (sqlite_analytics));
     }
 
     static InputState read_move (Game &game)

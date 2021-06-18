@@ -45,7 +45,7 @@ namespace wisdom
 
         static std::optional<Game> load (const std::string &filename, Color player);
 
-        void store_analysis (const std::string &file);
+        void set_analytics (std::unique_ptr<analysis::Analytics> new_analytics);
 
         void move (Move move);
     };

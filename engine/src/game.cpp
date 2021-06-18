@@ -43,9 +43,9 @@ namespace wisdom
         return true;
     }
 
-    void Game::store_analysis (const std::string &file)
+    void Game::set_analytics (std::unique_ptr<analysis::Analytics> new_analytics)
     {
-        this->analytics = analysis::make_sqlite_analytics (file);
+        this->analytics = std::move (new_analytics);
     }
 
     std::optional<Game> Game::load (const std::string &filename, Color player)
