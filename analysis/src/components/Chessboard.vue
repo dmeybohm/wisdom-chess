@@ -1,8 +1,7 @@
 <template>
   <div>
-    <div ref="my_board" style="width: 400px"></div>
-    <div>Depth: {{search.depth}}</div>
-    <div>Move: {{search.move}}</div>
+    <div ref="my_board" style="width: 300px"></div>
+
   </div>
 </template>
 
@@ -10,11 +9,23 @@
 export default {
   name: "Chessboard",
   props: {
-    search: Object
+    fen: String,
+    move_list: Array
   },
   mounted: function() {
-    window.Chessboard(this.$refs.my_board, { position: this.search.fen });
+    this.reload();
+  },
+  methods: {
+    reload: function () {
+      let board = window.Chessboard(this.$refs.my_board, {position: this.fen});
+      this.move_list.forEach(function (move) {
+        if (move) {
+          board.move(move.replace(' ', '-'));
+        }
+      });
+    }
   }
+
 };
 </script>
 
