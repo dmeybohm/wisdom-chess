@@ -18,8 +18,14 @@ export default {
   methods: {
     reload: function () {
       let board = window.Chessboard(this.$refs.my_board, {position: this.fen});
+      let $board = window.jQuery(this.$refs.my_board);
       this.move_list.forEach(function (move) {
         if (move) {
+          let squareClass = 'square-55d63'
+          $board.find('.' + squareClass).removeClass('.highlight')
+          let squares = move.split(' ')
+          $board.find('.square-' + squares[0]).addClass('highlight')
+          $board.find('.square-' + squares[1]).addClass('highlight')
           board.move(move.replace(' ', '-'));
         }
       });
@@ -29,6 +35,8 @@ export default {
 };
 </script>
 
-<style scoped>
-
+<style>
+.highlight {
+  box-shadow: inset 0 0 3px 3px #008000;
+}
 </style>
