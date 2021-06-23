@@ -173,7 +173,7 @@ namespace wisdom::analysis
             std::string parent_id_str = my_parent_id == Uuid::Nil()
                     ? "NULL" : my_parent_id.to_string();
             std::string move_str = my_move.has_value() ?
-                    "'" + to_string (my_move.value ()) + "'":
+                    "'" + to_string (*my_move) + "'":
                     "NULL";
             std::string query =
                     "INSERT INTO decisions (id, search_id, parent_position_id, parent_decision_id, depth, move) "
