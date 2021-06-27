@@ -13,8 +13,10 @@ include_directories(. src lib)
 project(Wisdom C CXX)
 
 find_package (Threads REQUIRED)
-find_package (SQLite3 REQUIRED)
 find_package (doctest REQUIRED)
+
+find_package (SQLite3)
+find_package(unofficial-sqlite3 CONFIG)
 
 # add the executable
 add_library(chess_lib OBJECT
@@ -35,7 +37,16 @@ add_executable(chess
 target_precompile_headers(chess_lib PUBLIC PUBLIC src/global.hpp)
 target_precompile_headers(chess REUSE_FROM chess_lib)
 
-target_link_libraries (chess_lib PRIVATE SQLite::SQLite3)
-target_link_libraries (chess PRIVATE SQLite::SQLite3)
+if (SQLite3_FOUND)
+    target_link_libraries (chess_lib PRIVATE SQLite::SQLite3)
+    target_link_libraries (chess PRIVATE SQLite::SQLite3)
+elseif(unofficial-sqlite3_FOUND)
+    target_link_libraries(chess_lib PRIVATE unofficial::sqlite3::sqlite3)
+    target_link_libraries(chess PRIVATE unofficial::sqlite3::sqlite3)
+    target_link_options(chess -ldl)
+else()
+    message( FATAL_ERROR "SQLite3 is required, and implementation was not found.")
+endif()
+
 
 add_subdirectory(test)
