@@ -14,6 +14,8 @@ namespace wisdom::analysis
 
     class SqliteAnalytics;
 
+    constexpr int Max_Queries = 10000;
+
     class SqliteHandle
     {
     public:
@@ -33,6 +35,8 @@ namespace wisdom::analysis
         {
             if (my_sqlite == nullptr)
                 return;
+            if (my_in_transaction)
+                commit_transaction ();
             int result = sqlite3_close (my_sqlite);
             if (result != SQLITE_OK)
                 std::cerr << "Error closing: " << sqlite3_errmsg (my_sqlite) << "\n";
@@ -45,7 +49,12 @@ namespace wisdom::analysis
         SqliteHandle (SqliteHandle &&other) noexcept
         {
             this->my_sqlite = other.my_sqlite;
+            this->my_in_transaction = other.my_sqlite;
+            this->my_queries_in_transaction = other.my_queries_in_transaction;
+
             other.my_sqlite = nullptr;
+            other.my_in_transaction = false;
+            other.my_queries_in_transaction = 0;
         }
 
         void exec (const std::string &str)
@@ -55,6 +64,13 @@ namespace wisdom::analysis
 
         void exec (const char *query) // NOLINT(readability-make-member-function-const)
         {
+            my_queries_in_transaction++;
+            if (my_queries_in_transaction >= Max_Queries)
+                commit_transaction ();
+
+            if (!my_in_transaction)
+                start_transaction ();
+
             char *errmsg = nullptr;
             sqlite3_exec (
                     my_sqlite,
@@ -69,6 +85,55 @@ namespace wisdom::analysis
                 sqlite3_free (errmsg);
                 throw Error { error };
             }
+        }
+
+        void start_transaction ()
+        {
+            char *errmsg = nullptr;
+            if (my_in_transaction)
+                return;
+            int result = sqlite3_exec (
+                    my_sqlite,
+                    "BEGIN TRANSACTION",
+                    nullptr,
+                    nullptr,
+                    &errmsg
+            );
+            if (result != SQLITE_OK || errmsg != nullptr)
+            {
+                std::string error { errmsg };
+                sqlite3_free (errmsg);
+                throw Error { error };
+            }
+            my_in_transaction = true;
+        }
+
+    private:
+        bool my_in_transaction = false;
+        int my_queries_in_transaction = 0;
+
+        void commit_transaction ()
+        {
+            if (!my_in_transaction)
+                throw Error { "Not in transaction" };
+
+            char *errmsg = nullptr;
+            int result = sqlite3_exec (
+                my_sqlite,
+                "COMMIT",
+                nullptr,
+                nullptr,
+                &errmsg
+            );
+            if (result != SQLITE_OK || errmsg != nullptr)
+            {
+                std::string error { errmsg };
+                sqlite3_free (errmsg);
+                throw Error { error };
+            }
+            my_in_transaction = false;
+            std::cout << "Commit " << my_queries_in_transaction << " queries\n";
+            my_queries_in_transaction = 0;
         }
     };
 
