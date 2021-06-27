@@ -31,12 +31,14 @@ namespace wisdom
     unique_ptr<MoveVector> MoveList::allocate_move_vector ()
     {
         // todo this isn't thread safe:
-        if (!my_move_vector_ptrs.empty()) {
+        if (!my_move_vector_ptrs.empty())
+        {
             unique_ptr<MoveVector> ptr = std::move (my_move_vector_ptrs.back());
             my_move_vector_ptrs.pop_back();
             ptr->resize(0);
             return ptr;
         }
+
         return make_unique<MoveVector>();
     }
 
