@@ -23,7 +23,7 @@ export default {
         if (move) {
           let squareClass = 'square-55d63'
           $board.find('.' + squareClass).removeClass('.highlight')
-          let squares = move.split(' ')
+          let squares = move.replace(' ', 'x').split('x')
           $board.find('.square-' + squares[0]).addClass('highlight')
           $board.find('.square-' + squares[1]).addClass('highlight')
           board.move(move.replace(' ', '-'));
