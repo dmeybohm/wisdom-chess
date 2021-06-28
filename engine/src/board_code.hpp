@@ -80,7 +80,7 @@ namespace wisdom
             return !(first == second);
         }
 
-        BoardCode with_move (const Board &board, Move move) const
+        [[nodiscard]] BoardCode with_move (const Board &board, Move move) const
         {
             auto copy = *this;
             copy.apply_move (board, move);

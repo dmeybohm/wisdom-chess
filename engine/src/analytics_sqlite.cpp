@@ -1,6 +1,7 @@
 #include "analytics_sqlite.hpp"
 #include "uuid.hpp"
 #include "board.hpp"
+#include "logger.hpp"
 
 #include <sqlite3.h>
 #include <utility>
@@ -18,16 +19,47 @@ namespace wisdom::analysis
 
     class SqliteHandle
     {
-    public:
+    private:
         sqlite3 *my_sqlite;
+        Logger &my_logger;
+        bool my_in_transaction = false;
+        int my_queries_in_transaction = 0;
 
-        explicit SqliteHandle (const std::string &path) : my_sqlite { nullptr }
+    public:
+        void commit_transaction ()
+        {
+            if (!my_in_transaction)
+                throw Error { "Not in transaction" };
+
+            char *errmsg = nullptr;
+            int result = sqlite3_exec (
+                    my_sqlite,
+                    "COMMIT",
+                    nullptr,
+                    nullptr,
+                    &errmsg
+            );
+            if (result != SQLITE_OK || errmsg != nullptr)
+            {
+                std::string error { errmsg };
+                sqlite3_free (errmsg);
+                throw Error { error };
+            }
+            my_in_transaction = false;
+            my_logger.println ("Commit " + std::to_string (my_queries_in_transaction) + " queries");
+            my_queries_in_transaction = 0;
+        }
+
+        explicit SqliteHandle (const std::string &path, Logger &logger) :
+            my_sqlite { nullptr },
+            my_logger { logger }
         {
             int result = sqlite3_open (path.c_str (), &my_sqlite);
             if (result != SQLITE_OK)
             {
-                std::cerr << "Error closing: " << sqlite3_errmsg (my_sqlite) << "\n";
-                std::terminate ();
+                std::string err { "Error opening sqlite: " };
+                err += sqlite3_errmsg (my_sqlite);
+                throw Error (err);
             }
         }
 
@@ -38,15 +70,15 @@ namespace wisdom::analysis
             if (my_in_transaction)
                 commit_transaction ();
             int result = sqlite3_close (my_sqlite);
-            if (result != SQLITE_OK)
-                std::cerr << "Error closing: " << sqlite3_errmsg (my_sqlite) << "\n";
+            assert (result == SQLITE_OK);
         }
 
         SqliteHandle (const SqliteHandle &) = delete;
 
         SqliteHandle &operator= (const SqliteHandle &) = delete;
 
-        SqliteHandle (SqliteHandle &&other) noexcept
+        SqliteHandle (SqliteHandle &&other) noexcept :
+            my_logger { other.my_logger }
         {
             this->my_sqlite = other.my_sqlite;
             this->my_in_transaction = other.my_sqlite;
@@ -106,34 +138,6 @@ namespace wisdom::analysis
                 throw Error { error };
             }
             my_in_transaction = true;
-        }
-
-    private:
-        bool my_in_transaction = false;
-        int my_queries_in_transaction = 0;
-
-        void commit_transaction ()
-        {
-            if (!my_in_transaction)
-                throw Error { "Not in transaction" };
-
-            char *errmsg = nullptr;
-            int result = sqlite3_exec (
-                my_sqlite,
-                "COMMIT",
-                nullptr,
-                nullptr,
-                &errmsg
-            );
-            if (result != SQLITE_OK || errmsg != nullptr)
-            {
-                std::string error { errmsg };
-                sqlite3_free (errmsg);
-                throw Error { error };
-            }
-            my_in_transaction = false;
-            std::cout << "Commit " << my_queries_in_transaction << " queries\n";
-            my_queries_in_transaction = 0;
         }
     };
 
@@ -284,7 +288,7 @@ namespace wisdom::analysis
         DecisionId my_parent_id;
         std::optional<Move> my_move;
         int my_depth;
-        int my_score;
+        int my_score = Negative_Infinity;
     };
 
     class SqliteSearch : public Search
@@ -323,15 +327,14 @@ namespace wisdom::analysis
     class SqliteAnalytics : public Analytics
     {
     public:
-        explicit SqliteAnalytics (std::string file_path) : my_file_path { std::move (file_path) }
-        {
-            auto handle = SqliteHandle { file_path };
-            init_schema (handle);
-        }
+        explicit SqliteAnalytics (std::string file_path, Logger &logger) :
+            my_file_path { std::move (file_path) },
+            my_logger { logger }
+        {}
 
         SqliteHandle open ()
         {
-            SqliteHandle handle { my_file_path };
+            SqliteHandle handle { my_file_path, my_logger };
             init_schema (handle);
             return handle;
         }
@@ -349,6 +352,7 @@ namespace wisdom::analysis
 
     private:
         std::string my_file_path;
+        Logger &my_logger;
     };
 
     SqliteSearch::SqliteSearch (SqliteHandle handle, const Board &board, Color side, int depth) :
@@ -359,9 +363,8 @@ namespace wisdom::analysis
             my_depth { depth }
     {}
 
-    std::unique_ptr<Analytics> make_sqlite_analytics (const std::string &analytics_file)
+    std::unique_ptr<Analytics> make_sqlite_analytics (const std::string &analytics_file, Logger &logger)
     {
-        return std::make_unique<SqliteAnalytics> (analytics_file);
+        return std::make_unique<SqliteAnalytics> (analytics_file, logger);
     }
-
 }

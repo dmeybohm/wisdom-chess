@@ -79,16 +79,15 @@ namespace wisdom
         return Game::load (input, comp_player);
     }
 
-    static void load_analysis (Game &game)
+    static void load_analysis (Game &game, Logger &logger)
     {
         std::string input = prompt ("store analysis in what file");
         if (input.empty ())
             return;
-        auto sqlite_analytics = analysis::make_sqlite_analytics (input);
-        game.set_analytics (std::move (sqlite_analytics));
+        game.set_analytics (analysis::make_sqlite_analytics (input, logger));
     }
 
-    static InputState read_move (Game &game)
+    static InputState read_move (Game &game, Logger &logger)
     {
         InputState result = InputState::from_initial ();
         std::string input;
@@ -138,7 +137,7 @@ namespace wisdom
         }
         else if (input == "analyze")
         {
-            load_analysis (game);
+            load_analysis (game, logger);
             result.skip = true;
         }
 
@@ -208,13 +207,13 @@ namespace wisdom
 
             if (History::is_fifty_move_repetition (game.board))
             {
-                std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
+                output.println("Fifty moves without a capture or pawn move. It's a draw!");
                 break;
             }
 
             if (game.turn != game.player)
             {
-                input_state = read_move (game);
+                input_state = read_move (game, output);
                 if (!input_state.ok)
                     break;
             }
@@ -244,7 +243,6 @@ namespace wisdom
                 std::cout << "\nInvalid move\n\n";
         }
     }
-
 }
 
 using wisdom::Color;
