@@ -9,11 +9,31 @@ namespace wisdom::analysis
 {
     class Analytics;
 
+    class IterativeSearch;
+
+    class Iteration;
+
     class Decision;
 
     class Position;
 
     class Search;
+
+    class IterativeSearch
+    {
+    public:
+        virtual ~IterativeSearch() = 0;
+
+        virtual std::unique_ptr<Iteration> make_iteration (int depth) = 0;
+    };
+
+    class Iteration
+    {
+    public:
+        virtual ~Iteration() = 0;
+
+        virtual std::unique_ptr<Search> make_search () = 0;
+    };
 
     class Search
     {
@@ -50,7 +70,10 @@ namespace wisdom::analysis
     public:
         virtual ~Analytics () = 0;
 
-        virtual std::unique_ptr<Search> make_search (const Board &board, Color turn, int depth) = 0;
+        virtual std::unique_ptr<IterativeSearch> make_iterative_search (
+                [[maybe_unused]] const Board &board,
+                [[maybe_unused]] Color turn
+        ) = 0;
     };
 
     class DummyPosition : public Position
@@ -87,9 +110,33 @@ namespace wisdom::analysis
     class DummySearch : public Search
     {
     public:
+        ~DummySearch () override = default;
+
         std::unique_ptr<Decision> make_decision () override
         {
             return std::make_unique<DummyDecision> ();
+        }
+    };
+
+    class DummyIteration : public Iteration
+    {
+    public:
+        ~DummyIteration() override = default;
+
+        std::unique_ptr<Search> make_search () override
+        {
+            return std::make_unique<DummySearch> ();
+        }
+    };
+
+    class DummyIterativeSearch : public IterativeSearch
+    {
+    public:
+        ~DummyIterativeSearch () override = default;
+
+        std::unique_ptr<Iteration> make_iteration ([[maybe_unused]] int depth) override
+        {
+            return std::make_unique<DummyIteration> ();
         }
     };
 
@@ -104,14 +151,12 @@ namespace wisdom::analysis
             return &dummy_analytics;
         }
 
-        std::unique_ptr<Search> make_search (
+        std::unique_ptr<IterativeSearch> make_iterative_search (
                 [[maybe_unused]] const Board &board,
-                [[maybe_unused]] Color turn,
-                [[maybe_unused]] int depth) override
+                [[maybe_unused]] Color turn) override
         {
-            return std::make_unique<DummySearch> ();
+            return std::make_unique<DummyIterativeSearch> ();
         }
-
     };
 
     Analytics *make_dummy_analytics ();

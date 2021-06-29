@@ -13,7 +13,6 @@ namespace wisdom
 
     Logger &make_null_logger ();
     Logger &make_standard_logger ();
-
 }
 
 #endif //WISDOM_LOGGER_HPP

@@ -178,6 +178,8 @@ namespace wisdom
     {
         SearchResult best_result = SearchResult::from_initial ();
 
+        auto iterative_search_analytics = my_analytics->make_iterative_search (my_board, side);
+
         try
         {
             // For now, only look every other depth
@@ -187,7 +189,8 @@ namespace wisdom
                 ostr << "Searching depth " << depth;
                 my_output.println (ostr.str ());
 
-                SearchResult next_result = iterate (side, depth);
+                auto iteration_analysis = iterative_search_analytics->make_iteration (depth);
+                SearchResult next_result = iterate (side, depth, iteration_analysis.get ());
                 if (next_result.timed_out)
                     break;
 
@@ -220,7 +223,7 @@ namespace wisdom
         }
     }
 
-    SearchResult IterativeSearch::iterate (Color side, int depth)
+    SearchResult IterativeSearch::iterate (Color side, int depth, analysis::Iteration *iteration)
     {
         std::stringstream outstr;
         outstr << "finding moves for " << to_string (side);
@@ -229,12 +232,12 @@ namespace wisdom
         nodes_visited = 0;
         cutoffs = 0;
 
-        auto analyzed_search = my_analytics->make_search (my_board, side, depth);
+        auto analyzed_search = iteration->make_search ();
         auto analyzed_decision = analyzed_search->make_decision ();
 
         auto start = std::chrono::system_clock::now ();
 
-        SearchResult result = search (side, depth, -Initial_Alpha, Initial_Alpha, analyzed_decision.get() );
+        SearchResult result = search (side, depth, -Initial_Alpha, Initial_Alpha, analyzed_decision.get());
 
         auto end = std::chrono::system_clock::now ();
 

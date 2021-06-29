@@ -12,6 +12,8 @@ namespace wisdom::analysis
     using SearchId = Uuid;
     using DecisionId = Uuid;
     using PositionId = Uuid;
+    using IterativeSearchId = Uuid;
+    using IterationId = Uuid;
 
     class SqliteAnalytics;
 
@@ -144,13 +146,31 @@ namespace wisdom::analysis
     static void init_schema (SqliteHandle &db)
     {
         db.exec (
+                "CREATE TABLE IF NOT EXISTS iterative_searches ("
+                "    id char(36) PRIMARY KEY, "
+                "    fen varchar(50),  "
+                "    created DATETIME "
+                " )"
+        );
+
+        db.exec (
+                "CREATE TABLE IF NOT EXISTS iterations ("
+                "    id char(36) PRIMARY KEY, "
+                "    iterative_search_id char(36), "
+                "    created DATETIME "
+                " )"
+        );
+
+        db.exec (
                 "CREATE TABLE IF NOT EXISTS searches ("
                 "    id char(36) PRIMARY KEY, "
+                "    iteration_id char(36), "
                 "    fen varchar(50),  "
                 "    depth INT NOT NULL, "
                 "    created DATETIME "
                 " )"
         );
+
         db.exec (
                 "CREATE TABLE IF NOT EXISTS decisions ("
                 "    id char(36) PRIMARY KEY, "
@@ -324,6 +344,69 @@ namespace wisdom::analysis
         int my_depth;
     };
 
+    class SqliteIteration : public Iteration
+    {
+    private:
+        SqliteHandle &my_handle;
+        IterationId my_iteration_id {};
+        IterativeSearchId my_iterative_search_id;
+        int my_depth;
+
+    public:
+        SqliteIteration (SqliteHandle &handle, const IterativeSearchId &iterative_search_id, int depth) :
+            my_handle { handle },
+            my_iterative_search_id { iterative_search_id },
+            my_depth { depth }
+        {}
+
+        ~SqliteIteration () override
+        {
+            my_handle.exec ("INSERT INTO iteration (id, iterative_search_id, depth) VALUES (" +
+                            my_iteration_id.to_string () + "," +
+                            my_iterative_search_id.to_string () +
+                            ")"
+            );
+        }
+
+        std::unique_ptr<Search> make_search () override
+        {
+            return std::unique_ptr<SqliteSearch> ();
+        }
+    };
+
+    class SqliteIterativeSearch : public IterativeSearch
+    {
+    private:
+        SqliteHandle my_handle;
+        const Board &my_board;
+        Color my_turn;
+        std::string my_fen;
+        IterativeSearchId my_iterative_search_id;
+
+    public:
+        SqliteIterativeSearch (SqliteHandle handle, const Board &board, Color turn) :
+            my_handle { std::move(handle) },
+            my_board { board },
+            my_turn { turn },
+            my_fen { board.to_fen_string (turn) }
+        {}
+
+        ~SqliteIterativeSearch () override
+        {
+            my_handle.exec ("INSERT INTO iterative_searches (id, fen, depth, created) VALUES (" +
+                            my_iterative_search_id.to_string() +
+                            "," +
+                            "'" + my_fen + "'" + ","
+                            + "datetime('now'))"
+            );
+        }
+
+        std::unique_ptr<Iteration> make_iteration (int depth) override
+        {
+            return std::make_unique<SqliteIteration> (my_handle, my_iterative_search_id, depth);
+        }
+    };
+
     class SqliteAnalytics : public Analytics
     {
     public:
@@ -345,9 +428,9 @@ namespace wisdom::analysis
 
         SqliteAnalytics &operator= (const SqliteAnalytics &) = delete;
 
-        std::unique_ptr<Search> make_search (const Board &board, Color turn, int depth) override
+        std::unique_ptr<IterativeSearch> make_iterative_search (const Board &board, Color turn) override
         {
-            return std::make_unique<SqliteSearch> (SqliteHandle { open () }, board, turn, depth);
+            return std::make_unique<SqliteIterativeSearch> ( SqliteHandle { open () }, board, turn);
         }
 
     private:

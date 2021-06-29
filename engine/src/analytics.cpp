@@ -5,10 +5,12 @@
 namespace wisdom::analysis
 {
     // dummy destructors for interfaces:
-    Position::~Position () = default;
+    Analytics::~Analytics () = default;
+    IterativeSearch::~IterativeSearch () = default;
+    Iteration::~Iteration () = default;
     Search::~Search () = default;
     Decision::~Decision () = default;
-    Analytics::~Analytics () = default;
+    Position::~Position () = default;
 
     Analytics *make_dummy_analytics ()
     {

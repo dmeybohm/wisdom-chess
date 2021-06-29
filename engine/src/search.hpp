@@ -66,7 +66,7 @@ namespace wisdom
 
         SearchResult iteratively_deepen (Color side);
 
-        SearchResult iterate (Color side, int depth);
+        SearchResult iterate (Color side, int depth, analysis::Iteration *iteration);
 
         SearchResult search (Color side, int depth, int alpha, int beta,
                              analysis::Decision *parent);

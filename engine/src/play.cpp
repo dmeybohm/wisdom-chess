@@ -207,7 +207,7 @@ namespace wisdom
 
             if (History::is_fifty_move_repetition (game.board))
             {
-                output.println("Fifty moves without a capture or pawn move. It's a draw!");
+                std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
                 break;
             }
 
