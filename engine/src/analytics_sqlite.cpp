@@ -206,7 +206,8 @@ namespace wisdom::analysis
                 const Board &board,
                 SearchId &search_id,
                 DecisionId &decision_id,
-                Move move) :
+                Move move
+        ) :
                 my_handle { std::move(handle) },
                 my_board { board },
                 my_search_id { search_id },
@@ -255,7 +256,8 @@ namespace wisdom::analysis
                 const Board &board,
                 const SearchId &search_id,
                 const DecisionId &parent_id,
-                int depth) :
+                int depth
+        ) :
                 my_handle { std::move(handle) },
                 my_board { board },
                 my_search_id { search_id },
