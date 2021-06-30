@@ -31,7 +31,7 @@ namespace wisdom::analysis
         void commit_transaction ()
         {
             if (!my_in_transaction)
-                throw Error { "Not in transaction" };
+                do_abort ("Not in transaction");
 
             char *errmsg = nullptr;
             int result = sqlite3_exec (
@@ -42,11 +42,8 @@ namespace wisdom::analysis
                     &errmsg
             );
             if (result != SQLITE_OK || errmsg != nullptr)
-            {
-                std::string error { errmsg };
-                sqlite3_free (errmsg);
-                throw Error { error };
-            }
+                do_abort (errmsg);
+
             my_in_transaction = false;
             my_logger.println ("Commit " + std::to_string (my_queries_in_transaction) + " queries");
             my_queries_in_transaction = 0;
@@ -61,7 +58,7 @@ namespace wisdom::analysis
             {
                 std::string err { "Error opening sqlite: " };
                 err += sqlite3_errmsg (my_sqlite);
-                throw Error (err);
+                do_abort (err.c_str());
             }
         }
 
@@ -72,7 +69,8 @@ namespace wisdom::analysis
             if (my_in_transaction)
                 commit_transaction ();
             int result = sqlite3_close (my_sqlite);
-            assert (result == SQLITE_OK);
+            if (result != SQLITE_OK)
+                do_abort ("sqlite3_close failed");
         }
 
         SqliteHandle (const SqliteHandle &) = delete;
@@ -96,6 +94,12 @@ namespace wisdom::analysis
             exec (str.c_str());
         }
 
+        [[noreturn]] static void do_abort (const char *errmsg)
+        {
+            std::cerr << errmsg << "\n";
+            std::terminate ();
+        }
+
         void exec (const char *query) // NOLINT(readability-make-member-function-const)
         {
             my_queries_in_transaction++;
@@ -114,11 +118,7 @@ namespace wisdom::analysis
                     &errmsg
             );
             if (errmsg != nullptr)
-            {
-                std::string error { errmsg };
-                sqlite3_free (errmsg);
-                throw Error { error };
-            }
+                do_abort (errmsg);
         }
 
         void start_transaction ()
@@ -134,11 +134,7 @@ namespace wisdom::analysis
                     &errmsg
             );
             if (result != SQLITE_OK || errmsg != nullptr)
-            {
-                std::string error { errmsg };
-                sqlite3_free (errmsg);
-                throw Error { error };
-            }
+                do_abort (errmsg);
             my_in_transaction = true;
         }
     };
@@ -147,7 +143,8 @@ namespace wisdom::analysis
     {
         db.exec (
                 "CREATE TABLE IF NOT EXISTS iterative_searches ("
-                "    id char(36) PRIMARY KEY, "
+                "    id INT PRIMARY KEY, "
+                "    color INT NOT NULL, "
                 "    fen varchar(50),  "
                 "    created DATETIME "
                 " )"
@@ -155,17 +152,17 @@ namespace wisdom::analysis
 
         db.exec (
                 "CREATE TABLE IF NOT EXISTS iterations ("
-                "    id char(36) PRIMARY KEY, "
-                "    iterative_search_id char(36), "
+                "    id INT PRIMARY KEY, "
+                "    iterative_search_id INT, "
+                "    depth INT NOT NULL, "
                 "    created DATETIME "
                 " )"
         );
 
         db.exec (
                 "CREATE TABLE IF NOT EXISTS searches ("
-                "    id char(36) PRIMARY KEY, "
-                "    iteration_id char(36), "
-                "    fen varchar(50),  "
+                "    id INT PRIMARY KEY, "
+                "    iteration_id INT, "
                 "    depth INT NOT NULL, "
                 "    created DATETIME "
                 " )"
@@ -173,7 +170,7 @@ namespace wisdom::analysis
 
         db.exec (
                 "CREATE TABLE IF NOT EXISTS decisions ("
-                "    id char(36) PRIMARY KEY, "
+                "    id INT PRIMARY KEY, "
                 "    depth int NOT NULL, "
                 "    move varchar(10),   "
                 "    search_id INT NOT NULL, "
@@ -184,7 +181,7 @@ namespace wisdom::analysis
         );
         db.exec (
                 "CREATE TABLE IF NOT EXISTS positions ( "
-                "   id char(36) PRIMARY KEY, "
+                "   id INT PRIMARY KEY, "
                 "   decision_id INT NOT NULL,"
                 "   move varchar(10), "
                 "   score int "
@@ -313,17 +310,23 @@ namespace wisdom::analysis
 
     class SqliteSearch : public Search
     {
+    private:
+        SqliteHandle &my_handle;
+        const Board &my_board;
+        IterationId my_iteration_id;
+        SearchId my_search_id;
+        int my_depth;
+
     public:
-        SqliteSearch (SqliteHandle handle, const Board &board, Color side, int depth);
+        SqliteSearch (SqliteHandle &handle, const Board &board, IterationId iteration_id, int depth);
 
         ~SqliteSearch () override
         {
-            my_handle.exec ("INSERT INTO searches (id, fen, depth, created) VALUES (" +
-                my_search_id.to_string() +
-                "," +
-                "'" + my_fen + "'" + ","
-                + std::to_string (my_depth) + ","
-                + "datetime('now'))"
+            my_handle.exec ("INSERT INTO searches (id, iteration_id, depth, created) VALUES (" +
+                my_search_id.to_string () + "," +
+                my_iteration_id.to_string () + "," +
+                std::to_string (my_depth) + "," +
+                "datetime('now'))"
             );
         }
 
@@ -335,42 +338,44 @@ namespace wisdom::analysis
         {
             return std::make_unique<SqliteDecision> (my_handle, my_board, my_search_id, Uuid::Nil(), 0);
         }
-
-    private:
-        SqliteHandle my_handle;
-        const Board &my_board;
-        std::string my_fen;
-        SearchId my_search_id;
-        int my_depth;
     };
 
     class SqliteIteration : public Iteration
     {
     private:
         SqliteHandle &my_handle;
+        const Board &my_board;
         IterationId my_iteration_id {};
         IterativeSearchId my_iterative_search_id;
         int my_depth;
 
     public:
-        SqliteIteration (SqliteHandle &handle, const IterativeSearchId &iterative_search_id, int depth) :
+        SqliteIteration (
+                SqliteHandle &handle,
+                const Board &board,
+                const IterativeSearchId &iterative_search_id,
+                int depth
+        ) :
             my_handle { handle },
+            my_board { board },
             my_iterative_search_id { iterative_search_id },
             my_depth { depth }
         {}
 
         ~SqliteIteration () override
         {
-            my_handle.exec ("INSERT INTO iteration (id, iterative_search_id, depth) VALUES (" +
-                            my_iteration_id.to_string () + "," +
-                            my_iterative_search_id.to_string () +
-                            ")"
+            my_handle.exec (
+                    "INSERT INTO iterations (id, iterative_search_id, depth, created) VALUES (" +
+                    my_iteration_id.to_string () + "," +
+                    my_iterative_search_id.to_string () + "," +
+                    std::to_string (my_depth) + "," +
+                    "datetime('now'))"
             );
         }
 
         std::unique_ptr<Search> make_search () override
         {
-            return std::unique_ptr<SqliteSearch> ();
+            return std::make_unique<SqliteSearch> (my_handle, my_board, my_iteration_id, my_depth);
         }
     };
 
@@ -393,17 +398,19 @@ namespace wisdom::analysis
 
         ~SqliteIterativeSearch () override
         {
-            my_handle.exec ("INSERT INTO iterative_searches (id, fen, depth, created) VALUES (" +
-                            my_iterative_search_id.to_string() +
-                            "," +
-                            "'" + my_fen + "'" + ","
-                            + "datetime('now'))"
+            int index = color_index (my_turn);
+            my_handle.exec (
+                    "INSERT INTO iterative_searches (id, fen, color, created) VALUES (" +
+                        my_iterative_search_id.to_string() + "," +
+                        "'" + my_fen + "'" + "," +
+                        std::to_string (index) + "," +
+                        "datetime('now'))"
             );
         }
 
         std::unique_ptr<Iteration> make_iteration (int depth) override
         {
-            return std::make_unique<SqliteIteration> (my_handle, my_iterative_search_id, depth);
+            return std::make_unique<SqliteIteration> (my_handle, my_board, my_iterative_search_id, depth);
         }
     };
 
@@ -438,10 +445,10 @@ namespace wisdom::analysis
         Logger &my_logger;
     };
 
-    SqliteSearch::SqliteSearch (SqliteHandle handle, const Board &board, Color side, int depth) :
-            my_handle { std::move (handle) },
+    SqliteSearch::SqliteSearch (SqliteHandle &handle, const Board &board, IterationId iteration_id, int depth) :
+            my_handle { handle },
             my_board { board },
-            my_fen { board.to_fen_string (side) },
+            my_iteration_id { iteration_id },
             my_search_id {},
             my_depth { depth }
     {}

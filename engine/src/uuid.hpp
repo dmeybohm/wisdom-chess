@@ -1,7 +1,8 @@
 #ifndef WISDOM_UUID_HPP
 #define WISDOM_UUID_HPP
 
-#include "global.hpp"
+#include <cstdint>
+#include <string>
 
 namespace wisdom
 {
@@ -10,23 +11,25 @@ namespace wisdom
     public:
         Uuid ();
         Uuid (const Uuid &) = default;
-        Uuid (const std::string &str) : my_buf { str }
+
+        explicit Uuid (int64_t rand64) : my_rand64 { rand64 }
         {}
 
-        std::string to_string() const;
+
+        [[nodiscard]] std::string to_string() const;
 
         static Uuid Nil()
         {
-            return Uuid { "00000000-0000-0000-0000-000000000000" };
+            return Uuid { 0 };
         }
 
         bool operator== (const Uuid &other) const
         {
-            return my_buf == other.my_buf;
+            return my_rand64 == other.my_rand64;
         }
 
     private:
-        std::string my_buf;
+        int64_t my_rand64;
     };
 
 }
