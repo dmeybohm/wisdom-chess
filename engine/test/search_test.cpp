@@ -172,15 +172,9 @@ TEST_CASE("Promoting move is taken if possible")
 
     History history;
     Board board = builder.build ();
-    auto analyzed_iterative_search = analysis::make_dummy_analytics ()->make_iterative_search (board, Color::Black);
-    auto analyzed_iteration = analyzed_iterative_search->make_iteration (1);
-    auto analyzed_search = analyzed_iteration->make_search ();
-    auto decision = analyzed_search->make_decision ();
 
-    IterativeSearch iterative_search { board, history, make_null_logger(), large_timer, 1 };
-    SearchResult result = iterative_search.search (Color::Black, 1, -Initial_Alpha, Initial_Alpha,
-                                                   decision.get ());
-
+    IterativeSearch search { board, history, make_null_logger (), large_timer, 1 };
+    auto result = search.iteratively_deepen (Color::Black);
     REQUIRE(to_string (*result.move) == "d2 d1(Q)");
 }
 
