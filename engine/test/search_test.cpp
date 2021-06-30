@@ -40,7 +40,6 @@ TEST_CASE("Can find mate in 3")
     );
 
     Board board = builder.build ();
-    std::unique_ptr<MoveTree> variation;
     History history;
     IterativeSearch search { board, history, make_null_logger (), large_timer, 5 };
 
@@ -85,7 +84,6 @@ TEST_CASE("Can find mate in 2 1/2")
     builder.add_piece ("d5", Color::White, Piece::King);
 
     Board board = builder.build ();
-    std::unique_ptr<MoveTree> variation;
     History history;
     IterativeSearch search { board, history, make_null_logger (), large_timer, 5 };
 
