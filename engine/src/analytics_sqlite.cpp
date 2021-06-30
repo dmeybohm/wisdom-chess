@@ -191,14 +191,23 @@ namespace wisdom::analysis
 
     class SqlitePosition : public Position
     {
+    private:
+        std::shared_ptr<SqliteHandle> my_handle;
+        [[maybe_unused]] const Board &my_board;
+        SearchId my_search_id;
+        DecisionId my_decision_id;
+        PositionId my_position_id;
+        Move my_move;
+        int my_score;
+
     public:
         SqlitePosition (
-                SqliteHandle &handle,
+                std::shared_ptr<SqliteHandle> handle,
                 const Board &board,
                 SearchId &search_id,
                 DecisionId &decision_id,
                 Move move) :
-                my_handle { handle },
+                my_handle { std::move(handle) },
                 my_board { board },
                 my_search_id { search_id },
                 my_decision_id { decision_id },
@@ -215,7 +224,7 @@ namespace wisdom::analysis
                     "'" + wisdom::to_string (my_move) + "'," +
                     std::to_string (my_score) +
                     ")";
-            my_handle.exec (insert.c_str ());
+            my_handle->exec (insert.c_str ());
         }
 
         SqlitePosition (const SqlitePosition &) = delete;
@@ -226,27 +235,28 @@ namespace wisdom::analysis
         {
             my_score = result.score;
         }
-
-    private:
-        SqliteHandle &my_handle;
-        [[maybe_unused]] const Board &my_board;
-        SearchId my_search_id;
-        DecisionId my_decision_id;
-        PositionId my_position_id;
-        Move my_move;
-        int my_score;
     };
 
     class SqliteDecision : public Decision
     {
+    private:
+        std::shared_ptr<SqliteHandle> my_handle;
+        const Board &my_board;
+        SearchId my_search_id;
+        DecisionId my_decision_id;
+        DecisionId my_parent_id;
+        std::optional<Move> my_move;
+        int my_depth;
+        int my_score = Negative_Infinity;
+
     public:
         SqliteDecision (
-                SqliteHandle &handle,
+                std::shared_ptr<SqliteHandle> handle,
                 const Board &board,
                 const SearchId &search_id,
                 const DecisionId &parent_id,
                 int depth) :
-                my_handle { handle },
+                my_handle { std::move(handle) },
                 my_board { board },
                 my_search_id { search_id },
                 my_decision_id {},
@@ -269,7 +279,7 @@ namespace wisdom::analysis
                     + parent_id_str + ", "
                     + std::to_string (my_depth) + ","
                     + move_str + ")";
-            my_handle.exec (query.c_str ());
+            my_handle->exec (query.c_str ());
         }
 
         SqliteDecision (const SqliteDecision &) = delete;
@@ -296,33 +306,23 @@ namespace wisdom::analysis
 
         void preliminary_choice ([[maybe_unused]] Position *position) override
         {}
-
-    private:
-        SqliteHandle &my_handle;
-        const Board &my_board;
-        SearchId my_search_id;
-        DecisionId my_decision_id;
-        DecisionId my_parent_id;
-        std::optional<Move> my_move;
-        int my_depth;
-        int my_score = Negative_Infinity;
     };
 
     class SqliteSearch : public Search
     {
     private:
-        SqliteHandle &my_handle;
+        std::shared_ptr<SqliteHandle> my_handle;
         const Board &my_board;
         IterationId my_iteration_id;
         SearchId my_search_id;
         int my_depth;
 
     public:
-        SqliteSearch (SqliteHandle &handle, const Board &board, IterationId iteration_id, int depth);
+        SqliteSearch (std::shared_ptr<SqliteHandle> handle, const Board &board, IterationId iteration_id, int depth);
 
         ~SqliteSearch () override
         {
-            my_handle.exec ("INSERT INTO searches (id, iteration_id, depth, created) VALUES (" +
+            my_handle->exec ("INSERT INTO searches (id, iteration_id, depth, created) VALUES (" +
                 my_search_id.to_string () + "," +
                 my_iteration_id.to_string () + "," +
                 std::to_string (my_depth) + "," +
@@ -343,7 +343,7 @@ namespace wisdom::analysis
     class SqliteIteration : public Iteration
     {
     private:
-        SqliteHandle &my_handle;
+        std::shared_ptr<SqliteHandle> my_handle;
         const Board &my_board;
         IterationId my_iteration_id {};
         IterativeSearchId my_iterative_search_id;
@@ -351,12 +351,12 @@ namespace wisdom::analysis
 
     public:
         SqliteIteration (
-                SqliteHandle &handle,
+                std::shared_ptr<SqliteHandle> handle,
                 const Board &board,
                 const IterativeSearchId &iterative_search_id,
                 int depth
         ) :
-            my_handle { handle },
+            my_handle { std::move(handle) },
             my_board { board },
             my_iterative_search_id { iterative_search_id },
             my_depth { depth }
@@ -364,7 +364,7 @@ namespace wisdom::analysis
 
         ~SqliteIteration () override
         {
-            my_handle.exec (
+            my_handle->exec (
                     "INSERT INTO iterations (id, iterative_search_id, depth, created) VALUES (" +
                     my_iteration_id.to_string () + "," +
                     my_iterative_search_id.to_string () + "," +
@@ -382,14 +382,14 @@ namespace wisdom::analysis
     class SqliteIterativeSearch : public IterativeSearch
     {
     private:
-        SqliteHandle my_handle;
+        std::shared_ptr<SqliteHandle> my_handle;
         const Board &my_board;
         Color my_turn;
         std::string my_fen;
         IterativeSearchId my_iterative_search_id;
 
     public:
-        SqliteIterativeSearch (SqliteHandle handle, const Board &board, Color turn) :
+        SqliteIterativeSearch (std::shared_ptr<SqliteHandle> handle, const Board &board, Color turn) :
             my_handle { std::move(handle) },
             my_board { board },
             my_turn { turn },
@@ -398,8 +398,8 @@ namespace wisdom::analysis
 
         ~SqliteIterativeSearch () override
         {
-            int index = color_index (my_turn);
-            my_handle.exec (
+            auto index = color_index (my_turn);
+            my_handle->exec (
                     "INSERT INTO iterative_searches (id, fen, color, created) VALUES (" +
                         my_iterative_search_id.to_string() + "," +
                         "'" + my_fen + "'" + "," +
@@ -422,10 +422,10 @@ namespace wisdom::analysis
             my_logger { logger }
         {}
 
-        SqliteHandle open ()
+        std::shared_ptr<SqliteHandle> open ()
         {
-            SqliteHandle handle { my_file_path, my_logger };
-            init_schema (handle);
+            auto handle = std::make_shared<SqliteHandle> (my_file_path, my_logger);
+            init_schema (*handle);
             return handle;
         }
 
@@ -437,7 +437,7 @@ namespace wisdom::analysis
 
         std::unique_ptr<IterativeSearch> make_iterative_search (const Board &board, Color turn) override
         {
-            return std::make_unique<SqliteIterativeSearch> ( SqliteHandle { open () }, board, turn);
+            return std::make_unique<SqliteIterativeSearch> ( open (), board, turn);
         }
 
     private:
@@ -445,8 +445,8 @@ namespace wisdom::analysis
         Logger &my_logger;
     };
 
-    SqliteSearch::SqliteSearch (SqliteHandle &handle, const Board &board, IterationId iteration_id, int depth) :
-            my_handle { handle },
+    SqliteSearch::SqliteSearch (std::shared_ptr<SqliteHandle> handle, const Board &board, IterationId iteration_id, int depth) :
+            my_handle { std::move(handle) },
             my_board { board },
             my_iteration_id { iteration_id },
             my_search_id {},
