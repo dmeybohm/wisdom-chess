@@ -102,10 +102,10 @@ namespace wisdom::analysis
 
         void exec (const char *query) // NOLINT(readability-make-member-function-const)
         {
-            my_queries_in_transaction++;
             if (my_queries_in_transaction >= Max_Queries)
                 commit_transaction ();
 
+            my_queries_in_transaction++;
             if (!my_in_transaction)
                 start_transaction ();
 

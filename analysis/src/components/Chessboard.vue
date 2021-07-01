@@ -1,7 +1,6 @@
 <template>
   <div>
     <div ref="my_board" style="width: 300px"></div>
-
   </div>
 </template>
 
@@ -14,6 +13,11 @@ export default {
   },
   mounted: function() {
     this.reload();
+  },
+  watch: {
+    move_list: function() {
+      this.reload()
+    }
   },
   methods: {
     reload: function () {
