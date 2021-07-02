@@ -4,20 +4,14 @@
       <h1>Iterative Searches</h1>
       <div v-for="iterative_search in iterative_searches" :key="iterative_search.id">
         <Chessboard :fen="iterative_search.fen" :move_list="iterative_search.move_list"/>
+        <MoveWithScore v-if="selected_search !== null"
+                       :move="selected_search.move"
+                       :score="selected_search.score" />
         <ol class="iteration-list">
           <li v-for="(depth, index) in iterative_search.iterations" :key="`iteration-${index}`">
             <button @click="loadSearch(iterative_search, depth)">Depth {{ depth }}</button>
           </li>
         </ol>
-
-        <!--
-        <h4>Iterations:</h4>
-        <div v-for="search in searches" :key="search.id" >
-          <Chessboard :fen="search.fen" :move_list="[search.move]" @click.native="loadPositions(search)" />
-          <div>Depth: {{search.depth}}</div>
-          <div>Move: {{search.move}}</div>
-        </div>
-        -->
         <hr/>
       </div>
     </div>
@@ -30,10 +24,11 @@
 <script>
 import Chessboard from "./Chessboard";
 import MoveStack from "./MoveStack";
+import MoveWithScore from "@/components/MoveWithScore";
 
 export default {
   name: "Display",
-  components: {MoveStack, Chessboard},
+  components: {MoveWithScore, MoveStack, Chessboard},
   data: function () {
     return {
       iterative_searches: [],
@@ -92,10 +87,13 @@ export default {
   width: 400px;
   max-height: 95vh;
   overflow-y: auto;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
 .right-column {
-  width: 400px;
   max-height: 95vh;
   overflow-y: auto;
 }

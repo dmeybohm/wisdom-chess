@@ -2,11 +2,12 @@
   <div>
     <div v-for="position in positions" :key="position.id">
       <div class="move">
-        <Chessboard :fen="fen" :move_list="position.move_list" v-once @click.native="$emit('selected', position)"/>
-        <div class="rhs">
-          <div>{{ position.move }}</div>
-          <div>{{ position.score }}</div>
-        </div>
+        <Chessboard :fen="fen"
+                    :move_list="position.move_list"
+                    @click.native="$emit('selected', position, analyze_depth)" />
+        <MoveWithScore
+            :move="position.move"
+            :score="position.score" />
       </div>
     </div>
   </div>
@@ -14,13 +15,15 @@
 
 <script>
 import Chessboard from "@/components/Chessboard";
+import MoveWithScore from "@/components/MoveWithScore";
 
 export default {
   name: "PositionList.vue",
-  components: {Chessboard},
+  components: {MoveWithScore, Chessboard},
   props: {
     url: String,
     fen: String,
+    analyze_depth: Number,
     positions: Array
   },
   watch: {

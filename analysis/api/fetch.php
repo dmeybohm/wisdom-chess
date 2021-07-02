@@ -20,7 +20,7 @@ switch ($query) {
             SELECT depth FROM iterations WHERE iterative_search_id = :iterativeSearchId
         ');
         $iterative_search['iterations'] = [];
-        $iterative_searches = array_map(function($iterative_search) use ($stmt) {
+        $iterative_searches = array_map(function ($iterative_search) use ($stmt) {
             $iterative_search['iterations'] = [];
             $stmt->bindParam(':iterativeSearchId', $iterative_search['id'], SQLITE3_INTEGER);
             $results = $stmt->execute();
@@ -51,7 +51,7 @@ switch ($query) {
         $stmt->bindParam(':depth', $iteration_depth, SQLITE3_INTEGER);
         header("Content-Type: application/json");
         $rows = retrieve_all($stmt->execute());
-        $results = array_map(function($search) : array {
+        $results = array_map(function ($search): array {
             $search['id'] = (string)$search['id'];
             $search['iteration_id'] = (string)$search['iteration_id'];
             $search['decision_id'] = isset($search['decision_id']) ? (string)$search['decision_id'] : null;
@@ -64,20 +64,37 @@ switch ($query) {
 
     case 'positions':
         $decision_id = $_GET['decision_id'] ?? '';
+        $position_id = $_GET['position_id'] ?? '';
+        $params = [];
+        if (!empty($decision_id)) {
+            $params['decisionId'] = $decision_id;
+            $where = 'd.id = :decisionId';
+        } else {
+            $params['positionId'] = $position_id;
+            $where = 'd.parent_position_id = :positionId';
+        }
         $stmt = $sqlite->prepare(
             "
-                SELECT p.*, d.move as final_move 
+                SELECT p.*, d.move as final_move
                 FROM decisions d 
                     INNER JOIN positions p on d.id = p.decision_id
                 WHERE
-                    d.id = :decisionId
+                    $where
                 ORDER BY p.score DESC
             "
         );
-        $stmt->bindValue(':decisionId', $decision_id, SQLITE3_TEXT);
+        foreach ($params as $key => $param) {
+            $stmt->bindValue($key, $param, SQLITE3_TEXT);
+        }
         $result = $stmt->execute();
+        $results = retrieve_all($result);
         header("Content-Type: application/json");
-        echo json_encode(retrieve_all($result));
+        $results = array_map(function($position) : array {
+            $position['id'] = (string)$position['id'];
+            $position['decision_id'] = isset($position['decision_id']) ? (string)$position['decision_id'] : null;
+            return $position;
+        }, $results);
+        echo json_encode($results);
         break;
 
     default:

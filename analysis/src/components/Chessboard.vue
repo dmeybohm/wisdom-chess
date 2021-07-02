@@ -23,16 +23,20 @@ export default {
     reload: function () {
       let board = window.Chessboard(this.$refs.my_board, {position: this.fen});
       let $board = window.jQuery(this.$refs.my_board);
+      let last_move = null;
       this.move_list.forEach(function (move) {
         if (move) {
           let squareClass = 'square-55d63'
           $board.find('.' + squareClass).removeClass('.highlight')
-          let squares = move.replace(' ', 'x').split('x')
-          $board.find('.square-' + squares[0]).addClass('highlight')
-          $board.find('.square-' + squares[1]).addClass('highlight')
-          board.move(move.replace(' ', '-'));
+          board.move(move.replace('x', ' ').replace(' ', '-'));
+          last_move = move;
         }
       });
+      if (last_move) {
+        let squares = last_move.replace(' ', 'x').split('x')
+        $board.find('.square-' + squares[0]).addClass('highlight')
+        $board.find('.square-' + squares[1]).addClass('highlight')
+      }
     }
   }
 
