@@ -232,6 +232,11 @@ namespace wisdom::analysis
 
         SqlitePosition &operator= (const SqlitePosition &) = delete;
 
+        [[nodiscard]] PositionId id () const noexcept
+        {
+            return my_position_id;
+        }
+
         void finalize ([[maybe_unused]] const SearchResult &result) override
         {
             my_score = result.score;
@@ -249,6 +254,7 @@ namespace wisdom::analysis
         std::optional<Move> my_move;
         int my_depth;
         int my_score = Negative_Infinity;
+        std::optional<PositionId> my_parent_position_id;
 
     public:
         SqliteDecision (
@@ -300,10 +306,18 @@ namespace wisdom::analysis
             my_score = result.score;
         }
 
+        void set_parent_position_id (PositionId parent_position_id)
+        {
+            my_parent_position_id = parent_position_id;
+        }
+
         std::unique_ptr<Decision> make_child ([[maybe_unused]] Position *position) override
         {
-            return std::make_unique<SqliteDecision> (my_handle, my_board, my_search_id, my_decision_id,
+            auto result = std::make_unique<SqliteDecision> (my_handle, my_board, my_search_id, my_decision_id,
                                                      my_depth + 1);
+            const auto &parent_position = dynamic_cast<SqlitePosition&> (*position);
+            result->set_parent_position_id (parent_position.id ());
+            return result;
         }
 
         void preliminary_choice ([[maybe_unused]] Position *position) override
