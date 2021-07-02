@@ -254,7 +254,7 @@ namespace wisdom::analysis
         std::optional<Move> my_move;
         int my_depth;
         int my_score = Negative_Infinity;
-        std::optional<PositionId> my_parent_position_id;
+        PositionId my_parent_position_id = Uuid::Nil();
 
     public:
         SqliteDecision (
@@ -279,11 +279,14 @@ namespace wisdom::analysis
             std::string move_str = my_move.has_value() ?
                     "'" + to_string (*my_move) + "'":
                     "NULL";
+            std::string parent_pos_id_str = my_parent_position_id == Uuid::Nil()
+                    ? "NULL" : my_parent_position_id.to_string ();
             std::string query =
                     "INSERT INTO decisions (id, search_id, parent_position_id, parent_decision_id, depth, move) "
                     " VALUES ("
                     + my_decision_id.to_string() + ","
-                    + my_search_id.to_string() + ", NULL, "
+                    + my_search_id.to_string() + ","
+                    + parent_pos_id_str + ", "
                     + parent_id_str + ", "
                     + std::to_string (my_depth) + ","
                     + move_str + ")";
