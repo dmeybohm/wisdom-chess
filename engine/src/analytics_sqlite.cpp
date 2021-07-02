@@ -432,6 +432,10 @@ namespace wisdom::analysis
 
     class SqliteAnalytics : public Analytics
     {
+    private:
+        std::string my_file_path;
+        Logger &my_logger;
+
     public:
         explicit SqliteAnalytics (std::string file_path, Logger &logger) :
             my_file_path { std::move (file_path) },
@@ -455,10 +459,6 @@ namespace wisdom::analysis
         {
             return std::make_unique<SqliteIterativeSearch> ( open (), board, turn);
         }
-
-    private:
-        std::string my_file_path;
-        Logger &my_logger;
     };
 
     SqliteSearch::SqliteSearch (std::shared_ptr<SqliteHandle> handle, const Board &board, IterationId iteration_id, int depth) :
