@@ -185,7 +185,7 @@ namespace wisdom
         try
         {
             // For now, only look every other depth
-            for (int depth = 0; depth <= my_total_depth; depth++)
+            for (int depth = 0; depth <= my_total_depth; depth == 0 ? depth++ : depth += 2)
             {
                 std::ostringstream ostr;
                 ostr << "Searching depth " << depth;
