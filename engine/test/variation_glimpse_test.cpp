@@ -17,8 +17,7 @@ TEST_CASE("Variation glimpse without overflow" )
         glimpse.push_front (move);
     }
     auto str = glimpse.to_string();
-    INFO( "str: ", str );
-    REQUIRE( false );
+    REQUIRE( str == "{ [c7 c8] [c5 c6] [c3 c4] [c1 c2] [b7 b8] [b5 b6] [b3 b4] [b1 b2] [a7 a8] [a5 a6] [a3 a4] [a1 a2] }" );
 }
 
 TEST_CASE("Variation glimpse with overflow" )
@@ -34,6 +33,5 @@ TEST_CASE("Variation glimpse with overflow" )
     }
     glimpse.push_front (move_parse ("a1 a8"));
     auto str = glimpse.to_string();
-    INFO( "str: ", str );
-    REQUIRE( false );
+    REQUIRE( str == "{ [a1 a8] [c7 c8] [c5 c6] [c3 c4] [c1 c2] [b7 b8] [b5 b6] [b3 b4] [b1 b2] [a7 a8] [a5 a6] [a3 a4] }" );
 }
