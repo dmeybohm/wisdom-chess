@@ -2,6 +2,7 @@
 #include "uuid.hpp"
 #include "board.hpp"
 #include "logger.hpp"
+#include "transposition_table.hpp"
 
 #include <sqlite3.h>
 #include <utility>
@@ -187,6 +188,14 @@ namespace wisdom::analysis
                 "   score int "
                 ")"
         );
+        db.exec(
+                "CREATE TABLE IF NOT EXISTS transposition_hits ( "
+                "  id INT PRIMARY KEY, "
+                "  position_id INT NOT NULL, "
+                "  decision_id INT NOT NULL, "
+                "  variation VARCHAR(70) "
+                ")"
+        );
     }
 
     class SqlitePosition : public Position
@@ -240,6 +249,20 @@ namespace wisdom::analysis
         void finalize ([[maybe_unused]] const SearchResult &result) override
         {
             my_score = result.score;
+        }
+
+        void store_transposition_hit (const RelativeTransposition &relative_transposition) override
+        {
+            Uuid transposition_hit_id;
+            std::string query = "INSERT INTO transposition_hits (id, position_id, decision_id, variation) VALUES (";
+
+            query += transposition_hit_id.to_string () + "," +
+                    my_position_id.to_string () + "," +
+                    my_decision_id.to_string () + "," +
+                    "'" + relative_transposition.variation_glimpse.to_string() + "'" +
+            ")";
+
+            my_handle->exec(query);
         }
     };
 

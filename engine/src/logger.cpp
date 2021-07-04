@@ -26,6 +26,7 @@ namespace wisdom
         {
             std::lock_guard lock { output_mutex };
             std::cout << output << '\n';
+            std::cout.flush();
         }
     };
 

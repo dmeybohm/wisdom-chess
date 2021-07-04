@@ -4,6 +4,7 @@
 #include "check.hpp"
 #include "search.hpp"
 #include "multithread_search.hpp"
+#include "transposition_table.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -27,16 +28,17 @@ namespace wisdom
     {
         // Check the transposition table for the move:
         auto transposition = my_board.check_transposition_table (side, depth);
+
         if (transposition.has_value ())
         {
             transposition->variation_glimpse.push_front (move);
             auto result = SearchResult { transposition->variation_glimpse, move, transposition->score,
                     my_total_depth - depth, false };
             position->finalize (result);
+            position->store_transposition_hit (*transposition);
             return result;
         }
-
-        if (depth <= 0)
+        else if (depth <= 0)
         {
             VariationGlimpse glimpse;
             glimpse.push_front (move);

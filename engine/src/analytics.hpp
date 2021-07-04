@@ -5,6 +5,11 @@
 #include "move.hpp"
 #include "search_result.hpp"
 
+namespace wisdom
+{
+    struct RelativeTransposition;
+}
+
 namespace wisdom::analysis
 {
     class Analytics;
@@ -63,6 +68,8 @@ namespace wisdom::analysis
         virtual ~Position () = 0;
 
         virtual void finalize (const SearchResult &result) = 0;
+
+        virtual void store_transposition_hit (const RelativeTransposition &relative_transposition) = 0;
     };
 
     class Analytics
@@ -82,6 +89,9 @@ namespace wisdom::analysis
         ~DummyPosition () override = default;
 
         void finalize ([[maybe_unused]] const SearchResult &result) override
+        {}
+
+        void store_transposition_hit ([[maybe_unused]] const RelativeTransposition &relative_transposition) override
         {}
     };
 
