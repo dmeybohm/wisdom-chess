@@ -17,6 +17,8 @@ namespace wisdom
         int16_t my_next_pos = 0;
 
     public:
+        VariationGlimpse() = default;
+
         constexpr static int16_t next_index (int16_t index)
         {
             int result = static_cast<int> (index);

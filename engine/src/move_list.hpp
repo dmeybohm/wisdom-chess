@@ -35,6 +35,8 @@ namespace wisdom
             return *this;
         }
 
+        MoveList &operator= (MoveList &&other) = default;
+
         void push_back (Move move)
         {
             my_moves->push_back (move);

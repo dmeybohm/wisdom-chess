@@ -24,6 +24,13 @@ namespace wisdom
             SearchResult result { {}, std::nullopt, -Initial_Alpha, 0, true };
             return result;
         }
+
+        static SearchResult from_evaluated_move (Move move, int score, int total_depth, int current_depth) noexcept
+        {
+            auto result = SearchResult { {}, move, score, total_depth - current_depth, false };
+            result.variation_glimpse.push_front (move);
+            return result;
+        }
     };
 }
 

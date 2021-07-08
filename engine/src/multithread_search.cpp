@@ -1,5 +1,6 @@
 #include "multithread_search.hpp"
 #include "history.hpp"
+#include "logger.hpp"
 
 #include <sstream>
 #include <mutex>

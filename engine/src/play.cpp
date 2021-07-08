@@ -19,20 +19,12 @@ namespace wisdom
 
     struct InputState
     {
-        bool ok;
-        bool good;
-        bool skip;
-        std::optional<Move> move;
+        bool keep_going = true;
+        bool failed_parse = false;
+        bool skip_move = false;
+        std::optional<Move> move = std::nullopt;
 
-        static InputState from_initial() noexcept
-        {
-            return InputState {
-                    .ok = true,
-                    .good = true,
-                    .skip = false,
-                    .move = {}
-            };
-        }
+        InputState() = default;
     };
 
     static void print_available_moves (Game &game)
@@ -89,14 +81,14 @@ namespace wisdom
 
     static InputState read_move (Game &game, Logger &logger)
     {
-        InputState result = InputState::from_initial ();
+        InputState result;
         std::string input;
 
         std::cout << "move? ";
 
         if (!std::getline (std::cin, input))
         {
-            result.ok = false;
+            result.keep_going = false;
             return result;
         }
 
@@ -105,18 +97,18 @@ namespace wisdom
         if (input == "moves")
         {
             print_available_moves (game);
-            result.skip = true;
+            result.skip_move = true;
             return result;
         }
         else if (input == "save")
         {
             save_game (game);
-            result.skip = true;
+            result.skip_move = true;
             return result;
         }
         else if (input == "load")
         {
-            result.skip = true;
+            result.skip_move = true;
             Color orig_player = game.player;
             auto optional_game = load_game ();
             if (optional_game.has_value ())
@@ -132,17 +124,17 @@ namespace wisdom
         }
         else if (input == "quit" || input == "exit")
         {
-            result.ok = false;
+            result.keep_going = false;
             return result;
         }
         else if (input == "analyze")
         {
             load_analysis (game, logger);
-            result.skip = true;
+            result.skip_move = true;
         }
 
         result.move = move_parse_optional (input, game.turn);
-        result.good = false;
+        result.failed_parse = true;
 
         // check the generated move list for this move to see if its valid
         MoveList moves = generate_legal_moves (game.board, game.turn);
@@ -151,7 +143,7 @@ namespace wisdom
         {
             if (result.move.has_value () && move_equals (legal_move, *result.move))
             {
-                result.good = true;
+                result.failed_parse = false;
                 break;
             }
         }
@@ -161,20 +153,21 @@ namespace wisdom
 
     static InputState offer_draw ()
     {
-        InputState result = InputState::from_initial ();
+        InputState result;
         std::string input;
         std::cout << "Third repetition detected. Would you like a draw? [y/n]\n";
 
         if (!std::getline (std::cin, input))
         {
-            result.ok = result.good = false;
+            result.keep_going = false;
+            result.failed_parse = true;
             return result;
         }
 
         if (input[0] == 'y' || input[1] == 'Y')
         {
             std::cout << "Draw accepted!\n";
-            result.ok = false;
+            result.keep_going = false;
             return result;
         }
 
@@ -184,11 +177,11 @@ namespace wisdom
     void play (Color human_player)
     {
         Game game { Color::White, color_invert (human_player) };
-        InputState initial_input_state = InputState::from_initial ();
+        InputState initial_input_state;
         Logger &output = make_standard_logger ();
         InputState input_state = initial_input_state;
 
-        while (input_state.ok)
+        while (input_state.keep_going)
         {
             input_state = initial_input_state;
             game.board.print ();
@@ -214,7 +207,7 @@ namespace wisdom
             if (game.turn != game.player)
             {
                 input_state = read_move (game, output);
-                if (!input_state.ok)
+                if (!input_state.keep_going)
                     break;
             }
             else
@@ -230,14 +223,14 @@ namespace wisdom
                 input_state.move = optional_move;
                 if (input_state.move.has_value ())
                     std::cout << "move selected: [" << to_string (*input_state.move) << "]\n";
-                input_state.good = true;
-                input_state.ok = true;
+                input_state.failed_parse = false;
+                input_state.keep_going = true;
             }
 
-            if (input_state.skip)
+            if (input_state.skip_move)
                 continue;
 
-            if (input_state.good && input_state.move.has_value ())
+            if (!input_state.failed_parse && input_state.move.has_value ())
                 game.move (*input_state.move);
             else
                 std::cout << "\nInvalid move\n\n";

@@ -5,6 +5,8 @@
 #include "search.hpp"
 #include "multithread_search.hpp"
 #include "transposition_table.hpp"
+#include "analytics.hpp"
+#include "logger.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -23,54 +25,176 @@ namespace wisdom
     using std::chrono::seconds;
     using wisdom::Logger;
 
-    SearchResult IterativeSearch::recurse_or_evaluate (Color side, int depth, int alpha, int beta, Move move,
-                                                       analysis::Decision *parent, analysis::Position *position)
+    class IterativeSearchImpl
+    {
+    private:
+        Board &my_board;
+        History &my_history;
+        Logger &my_output;
+        analysis::Analytics *my_analytics;
+        MoveTimer my_timer;
+        int my_total_depth;
+
+    public:
+        IterativeSearchImpl (Board &board,
+                             History &history,
+                             Logger &output,
+                             MoveTimer timer,
+                             int total_depth) :
+            my_board { board },
+            my_history { history },
+            my_output { output },
+            my_analytics { analysis::make_dummy_analytics () },
+            my_timer { timer },
+            my_total_depth { total_depth }
+        {}
+
+        IterativeSearchImpl (Board &board,
+                             History &history,
+                             Logger &output,
+                             analysis::Analytics *analytics,
+                             MoveTimer timer,
+                             int total_depth) :
+             my_board { board },
+             my_history { history },
+             my_output { output },
+             my_analytics { analytics },
+             my_timer { timer },
+             my_total_depth { total_depth }
+        {}
+
+        SearchResult iteratively_deepen (Color side);
+
+        SearchResult search_moves (Color side, int depth, int alpha, int beta,
+                                   const ScoredMoveList &moves,
+                                   analysis::Decision *decision);
+
+        SearchResult iterate (Color side, int depth, analysis::Iteration *iteration);
+
+        SearchResult search (Color side, int depth, int alpha, int beta,
+                             analysis::Decision *decision);
+
+        SearchResult recurse_or_evaluate (Color side, int depth, int alpha, int beta,
+                                          Move move, analysis::Decision *parent,
+                                          analysis::Position *position);
+
+        SearchResult transposition_value (int depth, Move &move, analysis::Position *position,
+                                          std::optional<RelativeTransposition> &transposition) const;
+
+        SearchResult evaluated_value (Color &side, int depth,
+                                      Move &move, analysis::Position *position) const;
+
+        SearchResult
+        recursed_value (Color &side, int depth, int alpha, int beta,Move &move,
+                        analysis::Decision *parent, analysis::Position *position);
+    };
+
+    IterativeSearch::~IterativeSearch() = default;
+    IterativeSearch::IterativeSearch (Board &board,
+                                      History &history,
+                                      Logger &output,
+                                      MoveTimer timer,
+                                      int total_depth) :
+        pimpl { std::make_unique<IterativeSearchImpl>(
+            board,
+            history,
+            output,
+            analysis::make_dummy_analytics (),
+            timer,
+            total_depth
+        )}
+    {}
+
+    IterativeSearch::IterativeSearch (
+            Board &board,
+            History &history,
+            Logger &output,
+            analysis::Analytics *analytics,
+            MoveTimer timer,
+            int total_depth) :
+            pimpl { std::make_unique<IterativeSearchImpl>(
+                 board,
+                 history,
+                 output,
+                 analytics,
+                 timer,
+                 total_depth
+             )}
+     {}
+
+    SearchResult IterativeSearch::iteratively_deepen (Color side)
+    {
+        return pimpl->iteratively_deepen (side);
+    }
+
+    SearchResult
+    IterativeSearchImpl::transposition_value (int depth, Move &move, analysis::Position *position,
+                                              std::optional<RelativeTransposition> &transposition) const
+    {
+        transposition->variation_glimpse.push_front (move);
+        auto result = SearchResult { transposition->variation_glimpse, move, transposition->score,
+                                     my_total_depth - depth, false };
+        position->finalize (result);
+        position->store_transposition_hit (*transposition);
+        return result;
+    }
+
+    SearchResult IterativeSearchImpl::recurse_or_evaluate (Color side, int depth, int alpha, int beta,
+                                                           Move move, analysis::Decision *parent,
+                                                           analysis::Position *position)
     {
         // Check the transposition table for the move:
         auto transposition = my_board.check_transposition_table (side, depth);
 
         if (transposition.has_value ())
         {
-            transposition->variation_glimpse.push_front (move);
-            auto result = SearchResult { transposition->variation_glimpse, move, transposition->score,
-                    my_total_depth - depth, false };
-            position->finalize (result);
-            position->store_transposition_hit (*transposition);
-            return result;
+            return transposition_value (depth, move, position, transposition);
         }
         else if (depth <= 0)
         {
-            VariationGlimpse glimpse;
-            glimpse.push_front (move);
-
-            int score = evaluate_and_check_draw (my_board, side, my_total_depth - depth,
-                                                 move, my_history);
-            auto result =  SearchResult { glimpse, move, score, my_total_depth - depth, false };
-
-            position->finalize (result);
-            return result;
+            return evaluated_value (side, depth, move, position);
         }
         else
         {
-            auto decision = parent->make_child (position);
-
-            SearchResult other_search_result = search (color_invert (side), depth - 1, -beta, -alpha, decision.get());
-            if (other_search_result.timed_out)
-                return other_search_result;
-
-            other_search_result.variation_glimpse.push_front (move);
-            other_search_result.score *= -1;
-
-            position->finalize (other_search_result);
-            decision->finalize (other_search_result);
-
-            return other_search_result;
+            return recursed_value (side, depth, alpha, beta, move, parent, position);
         }
     }
 
-    SearchResult IterativeSearch::search_moves (Color side, int depth, int alpha, int beta,
-                                                const ScoredMoveList &moves,
-                                                analysis::Decision *decision)
+    SearchResult
+    IterativeSearchImpl::recursed_value (Color &side, int depth, int alpha, int beta, Move &move,
+                                         analysis::Decision *parent, analysis::Position *position)
+    {
+        auto decision = parent->make_child (position);
+
+        SearchResult other_search_result = search (color_invert (side), depth - 1,
+                                                   -beta, -alpha, decision.get ());
+        if (other_search_result.timed_out)
+            return other_search_result;
+
+        other_search_result.variation_glimpse.push_front (move);
+        other_search_result.score *= -1;
+
+        position->finalize (other_search_result);
+        decision->finalize (other_search_result);
+
+        return other_search_result;
+    }
+
+    SearchResult
+    IterativeSearchImpl::evaluated_value (Color &side, int depth, Move &move,
+                                      analysis::Position *position) const
+    {
+        int score = evaluate_and_check_draw (my_board, side, my_total_depth - depth,
+                                             move, my_history);
+        auto result = SearchResult::from_evaluated_move (move, score, my_total_depth, depth);
+
+        position->finalize (result);
+        return result;
+    }
+
+    SearchResult IterativeSearchImpl::search_moves (Color side, int depth, int alpha, int beta,
+                                                    const ScoredMoveList &moves,
+                                                    analysis::Decision *decision)
     {
         int best_score = -Initial_Alpha;
         std::optional<Move> best_move {};
@@ -138,7 +262,8 @@ namespace wisdom
         return result;
     }
 
-    SearchResult IterativeSearch::search (Color side, int depth, int alpha, int beta, analysis::Decision *decision)
+    SearchResult IterativeSearchImpl::search (Color side, int depth,
+                                              int alpha, int beta, analysis::Decision *decision)
     {
         MoveGenerator generator = my_board.move_generator ();
 
@@ -176,7 +301,7 @@ namespace wisdom
         output.println (progress_str.str ());
     }
 
-    SearchResult IterativeSearch::iteratively_deepen (Color side)
+    SearchResult IterativeSearchImpl::iteratively_deepen (Color side)
     {
         SearchResult best_result = SearchResult::from_initial ();
 
@@ -225,7 +350,7 @@ namespace wisdom
         }
     }
 
-    SearchResult IterativeSearch::iterate (Color side, int depth, analysis::Iteration *iteration)
+    SearchResult IterativeSearchImpl::iterate (Color side, int depth, analysis::Iteration *iteration)
     {
         std::stringstream outstr;
         outstr << "finding moves for " << to_string (side);
@@ -306,6 +431,5 @@ namespace wisdom
     {
         return score > Infinity;
     }
-
 }
 
