@@ -271,7 +271,7 @@ namespace wisdom
         if (result.timed_out)
             return result;
         
-        // if there are no legal moves, then the current player is in a stalemate or checkmate position.
+        // if there are no legal moves, then the current my_computer_player is in a stalemate or checkmate position.
         if (!result.move.has_value ())
         {
             SearchResult no_moves_available_result { result };

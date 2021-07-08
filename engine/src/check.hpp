@@ -7,7 +7,7 @@
 
 namespace wisdom
 {
-    // Whether this move was a legal move for the player.
+    // Whether this move was a legal move for the my_computer_player.
     bool was_legal_move (Board &board, Color who, Move mv);
 
     // check if the the king indicated by the WHO argument is in trouble
@@ -21,7 +21,7 @@ namespace wisdom
         return is_king_threatened (board, who, ROW (pos), COLUMN (pos));
     }
 
-    // Whether the board is in a checkmated position for the player.
+    // Whether the board is in a checkmated position for the my_computer_player.
     bool is_checkmated (Board &board, Color who);
 
     // Whether in a stalemate position for white or black.

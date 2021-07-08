@@ -20,17 +20,12 @@ namespace wisdom
     class BoardBuilder;
     class Logger;
 
-    struct Game
+    class Game
     {
-        std::unique_ptr<Board> board = std::make_unique<Board> ();
-        std::unique_ptr<History> history = std::make_unique<History> ();
-        std::unique_ptr<analysis::Analytics> analytics = std::make_unique<analysis::DummyAnalytics>();
-        Color player;   // side the computer is playing as
-        Color turn;
+    public:
+        Game (Color current_turn, Color computer_player);
 
-        Game (Color turn_, Color computer_player);
-
-        Game (Color turn_, Color computer_player, BoardBuilder builder);
+        Game (Color current_turn, Color computer_player, BoardBuilder builder);
 
         void save (const std::string &filename) const;
 
@@ -38,11 +33,26 @@ namespace wisdom
 
         std::optional<Move> find_best_move (Logger &logger, Color whom = Color::None);
 
-        void set_analytics (std::unique_ptr<analysis::Analytics> new_analytics);
-
         void move (Move move);
 
+        [[nodiscard]] Color get_computer_player () const;
 
+        void set_computer_player (Color player);
+
+        [[nodiscard]] Color get_current_turn () const;
+
+        [[nodiscard]] Board &get_board() const;
+
+        [[nodiscard]] History &get_history () const;
+
+        void set_analytics (std::unique_ptr<analysis::Analytics> new_analytics);
+
+    private:
+        std::unique_ptr<Board> my_board = std::make_unique<Board> ();
+        std::unique_ptr<History> my_history = std::make_unique<History> ();
+        std::unique_ptr<analysis::Analytics> my_analytics = std::make_unique<analysis::DummyAnalytics> ();
+        Color my_current_turn;        // whose turn it is
+        Color my_computer_player;     // side the computer is playing as
     };
 }
 

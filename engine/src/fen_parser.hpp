@@ -7,7 +7,7 @@
 
 namespace wisdom
 {
-    struct Game;
+    class Game;
 
     class FenParser final
     {

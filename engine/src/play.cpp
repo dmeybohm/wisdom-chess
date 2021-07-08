@@ -29,7 +29,7 @@ namespace wisdom
 
     static void print_available_moves (Game &game)
     {
-        MoveList moves = generate_legal_moves (*game.board, game.turn);
+        MoveList moves = generate_legal_moves (game.get_board (), game.get_current_turn ());
 
         std::cout << "\nAvailable moves:\n    ";
 
@@ -109,12 +109,12 @@ namespace wisdom
         else if (input == "load")
         {
             result.skip_move = true;
-            Color orig_player = game.player;
+            Color orig_player = game.get_computer_player ();
             auto optional_game = load_game ();
             if (optional_game.has_value ())
             {
                 game = std::move (*optional_game);
-                game.player = orig_player;
+                game.set_computer_player (orig_player);
             }
             return result;
         }
@@ -133,11 +133,11 @@ namespace wisdom
             result.skip_move = true;
         }
 
-        result.move = move_parse_optional (input, game.turn);
+        result.move = move_parse_optional (input, game.get_current_turn());
         result.failed_parse = true;
 
         // check the generated move list for this move to see if its valid
-        MoveList moves = generate_legal_moves (*game.board, game.turn);
+        MoveList moves = generate_legal_moves (game.get_board (), game.get_current_turn());
 
         for (auto legal_move : moves)
         {
@@ -184,27 +184,27 @@ namespace wisdom
         while (input_state.keep_going)
         {
             input_state = initial_input_state;
-            game.board->print ();
+            game.get_board ().print ();
 
-            if (is_checkmated (*game.board, game.turn))
+            if (is_checkmated (game.get_board (), game.get_current_turn()))
             {
-                std::cout << to_string (color_invert (game.turn)) << " wins the game.\n";
+                std::cout << to_string (color_invert (game.get_current_turn())) << " wins the game.\n";
                 return;
             }
 
-            if (game.history->is_third_repetition (*game.board))
+            if (game.get_history().is_third_repetition (game.get_board()))
             {
                 input_state = offer_draw ();
                 continue;
             }
 
-            if (History::is_fifty_move_repetition (*game.board))
+            if (History::is_fifty_move_repetition (game.get_board ()))
             {
                 std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
                 break;
             }
 
-            if (game.turn != game.player)
+            if (game.get_current_turn () != game.get_computer_player ())
             {
                 input_state = read_move (game, output);
                 if (!input_state.keep_going)

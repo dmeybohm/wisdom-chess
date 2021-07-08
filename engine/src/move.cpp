@@ -189,7 +189,7 @@ namespace wisdom
             //
             // Set inability to castle on one side. Note that
             // Castle_Queenside/KINGSIDE are _negative_ flags, indicating the
-            // player cannot castle.  This is a bit confusing, not sure why i did
+            // my_computer_player cannot castle.  This is a bit confusing, not sure why i did
             // this.
             //
             if (able_to_castle (board, opponent, castle_state))
@@ -248,7 +248,7 @@ namespace wisdom
             //
             // Set inability to castle on one side. Note that
             // Castle_Queenside/KINGSIDE are _negative_ flags, indicating the
-            // player cannot castle.  This is a bit confusing, not sure why i did
+            // my_computer_player cannot castle.  This is a bit confusing, not sure why i did
             // this.
             //
             if (affects_castle_state > 0 && able_to_castle (board, player, affects_castle_state))

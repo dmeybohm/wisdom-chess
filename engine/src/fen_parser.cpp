@@ -160,7 +160,7 @@ namespace wisdom
         input >> pieces_str;
         parse_pieces (pieces_str);
 
-        // read active player:
+        // read active my_computer_player:
         std::string active_player_str;
         input >> active_player_str;
         active_player = parse_active_player (active_player_str[0]);
