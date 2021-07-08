@@ -53,13 +53,13 @@ namespace wisdom::analysis
     public:
         virtual ~Decision () = 0;
 
-        virtual std::unique_ptr<Decision> make_child (Position *position) = 0;
+        virtual std::unique_ptr<Decision> make_child (Position &position) = 0;
 
         virtual std::unique_ptr<Position> make_position (Move move) = 0;
 
         virtual void finalize (const SearchResult &result) = 0;
 
-        virtual void preliminary_choice (Position *position) = 0;
+        virtual void preliminary_choice (Position &position) = 0;
     };
 
     class Position
@@ -108,12 +108,12 @@ namespace wisdom::analysis
         void finalize ([[maybe_unused]] const SearchResult &result) override
         {}
 
-        std::unique_ptr<Decision> make_child ([[maybe_unused]] Position *position) override
+        std::unique_ptr<Decision> make_child ([[maybe_unused]] Position &position) override
         {
             return std::make_unique<DummyDecision> ();
         }
 
-        void preliminary_choice ([[maybe_unused]] Position *position) override
+        void preliminary_choice ([[maybe_unused]] Position &position) override
         {}
     };
 
@@ -155,10 +155,10 @@ namespace wisdom::analysis
     public:
         ~DummyAnalytics () override = default;
 
-        static Analytics *get_analytics ()
+        static Analytics &get_analytics ()
         {
             static DummyAnalytics dummy_analytics;
-            return &dummy_analytics;
+            return dummy_analytics;
         }
 
         std::unique_ptr<IterativeSearch> make_iterative_search (
@@ -169,7 +169,7 @@ namespace wisdom::analysis
         }
     };
 
-    Analytics *make_dummy_analytics ();
+    Analytics &make_dummy_analytics ();
 }
 
 #endif //WISDOM_ANALYTICS_HPP

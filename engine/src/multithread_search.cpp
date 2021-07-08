@@ -8,8 +8,6 @@
 
 namespace wisdom
 {
-    constexpr int Max_Depth = 16;
-
     using std::chrono::seconds;
     using wisdom::Logger;
 

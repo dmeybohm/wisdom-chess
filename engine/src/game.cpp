@@ -2,6 +2,8 @@
 #include "board_builder.hpp"
 #include "str.hpp"
 #include "output_format.hpp"
+#include "move_timer.hpp"
+#include "search.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -51,6 +53,18 @@ namespace wisdom
     void Game::set_analytics (std::unique_ptr<analysis::Analytics> new_analytics)
     {
         this->analytics = std::move (new_analytics);
+    }
+
+    std::optional<Move> Game::find_best_move (Logger &logger, Color whom)
+    {
+        if (whom == Color::None)
+            whom = this->player;
+
+        MoveTimer overdue_timer { Max_Search_Seconds };
+        IterativeSearch iterative_search { *this->board, *this->history, logger,
+                                           *this->analytics, overdue_timer, Max_Depth };
+        SearchResult result = iterative_search.iteratively_deepen (whom);
+        return result.move;
     }
 
     std::optional<Game> Game::load (const std::string &filename, Color player)

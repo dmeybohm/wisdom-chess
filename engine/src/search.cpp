@@ -13,9 +13,6 @@
 
 namespace wisdom
 {
-    constexpr int Max_Depth = 16;
-    constexpr int Max_Search_Seconds = 10;
-
     thread_local int nodes_visited, cutoffs;
 
     using system_clock_t = std::chrono::time_point<std::chrono::system_clock>;
@@ -31,7 +28,7 @@ namespace wisdom
         Board &my_board;
         History &my_history;
         Logger &my_output;
-        analysis::Analytics *my_analytics;
+        analysis::Analytics &my_analytics;
         MoveTimer my_timer;
         int my_total_depth;
 
@@ -52,7 +49,7 @@ namespace wisdom
         IterativeSearchImpl (Board &board,
                              History &history,
                              Logger &output,
-                             analysis::Analytics *analytics,
+                             analysis::Analytics &analytics,
                              MoveTimer timer,
                              int total_depth) :
              my_board { board },
@@ -67,26 +64,26 @@ namespace wisdom
 
         SearchResult search_moves (Color side, int depth, int alpha, int beta,
                                    const ScoredMoveList &moves,
-                                   analysis::Decision *decision);
+                                   analysis::Decision &decision);
 
-        SearchResult iterate (Color side, int depth, analysis::Iteration *iteration);
+        SearchResult iterate (Color side, int depth, analysis::Iteration &iteration);
 
         SearchResult search (Color side, int depth, int alpha, int beta,
-                             analysis::Decision *decision);
+                             analysis::Decision &decision);
 
         SearchResult recurse_or_evaluate (Color side, int depth, int alpha, int beta,
-                                          Move move, analysis::Decision *parent,
-                                          analysis::Position *position);
+                                          Move move, analysis::Decision &parent,
+                                          analysis::Position &position);
 
-        SearchResult transposition_value (int depth, Move &move, analysis::Position *position,
+        SearchResult transposition_value (int depth, Move &move, analysis::Position &position,
                                           std::optional<RelativeTransposition> &transposition) const;
 
         SearchResult evaluated_value (Color &side, int depth,
-                                      Move &move, analysis::Position *position) const;
+                                      Move &move, analysis::Position &position) const;
 
         SearchResult
         recursed_value (Color &side, int depth, int alpha, int beta,Move &move,
-                        analysis::Decision *parent, analysis::Position *position);
+                        analysis::Decision &parent, analysis::Position &position);
     };
 
     IterativeSearch::~IterativeSearch() = default;
@@ -95,53 +92,53 @@ namespace wisdom
                                       Logger &output,
                                       MoveTimer timer,
                                       int total_depth) :
-        pimpl { std::make_unique<IterativeSearchImpl>(
-            board,
-            history,
-            output,
-            analysis::make_dummy_analytics (),
-            timer,
-            total_depth
-        )}
+            impl { std::make_unique<IterativeSearchImpl> (
+                board,
+                history,
+                output,
+                analysis::make_dummy_analytics (),
+                timer,
+                total_depth
+             )}
     {}
 
     IterativeSearch::IterativeSearch (
             Board &board,
             History &history,
             Logger &output,
-            analysis::Analytics *analytics,
+            analysis::Analytics &analytics,
             MoveTimer timer,
             int total_depth) :
-            pimpl { std::make_unique<IterativeSearchImpl>(
+            impl { std::make_unique<IterativeSearchImpl> (
                  board,
                  history,
                  output,
                  analytics,
                  timer,
                  total_depth
-             )}
+                                                         )}
      {}
 
     SearchResult IterativeSearch::iteratively_deepen (Color side)
     {
-        return pimpl->iteratively_deepen (side);
+        return impl->iteratively_deepen (side);
     }
 
     SearchResult
-    IterativeSearchImpl::transposition_value (int depth, Move &move, analysis::Position *position,
+    IterativeSearchImpl::transposition_value (int depth, Move &move, analysis::Position &position,
                                               std::optional<RelativeTransposition> &transposition) const
     {
         transposition->variation_glimpse.push_front (move);
         auto result = SearchResult { transposition->variation_glimpse, move, transposition->score,
                                      my_total_depth - depth, false };
-        position->finalize (result);
-        position->store_transposition_hit (*transposition);
+        position.finalize (result);
+        position.store_transposition_hit (*transposition);
         return result;
     }
 
     SearchResult IterativeSearchImpl::recurse_or_evaluate (Color side, int depth, int alpha, int beta,
-                                                           Move move, analysis::Decision *parent,
-                                                           analysis::Position *position)
+                                                           Move move, analysis::Decision &parent,
+                                                           analysis::Position &position)
     {
         // Check the transposition table for the move:
         auto transposition = my_board.check_transposition_table (side, depth);
@@ -162,19 +159,19 @@ namespace wisdom
 
     SearchResult
     IterativeSearchImpl::recursed_value (Color &side, int depth, int alpha, int beta, Move &move,
-                                         analysis::Decision *parent, analysis::Position *position)
+                                         analysis::Decision &parent, analysis::Position &position)
     {
-        auto decision = parent->make_child (position);
+        auto decision = parent.make_child (position);
 
         SearchResult other_search_result = search (color_invert (side), depth - 1,
-                                                   -beta, -alpha, decision.get ());
+                                                   -beta, -alpha, *decision);
         if (other_search_result.timed_out)
             return other_search_result;
 
         other_search_result.variation_glimpse.push_front (move);
         other_search_result.score *= -1;
 
-        position->finalize (other_search_result);
+        position.finalize (other_search_result);
         decision->finalize (other_search_result);
 
         return other_search_result;
@@ -182,19 +179,19 @@ namespace wisdom
 
     SearchResult
     IterativeSearchImpl::evaluated_value (Color &side, int depth, Move &move,
-                                      analysis::Position *position) const
+                                      analysis::Position &position) const
     {
         int score = evaluate_and_check_draw (my_board, side, my_total_depth - depth,
                                              move, my_history);
         auto result = SearchResult::from_evaluated_move (move, score, my_total_depth, depth);
 
-        position->finalize (result);
+        position.finalize (result);
         return result;
     }
 
     SearchResult IterativeSearchImpl::search_moves (Color side, int depth, int alpha, int beta,
                                                     const ScoredMoveList &moves,
-                                                    analysis::Decision *decision)
+                                                    analysis::Decision &decision)
     {
         int best_score = -Initial_Alpha;
         std::optional<Move> best_move {};
@@ -202,7 +199,7 @@ namespace wisdom
 
         for (auto [move, move_score] : moves)
         {
-            auto position = decision->make_position (move);
+            auto position = decision.make_position (move);
 
             if (my_timer.is_triggered ())
                 return SearchResult::from_timeout ();
@@ -220,7 +217,7 @@ namespace wisdom
             my_history.add_position_and_move (my_board, move);
 
             SearchResult other_search_result = recurse_or_evaluate (side, depth, alpha, beta, move,
-                                                                    decision, position.get());
+                                                                    decision, *position);
 
             int score = other_search_result.score;
 
@@ -230,7 +227,7 @@ namespace wisdom
                 best_move = move;
 
                 best_variation = other_search_result.variation_glimpse;
-                decision->preliminary_choice (position.get ());
+                decision.preliminary_choice (*position);
             }
 
             if (best_score > alpha)
@@ -258,12 +255,12 @@ namespace wisdom
         }
 
         auto result = SearchResult { best_variation, best_move, best_score, my_total_depth - depth, false };
-        decision->finalize (result);
+        decision.finalize (result);
         return result;
     }
 
     SearchResult IterativeSearchImpl::search (Color side, int depth,
-                                              int alpha, int beta, analysis::Decision *decision)
+                                              int alpha, int beta, analysis::Decision &decision)
     {
         MoveGenerator generator = my_board.move_generator ();
 
@@ -305,7 +302,7 @@ namespace wisdom
     {
         SearchResult best_result = SearchResult::from_initial ();
 
-        auto iterative_search_analytics = my_analytics->make_iterative_search (my_board, side);
+        auto iterative_search_analytics = my_analytics.make_iterative_search (my_board, side);
 
         try
         {
@@ -317,7 +314,7 @@ namespace wisdom
                 my_output.println (ostr.str ());
 
                 auto iteration_analysis = iterative_search_analytics->make_iteration (depth);
-                SearchResult next_result = iterate (side, depth, iteration_analysis.get ());
+                SearchResult next_result = iterate (side, depth, *iteration_analysis);
                 if (next_result.timed_out)
                     break;
 
@@ -350,7 +347,7 @@ namespace wisdom
         }
     }
 
-    SearchResult IterativeSearchImpl::iterate (Color side, int depth, analysis::Iteration *iteration)
+    SearchResult IterativeSearchImpl::iterate (Color side, int depth, analysis::Iteration &iteration)
     {
         std::stringstream outstr;
         outstr << "finding moves for " << to_string (side);
@@ -359,12 +356,12 @@ namespace wisdom
         nodes_visited = 0;
         cutoffs = 0;
 
-        auto analyzed_search = iteration->make_search ();
+        auto analyzed_search = iteration.make_search ();
         auto analyzed_decision = analyzed_search->make_decision ();
 
         auto start = std::chrono::system_clock::now ();
 
-        SearchResult result = search (side, depth, -Initial_Alpha, Initial_Alpha, analyzed_decision.get());
+        SearchResult result = search (side, depth, -Initial_Alpha, Initial_Alpha, *analyzed_decision);
 
         auto end = std::chrono::system_clock::now ();
 
@@ -399,24 +396,6 @@ namespace wisdom
         }
 
         return result;
-    }
-
-    std::optional<Move> find_best_move_multithreaded (Board &board, Color side, Logger &output, History &history)
-    {
-        MoveTimer overdue_timer { Max_Search_Seconds };
-
-        MultithreadSearch search { board, side, output, history, overdue_timer };
-        SearchResult result = search.search ();
-        return result.move;
-    }
-
-    std::optional<Move> find_best_move (Board &board, Color side, Logger &output,
-                                        analysis::Analytics *analytics, History &history)
-    {
-        MoveTimer overdue_timer { Max_Search_Seconds };
-        IterativeSearch iterative_search { board, history, output, analytics, overdue_timer, Max_Depth };
-        SearchResult result = iterative_search.iteratively_deepen (side);
-        return result.move;
     }
 
     // Get the score for a checkmate discovered X moves away.

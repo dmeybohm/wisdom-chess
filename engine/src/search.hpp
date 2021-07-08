@@ -22,14 +22,6 @@ namespace wisdom
     class Logger;
     class History;
 
-    // Find the best move using default algorithm.
-    std::optional<Move> find_best_move (Board &board, Color side, Logger &output,
-                                        analysis::Analytics *analytics, History &history);
-
-    // Find the best move using multiple threads.
-    std::optional<Move> find_best_move_multithreaded (Board &board, Color side,
-                                                      Logger &output, History &history);
-
     // Get the score for checkmate in X moves.
     int checkmate_score_in_moves (int moves);
 
@@ -39,7 +31,7 @@ namespace wisdom
     class IterativeSearch
     {
     private:
-        std::unique_ptr<IterativeSearchImpl> pimpl;
+        std::unique_ptr<IterativeSearchImpl> impl;
 
     public:
         IterativeSearch (Board &board,
@@ -51,7 +43,7 @@ namespace wisdom
         IterativeSearch (Board &board,
                          History &history,
                          Logger &output,
-                         analysis::Analytics *analytics,
+                         analysis::Analytics &analytics,
                          MoveTimer timer,
                          int total_depth);
 

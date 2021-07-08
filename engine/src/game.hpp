@@ -18,6 +18,7 @@ namespace wisdom
     class Board;
     class History;
     class BoardBuilder;
+    class Logger;
 
     struct Game
     {
@@ -35,9 +36,13 @@ namespace wisdom
 
         static std::optional<Game> load (const std::string &filename, Color player);
 
+        std::optional<Move> find_best_move (Logger &logger, Color whom = Color::None);
+
         void set_analytics (std::unique_ptr<analysis::Analytics> new_analytics);
 
         void move (Move move);
+
+
     };
 }
 

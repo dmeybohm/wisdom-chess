@@ -12,7 +12,7 @@ namespace wisdom::analysis
     Decision::~Decision () = default;
     Position::~Position () = default;
 
-    Analytics *make_dummy_analytics ()
+    Analytics &make_dummy_analytics ()
     {
         return DummyAnalytics::get_analytics();
     }

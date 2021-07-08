@@ -47,6 +47,12 @@ namespace wisdom
     // Initial Alpha value.
     constexpr int Initial_Alpha = Infinity * 3;
 
+    // Absolute max depth searched.
+    constexpr int Max_Depth = 16;
+
+    // Max time spent searching.
+    constexpr int Max_Search_Seconds = 10;
+
     // Errors in this application.
     class Error : public std::exception
     {

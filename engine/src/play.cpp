@@ -212,8 +212,7 @@ namespace wisdom
             }
             else
             {
-                auto optional_move = find_best_move (*game.board, game.player, output,
-                                                     game.analytics.get (), *game.history);
+                auto optional_move = game.find_best_move (output);
                 if (!optional_move.has_value ())
                 {
                     std::cout << "\nCouldn't find move!\n";

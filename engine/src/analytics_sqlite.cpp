@@ -337,16 +337,16 @@ namespace wisdom::analysis
             my_parent_position_id = parent_position_id;
         }
 
-        std::unique_ptr<Decision> make_child ([[maybe_unused]] Position *position) override
+        std::unique_ptr<Decision> make_child ([[maybe_unused]] Position &position) override
         {
             auto result = std::make_unique<SqliteDecision> (my_handle, my_board, my_search_id, my_decision_id,
                                                      my_depth + 1);
-            const auto &parent_position = dynamic_cast<SqlitePosition&> (*position);
+            const auto &parent_position = dynamic_cast<SqlitePosition&> (position);
             result->set_parent_position_id (parent_position.id ());
             return result;
         }
 
-        void preliminary_choice ([[maybe_unused]] Position *position) override
+        void preliminary_choice ([[maybe_unused]] Position &position) override
         {}
     };
 
