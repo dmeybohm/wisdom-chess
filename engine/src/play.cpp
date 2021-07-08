@@ -29,7 +29,7 @@ namespace wisdom
 
     static void print_available_moves (Game &game)
     {
-        MoveList moves = generate_legal_moves (game.board, game.turn);
+        MoveList moves = generate_legal_moves (*game.board, game.turn);
 
         std::cout << "\nAvailable moves:\n    ";
 
@@ -137,7 +137,7 @@ namespace wisdom
         result.failed_parse = true;
 
         // check the generated move list for this move to see if its valid
-        MoveList moves = generate_legal_moves (game.board, game.turn);
+        MoveList moves = generate_legal_moves (*game.board, game.turn);
 
         for (auto legal_move : moves)
         {
@@ -184,21 +184,21 @@ namespace wisdom
         while (input_state.keep_going)
         {
             input_state = initial_input_state;
-            game.board.print ();
+            game.board->print ();
 
-            if (is_checkmated (game.board, game.turn))
+            if (is_checkmated (*game.board, game.turn))
             {
                 std::cout << to_string (color_invert (game.turn)) << " wins the game.\n";
                 return;
             }
 
-            if (game.history.is_third_repetition (game.board))
+            if (game.history->is_third_repetition (*game.board))
             {
                 input_state = offer_draw ();
                 continue;
             }
 
-            if (History::is_fifty_move_repetition (game.board))
+            if (History::is_fifty_move_repetition (*game.board))
             {
                 std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
                 break;
@@ -212,8 +212,8 @@ namespace wisdom
             }
             else
             {
-                auto optional_move = find_best_move (game.board, game.player, output,
-                                                     game.analytics.get (), game.history);
+                auto optional_move = find_best_move (*game.board, game.player, output,
+                                                     game.analytics.get (), *game.history);
                 if (!optional_move.has_value ())
                 {
                     std::cout << "\nCouldn't find move!\n";

@@ -24,12 +24,12 @@ TEST_CASE( "Initializing the board builder" )
     builder.add_piece ("g8", Color::White, Piece::King);
     builder.add_piece ("a1", Color::Black, Piece::King);
 
-    Board board = builder.build();
+    auto board = builder.build();
 
-    ColoredPiece pawn = piece_at (board, 1, 0);
-    ColoredPiece white_king = piece_at (board, 0, 6);
-    ColoredPiece black_king = piece_at (board, 7, 0);
-    ColoredPiece center = piece_at (board, 4, 5);
+    ColoredPiece pawn = board->piece_at( 1, 0);
+    ColoredPiece white_king = board->piece_at (0, 6);
+    ColoredPiece black_king = board->piece_at (7, 0);
+    ColoredPiece center = board->piece_at (4, 5);
 
     CHECK( piece_color (pawn) == Color::White );
     CHECK( piece_color (white_king) == Color::White );

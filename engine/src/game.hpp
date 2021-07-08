@@ -5,43 +5,33 @@
 #include "piece.hpp"
 #include "move.hpp"
 #include "board.hpp"
-#include "move_history.hpp"
-#include "board_builder.hpp"
-#include "history.hpp"
 #include "analytics.hpp"
+#include "history.hpp"
+
+namespace wisdom::analysis
+{
+    class Analytics;
+}
 
 namespace wisdom
 {
+    class Board;
+    class History;
+    class BoardBuilder;
+
     struct Game
     {
-        Board board;
-        History history;
+        std::unique_ptr<Board> board = std::make_unique<Board> ();
+        std::unique_ptr<History> history = std::make_unique<History> ();
+        std::unique_ptr<analysis::Analytics> analytics = std::make_unique<analysis::DummyAnalytics>();
         Color player;   // side the computer is playing as
         Color turn;
-        std::unique_ptr<analysis::Analytics> analytics;
 
-        Game (Color _turn, Color computer_player) :
-                player { computer_player },
-                turn { _turn },
-                analytics { std::make_unique<analysis::DummyAnalytics>() }
-        {
-            assert (is_color_valid (_turn));
-            assert (is_color_valid (computer_player));
-            player = computer_player;
-            turn = _turn;
-        }
+        Game (Color turn_, Color computer_player);
 
-        Game (Color _turn, Color computer_player, BoardBuilder builder)
-                : board { builder.build () },
-                  player { computer_player },
-                  turn { _turn },
-                  analytics { std::make_unique<analysis::DummyAnalytics>() }
-        {
-            assert (is_color_valid (_turn));
-            assert (is_color_valid (computer_player));
-        }
+        Game (Color turn_, Color computer_player, BoardBuilder builder);
 
-        bool save (const std::string &filename) const;
+        void save (const std::string &filename) const;
 
         static std::optional<Game> load (const std::string &filename, Color player);
 

@@ -16,6 +16,8 @@ namespace wisdom
         MoveHistory my_move_history;
 
     public:
+        virtual ~History() = default;
+
         static bool is_fifty_move_repetition (Board &board)
         {
             return board.half_move_clock >= 100;

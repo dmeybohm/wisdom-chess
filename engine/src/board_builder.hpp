@@ -46,7 +46,7 @@ namespace wisdom
 
         void add_piece (const std::string &coord_str, Color who, Piece piece_type);
 
-        void add_piece (int8_t row, int8_t col, Color who, Piece piece_type);
+        void add_piece (int row, int col, Color who, Piece piece_type);
 
         void add_pieces (Color who, const std::vector<struct BBPieceCoordStringWithTypeState> &pieces);
 
@@ -66,7 +66,7 @@ namespace wisdom
 
         void set_full_moves (int new_full_moves);
 
-        Board build ();
+        std::unique_ptr<Board> build ();
     };
 
     class BoardBuilderError : public Error

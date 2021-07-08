@@ -61,6 +61,7 @@ namespace wisdom
         int full_moves = 1;
 
         Board ();
+        virtual ~Board () = default;
 
         Board (const Board &board) = default;
 

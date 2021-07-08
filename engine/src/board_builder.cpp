@@ -32,7 +32,7 @@ namespace wisdom
         this->add_piece (ROW (algebraic), COLUMN (algebraic), who, piece_type);
     }
 
-    void BoardBuilder::add_piece (int8_t row, int8_t col, Color who, Piece piece_type)
+    void BoardBuilder::add_piece (int row, int col, Color who, Piece piece_type)
     {
         struct BBPieceWithCoordState new_piece {
                 .coord = make_coord (row, col),
@@ -71,7 +71,7 @@ namespace wisdom
 
     void BoardBuilder::add_row_of_same_color (int row, Color who, std::vector<Piece> piece_types)
     {
-        size_t col = 0;
+        int col = 0;
 
         for (auto it = piece_types.begin (); it != piece_types.end (); it++, col++)
             this->add_piece (row, col, who, *it);
@@ -80,7 +80,7 @@ namespace wisdom
     void BoardBuilder::add_row_of_same_color (const std::string &coord_str, Color who, std::vector<Piece> piece_types)
     {
         Coord coord = coord_alg (coord_str);
-        size_t col = 0;
+        int col = 0;
 
         for (auto it = piece_types.begin (); it != piece_types.end (); it++, col++)
             this->add_piece (ROW (coord), col, who, *it);
@@ -108,7 +108,7 @@ namespace wisdom
         this->full_moves = new_full_moves;
     }
 
-    Board BoardBuilder::build ()
+    std::unique_ptr<Board> BoardBuilder::build ()
     {
         struct piece_row
         {
@@ -134,14 +134,14 @@ namespace wisdom
             positions[i] = { row, piece_with_coord.color, current_piece_row };
         }
 
-        Board result = Board { positions };
+        auto result = std::make_unique<Board> (positions);
 
         if (!en_passant_states.empty ())
         {
             for (auto state : en_passant_states)
             {
                 ColorIndex index = color_index (state.player);
-                result.en_passant_target[index] = state.coord;
+                result->en_passant_target[index] = state.coord;
             }
         }
 
@@ -150,12 +150,12 @@ namespace wisdom
             for (auto state : castle_states)
             {
                 ColorIndex index = color_index (state.player);
-                result.castled[index] = state.castle_state;
+                result->castled[index] = state.castle_state;
             }
         }
 
-        result.half_move_clock = this->half_moves_clock;
-        result.full_moves = this->full_moves;
+        result->half_move_clock = this->half_moves_clock;
+        result->full_moves = this->full_moves;
 
         return result;
     }

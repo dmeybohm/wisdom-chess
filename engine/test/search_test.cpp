@@ -39,9 +39,9 @@ TEST_CASE("Can find mate in 3")
             }
     );
 
-    Board board = builder.build ();
+    auto board = builder.build ();
     History history;
-    IterativeSearch search { board, history, make_null_logger (), large_timer, 5 };
+    IterativeSearch search { *board, history, make_null_logger (), large_timer, 5 };
 
     SearchResult result = search.iteratively_deepen (Color::White);
 
@@ -83,9 +83,9 @@ TEST_CASE("Can find mate in 2 1/2")
 
     builder.add_piece ("d5", Color::White, Piece::King);
 
-    Board board = builder.build ();
+    auto board = builder.build ();
     History history;
-    IterativeSearch search { board, history, make_null_logger (), large_timer, 5 };
+    IterativeSearch search { *board, history, make_null_logger (), large_timer, 5 };
 
     SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE(result.move.has_value());
@@ -141,10 +141,10 @@ TEST_CASE("scenario with heap overflow 1")
             }
     );
 
-    Board board = builder.build ();
+    auto board = builder.build ();
     MoveTimer timer { 300 };
     History history;
-    IterativeSearch search { board, history, make_null_logger (), timer, 3 };
+    IterativeSearch search { *board, history, make_null_logger (), timer, 3 };
 
     SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE(result.move.has_value());
@@ -169,9 +169,9 @@ TEST_CASE("Promoting move is taken if possible")
     );
 
     History history;
-    Board board = builder.build ();
+    auto board = builder.build ();
 
-    IterativeSearch search { board, history, make_null_logger (), large_timer, 1 };
+    IterativeSearch search { *board, history, make_null_logger (), large_timer, 1 };
     auto result = search.iteratively_deepen (Color::Black);
     REQUIRE(to_string (*result.move) == "d2 d1(Q)");
 }
@@ -184,7 +184,7 @@ TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing"
 
     History history;
     MoveTimer timer { 30 };
-    IterativeSearch search { game.board, history, make_null_logger (), timer, 3 };
+    IterativeSearch search { *game.board, history, make_null_logger (), timer, 3 };
 
     SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE(to_string (*result.move) == "e2xf1(Q)");
@@ -198,7 +198,7 @@ TEST_CASE("Finding moves regression test")
 
     History history;
     MoveTimer timer { 10 };
-    IterativeSearch search { game.board, history, make_null_logger (), timer, 1 };
+    IterativeSearch search { *game.board, history, make_null_logger (), timer, 1 };
 
     SearchResult result = search.iteratively_deepen (Color::White);
     REQUIRE( result.move.has_value () );
@@ -211,7 +211,7 @@ TEST_CASE("Bishop is not sacrificed scenario 1")
 
     History history;
     MoveTimer timer { 180, false };
-    IterativeSearch search { game.board, history, make_null_logger(), timer, 3 };
+    IterativeSearch search { *game.board, history, make_null_logger(), timer, 3 };
 
     SearchResult result = search.iteratively_deepen (Color::Black);
 
@@ -221,7 +221,7 @@ TEST_CASE("Bishop is not sacrificed scenario 1")
 
     // assert the bishop has moved:
     INFO("Info:", to_string (*result.move) );
-    REQUIRE( piece_at (game.board, coord_parse("b4")) != make_piece (Color::Black, Piece::Bishop) );
+    REQUIRE( piece_at (*game.board, coord_parse("b4")) != make_piece (Color::Black, Piece::Bishop) );
 }
 
 TEST_CASE("Bishop is not sacrificed scenario 2 (as white)")
@@ -231,7 +231,7 @@ TEST_CASE("Bishop is not sacrificed scenario 2 (as white)")
 
     History history;
     MoveTimer timer { 180, false };
-    IterativeSearch search { game.board, history, make_null_logger(), timer, 3 };
+    IterativeSearch search { *game.board, history, make_null_logger(), timer, 3 };
 
     SearchResult result = search.iteratively_deepen (Color::White);
 
@@ -241,8 +241,8 @@ TEST_CASE("Bishop is not sacrificed scenario 2 (as white)")
 
     // assert the bishop has moved:
     INFO("Info:", to_string (*result.move) );
-    bool bishop_sac = piece_at (game.board, coord_parse ("a3")) != make_piece (Color::White, Piece::Bishop);
-    bool is_in_check = is_king_threatened (game.board, Color::Black, king_position (game.board, Color::Black));
+    bool bishop_sac = piece_at (*game.board, coord_parse ("a3")) != make_piece (Color::White, Piece::Bishop);
+    bool is_in_check = is_king_threatened (*game.board, Color::Black, king_position (*game.board, Color::Black));
     bool bishop_sac_or_is_in_check = bishop_sac || is_in_check;
     REQUIRE( bishop_sac_or_is_in_check );
 }
@@ -253,7 +253,7 @@ TEST_CASE("Advanced pawn should be captured")
     auto game = fen.build ();
     History history;
     MoveTimer timer { 10 };
-    IterativeSearch search { game.board, history, make_null_logger(), timer, 3 };
+    IterativeSearch search { *game.board, history, make_null_logger(), timer, 3 };
 
     game.move (move_parse ("e5 d6 ep", Color::White));
 
@@ -264,5 +264,5 @@ TEST_CASE("Advanced pawn should be captured")
     game.move (*result.move);
     // assert the pawn at d6 has been taken:
     INFO("Info:", to_string (*result.move) );
-    REQUIRE( piece_at (game.board, coord_parse("d6")) != make_piece (Color::White, Piece::Pawn) );
+    REQUIRE( piece_at (*game.board, coord_parse("d6")) != make_piece (Color::White, Piece::Pawn) );
 }

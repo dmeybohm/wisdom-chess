@@ -20,7 +20,6 @@
 #include <cctype>
 #include <bitset>
 
-
 namespace wisdom
 {
     constexpr int Num_Players = 2;

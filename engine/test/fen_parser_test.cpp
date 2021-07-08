@@ -14,9 +14,10 @@ TEST_CASE( "FEN notation for the starting position" )
     Game game = parser.build();
     Board default_board;
 
-    CHECK( board_equals (game.board, default_board) );
+    CHECK( board_equals (*game.board, default_board) );
 
-    int castled_result = std::memcmp (game.board.castled, default_board.castled, sizeof (default_board.castled));
+    int castled_result = std::memcmp (game.board->castled,
+                                      default_board.castled, sizeof (default_board.castled));
     CHECK( castled_result == 0 );
 }
 
@@ -33,13 +34,13 @@ TEST_CASE( "FEN notation for non-starting position" )
     builder.add_piece ("e1", Color::White, Piece::King);
     builder.add_piece ("h1", Color::White, Piece::Rook);
 
-    Board expected = builder.build();
-    CHECK( board_equals (game.board, expected) );
+    auto expected = builder.build();
+    CHECK( board_equals (*game.board, *expected) );
 
-    CastlingState white_state = board_get_castle_state (game.board, Color::White);
-    CastlingState black_state = board_get_castle_state (game.board, Color::Black);
-    CastlingState exp_white_state = board_get_castle_state (expected, Color::White);
-    CastlingState exp_black_state = board_get_castle_state (expected, Color::Black);
+    CastlingState white_state = board_get_castle_state (*game.board, Color::White);
+    CastlingState black_state = board_get_castle_state (*game.board, Color::Black);
+    CastlingState exp_white_state = board_get_castle_state (*expected, Color::White);
+    CastlingState exp_black_state = board_get_castle_state (*expected, Color::Black);
 
     CHECK( white_state == exp_white_state );
     CHECK( black_state == exp_black_state );
@@ -51,29 +52,29 @@ TEST_CASE( "FEN notation for castling" )
 
     Game game = parser_full.build();
 
-    REQUIRE(game.board.castled[Color_Index_White] == Castle_None);
-    REQUIRE(game.board.castled[Color_Index_Black] == Castle_None);
+    REQUIRE(game.board->castled[Color_Index_White] == Castle_None);
+    REQUIRE(game.board->castled[Color_Index_Black] == Castle_None);
 
     FenParser parser_no_black_king { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black_king.build();
 
-    REQUIRE(game.board.castled[Color_Index_White] == Castle_None);
-    REQUIRE(game.board.castled[Color_Index_Black] == Castle_Kingside);
+    REQUIRE(game.board->castled[Color_Index_White] == Castle_None);
+    REQUIRE(game.board->castled[Color_Index_Black] == Castle_Kingside);
 
     FenParser parser_no_black { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black.build();
 
-    REQUIRE(game.board.castled[Color_Index_White] == Castle_None);
-    REQUIRE(game.board.castled[Color_Index_Black] == Castle_Kingside);
+    REQUIRE(game.board->castled[Color_Index_White] == Castle_None);
+    REQUIRE(game.board->castled[Color_Index_Black] == Castle_Kingside);
 
     FenParser parser_nothing { "4r2/8/8/8/8/8/k7/4K2R w - - 0 1" };
 
     game = parser_nothing.build();
 
-    REQUIRE(game.board.castled[Color_Index_White] == (Castle_Kingside | Castle_Queenside));
-    REQUIRE(game.board.castled[Color_Index_Black] == (Castle_Kingside | Castle_Queenside));
+    REQUIRE(game.board->castled[Color_Index_White] == (Castle_Kingside | Castle_Queenside));
+    REQUIRE(game.board->castled[Color_Index_Black] == (Castle_Kingside | Castle_Queenside));
 }
 
 TEST_CASE( "FEN notation for en passant" )
@@ -82,7 +83,7 @@ TEST_CASE( "FEN notation for en passant" )
 
     Game game = parser_with_black_target.build();
 
-    REQUIRE( !is_en_passant_vulnerable (game.board, Color::White) );
-    REQUIRE( is_en_passant_vulnerable (game.board, Color::Black) );
-    REQUIRE(game.board.en_passant_target[Color_Index_Black] == coord_parse ("e6"));
+    REQUIRE( !is_en_passant_vulnerable (*game.board, Color::White) );
+    REQUIRE( is_en_passant_vulnerable (*game.board, Color::Black) );
+    REQUIRE( game.board->en_passant_target[Color_Index_Black] == coord_parse ("e6") );
 }
