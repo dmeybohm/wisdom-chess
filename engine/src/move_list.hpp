@@ -15,7 +15,9 @@ namespace wisdom
 
     public:
         MoveList () = default;
-        ~MoveList () {
+
+        ~MoveList () 
+        {
             if (my_moves)
                 deallocate_move_vector (std::move (my_moves));
         }
