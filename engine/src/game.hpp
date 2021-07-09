@@ -27,11 +27,11 @@ namespace wisdom
 
         Game (Color current_turn, Color computer_player, BoardBuilder builder);
 
-        void save (const std::string &filename) const;
-
         static std::optional<Game> load (const std::string &filename, Color player);
 
-        std::optional<Move> find_best_move (Logger &logger, Color whom = Color::None);
+        void save (const std::string &filename) const;
+
+        std::optional<Move> find_best_move (Logger &logger, Color whom = Color::None) const;
 
         void move (Move move);
 
@@ -50,7 +50,7 @@ namespace wisdom
     private:
         std::unique_ptr<Board> my_board = std::make_unique<Board> ();
         std::unique_ptr<History> my_history = std::make_unique<History> ();
-        std::unique_ptr<analysis::Analytics> my_analytics = std::make_unique<analysis::DummyAnalytics> ();
+        std::unique_ptr<analysis::Analytics> my_analytics = std::make_unique<analysis::Analytics> ();
         Color my_current_turn;        // whose turn it is
         Color my_computer_player;     // side the computer is playing as
     };

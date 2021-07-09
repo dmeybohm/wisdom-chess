@@ -198,7 +198,7 @@ namespace wisdom::analysis
         );
     }
 
-    class SqlitePosition : public Position
+    class SqlitePosition : public PositionImpl
     {
     private:
         std::shared_ptr<SqliteHandle> my_handle;
@@ -266,7 +266,7 @@ namespace wisdom::analysis
         }
     };
 
-    class SqliteDecision : public Decision
+    class SqliteDecision : public DecisionImpl
     {
     private:
         std::shared_ptr<SqliteHandle> my_handle;
@@ -320,10 +320,11 @@ namespace wisdom::analysis
 
         SqliteDecision &operator= (const SqliteDecision &) = delete;
 
-        std::unique_ptr<Position> make_position ([[maybe_unused]] Move move) override
+        Position make_position ([[maybe_unused]] Move move) override
         {
-            return std::make_unique<SqlitePosition> (my_handle, my_board, my_search_id, my_decision_id,
-                                                     move);
+            auto impl = std::make_unique<SqlitePosition> (my_handle, my_board,
+                                                          my_search_id, my_decision_id, move);
+            return Position { std::move(impl) };
         }
 
         void finalize ([[maybe_unused]] const SearchResult &result) override
@@ -337,20 +338,21 @@ namespace wisdom::analysis
             my_parent_position_id = parent_position_id;
         }
 
-        std::unique_ptr<Decision> make_child ([[maybe_unused]] Position &position) override
+        Decision make_child ([[maybe_unused]] Position &position) override
         {
-            auto result = std::make_unique<SqliteDecision> (my_handle, my_board, my_search_id, my_decision_id,
+            auto result = std::make_unique<SqliteDecision> (my_handle, my_board, my_search_id,
+                                                            my_decision_id,
                                                      my_depth + 1);
             const auto &parent_position = dynamic_cast<SqlitePosition&> (position);
             result->set_parent_position_id (parent_position.id ());
-            return result;
+            return Decision { std::move(result) };
         }
 
         void preliminary_choice ([[maybe_unused]] Position &position) override
         {}
     };
 
-    class SqliteSearch : public Search
+    class SqliteSearch : public SearchImpl
     {
     private:
         std::shared_ptr<SqliteHandle> my_handle;
@@ -376,13 +378,14 @@ namespace wisdom::analysis
 
         SqliteSearch &operator= (const SqliteSearch &) = delete;
 
-        std::unique_ptr<Decision> make_decision () override
+        Decision make_decision () override
         {
-            return std::make_unique<SqliteDecision> (my_handle, my_board, my_search_id, Uuid::Nil(), 0);
+            auto impl = std::make_unique<SqliteDecision> (my_handle, my_board, my_search_id, Uuid::Nil(), 0);
+            return Decision { std::move(impl) };
         }
     };
 
-    class SqliteIteration : public Iteration
+    class SqliteIteration : public IterationImpl
     {
     private:
         std::shared_ptr<SqliteHandle> my_handle;
@@ -415,13 +418,14 @@ namespace wisdom::analysis
             );
         }
 
-        std::unique_ptr<Search> make_search () override
+        Search make_search () override
         {
-            return std::make_unique<SqliteSearch> (my_handle, my_board, my_iteration_id, my_depth);
+            auto impl = std::make_unique<SqliteSearch> (my_handle, my_board, my_iteration_id, my_depth);
+            return Search { std::move(impl) };
         }
     };
 
-    class SqliteIterativeSearch : public IterativeSearch
+    class SqliteIterativeSearch : public IterativeSearchImpl
     {
     private:
         std::shared_ptr<SqliteHandle> my_handle;
@@ -450,13 +454,16 @@ namespace wisdom::analysis
             );
         }
 
-        std::unique_ptr<Iteration> make_iteration (int depth) override
+        Iteration make_iteration (int depth) override
         {
-            return std::make_unique<SqliteIteration> (my_handle, my_board, my_iterative_search_id, depth);
+            auto impl = std::make_unique<SqliteIteration> (
+                    my_handle, my_board, my_iterative_search_id, depth
+            );
+            return Iteration { std::move(impl) };
         }
     };
 
-    class SqliteAnalytics : public Analytics
+    class SqliteAnalytics : public AnalyticsImpl
     {
     private:
         std::string my_file_path;
@@ -481,9 +488,10 @@ namespace wisdom::analysis
 
         SqliteAnalytics &operator= (const SqliteAnalytics &) = delete;
 
-        std::unique_ptr<IterativeSearch> make_iterative_search (const Board &board, Color turn) override
+        IterativeSearch make_iterative_search (const Board &board, Color turn) override
         {
-            return std::make_unique<SqliteIterativeSearch> ( open (), board, turn);
+            auto impl = std::make_unique<SqliteIterativeSearch> ( open (), board, turn);
+            return IterativeSearch { std::move(impl) };
         }
     };
 
@@ -497,6 +505,7 @@ namespace wisdom::analysis
 
     std::unique_ptr<Analytics> make_sqlite_analytics (const std::string &analytics_file, Logger &logger)
     {
-        return std::make_unique<SqliteAnalytics> (analytics_file, logger);
+        auto impl = std::make_unique<SqliteAnalytics> (analytics_file, logger);
+        return std::make_unique<Analytics> (std::move (impl));
     }
 }

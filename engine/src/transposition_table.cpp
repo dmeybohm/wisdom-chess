@@ -1,7 +1,6 @@
 #include "transposition_table.hpp"
 #include "board.hpp"
 
-
 namespace wisdom
 {
     std::optional<RelativeTransposition> TranspositionTable::lookup (BoardHashCode hash, Color who)

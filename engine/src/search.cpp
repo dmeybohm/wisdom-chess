@@ -164,7 +164,7 @@ namespace wisdom
         auto decision = parent.make_child (position);
 
         SearchResult other_search_result = search (color_invert (side), depth - 1,
-                                                   -beta, -alpha, *decision);
+                                                   -beta, -alpha, decision);
         if (other_search_result.timed_out)
             return other_search_result;
 
@@ -172,7 +172,7 @@ namespace wisdom
         other_search_result.score *= -1;
 
         position.finalize (other_search_result);
-        decision->finalize (other_search_result);
+        decision.finalize (other_search_result);
 
         return other_search_result;
     }
@@ -217,7 +217,7 @@ namespace wisdom
             my_history.add_position_and_move (my_board, move);
 
             SearchResult other_search_result = recurse_or_evaluate (side, depth, alpha, beta, move,
-                                                                    decision, *position);
+                                                                    decision, position);
 
             int score = other_search_result.score;
 
@@ -227,7 +227,7 @@ namespace wisdom
                 best_move = move;
 
                 best_variation = other_search_result.variation_glimpse;
-                decision.preliminary_choice (*position);
+                decision.preliminary_choice (position);
             }
 
             if (best_score > alpha)
@@ -313,8 +313,8 @@ namespace wisdom
                 ostr << "Searching depth " << depth;
                 my_output.println (ostr.str ());
 
-                auto iteration_analysis = iterative_search_analytics->make_iteration (depth);
-                SearchResult next_result = iterate (side, depth, *iteration_analysis);
+                auto iteration_analysis = iterative_search_analytics.make_iteration (depth);
+                SearchResult next_result = iterate (side, depth, iteration_analysis);
                 if (next_result.timed_out)
                     break;
 
@@ -357,15 +357,15 @@ namespace wisdom
         cutoffs = 0;
 
         auto analyzed_search = iteration.make_search ();
-        auto analyzed_decision = analyzed_search->make_decision ();
+        auto analyzed_decision = analyzed_search.make_decision ();
 
         auto start = std::chrono::system_clock::now ();
 
-        SearchResult result = search (side, depth, -Initial_Alpha, Initial_Alpha, *analyzed_decision);
+        SearchResult result = search (side, depth, -Initial_Alpha, Initial_Alpha, analyzed_decision);
 
         auto end = std::chrono::system_clock::now ();
 
-        analyzed_decision->finalize (result);
+        analyzed_decision.finalize (result);
 
         calc_time (my_output, nodes_visited, start, end);
 

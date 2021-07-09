@@ -75,7 +75,7 @@ namespace wisdom
             i = Castle_None;
 
         for (const auto &coord : All_Coords_Iterator)
-            board_set_piece (*this, coord, Piece_And_Color_None);
+            set_piece (coord, Piece_And_Color_None);
 
         this->position = Position {};
 
@@ -94,7 +94,7 @@ namespace wisdom
 
                 new_piece = make_piece (color, pieces[col]);
                 Coord place = make_coord (row, static_cast<int>(col));
-                board_set_piece (*this, place, new_piece);
+                set_piece ( place, new_piece);
 
                 this->material.add (new_piece);
                 this->position.add (color, place, new_piece);
@@ -337,6 +337,18 @@ namespace wisdom
 
         output += std::to_string (this->half_move_clock) + " " + std::to_string (this->full_moves);
         return output;
+    }
+
+    bool board_equals (const Board &a, const Board &b)
+    {
+        for (auto coord : All_Coords_Iterator)
+        {
+            if (a.piece_at (coord) != b.piece_at (coord))
+                return false;
+        }
+
+        // todo check more
+        return true;
     }
 
 }

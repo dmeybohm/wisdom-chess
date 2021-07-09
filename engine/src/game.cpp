@@ -55,7 +55,7 @@ namespace wisdom
         this->my_analytics = std::move (new_analytics);
     }
 
-    std::optional<Move> Game::find_best_move (Logger &logger, Color whom)
+    std::optional<Move> Game::find_best_move (Logger &logger, Color whom) const
     {
         if (whom == Color::None)
             whom = this->my_computer_player;
@@ -117,8 +117,7 @@ namespace wisdom
             result.move (move);
         }
 
-        std::optional<Game> optional_result = std::move (result);
-        return optional_result;
+        return result;
     }
 
     Color Game::get_computer_player () const

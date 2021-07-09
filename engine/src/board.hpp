@@ -32,10 +32,10 @@ namespace wisdom
         int my_transposition_misses = 0;
         int my_transposition_dupe_hashes = 0;
 
-    public:
         // The representation of the board.
-        ColoredPiece squares[Num_Rows][Num_Columns];
+        ColoredPiece my_squares[Num_Rows][Num_Columns];
 
+    public:
         // positions of the kings.
         Coord king_pos[Num_Players];
 
@@ -61,7 +61,6 @@ namespace wisdom
         int full_moves = 1;
 
         Board ();
-        virtual ~Board () = default;
 
         Board (const Board &board) = default;
 
@@ -71,12 +70,22 @@ namespace wisdom
 
         constexpr ColoredPiece piece_at (int row, int col) const
         {
-            return this->squares[row][col];
+            return this->my_squares[row][col];
         }
 
         constexpr ColoredPiece piece_at (Coord coord) const
         {
-            return this->squares[coord.row][coord.col];
+            return this->my_squares[coord.row][coord.col];
+        }
+
+        void set_piece (int row, int col, ColoredPiece piece)
+        {
+            this->my_squares[row][col] = piece;
+        }
+
+        void set_piece (Coord coord, ColoredPiece piece)
+        {
+            this->my_squares[ROW (coord)][COLUMN (coord)] = piece;
         }
 
         void print_to_file (std::ostream &out) const;
@@ -131,8 +140,7 @@ namespace wisdom
 
     constexpr ColoredPiece piece_at (const Board &board, int row, int col)
     {
-        assert (is_valid_row (row) && is_valid_column (col));
-        return board.squares[row][col];
+        return board.piece_at (row, col);
     }
 
     constexpr ColoredPiece piece_at (const Board &board, Coord coord)
@@ -144,13 +152,17 @@ namespace wisdom
 
     // white moves up (-)
     // black moves down (+)
-    static inline int pawn_direction (Color color)
+    constexpr int pawn_direction (Color color)
     {
-        assert (color == Color::White || color == Color::Black);
-        return color == Color::Black ? 1 : -1;
+        switch (color)
+        {
+            case Color::Black: return 1;
+            case Color::White: return -1;
+            case Color::None: abort();
+        }
     }
 
-    static inline bool need_pawn_promotion (int row, Color who)
+    constexpr bool need_pawn_promotion (int row, Color who)
     {
         assert (is_color_valid (who));
         switch (who)
@@ -199,27 +211,12 @@ namespace wisdom
         board.king_pos[color_index (who)] = pos;
     }
 
-    static inline void board_set_piece (Board &board, Coord place, ColoredPiece piece)
-    {
-        board.squares[ROW (place)][COLUMN (place)] = piece;
-    }
-
     constexpr bool is_en_passant_vulnerable (const Board &board, Color who)
     {
         return board.en_passant_target[color_index (who)] != No_En_Passant_Coord;
     }
 
-    static inline bool board_equals (const Board &a, const Board &b)
-    {
-        for (auto coord : All_Coords_Iterator)
-        {
-            if (a.squares[coord.row][coord.col] != b.squares[coord.row][coord.col])
-                return false;
-        }
-
-        // todo check more
-        return true;
-    }
+    bool board_equals (const Board &a, const Board &b);
 }
 
 #endif // WISDOM_CHESS_BOARD_H_

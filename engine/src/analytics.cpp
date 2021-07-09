@@ -1,19 +1,38 @@
 #include "analytics.hpp"
 
-#include <sqlite3.h>
-
 namespace wisdom::analysis
 {
-    // dummy destructors for interfaces:
-    Analytics::~Analytics () = default;
-    IterativeSearch::~IterativeSearch () = default;
-    Iteration::~Iteration () = default;
-    Search::~Search () = default;
-    Decision::~Decision () = default;
-    Position::~Position () = default;
+    Decision Decision::make_child (Position &position)
+    {
+        if (impl)
+            return impl->make_child (position);
+        else
+            return {};
+    }
+
+    Position Decision::make_position (Move move)
+    {
+        if (impl)
+            return impl->make_position (move);
+        else
+            return {};
+    }
+
+    void Decision::finalize (const SearchResult &result)
+    {
+        if (impl)
+            impl->finalize (result);
+    }
+
+    void Decision::preliminary_choice (Position &position)
+    {
+        if (impl)
+            impl->preliminary_choice (position);
+    }
 
     Analytics &make_dummy_analytics ()
     {
-        return DummyAnalytics::get_analytics();
+        static Analytics analytics;
+        return analytics;
     }
 }

@@ -18,7 +18,7 @@ namespace wisdom
         if (undo)
         {
             ColoredPiece taken_pawn = make_piece (color_invert (who), Piece::Pawn);
-            board_set_piece (board, taken_pawn_pos, taken_pawn);
+            board.set_piece (taken_pawn_pos, taken_pawn);
 
             return Piece_And_Color_None; // restore empty square where piece was replaced
         }
@@ -28,7 +28,7 @@ namespace wisdom
 
             assert(piece_type (taken) == Piece::Pawn);
             assert(piece_color (taken) != who);
-            board_set_piece (board, taken_pawn_pos, Piece_And_Color_None);
+            board.set_piece (taken_pawn_pos, Piece_And_Color_None);
 
             return taken;
         }
@@ -102,16 +102,16 @@ namespace wisdom
             rook = piece_at (board, rook_dst);
 
             // undo the rook move
-            board_set_piece (board, rook_dst, empty_piece);
-            board_set_piece (board, rook_src, rook);
+            board.set_piece (rook_dst, empty_piece);
+            board.set_piece (rook_src, rook);
         }
         else
         {
             rook = piece_at (board, rook_src);
 
             // do the rook move
-            board_set_piece (board, rook_dst, rook);
-            board_set_piece (board, rook_src, empty_piece);
+            board.set_piece (rook_dst, rook);
+            board.set_piece (rook_src, empty_piece);
         }
     }
 
@@ -343,8 +343,8 @@ namespace wisdom
 
         board.code.apply_move (board, move);
 
-        board_set_piece (board, src, Piece_And_Color_None);
-        board_set_piece (board, dst, src_piece);
+        board.set_piece (src, Piece_And_Color_None);
+        board.set_piece (dst, src_piece);
 
         // update king position
         if (piece_type (src_piece) == Piece::King)
@@ -421,8 +421,8 @@ namespace wisdom
         board.code.unapply_move (board, move, undo_state);
 
         // put the pieces back
-        board_set_piece (board, dst, dst_piece);
-        board_set_piece (board, src, src_piece);
+        board.set_piece (dst, dst_piece);
+        board.set_piece (src, src_piece);
 
         // update king position
         if (piece_type (src_piece) == Piece::King)
