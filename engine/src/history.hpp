@@ -3,7 +3,7 @@
 
 #include "global.hpp"
 #include "board_history.hpp"
-#include "move_history.hpp"
+#include "move_list.hpp"
 #include "piece.hpp"
 #include "board.hpp"
 
@@ -13,7 +13,7 @@ namespace wisdom
     {
     private:
         BoardHistory my_board_history;
-        MoveHistory my_move_history;
+        MoveList my_move_history;
 
     public:
         virtual ~History() = default;
@@ -46,7 +46,7 @@ namespace wisdom
             return my_board_history;
         }
 
-        [[nodiscard]] const MoveHistory &get_move_history () const
+        [[nodiscard]] const MoveList &get_move_history () const
         {
             return my_move_history;
         }

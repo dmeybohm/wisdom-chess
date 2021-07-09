@@ -22,6 +22,10 @@ namespace wisdom
                                        [[maybe_unused]] const Board &board, const History &history,
                                        [[maybe_unused]] Color turn)
     {
-        history.get_move_history ().save (filename);
+        std::ofstream file;
+        file.open (filename);
+        for (auto move : history.get_move_history())
+            file << wisdom::to_string (move) << "\n";
+        file.close ();
     }
 }

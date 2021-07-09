@@ -43,7 +43,7 @@ TEST_CASE("Initializing transposition table")
 {
     std::vector<RelativeTransposition> positions;
     TranspositionTable table;
-    int num_iterations = 10000;
+    int num_iterations = Max_Transpositions;
 
     for (int i = 0; i < num_iterations; i++)
     {
