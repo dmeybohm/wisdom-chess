@@ -31,7 +31,7 @@ namespace wisdom
         Black
     };
 
-    struct colored_piece
+    struct ColoredPiece
     {
         Piece piece_type: 4;
         Color color: 4;
@@ -41,8 +41,6 @@ namespace wisdom
     constexpr int Color_Index_Black = 1;
 
     using ColorIndex = int8_t;
-
-    using ColoredPiece = struct colored_piece;
 
     static_assert(std::is_trivial<ColoredPiece>::value);
 
