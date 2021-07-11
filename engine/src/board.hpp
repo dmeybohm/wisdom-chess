@@ -211,11 +211,6 @@ namespace wisdom
         board.king_pos[color_index (who)] = pos;
     }
 
-    static inline void board_set_piece (Board &board, Coord place, ColoredPiece piece)
-    {
-        board.squares[ROW (place)][COLUMN (place)] = piece;
-    }
-
     [[nodiscard]] constexpr bool is_en_passant_vulnerable (const Board &board, Color who)
     {
         return board.en_passant_target[color_index (who)] != No_En_Passant_Coord;
