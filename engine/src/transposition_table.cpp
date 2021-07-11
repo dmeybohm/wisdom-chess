@@ -1,6 +1,8 @@
 #include "transposition_table.hpp"
 #include "board.hpp"
 
+#include <ostream>
+
 namespace wisdom
 {
     std::optional<RelativeTransposition> TranspositionTable::lookup (BoardHashCode hash, Color who)
@@ -92,4 +94,17 @@ namespace wisdom
             RelativeTransposition (board.code.hash_code(), board.code, _score, _relative_depth, _variation_glimpse)
     {}
 
+    std::ostream &operator<< (std::ostream &os, const RelativeTransposition &transposition)
+    {
+        os << static_cast<const BaseTransposition &>(transposition);
+        return os;
+    }
+
+    std::ostream &operator<< (std::ostream &os, const BaseTransposition &transposition)
+    {
+        os << "{ hash_code: " << transposition.hash_code << " board_code: " << transposition.board_code << " score: "
+            << transposition.score << " relative_depth: " << transposition.relative_depth << " variation_glimpse: "
+            << transposition.variation_glimpse << " }";
+        return os;
+    }
 }

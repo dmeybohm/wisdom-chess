@@ -80,6 +80,8 @@ namespace wisdom
             return !(first == second);
         }
 
+        friend std::ostream &operator<< (std::ostream &os, const BoardCode &code);
+
         [[nodiscard]] BoardCode with_move (const Board &board, Move move) const
         {
             auto copy = *this;

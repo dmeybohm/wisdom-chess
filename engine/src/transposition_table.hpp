@@ -39,6 +39,8 @@ namespace wisdom
         {
             return other.hash_code == this->hash_code;
         }
+
+        friend std::ostream &operator<< (std::ostream &os, const BaseTransposition &transposition);
     };
 
     struct RelativeTransposition : BaseTransposition
@@ -60,6 +62,8 @@ namespace wisdom
         {
             return RelativeTransposition { 0, BoardCode{}, Negative_Infinity, 0, {} };
         }
+
+        friend std::ostream &operator<< (std::ostream &os, const RelativeTransposition &transposition);
     };
 
     struct ColoredTransposition : BaseTransposition

@@ -1,5 +1,7 @@
 #include "variation_glimpse.hpp"
 
+#include <sstream>
+
 namespace wisdom
 {
     [[nodiscard]] std::string VariationGlimpse::to_string () const
@@ -40,6 +42,15 @@ namespace wisdom
         if (my_start == my_next_pos)
             return Max_Variation_Glimpse_Size;
         return my_next_pos;
+    }
+
+    std::ostream &operator<< (std::ostream &os, const VariationGlimpse &glimpse)
+    {
+        MoveList tmp_list = glimpse.to_list ();
+
+        os << "{ my_moves: " << wisdom::to_string (tmp_list) << " my_start: " << glimpse.my_start << " my_next_pos: "
+           << glimpse.my_next_pos << " }";
+        return os;
     }
 
 }

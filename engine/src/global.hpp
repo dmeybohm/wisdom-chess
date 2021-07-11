@@ -15,6 +15,7 @@
 #include <forward_list>
 #include <algorithm>
 #include <chrono>
+#include <iosfwd>
 //#include <mutex>
 //#include <thread>
 #include <cctype>

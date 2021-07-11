@@ -68,12 +68,12 @@ namespace wisdom
 
         void print () const;
 
-        constexpr ColoredPiece piece_at (int row, int col) const
+        [[nodiscard]] constexpr ColoredPiece piece_at (int row, int col) const
         {
             return this->my_squares[row][col];
         }
 
-        constexpr ColoredPiece piece_at (Coord coord) const
+        [[nodiscard]] constexpr ColoredPiece piece_at (Coord coord) const
         {
             return this->my_squares[coord.row][coord.col];
         }
@@ -173,7 +173,7 @@ namespace wisdom
         }
     }
 
-    constexpr bool able_to_castle (const Board &board, Color who, CastlingState castle_type)
+    [[nodiscard]] constexpr bool able_to_castle (const Board &board, Color who, CastlingState castle_type)
     {
         ColorIndex c_index = color_index (who);
 
@@ -183,7 +183,7 @@ namespace wisdom
         return didnt_castle && neg_not_set;
     }
 
-    constexpr CastlingState board_get_castle_state (const Board &board, Color who)
+    [[nodiscard]] constexpr CastlingState board_get_castle_state (const Board &board, Color who)
     {
         ColorIndex index = color_index (who);
         return board.castled[index];
@@ -201,7 +201,7 @@ namespace wisdom
         board.castled[index] = castle_state;
     }
 
-    static inline Coord king_position (const Board &board, Color who)
+    [[nodiscard]] static inline Coord king_position (const Board &board, Color who)
     {
         return board.king_pos[color_index (who)];
     }
@@ -211,7 +211,12 @@ namespace wisdom
         board.king_pos[color_index (who)] = pos;
     }
 
-    constexpr bool is_en_passant_vulnerable (const Board &board, Color who)
+    static inline void board_set_piece (Board &board, Coord place, ColoredPiece piece)
+    {
+        board.squares[ROW (place)][COLUMN (place)] = piece;
+    }
+
+    [[nodiscard]] constexpr bool is_en_passant_vulnerable (const Board &board, Color who)
     {
         return board.en_passant_target[color_index (who)] != No_En_Passant_Coord;
     }

@@ -3,6 +3,8 @@
 #include "board.hpp"
 #include "coord.hpp"
 
+#include <ostream>
+
 namespace wisdom
 {
     BoardCode::BoardCode (const Board &board)
@@ -123,5 +125,11 @@ namespace wisdom
     {
         std::string str = bits.to_string ();
         return std::count (str.begin (), str.end (), '1');
+    }
+
+    std::ostream &operator<< (std::ostream &os, const BoardCode &code)
+    {
+        os << "{ bits: " << code.bits << " }";
+        return os;
     }
 }

@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include <ostream>
+
 namespace wisdom
 {
     // board length in characters
@@ -248,12 +250,12 @@ namespace wisdom
 
             if (optional_transposition->relative_depth >= relative_depth)
             {
-                my_transposition_misses++;
+                my_transposition_hits++;
                 return optional_transposition;
             }
         }
 
-        my_transposition_hits++;
+        my_transposition_misses++;
         return std::nullopt;
     }
 
@@ -350,5 +352,4 @@ namespace wisdom
         // todo check more
         return true;
     }
-
 }

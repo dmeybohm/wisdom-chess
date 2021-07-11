@@ -41,6 +41,8 @@ namespace wisdom
         [[nodiscard]] MoveList to_list () const;
 
         [[nodiscard]] int size () const;
+
+        friend std::ostream &operator<< (std::ostream &os, const VariationGlimpse &glimpse);
     };
 
 }
