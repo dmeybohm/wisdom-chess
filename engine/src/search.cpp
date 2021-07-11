@@ -204,11 +204,11 @@ namespace wisdom
             if (my_timer.is_triggered ())
                 return SearchResult::from_timeout ();
 
-            UndoMove undo_state = do_move (my_board, side, move);
+            UndoMove undo_state = my_board.make_move (side, move);
 
             if (!was_legal_move (my_board, side, move))
             {
-                undo_move (my_board, side, move, undo_state);
+                my_board.take_back (side, move, undo_state);
                 continue;
             }
 
@@ -242,7 +242,7 @@ namespace wisdom
             }
 
             my_history.remove_position_and_last_move (my_board);
-            undo_move (my_board, side, move, undo_state);
+            my_board.take_back (side, move, undo_state);
 
             if (other_search_result.timed_out)
                 return other_search_result;

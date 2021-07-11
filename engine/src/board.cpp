@@ -3,7 +3,6 @@
 #include "variation_glimpse.hpp"
 
 #include <iostream>
-
 #include <ostream>
 
 namespace wisdom
@@ -133,14 +132,11 @@ namespace wisdom
 
     static void add_divider (std::string &result)
     {
-        int col;
-        int i;
-
         result += " ";
 
-        for (col = 0; col < BOARD_LENGTH; col += 4)
+        for (int col = 0; col < BOARD_LENGTH; col += 4)
         {
-            for (i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
                 result += '-';
             result += ' ';
         }
@@ -169,14 +165,13 @@ namespace wisdom
     std::string Board::to_string () const
     {
         std::string result;
-        int row, col;
 
         char row_coord = '8';
 
         add_divider (result);
-        for (row = 0; row < Num_Rows; row++)
+        for (int row = 0; row < Num_Rows; row++)
         {
-            for (col = 0; col < Num_Columns; col++)
+            for (int col = 0; col < Num_Columns; col++)
             {
                 ColoredPiece piece = this->piece_at (row, col);
 
@@ -324,11 +319,11 @@ namespace wisdom
         std::string castled_white = castled_string (Color::White);
         std::string castled_black = castled_string (Color::Black);
 
-        std::string castled = castled_white + castled_black;
-        if (castled.length() == 0)
-            castled = "-";
+        std::string both_castled = castled_white + castled_black;
+        if (both_castled.length() == 0)
+            both_castled = "-";
 
-        output += castled;
+        output += both_castled;
 
         if (this->en_passant_target[Color_Index_White] != No_En_Passant_Coord)
             output += " " + wisdom::to_string (this->en_passant_target[Color_Index_White]) + " ";
@@ -352,4 +347,5 @@ namespace wisdom
         // todo check more
         return true;
     }
+
 }

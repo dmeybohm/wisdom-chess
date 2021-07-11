@@ -7,8 +7,8 @@ namespace wisdom
 {
     struct coord
     {
-        int8_t row;
-        int8_t col;
+        int8_t row : 4;
+        int8_t col : 4;
     };
 
     using Coord = struct coord;

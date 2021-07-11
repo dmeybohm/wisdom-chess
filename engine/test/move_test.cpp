@@ -11,7 +11,7 @@ using namespace wisdom;
 TEST_CASE( "Parsing a move" )
 {
     Move with_spaces = move_parse ("   e2e4", Color::White);
-    REQUIRE(make_move (coord_parse ("e2"), coord_parse ("e4")) == with_spaces );
+    REQUIRE(make_noncapture_move (coord_parse ("e2"), coord_parse ("e4")) == with_spaces );
 }
 
 TEST_CASE( "Parsing an en-passant move" )
@@ -28,7 +28,7 @@ TEST_CASE( "Parsing a promoting move" )
     Move promoting = move_parse ("   d7d8 (B) ", Color::White);
     Coord src = coord_parse("d7");
     Coord dst = coord_parse("d8");
-    Move expected = make_move (src, dst);
+    Move expected = make_noncapture_move (src, dst);
     expected = copy_move_with_promotion (expected, make_piece (Color::White, Piece::Bishop));
     REQUIRE( promoting == expected );
 }
@@ -63,25 +63,25 @@ TEST_CASE( "Moving and undoing a move works" )
     Move d5xe4 = move_parse ("d5xe4", Color::Black);
     Move c3xe4 = move_parse ("c3xe4", Color::White);
 
-    UndoMove undo_state;
+    UndoMove undo_state{};
 
-    undo_state = do_move (board, Color::White, e2e4);
-    undo_move (board, Color::White, e2e4, undo_state);
-    do_move (board, Color::White, e2e4);
+    undo_state = board.make_move (Color::White, e2e4);
+    board.take_back (Color::White, e2e4, undo_state);
+    board.make_move (Color::White, e2e4);
 
-    undo_state = do_move (board, Color::Black, d6d8);
-    undo_move (board, Color::Black, d6d8, undo_state);
-    do_move (board, Color::Black, d6d8);
+    undo_state = board.make_move (Color::Black, d6d8);
+    board.take_back (Color::Black, d6d8, undo_state);
+    board.make_move (Color::Black, d6d8);
 
-    undo_state = do_move (board, Color::White, b1c3);
-    undo_move (board, Color::White, b1c3, undo_state);
-    do_move (board, Color::White, b1c3);
+    undo_state = board.make_move (Color::White, b1c3);
+    board.take_back (Color::White, b1c3, undo_state);
+    board.make_move (Color::White, b1c3);
 
-    undo_state = do_move (board, Color::Black, d5xe4);
-    undo_move (board, Color::Black, d5xe4, undo_state);
-    do_move (board, Color::Black, d5xe4);
+    undo_state = board.make_move (Color::Black, d5xe4);
+    board.take_back (Color::Black, d5xe4, undo_state);
+    board.make_move (Color::Black, d5xe4);
 
-    undo_state = do_move (board, Color::White, c3xe4);
-    undo_move (board, Color::White, c3xe4, undo_state);
-    do_move (board, Color::White, c3xe4);
+    undo_state = board.make_move (Color::White, c3xe4);
+    board.take_back (Color::White, c3xe4, undo_state);
+    board.make_move (Color::White, c3xe4);
 }

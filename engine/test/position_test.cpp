@@ -49,8 +49,8 @@ TEST_CASE( "Capture updates position score correctly")
 
     Move e4xd6 = move_parse ("e4xd6", Color::White);
 
-    UndoMove undo_state = do_move (*board, Color::White, e4xd6);
-    undo_move (*board, Color::White, e4xd6, undo_state);
+    UndoMove undo_state = board->make_move (Color::White, e4xd6);
+    board->take_back (Color::White, e4xd6, undo_state);
 
     CHECK( initial_score_white == board->position.score(Color::White) );
     CHECK( initial_score_black == board->position.score(Color::Black) );
@@ -74,8 +74,8 @@ TEST_CASE( "En passant updates position score correctly")
     Move e5xd5 = move_parse ("e5d6 ep", Color::White);
     CHECK( is_en_passant_move(e5xd5) );
 
-    UndoMove undo_state = do_move (*board, Color::White, e5xd5);
-    undo_move (*board, Color::White, e5xd5, undo_state);
+    UndoMove undo_state = board->make_move (Color::White, e5xd5);
+    board->take_back (Color::White, e5xd5, undo_state);
 
     CHECK( initial_score_white == board->position.score(Color::White) );
     CHECK( initial_score_black == board->position.score(Color::Black) );
@@ -102,8 +102,8 @@ TEST_CASE( "Castling updates position score correctly")
         Move castling_move = move_parse (castling_move_in, Color::White);
         CHECK(is_castling_move (castling_move));
 
-        UndoMove undo_state = do_move (*board, Color::White, castling_move);
-        undo_move (*board, Color::White, castling_move, undo_state);
+        UndoMove undo_state = board->make_move (Color::White, castling_move);
+        board->take_back (Color::White, castling_move, undo_state);
 
         CHECK(initial_score_white == board->position.score(Color::White));
         CHECK(initial_score_black == board->position.score(Color::Black));
@@ -129,8 +129,8 @@ TEST_CASE( "Promoting move updates position score correctly")
         Move castling_move = move_parse (promoting_move_in, Color::White);
         CHECK(is_promoting_move (castling_move));
 
-        UndoMove undo_state = do_move (*board, Color::White, castling_move);
-        undo_move (*board, Color::White, castling_move, undo_state);
+        UndoMove undo_state = board->make_move (Color::White, castling_move);
+        board->take_back (Color::White, castling_move, undo_state);
 
         CHECK( initial_score_white == board->position.score(Color::White) );
         CHECK( initial_score_black == board->position.score(Color::Black) );

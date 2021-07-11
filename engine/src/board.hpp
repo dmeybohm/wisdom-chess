@@ -134,6 +134,9 @@ namespace wisdom
 
         [[nodiscard]] std::string to_fen_string (Color turn) const;
         [[nodiscard]] std::string castled_string (Color color) const;
+
+        UndoMove make_move (Color who, Move move);
+        void take_back (Color who, Move move, UndoMove undo_state);
     };
 
     ///////////////////////////////////////////////
@@ -159,17 +162,6 @@ namespace wisdom
             case Color::Black: return 1;
             case Color::White: return -1;
             case Color::None: throw Error { "Invalid color in pawn_direction()" };
-        }
-    }
-
-    constexpr bool need_pawn_promotion (int row, Color who)
-    {
-        assert (is_color_valid (who));
-        switch (who)
-        {
-            case Color::White: return 0 == row;
-            case Color::Black: return 7 == row;
-            default: throw Error { "Invalid color in need_pawn_promotion()"  };
         }
     }
 

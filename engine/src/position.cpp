@@ -79,6 +79,18 @@ namespace wisdom
         return make_coord (7 - row, 7 - col);
     }
 
+    static int castling_row_from_color (Color who)
+    {
+        switch (who)
+        {
+            case Color::White: return 7;
+            case Color::Black: return 0;
+            default: throw Error {
+              "Invalid color in castling_row_from_color()"
+            };
+        }
+    }
+
     static int change (Coord coord, Color who, ColoredPiece piece)
     {
         Coord translated_pos = translate_position (coord, who);

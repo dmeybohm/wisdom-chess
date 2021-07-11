@@ -11,6 +11,33 @@ namespace wisdom
         return make_coord (ROW (src), COLUMN (dst));
     }
 
+    static void save_current_castle_state (UndoMove &undo_state, CastlingState state)
+    {
+        undo_state.current_castle_state = pack_castle_state (state);
+    }
+
+    static void save_opponent_castle_state (UndoMove &undo_state, CastlingState state)
+    {
+        undo_state.opponent_castle_state = pack_castle_state (state);
+    }
+
+    constexpr bool move_affects_current_castle_state (UndoMove move)
+    {
+        return move.current_castle_state != Castle_None;
+    }
+
+    constexpr bool move_affects_opponent_castle_state (UndoMove move)
+    {
+        return move.opponent_castle_state != Castle_None;
+    }
+
+    constexpr bool is_double_square_pawn_move (ColoredPiece src_piece, Move move)
+    {
+        Coord src = move_src (move);
+        Coord dst = move_dst (move);
+        return piece_type (src_piece) == Piece::Pawn && abs (ROW (src) - ROW (dst)) == 2;
+    }
+
     ColoredPiece handle_en_passant (Board &board, Color who, Coord src, Coord dst, int undo)
     {
         Coord taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
@@ -69,7 +96,7 @@ namespace wisdom
             };
         }
 
-        return make_move (src_row, src_col, dst_row, dst_col);
+        return make_noncapture_move (src_row, src_col, dst_row, dst_col);
     }
 
     static void handle_castling (Board &board, Color who,
@@ -291,18 +318,18 @@ namespace wisdom
         }
     }
 
-    UndoMove do_move (Board &board, Color who, Move move)
+    UndoMove Board::make_move (Color who, Move move)
     {
         ColoredPiece orig_src_piece, src_piece, dst_piece;
         Coord src, dst;
-        UndoMove undo_state = empty_undo_state;
+        UndoMove undo_state = Empty_Undo_State;
         Color opponent = color_invert (who);
 
         src = move_src (move);
         dst = move_dst (move);
 
-        orig_src_piece = src_piece = piece_at (board, src);
-        dst_piece = piece_at (board, dst);
+        orig_src_piece = src_piece = this->piece_at (src);
+        dst_piece = this->piece_at (dst);
 
         if (piece_type (dst_piece) != Piece::None)
         {
@@ -321,39 +348,39 @@ namespace wisdom
         if (is_promoting_move (move))
         {
             src_piece = move_get_promoted_piece (move);
-            board.material.add (src_piece);
-            board.material.remove (make_piece (who, Piece::Pawn));
+            this->material.add (src_piece);
+            this->material.remove (make_piece (who, Piece::Pawn));
         }
 
         // check for en passant
         if (is_en_passant_move (move))
         {
-            dst_piece = handle_en_passant (board, who, src, dst, 0);
+            dst_piece = handle_en_passant (*this, who, src, dst, 0);
             undo_state.category = MoveCategory::EnPassant;
         }
 
         // check for castling
         if (is_castling_move (move))
         {
-            handle_castling (board, who, move, src, dst, 0);
+            handle_castling (*this, who, move, src, dst, 0);
             undo_state.category = MoveCategory::Castling;
         }
 
-        handle_en_passant_eligibility (board, who, src_piece, move, &undo_state, 0);
+        handle_en_passant_eligibility (*this, who, src_piece, move, &undo_state, 0);
 
-        board.code.apply_move (board, move);
+        this->code.apply_move (*this, move);
 
-        board.set_piece (src, Piece_And_Color_None);
-        board.set_piece (dst, src_piece);
+        this->set_piece (src, Piece_And_Color_None);
+        this->set_piece (dst, src_piece);
 
         // update king position
         if (piece_type (src_piece) == Piece::King)
-            update_king_position (board, who, move, undo_state, src, dst, 0);
+            update_king_position (*this, who, move, undo_state, src, dst, 0);
 
         // update rook position -- for castling
         if (piece_type (orig_src_piece) == Piece::Rook)
         {
-            update_current_rook_position (board, who, orig_src_piece,
+            update_current_rook_position (*this, who, orig_src_piece,
                                           move, undo_state, src, dst, 0);
         }
 
@@ -361,24 +388,24 @@ namespace wisdom
         if (piece_type (captured_piece) != Piece::None)
         {
             // update material estimate
-            board.material.remove (captured_piece);
+            this->material.remove (captured_piece);
 
             // update castle state if somebody takes the rook
             if (piece_type (captured_piece) == Piece::Rook)
             {
-                update_opponent_rook_position (board, color_invert (who), dst_piece,
+                update_opponent_rook_position (*this, color_invert (who), dst_piece,
                                                undo_state, src, dst, 0);
             }
         }
 
-        board.position.apply_move (who, orig_src_piece, move, undo_state);
-        validate_castle_state (board, move);
+        this->position.apply_move (who, orig_src_piece, move, undo_state);
+        validate_castle_state (*this, move);
 
-        board.update_move_clock (who, piece_type (orig_src_piece), move, undo_state);
+        this->update_move_clock (who, piece_type (orig_src_piece), move, undo_state);
         return undo_state;
     }
 
-    void undo_move (Board &board, Color who, Move move, UndoMove undo_state)
+    void Board::take_back (Color who, Move move, UndoMove undo_state)
     {
         ColoredPiece orig_src_piece, src_piece, dst_piece = Piece_And_Color_None;
         Piece dst_piece_type;
@@ -389,7 +416,7 @@ namespace wisdom
         dst = move_dst (move);
 
         dst_piece_type = undo_state.taken_piece_type;
-        orig_src_piece = src_piece = piece_at (board, dst);
+        orig_src_piece = src_piece = this->piece_at (dst);
 
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) == who);
@@ -402,35 +429,35 @@ namespace wisdom
         if (is_promoting_move (move))
         {
             src_piece = make_piece (piece_color (src_piece), Piece::Pawn);
-            board.material.remove (orig_src_piece);
-            board.material.add (src_piece);
+            this->material.remove (orig_src_piece);
+            this->material.add (src_piece);
         }
 
         // check for castling
         if (is_castling_move (move))
-            handle_castling (board, who, move, src, dst, 1);
+            handle_castling (*this, who, move, src, dst, 1);
 
         // Update en passant eligibility:
-        handle_en_passant_eligibility (board, who, src_piece, move, &undo_state, 1);
+        handle_en_passant_eligibility (*this, who, src_piece, move, &undo_state, 1);
 
         // check for en passant
         if (is_en_passant_move (move))
-            dst_piece = handle_en_passant (board, who, src, dst, 1);
+            dst_piece = handle_en_passant (*this, who, src, dst, 1);
 
         // Update the code:
-        board.code.unapply_move (board, move, undo_state);
+        this->code.unapply_move (*this, move, undo_state);
 
         // put the pieces back
-        board.set_piece (dst, dst_piece);
-        board.set_piece (src, src_piece);
+        this->set_piece (dst, dst_piece);
+        this->set_piece (src, src_piece);
 
         // update king position
         if (piece_type (src_piece) == Piece::King)
-            update_king_position (board, who, move, undo_state, src, dst, 1);
+            update_king_position (*this, who, move, undo_state, src, dst, 1);
 
         if (piece_type (orig_src_piece) == Piece::Rook)
         {
-            update_current_rook_position (board, who, orig_src_piece, move, undo_state,
+            update_current_rook_position (*this, who, orig_src_piece, move, undo_state,
                                           src, dst, 1);
         }
 
@@ -439,18 +466,18 @@ namespace wisdom
         {
             // NOTE: we reload from the move in case of en-passant, since dst_piece
             // could be none.
-            board.material.add (captured_piece);
+            this->material.add (captured_piece);
 
             if (piece_type (dst_piece) == Piece::Rook)
             {
-                update_opponent_rook_position (board, color_invert (who), dst_piece,
+                update_opponent_rook_position (*this, color_invert (who), dst_piece,
                                                undo_state, src, dst, 1);
             }
         }
 
-        board.position.unapply_move (who, src_piece, move, undo_state);
-        validate_castle_state (board, move);
-        board.restore_move_clock (undo_state);
+        this->position.unapply_move (who, src_piece, move, undo_state);
+        validate_castle_state (*this, move);
+        this->restore_move_clock (undo_state);
     }
 
     static std::optional<Move> castle_parse (const std::string &str, Color who)
@@ -539,7 +566,7 @@ namespace wisdom
         }
 
         std::string rest { tmp.substr (offset) };
-        Move move = make_move (src, dst);
+        Move move = make_noncapture_move (src, dst);
         if (is_capturing)
         {
             move = copy_move_with_capture (move);

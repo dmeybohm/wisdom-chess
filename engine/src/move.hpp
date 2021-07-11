@@ -42,7 +42,7 @@ namespace wisdom
         Coord en_passant_target[Num_Players];
     };
 
-    constexpr UndoMove empty_undo_state = {
+    constexpr UndoMove Empty_Undo_State = {
             .category = MoveCategory::NonCapture,
             .taken_piece_type = Piece::None,
             .current_castle_state = Castle_None,
@@ -86,7 +86,7 @@ namespace wisdom
         {}
     };
 
-////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     constexpr Coord move_src (Move mv)
     {
@@ -134,43 +134,14 @@ namespace wisdom
         return move.move_category == MoveCategory::EnPassant;
     }
 
-    constexpr bool move_affects_current_castle_state (UndoMove move)
-    {
-        return move.current_castle_state != Castle_None;
-    }
-
-    constexpr bool move_affects_opponent_castle_state (UndoMove move)
-    {
-        return move.opponent_castle_state != Castle_None;
-    }
-
     constexpr bool is_castling_move (Move move)
     {
         return move.move_category == MoveCategory::Castling;
     }
 
-    constexpr bool is_double_square_pawn_move (ColoredPiece src_piece, Move move)
-    {
-        Coord src = move_src (move);
-        Coord dst = move_dst (move);
-        return piece_type (src_piece) == Piece::Pawn && abs (ROW (src) - ROW (dst)) == 2;
-    }
-
     constexpr bool is_castling_move_on_king_side (Move move)
     {
         return is_castling_move (move) && move.dst_col == 6;
-    }
-
-    static inline int castling_row_from_color (Color who)
-    {
-        switch (who)
-        {
-            case Color::White: return 7;
-            case Color::Black: return 0;
-            default: throw Error {
-                "Invalid color in castling_row_from_color()"
-            };
-        }
     }
 
     constexpr Move copy_move_with_promotion (Move move, ColoredPiece piece)
@@ -182,8 +153,8 @@ namespace wisdom
     }
 
     // run-of-the-mill move with no promotion involved
-    constexpr Move make_move (int src_row, int src_col,
-                              int dst_row, int dst_col)
+    constexpr Move make_noncapture_move (int src_row, int src_col,
+                                         int dst_row, int dst_col)
     {
         assert (src_row >= 0 && src_row < Num_Rows);
         assert (dst_row >= 0 && src_row < Num_Rows);
@@ -202,15 +173,15 @@ namespace wisdom
         return result;
     }
 
-    constexpr Move make_move (Coord src, Coord dst)
+    constexpr Move make_noncapture_move (Coord src, Coord dst)
     {
-        return make_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
+        return make_noncapture_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
     }
 
-    constexpr Move make_capturing_move (int src_row, int src_col,
-                                        int dst_row, int dst_col)
+    constexpr Move make_capture_move (int src_row, int src_col,
+                                      int dst_row, int dst_col)
     {
-        Move move = make_move (src_row, src_col, dst_row, dst_col);
+        Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::NormalCapture;
         return move;
     }
@@ -218,7 +189,7 @@ namespace wisdom
     constexpr Move make_castling_move (int src_row, int src_col,
                                        int dst_row, int dst_col)
     {
-        Move move = make_move (src_row, src_col, dst_row, dst_col);
+        Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::Castling;
         return move;
     }
@@ -228,7 +199,7 @@ namespace wisdom
         Coord src = move_src (move);
         Coord dst = move_dst (move);
         assert (move.move_category == MoveCategory::NonCapture);
-        Move result = make_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
+        Move result = make_noncapture_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
         result.move_category = MoveCategory::NormalCapture;
         return result;
     }
@@ -236,7 +207,7 @@ namespace wisdom
     constexpr Move make_en_passant_move (int src_row, int src_col,
                                          int dst_row, int dst_col)
     {
-        Move move = make_move (src_row, src_col, dst_row, dst_col);
+        Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::EnPassant;
         return move;
     }
@@ -284,27 +255,12 @@ namespace wisdom
         return unpack_castle_state (undo_state.opponent_castle_state);
     }
 
-    static inline void save_current_castle_state (UndoMove &undo_state, CastlingState state)
-    {
-        undo_state.current_castle_state = pack_castle_state (state);
-    }
-
-    static inline void save_opponent_castle_state (UndoMove &undo_state, CastlingState state)
-    {
-        undo_state.opponent_castle_state = pack_castle_state (state);
-    }
-
     constexpr bool is_en_passant_vulnerable (UndoMove undo_state, Color who)
     {
         return undo_state.en_passant_target[color_index (who)] != No_En_Passant_Coord;
     }
 
     /////////////////////////////////////////////////////////////////////
-
-    UndoMove do_move (Board &board, Color who, Move move);
-
-    void undo_move (Board &board, Color who, Move move,
-                    UndoMove undo_state);
 
     // Parse a move. Returns empty if the parse failed.
     std::optional<Move> move_parse_optional (const std::string &str, Color who);

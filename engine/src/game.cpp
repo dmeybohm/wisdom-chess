@@ -35,7 +35,7 @@ namespace wisdom
     void Game::move (Move move)
     {
         // do the move
-        do_move (*my_board, my_current_turn, move);
+        my_board->make_move (my_current_turn, move);
 
         // add this move to the history
         my_history->add_position_and_move (*my_board, move);
@@ -58,11 +58,11 @@ namespace wisdom
     std::optional<Move> Game::find_best_move (Logger &logger, Color whom) const
     {
         if (whom == Color::None)
-            whom = this->my_computer_player;
+            whom = my_computer_player;
 
         MoveTimer overdue_timer { Max_Search_Seconds };
-        IterativeSearch iterative_search { *this->my_board, *this->my_history, logger,
-                                           *this->my_analytics, overdue_timer, Max_Depth };
+        IterativeSearch iterative_search { *my_board, *my_history, logger,
+                                           *my_analytics, overdue_timer, Max_Depth };
         SearchResult result = iterative_search.iteratively_deepen (whom);
         return result.move;
     }

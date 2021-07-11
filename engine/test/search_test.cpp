@@ -1,5 +1,4 @@
 #include "tests.hpp"
-#include <doctest/doctest.h>
 #include "board_builder.hpp"
 #include "board.hpp"
 #include "search.hpp"

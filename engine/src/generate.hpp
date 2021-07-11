@@ -39,6 +39,8 @@ namespace wisdom
 
     MoveList generate_captures (const Board &board, Color who);
 
+    bool need_pawn_promotion (int row, Color who);
+
     const MoveList &generate_knight_moves (int row, int col);
 }
 
