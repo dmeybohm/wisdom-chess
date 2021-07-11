@@ -30,7 +30,7 @@ namespace wisdom
         Castling = 3,
     };
 
-    struct undo_move
+    struct UndoMove
     {
         MoveCategory category;
         Piece taken_piece_type;
@@ -42,8 +42,6 @@ namespace wisdom
         Coord en_passant_target[Num_Players];
     };
 
-    using UndoMove = struct undo_move;
-
     constexpr UndoMove empty_undo_state = {
             .category = MoveCategory::NonCapture,
             .taken_piece_type = Piece::None,
@@ -54,7 +52,7 @@ namespace wisdom
             .en_passant_target = { No_En_Passant_Coord, No_En_Passant_Coord },
     };
 
-    struct move
+    struct Move
     {
         int8_t src_row: 4;
         int8_t src_col: 4;
@@ -68,14 +66,12 @@ namespace wisdom
         MoveCategory move_category: 4;
     };
 
-    using Move = struct move;
-
     static_assert(std::is_trivial<Move>::value);
 
     class ParseMoveException : public Error
     {
     public:
-        explicit ParseMoveException (std::string message) : Error (std::move (message))
+        explicit ParseMoveException (const std::string& message) : Error { message }
         {}
     };
 
@@ -85,7 +81,7 @@ namespace wisdom
         MoveConsistencyProblem () : Error ("Move consistency error.")
         {}
 
-        MoveConsistencyProblem (std::string extra_info) :
+        explicit MoveConsistencyProblem (std::string extra_info) :
             Error ("Move consistency error.", std::move (extra_info) )
         {}
     };
@@ -227,7 +223,7 @@ namespace wisdom
         return move;
     }
 
-    static inline Move copy_move_with_capture (Move move)
+    constexpr Move copy_move_with_capture (Move move)
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
@@ -325,7 +321,6 @@ namespace wisdom
     std::string to_string (const Move &move);
 
     std::ostream &operator<< (std::ostream &os, const Move &value);
-
 }
 
 #endif // WISDOM_CHESS_MOVE_H

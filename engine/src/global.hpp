@@ -62,11 +62,11 @@ namespace wisdom
         std::string my_extra_info;
 
     public:
-        explicit Error (const std::string &message) : my_message { message }, my_extra_info { "" }
+        explicit Error (std::string message) : my_message { std::move (message) }
         {}
 
-        Error (const std::string &message, const std::string &extra_info) :
-            my_message { message }, my_extra_info { extra_info }
+        Error (std::string message, std::string extra_info) :
+            my_message { std::move(message) }, my_extra_info { std::move(extra_info) }
         {}
 
         [[nodiscard]] const std::string& message() const noexcept
