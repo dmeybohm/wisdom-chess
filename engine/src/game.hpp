@@ -41,6 +41,8 @@ namespace wisdom
 
         [[nodiscard]] Color get_current_turn () const;
 
+        void set_current_turn (Color);
+
         [[nodiscard]] Board &get_board() const;
 
         [[nodiscard]] History &get_history () const;

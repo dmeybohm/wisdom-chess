@@ -135,6 +135,11 @@ namespace wisdom
         return this->my_current_turn;
     }
 
+    void Game::set_current_turn (Color new_turn)
+    {
+        my_current_turn = new_turn;
+    }
+
     Board &Game::get_board () const
     {
         return *my_board;
@@ -149,4 +154,5 @@ namespace wisdom
     {
         return my_computer_player == my_current_turn;
     }
+
 }

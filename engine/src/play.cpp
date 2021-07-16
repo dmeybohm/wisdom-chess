@@ -15,15 +15,11 @@
 
 namespace wisdom
 {
-    // the color the computer is playing as
-    static const Color comp_player = Color::Black;
-
     struct InputState
     {
         bool stop_game = false;
-        bool show_move_error = false;
-        bool pause = false;
-        bool unpause = false;
+        bool show_error = false;
+        bool toggle_pause = false;
         std::optional<Move> move = std::nullopt;
 
         InputState() = default;
@@ -60,17 +56,21 @@ namespace wisdom
     static void save_game (const Game &game)
     {
         std::string input = prompt ("save to what file");
+
         if (input.empty ())
             return;
+
         game.save (input);
     }
 
-    static std::optional<Game> load_game ()
+    static std::optional<Game> load_game (const Game &current_game)
     {
         std::string input = prompt ("load what file");
+
         if (input.empty ())
             return std::nullopt;
-        return Game::load (input, comp_player);
+
+        return Game::load (input, current_game.get_computer_player ());
     }
 
     static std::optional<Game> load_fen (Game &current_game)
@@ -78,6 +78,7 @@ namespace wisdom
         std::string input = prompt ("FEN game");
         if (input.empty ())
             return std::nullopt;
+
         try
         {
             FenParser parser { input };
@@ -85,7 +86,7 @@ namespace wisdom
             game.set_computer_player (current_game.get_computer_player ());
             return game;
         }
-        catch (FenParser &error)
+        catch (FenParserError &error)
         {
             return std::nullopt;
         }
@@ -96,6 +97,7 @@ namespace wisdom
         std::string input = prompt ("store analysis in what file");
         if (input.empty ())
             return;
+
         game.set_analytics (analysis::make_sqlite_analytics (input, logger));
     }
 
@@ -108,7 +110,7 @@ namespace wisdom
 
         if (!std::getline (std::cin, input))
         {
-            result.show_move_error = true;
+            result.show_error = true;
             return result;
         }
 
@@ -127,7 +129,7 @@ namespace wisdom
         else if (input == "load")
         {
             Color orig_player = game.get_computer_player ();
-            auto optional_game = load_game ();
+            auto optional_game = load_game (game);
             if (optional_game.has_value ())
             {
                 game = std::move (*optional_game);
@@ -146,14 +148,9 @@ namespace wisdom
             }
             return result;
         }
-        else if (input == "pause")
+        else if (input == "pause" || input == "unpause")
         {
-            result.pause = true;
-            return result;
-        }
-        else if (input == "unpause")
-        {
-            result.unpause = true;
+            result.toggle_pause = true;
             return result;
         }
         else if (input == "computer_black")
@@ -164,6 +161,11 @@ namespace wisdom
         else if (input == "computer_white")
         {
             game.set_computer_player (Color::White);
+            return result;
+        }
+        else if (input == "switch")
+        {
+            game.set_current_turn (color_invert (game.get_current_turn ()));
             return result;
         }
         else if (input == "quit" || input == "exit")
@@ -178,7 +180,7 @@ namespace wisdom
         }
 
         result.move = move_parse_optional (input, game.get_current_turn());
-        result.show_move_error = true;
+        result.show_error = true;
 
         // check the generated move list for this move to see if its valid
         MoveList moves = generate_legal_moves (game.get_board (), game.get_current_turn ());
@@ -187,7 +189,7 @@ namespace wisdom
         {
             if (result.move.has_value () && move_equals (legal_move, *result.move))
             {
-                result.show_move_error = false;
+                result.show_error = false;
                 break;
             }
         }
@@ -204,7 +206,7 @@ namespace wisdom
         if (!std::getline (std::cin, input))
         {
             result.stop_game = true;
-            result.show_move_error = true;
+            result.show_error = true;
             return result;
         }
 
@@ -223,12 +225,11 @@ namespace wisdom
         Game game { Color::White, color_invert (human_player) };
         InputState initial_input_state;
         Logger &output = make_standard_logger ();
-        InputState input_state = initial_input_state;
         bool paused = false;
 
         while (true)
         {
-            input_state = initial_input_state;
+            InputState input_state = initial_input_state;
             game.get_board ().print ();
 
             if (is_checkmated (game.get_board (), game.get_current_turn()))
@@ -268,18 +269,14 @@ namespace wisdom
                 if (input_state.stop_game)
                     break;
 
-                if (input_state.pause)
+                if (input_state.toggle_pause)
                 {
-                    paused = true;
-                    continue;
-                }
-                else if (input_state.unpause)
-                {
-                    paused = false;
+                    paused = !paused;
                     continue;
                 }
             }
-            if (input_state.show_move_error)
+
+            if (input_state.show_error)
             {
                 std::cout << "\nInvalid move\n\n";
                 continue;
