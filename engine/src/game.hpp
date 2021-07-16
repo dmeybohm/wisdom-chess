@@ -47,6 +47,8 @@ namespace wisdom
 
         void set_analytics (std::unique_ptr<analysis::Analytics> new_analytics);
 
+        [[nodiscard]] bool is_computer_turn () const;
+
     private:
         std::unique_ptr<Board> my_board = std::make_unique<Board> ();
         std::unique_ptr<History> my_history = std::make_unique<History> ();

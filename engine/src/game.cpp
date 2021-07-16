@@ -144,4 +144,9 @@ namespace wisdom
     {
         return *my_history;
     }
+
+    bool Game::is_computer_turn () const
+    {
+        return my_computer_player == my_current_turn;
+    }
 }
