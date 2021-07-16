@@ -108,7 +108,7 @@ namespace wisdom
 
         if (!std::getline (std::cin, input))
         {
-            result.stop_game = true;
+            result.show_move_error = true;
             return result;
         }
 
