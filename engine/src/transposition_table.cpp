@@ -94,12 +94,6 @@ namespace wisdom
             RelativeTransposition (board.code.hash_code(), board.code, _score, _relative_depth, _variation_glimpse)
     {}
 
-    std::ostream &operator<< (std::ostream &os, const RelativeTransposition &transposition)
-    {
-        os << static_cast<const BaseTransposition &>(transposition);
-        return os;
-    }
-
     std::ostream &operator<< (std::ostream &os, const BaseTransposition &transposition)
     {
         os << "{ hash_code: " << transposition.hash_code << " board_code: " << transposition.board_code << " score: "
