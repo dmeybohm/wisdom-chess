@@ -29,7 +29,7 @@ namespace wisdom::analysis
 
     public:
         Position () = default;
-        Position (std::unique_ptr<PositionImpl> impl_) : impl { std::move(impl_) }
+        explicit Position (std::unique_ptr<PositionImpl> impl_) : impl { std::move(impl_) }
         {}
         virtual ~Position () = default;
 
@@ -44,6 +44,11 @@ namespace wisdom::analysis
             if (impl)
                 impl->store_transposition_hit (relative_transposition);
         }
+
+        [[nodiscard]] PositionImpl *get_impl_ptr () const
+        {
+            return impl.get();
+        }
     };
 
     class DecisionImpl;
@@ -55,7 +60,7 @@ namespace wisdom::analysis
 
     public:
         Decision () = default;
-        Decision (std::unique_ptr<DecisionImpl> impl_) : impl { std::move(impl_) }
+        explicit Decision (std::unique_ptr<DecisionImpl> impl_) : impl { std::move(impl_) }
         {}
         virtual ~Decision () = default;
 
@@ -97,7 +102,8 @@ namespace wisdom::analysis
 
     public:
         Search () = default;
-        Search (std::unique_ptr<SearchImpl> impl_) : impl { std::move(impl_) }
+        explicit Search (std::unique_ptr<SearchImpl> impl_) :
+                impl { std::move(impl_) }
         {}
         virtual ~Search() = default;
 
@@ -123,7 +129,7 @@ namespace wisdom::analysis
 
     public:
         Iteration () = default;
-        Iteration (std::unique_ptr<IterationImpl> impl_) : impl { std::move(impl_) }
+        explicit Iteration (std::unique_ptr<IterationImpl> impl_) : impl { std::move(impl_) }
         {}
         virtual ~Iteration() = default;
 
@@ -150,7 +156,7 @@ namespace wisdom::analysis
 
     public:
         IterativeSearch () = default;
-        IterativeSearch (std::unique_ptr<IterativeSearchImpl> impl_ ) : impl { std::move(impl_) }
+        explicit IterativeSearch (std::unique_ptr<IterativeSearchImpl> impl_ ) : impl { std::move(impl_) }
         {}
 
         virtual ~IterativeSearch() = default;
