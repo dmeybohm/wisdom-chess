@@ -15,12 +15,23 @@
 
 namespace wisdom
 {
+    using std::optional;
+    using std::nullopt;
+
+    enum class PlayCommand
+    {
+        None,
+        PlayMove,
+        ShowError,
+        Pause,
+        Unpause,
+        StopGame,
+    };
+
     struct InputState
     {
-        bool stop_game = false;
-        bool show_error = false;
-        bool toggle_pause = false;
-        std::optional<Move> move = std::nullopt;
+        PlayCommand command = PlayCommand::None;
+        optional<Move> move = nullopt;
 
         InputState() = default;
     };
@@ -63,21 +74,21 @@ namespace wisdom
         game.save (input);
     }
 
-    static std::optional<Game> load_game (const Game &current_game)
+    static optional<Game> load_game (const Game &current_game)
     {
         std::string input = prompt ("load what file");
 
         if (input.empty ())
-            return std::nullopt;
+            return nullopt;
 
         return Game::load (input, current_game.get_computer_player ());
     }
 
-    static std::optional<Game> load_fen (Game &current_game)
+    static optional<Game> load_fen (Game &current_game)
     {
         std::string input = prompt ("FEN game");
         if (input.empty ())
-            return std::nullopt;
+            return nullopt;
 
         try
         {
@@ -88,7 +99,7 @@ namespace wisdom
         }
         catch (FenParserError &error)
         {
-            return std::nullopt;
+            return nullopt;
         }
     }
 
@@ -110,7 +121,7 @@ namespace wisdom
 
         if (!std::getline (std::cin, input))
         {
-            result.show_error = true;
+            result.command = PlayCommand::ShowError;
             return result;
         }
 
@@ -148,9 +159,14 @@ namespace wisdom
             }
             return result;
         }
-        else if (input == "pause" || input == "unpause")
+        else if (input == "pause")
         {
-            result.toggle_pause = true;
+            result.command = PlayCommand::Pause;
+            return result;
+        }
+        else if (input == "unpause")
+        {
+            result.command = PlayCommand::Unpause;
             return result;
         }
         else if (input == "computer_black")
@@ -170,7 +186,7 @@ namespace wisdom
         }
         else if (input == "quit" || input == "exit")
         {
-            result.stop_game = true;
+            result.command = PlayCommand::StopGame;
             return result;
         }
         else if (input == "analyze")
@@ -180,7 +196,7 @@ namespace wisdom
         }
 
         result.move = move_parse_optional (input, game.get_current_turn());
-        result.show_error = true;
+        result.command = PlayCommand::ShowError;
 
         // check the generated move list for this move to see if its valid
         MoveList moves = generate_legal_moves (game.get_board (), game.get_current_turn ());
@@ -189,7 +205,7 @@ namespace wisdom
         {
             if (result.move.has_value () && move_equals (legal_move, *result.move))
             {
-                result.show_error = false;
+                result.command = PlayCommand::PlayMove;
                 break;
             }
         }
@@ -205,15 +221,14 @@ namespace wisdom
 
         if (!std::getline (std::cin, input))
         {
-            result.stop_game = true;
-            result.show_error = true;
+            result.command = PlayCommand::StopGame;
             return result;
         }
 
         if (input[0] == 'y' || input[1] == 'Y')
         {
             std::cout << "Draw accepted!\n";
-            result.stop_game = true;
+            result.command = PlayCommand::StopGame;
             return result;
         }
 
@@ -266,17 +281,23 @@ namespace wisdom
             else
             {
                 input_state = read_move (game, output);
-                if (input_state.stop_game)
+
+                if (input_state.command == PlayCommand::StopGame)
                     break;
 
-                if (input_state.toggle_pause)
+                if (input_state.command == PlayCommand::Pause)
                 {
-                    paused = !paused;
+                    paused = true;
+                    continue;
+                }
+                else if (input_state.command == PlayCommand::Unpause)
+                {
+                    paused = false;
                     continue;
                 }
             }
 
-            if (input_state.show_error)
+            if (input_state.command == PlayCommand::ShowError)
             {
                 std::cout << "\nInvalid move\n\n";
                 continue;
