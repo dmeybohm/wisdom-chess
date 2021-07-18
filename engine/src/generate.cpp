@@ -4,32 +4,30 @@
 
 namespace wisdom
 {
-    typedef void (*MoveFunc) (const Board &board, Color who,
-                              int piece_row, int piece_col, MoveList &moves);
+    using std::optional;
+    using std::array;
+    using std::nullopt;
 
-    static void moves_none (const Board &board, Color who,
-                            int piece_row, int piece_col, MoveList &moves);
+    struct MoveGeneration
+    {
+        const Board &board;
+        MoveList &moves;
+        int piece_row;
+        int piece_col;
+        const Color who;
 
-    static void moves_king (const Board &board, Color who,
-                            int piece_row, int piece_col, MoveList &moves);
+        void generate (ColoredPiece piece, Coord coord);
 
-    static void moves_queen (const Board &board, Color who,
-                             int piece_row, int piece_col, MoveList &moves);
+        void none ();
+        void pawn ();
+        void knight ();
+        void bishop ();
+        void rook ();
+        void queen ();
+        void king ();
 
-    static void moves_rook (const Board &board, [[maybe_unused]] Color who,
-                            int piece_row, int piece_col, MoveList &moves);
-
-    static void moves_bishop (const Board &board, [[maybe_unused]] Color who,
-                              int piece_row, int piece_col, MoveList &moves);
-
-    static void moves_knight (const Board &board, Color who,
-                              int piece_row, int piece_col, MoveList &moves);
-
-    static void moves_pawn (const Board &board, Color who,
-                            int piece_row, int piece_col, MoveList &moves);
-
-    static void add_en_passant_move (const Board &board, Color who, int piece_row, int piece_col,
-                                     MoveList &moves, int en_passant_column);
+        void en_passant (int en_passant_column);
+    };
 
     bool need_pawn_promotion (int row, Color who)
     {
@@ -41,17 +39,6 @@ namespace wisdom
             default: throw Error { "Invalid color in need_pawn_promotion()"  };
         }
     }
-
-    static MoveFunc move_functions[] = {
-            moves_none,    // Piece::None   [0]
-            moves_king,    // Piece::King   [1]
-            moves_queen,   // Piece::Queen  [2]
-            moves_rook,    // Piece::Rook   [3]
-            moves_bishop,  // Piece::Bishop [4]
-            moves_knight,  // Piece::Knight [5]
-            moves_pawn,    // Piece::Pawn   [6]
-            nullptr,
-    };
 
     static void knight_move_list_init (MoveList knight_moves[Num_Rows][Num_Columns]);
 
@@ -68,11 +55,9 @@ namespace wisdom
     // generate a lookup table for knight moves
     static void knight_move_list_init (MoveList knight_moves[Num_Rows][Num_Columns])
     {
-        int k_row, k_col;
-
         for (auto[row, col] : All_Coords_Iterator)
         {
-            for (k_row = -2; k_row <= 2; k_row++)
+            for (int k_row = -2; k_row <= 2; k_row++)
             {
                 if (!k_row)
                     continue;
@@ -80,7 +65,7 @@ namespace wisdom
                 if (!is_valid_row (k_row + row))
                     continue;
 
-                for (k_col = 3 - abs (k_row); k_col >= -2; k_col -= 2 * abs (k_col))
+                for (int k_col = 3 - abs (k_row); k_col >= -2; k_col -= 2 * abs (k_col))
                 {
                     if (!is_valid_column (k_col + col))
                         continue;
@@ -92,7 +77,7 @@ namespace wisdom
         }
     }
 
-    static inline int is_pawn_unmoved (const Board &board, int row, int col)
+    static int is_pawn_unmoved (const Board &board, int row, int col)
     {
         ColoredPiece piece = piece_at (board, row, col);
 
@@ -107,18 +92,17 @@ namespace wisdom
         // check for an intervening piece
         int direction;
         Coord src, dst;
-        ColoredPiece piece1, piece2, piece3;
 
         src = move_src (move);
         dst = move_dst (move);
 
-        piece3 = make_piece (Color::None, Piece::None);
+        ColoredPiece piece3 = make_piece (Color::None, Piece::None);
 
         // find which direction the king was castling in
         direction = (COLUMN (dst) - COLUMN (src)) / 2;
 
-        piece1 = piece_at (board, ROW (src), COLUMN (dst) - direction);
-        piece2 = piece_at (board, ROW (src), COLUMN (dst));
+        ColoredPiece piece1 = piece_at (board, ROW (src), COLUMN (dst) - direction);
+        ColoredPiece piece2 = piece_at (board, ROW (src), COLUMN (dst));
 
         if (direction < 0)
         {
@@ -131,16 +115,13 @@ namespace wisdom
                piece_type (piece3) == Piece::None;
     }
 
-    static std::optional<Move> validate_move (const Board &board, Move move)
+    static optional<Move> validate_move (const Board &board, Move move)
     {
-        Coord src, dst;
-        ColoredPiece src_piece, dst_piece;
+        Coord src = move_src (move);
+        Coord dst = move_dst (move);
 
-        src = move_src (move);
-        dst = move_dst (move);
-
-        src_piece = piece_at (board, src);
-        dst_piece = piece_at (board, dst);
+        ColoredPiece src_piece = piece_at (board, src);
+        ColoredPiece dst_piece = piece_at (board, dst);
 
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) != Color::None);
@@ -183,15 +164,11 @@ namespace wisdom
         }
     }
 
-    static void moves_none ([[maybe_unused]] const Board &board, [[maybe_unused]] Color who,
-                            [[maybe_unused]] int piece_row, [[maybe_unused]] int piece_col,
-                            [[maybe_unused]] MoveList &moves)
+    void MoveGeneration::none ()
     {
-        throw Error ("Generating moves for \"none\" piece.");
     }
 
-    static void moves_king (const Board &board, Color who,
-                            int piece_row, int piece_col, MoveList &moves)
+    void MoveGeneration::king ()
     {
         for (int row = piece_row - 1; row < 8 && row <= piece_row + 1; row++)
         {
@@ -226,26 +203,16 @@ namespace wisdom
         }
     }
 
-    static void moves_queen (const Board &board, Color who,
-                             int piece_row, int piece_col, MoveList &moves)
-    {
-        // use the generators for bishop and rook
-        moves_bishop (board, who, piece_row, piece_col, moves);
-        moves_rook (board, who, piece_row, piece_col, moves);
-    }
-
-    static void moves_rook (const Board &board, [[maybe_unused]] Color who,
-                            int piece_row, int piece_col, MoveList &moves)
+    void MoveGeneration::rook ()
     {
         int dir;
         int row, col;
-        ColoredPiece piece;
 
         for (dir = -1; dir <= 1; dir += 2)
         {
             for (row = next_row (piece_row, dir); is_valid_row (row); row = next_row (row, dir))
             {
-                piece = piece_at (board, row, piece_col);
+                ColoredPiece piece = piece_at (board, row, piece_col);
 
                 append_move (board, moves, make_noncapture_move (piece_row, piece_col, row, piece_col));
 
@@ -255,7 +222,7 @@ namespace wisdom
 
             for (col = next_column (piece_col, dir); is_valid_column (col); col = next_column (col, dir))
             {
-                piece = piece_at (board, piece_row, col);
+                ColoredPiece piece = piece_at (board, piece_row, col);
 
                 append_move (board, moves, make_noncapture_move (piece_row, piece_col, piece_row, col));
 
@@ -265,8 +232,7 @@ namespace wisdom
         }
     }
 
-    static void moves_bishop (const Board &board, [[maybe_unused]] Color who,
-                              int piece_row, int piece_col, MoveList &moves)
+    void MoveGeneration::bishop ()
     {
         int r_dir, c_dir;
         int row, col;
@@ -290,8 +256,13 @@ namespace wisdom
         }
     }
 
-    static void moves_knight ([[maybe_unused]] const Board &board, [[maybe_unused]] Color who,
-                              int piece_row, int piece_col, MoveList &moves)
+    void MoveGeneration::queen ()
+    {
+        bishop ();
+        rook ();
+    }
+
+    void MoveGeneration::knight ()
     {
         const auto &kt_moves = generate_knight_moves (piece_row, piece_col);
 
@@ -330,14 +301,12 @@ namespace wisdom
         return -1;
     }
 
-    static void moves_pawn (const Board &board, Color who,
-                            int piece_row, int piece_col, MoveList &moves)
+    void MoveGeneration::pawn ()
     {
         int dir;
         int row;
         int take_col;
         int c_dir;
-        ColoredPiece piece;
 
         dir = pawn_direction (who);
 
@@ -349,7 +318,7 @@ namespace wisdom
         row = next_row (piece_row, dir);
         assert (is_valid_row (row));
 
-        std::array<std::optional<Move>, 4> all_pawn_moves { std::nullopt, std::nullopt, std::nullopt, std::nullopt };
+        array<optional<Move>, 4> all_pawn_moves { nullopt, nullopt, nullopt, nullopt };
 
         // single move
         if (piece_type (piece_at (board, row, piece_col)) == Piece::None)
@@ -375,10 +344,10 @@ namespace wisdom
             if (!is_valid_column (take_col))
                 continue;
 
-            piece = piece_at (board, row, take_col);
+            ColoredPiece target_piece = piece_at (board, row, take_col);
 
-            if (piece_type (piece_at (board, row, take_col)) != Piece::None &&
-                piece_color (piece) != who)
+            if (piece_type (target_piece) != Piece::None &&
+                piece_color (target_piece) != who)
             {
                 if (c_dir == -1)
                     all_pawn_moves[2] = make_capture_move (piece_row, piece_col, row, take_col);
@@ -390,7 +359,7 @@ namespace wisdom
         // promotion
         if (need_pawn_promotion (row, who))
         {
-            for (auto promotable_piece_type : all_promotable_piece_types)
+            for (auto promotable_piece_type : All_Promotable_Piece_Types)
             {
                 auto promoted_piece = make_piece (who, promotable_piece_type);
 
@@ -412,7 +381,7 @@ namespace wisdom
         // en passant
         int en_passant_column = eligible_en_passant_column (board, piece_row, piece_col, who);
         if (is_valid_column (en_passant_column))
-            add_en_passant_move (board, who, piece_row, piece_col, moves, en_passant_column);
+            en_passant (en_passant_column);
 
         for (auto &check_pawn_move : all_pawn_moves)
             if (check_pawn_move.has_value ())
@@ -421,10 +390,8 @@ namespace wisdom
 
     // put en passant in a separate handler
     // in order to not pollute instruction cache with it
-    static void add_en_passant_move (const Board &board, Color who, int piece_row, int piece_col,
-                                     MoveList &moves, int en_passant_column)
+    void MoveGeneration::en_passant (int en_passant_column)
     {
-        Move new_move;
         int direction;
         int take_row, take_col;
 
@@ -439,7 +406,7 @@ namespace wisdom
         assert (piece_type (take_piece) == Piece::Pawn);
         assert (piece_color (take_piece) == color_invert (who));
 
-        new_move = make_en_passant_move (piece_row, piece_col, take_row, take_col);
+        Move new_move = make_en_passant_move (piece_row, piece_col, take_row, take_col);
 
         append_move (board, moves, new_move);
     }
@@ -467,28 +434,57 @@ namespace wisdom
         return non_checks;
     }
 
+    void MoveGeneration::generate (ColoredPiece piece, Coord coord)
+    {
+        this->piece_row = ROW (coord);
+        this->piece_col = COLUMN (coord);
+
+        switch (piece_type (piece))
+        {
+            case Piece::None:
+                none ();
+                return;
+            case Piece::Pawn:
+                pawn ();
+                return;
+            case Piece::Knight:
+                knight ();
+                return;
+            case Piece::Bishop:
+                bishop ();
+                return;
+            case Piece::Rook:
+                rook ();
+                return;
+            case Piece::Queen:
+                queen ();
+                return;
+            case Piece::King:
+                king ();
+                return;
+        }
+    }
     MoveList generate_moves (const Board &board, Color who)
     {
-        MoveList new_moves;
-
+        MoveList result;
+        MoveGeneration generation {
+            board,
+            result,
+            0,
+            0,
+            who
+        };
         for (const auto coord : All_Coords_Iterator)
         {
             ColoredPiece piece = piece_at (board, coord);
 
-            if (piece_type (piece) == Piece::None)
+            if (piece_color (piece) != who)
                 continue;
 
-            Color color = piece_color (piece);
-            if (color != who)
-                continue;
-
-            auto[row, col] = coord;
-
-            (*move_functions[piece_index (piece_type (piece))])
-                    (board, who, row, col, new_moves);
+            generation.generate (piece, coord);
         }
 
-        return new_moves;
+        return result;
     }
 
     ScoredMoveList MoveGenerator::to_scored_move_list (const Board &board, Color who,

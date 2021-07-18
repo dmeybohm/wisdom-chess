@@ -16,12 +16,12 @@ namespace wisdom
     enum class Piece
     {
         None,
-        King,
-        Queen,
-        Rook,
-        Bishop,
-        Knight,
         Pawn,
+        Knight,
+        Bishop,
+        Rook,
+        Queen,
+        King,
     };
 
     enum class Color
@@ -46,32 +46,11 @@ namespace wisdom
 
     // Order here is significant - it means computer will prefer the piece at the top
     // all else being equal, such as if the promoted piece cannot be saved from capture.
-    constexpr Piece all_promotable_piece_types[] = {
+    constexpr Piece All_Promotable_Piece_Types[] = {
             Piece::Queen,
             Piece::Rook,
             Piece::Bishop,
             Piece::Knight,
-    };
-
-    constexpr Piece all_piece_types_with_none[] = {
-            Piece::None,
-            Piece::King,
-            Piece::Queen,
-            Piece::Rook,
-            Piece::Bishop,
-            Piece::Knight,
-            Piece::Pawn,
-    };
-
-    constexpr Color all_colors[] = {
-            Color::White,
-            Color::Black
-    };
-
-    constexpr Color all_colors_with_none[] = {
-            Color::None,
-            Color::White,
-            Color::Black,
     };
 
     constexpr ColoredPiece make_piece (Color color, Piece piece_type)
@@ -125,11 +104,6 @@ namespace wisdom
         return who == Color::White ? Color::Black : Color::White;
     }
 
-    constexpr bool is_color_invalid (Color color)
-    {
-        return !is_color_valid (color);
-    }
-
     constexpr int to_int(Color who)
     {
         return static_cast<int>(who);
@@ -143,19 +117,6 @@ namespace wisdom
             case Color::Black: return Color_Index_Black;
             default: throw PieceError {
                     "Invalid color index: " + std::to_string (to_int (who))
-            };
-        }
-    }
-
-    constexpr ColorIndex color_index_with_none (Color who)
-    {
-        switch (who)
-        {
-            case Color::None: return 0;
-            case Color::White: return Color_Index_White + 1;
-            case Color::Black: return Color_Index_Black + 1;
-            default: throw PieceError {
-                "Invalid color: " + std::to_string (to_int (who))
             };
         }
     }
