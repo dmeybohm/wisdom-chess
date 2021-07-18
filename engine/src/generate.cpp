@@ -18,15 +18,15 @@ namespace wisdom
 
         void generate (ColoredPiece piece, Coord coord);
 
-        void none ();
-        void pawn ();
-        void knight ();
-        void bishop ();
-        void rook ();
-        void queen ();
-        void king ();
+        void none () const;
+        void pawn () const;
+        void knight () const;
+        void bishop () const;
+        void rook () const;
+        void queen () const;
+        void king () const;
 
-        void en_passant (int en_passant_column);
+        void en_passant (int en_passant_column) const;
     };
 
     bool need_pawn_promotion (int row, Color who)
@@ -164,11 +164,11 @@ namespace wisdom
         }
     }
 
-    void MoveGeneration::none ()
+    void MoveGeneration::none () const
     {
     }
 
-    void MoveGeneration::king ()
+    void MoveGeneration::king () const
     {
         for (int row = piece_row - 1; row < 8 && row <= piece_row + 1; row++)
         {
@@ -203,7 +203,7 @@ namespace wisdom
         }
     }
 
-    void MoveGeneration::rook ()
+    void MoveGeneration::rook () const
     {
         int dir;
         int row, col;
@@ -232,7 +232,7 @@ namespace wisdom
         }
     }
 
-    void MoveGeneration::bishop ()
+    void MoveGeneration::bishop () const
     {
         int r_dir, c_dir;
         int row, col;
@@ -256,13 +256,13 @@ namespace wisdom
         }
     }
 
-    void MoveGeneration::queen ()
+    void MoveGeneration::queen () const
     {
         bishop ();
         rook ();
     }
 
-    void MoveGeneration::knight ()
+    void MoveGeneration::knight () const
     {
         const auto &kt_moves = generate_knight_moves (piece_row, piece_col);
 
@@ -275,7 +275,7 @@ namespace wisdom
     {
         ColorIndex opponent_index = color_index (color_invert (who));
 
-        if (coord_equals (board.en_passant_target[opponent_index], No_En_Passant_Coord))
+        if (board.en_passant_target[opponent_index] == No_En_Passant_Coord)
             return -1;
 
         // if WHITE rank 4, black rank 3
@@ -301,7 +301,7 @@ namespace wisdom
         return -1;
     }
 
-    void MoveGeneration::pawn ()
+    void MoveGeneration::pawn () const
     {
         int dir;
         int row;
@@ -390,7 +390,7 @@ namespace wisdom
 
     // put en passant in a separate handler
     // in order to not pollute instruction cache with it
-    void MoveGeneration::en_passant (int en_passant_column)
+    void MoveGeneration::en_passant (int en_passant_column) const
     {
         int direction;
         int take_row, take_col;
@@ -474,6 +474,7 @@ namespace wisdom
             0,
             who
         };
+
         for (const auto coord : All_Coords_Iterator)
         {
             ColoredPiece piece = piece_at (board, coord);
