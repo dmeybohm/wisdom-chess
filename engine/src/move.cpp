@@ -6,6 +6,9 @@
 
 namespace wisdom
 {
+    using std::optional;
+    using std::nullopt;
+
     Coord en_passant_taken_pawn_coord (Coord src, Coord dst)
     {
         return make_coord (ROW (src), COLUMN (dst));
@@ -105,11 +108,7 @@ namespace wisdom
                                  [[maybe_unused]] Coord dst,
                                  int undo)
     {
-        Move rook_move;
-        Coord rook_src, rook_dst;
-        ColoredPiece rook, empty_piece;
-
-        rook_move = get_castling_rook_move (board, king_move, who);
+        Move rook_move = get_castling_rook_move (board, king_move, who);
 
         if (undo)
             assert (piece_type (piece_at (board, dst)) == Piece::King);
@@ -118,15 +117,15 @@ namespace wisdom
 
         assert (abs (COLUMN (src) - COLUMN (dst)) == 2);
 
-        rook_src = move_src (rook_move);
-        rook_dst = move_dst (rook_move);
+        auto rook_src = move_src (rook_move);
+        auto rook_dst = move_dst (rook_move);
 
-        empty_piece = make_piece (Color::None, Piece::None);
+        auto empty_piece = make_piece (Color::None, Piece::None);
 
         if (undo)
         {
             // undo the rook move
-            rook = piece_at (board, rook_dst);
+            auto rook = piece_at (board, rook_dst);
 
             // undo the rook move
             board.set_piece (rook_dst, empty_piece);
@@ -134,7 +133,7 @@ namespace wisdom
         }
         else
         {
-            rook = piece_at (board, rook_src);
+            auto rook = piece_at (board, rook_src);
 
             // do the rook move
             board.set_piece (rook_dst, rook);
@@ -195,7 +194,7 @@ namespace wisdom
         {
             UndoMove undo_state_value = undo_state;
 
-            // need to put castle status back...its saved in the move
+            // need to put castle status back...it's saved in the move
             // from do_move()...
             if (move_affects_opponent_castle_state (undo_state_value))
                 board_undo_castle_change (board, opponent, opponent_castle_state (undo_state_value));
@@ -216,7 +215,7 @@ namespace wisdom
             //
             // Set inability to castle on one side. Note that
             // Castle_Queenside/KINGSIDE are _negative_ flags, indicating the
-            // my_computer_player cannot castle.  This is a bit confusing, not sure why i did
+            // my_computer_player cannot castle.  This is a bit confusing, not sure why I did
             // this.
             //
             if (able_to_castle (board, opponent, castle_state))
@@ -250,7 +249,7 @@ namespace wisdom
         if (undo)
         {
             UndoMove undo_state_value = undo_state;
-            // need to put castle status back...its saved in the move
+            // need to put castle status back...it's saved in the move
             // from do_move()...
             if (move_affects_current_castle_state (undo_state_value))
                 board_undo_castle_change (board, player, current_castle_state (undo_state_value));
@@ -275,7 +274,7 @@ namespace wisdom
             //
             // Set inability to castle on one side. Note that
             // Castle_Queenside/KINGSIDE are _negative_ flags, indicating the
-            // my_computer_player cannot castle.  This is a bit confusing, not sure why i did
+            // Computer player cannot castle.  This is a bit confusing, not sure why I did
             // this.
             //
             if (affects_castle_state > 0 && able_to_castle (board, player, affects_castle_state))
@@ -320,16 +319,15 @@ namespace wisdom
 
     UndoMove Board::make_move (Color who, Move move)
     {
-        ColoredPiece orig_src_piece, src_piece, dst_piece;
-        Coord src, dst;
         UndoMove undo_state = Empty_Undo_State;
         Color opponent = color_invert (who);
 
-        src = move_src (move);
-        dst = move_dst (move);
+        Coord src = move_src (move);
+        Coord dst = move_dst (move);
 
-        orig_src_piece = src_piece = this->piece_at (src);
-        dst_piece = this->piece_at (dst);
+        auto src_piece = this->piece_at (src);
+        auto orig_src_piece = src_piece;
+        auto dst_piece = this->piece_at (dst);
 
         if (piece_type (dst_piece) != Piece::None)
         {
@@ -407,23 +405,20 @@ namespace wisdom
 
     void Board::take_back (Color who, Move move, UndoMove undo_state)
     {
-        ColoredPiece orig_src_piece, src_piece, dst_piece = Piece_And_Color_None;
-        Piece dst_piece_type;
-        Coord src, dst;
         Color opponent = color_invert (who);
 
-        src = move_src (move);
-        dst = move_dst (move);
+        Coord src = move_src (move);
+        Coord dst = move_dst (move);
 
-        dst_piece_type = undo_state.taken_piece_type;
-        orig_src_piece = src_piece = this->piece_at (dst);
+        auto dst_piece_type = undo_state.taken_piece_type;
+        auto dst_piece = Piece_And_Color_None;
+        auto src_piece = this->piece_at (dst);
+        auto orig_src_piece = src_piece;
 
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) == who);
         if (dst_piece_type != Piece::None)
-        {
             dst_piece = make_piece (opponent, dst_piece_type);
-        }
 
         // check for promotion
         if (is_promoting_move (move))
@@ -480,7 +475,7 @@ namespace wisdom
         this->restore_move_clock (undo_state);
     }
 
-    static std::optional<Move> castle_parse (const std::string &str, Color who)
+    static optional<Move> castle_parse (const std::string &str, Color who)
     {
         int src_row, dst_col;
 
@@ -501,12 +496,12 @@ namespace wisdom
         else if (transformed == "O-O")
             dst_col = King_Column + 2;
         else
-            return {};
+            return nullopt;
 
         return make_castling_move (src_row, King_Column, src_row, dst_col);
     }
 
-    std::optional<Move> move_parse_optional (const std::string &str, Color who)
+    optional<Move> move_parse_optional (const std::string &str, Color who)
     {
         bool en_passant = false;
         bool is_capturing = false;
@@ -515,7 +510,7 @@ namespace wisdom
         std::string tmp { str };
 
         if (tmp.empty ())
-            return {};
+            return nullopt;
 
         tmp.erase (std::remove_if (tmp.begin (), tmp.end (), isspace), tmp.end ());
         std::transform (tmp.begin (), tmp.end (), tmp.begin (),
@@ -523,13 +518,13 @@ namespace wisdom
                         { return ::toupper (c); });
 
         if (tmp.empty ())
-            return {};
+            return nullopt;
 
         if (tolower (tmp[0]) == 'o')
             return castle_parse (tmp, who);
 
         if (tmp.size () < 4)
-            return {};
+            return nullopt;
 
         Coord src;
         int offset = 0;
@@ -540,7 +535,7 @@ namespace wisdom
         }
         catch (const CoordParseError &e)
         {
-            return {};
+            return nullopt;
         }
 
         // allow an 'x' between coordinates, which is used to indicate a capture
@@ -553,7 +548,7 @@ namespace wisdom
         std::string dst_coord { tmp.substr (offset, 2) };
         offset += 2;
         if (dst_coord.empty ())
-            return {};
+            return nullopt;
 
         Coord dst;
         try
@@ -562,7 +557,7 @@ namespace wisdom
         }
         catch (const CoordParseError &e)
         {
-            return {};
+            return nullopt;
         }
 
         std::string rest { tmp.substr (offset) };
