@@ -329,6 +329,7 @@ namespace wisdom
         auto orig_src_piece = src_piece;
         auto dst_piece = this->piece_at (dst);
 
+        assert (piece_type (src_piece) != Piece::None);
         if (piece_type (dst_piece) != Piece::None)
         {
             assert (is_capture_move (move));

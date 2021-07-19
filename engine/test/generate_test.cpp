@@ -22,11 +22,12 @@ TEST_CASE("generate en passant moves")
     Board board;
 
     board.make_move (Color::White, parse_move ("e2 e4", Color::White));
-    board.make_move (Color::Black, parse_move ("d5 d7", Color::Black));
+    board.make_move (Color::Black, parse_move ("d7 d5", Color::Black));
     board.make_move (Color::White, parse_move ("e4 e5", Color::White));
     board.make_move (Color::Black, parse_move ("f7 f5", Color::Black));
 
-    auto move_list = generate_moves (board, Color::White);
-    auto pos = move_list.to_string ().find ("[e5 d6 ep]");
+    auto move_list = generate_moves (board, Color::White).to_string ();
+    auto pos = move_list.find ("[e5 f6 ep]");
+    INFO( move_list );
     REQUIRE( pos != std::string::npos );
 }
