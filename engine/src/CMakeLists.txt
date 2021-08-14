@@ -14,16 +14,8 @@ add_executable(chess
         analytics_sqlite.cpp analytics_sqlite.hpp
         $<TARGET_OBJECTS:chess_lib>)
 
-target_precompile_headers(chess_lib PUBLIC PUBLIC global.hpp)
+target_precompile_headers(chess_lib PRIVATE PRIVATE global.hpp)
 target_precompile_headers(chess REUSE_FROM chess_lib)
 
-if (SQLite3_FOUND)
-    target_link_libraries (chess_lib PRIVATE SQLite::SQLite3)
-    target_link_libraries (chess PRIVATE SQLite::SQLite3)
-elseif(unofficial-sqlite3_FOUND)
-    target_link_libraries(chess_lib PRIVATE unofficial::sqlite3::sqlite3)
-    target_link_libraries(chess PRIVATE unofficial::sqlite3::sqlite3)
-    target_link_options(chess -ldl)
-else()
-    message( FATAL_ERROR "SQLite3 is required, and implementation was not found.")
-endif()
+target_link_libraries (chess_lib PRIVATE SQLite::SQLite3)
+target_link_libraries (chess PRIVATE SQLite::SQLite3)

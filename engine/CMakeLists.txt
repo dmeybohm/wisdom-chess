@@ -14,9 +14,7 @@ project(Wisdom C CXX)
 
 find_package(Threads REQUIRED)
 find_package(doctest REQUIRED)
-
-find_package(SQLite3)
-find_package(unofficial-sqlite3 CONFIG)
+find_package(SQLite3 REQUIRED)
 
 add_subdirectory(test)
 add_subdirectory(src)
