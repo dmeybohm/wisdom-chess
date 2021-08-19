@@ -22,7 +22,7 @@ add_library(chess_tests_lib OBJECT
         history_test.cpp
         transposition_table_test.cpp
         assert_test.cpp
-        variation_glimpse_test.cpp tests.hpp)
+        variation_glimpse_test.cpp tests.hpp generate_test.cpp)
 
 
 target_precompile_headers(chess_tests_lib PRIVATE PRIVATE ../src/global.hpp <doctest/doctest.h>)

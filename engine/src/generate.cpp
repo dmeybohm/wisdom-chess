@@ -464,6 +464,7 @@ namespace wisdom
                 return;
         }
     }
+
     MoveList generate_moves (const Board &board, Color who)
     {
         MoveList result;

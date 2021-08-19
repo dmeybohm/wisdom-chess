@@ -23,7 +23,6 @@ namespace wisdom
                              int king_row, int king_col)
     {
         int row, col;
-        ColoredPiece what;
         int c_dir, r_dir;
 
         // check each side of the king's row
@@ -32,7 +31,7 @@ namespace wisdom
         {
             for (row = next_row (king_row, r_dir); is_valid_row (row); row = next_row (row, r_dir))
             {
-                what = piece_at (board, row, col);
+                auto what = piece_at (board, row, col);
 
                 if (piece_type (what) == Piece::None)
                     continue;
@@ -54,7 +53,7 @@ namespace wisdom
         {
             for (col = next_column (king_col, c_dir); is_valid_column (col); col = next_column (col, c_dir))
             {
-                what = piece_at (board, row, col);
+                auto what = piece_at (board, row, col);
 
                 if (piece_type (what) == Piece::None)
                     continue;
@@ -79,7 +78,7 @@ namespace wisdom
                      is_valid_row (row) && is_valid_column (col);
                      row = next_row (row, r_dir), col = next_column (col, c_dir))
                 {
-                    what = piece_at (board, row, col);
+                    auto what = piece_at (board, row, col);
 
                     if (piece_type (what) == Piece::None)
                         continue;
@@ -103,14 +102,12 @@ namespace wisdom
 
         for (auto move : kt_moves)
         {
-            Coord dst;
-
-            dst = move_dst (move);
+            Coord dst = move_dst (move);
 
             row = ROW (dst);
             col = COLUMN (dst);
 
-            what = piece_at (board, row, col);
+            auto what = piece_at (board, row, col);
 
             if (piece_type (what) == Piece::None)
                 continue;
@@ -130,7 +127,7 @@ namespace wisdom
             if (!is_valid_row (row) || !is_valid_column (col))
                 continue;
 
-            what = piece_at (board, row, col);
+            auto what = piece_at (board, row, col);
 
             if (piece_type (what) == Piece::Pawn && piece_color (what) != who)
                 return true;
@@ -150,7 +147,7 @@ namespace wisdom
                 if (col == king_col && row == king_row)
                     continue;
 
-                what = piece_at (board, row, col);
+                auto what = piece_at (board, row, col);
 
                 if (piece_type (what) == Piece::King && piece_color (what) != who)
                     return true;

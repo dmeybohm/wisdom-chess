@@ -33,32 +33,27 @@ namespace wisdom
         int my_total_depth;
 
     public:
-        IterativeSearchImpl (Board &board,
-                             History &history,
-                             Logger &output,
-                             MoveTimer timer,
+        IterativeSearchImpl (Board &board, History &history, Logger &output, MoveTimer timer,
                              int total_depth) :
-            my_board { board },
-            my_history { history },
-            my_output { output },
-            my_analytics { analysis::make_dummy_analytics () },
-            my_timer { timer },
-            my_total_depth { total_depth }
-        {}
+                my_board { board },
+                my_history { history },
+                my_output { output },
+                my_analytics { analysis::make_dummy_analytics () },
+                my_timer { timer },
+                my_total_depth { total_depth }
+        {
+        }
 
-        IterativeSearchImpl (Board &board,
-                             History &history,
-                             Logger &output,
-                             analysis::Analytics &analytics,
-                             MoveTimer timer,
-                             int total_depth) :
-             my_board { board },
-             my_history { history },
-             my_output { output },
-             my_analytics { analytics },
-             my_timer { timer },
-             my_total_depth { total_depth }
-        {}
+        IterativeSearchImpl (Board &board, History &history, Logger &output,
+                             analysis::Analytics &analytics, MoveTimer timer, int total_depth) :
+                my_board { board },
+                my_history { history },
+                my_output { output },
+                my_analytics { analytics },
+                my_timer { timer },
+                my_total_depth { total_depth }
+        {
+        }
 
         SearchResult iteratively_deepen (Color side);
 
@@ -103,21 +98,12 @@ namespace wisdom
     {}
 
     IterativeSearch::IterativeSearch (
-            Board &board,
-            History &history,
-            Logger &output,
-            analysis::Analytics &analytics,
-            MoveTimer timer,
-            int total_depth) :
+        Board &board, History &history, Logger &output, analysis::Analytics &analytics,
+        MoveTimer timer, int total_depth) :
             impl { std::make_unique<IterativeSearchImpl> (
-                 board,
-                 history,
-                 output,
-                 analytics,
-                 timer,
-                 total_depth
-                                                         )}
-     {}
+                board, history, output, analytics, timer, total_depth) }
+    {
+    }
 
     SearchResult IterativeSearch::iteratively_deepen (Color side)
     {

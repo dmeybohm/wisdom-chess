@@ -23,7 +23,8 @@ namespace wisdom
     {
     private:
         TranspositionTable &my_transposition_table;
-        ScoredMoveList to_scored_move_list (const Board &board, Color who, const MoveList &move_list);
+        ScoredMoveList to_scored_move_list (const Board &board, Color who,
+                                            const MoveList &move_list);
 
     public:
         explicit MoveGenerator (TranspositionTable &transposition_table) :
