@@ -5,6 +5,9 @@ using namespace wisdom;
 
 TEST_CASE("Assertion failure throws an error")
 {
+#ifdef NDEBUG
+    REQUIRE( true );
+#else
     bool thrown = false;
     try
     {
@@ -16,4 +19,5 @@ TEST_CASE("Assertion failure throws an error")
         REQUIRE( e.file().find("assert_test.cpp") != std::string::npos );
     }
     REQUIRE( thrown );
+#endif
 }
