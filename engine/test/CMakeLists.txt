@@ -33,5 +33,6 @@ add_executable(chess_tests
         $<TARGET_OBJECTS:chess_lib>
         $<TARGET_OBJECTS:chess_tests_lib>)
 
+target_link_libraries(chess_tests PRIVATE Threads::Threads)
 target_link_libraries(chess_tests PRIVATE doctest::doctest)
 target_link_libraries(chess_tests_lib PRIVATE doctest::doctest)
