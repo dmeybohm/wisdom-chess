@@ -93,7 +93,7 @@ namespace wisdom
 
         void unapply_move (const Board &board, Move move, UndoMove undo_state);
 
-        std::size_t count_ones () const;
+        [[nodiscard]] std::size_t count_ones () const;
     };
 }
 
