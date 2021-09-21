@@ -319,16 +319,18 @@ int main (int argc, char **argv)
 
     Color human_player = Color::White;
 
-    if (cmdline["--player"]) {
+    if (cmdline("--player"))
+    {
         std::string player_str = cmdline("--player").str();
         std::cout << player_str << "\n";
-        if (player_str == "white")
+
+        if (player_str == "White")
             human_player = Color::White;
-        else if (player_str == "black")
+        else if (player_str == "Black")
             human_player = Color::Black;
         else
         {
-            std::cerr << "Invalid player";
+            std::cerr << "Invalid player" << "\n";
             return EXIT_FAILURE;
         }
 
