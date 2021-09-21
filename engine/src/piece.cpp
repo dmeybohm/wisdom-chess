@@ -35,7 +35,7 @@ namespace wisdom
         }
     }
 
-    std::string to_string (ColoredPiece piece)
+    std::string to_string (const ColoredPiece piece)
     {
         std::string result;
 

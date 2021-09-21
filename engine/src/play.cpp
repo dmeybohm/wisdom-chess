@@ -13,6 +13,8 @@
 
 #include <iostream>
 
+#include "argh.h"
+
 namespace wisdom
 {
     using std::optional;
@@ -313,14 +315,24 @@ using wisdom::Color;
 
 int main (int argc, char **argv)
 {
+    argh::parser cmdline { argv, argh::parser::PREFER_FLAG_FOR_UNREG_OPTION };
+
     Color human_player = Color::White;
-    if (argc > 1)
-    {
-        std::string color_param = argv[1];
-        if (color_param == "white")
+
+    if (cmdline["--player"]) {
+        std::string player_str = cmdline("--player").str();
+        std::cout << player_str << "\n";
+        if (player_str == "white")
             human_player = Color::White;
-        else if (color_param == "black")
+        else if (player_str == "black")
             human_player = Color::Black;
+        else
+        {
+            std::cerr << "Invalid player";
+            return EXIT_FAILURE;
+        }
+
+        std::cout << "Overriding player to " << wisdom::to_string (human_player) << "\n";
     }
 
     try
