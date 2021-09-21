@@ -534,7 +534,7 @@ namespace wisdom
             src = coord_parse (tmp.substr (0, 2));
             offset += 2;
         }
-        catch (const CoordParseError &e)
+        catch ([[maybe_unused]] const CoordParseError &e)
         {
             return nullopt;
         }
@@ -556,7 +556,7 @@ namespace wisdom
         {
             dst = coord_parse (dst_coord);
         }
-        catch (const CoordParseError &e)
+        catch ([[maybe_unused]] const CoordParseError &e)
         {
             return nullopt;
         }

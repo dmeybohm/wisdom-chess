@@ -17,6 +17,7 @@ add_executable(chess
 target_precompile_headers(chess_lib PRIVATE PRIVATE global.hpp)
 target_precompile_headers(chess REUSE_FROM chess_lib)
 
-target_link_libraries(chess PRIVATE Threads::Threads)
+target_link_libraries(chess_lib PUBLIC gsl::gsl-lite)
 target_link_libraries(chess_lib PRIVATE SQLite::SQLite3)
+target_link_libraries(chess PRIVATE Threads::Threads)
 target_link_libraries(chess PRIVATE SQLite::SQLite3)

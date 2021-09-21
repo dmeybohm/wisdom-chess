@@ -97,7 +97,7 @@ namespace wisdom
             game.set_computer_player (current_game.get_computer_player ());
             return game;
         }
-        catch (FenParserError &error)
+        catch ([[maybe_unused]] FenParserError &error)
         {
             return nullopt;
         }

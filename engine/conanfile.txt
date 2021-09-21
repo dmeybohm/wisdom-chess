@@ -1,6 +1,9 @@
 [requires]
 sqlite3/3.36.0
 doctest/2.4.6
+gsl-lite/0.38.1
+parallel-hashmap/1.33
 
 [generators]
+cmake
 cmake_find_package

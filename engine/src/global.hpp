@@ -23,6 +23,8 @@
 #include <cctype>
 #include <bitset>
 
+#include "gsl/gsl-lite.hpp"
+
 namespace wisdom
 {
     constexpr int Num_Players = 2;

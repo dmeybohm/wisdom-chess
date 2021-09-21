@@ -16,7 +16,7 @@ namespace wisdom
 
     struct BBPieceCoordStringWithTypeState
     {
-        const char *coord;
+        gsl::czstring coord;
         Piece piece_type;
     };
 

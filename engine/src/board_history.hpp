@@ -21,7 +21,7 @@ namespace wisdom
             {
                 return position_counts.at (code.bitset_ref ());
             }
-            catch (std::out_of_range &r)
+            catch ([[maybe_unused]] std::out_of_range &r)
             {
                 return 0;
             }

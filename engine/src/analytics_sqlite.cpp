@@ -17,7 +17,9 @@ namespace wisdom::analysis
     using std::string;
     using std::optional;
     using std::shared_ptr;
-    
+    using gsl::zstring; 
+    using gsl::czstring;
+
     class SqliteAnalytics;
 
     constexpr int Max_Queries = 10000;
@@ -36,7 +38,7 @@ namespace wisdom::analysis
             if (!my_in_transaction)
                 do_abort ("Not in transaction");
 
-            char *errmsg = nullptr;
+            zstring errmsg = nullptr;
             int result = sqlite3_exec (
                     my_sqlite,
                     "COMMIT",
@@ -97,13 +99,13 @@ namespace wisdom::analysis
             exec (str.c_str());
         }
 
-        [[noreturn]] static void do_abort (const char *errmsg)
+        [[noreturn]] static void do_abort (czstring errmsg)
         {
             std::cerr << errmsg << "\n";
             std::terminate ();
         }
 
-        void exec (const char *query) // NOLINT(readability-make-member-function-const)
+        void exec (czstring query) // NOLINT(readability-make-member-function-const)
         {
             if (my_queries_in_transaction >= Max_Queries)
                 commit_transaction ();
@@ -112,7 +114,7 @@ namespace wisdom::analysis
             if (!my_in_transaction)
                 start_transaction ();
 
-            char *errmsg = nullptr;
+            zstring errmsg = nullptr;
             sqlite3_exec (
                     my_sqlite,
                     query,
@@ -126,7 +128,7 @@ namespace wisdom::analysis
 
         void start_transaction ()
         {
-            char *errmsg = nullptr;
+            zstring errmsg = nullptr;
             if (my_in_transaction)
                 return;
             int result = sqlite3_exec (
