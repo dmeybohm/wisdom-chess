@@ -322,7 +322,6 @@ int main (int argc, char **argv)
     if (cmdline("--player"))
     {
         std::string player_str = cmdline("--player").str();
-        std::cout << player_str << "\n";
 
         if (player_str == "White")
             human_player = Color::White;
