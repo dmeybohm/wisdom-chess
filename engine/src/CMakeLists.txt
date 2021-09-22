@@ -3,7 +3,7 @@ find_package(doctest REQUIRED)
 find_package(SQLite3 REQUIRED)
 find_package(gsl-lite REQUIRED)
 
-# add the executabl e
+# add the executable
 add_library(wisdom-chess-core STATIC
         board.cpp check.cpp evaluate.cpp game.cpp generate.cpp material.cpp move.cpp
         move_tree.cpp piece.cpp search.cpp str.cpp move_timer.cpp
