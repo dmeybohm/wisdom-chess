@@ -23,7 +23,7 @@
 #include <cctype>
 #include <bitset>
 
-#include "gsl/gsl-lite.hpp"
+#include <gsl/gsl-lite.hpp>
 
 namespace wisdom
 {
