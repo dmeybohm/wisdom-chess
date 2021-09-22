@@ -21,12 +21,12 @@ namespace wisdom
 
         [[nodiscard]] CoordIterator begin () // NOLINT(readability-convert-member-functions-to-static)
         {
-            return CoordIterator (0, 0);
+            return {0, 0};
         }
 
         [[nodiscard]] CoordIterator end () // NOLINT(readability-convert-member-functions-to-static)
         {
-            return CoordIterator (8, 0);
+            return {8, 0};
         }
 
         Coord operator* () const

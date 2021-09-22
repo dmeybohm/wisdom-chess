@@ -1,8 +1,4 @@
-#
-# Tests
-#
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake.modules/")
-
+# Make test executable
 add_library(chess_tests_lib OBJECT
         piece_test.cpp
         coord_test.cpp
@@ -24,16 +20,10 @@ add_library(chess_tests_lib OBJECT
         assert_test.cpp
         variation_glimpse_test.cpp tests.hpp generate_test.cpp)
 
+# Define main method separate to avoid precompiled doctest header:
+add_executable(chess_tests test_main.cpp)
+
 target_precompile_headers(chess_tests_lib PRIVATE PRIVATE ../src/global.hpp <doctest/doctest.h>)
 
-# Make test executable
-add_executable(chess_tests
-        test_main.cpp
-        $<TARGET_OBJECTS:chess_lib>
-        $<TARGET_OBJECTS:chess_tests_lib>)
-
-target_link_libraries(chess_tests_lib PUBLIC gsl::gsl-lite)
-target_link_libraries(chess_tests_lib PRIVATE doctest::doctest)
-target_link_libraries(chess_tests_lib PRIVATE SQLite::SQLite3)
-target_link_libraries(chess_tests PRIVATE Threads::Threads)
-target_link_libraries(chess_tests PRIVATE doctest::doctest)
+target_link_libraries(chess_tests_lib PUBLIC wisdom::chess)
+target_link_libraries(chess_tests PRIVATE chess_tests_lib)
