@@ -60,7 +60,7 @@ namespace wisdom
 
     void TranspositionTable::verify () const
     {
-#if 0
+#ifdef VERIFY_TRANSPOSITION_TABLE
         {
             std::unordered_set<Transposition> list_uniques;
             int cnt = 0;
