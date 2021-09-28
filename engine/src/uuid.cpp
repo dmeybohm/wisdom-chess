@@ -1,21 +1,33 @@
-
 #include "uuid.hpp"
+
+#include <random>
 
 namespace wisdom
 {
-    Uuid::Uuid()
+    using std::optional;
+    using std::uniform_int_distribution;
+    using std::default_random_engine;
+    using std::nullopt;
+
+    static int64_t generate()
     {
-        static bool seeded = false;
-        if (!seeded) {
-            srand(time(NULL));
-            seeded = true;
+        static optional<default_random_engine> storage = nullopt;
+        static uniform_int_distribution<int64_t> distribution(0, 0x7fffFFFFffffFFFF);
+
+        if (!storage.has_value ())
+        {
+            unsigned int seed;
+            time_t now = time (nullptr);
+            memcpy (&seed, &now, std::min (sizeof (time_t), sizeof (seed)));
+            storage = default_random_engine { seed };
         }
 
-        int ints[] = {
-                rand(),
-                rand(),
-        };
-        my_rand64 = static_cast<int64_t>(ints[0]) << 31 | static_cast<int64_t>(ints[1]);
+        return distribution(*storage);
+    }
+
+    Uuid::Uuid()
+    {
+        my_rand64 = generate ();
     }
 
     [[nodiscard]] std::string Uuid::to_string () const
@@ -23,16 +35,3 @@ namespace wisdom
         return std::to_string (my_rand64);
     }
 }
-
-#ifdef UUID_TEST
-#include <iostream>
-
-int main()
-{
-    for (int i = 0; i < 1000; i++)
-    {
-        wisdom::Uuid uuid;
-        std::cout << uuid.to_string() << '\n';
-    }
-}
-#endif

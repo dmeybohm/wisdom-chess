@@ -20,7 +20,7 @@ add_library(chess_tests_lib OBJECT
         history_test.cpp
         transposition_table_test.cpp
         assert_test.cpp
-        variation_glimpse_test.cpp tests.hpp generate_test.cpp)
+        variation_glimpse_test.cpp tests.hpp generate_test.cpp uuid_test.cpp)
 
 # Define main method separate to avoid precompiled doctest header:
 add_executable(chess_tests test_main.cpp)
