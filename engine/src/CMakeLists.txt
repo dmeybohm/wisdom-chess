@@ -1,5 +1,4 @@
 find_package(Threads REQUIRED)
-find_package(doctest REQUIRED)
 find_package(SQLite3 REQUIRED)
 find_package(gsl-lite REQUIRED)
 find_package(argh REQUIRED)
