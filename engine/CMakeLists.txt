@@ -8,9 +8,5 @@ project(Wisdom CXX)
 
 include_directories(src)
 
-set (CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-
 add_subdirectory(test)
 add_subdirectory(src)

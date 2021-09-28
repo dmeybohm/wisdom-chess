@@ -2,6 +2,7 @@ find_package(Threads REQUIRED)
 find_package(doctest REQUIRED)
 find_package(SQLite3 REQUIRED)
 find_package(gsl-lite REQUIRED)
+find_package(argh REQUIRED)
 
 # add the executable
 add_library(wisdom-chess-core STATIC
@@ -26,3 +27,4 @@ target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
 target_link_libraries(wisdom-chess-core PUBLIC gsl::gsl-lite)
 target_link_libraries(wisdom-chess-core PUBLIC SQLite::SQLite3)
 target_link_libraries(chess PRIVATE wisdom-chess-core)
+target_link_libraries(chess PRIVATE argh::argh)

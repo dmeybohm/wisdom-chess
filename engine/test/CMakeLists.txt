@@ -1,3 +1,5 @@
+find_package(doctest REQUIRED)
+
 # Make test executable
 add_library(chess_tests_lib OBJECT
         piece_test.cpp
@@ -26,4 +28,5 @@ add_executable(chess_tests test_main.cpp)
 target_precompile_headers(chess_tests_lib PRIVATE PRIVATE ../src/global.hpp <doctest/doctest.h>)
 
 target_link_libraries(chess_tests_lib PUBLIC wisdom::chess)
+target_link_libraries(chess_tests_lib PUBLIC doctest::doctest)
 target_link_libraries(chess_tests PRIVATE chess_tests_lib)
