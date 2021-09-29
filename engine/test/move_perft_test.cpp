@@ -35,7 +35,6 @@ namespace wisdom::tests
             {
                 UndoMove undo_state = board.make_move (side, move);
 
-
                 if (!was_legal_move (board, side, move))
                 {
                     board.take_back (side, move, undo_state);
@@ -55,8 +54,6 @@ namespace wisdom::tests
             }
         }
     };
-
-
 }
 
 using wisdom::Board;
