@@ -129,7 +129,7 @@ TEST_CASE( "Promoting+Capturing moves are applied and undone correctly" )
 
     Move promote_castle_move = parse_move ("b7xa8 (Q)", Color::Black);
     REQUIRE( is_promoting_move (promote_castle_move) );
-    REQUIRE( is_capture_move (promote_castle_move) );
+    REQUIRE(is_normal_capture_move (promote_castle_move) );
 
     code.apply_move (*brd, promote_castle_move);
     REQUIRE( initial != code );

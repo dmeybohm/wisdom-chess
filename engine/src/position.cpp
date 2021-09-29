@@ -148,7 +148,7 @@ namespace wisdom
 
         this->remove (who, src, piece);
 
-        if (is_capture_move (move))
+        if (is_normal_capture_move (move))
         {
             ColoredPiece taken_piece = make_piece (opponent, undo_state.taken_piece_type);
             Coord taken_piece_coord = dst;
@@ -194,7 +194,7 @@ namespace wisdom
 
         this->remove (who, dst, dst_piece);
 
-        if (is_capture_move (move))
+        if (is_normal_capture_move (move))
         {
             ColoredPiece taken_piece = make_piece (opponent, undo_state.taken_piece_type);
             Coord taken_piece_coord = dst;

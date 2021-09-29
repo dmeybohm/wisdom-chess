@@ -110,7 +110,7 @@ namespace wisdom
 
                 // for historical reasons, we automatically convert to capture move
                 // here. but should probably throw an exception instead.
-                if (!is_capture_move (move))
+                if (!is_normal_capture_move (move))
                     move = copy_move_with_capture (move);
             }
 

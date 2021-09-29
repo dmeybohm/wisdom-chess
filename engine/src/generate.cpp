@@ -149,7 +149,7 @@ namespace wisdom
 
         if (is_capture)
         {
-            if (!is_capture_move (move) && !is_en_passant_move (move))
+            if (!is_normal_capture_move (move) && !is_en_passant_move (move))
                 move = copy_move_with_capture (move);
         }
 

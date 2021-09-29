@@ -108,7 +108,7 @@ namespace wisdom
         return make_piece (move.promoted_color, move.promoted_piece_type);
     }
 
-    constexpr int is_capture_move (Move move)
+    constexpr bool is_normal_capture_move (Move move)
     {
         return move.move_category == MoveCategory::NormalCapture;
     }
@@ -132,6 +132,11 @@ namespace wisdom
     constexpr bool is_en_passant_move (Move move)
     {
         return move.move_category == MoveCategory::EnPassant;
+    }
+
+    constexpr bool is_any_capturing_move (Move move)
+    {
+        return is_normal_capture_move (move) || is_en_passant_move (move);
     }
 
     constexpr bool is_castling_move (Move move)

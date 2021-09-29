@@ -107,7 +107,7 @@ namespace wisdom
         add_piece (src, src_piece);
         remove_piece (dst);
 
-        if (is_capture_move (move))
+        if (is_normal_capture_move (move))
         {
             ColoredPiece captured = captured_material (undo_state, opponent_color);
             add_piece (dst, captured);
