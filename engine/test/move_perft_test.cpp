@@ -86,6 +86,7 @@ TEST_CASE("Perft algorithm move test")
         sums.nodes += expectation.nodes;
         sums.captures += expectation.captures;
         sums.en_passants += expectation.en_passants;
+
         stats.search_moves (board, color, 0, depth);
         color = color_invert (color);
 
