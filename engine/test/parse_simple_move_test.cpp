@@ -15,8 +15,8 @@ TEST_CASE("parse_simple_move parses captures and non-captures")
 TEST_CASE("color matters in parse_move")
 {
     Move castle = parse_move("o-o", Color::Black);
-    REQUIRE( ROW(move_src(castle)) == 0 );
-    REQUIRE( ROW(move_dst(castle)) == 0 );
+    REQUIRE(Row (move_src (castle)) == 0 );
+    REQUIRE(Row (move_dst (castle)) == 0 );
     REQUIRE( move_equals (castle, move_parse ("o-o", Color::Black)));
 }
 

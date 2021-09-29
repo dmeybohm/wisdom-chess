@@ -73,8 +73,8 @@ namespace wisdom
         if (who == Color::White)
             return coord;
 
-        int row = ROW (coord);
-        int col = COLUMN (coord);
+        int row = Row (coord);
+        int col = Column (coord);
 
         return make_coord (7 - row, 7 - col);
     }
@@ -94,8 +94,8 @@ namespace wisdom
     static int change (Coord coord, Color who, ColoredPiece piece)
     {
         Coord translated_pos = translate_position (coord, who);
-        int row = ROW (translated_pos);
-        int col = COLUMN (translated_pos);
+        int row = Row (translated_pos);
+        int col = Column (translated_pos);
 
         switch (piece_type (piece))
         {

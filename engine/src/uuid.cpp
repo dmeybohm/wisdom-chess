@@ -6,20 +6,20 @@ namespace wisdom
 {
     using std::optional;
     using std::uniform_int_distribution;
-    using std::default_random_engine;
+    using Rng = std::mt19937_64;
     using std::nullopt;
 
     static int64_t generate()
     {
-        static optional<default_random_engine> storage = nullopt;
-        static uniform_int_distribution<int64_t> distribution(0, 0x7fffFFFFffffFFFF);
+        static optional<Rng> storage = nullopt;
+        static uniform_int_distribution<int64_t> distribution(0, 0x7FFFffffFFFFffffLL);
 
         if (!storage.has_value ())
         {
             unsigned int seed;
             time_t now = time (nullptr);
             memcpy (&seed, &now, std::min (sizeof (time_t), sizeof (seed)));
-            storage = default_random_engine { seed };
+            storage = Rng { seed };
         }
 
         return distribution(*storage);

@@ -99,15 +99,15 @@ namespace wisdom
         ColoredPiece piece3 = make_piece (Color::None, Piece::None);
 
         // find which direction the king was castling in
-        direction = (COLUMN (dst) - COLUMN (src)) / 2;
+        direction = (Column (dst) - Column (src)) / 2;
 
-        ColoredPiece piece1 = piece_at (board, ROW (src), COLUMN (dst) - direction);
-        ColoredPiece piece2 = piece_at (board, ROW (src), COLUMN (dst));
+        ColoredPiece piece1 = piece_at (board, Row (src), Column (dst) - direction);
+        ColoredPiece piece2 = piece_at (board, Row (src), Column (dst));
 
         if (direction < 0)
         {
             // check for piece next to rook on queenside
-            piece3 = piece_at (board, ROW (src), COLUMN (dst) - 1);
+            piece3 = piece_at (board, Row (src), Column (dst) - 1);
         }
 
         return piece_type (piece1) == Piece::None &&
@@ -284,7 +284,7 @@ namespace wisdom
 
         int left_column = column - 1;
         int right_column = column + 1;
-        int target_column = COLUMN (board.en_passant_target[opponent_index]);
+        int target_column = Column (board.en_passant_target[opponent_index]);
 
         if (left_column == target_column)
         {
@@ -350,9 +350,9 @@ namespace wisdom
                 piece_color (target_piece) != who)
             {
                 if (c_dir == -1)
-                    all_pawn_moves[2] = make_capture_move (piece_row, piece_col, row, take_col);
+                    all_pawn_moves[2] = make_normal_capture_move (piece_row, piece_col, row, take_col);
                 else
-                    all_pawn_moves[3] = make_capture_move (piece_row, piece_col, row, take_col);
+                    all_pawn_moves[3] = make_normal_capture_move (piece_row, piece_col, row, take_col);
             }
         }
 
@@ -436,8 +436,8 @@ namespace wisdom
 
     void MoveGeneration::generate (ColoredPiece piece, Coord coord)
     {
-        this->piece_row = ROW (coord);
-        this->piece_col = COLUMN (coord);
+        this->piece_row = Row (coord);
+        this->piece_col = Column (coord);
 
         switch (piece_type (piece))
         {

@@ -11,7 +11,7 @@ namespace wisdom
 
     Coord en_passant_taken_pawn_coord (Coord src, Coord dst)
     {
-        return make_coord (ROW (src), COLUMN (dst));
+        return make_coord (Row (src), Column (dst));
     }
 
     static void save_current_castle_state (UndoMove &undo_state, CastlingState state)
@@ -38,7 +38,7 @@ namespace wisdom
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
-        return piece_type (src_piece) == Piece::Pawn && abs (ROW (src) - ROW (dst)) == 2;
+        return piece_type (src_piece) == Piece::Pawn && abs (Row (src) - Row (dst)) == 2;
     }
 
     ColoredPiece handle_en_passant (Board &board, Color who, Coord src, Coord dst, int undo)
@@ -75,20 +75,20 @@ namespace wisdom
         src = move_src (move);
         dst = move_dst (move);
 
-        src_row = ROW (src);
-        dst_row = ROW (dst);
+        src_row = Row (src);
+        dst_row = Row (dst);
 
-        if (COLUMN (src) < COLUMN (dst))
+        if (Column (src) < Column (dst))
         {
             // castle to the right (kingside)
             src_col = Last_Column;
-            dst_col = COLUMN (dst) - 1;
+            dst_col = Column (dst) - 1;
         }
         else
         {
             // castle to the left (queenside)
             src_col = 0;
-            dst_col = COLUMN (dst) + 1;
+            dst_col = Column (dst) + 1;
         }
 
         if (!((piece_type (piece_at (board, src_row, src_col)) == Piece::Rook
@@ -115,7 +115,7 @@ namespace wisdom
         else
             assert (piece_type (piece_at (board, src)) == Piece::King);
 
-        assert (abs (COLUMN (src) - COLUMN (dst)) == 2);
+        assert (abs (Column (src) - Column (dst)) == 2);
 
         auto rook_src = move_src (rook_move);
         auto rook_dst = move_dst (rook_move);
@@ -207,7 +207,7 @@ namespace wisdom
             // This needs distinguishes between captures that end
             // up on the rook and moves from the rook itself.
             //
-            if (COLUMN (dst) == 0)
+            if (Column (dst) == 0)
                 castle_state = Castle_Queenside;
             else
                 castle_state = Castle_Kingside;
@@ -263,11 +263,11 @@ namespace wisdom
             // This needs distinguishes between captures that end
             // up on the rook and moves from the rook itself.
             //
-            if (ROW(src) == castle_src_row)
+            if (Row (src) == castle_src_row)
             {
-                if (COLUMN (src) == Queen_Rook_Column)
+                if (Column (src) == Queen_Rook_Column)
                     affects_castle_state = Castle_Queenside;
-                else if (COLUMN (src) == King_Rook_Column)
+                else if (Column (src) == King_Rook_Column)
                     affects_castle_state = Castle_Kingside;
             }
 
@@ -307,8 +307,8 @@ namespace wisdom
             if (is_double_square_pawn_move (src_piece, move))
             {
                 Coord src = move_src (move);
-                int prev_row = next_row (ROW (src), direction);
-                new_state = make_coord (prev_row, COLUMN (src));
+                int prev_row = next_row (Row (src), direction);
+                new_state = make_coord (prev_row, Column (src));
             }
             undo_state->en_passant_target[c_index] = board.en_passant_target[c_index];
             undo_state->en_passant_target[o_index] = board.en_passant_target[o_index];
@@ -598,7 +598,7 @@ namespace wisdom
 
         if (en_passant)
         {
-            move = make_en_passant_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
+            move = make_en_passant_move (Row (src), Column (src), Row (dst), Column (dst));
         }
 
         return move;
@@ -638,7 +638,7 @@ namespace wisdom
 
         if (is_castling_move (move))
         {
-            if (COLUMN (dst) - COLUMN (src) < 0)
+            if (Column (dst) - Column (src) < 0)
             {
                 // queenside
                 return "O-O-O";

@@ -20,8 +20,8 @@ namespace wisdom
     std::string to_string (Coord coord)
     {
         std::string result = ""; // NOLINT(readability-redundant-string-init)
-        result += col_to_char (COLUMN (coord));
-        result += row_to_char (ROW (coord));
+        result += col_to_char (Column (coord));
+        result += row_to_char (Row (coord));
         return result;
     }
 }

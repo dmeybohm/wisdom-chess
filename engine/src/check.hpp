@@ -18,7 +18,7 @@ namespace wisdom
                                            [[maybe_unused]] Color who,
                                            [[maybe_unused]] Coord pos)
     {
-        return is_king_threatened (board, who, ROW (pos), COLUMN (pos));
+        return is_king_threatened (board, who, Row (pos), Column (pos));
     }
 
     // Whether the board is in a checkmated position for the my_computer_player.

@@ -29,7 +29,7 @@ namespace wisdom
 
         Coord algebraic = coord_alg (coord_str);
 
-        this->add_piece (ROW (algebraic), COLUMN (algebraic), who, piece_type);
+        this->add_piece (Row (algebraic), Column (algebraic), who, piece_type);
     }
 
     void BoardBuilder::add_piece (int row, int col, Color who, Piece piece_type)
@@ -66,7 +66,7 @@ namespace wisdom
         Coord coord = coord_alg (coord_str);
 
         for (int col = 0; col < Num_Columns; col++)
-            this->add_piece (ROW (coord), col, who, piece_type);
+            this->add_piece (Row (coord), col, who, piece_type);
     }
 
     void BoardBuilder::add_row_of_same_color (int row, Color who, std::vector<Piece> piece_types)
@@ -83,7 +83,7 @@ namespace wisdom
         int col = 0;
 
         for (auto it = piece_types.begin (); it != piece_types.end (); it++, col++)
-            this->add_piece (ROW (coord), col, who, *it);
+            this->add_piece (Row (coord), col, who, *it);
     }
 
     void BoardBuilder::set_en_passant_target (Color who, const std::string &coord_str)
@@ -125,8 +125,8 @@ namespace wisdom
             struct BBPieceWithCoordState &piece_with_coord = this->pieces_with_coords[i];
             std::vector<Piece> &current_piece_row = piece_types[i].row;
 
-            int col = COLUMN (piece_with_coord.coord);
-            int row = ROW (piece_with_coord.coord);
+            int col = Column (piece_with_coord.coord);
+            int row = Row (piece_with_coord.coord);
 
             current_piece_row.assign (Num_Columns, Piece::None);
             current_piece_row[col] = piece_with_coord.piece_type;

@@ -6,14 +6,14 @@ using namespace wisdom;
 
 TEST_CASE( "Specifying coordinates in algebraic notation" )
 {
-    CHECK( ROW(coord_alg("a8")) == 0 );
-    CHECK( ROW(coord_alg("a1")) == 7 );
-    CHECK( COLUMN(coord_alg("a8")) == 0 );
-    CHECK( COLUMN(coord_alg("a1")) == 0 );
-    CHECK( ROW(coord_alg("h1")) == 7 );
-    CHECK( ROW(coord_alg("h8")) == 0 );
-    CHECK( COLUMN(coord_alg("h1")) == 7 );
-    CHECK( COLUMN(coord_alg("h8")) == 7 );
+    CHECK(Row (coord_alg ("a8")) == 0 );
+    CHECK(Row (coord_alg ("a1")) == 7 );
+    CHECK(Column (coord_alg ("a8")) == 0 );
+    CHECK(Column (coord_alg ("a1")) == 0 );
+    CHECK(Row (coord_alg ("h1")) == 7 );
+    CHECK(Row (coord_alg ("h8")) == 0 );
+    CHECK(Column (coord_alg ("h1")) == 7 );
+    CHECK(Column (coord_alg ("h8")) == 7 );
 }
 
 TEST_CASE( "Initializing the board builder" )

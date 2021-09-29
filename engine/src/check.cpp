@@ -104,8 +104,8 @@ namespace wisdom
         {
             Coord dst = move_dst (move);
 
-            row = ROW (dst);
-            col = COLUMN (dst);
+            row = Row (dst);
+            col = Column (dst);
 
             auto what = piece_at (board, row, col);
 

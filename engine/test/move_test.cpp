@@ -19,7 +19,7 @@ TEST_CASE( "Parsing an en-passant move" )
     Move en_passant = move_parse ("   e4d5 ep   ", Color::White);
     Coord src = coord_parse("e4");
     Coord dst = coord_parse("d5");
-    Move expected = make_en_passant_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
+    Move expected = make_en_passant_move (Row (src), Column (src), Row (dst), Column (dst));
     REQUIRE( en_passant == expected );
 }
 
@@ -38,7 +38,7 @@ TEST_CASE( "Parsing a castling move" )
     Move castling = move_parse ("   o-o-o ", Color::Black);
     Coord src = coord_parse("e8");
     Coord dst = coord_parse("c8");
-    Move expected = make_castling_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
+    Move expected = make_castling_move (Row (src), Column (src), Row (dst), Column (dst));
 
     REQUIRE( castling == expected );
 }

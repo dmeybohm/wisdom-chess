@@ -50,12 +50,12 @@ namespace wisdom
 
     ///////////////////////////////////////////////
 
-    constexpr int ROW (Coord pos)
+    constexpr int Row (Coord pos)
     {
         return pos.row;
     }
 
-    constexpr int COLUMN (Coord pos)
+    constexpr int Column (Coord pos)
     {
         return pos.col;
     }

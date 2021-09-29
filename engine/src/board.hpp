@@ -85,7 +85,7 @@ namespace wisdom
 
         void set_piece (Coord coord, ColoredPiece piece)
         {
-            this->my_squares[ROW (coord)][COLUMN (coord)] = piece;
+            this->my_squares[Row (coord)][Column (coord)] = piece;
         }
 
         void print_to_file (std::ostream &out) const;

@@ -180,11 +180,11 @@ namespace wisdom
 
     constexpr Move make_noncapture_move (Coord src, Coord dst)
     {
-        return make_noncapture_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
+        return make_noncapture_move (Row (src), Column (src), Row (dst), Column (dst));
     }
 
-    constexpr Move make_capture_move (int src_row, int src_col,
-                                      int dst_row, int dst_col)
+    constexpr Move make_normal_capture_move (int src_row, int src_col,
+                                             int dst_row, int dst_col)
     {
         Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::NormalCapture;
@@ -204,7 +204,7 @@ namespace wisdom
         Coord src = move_src (move);
         Coord dst = move_dst (move);
         assert (move.move_category == MoveCategory::NonCapture);
-        Move result = make_noncapture_move (ROW (src), COLUMN (src), ROW (dst), COLUMN (dst));
+        Move result = make_noncapture_move (Row (src), Column (src), Row (dst), Column (dst));
         result.move_category = MoveCategory::NormalCapture;
         return result;
     }
