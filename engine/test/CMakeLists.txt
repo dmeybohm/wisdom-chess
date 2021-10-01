@@ -21,12 +21,12 @@ add_library(fast_tests_lib OBJECT
         variation_glimpse_test.cpp
         tests.hpp
         generate_test.cpp
-        uuid_test.cpp)
+        uuid_test.cpp str_test.cpp)
 
 add_library(slow_tests_lib OBJECT
         search_test.cpp
         tests.hpp
-        move_perft_test.cpp)
+        move_perft_test.cpp ../src/perft.cpp ../src/perft.hpp)
 
 add_executable(fast_tests test_main.cpp)
 add_executable(slow_tests test_main.cpp)

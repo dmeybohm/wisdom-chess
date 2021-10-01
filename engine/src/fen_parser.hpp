@@ -21,6 +21,8 @@ namespace wisdom
         // Build the game:
         Game build ();
 
+        Board build_board ();
+
     private:
         BoardBuilder builder;
         Color active_player;

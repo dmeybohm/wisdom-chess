@@ -83,7 +83,6 @@ namespace wisdom
                 throw FenParserError ("Invalid character!");
             }
         }
-
     }
 
     // en passant target square:
@@ -184,5 +183,11 @@ namespace wisdom
         int full_moves;
         input >> full_moves;
         parse_fullmove (full_moves);
+    }
+
+    Board FenParser::build_board ()
+    {
+        Board board = *builder.build ();
+        return board;
     }
 }
