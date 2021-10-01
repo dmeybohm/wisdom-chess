@@ -104,7 +104,7 @@ namespace wisdom
         return who == Color::White ? Color::Black : Color::White;
     }
 
-    constexpr int to_int(Color who)
+    constexpr int to_int (Color who)
     {
         return static_cast<int>(who);
     }
@@ -119,6 +119,20 @@ namespace wisdom
                     "Invalid color index: " + std::to_string (to_int (who))
             };
         }
+    }
+
+    constexpr auto piece_from_char (char p) -> Piece
+    {
+        switch (toupper (p))
+        {
+            case 'K': return Piece::King;
+            case 'Q': return Piece::Queen;
+            case 'R': return Piece::Rook;
+            case 'B': return Piece::Bishop;
+            case 'N': return Piece::Knight;
+            case 'P': return Piece::Pawn;
+        }
+        abort();
     }
 
     constexpr char piece_char (ColoredPiece piece)
