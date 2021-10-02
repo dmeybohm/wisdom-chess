@@ -2,7 +2,6 @@
 #define WISDOM_CHESS_GLOBAL_H
 
 #include <cstdint>
-#include <cstdlib>
 #include <exception>
 #include <string>
 #include <utility>

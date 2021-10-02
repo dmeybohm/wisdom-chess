@@ -12,7 +12,7 @@ using wisdom::BoardBuilder;
 using wisdom::Color;
 using wisdom::Piece;
 
-TEST_CASE( "move list")
+TEST_CASE( "Perft move list")
 {
     BoardBuilder builder;
 
@@ -33,7 +33,7 @@ TEST_CASE( "move list")
         "e5d6", // white en-passant
         "e8g8", // black king-side castle
         "a7a8Q", // white promotion
-    }, "\n");
+    }, " ");
 
     auto wisdom_move_list = wisdom::perft::to_move_list (*board, Color::White, perft_move_list);
     auto converted = wisdom_move_list.to_string ();

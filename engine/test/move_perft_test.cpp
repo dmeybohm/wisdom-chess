@@ -89,7 +89,6 @@ TEST_CASE("Perft cases loaded from https://www.chessprogramming.org/Perft_Result
         auto sum = perft_results.total_nodes;
 
         do_check (test_board, expectations, Color::White);
-        std::cout << wisdom::perft::to_string (perft_results) << "\n";
         CHECK( sum == 8902 );
     }
 
