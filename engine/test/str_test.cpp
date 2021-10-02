@@ -2,6 +2,7 @@
 #include "str.hpp"
 
 using std::string;
+using std::vector;
 
 TEST_CASE( "chomp" )
 {
@@ -40,5 +41,20 @@ TEST_CASE( "split" )
 
         REQUIRE (result.size () == 1);
         REQUIRE (result[0] == "");
+    }
+}
+
+TEST_CASE( "join" )
+{
+    SUBCASE( "Empty" )
+    {
+        auto result = wisdom::join ({}, "");
+        REQUIRE( result == "" );
+    }
+
+    SUBCASE( "Non-empty" )
+    {
+        auto result = wisdom::join ({"one", "two"}, ", ");
+        REQUIRE( result == "one, two" );
     }
 }

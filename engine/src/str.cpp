@@ -39,4 +39,14 @@ namespace wisdom
         result.push_back (source.substr (offset));
         return result;
     }
+
+    auto join (const vector<string> &strings, const string &separator) -> string
+    {
+        string result;
+
+        for (auto &str : strings)
+            result += str + separator;
+
+        return result.substr(0, result.size () - separator.size ());
+    }
 }

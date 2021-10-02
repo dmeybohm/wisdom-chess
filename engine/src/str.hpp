@@ -11,6 +11,10 @@ namespace wisdom
     // Split the string into a vector of strings.
     auto split (const std::string &source, const std::string &separator) ->
         std::vector<std::string>;
+
+    auto join (const std::vector<std::string> &strings,
+               const std::string &separator) ->
+        std::string;
 }
 
 #endif //WISDOM_STR_HPP

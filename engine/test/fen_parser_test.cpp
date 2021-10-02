@@ -82,8 +82,9 @@ TEST_CASE( "FEN notation for en passant" )
     FenParser parser_with_black_target { "4r2/8/8/8/8/8/k7/4K2R w KQkq e6 0 1"};
 
     Game game = parser_with_black_target.build();
+    auto &board = game.get_board ();
 
-    REQUIRE( !is_en_passant_vulnerable (game.get_board (), Color::White) );
-    REQUIRE( is_en_passant_vulnerable (game.get_board (), Color::Black) );
-    REQUIRE( game.get_board ().en_passant_target[Color_Index_Black] == coord_parse ("e6") );
+    REQUIRE( !board.is_en_passant_vulnerable (Color::White) );
+    REQUIRE( board.is_en_passant_vulnerable (Color::Black) );
+    REQUIRE( board.en_passant_target[Color_Index_Black] == coord_parse ("e6") );
 }

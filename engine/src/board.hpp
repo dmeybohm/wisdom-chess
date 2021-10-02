@@ -209,11 +209,6 @@ namespace wisdom
         board.king_pos[color_index (who)] = pos;
     }
 
-    [[nodiscard]] constexpr bool is_en_passant_vulnerable (const Board &board, Color who)
-    {
-        return board.en_passant_target[color_index (who)] != No_En_Passant_Coord;
-    }
-
     bool board_equals (const Board &a, const Board &b);
 }
 
