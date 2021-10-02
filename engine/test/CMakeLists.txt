@@ -11,7 +11,7 @@ add_library(fast_tests_lib OBJECT
         check_test.cpp
         position_test.cpp
         move_test.cpp
-        parse_simple_move_test.cpp
+        move_parse_test.cpp
         fen_parser_test.cpp
         move_list_test.cpp
         board_code_test.cpp
@@ -21,7 +21,7 @@ add_library(fast_tests_lib OBJECT
         variation_glimpse_test.cpp
         tests.hpp
         generate_test.cpp
-        uuid_test.cpp str_test.cpp)
+        uuid_test.cpp str_test.cpp perft_test.cpp)
 
 add_library(slow_tests_lib OBJECT
         search_test.cpp

@@ -2,6 +2,7 @@
 #define WISDOM_CHESS_GLOBAL_H
 
 #include <cstdint>
+#include <cstdlib>
 #include <exception>
 #include <string>
 #include <utility>
@@ -125,7 +126,7 @@ namespace wisdom
 #define assert(condition) \
     do {                  \
         if (!(condition)) \
-            throw AssertionError (#condition, __FILE__, __LINE__); \
+            throw wisdom::AssertionError (#condition, __FILE__, __LINE__); \
     } while (0)
 
 #endif // NDEBUG

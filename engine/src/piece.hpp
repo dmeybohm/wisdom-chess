@@ -70,16 +70,24 @@ namespace wisdom
     {
         switch (piece)
         {
-            case Piece::None: return 0;
-            case Piece::King: return 1;
-            case Piece::Queen: return 2;
-            case Piece::Rook: return 3;
-            case Piece::Bishop: return 4;
-            case Piece::Knight: return 5;
-            case Piece::Pawn: return 6;
-            default: throw PieceError {
+            case Piece::None:
+                return 0;
+            case Piece::King:
+                return 1;
+            case Piece::Queen:
+                return 2;
+            case Piece::Rook:
+                return 3;
+            case Piece::Bishop:
+                return 4;
+            case Piece::Knight:
+                return 5;
+            case Piece::Pawn:
+                return 6;
+            default:
+                throw PieceError {
                 "Invalid piece type: " + std::to_string (to_int (piece))
-            };
+                };
         }
     }
 
@@ -113,26 +121,36 @@ namespace wisdom
     {
         switch (who)
         {
-            case Color::White: return Color_Index_White;
-            case Color::Black: return Color_Index_Black;
-            default: throw PieceError {
+            case Color::White:
+                return Color_Index_White;
+            case Color::Black:
+                return Color_Index_Black;
+            default:
+                throw PieceError {
                     "Invalid color index: " + std::to_string (to_int (who))
-            };
+                };
         }
     }
 
     constexpr auto piece_from_char (char p) -> Piece
     {
-        switch (toupper (p))
+        switch (p)
         {
-            case 'K': return Piece::King;
-            case 'Q': return Piece::Queen;
-            case 'R': return Piece::Rook;
-            case 'B': return Piece::Bishop;
-            case 'N': return Piece::Knight;
-            case 'P': return Piece::Pawn;
+            case 'k': case 'K':
+                return Piece::King;
+            case 'q': case 'Q':
+                return Piece::Queen;
+            case 'r': case 'R':
+                return Piece::Rook;
+            case 'b': case 'B':
+                return Piece::Bishop;
+            case 'n': case 'N':
+                return Piece::Knight;
+            case 'p': case 'P':
+                return Piece::Pawn;
+            default:
+                throw Error { "Invalid piece character"};
         }
-        abort();
     }
 
     constexpr char piece_char (ColoredPiece piece)
@@ -141,13 +159,20 @@ namespace wisdom
 
         switch (p)
         {
-            case Piece::King: return 'K';
-            case Piece::Queen: return 'Q';
-            case Piece::Rook: return 'R';
-            case Piece::Bishop: return 'B';
-            case Piece::Knight: return 'N';
-            case Piece::Pawn: return 'p';
-            default: return '?';
+            case Piece::King:
+                return 'K';
+            case Piece::Queen:
+                return 'Q';
+            case Piece::Rook:
+                return 'R';
+            case Piece::Bishop:
+                return 'B';
+            case Piece::Knight:
+                return 'N';
+            case Piece::Pawn:
+                return 'p';
+            default:
+                return '?';
         }
     }
 

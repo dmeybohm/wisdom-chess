@@ -21,9 +21,9 @@ namespace wisdom
 
         constexpr static int16_t next_index (int16_t index)
         {
-            int result = static_cast<int> (index);
+            int result = gsl::narrow_cast<int> (index);
             result = (result + 1) % Max_Variation_Glimpse_Size;
-            return static_cast<int16_t> (result);
+            return gsl::narrow_cast<int16_t> (result);
         }
 
         void push_front (Move move)
