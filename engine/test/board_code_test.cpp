@@ -23,11 +23,11 @@ TEST_CASE( "board code")
         ColoredPiece black_pawn = make_piece (Color::Black, Piece::Pawn);
         code.add_piece (a8, black_pawn);
 
-        REQUIRE (code != initial);
+        REQUIRE( code != initial );
 
         code.remove_piece (a8);
 
-        REQUIRE (code == initial);
+        REQUIRE( code == initial );
 
         Coord h1 = coord_parse ("h1");
         ColoredPiece white_king = make_piece (Color::White, Piece::King);
@@ -35,11 +35,11 @@ TEST_CASE( "board code")
 
         std::string result = code.to_string ();
         result = result.substr (0, 4);
-        REQUIRE (result == "0001");
+        REQUIRE( result == "0001" );
 
         code.remove_piece (h1);
         result = code.to_string ().substr (0, 4);
-        REQUIRE (result == "0000");
+        REQUIRE( result == "0000" );
     }
 
     SUBCASE("Capturing moves are applied and undone correctly")
@@ -55,15 +55,15 @@ TEST_CASE( "board code")
         BoardCode code { *brd };
         BoardCode initial = code;
 
-        REQUIRE (initial.count_ones () > 0);
+        REQUIRE( initial.count_ones () > 0 );
 
         Move a8xb7 = move_parse ("a8xb7");
         code.apply_move (*brd, a8xb7);
-        REQUIRE (initial != code);
+        REQUIRE( initial != code );
 
         UndoMove undo_state = brd->make_move (Color::White, a8xb7);
         code.unapply_move (*brd, a8xb7, undo_state);
-        REQUIRE (initial == code);
+        REQUIRE( initial == code );
     }
 
     SUBCASE("Promoting moves are applied and undone correctly")
@@ -79,15 +79,15 @@ TEST_CASE( "board code")
         BoardCode code { *brd };
         BoardCode initial = code;
 
-        REQUIRE (initial.count_ones () > 0);
+        REQUIRE( initial.count_ones () > 0 );
 
         Move b7b8_Q = move_parse ("b7b8_Q (Q)");
         code.apply_move (*brd, b7b8_Q);
-        REQUIRE (initial != code);
+        REQUIRE( initial != code );
 
         UndoMove undo_state = brd->make_move (Color::Black, b7b8_Q);
         code.unapply_move (*brd, b7b8_Q, undo_state);
-        REQUIRE (initial == code);
+        REQUIRE( initial == code );
     }
 
     SUBCASE("Castling moves are applied and undone correctly")
@@ -103,15 +103,15 @@ TEST_CASE( "board code")
         BoardCode code { *brd };
         BoardCode initial = code;
 
-        REQUIRE (initial.count_ones () > 0);
+        REQUIRE( initial.count_ones () > 0 );
 
         Move castle_queenside = move_parse ("o-o-o", Color::Black);
         code.apply_move (*brd, castle_queenside);
-        REQUIRE (initial != code);
+        REQUIRE( initial != code );
 
         UndoMove undo_state = brd->make_move (Color::Black, castle_queenside);
         code.unapply_move (*brd, castle_queenside, undo_state);
-        REQUIRE (initial == code);
+        REQUIRE( initial == code );
     }
 
     SUBCASE("Promoting+Capturing moves are applied and undone correctly")
@@ -130,14 +130,14 @@ TEST_CASE( "board code")
         REQUIRE (initial.count_ones () > 0);
 
         Move promote_castle_move = move_parse ("b7xa8 (Q)", Color::Black);
-        REQUIRE (is_promoting_move (promote_castle_move));
-        REQUIRE (is_normal_capture_move (promote_castle_move));
+        REQUIRE( is_promoting_move (promote_castle_move) );
+        REQUIRE( is_normal_capture_move (promote_castle_move) );
 
         code.apply_move (*brd, promote_castle_move);
-        REQUIRE (initial != code);
+        REQUIRE( initial != code);
 
         UndoMove undo_state = brd->make_move (Color::Black, promote_castle_move);
         code.unapply_move (*brd, promote_castle_move, undo_state);
-        REQUIRE (initial == code);
+        REQUIRE( initial == code);
     }
 }
