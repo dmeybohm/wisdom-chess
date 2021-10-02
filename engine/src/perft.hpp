@@ -15,9 +15,9 @@ namespace wisdom::perft
 {
     struct MoveCounter
     {
-        int nodes = 0;
-        int captures = 0;
-        int en_passants = 0;
+        int64_t nodes = 0;
+        int64_t captures = 0;
+        int64_t en_passants = 0;
 
         void operator+= (const MoveCounter &src)
         {
@@ -29,7 +29,7 @@ namespace wisdom::perft
 
     struct CounterExpectation
     {
-        int64_t depth;
+        int depth;
         MoveCounter expectation;
     };
 
@@ -41,7 +41,7 @@ namespace wisdom::perft
 
     struct PerftResults
     {
-        long total_nodes = 0;
+        int64_t total_nodes = 0;
         std::vector<PerftMoveResult> move_results {};
     };
 
