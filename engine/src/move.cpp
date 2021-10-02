@@ -203,13 +203,15 @@ namespace wisdom
         {
             CastlingState castle_state;
 
+            int castle_rook_row = opponent == Color::White ? 7 : 0;
+
             //
             // This needs distinguishes between captures that end
             // up on the rook and moves from the rook itself.
             //
-            if (Column (dst) == 0)
+            if (Column (dst) == 0 && Row (dst) == castle_rook_row)
                 castle_state = Castle_Queenside;
-            else
+            else if (Column (dst) == 7 && Row (dst) == castle_rook_row)
                 castle_state = Castle_Kingside;
 
             //

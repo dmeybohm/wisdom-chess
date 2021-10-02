@@ -1,6 +1,6 @@
 #include <doctest/doctest.h>
 #include "board_builder.hpp"
-
+#include "fen_parser.hpp"
 #include "board.hpp"
 
 using namespace wisdom;
@@ -442,6 +442,24 @@ TEST_CASE( "Test can castle" )
     }
     auto castling = move_parse ("o-o", Color::White);
     board.make_move (Color::White, castling);
+}
+
+TEST_CASE( "Kingside castle state after moving queenside rook" )
+{
+    FenParser parser { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -" };
+    Board board = parser.build_board ();
+
+    MoveList move_list { Color::White, { "e5 c6", "a8 d8", "c6xd8" } };
+    Color color = Color::White;
+    for (auto move : move_list)
+    {
+        board.make_move (color, move);
+        color = color_invert (color);
+    }
+    bool castle_king_side = able_to_castle (board, Color::Black, Castle_Kingside);
+    bool castle_queen_side = able_to_castle (board, Color::Black, Castle_Queenside);
+    CHECK( !castle_queen_side );
+    CHECK( castle_king_side );
 }
 
 TEST_CASE( "Test can't castle scenario 1" )

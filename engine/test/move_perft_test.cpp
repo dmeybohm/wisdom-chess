@@ -44,6 +44,7 @@ TEST_CASE("Perft cases loaded from https://www.chessprogramming.org/Perft_Result
         }
     };
 
+    /*
     SUBCASE( "Initial position")
     {
         Board board;
@@ -91,6 +92,7 @@ TEST_CASE("Perft cases loaded from https://www.chessprogramming.org/Perft_Result
         do_check (test_board, expectations, Color::White);
         CHECK( sum == 8902 );
     }
+     */
 
     SUBCASE( "Position 2")
     {
@@ -115,5 +117,6 @@ TEST_CASE("Perft cases loaded from https://www.chessprogramming.org/Perft_Result
         CHECK( sum == 2039 );
         do_check (test_board, expectations, Color::White);
     }
+
 }
 

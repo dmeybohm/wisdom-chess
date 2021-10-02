@@ -3,6 +3,8 @@
 #include "board_builder.hpp"
 #include "board.hpp"
 #include "str.hpp"
+#include "fen_parser.hpp"
+#include "generate.hpp"
 
 #include <iostream>
 
@@ -11,6 +13,7 @@ using std::vector;
 using wisdom::BoardBuilder;
 using wisdom::Color;
 using wisdom::Piece;
+using wisdom::FenParser;
 
 TEST_CASE( "Perft move list")
 {

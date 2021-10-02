@@ -211,7 +211,8 @@ namespace wisdom
 
         for (const auto &move_result : perft_results.move_results)
         {
-            output += move_result.move + " " + std::to_string (move_result.nodes) + "\n";
+            int64_t nodes = move_result.nodes > 0 ? move_result.nodes : 1;
+            output += move_result.move + " " + std::to_string (nodes) + "\n";
         }
 
         output += "\n" + std::to_string (perft_results.total_nodes) + "\n";
