@@ -29,19 +29,19 @@ namespace wisdom::perft
 
     struct CounterExpectation
     {
-        int depth;
+        int64_t depth;
         MoveCounter expectation;
     };
 
     struct PerftMoveResult
     {
-        int nodes;
+        int64_t nodes;
         std::string move;
     };
 
     struct PerftResults
     {
-        int total_nodes = 0;
+        long total_nodes = 0;
         std::vector<PerftMoveResult> move_results {};
     };
 
