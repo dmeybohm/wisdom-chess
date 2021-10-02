@@ -9,6 +9,27 @@ namespace wisdom
 {
     using wisdom::perft::Stats;
     using wisdom::perft::to_move_list;
+    using wisdom::perft::MoveCounter;
+    using std::string;
+    using wisdom::Move;
+    using wisdom::MoveList;
+    using wisdom::Board;
+
+    auto MoveCounter::operator+ (MoveCounter &src) const -> MoveCounter
+    {
+        MoveCounter result;
+        result.captures = this->captures + src.captures;
+        result.en_passants = this->en_passants + src.en_passants;
+        result.nodes = this->nodes + src.nodes;
+        return result;
+    }
+
+    auto Stats::operator+ (Stats &source) const -> Stats
+    {
+        Stats result;
+        result.counters = this->counters + source.counters;
+        return result;
+    }
 
     void Stats::search_moves (Board &board, Color side, int depth, int max_depth)
     {
@@ -40,8 +61,8 @@ namespace wisdom
         }
     }
 
-    auto wisdom::perft::convert_move (const wisdom::Board &board, Color who, std::string move_str)
-        -> wisdom::Move
+    auto wisdom::perft::convert_move (const Board &board, Color who, string move_str)
+        -> Move
     {
         if (move_str.size () != 4 && move_str.size () != 5)
             throw wisdom::Error { "Invalid size of move" };
@@ -61,7 +82,7 @@ namespace wisdom
         auto dst_piece = board.piece_at (dst);
         assert (piece_color (src_piece) == who);
 
-        wisdom::Move result = wisdom::make_noncapture_move (src, dst);
+        Move result = wisdom::make_noncapture_move (src, dst);
 
         // 1. castling is represented by two space king moves
         if (wisdom::piece_type (src_piece) == Piece::King)
@@ -96,15 +117,15 @@ namespace wisdom
         return result;
     }
 
-    auto wisdom::perft::to_move_list (const wisdom::Board &board, Color who,
-                                      const std::string &move_list) -> wisdom::MoveList
+    auto wisdom::perft::to_move_list (const Board &board, Color who,
+                                      const string &move_list) -> MoveList
     {
         MoveList result;
 
         // Make a copy of the board for modifications:
         auto board_copy = board;
 
-        auto moves_str_list = wisdom::split (move_list, "\n");
+        auto moves_str_list = wisdom::split (move_list, " ");
 
         for (const auto &move_str : moves_str_list)
         {
@@ -116,4 +137,36 @@ namespace wisdom
 
         return result;
     }
+
+    auto wisdom::perft::to_perft_move (const Move &move, Color who) -> string
+    {
+        if (is_castling_move (move))
+        {
+            auto row = who == Color::White ? Last_Row : First_Row;
+            auto src_col = King_Column;
+            auto dst_col = is_castling_move_on_king_side (move) ?
+                    Kingside_Castled_King_Column : Queenside_Castled_King_Column;
+
+            Move normal = wisdom::make_noncapture_move (row, src_col, row, dst_col);
+            return wisdom::to_string (move_src (normal)) + wisdom::to_string (move_dst (normal));
+        }
+
+        if (is_en_passant_move (move))
+        {
+            return wisdom::to_string (move_src (move)) + wisdom::to_string (move_dst (move));
+        }
+
+        if (is_promoting_move (move))
+        {
+            auto promoted = move_get_promoted_piece (move);
+
+            return wisdom::to_string (move_src (move)) +
+                wisdom::to_string (move_dst (move)) +
+                wisdom::piece_char (promoted);
+        }
+
+        return wisdom::to_string (move_src (move)) +
+            wisdom::to_string (move_dst (move));
+    }
+
 }

@@ -58,3 +58,17 @@ TEST_CASE( "join" )
         REQUIRE( result == "one, two" );
     }
 }
+
+TEST_CASE( "to_int" )
+{
+    SUBCASE( "When successful" )
+    {
+        auto result = wisdom::to_int ("10");
+        REQUIRE( result == 10 );
+    }
+
+    SUBCASE( "Invalid" )
+    {
+        CHECK_THROWS_AS( auto result = wisdom::to_int("invalid"), wisdom::Error );
+    }
+}

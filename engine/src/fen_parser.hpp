@@ -1,4 +1,3 @@
-
 #ifndef WISDOM_FEN_PARSER_HPP
 #define WISDOM_FEN_PARSER_HPP
 
@@ -18,10 +17,15 @@ namespace wisdom
             parse (input);
         }
 
-        // Build the game:
-        Game build ();
+        [[nodiscard]] auto get_active_player () const -> Color
+        {
+            return active_player;
+        }
 
-        Board build_board ();
+        // Build the game:
+        auto build () -> Game;
+
+        auto build_board () -> Board;
 
     private:
         BoardBuilder builder;
@@ -29,7 +33,7 @@ namespace wisdom
 
         void parse (const std::string &input);
 
-        static ColoredPiece parse_piece (char ch);
+        static auto parse_piece (char ch) -> ColoredPiece;
 
         void parse_pieces (std::string pieces_str);
 
@@ -37,11 +41,11 @@ namespace wisdom
 
         void parse_castling (std::string castling_str);
 
-        void parse_halfmove (int half_moves);
+        void parse_half_move (int half_moves);
 
-        void parse_fullmove (int full_moves);
+        void parse_full_move (int full_moves);
 
-        static Color parse_active_player (char ch);
+        static auto parse_active_player (char ch) -> Color;
     };
 
     class FenParserError : public Error

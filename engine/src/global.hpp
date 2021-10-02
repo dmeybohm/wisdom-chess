@@ -43,8 +43,11 @@ namespace wisdom
     constexpr int King_Rook_Column = 7;
     constexpr int Queen_Rook_Column = 0;
 
-    constexpr int King_Castled_Rook_Column = 5;
-    constexpr int Queen_Castled_Rook_Column = 3;
+    constexpr int Kingside_Castled_Rook_Column = 5;
+    constexpr int Queenside_Castled_Rook_Column = 3;
+
+    constexpr int Kingside_Castled_King_Column = 6;
+    constexpr int Queenside_Castled_King_Column = 2;
 
     // Infinity score.
     constexpr int Infinity = 65536;

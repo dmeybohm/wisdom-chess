@@ -17,7 +17,7 @@ namespace wisdom
         };
     }
 
-    ColoredPiece FenParser::parse_piece (char ch)
+    auto FenParser::parse_piece (char ch) -> ColoredPiece
     {
         int lower = tolower (ch);
         Color who = islower (ch) ? Color::Black : Color::White;
@@ -34,7 +34,7 @@ namespace wisdom
         }
     }
 
-    Color FenParser::parse_active_player (char ch)
+    auto FenParser::parse_active_player (char ch) -> Color
     {
         switch (ch)
         {
@@ -98,7 +98,8 @@ namespace wisdom
         {
             std::string cstr { str.substr (0, 2) };
             builder.set_en_passant_target (color_invert (active_player), cstr.c_str ());
-        } catch ([[maybe_unused]] const BoardBuilderError &e)
+        }
+        catch ([[maybe_unused]] const BoardBuilderError &e)
         {
             throw FenParserError ("Error parsing en passant coordinate!");
         }
@@ -139,13 +140,13 @@ namespace wisdom
     }
 
     // halfmove clock:
-    void FenParser::parse_halfmove (int half_moves)
+    void FenParser::parse_half_move (int half_moves)
     {
         builder.set_half_moves (half_moves);
     }
 
     // fullmove number:
-    void FenParser::parse_fullmove (int full_moves)
+    void FenParser::parse_full_move (int full_moves)
     {
         builder.set_full_moves (full_moves);
     }
@@ -177,15 +178,15 @@ namespace wisdom
         // halfmove clock:
         int half_moves;
         input >> half_moves;
-        parse_halfmove (half_moves);
+        parse_half_move (half_moves);
 
         // fullmove number:
         int full_moves;
         input >> full_moves;
-        parse_fullmove (full_moves);
+        parse_full_move (full_moves);
     }
 
-    Board FenParser::build_board ()
+    auto FenParser::build_board () -> Board
     {
         Board board = *builder.build ();
         return board;

@@ -1,11 +1,13 @@
 #include "str.hpp"
 
 #include <iostream>
+#include <sstream>
 
 namespace wisdom
 {
     using std::string;
     using std::vector;
+    using std::stringstream;
 
     string chomp (const string &str)
     {
@@ -23,7 +25,7 @@ namespace wisdom
         return result;
     }
 
-    vector<string> split (const string &source, const string &separator)
+    auto split (const string &source, const string &separator) -> vector<string>
     {
         vector<string> result;
         string::size_type offset = 0;
@@ -48,5 +50,18 @@ namespace wisdom
             result += str + separator;
 
         return result.substr(0, result.size () - separator.size ());
+    }
+
+    auto to_int (const std::string &str) -> int
+    {
+        stringstream ss { str };
+
+        int x = 0;
+        ss >> x;
+
+        if (ss.fail ())
+            throw Error {"Failed to convert"};
+
+        return x;
     }
 }

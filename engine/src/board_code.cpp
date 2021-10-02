@@ -33,12 +33,12 @@ namespace wisdom
 
             if (is_castling_move_on_king_side (move))
             {
-                dst_col = King_Castled_Rook_Column;
+                dst_col = Kingside_Castled_Rook_Column;
                 src_col = Last_Column;
             }
             else
             {
-                dst_col = Queen_Castled_Rook_Column;
+                dst_col = Queenside_Castled_Rook_Column;
                 src_col = 0;
             }
             row = src_piece_color == Color::White ? Last_Row : First_Row;
@@ -88,12 +88,12 @@ namespace wisdom
 
             if (is_castling_move_on_king_side (move))
             {
-                dst_col = King_Castled_Rook_Column;
+                dst_col = Kingside_Castled_Rook_Column;
                 src_col = Last_Column;
             }
             else
             {
-                dst_col = Queen_Castled_Rook_Column;
+                dst_col = Queenside_Castled_Rook_Column;
                 src_col = 0;
             }
             row = src_piece_color == Color::White ? Last_Row : First_Row;
