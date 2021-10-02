@@ -8,6 +8,7 @@ namespace wisdom
     class Board;
     class MoveList;
     enum class Color;
+    struct Move;
 }
 
 namespace wisdom::perft
@@ -33,8 +34,13 @@ namespace wisdom::perft
                            int depth, int max_depth);
     };
 
+    // Convert a perft move list to a wisdom::MoveList.
     auto to_move_list (const wisdom::Board &board, Color who,
                        const std::string &move_list) -> wisdom::MoveList;
+
+    // Convert a perft move to a wisdom::Move.
+    auto convert_move (const wisdom::Board &board, Color who,
+                       std::string move_str) -> wisdom::Move;
 }
 
 #endif // WISDOM_PERFT_HPP

@@ -166,10 +166,10 @@ namespace wisdom
         assert (src_col >= 0 && src_row < Num_Columns);
         assert (dst_col >= 0 && src_row < Num_Columns);
         Move result = {
-                .src_row = static_cast<int8_t>(src_row),
-                .src_col = static_cast<int8_t>(src_col),
-                .dst_row = static_cast<int8_t>(dst_row),
-                .dst_col = static_cast<int8_t>(dst_col),
+                .src_row = gsl::narrow_cast<int8_t>(src_row),
+                .src_col = gsl::narrow_cast<int8_t>(src_col),
+                .dst_row = gsl::narrow_cast<int8_t>(dst_row),
+                .dst_col = gsl::narrow_cast<int8_t>(dst_col),
                 .promoted_color = Color::None,
                 .promoted_piece_type = Piece::None,
                 .move_category = MoveCategory::NonCapture,
@@ -199,6 +199,12 @@ namespace wisdom
         return move;
     }
 
+    constexpr Move make_castling_move (Coord src, Coord dst)
+    {
+        return make_castling_move (Row (src), Column (src),
+                                   Row (dst), Column (dst));
+    }
+
     constexpr Move copy_move_with_capture (Move move)
     {
         Coord src = move_src (move);
@@ -215,6 +221,11 @@ namespace wisdom
         Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::EnPassant;
         return move;
+    }
+
+    constexpr Move make_en_passant_move (Coord src, Coord dst)
+    {
+        return make_en_passant_move (Row (src), Column (src), Row (dst), Column (dst));
     }
 
     constexpr bool move_equals (Move a, Move b)

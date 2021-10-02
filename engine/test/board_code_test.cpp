@@ -55,7 +55,7 @@ TEST_CASE( "Capturing moves are applied and undone correctly" )
 
     REQUIRE( initial.count_ones() > 0 );
 
-    Move a8xb7 = parse_move ("a8xb7");
+    Move a8xb7 = move_parse ("a8xb7");
     code.apply_move (*brd, a8xb7);
     REQUIRE( initial != code );
 
@@ -79,7 +79,7 @@ TEST_CASE( "Promoting moves are applied and undone correctly" )
 
     REQUIRE( initial.count_ones() > 0 );
 
-    Move b7b8_Q = parse_move ("b7b8_Q (Q)");
+    Move b7b8_Q = move_parse ("b7b8_Q (Q)");
     code.apply_move (*brd, b7b8_Q);
     REQUIRE( initial != code );
 
@@ -103,7 +103,7 @@ TEST_CASE( "Castling moves are applied and undone correctly" )
 
     REQUIRE( initial.count_ones() > 0 );
 
-    Move castle_queenside = parse_move ("o-o-o", Color::Black);
+    Move castle_queenside = move_parse ("o-o-o", Color::Black);
     code.apply_move (*brd, castle_queenside);
     REQUIRE( initial != code );
 
@@ -127,7 +127,7 @@ TEST_CASE( "Promoting+Capturing moves are applied and undone correctly" )
 
     REQUIRE( initial.count_ones() > 0 );
 
-    Move promote_castle_move = parse_move ("b7xa8 (Q)", Color::Black);
+    Move promote_castle_move = move_parse ("b7xa8 (Q)", Color::Black);
     REQUIRE( is_promoting_move (promote_castle_move) );
     REQUIRE(is_normal_capture_move (promote_castle_move) );
 

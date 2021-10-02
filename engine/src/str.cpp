@@ -39,5 +39,4 @@ namespace wisdom
         result.push_back (source.substr (offset));
         return result;
     }
-
 }
