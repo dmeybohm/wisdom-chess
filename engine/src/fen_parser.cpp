@@ -178,12 +178,14 @@ namespace wisdom
         // halfmove clock:
         int half_moves;
         input >> half_moves;
-        parse_half_move (half_moves);
+        if (!input.fail())
+            parse_half_move (half_moves);
 
         // fullmove number:
         int full_moves;
         input >> full_moves;
-        parse_full_move (full_moves);
+        if (!input.fail())
+            parse_full_move (full_moves);
     }
 
     auto FenParser::build_board () -> Board

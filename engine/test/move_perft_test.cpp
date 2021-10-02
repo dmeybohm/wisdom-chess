@@ -95,17 +95,25 @@ TEST_CASE("Perft cases loaded from https://www.chessprogramming.org/Perft_Result
     SUBCASE( "Position 2")
     {
         FenParser parser { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -" };
-        auto board = parser.build_board ();
+        auto test_board = parser.build_board ();
+        auto perft_board = test_board;
+        std::string check = test_board.to_fen_string (Color::White);
+        auto sub = check.substr (0, check.size() - 4);
+        CHECK( sub == "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"  );
 
         vector<CounterExpectation> expectations = {
             { 1, { 48, 8, 0 } },
-//            { 2, { 2039, 351, 1 } },
+            { 2, { 2039, 351, 1 } },
 //            { 3, { 97862, 17102, 45 } },
 //            { 4, { 197281, 1576, 0 } },
 //            { 5, { 4865609, 82719, 258 } },
         };
 
-        do_check (board, expectations, Color::White);
+        auto perft_results = wisdom::perft::perft_results (perft_board, Color::White, 2);
+        auto sum = perft_results.total_nodes;
+
+        CHECK( sum == 2039 );
+        do_check (test_board, expectations, Color::White);
     }
 }
 
