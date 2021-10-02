@@ -19,7 +19,12 @@ namespace wisdom::perft
         int captures = 0;
         int en_passants = 0;
 
-        void operator+= (MoveCounter &);
+        void operator+= (const MoveCounter &src)
+        {
+            this->captures += src.captures;
+            this->en_passants += src.en_passants;
+            this->nodes += src.nodes;
+        }
     };
 
     struct CounterExpectation
@@ -35,7 +40,10 @@ namespace wisdom::perft
         void search_moves (wisdom::Board &board, wisdom::Color side,
                            int depth, int max_depth);
 
-        void operator+= (Stats &source);
+        void operator+= (const Stats &source)
+        {
+            counters += source.counters;
+        }
     };
 
     // Convert a perft move list to a wisdom::MoveList.
@@ -46,8 +54,15 @@ namespace wisdom::perft
     auto to_perft_move (const Move &move, Color who) -> std::string;
 
     // Convert a perft move to a wisdom::Move.
-    auto convert_move (const wisdom::Board &board, Color who,
+    auto convert_move (const Board &board, Color who,
                        std::string move_str) -> wisdom::Move;
+
+    // Output the perf results to a string.
+    auto perft_results (const Board &board, Color player, int depth)
+        -> std::string;
+
+    // Apply the list of moves, update active color and return it.
+    auto apply_list (Board &board, Color who, const MoveList &list) -> Color;
 }
 
 #endif // WISDOM_PERFT_HPP

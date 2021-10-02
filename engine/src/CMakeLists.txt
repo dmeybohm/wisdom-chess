@@ -30,6 +30,5 @@ target_link_libraries(chess PRIVATE argh::argh)
 
 # For perft testing:
 add_executable(perft perft_main.cpp)
-target_link_libraries(perft PRIVATE argh::argh)
 target_link_libraries(perft PRIVATE wisdom-chess-core)
 

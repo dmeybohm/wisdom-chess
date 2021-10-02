@@ -31,9 +31,7 @@ TEST_CASE("Perft cases loaded from https://www.chessprogramming.org/Perft_Result
         {
             Stats stats;
 
-            sums.nodes += expectation.nodes;
-            sums.captures += expectation.captures;
-            sums.en_passants += expectation.en_passants;
+            sums += expectation;
 
             stats.search_moves (board, color, 0, depth);
             color = color_invert (color);
