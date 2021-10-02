@@ -126,6 +126,10 @@ namespace wisdom
 
 #else // NDEBUG
 
+#ifdef assert
+#undef assert
+#endif
+
 #define assert(condition) \
     do {                  \
         if (!(condition)) \
