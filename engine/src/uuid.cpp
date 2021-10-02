@@ -1,6 +1,7 @@
 #include "uuid.hpp"
 
 #include <random>
+#include <cstring>
 
 namespace wisdom
 {
@@ -18,7 +19,7 @@ namespace wisdom
         {
             unsigned int seed;
             time_t now = time (nullptr);
-            memcpy (&seed, &now, std::min (sizeof (time_t), sizeof (seed)));
+            std::memcpy (&seed, &now, std::min (sizeof (time_t), sizeof (seed)));
             storage = Rng { seed };
         }
 
