@@ -9,6 +9,7 @@ namespace wisdom
     using std::uniform_int_distribution;
     using Rng = std::mt19937_64;
     using std::nullopt;
+    using std::chrono::high_resolution_clock;
 
     static int64_t generate()
     {
@@ -18,6 +19,7 @@ namespace wisdom
         if (!storage.has_value ())
         {
             unsigned int seed;
+            // todo use chrono
             time_t now = time (nullptr);
             std::memcpy (&seed, &now, std::min (sizeof (time_t), sizeof (seed)));
             storage = Rng { seed };
