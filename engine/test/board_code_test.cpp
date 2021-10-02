@@ -17,7 +17,7 @@ TEST_CASE( "board code")
 
         auto initial_str = code.to_string ();
         std::size_t num_zeroes = std::count (initial_str.begin (), initial_str.end (), '0');
-        REQUIRE (num_zeroes == initial_str.size ());
+        REQUIRE( num_zeroes == initial_str.size () );
 
         Coord a8 = coord_parse ("a8");
         ColoredPiece black_pawn = make_piece (Color::Black, Piece::Pawn);

@@ -114,6 +114,11 @@ namespace wisdom
                 this->full_moves--;
         }
 
+        [[nodiscard]] bool is_en_passant_vulnerable (Color who)
+        {
+            return en_passant_target[color_index (who)] != No_En_Passant_Coord;
+        }
+
         // Convert the board to a string.
         [[nodiscard]] std::string to_string () const;
 

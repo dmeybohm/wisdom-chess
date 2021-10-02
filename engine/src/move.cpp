@@ -624,11 +624,6 @@ namespace wisdom
         return result;
     }
 
-    Move parse_move (const std::string &str, Color color)
-    {
-        return move_parse (str, color);
-    }
-
     std::string to_string (const Move &move)
     {
         Coord src, dst;

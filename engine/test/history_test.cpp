@@ -18,14 +18,14 @@ TEST_CASE( "Third repetition is detected" )
 
     auto board = builder.build();
 
-    Move black_move = parse_move ("e8 d8");
-    Move black_return_move = parse_move ("d8 e8");
+    Move black_move = move_parse ("e8 d8");
+    Move black_return_move = move_parse ("d8 e8");
 
-    Move white_move = parse_move ("e1 d1");
-    Move white_return_move = parse_move ("d1 e1");
+    Move white_move = move_parse ("e1 d1");
+    Move white_return_move = move_parse ("d1 e1");
 
     // Record initial position. we don't care about move here.
-    Move initial_move = parse_move ("d8 e8");
+    Move initial_move = move_parse ("d8 e8");
     history.add_position_and_move (*board, initial_move);
 
     board->make_move (Color::White, white_move);
@@ -71,11 +71,11 @@ TEST_CASE( "Fifty move repetition is detected" )
 
     auto board = builder.build();
 
-    Move black_move = parse_move ("e8 d8");
-    Move black_return_move = parse_move ("d8 e8");
+    Move black_move = move_parse ("e8 d8");
+    Move black_return_move = move_parse ("d8 e8");
 
-    Move white_move = parse_move ("e1 d1");
-    Move white_return_move = parse_move ("d1 e1");
+    Move white_move = move_parse ("e1 d1");
+    Move white_return_move = move_parse ("d1 e1");
 
     for (auto i = 0; i < 24; i++)
     {

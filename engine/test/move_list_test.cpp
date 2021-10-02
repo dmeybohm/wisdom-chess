@@ -12,10 +12,12 @@ TEST_CASE( "Initializing move list" )
 
     std::vector<Move> moves;
     for (auto move : move_list)
-    {
-        moves.push_back(move);
-    }
-    std::vector expected = { parse_move("e4 d4"), parse_move("d2 d1")};
+        moves.push_back (move);
+
+    std::vector expected = {
+        move_parse ("e4 d4"),
+        move_parse ("d2 d1")
+    };
     REQUIRE( moves == expected );
 }
 
@@ -45,5 +47,5 @@ TEST_CASE("Copying move list")
 
     REQUIRE( first_move_list.size() == copy.size() );
     REQUIRE( first_move_list == copy );
-    REQUIRE( to_string(first_move_list) == to_string(copy) );
+    REQUIRE( to_string (first_move_list) == to_string (copy) );
 }

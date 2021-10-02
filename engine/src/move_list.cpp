@@ -12,7 +12,7 @@ namespace wisdom
     {
         for (auto it : list)
         {
-            my_moves->push_back (parse_move (it, color));
+            my_moves->push_back (move_parse (it, color));
             color = color_invert (color);
         }
     }

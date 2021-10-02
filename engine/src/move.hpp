@@ -276,22 +276,19 @@ namespace wisdom
         return undo_state.en_passant_target[color_index (who)] != No_En_Passant_Coord;
     }
 
-    /////////////////////////////////////////////////////////////////////
-
     // Parse a move. Returns empty if the parse failed.
     std::optional<Move> move_parse_optional (const std::string &str, Color who);
 
+    // The coordinate for the taken pawn.
     Coord en_passant_taken_pawn_coord (Coord src, Coord dst);
 
-    // Parse a move. Throws an exception if could not parse the move.
+    // Parse a move. Throws an exception if it could not parse the move.
     Move move_parse (const std::string &str, Color color = Color::None);
 
-    /////////////////////////////////////////////////////////////////////
-
-    Move parse_move (const std::string &str, Color color = Color::None);
-
+    // Convert the move to a string.
     std::string to_string (const Move &move);
 
+    // Send the move to the ostream.
     std::ostream &operator<< (std::ostream &os, const Move &value);
 }
 
