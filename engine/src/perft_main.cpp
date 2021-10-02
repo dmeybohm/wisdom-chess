@@ -11,6 +11,7 @@ using wisdom::Board;
 using wisdom::MoveList;
 using wisdom::Color;
 using wisdom::perft::Stats;
+using wisdom::perft::PerftResults;
 
 int main (int argc, char *argv[])
 {
@@ -31,6 +32,8 @@ int main (int argc, char *argv[])
         current_player = wisdom::perft::apply_list (board, current_player, moves);
     }
 
-    std::cout << wisdom::perft::perft_results (board, current_player, depth);
+    PerftResults results = wisdom::perft::perft_results (board, current_player, depth);
+    std::cout << wisdom::perft::to_string (results);
+
     return EXIT_SUCCESS;
 }

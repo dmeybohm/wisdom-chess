@@ -33,6 +33,18 @@ namespace wisdom::perft
         MoveCounter expectation;
     };
 
+    struct PerftMoveResult
+    {
+        int nodes;
+        std::string move;
+    };
+
+    struct PerftResults
+    {
+        int total_nodes = 0;
+        std::vector<PerftMoveResult> move_results {};
+    };
+
     struct Stats
     {
         MoveCounter counters;
@@ -58,11 +70,14 @@ namespace wisdom::perft
                        std::string move_str) -> wisdom::Move;
 
     // Output the perf results to a string.
-    auto perft_results (const Board &board, Color player, int depth)
-        -> std::string;
+    auto perft_results (const Board &board, Color active_player, int depth)
+        -> PerftResults;
 
     // Apply the list of moves, update active color and return it.
     auto apply_list (Board &board, Color who, const MoveList &list) -> Color;
+
+    // Convert the PerftResults to a string.
+    auto to_string (const PerftResults &perft_results) -> std::string;
 }
 
 #endif // WISDOM_PERFT_HPP

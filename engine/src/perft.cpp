@@ -20,6 +20,8 @@ namespace wisdom
         if (depth >= max_depth)
             return;
 
+        auto target_depth = max_depth - 1;
+
         const auto moves = generate_moves (board, side);
 
         for (auto move : moves)
@@ -32,12 +34,15 @@ namespace wisdom
                 continue;
             }
 
-            counters.nodes++;
-            if (is_any_capturing_move (move))
-                counters.captures++;
+            if (depth == target_depth)
+            {
+                counters.nodes++;
+                if (is_any_capturing_move (move))
+                    counters.captures++;
 
-            if (is_en_passant_move (move))
-                counters.en_passants++;
+                if (is_en_passant_move (move))
+                    counters.en_passants++;
+            }
 
             search_moves (board, color_invert (side), depth + 1, max_depth);
 
@@ -154,41 +159,42 @@ namespace wisdom
     }
 
     auto wisdom::perft::perft_results (const Board &board,
-                                       Color player, int depth) -> string
+                                       Color active_player, int depth) -> PerftResults
     {
         Board board_copy = board;
-        string result;
+        wisdom::perft::PerftResults results;
         Stats cumulative;
 
-        auto moves = wisdom::generate_moves (board_copy, player);
+        auto moves = wisdom::generate_moves (board_copy, active_player);
 
         for (const auto &move : moves)
         {
             Stats stats;
 
-            Color next_player = wisdom::color_invert (player);
-            auto undo_state = board_copy.make_move (player, move);
+            Color next_player = wisdom::color_invert (active_player);
+            auto undo_state = board_copy.make_move (active_player, move);
 
-            if (!wisdom::was_legal_move (board_copy, player, move))
+            if (!wisdom::was_legal_move (board_copy, active_player, move))
             {
-                board_copy.take_back (player, move, undo_state);
+                board_copy.take_back (active_player, move, undo_state);
                 continue;
             }
 
             stats.search_moves (board_copy, next_player, 1, depth);
-            board_copy.take_back (player, move, undo_state);
+            board_copy.take_back (active_player, move, undo_state);
 
-            result += wisdom::perft::to_perft_move (move, next_player) +
-                " " + std::to_string (stats.counters.nodes) +
-                "\n";
+            auto perft_move = wisdom::perft::to_perft_move (move, active_player);
+            results.move_results.push_back ({ stats.counters.nodes, perft_move });
 
             cumulative += stats;
         }
 
-        return result + "\n" + std::to_string (cumulative.counters.nodes) + "\n";
+        results.total_nodes = cumulative.counters.nodes;
+        return results;
     }
 
-    auto wisdom::perft::apply_list (Board &board, Color color, const MoveList &list) -> Color
+    auto wisdom::perft::apply_list (Board &board, Color color,
+                                    const MoveList &list) -> Color
     {
         for (auto &move : list)
         {
@@ -197,5 +203,18 @@ namespace wisdom
         }
 
         return color;
+    }
+
+    auto wisdom::perft::to_string (const PerftResults &perft_results) -> string
+    {
+        std::string output;
+
+        for (const auto &move_result : perft_results.move_results)
+        {
+            output += move_result.move + " " + std::to_string (move_result.nodes) + "\n";
+        }
+
+        output += "\n" + std::to_string (perft_results.total_nodes) + "\n";
+        return output;
     }
 }
