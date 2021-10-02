@@ -24,22 +24,31 @@ auto apply_list (Board &board, Color color, const MoveList &list) -> Color
 
 void print_perf (Board &board, Color player, int depth)
 {
-    Stats stats;
-    Stats cummulative;
+    Stats cumulative;
 
     auto moves = wisdom::generate_moves (board, player);
 
     for (const auto &move : moves)
     {
+        Stats stats;
 
+        Color next_player = wisdom::color_invert (player);
+        auto undo_state = board.make_move (player, move);
+        stats.search_moves (board, next_player, 0, depth - 1);
+        board.take_back (player, move, undo_state);
+
+        std::cout << wisdom::perft::to_perft_move (move, next_player) <<
+            " " << stats.counters.nodes << "\n";
+
+        cumulative += stats;
     }
 
-    stats.search_moves (board, player, 0, depth);
+    std::cout << "\n" << cumulative.counters.nodes << "\n";
 }
 
 int main (int argc, char *argv[])
 {
-    if (argc != 4 && argc != 5)
+    if (argc != 3 && argc != 4)
     {
         std::cerr << "Need more args" << "\n";
         return EXIT_FAILURE;
@@ -50,7 +59,7 @@ int main (int argc, char *argv[])
     auto board = fen.build_board () ;
     auto current_player = fen.get_active_player ();
 
-    if (argc == 5)
+    if (argc == 4)
     {
         auto moves = wisdom::perft::to_move_list (board, current_player, argv[3]);
         current_player = apply_list (board, current_player, moves);

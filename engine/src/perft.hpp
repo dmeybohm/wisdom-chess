@@ -19,7 +19,7 @@ namespace wisdom::perft
         int captures = 0;
         int en_passants = 0;
 
-        [[nodiscard]] auto operator+ (MoveCounter &) const -> MoveCounter;
+        void operator+= (MoveCounter &);
     };
 
     struct CounterExpectation
@@ -35,7 +35,7 @@ namespace wisdom::perft
         void search_moves (wisdom::Board &board, wisdom::Color side,
                            int depth, int max_depth);
 
-        [[nodiscard]] auto operator+ (Stats &source) const -> Stats;
+        void operator+= (Stats &source);
     };
 
     // Convert a perft move list to a wisdom::MoveList.

@@ -15,20 +15,16 @@ namespace wisdom
     using wisdom::MoveList;
     using wisdom::Board;
 
-    auto MoveCounter::operator+ (MoveCounter &src) const -> MoveCounter
+    void MoveCounter::operator+= (MoveCounter &src)
     {
-        MoveCounter result;
-        result.captures = this->captures + src.captures;
-        result.en_passants = this->en_passants + src.en_passants;
-        result.nodes = this->nodes + src.nodes;
-        return result;
+        this->captures += src.captures;
+        this->en_passants += src.en_passants;
+        this->nodes += src.nodes;
     }
 
-    auto Stats::operator+ (Stats &source) const -> Stats
+    void Stats::operator+= (Stats &source)
     {
-        Stats result;
-        result.counters = this->counters + source.counters;
-        return result;
+        this->counters += source.counters;
     }
 
     void Stats::search_moves (Board &board, Color side, int depth, int max_depth)
