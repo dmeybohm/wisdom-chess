@@ -37,7 +37,7 @@ namespace wisdom
                 case Piece::Knight: return Material_Weight_Knight;
                 case Piece::Pawn: return Material_Weight_Pawn;
             }
-            abort();
+            std::terminate ();
         }
 
         void add (ColoredPiece piece)

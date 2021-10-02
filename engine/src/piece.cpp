@@ -12,7 +12,7 @@ namespace wisdom
             case Color::Black: return "Black";
             case Color::None: return "None";
         }
-        abort();
+        std::terminate ();
     }
 
     std::string to_string (Piece piece)
@@ -34,7 +34,7 @@ namespace wisdom
             case Piece::None:
                 return "None";
         }
-        abort();
+        std::terminate ();
     }
 
     std::string to_string (const ColoredPiece piece)
@@ -52,5 +52,4 @@ namespace wisdom
         os << to_string (piece);
         return os;
     }
-
 }

@@ -168,7 +168,7 @@ namespace wisdom
             case Color::White: return -1;
             case Color::None: throw Error { "Invalid color in pawn_direction()" };
         }
-        abort();
+        std::terminate ();
     }
 
     [[nodiscard]] constexpr bool able_to_castle (const Board &board, Color who, CastlingState castle_type)
