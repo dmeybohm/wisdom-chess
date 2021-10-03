@@ -119,12 +119,6 @@ namespace wisdom
 
         auto get_code () const& -> const BoardCode&;
 
-        // Get a move generator for this board.
-        [[nodiscard]] auto move_generator () -> MoveGenerator
-        {
-            return MoveGenerator { my_transpositions };
-        }
-
         [[nodiscard]] auto to_fen_string (Color turn) const -> string;
         [[nodiscard]] auto castled_string (Color color) const -> string;
 

@@ -254,7 +254,7 @@ namespace wisdom
     SearchResult IterativeSearchImpl::search (Color side, int depth,
                                               int alpha, int beta, analysis::Decision &decision)
     {
-        MoveGenerator generator = my_board.move_generator ();
+        MoveGenerator generator = MoveGenerator { my_transpositions };
 
         ScoredMoveList moves = generator.generate (my_board, side);
 
