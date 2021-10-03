@@ -206,7 +206,7 @@ namespace wisdom::analysis
     {
     private:
         shared_ptr<SqliteHandle> my_handle;
-        [[maybe_unused]] const Board &my_board;
+        const Board &my_board;
         SearchId my_search_id;
         DecisionId my_decision_id;
         PositionId my_position_id;

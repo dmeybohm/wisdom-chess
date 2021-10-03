@@ -35,11 +35,11 @@ TEST_CASE( "board code")
 
         std::string result = code.to_string ();
         result = result.substr (0, 4);
-        REQUIRE( result == "0001" );
+        CHECK( result == "0110" );
 
         code.remove_piece (h1);
         result = code.to_string ().substr (0, 4);
-        REQUIRE( result == "0000" );
+        CHECK( result == "0000" );
     }
 
     SUBCASE("Capturing moves are applied and undone correctly")
