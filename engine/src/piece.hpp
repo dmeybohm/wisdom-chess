@@ -61,7 +61,7 @@ namespace wisdom
 
     constexpr ColoredPiece Piece_And_Color_None = make_piece (Color::None, Piece::None);
 
-    constexpr int piece_index (Piece piece)
+    constexpr auto piece_index (Piece piece) -> int
     {
         switch (piece)
         {
@@ -84,28 +84,28 @@ namespace wisdom
         }
     }
 
-    constexpr Piece piece_type (ColoredPiece piece)
+    constexpr auto piece_type (ColoredPiece piece) -> Piece
     {
         return piece.piece_type;
     }
 
-    constexpr Color piece_color (ColoredPiece piece)
+    constexpr auto piece_color (ColoredPiece piece) -> Color
     {
         return piece.color;
     }
 
-    constexpr bool is_color_valid (Color who)
+    constexpr auto is_color_valid (Color who) -> bool
     {
         return (who == Color::White || who == Color::Black);
     }
 
-    constexpr Color color_invert (Color who)
+    constexpr auto color_invert (Color who) -> Color
     {
         assert (is_color_valid (who));
         return who == Color::White ? Color::Black : Color::White;
     }
 
-    constexpr ColorIndex color_index (Color who)
+    constexpr auto color_index (Color who) -> ColorIndex
     {
         switch (who)
         {
@@ -139,7 +139,7 @@ namespace wisdom
         }
     }
 
-    constexpr char piece_char (ColoredPiece piece)
+    constexpr auto piece_char (ColoredPiece piece) -> char
     {
         Piece p = piece_type (piece);
 
@@ -162,7 +162,7 @@ namespace wisdom
         }
     }
 
-    constexpr bool piece_equals (ColoredPiece a, ColoredPiece b)
+    constexpr auto piece_equals (ColoredPiece a, ColoredPiece b) -> bool
     {
         return a.color == b.color && a.piece_type == b.piece_type;
     }

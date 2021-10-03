@@ -22,21 +22,18 @@ using wisdom::perft::PerftResults;
 // These loaded from https://www.chessprogramming.org/Perft_Results
 //
 
-TEST_CASE("Perft cases loaded from https://www.chessprogramming.org/Perft_Results")
+TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Results" )
 {
     auto do_check = [](
         Board &board,
         const vector<CounterExpectation> &expectations,
         Color color
     ) {
-        Board copy_board = board;
-
         for (const auto [depth, expectation] : expectations)
         {
             Stats stats;
-
+            Board copy_board = board;
             stats.search_moves (copy_board, color, 0, depth);
-            color = color_invert (color);
 
             CHECK( stats.counters.nodes == expectation.nodes );
             CHECK( stats.counters.captures == expectation.captures );
@@ -44,16 +41,15 @@ TEST_CASE("Perft cases loaded from https://www.chessprogramming.org/Perft_Result
         }
     };
 
-    /*
     SUBCASE( "Initial position")
     {
         Board board;
         vector<CounterExpectation> expectations = {
             { 1, { 20, 0, 0 } },
             { 2, { 400, 0, 0 } },
-            { 3, { 8902, 34, 0 } },
-            { 4, { 197281, 1576, 0 } },
-            { 5, { 4865609, 82719, 258 } },
+            { 3, { 8'902, 34, 0 } },
+            { 4, { 197'281, 1'576, 0 } },
+            { 5, { 4'865'609, 82'719, 258 } },
         };
 
         do_check (board, expectations, Color::White);
@@ -83,7 +79,7 @@ TEST_CASE("Perft cases loaded from https://www.chessprogramming.org/Perft_Result
         vector<CounterExpectation> expectations = {
             { 1, { 20, 0, 0 } },
             { 2, { 400, 0, 0 } },
-            { 3, { 8902, 34, 0 } }
+            { 3, { 8'902, 34, 0 } }
         };
 
         auto perft_results = wisdom::perft::perft_results (perft_board, Color::White, 3);
@@ -92,9 +88,8 @@ TEST_CASE("Perft cases loaded from https://www.chessprogramming.org/Perft_Result
         do_check (test_board, expectations, Color::White);
         CHECK( sum == 8902 );
     }
-     */
 
-    SUBCASE( "Position 2")
+    SUBCASE( "Position 2 (kiwipete)" )
     {
         FenParser parser { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -" };
         auto test_board = parser.build_board ();
@@ -105,10 +100,10 @@ TEST_CASE("Perft cases loaded from https://www.chessprogramming.org/Perft_Result
 
         vector<CounterExpectation> expectations = {
             { 1, { 48, 8, 0 } },
-            { 2, { 2039, 351, 1 } },
-//            { 3, { 97862, 17102, 45 } },
-//            { 4, { 197281, 1576, 0 } },
-//            { 5, { 4865609, 82719, 258 } },
+            { 2, { 2'039, 351, 1 } },
+            { 3, { 97'862, 17'102, 45 } },
+            { 4, { 4'085'603, 757'163, 1'929 } },
+            { 5, { 193'690'690, 35'043'416, 73'365 } },
         };
 
         auto perft_results = wisdom::perft::perft_results (perft_board, Color::White, 2);
@@ -117,6 +112,5 @@ TEST_CASE("Perft cases loaded from https://www.chessprogramming.org/Perft_Result
         CHECK( sum == 2039 );
         do_check (test_board, expectations, Color::White);
     }
-
 }
 

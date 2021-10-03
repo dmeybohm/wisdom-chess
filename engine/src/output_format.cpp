@@ -17,7 +17,6 @@ namespace wisdom
         file.close ();
     }
 
-
     void WisdomGameOutputFormat::save (const string &filename,
                                        [[maybe_unused]] const Board &board, const History &history,
                                        [[maybe_unused]] Color turn)
