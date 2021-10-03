@@ -101,7 +101,7 @@ namespace wisdom
                 this->position.add (color, place, new_piece);
 
                 if (pieces[col] == Piece::King)
-                    king_position_set (*this, color, place);
+                    this->set_king_position (color, place);
             }
         }
 

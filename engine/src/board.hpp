@@ -13,8 +13,6 @@
 #include "generate.hpp"
 #include "variation_glimpse.hpp"
 
-///////////////////////////////////////////////
-
 namespace wisdom
 {
     struct BoardPositions
@@ -33,10 +31,10 @@ namespace wisdom
         // castle state of the board.
         CastlingState castled[Num_Players];
 
-    public:
         // positions of the kings.
         Coord king_pos[Num_Players];
 
+    public:
         // Keep track of hashing information.
         BoardCode code;
 
@@ -120,6 +118,16 @@ namespace wisdom
         auto make_move (Color who, Move move) -> UndoMove;
         void take_back (Color who, Move move, UndoMove undo_state);
 
+        [[nodiscard]] auto get_king_position (Color who) const -> Coord
+        {
+            return king_pos[color_index (who)];
+        }
+
+        void set_king_position (Color who, Coord pos)
+        {
+            king_pos[color_index (who)] = pos;
+        }
+
         [[nodiscard]] bool able_to_castle (Color who, CastlingState castle_type) const
         {
             ColorIndex c_index = color_index (who);
@@ -181,16 +189,6 @@ namespace wisdom
             case Color::None: throw Error { "Invalid color in pawn_direction()" };
         }
         std::terminate ();
-    }
-
-    [[nodiscard]] static inline auto king_position (const Board &board, Color who) -> Coord
-    {
-        return board.king_pos[color_index (who)];
-    }
-
-    static inline void king_position_set (Board &board, Color who, Coord pos)
-    {
-        board.king_pos[color_index (who)] = pos;
     }
 
     bool board_equals (const Board &a, const Board &b);

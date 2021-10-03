@@ -9,7 +9,7 @@ namespace wisdom
 {
     bool is_checkmated (Board &board, Color who)
     {
-        auto coord = king_position (board, who);
+        auto coord = board.get_king_position (who);
 
         if (!is_king_threatened (board, who, coord))
             return false;
@@ -159,7 +159,7 @@ namespace wisdom
 
     bool was_legal_move (Board &board, Color who, Move mv)
     {
-        auto[king_row, king_col] = king_position (board, who);
+        auto[king_row, king_col] = board.get_king_position (who);
 
         if (is_king_threatened (board, who, king_row, king_col))
             return false;

@@ -255,7 +255,8 @@ TEST_CASE("Bishop is not sacrificed scenario 2 (as white)")
     // assert the bishop has moved:
     INFO("Info:", to_string (*result.move) );
     bool bishop_sac = piece_at (game.get_board (), coord_parse ("a3")) != make_piece (Color::White, Piece::Bishop);
-    bool is_in_check = is_king_threatened (game.get_board (), Color::Black, king_position (game.get_board (), Color::Black));
+    bool is_in_check = is_king_threatened (game.get_board (), Color::Black,
+                                           game.get_board ().get_king_position (Color::Black));
     bool bishop_sac_or_is_in_check = bishop_sac || is_in_check;
     REQUIRE( bishop_sac_or_is_in_check );
 }

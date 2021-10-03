@@ -107,8 +107,8 @@ TEST_CASE("Castling state is modified and restored for castling queenside")
     CHECK( board.get_castle_state (Color::Black) == Castle_Castled );
 
     // Check rook and king position updated:
-    CHECK(Row (board.king_pos[color_index (Color::Black)]) == 0 );
-    CHECK(Column (board.king_pos[color_index (Color::Black)]) == 2 );
+    CHECK(Row (board.get_king_position (Color::Black)) == 0 );
+    CHECK(Column (board.get_king_position (Color::Black)) == 2 );
     CHECK(piece_type (piece_at (board, 0, 2)) == Piece::King );
     CHECK(piece_color (piece_at (board, 0, 2)) == Color::Black );
     CHECK(piece_type (piece_at (board, 0, 3)) == Piece::Rook );
@@ -121,8 +121,8 @@ TEST_CASE("Castling state is modified and restored for castling queenside")
     CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
 
     // check rook and king position restored:
-    CHECK(Row (board.king_pos[color_index (Color::Black)]) == 0 );
-    CHECK(Column (board.king_pos[color_index (Color::Black)]) == 4 );
+    CHECK(Row (board.get_king_position (Color::Black)) == 0 );
+    CHECK(Column (board.get_king_position (Color::Black)) == 4 );
     CHECK( board.get_castle_state (Color::Black) == Castle_None );
     CHECK(piece_type (piece_at (board, 0, 4)) == Piece::King );
     CHECK(piece_color (piece_at (board, 0, 4)) == Color::Black );
@@ -158,8 +158,8 @@ TEST_CASE("Castling state is modified and restored for castling kingside")
     CHECK( board.get_castle_state (Color::White) == Castle_Castled );
 
     // Check rook and king position updated:
-    CHECK(Row (board.king_pos[color_index (Color::White)]) == 7 );
-    CHECK(Column (board.king_pos[color_index (Color::White)]) == 6 );
+    CHECK(Row (board.get_king_position (Color::White)) == 7 );
+    CHECK(Column (board.get_king_position (Color::White)) == 6 );
     CHECK( piece_type (piece_at (board, 7, 6)) == Piece::King );
     CHECK( piece_color (piece_at (board, 7, 6)) == Color::White );
     CHECK( piece_type (piece_at (board, 7, 5)) == Piece::Rook );
@@ -172,8 +172,8 @@ TEST_CASE("Castling state is modified and restored for castling kingside")
     CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
 
     // check rook and king position restored:
-    CHECK(Row (board.king_pos[color_index (Color::White)]) == 7 );
-    CHECK(Column (board.king_pos[color_index (Color::White)]) == 4 );
+    CHECK(Row (board.get_king_position (Color::White)) == 7 );
+    CHECK(Column (board.get_king_position (Color::White)) == 4 );
     CHECK( board.get_castle_state (Color::White) == Castle_None);
     CHECK(piece_type (piece_at (board, 7, 4)) == Piece::King );
     CHECK(piece_color (piece_at (board, 7, 4)) == Color::White );

@@ -146,7 +146,7 @@ namespace wisdom
         {
             UndoMove undo_state_value = undo_state;
 
-            king_position_set (board, who, src);
+            board.set_king_position (who, src);
 
             // retrieve the old board castle status
             if (move_affects_current_castle_state (undo_state_value))
@@ -156,7 +156,7 @@ namespace wisdom
         }
         else
         {
-            king_position_set (board, who, dst);
+            board.set_king_position (who, dst);
 
             // set as not able to castle
             if (board.able_to_castle ( who, (Castle_Kingside | Castle_Queenside)))

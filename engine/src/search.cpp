@@ -267,7 +267,7 @@ namespace wisdom
         if (!result.move.has_value ())
         {
             SearchResult no_moves_available_result { result };
-            auto [my_king_row, my_king_col] = king_position (my_board, side);
+            auto [my_king_row, my_king_col] = my_board.get_king_position (side);
 
             no_moves_available_result.score = is_king_threatened (my_board, side, my_king_row, my_king_col) ?
                     -1 * checkmate_score_in_moves (my_total_depth - depth) : 0;
