@@ -10,9 +10,6 @@ namespace wisdom
     using wisdom::perft::Stats;
     using wisdom::perft::to_move_list;
     using wisdom::perft::MoveCounter;
-    using wisdom::Move;
-    using wisdom::MoveList;
-    using wisdom::Board;
 
     void Stats::search_moves (Board &board, Color side, int depth, int max_depth)
     {
