@@ -94,7 +94,7 @@ namespace wisdom
                     continue;
 
                 new_piece = make_piece (color, pieces[col]);
-                Coord place = make_coord (row, static_cast<int>(col));
+                Coord place = make_coord (row, gsl::narrow<int>(col));
                 set_piece ( place, new_piece);
 
                 this->material.add (new_piece);
@@ -260,7 +260,7 @@ namespace wisdom
         std::string castled_state;
 
         auto convert = [color](char ch) -> char {
-            return color == Color::Black ? static_cast<char> (tolower(ch)) : ch;
+            return color == Color::Black ? gsl::narrow_cast<char> (tolower(ch)) : ch;
         };
 
         if (this->castled[index] == Castle_Castled)
@@ -298,9 +298,9 @@ namespace wisdom
                     if (none_count > 0)
                         row_string += std::to_string (none_count);
                     none_count = 0;
-                    char ch = static_cast<char> (toupper (piece_char (piece)));
+                    char ch = gsl::narrow_cast<char> (toupper (piece_char (piece)));
                     if (piece_color(piece) == Color::Black)
-                        ch = static_cast<char> (tolower(ch));
+                        ch = gsl::narrow_cast<char> (tolower(ch));
                     row_string.append(1, ch);
                 }
             }

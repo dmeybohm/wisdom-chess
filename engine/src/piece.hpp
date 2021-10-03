@@ -61,33 +61,26 @@ namespace wisdom
 
     constexpr ColoredPiece Piece_And_Color_None = make_piece (Color::None, Piece::None);
 
-    constexpr int to_int (Piece piece)
-    {
-        return static_cast<int> (piece);
-    }
-
     constexpr int piece_index (Piece piece)
     {
         switch (piece)
         {
             case Piece::None:
                 return 0;
-            case Piece::King:
-                return 1;
-            case Piece::Queen:
-                return 2;
-            case Piece::Rook:
-                return 3;
-            case Piece::Bishop:
-                return 4;
-            case Piece::Knight:
-                return 5;
             case Piece::Pawn:
+                return 1;
+            case Piece::Knight:
+                return 2;
+            case Piece::Bishop:
+                return 3;
+            case Piece::Rook:
+                return 4;
+            case Piece::Queen:
+                return 5;
+            case Piece::King:
                 return 6;
             default:
-                throw PieceError {
-                "Invalid piece type: " + std::to_string (to_int (piece))
-                };
+                throw PieceError { "Invalid piece type" };
         }
     }
 
@@ -112,11 +105,6 @@ namespace wisdom
         return who == Color::White ? Color::Black : Color::White;
     }
 
-    constexpr int to_int (Color who)
-    {
-        return static_cast<int>(who);
-    }
-
     constexpr ColorIndex color_index (Color who)
     {
         switch (who)
@@ -126,9 +114,7 @@ namespace wisdom
             case Color::Black:
                 return Color_Index_Black;
             default:
-                throw PieceError {
-                    "Invalid color index: " + std::to_string (to_int (who))
-                };
+                throw PieceError { "Invalid color index" };
         }
     }
 

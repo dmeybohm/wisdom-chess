@@ -80,7 +80,9 @@ namespace wisdom
             }
         }
 
-        if (static_cast<size_t>(my_map.size ()) != static_cast<size_t>(my_list.size ()))
+        auto size1 = gsl::narrow_cast<size_t>(my_map.size ());
+        auto size2 = gsl::narrow_cast<size_t>(my_list.size ());
+        if (size1 != size2)
             assert (my_map.size () == my_list.size ());
         if (my_map.size () != my_num_elements)
             assert (my_map.size () == my_num_elements);
