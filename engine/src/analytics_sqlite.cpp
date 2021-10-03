@@ -14,11 +14,10 @@ namespace wisdom::analysis
     using IterativeSearchId = Uuid;
     using IterationId = Uuid;
 
-    using std::string;
-    using std::optional;
     using std::shared_ptr;
-    using gsl::zstring; 
-    using gsl::czstring;
+    using std::unique_ptr;
+    using std::make_unique;
+    using std::make_shared;
 
     class SqliteAnalytics;
 
@@ -38,7 +37,7 @@ namespace wisdom::analysis
             if (!my_in_transaction)
                 do_abort ("Not in transaction");
 
-            zstring errmsg = nullptr;
+            wisdom::zstring errmsg = nullptr;
             int result = sqlite3_exec (
                     my_sqlite,
                     "COMMIT",
@@ -114,7 +113,7 @@ namespace wisdom::analysis
             if (!my_in_transaction)
                 start_transaction ();
 
-            zstring errmsg = nullptr;
+            wisdom::zstring errmsg = nullptr;
             sqlite3_exec (
                     my_sqlite,
                     query,

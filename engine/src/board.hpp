@@ -21,7 +21,7 @@ namespace wisdom
     {
         int rank;
         Color piece_color;
-        std::vector<Piece> pieces;
+        vector<Piece> pieces;
     };
 
     class Board
@@ -64,16 +64,16 @@ namespace wisdom
 
         Board (const Board &board) = default;
 
-        explicit Board (const std::vector<BoardPositions> &positions);
+        explicit Board (const vector<BoardPositions> &positions);
 
         void print () const;
 
-        [[nodiscard]] constexpr ColoredPiece piece_at (int row, int col) const
+        [[nodiscard]] constexpr auto piece_at (int row, int col) const -> ColoredPiece
         {
             return this->my_squares[row][col];
         }
 
-        [[nodiscard]] constexpr ColoredPiece piece_at (Coord coord) const
+        [[nodiscard]] constexpr auto piece_at (Coord coord) const -> ColoredPiece
         {
             return this->my_squares[coord.row][coord.col];
         }
@@ -120,7 +120,7 @@ namespace wisdom
         }
 
         // Convert the board to a string.
-        [[nodiscard]] std::string to_string () const;
+        [[nodiscard]] auto to_string () const -> string;
 
         // Add an evaluation for the current board to the transposition table.
         void add_evaluation_to_transposition_table (
@@ -129,10 +129,11 @@ namespace wisdom
         );
 
         // Lookup the current board's score in the transposition table.
-        [[nodiscard]] std::optional<RelativeTransposition> check_transposition_table (Color who, int relative_depth);
+        [[nodiscard]] auto check_transposition_table (Color who, int relative_depth)
+                -> optional<RelativeTransposition>;
 
         // Get a move generator for this board.
-        [[nodiscard]] MoveGenerator move_generator ()
+        [[nodiscard]] auto move_generator () -> MoveGenerator
         {
             return MoveGenerator { my_transpositions };
         }
@@ -146,12 +147,12 @@ namespace wisdom
 
     ///////////////////////////////////////////////
 
-    constexpr ColoredPiece piece_at (const Board &board, int row, int col)
+    constexpr auto piece_at (const Board &board, int row, int col) -> ColoredPiece
     {
         return board.piece_at (row, col);
     }
 
-    constexpr ColoredPiece piece_at (const Board &board, Coord coord)
+    constexpr auto piece_at (const Board &board, Coord coord) -> ColoredPiece
     {
         return piece_at (board, coord.row, coord.col);
     }
@@ -181,7 +182,7 @@ namespace wisdom
         return didnt_castle && neg_not_set;
     }
 
-    [[nodiscard]] constexpr CastlingState board_get_castle_state (const Board &board, Color who)
+    [[nodiscard]] constexpr auto board_get_castle_state (const Board &board, Color who) -> CastlingState
     {
         ColorIndex index = color_index (who);
         return board.castled[index];
@@ -199,7 +200,7 @@ namespace wisdom
         board.castled[index] = castle_state;
     }
 
-    [[nodiscard]] static inline Coord king_position (const Board &board, Color who)
+    [[nodiscard]] static inline auto king_position (const Board &board, Color who) -> Coord
     {
         return board.king_pos[color_index (who)];
     }

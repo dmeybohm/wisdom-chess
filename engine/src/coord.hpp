@@ -15,8 +15,6 @@ namespace wisdom
 
     static_assert(std::is_trivial<Coord>::value);
 
-    ///////////////////////////////////////////////
-
     constexpr bool is_valid_row (int row)
     {
         return row >= 0 && row < Num_Rows;
@@ -40,8 +38,8 @@ namespace wisdom
     constexpr Coord make_coord (int row, int col)
     {
         assert (is_valid_row (row) && is_valid_column (col));
-        int8_t row8 = static_cast<int8_t>(row);
-        int8_t col8 = static_cast<int8_t>(col);
+        auto row8 = gsl::narrow_cast<int8_t>(row);
+        auto col8 = gsl::narrow_cast<int8_t>(col);
         Coord result = { .row = row8, .col = col8 };
         return result;
     }
@@ -88,22 +86,18 @@ namespace wisdom
     constexpr char row_to_char (int row)
     {
         assert (is_valid_row (row));
-        return 8 - row + '0';
+        return gsl::narrow<char> (8 - row + '0');
     }
 
     constexpr char col_to_char (int col)
     {
         assert (is_valid_column (col));
-        return col + 'a';
+        return gsl::narrow<char> (col + 'a');
     }
-
-    /////////////////////////////////////////////////////////////////////
 
     std::string to_string (Coord coord);
 
-    Coord coord_parse (const std::string &str);
-
-    /////////////////////////////////////////////////////////////////////
+    Coord coord_parse (const string &str);
 
     class CoordParseError : public Error
     {

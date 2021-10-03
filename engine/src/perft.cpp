@@ -207,7 +207,7 @@ namespace wisdom
 
     auto wisdom::perft::to_string (const PerftResults &perft_results) -> string
     {
-        std::string output;
+        string output;
 
         for (const auto &move_result : perft_results.move_results)
         {

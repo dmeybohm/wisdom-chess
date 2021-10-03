@@ -49,7 +49,7 @@ namespace wisdom
         this->pieces_with_coords.push_back (new_piece);
     }
 
-    void BoardBuilder::add_pieces (Color who, const std::vector<struct BBPieceCoordStringWithTypeState> &pieces)
+    void BoardBuilder::add_pieces (Color who, const vector<struct BBPieceCoordStringWithTypeState> &pieces)
     {
         for (auto it : pieces)
             this->add_piece (it.coord, who, it.piece_type);
@@ -61,7 +61,8 @@ namespace wisdom
             this->add_piece (row, col, who, piece_type);
     }
 
-    void BoardBuilder::add_row_of_same_color_and_piece (const std::string &coord_str, Color who, Piece piece_type)
+    void BoardBuilder::add_row_of_same_color_and_piece (const string &coord_str, Color who,
+                                                        Piece piece_type)
     {
         Coord coord = coord_alg (coord_str);
 
@@ -69,7 +70,7 @@ namespace wisdom
             this->add_piece (Row (coord), col, who, piece_type);
     }
 
-    void BoardBuilder::add_row_of_same_color (int row, Color who, std::vector<Piece> piece_types)
+    void BoardBuilder::add_row_of_same_color (int row, Color who, vector<Piece> piece_types)
     {
         int col = 0;
 
@@ -77,7 +78,7 @@ namespace wisdom
             this->add_piece (row, col, who, *it);
     }
 
-    void BoardBuilder::add_row_of_same_color (const std::string &coord_str, Color who, std::vector<Piece> piece_types)
+    void BoardBuilder::add_row_of_same_color (const std::string &coord_str, Color who, vector<Piece> piece_types)
     {
         Coord coord = coord_alg (coord_str);
         int col = 0;
@@ -108,22 +109,22 @@ namespace wisdom
         this->full_moves = new_full_moves;
     }
 
-    std::unique_ptr<Board> BoardBuilder::build ()
+    auto BoardBuilder::build () -> unique_ptr<Board>
     {
         struct piece_row
         {
-            std::vector<Piece> row;
+            vector<Piece> row;
         };
 
         std::size_t sz = this->pieces_with_coords.size ();
 
-        std::vector<struct piece_row> piece_types { sz };
-        std::vector<struct BoardPositions> positions { sz };
+        vector<struct piece_row> piece_types { sz };
+        vector<struct BoardPositions> positions { sz };
 
         for (size_t i = 0; i < sz; i++)
         {
-            struct BBPieceWithCoordState &piece_with_coord = this->pieces_with_coords[i];
-            std::vector<Piece> &current_piece_row = piece_types[i].row;
+            BBPieceWithCoordState &piece_with_coord = this->pieces_with_coords[i];
+            vector<Piece> &current_piece_row = piece_types[i].row;
 
             int col = Column (piece_with_coord.coord);
             int row = Row (piece_with_coord.coord);
@@ -134,7 +135,7 @@ namespace wisdom
             positions[i] = { row, piece_with_coord.color, current_piece_row };
         }
 
-        auto result = std::make_unique<Board> (positions);
+        auto result = make_unique<Board> (positions);
 
         if (!en_passant_states.empty ())
         {

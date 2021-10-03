@@ -52,9 +52,9 @@ namespace wisdom
         [[nodiscard]] bool is_computer_turn () const;
 
     private:
-        std::unique_ptr<Board> my_board = std::make_unique<Board> ();
-        std::unique_ptr<History> my_history = std::make_unique<History> ();
-        std::unique_ptr<analysis::Analytics> my_analytics = std::make_unique<analysis::Analytics> ();
+        unique_ptr<Board> my_board = make_unique<Board> ();
+        unique_ptr<History> my_history = make_unique<History> ();
+        unique_ptr<analysis::Analytics> my_analytics = make_unique<analysis::Analytics> ();
         Color my_current_turn;        // whose turn it is
         Color my_computer_player;     // side the computer is playing as
     };

@@ -8,7 +8,7 @@ namespace wisdom
     using std::unique_ptr;
     using std::make_unique;
 
-    MoveList::MoveList (Color color, std::initializer_list<gsl::czstring> list) noexcept
+    MoveList::MoveList (Color color, std::initializer_list<czstring> list) noexcept
     {
         for (auto it : list)
         {

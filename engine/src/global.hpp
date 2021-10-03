@@ -23,10 +23,19 @@
 #include <cctype>
 #include <bitset>
 
-#include <gsl/gsl-lite.hpp>
+#include <gsl/gsl>
 
 namespace wisdom
 {
+    using zstring = gsl::zstring<>;
+    using czstring = gsl::czstring<>;
+    using std::string;
+    using std::optional;
+    using std::vector;
+    using std::unique_ptr;
+    using std::make_unique;
+    using std::make_shared;
+
     constexpr int Num_Players = 2;
 
     constexpr int Num_Rows = 8;
@@ -65,23 +74,23 @@ namespace wisdom
     class Error : public std::exception
     {
     private:
-        std::string my_message;
-        std::string my_extra_info;
+        string my_message;
+        string my_extra_info;
 
     public:
-        explicit Error (std::string message) : my_message { std::move (message) }
+        explicit Error (string message) : my_message { std::move (message) }
         {}
 
         Error (std::string message, std::string extra_info) :
             my_message { std::move(message) }, my_extra_info { std::move(extra_info) }
         {}
 
-        [[nodiscard]] const std::string& message() const noexcept
+        [[nodiscard]] auto message() const noexcept -> const string
         {
             return my_message;
         }
 
-        [[nodiscard]] const std::string& extra_info() const noexcept
+        [[nodiscard]] const string& extra_info() const noexcept
         {
             return my_message;
         }
@@ -95,11 +104,11 @@ namespace wisdom
     class AssertionError : public Error
     {
     private:
-        const std::string my_file;
+        const string my_file;
         int my_line;
 
     public:
-        AssertionError (const std::string &condition, const std::string &file, int line) :
+        AssertionError (const string &condition, const string &file, int line) :
             Error {"Assertion " + condition + " failed at " + file + ":" + std::to_string(line) + " !",
                    condition
             },
@@ -107,7 +116,7 @@ namespace wisdom
             my_line { line }
         {}
 
-        [[nodiscard]] const std::string& file() const noexcept
+        [[nodiscard]] const string& file() const noexcept
         {
             return my_file;
         }

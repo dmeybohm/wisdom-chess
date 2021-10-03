@@ -10,19 +10,19 @@ namespace wisdom
     // board length in characters
     constexpr int BOARD_LENGTH = 31;
 
-    std::vector<BoardPositions> initial_board_position ()
+    auto initial_board_position () -> vector<BoardPositions>
     {
-        std::vector<Piece> back_rank = {
+        vector<Piece> back_rank = {
                 Piece::Rook, Piece::Knight, Piece::Bishop, Piece::Queen, Piece::King,
                 Piece::Bishop, Piece::Knight, Piece::Rook,
         };
 
-        std::vector<Piece> pawns = {
+        vector<Piece> pawns = {
                 Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::Pawn,
                 Piece::Pawn, Piece::Pawn, Piece::Pawn,
         };
 
-        std::vector<BoardPositions> init_board = {
+        vector<BoardPositions> init_board = {
                 { 0, Color::Black, back_rank, },
                 { 1, Color::Black, pawns, },
                 { 6, Color::White, pawns, },
@@ -36,7 +36,7 @@ namespace wisdom
     {
     }
 
-    static CastlingState init_castle_state (Board &board, Color who)
+    static auto init_castle_state (Board &board, Color who) -> CastlingState
     {
         int row = (who == Color::White ? 7 : 0);
         int king_col = 4;
@@ -68,7 +68,7 @@ namespace wisdom
         return state;
     }
 
-    Board::Board (const std::vector<BoardPositions> &positions)
+    Board::Board (const vector<BoardPositions> &positions)
     {
         int row;
 
@@ -162,7 +162,7 @@ namespace wisdom
         result += "\n";
     }
 
-    std::string Board::to_string () const
+    auto Board::to_string () const -> string
     {
         std::string result;
 
@@ -230,7 +230,8 @@ namespace wisdom
 
     // If the relative depth of the looked up transposition has been searched deeper than the
     // depth we're looking for, then return the transposition.
-    std::optional<RelativeTransposition> Board::check_transposition_table (Color who, int relative_depth)
+    auto Board::check_transposition_table (Color who, int relative_depth) ->
+        optional<RelativeTransposition>
     {
         auto optional_transposition = my_transpositions.lookup (this->code.hash_code (), who);
 
@@ -254,7 +255,7 @@ namespace wisdom
         return std::nullopt;
     }
 
-    [[nodiscard]] std::string Board::castled_string (Color color) const
+    [[nodiscard]] auto Board::castled_string (Color color) const -> string
     {
         ColorIndex index = color_index (color);
         std::string castled_state;
@@ -277,9 +278,9 @@ namespace wisdom
         return castled_state;
     }
 
-    [[nodiscard]] std::string Board::to_fen_string (Color turn) const
+    [[nodiscard]] auto Board::to_fen_string (Color turn) const -> string
     {
-        std::string output;
+        string output;
 
         for (int row = 0; row < Num_Rows; row++)
         {

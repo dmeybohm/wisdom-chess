@@ -3,7 +3,7 @@
 
 namespace wisdom
 {
-    Coord coord_parse (const std::string &str)
+    Coord coord_parse (const string &str)
     {
         if (str.size () != 2)
             throw CoordParseError ("Invalid algebraic coordinate!");

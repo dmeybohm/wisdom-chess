@@ -16,7 +16,7 @@ namespace wisdom
 
     struct BBPieceCoordStringWithTypeState
     {
-        gsl::czstring coord;
+        czstring coord;
         Piece piece_type;
     };
 
@@ -35,9 +35,9 @@ namespace wisdom
     class BoardBuilder final
     {
     private:
-        std::vector<BBPieceWithCoordState> pieces_with_coords;
-        std::vector<BBEnPassantState> en_passant_states;
-        std::vector<BBCastlingState> castle_states;
+        vector<BBPieceWithCoordState> pieces_with_coords;
+        vector<BBEnPassantState> en_passant_states;
+        vector<BBCastlingState> castle_states;
         int half_moves_clock = 0;
         int full_moves = 0;
 
@@ -50,13 +50,13 @@ namespace wisdom
 
         void add_pieces (Color who, const std::vector<struct BBPieceCoordStringWithTypeState> &pieces);
 
-        void add_row_of_same_color (int row, Color who, std::vector<Piece> piece_types);
+        void add_row_of_same_color (int row, Color who, vector<Piece> piece_types);
 
-        void add_row_of_same_color (const std::string &coord_str, Color who, std::vector<Piece> piece_types);
+        void add_row_of_same_color (const std::string &coord_str, Color who, vector<Piece> piece_types);
 
         void add_row_of_same_color_and_piece (int row, Color who, Piece piece_type);
 
-        void add_row_of_same_color_and_piece (const std::string &coord_str, Color who, Piece piece_type);
+        void add_row_of_same_color_and_piece (const string &coord_str, Color who, Piece piece_type);
 
         void set_en_passant_target (Color who, const std::string &coord_str);
 
@@ -66,18 +66,18 @@ namespace wisdom
 
         void set_full_moves (int new_full_moves);
 
-        std::unique_ptr<Board> build ();
+        auto build () -> unique_ptr<Board>;
     };
 
     class BoardBuilderError : public Error
     {
     public:
-        explicit BoardBuilderError (const std::string &message) :
+        explicit BoardBuilderError (const string &message) :
             Error (message)
         {}
     };
 
-    Coord coord_alg (const std::string &coord_str);
+    Coord coord_alg (const string &coord_str);
 }
 
 #endif //WISDOM_BOARD_BUILDER_HPP

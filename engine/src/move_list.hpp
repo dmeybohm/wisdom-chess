@@ -6,7 +6,7 @@
 
 namespace wisdom
 {
-    using MoveVector = std::vector<Move>;
+    using MoveVector = vector<Move>;
 
     class MoveList
     {
@@ -22,7 +22,7 @@ namespace wisdom
                 deallocate_move_vector (std::move (my_moves));
         }
 
-        MoveList (Color color, std::initializer_list<gsl::czstring> list) noexcept;
+        MoveList (Color color, std::initializer_list<czstring> list) noexcept;
         MoveList (MoveList &&other) noexcept = default;
 
         MoveList (const MoveList &other)

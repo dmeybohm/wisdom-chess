@@ -10,7 +10,8 @@ namespace wisdom
 
 namespace wisdom::analysis
 {
-    std::unique_ptr<Analytics> make_sqlite_analytics (const std::string &analytics_file, wisdom::Logger &logger);
+    auto make_sqlite_analytics (const std::string &analytics_file, wisdom::Logger &logger)
+        -> std::unique_ptr<Analytics>;
 }
 
 #endif //WISDOM_ANALYTICS_SQLITE_HPP

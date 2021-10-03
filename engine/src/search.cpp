@@ -87,7 +87,7 @@ namespace wisdom
                                       Logger &output,
                                       MoveTimer timer,
                                       int total_depth) :
-            impl { std::make_unique<IterativeSearchImpl> (
+            impl { make_unique<IterativeSearchImpl> (
                 board,
                 history,
                 output,
@@ -100,7 +100,7 @@ namespace wisdom
     IterativeSearch::IterativeSearch (
         Board &board, History &history, Logger &output, analysis::Analytics &analytics,
         MoveTimer timer, int total_depth) :
-            impl { std::make_unique<IterativeSearchImpl> (
+            impl { make_unique<IterativeSearchImpl> (
                 board, history, output, analytics, timer, total_depth) }
     {
     }
