@@ -128,6 +128,8 @@ namespace wisdom
                 const VariationGlimpse &variation_glimpse
         );
 
+        auto get_code () const& -> const BoardCode&;
+
         // Lookup the current board's score in the transposition table.
         [[nodiscard]] auto check_transposition_table (Color who, int relative_depth)
                 -> optional<RelativeTransposition>;
@@ -145,8 +147,6 @@ namespace wisdom
         void take_back (Color who, Move move, UndoMove undo_state);
     };
 
-    ///////////////////////////////////////////////
-
     constexpr auto piece_at (const Board &board, int row, int col) -> ColoredPiece
     {
         return board.piece_at (row, col);
@@ -156,8 +156,6 @@ namespace wisdom
     {
         return piece_at (board, coord.row, coord.col);
     }
-
-    ///////////////////////////////////////////////
 
     // white moves up (-)
     // black moves down (+)

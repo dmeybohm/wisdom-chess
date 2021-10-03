@@ -35,12 +35,13 @@ namespace wisdom
                 variation_glimpse { _variation_glimpse }
         {}
 
-        bool operator== (const BaseTransposition &other) const
+        auto operator== (const BaseTransposition &other) const -> bool
         {
             return other.hash_code == this->hash_code;
         }
 
-        friend std::ostream &operator<< (std::ostream &os, const BaseTransposition &transposition);
+        friend auto operator<< (std::ostream &os, const BaseTransposition &transposition)
+            -> std::ostream&;
     };
 
     struct RelativeTransposition : BaseTransposition
@@ -62,8 +63,6 @@ namespace wisdom
         {
             return RelativeTransposition { 0, BoardCode{}, Negative_Infinity, 0, {} };
         }
-
-        friend std::ostream &operator<< (std::ostream &os, const RelativeTransposition &transposition);
     };
 
     struct ColoredTransposition : BaseTransposition
@@ -88,7 +87,6 @@ namespace wisdom
     using TranspositionListIterator = TranspositionList::iterator;
     using TranspositionMap = std::unordered_map<BoardHashCode, TranspositionListIterator>;
 
-
     class TranspositionTable final
     {
     private:
@@ -96,17 +94,29 @@ namespace wisdom
         TranspositionMap my_map{};
         std::size_t my_num_elements = 0;
 
+        int my_hits = 0;
+        int my_misses = 0;
+        int my_dupe_hashes = 0;
+
         void drop_last ();
         void verify () const;
 
     public:
         // Lookup the transposition.
-        [[nodiscard]] std::optional<RelativeTransposition> lookup (BoardHashCode hash, Color who);
+        [[nodiscard]] auto lookup (BoardHashCode hash, Color who)
+            -> optional<RelativeTransposition>;
+
+        [[nodiscard]] auto lookup_board_for_depth (Board &board, Color who, int depth)
+            -> optional<RelativeTransposition>;
 
         // Add the transposition.
         void add (RelativeTransposition transposition, Color who);
 
-        [[nodiscard]] std::size_t size() const
+        // Add the evaluation to the table.
+        void add (const Board &board, int score, Color who, int relative_depth,
+                  const VariationGlimpse &variation_glimpse);
+
+        [[nodiscard]] auto size() const -> std::size_t
         {
             return my_num_elements;
         }

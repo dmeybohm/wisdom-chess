@@ -5,7 +5,8 @@
 
 namespace wisdom
 {
-    std::optional<RelativeTransposition> TranspositionTable::lookup (BoardHashCode hash, Color who)
+    auto TranspositionTable::lookup (BoardHashCode hash, Color who)
+        -> optional<RelativeTransposition>
     {
         verify();
 
@@ -49,6 +50,32 @@ namespace wisdom
         assert (my_map.size() == my_list.size());
     }
 
+    [[nodiscard]] auto TranspositionTable::lookup_board_for_depth (Board &board, Color who,
+                                                                   int depth)
+        -> optional<RelativeTransposition>
+    {
+        auto optional_transposition = lookup (board.code.hash_code (), who);
+
+        if (optional_transposition.has_value ())
+        {
+            // Check the board codes are equal:
+            if (optional_transposition->board_code != board.get_code ())
+            {
+                my_dupe_hashes++;
+                return nullopt;
+            }
+
+            if (optional_transposition->relative_depth >= depth)
+            {
+                my_hits++;
+                return optional_transposition;
+            }
+        }
+
+        my_misses++;
+        return nullopt;
+    }
+
     void TranspositionTable::drop_last ()
     {
         auto last_iterator = my_list.end();
@@ -80,8 +107,8 @@ namespace wisdom
             }
         }
 
-        auto size1 = gsl::narrow_cast<size_t>(my_map.size ());
-        auto size2 = gsl::narrow_cast<size_t>(my_list.size ());
+        auto size1 = gsl::narrow<size_t>(my_map.size ());
+        auto size2 = gsl::narrow<size_t>(my_list.size ());
         if (size1 != size2)
             assert (my_map.size () == my_list.size ());
         if (my_map.size () != my_num_elements)
@@ -91,16 +118,27 @@ namespace wisdom
 #endif
     }
 
+    void TranspositionTable::add (Board &board, int score, Color who, int relative_depth,
+                                  const VariationGlimpse &variation_glimpse)
+    {
+        RelativeTransposition evaluation { board, score, relative_depth, variation_glimpse };
+        add (evaluation, who);
+    }
+
     RelativeTransposition::RelativeTransposition (const Board &board, int _score, int _relative_depth,
                                                   const VariationGlimpse &_variation_glimpse) :
-            RelativeTransposition (board.code.hash_code(), board.code, _score, _relative_depth, _variation_glimpse)
+            RelativeTransposition (board.get_code ().hash_code (),
+                                   board.code, _score, _relative_depth, _variation_glimpse)
     {}
 
-    std::ostream &operator<< (std::ostream &os, const BaseTransposition &transposition)
+    auto operator<< (std::ostream &os, const BaseTransposition &transposition) -> std::ostream&
     {
-        os << "{ hash_code: " << transposition.hash_code << " board_code: " << transposition.board_code << " score: "
-            << transposition.score << " relative_depth: " << transposition.relative_depth << " variation_glimpse: "
-            << transposition.variation_glimpse << " }";
+        os << "{ hash_code: " << transposition.hash_code <<
+            " board_code: " << transposition.board_code <<
+            " score: " << transposition.score <<
+            " relative_depth: " << transposition.relative_depth <<
+            " variation_glimpse: " << transposition.variation_glimpse <<
+            " }";
         return os;
     }
 }

@@ -21,6 +21,7 @@ namespace wisdom
     class Board;
     class Logger;
     class History;
+    class TranspositionTable;
 
     // Get the score for checkmate in X moves.
     int checkmate_score_in_moves (int moves);
@@ -34,15 +35,15 @@ namespace wisdom
         unique_ptr<IterativeSearchImpl> impl;
 
     public:
-        IterativeSearch (Board &board, History &history, Logger &output, MoveTimer timer,
-                         int total_depth);
+        IterativeSearch (Board &board, History &history, TranspositionTable &transpositions,
+                         Logger &output, MoveTimer timer, int total_depth);
 
-        IterativeSearch (Board &board, History &history, Logger &output,
-                         analysis::Analytics &analytics, MoveTimer timer, int total_depth);
+        IterativeSearch (Board &board, History &history, TranspositionTable &transpositions,
+                         Logger &output, MoveTimer timer, int total_depth, analysis::Analytics &analytics);
 
         ~IterativeSearch ();
 
-        SearchResult iteratively_deepen (Color side);
+        auto iteratively_deepen (Color side) -> SearchResult;
     };
 }
 

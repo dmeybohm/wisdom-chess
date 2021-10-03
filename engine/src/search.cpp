@@ -22,16 +22,18 @@ namespace wisdom
     private:
         Board &my_board;
         History &my_history;
+        TranspositionTable &my_transpositions;
         Logger &my_output;
         analysis::Analytics &my_analytics;
         MoveTimer my_timer;
         int my_total_depth;
 
     public:
-        IterativeSearchImpl (Board &board, History &history, Logger &output, MoveTimer timer,
-                             int total_depth) :
+        IterativeSearchImpl (Board &board, History &history, TranspositionTable &transpositions,
+                             Logger &output, MoveTimer timer, int total_depth) :
                 my_board { board },
                 my_history { history },
+                my_transpositions { transpositions },
                 my_output { output },
                 my_analytics { analysis::make_dummy_analytics () },
                 my_timer { timer },
@@ -39,10 +41,12 @@ namespace wisdom
         {
         }
 
-        IterativeSearchImpl (Board &board, History &history, Logger &output,
-                             analysis::Analytics &analytics, MoveTimer timer, int total_depth) :
+        IterativeSearchImpl (Board &board, History &history, TranspositionTable &transpostions,
+                             Logger &output, MoveTimer timer, int total_depth,
+                             analysis::Analytics &analytics) :
                 my_board { board },
                 my_history { history },
+                my_transpositions { transpositions },
                 my_output { output },
                 my_analytics { analytics },
                 my_timer { timer },
@@ -50,41 +54,48 @@ namespace wisdom
         {
         }
 
-        SearchResult iteratively_deepen (Color side);
+        auto iteratively_deepen (Color side) -> SearchResult;
 
-        SearchResult search_moves (Color side, int depth, int alpha, int beta,
-                                   const ScoredMoveList &moves,
-                                   analysis::Decision &decision);
+        auto search_moves (Color side, int depth, int alpha, int beta,
+                           const ScoredMoveList &moves,
+                           analysis::Decision &decision) -> SearchResult;
 
-        SearchResult iterate (Color side, int depth, analysis::Iteration &iteration);
+        auto iterate (Color side, int depth, analysis::Iteration &iteration)
+            -> SearchResult;
 
-        SearchResult search (Color side, int depth, int alpha, int beta,
-                             analysis::Decision &decision);
+        auto search (Color side, int depth, int alpha, int beta,
+                     analysis::Decision &decision)
+            -> SearchResult;
 
-        SearchResult recurse_or_evaluate (Color side, int depth, int alpha, int beta,
-                                          Move move, analysis::Decision &parent,
-                                          analysis::Position &position);
+        auto recurse_or_evaluate (Color side, int depth, int alpha, int beta,
+                                  Move move, analysis::Decision &parent,
+                                  analysis::Position &position)
+            -> SearchResult
 
-        SearchResult transposition_value (int depth, Move &move, analysis::Position &position,
-                                          std::optional<RelativeTransposition> &transposition) const;
+        auto transposition_value (int depth, Move &move, analysis::Position &position,
+                                  optional<RelativeTransposition> &transposition) const
+            -> SearchResult;
 
-        SearchResult evaluated_value (Color &side, int depth,
-                                      Move &move, analysis::Position &position) const;
+        auto evaluated_value (Color &side, int depth,
+                              Move &move, analysis::Position &position) const
+            -> SearchResult;
 
-        SearchResult
-        recursed_value (Color &side, int depth, int alpha, int beta,Move &move,
-                        analysis::Decision &parent, analysis::Position &position);
+        auto recursed_value (Color &side, int depth, int alpha, int beta,Move &move,
+                             analysis::Decision &parent, analysis::Position &position)
+            -> SearchResult;
     };
 
     IterativeSearch::~IterativeSearch() = default;
     IterativeSearch::IterativeSearch (Board &board,
                                       History &history,
+                                      TranspositionTable &transpositions,
                                       Logger &output,
                                       MoveTimer timer,
                                       int total_depth) :
             impl { make_unique<IterativeSearchImpl> (
                 board,
                 history,
+                transpositions,
                 output,
                 analysis::make_dummy_analytics (),
                 timer,
@@ -93,10 +104,10 @@ namespace wisdom
     {}
 
     IterativeSearch::IterativeSearch (
-        Board &board, History &history, Logger &output, analysis::Analytics &analytics,
-        MoveTimer timer, int total_depth) :
+        Board &board, History &history, TranspositionTable &transpositions, Logger &output,
+        MoveTimer timer, int total_depth, analysis::Analytics &analytics) :
             impl { make_unique<IterativeSearchImpl> (
-                board, history, output, analytics, timer, total_depth) }
+                board, history, tranpositions, output, analytics, timer, total_depth) }
     {
     }
 
@@ -107,7 +118,7 @@ namespace wisdom
 
     SearchResult
     IterativeSearchImpl::transposition_value (int depth, Move &move, analysis::Position &position,
-                                              std::optional<RelativeTransposition> &transposition) const
+                                              optional<RelativeTransposition> &transposition) const
     {
         transposition->variation_glimpse.push_front (move);
         auto result = SearchResult { transposition->variation_glimpse, move, transposition->score,
@@ -122,7 +133,7 @@ namespace wisdom
                                                            analysis::Position &position)
     {
         // Check the transposition table for the move:
-        auto transposition = my_board.check_transposition_table (side, depth);
+        auto transposition = my_transpositions.lookup_board_for_depth (board, side, depth);
 
         if (transposition.has_value ())
         {
@@ -216,7 +227,7 @@ namespace wisdom
 
             if (!other_search_result.timed_out)
             {
-                my_board.add_evaluation_to_transposition_table (
+                transpositions.add (my_board,
                         other_search_result.score, side, depth,
                         other_search_result.variation_glimpse
                 );
@@ -235,7 +246,8 @@ namespace wisdom
             }
         }
 
-        auto result = SearchResult { best_variation, best_move, best_score, my_total_depth - depth, false };
+        auto result = SearchResult { best_variation, best_move, best_score,
+                                     my_total_depth - depth, false };
         decision.finalize (result);
         return result;
     }

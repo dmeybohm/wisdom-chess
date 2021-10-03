@@ -349,4 +349,10 @@ namespace wisdom
         return true;
     }
 
+    auto Board::get_code () const& -> const BoardCode&
+    {
+        return code;
+    }
+
+
 }

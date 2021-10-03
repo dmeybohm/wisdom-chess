@@ -147,6 +147,11 @@ namespace wisdom
         return *my_history;
     }
 
+    auto Game::get_transposition_table () const& -> TranspositionTable&
+    {
+        return *my_transposition_table;
+    }
+
     bool Game::is_computer_turn () const
     {
         return my_computer_player == my_current_turn;
