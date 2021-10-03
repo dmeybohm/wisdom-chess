@@ -8,20 +8,20 @@ namespace wisdom
     struct SearchResult
     {
         VariationGlimpse variation_glimpse;
-        std::optional<Move> move;
+        optional<Move> move;
         int score;
         int depth;
         bool timed_out;
 
         static SearchResult from_initial () noexcept
         {
-            SearchResult result { {}, std::nullopt, -Initial_Alpha, 0, false };
+            SearchResult result { {}, nullopt, -Initial_Alpha, 0, false };
             return result;
         }
 
         static SearchResult from_timeout () noexcept
         {
-            SearchResult result { {}, std::nullopt, -Initial_Alpha, 0, true };
+            SearchResult result { {}, nullopt, -Initial_Alpha, 0, true };
             return result;
         }
 

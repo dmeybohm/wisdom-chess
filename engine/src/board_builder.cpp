@@ -5,7 +5,7 @@
 
 namespace wisdom
 {
-    Coord coord_alg (const std::string &coord_str)
+    Coord coord_alg (const string &coord_str)
     {
         if (coord_str.size () != 2)
             throw BoardBuilderError ("Invalid coordinate string!");
@@ -22,7 +22,7 @@ namespace wisdom
         return make_coord (row, col);
     }
 
-    void BoardBuilder::add_piece (const std::string &coord_str, Color who, Piece piece_type)
+    void BoardBuilder::add_piece (const string &coord_str, Color who, Piece piece_type)
     {
         if (coord_str.size () != 2)
             throw BoardBuilderError ("Invalid coordinate string!");
@@ -78,7 +78,8 @@ namespace wisdom
             this->add_piece (row, col, who, *it);
     }
 
-    void BoardBuilder::add_row_of_same_color (const std::string &coord_str, Color who, vector<Piece> piece_types)
+    void BoardBuilder::add_row_of_same_color (const string &coord_str, Color who,
+                                              vector<Piece> piece_types)
     {
         Coord coord = coord_alg (coord_str);
         int col = 0;
@@ -87,7 +88,7 @@ namespace wisdom
             this->add_piece (Row (coord), col, who, *it);
     }
 
-    void BoardBuilder::set_en_passant_target (Color who, const std::string &coord_str)
+    void BoardBuilder::set_en_passant_target (Color who, const string &coord_str)
     {
         struct BBEnPassantState new_state { who, coord_alg (coord_str) };
         this->en_passant_states.push_back (new_state);

@@ -138,10 +138,10 @@ namespace wisdom
             return MoveGenerator { my_transpositions };
         }
 
-        [[nodiscard]] std::string to_fen_string (Color turn) const;
-        [[nodiscard]] std::string castled_string (Color color) const;
+        [[nodiscard]] auto to_fen_string (Color turn) const -> string;
+        [[nodiscard]] auto castled_string (Color color) const -> string;
 
-        UndoMove make_move (Color who, Move move);
+        auto make_move (Color who, Move move) -> UndoMove;
         void take_back (Color who, Move move, UndoMove undo_state);
     };
 

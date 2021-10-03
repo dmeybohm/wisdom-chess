@@ -123,7 +123,7 @@ namespace wisdom
 
     std::size_t BoardCode::count_ones () const
     {
-        std::string str = bits.to_string ();
+        string str = bits.to_string ();
         return std::count (str.begin (), str.end (), '1');
     }
 

@@ -130,7 +130,7 @@ namespace wisdom
         this->print_to_file (std::cerr);
     }
 
-    static void add_divider (std::string &result)
+    static void add_divider (string &result)
     {
         result += " ";
 
@@ -144,7 +144,7 @@ namespace wisdom
         result += "\n";
     }
 
-    static void add_coords (std::string &result)
+    static void add_coords (string &result)
     {
         int col;
 
@@ -164,7 +164,7 @@ namespace wisdom
 
     auto Board::to_string () const -> string
     {
-        std::string result;
+        string result;
 
         char row_coord = '8';
 
@@ -241,7 +241,7 @@ namespace wisdom
             if (optional_transposition->board_code != this->code)
             {
                 my_transposition_dupe_hashes++;
-                return std::nullopt;
+                return nullopt;
             }
 
             if (optional_transposition->relative_depth >= relative_depth)
@@ -252,13 +252,13 @@ namespace wisdom
         }
 
         my_transposition_misses++;
-        return std::nullopt;
+        return nullopt;
     }
 
     [[nodiscard]] auto Board::castled_string (Color color) const -> string
     {
         ColorIndex index = color_index (color);
-        std::string castled_state;
+        string castled_state;
 
         auto convert = [color](char ch) -> char {
             return color == Color::Black ? gsl::narrow_cast<char> (tolower(ch)) : ch;
@@ -284,7 +284,7 @@ namespace wisdom
 
         for (int row = 0; row < Num_Rows; row++)
         {
-            std::string row_string;
+            string row_string;
             int none_count = 0;
 
             for (int col = 0; col < Num_Columns; col++)
@@ -317,10 +317,10 @@ namespace wisdom
 
         output += turn == Color::White ? " w " : " b ";
 
-        std::string castled_white = castled_string (Color::White);
-        std::string castled_black = castled_string (Color::Black);
+        string castled_white = castled_string (Color::White);
+        string castled_black = castled_string (Color::Black);
 
-        std::string both_castled = castled_white + castled_black;
+        string both_castled = castled_white + castled_black;
         if (both_castled.length() == 0)
             both_castled = "-";
 

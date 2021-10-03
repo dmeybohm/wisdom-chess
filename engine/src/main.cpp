@@ -4,6 +4,7 @@
 #include <argh.h>
 
 using wisdom::Color;
+using std::string;
 
 int main (int argc, char **argv)
 {
@@ -13,7 +14,7 @@ int main (int argc, char **argv)
 
     if (cmdline("--player"))
     {
-        std::string player_str = cmdline("--player").str();
+        string player_str = cmdline("--player").str();
 
         if (player_str == "White")
             human_player = Color::White;

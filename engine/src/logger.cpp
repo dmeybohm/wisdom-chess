@@ -10,7 +10,7 @@ namespace wisdom
     public:
         NullLogger () = default;
 
-        void println ([[maybe_unused]] const std::string &output) override
+        void println ([[maybe_unused]] const string &output) override
         {}
     };
 
@@ -22,7 +22,7 @@ namespace wisdom
     public:
         StandardLogger () = default;
 
-        void println (const std::string &output) override
+        void println (const string &output) override
         {
             std::lock_guard lock { output_mutex };
             std::cout << output << '\n';

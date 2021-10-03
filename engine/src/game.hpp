@@ -27,25 +27,25 @@ namespace wisdom
 
         Game (Color current_turn, Color computer_player, BoardBuilder builder);
 
-        static std::optional<Game> load (const std::string &filename, Color player);
+        static auto load (const string &filename, Color player) -> optional<Game>;
 
-        void save (const std::string &filename) const;
+        void save (const string &filename) const;
 
-        std::optional<Move> find_best_move (Logger &logger, Color whom = Color::None) const;
+        auto find_best_move (Logger &logger, Color whom = Color::None) const -> optional<Move>;
 
         void move (Move move);
 
-        [[nodiscard]] Color get_computer_player () const;
+        [[nodiscard]] auto get_computer_player () const -> Color;
 
         void set_computer_player (Color player);
 
-        [[nodiscard]] Color get_current_turn () const;
+        [[nodiscard]] auto get_current_turn () const -> Color;
 
         void set_current_turn (Color);
 
-        [[nodiscard]] Board &get_board() const;
+        [[nodiscard]] auto get_board() const& -> Board&;
 
-        [[nodiscard]] History &get_history () const;
+        [[nodiscard]] auto get_history () const& -> History&;
 
         void set_analytics (std::unique_ptr<analysis::Analytics> new_analytics);
 

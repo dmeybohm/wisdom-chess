@@ -8,7 +8,7 @@ namespace wisdom
     class Logger
     {
     public:
-        virtual void println (const std::string &output) = 0;
+        virtual void println (const string &output) = 0;
     };
 
     Logger &make_null_logger ();

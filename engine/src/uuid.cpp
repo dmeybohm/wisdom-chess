@@ -5,10 +5,8 @@
 
 namespace wisdom
 {
-    using std::optional;
     using std::uniform_int_distribution;
     using Rng = std::mt19937_64;
-    using std::nullopt;
 
     static int64_t generate()
     {

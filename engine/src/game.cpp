@@ -13,9 +13,9 @@ namespace wisdom
     static FenOutputFormat fen_output_format;
     static WisdomGameOutputFormat wisdom_game_output_format;
 
-    static OutputFormat& make_output_format (const std::string &filename)
+    static OutputFormat& make_output_format (const string &filename)
     {
-        if (filename.find (".fen") != std::string::npos)
+        if (filename.find (".fen") != string::npos)
             return fen_output_format;
         else
             return wisdom_game_output_format;
@@ -44,7 +44,7 @@ namespace wisdom
         my_current_turn = color_invert (my_current_turn);
     }
 
-    void Game::save (const std::string &input) const
+    void Game::save (const string &input) const
     {
         OutputFormat &output = make_output_format (input);
         output.save (input, *my_board, *my_history, my_current_turn);
@@ -67,9 +67,9 @@ namespace wisdom
         return result.move;
     }
 
-    std::optional<Game> Game::load (const std::string &filename, Color player)
+    auto Game::load (const string &filename, Color player) -> optional<Game>
     {
-        std::string input_buf;
+        string input_buf;
         std::ifstream istream;
 
         istream.open (filename, std::ios::in);
@@ -84,9 +84,6 @@ namespace wisdom
 
         while (std::getline (istream, input_buf))
         {
-            Coord dst;
-            ColoredPiece piece;
-
             input_buf = chomp (input_buf);
 
             if (input_buf == "stop")
@@ -99,8 +96,8 @@ namespace wisdom
             // set the move as taking it. Otherwise, we'll trip over some
             // consistency checks that make sure we don't erase pieces.
             //
-            dst = move_dst (move);
-            piece = result.my_board->piece_at (dst);
+            Coord dst = move_dst (move);
+            ColoredPiece piece = result.my_board->piece_at (dst);
 
             // TODO: not sure if we have to handle en-passant here.
 
@@ -120,7 +117,7 @@ namespace wisdom
         return result;
     }
 
-    Color Game::get_computer_player () const
+    auto Game::get_computer_player () const -> Color
     {
         return my_computer_player;
     }
@@ -130,7 +127,7 @@ namespace wisdom
         this->my_computer_player = player;
     }
 
-    Color Game::get_current_turn () const
+    auto Game::get_current_turn () const -> Color
     {
         return this->my_current_turn;
     }
@@ -140,12 +137,12 @@ namespace wisdom
         my_current_turn = new_turn;
     }
 
-    Board &Game::get_board () const
+    auto Game::get_board () const& -> Board&
     {
         return *my_board;
     }
 
-    History &Game::get_history () const
+    auto Game::get_history () const& -> History&
     {
         return *my_history;
     }
@@ -154,5 +151,4 @@ namespace wisdom
     {
         return my_computer_player == my_current_turn;
     }
-
 }

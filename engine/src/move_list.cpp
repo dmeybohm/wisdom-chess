@@ -4,10 +4,6 @@
 
 namespace wisdom
 {
-    using std::vector;
-    using std::unique_ptr;
-    using std::make_unique;
-
     MoveList::MoveList (Color color, std::initializer_list<czstring> list) noexcept
     {
         for (auto it : list)
@@ -17,9 +13,9 @@ namespace wisdom
         }
     }
 
-    std::string MoveList::to_string () const
+    auto MoveList::to_string () const -> string
     {
-        std::string result = "{ ";
+        string result = "{ ";
         for (auto move : *my_moves)
             result += "[" + wisdom::to_string (move) + "] ";
         result += "}";
@@ -47,7 +43,7 @@ namespace wisdom
         my_move_vector_ptrs.push_back (std::move (ptr));
     }
 
-    std::string to_string (const MoveList &list)
+    auto to_string (const MoveList &list) -> string
     {
         return list.to_string ();
     }

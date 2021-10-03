@@ -6,7 +6,7 @@
 
 namespace wisdom
 {
-    using string_size_t = std::string::size_type;
+    using string_size_t = string::size_type;
 
     Game FenParser::build ()
     {
@@ -44,7 +44,7 @@ namespace wisdom
         }
     }
 
-    void FenParser::parse_pieces (std::string str)
+    void FenParser::parse_pieces (string str)
     {
         char ch;
 
@@ -86,7 +86,7 @@ namespace wisdom
     }
 
     // en passant target square:
-    void FenParser::parse_en_passant (std::string str)
+    void FenParser::parse_en_passant (string str)
     {
         if (str.empty ())
             return;
@@ -96,7 +96,7 @@ namespace wisdom
 
         try
         {
-            std::string cstr { str.substr (0, 2) };
+            string cstr { str.substr (0, 2) };
             builder.set_en_passant_target (color_invert (active_player), cstr.c_str ());
         }
         catch ([[maybe_unused]] const BoardBuilderError &e)
@@ -105,7 +105,7 @@ namespace wisdom
         }
     }
 
-    void FenParser::parse_castling (std::string str)
+    void FenParser::parse_castling (string str)
     {
         CastlingState white_castle = Castle_Queenside | Castle_Kingside;
         CastlingState black_castle = Castle_Queenside | Castle_Kingside;
@@ -151,27 +151,27 @@ namespace wisdom
         builder.set_full_moves (full_moves);
     }
 
-    void FenParser::parse (const std::string &source)
+    void FenParser::parse (const string &source)
     {
         std::stringstream input { source };
 
         // Read the pieces:
-        std::string pieces_str;
+        string pieces_str;
         input >> pieces_str;
         parse_pieces (pieces_str);
 
         // read active my_computer_player:
-        std::string active_player_str;
+        string active_player_str;
         input >> active_player_str;
         active_player = parse_active_player (active_player_str[0]);
 
         // castling:
-        std::string castling_str;
+        string castling_str;
         input >> castling_str;
         parse_castling (castling_str);
 
         // en passant target square:
-        std::string en_passant_str;
+        string en_passant_str;
         input >> en_passant_str;
         parse_en_passant (en_passant_str);
 

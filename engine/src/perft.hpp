@@ -13,6 +13,8 @@ namespace wisdom
 
 namespace wisdom::perft
 {
+    using string = std::string;
+
     struct MoveCounter
     {
         int64_t nodes = 0;
@@ -36,7 +38,7 @@ namespace wisdom::perft
     struct PerftMoveResult
     {
         int64_t nodes;
-        std::string move;
+        string move;
     };
 
     struct PerftResults
@@ -60,14 +62,14 @@ namespace wisdom::perft
 
     // Convert a perft move list to a wisdom::MoveList.
     auto to_move_list (const wisdom::Board &board, Color who,
-                       const std::string &move_list) -> wisdom::MoveList;
+                       const string &move_list) -> wisdom::MoveList;
 
     // Convert a wisdom move to a perft move.
-    auto to_perft_move (const Move &move, Color who) -> std::string;
+    auto to_perft_move (const Move &move, Color who) -> string;
 
     // Convert a perft move to a wisdom::Move.
     auto convert_move (const Board &board, Color who,
-                       std::string move_str) -> wisdom::Move;
+                       string move_str) -> wisdom::Move;
 
     // Output the perf results to a string.
     auto perft_results (const Board &board, Color active_player, int depth)
@@ -77,7 +79,7 @@ namespace wisdom::perft
     auto apply_list (Board &board, Color who, const MoveList &list) -> Color;
 
     // Convert the PerftResults to a string.
-    auto to_string (const PerftResults &perft_results) -> std::string;
+    auto to_string (const PerftResults &perft_results) -> string;
 }
 
 #endif // WISDOM_PERFT_HPP

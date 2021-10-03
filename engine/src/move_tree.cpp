@@ -2,9 +2,9 @@
 
 namespace wisdom
 {
-    [[nodiscard]] std::string MoveTree::to_string () const
+    [[nodiscard]] auto MoveTree::to_string () const -> string
     {
-        std::string result;
+        string result;
 
         result += "{ ";
         for (auto move : list)

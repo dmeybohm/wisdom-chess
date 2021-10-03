@@ -6,10 +6,7 @@
 
 namespace wisdom
 {
-    using std::optional;
-    using std::nullopt;
-
-    Coord en_passant_taken_pawn_coord (Coord src, Coord dst)
+    auto en_passant_taken_pawn_coord (Coord src, Coord dst) -> Coord
     {
         return make_coord (Row (src), Column (dst));
     }
@@ -41,7 +38,7 @@ namespace wisdom
         return piece_type (src_piece) == Piece::Pawn && abs (Row (src) - Row (dst)) == 2;
     }
 
-    ColoredPiece handle_en_passant (Board &board, Color who, Coord src, Coord dst, int undo)
+    auto handle_en_passant (Board &board, Color who, Coord src, Coord dst, int undo) -> ColoredPiece
     {
         Coord taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
 
@@ -64,7 +61,7 @@ namespace wisdom
         }
     }
 
-    static Move get_castling_rook_move (Board &board, Move move, Color who)
+    static auto get_castling_rook_move (Board &board, Move move, Color who) -> Move
     {
         int src_row, src_col;
         int dst_row, dst_col;
@@ -319,7 +316,7 @@ namespace wisdom
         }
     }
 
-    UndoMove Board::make_move (Color who, Move move)
+    auto Board::make_move (Color who, Move move) -> UndoMove
     {
         UndoMove undo_state = Empty_Undo_State;
         Color opponent = color_invert (who);
@@ -478,7 +475,7 @@ namespace wisdom
         this->restore_move_clock (undo_state);
     }
 
-    static optional<Move> castle_parse (const std::string &str, Color who)
+    static auto castle_parse (const string &str, Color who) -> optional<Move>
     {
         int src_row, dst_col;
 
@@ -489,7 +486,7 @@ namespace wisdom
         else
             throw ParseMoveException { "Invalid color parsing castling move." };
 
-        std::string transformed { str };
+        string transformed { str };
         std::transform (transformed.begin (), transformed.end (), transformed.begin (),
                         [] (auto c) -> auto
                         { return ::toupper (c); });
@@ -504,13 +501,13 @@ namespace wisdom
         return make_castling_move (src_row, King_Column, src_row, dst_col);
     }
 
-    optional<Move> move_parse_optional (const std::string &str, Color who)
+    auto move_parse_optional (const string &str, Color who) -> optional<Move>
     {
         bool en_passant = false;
         bool is_capturing = false;
 
         // allow any number of spaces/tabs before the two coordinates
-        std::string tmp { str };
+        string tmp { str };
 
         if (tmp.empty ())
             return nullopt;
@@ -548,7 +545,7 @@ namespace wisdom
             is_capturing = true;
         }
 
-        std::string dst_coord { tmp.substr (offset, 2) };
+        string dst_coord { tmp.substr (offset, 2) };
         offset += 2;
         if (dst_coord.empty ())
             return nullopt;
@@ -563,7 +560,7 @@ namespace wisdom
             return nullopt;
         }
 
-        std::string rest { tmp.substr (offset) };
+        string rest { tmp.substr (offset) };
         Move move = make_noncapture_move (src, dst);
         if (is_capturing)
         {
@@ -606,7 +603,7 @@ namespace wisdom
         return move;
     }
 
-    Move move_parse (const std::string &str, Color color)
+    auto move_parse (const string &str, Color color) -> Move
     {
         if (tolower (str[0]) == 'o' && color == Color::None)
             throw ParseMoveException ("Move requires color, but no color provided");
@@ -626,7 +623,7 @@ namespace wisdom
         return result;
     }
 
-    std::string to_string (const Move &move)
+    string to_string (const Move &move)
     {
         Coord src, dst;
 
@@ -647,7 +644,7 @@ namespace wisdom
             }
         }
 
-        std::string result;
+        string result;
         result += to_string (src);
 
         if (is_normal_capture_move (move))
@@ -664,7 +661,7 @@ namespace wisdom
 
         if (is_promoting_move (move))
         {
-            std::string promoted_piece { piece_char (move_get_promoted_piece (move)) };
+            string promoted_piece { piece_char (move_get_promoted_piece (move)) };
             result += "(" + promoted_piece + ")";
         }
 

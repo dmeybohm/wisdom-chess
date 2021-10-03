@@ -11,7 +11,7 @@ namespace wisdom
 
         auto map_iterator = my_map.find (hash);
         if (map_iterator == my_map.end ())
-            return std::nullopt;
+            return nullopt;
 
         auto list_iterator = map_iterator->second;
         ColoredTransposition value = *list_iterator;

@@ -11,7 +11,7 @@ namespace wisdom
     class MoveList
     {
     private:
-        std::unique_ptr<MoveVector> my_moves = allocate_move_vector ();
+        unique_ptr<MoveVector> my_moves = allocate_move_vector ();
 
     public:
         MoveList () = default;
@@ -79,7 +79,7 @@ namespace wisdom
             return my_moves->capacity();
         }
 
-        [[nodiscard]] std::string to_string () const;
+        [[nodiscard]] auto to_string () const -> string;
 
         bool operator== (const MoveList &other) const
         {
@@ -101,11 +101,11 @@ namespace wisdom
             return my_moves->data ();
         }
 
-        static std::unique_ptr<MoveVector> allocate_move_vector ();
+        static auto allocate_move_vector () -> unique_ptr<MoveVector>;
         static void deallocate_move_vector (std::unique_ptr<MoveVector> ptr);
     };
 
-    std::string to_string (const MoveList &list);
+    auto to_string (const MoveList &list) -> string;
 
     std::ostream &operator<< (std::ostream &os, const MoveList &list);
 }

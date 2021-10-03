@@ -3,7 +3,7 @@
 
 namespace wisdom
 {
-    Coord coord_parse (const string &str)
+    auto coord_parse (const string &str) -> Coord
     {
         if (str.size () != 2)
             throw CoordParseError ("Invalid algebraic coordinate!");
@@ -17,9 +17,9 @@ namespace wisdom
         return make_coord (row, col);
     }
 
-    std::string to_string (Coord coord)
+    auto to_string (Coord coord) -> string
     {
-        std::string result = ""; // NOLINT(readability-redundant-string-init)
+        string result = ""; // NOLINT(readability-redundant-string-init)
         result += col_to_char (Column (coord));
         result += row_to_char (Row (coord));
         return result;

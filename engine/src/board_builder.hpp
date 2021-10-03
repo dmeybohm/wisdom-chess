@@ -44,7 +44,7 @@ namespace wisdom
     public:
         BoardBuilder () = default;
 
-        void add_piece (const std::string &coord_str, Color who, Piece piece_type);
+        void add_piece (const string &coord_str, Color who, Piece piece_type);
 
         void add_piece (int row, int col, Color who, Piece piece_type);
 
@@ -52,13 +52,13 @@ namespace wisdom
 
         void add_row_of_same_color (int row, Color who, vector<Piece> piece_types);
 
-        void add_row_of_same_color (const std::string &coord_str, Color who, vector<Piece> piece_types);
+        void add_row_of_same_color (const string &coord_str, Color who, vector<Piece> piece_types);
 
         void add_row_of_same_color_and_piece (int row, Color who, Piece piece_type);
 
         void add_row_of_same_color_and_piece (const string &coord_str, Color who, Piece piece_type);
 
-        void set_en_passant_target (Color who, const std::string &coord_str);
+        void set_en_passant_target (Color who, const string &coord_str);
 
         void set_castling (Color who, CastlingState state);
 

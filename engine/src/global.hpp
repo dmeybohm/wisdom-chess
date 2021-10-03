@@ -35,6 +35,8 @@ namespace wisdom
     using std::unique_ptr;
     using std::make_unique;
     using std::make_shared;
+    using std::nullopt;
+    using std::array;
 
     constexpr int Num_Players = 2;
 
@@ -81,7 +83,7 @@ namespace wisdom
         explicit Error (string message) : my_message { std::move (message) }
         {}
 
-        Error (std::string message, std::string extra_info) :
+        Error (string message, string extra_info) :
             my_message { std::move(message) }, my_extra_info { std::move(extra_info) }
         {}
 

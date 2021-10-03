@@ -5,7 +5,6 @@
 #include "move.hpp"
 #include "move_list.hpp"
 
-
 namespace wisdom
 {
     class MoveTree
@@ -19,9 +18,9 @@ namespace wisdom
             list.push_front (move);
         }
 
-        [[nodiscard]] std::string to_string () const;
+        [[nodiscard]] auto to_string () const -> string;
 
-        [[nodiscard]] MoveList to_list () const;
+        [[nodiscard]] auto to_list () const -> MoveList;
 
         [[nodiscard]] int size () const;
     };

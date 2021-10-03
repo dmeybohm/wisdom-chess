@@ -4,14 +4,14 @@
 
 namespace wisdom
 {
-    [[nodiscard]] std::string VariationGlimpse::to_string () const
+    [[nodiscard]] auto VariationGlimpse::to_string () const -> string
     {
         MoveList result = to_list ();
 
         return result.to_string ();
     }
 
-    [[nodiscard]] MoveList VariationGlimpse::to_list () const
+    [[nodiscard]] auto VariationGlimpse::to_list () const -> MoveList
     {
         std::list<Move> moves_tmp_list;
 

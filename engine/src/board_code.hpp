@@ -55,12 +55,12 @@ namespace wisdom
             return add_piece (coord, Piece_And_Color_None);
         }
 
-        [[nodiscard]] std::string to_string () const
+        [[nodiscard]] auto to_string () const -> string
         {
             return bits.to_string ();
         }
 
-        [[nodiscard]] const BoardCodeBitset &bitset_ref () const
+        [[nodiscard]] auto bitset_ref () const& -> const BoardCodeBitset&
         {
             return bits;
         }

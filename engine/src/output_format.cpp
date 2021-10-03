@@ -6,10 +6,10 @@
 
 namespace wisdom
 {
-    void FenOutputFormat::save (const std::string &filename, const Board &board,
+    void FenOutputFormat::save (const string &filename, const Board &board,
                                 [[maybe_unused]] const History &history, Color turn)
     {
-        std::string output = board.to_fen_string (turn);
+        string output = board.to_fen_string (turn);
 
         std::ofstream file;
         file.open (filename);
@@ -18,7 +18,7 @@ namespace wisdom
     }
 
 
-    void WisdomGameOutputFormat::save (const std::string &filename,
+    void WisdomGameOutputFormat::save (const string &filename,
                                        [[maybe_unused]] const Board &board, const History &history,
                                        [[maybe_unused]] Color turn)
     {

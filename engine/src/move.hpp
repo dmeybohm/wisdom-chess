@@ -71,7 +71,7 @@ namespace wisdom
     class ParseMoveException : public Error
     {
     public:
-        explicit ParseMoveException (const std::string& message) : Error { message }
+        explicit ParseMoveException (const string& message) : Error { message }
         {}
     };
 
@@ -81,7 +81,7 @@ namespace wisdom
         MoveConsistencyProblem () : Error ("Move consistency error.")
         {}
 
-        explicit MoveConsistencyProblem (std::string extra_info) :
+        explicit MoveConsistencyProblem (string extra_info) :
             Error ("Move consistency error.", std::move (extra_info) )
         {}
     };
@@ -277,16 +277,16 @@ namespace wisdom
     }
 
     // Parse a move. Returns empty if the parse failed.
-    std::optional<Move> move_parse_optional (const std::string &str, Color who);
+    auto move_parse_optional (const string &str, Color who) -> optional<Move>;
 
     // The coordinate for the taken pawn.
-    Coord en_passant_taken_pawn_coord (Coord src, Coord dst);
+    auto en_passant_taken_pawn_coord (Coord src, Coord dst) -> Coord;
 
     // Parse a move. Throws an exception if it could not parse the move.
-    Move move_parse (const std::string &str, Color color = Color::None);
+    auto move_parse (const string &str, Color color = Color::None) -> Move;
 
     // Convert the move to a string.
-    std::string to_string (const Move &move);
+    auto to_string (const Move &move) -> string;
 
     // Send the move to the ostream.
     std::ostream &operator<< (std::ostream &os, const Move &value);

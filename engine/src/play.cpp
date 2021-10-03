@@ -15,9 +15,6 @@
 
 namespace wisdom
 {
-    using std::optional;
-    using std::nullopt;
-
     enum class PlayCommand
     {
         None,
@@ -53,9 +50,9 @@ namespace wisdom
         std::cout << "\n\n";
     }
 
-    static std::string prompt (const std::string &prompt)
+    static string prompt (const string &prompt)
     {
-        std::string input;
+        string input;
         std::cout << prompt << "? ";
 
         if (!std::getline (std::cin, input))
@@ -66,7 +63,7 @@ namespace wisdom
 
     static void save_game (const Game &game)
     {
-        std::string input = prompt ("save to what file");
+        string input = prompt ("save to what file");
 
         if (input.empty ())
             return;
@@ -76,7 +73,7 @@ namespace wisdom
 
     static optional<Game> load_game (const Game &current_game)
     {
-        std::string input = prompt ("load what file");
+        string input = prompt ("load what file");
 
         if (input.empty ())
             return nullopt;
@@ -86,7 +83,7 @@ namespace wisdom
 
     static optional<Game> load_fen (Game &current_game)
     {
-        std::string input = prompt ("FEN game");
+        string input = prompt ("FEN game");
         if (input.empty ())
             return nullopt;
 
@@ -105,7 +102,7 @@ namespace wisdom
 
     static void load_analysis (Game &game, Logger &logger)
     {
-        std::string input = prompt ("store analysis in what file");
+        string input = prompt ("store analysis in what file");
         if (input.empty ())
             return;
 
@@ -115,7 +112,7 @@ namespace wisdom
     static InputState read_move (Game &game, Logger &logger)
     {
         InputState result;
-        std::string input;
+        string input;
 
         std::cout << "(" << wisdom::to_string (game.get_current_turn ()) << ")? ";
 
@@ -216,7 +213,7 @@ namespace wisdom
     static InputState offer_draw ()
     {
         InputState result;
-        std::string input;
+        string input;
         std::cout << "Third repetition detected. Would you like a draw? [y/n]\n";
 
         if (!std::getline (std::cin, input))

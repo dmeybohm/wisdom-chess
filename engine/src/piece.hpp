@@ -53,7 +53,7 @@ namespace wisdom
             Piece::Knight,
     };
 
-    constexpr ColoredPiece make_piece (Color color, Piece piece_type)
+    constexpr auto make_piece (Color color, Piece piece_type) -> ColoredPiece
     {
         ColoredPiece piece_with_color = { .piece_type = piece_type, .color = color };
         return piece_with_color;
@@ -177,9 +177,9 @@ namespace wisdom
         return !piece_equals (a, b);
     }
 
-    std::string to_string (Color who);
-    std::string to_string (ColoredPiece piece);
-    std::string to_string (Piece piece);
+    auto to_string (Color who) -> string;
+    auto to_string (ColoredPiece piece) -> string;
+    auto to_string (Piece piece) -> string;
 
     void play (Color human_player);
 

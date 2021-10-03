@@ -4,10 +4,6 @@
 
 namespace wisdom
 {
-    using std::optional;
-    using std::array;
-    using std::nullopt;
-
     struct MoveGeneration
     {
         const Board &board;

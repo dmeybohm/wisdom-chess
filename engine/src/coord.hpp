@@ -46,8 +46,6 @@ namespace wisdom
 
     constexpr Coord No_En_Passant_Coord = make_coord (0, 0);
 
-    ///////////////////////////////////////////////
-
     constexpr int Row (Coord pos)
     {
         return pos.row;
@@ -95,14 +93,14 @@ namespace wisdom
         return gsl::narrow<char> (col + 'a');
     }
 
-    std::string to_string (Coord coord);
+    auto to_string (Coord coord) -> string;
 
-    Coord coord_parse (const string &str);
+    auto coord_parse (const string &str) -> Coord;
 
     class CoordParseError : public Error
     {
     public:
-        explicit CoordParseError (std::string message) :
+        explicit CoordParseError (string message) :
                 Error (std::move (message))
         {}
     };

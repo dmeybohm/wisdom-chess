@@ -10,7 +10,6 @@ namespace wisdom
     using wisdom::perft::Stats;
     using wisdom::perft::to_move_list;
     using wisdom::perft::MoveCounter;
-    using std::string;
     using wisdom::Move;
     using wisdom::MoveList;
     using wisdom::Board;

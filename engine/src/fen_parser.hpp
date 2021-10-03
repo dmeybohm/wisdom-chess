@@ -11,7 +11,7 @@ namespace wisdom
     class FenParser final
     {
     public:
-        explicit FenParser (const std::string &input) :
+        explicit FenParser (const string &input) :
             active_player { Color::White }
         {
             parse (input);
@@ -31,15 +31,15 @@ namespace wisdom
         BoardBuilder builder;
         Color active_player;
 
-        void parse (const std::string &input);
+        void parse (const string &input);
 
         static auto parse_piece (char ch) -> ColoredPiece;
 
-        void parse_pieces (std::string pieces_str);
+        void parse_pieces (string pieces_str);
 
-        void parse_en_passant (std::string en_passant_str);
+        void parse_en_passant (string en_passant_str);
 
-        void parse_castling (std::string castling_str);
+        void parse_castling (string castling_str);
 
         void parse_half_move (int half_moves);
 
@@ -51,7 +51,7 @@ namespace wisdom
     class FenParserError : public Error
     {
     public:
-        explicit FenParserError (const std::string &message) :
+        explicit FenParserError (const string &message) :
             Error (message)
         {}
     };
