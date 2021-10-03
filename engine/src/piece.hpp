@@ -8,7 +8,7 @@ namespace wisdom
     class PieceError : public Error
     {
     public:
-        explicit PieceError (std::string extra_info) :
+        explicit PieceError (string extra_info) :
             Error("Piece error", std::move (extra_info))
         {}
     };

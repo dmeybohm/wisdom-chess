@@ -23,26 +23,27 @@ namespace wisdom
     {
     private:
         TranspositionTable &my_transposition_table;
-        ScoredMoveList to_scored_move_list (const Board &board, Color who,
-                                            const MoveList &move_list);
+
+        auto to_scored_move_list (const Board &board, Color who,
+                                  const MoveList &move_list) -> ScoredMoveList;
 
     public:
         explicit MoveGenerator (TranspositionTable &transposition_table) :
             my_transposition_table { transposition_table }
         {}
 
-        ScoredMoveList generate (const Board &board, Color who);
+        auto generate (const Board &board, Color who) -> ScoredMoveList;
     };
 
-    MoveList generate_moves (const Board &board, Color who);
+    auto generate_moves (const Board &board, Color who) -> MoveList;
 
-    MoveList generate_legal_moves (Board &board, Color who);
+    auto generate_legal_moves (Board &board, Color who) -> MoveList;
 
-    MoveList generate_captures (const Board &board, Color who);
+    auto generate_captures (const Board &board, Color who) -> MoveList;
 
-    bool need_pawn_promotion (int row, Color who);
+    auto need_pawn_promotion (int row, Color who) -> bool;
 
-    const MoveList &generate_knight_moves (int row, int col);
+    auto generate_knight_moves (int row, int col) -> const MoveList&;
 }
 
 #endif // WISDOM_GENERATE_HPP

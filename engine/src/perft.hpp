@@ -13,7 +13,7 @@ namespace wisdom
 
 namespace wisdom::perft
 {
-    using string = std::string;
+    using std::string;
 
     struct MoveCounter
     {

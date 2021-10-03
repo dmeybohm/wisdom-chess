@@ -8,7 +8,7 @@ namespace wisdom
     using std::uniform_int_distribution;
     using Rng = std::mt19937_64;
 
-    static int64_t generate()
+    static auto generate() -> int64_t
     {
         static optional<Rng> storage = nullopt;
         static uniform_int_distribution<int64_t> distribution(0, 0x7FFFffffFFFFffffLL);
@@ -30,7 +30,7 @@ namespace wisdom
         my_rand64 = generate ();
     }
 
-    [[nodiscard]] std::string Uuid::to_string () const
+    [[nodiscard]] auto Uuid::to_string () const -> string
     {
         return std::to_string (my_rand64);
     }

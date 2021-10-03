@@ -506,9 +506,9 @@ namespace wisdom::analysis
             my_depth { depth }
     {}
 
-    std::unique_ptr<Analytics> make_sqlite_analytics (const string &analytics_file, Logger &logger)
+    auto make_sqlite_analytics (const string &analytics_file, Logger &logger) -> wisdom::unique_ptr<Analytics>
     {
         auto impl = std::make_unique<SqliteAnalytics> (analytics_file, logger);
-        return std::make_unique<Analytics> (std::move (impl));
+        return wisdom::make_unique<Analytics> (std::move (impl));
     }
 }

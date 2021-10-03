@@ -25,11 +25,11 @@ namespace wisdom::analysis
     class Position
     {
     protected:
-        std::unique_ptr<PositionImpl> impl = nullptr;
+        wisdom::unique_ptr<PositionImpl> impl = nullptr;
 
     public:
         Position () = default;
-        explicit Position (std::unique_ptr<PositionImpl> impl_) : impl { std::move(impl_) }
+        explicit Position (wisdom::unique_ptr<PositionImpl> impl_) : impl { std::move(impl_) }
         {}
         virtual ~Position () = default;
 
@@ -56,11 +56,11 @@ namespace wisdom::analysis
     class Decision
     {
     protected:
-        std::unique_ptr<DecisionImpl> impl = nullptr;
+        wisdom::unique_ptr<DecisionImpl> impl = nullptr;
 
     public:
         Decision () = default;
-        explicit Decision (std::unique_ptr<DecisionImpl> impl_) : impl { std::move(impl_) }
+        explicit Decision (wisdom::unique_ptr<DecisionImpl> impl_) : impl { std::move(impl_) }
         {}
         virtual ~Decision () = default;
 
@@ -98,11 +98,11 @@ namespace wisdom::analysis
     class Search
     {
     protected:
-        std::unique_ptr<SearchImpl> impl = nullptr;
+        wisdom::unique_ptr<SearchImpl> impl = nullptr;
 
     public:
         Search () = default;
-        explicit Search (std::unique_ptr<SearchImpl> impl_) :
+        explicit Search (wisdom::unique_ptr<SearchImpl> impl_) :
                 impl { std::move(impl_) }
         {}
         virtual ~Search() = default;
@@ -125,11 +125,11 @@ namespace wisdom::analysis
     class Iteration
     {
     protected:
-        std::unique_ptr<IterationImpl> impl = nullptr;
+        wisdom::unique_ptr<IterationImpl> impl = nullptr;
 
     public:
         Iteration () = default;
-        explicit Iteration (std::unique_ptr<IterationImpl> impl_) : impl { std::move(impl_) }
+        explicit Iteration (wisdom::unique_ptr<IterationImpl> impl_) : impl { std::move(impl_) }
         {}
         virtual ~Iteration() = default;
 
@@ -152,11 +152,11 @@ namespace wisdom::analysis
     class IterativeSearch
     {
     protected:
-        std::unique_ptr<IterativeSearchImpl> impl = nullptr;
+        wisdom::unique_ptr<IterativeSearchImpl> impl = nullptr;
 
     public:
         IterativeSearch () = default;
-        explicit IterativeSearch (std::unique_ptr<IterativeSearchImpl> impl_ ) : impl { std::move(impl_) }
+        explicit IterativeSearch (wisdom::unique_ptr<IterativeSearchImpl> impl_ ) : impl { std::move(impl_) }
         {}
 
         virtual ~IterativeSearch() = default;
@@ -181,11 +181,11 @@ namespace wisdom::analysis
     class Analytics
     {
     protected:
-        std::unique_ptr<AnalyticsImpl> impl = nullptr;
+        wisdom::unique_ptr<AnalyticsImpl> impl = nullptr;
 
     public:
         Analytics () = default;
-        explicit Analytics (std::unique_ptr<AnalyticsImpl> impl_) : impl { std::move(impl_) }
+        explicit Analytics (wisdom::unique_ptr<AnalyticsImpl> impl_) : impl { std::move(impl_) }
         {}
 
         virtual ~Analytics () = default;

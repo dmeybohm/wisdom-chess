@@ -12,14 +12,14 @@ namespace wisdom
     class VariationGlimpse // NOLINT(cppcoreguidelines-pro-type-member-init)
     {
     private:
-        std::array<Move, Max_Variation_Glimpse_Size> my_moves;
+        array<Move, Max_Variation_Glimpse_Size> my_moves;
         int16_t my_start = -1;
         int16_t my_next_pos = 0;
 
     public:
         VariationGlimpse() = default;
 
-        constexpr static int16_t next_index (int16_t index)
+        [[nodiscard]] constexpr static auto next_index (int16_t index) -> int16_t
         {
             int result = gsl::narrow_cast<int> (index);
             result = (result + 1) % Max_Variation_Glimpse_Size;
@@ -36,16 +36,15 @@ namespace wisdom
             my_next_pos = next_index (my_next_pos);
         }
 
-        [[nodiscard]] std::string to_string () const;
+        [[nodiscard]] auto to_string () const -> string;
 
-        [[nodiscard]] MoveList to_list () const;
+        [[nodiscard]] auto to_list () const -> MoveList;
 
-        [[nodiscard]] int size () const;
+        [[nodiscard]] auto size () const -> int;
 
         friend std::ostream &operator<< (std::ostream &os, const VariationGlimpse &glimpse);
     };
 
 }
-
 
 #endif //WISDOM_VARIATION_GLIMPSE_HPP

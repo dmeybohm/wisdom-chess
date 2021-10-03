@@ -102,7 +102,7 @@ namespace wisdom
         }
 
         static auto allocate_move_vector () -> unique_ptr<MoveVector>;
-        static void deallocate_move_vector (std::unique_ptr<MoveVector> ptr);
+        static void deallocate_move_vector (unique_ptr<MoveVector> ptr);
     };
 
     auto to_string (const MoveList &list) -> string;

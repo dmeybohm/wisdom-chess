@@ -31,7 +31,7 @@ namespace wisdom
     class IterativeSearch
     {
     private:
-        std::unique_ptr<IterativeSearchImpl> impl;
+        unique_ptr<IterativeSearchImpl> impl;
 
     public:
         IterativeSearch (Board &board, History &history, Logger &output, MoveTimer timer,

@@ -18,7 +18,7 @@ namespace wisdom
     {
     private:
         SearchResult result = SearchResult::from_initial ();
-        std::unique_ptr<MultithreadSearchHandler> handler;
+        unique_ptr<MultithreadSearchHandler> handler;
 
     public:
         MultithreadSearch (Board &board, Color side, wisdom::Logger &output,

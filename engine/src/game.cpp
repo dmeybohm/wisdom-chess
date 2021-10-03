@@ -50,12 +50,12 @@ namespace wisdom
         output.save (input, *my_board, *my_history, my_current_turn);
     }
 
-    void Game::set_analytics (std::unique_ptr<analysis::Analytics> new_analytics)
+    void Game::set_analytics (unique_ptr<analysis::Analytics> new_analytics)
     {
         this->my_analytics = std::move (new_analytics);
     }
 
-    std::optional<Move> Game::find_best_move (Logger &logger, Color whom) const
+    auto Game::find_best_move (Logger &logger, Color whom) const -> optional<Move>
     {
         if (whom == Color::None)
             whom = my_computer_player;

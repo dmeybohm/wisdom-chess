@@ -25,7 +25,7 @@ namespace wisdom
         void en_passant (int en_passant_column) const;
     };
 
-    bool need_pawn_promotion (int row, Color who)
+    auto need_pawn_promotion (int row, Color who) -> bool
     {
         assert (is_color_valid (who));
         switch (who)
@@ -38,7 +38,7 @@ namespace wisdom
 
     static void knight_move_list_init (MoveList knight_moves[Num_Rows][Num_Columns]);
 
-    static MoveList &get_knight_moves (int row, int col)
+    static auto get_knight_moves (int row, int col) -> MoveList&
     {
         static MoveList knight_moves[Num_Rows][Num_Columns];
 
@@ -73,7 +73,7 @@ namespace wisdom
         }
     }
 
-    static int is_pawn_unmoved (const Board &board, int row, int col)
+    static auto is_pawn_unmoved (const Board &board, int row, int col) -> bool
     {
         ColoredPiece piece = piece_at (board, row, col);
 
@@ -83,7 +83,7 @@ namespace wisdom
             return row == 1;
     }
 
-    static int valid_castling_move (const Board &board, Move move)
+    static auto valid_castling_move (const Board &board, Move move) -> bool
     {
         // check for an intervening piece
         int direction;
@@ -111,7 +111,7 @@ namespace wisdom
                piece_type (piece3) == Piece::None;
     }
 
-    static optional<Move> validate_move (const Board &board, Move move)
+    static auto validate_move (const Board &board, Move move) -> optional<Move>
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
@@ -267,7 +267,7 @@ namespace wisdom
     }
 
     // Returns -1 if no column is eligible.
-    static int eligible_en_passant_column (const Board &board, int row, int column, Color who)
+    static auto eligible_en_passant_column (const Board &board, int row, int column, Color who) -> int
     {
         ColorIndex opponent_index = color_index (color_invert (who));
 
@@ -407,12 +407,12 @@ namespace wisdom
         append_move (board, moves, new_move);
     }
 
-    const MoveList &generate_knight_moves (int row, int col)
+    auto generate_knight_moves (int row, int col) -> const MoveList&
     {
         return get_knight_moves (row, col);
     }
 
-    MoveList generate_legal_moves (Board &board, Color who)
+    auto generate_legal_moves (Board &board, Color who) -> MoveList
     {
         MoveList non_checks;
 
@@ -461,7 +461,7 @@ namespace wisdom
         }
     }
 
-    MoveList generate_moves (const Board &board, Color who)
+    auto generate_moves (const Board &board, Color who) -> MoveList
     {
         MoveList result;
         MoveGeneration generation {
@@ -485,8 +485,8 @@ namespace wisdom
         return result;
     }
 
-    ScoredMoveList MoveGenerator::to_scored_move_list (const Board &board, Color who,
-                                                       const MoveList &move_list)
+    auto MoveGenerator::to_scored_move_list (const Board &board, Color who,
+                                             const MoveList &move_list) -> ScoredMoveList
     {
         ScoredMoveList result;
         auto default_transposition = RelativeTransposition::from_defaults ();
@@ -505,7 +505,7 @@ namespace wisdom
         return result;
     }
 
-    ScoredMoveList MoveGenerator::generate (const Board &board, Color who)
+    auto MoveGenerator::generate (const Board &board, Color who) -> ScoredMoveList
     {
         auto move_list = generate_moves (board, who);
         auto scored_moves = to_scored_move_list (board, who, move_list);

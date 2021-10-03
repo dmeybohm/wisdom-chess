@@ -16,7 +16,7 @@ namespace wisdom
         {}
 
 
-        [[nodiscard]] std::string to_string() const;
+        [[nodiscard]] auto to_string() const -> string;
 
         static Uuid Nil()
         {
@@ -31,7 +31,6 @@ namespace wisdom
     private:
         int64_t my_rand64;
     };
-
 }
 
 #endif //WISDOM_UUID_HPP

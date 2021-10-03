@@ -7,7 +7,7 @@ namespace wisdom
 {
     using std::stringstream;
 
-    string chomp (const string &str)
+    auto chomp (const string &str) -> string
     {
         string result { str };
 
@@ -50,7 +50,7 @@ namespace wisdom
         return result.substr(0, result.size () - separator.size ());
     }
 
-    auto to_int (const std::string &str) -> int
+    auto to_int (const string &str) -> int
     {
         stringstream ss { str };
 
