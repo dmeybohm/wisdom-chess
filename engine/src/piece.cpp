@@ -4,7 +4,7 @@
 
 namespace wisdom
 {
-    string to_string (Color who)
+    auto to_string (Color who) -> string
     {
         switch (who)
         {
@@ -15,7 +15,7 @@ namespace wisdom
         std::terminate ();
     }
 
-    string to_string (Piece piece)
+    auto to_string (Piece piece) -> string
     {
         switch (piece)
         {
@@ -37,7 +37,7 @@ namespace wisdom
         std::terminate ();
     }
 
-    string to_string (const ColoredPiece piece)
+    auto to_string (const ColoredPiece piece) -> string
     {
         string result;
 
@@ -47,7 +47,7 @@ namespace wisdom
         return result;
     }
 
-    std::ostream &operator<< (std::ostream &os, const ColoredPiece &piece)
+    auto operator<< (std::ostream &os, const ColoredPiece &piece) -> std::ostream&
     {
         os << to_string (piece);
         return os;

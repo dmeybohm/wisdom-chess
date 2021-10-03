@@ -30,13 +30,13 @@ namespace wisdom
         }
     };
 
-    Logger &make_null_logger()
+    auto make_null_logger() -> Logger&
     {
         static NullLogger null_logger {};
         return null_logger;
     }
 
-    Logger &make_standard_logger ()
+    auto make_standard_logger () -> Logger&
     {
         static StandardLogger standard_logger {};
         return standard_logger;

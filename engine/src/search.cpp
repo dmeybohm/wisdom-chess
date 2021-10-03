@@ -15,12 +15,7 @@ namespace wisdom
 {
     thread_local int nodes_visited, cutoffs;
 
-    using system_clock_t = std::chrono::time_point<std::chrono::system_clock>;
-    using std::chrono::duration_cast;
-    using std::chrono::duration;
-    using std::chrono::milliseconds;
-    using std::chrono::seconds;
-    using wisdom::Logger;
+    using system_clock_t = chrono::time_point<chrono::system_clock>;
 
     class IterativeSearchImpl
     {
@@ -276,7 +271,7 @@ namespace wisdom
 
     static void calc_time (Logger &output, int nodes, system_clock_t start, system_clock_t end)
     {
-        auto seconds_duration = std::chrono::duration<double> (end - start);
+        auto seconds_duration = chrono::duration<double> (end - start);
         auto seconds = seconds_duration.count();
 
         std::stringstream progress_str;

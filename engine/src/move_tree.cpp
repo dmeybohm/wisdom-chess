@@ -13,7 +13,7 @@ namespace wisdom
         return result;
     }
 
-    [[nodiscard]] MoveList MoveTree::to_list () const
+    [[nodiscard]] auto MoveTree::to_list () const -> MoveList
     {
         MoveList result;
 
@@ -25,7 +25,7 @@ namespace wisdom
         return result;
     }
 
-    [[nodiscard]] int MoveTree::size () const
+    [[nodiscard]] auto MoveTree::size () const -> int
     {
         int size = 0;
         for ([[maybe_unused]] auto move : list)

@@ -11,8 +11,8 @@ namespace wisdom
         virtual void println (const string &output) = 0;
     };
 
-    Logger &make_null_logger ();
-    Logger &make_standard_logger ();
+    auto make_null_logger () -> Logger&;
+    auto make_standard_logger () -> Logger&;
 }
 
 #endif //WISDOM_LOGGER_HPP

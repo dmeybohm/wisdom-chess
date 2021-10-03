@@ -8,9 +8,6 @@
 
 namespace wisdom
 {
-    using std::chrono::seconds;
-    using wisdom::Logger;
-
     struct thread_params
     {
         Board board;

@@ -2,14 +2,14 @@
 
 namespace wisdom
 {
-    using std::chrono::high_resolution_clock;
+    using chrono::high_resolution_clock;
 
     enum
     {
         Num_Calls_Per_Timer_Check = 1000    // number of iterations before checking
     };
 
-    bool MoveTimer::is_triggered ()
+    auto MoveTimer::is_triggered () noexcept -> bool
     {
         if (!my_started)
             return false;

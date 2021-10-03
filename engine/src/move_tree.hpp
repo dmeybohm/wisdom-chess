@@ -22,7 +22,7 @@ namespace wisdom
 
         [[nodiscard]] auto to_list () const -> MoveList;
 
-        [[nodiscard]] int size () const;
+        [[nodiscard]] auto size () const -> int;
     };
 
 }

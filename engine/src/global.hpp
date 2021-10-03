@@ -38,6 +38,8 @@ namespace wisdom
     using std::nullopt;
     using std::array;
 
+    namespace chrono = std::chrono;
+
     constexpr int Num_Players = 2;
 
     constexpr int Num_Rows = 8;
