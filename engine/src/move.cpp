@@ -201,7 +201,7 @@ namespace wisdom
         }
         else
         {
-            CastlingState castle_state;
+            CastlingState castle_state = Castle_None;
 
             int castle_rook_row = opponent == Color::White ? 7 : 0;
 
@@ -220,7 +220,7 @@ namespace wisdom
             // my_computer_player cannot castle.  This is a bit confusing, not sure why I did
             // this.
             //
-            if (able_to_castle (board, opponent, castle_state))
+            if (castle_state != Castle_None && able_to_castle (board, opponent, castle_state))
             {
                 // save the current castle state
                 CastlingState orig_castle_state = board_get_castle_state (board, opponent);
