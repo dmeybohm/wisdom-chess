@@ -4,7 +4,7 @@
 
 namespace wisdom
 {
-    std::string to_string (Color who)
+    string to_string (Color who)
     {
         switch (who)
         {
@@ -15,7 +15,7 @@ namespace wisdom
         std::terminate ();
     }
 
-    std::string to_string (Piece piece)
+    string to_string (Piece piece)
     {
         switch (piece)
         {
@@ -37,9 +37,9 @@ namespace wisdom
         std::terminate ();
     }
 
-    std::string to_string (const ColoredPiece piece)
+    string to_string (const ColoredPiece piece)
     {
-        std::string result;
+        string result;
 
         result += to_string (piece_color (piece));
         result += to_string (piece_type (piece));
