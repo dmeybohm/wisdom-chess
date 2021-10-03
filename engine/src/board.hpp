@@ -30,12 +30,12 @@ namespace wisdom
         // The representation of the board.
         ColoredPiece my_squares[Num_Rows][Num_Columns];
 
+        // castle state of the board.
+        CastlingState castled[Num_Players];
+
     public:
         // positions of the kings.
         Coord king_pos[Num_Players];
-
-        // castle state of the board.
-        CastlingState castled[Num_Players];
 
         // Keep track of hashing information.
         BoardCode code;
@@ -109,21 +109,55 @@ namespace wisdom
                 this->full_moves--;
         }
 
-        [[nodiscard]] bool is_en_passant_vulnerable (Color who)
-        {
-            return en_passant_target[color_index (who)] != No_En_Passant_Coord;
-        }
-
         // Convert the board to a string.
         [[nodiscard]] auto to_string () const -> string;
 
-        auto get_code () const& -> const BoardCode&;
+        [[nodiscard]] auto get_code () const& -> const BoardCode&;
 
         [[nodiscard]] auto to_fen_string (Color turn) const -> string;
         [[nodiscard]] auto castled_string (Color color) const -> string;
 
         auto make_move (Color who, Move move) -> UndoMove;
         void take_back (Color who, Move move, UndoMove undo_state);
+
+        [[nodiscard]] bool able_to_castle (Color who, CastlingState castle_type) const
+        {
+            ColorIndex c_index = color_index (who);
+
+            bool didnt_castle = castled[c_index] != Castle_Castled;
+            bool neg_not_set = ((~castled[c_index]) & castle_type) != 0;
+
+            return didnt_castle && neg_not_set;
+        }
+
+        void apply_castle_change (Color who, CastlingState castle_state)
+        {
+            ColorIndex index = color_index (who);
+            castled[index] = castle_state;
+        }
+
+        void undo_castle_change (Color who, CastlingState castle_state)
+        {
+            ColorIndex index = color_index (who);
+            castled[index] = castle_state;
+        }
+
+        [[nodiscard]] auto get_castle_state (Color who) const -> CastlingState
+        {
+            ColorIndex index = color_index (who);
+            return castled[index];
+        }
+
+        void set_castle_state (Color who, CastlingState new_state)
+        {
+            ColorIndex index = color_index (who);
+            castled[index] = new_state;
+        }
+
+        [[nodiscard]] bool is_en_passant_vulnerable (Color who)
+        {
+            return en_passant_target[color_index (who)] != No_En_Passant_Coord;
+        }
     };
 
     constexpr auto piece_at (const Board &board, int row, int col) -> ColoredPiece
@@ -147,34 +181,6 @@ namespace wisdom
             case Color::None: throw Error { "Invalid color in pawn_direction()" };
         }
         std::terminate ();
-    }
-
-    [[nodiscard]] constexpr bool able_to_castle (const Board &board, Color who, CastlingState castle_type)
-    {
-        ColorIndex c_index = color_index (who);
-
-        bool didnt_castle = board.castled[c_index] != Castle_Castled;
-        bool neg_not_set = ((~board.castled[c_index]) & castle_type) != 0;
-
-        return didnt_castle && neg_not_set;
-    }
-
-    [[nodiscard]] constexpr auto board_get_castle_state (const Board &board, Color who) -> CastlingState
-    {
-        ColorIndex index = color_index (who);
-        return board.castled[index];
-    }
-
-    static inline void board_apply_castle_change (Board &board, Color who, CastlingState castle_state)
-    {
-        ColorIndex index = color_index (who);
-        board.castled[index] = castle_state;
-    }
-
-    static inline void board_undo_castle_change (Board &board, Color who, CastlingState castle_state)
-    {
-        ColorIndex index = color_index (who);
-        board.castled[index] = castle_state;
     }
 
     [[nodiscard]] static inline auto king_position (const Board &board, Color who) -> Coord

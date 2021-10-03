@@ -151,7 +151,7 @@ namespace wisdom
             // retrieve the old board castle status
             if (move_affects_current_castle_state (undo_state_value))
             {
-                board_undo_castle_change (board, who, current_castle_state (undo_state_value));
+                board.undo_castle_change (who, current_castle_state (undo_state_value));
             }
         }
         else
@@ -159,10 +159,10 @@ namespace wisdom
             king_position_set (board, who, dst);
 
             // set as not able to castle
-            if (able_to_castle (board, who, (Castle_Kingside | Castle_Queenside)))
+            if (board.able_to_castle ( who, (Castle_Kingside | Castle_Queenside)))
             {
                 // save the old castle status
-                CastlingState old_castle_state = board_get_castle_state (board, who);
+                CastlingState old_castle_state = board.get_castle_state ( who);
                 save_current_castle_state (undo_state, old_castle_state);
 
                 if (is_castling_move (move))
@@ -171,7 +171,7 @@ namespace wisdom
                     old_castle_state |= Castle_Kingside | Castle_Queenside;
 
                 // set the new castle status
-                board_apply_castle_change (board, who, old_castle_state);
+                board.apply_castle_change (who, old_castle_state);
             }
         }
     }
@@ -194,7 +194,7 @@ namespace wisdom
             // need to put castle status back...it's saved in the move
             // from do_move()...
             if (move_affects_opponent_castle_state (undo_state_value))
-                board_undo_castle_change (board, opponent, opponent_castle_state (undo_state_value));
+                board.undo_castle_change (opponent, opponent_castle_state (undo_state_value));
         }
         else
         {
@@ -217,14 +217,14 @@ namespace wisdom
             // my_computer_player cannot castle.  This is a bit confusing, not sure why I did
             // this.
             //
-            if (castle_state != Castle_None && able_to_castle (board, opponent, castle_state))
+            if (castle_state != Castle_None && board.able_to_castle ( opponent, castle_state))
             {
                 // save the current castle state
-                CastlingState orig_castle_state = board_get_castle_state (board, opponent);
+                CastlingState orig_castle_state = board.get_castle_state ( opponent);
                 save_opponent_castle_state (undo_state, orig_castle_state);
 
                 castle_state |= orig_castle_state;
-                board_apply_castle_change (board, opponent, castle_state);
+                board.apply_castle_change (opponent, castle_state);
             }
         }
     }
@@ -251,7 +251,7 @@ namespace wisdom
             // need to put castle status back...it's saved in the move
             // from do_move()...
             if (move_affects_current_castle_state (undo_state_value))
-                board_undo_castle_change (board, player, current_castle_state (undo_state_value));
+                board.undo_castle_change (player, current_castle_state (undo_state_value));
         }
         else
         {
@@ -276,14 +276,14 @@ namespace wisdom
             // Computer player cannot castle.  This is a bit confusing, not sure why I did
             // this.
             //
-            if (affects_castle_state > 0 && able_to_castle (board, player, affects_castle_state))
+            if (affects_castle_state > 0 && board.able_to_castle ( player, affects_castle_state))
             {
                 // save the current castle state
-                CastlingState orig_castle_state = board_get_castle_state (board, player);
+                CastlingState orig_castle_state = board.get_castle_state ( player);
                 save_current_castle_state (undo_state, orig_castle_state);
 
                 affects_castle_state |= orig_castle_state;
-                board_apply_castle_change (board, player, affects_castle_state);
+                board.apply_castle_change (player, affects_castle_state);
             }
         }
     }

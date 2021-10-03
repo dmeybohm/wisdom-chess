@@ -32,7 +32,7 @@ namespace wisdom
         int col = state == Castle_Queenside ? 0 : 7;
         ColoredPiece supposed_king = piece_at (board, row, 4);
         ColoredPiece supposed_rook = piece_at (board, row, col);
-        if (able_to_castle (board, who, state))
+        if (board.able_to_castle ( who, state))
         {
             check_it (board, who, mv, piece_type (supposed_king) == Piece::King);
             check_it (board, who, mv, piece_type (supposed_rook) == Piece::Rook);

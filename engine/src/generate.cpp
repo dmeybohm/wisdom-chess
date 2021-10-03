@@ -180,7 +180,7 @@ namespace wisdom
             }
         }
 
-        if (able_to_castle (board, who, Castle_Queenside) && piece_col == King_Column)
+        if (board.able_to_castle ( who, Castle_Queenside) && piece_col == King_Column)
         {
             Move queenside_castle = make_castling_move (
                     piece_row, piece_col,
@@ -189,7 +189,7 @@ namespace wisdom
             append_move (board, moves, queenside_castle);
         }
 
-        if (able_to_castle (board, who, Castle_Kingside) && piece_col == King_Column)
+        if (board.able_to_castle ( who, Castle_Kingside) && piece_col == King_Column)
         {
             Move kingside_castle = make_castling_move (
                     piece_row, piece_col,

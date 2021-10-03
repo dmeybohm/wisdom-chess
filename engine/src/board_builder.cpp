@@ -151,8 +151,7 @@ namespace wisdom
         {
             for (auto state : castle_states)
             {
-                ColorIndex index = color_index (state.player);
-                result->castled[index] = state.castle_state;
+                result->set_castle_state (state.player, state.castle_state);
             }
         }
 
