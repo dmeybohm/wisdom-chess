@@ -6,20 +6,18 @@
 namespace wisdom
 {
     // "Chomp" the last newline of a string.
-    [[nodiscard]] auto chomp (const std::string &str) -> std::string;
+    [[nodiscard]] auto chomp (const string &str) -> string;
 
     // Split the string into a vector of strings.
-    [[nodiscard]] auto split (const std::string &source,
-                              const std::string &separator) ->
-        std::vector<std::string>;
+    [[nodiscard]] auto split (const string &source,
+                              const string &separator) -> vector<string>;
 
     // Join the vector of strings into a single string separated by separator.
-    [[nodiscard]] auto join (const std::vector<std::string> &strings,
-                             const std::string &separator) ->
-        std::string;
+    [[nodiscard]] auto join (const vector<string> &strings,
+                             const string &separator) -> string;
 
     // Convert the string to an integer.
-    [[nodiscard]] auto to_int (const std::string &str) -> int;
+    [[nodiscard]] auto to_int (const string &str) -> int;
 }
 
 #endif //WISDOM_STR_HPP

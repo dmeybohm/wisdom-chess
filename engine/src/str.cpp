@@ -5,8 +5,6 @@
 
 namespace wisdom
 {
-    using std::string;
-    using std::vector;
     using std::stringstream;
 
     string chomp (const string &str)
