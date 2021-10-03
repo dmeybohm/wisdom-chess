@@ -47,7 +47,7 @@ namespace wisdom
 
         [[nodiscard]] auto get_history () const& -> History&;
 
-        void set_analytics (std::unique_ptr<analysis::Analytics> new_analytics);
+        void set_analytics (unique_ptr<analysis::Analytics> new_analytics);
 
         [[nodiscard]] bool is_computer_turn () const;
 
