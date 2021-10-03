@@ -32,7 +32,7 @@ namespace wisdom
         {
             case Color::White: return 0 == row;
             case Color::Black: return 7 == row;
-            default: throw Error { "Invalid color in need_pawn_promotion()"  };
+            default: throw Error { "Invalid color in need_pawn_promotion()" };
         }
     }
 
