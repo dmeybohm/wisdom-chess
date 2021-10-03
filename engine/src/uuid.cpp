@@ -22,7 +22,7 @@ namespace wisdom
             storage = Rng { seed };
         }
 
-        return distribution(*storage);
+        return distribution (*storage);
     }
 
     Uuid::Uuid()
