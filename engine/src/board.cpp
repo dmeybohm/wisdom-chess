@@ -221,40 +221,6 @@ namespace wisdom
         return result;
     }
 
-    void Board::add_evaluation_to_transposition_table (int score, Color who, int relative_depth,
-                                                       const VariationGlimpse &variation_glimpse)
-    {
-        RelativeTransposition evaluation { *this, score, relative_depth, variation_glimpse };
-        my_transpositions.add (evaluation, who);
-    }
-
-    // If the relative depth of the looked up transposition has been searched deeper than the
-    // depth we're looking for, then return the transposition.
-    auto Board::check_transposition_table (Color who, int relative_depth) ->
-        optional<RelativeTransposition>
-    {
-        auto optional_transposition = my_transpositions.lookup (this->code.hash_code (), who);
-
-        if (optional_transposition.has_value ())
-        {
-            // Check the board codes are equal:
-            if (optional_transposition->board_code != this->code)
-            {
-                my_transposition_dupe_hashes++;
-                return nullopt;
-            }
-
-            if (optional_transposition->relative_depth >= relative_depth)
-            {
-                my_transposition_hits++;
-                return optional_transposition;
-            }
-        }
-
-        my_transposition_misses++;
-        return nullopt;
-    }
-
     [[nodiscard]] auto Board::castled_string (Color color) const -> string
     {
         ColorIndex index = color_index (color);

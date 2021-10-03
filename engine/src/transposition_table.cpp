@@ -118,7 +118,7 @@ namespace wisdom
 #endif
     }
 
-    void TranspositionTable::add (Board &board, int score, Color who, int relative_depth,
+    void TranspositionTable::add (const Board &board, int score, Color who, int relative_depth,
                                   const VariationGlimpse &variation_glimpse)
     {
         RelativeTransposition evaluation { board, score, relative_depth, variation_glimpse };

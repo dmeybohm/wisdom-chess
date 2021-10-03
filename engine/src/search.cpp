@@ -3,7 +3,6 @@
 #include "evaluate.hpp"
 #include "check.hpp"
 #include "search.hpp"
-#include "multithread_search.hpp"
 #include "transposition_table.hpp"
 #include "analytics.hpp"
 #include "logger.hpp"
@@ -41,7 +40,7 @@ namespace wisdom
         {
         }
 
-        IterativeSearchImpl (Board &board, History &history, TranspositionTable &transpostions,
+        IterativeSearchImpl (Board &board, History &history, TranspositionTable &transpositions,
                              Logger &output, MoveTimer timer, int total_depth,
                              analysis::Analytics &analytics) :
                 my_board { board },
@@ -70,7 +69,7 @@ namespace wisdom
         auto recurse_or_evaluate (Color side, int depth, int alpha, int beta,
                                   Move move, analysis::Decision &parent,
                                   analysis::Position &position)
-            -> SearchResult
+            -> SearchResult;
 
         auto transposition_value (int depth, Move &move, analysis::Position &position,
                                   optional<RelativeTransposition> &transposition) const
@@ -97,9 +96,9 @@ namespace wisdom
                 history,
                 transpositions,
                 output,
-                analysis::make_dummy_analytics (),
                 timer,
-                total_depth
+                total_depth,
+                analysis::make_dummy_analytics ()
              )}
     {}
 
@@ -107,7 +106,7 @@ namespace wisdom
         Board &board, History &history, TranspositionTable &transpositions, Logger &output,
         MoveTimer timer, int total_depth, analysis::Analytics &analytics) :
             impl { make_unique<IterativeSearchImpl> (
-                board, history, tranpositions, output, analytics, timer, total_depth) }
+                board, history, transpositions, output, timer, total_depth, analytics) }
     {
     }
 
@@ -133,7 +132,7 @@ namespace wisdom
                                                            analysis::Position &position)
     {
         // Check the transposition table for the move:
-        auto transposition = my_transpositions.lookup_board_for_depth (board, side, depth);
+        auto transposition = my_transpositions.lookup_board_for_depth (my_board, side, depth);
 
         if (transposition.has_value ())
         {
@@ -227,9 +226,9 @@ namespace wisdom
 
             if (!other_search_result.timed_out)
             {
-                transpositions.add (my_board,
-                        other_search_result.score, side, depth,
-                        other_search_result.variation_glimpse
+                my_transpositions.add (my_board,
+                    other_search_result.score, side, depth,
+                    other_search_result.variation_glimpse
                 );
             }
 
@@ -272,8 +271,8 @@ namespace wisdom
 
             no_moves_available_result.score = is_king_threatened (my_board, side, my_king_row, my_king_col) ?
                     -1 * checkmate_score_in_moves (my_total_depth - depth) : 0;
-            my_board.add_evaluation_to_transposition_table (no_moves_available_result.score, side, depth,
-                                                            result.variation_glimpse);
+            my_transpositions.add (my_board, no_moves_available_result.score, side, depth,
+                                   result.variation_glimpse);
 
             return no_moves_available_result;
         }

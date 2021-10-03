@@ -12,13 +12,32 @@
 #include "check.hpp"
 #include "analytics.hpp"
 
+namespace wisdom::test
+{
+    using namespace wisdom;
+
+    struct SearchHelper
+    {
+        History history {};
+        TranspositionTable table {};
+
+        IterativeSearch build (Board &board, int depth, int time = 30)
+        {
+            MoveTimer timer { time };
+            return {
+                board, history, table, make_null_logger (), timer, depth
+            };
+        }
+    };
+}
+
+using wisdom::test::SearchHelper;
 using namespace wisdom;
 
 // Mating moves: : 1.Ra6 f6 2.Bxf6 Rg7 3.Rxa8#
 TEST_CASE("Can find mate in 3")
 {
     BoardBuilder builder;
-    MoveTimer large_timer { 30 };
 
     builder.add_pieces (
             Color::Black, {
@@ -39,8 +58,8 @@ TEST_CASE("Can find mate in 3")
     );
 
     auto board = builder.build ();
-    History history;
-    IterativeSearch search { *board, history, make_null_logger (), large_timer, 5 };
+    SearchHelper helper;
+    IterativeSearch search = helper.build (*board, 5);
 
     SearchResult result = search.iteratively_deepen (Color::White);
 
@@ -65,7 +84,6 @@ TEST_CASE("Can find mate in 3")
 TEST_CASE("Can find mate in 2 1/2")
 {
     BoardBuilder builder;
-    MoveTimer large_timer { 30 };
 
     builder.add_pieces (
             Color::Black, {
@@ -83,8 +101,8 @@ TEST_CASE("Can find mate in 2 1/2")
     builder.add_piece ("d5", Color::White, Piece::King);
 
     auto board = builder.build ();
-    History history;
-    IterativeSearch search { *board, history, make_null_logger (), large_timer, 5 };
+    SearchHelper helper;
+    IterativeSearch search = helper.build (*board, 5);
 
     SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE(result.move.has_value());
@@ -141,9 +159,8 @@ TEST_CASE("scenario with heap overflow 1")
     );
 
     auto board = builder.build ();
-    MoveTimer timer { 300 };
-    History history;
-    IterativeSearch search { *board, history, make_null_logger (), timer, 3 };
+    SearchHelper helper;
+    IterativeSearch search = helper.build (*board, 3, 300);
 
     SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE(result.move.has_value());
@@ -152,7 +169,6 @@ TEST_CASE("scenario with heap overflow 1")
 TEST_CASE("Promoting move is taken if possible")
 {
     BoardBuilder builder;
-    MoveTimer large_timer { 30 };
 
     builder.add_pieces (
             Color::Black, {
@@ -167,10 +183,10 @@ TEST_CASE("Promoting move is taken if possible")
             }
     );
 
-    History history;
     auto board = builder.build ();
+    SearchHelper helper;
 
-    IterativeSearch search { *board, history, make_null_logger (), large_timer, 1 };
+    IterativeSearch search = helper.build (*board, 1, 30);
     auto result = search.iteratively_deepen (Color::Black);
     REQUIRE(to_string (*result.move) == "d2 d1(Q)");
 }
@@ -181,9 +197,8 @@ TEST_CASE("Promoted pawn is promoted to highest value piece even when capturing"
 
     auto game = parser.build ();
 
-    History history;
-    MoveTimer timer { 30 };
-    IterativeSearch search { game.get_board (), history, make_null_logger (), timer, 3 };
+    SearchHelper helper;
+    IterativeSearch search = helper.build (game.get_board (), 3);
 
     SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE(to_string (*result.move) == "e2xf1(Q)");
@@ -194,10 +209,10 @@ TEST_CASE("Finding moves regression test")
     FenParser parser { "r5rk/5p1p/5R2/4B3/8/8/7P/7K w - - 0 1" };
 
     auto game = parser.build ();
-
+    SearchHelper helper;
     History history;
     MoveTimer timer { 10 };
-    IterativeSearch search { game.get_board (), history, make_null_logger (), timer, 1 };
+    IterativeSearch search = helper.build ( game.get_board (), 1, 10);
 
     SearchResult result = search.iteratively_deepen (Color::White);
     REQUIRE( result.move.has_value () );
@@ -208,9 +223,9 @@ TEST_CASE("Bishop is not sacrificed scenario 1")
     FenParser fen { "r1bqk1nr/ppp2ppp/8/4p3/1bpP4/2P5/PP2NPPP/RNBQ1RK1 w kq - 0 1" };
     auto game = fen.build();
 
+    SearchHelper helper;
     History history;
-    MoveTimer timer { 180, false };
-    IterativeSearch search { game.get_board (), history, make_null_logger(), timer, 3 };
+    IterativeSearch search = helper.build (game.get_board (), 3, 180);
 
     SearchResult result = search.iteratively_deepen (Color::Black);
 
@@ -228,9 +243,8 @@ TEST_CASE("Bishop is not sacrificed scenario 2 (as white)")
     FenParser fen { "2b2bnr/pr1ppkpp/p1p5/q3P3/2P2N2/BP3N2/P2P1PPP/R3K2R w KQ - 2 1" };
     auto game = fen.build();
 
-    History history;
-    MoveTimer timer { 180, false };
-    IterativeSearch search { game.get_board (), history, make_null_logger(), timer, 3 };
+    SearchHelper helper;
+    IterativeSearch search = helper.build (game.get_board (), 3, 180);
 
     SearchResult result = search.iteratively_deepen (Color::White);
 
@@ -250,9 +264,9 @@ TEST_CASE("Advanced pawn should be captured")
 {
     FenParser fen { "rnb1k2r/ppp1qppp/4p3/3pP3/3P4/P1Q5/1PP2PPP/R3KBNR w KQkq d6 0 1" };
     auto game = fen.build ();
-    History history;
-    MoveTimer timer { 10 };
-    IterativeSearch search { game.get_board (), history, make_null_logger(), timer, 3 };
+
+    SearchHelper helper;
+    IterativeSearch search = helper.build (game.get_board (), 3, 10);
 
     game.move (move_parse ("e5 d6 ep", Color::White));
 

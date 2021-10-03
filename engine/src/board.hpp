@@ -27,11 +27,6 @@ namespace wisdom
     class Board
     {
     private:
-        TranspositionTable my_transpositions;
-        int my_transposition_hits = 0;
-        int my_transposition_misses = 0;
-        int my_transposition_dupe_hashes = 0;
-
         // The representation of the board.
         ColoredPiece my_squares[Num_Rows][Num_Columns];
 
@@ -122,17 +117,7 @@ namespace wisdom
         // Convert the board to a string.
         [[nodiscard]] auto to_string () const -> string;
 
-        // Add an evaluation for the current board to the transposition table.
-        void add_evaluation_to_transposition_table (
-                int score, Color who, int relative_depth,
-                const VariationGlimpse &variation_glimpse
-        );
-
         auto get_code () const& -> const BoardCode&;
-
-        // Lookup the current board's score in the transposition table.
-        [[nodiscard]] auto check_transposition_table (Color who, int relative_depth)
-                -> optional<RelativeTransposition>;
 
         // Get a move generator for this board.
         [[nodiscard]] auto move_generator () -> MoveGenerator
