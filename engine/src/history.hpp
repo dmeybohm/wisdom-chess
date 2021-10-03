@@ -41,12 +41,12 @@ namespace wisdom
             my_move_history.pop_back ();
         }
 
-        [[nodiscard]] const BoardHistory &get_board_history () const
+        [[nodiscard]] const BoardHistory &get_board_history () const&
         {
             return my_board_history;
         }
 
-        [[nodiscard]] const MoveList &get_move_history () const
+        [[nodiscard]] const MoveList &get_move_history () const&
         {
             return my_move_history;
         }
