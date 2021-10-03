@@ -462,6 +462,26 @@ TEST_CASE( "Kingside castle state after moving queenside rook" )
     CHECK( castle_king_side );
 }
 
+TEST_CASE( "Test able_to_castle with Castle_None returns false" )
+{
+   Board board;
+   {
+       auto white_castle = board.able_to_castle (Color::White, Castle_None);
+       auto black_castle = board.able_to_castle (Color::Black, Castle_None);
+       REQUIRE (!white_castle);
+       REQUIRE (!black_castle);
+   }
+
+   {
+       board.set_castle_state (Color::White, Castle_None);
+       board.set_castle_state (Color::Black, Castle_None);
+       auto white_castle = board.able_to_castle (Color::White, Castle_None);
+       auto black_castle = board.able_to_castle (Color::Black, Castle_None);
+       REQUIRE (!white_castle);
+       REQUIRE (!black_castle);
+   }
+}
+
 TEST_CASE( "Test can't castle scenario 1" )
 {
 //    MoveList moves { Color::White, {

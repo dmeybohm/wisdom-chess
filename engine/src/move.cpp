@@ -217,10 +217,10 @@ namespace wisdom
             // my_computer_player cannot castle.  This is a bit confusing, not sure why I did
             // this.
             //
-            if (castle_state != Castle_None && board.able_to_castle ( opponent, castle_state))
+            if (board.able_to_castle (opponent, castle_state))
             {
                 // save the current castle state
-                CastlingState orig_castle_state = board.get_castle_state ( opponent);
+                CastlingState orig_castle_state = board.get_castle_state (opponent);
                 save_opponent_castle_state (undo_state, orig_castle_state);
 
                 castle_state |= orig_castle_state;
