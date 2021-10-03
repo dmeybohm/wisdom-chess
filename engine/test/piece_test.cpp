@@ -7,7 +7,7 @@ using namespace wisdom;
 
 TEST_CASE( "A piece can be converted" )
 {
-   vector<Color> colors {
+    vector<Color> colors {
         Color::None, Color::White, Color::Black
     };
     vector<Piece> pieces {
