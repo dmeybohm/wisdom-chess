@@ -22,6 +22,7 @@
 //#include <thread>
 #include <cctype>
 #include <bitset>
+#include <cassert>
 
 #include <gsl/gsl>
 
@@ -131,23 +132,5 @@ namespace wisdom
         }
     };
 }
-
-#ifdef NDEBUG
-
-#define assert(condition)  do { } while(0)
-
-#else // NDEBUG
-
-#ifdef assert
-#undef assert
-#endif
-
-#define assert(condition) \
-    do {                  \
-        if (!(condition)) \
-            throw wisdom::AssertionError (#condition, __FILE__, __LINE__); \
-    } while (0)
-
-#endif // NDEBUG
 
 #endif //WISDOM_CHESS_GLOBAL_H
