@@ -118,7 +118,7 @@ namespace wisdom
 
         if (!std::getline (std::cin, input))
         {
-            result.command = PlayCommand::ShowError;
+            result.command = PlayCommand::StopGame;
             return result;
         }
 

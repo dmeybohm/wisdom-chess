@@ -17,7 +17,6 @@ add_library(fast_tests_lib OBJECT
         board_code_test.cpp
         history_test.cpp
         transposition_table_test.cpp
-        assert_test.cpp
         variation_glimpse_test.cpp
         tests.hpp
         generate_test.cpp
