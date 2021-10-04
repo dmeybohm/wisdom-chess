@@ -17,7 +17,7 @@ int main (int argc, char *argv[])
 {
     if (argc != 3 && argc != 4)
     {
-        std::cerr << "Need more args" << "\n";
+        std::cerr << "Need two or three args" << "\n";
         return EXIT_FAILURE;
     }
 
