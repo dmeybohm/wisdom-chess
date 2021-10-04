@@ -33,12 +33,6 @@ int main (int argc, char **argv)
     {
         wisdom::play (human_player);
     }
-    catch (const wisdom::AssertionError &e)
-    {
-        std::cerr << e.message() << "\n";
-        std::cerr << " for " << e.extra_info() << " at " << e.file() << ":" << e.line() << "\n";
-        std::terminate ();
-    }
     catch (const wisdom::Error &e)
     {
         std::cerr << "Uncaught Error!" << "\n";

@@ -105,32 +105,6 @@ namespace wisdom
             return this->my_message.c_str();
         }
     };
-
-    class AssertionError : public Error
-    {
-    private:
-        const string my_file;
-        int my_line;
-
-    public:
-        AssertionError (const string &condition, const string &file, int line) :
-            Error {"Assertion " + condition + " failed at " + file + ":" + std::to_string(line) + " !",
-                   condition
-            },
-            my_file { file },
-            my_line { line }
-        {}
-
-        [[nodiscard]] const string& file() const noexcept
-        {
-            return my_file;
-        }
-
-        [[nodiscard]] int line() const noexcept
-        {
-            return my_line;
-        }
-    };
 }
 
 #endif //WISDOM_CHESS_GLOBAL_H

@@ -322,12 +322,6 @@ namespace wisdom
 
             return best_result;
         }
-        catch (const AssertionError &e)
-        {
-            std::cerr << e.message() << "\n";
-            std::cerr << " for " << e.extra_info() << " at " << e.file() << ":" << e.line() << "\n";
-            std::terminate ();
-        }
         catch (const Error &e)
         {
             std::cerr << "Uncaught error: " << e.message () << "\n";
