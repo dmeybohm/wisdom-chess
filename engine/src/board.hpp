@@ -61,6 +61,8 @@ namespace wisdom
 
         explicit Board (const vector<BoardPositions> &positions);
 
+        friend bool operator== (const Board &a, const Board &b);
+
         void print () const;
 
         [[nodiscard]] constexpr auto piece_at (int row, int col) const -> ColoredPiece
@@ -228,7 +230,6 @@ namespace wisdom
         std::terminate ();
     }
 
-    bool board_equals (const Board &a, const Board &b);
 }
 
 #endif // WISDOM_CHESS_BOARD_H_

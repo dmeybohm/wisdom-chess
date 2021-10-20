@@ -303,7 +303,7 @@ namespace wisdom
         return output;
     }
 
-    bool board_equals (const Board &a, const Board &b)
+    auto operator== (const Board &a, const Board &b) -> bool
     {
         for (auto coord : All_Coords_Iterator)
         {
@@ -311,7 +311,15 @@ namespace wisdom
                 return false;
         }
 
-        // todo check more
+        for (auto color = Color_Index_White; color <= Color_Index_Black; color++)
+        {
+            if (a.my_en_passant_target[color] != b.my_en_passant_target[color])
+                return false;
+
+            if (a.my_castled[color] != b.my_castled[color])
+                return false;
+        }
+
         return true;
     }
 

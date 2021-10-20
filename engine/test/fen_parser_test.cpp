@@ -12,7 +12,7 @@ TEST_CASE( "FEN notation for the starting position" )
     Game game = parser.build();
     Board default_board;
 
-    CHECK( board_equals (game.get_board (), default_board) );
+    CHECK( game.get_board () == default_board );
 
     auto default_black_state = default_board.get_castle_state (Color::Black);
     auto default_white_state = default_board.get_castle_state (Color::White);
@@ -37,7 +37,7 @@ TEST_CASE( "FEN notation for non-starting position" )
     builder.add_piece ("h1", Color::White, Piece::Rook);
 
     auto expected = builder.build();
-    CHECK( board_equals (game.get_board (), *expected) );
+    CHECK( game.get_board () == *expected );
 
     CastlingState white_state = game.get_board ().get_castle_state (Color::White);
     CastlingState black_state = game.get_board ().get_castle_state (Color::Black);
