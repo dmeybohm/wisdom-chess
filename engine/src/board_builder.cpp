@@ -34,7 +34,7 @@ namespace wisdom
 
     void BoardBuilder::add_piece (int row, int col, Color who, Piece piece_type)
     {
-        struct PieceWithCoordState new_piece {
+        PieceWithCoordState new_piece {
                 .coord = make_coord (row, col),
                 .color = who,
                 .piece_type = piece_type,
@@ -49,7 +49,7 @@ namespace wisdom
         this->pieces_with_coords.push_back (new_piece);
     }
 
-    void BoardBuilder::add_pieces (Color who, const vector<struct PieceCoordStringWithTypeState> &pieces)
+    void BoardBuilder::add_pieces (Color who, const vector<PieceCoordStringWithTypeState> &pieces)
     {
         for (auto it : pieces)
             this->add_piece (it.coord, who, it.piece_type);
@@ -90,13 +90,13 @@ namespace wisdom
 
     void BoardBuilder::set_en_passant_target (Color who, const string &coord_str)
     {
-        struct EnPassantState new_state {who, coord_alg (coord_str) };
+        EnPassantState new_state {who, coord_alg (coord_str) };
         this->en_passant_states.push_back (new_state);
     }
 
     void BoardBuilder::set_castling (Color who, CastlingState state)
     {
-        struct ColorAndCastlingState new_state { .player = who, .castle_state = state };
+        ColorAndCastlingState new_state { .player = who, .castle_state = state };
         castle_states.push_back (new_state);
     }
 
@@ -112,15 +112,15 @@ namespace wisdom
 
     auto BoardBuilder::build () -> unique_ptr<Board>
     {
-        struct piece_row
+        struct PieceRow
         {
             vector<Piece> row;
         };
 
         std::size_t sz = this->pieces_with_coords.size ();
 
-        vector<struct piece_row> piece_types { sz };
-        vector<struct BoardPositions> positions { sz };
+        vector<PieceRow> piece_types {sz };
+        vector<BoardPositions> positions { sz };
 
         for (size_t i = 0; i < sz; i++)
         {
