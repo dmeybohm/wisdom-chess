@@ -9,9 +9,9 @@
 
 using namespace wisdom;
 
-TEST_CASE( "board my_code")
+TEST_CASE( "board code")
 {
-    SUBCASE("Board my_code is able to be set")
+    SUBCASE("Board code is able to be set")
     {
         BoardCode code, initial;
 

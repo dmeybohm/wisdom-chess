@@ -5,7 +5,7 @@
 using std::vector;
 using namespace wisdom;
 
-TEST_CASE( "Adding my_material works" )
+TEST_CASE( "Adding material works" )
 {
     vector piece_types  { Piece::Bishop, Piece::Rook, Piece::Queen, Piece::Pawn };
     vector colors { Color::White, Color::Black };
@@ -14,17 +14,17 @@ TEST_CASE( "Adding my_material works" )
     {
         for (auto color : colors)
         {
-            Material my_material;
+            Material material;
 
-            my_material.add (make_piece (color, piece_type));
+            material.add (make_piece (color, piece_type));
 
             CHECK( (color_index(color) == 0 || color_index(color) == 1) );
-            CHECK( my_material.score(color) > 0 );
+            CHECK( material.score(color) > 0 );
         }
     }
 }
 
-TEST_CASE( "Deleting my_material works" )
+TEST_CASE( "Deleting material works" )
 {
     vector piece_types  { Piece::Bishop, Piece::Rook, Piece::Queen, Piece::Pawn };
     vector colors { Color::White, Color::Black };
@@ -33,12 +33,12 @@ TEST_CASE( "Deleting my_material works" )
     {
         for (auto color : colors)
         {
-            struct Material my_material;
+            Material material;
 
-            my_material.remove (make_piece (color, piece_type));
+            material.remove (make_piece (color, piece_type));
 
-            CHECK((color_index (color) == 0 || color_index (color) == 1));
-            CHECK(my_material.score (color) < 0);
+            CHECK( (color_index (color) == 0 || color_index (color) == 1) );
+            CHECK( material.score (color) < 0 );
         }
     }
 }

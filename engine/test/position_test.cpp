@@ -32,7 +32,7 @@ TEST_CASE( "Center pawn elevates position score" )
     CHECK(board->get_position ().score(Color::White) > board->get_position ().score(Color::Black));
 }
 
-TEST_CASE( "Capture updates my_position score correctly")
+TEST_CASE( "Capture updates position score correctly")
 {
     BoardBuilder builder;
 
@@ -110,7 +110,7 @@ TEST_CASE( "Castling updates position score correctly")
     }
 }
 
-TEST_CASE( "Promoting move updates my_position score correctly")
+TEST_CASE( "Promoting move updates position score correctly")
 {
     BoardBuilder builder;
 
