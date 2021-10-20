@@ -7,48 +7,41 @@
 
 namespace wisdom
 {
-    struct BBPieceWithCoordState
-    {
-        Coord coord;
-        Color color;
-        Piece piece_type;
-    };
-
-    struct BBPieceCoordStringWithTypeState
-    {
-        czstring coord;
-        Piece piece_type;
-    };
-
-    struct BBEnPassantState
-    {
-        Color player;
-        Coord coord;
-    };
-
-    struct BBCastlingState
-    {
-        Color player;
-        CastlingState castle_state;
-    };
-
     class BoardBuilder final
     {
-    private:
-        vector<BBPieceWithCoordState> pieces_with_coords;
-        vector<BBEnPassantState> en_passant_states;
-        vector<BBCastlingState> castle_states;
-        int half_moves_clock = 0;
-        int full_moves = 0;
-
     public:
+        struct PieceWithCoordState
+        {
+            Coord coord;
+            Color color;
+            Piece piece_type;
+        };
+
+        struct PieceCoordStringWithTypeState
+        {
+            czstring coord;
+            Piece piece_type;
+        };
+
+        struct EnPassantState
+        {
+            Color player;
+            Coord coord;
+        };
+
+        struct ColorAndCastlingState
+        {
+            Color player;
+            CastlingState castle_state;
+        };
+
         BoardBuilder () = default;
 
         void add_piece (const string &coord_str, Color who, Piece piece_type);
 
         void add_piece (int row, int col, Color who, Piece piece_type);
 
-        void add_pieces (Color who, const std::vector<struct BBPieceCoordStringWithTypeState> &pieces);
+        void add_pieces (Color who, const vector<struct PieceCoordStringWithTypeState> &pieces);
 
         void add_row_of_same_color (int row, Color who, vector<Piece> piece_types);
 
@@ -67,6 +60,13 @@ namespace wisdom
         void set_full_moves (int new_full_moves);
 
         auto build () -> unique_ptr<Board>;
+
+    private:
+        vector<PieceWithCoordState> pieces_with_coords;
+        vector<EnPassantState> en_passant_states;
+        vector<ColorAndCastlingState> castle_states;
+        int half_moves_clock = 0;
+        int full_moves = 0;
     };
 
     class BoardBuilderError : public Error

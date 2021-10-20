@@ -34,7 +34,7 @@ namespace wisdom
 
     void BoardBuilder::add_piece (int row, int col, Color who, Piece piece_type)
     {
-        struct BBPieceWithCoordState new_piece {
+        struct PieceWithCoordState new_piece {
                 .coord = make_coord (row, col),
                 .color = who,
                 .piece_type = piece_type,
@@ -49,7 +49,7 @@ namespace wisdom
         this->pieces_with_coords.push_back (new_piece);
     }
 
-    void BoardBuilder::add_pieces (Color who, const vector<struct BBPieceCoordStringWithTypeState> &pieces)
+    void BoardBuilder::add_pieces (Color who, const vector<struct PieceCoordStringWithTypeState> &pieces)
     {
         for (auto it : pieces)
             this->add_piece (it.coord, who, it.piece_type);
@@ -90,13 +90,13 @@ namespace wisdom
 
     void BoardBuilder::set_en_passant_target (Color who, const string &coord_str)
     {
-        struct BBEnPassantState new_state { who, coord_alg (coord_str) };
+        struct EnPassantState new_state {who, coord_alg (coord_str) };
         this->en_passant_states.push_back (new_state);
     }
 
     void BoardBuilder::set_castling (Color who, CastlingState state)
     {
-        struct BBCastlingState new_state { .player = who, .castle_state = state };
+        struct ColorAndCastlingState new_state { .player = who, .castle_state = state };
         castle_states.push_back (new_state);
     }
 
@@ -124,7 +124,7 @@ namespace wisdom
 
         for (size_t i = 0; i < sz; i++)
         {
-            BBPieceWithCoordState &piece_with_coord = this->pieces_with_coords[i];
+            PieceWithCoordState &piece_with_coord = this->pieces_with_coords[i];
             vector<Piece> &current_piece_row = piece_types[i].row;
 
             int col = Column (piece_with_coord.coord);
