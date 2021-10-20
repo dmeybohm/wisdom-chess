@@ -63,7 +63,7 @@ TEST_CASE( "en passant" )
         // Check move types:
         REQUIRE( is_en_passant_move (en_passant_move) );
 
-        // Check my_position:
+        // Check position:
         REQUIRE( Row (move_src (en_passant_move)) == 3 );
         REQUIRE( Column (move_src (en_passant_move)) == 4 );
         REQUIRE( Row (move_dst (en_passant_move)) == 2 );
@@ -132,7 +132,7 @@ TEST_CASE( "en passant" )
         // Check move types:
         REQUIRE( is_en_passant_move(en_passant_move) );
 
-        // Check my_position:
+        // Check position:
         REQUIRE( Row (move_src (en_passant_move)) == 3 );
         REQUIRE( Column (move_src (en_passant_move)) == 4 );
         REQUIRE( Row (move_dst (en_passant_move)) == 2 );

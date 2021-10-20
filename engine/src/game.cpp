@@ -40,7 +40,7 @@ namespace wisdom
         // add this move to the history
         my_history->add_position_and_move (*my_board, move);
 
-        // take our my_current_turn
+        // take our current_turn
         my_current_turn = color_invert (my_current_turn);
     }
 

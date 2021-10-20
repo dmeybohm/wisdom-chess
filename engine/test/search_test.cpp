@@ -74,7 +74,7 @@ TEST_CASE("Can find mate in 3")
 }
 
 //
-// This my_position has multiple mating chances, as well as stalements, so this will test if the
+// This position has multiple mating chances, as well as stalements, so this will test if the
 // search can find the most efficient mate.
 //
 // Mating moves:

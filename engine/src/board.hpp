@@ -39,7 +39,7 @@ namespace wisdom
         // Keep track of hashing information.
         BoardCode my_code;
 
-        // Keep track of the my_material on the board.
+        // Keep track of the material on the board.
         Material my_material;
 
         // Keep track of the positions on the board.

@@ -7,11 +7,11 @@
 
 namespace wisdom
 {
-    // Whether this move was a legal move for the my_computer_player.
+    // Whether this move was a legal move for the computer_player.
     bool was_legal_move (Board &board, Color who, Move mv);
 
     // check if the the king indicated by the WHO argument is in trouble
-    // in this my_position
+    // in this position
     bool is_king_threatened (Board &board, Color who, int row, int col);
 
     static inline bool is_king_threatened ([[maybe_unused]] Board &board,
@@ -21,10 +21,10 @@ namespace wisdom
         return is_king_threatened (board, who, Row (pos), Column (pos));
     }
 
-    // Whether the board is in a checkmated my_position for the my_computer_player.
+    // Whether the board is in a checkmated position for the computer_player.
     bool is_checkmated (Board &board, Color who);
 
-    // Whether in a stalemate my_position for white or black.
+    // Whether in a stalemate position for white or black.
     static bool is_stalemated ([[maybe_unused]] const Board &board)
     {
         // todo: detect stalemate efficiently

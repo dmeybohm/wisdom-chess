@@ -214,7 +214,7 @@ namespace wisdom
             //
             // Set inability to castle on one side. Note that
             // Castle_Queenside/KINGSIDE are _negative_ flags, indicating the
-            // my_computer_player cannot castle.  This is a bit confusing, not sure why I did
+            // computer_player cannot castle.  This is a bit confusing, not sure why I did
             // this.
             //
             if (board.able_to_castle (opponent, castle_state))
@@ -371,11 +371,11 @@ namespace wisdom
         this->set_piece (src, Piece_And_Color_None);
         this->set_piece (dst, src_piece);
 
-        // update king my_position
+        // update king position
         if (piece_type (src_piece) == Piece::King)
             update_king_position (*this, who, move, undo_state, src, dst, 0);
 
-        // update rook my_position -- for castling
+        // update rook position -- for castling
         if (piece_type (orig_src_piece) == Piece::Rook)
         {
             update_current_rook_position (*this, who, orig_src_piece,
@@ -385,7 +385,7 @@ namespace wisdom
         ColoredPiece captured_piece = captured_material (undo_state, opponent);
         if (piece_type (captured_piece) != Piece::None)
         {
-            // update my_material estimate
+            // update material estimate
             this->my_material.remove (captured_piece);
 
             // update castle state if somebody takes the rook
@@ -439,14 +439,14 @@ namespace wisdom
         if (is_en_passant_move (move))
             dst_piece = handle_en_passant (*this, who, src, dst, 1);
 
-        // Update the my_code:
+        // Update the code:
         this->my_code.unapply_move (*this, move, undo_state);
 
         // put the pieces back
         this->set_piece (dst, dst_piece);
         this->set_piece (src, src_piece);
 
-        // update king my_position
+        // update king position
         if (piece_type (src_piece) == Piece::King)
             update_king_position (*this, who, move, undo_state, src, dst, 1);
 
