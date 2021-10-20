@@ -11,10 +11,10 @@ TEST_CASE("Position is initialized correctly")
 {
     Board board;
 
-    CHECK(board.position.raw_score(Color::White) < 0 );
-    CHECK(board.position.raw_score(Color::Black) < 0 );
-    CHECK(board.position.raw_score(Color::White) ==
-          board.position.raw_score(Color::Black));
+    CHECK(board.get_position ().raw_score(Color::White) < 0 );
+    CHECK(board.get_position ().raw_score(Color::Black) < 0 );
+    CHECK(board.get_position ().raw_score(Color::White) ==
+          board.get_position ().raw_score(Color::Black));
 }
 
 TEST_CASE( "Center pawn elevates position score" )
@@ -29,10 +29,10 @@ TEST_CASE( "Center pawn elevates position score" )
     
     auto board = builder.build();
 
-    CHECK(board->position.score(Color::White) > board->position.score(Color::Black));
+    CHECK(board->get_position ().score(Color::White) > board->get_position ().score(Color::Black));
 }
 
-TEST_CASE( "Capture updates position score correctly")
+TEST_CASE( "Capture updates my_position score correctly")
 {
     BoardBuilder builder;
 
@@ -44,16 +44,16 @@ TEST_CASE( "Capture updates position score correctly")
 
     auto board = builder.build();
 
-    int initial_score_white = board->position.score(Color::White);
-    int initial_score_black = board->position.score(Color::Black);
+    int initial_score_white = board->get_position ().score(Color::White);
+    int initial_score_black = board->get_position ().score(Color::Black);
 
     Move e4xd6 = move_parse ("e4xd6", Color::White);
 
     UndoMove undo_state = board->make_move (Color::White, e4xd6);
     board->take_back (Color::White, e4xd6, undo_state);
 
-    CHECK( initial_score_white == board->position.score(Color::White) );
-    CHECK( initial_score_black == board->position.score(Color::Black) );
+    CHECK( initial_score_white == board->get_position ().score(Color::White) );
+    CHECK( initial_score_black == board->get_position ().score(Color::Black) );
 }
 
 TEST_CASE( "En passant updates position score correctly")
@@ -68,8 +68,8 @@ TEST_CASE( "En passant updates position score correctly")
 
     auto board = builder.build();
 
-    int initial_score_white = board->position.score(Color::White);
-    int initial_score_black = board->position.score(Color::Black);
+    int initial_score_white = board->get_position ().score(Color::White);
+    int initial_score_black = board->get_position ().score(Color::Black);
 
     Move e5xd5 = move_parse ("e5d6 ep", Color::White);
     CHECK( is_en_passant_move(e5xd5) );
@@ -77,8 +77,8 @@ TEST_CASE( "En passant updates position score correctly")
     UndoMove undo_state = board->make_move (Color::White, e5xd5);
     board->take_back (Color::White, e5xd5, undo_state);
 
-    CHECK( initial_score_white == board->position.score(Color::White) );
-    CHECK( initial_score_black == board->position.score(Color::Black) );
+    CHECK( initial_score_white == board->get_position ().score(Color::White) );
+    CHECK( initial_score_black == board->get_position ().score(Color::Black) );
 }
 
 TEST_CASE( "Castling updates position score correctly")
@@ -93,8 +93,8 @@ TEST_CASE( "Castling updates position score correctly")
     builder.add_piece("d5", Color::Black, Piece::Pawn);
 
     auto board = builder.build();
-    int initial_score_white = board->position.score(Color::White);
-    int initial_score_black = board->position.score(Color::Black);
+    int initial_score_white = board->get_position ().score(Color::White);
+    int initial_score_black = board->get_position ().score(Color::Black);
 
     std::vector castling_moves { "o-o", "o-o-o" };
     for (auto castling_move_in : castling_moves)
@@ -105,12 +105,12 @@ TEST_CASE( "Castling updates position score correctly")
         UndoMove undo_state = board->make_move (Color::White, castling_move);
         board->take_back (Color::White, castling_move, undo_state);
 
-        CHECK(initial_score_white == board->position.score(Color::White));
-        CHECK(initial_score_black == board->position.score(Color::Black));
+        CHECK(initial_score_white == board->get_position ().score(Color::White));
+        CHECK(initial_score_black == board->get_position ().score(Color::Black));
     }
 }
 
-TEST_CASE( "Promoting move updates position score correctly")
+TEST_CASE( "Promoting move updates my_position score correctly")
 {
     BoardBuilder builder;
 
@@ -120,8 +120,8 @@ TEST_CASE( "Promoting move updates position score correctly")
     builder.add_piece("h7", Color::White, Piece::Pawn);
 
     auto board = builder.build();
-    int initial_score_white = board->position.score(Color::White);
-    int initial_score_black = board->position.score(Color::Black);
+    int initial_score_white = board->get_position ().score(Color::White);
+    int initial_score_black = board->get_position ().score(Color::Black);
 
     std::vector promoting_moves { "h7h8 (Q)", "h7h8 (R)", "h7h8 (B)", "h7h8 (N)" };
     for (auto promoting_move_in : promoting_moves)
@@ -132,7 +132,7 @@ TEST_CASE( "Promoting move updates position score correctly")
         UndoMove undo_state = board->make_move (Color::White, castling_move);
         board->take_back (Color::White, castling_move, undo_state);
 
-        CHECK( initial_score_white == board->position.score(Color::White) );
-        CHECK( initial_score_black == board->position.score(Color::Black) );
+        CHECK( initial_score_white == board->get_position ().score(Color::White) );
+        CHECK( initial_score_black == board->get_position ().score(Color::Black) );
     }
 }

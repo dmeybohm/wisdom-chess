@@ -5,7 +5,7 @@
 
 using namespace wisdom;
 
-TEST_CASE( "FEN notation for the starting position" )
+TEST_CASE( "FEN notation for the starting my_position" )
 {
     FenParser parser { "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" };
 
@@ -23,7 +23,7 @@ TEST_CASE( "FEN notation for the starting position" )
     CHECK( default_black_state == fen_black_state );
 }
 
-TEST_CASE( "FEN notation for non-starting position" )
+TEST_CASE( "FEN notation for non-starting my_position" )
 {
     FenParser parser { "4r2/8/8/8/8/8/k7/4K2R w K - 0 1" };
 
@@ -87,5 +87,7 @@ TEST_CASE( "FEN notation for en passant" )
 
     REQUIRE( !board.is_en_passant_vulnerable (Color::White) );
     REQUIRE( board.is_en_passant_vulnerable (Color::Black) );
-    REQUIRE( board.en_passant_target[Color_Index_Black] == coord_parse ("e6") );
+
+    auto black_target = board.get_en_passant_target (Color::Black);
+    REQUIRE( black_target == coord_parse ("e6") );
 }

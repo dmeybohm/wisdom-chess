@@ -142,8 +142,7 @@ namespace wisdom
         {
             for (auto state : en_passant_states)
             {
-                ColorIndex index = color_index (state.player);
-                result->en_passant_target[index] = state.coord;
+                result->set_en_passant_target (state.player, state.coord);
             }
         }
 
@@ -155,8 +154,8 @@ namespace wisdom
             }
         }
 
-        result->half_move_clock = this->half_moves_clock;
-        result->full_moves = this->full_moves;
+        result->my_half_move_clock = this->half_moves_clock;
+        result->my_full_move_clock = this->full_moves;
 
         return result;
     }

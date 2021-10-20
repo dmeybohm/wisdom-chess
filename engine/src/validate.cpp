@@ -30,8 +30,8 @@ namespace wisdom
         // check positions of the pieces:
         int row = who == Color::White ? 7 : 0;
         int col = state == Castle_Queenside ? 0 : 7;
-        ColoredPiece supposed_king = piece_at (board, row, 4);
-        ColoredPiece supposed_rook = piece_at (board, row, col);
+        ColoredPiece supposed_king = board.piece_at (row, 4);
+        ColoredPiece supposed_rook = board.piece_at (row, col);
         if (board.able_to_castle ( who, state))
         {
             check_it (board, who, mv, piece_type (supposed_king) == Piece::King);

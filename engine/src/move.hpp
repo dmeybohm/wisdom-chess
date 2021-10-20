@@ -14,7 +14,7 @@ namespace wisdom
     constexpr uint8_t
             Castle_None = 0U;      // still eligible to castle on both sides
     constexpr uint8_t
-            Castle_Castled = 0x01U;   // castled
+            Castle_Castled = 0x01U;   // my_castled
     constexpr uint8_t
             Castle_Kingside = 0x02U;   // ineligible for further castling kingside
     constexpr uint8_t

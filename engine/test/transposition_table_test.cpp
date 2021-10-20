@@ -10,7 +10,7 @@ TEST_CASE("Initializing transposition table")
     Board board;
     TranspositionTable table;
 
-    auto hash_code = board.code.hash_code ();
+    auto hash_code = board.get_code ().hash_code ();
 
     table.add( { board, 10, 3, {} }, Color::White );
     auto result = table.lookup (hash_code, Color::White);
@@ -24,7 +24,7 @@ TEST_CASE("Adding a value already added to a transposition table")
     Board board;
     TranspositionTable table;
 
-    auto hash_code = board.code.hash_code ();
+    auto hash_code = board.get_code ().hash_code ();
 
     table.add( { board, 10, 3 , {} }, Color::White );
     auto result1 = table.lookup (hash_code, Color::White);

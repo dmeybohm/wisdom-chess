@@ -54,7 +54,7 @@ namespace wisdom
                                                                    int depth)
         -> optional<RelativeTransposition>
     {
-        auto optional_transposition = lookup (board.code.hash_code (), who);
+        auto optional_transposition = lookup (board.get_code ().hash_code (), who);
 
         if (optional_transposition.has_value ())
         {
@@ -128,7 +128,7 @@ namespace wisdom
     RelativeTransposition::RelativeTransposition (const Board &board, int _score, int _relative_depth,
                                                   const VariationGlimpse &_variation_glimpse) :
             RelativeTransposition (board.get_code ().hash_code (),
-                                   board.code, _score, _relative_depth, _variation_glimpse)
+                                   board.get_code (), _score, _relative_depth, _variation_glimpse)
     {}
 
     auto operator<< (std::ostream &os, const BaseTransposition &transposition) -> std::ostream&

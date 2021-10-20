@@ -51,7 +51,7 @@ namespace wisdom
         }
         else
         {
-            ColoredPiece taken = piece_at (board, taken_pawn_pos);
+            ColoredPiece taken = board.piece_at (taken_pawn_pos);
 
             assert(piece_type (taken) == Piece::Pawn);
             assert(piece_color (taken) != who);
@@ -88,8 +88,8 @@ namespace wisdom
             dst_col = Column (dst) + 1;
         }
 
-        if (!((piece_type (piece_at (board, src_row, src_col)) == Piece::Rook
-               || piece_type (piece_at (board, dst_row, dst_col)) == Piece::Rook)))
+        if (!((piece_type (board.piece_at (src_row, src_col)) == Piece::Rook
+               || piece_type (board.piece_at (dst_row, dst_col)) == Piece::Rook)))
         {
             throw MoveConsistencyProblem {
                     "move considering: " + to_string (move) + "(" + to_string (who) + " to move)"
@@ -108,9 +108,9 @@ namespace wisdom
         Move rook_move = get_castling_rook_move (board, king_move, who);
 
         if (undo)
-            assert (piece_type (piece_at (board, dst)) == Piece::King);
+            assert (piece_type (board.piece_at (dst)) == Piece::King);
         else
-            assert (piece_type (piece_at (board, src)) == Piece::King);
+            assert (piece_type (board.piece_at (src)) == Piece::King);
 
         assert (abs (Column (src) - Column (dst)) == 2);
 
@@ -122,7 +122,7 @@ namespace wisdom
         if (undo)
         {
             // undo the rook move
-            auto rook = piece_at (board, rook_dst);
+            auto rook = board.piece_at (rook_dst);
 
             // undo the rook move
             board.set_piece (rook_dst, empty_piece);
@@ -130,7 +130,7 @@ namespace wisdom
         }
         else
         {
-            auto rook = piece_at (board, rook_src);
+            auto rook = board.piece_at (rook_src);
 
             // do the rook move
             board.set_piece (rook_dst, rook);
@@ -296,8 +296,8 @@ namespace wisdom
 
         if (undo)
         {
-            board.en_passant_target[c_index] = undo_state->en_passant_target[c_index];
-            board.en_passant_target[o_index] = undo_state->en_passant_target[o_index];
+            board.set_en_passant_target (c_index, undo_state->en_passant_target[c_index]);
+            board.set_en_passant_target (o_index, undo_state->en_passant_target[o_index]);
         }
         else
         {
@@ -309,10 +309,10 @@ namespace wisdom
                 int prev_row = next_row (Row (src), direction);
                 new_state = make_coord (prev_row, Column (src));
             }
-            undo_state->en_passant_target[c_index] = board.en_passant_target[c_index];
-            undo_state->en_passant_target[o_index] = board.en_passant_target[o_index];
-            board.en_passant_target[c_index] = new_state;
-            board.en_passant_target[o_index] = No_En_Passant_Coord;
+            undo_state->en_passant_target[c_index] = board.get_en_passant_target (c_index);
+            undo_state->en_passant_target[o_index] = board.get_en_passant_target (o_index);
+            board.set_en_passant_target (c_index, new_state);
+            board.set_en_passant_target (o_index, No_En_Passant_Coord);
         }
     }
 
@@ -346,8 +346,8 @@ namespace wisdom
         if (is_promoting_move (move))
         {
             src_piece = move_get_promoted_piece (move);
-            this->material.add (src_piece);
-            this->material.remove (make_piece (who, Piece::Pawn));
+            this->my_material.add (src_piece);
+            this->my_material.remove (make_piece (who, Piece::Pawn));
         }
 
         // check for en passant
@@ -366,16 +366,16 @@ namespace wisdom
 
         handle_en_passant_eligibility (*this, who, src_piece, move, &undo_state, 0);
 
-        this->code.apply_move (*this, move);
+        this->my_code.apply_move (*this, move);
 
         this->set_piece (src, Piece_And_Color_None);
         this->set_piece (dst, src_piece);
 
-        // update king position
+        // update king my_position
         if (piece_type (src_piece) == Piece::King)
             update_king_position (*this, who, move, undo_state, src, dst, 0);
 
-        // update rook position -- for castling
+        // update rook my_position -- for castling
         if (piece_type (orig_src_piece) == Piece::Rook)
         {
             update_current_rook_position (*this, who, orig_src_piece,
@@ -385,8 +385,8 @@ namespace wisdom
         ColoredPiece captured_piece = captured_material (undo_state, opponent);
         if (piece_type (captured_piece) != Piece::None)
         {
-            // update material estimate
-            this->material.remove (captured_piece);
+            // update my_material estimate
+            this->my_material.remove (captured_piece);
 
             // update castle state if somebody takes the rook
             if (piece_type (captured_piece) == Piece::Rook)
@@ -396,7 +396,7 @@ namespace wisdom
             }
         }
 
-        this->position.apply_move (who, orig_src_piece, move, undo_state);
+        this->my_position.apply_move (who, orig_src_piece, move, undo_state);
         validate_castle_state (*this, move);
 
         this->update_move_clock (who, piece_type (orig_src_piece), move, undo_state);
@@ -424,8 +424,8 @@ namespace wisdom
         if (is_promoting_move (move))
         {
             src_piece = make_piece (piece_color (src_piece), Piece::Pawn);
-            this->material.remove (orig_src_piece);
-            this->material.add (src_piece);
+            this->my_material.remove (orig_src_piece);
+            this->my_material.add (src_piece);
         }
 
         // check for castling
@@ -439,14 +439,14 @@ namespace wisdom
         if (is_en_passant_move (move))
             dst_piece = handle_en_passant (*this, who, src, dst, 1);
 
-        // Update the code:
-        this->code.unapply_move (*this, move, undo_state);
+        // Update the my_code:
+        this->my_code.unapply_move (*this, move, undo_state);
 
         // put the pieces back
         this->set_piece (dst, dst_piece);
         this->set_piece (src, src_piece);
 
-        // update king position
+        // update king my_position
         if (piece_type (src_piece) == Piece::King)
             update_king_position (*this, who, move, undo_state, src, dst, 1);
 
@@ -461,7 +461,7 @@ namespace wisdom
         {
             // NOTE: we reload from the move in case of en-passant, since dst_piece
             // could be none.
-            this->material.add (captured_piece);
+            this->my_material.add (captured_piece);
 
             if (piece_type (dst_piece) == Piece::Rook)
             {
@@ -470,7 +470,7 @@ namespace wisdom
             }
         }
 
-        this->position.unapply_move (who, src_piece, move, undo_state);
+        this->my_position.unapply_move (who, src_piece, move, undo_state);
         validate_castle_state (*this, move);
         this->restore_move_clock (undo_state);
     }

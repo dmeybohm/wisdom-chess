@@ -34,10 +34,8 @@ TEST_CASE( "en passant" )
     SUBCASE( "En passant moves work on the right" )
     {
         BoardBuilder builder;
-        std::vector<Piece> back_rank {
-                Piece::Rook,   Piece::Knight, Piece::Bishop, Piece::Queen, Piece::King,
-                Piece::Bishop, Piece::Knight, Piece::Rook
-        };
+        vector<Piece> back_rank { Piece::Rook, Piece::Knight, Piece::Bishop, Piece::Queen,
+                                  Piece::King, Piece::Bishop, Piece::Knight, Piece::Rook };
         builder.add_row_of_same_color ("a8", Color::Black, back_rank);
         builder.add_row_of_same_color_and_piece ("a7", Color::Black, Piece::Pawn);
         builder.add_piece ("e5", Color::White, Piece::Pawn);
@@ -51,7 +49,7 @@ TEST_CASE( "en passant" )
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
         MoveList move_list = generate_moves (*board, Color::White);
-        std::optional<Move> optional_en_passant_move = std::nullopt;
+        std::optional<Move> optional_en_passant_move = nullopt;
 
         for (auto move : move_list)
         {
@@ -59,13 +57,13 @@ TEST_CASE( "en passant" )
                 optional_en_passant_move = move;
         }
 
-        REQUIRE( optional_en_passant_move.has_value() );
+        REQUIRE( optional_en_passant_move.has_value () );
         auto en_passant_move = *optional_en_passant_move;
 
         // Check move types:
         REQUIRE( is_en_passant_move (en_passant_move) );
 
-        // Check position:
+        // Check my_position:
         REQUIRE( Row (move_src (en_passant_move)) == 3 );
         REQUIRE( Column (move_src (en_passant_move)) == 4 );
         REQUIRE( Row (move_dst (en_passant_move)) == 2 );
@@ -134,7 +132,7 @@ TEST_CASE( "en passant" )
         // Check move types:
         REQUIRE( is_en_passant_move(en_passant_move) );
 
-        // Check position:
+        // Check my_position:
         REQUIRE( Row (move_src (en_passant_move)) == 3 );
         REQUIRE( Column (move_src (en_passant_move)) == 4 );
         REQUIRE( Row (move_dst (en_passant_move)) == 2 );

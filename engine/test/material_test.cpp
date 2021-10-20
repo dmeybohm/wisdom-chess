@@ -5,7 +5,7 @@
 using std::vector;
 using namespace wisdom;
 
-TEST_CASE( "Adding material works" )
+TEST_CASE( "Adding my_material works" )
 {
     vector piece_types  { Piece::Bishop, Piece::Rook, Piece::Queen, Piece::Pawn };
     vector colors { Color::White, Color::Black };
@@ -24,7 +24,7 @@ TEST_CASE( "Adding material works" )
     }
 }
 
-TEST_CASE( "Deleting material works" )
+TEST_CASE( "Deleting my_material works" )
 {
     vector piece_types  { Piece::Bishop, Piece::Rook, Piece::Queen, Piece::Pawn };
     vector colors { Color::White, Color::Black };

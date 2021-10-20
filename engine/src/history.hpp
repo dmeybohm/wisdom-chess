@@ -20,24 +20,24 @@ namespace wisdom
 
         static bool is_fifty_move_repetition (Board &board)
         {
-            return board.half_move_clock >= 100;
+            return board.get_half_move_clock () >= 100;
         }
 
         bool is_third_repetition (Board &board) const
         {
-            auto count = my_board_history.position_count (board.code);
+            auto count = my_board_history.position_count (board.get_code ());
             return (count == 3);
         }
 
         void add_position_and_move (Board &board, Move move)
         {
-            this->my_board_history.add_board_code (board.code);
+            this->my_board_history.add_board_code (board.get_code ());
             my_move_history.push_back (move);
         }
 
         void remove_position_and_last_move (Board &board)
         {
-            this->my_board_history.remove_board_code (board.code);
+            this->my_board_history.remove_board_code (board.get_code ());
             my_move_history.pop_back ();
         }
 

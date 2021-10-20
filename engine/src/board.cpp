@@ -46,9 +46,9 @@ namespace wisdom
 
         CastlingState state = Castle_None;
 
-        prospective_king = piece_at (board, row, king_col);
-        prospective_queen_rook = piece_at (board, row, 0);
-        prospective_king_rook = piece_at (board, row, 7);
+        prospective_king = board.piece_at (row, king_col);
+        prospective_queen_rook = board.piece_at (row, 0);
+        prospective_king_rook = board.piece_at (row, 7);
 
         if (piece_type (prospective_king) != Piece::King ||
             piece_color (prospective_king) != who ||
@@ -72,13 +72,13 @@ namespace wisdom
     {
         int row;
 
-        for (CastlingState &i : this->castled)
+        for (CastlingState &i : this->my_castled)
             i = Castle_None;
 
         for (const auto &coord : All_Coords_Iterator)
             set_piece (coord, Piece_And_Color_None);
 
-        this->position = Position {};
+        this->my_position = Position {};
 
         for (auto &pos : positions)
         {
@@ -97,21 +97,21 @@ namespace wisdom
                 Coord place = make_coord (row, gsl::narrow<int>(col));
                 set_piece ( place, new_piece);
 
-                this->material.add (new_piece);
-                this->position.add (color, place, new_piece);
+                this->my_material.add (new_piece);
+                this->my_position.add (color, place, new_piece);
 
                 if (pieces[col] == Piece::King)
                     this->set_king_position (color, place);
             }
         }
 
-        this->castled[Color_Index_White] = init_castle_state (*this, Color::White);
-        this->castled[Color_Index_Black] = init_castle_state (*this, Color::Black);
+        this->my_castled[Color_Index_White] = init_castle_state (*this, Color::White);
+        this->my_castled[Color_Index_Black] = init_castle_state (*this, Color::Black);
 
-        this->en_passant_target[Color_Index_White] = No_En_Passant_Coord;
-        this->en_passant_target[Color_Index_Black] = No_En_Passant_Coord;
+        this->my_en_passant_target[Color_Index_White] = No_En_Passant_Coord;
+        this->my_en_passant_target[Color_Index_Black] = No_En_Passant_Coord;
 
-        this->code = BoardCode { *this };
+        this->my_code = BoardCode { *this };
     }
 
     void Board::print_to_file (std::ostream &out) const
@@ -230,13 +230,13 @@ namespace wisdom
             return color == Color::Black ? gsl::narrow_cast<char> (tolower(ch)) : ch;
         };
 
-        if (this->castled[index] == Castle_Castled)
+        if (this->my_castled[index] == Castle_Castled)
             castled_state = "";
-        else if (this->castled[index] == Castle_None)
+        else if (this->my_castled[index] == Castle_None)
             castled_state.append(1, convert('K')), castled_state.append(1, convert('Q'));
-        else if (this->castled[index] == Castle_Kingside)
+        else if (this->my_castled[index] == Castle_Kingside)
             castled_state += "Q";
-        else if (this->castled[index] == Castle_Queenside)
+        else if (this->my_castled[index] == Castle_Queenside)
             castled_state += "K";
         else
             castled_state += "";
@@ -292,14 +292,14 @@ namespace wisdom
 
         output += both_castled;
 
-        if (this->en_passant_target[Color_Index_White] != No_En_Passant_Coord)
-            output += " " + wisdom::to_string (this->en_passant_target[Color_Index_White]) + " ";
-        else if (this->en_passant_target[Color_Index_Black] != No_En_Passant_Coord)
-            output += " " + wisdom::to_string (this->en_passant_target[Color_Index_Black]) + " ";
+        if (this->my_en_passant_target[Color_Index_White] != No_En_Passant_Coord)
+            output += " " + wisdom::to_string (this->my_en_passant_target[Color_Index_White]) + " ";
+        else if (this->my_en_passant_target[Color_Index_Black] != No_En_Passant_Coord)
+            output += " " + wisdom::to_string (this->my_en_passant_target[Color_Index_Black]) + " ";
         else
             output += " - ";
 
-        output += std::to_string (this->half_move_clock) + " " + std::to_string (this->full_moves);
+        output += std::to_string (this->my_half_move_clock) + " " + std::to_string (this->my_full_move_clock);
         return output;
     }
 
@@ -313,11 +313,6 @@ namespace wisdom
 
         // todo check more
         return true;
-    }
-
-    auto Board::get_code () const& -> const BoardCode&
-    {
-        return code;
     }
 
 

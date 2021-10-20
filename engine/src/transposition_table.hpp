@@ -11,19 +11,19 @@ namespace wisdom
 
     struct BaseTransposition
     {
-        // The hash code identifying this position.
+        // The hash my_code identifying this my_position.
         BoardHashCode hash_code;
 
         // The identifier for the board.
         BoardCode board_code;
 
-        // The score for this position.
+        // The score for this my_position.
         int score;
 
-        // How deeply this position was analyzed.
+        // How deeply this my_position was analyzed.
         int relative_depth;
 
-        // Glimpse into what the engine was thinking for this position.
+        // Glimpse into what the engine was thinking for this my_position.
         VariationGlimpse variation_glimpse;
 
         BaseTransposition (const BaseTransposition &other) = default;

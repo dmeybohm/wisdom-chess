@@ -38,8 +38,8 @@ namespace wisdom
                 score += Castle_Positive_Weight;
         }
 
-        score += board.material.score (who);
-        score += board.position.score (who);
+        score += board.get_material ().score (who);
+        score += board.get_position ().score (who);
 
         if (is_checkmated (board, who))
         {

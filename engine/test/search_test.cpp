@@ -74,7 +74,7 @@ TEST_CASE("Can find mate in 3")
 }
 
 //
-// This position has multiple mating chances, as well as stalements, so this will test if the
+// This my_position has multiple mating chances, as well as stalements, so this will test if the
 // search can find the most efficient mate.
 //
 // Mating moves:
@@ -235,7 +235,7 @@ TEST_CASE("Bishop is not sacrificed scenario 1")
 
     // assert the bishop has moved:
     INFO("Info:", to_string (*result.move) );
-    REQUIRE( piece_at (game.get_board (), coord_parse("b4")) != make_piece (Color::Black, Piece::Bishop) );
+    REQUIRE( game.get_board ().piece_at (coord_parse("b4")) != make_piece (Color::Black, Piece::Bishop) );
 }
 
 TEST_CASE("Bishop is not sacrificed scenario 2 (as white)")
@@ -254,7 +254,8 @@ TEST_CASE("Bishop is not sacrificed scenario 2 (as white)")
 
     // assert the bishop has moved:
     INFO("Info:", to_string (*result.move) );
-    bool bishop_sac = piece_at (game.get_board (), coord_parse ("a3")) != make_piece (Color::White, Piece::Bishop);
+    auto a3_piece = game.get_board ().piece_at (coord_parse("a3"));
+    bool bishop_sac = a3_piece != make_piece (Color::White, Piece::Bishop);
     bool is_in_check = is_king_threatened (game.get_board (), Color::Black,
                                            game.get_board ().get_king_position (Color::Black));
     bool bishop_sac_or_is_in_check = bishop_sac || is_in_check;
@@ -278,5 +279,6 @@ TEST_CASE("Advanced pawn should be captured")
     game.move (*result.move);
     // assert the pawn at d6 has been taken:
     INFO("Info:", to_string (*result.move) );
-    REQUIRE( piece_at (game.get_board (), coord_parse("d6")) != make_piece (Color::White, Piece::Pawn) );
+    auto board = game.get_board ();
+    REQUIRE( board.piece_at (coord_parse("d6")) != make_piece (Color::White, Piece::Pawn) );
 }

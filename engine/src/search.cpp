@@ -263,7 +263,7 @@ namespace wisdom
         if (result.timed_out)
             return result;
         
-        // if there are no legal moves, then the current my_computer_player is in a stalemate or checkmate position.
+        // if there are no legal moves, then the current my_computer_player is in a stalemate or checkmate my_position.
         if (!result.move.has_value ())
         {
             SearchResult no_moves_available_result { result };
@@ -385,7 +385,7 @@ namespace wisdom
     }
 
     // Get the score for a checkmate discovered X moves away.
-    // Checkmates closer to the current position are more valuable than those
+    // Checkmates closer to the current my_position are more valuable than those
     // further away.
     int checkmate_score_in_moves (int moves)
     {

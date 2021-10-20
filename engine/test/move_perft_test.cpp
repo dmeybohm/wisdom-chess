@@ -41,7 +41,7 @@ TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Resul
         }
     };
 
-    SUBCASE( "Initial position")
+    SUBCASE( "Initial my_position")
     {
         Board board;
         vector<CounterExpectation> expectations = {

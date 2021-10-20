@@ -11,7 +11,7 @@ namespace wisdom
     {
         for (auto coord : All_Coords_Iterator)
         {
-            ColoredPiece piece = piece_at (board, coord);
+            ColoredPiece piece = board.piece_at (coord);
             this->add_piece (coord, piece);
         }
     }
@@ -21,7 +21,7 @@ namespace wisdom
         Coord src = move_src (move);
         Coord dst = move_dst (move);
 
-        ColoredPiece src_piece = piece_at (board, src);
+        ColoredPiece src_piece = board.piece_at (src);
 
         Piece src_piece_type = piece_type (src_piece);
         Color src_piece_color = piece_color (src_piece);
@@ -71,7 +71,7 @@ namespace wisdom
         Coord src = move_src (move);
         Coord dst = move_dst (move);
 
-        ColoredPiece src_piece = piece_at (board, dst);
+        ColoredPiece src_piece = board.piece_at (dst);
 
         Color src_piece_color = piece_color (src_piece);
         Color opponent_color = color_invert (src_piece_color);

@@ -112,7 +112,7 @@ namespace wisdom
             case Piece::King:
                 return king_positions[row][col];
             default:
-                throw Error ("Invalid position of piece to change.");
+                throw Error ("Invalid my_position of piece to change.");
         }
     }
 
