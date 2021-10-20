@@ -8,7 +8,7 @@ namespace wisdom
     class MoveTimer
     {
     private:
-        chrono::high_resolution_clock::time_point my_last_check_time;
+        chrono::steady_clock::time_point my_last_check_time;
         int my_check_calls = 0;
         chrono::seconds my_seconds;
         bool my_triggered = false;
@@ -17,7 +17,7 @@ namespace wisdom
     public:
 
         explicit MoveTimer (chrono::seconds seconds) :
-                my_last_check_time { chrono::high_resolution_clock::now () },
+                my_last_check_time { chrono::steady_clock::now () },
                 my_seconds { seconds }
         {}
 
@@ -26,7 +26,7 @@ namespace wisdom
         {}
 
         MoveTimer (int seconds, bool autostart) :
-                my_last_check_time { chrono::high_resolution_clock::now () },
+                my_last_check_time { chrono::steady_clock::now () },
                 my_seconds { seconds },
                 my_started { autostart }
         {}

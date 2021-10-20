@@ -3,7 +3,7 @@
 
 using namespace wisdom;
 
-TEST_CASE( "move_parse")
+TEST_CASE( "move_parse" )
 {
     SUBCASE( "move_parse parses captures and non-captures" )
     {
