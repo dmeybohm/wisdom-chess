@@ -45,10 +45,13 @@ namespace wisdom
         void set_current_turn (Color);
 
         [[nodiscard]] auto get_board() const& -> Board&;
+        void get_board() const&& = delete;
 
         [[nodiscard]] auto get_history () const& -> History&;
+        void get_history () const&& = delete;
 
         [[nodiscard]] auto get_transposition_table () const& -> TranspositionTable&;
+        void get_transposition_table () const&& = delete;
 
         void set_analytics (unique_ptr<analysis::Analytics> new_analytics);
 

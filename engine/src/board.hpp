@@ -128,16 +128,19 @@ namespace wisdom
         {
             return my_code;
         }
+        void get_code () const&& = delete;
 
         [[nodiscard]] auto get_material () const& noexcept -> const Material&
         {
             return my_material;
         }
+        void get_material () const&& = delete;
 
         [[nodiscard]] auto get_position () const& noexcept -> const Position&
         {
             return my_position;
         }
+        void get_position () const&& = delete;
 
         [[nodiscard]] auto to_fen_string (Color turn) const -> string;
         [[nodiscard]] auto castled_string (Color color) const -> string;

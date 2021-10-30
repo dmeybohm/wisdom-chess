@@ -64,6 +64,7 @@ namespace wisdom
         {
             return bits;
         }
+        void bitset_ref () const&& = delete;
 
         [[nodiscard]] BoardHashCode hash_code () const
         {
