@@ -43,7 +43,7 @@ namespace wisdom
 
         ~IterativeSearch ();
 
-        auto iteratively_deepen (Color side) -> SearchResult;
+        [[nodiscard]] auto iteratively_deepen (Color side) -> SearchResult;
     };
 }
 

@@ -98,23 +98,28 @@ namespace wisdom
         int my_misses = 0;
         int my_dupe_hashes = 0;
 
-        void drop_last ();
-        void verify () const;
-
     public:
         // Lookup the transposition.
         [[nodiscard]] auto lookup (BoardHashCode hash, Color who)
-            -> optional<RelativeTransposition>;
+            -> optional<RelativeTransposition>
+        {
+            return nullopt;
+        }
 
         [[nodiscard]] auto lookup_board_for_depth (Board &board, Color who, int depth)
-            -> optional<RelativeTransposition>;
+            -> optional<RelativeTransposition>
+        {
+            return nullopt;
+        }
 
         // Add the transposition.
-        void add (RelativeTransposition transposition, Color who);
+        void add (RelativeTransposition transposition, Color who)
+        {}
 
         // Add the evaluation to the table.
         void add (const Board &board, int score, Color who, int relative_depth,
-                  const VariationGlimpse &variation_glimpse);
+                  const VariationGlimpse &variation_glimpse)
+        {}
 
         [[nodiscard]] auto size() const -> std::size_t
         {
