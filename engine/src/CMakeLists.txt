@@ -3,7 +3,6 @@ find_package(SQLite3 REQUIRED)
 find_package(Microsoft.GSL REQUIRED)
 find_package(argh REQUIRED)
 
-# add the executable
 add_library(wisdom-chess-core STATIC
         board.cpp check.cpp evaluate.cpp game.cpp generate.cpp material.cpp move.cpp
         move_tree.cpp piece.cpp search.cpp str.cpp move_timer.cpp
@@ -15,6 +14,8 @@ add_library(wisdom-chess-core STATIC
         output_format.cpp output_format.hpp analytics.cpp analytics.hpp search_result.cpp search_result.hpp
         analytics_sqlite.cpp analytics_sqlite.hpp
         uuid.cpp uuid.hpp play.hpp play.cpp perft.cpp perft.hpp)
+
+target_include_directories(wisdom-chess-core PUBLIC .)
 
 add_executable(chess main.cpp)
 add_library(wisdom::chess ALIAS wisdom-chess-core)
