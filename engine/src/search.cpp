@@ -12,7 +12,7 @@
 
 namespace wisdom
 {
-    thread_local int nodes_visited, cutoffs;
+    int nodes_visited, cutoffs;
 
     using system_clock_t = chrono::time_point<chrono::system_clock>;
 

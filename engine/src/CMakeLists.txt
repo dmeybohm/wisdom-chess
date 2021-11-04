@@ -1,4 +1,3 @@
-find_package(Threads REQUIRED)
 find_package(SQLite3 REQUIRED)
 find_package(Microsoft.GSL REQUIRED)
 find_package(argh REQUIRED)
@@ -24,7 +23,6 @@ add_executable(chess main.cpp)
 
 target_precompile_headers(chess REUSE_FROM wisdom-chess-core)
 
-target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
 target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
 target_link_libraries(wisdom-chess-core PUBLIC SQLite::SQLite3)
 target_link_libraries(chess PRIVATE wisdom::chess)
