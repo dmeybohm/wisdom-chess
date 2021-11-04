@@ -1,6 +1,6 @@
 find_package(doctest REQUIRED)
 
-add_library(fast_tests_lib STATIC
+add_library(fast_tests_lib OBJECT
         piece_test.cpp
         coord_test.cpp
         en_passant_test.cpp
@@ -24,7 +24,7 @@ add_library(fast_tests_lib STATIC
         str_test.cpp
         perft_test.cpp)
 
-add_library(slow_tests_lib STATIC
+add_library(slow_tests_lib OBJECT
         search_test.cpp
         tests.hpp
         move_perft_test.cpp)
