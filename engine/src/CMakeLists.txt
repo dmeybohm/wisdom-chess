@@ -15,21 +15,22 @@ add_library(wisdom-chess-core STATIC
         analytics_sqlite.cpp analytics_sqlite.hpp
         uuid.cpp uuid.hpp play.hpp play.cpp perft.cpp perft.hpp)
 
-target_include_directories(wisdom-chess-core PUBLIC .)
+target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
 
-add_executable(chess main.cpp)
+target_include_directories(wisdom-chess-core PUBLIC .)
 add_library(wisdom::chess ALIAS wisdom-chess-core)
 
-target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
+add_executable(chess main.cpp)
+
 target_precompile_headers(chess REUSE_FROM wisdom-chess-core)
 
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
 target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
 target_link_libraries(wisdom-chess-core PUBLIC SQLite::SQLite3)
-target_link_libraries(chess PRIVATE wisdom-chess-core)
+target_link_libraries(chess PRIVATE wisdom::chess)
 target_link_libraries(chess PRIVATE argh::argh)
 
 # For perft testing:
 add_executable(perft perft_main.cpp)
-target_link_libraries(perft PRIVATE wisdom-chess-core)
+target_link_libraries(perft PRIVATE wisdom::chess)
 
