@@ -498,7 +498,8 @@ namespace wisdom::analysis
         }
     };
 
-    SqliteSearch::SqliteSearch (shared_ptr<SqliteHandle> handle, const Board &board, IterationId iteration_id, int depth) :
+    SqliteSearch::SqliteSearch (shared_ptr<SqliteHandle> handle, const Board &board,
+                                IterationId iteration_id, int depth) :
             my_handle { std::move (handle) },
             my_board { board },
             my_iteration_id { iteration_id },
@@ -506,7 +507,8 @@ namespace wisdom::analysis
             my_depth { depth }
     {}
 
-    auto make_sqlite_analytics (const string &analytics_file, Logger &logger) -> wisdom::unique_ptr<Analytics>
+    auto make_sqlite_analytics (const string &analytics_file, Logger &logger)
+        -> wisdom::unique_ptr<Analytics>
     {
         auto impl = std::make_unique<SqliteAnalytics> (analytics_file, logger);
         return wisdom::make_unique<Analytics> (std::move (impl));

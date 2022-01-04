@@ -188,9 +188,6 @@ namespace wisdom
 
             recurse_or_evaluate (side, depth, alpha, beta, move, decision, position);
 
-            if (my_timed_out)
-                return;
-
             int score = my_best_score;
 
             if (score > best_score)

@@ -83,19 +83,23 @@ namespace wisdom
         string my_extra_info;
 
     public:
-        explicit Error (string message) : my_message { std::move (message) }
+        explicit Error (string message) noexcept : my_message { std::move (message) }
         {}
 
-        Error (string message, string extra_info) :
+        Error (string message, string extra_info) noexcept :
             my_message { std::move(message) }, my_extra_info { std::move(extra_info) }
         {}
 
-        [[nodiscard]] auto message() const noexcept -> const string
+        Error (const Error &src) noexcept
+            : my_message { src.my_message }, my_extra_info { src.my_extra_info }
+        {}
+
+        [[nodiscard]] auto message() const noexcept -> const string&
         {
             return my_message;
         }
 
-        [[nodiscard]] const string& extra_info() const noexcept
+        [[nodiscard]] auto extra_info() const noexcept -> const string&
         {
             return my_message;
         }
