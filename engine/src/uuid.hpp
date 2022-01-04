@@ -1,8 +1,7 @@
 #ifndef WISDOM_UUID_HPP
 #define WISDOM_UUID_HPP
 
-#include <cstdint>
-#include <string>
+#include "global.hpp"
 
 namespace wisdom
 {
