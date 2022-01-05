@@ -61,7 +61,7 @@ namespace wisdom
         void iteratively_deepen (Color side);
 
         void search_moves (Color side, int depth, int alpha, int beta,
-                           const ScoredMoveList &moves,
+                           const MoveList &moves,
                            analysis::Decision &decision);
 
         void iterate (Color side, int depth, analysis::Iteration &iteration);
@@ -158,13 +158,13 @@ namespace wisdom
     }
 
     void IterativeSearchImpl::search_moves (Color side, int depth, int alpha, int beta,
-                                            const ScoredMoveList &moves,
+                                            const MoveList &moves,
                                             analysis::Decision &decision)
     {
         int best_score = -Initial_Alpha;
         std::optional<Move> best_move {};
 
-        for (auto [move, move_score] : moves)
+        for (auto move : moves)
         {
             auto position = decision.make_position (move);
 
@@ -235,7 +235,7 @@ namespace wisdom
     {
         MoveGenerator generator = MoveGenerator { my_transpositions };
 
-        ScoredMoveList moves = generator.generate (my_board, side);
+        auto moves = generator.generate (my_board, side);
 
         search_moves (side, depth, alpha, beta, moves, decision);
 

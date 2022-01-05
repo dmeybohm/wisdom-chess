@@ -26,7 +26,7 @@ MoveList copy_moves_and_ptr (const Move **ptr)
     Board board;
     MoveList moves = generate_moves (board, Color::White);
 //    std::cout << "Moves first" << &moves.get_my_moves()[0] << "\n";
-    *ptr = moves.data();
+    *ptr = moves.data ();
     return moves;
 }
 
@@ -48,4 +48,14 @@ TEST_CASE("Copying move list")
     REQUIRE( first_move_list.size() == copy.size() );
     REQUIRE( first_move_list == copy );
     REQUIRE( to_string (first_move_list) == to_string (copy) );
+}
+
+TEST_CASE( "Appending a move" )
+{
+    MoveList list;
+
+    list.push_back (move_parse ("e4 e5"));
+    list.push_back (move_parse ("d7 d5"));
+
+    REQUIRE( list.size () == 2 );
 }

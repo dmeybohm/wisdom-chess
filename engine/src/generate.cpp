@@ -156,7 +156,7 @@ namespace wisdom
 
     static void append_move (const Board &board, MoveList &list, Move move) noexcept
     {
-        if (auto validated_move = validate_move (board, move); validated_move.has_value())
+        if (auto validated_move = validate_move (board, move); validated_move.has_value ())
         {
             list.push_back (*validated_move);
         }
@@ -481,36 +481,8 @@ namespace wisdom
         return result;
     }
 
-    auto MoveGenerator::to_scored_move_list (const Board &board, Color who,
-                                             const MoveList &move_list) -> ScoredMoveList
+    auto MoveGenerator::generate (const Board &board, Color who) -> MoveList
     {
-        ScoredMoveList result;
-        auto default_transposition = RelativeTransposition::from_defaults ();
-
-        result.reserve (move_list.size ());
-        for (auto move : move_list)
-        {
-            auto board_code = board.get_code ()
-                                  .with_move (board, move);
-
-            RelativeTransposition transposition = my_transposition_table.lookup (board_code.hash_code (), who)
-                    .value_or (default_transposition);
-
-            result.push_back ({ move, transposition.score });
-        }
-
-        return result;
-    }
-
-    auto MoveGenerator::generate (const Board &board, Color who) -> ScoredMoveList
-    {
-        auto move_list = generate_moves (board, who);
-        auto scored_moves = to_scored_move_list (board, who, move_list);
-
-        std::stable_sort (scored_moves.begin(), scored_moves.end(),[](ScoredMove a, ScoredMove b){
-              return a.score > b.score;
-        });
-
-        return scored_moves;
+        return generate_moves (board, who);
     }
 }
