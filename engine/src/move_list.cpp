@@ -42,9 +42,18 @@ namespace wisdom
 
     static constexpr std::size_t Initial_Size = 16;
     static constexpr std::size_t Size_Increment = 4;
+    static vector<unique_ptr<move_list>> move_list_ptrs;
 
     unique_ptr<move_list> alloc_move_list () noexcept
     {
+        if (!move_list_ptrs.empty ())
+        {
+            auto move_list_end = std::move (move_list_ptrs.back ());
+            move_list_ptrs.pop_back ();
+            move_list_end->size = 0;
+            return move_list_end;
+        }
+
         auto list = (move_list *) malloc (sizeof (struct move_list));
         list->move_array = (Move *) malloc (sizeof (Move) * Initial_Size);
         list->size = 0;
@@ -57,14 +66,15 @@ namespace wisdom
 
     void dealloc_move_list (unique_ptr<move_list> move_list) noexcept
     {
-        auto list = move_list.release ();
-        free (list->move_array);
-        free (list);
+        move_list_ptrs.emplace_back (std::move (move_list));
     }
 
     unique_ptr<move_list> copy_move_list (const move_list &from_list) noexcept
     {
+        std::cout << "Copying move list" << "\n";
+
         auto new_list = (move_list *) malloc (sizeof (struct move_list));
+
         new_list->move_array = (Move *) malloc (sizeof (Move) * from_list.size);
         memcpy (new_list->move_array, from_list.move_array, sizeof(struct Move) * from_list.size);
         new_list->size = from_list.size;
@@ -72,6 +82,7 @@ namespace wisdom
 
         unique_ptr<move_list> result;
         result.reset(new_list);
+
         return result;
     }
 

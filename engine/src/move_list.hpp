@@ -45,27 +45,14 @@ namespace wisdom
         }
 
         MoveList (Color color, std::initializer_list<czstring> list) noexcept;
-        MoveList (MoveList &&other) noexcept = default;
 
-        MoveList (const MoveList &other)
-        {
-            if (other.my_moves_list != this->my_moves_list)
-            {
-                dealloc_move_list (std::move (my_moves_list));
-                auto *ptr = other.my_moves_list.get();
-                my_moves_list = copy_move_list (*ptr);
-            }
-        }
+        // Delete special copy members:
+        MoveList (const MoveList &other) = delete;
+        MoveList &operator= (MoveList other) = delete;
 
-        MoveList &operator= (MoveList other) noexcept
-        {
-            auto tmp = other.my_moves_list.release ();
-            other.my_moves_list.reset (my_moves_list.release ());
-            my_moves_list.reset (tmp);
-            return *this;
-        }
-
-        MoveList &operator= (MoveList &&other) noexcept = default;
+        // Defalut move members:
+        MoveList (MoveList &&other) = default;
+        MoveList &operator= (MoveList &&other) = default;
 
         void push_back (Move move) noexcept
         {
