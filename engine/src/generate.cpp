@@ -83,7 +83,8 @@ namespace wisdom
             return row == 1;
     }
 
-    static auto valid_castling_move (const Board &board, Move move) -> bool
+    static auto valid_castling_move (const Board &board, Move move) noexcept
+        -> bool
     {
         // check for an intervening piece
         int direction;
@@ -111,7 +112,8 @@ namespace wisdom
                piece_type (piece3) == Piece::None;
     }
 
-    static auto validate_move (const Board &board, Move move) -> optional<Move>
+    static auto validate_move (const Board &board, Move move) noexcept 
+        -> optional<Move>
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
@@ -152,7 +154,7 @@ namespace wisdom
         return move;
     }
 
-    static void append_move (const Board &board, MoveList &list, Move move)
+    static void append_move (const Board &board, MoveList &list, Move move) noexcept
     {
         if (auto validated_move = validate_move (board, move); validated_move.has_value())
         {

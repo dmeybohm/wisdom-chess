@@ -129,27 +129,32 @@ namespace wisdom
         }
     }
 
-    constexpr bool is_en_passant_move (Move move)
+    constexpr auto is_en_passant_move (Move move) noexcept
+        -> bool
     {
         return move.move_category == MoveCategory::EnPassant;
     }
 
-    constexpr bool is_any_capturing_move (Move move)
+    constexpr auto is_any_capturing_move (Move move) noexcept
+        -> bool
     {
         return is_normal_capture_move (move) || is_en_passant_move (move);
     }
 
-    constexpr bool is_castling_move (Move move)
+    constexpr auto is_castling_move (Move move) noexcept
+        -> bool
     {
         return move.move_category == MoveCategory::Castling;
     }
 
-    constexpr bool is_castling_move_on_king_side (Move move)
+    constexpr auto is_castling_move_on_king_side (Move move) noexcept
+        -> bool
     {
         return is_castling_move (move) && move.dst_col == 6;
     }
 
-    constexpr Move copy_move_with_promotion (Move move, ColoredPiece piece)
+    constexpr auto copy_move_with_promotion (Move move, ColoredPiece piece) noexcept
+        -> Move
     {
         Move result = move;
         result.promoted_piece_type = piece_type (piece);
@@ -158,8 +163,9 @@ namespace wisdom
     }
 
     // run-of-the-mill move with no promotion involved
-    constexpr Move make_noncapture_move (int src_row, int src_col,
-                                         int dst_row, int dst_col)
+    constexpr auto make_noncapture_move (int src_row, int src_col,
+                                         int dst_row, int dst_col) noexcept
+        -> Move
     {
         assert (src_row >= 0 && src_row < Num_Rows);
         assert (dst_row >= 0 && src_row < Num_Rows);
@@ -178,34 +184,39 @@ namespace wisdom
         return result;
     }
 
-    constexpr Move make_noncapture_move (Coord src, Coord dst)
+    constexpr auto make_noncapture_move (Coord src, Coord dst) noexcept
+        -> Move
     {
         return make_noncapture_move (Row (src), Column (src), Row (dst), Column (dst));
     }
 
-    constexpr Move make_normal_capture_move (int src_row, int src_col,
-                                             int dst_row, int dst_col)
+    constexpr auto make_normal_capture_move (int src_row, int src_col,
+                                             int dst_row, int dst_col) noexcept
+        -> Move
     {
         Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::NormalCapture;
         return move;
     }
 
-    constexpr Move make_castling_move (int src_row, int src_col,
-                                       int dst_row, int dst_col)
+    constexpr auto make_castling_move (int src_row, int src_col,
+                                       int dst_row, int dst_col) noexcept
+        -> Move
     {
         Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::Castling;
         return move;
     }
 
-    constexpr Move make_castling_move (Coord src, Coord dst)
+    constexpr auto make_castling_move (Coord src, Coord dst) noexcept
+        -> Move
     {
         return make_castling_move (Row (src), Column (src),
                                    Row (dst), Column (dst));
     }
 
-    constexpr Move copy_move_with_capture (Move move)
+    constexpr auto copy_move_with_capture (Move move) noexcept
+        -> Move
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
@@ -215,20 +226,23 @@ namespace wisdom
         return result;
     }
 
-    constexpr Move make_en_passant_move (int src_row, int src_col,
-                                         int dst_row, int dst_col)
+    constexpr auto make_en_passant_move (int src_row, int src_col,
+                                         int dst_row, int dst_col) noexcept
+        -> Move
     {
         Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::EnPassant;
         return move;
     }
 
-    constexpr Move make_en_passant_move (Coord src, Coord dst)
+    constexpr auto make_en_passant_move (Coord src, Coord dst) noexcept
+        -> Move
     {
         return make_en_passant_move (Row (src), Column (src), Row (dst), Column (dst));
     }
 
-    constexpr bool move_equals (Move a, Move b)
+    constexpr auto move_equals (Move a, Move b) noexcept
+        -> bool
     {
         return a.src_row == b.src_row &&
                a.dst_row == b.dst_row &&
@@ -239,39 +253,46 @@ namespace wisdom
                a.promoted_piece_type == b.promoted_piece_type;
     }
 
-    constexpr bool operator== (Move a, Move b)
+    constexpr auto operator== (Move a, Move b) noexcept
+        -> bool
     {
         return move_equals (a, b);
     }
 
-    constexpr bool operator!= (Move a, Move b)
+    constexpr auto operator!= (Move a, Move b) noexcept
+        -> bool
     {
         return !move_equals (a, b);
     }
 
     // Pack the castle state into the move.
-    constexpr CastlingState unpack_castle_state (CastlingState state)
+    constexpr auto unpack_castle_state (CastlingState state) noexcept
+        -> CastlingState
     {
         return state == Castle_Previously_None ? Castle_None : state;
     }
 
     // Unpack the castle state from the move.
-    constexpr CastlingState pack_castle_state (CastlingState state)
+    constexpr auto pack_castle_state (CastlingState state) noexcept
+        -> CastlingState
     {
         return state == Castle_None ? Castle_Previously_None : state;
     }
 
-    constexpr CastlingState current_castle_state (UndoMove move)
+    constexpr auto current_castle_state (UndoMove move) noexcept
+        -> CastlingState
     {
         return unpack_castle_state (move.current_castle_state);
     }
 
-    constexpr CastlingState opponent_castle_state (UndoMove undo_state)
+    constexpr auto opponent_castle_state (UndoMove undo_state) noexcept
+        -> CastlingState
     {
         return unpack_castle_state (undo_state.opponent_castle_state);
     }
 
-    constexpr bool is_en_passant_vulnerable (UndoMove undo_state, Color who)
+    constexpr auto is_en_passant_vulnerable (UndoMove undo_state, Color who) noexcept
+        -> bool
     {
         return undo_state.en_passant_target[color_index (who)] != No_En_Passant_Coord;
     }
