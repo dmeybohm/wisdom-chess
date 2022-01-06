@@ -9,8 +9,11 @@ namespace wisdom
 {
     BoardCode::BoardCode (const Board &board)
     {
-        for (auto coord : All_Coords_Iterator)
+        int row, col;
+
+        FOR_EACH_ROW_AND_COL(row, col)
         {
+            auto coord = make_coord (row, col);
             ColoredPiece piece = board.piece_at (coord);
             this->add_piece (coord, piece);
         }

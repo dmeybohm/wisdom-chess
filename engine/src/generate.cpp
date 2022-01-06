@@ -51,7 +51,9 @@ namespace wisdom
     // generate a lookup table for knight moves
     static void knight_move_list_init (MoveList knight_moves[Num_Rows][Num_Columns])
     {
-        for (auto[row, col] : All_Coords_Iterator)
+        int row, col;
+
+        FOR_EACH_ROW_AND_COL(row, col)
         {
             for (int k_row = -2; k_row <= 2; k_row++)
             {
@@ -468,8 +470,10 @@ namespace wisdom
         MoveList result;
         MoveGeneration generation { board, result, 0, 0, who };
 
-        for (const auto coord : All_Coords_Iterator)
+        int row, col;
+        FOR_EACH_ROW_AND_COL(row, col)
         {
+            auto coord = make_coord (row, col);
             ColoredPiece piece = board.piece_at (coord);
 
             if (piece_color (piece) != who)
