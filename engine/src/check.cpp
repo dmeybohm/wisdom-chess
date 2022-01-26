@@ -7,7 +7,7 @@
 
 namespace wisdom
 {
-    bool is_checkmated (Board &board, Color who)
+    bool is_checkmated (Board& board, Color who)
     {
         auto coord = board.get_king_position (who);
 
@@ -19,7 +19,7 @@ namespace wisdom
         return legal_moves.empty ();
     }
 
-    bool is_king_threatened (Board &board, Color who,
+    bool is_king_threatened (Board& board, Color who,
                              int king_row, int king_col)
     {
         int row, col;
@@ -157,7 +157,7 @@ namespace wisdom
         return false;
     }
 
-    bool was_legal_move (Board &board, Color who, Move mv)
+    bool was_legal_move (Board& board, Color who, Move mv)
     {
         auto[king_row, king_col] = board.get_king_position (who);
 
