@@ -1,7 +1,7 @@
 #include "move_list.hpp"
 
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
 
 namespace wisdom
 {
@@ -23,14 +23,9 @@ namespace wisdom
         return result;
     }
 
-    static vector<unique_ptr<MoveVector>> my_move_vector_ptrs {};
+    auto to_string (const MoveList& list) -> string { return list.to_string (); }
 
-    auto to_string (const MoveList &list) -> string
-    {
-        return list.to_string ();
-    }
-
-    std::ostream &operator<< (std::ostream &os, const MoveList &list)
+    std::ostream& operator<< (std::ostream& os, const MoveList& list)
     {
         os << to_string (list);
         return os;
@@ -54,13 +49,13 @@ namespace wisdom
             return move_list_end;
         }
 
-        auto list = (move_list *) malloc (sizeof (struct move_list));
-        list->move_array = (Move *) malloc (sizeof (Move) * Initial_Size);
+        auto list = (move_list*)malloc (sizeof (struct move_list));
+        list->move_array = (Move*)malloc (sizeof (Move) * Initial_Size);
         list->size = 0;
         list->capacity = Initial_Size;
 
         unique_ptr<move_list> result;
-        result.reset(list);
+        result.reset (list);
         return result;
     }
 
@@ -69,44 +64,33 @@ namespace wisdom
         move_list_ptrs.emplace_back (std::move (move_list));
     }
 
-    unique_ptr<move_list> copy_move_list (const move_list &from_list) noexcept
+    unique_ptr<move_list> copy_move_list (const move_list& from_list) noexcept
     {
-        std::cout << "Copying move list" << "\n";
+        std::cout << "Copying move list"
+                  << "\n";
 
-        auto new_list = (move_list *) malloc (sizeof (struct move_list));
+        auto new_list = (move_list*)malloc (sizeof (struct move_list));
 
-        new_list->move_array = (Move *) malloc (sizeof (Move) * from_list.size);
-        memcpy (new_list->move_array, from_list.move_array, sizeof(struct Move) * from_list.size);
+        new_list->move_array = (Move*)malloc (sizeof (Move) * from_list.size);
+        memcpy (new_list->move_array, from_list.move_array, sizeof (struct Move) * from_list.size);
         new_list->size = from_list.size;
         new_list->capacity = from_list.size;
 
         unique_ptr<move_list> result;
-        result.reset(new_list);
+        result.reset (new_list);
 
         return result;
     }
 
-    std::size_t move_list_size (move_list &ptr) noexcept
-    {
-        return ptr.size;
-    }
+    std::size_t move_list_size (move_list& ptr) noexcept { return ptr.size; }
 
-    std::size_t move_list_capacity (move_list &ptr) noexcept
-    {
-        return ptr.capacity;
-    }
+    std::size_t move_list_capacity (move_list& ptr) noexcept { return ptr.capacity; }
 
-    Move *move_list_begin (move_list &ptr) noexcept
-    {
-        return ptr.move_array;
-    }
+    Move* move_list_begin (move_list& ptr) noexcept { return ptr.move_array; }
 
-    Move *move_list_end (move_list &ptr) noexcept
-    {
-        return ptr.move_array + ptr.size;
-    }
+    Move* move_list_end (move_list& ptr) noexcept { return ptr.move_array + ptr.size; }
 
-    void move_list_append (move_list &list, Move move) noexcept
+    void move_list_append (move_list& list, Move move) noexcept
     {
         assert (list.size <= list.capacity);
 
@@ -115,14 +99,14 @@ namespace wisdom
             list.capacity += Size_Increment;
 
             std::size_t new_size = list.capacity * sizeof (Move);
-            list.move_array = (Move *) realloc (list.move_array, new_size);
+            list.move_array = (Move*)realloc (list.move_array, new_size);
         }
 
         assert (list.move_array != nullptr);
         list.move_array[list.size++] = move;
     }
 
-    void move_list_pop (move_list &list) noexcept
+    void move_list_pop (move_list& list) noexcept
     {
         assert (list.size > 0);
         list.size--;
