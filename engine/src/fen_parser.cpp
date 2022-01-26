@@ -10,11 +10,7 @@ namespace wisdom
 
     Game FenParser::build ()
     {
-        return Game {
-                active_player,
-                color_invert (active_player),
-                builder
-        };
+        return Game { active_player, color_invert (active_player), builder };
     }
 
     auto FenParser::parse_piece (char ch) -> ColoredPiece
@@ -24,13 +20,20 @@ namespace wisdom
 
         switch (lower)
         {
-            case 'k': return make_piece (who, Piece::King);
-            case 'q': return make_piece (who, Piece::Queen);
-            case 'r': return make_piece (who, Piece::Rook);
-            case 'b': return make_piece (who, Piece::Bishop);
-            case 'n': return make_piece (who, Piece::Knight);
-            case 'p': return make_piece (who, Piece::Pawn);
-            default: throw FenParserError ("Invalid piece type!");
+            case 'k':
+                return make_piece (who, Piece::King);
+            case 'q':
+                return make_piece (who, Piece::Queen);
+            case 'r':
+                return make_piece (who, Piece::Rook);
+            case 'b':
+                return make_piece (who, Piece::Bishop);
+            case 'n':
+                return make_piece (who, Piece::Knight);
+            case 'p':
+                return make_piece (who, Piece::Pawn);
+            default:
+                throw FenParserError ("Invalid piece type!");
         }
     }
 
@@ -38,9 +41,12 @@ namespace wisdom
     {
         switch (ch)
         {
-            case 'w': return Color::White;
-            case 'b': return Color::Black;
-            default: throw FenParserError ("Invalid active color!");
+            case 'w':
+                return Color::White;
+            case 'b':
+                return Color::Black;
+            default:
+                throw FenParserError ("Invalid active color!");
         }
     }
 
@@ -99,7 +105,7 @@ namespace wisdom
             string cstr { str.substr (0, 2) };
             builder.set_en_passant_target (color_invert (active_player), cstr.c_str ());
         }
-        catch ([[maybe_unused]] const BoardBuilderError &e)
+        catch ([[maybe_unused]] const BoardBuilderError& e)
         {
             throw FenParserError ("Error parsing en passant coordinate!");
         }
@@ -122,9 +128,11 @@ namespace wisdom
 
             switch (tolower (ch))
             {
-                case 'k':new_state &= ~Castle_Kingside;
+                case 'k':
+                    new_state &= ~Castle_Kingside;
                     break;
-                case 'q':new_state &= ~Castle_Queenside;
+                case 'q':
+                    new_state &= ~Castle_Queenside;
                     break;
             }
 
@@ -132,7 +140,6 @@ namespace wisdom
                 black_castle &= new_state;
             else
                 white_castle &= new_state;
-
         }
 
         builder.set_castling (Color::White, white_castle);
@@ -140,18 +147,12 @@ namespace wisdom
     }
 
     // halfmove clock:
-    void FenParser::parse_half_move (int half_moves)
-    {
-        builder.set_half_moves (half_moves);
-    }
+    void FenParser::parse_half_move (int half_moves) { builder.set_half_moves (half_moves); }
 
     // fullmove number:
-    void FenParser::parse_full_move (int full_moves)
-    {
-        builder.set_full_moves (full_moves);
-    }
+    void FenParser::parse_full_move (int full_moves) { builder.set_full_moves (full_moves); }
 
-    void FenParser::parse (const string &source)
+    void FenParser::parse (const string& source)
     {
         std::stringstream input { source };
 
@@ -178,13 +179,13 @@ namespace wisdom
         // halfmove clock:
         int half_moves;
         input >> half_moves;
-        if (!input.fail())
+        if (!input.fail ())
             parse_half_move (half_moves);
 
         // fullmove number:
         int full_moves;
         input >> full_moves;
-        if (!input.fail())
+        if (!input.fail ())
             parse_full_move (full_moves);
     }
 
