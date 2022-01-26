@@ -38,7 +38,7 @@ namespace wisdom
 
     static void knight_move_list_init (MoveList knight_moves[Num_Rows][Num_Columns]);
 
-    static auto get_knight_moves (int row, int col) -> MoveList&
+    static auto get_knight_moves (int row, int col) -> const MoveList&
     {
         static MoveList knight_moves[Num_Rows][Num_Columns];
 
