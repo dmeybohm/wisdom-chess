@@ -10,19 +10,19 @@ namespace wisdom
     public:
         NullLogger () = default;
 
-        void println ([[maybe_unused]] const string &output) override
+        void println ([[maybe_unused]] const string &output) const override
         {}
     };
 
     class StandardLogger : public Logger
     {
     private:
-        std::mutex output_mutex;
+        mutable std::mutex output_mutex;
 
     public:
         StandardLogger () = default;
 
-        void println (const string &output) override
+        void println (const string &output) const override
         {
             std::lock_guard lock { output_mutex };
             std::cout << output << '\n';

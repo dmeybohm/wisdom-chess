@@ -20,7 +20,7 @@ namespace wisdom
     private:
         Board* my_board;
         History*  my_history;
-        Logger* my_output;
+        const Logger* my_output;
         analysis::Analytics* my_analytics;
         MoveTimer my_timer;
         int my_total_depth;
@@ -31,7 +31,7 @@ namespace wisdom
         bool my_timed_out = false;
 
     public:
-        IterativeSearchImpl (Board& board, History& history, Logger& output, MoveTimer timer,
+        IterativeSearchImpl (Board& board, History& history, const Logger& output, MoveTimer timer,
                              int total_depth, analysis::Analytics& analytics) :
                 my_board { &board },
                 my_history { &history },
@@ -42,7 +42,7 @@ namespace wisdom
         {
         }
 
-        IterativeSearchImpl (Board& board, History& history, Logger& output, MoveTimer timer,
+        IterativeSearchImpl (Board& board, History& history, const Logger& output, MoveTimer timer,
                              int total_depth) :
                 IterativeSearchImpl (board, history, output, timer, total_depth,
                                      analysis::make_dummy_analytics ())
@@ -74,7 +74,7 @@ namespace wisdom
     };
 
     IterativeSearch::~IterativeSearch() = default;
-    IterativeSearch::IterativeSearch (Board& board, History& history, Logger& output,
+    IterativeSearch::IterativeSearch (Board& board, History& history, const Logger& output,
                                       MoveTimer timer, int total_depth,
                                       analysis::Analytics& analytics) :
             impl { make_unique<IterativeSearchImpl> (
@@ -82,7 +82,7 @@ namespace wisdom
     {
     }
 
-    IterativeSearch::IterativeSearch (Board& board, History& history, Logger& output,
+    IterativeSearch::IterativeSearch (Board& board, History& history, const Logger& output,
                                       MoveTimer timer, int total_depth) :
             IterativeSearch (board, history, output, timer, total_depth,
                              analysis::make_dummy_analytics ())
@@ -223,7 +223,7 @@ namespace wisdom
         }
     }
 
-    static void calc_time (Logger& output, int nodes, system_clock_t start, system_clock_t end)
+    static void calc_time (const Logger& output, int nodes, system_clock_t start, system_clock_t end)
     {
         auto seconds_duration = chrono::duration<double> (end - start);
         auto seconds = seconds_duration.count();

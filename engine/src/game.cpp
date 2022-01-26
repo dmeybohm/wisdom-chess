@@ -55,7 +55,7 @@ namespace wisdom
         this->my_analytics = std::move (new_analytics);
     }
 
-    auto Game::find_best_move (Logger &logger, Color whom) const -> optional<Move>
+    auto Game::find_best_move (const Logger &logger, Color whom) const -> optional<Move>
     {
         if (whom == Color::None)
             whom = my_computer_player;
@@ -146,11 +146,6 @@ namespace wisdom
     auto Game::get_history () const& -> History&
     {
         return *my_history;
-    }
-
-    auto Game::get_transposition_table () const& -> TranspositionTable&
-    {
-        return *my_transposition_table;
     }
 
     bool Game::is_computer_turn () const

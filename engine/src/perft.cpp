@@ -1,17 +1,17 @@
 #include "perft.hpp"
 #include "board.hpp"
-#include "move.hpp"
 #include "check.hpp"
+#include "move.hpp"
 #include "piece.hpp"
 #include "str.hpp"
 
 namespace wisdom
 {
+    using wisdom::perft::MoveCounter;
     using wisdom::perft::Stats;
     using wisdom::perft::to_move_list;
-    using wisdom::perft::MoveCounter;
 
-    void Stats::search_moves (Board &board, Color side, int depth, int max_depth)
+    void Stats::search_moves (Board& board, Color side, int depth, int max_depth)
     {
         if (depth >= max_depth)
             return;
@@ -46,8 +46,7 @@ namespace wisdom
         }
     }
 
-    auto wisdom::perft::convert_move (const Board &board, Color who, string move_str)
-        -> Move
+    auto wisdom::perft::convert_move (const Board& board, Color who, string move_str) -> Move
     {
         if (move_str.size () != 4 && move_str.size () != 5)
             throw wisdom::Error { "Invalid size of move" };
@@ -72,8 +71,8 @@ namespace wisdom
         // 1. castling is represented by two space king moves
         if (wisdom::piece_type (src_piece) == Piece::King)
         {
-            int castling_row = piece_color (src_piece) == Color::White ?
-                   wisdom::Last_Row : wisdom::First_Row;
+            int castling_row
+                = piece_color (src_piece) == Color::White ? wisdom::Last_Row : wisdom::First_Row;
             if (castling_row == Row (src) && castling_row == Row (dst)
                 && std::abs (Column (src) - Column (dst)))
             {
@@ -84,8 +83,8 @@ namespace wisdom
         // 2. en-passant is represented without (ep) suffix
         if (wisdom::piece_type (src_piece) == Piece::Pawn)
         {
-            if (Row (src) != Row (dst) && Column (src) != Column (dst) &&
-                dst_piece == Piece_And_Color_None)
+            if (Row (src) != Row (dst) && Column (src) != Column (dst)
+                && dst_piece == Piece_And_Color_None)
             {
                 result = make_en_passant_move (src, dst);
             }
@@ -102,8 +101,8 @@ namespace wisdom
         return result;
     }
 
-    auto wisdom::perft::to_move_list (const Board &board, Color who,
-                                      const string &move_list) -> MoveList
+    auto wisdom::perft::to_move_list (const Board& board, Color who, const string& move_list)
+        -> MoveList
     {
         MoveList result;
 
@@ -112,7 +111,7 @@ namespace wisdom
 
         auto moves_str_list = wisdom::split (move_list, " ");
 
-        for (const auto &move_str : moves_str_list)
+        for (const auto& move_str : moves_str_list)
         {
             auto move = convert_move (board_copy, who, move_str);
             board_copy.make_move (who, move);
@@ -123,14 +122,14 @@ namespace wisdom
         return result;
     }
 
-    auto wisdom::perft::to_perft_move (const Move &move, Color who) -> string
+    auto wisdom::perft::to_perft_move (const Move& move, Color who) -> string
     {
         if (is_castling_move (move))
         {
             auto row = who == Color::White ? Last_Row : First_Row;
             auto src_col = King_Column;
-            auto dst_col = is_castling_move_on_king_side (move) ?
-                    Kingside_Castled_King_Column : Queenside_Castled_King_Column;
+            auto dst_col = is_castling_move_on_king_side (move) ? Kingside_Castled_King_Column
+                                                                : Queenside_Castled_King_Column;
 
             Move normal = wisdom::make_noncapture_move (row, src_col, row, dst_col);
             return wisdom::to_string (move_src (normal)) + wisdom::to_string (move_dst (normal));
@@ -145,17 +144,15 @@ namespace wisdom
         {
             auto promoted = move_get_promoted_piece (move);
 
-            return wisdom::to_string (move_src (move)) +
-                wisdom::to_string (move_dst (move)) +
-                wisdom::piece_char (promoted);
+            return wisdom::to_string (move_src (move)) + wisdom::to_string (move_dst (move))
+                + wisdom::piece_char (promoted);
         }
 
-        return wisdom::to_string (move_src (move)) +
-            wisdom::to_string (move_dst (move));
+        return wisdom::to_string (move_src (move)) + wisdom::to_string (move_dst (move));
     }
 
-    auto wisdom::perft::perft_results (const Board &board,
-                                       Color active_player, int depth) -> PerftResults
+    auto wisdom::perft::perft_results (const Board& board, Color active_player, int depth)
+        -> PerftResults
     {
         Board board_copy = board;
         wisdom::perft::PerftResults results;
@@ -163,7 +160,7 @@ namespace wisdom
 
         auto moves = wisdom::generate_moves (board_copy, active_player);
 
-        for (const auto &move : moves)
+        for (const auto& move : moves)
         {
             Stats stats;
 
@@ -189,10 +186,9 @@ namespace wisdom
         return results;
     }
 
-    auto wisdom::perft::apply_list (Board &board, Color color,
-                                    const MoveList &list) -> Color
+    auto wisdom::perft::apply_list (Board& board, Color color, const MoveList& list) -> Color
     {
-        for (auto &move : list)
+        for (auto& move : list)
         {
             board.make_move (color, move);
             color = wisdom::color_invert (color);
@@ -201,11 +197,11 @@ namespace wisdom
         return color;
     }
 
-    auto wisdom::perft::to_string (const PerftResults &perft_results) -> string
+    auto wisdom::perft::to_string (const PerftResults& perft_results) -> string
     {
         string output;
 
-        for (const auto &move_result : perft_results.move_results)
+        for (const auto& move_result : perft_results.move_results)
         {
             int64_t nodes = move_result.nodes > 0 ? move_result.nodes : 1;
             output += move_result.move + " " + std::to_string (nodes) + "\n";

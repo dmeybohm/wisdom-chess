@@ -82,50 +82,6 @@ namespace wisdom
             return result;
         }
     };
-
-    using TranspositionList = std::list<ColoredTransposition>;
-    using TranspositionListIterator = TranspositionList::iterator;
-    using TranspositionMap = std::unordered_map<BoardHashCode, TranspositionListIterator>;
-
-    class TranspositionTable final
-    {
-    private:
-        TranspositionList my_list{};
-        TranspositionMap my_map{};
-        std::size_t my_num_elements = 0;
-
-        int my_hits = 0;
-        int my_misses = 0;
-        int my_dupe_hashes = 0;
-
-    public:
-        // Lookup the transposition.
-        [[nodiscard]] auto lookup (BoardHashCode hash, Color who)
-            -> optional<RelativeTransposition>
-        {
-            return nullopt;
-        }
-
-        [[nodiscard]] auto lookup_board_for_depth (Board &board, Color who, int depth)
-            -> optional<RelativeTransposition>
-        {
-            return nullopt;
-        }
-
-        // Add the transposition.
-        void add (RelativeTransposition transposition, Color who)
-        {}
-
-        // Add the evaluation to the table.
-        void add (const Board &board, int score, Color who, int relative_depth,
-                  const VariationGlimpse &variation_glimpse)
-        {}
-
-        [[nodiscard]] auto size() const -> std::size_t
-        {
-            return my_num_elements;
-        }
-    };
 }
 
 namespace std
