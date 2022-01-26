@@ -52,23 +52,12 @@ namespace wisdom
         void iteratively_deepen (Color side);
 
         void search_moves (Color side, int depth, int alpha, int beta,
-                           const MoveList& moves,
                            analysis::Decision& decision);
 
         void iterate (Color side, int depth, analysis::Iteration& iteration);
 
         void search (Color side, int depth, int alpha, int beta,
                      analysis::Decision& decision);
-
-        void recurse_or_evaluate (Color side, int depth, int alpha, int beta,
-                                  Move move, analysis::Decision& parent,
-                                  analysis::Position& position);
-
-        void evaluated_value (Color side, int depth,
-                              Move move, analysis::Position& position);
-
-        void recursed_value (Color side, int depth, int alpha, int beta, Move move,
-                             analysis::Decision& parent, analysis::Position& position);
 
         [[nodiscard]] auto synthesize_result () const -> SearchResult;
     };
@@ -96,51 +85,13 @@ namespace wisdom
          return impl->synthesize_result ();
     }
 
-    void IterativeSearchImpl::recurse_or_evaluate (Color side, int depth, int alpha, int beta,
-                                                   Move move, analysis::Decision& parent,
-                                                   analysis::Position& position)
-    {
-        if (depth <= 0)
-        {
-            evaluated_value (side, depth, move, position);
-            return;
-        }
-        else
-        {
-            recursed_value (side, depth, alpha, beta, move, parent, position);
-            return;
-        }
-    }
-
-    void
-    IterativeSearchImpl::recursed_value (Color side, int depth, int alpha, int beta, Move move,
-                                         analysis::Decision& parent, analysis::Position& position)
-    {
-        auto decision = parent.make_child (position);
-
-        search (color_invert (side), depth - 1,
-                -beta, -alpha, decision);
-
-        if (my_timed_out)
-            return;
-
-        my_best_score *= -1;
-    }
-
-    void
-    IterativeSearchImpl::evaluated_value (Color side, int depth, Move move,
-                                          [[maybe_unused]] analysis::Position& position)
-    {
-        my_best_score = evaluate_and_check_draw (*my_board, side, my_total_depth - depth,
-                                                 move, *my_history);
-    }
-
     void IterativeSearchImpl::search_moves (Color side, int depth, int alpha, int beta,
-                                            const MoveList& moves,
                                             analysis::Decision& decision)
     {
         int best_score = -Initial_Alpha;
         std::optional<Move> best_move {};
+        MoveGenerator generator;
+        auto moves = generator.generate (*my_board, side);
 
         for (auto move : moves)
         {
@@ -164,7 +115,19 @@ namespace wisdom
 
             my_history->add_position_and_move (*my_board, move);
 
-            recurse_or_evaluate (side, depth, alpha, beta, move, decision, position);
+            if (depth <= 0)
+            {
+                my_best_score = evaluate_and_check_draw (*my_board, side, my_total_depth - depth,
+                                                         move, *my_history);
+            }
+            else
+            {
+                auto new_decision = decision.make_child (position);
+
+                search_moves (color_invert (side), depth - 1, -beta, -alpha, new_decision);
+
+                my_best_score *= -1;
+            }
 
             int score = my_best_score;
 
@@ -204,11 +167,7 @@ namespace wisdom
     void IterativeSearchImpl::search (Color side, int depth,
                                       int alpha, int beta, analysis::Decision& decision)
     {
-        MoveGenerator generator;
-
-        auto moves = generator.generate (*my_board, side);
-
-        search_moves (side, depth, alpha, beta, moves, decision);
+        search_moves (side, depth, alpha, beta, decision);
 
         if (my_timed_out)
             return;
