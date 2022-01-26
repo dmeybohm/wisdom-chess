@@ -7,7 +7,7 @@ namespace wisdom
     struct MoveGeneration
     {
         const Board &board;
-        MoveList &moves;
+        MoveList& moves;
         int piece_row;
         int piece_col;
         const Color who;
@@ -114,7 +114,7 @@ namespace wisdom
                piece_type (piece3) == Piece::None;
     }
 
-    static auto validate_move (const Board &board, Move move) noexcept 
+    static auto validate_move (const Board &board, Move move) noexcept
         -> optional<Move>
     {
         Coord src = move_src (move);
@@ -156,7 +156,7 @@ namespace wisdom
         return move;
     }
 
-    static void append_move (const Board &board, MoveList &list, Move move) noexcept
+    static void append_move (const Board &board, MoveList& list, Move move) noexcept
     {
         if (auto validated_move = validate_move (board, move); validated_move.has_value ())
         {
@@ -416,7 +416,7 @@ namespace wisdom
         return get_knight_moves (row, col);
     }
 
-    auto generate_legal_moves (Board &board, Color who) -> MoveList
+    auto generate_legal_moves (Board& board, Color who) -> MoveList
     {
         MoveList non_checks;
 
@@ -465,7 +465,7 @@ namespace wisdom
         }
     }
 
-    auto generate_moves (const Board &board, Color who) -> MoveList
+    auto generate_moves (const Board& board, Color who) -> MoveList
     {
         MoveList result;
         MoveGeneration generation { board, result, 0, 0, who };
@@ -485,7 +485,7 @@ namespace wisdom
         return result;
     }
 
-    auto MoveGenerator::generate (const Board &board, Color who) -> MoveList
+    auto MoveGenerator::generate (const Board& board, Color who) -> MoveList
     {
         return generate_moves (board, who);
     }

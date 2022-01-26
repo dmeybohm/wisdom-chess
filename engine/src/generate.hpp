@@ -23,14 +23,14 @@ namespace wisdom
         MoveGenerator ()
         {}
 
-        auto generate (const Board &board, Color who) -> MoveList;
+        auto generate (const Board& board, Color who) -> MoveList;
     };
 
-    auto generate_moves (const Board &board, Color who) -> MoveList;
+    auto generate_moves (const Board& board, Color who) -> MoveList;
 
     auto generate_legal_moves (Board &board, Color who) -> MoveList;
 
-    auto generate_captures (const Board &board, Color who) -> MoveList;
+    auto generate_captures (const Board& board, Color who) -> MoveList;
 
     auto need_pawn_promotion (int row, Color who) -> bool;
 
