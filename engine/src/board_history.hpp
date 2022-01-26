@@ -9,7 +9,8 @@ namespace wisdom
     class BoardHistory
     {
     private:
-        phmap::parallel_flat_hash_map<BoardCodeBitset, int> position_counts;
+//        phmap::parallel_flat_hash_map<BoardCodeBitset, int> position_counts;
+        std::unordered_map<BoardCodeBitset, int> position_counts;
 
     public:
         BoardHistory () = default;

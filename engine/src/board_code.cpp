@@ -7,7 +7,7 @@
 
 namespace wisdom
 {
-    BoardCode::BoardCode (const Board &board)
+    BoardCode::BoardCode (const Board& board)
     {
         int row, col;
 
@@ -19,7 +19,7 @@ namespace wisdom
         }
     }
 
-    void BoardCode::apply_move (const Board &board, Move move)
+    void BoardCode::apply_move (const Board& board, Move move)
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
@@ -68,7 +68,7 @@ namespace wisdom
         }
     }
 
-    void BoardCode::unapply_move (const Board &board,
+    void BoardCode::unapply_move (const Board& board,
                                   Move move, UndoMove undo_state)
     {
         Coord src = move_src (move);
@@ -130,7 +130,7 @@ namespace wisdom
         return std::count (str.begin (), str.end (), '1');
     }
 
-    std::ostream &operator<< (std::ostream &os, const BoardCode &code)
+    std::ostream& operator<< (std::ostream& os, const BoardCode& code)
     {
         os << "{ bits: " << code.bits << " }";
         return os;

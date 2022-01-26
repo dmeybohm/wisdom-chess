@@ -18,24 +18,24 @@ namespace wisdom
     public:
         virtual ~History() = default;
 
-        static bool is_fifty_move_repetition (Board &board)
+        static bool is_fifty_move_repetition (const Board& board)
         {
             return board.get_half_move_clock () >= 100;
         }
 
-        bool is_third_repetition (Board &board) const
+        [[nodiscard]] bool is_third_repetition (const Board& board) const
         {
             auto count = my_board_history.position_count (board.get_code ());
             return (count == 3);
         }
 
-        void add_position_and_move (Board &board, Move move)
+        void add_position_and_move (Board& board, Move move)
         {
             this->my_board_history.add_board_code (board.get_code ());
             my_move_history.push_back (move);
         }
 
-        void remove_position_and_last_move (Board &board)
+        void remove_position_and_last_move (Board& board)
         {
             this->my_board_history.remove_board_code (board.get_code ());
             my_move_history.pop_back ();
