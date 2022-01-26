@@ -57,7 +57,7 @@ namespace wisdom
     public:
         Board ();
 
-        Board (const Board &board) = default;
+        Board (const Board& board) = default;
 
         explicit Board (const vector<BoardPositions> &positions);
 
@@ -87,11 +87,11 @@ namespace wisdom
             this->my_squares[Row (coord)][Column (coord)] = piece;
         }
 
-        void print_to_file (std::ostream &out) const;
+        void print_to_file (std::ostream& out) const;
 
         void dump () const;
 
-        void update_move_clock (Color who, Piece orig_src_piece_type, Move mv, UndoMove &undo_state)
+        void update_move_clock (Color who, Piece orig_src_piece_type, Move mv, UndoMove& undo_state)
         {
             undo_state.half_move_clock = this->my_half_move_clock;
             if (is_any_capturing_move (mv) || orig_src_piece_type == Piece::Pawn)
@@ -106,7 +106,7 @@ namespace wisdom
             }
         }
 
-        void restore_move_clock (const UndoMove &undo_state)
+        void restore_move_clock (const UndoMove& undo_state)
         {
             this->my_half_move_clock = undo_state.half_move_clock;
             if (undo_state.full_move_clock_updated)
