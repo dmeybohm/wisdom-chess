@@ -23,6 +23,7 @@
 #include <cassert>
 
 #include <gsl/gsl>
+#include <parallel_hashmap/phmap.h>
 
 namespace wisdom
 {

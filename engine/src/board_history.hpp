@@ -9,7 +9,7 @@ namespace wisdom
     class BoardHistory
     {
     private:
-        std::unordered_map<BoardCodeBitset, int> position_counts;
+        phmap::parallel_flat_hash_map<BoardCodeBitset, int> position_counts;
 
     public:
         BoardHistory () = default;
@@ -23,22 +23,24 @@ namespace wisdom
 
         void add_board_code (const BoardCode& board_code) noexcept
         {
-            const auto &bits = board_code.bitset_ref ();
+            const auto& bits = board_code.bitset_ref ();
             position_counts[bits]++;
         }
 
         void remove_board_code (const BoardCode& board_code) noexcept
         {
-            const auto &bits = board_code.bitset_ref ();
+            const auto& bits = board_code.bitset_ref ();
+            auto iterator = position_counts.find (bits);
+            assert (iterator != position_counts.end ());
 
-            auto count = position_counts.at (bits) - 1;
+            auto count = iterator->second - 1;
             if (count <= 0)
             {
-                position_counts.erase (bits);
+                position_counts.erase (iterator);
             }
             else
             {
-                position_counts[bits] = count;
+                iterator->second = count;
             }
         }
     };
