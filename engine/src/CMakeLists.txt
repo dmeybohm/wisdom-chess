@@ -1,7 +1,6 @@
 find_package(SQLite3 REQUIRED)
 find_package(Microsoft.GSL REQUIRED)
 find_package(argh REQUIRED)
-find_package(phmap REQUIRED)
 
 add_library(wisdom-chess-core STATIC
         board.cpp check.cpp evaluate.cpp game.cpp generate.cpp material.cpp move.cpp
@@ -25,7 +24,6 @@ add_executable(chess main.cpp)
 target_precompile_headers(chess REUSE_FROM wisdom-chess-core)
 
 target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
-target_link_libraries(wisdom-chess-core PUBLIC phmap::phmap)
 target_link_libraries(wisdom-chess-core PUBLIC SQLite::SQLite3)
 target_link_libraries(chess PRIVATE wisdom::chess)
 target_link_libraries(chess PRIVATE argh::argh)
