@@ -1,4 +1,3 @@
-
 #ifndef WISDOM_BOARD_HISTORY_HPP
 #define WISDOM_BOARD_HISTORY_HPP
 
@@ -15,25 +14,20 @@ namespace wisdom
     public:
         BoardHistory () = default;
 
-        [[nodiscard]] int position_count (const BoardCode &code) const
+        [[nodiscard]] auto position_count (const BoardCode& code) const noexcept
+            -> int
         {
-            try
-            {
-                return position_counts.at (code.bitset_ref ());
-            }
-            catch ([[maybe_unused]] std::out_of_range &r)
-            {
-                return 0;
-            }
+            auto iterator = position_counts.find (code.bitset_ref ());
+            return iterator == position_counts.end () ? 0 : iterator->second;
         }
 
-        void add_board_code (const BoardCode &board_code)
+        void add_board_code (const BoardCode& board_code) noexcept
         {
             const auto &bits = board_code.bitset_ref ();
             position_counts[bits]++;
         }
 
-        void remove_board_code (const BoardCode &board_code)
+        void remove_board_code (const BoardCode& board_code) noexcept
         {
             const auto &bits = board_code.bitset_ref ();
 
