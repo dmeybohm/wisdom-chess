@@ -32,24 +32,26 @@ namespace wisdom
 
     struct UndoMove
     {
-        MoveCategory category;
+        // todo: optimize by using bitfields and free functions
+        int half_move_clock;
         Piece taken_piece_type;
-
+        Coord en_passant_target[Num_Players];
+        MoveCategory category;
         CastlingState current_castle_state;
         CastlingState opponent_castle_state;
-        int half_move_clock;
         bool full_move_clock_updated;
-        Coord en_passant_target[Num_Players];
     };
 
+//    static_assert(sizeof(UndoMove) <= 8);
+
     constexpr UndoMove Empty_Undo_State = {
-            .category = MoveCategory::NonCapture,
-            .taken_piece_type = Piece::None,
-            .current_castle_state = Castle_None,
-            .opponent_castle_state = Castle_None,
-            .half_move_clock = 0,
-            .full_move_clock_updated = false,
-            .en_passant_target = { No_En_Passant_Coord, No_En_Passant_Coord },
+        .half_move_clock = 0,
+        .taken_piece_type = Piece::None,
+        .en_passant_target = { No_En_Passant_Coord, No_En_Passant_Coord },
+        .category = MoveCategory::NonCapture,
+        .current_castle_state = Castle_None,
+        .opponent_castle_state = Castle_None,
+        .full_move_clock_updated = false,
     };
 
     struct Move

@@ -20,7 +20,7 @@ namespace wisdom
     class MoveGenerator final
     {
     public:
-        explicit MoveGenerator (TranspositionTable &transposition_table)
+        MoveGenerator ()
         {}
 
         auto generate (const Board &board, Color who) -> MoveList;

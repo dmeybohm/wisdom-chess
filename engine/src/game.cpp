@@ -61,8 +61,9 @@ namespace wisdom
             whom = my_computer_player;
 
         MoveTimer overdue_timer { Max_Search_Seconds };
-        IterativeSearch iterative_search { *my_board, *my_history, *my_transposition_table, logger,
-                                           overdue_timer, Max_Depth, *my_analytics };
+        IterativeSearch iterative_search {
+            *my_board, *my_history, logger, overdue_timer, Max_Depth, *my_analytics,
+        };
         SearchResult result = iterative_search.iteratively_deepen (whom);
         return result.move;
     }

@@ -18,8 +18,6 @@
 #include <algorithm>
 #include <chrono>
 #include <iosfwd>
-//#include <mutex>
-//#include <thread>
 #include <cctype>
 #include <bitset>
 #include <cassert>
@@ -83,15 +81,16 @@ namespace wisdom
         string my_extra_info;
 
     public:
-        explicit Error (string message) noexcept : my_message { std::move (message) }
+        Error (string message, string extra_info) noexcept :
+                my_message { std::move(message) }, my_extra_info { std::move(extra_info) }
         {}
 
-        Error (string message, string extra_info) noexcept :
-            my_message { std::move(message) }, my_extra_info { std::move(extra_info) }
+        explicit Error (string message) noexcept :
+            Error (message, "")
         {}
 
         Error (const Error &src) noexcept
-            : my_message { src.my_message }, my_extra_info { src.my_extra_info }
+            : Error (src.my_message, src.my_extra_info)
         {}
 
         [[nodiscard]] auto message() const noexcept -> const string&
@@ -104,7 +103,7 @@ namespace wisdom
             return my_message;
         }
 
-        [[nodiscard]] const char *what () const noexcept override
+        [[nodiscard]] const char* what () const noexcept override
         {
             return this->my_message.c_str();
         }

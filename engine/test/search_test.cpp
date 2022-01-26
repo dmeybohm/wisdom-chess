@@ -19,13 +19,12 @@ namespace wisdom::test
     struct SearchHelper
     {
         History history {};
-        TranspositionTable table {};
 
         IterativeSearch build (Board &board, int depth, int time = 30)
         {
             MoveTimer timer { time };
             return {
-                board, history, table, make_null_logger (), timer, depth
+                board, history, make_null_logger (), timer, depth
             };
         }
     };
