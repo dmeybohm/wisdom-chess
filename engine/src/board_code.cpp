@@ -69,7 +69,7 @@ namespace wisdom
     }
 
     void BoardCode::unapply_move (const Board& board,
-                                  Move move, UndoMove undo_state)
+                                  Move move, const UndoMove& undo_state)
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);

@@ -281,38 +281,38 @@ namespace wisdom
         return state == Castle_None ? Castle_Previously_None : state;
     }
 
-    constexpr auto current_castle_state (UndoMove move) noexcept
+    constexpr auto current_castle_state (const UndoMove& move) noexcept
         -> CastlingState
     {
         return unpack_castle_state (move.current_castle_state);
     }
 
-    constexpr auto opponent_castle_state (UndoMove undo_state) noexcept
+    constexpr auto opponent_castle_state (const UndoMove& undo_state) noexcept
         -> CastlingState
     {
         return unpack_castle_state (undo_state.opponent_castle_state);
     }
 
-    constexpr auto is_en_passant_vulnerable (UndoMove undo_state, Color who) noexcept
+    constexpr auto is_en_passant_vulnerable (const UndoMove& undo_state, Color who) noexcept
         -> bool
     {
         return undo_state.en_passant_target[color_index (who)] != No_En_Passant_Coord;
     }
 
     // Parse a move. Returns empty if the parse failed.
-    auto move_parse_optional (const string &str, Color who) -> optional<Move>;
+    auto move_parse_optional (const string& str, Color who) -> optional<Move>;
 
     // The coordinate for the taken pawn.
     auto en_passant_taken_pawn_coord (Coord src, Coord dst) -> Coord;
 
     // Parse a move. Throws an exception if it could not parse the move.
-    auto move_parse (const string &str, Color color = Color::None) -> Move;
+    auto move_parse (const string& str, Color color = Color::None) -> Move;
 
     // Convert the move to a string.
-    auto to_string (const Move &move) -> string;
+    auto to_string (const Move& move) -> string;
 
     // Send the move to the ostream.
-    std::ostream &operator<< (std::ostream &os, const Move &value);
+    std::ostream& operator<< (std::ostream& os, const Move& value);
 }
 
 #endif // WISDOM_CHESS_MOVE_H

@@ -152,7 +152,7 @@ namespace wisdom
         [[nodiscard]] auto castled_string (Color color) const -> string;
 
         auto make_move (Color who, Move move) -> UndoMove;
-        void take_back (Color who, Move move, UndoMove undo_state);
+        void take_back (Color who, Move move, const UndoMove& undo_state);
 
         [[nodiscard]] auto get_king_position (Color who) const
             -> Coord
