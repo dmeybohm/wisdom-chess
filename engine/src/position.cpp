@@ -148,33 +148,43 @@ namespace wisdom
 
         this->remove (who, src, piece);
 
-        if (is_normal_capture_move (move))
+        switch (move.move_category)
         {
-            ColoredPiece taken_piece = make_piece (opponent, undo_state.taken_piece_type);
-            Coord taken_piece_coord = dst;
-            this->remove (opponent, taken_piece_coord, taken_piece);
-        }
+            case MoveCategory::NonCapture:
+                break;
 
-        if (is_en_passant_move (move))
-        {
-            Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
-            this->remove (opponent, taken_pawn_coord, make_piece (opponent, Piece::Pawn));
-        }
+            case MoveCategory::NormalCapture:
+                {
+                    ColoredPiece taken_piece = make_piece (opponent, undo_state.taken_piece_type);
+                    Coord taken_piece_coord = dst;
+                    this->remove (opponent, taken_piece_coord, taken_piece);
+                }
+                break;
 
-        if (is_castling_move (move))
-        {
-            int rook_src_row = castling_row_from_color (who);
-            int rook_src_col = is_castling_move_on_king_side (move) ?
-                                  King_Rook_Column : Queen_Rook_Column;
-            int rook_dst_col = is_castling_move_on_king_side (move) ? Kingside_Castled_Rook_Column
-                                                                    : Queenside_Castled_Rook_Column;
+            case MoveCategory::EnPassant:
+                {
+                    Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
+                    this->remove (opponent, taken_pawn_coord, make_piece (opponent, Piece::Pawn));
+                }
+                break;
 
-            Coord src_rook_coord = make_coord (rook_src_row, rook_src_col);
-            Coord dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
-            ColoredPiece rook = make_piece (who, Piece::Rook);
+            case MoveCategory::Castling:
+                {
+                    int rook_src_row = castling_row_from_color (who);
+                    int rook_src_col
+                        = is_castling_move_on_king_side (move) ? King_Rook_Column : Queen_Rook_Column;
+                    int rook_dst_col = is_castling_move_on_king_side (move)
+                        ? Kingside_Castled_Rook_Column
+                        : Queenside_Castled_Rook_Column;
 
-            this->remove (who, src_rook_coord, rook);
-            this->add (who, dst_rook_coord, rook);
+                    Coord src_rook_coord = make_coord (rook_src_row, rook_src_col);
+                    Coord dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
+                    ColoredPiece rook = make_piece (who, Piece::Rook);
+
+                    this->remove (who, src_rook_coord, rook);
+                    this->add (who, dst_rook_coord, rook);
+                }
+                break;
         }
 
         ColoredPiece dst_piece = is_promoting_move (move) ?
