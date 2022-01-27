@@ -42,7 +42,7 @@ namespace wisdom
         bool full_move_clock_updated;
     };
 
-//    static_assert(sizeof(UndoMove) <= 8);
+    static_assert(sizeof(UndoMove) <= 20);
 
     constexpr UndoMove Empty_Undo_State = {
         .half_move_clock = 0,
