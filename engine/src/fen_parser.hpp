@@ -1,8 +1,8 @@
 #ifndef WISDOM_FEN_PARSER_HPP
 #define WISDOM_FEN_PARSER_HPP
 
-#include "global.hpp"
 #include "board_builder.hpp"
+#include "global.hpp"
 
 namespace wisdom
 {
@@ -11,16 +11,9 @@ namespace wisdom
     class FenParser final
     {
     public:
-        explicit FenParser (const string &input) :
-            active_player { Color::White }
-        {
-            parse (input);
-        }
+        explicit FenParser (const string& input) : active_player { Color::White } { parse (input); }
 
-        [[nodiscard]] auto get_active_player () const -> Color
-        {
-            return active_player;
-        }
+        [[nodiscard]] auto get_active_player () const -> Color { return active_player; }
 
         // Build the game:
         auto build () -> Game;
@@ -31,7 +24,7 @@ namespace wisdom
         BoardBuilder builder;
         Color active_player;
 
-        void parse (const string &input);
+        void parse (const string& input);
 
         static auto parse_piece (char ch) -> ColoredPiece;
 
@@ -51,10 +44,8 @@ namespace wisdom
     class FenParserError : public Error
     {
     public:
-        explicit FenParserError (const string &message) :
-            Error (message)
-        {}
+        explicit FenParserError (const string& message) : Error (message) { }
     };
 }
 
-#endif //WISDOM_FEN_PARSER_HPP
+#endif // WISDOM_FEN_PARSER_HPP

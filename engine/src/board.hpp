@@ -57,7 +57,7 @@ namespace wisdom
     public:
         Board ();
 
-        Board (const Board &board) = default;
+        Board (const Board& board) = default;
 
         explicit Board (const vector<BoardPositions> &positions);
 
@@ -65,12 +65,14 @@ namespace wisdom
 
         void print () const;
 
-        [[nodiscard]] constexpr auto piece_at (int row, int col) const -> ColoredPiece
+        [[nodiscard]] constexpr auto piece_at (int row, int col) const
+            -> ColoredPiece
         {
             return this->my_squares[row][col];
         }
 
-        [[nodiscard]] constexpr auto piece_at (Coord coord) const -> ColoredPiece
+        [[nodiscard]] constexpr auto piece_at (Coord coord) const
+            -> ColoredPiece
         {
             return this->my_squares[coord.row][coord.col];
         }
@@ -85,11 +87,11 @@ namespace wisdom
             this->my_squares[Row (coord)][Column (coord)] = piece;
         }
 
-        void print_to_file (std::ostream &out) const;
+        void print_to_file (std::ostream& out) const;
 
         void dump () const;
 
-        void update_move_clock (Color who, Piece orig_src_piece_type, Move mv, UndoMove &undo_state)
+        void update_move_clock (Color who, Piece orig_src_piece_type, Move mv, UndoMove& undo_state)
         {
             undo_state.half_move_clock = this->my_half_move_clock;
             if (is_any_capturing_move (mv) || orig_src_piece_type == Piece::Pawn)
@@ -104,19 +106,21 @@ namespace wisdom
             }
         }
 
-        void restore_move_clock (const UndoMove &undo_state)
+        void restore_move_clock (const UndoMove& undo_state)
         {
             this->my_half_move_clock = undo_state.half_move_clock;
             if (undo_state.full_move_clock_updated)
                 this->my_full_move_clock--;
         }
 
-        [[nodiscard]] auto get_half_move_clock () const noexcept -> int
+        [[nodiscard]] auto get_half_move_clock () const noexcept
+            -> int
         {
             return my_half_move_clock;
         }
 
-        [[nodiscard]] auto get_full_move_clock () const noexcept -> int
+        [[nodiscard]] auto get_full_move_clock () const noexcept
+            -> int
         {
             return my_full_move_clock;
         }
@@ -130,13 +134,15 @@ namespace wisdom
         }
         void get_code () const&& = delete;
 
-        [[nodiscard]] auto get_material () const& noexcept -> const Material&
+        [[nodiscard]] auto get_material () const& noexcept
+            -> const Material&
         {
             return my_material;
         }
         void get_material () const&& = delete;
 
-        [[nodiscard]] auto get_position () const& noexcept -> const Position&
+        [[nodiscard]] auto get_position () const& noexcept
+            -> const Position&
         {
             return my_position;
         }
@@ -146,9 +152,10 @@ namespace wisdom
         [[nodiscard]] auto castled_string (Color color) const -> string;
 
         auto make_move (Color who, Move move) -> UndoMove;
-        void take_back (Color who, Move move, UndoMove undo_state);
+        void take_back (Color who, Move move, const UndoMove& undo_state);
 
-        [[nodiscard]] auto get_king_position (Color who) const -> Coord
+        [[nodiscard]] auto get_king_position (Color who) const
+            -> Coord
         {
             return my_king_pos[color_index (who)];
         }
@@ -158,7 +165,8 @@ namespace wisdom
             my_king_pos[color_index (who)] = pos;
         }
 
-        [[nodiscard]] bool able_to_castle (Color who, CastlingState castle_type) const
+        [[nodiscard]] auto able_to_castle (Color who, CastlingState castle_type) const
+            -> bool
         {
             ColorIndex c_index = color_index (who);
 

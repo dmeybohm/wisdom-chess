@@ -6,8 +6,8 @@
 
 namespace wisdom
 {
-    void FenOutputFormat::save (const string &filename, const Board &board,
-                                [[maybe_unused]] const History &history, Color turn)
+    void FenOutputFormat::save (const string& filename, const Board& board,
+                                [[maybe_unused]] const History& history, Color turn)
     {
         string output = board.to_fen_string (turn);
 
@@ -17,8 +17,8 @@ namespace wisdom
         file.close ();
     }
 
-    void WisdomGameOutputFormat::save (const string &filename,
-                                       [[maybe_unused]] const Board &board, const History &history,
+    void WisdomGameOutputFormat::save (const string& filename,
+                                       [[maybe_unused]] const Board& board, const History& history,
                                        [[maybe_unused]] Color turn)
     {
         std::ofstream file;

@@ -6,11 +6,11 @@
 
 namespace wisdom
 {
-    constexpr bool validate_castling = true;
-
-    void do_validate_castle_state (Board &board, Move move);
+    constexpr bool validate_castling = false;
 
     class Board;
+
+    void do_validate_castle_state (Board &board, Move move);
 
     static inline void validate_castle_state (Board &board, Move move)
     {

@@ -4,110 +4,117 @@
 #include "global.hpp"
 #include "move.hpp"
 
+#include <iostream>
+
 namespace wisdom
 {
     using MoveVector = vector<Move>;
 
+    struct move_list
+    {
+        Move* move_array;
+        std::size_t   size;
+        std::size_t   capacity;
+    };
+
+    unique_ptr<move_list> alloc_move_list () noexcept;
+    void dealloc_move_list (unique_ptr<move_list> move_list) noexcept;
+    unique_ptr<move_list> copy_move_list (const move_list& move_list) noexcept;
+
+    std::size_t move_list_size (move_list& ptr) noexcept;
+    std::size_t move_list_capacity (move_list& ptr) noexcept;
+
+    Move* move_list_begin (move_list& ptr) noexcept;
+    Move* move_list_end (move_list& ptr) noexcept;
+
+    void move_list_append (move_list& list, Move move) noexcept;
+    void move_list_pop (move_list& list) noexcept;
+
     class MoveList
     {
     private:
-        unique_ptr<MoveVector> my_moves = allocate_move_vector ();
+        unique_ptr<move_list> my_moves_list = alloc_move_list ();
 
     public:
         MoveList () = default;
 
         ~MoveList () 
         {
-            if (my_moves)
-                deallocate_move_vector (std::move (my_moves));
+            if (my_moves_list)
+                dealloc_move_list (std::move (my_moves_list));
         }
 
         MoveList (Color color, std::initializer_list<czstring> list) noexcept;
-        MoveList (MoveList &&other) noexcept = default;
 
-        MoveList (const MoveList &other)
+        // Delete special copy members:
+        MoveList (const MoveList& other) = delete;
+        MoveList& operator= (MoveList other) = delete;
+
+        // Default move members:
+        MoveList (MoveList&& other) = default;
+        MoveList& operator= (MoveList&& other) = default;
+
+        void push_back (Move move) noexcept
         {
-            my_moves->reserve (other.my_moves->size());
-            std::copy (other.my_moves->begin (), other.my_moves->end (), std::back_inserter (*this->my_moves));
+            move_list_append (*my_moves_list, move);
         }
 
-        MoveList &operator= (MoveList other)
+        void pop_back () noexcept
         {
-            std::swap (this->my_moves, other.my_moves);
-            return *this;
+            move_list_pop (*my_moves_list);
         }
 
-        MoveList &operator= (MoveList &&other) = default;
-
-        void push_back (Move move)
+        [[nodiscard]] auto begin () const noexcept -> const Move*
         {
-            my_moves->push_back (move);
+            return move_list_begin (*my_moves_list);
         }
 
-        void pop_back ()
+        [[nodiscard]] auto end () const noexcept -> const Move*
         {
-            my_moves->pop_back ();
-        }
-
-        [[nodiscard]] auto begin () const noexcept
-        {
-            return my_moves->begin ();
-        }
-
-        [[nodiscard]] auto end () const noexcept
-        {
-            return my_moves->end ();
-        }
-
-        void append (const MoveList &other)
-        {
-            my_moves->insert (my_moves->end (), other.begin (), other.end ());
+            return move_list_end (*my_moves_list);
         }
 
         [[nodiscard]] bool empty () const noexcept
         {
-            return my_moves->empty ();
+            return move_list_size (*my_moves_list) == 0;
         }
 
         [[nodiscard]] size_t size () const noexcept
         {
-            return my_moves->size ();
+            return move_list_size (*my_moves_list);
         }
 
         [[nodiscard]] size_t capacity () const noexcept
         {
-            return my_moves->capacity();
+            return move_list_capacity (*my_moves_list);
         }
 
         [[nodiscard]] auto to_string () const -> string;
 
-        bool operator== (const MoveList &other) const
+        bool operator== (const MoveList& other) const
         {
-            return my_moves->size () == other.my_moves->size () && std::equal (
-                    my_moves->begin (),
-                    my_moves->end (),
-                    other.my_moves->begin (),
+            return size () == other.size () && std::equal (
+                    begin (),
+                    end (),
+                    other.begin (),
                     move_equals
             );
         }
 
-        bool operator!= (const MoveList &other) const
+        bool operator!= (const MoveList& other) const
         {
             return !(*this == other);
         }
 
         [[nodiscard]] auto data () const noexcept
         {
-            return my_moves->data ();
+            return my_moves_list->move_array;
         }
-
-        static auto allocate_move_vector () -> unique_ptr<MoveVector>;
-        static void deallocate_move_vector (unique_ptr<MoveVector> ptr);
     };
 
     auto to_string (const MoveList &list) -> string;
 
-    std::ostream &operator<< (std::ostream &os, const MoveList &list);
+    std::ostream& operator<< (std::ostream &os, const MoveList& list);
 }
 
 #endif //WISDOM_MOVE_LIST_HPP

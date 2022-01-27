@@ -4,58 +4,9 @@
 #include "global.hpp"
 #include "coord.hpp"
 
-namespace wisdom
-{
-    class CoordIterator final
-    {
-    private:
-        int row = 0;
-        int col = 0;
+#define FOR_EACH_ROW_AND_COL(row, col) \
+   for (row = 0; row < wisdom::Num_Rows; row++) \
+       for (col = 0; col < wisdom::Num_Columns; col++)
 
-    public:
-        CoordIterator () = default;
 
-        CoordIterator (int row_, int col_)
-                : row (row_), col (col_)
-        {}
-
-        [[nodiscard]] CoordIterator begin () // NOLINT(readability-convert-member-functions-to-static)
-        {
-            return {0, 0};
-        }
-
-        [[nodiscard]] CoordIterator end () // NOLINT(readability-convert-member-functions-to-static)
-        {
-            return {8, 0};
-        }
-
-        Coord operator* () const
-        {
-            return make_coord (row, col);
-        }
-
-        CoordIterator &operator++ ()
-        {
-            col++;
-            if (col == Num_Columns)
-            {
-                row++;
-                col = 0;
-            }
-            return *this;
-        }
-
-        bool operator== (const CoordIterator &other) const
-        {
-            return row == other.row && col == other.col;
-        }
-
-        bool operator!= (const CoordIterator &other) const
-        {
-            return !(*this == other);
-        }
-    };
-
-    extern CoordIterator All_Coords_Iterator;
-}
 #endif //WISDOM_COORD_ITERATOR_HPP

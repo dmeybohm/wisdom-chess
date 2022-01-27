@@ -31,7 +31,7 @@ namespace wisdom
     public:
         BoardCode () = default;
 
-        explicit BoardCode (const Board &board);
+        explicit BoardCode (const Board& board);
 
         void add_piece (Coord coord, ColoredPiece piece)
         {
@@ -71,28 +71,28 @@ namespace wisdom
             return board_code_hash_fn (bits);
         }
 
-        friend bool operator== (const BoardCode &first, const BoardCode &second)
+        friend bool operator== (const BoardCode& first, const BoardCode& second)
         {
             return first.bits == second.bits;
         }
 
-        friend bool operator!= (const BoardCode &first, const BoardCode &second)
+        friend bool operator!= (const BoardCode& first, const BoardCode& second)
         {
             return !(first == second);
         }
 
-        friend std::ostream &operator<< (std::ostream &os, const BoardCode &code);
+        friend std::ostream &operator<< (std::ostream &os, const BoardCode& code);
 
-        [[nodiscard]] BoardCode with_move (const Board &board, Move move) const
+        [[nodiscard]] BoardCode with_move (const Board& board, Move move) const
         {
             auto copy = *this;
             copy.apply_move (board, move);
             return copy;
         }
 
-        void apply_move (const Board &board, Move move);
+        void apply_move (const Board& board, Move move);
 
-        void unapply_move (const Board &board, Move move, UndoMove undo_state);
+        void unapply_move (const Board& board, Move move, const UndoMove& undo_state);
 
         [[nodiscard]] std::size_t count_ones () const;
     };

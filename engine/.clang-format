@@ -3,14 +3,14 @@ IndentWidth: 4
 UseTab: Never
 TabWidth: 4
 ColumnLimit: 100
-PointerAlignment: Right
+PointerAlignment: Left
 AllowAllArgumentsOnNextLine: false
 BreakBeforeBraces: Allman
 AllowShortIfStatementsOnASingleLine: false
 IndentCaseLabels: true
 NamespaceIndentation: All
 SpaceBeforeParens: Always
-AllowShortCaseLabelsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: InlineOnly
 AllowShortLambdasOnASingleLine: Empty
 BinPackArguments: true

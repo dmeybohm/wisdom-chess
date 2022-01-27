@@ -7,7 +7,7 @@ namespace wisdom
     struct MoveGeneration
     {
         const Board &board;
-        MoveList &moves;
+        MoveList& moves;
         int piece_row;
         int piece_col;
         const Color who;
@@ -38,7 +38,7 @@ namespace wisdom
 
     static void knight_move_list_init (MoveList knight_moves[Num_Rows][Num_Columns]);
 
-    static auto get_knight_moves (int row, int col) -> MoveList&
+    static auto get_knight_moves (int row, int col) -> const MoveList&
     {
         static MoveList knight_moves[Num_Rows][Num_Columns];
 
@@ -51,7 +51,9 @@ namespace wisdom
     // generate a lookup table for knight moves
     static void knight_move_list_init (MoveList knight_moves[Num_Rows][Num_Columns])
     {
-        for (auto[row, col] : All_Coords_Iterator)
+        int row, col;
+
+        FOR_EACH_ROW_AND_COL(row, col)
         {
             for (int k_row = -2; k_row <= 2; k_row++)
             {
@@ -83,7 +85,8 @@ namespace wisdom
             return row == 1;
     }
 
-    static auto valid_castling_move (const Board &board, Move move) -> bool
+    static auto valid_castling_move (const Board &board, Move move) noexcept
+        -> bool
     {
         // check for an intervening piece
         int direction;
@@ -111,7 +114,17 @@ namespace wisdom
                piece_type (piece3) == Piece::None;
     }
 
-    static auto validate_move (const Board &board, Move move) -> optional<Move>
+    static auto transform_move (const Board &board, ColoredPiece dst_piece, Move move) noexcept
+        -> Move
+    {
+        bool is_capture = (piece_type (dst_piece) != Piece::None);
+        if (is_capture && !is_en_passant_move (move) && !is_normal_capture_move (move))
+            move = copy_move_with_capture (move);
+
+        return move;
+    }
+
+    static void append_move (const Board &board, MoveList& list, Move move) noexcept
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
@@ -122,42 +135,11 @@ namespace wisdom
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) != Color::None);
 
-        bool is_capture = (piece_type (dst_piece) != Piece::None);
-
-        if (is_en_passant_move (move))
-            is_capture = true;
-
-        if (is_castling_move (move))
-        {
-            if (!valid_castling_move (board, move))
-                return {};
-        }
-
         if (piece_color (src_piece) == piece_color (dst_piece))
-        {
-            assert (piece_type (dst_piece) != Piece::None);
-            assert (is_capture);
-            return {};
-        }
+            return;
 
-        // check for an illegal king capture
-        assert (piece_type (dst_piece) != Piece::King);
-
-        if (is_capture)
-        {
-            if (!is_normal_capture_move (move) && !is_en_passant_move (move))
-                move = copy_move_with_capture (move);
-        }
-
-        return move;
-    }
-
-    static void append_move (const Board &board, MoveList &list, Move move)
-    {
-        if (auto validated_move = validate_move (board, move); validated_move.has_value())
-        {
-            list.push_back (*validated_move);
-        }
+        auto transformed_move = transform_move (board, dst_piece, move);
+        list.push_back (transformed_move);
     }
 
     void MoveGeneration::none () const
@@ -186,7 +168,8 @@ namespace wisdom
                     piece_row, piece_col,
                     piece_row, piece_col - 2
             );
-            append_move (board, moves, queenside_castle);
+            if (valid_castling_move (board, queenside_castle))
+                append_move (board, moves, queenside_castle);
         }
 
         if (board.able_to_castle ( who, Castle_Kingside) && piece_col == King_Column)
@@ -195,7 +178,8 @@ namespace wisdom
                     piece_row, piece_col,
                     piece_row, piece_col + 2
             );
-            append_move (board, moves, kingside_castle);
+            if (valid_castling_move (board, kingside_castle))
+                append_move (board, moves, kingside_castle);
         }
     }
 
@@ -412,7 +396,7 @@ namespace wisdom
         return get_knight_moves (row, col);
     }
 
-    auto generate_legal_moves (Board &board, Color who) -> MoveList
+    auto generate_legal_moves (Board& board, Color who) -> MoveList
     {
         MoveList non_checks;
 
@@ -461,13 +445,15 @@ namespace wisdom
         }
     }
 
-    auto generate_moves (const Board &board, Color who) -> MoveList
+    auto generate_moves (const Board& board, Color who) -> MoveList
     {
         MoveList result;
         MoveGeneration generation { board, result, 0, 0, who };
 
-        for (const auto coord : All_Coords_Iterator)
+        int row, col;
+        FOR_EACH_ROW_AND_COL(row, col)
         {
+            auto coord = make_coord (row, col);
             ColoredPiece piece = board.piece_at (coord);
 
             if (piece_color (piece) != who)
@@ -479,36 +465,8 @@ namespace wisdom
         return result;
     }
 
-    auto MoveGenerator::to_scored_move_list (const Board &board, Color who,
-                                             const MoveList &move_list) -> ScoredMoveList
+    auto MoveGenerator::generate (const Board& board, Color who) -> MoveList
     {
-        ScoredMoveList result;
-        auto default_transposition = RelativeTransposition::from_defaults ();
-
-        result.reserve (move_list.size ());
-        for (auto move : move_list)
-        {
-            auto board_code = board.get_code ()
-                                  .with_move (board, move);
-
-            RelativeTransposition transposition = my_transposition_table.lookup (board_code.hash_code (), who)
-                    .value_or (default_transposition);
-
-            result.push_back ({ move, transposition.score });
-        }
-
-        return result;
-    }
-
-    auto MoveGenerator::generate (const Board &board, Color who) -> ScoredMoveList
-    {
-        auto move_list = generate_moves (board, who);
-        auto scored_moves = to_scored_move_list (board, who, move_list);
-
-        std::stable_sort (scored_moves.begin(), scored_moves.end(),[](ScoredMove a, ScoredMove b){
-              return a.score > b.score;
-        });
-
-        return scored_moves;
+        return generate_moves (board, who);
     }
 }

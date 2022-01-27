@@ -18,13 +18,12 @@
 #include <algorithm>
 #include <chrono>
 #include <iosfwd>
-//#include <mutex>
-//#include <thread>
 #include <cctype>
 #include <bitset>
 #include <cassert>
 
 #include <gsl/gsl>
+//#include <parallel_hashmap/phmap.h>
 
 namespace wisdom
 {
@@ -83,24 +82,29 @@ namespace wisdom
         string my_extra_info;
 
     public:
-        explicit Error (string message) : my_message { std::move (message) }
+        Error (string message, string extra_info) noexcept :
+                my_message { std::move(message) }, my_extra_info { std::move(extra_info) }
         {}
 
-        Error (string message, string extra_info) :
-            my_message { std::move(message) }, my_extra_info { std::move(extra_info) }
+        explicit Error (string message) noexcept :
+            Error (message, "")
         {}
 
-        [[nodiscard]] auto message() const noexcept -> const string
+        Error (const Error &src) noexcept
+            : Error (src.my_message, src.my_extra_info)
+        {}
+
+        [[nodiscard]] auto message() const noexcept -> const string&
         {
             return my_message;
         }
 
-        [[nodiscard]] const string& extra_info() const noexcept
+        [[nodiscard]] auto extra_info() const noexcept -> const string&
         {
             return my_message;
         }
 
-        [[nodiscard]] const char *what () const noexcept override
+        [[nodiscard]] const char* what () const noexcept override
         {
             return this->my_message.c_str();
         }

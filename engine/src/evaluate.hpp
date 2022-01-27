@@ -16,8 +16,8 @@ namespace wisdom
     int evaluate (Board &board, Color who, int moves_away);
 
     // Evaluate the board and check if it's a draw.
-    int evaluate_and_check_draw (Board &board, Color who, int moves_away,
-                                 Move move, const History &history);
+    int evaluate_and_check_draw (Board& board, Color who, int moves_away,
+                                 Move move, const History& history);
 
 }
 

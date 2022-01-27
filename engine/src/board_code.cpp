@@ -7,16 +7,19 @@
 
 namespace wisdom
 {
-    BoardCode::BoardCode (const Board &board)
+    BoardCode::BoardCode (const Board& board)
     {
-        for (auto coord : All_Coords_Iterator)
+        int row, col;
+
+        FOR_EACH_ROW_AND_COL(row, col)
         {
+            auto coord = make_coord (row, col);
             ColoredPiece piece = board.piece_at (coord);
             this->add_piece (coord, piece);
         }
     }
 
-    void BoardCode::apply_move (const Board &board, Move move)
+    void BoardCode::apply_move (const Board& board, Move move)
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
@@ -65,8 +68,8 @@ namespace wisdom
         }
     }
 
-    void BoardCode::unapply_move (const Board &board,
-                                  Move move, UndoMove undo_state)
+    void BoardCode::unapply_move (const Board& board,
+                                  Move move, const UndoMove& undo_state)
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
@@ -127,7 +130,7 @@ namespace wisdom
         return std::count (str.begin (), str.end (), '1');
     }
 
-    std::ostream &operator<< (std::ostream &os, const BoardCode &code)
+    std::ostream& operator<< (std::ostream& os, const BoardCode& code)
     {
         os << "{ bits: " << code.bits << " }";
         return os;

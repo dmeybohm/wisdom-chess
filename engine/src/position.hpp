@@ -23,8 +23,8 @@ namespace wisdom
 
         void add (Color who, Coord coord, ColoredPiece piece);
         void remove (Color who, Coord coord, ColoredPiece piece);
-        void apply_move (Color who, ColoredPiece piece, Move move, UndoMove undo_state);
-        void unapply_move (Color who, ColoredPiece piece, Move move, UndoMove undo_state);
+        void apply_move (Color who, ColoredPiece piece, Move move, const UndoMove& undo_state);
+        void unapply_move (Color who, ColoredPiece piece, Move move, const UndoMove& undo_state);
     };
 }
 

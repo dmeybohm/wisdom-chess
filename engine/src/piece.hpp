@@ -53,7 +53,8 @@ namespace wisdom
             Piece::Knight,
     };
 
-    constexpr auto make_piece (Color color, Piece piece_type) -> ColoredPiece
+    constexpr auto make_piece (Color color, Piece piece_type) noexcept
+        -> ColoredPiece
     {
         ColoredPiece piece_with_color = { .piece_type = piece_type, .color = color };
         return piece_with_color;

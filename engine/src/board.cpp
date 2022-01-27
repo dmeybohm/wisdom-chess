@@ -75,8 +75,9 @@ namespace wisdom
         for (CastlingState &i : this->my_castled)
             i = Castle_None;
 
-        for (const auto &coord : All_Coords_Iterator)
-            set_piece (coord, Piece_And_Color_None);
+        int col;
+        FOR_EACH_ROW_AND_COL(row, col)
+            set_piece (make_coord (row, col), Piece_And_Color_None);
 
         this->my_position = Position {};
 
@@ -305,8 +306,11 @@ namespace wisdom
 
     auto operator== (const Board &a, const Board &b) -> bool
     {
-        for (auto coord : All_Coords_Iterator)
+        int row, col;
+
+        FOR_EACH_ROW_AND_COL(row, col)
         {
+            auto coord = make_coord (row, col);
             if (a.piece_at (coord) != b.piece_at (coord))
                 return false;
         }

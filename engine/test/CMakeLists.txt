@@ -16,7 +16,6 @@ add_library(fast_tests_lib OBJECT
         move_list_test.cpp
         board_code_test.cpp
         history_test.cpp
-        transposition_table_test.cpp
         variation_glimpse_test.cpp
         tests.hpp
         generate_test.cpp
@@ -39,6 +38,8 @@ target_link_libraries(slow_tests_lib PUBLIC doctest::doctest)
 
 add_executable(fast_tests test_main.cpp)
 add_executable(slow_tests test_main.cpp)
+add_executable(chess_bench chess_bench_main.cpp)
 
 target_link_libraries(fast_tests PRIVATE fast_tests_lib)
 target_link_libraries(slow_tests PRIVATE slow_tests_lib)
+target_link_libraries(chess_bench PRIVATE wisdom::chess)

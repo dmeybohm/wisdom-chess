@@ -53,8 +53,8 @@ namespace wisdom
         return score;
     }
 
-    int evaluate_and_check_draw (Board &board, Color who, int moves_away,
-                                 Move move, const History &history)
+    int evaluate_and_check_draw (Board& board, Color who, int moves_away,
+                                 Move move, const History& history)
     {
         if (is_drawing_move (board, who, move, history))
         {

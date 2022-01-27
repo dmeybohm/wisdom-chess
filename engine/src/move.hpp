@@ -32,24 +32,26 @@ namespace wisdom
 
     struct UndoMove
     {
-        MoveCategory category;
+        // todo: optimize by using bitfields and free functions
+        int half_move_clock;
         Piece taken_piece_type;
-
+        Coord en_passant_target[Num_Players];
+        MoveCategory category;
         CastlingState current_castle_state;
         CastlingState opponent_castle_state;
-        int half_move_clock;
         bool full_move_clock_updated;
-        Coord en_passant_target[Num_Players];
     };
 
+    static_assert(sizeof(UndoMove) <= 20);
+
     constexpr UndoMove Empty_Undo_State = {
-            .category = MoveCategory::NonCapture,
-            .taken_piece_type = Piece::None,
-            .current_castle_state = Castle_None,
-            .opponent_castle_state = Castle_None,
-            .half_move_clock = 0,
-            .full_move_clock_updated = false,
-            .en_passant_target = { No_En_Passant_Coord, No_En_Passant_Coord },
+        .half_move_clock = 0,
+        .taken_piece_type = Piece::None,
+        .en_passant_target = { No_En_Passant_Coord, No_En_Passant_Coord },
+        .category = MoveCategory::NonCapture,
+        .current_castle_state = Castle_None,
+        .opponent_castle_state = Castle_None,
+        .full_move_clock_updated = false,
     };
 
     struct Move
@@ -129,27 +131,32 @@ namespace wisdom
         }
     }
 
-    constexpr bool is_en_passant_move (Move move)
+    constexpr auto is_en_passant_move (Move move) noexcept
+        -> bool
     {
         return move.move_category == MoveCategory::EnPassant;
     }
 
-    constexpr bool is_any_capturing_move (Move move)
+    constexpr auto is_any_capturing_move (Move move) noexcept
+        -> bool
     {
         return is_normal_capture_move (move) || is_en_passant_move (move);
     }
 
-    constexpr bool is_castling_move (Move move)
+    constexpr auto is_castling_move (Move move) noexcept
+        -> bool
     {
         return move.move_category == MoveCategory::Castling;
     }
 
-    constexpr bool is_castling_move_on_king_side (Move move)
+    constexpr auto is_castling_move_on_king_side (Move move) noexcept
+        -> bool
     {
         return is_castling_move (move) && move.dst_col == 6;
     }
 
-    constexpr Move copy_move_with_promotion (Move move, ColoredPiece piece)
+    constexpr auto copy_move_with_promotion (Move move, ColoredPiece piece) noexcept
+        -> Move
     {
         Move result = move;
         result.promoted_piece_type = piece_type (piece);
@@ -158,8 +165,9 @@ namespace wisdom
     }
 
     // run-of-the-mill move with no promotion involved
-    constexpr Move make_noncapture_move (int src_row, int src_col,
-                                         int dst_row, int dst_col)
+    constexpr auto make_noncapture_move (int src_row, int src_col,
+                                         int dst_row, int dst_col) noexcept
+        -> Move
     {
         assert (src_row >= 0 && src_row < Num_Rows);
         assert (dst_row >= 0 && src_row < Num_Rows);
@@ -178,34 +186,39 @@ namespace wisdom
         return result;
     }
 
-    constexpr Move make_noncapture_move (Coord src, Coord dst)
+    constexpr auto make_noncapture_move (Coord src, Coord dst) noexcept
+        -> Move
     {
         return make_noncapture_move (Row (src), Column (src), Row (dst), Column (dst));
     }
 
-    constexpr Move make_normal_capture_move (int src_row, int src_col,
-                                             int dst_row, int dst_col)
+    constexpr auto make_normal_capture_move (int src_row, int src_col,
+                                             int dst_row, int dst_col) noexcept
+        -> Move
     {
         Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::NormalCapture;
         return move;
     }
 
-    constexpr Move make_castling_move (int src_row, int src_col,
-                                       int dst_row, int dst_col)
+    constexpr auto make_castling_move (int src_row, int src_col,
+                                       int dst_row, int dst_col) noexcept
+        -> Move
     {
         Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::Castling;
         return move;
     }
 
-    constexpr Move make_castling_move (Coord src, Coord dst)
+    constexpr auto make_castling_move (Coord src, Coord dst) noexcept
+        -> Move
     {
         return make_castling_move (Row (src), Column (src),
                                    Row (dst), Column (dst));
     }
 
-    constexpr Move copy_move_with_capture (Move move)
+    constexpr auto copy_move_with_capture (Move move) noexcept
+        -> Move
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
@@ -215,20 +228,23 @@ namespace wisdom
         return result;
     }
 
-    constexpr Move make_en_passant_move (int src_row, int src_col,
-                                         int dst_row, int dst_col)
+    constexpr auto make_en_passant_move (int src_row, int src_col,
+                                         int dst_row, int dst_col) noexcept
+        -> Move
     {
         Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::EnPassant;
         return move;
     }
 
-    constexpr Move make_en_passant_move (Coord src, Coord dst)
+    constexpr auto make_en_passant_move (Coord src, Coord dst) noexcept
+        -> Move
     {
         return make_en_passant_move (Row (src), Column (src), Row (dst), Column (dst));
     }
 
-    constexpr bool move_equals (Move a, Move b)
+    constexpr auto move_equals (Move a, Move b) noexcept
+        -> bool
     {
         return a.src_row == b.src_row &&
                a.dst_row == b.dst_row &&
@@ -239,57 +255,64 @@ namespace wisdom
                a.promoted_piece_type == b.promoted_piece_type;
     }
 
-    constexpr bool operator== (Move a, Move b)
+    constexpr auto operator== (Move a, Move b) noexcept
+        -> bool
     {
         return move_equals (a, b);
     }
 
-    constexpr bool operator!= (Move a, Move b)
+    constexpr auto operator!= (Move a, Move b) noexcept
+        -> bool
     {
         return !move_equals (a, b);
     }
 
     // Pack the castle state into the move.
-    constexpr CastlingState unpack_castle_state (CastlingState state)
+    constexpr auto unpack_castle_state (CastlingState state) noexcept
+        -> CastlingState
     {
         return state == Castle_Previously_None ? Castle_None : state;
     }
 
     // Unpack the castle state from the move.
-    constexpr CastlingState pack_castle_state (CastlingState state)
+    constexpr auto pack_castle_state (CastlingState state) noexcept
+        -> CastlingState
     {
         return state == Castle_None ? Castle_Previously_None : state;
     }
 
-    constexpr CastlingState current_castle_state (UndoMove move)
+    constexpr auto current_castle_state (const UndoMove& move) noexcept
+        -> CastlingState
     {
         return unpack_castle_state (move.current_castle_state);
     }
 
-    constexpr CastlingState opponent_castle_state (UndoMove undo_state)
+    constexpr auto opponent_castle_state (const UndoMove& undo_state) noexcept
+        -> CastlingState
     {
         return unpack_castle_state (undo_state.opponent_castle_state);
     }
 
-    constexpr bool is_en_passant_vulnerable (UndoMove undo_state, Color who)
+    constexpr auto is_en_passant_vulnerable (const UndoMove& undo_state, Color who) noexcept
+        -> bool
     {
         return undo_state.en_passant_target[color_index (who)] != No_En_Passant_Coord;
     }
 
     // Parse a move. Returns empty if the parse failed.
-    auto move_parse_optional (const string &str, Color who) -> optional<Move>;
+    auto move_parse_optional (const string& str, Color who) -> optional<Move>;
 
     // The coordinate for the taken pawn.
     auto en_passant_taken_pawn_coord (Coord src, Coord dst) -> Coord;
 
     // Parse a move. Throws an exception if it could not parse the move.
-    auto move_parse (const string &str, Color color = Color::None) -> Move;
+    auto move_parse (const string& str, Color color = Color::None) -> Move;
 
     // Convert the move to a string.
-    auto to_string (const Move &move) -> string;
+    auto to_string (const Move& move) -> string;
 
     // Send the move to the ostream.
-    std::ostream &operator<< (std::ostream &os, const Move &value);
+    std::ostream& operator<< (std::ostream& os, const Move& value);
 }
 
 #endif // WISDOM_CHESS_MOVE_H
