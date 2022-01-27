@@ -31,7 +31,6 @@ namespace wisdom::analysis
     public:
         Position () = default;
         explicit Position (wisdom::unique_ptr<PositionImpl> impl_) : impl { std::move (impl_) } { }
-        virtual ~Position () = default;
 
         void finalize ([[maybe_unused]] const SearchResult& result)
         {
@@ -58,7 +57,6 @@ namespace wisdom::analysis
     public:
         Decision () = default;
         explicit Decision (wisdom::unique_ptr<DecisionImpl> impl_) : impl { std::move (impl_) } { }
-        virtual ~Decision () = default;
 
         Decision make_child (Position& position);
 
@@ -99,7 +97,6 @@ namespace wisdom::analysis
     public:
         Search () = default;
         explicit Search (wisdom::unique_ptr<SearchImpl> impl_) : impl { std::move (impl_) } { }
-        virtual ~Search () = default;
 
         Decision make_decision ()
         {
@@ -125,7 +122,6 @@ namespace wisdom::analysis
         Iteration () = default;
         explicit Iteration (wisdom::unique_ptr<IterationImpl> impl_) :
                 impl { std::move (impl_) } { }
-        virtual ~Iteration () = default;
 
         Search make_search ()
         {
@@ -183,8 +179,6 @@ namespace wisdom::analysis
         Analytics () = default;
         explicit Analytics (wisdom::unique_ptr<AnalyticsImpl> impl_) :
                 impl { std::move (impl_) } { }
-
-        virtual ~Analytics () = default;
 
         IterativeSearch make_iterative_search (const Board& board, Color turn)
         {
