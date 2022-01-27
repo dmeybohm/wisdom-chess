@@ -99,19 +99,15 @@ namespace wisdom
         return make_noncapture_move (src_row, src_col, dst_row, dst_col);
     }
 
-    static void handle_castling (Board &board, Color who,
+    template <bool undo>
+    static void handle_castling (Board* board, Color who,
                                  Move king_move,
                                  [[maybe_unused]] Coord src,
-                                 [[maybe_unused]] Coord dst,
-                                 int undo)
+                                 [[maybe_unused]] Coord dst)
     {
-        Move rook_move = get_castling_rook_move (board, king_move, who);
+        Move rook_move = get_castling_rook_move (*board, king_move, who);
 
-        if (undo)
-            assert (piece_type (board.piece_at (dst)) == Piece::King);
-        else
-            assert (piece_type (board.piece_at (src)) == Piece::King);
-
+        assert (piece_type (board->piece_at (undo ? dst : src)) == Piece::King);
         assert (abs (Column (src) - Column (dst)) == 2);
 
         auto rook_src = move_src (rook_move);
@@ -119,22 +115,22 @@ namespace wisdom
 
         auto empty_piece = make_piece (Color::None, Piece::None);
 
-        if (undo)
+        if constexpr (undo)
         {
             // undo the rook move
-            auto rook = board.piece_at (rook_dst);
+            auto rook = board->piece_at (rook_dst);
 
             // undo the rook move
-            board.set_piece (rook_dst, empty_piece);
-            board.set_piece (rook_src, rook);
+            board->set_piece (rook_dst, empty_piece);
+            board->set_piece (rook_src, rook);
         }
         else
         {
-            auto rook = board.piece_at (rook_src);
+            auto rook = board->piece_at (rook_src);
 
             // do the rook move
-            board.set_piece (rook_dst, rook);
-            board.set_piece (rook_src, empty_piece);
+            board->set_piece (rook_dst, rook);
+            board->set_piece (rook_src, empty_piece);
         }
     }
 
@@ -354,7 +350,7 @@ namespace wisdom
         // check for castling
         if (is_castling_move (move))
         {
-            handle_castling (*this, who, move, src, dst, false);
+            handle_castling<false> (this, who, move, src, dst);
             undo_state.category = MoveCategory::Castling;
         }
 
@@ -427,7 +423,7 @@ namespace wisdom
 
         // check for castling
         if (is_castling_move (move))
-            handle_castling (*this, who, move, src, dst, true);
+            handle_castling<true> (this, who, move, src, dst);
 
         // Update en passant eligibility:
         handle_en_passant_eligibility (this, who, src_piece, move, &undo_move_value, true);
