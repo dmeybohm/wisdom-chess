@@ -30,7 +30,7 @@ namespace wisdom::analysis
             impl->preliminary_choice (position);
     }
 
-    Analytics &make_dummy_analytics ()
+    Analytics& make_dummy_analytics ()
     {
         static Analytics analytics;
         return analytics;

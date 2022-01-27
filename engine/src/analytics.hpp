@@ -15,11 +15,12 @@ namespace wisdom::analysis
     class PositionImpl
     {
     public:
-       virtual ~PositionImpl() = default;
+        virtual ~PositionImpl () = default;
 
-       virtual void finalize ([[maybe_unused]] const SearchResult &result) = 0;
+        virtual void finalize ([[maybe_unused]] const SearchResult& result) = 0;
 
-       virtual void store_transposition_hit (const RelativeTransposition &relative_transposition) = 0;
+        virtual void store_transposition_hit (const RelativeTransposition& relative_transposition)
+            = 0;
     };
 
     class Position
@@ -29,26 +30,22 @@ namespace wisdom::analysis
 
     public:
         Position () = default;
-        explicit Position (wisdom::unique_ptr<PositionImpl> impl_) : impl { std::move(impl_) }
-        {}
+        explicit Position (wisdom::unique_ptr<PositionImpl> impl_) : impl { std::move (impl_) } { }
         virtual ~Position () = default;
 
-        void finalize ([[maybe_unused]] const SearchResult &result)
+        void finalize ([[maybe_unused]] const SearchResult& result)
         {
             if (impl)
                 return impl->finalize (result);
         }
 
-        void store_transposition_hit (const RelativeTransposition &relative_transposition)
+        void store_transposition_hit (const RelativeTransposition& relative_transposition)
         {
             if (impl)
                 impl->store_transposition_hit (relative_transposition);
         }
 
-        [[nodiscard]] PositionImpl *get_impl_ptr () const
-        {
-            return impl.get();
-        }
+        [[nodiscard]] PositionImpl* get_impl_ptr () const { return impl.get (); }
     };
 
     class DecisionImpl;
@@ -60,39 +57,38 @@ namespace wisdom::analysis
 
     public:
         Decision () = default;
-        explicit Decision (wisdom::unique_ptr<DecisionImpl> impl_) : impl { std::move(impl_) }
-        {}
+        explicit Decision (wisdom::unique_ptr<DecisionImpl> impl_) : impl { std::move (impl_) } { }
         virtual ~Decision () = default;
 
-        Decision make_child (Position &position);
+        Decision make_child (Position& position);
 
         Position make_position (Move move);
 
-        void finalize (const SearchResult &result);
+        void finalize (const SearchResult& result);
 
-        void preliminary_choice (Position &position);
+        void preliminary_choice (Position& position);
     };
 
     class DecisionImpl
     {
     public:
-        virtual ~DecisionImpl() = default;
+        virtual ~DecisionImpl () = default;
 
-        virtual Decision make_child (Position &position) = 0;
+        virtual Decision make_child (Position& position) = 0;
 
         virtual Position make_position (Move move) = 0;
 
-        virtual void finalize (const SearchResult &result) = 0;
+        virtual void finalize (const SearchResult& result) = 0;
 
-        virtual void preliminary_choice (Position &position) = 0;
+        virtual void preliminary_choice (Position& position) = 0;
     };
 
     class SearchImpl
     {
     public:
-        virtual ~SearchImpl() = default;
+        virtual ~SearchImpl () = default;
 
-        virtual Decision make_decision() = 0;
+        virtual Decision make_decision () = 0;
     };
 
     class Search
@@ -102,10 +98,8 @@ namespace wisdom::analysis
 
     public:
         Search () = default;
-        explicit Search (wisdom::unique_ptr<SearchImpl> impl_) :
-                impl { std::move(impl_) }
-        {}
-        virtual ~Search() = default;
+        explicit Search (wisdom::unique_ptr<SearchImpl> impl_) : impl { std::move (impl_) } { }
+        virtual ~Search () = default;
 
         Decision make_decision ()
         {
@@ -118,8 +112,8 @@ namespace wisdom::analysis
     class IterationImpl
     {
     public:
-        virtual ~IterationImpl() = default;
-        virtual Search make_search() = 0;
+        virtual ~IterationImpl () = default;
+        virtual Search make_search () = 0;
     };
 
     class Iteration
@@ -129,9 +123,9 @@ namespace wisdom::analysis
 
     public:
         Iteration () = default;
-        explicit Iteration (wisdom::unique_ptr<IterationImpl> impl_) : impl { std::move(impl_) }
-        {}
-        virtual ~Iteration() = default;
+        explicit Iteration (wisdom::unique_ptr<IterationImpl> impl_) :
+                impl { std::move (impl_) } { }
+        virtual ~Iteration () = default;
 
         Search make_search ()
         {
@@ -145,7 +139,7 @@ namespace wisdom::analysis
     class IterativeSearchImpl
     {
     public:
-        virtual ~IterativeSearchImpl() = default;
+        virtual ~IterativeSearchImpl () = default;
         virtual Iteration make_iteration (int depth) = 0;
     };
 
@@ -156,10 +150,12 @@ namespace wisdom::analysis
 
     public:
         IterativeSearch () = default;
-        explicit IterativeSearch (wisdom::unique_ptr<IterativeSearchImpl> impl_ ) : impl { std::move(impl_) }
-        {}
+        explicit IterativeSearch (wisdom::unique_ptr<IterativeSearchImpl> impl_) :
+                impl { std::move (impl_) }
+        {
+        }
 
-        virtual ~IterativeSearch() = default;
+        virtual ~IterativeSearch () = default;
 
         Iteration make_iteration (int depth)
         {
@@ -173,9 +169,9 @@ namespace wisdom::analysis
     class AnalyticsImpl
     {
     public:
-        virtual ~AnalyticsImpl() = default;
+        virtual ~AnalyticsImpl () = default;
 
-        virtual IterativeSearch make_iterative_search (const Board &board, Color turn) = 0;
+        virtual IterativeSearch make_iterative_search (const Board& board, Color turn) = 0;
     };
 
     class Analytics
@@ -185,12 +181,12 @@ namespace wisdom::analysis
 
     public:
         Analytics () = default;
-        explicit Analytics (wisdom::unique_ptr<AnalyticsImpl> impl_) : impl { std::move(impl_) }
-        {}
+        explicit Analytics (wisdom::unique_ptr<AnalyticsImpl> impl_) :
+                impl { std::move (impl_) } { }
 
         virtual ~Analytics () = default;
 
-        IterativeSearch make_iterative_search (const Board &board, Color turn)
+        IterativeSearch make_iterative_search (const Board& board, Color turn)
         {
             if (impl)
                 return impl->make_iterative_search (board, turn);
@@ -199,7 +195,7 @@ namespace wisdom::analysis
         }
     };
 
-    Analytics &make_dummy_analytics ();
+    Analytics& make_dummy_analytics ();
 }
 
-#endif //WISDOM_ANALYTICS_HPP
+#endif // WISDOM_ANALYTICS_HPP
