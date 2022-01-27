@@ -371,7 +371,7 @@ namespace wisdom::analysis
     {
     private:
         shared_ptr<SqliteHandle> my_handle;
-        const Board& my_board;
+        const Board* my_board;
         Color my_turn;
         string my_fen;
         IterativeSearchId my_iterative_search_id;
@@ -379,7 +379,7 @@ namespace wisdom::analysis
     public:
         SqliteIterativeSearch (shared_ptr<SqliteHandle> handle, const Board& board, Color turn) :
                 my_handle { std::move (handle) },
-                my_board { board },
+                my_board { &board },
                 my_turn { turn },
                 my_fen { board.to_fen_string (turn) }
         {
@@ -395,7 +395,7 @@ namespace wisdom::analysis
 
         Iteration make_iteration (int depth) override
         {
-            auto impl = std::make_unique<SqliteIteration> (my_handle, my_board,
+            auto impl = std::make_unique<SqliteIteration> (my_handle, *my_board,
                                                            my_iterative_search_id, depth);
             return Iteration { std::move (impl) };
         }
