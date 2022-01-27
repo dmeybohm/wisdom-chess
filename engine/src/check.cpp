@@ -19,6 +19,7 @@ namespace wisdom
         return legal_moves.empty ();
     }
 
+
     bool is_king_threatened (Board& board, Color who,
                              int king_row, int king_col)
     {

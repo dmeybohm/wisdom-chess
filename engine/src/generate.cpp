@@ -114,8 +114,17 @@ namespace wisdom
                piece_type (piece3) == Piece::None;
     }
 
-    static auto validate_move (const Board &board, Move move) noexcept
-        -> optional<Move>
+    static auto transform_move (const Board &board, ColoredPiece dst_piece, Move move) noexcept
+        -> Move
+    {
+        bool is_capture = (piece_type (dst_piece) != Piece::None);
+        if (is_capture && !is_en_passant_move (move) && !is_normal_capture_move (move))
+            move = copy_move_with_capture (move);
+
+        return move;
+    }
+
+    static void append_move (const Board &board, MoveList& list, Move move) noexcept
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
@@ -126,42 +135,11 @@ namespace wisdom
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) != Color::None);
 
-        bool is_capture = (piece_type (dst_piece) != Piece::None);
-
-        if (is_en_passant_move (move))
-            is_capture = true;
-
-        if (is_castling_move (move))
-        {
-            if (!valid_castling_move (board, move))
-                return {};
-        }
-
         if (piece_color (src_piece) == piece_color (dst_piece))
-        {
-            assert (piece_type (dst_piece) != Piece::None);
-            assert (is_capture);
-            return {};
-        }
+            return;
 
-        // check for an illegal king capture
-        assert (piece_type (dst_piece) != Piece::King);
-
-        if (is_capture)
-        {
-            if (!is_normal_capture_move (move) && !is_en_passant_move (move))
-                move = copy_move_with_capture (move);
-        }
-
-        return move;
-    }
-
-    static void append_move (const Board &board, MoveList& list, Move move) noexcept
-    {
-        if (auto validated_move = validate_move (board, move); validated_move.has_value ())
-        {
-            list.push_back (*validated_move);
-        }
+        auto transformed_move = transform_move (board, dst_piece, move);
+        list.push_back (transformed_move);
     }
 
     void MoveGeneration::none () const
@@ -190,7 +168,8 @@ namespace wisdom
                     piece_row, piece_col,
                     piece_row, piece_col - 2
             );
-            append_move (board, moves, queenside_castle);
+            if (valid_castling_move (board, queenside_castle))
+                append_move (board, moves, queenside_castle);
         }
 
         if (board.able_to_castle ( who, Castle_Kingside) && piece_col == King_Column)
@@ -199,7 +178,8 @@ namespace wisdom
                     piece_row, piece_col,
                     piece_row, piece_col + 2
             );
-            append_move (board, moves, kingside_castle);
+            if (valid_castling_move (board, kingside_castle))
+                append_move (board, moves, kingside_castle);
         }
     }
 

@@ -139,7 +139,7 @@ namespace wisdom
         this->my_score[index] -= change (coord, who, piece);
     }
 
-    void Position::apply_move (Color who, ColoredPiece piece, Move move, UndoMove undo_state)
+    void Position::apply_move (Color who, ColoredPiece piece, Move move, const UndoMove &undo_state)
     {
         Color opponent = color_invert (who);
 
@@ -183,7 +183,7 @@ namespace wisdom
         this->add (who, dst, dst_piece);
     }
 
-    void Position::unapply_move (Color who, ColoredPiece piece, Move move, UndoMove undo_state)
+    void Position::unapply_move (Color who, ColoredPiece piece, Move move, const UndoMove &undo_state)
     {
         Color opponent = color_invert (who);
         Coord src = move_src (move);
