@@ -314,7 +314,7 @@ namespace wisdom
             int double_row = next_row (row, dir);
 
             if (all_pawn_moves[0].has_value () &&
-                board.piece_at (double_row, piece_col) == Piece_And_Color_None
+                board.piece_at (double_row, piece_col) == Piece_And_Color_None)
             {
                 all_pawn_moves[1] = make_noncapture_move (piece_row, piece_col, double_row, piece_col);
             }

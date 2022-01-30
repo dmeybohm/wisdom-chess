@@ -20,7 +20,7 @@ namespace wisdom
     }
 
 
-    bool is_king_threatened (Board& board, Color who,
+    bool is_king_threatened (const Board& board, Color who,
                              int king_row, int king_col)
     {
         int row, col;
@@ -104,7 +104,7 @@ namespace wisdom
         }
 
         // check for knight checks
-        const auto &kt_moves = generate_knight_moves (king_row, king_col);
+        const auto& kt_moves = generate_knight_moves (king_row, king_col);
 
         for (auto move : kt_moves)
         {

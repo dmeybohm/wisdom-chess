@@ -77,6 +77,12 @@ namespace wisdom
             return this->my_squares[coord.row][coord.col];
         }
 
+        void copy_squares (ColoredPiece copy_to_squares[Num_Rows][Num_Columns]) const
+        {
+            std::copy (&my_squares[0][0], &my_squares[Num_Rows - 1][Num_Columns - 1] + 1,
+                       &copy_to_squares[0][0]);
+        }
+
         void set_piece (int row, int col, ColoredPiece piece)
         {
             this->my_squares[row][col] = piece;
@@ -226,6 +232,11 @@ namespace wisdom
         }
 
         friend class BoardBuilder;
+
+        const ColoredPiece* squares_ptr () const
+        {
+            return &my_squares[0][0];
+        }
     };
 
     // white moves up (-)
