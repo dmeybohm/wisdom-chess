@@ -407,9 +407,9 @@ namespace wisdom
 //            }
             my_squares[row][col] = piece;
         }
-        std::cout << "After convert: "
-                  << "\n";
-        std::cout << to_string () << "\n";
+//        std::cout << "After convert: "
+//                  << "\n";
+//        std::cout << to_string () << "\n";
 
         // update the king positions:
         // if both kings are in check, regenerate.
