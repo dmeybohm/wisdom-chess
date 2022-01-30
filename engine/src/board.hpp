@@ -1,16 +1,16 @@
 #ifndef WISDOM_CHESS_BOARD_H_
 #define WISDOM_CHESS_BOARD_H_
 
-#include "global.hpp"
+#include "board_code.hpp"
 #include "coord.hpp"
 #include "coord_iterator.hpp"
+#include "generate.hpp"
+#include "global.hpp"
+#include "material.hpp"
 #include "move.hpp"
 #include "piece.hpp"
-#include "material.hpp"
 #include "position.hpp"
-#include "board_code.hpp"
 #include "transposition_table.hpp"
-#include "generate.hpp"
 #include "variation_glimpse.hpp"
 
 namespace wisdom
