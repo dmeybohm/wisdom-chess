@@ -233,10 +233,14 @@ namespace wisdom
 
         friend class BoardBuilder;
 
-        const ColoredPiece* squares_ptr () const
+        [[nodiscard]] const ColoredPiece* squares_ptr () const
         {
             return &my_squares[0][0];
         }
+
+        [[nodiscard]] static auto initial_board_position () -> vector<BoardPositions>;
+
+        void randomize_positions ();
     };
 
     // white moves up (-)

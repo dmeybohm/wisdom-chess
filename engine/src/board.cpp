@@ -1,16 +1,43 @@
 #include "board.hpp"
 #include "validate.hpp"
 #include "variation_glimpse.hpp"
+#include "check.hpp"
 
 #include <iostream>
 #include <ostream>
+#include <random>
+#include <algorithm>
 
 namespace wisdom
 {
     // board length in characters
     constexpr int BOARD_LENGTH = 31;
 
-    auto initial_board_position () -> vector<BoardPositions>
+    static int swap_pawns (const Board& board, int source_row, int source_col,
+                           Color promote_color, int new_row, int new_col,
+                           array<ColoredPiece, Num_Columns * Num_Rows>& shuffle_pieces,
+                           int swaps)
+    {
+        auto last_row_piece = shuffle_pieces[source_col + (source_row * Num_Columns)];
+
+        if (piece_type (last_row_piece) == Piece::Pawn)
+        {
+            if (piece_color (last_row_piece) == promote_color)
+            {
+                auto removed = Piece_And_Color_None;
+                shuffle_pieces[source_col + (source_row * Num_Columns)] = removed;
+            }
+            else
+            {
+                std::swap (shuffle_pieces[source_col + source_row * Num_Columns],
+                           shuffle_pieces[new_col + new_row * Num_Columns]);
+                swaps++;
+            }
+        }
+        return swaps;
+    }
+
+    auto Board::initial_board_position () -> vector<BoardPositions>
     {
         vector<Piece> back_rank = {
                 Piece::Rook, Piece::Knight, Piece::Bishop, Piece::Queen, Piece::King,
@@ -320,4 +347,96 @@ namespace wisdom
 
         return true;
     }
+
+    void Board::randomize_positions ()
+    {
+        std::random_device random_device;
+        std::mt19937 rng (random_device());
+
+        // randomize the positions:
+        array<ColoredPiece, Num_Columns * Num_Rows> shuffle_pieces {};
+
+        int row, col;
+        FOR_EACH_ROW_AND_COL (row, col)
+        {
+            shuffle_pieces[col + (row * Num_Columns)] = my_squares[row][col];
+        }
+
+        std::shuffle (&shuffle_pieces[0], &shuffle_pieces[0] + (Num_Rows * Num_Columns), rng);
+
+        // ensure no pawns on the final rank - move same color ones,
+        // promote opposite color ones.
+        std::uniform_int_distribution<> no_first_row_dist { 1, 7 };
+        std::uniform_int_distribution<> no_last_row_dist { 0, 6 };
+        std::uniform_int_distribution<> any_row_or_col { 0, 7 };
+        std::uniform_int_distribution<> no_first_or_last_dist { 1, 6 };
+        std::uniform_int_distribution<> remove_chance { 0, 100 };
+
+        auto swaps = 0;
+        do
+        {
+            swaps = 0;
+            for (auto source_col = 0; source_col < Num_Columns; source_col++)
+            {
+                int first_source_row = 0;
+                int last_source_row = Num_Rows - 1;
+
+                auto new_black_row = no_first_row_dist (rng);
+                auto new_black_col = any_row_or_col (rng);
+
+                swaps = swap_pawns (*this, first_source_row, source_col, Color::White,
+                                    new_black_row, new_black_col, shuffle_pieces, swaps);
+                auto new_white_row = no_last_row_dist (rng);
+                auto new_white_col = any_row_or_col (rng);
+
+                swaps = swap_pawns (*this, last_source_row, source_col, Color::Black, new_white_row,
+                                    new_white_col, shuffle_pieces, swaps);
+            }
+        } while (swaps > 0);
+
+        FOR_EACH_ROW_AND_COL (row, col)
+        {
+            ColoredPiece piece = shuffle_pieces[col + (row * Num_Columns)];
+            if (piece_type (piece) == Piece::King)
+            {
+                my_king_pos[color_index (piece_color (piece))] = make_coord (row, col);
+            }
+//            else if (remove_chance (rng) > 50)
+//            {
+//                piece = Piece_And_Color_None;
+//            }
+            my_squares[row][col] = piece;
+        }
+        std::cout << "After convert: "
+                  << "\n";
+        std::cout << to_string () << "\n";
+
+        // update the king positions:
+        // if both kings are in check, regenerate.
+        auto iterations = 0;
+        iterations++;
+        while (is_king_threatened (*this, Color::White, my_king_pos[Color_Index_White])
+               && is_king_threatened (*this, Color::Black, my_king_pos[Color_Index_Black])
+               && iterations < 1000)
+        {
+            // swap king positions, but don't put on the last / first row to avoid regenerating
+            // pawns:
+            Coord source_white_king_pos = my_king_pos[Color_Index_White];
+            int new_row = no_first_or_last_dist (rng);
+            int new_col = no_first_or_last_dist (rng);
+            std::swap (my_squares[Row (source_white_king_pos)][Column (source_white_king_pos)],
+                       my_squares[new_row][new_col]);
+            my_king_pos[Color_Index_White] = make_coord (new_row, new_col);
+            iterations++;
+        }
+
+        if (iterations >= 1000)
+        {
+            std::cout << to_string () << "\n";
+            throw Error { "Too many iterations trying to generate a random board." };
+        }
+        // update the board code:
+        my_code = BoardCode { *this };
+    }
+
 }

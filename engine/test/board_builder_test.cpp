@@ -1,6 +1,9 @@
 #include "tests.hpp"
 #include "board_builder.hpp"
 #include "board.hpp"
+#include "check.hpp"
+
+#include <random>
 
 using namespace wisdom;
 
@@ -74,4 +77,41 @@ TEST_CASE( "board_builder" )
         REQUIRE( no_throw == false );
     }
 
+}
+
+TEST_CASE( "Board can be randomized" )
+{
+    Board randomized_board;
+    Board default_board;
+
+    randomized_board.randomize_positions ();
+
+    SUBCASE("Board code is not the same as the default" )
+    {
+        REQUIRE( default_board.get_code() != randomized_board.get_code() );
+    }
+
+    SUBCASE("None of the pawns are in the back row" )
+    {
+        for (int col = 0; col < Num_Columns; col++)
+        {
+            auto first_row_piece = randomized_board.piece_at (7, col);
+            auto last_row_piece = randomized_board.piece_at (0, col);
+
+            std::cout << randomized_board.to_string () << "\n";
+            CHECK( piece_type (last_row_piece) != Piece::Pawn );
+            CHECK( piece_type (first_row_piece) != Piece::Pawn );
+        }
+    }
+
+    SUBCASE("Both kings are not in check" )
+    {
+        auto white_king_pos = randomized_board.get_king_position (Color::White);
+        auto black_king_pos = randomized_board.get_king_position (Color::Black);
+        auto white_in_check = is_king_threatened (randomized_board, Color::White, white_king_pos);
+        auto black_in_check = is_king_threatened (randomized_board, Color::Black, black_king_pos);
+
+        auto invariant = !white_in_check || !black_in_check;
+        REQUIRE( invariant );
+    }
 }
