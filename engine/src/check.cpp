@@ -34,14 +34,17 @@ namespace wisdom
             {
                 auto what = board.piece_at (row, col);
 
-                if (piece_type (what) == Piece::None)
+                if (what == Piece_And_Color_None)
                     continue;
 
-                if (piece_color (what) == who)
+                auto check_piece_type = piece_type (what);
+                auto check_piece_color = piece_color (what);
+
+                if (check_piece_color == who)
                     break;
 
-                if (piece_type (what) == Piece::Rook ||
-                    piece_type (what) == Piece::Queen)
+                if (check_piece_type == Piece::Rook ||
+                    check_piece_type == Piece::Queen)
                     return true;
 
                 break;
@@ -56,14 +59,15 @@ namespace wisdom
             {
                 auto what = board.piece_at (row, col);
 
-                if (piece_type (what) == Piece::None)
+                if (what == Piece_And_Color_None)
                     continue;
 
                 if (piece_color (what) == who)
                     break;
 
-                if (piece_type (what) == Piece::Rook ||
-                    piece_type (what) == Piece::Queen)
+                auto check_piece_type = piece_type (what);
+                if (check_piece_type == Piece::Rook ||
+                    check_piece_type == Piece::Queen)
                     return true;
 
                 break;
@@ -81,14 +85,15 @@ namespace wisdom
                 {
                     auto what = board.piece_at (row, col);
 
-                    if (piece_type (what) == Piece::None)
+                    if (what == Piece_And_Color_None)
                         continue;
 
                     if (piece_color (what) == who)
                         break;
 
-                    if (piece_type (what) == Piece::Bishop ||
-                        piece_type (what) == Piece::Queen)
+                    auto check_piece_type = piece_type (what);
+                    if (check_piece_type == Piece::Bishop ||
+                        check_piece_type == Piece::Queen)
                     {
                         return true;
                     }
@@ -109,8 +114,7 @@ namespace wisdom
             col = Column (dst);
 
             auto what = board.piece_at (row, col);
-
-            if (piece_type (what) == Piece::None)
+            if (what == Piece_And_Color_None)
                 continue;
 
             if (piece_type (what) == Piece::Knight && piece_color (what) != who)

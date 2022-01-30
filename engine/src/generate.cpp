@@ -41,9 +41,13 @@ namespace wisdom
     static auto get_knight_moves (int row, int col) -> const MoveList&
     {
         static MoveList knight_moves[Num_Rows][Num_Columns];
+        static bool knight_moves_initialized = false;
 
-        if (knight_moves[0][0].empty())
+        if (!knight_moves_initialized)
+        {
             knight_move_list_init (knight_moves);
+            knight_moves_initialized = true;
+        }
 
         return knight_moves[row][col];
     }
