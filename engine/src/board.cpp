@@ -40,15 +40,11 @@ namespace wisdom
     {
         int row = (who == Color::White ? 7 : 0);
         int king_col = 4;
-        ColoredPiece prospective_king;
-        ColoredPiece prospective_queen_rook;
-        ColoredPiece prospective_king_rook;
 
         CastlingState state = Castle_None;
-
-        prospective_king = board.piece_at (row, king_col);
-        prospective_queen_rook = board.piece_at (row, 0);
-        prospective_king_rook = board.piece_at (row, 7);
+        ColoredPiece prospective_king = board.piece_at (row, king_col);
+        ColoredPiece prospective_queen_rook = board.piece_at (row, 0);
+        ColoredPiece prospective_king_rook = board.piece_at (row, 7);
 
         if (piece_type (prospective_king) != Piece::King ||
             piece_color (prospective_king) != who ||
@@ -89,14 +85,12 @@ namespace wisdom
 
             for (std::size_t col = 0; col < Num_Columns && col < pieces.size (); col++)
             {
-                ColoredPiece new_piece;
-
                 if (pieces[col] == Piece::None)
                     continue;
 
-                new_piece = make_piece (color, pieces[col]);
+                ColoredPiece new_piece = make_piece (color, pieces[col]);
                 Coord place = make_coord (row, gsl::narrow<int>(col));
-                set_piece ( place, new_piece);
+                set_piece (place, new_piece);
 
                 this->my_material.add (new_piece);
                 this->my_position.add (color, place, new_piece);

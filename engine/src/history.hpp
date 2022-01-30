@@ -24,7 +24,7 @@ namespace wisdom
         [[nodiscard]] bool is_third_repetition (const Board& board) const
         {
             auto count = my_board_history.position_count (board.get_code ());
-            return (count == 3);
+            return (count >= 3);
         }
 
         void add_position_and_move (Board& board, Move move)

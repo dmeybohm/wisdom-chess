@@ -233,7 +233,7 @@ namespace wisdom
 
                     append_move (board, moves, make_noncapture_move (piece_row, piece_col, row, col));
 
-                    if (piece_type (piece) != Piece::None)
+                    if (piece != Piece_And_Color_None)
                         break;
                 }
             }
@@ -314,7 +314,7 @@ namespace wisdom
             int double_row = next_row (row, dir);
 
             if (all_pawn_moves[0].has_value () &&
-                piece_type (board.piece_at (double_row, piece_col)) == Piece::None)
+                board.piece_at (double_row, piece_col) == Piece_And_Color_None
             {
                 all_pawn_moves[1] = make_noncapture_move (piece_row, piece_col, double_row, piece_col);
             }
@@ -330,7 +330,7 @@ namespace wisdom
 
             ColoredPiece target_piece = board.piece_at (row, take_col);
 
-            if (piece_type (target_piece) != Piece::None &&
+            if (target_piece != Piece_And_Color_None &&
                 piece_color (target_piece) != who)
             {
                 if (c_dir == -1)
