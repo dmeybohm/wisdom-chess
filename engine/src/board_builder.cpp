@@ -110,7 +110,7 @@ namespace wisdom
         this->full_moves = new_full_moves;
     }
 
-    auto BoardBuilder::build () -> unique_ptr<Board>
+    auto BoardBuilder::build () const -> unique_ptr<Board>
     {
         struct PieceRow
         {
@@ -124,8 +124,8 @@ namespace wisdom
 
         for (size_t i = 0; i < sz; i++)
         {
-            PieceWithCoordState &piece_with_coord = this->pieces_with_coords[i];
-            vector<Piece> &current_piece_row = piece_types[i].row;
+            const PieceWithCoordState& piece_with_coord = this->pieces_with_coords[i];
+            vector<Piece>& current_piece_row = piece_types[i].row;
 
             int col = Column (piece_with_coord.coord);
             int row = Row (piece_with_coord.coord);

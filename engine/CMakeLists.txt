@@ -7,3 +7,4 @@ project(Wisdom CXX)
 
 add_subdirectory(test)
 add_subdirectory(src)
+add_subdirectory(benchmark)

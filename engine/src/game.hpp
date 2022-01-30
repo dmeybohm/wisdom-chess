@@ -25,7 +25,7 @@ namespace wisdom
     public:
         Game (Color current_turn, Color computer_player);
 
-        Game (Color current_turn, Color computer_player, BoardBuilder builder);
+        Game (Color current_turn, Color computer_player, const BoardBuilder& builder);
 
         static auto load (const string &filename, Color player) -> optional<Game>;
 

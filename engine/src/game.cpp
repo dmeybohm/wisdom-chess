@@ -13,7 +13,7 @@ namespace wisdom
     static FenOutputFormat fen_output_format;
     static WisdomGameOutputFormat wisdom_game_output_format;
 
-    static OutputFormat& make_output_format (const string &filename)
+    static OutputFormat& make_output_format (const string& filename)
     {
         if (filename.find (".fen") != string::npos)
             return fen_output_format;
@@ -26,7 +26,7 @@ namespace wisdom
             my_computer_player { computer_player }
     {}
 
-    Game::Game (Color current_turn, Color computer_player, BoardBuilder builder) :
+    Game::Game (Color current_turn, Color computer_player, const BoardBuilder& builder) :
             my_board { builder.build () },
             my_current_turn { current_turn },
             my_computer_player { computer_player }
@@ -55,7 +55,7 @@ namespace wisdom
         this->my_analytics = std::move (new_analytics);
     }
 
-    auto Game::find_best_move (const Logger &logger, Color whom) const -> optional<Move>
+    auto Game::find_best_move (const Logger& logger, Color whom) const -> optional<Move>
     {
         if (whom == Color::None)
             whom = my_computer_player;
@@ -68,7 +68,7 @@ namespace wisdom
         return result.move;
     }
 
-    auto Game::load (const string &filename, Color player) -> optional<Game>
+    auto Game::load (const string& filename, Color player) -> optional<Game>
     {
         string input_buf;
         std::ifstream istream;

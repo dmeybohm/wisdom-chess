@@ -38,8 +38,6 @@ target_link_libraries(slow_tests_lib PUBLIC doctest::doctest)
 
 add_executable(fast_tests test_main.cpp)
 add_executable(slow_tests test_main.cpp)
-add_executable(chess_bench chess_bench_main.cpp)
 
 target_link_libraries(fast_tests PRIVATE fast_tests_lib)
 target_link_libraries(slow_tests PRIVATE slow_tests_lib)
-target_link_libraries(chess_bench PRIVATE wisdom::chess)

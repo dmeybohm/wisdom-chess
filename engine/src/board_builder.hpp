@@ -59,7 +59,7 @@ namespace wisdom
 
         void set_full_moves (int new_full_moves);
 
-        auto build () -> unique_ptr<Board>;
+        [[nodiscard]] auto build () const -> unique_ptr<Board>;
 
     private:
         vector<PieceWithCoordState> pieces_with_coords;
