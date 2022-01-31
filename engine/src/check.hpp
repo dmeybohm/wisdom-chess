@@ -13,6 +13,7 @@ namespace wisdom
     // check if the the king indicated by the WHO argument is in trouble
     // in this position
     bool is_king_threatened (const Board& board, Color who, int row, int col);
+    bool is_king_threatened_inline (const Board& board, Color who, int row, int col);
 
     static inline bool is_king_threatened ([[maybe_unused]] Board& board,
                                            [[maybe_unused]] Color who,

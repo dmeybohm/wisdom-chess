@@ -14,7 +14,18 @@ static void benchmark_is_king_threatened_initial_position (benchmark::State& sta
     {
         benchmark::DoNotOptimize(is_king_threatened (board, Color::White, Last_Row, King_Column));
     }
+}
 
+static void benchmark_is_king_threatened_initial_position_inline (benchmark::State& state)
+{
+    using namespace wisdom;
+
+    Board board;
+
+    for (auto _ : state)
+    {
+        benchmark::DoNotOptimize(is_king_threatened_inline (board, Color::White, Last_Row, King_Column));
+    }
 }
 
 static void benchmark_is_black_king_threatened (benchmark::State& state)
@@ -50,5 +61,6 @@ static void benchmark_is_white_king_threatened (benchmark::State& state)
 }
 
 BENCHMARK(benchmark_is_king_threatened_initial_position);
+BENCHMARK(benchmark_is_king_threatened_initial_position_inline);
 BENCHMARK(benchmark_is_black_king_threatened);
 BENCHMARK(benchmark_is_white_king_threatened);
