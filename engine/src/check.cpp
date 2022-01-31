@@ -196,7 +196,7 @@ namespace wisdom
             my_opponent_color_index = color_index (color_invert (king_color));
         }
 
-        constexpr bool check_lane_threats (int target_row, int target_col, int lane_bit)
+        constexpr bool check_lane_threats (int target_row, int target_col)
         {
             ColoredPiece piece = my_board.piece_at (target_row, target_col);
             int type = piece_index (piece_type (piece));
@@ -221,7 +221,7 @@ namespace wisdom
         {
             for (int new_col = my_king_col; new_col <= Last_Column; new_col++)
             {
-                auto stop = check_lane_threats (my_king_row, new_col, bit_from_rdir_and_cdir<0, 1> ());
+                auto stop = check_lane_threats (my_king_row, new_col);
 
                 if (my_lane_threats)
                     return true;
@@ -232,7 +232,7 @@ namespace wisdom
 
             for (int new_col = my_king_col; new_col >= First_Column; new_col--)
             {
-                auto stop = check_lane_threats (my_king_row, new_col, bit_from_rdir_and_cdir<0, -1> ());
+                auto stop = check_lane_threats (my_king_row, new_col);
 
                 if (my_lane_threats)
                     return true;
@@ -248,7 +248,7 @@ namespace wisdom
         {
             for (int new_row = my_king_row + 1; new_row <= Last_Row; new_row++)
             {
-                auto stop = check_lane_threats (new_row, my_king_col, bit_from_rdir_and_cdir<1, 0> ());
+                auto stop = check_lane_threats (new_row, my_king_col);
 
                 if (my_lane_threats)
                     return true;
@@ -259,7 +259,7 @@ namespace wisdom
 
             for (int new_row = my_king_row - 1; new_row >= First_Row; new_row--)
             {
-                auto stop = check_lane_threats (new_row, my_king_col, bit_from_rdir_and_cdir<-1, 0> ());
+                auto stop = check_lane_threats (new_row, my_king_col);
 
                 if (my_lane_threats)
                     return true;

@@ -13,27 +13,24 @@ namespace wisdom
     struct move_list
     {
         Move* move_array;
-        std::size_t   size;
-        std::size_t   capacity;
+        std::size_t capacity;
     };
 
     unique_ptr<move_list> alloc_move_list () noexcept;
     void dealloc_move_list (unique_ptr<move_list> move_list) noexcept;
-    unique_ptr<move_list> copy_move_list (const move_list& move_list) noexcept;
 
-    std::size_t move_list_size (move_list& ptr) noexcept;
     std::size_t move_list_capacity (move_list& ptr) noexcept;
 
     Move* move_list_begin (move_list& ptr) noexcept;
     Move* move_list_end (move_list& ptr) noexcept;
 
-    void move_list_append (move_list& list, Move move) noexcept;
-    void move_list_pop (move_list& list) noexcept;
+    void move_list_append (move_list& list, std::size_t position, Move move) noexcept;
 
     class MoveList
     {
     private:
         unique_ptr<move_list> my_moves_list = alloc_move_list ();
+        std::size_t my_size = 0;
 
     public:
         MoveList () = default;
@@ -56,32 +53,35 @@ namespace wisdom
 
         void push_back (Move move) noexcept
         {
-            move_list_append (*my_moves_list, move);
+            move_list_append (*my_moves_list, my_size, move);
+            my_size++;
         }
 
         void pop_back () noexcept
         {
-            move_list_pop (*my_moves_list);
+            assert (my_size > 0);
+            my_size--;
         }
 
         [[nodiscard]] auto begin () const noexcept -> const Move*
         {
-            return move_list_begin (*my_moves_list);
+            return my_moves_list->move_array;
         }
 
         [[nodiscard]] auto end () const noexcept -> const Move*
         {
-            return move_list_end (*my_moves_list);
+            // inline for performance:
+            return my_moves_list->move_array + my_size;
         }
 
         [[nodiscard]] bool empty () const noexcept
         {
-            return move_list_size (*my_moves_list) == 0;
+            return my_size == 0;
         }
 
         [[nodiscard]] size_t size () const noexcept
         {
-            return move_list_size (*my_moves_list);
+            return my_size;
         }
 
         [[nodiscard]] size_t capacity () const noexcept

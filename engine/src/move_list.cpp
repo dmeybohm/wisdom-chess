@@ -45,13 +45,11 @@ namespace wisdom
         {
             auto move_list_end = std::move (move_list_ptrs.back ());
             move_list_ptrs.pop_back ();
-            move_list_end->size = 0;
             return move_list_end;
         }
 
         auto list = (move_list*)malloc (sizeof (struct move_list));
         list->move_array = (Move*)malloc (sizeof (Move) * Initial_Size);
-        list->size = 0;
         list->capacity = Initial_Size;
 
         unique_ptr<move_list> result;
@@ -64,51 +62,21 @@ namespace wisdom
         move_list_ptrs.emplace_back (std::move (move_list));
     }
 
-    unique_ptr<move_list> copy_move_list (const move_list& from_list) noexcept
-    {
-        std::cout << "Copying move list"
-                  << "\n";
-
-        auto new_list = (move_list*)malloc (sizeof (struct move_list));
-
-        new_list->move_array = (Move*)malloc (sizeof (Move) * from_list.size);
-        memcpy (new_list->move_array, from_list.move_array, sizeof (struct Move) * from_list.size);
-        new_list->size = from_list.size;
-        new_list->capacity = from_list.size;
-
-        unique_ptr<move_list> result;
-        result.reset (new_list);
-
-        return result;
-    }
-
-    std::size_t move_list_size (move_list& ptr) noexcept { return ptr.size; }
-
     std::size_t move_list_capacity (move_list& ptr) noexcept { return ptr.capacity; }
 
-    Move* move_list_begin (move_list& ptr) noexcept { return ptr.move_array; }
-
-    Move* move_list_end (move_list& ptr) noexcept { return ptr.move_array + ptr.size; }
-
-    void move_list_append (move_list& list, Move move) noexcept
+    void move_list_append (move_list& list, std::size_t position, Move move) noexcept
     {
-        assert (list.size <= list.capacity);
+        assert (position <= list.capacity);
 
-        if (list.size == list.capacity)
+        if (position == list.capacity)
         {
             list.capacity += Size_Increment;
 
-            std::size_t new_size = list.capacity * sizeof (Move);
-            list.move_array = (Move*)realloc (list.move_array, new_size);
+            std::size_t new_capacity = list.capacity * sizeof (Move);
+            list.move_array = (Move*)realloc (list.move_array, new_capacity);
         }
 
         assert (list.move_array != nullptr);
-        list.move_array[list.size++] = move;
-    }
-
-    void move_list_pop (move_list& list) noexcept
-    {
-        assert (list.size > 0);
-        list.size--;
+        list.move_array[position] = move;
     }
 }
