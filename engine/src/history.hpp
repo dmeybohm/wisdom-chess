@@ -43,6 +43,9 @@ namespace wisdom
 
         [[nodiscard]] bool is_third_repetition (const Board& board) const
         {
+            // todo: implement this efficiently.
+            return false;
+
             auto pos = find_board_pos (board);
             if (pos >= 0)
                 return my_historical_boards[pos].count >= 3;
@@ -54,6 +57,9 @@ namespace wisdom
 
         void add_position_and_move (const Board& board, Move move)
         {
+            // TODO handle when there's an overlap
+            return;
+
             auto index = my_move_history.size ();
             auto pos = find_board_pos (board);
             if (pos >= 0)

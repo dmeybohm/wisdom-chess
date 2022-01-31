@@ -20,7 +20,7 @@ namespace wisdom
     }
 
 
-    bool is_king_threatened (const Board& board, Color who,
+    bool is_king_threatened_inline (const Board& board, Color who,
                              int king_row, int king_col)
     {
         int row, col;
@@ -167,46 +167,30 @@ namespace wisdom
         const Board& my_board;
         int my_king_row;
         int my_king_col;
-        int my_king_color_index;
-        int my_opponent_color_index;
-
-        template <int r_dir, int c_dir>
-        constexpr auto bit_from_rdir_and_cdir () -> int
-        {
-            if constexpr (r_dir == -1 && c_dir == 0)
-                return 0;
-            if constexpr (r_dir == 1 && c_dir == 0)
-                return 1;
-            if constexpr (r_dir == 0 && c_dir == -1)
-                return 2;
-            if constexpr (r_dir == 0 && c_dir == 1)
-                return 3;
-            throw new Error { "invalid arguments" };
-        }
-
-        int my_blocked_lanes = 0;
-        int my_blocked_diagonals = 0;
         int my_lane_threats = 0;
         int my_diagonal_threats = 0;
 
+        Color my_king_color;
+        Color my_opponent_color;
+
         Threats (const Board& board, Color king_color, int king_row, int king_col)
-                : my_board { board }, my_king_color_index { color_index (king_color) },
+                : my_board { board }, my_king_color { king_color },
                 my_king_row { king_row }, my_king_col { king_col }
         {
-            my_opponent_color_index = color_index (color_invert (king_color));
+            my_opponent_color = color_invert (king_color);
         }
 
         constexpr bool check_lane_threats (int target_row, int target_col)
         {
             ColoredPiece piece = my_board.piece_at (target_row, target_col);
-            int type = piece_index (piece_type (piece));
-            int target_color = color_index (piece_color (piece));
+            auto type = piece_type (piece);
+            auto target_color = piece_color (piece);
 
             // 1 or 0: whether to consider a piece or revert to the king
             // position.
-            int is_rook = type == piece_index (Piece::Rook);
-            int is_queen = type == piece_index (Piece::Queen);
-            int is_opponent_color = target_color == my_opponent_color_index;
+            int is_rook = type == Piece::Rook;
+            int is_queen = type == Piece::Queen;
+            int is_opponent_color = target_color == my_opponent_color;
 
             int has_threatening_piece = (is_rook | is_queen) & is_opponent_color;
 
@@ -214,7 +198,28 @@ namespace wisdom
             // for the calculation to avoid any branching.
             my_lane_threats |= has_threatening_piece;
 
-            return type != piece_index (Piece::None);
+            return type != Piece::None;
+        }
+
+        constexpr bool check_diagonal_threats (int target_row, int target_col)
+        {
+            ColoredPiece piece = my_board.piece_at (target_row, target_col);
+            auto type = piece_type (piece);
+            auto target_color = piece_color (piece);
+
+            // 1 or 0: whether to consider a piece or revert to the king
+            // position.
+            int is_bishop = type == Piece::Bishop;
+            int is_queen = type == Piece::Queen;
+            int is_opponent_color = target_color == my_opponent_color;
+
+            int has_threatening_piece = (is_bishop | is_queen) & is_opponent_color;
+
+            // If the check is blocked, revert to the the king position itself
+            // for the calculation to avoid any branching.
+            my_diagonal_threats |= has_threatening_piece;
+
+            return type != Piece::None;
         }
 
         bool any_row_threats ()
@@ -273,42 +278,86 @@ namespace wisdom
 
         bool any_diagonal_threats ()
         {
-            int row, col;
+            // northwest
+            for (int new_col = my_king_col - 1,
+                     new_row = my_king_row - 1;
+                 new_row >= First_Row && new_col >= First_Column;
+                 new_col--, new_row--
+            ) {
+                auto stop = check_diagonal_threats (new_row, new_col);
 
-            for (int r_dir = -1; r_dir <= 1; r_dir += 2)
-            {
-                for (int c_dir = -1; c_dir <= 1; c_dir += 2)
-                {
-                    for (row = next_row (my_king_row, r_dir), col = next_column (my_king_col, c_dir);
-                         is_valid_row (row) && is_valid_column (col);
-                         row = next_row (row, r_dir), col = next_column (col, c_dir))
-                    {
-                        auto what = my_board.piece_at (row, col);
+                if (my_diagonal_threats)
+                    return true;
 
-                        if (what == Piece_And_Color_None)
-                            continue;
-
-                        if (color_index (piece_color (what)) == my_king_color_index)
-                            break;
-
-                        int check_piece_type = piece_index (piece_type (what));
-                        if (check_piece_type == piece_index (Piece::Bishop) ||
-                            check_piece_type == piece_index (Piece::Queen))
-                        {
-                            return true;
-                        }
-
-                        break;
-                    }
-                }
+                if (stop)
+                    break;
             }
 
+            // northeast
+            for (int new_col = my_king_col + 1,
+                     new_row = my_king_row + 1;
+                 new_row >= First_Row && new_col <= Last_Column;
+                 new_col++, new_row++
+            ) {
+                auto stop = check_diagonal_threats (new_row, new_col);
+
+                if (my_diagonal_threats)
+                    return true;
+
+                if (stop)
+                    break;
+            }
+
+            // southeast
+            for (int new_col = my_king_col - 1,
+                     new_row = my_king_row + 1;
+                 new_row >= Last_Row && new_col >= First_Column;
+                 new_col--, new_row++
+            ) {
+                auto stop = check_diagonal_threats (new_row, new_col);
+
+                if (my_diagonal_threats)
+                    return true;
+
+                if (stop)
+                    break;
+            }
+
+            // southwest
+            for (int new_col = my_king_col - 1,
+                     new_row = my_king_row + 1;
+                 new_row >= First_Row && new_col >= First_Column;
+                 new_col--, new_row++
+            ) {
+                auto stop = check_diagonal_threats (new_row, new_col);
+
+                if (my_diagonal_threats)
+                    return true;
+
+                if (stop)
+                    break;
+            }
 
             return false;
         }
     };
 
-    bool is_king_threatened_inline (const Board& board, Color who,
+    bool any_row_threats (Threats threats)
+    {
+        return threats.any_row_threats();
+    }
+
+    bool any_column_threats (Threats threats)
+    {
+        return threats.any_column_threats();
+    }
+
+    bool any_diagonal_threats (Threats threats)
+    {
+        return threats.any_diagonal_threats();
+    }
+
+    bool is_king_threatened (const Board& board, Color who,
                                     int king_row, int king_col)
     {
         int row, col;
