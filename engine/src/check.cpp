@@ -313,7 +313,6 @@ namespace wisdom
     {
         int row, col;
         int c_dir, r_dir;
-        int distance;
         Threats threats { board, who, king_row, king_col };
 
         if (threats.any_row_threats ())
@@ -361,16 +360,15 @@ namespace wisdom
         }
 
         // check for king checks
-        for (row = king_row - 1; row <= king_row + 1; row++)
+        int min_row = std::max (king_row - 1, 0);
+        int max_row = std::min (king_row + 1, Last_Row);
+        int min_col = std::max (king_col - 1, 0);
+        int max_col = std::min (king_col + 1, Last_Column);
+
+        for (row = min_row; row <= max_row; row++)
         {
-            if (!is_valid_row (row))
-                continue;
-
-            for (col = king_col - 1; col <= king_col + 1; col++)
+            for (col = min_col; col <= max_col; col++)
             {
-                if (!is_valid_column (col))
-                    continue;
-
                 if (col == king_col && row == king_row)
                     continue;
 
