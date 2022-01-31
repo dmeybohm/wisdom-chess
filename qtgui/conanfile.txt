@@ -1,0 +1,9 @@
+[requires]
+qt/5.15.2
+
+[generators]
+cmake
+qt
+cmake_paths
+virtualenv
+cmake_find_package
