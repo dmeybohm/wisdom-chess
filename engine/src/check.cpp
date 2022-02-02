@@ -19,8 +19,7 @@ namespace wisdom
         return legal_moves.empty ();
     }
 
-    bool is_king_threatened_inline (const Board& board, Color who,
-                                    int king_row, int king_col)
+    bool is_king_threatened_inline (const Board& board, Color who, int king_row, int king_col)
     {
         int row, col;
         int c_dir, r_dir;
@@ -42,8 +41,7 @@ namespace wisdom
                 if (check_piece_color == who)
                     break;
 
-                if (check_piece_type == Piece::Rook ||
-                    check_piece_type == Piece::Queen)
+                if (check_piece_type == Piece::Rook || check_piece_type == Piece::Queen)
                     return true;
 
                 break;
@@ -54,7 +52,8 @@ namespace wisdom
         row = king_row;
         for (c_dir = -1; c_dir <= 1; c_dir += 2)
         {
-            for (col = next_column (king_col, c_dir); is_valid_column (col); col = next_column (col, c_dir))
+            for (col = next_column (king_col, c_dir); is_valid_column (col);
+                 col = next_column (col, c_dir))
             {
                 auto what = board.piece_at (row, col);
 
@@ -65,8 +64,7 @@ namespace wisdom
                     break;
 
                 auto check_piece_type = piece_type (what);
-                if (check_piece_type == Piece::Rook ||
-                    check_piece_type == Piece::Queen)
+                if (check_piece_type == Piece::Rook || check_piece_type == Piece::Queen)
                     return true;
 
                 break;
@@ -91,8 +89,7 @@ namespace wisdom
                         break;
 
                     auto check_piece_type = piece_type (what);
-                    if (check_piece_type == Piece::Bishop ||
-                        check_piece_type == Piece::Queen)
+                    if (check_piece_type == Piece::Bishop || check_piece_type == Piece::Queen)
                     {
                         return true;
                     }
@@ -173,9 +170,11 @@ namespace wisdom
         Color my_opponent_color;
         int8_t my_opponent_color_shifted;
 
-        Threats (const Board& board, Color king_color, int8_t king_row, int8_t king_col)
-                : my_board { board }, my_king_color { king_color },
-                my_king_row { king_row }, my_king_col { king_col }
+        Threats (const Board& board, Color king_color, int8_t king_row, int8_t king_col) :
+                my_board { board },
+                my_king_color { king_color },
+                my_king_row { king_row },
+                my_king_col { king_col }
         {
             my_opponent_color = color_invert (king_color);
             my_opponent_color_shifted = to_colored_piece_shifted (my_opponent_color);
@@ -211,11 +210,13 @@ namespace wisdom
 
             // 1 or 0: whether to consider a piece or revert to the king
             // position.
-            auto is_bishop = gsl::narrow_cast<int8_t>((piece_as_int & bishop_int) == bishop_int);
-            auto is_queen = gsl::narrow_cast<int8_t>((piece_as_int & queen_int) == queen_int);
-            auto is_opponent_color = gsl::narrow_cast<int8_t>(piece_as_int & Piece_Color_Mask) == my_opponent_color_shifted;
+            auto is_bishop = gsl::narrow_cast<int8_t> ((piece_as_int & bishop_int) == bishop_int);
+            auto is_queen = gsl::narrow_cast<int8_t> ((piece_as_int & queen_int) == queen_int);
+            auto is_opponent_color = gsl::narrow_cast<int8_t> (piece_as_int & Piece_Color_Mask)
+                == my_opponent_color_shifted;
 
-            auto has_threatening_piece = gsl::narrow_cast<int8_t>((is_bishop | is_queen) & is_opponent_color);
+            auto has_threatening_piece
+                = gsl::narrow_cast<int8_t> ((is_bishop | is_queen) & is_opponent_color);
 
             // If the check is blocked, revert to the the king position itself
             // for the calculation to avoid any branching.
@@ -237,7 +238,7 @@ namespace wisdom
                     break;
             }
 
-            for (auto new_col = next_column (my_king_col,  -1); new_col >= First_Column; new_col--)
+            for (auto new_col = next_column (my_king_col, -1); new_col >= First_Column; new_col--)
             {
                 auto stop = check_lane_threats (my_king_row, new_col);
 
@@ -281,11 +282,9 @@ namespace wisdom
         bool any_diagonal_threats ()
         {
             // northwest
-            for (auto new_col = next_column (my_king_col,  -1),
-                      new_row = next_row (my_king_row,  -1);
-                 new_row >= First_Row && new_col >= First_Column;
-                 new_col--, new_row--
-            ) {
+            for (auto new_col = next_column (my_king_col, -1), new_row = next_row (my_king_row, -1);
+                 new_row >= First_Row && new_col >= First_Column; new_col--, new_row--)
+            {
                 auto stop = check_diagonal_threats (new_row, new_col);
 
                 if (my_diagonal_threats)
@@ -296,11 +295,9 @@ namespace wisdom
             }
 
             // northeast
-            for (auto new_col = next_column (my_king_col,  +1),
-                      new_row = next_row (my_king_row,  -1);
-                 new_row >= First_Row && new_col <= Last_Column;
-                 new_col++, new_row--
-            ) {
+            for (auto new_col = next_column (my_king_col, +1), new_row = next_row (my_king_row, -1);
+                 new_row >= First_Row && new_col <= Last_Column; new_col++, new_row--)
+            {
                 auto stop = check_diagonal_threats (new_row, new_col);
 
                 if (my_diagonal_threats)
@@ -311,11 +308,9 @@ namespace wisdom
             }
 
             // southeast
-            for (auto new_col = next_column (my_king_col,  +1),
-                      new_row = next_row (my_king_row,  +1);
-                 new_row >= Last_Row && new_col >= First_Column;
-                 new_col++, new_row++
-            ) {
+            for (auto new_col = next_column (my_king_col, +1), new_row = next_row (my_king_row, +1);
+                 new_row >= Last_Row && new_col >= First_Column; new_col++, new_row++)
+            {
                 auto stop = check_diagonal_threats (new_row, new_col);
 
                 if (my_diagonal_threats)
@@ -326,11 +321,9 @@ namespace wisdom
             }
 
             // southwest
-            for (auto new_col = next_column (my_king_col, -1),
-                      new_row = next_row (my_king_row,  +1);
-                 new_row >= First_Row && new_col >= First_Column;
-                 new_col--, new_row++
-            ) {
+            for (auto new_col = next_column (my_king_col, -1), new_row = next_row (my_king_row, +1);
+                 new_row >= First_Row && new_col >= First_Column; new_col--, new_row++)
+            {
                 auto stop = check_diagonal_threats (new_row, new_col);
 
                 if (my_diagonal_threats)
@@ -344,23 +337,13 @@ namespace wisdom
         }
     };
 
-    bool any_row_threats (Threats threats)
-    {
-        return threats.any_row_threats();
-    }
+    bool any_row_threats (Threats threats) { return threats.any_row_threats (); }
 
-    bool any_column_threats (Threats threats)
-    {
-        return threats.any_column_threats();
-    }
+    bool any_column_threats (Threats threats) { return threats.any_column_threats (); }
 
-    bool any_diagonal_threats (Threats threats)
-    {
-        return threats.any_diagonal_threats();
-    }
+    bool any_diagonal_threats (Threats threats) { return threats.any_diagonal_threats (); }
 
-    bool is_king_threatened (const Board& board, Color who,
-                             int8_t king_row, int8_t king_col)
+    bool is_king_threatened (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
         int8_t row, col;
 
@@ -376,45 +359,17 @@ namespace wisdom
         if (is_king_threatened_knight_direct (board, who, king_row, king_col))
             return true;
 
-        if (is_king_threatened_pawn_dumb (board, who, king_row, king_col))
+        if (is_king_threatened_pawn_inline (board, who, king_row, king_col))
             return true;
 
-        if (is_king_threatened_king (board, who, king_row, king_col))
+        if (is_king_threatened_king_inline (board, who, king_row, king_col))
             return true;
 
         return false;
     }
 
-    bool is_king_threatened_row (const Board& board, Color who,
-                                 int8_t king_row, int8_t king_col)
+    bool is_king_threatened_row (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
-#if 0
-        // check each side of the king's column
-        int row = king_row;
-        for (int c_dir = -1; c_dir <= 1; c_dir += 2)
-        {
-            for (int col = next_column (king_col, c_dir); is_valid_column (col); col = next_column (col, c_dir))
-            {
-                auto what = board.piece_at (row, col);
-
-                if (what == Piece_And_Color_None)
-                    continue;
-
-                if (piece_color (what) == who)
-                    break;
-
-                auto check_piece_type = piece_type (what);
-                if (check_piece_type == Piece::Rook ||
-                    check_piece_type == Piece::Queen)
-                    return true;
-
-                break;
-            }
-        }
-
-        return false;
-#endif
-
         Threats threats { board, who, king_row, king_col };
 
         if (threats.any_row_threats ())
@@ -423,37 +378,8 @@ namespace wisdom
         return false;
     }
 
-    bool is_king_threatened_column (const Board& board, Color who,
-                                    int8_t king_row, int8_t king_col)
+    bool is_king_threatened_column (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
-#if 0
-        // check each side of the king's row
-        int col = king_col;
-        for (int r_dir = -1; r_dir <= 1; r_dir += 2)
-        {
-            for (int row = next_row (king_row, r_dir); is_valid_row (row); row = next_row (row, r_dir))
-            {
-                auto what = board.piece_at (row, col);
-
-                if (what == Piece_And_Color_None)
-                    continue;
-
-                auto check_piece_type = piece_type (what);
-                auto check_piece_color = piece_color (what);
-
-                if (check_piece_color == who)
-                    break;
-
-                if (check_piece_type == Piece::Rook ||
-                    check_piece_type == Piece::Queen)
-                    return true;
-
-                break;
-            }
-        }
-
-        return false;
-#endif
         Threats threats { board, who, king_row, king_col };
 
         if (threats.any_column_threats ())
@@ -462,8 +388,8 @@ namespace wisdom
         return false;
     }
 
-    bool is_king_threatened_diagonal (const Board& board, Color who,
-                                      int8_t king_row, int8_t king_col)
+    bool is_king_threatened_diagonal (const Board& board, Color who, int8_t king_row,
+                                      int8_t king_col)
     {
         Threats threats { board, who, king_row, king_col };
 
@@ -473,8 +399,7 @@ namespace wisdom
         return false;
     }
 
-    bool is_king_threatened_knight (const Board& board, Color who,
-                                    int8_t king_row, int8_t king_col)
+    bool is_king_threatened_knight (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
         int8_t row, col;
 
@@ -499,17 +424,15 @@ namespace wisdom
         return false;
     }
 
-
-    static bool check_knight_at_square (const Board& board, Color opponent,
-                                        int8_t target_row, int8_t target_col)
+    static bool check_knight_at_square (const Board& board, Color opponent, int8_t target_row,
+                                        int8_t target_col)
     {
         auto piece = board.piece_at (target_row, target_col);
         return piece_color (piece) == opponent && piece_type (piece) == Piece::Knight;
     }
 
     template <int8_t row_dir, int8_t col_dir>
-    static bool check_knight (const Board& board, Color opponent,
-                              int8_t king_row, int8_t king_col)
+    static bool check_knight (const Board& board, Color opponent, int8_t king_row, int8_t king_col)
     {
         auto starting_row = next_row (king_row, row_dir);
         auto starting_col = next_column (king_col, col_dir);
@@ -552,27 +475,25 @@ namespace wisdom
         }
     }
 
-    bool is_king_threatened_knight_direct (const Board& board, Color who,
-                                           int8_t king_row, int8_t king_col)
+    bool is_king_threatened_knight_direct (const Board& board, Color who, int8_t king_row,
+                                           int8_t king_col)
     {
 
-        Color opponent = color_invert (who) ;
-        return
-            check_knight<-1, 0> (board, opponent, king_row, king_col) ||
-            check_knight<0, +1>(board, opponent, king_row, king_col) ||
-            check_knight<+1, 0>(board, opponent, king_row, king_col) ||
-            check_knight<0, -1>(board, opponent, king_row, king_col);
+        Color opponent = color_invert (who);
+        return check_knight<-1, 0> (board, opponent, king_row, king_col)
+            || check_knight<0, +1> (board, opponent, king_row, king_col)
+            || check_knight<+1, 0> (board, opponent, king_row, king_col)
+            || check_knight<0, -1> (board, opponent, king_row, king_col);
     }
 
-    bool is_king_threatened_pawn (const Board& board, Color who,
-                                  int8_t king_row, int8_t king_col)
+    bool is_king_threatened_pawn (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
         // check for pawn checks
         auto r_dir = pawn_direction (who);
 
-        int8_t left_col = next_column (king_col,  -1);
+        int8_t left_col = next_column (king_col, -1);
         int8_t right_col = next_column (king_col, +1);
-        int8_t pawn_row = next_row (king_row,  r_dir);
+        int8_t pawn_row = next_row (king_row, r_dir);
         if (pawn_row >= Last_Row || pawn_row <= First_Row)
             return false;
 
@@ -593,8 +514,8 @@ namespace wisdom
         return false;
     }
 
-    bool is_king_threatened_pawn_dumb (const Board& board, Color who,
-                                       int8_t king_row, int8_t king_col)
+    bool is_king_threatened_pawn_dumb (const Board& board, Color who, int8_t king_row,
+                                       int8_t king_col)
     {
         int8_t r_dir = pawn_direction (who);
 
@@ -615,11 +536,29 @@ namespace wisdom
         return false;
     }
 
-    bool is_king_threatened_pawn_c (const Board& board, int who,
-                                  int8_t king_row, int8_t king_col)
+    bool is_king_threatened_pawn_inline (const Board& board, Color who, int8_t king_row,
+                                         int8_t king_col)
+    {
+        int8_t r_dir = pawn_direction (who);
+        int8_t left_col = next_column (king_col, -1);
+        int8_t right_col = next_column (king_col, +1);
+        int8_t target_row = next_row (king_row, r_dir);
+        Color opponent = color_invert (who);
+
+        bool left_attack_exists
+            = (is_valid_row (target_row) && is_valid_column (left_col)
+               && board.piece_at (target_row, left_col) == make_piece (opponent, Piece::Pawn));
+        bool right_attack_exists
+            = (is_valid_row (target_row) && is_valid_column (right_col)
+               && board.piece_at (target_row, right_col) == make_piece (opponent, Piece::Pawn));
+
+        return left_attack_exists || right_attack_exists;
+    }
+
+    bool is_king_threatened_pawn_c (const Board& board, int who, int8_t king_row, int8_t king_col)
     {
         // check for pawn checks
-        int8_t r_dir = gsl::narrow_cast<int8_t>(-1 + 2 * who);
+        int8_t r_dir = gsl::narrow_cast<int8_t> (-1 + 2 * who);
 
         int8_t row, col;
         int8_t what;
@@ -634,8 +573,8 @@ namespace wisdom
                 continue;
 
             what = board.raw_squares[row][col];
-            int8_t piece_type = gsl::narrow_cast<int8_t>(what & (0x8-1));
-            int8_t color = gsl::narrow_cast<int8_t>((what & (0x18)) >> 3);
+            int8_t piece_type = gsl::narrow_cast<int8_t> (what & (0x8 - 1));
+            int8_t color = gsl::narrow_cast<int8_t> ((what & (0x18)) >> 3);
 
             if (piece_type == 6 && color != who)
                 return true;
@@ -644,16 +583,15 @@ namespace wisdom
         return false;
     }
 
-    bool is_king_threatened_king (const Board& board, Color who,
-                                  int8_t king_row, int8_t king_col)
+    bool is_king_threatened_king (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
         int8_t row, col;
 
         // check for king checks
-        int8_t min_row = std::max (next_row (king_row,  -1), (int8_t)0);
-        int8_t max_row = std::min (next_row (king_row,  +1), Last_Row);
+        int8_t min_row = std::max (next_row (king_row, -1), (int8_t)0);
+        int8_t max_row = std::min (next_row (king_row, +1), Last_Row);
         int8_t min_col = std::max (next_column (king_col, -1), (int8_t)0);
-        int8_t max_col = std::min (next_column (king_col,  +1), Last_Column);
+        int8_t max_col = std::min (next_column (king_col, +1), Last_Column);
 
         for (row = min_row; row <= max_row; row = next_row (row, 1))
         {
@@ -669,8 +607,73 @@ namespace wisdom
             }
         }
 
-
         return false;
+    }
+
+    enum class KingThreatCheck {
+        CheckMiddle,
+        DoNotCheckMiddle
+    };
+    template <KingThreatCheck squares_to_check>
+    static bool check_king_threat_row (const Board& board, Color opponent,
+                                       int8_t target_row, int8_t starting_col,
+                                       int8_t ending_col)
+    {
+        int8_t middle_col = next_column (starting_col, +1);
+        bool middle_attack_exists = false;
+
+        bool left_attack_exists = (
+            is_valid_row (target_row) && is_valid_column (starting_col)
+               && board.piece_at (target_row, starting_col) == make_piece (opponent, Piece::King)
+        );
+        if constexpr (squares_to_check == KingThreatCheck::CheckMiddle)
+        {
+            middle_attack_exists = (
+                is_valid_row (target_row) && is_valid_column (middle_col)
+                    && board.piece_at (target_row, middle_col) == make_piece (opponent, Piece::King)
+            );
+        }
+        bool right_attack_exists = (
+            is_valid_row (target_row) && is_valid_column (ending_col)
+                && board.piece_at (target_row, ending_col) == make_piece (opponent, Piece::King)
+        );
+
+        return left_attack_exists || middle_attack_exists || right_attack_exists;
+    }
+
+    bool is_king_threatened_king_inline (const Board& board, Color who,
+                                         int8_t king_row, int8_t king_col)
+    {
+        Color opponent = color_invert (who);
+        auto left_col = next_column (king_col, -1);
+        auto right_col = next_column (king_col, +1);
+
+        // Inline checks across all three possible rows.
+        bool top_attack_exists = check_king_threat_row<KingThreatCheck::CheckMiddle> (
+                board,
+                opponent,
+                next_row (king_row, -1),
+                left_col,
+                right_col
+         );
+
+        bool center_attack_exists = check_king_threat_row<KingThreatCheck::DoNotCheckMiddle> (
+                board,
+                opponent,
+                king_row,
+                left_col,
+                right_col
+        );
+
+        bool bottom_attack_exists = check_king_threat_row<KingThreatCheck::CheckMiddle> (
+                board,
+                opponent,
+                next_row (king_row, +1),
+                left_col,
+                right_col
+        );
+
+        return top_attack_exists || center_attack_exists || bottom_attack_exists;
     }
 
     bool is_king_threatened_diagonal_dumb (const Board& board, Color who,
