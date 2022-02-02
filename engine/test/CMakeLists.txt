@@ -21,7 +21,7 @@ add_library(fast_tests_lib OBJECT
         generate_test.cpp
         uuid_test.cpp
         str_test.cpp
-        perft_test.cpp)
+        perft_test.cpp board_test.cpp)
 
 add_library(slow_tests_lib OBJECT
         search_test.cpp

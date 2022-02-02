@@ -62,7 +62,9 @@ TEST_CASE( "board code")
         REQUIRE( initial != code );
 
         UndoMove undo_state = brd->make_move (Color::White, a8xb7);
+
         code.unapply_move (*brd, a8xb7, undo_state);
+
         REQUIRE( initial == code );
     }
 

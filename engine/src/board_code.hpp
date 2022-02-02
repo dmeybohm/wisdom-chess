@@ -1,4 +1,3 @@
-
 #ifndef WISDOM_BOARD_CODE_HPP
 #define WISDOM_BOARD_CODE_HPP
 
@@ -38,11 +37,13 @@ namespace wisdom
             Color color = piece_color (piece);
             Piece type = piece_type (piece);
 
-            uint8_t new_value = color == Color::None ? 0
-                                 : piece_index (type) | (color_index (color) << 3);
+            uint8_t new_value = piece == Piece_And_Color_None ? 0 :
+                                 piece_index (type) | (color_index (color) << 3);
             assert (new_value < 16);
 
-            size_t bit_index = (coord.row * Num_Columns + coord.col) * Board_Code_Bits_Per_Piece;
+            int8_t row = Row (coord);
+            int8_t col = Column (coord);
+            size_t bit_index = (row * Num_Columns + col) * Board_Code_Bits_Per_Piece;
 
             for (uint8_t i = 0; i < Board_Code_Bits_Per_Piece; i++)
             {

@@ -13,28 +13,16 @@ namespace wisdom
     // board length in characters
     constexpr int BOARD_LENGTH = 31;
 
-    static int swap_pawns (const Board& board, int source_row, int source_col,
-                           Color promote_color, int new_row, int new_col,
-                           array<ColoredPiece, Num_Columns * Num_Rows>& shuffle_pieces,
-                           int swaps)
+    static void remove_invalid_pawns (const Board& board, int8_t source_row, int8_t source_col,
+                                      array<ColoredPiece, Num_Columns * Num_Rows>& shuffle_pieces)
+
     {
         auto last_row_piece = shuffle_pieces[source_col + (source_row * Num_Columns)];
-
         if (piece_type (last_row_piece) == Piece::Pawn)
         {
-            if (piece_color (last_row_piece) == promote_color)
-            {
-                auto removed = Piece_And_Color_None;
-                shuffle_pieces[source_col + (source_row * Num_Columns)] = removed;
-            }
-            else
-            {
-                std::swap (shuffle_pieces[source_col + source_row * Num_Columns],
-                           shuffle_pieces[new_col + new_row * Num_Columns]);
-                swaps++;
-            }
+            auto removed = Piece_And_Color_None;
+            shuffle_pieces[source_col + (source_row * Num_Columns)] = removed;
         }
-        return swaps;
     }
 
     auto Board::initial_board_position () -> vector<BoardPositions>
@@ -65,8 +53,8 @@ namespace wisdom
 
     static auto init_castle_state (Board &board, Color who) -> CastlingState
     {
-        int row = (who == Color::White ? 7 : 0);
-        int king_col = 4;
+        int8_t row = (who == Color::White ? Last_Row : First_Row);
+        int8_t king_col = King_Column;
 
         CastlingState state = Castle_None;
         ColoredPiece prospective_king = board.piece_at (row, king_col);
@@ -91,32 +79,32 @@ namespace wisdom
         return state;
     }
 
-    Board::Board (const vector<BoardPositions> &positions)
+    Board::Board (const vector<BoardPositions>& positions)
     {
-        int row;
+        int8_t row;
 
-        for (CastlingState &i : this->my_castled)
+        for (CastlingState& i : this->my_castled)
             i = Castle_None;
 
-        int col;
+        int8_t col;
         FOR_EACH_ROW_AND_COL(row, col)
             set_piece (make_coord (row, col), Piece_And_Color_None);
 
         this->my_position = Position {};
 
-        for (auto &pos : positions)
+        for (auto& pos : positions)
         {
             auto &pieces = pos.pieces;
             Color color = pos.piece_color;
             row = pos.rank;
 
-            for (std::size_t col = 0; col < Num_Columns && col < pieces.size (); col++)
+            for (col = 0; col < Num_Columns && col < pieces.size (); col++)
             {
                 if (pieces[col] == Piece::None)
                     continue;
 
                 ColoredPiece new_piece = make_piece (color, pieces[col]);
-                Coord place = make_coord (row, gsl::narrow<int>(col));
+                Coord place = make_coord (row, col);
                 set_piece (place, new_piece);
 
                 this->my_material.add (new_piece);
@@ -191,9 +179,9 @@ namespace wisdom
         char row_coord = '8';
 
         add_divider (result);
-        for (int row = 0; row < Num_Rows; row++)
+        for (int8_t row = 0; row < Num_Rows; row++)
         {
-            for (int col = 0; col < Num_Columns; col++)
+            for (int8_t col = 0; col < Num_Columns; col++)
             {
                 ColoredPiece piece = this->piece_at (row, col);
 
@@ -270,12 +258,12 @@ namespace wisdom
     {
         string output;
 
-        for (int row = 0; row < Num_Rows; row++)
+        for (int8_t row = 0; row < Num_Rows; row++)
         {
             string row_string;
             int none_count = 0;
 
-            for (int col = 0; col < Num_Columns; col++)
+            for (int8_t col = 0; col < Num_Columns; col++)
             {
                 ColoredPiece piece = this->piece_at (row, col);
                 if (piece == Piece_And_Color_None)
@@ -327,7 +315,7 @@ namespace wisdom
 
     auto operator== (const Board &a, const Board &b) -> bool
     {
-        int row, col;
+        int8_t row, col;
 
         FOR_EACH_ROW_AND_COL(row, col)
         {
@@ -356,7 +344,7 @@ namespace wisdom
         // randomize the positions:
         array<ColoredPiece, Num_Columns * Num_Rows> shuffle_pieces {};
 
-        int row, col;
+        int8_t row, col;
         FOR_EACH_ROW_AND_COL (row, col)
         {
             shuffle_pieces[col + (row * Num_Columns)] = my_squares[row][col];
@@ -372,27 +360,14 @@ namespace wisdom
         std::uniform_int_distribution<> no_first_or_last_dist { 1, 6 };
         std::uniform_int_distribution<> remove_chance { 0, 100 };
 
-        auto swaps = 0;
-        do
+        for (int8_t source_col = 0; source_col < Num_Columns; source_col++)
         {
-            swaps = 0;
-            for (auto source_col = 0; source_col < Num_Columns; source_col++)
-            {
-                int first_source_row = 0;
-                int last_source_row = Num_Rows - 1;
+            int8_t first_source_row = 0;
+            auto last_source_row = gsl::narrow<int8_t> (Num_Rows - 1);
 
-                auto new_black_row = no_first_row_dist (rng);
-                auto new_black_col = any_row_or_col (rng);
-
-                swaps = swap_pawns (*this, first_source_row, source_col, Color::White,
-                                    new_black_row, new_black_col, shuffle_pieces, swaps);
-                auto new_white_row = no_last_row_dist (rng);
-                auto new_white_col = any_row_or_col (rng);
-
-                swaps = swap_pawns (*this, last_source_row, source_col, Color::Black, new_white_row,
-                                    new_white_col, shuffle_pieces, swaps);
-            }
-        } while (swaps > 0);
+            remove_invalid_pawns (*this, first_source_row, source_col, shuffle_pieces);
+            remove_invalid_pawns (*this, last_source_row, source_col, shuffle_pieces);
+        }
 
         FOR_EACH_ROW_AND_COL (row, col)
         {
@@ -422,8 +397,8 @@ namespace wisdom
             // swap king positions, but don't put on the last / first row to avoid regenerating
             // pawns:
             Coord source_white_king_pos = my_king_pos[Color_Index_White];
-            int new_row = no_first_or_last_dist (rng);
-            int new_col = no_first_or_last_dist (rng);
+            auto new_row = gsl::narrow<int8_t>(no_first_or_last_dist (rng));
+            auto new_col = gsl::narrow<int8_t>(no_first_or_last_dist (rng));
             std::swap (my_squares[Row (source_white_king_pos)][Column (source_white_king_pos)],
                        my_squares[new_row][new_col]);
             my_king_pos[Color_Index_White] = make_coord (new_row, new_col);

@@ -175,9 +175,9 @@ namespace wisdom
         // if there are no legal moves, then the current computer_player is in a stalemate or checkmate position.
         if (!my_best_move.has_value ())
         {
-            auto [my_king_row, my_king_col] = my_board->get_king_position (side);
+            auto king_coord = my_board->get_king_position (side);
 
-            my_best_score = is_king_threatened (*my_board, side, my_king_row, my_king_col) ?
+            my_best_score = is_king_threatened (*my_board, side, king_coord) ?
                     -1 * checkmate_score_in_moves (my_total_depth - depth) : 0;
         }
     }

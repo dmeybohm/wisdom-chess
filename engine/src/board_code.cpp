@@ -9,7 +9,7 @@ namespace wisdom
 {
     BoardCode::BoardCode (const Board& board)
     {
-        int row, col;
+        int8_t row, col;
 
         FOR_EACH_ROW_AND_COL(row, col)
         {
@@ -86,8 +86,8 @@ namespace wisdom
 
         if (is_castling_move (move))
         {
-            int src_col, dst_col;
-            int row;
+            int8_t src_col, dst_col;
+            int8_t row;
 
             if (is_castling_move_on_king_side (move))
             {
