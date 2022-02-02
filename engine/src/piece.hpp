@@ -146,6 +146,16 @@ namespace wisdom
         );
     }
 
+    constexpr auto to_int8 (ColoredPiece piece) -> int8_t
+    {
+        return piece.piece_type_and_color;
+    }
+
+    constexpr auto to_colored_piece_shifted (Color who) -> int8_t
+    {
+       return gsl::narrow_cast<int8_t>(to_int8 (who) << Piece_Color_Shift);
+    }
+
     constexpr auto piece_from_char (char p) -> Piece
     {
         switch (p)

@@ -171,15 +171,17 @@ namespace wisdom
 
         Color my_king_color;
         Color my_opponent_color;
+        int8_t my_opponent_color_shifted;
 
         Threats (const Board& board, Color king_color, int8_t king_row, int8_t king_col)
                 : my_board { board }, my_king_color { king_color },
                 my_king_row { king_row }, my_king_col { king_col }
         {
             my_opponent_color = color_invert (king_color);
+            my_opponent_color_shifted = to_colored_piece_shifted (my_opponent_color);
         }
 
-        constexpr bool check_lane_threats (int target_row, int target_col)
+        constexpr bool check_lane_threats (int8_t target_row, int8_t target_col)
         {
             ColoredPiece piece = my_board.piece_at (target_row, target_col);
             auto type = piece_type (piece);
@@ -200,25 +202,26 @@ namespace wisdom
             return type != Piece::None;
         }
 
-        constexpr bool check_diagonal_threats (int target_row, int target_col)
+        constexpr bool check_diagonal_threats (int8_t target_row, int8_t target_col)
         {
             ColoredPiece piece = my_board.piece_at (target_row, target_col);
-            auto type = piece_type (piece);
-            auto target_color = piece_color (piece);
+            auto piece_as_int = to_int8 (piece);
+            auto bishop_int = to_int8 (Piece::Bishop);
+            auto queen_int = to_int8 (Piece::Queen);
 
             // 1 or 0: whether to consider a piece or revert to the king
             // position.
-            int8_t is_bishop = type == Piece::Bishop;
-            int8_t is_queen = type == Piece::Queen;
-            int8_t is_opponent_color = target_color == my_opponent_color;
+            auto is_bishop = gsl::narrow_cast<int8_t>((piece_as_int & bishop_int) == bishop_int);
+            auto is_queen = gsl::narrow_cast<int8_t>((piece_as_int & queen_int) == queen_int);
+            auto is_opponent_color = gsl::narrow_cast<int8_t>(piece_as_int & Piece_Color_Mask) == my_opponent_color_shifted;
 
-            int8_t has_threatening_piece = (is_bishop | is_queen) & is_opponent_color;
+            auto has_threatening_piece = gsl::narrow_cast<int8_t>((is_bishop | is_queen) & is_opponent_color);
 
             // If the check is blocked, revert to the the king position itself
             // for the calculation to avoid any branching.
             my_diagonal_threats |= has_threatening_piece;
 
-            return type != Piece::None;
+            return piece_as_int != to_int8 (Piece_And_Color_None);
         }
 
         bool any_row_threats ()
