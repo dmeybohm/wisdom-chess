@@ -376,9 +376,6 @@ namespace wisdom
         if (is_king_threatened_knight_direct (board, who, king_row, king_col))
             return true;
 
-        if (is_king_threatened_king (board, who, king_row, king_col))
-            return true;
-
         if (is_king_threatened_pawn_dumb (board, who, king_row, king_col))
             return true;
 
