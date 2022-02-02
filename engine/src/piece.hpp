@@ -15,7 +15,7 @@ namespace wisdom
 
     enum class Piece : int8_t
     {
-        None,
+        None = 0,
         Pawn,
         Knight,
         Bishop,
@@ -26,9 +26,9 @@ namespace wisdom
 
     enum class Color : int8_t
     {
-        None,
-        White,
-        Black
+        None = 0,
+        White = 1,
+        Black = 2,
     };
 
     struct ColoredPiece
@@ -36,8 +36,8 @@ namespace wisdom
         int8_t piece_type_and_color;
     };
 
-    constexpr int Color_Index_White = 0;
-    constexpr int Color_Index_Black = 1;
+    static constexpr int Color_Index_White = 0;
+    static constexpr int Color_Index_Black = 1;
 
     using ColorIndex = int8_t;
 
@@ -45,7 +45,7 @@ namespace wisdom
 
     // Order here is significant - it means computer will prefer the piece at the top
     // all else being equal, such as if the promoted piece cannot be saved from capture.
-    constexpr Piece All_Promotable_Piece_Types[] = {
+    static constexpr Piece All_Promotable_Piece_Types[] = {
             Piece::Queen,
             Piece::Rook,
             Piece::Bishop,
@@ -58,9 +58,6 @@ namespace wisdom
     // 2 bits for color
     static constexpr int8_t Piece_Color_Mask = 0x18;
     static constexpr int8_t Piece_Color_Shift = 3;
-
-    #define PIECE_TYPE(piece) \
-    ((piece) & PIECE_TYPE_MASK)
 
     constexpr auto to_int8 (Piece piece) -> int8_t
     {
@@ -75,6 +72,8 @@ namespace wisdom
     constexpr auto make_piece (Color color, Piece piece_type) noexcept
         -> ColoredPiece
     {
+        assert ((piece_type == Piece::None && color == Piece::None) ||
+                (piece_type != Piece::None && color != Color::None));
         auto color_as_int = to_int8 (color);
         auto piece_as_int = to_int8 (piece_type);
         auto result = gsl::narrow_cast<int8_t>(
@@ -104,10 +103,16 @@ namespace wisdom
         return static_cast<Color>(integer);
     }
 
+    constexpr auto color_from_color_index (ColorIndex index) -> Color
+    {
+        assert (index == Color_Index_White || index == Color_Index_Black);
+        return static_cast<Color>(index + 1);
+    }
+
     constexpr auto piece_type (ColoredPiece piece) -> Piece
     {
         auto result = gsl::narrow_cast<int8_t>(
-            (piece.piece_type_and_color & Piece_Color_Mask) >> Piece_Color_Shift
+            (piece.piece_type_and_color & Piece_Type_Mask)
         );
         return piece_from_int8 (result);
     }
@@ -125,23 +130,16 @@ namespace wisdom
         return (who == Color::White || who == Color::Black);
     }
 
+    constexpr auto color_index (Color who) -> ColorIndex
+    {
+        assert (who == Color::White || who == Color::Black);
+        return to_int8 (who) - 1;
+    }
+
     constexpr auto color_invert (Color who) -> Color
     {
         assert (is_color_valid (who));
-        return who == Color::White ? Color::Black : Color::White;
-    }
-
-    constexpr auto color_index (Color who) -> ColorIndex
-    {
-        switch (who)
-        {
-            case Color::White:
-                return Color_Index_White;
-            case Color::Black:
-                return Color_Index_Black;
-            default:
-                throw PieceError { "Invalid color index" };
-        }
+        return color_from_color_index (!(color_index (who) - 1));
     }
 
     constexpr auto piece_from_char (char p) -> Piece

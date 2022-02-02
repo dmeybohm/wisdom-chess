@@ -397,7 +397,6 @@ namespace wisdom
         if (is_king_threatened_king (board, who, king_row, king_col))
             return true;
 
-
         return false;
     }
 

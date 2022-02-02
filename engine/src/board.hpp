@@ -17,7 +17,7 @@ namespace wisdom
 {
     struct BoardPositions
     {
-        int rank;
+        int8_t rank;
         Color piece_color;
         vector<Piece> pieces;
     };
@@ -251,7 +251,7 @@ namespace wisdom
     {
         assert (color == Color::Black || color == Color::White);
         int8_t color_as_int = to_int8 (color);
-        return gsl::narrow_cast<int8_t>(-1 * 2 * color_as_int);
+        return gsl::narrow_cast<int8_t>(-1 + 2 * (color_as_int - 1));
     }
 
 }

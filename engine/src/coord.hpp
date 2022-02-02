@@ -26,12 +26,12 @@ namespace wisdom
 
     constexpr int8_t next_row (int8_t row, int8_t direction)
     {
-        return row + direction;
+        return gsl::narrow_cast<int8_t>(row + direction);
     }
 
     constexpr int8_t next_column (int8_t col, int8_t direction)
     {
-        return col + direction;
+        return gsl::narrow_cast<int8_t>(col + direction);
     }
 
     constexpr Coord make_coord (int8_t row, int8_t col)

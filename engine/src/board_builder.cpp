@@ -127,8 +127,8 @@ namespace wisdom
             const PieceWithCoordState& piece_with_coord = this->pieces_with_coords[i];
             vector<Piece>& current_piece_row = piece_types[i].row;
 
-            int col = Column (piece_with_coord.coord);
-            int row = Row (piece_with_coord.coord);
+            int8_t col = Column (piece_with_coord.coord);
+            int8_t row = Row (piece_with_coord.coord);
 
             current_piece_row.assign (Num_Columns, Piece::None);
             current_piece_row[col] = piece_with_coord.piece_type;

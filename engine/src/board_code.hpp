@@ -1,4 +1,3 @@
-
 #ifndef WISDOM_BOARD_CODE_HPP
 #define WISDOM_BOARD_CODE_HPP
 
@@ -42,8 +41,8 @@ namespace wisdom
                                  : piece_index (type) | (color_index (color) << 3);
             assert (new_value < 16);
 
-            int row = Row (coord);
-            int col = Column (coord);
+            int8_t row = Row (coord);
+            int8_t col = Column (coord);
             size_t bit_index = (row * Num_Columns + col) * Board_Code_Bits_Per_Piece;
 
             for (uint8_t i = 0; i < Board_Code_Bits_Per_Piece; i++)
