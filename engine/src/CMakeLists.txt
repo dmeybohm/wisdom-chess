@@ -12,7 +12,7 @@ add_library(wisdom-chess-core STATIC
         history.cpp transposition_table.cpp transposition_table.hpp variation_glimpse.cpp variation_glimpse.hpp
         output_format.cpp output_format.hpp analytics.cpp analytics.hpp search_result.cpp search_result.hpp
         analytics_sqlite.cpp analytics_sqlite.hpp
-        uuid.cpp uuid.hpp play.hpp play.cpp perft.cpp perft.hpp)
+        uuid.cpp uuid.hpp play.hpp play.cpp perft.cpp perft.hpp threats.cpp threats.hpp)
 
 target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
 
