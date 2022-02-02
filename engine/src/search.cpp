@@ -90,8 +90,14 @@ namespace wisdom
     {
         int best_score = -Initial_Alpha;
         std::optional<Move> best_move {};
-        MoveGenerator generator;
-        auto moves = generator.generate (*my_board, side);
+
+        auto moves = [&, side]() -> MoveList {
+            auto king_position = my_board->get_king_position (side);
+            if (is_king_threatened (*my_board, side, king_position))
+                return generate_legal_moves (*my_board, side);
+            else
+                return generate_moves (*my_board, side);
+        }();
 
         for (auto move : moves)
         {
@@ -104,12 +110,6 @@ namespace wisdom
             }
 
             UndoMove undo_state = my_board->make_move (side, move);
-
-            if (!was_legal_move (*my_board, side, move))
-            {
-                my_board->take_back (side, move, undo_state);
-                continue;
-            }
 
             nodes_visited++;
 

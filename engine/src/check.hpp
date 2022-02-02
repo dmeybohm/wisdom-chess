@@ -19,6 +19,7 @@ namespace wisdom
     bool is_king_threatened_column (const Board& board, Color who, int8_t row, int8_t col);
     bool is_king_threatened_diagonal (const Board& board, Color who, int8_t row, int8_t col);
     bool is_king_threatened_knight (const Board& board, Color who, int8_t row, int8_t col);
+    bool is_king_threatened_knight_direct (const Board& board, Color who, int8_t row, int8_t col);
     bool is_king_threatened_pawn (const Board& board, Color who, int8_t row, int8_t col);
     bool is_king_threatened_pawn_dumb (const Board& board, Color who, int8_t row, int8_t col);
     bool is_king_threatened_pawn_c (const Board& board, int who, int8_t row, int8_t col);

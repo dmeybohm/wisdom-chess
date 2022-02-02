@@ -226,7 +226,7 @@ namespace wisdom
 
         bool any_row_threats ()
         {
-            for (int8_t new_col = my_king_col; new_col <= Last_Column; new_col++)
+            for (auto new_col = next_column (my_king_col, +1); new_col <= Last_Column; new_col++)
             {
                 auto stop = check_lane_threats (my_king_row, new_col);
 
@@ -237,7 +237,7 @@ namespace wisdom
                     break;
             }
 
-            for (int8_t new_col = my_king_col; new_col >= First_Column; new_col--)
+            for (auto new_col = next_column (my_king_col,  -1); new_col >= First_Column; new_col--)
             {
                 auto stop = check_lane_threats (my_king_row, new_col);
 
@@ -253,7 +253,7 @@ namespace wisdom
 
         bool any_column_threats ()
         {
-            for (int8_t new_row = my_king_row + 1; new_row <= Last_Row; new_row++)
+            for (auto new_row = next_row (my_king_row, +1); new_row <= Last_Row; new_row++)
             {
                 auto stop = check_lane_threats (new_row, my_king_col);
 
@@ -264,7 +264,7 @@ namespace wisdom
                     break;
             }
 
-            for (int8_t new_row = my_king_row - 1; new_row >= First_Row; new_row--)
+            for (auto new_row = next_row (my_king_row, -1); new_row >= First_Row; new_row--)
             {
                 auto stop = check_lane_threats (new_row, my_king_col);
 
@@ -281,8 +281,8 @@ namespace wisdom
         bool any_diagonal_threats ()
         {
             // northwest
-            for (int8_t new_col = next_column (my_king_col,  -1),
-                         new_row = next_row (my_king_row,  -1);
+            for (auto new_col = next_column (my_king_col,  -1),
+                      new_row = next_row (my_king_row,  -1);
                  new_row >= First_Row && new_col >= First_Column;
                  new_col--, new_row--
             ) {
@@ -296,8 +296,8 @@ namespace wisdom
             }
 
             // northeast
-            for (int8_t new_col = next_column (my_king_col,  +1),
-                        new_row = next_row (my_king_row,  -1);
+            for (auto new_col = next_column (my_king_col,  +1),
+                      new_row = next_row (my_king_row,  -1);
                  new_row >= First_Row && new_col <= Last_Column;
                  new_col++, new_row--
             ) {
@@ -311,8 +311,8 @@ namespace wisdom
             }
 
             // southeast
-            for (int8_t new_col = next_column (my_king_col,  +1),
-                        new_row = next_row (my_king_row,  +1);
+            for (auto new_col = next_column (my_king_col,  +1),
+                      new_row = next_row (my_king_row,  +1);
                  new_row >= Last_Row && new_col >= First_Column;
                  new_col++, new_row++
             ) {
@@ -326,8 +326,8 @@ namespace wisdom
             }
 
             // southwest
-            for (int8_t new_col = next_column (my_king_col, -1),
-                        new_row = next_row (my_king_row,  +1);
+            for (auto new_col = next_column (my_king_col, -1),
+                      new_row = next_row (my_king_row,  +1);
                  new_row >= First_Row && new_col >= First_Column;
                  new_col--, new_row++
             ) {
@@ -363,37 +363,22 @@ namespace wisdom
                              int8_t king_row, int8_t king_col)
     {
         int8_t row, col;
-        int8_t c_dir, r_dir;
-        Threats threats { board, who, king_row, king_col };
 
-        if (threats.any_row_threats ())
+        if (is_king_threatened_row (board, who, king_row, king_col))
             return true;
 
-        if (threats.any_column_threats ())
+        if (is_king_threatened_column (board, who, king_row, king_col))
             return true;
 
         if (is_king_threatened_diagonal_dumb (board, who, king_row, king_col))
             return true;
 
-        // check for knight checks
-        const auto& kt_moves = generate_knight_moves (king_row, king_col);
+        if (is_king_threatened_knight_direct (board, who, king_row, king_col))
+            return true;
 
-        for (auto move : kt_moves)
-        {
-            Coord dst = move_dst (move);
+        if (is_king_threatened_king (board, who, king_row, king_col))
+            return true;
 
-            row = Row (dst);
-            col = Column (dst);
-
-            auto what = board.piece_at (row, col);
-            if (what == Piece_And_Color_None)
-                continue;
-
-            if (piece_type (what) == Piece::Knight && piece_color (what) != who)
-                return true;
-        }
-
-        // check for pawn checks
         if (is_king_threatened_pawn_dumb (board, who, king_row, king_col))
             return true;
 
@@ -406,6 +391,33 @@ namespace wisdom
     bool is_king_threatened_row (const Board& board, Color who,
                                  int8_t king_row, int8_t king_col)
     {
+#if 0
+        // check each side of the king's column
+        int row = king_row;
+        for (int c_dir = -1; c_dir <= 1; c_dir += 2)
+        {
+            for (int col = next_column (king_col, c_dir); is_valid_column (col); col = next_column (col, c_dir))
+            {
+                auto what = board.piece_at (row, col);
+
+                if (what == Piece_And_Color_None)
+                    continue;
+
+                if (piece_color (what) == who)
+                    break;
+
+                auto check_piece_type = piece_type (what);
+                if (check_piece_type == Piece::Rook ||
+                    check_piece_type == Piece::Queen)
+                    return true;
+
+                break;
+            }
+        }
+
+        return false;
+#endif
+
         Threats threats { board, who, king_row, king_col };
 
         if (threats.any_row_threats ())
@@ -417,6 +429,34 @@ namespace wisdom
     bool is_king_threatened_column (const Board& board, Color who,
                                     int8_t king_row, int8_t king_col)
     {
+#if 0
+        // check each side of the king's row
+        int col = king_col;
+        for (int r_dir = -1; r_dir <= 1; r_dir += 2)
+        {
+            for (int row = next_row (king_row, r_dir); is_valid_row (row); row = next_row (row, r_dir))
+            {
+                auto what = board.piece_at (row, col);
+
+                if (what == Piece_And_Color_None)
+                    continue;
+
+                auto check_piece_type = piece_type (what);
+                auto check_piece_color = piece_color (what);
+
+                if (check_piece_color == who)
+                    break;
+
+                if (check_piece_type == Piece::Rook ||
+                    check_piece_type == Piece::Queen)
+                    return true;
+
+                break;
+            }
+        }
+
+        return false;
+#endif
         Threats threats { board, who, king_row, king_col };
 
         if (threats.any_column_threats ())
@@ -462,6 +502,71 @@ namespace wisdom
         return false;
     }
 
+
+    static bool check_knight_at_square (const Board& board, Color opponent,
+                                        int8_t target_row, int8_t target_col)
+    {
+        auto piece = board.piece_at (target_row, target_col);
+        return piece_color (piece) == opponent && piece_type (piece) == Piece::Knight;
+    }
+
+    template <int8_t row_dir, int8_t col_dir>
+    static bool check_knight (const Board& board, Color opponent,
+                              int8_t king_row, int8_t king_col)
+    {
+        auto starting_row = next_row (king_row, row_dir);
+        auto starting_col = next_column (king_col, col_dir);
+
+        if constexpr (row_dir != 0)
+        {
+            // starting square is along the row - so go left or right
+            // with the column along the same direction as the row.
+            auto target_row = next_row (starting_row, row_dir);
+            if (!is_valid_row (target_row))
+                return false;
+
+            auto left_col = next_column (king_col, -1);
+            auto right_col = next_column (king_col, +1);
+
+            bool attacked = false;
+            if (is_valid_column (left_col))
+                attacked |= check_knight_at_square (board, opponent, target_row, left_col);
+            if (is_valid_column (right_col))
+                attacked |= check_knight_at_square (board, opponent, target_row, right_col);
+            return attacked;
+        }
+        else
+        {
+            // starting square is along the row - so go left or right
+            // with the column along the same direction as the row.
+            auto target_col = next_column (starting_col, col_dir);
+            if (!is_valid_column (target_col))
+                return false;
+
+            auto left_row = next_row (king_row, -1);
+            auto right_row = next_row (king_row, +1);
+
+            bool attacked = false;
+            if (is_valid_row (left_row))
+                attacked |= check_knight_at_square (board, opponent, left_row, target_col);
+            if (is_valid_row (right_row))
+                attacked |= check_knight_at_square (board, opponent, right_row, target_col);
+            return attacked;
+        }
+    }
+
+    bool is_king_threatened_knight_direct (const Board& board, Color who,
+                                           int8_t king_row, int8_t king_col)
+    {
+
+        Color opponent = color_invert (who) ;
+        return
+            check_knight<-1, 0> (board, opponent, king_row, king_col) ||
+            check_knight<0, +1>(board, opponent, king_row, king_col) ||
+            check_knight<+1, 0>(board, opponent, king_row, king_col) ||
+            check_knight<0, -1>(board, opponent, king_row, king_col);
+    }
+
     bool is_king_threatened_pawn (const Board& board, Color who,
                                   int8_t king_row, int8_t king_col)
     {
@@ -486,7 +591,6 @@ namespace wisdom
             auto what = board.piece_at (pawn_row, right_col);
             if (piece_type (what) == Piece::Pawn && piece_color (what) != who)
                 return true;
-
         }
 
         return false;
@@ -568,6 +672,7 @@ namespace wisdom
             }
         }
 
+
         return false;
     }
 
@@ -608,7 +713,7 @@ namespace wisdom
 
     bool was_legal_move (Board& board, Color who, Move mv)
     {
-        auto king_coord= board.get_king_position (who);
+        auto king_coord = board.get_king_position (who);
 
         if (is_king_threatened (board, who, king_coord))
             return false;

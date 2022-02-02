@@ -95,6 +95,19 @@ static void benchmark_is_king_threatened_knight (benchmark::State& state)
 }
 BENCHMARK(benchmark_is_king_threatened_knight);
 
+static void benchmark_is_king_threatened_knight_direct (benchmark::State& state)
+{
+    using namespace wisdom;
+
+    Board board;
+
+    for (auto _ : state)
+    {
+        benchmark::DoNotOptimize(is_king_threatened_knight_direct (board, Color::White, Last_Row, King_Column));
+    }
+}
+BENCHMARK(benchmark_is_king_threatened_knight_direct);
+
 static void benchmark_is_king_threatened_pawn (benchmark::State& state)
 {
     using namespace wisdom;

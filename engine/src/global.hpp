@@ -27,8 +27,8 @@
 
 namespace wisdom
 {
-    using zstring = gsl::zstring<>;
-    using czstring = gsl::czstring<>;
+    using zstring = gsl::zstring;
+    using czstring = gsl::czstring;
     using std::string;
     using std::optional;
     using std::vector;
