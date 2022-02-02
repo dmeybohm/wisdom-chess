@@ -134,6 +134,19 @@ static void benchmark_is_king_threatened_pawn_dumb (benchmark::State& state)
 }
 BENCHMARK(benchmark_is_king_threatened_pawn_dumb);
 
+static void benchmark_is_king_threatened_pawn_inline (benchmark::State& state)
+{
+    using namespace wisdom;
+
+    Board board;
+
+    for (auto _ : state)
+    {
+        benchmark::DoNotOptimize(is_king_threatened_pawn_inline (board, Color::White, Last_Row, King_Column));
+    }
+}
+BENCHMARK(benchmark_is_king_threatened_pawn_inline);
+
 static void benchmark_is_king_threatened_pawn_c (benchmark::State& state)
 {
     using namespace wisdom;
@@ -159,6 +172,19 @@ static void benchmark_is_king_threatened_king (benchmark::State& state)
     }
 }
 BENCHMARK(benchmark_is_king_threatened_king);
+
+static void benchmark_is_king_threatened_king_inline (benchmark::State& state)
+{
+    using namespace wisdom;
+
+    Board board;
+
+    for (auto _ : state)
+    {
+        benchmark::DoNotOptimize(is_king_threatened_king_inline (board, Color::White, Last_Row, King_Column));
+    }
+}
+BENCHMARK(benchmark_is_king_threatened_king_inline);
 
 static void benchmark_is_black_king_threatened (benchmark::State& state)
 {
