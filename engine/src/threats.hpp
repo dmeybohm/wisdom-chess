@@ -8,7 +8,7 @@
 
 namespace wisdom
 {
-    struct Threats
+    struct InlineThreats
     {
         struct ThreatStatus
         {
@@ -26,7 +26,7 @@ namespace wisdom
         int8_t my_pawn_direction;
         int8_t my_opponent_color_shifted;
 
-        Threats (const Board& board, Color king_color, Coord king_coord)
+        InlineThreats (const Board& board, Color king_color, Coord king_coord)
             : my_board { board },
                 my_opponent { color_invert (king_color) },
                 my_king_color { king_color },

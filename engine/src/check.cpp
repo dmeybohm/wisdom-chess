@@ -4,6 +4,7 @@
 #include "board.hpp"
 #include "generate.hpp"
 #include "history.hpp"
+#include "threats.hpp"
 
 namespace wisdom
 {
@@ -345,7 +346,11 @@ namespace wisdom
 
     bool is_king_threatened (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
-        int8_t row, col;
+#if 0
+        InlineThreats threats { board, who, make_coord (king_row, king_col) };
+
+        return threats.check_all ();
+#endif
 
         if (is_king_threatened_row (board, who, king_row, king_col))
             return true;

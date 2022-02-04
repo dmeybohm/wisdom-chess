@@ -112,7 +112,7 @@ namespace wisdom
         }
     };
 
-    auto to_string (const MoveList &list) -> string;
+    auto to_string (const MoveList& list) -> string;
 
     std::ostream& operator<< (std::ostream &os, const MoveList& list);
 }

@@ -216,7 +216,7 @@ namespace wisdom
 
     void play (Color human_player);
 
-    std::ostream &operator<< (std::ostream &os, const ColoredPiece &value);
+    std::ostream& operator<< (std::ostream& os, const ColoredPiece& value);
 }
 
 #endif // WISDOM_CHESS_PIECE_HPP
