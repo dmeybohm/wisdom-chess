@@ -2,6 +2,8 @@
 
 #include "piece.hpp"
 
+#include <iostream>
+
 using std::vector;
 using namespace wisdom;
 
