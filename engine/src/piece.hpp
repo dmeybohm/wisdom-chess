@@ -139,7 +139,11 @@ namespace wisdom
     constexpr auto color_invert (Color who) -> Color
     {
         assert (is_color_valid (who));
-        return color_from_color_index (!(color_index (who) - 1));
+        return color_from_color_index (
+            gsl::narrow_cast<int8_t>(
+                !color_index (who)
+            )
+        );
     }
 
     constexpr auto piece_from_char (char p) -> Piece

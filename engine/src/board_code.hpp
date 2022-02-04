@@ -37,8 +37,8 @@ namespace wisdom
             Color color = piece_color (piece);
             Piece type = piece_type (piece);
 
-            uint8_t new_value = color == Color::None ? 0
-                                 : piece_index (type) | (color_index (color) << 3);
+            uint8_t new_value = piece == Piece_And_Color_None ? 0 :
+                                 piece_index (type) | (color_index (color) << 3);
             assert (new_value < 16);
 
             int8_t row = Row (coord);

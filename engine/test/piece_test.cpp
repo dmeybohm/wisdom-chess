@@ -29,3 +29,9 @@ TEST_CASE( "A piece can be converted" )
     CHECK( piece_type (Piece_And_Color_None) == Piece::None );
     CHECK( piece_color (Piece_And_Color_None) == Color::None );
 }
+
+TEST_CASE( "Color invert" )
+{
+    CHECK( color_invert (Color::White) == Color::Black );
+    CHECK( color_invert (Color::Black) == Color::White );
+}
