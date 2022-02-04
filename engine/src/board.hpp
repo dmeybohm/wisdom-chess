@@ -55,6 +55,8 @@ namespace wisdom
         int my_full_move_clock = 1;
 
     public:
+        int8_t raw_squares[Num_Rows][Num_Columns];
+
         Board ();
 
         Board (const Board& board) = default;
@@ -65,7 +67,7 @@ namespace wisdom
 
         void print () const;
 
-        [[nodiscard]] constexpr auto piece_at (int row, int col) const
+        [[nodiscard]] constexpr auto piece_at (int8_t row, int8_t col) const
             -> ColoredPiece
         {
             return this->my_squares[row][col];
@@ -74,7 +76,7 @@ namespace wisdom
         [[nodiscard]] constexpr auto piece_at (Coord coord) const
             -> ColoredPiece
         {
-            return this->my_squares[coord.row][coord.col];
+            return this->my_squares[Row (coord)][Column (coord)];
         }
 
         void copy_squares (ColoredPiece copy_to_squares[Num_Rows][Num_Columns]) const
@@ -83,7 +85,7 @@ namespace wisdom
                        &copy_to_squares[0][0]);
         }
 
-        void set_piece (int row, int col, ColoredPiece piece)
+        void set_piece (int8_t row, int8_t col, ColoredPiece piece)
         {
             this->my_squares[row][col] = piece;
         }
@@ -245,15 +247,11 @@ namespace wisdom
 
     // white moves up (-)
     // black moves down (+)
-    constexpr int pawn_direction (Color color)
+    constexpr int8_t pawn_direction (Color color)
     {
-        switch (color)
-        {
-            case Color::Black: return 1;
-            case Color::White: return -1;
-            case Color::None: throw Error { "Invalid color in pawn_direction()" };
-        }
-        std::terminate ();
+        assert (color == Color::Black || color == Color::White);
+        int8_t color_as_int = to_int8 (color);
+        return gsl::narrow_cast<int8_t>(-1 * 2 * color_as_int);
     }
 
 }

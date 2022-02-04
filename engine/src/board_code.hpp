@@ -42,7 +42,9 @@ namespace wisdom
                                  : piece_index (type) | (color_index (color) << 3);
             assert (new_value < 16);
 
-            size_t bit_index = (coord.row * Num_Columns + coord.col) * Board_Code_Bits_Per_Piece;
+            int row = Row (coord);
+            int col = Column (coord);
+            size_t bit_index = (row * Num_Columns + col) * Board_Code_Bits_Per_Piece;
 
             for (uint8_t i = 0; i < Board_Code_Bits_Per_Piece; i++)
             {

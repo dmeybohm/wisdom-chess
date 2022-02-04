@@ -12,8 +12,19 @@ namespace wisdom
 
     // check if the the king indicated by the WHO argument is in trouble
     // in this position
-    bool is_king_threatened (const Board& board, Color who, int row, int col);
+    bool is_king_threatened (const Board& board, Color who, int8_t row, int8_t col);
     bool is_king_threatened_inline (const Board& board, Color who, int row, int col);
+
+    bool is_king_threatened_row (const Board& board, Color who, int8_t row, int8_t col);
+    bool is_king_threatened_column (const Board& board, Color who, int8_t row, int8_t col);
+    bool is_king_threatened_diagonal (const Board& board, Color who, int8_t row, int8_t col);
+    bool is_king_threatened_knight (const Board& board, Color who, int8_t row, int8_t col);
+    bool is_king_threatened_pawn (const Board& board, Color who, int8_t row, int8_t col);
+    bool is_king_threatened_pawn_dumb (const Board& board, Color who, int8_t row, int8_t col);
+    bool is_king_threatened_pawn_c (const Board& board, int who, int8_t row, int8_t col);
+    bool is_king_threatened_king (const Board& board, Color who, int8_t row, int8_t col);
+    bool is_king_threatened_diagonal_dumb (const Board& board, Color who,
+                                           int8_t king_row, int8_t king_col);
 
     static inline bool is_king_threatened ([[maybe_unused]] Board& board,
                                            [[maybe_unused]] Color who,

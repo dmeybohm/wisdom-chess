@@ -7,7 +7,7 @@ namespace wisdom
 {
     class Board;
     class MoveList;
-    enum class Color;
+    enum class Color : int8_t;
     struct Move;
 }
 

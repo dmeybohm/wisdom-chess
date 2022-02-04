@@ -13,7 +13,7 @@ namespace wisdom
         {}
     };
 
-    enum class Piece
+    enum class Piece : int8_t
     {
         None,
         Pawn,
@@ -24,7 +24,7 @@ namespace wisdom
         King,
     };
 
-    enum class Color
+    enum class Color : int8_t
     {
         None,
         White,
@@ -33,8 +33,7 @@ namespace wisdom
 
     struct ColoredPiece
     {
-        Piece piece_type: 4;
-        Color color: 4;
+        int8_t piece_type_and_color;
     };
 
     constexpr int Color_Index_White = 0;
@@ -53,10 +52,36 @@ namespace wisdom
             Piece::Knight,
     };
 
+    // 3 bits for type of piece
+    static constexpr int8_t Piece_Type_Mask = 0x08-1;
+
+    // 2 bits for color
+    static constexpr int8_t Piece_Color_Mask = 0x18;
+    static constexpr int8_t Piece_Color_Shift = 3;
+
+    #define PIECE_TYPE(piece) \
+    ((piece) & PIECE_TYPE_MASK)
+
+    constexpr auto to_int8 (Piece piece) -> int8_t
+    {
+        return static_cast<int8_t>(piece);
+    }
+
+    constexpr auto to_int8 (Color color) -> int8_t
+    {
+        return static_cast<int8_t>(color);
+    }
+
     constexpr auto make_piece (Color color, Piece piece_type) noexcept
         -> ColoredPiece
     {
-        ColoredPiece piece_with_color = { .piece_type = piece_type, .color = color };
+        auto color_as_int = to_int8 (color);
+        auto piece_as_int = to_int8 (piece_type);
+        auto result = gsl::narrow_cast<int8_t>(
+            (color_as_int << Piece_Color_Shift) |
+            (piece_as_int & Piece_Type_Mask)
+        );
+        ColoredPiece piece_with_color = { .piece_type_and_color = result };
         return piece_with_color;
     }
 
@@ -64,35 +89,35 @@ namespace wisdom
 
     constexpr auto piece_index (Piece piece) -> int
     {
-        switch (piece)
-        {
-            case Piece::None:
-                return 0;
-            case Piece::Pawn:
-                return 1;
-            case Piece::Knight:
-                return 2;
-            case Piece::Bishop:
-                return 3;
-            case Piece::Rook:
-                return 4;
-            case Piece::Queen:
-                return 5;
-            case Piece::King:
-                return 6;
-            default:
-                throw PieceError { "Invalid piece type" };
-        }
+        auto piece_as_int = static_cast<int8_t>(piece);
+        assert (piece_as_int >= to_int (Piece::None) && piece_as_int <= to_int (Piece::King));
+        return piece_as_int;
+    }
+
+    constexpr auto piece_from_int8 (int8_t integer) -> Piece
+    {
+        return static_cast<Piece>(integer);
+    }
+
+    constexpr auto color_from_int8 (int8_t integer) -> Color
+    {
+        return static_cast<Color>(integer);
     }
 
     constexpr auto piece_type (ColoredPiece piece) -> Piece
     {
-        return piece.piece_type;
+        auto result = gsl::narrow_cast<int8_t>(
+            (piece.piece_type_and_color & Piece_Color_Mask) >> Piece_Color_Shift
+        );
+        return piece_from_int8 (result);
     }
 
     constexpr auto piece_color (ColoredPiece piece) -> Color
     {
-        return piece.color;
+        auto result = gsl::narrow_cast<int8_t>(
+            (piece.piece_type_and_color & Piece_Color_Mask) >> Piece_Color_Shift
+        );
+        return color_from_int8 (result);
     }
 
     constexpr auto is_color_valid (Color who) -> bool
@@ -165,7 +190,7 @@ namespace wisdom
 
     constexpr auto piece_equals (ColoredPiece a, ColoredPiece b) -> bool
     {
-        return a.color == b.color && a.piece_type == b.piece_type;
+        return a.piece_type_and_color == b.piece_type_and_color;
     }
 
     constexpr bool operator== (ColoredPiece a, ColoredPiece b)
