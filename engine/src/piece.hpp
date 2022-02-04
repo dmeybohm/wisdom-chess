@@ -133,7 +133,7 @@ namespace wisdom
     constexpr auto color_index (Color who) -> ColorIndex
     {
         assert (who == Color::White || who == Color::Black);
-        return to_int8 (who) - 1;
+        return gsl::narrow_cast<int8_t>(to_int8 (who) - 1);
     }
 
     constexpr auto color_invert (Color who) -> Color
@@ -190,19 +190,14 @@ namespace wisdom
         }
     }
 
-    constexpr auto piece_equals (ColoredPiece a, ColoredPiece b) -> bool
+    constexpr auto operator== (ColoredPiece a, ColoredPiece b) -> bool
     {
         return a.piece_type_and_color == b.piece_type_and_color;
     }
 
-    constexpr bool operator== (ColoredPiece a, ColoredPiece b)
-    {
-        return piece_equals (a, b);
-    }
-
     constexpr bool operator!= (ColoredPiece a, ColoredPiece b)
     {
-        return !piece_equals (a, b);
+        return !operator== (a, b);
     }
 
     auto to_string (Color who) -> string;
