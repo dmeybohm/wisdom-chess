@@ -1,5 +1,6 @@
 [requires]
 qt/5.15.2
+freetype/2.11.1
 
 [generators]
 cmake
