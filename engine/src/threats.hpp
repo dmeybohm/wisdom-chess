@@ -42,25 +42,16 @@ namespace wisdom
         // in this position.
         bool check_all ()
         {
-            if (row ())
-                return true;
+            auto result = 0;
 
-            if (column ())
-                return true;
+            result |= row ();
+            result |= column ();
+            result |= diagonal_dumb ();
+            result |= knight_direct ();
+            result |= pawn_inline ();
+            result |= king_inline ();
 
-            if (diagonal_dumb ())
-                return true;
-
-            if (knight_direct ())
-                return true;
-
-            if (pawn_inline())
-                return true;
-
-            if (king_inline())
-                return true;
-
-            return false;
+            return !!result;
         }
 
         // Old check all.

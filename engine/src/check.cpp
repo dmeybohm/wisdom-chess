@@ -1,9 +1,9 @@
 #include "check.hpp"
-#include "coord.hpp"
-#include "move.hpp"
 #include "board.hpp"
+#include "coord.hpp"
 #include "generate.hpp"
 #include "history.hpp"
+#include "move.hpp"
 #include "threats.hpp"
 
 namespace wisdom
@@ -346,12 +346,11 @@ namespace wisdom
 
     bool is_king_threatened (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
-#if 0
         InlineThreats threats { board, who, make_coord (king_row, king_col) };
 
         return threats.check_all ();
-#endif
 
+#if 0
         if (is_king_threatened_row (board, who, king_row, king_col))
             return true;
 
@@ -371,6 +370,7 @@ namespace wisdom
             return true;
 
         return false;
+#endif
     }
 
     bool is_king_threatened_row (const Board& board, Color who, int8_t king_row, int8_t king_col)
