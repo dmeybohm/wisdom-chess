@@ -76,10 +76,13 @@ namespace wisdom
         int8_t row = Row (coord);
         int8_t col = Column (coord);
 
-        return make_coord (Last_Row - row, Last_Column - col);
+        return make_coord (
+            gsl::narrow_cast<int8_t>(Last_Row - row),
+            gsl::narrow_cast<int8_t>(Last_Column - col)
+        );
     }
 
-    static int castling_row_from_color (Color who)
+    static int8_t castling_row_from_color (Color who)
     {
         switch (who)
         {
