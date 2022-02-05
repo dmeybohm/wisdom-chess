@@ -76,7 +76,7 @@ namespace wisdom
         int8_t row = Row (coord);
         int8_t col = Column (coord);
 
-        return make_coord (Num_Rows - row, Num_Columns - col);
+        return make_coord (Last_Row - row, Last_Column - col);
     }
 
     static int castling_row_from_color (Color who)

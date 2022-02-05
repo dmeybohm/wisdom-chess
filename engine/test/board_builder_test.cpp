@@ -93,12 +93,11 @@ TEST_CASE( "Board can be randomized" )
 
     SUBCASE("None of the pawns are in the back row" )
     {
-        for (int col = 0; col < Num_Columns; col++)
+        for (int8_t col = 0; col < Num_Columns; col++)
         {
             auto first_row_piece = randomized_board.piece_at (7, col);
             auto last_row_piece = randomized_board.piece_at (0, col);
 
-            std::cout << randomized_board.to_string () << "\n";
             CHECK( piece_type (last_row_piece) != Piece::Pawn );
             CHECK( piece_type (first_row_piece) != Piece::Pawn );
         }
