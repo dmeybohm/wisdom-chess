@@ -7,7 +7,7 @@ namespace wisdom
 {
     using std::stringstream;
 
-    auto chomp (const string &str) -> string
+    auto chomp (const string& str) -> string
     {
         string result { str };
 
@@ -23,7 +23,7 @@ namespace wisdom
         return result;
     }
 
-    auto split (const string &source, const string &separator) -> vector<string>
+    auto split (const string& source, const string& separator) -> vector<string>
     {
         vector<string> result;
         string::size_type offset = 0;
@@ -40,17 +40,17 @@ namespace wisdom
         return result;
     }
 
-    auto join (const vector<string> &strings, const string &separator) -> string
+    auto join (const vector<string>& strings, const string& separator) -> string
     {
         string result;
 
-        for (auto &str : strings)
+        for (auto& str : strings)
             result += str + separator;
 
-        return result.substr(0, result.size () - separator.size ());
+        return result.substr (0, result.size () - separator.size ());
     }
 
-    auto to_int (const string &str) -> int
+    auto to_int (const string& str) -> int
     {
         stringstream ss { str };
 
@@ -58,7 +58,7 @@ namespace wisdom
         ss >> x;
 
         if (ss.fail ())
-            throw Error {"Failed to convert"};
+            throw Error { "Failed to convert" };
 
         return x;
     }

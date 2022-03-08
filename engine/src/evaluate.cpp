@@ -1,15 +1,15 @@
 #include "evaluate.hpp"
 #include "board.hpp"
 #include "check.hpp"
-#include "search.hpp"
 #include "position.hpp"
+#include "search.hpp"
 
 namespace wisdom
 {
     static const int Castle_Positive_Weight = 60;
     static const int Castle_Negative_Weight = 60;
 
-    int evaluate (Board &board, Color who, int moves_away)
+    int evaluate (Board& board, Color who, int moves_away)
     {
         int score = 0;
         Color opponent = color_invert (who);
@@ -53,8 +53,8 @@ namespace wisdom
         return score;
     }
 
-    int evaluate_and_check_draw (Board& board, Color who, int moves_away,
-                                 Move move, const History& history)
+    int evaluate_and_check_draw (Board& board, Color who, int moves_away, Move move,
+                                 const History& history)
     {
         if (is_drawing_move (board, who, move, history))
         {

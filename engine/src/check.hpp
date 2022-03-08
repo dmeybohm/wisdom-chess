@@ -31,25 +31,18 @@ namespace wisdom
     bool is_king_threatened_diagonal_dumb (const Board& board, Color who,
                                            int8_t king_row, int8_t king_col);
 
-    inline bool is_king_threatened (Board& board,
-                                           Color who,
-                                           int8_t king_row,
-                                           int8_t king_col)
-    {
-        return is_king_threatened (board, who, make_coord (king_row, king_col));
-    }
-
-    inline bool is_king_threatened ([[maybe_unused]] Board& board,
-                                           [[maybe_unused]] Color who,
-                                           [[maybe_unused]] int8_t king_row,
-                                           [[maybe_unused]] int8_t king_col)
-    {
-    }
-
-    inline bool is_king_threatened (const Board& board, Color who, Coord king_coord)
+    inline bool is_king_threatened (Board& board, Color who, Coord king_coord)
     {
         InlineThreats threats { board, who, king_coord };
         return threats.check_all ();
+    }
+
+    inline bool is_king_threatened (Board& board,
+                                    Color who,
+                                    int8_t king_row,
+                                    int8_t king_col)
+    {
+        return is_king_threatened (board, who, make_coord (king_row, king_col));
     }
 
     // Whether the board is in a checkmated position for the computer_player.

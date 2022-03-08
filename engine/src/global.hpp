@@ -83,8 +83,9 @@ namespace wisdom
 
     public:
         Error (string message, string extra_info) noexcept :
-                my_message { std::move(message) }, my_extra_info { std::move(extra_info) }
-        {}
+                my_message { std::move (message) }, my_extra_info { std::move (extra_info) }
+        {
+        }
 
         explicit Error (string message) noexcept :
             Error (message, "")

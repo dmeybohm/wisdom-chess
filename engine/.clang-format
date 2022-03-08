@@ -10,8 +10,9 @@ AllowShortIfStatementsOnASingleLine: false
 IndentCaseLabels: true
 NamespaceIndentation: All
 SpaceBeforeParens: Always
+AllowShortLoopsOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortFunctionsOnASingleLine: None
 AllowShortLambdasOnASingleLine: Empty
 BinPackArguments: true
 AlignAfterOpenBracket: true

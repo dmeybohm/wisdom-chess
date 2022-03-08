@@ -147,10 +147,16 @@ namespace wisdom
     }
 
     // halfmove clock:
-    void FenParser::parse_half_move (int half_moves) { builder.set_half_moves (half_moves); }
+    void FenParser::parse_half_move (int half_moves)
+    {
+        builder.set_half_moves (half_moves);
+    }
 
     // fullmove number:
-    void FenParser::parse_full_move (int full_moves) { builder.set_full_moves (full_moves); }
+    void FenParser::parse_full_move (int full_moves)
+    {
+        builder.set_full_moves (full_moves);
+    }
 
     void FenParser::parse (const string& source)
     {

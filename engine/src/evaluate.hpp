@@ -2,9 +2,9 @@
 #define EVOLVE_CHESS_EVALUATE_HPP
 
 #include "global.hpp"
-#include "piece.hpp"
 #include "move.hpp"
 #include "move_tree.hpp"
+#include "piece.hpp"
 
 namespace wisdom
 {
@@ -13,11 +13,11 @@ namespace wisdom
     class History;
 
     // Evaluate the board.
-    int evaluate (Board &board, Color who, int moves_away);
+    int evaluate (Board& board, Color who, int moves_away);
 
     // Evaluate the board and check if it's a draw.
-    int evaluate_and_check_draw (Board& board, Color who, int moves_away,
-                                 Move move, const History& history);
+    int evaluate_and_check_draw (Board& board, Color who, int moves_away, Move move,
+                                 const History& history);
 
 }
 
