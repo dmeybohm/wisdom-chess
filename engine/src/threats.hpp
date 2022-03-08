@@ -245,7 +245,6 @@ namespace wisdom
             }
 
             return false;
-
         }
 
         // Check an entire column for any rook / queen threats.
@@ -481,9 +480,9 @@ namespace wisdom
         bool knight_direct ()
         {
             return check_knight<-1, 0> ()
-                || check_knight<0, +1> ()
-                || check_knight<+1, 0> ()
-                || check_knight<0, -1> ();
+                | check_knight<0, +1> ()
+                | check_knight<+1, 0> ()
+                | check_knight<0, -1> ();
         }
 
         bool pawn ()
@@ -512,7 +511,6 @@ namespace wisdom
             }
 
             return false;
-
         }
 
         bool pawn_dumb ()
@@ -572,14 +570,13 @@ namespace wisdom
             int8_t target_row = next_row (my_king_row, r_dir);
 
             bool left_attack_exists
-                = (is_valid_row (target_row) && is_valid_column (left_col)
-                   && my_board.piece_at (target_row, left_col) == make_piece (my_opponent, Piece::Pawn));
+                = (is_valid_row (target_row) & is_valid_column (left_col)
+                   & my_board.piece_at (target_row, left_col) == make_piece (my_opponent, Piece::Pawn));
             bool right_attack_exists
-                = (is_valid_row (target_row) && is_valid_column (right_col)
-                   && my_board.piece_at (target_row, right_col) == make_piece (my_opponent, Piece::Pawn));
+                = (is_valid_row (target_row) & is_valid_column (right_col)
+                   & my_board.piece_at (target_row, right_col) == make_piece (my_opponent, Piece::Pawn));
 
-            return left_attack_exists || right_attack_exists;
-
+            return left_attack_exists | right_attack_exists;
         }
 
         bool king ()
@@ -622,22 +619,22 @@ namespace wisdom
             bool middle_attack_exists = false;
 
             bool left_attack_exists = (
-                is_valid_row (target_row) && is_valid_column (starting_col)
-                && my_board.piece_at (target_row, starting_col) == make_piece (my_opponent, Piece::King)
+                is_valid_row (target_row) & is_valid_column (starting_col)
+                & my_board.piece_at (target_row, starting_col) == make_piece (my_opponent, Piece::King)
             );
             if constexpr (squares_to_check == KingThreatCheck::CheckMiddle)
             {
                 middle_attack_exists = (
-                    is_valid_row (target_row) && is_valid_column (middle_col)
-                    && my_board.piece_at (target_row, middle_col) == make_piece (my_opponent, Piece::King)
+                    is_valid_row (target_row) & is_valid_column (middle_col)
+                    & my_board.piece_at (target_row, middle_col) == make_piece (my_opponent, Piece::King)
                 );
             }
             bool right_attack_exists = (
-                is_valid_row (target_row) && is_valid_column (ending_col)
-                && my_board.piece_at (target_row, ending_col) == make_piece (my_opponent, Piece::King)
+                is_valid_row (target_row) & is_valid_column (ending_col)
+                & my_board.piece_at (target_row, ending_col) == make_piece (my_opponent, Piece::King)
             );
 
-            return left_attack_exists || middle_attack_exists || right_attack_exists;
+            return left_attack_exists | middle_attack_exists | right_attack_exists;
         }
 
         bool king_inline ()
@@ -664,7 +661,7 @@ namespace wisdom
                 right_col
             );
 
-            return top_attack_exists || center_attack_exists || bottom_attack_exists;
+            return top_attack_exists | center_attack_exists | bottom_attack_exists;
         }
 
     };

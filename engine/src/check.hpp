@@ -32,9 +32,10 @@ namespace wisdom
 
     static inline bool is_king_threatened ([[maybe_unused]] Board& board,
                                            [[maybe_unused]] Color who,
-                                           [[maybe_unused]] Coord pos)
+                                           [[maybe_unused]] int8_t king_row,
+                                           [[maybe_unused]] int8_t king_col
     {
-        return is_king_threatened (board, who, Row (pos), Column (pos));
+        return is_king_threatened (board, who, make_coord (king_row, king_col));
     }
 
     // Whether the board is in a checkmated position for the computer_player.

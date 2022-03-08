@@ -344,10 +344,9 @@ namespace wisdom
 
     bool any_diagonal_threats (Threats threats) { return threats.any_diagonal_threats (); }
 
-    bool is_king_threatened (const Board& board, Color who, int8_t king_row, int8_t king_col)
+    bool is_king_threatened (const Board& board, Color who, Coord king_coord)
     {
-        InlineThreats threats { board, who, make_coord (king_row, king_col) };
-
+        InlineThreats threats { board, who, king_coord);
         return threats.check_all ();
 
 #if 0
