@@ -344,34 +344,6 @@ namespace wisdom
 
     bool any_diagonal_threats (Threats threats) { return threats.any_diagonal_threats (); }
 
-    bool is_king_threatened (const Board& board, Color who, Coord king_coord)
-    {
-        InlineThreats threats { board, who, king_coord);
-        return threats.check_all ();
-
-#if 0
-        if (is_king_threatened_row (board, who, king_row, king_col))
-            return true;
-
-        if (is_king_threatened_column (board, who, king_row, king_col))
-            return true;
-
-        if (is_king_threatened_diagonal_dumb (board, who, king_row, king_col))
-            return true;
-
-        if (is_king_threatened_knight_direct (board, who, king_row, king_col))
-            return true;
-
-        if (is_king_threatened_pawn_inline (board, who, king_row, king_col))
-            return true;
-
-        if (is_king_threatened_king_inline (board, who, king_row, king_col))
-            return true;
-
-        return false;
-#endif
-    }
-
     bool is_king_threatened_row (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
         Threats threats { board, who, king_row, king_col };
