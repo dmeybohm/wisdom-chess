@@ -14,25 +14,25 @@ namespace wisdom
 
     static_assert(std::is_trivial_v<Coord>);
 
-    template <class T> requires std::is_integral_v<T>
+    template <typename T>
     constexpr auto is_valid_row (T row) -> bool
     {
         return row >= 0 && row < Num_Rows;
     }
 
-    template <class T> requires std::is_integral_v<T>
+    template <typename T>
     constexpr auto is_valid_column (T col) -> bool
     {
         return col >= 0 && col < Num_Columns;
     }
 
-    template <class T> requires std::is_integral_v<T>
+    template <class T>
     constexpr auto next_row (T row, int direction) -> T
     {
         return gsl::narrow_cast<T>(row + direction);
     }
 
-    template <class T> requires std::is_integral_v<T>
+    template <class T>
     constexpr auto next_column (T col, int direction) -> T
     {
         return gsl::narrow_cast<T>(col + direction);
@@ -93,7 +93,7 @@ namespace wisdom
 
     auto to_string (Coord coord) -> string;
 
-    auto coord_parse (const string &str) -> Coord;
+    auto coord_parse (const string& str) -> Coord;
 
     class CoordParseError : public Error
     {
