@@ -11,9 +11,15 @@ namespace wisdom
     class FenParser final
     {
     public:
-        explicit FenParser (const string& input) : active_player { Color::White } { parse (input); }
+        explicit FenParser (const string& input) : active_player { Color::White }
+        {
+            parse (input);
+        }
 
-        [[nodiscard]] auto get_active_player () const -> Color { return active_player; }
+        [[nodiscard]] auto get_active_player () const -> Color
+        {
+            return active_player;
+        }
 
         // Build the game:
         auto build () -> Game;

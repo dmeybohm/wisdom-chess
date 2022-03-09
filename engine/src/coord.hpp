@@ -14,27 +14,31 @@ namespace wisdom
 
     static_assert(std::is_trivial_v<Coord>);
 
-    constexpr bool is_valid_row (int8_t row)
+    template <typename T>
+    constexpr auto is_valid_row (T row) -> bool
     {
         return row >= 0 && row < Num_Rows;
     }
 
-    constexpr bool is_valid_column (int8_t col)
+    template <typename T>
+    constexpr auto is_valid_column (T col) -> bool
     {
         return col >= 0 && col < Num_Columns;
     }
 
-    constexpr int8_t next_row (int8_t row, int8_t direction)
+    template <class T>
+    constexpr auto next_row (T row, int direction) -> T
     {
-        return gsl::narrow_cast<int8_t>(row + direction);
+        return gsl::narrow_cast<T>(row + direction);
     }
 
-    constexpr int8_t next_column (int8_t col, int8_t direction)
+    template <class T>
+    constexpr auto next_column (T col, int direction) -> T
     {
-        return gsl::narrow_cast<int8_t>(col + direction);
+        return gsl::narrow_cast<T>(col + direction);
     }
 
-    constexpr Coord make_coord (int8_t row, int8_t col)
+    constexpr Coord make_coord (int row, int col)
     {
         assert (is_valid_row (row) && is_valid_column (col));
         Coord result = { .row_and_col = gsl::narrow_cast<int8_t>(row << 4 | col) };
@@ -43,29 +47,26 @@ namespace wisdom
 
     constexpr Coord No_En_Passant_Coord = make_coord (0, 0);
 
-    constexpr int8_t Row (Coord pos)
+    template <class T = int8_t>
+    constexpr auto Row (Coord pos) -> T
     {
-        return gsl::narrow_cast<int8_t>(pos.row_and_col >> 4);
+        return gsl::narrow_cast<T>(pos.row_and_col >> 4);
     }
 
-    constexpr int8_t Column (Coord pos)
+    template <class T = int8_t>
+    constexpr auto Column (Coord pos) -> T
     {
-        return gsl::narrow_cast<int8_t>(pos.row_and_col & 0xf);
+        return gsl::narrow_cast<T>(pos.row_and_col & 0xf);
     }
 
-    constexpr bool coord_equals (Coord a, Coord b)
+    constexpr auto operator== (Coord first, Coord second) -> bool
     {
-        return a.row_and_col == b.row_and_col;
+        return first.row_and_col == second.row_and_col;
     }
 
-    constexpr bool operator== (Coord a, Coord b)
+    constexpr bool operator!= (Coord first, Coord second)
     {
-        return coord_equals (a, b);
-    }
-
-    constexpr bool operator!= (Coord a, Coord b)
-    {
-        return !coord_equals (a, b);
+        return !operator== (first, second);
     }
 
     static inline int char_to_row (char chr)
@@ -92,7 +93,7 @@ namespace wisdom
 
     auto to_string (Coord coord) -> string;
 
-    auto coord_parse (const string &str) -> Coord;
+    auto coord_parse (const string& str) -> Coord;
 
     class CoordParseError : public Error
     {

@@ -38,7 +38,7 @@ namespace wisdom
             check_it (board, who, mv, piece_type (supposed_rook) == Piece::Rook);
             check_it (board, who, mv, piece_color (supposed_king) == who);
             check_it (board, who, mv, piece_color (supposed_rook) == who);
-            check_it (board, who, mv, coord_equals (board.get_king_position (who), make_coord (row, 4)));
+            check_it (board, who, mv, board.get_king_position (who) == make_coord (row, 4));
         }
     }
 

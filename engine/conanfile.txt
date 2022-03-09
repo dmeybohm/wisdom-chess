@@ -1,5 +1,5 @@
 [requires]
-sqlite3/3.36.0
+sqlite3/3.38.0
 doctest/2.4.6
 ms-gsl/4.0.0
 parallel-hashmap/1.33

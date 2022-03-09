@@ -73,13 +73,16 @@ namespace wisdom
         if (who == Color::White)
             return coord;
 
-        int row = Row (coord);
-        int col = Column (coord);
+        int8_t row = Row (coord);
+        int8_t col = Column (coord);
 
-        return make_coord (7 - row, 7 - col);
+        return make_coord (
+            gsl::narrow_cast<int8_t>(Last_Row - row),
+            gsl::narrow_cast<int8_t>(Last_Column - col)
+        );
     }
 
-    static int castling_row_from_color (Color who)
+    static int8_t castling_row_from_color (Color who)
     {
         switch (who)
         {
@@ -94,9 +97,10 @@ namespace wisdom
     static int change (Coord coord, Color who, ColoredPiece piece)
     {
         Coord translated_pos = translate_position (coord, who);
-        int row = Row (translated_pos);
-        int col = Column (translated_pos);
+        int8_t row = Row (translated_pos);
+        int8_t col = Column (translated_pos);
 
+        // todo convert enum to integer index instead of using switch.
         switch (piece_type (piece))
         {
             case Piece::Pawn:
@@ -170,10 +174,10 @@ namespace wisdom
 
             case MoveCategory::Castling:
                 {
-                    int rook_src_row = castling_row_from_color (who);
-                    int rook_src_col
+                    int8_t rook_src_row = castling_row_from_color (who);
+                    int8_t rook_src_col
                         = is_castling_move_on_king_side (move) ? King_Rook_Column : Queen_Rook_Column;
-                    int rook_dst_col = is_castling_move_on_king_side (move)
+                    int8_t rook_dst_col = is_castling_move_on_king_side (move)
                         ? Kingside_Castled_Rook_Column
                         : Queenside_Castled_Rook_Column;
 
@@ -193,7 +197,8 @@ namespace wisdom
         this->add (who, dst, dst_piece);
     }
 
-    void Position::unapply_move (Color who, ColoredPiece piece, Move move, const UndoMove &undo_state)
+    // todo: store the old score in the undo state instead of re-calculating it
+    void Position::unapply_move (Color who, ColoredPiece piece, Move move, const UndoMove& undo_state)
     {
         Color opponent = color_invert (who);
         Coord src = move_src (move);
@@ -220,10 +225,10 @@ namespace wisdom
 
         if (is_castling_move (move))
         {
-            int rook_src_row = castling_row_from_color (who);
-            int rook_src_col = is_castling_move_on_king_side (move) ?
+            int8_t rook_src_row = castling_row_from_color (who);
+            int8_t rook_src_col = is_castling_move_on_king_side (move) ?
                                   King_Rook_Column : Queen_Rook_Column;
-            int rook_dst_col = is_castling_move_on_king_side (move) ? Kingside_Castled_Rook_Column
+            int8_t rook_dst_col = is_castling_move_on_king_side (move) ? Kingside_Castled_Rook_Column
                                                                     : Queenside_Castled_Rook_Column;
 
             Coord src_rook_coord = make_coord (rook_src_row, rook_src_col);

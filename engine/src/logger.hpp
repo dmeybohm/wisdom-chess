@@ -8,11 +8,11 @@ namespace wisdom
     class Logger
     {
     public:
-        virtual void println (const string &output) const = 0;
+        virtual void println (const string& output) const = 0;
     };
 
     auto make_null_logger () -> Logger&;
     auto make_standard_logger () -> Logger&;
 }
 
-#endif //WISDOM_LOGGER_HPP
+#endif // WISDOM_LOGGER_HPP

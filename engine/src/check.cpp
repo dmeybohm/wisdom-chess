@@ -1,9 +1,10 @@
 #include "check.hpp"
-#include "coord.hpp"
-#include "move.hpp"
 #include "board.hpp"
+#include "coord.hpp"
 #include "generate.hpp"
 #include "history.hpp"
+#include "move.hpp"
+#include "threats.hpp"
 
 namespace wisdom
 {
@@ -19,10 +20,10 @@ namespace wisdom
         return legal_moves.empty ();
     }
 
-    bool is_king_threatened_inline (const Board& board, Color who, int king_row, int king_col)
+    bool is_king_threatened_inline (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
-        int row, col;
-        int c_dir, r_dir;
+        int8_t row, col;
+        int8_t c_dir, r_dir;
 
         // check each side of the king's row
         col = king_col;
@@ -343,31 +344,6 @@ namespace wisdom
 
     bool any_diagonal_threats (Threats threats) { return threats.any_diagonal_threats (); }
 
-    bool is_king_threatened (const Board& board, Color who, int8_t king_row, int8_t king_col)
-    {
-        int8_t row, col;
-
-        if (is_king_threatened_row (board, who, king_row, king_col))
-            return true;
-
-        if (is_king_threatened_column (board, who, king_row, king_col))
-            return true;
-
-        if (is_king_threatened_diagonal_dumb (board, who, king_row, king_col))
-            return true;
-
-        if (is_king_threatened_knight_direct (board, who, king_row, king_col))
-            return true;
-
-        if (is_king_threatened_pawn_inline (board, who, king_row, king_col))
-            return true;
-
-        if (is_king_threatened_king_inline (board, who, king_row, king_col))
-            return true;
-
-        return false;
-    }
-
     bool is_king_threatened_row (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
         Threats threats { board, who, king_row, king_col };
@@ -585,13 +561,13 @@ namespace wisdom
 
     bool is_king_threatened_king (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
-        int8_t row, col;
+        int row, col;
 
         // check for king checks
-        int8_t min_row = std::max (next_row (king_row, -1), (int8_t)0);
-        int8_t max_row = std::min (next_row (king_row, +1), Last_Row);
-        int8_t min_col = std::max (next_column (king_col, -1), (int8_t)0);
-        int8_t max_col = std::min (next_column (king_col, +1), Last_Column);
+        int min_row = std::max (next_row<int> (king_row, -1), 0);
+        int max_row = std::min (next_row<int> (king_row, +1), Last_Row);
+        int min_col = std::max (next_column<int> (king_col, -1), 0);
+        int max_col = std::min (next_column<int> (king_col, +1), Last_Column);
 
         for (row = min_row; row <= max_row; row = next_row (row, 1))
         {
@@ -616,10 +592,10 @@ namespace wisdom
     };
     template <KingThreatCheck squares_to_check>
     static bool check_king_threat_row (const Board& board, Color opponent,
-                                       int8_t target_row, int8_t starting_col,
-                                       int8_t ending_col)
+                                       int target_row, int starting_col,
+                                       int ending_col)
     {
-        int8_t middle_col = next_column (starting_col, +1);
+        int middle_col = next_column<int> (starting_col, +1);
         bool middle_attack_exists = false;
 
         bool left_attack_exists = (
@@ -642,17 +618,17 @@ namespace wisdom
     }
 
     bool is_king_threatened_king_inline (const Board& board, Color who,
-                                         int8_t king_row, int8_t king_col)
+                                         int king_row, int king_col)
     {
         Color opponent = color_invert (who);
-        auto left_col = next_column (king_col, -1);
-        auto right_col = next_column (king_col, +1);
+        auto left_col = next_column<int> (king_col, -1);
+        auto right_col = next_column<int> (king_col, +1);
 
         // Inline checks across all three possible rows.
         bool top_attack_exists = check_king_threat_row<KingThreatCheck::CheckMiddle> (
                 board,
                 opponent,
-                next_row (king_row, -1),
+                next_row<int> (king_row, -1),
                 left_col,
                 right_col
          );

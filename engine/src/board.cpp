@@ -94,7 +94,7 @@ namespace wisdom
 
         for (auto& pos : positions)
         {
-            auto &pieces = pos.pieces;
+            auto& pieces = pos.pieces;
             Color color = pos.piece_color;
             row = pos.rank;
 
@@ -154,7 +154,7 @@ namespace wisdom
         result += "\n";
     }
 
-    static void add_coords (string &result)
+    static void add_coords (string& result)
     {
         int col;
 
@@ -313,7 +313,7 @@ namespace wisdom
         return output;
     }
 
-    auto operator== (const Board &a, const Board &b) -> bool
+    auto operator== (const Board& a, const Board& b) -> bool
     {
         int8_t row, col;
 

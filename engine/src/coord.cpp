@@ -3,7 +3,7 @@
 
 namespace wisdom
 {
-    auto coord_parse (const string &str) -> Coord
+    auto coord_parse (const string& str) -> Coord
     {
         if (str.size () != 2)
             throw CoordParseError ("Invalid algebraic coordinate!");

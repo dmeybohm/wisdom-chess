@@ -1,4 +1,4 @@
-find_package(sqlite3 REQUIRED)
+find_package(SQLite3 REQUIRED)
 find_package(Microsoft.GSL REQUIRED)
 find_package(argh REQUIRED)
 
@@ -12,7 +12,7 @@ add_library(wisdom-chess-core STATIC
         history.cpp transposition_table.cpp transposition_table.hpp variation_glimpse.cpp variation_glimpse.hpp
         output_format.cpp output_format.hpp analytics.cpp analytics.hpp search_result.cpp search_result.hpp
         analytics_sqlite.cpp analytics_sqlite.hpp
-        uuid.cpp uuid.hpp play.hpp play.cpp perft.cpp perft.hpp)
+        uuid.cpp uuid.hpp play.hpp play.cpp perft.cpp perft.hpp threats.cpp threats.hpp)
 
 target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
 
@@ -24,7 +24,7 @@ add_executable(chess main.cpp)
 target_precompile_headers(chess REUSE_FROM wisdom-chess-core)
 
 target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
-target_link_libraries(wisdom-chess-core PUBLIC sqlite3::sqlite3)
+target_link_libraries(wisdom-chess-core PUBLIC SQLite::SQLite3)
 target_link_libraries(chess PRIVATE wisdom::chess)
 target_link_libraries(chess PRIVATE argh::argh)
 
