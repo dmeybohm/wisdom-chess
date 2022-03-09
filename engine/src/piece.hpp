@@ -72,7 +72,7 @@ namespace wisdom
     constexpr auto make_piece (Color color, Piece piece_type) noexcept
         -> ColoredPiece
     {
-        assert ((piece_type == Piece::None && color == Piece::None) ||
+        assert ((piece_type == Piece::None && color == Color::None) ||
                 (piece_type != Piece::None && color != Color::None));
         auto color_as_int = to_int8 (color);
         auto piece_as_int = to_int8 (piece_type);
@@ -89,7 +89,7 @@ namespace wisdom
     constexpr auto piece_index (Piece piece) -> int
     {
         auto piece_as_int = static_cast<int8_t>(piece);
-        assert (piece_as_int >= to_int (Piece::None) && piece_as_int <= to_int (Piece::King));
+        assert (piece_as_int >= to_int8 (Piece::None) && piece_as_int <= to_int8 (Piece::King));
         return piece_as_int;
     }
 
