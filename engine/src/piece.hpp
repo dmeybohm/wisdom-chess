@@ -179,9 +179,9 @@ namespace wisdom
 
     constexpr auto piece_char (ColoredPiece piece) -> char
     {
-        Piece p = piece_type (piece);
+        Piece type = piece_type (piece);
 
-        switch (p)
+        switch (type)
         {
             case Piece::King:
                 return 'K';
@@ -200,14 +200,14 @@ namespace wisdom
         }
     }
 
-    constexpr auto operator== (ColoredPiece a, ColoredPiece b) -> bool
+    constexpr auto operator== (ColoredPiece first, ColoredPiece second) -> bool
     {
-        return a.piece_type_and_color == b.piece_type_and_color;
+        return first.piece_type_and_color == second.piece_type_and_color;
     }
 
-    constexpr bool operator!= (ColoredPiece a, ColoredPiece b)
+    constexpr bool operator!= (ColoredPiece first, ColoredPiece second)
     {
-        return !operator== (a, b);
+        return !operator== (first, second);
     }
 
     auto to_string (Color who) -> string;
@@ -216,7 +216,7 @@ namespace wisdom
 
     void play (Color human_player);
 
-    std::ostream& operator<< (std::ostream& os, const ColoredPiece& value);
+    auto operator<< (std::ostream& ostream, const ColoredPiece& value) -> std::ostream&;
 }
 
 #endif // WISDOM_CHESS_PIECE_HPP
