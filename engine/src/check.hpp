@@ -27,7 +27,7 @@ namespace wisdom
     bool is_king_threatened_pawn_inline (const Board& board, Color who,
                                          int8_t king_row, int8_t king_col);
     bool is_king_threatened_king (const Board& board, Color who, int8_t row, int8_t col);
-    bool is_king_threatened_king_inline (const Board& board, Color who, int8_t row, int8_t col);
+    bool is_king_threatened_king_inline (const Board& board, Color who, int row, int col);
     bool is_king_threatened_diagonal_dumb (const Board& board, Color who,
                                            int8_t king_row, int8_t king_col);
 
@@ -57,7 +57,7 @@ namespace wisdom
 
     // Whether this move could cause a draw.
     inline bool is_drawing_move (Board& board, [[maybe_unused]] Color who,
-                                 [[maybe_unused]] Move mv, const History& history)
+                                 [[maybe_unused]] Move move, const History& history)
     {
         return history.is_third_repetition (board) ||
                History::is_fifty_move_repetition (board) ||
