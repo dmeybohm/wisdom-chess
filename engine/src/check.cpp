@@ -20,10 +20,10 @@ namespace wisdom
         return legal_moves.empty ();
     }
 
-    bool is_king_threatened_inline (const Board& board, Color who, int king_row, int king_col)
+    bool is_king_threatened_inline (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
-        int row, col;
-        int c_dir, r_dir;
+        int8_t row, col;
+        int8_t c_dir, r_dir;
 
         // check each side of the king's row
         col = king_col;

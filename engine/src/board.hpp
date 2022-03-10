@@ -67,7 +67,7 @@ namespace wisdom
 
         void print () const;
 
-        [[nodiscard]] constexpr auto piece_at (int8_t row, int8_t col) const
+        [[nodiscard]] constexpr auto piece_at (int row, int col) const
             -> ColoredPiece
         {
             return this->my_squares[row][col];
@@ -247,7 +247,8 @@ namespace wisdom
 
     // white moves up (-)
     // black moves down (+)
-    constexpr int8_t pawn_direction (Color color)
+    template <class T = int8_t>
+    constexpr T pawn_direction (Color color)
     {
         assert (color == Color::Black || color == Color::White);
         int8_t color_as_int = to_int8 (color);

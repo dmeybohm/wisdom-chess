@@ -5,20 +5,36 @@
 #include "check.hpp"
 #include "threats.hpp"
 
-static void bm_is_king_threatened (benchmark::State& state)
+static void bm_threats_check_all (benchmark::State& state)
+{
+    using namespace wisdom;
+
+    Board board;
+    InlineThreats threats { board, Color::White,
+                            make_coord (Last_Row, King_Column) };
+
+    for (auto _ : state)
+    {
+        benchmark::DoNotOptimize(threats.check_all ());
+    }
+}
+BENCHMARK(bm_threats_check_all);
+
+static void bm_threats_is_king_threatened (benchmark::State& state)
 {
     using namespace wisdom;
 
     Board board;
 
+    Coord white_king_coord = make_coord (Last_Row, King_Column);
     for (auto _ : state)
     {
-        benchmark::DoNotOptimize(is_king_threatened (board, Color::White, Last_Row, King_Column));
+        benchmark::DoNotOptimize(is_king_threatened (board, Color::White, white_king_coord));
     }
 }
-BENCHMARK(bm_is_king_threatened);
+BENCHMARK(bm_threats_is_king_threatened);
 
-static void bm_is_king_threatened_inline (benchmark::State& state)
+static void bm_threats_is_king_threatened_inline (benchmark::State& state)
 {
     using namespace wisdom;
 
@@ -29,7 +45,7 @@ static void bm_is_king_threatened_inline (benchmark::State& state)
         benchmark::DoNotOptimize(is_king_threatened_inline (board, Color::White, Last_Row, King_Column));
     }
 }
-BENCHMARK(bm_is_king_threatened_inline);
+BENCHMARK(bm_threats_is_king_threatened_inline);
 
 static void bm_threats_row (benchmark::State& state)
 {
