@@ -54,6 +54,8 @@ namespace wisdom
 
         [[nodiscard]] bool is_computer_turn () const;
 
+        [[nodiscard]] int piece_count () const;
+
     private:
         unique_ptr<Board> my_board = make_unique<Board> ();
         unique_ptr<History> my_history = make_unique<History> ();

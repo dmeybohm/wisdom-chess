@@ -3,7 +3,7 @@ find_package(Microsoft.GSL REQUIRED)
 find_package(argh REQUIRED)
 
 add_library(wisdom-chess-core STATIC
-        board.cpp check.cpp evaluate.cpp game.cpp generate.cpp material.cpp move.cpp
+        board.cpp check.cpp evaluate.cpp game.cpp game.hpp generate.cpp material.cpp move.cpp
         move_tree.cpp piece.cpp search.cpp str.cpp move_timer.cpp
         global.hpp validate.cpp validate.hpp position.cpp position.hpp
         fen_parser.cpp fen_parser.hpp coord.cpp board_builder.cpp move_list.cpp move_list.hpp

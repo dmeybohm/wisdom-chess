@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/Chess_bdt45.png</file>
+        <file>images/Chess_bdt45.svg</file>
+        <file>images/Chess_blt45.svg</file>
+        <file>images/Chess_kdt45.svg</file>
+        <file>images/Chess_klt45.svg</file>
+        <file>images/Chess_ndt45.svg</file>
+        <file>images/Chess_nlt45.svg</file>
+        <file>images/Chess_pdt45.svg</file>
+        <file>images/Chess_plt45.svg</file>
+        <file>images/Chess_qdt45.svg</file>
+        <file>images/Chess_qlt45.svg</file>
+        <file>images/Chess_rdt45.svg</file>
+        <file>images/Chess_rlt45.svg</file>
+        <file>ChessRow.qml</file>
+        <file>ChessSquare.qml</file>
+        <file>images/Chess_rdt45.png</file>
+        <file>images/Chess_ndt45.png</file>
+        <file>PiecesModel.qml</file>
+        <file>Piece.qml</file>
+    </qresource>
+</RCC>

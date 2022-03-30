@@ -152,4 +152,5 @@ namespace wisdom
     {
         return my_computer_player == my_current_turn;
     }
+
 }
