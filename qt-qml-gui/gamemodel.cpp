@@ -113,14 +113,13 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     string dstCoord = string(1, col_to_char(dstColumn)) +
             string(1, row_to_char(dstRow));
     string move_as_string = srcCoord + dstCoord;
+    string move_as_capturing = srcCoord + "x" + dstCoord;
 
     qDebug() << "move: " << QString(move_as_string.c_str());
+    qDebug() << "move(capturing)" << QString(move_as_capturing.c_str());
 
-    optional<Move> optionalMove = move_parse_optional(move_as_string, myGame.get_current_turn());
-    if (!optionalMove.has_value()) {
-        return;
-    }
-    auto selectedMove = *optionalMove;
+    Move selectedMove = move_parse(move_as_string, myGame.get_current_turn());
+    Move capturingMove = move_parse(move_as_capturing, myGame.get_current_turn());
     auto selectedMoveStr = to_string(selectedMove);
     qDebug() << QString(selectedMoveStr.c_str());
 
@@ -132,6 +131,13 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     for (auto legalMove : legalMoves) {
         if (legalMove == selectedMove) {
             hasMove = true;
+            break;
+        }
+        if (legalMove == capturingMove) {
+            qDebug() << "using capturing move";
+            selectedMove = capturingMove;
+            hasMove = true;
+            break;
         }
     }
 
@@ -142,11 +148,23 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     // make the move:
     myGame.move (selectedMove);
 
+    // todo handle castling / en passant / promotion
+
     //
     // Find the affected pieces, if any, and update them.
+    //
     auto count = myPieces.count();
+    auto removedSomething = false;
     for (int i = 0; i < count; i++) {
         auto& pieceModel = myPieces[i];
+        if (pieceModel.row == dstRow && pieceModel.column == dstColumn) {
+            beginRemoveRows(QModelIndex{}, i, i);
+            myPieces.removeAt(i);
+            qDebug() << "removing index: " << i;
+            removedSomething = true;
+            count--;
+            endRemoveRows();
+        }
         if ((pieceModel.row == srcRow && pieceModel.column == srcColumn)) {
             pieceModel.row = dstRow;
             pieceModel.column = dstColumn;
@@ -154,18 +172,9 @@ void GameModel::movePiece(int srcRow, int srcColumn,
             QVector<int> rolesChanged { RowRole, ColumnRole };
             QModelIndex changedIndex = index(i, 0);
 
+            qDebug() << "index " << i << "changed";
             emit dataChanged(changedIndex, changedIndex, rolesChanged);
         }
     }
 
-    // todo handle castling / en passant
-    // todo remove rows when capturing
 }
-
-
-//void GameModel::removeData(int row)
-//{
-//    beginRemoveRows(QModelIndex{}, row, row);
-//    myPieces.removeAt(row);
-//    endRemoveRows();
-//}
