@@ -66,23 +66,7 @@ Item {
 
         function animateRowAndColChange(sourceRow, sourceCol, dstRow, dstCol) {
             console.log('animateRowAndColChange');
-
-            var pieceToMove = null
-            for (var i = 0; i < myPiecesLayer.children.length; i++) {
-                var item = myPiecesLayer.children[i];
-                if (item.row === sourceRow && item.column === sourceCol) {
-                    // found the source:
-                    pieceToMove = item;
-                    break;
-                }
-
-            }
-            if (pieceToMove) {
-                console.log("trying to move piece");
-                _myGameModel.movePiece(sourceRow, sourceCol, dstRow, dstCol);
-//                pieceToMove.row = dstRow
-//                pieceToMove.column = dstCol
-            }
+            _myGameModel.movePiece(sourceRow, sourceCol, dstRow, dstCol);
         }
     }
 }
