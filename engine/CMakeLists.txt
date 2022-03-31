@@ -7,12 +7,17 @@ option(WISDOM_ASAN_BUILD "Enable memory debugging of chess engine")
 
 project(Wisdom CXX)
 
+find_package(doctest REQUIRED)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-stack-protector")
 
 if (WISDOM_ASAN_BUILD)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 endif()
 
-add_subdirectory(test)
+if (doctest_FOUND)
+    add_subdirectory(test)
+endif()
+
 add_subdirectory(src)
 add_subdirectory(benchmark)

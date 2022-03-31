@@ -1,5 +1,3 @@
-find_package(doctest REQUIRED)
-
 add_library(fast_tests_lib OBJECT
         piece_test.cpp
         coord_test.cpp

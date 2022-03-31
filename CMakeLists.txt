@@ -5,7 +5,10 @@ cmake_minimum_required(VERSION 3.20)
 
 project(WisdomMultiModule CXX)
 
+find_package(Qt6 6.2 COMPONENTS Quick OPTIONAL)
+
 add_subdirectory(engine)
 
-# Todo - make gui able to be disabled
-add_subdirectory(qt-qml-gui)
+if (Qt6_FOUND)
+    add_subdirectory(qt-qml-gui)
+endif()
