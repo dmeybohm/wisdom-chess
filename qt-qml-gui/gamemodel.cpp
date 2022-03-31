@@ -163,8 +163,10 @@ void GameModel::movePiece(int srcRow, int srcColumn,
         }
         if (is_castling_move(selectedMove)) {
             auto sourceRookRow = who == Color::White ? 7 : 0;
-            auto sourceRookColumn = is_castling_move_on_king_side(selectedMove) ? King_Rook_Column : Queen_Rook_Column;
-            auto dstRookColumn = is_castling_move_on_king_side(selectedMove) ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column;
+            auto sourceRookColumn = is_castling_move_on_king_side(selectedMove)
+                    ? King_Rook_Column : Queen_Rook_Column;
+            auto dstRookColumn = is_castling_move_on_king_side(selectedMove)
+                    ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column;
             if (pieceModel.row == sourceRookRow && pieceModel.column == sourceRookColumn) {
                 pieceModel.column = dstRookColumn;
                 QVector<int> rolesChanged { ColumnRole };
