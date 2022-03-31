@@ -8,34 +8,36 @@
 using namespace wisdom;
 using namespace std;
 
-constexpr auto white_piece(Piece piece) -> int8_t
-{
-    return to_int8(make_piece(Color::White, piece));
-}
+namespace {
+    constexpr auto white_piece(Piece piece) -> int8_t
+    {
+        return to_int8(make_piece(Color::White, piece));
+    }
 
-constexpr auto black_piece(Piece piece) -> int8_t
-{
-    return to_int8(make_piece(Color::Black, piece));
-}
+    constexpr auto black_piece(Piece piece) -> int8_t
+    {
+        return to_int8(make_piece(Color::Black, piece));
+    }
 
-auto initPieceMap(QObject *parent) -> QHash<int8_t, QString>
-{
-    auto result = QHash<int8_t, QString> {
-        { white_piece(Piece::Pawn), "images/Chess_plt45.svg" },
-        { white_piece(Piece::Rook), "images/Chess_rlt45.svg" },
-        { white_piece(Piece::Knight), "images/Chess_nlt45.svg" },
-        { white_piece(Piece::Bishop), "images/Chess_blt45.svg" },
-        { white_piece(Piece::Queen), "images/Chess_qlt45.svg" },
-        { white_piece(Piece::King), "images/Chess_klt45.svg" },
-        { black_piece(Piece::Pawn), "images/Chess_pdt45.svg" },
-        { black_piece(Piece::Rook), "images/Chess_rdt45.svg" },
-        { black_piece(Piece::Knight), "images/Chess_ndt45.svg" },
-        { black_piece(Piece::Bishop), "images/Chess_bdt45.svg" },
-        { black_piece(Piece::Queen), "images/Chess_qdt45.svg" },
-        { black_piece(Piece::King), "images/Chess_kdt45.svg" },
-    };
+    auto initPieceMap(QObject *parent) -> QHash<int8_t, QString>
+    {
+        auto result = QHash<int8_t, QString> {
+            { white_piece(Piece::Pawn), "images/Chess_plt45.svg" },
+            { white_piece(Piece::Rook), "images/Chess_rlt45.svg" },
+            { white_piece(Piece::Knight), "images/Chess_nlt45.svg" },
+            { white_piece(Piece::Bishop), "images/Chess_blt45.svg" },
+            { white_piece(Piece::Queen), "images/Chess_qlt45.svg" },
+            { white_piece(Piece::King), "images/Chess_klt45.svg" },
+            { black_piece(Piece::Pawn), "images/Chess_pdt45.svg" },
+            { black_piece(Piece::Rook), "images/Chess_rdt45.svg" },
+            { black_piece(Piece::Knight), "images/Chess_ndt45.svg" },
+            { black_piece(Piece::Bishop), "images/Chess_bdt45.svg" },
+            { black_piece(Piece::Queen), "images/Chess_qdt45.svg" },
+            { black_piece(Piece::King), "images/Chess_kdt45.svg" },
+        };
 
-    return result;
+        return result;
+    }
 }
 
 GameModel::GameModel(QObject *parent)
@@ -122,23 +124,25 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     auto hasMove = false;
     for (auto legalMove : legalMoves) {
         if (legalMove == selectedMove) {
-            hasMove = true;
-            break;
+            myGame.move(selectedMove);
+
+            // todo: handle promotion
+            handleMoveUpdate(selectedMove, who);
+            return;
         }
     }
+}
 
-    if (!hasMove) {
-        return;
-    }
+void GameModel::handleMoveUpdate(Move selectedMove, Color who)
+{
+    Coord src = move_src(selectedMove);
+    Coord dst = move_dst(selectedMove);
 
-    // make the move:
-    myGame.move (selectedMove);
+    int srcRow = Row(src);
+    int srcColumn = Column(src);
+    int dstRow = Row(dst);
+    int dstColumn = Column(dst);
 
-    // todo: handle promotion
-
-    //
-    // Find the affected pieces, if any, and update them.
-    //
     auto count = myPieces.count();
     auto removedSomething = false;
     for (int i = 0; i < count; i++) {
@@ -178,3 +182,4 @@ void GameModel::movePiece(int srcRow, int srcColumn,
         }
     }
 }
+

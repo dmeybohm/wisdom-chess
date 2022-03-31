@@ -47,6 +47,8 @@ private:
 
     QHash<int8_t, QString> myPieceToImagePath;
     QVector<PieceModel> myPieces;
+
+    void handleMoveUpdate(wisdom::Move selectedMove, wisdom::Color who);
 };
 
 #endif // GAMEMODEL_H
