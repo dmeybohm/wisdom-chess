@@ -255,7 +255,8 @@ namespace wisdom
     }
 
     // Returns -1 if no column is eligible.
-    static auto eligible_en_passant_column (const Board &board, int row, int column, Color who) -> int
+    auto eligible_en_passant_column (const Board& board, int row, int column, Color who)
+        -> int
     {
         Color opponent = color_invert (who);
 

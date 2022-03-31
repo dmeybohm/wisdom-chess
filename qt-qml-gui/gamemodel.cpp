@@ -11,7 +11,6 @@ using namespace std;
 constexpr auto white_piece(Piece piece) -> int8_t
 {
     return to_int8(make_piece(Color::White, piece));
-
 }
 
 constexpr auto black_piece(Piece piece) -> int8_t

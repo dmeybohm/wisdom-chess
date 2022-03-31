@@ -305,6 +305,14 @@ namespace wisdom
     // The coordinate for the taken pawn.
     auto en_passant_taken_pawn_coord (Coord src, Coord dst) -> Coord;
 
+    // Map source/dest coordinate to corresponding move (en passant, castling, etc)
+    // This doesn't check whether the move is legal or not, just gets what the
+    // user is intending.
+    auto map_coordinates_to_move (const Board& board, Color who,
+                                  Coord src, Coord dst,
+                                  optional<Piece> promoted_piece = {})
+        -> optional<Move>;
+
     // Parse a move. Throws an exception if it could not parse the move.
     auto move_parse (const string& str, Color color = Color::None) -> Move;
 

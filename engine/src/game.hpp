@@ -27,9 +27,9 @@ namespace wisdom
 
         Game (Color current_turn, Color computer_player, const BoardBuilder& builder);
 
-        static auto load (const string &filename, Color player) -> optional<Game>;
+        static auto load (const string& filename, Color player) -> optional<Game>;
 
-        void save (const string &filename) const;
+        void save (const string& filename) const;
 
         [[nodiscard]] auto find_best_move (const Logger& logger, Color whom = Color::None) const
             -> optional<Move>;

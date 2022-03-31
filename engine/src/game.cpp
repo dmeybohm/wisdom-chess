@@ -44,7 +44,7 @@ namespace wisdom
         my_current_turn = color_invert (my_current_turn);
     }
 
-    void Game::save (const string &input) const
+    void Game::save (const string& input) const
     {
         OutputFormat &output = make_output_format (input);
         output.save (input, *my_board, *my_history, my_current_turn);

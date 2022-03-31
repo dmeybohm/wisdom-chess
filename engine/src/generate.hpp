@@ -35,6 +35,9 @@ namespace wisdom
     auto need_pawn_promotion (int row, Color who) -> bool;
 
     auto generate_knight_moves (int row, int col) -> const MoveList&;
+
+    auto eligible_en_passant_column (const Board& board, int row, int column, Color who)
+        -> int;
 }
 
 #endif // WISDOM_GENERATE_HPP

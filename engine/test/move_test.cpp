@@ -85,3 +85,29 @@ TEST_CASE( "Moving and undoing a move works" )
     board.take_back (Color::White, c3xe4, undo_state);
     board.make_move (Color::White, c3xe4);
 }
+
+TEST_CASE("Mapping coordinates to moves")
+{
+    SUBCASE( "Mapping en passant" )
+    {
+        Board board;
+
+        Move e2e4 = move_parse ("e2e4", Color::White);
+        Move a7a5 = move_parse ("a7a5", Color::Black);
+        Move e4e5 = move_parse ("e4e5", Color::White);
+        Move d7d5 = move_parse ("d7d5", Color::Black);
+
+        board.make_move (Color::White, e2e4);
+        board.make_move (Color::Black, a7a5);
+        board.make_move (Color::White, e4e5);
+        board.make_move (Color::Black, d7d5);
+
+        Coord e5 = coord_parse ("e5");
+        Coord d6 = coord_parse ("d6");
+        optional<Move> result = map_coordinates_to_move (board, Color::White, e5, d6);
+
+        Move expected = move_parse ("e5 d6 ep", Color::White);
+        REQUIRE( result.has_value () );
+        REQUIRE( *result == expected );
+    }
+}
