@@ -54,7 +54,12 @@ namespace wisdom
 
         [[nodiscard]] bool is_computer_turn () const;
 
-        [[nodiscard]] int piece_count () const;
+        [[nodiscard]] auto map_coordinates_to_move (Coord src, Coord dst, optional<Piece> promoted)
+            -> optional<Move>
+        {
+            return ::wisdom::map_coordinates_to_move (*my_board, my_current_turn,
+                                                      src, dst, promoted);
+        }
 
     private:
         unique_ptr<Board> my_board = make_unique<Board> ();

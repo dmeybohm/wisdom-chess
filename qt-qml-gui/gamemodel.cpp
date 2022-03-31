@@ -104,23 +104,16 @@ QHash<int, QByteArray> GameModel::roleNames() const
 void GameModel::movePiece(int srcRow, int srcColumn,
                           int dstRow, int dstColumn)
 {
-    qDebug() << "movePiece(" << srcRow << ":" << srcColumn <<
-                "," << dstRow << ":" << dstColumn;
+    Coord src = make_coord(srcRow, srcColumn);
+    Coord dst = make_coord(dstRow, dstColumn);
 
-    string srcCoord = string(1, col_to_char(srcColumn)) +
-            string(1, row_to_char(srcRow));
-    string dstCoord = string(1, col_to_char(dstColumn)) +
-            string(1, row_to_char(dstRow));
-    string move_as_string = srcCoord + dstCoord;
-    string move_as_capturing = srcCoord + "x" + dstCoord;
-
-    qDebug() << "move: " << QString(move_as_string.c_str());
-    qDebug() << "move(capturing)" << QString(move_as_capturing.c_str());
-
-    Move selectedMove = move_parse(move_as_string, myGame.get_current_turn());
-    Move capturingMove = move_parse(move_as_capturing, myGame.get_current_turn());
-    auto selectedMoveStr = to_string(selectedMove);
-    qDebug() << QString(selectedMoveStr.c_str());
+    auto who = myGame.get_current_turn();
+    auto optionalMove = myGame.map_coordinates_to_move(src, dst, {});
+    if (!optionalMove.has_value ()) {
+        // todo: display error
+        return;
+    }
+    auto selectedMove = *optionalMove;
 
     auto legalMoves = generate_legal_moves (myGame.get_board(), myGame.get_current_turn());
     auto legalMovesStr = to_string(legalMoves);
@@ -129,12 +122,6 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     auto hasMove = false;
     for (auto legalMove : legalMoves) {
         if (legalMove == selectedMove) {
-            hasMove = true;
-            break;
-        }
-        if (legalMove == capturingMove) {
-            qDebug() << "using capturing move";
-            selectedMove = capturingMove;
             hasMove = true;
             break;
         }
@@ -147,7 +134,7 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     // make the move:
     myGame.move (selectedMove);
 
-    // todo handle castling / en passant / promotion
+    // todo: handle promotion
 
     //
     // Find the affected pieces, if any, and update them.
@@ -174,6 +161,18 @@ void GameModel::movePiece(int srcRow, int srcColumn,
             qDebug() << "index " << i << "changed";
             emit dataChanged(changedIndex, changedIndex, rolesChanged);
         }
-    }
+        if (is_castling_move(selectedMove)) {
+            auto sourceRookRow = who == Color::White ? 7 : 0;
+            auto sourceRookColumn = is_castling_move_on_king_side(selectedMove) ? King_Rook_Column : Queen_Rook_Column;
+            auto dstRookColumn = is_castling_move_on_king_side(selectedMove) ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column;
+            if (pieceModel.row == sourceRookRow && pieceModel.column == sourceRookColumn) {
+                pieceModel.column = dstRookColumn;
+                QVector<int> rolesChanged { ColumnRole };
+                QModelIndex changedIndex = index(i, 0);
 
+                qDebug() << "index " << i << "changed";
+                emit dataChanged(changedIndex, changedIndex, rolesChanged);
+            }
+        }
+    }
 }

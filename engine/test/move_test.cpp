@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "board.hpp"
+#include "board_builder.hpp"
 #include "move.hpp"
 
 using namespace wisdom;
@@ -109,5 +110,129 @@ TEST_CASE("Mapping coordinates to moves")
         Move expected = move_parse ("e5 d6 ep", Color::White);
         REQUIRE( result.has_value () );
         REQUIRE( *result == expected );
+    }
+
+    SUBCASE( "Mapping castling kingside" )
+    {
+        Board board;
+
+        Move e2e4 = move_parse ("e2e4", Color::White);
+        Move e7e5 = move_parse ("e7e5", Color::Black);
+        Move f1c4 = move_parse ("f1c4", Color::White);
+        Move d7d5 = move_parse ("f8e7", Color::Black);
+
+        Move g1f3 = move_parse ("g1f3", Color::White);
+        Move g8f6 = move_parse ("g8f6", Color::Black);
+
+        board.make_move (Color::White, e2e4);
+        board.make_move (Color::Black, e7e5);
+        board.make_move (Color::White, f1c4);
+        board.make_move (Color::Black, d7d5);
+        board.make_move (Color::White, g1f3);
+        board.make_move (Color::Black, g8f6);
+
+        Coord e1 = coord_parse ("e1");
+        Coord g1 = coord_parse ("g1");
+        optional<Move> white_result = map_coordinates_to_move (board, Color::White, e1, g1);
+
+        Move white_expected = move_parse ("o-o", Color::White);
+        CHECK( white_result.has_value () );
+        CHECK( *white_result == white_expected );
+
+        board.make_move (Color::White, white_expected);
+
+        Coord e8 = coord_parse ("e8");
+        Coord g8 = coord_parse ("g8");
+
+        optional<Move> black_result = map_coordinates_to_move (board, Color::White, e8, g8);
+        Move black_expected = move_parse ("o-o", Color::Black);
+
+        CHECK( black_result.has_value() );
+        CHECK( *black_result == black_expected );
+    }
+
+    SUBCASE( "Mapping promotion moves" )
+    {
+        BoardBuilder builder;
+
+        builder.add_piece ("b7", Color::White, Piece::Pawn);
+        builder.add_piece ("e1", Color::White, Piece::King);
+        builder.add_piece ("e8", Color::Black, Piece::King);
+
+        auto board = builder.build();
+
+        Coord b7 = coord_parse ("b7");
+        Coord b8 = coord_parse ("b8");
+
+        optional<Move> result = map_coordinates_to_move (*board, Color::White, b7, b8,
+                                                         Piece::Queen);
+        auto expected = move_parse ("b7b8 (Q)", Color::White);
+
+        CHECK( result.has_value() );
+        CHECK( *result == expected );
+    }
+
+    SUBCASE( "Mapping promotion moves with capture" )
+    {
+        BoardBuilder builder;
+
+        builder.add_piece ("c8", Color::Black, Piece::Rook);
+        builder.add_piece ("b7", Color::White, Piece::Pawn);
+        builder.add_piece ("e1", Color::White, Piece::King);
+        builder.add_piece ("e8", Color::Black, Piece::King);
+
+        auto board = builder.build();
+
+        Coord b7 = coord_parse ("b7");
+        Coord c8 = coord_parse ("c8");
+
+        optional<Move> result = map_coordinates_to_move (*board, Color::White, b7, c8,
+                                                         Piece::Queen);
+        auto expected = move_parse ("b7xc8 (Q)", Color::White);
+
+        CHECK( result.has_value() );
+        CHECK( *result == expected );
+    }
+
+    SUBCASE( "Mapping capture moves" )
+    {
+        BoardBuilder builder;
+
+        builder.add_piece ("c4", Color::Black, Piece::Pawn);
+        builder.add_piece ("f1", Color::White, Piece::Bishop);
+        builder.add_piece ("e1", Color::White, Piece::King);
+        builder.add_piece ("e8", Color::Black, Piece::King);
+
+        auto board = builder.build();
+
+        Coord f1 = coord_parse ("f1");
+        Coord c4 = coord_parse ("c4");
+
+        optional<Move> result = map_coordinates_to_move (*board, Color::White, f1, c4);
+        auto expected = move_parse ("f1xc4", Color::White);
+
+        CHECK( result.has_value() );
+        CHECK( *result == expected );
+    }
+
+    SUBCASE( "Mapping normal moves" )
+    {
+        BoardBuilder builder;
+
+        builder.add_piece ("c4", Color::Black, Piece::Pawn);
+        builder.add_piece ("f1", Color::White, Piece::Bishop);
+        builder.add_piece ("e1", Color::White, Piece::King);
+        builder.add_piece ("e8", Color::Black, Piece::King);
+
+        auto board = builder.build();
+
+        Coord f1 = coord_parse ("f1");
+        Coord c3 = coord_parse ("c3");
+
+        optional<Move> result = map_coordinates_to_move (*board, Color::White, f1, c3);
+        auto expected = move_parse ("f1 c3", Color::White);
+
+        CHECK( result.has_value() );
+        CHECK( *result == expected );
     }
 }

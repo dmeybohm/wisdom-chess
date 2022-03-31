@@ -672,30 +672,50 @@ namespace wisdom
         ColoredPiece src_piece = board.piece_at (src);
         ColoredPiece dst_piece = board.piece_at (dst);
 
-        std::cout << "src:" << to_string (src) << " dst: " << to_string (dst) << "\n";
-        std::cout << "Piece: " << to_string (src_piece) << "\n";
-        std::cout << "Piece: " << to_string (dst_piece) << "\n";
-
         if (src_piece == Piece_And_Color_None)
             return {};
 
+        // make capturing if dst piece is not none
+        Move move = make_noncapture_move (src, dst);
+        if (dst_piece != Piece_And_Color_None)
+            move = copy_move_with_capture (move);
+
         // check for pawn special moves.
-        if (piece_type (src_piece) == Piece::Pawn)
+        switch (piece_type (src_piece))
         {
-            int eligible_column = eligible_en_passant_column (board,
-                                                              Row (src),
-                                                              Column (src),
-                                                              who);
-            if (eligible_column == Column (dst))
-                return make_en_passant_move (src, dst);
+            case Piece::Pawn:
+                // look for en passant:
+                if (piece_type (src_piece) == Piece::Pawn)
+                {
+                    int eligible_column = eligible_en_passant_column (board,
+                                                                      Row (src),
+                                                                      Column (src),
+                                                                      who);
+                    if (eligible_column == Column (dst))
+                        return make_en_passant_move (src, dst);
+
+                    if (need_pawn_promotion (Row<int> (dst), who) && promoted_piece.has_value ())
+                        return copy_move_with_promotion (move, make_piece (who, *promoted_piece));
+                }
+                break;
+
+            // look for castling
+            case Piece::King:
+                if (Column (src) == King_Column)
+                {
+                    if (Column (dst) - Column (src) == 2 ||
+                       Column (dst) - Column (src) == -2)
+                    {
+                        return make_castling_move (src, dst);
+                    }
+                }
+                break;
+
+            default:
+                break;
         }
 
-        // look for castling
-
-        // check for promotion
-
-        // make capturing if dst piece is not none
-        return {};
+        return move;
     }
 
     std::ostream& operator<< (std::ostream& os, const Move& value)

@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(WisdomMultiModule CXX)
 
-find_package(Qt6 6.2 COMPONENTS Quick OPTIONAL)
+find_package(Qt6 6.2 COMPONENTS Quick)
 
 add_subdirectory(engine)
 
