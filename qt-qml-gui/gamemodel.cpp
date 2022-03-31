@@ -8,7 +8,8 @@
 using namespace wisdom;
 using namespace std;
 
-namespace {
+namespace
+{
     constexpr auto white_piece(Piece piece) -> int8_t
     {
         return to_int8(make_piece(Color::White, piece));
@@ -117,7 +118,7 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     }
     auto selectedMove = *optionalMove;
 
-    auto legalMoves = generate_legal_moves (myGame.get_board(), myGame.get_current_turn());
+    auto legalMoves = generate_legal_moves(myGame.get_board(), who);
     auto legalMovesStr = to_string(legalMoves);
     qDebug() << QString(legalMovesStr.c_str());
 
@@ -182,4 +183,3 @@ void GameModel::handleMoveUpdate(Move selectedMove, Color who)
         }
     }
 }
-
