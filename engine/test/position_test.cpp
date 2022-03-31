@@ -136,3 +136,23 @@ TEST_CASE( "Promoting move updates position score correctly")
         CHECK( initial_score_black == board->get_position ().score(Color::Black) );
     }
 }
+
+TEST_CASE("Double pawn moves are more appealing")
+{
+    Board board;
+
+    auto e2e4 = move_parse ("e2e4");
+    auto e7e5 = move_parse("e7e5");
+    auto e7e6 = move_parse("e7e6");
+
+    board.make_move (Color::White, e2e4);
+    auto undo = board.make_move (Color::Black, e7e5);
+    auto black_big_score = board.get_position ().raw_score (Color::Black);
+    std::cout << board.to_string () << "\n";
+    board.take_back (Color::Black, e7e5, undo);
+    board.make_move (Color::Black, e7e6);
+    std::cout << board.to_string () << "\n";
+    auto black_small_score = board.get_position ().raw_score (Color::Black);
+
+    REQUIRE( black_big_score > black_small_score );
+}
