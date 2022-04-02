@@ -37,7 +37,7 @@ namespace wisdom
 
     static constexpr std::size_t Initial_Size = 16;
     static constexpr std::size_t Size_Increment = 4;
-    static vector<unique_ptr<move_list>> move_list_ptrs;
+    static thread_local vector<unique_ptr<move_list>> move_list_ptrs;
 
     unique_ptr<move_list> alloc_move_list () noexcept
     {

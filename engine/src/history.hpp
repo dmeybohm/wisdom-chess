@@ -57,6 +57,7 @@ namespace wisdom
 
         void add_position_and_move (const Board& board, Move move)
         {
+            my_move_history.push_back (move);
             // TODO handle when there's an overlap
             return;
 
@@ -72,7 +73,6 @@ namespace wisdom
                 my_historical_boards[index].count = 1;
             }
 //            this->my_board_history.add_board_code (board.get_code ());
-            my_move_history.push_back (move);
         }
 
         void remove_position_and_last_move (const Board& board)

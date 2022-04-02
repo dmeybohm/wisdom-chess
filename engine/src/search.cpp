@@ -11,7 +11,7 @@
 
 namespace wisdom
 {
-    static int nodes_visited, cutoffs;
+    static thread_local int nodes_visited, cutoffs;
 
     using system_clock_t = chrono::time_point<chrono::system_clock>;
 
