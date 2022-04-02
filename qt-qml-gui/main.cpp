@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
     qDebug() << "Returned after creating game model";
     QQmlApplicationEngine engine;
-    const QUrl url(u"qrc:/WisdomChessQt6/main.qml"_qs);
+    const QUrl url(u"qrc:/WisdomChessQtQml/main.qml"_qs);
 
     qDebug() << "Creating URL";
 
