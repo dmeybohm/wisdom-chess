@@ -300,11 +300,11 @@ namespace wisdom
             int target_row = my_king_row + r_dir;
 
             int left_attack_exists
-                = (is_valid_row (target_row) & is_valid_column (left_col)
-                   & my_board.piece_at (target_row, left_col) == make_piece (my_opponent, Piece::Pawn));
+                = (is_valid_row (target_row) && is_valid_column (left_col)
+                   && my_board.piece_at (target_row, left_col) == make_piece (my_opponent, Piece::Pawn));
             int right_attack_exists
-                = (is_valid_row (target_row) & is_valid_column (right_col)
-                   & my_board.piece_at (target_row, right_col) == make_piece (my_opponent, Piece::Pawn));
+                = (is_valid_row (target_row) && is_valid_column (right_col)
+                   && my_board.piece_at (target_row, right_col) == make_piece (my_opponent, Piece::Pawn));
 
             return left_attack_exists | right_attack_exists;
         }
@@ -322,19 +322,19 @@ namespace wisdom
             ColoredPiece opponent_king = make_piece (my_opponent, Piece::King);
 
             bool left_attack_exists = (
-                is_valid_row (target_row) & is_valid_column (starting_col)
-                & my_board.piece_at (target_row, starting_col) == opponent_king
+                is_valid_row (target_row) && is_valid_column (starting_col)
+                && my_board.piece_at (target_row, starting_col) == opponent_king
             );
             if constexpr (squares_to_check == KingThreatCheck::CheckMiddle)
             {
                 middle_attack_exists = (
-                    is_valid_row (target_row) & is_valid_column (middle_col)
-                    & my_board.piece_at (target_row, middle_col) == opponent_king
+                    is_valid_row (target_row) && is_valid_column (middle_col)
+                    && my_board.piece_at (target_row, middle_col) == opponent_king
                 );
             }
             bool right_attack_exists = (
-                is_valid_row (target_row) & is_valid_column (ending_col)
-                & my_board.piece_at (target_row, ending_col) == opponent_king
+                is_valid_row (target_row) && is_valid_column (ending_col)
+                && my_board.piece_at (target_row, ending_col) == opponent_king
             );
 
             return left_attack_exists | middle_attack_exists | right_attack_exists;
