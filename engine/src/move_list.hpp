@@ -59,10 +59,7 @@ namespace wisdom
 
         void pop_back () noexcept
         {
-            if (my_size == 0)
-            {
-                assert (my_size > 0);
-            }
+            assert (my_size > 0);
             my_size--;
         }
 
