@@ -29,8 +29,8 @@ private:
     wisdom::Game myGame;
 
     // When calling the slot, we want to signal the secondary thread to resume the loop.
-    QMutex myContinueSearchMutex;
-    QWaitCondition myContinueSearchWaitCondition;
+    QMutex myGameMutex;
+    QWaitCondition myWaitForHumanMovedCondition;
 };
 
 #endif // GAMETHREAD_H
