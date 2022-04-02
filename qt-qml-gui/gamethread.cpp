@@ -8,15 +8,12 @@ using namespace wisdom;
 
 GameThread::GameThread(QObject* parent)
         : QThread { parent },
-         myGame { Color::White, Color::Black },
-         myEventLoop { nullptr }
+         myGame { Color::White, Color::Black }
 {
 }
 
 void GameThread::run()
 {
-    myEventLoop = new QEventLoop { this };
-    myEventLoop->moveToThread(this);
     Logger& output = make_standard_logger();
 
     while (true) {
@@ -35,29 +32,39 @@ void GameThread::run()
             break;
         }
 
+        myContinueSearchMutex.lock();
         if (myGame.is_computer_turn()) {
             qDebug() << "Searching for move";
             auto optionalMove = myGame.find_best_move(output);
             if (!optionalMove.has_value()) {
                 std::cout << "\nCouldn't find move!\n";
                 // todo: could be timed out. check legal moves at random and select one
+                myContinueSearchMutex.unlock();
                 break;
             }
             myGame.move(*optionalMove);
             emit computerMoved(*optionalMove);
         } else {
-            // process events:
+            // Wait for human move.
             qDebug() << "Waiting for human move...";
-            myEventLoop->exec();
-            qDebug() << "Event loop exited...";
+            myContinueSearchWaitCondition.wait(&myContinueSearchMutex);
+
         }
+        myContinueSearchMutex.unlock();
     }
 }
 
 void GameThread::humanMoved(Move move)
 {
+    if (this != QThread::currentThread()) {
+        qDebug() << "*** Current thread != this!";
+    } else {
+        qDebug() << "*** Current thread == this";
+    }
     myGame.move(move);
 
     // Let the computer know we've moved.
-    myEventLoop->quit();
+    myContinueSearchMutex.lock();
+    myContinueSearchWaitCondition.wakeOne();
+    myContinueSearchMutex.unlock();
 }

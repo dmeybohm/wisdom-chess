@@ -3,6 +3,8 @@
 
 #include <QThread>
 #include <QEventLoop>
+#include <QMutex>
+#include <QWaitCondition>
 
 #include "game.hpp"
 #include "move.hpp"
@@ -26,7 +28,10 @@ signals:
 
 private:
     wisdom::Game myGame;
-    QEventLoop* myEventLoop;
+
+    // When calling the slot, we want to signal the secondary thread to resume the loop.
+    QMutex myContinueSearchMutex;
+    QWaitCondition myContinueSearchWaitCondition;
 };
 
 #endif // GAMETHREAD_H
