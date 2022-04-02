@@ -70,8 +70,10 @@ GameModel::GameModel(QObject *parent)
     connect(this, &GameModel::humanMoved, &myGameThread, &GameThread::humanMoved);
     connect(&myGameThread, &GameThread::computerMoved, this, [this](Move move){
         auto str = to_string(move);
+        auto who = myGame.get_current_turn();
         qDebug() << "Received update: " << QString(str.c_str());
-        handleMoveUpdate(move, myGame.get_current_turn());
+        myGame.move(move);
+        handleMoveUpdate(move, who);
     });
 
     myGameThread.start();
@@ -122,12 +124,17 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     Coord dst = make_coord(dstRow, dstColumn);
 
     auto who = myGame.get_current_turn();
+    qDebug() << "Mapping coordinates for " << srcRow << ":" << srcColumn << " -> "
+             << dstRow << ":" << dstColumn;
     auto optionalMove = myGame.map_coordinates_to_move(src, dst, {});
     if (!optionalMove.has_value ()) {
         // todo: display error
+        qDebug() << "No move found.";
         return;
     }
     auto selectedMove = *optionalMove;
+    auto selectedMoveStr = to_string(selectedMove);
+    qDebug() << "Selected move: " << QString(selectedMoveStr.c_str());
 
     auto legalMoves = generate_legal_moves(myGame.get_board(), who);
     auto legalMovesStr = to_string(legalMoves);

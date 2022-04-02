@@ -39,7 +39,7 @@ Item {
                 boardColumn: model.index % 8
                 bgColor: {
                     (model.index % 2 + boardRow % 2) % 2 == 0
-                            ? "#f3f3f3ff" : "green"
+                            ? "#fff3f3f3" : "green"
                 }
             }
         }

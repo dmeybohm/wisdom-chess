@@ -43,6 +43,7 @@ void GameThread::run()
                 // todo: could be timed out. check legal moves at random and select one
                 break;
             }
+            myGame.move(*optionalMove);
             emit computerMoved(*optionalMove);
         } else {
             // process events:
