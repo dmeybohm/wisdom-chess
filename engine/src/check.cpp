@@ -213,8 +213,8 @@ namespace wisdom
             // position.
             auto is_bishop = gsl::narrow_cast<int8_t> ((piece_as_int & bishop_int) == bishop_int);
             auto is_queen = gsl::narrow_cast<int8_t> ((piece_as_int & queen_int) == queen_int);
-            auto is_opponent_color = gsl::narrow_cast<int8_t> (piece_as_int & Piece_Color_Mask)
-                == my_opponent_color_shifted;
+            int8_t is_opponent_color = gsl::narrow_cast<int8_t> ((piece_as_int & Piece_Color_Mask)
+                == my_opponent_color_shifted);
 
             auto has_threatening_piece
                 = gsl::narrow_cast<int8_t> ((is_bishop | is_queen) & is_opponent_color);

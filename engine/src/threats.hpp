@@ -225,7 +225,7 @@ namespace wisdom
                 auto left_row = my_king_row - 1;
                 auto right_row = my_king_row + 1;
 
-                bool attacked = false;
+                int attacked = 0;
                 if (left_row >= First_Row)
                     attacked |= check_knight_at_square (left_row, target_col);
                 if (right_row <= Last_Row)
