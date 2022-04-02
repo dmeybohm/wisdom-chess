@@ -4,8 +4,7 @@
 #include <QAbstractListModel>
 #include <QHash>
 
-#include "game.hpp"
-
+#include "gamethread.h"
 
 struct PieceModel
 {
@@ -38,6 +37,9 @@ public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
+signals:
+    void humanMoved(wisdom::Move move);
+
 public slots:
     void movePiece(int srcRow, int srcColumn,
                    int dstRow, int dstColumn);
@@ -45,6 +47,7 @@ public slots:
 private:
     wisdom::Game myGame;
 
+    GameThread myGameThread;
     QHash<int8_t, QString> myPieceToImagePath;
     QVector<PieceModel> myPieces;
 

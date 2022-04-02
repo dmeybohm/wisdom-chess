@@ -43,14 +43,16 @@ namespace
 
 GameModel::GameModel(QObject *parent)
     : QAbstractListModel(parent),
-      myGame { Color::White, Color::Black },
       myPieceToImagePath { initPieceMap(this) },
-      myPieces {}
+      myPieces {},
+      myGameThread { this },
+      myGame { Color::White, Color::Black }
 {
     // Initialize the piece list from the game->board.
     auto board = myGame.get_board();
     auto str = board.to_string();
     qDebug() << QString(str.c_str());
+
     for (int row = 0; row < 8; row++) {
         for (int column = 0; column < 8; column++) {
             auto piece = board.piece_at(row, column);
@@ -64,6 +66,15 @@ GameModel::GameModel(QObject *parent)
             }
         }
     }
+
+    connect(this, &GameModel::humanMoved, &myGameThread, &GameThread::humanMoved);
+    connect(&myGameThread, &GameThread::computerMoved, this, [this](Move move){
+        auto str = to_string(move);
+        qDebug() << "Received update: " << QString(str.c_str());
+        handleMoveUpdate(move, myGame.get_current_turn());
+    });
+
+    myGameThread.start();
 }
 
 int GameModel::rowCount(const QModelIndex &index) const
@@ -126,6 +137,7 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     for (auto legalMove : legalMoves) {
         if (legalMove == selectedMove) {
             myGame.move(selectedMove);
+            emit humanMoved(selectedMove);
 
             // todo: handle promotion
             handleMoveUpdate(selectedMove, who);
@@ -172,6 +184,7 @@ void GameModel::handleMoveUpdate(Move selectedMove, Color who)
                     ? King_Rook_Column : Queen_Rook_Column;
             auto dstRookColumn = is_castling_move_on_king_side(selectedMove)
                     ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column;
+
             if (pieceModel.row == sourceRookRow && pieceModel.column == sourceRookColumn) {
                 pieceModel.column = dstRookColumn;
                 QVector<int> rolesChanged { ColumnRole };

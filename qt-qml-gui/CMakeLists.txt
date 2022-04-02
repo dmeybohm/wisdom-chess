@@ -11,6 +11,8 @@ qt_add_executable(appWisdomChessQt6
     main.cpp
     gamemodel.h
     gamemodel.cpp
+    gamethread.h
+    gamethread.cpp
     resources.qrc
 )
 

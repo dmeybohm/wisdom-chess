@@ -64,6 +64,14 @@ namespace wisdom
 
     std::size_t move_list_capacity (move_list& ptr) noexcept { return ptr.capacity; }
 
+    static Move* duplicate_move_array (Move* src, size_t old_num_elements, size_t new_capacity)
+    {
+        Move* new_result = (Move *) malloc (new_capacity);
+        memcpy (new_result, src, old_num_elements * sizeof (Move));
+        free (src);
+        return new_result;
+    }
+
     void move_list_append (move_list& list, std::size_t position, Move move) noexcept
     {
         assert (position <= list.capacity);
@@ -73,7 +81,7 @@ namespace wisdom
             list.capacity += Size_Increment;
 
             std::size_t new_capacity = list.capacity * sizeof (Move);
-            list.move_array = (Move*)realloc (list.move_array, new_capacity);
+            list.move_array = duplicate_move_array (list.move_array, list.capacity, new_capacity);
         }
 
         assert (list.move_array != nullptr);
