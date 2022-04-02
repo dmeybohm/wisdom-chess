@@ -2,7 +2,6 @@
 #define GAMETHREAD_H
 
 #include <QThread>
-#include <QEventLoop>
 #include <QMutex>
 #include <QWaitCondition>
 
