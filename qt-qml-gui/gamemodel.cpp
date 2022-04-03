@@ -104,16 +104,20 @@ GameModel::GameModel(QObject *parent)
         }
     }
 
+    // Connect event handlers for the computer and human making moves:
+    connect(this, &GameModel::humanMoved, &myChessEngine, &ChessEngine::opponentMoved);
+    connect(&myChessEngine, &ChessEngine::engineMoved, this, &GameModel::updateModelStateForMove);
+
+    // Initialize the engine when the engine thread starts:
     connect(&myChessEngineThread, &QThread::started, &myChessEngine, &ChessEngine::init);
 
     // exit event loop from engine thread when we start exiting:
     connect(this, &GameModel::terminationStarted, &myChessEngineThread, &QThread::quit);
 
-    connect(this, &GameModel::humanMoved, &myChessEngine, &ChessEngine::opponentMoved);
-    connect(&myChessEngine, &ChessEngine::engineMoved, this, &GameModel::updateModelStateForMove);
-
     // Cleanup chess engine when chess engine thread exits:
     connect(&myChessEngineThread, &QThread::finished, &QObject::deleteLater);
+
+    // Move the ownership of the engine to the engine thread so slots run on that thread:
     myChessEngine.moveToThread(&myChessEngineThread);
     myChessEngineThread.start();
 }
