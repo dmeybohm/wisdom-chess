@@ -83,7 +83,7 @@ GameModel::GameModel(QObject *parent)
     : QAbstractListModel(parent),
       myPieceToImagePath { initPieceMap(this) },
       myPieces {},
-      myChessEngine { myGame, &myGameMutex },
+      myChessEngine { new ChessEngine { myGame, &myGameMutex } },
       myChessEngineThread {},
       myGame { make_shared<Game> (Color::White, Color::Black) }
 {
@@ -105,29 +105,29 @@ GameModel::GameModel(QObject *parent)
     }
 
     // Connect event handlers for the computer and human making moves:
-    connect(this, &GameModel::humanMoved, &myChessEngine, &ChessEngine::opponentMoved);
-    connect(&myChessEngine, &ChessEngine::engineMoved, this, &GameModel::updateModelStateForMove);
+    connect(this, &GameModel::humanMoved, myChessEngine, &ChessEngine::opponentMoved);
+    connect(myChessEngine, &ChessEngine::engineMoved, this, &GameModel::updateModelStateForMove);
 
     // Initialize the engine when the engine thread starts:
-    connect(&myChessEngineThread, &QThread::started, &myChessEngine, &ChessEngine::init);
+    connect(&myChessEngineThread, &QThread::started, myChessEngine, &ChessEngine::init);
 
     // exit event loop from engine thread when we start exiting:
     connect(this, &GameModel::terminationStarted, &myChessEngineThread, &QThread::quit);
 
     // Cleanup chess engine when chess engine thread exits:
-    connect(&myChessEngineThread, &QThread::finished, &QObject::deleteLater);
+    connect(&myChessEngineThread, &QThread::finished, myChessEngine, &QObject::deleteLater);
 
     // Move the ownership of the engine to the engine thread so slots run on that thread:
-    myChessEngine.moveToThread(&myChessEngineThread);
+    myChessEngine->moveToThread(&myChessEngineThread);
     myChessEngineThread.start();
 }
 
-int GameModel::rowCount(const QModelIndex &index) const
+int GameModel::rowCount(const QModelIndex& index) const
 {
     return myPieces.count();
 }
 
-QVariant GameModel::data(const QModelIndex &index, int role) const
+QVariant GameModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid()) {
         return QVariant {};

@@ -57,7 +57,7 @@ private:
 
     // The chess engine runs in this thread, and grabs the game mutext as needed:
     QThread myChessEngineThread;
-    ChessEngine myChessEngine;
+    ChessEngine* myChessEngine;
     ChessEngineNotifier myChessEngineNotifier {};
 
     QHash<int8_t, QString> myPieceToImagePath;
