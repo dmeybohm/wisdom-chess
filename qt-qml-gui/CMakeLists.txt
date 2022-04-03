@@ -13,6 +13,8 @@ qt_add_executable(appWisdomChessQtQml
     gamemodel.cpp
     gamethread.h
     gamethread.cpp
+    gamethreadnotifier.cpp
+    gamethreadnotifier.h
     resources.qrc
 )
 

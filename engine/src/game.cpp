@@ -61,6 +61,8 @@ namespace wisdom
             whom = my_computer_player;
 
         MoveTimer overdue_timer { Max_Search_Seconds };
+        overdue_timer.set_periodic_notified (my_periodic_notified);
+
         IterativeSearch iterative_search {
             *my_board, *my_history, logger, overdue_timer, Max_Depth, *my_analytics,
         };
@@ -152,5 +154,4 @@ namespace wisdom
     {
         return my_computer_player == my_current_turn;
     }
-
 }

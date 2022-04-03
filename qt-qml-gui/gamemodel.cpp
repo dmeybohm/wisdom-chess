@@ -45,7 +45,7 @@ GameModel::GameModel(QObject *parent)
     : QAbstractListModel(parent),
       myPieceToImagePath { initPieceMap(this) },
       myPieces {},
-      myGameThread { this },
+      myGameThread { &myGameThreadNotifier, this },
       myGame { Color::White, Color::Black }
 {
     // Initialize the piece list from the game->board.
@@ -151,6 +151,13 @@ void GameModel::movePiece(int srcRow, int srcColumn,
             return;
         }
     }
+}
+
+void GameModel::applicationExiting()
+{
+    myGameThreadNotifier.setCancelled();
+    myGameThread.prepareToExit();
+    myGameThread.wait();
 }
 
 void GameModel::handleMoveUpdate(Move selectedMove, Color who)

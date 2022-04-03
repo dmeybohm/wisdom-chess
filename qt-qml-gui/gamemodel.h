@@ -5,6 +5,7 @@
 #include <QHash>
 
 #include "gamethread.h"
+#include "gamethreadnotifier.h"
 
 struct PieceModel
 {
@@ -43,11 +44,13 @@ signals:
 public slots:
     void movePiece(int srcRow, int srcColumn,
                    int dstRow, int dstColumn);
+    void applicationExiting();
 
 private:
     wisdom::Game myGame;
 
     GameThread myGameThread;
+    GameThreadNotifier myGameThreadNotifier;
     QHash<int8_t, QString> myPieceToImagePath;
     QVector<PieceModel> myPieces;
 

@@ -5,6 +5,13 @@
 
 namespace wisdom
 {
+    class MoveTimer;
+
+    struct PeriodicNotified
+    {
+       virtual void notify (MoveTimer* timer) = 0;
+    };
+
     class MoveTimer
     {
     private:
@@ -13,6 +20,7 @@ namespace wisdom
         chrono::seconds my_seconds;
         bool my_triggered = false;
         bool my_started = true;
+        PeriodicNotified* my_periodic_notified = nullptr;
 
     public:
 
@@ -41,6 +49,16 @@ namespace wisdom
         [[nodiscard]] auto seconds () const noexcept -> chrono::seconds
         {
             return my_seconds;
+        }
+
+        void set_periodic_notified (PeriodicNotified* notified)
+        {
+            my_periodic_notified = notified;
+        }
+
+        void set_triggered (bool triggered)
+        {
+            my_triggered = triggered;
         }
     };
 }

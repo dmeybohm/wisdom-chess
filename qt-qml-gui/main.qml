@@ -23,6 +23,10 @@ Window {
         root.currentFocusedItem = activeFocusItem
     }
 
+    onClosing: {
+        _myGameModel.applicationExiting();
+    }
+
     Board {
         id: boards
     }

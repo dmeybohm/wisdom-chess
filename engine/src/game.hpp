@@ -19,6 +19,7 @@ namespace wisdom
     class History;
     class BoardBuilder;
     class Logger;
+    struct PeriodicNotified;
 
     class Game
     {
@@ -61,10 +62,16 @@ namespace wisdom
                                                       src, dst, promoted);
         }
 
+        void set_periodic_notified (PeriodicNotified* notified)
+        {
+            my_periodic_notified = notified;
+        }
+
     private:
         unique_ptr<Board> my_board = make_unique<Board> ();
         unique_ptr<History> my_history = make_unique<History> ();
         unique_ptr<analysis::Analytics> my_analytics = make_unique<analysis::Analytics> ();
+        PeriodicNotified* my_periodic_notified = nullptr;
 
         Color my_current_turn;        // whose turn it is
         Color my_computer_player;     // side the computer is playing as

@@ -1,22 +1,25 @@
 #include <QDebug>
 
+#include "gamethreadnotifier.h"
 #include "gamethread.h"
 #include "check.hpp"
 #include "logger.hpp"
 
 using namespace wisdom;
 
-GameThread::GameThread(QObject* parent)
+GameThread::GameThread(gsl::not_null<GameThreadNotifier*> notifier, QObject* parent)
         : QThread { parent },
+          myNotifier { notifier },
          myGame { Color::White, Color::Black }
 {
+    myGame.set_periodic_notified(myNotifier);
 }
 
 void GameThread::run()
 {
     Logger& output = make_standard_logger();
 
-    while (true) {
+    while (!myNotifier->isCancelled()) {
         myGameMutex.lock();
 
         if (is_checkmated(myGame.get_board(), myGame.get_current_turn())) {
@@ -55,7 +58,12 @@ void GameThread::run()
         }
         myGameMutex.unlock();
     }
+}
 
+void GameThread::prepareToExit()
+{
+    // remove from wait loop if waiting:
+    myWaitForHumanMovedCondition.wakeOne();
 }
 
 void GameThread::humanMoved(Move move)
