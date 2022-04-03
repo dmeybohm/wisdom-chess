@@ -3,9 +3,10 @@
 
 #include <QAbstractListModel>
 #include <QHash>
+#include <QThread>
 
-#include "gamethread.h"
-#include "gamethreadnotifier.h"
+#include "chessengine.h"
+#include "chessenginenotifier.h"
 
 struct PieceModel
 {
@@ -40,6 +41,7 @@ public:
 
 signals:
     void humanMoved(wisdom::Move move);
+    void terminationStarted();
 
 public slots:
     void movePiece(int srcRow, int srcColumn,
@@ -47,14 +49,21 @@ public slots:
     void applicationExiting();
 
 private:
-    wisdom::Game myGame;
+    // The game is shared across the main thread and the chess engine thread.
+    // Before calling any of the methods in the libwisdom-core library, the mutex
+    // must be held because it is not thread safe.
+    std::shared_ptr<wisdom::Game> myGame;
+    std::mutex myGameMutex;
 
-    GameThread myGameThread;
-    GameThreadNotifier myGameThreadNotifier;
+    // The chess engine runs in this thread, and grabs the game mutext as needed:
+    QThread myChessEngineThread;
+    ChessEngine myChessEngine;
+    ChessEngineNotifier myChessEngineNotifier {};
+
     QHash<int8_t, QString> myPieceToImagePath;
     QVector<PieceModel> myPieces;
 
-    void handleMoveUpdate(wisdom::Move selectedMove, wisdom::Color who);
+    void updateModelStateForMove(wisdom::Move selectedMove, wisdom::Color who);
 };
 
 #endif // GAMEMODEL_H

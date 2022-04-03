@@ -11,10 +11,10 @@ qt_add_executable(appWisdomChessQtQml
     main.cpp
     gamemodel.h
     gamemodel.cpp
-    gamethread.h
-    gamethread.cpp
-    gamethreadnotifier.cpp
-    gamethreadnotifier.h
+    chessengine.h
+    chessengine.cpp
+    chessenginenotifier.cpp
+    chessenginenotifier.h
     resources.qrc
 )
 

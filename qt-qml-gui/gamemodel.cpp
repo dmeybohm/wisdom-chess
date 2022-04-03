@@ -39,19 +39,57 @@ namespace
 
         return result;
     }
+
+    auto buildMoveFromCoordinates(mutex* gameMutex, Game* game, int srcRow, int srcColumn,
+                                  int dstRow, int dstColumn) -> pair<optional<Move>, Color>
+    {
+        lock_guard guard { *gameMutex };
+        Coord src = make_coord(srcRow, srcColumn);
+        Coord dst = make_coord(dstRow, dstColumn);
+
+        auto who = game->get_current_turn();
+        qDebug() << "Mapping coordinates for " << srcRow << ":" << srcColumn << " -> "
+                 << dstRow << ":" << dstColumn;
+        return { game->map_coordinates_to_move(src, dst, {}), who };
+    }
+
+    auto validateIsLegalMove(mutex* gameMutex, Game* game, Move selectedMove) -> bool
+    {
+        lock_guard guard { *gameMutex };
+        auto selectedMoveStr = to_string(selectedMove);
+        qDebug() << "Selected move: " << QString(selectedMoveStr.c_str());
+
+        auto who = game->get_current_turn();
+        auto legalMoves = generate_legal_moves(game->get_board(), who);
+        auto legalMovesStr = to_string(legalMoves);
+        qDebug() << QString(legalMovesStr.c_str());
+        for (auto legalMove : legalMoves) {
+            if (legalMove == selectedMove) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void updateChessEngineForHumanMove(mutex* gameMutex, Game* game, Move selectedMove)
+    {
+        lock_guard guard { *gameMutex };
+
+        game->move(selectedMove);
+    }
 }
 
 GameModel::GameModel(QObject *parent)
     : QAbstractListModel(parent),
       myPieceToImagePath { initPieceMap(this) },
       myPieces {},
-      myGameThread { &myGameThreadNotifier, this },
-      myGame { Color::White, Color::Black }
+      myChessEngine { myGame, &myGameMutex },
+      myChessEngineThread {},
+      myGame { make_shared<Game> (Color::White, Color::Black) }
 {
     // Initialize the piece list from the game->board.
-    auto board = myGame.get_board();
-    auto str = board.to_string();
-    qDebug() << QString(str.c_str());
+    auto board = myGame->get_board();
+    myGame->set_periodic_notified(&myChessEngineNotifier);
 
     for (int row = 0; row < 8; row++) {
         for (int column = 0; column < 8; column++) {
@@ -61,22 +99,23 @@ GameModel::GameModel(QObject *parent)
                     row, column, piece, myPieceToImagePath[to_int8(piece)]
                 };
                 auto pieceStr = to_string(piece);
-                qDebug() << "New piece: " << QString(pieceStr.c_str());
                 myPieces.append(newPiece);
             }
         }
     }
 
-    connect(this, &GameModel::humanMoved, &myGameThread, &GameThread::humanMoved);
-    connect(&myGameThread, &GameThread::computerMoved, this, [this](Move move){
-        auto str = to_string(move);
-        auto who = myGame.get_current_turn();
-        qDebug() << "Received update: " << QString(str.c_str());
-        myGame.move(move);
-        handleMoveUpdate(move, who);
-    });
+    connect(&myChessEngineThread, &QThread::started, &myChessEngine, &ChessEngine::init);
 
-    myGameThread.start();
+    // exit event loop from engine thread when we start exiting:
+    connect(this, &GameModel::terminationStarted, &myChessEngineThread, &QThread::quit);
+
+    connect(this, &GameModel::humanMoved, &myChessEngine, &ChessEngine::opponentMoved);
+    connect(&myChessEngine, &ChessEngine::engineMoved, this, &GameModel::updateModelStateForMove);
+
+    // Cleanup chess engine when chess engine thread exits:
+    connect(&myChessEngineThread, &QThread::finished, &QObject::deleteLater);
+    myChessEngine.moveToThread(&myChessEngineThread);
+    myChessEngineThread.start();
 }
 
 int GameModel::rowCount(const QModelIndex &index) const
@@ -120,47 +159,31 @@ QHash<int, QByteArray> GameModel::roleNames() const
 void GameModel::movePiece(int srcRow, int srcColumn,
                           int dstRow, int dstColumn)
 {
-    Coord src = make_coord(srcRow, srcColumn);
-    Coord dst = make_coord(dstRow, dstColumn);
-
-    auto who = myGame.get_current_turn();
-    qDebug() << "Mapping coordinates for " << srcRow << ":" << srcColumn << " -> "
-             << dstRow << ":" << dstColumn;
-    auto optionalMove = myGame.map_coordinates_to_move(src, dst, {});
-    if (!optionalMove.has_value ()) {
-        // todo: display error
-        qDebug() << "No move found.";
+    auto [optionalMove, who] = buildMoveFromCoordinates(&myGameMutex, myGame.get(), srcRow,
+            srcColumn, dstRow, dstColumn);
+    if (!optionalMove.has_value()) {
         return;
     }
-    auto selectedMove = *optionalMove;
-    auto selectedMoveStr = to_string(selectedMove);
-    qDebug() << "Selected move: " << QString(selectedMoveStr.c_str());
-
-    auto legalMoves = generate_legal_moves(myGame.get_board(), who);
-    auto legalMovesStr = to_string(legalMoves);
-    qDebug() << QString(legalMovesStr.c_str());
-
-    auto hasMove = false;
-    for (auto legalMove : legalMoves) {
-        if (legalMove == selectedMove) {
-            myGame.move(selectedMove);
-            emit humanMoved(selectedMove);
-
-            // todo: handle promotion
-            handleMoveUpdate(selectedMove, who);
-            return;
-        }
+    auto move = *optionalMove;
+    if (!validateIsLegalMove(&myGameMutex, myGame.get(), move)) {
+        return;
     }
+    updateChessEngineForHumanMove(&myGameMutex, myGame.get(), move);
+    emit humanMoved(move);
+    updateModelStateForMove(move, who);
 }
 
 void GameModel::applicationExiting()
 {
-    myGameThreadNotifier.setCancelled();
-    myGameThread.prepareToExit();
-    myGameThread.wait();
+    qDebug() << "Trying to exit application...";
+
+    myChessEngineThread.requestInterruption();
+    emit terminationStarted();
+
+    myChessEngineThread.wait();
 }
 
-void GameModel::handleMoveUpdate(Move selectedMove, Color who)
+void GameModel::updateModelStateForMove(Move selectedMove, Color who)
 {
     Coord src = move_src(selectedMove);
     Coord dst = move_dst(selectedMove);
@@ -171,14 +194,12 @@ void GameModel::handleMoveUpdate(Move selectedMove, Color who)
     int dstColumn = Column(dst);
 
     auto count = myPieces.count();
-    auto removedSomething = false;
     for (int i = 0; i < count; i++) {
         auto& pieceModel = myPieces[i];
         if (pieceModel.row == dstRow && pieceModel.column == dstColumn) {
             beginRemoveRows(QModelIndex{}, i, i);
             myPieces.removeAt(i);
             qDebug() << "removing index: " << i;
-            removedSomething = true;
             count--;
             endRemoveRows();
         }

@@ -9,7 +9,7 @@ namespace wisdom
 
     struct PeriodicNotified
     {
-       virtual void notify (MoveTimer* timer) = 0;
+       virtual void notify (gsl::not_null<MoveTimer*> timer) = 0;
     };
 
     class MoveTimer
@@ -39,7 +39,7 @@ namespace wisdom
                 my_started { autostart }
         {}
 
-        auto is_triggered () noexcept -> bool;
+        auto is_triggered () -> bool;
 
         void start () noexcept
         {
@@ -51,12 +51,12 @@ namespace wisdom
             return my_seconds;
         }
 
-        void set_periodic_notified (PeriodicNotified* notified)
+        void set_periodic_notified (PeriodicNotified* notified) noexcept
         {
             my_periodic_notified = notified;
         }
 
-        void set_triggered (bool triggered)
+        void set_triggered (bool triggered) noexcept
         {
             my_triggered = triggered;
         }

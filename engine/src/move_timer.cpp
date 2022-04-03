@@ -4,12 +4,9 @@ namespace wisdom
 {
     using chrono::steady_clock;
 
-    enum
-    {
-        Num_Calls_Per_Timer_Check = 1000    // number of iterations before checking
-    };
+    constexpr int Num_Calls_Per_Timer_Check = 10000;   // number of iterations before checking
 
-    auto MoveTimer::is_triggered () noexcept -> bool
+    auto MoveTimer::is_triggered () -> bool
     {
         if (!my_started)
             return false;
