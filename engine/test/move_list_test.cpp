@@ -40,6 +40,15 @@ TEST_CASE( "Returning move list moves ptr" )
     REQUIRE( result.size() > 0 );
 }
 
+TEST_CASE( "Moving move list pointer" )
+{
+    MoveList initial {Color::Black, {"e4 d4", "d2 d1"}};
+    MoveList moved = std::move (initial);
+
+    REQUIRE( initial.data() == nullptr );
+    REQUIRE( moved.data() != nullptr );
+}
+
 TEST_CASE( "Appending a move" )
 {
     MoveList list;
