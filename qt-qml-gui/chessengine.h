@@ -2,14 +2,11 @@
 #define CHESSENGINE_H
 
 #include <QObject>
+#include <mutex>
 
 #include "game.hpp"
 #include "move.hpp"
 #include "move_timer.hpp"
-
-namespace std {
-    class mutex;
-}
 
 class ChessEngineNotifier;
 
