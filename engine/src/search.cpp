@@ -213,7 +213,7 @@ namespace wisdom
                     break;
 
                 auto next_result = synthesize_result ();
-                if (depth <= 2 || depth % 2 == 1)
+                if (next_result.move.has_value ())
                     best_result = next_result;
 
                 if (is_checkmating_opponent_score (next_result.score))

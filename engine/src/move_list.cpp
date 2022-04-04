@@ -37,14 +37,20 @@ namespace wisdom
 
     static constexpr std::size_t Initial_Size = 16;
     static constexpr std::size_t Size_Increment = 4;
-    static thread_local vector<unique_ptr<move_list>> move_list_ptrs;
+
+    static auto get_move_list_ptrs () -> vector<unique_ptr<move_list>>*
+    {
+        static auto move_list_ptrs = new vector<unique_ptr<move_list>> ();
+        return move_list_ptrs;
+    }
 
     unique_ptr<move_list> alloc_move_list () noexcept
     {
-        if (!move_list_ptrs.empty ())
+        auto ptrs = get_move_list_ptrs ();
+        if (!ptrs->empty ())
         {
-            auto move_list_end = std::move (move_list_ptrs.back ());
-            move_list_ptrs.pop_back ();
+            auto move_list_end = std::move (ptrs->back ());
+            ptrs->pop_back ();
             return move_list_end;
         }
 
@@ -59,7 +65,8 @@ namespace wisdom
 
     void dealloc_move_list (unique_ptr<move_list> move_list) noexcept
     {
-        move_list_ptrs.emplace_back (std::move (move_list));
+        auto ptrs = get_move_list_ptrs ();
+        ptrs->emplace_back (std::move (move_list));
     }
 
     std::size_t move_list_capacity (move_list& ptr) noexcept { return ptr.capacity; }
