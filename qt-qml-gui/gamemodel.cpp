@@ -214,6 +214,13 @@ void GameModel::updateModelStateForMove(Move selectedMove, Color who)
             QVector<int> rolesChanged { RowRole, ColumnRole };
             QModelIndex changedIndex = index(i, 0);
 
+            if (is_promoting_move(selectedMove)) {
+                auto promotedPiece = move_get_promoted_piece(selectedMove);
+                auto newImagePath = myPieceToImagePath[to_int8(promotedPiece)];
+                pieceModel.pieceImage = newImagePath;
+                rolesChanged.append( PieceImageRole );
+            }
+
             qDebug() << "index " << i << "changed";
             emit dataChanged(changedIndex, changedIndex, rolesChanged);
         }
