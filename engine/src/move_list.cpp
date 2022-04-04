@@ -46,7 +46,7 @@ namespace wisdom
 
     unique_ptr<move_list> alloc_move_list () noexcept
     {
-        auto ptrs = get_move_list_ptrs ();
+        auto* ptrs = get_move_list_ptrs ();
         if (!ptrs->empty ())
         {
             auto move_list_end = std::move (ptrs->back ());
@@ -65,7 +65,7 @@ namespace wisdom
 
     void dealloc_move_list (unique_ptr<move_list> move_list) noexcept
     {
-        auto ptrs = get_move_list_ptrs ();
+        auto* ptrs = get_move_list_ptrs ();
         ptrs->emplace_back (std::move (move_list));
     }
 
