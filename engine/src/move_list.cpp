@@ -54,7 +54,7 @@ namespace wisdom
             return move_list_end;
         }
 
-        auto list = (move_list*)malloc (sizeof (move_list));
+        auto list = new move_list ();
         list->move_array = (Move*)malloc (sizeof (Move) * Initial_Size);
         list->capacity = Initial_Size;
 
