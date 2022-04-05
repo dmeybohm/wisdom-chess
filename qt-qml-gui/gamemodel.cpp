@@ -51,7 +51,7 @@ namespace
     }
 
     auto buildMoveFromCoordinates(mutex* gameMutex, Game* game, int srcRow, int srcColumn,
-                                  int dstRow, int dstColumn) -> pair<optional<Move>, Color>
+                                  int dstRow, int dstColumn) -> pair<optional<Move>, wisdom::Color>
     {
         lock_guard guard { *gameMutex };
         Coord src = make_coord(srcRow, srcColumn);
@@ -204,7 +204,7 @@ void GameModel::applicationExiting()
     myChessEngineThread.wait();
 }
 
-void GameModel::updateModelStateForMove(Move selectedMove, Color who)
+void GameModel::updateModelStateForMove(Move selectedMove, wisdom::Color who)
 {
     Coord src = move_src(selectedMove);
     Coord dst = move_dst(selectedMove);
@@ -244,7 +244,7 @@ void GameModel::updateModelStateForMove(Move selectedMove, Color who)
             emit dataChanged(changedIndex, changedIndex, rolesChanged);
         }
         if (is_castling_move(selectedMove)) {
-            auto sourceRookRow = who == Color::White ? 7 : 0;
+            auto sourceRookRow = who == wisdom::Color::White ? 7 : 0;
             auto sourceRookColumn = is_castling_move_on_king_side(selectedMove)
                     ? King_Rook_Column : Queen_Rook_Column;
             auto dstRookColumn = is_castling_move_on_king_side(selectedMove)

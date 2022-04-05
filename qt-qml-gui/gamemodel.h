@@ -7,6 +7,7 @@
 
 #include "chessengine.h"
 #include "chessenginenotifier.h"
+#include "colorclass.h"
 
 struct PieceModel
 {
@@ -25,6 +26,8 @@ class GameModel : public QAbstractListModel
 {
     Q_OBJECT
 
+    Q_PROPERTY(ColorEnum currentTurn READ currentTurn CONSTANT)
+
 public:
     explicit GameModel(QObject *parent = nullptr);
 
@@ -39,14 +42,13 @@ public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-    ChessColor getCurrentTurn() const;
-
     Q_INVOKABLE bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
 
 signals:
     void humanMoved(wisdom::Move move);
     void terminationStarted();
     void currentTurnChanged();
+    ColorEnum currentTurn();
 
 public slots:
     void movePiece(int srcRow, int srcColumn,
@@ -64,15 +66,15 @@ private:
     QThread myChessEngineThread;
     ChessEngine* myChessEngine;
     ChessEngineNotifier myChessEngineNotifier {};
+    ColorEnum myCurrentTurn;
 
     QHash<int8_t, QString> myPieceToImagePath;
     QVector<PieceModel> myPieces;
-    ChessColor myCurrentTurn;
 
     void updateModelStateForMove(wisdom::Move selectedMove, wisdom::Color who);
     void updateChessEngineForHumanMove(wisdom::Move selectedMove);
     void updateCurrentTurn();
-    void setCurrentTurn(ChessColor newColor);
+    void setCurrentTurn(ColorEnum newColor);
 };
 
 #endif // GAMEMODEL_H

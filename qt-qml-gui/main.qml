@@ -1,4 +1,5 @@
 import QtQuick
+import wisdom.chess 1.0
 
 Window {
     id: root

@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include "gamemodel.h"
+#include "colorclass.h"
 
 using namespace wisdom;
 
@@ -12,8 +13,11 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     GameModel gameModel;
 
+    ColorClass::registerQmlTypes();
+
     qDebug() << "Returned after creating game model";
     QQmlApplicationEngine engine;
+
     const QUrl url(u"qrc:/WisdomChessQtQml/main.qml"_qs);
 
     qDebug() << "Creating URL";

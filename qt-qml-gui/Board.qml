@@ -1,5 +1,6 @@
 import QtQuick 2.4
 import QtQuick.Layouts 1.3
+import wisdom.chess 1.0
 
 Item {
     id: myGridAndPieces
@@ -72,6 +73,7 @@ Item {
 
         function animateRowAndColChange(sourceRow, sourceCol, dstRow, dstCol) {
             console.log('animateRowAndColChange');
+
             promotionDropDown.visible = false
             if (_myGameModel.needsPawnPromotion(sourceRow, sourceCol, dstRow, dstCol)) {
                 promotionDropDown.visible = true
