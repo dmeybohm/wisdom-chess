@@ -7,6 +7,7 @@
 
 #include "chessengine.h"
 #include "chessenginenotifier.h"
+#include "colorclass.h"
 
 struct PieceModel
 {
@@ -24,6 +25,8 @@ struct PieceModel
 class GameModel : public QAbstractListModel
 {
     Q_OBJECT
+
+    Q_PROPERTY(ColorEnum currentTurn READ currentTurn CONSTANT)
 
 public:
     explicit GameModel(QObject *parent = nullptr);
@@ -44,6 +47,7 @@ public:
 signals:
     void humanMoved(wisdom::Move move);
     void terminationStarted();
+    ColorEnum currentTurn();
 
 public slots:
     void movePiece(int srcRow, int srcColumn,
@@ -61,6 +65,7 @@ private:
     QThread myChessEngineThread;
     ChessEngine* myChessEngine;
     ChessEngineNotifier myChessEngineNotifier {};
+    ColorEnum myCurrentTurn;
 
     QHash<int8_t, QString> myPieceToImagePath;
     QVector<PieceModel> myPieces;
