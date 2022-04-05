@@ -94,7 +94,7 @@ GameModel::GameModel(QObject *parent)
       myPieces {},
       myChessEngine { new ChessEngine { myGame, &myGameMutex } },
       myChessEngineThread {},
-      myGame { make_shared<Game>(gameFromFen("")) }
+      myGame { make_shared<Game>(gameFromFen("8/PPPPPPPP/2N2N2/8/8/8/1k4K1/8 w - - 0 1")) }
 {
     // Initialize the piece list from the game->board.
     auto board = myGame->get_board();
