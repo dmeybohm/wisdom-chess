@@ -3,7 +3,6 @@ import QtQuick 2.0
 Item {
     property int row: 0
     property int column: 0
-    z: 1
 
     transform: Translate {
         id: myTranslation
@@ -26,24 +25,53 @@ Item {
         columns: 2
 
         Image {
-            source: "images/Chess_qdt45.svg"
+            source: _gameModel.currentTurn == Color.White ? "images/Chess_qlt45.svg" : "images/Chess_qdt45.svg"
             width: root.squareSize
             height: root.squareSize
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    console.log('queen')
+                }
+            }
         }
         Image {
-            source: "images/Chess_qdt45.svg"
+            source: _gameModel.currentTurn == Color.White ? "images/Chess_rlt45.svg" : "images/Chess_rdt45.svg"
             width: root.squareSize
             height: root.squareSize
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    console.log('rook')
+                }
+            }
         }
         Image {
-            source: "images/Chess_qdt45.svg"
+            source: _gameModel.currentTurn == Color.White ? "images/Chess_qlt45.svg" : "images/Chess_qdt45.svg"
             width: root.squareSize
             height: root.squareSize
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    console.log('bishop')
+                }
+            }
         }
+
         Image {
-            source: "images/Chess_qdt45.svg"
+            source: _gameModel.currentTurn == Color.White ? "image/Chess_nlt45.svg" : "images/Chess_ndt45.svg"
             width: root.squareSize
             height: root.squareSize
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    console.log('night')
+                }
+            }
         }
     }
 

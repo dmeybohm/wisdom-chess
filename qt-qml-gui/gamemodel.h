@@ -39,11 +39,14 @@ public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
+    ChessColor getCurrentTurn() const;
+
     Q_INVOKABLE bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
 
 signals:
     void humanMoved(wisdom::Move move);
     void terminationStarted();
+    void currentTurnChanged();
 
 public slots:
     void movePiece(int srcRow, int srcColumn,
@@ -64,8 +67,12 @@ private:
 
     QHash<int8_t, QString> myPieceToImagePath;
     QVector<PieceModel> myPieces;
+    ChessColor myCurrentTurn;
 
     void updateModelStateForMove(wisdom::Move selectedMove, wisdom::Color who);
+    void updateChessEngineForHumanMove(wisdom::Move selectedMove);
+    void updateCurrentTurn();
+    void setCurrentTurn(ChessColor newColor);
 };
 
 #endif // GAMEMODEL_H

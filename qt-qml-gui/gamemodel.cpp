@@ -11,31 +11,40 @@ using namespace std;
 
 namespace
 {
-    constexpr auto white_piece(Piece piece) -> int8_t
+    constexpr auto whitePiece(Piece piece) -> int8_t
     {
         return to_int8(make_piece(Color::White, piece));
     }
 
-    constexpr auto black_piece(Piece piece) -> int8_t
+    constexpr auto blackPiece(Piece piece) -> int8_t
     {
         return to_int8(make_piece(Color::Black, piece));
+    }
+
+    constexpr auto mapColor(wisdom::Color color) -> GameModel::ChessColor
+    {
+        switch (color) {
+        case Color::White: return GameModel::COLOR_WHITE;
+        case Color::Black: return GameModel::COLOR_BLACK;
+        default: assert (0);
+        }
     }
 
     auto initPieceMap(QObject *parent) -> QHash<int8_t, QString>
     {
         auto result = QHash<int8_t, QString> {
-            { white_piece(Piece::Pawn), "images/Chess_plt45.svg" },
-            { white_piece(Piece::Rook), "images/Chess_rlt45.svg" },
-            { white_piece(Piece::Knight), "images/Chess_nlt45.svg" },
-            { white_piece(Piece::Bishop), "images/Chess_blt45.svg" },
-            { white_piece(Piece::Queen), "images/Chess_qlt45.svg" },
-            { white_piece(Piece::King), "images/Chess_klt45.svg" },
-            { black_piece(Piece::Pawn), "images/Chess_pdt45.svg" },
-            { black_piece(Piece::Rook), "images/Chess_rdt45.svg" },
-            { black_piece(Piece::Knight), "images/Chess_ndt45.svg" },
-            { black_piece(Piece::Bishop), "images/Chess_bdt45.svg" },
-            { black_piece(Piece::Queen), "images/Chess_qdt45.svg" },
-            { black_piece(Piece::King), "images/Chess_kdt45.svg" },
+            { whitePiece(Piece::Pawn), "images/Chess_plt45.svg" },
+            { whitePiece(Piece::Rook), "images/Chess_rlt45.svg" },
+            { whitePiece(Piece::Knight), "images/Chess_nlt45.svg" },
+            { whitePiece(Piece::Bishop), "images/Chess_blt45.svg" },
+            { whitePiece(Piece::Queen), "images/Chess_qlt45.svg" },
+            { whitePiece(Piece::King), "images/Chess_klt45.svg" },
+            { blackPiece(Piece::Pawn), "images/Chess_pdt45.svg" },
+            { blackPiece(Piece::Rook), "images/Chess_rdt45.svg" },
+            { blackPiece(Piece::Knight), "images/Chess_ndt45.svg" },
+            { blackPiece(Piece::Bishop), "images/Chess_bdt45.svg" },
+            { blackPiece(Piece::Queen), "images/Chess_qdt45.svg" },
+            { blackPiece(Piece::King), "images/Chess_kdt45.svg" },
         };
 
         return result;
@@ -72,12 +81,6 @@ namespace
         return false;
     }
 
-    void updateChessEngineForHumanMove(mutex* gameMutex, Game* game, Move selectedMove)
-    {
-        lock_guard guard { *gameMutex };
-
-        game->move(selectedMove);
-    }
 
     auto gameFromFen(const std::string& input) -> Game
     {
@@ -181,7 +184,7 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     if (!validateIsLegalMove(&myGameMutex, myGame.get(), move)) {
         return;
     }
-    updateChessEngineForHumanMove(&myGameMutex, myGame.get(), move);
+    updateChessEngineForHumanMove(move);
     emit humanMoved(move);
     updateModelStateForMove(move, who);
 }
@@ -210,6 +213,8 @@ void GameModel::updateModelStateForMove(Move selectedMove, Color who)
     int srcColumn = Column(src);
     int dstRow = Row(dst);
     int dstColumn = Column(dst);
+
+    updateCurrentTurn();
 
     auto count = myPieces.count();
     for (int i = 0; i < count; i++) {
@@ -254,5 +259,29 @@ void GameModel::updateModelStateForMove(Move selectedMove, Color who)
                 emit dataChanged(changedIndex, changedIndex, rolesChanged);
             }
         }
+    }
+}
+
+void GameModel::updateChessEngineForHumanMove(Move selectedMove)
+{
+    lock_guard guard { myGameMutex };
+
+    myGame->move(selectedMove);
+}
+
+void GameModel::updateCurrentTurn()
+{
+    auto newColor = [this]() {
+    lock_guard guard { myGameMutex };
+        return myGame->get_current_turn();
+    }();
+    setCurrentTurn(mapColor(newColor));
+}
+
+void GameModel::setCurrentTurn(ChessColor newColor)
+{
+    if (newColor != myCurrentTurn) {
+        myCurrentTurn = newColor;
+        emit currentTurnChanged();
     }
 }
