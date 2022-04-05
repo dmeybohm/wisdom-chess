@@ -19,5 +19,6 @@
         <file>images/Chess_ndt45.png</file>
         <file>PiecesModel.qml</file>
         <file>Piece.qml</file>
+        <file>PromoteDropdown.qml</file>
     </qresource>
 </RCC>

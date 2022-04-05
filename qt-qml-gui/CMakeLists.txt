@@ -22,7 +22,12 @@ qt_add_qml_module(appWisdomChessQtQml
     URI WisdomChessQtQml
     VERSION 1.0
     QML_FILES
-        main.qml Board.qml ChessSquare.qml PiecesModel.qml Piece.qml
+        main.qml
+        Board.qml
+        ChessSquare.qml
+        PiecesModel.qml
+        Piece.qml
+        PromoteDropdown.qml
     RESOURCES
         images/Chess_bdt45.svg
         images/Chess_blt45.svg

@@ -6,6 +6,7 @@ Item {
     width: boardWidth
     height: boardHeight
     anchors.centerIn: parent
+
     property var animateRowAndColChange: myPiecesLayer.animateRowAndColChange
 
     function onFocusObjectChanged(oldObject, newObject) {
@@ -45,6 +46,11 @@ Item {
         }
     }
 
+    PromoteDropdown {
+        id: promotionDropDown
+        visible: false
+    }
+
     //
     // Layer with al the pieces:
     //
@@ -66,6 +72,12 @@ Item {
 
         function animateRowAndColChange(sourceRow, sourceCol, dstRow, dstCol) {
             console.log('animateRowAndColChange');
+            if (_myGameModel.needsPawnPromotion(sourceRow, sourceCol, dstRow, dstCol)) {
+                promotionDropDown.visible = true
+                promotionDropdown.promoteRow = dstRow
+                promotinDropdown.promoteColumn = dstCol
+                return;
+            }
             _myGameModel.movePiece(sourceRow, sourceCol, dstRow, dstCol);
         }
     }

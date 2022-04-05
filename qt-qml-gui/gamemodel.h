@@ -46,6 +46,7 @@ signals:
 public slots:
     void movePiece(int srcRow, int srcColumn,
                    int dstRow, int dstColumn);
+    bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
     void applicationExiting();
 
 private:

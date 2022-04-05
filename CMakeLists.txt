@@ -6,6 +6,8 @@ cmake_minimum_required(VERSION 3.20)
 project(WisdomChess CXX)
 
 option(WISDOM_CHESS_ASAN "Enable memory debugging of chess engine")
+option(WISDOM_CHESS_BENCHMARK "Enable benchmarking code")
+
 find_package(Qt6 6.2 COMPONENTS Quick)
 
 if (WISDOM_CHESS_ASAN)

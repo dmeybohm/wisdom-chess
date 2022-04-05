@@ -2,6 +2,7 @@
 
 #include "game.hpp"
 #include "generate.hpp"
+#include "fen_parser.hpp"
 
 #include <QDebug>
 
@@ -77,6 +78,14 @@ namespace
 
         game->move(selectedMove);
     }
+
+    auto gameFromFen(const std::string& input) -> Game
+    {
+        FenParser parser { input };
+        auto game = parser.build ();
+        game.set_computer_player (game.get_computer_player ());
+        return game;
+    }
 }
 
 GameModel::GameModel(QObject *parent)
@@ -85,7 +94,7 @@ GameModel::GameModel(QObject *parent)
       myPieces {},
       myChessEngine { new ChessEngine { myGame, &myGameMutex } },
       myChessEngineThread {},
-      myGame { make_shared<Game> (Color::White, Color::Black) }
+      myGame { make_shared<Game>(gameFromFen("")) }
 {
     // Initialize the piece list from the game->board.
     auto board = myGame->get_board();
@@ -175,6 +184,11 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     updateChessEngineForHumanMove(&myGameMutex, myGame.get(), move);
     emit humanMoved(move);
     updateModelStateForMove(move, who);
+}
+
+bool GameModel::needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn)
+{
+    return true;
 }
 
 void GameModel::applicationExiting()
