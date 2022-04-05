@@ -72,10 +72,11 @@ Item {
 
         function animateRowAndColChange(sourceRow, sourceCol, dstRow, dstCol) {
             console.log('animateRowAndColChange');
+            promotionDropDown.visible = false
             if (_myGameModel.needsPawnPromotion(sourceRow, sourceCol, dstRow, dstCol)) {
                 promotionDropDown.visible = true
-                promotionDropdown.promoteRow = dstRow
-                promotinDropdown.promoteColumn = dstCol
+                promotionDropDown.row = dstRow
+                promotionDropDown.column = dstCol
                 return;
             }
             _myGameModel.movePiece(sourceRow, sourceCol, dstRow, dstCol);

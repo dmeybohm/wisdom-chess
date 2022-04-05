@@ -39,6 +39,8 @@ public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
+    Q_INVOKABLE bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
+
 signals:
     void humanMoved(wisdom::Move move);
     void terminationStarted();
@@ -46,7 +48,6 @@ signals:
 public slots:
     void movePiece(int srcRow, int srcColumn,
                    int dstRow, int dstColumn);
-    bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
     void applicationExiting();
 
 private:
