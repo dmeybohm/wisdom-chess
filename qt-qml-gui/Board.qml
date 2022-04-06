@@ -66,7 +66,7 @@ Item {
 
         // Pieces on top of the squares:
         Repeater {
-            model: _myGameModel
+            model: _myPiecesModel
             delegate: Piece {
                 source: model.pieceImage
                 column: model.column

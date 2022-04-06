@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <mutex>
+#include "chessgame.h"
 
 #include "game.hpp"
 #include "move.hpp"
@@ -17,8 +18,7 @@ class ChessEngine : public QObject
 {
     Q_OBJECT
 public:
-    ChessEngine(std::shared_ptr<wisdom::Game> game,
-                gsl::not_null<std::mutex*> gameMutex,
+    ChessEngine(std::shared_ptr<ChessGame> game,
                 QObject *parent = nullptr);
 
 public slots:
@@ -33,8 +33,7 @@ signals:
     void engineMoved(wisdom::Move move, wisdom::Color who);
 
 private:
-    std::shared_ptr<wisdom::Game> myGame;
-    gsl::not_null<std::mutex*> myGameMutex;
+    std::shared_ptr<ChessGame> myGame;
     void findMove();
 };
 

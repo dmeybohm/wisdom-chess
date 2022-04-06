@@ -11,19 +11,21 @@ using namespace wisdom;
 using namespace std;
 using namespace gsl;
 
-ChessEngine::ChessEngine(
-        shared_ptr<Game> game, not_null<mutex*> gameMutex, QObject *parent)
+ChessEngine::ChessEngine(shared_ptr<ChessGame> game, QObject *parent)
     : QObject { parent },
-     myGame { std::move(game) },
-     myGameMutex { gameMutex }
+     myGame { std::move(game) }
 {
 }
 
 void ChessEngine::init()
 {
-    if (myGame->is_computer_turn()) {
-        findMove();
-    }
+    bool isActive = [this]{
+        auto lockedGame = myGame->access();
+        if (lockedGame->get_current_player() == Player::ChessEngine) {
+            return true;
+        }
+    }();
+    findMove();
 }
 
 void ChessEngine::opponentMoved()
@@ -33,12 +35,17 @@ void ChessEngine::opponentMoved()
 
 void ChessEngine::findMove()
 {
-    std::lock_guard guard { *myGameMutex };
+    auto game = myGame->access();
     Logger& output = make_standard_logger();
 
-    auto who = myGame->get_current_turn();
-    if (is_checkmated(myGame->get_board(), who)) {
-        std::cout << to_string(color_invert(myGame->get_current_turn())) << " wins the game.\n";
+    auto player = game->get_current_player();
+    if (player != Player::ChessEngine) {
+        return;
+    }
+
+    auto who = game->get_current_turn();
+    if (is_checkmated(game->get_board(), who)) {
+        std::cout << to_string(color_invert(game->get_current_turn())) << " wins the game.\n";
         return;
     }
 
@@ -47,20 +54,20 @@ void ChessEngine::findMove()
     //            continue;
     //        }
 
-    if (History::is_fifty_move_repetition(myGame->get_board())) {
+    if (History::is_fifty_move_repetition(game->get_board())) {
         std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
         return;
     }
 
-    assert (myGame->is_computer_turn());
     qDebug() << "Searching for move";
-    auto optionalMove = myGame->find_best_move(output);
+    auto optionalMove = game->find_best_move(output);
 
     // TODO: we could have timed out or the thread was interrupted, and we should distinguish
     // between these two cases. If we couldn't find any move in the time, should select a move
     // at random, and otherwise exit.
     if (optionalMove.has_value()) {
-        myGame->move(*optionalMove);
+        game->move(*optionalMove);
         emit engineMoved(*optionalMove, who);
+        QThread::currentThread()->sleep(1);
     }
 }
