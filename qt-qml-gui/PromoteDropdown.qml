@@ -1,7 +1,7 @@
 import QtQuick 2.0
 import wisdom.chess 1.0
 
-Item {
+FocusScope {
     property int destinationRow: 0
     property int destinationColumn: 0
     property int sourceRow: 0
@@ -23,57 +23,41 @@ Item {
         anchors.fill: parent
     }
 
+    PromotedPieceModel {
+        id: myPromotedPieceModel
+    }
+
     Grid {
         rows: 2
         columns: 2
 
-        Image {
-            source: _myGameModel.currentTurn === Color.White ? "images/Chess_qlt45.svg" : "images/Chess_qdt45.svg"
-            width: root.squareSize
-            height: root.squareSize
+        Repeater {
+            model: myPromotedPieceModel
+            delegate: Item {
+               width: root.squareSize
+               height: root.squareSize
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    console.log('queen')
-                }
-            }
-        }
-        Image {
-            source: _myGameModel.currentTurn === Color.White ? "images/Chess_rlt45.svg" : "images/Chess_rdt45.svg"
-            width: root.squareSize
-            height: root.squareSize
+               Rectangle {
+                   id: myRect
+                   anchors.fill: parent
+                   focus: false
+                   color: activeFocus ? "lightblue" : "lightsteelblue"
+               }
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    console.log('rook')
-                }
-            }
-        }
-        Image {
-            source: _myGameModel.currentTurn === Color.White ? "images/Chess_blt45.svg" : "images/Chess_bdt45.svg"
-            width: root.squareSize
-            height: root.squareSize
+               Image {
+                   source: model.whiteImage
+                   width: root.squareSize
+                   height: root.squareSize
+               }
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    console.log('bishop')
-                }
-            }
-        }
+               MouseArea {
+                   anchors.fill: parent
 
-        Image {
-            source: _myGameModel.currentTurn === Color.White ? "images/Chess_nlt45.svg" : "images/Chess_ndt45.svg"
-            width: root.squareSize
-            height: root.squareSize
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    console.log('knight')
-                }
+                   onClicked: {
+                       myRect.focus = !myRect.focus
+                       console.log(model.piece)
+                   }
+               }
             }
         }
     }
