@@ -54,7 +54,10 @@ FocusScope {
                    anchors.fill: parent
 
                    onClicked: {
-                       myRect.focus = !myRect.focus
+                       if (myRect.focus) {
+                           console.log('promote piece here')
+                       }
+                       myRect.focus = true;
                        console.log(model.piece)
                    }
                }
