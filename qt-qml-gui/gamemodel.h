@@ -44,6 +44,8 @@ public:
 
     Q_INVOKABLE bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
 
+    void movePieceWithPromotion(int srcRow, int srcColumn,
+                                int dstRow, int dstColumn, std::optional<wisdom::Piece> piece);
 signals:
     void humanMoved(wisdom::Move move);
     void terminationStarted();
@@ -53,6 +55,7 @@ signals:
 public slots:
     void movePiece(int srcRow, int srcColumn,
                    int dstRow, int dstColumn);
+    void promotePiece(int srcRow, int srcColumn, int dstRow, int dstColumn, QString pieceType);
     void applicationExiting();
 
 private:

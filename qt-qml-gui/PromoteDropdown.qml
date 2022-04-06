@@ -2,6 +2,7 @@ import QtQuick 2.0
 import wisdom.chess 1.0
 
 FocusScope {
+    id: dropDownTop
     property int destinationRow: 0
     property int destinationColumn: 0
     property int sourceRow: 0
@@ -56,9 +57,15 @@ FocusScope {
                    onClicked: {
                        if (myRect.focus) {
                            console.log('promote piece here')
+                           _myGameModel.promotePiece(
+                                       sourceRow, sourceColumn,
+                                       destinationRow, destinationColumn, model.piece)
+                           focus = false
+                           dropDownTop.focus = false
+                       } else {
+                           myRect.focus = true;
+                           console.log(model.piece)
                        }
-                       myRect.focus = true;
-                       console.log(model.piece)
                    }
                }
             }

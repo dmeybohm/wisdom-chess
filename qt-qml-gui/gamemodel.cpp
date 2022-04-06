@@ -42,7 +42,7 @@ namespace
     }
 
     auto buildMoveFromCoordinates(mutex* gameMutex, Game* game, int srcRow, int srcColumn,
-                                  int dstRow, int dstColumn) -> pair<optional<Move>, wisdom::Color>
+                                  int dstRow, int dstColumn, optional<Piece> promoted) -> pair<optional<Move>, wisdom::Color>
     {
         lock_guard guard { *gameMutex };
         Coord src = make_coord(srcRow, srcColumn);
@@ -51,7 +51,26 @@ namespace
         auto who = game->get_current_turn();
         qDebug() << "Mapping coordinates for " << srcRow << ":" << srcColumn << " -> "
                  << dstRow << ":" << dstColumn;
-        return { game->map_coordinates_to_move(src, dst, {}), who };
+        return { game->map_coordinates_to_move(src, dst, promoted), who };
+    }
+
+    auto pieceFromString(QString piece) -> wisdom::Piece
+    {
+        if (piece == "queen") {
+            return wisdom::Piece::Queen;
+        } else if (piece == "king") {
+            return wisdom::Piece::King;
+        } else if (piece == "pawn") {
+            return wisdom::Piece::Pawn;
+        } else if (piece == "knight") {
+            return wisdom::Piece::Knight;
+        } else if (piece == "bishop") {
+            return wisdom::Piece::Bishop;
+        } else if (piece == "rook") {
+            return wisdom::Piece::Rook;
+        } else {
+            assert(0); abort();
+        }
     }
 
     auto validateIsLegalMove(mutex* gameMutex, Game* game, Move selectedMove) -> bool
@@ -165,8 +184,20 @@ QHash<int, QByteArray> GameModel::roleNames() const
 void GameModel::movePiece(int srcRow, int srcColumn,
                           int dstRow, int dstColumn)
 {
+    movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, {});
+}
+
+void GameModel::promotePiece(int srcRow, int srcColumn, int dstRow, int dstColumn, QString pieceString)
+{
+    optional<Piece> pieceType = pieceFromString(pieceString);
+    movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, pieceType);
+}
+
+void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,
+                                       int dstRow, int dstColumn, std::optional<wisdom::Piece> pieceType)
+{
     auto [optionalMove, who] = buildMoveFromCoordinates(&myGameMutex, myGame.get(), srcRow,
-            srcColumn, dstRow, dstColumn);
+            srcColumn, dstRow, dstColumn, pieceType);
     if (!optionalMove.has_value()) {
         return;
     }
@@ -181,7 +212,12 @@ void GameModel::movePiece(int srcRow, int srcColumn,
 
 bool GameModel::needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn)
 {
-    return true;
+    auto [optionalMove, who] = buildMoveFromCoordinates(&myGameMutex, myGame.get(), srcRow,
+            srcColumn, dstRow, dstColumn, Piece::Queen);
+    if (!optionalMove.has_value()) {
+        return false;
+    }
+    return is_promoting_move(*optionalMove);
 }
 
 void GameModel::applicationExiting()
