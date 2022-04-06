@@ -21,15 +21,6 @@ namespace
         return to_int8(make_piece(Color::Black, piece));
     }
 
-    constexpr auto mapColor(wisdom::Color color) -> GameModel::ChessColor
-    {
-        switch (color) {
-        case Color::White: return GameModel::COLOR_WHITE;
-        case Color::Black: return GameModel::COLOR_BLACK;
-        default: assert (0);
-        }
-    }
-
     auto initPieceMap(QObject *parent) -> QHash<int8_t, QString>
     {
         auto result = QHash<int8_t, QString> {
@@ -80,7 +71,6 @@ namespace
         }
         return false;
     }
-
 
     auto gameFromFen(const std::string& input) -> Game
     {
@@ -278,7 +268,7 @@ void GameModel::updateCurrentTurn()
     setCurrentTurn(mapColor(newColor));
 }
 
-void GameModel::setCurrentTurn(ChessColor newColor)
+void GameModel::setCurrentTurn(ColorEnumValue newColor)
 {
     if (newColor != myCurrentTurn) {
         myCurrentTurn = newColor;

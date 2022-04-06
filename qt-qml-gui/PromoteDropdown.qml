@@ -1,13 +1,16 @@
 import QtQuick 2.0
+import wisdom.chess 1.0
 
 Item {
-    property int row: 0
-    property int column: 0
+    property int destinationRow: 0
+    property int destinationColumn: 0
+    property int sourceRow: 0
+    property int sourceColumn: 0
 
     transform: Translate {
         id: myTranslation
-        x: column * root.squareSize
-        y: row * root.squareSize
+        x: destinationColumn * root.squareSize
+        y: destinationRow * root.squareSize
     }
 
     Rectangle {
@@ -25,7 +28,7 @@ Item {
         columns: 2
 
         Image {
-            source: _gameModel.currentTurn == Color.White ? "images/Chess_qlt45.svg" : "images/Chess_qdt45.svg"
+            source: _myGameModel.currentTurn === Color.White ? "images/Chess_qlt45.svg" : "images/Chess_qdt45.svg"
             width: root.squareSize
             height: root.squareSize
 
@@ -37,7 +40,7 @@ Item {
             }
         }
         Image {
-            source: _gameModel.currentTurn == Color.White ? "images/Chess_rlt45.svg" : "images/Chess_rdt45.svg"
+            source: _myGameModel.currentTurn === Color.White ? "images/Chess_rlt45.svg" : "images/Chess_rdt45.svg"
             width: root.squareSize
             height: root.squareSize
 
@@ -49,7 +52,7 @@ Item {
             }
         }
         Image {
-            source: _gameModel.currentTurn == Color.White ? "images/Chess_qlt45.svg" : "images/Chess_qdt45.svg"
+            source: _myGameModel.currentTurn === Color.White ? "images/Chess_blt45.svg" : "images/Chess_bdt45.svg"
             width: root.squareSize
             height: root.squareSize
 
@@ -62,14 +65,14 @@ Item {
         }
 
         Image {
-            source: _gameModel.currentTurn == Color.White ? "image/Chess_nlt45.svg" : "images/Chess_ndt45.svg"
+            source: _myGameModel.currentTurn === Color.White ? "images/Chess_nlt45.svg" : "images/Chess_ndt45.svg"
             width: root.squareSize
             height: root.squareSize
 
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    console.log('night')
+                    console.log('knight')
                 }
             }
         }

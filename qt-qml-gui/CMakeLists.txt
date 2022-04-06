@@ -15,8 +15,8 @@ qt_add_executable(appWisdomChessQtQml
     chessengine.cpp
     chessenginenotifier.cpp
     chessenginenotifier.h
-    colorclass.cpp
-    colorclass.h
+    colorenum.cpp
+    colorenum.h
     resources.qrc
 )
 

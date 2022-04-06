@@ -4,7 +4,7 @@
 #include <QDebug>
 
 #include "gamemodel.h"
-#include "colorclass.h"
+#include "colorenum.h"
 
 using namespace wisdom;
 
@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     GameModel gameModel;
 
-    ColorClass::registerQmlTypes();
+    ColorEnum::registerQmlTypes();
 
     qDebug() << "Returned after creating game model";
     QQmlApplicationEngine engine;

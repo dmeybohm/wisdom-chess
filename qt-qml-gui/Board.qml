@@ -9,10 +9,12 @@ Item {
     anchors.centerIn: parent
 
     property var animateRowAndColChange: myPiecesLayer.animateRowAndColChange
+    property bool promoteDropDownVisible: false
 
     function onFocusObjectChanged(oldObject, newObject) {
         console.log('oldObject:', oldObject)
         console.log('newObject:', newObject)
+
         if (oldObject && newObject &&
                 'boardRow' in oldObject && 'boardRow' in newObject
         ) {
@@ -49,7 +51,8 @@ Item {
 
     PromoteDropdown {
         id: promotionDropDown
-        visible: false
+        visible: promoteDropDownVisible
+        z: 1
     }
 
     //
@@ -75,10 +78,14 @@ Item {
             console.log('animateRowAndColChange');
 
             promotionDropDown.visible = false
+            console.log('currentTunr: '+_myGameModel.currentTurn)
             if (_myGameModel.needsPawnPromotion(sourceRow, sourceCol, dstRow, dstCol)) {
+                console.log('showing promo dropdown')
                 promotionDropDown.visible = true
-                promotionDropDown.row = dstRow
-                promotionDropDown.column = dstCol
+                promotionDropDown.sourceRow = sourceRow
+                promotionDropDown.sourceColumn = sourceCol
+                promotionDropDown.destinationRow = dstRow
+                promotionDropDown.destinationColumn = dstCol
                 return;
             }
             _myGameModel.movePiece(sourceRow, sourceCol, dstRow, dstCol);
