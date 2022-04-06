@@ -10,7 +10,7 @@ namespace wisdom
 
     Game FenParser::build ()
     {
-        return Game { active_player, color_invert (active_player), builder };
+        return Game { active_player, builder };
     }
 
     auto FenParser::parse_piece (char ch) -> ColoredPiece

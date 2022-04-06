@@ -21,14 +21,28 @@ namespace wisdom
     class Logger;
     struct PeriodicNotified;
 
+    enum class Player
+    {
+        Human,
+        ChessEngine
+    };
+
+    using Players = array<Player, Num_Players>;
+
     class Game
     {
     public:
-        Game (Color current_turn, Color computer_player);
+        Game ();
 
-        Game (Color current_turn, Color computer_player, const BoardBuilder& builder);
+        explicit Game (const Players& players);
 
-        static auto load (const string& filename, Color player) -> optional<Game>;
+        Game (Player white_player, Player black_player);
+
+        explicit Game (Color current_turn);
+
+        Game (Color current_turn, const BoardBuilder& builder);
+
+        static auto load (const string& filename, const Players& players) -> optional<Game>;
 
         void save (const string& filename) const;
 
@@ -36,10 +50,6 @@ namespace wisdom
             -> optional<Move>;
 
         void move (Move move);
-
-        [[nodiscard]] auto get_computer_player () const -> Color;
-
-        void set_computer_player (Color player);
 
         [[nodiscard]] auto get_current_turn () const -> Color;
 
@@ -51,9 +61,33 @@ namespace wisdom
         [[nodiscard]] auto get_history () const& -> History&;
         void get_history () const&& = delete;
 
-        void set_analytics (unique_ptr<analysis::Analytics> new_analytics);
+        auto get_current_player () -> Player
+        {
+            auto index = color_index (my_current_turn);
+            return my_players[index];
+        }
 
-        [[nodiscard]] bool is_computer_turn () const;
+        void set_white_player (Player player)
+        {
+            my_players[color_index(Color::White)] = player;
+        }
+
+        void set_black_player (Player player)
+        {
+            my_players[color_index(Color::Black)] = player;
+        }
+
+        void set_players (const array<Player, Num_Players>& players)
+        {
+            my_players = players;
+        }
+
+        [[nodiscard]] auto get_players () const -> array<Player, Num_Players>
+        {
+            return my_players;
+        }
+
+        void set_analytics (unique_ptr<analysis::Analytics> new_analytics);
 
         [[nodiscard]] auto map_coordinates_to_move (Coord src, Coord dst, optional<Piece> promoted)
             -> optional<Move>
@@ -73,8 +107,9 @@ namespace wisdom
         unique_ptr<analysis::Analytics> my_analytics = make_unique<analysis::Analytics> ();
         PeriodicNotified* my_periodic_notified = nullptr;
 
+        array<Player, Num_Players> my_players = { Player::Human, Player::ChessEngine };
+
         Color my_current_turn;        // whose turn it is
-        Color my_computer_player;     // side the computer is playing as
     };
 }
 

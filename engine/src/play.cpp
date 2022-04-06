@@ -71,14 +71,14 @@ namespace wisdom
         game.save (input);
     }
 
-    static optional<Game> load_game (const Game &current_game)
+    static optional<Game> load_game (const Game& current_game)
     {
         string input = prompt ("load what file");
 
         if (input.empty ())
             return nullopt;
 
-        return Game::load (input, current_game.get_computer_player ());
+        return Game::load (input, current_game.get_players ());
     }
 
     static optional<Game> load_fen (Game &current_game)
@@ -91,7 +91,7 @@ namespace wisdom
         {
             FenParser parser { input };
             auto game = parser.build ();
-            game.set_computer_player (current_game.get_computer_player ());
+            game.set_players (current_game.get_players ());
             return game;
         }
         catch ([[maybe_unused]] FenParserError &error)
@@ -136,23 +136,23 @@ namespace wisdom
         }
         else if (input == "load")
         {
-            Color orig_player = game.get_computer_player ();
+            auto orig_players = game.get_players ();
             auto optional_game = load_game (game);
             if (optional_game.has_value ())
             {
                 game = std::move (*optional_game);
-                game.set_computer_player (orig_player);
+                game.set_players (orig_players);
             }
             return result;
         }
         else if (input == "fen")
         {
-            Color orig_player = game.get_computer_player ();
+            auto orig_players = game.get_players ();
             auto optional_game = load_fen (game);
             if (optional_game.has_value ())
             {
                 game = std::move (*optional_game);
-                game.set_computer_player (orig_player);
+                game.set_players (orig_players);
             }
             return result;
         }
@@ -168,12 +168,22 @@ namespace wisdom
         }
         else if (input == "computer_black")
         {
-            game.set_computer_player (Color::Black);
+            game.set_black_player (Player::ChessEngine);
             return result;
         }
         else if (input == "computer_white")
         {
-            game.set_computer_player (Color::White);
+            game.set_white_player (Player::ChessEngine);
+            return result;
+        }
+        else if (input == "human_white")
+        {
+            game.set_white_player (Player::Human);
+            return result;
+        }
+        else if (input == "human_black")
+        {
+            game.set_black_player (Player::Human);
             return result;
         }
         else if (input == "switch")
@@ -229,14 +239,14 @@ namespace wisdom
             return result;
         }
 
-        return offer_draw ();
+        return result;
     }
 
     void play (Color human_player)
     {
-        Game game { Color::White, color_invert (human_player) };
+        Game game;
         InputState initial_input_state;
-        Logger &output = make_standard_logger ();
+        Logger& output = make_standard_logger ();
         bool paused = false;
 
         while (true)
@@ -262,7 +272,7 @@ namespace wisdom
                 break;
             }
 
-            if (!paused && game.is_computer_turn ())
+            if (!paused && game.get_current_player () == Player::ChessEngine)
             {
                 auto optional_move = game.find_best_move (output);
                 if (!optional_move.has_value ())

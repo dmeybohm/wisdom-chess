@@ -95,7 +95,6 @@ namespace
     {
         FenParser parser { input };
         auto game = parser.build ();
-        game.set_computer_player (game.get_computer_player ());
         return game;
     }
 }

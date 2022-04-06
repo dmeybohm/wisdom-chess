@@ -21,15 +21,30 @@ namespace wisdom
             return wisdom_game_output_format;
     }
 
-    Game::Game (Color current_turn, Color computer_player) :
-            my_current_turn { current_turn },
-            my_computer_player { computer_player }
+    Game::Game () :
+        my_players { { Player::Human, Player::ChessEngine } },
+        my_current_turn { Color::White }
     {}
 
-    Game::Game (Color current_turn, Color computer_player, const BoardBuilder& builder) :
-            my_board { builder.build () },
-            my_current_turn { current_turn },
-            my_computer_player { computer_player }
+    Game::Game (const Players& players) :
+        my_players { players },
+        my_current_turn { Color::White }
+    {}
+
+    Game::Game (Player white_player, Player black_player) :
+        my_players { { white_player, black_player } },
+        my_current_turn { Color::White }
+    {}
+
+    Game::Game (Color current_turn) :
+        my_players { { Player::Human, Player::ChessEngine } },
+        my_current_turn { current_turn }
+    {}
+
+    Game::Game (Color current_turn, const BoardBuilder& builder) :
+        my_board { builder.build () },
+        my_players { { Player::Human, Player::ChessEngine } },
+        my_current_turn { current_turn }
     {}
 
     void Game::move (Move move)
@@ -58,7 +73,7 @@ namespace wisdom
     auto Game::find_best_move (const Logger& logger, Color whom) const -> optional<Move>
     {
         if (whom == Color::None)
-            whom = my_computer_player;
+            whom = my_current_turn;
 
         MoveTimer overdue_timer { Max_Search_Seconds };
         overdue_timer.set_periodic_notified (my_periodic_notified);
@@ -70,7 +85,7 @@ namespace wisdom
         return result.move;
     }
 
-    auto Game::load (const string& filename, Color player) -> optional<Game>
+    auto Game::load (const string& filename, const Players& players) -> optional<Game>
     {
         string input_buf;
         std::ifstream istream;
@@ -83,7 +98,7 @@ namespace wisdom
             return {};
         }
 
-        Game result { Color::White, player };
+        Game result { players };
 
         while (std::getline (istream, input_buf))
         {
@@ -120,16 +135,6 @@ namespace wisdom
         return result;
     }
 
-    auto Game::get_computer_player () const -> Color
-    {
-        return my_computer_player;
-    }
-
-    void Game::set_computer_player (Color player)
-    {
-        this->my_computer_player = player;
-    }
-
     auto Game::get_current_turn () const -> Color
     {
         return this->my_current_turn;
@@ -148,10 +153,5 @@ namespace wisdom
     auto Game::get_history () const& -> History&
     {
         return *my_history;
-    }
-
-    bool Game::is_computer_turn () const
-    {
-        return my_computer_player == my_current_turn;
     }
 }
