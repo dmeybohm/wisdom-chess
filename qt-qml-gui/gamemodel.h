@@ -6,7 +6,6 @@
 
 #include "chessgame.h"
 #include "chessengine.h"
-#include "chessenginenotifier.h"
 #include "colorenum.h"
 #include "piecesmodel.h"
 
@@ -49,7 +48,6 @@ private:
 
     // The chess engine runs in this thread, and grabs the game mutext as needed:
     QThread* myChessEngineThread;
-    ChessEngineNotifier myChessEngineNotifier {};
     ColorEnumValue myCurrentTurn;
 
     void setupNewEngineThread();

@@ -7,6 +7,7 @@
 #include "board.hpp"
 #include "analytics.hpp"
 #include "history.hpp"
+#include "move_timer.hpp"
 
 namespace wisdom::analysis
 {
@@ -19,7 +20,6 @@ namespace wisdom
     class History;
     class BoardBuilder;
     class Logger;
-    struct PeriodicNotified;
 
     enum class Player
     {
@@ -96,16 +96,16 @@ namespace wisdom
                                                       src, dst, promoted);
         }
 
-        void set_periodic_notified (PeriodicNotified* notified)
+        void set_periodic_function (MoveTimer::PeriodicFunction periodic_function)
         {
-            my_periodic_notified = notified;
+            my_periodic_function = periodic_function;
         }
 
     private:
         unique_ptr<Board> my_board = make_unique<Board> ();
         unique_ptr<History> my_history = make_unique<History> ();
         unique_ptr<analysis::Analytics> my_analytics = make_unique<analysis::Analytics> ();
-        PeriodicNotified* my_periodic_notified = nullptr;
+        optional<MoveTimer::PeriodicFunction> my_periodic_function {};
 
         array<Player, Num_Players> my_players = { Player::Human, Player::ChessEngine };
 

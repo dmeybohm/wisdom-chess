@@ -11,8 +11,6 @@
 
 namespace wisdom
 {
-    static thread_local int nodes_visited, cutoffs;
-
     using system_clock_t = chrono::time_point<chrono::system_clock>;
 
     class IterativeSearchImpl
@@ -29,6 +27,11 @@ namespace wisdom
         int my_best_depth = -1;
         int my_best_score = -1;
         bool my_timed_out = false;
+
+        int my_nodes_visited = 0;
+        int my_alpha_beta_cutoffs = 0;
+        int my_total_nodes_visited = 0;
+        int my_total_alpha_beta_cutoffs = 0;
 
     public:
         IterativeSearchImpl (Board& board, History& history, const Logger& output, MoveTimer timer,
@@ -111,7 +114,7 @@ namespace wisdom
                 continue;
             }
 
-            nodes_visited++;
+            my_nodes_visited++;
 
             my_history->add_position_and_move (*my_board, move);
 
@@ -150,7 +153,7 @@ namespace wisdom
 
             if (alpha >= beta)
             {
-                cutoffs++;
+                my_alpha_beta_cutoffs++;
                 break;
             }
         }
@@ -251,11 +254,11 @@ namespace wisdom
         outstr << "finding moves for " << to_string (side);
         my_output->println (outstr.str ());
 
-        nodes_visited = 0;
-        cutoffs = 0;
-
         auto analyzed_search = iteration.make_search ();
         auto analyzed_decision = analyzed_search.make_decision ();
+
+        my_nodes_visited = 0;
+        my_alpha_beta_cutoffs = 0;
 
         auto start = std::chrono::system_clock::now ();
 
@@ -267,7 +270,16 @@ namespace wisdom
 
         analyzed_decision.finalize (result);
 
-        calc_time (*my_output, nodes_visited, start, end);
+        calc_time (*my_output, my_nodes_visited, start, end);
+
+        my_total_nodes_visited += my_nodes_visited;
+        my_total_alpha_beta_cutoffs += my_alpha_beta_cutoffs;
+
+        {
+            std::stringstream progress_str;
+            progress_str << "nodes visited = " << my_nodes_visited << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs;
+            my_output->println (progress_str.str ());
+        }
 
         if (result.timed_out)
         {
@@ -277,14 +289,12 @@ namespace wisdom
             return;
         }
 
-        if (result.move.has_value())
+        if (result.move.has_value ())
         {
             Move best_move = *result.move;
             std::stringstream progress_str;
             progress_str << "move selected = " << to_string (best_move) << " [ score: "
                          << result.score << " ]\n";
-            progress_str << "nodes visited = " << nodes_visited << ", cutoffs = " << cutoffs;
-            my_output->println (progress_str.str ());
         }
 
         // principal variation could be null if search was interrupted

@@ -76,7 +76,8 @@ namespace wisdom
             whom = my_current_turn;
 
         MoveTimer overdue_timer { Max_Search_Seconds };
-        overdue_timer.set_periodic_notified (my_periodic_notified);
+        if (my_periodic_function.has_value ())
+            overdue_timer.set_periodic_function (*my_periodic_function);
 
         IterativeSearch iterative_search {
             *my_board, *my_history, logger, overdue_timer, Max_Depth, *my_analytics,

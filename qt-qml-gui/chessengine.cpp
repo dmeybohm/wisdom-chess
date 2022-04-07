@@ -2,7 +2,6 @@
 #include <QDebug>
 #include <mutex>
 
-#include "chessenginenotifier.h"
 #include "chessengine.h"
 #include "check.hpp"
 #include "logger.hpp"

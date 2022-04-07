@@ -5,24 +5,10 @@
 
 namespace wisdom
 {
-    class MoveTimer;
-
-    struct PeriodicNotified
-    {
-       virtual void notify (gsl::not_null<MoveTimer*> timer) = 0;
-    };
-
     class MoveTimer
     {
-    private:
-        chrono::steady_clock::time_point my_last_check_time;
-        int my_check_calls = 0;
-        chrono::seconds my_seconds;
-        bool my_triggered = false;
-        bool my_started = true;
-        PeriodicNotified* my_periodic_notified = nullptr;
-
     public:
+        using PeriodicFunction = std::function<void(gsl::not_null<MoveTimer*>)>;
 
         explicit MoveTimer (chrono::seconds seconds) :
                 my_last_check_time { chrono::steady_clock::now () },
@@ -51,15 +37,23 @@ namespace wisdom
             return my_seconds;
         }
 
-        void set_periodic_notified (PeriodicNotified* notified) noexcept
+        void set_periodic_function (PeriodicFunction periodic_function) noexcept
         {
-            my_periodic_notified = notified;
+            my_periodic_function = periodic_function;
         }
 
         void set_triggered (bool triggered) noexcept
         {
             my_triggered = triggered;
         }
+
+    private:
+        chrono::steady_clock::time_point my_last_check_time;
+        int my_check_calls = 0;
+        chrono::seconds my_seconds;
+        bool my_triggered = false;
+        bool my_started = true;
+        optional<PeriodicFunction> my_periodic_function {};
     };
 }
 #endif //WISDOM_TIMER_HPP

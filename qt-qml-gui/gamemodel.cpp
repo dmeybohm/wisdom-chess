@@ -72,19 +72,30 @@ namespace
     {
         return make_unique<ChessGame>(std::move(game));
     }
+
+    void setupNotify(gsl::not_null<ChessGame*> chessGame)
+    {
+        auto lockedGame = chessGame->access();
+        lockedGame->set_periodic_function([](gsl::not_null<MoveTimer*> moveTimer) {
+            // This runs in the ChessEngine thread, and so has the game mutex.
+            auto* currentThread = QThread::currentThread();
+
+            if (currentThread->isInterruptionRequested()) {
+                qDebug() << "Setting timeout to break the loop.";
+                moveTimer->set_triggered(true);
+            }
+        });
+    }
 }
 
 GameModel::GameModel(QObject *parent)
     : QObject(parent),
-      myChessGame { chessGameFromGame(make_unique<Game>(Player::ChessEngine, Player::ChessEngine)) },
+      myChessGame { chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)) },
       myChessEngineThread { nullptr }
 //      myGame { make_shared<Game>(gameFromFen("8/PPPPPPPP/2N2N2/8/8/8/1k4K1/8 w - - 0 1")) }
 {
     // Initialize the piece list from the game->board.
-
-    auto accessGame = myChessGame->access();
-    accessGame->set_periodic_notified(&myChessEngineNotifier);
-
+    setupNotify(myChessGame.get());
     setupNewEngineThread();
 }
 
