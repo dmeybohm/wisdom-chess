@@ -4,7 +4,7 @@ import wisdom.chess 1.0
 Window {
     id: root
 
-    readonly property int squareSize: 64
+    readonly property int squareSize: 90
     readonly property int boardWidth: squareSize * 8
     readonly property int boardHeight: boardWidth
     readonly property int totalSquares: 8 * 8

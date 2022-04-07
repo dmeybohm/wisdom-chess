@@ -21,9 +21,7 @@ void ChessEngine::init()
 {
     bool isActive = [this]{
         auto lockedGame = myGame->access();
-        if (lockedGame->get_current_player() == Player::ChessEngine) {
-            return true;
-        }
+        return lockedGame->get_current_player() == Player::ChessEngine;
     }();
     if (isActive) {
         opponentMoved();
