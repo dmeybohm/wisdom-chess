@@ -25,12 +25,15 @@ void ChessEngine::init()
             return true;
         }
     }();
-    findMove();
+    if (isActive) {
+        opponentMoved();
+    }
 }
 
 void ChessEngine::opponentMoved()
 {
     findMove();
+    QThread::currentThread()->sleep(1);
 }
 
 void ChessEngine::findMove()
@@ -68,6 +71,5 @@ void ChessEngine::findMove()
     if (optionalMove.has_value()) {
         game->move(*optionalMove);
         emit engineMoved(*optionalMove, who);
-        QThread::currentThread()->sleep(1);
     }
 }

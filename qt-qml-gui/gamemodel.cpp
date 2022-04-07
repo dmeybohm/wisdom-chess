@@ -76,7 +76,7 @@ namespace
 
 GameModel::GameModel(QObject *parent)
     : QObject(parent),
-      myChessGame { chessGameFromGame(make_unique<Game>(Player::ChessEngine, Player::Human)) },
+      myChessGame { chessGameFromGame(make_unique<Game>(Player::ChessEngine, Player::ChessEngine)) },
       myChessEngineThread { nullptr }
 //      myGame { make_shared<Game>(gameFromFen("8/PPPPPPPP/2N2N2/8/8/8/1k4K1/8 w - - 0 1")) }
 {
