@@ -50,10 +50,10 @@ namespace wisdom
     void Game::move (Move move)
     {
         // do the move
-        my_board->make_move (my_current_turn, move);
+        auto undo_state = my_board->make_move (my_current_turn, move);
 
         // add this move to the history
-        my_history->add_position_and_move (*my_board, move);
+        my_history->add_position_and_move (*my_board, move, undo_state);
 
         // take our current_turn
         my_current_turn = color_invert (my_current_turn);

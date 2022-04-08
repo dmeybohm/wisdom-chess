@@ -116,7 +116,7 @@ namespace wisdom
 
             my_nodes_visited++;
 
-            my_history->add_position_and_move (*my_board, move);
+            my_history->add_position_and_move (*my_board, move, undo_state);
 
             if (depth <= 0)
             {
