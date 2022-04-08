@@ -106,9 +106,14 @@ namespace wisdom
             return !(*this == other);
         }
 
-        [[nodiscard]] auto data () const noexcept
+        [[nodiscard]] auto data () const noexcept -> Move*
         {
             return my_moves_list->move_array;
+        }
+
+        [[nodiscard]] auto ptr () const noexcept -> move_list*
+        {
+            return my_moves_list.get ();
         }
     };
 

@@ -32,7 +32,7 @@ MoveList copy_moves_and_ptr (const Move **ptr)
 
 TEST_CASE( "Returning move list moves ptr" )
 {
-    const Move *ptr;
+    const Move* ptr;
     MoveList result = copy_moves_and_ptr (&ptr);
 //    std::cout << "Moves first" << &result.get_my_moves()[0] << "\n";
 
@@ -45,8 +45,13 @@ TEST_CASE( "Moving move list pointer" )
     MoveList initial {Color::Black, {"e4 d4", "d2 d1"}};
     MoveList moved = std::move (initial);
 
-    REQUIRE( initial.data() == nullptr );
-    REQUIRE( moved.data() != nullptr );
+    REQUIRE( initial.ptr () == nullptr );
+    REQUIRE( moved.ptr () != nullptr );
+
+    auto ptr = moved.begin ();
+    REQUIRE( moved.size () == 2 )
+    REQUIRE( *ptr++ == move_parse ("e4 d4", Color::Black) );
+    REQUIRE( *ptr == move_parse ("d2 d1", Color::White) );
 }
 
 TEST_CASE( "Appending a move" )
