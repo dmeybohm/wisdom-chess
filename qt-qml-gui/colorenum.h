@@ -34,4 +34,9 @@ constexpr auto mapColor(wisdom::Color color) -> ColorEnumValue
     }
 }
 
+inline auto toString(ColorEnumValue colorValue) -> QString
+{
+    return QString(colorValue == ColorEnum::White ? "White" : "Black");
+}
+
 #endif // COLORENUM_H

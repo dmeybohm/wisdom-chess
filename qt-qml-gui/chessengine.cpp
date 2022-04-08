@@ -46,6 +46,7 @@ void ChessEngine::findMove()
     auto who = game->get_current_turn();
     if (is_checkmated(game->get_board(), who)) {
         std::cout << to_string(color_invert(game->get_current_turn())) << " wins the game.\n";
+        emit noMovesAvailable();
         return;
     }
 
@@ -56,6 +57,7 @@ void ChessEngine::findMove()
 
     if (History::is_fifty_move_repetition(game->get_board())) {
         std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
+        emit noMovesAvailable();
         return;
     }
 
@@ -68,5 +70,7 @@ void ChessEngine::findMove()
     if (optionalMove.has_value()) {
         game->move(*optionalMove);
         emit engineMoved(*optionalMove, who);
+    } else {
+        emit noMovesAvailable();
     }
 }

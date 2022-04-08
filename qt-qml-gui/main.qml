@@ -11,7 +11,7 @@ Window {
     readonly property int animationDelay: 200 // millisecondss
 
     width: boardWidth + 50
-    height: boardHeight + 50
+    height: boardHeight + 50 + 50
     visible: true
     title: qsTr("Wisdom Chess")
     color: "silver"
@@ -28,8 +28,18 @@ Window {
         _myGameModel.applicationExiting();
     }
 
-    Board {
-        id: boards
+    Column {
+        x: 25
+        y: 25
+        spacing: 25
+
+        Board {
+            id: boards
+        }
+
+        StatusBar {
+
+        }
     }
 }
 

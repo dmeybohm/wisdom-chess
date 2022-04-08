@@ -6,7 +6,6 @@ Item {
     id: myGridAndPieces
     width: boardWidth
     height: boardHeight
-    anchors.centerIn: parent
 
     property var animateRowAndColChange: myPiecesLayer.animateRowAndColChange
 

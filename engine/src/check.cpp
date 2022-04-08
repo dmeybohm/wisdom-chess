@@ -721,4 +721,12 @@ namespace wisdom
 
         return true;
     }
+
+    bool is_stalemated_slow (Board& board, Color who)
+    {
+        auto legal_moves = generate_legal_moves (board, who);
+
+        return legal_moves.empty () &&
+                !is_checkmated (board, who);
+    }
 }

@@ -13,7 +13,8 @@ class GameModel : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(ColorEnum::Value currentTurn READ currentTurn NOTIFY currentTurnChanged)
+    Q_PROPERTY(ColorEnum::Value currentTurn READ currentTurn WRITE setCurrentTurn NOTIFY currentTurnChanged)
+    Q_PROPERTY(QString gameStatus READ gameStatus WRITE setGameStatus NOTIFY gameStatusChanged)
 
 public:
     explicit GameModel(QObject *parent = nullptr);
@@ -21,13 +22,19 @@ public:
     Q_INVOKABLE void start();
     Q_INVOKABLE bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
 
+    ColorEnum::Value currentTurn();
+    void setCurrentTurn(ColorEnumValue newColor);
+
+    void setGameStatus(const QString& newStatus);
+    auto gameStatus() -> QString;
+
 signals:
     void gameStarted(gsl::not_null<ChessGame*> game);
     void humanMoved(wisdom::Move move, wisdom::Color who);
     void engineMoved(wisdom::Move move, wisdom::Color who);
     void terminationStarted();
     void currentTurnChanged();
-    ColorEnum::Value currentTurn();
+    void gameStatusChanged();
 
 public slots:
     void movePiece(int srcRow, int srcColumn,
@@ -35,6 +42,7 @@ public slots:
     void engineThreadMoved(wisdom::Move move, wisdom::Color who);
     void promotePiece(int srcRow, int srcColumn, int dstRow, int dstColumn, QString pieceType);
     void applicationExiting();
+    void updateGameStatus();
 
 private:
     // The game is shared across the main thread and the chess engine thread.
@@ -49,13 +57,18 @@ private:
     // The chess engine runs in this thread, and grabs the game mutext as needed:
     QThread* myChessEngineThread;
     ColorEnumValue myCurrentTurn;
+    QString myGameStatus {};
 
+    void init();
     void setupNewEngineThread();
     void movePieceWithPromotion(int srcRow, int srcColumn,
                                 int dstRow, int dstColumn, std::optional<wisdom::Piece> piece);
-    void updateChessEngineForHumanMove(wisdom::Move selectedMove);
-    void updateCurrentTurn();
-    void setCurrentTurn(ColorEnumValue newColor);
+
+    // Returns the color of the next turn:
+    auto updateChessEngineForHumanMove(wisdom::Move selectedMove) -> wisdom::Color;
+
+    // Update the current turn to the new color.
+    void updateCurrentTurn(wisdom::Color newColor);
 };
 
 #endif // GAMEMODEL_H

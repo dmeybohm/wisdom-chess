@@ -33,6 +33,7 @@ qt_add_qml_module(appWisdomChessQtQml
         Piece.qml
         PromoteDropdown.qml
         PromotedPieceModel.qml
+        StatusBar.qml
     RESOURCES
         images/Chess_bdt45.svg
         images/Chess_blt45.svg

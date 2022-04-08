@@ -20,5 +20,6 @@
         <file>PiecesModel.qml</file>
         <file>Piece.qml</file>
         <file>PromoteDropdown.qml</file>
+        <file>StatusBar.qml</file>
     </qresource>
 </RCC>

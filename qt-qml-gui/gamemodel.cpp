@@ -3,6 +3,7 @@
 #include "game.hpp"
 #include "generate.hpp"
 #include "fen_parser.hpp"
+#include "check.hpp"
 
 #include <QDebug>
 
@@ -90,13 +91,23 @@ namespace
 
 GameModel::GameModel(QObject *parent)
     : QObject(parent),
-      myChessGame { chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)) },
+//      myChessGame { chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)) },
+//      myChessGame { chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)) },
+      myChessGame { chessGameFromGame(
+                        make_unique<Game>(gameFromFen("8/PPPPPPPP/2N2N2/8/8/8/1k4K1/8 w - - 0 1"))
+                    )},
       myChessEngineThread { nullptr }
-//      myGame { make_shared<Game>(gameFromFen("8/PPPPPPPP/2N2N2/8/8/8/1k4K1/8 w - - 0 1")) }
 {
     // Initialize the piece list from the game->board.
+    init();
     setupNotify(myChessGame.get());
     setupNewEngineThread();
+}
+
+void GameModel::init()
+{
+    auto lockedGame = myChessGame->access();
+    setCurrentTurn(mapColor(lockedGame->get_current_turn()));
 }
 
 void GameModel::setupNewEngineThread()
@@ -112,6 +123,9 @@ void GameModel::setupNewEngineThread()
 
     // Initialize the engine when the engine thread starts:
     connect(myChessEngineThread, &QThread::started, chessEngine, &ChessEngine::init);
+
+    // If the engine finds no moves available, check whether the game is over.
+    connect(chessEngine, &ChessEngine::noMovesAvailable, this, &GameModel::updateGameStatus);
 
     // Connect the engine's move back to itself in case it's playing itself:
     // (it will return early if it's not)
@@ -143,9 +157,11 @@ void GameModel::movePiece(int srcRow, int srcColumn,
 
 void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who)
 {
+    updateGameStatus();
+    updateCurrentTurn(wisdom::color_invert(who));
+
     // re-emit single-threaded signal to listeners:
     emit engineMoved(move, who);
-    updateCurrentTurn();
 }
 
 void GameModel::promotePiece(int srcRow, int srcColumn, int dstRow, int dstColumn, QString pieceString)
@@ -166,8 +182,9 @@ void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,
     if (!validateIsLegalMove(myChessGame.get(), move)) {
         return;
     }
-    updateChessEngineForHumanMove(move);
-    updateCurrentTurn();
+    auto newColor = updateChessEngineForHumanMove(move);
+    updateGameStatus();
+    updateCurrentTurn(newColor);
     emit humanMoved(move, who);
 }
 
@@ -191,26 +208,76 @@ void GameModel::applicationExiting()
     myChessEngineThread->wait();
 }
 
-void GameModel::updateChessEngineForHumanMove(Move selectedMove)
+
+auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
 {
     auto lockedGame = myChessGame->access();
 
     lockedGame->move(selectedMove);
+    return lockedGame->get_current_turn();
 }
 
-void GameModel::updateCurrentTurn()
+void GameModel::updateCurrentTurn(Color newColor)
 {
-    auto newColor = [this]() {
-        auto lockedGame = myChessGame->access();
-        return lockedGame->get_current_turn();
-    }();
     setCurrentTurn(mapColor(newColor));
+}
+
+auto GameModel::currentTurn() -> ColorEnumValue
+{
+    return myCurrentTurn;
 }
 
 void GameModel::setCurrentTurn(ColorEnumValue newColor)
 {
     if (newColor != myCurrentTurn) {
+        qDebug() << "Updating color to " << toString(newColor);
         myCurrentTurn = newColor;
+        qDebug() << "Emitting currentTurnChanged()";
         emit currentTurnChanged();
+    } else {
+        qDebug() << "Keeping color as " << toString(newColor);
+    }
+}
+
+void GameModel::setGameStatus(const QString& newStatus)
+{
+    qDebug() << "Old Status: " << myGameStatus;
+    qDebug() << "New status: " << newStatus;
+    if (newStatus != myGameStatus) {
+        myGameStatus = newStatus;
+        emit gameStatusChanged();
+    }
+}
+
+auto GameModel::gameStatus() -> QString
+{
+    return myGameStatus;
+}
+
+void GameModel::updateGameStatus()
+{
+    auto lockedGame = myChessGame->access();
+
+    auto who = lockedGame->get_current_turn();
+    auto board = lockedGame->get_board();
+    if (is_checkmated(board, who)) {
+        auto whoString = wisdom::to_string(color_invert(who)) + " wins the game.";
+        setGameStatus(QString(whoString.c_str()));
+        return;
+    }
+
+    if (is_stalemated_slow(board, who)) {
+        setGameStatus("Draw. Stalemate.");
+        return;
+    }
+
+    //        if (myGame.get_history().is_third_repetition(myGame.get_board())) {
+    //            input_state = offer_draw();
+    //            continue;
+    //        }
+
+    if (wisdom::History::is_fifty_move_repetition(board)) {
+        setGameStatus("Draw. Fifty moves without a capture or pawn move.");
+        return;
     }
 }

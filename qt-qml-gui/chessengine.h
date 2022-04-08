@@ -32,6 +32,9 @@ signals:
     // The engine made a mode.
     void engineMoved(wisdom::Move move, wisdom::Color who);
 
+    // There are no available moves.
+    void noMovesAvailable();
+
 private:
     std::shared_ptr<ChessGame> myGame;
     void findMove();

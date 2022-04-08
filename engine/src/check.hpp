@@ -49,9 +49,11 @@ namespace wisdom
     bool is_checkmated (Board& board, Color who);
 
     // Whether in a stalemate position for white or black.
-    inline bool is_stalemated ([[maybe_unused]] const Board& board)
+    bool is_stalemated_slow (Board& board, Color who);
+
+    inline bool is_stalemated_fast (Board& board, Color who)
     {
-        // todo: detect stalemate efficiently
+        // todo
         return false;
     }
 
@@ -61,7 +63,7 @@ namespace wisdom
     {
         return history.is_third_repetition (board) ||
                History::is_fifty_move_repetition (board) ||
-               is_stalemated (board);
+               is_stalemated_fast (board, who);
     }
 }
 
