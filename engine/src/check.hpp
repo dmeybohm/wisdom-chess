@@ -62,12 +62,7 @@ namespace wisdom
     inline bool is_drawing_move (Board& board, [[maybe_unused]] Color who,
                                  [[maybe_unused]] Move move, const History& history)
     {
-        auto third_rep = history.is_third_repetition (board);
-        if (third_rep) {
-            Logger& logger = make_standard_logger ();
-            logger.println("Third repetition");
-        }
-        return third_rep ||
+        return history.is_third_repetition (board) ||
                History::is_fifty_move_repetition (board) ||
                is_stalemated_fast (board, who);
     }

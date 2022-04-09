@@ -675,6 +675,9 @@ namespace wisdom
         if (src_piece == Piece_And_Color_None)
             return {};
 
+        if (piece_color (src_piece) != who)
+            return {};
+
         // make capturing if dst piece is not none
         Move move = make_noncapture_move (src, dst);
         if (dst_piece != Piece_And_Color_None)

@@ -49,7 +49,7 @@ TEST_CASE( "Moving move list pointer" )
     REQUIRE( moved.ptr () != nullptr );
 
     auto ptr = moved.begin ();
-    REQUIRE( moved.size () == 2 )
+    REQUIRE( moved.size () == 2 );
     REQUIRE( *ptr++ == move_parse ("e4 d4", Color::Black) );
     REQUIRE( *ptr == move_parse ("d2 d1", Color::White) );
 }

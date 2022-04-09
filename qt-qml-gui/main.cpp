@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QDebug>
+#include <QQuickWindow>
 
 #include "gamemodel.h"
 #include "piecesmodel.h"
@@ -11,6 +12,10 @@ using namespace wisdom;
 
 int main(int argc, char *argv[])
 {
+    // Workaround resizing flickering issue.
+    // TODO turn this off on webassembly / android / ios
+    QQuickWindow::setSceneGraphBackend("software");
+
     QGuiApplication app(argc, argv);
     GameModel gameModel;
     PiecesModel piecesModel;
