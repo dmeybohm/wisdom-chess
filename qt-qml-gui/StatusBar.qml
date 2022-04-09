@@ -7,8 +7,10 @@ Column {
     anchors.right: parent.right
 
     Text {
-        anchors.centerIn: parent
+        width: parent.width
+        height: parent.height
         horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
         font.pointSize: 14
         color: "#ff333333"
         text: _myGameModel.gameStatus !== "" ? _myGameModel.gameStatus : (

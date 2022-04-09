@@ -39,39 +39,57 @@ Window {
         }
 
         StatusBar {
-            /*
             Button {
                 text: "open dialog"
                 width: 200
                 height: 25
                 onClicked: {
-                   acceptDrawDialog.open()
+                    _myGameModel.drawProposedToHuman = true
                 }
             }
-            */
+        }
+    }
+
+    Dialog {
+        id: acceptDrawDialog
+        anchors.centerIn: parent
+        width: 400
+        height: 200
+        padding: 40
+        modal: true
+        visible: _myGameModel.drawProposedToHuman
+        standardButtons: Dialog.Yes | Dialog.No
+        title: "Draw Offer"
+
+        onAccepted: {
+            _myGameModel.drawProposalResponse(true)
+        }
+        onRejected: {
+            _myGameModel.drawProposalResponse(false)
         }
 
-        Dialog {
-            id: acceptDrawDialog
-            anchors.centerIn: parent
-            width: 400
-            height: 200
-            padding: 40
-            modal: true
-            standardButtons: Dialog.Yes | Dialog.No
-            title: "Draw Offer"
+        Column {
+            anchors.left: parent.left
+            anchors.right: parent.right
 
-            Column {
-                spacing: 15
-                Text {
-                    text: "Your opponent has proposed a draw."
-                }
-                Text {
-                    text: "Would you like to accept?"
-                }
+            spacing: 15
+            Text {
+                anchors.left: parent.left;
+                anchors.right: parent.right;
+                text: "Your opponent has proposed a draw."
+                horizontalAlignment: Text.AlignHCenter
+
+            }
+            Text {
+                anchors.left: parent.left;
+                anchors.right: parent.right;
+                text: "Would you like to accept?"
+                horizontalAlignment: Text.AlignHCenter
             }
 
+
         }
+
     }
 }
 
