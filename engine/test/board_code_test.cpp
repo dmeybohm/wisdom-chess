@@ -143,3 +143,22 @@ TEST_CASE( "board code")
         REQUIRE( initial == code);
     }
 }
+
+
+TEST_CASE( "Board code stores ancilliary state" )
+{
+    SUBCASE( "Board code stores en passant state" )
+    {
+
+    }
+
+    SUBCASE( "Board code stores castle state" )
+    {
+
+    }
+
+    SUBCASE( "Board code stores whose turn it is" )
+    {
+
+    }
+}
