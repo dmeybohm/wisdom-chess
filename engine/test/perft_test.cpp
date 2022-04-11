@@ -59,7 +59,7 @@ TEST_CASE( "to_perft_move" )
 
     SUBCASE( "Promoted move" )
     {
-        auto promote_bishop = wisdom::move_parse ("e7e8(B)");
+        auto promote_bishop = wisdom::move_parse ("e7e8(B)", Color::White);
         auto promote_result = wisdom::perft::to_perft_move (promote_bishop, Color::White);
 
         CHECK( promote_result == "e7e8B" );

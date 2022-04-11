@@ -102,6 +102,14 @@ GameModel::GameModel(QObject *parent)
     init();
     setupNotify(myChessGame.get());
     setupNewEngineThread();
+    auto lockedGame = myChessGame->access();
+    lockedGame->set_black_player(Player::ChessEngine);
+    lockedGame->set_white_player(Player::Human);
+}
+
+GameModel::~GameModel()
+{
+    delete myChessEngineThread;
 }
 
 void GameModel::init()
@@ -120,6 +128,10 @@ void GameModel::setupNewEngineThread()
     // Connect event handlers for the computer and human making moves:
     connect(this, &GameModel::humanMoved, chessEngine, &ChessEngine::opponentMoved);
     connect(chessEngine, &ChessEngine::engineMoved, this, &GameModel::engineThreadMoved);
+
+    // Connect event handlers for draw proposition to the engine:
+    connect(this, &GameModel::proposeDrawToEngine, chessEngine, &ChessEngine::drawProposed);
+    connect(chessEngine, &ChessEngine::drawProposalResponse, this, &GameModel::drawProposalResponse);
 
     // Initialize the engine when the engine thread starts:
     connect(myChessEngineThread, &QThread::started, chessEngine, &ChessEngine::init);
@@ -161,7 +173,7 @@ void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who)
     updateCurrentTurn(wisdom::color_invert(who));
 
     // re-emit single-threaded signal to listeners:
-    emit engineMoved(move, who);
+    checkForDrawAndEmitPlayerMoved(wisdom::Player::ChessEngine, move, who);
 }
 
 void GameModel::promotePiece(int srcRow, int srcColumn, int dstRow, int dstColumn, QString pieceString)
@@ -185,7 +197,7 @@ void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,
     auto newColor = updateChessEngineForHumanMove(move);
     updateGameStatus();
     updateCurrentTurn(newColor);
-    emit humanMoved(move, who);
+    checkForDrawAndEmitPlayerMoved(wisdom::Player::Human, move, who);
 }
 
 bool GameModel::needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn)
@@ -208,7 +220,6 @@ void GameModel::applicationExiting()
     myChessEngineThread->wait();
 }
 
-
 auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
 {
     auto lockedGame = myChessGame->access();
@@ -221,6 +232,36 @@ void GameModel::updateCurrentTurn(Color newColor)
 {
     setCurrentTurn(mapColor(newColor));
 }
+
+void GameModel::checkForDrawAndEmitPlayerMoved(wisdom::Player playerType, wisdom::Move move, wisdom::Color who)
+{
+    bool needProposal;
+    wisdom::Player oppositePlayer;
+    {
+        assert(!myLastDelayedMoveSignal.has_value());
+        auto lockedGame = myChessGame->access();
+        auto board = lockedGame->get_board();
+
+        oppositePlayer = lockedGame->get_player(color_invert(who));
+        myLastDelayedMoveSignal = [this, playerType, move, who](){
+            if (playerType == wisdom::Player::ChessEngine) {
+                emit engineMoved(move, who);
+            } else {
+                emit humanMoved(move, who);
+            }
+        };
+
+        needProposal = lockedGame->get_history().is_third_repetition(board) && !myDrawEverProposed;
+    }
+    if (needProposal) {
+        proposeDraw(oppositePlayer);
+    } else {
+        auto emitSignal = *myLastDelayedMoveSignal;
+        myLastDelayedMoveSignal.reset();
+        emitSignal();
+    }
+}
+
 
 auto GameModel::currentTurn() -> ColorEnumValue
 {
@@ -271,13 +312,50 @@ void GameModel::updateGameStatus()
         return;
     }
 
-    //        if (myGame.get_history().is_third_repetition(myGame.get_board())) {
-    //            input_state = offer_draw();
-    //            continue;
-    //        }
 
     if (wisdom::History::is_fifty_move_repetition(board)) {
         setGameStatus("Draw. Fifty moves without a capture or pawn move.");
         return;
     }
+}
+
+auto GameModel::drawProposedToHuman() -> bool
+{
+    return myDrawProposedToHuman;
+}
+
+void GameModel::setDrawProposedToHuman(bool drawProposed)
+{
+    qDebug() << "setDrawProposedToHuman";
+    if (myDrawProposedToHuman != drawProposed) {
+        myDrawProposedToHuman = drawProposed;
+        emit drawProposedToHumanChanged();
+    }
+}
+
+void GameModel::proposeDraw(wisdom::Player player)
+{
+    if (player == Player::Human) {
+        setDrawProposedToHuman(true);
+    } else {
+        emit proposeDrawToEngine();
+    }
+    myDrawEverProposed = true;
+}
+
+void GameModel::drawProposalResponse(bool accepted)
+{
+    setDrawProposedToHuman(false);
+
+    // If the proposal was accepted, update the status.
+    if (accepted) {
+        setGameStatus("Draw proposed and accepted after third repetition rule.");
+        return;
+    }
+
+    // If the proposal was rejected, emit the appropriate signal stored in the lambda.
+    assert(myLastDelayedMoveSignal.has_value());
+    auto emitSignal = *myLastDelayedMoveSignal;
+    myLastDelayedMoveSignal.reset();
+    emitSignal();
 }

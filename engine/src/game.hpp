@@ -63,8 +63,7 @@ namespace wisdom
 
         auto get_current_player () -> Player
         {
-            auto index = color_index (my_current_turn);
-            return my_players[index];
+            return get_player (my_current_turn);
         }
 
         void set_white_player (Player player)
@@ -75,6 +74,12 @@ namespace wisdom
         void set_black_player (Player player)
         {
             my_players[color_index(Color::Black)] = player;
+        }
+
+        auto get_player (Color color) -> Player
+        {
+            auto index = color_index (my_current_turn);
+            return my_players[index];
         }
 
         void set_players (const array<Player, Num_Players>& players)

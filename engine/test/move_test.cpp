@@ -144,7 +144,7 @@ TEST_CASE("Mapping coordinates to moves")
         Coord e8 = coord_parse ("e8");
         Coord g8 = coord_parse ("g8");
 
-        optional<Move> black_result = map_coordinates_to_move (board, Color::White, e8, g8);
+        optional<Move> black_result = map_coordinates_to_move (board, Color::Black, e8, g8);
         Move black_expected = move_parse ("o-o", Color::Black);
 
         CHECK( black_result.has_value() );

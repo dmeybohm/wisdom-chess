@@ -28,12 +28,18 @@ public slots:
     // Receive events about the opponent move.
     void opponentMoved();
 
+    // Receive draw proposal:
+    void drawProposed();
+
 signals:
     // The engine made a mode.
     void engineMoved(wisdom::Move move, wisdom::Color who);
 
     // There are no available moves.
     void noMovesAvailable();
+
+    // Send draw response:
+    void drawProposalResponse(bool response);
 
 private:
     std::shared_ptr<ChessGame> myGame;

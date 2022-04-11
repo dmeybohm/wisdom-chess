@@ -15,8 +15,8 @@ FocusScope {
     }
 
     Rectangle {
-        width: root.squareSize * 2
-        height: root.squareSize * 2
+        width: root.squareSize
+        height: root.squareSize * 4
         color: "lightblue"
     }
 
@@ -29,8 +29,8 @@ FocusScope {
     }
 
     Grid {
-        rows: 2
-        columns: 2
+        rows: 4
+        columns: 1
 
         Repeater {
             model: myPromotedPieceModel

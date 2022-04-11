@@ -8,13 +8,16 @@
 #include "piecesmodel.h"
 #include "colorenum.h"
 
+#include <QSGRendererInterface>
+
 using namespace wisdom;
 
 int main(int argc, char *argv[])
 {
-    // Workaround resizing flickering issue.
-    // TODO turn this off on webassembly / android / ios
-    QQuickWindow::setSceneGraphBackend("software");
+    // Workaround resizing flickering issue. Seems like the default rendering
+    // backends for QML have some issues on my hardware still, so revert to
+    // OpenGL which should be more stable.
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::GraphicsApi::OpenGL);
 
     QGuiApplication app(argc, argv);
     GameModel gameModel;
@@ -45,5 +48,6 @@ int main(int argc, char *argv[])
     engine.load(url);
 
     gameModel.start();
+    qDebug() << "sceneGraph backend: " << QQuickWindow::sceneGraphBackend();
     return app.exec();
 }

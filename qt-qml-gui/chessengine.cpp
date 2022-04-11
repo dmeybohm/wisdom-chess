@@ -44,16 +44,13 @@ void ChessEngine::findMove()
     }
 
     auto who = game->get_current_turn();
-    if (is_checkmated(game->get_board(), who)) {
+    auto board = game->get_board();
+    if (is_checkmated(board, who)) {
         std::cout << to_string(color_invert(game->get_current_turn())) << " wins the game.\n";
         emit noMovesAvailable();
         return;
     }
 
-    //        if (myGame.get_history().is_third_repetition(myGame.get_board())) {
-    //            input_state = offer_draw();
-    //            continue;
-    //        }
 
     if (History::is_fifty_move_repetition(game->get_board())) {
         std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
@@ -73,4 +70,9 @@ void ChessEngine::findMove()
     } else {
         emit noMovesAvailable();
     }
+}
+
+void ChessEngine::drawProposed()
+{
+    emit drawProposalResponse(true);
 }

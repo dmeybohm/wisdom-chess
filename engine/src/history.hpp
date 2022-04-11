@@ -35,10 +35,11 @@ namespace wisdom
         [[nodiscard]] bool is_third_repetition (const Board& board) const
         {
             auto& find_code = board.get_code ();
-            return std::count_if (my_board_codes.begin (), my_board_codes.end (),
+            auto repetitions = std::count_if (my_board_codes.begin (), my_board_codes.end (),
                     [find_code](const BoardCode& code){
                 return (code == find_code);
-            }) >= 3;
+            });
+            return repetitions >= 3;
         }
 
         void add_position_and_move (const Board& board, Move move, const UndoMove& undo_state)

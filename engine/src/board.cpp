@@ -17,11 +17,10 @@ namespace wisdom
                                       array<ColoredPiece, Num_Columns * Num_Rows>& shuffle_pieces)
 
     {
-        auto last_row_piece = shuffle_pieces[source_col + (source_row * Num_Columns)];
-        if (piece_type (last_row_piece) == Piece::Pawn)
+        auto piece = shuffle_pieces[source_col + (source_row * Num_Columns)];
+        if (piece_type (piece) == Piece::Pawn)
         {
-            auto removed = Piece_And_Color_None;
-            shuffle_pieces[source_col + (source_row * Num_Columns)] = removed;
+            shuffle_pieces[source_col + (source_row * Num_Columns)] = Piece_And_Color_None;
         }
     }
 
@@ -407,7 +406,7 @@ namespace wisdom
 
         if (iterations >= 1000)
         {
-            std::cout << to_string () << "\n";
+            std::cout << "Too many positions : " << to_string () << "\n";
             throw Error { "Too many iterations trying to generate a random board." };
         }
         // update the board code:
