@@ -2,15 +2,14 @@
 #define WISDOM_CHESS_COORD_H
 
 #include "global.hpp"
+#include "piece.hpp"
 
 namespace wisdom
 {
-    struct coord
+    struct Coord
     {
         int8_t row_and_col;
     };
-
-    using Coord = struct coord;
 
     static_assert(std::is_trivial_v<Coord>);
 
@@ -94,6 +93,8 @@ namespace wisdom
     auto to_string (Coord coord) -> string;
 
     auto coord_parse (const string& str) -> Coord;
+
+    auto operator<< (std::ostream& ostream, Coord coord) -> std::ostream&;
 
     class CoordParseError : public Error
     {

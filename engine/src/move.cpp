@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-#include <iostream>
-
 namespace wisdom
 {
     auto en_passant_taken_pawn_coord (Coord src, Coord dst) -> Coord
@@ -294,12 +292,12 @@ namespace wisdom
         }
         else
         {
-            int direction = pawn_direction (who);
+            int direction = pawn_direction<int> (who);
             Coord new_state = No_En_Passant_Coord;
             if (is_double_square_pawn_move (src_piece, move))
             {
                 Coord src = move_src (move);
-                int prev_row = next_row (Row (src), direction);
+                int prev_row = next_row (Row<int> (src), direction);
                 new_state = make_coord (prev_row, Column (src));
             }
             undo_state->en_passant_target[c_index] = board->get_en_passant_target (c_index);

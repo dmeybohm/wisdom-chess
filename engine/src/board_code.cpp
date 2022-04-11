@@ -17,6 +17,16 @@ namespace wisdom
             ColoredPiece piece = board.piece_at (coord);
             this->add_piece (coord, piece);
         }
+
+        set_en_passant_target (Color::White, board.get_en_passant_target (Color::White));
+        set_en_passant_target (Color::Black, board.get_en_passant_target (Color::Black));
+    }
+
+    BoardCode::BoardCode (const Board& board, EnPassantTargets en_passant_targets) :
+        BoardCode { board }
+    {
+       set_en_passant_target (Color::White, en_passant_targets[Color_Index_White]);
+       set_en_passant_target (Color::Black, en_passant_targets[Color_Index_Black]);
     }
 
     void BoardCode::apply_move (const Board& board, Move move)
@@ -99,7 +109,7 @@ namespace wisdom
                 dst_col = Queenside_Castled_Rook_Column;
                 src_col = 0;
             }
-            row = src_piece_color == Color::White ? Last_Row : First_Row;
+            row = gsl::narrow_cast<int8_t> (src_piece_color == Color::White ? Last_Row : First_Row);
 
             Coord rook_src = make_coord (row, src_col);
             ColoredPiece rook = make_piece (src_piece_color, Piece::Rook);
@@ -126,13 +136,13 @@ namespace wisdom
 
     std::size_t BoardCode::count_ones () const
     {
-        string str = bits.to_string ();
+        string str = my_pieces.to_string ();
         return std::count (str.begin (), str.end (), '1');
     }
 
     std::ostream& operator<< (std::ostream& os, const BoardCode& code)
     {
-        os << "{ bits: " << code.bits << " }";
+        os << "{ bits: " << code.my_pieces << ", ancillary: " << code.my_ancillary << " }";
         return os;
     }
 }

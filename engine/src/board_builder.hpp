@@ -51,7 +51,7 @@ namespace wisdom
 
         void add_row_of_same_color_and_piece (const string& coord_str, Color who, Piece piece_type);
 
-        void set_en_passant_target (Color who, const string& coord_str);
+        void set_en_passant_target (Color vulnerable_color, const string& coord_str);
 
         void set_castling (Color who, CastlingState state);
 
@@ -77,7 +77,6 @@ namespace wisdom
         {}
     };
 
-    Coord coord_alg (const string &coord_str);
 }
 
 #endif //WISDOM_BOARD_BUILDER_HPP

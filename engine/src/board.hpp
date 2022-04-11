@@ -225,12 +225,13 @@ namespace wisdom
 
         void set_en_passant_target (Color who, Coord target) noexcept
         {
-            my_en_passant_target[color_index (who)] = target;
+            set_en_passant_target (color_index (who), target);
         }
 
         void set_en_passant_target (ColorIndex who, Coord target) noexcept
         {
             my_en_passant_target[who] = target;
+            my_code.set_en_passant_target (color_from_color_index (who), target);
         }
 
         friend class BoardBuilder;

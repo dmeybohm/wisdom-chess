@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "board_code.hpp"
+#include "coord.hpp"
 
 using namespace wisdom;
 
@@ -147,9 +148,61 @@ TEST_CASE( "board code")
 
 TEST_CASE( "Board code stores ancilliary state" )
 {
-    SUBCASE( "Board code stores en passant state" )
+    SUBCASE( "Board code stores en passant state for Black" )
     {
+        BoardBuilder builder;
 
+        builder.add_piece ("e5", Color::White, Piece::Pawn);
+        builder.add_piece ("d5", Color::Black, Piece::Pawn);
+        builder.add_piece ("e1", Color::White, Piece::King);
+        builder.add_piece ("e8", Color::Black, Piece::King);
+
+        auto board_without_state = builder.build ();
+        builder.set_en_passant_target (Color::Black ,"d6");
+        auto board_with_state = builder.build ();
+
+        auto with_state_code = board_with_state->get_code ();
+        auto without_state_code = board_without_state->get_code ();
+        CHECK( with_state_code != without_state_code );
+
+        auto en_passant_target = with_state_code.en_passant_target (Color::Black);
+        auto expected_coord = coord_parse("d6");
+        auto ancilliary = with_state_code.get_ancillary_bits ();
+        INFO(ancilliary);
+        INFO( wisdom::to_string (en_passant_target) );
+        CHECK( en_passant_target == expected_coord );
+
+        auto opponent_target = with_state_code.en_passant_target (Color::White);
+        CHECK( opponent_target == No_En_Passant_Coord );
+    }
+
+    SUBCASE( "Board code stores en passant state for White" )
+    {
+        BoardBuilder builder;
+
+        builder.add_piece ("e4", Color::White, Piece::Pawn);
+        builder.add_piece ("d4", Color::Black, Piece::Pawn);
+        builder.add_piece ("e1", Color::White, Piece::King);
+        builder.add_piece ("e8", Color::Black, Piece::King);
+
+        auto board_without_state = builder.build ();
+        builder.set_en_passant_target (Color::White ,"e3");
+        auto board_with_state = builder.build ();
+
+        auto with_state_code = board_with_state->get_code ();
+        auto without_state_code = board_without_state->get_code ();
+        CHECK( with_state_code != without_state_code );
+
+        auto en_passant_target = with_state_code.en_passant_target (Color::White);
+        auto expected_coord = coord_parse("e3");
+        auto ancilliary = with_state_code.get_ancillary_bits ();
+        CHECK( en_passant_target == expected_coord );
+
+        auto opponent_target = with_state_code.en_passant_target (Color::Black);
+        INFO(ancilliary);
+        INFO( wisdom::to_string (opponent_target) );
+
+        CHECK( opponent_target == No_En_Passant_Coord );
     }
 
     SUBCASE( "Board code stores castle state" )

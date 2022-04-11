@@ -10,7 +10,7 @@ option(WISDOM_CHESS_BENCHMARK "Enable benchmarking code")
 
 if (QTDIR)
     list(APPEND CMAKE_PREFIX_PATH ${QTDIR})
-    message("Appended to CMAKE_PREFIX_PATH - now: ${CMAKE_PREFIX_PATH}")
+    message("-- wisdom-chess: QTDIR added to CMAKE_PREFIX_PATH")
 endif()
 
 find_package(Qt6 6.2 QUIET COMPONENTS Quick)

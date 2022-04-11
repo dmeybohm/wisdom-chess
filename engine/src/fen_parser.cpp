@@ -103,7 +103,7 @@ namespace wisdom
         try
         {
             string cstr { str.substr (0, 2) };
-            builder.set_en_passant_target (color_invert (active_player), cstr.c_str ());
+            builder.set_en_passant_target (color_invert (active_player), cstr);
         }
         catch ([[maybe_unused]] const BoardBuilderError& e)
         {

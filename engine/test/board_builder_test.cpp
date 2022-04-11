@@ -2,6 +2,7 @@
 #include "board_builder.hpp"
 #include "board.hpp"
 #include "check.hpp"
+#include "coord.hpp"
 
 #include <random>
 
@@ -11,14 +12,14 @@ TEST_CASE( "board_builder" )
 {
     SUBCASE( "Specifying coordinates in algebraic notation" )
     {
-        CHECK(Row (coord_alg ("a8")) == 0 );
-        CHECK(Row (coord_alg ("a1")) == 7 );
-        CHECK(Column (coord_alg ("a8")) == 0 );
-        CHECK(Column (coord_alg ("a1")) == 0 );
-        CHECK(Row (coord_alg ("h1")) == 7 );
-        CHECK(Row (coord_alg ("h8")) == 0 );
-        CHECK(Column (coord_alg ("h1")) == 7 );
-        CHECK(Column (coord_alg ("h8")) == 7 );
+        CHECK(Row (coord_parse("a8")) == 0 );
+        CHECK(Row (coord_parse("a1")) == 7 );
+        CHECK(Column (coord_parse("a8")) == 0 );
+        CHECK(Column (coord_parse("a1")) == 0 );
+        CHECK(Row (coord_parse("h1")) == 7 );
+        CHECK(Row (coord_parse("h8")) == 0 );
+        CHECK(Column (coord_parse("h1")) == 7 );
+        CHECK(Column (coord_parse("h8")) == 7 );
     }
 
     SUBCASE( "Initializing the board builder" )
@@ -55,28 +56,27 @@ TEST_CASE( "board_builder" )
         try {
             builder.add_piece ("a9", Color::White, Piece::Pawn);
             no_throw = true;
-        } catch (const BoardBuilderError &board_builder_exception) {
-            CHECK( board_builder_exception.message() == "Invalid row!" );
+        } catch (const CoordParseError& board_builder_exception) {
+            CHECK( board_builder_exception.message() == "Invalid coordinate!" );
         }
         REQUIRE( no_throw == false );
 
         try {
             builder.add_piece ("j7", Color::White, Piece::Pawn);
             no_throw = true;
-        } catch (const BoardBuilderError &board_builder_exception) {
-            CHECK( board_builder_exception.message() == "Invalid column!" );
+        } catch (const CoordParseError& board_builder_exception) {
+            CHECK( board_builder_exception.message() == "Invalid coordinate!" );
         }
         REQUIRE( no_throw == false );
 
         try {
             builder.add_piece ("asdf", Color::White, Piece::Pawn);
             no_throw = true;
-        } catch (const BoardBuilderError &board_builder_exception) {
+        } catch (const BoardBuilderError& board_builder_exception) {
             CHECK( board_builder_exception.message() == "Invalid coordinate string!" );
         }
         REQUIRE( no_throw == false );
     }
-
 }
 
 TEST_CASE( "Board can be randomized" )
