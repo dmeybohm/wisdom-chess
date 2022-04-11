@@ -287,8 +287,7 @@ namespace wisdom
 
         if (undo)
         {
-            board->set_en_passant_target (c_index, undo_state->en_passant_target[c_index]);
-            board->set_en_passant_target (o_index, undo_state->en_passant_target[o_index]);
+            board->set_en_passant_target (o_index, undo_state->en_passant_targets[o_index]);
         }
         else
         {
@@ -300,10 +299,9 @@ namespace wisdom
                 int prev_row = next_row (Row<int> (src), direction);
                 new_state = make_coord (prev_row, Column (src));
             }
-            undo_state->en_passant_target[c_index] = board->get_en_passant_target (c_index);
-            undo_state->en_passant_target[o_index] = board->get_en_passant_target (o_index);
+            undo_state->en_passant_targets[o_index] = board->get_en_passant_target (o_index);
+            undo_state->en_passant_targets[c_index] = board->get_en_passant_target (c_index);
             board->set_en_passant_target (c_index, new_state);
-            board->set_en_passant_target (o_index, No_En_Passant_Coord);
         }
     }
 

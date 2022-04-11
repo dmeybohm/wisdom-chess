@@ -23,8 +23,8 @@ namespace wisdom
     public:
         History()
         {
-            my_board_codes.reserve (100);
-            my_undo_moves.reserve (100);
+            my_board_codes.reserve (64);
+            my_undo_moves.reserve (64);
         }
 
         static bool is_fifty_move_repetition (const Board& board)

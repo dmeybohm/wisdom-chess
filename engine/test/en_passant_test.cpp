@@ -25,7 +25,7 @@ TEST_CASE( "en passant" )
         builder.add_piece ("e5", Color::White, Piece::Pawn);
         builder.add_row_of_same_color ("a1", Color::White, back_rank);
 
-        auto builder_board = builder.build();
+        auto builder_board = builder.build ();
 
         REQUIRE( !builder_board->is_en_passant_vulnerable ( Color::White) );
         REQUIRE( !builder_board->is_en_passant_vulnerable ( Color::Black) );

@@ -35,7 +35,7 @@ namespace wisdom
         // todo: optimize by using bitfields and free functions
         int half_move_clock;
         Piece taken_piece_type;
-        Coord en_passant_target[Num_Players];
+        Coord en_passant_targets[Num_Players];
         MoveCategory category;
         CastlingState current_castle_state;
         CastlingState opponent_castle_state;
@@ -47,7 +47,7 @@ namespace wisdom
     constexpr UndoMove Empty_Undo_State = {
         .half_move_clock = 0,
         .taken_piece_type = Piece::None,
-        .en_passant_target = { No_En_Passant_Coord, No_En_Passant_Coord },
+        .en_passant_targets = { No_En_Passant_Coord, No_En_Passant_Coord },
         .category = MoveCategory::NonCapture,
         .current_castle_state = Castle_None,
         .opponent_castle_state = Castle_None,
@@ -296,7 +296,7 @@ namespace wisdom
     constexpr auto is_en_passant_vulnerable (const UndoMove& undo_state, Color who) noexcept
         -> bool
     {
-        return undo_state.en_passant_target[color_index (who)] != No_En_Passant_Coord;
+        return undo_state.en_passant_targets[color_index (who)] != No_En_Passant_Coord;
     }
 
     // Parse a move. Returns empty if the parse failed.

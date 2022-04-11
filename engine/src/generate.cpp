@@ -269,7 +269,7 @@ namespace wisdom
 
         int left_column = column - 1;
         int right_column = column + 1;
-        int target_column = Column (board.get_en_passant_target (opponent));
+        int target_column = Column<int> (board.get_en_passant_target (opponent));
 
         if (left_column == target_column)
         {
@@ -293,7 +293,7 @@ namespace wisdom
         int take_col;
         int c_dir;
 
-        dir = pawn_direction (who);
+        dir = pawn_direction<int> (who);
 
         // row is _guaranteed_ to be on the board, because
         // a pawn on the eight rank can't remain a pawn, and that's
@@ -349,7 +349,7 @@ namespace wisdom
                 auto promoted_piece = make_piece (who, promotable_piece_type);
 
                 // promotion moves dont include en passant
-                for (auto &optional_move: all_pawn_moves)
+                for (auto& optional_move: all_pawn_moves)
                 {
                     if (optional_move.has_value ())
                     {
@@ -368,7 +368,7 @@ namespace wisdom
         if (is_valid_column (en_passant_column))
             en_passant (en_passant_column);
 
-        for (auto &check_pawn_move : all_pawn_moves)
+        for (auto& check_pawn_move : all_pawn_moves)
             if (check_pawn_move.has_value ())
                 append_move (board, moves, *check_pawn_move);
     }

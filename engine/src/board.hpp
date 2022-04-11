@@ -45,9 +45,6 @@ namespace wisdom
         // Keep track of the positions on the board.
         Position my_position;
 
-        // The columns which are eligible for en_passant.
-        Coord my_en_passant_target[Num_Players];
-
         // Number of half moves since pawn or capture.
         int my_half_move_clock = 0;
 
@@ -210,17 +207,22 @@ namespace wisdom
 
         [[nodiscard]] auto is_en_passant_vulnerable (Color who) const noexcept -> bool
         {
-            return my_en_passant_target[color_index (who)] != No_En_Passant_Coord;
+            return my_code.en_passant_target (who) != No_En_Passant_Coord;
         }
 
         [[nodiscard]] auto get_en_passant_target (Color who) const noexcept -> Coord
         {
-            return my_en_passant_target[color_index (who)];
+            return my_code.en_passant_target (who);
         }
 
         [[nodiscard]] auto get_en_passant_target (ColorIndex who) const noexcept -> Coord
         {
-            return my_en_passant_target[who];
+            return get_en_passant_target (color_from_color_index (who));
+        }
+
+        [[nodiscard]] auto get_en_passant_targets () const noexcept -> EnPassantTargets
+        {
+            return my_code.en_passant_targets ();
         }
 
         void set_en_passant_target (Color who, Coord target) noexcept
@@ -230,7 +232,6 @@ namespace wisdom
 
         void set_en_passant_target (ColorIndex who, Coord target) noexcept
         {
-            my_en_passant_target[who] = target;
             my_code.set_en_passant_target (color_from_color_index (who), target);
         }
 
@@ -253,7 +254,7 @@ namespace wisdom
     {
         assert (color == Color::Black || color == Color::White);
         int8_t color_as_int = to_int8 (color);
-        return gsl::narrow_cast<int8_t>(-1 + 2 * (color_as_int - 1));
+        return gsl::narrow_cast<T>(-1 + 2 * (color_as_int - 1));
     }
 
 }

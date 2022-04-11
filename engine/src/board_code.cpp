@@ -2,12 +2,13 @@
 #include "board_code.hpp"
 #include "board.hpp"
 #include "coord.hpp"
+#include "board_builder.hpp"
 
 #include <ostream>
 
 namespace wisdom
 {
-    BoardCode::BoardCode (const Board& board)
+    BoardCode::BoardCode (const Board& board, EnPassantTargets en_passant_targets)
     {
         int8_t row, col;
 
@@ -18,15 +19,20 @@ namespace wisdom
             this->add_piece (coord, piece);
         }
 
-        set_en_passant_target (Color::White, board.get_en_passant_target (Color::White));
-        set_en_passant_target (Color::Black, board.get_en_passant_target (Color::Black));
+        set_en_passant_target (Color::White, en_passant_targets[Color_Index_White]);
+        set_en_passant_target (Color::Black, en_passant_targets[Color_Index_Black]);
     }
 
-    BoardCode::BoardCode (const Board& board, EnPassantTargets en_passant_targets) :
-        BoardCode { board }
+    auto BoardCode::default_code_from_board (const Board& board) -> BoardCode
     {
-       set_en_passant_target (Color::White, en_passant_targets[Color_Index_White]);
-       set_en_passant_target (Color::Black, en_passant_targets[Color_Index_Black]);
+        return BoardCode { board, { No_En_Passant_Coord, No_En_Passant_Coord } };
+    }
+
+    auto BoardCode::empty_board_code () -> BoardCode
+    {
+        BoardBuilder builder;
+        auto board = builder.build ();
+        return BoardCode(*board, { No_En_Passant_Coord, No_En_Passant_Coord});
     }
 
     void BoardCode::apply_move (const Board& board, Move move)

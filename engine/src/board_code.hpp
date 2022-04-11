@@ -47,12 +47,11 @@ namespace wisdom
         };
 
     public:
-        BoardCode () = default;
-
-        // deprecated: need the ancillary state as well
-        explicit BoardCode (const Board& board);
-
         BoardCode (const Board& board, EnPassantTargets);
+
+        static auto default_code_from_board (const Board& board) -> BoardCode;
+
+        static auto empty_board_code () -> BoardCode;
 
         void add_piece (Coord coord, ColoredPiece piece)
         {
@@ -95,7 +94,7 @@ namespace wisdom
             my_ancillary |= coord_bits;
         }
 
-        auto en_passant_target (Color vulnerable_color) -> Coord
+        [[nodiscard]] auto en_passant_target (Color vulnerable_color) const noexcept -> Coord
         {
             unsigned long target_bits = my_ancillary.to_ulong ();
             unsigned long target_bit_shift = vulnerable_color == Color::White ?
@@ -108,6 +107,15 @@ namespace wisdom
             auto is_present = (bool)(target_bits & EN_PASSANT_PRESENT);
             auto row = vulnerable_color == Color::White ? White_En_Passant_Row : Black_En_Passant_Row;
             return is_present ? make_coord (row, col) : No_En_Passant_Coord;
+        }
+
+        [[nodiscard]] auto en_passant_targets () const noexcept -> EnPassantTargets
+        {
+            EnPassantTargets result = {
+                    en_passant_target (Color::White),
+                    en_passant_target (Color::Black)
+            };
+            return result;
         }
 
         [[nodiscard]] auto to_string () const -> string
