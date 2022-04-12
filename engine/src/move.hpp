@@ -24,8 +24,8 @@ namespace wisdom
 
     enum class MoveCategory
     {
-        NonCapture = 0,
-        NormalCapture = 1,
+        Regular = 0,
+        Capturing = 1,
         EnPassant = 2,
         Castling = 3,
     };
@@ -48,7 +48,7 @@ namespace wisdom
         .half_move_clock = 0,
         .taken_piece_type = Piece::None,
         .en_passant_targets = { No_En_Passant_Coord, No_En_Passant_Coord },
-        .category = MoveCategory::NonCapture,
+        .category = MoveCategory::Regular,
         .current_castle_state = Castle_None,
         .opponent_castle_state = Castle_None,
         .full_move_clock_updated = false,
@@ -112,12 +112,12 @@ namespace wisdom
 
     constexpr bool is_normal_capture_move (Move move)
     {
-        return move.move_category == MoveCategory::NormalCapture;
+        return move.move_category == MoveCategory::Capturing;
     }
 
     constexpr ColoredPiece captured_material (UndoMove undo_state, Color opponent)
     {
-        if (undo_state.category == MoveCategory::NormalCapture)
+        if (undo_state.category == MoveCategory::Capturing)
         {
             return make_piece (opponent, undo_state.taken_piece_type);
         }
@@ -165,8 +165,8 @@ namespace wisdom
     }
 
     // run-of-the-mill move with no promotion involved
-    constexpr auto make_noncapture_move (int src_row, int src_col,
-                                         int dst_row, int dst_col) noexcept
+    constexpr auto make_normal_move (int src_row, int src_col,
+                                     int dst_row, int dst_col) noexcept
         -> Move
     {
         assert (src_row >= 0 && src_row < Num_Rows);
@@ -180,24 +180,24 @@ namespace wisdom
                 .dst_col = gsl::narrow_cast<int8_t>(dst_col),
                 .promoted_color = Color::None,
                 .promoted_piece_type = Piece::None,
-                .move_category = MoveCategory::NonCapture,
+                .move_category = MoveCategory::Regular,
         };
 
         return result;
     }
 
-    constexpr auto make_noncapture_move (Coord src, Coord dst) noexcept
+    constexpr auto make_normal_move (Coord src, Coord dst) noexcept
         -> Move
     {
-        return make_noncapture_move (Row (src), Column (src), Row (dst), Column (dst));
+        return make_normal_move (Row (src), Column (src), Row (dst), Column (dst));
     }
 
-    constexpr auto make_normal_capture_move (int src_row, int src_col,
+    constexpr auto make_capturing_move (int src_row, int src_col,
                                              int dst_row, int dst_col) noexcept
         -> Move
     {
-        Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
-        move.move_category = MoveCategory::NormalCapture;
+        Move move = make_normal_move (src_row, src_col, dst_row, dst_col);
+        move.move_category = MoveCategory::Capturing;
         return move;
     }
 
@@ -205,9 +205,15 @@ namespace wisdom
                                        int dst_row, int dst_col) noexcept
         -> Move
     {
-        Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
+        Move move = make_normal_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::Castling;
         return move;
+    }
+
+    template <class T = int8_t>
+    constexpr auto castling_row_for_color (Color who) -> T
+    {
+        return gsl::narrow_cast<T> (who == Color::White ? Last_Row : First_Row);
     }
 
     constexpr auto make_castling_move (Coord src, Coord dst) noexcept
@@ -222,9 +228,9 @@ namespace wisdom
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
-        assert (move.move_category == MoveCategory::NonCapture);
-        Move result = make_noncapture_move (Row (src), Column (src), Row (dst), Column (dst));
-        result.move_category = MoveCategory::NormalCapture;
+        assert (move.move_category == MoveCategory::Regular);
+        Move result = make_normal_move (Row (src), Column (src), Row (dst), Column (dst));
+        result.move_category = MoveCategory::Capturing;
         return result;
     }
 
@@ -234,7 +240,7 @@ namespace wisdom
                                          int dst_row, int dst_col) noexcept
         -> Move
     {
-        Move move = make_noncapture_move (src_row, src_col, dst_row, dst_col);
+        Move move = make_normal_move (src_row, src_col, dst_row, dst_col);
         move.move_category = MoveCategory::EnPassant;
         return move;
     }
@@ -308,7 +314,7 @@ namespace wisdom
     auto en_passant_taken_pawn_coord (Coord src, Coord dst) -> Coord;
 
     // Map source/dest coordinate to corresponding move (en passant, castling, etc)
-    // This doesn't check whether the move is legal or not, just gets what the
+    // This doesn't check whether the move is legal or not completely - just gets what the
     // user is intending.
     auto map_coordinates_to_move (const Board& board, Color who,
                                   Coord src, Coord dst,

@@ -19,6 +19,8 @@ namespace wisdom::analysis
 
         virtual void finalize ([[maybe_unused]] const SearchResult& result) = 0;
 
+        virtual void finalize ([[maybe_unused]] int score) = 0;
+
         virtual void store_transposition_hit (const RelativeTransposition& relative_transposition)
             = 0;
     };
@@ -36,6 +38,12 @@ namespace wisdom::analysis
         {
             if (impl)
                 return impl->finalize (result);
+        }
+
+        void finalize ([[maybe_unused]] int score)
+        {
+            if (impl)
+                return impl->finalize (score);
         }
 
         void store_transposition_hit (const RelativeTransposition& relative_transposition)

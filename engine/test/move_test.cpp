@@ -12,7 +12,7 @@ using namespace wisdom;
 TEST_CASE( "Parsing a move" )
 {
     Move with_spaces = move_parse ("   e2e4", Color::White);
-    REQUIRE(make_noncapture_move (coord_parse ("e2"), coord_parse ("e4")) == with_spaces );
+    REQUIRE(make_normal_move (coord_parse ("e2"), coord_parse ("e4")) == with_spaces );
 }
 
 TEST_CASE( "Parsing an en-passant move" )
@@ -29,7 +29,7 @@ TEST_CASE( "Parsing a promoting move" )
     Move promoting = move_parse ("   d7d8 (B) ", Color::White);
     Coord src = coord_parse("d7");
     Coord dst = coord_parse("d8");
-    Move expected = make_noncapture_move (src, dst);
+    Move expected = make_normal_move (src, dst);
     expected = copy_move_with_promotion (expected, make_piece (Color::White, Piece::Bishop));
     REQUIRE( promoting == expected );
 }

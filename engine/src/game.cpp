@@ -74,7 +74,8 @@ namespace wisdom
             overdue_timer.set_periodic_function (*my_periodic_function);
 
         IterativeSearch iterative_search {
-            *my_board, *my_history, logger, overdue_timer, Max_Depth, *my_analytics,
+            *my_board, *my_history, logger, overdue_timer,
+            my_max_depth, *my_analytics,
         };
         SearchResult result = iterative_search.iteratively_deepen (whom);
         return result.move;

@@ -165,6 +165,9 @@ TEST_CASE ("Promoted pawn is promoted to highest value piece even when capturing
     SearchHelper helper;
     IterativeSearch search = helper.build (game.get_board (), 3);
 
+    auto board_str = game.get_board().to_string();
+    INFO( board_str );
+
     SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE (to_string (*result.move) == "e2xf1(Q)");
 }

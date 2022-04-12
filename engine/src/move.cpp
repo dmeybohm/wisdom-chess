@@ -96,7 +96,7 @@ namespace wisdom
             };
         }
 
-        return make_noncapture_move (src_row, src_col, dst_row, dst_col);
+        return make_normal_move (src_row, src_col, dst_row, dst_col);
     }
 
     template <bool undo>
@@ -317,7 +317,7 @@ namespace wisdom
         if (piece_type (dst_piece) != Piece::None)
         {
             assert (is_normal_capture_move (move));
-            undo_state.category = MoveCategory::NormalCapture;
+            undo_state.category = MoveCategory::Capturing;
             undo_state.taken_piece_type = piece_type (dst_piece);
         }
 
@@ -553,7 +553,7 @@ namespace wisdom
         }
 
         string rest { tmp.substr (offset) };
-        Move move = make_noncapture_move (src, dst);
+        Move move = make_normal_move (src, dst);
         if (is_capturing)
         {
             move = copy_move_with_capture (move);
@@ -606,8 +606,9 @@ namespace wisdom
 
         auto result = *optional_result;
         if (color == Color::None &&
-            result.move_category != MoveCategory::NormalCapture &&
-            result.move_category != MoveCategory::NonCapture)
+            result.move_category != MoveCategory::Capturing
+            &&
+            result.move_category != MoveCategory::Regular)
         {
             throw ParseMoveException ("Invalid type of move in parse_simple_move");
         }
@@ -675,7 +676,7 @@ namespace wisdom
             return {};
 
         // make capturing if dst piece is not none
-        Move move = make_noncapture_move (src, dst);
+        Move move = make_normal_move (src, dst);
         if (dst_piece != Piece_And_Color_None)
             move = copy_move_with_capture (move);
 

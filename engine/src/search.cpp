@@ -134,6 +134,13 @@ namespace wisdom
 
             int score = my_best_score;
 
+            if (depth == 0 && my_total_depth == 3)
+            {
+                std::cout << "move: " << to_string (move) << " score: " << score << "\n";
+            }
+
+            position.finalize (score);
+
             if (score > best_score)
             {
                 best_score = score;

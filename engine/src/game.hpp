@@ -92,6 +92,11 @@ namespace wisdom
             return my_players;
         }
 
+        void set_max_depth (int max_depth)
+        {
+            my_max_depth = max_depth;
+        }
+
         void set_analytics (unique_ptr<analysis::Analytics> new_analytics);
 
         [[nodiscard]] auto map_coordinates_to_move (Coord src, Coord dst, optional<Piece> promoted)
@@ -111,6 +116,7 @@ namespace wisdom
         unique_ptr<History> my_history = make_unique<History> ();
         unique_ptr<analysis::Analytics> my_analytics = make_unique<analysis::Analytics> ();
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};
+        int my_max_depth { Max_Depth };
 
         Players my_players = { Player::Human, Player::ChessEngine };
     };

@@ -66,7 +66,7 @@ namespace wisdom
         auto dst_piece = board.piece_at (dst);
         assert (piece_color (src_piece) == who);
 
-        Move result = wisdom::make_noncapture_move (src, dst);
+        Move result = wisdom::make_normal_move (src, dst);
 
         // 1. castling is represented by two space king moves
         if (wisdom::piece_type (src_piece) == Piece::King)
@@ -131,7 +131,7 @@ namespace wisdom
             auto dst_col = is_castling_move_on_king_side (move) ? Kingside_Castled_King_Column
                                                                 : Queenside_Castled_King_Column;
 
-            Move normal = wisdom::make_noncapture_move (row, src_col, row, dst_col);
+            Move normal = wisdom::make_normal_move (row, src_col, row, dst_col);
             return wisdom::to_string (move_src (normal)) + wisdom::to_string (move_dst (normal));
         }
 

@@ -41,7 +41,7 @@ namespace wisdom
 
     static auto init_castle_state (Board& board, Color who) -> CastlingState
     {
-        auto row = gsl::narrow<int8_t> (who == Color::White ? Last_Row : First_Row);
+        auto row = castling_row_for_color (who);
         int8_t king_col = King_Column;
 
         CastlingState state = Castle_None;
