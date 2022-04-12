@@ -10,55 +10,117 @@ using namespace wisdom;
 
 TEST_CASE( "Third repetition is detected" )
 {
-    History history;
-    BoardBuilder builder;
+    SUBCASE( "in the regular case" )
+    {
+        History history;
+        BoardBuilder builder;
 
-    builder.add_piece ("e8", Color::Black, Piece::King);
-    builder.add_piece ("e1", Color::White, Piece::King);
+        builder.add_piece ("e8", Color::Black, Piece::King);
+        builder.add_piece ("e1", Color::White, Piece::King);
 
-    auto board = builder.build();
+        auto board = builder.build ();
 
-    Move black_move = move_parse ("e8 d8");
-    Move black_return_move = move_parse ("d8 e8");
+        Move black_move = move_parse ("e8 d8");
+        Move black_return_move = move_parse ("d8 e8");
 
-    Move white_move = move_parse ("e1 d1");
-    Move white_return_move = move_parse ("d1 e1");
+        Move white_move = move_parse ("e1 d1");
+        Move white_return_move = move_parse ("d1 e1");
 
-    // Record initial position. we don't care about move here.
-    Move initial_move = move_parse ("d8 e8");
-    history.add_position_and_move (*board, initial_move, {});
+        // Record initial position. we don't care about move here.
+        Move initial_move = move_parse ("d8 e8");
+        history.add_position_and_move (*board, initial_move, {});
 
-    auto undo = board->make_move (Color::White, white_move);
-    history.add_position_and_move (*board, white_move, undo);
-    REQUIRE( history.is_third_repetition (*board) == false );
+        auto undo = board->make_move (Color::White, white_move);
+        history.add_position_and_move (*board, white_move, undo);
+        REQUIRE (history.is_third_repetition (*board) == false);
 
-    board->make_move (Color::Black, black_move);
-    history.add_position_and_move (*board, black_move, {});
-    REQUIRE( history.is_third_repetition (*board) == false );
+        board->make_move (Color::Black, black_move);
+        history.add_position_and_move (*board, black_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
 
-    board->make_move (Color::White, white_return_move);
-    history.add_position_and_move (*board, white_return_move, {});
-    REQUIRE( history.is_third_repetition (*board) == false );
+        board->make_move (Color::White, white_return_move);
+        history.add_position_and_move (*board, white_return_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
 
-    board->make_move (Color::Black, black_return_move);
-    history.add_position_and_move (*board, black_return_move, {});
-    REQUIRE( history.is_third_repetition (*board) == false );
+        board->make_move (Color::Black, black_return_move);
+        history.add_position_and_move (*board, black_return_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
 
-    board->make_move (Color::White, white_move);
-    history.add_position_and_move (*board, white_move, {});
-    REQUIRE( history.is_third_repetition (*board) == false );
+        board->make_move (Color::White, white_move);
+        history.add_position_and_move (*board, white_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
 
-    board->make_move (Color::Black, black_move);
-    history.add_position_and_move (*board, black_move, {});
-    REQUIRE( history.is_third_repetition (*board) == false );
+        board->make_move (Color::Black, black_move);
+        history.add_position_and_move (*board, black_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
 
-    board->make_move (Color::White, white_return_move);
-    history.add_position_and_move (*board, white_return_move, {});
-    REQUIRE( history.is_third_repetition (*board) == false );
+        board->make_move (Color::White, white_return_move);
+        history.add_position_and_move (*board, white_return_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
 
-    board->make_move (Color::Black, black_return_move);
-    history.add_position_and_move (*board, black_return_move, {});
-    REQUIRE( history.is_third_repetition (*board) == true );
+        board->make_move (Color::Black, black_return_move);
+        history.add_position_and_move (*board, black_return_move, {});
+        REQUIRE (history.is_third_repetition (*board) == true);
+    }
+
+    SUBCASE( "ignored for one move when en passant state is different" )
+    {
+        History history;
+        BoardBuilder builder;
+
+        builder.add_piece ("e8", Color::Black, Piece::King);
+        builder.add_piece ("e7", Color::Black, Piece::Pawn);
+        builder.add_piece ("e1", Color::White, Piece::King);
+
+        auto board = builder.build ();
+
+        Move black_move = move_parse ("e8 d8");
+        Move black_return_move = move_parse ("d8 e8");
+
+        Move white_move = move_parse ("e1 d1");
+        Move white_return_move = move_parse ("d1 e1");
+
+        // Record initial position. we don't care about move here.
+        Move initial_move = move_parse ("e7 e5");
+        board->make_move (Color::Black, initial_move);
+        history.add_position_and_move (*board, initial_move, {});
+
+        board->make_move (Color::White, white_move);
+        history.add_position_and_move (*board, white_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
+
+        board->make_move (Color::Black, black_move);
+        history.add_position_and_move (*board, black_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
+
+        board->make_move (Color::White, white_return_move);
+        history.add_position_and_move (*board, white_return_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
+
+        board->make_move (Color::Black, black_return_move);
+        history.add_position_and_move (*board, black_return_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
+
+        board->make_move (Color::White, white_move);
+        history.add_position_and_move (*board, white_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
+
+        board->make_move (Color::Black, black_move);
+        history.add_position_and_move (*board, black_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
+
+        board->make_move (Color::White, white_return_move);
+        history.add_position_and_move (*board, white_return_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
+
+        board->make_move (Color::Black, black_return_move);
+        history.add_position_and_move (*board, black_return_move, {});
+        REQUIRE (history.is_third_repetition (*board) == false);
+
+        board->make_move (Color::White, white_move);
+        history.add_position_and_move (*board, white_move, {});
+        REQUIRE (history.is_third_repetition (*board) == true);
+    }
 }
 
 TEST_CASE( "Fifty move repetition is detected" )
