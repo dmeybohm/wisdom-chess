@@ -40,6 +40,7 @@ TEST_CASE( "en passant" )
         builder.add_row_of_same_color_and_piece ("a7", Color::Black, Piece::Pawn);
         builder.add_piece ("e5", Color::White, Piece::Pawn);
         builder.add_row_of_same_color ("a1", Color::White, back_rank);
+        builder.set_current_turn (Color::Black);
 
         auto board = builder.build();
 
@@ -110,6 +111,7 @@ TEST_CASE( "en passant" )
         builder.add_row_of_same_color_and_piece ("a7", Color::Black, Piece::Pawn);
         builder.add_piece ("e5", Color::White, Piece::Pawn);
         builder.add_row_of_same_color ("a1", Color::White, back_rank);
+        builder.set_current_turn (Color::Black);
 
         auto board = builder.build();
         Move pawn_move = move_parse ("d7d5");
@@ -179,6 +181,7 @@ TEST_CASE( "en passant" )
         builder.add_row_of_same_color_and_piece ("a7", Color::Black, Piece::Pawn);
         builder.add_piece ("e5", Color::White, Piece::Pawn);
         builder.add_row_of_same_color ("a1", Color::White, back_rank);
+        builder.set_current_turn (Color::Black);
 
         auto board = builder.build();
         Move first_move = move_parse ("d7d5");

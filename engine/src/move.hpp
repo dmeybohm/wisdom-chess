@@ -12,15 +12,15 @@ namespace wisdom
     using CastlingState = uint8_t;
 
     constexpr uint8_t
-            Castle_None = 0U;      // still eligible to castle on both sides
+            Castle_None = 0b000U;      // still eligible to castle on both sides
     constexpr uint8_t
-            Castle_Castled = 0x01U;   // castled
+            Castle_Kingside = 0b001U;   // ineligible for further castling kingside
     constexpr uint8_t
-            Castle_Kingside = 0x02U;   // ineligible for further castling kingside
+            Castle_Queenside = 0b010U;   // ineligible for further castling queenside
     constexpr uint8_t
-            Castle_Queenside = 0x04U;   // ineligible for further castling queenside
+            Castle_Both_Unavailable = 0b011U; // both ineligible
     constexpr uint8_t
-            Castle_Previously_None = 0x07U;   // previously was none - used for determining if a move affects castling
+            Castle_Previously_None = 0b111U;   // previously was none - used for determining if a move affects castling
 
     enum class MoveCategory
     {
@@ -227,6 +227,8 @@ namespace wisdom
         result.move_category = MoveCategory::NormalCapture;
         return result;
     }
+
+    using PlayerCastleState = array<CastlingState, Num_Players>;
 
     constexpr auto make_en_passant_move (int src_row, int src_col,
                                          int dst_row, int dst_col) noexcept

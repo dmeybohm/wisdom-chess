@@ -71,6 +71,7 @@ TEST_CASE( "Third repetition is detected" )
         builder.add_piece ("e8", Color::Black, Piece::King);
         builder.add_piece ("e7", Color::Black, Piece::Pawn);
         builder.add_piece ("e1", Color::White, Piece::King);
+        builder.set_current_turn (Color::Black);
 
         auto board = builder.build ();
 

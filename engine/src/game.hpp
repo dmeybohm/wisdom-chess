@@ -40,7 +40,7 @@ namespace wisdom
 
         explicit Game (Color current_turn);
 
-        Game (Color current_turn, const BoardBuilder& builder);
+        Game (const BoardBuilder& builder);
 
         static auto load (const string& filename, const Players& players) -> optional<Game>;
 
@@ -63,7 +63,7 @@ namespace wisdom
 
         auto get_current_player () -> Player
         {
-            return get_player (my_current_turn);
+            return get_player (my_board->get_current_turn ());
         }
 
         void set_white_player (Player player)
@@ -78,7 +78,7 @@ namespace wisdom
 
         auto get_player (Color color) -> Player
         {
-            auto index = color_index (my_current_turn);
+            auto index = color_index (my_board->get_current_turn ());
             return my_players[index];
         }
 
@@ -97,7 +97,7 @@ namespace wisdom
         [[nodiscard]] auto map_coordinates_to_move (Coord src, Coord dst, optional<Piece> promoted)
             -> optional<Move>
         {
-            return ::wisdom::map_coordinates_to_move (*my_board, my_current_turn,
+            return ::wisdom::map_coordinates_to_move (*my_board, get_current_turn (),
                                                       src, dst, promoted);
         }
 
@@ -112,9 +112,7 @@ namespace wisdom
         unique_ptr<analysis::Analytics> my_analytics = make_unique<analysis::Analytics> ();
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};
 
-        array<Player, Num_Players> my_players = { Player::Human, Player::ChessEngine };
-
-        Color my_current_turn;        // whose turn it is
+        Players my_players = { Player::Human, Player::ChessEngine };
     };
 }
 

@@ -22,47 +22,41 @@ namespace wisdom
     }
 
     Game::Game () :
-        my_players { { Player::Human, Player::ChessEngine } },
-        my_current_turn { Color::White }
+        my_players { { Player::Human, Player::ChessEngine } }
     {}
 
     Game::Game (const Players& players) :
-        my_players { players },
-        my_current_turn { Color::White }
+        my_players { players }
     {}
 
     Game::Game (Player white_player, Player black_player) :
-        my_players { { white_player, black_player } },
-        my_current_turn { Color::White }
+        my_players { { white_player, black_player } }
     {}
 
     Game::Game (Color current_turn) :
-        my_players { { Player::Human, Player::ChessEngine } },
-        my_current_turn { current_turn }
-    {}
+        my_players { { Player::Human, Player::ChessEngine } }
+    {
+        set_current_turn (current_turn);
+    }
 
-    Game::Game (Color current_turn, const BoardBuilder& builder) :
+    Game::Game (const BoardBuilder& builder) :
         my_board { builder.build () },
-        my_players { { Player::Human, Player::ChessEngine } },
-        my_current_turn { current_turn }
+        my_players { { Player::Human, Player::ChessEngine } }
     {}
 
     void Game::move (Move move)
     {
         // do the move
-        auto undo_state = my_board->make_move (my_current_turn, move);
+        auto undo_state = my_board->make_move (get_current_turn (), move);
 
         // add this move to the history
         my_history->add_position_and_move (*my_board, move, undo_state);
-
-        // take our current_turn
-        my_current_turn = color_invert (my_current_turn);
     }
 
     void Game::save (const string& input) const
     {
         OutputFormat &output = make_output_format (input);
-        output.save (input, *my_board, *my_history, my_current_turn);
+        output.save (input, *my_board, *my_history, get_current_turn ());
     }
 
     void Game::set_analytics (unique_ptr<analysis::Analytics> new_analytics)
@@ -73,7 +67,7 @@ namespace wisdom
     auto Game::find_best_move (const Logger& logger, Color whom) const -> optional<Move>
     {
         if (whom == Color::None)
-            whom = my_current_turn;
+            whom = get_current_turn ();
 
         MoveTimer overdue_timer { Max_Search_Seconds };
         if (my_periodic_function.has_value ())
@@ -108,27 +102,10 @@ namespace wisdom
             if (input_buf == "stop")
                 break;
 
-            Move move = move_parse (input_buf, result.my_current_turn);
+            Move move = move_parse (input_buf, result.get_current_turn ());
 
-            //
-            // We need to check if there's a piece at the destination, and
-            // set the move as taking it. Otherwise, we'll trip over some
-            // consistency checks that make sure we don't erase pieces.
-            //
             Coord dst = move_dst (move);
             ColoredPiece piece = result.my_board->piece_at (dst);
-
-            // TODO: not sure if we have to handle en-passant here.
-
-            if (piece_type (piece) != Piece::None)
-            {
-                assert (piece_color (piece) != result.my_current_turn);
-
-                // for historical reasons, we automatically convert to capture move
-                // here. but should probably throw an exception instead.
-                if (!is_normal_capture_move (move))
-                    move = copy_move_with_capture (move);
-            }
 
             result.move (move);
         }
@@ -138,12 +115,12 @@ namespace wisdom
 
     auto Game::get_current_turn () const -> Color
     {
-        return this->my_current_turn;
+        return my_board->get_current_turn ();
     }
 
     void Game::set_current_turn (Color new_turn)
     {
-        my_current_turn = new_turn;
+        my_board->set_current_turn (new_turn);
     }
 
     auto Game::get_board () const& -> Board&

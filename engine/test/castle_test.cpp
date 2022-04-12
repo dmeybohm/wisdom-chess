@@ -20,6 +20,7 @@ TEST_CASE("Castling state is modified and restored for rooks")
     };
 
     Board board { positions };
+    board.set_current_turn (Color::Black);
     Move mv = make_noncapture_move (0, 0, 0, 1);
 
     CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
@@ -56,7 +57,8 @@ TEST_CASE("Castling state is modified and restored for kings")
         { 7, Color::White, back_rank },
     };
 
-    Board board {positions };
+    Board board { positions };
+    board.set_current_turn (Color::Black);
     Move mv = make_noncapture_move (0, 4, 0, 3);
 
     CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
@@ -92,19 +94,20 @@ TEST_CASE("Castling state is modified and restored for castling queenside")
     };
 
     Board board { positions };
+    board.set_current_turn (Color::Black);
     Move mv = make_castling_move (0, 4, 0, 2);
 
     CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
     CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
+    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Queenside)) );
     CHECK( board.get_castle_state (Color::Black) == Castle_None );
 
     UndoMove undo_state = board.make_move (Color::Black, mv);;
 
     CHECK( !board.able_to_castle (Color::Black, Castle_Queenside) );
     CHECK( !board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( !board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_Castled );
+    CHECK( !board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Queenside)) );
+    CHECK( board.get_castle_state (Color::Black) == Castle_Both_Unavailable );
 
     // Check rook and king position updated:
     CHECK(Row (board.get_king_position (Color::Black)) == 0 );
@@ -118,7 +121,7 @@ TEST_CASE("Castling state is modified and restored for castling queenside")
 
     CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
     CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
+    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Queenside)) );
 
     // check rook and king position restored:
     CHECK(Row (board.get_king_position (Color::Black)) == 0 );
@@ -155,7 +158,7 @@ TEST_CASE("Castling state is modified and restored for castling kingside")
     CHECK( !board.able_to_castle (Color::White, Castle_Queenside) );
     CHECK( !board.able_to_castle (Color::White, Castle_Kingside) );
     CHECK( !board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_Castled );
+    CHECK( board.get_castle_state (Color::White) == (Castle_Kingside | Castle_Queenside) );
 
     // Check rook and king position updated:
     CHECK(Row (board.get_king_position (Color::White)) == 7 );
@@ -169,7 +172,7 @@ TEST_CASE("Castling state is modified and restored for castling kingside")
 
     CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
     CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
+    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Queenside)) );
 
     // check rook and king position restored:
     CHECK(Row (board.get_king_position (Color::White)) == 7 );
@@ -247,6 +250,7 @@ TEST_CASE("Castling state is updated when rook captures a piece")
 
     // add bishop for rook to capture:
     builder.add_piece ("a7", Color::White, Piece::Bishop);
+    builder.set_current_turn (Color::Black);
 
     auto board = builder.build ();
 
@@ -313,6 +317,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
     builder.add_piece ("d3", Color::White, Piece::Pawn);
     // add the queen ready for rook to capture:
     builder.add_piece ("b8", Color::White, Piece::Queen);
+    builder.set_current_turn (Color::Black);
 
     auto board = builder.build();
     Move mv = make_normal_capture_move (0, 0, 0, 1);

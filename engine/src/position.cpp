@@ -245,5 +245,4 @@ namespace wisdom
     {
         return my_score[color_index(who)];
     }
-
 }

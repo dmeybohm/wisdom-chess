@@ -72,6 +72,11 @@ namespace wisdom
             this->add_piece (Row (coord), col, who, *it);
     }
 
+    void BoardBuilder::set_current_turn (Color who)
+    {
+        this->current_turn = who;
+    }
+
     void BoardBuilder::set_en_passant_target (Color vulnerable_color, const string& coord_str)
     {
         EnPassantState new_state { vulnerable_color, coord_parse (coord_str) };
@@ -140,6 +145,7 @@ namespace wisdom
 
         result->my_half_move_clock = this->half_moves_clock;
         result->my_full_move_clock = this->full_moves;
+        result->set_current_turn (current_turn);
 
         return result;
     }

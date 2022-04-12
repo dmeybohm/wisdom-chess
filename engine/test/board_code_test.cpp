@@ -14,8 +14,8 @@ TEST_CASE( "board code")
 {
     SUBCASE( "Board code is able to be set" )
     {
-        BoardCode code = BoardCode::empty_board_code ();
-        BoardCode initial = BoardCode::empty_board_code ();
+        BoardCode code = BoardCode::default_position_board_code ();
+        BoardCode initial = BoardCode::default_position_board_code ();
 
         auto initial_str = code.to_string ();
         std::size_t num_zeroes = std::count (initial_str.begin (), initial_str.end (), '0');
@@ -54,7 +54,7 @@ TEST_CASE( "board code")
         builder.add_piece ("e8", Color::White, Piece::King);
 
         auto brd = builder.build ();
-        BoardCode code  = BoardCode::default_code_from_board (*brd);
+        BoardCode code  = BoardCode::from_board (*brd);
         BoardCode initial = code;
 
         REQUIRE( initial.count_ones () > 0 );
@@ -80,7 +80,8 @@ TEST_CASE( "board code")
         builder.add_piece ("e8", Color::White, Piece::King);
 
         auto brd = builder.build ();
-        BoardCode code = BoardCode::default_code_from_board (*brd);
+        brd->set_current_turn (Color::Black);
+        BoardCode code = BoardCode::from_board (*brd);
         BoardCode initial = code;
 
         REQUIRE( initial.count_ones () > 0 );
@@ -104,7 +105,8 @@ TEST_CASE( "board code")
         builder.add_piece ("e1", Color::White, Piece::King);
 
         auto brd = builder.build ();
-        BoardCode code  = BoardCode::default_code_from_board (*brd);
+        brd->set_current_turn (Color::Black);
+        BoardCode code  = BoardCode::from_board (*brd);
         BoardCode initial = code;
 
         REQUIRE( initial.count_ones () > 0 );
@@ -128,7 +130,8 @@ TEST_CASE( "board code")
         builder.add_piece ("e1", Color::White, Piece::King);
 
         auto brd = builder.build ();
-        BoardCode code = BoardCode::default_code_from_board (*brd);
+        brd->set_current_turn (Color::Black);
+        BoardCode code = BoardCode::from_board (*brd);
         BoardCode initial = code;
 
         REQUIRE (initial.count_ones () > 0);

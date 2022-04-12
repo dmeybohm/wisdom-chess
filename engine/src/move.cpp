@@ -66,15 +66,14 @@ namespace wisdom
     {
         int src_row, src_col;
         int dst_row, dst_col;
-        Coord src, dst;
 
         assert (is_castling_move (move));
 
-        src = move_src (move);
-        dst = move_dst (move);
+        Coord src = move_src (move);
+        Coord dst = move_dst (move);
 
-        src_row = Row (src);
-        dst_row = Row (dst);
+        src_row = Row<int> (src);
+        dst_row = Row<int> (dst);
 
         if (Column (src) < Column (dst))
         {
@@ -158,13 +157,8 @@ namespace wisdom
                 CastlingState old_castle_state = board->get_castle_state ( who);
                 save_current_castle_state (undo_state, old_castle_state);
 
-                if (is_castling_move (move))
-                    old_castle_state = Castle_Castled;
-                else
-                    old_castle_state |= Castle_Kingside | Castle_Queenside;
-
                 // set the new castle status
-                board->apply_castle_change (who, old_castle_state);
+                board->apply_castle_change (who, Castle_Kingside | Castle_Queenside);
             }
         }
     }
@@ -307,6 +301,8 @@ namespace wisdom
 
     auto Board::make_move (Color who, Move move) -> UndoMove
     {
+        assert (who == my_code.current_turn ());
+
         UndoMove undo_state = Empty_Undo_State;
         Color opponent = color_invert (who);
 
@@ -389,11 +385,14 @@ namespace wisdom
         validate_castle_state (*this, move);
 
         this->update_move_clock (who, piece_type (orig_src_piece), move, undo_state);
+        set_current_turn (color_invert (who));
         return undo_state;
     }
 
     void Board::take_back (Color who, Move move, const UndoMove& undo_state)
     {
+        assert (my_code.current_turn () == color_invert (who));
+
         // todo: split up the apply/unapply funcs so this isn't necessary
         UndoMove undo_move_value = undo_state;
 
@@ -464,6 +463,7 @@ namespace wisdom
 
         this->my_position.unapply_move (who, src_piece, move, undo_state);
         validate_castle_state (*this, move);
+        set_current_turn (who);
         this->restore_move_clock (undo_state);
     }
 

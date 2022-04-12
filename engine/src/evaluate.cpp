@@ -14,30 +14,6 @@ namespace wisdom
         int score = 0;
         Color opponent = color_invert (who);
 
-        if (board.get_castle_state (who) == Castle_Castled)
-        {
-            score += Castle_Positive_Weight;
-        }
-        else
-        {
-            if (!board.able_to_castle (who, Castle_Kingside))
-                score -= Castle_Negative_Weight;
-            if (!board.able_to_castle (who, Castle_Queenside))
-                score -= Castle_Negative_Weight;
-        }
-
-        if (board.get_castle_state (opponent) == Castle_Castled)
-        {
-            score -= Castle_Negative_Weight;
-        }
-        else
-        {
-            if (!board.able_to_castle (opponent, Castle_Kingside))
-                score += Castle_Positive_Weight;
-            if (!board.able_to_castle (opponent, Castle_Queenside))
-                score += Castle_Positive_Weight;
-        }
-
         score += board.get_material ().score (who);
         score += board.get_position ().score (who);
 

@@ -69,15 +69,12 @@ namespace wisdom
 
     Board::Board (const vector<BoardPositions>& positions)
         : my_squares {},
-          my_code { *this, { No_En_Passant_Coord, No_En_Passant_Coord } },
-          my_castled { Castle_None, Castle_None },
+          my_code { *this, { No_En_Passant_Coord, No_En_Passant_Coord },
+                      Color::White, { Castle_Both_Unavailable, Castle_Both_Unavailable } },
           my_king_pos { make_coord (0, 0), make_coord (0, 0) },
           raw_squares {}
     {
         int8_t row;
-
-        for (CastlingState& i : this->my_castled)
-            i = Castle_None;
 
         int8_t col;
         FOR_EACH_ROW_AND_COL(row, col)
@@ -108,10 +105,10 @@ namespace wisdom
             }
         }
 
-        my_castled[Color_Index_White] = init_castle_state (*this, Color::White);
-        my_castled[Color_Index_Black] = init_castle_state (*this, Color::Black);
+        set_castle_state (Color::White, init_castle_state (*this, Color::White));
+        set_castle_state (Color::Black, init_castle_state (*this, Color::Black));
 
-        my_code = BoardCode::default_code_from_board ( *this);
+        my_code = BoardCode::from_board (*this);
     }
 
     void Board::print_to_file (std::ostream &out) const
@@ -230,13 +227,12 @@ namespace wisdom
             return color == Color::Black ? gsl::narrow_cast<char> (tolower(ch)) : ch;
         };
 
-        if (this->my_castled[index] == Castle_Castled)
-            castled_state = "";
-        else if (this->my_castled[index] == Castle_None)
+        auto castled = get_castle_state (color);
+        if (castled == Castle_None)
             castled_state.append(1, convert('K')), castled_state.append(1, convert('Q'));
-        else if (this->my_castled[index] == Castle_Kingside)
+        else if (castled == Castle_Kingside)
             castled_state += "Q";
-        else if (this->my_castled[index] == Castle_Queenside)
+        else if (castled == Castle_Queenside)
             castled_state += "K";
         else
             castled_state += "";
@@ -306,30 +302,11 @@ namespace wisdom
 
     auto operator== (const Board& a, const Board& b) -> bool
     {
-        int8_t row, col;
-
-        FOR_EACH_ROW_AND_COL(row, col)
-        {
-            auto coord = make_coord (row, col);
-            if (a.piece_at (coord) != b.piece_at (coord))
-                return false;
-        }
-
-        for (int8_t color = Color_Index_White; color <= Color_Index_Black; color++)
-        {
-            if (a.get_en_passant_target (color) != b.get_en_passant_target (color))
-                return false;
-
-            if (a.my_castled[color] != b.my_castled[color])
-                return false;
-        }
-
-        return true;
+        return a.my_code == b.my_code;
     }
 
     static void remove_invalid_pawns (const Board& board, int8_t source_row, int8_t source_col,
             array<ColoredPiece, Num_Columns * Num_Rows>& shuffle_pieces)
-
     {
         auto piece = shuffle_pieces[source_col + (source_row * Num_Columns)];
         if (piece_type (piece) == Piece::Pawn)
@@ -414,7 +391,7 @@ namespace wisdom
             throw Error { "Too many iterations trying to generate a random board." };
         }
         // update the board code:
-        my_code = BoardCode { *this, { No_En_Passant_Coord, No_En_Passant_Coord} };
+        my_code = BoardCode::from_board (*this);
     }
 
 }

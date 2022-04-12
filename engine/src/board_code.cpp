@@ -8,8 +8,12 @@
 
 namespace wisdom
 {
-    BoardCode::BoardCode (const Board& board, EnPassantTargets en_passant_targets)
-    {
+    BoardCode::BoardCode (
+        const Board& board,
+        EnPassantTargets en_passant_targets,
+        Color current_turn,
+        PlayerCastleState castling_state
+    ) {
         int8_t row, col;
 
         FOR_EACH_ROW_AND_COL(row, col)
@@ -19,20 +23,33 @@ namespace wisdom
             this->add_piece (coord, piece);
         }
 
+        set_current_turn (current_turn);
         set_en_passant_target (Color::White, en_passant_targets[Color_Index_White]);
         set_en_passant_target (Color::Black, en_passant_targets[Color_Index_Black]);
+        set_castle_state (Color::White, castling_state[Color_Index_White]);
+        set_castle_state (Color::Black, castling_state[Color_Index_Black]);
     }
 
-    auto BoardCode::default_code_from_board (const Board& board) -> BoardCode
+    auto BoardCode::from_board (const Board& board) -> BoardCode
     {
-        return BoardCode { board, { No_En_Passant_Coord, No_En_Passant_Coord } };
+        PlayerCastleState castle_state = {
+            board.get_castle_state (Color::White),
+            board.get_castle_state (Color::Black)
+        };
+        return BoardCode {
+            board,
+            { No_En_Passant_Coord, No_En_Passant_Coord },
+            board.get_current_turn (),
+            castle_state,
+        };
     }
 
-    auto BoardCode::empty_board_code () -> BoardCode
+    auto BoardCode::default_position_board_code () -> BoardCode
     {
         BoardBuilder builder;
         auto board = builder.build ();
-        return BoardCode(*board, { No_En_Passant_Coord, No_En_Passant_Coord});
+        return BoardCode { *board, { No_En_Passant_Coord, No_En_Passant_Coord}, Color::White,
+                           { Castle_None, Castle_None } };
     }
 
     void BoardCode::apply_move (const Board& board, Move move)
