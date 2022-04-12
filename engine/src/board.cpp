@@ -13,17 +13,6 @@ namespace wisdom
     // board length in characters
     constexpr int BOARD_LENGTH = 31;
 
-    static void remove_invalid_pawns (const Board& board, int8_t source_row, int8_t source_col,
-                                      array<ColoredPiece, Num_Columns * Num_Rows>& shuffle_pieces)
-
-    {
-        auto piece = shuffle_pieces[source_col + (source_row * Num_Columns)];
-        if (piece_type (piece) == Piece::Pawn)
-        {
-            shuffle_pieces[source_col + (source_row * Num_Columns)] = Piece_And_Color_None;
-        }
-    }
-
     auto Board::initial_board_position () -> vector<BoardPositions>
     {
         vector<Piece> back_rank = {
@@ -50,9 +39,9 @@ namespace wisdom
     {
     }
 
-    static auto init_castle_state (Board &board, Color who) -> CastlingState
+    static auto init_castle_state (Board& board, Color who) -> CastlingState
     {
-        int8_t row = (who == Color::White ? Last_Row : First_Row);
+        auto row = gsl::narrow<int8_t> (who == Color::White ? Last_Row : First_Row);
         int8_t king_col = King_Column;
 
         CastlingState state = Castle_None;
@@ -79,6 +68,11 @@ namespace wisdom
     }
 
     Board::Board (const vector<BoardPositions>& positions)
+        : my_squares {},
+          my_code { *this, { No_En_Passant_Coord, No_En_Passant_Coord } },
+          my_castled { Castle_None, Castle_None },
+          my_king_pos { make_coord (0, 0), make_coord (0, 0) },
+          raw_squares {}
     {
         int8_t row;
 
@@ -114,13 +108,10 @@ namespace wisdom
             }
         }
 
-        this->my_castled[Color_Index_White] = init_castle_state (*this, Color::White);
-        this->my_castled[Color_Index_Black] = init_castle_state (*this, Color::Black);
+        my_castled[Color_Index_White] = init_castle_state (*this, Color::White);
+        my_castled[Color_Index_Black] = init_castle_state (*this, Color::Black);
 
-        this->my_en_passant_target[Color_Index_White] = No_En_Passant_Coord;
-        this->my_en_passant_target[Color_Index_Black] = No_En_Passant_Coord;
-
-        this->my_code = BoardCode { *this };
+        my_code = BoardCode::default_code_from_board ( *this);
     }
 
     void Board::print_to_file (std::ostream &out) const
@@ -301,10 +292,11 @@ namespace wisdom
 
         output += both_castled;
 
-        if (this->my_en_passant_target[Color_Index_White] != No_En_Passant_Coord)
-            output += " " + wisdom::to_string (this->my_en_passant_target[Color_Index_White]) + " ";
-        else if (this->my_en_passant_target[Color_Index_Black] != No_En_Passant_Coord)
-            output += " " + wisdom::to_string (this->my_en_passant_target[Color_Index_Black]) + " ";
+        auto en_passant_targets = this->get_en_passant_targets ();
+        if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
+            output += " " + wisdom::to_string (en_passant_targets[Color_Index_White]) + " ";
+        else if (en_passant_targets[Color_Index_Black] != No_En_Passant_Coord)
+            output += " " + wisdom::to_string (en_passant_targets[Color_Index_Black]) + " ";
         else
             output += " - ";
 
@@ -323,9 +315,9 @@ namespace wisdom
                 return false;
         }
 
-        for (auto color = Color_Index_White; color <= Color_Index_Black; color++)
+        for (int8_t color = Color_Index_White; color <= Color_Index_Black; color++)
         {
-            if (a.my_en_passant_target[color] != b.my_en_passant_target[color])
+            if (a.get_en_passant_target (color) != b.get_en_passant_target (color))
                 return false;
 
             if (a.my_castled[color] != b.my_castled[color])
@@ -334,6 +326,18 @@ namespace wisdom
 
         return true;
     }
+
+    static void remove_invalid_pawns (const Board& board, int8_t source_row, int8_t source_col,
+            array<ColoredPiece, Num_Columns * Num_Rows>& shuffle_pieces)
+
+    {
+        auto piece = shuffle_pieces[source_col + (source_row * Num_Columns)];
+        if (piece_type (piece) == Piece::Pawn)
+        {
+            shuffle_pieces[source_col + (source_row * Num_Columns)] = Piece_And_Color_None;
+        }
+    }
+
 
     void Board::randomize_positions ()
     {
@@ -410,7 +414,7 @@ namespace wisdom
             throw Error { "Too many iterations trying to generate a random board." };
         }
         // update the board code:
-        my_code = BoardCode { *this };
+        my_code = BoardCode { *this, { No_En_Passant_Coord, No_En_Passant_Coord} };
     }
 
 }

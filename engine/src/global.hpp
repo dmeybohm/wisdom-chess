@@ -58,6 +58,10 @@ namespace wisdom
     constexpr int Kingside_Castled_Rook_Column = 5;
     constexpr int Queenside_Castled_Rook_Column = 3;
 
+    // Where the color is vulnerable to en passant:
+    constexpr int White_En_Passant_Row = 5;
+    constexpr int Black_En_Passant_Row = 2;
+
     constexpr int Kingside_Castled_King_Column = 6;
     constexpr int Queenside_Castled_King_Column = 2;
 

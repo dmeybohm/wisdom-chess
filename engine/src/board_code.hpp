@@ -18,19 +18,40 @@ namespace wisdom
 
     using BoardHashCode = std::size_t;
 
-    class Board;
+    constexpr int Ancillary_Bits = 16;
 
-    static std::hash<BoardCodeBitset> board_code_hash_fn;
+    inline std::hash<BoardCodeBitset> pieces_hash_fn;
+    inline std::hash<std::bitset<Ancillary_Bits>> ancillary_hash_fn;
+
+    using AncillaryBitset = std::bitset<Ancillary_Bits>;
+
+    // TODO: make this a single coordinate and pair with current turn.
+    using EnPassantTargets = std::array<Coord, Num_Players>;
+
+    class Board;
 
     class BoardCode final
     {
     private:
-        BoardCodeBitset bits;
+        BoardCodeBitset my_pieces;
+        AncillaryBitset my_ancillary;
+
+        enum AncillaryBitPositions {
+            CURRENT_TURN_BIT = 0,
+            EN_PASSANT_WHITE_TARGET = 1,
+            EN_PASSANT_BLACK_TARGET = 5,
+            CASTLE_STATE = 9,
+            EN_PASSANT_MASK = 0b11111111,
+            CASTLE_MASK = 0b1111,
+            EN_PASSANT_PRESENT = 0b1000,
+        };
 
     public:
-        BoardCode () = default;
+        BoardCode (const Board& board, EnPassantTargets);
 
-        explicit BoardCode (const Board& board);
+        static auto default_code_from_board (const Board& board) -> BoardCode;
+
+        static auto empty_board_code () -> BoardCode;
 
         void add_piece (Coord coord, ColoredPiece piece)
         {
@@ -47,7 +68,7 @@ namespace wisdom
 
             for (uint8_t i = 0; i < Board_Code_Bits_Per_Piece; i++)
             {
-                bits.set (bit_index + i, (new_value & (1 << i)) > 0);
+                my_pieces.set (bit_index + i, (new_value & (1 << i)) > 0);
             }
         }
 
@@ -56,25 +77,74 @@ namespace wisdom
             return add_piece (coord, Piece_And_Color_None);
         }
 
+        void set_en_passant_target (Color color, Coord coord)
+        {
+            unsigned long target_bit_shift = color == Color::White ?
+                    EN_PASSANT_WHITE_TARGET :
+                    EN_PASSANT_BLACK_TARGET;
+            auto coord_bits = Column<unsigned long> (coord);
+            coord_bits |= (coord == No_En_Passant_Coord) ? 0 : EN_PASSANT_PRESENT;
+            coord_bits <<= target_bit_shift;
+
+            assert (coord == No_En_Passant_Coord || (
+                    Row (coord) == (color == Color::White ? White_En_Passant_Row : Black_En_Passant_Row)));
+
+            // clear both targets initially. There can be only one at a given time.
+            my_ancillary &= ~(EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET);
+            my_ancillary |= coord_bits;
+        }
+
+        [[nodiscard]] auto en_passant_target (Color vulnerable_color) const noexcept -> Coord
+        {
+            unsigned long target_bits = my_ancillary.to_ulong ();
+            unsigned long target_bit_shift = vulnerable_color == Color::White ?
+                                             EN_PASSANT_WHITE_TARGET :
+                                             EN_PASSANT_BLACK_TARGET;
+
+            target_bits &= EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET;
+            target_bits >>= target_bit_shift;
+            auto col = gsl::narrow<int8_t> (target_bits & 0x7);
+            auto is_present = (bool)(target_bits & EN_PASSANT_PRESENT);
+            auto row = vulnerable_color == Color::White ? White_En_Passant_Row : Black_En_Passant_Row;
+            return is_present ? make_coord (row, col) : No_En_Passant_Coord;
+        }
+
+        [[nodiscard]] auto en_passant_targets () const noexcept -> EnPassantTargets
+        {
+            EnPassantTargets result = {
+                    en_passant_target (Color::White),
+                    en_passant_target (Color::Black)
+            };
+            return result;
+        }
+
         [[nodiscard]] auto to_string () const -> string
         {
-            return bits.to_string ();
+            return my_pieces.to_string ();
         }
 
         [[nodiscard]] auto bitset_ref () const& -> const BoardCodeBitset&
         {
-            return bits;
+            return my_pieces;
         }
         void bitset_ref () const&& = delete;
 
+        // Return by value:
+        [[nodiscard]] auto get_ancillary_bits () -> AncillaryBitset
+        {
+            return my_ancillary;
+        }
+
         [[nodiscard]] BoardHashCode hash_code () const
         {
-            return board_code_hash_fn (bits);
+            // todo use Zobrist hashing here instead
+            return pieces_hash_fn (my_pieces) ^ ancillary_hash_fn (my_ancillary);
         }
 
         friend bool operator== (const BoardCode& first, const BoardCode& second)
         {
-            return first.bits == second.bits;
+            return first.my_pieces == second.my_pieces &&
+                first.my_ancillary == second.my_ancillary;
         }
 
         friend bool operator!= (const BoardCode& first, const BoardCode& second)
@@ -96,6 +166,18 @@ namespace wisdom
         void unapply_move (const Board& board, Move move, const UndoMove& undo_state);
 
         [[nodiscard]] std::size_t count_ones () const;
+    };
+}
+
+namespace std
+{
+    template<>
+    struct hash<wisdom::BoardCode>
+    {
+        std::size_t operator() (const wisdom::BoardCode& code) const
+        {
+            return code.hash_code ();
+        }
     };
 }
 

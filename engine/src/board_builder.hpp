@@ -41,7 +41,7 @@ namespace wisdom
 
         void add_piece (int row, int col, Color who, Piece piece_type);
 
-        void add_pieces (Color who, const vector<PieceCoordStringWithTypeState> &pieces);
+        void add_pieces (Color who, const vector<PieceCoordStringWithTypeState>& pieces);
 
         void add_row_of_same_color (int row, Color who, vector<Piece> piece_types);
 
@@ -51,7 +51,7 @@ namespace wisdom
 
         void add_row_of_same_color_and_piece (const string& coord_str, Color who, Piece piece_type);
 
-        void set_en_passant_target (Color who, const string& coord_str);
+        void set_en_passant_target (Color vulnerable_color, const string& coord_str);
 
         void set_castling (Color who, CastlingState state);
 
@@ -76,8 +76,6 @@ namespace wisdom
             Error (message)
         {}
     };
-
-    Coord coord_alg (const string &coord_str);
 }
 
 #endif //WISDOM_BOARD_BUILDER_HPP

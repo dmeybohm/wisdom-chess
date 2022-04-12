@@ -58,11 +58,6 @@ namespace wisdom
                                const VariationGlimpse &_variation_glimpse) :
             BaseTransposition (_hash_code, _board_code, _score, _relative_depth, _variation_glimpse)
         {}
-
-        static RelativeTransposition from_defaults ()
-        {
-            return RelativeTransposition { 0, BoardCode{}, Negative_Infinity, 0, {} };
-        }
     };
 
     struct ColoredTransposition : BaseTransposition
