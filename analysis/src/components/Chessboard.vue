@@ -26,14 +26,20 @@ export default {
       let last_move = null;
       this.move_list.forEach(function (move) {
         if (move) {
+          // remove promotion / en passant for now:
+          let moveSanitized = move.replace(/\(.*\)/, '')
           let squareClass = 'square-55d63'
-          $board.find('.' + squareClass).removeClass('.highlight')
-          board.move(move.replace('x', ' ').replace(' ', '-'));
-          last_move = move;
+          let node = $board.find('.' + squareClass)
+          if (node.length) {
+            $board.find('.' + squareClass).removeClass('.highlight')
+            board.move(moveSanitized.replace('x', ' ').replace(' ', '-'));
+            last_move = move;
+          }
         }
       });
       if (last_move) {
-        let squares = last_move.replace(' ', 'x').split('x')
+        let moveSanitized = last_move.replace(/\(.*\)/, '')
+        let squares = moveSanitized.replace(' ', 'x').split('x')
         $board.find('.square-' + squares[0]).addClass('highlight')
         $board.find('.square-' + squares[1]).addClass('highlight')
       }

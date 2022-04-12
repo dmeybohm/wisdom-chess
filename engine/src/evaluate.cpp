@@ -6,7 +6,7 @@
 
 namespace wisdom
 {
-    static const int Castle_Penalty = 30;
+    static const int Castle_Penalty = 50;
 
     namespace
     {
