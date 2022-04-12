@@ -7,7 +7,6 @@
 #include "logger.hpp"
 
 #include <sstream>
-#include <iostream>
 
 namespace wisdom
 {
@@ -133,6 +132,8 @@ namespace wisdom
             }
 
             int score = my_best_score;
+
+            position.finalize (score);
 
             if (score > best_score)
             {

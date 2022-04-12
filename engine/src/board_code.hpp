@@ -40,18 +40,20 @@ namespace wisdom
             CURRENT_TURN_BIT = 0,
             EN_PASSANT_WHITE_TARGET = 1,
             EN_PASSANT_BLACK_TARGET = 5,
-            CASTLE_STATE = 9,
+            CASTLING_STATE_WHITE_TARGET = 9,
+            CASTLING_STATE_BLACK_TARGET = 12,
+            CURRENT_TURN_MASK = 0b1,
             EN_PASSANT_MASK = 0b11111111,
-            CASTLE_MASK = 0b1111,
+            CASTLE_ONE_COLOR_MASK = 0b11,
             EN_PASSANT_PRESENT = 0b1000,
         };
 
     public:
-        BoardCode (const Board& board, EnPassantTargets);
+        BoardCode (const Board& board, EnPassantTargets, Color current_turn, PlayerCastleState);
 
-        static auto default_code_from_board (const Board& board) -> BoardCode;
+        static auto from_board (const Board& board) -> BoardCode;
 
-        static auto empty_board_code () -> BoardCode;
+        static auto default_position_board_code () -> BoardCode;
 
         void add_piece (Coord coord, ColoredPiece piece)
         {
@@ -107,6 +109,43 @@ namespace wisdom
             auto is_present = (bool)(target_bits & EN_PASSANT_PRESENT);
             auto row = vulnerable_color == Color::White ? White_En_Passant_Row : Black_En_Passant_Row;
             return is_present ? make_coord (row, col) : No_En_Passant_Coord;
+        }
+
+        void set_current_turn (Color who)
+        {
+            auto bits = color_index (who);
+            auto current_turn_bit = bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT);
+            my_ancillary &= ~(CURRENT_TURN_MASK << CURRENT_TURN_BIT);
+            my_ancillary |= current_turn_bit;
+        }
+
+        [[nodiscard]] auto castle_state (Color who) const -> CastlingState
+        {
+            unsigned long target_bits = my_ancillary.to_ulong ();
+            unsigned long target_bit_shift = who == Color::White ?
+                                                  CASTLING_STATE_WHITE_TARGET :
+                                                  CASTLING_STATE_BLACK_TARGET;
+            auto castle_state = gsl::narrow_cast<uint8_t> (target_bits >> target_bit_shift);
+            return castle_state & CASTLE_ONE_COLOR_MASK;
+        }
+
+        void set_castle_state (Color who, CastlingState castling_state)
+        {
+            assert (castling_state != Castle_Previously_None); // only store the actual flags.
+            unsigned long bit_number = who == Color::White ?
+                                                  CASTLING_STATE_WHITE_TARGET :
+                                                  CASTLING_STATE_BLACK_TARGET;
+            unsigned long mask = CASTLE_ONE_COLOR_MASK << bit_number;
+
+            my_ancillary &= ~mask;
+            my_ancillary |= castling_state << bit_number;
+        }
+
+        [[nodiscard]] auto current_turn () const -> Color
+        {
+            auto bits = my_ancillary.to_ulong ();
+            auto index = gsl::narrow_cast<int8_t> (bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT));
+            return color_from_color_index (index);
         }
 
         [[nodiscard]] auto en_passant_targets () const noexcept -> EnPassantTargets

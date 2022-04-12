@@ -113,7 +113,11 @@ namespace wisdom::analysis
             zstring errmsg = nullptr;
             if (my_in_transaction)
                 return;
-            int result = sqlite3_exec (my_sqlite, "BEGIN TRANSACTION", nullptr, nullptr, &errmsg);
+            int result = sqlite3_exec (my_sqlite,
+                                       "BEGIN TRANSACTION",
+                                       nullptr,
+                                       nullptr,
+                                       &errmsg);
             if (result != SQLITE_OK || errmsg != nullptr)
                 do_abort (errmsg);
             my_in_transaction = true;
@@ -210,6 +214,11 @@ namespace wisdom::analysis
             my_score = result.score;
         }
 
+        void finalize ([[maybe_unused]] int score) override
+        {
+            my_score = score;
+        }
+
         void store_transposition_hit (const RelativeTransposition& relative_transposition) override
         {
             Uuid transposition_hit_id;
@@ -272,8 +281,8 @@ namespace wisdom::analysis
 
         Position make_position ([[maybe_unused]] Move move) override
         {
-            auto impl = std::make_unique<SqlitePosition> (my_handle, *my_board, my_search_id,
-                                                          my_decision_id, move);
+            auto impl = std::make_unique<SqlitePosition> (my_handle, *my_board,
+                                                          my_search_id, my_decision_id, move);
             return Position { std::move (impl) };
         }
 
@@ -290,8 +299,9 @@ namespace wisdom::analysis
 
         Decision make_child ([[maybe_unused]] Position& position) override
         {
-            auto result = std::make_unique<SqliteDecision> (my_handle, *my_board, my_search_id,
-                                                            my_decision_id, my_depth + 1);
+            auto result = std::make_unique<SqliteDecision> (
+                my_handle, *my_board, my_search_id,
+                my_decision_id, my_depth + 1);
             const auto& parent_position = dynamic_cast<SqlitePosition&> (*position.get_impl_ptr ());
             result->set_parent_position_id (parent_position.id ());
             return Decision { std::move (result) };

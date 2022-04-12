@@ -100,6 +100,19 @@ namespace wisdom
         }
     }
 
+    static optional<int> read_max_depth ()
+    {
+        string input = prompt ("Max depth");
+        if (input.empty ())
+            return nullopt;
+
+        try {
+            return std::stoi(input);
+        } catch (std::invalid_argument& e) {
+            return nullopt;
+        }
+    }
+
     static void load_analysis (Game &game, Logger &logger)
     {
         string input = prompt ("store analysis in what file");
@@ -164,6 +177,13 @@ namespace wisdom
         else if (input == "unpause")
         {
             result.command = PlayCommand::Unpause;
+            return result;
+        }
+        else if (input == "maxdepth")
+        {
+            optional<int> max_depth = read_max_depth ();
+            if (max_depth.has_value ())
+                game.set_max_depth (*max_depth);
             return result;
         }
         else if (input == "computer_black")

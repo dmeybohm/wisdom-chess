@@ -72,7 +72,7 @@ namespace wisdom
                     if (!is_valid_column (k_col + col))
                         continue;
 
-                    Move knight_move = make_noncapture_move (k_row + row, k_col + col, row, col);
+                    Move knight_move = make_normal_move (k_row + row, k_col + col, row, col);
                     knight_moves[k_row + row][k_col + col].push_back (knight_move);
                 }
             }
@@ -162,7 +162,7 @@ namespace wisdom
                 if (!is_valid_column (col))
                     continue;
 
-                append_move (board, moves, make_noncapture_move (piece_row, piece_col, row, col));
+                append_move (board, moves, make_normal_move (piece_row, piece_col, row, col));
             }
         }
 
@@ -198,7 +198,7 @@ namespace wisdom
             {
                 ColoredPiece piece = board.piece_at (row, piece_col);
 
-                append_move (board, moves, make_noncapture_move (piece_row, piece_col, row, piece_col));
+                append_move (board, moves, make_normal_move (piece_row, piece_col, row, piece_col));
 
                 if (piece_type (piece) != Piece::None)
                     break;
@@ -208,7 +208,7 @@ namespace wisdom
             {
                 ColoredPiece piece = board.piece_at (piece_row, col);
 
-                append_move (board, moves, make_noncapture_move (piece_row, piece_col, piece_row, col));
+                append_move (board, moves, make_normal_move (piece_row, piece_col, piece_row, col));
 
                 if (piece_type (piece) != Piece::None)
                     break;
@@ -231,7 +231,7 @@ namespace wisdom
                 {
                     ColoredPiece piece = board.piece_at (row, col);
 
-                    append_move (board, moves, make_noncapture_move (piece_row, piece_col, row, col));
+                    append_move (board, moves, make_normal_move (piece_row, piece_col, row, col));
 
                     if (piece != Piece_And_Color_None)
                         break;
@@ -307,7 +307,7 @@ namespace wisdom
 
         // single move
         if (piece_type (board.piece_at (row, piece_col)) == Piece::None)
-            all_pawn_moves[0] = make_noncapture_move (piece_row, piece_col, row, piece_col);
+            all_pawn_moves[0] = make_normal_move (piece_row, piece_col, row, piece_col);
 
         // double move
         if (is_pawn_unmoved (board, piece_row, piece_col))
@@ -317,7 +317,7 @@ namespace wisdom
             if (all_pawn_moves[0].has_value () &&
                 board.piece_at (double_row, piece_col) == Piece_And_Color_None)
             {
-                all_pawn_moves[1] = make_noncapture_move (piece_row, piece_col, double_row, piece_col);
+                all_pawn_moves[1] = make_normal_move (piece_row, piece_col, double_row, piece_col);
             }
         }
 
@@ -335,9 +335,9 @@ namespace wisdom
                 piece_color (target_piece) != who)
             {
                 if (c_dir == -1)
-                    all_pawn_moves[2] = make_normal_capture_move (piece_row, piece_col, row, take_col);
+                    all_pawn_moves[2] = make_capturing_move (piece_row, piece_col, row, take_col);
                 else
-                    all_pawn_moves[3] = make_normal_capture_move (piece_row, piece_col, row, take_col);
+                    all_pawn_moves[3] = make_capturing_move (piece_row, piece_col, row, take_col);
             }
         }
 

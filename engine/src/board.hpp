@@ -30,9 +30,6 @@ namespace wisdom
         // The representation of the board.
         ColoredPiece my_squares[Num_Rows][Num_Columns];
 
-        // castle state of the board.
-        CastlingState my_castled[Num_Players];
-
         // positions of the kings.
         Coord my_king_pos[Num_Players];
 
@@ -173,41 +170,47 @@ namespace wisdom
         [[nodiscard]] auto able_to_castle (Color who, CastlingState castle_type) const
             -> bool
         {
-            ColorIndex c_index = color_index (who);
+            assert (castle_type != Castle_Previously_None);
 
-            bool didnt_castle = my_castled[c_index] != Castle_Castled;
-            bool neg_not_set = ((~my_castled[c_index]) & castle_type) != 0;
+            auto castle_state = get_castle_state (who);
+            bool neg_not_set = ((~castle_state) & castle_type) != 0;
 
-            return didnt_castle && neg_not_set;
+            return neg_not_set;
         }
 
         void apply_castle_change (Color who, CastlingState castle_state)
         {
-            ColorIndex index = color_index (who);
-            my_castled[index] = castle_state;
+            my_code.set_castle_state (who, castle_state);
         }
 
         void undo_castle_change (Color who, CastlingState castle_state)
         {
-            ColorIndex index = color_index (who);
-            my_castled[index] = castle_state;
+            my_code.set_castle_state (who, castle_state);
         }
 
         [[nodiscard]] auto get_castle_state (Color who) const -> CastlingState
         {
-            ColorIndex index = color_index (who);
-            return my_castled[index];
+            return my_code.castle_state (who);
         }
 
         void set_castle_state (Color who, CastlingState new_state)
         {
-            ColorIndex index = color_index (who);
-            my_castled[index] = new_state;
+            my_code.set_castle_state (who, new_state);
         }
 
         [[nodiscard]] auto is_en_passant_vulnerable (Color who) const noexcept -> bool
         {
             return my_code.en_passant_target (who) != No_En_Passant_Coord;
+        }
+
+        [[nodiscard]] auto get_current_turn () const -> Color
+        {
+            return my_code.current_turn ();
+        }
+
+        void set_current_turn (Color who)
+        {
+            my_code.set_current_turn (who);
         }
 
         [[nodiscard]] auto get_en_passant_target (Color who) const noexcept -> Coord

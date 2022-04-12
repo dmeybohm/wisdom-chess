@@ -148,10 +148,8 @@ TEST_CASE("Double pawn moves are more appealing")
     board.make_move (Color::White, e2e4);
     auto undo = board.make_move (Color::Black, e7e5);
     auto black_big_score = board.get_position ().raw_score (Color::Black);
-    std::cout << board.to_string () << "\n";
     board.take_back (Color::Black, e7e5, undo);
     board.make_move (Color::Black, e7e6);
-    std::cout << board.to_string () << "\n";
     auto black_small_score = board.get_position ().raw_score (Color::Black);
 
     REQUIRE( black_big_score > black_small_score );

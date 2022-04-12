@@ -154,10 +154,10 @@ namespace wisdom
 
         switch (move.move_category)
         {
-            case MoveCategory::NonCapture:
+            case MoveCategory::Regular:
                 break;
 
-            case MoveCategory::NormalCapture:
+            case MoveCategory::Capturing:
                 {
                     ColoredPiece taken_piece = make_piece (opponent, undo_state.taken_piece_type);
                     Coord taken_piece_coord = dst;
@@ -175,11 +175,14 @@ namespace wisdom
             case MoveCategory::Castling:
                 {
                     int8_t rook_src_row = castling_row_from_color (who);
-                    int8_t rook_src_col
-                        = is_castling_move_on_king_side (move) ? King_Rook_Column : Queen_Rook_Column;
-                    int8_t rook_dst_col = is_castling_move_on_king_side (move)
-                        ? Kingside_Castled_Rook_Column
-                        : Queenside_Castled_Rook_Column;
+                    auto rook_src_col = gsl::narrow_cast<int8_t> (
+                        is_castling_move_on_king_side (move)
+                            ? King_Rook_Column : Queen_Rook_Column
+                    );
+                    auto rook_dst_col = gsl::narrow_cast<int8_t> (
+                        is_castling_move_on_king_side (move)
+                            ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column
+                    );
 
                     Coord src_rook_coord = make_coord (rook_src_row, rook_src_col);
                     Coord dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
@@ -245,5 +248,4 @@ namespace wisdom
     {
         return my_score[color_index(who)];
     }
-
 }

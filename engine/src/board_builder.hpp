@@ -55,6 +55,8 @@ namespace wisdom
 
         void set_castling (Color who, CastlingState state);
 
+        void set_current_turn (Color who);
+
         void set_half_moves (int new_half_moves_clock);
 
         void set_full_moves (int new_full_moves);
@@ -65,6 +67,7 @@ namespace wisdom
         vector<PieceWithCoordState> pieces_with_coords;
         vector<EnPassantState> en_passant_states;
         vector<ColorAndCastlingState> castle_states;
+        Color current_turn = Color::White;
         int half_moves_clock = 0;
         int full_moves = 0;
     };

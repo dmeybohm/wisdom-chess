@@ -10,7 +10,8 @@ namespace wisdom
 
     Game FenParser::build ()
     {
-        return Game { active_player, builder };
+        builder.set_current_turn (active_player);
+        return Game { builder };
     }
 
     auto FenParser::parse_piece (char ch) -> ColoredPiece
