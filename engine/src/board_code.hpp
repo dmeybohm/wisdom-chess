@@ -192,7 +192,7 @@ namespace wisdom
 
         friend std::ostream &operator<< (std::ostream& os, const BoardCode& code);
 
-        [[nodiscard]] BoardCode with_move (const Board& board, Move move) const
+        [[nodiscard]] auto with_move (const Board& board, Move move) const -> BoardCode
         {
             auto copy = *this;
             copy.apply_move (board, move);
@@ -203,7 +203,7 @@ namespace wisdom
 
         void unapply_move (const Board& board, Move move, const UndoMove& undo_state);
 
-        [[nodiscard]] std::size_t count_ones () const;
+        [[nodiscard]] auto count_ones () const -> std::size_t;
     };
 }
 
@@ -212,7 +212,7 @@ namespace std
     template<>
     struct hash<wisdom::BoardCode>
     {
-        std::size_t operator() (const wisdom::BoardCode& code) const
+        auto operator() (const wisdom::BoardCode& code) const -> std::size_t
         {
             return code.hash_code ();
         }
