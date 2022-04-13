@@ -36,7 +36,7 @@ namespace wisdom
                 if (is_any_capturing_move (move))
                     counters.captures++;
 
-                if (is_en_passant_move (move))
+                if (is_special_en_passant_move (move))
                     counters.en_passants++;
             }
 
@@ -66,7 +66,7 @@ namespace wisdom
         auto dst_piece = board.piece_at (dst);
         assert (piece_color (src_piece) == who);
 
-        Move result = wisdom::make_normal_move (src, dst);
+        Move result = wisdom::make_normal_movement_move (src, dst);
 
         // 1. castling is represented by two space king moves
         if (wisdom::piece_type (src_piece) == Piece::King)
@@ -76,7 +76,7 @@ namespace wisdom
             if (castling_row == Row (src) && castling_row == Row (dst)
                 && std::abs (Column (src) - Column (dst)))
             {
-                result = make_castling_move (src, dst);
+                result = make_special_castling_move (src, dst);
             }
         }
 
@@ -86,7 +86,7 @@ namespace wisdom
             if (Row (src) != Row (dst) && Column (src) != Column (dst)
                 && dst_piece == Piece_And_Color_None)
             {
-                result = make_en_passant_move (src, dst);
+                result = make_special_en_passant_move (src, dst);
             }
         }
 
@@ -124,18 +124,18 @@ namespace wisdom
 
     auto wisdom::perft::to_perft_move (const Move& move, Color who) -> string
     {
-        if (is_castling_move (move))
+        if (is_special_castling_move (move))
         {
             auto row = who == Color::White ? Last_Row : First_Row;
             auto src_col = King_Column;
             auto dst_col = is_castling_move_on_king_side (move) ? Kingside_Castled_King_Column
                                                                 : Queenside_Castled_King_Column;
 
-            Move normal = wisdom::make_normal_move (row, src_col, row, dst_col);
+            Move normal = wisdom::make_regular_move (row, src_col, row, dst_col);
             return wisdom::to_string (move_src (normal)) + wisdom::to_string (move_dst (normal));
         }
 
-        if (is_en_passant_move (move))
+        if (is_special_en_passant_move (move))
         {
             return wisdom::to_string (move_src (move)) + wisdom::to_string (move_dst (move));
         }

@@ -209,14 +209,14 @@ namespace wisdom::analysis
 
         [[nodiscard]] PositionId id () const noexcept { return my_position_id; }
 
-        void finalize ([[maybe_unused]] const SearchResult& result) override
-        {
-            my_score = result.score;
-        }
-
         void finalize ([[maybe_unused]] int score) override
         {
             my_score = score;
+        }
+
+        auto score () const -> int
+        {
+            return my_score;
         }
 
         void store_transposition_hit (const RelativeTransposition& relative_transposition) override
@@ -243,7 +243,6 @@ namespace wisdom::analysis
         DecisionId my_parent_id;
         optional<Move> my_move;
         int my_depth;
-        int my_score = Negative_Infinity;
         PositionId my_parent_position_id = Uuid::Nil ();
 
     public:
@@ -289,7 +288,6 @@ namespace wisdom::analysis
         void finalize ([[maybe_unused]] const SearchResult& result) override
         {
             my_move = result.move;
-            my_score = result.score;
         }
 
         void set_parent_position_id (PositionId parent_position_id)
@@ -307,7 +305,9 @@ namespace wisdom::analysis
             return Decision { std::move (result) };
         }
 
-        void preliminary_choice ([[maybe_unused]] Position& position) override { }
+        void select_position ([[maybe_unused]] Position& position) override
+        {
+        }
     };
 
     class SqliteSearch : public SearchImpl

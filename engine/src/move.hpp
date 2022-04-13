@@ -24,16 +24,16 @@ namespace wisdom
 
     enum class MoveCategory
     {
-        Regular = 0,
-        Capturing = 1,
-        EnPassant = 2,
-        Castling = 3,
+        NormalMovement = 0,
+        NormalCapturing = 1,
+        SpecialEnPassant = 2,
+        SpecialCastling = 3,
     };
 
     struct UndoMove
     {
-        // todo: optimize by using bitfields and free functions
         int half_move_clock;
+        int position_score[Num_Players];
         Piece taken_piece_type;
         Coord en_passant_targets[Num_Players];
         MoveCategory category;
@@ -42,13 +42,13 @@ namespace wisdom
         bool full_move_clock_updated;
     };
 
-    static_assert(sizeof(UndoMove) <= 20);
+    static_assert(sizeof(UndoMove) <= 24);
 
     constexpr UndoMove Empty_Undo_State = {
         .half_move_clock = 0,
         .taken_piece_type = Piece::None,
         .en_passant_targets = { No_En_Passant_Coord, No_En_Passant_Coord },
-        .category = MoveCategory::Regular,
+        .category = MoveCategory::NormalMovement,
         .current_castle_state = Castle_None,
         .opponent_castle_state = Castle_None,
         .full_move_clock_updated = false,
@@ -110,18 +110,18 @@ namespace wisdom
         return make_piece (move.promoted_color, move.promoted_piece_type);
     }
 
-    constexpr bool is_normal_capture_move (Move move)
+    constexpr bool is_normal_capturing_move (Move move)
     {
-        return move.move_category == MoveCategory::Capturing;
+        return move.move_category == MoveCategory::NormalCapturing;
     }
 
     constexpr ColoredPiece captured_material (UndoMove undo_state, Color opponent)
     {
-        if (undo_state.category == MoveCategory::Capturing)
+        if (undo_state.category == MoveCategory::NormalCapturing)
         {
             return make_piece (opponent, undo_state.taken_piece_type);
         }
-        else if (undo_state.category == MoveCategory::EnPassant)
+        else if (undo_state.category == MoveCategory::SpecialEnPassant)
         {
             return make_piece (opponent, Piece::Pawn);
         }
@@ -131,28 +131,28 @@ namespace wisdom
         }
     }
 
-    constexpr auto is_en_passant_move (Move move) noexcept
+    constexpr auto is_special_en_passant_move (Move move) noexcept
         -> bool
     {
-        return move.move_category == MoveCategory::EnPassant;
+        return move.move_category == MoveCategory::SpecialEnPassant;
     }
 
     constexpr auto is_any_capturing_move (Move move) noexcept
         -> bool
     {
-        return is_normal_capture_move (move) || is_en_passant_move (move);
+        return is_normal_capturing_move (move) || is_special_en_passant_move (move);
     }
 
-    constexpr auto is_castling_move (Move move) noexcept
+    constexpr auto is_special_castling_move (Move move) noexcept
         -> bool
     {
-        return move.move_category == MoveCategory::Castling;
+        return move.move_category == MoveCategory::SpecialCastling;
     }
 
     constexpr auto is_castling_move_on_king_side (Move move) noexcept
         -> bool
     {
-        return is_castling_move (move) && move.dst_col == 6;
+        return is_special_castling_move (move) && move.dst_col == 6;
     }
 
     constexpr auto copy_move_with_promotion (Move move, ColoredPiece piece) noexcept
@@ -164,9 +164,9 @@ namespace wisdom
         return result;
     }
 
-    // run-of-the-mill move with no promotion involved
-    constexpr auto make_normal_move (int src_row, int src_col,
-                                     int dst_row, int dst_col) noexcept
+    // run-of-the-mill move with no promotion or capturing involved
+    constexpr auto make_regular_move (int src_row, int src_col,
+                                      int dst_row, int dst_col) noexcept
         -> Move
     {
         assert (src_row >= 0 && src_row < Num_Rows);
@@ -180,33 +180,33 @@ namespace wisdom
                 .dst_col = gsl::narrow_cast<int8_t>(dst_col),
                 .promoted_color = Color::None,
                 .promoted_piece_type = Piece::None,
-                .move_category = MoveCategory::Regular,
+                .move_category = MoveCategory::NormalMovement,
         };
 
         return result;
     }
 
-    constexpr auto make_normal_move (Coord src, Coord dst) noexcept
+    constexpr auto make_normal_movement_move (Coord src, Coord dst) noexcept
         -> Move
     {
-        return make_normal_move (Row (src), Column (src), Row (dst), Column (dst));
+        return make_regular_move (Row (src), Column (src), Row (dst), Column (dst));
     }
 
-    constexpr auto make_capturing_move (int src_row, int src_col,
-                                             int dst_row, int dst_col) noexcept
+    constexpr auto make_normal_capturing_move (int src_row, int src_col,
+                                               int dst_row, int dst_col) noexcept
         -> Move
     {
-        Move move = make_normal_move (src_row, src_col, dst_row, dst_col);
-        move.move_category = MoveCategory::Capturing;
+        Move move = make_regular_move (src_row, src_col, dst_row, dst_col);
+        move.move_category = MoveCategory::NormalCapturing;
         return move;
     }
 
-    constexpr auto make_castling_move (int src_row, int src_col,
-                                       int dst_row, int dst_col) noexcept
+    constexpr auto make_special_castling_move (int src_row, int src_col,
+                                               int dst_row, int dst_col) noexcept
         -> Move
     {
-        Move move = make_normal_move (src_row, src_col, dst_row, dst_col);
-        move.move_category = MoveCategory::Castling;
+        Move move = make_regular_move (src_row, src_col, dst_row, dst_col);
+        move.move_category = MoveCategory::SpecialCastling;
         return move;
     }
 
@@ -216,11 +216,10 @@ namespace wisdom
         return gsl::narrow_cast<T> (who == Color::White ? Last_Row : First_Row);
     }
 
-    constexpr auto make_castling_move (Coord src, Coord dst) noexcept
+    constexpr auto make_special_castling_move (Coord src, Coord dst) noexcept
         -> Move
     {
-        return make_castling_move (Row (src), Column (src),
-                                   Row (dst), Column (dst));
+        return make_special_castling_move (Row (src), Column (src), Row (dst), Column (dst));
     }
 
     constexpr auto copy_move_with_capture (Move move) noexcept
@@ -228,27 +227,27 @@ namespace wisdom
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
-        assert (move.move_category == MoveCategory::Regular);
-        Move result = make_normal_move (Row (src), Column (src), Row (dst), Column (dst));
-        result.move_category = MoveCategory::Capturing;
+        assert (move.move_category == MoveCategory::NormalMovement);
+        Move result = make_regular_move (Row (src), Column (src), Row (dst), Column (dst));
+        result.move_category = MoveCategory::NormalCapturing;
         return result;
     }
 
     using PlayerCastleState = array<CastlingState, Num_Players>;
 
-    constexpr auto make_en_passant_move (int src_row, int src_col,
+    constexpr auto make_special_en_passant_move (int src_row, int src_col,
                                          int dst_row, int dst_col) noexcept
         -> Move
     {
-        Move move = make_normal_move (src_row, src_col, dst_row, dst_col);
-        move.move_category = MoveCategory::EnPassant;
+        Move move = make_regular_move (src_row, src_col, dst_row, dst_col);
+        move.move_category = MoveCategory::SpecialEnPassant;
         return move;
     }
 
-    constexpr auto make_en_passant_move (Coord src, Coord dst) noexcept
+    constexpr auto make_special_en_passant_move (Coord src, Coord dst) noexcept
         -> Move
     {
-        return make_en_passant_move (Row (src), Column (src), Row (dst), Column (dst));
+        return make_special_en_passant_move (Row (src), Column (src), Row (dst), Column (dst));
     }
 
     constexpr auto move_equals (Move a, Move b) noexcept

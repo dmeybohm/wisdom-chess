@@ -67,7 +67,7 @@ namespace wisdom
         int src_row, src_col;
         int dst_row, dst_col;
 
-        assert (is_castling_move (move));
+        assert (is_special_castling_move (move));
 
         Coord src = move_src (move);
         Coord dst = move_dst (move);
@@ -96,7 +96,7 @@ namespace wisdom
             };
         }
 
-        return make_normal_move (src_row, src_col, dst_row, dst_col);
+        return make_regular_move (src_row, src_col, dst_row, dst_col);
     }
 
     template <bool undo>
@@ -316,8 +316,8 @@ namespace wisdom
         assert (piece_type (src_piece) != Piece::None);
         if (piece_type (dst_piece) != Piece::None)
         {
-            assert (is_normal_capture_move (move));
-            undo_state.category = MoveCategory::Capturing;
+            assert (is_normal_capturing_move (move));
+            undo_state.category = MoveCategory::NormalCapturing;
             undo_state.taken_piece_type = piece_type (dst_piece);
         }
 
@@ -336,17 +336,17 @@ namespace wisdom
         }
 
         // check for en passant
-        if (is_en_passant_move (move))
+        if (is_special_en_passant_move (move))
         {
             dst_piece = handle_en_passant (this, who, src, dst, false);
-            undo_state.category = MoveCategory::EnPassant;
+            undo_state.category = MoveCategory::SpecialEnPassant;
         }
 
         // check for castling
-        if (is_castling_move (move))
+        if (is_special_castling_move (move))
         {
             handle_castling<false> (this, who, move, src, dst);
-            undo_state.category = MoveCategory::Castling;
+            undo_state.category = MoveCategory::SpecialCastling;
         }
 
         handle_en_passant_eligibility (this, who, src_piece, move, &undo_state, 0);
@@ -381,7 +381,7 @@ namespace wisdom
             }
         }
 
-        this->my_position.apply_move (who, orig_src_piece, move, undo_state);
+        my_position.apply_move (who, orig_src_piece, move, &undo_state);
         validate_castle_state (*this, move);
 
         this->update_move_clock (who, piece_type (orig_src_piece), move, undo_state);
@@ -420,14 +420,14 @@ namespace wisdom
         }
 
         // check for castling
-        if (is_castling_move (move))
+        if (is_special_castling_move (move))
             handle_castling<true> (this, who, move, src, dst);
 
         // Update en passant eligibility:
         handle_en_passant_eligibility (this, who, src_piece, move, &undo_move_value, true);
 
         // check for en passant
-        if (is_en_passant_move (move))
+        if (is_special_en_passant_move (move))
             dst_piece = handle_en_passant (this, who, src, dst, true);
 
         // Update the code:
@@ -461,7 +461,7 @@ namespace wisdom
             }
         }
 
-        this->my_position.unapply_move (who, src_piece, move, undo_state);
+        this->my_position.unapply_move (who, undo_state);
         validate_castle_state (*this, move);
         set_current_turn (who);
         this->restore_move_clock (undo_state);
@@ -490,7 +490,7 @@ namespace wisdom
         else
             return nullopt;
 
-        return make_castling_move (src_row, King_Column, src_row, dst_col);
+        return make_special_castling_move (src_row, King_Column, src_row, dst_col);
     }
 
     auto move_parse_optional (const string& str, Color who) -> optional<Move>
@@ -553,7 +553,7 @@ namespace wisdom
         }
 
         string rest { tmp.substr (offset) };
-        Move move = make_normal_move (src, dst);
+        Move move = make_normal_movement_move (src, dst);
         if (is_capturing)
         {
             move = copy_move_with_capture (move);
@@ -589,7 +589,7 @@ namespace wisdom
 
         if (en_passant)
         {
-            move = make_en_passant_move (Row (src), Column (src), Row (dst), Column (dst));
+            move = make_special_en_passant_move (Row (src), Column (src), Row (dst), Column (dst));
         }
 
         return move;
@@ -606,9 +606,9 @@ namespace wisdom
 
         auto result = *optional_result;
         if (color == Color::None &&
-            result.move_category != MoveCategory::Capturing
+            result.move_category != MoveCategory::NormalCapturing
             &&
-            result.move_category != MoveCategory::Regular)
+            result.move_category != MoveCategory::NormalMovement)
         {
             throw ParseMoveException ("Invalid type of move in parse_simple_move");
         }
@@ -623,7 +623,7 @@ namespace wisdom
         src = move_src (move);
         dst = move_dst (move);
 
-        if (is_castling_move (move))
+        if (is_special_castling_move (move))
         {
             if (Column (dst) - Column (src) < 0)
             {
@@ -640,14 +640,14 @@ namespace wisdom
         string result;
         result += to_string (src);
 
-        if (is_normal_capture_move (move))
+        if (is_normal_capturing_move (move))
             result += "x";
         else
             result += " ";
 
         result += to_string (dst);
 
-        if (is_en_passant_move (move))
+        if (is_special_en_passant_move (move))
         {
             result += " ep";
         }
@@ -676,7 +676,7 @@ namespace wisdom
             return {};
 
         // make capturing if dst piece is not none
-        Move move = make_normal_move (src, dst);
+        Move move = make_normal_movement_move (src, dst);
         if (dst_piece != Piece_And_Color_None)
             move = copy_move_with_capture (move);
 
@@ -692,7 +692,7 @@ namespace wisdom
                                                                       Column (src),
                                                                       who);
                     if (eligible_column == Column (dst))
-                        return make_en_passant_move (src, dst);
+                        return make_special_en_passant_move (src, dst);
 
                     if (need_pawn_promotion (Row<int> (dst), who) && promoted_piece.has_value ())
                         return copy_move_with_promotion (move, make_piece (who, *promoted_piece));
@@ -706,7 +706,7 @@ namespace wisdom
                     if (Column (dst) - Column (src) == 2 ||
                        Column (dst) - Column (src) == -2)
                     {
-                        return make_castling_move (src, dst);
+                        return make_special_castling_move (src, dst);
                     }
                 }
                 break;

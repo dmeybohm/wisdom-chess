@@ -1,5 +1,5 @@
-#ifndef WISDOM_ANALYTICS_HPP
-#define WISDOM_ANALYTICS_HPP
+#ifndef WISDOM_CHESS_ANALYTICS_HPP
+#define WISDOM_CHESS_ANALYTICS_HPP
 
 #include "global.hpp"
 #include "move.hpp"
@@ -17,8 +17,6 @@ namespace wisdom::analysis
     public:
         virtual ~PositionImpl () = default;
 
-        virtual void finalize ([[maybe_unused]] const SearchResult& result) = 0;
-
         virtual void finalize ([[maybe_unused]] int score) = 0;
 
         virtual void store_transposition_hit (const RelativeTransposition& relative_transposition)
@@ -33,12 +31,6 @@ namespace wisdom::analysis
     public:
         Position () = default;
         explicit Position (wisdom::unique_ptr<PositionImpl> impl_) : impl { std::move (impl_) } { }
-
-        void finalize ([[maybe_unused]] const SearchResult& result)
-        {
-            if (impl)
-                return impl->finalize (result);
-        }
 
         void finalize ([[maybe_unused]] int score)
         {
@@ -72,7 +64,7 @@ namespace wisdom::analysis
 
         void finalize (const SearchResult& result);
 
-        void preliminary_choice (Position& position);
+        void select_position (Position& position);
     };
 
     class DecisionImpl
@@ -86,7 +78,7 @@ namespace wisdom::analysis
 
         virtual void finalize (const SearchResult& result) = 0;
 
-        virtual void preliminary_choice (Position& position) = 0;
+        virtual void select_position (Position& position) = 0;
     };
 
     class SearchImpl
@@ -200,4 +192,4 @@ namespace wisdom::analysis
     Analytics& make_dummy_analytics ();
 }
 
-#endif // WISDOM_ANALYTICS_HPP
+#endif // WISDOM_CHESS_ANALYTICS_HPP

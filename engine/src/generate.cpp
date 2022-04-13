@@ -72,7 +72,7 @@ namespace wisdom
                     if (!is_valid_column (k_col + col))
                         continue;
 
-                    Move knight_move = make_normal_move (k_row + row, k_col + col, row, col);
+                    Move knight_move = make_regular_move (k_row + row, k_col + col, row, col);
                     knight_moves[k_row + row][k_col + col].push_back (knight_move);
                 }
             }
@@ -122,7 +122,7 @@ namespace wisdom
         -> Move
     {
         bool is_capture = (piece_type (dst_piece) != Piece::None);
-        if (is_capture && !is_en_passant_move (move) && !is_normal_capture_move (move))
+        if (is_capture && !is_special_en_passant_move (move) && !is_normal_capturing_move (move))
             move = copy_move_with_capture (move);
 
         return move;
@@ -162,26 +162,20 @@ namespace wisdom
                 if (!is_valid_column (col))
                     continue;
 
-                append_move (board, moves, make_normal_move (piece_row, piece_col, row, col));
+                append_move (board, moves, make_regular_move (piece_row, piece_col, row, col));
             }
         }
 
         if (board.able_to_castle ( who, Castle_Queenside) && piece_col == King_Column)
         {
-            Move queenside_castle = make_castling_move (
-                    piece_row, piece_col,
-                    piece_row, piece_col - 2
-            );
+            Move queenside_castle = make_special_castling_move (piece_row, piece_col, piece_row, piece_col - 2);
             if (valid_castling_move (board, queenside_castle))
                 append_move (board, moves, queenside_castle);
         }
 
         if (board.able_to_castle ( who, Castle_Kingside) && piece_col == King_Column)
         {
-            Move kingside_castle = make_castling_move (
-                    piece_row, piece_col,
-                    piece_row, piece_col + 2
-            );
+            Move kingside_castle = make_special_castling_move (piece_row, piece_col, piece_row, piece_col + 2);
             if (valid_castling_move (board, kingside_castle))
                 append_move (board, moves, kingside_castle);
         }
@@ -198,7 +192,8 @@ namespace wisdom
             {
                 ColoredPiece piece = board.piece_at (row, piece_col);
 
-                append_move (board, moves, make_normal_move (piece_row, piece_col, row, piece_col));
+                append_move (board, moves,
+                             make_regular_move (piece_row, piece_col, row, piece_col));
 
                 if (piece_type (piece) != Piece::None)
                     break;
@@ -208,7 +203,8 @@ namespace wisdom
             {
                 ColoredPiece piece = board.piece_at (piece_row, col);
 
-                append_move (board, moves, make_normal_move (piece_row, piece_col, piece_row, col));
+                append_move (board, moves,
+                             make_regular_move (piece_row, piece_col, piece_row, col));
 
                 if (piece_type (piece) != Piece::None)
                     break;
@@ -231,7 +227,7 @@ namespace wisdom
                 {
                     ColoredPiece piece = board.piece_at (row, col);
 
-                    append_move (board, moves, make_normal_move (piece_row, piece_col, row, col));
+                    append_move (board, moves, make_regular_move (piece_row, piece_col, row, col));
 
                     if (piece != Piece_And_Color_None)
                         break;
@@ -307,7 +303,7 @@ namespace wisdom
 
         // single move
         if (piece_type (board.piece_at (row, piece_col)) == Piece::None)
-            all_pawn_moves[0] = make_normal_move (piece_row, piece_col, row, piece_col);
+            all_pawn_moves[0] = make_regular_move (piece_row, piece_col, row, piece_col);
 
         // double move
         if (is_pawn_unmoved (board, piece_row, piece_col))
@@ -317,7 +313,7 @@ namespace wisdom
             if (all_pawn_moves[0].has_value () &&
                 board.piece_at (double_row, piece_col) == Piece_And_Color_None)
             {
-                all_pawn_moves[1] = make_normal_move (piece_row, piece_col, double_row, piece_col);
+                all_pawn_moves[1] = make_regular_move (piece_row, piece_col, double_row, piece_col);
             }
         }
 
@@ -335,9 +331,9 @@ namespace wisdom
                 piece_color (target_piece) != who)
             {
                 if (c_dir == -1)
-                    all_pawn_moves[2] = make_capturing_move (piece_row, piece_col, row, take_col);
+                    all_pawn_moves[2] = make_normal_capturing_move (piece_row, piece_col, row, take_col);
                 else
-                    all_pawn_moves[3] = make_capturing_move (piece_row, piece_col, row, take_col);
+                    all_pawn_moves[3] = make_normal_capturing_move (piece_row, piece_col, row, take_col);
             }
         }
 
@@ -391,7 +387,7 @@ namespace wisdom
         assert (piece_type (take_piece) == Piece::Pawn);
         assert (piece_color (take_piece) == color_invert (who));
 
-        Move new_move = make_en_passant_move (piece_row, piece_col, take_row, take_col);
+        Move new_move = make_special_en_passant_move (piece_row, piece_col, take_row, take_col);
 
         append_move (board, moves, new_move);
     }

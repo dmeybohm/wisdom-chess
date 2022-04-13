@@ -142,7 +142,7 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
             qDebug() << "index " << i << "changed";
             emit dataChanged(changedIndex, changedIndex, rolesChanged);
         }
-        if (is_castling_move(selectedMove)) {
+        if (is_special_castling_move(selectedMove)) {
             auto sourceRookRow = who == wisdom::Color::White ? 7 : 0;
             auto sourceRookColumn = is_castling_move_on_king_side(selectedMove)
                     ? King_Rook_Column : Queen_Rook_Column;

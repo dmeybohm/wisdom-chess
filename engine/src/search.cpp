@@ -97,8 +97,6 @@ namespace wisdom
 
         for (auto move : moves)
         {
-            auto position = decision.make_position (move);
-
             if (my_timer.is_triggered ())
             {
                 my_timed_out = true;
@@ -112,6 +110,8 @@ namespace wisdom
                 my_board->take_back (side, move, undo_state);
                 continue;
             }
+
+            auto position = decision.make_position (move);
 
             my_nodes_visited++;
 
@@ -140,7 +140,7 @@ namespace wisdom
                 best_score = score;
                 best_move = move;
 
-                decision.preliminary_choice (position);
+                decision.select_position (position);
             }
 
             if (best_score > alpha)

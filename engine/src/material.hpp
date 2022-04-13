@@ -6,6 +6,8 @@
 
 namespace wisdom
 {
+    class Board;
+
     enum material_weight
     {
         Material_Weight_None = 0,
@@ -24,6 +26,8 @@ namespace wisdom
 
     public:
         Material () = default;
+
+        explicit Material (const Board& board);
 
         [[nodiscard]] static int weight (Piece piece) noexcept
         {
@@ -56,7 +60,6 @@ namespace wisdom
             ColorIndex opponent_index = color_index (color_invert (who));
             return my_score[my_index] - my_score[opponent_index];
         }
-
     };
 }
 

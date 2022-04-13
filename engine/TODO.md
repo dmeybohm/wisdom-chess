@@ -15,11 +15,10 @@
   - [ ] [[Also]] look at other linkers on Windows to link - e.g. IncrediBuild
   - [ ] Try compiling clang itself with LTO and PGO (PGO compiling clang itself)
 - [ ] Investigate Tranposition Table performance which is extremely low - Zobrist hashing
-- [ ] Investigate polymorphic memory resources for allocation of move lists and [[transposition]] table
+- [ ] Investigate polymorphic memory resources for allocation of move lists and transposition table
 - [ ] Add profiling and document it
 - [ ] Improve move generation so fewer copies are generated and whole board isn't traversed
 - [ ] Implement parallelized quiescent search before returning a score evaluating the Board
 - [ ] Add opening book
 - [ ] Do some pawn structure / positioning evaluation
-- [x] (partial) Multithread
 

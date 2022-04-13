@@ -59,7 +59,7 @@ namespace wisdom
         Color opponent = color_invert (who);
 
         score += board.get_material ().score (who);
-        score += board.get_position ().score (who);
+        score += board.get_position ().overall_score (who);
 
         if (is_checkmated (board, who))
         {

@@ -1,4 +1,5 @@
 #include "position.hpp"
+#include "board.hpp"
 
 namespace wisdom
 {
@@ -120,7 +121,7 @@ namespace wisdom
         }
     }
 
-    int Position::score (Color who) const
+    int Position::overall_score (Color who) const
     {
         ColorIndex index = color_index (who);
         ColorIndex inverted = color_index (color_invert (who));
@@ -143,36 +144,39 @@ namespace wisdom
         this->my_score[index] -= change (coord, who, piece);
     }
 
-    void Position::apply_move (Color who, ColoredPiece piece, Move move, const UndoMove &undo_state)
+    void Position::apply_move (Color who, ColoredPiece piece, Move move, gsl::not_null<UndoMove*> undo_state)
     {
         Color opponent = color_invert (who);
 
         Coord src = move_src (move);
         Coord dst = move_dst (move);
 
+        undo_state->position_score[color_index (who)] = my_score[color_index (who)];
+        undo_state->position_score[color_index (opponent)] = my_score[color_index (opponent)];
+
         this->remove (who, src, piece);
 
         switch (move.move_category)
         {
-            case MoveCategory::Regular:
+            case MoveCategory::NormalMovement:
                 break;
 
-            case MoveCategory::Capturing:
+            case MoveCategory::NormalCapturing:
                 {
-                    ColoredPiece taken_piece = make_piece (opponent, undo_state.taken_piece_type);
+                    ColoredPiece taken_piece = make_piece (opponent, undo_state->taken_piece_type);
                     Coord taken_piece_coord = dst;
                     this->remove (opponent, taken_piece_coord, taken_piece);
                 }
                 break;
 
-            case MoveCategory::EnPassant:
+            case MoveCategory::SpecialEnPassant:
                 {
                     Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
                     this->remove (opponent, taken_pawn_coord, make_piece (opponent, Piece::Pawn));
                 }
                 break;
 
-            case MoveCategory::Castling:
+            case MoveCategory::SpecialCastling:
                 {
                     int8_t rook_src_row = castling_row_from_color (who);
                     auto rook_src_col = gsl::narrow_cast<int8_t> (
@@ -192,6 +196,9 @@ namespace wisdom
                     this->add (who, dst_rook_coord, rook);
                 }
                 break;
+
+            default:
+                throw Error { "Invalid move type." };
         }
 
         ColoredPiece dst_piece = is_promoting_move (move) ?
@@ -200,52 +207,29 @@ namespace wisdom
         this->add (who, dst, dst_piece);
     }
 
-    // todo: store the old score in the undo state instead of re-calculating it
-    void Position::unapply_move (Color who, ColoredPiece piece, Move move, const UndoMove& undo_state)
+    void Position::unapply_move (Color who, const UndoMove& undo_state)
     {
         Color opponent = color_invert (who);
-        Coord src = move_src (move);
-        Coord dst = move_dst (move);
 
-        ColoredPiece dst_piece = is_promoting_move (move) ?
-                                 move_get_promoted_piece (move) : piece;
-
-        this->remove (who, dst, dst_piece);
-
-        if (is_normal_capture_move (move))
-        {
-            ColoredPiece taken_piece = make_piece (opponent, undo_state.taken_piece_type);
-            Coord taken_piece_coord = dst;
-
-            this->add (opponent, taken_piece_coord, taken_piece);
-        }
-
-        if (is_en_passant_move (move))
-        {
-            Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
-            this->add (opponent, taken_pawn_coord, make_piece (opponent, Piece::Pawn));
-        }
-
-        if (is_castling_move (move))
-        {
-            int8_t rook_src_row = castling_row_from_color (who);
-            int8_t rook_src_col = is_castling_move_on_king_side (move) ?
-                                  King_Rook_Column : Queen_Rook_Column;
-            int8_t rook_dst_col = is_castling_move_on_king_side (move) ? Kingside_Castled_Rook_Column
-                                                                    : Queenside_Castled_Rook_Column;
-
-            Coord src_rook_coord = make_coord (rook_src_row, rook_src_col);
-            Coord dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
-            ColoredPiece rook = make_piece (who, Piece::Rook);
-            this->remove (who, dst_rook_coord, rook);
-            this->add (who, src_rook_coord, rook);
-        }
-
-        this->add (who, src, piece);
+        my_score[color_index (who)] = undo_state.position_score[color_index (who)];
+        my_score[color_index (opponent)] = undo_state.position_score[color_index (opponent)];
     }
 
-    int Position::raw_score (Color who) const
+    int Position::individual_score (Color who) const
     {
         return my_score[color_index(who)];
+    }
+
+    Position::Position (const Board& board)
+    {
+        int8_t row, col;
+
+        FOR_EACH_ROW_AND_COL(row, col)
+        {
+            auto piece = board.piece_at (row, col);
+            auto place = make_coord (row, col);
+            if (piece != Piece_And_Color_None)
+                add (piece_color (piece), place, piece);
+        }
     }
 }

@@ -138,7 +138,7 @@ TEST_CASE( "board code")
 
         Move promote_castle_move = move_parse ("b7xa8 (Q)", Color::Black);
         REQUIRE( is_promoting_move (promote_castle_move) );
-        REQUIRE( is_normal_capture_move (promote_castle_move) );
+        REQUIRE( is_normal_capturing_move (promote_castle_move) );
 
         code.apply_move (*brd, promote_castle_move);
         REQUIRE( initial != code);

@@ -25,7 +25,6 @@ namespace wisdom
 
     using AncillaryBitset = std::bitset<Ancillary_Bits>;
 
-    // TODO: make this a single coordinate and pair with current turn.
     using EnPassantTargets = std::array<Coord, Num_Players>;
 
     class Board;

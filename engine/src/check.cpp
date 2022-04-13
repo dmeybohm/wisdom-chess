@@ -697,7 +697,7 @@ namespace wisdom
         auto king_row = Row (king_coord);
         auto king_col = Column (king_coord);
 
-        if (is_castling_move (mv))
+        if (is_special_castling_move (mv))
         {
             Coord castled_pos = move_dst (mv);
             auto castled_row = Row (castled_pos);

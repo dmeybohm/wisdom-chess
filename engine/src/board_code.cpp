@@ -62,7 +62,7 @@ namespace wisdom
         Piece src_piece_type = piece_type (src_piece);
         Color src_piece_color = piece_color (src_piece);
 
-        if (is_castling_move (move))
+        if (is_special_castling_move (move))
         {
             int src_col, dst_col;
             int row;
@@ -84,7 +84,7 @@ namespace wisdom
             remove_piece (rook_src);
             add_piece (make_coord (row, dst_col), rook);
         }
-        else if (is_en_passant_move (move))
+        else if (is_special_en_passant_move (move))
         {
             // subtract horizontal pawn and add no piece there:
             Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
@@ -117,7 +117,7 @@ namespace wisdom
             src_piece = make_piece (src_piece_color, Piece::Pawn);
         }
 
-        if (is_castling_move (move))
+        if (is_special_castling_move (move))
         {
             int8_t src_col, dst_col;
             int8_t row;
@@ -143,13 +143,13 @@ namespace wisdom
         add_piece (src, src_piece);
         remove_piece (dst);
 
-        if (is_normal_capture_move (move))
+        if (is_normal_capturing_move (move))
         {
             ColoredPiece captured = captured_material (undo_state, opponent_color);
             add_piece (dst, captured);
         }
 
-        if (is_en_passant_move (move))
+        if (is_special_en_passant_move (move))
         {
             ColoredPiece captured_pawn = make_piece (opponent_color, Piece::Pawn);
             Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);

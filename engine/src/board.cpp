@@ -75,12 +75,10 @@ namespace wisdom
           raw_squares {}
     {
         int8_t row;
-
         int8_t col;
+
         FOR_EACH_ROW_AND_COL(row, col)
             set_piece (make_coord (row, col), Piece_And_Color_None);
-
-        this->my_position = Position {};
 
         for (auto& pos : positions)
         {
@@ -97,9 +95,6 @@ namespace wisdom
                 Coord place = make_coord (row, col);
                 set_piece (place, new_piece);
 
-                this->my_material.add (new_piece);
-                this->my_position.add (color, place, new_piece);
-
                 if (pieces[col] == Piece::King)
                     this->set_king_position (color, place);
             }
@@ -109,6 +104,9 @@ namespace wisdom
         set_castle_state (Color::Black, init_castle_state (*this, Color::Black));
 
         my_code = BoardCode::from_board (*this);
+
+        this->my_position = Position { *this };
+        this->my_material = Material { *this };
     }
 
     void Board::print_to_file (std::ostream &out) const

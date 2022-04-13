@@ -24,10 +24,10 @@ namespace wisdom::analysis
             impl->finalize (result);
     }
 
-    void Decision::preliminary_choice (Position &position)
+    void Decision::select_position (Position &position)
     {
         if (impl)
-            impl->preliminary_choice (position);
+            impl->select_position (position);
     }
 
     Analytics& make_dummy_analytics ()

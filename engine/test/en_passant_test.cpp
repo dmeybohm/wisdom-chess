@@ -54,7 +54,7 @@ TEST_CASE( "en passant" )
 
         for (auto move : move_list)
         {
-            if (is_en_passant_move (move))
+            if (is_special_en_passant_move (move))
                 optional_en_passant_move = move;
         }
 
@@ -62,7 +62,7 @@ TEST_CASE( "en passant" )
         auto en_passant_move = *optional_en_passant_move;
 
         // Check move types:
-        REQUIRE( is_en_passant_move (en_passant_move) );
+        REQUIRE( is_special_en_passant_move (en_passant_move) );
 
         // Check position:
         REQUIRE( Row (move_src (en_passant_move)) == 3 );
@@ -72,7 +72,7 @@ TEST_CASE( "en passant" )
 
         UndoMove en_passant_undo_state = board->make_move (Color::White, en_passant_move);
 
-        REQUIRE( en_passant_undo_state.category == MoveCategory::EnPassant );
+        REQUIRE( en_passant_undo_state.category == MoveCategory::SpecialEnPassant);
         REQUIRE( is_en_passant_vulnerable (en_passant_undo_state, Color::Black) );
         REQUIRE( !is_en_passant_vulnerable (en_passant_undo_state, Color::White) );
 
@@ -124,7 +124,7 @@ TEST_CASE( "en passant" )
 
         for (auto move : move_list)
         {
-            if (is_en_passant_move (move))
+            if (is_special_en_passant_move (move))
                 optional_en_passant_move = move;
         }
 
@@ -132,7 +132,7 @@ TEST_CASE( "en passant" )
         auto en_passant_move = *optional_en_passant_move;
 
         // Check move types:
-        REQUIRE( is_en_passant_move(en_passant_move) );
+        REQUIRE( is_special_en_passant_move (en_passant_move) );
 
         // Check position:
         REQUIRE( Row (move_src (en_passant_move)) == 3 );
@@ -142,7 +142,7 @@ TEST_CASE( "en passant" )
 
         UndoMove en_passant_undo_state = board->make_move (Color::White, en_passant_move);
 
-        REQUIRE( en_passant_undo_state.category == MoveCategory::EnPassant );
+        REQUIRE( en_passant_undo_state.category == MoveCategory::SpecialEnPassant);
         REQUIRE( is_en_passant_vulnerable (en_passant_undo_state, Color::Black) );
         REQUIRE( !is_en_passant_vulnerable (en_passant_undo_state, Color::White) );
 

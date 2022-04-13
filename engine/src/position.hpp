@@ -9,22 +9,33 @@
 
 namespace wisdom
 {
+    class Board;
+
     class Position
     {
-    private:
-        int my_score[Num_Players]{};
-
     public:
         Position() = default;
 
-        [[nodiscard]] int score (Color who) const;
+        explicit Position (const Board& board);
 
-        [[nodiscard]] int raw_score (Color who) const;
+        // My score minus my oppponent's score
+        [[nodiscard]] int overall_score (Color who) const;
+
+        // The score for the individual player.
+        [[nodiscard]] int individual_score (Color who) const;
+
+        // Apply the move to the position.
+        void apply_move (Color who, ColoredPiece piece, Move move,
+                         gsl::not_null<UndoMove*> undo_state);
+
+        // Restore the score from the UndoMove state
+        void unapply_move (Color who, const UndoMove& undo_state);
+
+    private:
+        int my_score[Num_Players]{};
 
         void add (Color who, Coord coord, ColoredPiece piece);
         void remove (Color who, Coord coord, ColoredPiece piece);
-        void apply_move (Color who, ColoredPiece piece, Move move, const UndoMove& undo_state);
-        void unapply_move (Color who, ColoredPiece piece, Move move, const UndoMove& undo_state);
     };
 }
 
