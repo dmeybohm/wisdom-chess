@@ -1,5 +1,5 @@
-#ifndef EVOLVE_CHESS_EVALUATE_HPP
-#define EVOLVE_CHESS_EVALUATE_HPP
+#ifndef WISDOM_CHESS_EVALUATE_HPP
+#define WISDOM_CHESS_EVALUATE_HPP
 
 #include "global.hpp"
 #include "move.hpp"
@@ -20,4 +20,4 @@ namespace wisdom
 
 }
 
-#endif // EVOLVE_CHESS_EVALUATE_HPP
+#endif // WISDOM_CHESS_EVALUATE_HPP
