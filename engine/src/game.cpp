@@ -69,7 +69,7 @@ namespace wisdom
         if (whom == Color::None)
             whom = get_current_turn ();
 
-        MoveTimer overdue_timer { Max_Search_Seconds };
+        MoveTimer overdue_timer { my_search_timeout };
         if (my_periodic_function.has_value ())
             overdue_timer.set_periodic_function (*my_periodic_function);
 

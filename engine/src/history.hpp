@@ -2,7 +2,6 @@
 #define WISDOM_CHESS_HISTORY_HPP
 
 #include "global.hpp"
-#include "board_history.hpp"
 #include "move_list.hpp"
 #include "piece.hpp"
 #include "board.hpp"
@@ -13,7 +12,6 @@ namespace wisdom
     class History
     {
     private:
-        BoardHistory my_board_history;
         MoveList my_move_history;
 
         // Board codes and undo positions sorted by move number:
@@ -55,12 +53,6 @@ namespace wisdom
             my_undo_moves.pop_back ();
             my_move_history.pop_back ();
         }
-
-       [[nodiscard]] auto get_board_history () const& -> const BoardHistory&
-        {
-            return my_board_history;
-        }
-        void get_board_history () const&& = delete;
 
         [[nodiscard]] auto get_move_history () const& -> const MoveList&
         {

@@ -40,7 +40,7 @@ namespace wisdom
 
         explicit Game (Color current_turn);
 
-        Game (const BoardBuilder& builder);
+        explicit Game (const BoardBuilder& builder);
 
         static auto load (const string& filename, const Players& players) -> optional<Game>;
 
@@ -97,6 +97,11 @@ namespace wisdom
             my_max_depth = max_depth;
         }
 
+        void set_search_timeout (std::chrono::seconds seconds)
+        {
+            my_search_timeout = seconds;
+        }
+
         void set_analytics (unique_ptr<analysis::Analytics> new_analytics);
 
         [[nodiscard]] auto map_coordinates_to_move (Coord src, Coord dst, optional<Piece> promoted)
@@ -119,6 +124,7 @@ namespace wisdom
         int my_max_depth { Max_Depth };
 
         Players my_players = { Player::Human, Player::ChessEngine };
+        chrono::seconds my_search_timeout { Max_Search_Seconds };
     };
 }
 

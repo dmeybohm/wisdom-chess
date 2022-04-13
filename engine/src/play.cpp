@@ -100,9 +100,9 @@ namespace wisdom
         }
     }
 
-    static optional<int> read_max_depth ()
+    static optional<int> read_int (const std::string& prompt_value)
     {
-        string input = prompt ("Max depth");
+        string input = prompt (prompt_value);
         if (input.empty ())
             return nullopt;
 
@@ -181,9 +181,16 @@ namespace wisdom
         }
         else if (input == "maxdepth")
         {
-            optional<int> max_depth = read_max_depth ();
+            optional<int> max_depth = read_int ("Max depth");
             if (max_depth.has_value ())
                 game.set_max_depth (*max_depth);
+            return result;
+        }
+        else if (input == "timeout")
+        {
+            optional<int> search_timeout = read_int ("Search Timeout");
+            if (search_timeout.has_value ())
+                game.set_search_timeout (chrono::seconds { *search_timeout });
             return result;
         }
         else if (input == "computer_black")

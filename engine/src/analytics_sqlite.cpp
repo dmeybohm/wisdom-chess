@@ -21,7 +21,7 @@ namespace wisdom::analysis
 
     class SqliteAnalytics;
 
-    constexpr int Max_Queries = 10000;
+    constexpr int Max_Queries = 100000;
 
     class SqliteHandle
     {
@@ -214,7 +214,7 @@ namespace wisdom::analysis
             my_score = score;
         }
 
-        auto score () const -> int
+        [[nodiscard]] auto score () const -> int
         {
             return my_score;
         }

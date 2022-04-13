@@ -21,4 +21,4 @@
 - [ ] Implement parallelized quiescent search before returning a score evaluating the Board
 - [ ] Add opening book
 - [ ] Do some pawn structure / positioning evaluation
-
+- [ ] Wheel-of-Fortune style analytics engine
