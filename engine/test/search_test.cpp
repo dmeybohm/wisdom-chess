@@ -8,7 +8,6 @@
 #include "logger.hpp"
 #include "move.hpp"
 #include "move_timer.hpp"
-#include "move_tree.hpp"
 #include "search.hpp"
 #include "tests.hpp"
 

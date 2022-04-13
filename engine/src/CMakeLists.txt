@@ -4,7 +4,7 @@ find_package(argh REQUIRED)
 
 add_library(wisdom-chess-core STATIC
         board.cpp check.cpp evaluate.cpp game.cpp game.hpp generate.cpp material.cpp move.cpp
-        move_tree.cpp piece.cpp search.cpp str.cpp move_timer.cpp
+        piece.cpp search.cpp str.cpp move_timer.cpp
         global.hpp validate.cpp validate.hpp position.cpp position.hpp
         fen_parser.cpp fen_parser.hpp coord.cpp board_builder.cpp move_list.cpp move_list.hpp
         coord_iterator.hpp
@@ -12,7 +12,7 @@ add_library(wisdom-chess-core STATIC
         transposition_table.cpp transposition_table.hpp variation_glimpse.cpp variation_glimpse.hpp
         output_format.cpp output_format.hpp analytics.cpp analytics.hpp search_result.hpp
         analytics_sqlite.cpp analytics_sqlite.hpp
-        uuid.cpp uuid.hpp play.hpp play.cpp perft.cpp perft.hpp threats.cpp threats.hpp)
+        uuid.cpp uuid.hpp play.hpp play.cpp perft.cpp perft.hpp threats.hpp)
 
 target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
 

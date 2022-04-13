@@ -3,7 +3,6 @@
 
 #include "global.hpp"
 #include "move.hpp"
-#include "move_tree.hpp"
 #include "piece.hpp"
 
 namespace wisdom
