@@ -54,22 +54,22 @@ namespace wisdom
             this->add_piece (Row (coord), col, who, piece_type);
     }
 
-    void BoardBuilder::add_row_of_same_color (int row, Color who, vector<Piece> piece_types)
+    void BoardBuilder::add_row_of_same_color (int row, Color who, const vector<Piece>& piece_types)
     {
         int col = 0;
 
-        for (auto it = piece_types.begin (); it != piece_types.end (); it++, col++)
-            this->add_piece (row, col, who, *it);
+        for (auto piece_type : piece_types)
+            this->add_piece (row, col++, who, piece_type);
     }
 
     void BoardBuilder::add_row_of_same_color (const string& coord_str, Color who,
-                                              vector<Piece> piece_types)
+                                              const vector<Piece>& piece_types)
     {
         Coord coord = coord_parse (coord_str);
         int col = 0;
 
-        for (auto it = piece_types.begin (); it != piece_types.end (); it++, col++)
-            this->add_piece (Row (coord), col, who, *it);
+        for (auto piece_type : piece_types)
+            this->add_piece (Row (coord), col++, who, piece_type);
     }
 
     void BoardBuilder::set_current_turn (Color who)

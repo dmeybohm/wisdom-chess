@@ -43,9 +43,9 @@ namespace wisdom
 
         void add_pieces (Color who, const vector<PieceCoordStringWithTypeState>& pieces);
 
-        void add_row_of_same_color (int row, Color who, vector<Piece> piece_types);
+        void add_row_of_same_color (int row, Color who, const vector<Piece>& piece_types);
 
-        void add_row_of_same_color (const string& coord_str, Color who, vector<Piece> piece_types);
+        void add_row_of_same_color (const string& coord_str, Color who, const vector<Piece>& piece_types);
 
         void add_row_of_same_color_and_piece (int row, Color who, Piece piece_type);
 
