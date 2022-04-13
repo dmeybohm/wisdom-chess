@@ -27,6 +27,8 @@ class PiecesModel : public QAbstractListModel
 public:
     explicit PiecesModel(QObject *parent = nullptr);
 
+    static const int Rook_Animation_Delay = 225;
+
     enum Roles
     {
         RowRole = Qt::UserRole,

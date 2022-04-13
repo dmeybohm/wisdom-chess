@@ -2,6 +2,8 @@
 #include "coord.hpp"
 #include "move.hpp"
 
+#include <QTimer>
+
 using namespace wisdom;
 using namespace std;
 
@@ -151,11 +153,13 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
 
             if (pieceModel.row == sourceRookRow && pieceModel.column == sourceRookColumn) {
                 pieceModel.column = dstRookColumn;
-                QVector<int> rolesChanged { ColumnRole };
                 QModelIndex changedIndex = index(i, 0);
 
-                qDebug() << "index " << i << "changed";
-                emit dataChanged(changedIndex, changedIndex, rolesChanged);
+                QTimer::singleShot(Rook_Animation_Delay, this, [this, changedIndex](){
+                    qDebug() << "index " << changedIndex << "changed";
+                    QVector<int> rolesChanged { ColumnRole };
+                    emit dataChanged(changedIndex, changedIndex, rolesChanged);
+                });
             }
         }
     }
