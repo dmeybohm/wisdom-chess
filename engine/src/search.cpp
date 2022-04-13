@@ -218,15 +218,7 @@ namespace wisdom
 
                 auto next_result = synthesize_result ();
                 if (next_result.move.has_value ())
-                {
                     best_result = next_result;
-
-                    Move best_move = *best_result.move;
-                    std::stringstream progress_str;
-                    progress_str << "move = " << to_string (best_move) << " [ score: "
-                                 << best_result.score << " ]\n";
-                    my_output->println (progress_str.str ());
-                }
 
                 if (is_checkmating_opponent_score (next_result.score))
                 {
