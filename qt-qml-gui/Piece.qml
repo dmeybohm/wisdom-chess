@@ -14,10 +14,16 @@ Image {
         y: row * root.squareSize
 
         Behavior on y {
-            NumberAnimation { duration: root.animationDelay }
+            NumberAnimation {
+                easing.type: Easing.OutExpo
+                duration: root.animationDelay
+            }
         }
         Behavior on x {
-            NumberAnimation { duration: root.animationDelay }
+            NumberAnimation {
+                easing.type: Easing.OutExpo
+                duration: root.animationDelay
+            }
         }
     }
 
