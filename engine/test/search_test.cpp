@@ -86,6 +86,7 @@ TEST_CASE ("Can find mate in 2 1/2")
                         });
 
     builder.add_piece ("d5", Color::White, Piece::King);
+    builder.set_current_turn (Color::Black);
 
     auto board = builder.build ();
     SearchHelper helper;
@@ -103,6 +104,26 @@ TEST_CASE ("Can find mate in 2 1/2")
     REQUIRE (result.score > Infinity);
     //    REQUIRE(expected_mate == computed_moves);
 }
+
+// TODO: implement is_stalemate_fast():
+#if 0
+TEST_CASE ("Can avoid stalemate")
+{
+    FenParser fen { "6k1/1pp2pp1/7p/Pb6/3r4/5K2/8/6q1 w - - 0 1" };
+    auto game = fen.build ();
+
+    SearchHelper helper;
+    IterativeSearch search = helper.build (game.get_board (), 5, 5);
+
+    game.move (move_parse ("a5 a6", Color::White));
+
+    SearchResult result = search.iteratively_deepen (Color::Black);
+
+    CHECK (result.score > Infinity);
+    REQUIRE (result.move.has_value ());
+    CHECK( to_string (*result.move) != "b7xa6");
+}
+#endif
 
 TEST_CASE ("scenario with heap overflow 1")
 {
@@ -132,6 +153,7 @@ TEST_CASE ("scenario with heap overflow 1")
                           { "b1", Piece::King },
                           { "g1", Piece::Rook } });
 
+    builder.set_current_turn (Color::Black);
     auto board = builder.build ();
     SearchHelper helper;
     IterativeSearch search = helper.build (*board, 3, 300);
@@ -147,6 +169,7 @@ TEST_CASE ("Promoting move is taken if possible")
     builder.add_pieces (Color::Black, { { "d7", Piece::King }, { "d2", Piece::Pawn } });
     builder.add_pieces (Color::White, { { "a4", Piece::King }, { "h4", Piece::Pawn } });
 
+    builder.set_current_turn (Color::Black);
     auto board = builder.build ();
     SearchHelper helper;
 
@@ -187,7 +210,7 @@ TEST_CASE ("Finding moves regression test")
 
 TEST_CASE ("Bishop is not sacrificed scenario 1")
 {
-    FenParser fen { "r1bqk1nr/ppp2ppp/8/4p3/1bpP4/2P5/PP2NPPP/RNBQ1RK1 w kq - 0 1" };
+    FenParser fen { "r1bqk1nr/ppp2ppp/8/4p3/1bpP4/2P5/PP2NPPP/RNBQ1RK1 b kq - 0 1" };
     auto game = fen.build ();
 
     SearchHelper helper;

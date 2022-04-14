@@ -9,7 +9,9 @@ namespace wisdom
 
         FOR_EACH_ROW_AND_COL(row, col)
         {
-            this->add (board.piece_at (row, col));
+            auto piece = board.piece_at (row, col);
+            if (piece != Piece_And_Color_None)
+                this->add (board.piece_at (row, col));
         }
     }
 }

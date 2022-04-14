@@ -55,6 +55,7 @@ namespace wisdom
     inline bool is_stalemated_fast (Board& board, Color who)
     {
         // todo
+        // note there is already a testcase for this in search_test.cpp
         return false;
     }
 
