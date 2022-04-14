@@ -29,6 +29,8 @@ target_link_libraries(chess PRIVATE wisdom::chess)
 target_link_libraries(chess PRIVATE argh::argh)
 
 # For perft testing:
-add_executable(perft perft_main.cpp)
-target_link_libraries(perft PRIVATE wisdom::chess)
+if (WISDOM_CHESS_SLOW_TESTS)
+    add_executable(perft perft_main.cpp)
+    target_link_libraries(perft PRIVATE wisdom::chess)
+endif()
 
