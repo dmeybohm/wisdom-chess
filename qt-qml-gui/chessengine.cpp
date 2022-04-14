@@ -51,7 +51,6 @@ void ChessEngine::findMove()
         return;
     }
 
-
     if (History::is_fifty_move_repetition(game->get_board())) {
         std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
         emit noMovesAvailable();
