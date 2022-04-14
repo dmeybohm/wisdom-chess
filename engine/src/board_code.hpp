@@ -80,10 +80,10 @@ namespace wisdom
 
         void set_en_passant_target (Color color, Coord coord)
         {
-            unsigned long target_bit_shift = color == Color::White ?
+            std::size_t target_bit_shift = color == Color::White ?
                     EN_PASSANT_WHITE_TARGET :
                     EN_PASSANT_BLACK_TARGET;
-            auto coord_bits = Column<unsigned long> (coord);
+            auto coord_bits = Column<std::size_t> (coord);
             coord_bits |= (coord == No_En_Passant_Coord) ? 0 : EN_PASSANT_PRESENT;
             coord_bits <<= target_bit_shift;
 
@@ -97,8 +97,8 @@ namespace wisdom
 
         [[nodiscard]] auto en_passant_target (Color vulnerable_color) const noexcept -> Coord
         {
-            unsigned long target_bits = my_ancillary.to_ulong ();
-            unsigned long target_bit_shift = vulnerable_color == Color::White ?
+            std::size_t target_bits = my_ancillary.to_ulong ();
+            std::size_t target_bit_shift = vulnerable_color == Color::White ?
                                              EN_PASSANT_WHITE_TARGET :
                                              EN_PASSANT_BLACK_TARGET;
 
@@ -120,8 +120,8 @@ namespace wisdom
 
         [[nodiscard]] auto castle_state (Color who) const -> CastlingState
         {
-            unsigned long target_bits = my_ancillary.to_ulong ();
-            unsigned long target_bit_shift = who == Color::White ?
+            std::size_t target_bits = my_ancillary.to_ulong ();
+            std::size_t target_bit_shift = who == Color::White ?
                                                   CASTLING_STATE_WHITE_TARGET :
                                                   CASTLING_STATE_BLACK_TARGET;
             auto castle_state = gsl::narrow_cast<uint8_t> (target_bits >> target_bit_shift);
@@ -131,10 +131,10 @@ namespace wisdom
         void set_castle_state (Color who, CastlingState castling_state)
         {
             assert (castling_state != Castle_Previously_None); // only store the actual flags.
-            unsigned long bit_number = who == Color::White ?
+            std::size_t bit_number = who == Color::White ?
                                                   CASTLING_STATE_WHITE_TARGET :
                                                   CASTLING_STATE_BLACK_TARGET;
-            unsigned long mask = CASTLE_ONE_COLOR_MASK << bit_number;
+            std::size_t mask = CASTLE_ONE_COLOR_MASK << bit_number;
 
             my_ancillary &= ~mask;
             my_ancillary |= castling_state << bit_number;

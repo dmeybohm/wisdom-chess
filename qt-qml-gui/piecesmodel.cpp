@@ -162,5 +162,18 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
                 });
             }
         }
+        if (is_special_en_passant_move(selectedMove)) {
+            int direction = pawn_direction(who) * -1;
+            int enPassantPawnRow = dstRow + direction;
+            int enPassantPawnCol = dstColumn;
+
+            if (pieceModel.row == enPassantPawnRow && pieceModel.column == enPassantPawnCol) {
+                beginRemoveRows(QModelIndex{}, i, i);
+                myPieces.removeAt(i);
+                qDebug() << "removing index: " << i;
+                count--;
+                endRemoveRows();
+            }
+        }
     }
 }
