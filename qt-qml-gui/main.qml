@@ -39,14 +39,6 @@ Window {
         }
 
         StatusBar {
-            Button {
-                text: "open dialog"
-                width: 200
-                height: 25
-                onClicked: {
-                    _myGameModel.drawProposedToHuman = true
-                }
-            }
         }
     }
 

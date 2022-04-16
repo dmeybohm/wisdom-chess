@@ -22,7 +22,12 @@
 #include <bitset>
 #include <cassert>
 
+#ifdef HAS_MS_GSL
 #include <gsl/gsl>
+#else
+#include "gsl.hpp"
+#endif
+
 //#include <parallel_hashmap/phmap.h>
 
 namespace wisdom

@@ -92,14 +92,14 @@ namespace
 
 GameModel::GameModel(QObject *parent)
     : QObject(parent),
-//      myChessGame { chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)) },
+      myChessGame { chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)) },
 //      myChessGame { chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)) },
 //      myChessGame { chessGameFromGame(
 //                        make_unique<Game>(gameFromFen("8/PPPPPPPP/2N2N2/8/8/8/1k4K1/8 w - - 0 1"))
 //                    )},
-      myChessGame { chessGameFromGame(
-                        make_unique<Game>(gameFromFen("r1b1kb1r/ppp2pp1/2n1p2p/3q4/3p4/5PP1/PPPBB2P/R2Q1RK1 w - - 0 1"))
-                    )},
+//      myChessGame { chessGameFromGame(
+//                        make_unique<Game>(gameFromFen("r1b1kb1r/ppp2pp1/2n1p2p/3q4/3p4/5PP1/PPPBB2P/R2Q1RK1 w - - 0 1"))
+//                    )},
       myChessEngineThread { nullptr }
 {
     // Initialize the piece list from the game->board.
