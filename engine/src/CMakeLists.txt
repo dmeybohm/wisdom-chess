@@ -1,18 +1,32 @@
-find_package(SQLite3 REQUIRED)
-find_package(Microsoft.GSL REQUIRED)
-find_package(argh REQUIRED)
+find_package(SQLite3 QUIET)
+find_package(Microsoft.GSL QUIET)
 
 add_library(wisdom-chess-core STATIC
         board.cpp check.cpp evaluate.cpp game.cpp game.hpp generate.cpp material.cpp move.cpp
         piece.cpp search.cpp str.cpp move_timer.cpp
         global.hpp validate.cpp validate.hpp position.cpp position.hpp
         fen_parser.cpp fen_parser.hpp coord.cpp board_builder.cpp move_list.cpp move_list.hpp
-        coord_iterator.hpp
+        coord_iterator.hpp analytics_sqlite.hpp
         board_code.cpp board_code.hpp logger.cpp logger.hpp
         transposition_table.cpp transposition_table.hpp variation_glimpse.cpp variation_glimpse.hpp
         output_format.cpp output_format.hpp analytics.cpp analytics.hpp search_result.hpp
-        analytics_sqlite.cpp analytics_sqlite.hpp
         uuid.cpp uuid.hpp play.hpp play.cpp perft.cpp perft.hpp threats.hpp)
+
+if (SQLite3_Found)
+    target_sources(wisdom-chess-core PRIVATE analytics_sqlite.cpp)
+    target_link_libraries(wisdom-chess-core PUBLIC SQLite::SQLite3)
+else()
+    target_sources(wisdom-chess-core PRIVATE analytics_nosqlite.cpp)
+endif()
+
+if (Microsoft.GSL_Found)
+    target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
+    message("-- Found Microsoft.GSL")
+    target_compile_definitions(wisdom-chess-core -DHAS_MS_GSL)
+else()
+    message("-- Using bundled GSL")
+    target_sources(wisdom-chess-core PRIVATE gsl.hpp)
+endif()
 
 target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
 
@@ -23,10 +37,7 @@ add_executable(chess main.cpp)
 
 target_precompile_headers(chess REUSE_FROM wisdom-chess-core)
 
-target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
-target_link_libraries(wisdom-chess-core PUBLIC SQLite::SQLite3)
 target_link_libraries(chess PRIVATE wisdom::chess)
-target_link_libraries(chess PRIVATE argh::argh)
 
 # For perft testing:
 if (WISDOM_CHESS_SLOW_TESTS)

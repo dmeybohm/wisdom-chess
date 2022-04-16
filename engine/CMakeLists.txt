@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.20)
 
 project(WisdomEngine CXX)
 
-find_package(doctest)
-find_package(benchmark)
+find_package(doctest QUIET)
+find_package(benchmark QUIET)
 
 if (NOT WIN32)
     message("-- wisdom-chess: stack protector disabled for performance")
@@ -18,6 +18,8 @@ if (doctest_FOUND)
     add_subdirectory(test)
 else()
     message("-- wisdom-chess: Tests disabled (doctest not found)")
+    set(WISDOM_CHESS_SLOW_TESTS Off)
+    set(WISDOM_CHESS_FAST_TESTS Off)
 endif()
 
 if (WISDOM_CHECK_BENCHMARK)
