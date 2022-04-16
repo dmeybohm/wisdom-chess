@@ -1,5 +1,6 @@
 find_package(SQLite3 QUIET)
 find_package(Microsoft.GSL QUIET)
+find_package(Threads REQUIRED)
 
 add_library(wisdom-chess-core STATIC
         board.cpp check.cpp evaluate.cpp game.cpp game.hpp generate.cpp material.cpp move.cpp
@@ -36,6 +37,11 @@ add_library(wisdom::chess ALIAS wisdom-chess-core)
 add_executable(chess main.cpp)
 
 target_precompile_headers(chess REUSE_FROM wisdom-chess-core)
+target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
+
+if (EMSCRIPTEN)
+    target_compile_options(wisdom-chess-core PUBLIC -pthread)
+endif()
 
 target_link_libraries(chess PRIVATE wisdom::chess)
 
