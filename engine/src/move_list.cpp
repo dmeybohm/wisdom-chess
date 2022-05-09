@@ -69,6 +69,7 @@ namespace wisdom
         ptrs->emplace_back (std::move (move_list));
     }
 
+
     std::size_t move_list_capacity (move_list& ptr) noexcept { return ptr.capacity; }
 
     void move_list_append (move_list& list, std::size_t position, Move move) noexcept

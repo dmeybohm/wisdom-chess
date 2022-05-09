@@ -5,7 +5,7 @@ import QtQuick.Controls 2.15
 Window {
     id: root
 
-    readonly property int squareSize: 64
+    readonly property int squareSize: 48
     readonly property int boardWidth: squareSize * 8
     readonly property int boardHeight: boardWidth
     readonly property int totalSquares: 8 * 8
