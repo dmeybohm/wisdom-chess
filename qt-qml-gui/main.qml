@@ -59,7 +59,7 @@ ApplicationWindow {
         _myGameModel.applicationExiting();
     }
 
-    Screen.onPrimaryOrientationChanged:{
+    Screen.onPrimaryOrientationChanged: {
         root.squareSize = calculateMaxSquareSize()
         console.log("new square size: "+root.squareSize)
     }
@@ -102,45 +102,13 @@ ApplicationWindow {
         }
     }
 
-    Dialog {
+    DrawProposalDialog {
         id: acceptDrawDialog
         anchors.centerIn: parent
-        width: 400
-        height: 200
+        width: Math.min(400, Screen.width - 50)
+        height: Math.min(200, Screen.height - 10)
         padding: 40
-        modal: true
-        visible: _myGameModel.drawProposedToHuman
-        standardButtons: Dialog.Yes | Dialog.No
-        title: "Draw Offer"
-
-        onAccepted: {
-            _myGameModel.drawProposalResponse(true)
-        }
-        onRejected: {
-            _myGameModel.drawProposalResponse(false)
-        }
-
-        Column {
-            anchors.left: parent.left
-            anchors.right: parent.right
-
-            spacing: 15
-            Text {
-                anchors.left: parent.left;
-                anchors.right: parent.right;
-                text: "Your opponent has proposed a draw."
-                horizontalAlignment: Text.AlignHCenter
-            }
-            Text {
-                anchors.left: parent.left;
-                anchors.right: parent.right;
-                text: "Would you like to accept?"
-                horizontalAlignment: Text.AlignHCenter
-            }
-
-
-        }
-
+        text: "Your opponent has repeated the same move three times."
     }
 }
 
