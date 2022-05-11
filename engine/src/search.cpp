@@ -15,12 +15,13 @@ namespace wisdom
     class IterativeSearchImpl
     {
     private:
-        Board* my_board;
-        History*  my_history;
-        const Logger* my_output;
-        analysis::Analytics* my_analytics;
+        gsl::not_null<Board*> my_board;
+        gsl::not_null<History*>  my_history;
+        gsl::not_null<const Logger*> my_output;
+        gsl::not_null<analysis::Analytics*> my_analytics;
         MoveTimer my_timer;
         int my_total_depth;
+        MoveGenerator my_generator {};
 
         optional<Move> my_best_move = nullopt;
         int my_best_depth = -1;
@@ -92,8 +93,7 @@ namespace wisdom
     {
         int best_score = -Initial_Alpha;
         std::optional<Move> best_move {};
-        MoveGenerator generator;
-        auto moves = generator.generate (*my_board, side);
+        auto moves = my_generator.generate (*my_board, side);
 
         for (auto move : moves)
         {

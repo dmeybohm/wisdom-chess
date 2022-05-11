@@ -69,7 +69,6 @@ namespace wisdom
         ptrs->emplace_back (std::move (move_list));
     }
 
-
     std::size_t move_list_capacity (move_list& ptr) noexcept { return ptr.capacity; }
 
     void move_list_append (move_list& list, std::size_t position, Move move) noexcept
@@ -86,5 +85,28 @@ namespace wisdom
 
         assert (list.move_array != nullptr);
         list.move_array[position] = move;
+    }
+
+    unique_ptr<move_list> MoveListAllocator::alloc_move_list() noexcept
+    {
+        if (!my_move_list_ptrs.empty ())
+        {
+            auto move_list_end = std::move (my_move_list_ptrs.back ());
+            my_move_list_ptrs.pop_back ();
+            return move_list_end;
+        }
+
+        auto list = new move_list ();
+        list->move_array = (Move*)malloc (sizeof (Move) * Initial_Size);
+        list->capacity = Initial_Size;
+
+        unique_ptr<move_list> result;
+        result.reset (list);
+        return result;
+    }
+
+    void MoveListAllocator::dealloc_move_list (unique_ptr<move_list> move_list) noexcept
+    {
+        my_move_list_ptrs.emplace_back (std::move (move_list));
     }
 }

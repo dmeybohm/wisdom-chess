@@ -5,6 +5,7 @@
 #include "move.hpp"
 #include "move_timer.hpp"
 #include "search_result.hpp"
+#include "generate.hpp"
 
 namespace wisdom::analysis
 {

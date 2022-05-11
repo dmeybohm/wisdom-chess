@@ -2,6 +2,7 @@
 #define WISDOM_CHESS_HISTORY_HPP
 
 #include "global.hpp"
+
 #include "move_list.hpp"
 #include "piece.hpp"
 #include "board.hpp"

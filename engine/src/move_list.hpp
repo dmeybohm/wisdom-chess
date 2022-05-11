@@ -16,8 +16,17 @@ namespace wisdom
         std::size_t capacity;
     };
 
-    unique_ptr<move_list> alloc_move_list () noexcept;
-    void dealloc_move_list (unique_ptr<move_list> move_list) noexcept;
+    class MoveListAllocator
+    {
+    private:
+        static constexpr std::size_t Initial_Size = 16;
+        static constexpr std::size_t Size_Increment = 4;
+        vector<unique_ptr<move_list>> my_move_list_ptrs;
+
+    public:
+        unique_ptr<move_list> alloc_move_list () noexcept;
+        void dealloc_move_list (unique_ptr<move_list> move_list) noexcept;
+    };
 
     std::size_t move_list_capacity (move_list& ptr) noexcept;
 
@@ -29,16 +38,21 @@ namespace wisdom
     class MoveList
     {
     private:
-        unique_ptr<move_list> my_moves_list = alloc_move_list ();
+        unique_ptr<move_list> my_moves_list;
         std::size_t my_size = 0;
+        gsl::not_null<MoveListAllocator*> my_allocator;
 
     public:
-        MoveList () = default;
+        explicit MoveList (gsl::not_null<MoveListAllocator*> allocator) :
+            my_allocator { allocator }
+        {
+            my_moves_list = allocator->alloc_move_list ();
+        }
 
         ~MoveList () 
         {
             if (my_moves_list)
-                dealloc_move_list (std::move (my_moves_list));
+                my_allocator->dealloc_move_list (std::move (my_moves_list));
         }
 
         MoveList (Color color, std::initializer_list<czstring> list) noexcept;
@@ -91,7 +105,7 @@ namespace wisdom
 
         [[nodiscard]] auto to_string () const -> string;
 
-        bool operator== (const MoveList& other) const
+        auto operator== (const MoveList& other) const -> bool
         {
             return size () == other.size () && std::equal (
                     begin (),
@@ -101,7 +115,7 @@ namespace wisdom
             );
         }
 
-        bool operator!= (const MoveList& other) const
+        auto operator!= (const MoveList& other) const -> bool
         {
             return !(*this == other);
         }
@@ -119,7 +133,8 @@ namespace wisdom
 
     auto to_string (const MoveList& list) -> string;
 
-    std::ostream& operator<< (std::ostream &os, const MoveList& list);
+    auto operator<< (std::ostream& os, const MoveList& list) ->
+        std::ostream&;
 }
 
 #endif //WISDOM_MOVE_LIST_HPP
