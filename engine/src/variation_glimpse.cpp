@@ -16,7 +16,7 @@ namespace wisdom
         std::list<Move> moves_tmp_list;
 
         if (my_start == -1)
-            return MoveList {};
+            return MoveList::uncached ();
 
         Move move = my_moves[my_start];
         for (int16_t pos = next_index (my_start);
@@ -28,7 +28,7 @@ namespace wisdom
         }
         moves_tmp_list.push_front (move);
 
-        MoveList result;
+        auto result = MoveList::uncached ();
         for (auto move : moves_tmp_list)
             result.push_back (move);
 

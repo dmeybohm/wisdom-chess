@@ -525,31 +525,6 @@ namespace wisdom
 
             return false;
         }
-
-        bool knight ()
-        {
-            int8_t row, col;
-
-            // check for knight checks
-            const auto& kt_moves = generate_knight_moves (my_king_row, my_king_col);
-
-            for (auto move : kt_moves)
-            {
-                Coord dst = move_dst (move);
-
-                row = Row (dst);
-                col = Column (dst);
-
-                auto what = my_board.piece_at (row, col);
-                if (what == Piece_And_Color_None)
-                    continue;
-
-                if (piece_type (what) == Piece::Knight && piece_color (what) == my_opponent)
-                    return true;
-            }
-
-            return false;
-        }
     };
 }
 

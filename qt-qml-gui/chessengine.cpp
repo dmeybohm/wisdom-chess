@@ -45,7 +45,8 @@ void ChessEngine::findMove()
 
     auto who = game->get_current_turn();
     auto board = game->get_board();
-    if (is_checkmated(board, who)) {
+    auto* generator = game->get_move_generator();
+    if (is_checkmated(board, who, *generator)) {
         std::cout << to_string(color_invert(game->get_current_turn())) << " wins the game.\n";
         emit noMovesAvailable();
         return;

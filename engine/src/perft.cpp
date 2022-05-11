@@ -11,14 +11,15 @@ namespace wisdom
     using wisdom::perft::Stats;
     using wisdom::perft::to_move_list;
 
-    void Stats::search_moves (Board& board, Color side, int depth, int max_depth)
+    void Stats::search_moves (Board& board, Color side, int depth, int max_depth,
+                              MoveGenerator& generator)
     {
         if (depth >= max_depth)
             return;
 
         auto target_depth = max_depth - 1;
 
-        const auto moves = generate_moves (board, side);
+        const auto moves = generator.generate_all_potential_moves (board, side);
 
         for (auto move : moves)
         {
@@ -40,7 +41,7 @@ namespace wisdom
                     counters.en_passants++;
             }
 
-            search_moves (board, color_invert (side), depth + 1, max_depth);
+            search_moves (board, color_invert (side), depth + 1, max_depth, generator);
 
             board.take_back (side, move, undo_state);
         }
@@ -101,10 +102,11 @@ namespace wisdom
         return result;
     }
 
-    auto wisdom::perft::to_move_list (const Board& board, Color who, const string& move_list)
+    auto wisdom::perft::to_move_list (const Board& board, Color who, const string& move_list,
+                                      gsl::not_null<MoveListAllocator*> allocator)
         -> MoveList
     {
-        MoveList result;
+        MoveList result { allocator };
 
         // Make a copy of the board for modifications:
         auto board_copy = board;
@@ -151,14 +153,15 @@ namespace wisdom
         return wisdom::to_string (move_src (move)) + wisdom::to_string (move_dst (move));
     }
 
-    auto wisdom::perft::perft_results (const Board& board, Color active_player, int depth)
+    auto wisdom::perft::perft_results (const Board& board, Color active_player, int depth,
+                                       wisdom::MoveGenerator& generator)
         -> PerftResults
     {
         Board board_copy = board;
         wisdom::perft::PerftResults results;
         Stats cumulative;
 
-        auto moves = wisdom::generate_moves (board_copy, active_player);
+        auto moves = generator.generate_all_potential_moves (board_copy, active_player);
 
         for (const auto& move : moves)
         {
@@ -173,7 +176,7 @@ namespace wisdom
                 continue;
             }
 
-            stats.search_moves (board_copy, next_player, 1, depth);
+            stats.search_moves (board_copy, next_player, 1, depth, generator);
             board_copy.take_back (active_player, move, undo_state);
 
             auto perft_move = wisdom::perft::to_perft_move (move, active_player);

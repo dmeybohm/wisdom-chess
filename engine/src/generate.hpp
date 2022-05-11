@@ -21,31 +21,40 @@ namespace wisdom
     class MoveGenerator final
     {
     private:
-        MoveListAllocator my_move_list_allocator;
-        unique_ptr<MoveList[Num_Rows][Num_Columns]> my_knight_moves;
+        MoveListAllocator my_move_list_allocator {};
+        array<unique_ptr<MoveList>, Num_Rows * Num_Columns> my_knight_moves {};
 
-        auto generate_knight_moves (int row, int col) -> const MoveList&;
+        // Convert row/col to flat index:
+        [[nodiscard]] constexpr auto knight_move_list_index (int row, int col) -> int
+        {
+            return row * Num_Columns + col;
+        }
 
-        auto get_knight_moves (int row, int col) -> const MoveList&;
+        void knight_move_list_init ();
+
+        [[nodiscard]] auto generate_knight_moves (int row, int col) -> const MoveList&;
 
     public:
         MoveGenerator ()
-            : my_knight_moves { nullptr }
-            , my_move_list_allocator {}
         {}
 
-        auto generate_all_potential_moves (const Board& board, Color who) -> MoveList;
+        [[nodiscard]] auto generate_all_potential_moves (const Board& board, Color who)
+            -> MoveList;
 
-        auto generate_legal_moves (Board &board, Color who) -> MoveList;
+        [[nodiscard]] auto generate_legal_moves (Board& board, Color who)
+            -> MoveList;
 
-        auto generate_captures (const Board& board, Color who) -> MoveList;
+        [[nodiscard]] auto generate_captures (const Board& board, Color who)
+            -> MoveList;
 
         friend class MoveGeneration;
     };
 
-    auto need_pawn_promotion (int row, Color who) -> bool;
+    [[nodiscard]] auto need_pawn_promotion (int row, Color who)
+        -> bool;
 
-    auto eligible_en_passant_column (const Board& board, int row, int column, Color who)
+    [[nodiscard]] auto eligible_en_passant_column (const Board& board,
+                                                   int row, int column, Color who)
         -> int;
 }
 

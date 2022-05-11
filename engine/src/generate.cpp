@@ -6,7 +6,7 @@ namespace wisdom
 {
     struct MoveGeneration
     {
-        const Board &board;
+        const Board& board;
         MoveList& moves;
         int piece_row;
         int piece_col;
@@ -37,18 +37,14 @@ namespace wisdom
         }
     }
 
-    static auto knight_move_list_init (gsl::not_null<MoveListAllocator*> allocator) ->
-        unique_ptr<MoveList[Num_Rows][Num_Columns]>
+    void MoveGenerator::knight_move_list_init ()
     {
         int row, col;
-        unique_ptr<MoveList>[Num_Rows][Num_Columns] list;
 
         FOR_EACH_ROW_AND_COL(row, col)
         {
             for (int k_row = -2; k_row <= 2; k_row++)
             {
-                MoveList new_list { allocator };
-
                 if (!k_row)
                     continue;
 
@@ -60,33 +56,28 @@ namespace wisdom
                     if (!is_valid_column (k_col + col))
                         continue;
 
-                    if (*result == nullptr)
-                    if ((**result)[k_row + row][k_col + col] == nullptr)
-                    {
-
-                    }
                     Move knight_move = make_regular_move (k_row + row, k_col + col, row, col);
-                    (*result)[k_row + row][k_col + col]->push_back (knight_move);
+                    int dst_row = k_row + row;
+                    int dst_col = k_col + col;
+                    auto index = knight_move_list_index (dst_row, dst_col);
+                    if (my_knight_moves[index] == nullptr) {
+                        my_knight_moves[index] = make_unique<MoveList> (&my_move_list_allocator);
+                    }
+                    my_knight_moves[index]->push_back (knight_move);
                 }
             }
         }
-
-        return { std::move(*result) };
     }
 
-    // note: for this to be thread-safe, needs to be locked.
-    // probably better to store this on the MoveGeneration class
-    auto MoveGenerator::get_knight_moves (int row, int col) -> const MoveList&
+    auto MoveGenerator::generate_knight_moves (int row, int col) -> const MoveList&
     {
-        if (my_knight_moves == nullptr)
-        {
-            my_knight_moves = std::move (knight_move_list_init (&my_move_list_allocator));
-        }
+        auto index = knight_move_list_index (row, col);
 
-        return (*my_knight_moves)[row][col];
+        if (my_knight_moves[0] == nullptr)
+            knight_move_list_init ();
+
+        return *my_knight_moves[index];
     }
-
-    // generate a lookup table for knight moves
 
     static auto is_pawn_unmoved (const Board &board, int row, int col) -> bool
     {
@@ -251,11 +242,6 @@ namespace wisdom
         rook ();
     }
 
-    auto MoveGenerator::generate_knight_moves (int row, int col) -> const MoveList&
-    {
-        return get_knight_moves (row, col);
-    }
-
     void MoveGeneration::knight () const
     {
         const auto &kt_moves = generator.generate_knight_moves (piece_row, piece_col);
@@ -408,8 +394,7 @@ namespace wisdom
 
     auto MoveGenerator::generate_legal_moves (Board& board, Color who) -> MoveList
     {
-        MoveListAllocator allocator {}; // note: this is a bug.
-        MoveList non_checks { &allocator };
+        MoveList non_checks { &my_move_list_allocator };
 
         MoveList all_moves = generate_all_potential_moves (board, who);
         for (auto move : all_moves)
@@ -456,7 +441,8 @@ namespace wisdom
         }
     }
 
-    auto MoveGenerator::generate_all_potential_moves (const Board& board, Color who) -> MoveList
+    auto MoveGenerator::generate_all_potential_moves (const Board& board, Color who)
+        -> MoveList
     {
         MoveList result { &my_move_list_allocator };
         MoveGeneration generation { board, result, 0, 0, who, *this };

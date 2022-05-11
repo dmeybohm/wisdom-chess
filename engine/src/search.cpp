@@ -16,7 +16,7 @@ namespace wisdom
     {
     private:
         gsl::not_null<Board*> my_board;
-        gsl::not_null<History*>  my_history;
+        gsl::not_null<History*> my_history;
         gsl::not_null<const Logger*> my_output;
         gsl::not_null<analysis::Analytics*> my_analytics;
         MoveTimer my_timer;
@@ -93,7 +93,7 @@ namespace wisdom
     {
         int best_score = -Initial_Alpha;
         std::optional<Move> best_move {};
-        auto moves = my_generator.generate (*my_board, side);
+        auto moves = my_generator.generate_all_potential_moves (*my_board, side);
 
         for (auto move : moves)
         {
@@ -120,7 +120,7 @@ namespace wisdom
             if (depth <= 0)
             {
                 my_best_score = evaluate_and_check_draw (*my_board, side, my_total_depth - depth,
-                                                         move, *my_history);
+                                                         move, *my_history, my_generator);
             }
             else
             {

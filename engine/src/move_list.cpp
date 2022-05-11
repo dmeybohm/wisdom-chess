@@ -5,7 +5,10 @@
 
 namespace wisdom
 {
+    // When using an initalizer list, that is used in a context where performance
+    // isn't that important. So use the default, private, uncached constructor.
     MoveList::MoveList (Color color, std::initializer_list<czstring> list) noexcept
+        : MoveList {}
     {
         for (auto it : list)
         {
@@ -35,40 +38,6 @@ namespace wisdom
     // New Move list things
     //
 
-    static constexpr std::size_t Initial_Size = 16;
-    static constexpr std::size_t Size_Increment = 4;
-
-    static auto get_move_list_ptrs () -> vector<unique_ptr<move_list>>*
-    {
-        static auto move_list_ptrs = new vector<unique_ptr<move_list>> ();
-        return move_list_ptrs;
-    }
-
-    unique_ptr<move_list> alloc_move_list () noexcept
-    {
-        auto* ptrs = get_move_list_ptrs ();
-        if (!ptrs->empty ())
-        {
-            auto move_list_end = std::move (ptrs->back ());
-            ptrs->pop_back ();
-            return move_list_end;
-        }
-
-        auto list = new move_list ();
-        list->move_array = (Move*)malloc (sizeof (Move) * Initial_Size);
-        list->capacity = Initial_Size;
-
-        unique_ptr<move_list> result;
-        result.reset (list);
-        return result;
-    }
-
-    void dealloc_move_list (unique_ptr<move_list> move_list) noexcept
-    {
-        auto* ptrs = get_move_list_ptrs ();
-        ptrs->emplace_back (std::move (move_list));
-    }
-
     std::size_t move_list_capacity (move_list& ptr) noexcept { return ptr.capacity; }
 
     void move_list_append (move_list& list, std::size_t position, Move move) noexcept
@@ -77,7 +46,7 @@ namespace wisdom
 
         if (position == list.capacity)
         {
-            list.capacity += Size_Increment;
+            list.capacity += MoveListAllocator::Size_Increment;
 
             std::size_t new_capacity = list.capacity * sizeof (Move);
             list.move_array = (Move*)realloc (list.move_array, new_capacity);
@@ -87,7 +56,7 @@ namespace wisdom
         list.move_array[position] = move;
     }
 
-    unique_ptr<move_list> MoveListAllocator::alloc_move_list() noexcept
+    auto MoveListAllocator::alloc_move_list() noexcept -> unique_ptr<move_list>
     {
         if (!my_move_list_ptrs.empty ())
         {
@@ -96,13 +65,7 @@ namespace wisdom
             return move_list_end;
         }
 
-        auto list = new move_list ();
-        list->move_array = (Move*)malloc (sizeof (Move) * Initial_Size);
-        list->capacity = Initial_Size;
-
-        unique_ptr<move_list> result;
-        result.reset (list);
-        return result;
+        return default_alloc_move_list ();
     }
 
     void MoveListAllocator::dealloc_move_list (unique_ptr<move_list> move_list) noexcept

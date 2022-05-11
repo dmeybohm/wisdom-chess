@@ -47,10 +47,10 @@ namespace wisdom
     }
 
     // Whether the board is in a checkmated position for the computer_player.
-    bool is_checkmated (Board& board, Color who);
+    bool is_checkmated (Board& board, Color who, MoveGenerator& generator);
 
     // Whether in a stalemate position for white or black.
-    bool is_stalemated_slow (Board& board, Color who);
+    bool is_stalemated_slow (Board& board, Color who, MoveGenerator& generator);
 
     inline bool is_stalemated_fast (Board& board, Color who)
     {

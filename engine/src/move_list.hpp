@@ -19,11 +19,12 @@ namespace wisdom
     class MoveListAllocator
     {
     private:
-        static constexpr std::size_t Initial_Size = 16;
-        static constexpr std::size_t Size_Increment = 4;
         vector<unique_ptr<move_list>> my_move_list_ptrs;
 
     public:
+        static constexpr std::size_t Initial_Size = 16;
+        static constexpr std::size_t Size_Increment = 4;
+
         unique_ptr<move_list> alloc_move_list () noexcept;
         void dealloc_move_list (unique_ptr<move_list> move_list) noexcept;
     };
@@ -35,12 +36,27 @@ namespace wisdom
 
     void move_list_append (move_list& list, std::size_t position, Move move) noexcept;
 
+    inline auto default_alloc_move_list () -> unique_ptr<move_list>
+    {
+        auto list = new move_list ();
+        list->move_array = (Move*)malloc (sizeof (Move) * MoveListAllocator::Initial_Size);
+        list->capacity = MoveListAllocator::Initial_Size;
+
+        unique_ptr<move_list> result;
+        result.reset (list);
+        return result;
+    }
+
     class MoveList
     {
     private:
         unique_ptr<move_list> my_moves_list;
         std::size_t my_size = 0;
-        gsl::not_null<MoveListAllocator*> my_allocator;
+        MoveListAllocator* my_allocator;
+
+        MoveList ()
+            : my_allocator { nullptr }
+        {}
 
     public:
         explicit MoveList (gsl::not_null<MoveListAllocator*> allocator) :
@@ -51,8 +67,13 @@ namespace wisdom
 
         ~MoveList () 
         {
-            if (my_moves_list)
+            if (my_moves_list != nullptr && my_allocator != nullptr)
                 my_allocator->dealloc_move_list (std::move (my_moves_list));
+        }
+
+        static auto uncached () -> MoveList
+        {
+            return MoveList { nullptr };
         }
 
         MoveList (Color color, std::initializer_list<czstring> list) noexcept;

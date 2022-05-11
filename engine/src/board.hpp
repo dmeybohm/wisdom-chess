@@ -55,9 +55,9 @@ namespace wisdom
 
         Board (const Board& board) = default;
 
-        explicit Board (const vector<BoardPositions> &positions);
+        explicit Board (const vector<BoardPositions>& positions);
 
-        friend bool operator== (const Board &a, const Board &b);
+        friend bool operator== (const Board& a, const Board& b);
 
         void print () const;
 

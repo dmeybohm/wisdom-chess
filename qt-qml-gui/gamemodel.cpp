@@ -52,7 +52,8 @@ namespace
         qDebug() << "Selected move: " << QString(selectedMoveStr.c_str());
 
         auto who = game->get_current_turn();
-        auto legalMoves = generate_legal_moves(game->get_board(), who);
+        auto generator = game->get_move_generator();
+        auto legalMoves = generator->generate_legal_moves(game->get_board(), who);
         auto legalMovesStr = to_string(legalMoves);
         qDebug() << QString(legalMovesStr.c_str());
         for (auto legalMove : legalMoves) {
@@ -306,13 +307,14 @@ void GameModel::updateGameStatus()
 
     auto who = lockedGame->get_current_turn();
     auto board = lockedGame->get_board();
-    if (is_checkmated(board, who)) {
+    auto* generator = lockedGame->get_move_generator();
+    if (is_checkmated(board, who, *generator)) {
         auto whoString = wisdom::to_string(color_invert(who)) + " wins the game.";
         setGameStatus(QString(whoString.c_str()));
         return;
     }
 
-    if (is_stalemated_slow(board, who)) {
+    if (is_stalemated_slow(board, who, *generator)) {
         setGameStatus("Draw. Stalemate.");
         return;
     }

@@ -41,9 +41,15 @@ public:
         return ChessGameHandle { *this };
     }
 
+    auto moveGenerator() -> gsl::not_null<wisdom::MoveGenerator*>
+    {
+       return &myMoveGenerator;
+    }
+
 private:
     std::mutex myMutex;
     std::unique_ptr<wisdom::Game> myGame;
+    wisdom::MoveGenerator myMoveGenerator {};
 };
 
 

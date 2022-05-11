@@ -33,9 +33,9 @@ namespace wisdom
         InputState() = default;
     };
 
-    static void print_available_moves (Game &game)
+    static void print_available_moves (Game& game, MoveGenerator& generator)
     {
-        MoveList moves = generate_legal_moves (game.get_board (), game.get_current_turn ());
+        MoveList moves = generator.generate_legal_moves (game.get_board (), game.get_current_turn ());
 
         std::cout << "\nAvailable moves:\n    ";
 
@@ -50,7 +50,7 @@ namespace wisdom
         std::cout << "\n\n";
     }
 
-    static string prompt (const string &prompt)
+    static string prompt (const string& prompt)
     {
         string input;
         std::cout << prompt << "? ";
@@ -61,7 +61,7 @@ namespace wisdom
         return chomp (input);
     }
 
-    static void save_game (const Game &game)
+    static void save_game (const Game& game)
     {
         string input = prompt ("save to what file");
 
@@ -81,7 +81,7 @@ namespace wisdom
         return Game::load (input, current_game.get_players ());
     }
 
-    static optional<Game> load_fen (Game &current_game)
+    static optional<Game> load_fen (Game& current_game)
     {
         string input = prompt ("FEN game");
         if (input.empty ())
@@ -113,7 +113,7 @@ namespace wisdom
         }
     }
 
-    static void load_analysis (Game &game, Logger &logger)
+    static void load_analysis (Game& game, Logger& logger)
     {
         string input = prompt ("store analysis in what file");
         if (input.empty ())
@@ -122,7 +122,7 @@ namespace wisdom
         game.set_analytics (analysis::make_sqlite_analytics (input, logger));
     }
 
-    static InputState read_move (Game &game, Logger &logger)
+    static InputState read_move (Game& game, Logger& logger, MoveGenerator& move_generator)
     {
         InputState result;
         string input;
@@ -139,7 +139,7 @@ namespace wisdom
 
         if (input == "moves")
         {
-            print_available_moves (game);
+            print_available_moves (game, move_generator);
             return result;
         }
         else if (input == "save")
@@ -233,7 +233,7 @@ namespace wisdom
         result.command = PlayCommand::ShowError;
 
         // check the generated move list for this move to see if its valid
-        MoveList moves = generate_legal_moves (game.get_board (), game.get_current_turn ());
+        MoveList moves = move_generator.generate_legal_moves (game.get_board (), game.get_current_turn ());
 
         for (auto legal_move : moves)
         {
@@ -275,13 +275,14 @@ namespace wisdom
         InputState initial_input_state;
         Logger& output = make_standard_logger ();
         bool paused = false;
+        MoveGenerator move_generator;
 
         while (true)
         {
             InputState input_state = initial_input_state;
             game.get_board ().print ();
 
-            if (is_checkmated (game.get_board (), game.get_current_turn()))
+            if (is_checkmated (game.get_board (), game.get_current_turn(), move_generator))
             {
                 std::cout << to_string (color_invert (game.get_current_turn())) << " wins the game.\n";
                 return;
@@ -314,7 +315,7 @@ namespace wisdom
             }
             else
             {
-                input_state = read_move (game, output);
+                input_state = read_move (game, output, move_generator);
 
                 if (input_state.command == PlayCommand::StopGame)
                     break;
