@@ -1,7 +1,3 @@
-find_package(SQLite3 QUIET)
-find_package(Microsoft.GSL QUIET)
-find_package(Threads REQUIRED)
-
 add_library(wisdom-chess-core STATIC
         board.cpp check.cpp evaluate.cpp game.cpp game.hpp generate.cpp material.cpp move.cpp
         piece.cpp search.cpp str.cpp move_timer.cpp
@@ -22,10 +18,8 @@ endif()
 
 if (Microsoft.GSL_Found)
     target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
-    message("-- Found Microsoft.GSL")
-    target_compile_definitions(wisdom-chess-core -DHAS_MS_GSL)
+    target_compile_definitions(wisdom-chess-core PUBLIC HAS_MS_GSL)
 else()
-    message("-- Using bundled GSL")
     target_sources(wisdom-chess-core PRIVATE gsl.hpp)
 endif()
 
