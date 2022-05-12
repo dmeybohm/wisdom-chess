@@ -23,14 +23,26 @@ else()
     target_sources(wisdom-chess-core PRIVATE gsl.hpp)
 endif()
 
-# target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
+set(PCH_ENABLED ON)
+if (ANDROID_ABI)
+    # Disable precompile headers because there is a confict on android where it links
+    # some code as PIC and some as non-PIC and can't combine them.
+    set(PCH_ENABLED OFF)
+endif()
+
+if (PCH_ENABLED)
+    target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
+endif()
 
 target_include_directories(wisdom-chess-core PUBLIC .)
 add_library(wisdom::chess ALIAS wisdom-chess-core)
 
 add_executable(chess main.cpp)
 
-# target_precompile_headers(chess REUSE_FROM wisdom-chess-core)
+if (PCH_ENABLED)
+    target_precompile_headers(chess REUSE_FROM wisdom-chess-core)
+endif()
+
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
 
 if (EMSCRIPTEN)
