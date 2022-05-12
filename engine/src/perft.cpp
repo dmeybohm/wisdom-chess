@@ -102,11 +102,10 @@ namespace wisdom
         return result;
     }
 
-    auto wisdom::perft::to_move_list (const Board& board, Color who, const string& move_list,
-                                      gsl::not_null<MoveListAllocator*> allocator)
+    auto wisdom::perft::to_move_list (const Board& board, Color who, const string& move_list)
         -> MoveList
     {
-        MoveList result { allocator };
+        MoveList result = MoveList::uncached ();
 
         // Make a copy of the board for modifications:
         auto board_copy = board;

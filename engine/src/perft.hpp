@@ -66,8 +66,7 @@ namespace wisdom::perft
 
     // Convert a perft move list to a wisdom::MoveList.
     auto to_move_list (const wisdom::Board& board, Color who,
-                       const string& move_list,
-                       gsl::not_null<MoveListAllocator*> move_list_allocator)
+                       const string& move_list)
         -> wisdom::MoveList;
 
     // Convert a wisdom move to a perft move.
