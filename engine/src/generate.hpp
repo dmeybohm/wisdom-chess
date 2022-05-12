@@ -21,11 +21,11 @@ namespace wisdom
     class MoveGenerator final
     {
     private:
-        MoveListAllocator my_move_list_allocator {};
+        unique_ptr<MoveListAllocator> my_move_list_allocator = make_unique<MoveListAllocator>();
         array<unique_ptr<MoveList>, Num_Rows * Num_Columns> my_knight_moves {};
 
         // Convert row/col to flat index:
-        [[nodiscard]] constexpr auto knight_move_list_index (int row, int col) -> int
+        [[nodiscard]] static constexpr auto knight_move_list_index (int row, int col) -> int
         {
             return row * Num_Columns + col;
         }
@@ -35,16 +35,12 @@ namespace wisdom
         [[nodiscard]] auto generate_knight_moves (int row, int col) -> const MoveList&;
 
     public:
-        MoveGenerator ()
-        {}
+        MoveGenerator () = default;
 
         [[nodiscard]] auto generate_all_potential_moves (const Board& board, Color who)
             -> MoveList;
 
         [[nodiscard]] auto generate_legal_moves (Board& board, Color who)
-            -> MoveList;
-
-        [[nodiscard]] auto generate_captures (const Board& board, Color who)
             -> MoveList;
 
         friend class MoveGeneration;

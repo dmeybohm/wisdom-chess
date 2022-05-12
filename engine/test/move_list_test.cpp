@@ -64,3 +64,10 @@ TEST_CASE( "Appending a move" )
 
     REQUIRE( list.size () == 2 );
 }
+
+TEST_CASE( "Moving uncached list" )
+{
+    MoveList result = MoveList::uncached ();
+
+    // todo
+}

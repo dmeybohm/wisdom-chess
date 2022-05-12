@@ -56,7 +56,9 @@ namespace wisdom
 
         MoveList ()
             : my_allocator { nullptr }
-        {}
+        {
+            my_moves_list = default_alloc_move_list ();
+        }
 
     public:
         explicit MoveList (gsl::not_null<MoveListAllocator*> allocator) :
@@ -71,9 +73,10 @@ namespace wisdom
                 my_allocator->dealloc_move_list (std::move (my_moves_list));
         }
 
+        // Public factory method for getting an uncached MoveList:
         static auto uncached () -> MoveList
         {
-            return MoveList { nullptr };
+            return MoveList {};
         }
 
         MoveList (Color color, std::initializer_list<czstring> list) noexcept;

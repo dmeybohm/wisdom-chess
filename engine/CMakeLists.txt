@@ -22,7 +22,7 @@ else()
     set(WISDOM_CHESS_FAST_TESTS Off)
 endif()
 
-if (WISDOM_CHECK_BENCHMARK)
+if (WISDOM_CHESS_BENCHMARK)
     if (benchmark_FOUND)
         message("-- wisdom-chess: Benchmarking enabled")
         add_subdirectory(benchmark)

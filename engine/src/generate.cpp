@@ -61,7 +61,7 @@ namespace wisdom
                     int dst_col = k_col + col;
                     auto index = knight_move_list_index (dst_row, dst_col);
                     if (my_knight_moves[index] == nullptr) {
-                        my_knight_moves[index] = make_unique<MoveList> (&my_move_list_allocator);
+                        my_knight_moves[index] = make_unique<MoveList> (my_move_list_allocator.get ());
                     }
                     my_knight_moves[index]->push_back (knight_move);
                 }
@@ -94,10 +94,9 @@ namespace wisdom
     {
         // check for an intervening piece
         int direction;
-        Coord src, dst;
 
-        src = move_src (move);
-        dst = move_dst (move);
+        Coord src = move_src (move);
+        Coord dst = move_dst (move);
 
         ColoredPiece piece3 = make_piece (Color::None, Piece::None);
 
@@ -244,7 +243,7 @@ namespace wisdom
 
     void MoveGeneration::knight () const
     {
-        const auto &kt_moves = generator.generate_knight_moves (piece_row, piece_col);
+        const auto& kt_moves = generator.generate_knight_moves (piece_row, piece_col);
 
         for (auto knight_move : kt_moves)
             append_move (board, moves, knight_move);
@@ -376,7 +375,7 @@ namespace wisdom
         int direction;
         int take_row, take_col;
 
-        direction = pawn_direction (who);
+        direction = pawn_direction<int> (who);
 
         take_row = next_row (piece_row, direction);
         take_col = en_passant_column;
@@ -394,7 +393,7 @@ namespace wisdom
 
     auto MoveGenerator::generate_legal_moves (Board& board, Color who) -> MoveList
     {
-        MoveList non_checks { &my_move_list_allocator };
+        MoveList non_checks { my_move_list_allocator.get () };
 
         MoveList all_moves = generate_all_potential_moves (board, who);
         for (auto move : all_moves)
@@ -412,8 +411,8 @@ namespace wisdom
 
     void MoveGeneration::generate (ColoredPiece piece, Coord coord)
     {
-        this->piece_row = Row (coord);
-        this->piece_col = Column (coord);
+        this->piece_row = Row<int> (coord);
+        this->piece_col = Column<int> (coord);
 
         switch (piece_type (piece))
         {
@@ -444,7 +443,7 @@ namespace wisdom
     auto MoveGenerator::generate_all_potential_moves (const Board& board, Color who)
         -> MoveList
     {
-        MoveList result { &my_move_list_allocator };
+        MoveList result { my_move_list_allocator.get () };
         MoveGeneration generation { board, result, 0, 0, who, *this };
 
         int row, col;

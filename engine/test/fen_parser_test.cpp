@@ -9,7 +9,7 @@ TEST_CASE( "FEN notation for the starting position" )
 {
     FenParser parser { "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" };
 
-    Game game = parser.build();
+    Game game = parser.build ();
     Board default_board;
 
     CHECK( game.get_board () == default_board );
