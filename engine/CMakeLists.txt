@@ -11,6 +11,16 @@ find_package(SQLite3 QUIET)
 find_package(Microsoft.GSL QUIET)
 find_package(Threads REQUIRED)
 
+if (ANDROID_ABI)
+    # Disable precompile headers because there is a confict on android where it links
+    # some code as PIC and some as non-PIC and can't combine them.
+    set(PCH_ENABLED OFF)
+    message("-- wisdom-chess; ; precompiled headers disabled")
+else()
+    set(PCH_ENABLED ON)
+    message("-- wisdom-chess; ; precompiled headers enabled")
+endif()
+
 if (NOT WIN32)
     message("-- wisdom-chess: stack protector disabled for performance")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-stack-protector")

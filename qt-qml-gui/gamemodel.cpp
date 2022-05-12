@@ -300,7 +300,7 @@ void GameModel::updateGameStatus()
 
     auto who = lockedGame->get_current_turn();
     auto board = lockedGame->get_board();
-    auto* generator = lockedGame->get_move_generator();
+    auto generator = lockedGame->get_move_generator();
     if (is_checkmated(board, who, *generator)) {
         auto whoString = wisdom::to_string(color_invert(who)) + " wins the game.";
         setGameStatus(QString(whoString.c_str()));

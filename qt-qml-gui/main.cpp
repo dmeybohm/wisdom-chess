@@ -32,7 +32,8 @@ int main(int argc, char *argv[])
     qDebug() << "Returned after creating game model";
     QQmlApplicationEngine engine;
 
-    const QUrl url(u"qrc:/WisdomChessQtQml/main.qml"_qs);
+    auto mainQmlFile = QString { "qrc:/WisdomChessQtQml/" } + QString { MAIN_QML_FILE };
+    const QUrl url { mainQmlFile };
 
     qDebug() << "Creating URL";
 

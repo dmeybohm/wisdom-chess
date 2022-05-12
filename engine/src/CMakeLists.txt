@@ -23,13 +23,6 @@ else()
     target_sources(wisdom-chess-core PRIVATE gsl.hpp)
 endif()
 
-set(PCH_ENABLED ON)
-if (ANDROID_ABI)
-    # Disable precompile headers because there is a confict on android where it links
-    # some code as PIC and some as non-PIC and can't combine them.
-    set(PCH_ENABLED OFF)
-endif()
-
 if (PCH_ENABLED)
     target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
 endif()
