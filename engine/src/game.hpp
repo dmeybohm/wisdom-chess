@@ -4,6 +4,7 @@
 #include "global.hpp"
 #include "piece.hpp"
 #include "move.hpp"
+#include "move_list.hpp"
 #include "board.hpp"
 #include "analytics.hpp"
 #include "history.hpp"
@@ -42,6 +43,14 @@ namespace wisdom
 
         explicit Game (const BoardBuilder& builder);
 
+        // Delete copy
+        Game (const Game& other) = delete;
+        Game& operator= (const Game& other) = delete;
+
+        // Default move:
+        Game (Game&& other) = default;
+        Game& operator= (Game&& other) = default;
+
         static auto load (const string& filename, const Players& players) -> optional<Game>;
 
         void save (const string& filename) const;
@@ -56,10 +65,13 @@ namespace wisdom
         void set_current_turn (Color);
 
         [[nodiscard]] auto get_board() const& -> Board&;
-        void get_board() const&& = delete;
+        auto get_board() const&& -> Board& = delete;
 
         [[nodiscard]] auto get_history () const& -> History&;
-        void get_history () const&& = delete;
+        auto get_history () const&& -> History& = delete;
+
+        [[nodiscard]] auto get_move_generator () const& -> gsl::not_null<MoveGenerator*>;
+        auto get_move_generator () const&& -> gsl::not_null<MoveGenerator*> = delete;
 
         auto get_current_player () -> Player
         {
@@ -121,6 +133,7 @@ namespace wisdom
         unique_ptr<History> my_history = make_unique<History> ();
         unique_ptr<analysis::Analytics> my_analytics = make_unique<analysis::Analytics> ();
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};
+        unique_ptr<MoveGenerator> my_move_generator = make_unique<MoveGenerator> ();
         int my_max_depth { Max_Depth };
 
         Players my_players = { Player::Human, Player::ChessEngine };

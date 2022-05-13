@@ -38,7 +38,8 @@ namespace wisdom
         };
         return BoardCode {
             board,
-            { No_En_Passant_Coord, No_En_Passant_Coord },
+            // todo test this part
+            board.get_en_passant_targets (),
             board.get_current_turn (),
             castle_state,
         };
@@ -48,8 +49,12 @@ namespace wisdom
     {
         BoardBuilder builder;
         auto board = builder.build ();
-        return BoardCode { *board, { No_En_Passant_Coord, No_En_Passant_Coord}, Color::White,
-                           { Castle_None, Castle_None } };
+        return BoardCode {
+            *board,
+            { No_En_Passant_Coord, No_En_Passant_Coord },
+            Color::White,
+            { Castle_None, Castle_None }
+        };
     }
 
     void BoardCode::apply_move (const Board& board, Move move)
@@ -157,13 +162,13 @@ namespace wisdom
         }
     }
 
-    std::size_t BoardCode::count_ones () const
+    auto BoardCode::count_ones () const -> std::size_t
     {
         string str = my_pieces.to_string ();
         return std::count (str.begin (), str.end (), '1');
     }
 
-    std::ostream& operator<< (std::ostream& os, const BoardCode& code)
+    auto  operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&
     {
         os << "{ bits: " << code.my_pieces << ", ancillary: " << code.my_ancillary << " }";
         return os;

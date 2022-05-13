@@ -23,17 +23,25 @@ qt_add_executable(appWisdomChessQtQml
     resources.qrc
 )
 
+if (ANDROID)
+    set(MAIN_QML_FILE mobile_main.qml)
+else()
+    set(MAIN_QML_FILE desktop_main.qml)
+endif()
+
 qt_add_qml_module(appWisdomChessQtQml
     URI WisdomChessQtQml
     VERSION 1.0
     QML_FILES
-        main.qml
+        desktop_main.qml
+        mobile_main.qml
         Board.qml
         ChessSquare.qml
         Piece.qml
         PromoteDropdown.qml
         PromotedPieceModel.qml
         DrawProposalDialog.qml
+        Root.qml
         StatusBar.qml
     RESOURCES
         images/Chess_bdt45.svg
@@ -64,3 +72,5 @@ target_link_libraries(appWisdomChessQtQml
     PRIVATE Qt6::Quick)
 target_link_libraries(appWisdomChessQtQml
     PRIVATE wisdom::chess)
+target_compile_definitions(appWisdomChessQtQml
+    PRIVATE MAIN_QML_FILE="${MAIN_QML_FILE}")

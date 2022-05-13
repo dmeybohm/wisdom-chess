@@ -11,12 +11,14 @@ namespace wisdom
 
     class History;
 
+    class MoveGenerator;
+
     // Evaluate the board.
-    int evaluate (Board& board, Color who, int moves_away);
+    int evaluate (Board& board, Color who, int moves_away, MoveGenerator& generator);
 
     // Evaluate the board and check if it's a draw.
     int evaluate_and_check_draw (Board& board, Color who, int moves_away, Move move,
-                                 const History& history);
+                                 const History& history, MoveGenerator& generator);
 
 }
 

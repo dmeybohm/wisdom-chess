@@ -108,7 +108,7 @@ namespace wisdom
 
         std::size_t sz = this->pieces_with_coords.size ();
 
-        vector<PieceRow> piece_types {sz };
+        vector<PieceRow> piece_types { sz };
         vector<BoardPositions> positions { sz };
 
         for (size_t i = 0; i < sz; i++)

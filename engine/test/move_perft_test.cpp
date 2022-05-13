@@ -17,6 +17,7 @@ using wisdom::perft::Stats;
 using wisdom::FenParser;
 using std::vector;
 using wisdom::perft::PerftResults;
+using wisdom::MoveGenerator;
 
 //
 // These loaded from https://www.chessprogramming.org/Perft_Results
@@ -24,7 +25,9 @@ using wisdom::perft::PerftResults;
 
 TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Results" )
 {
-    auto do_check = [](
+    MoveGenerator move_generator;
+
+    auto do_check = [&move_generator](
         Board &board,
         const vector<CounterExpectation> &expectations,
         Color color
@@ -33,7 +36,7 @@ TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Resul
         {
             Stats stats;
             Board copy_board = board;
-            stats.search_moves (copy_board, color, 0, depth);
+            stats.search_moves (copy_board, color, 0, depth, move_generator);
 
             CHECK( stats.counters.nodes == expectation.nodes );
             CHECK( stats.counters.captures == expectation.captures );
@@ -64,7 +67,7 @@ TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Resul
             { 2, { 400, 0, 0 } }
         };
 
-        auto perft_results = wisdom::perft::perft_results (perft_board, Color::White, 2);
+        auto perft_results = wisdom::perft::perft_results (perft_board, Color::White, 2, move_generator);
 
         do_check (test_board, expectations, Color::White);
         auto test_sum = perft_results.total_nodes;
@@ -82,7 +85,7 @@ TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Resul
             { 3, { 8'902, 34, 0 } }
         };
 
-        auto perft_results = wisdom::perft::perft_results (perft_board, Color::White, 3);
+        auto perft_results = wisdom::perft::perft_results (perft_board, Color::White, 3, move_generator);
         auto sum = perft_results.total_nodes;
 
         do_check (test_board, expectations, Color::White);
@@ -106,11 +109,10 @@ TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Resul
             { 5, { 193'690'690, 35'043'416, 73'365 } },
         };
 
-        auto perft_results = wisdom::perft::perft_results (perft_board, Color::White, 2);
+        auto perft_results = wisdom::perft::perft_results (perft_board, Color::White, 2, move_generator);
         auto sum = perft_results.total_nodes;
 
         CHECK( sum == 2039 );
         do_check (test_board, expectations, Color::White);
     }
 }
-

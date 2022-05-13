@@ -4,6 +4,7 @@
 #include "str.hpp"
 #include "move_list.hpp"
 #include "check.hpp"
+#include "move_list.hpp"
 
 #include <iostream>
 
@@ -15,6 +16,8 @@ using wisdom::perft::PerftResults;
 
 int main (int argc, char *argv[])
 {
+    wisdom::MoveGenerator move_generator;
+
     if (argc != 3 && argc != 4)
     {
         std::cerr << "Need two or three args" << "\n";
@@ -32,7 +35,7 @@ int main (int argc, char *argv[])
         current_player = wisdom::perft::apply_list (board, current_player, moves);
     }
 
-    PerftResults results = wisdom::perft::perft_results (board, current_player, depth);
+    PerftResults results = wisdom::perft::perft_results (board, current_player, depth, move_generator);
     std::cout << wisdom::perft::to_string (results);
 
     return EXIT_SUCCESS;

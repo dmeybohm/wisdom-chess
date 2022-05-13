@@ -21,10 +21,10 @@ TEST_CASE( "Initializing move list" )
     REQUIRE( moves == expected );
 }
 
-MoveList copy_moves_and_ptr (const Move **ptr)
+MoveList copy_moves_and_ptr (const Move **ptr, MoveGenerator& generator)
 {
     Board board;
-    MoveList moves = generate_moves (board, Color::White);
+    MoveList moves = generator.generate_all_potential_moves (board, Color::White);
 //    std::cout << "Moves first" << &moves.get_my_moves()[0] << "\n";
     *ptr = moves.data ();
     return moves;
@@ -33,7 +33,8 @@ MoveList copy_moves_and_ptr (const Move **ptr)
 TEST_CASE( "Returning move list moves ptr" )
 {
     const Move* ptr;
-    MoveList result = copy_moves_and_ptr (&ptr);
+    MoveGenerator move_generator;
+    MoveList result = copy_moves_and_ptr (&ptr, move_generator);
 //    std::cout << "Moves first" << &result.get_my_moves()[0] << "\n";
 
     REQUIRE( result.data() == ptr );
@@ -56,10 +57,17 @@ TEST_CASE( "Moving move list pointer" )
 
 TEST_CASE( "Appending a move" )
 {
-    MoveList list;
+    MoveList list = MoveList::uncached ();
 
     list.push_back (move_parse ("e4 e5"));
     list.push_back (move_parse ("d7 d5"));
 
     REQUIRE( list.size () == 2 );
+}
+
+TEST_CASE( "Moving uncached list" )
+{
+    MoveList result = MoveList::uncached ();
+
+    // todo
 }

@@ -13,13 +13,15 @@
         <file>images/Chess_qlt45.svg</file>
         <file>images/Chess_rdt45.svg</file>
         <file>images/Chess_rlt45.svg</file>
-        <file>ChessRow.qml</file>
         <file>ChessSquare.qml</file>
         <file>images/Chess_rdt45.png</file>
         <file>images/Chess_ndt45.png</file>
-        <file>PiecesModel.qml</file>
         <file>Piece.qml</file>
         <file>PromoteDropdown.qml</file>
         <file>StatusBar.qml</file>
+        <file>DrawProposalDialog.qml</file>
+        <file>PromotedPieceModel.qml</file>
+        <file>Root.qml</file>
+        <file>desktop_main.qml</file>
     </qresource>
 </RCC>

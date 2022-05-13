@@ -1,13 +1,9 @@
-find_package(SQLite3 QUIET)
-find_package(Microsoft.GSL QUIET)
-find_package(Threads REQUIRED)
-
 add_library(wisdom-chess-core STATIC
         board.cpp check.cpp evaluate.cpp game.cpp game.hpp generate.cpp material.cpp move.cpp
         piece.cpp search.cpp str.cpp move_timer.cpp
         global.hpp validate.cpp validate.hpp position.cpp position.hpp
         fen_parser.cpp fen_parser.hpp coord.cpp board_builder.cpp move_list.cpp move_list.hpp
-        coord_iterator.hpp analytics_sqlite.hpp
+        coord_iterator.hpp analytics_sqlite.hpp history.hpp search.hpp
         board_code.cpp board_code.hpp logger.cpp logger.hpp
         transposition_table.cpp transposition_table.hpp variation_glimpse.cpp variation_glimpse.hpp
         output_format.cpp output_format.hpp analytics.cpp analytics.hpp search_result.hpp
@@ -22,21 +18,24 @@ endif()
 
 if (Microsoft.GSL_Found)
     target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
-    message("-- Found Microsoft.GSL")
-    target_compile_definitions(wisdom-chess-core -DHAS_MS_GSL)
+    target_compile_definitions(wisdom-chess-core PUBLIC HAS_MS_GSL)
 else()
-    message("-- Using bundled GSL")
     target_sources(wisdom-chess-core PRIVATE gsl.hpp)
 endif()
 
-# target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
+if (PCH_ENABLED)
+    target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
+endif()
 
 target_include_directories(wisdom-chess-core PUBLIC .)
 add_library(wisdom::chess ALIAS wisdom-chess-core)
 
 add_executable(chess main.cpp)
 
-# target_precompile_headers(chess REUSE_FROM wisdom-chess-core)
+if (PCH_ENABLED)
+    target_precompile_headers(chess REUSE_FROM wisdom-chess-core)
+endif()
+
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
 
 if (EMSCRIPTEN)

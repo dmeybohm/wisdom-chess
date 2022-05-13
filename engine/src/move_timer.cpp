@@ -17,7 +17,7 @@ namespace wisdom
         if (++my_check_calls % Num_Calls_Per_Timer_Check != 0)
             return false;
 
-        if (my_periodic_function.has_value())
+        if (my_periodic_function.has_value ())
             (*my_periodic_function) (this);
 
         steady_clock::time_point next_check_time = steady_clock::now ();

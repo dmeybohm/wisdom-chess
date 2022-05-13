@@ -16,8 +16,18 @@ namespace wisdom
         std::size_t capacity;
     };
 
-    unique_ptr<move_list> alloc_move_list () noexcept;
-    void dealloc_move_list (unique_ptr<move_list> move_list) noexcept;
+    class MoveListAllocator
+    {
+    private:
+        vector<unique_ptr<move_list>> my_move_list_ptrs;
+
+    public:
+        static constexpr std::size_t Initial_Size = 16;
+        static constexpr std::size_t Size_Increment = 4;
+
+        unique_ptr<move_list> alloc_move_list () noexcept;
+        void dealloc_move_list (unique_ptr<move_list> move_list) noexcept;
+    };
 
     std::size_t move_list_capacity (move_list& ptr) noexcept;
 
@@ -26,19 +36,47 @@ namespace wisdom
 
     void move_list_append (move_list& list, std::size_t position, Move move) noexcept;
 
+    inline auto default_alloc_move_list () -> unique_ptr<move_list>
+    {
+        auto list = new move_list ();
+        list->move_array = (Move*)malloc (sizeof (Move) * MoveListAllocator::Initial_Size);
+        list->capacity = MoveListAllocator::Initial_Size;
+
+        unique_ptr<move_list> result;
+        result.reset (list);
+        return result;
+    }
+
     class MoveList
     {
     private:
-        unique_ptr<move_list> my_moves_list = alloc_move_list ();
+        unique_ptr<move_list> my_moves_list;
         std::size_t my_size = 0;
+        MoveListAllocator* my_allocator;
+
+        MoveList ()
+            : my_allocator { nullptr }
+        {
+            my_moves_list = default_alloc_move_list ();
+        }
 
     public:
-        MoveList () = default;
+        explicit MoveList (gsl::not_null<MoveListAllocator*> allocator) :
+            my_allocator { allocator }
+        {
+            my_moves_list = allocator->alloc_move_list ();
+        }
 
         ~MoveList () 
         {
-            if (my_moves_list)
-                dealloc_move_list (std::move (my_moves_list));
+            if (my_moves_list != nullptr && my_allocator != nullptr)
+                my_allocator->dealloc_move_list (std::move (my_moves_list));
+        }
+
+        // Public factory method for getting an uncached MoveList:
+        static auto uncached () -> MoveList
+        {
+            return MoveList {};
         }
 
         MoveList (Color color, std::initializer_list<czstring> list) noexcept;
@@ -91,7 +129,7 @@ namespace wisdom
 
         [[nodiscard]] auto to_string () const -> string;
 
-        bool operator== (const MoveList& other) const
+        auto operator== (const MoveList& other) const -> bool
         {
             return size () == other.size () && std::equal (
                     begin (),
@@ -101,7 +139,7 @@ namespace wisdom
             );
         }
 
-        bool operator!= (const MoveList& other) const
+        auto operator!= (const MoveList& other) const -> bool
         {
             return !(*this == other);
         }
@@ -119,7 +157,8 @@ namespace wisdom
 
     auto to_string (const MoveList& list) -> string;
 
-    std::ostream& operator<< (std::ostream &os, const MoveList& list);
+    auto operator<< (std::ostream& os, const MoveList& list) ->
+        std::ostream&;
 }
 
 #endif //WISDOM_MOVE_LIST_HPP
