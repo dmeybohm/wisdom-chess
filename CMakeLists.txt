@@ -15,6 +15,9 @@ if (QTDIR)
     message("-- wisdom-chess: QTDIR added to CMAKE_PREFIX_PATH")
 endif()
 
+
+
+
 find_package(Qt6 6.2 QUIET COMPONENTS Quick)
 
 if (WISDOM_CHESS_ASAN)

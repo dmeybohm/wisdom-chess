@@ -10,7 +10,7 @@ using namespace wisdom;
 using namespace std;
 using namespace gsl;
 
-ChessEngine::ChessEngine(shared_ptr<ChessGame> game, QObject *parent)
+ChessEngine::ChessEngine(std::unique_ptr<ChessGame> game, QObject *parent)
     : QObject { parent },
      myGame { std::move(game) }
 {
@@ -18,19 +18,25 @@ ChessEngine::ChessEngine(shared_ptr<ChessGame> game, QObject *parent)
 
 void ChessEngine::init()
 {
-    bool isActive = [this]{
-        auto lockedGame = myGame->access();
-        return lockedGame->get_current_player() == Player::ChessEngine;
-    }();
+    auto game = myGame->access();
+    auto isActive = game->get_current_player() == Player::ChessEngine;
     if (isActive) {
-        opponentMoved();
+        findMove();
     }
 }
 
-void ChessEngine::opponentMoved()
+void ChessEngine::opponentMoved(Move move, Color who)
 {
+    QThread::currentThread()->usleep(500);
+    auto game = myGame->access();
+    game->move(move);
     findMove();
-    QThread::currentThread()->sleep(1);
+}
+
+void ChessEngine::receiveEngineMoved(wisdom::Move move, wisdom::Color who)
+{
+    // Do another move if the engine is hooked up to itself:
+    init();
 }
 
 void ChessEngine::findMove()

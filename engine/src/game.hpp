@@ -43,6 +43,14 @@ namespace wisdom
 
         explicit Game (const BoardBuilder& builder);
 
+        // Delete copy
+        Game (const Game& other) = delete;
+        Game& operator= (const Game& other) = delete;
+
+        // Default move:
+        Game (Game&& other) = default;
+        Game& operator= (Game&& other) = default;
+
         static auto load (const string& filename, const Players& players) -> optional<Game>;
 
         void save (const string& filename) const;

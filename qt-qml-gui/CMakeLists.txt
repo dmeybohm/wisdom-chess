@@ -23,7 +23,7 @@ qt_add_executable(appWisdomChessQtQml
     resources.qrc
 )
 
-if (ANDROID_ABI)
+if (ANDROID)
     set(MAIN_QML_FILE mobile_main.qml)
 else()
     set(MAIN_QML_FILE desktop_main.qml)

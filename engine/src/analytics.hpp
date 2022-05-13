@@ -180,6 +180,11 @@ namespace wisdom::analysis
         explicit Analytics (wisdom::unique_ptr<AnalyticsImpl> impl_) :
                 impl { std::move (impl_) } { }
 
+        Analytics (const Analytics& other)
+        {
+
+        }
+
         IterativeSearch make_iterative_search (const Board& board, Color turn)
         {
             if (impl)

@@ -14,7 +14,8 @@ using namespace std;
 namespace
 {
     auto buildMoveFromCoordinates(gsl::not_null<ChessGame*> chessGame, int srcRow, int srcColumn,
-                                  int dstRow, int dstColumn, optional<Piece> promoted) -> pair<optional<Move>, wisdom::Color>
+                                  int dstRow, int dstColumn, optional<Piece> promoted)
+        -> pair<optional<Move>, wisdom::Color>
     {
         auto game = chessGame->access();
         Coord src = make_coord(srcRow, srcColumn);
@@ -98,11 +99,11 @@ GameModel::GameModel(QObject *parent)
 {
     // Initialize the piece list from the game->board.
     init();
-    setupNotify(myChessGame.get());
-    setupNewEngineThread();
     auto lockedGame = myChessGame->access();
     lockedGame->set_white_player(Player::Human);
     lockedGame->set_black_player(Player::ChessEngine);
+    setupNotify(myChessGame.get());
+    setupNewEngineThread();
 }
 
 GameModel::~GameModel()
@@ -120,7 +121,11 @@ void GameModel::setupNewEngineThread()
 {
     delete myChessEngineThread;
 
-    auto chessEngine = new ChessEngine { myChessGame };
+    // Initialize a new Game for the chess engine.
+    // Any changes in the game config will be updated over a signal.
+    auto computerChessGame = make_unique<Game>(Player::Human, Player::ChessEngine);
+    auto chessEngine = new ChessEngine { chessGameFromGame(std::move(computerChessGame)) };
+
     myChessEngineThread = new QThread();
 
     // Connect event handlers for the computer and human making moves:
@@ -139,7 +144,7 @@ void GameModel::setupNewEngineThread()
 
     // Connect the engine's move back to itself in case it's playing itself:
     // (it will return early if it's not)
-    connect(this, &GameModel::engineMoved, chessEngine, &ChessEngine::opponentMoved);
+    connect(this, &GameModel::engineMoved, chessEngine, &ChessEngine::receiveEngineMoved);
 
     // exit event loop from engine thread when we start exiting:
     connect(this, &GameModel::terminationStarted, myChessEngineThread, &QThread::quit);
@@ -167,6 +172,9 @@ void GameModel::movePiece(int srcRow, int srcColumn,
 
 void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who)
 {
+    auto game = myChessGame->access();
+    game->move(move);
+
     updateGameStatus();
     updateCurrentTurn(wisdom::color_invert(who));
 
@@ -231,7 +239,7 @@ void GameModel::updateCurrentTurn(Color newColor)
     setCurrentTurn(mapColor(newColor));
 }
 
-void GameModel::checkForDrawAndEmitPlayerMoved(wisdom::Player playerType, wisdom::Move move, wisdom::Color who)
+void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Color who)
 {
     bool needProposal;
     wisdom::Player oppositePlayer;

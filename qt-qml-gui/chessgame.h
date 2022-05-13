@@ -1,56 +1,32 @@
 #ifndef CHESSGAME_H
 #define CHESSGAME_H
 
-#include <mutex>
+#include <memory>
 
 #include "game.hpp"
 
 class ChessGame
 {
 public:
-    ChessGame(std::unique_ptr<wisdom::Game> game)
+    explicit ChessGame(std::unique_ptr<wisdom::Game> game)
         : myGame { std::move(game) }
     {
     }
 
-    class ChessGameHandle
+    auto access() -> gsl::not_null<wisdom::Game*>
     {
-    public:
-        ChessGameHandle(ChessGame& game)
-            : myLockGuard(game.mutex()),
-              myGame(game.myGame.get())
-        {}
-
-        auto operator->() -> gsl::not_null<wisdom::Game*>
-        {
-            return myGame;
-        }
-
-    private:
-        std::lock_guard<std::mutex> myLockGuard;
-        gsl::not_null<wisdom::Game*> myGame;
-    };
-
-    auto mutex() -> std::mutex&
-    {
-        return myMutex;
-    }
-
-    auto access() -> ChessGameHandle
-    {
-        return ChessGameHandle { *this };
+        return myGame.get();
     }
 
     auto moveGenerator() -> gsl::not_null<wisdom::MoveGenerator*>
     {
-       return &myMoveGenerator;
+       return myMoveGenerator.get();
     }
 
 private:
-    std::mutex myMutex;
     std::unique_ptr<wisdom::Game> myGame;
-    wisdom::MoveGenerator myMoveGenerator {};
+    std::unique_ptr<wisdom::MoveGenerator> myMoveGenerator =
+            std::make_unique<wisdom::MoveGenerator>();
 };
-
 
 #endif // CHESSGAME_H

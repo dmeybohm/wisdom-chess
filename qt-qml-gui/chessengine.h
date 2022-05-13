@@ -2,9 +2,9 @@
 #define CHESSENGINE_H
 
 #include <QObject>
-#include <mutex>
-#include "chessgame.h"
+#include <memory>
 
+#include "chessgame.h"
 #include "game.hpp"
 #include "move.hpp"
 #include "move_timer.hpp"
@@ -18,7 +18,7 @@ class ChessEngine : public QObject
 {
     Q_OBJECT
 public:
-    ChessEngine(std::shared_ptr<ChessGame> game,
+    ChessEngine(std::unique_ptr<ChessGame> game,
                 QObject *parent = nullptr);
 
 public slots:
@@ -26,10 +26,14 @@ public slots:
     void init();
 
     // Receive events about the opponent move.
-    void opponentMoved();
+    void opponentMoved(wisdom::Move move, wisdom::Color who);
+
+    // Receive our own move:
+    void receiveEngineMoved(wisdom::Move move, wisdom::Color who);
 
     // Receive draw proposal:
     void drawProposed();
+
 
 signals:
     // The engine made a mode.
@@ -42,7 +46,7 @@ signals:
     void drawProposalResponse(bool response);
 
 private:
-    std::shared_ptr<ChessGame> myGame;
+    std::unique_ptr<ChessGame> myGame;
     void findMove();
 };
 
