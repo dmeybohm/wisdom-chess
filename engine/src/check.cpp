@@ -8,155 +8,16 @@
 
 namespace wisdom
 {
-    bool is_checkmated (Board& board, Color who)
+    bool is_checkmated (Board& board, Color who, MoveGenerator& generator)
     {
         auto coord = board.get_king_position (who);
 
         if (!is_king_threatened (board, who, coord))
             return false;
 
-        MoveList legal_moves = generate_legal_moves (board, who);
+        MoveList legal_moves = generator.generate_legal_moves (board, who);
 
         return legal_moves.empty ();
-    }
-
-    bool is_king_threatened_inline (const Board& board, Color who, int8_t king_row, int8_t king_col)
-    {
-        int8_t row, col;
-        int8_t c_dir, r_dir;
-
-        // check each side of the king's row
-        col = king_col;
-        for (r_dir = -1; r_dir <= 1; r_dir += 2)
-        {
-            for (row = next_row (king_row, r_dir); is_valid_row (row); row = next_row (row, r_dir))
-            {
-                auto what = board.piece_at (row, col);
-
-                if (what == Piece_And_Color_None)
-                    continue;
-
-                auto check_piece_type = piece_type (what);
-                auto check_piece_color = piece_color (what);
-
-                if (check_piece_color == who)
-                    break;
-
-                if (check_piece_type == Piece::Rook || check_piece_type == Piece::Queen)
-                    return true;
-
-                break;
-            }
-        }
-
-        // check each side of the king's column
-        row = king_row;
-        for (c_dir = -1; c_dir <= 1; c_dir += 2)
-        {
-            for (col = next_column (king_col, c_dir); is_valid_column (col);
-                 col = next_column (col, c_dir))
-            {
-                auto what = board.piece_at (row, col);
-
-                if (what == Piece_And_Color_None)
-                    continue;
-
-                if (piece_color (what) == who)
-                    break;
-
-                auto check_piece_type = piece_type (what);
-                if (check_piece_type == Piece::Rook || check_piece_type == Piece::Queen)
-                    return true;
-
-                break;
-            }
-        }
-
-        // check each diagonal direction
-        for (r_dir = -1; r_dir <= 1; r_dir += 2)
-        {
-            for (c_dir = -1; c_dir <= 1; c_dir += 2)
-            {
-                for (row = next_row (king_row, r_dir), col = next_column (king_col, c_dir);
-                     is_valid_row (row) && is_valid_column (col);
-                     row = next_row (row, r_dir), col = next_column (col, c_dir))
-                {
-                    auto what = board.piece_at (row, col);
-
-                    if (what == Piece_And_Color_None)
-                        continue;
-
-                    if (piece_color (what) == who)
-                        break;
-
-                    auto check_piece_type = piece_type (what);
-                    if (check_piece_type == Piece::Bishop || check_piece_type == Piece::Queen)
-                    {
-                        return true;
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        // check for knight checks
-        const auto& kt_moves = generate_knight_moves (king_row, king_col);
-
-        for (auto move : kt_moves)
-        {
-            Coord dst = move_dst (move);
-
-            row = Row (dst);
-            col = Column (dst);
-
-            auto what = board.piece_at (row, col);
-            if (what == Piece_And_Color_None)
-                continue;
-
-            if (piece_type (what) == Piece::Knight && piece_color (what) != who)
-                return true;
-        }
-
-        // check for pawn checks
-        r_dir = pawn_direction (who);
-
-        for (c_dir = -1; c_dir <= 1; c_dir += 2)
-        {
-            row = next_row (king_row, r_dir);
-            col = next_column (king_col, c_dir);
-
-            if (!is_valid_row (row) || !is_valid_column (col))
-                continue;
-
-            auto what = board.piece_at (row, col);
-
-            if (piece_type (what) == Piece::Pawn && piece_color (what) != who)
-                return true;
-        }
-
-        // check for king checks
-        for (row = king_row - 1; row <= king_row + 1; row++)
-        {
-            if (!is_valid_row (row))
-                continue;
-
-            for (col = king_col - 1; col <= king_col + 1; col++)
-            {
-                if (!is_valid_column (col))
-                    continue;
-
-                if (col == king_col && row == king_row)
-                    continue;
-
-                auto what = board.piece_at (row, col);
-
-                if (piece_type (what) == Piece::King && piece_color (what) != who)
-                    return true;
-            }
-        }
-
-        return false;
     }
 
     struct Threats
@@ -371,31 +232,6 @@ namespace wisdom
 
         if (threats.any_diagonal_threats ())
             return true;
-
-        return false;
-    }
-
-    bool is_king_threatened_knight (const Board& board, Color who, int8_t king_row, int8_t king_col)
-    {
-        int8_t row, col;
-
-        // check for knight checks
-        const auto& kt_moves = generate_knight_moves (king_row, king_col);
-
-        for (auto move : kt_moves)
-        {
-            Coord dst = move_dst (move);
-
-            row = Row (dst);
-            col = Column (dst);
-
-            auto what = board.piece_at (row, col);
-            if (what == Piece_And_Color_None)
-                continue;
-
-            if (piece_type (what) == Piece::Knight && piece_color (what) != who)
-                return true;
-        }
 
         return false;
     }
@@ -722,11 +558,11 @@ namespace wisdom
         return true;
     }
 
-    bool is_stalemated_slow (Board& board, Color who)
+    bool is_stalemated_slow (Board& board, Color who, MoveGenerator& generator)
     {
-        auto legal_moves = generate_legal_moves (board, who);
+        auto legal_moves = generator.generate_legal_moves (board, who);
 
         return legal_moves.empty () &&
-                !is_checkmated (board, who);
+                !is_checkmated (board, who, generator);
     }
 }

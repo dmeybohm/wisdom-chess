@@ -34,6 +34,8 @@ TEST_CASE( "en passant" )
     SUBCASE( "En passant moves work on the right" )
     {
         BoardBuilder builder;
+        MoveGenerator move_generator;
+
         vector<Piece> back_rank { Piece::Rook, Piece::Knight, Piece::Bishop, Piece::Queen,
                                   Piece::King, Piece::Bishop, Piece::Knight, Piece::Rook };
         builder.add_row_of_same_color ("a8", Color::Black, back_rank);
@@ -49,7 +51,7 @@ TEST_CASE( "en passant" )
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::Black) );
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
-        MoveList move_list = generate_moves (*board, Color::White);
+        MoveList move_list = move_generator.generate_all_potential_moves (*board, Color::White);
         std::optional<Move> optional_en_passant_move = nullopt;
 
         for (auto move : move_list)
@@ -103,10 +105,12 @@ TEST_CASE( "en passant" )
     SUBCASE( "En passant moves work on the left" )
     {
         BoardBuilder builder;
+        MoveGenerator move_generator;
         std::vector<Piece> back_rank {
                 Piece::Rook,   Piece::Knight, Piece::Bishop, Piece::Queen, Piece::King,
                 Piece::Bishop, Piece::Knight, Piece::Rook
         };
+
         builder.add_row_of_same_color ("a8", Color::Black, back_rank);
         builder.add_row_of_same_color_and_piece ("a7", Color::Black, Piece::Pawn);
         builder.add_piece ("e5", Color::White, Piece::Pawn);
@@ -119,7 +123,7 @@ TEST_CASE( "en passant" )
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::Black) );
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
-        MoveList move_list = generate_moves (*board, Color::White);
+        MoveList move_list = move_generator.generate_all_potential_moves (*board, Color::White);
         std::optional<Move> optional_en_passant_move = std::nullopt;
 
         for (auto move : move_list)

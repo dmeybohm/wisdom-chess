@@ -80,7 +80,7 @@ namespace wisdom
     constexpr int Max_Depth = 16;
 
     // Max time spent searching.
-    constexpr int Max_Search_Seconds = 8;
+    constexpr int Max_Search_Seconds = 4;
 
     // Errors in this application.
     class Error : public std::exception

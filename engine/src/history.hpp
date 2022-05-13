@@ -2,6 +2,7 @@
 #define WISDOM_CHESS_HISTORY_HPP
 
 #include "global.hpp"
+
 #include "move_list.hpp"
 #include "piece.hpp"
 #include "board.hpp"
@@ -20,6 +21,7 @@ namespace wisdom
 
     public:
         History()
+            : my_move_history { MoveList::uncached() }
         {
             my_board_codes.reserve (64);
             my_undo_moves.reserve (64);

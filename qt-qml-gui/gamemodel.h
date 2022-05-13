@@ -61,14 +61,11 @@ public slots:
     void drawProposalResponse(bool accepted);
 
 private:
-    // The game is shared across the main thread and the chess engine thread.
-    // Before calling any of the methods in the libwisdom-core library, the mutex
-    // must be held because it is not thread safe.
-    //
-    // To do so, call the `->access()`
-    // method on the `ChessGame` object, and then use the -> operator to call
-    // method on the wisdom::Game* pointer:
-    std::shared_ptr<ChessGame> myChessGame;
+    // The game is duplicated across the main thread and the chess engine thread.
+    // So, the main thread has a copy of the game and so does the engine.
+    // When updates to the engine occur, the game is sent via a signal and the engine
+    // replaces the new copy.
+    std::unique_ptr<ChessGame> myChessGame;
 
     // The chess engine runs in this thread, and grabs the game mutext as needed:
     QThread* myChessEngineThread;

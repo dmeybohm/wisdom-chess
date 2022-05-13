@@ -126,11 +126,18 @@ namespace wisdom
 
     auto Game::get_board () const& -> Board&
     {
+        // todo - I think this may be copying
         return *my_board;
     }
 
     auto Game::get_history () const& -> History&
     {
+        // todo - I think this may be copying
         return *my_history;
+    }
+
+    auto Game::get_move_generator () const& -> gsl::not_null<MoveGenerator*>
+    {
+        return my_move_generator.get ();
     }
 }

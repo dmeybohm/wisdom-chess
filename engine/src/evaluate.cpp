@@ -53,7 +53,7 @@ namespace wisdom
         }
     }
 
-    int evaluate (Board& board, Color who, int moves_away)
+    int evaluate (Board& board, Color who, int moves_away, MoveGenerator& generator)
     {
         int score = 0;
         Color opponent = color_invert (who);
@@ -61,11 +61,11 @@ namespace wisdom
         score += board.get_material ().score (who);
         score += board.get_position ().overall_score (who);
 
-        if (is_checkmated (board, who))
+        if (is_checkmated (board, who, generator))
         {
             score = -1 * checkmate_score_in_moves (moves_away);
         }
-        else if (is_checkmated (board, opponent))
+        else if (is_checkmated (board, opponent, generator))
         {
             score = checkmate_score_in_moves (moves_away);
         }
@@ -77,7 +77,7 @@ namespace wisdom
     }
 
     int evaluate_and_check_draw (Board& board, Color who, int moves_away, Move move,
-                                 const History& history)
+                                 const History& history, MoveGenerator& generator)
     {
         if (is_drawing_move (board, who, move, history))
         {
@@ -85,7 +85,7 @@ namespace wisdom
         }
         else
         {
-            return evaluate (board, who, moves_away);
+            return evaluate (board, who, moves_away, generator);
         }
     }
 }
