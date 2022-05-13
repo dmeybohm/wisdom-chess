@@ -278,12 +278,12 @@ auto GameModel::currentTurn() -> wisdom::chess::ChessColor
 void GameModel::setCurrentTurn(wisdom::chess::ChessColor newColor)
 {
     if (newColor != myCurrentTurn) {
-        qDebug() << "Updating color to " << toString(newColor);
+        qDebug() << "Updating color to" << QVariant::fromValue(newColor).toString();
         myCurrentTurn = newColor;
         qDebug() << "Emitting currentTurnChanged()";
         emit currentTurnChanged();
     } else {
-        qDebug() << "Keeping color as " << toString(newColor);
+        qDebug() << "Keeping color as" << QVariant::fromValue(newColor).toString();
     }
 }
 

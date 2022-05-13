@@ -11,8 +11,3 @@ void wisdom::chess::registerChessColorQmlType()
         "Not creatable as it is an enum type"
     );
 }
-
-auto wisdom::chess::toString(ChessColor color) -> QString
-{
-    return QString { color == ChessColor::White ? "White" : "Black" };
-}

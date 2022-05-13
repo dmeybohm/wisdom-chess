@@ -17,7 +17,6 @@ namespace wisdom::chess
 
     Q_ENUM_NS(ChessColor)
 
-    auto toString(ChessColor color) -> QString;
     void registerChessColorQmlType();
 
     constexpr auto mapColor(wisdom::Color color) -> ChessColor
