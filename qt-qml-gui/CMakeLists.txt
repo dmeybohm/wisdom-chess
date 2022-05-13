@@ -18,9 +18,8 @@ qt_add_executable(appWisdomChessQtQml
     chessgame.cpp
     chessengine.h
     chessengine.cpp
-    colorenum.cpp
-    colorenum.h
-    resources.qrc
+    chesscolor.cpp
+    chesscolor.h
 )
 
 if (ANDROID)

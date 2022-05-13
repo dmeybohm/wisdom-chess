@@ -114,7 +114,7 @@ GameModel::~GameModel()
 void GameModel::init()
 {
     auto lockedGame = myChessGame->access();
-    setCurrentTurn(mapColor(lockedGame->get_current_turn()));
+    setCurrentTurn(wisdom::chess::mapColor(lockedGame->get_current_turn()));
 }
 
 void GameModel::setupNewEngineThread()
@@ -236,7 +236,7 @@ auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Colo
 
 void GameModel::updateCurrentTurn(Color newColor)
 {
-    setCurrentTurn(mapColor(newColor));
+    setCurrentTurn(wisdom::chess::mapColor(newColor));
 }
 
 void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Color who)
@@ -270,12 +270,12 @@ void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Col
 }
 
 
-auto GameModel::currentTurn() -> ColorEnumValue
+auto GameModel::currentTurn() -> wisdom::chess::ChessColor
 {
     return myCurrentTurn;
 }
 
-void GameModel::setCurrentTurn(ColorEnumValue newColor)
+void GameModel::setCurrentTurn(wisdom::chess::ChessColor newColor)
 {
     if (newColor != myCurrentTurn) {
         qDebug() << "Updating color to " << toString(newColor);

@@ -6,16 +6,25 @@
 
 #include "chessgame.h"
 #include "chessengine.h"
-#include "colorenum.h"
 #include "piecesmodel.h"
+#include "chesscolor.h"
 
 class GameModel : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(ColorEnum::Value currentTurn READ currentTurn WRITE setCurrentTurn NOTIFY currentTurnChanged)
-    Q_PROPERTY(QString gameStatus READ gameStatus WRITE setGameStatus NOTIFY gameStatusChanged)
-    Q_PROPERTY(bool drawProposedToHuman READ drawProposedToHuman WRITE setDrawProposedToHuman NOTIFY drawProposedToHumanChanged)
+    Q_PROPERTY(wisdom::chess::ChessColor currentTurn
+               READ currentTurn
+               WRITE setCurrentTurn
+               NOTIFY currentTurnChanged)
+    Q_PROPERTY(QString gameStatus
+               READ gameStatus
+               WRITE setGameStatus
+               NOTIFY gameStatusChanged)
+    Q_PROPERTY(bool drawProposedToHuman
+               READ drawProposedToHuman
+               WRITE setDrawProposedToHuman
+               NOTIFY drawProposedToHumanChanged)
 
 public:
     explicit GameModel(QObject *parent = nullptr);
@@ -24,8 +33,8 @@ public:
     Q_INVOKABLE void start();
     Q_INVOKABLE bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
 
-    ColorEnum::Value currentTurn();
-    void setCurrentTurn(ColorEnumValue newColor);
+    wisdom::chess::ChessColor currentTurn();
+    void setCurrentTurn(wisdom::chess::ChessColor newColor);
 
     void setGameStatus(const QString& newStatus);
     auto gameStatus() -> QString;
@@ -69,7 +78,7 @@ private:
 
     // The chess engine runs in this thread, and grabs the game mutext as needed:
     QThread* myChessEngineThread;
-    ColorEnumValue myCurrentTurn;
+    wisdom::chess::ChessColor myCurrentTurn;
     QString myGameStatus {};
     bool myDrawProposedToHuman = false;
 

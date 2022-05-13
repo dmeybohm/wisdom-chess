@@ -6,7 +6,7 @@
 
 #include "gamemodel.h"
 #include "piecesmodel.h"
-#include "colorenum.h"
+#include "chesscolor.h"
 
 #include <QSGRendererInterface>
 
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     GameModel gameModel;
     PiecesModel piecesModel;
 
-    ColorEnum::registerQmlTypes();
+    wisdom::chess::registerChessColorQmlType();
 
     QObject::connect(&gameModel, &GameModel::engineMoved, &piecesModel, &PiecesModel::playerMoved);
     QObject::connect(&gameModel, &GameModel::humanMoved, &piecesModel, &PiecesModel::playerMoved);
