@@ -20,9 +20,9 @@ namespace wisdom
         gsl::not_null<History*> my_history;
         gsl::not_null<const Logger*> my_output;
         gsl::not_null<analysis::Analytics*> my_analytics;
+        MoveGenerator my_generator {};
         MoveTimer my_timer;
         int my_total_depth;
-        MoveGenerator my_generator {};
 
         optional<Move> my_best_move = nullopt;
         int my_best_depth = -1;
@@ -169,7 +169,7 @@ namespace wisdom
         my_best_move = result.move;
         if (result.score == No_Move_Seen_Score)
         {
-            // if there are no legal moves, then the current computer_player is in a stalemate or checkmate position.
+            // if there are no legal moves, then the current player is in a stalemate or checkmate position.
             result.score = evaluate_without_legal_moves (*my_board, side, result.depth);
         }
         my_best_score = result.score;
@@ -186,7 +186,7 @@ namespace wisdom
         
         if (!my_best_move.has_value ())
         {
-            // if there are no legal moves, then the current computer_player is in a stalemate or checkmate position.
+            // if there are no legal moves, then the current player is in a stalemate or checkmate position.
             my_best_score = evaluate_without_legal_moves (*my_board, side, my_total_depth - depth);
         }
     }
