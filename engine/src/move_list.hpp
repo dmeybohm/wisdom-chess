@@ -22,6 +22,13 @@ namespace wisdom
         vector<unique_ptr<move_list>> my_move_list_ptrs;
 
     public:
+        ~MoveListAllocator()
+        {
+            for (auto& ptr : my_move_list_ptrs)
+                if (ptr && ptr->move_array)
+                    free (ptr->move_array);
+        }
+
         static constexpr std::size_t Initial_Size = 16;
         static constexpr std::size_t Size_Increment = 4;
 
@@ -39,9 +46,7 @@ namespace wisdom
         list->move_array = (Move*)malloc (sizeof (Move) * MoveListAllocator::Initial_Size);
         list->capacity = MoveListAllocator::Initial_Size;
 
-        unique_ptr<move_list> result;
-        result.reset (list);
-        return result;
+        return unique_ptr<move_list> { list };
     }
 
     class MoveList
@@ -66,8 +71,13 @@ namespace wisdom
 
         ~MoveList () 
         {
-            if (my_moves_list != nullptr && my_allocator != nullptr)
-                my_allocator->dealloc_move_list (std::move (my_moves_list));
+            if (my_moves_list != nullptr)
+            {
+                if (my_allocator != nullptr)
+                    my_allocator->dealloc_move_list (std::move (my_moves_list));
+                else
+                    free (my_moves_list->move_array);
+            }
         }
 
         // Public factory method for getting an uncached MoveList:
