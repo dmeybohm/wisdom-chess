@@ -94,10 +94,10 @@ namespace wisdom
                                             analysis::Decision& decision)
     {
         std::optional<Move> best_move {};
-        auto moves = my_generator.generate_all_potential_moves (*my_board, side);
-        constexpr int No_Move_Seen_Score = -3 * Initial_Alpha;
+        const int No_Move_Seen_Score = -Initial_Alpha;
         int best_score = No_Move_Seen_Score;
 
+        auto moves = my_generator.generate_all_potential_moves (*my_board, side);
         for (auto move : moves)
         {
             if (my_timer.is_triggered ())
