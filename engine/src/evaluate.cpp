@@ -88,4 +88,12 @@ namespace wisdom
             return evaluate (board, who, moves_away, generator);
         }
     }
+
+    auto evaluate_without_legal_moves (Board& board, Color who, int moves_away) -> int
+    {
+        auto king_coord = board.get_king_position (who);
+        return  is_king_threatened (board, who, king_coord)
+                       ? -1 * checkmate_score_in_moves (moves_away)
+                       : 0;
+    }
 }

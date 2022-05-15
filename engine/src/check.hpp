@@ -46,10 +46,6 @@ namespace wisdom
         return is_king_threatened (board, who, make_coord (king_row, king_col));
     }
 
-    // In the search, there is one place we don't call this too often and don't want to bloat
-    // the search with it. So call it out of line.
-    auto is_king_threatened_not_inlined (Board& board, Color who, Coord king_coord) -> bool;
-
     // Whether the board is in a checkmated position for the computer_player.
     auto is_checkmated (Board& board, Color who, MoveGenerator& generator) -> bool;
 

@@ -565,10 +565,4 @@ namespace wisdom
 
         return legal_moves.empty () && !is_king_threatened (board, who, coord);
     }
-
-    auto is_king_threatened_not_inlined (Board& board, Color who, Coord king_coord) -> bool
-    {
-        InlineThreats threats { board, who, king_coord };
-        return threats.check_all ();
-    }
 }

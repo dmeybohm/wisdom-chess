@@ -71,13 +71,13 @@ namespace wisdom
                                       MoveTimer timer, int total_depth,
                                       analysis::Analytics& analytics) :
             impl { make_unique<IterativeSearchImpl> (
-                board, history, output, timer, total_depth, analytics) }
+                board, history, output, std::move (timer), total_depth, analytics) }
     {
     }
 
     IterativeSearch::IterativeSearch (Board& board, History& history, const Logger& output,
                                       MoveTimer timer, int total_depth) :
-            IterativeSearch (board, history, output, timer, total_depth,
+            IterativeSearch (board, history, output, std::move (timer), total_depth,
                              analysis::make_dummy_analytics ())
     {
     }
@@ -169,10 +169,8 @@ namespace wisdom
         my_best_move = result.move;
         if (result.score == No_Move_Seen_Score)
         {
-            auto king_coord = my_board->get_king_position (side);
-            result.score = is_king_threatened_not_inlined (*my_board, side, king_coord)
-                ? -1 * checkmate_score_in_moves (result.depth)
-                : 0;
+            // if there are no legal moves, then the current computer_player is in a stalemate or checkmate position.
+            result.score = evaluate_without_legal_moves (*my_board, side, result.depth);
         }
         my_best_score = result.score;
         my_best_depth = result.depth;
@@ -186,13 +184,10 @@ namespace wisdom
         if (my_timed_out)
             return;
         
-        // if there are no legal moves, then the current computer_player is in a stalemate or checkmate position.
         if (!my_best_move.has_value ())
         {
-            auto king_coord = my_board->get_king_position (side);
-
-            my_best_score = is_king_threatened (*my_board, side, king_coord) ?
-                    -1 * checkmate_score_in_moves (my_total_depth - depth) : 0;
+            // if there are no legal moves, then the current computer_player is in a stalemate or checkmate position.
+            my_best_score = evaluate_without_legal_moves (*my_board, side, my_total_depth - depth);
         }
     }
 
@@ -315,19 +310,6 @@ namespace wisdom
             variation_str << "principal variation: " << result.variation_glimpse.to_string ();
             my_output->println (variation_str.str ());
         }
-    }
-
-    // Get the score for a checkmate discovered X moves away.
-    // Checkmates closer to the current position are more valuable than those
-    // further away.
-    int checkmate_score_in_moves (int moves)
-    {
-        return Infinity + Infinity / (1 + moves);
-    }
-
-    bool is_checkmating_opponent_score (int score)
-    {
-        return score > Infinity;
     }
 }
 
