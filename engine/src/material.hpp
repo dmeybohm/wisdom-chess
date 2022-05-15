@@ -1,5 +1,5 @@
-#ifndef WISDOM_CHESS_MATERIAL_H_
-#define WISDOM_CHESS_MATERIAL_H_
+#ifndef WISDOM_CHESS_MATERIAL_HPP
+#define WISDOM_CHESS_MATERIAL_HPP
 
 #include "global.hpp"
 #include "piece.hpp"
@@ -63,4 +63,4 @@ namespace wisdom
     };
 }
 
-#endif // WISDOM_CHESS_MATERIAL_H_
+#endif // WISDOM_CHESS_MATERIAL_HPP

@@ -1,5 +1,5 @@
-#ifndef WISDOM_ANALYTICS_SQLITE_HPP
-#define WISDOM_ANALYTICS_SQLITE_HPP
+#ifndef WISDOM_CHESS_ANALYTICS_SQLITE_HPP
+#define WISDOM_CHESS_ANALYTICS_SQLITE_HPP
 
 #include "analytics.hpp"
 
@@ -14,4 +14,4 @@ namespace wisdom::analysis
         -> wisdom::unique_ptr<Analytics>;
 }
 
-#endif //WISDOM_ANALYTICS_SQLITE_HPP
+#endif //WISDOM_CHESS_ANALYTICS_SQLITE_HPP

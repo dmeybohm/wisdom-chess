@@ -1,5 +1,5 @@
-#ifndef WISDOM_BOARD_CODE_HPP
-#define WISDOM_BOARD_CODE_HPP
+#ifndef WISDOM_CHESS_BOARD_CODE_HPP
+#define WISDOM_CHESS_BOARD_CODE_HPP
 
 #include "global.hpp"
 #include "piece.hpp"
@@ -219,4 +219,4 @@ namespace std
     };
 }
 
-#endif //WISDOM_BOARD_CODE_HPP
+#endif //WISDOM_CHESS_BOARD_CODE_HPP

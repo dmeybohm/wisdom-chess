@@ -1,5 +1,5 @@
-#ifndef WISDOM_VARIATION_GLIMPSE_HPP
-#define WISDOM_VARIATION_GLIMPSE_HPP
+#ifndef WISDOM_CHESS_VARIATION_GLIMPSE_HPP
+#define WISDOM_CHESS_VARIATION_GLIMPSE_HPP
 
 #include "global.hpp"
 #include "move.hpp"
@@ -47,4 +47,4 @@ namespace wisdom
 
 }
 
-#endif //WISDOM_VARIATION_GLIMPSE_HPP
+#endif //WISDOM_CHESS_VARIATION_GLIMPSE_HPP

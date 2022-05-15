@@ -14,11 +14,11 @@ namespace wisdom
     class MoveGenerator;
 
     // Evaluate the board.
-    int evaluate (Board& board, Color who, int moves_away, MoveGenerator& generator);
+    auto evaluate (Board& board, Color who, int moves_away, MoveGenerator& generator) -> int;
 
     // Evaluate the board and check if it's a draw.
-    int evaluate_and_check_draw (Board& board, Color who, int moves_away, Move move,
-                                 const History& history, MoveGenerator& generator);
+    auto evaluate_and_check_draw (Board& board, Color who, int moves_away, Move move,
+                                  const History& history, MoveGenerator& generator) -> int;
 
     // When there are no legal moves present, return the score of this move, which
     // checks for either a stalemate or checkmate position.
@@ -32,7 +32,7 @@ namespace wisdom
         return Infinity + Infinity / (1 + moves);
     }
 
-    // Whether the move indicates that it checkmates an opponent.
+    // Whether the score indicates a checkmate of the opponent has been found.
     inline auto is_checkmating_opponent_score (int score) -> bool
     {
         return score > Infinity;

@@ -1,5 +1,5 @@
-#ifndef WISDOM_STR_HPP
-#define WISDOM_STR_HPP
+#ifndef WISDOM_CHESS_STR_HPP
+#define WISDOM_CHESS_STR_HPP
 
 #include "global.hpp"
 
@@ -18,4 +18,4 @@ namespace wisdom
     [[nodiscard]] auto to_int (const string& str) -> int;
 }
 
-#endif // WISDOM_STR_HPP
+#endif // WISDOM_CHESS_STR_HPP

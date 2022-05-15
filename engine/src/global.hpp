@@ -1,5 +1,5 @@
-#ifndef WISDOM_CHESS_GLOBAL_H
-#define WISDOM_CHESS_GLOBAL_H
+#ifndef WISDOM_CHESS_GLOBAL_HPP
+#define WISDOM_CHESS_GLOBAL_HPP
 
 #include <cstdint>
 #include <exception>
@@ -121,4 +121,4 @@ namespace wisdom
     };
 }
 
-#endif //WISDOM_CHESS_GLOBAL_H
+#endif //WISDOM_CHESS_GLOBAL_HPP

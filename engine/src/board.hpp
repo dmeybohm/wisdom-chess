@@ -1,5 +1,5 @@
-#ifndef WISDOM_CHESS_BOARD_H_
-#define WISDOM_CHESS_BOARD_H_
+#ifndef WISDOM_CHESS_BOARD_HPP
+#define WISDOM_CHESS_BOARD_HPP
 
 #include "board_code.hpp"
 #include "coord.hpp"
@@ -262,4 +262,4 @@ namespace wisdom
 
 }
 
-#endif // WISDOM_CHESS_BOARD_H_
+#endif // WISDOM_CHESS_BOARD_HPP

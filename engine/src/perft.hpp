@@ -1,5 +1,5 @@
-#ifndef WISDOM_PERFT_HPP
-#define WISDOM_PERFT_HPP
+#ifndef WISDOM_CHESS_PERFT_HPP
+#define WISDOM_CHESS_PERFT_HPP
 
 #include "global.hpp"
 
@@ -87,4 +87,4 @@ namespace wisdom::perft
     auto to_string (const PerftResults& perft_results) -> string;
 }
 
-#endif // WISDOM_PERFT_HPP
+#endif // WISDOM_CHESS_PERFT_HPP

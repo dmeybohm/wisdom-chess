@@ -1,5 +1,5 @@
-#ifndef WISDOM_BOARD_BUILDER_HPP
-#define WISDOM_BOARD_BUILDER_HPP
+#ifndef WISDOM_CHESS_BOARD_BUILDER_HPP
+#define WISDOM_CHESS_BOARD_BUILDER_HPP
 
 #include "global.hpp"
 #include "piece.hpp"
@@ -81,4 +81,4 @@ namespace wisdom
     };
 }
 
-#endif //WISDOM_BOARD_BUILDER_HPP
+#endif //WISDOM_CHESS_BOARD_BUILDER_HPP

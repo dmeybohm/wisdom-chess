@@ -53,7 +53,7 @@ namespace wisdom
         }
     }
 
-    int evaluate (Board& board, Color who, int moves_away, MoveGenerator& generator)
+    auto evaluate (Board& board, Color who, int moves_away, MoveGenerator& generator) -> int
     {
         int score = 0;
         Color opponent = color_invert (who);
@@ -76,8 +76,8 @@ namespace wisdom
         return score;
     }
 
-    int evaluate_and_check_draw (Board& board, Color who, int moves_away, Move move,
-                                 const History& history, MoveGenerator& generator)
+    auto evaluate_and_check_draw (Board& board, Color who, int moves_away, Move move,
+                                  const History& history, MoveGenerator& generator) -> int
     {
         if (is_drawing_move (board, who, move, history))
         {

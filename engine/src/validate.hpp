@@ -1,5 +1,5 @@
-#ifndef WISDOM_VALIDATE_HPP
-#define WISDOM_VALIDATE_HPP
+#ifndef WISDOM_CHESS_VALIDATE_HPP
+#define WISDOM_CHESS_VALIDATE_HPP
 
 #include "global.hpp"
 #include "move.hpp"
@@ -19,4 +19,4 @@ namespace wisdom
     }
 }
 
-#endif //WISDOM_VALIDATE_HPP
+#endif //WISDOM_CHESS_VALIDATE_HPP

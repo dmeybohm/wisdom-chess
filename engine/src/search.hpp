@@ -1,5 +1,5 @@
-#ifndef WISDOM_CHESS_SEARCH_H_
-#define WISDOM_CHESS_SEARCH_H_
+#ifndef WISDOM_CHESS_SEARCH_HPP
+#define WISDOM_CHESS_SEARCH_HPP
 
 #include "global.hpp"
 #include "move.hpp"
@@ -23,12 +23,6 @@ namespace wisdom
     class Logger;
     class History;
 
-    // Get the score for checkmate in X moves.
-    int checkmate_score_in_moves (int moves);
-
-    // Whether the score indicates a checkmate of the opponent has been found.
-    bool is_checkmating_opponent_score (int score);
-
     class IterativeSearch
     {
     private:
@@ -47,4 +41,4 @@ namespace wisdom
     };
 }
 
-#endif // WISDOM_CHESS_SEARCH_H_
+#endif // WISDOM_CHESS_SEARCH_HPP

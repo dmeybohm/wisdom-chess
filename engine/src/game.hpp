@@ -1,5 +1,5 @@
-#ifndef WISDOM_CHESS_GAME_H_
-#define WISDOM_CHESS_GAME_H_
+#ifndef WISDOM_CHESS_GAME_HPP
+#define WISDOM_CHESS_GAME_HPP
 
 #include "global.hpp"
 #include "piece.hpp"
@@ -141,4 +141,4 @@ namespace wisdom
     };
 }
 
-#endif // WISDOM_CHESS_GAME_H_
+#endif // WISDOM_CHESS_GAME_HPP

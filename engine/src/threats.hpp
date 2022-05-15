@@ -1,5 +1,5 @@
-#ifndef WISDOM_THREATS_HPP
-#define WISDOM_THREATS_HPP
+#ifndef WISDOM_CHESS_THREATS_HPP
+#define WISDOM_CHESS_THREATS_HPP
 
 #include "global.hpp"
 
@@ -528,4 +528,4 @@ namespace wisdom
     };
 }
 
-#endif // WISDOM_THREATS_HPP
+#endif // WISDOM_CHESS_THREATS_HPP

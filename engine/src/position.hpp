@@ -1,6 +1,5 @@
-
-#ifndef WISDOM_POSITION_H
-#define WISDOM_POSITION_H
+#ifndef WISDOM_CHESS_POSITION_H
+#define WISDOM_CHESS_POSITION_H
 
 #include "global.hpp"
 #include "coord.hpp"
@@ -39,4 +38,4 @@ namespace wisdom
     };
 }
 
-#endif //WISDOM_POSITION_H
+#endif //WISDOM_CHESS_POSITION_H

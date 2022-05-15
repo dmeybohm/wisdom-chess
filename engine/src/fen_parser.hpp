@@ -1,5 +1,5 @@
-#ifndef WISDOM_FEN_PARSER_HPP
-#define WISDOM_FEN_PARSER_HPP
+#ifndef WISDOM_CHESS_FEN_PARSER_HPP
+#define WISDOM_CHESS_FEN_PARSER_HPP
 
 #include "board_builder.hpp"
 #include "global.hpp"
@@ -54,4 +54,4 @@ namespace wisdom
     };
 }
 
-#endif // WISDOM_FEN_PARSER_HPP
+#endif // WISDOM_CHESS_FEN_PARSER_HPP

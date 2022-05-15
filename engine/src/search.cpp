@@ -55,9 +55,6 @@ namespace wisdom
 
         void iteratively_deepen (Color side);
 
-        void search_moves (Color side, int depth, int alpha, int beta,
-                           analysis::Decision& decision);
-
         void iterate (Color side, int depth, analysis::Iteration& iteration);
 
         void search (Color side, int depth, int alpha, int beta,
@@ -89,13 +86,11 @@ namespace wisdom
          return impl->synthesize_result ();
     }
 
-
-    void IterativeSearchImpl::search_moves (Color side, int depth, int alpha, int beta, // NOLINT(misc-no-recursion)
-                                            analysis::Decision& decision)
+    void IterativeSearchImpl::search (Color side, int depth, int alpha, int beta, // NOLINT(misc-no-recursion)
+                                      analysis::Decision& decision)
     {
         std::optional<Move> best_move {};
-        const int No_Move_Seen_Score = -Initial_Alpha;
-        int best_score = No_Move_Seen_Score;
+        int best_score = -Initial_Alpha;
 
         auto moves = my_generator.generate_all_potential_moves (*my_board, side);
         for (auto move : moves)
@@ -129,7 +124,7 @@ namespace wisdom
             {
                 auto new_decision = decision.make_child (position);
 
-                search_moves (color_invert (side), depth - 1, -beta, -alpha, new_decision);
+                search (color_invert (side), depth - 1, -beta, -alpha, new_decision);
 
                 my_best_score *= -1;
             }
@@ -167,28 +162,13 @@ namespace wisdom
         decision.finalize (result);
 
         my_best_move = result.move;
-        if (result.score == No_Move_Seen_Score)
+        if (!my_best_move.has_value ())
         {
             // if there are no legal moves, then the current player is in a stalemate or checkmate position.
             result.score = evaluate_without_legal_moves (*my_board, side, result.depth);
         }
         my_best_score = result.score;
         my_best_depth = result.depth;
-    }
-
-    void IterativeSearchImpl::search (Color side, int depth,
-                                      int alpha, int beta, analysis::Decision& decision)
-    {
-        search_moves (side, depth, alpha, beta, decision);
-
-        if (my_timed_out)
-            return;
-        
-        if (!my_best_move.has_value ())
-        {
-            // if there are no legal moves, then the current player is in a stalemate or checkmate position.
-            my_best_score = evaluate_without_legal_moves (*my_board, side, my_total_depth - depth);
-        }
     }
 
     static void calc_time (const Logger& output, int nodes, system_clock_t start, system_clock_t end)

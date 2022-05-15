@@ -1,5 +1,5 @@
-#ifndef WISDOM_UUID_HPP
-#define WISDOM_UUID_HPP
+#ifndef WISDOM_CHESS_UUID_HPP
+#define WISDOM_CHESS_UUID_HPP
 
 #include "global.hpp"
 
@@ -32,4 +32,4 @@ namespace wisdom
     };
 }
 
-#endif //WISDOM_UUID_HPP
+#endif //WISDOM_CHESS_UUID_HPP

@@ -1,5 +1,5 @@
-#ifndef WISDOM_COORD_ITERATOR_HPP
-#define WISDOM_COORD_ITERATOR_HPP
+#ifndef WISDOM_CHESS_COORD_ITERATOR_HPP
+#define WISDOM_CHESS_COORD_ITERATOR_HPP
 
 #include "global.hpp"
 #include "coord.hpp"
@@ -9,4 +9,4 @@
        for (col = 0; col < wisdom::Num_Columns; col++)
 
 
-#endif //WISDOM_COORD_ITERATOR_HPP
+#endif //WISDOM_CHESS_COORD_ITERATOR_HPP
