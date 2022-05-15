@@ -7,6 +7,7 @@
 #include "logger.hpp"
 
 #include <sstream>
+#include <utility>
 
 namespace wisdom
 {
@@ -34,20 +35,20 @@ namespace wisdom
         int my_total_alpha_beta_cutoffs = 0;
 
     public:
-        IterativeSearchImpl (Board& board, History& history, const Logger& output, MoveTimer timer,
-                             int total_depth, analysis::Analytics& analytics) :
+        IterativeSearchImpl (Board& board, History& history, const Logger& output,
+                             MoveTimer timer, int total_depth, analysis::Analytics& analytics) :
                 my_board { &board },
                 my_history { &history },
                 my_output { &output },
                 my_analytics { &analytics },
-                my_timer { timer },
+                my_timer { std::move( timer )},
                 my_total_depth { total_depth }
         {
         }
 
-        IterativeSearchImpl (Board& board, History& history, const Logger& output, MoveTimer timer,
-                             int total_depth) :
-                IterativeSearchImpl (board, history, output, timer, total_depth,
+        IterativeSearchImpl (Board& board, History& history, const Logger& output,
+                             MoveTimer timer, int total_depth) :
+                IterativeSearchImpl (board, history, output, std::move (timer), total_depth,
                                      analysis::make_dummy_analytics ())
         {
         }
@@ -88,12 +89,14 @@ namespace wisdom
          return impl->synthesize_result ();
     }
 
-    void IterativeSearchImpl::search_moves (Color side, int depth, int alpha, int beta,
+
+    void IterativeSearchImpl::search_moves (Color side, int depth, int alpha, int beta, // NOLINT(misc-no-recursion)
                                             analysis::Decision& decision)
     {
-        int best_score = -Initial_Alpha;
         std::optional<Move> best_move {};
         auto moves = my_generator.generate_all_potential_moves (*my_board, side);
+        constexpr int No_Move_Seen_Score = -3 * Initial_Alpha;
+        int best_score = No_Move_Seen_Score;
 
         for (auto move : moves)
         {
@@ -164,6 +167,13 @@ namespace wisdom
         decision.finalize (result);
 
         my_best_move = result.move;
+        if (result.score == No_Move_Seen_Score)
+        {
+            auto king_coord = my_board->get_king_position (side);
+            result.score = is_king_threatened_not_inlined(*my_board, side, king_coord)
+                ? -1 * checkmate_score_in_moves (result.depth)
+                : 0;
+        }
         my_best_score = result.score;
         my_best_depth = result.depth;
     }
@@ -218,12 +228,10 @@ namespace wisdom
 
                 auto next_result = synthesize_result ();
                 if (next_result.move.has_value ())
-                    best_result = next_result;
-
-                if (is_checkmating_opponent_score (next_result.score))
                 {
                     best_result = next_result;
-                    break;
+                    if (is_checkmating_opponent_score (next_result.score))
+                        break;
                 }
             }
 

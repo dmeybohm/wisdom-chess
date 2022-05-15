@@ -35,11 +35,11 @@ namespace wisdom
         unique_ptr<IterativeSearchImpl> impl;
 
     public:
-        IterativeSearch (Board& board, History& history, const Logger& output, MoveTimer timer,
-                         int total_depth);
+        IterativeSearch (Board& board, History& history, const Logger& output,
+                         MoveTimer timer, int total_depth);
 
-        IterativeSearch (Board& board, History& history, const Logger& output, MoveTimer timer,
-                         int total_depth, analysis::Analytics& analytics);
+        IterativeSearch (Board& board, History& history, const Logger& output,
+                         MoveTimer timer, int total_depth, analysis::Analytics& analytics);
 
         ~IterativeSearch ();
 
