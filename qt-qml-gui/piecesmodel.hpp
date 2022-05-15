@@ -3,7 +3,7 @@
 
 #include <QAbstractListModel>
 
-#include "chessgame.h"
+#include "chessgame.hpp"
 
 struct PieceInfo
 {

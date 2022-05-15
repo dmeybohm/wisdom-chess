@@ -4,9 +4,9 @@
 #include <QDebug>
 #include <QQuickWindow>
 
-#include "gamemodel.h"
-#include "piecesmodel.h"
-#include "chesscolor.h"
+#include "chesscolor.hpp"
+#include "gamemodel.hpp"
+#include "piecesmodel.hpp"
 
 #include <QSGRendererInterface>
 

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <memory>
 
-#include "chessgame.h"
+#include "chessgame.hpp"
 #include "game.hpp"
 #include "move.hpp"
 #include "move_timer.hpp"

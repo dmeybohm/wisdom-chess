@@ -1,4 +1,4 @@
-#include "gamemodel.h"
+#include "gamemodel.hpp"
 
 #include "game.hpp"
 #include "generate.hpp"
@@ -315,7 +315,7 @@ void GameModel::updateGameStatus()
         return;
     }
 
-    if (is_stalemated_slow(board, who, *generator)) {
+    if (is_stalemated(board, who, *generator)) {
         setGameStatus("Draw. Stalemate.");
         return;
     }

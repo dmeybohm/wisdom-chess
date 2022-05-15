@@ -4,10 +4,10 @@
 #include <QObject>
 #include <QThread>
 
-#include "chessgame.h"
-#include "chessengine.h"
-#include "piecesmodel.h"
-#include "chesscolor.h"
+#include "chesscolor.hpp"
+#include "chessengine.hpp"
+#include "chessgame.hpp"
+#include "piecesmodel.hpp"
 
 class GameModel : public QObject
 {

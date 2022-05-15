@@ -10,16 +10,16 @@ find_package(Qt6 6.2 COMPONENTS Quick REQUIRED)
 
 qt_add_executable(appWisdomChessQtQml
     main.cpp
-    gamemodel.h
+        gamemodel.hpp
     gamemodel.cpp
-    piecesmodel.h
+        piecesmodel.hpp
     piecesmodel.cpp
-    chessgame.h
+        chessgame.hpp
     chessgame.cpp
-    chessengine.h
+        chessengine.hpp
     chessengine.cpp
     chesscolor.cpp
-    chesscolor.h
+        chesscolor.hpp
 )
 
 if (ANDROID)

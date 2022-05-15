@@ -1,5 +1,5 @@
+#include "chesscolor.hpp"
 #include <QQmlEngine>
-#include "chesscolor.h"
 
 void wisdom::chess::registerChessColorQmlType()
 {

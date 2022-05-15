@@ -2,8 +2,8 @@
 #include <QDebug>
 #include <mutex>
 
-#include "chessengine.h"
 #include "check.hpp"
+#include "chessengine.hpp"
 #include "logger.hpp"
 
 using namespace wisdom;
