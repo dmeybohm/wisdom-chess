@@ -28,7 +28,7 @@ namespace wisdom
 
     auto to_string (const MoveList& list) -> string { return list.to_string (); }
 
-    std::ostream& operator<< (std::ostream& os, const MoveList& list)
+    auto operator<< (std::ostream& os, const MoveList& list) -> std::ostream&
     {
         os << to_string (list);
         return os;
