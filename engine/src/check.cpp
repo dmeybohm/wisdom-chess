@@ -523,7 +523,7 @@ namespace wisdom
         return false;
     }
 
-    bool was_legal_move (Board& board, Color who, Move mv)
+    auto was_legal_move (Board& board, Color who, Move mv) -> bool
     {
         auto king_coord = board.get_king_position (who);
 
@@ -558,7 +558,7 @@ namespace wisdom
         return true;
     }
 
-    bool is_stalemated (Board& board, Color who, MoveGenerator& generator)
+    auto is_stalemated (Board& board, Color who, MoveGenerator& generator) -> bool
     {
         auto coord = board.get_king_position (who);
         auto legal_moves = generator.generate_legal_moves (board, who);
@@ -566,7 +566,7 @@ namespace wisdom
         return legal_moves.empty () && !is_king_threatened (board, who, coord);
     }
 
-    bool is_king_threatened_not_inlined (Board& board, Color who, Coord king_coord)
+    auto is_king_threatened_not_inlined (Board& board, Color who, Coord king_coord) -> bool
     {
         InlineThreats threats { board, who, king_coord };
         return threats.check_all ();

@@ -170,7 +170,7 @@ namespace wisdom
         if (result.score == No_Move_Seen_Score)
         {
             auto king_coord = my_board->get_king_position (side);
-            result.score = is_king_threatened_not_inlined(*my_board, side, king_coord)
+            result.score = is_king_threatened_not_inlined (*my_board, side, king_coord)
                 ? -1 * checkmate_score_in_moves (result.depth)
                 : 0;
         }

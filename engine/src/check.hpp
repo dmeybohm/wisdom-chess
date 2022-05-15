@@ -9,9 +9,6 @@
 
 namespace wisdom
 {
-    // Whether this move was a legal move for the computer_player.
-    bool was_legal_move (Board& board, Color who, Move mv);
-
     // check if the the king indicated by the WHO argument is in trouble
     // in this position
     bool is_king_threatened (const Board& board, Color who, int8_t row, int8_t col);
@@ -32,36 +29,39 @@ namespace wisdom
     bool is_king_threatened_diagonal_dumb (const Board& board, Color who,
                                            int8_t king_row, int8_t king_col);
 
-    inline bool is_king_threatened (Board& board, Color who, Coord king_coord)
+    // Whether this move was a legal move for the computer_player.
+    auto was_legal_move (Board& board, Color who, Move mv) -> bool;
+
+    [[nodiscard]] inline auto is_king_threatened (Board& board, Color who, Coord king_coord) -> bool
     {
         InlineThreats threats { board, who, king_coord };
         return threats.check_all ();
     }
 
-    inline bool is_king_threatened (Board& board,
+    [[nodiscard]] inline auto is_king_threatened (Board& board,
                                     Color who,
                                     int8_t king_row,
-                                    int8_t king_col)
+                                    int8_t king_col) -> bool
     {
         return is_king_threatened (board, who, make_coord (king_row, king_col));
     }
 
     // In the search, there is one place we don't call this too often and don't want to bloat
     // the search with it. So call it out of line.
-    bool is_king_threatened_not_inlined (Board& board, Color who, Coord king_coord);
+    auto is_king_threatened_not_inlined (Board& board, Color who, Coord king_coord) -> bool;
 
     // Whether the board is in a checkmated position for the computer_player.
-    bool is_checkmated (Board& board, Color who, MoveGenerator& generator);
+    auto is_checkmated (Board& board, Color who, MoveGenerator& generator) -> bool;
 
     // Whether in a stalemate position for white or black.
-    bool is_stalemated (Board& board, Color who, MoveGenerator& generator);
+    auto is_stalemated (Board& board, Color who, MoveGenerator& generator) -> bool;
 
     // Whether this move could cause a draw.
     //
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
-    inline bool is_drawing_move (Board& board, [[maybe_unused]] Color who,
-                                 [[maybe_unused]] Move move, const History& history)
+    inline auto is_drawing_move (Board& board, [[maybe_unused]] Color who,
+                                 [[maybe_unused]] Move move, const History& history) -> bool
     {
         return history.is_third_repetition (board) ||
                History::is_fifty_move_repetition (board);

@@ -94,12 +94,12 @@ namespace wisdom
             return my_players[index];
         }
 
-        void set_players (const array<Player, Num_Players>& players)
+        void set_players (const Players& players)
         {
             my_players = players;
         }
 
-        [[nodiscard]] auto get_players () const -> array<Player, Num_Players>
+        [[nodiscard]] auto get_players () const -> Players
         {
             return my_players;
         }
@@ -125,15 +125,15 @@ namespace wisdom
 
         void set_periodic_function (MoveTimer::PeriodicFunction periodic_function)
         {
-            my_periodic_function = periodic_function;
+            my_periodic_function = std::move (periodic_function);
         }
 
     private:
         unique_ptr<Board> my_board = make_unique<Board> ();
+        unique_ptr<MoveGenerator> my_move_generator = make_unique<MoveGenerator> ();
         unique_ptr<History> my_history = make_unique<History> ();
         unique_ptr<analysis::Analytics> my_analytics = make_unique<analysis::Analytics> ();
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};
-        unique_ptr<MoveGenerator> my_move_generator = make_unique<MoveGenerator> ();
         int my_max_depth { Max_Depth };
 
         Players my_players = { Player::Human, Player::ChessEngine };

@@ -10,9 +10,9 @@ namespace wisdom
     public:
         using PeriodicFunction = std::function<void(gsl::not_null<MoveTimer*>)>;
 
-        explicit MoveTimer (chrono::seconds seconds) :
-                my_last_check_time { chrono::steady_clock::now () },
-                my_seconds { seconds }
+        explicit MoveTimer (chrono::seconds seconds)
+                : my_last_check_time { chrono::steady_clock::now () }
+                , my_seconds { seconds }
         {}
 
         explicit MoveTimer (int seconds) :
