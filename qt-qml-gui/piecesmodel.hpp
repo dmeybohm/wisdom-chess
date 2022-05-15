@@ -7,9 +7,18 @@
 
 struct PieceInfo
 {
-    PieceInfo() {}
-    PieceInfo(int row, int column, wisdom::ColoredPiece piece, const QString& pieceImage) :
-        row { row }, column { column }, piece { piece }, pieceImage { pieceImage }
+    PieceInfo()
+      : row { 0 }
+      , column { 0 }
+      , pieceImage { "" }
+      , piece { wisdom::Piece_And_Color_None }
+   {}
+
+    PieceInfo(int row, int column, wisdom::ColoredPiece piece, QString pieceImage)
+        : row { row }
+        , column { column }
+        , piece { piece }
+        , pieceImage { std::move(pieceImage) }
     {}
 
     int row;
@@ -36,9 +45,9 @@ public:
         PieceImageRole,
     };
 
-    int rowCount(const QModelIndex& index) const override;
-    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-    QHash<int, QByteArray> roleNames() const override;
+    [[nodiscard]] int rowCount(const QModelIndex& index) const override;
+    [[nodiscard]] QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
 
 public slots:
     void playerMoved(wisdom::Move selectedMove, wisdom::Color who);

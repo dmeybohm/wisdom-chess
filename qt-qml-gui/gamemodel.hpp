@@ -28,7 +28,7 @@ class GameModel : public QObject
 
 public:
     explicit GameModel(QObject *parent = nullptr);
-    virtual ~GameModel() override;
+    ~GameModel() override;
 
     Q_INVOKABLE void start();
     Q_INVOKABLE bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
@@ -107,4 +107,4 @@ private:
     void checkForDrawAndEmitPlayerMoved(wisdom::Player playerType, wisdom::Move move, wisdom::Color who);
 };
 
-#endif // GAMEMODEL_HG
+#endif // GAMEMODEL_H

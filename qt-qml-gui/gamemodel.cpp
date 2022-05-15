@@ -27,7 +27,7 @@ namespace
         return { game->map_coordinates_to_move(src, dst, promoted), who };
     }
 
-    auto pieceFromString(QString piece) -> wisdom::Piece
+    auto pieceFromString(const QString& piece) -> wisdom::Piece
     {
         if (piece == "queen") {
             return wisdom::Piece::Queen;
