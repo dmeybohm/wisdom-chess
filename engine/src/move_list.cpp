@@ -48,8 +48,8 @@ namespace wisdom
         {
             list.capacity += MoveListAllocator::Size_Increment;
 
-            std::size_t new_capacity = list.capacity * sizeof (Move);
-            list.move_array = (Move*)realloc (list.move_array, new_capacity);
+            std::size_t new_capacity_in_bytes = list.capacity * sizeof (Move);
+            list.move_array = (Move*)realloc (list.move_array, new_capacity_in_bytes);
         }
 
         assert (list.move_array != nullptr);
