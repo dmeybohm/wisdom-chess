@@ -31,9 +31,6 @@ namespace wisdom
 
     std::size_t move_list_capacity (move_list& ptr) noexcept;
 
-    Move* move_list_begin (move_list& ptr) noexcept;
-    Move* move_list_end (move_list& ptr) noexcept;
-
     void move_list_append (move_list& list, std::size_t position, Move move) noexcept;
 
     inline auto default_alloc_move_list () -> unique_ptr<move_list>
