@@ -1,7 +1,6 @@
 #include "analytics.hpp"
 #include "board.hpp"
 #include "board_builder.hpp"
-#include "check.hpp"
 #include "fen_parser.hpp"
 #include "game.hpp"
 #include "history.hpp"
@@ -10,6 +9,10 @@
 #include "move_timer.hpp"
 #include "search.hpp"
 #include "tests.hpp"
+#include "check.hpp"
+#include "evaluate.hpp"
+
+#include <iostream>
 
 namespace wisdom::test
 {
@@ -71,59 +74,19 @@ TEST_CASE ("Can find mate in 3")
 //
 TEST_CASE ("Can find mate in 2 1/2")
 {
-    BoardBuilder builder;
-
-    builder.add_pieces (Color::Black,
-                        {
-                            { "e8", Piece::Knight },
-                            { "c7", Piece::King },
-                            { "f7", Piece::Pawn },
-                            { "a6", Piece::Pawn },
-                            { "g6", Piece::Pawn },
-                            { "c5", Piece::Pawn },
-                            { "b4", Piece::Rook },
-                            { "b3", Piece::Knight },
-                        });
-
-    builder.add_piece ("d5", Color::White, Piece::King);
-    builder.set_current_turn (Color::Black);
-
-    auto board = builder.build ();
-    SearchHelper helper;
-    IterativeSearch search = helper.build (*board, 5);
-
-    SearchResult result = search.iteratively_deepen (Color::Black);
-    REQUIRE (result.move.has_value ());
-
-    // Used to return this before move reordering.
-    //    MoveList expected_mate = { Color::Black, { "e8 f6", "d5 e5", "f6 g4", "e5 d5", "b4 d4" }};
-    //    MoveList expected_mate = { Color::Black, { "e8 f6", "d5 e5", "f6 d7", "e5 d5", "b4 d4" }};
-    //    MoveList expected_mate = { Color::Black, { "c7 d7", "d5 e5", "b4 b8", "e5 d5", "b8 c8" }};
-    MoveList computed_moves = result.variation_glimpse.to_list ();
-
-    REQUIRE (result.score > Infinity);
-    //    REQUIRE(expected_mate == computed_moves);
-}
-
-// TODO: implement is_stalemate_fast():
-#if 0
-TEST_CASE ("Can avoid stalemate")
-{
-    FenParser fen { "6k1/1pp2pp1/7p/Pb6/3r4/5K2/8/6q1 w - - 0 1" };
+    FenParser fen { "4n3/2k2p2/p5p1/2pK4/1r6/1n6/8/8 b - - 0 1" };
     auto game = fen.build ();
 
     SearchHelper helper;
-    IterativeSearch search = helper.build (game.get_board (), 5, 5);
-
-    game.move (move_parse ("a5 a6", Color::White));
+    IterativeSearch search = helper.build (game.get_board (), 5);
 
     SearchResult result = search.iteratively_deepen (Color::Black);
-
-    CHECK (result.score > Infinity);
     REQUIRE (result.move.has_value ());
-    CHECK( to_string (*result.move) != "b7xa6");
+
+    MoveList computed_moves = result.variation_glimpse.to_list ();
+
+    REQUIRE (result.score > Infinity);
 }
-#endif
 
 TEST_CASE ("scenario with heap overflow 1")
 {
@@ -173,7 +136,7 @@ TEST_CASE ("Promoting move is taken if possible")
     auto board = builder.build ();
     SearchHelper helper;
 
-    IterativeSearch search = helper.build (*board, 1, 30);
+    auto search = helper.build (*board, 1, 30);
     auto result = search.iteratively_deepen (Color::Black);
     REQUIRE (to_string (*result.move) == "d2 d1(Q)");
 }
@@ -185,7 +148,7 @@ TEST_CASE ("Promoted pawn is promoted to highest value piece even when capturing
     auto game = parser.build ();
 
     SearchHelper helper;
-    IterativeSearch search = helper.build (game.get_board (), 3);
+    auto search = helper.build (game.get_board (), 3);
 
     auto board_str = game.get_board().to_string();
     INFO( board_str );
@@ -215,9 +178,9 @@ TEST_CASE ("Bishop is not sacrificed scenario 1")
 
     SearchHelper helper;
     History history;
-    IterativeSearch search = helper.build (game.get_board (), 3, 180);
+    auto search = helper.build (game.get_board (), 3, 180);
 
-    SearchResult result = search.iteratively_deepen (Color::Black);
+    auto result = search.iteratively_deepen (Color::Black);
 
     REQUIRE (result.move.has_value ());
 
@@ -237,7 +200,7 @@ TEST_CASE ("Bishop is not sacrificed scenario 2 (as white)")
     SearchHelper helper;
     IterativeSearch search = helper.build (game.get_board (), 3, 180);
 
-    SearchResult result = search.iteratively_deepen (Color::White);
+    auto result = search.iteratively_deepen (Color::White);
 
     REQUIRE (result.move.has_value ());
 
@@ -259,11 +222,11 @@ TEST_CASE ("Advanced pawn should be captured")
     auto game = fen.build ();
 
     SearchHelper helper;
-    IterativeSearch search = helper.build (game.get_board (), 3, 10);
+    auto search = helper.build (game.get_board (), 3, 10);
 
     game.move (move_parse ("e5 d6 ep", Color::White));
 
-    SearchResult result = search.iteratively_deepen (Color::Black);
+    auto result = search.iteratively_deepen (Color::Black);
 
     REQUIRE (result.move.has_value ());
 
@@ -273,3 +236,39 @@ TEST_CASE ("Advanced pawn should be captured")
     auto board = game.get_board ();
     REQUIRE (board.piece_at (coord_parse ("d6")) != make_piece (Color::White, Piece::Pawn));
 }
+
+TEST_CASE( "Checkmate is preferred to stalemate" )
+{
+    FenParser fen { "6k1/1p3pp1/p1p4p/3r4/8/2K5/b2r4/8 b - - 0 1" };
+    auto game = fen.build ();
+
+    SearchHelper helper;
+    auto search = helper.build (game.get_board (), 5, 10);
+
+    auto result = search.iteratively_deepen (Color::Black);
+
+    REQUIRE( result.move.has_value ());
+
+    std::cout << to_string (*result.move) << "\n";
+
+    game.move (*result.move);
+    auto is_stalemate = is_stalemated (game.get_board (), Color::White, *game.get_move_generator ());
+    CHECK( !is_stalemate );
+}
+
+TEST_CASE ("Can avoid stalemate")
+{
+    FenParser fen { "6k1/1pp2pp1/7p/Pb6/3r4/5K2/8/6q1 w - - 0 1" };
+    auto game = fen.build ();
+
+    SearchHelper helper;
+    IterativeSearch search = helper.build (game.get_board (), 5, 5);
+
+    game.move (move_parse ("a5 a6", Color::White));
+
+    SearchResult result = search.iteratively_deepen (Color::Black);
+
+    auto is_stalemate = is_stalemated (game.get_board (), Color::White, *game.get_move_generator ());
+    CHECK( !is_stalemate );
+}
+

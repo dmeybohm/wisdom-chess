@@ -46,26 +46,25 @@ namespace wisdom
         return is_king_threatened (board, who, make_coord (king_row, king_col));
     }
 
+    // In the search, there is one place we don't call this too often and don't want to bloat
+    // the search with it. So call it out of line.
+    bool is_king_threatened_not_inlined (Board& board, Color who, Coord king_coord);
+
     // Whether the board is in a checkmated position for the computer_player.
     bool is_checkmated (Board& board, Color who, MoveGenerator& generator);
 
     // Whether in a stalemate position for white or black.
-    bool is_stalemated_slow (Board& board, Color who, MoveGenerator& generator);
-
-    inline bool is_stalemated_fast (Board& board, Color who)
-    {
-        // todo
-        // note there is already a testcase for this in search_test.cpp
-        return false;
-    }
+    bool is_stalemated (Board& board, Color who, MoveGenerator& generator);
 
     // Whether this move could cause a draw.
+    //
+    // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
+    // in the search process to efficiently overlap that processing which needs to occur anyway.
     inline bool is_drawing_move (Board& board, [[maybe_unused]] Color who,
                                  [[maybe_unused]] Move move, const History& history)
     {
         return history.is_third_repetition (board) ||
-               History::is_fifty_move_repetition (board) ||
-               is_stalemated_fast (board, who);
+               History::is_fifty_move_repetition (board);
     }
 }
 

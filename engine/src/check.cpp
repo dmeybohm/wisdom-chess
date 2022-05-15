@@ -558,11 +558,17 @@ namespace wisdom
         return true;
     }
 
-    bool is_stalemated_slow (Board& board, Color who, MoveGenerator& generator)
+    bool is_stalemated (Board& board, Color who, MoveGenerator& generator)
     {
+        auto coord = board.get_king_position (who);
         auto legal_moves = generator.generate_legal_moves (board, who);
 
-        return legal_moves.empty () &&
-                !is_checkmated (board, who, generator);
+        return legal_moves.empty () && !is_king_threatened (board, who, coord);
+    }
+
+    bool is_king_threatened_not_inlined (Board& board, Color who, Coord king_coord)
+    {
+        InlineThreats threats { board, who, king_coord };
+        return threats.check_all ();
     }
 }

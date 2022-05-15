@@ -80,7 +80,7 @@ namespace wisdom
     constexpr int Max_Depth = 16;
 
     // Max time spent searching.
-    constexpr int Max_Search_Seconds = 4;
+    constexpr int Max_Search_Seconds = 5;
 
     // Errors in this application.
     class Error : public std::exception
@@ -90,25 +90,26 @@ namespace wisdom
         string my_extra_info;
 
     public:
-        Error (string message, string extra_info) noexcept :
-                my_message { std::move (message) }, my_extra_info { std::move (extra_info) }
+        Error (string message, string extra_info) noexcept
+                : my_message { std::move (message) }
+                , my_extra_info { std::move (extra_info) }
         {
         }
 
         explicit Error (string message) noexcept :
-            Error (message, "")
+            Error (std::move (message), "")
         {}
 
-        Error (const Error &src) noexcept
+        Error (const Error& src) noexcept
             : Error (src.my_message, src.my_extra_info)
         {}
 
-        [[nodiscard]] auto message() const noexcept -> const string&
+        [[nodiscard]] auto message () const noexcept -> const string&
         {
             return my_message;
         }
 
-        [[nodiscard]] auto extra_info() const noexcept -> const string&
+        [[nodiscard]] auto extra_info () const noexcept -> const string&
         {
             return my_message;
         }

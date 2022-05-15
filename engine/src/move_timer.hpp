@@ -1,5 +1,5 @@
-#ifndef WISDOM_TIMER_HPP
-#define WISDOM_TIMER_HPP
+#ifndef WISDOM_CHESS_TIMER_HPP
+#define WISDOM_CHESS_TIMER_HPP
 
 #include "global.hpp"
 
@@ -39,7 +39,7 @@ namespace wisdom
 
         void set_periodic_function (PeriodicFunction periodic_function) noexcept
         {
-            my_periodic_function = periodic_function;
+            my_periodic_function = std::move (periodic_function);
         }
 
         void set_triggered (bool triggered) noexcept
@@ -57,4 +57,4 @@ namespace wisdom
     };
 }
 
-#endif //WISDOM_TIMER_HPP
+#endif //WISDOM_CHESS_TIMER_HPP
