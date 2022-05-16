@@ -42,12 +42,71 @@ ApplicationWindow {
             }
             ToolButton {
                 text: qsTr("⋮")
-                onClicked: menu.open()
+                onClicked: contextMenu.open()
             }
         }
     }
 
     Root {
         id: root
+
+        Menu {
+            id: contextMenu
+            x: root.width - contextMenu.width
+            implicitWidth: 340
+
+            MenuItem {
+                text: "New Game"
+            }
+            MenuItem {
+                text: "Load Game from FEN"
+            }
+            MenuItem {
+                text: "Copy FEN string for current position"
+            }
+            MenuSeparator {}
+            MenuItem {
+                text: "White Player - <b>Human</b>"
+                onClicked: {
+                    root.acceptDrawDialog.open()
+                }
+            }
+            MenuItem {
+                text: "Black Player - <b>Computer</b>"
+            }
+            MenuSeparator {}
+
+            MenuItem {
+                id: sliderItem
+                text: "Computer thinking time per move"
+                Slider {
+                    anchors {
+                        right: sliderItem.right
+                        verticalCenter: sliderItem.verticalCenter
+                    }
+                    from: 1
+                    to: 30
+                }
+            }
+
+            enter: Transition {
+                ParallelAnimation {
+                    NumberAnimation {
+                        property: "width"
+                        from: 0.0
+                        to: contextMenu.implicitWidth
+                        easing.type: easing.InOutExpo
+                        duration: 200
+                    }
+                    NumberAnimation {
+                        property: "height"
+                        from: 0.0
+                        to: contextMenu.implicitHeight
+                        easing.type: easing.InOutExpo
+                        duration: 200
+                    }
+                }
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Controls 2.15
 
 Item {
     width: parent.width
@@ -47,4 +48,5 @@ Item {
         padding: 40
         text: "Your opponent has repeated the same move three times."
     }
+
 }
