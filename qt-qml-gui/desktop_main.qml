@@ -77,15 +77,28 @@ ApplicationWindow {
             MenuSeparator {}
 
             MenuItem {
-                id: sliderItem
-                text: "Computer thinking time per move"
+                id: thinkingTimeSlider
+                text: "Thinking time per move"
                 Slider {
                     anchors {
-                        right: sliderItem.right
-                        verticalCenter: sliderItem.verticalCenter
+                        right: thinkingTimeSlider.right
+                        verticalCenter: thinkingTimeSlider.verticalCenter
                     }
                     from: 1
                     to: 30
+                }
+            }
+
+            MenuItem {
+                id: maxDepthItem
+                text: "Max depth to search"
+                Slider {
+                    anchors {
+                        right: maxDepthItem.right
+                        verticalCenter: maxDepthItem.verticalCenter
+                    }
+                    from: 1
+                    to: 16
                 }
             }
 
