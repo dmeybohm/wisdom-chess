@@ -70,6 +70,7 @@ namespace wisdom
 
     void MoveListAllocator::dealloc_move_list (unique_ptr<move_list> move_list) noexcept
     {
-        my_move_list_ptrs.emplace_back (std::move (move_list));
+        if (move_list != nullptr)
+            my_move_list_ptrs.emplace_back (std::move (move_list));
     }
 }
