@@ -440,6 +440,26 @@ namespace wisdom
         }
     }
 
+    static int material_diff (const Board& board, Move move)
+    {
+        assert (is_any_capturing_move (move));
+
+        if (is_special_en_passant_move (move))
+        {
+            return 0;
+        }
+        else
+        {
+            int a_material_src = Material::weight (
+                piece_type (board.piece_at (move_src (move)))
+            );
+            int a_material_dst = Material::weight (
+                piece_type (board.piece_at (move_dst (move)))
+            );
+            return a_material_dst - a_material_src;
+        }
+    }
+
     auto MoveGenerator::generate_all_potential_moves (const Board& board, Color who)
         -> MoveList
     {
@@ -457,6 +477,29 @@ namespace wisdom
 
             generation.generate (piece, coord);
         }
+
+        // sort captured moves first:
+        std::sort (result.begin (),
+                   result.end (),
+                   [board](const Move& a, const Move& b) -> bool {
+            bool a_is_capturing = is_any_capturing_move (a);
+            bool b_is_capturing = is_any_capturing_move (b);
+            if (!a_is_capturing && !b_is_capturing) {
+               // return coordinate diff so order is consistent:
+               Coord a_coord = move_src (a);
+               Coord b_coord = move_src (b);
+               return a_coord.row_and_col < b_coord.row_and_col;
+            }
+
+            if (a_is_capturing && !b_is_capturing) {
+                return true;
+            } else if (b_is_capturing && !a_is_capturing) {
+                return false;
+            }
+
+            // both are capturing: return the biggest diff between source piece and dst piece:
+            return material_diff (board, a) > material_diff (board, b);
+        });
 
         return result;
     }
