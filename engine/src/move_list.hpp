@@ -108,12 +108,12 @@ namespace wisdom
             my_size--;
         }
 
-        [[nodiscard]] auto begin () const noexcept -> const Move*
+        [[nodiscard]] auto begin () const noexcept -> Move*
         {
             return my_moves_list->move_array;
         }
 
-        [[nodiscard]] auto end () const noexcept -> const Move*
+        [[nodiscard]] auto end () const noexcept -> Move*
         {
             // inline for performance:
             return my_moves_list->move_array + my_size;

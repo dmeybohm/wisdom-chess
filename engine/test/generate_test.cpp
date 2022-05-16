@@ -1,6 +1,7 @@
 #include "board.hpp"
 #include "generate.hpp"
 #include "tests.hpp"
+#include "board_builder.hpp"
 
 using namespace wisdom;
 
@@ -33,4 +34,28 @@ TEST_CASE("generate en passant moves")
 
     INFO( move_list );
     REQUIRE( pos != std::string::npos );
+}
+
+TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
+{
+    BoardBuilder builder;
+
+    builder.add_piece ("c4", Color::Black, Piece::Pawn);
+    builder.add_piece ("e4", Color::Black, Piece::Queen);
+    builder.add_piece ("d3", Color::White, Piece::Queen);
+    builder.add_piece ("b3", Color::White, Piece::Bishop);
+    builder.add_piece ("a1", Color::White, Piece::King);
+    builder.add_piece ("e1", Color::Black, Piece::King);
+    builder.set_current_turn (Color::Black);
+
+    auto board = builder.build();
+
+    MoveGenerator move_generator;
+    auto move_list = move_generator.generate_all_potential_moves (*board, Color::Black);
+
+    std::string expected = "{ [c4xd3] [c4xb3] ";
+    std::string converted = move_list.to_string ().substr (0, expected.size ());
+
+    INFO( move_list );
+    REQUIRE( expected == converted );
 }
