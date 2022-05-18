@@ -16,10 +16,10 @@ namespace wisdom
     class IterativeSearchImpl
     {
     private:
-        gsl::not_null<Board*> my_board;
-        gsl::not_null<History*> my_history;
-        gsl::not_null<const Logger*> my_output;
-        gsl::not_null<analysis::Analytics*> my_analytics;
+        not_null<Board*> my_board;
+        not_null<History*> my_history;
+        not_null<const Logger*> my_output;
+        not_null<analysis::Analytics*> my_analytics;
         MoveGenerator my_generator {};
         MoveTimer my_timer;
         int my_total_depth;
@@ -229,13 +229,8 @@ namespace wisdom
 
     [[nodiscard]] auto IterativeSearchImpl::synthesize_result () const -> SearchResult
     {
-        if (my_timed_out) {
-            return SearchResult { {}, {},
-                          -1, -1, my_timed_out };
-        } else {
-            return SearchResult { {}, my_best_move,
-                          my_best_score, my_best_depth, my_timed_out };
-        }
+        return SearchResult { {}, my_best_move,
+              my_best_score, my_best_depth, my_timed_out };
     }
 
     void IterativeSearchImpl::iterate (Color side, int depth, analysis::Iteration& iteration)
