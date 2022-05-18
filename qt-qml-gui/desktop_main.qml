@@ -52,8 +52,8 @@ ApplicationWindow {
 
         Menu {
             id: contextMenu
-            x: root.width - contextMenu.width
             implicitWidth: 340
+            x: root.width - contextMenu.width
 
             MenuItem {
                 text: "New Game"
@@ -109,17 +109,17 @@ ApplicationWindow {
                 ParallelAnimation {
                     NumberAnimation {
                         property: "width"
-                        from: 0.0
+                        from: 0
                         to: contextMenu.implicitWidth
-                        easing.type: easing.InOutExpo
-                        duration: 175
+                        easing.type: Easing.InOutExpo
+                        duration: 350
                     }
                     NumberAnimation {
                         property: "height"
-                        from: 0.0
+                        from: 0
                         to: contextMenu.implicitHeight
-                        easing.type: easing.InOutExpo
-                        duration: 175
+                        easing.type: Easing.InOutExpo
+                        duration: 350
                     }
                 }
             }
