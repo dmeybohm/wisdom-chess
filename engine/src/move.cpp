@@ -314,6 +314,7 @@ namespace wisdom
         auto dst_piece = this->piece_at (dst);
 
         assert (piece_type (src_piece) != Piece::None);
+        assert (piece_color (src_piece) == who);
         if (piece_type (dst_piece) != Piece::None)
         {
             assert (is_normal_capturing_move (move));

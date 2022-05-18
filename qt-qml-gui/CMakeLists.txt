@@ -10,16 +10,16 @@ find_package(Qt6 6.2 COMPONENTS Quick REQUIRED)
 
 qt_add_executable(appWisdomChessQtQml
     main.cpp
-        gamemodel.hpp
+    gamemodel.hpp
     gamemodel.cpp
-        piecesmodel.hpp
+    piecesmodel.hpp
     piecesmodel.cpp
-        chessgame.hpp
+    chessgame.hpp
     chessgame.cpp
-        chessengine.hpp
+    chessengine.hpp
     chessengine.cpp
     chesscolor.cpp
-        chesscolor.hpp
+    chesscolor.hpp
 )
 
 if (ANDROID)
@@ -40,6 +40,7 @@ qt_add_qml_module(appWisdomChessQtQml
         PromoteDropdown.qml
         PromotedPieceModel.qml
         DrawProposalDialog.qml
+        NewGameDialog.qml
         Root.qml
         StatusBar.qml
     RESOURCES

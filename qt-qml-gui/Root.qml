@@ -17,6 +17,10 @@ Item {
         boards.onFocusObjectChanged(oldFocusItem, newFocusItem)
     }
 
+    function showNewGameDialog() {
+        newGameDialog.visible = true
+    }
+
     Flickable {
         id: scrollView
         y: 20
@@ -47,6 +51,15 @@ Item {
         height: Math.min(200, Screen.height - 10)
         padding: 40
         text: "Your opponent has repeated the same move three times."
+    }
+
+    NewGameDialog {
+        id: newGameDialog
+        visible: false
+        anchors.centerIn: parent
+        width: Math.min(400, Screen.width - 50)
+        height: Math.min(150, Screen.height - 10)
+        padding: 40
     }
 
 }

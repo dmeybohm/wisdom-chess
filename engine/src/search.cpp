@@ -229,8 +229,13 @@ namespace wisdom
 
     [[nodiscard]] auto IterativeSearchImpl::synthesize_result () const -> SearchResult
     {
-        return SearchResult { {}, my_best_move,
-                              my_best_score, my_best_depth, my_timed_out };
+        if (my_timed_out) {
+            return SearchResult { {}, {},
+                          -1, -1, my_timed_out };
+        } else {
+            return SearchResult { {}, my_best_move,
+                          my_best_score, my_best_depth, my_timed_out };
+        }
     }
 
     void IterativeSearchImpl::iterate (Color side, int depth, analysis::Iteration& iteration)

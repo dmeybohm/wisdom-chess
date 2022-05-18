@@ -54,11 +54,6 @@ public slots:
     void newGame(gsl::not_null<ChessGame*> game);
 
 private:
-    // The game is shared across the main thread and the chess engine thread.
-    // Before calling any of the methods in the libwisdom-core library, the mutex
-    // must be held because it is not thread safe.
-    std::shared_ptr<ChessGame> myChessGame;
-
     QHash<int8_t, QString> myPieceToImagePath;
     QVector<PieceInfo> myPieces;
 };

@@ -2,6 +2,7 @@
 #define CHESSENGINE_H
 
 #include <QObject>
+#include <functional>
 #include <memory>
 
 #include "chessgame.hpp"

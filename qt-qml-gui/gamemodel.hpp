@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <QString>
 
 #include "chesscolor.hpp"
 #include "chessengine.hpp"
@@ -32,6 +33,7 @@ public:
 
     Q_INVOKABLE void start();
     Q_INVOKABLE bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
+    Q_INVOKABLE void restart();
 
     wisdom::chess::ChessColor currentTurn();
     void setCurrentTurn(wisdom::chess::ChessColor newColor);
@@ -58,6 +60,7 @@ signals:
     // We don't want to send on toggling the boolean.
     void proposeDrawToEngine();
 
+    // Termination of the thread has started.
     void terminationStarted();
 
 public slots:
@@ -82,17 +85,18 @@ private:
     QString myGameStatus {};
     bool myDrawProposedToHuman = false;
 
+    // last move before the draw proposal
+    std::optional<std::function<void()>> myLastDelayedMoveSignal {};
+    QTimer* myDelayedMoveTimer = nullptr;
+
     // Track whether draw was proposed to only propose a draw once per game:
     bool myDrawEverProposed = false;
 
-    // last move before the draw proposal
-    std::optional<std::function<void()>> myLastDelayedMoveSignal {};
-
     void init();
     void setupNewEngineThread();
+
     void movePieceWithPromotion(int srcRow, int srcColumn,
                                 int dstRow, int dstColumn, std::optional<wisdom::Piece> piece);
-
 
     // Propose a draw to either the human or computer.
     void proposeDraw(wisdom::Player player);
@@ -104,7 +108,8 @@ private:
     void updateCurrentTurn(wisdom::Color newColor);
 
     // Emit appropriate player moved signal, or delay it for a draw proposal.
-    void checkForDrawAndEmitPlayerMoved(wisdom::Player playerType, wisdom::Move move, wisdom::Color who);
+    void checkForDrawAndEmitPlayerMoved(wisdom::Player playerType, wisdom::Move move,
+                                        wisdom::Color who);
 };
 
 #endif // GAMEMODEL_H

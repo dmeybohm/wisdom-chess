@@ -77,7 +77,7 @@ Item {
             console.log('animateRowAndColChange');
 
             promotionDropDown.focus = false
-            console.log('currentTunr: '+_myGameModel.currentTurn)
+            console.log('currentTurn: '+_myGameModel.currentTurn)
             if (_myGameModel.needsPawnPromotion(sourceRow, sourceCol, dstRow, dstCol)) {
                 console.log('showing promo dropdown')
                 promotionDropDown.focus = true

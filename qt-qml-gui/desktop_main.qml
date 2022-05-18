@@ -57,6 +57,9 @@ ApplicationWindow {
 
             MenuItem {
                 text: "New Game"
+                onClicked: {
+                    root.showNewGameDialog()
+                }
             }
             MenuItem {
                 text: "Load Game from FEN"
@@ -109,14 +112,14 @@ ApplicationWindow {
                         from: 0.0
                         to: contextMenu.implicitWidth
                         easing.type: easing.InOutExpo
-                        duration: 200
+                        duration: 175
                     }
                     NumberAnimation {
                         property: "height"
                         from: 0.0
                         to: contextMenu.implicitHeight
                         easing.type: easing.InOutExpo
-                        duration: 200
+                        duration: 175
                     }
                 }
             }
