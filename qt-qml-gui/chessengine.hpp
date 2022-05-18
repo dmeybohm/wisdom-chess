@@ -18,6 +18,7 @@ class ChessEngineNotifier;
 class ChessEngine : public QObject
 {
     Q_OBJECT
+
 public:
     ChessEngine(std::unique_ptr<ChessGame> game,
                 QObject *parent = nullptr);
@@ -30,7 +31,8 @@ public slots:
     void opponentMoved(wisdom::Move move, wisdom::Color who);
 
     // Receive our own move:
-    void receiveEngineMoved(wisdom::Move move, wisdom::Color who);
+    void receiveEngineMoved(wisdom::Move move, wisdom::Color who,
+                            gsl::not_null<ChessEngine*> engine);
 
     // Receive draw proposal:
     void drawProposed();
@@ -38,7 +40,7 @@ public slots:
 
 signals:
     // The engine made a mode.
-    void engineMoved(wisdom::Move move, wisdom::Color who);
+    void engineMoved(wisdom::Move move, wisdom::Color who, gsl::not_null<ChessEngine*> engine);
 
     // There are no available moves.
     void noMovesAvailable();
@@ -48,6 +50,7 @@ signals:
 
 private:
     std::unique_ptr<ChessGame> myGame;
+
     void findMove();
 };
 

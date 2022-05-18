@@ -33,10 +33,13 @@ void ChessEngine::opponentMoved(Move move, Color who)
     findMove();
 }
 
-void ChessEngine::receiveEngineMoved(wisdom::Move move, wisdom::Color who)
+void ChessEngine::receiveEngineMoved(wisdom::Move move, wisdom::Color who,
+                                     gsl::not_null<ChessEngine*> engine)
 {
-    // Do another move if the engine is hooked up to itself:
-    init();
+    if (engine == this) {
+        // Do another move if the engine is hooked up to itself:
+        init();
+    }
 }
 
 void ChessEngine::findMove()
@@ -72,7 +75,7 @@ void ChessEngine::findMove()
     // at random, and otherwise exit.
     if (optionalMove.has_value()) {
         game->move(*optionalMove);
-        emit engineMoved(*optionalMove, who);
+        emit engineMoved(*optionalMove, who, this);
     } else {
         emit noMovesAvailable();
     }
