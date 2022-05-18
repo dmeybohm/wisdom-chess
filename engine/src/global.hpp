@@ -34,6 +34,7 @@ namespace wisdom
 {
     using zstring = gsl::zstring;
     using czstring = gsl::czstring;
+    using gsl::not_null;
     using std::string;
     using std::optional;
     using std::vector;
