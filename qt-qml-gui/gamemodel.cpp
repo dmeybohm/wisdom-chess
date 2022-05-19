@@ -159,8 +159,8 @@ void GameModel::setupNewEngineThread()
             chessEngine, &ChessEngine::receiveEngineMoved);
 
     // exit event loop from engine thread when we start exiting:
-    connect(this, &GameModel::terminationStarted,
-            myChessEngineThread, &QThread::quit);
+//    connect(this, &GameModel::terminationStarted,
+//            myChessEngineThread, &QThread::quit);
 
     // Cleanup chess engine when chess engine thread exits:
     connect(myChessEngineThread, &QThread::finished,
@@ -179,18 +179,32 @@ void GameModel::start()
 
 void GameModel::restart()
 {
+    qDebug() << "Requesting thread interruption.";
     myChessEngineThread->requestInterruption();
+    qDebug() << "Done requesting thread interruption.";
+    qDebug() << "Emitting terminatedStarted event.";
     emit terminationStarted();
+    qDebug() << "Done emitting terminatedStarted event.";
 
+    qDebug() << "Waiting for thread to exit";
     myChessEngineThread->wait();
+    qDebug() << "Done waiting for thread to exit";
     if (myDelayedMoveTimer != nullptr) {
         myDelayedMoveTimer->stop();
         delete myDelayedMoveTimer;
     }
+    qDebug() << "Creating new chess game";
     myChessGame = std::move(chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)));
+    qDebug() << "Done creating new chess game";
+    qDebug() << "Initializing";
     init();
+    qDebug() << "Done Initializing";
+    qDebug() << "Starting";
     start();
+    qDebug() << "Done Starting";
+    qDebug() << "Clearing game status";
     setGameStatus("");
+    qDebug() << "Done clearing game status";
 }
 
 void GameModel::movePiece(int srcRow, int srcColumn,
