@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Controls 2.15
 
 Item {
     width: parent.width
@@ -14,6 +15,10 @@ Item {
 
     function onFocusObjectChanged(oldFocusItem, newFocusItem) {
         boards.onFocusObjectChanged(oldFocusItem, newFocusItem)
+    }
+
+    function showNewGameDialog() {
+        newGameDialog.visible = true
     }
 
     Flickable {
@@ -47,4 +52,14 @@ Item {
         padding: 40
         text: "Your opponent has repeated the same move three times."
     }
+
+    NewGameDialog {
+        id: newGameDialog
+        visible: false
+        anchors.centerIn: parent
+        width: Math.min(400, Screen.width - 50)
+        height: Math.min(150, Screen.height - 10)
+        padding: 40
+    }
+
 }

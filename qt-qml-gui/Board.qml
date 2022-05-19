@@ -10,9 +10,6 @@ Item {
     property var animateRowAndColChange: myPiecesLayer.animateRowAndColChange
 
     function onFocusObjectChanged(oldObject, newObject) {
-        console.log('oldObject:', oldObject)
-        console.log('newObject:', newObject)
-
         if (oldObject && newObject &&
                 'boardRow' in oldObject && 'boardRow' in newObject
         ) {
@@ -77,9 +74,7 @@ Item {
             console.log('animateRowAndColChange');
 
             promotionDropDown.focus = false
-            console.log('currentTunr: '+_myGameModel.currentTurn)
             if (_myGameModel.needsPawnPromotion(sourceRow, sourceCol, dstRow, dstCol)) {
-                console.log('showing promo dropdown')
                 promotionDropDown.focus = true
                 promotionDropDown.sourceRow = sourceRow
                 promotionDropDown.sourceColumn = sourceCol

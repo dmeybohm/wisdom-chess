@@ -14,6 +14,7 @@ ApplicationWindow {
     color: "silver"
 
     property var currentFocusedItem: null
+
     onFocusObjectChanged: {
         root.onFocusObjectChanged(root.currentFocusedItem, activeFocusItem)
         root.currentFocusedItem = activeFocusItem
@@ -42,12 +43,18 @@ ApplicationWindow {
             }
             ToolButton {
                 text: qsTr("⋮")
-                onClicked: menu.open()
+                onClicked: settingsMenu.open()
             }
         }
     }
 
     Root {
         id: root
+
+        SettingsMenu {
+            id: settingsMenu
+            rootWidth: root.width
+            onShowNewGameDialog: root.showNewGameDialog();
+        }
     }
 }

@@ -47,12 +47,19 @@ ApplicationWindow {
             }
             ToolButton {
                 text: qsTr("⋮")
-                onClicked: menu.open()
+                onClicked: settingsMenu.visible ? settingsMenu.close() : settingsMenu.open()
             }
         }
     }
 
     Root {
         id: root
+
+        SettingsMenu {
+            id: settingsMenu
+            z: 2
+            rootWidth: root.width
+            onShowNewGameDialog: root.showNewGameDialog();
+        }
     }
 }

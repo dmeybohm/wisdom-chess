@@ -2,6 +2,7 @@
 #define CHESSENGINE_H
 
 #include <QObject>
+#include <functional>
 #include <memory>
 
 #include "chessgame.hpp"
@@ -17,9 +18,12 @@ class ChessEngineNotifier;
 class ChessEngine : public QObject
 {
     Q_OBJECT
+
 public:
     ChessEngine(std::unique_ptr<ChessGame> game,
                 QObject *parent = nullptr);
+
+    auto engineId() -> int;
 
 public slots:
     // Startup the engine. If it's the engine's turn to move, make a move.
@@ -29,7 +33,8 @@ public slots:
     void opponentMoved(wisdom::Move move, wisdom::Color who);
 
     // Receive our own move:
-    void receiveEngineMoved(wisdom::Move move, wisdom::Color who);
+    void receiveEngineMoved(wisdom::Move move, wisdom::Color who,
+                            int engineId);
 
     // Receive draw proposal:
     void drawProposed();
@@ -37,7 +42,7 @@ public slots:
 
 signals:
     // The engine made a mode.
-    void engineMoved(wisdom::Move move, wisdom::Color who);
+    void engineMoved(wisdom::Move move, wisdom::Color who, int engineId);
 
     // There are no available moves.
     void noMovesAvailable();
@@ -47,6 +52,11 @@ signals:
 
 private:
     std::unique_ptr<ChessGame> myGame;
+    int myEngineId;
+
+    // Used to identify the engine
+    static int lastEngineId;
+
     void findMove();
 };
 

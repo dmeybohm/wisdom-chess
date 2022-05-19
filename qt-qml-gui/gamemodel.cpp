@@ -7,13 +7,17 @@
 
 #include <QDebug>
 #include <QTimer>
+#include <chrono>
 
 using namespace wisdom;
-using namespace std;
+using std::optional;
+using gsl::not_null;
+using std::make_unique;
+using std::pair;
 
 namespace
 {
-    auto buildMoveFromCoordinates(gsl::not_null<ChessGame*> chessGame, int srcRow, int srcColumn,
+    auto buildMoveFromCoordinates(not_null<ChessGame*> chessGame, int srcRow, int srcColumn,
                                   int dstRow, int dstColumn, optional<Piece> promoted)
         -> pair<optional<Move>, wisdom::Color>
     {
@@ -46,7 +50,7 @@ namespace
         }
     }
 
-    auto validateIsLegalMove(gsl::not_null<ChessGame*> chessGame, Move selectedMove) -> bool
+    auto validateIsLegalMove(not_null<ChessGame*> chessGame, Move selectedMove) -> bool
     {
         auto game = chessGame->access();
         auto selectedMoveStr = to_string(selectedMove);
@@ -77,10 +81,10 @@ namespace
         return make_unique<ChessGame>(std::move(game));
     }
 
-    void setupNotify(gsl::not_null<ChessGame*> chessGame)
+    void setupNotify(not_null<ChessGame*> chessGame)
     {
         auto lockedGame = chessGame->access();
-        lockedGame->set_periodic_function([](gsl::not_null<MoveTimer*> moveTimer) {
+        lockedGame->set_periodic_function([](not_null<MoveTimer*> moveTimer) {
             // This runs in the ChessEngine thread, and so has the game mutex.
             auto* currentThread = QThread::currentThread();
 
@@ -97,13 +101,7 @@ GameModel::GameModel(QObject *parent)
       myChessGame { chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)) },
       myChessEngineThread { nullptr }
 {
-    // Initialize the piece list from the game->board.
     init();
-    auto lockedGame = myChessGame->access();
-    lockedGame->set_white_player(Player::Human);
-    lockedGame->set_black_player(Player::ChessEngine);
-    setupNotify(myChessGame.get());
-    setupNewEngineThread();
 }
 
 GameModel::~GameModel()
@@ -115,6 +113,10 @@ void GameModel::init()
 {
     auto lockedGame = myChessGame->access();
     setCurrentTurn(wisdom::chess::mapColor(lockedGame->get_current_turn()));
+    lockedGame->set_white_player(Player::Human);
+    lockedGame->set_black_player(Player::ChessEngine);
+
+    setupNewEngineThread();
 }
 
 void GameModel::setupNewEngineThread()
@@ -123,34 +125,46 @@ void GameModel::setupNewEngineThread()
 
     // Initialize a new Game for the chess engine.
     // Any changes in the game config will be updated over a signal.
-    auto computerChessGame = make_unique<Game>(Player::Human, Player::ChessEngine);
-    auto chessEngine = new ChessEngine { chessGameFromGame(std::move(computerChessGame)) };
+    auto computerGame = make_unique<Game>(Player::Human, Player::ChessEngine);
+    auto computerChessGame = chessGameFromGame(std::move(computerGame));
+    setupNotify(computerChessGame.get());
+    auto chessEngine = new ChessEngine { std::move(computerChessGame) };
+    myEngineId = chessEngine->engineId();
 
     myChessEngineThread = new QThread();
 
     // Connect event handlers for the computer and human making moves:
-    connect(this, &GameModel::humanMoved, chessEngine, &ChessEngine::opponentMoved);
-    connect(chessEngine, &ChessEngine::engineMoved, this, &GameModel::engineThreadMoved);
+    connect(this, &GameModel::humanMoved,
+            chessEngine, &ChessEngine::opponentMoved);
+    connect(chessEngine, &ChessEngine::engineMoved,
+            this, &GameModel::engineThreadMoved);
 
     // Connect event handlers for draw proposition to the engine:
-    connect(this, &GameModel::proposeDrawToEngine, chessEngine, &ChessEngine::drawProposed);
-    connect(chessEngine, &ChessEngine::drawProposalResponse, this, &GameModel::drawProposalResponse);
+    connect(this, &GameModel::proposeDrawToEngine,
+            chessEngine, &ChessEngine::drawProposed);
+    connect(chessEngine, &ChessEngine::drawProposalResponse,
+            this, &GameModel::drawProposalResponse);
 
     // Initialize the engine when the engine thread starts:
-    connect(myChessEngineThread, &QThread::started, chessEngine, &ChessEngine::init);
+    connect(myChessEngineThread, &QThread::started,
+            chessEngine, &ChessEngine::init);
 
     // If the engine finds no moves available, check whether the game is over.
-    connect(chessEngine, &ChessEngine::noMovesAvailable, this, &GameModel::updateGameStatus);
+    connect(chessEngine, &ChessEngine::noMovesAvailable,
+            this, &GameModel::updateGameStatus);
 
     // Connect the engine's move back to itself in case it's playing itself:
     // (it will return early if it's not)
-    connect(this, &GameModel::engineMoved, chessEngine, &ChessEngine::receiveEngineMoved);
+    connect(this, &GameModel::engineMoved,
+            chessEngine, &ChessEngine::receiveEngineMoved);
 
     // exit event loop from engine thread when we start exiting:
-    connect(this, &GameModel::terminationStarted, myChessEngineThread, &QThread::quit);
+    connect(this, &GameModel::terminationStarted,
+            myChessEngineThread, &QThread::quit);
 
     // Cleanup chess engine when chess engine thread exits:
-    connect(myChessEngineThread, &QThread::finished, chessEngine, &QObject::deleteLater);
+    connect(myChessEngineThread, &QThread::finished,
+            chessEngine, &QObject::deleteLater);
 
     // Move the ownership of the engine to the engine thread so slots run on that thread:
     chessEngine->moveToThread(myChessEngineThread);
@@ -158,10 +172,24 @@ void GameModel::setupNewEngineThread()
 
 void GameModel::start()
 {
-    // todo cleanup old thread and re-connect here:
     emit gameStarted(myChessGame.get());
 
     myChessEngineThread->start();
+}
+
+void GameModel::restart()
+{
+    myChessEngineThread->requestInterruption();
+    emit terminationStarted();
+
+    myChessEngineThread->wait();
+    if (myDelayedMoveTimer != nullptr) {
+        myDelayedMoveTimer->stop();
+        delete myDelayedMoveTimer;
+    }
+    myChessGame = std::move(chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)));
+    init();
+    start();
 }
 
 void GameModel::movePiece(int srcRow, int srcColumn,
@@ -170,8 +198,15 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, {});
 }
 
-void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who)
+void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who,
+                                  int engineId)
 {
+    // validate this signal was not sent by an old thread:
+    if (engineId != myEngineId) {
+        qDebug() << "engineThreadMoved(): Ignored signal from invalid engine.";
+        return;
+    }
+
     auto game = myChessGame->access();
     game->move(move);
 
@@ -179,17 +214,20 @@ void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who)
     updateCurrentTurn(wisdom::color_invert(who));
 
     // re-emit single-threaded signal to listeners:
-    checkForDrawAndEmitPlayerMoved(wisdom::Player::ChessEngine, move, who);
+    checkForDrawAndEmitPlayerMoved(Player::ChessEngine, move, who);
 }
 
-void GameModel::promotePiece(int srcRow, int srcColumn, int dstRow, int dstColumn, QString pieceString)
+void GameModel::promotePiece(int srcRow, int srcColumn,
+                             int dstRow, int dstColumn,
+                             QString pieceString)
 {
     optional<Piece> pieceType = pieceFromString(pieceString);
     movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, pieceType);
 }
 
 void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,
-                                       int dstRow, int dstColumn, std::optional<wisdom::Piece> pieceType)
+                                       int dstRow, int dstColumn,
+                                       optional<wisdom::Piece> pieceType)
 {
     auto [optionalMove, who] = buildMoveFromCoordinates(myChessGame.get(), srcRow,
             srcColumn, dstRow, dstColumn, pieceType);
@@ -250,8 +288,10 @@ void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Col
 
         oppositePlayer = lockedGame->get_player(color_invert(who));
         myLastDelayedMoveSignal = [this, playerType, move, who](){
+            delete myDelayedMoveTimer;
+            myDelayedMoveTimer = nullptr;
             if (playerType == wisdom::Player::ChessEngine) {
-                emit engineMoved(move, who);
+                emit engineMoved(move, who, myEngineId);
             } else {
                 emit humanMoved(move, who);
             }

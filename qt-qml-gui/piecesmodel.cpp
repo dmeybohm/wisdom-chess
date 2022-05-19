@@ -40,10 +40,10 @@ namespace {
     }
 }
 
-PiecesModel::PiecesModel(QObject *parent) :
-    QAbstractListModel(parent),
-    myPieceToImagePath { initPieceMap() },
-    myPieces {}
+PiecesModel::PiecesModel(QObject *parent)
+    : QAbstractListModel(parent)
+    , myPieceToImagePath { initPieceMap() }
+    , myPieces {}
 {
 }
 
@@ -51,6 +51,12 @@ void PiecesModel::newGame(gsl::not_null<ChessGame*> game)
 {
     auto gameAccess = game->access();
     auto board = gameAccess->get_board();
+
+    if (myPieces.count() > 0) {
+        beginRemoveRows(QModelIndex{}, 0, myPieces.count() - 1);
+        myPieces.clear();
+        endRemoveRows();
+    }
 
     for (int row = 0; row < 8; row++) {
         for (int column = 0; column < 8; column++) {

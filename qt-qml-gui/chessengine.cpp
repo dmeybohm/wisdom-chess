@@ -10,10 +10,18 @@ using namespace wisdom;
 using namespace std;
 using namespace gsl;
 
+int ChessEngine::lastEngineId;
+
 ChessEngine::ChessEngine(std::unique_ptr<ChessGame> game, QObject *parent)
-    : QObject { parent },
-     myGame { std::move(game) }
+    : QObject { parent }
+    , myGame { std::move(game) }
+    , myEngineId { lastEngineId++ }
 {
+}
+
+auto ChessEngine::engineId() -> int
+{
+    return myEngineId;
 }
 
 void ChessEngine::init()
@@ -33,10 +41,13 @@ void ChessEngine::opponentMoved(Move move, Color who)
     findMove();
 }
 
-void ChessEngine::receiveEngineMoved(wisdom::Move move, wisdom::Color who)
+void ChessEngine::receiveEngineMoved(wisdom::Move move, wisdom::Color who,
+                                     int engineId)
 {
-    // Do another move if the engine is hooked up to itself:
-    init();
+    if (engineId == this->myEngineId) {
+        // Do another move if the engine is hooked up to itself:
+        init();
+    }
 }
 
 void ChessEngine::findMove()
@@ -72,7 +83,7 @@ void ChessEngine::findMove()
     // at random, and otherwise exit.
     if (optionalMove.has_value()) {
         game->move(*optionalMove);
-        emit engineMoved(*optionalMove, who);
+        emit engineMoved(*optionalMove, who, myEngineId);
     } else {
         emit noMovesAvailable();
     }
