@@ -48,7 +48,7 @@ signals:
     void gameStarted(gsl::not_null<ChessGame*> game);
 
     void humanMoved(wisdom::Move move, wisdom::Color who);
-    void engineMoved(wisdom::Move move, wisdom::Color who, gsl::not_null<ChessEngine*> engine);
+    void engineMoved(wisdom::Move move, wisdom::Color who, int engineid);
 
     void currentTurnChanged();
     void gameStatusChanged();
@@ -67,7 +67,7 @@ public slots:
     void movePiece(int srcRow, int srcColumn,
                    int dstRow, int dstColumn);
     void engineThreadMoved(wisdom::Move move, wisdom::Color who,
-                           gsl::not_null<ChessEngine*> engine);
+                           int engineid);
     void promotePiece(int srcRow, int srcColumn, int dstRow, int dstColumn, QString pieceType);
     void applicationExiting();
     void updateGameStatus();
@@ -82,7 +82,7 @@ private:
 
     // The chess engine is owned by the engine thread - but we keep track of it here
     // to discard signals from old engine threads:
-    ChessEngine* myChessEngine;
+    int myEngineId;
 
     // The chess engine runs in this thread, and grabs the game mutext as needed:
     QThread* myChessEngineThread;

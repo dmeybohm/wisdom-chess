@@ -129,7 +129,7 @@ void GameModel::setupNewEngineThread()
     auto computerChessGame = chessGameFromGame(std::move(computerGame));
     setupNotify(computerChessGame.get());
     auto chessEngine = new ChessEngine { std::move(computerChessGame) };
-    myChessEngine = chessEngine;
+    myEngineId = chessEngine->engineId();
 
     myChessEngineThread = new QThread();
 
@@ -199,10 +199,10 @@ void GameModel::movePiece(int srcRow, int srcColumn,
 }
 
 void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who,
-                                  not_null<ChessEngine*> engine)
+                                  int engineId)
 {
     // validate this signal was not sent by an old thread:
-    if (engine != myChessEngine) {
+    if (engineId != myEngineId) {
         qDebug() << "engineThreadMoved(): Ignored signal from invalid engine.";
         return;
     }
@@ -291,7 +291,7 @@ void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Col
             delete myDelayedMoveTimer;
             myDelayedMoveTimer = nullptr;
             if (playerType == wisdom::Player::ChessEngine) {
-                emit engineMoved(move, who, myChessEngine);
+                emit engineMoved(move, who, myEngineId);
             } else {
                 emit humanMoved(move, who);
             }

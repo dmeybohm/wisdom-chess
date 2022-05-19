@@ -23,6 +23,8 @@ public:
     ChessEngine(std::unique_ptr<ChessGame> game,
                 QObject *parent = nullptr);
 
+    auto engineId() -> int;
+
 public slots:
     // Startup the engine. If it's the engine's turn to move, make a move.
     void init();
@@ -32,7 +34,7 @@ public slots:
 
     // Receive our own move:
     void receiveEngineMoved(wisdom::Move move, wisdom::Color who,
-                            gsl::not_null<ChessEngine*> engine);
+                            int engineId);
 
     // Receive draw proposal:
     void drawProposed();
@@ -40,7 +42,7 @@ public slots:
 
 signals:
     // The engine made a mode.
-    void engineMoved(wisdom::Move move, wisdom::Color who, gsl::not_null<ChessEngine*> engine);
+    void engineMoved(wisdom::Move move, wisdom::Color who, int engineId);
 
     // There are no available moves.
     void noMovesAvailable();
@@ -50,6 +52,10 @@ signals:
 
 private:
     std::unique_ptr<ChessGame> myGame;
+    int myEngineId;
+
+    // Used to identify the engine
+    static int lastEngineId;
 
     void findMove();
 };

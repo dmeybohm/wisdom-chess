@@ -42,7 +42,7 @@ ApplicationWindow {
             }
             ToolButton {
                 text: qsTr("⋮")
-                onClicked: contextMenu.open()
+                onClicked: settingsMenu.open()
             }
         }
     }
@@ -50,79 +50,10 @@ ApplicationWindow {
     Root {
         id: root
 
-        Menu {
-            id: contextMenu
-            implicitWidth: 340
-            x: root.width - contextMenu.width
-
-            MenuItem {
-                text: "New Game"
-                onClicked: {
-                    root.showNewGameDialog()
-                }
-            }
-            MenuItem {
-                text: "Load Game from FEN"
-            }
-            MenuItem {
-                text: "Copy FEN string for current position"
-            }
-            MenuSeparator {}
-            MenuItem {
-                text: "White Player - <b>Human</b>"
-                onClicked: {
-                    root.acceptDrawDialog.open()
-                }
-            }
-            MenuItem {
-                text: "Black Player - <b>Computer</b>"
-            }
-            MenuSeparator {}
-
-            MenuItem {
-                id: thinkingTimeSlider
-                text: "Thinking time per move"
-                Slider {
-                    anchors {
-                        right: thinkingTimeSlider.right
-                        verticalCenter: thinkingTimeSlider.verticalCenter
-                    }
-                    from: 1
-                    to: 30
-                }
-            }
-
-            MenuItem {
-                id: maxDepthItem
-                text: "Max depth to search"
-                Slider {
-                    anchors {
-                        right: maxDepthItem.right
-                        verticalCenter: maxDepthItem.verticalCenter
-                    }
-                    from: 1
-                    to: 16
-                }
-            }
-
-            enter: Transition {
-                ParallelAnimation {
-                    NumberAnimation {
-                        property: "width"
-                        from: 0
-                        to: contextMenu.implicitWidth
-                        easing.type: Easing.InOutExpo
-                        duration: 350
-                    }
-                    NumberAnimation {
-                        property: "height"
-                        from: 0
-                        to: contextMenu.implicitHeight
-                        easing.type: Easing.InOutExpo
-                        duration: 350
-                    }
-                }
-            }
+        SettingsMenu {
+            id: settingsMenu
+            rootWidth: root.width
+            onShowNewGameDialog: root.showNewGameDialog();
         }
     }
 }
