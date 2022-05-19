@@ -35,6 +35,7 @@ ApplicationWindow {
     }
 
     header: ToolBar {
+        id: toolbar
         RowLayout {
             anchors.fill: parent
             Label {
@@ -55,11 +56,17 @@ ApplicationWindow {
     Root {
         id: root
 
-        SettingsMenu {
-            id: settingsMenu
-            z: 2
-            rootWidth: root.width
-            onShowNewGameDialog: root.showNewGameDialog();
+        Flickable {
+
+            visible: settingsMenu.visible
+            width: settingsMenu.width
+            height: Math.min(Screen.height, settingsMenu.height)
+
+            SettingsMenu {
+                id: settingsMenu
+                rootWidth: root.width
+                onShowNewGameDialog: root.showNewGameDialog();
+            }
         }
     }
 }

@@ -36,12 +36,15 @@ Menu {
     MenuSeparator {}
 
     MenuItem {
-        id: thinkingTimeSlider
+        id: thinkingTimeSliderItem
         text: "Thinking time per move"
         Slider {
+            id: thinkingTimeSlider
+            visible: settingsMenu.width >= settingsMenu.implicitWidth
+            width: 150
             anchors {
-                right: thinkingTimeSlider.right
-                verticalCenter: thinkingTimeSlider.verticalCenter
+                right: thinkingTimeSliderItem.right
+                verticalCenter: thinkingTimeSliderItem.verticalCenter
             }
             from: 1
             to: 30
@@ -52,6 +55,8 @@ Menu {
         id: maxDepthItem
         text: "Max depth to search"
         Slider {
+            visible: thinkingTimeSlider.visible
+            width: thinkingTimeSlider.width
             anchors {
                 right: maxDepthItem.right
                 verticalCenter: maxDepthItem.verticalCenter

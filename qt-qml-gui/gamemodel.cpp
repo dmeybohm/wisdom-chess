@@ -85,7 +85,7 @@ namespace
     {
         auto lockedGame = chessGame->access();
         lockedGame->set_periodic_function([](not_null<MoveTimer*> moveTimer) {
-            // This runs in the ChessEngine thread, and so has the game mutex.
+            // This runs in the ChessEngine thread.
             auto* currentThread = QThread::currentThread();
 
             if (currentThread->isInterruptionRequested()) {
@@ -309,7 +309,6 @@ void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Col
         QTimer::singleShot(50, this, emitSignal);
     }
 }
-
 
 auto GameModel::currentTurn() -> wisdom::chess::ChessColor
 {

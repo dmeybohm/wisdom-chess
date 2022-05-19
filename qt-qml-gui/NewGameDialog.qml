@@ -1,7 +1,9 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import "Helper.js" as Helper
 
 Dialog {
+    id: topDialog
     modal: true
     standardButtons: Dialog.Yes | Dialog.No
     title: "New Game"
@@ -17,10 +19,11 @@ Dialog {
     Text {
         id: firstLine
         text: "Start a new game?"
-        anchors.centerIn: parent
         font.pointSize: 16
+        anchors.fill: parent
+
+        verticalAlignment: Helper.isMobile() ? Text.AlignTop : Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
-        width: parent.width
         wrapMode: Text.WordWrap
     }
 }
