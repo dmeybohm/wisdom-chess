@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QThread>
 #include <QString>
+#include <QTimer>
 
 #include "chesscolor.hpp"
 #include "chessengine.hpp"
