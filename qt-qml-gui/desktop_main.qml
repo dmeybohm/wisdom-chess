@@ -14,6 +14,7 @@ ApplicationWindow {
     color: "silver"
 
     property var currentFocusedItem: null
+
     onFocusObjectChanged: {
         root.onFocusObjectChanged(root.currentFocusedItem, activeFocusItem)
         root.currentFocusedItem = activeFocusItem
