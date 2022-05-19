@@ -190,6 +190,7 @@ void GameModel::restart()
     myChessGame = std::move(chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)));
     init();
     start();
+    setGameStatus("");
 }
 
 void GameModel::movePiece(int srcRow, int srcColumn,

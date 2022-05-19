@@ -25,7 +25,7 @@ namespace wisdom
 
         // Apply the move to the position.
         void apply_move (Color who, ColoredPiece piece, Move move,
-                         gsl::not_null<UndoMove*> undo_state);
+                         not_null<UndoMove*> undo_state);
 
         // Restore the score from the UndoMove state
         void unapply_move (Color who, const UndoMove& undo_state);

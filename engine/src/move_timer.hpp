@@ -8,7 +8,7 @@ namespace wisdom
     class MoveTimer
     {
     public:
-        using PeriodicFunction = std::function<void(gsl::not_null<MoveTimer*>)>;
+        using PeriodicFunction = std::function<void(not_null<MoveTimer*>)>;
 
         explicit MoveTimer (chrono::seconds seconds)
                 : my_last_check_time { chrono::steady_clock::now () }
@@ -50,7 +50,7 @@ namespace wisdom
     private:
         chrono::steady_clock::time_point my_last_check_time;
         chrono::seconds my_seconds;
-        optional<PeriodicFunction> my_periodic_function {};
+        std::optional<PeriodicFunction> my_periodic_function {};
         int my_check_calls = 0;
         bool my_triggered = false;
         bool my_started = true;

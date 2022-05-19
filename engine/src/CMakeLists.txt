@@ -25,6 +25,8 @@ endif()
 
 if (PCH_ENABLED)
     target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
+else()
+    target_sources(wisdom-chess-core PRIVATE global.hpp)
 endif()
 
 target_include_directories(wisdom-chess-core PUBLIC .)

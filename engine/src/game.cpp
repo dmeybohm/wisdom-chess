@@ -136,7 +136,7 @@ namespace wisdom
         return *my_history;
     }
 
-    auto Game::get_move_generator () const& -> gsl::not_null<MoveGenerator*>
+    auto Game::get_move_generator () const& -> not_null<MoveGenerator*>
     {
         return my_move_generator.get ();
     }

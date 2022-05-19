@@ -63,7 +63,7 @@ namespace wisdom
         }
 
     public:
-        explicit MoveList (gsl::not_null<MoveListAllocator*> allocator) :
+        explicit MoveList (not_null<MoveListAllocator*> allocator) :
             my_allocator { allocator }
         {
             my_moves_list = allocator->alloc_move_list ();

@@ -144,7 +144,7 @@ namespace wisdom
         this->my_score[index] -= change (coord, who, piece);
     }
 
-    void Position::apply_move (Color who, ColoredPiece piece, Move move, gsl::not_null<UndoMove*> undo_state)
+    void Position::apply_move (Color who, ColoredPiece piece, Move move, not_null<UndoMove*> undo_state)
     {
         Color opponent = color_invert (who);
 

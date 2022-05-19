@@ -70,8 +70,8 @@ namespace wisdom
         [[nodiscard]] auto get_history () const& -> History&;
         auto get_history () const&& -> History& = delete;
 
-        [[nodiscard]] auto get_move_generator () const& -> gsl::not_null<MoveGenerator*>;
-        auto get_move_generator () const&& -> gsl::not_null<MoveGenerator*> = delete;
+        [[nodiscard]] auto get_move_generator () const& -> not_null<MoveGenerator*>;
+        auto get_move_generator () const&& -> not_null<MoveGenerator*> = delete;
 
         auto get_current_player () -> Player
         {
