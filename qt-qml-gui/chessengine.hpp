@@ -20,10 +20,9 @@ class ChessEngine : public QObject
     Q_OBJECT
 
 public:
-    ChessEngine(std::unique_ptr<ChessGame> game,
+    ChessEngine(std::shared_ptr<ChessGame> game,
+                int gameId,
                 QObject *parent = nullptr);
-
-    auto engineId() -> int;
 
 public slots:
     // Startup the engine. If it's the engine's turn to move, make a move.
@@ -34,15 +33,17 @@ public slots:
 
     // Receive our own move:
     void receiveEngineMoved(wisdom::Move move, wisdom::Color who,
-                            int engineId);
+                            int gameId);
 
     // Receive draw proposal:
     void drawProposed();
 
+    // Update the whole chess game state. The ownership of the game is taken.
+    void reloadGame(std::shared_ptr<ChessGame> newGame, int newGameId);
 
 signals:
-    // The engine made a mode.
-    void engineMoved(wisdom::Move move, wisdom::Color who, int engineId);
+    // The engine made a move.
+    void engineMoved(wisdom::Move move, wisdom::Color who, int gameId);
 
     // There are no available moves.
     void noMovesAvailable();
@@ -51,11 +52,8 @@ signals:
     void drawProposalResponse(bool response);
 
 private:
-    std::unique_ptr<ChessGame> myGame;
-    int myEngineId;
-
-    // Used to identify the engine
-    static int lastEngineId;
+    std::shared_ptr<ChessGame> myGame;
+    int myGameId;
 
     void findMove();
 };

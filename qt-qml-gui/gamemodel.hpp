@@ -46,7 +46,13 @@ public:
     auto drawProposedToHuman() -> bool;
 
 signals:
+    // The game object here is readonly.
     void gameStarted(gsl::not_null<ChessGame*> game);
+
+    // A new game state was created. This game is sent to the new thread.
+    // Note this is subtely different from gameStarted - the pointer argument
+    // here is meant for transferring ownership.
+    void gameUpdated(std::shared_ptr<ChessGame> chessGame, int newGameId);
 
     void humanMoved(wisdom::Move move, wisdom::Color who);
     void engineMoved(wisdom::Move move, wisdom::Color who, int engineid);
@@ -81,9 +87,9 @@ private:
     // replaces the new copy.
     std::unique_ptr<ChessGame> myChessGame;
 
-    // The chess engine is owned by the engine thread - but we keep track of it here
-    // to discard signals from old engine threads:
-    int myEngineId;
+    // The chess game id. We could sometimes receive moves from a previous game that were
+    // queued because the signals are asynchronous. This lets us discard those signals.
+    int myGameId = 1;
 
     // The chess engine runs in this thread, and grabs the game mutext as needed:
     QThread* myChessEngineThread;

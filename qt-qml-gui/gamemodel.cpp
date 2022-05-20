@@ -12,7 +12,8 @@
 using namespace wisdom;
 using std::optional;
 using gsl::not_null;
-using std::make_unique;
+using std::make_shared;
+using std::shared_ptr;
 using std::pair;
 
 namespace
@@ -128,8 +129,7 @@ void GameModel::setupNewEngineThread()
     auto computerGame = make_unique<Game>(Player::Human, Player::ChessEngine);
     auto computerChessGame = chessGameFromGame(std::move(computerGame));
     setupNotify(computerChessGame.get());
-    auto chessEngine = new ChessEngine { std::move(computerChessGame) };
-    myEngineId = chessEngine->engineId();
+    auto chessEngine = new ChessEngine { std::move(computerChessGame), myGameId };
 
     myChessEngineThread = new QThread();
 
@@ -159,12 +159,16 @@ void GameModel::setupNewEngineThread()
             chessEngine, &ChessEngine::receiveEngineMoved);
 
     // exit event loop from engine thread when we start exiting:
-//    connect(this, &GameModel::terminationStarted,
-//            myChessEngineThread, &QThread::quit);
+    connect(this, &GameModel::terminationStarted,
+            myChessEngineThread, &QThread::quit);
 
     // Cleanup chess engine when chess engine thread exits:
     connect(myChessEngineThread, &QThread::finished,
             chessEngine, &QObject::deleteLater);
+
+    // When creating a new game, send a copy of the new ChessGame to the Engine:
+    connect(this, &GameModel::gameUpdated,
+            chessEngine, &ChessEngine::reloadGame);
 
     // Move the ownership of the engine to the engine thread so slots run on that thread:
     chessEngine->moveToThread(myChessEngineThread);
@@ -181,30 +185,26 @@ void GameModel::restart()
 {
     qDebug() << "Requesting thread interruption.";
     myChessEngineThread->requestInterruption();
-    qDebug() << "Done requesting thread interruption.";
-    qDebug() << "Emitting terminatedStarted event.";
-    emit terminationStarted();
-    qDebug() << "Done emitting terminatedStarted event.";
 
-    qDebug() << "Waiting for thread to exit";
-    myChessEngineThread->wait();
-    qDebug() << "Done waiting for thread to exit";
     if (myDelayedMoveTimer != nullptr) {
         myDelayedMoveTimer->stop();
         delete myDelayedMoveTimer;
     }
     qDebug() << "Creating new chess game";
     myChessGame = std::move(chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)));
-    qDebug() << "Done creating new chess game";
-    qDebug() << "Initializing";
-    init();
-    qDebug() << "Done Initializing";
-    qDebug() << "Starting";
-    start();
-    qDebug() << "Done Starting";
-    qDebug() << "Clearing game status";
+    std::shared_ptr<ChessGame> computerChessGame = std::move(
+                chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine))
+    );
+    setupNotify(computerChessGame.get());
+
+    // send copy of the new game state to the chesss engine thread:
+    myGameId++;
+    emit gameUpdated(computerChessGame, myGameId);
+
     setGameStatus("");
-    qDebug() << "Done clearing game status";
+
+    // let other objects in this thread know about the new game:
+    emit gameStarted(myChessGame.get());
 }
 
 void GameModel::movePiece(int srcRow, int srcColumn,
@@ -214,10 +214,10 @@ void GameModel::movePiece(int srcRow, int srcColumn,
 }
 
 void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who,
-                                  int engineId)
+                                  int gameId)
 {
     // validate this signal was not sent by an old thread:
-    if (engineId != myEngineId) {
+    if (gameId != myGameId) {
         qDebug() << "engineThreadMoved(): Ignored signal from invalid engine.";
         return;
     }
@@ -306,7 +306,7 @@ void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Col
             delete myDelayedMoveTimer;
             myDelayedMoveTimer = nullptr;
             if (playerType == wisdom::Player::ChessEngine) {
-                emit engineMoved(move, who, myEngineId);
+                emit engineMoved(move, who, myGameId);
             } else {
                 emit humanMoved(move, who);
             }
