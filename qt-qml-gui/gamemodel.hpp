@@ -89,7 +89,7 @@ private:
 
     // The chess game id. We could sometimes receive moves from a previous game that were
     // queued because the signals are asynchronous. This lets us discard those signals.
-    int myGameId = 1;
+    std::atomic<int> myGameId = 1;
 
     // The chess engine runs in this thread, and grabs the game mutext as needed:
     QThread* myChessEngineThread;

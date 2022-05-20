@@ -15,6 +15,7 @@ using gsl::not_null;
 using std::make_shared;
 using std::shared_ptr;
 using std::pair;
+using std::atomic;
 
 namespace
 {
@@ -82,14 +83,15 @@ namespace
         return make_unique<ChessGame>(std::move(game));
     }
 
-    void setupNotify(not_null<ChessGame*> chessGame)
+    void setupNotify(not_null<ChessGame*> chessGame, atomic<int> *gameId)
     {
         auto lockedGame = chessGame->access();
-        lockedGame->set_periodic_function([](not_null<MoveTimer*> moveTimer) {
+        auto initialGameId = gameId->load();
+        lockedGame->set_periodic_function([initialGameId, gameId](not_null<MoveTimer*> moveTimer) {
             // This runs in the ChessEngine thread.
-            auto* currentThread = QThread::currentThread();
-
-            if (currentThread->isInterruptionRequested()) {
+            // Check if the gameId we passed in originally has changed - if so,
+            // the game is over.
+            if (initialGameId != gameId->load()) {
                 qDebug() << "Setting timeout to break the loop.";
                 moveTimer->set_triggered(true);
             }
@@ -128,7 +130,7 @@ void GameModel::setupNewEngineThread()
     // Any changes in the game config will be updated over a signal.
     auto computerGame = make_unique<Game>(Player::Human, Player::ChessEngine);
     auto computerChessGame = chessGameFromGame(std::move(computerGame));
-    setupNotify(computerChessGame.get());
+    setupNotify(computerChessGame.get(), &myGameId);
     auto chessEngine = new ChessEngine { std::move(computerChessGame), myGameId };
 
     myChessEngineThread = new QThread();
@@ -183,9 +185,6 @@ void GameModel::start()
 
 void GameModel::restart()
 {
-    qDebug() << "Requesting thread interruption.";
-    myChessEngineThread->requestInterruption();
-
     if (myDelayedMoveTimer != nullptr) {
         myDelayedMoveTimer->stop();
         delete myDelayedMoveTimer;
@@ -195,10 +194,11 @@ void GameModel::restart()
     std::shared_ptr<ChessGame> computerChessGame = std::move(
                 chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine))
     );
-    setupNotify(computerChessGame.get());
+    updateCurrentTurn(myChessGame->access()->get_current_turn());
+    myGameId++;
+    setupNotify(computerChessGame.get(), &myGameId);
 
     // send copy of the new game state to the chesss engine thread:
-    myGameId++;
     emit gameUpdated(computerChessGame, myGameId);
 
     setGameStatus("");
@@ -273,7 +273,8 @@ void GameModel::applicationExiting()
 {
     qDebug() << "Trying to exit application...";
 
-    myChessEngineThread->requestInterruption();
+    // End the thread by changing the game id:
+    myGameId = 0;
     emit terminationStarted();
 
     myChessEngineThread->wait();
