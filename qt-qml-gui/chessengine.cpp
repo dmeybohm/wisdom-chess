@@ -7,21 +7,15 @@
 #include "logger.hpp"
 
 using namespace wisdom;
-using namespace std;
-using namespace gsl;
+using std::shared_ptr;
+using std::optional;
+using gsl::not_null;
 
-int ChessEngine::lastEngineId;
-
-ChessEngine::ChessEngine(std::unique_ptr<ChessGame> game, QObject *parent)
+ChessEngine::ChessEngine(shared_ptr<ChessGame> game, int gameId, QObject *parent)
     : QObject { parent }
     , myGame { std::move(game) }
-    , myEngineId { lastEngineId++ }
+    , myGameId { gameId }
 {
-}
-
-auto ChessEngine::engineId() -> int
-{
-    return myEngineId;
 }
 
 void ChessEngine::init()
@@ -42,9 +36,9 @@ void ChessEngine::opponentMoved(Move move, Color who)
 }
 
 void ChessEngine::receiveEngineMoved(wisdom::Move move, wisdom::Color who,
-                                     int engineId)
+                                     int gameId)
 {
-    if (engineId == this->myEngineId) {
+    if (gameId == this->myGameId) {
         // Do another move if the engine is hooked up to itself:
         init();
     }
@@ -64,13 +58,14 @@ void ChessEngine::findMove()
     auto board = game->get_board();
     auto generator = game->get_move_generator();
     if (is_checkmated(board, who, *generator)) {
-        std::cout << to_string(color_invert(game->get_current_turn())) << " wins the game.\n";
+        auto who = to_string(color_invert(game->get_current_turn()));
+        qDebug() << who.c_str() << " wins the game.\n";
         emit noMovesAvailable();
         return;
     }
 
     if (History::is_fifty_move_repetition(game->get_board())) {
-        std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
+        qDebug() << "Fifty moves without a capture or pawn move. It's a draw!\n";
         emit noMovesAvailable();
         return;
     }
@@ -83,7 +78,7 @@ void ChessEngine::findMove()
     // at random, and otherwise exit.
     if (optionalMove.has_value()) {
         game->move(*optionalMove);
-        emit engineMoved(*optionalMove, who, myEngineId);
+        emit engineMoved(*optionalMove, who, myGameId);
     } else {
         emit noMovesAvailable();
     }
@@ -92,4 +87,13 @@ void ChessEngine::findMove()
 void ChessEngine::drawProposed()
 {
     emit drawProposalResponse(true);
+}
+
+void ChessEngine::reloadGame(shared_ptr<ChessGame> newGame, int newGameId)
+{
+    myGame = std::move(newGame);
+    myGameId = newGameId;
+
+    // Possibly resume searching for the next move:
+    init();
 }

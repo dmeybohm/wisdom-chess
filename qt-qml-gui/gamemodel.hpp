@@ -19,10 +19,10 @@ class GameModel : public QObject
                READ currentTurn
                WRITE setCurrentTurn
                NOTIFY currentTurnChanged)
-    Q_PROPERTY(QString gameStatus
-               READ gameStatus
-               WRITE setGameStatus
-               NOTIFY gameStatusChanged)
+    Q_PROPERTY(QString gameOverStatus
+               READ gameOverStatus
+               WRITE setGameOverStatus
+               NOTIFY gameOverStatusChanged)
     Q_PROPERTY(bool drawProposedToHuman
                READ drawProposedToHuman
                WRITE setDrawProposedToHuman
@@ -39,20 +39,26 @@ public:
     wisdom::chess::ChessColor currentTurn();
     void setCurrentTurn(wisdom::chess::ChessColor newColor);
 
-    void setGameStatus(const QString& newStatus);
-    auto gameStatus() -> QString;
+    void setGameOverStatus(const QString& newStatus);
+    auto gameOverStatus() -> QString;
 
     void setDrawProposedToHuman(bool drawProposedToHuman);
     auto drawProposedToHuman() -> bool;
 
 signals:
-    void gameStarted(gsl::not_null<ChessGame*> game);
+    // The game object here is readonly.
+    void gameStarted(gsl::not_null<const ChessGame*> game);
+
+    // A new game state was created. This game is sent to the new thread.
+    // Note this is subtely different from gameStarted - the pointer argument
+    // here is meant for transferring ownership.
+    void gameUpdated(std::shared_ptr<ChessGame> chessGame, int newGameId);
 
     void humanMoved(wisdom::Move move, wisdom::Color who);
-    void engineMoved(wisdom::Move move, wisdom::Color who, int engineid);
+    void engineMoved(wisdom::Move move, wisdom::Color who, int gameId);
 
     void currentTurnChanged();
-    void gameStatusChanged();
+    void gameOverStatusChanged();
 
     // Use a property to communicate to QML and the human player:
     void drawProposedToHumanChanged();
@@ -67,11 +73,16 @@ signals:
 public slots:
     void movePiece(int srcRow, int srcColumn,
                    int dstRow, int dstColumn);
+
     void engineThreadMoved(wisdom::Move move, wisdom::Color who,
                            int engineid);
+
     void promotePiece(int srcRow, int srcColumn, int dstRow, int dstColumn, QString pieceType);
+
     void applicationExiting();
+
     void updateGameStatus();
+
     void drawProposalResponse(bool accepted);
 
 private:
@@ -81,14 +92,14 @@ private:
     // replaces the new copy.
     std::unique_ptr<ChessGame> myChessGame;
 
-    // The chess engine is owned by the engine thread - but we keep track of it here
-    // to discard signals from old engine threads:
-    int myEngineId;
+    // The chess game id. We could sometimes receive moves from a previous game that were
+    // queued because the signals are asynchronous. This lets us discard those signals.
+    std::atomic<int> myGameId = 1;
 
     // The chess engine runs in this thread, and grabs the game mutext as needed:
     QThread* myChessEngineThread;
     wisdom::chess::ChessColor myCurrentTurn;
-    QString myGameStatus {};
+    QString myGameOverStatus {};
     bool myDrawProposedToHuman = false;
 
     // last move before the draw proposal

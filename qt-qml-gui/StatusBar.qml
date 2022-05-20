@@ -13,8 +13,8 @@ Column {
         verticalAlignment: Text.AlignVCenter
         font.pointSize: 14
         color: "#ff333333"
-        text: _myGameModel.gameStatus !== ""
-              ? _myGameModel.gameStatus :
+        text: _myGameModel.gameOverStatus !== ""
+              ? _myGameModel.gameOverStatus :
            _myGameModel.currentTurn === ChessColor.White ?
              "White to move" :
              "Black to move"

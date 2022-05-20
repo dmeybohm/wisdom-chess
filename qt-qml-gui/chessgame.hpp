@@ -18,6 +18,11 @@ public:
         return myGame.get();
     }
 
+    auto access() const -> gsl::not_null<const wisdom::Game*>
+    {
+        return myGame.get();
+    }
+
     auto moveGenerator() -> gsl::not_null<wisdom::MoveGenerator*>
     {
        return myMoveGenerator.get();

@@ -12,8 +12,10 @@
 using namespace wisdom;
 using std::optional;
 using gsl::not_null;
-using std::make_unique;
+using std::make_shared;
+using std::shared_ptr;
 using std::pair;
+using std::atomic;
 
 namespace
 {
@@ -81,14 +83,15 @@ namespace
         return make_unique<ChessGame>(std::move(game));
     }
 
-    void setupNotify(not_null<ChessGame*> chessGame)
+    void setupNotify(not_null<ChessGame*> chessGame, atomic<int>* gameId)
     {
         auto lockedGame = chessGame->access();
-        lockedGame->set_periodic_function([](not_null<MoveTimer*> moveTimer) {
+        auto initialGameId = gameId->load();
+        lockedGame->set_periodic_function([initialGameId, gameId](not_null<MoveTimer*> moveTimer) {
             // This runs in the ChessEngine thread.
-            auto* currentThread = QThread::currentThread();
-
-            if (currentThread->isInterruptionRequested()) {
+            // Check if the gameId we passed in originally has changed - if so,
+            // the game is over.
+            if (initialGameId != gameId->load()) {
                 qDebug() << "Setting timeout to break the loop.";
                 moveTimer->set_triggered(true);
             }
@@ -127,9 +130,8 @@ void GameModel::setupNewEngineThread()
     // Any changes in the game config will be updated over a signal.
     auto computerGame = make_unique<Game>(Player::Human, Player::ChessEngine);
     auto computerChessGame = chessGameFromGame(std::move(computerGame));
-    setupNotify(computerChessGame.get());
-    auto chessEngine = new ChessEngine { std::move(computerChessGame) };
-    myEngineId = chessEngine->engineId();
+    setupNotify(computerChessGame.get(), &myGameId);
+    auto chessEngine = new ChessEngine { std::move(computerChessGame), myGameId };
 
     myChessEngineThread = new QThread();
 
@@ -166,6 +168,10 @@ void GameModel::setupNewEngineThread()
     connect(myChessEngineThread, &QThread::finished,
             chessEngine, &QObject::deleteLater);
 
+    // When creating a new game, send a copy of the new ChessGame to the Engine:
+    connect(this, &GameModel::gameUpdated,
+            chessEngine, &ChessEngine::reloadGame);
+
     // Move the ownership of the engine to the engine thread so slots run on that thread:
     chessEngine->moveToThread(myChessEngineThread);
 }
@@ -179,18 +185,26 @@ void GameModel::start()
 
 void GameModel::restart()
 {
-    myChessEngineThread->requestInterruption();
-    emit terminationStarted();
-
-    myChessEngineThread->wait();
     if (myDelayedMoveTimer != nullptr) {
         myDelayedMoveTimer->stop();
         delete myDelayedMoveTimer;
     }
+    qDebug() << "Creating new chess game";
     myChessGame = std::move(chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)));
-    init();
-    start();
-    setGameStatus("");
+    std::shared_ptr<ChessGame> computerChessGame = std::move(
+                chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine))
+    );
+    updateCurrentTurn(myChessGame->access()->get_current_turn());
+    myGameId++;
+    setupNotify(computerChessGame.get(), &myGameId);
+
+    // send copy of the new game state to the chesss engine thread:
+    emit gameUpdated(computerChessGame, myGameId);
+
+    setGameOverStatus("");
+
+    // let other objects in this thread know about the new game:
+    emit gameStarted(myChessGame.get());
 }
 
 void GameModel::movePiece(int srcRow, int srcColumn,
@@ -200,10 +214,10 @@ void GameModel::movePiece(int srcRow, int srcColumn,
 }
 
 void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who,
-                                  int engineId)
+                                  int gameId)
 {
     // validate this signal was not sent by an old thread:
-    if (engineId != myEngineId) {
+    if (gameId != myGameId) {
         qDebug() << "engineThreadMoved(): Ignored signal from invalid engine.";
         return;
     }
@@ -259,7 +273,8 @@ void GameModel::applicationExiting()
 {
     qDebug() << "Trying to exit application...";
 
-    myChessEngineThread->requestInterruption();
+    // End the thread by changing the game id:
+    myGameId = 0;
     emit terminationStarted();
 
     myChessEngineThread->wait();
@@ -292,7 +307,7 @@ void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Col
             delete myDelayedMoveTimer;
             myDelayedMoveTimer = nullptr;
             if (playerType == wisdom::Player::ChessEngine) {
-                emit engineMoved(move, who, myEngineId);
+                emit engineMoved(move, who, myGameId);
             } else {
                 emit humanMoved(move, who);
             }
@@ -327,19 +342,19 @@ void GameModel::setCurrentTurn(wisdom::chess::ChessColor newColor)
     }
 }
 
-void GameModel::setGameStatus(const QString& newStatus)
+void GameModel::setGameOverStatus(const QString& newStatus)
 {
-    qDebug() << "Old Status: " << myGameStatus;
+    qDebug() << "Old Status: " << myGameOverStatus;
     qDebug() << "New status: " << newStatus;
-    if (newStatus != myGameStatus) {
-        myGameStatus = newStatus;
-        emit gameStatusChanged();
+    if (newStatus != myGameOverStatus) {
+        myGameOverStatus = newStatus;
+        emit gameOverStatusChanged();
     }
 }
 
-auto GameModel::gameStatus() -> QString
+auto GameModel::gameOverStatus() -> QString
 {
-    return myGameStatus;
+    return myGameOverStatus;
 }
 
 void GameModel::updateGameStatus()
@@ -351,18 +366,18 @@ void GameModel::updateGameStatus()
     auto generator = lockedGame->get_move_generator();
     if (is_checkmated(board, who, *generator)) {
         auto whoString = wisdom::to_string(color_invert(who)) + " wins the game.";
-        setGameStatus(QString(whoString.c_str()));
+        setGameOverStatus(QString(whoString.c_str()));
         return;
     }
 
     if (is_stalemated(board, who, *generator)) {
-        setGameStatus("Draw. Stalemate.");
+        setGameOverStatus("Draw. Stalemate.");
         return;
     }
 
 
     if (wisdom::History::is_fifty_move_repetition(board)) {
-        setGameStatus("Draw. Fifty moves without a capture or pawn move.");
+        setGameOverStatus("Draw. Fifty moves without a capture or pawn move.");
         return;
     }
 }
@@ -397,7 +412,7 @@ void GameModel::drawProposalResponse(bool accepted)
 
     // If the proposal was accepted, update the status.
     if (accepted) {
-        setGameStatus("Draw proposed and accepted after third repetition rule.");
+        setGameOverStatus("Draw proposed and accepted after third repetition rule.");
         return;
     }
 

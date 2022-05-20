@@ -47,7 +47,7 @@ PiecesModel::PiecesModel(QObject *parent)
 {
 }
 
-void PiecesModel::newGame(gsl::not_null<ChessGame*> game)
+void PiecesModel::newGame(gsl::not_null<const ChessGame*> game)
 {
     auto gameAccess = game->access();
     auto board = gameAccess->get_board();
@@ -68,7 +68,7 @@ void PiecesModel::newGame(gsl::not_null<ChessGame*> game)
                 };
                 auto lastRow = myPieces.count();
                 auto pieceStr = to_string(piece);
-                beginInsertRows(QModelIndex{}, lastRow, lastRow);
+                beginInsertRows(QModelIndex{}, gsl::narrow<int>(lastRow), gsl::narrow<int>(lastRow));
                 myPieces.append(newPiece);
                 endInsertRows();
             }
@@ -78,7 +78,7 @@ void PiecesModel::newGame(gsl::not_null<ChessGame*> game)
 
 int PiecesModel::rowCount(const QModelIndex& index) const
 {
-    return myPieces.count();
+    return gsl::narrow<int>(myPieces.count());
 }
 
 QVariant PiecesModel::data(const QModelIndex& index, int role) const
