@@ -116,7 +116,7 @@ namespace wisdom
 
         void set_analytics (unique_ptr<analysis::Analytics> new_analytics);
 
-        [[nodiscard]] auto map_coordinates_to_move (Coord src, Coord dst, optional<Piece> promoted)
+        [[nodiscard]] auto map_coordinates_to_move (Coord src, Coord dst, optional<Piece> promoted) const
             -> optional<Move>
         {
             return ::wisdom::map_coordinates_to_move (*my_board, get_current_turn (),

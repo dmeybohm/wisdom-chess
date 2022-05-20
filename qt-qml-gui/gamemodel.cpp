@@ -83,7 +83,7 @@ namespace
         return make_unique<ChessGame>(std::move(game));
     }
 
-    void setupNotify(not_null<ChessGame*> chessGame, atomic<int> *gameId)
+    void setupNotify(not_null<ChessGame*> chessGame, atomic<int>* gameId)
     {
         auto lockedGame = chessGame->access();
         auto initialGameId = gameId->load();
@@ -201,7 +201,7 @@ void GameModel::restart()
     // send copy of the new game state to the chesss engine thread:
     emit gameUpdated(computerChessGame, myGameId);
 
-    setGameStatus("");
+    setGameOverStatus("");
 
     // let other objects in this thread know about the new game:
     emit gameStarted(myChessGame.get());
@@ -342,19 +342,19 @@ void GameModel::setCurrentTurn(wisdom::chess::ChessColor newColor)
     }
 }
 
-void GameModel::setGameStatus(const QString& newStatus)
+void GameModel::setGameOverStatus(const QString& newStatus)
 {
-    qDebug() << "Old Status: " << myGameStatus;
+    qDebug() << "Old Status: " << myGameOverStatus;
     qDebug() << "New status: " << newStatus;
-    if (newStatus != myGameStatus) {
-        myGameStatus = newStatus;
-        emit gameStatusChanged();
+    if (newStatus != myGameOverStatus) {
+        myGameOverStatus = newStatus;
+        emit gameOverStatusChanged();
     }
 }
 
-auto GameModel::gameStatus() -> QString
+auto GameModel::gameOverStatus() -> QString
 {
-    return myGameStatus;
+    return myGameOverStatus;
 }
 
 void GameModel::updateGameStatus()
@@ -366,18 +366,18 @@ void GameModel::updateGameStatus()
     auto generator = lockedGame->get_move_generator();
     if (is_checkmated(board, who, *generator)) {
         auto whoString = wisdom::to_string(color_invert(who)) + " wins the game.";
-        setGameStatus(QString(whoString.c_str()));
+        setGameOverStatus(QString(whoString.c_str()));
         return;
     }
 
     if (is_stalemated(board, who, *generator)) {
-        setGameStatus("Draw. Stalemate.");
+        setGameOverStatus("Draw. Stalemate.");
         return;
     }
 
 
     if (wisdom::History::is_fifty_move_repetition(board)) {
-        setGameStatus("Draw. Fifty moves without a capture or pawn move.");
+        setGameOverStatus("Draw. Fifty moves without a capture or pawn move.");
         return;
     }
 }
@@ -412,7 +412,7 @@ void GameModel::drawProposalResponse(bool accepted)
 
     // If the proposal was accepted, update the status.
     if (accepted) {
-        setGameStatus("Draw proposed and accepted after third repetition rule.");
+        setGameOverStatus("Draw proposed and accepted after third repetition rule.");
         return;
     }
 

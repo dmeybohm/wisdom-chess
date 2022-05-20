@@ -51,7 +51,7 @@ public:
 
 public slots:
     void playerMoved(wisdom::Move selectedMove, wisdom::Color who);
-    void newGame(gsl::not_null<ChessGame*> game);
+    void newGame(gsl::not_null<const ChessGame*> game);
 
 private:
     QHash<int8_t, QString> myPieceToImagePath;

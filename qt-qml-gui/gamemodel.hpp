@@ -19,10 +19,10 @@ class GameModel : public QObject
                READ currentTurn
                WRITE setCurrentTurn
                NOTIFY currentTurnChanged)
-    Q_PROPERTY(QString gameStatus
-               READ gameStatus
-               WRITE setGameStatus
-               NOTIFY gameStatusChanged)
+    Q_PROPERTY(QString gameOverStatus
+               READ gameOverStatus
+               WRITE setGameOverStatus
+               NOTIFY gameOverStatusChanged)
     Q_PROPERTY(bool drawProposedToHuman
                READ drawProposedToHuman
                WRITE setDrawProposedToHuman
@@ -39,15 +39,15 @@ public:
     wisdom::chess::ChessColor currentTurn();
     void setCurrentTurn(wisdom::chess::ChessColor newColor);
 
-    void setGameStatus(const QString& newStatus);
-    auto gameStatus() -> QString;
+    void setGameOverStatus(const QString& newStatus);
+    auto gameOverStatus() -> QString;
 
     void setDrawProposedToHuman(bool drawProposedToHuman);
     auto drawProposedToHuman() -> bool;
 
 signals:
     // The game object here is readonly.
-    void gameStarted(gsl::not_null<ChessGame*> game);
+    void gameStarted(gsl::not_null<const ChessGame*> game);
 
     // A new game state was created. This game is sent to the new thread.
     // Note this is subtely different from gameStarted - the pointer argument
@@ -55,10 +55,10 @@ signals:
     void gameUpdated(std::shared_ptr<ChessGame> chessGame, int newGameId);
 
     void humanMoved(wisdom::Move move, wisdom::Color who);
-    void engineMoved(wisdom::Move move, wisdom::Color who, int engineid);
+    void engineMoved(wisdom::Move move, wisdom::Color who, int gameId);
 
     void currentTurnChanged();
-    void gameStatusChanged();
+    void gameOverStatusChanged();
 
     // Use a property to communicate to QML and the human player:
     void drawProposedToHumanChanged();
@@ -73,11 +73,16 @@ signals:
 public slots:
     void movePiece(int srcRow, int srcColumn,
                    int dstRow, int dstColumn);
+
     void engineThreadMoved(wisdom::Move move, wisdom::Color who,
                            int engineid);
+
     void promotePiece(int srcRow, int srcColumn, int dstRow, int dstColumn, QString pieceType);
+
     void applicationExiting();
+
     void updateGameStatus();
+
     void drawProposalResponse(bool accepted);
 
 private:
@@ -94,7 +99,7 @@ private:
     // The chess engine runs in this thread, and grabs the game mutext as needed:
     QThread* myChessEngineThread;
     wisdom::chess::ChessColor myCurrentTurn;
-    QString myGameStatus {};
+    QString myGameOverStatus {};
     bool myDrawProposedToHuman = false;
 
     // last move before the draw proposal
