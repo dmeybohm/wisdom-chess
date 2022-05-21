@@ -246,11 +246,13 @@ void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,
 {
     auto [optionalMove, who] = buildMoveFromCoordinates(myChessGame.get(), srcRow,
             srcColumn, dstRow, dstColumn, pieceType);
+    updateGameStatus();
     if (!optionalMove.has_value()) {
         return;
     }
     auto move = *optionalMove;
     if (!validateIsLegalMove(myChessGame.get(), move)) {
+        setMoveStatus("Illegal move");
         return;
     }
     auto newColor = updateChessEngineForHumanMove(move);
@@ -357,6 +359,19 @@ auto GameModel::gameOverStatus() -> QString
     return myGameOverStatus;
 }
 
+void GameModel::setMoveStatus(const QString &newStatus)
+{
+    if (newStatus != myMoveStatus) {
+        myMoveStatus = newStatus;
+        emit moveStatusChanged();
+    }
+}
+
+QString GameModel::moveStatus()
+{
+    return myMoveStatus;
+}
+
 void GameModel::updateGameStatus()
 {
     auto lockedGame = myChessGame->access();
@@ -364,21 +379,27 @@ void GameModel::updateGameStatus()
     auto who = lockedGame->get_current_turn();
     auto board = lockedGame->get_board();
     auto generator = lockedGame->get_move_generator();
+    setMoveStatus("");
     if (is_checkmated(board, who, *generator)) {
-        auto whoString = wisdom::to_string(color_invert(who)) + " wins the game.";
+        auto whoString = "Checkmate - " + wisdom::to_string(color_invert(who)) + " wins the game.";
         setGameOverStatus(QString(whoString.c_str()));
         return;
     }
 
     if (is_stalemated(board, who, *generator)) {
-        setGameOverStatus("Draw. Stalemate.");
+        auto stalemateStr = "Stalemate - No legal moves for " + wisdom::to_string(who) + ". Draw";
+        setGameOverStatus(stalemateStr.c_str());
         return;
     }
 
 
     if (wisdom::History::is_fifty_move_repetition(board)) {
-        setGameOverStatus("Draw. Fifty moves without a capture or pawn move.");
+        setGameOverStatus("Draw - Fifty moves without a capture or pawn move.");
         return;
+    }
+
+    if (wisdom::is_king_threatened(board, who, board.get_king_position(who))) {
+        setMoveStatus("Check!");
     }
 }
 

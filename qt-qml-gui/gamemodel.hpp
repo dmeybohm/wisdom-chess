@@ -23,6 +23,10 @@ class GameModel : public QObject
                READ gameOverStatus
                WRITE setGameOverStatus
                NOTIFY gameOverStatusChanged)
+    Q_PROPERTY(QString moveStatus
+               READ moveStatus
+               WRITE setMoveStatus
+               NOTIFY moveStatusChanged)
     Q_PROPERTY(bool drawProposedToHuman
                READ drawProposedToHuman
                WRITE setDrawProposedToHuman
@@ -42,6 +46,9 @@ public:
     void setGameOverStatus(const QString& newStatus);
     auto gameOverStatus() -> QString;
 
+    void setMoveStatus(const QString& newStatus);
+    auto moveStatus() -> QString;
+
     void setDrawProposedToHuman(bool drawProposedToHuman);
     auto drawProposedToHuman() -> bool;
 
@@ -59,6 +66,7 @@ signals:
 
     void currentTurnChanged();
     void gameOverStatusChanged();
+    void moveStatusChanged();
 
     // Use a property to communicate to QML and the human player:
     void drawProposedToHumanChanged();
@@ -100,6 +108,7 @@ private:
     QThread* myChessEngineThread;
     wisdom::chess::ChessColor myCurrentTurn;
     QString myGameOverStatus {};
+    QString myMoveStatus {};
     bool myDrawProposedToHuman = false;
 
     // last move before the draw proposal
