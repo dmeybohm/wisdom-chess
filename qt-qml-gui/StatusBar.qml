@@ -31,7 +31,14 @@ Item {
             width: parent.width
             font.pointSize: 14
             color: "#ff333333"
-            text: _myGameModel.moveStatus
+            text: _myGameModel.moveStatus +
+                  (
+                      Boolean(_myGameModel.moveStatus) && Boolean(_myGameModel.inCheck) ?
+                          " - " : ""
+                  ) +
+                  (
+                      _myGameModel.inCheck ? "Check!" : ""
+                  )
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }

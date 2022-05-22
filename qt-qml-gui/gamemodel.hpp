@@ -31,6 +31,10 @@ class GameModel : public QObject
                READ drawProposedToHuman
                WRITE setDrawProposedToHuman
                NOTIFY drawProposedToHumanChanged)
+    Q_PROPERTY(bool inCheck
+               READ inCheck
+               WRITE setInCheck
+               NOTIFY inCheckChanged)
 
 public:
     explicit GameModel(QObject *parent = nullptr);
@@ -48,6 +52,9 @@ public:
 
     void setMoveStatus(const QString& newStatus);
     auto moveStatus() -> QString;
+
+    void setInCheck(const bool newInCheck);
+    auto inCheck() -> bool;
 
     void setDrawProposedToHuman(bool drawProposedToHuman);
     auto drawProposedToHuman() -> bool;
@@ -67,6 +74,7 @@ signals:
     void currentTurnChanged();
     void gameOverStatusChanged();
     void moveStatusChanged();
+    void inCheckChanged();
 
     // Use a property to communicate to QML and the human player:
     void drawProposedToHumanChanged();
@@ -109,6 +117,7 @@ private:
     wisdom::chess::ChessColor myCurrentTurn;
     QString myGameOverStatus {};
     QString myMoveStatus {};
+    bool myInCheck = false;
     bool myDrawProposedToHuman = false;
 
     // last move before the draw proposal

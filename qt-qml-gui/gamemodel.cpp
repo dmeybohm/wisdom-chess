@@ -202,6 +202,7 @@ void GameModel::restart()
     emit gameUpdated(computerChessGame, myGameId);
 
     setGameOverStatus("");
+    updateGameStatus();
 
     // let other objects in this thread know about the new game:
     emit gameStarted(myChessGame.get());
@@ -246,7 +247,6 @@ void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,
 {
     auto [optionalMove, who] = buildMoveFromCoordinates(myChessGame.get(), srcRow,
             srcColumn, dstRow, dstColumn, pieceType);
-    updateGameStatus();
     if (!optionalMove.has_value()) {
         return;
     }
@@ -372,6 +372,19 @@ QString GameModel::moveStatus()
     return myMoveStatus;
 }
 
+void GameModel::setInCheck(const bool newInCheck)
+{
+    if (newInCheck != myInCheck) {
+        myInCheck = newInCheck;
+        emit inCheckChanged();
+    }
+}
+
+bool GameModel::inCheck()
+{
+    return myInCheck;
+}
+
 void GameModel::updateGameStatus()
 {
     auto lockedGame = myChessGame->access();
@@ -380,6 +393,8 @@ void GameModel::updateGameStatus()
     auto board = lockedGame->get_board();
     auto generator = lockedGame->get_move_generator();
     setMoveStatus("");
+    setGameOverStatus("");
+    setInCheck(false);
     if (is_checkmated(board, who, *generator)) {
         auto whoString = "Checkmate - " + wisdom::to_string(color_invert(who)) + " wins the game.";
         setGameOverStatus(QString(whoString.c_str()));
@@ -399,7 +414,7 @@ void GameModel::updateGameStatus()
     }
 
     if (wisdom::is_king_threatened(board, who, board.get_king_position(who))) {
-        setMoveStatus("Check!");
+        setInCheck(true);
     }
 }
 
