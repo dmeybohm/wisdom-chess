@@ -90,7 +90,7 @@ namespace wisdom
 
         auto get_player (Color color) -> Player
         {
-            auto index = color_index (my_board->get_current_turn ());
+            auto index = color_index (color);
             return my_players[index];
         }
 
