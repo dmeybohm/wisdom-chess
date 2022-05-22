@@ -10,6 +10,7 @@
 #include "chessengine.hpp"
 #include "chessgame.hpp"
 #include "piecesmodel.hpp"
+#include "gamestate.hpp"
 
 class GameModel : public QObject
 {
@@ -19,23 +20,36 @@ class GameModel : public QObject
                READ currentTurn
                WRITE setCurrentTurn
                NOTIFY currentTurnChanged)
+
     Q_PROPERTY(QString gameOverStatus
                READ gameOverStatus
                WRITE setGameOverStatus
                NOTIFY gameOverStatusChanged)
+
     Q_PROPERTY(QString moveStatus
                READ moveStatus
                WRITE setMoveStatus
                NOTIFY moveStatusChanged)
+
     Q_PROPERTY(bool drawProposedToHuman
                READ drawProposedToHuman
                WRITE setDrawProposedToHuman
                NOTIFY drawProposedToHumanChanged)
+
     Q_PROPERTY(bool inCheck
                READ inCheck
                WRITE setInCheck
                NOTIFY inCheckChanged)
 
+    Q_PROPERTY(bool whiteIsComputer
+               READ whiteIsComputer
+               WRITE setWhiteIsComputer
+               NOTIFY whiteIsComputerChanged)
+
+    Q_PROPERTY(bool blackIsComputer
+               READ blackIsComputer
+               WRITE setBlackIsComputer
+               NOTIFY blackIsComputerChanged)
 public:
     explicit GameModel(QObject *parent = nullptr);
     ~GameModel() override;
@@ -59,6 +73,12 @@ public:
     void setDrawProposedToHuman(bool drawProposedToHuman);
     auto drawProposedToHuman() -> bool;
 
+    void setWhiteIsComputer(bool newWhiteIsComputer);
+    auto whiteIsComputer() -> bool;
+
+    void setBlackIsComputer(bool newBlackIsComputer);
+    auto blackIsComputer() -> bool;
+
 signals:
     // The game object here is readonly.
     void gameStarted(gsl::not_null<const ChessGame*> game);
@@ -75,6 +95,8 @@ signals:
     void gameOverStatusChanged();
     void moveStatusChanged();
     void inCheckChanged();
+    void whiteIsComputerChanged();
+    void blackIsComputerChanged();
 
     // Use a property to communicate to QML and the human player:
     void drawProposedToHumanChanged();
@@ -97,8 +119,6 @@ public slots:
 
     void applicationExiting();
 
-    void updateGameStatus();
-
     void drawProposalResponse(bool accepted);
 
 private:
@@ -119,6 +139,8 @@ private:
     QString myMoveStatus {};
     bool myInCheck = false;
     bool myDrawProposedToHuman = false;
+    bool myWhiteIsComputer = false;
+    bool myBlackIsComputer = true;
 
     // last move before the draw proposal
     std::optional<std::function<void()>> myLastDelayedMoveSignal {};
@@ -145,6 +167,15 @@ private:
     // Emit appropriate player moved signal, or delay it for a draw proposal.
     void checkForDrawAndEmitPlayerMoved(wisdom::Player playerType, wisdom::Move move,
                                         wisdom::Color who);
+
+    // Update the internal game state after user changes config or starts a new game:
+    void updateInternalGameState();
+
+    // Update the displayed state of the game.
+    void updateDisplayedGameState();
+
+    // Set up and trigger the state update.
+    void notifyInternalGameStateUpdated();
 };
 
 #endif // GAMEMODEL_H

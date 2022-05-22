@@ -20,6 +20,7 @@ qt_add_executable(appWisdomChessQtQml
     chessengine.cpp
     chesscolor.cpp
     chesscolor.hpp
+    gamestate.hpp
 )
 
 if (ANDROID)

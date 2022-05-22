@@ -153,7 +153,7 @@ void GameModel::setupNewEngineThread()
 
     // If the engine finds no moves available, check whether the game is over.
     connect(chessEngine, &ChessEngine::noMovesAvailable,
-            this, &GameModel::updateGameStatus);
+            this, &GameModel::updateDisplayedGameState);
 
     // Connect the engine's move back to itself in case it's playing itself:
     // (it will return early if it's not)
@@ -190,19 +190,10 @@ void GameModel::restart()
         delete myDelayedMoveTimer;
     }
     qDebug() << "Creating new chess game";
-    myChessGame = std::move(chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)));
-    std::shared_ptr<ChessGame> computerChessGame = std::move(
-                chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine))
-    );
-    updateCurrentTurn(myChessGame->access()->get_current_turn());
-    myGameId++;
-    setupNotify(computerChessGame.get(), &myGameId);
 
-    // send copy of the new game state to the chesss engine thread:
-    emit gameUpdated(computerChessGame, myGameId);
-
-    setGameOverStatus("");
-    updateGameStatus();
+    auto game = make_unique<Game>(Player::Human, Player::ChessEngine);
+    myChessGame = std::move(chessGameFromGame(std::move(game)));
+    notifyInternalGameStateUpdated();
 
     // let other objects in this thread know about the new game:
     emit gameStarted(myChessGame.get());
@@ -226,7 +217,7 @@ void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who,
     auto game = myChessGame->access();
     game->move(move);
 
-    updateGameStatus();
+    updateDisplayedGameState();
     updateCurrentTurn(wisdom::color_invert(who));
 
     // re-emit single-threaded signal to listeners:
@@ -256,7 +247,7 @@ void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,
         return;
     }
     auto newColor = updateChessEngineForHumanMove(move);
-    updateGameStatus();
+    updateDisplayedGameState();
     updateCurrentTurn(newColor);
     checkForDrawAndEmitPlayerMoved(wisdom::Player::Human, move, who);
 }
@@ -327,6 +318,40 @@ void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Col
     }
 }
 
+void GameModel::updateInternalGameState()
+{
+    auto whitePlayer = myWhiteIsComputer ? wisdom::Player::ChessEngine : wisdom::Player::Human;
+    auto blackPlayer = myBlackIsComputer ? wisdom::Player::ChessEngine : wisdom::Player::Human;
+    myChessGame->access()->set_white_player(whitePlayer);
+    myChessGame->access()->set_black_player(blackPlayer);
+    notifyInternalGameStateUpdated();
+}
+
+void GameModel::notifyInternalGameStateUpdated()
+{
+    auto currentGame = myChessGame->access();
+    auto whitePlayer = currentGame->get_player(wisdom::Color::White);
+    auto blackPlayer = currentGame->get_player(wisdom::Color::Black);
+
+    updateCurrentTurn(currentGame->get_current_turn());
+
+    // Copy current game state to FEN and send on to the chess engine thread:
+    auto fen = currentGame->get_board().to_fen_string(currentGame->get_current_turn());
+    auto newGame = make_unique<Game>(gameFromFen(fen));
+    newGame->set_white_player(whitePlayer);
+    newGame->set_black_player(blackPlayer);
+
+    std::shared_ptr<ChessGame> computerChessGame = std::move(chessGameFromGame(std::move(newGame)));
+
+    myGameId++;
+    setupNotify(computerChessGame.get(), &myGameId);
+
+    // send copy of the new game state to the chsss engine thread:
+    emit gameUpdated(computerChessGame, myGameId);
+
+    updateDisplayedGameState();
+}
+
 auto GameModel::currentTurn() -> wisdom::chess::ChessColor
 {
     return myCurrentTurn;
@@ -335,19 +360,13 @@ auto GameModel::currentTurn() -> wisdom::chess::ChessColor
 void GameModel::setCurrentTurn(wisdom::chess::ChessColor newColor)
 {
     if (newColor != myCurrentTurn) {
-        qDebug() << "Updating color to" << QVariant::fromValue(newColor).toString();
         myCurrentTurn = newColor;
-        qDebug() << "Emitting currentTurnChanged()";
         emit currentTurnChanged();
-    } else {
-        qDebug() << "Keeping color as" << QVariant::fromValue(newColor).toString();
     }
 }
 
 void GameModel::setGameOverStatus(const QString& newStatus)
 {
-    qDebug() << "Old Status: " << myGameOverStatus;
-    qDebug() << "New status: " << newStatus;
     if (newStatus != myGameOverStatus) {
         myGameOverStatus = newStatus;
         emit gameOverStatusChanged();
@@ -367,7 +386,7 @@ void GameModel::setMoveStatus(const QString &newStatus)
     }
 }
 
-QString GameModel::moveStatus()
+auto GameModel::moveStatus() -> QString
 {
     return myMoveStatus;
 }
@@ -380,12 +399,12 @@ void GameModel::setInCheck(const bool newInCheck)
     }
 }
 
-bool GameModel::inCheck()
+auto GameModel::inCheck() -> bool
 {
     return myInCheck;
 }
 
-void GameModel::updateGameStatus()
+void GameModel::updateDisplayedGameState()
 {
     auto lockedGame = myChessGame->access();
 
@@ -421,6 +440,34 @@ void GameModel::updateGameStatus()
 auto GameModel::drawProposedToHuman() -> bool
 {
     return myDrawProposedToHuman;
+}
+
+auto GameModel::whiteIsComputer() -> bool
+{
+    return myWhiteIsComputer;
+}
+
+void GameModel::setWhiteIsComputer(bool newWhiteIsComputer)
+{
+    if (myWhiteIsComputer != newWhiteIsComputer) {
+        myWhiteIsComputer = newWhiteIsComputer;
+        updateInternalGameState();
+        emit whiteIsComputerChanged();
+    }
+}
+
+auto GameModel::blackIsComputer() -> bool
+{
+    return myBlackIsComputer;
+}
+
+void GameModel::setBlackIsComputer(bool newBlackIsComputer)
+{
+    if (myBlackIsComputer != newBlackIsComputer) {
+        myBlackIsComputer = newBlackIsComputer;
+        updateInternalGameState();
+        emit blackIsComputerChanged();
+    }
 }
 
 void GameModel::setDrawProposedToHuman(bool drawProposed)

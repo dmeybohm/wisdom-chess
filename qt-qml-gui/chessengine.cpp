@@ -20,11 +20,7 @@ ChessEngine::ChessEngine(shared_ptr<ChessGame> game, int gameId, QObject *parent
 
 void ChessEngine::init()
 {
-    auto game = myGame->access();
-    auto isActive = game->get_current_player() == Player::ChessEngine;
-    if (isActive) {
-        findMove();
-    }
+    findMove();
 }
 
 void ChessEngine::opponentMoved(Move move, Color who)
