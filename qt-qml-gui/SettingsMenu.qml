@@ -47,6 +47,13 @@ Menu {
     MenuItem {
         id: thinkingTimeSliderItem
         text: "Thinking time per move"
+
+        Text {
+            text: thinkingTimeSlider.value.toString()
+            anchors.right: thinkingTimeSlider.left
+            anchors.verticalCenter: thinkingTimeSliderItem.verticalCenter
+        }
+
         Slider {
             id: thinkingTimeSlider
             visible: settingsMenu.width >= settingsMenu.implicitWidth
@@ -55,6 +62,7 @@ Menu {
                 right: thinkingTimeSliderItem.right
                 verticalCenter: thinkingTimeSliderItem.verticalCenter
             }
+            stepSize: 1
             from: 1
             to: 30
         }
@@ -63,7 +71,15 @@ Menu {
     MenuItem {
         id: maxDepthItem
         text: "Max depth to search"
+
+        Text {
+            text: maxDepthSlider.value.toString()
+            anchors.right: maxDepthSlider.left
+            anchors.verticalCenter: maxDepthItem.verticalCenter
+        }
+
         Slider {
+            id: maxDepthSlider
             visible: thinkingTimeSlider.visible
             width: thinkingTimeSlider.width
             anchors {
@@ -72,6 +88,7 @@ Menu {
             }
             from: 1
             to: 16
+            stepSize: 1
         }
     }
 
