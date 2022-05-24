@@ -130,8 +130,10 @@ void GameModel::restart()
     }
     qDebug() << "Creating new chess game";
 
-    auto game = make_unique<Game>(Player::Human, Player::ChessEngine);
-    myChessGame = std::move(ChessGame::fromEngine(std::move(game)));
+    myChessGame = std::move(ChessGame::fromPlayers(
+        myChessGame->engine()->get_player(Color::White),
+        myChessGame->engine()->get_player(Color::Black)
+    ));
     notifyInternalGameStateUpdated();
 
     // let other objects in this thread know about the new game:
