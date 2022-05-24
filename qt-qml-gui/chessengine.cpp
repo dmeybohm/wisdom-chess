@@ -20,17 +20,13 @@ ChessEngine::ChessEngine(shared_ptr<ChessGame> game, int gameId, QObject *parent
 
 void ChessEngine::init()
 {
-    auto game = myGame->access();
-    auto isActive = game->get_current_player() == Player::ChessEngine;
-    if (isActive) {
-        findMove();
-    }
+    findMove();
 }
 
 void ChessEngine::opponentMoved(Move move, Color who)
 {
     QThread::currentThread()->usleep(500);
-    auto game = myGame->access();
+    auto game = myGame->engine();
     game->move(move);
     findMove();
 }
@@ -46,7 +42,7 @@ void ChessEngine::receiveEngineMoved(wisdom::Move move, wisdom::Color who,
 
 void ChessEngine::findMove()
 {
-    auto game = myGame->access();
+    auto game = myGame->engine();
     Logger& output = make_standard_logger();
 
     auto player = game->get_current_player();

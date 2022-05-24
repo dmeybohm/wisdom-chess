@@ -6,3 +6,8 @@ function isMobile() {
     }
     return false
 }
+
+function computerOrHumanLabel(x)
+{
+    return x ? "Computer" : "Human";
+}

@@ -2,6 +2,8 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
+import "Helper.js" as Helper
+
 Menu {
     id: settingsMenu
     implicitWidth: 340
@@ -25,13 +27,20 @@ Menu {
     }
     MenuSeparator {}
     MenuItem {
-        text: "White Player - <b>Human</b>"
+        text: "White Player - <b>" +
+              Helper.computerOrHumanLabel(_myGameModel.whiteIsComputer) +
+              "</b>"
         onClicked: {
-            acceptDrawDialog()
+            _myGameModel.whiteIsComputer = !_myGameModel.whiteIsComputer
         }
     }
     MenuItem {
-        text: "Black Player - <b>Computer</b>"
+        text: "Black Player - <b>" +
+              Helper.computerOrHumanLabel(_myGameModel.blackIsComputer) +
+              "</b>"
+        onClicked: {
+            _myGameModel.blackIsComputer = !_myGameModel.blackIsComputer
+        }
     }
     MenuSeparator {}
 

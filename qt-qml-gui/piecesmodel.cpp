@@ -49,7 +49,7 @@ PiecesModel::PiecesModel(QObject *parent)
 
 void PiecesModel::newGame(gsl::not_null<const ChessGame*> game)
 {
-    auto gameAccess = game->access();
+    auto gameAccess = game->engine();
     auto board = gameAccess->get_board();
 
     if (myPieces.count() > 0) {
