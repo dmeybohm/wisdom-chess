@@ -19,20 +19,6 @@ using std::atomic;
 
 namespace
 {
-    auto buildMoveFromCoordinates(not_null<ChessGame*> chessGame, int srcRow, int srcColumn,
-                                  int dstRow, int dstColumn, optional<Piece> promoted)
-        -> pair<optional<Move>, wisdom::Color>
-    {
-        auto game = chessGame->access();
-        Coord src = make_coord(srcRow, srcColumn);
-        Coord dst = make_coord(dstRow, dstColumn);
-
-        auto who = game->get_current_turn();
-        qDebug() << "Mapping coordinates for " << srcRow << ":" << srcColumn << " -> "
-                 << dstRow << ":" << dstColumn;
-        return { game->map_coordinates_to_move(src, dst, promoted), who };
-    }
-
     auto pieceFromString(const QString& piece) -> wisdom::Piece
     {
         if (piece == "queen") {
@@ -51,57 +37,11 @@ namespace
             assert(0); abort();
         }
     }
-
-    auto validateIsLegalMove(not_null<ChessGame*> chessGame, Move selectedMove) -> bool
-    {
-        auto game = chessGame->access();
-        auto selectedMoveStr = to_string(selectedMove);
-        qDebug() << "Selected move: " << QString(selectedMoveStr.c_str());
-
-        auto who = game->get_current_turn();
-        auto generator = game->get_move_generator();
-        auto legalMoves = generator->generate_legal_moves(game->get_board(), who);
-        auto legalMovesStr = to_string(legalMoves);
-        qDebug() << QString(legalMovesStr.c_str());
-        for (auto legalMove : legalMoves) {
-            if (legalMove == selectedMove) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    auto gameFromFen(const std::string& input) -> Game
-    {
-        FenParser parser { input };
-        auto game = parser.build ();
-        return game;
-    }
-
-    auto chessGameFromGame(unique_ptr<Game> game) -> unique_ptr<ChessGame>
-    {
-        return make_unique<ChessGame>(std::move(game));
-    }
-
-    void setupNotify(not_null<ChessGame*> chessGame, atomic<int>* gameId)
-    {
-        auto lockedGame = chessGame->access();
-        auto initialGameId = gameId->load();
-        lockedGame->set_periodic_function([initialGameId, gameId](not_null<MoveTimer*> moveTimer) {
-            // This runs in the ChessEngine thread.
-            // Check if the gameId we passed in originally has changed - if so,
-            // the game is over.
-            if (initialGameId != gameId->load()) {
-                qDebug() << "Setting timeout to break the loop.";
-                moveTimer->set_triggered(true);
-            }
-        });
-    }
 }
 
 GameModel::GameModel(QObject *parent)
     : QObject(parent),
-      myChessGame { chessGameFromGame(make_unique<Game>(Player::Human, Player::ChessEngine)) },
+      myChessGame { ChessGame::fromPlayers(Player::Human, Player::ChessEngine) },
       myChessEngineThread { nullptr }
 {
     init();
@@ -114,7 +54,7 @@ GameModel::~GameModel()
 
 void GameModel::init()
 {
-    auto lockedGame = myChessGame->access();
+    auto lockedGame = myChessGame->engine();
     setCurrentTurn(wisdom::chess::mapColor(lockedGame->get_current_turn()));
     lockedGame->set_white_player(Player::Human);
     lockedGame->set_black_player(Player::ChessEngine);
@@ -128,9 +68,8 @@ void GameModel::setupNewEngineThread()
 
     // Initialize a new Game for the chess engine.
     // Any changes in the game config will be updated over a signal.
-    auto computerGame = make_unique<Game>(Player::Human, Player::ChessEngine);
-    auto computerChessGame = chessGameFromGame(std::move(computerGame));
-    setupNotify(computerChessGame.get(), &myGameId);
+    auto computerChessGame = myChessGame->clone();
+    computerChessGame->setupNotify(&myGameId);
     auto chessEngine = new ChessEngine { std::move(computerChessGame), myGameId };
 
     myChessEngineThread = new QThread();
@@ -192,7 +131,7 @@ void GameModel::restart()
     qDebug() << "Creating new chess game";
 
     auto game = make_unique<Game>(Player::Human, Player::ChessEngine);
-    myChessGame = std::move(chessGameFromGame(std::move(game)));
+    myChessGame = std::move(ChessGame::fromEngine(std::move(game)));
     notifyInternalGameStateUpdated();
 
     // let other objects in this thread know about the new game:
@@ -205,8 +144,7 @@ void GameModel::movePiece(int srcRow, int srcColumn,
     movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, {});
 }
 
-void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who,
-                                  int gameId)
+void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who, int gameId)
 {
     // validate this signal was not sent by an old thread:
     if (gameId != myGameId) {
@@ -214,7 +152,7 @@ void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who,
         return;
     }
 
-    auto game = myChessGame->access();
+    auto game = myChessGame->engine();
     game->move(move);
 
     updateDisplayedGameState();
@@ -236,13 +174,13 @@ void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,
                                        int dstRow, int dstColumn,
                                        optional<wisdom::Piece> pieceType)
 {
-    auto [optionalMove, who] = buildMoveFromCoordinates(myChessGame.get(), srcRow,
-            srcColumn, dstRow, dstColumn, pieceType);
+    auto [optionalMove, who] = myChessGame->moveFromCoordinates(srcRow, srcColumn,
+                                                                dstRow, dstColumn, pieceType);
     if (!optionalMove.has_value()) {
         return;
     }
     auto move = *optionalMove;
-    if (!validateIsLegalMove(myChessGame.get(), move)) {
+    if (!myChessGame->isLegalMove(move)) {
         setMoveStatus("Illegal move");
         return;
     }
@@ -254,7 +192,7 @@ void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,
 
 bool GameModel::needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn)
 {
-    auto [optionalMove, who] = buildMoveFromCoordinates(myChessGame.get(), srcRow,
+    auto [optionalMove, who] = myChessGame->moveFromCoordinates(srcRow,
             srcColumn, dstRow, dstColumn, Piece::Queen);
     if (!optionalMove.has_value()) {
         return false;
@@ -275,7 +213,7 @@ void GameModel::applicationExiting()
 
 auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
 {
-    auto lockedGame = myChessGame->access();
+    auto lockedGame = myChessGame->engine();
 
     lockedGame->move(selectedMove);
     return lockedGame->get_current_turn();
@@ -292,7 +230,7 @@ void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Col
     wisdom::Player oppositePlayer;
     {
         assert(!myLastDelayedMoveSignal.has_value());
-        auto lockedGame = myChessGame->access();
+        auto lockedGame = myChessGame->engine();
         auto board = lockedGame->get_board();
 
         oppositePlayer = lockedGame->get_player(color_invert(who));
@@ -322,29 +260,20 @@ void GameModel::updateInternalGameState()
 {
     auto whitePlayer = myWhiteIsComputer ? wisdom::Player::ChessEngine : wisdom::Player::Human;
     auto blackPlayer = myBlackIsComputer ? wisdom::Player::ChessEngine : wisdom::Player::Human;
-    myChessGame->access()->set_white_player(whitePlayer);
-    myChessGame->access()->set_black_player(blackPlayer);
+    myChessGame->engine()->set_white_player(whitePlayer);
+    myChessGame->engine()->set_black_player(blackPlayer);
     notifyInternalGameStateUpdated();
 }
 
 void GameModel::notifyInternalGameStateUpdated()
 {
-    auto currentGame = myChessGame->access();
-    auto whitePlayer = currentGame->get_player(wisdom::Color::White);
-    auto blackPlayer = currentGame->get_player(wisdom::Color::Black);
-
+    auto currentGame = myChessGame->engine();
     updateCurrentTurn(currentGame->get_current_turn());
 
-    // Copy current game state to FEN and send on to the chess engine thread:
-    auto fen = currentGame->get_board().to_fen_string(currentGame->get_current_turn());
-    auto newGame = make_unique<Game>(gameFromFen(fen));
-    newGame->set_white_player(whitePlayer);
-    newGame->set_black_player(blackPlayer);
-
-    std::shared_ptr<ChessGame> computerChessGame = std::move(chessGameFromGame(std::move(newGame)));
+    std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
 
     myGameId++;
-    setupNotify(computerChessGame.get(), &myGameId);
+    computerChessGame->setupNotify(&myGameId);
 
     // send copy of the new game state to the chsss engine thread:
     emit gameUpdated(computerChessGame, myGameId);
@@ -406,7 +335,7 @@ auto GameModel::inCheck() -> bool
 
 void GameModel::updateDisplayedGameState()
 {
-    auto lockedGame = myChessGame->access();
+    auto lockedGame = myChessGame->engine();
 
     auto who = lockedGame->get_current_turn();
     auto board = lockedGame->get_board();

@@ -73,7 +73,7 @@ namespace wisdom
         [[nodiscard]] auto get_move_generator () const& -> not_null<MoveGenerator*>;
         auto get_move_generator () const&& -> not_null<MoveGenerator*> = delete;
 
-        auto get_current_player () -> Player
+        auto get_current_player () const -> Player
         {
             return get_player (my_board->get_current_turn ());
         }
@@ -88,7 +88,7 @@ namespace wisdom
             my_players[color_index(Color::Black)] = player;
         }
 
-        auto get_player (Color color) -> Player
+        auto get_player (Color color) const -> Player
         {
             auto index = color_index (color);
             return my_players[index];
