@@ -104,9 +104,19 @@ namespace wisdom
             return my_players;
         }
 
+        auto get_max_depth () const -> int
+        {
+            return my_max_depth;
+        }
+
         void set_max_depth (int max_depth)
         {
             my_max_depth = max_depth;
+        }
+
+        auto get_search_timeout () const -> std::chrono::seconds
+        {
+            return my_search_timeout;
         }
 
         void set_search_timeout (std::chrono::seconds seconds)

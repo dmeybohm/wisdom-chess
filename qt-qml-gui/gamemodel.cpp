@@ -41,7 +41,7 @@ namespace
 
 GameModel::GameModel(QObject *parent)
     : QObject(parent),
-      myChessGame { ChessGame::fromPlayers(Player::Human, Player::ChessEngine) },
+      myChessGame { ChessGame::fromPlayers(Player::Human, Player::ChessEngine, gameConfig()) },
       myChessEngineThread { nullptr }
 {
     init();
@@ -54,10 +54,9 @@ GameModel::~GameModel()
 
 void GameModel::init()
 {
-    auto lockedGame = myChessGame->engine();
-    setCurrentTurn(wisdom::chess::mapColor(lockedGame->get_current_turn()));
-    lockedGame->set_white_player(Player::Human);
-    lockedGame->set_black_player(Player::ChessEngine);
+    auto gameState = myChessGame->engine();
+    setCurrentTurn(wisdom::chess::mapColor(gameState->get_current_turn()));
+    myChessGame->setPlayers(Player::Human, Player::ChessEngine);
 
     setupNewEngineThread();
 }
@@ -103,6 +102,14 @@ void GameModel::setupNewEngineThread()
     connect(this, &GameModel::terminationStarted,
             myChessEngineThread, &QThread::quit);
 
+    // Update the engine's config when user changes its:
+    connect(this, &GameModel::maxDepthChanged,
+            this, &GameModel::updateEngineConfig);
+    connect(this, &GameModel::maxSearchTimeChanged,
+            this, &GameModel::updateEngineConfig);
+    connect(this, &GameModel::engineConfigChanged,
+            chessEngine, &ChessEngine::updateConfig);
+
     // Cleanup chess engine when chess engine thread exits:
     connect(myChessEngineThread, &QThread::finished,
             chessEngine, &QObject::deleteLater);
@@ -119,6 +126,7 @@ void GameModel::start()
 {
     emit gameStarted(myChessGame.get());
 
+    updateEngineConfig();
     myChessEngineThread->start();
 }
 
@@ -132,11 +140,13 @@ void GameModel::restart()
 
     myChessGame = std::move(ChessGame::fromPlayers(
         myChessGame->engine()->get_player(Color::White),
-        myChessGame->engine()->get_player(Color::Black)
+        myChessGame->engine()->get_player(Color::Black),
+        gameConfig()
     ));
     notifyInternalGameStateUpdated();
 
     // let other objects in this thread know about the new game:
+    myDrawEverProposed = false;
     emit gameStarted(myChessGame.get());
 }
 
@@ -213,12 +223,17 @@ void GameModel::applicationExiting()
     myChessEngineThread->wait();
 }
 
+void GameModel::updateEngineConfig()
+{
+    emit engineConfigChanged(ChessGame::Config { MaxDepth { myMaxDepth }, std::chrono::seconds { myMaxSearchTime }});
+}
+
 auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
 {
-    auto lockedGame = myChessGame->engine();
+    auto gameState = myChessGame->engine();
 
-    lockedGame->move(selectedMove);
-    return lockedGame->get_current_turn();
+    gameState->move(selectedMove);
+    return gameState->get_current_turn();
 }
 
 void GameModel::updateCurrentTurn(Color newColor)
@@ -262,8 +277,8 @@ void GameModel::updateInternalGameState()
 {
     auto whitePlayer = myWhiteIsComputer ? wisdom::Player::ChessEngine : wisdom::Player::Human;
     auto blackPlayer = myBlackIsComputer ? wisdom::Player::ChessEngine : wisdom::Player::Human;
-    myChessGame->engine()->set_white_player(whitePlayer);
-    myChessGame->engine()->set_black_player(blackPlayer);
+    myChessGame->setPlayers(whitePlayer, blackPlayer);
+    myChessGame->setConfig(gameConfig());
     notifyInternalGameStateUpdated();
 }
 
@@ -274,13 +289,26 @@ void GameModel::notifyInternalGameStateUpdated()
 
     std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
 
+    qDebug() << "search time:" << computerChessGame->engine()->get_search_timeout().count();
+
     myGameId++;
     computerChessGame->setupNotify(&myGameId);
 
-    // send copy of the new game state to the chsss engine thread:
+    // Update the engine config if needed:
+    emit updateEngineConfig();
+
+    // send copy of the new game state to the chess engine thread:
     emit gameUpdated(computerChessGame, myGameId);
 
     updateDisplayedGameState();
+}
+
+ChessGame::Config GameModel::gameConfig()
+{
+    return ChessGame::Config {
+        MaxDepth { myMaxDepth },
+        chrono::seconds { myMaxSearchTime }
+    };
 }
 
 auto GameModel::currentTurn() -> wisdom::chess::ChessColor
@@ -390,6 +418,34 @@ void GameModel::setWhiteIsComputer(bool newWhiteIsComputer)
 auto GameModel::blackIsComputer() -> bool
 {
     return myBlackIsComputer;
+}
+
+void GameModel::setMaxDepth(int maxDepth)
+{
+    if (myMaxDepth != maxDepth) {
+        myMaxDepth = maxDepth;
+        emit maxDepthChanged();
+    }
+}
+
+int GameModel::maxDepth()
+{
+    return myMaxDepth;
+}
+
+void GameModel::setMaxSearchTime(int maxSearchTime)
+{
+    if (maxSearchTime != myMaxSearchTime) {
+        myChessGame->engine()->set_search_timeout(chrono::seconds { maxSearchTime });
+        qDebug() << "Set max search time:" << maxSearchTime;
+        myMaxSearchTime = maxSearchTime;
+        emit maxSearchTimeChanged();
+    }
+}
+
+int GameModel::maxSearchTime()
+{
+    return myMaxSearchTime;
 }
 
 void GameModel::setBlackIsComputer(bool newBlackIsComputer)

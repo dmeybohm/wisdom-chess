@@ -47,24 +47,48 @@ Menu {
     MenuItem {
         id: thinkingTimeSliderItem
         text: "Thinking time per move"
+
+        Text {
+            text: "0:" + Helper.zeroPad(thinkingTimeSlider.value.toString())
+            anchors.right: thinkingTimeSlider.left
+            anchors.verticalCenter: thinkingTimeSliderItem.verticalCenter
+            visible: thinkingTimeSlider.visible
+        }
+
         Slider {
             id: thinkingTimeSlider
+            value: _myGameModel.maxSearchTime
             visible: settingsMenu.width >= settingsMenu.implicitWidth
             width: 150
             anchors {
                 right: thinkingTimeSliderItem.right
                 verticalCenter: thinkingTimeSliderItem.verticalCenter
             }
+            stepSize: 1
             from: 1
             to: 30
+            onValueChanged: {
+                console.log('maxSearchTime: '+value);
+                _myGameModel.maxSearchTime = parseInt(value, 10)
+            }
         }
     }
 
     MenuItem {
         id: maxDepthItem
         text: "Max depth to search"
-        Slider {
+
+        Text {
+            text: maxDepthSlider.value.toString()
+            anchors.right: maxDepthSlider.left
+            anchors.verticalCenter: maxDepthItem.verticalCenter
             visible: thinkingTimeSlider.visible
+        }
+
+        Slider {
+            id: maxDepthSlider
+            visible: thinkingTimeSlider.visible
+            value: _myGameModel.maxDepth
             width: thinkingTimeSlider.width
             anchors {
                 right: maxDepthItem.right
@@ -72,6 +96,11 @@ Menu {
             }
             from: 1
             to: 16
+            stepSize: 1
+            onValueChanged: {
+                console.log('maxDepthTime: '+value);
+                _myGameModel.maxDepth = parseInt(value, 10)
+            }
         }
     }
 
