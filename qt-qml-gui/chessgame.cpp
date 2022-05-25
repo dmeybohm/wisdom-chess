@@ -18,23 +18,27 @@ using std::pair;
 using std::make_unique;
 using gsl::not_null;
 
-auto ChessGame::fromPlayers(wisdom::Player whitePlayer, wisdom::Player blackPlayer)
+auto ChessGame::fromPlayers(
+        wisdom::Player whitePlayer,
+        wisdom::Player blackPlayer,
+        Config config
+)
     -> unique_ptr<ChessGame>
 {
-    return fromEngine(std::move(make_unique<Game>(whitePlayer, blackPlayer)));
+    return fromEngine(std::move(make_unique<Game>(whitePlayer, blackPlayer)), config);
 }
 
-auto ChessGame::fromFen(const string &input) -> unique_ptr<ChessGame>
+auto ChessGame::fromFen(const string &input, Config config) -> unique_ptr<ChessGame>
 {
     FenParser parser { input };
     auto game = parser.build ();
-    return fromEngine(std::make_unique<Game>(std::move(game)));
+    return fromEngine(std::make_unique<Game>(std::move(game)), config);
 }
 
-auto ChessGame::fromEngine(std::unique_ptr<wisdom::Game> game) ->
+auto ChessGame::fromEngine(std::unique_ptr<wisdom::Game> game, Config config) ->
     unique_ptr<ChessGame>
 {
-    return make_unique<ChessGame>(std::move(game));
+    return make_unique<ChessGame>(std::move(game), config);
 }
 
 auto ChessGame::clone() const ->
@@ -46,11 +50,9 @@ auto ChessGame::clone() const ->
     auto blackPlayer = currentGame->get_player(wisdom::Color::Black);
 
     auto fen = currentGame->get_board().to_fen_string(currentGame->get_current_turn());
-    auto newGame = ChessGame::fromFen(fen);
+    auto newGame = ChessGame::fromFen(fen, myConfig);
     newGame->engine()->set_white_player(whitePlayer);
     newGame->engine()->set_black_player(blackPlayer);
-    newGame->engine()->set_search_timeout(currentGame->get_search_timeout());
-    newGame->engine()->set_max_depth(currentGame->get_max_depth());
     return newGame;
 }
 
@@ -72,6 +74,21 @@ auto ChessGame::isLegalMove(Move selectedMove) -> bool
         }
     }
     return false;
+}
+
+void ChessGame::setConfig(Config config)
+{
+    auto gameState = this->engine();
+    gameState->set_max_depth(config.maxDepth.internalDepth());
+    gameState->set_search_timeout(config.maxTime);
+    myConfig = config;
+}
+
+void ChessGame::setPlayers(wisdom::Player whitePlayer, wisdom::Player blackPlayer)
+{
+   auto gameState = this->engine();
+   gameState->set_white_player(whitePlayer);
+   gameState->set_black_player(blackPlayer);
 }
 
 void ChessGame::setupNotify(atomic<int>* gameId)

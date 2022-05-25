@@ -49,7 +49,7 @@ Menu {
         text: "Thinking time per move"
 
         Text {
-            text: thinkingTimeSlider.value.toString()
+            text: "0:" + Helper.zeroPad(thinkingTimeSlider.value.toString())
             anchors.right: thinkingTimeSlider.left
             anchors.verticalCenter: thinkingTimeSliderItem.verticalCenter
             visible: thinkingTimeSlider.visible

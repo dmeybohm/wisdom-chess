@@ -41,7 +41,7 @@ namespace
 
 GameModel::GameModel(QObject *parent)
     : QObject(parent),
-      myChessGame { ChessGame::fromPlayers(Player::Human, Player::ChessEngine) },
+      myChessGame { ChessGame::fromPlayers(Player::Human, Player::ChessEngine, gameConfig()) },
       myChessEngineThread { nullptr }
 {
     init();
@@ -54,10 +54,9 @@ GameModel::~GameModel()
 
 void GameModel::init()
 {
-    auto lockedGame = myChessGame->engine();
-    setCurrentTurn(wisdom::chess::mapColor(lockedGame->get_current_turn()));
-    lockedGame->set_white_player(Player::Human);
-    lockedGame->set_black_player(Player::ChessEngine);
+    auto gameState = myChessGame->engine();
+    setCurrentTurn(wisdom::chess::mapColor(gameState->get_current_turn()));
+    myChessGame->setPlayers(Player::Human, Player::ChessEngine);
 
     setupNewEngineThread();
 }
@@ -141,7 +140,8 @@ void GameModel::restart()
 
     myChessGame = std::move(ChessGame::fromPlayers(
         myChessGame->engine()->get_player(Color::White),
-        myChessGame->engine()->get_player(Color::Black)
+        myChessGame->engine()->get_player(Color::Black),
+        gameConfig()
     ));
     notifyInternalGameStateUpdated();
 
@@ -225,15 +225,15 @@ void GameModel::applicationExiting()
 
 void GameModel::updateEngineConfig()
 {
-    emit engineConfigChanged(ChessEngine::Config { myMaxDepth, std::chrono::seconds { myMaxSearchTime }});
+    emit engineConfigChanged(ChessGame::Config { MaxDepth { myMaxDepth }, std::chrono::seconds { myMaxSearchTime }});
 }
 
 auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
 {
-    auto lockedGame = myChessGame->engine();
+    auto gameState = myChessGame->engine();
 
-    lockedGame->move(selectedMove);
-    return lockedGame->get_current_turn();
+    gameState->move(selectedMove);
+    return gameState->get_current_turn();
 }
 
 void GameModel::updateCurrentTurn(Color newColor)
@@ -277,10 +277,8 @@ void GameModel::updateInternalGameState()
 {
     auto whitePlayer = myWhiteIsComputer ? wisdom::Player::ChessEngine : wisdom::Player::Human;
     auto blackPlayer = myBlackIsComputer ? wisdom::Player::ChessEngine : wisdom::Player::Human;
-    myChessGame->engine()->set_white_player(whitePlayer);
-    myChessGame->engine()->set_black_player(blackPlayer);
-    myChessGame->engine()->set_max_depth(myMaxDepth);
-    myChessGame->engine()->set_search_timeout(chrono::seconds { myMaxSearchTime });
+    myChessGame->setPlayers(whitePlayer, blackPlayer);
+    myChessGame->setConfig(gameConfig());
     notifyInternalGameStateUpdated();
 }
 
@@ -303,6 +301,14 @@ void GameModel::notifyInternalGameStateUpdated()
     emit gameUpdated(computerChessGame, myGameId);
 
     updateDisplayedGameState();
+}
+
+ChessGame::Config GameModel::gameConfig()
+{
+    return ChessGame::Config {
+        MaxDepth { myMaxDepth },
+        chrono::seconds { myMaxSearchTime }
+    };
 }
 
 auto GameModel::currentTurn() -> wisdom::chess::ChessColor
@@ -417,7 +423,6 @@ auto GameModel::blackIsComputer() -> bool
 void GameModel::setMaxDepth(int maxDepth)
 {
     if (myMaxDepth != maxDepth) {
-        myChessGame->engine()->set_max_depth(maxDepth);
         myMaxDepth = maxDepth;
         emit maxDepthChanged();
     }

@@ -107,7 +107,7 @@ signals:
 
     void humanMoved(wisdom::Move move, wisdom::Color who);
     void engineMoved(wisdom::Move move, wisdom::Color who, int gameId);
-    void engineConfigChanged(ChessEngine::Config config);
+    void engineConfigChanged(ChessGame::Config config);
 
     void currentTurnChanged();
     void gameOverStatusChanged();
@@ -163,7 +163,7 @@ private:
     bool myDrawProposedToHuman = false;
     bool myWhiteIsComputer = false;
     bool myBlackIsComputer = true;
-    int myMaxDepth = 6;
+    int myMaxDepth = 4;
     int myMaxSearchTime = 5;
 
     // last move before the draw proposal
@@ -200,6 +200,9 @@ private:
 
     // Set up and trigger the state update.
     void notifyInternalGameStateUpdated();
+
+    // Get the configuration for the game.
+    ChessGame::Config gameConfig();
 };
 
 #endif // GAMEMODEL_H

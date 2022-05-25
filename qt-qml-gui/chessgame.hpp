@@ -7,52 +7,6 @@
 #include "move.hpp"
 #include "game.hpp"
 
-class ChessGame
-{
-public:
-    explicit ChessGame(std::unique_ptr<wisdom::Game> game)
-        : myEngine { std::move(game) }
-    {
-    }
-
-    static auto fromPlayers(wisdom::Player whitePlayer, wisdom::Player blackPlayer)
-        -> std::unique_ptr<ChessGame>;
-
-    static auto fromFen(const std::string& input) -> std::unique_ptr<ChessGame>;
-
-    static auto fromEngine(std::unique_ptr<wisdom::Game> game)
-        -> std::unique_ptr<ChessGame>;
-
-    auto engine() -> gsl::not_null<wisdom::Game*>
-    {
-        return myEngine.get();
-    }
-
-    auto clone() const -> std::unique_ptr<ChessGame>;
-
-    auto engine() const -> gsl::not_null<const wisdom::Game*>
-    {
-        return myEngine.get();
-    }
-
-    auto isLegalMove(wisdom::Move selectedMove) -> bool;
-
-    auto moveGenerator() -> gsl::not_null<wisdom::MoveGenerator*>
-    {
-       return myMoveGenerator.get();
-    }
-
-    void setupNotify(std::atomic<int>* gameId);
-
-    auto moveFromCoordinates(int srcRow, int srcColumn,
-                             int dstRow, int dstColumn, std::optional<wisdom::Piece> promoted)
-        -> std::pair<std::optional<wisdom::Move>, wisdom::Color>;
-private:
-    std::unique_ptr<wisdom::Game> myEngine;
-    std::unique_ptr<wisdom::MoveGenerator> myMoveGenerator =
-            std::make_unique<wisdom::MoveGenerator>();
-};
-
 // The valid internal representations of depth in the wisdom Game object is different
 // from the semantics in the UI:
 //
@@ -86,7 +40,68 @@ public:
 
 private:
     int myUserDepth;
-
 };
+
+class ChessGame
+{
+public:
+    // The configuration of the chess engine.
+    struct Config
+    {
+        MaxDepth maxDepth;
+        std::chrono::seconds maxTime;
+    };
+
+    explicit ChessGame(std::unique_ptr<wisdom::Game> game, Config config)
+        : myEngine { std::move(game) }
+        , myConfig { config }
+    {
+        setConfig(config);
+    }
+
+    static auto fromPlayers(wisdom::Player whitePlayer, wisdom::Player blackPlayer, Config config)
+        -> std::unique_ptr<ChessGame>;
+
+    static auto fromFen(const std::string& input, Config config) -> std::unique_ptr<ChessGame>;
+
+    static auto fromEngine(std::unique_ptr<wisdom::Game> game, Config config)
+        -> std::unique_ptr<ChessGame>;
+
+    auto engine() -> gsl::not_null<wisdom::Game*>
+    {
+        return myEngine.get();
+    }
+
+    // Clone the game state
+    auto clone() const -> std::unique_ptr<ChessGame>;
+
+    auto engine() const -> gsl::not_null<const wisdom::Game*>
+    {
+        return myEngine.get();
+    }
+
+    auto isLegalMove(wisdom::Move selectedMove) -> bool;
+
+    auto moveGenerator() -> gsl::not_null<wisdom::MoveGenerator*>
+    {
+       return myMoveGenerator.get();
+    }
+
+    void setConfig(Config config);
+    void setPlayers(wisdom::Player whitePLayer, wisdom::Player blackPlayer);
+
+    void setupNotify(std::atomic<int>* gameId);
+
+    auto moveFromCoordinates(int srcRow, int srcColumn,
+                             int dstRow, int dstColumn, std::optional<wisdom::Piece> promoted)
+        -> std::pair<std::optional<wisdom::Move>, wisdom::Color>;
+
+private:
+    std::unique_ptr<wisdom::Game> myEngine;
+    std::unique_ptr<wisdom::MoveGenerator> myMoveGenerator =
+            std::make_unique<wisdom::MoveGenerator>();
+    Config myConfig;
+};
+
 
 #endif // CHESSGAME_H

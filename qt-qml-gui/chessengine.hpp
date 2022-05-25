@@ -25,11 +25,6 @@ public:
                 int gameId,
                 QObject *parent = nullptr);
 
-    struct Config
-    {
-        MaxDepth maxDepth;
-        std::chrono::seconds maxTime;
-    };
 
 public slots:
     // Startup the engine. If it's the engine's turn to move, make a move.
@@ -49,7 +44,7 @@ public slots:
     void reloadGame(std::shared_ptr<ChessGame> newGame, int newGameId);
 
     // Update the config of the game.
-    void updateConfig(Config config);
+    void updateConfig(ChessGame::Config config);
 
 signals:
     // The engine made a move.
