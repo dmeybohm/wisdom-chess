@@ -37,7 +37,7 @@ Item {
                           " - " : ""
                   ) +
                   (
-                      _myGameModel.inCheck ? "Check!" : ""
+                      (_myGameModel.inCheck && _myGameModel.gameOverStatus !== "") ? "Check!" : ""
                   )
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter

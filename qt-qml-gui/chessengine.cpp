@@ -45,6 +45,10 @@ void ChessEngine::findMove()
     auto game = myGame->engine();
     Logger& output = make_standard_logger();
 
+    if (myIsGameOver) {
+        return;
+    }
+
     auto player = game->get_current_player();
     if (player != Player::ChessEngine) {
         return;
@@ -82,6 +86,7 @@ void ChessEngine::findMove()
 
 void ChessEngine::drawProposed()
 {
+    myIsGameOver = true;
     emit drawProposalResponse(true);
 }
 
@@ -89,6 +94,7 @@ void ChessEngine::reloadGame(shared_ptr<ChessGame> newGame, int newGameId)
 {
     myGame = std::move(newGame);
     myGameId = newGameId;
+    myIsGameOver = false;
 
     // Possibly resume searching for the next move:
     init();

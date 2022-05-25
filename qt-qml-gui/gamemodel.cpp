@@ -134,7 +134,7 @@ void GameModel::restart()
 {
     // let other objects in this thread know about the new game:
     myDrawEverProposed = false;
-    myGameOverStatus = "";
+    setGameOverStatus("");
 
     if (myDelayedMoveTimer != nullptr) {
         myDelayedMoveTimer->stop();
@@ -483,16 +483,14 @@ void GameModel::proposeDraw(wisdom::Player player)
 void GameModel::drawProposalResponse(bool accepted)
 {
     setDrawProposedToHuman(false);
+    assert(myLastDelayedMoveSignal.has_value());
+    auto emitSignal = *myLastDelayedMoveSignal;
+    myLastDelayedMoveSignal.reset();
+    emitSignal();
 
     // If the proposal was accepted, update the status.
     if (accepted) {
         setGameOverStatus("Draw proposed and accepted after third repetition rule.");
         return;
     }
-
-    // If the proposal was rejected, emit the appropriate signal stored in the lambda.
-    assert(myLastDelayedMoveSignal.has_value());
-    auto emitSignal = *myLastDelayedMoveSignal;
-    myLastDelayedMoveSignal.reset();
-    emitSignal();
 }

@@ -59,6 +59,7 @@ signals:
 private:
     std::shared_ptr<ChessGame> myGame;
     int myGameId;
+    bool myIsGameOver = false;
 
     void findMove();
 };

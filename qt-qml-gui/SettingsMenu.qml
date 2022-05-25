@@ -19,12 +19,6 @@ Menu {
             root.showNewGameDialog()
         }
     }
-    MenuItem {
-        text: "Load Game from FEN"
-    }
-    MenuItem {
-        text: "Copy FEN string for current position"
-    }
     MenuSeparator {}
     MenuItem {
         text: "White Player - <b>" +
