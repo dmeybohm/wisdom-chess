@@ -27,7 +27,7 @@ public:
 
     struct Config
     {
-        int maxDepth;
+        MaxDepth maxDepth;
         std::chrono::seconds maxTime;
     };
 
