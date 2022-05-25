@@ -68,7 +68,6 @@ Menu {
             from: 1
             to: 30
             onValueChanged: {
-                console.log('maxSearchTime: '+value);
                 _myGameModel.maxSearchTime = parseInt(value, 10)
             }
         }
@@ -98,7 +97,6 @@ Menu {
             to: 16
             stepSize: 1
             onValueChanged: {
-                console.log('maxDepthTime: '+value);
                 _myGameModel.maxDepth = parseInt(value, 10)
             }
         }

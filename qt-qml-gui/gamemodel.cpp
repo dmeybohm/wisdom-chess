@@ -132,6 +132,10 @@ void GameModel::start()
 
 void GameModel::restart()
 {
+    // let other objects in this thread know about the new game:
+    myDrawEverProposed = false;
+    myGameOverStatus = "";
+
     if (myDelayedMoveTimer != nullptr) {
         myDelayedMoveTimer->stop();
         delete myDelayedMoveTimer;
@@ -145,8 +149,6 @@ void GameModel::restart()
     ));
     notifyInternalGameStateUpdated();
 
-    // let other objects in this thread know about the new game:
-    myDrawEverProposed = false;
     emit gameStarted(myChessGame.get());
 }
 
@@ -287,9 +289,11 @@ void GameModel::notifyInternalGameStateUpdated()
     auto currentGame = myChessGame->engine();
     updateCurrentTurn(currentGame->get_current_turn());
 
-    std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
+    if (myGameOverStatus != "") {
+        return;
+    }
 
-    qDebug() << "search time:" << computerChessGame->engine()->get_search_timeout().count();
+    std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
 
     myGameId++;
     computerChessGame->setupNotify(&myGameId);
@@ -424,6 +428,7 @@ void GameModel::setMaxDepth(int maxDepth)
 {
     if (myMaxDepth != maxDepth) {
         myMaxDepth = maxDepth;
+        myChessGame->setConfig(gameConfig());
         emit maxDepthChanged();
     }
 }
@@ -436,9 +441,8 @@ int GameModel::maxDepth()
 void GameModel::setMaxSearchTime(int maxSearchTime)
 {
     if (maxSearchTime != myMaxSearchTime) {
-        myChessGame->engine()->set_search_timeout(chrono::seconds { maxSearchTime });
-        qDebug() << "Set max search time:" << maxSearchTime;
         myMaxSearchTime = maxSearchTime;
+        myChessGame->setConfig(gameConfig());
         emit maxSearchTimeChanged();
     }
 }
