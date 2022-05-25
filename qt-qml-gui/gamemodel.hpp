@@ -50,6 +50,17 @@ class GameModel : public QObject
                READ blackIsComputer
                WRITE setBlackIsComputer
                NOTIFY blackIsComputerChanged)
+
+    Q_PROPERTY(int maxDepth
+               READ maxDepth
+               WRITE setMaxDepth
+               NOTIFY maxDepthChanged)
+
+    Q_PROPERTY(int maxSearchTime
+               READ maxSearchTime
+               WRITE setMaxSearchTime
+               NOTIFY maxSearchTimeChanged)
+
 public:
     explicit GameModel(QObject *parent = nullptr);
     ~GameModel() override;
@@ -79,6 +90,12 @@ public:
     void setBlackIsComputer(bool newBlackIsComputer);
     auto blackIsComputer() -> bool;
 
+    void setMaxDepth(int maxDepth);
+    auto maxDepth() -> int;
+
+    void setMaxSearchTime(int maxSearchTime);
+    auto maxSearchTime() -> int;
+
 signals:
     // The game object here is readonly.
     void gameStarted(gsl::not_null<const ChessGame*> game);
@@ -90,6 +107,7 @@ signals:
 
     void humanMoved(wisdom::Move move, wisdom::Color who);
     void engineMoved(wisdom::Move move, wisdom::Color who, int gameId);
+    void engineConfigChanged(ChessEngine::Config config);
 
     void currentTurnChanged();
     void gameOverStatusChanged();
@@ -97,6 +115,8 @@ signals:
     void inCheckChanged();
     void whiteIsComputerChanged();
     void blackIsComputerChanged();
+    void maxDepthChanged();
+    void maxSearchTimeChanged();
 
     // Use a property to communicate to QML and the human player:
     void drawProposedToHumanChanged();
@@ -118,6 +138,8 @@ public slots:
     void promotePiece(int srcRow, int srcColumn, int dstRow, int dstColumn, QString pieceType);
 
     void applicationExiting();
+
+    void updateEngineConfig();
 
     void drawProposalResponse(bool accepted);
 
@@ -141,6 +163,8 @@ private:
     bool myDrawProposedToHuman = false;
     bool myWhiteIsComputer = false;
     bool myBlackIsComputer = true;
+    int myMaxDepth = 6;
+    int myMaxSearchTime = 5;
 
     // last move before the draw proposal
     std::optional<std::function<void()>> myLastDelayedMoveSignal {};

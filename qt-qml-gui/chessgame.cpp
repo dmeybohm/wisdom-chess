@@ -49,6 +49,8 @@ auto ChessGame::clone() const ->
     auto newGame = ChessGame::fromFen(fen);
     newGame->engine()->set_white_player(whitePlayer);
     newGame->engine()->set_black_player(blackPlayer);
+    newGame->engine()->set_search_timeout(currentGame->get_search_timeout());
+    newGame->engine()->set_max_depth(currentGame->get_max_depth());
     return newGame;
 }
 

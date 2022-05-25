@@ -4,6 +4,7 @@
 #include <QObject>
 #include <functional>
 #include <memory>
+#include <chrono>
 
 #include "chessgame.hpp"
 #include "game.hpp"
@@ -24,6 +25,12 @@ public:
                 int gameId,
                 QObject *parent = nullptr);
 
+    struct Config
+    {
+        int maxDepth;
+        std::chrono::seconds maxTime;
+    };
+
 public slots:
     // Startup the engine. If it's the engine's turn to move, make a move.
     void init();
@@ -40,6 +47,9 @@ public slots:
 
     // Update the whole chess game state. The ownership of the game is taken.
     void reloadGame(std::shared_ptr<ChessGame> newGame, int newGameId);
+
+    // Update the config of the game.
+    void updateConfig(Config config);
 
 signals:
     // The engine made a move.

@@ -93,3 +93,9 @@ void ChessEngine::reloadGame(shared_ptr<ChessGame> newGame, int newGameId)
     // Possibly resume searching for the next move:
     init();
 }
+
+void ChessEngine::updateConfig(Config config)
+{
+    myGame->engine()->set_max_depth(config.maxDepth);
+    myGame->engine()->set_search_timeout(config.maxTime);
+}
