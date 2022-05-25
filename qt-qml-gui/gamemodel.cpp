@@ -146,6 +146,7 @@ void GameModel::restart()
     notifyInternalGameStateUpdated();
 
     // let other objects in this thread know about the new game:
+    myDrawEverProposed = false;
     emit gameStarted(myChessGame.get());
 }
 
