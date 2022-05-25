@@ -2,6 +2,7 @@
 #define CHESSGAME_H
 
 #include <memory>
+#include <chrono>
 
 #include "move.hpp"
 #include "game.hpp"
@@ -50,6 +51,42 @@ private:
     std::unique_ptr<wisdom::Game> myEngine;
     std::unique_ptr<wisdom::MoveGenerator> myMoveGenerator =
             std::make_unique<wisdom::MoveGenerator>();
+};
+
+// The valid internal representations of depth in the wisdom Game object is different
+// from the semantics in the UI:
+//
+// 1 half move = Internal Depth 0
+// 2 half moves = Internal Depth 1
+// 4 half moves = 2 full moves = Internal Depth 3
+// 6 half moves = 3 full moves = Internal Depth 5
+//
+// The UI specifies only full moves, and this class maps to the internal representation.
+//
+class MaxDepth
+{
+public:
+    explicit MaxDepth(int userDepth)
+        : myUserDepth { userDepth }
+    {
+        if (userDepth <= 0) {
+            throw new wisdom::Error { "Invalid depth" };
+        }
+    }
+
+    auto internalDepth() -> int
+    {
+        return myUserDepth * 2 - 1;
+    }
+
+    auto userDepth() -> int
+    {
+        return myUserDepth;
+    }
+
+private:
+    int myUserDepth;
+
 };
 
 #endif // CHESSGAME_H
