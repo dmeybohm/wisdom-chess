@@ -7,6 +7,10 @@ function isMobile() {
     return false
 }
 
+function isWebAssembly() {
+    return Qt.platform.os == "wasm"
+}
+
 function computerOrHumanLabel(x)
 {
     return x ? "Computer" : "Human";

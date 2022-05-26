@@ -3,6 +3,8 @@ import wisdom.chess 1.0
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
+import "Helper.js" as Helper
+
 ApplicationWindow {
     id: topWindow
 
@@ -34,6 +36,7 @@ ApplicationWindow {
         RowLayout {
             anchors.fill: parent
             Label {
+                visible: Helper.isMobile() || Helper.isWebAssembly()
                 text: "Wisdom Chess"
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignLeft
@@ -42,6 +45,7 @@ ApplicationWindow {
                 Layout.leftMargin: 17
             }
             ToolButton {
+                anchors.right: parent.right
                 text: qsTr("⋮")
                 onClicked: settingsMenu.open()
             }

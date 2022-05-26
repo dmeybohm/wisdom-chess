@@ -6,7 +6,7 @@ import "Helper.js" as Helper
 
 Menu {
     id: settingsMenu
-    implicitWidth: 340
+    implicitWidth: 380
 
     property int rootWidth
     signal showAcceptDrawDialog()
@@ -21,21 +21,51 @@ Menu {
     }
     MenuSeparator {}
     MenuItem {
-        text: "White Player - <b>" +
-              Helper.computerOrHumanLabel(_myGameModel.whiteIsComputer) +
-              "</b>"
-        onClicked: {
-            _myGameModel.whiteIsComputer = !_myGameModel.whiteIsComputer
+        text: "White Player"
+
+        RowLayout {
+            visible: internal.menuIsFullyVisible
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: 10
+
+            RadioButton {
+                text: "Human"
+                checked: !_myGameModel.whiteIsComputer
+                onClicked: _myGameModel.whiteIsComputer = false
+            }
+            RadioButton {
+                text: "Computer"
+                checked: _myGameModel.whiteIsComputer
+                onClicked: _myGameModel.whiteIsComputer = true
+            }
         }
     }
+
     MenuItem {
-        text: "Black Player - <b>" +
-              Helper.computerOrHumanLabel(_myGameModel.blackIsComputer) +
-              "</b>"
-        onClicked: {
-            _myGameModel.blackIsComputer = !_myGameModel.blackIsComputer
+        text: "Black Player"
+
+        RowLayout {
+            visible: internal.menuIsFullyVisible
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: 10
+
+            RadioButton {
+                text: "Human"
+                checked: !_myGameModel.blackIsComputer
+                onClicked: _myGameModel.blackIsComputer = false
+            }
+            RadioButton {
+                text: "Computer"
+                checked: _myGameModel.blackIsComputer
+                onClicked: _myGameModel.blackIsComputer = true
+            }
         }
     }
+
     MenuSeparator {}
 
     MenuItem {
@@ -46,13 +76,13 @@ Menu {
             text: "0:" + Helper.zeroPad(thinkingTimeSlider.value.toString())
             anchors.right: thinkingTimeSlider.left
             anchors.verticalCenter: thinkingTimeSliderItem.verticalCenter
-            visible: thinkingTimeSlider.visible
+            visible: internal.menuIsFullyVisible
         }
 
         Slider {
             id: thinkingTimeSlider
             value: _myGameModel.maxSearchTime
-            visible: settingsMenu.width >= settingsMenu.implicitWidth
+            visible: internal.menuIsFullyVisible
             width: 150
             anchors {
                 right: thinkingTimeSliderItem.right
@@ -72,15 +102,15 @@ Menu {
         text: "Max depth to search"
 
         Text {
-            text: maxDepthSlider.value.toString()
+            text: internal.movesLabel(maxDepthSlider.value.toString())
             anchors.right: maxDepthSlider.left
             anchors.verticalCenter: maxDepthItem.verticalCenter
-            visible: thinkingTimeSlider.visible
+            visible: internal.menuIsFullyVisible
         }
 
         Slider {
             id: maxDepthSlider
-            visible: thinkingTimeSlider.visible
+            visible: internal.menuIsFullyVisible
             value: _myGameModel.maxDepth
             width: thinkingTimeSlider.width
             anchors {
@@ -88,7 +118,7 @@ Menu {
                 verticalCenter: maxDepthItem.verticalCenter
             }
             from: 1
-            to: 16
+            to: 8
             stepSize: 1
             onValueChanged: {
                 _myGameModel.maxDepth = parseInt(value, 10)
@@ -112,6 +142,15 @@ Menu {
                 easing.type: Easing.InOutExpo
                 duration: 350
             }
+        }
+    }
+
+    QtObject {
+        id: internal
+        property bool menuIsFullyVisible: settingsMenu.width >= settingsMenu.implicitWidth
+
+        function movesLabel(numMoves) {
+            return numMoves == 1 ? "1 move" : numMoves + " moves"
         }
     }
 }
