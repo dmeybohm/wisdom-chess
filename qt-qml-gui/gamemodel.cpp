@@ -490,7 +490,7 @@ void GameModel::drawProposalResponse(bool accepted)
 
     // If the proposal was accepted, update the status.
     if (accepted) {
-        setGameOverStatus("Draw proposed and accepted after third repetition rule.");
+        setGameOverStatus("<b>Draw</b> - Third repetition rule.");
         return;
     }
 }
