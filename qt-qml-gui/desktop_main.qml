@@ -9,7 +9,7 @@ ApplicationWindow {
     id: topWindow
 
     width: root.boardWidth + 48
-    height: root.boardHeight + 48 + 200
+    height: root.boardHeight + 48 + 125
 
     visible: true
     title: qsTr("Wisdom Chess")
@@ -36,7 +36,7 @@ ApplicationWindow {
         RowLayout {
             anchors.fill: parent
             Label {
-                visible: Helper.isMobile() || Helper.isWebAssembly()
+                visible: Helper.isWebAssembly()
                 text: "Wisdom Chess"
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignLeft

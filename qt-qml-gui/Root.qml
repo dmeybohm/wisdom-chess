@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 
 Item {
     width: parent.width
@@ -31,8 +32,9 @@ Item {
         contentHeight: boardHeight + 200
         boundsBehavior: Flickable.StopAtBounds
 
-        Column {
-            spacing: 15
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
             Board {
                 id: boards

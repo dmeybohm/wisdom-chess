@@ -14,10 +14,12 @@ using namespace wisdom;
 
 int main(int argc, char *argv[])
 {
+#ifdef USE_OPENGL_GRAPHICS_BACKEND
     // Workaround resizing flickering issue. Seems like the default rendering
     // backends for QML have some issues on my hardware still, so revert to
     // OpenGL which should be more stable.
     QQuickWindow::setGraphicsApi(QSGRendererInterface::GraphicsApi::OpenGL);
+#endif
 
     QGuiApplication app(argc, argv);
     GameModel gameModel;

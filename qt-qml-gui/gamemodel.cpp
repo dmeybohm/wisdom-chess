@@ -378,20 +378,20 @@ void GameModel::updateDisplayedGameState()
     setGameOverStatus("");
     setInCheck(false);
     if (is_checkmated(board, who, *generator)) {
-        auto whoString = "Checkmate - " + wisdom::to_string(color_invert(who)) + " wins the game.";
+        auto whoString = "<b>Checkmate</b> - " + wisdom::to_string(color_invert(who)) + " wins the game.";
         setGameOverStatus(QString(whoString.c_str()));
         return;
     }
 
     if (is_stalemated(board, who, *generator)) {
-        auto stalemateStr = "Stalemate - No legal moves for " + wisdom::to_string(who) + ". Draw";
+        auto stalemateStr = "<b>Stalemate</b> - No legal moves for " + wisdom::to_string(who) + ". Draw";
         setGameOverStatus(stalemateStr.c_str());
         return;
     }
 
 
     if (wisdom::History::is_fifty_move_repetition(board)) {
-        setGameOverStatus("Draw - Fifty moves without a capture or pawn move.");
+        setGameOverStatus("<b>Draw</b> - Fifty moves without a capture or pawn move.");
         return;
     }
 

@@ -69,6 +69,12 @@ set_target_properties(appWisdomChessQtQml PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+if(ANDROID OR EMSCRIPTEN)
+    target_compile_definitions(appWisdomChessQtQml PRIVATE USE_DEFAULT_GRAPHICS_BACKEND)
+else()
+    target_compile_definitions(appWisdomChessQtQml PRIVATE USE_OPENGL_GRAPHICS_BACKEND)
+endif()
+
 target_compile_definitions(appWisdomChessQtQml
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(appWisdomChessQtQml

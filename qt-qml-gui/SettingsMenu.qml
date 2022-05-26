@@ -70,7 +70,7 @@ Menu {
 
     MenuItem {
         id: thinkingTimeSliderItem
-        text: "Thinking time per move"
+        text: "Thinking time"
 
         Text {
             text: "0:" + Helper.zeroPad(thinkingTimeSlider.value.toString())
@@ -99,7 +99,7 @@ Menu {
 
     MenuItem {
         id: maxDepthItem
-        text: "Max depth to search"
+        text: "Max depth"
 
         Text {
             text: internal.movesLabel(maxDepthSlider.value.toString())
