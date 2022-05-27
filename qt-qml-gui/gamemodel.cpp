@@ -392,6 +392,11 @@ void GameModel::updateDisplayedGameState()
     }
 
 
+    if (lockedGame->get_history().is_fifth_repetition(lockedGame->get_board())) {
+        setGameOverStatus("<b>Draw</b> - Fifth move repetition.");
+        return;
+    }
+
     if (wisdom::History::is_fifty_move_repetition(board)) {
         setGameOverStatus("<b>Draw</b> - Fifty moves without a capture or pawn move.");
         return;

@@ -276,6 +276,7 @@ namespace wisdom
         Logger& output = make_standard_logger ();
         bool paused = false;
         MoveGenerator move_generator;
+        bool third_repetition_declined = false;
 
         while (true)
         {
@@ -288,10 +289,21 @@ namespace wisdom
                 return;
             }
 
-            if (game.get_history().is_third_repetition (game.get_board()))
+            if (game.get_history().is_third_repetition (game.get_board()) &&
+                    !third_repetition_declined)
             {
                 input_state = offer_draw ();
+
+                if (input_state.command != PlayCommand::StopGame)
+                    third_repetition_declined = true;
+
                 continue;
+            }
+
+            if (game.get_history ().is_fifth_repetition (game.get_board()))
+            {
+                std::cout << "Draw: Fifth repetition.\n";
+                break;
             }
 
             if (History::is_fifty_move_repetition (game.get_board ()))

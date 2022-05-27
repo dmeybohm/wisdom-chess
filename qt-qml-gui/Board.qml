@@ -82,7 +82,9 @@ Item {
                 promotionDropDown.destinationColumn = dstCol
                 return;
             }
-            _myGameModel.movePiece(sourceRow, sourceCol, dstRow, dstCol);
+            if (_myGameModel.gameOverStatus === "") {
+                _myGameModel.movePiece(sourceRow, sourceCol, dstRow, dstCol);
+            }
         }
     }
 }

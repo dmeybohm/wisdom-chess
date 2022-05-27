@@ -55,11 +55,18 @@ void ChessEngine::findMove()
     }
 
     auto who = game->get_current_turn();
-    auto board = game->get_board();
+    auto& board = game->get_board();
+    auto& history = game->get_history();
     auto generator = game->get_move_generator();
     if (is_checkmated(board, who, *generator)) {
         auto who = to_string(color_invert(game->get_current_turn()));
         qDebug() << who.c_str() << " wins the game.\n";
+        emit noMovesAvailable();
+        return;
+    }
+
+    if (history.is_fifth_repetition(board)) {
+        qDebug() << "Fifth move repetition. It's a draw!\n";
         emit noMovesAvailable();
         return;
     }

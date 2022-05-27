@@ -32,14 +32,25 @@ namespace wisdom
             return board.get_half_move_clock () >= 100;
         }
 
-        [[nodiscard]] bool is_third_repetition (const Board& board) const
+        template <int repetition_count>
+        [[nodiscard]] bool is_nth_repetition (const Board& board) const
         {
             auto& find_code = board.get_code ();
             auto repetitions = std::count_if (my_board_codes.begin (), my_board_codes.end (),
                     [find_code](const BoardCode& code){
                 return (code == find_code);
             });
-            return repetitions >= 3;
+            return repetitions >= repetition_count;
+        }
+
+        [[nodiscard]] bool is_third_repetition (const Board& board) const
+        {
+            return is_nth_repetition<3> (board);
+        }
+
+        [[nodiscard]] bool is_fifth_repetition (const Board& board) const
+        {
+            return is_nth_repetition<5> (board);
         }
 
         void add_position_and_move (const Board& board, Move move, const UndoMove& undo_state)
