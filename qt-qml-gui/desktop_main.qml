@@ -9,7 +9,7 @@ ApplicationWindow {
     id: topWindow
 
     width: root.boardWidth + 48
-    height: root.boardHeight + 48 + 125
+    height: root.boardHeight + 48 + 145
 
     visible: true
     title: qsTr("Wisdom Chess")

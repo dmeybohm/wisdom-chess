@@ -163,8 +163,8 @@ private:
     bool myDrawProposedToHuman = false;
     bool myWhiteIsComputer = false;
     bool myBlackIsComputer = true;
-    int myMaxDepth = 4;
-    int myMaxSearchTime = 5;
+    int myMaxDepth;
+    int myMaxSearchTime;
 
     // last move before the draw proposal
     std::optional<std::function<void()>> myLastDelayedMoveSignal {};

@@ -40,10 +40,12 @@ namespace
 }
 
 GameModel::GameModel(QObject *parent)
-    : QObject(parent),
-      myChessGame { ChessGame::fromPlayers(Player::Human, Player::ChessEngine, gameConfig()) },
-      myChessEngineThread { nullptr }
+    : QObject(parent)
+    , myMaxDepth { 4 }
+    , myMaxSearchTime { 5 }
+    , myChessEngineThread { nullptr }
 {
+    myChessGame = ChessGame::fromPlayers(Player::Human, Player::ChessEngine, gameConfig());
     init();
 }
 
