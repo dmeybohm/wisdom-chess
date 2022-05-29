@@ -275,9 +275,9 @@ namespace wisdom
     }
 
     // After the third repetition, either player may request a draw.
-    static bool determine_if_drawn (InputState input_state, Game& game)
+    static auto determine_if_drawn (InputState input_state, Game& game) -> std::pair<bool, bool>
     {
-        auto white_player = game.get_player (Color:White);
+        auto white_player = game.get_player (Color::White);
 
         bool white_wants_draw = player_wants_draw (
                 white_player, Color::White, game, false
@@ -287,7 +287,51 @@ namespace wisdom
                 game.get_player (Color::Black), Color::Black, game, asked_human
         );
 
-        return white_wants_draw || black_wants_draw;
+        return { white_wants_draw, black_wants_draw };
+    }
+
+    auto update_game_status (InputState input_state, Game& game) -> InputState // NOLINT(misc-no-recursion)
+    {
+        auto status = game.status ();
+
+        switch (status)
+        {
+        case GameStatus::PLAYING:
+            break;
+
+        case GameStatus::CHECKMATE:
+            std::cout << to_string (color_invert (game.get_current_turn())) << " wins the game.\n";
+            input_state.command = PlayCommand::StopGame;
+            break;
+
+        case GameStatus::THREEFOLD_REPETITION_REACHED: {
+            auto draw_pair = determine_if_drawn(input_state, game);
+            game.set_threefold_repetition_draw_status(draw_pair);
+            // Recursively (one-level deep) update the status again.
+            return update_game_status(input_state, game);
+        }
+
+        case GameStatus::THREEFOLD_REPETITION_ACCEPTED:
+            std::cout << "Draw: threefold repetition and at least one of the players wants a draw.\n";
+            input_state.command = PlayCommand::StopGame;
+            break;
+
+        case GameStatus::FIVEFOLD_REPETITION_DRAW:
+            std::cout << "Draw: fifth move repetition\n";
+            input_state.command = PlayCommand::StopGame;
+            break;
+
+        case GameStatus::STALEMATE:
+            input_state.command = PlayCommand::StopGame;
+            break;
+
+        case GameStatus::FIFTY_MOVES_WITHOUT_PROGRESS:
+            std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
+            input_state.command = PlayCommand::StopGame;
+            break;
+        }
+
+        return input_state;
     }
 
     void play ()
@@ -297,48 +341,13 @@ namespace wisdom
         Logger& output = make_standard_logger ();
         bool paused = false;
         MoveGenerator move_generator;
-        bool third_repetition_declined = false;
 
         while (true)
         {
             InputState input_state = initial_input_state;
             game.get_board ().print ();
 
-            auto status = game.status ();
-
-            switch (status)
-            {
-            case GameStatus::PLAYING:
-                break;
-
-            case GameStatus::CHECKMATE:
-                std::cout << to_string (color_invert (game.get_current_turn())) << " wins the game.\n";
-                input_state.command = PlayCommand::StopGame;
-
-            case GameStatus::THREEFOLD_REPETITION_REACHED:
-                auto draw_pair = determine_if_drawn (input_state, game);
-                game.set_threefold_repetition_draw_status (draw_pair);
-                if (determine_if_drawn (input_state, game))
-                {
-                    std::cout << "Draw: threefold repetition and one of the players wants a draw.\n";
-                    input_state.command = PlayCommand::StopGame;
-                }
-                break;
-
-            case GameStatus::FIVEFOLD_REPETITION_DRAW:
-                std::cout << "Draw: fifth move repetition\n";
-                input_state.command = PlayCommand::StopGame;
-                return;
-
-            case GameStatus::STALEMATE:
-                input_state.command = PlayCommand::StopGame;
-                break;
-
-            case GameStatus::FIFTY_MOVES_WITHOUT_PROGRESS:
-                std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
-                input_state.command = PlayCommand::StopGame;
-                break;
-            }
+            input_state = update_game_status (input_state, game);
 
             if (input_state.command == PlayCommand::StopGame)
                 break;

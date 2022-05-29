@@ -66,15 +66,27 @@ namespace wisdom
         this->my_analytics = std::move (new_analytics);
     }
 
-    auto Game::status() -> GameStatus
+    auto Game::status() const -> GameStatus
     {
         if (is_checkmated (*my_board, get_current_turn (), *my_move_generator))
             return GameStatus::CHECKMATE;
 
-        if (my_history->is_third_repetition (*my_board) &&
-            !third_repetition_draw_declined)
+        if (my_history->is_third_repetition (*my_board))
         {
-            return GameStatus::THREEFOLD_REPETITION_REACHED;
+            auto third_repetition_status = my_history->get_threefold_repetition_status ();
+            switch (third_repetition_status)
+            {
+            case ThreeFoldRepetitionStatus::BOTH_DECLINED:
+                break;
+
+            case ThreeFoldRepetitionStatus::NOT_REACHED:
+                return GameStatus::THREEFOLD_REPETITION_REACHED;
+
+            case ThreeFoldRepetitionStatus::BLACK_DECLARED:
+            case ThreeFoldRepetitionStatus::WHITE_DECLARED:
+            case ThreeFoldRepetitionStatus::BOTH_DECLARED:
+                return GameStatus::THREEFOLD_REPETITION_ACCEPTED;
+            }
         }
 
         if (is_stalemated (*my_board, get_current_turn (), *my_move_generator))
@@ -170,9 +182,12 @@ namespace wisdom
         return score >= Min_Draw_Score;
     }
 
-    void Game::set_threefold_repetition_draw_status (bool white_wants_draw, bool black_wants_draw)
+    void Game::set_threefold_repetition_draw_status (std::pair<bool, bool> draw_desires)
     {
         ThreeFoldRepetitionStatus status;
+        bool white_wants_draw = draw_desires.first;
+        bool black_wants_draw = draw_desires.second;
+
         if (white_wants_draw && black_wants_draw)
             status = ThreeFoldRepetitionStatus::BOTH_DECLARED;
         else if (white_wants_draw)
@@ -181,6 +196,7 @@ namespace wisdom
             status = ThreeFoldRepetitionStatus::BLACK_DECLARED;
         else
             status = ThreeFoldRepetitionStatus::BOTH_DECLINED;
+
         my_history->set_threefold_repetition_status (status);
     }
 }

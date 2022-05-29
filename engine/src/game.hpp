@@ -34,6 +34,7 @@ namespace wisdom
         CHECKMATE,
         STALEMATE,
         THREEFOLD_REPETITION_REACHED,
+        THREEFOLD_REPETITION_ACCEPTED,
         FIVEFOLD_REPETITION_DRAW,
         FIFTY_MOVES_WITHOUT_PROGRESS
     };
@@ -148,11 +149,11 @@ namespace wisdom
             my_periodic_function = std::move (periodic_function);
         }
 
-        auto status (bool third_repetition_draw_declined) -> GameStatus;
+        [[nodiscard]] auto status () const -> GameStatus;
 
         [[nodiscard]] auto computer_wants_draw (Color who) const -> bool;
 
-        void set_threefold_repetition_draw_status (bool white_wants_draw, bool black_wants_draw);
+        void set_threefold_repetition_draw_status (std::pair<bool, bool> draw_desires);
 
     private:
         unique_ptr<Board> my_board = make_unique<Board> ();
@@ -164,6 +165,7 @@ namespace wisdom
 
         Players my_players = { Player::Human, Player::ChessEngine };
         chrono::seconds my_search_timeout { Max_Search_Seconds };
+
     };
 }
 

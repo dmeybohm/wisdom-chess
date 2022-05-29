@@ -117,8 +117,15 @@ namespace wisdom
 
             if (depth <= 0)
             {
-                my_best_score = evaluate_and_check_draw (*my_board, side, my_total_depth - depth,
-                                                         move, *my_history, my_generator);
+                if (is_drawing_move (*my_board, side, move, *my_history))
+                {
+                    my_best_score = 0;
+                }
+                else
+                {
+                    my_best_score =  evaluate (*my_board, side,
+                            my_total_depth - depth, my_generator);
+                }
             }
             else
             {

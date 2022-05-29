@@ -15,7 +15,7 @@ namespace wisdom
         Material_Weight_Queen = 1000,
         Material_Weight_Rook = 500,
         Material_Weight_Bishop = 320,
-        Material_Weight_Knight = 315,
+        Material_Weight_Knight = 305,
         Material_Weight_Pawn = 100,
     };
 
