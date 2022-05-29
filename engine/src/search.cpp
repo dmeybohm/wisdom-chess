@@ -23,6 +23,7 @@ namespace wisdom
         MoveGenerator my_generator {};
         MoveTimer my_timer;
         int my_total_depth;
+        int my_search_depth {};
 
         optional<Move> my_best_move = nullopt;
         int my_best_depth = -1;
@@ -33,6 +34,7 @@ namespace wisdom
         int my_alpha_beta_cutoffs = 0;
         int my_total_nodes_visited = 0;
         int my_total_alpha_beta_cutoffs = 0;
+        Color my_searching_color = Color::None;
 
     public:
         IterativeSearchImpl (Board& board, History& history, const Logger& output,
@@ -86,6 +88,17 @@ namespace wisdom
          return impl->synthesize_result ();
     }
 
+    static constexpr auto drawing_score (Color searching_color, Color current_color)
+    {
+        //
+        // For the player looking for a move (the chess engine), a draw is considered
+        // less preferable because it is more boring.
+        //
+        // When considering its opponent has a draw, consider it neutral.
+        //
+        return current_color == searching_color ? Min_Draw_Score : 0;
+    }
+
     void IterativeSearchImpl::search (Color side, int depth, int alpha, int beta, // NOLINT(misc-no-recursion)
                                       analysis::Decision& decision)
     {
@@ -119,21 +132,30 @@ namespace wisdom
             {
                 if (is_drawing_move (*my_board, side, move, *my_history))
                 {
-                    my_best_score = 0;
+                    my_best_score = drawing_score (my_searching_color, side);
                 }
                 else
                 {
-                    my_best_score =  evaluate (*my_board, side,
-                            my_total_depth - depth, my_generator);
+                    my_best_score = evaluate (*my_board, side,
+                            my_search_depth - depth, my_generator);
                 }
             }
             else
             {
                 auto new_decision = decision.make_child (position);
 
-                search (color_invert (side), depth - 1, -beta, -alpha, new_decision);
-
-                my_best_score *= -1;
+                // Don't recurse into a big search if this move is a draw.
+                if (my_search_depth == depth && is_drawing_move (*my_board, side, move, *my_history))
+                {
+                    my_best_score = drawing_score (my_searching_color, side);
+                    std::cout << "Drawing move:" << to_string (move) << "\n";
+                    std::cout << "drawing_score: " << my_best_score << "\n";
+                }
+                else
+                {
+                    search (color_invert (side), depth-1, -beta, -alpha, new_decision);
+                    my_best_score *= -1;
+                }
             }
 
             int score = my_best_score;
@@ -165,7 +187,7 @@ namespace wisdom
         }
 
         auto result = SearchResult { {}, best_move, best_score,
-                                     my_total_depth - depth, false };
+                                     my_search_depth - depth, false };
         decision.finalize (result);
 
         my_best_move = result.move;
@@ -191,6 +213,7 @@ namespace wisdom
     void IterativeSearchImpl::iteratively_deepen (Color side)
     {
         SearchResult best_result = SearchResult::from_initial ();
+        my_searching_color = side;
 
         auto iterative_search_analytics = my_analytics->make_iterative_search (*my_board, side);
 
@@ -254,6 +277,7 @@ namespace wisdom
 
         auto start = std::chrono::system_clock::now ();
 
+        my_search_depth = depth;
         search (side, depth, -Initial_Alpha, Initial_Alpha, analyzed_decision);
 
         auto end = std::chrono::system_clock::now ();

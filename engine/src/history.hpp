@@ -56,6 +56,7 @@ namespace wisdom
                     });
             return repetitions >= repetition_count;
         }
+
         void add_position_and_move (const Board& board, Move move, const UndoMove& undo_state)
         {
             my_board_codes.push_back (board.get_code ());
@@ -86,7 +87,6 @@ namespace wisdom
             my_threefold_repetition_status = status;
         }
     };
-
 }
 
 #endif //WISDOM_CHESS_HISTORY_HPP

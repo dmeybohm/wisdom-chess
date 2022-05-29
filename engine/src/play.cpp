@@ -305,10 +305,10 @@ namespace wisdom
             break;
 
         case GameStatus::THREEFOLD_REPETITION_REACHED: {
-            auto draw_pair = determine_if_drawn(input_state, game);
-            game.set_threefold_repetition_draw_status(draw_pair);
+            auto draw_pair = determine_if_drawn (input_state, game);
+            game.set_threefold_repetition_draw_status (draw_pair);
             // Recursively (one-level deep) update the status again.
-            return update_game_status(input_state, game);
+            return update_game_status (input_state, game);
         }
 
         case GameStatus::THREEFOLD_REPETITION_ACCEPTED:
