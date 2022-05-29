@@ -10,6 +10,15 @@
 
 namespace wisdom
 {
+    enum class ThreeFoldRepetitionStatus
+    {
+        NOT_REACHED,
+        BOTH_DECLINED,
+        WHITE_DECLARED,
+        BLACK_DECLARED,
+        BOTH_DECLARED,
+    };
+
     class History
     {
     private:
@@ -18,6 +27,8 @@ namespace wisdom
         // Board codes and undo positions sorted by move number:
         vector<BoardCode> my_board_codes;
         vector<UndoMove> my_undo_moves;
+
+        ThreeFoldRepetitionStatus my_threefold_repetition_status = ThreeFoldRepetitionStatus::NOT_REACHED;
 
     public:
         History()
@@ -53,6 +64,15 @@ namespace wisdom
             return is_nth_repetition<5> (board);
         }
 
+        [[nodiscard]] bool is_nth_repetition (const Board& board, int repetition_count) const
+        {
+            auto& find_code = board.get_code ();
+            auto repetitions = std::count_if (my_board_codes.begin (), my_board_codes.end (),
+                    [find_code](const BoardCode& code){
+                        return (code == find_code);
+                    });
+            return repetitions >= repetition_count;
+        }
         void add_position_and_move (const Board& board, Move move, const UndoMove& undo_state)
         {
             my_board_codes.push_back (board.get_code ());
@@ -72,6 +92,16 @@ namespace wisdom
             return my_move_history;
         }
         void get_move_history () const&& = delete;
+
+        [[nodiscard]] auto get_threefold_repetition_status () const -> ThreeFoldRepetitionStatus
+        {
+            return my_threefold_repetition_status;
+        }
+
+        void set_threefold_repetition_status (ThreeFoldRepetitionStatus status)
+        {
+            my_threefold_repetition_status = status;
+        }
     };
 }
 

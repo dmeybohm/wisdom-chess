@@ -4,6 +4,8 @@
 #include "output_format.hpp"
 #include "move_timer.hpp"
 #include "search.hpp"
+#include "check.hpp"
+#include "evaluate.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -62,6 +64,29 @@ namespace wisdom
     void Game::set_analytics (unique_ptr<analysis::Analytics> new_analytics)
     {
         this->my_analytics = std::move (new_analytics);
+    }
+
+    auto Game::status() -> GameStatus
+    {
+        if (is_checkmated (*my_board, get_current_turn (), *my_move_generator))
+            return GameStatus::CHECKMATE;
+
+        if (my_history->is_third_repetition (*my_board) &&
+            !third_repetition_draw_declined)
+        {
+            return GameStatus::THREEFOLD_REPETITION_REACHED;
+        }
+
+        if (is_stalemated (*my_board, get_current_turn (), *my_move_generator))
+            return GameStatus::STALEMATE;
+
+        if (get_history ().is_fifth_repetition (get_board()))
+            return GameStatus::FIVEFOLD_REPETITION_DRAW;
+
+        if (History::is_fifty_move_repetition (get_board ()))
+            return GameStatus::FIFTY_MOVES_WITHOUT_PROGRESS;
+
+        return GameStatus::PLAYING;
     }
 
     auto Game::find_best_move (const Logger& logger, Color whom) const -> optional<Move>
@@ -126,18 +151,36 @@ namespace wisdom
 
     auto Game::get_board () const& -> Board&
     {
-        // todo - I think this may be copying
         return *my_board;
     }
 
     auto Game::get_history () const& -> History&
     {
-        // todo - I think this may be copying
         return *my_history;
     }
 
     auto Game::get_move_generator () const& -> not_null<MoveGenerator*>
     {
         return my_move_generator.get ();
+    }
+
+    auto Game::computer_wants_draw (Color who) const -> bool
+    {
+        int score = evaluate (*my_board, who, 1, *my_move_generator);
+        return score >= Min_Draw_Score;
+    }
+
+    void Game::set_threefold_repetition_draw_status (bool white_wants_draw, bool black_wants_draw)
+    {
+        ThreeFoldRepetitionStatus status;
+        if (white_wants_draw && black_wants_draw)
+            status = ThreeFoldRepetitionStatus::BOTH_DECLARED;
+        else if (white_wants_draw)
+            status = ThreeFoldRepetitionStatus::WHITE_DECLARED;
+        else if (black_wants_draw)
+            status = ThreeFoldRepetitionStatus::BLACK_DECLARED;
+        else
+            status = ThreeFoldRepetitionStatus::BOTH_DECLINED;
+        my_history->set_threefold_repetition_status (status);
     }
 }

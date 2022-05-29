@@ -28,6 +28,16 @@ namespace wisdom
         ChessEngine
     };
 
+    enum class GameStatus
+    {
+        PLAYING,
+        CHECKMATE,
+        STALEMATE,
+        THREEFOLD_REPETITION_REACHED,
+        FIVEFOLD_REPETITION_DRAW,
+        FIFTY_MOVES_WITHOUT_PROGRESS
+    };
+
     using Players = array<Player, Num_Players>;
 
     class Game
@@ -65,15 +75,15 @@ namespace wisdom
         void set_current_turn (Color);
 
         [[nodiscard]] auto get_board() const& -> Board&;
-        auto get_board() const&& -> Board& = delete;
+        [[nodiscard]] auto get_board() const&& -> Board& = delete;
 
         [[nodiscard]] auto get_history () const& -> History&;
-        auto get_history () const&& -> History& = delete;
+        [[nodiscard]] auto get_history () const&& -> History& = delete;
 
         [[nodiscard]] auto get_move_generator () const& -> not_null<MoveGenerator*>;
-        auto get_move_generator () const&& -> not_null<MoveGenerator*> = delete;
+        [[nodiscard]] auto get_move_generator () const&& -> not_null<MoveGenerator*> = delete;
 
-        auto get_current_player () const -> Player
+        [[nodiscard]] auto get_current_player () const -> Player
         {
             return get_player (my_board->get_current_turn ());
         }
@@ -88,7 +98,7 @@ namespace wisdom
             my_players[color_index(Color::Black)] = player;
         }
 
-        auto get_player (Color color) const -> Player
+        [[nodiscard]] auto get_player (Color color) const -> Player
         {
             auto index = color_index (color);
             return my_players[index];
@@ -104,7 +114,7 @@ namespace wisdom
             return my_players;
         }
 
-        auto get_max_depth () const -> int
+        [[nodiscard]] auto get_max_depth () const -> int
         {
             return my_max_depth;
         }
@@ -114,7 +124,7 @@ namespace wisdom
             my_max_depth = max_depth;
         }
 
-        auto get_search_timeout () const -> std::chrono::seconds
+        [[nodiscard]] auto get_search_timeout () const -> std::chrono::seconds
         {
             return my_search_timeout;
         }
@@ -137,6 +147,12 @@ namespace wisdom
         {
             my_periodic_function = std::move (periodic_function);
         }
+
+        auto status (bool third_repetition_draw_declined) -> GameStatus;
+
+        [[nodiscard]] auto computer_wants_draw (Color who) const -> bool;
+
+        void set_threefold_repetition_draw_status (bool white_wants_draw, bool black_wants_draw);
 
     private:
         unique_ptr<Board> my_board = make_unique<Board> ();

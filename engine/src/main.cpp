@@ -10,7 +10,7 @@ int main (int argc, char **argv)
     try
     {
         auto human_player = Color::White;
-        wisdom::play (human_player);
+        wisdom::play();
     }
     catch (const wisdom::Error &e)
     {

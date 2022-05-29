@@ -224,7 +224,7 @@ namespace wisdom
     auto to_string (ColoredPiece piece) -> string;
     auto to_string (Piece piece) -> string;
 
-    void play (Color human_player);
+    void play();
 
     auto operator<< (std::ostream& ostream, const ColoredPiece& value) -> std::ostream&;
 }
