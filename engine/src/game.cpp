@@ -179,7 +179,7 @@ namespace wisdom
     auto Game::computer_wants_draw (Color who) const -> bool
     {
         int score = evaluate (*my_board, who, 1, *my_move_generator);
-        return score >= Min_Draw_Score;
+        return score <= Min_Draw_Score;
     }
 
     void Game::set_threefold_repetition_draw_status (std::pair<bool, bool> draw_desires)
