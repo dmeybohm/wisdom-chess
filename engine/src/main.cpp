@@ -2,21 +2,19 @@
 
 #include <iostream>
 
-using wisdom::Color;
 using std::string;
 
-int main (int argc, char **argv)
+int main ()
 {
     try
     {
-        auto human_player = Color::White;
-        wisdom::play();
+        wisdom::play ();
     }
-    catch (const wisdom::Error &e)
+    catch (const wisdom::Error& e)
     {
         std::cerr << "Uncaught Error!" << "\n";
-        std::cerr << e.message() << "\n";
-        std::cerr << e.extra_info() << "\n";
+        std::cerr << e.message () << "\n";
+        std::cerr << e.extra_info () << "\n";
         std::terminate ();
     }
 

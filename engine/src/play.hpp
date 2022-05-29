@@ -6,7 +6,7 @@
 
 namespace wisdom
 {
-    void play();
+    void play ();
 };
 
 #endif //WISDOM_CHESS_PLAY_HPP
