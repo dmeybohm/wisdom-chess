@@ -83,6 +83,10 @@ namespace wisdom
     // Max time spent searching.
     constexpr int Max_Search_Seconds = 5;
 
+    // Minimum amount behind the computer must feel in order to
+    // accept a draw offer.
+    constexpr int Min_Draw_Score = -300;
+
     // Errors in this application.
     class Error : public std::exception
     {

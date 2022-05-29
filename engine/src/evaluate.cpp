@@ -76,19 +76,6 @@ namespace wisdom
         return score;
     }
 
-    auto evaluate_and_check_draw (Board& board, Color who, int moves_away, Move move,
-                                  const History& history, MoveGenerator& generator) -> int
-    {
-        if (is_drawing_move (board, who, move, history))
-        {
-            return 0;
-        }
-        else
-        {
-            return evaluate (board, who, moves_away, generator);
-        }
-    }
-
     auto evaluate_without_legal_moves (Board& board, Color who, int moves_away) -> int
     {
         auto king_coord = board.get_king_position (who);

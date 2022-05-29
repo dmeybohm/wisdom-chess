@@ -247,70 +247,110 @@ namespace wisdom
         return result;
     }
 
-    static InputState offer_draw ()
+    static auto human_wants_draw () -> bool
     {
         InputState result;
         string input;
-        std::cout << "Third repetition detected. Would you like a draw? [y/n]\n";
 
-        if (!std::getline (std::cin, input))
+        while (toupper(input[0]) != 'Y' && toupper(input[0]) != 'N')
         {
-            result.command = PlayCommand::StopGame;
-            return result;
+            std::cout << "Threefold repetition detected. Would you like a draw? [y/n]\n";
+
+            if (!std::getline(std::cin, input))
+                continue;
         }
 
-        if (input[0] == 'y' || input[1] == 'Y')
-        {
-            std::cout << "Draw accepted!\n";
-            result.command = PlayCommand::StopGame;
-            return result;
-        }
-
-        return result;
+        return (input[0] == 'y' || input[1] == 'Y');
     }
 
-    void play (Color human_player)
+    static bool player_wants_draw (Player player, Color who, Game& game, bool asked_human)
+    {
+        if (player == Player::Human)
+        {
+            if (asked_human)
+                return false;
+            return human_wants_draw ();
+        }
+        return game.computer_wants_draw (who);
+    }
+
+    // After the third repetition, either player may request a draw.
+    static auto determine_if_drawn (InputState input_state, Game& game) -> std::pair<bool, bool>
+    {
+        auto white_player = game.get_player (Color::White);
+
+        bool white_wants_draw = player_wants_draw (
+                white_player, Color::White, game, false
+        );
+        bool asked_human = white_player == Player::Human;
+        bool black_wants_draw = player_wants_draw (
+                game.get_player (Color::Black), Color::Black, game, asked_human
+        );
+
+        return { white_wants_draw, black_wants_draw };
+    }
+
+    auto update_game_status (InputState input_state, Game& game) -> InputState // NOLINT(misc-no-recursion)
+    {
+        auto status = game.status ();
+
+        switch (status)
+        {
+        case GameStatus::PLAYING:
+            break;
+
+        case GameStatus::CHECKMATE:
+            std::cout << to_string (color_invert (game.get_current_turn())) << " wins the game.\n";
+            input_state.command = PlayCommand::StopGame;
+            break;
+
+        case GameStatus::THREEFOLD_REPETITION_REACHED: {
+            auto draw_pair = determine_if_drawn(input_state, game);
+            game.set_threefold_repetition_draw_status(draw_pair);
+            // Recursively (one-level deep) update the status again.
+            return update_game_status(input_state, game);
+        }
+
+        case GameStatus::THREEFOLD_REPETITION_ACCEPTED:
+            std::cout << "Draw: threefold repetition and at least one of the players wants a draw.\n";
+            input_state.command = PlayCommand::StopGame;
+            break;
+
+        case GameStatus::FIVEFOLD_REPETITION_DRAW:
+            std::cout << "Draw: fifth move repetition\n";
+            input_state.command = PlayCommand::StopGame;
+            break;
+
+        case GameStatus::STALEMATE:
+            input_state.command = PlayCommand::StopGame;
+            break;
+
+        case GameStatus::FIFTY_MOVES_WITHOUT_PROGRESS:
+            std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
+            input_state.command = PlayCommand::StopGame;
+            break;
+        }
+
+        return input_state;
+    }
+
+    void play ()
     {
         Game game;
         InputState initial_input_state;
         Logger& output = make_standard_logger ();
         bool paused = false;
         MoveGenerator move_generator;
-        bool third_repetition_declined = false;
 
         while (true)
         {
             InputState input_state = initial_input_state;
             game.get_board ().print ();
 
-            if (is_checkmated (game.get_board (), game.get_current_turn(), move_generator))
-            {
-                std::cout << to_string (color_invert (game.get_current_turn())) << " wins the game.\n";
-                return;
-            }
+            input_state = update_game_status (input_state, game);
 
-            if (game.get_history().is_third_repetition (game.get_board()) &&
-                    !third_repetition_declined)
-            {
-                input_state = offer_draw ();
-
-                if (input_state.command != PlayCommand::StopGame)
-                    third_repetition_declined = true;
-
-                continue;
-            }
-
-            if (game.get_history ().is_fifth_repetition (game.get_board()))
-            {
-                std::cout << "Draw: Fifth repetition.\n";
+            if (input_state.command == PlayCommand::StopGame)
                 break;
-            }
-
-            if (History::is_fifty_move_repetition (game.get_board ()))
-            {
-                std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
-                break;
-            }
 
             if (!paused && game.get_current_player () == Player::ChessEngine)
             {

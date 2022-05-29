@@ -6,7 +6,7 @@
 
 namespace wisdom
 {
-    void play (Color human_player);
+    void play ();
 };
 
 #endif //WISDOM_CHESS_PLAY_HPP

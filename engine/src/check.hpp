@@ -30,7 +30,7 @@ namespace wisdom
                                            int8_t king_row, int8_t king_col);
 
     // Whether this move was a legal move for the computer_player.
-    auto was_legal_move (Board& board, Color who, Move mv) -> bool;
+    [[nodiscard]] auto was_legal_move (Board& board, Color who, Move mv) -> bool;
 
     [[nodiscard]] inline auto is_king_threatened (Board& board, Color who, Coord king_coord) -> bool
     {
@@ -47,10 +47,10 @@ namespace wisdom
     }
 
     // Whether the board is in a checkmated position for the computer_player.
-    auto is_checkmated (Board& board, Color who, MoveGenerator& generator) -> bool;
+    [[nodiscard]] auto is_checkmated (Board& board, Color who, MoveGenerator& generator) -> bool;
 
     // Whether in a stalemate position for white or black.
-    auto is_stalemated (Board& board, Color who, MoveGenerator& generator) -> bool;
+    [[nodiscard]] auto is_stalemated (Board& board, Color who, MoveGenerator& generator) -> bool;
 
     // Whether this move could cause a draw.
     //
@@ -59,7 +59,10 @@ namespace wisdom
     inline auto is_drawing_move (Board& board, [[maybe_unused]] Color who,
                                  [[maybe_unused]] Move move, const History& history) -> bool
     {
-        return history.is_third_repetition (board) ||
+        auto repetition_status = history.get_threefold_repetition_status ();
+        int repetition_count = repetition_status == ThreeFoldRepetitionStatus::BOTH_DECLINED ?
+                5 : 3;
+        return history.is_nth_repetition (board, repetition_count) ||
                History::is_fifty_move_repetition (board);
     }
 }
