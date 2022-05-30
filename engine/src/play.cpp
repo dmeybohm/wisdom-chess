@@ -304,6 +304,10 @@ namespace wisdom
             input_state.command = PlayCommand::StopGame;
             break;
 
+        case GameStatus::Stalemate:
+            input_state.command = PlayCommand::StopGame;
+            break;
+
         case GameStatus::ThreefoldRepetitionReached: {
             auto draw_pair = determine_if_drawn (input_state, game);
             game.set_threefold_repetition_draw_status (draw_pair);
@@ -339,7 +343,8 @@ namespace wisdom
             input_state.command = PlayCommand::StopGame;
             break;
 
-        case GameStatus::Stalemate:
+        case GameStatus::InsufficientMaterialDraw:
+            std::cout << "Draw: Insufficient material.\n";
             input_state.command = PlayCommand::StopGame;
             break;
         }

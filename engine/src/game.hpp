@@ -39,6 +39,7 @@ namespace wisdom
         FiftyMovesWithoutProgressReached,
         FiftyMovesWithoutProgressAccepted,
         SeventyFiveMovesWithoutProgressDraw,
+        InsufficientMaterialDraw,
     };
 
     using Players = array<Player, Num_Players>;

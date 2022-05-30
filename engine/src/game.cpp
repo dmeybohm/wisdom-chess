@@ -116,6 +116,10 @@ namespace wisdom
         if (History::has_been_seventy_five_moves_without_progress (get_board ()))
             return GameStatus::SeventyFiveMovesWithoutProgressDraw;
 
+        const auto& material = my_board->get_material ();
+        if (!material.has_sufficient_material (*my_board))
+            return GameStatus::InsufficientMaterialDraw;
+
         return GameStatus::Playing;
     }
 
