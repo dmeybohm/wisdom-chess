@@ -44,7 +44,8 @@ namespace wisdom
         return result;
     }
 
-    constexpr Coord No_En_Passant_Coord = make_coord (0, 0);
+    constexpr Coord First_Coord = make_coord (0, 0);
+    constexpr Coord No_En_Passant_Coord = First_Coord;
 
     template <class T = int8_t>
     constexpr auto Row (Coord pos) -> T
@@ -56,6 +57,24 @@ namespace wisdom
     constexpr auto Column (Coord pos) -> T
     {
         return gsl::narrow_cast<T>(pos.row_and_col & 0xf);
+    }
+
+    constexpr auto next_coord (Coord coord, int direction) -> optional<Coord>
+    {
+        assert(direction == +1 || direction == -1);
+        int row = Row<int> (coord);
+        int col = Column<int> (coord);
+        col += direction;
+
+        if (!is_valid_column (col))
+        {
+            col = 0;
+            row += direction;
+            if (!is_valid_row (row))
+                return {};
+        }
+
+        return make_coord (row, col);
     }
 
     constexpr auto operator== (Coord first, Coord second) -> bool

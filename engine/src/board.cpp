@@ -383,4 +383,20 @@ namespace wisdom
         my_code = BoardCode::from_board (*this);
     }
 
+    auto Board::find_first_coord_with_piece (ColoredPiece piece, Coord starting_at) const
+        -> optional<Coord>
+    {
+        optional<Coord> iterator = starting_at;
+
+        while (iterator.has_value ())
+        {
+            if (piece_at (*iterator) == piece)
+                return iterator;
+
+            iterator = next_coord (*iterator, +1);
+        }
+
+        return {};
+    }
+
 }

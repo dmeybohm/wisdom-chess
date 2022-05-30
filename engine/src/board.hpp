@@ -236,7 +236,16 @@ namespace wisdom
             my_squares[Row (coord)][Column (coord)] = piece;
         }
 
+        [[nodiscard]] auto find_first_coord_with_piece (ColoredPiece piece,
+                                                        Coord starting_at = First_Coord) const
+            -> optional<Coord>;
     };
+
+    constexpr auto coord_color (Coord coord) -> Color
+    {
+        int parity = (Row (coord) % 2 + Column (coord) % 2) % 2;
+        return color_from_color_index (gsl::narrow_cast<int8_t> (parity));
+    }
 
     // white moves up (-)
     // black moves down (+)

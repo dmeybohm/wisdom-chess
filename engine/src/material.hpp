@@ -90,27 +90,28 @@ namespace wisdom
             return my_piece_count[color_idx][type_idx];
         }
 
-        // Whether there is sufficient material remaining for a checkmate.
-        [[nodiscard]] auto has_sufficient_material () const -> bool
+        // Whether there is insufficient material remaining for a checkmate.
+        [[nodiscard]] auto has_sufficient_material (const Board& board) const -> bool
         {
             if (piece_count (Color::White, Piece::Pawn) > 0 ||
                 piece_count (Color::Black, Piece::Pawn) > 0)
             {
-                return false;
+                return true;
             }
 
-            if (individual_score (Color::White) > WeightKing + 2 * WeightKnight ||
-                individual_score (Color::Black) > WeightKing + 2 * WeightKnight)
+            if (individual_score (Color::White) > WeightKing + 2 * WeightBishop ||
+                individual_score (Color::Black) > WeightKing + 2 * WeightBishop)
             {
-                return false;
+                return true;
             }
 
-            return check_detailed_sufficient_material_scenarios ();
+            return !check_insufficient_material_scenarios (board);
         }
 
     private:
-        // Check for more detailed scenarios of sufficient material.
-        [[nodiscard]] auto check_detailed_sufficient_material_scenarios () const -> bool;
+        // Check for more detailed scenarios of sufficient material. This assumes there are
+        // only minor pieces and king left, with no pawns.
+        [[nodiscard]] auto check_insufficient_material_scenarios (const Board& board) const -> bool;
     };
 }
 

@@ -97,15 +97,10 @@ namespace wisdom
             return DrawingStatus::ByRepetition;
         }
 
-        auto& material_ref = board.get_material ();
+        const auto& material_ref = board.get_material ();
 
-        auto white_score = material_ref.individual_score (Color::White);
-        auto black_score = material_ref.individual_score (Color::Black);
-
-        // todo
-        if (white_score < Material::WeightKing + Material::WeightKnight * 2) {
+        if (!material_ref.has_sufficient_material (board))
             return DrawingStatus::InsufficientMaterial;
-        }
 
         return DrawingStatus::NoDraw;
     }
