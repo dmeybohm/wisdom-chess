@@ -166,34 +166,44 @@ namespace wisdom
         // Read the pieces:
         string pieces_str;
         input >> pieces_str;
+        if (input.fail ())
+            throw FenParserError { "Missing pieces declaration parsing FEN string" };
         parse_pieces (pieces_str);
 
         // read active computer_player:
         string active_player_str;
         input >> active_player_str;
+        if (input.fail ())
+            throw FenParserError { "Missing active player parsing FEN string" };
         active_player = parse_active_player (active_player_str[0]);
 
         // castling:
         string castling_str;
         input >> castling_str;
+        if (input.fail ())
+            throw FenParserError { "Missing castling string FEN string" };
         parse_castling (castling_str);
 
         // en passant target square:
         string en_passant_str;
         input >> en_passant_str;
+        if (input.fail ())
+            throw FenParserError { "Missing en passant square parsing FEN string" };
         parse_en_passant (en_passant_str);
 
         // halfmove clock:
         int half_moves;
         input >> half_moves;
-        if (!input.fail ())
-            parse_half_move (half_moves);
+        if (input.fail ())
+            throw FenParserError { "Missing half move number parsing FEN string" };
+        parse_half_move (half_moves);
 
         // fullmove number:
         int full_moves;
         input >> full_moves;
-        if (!input.fail ())
-            parse_full_move (full_moves);
+        if (input.fail ())
+            throw FenParserError { "Missing full move number parsing FEN string" };
+        parse_full_move (full_moves);
     }
 
     auto FenParser::build_board () -> Board

@@ -91,3 +91,26 @@ TEST_CASE( "FEN notation for en passant" )
     auto black_target = board.get_en_passant_target (Color::Black);
     REQUIRE( black_target == coord_parse ("e6") );
 }
+
+TEST_CASE( "Parsing half and full moves")
+{
+    SUBCASE( "With castling and en passant square" )
+    {
+        FenParser parser { "4r2/8/8/8/8/8/k7/4K2R w Kk e6 10 5" };
+
+        Game game = parser.build ();
+        const auto& board = game.get_board ();
+        CHECK (board.get_half_move_clock () == 10);
+        CHECK (board.get_full_move_clock () == 5);
+    }
+
+    SUBCASE( "Without castling or en passant square" )
+    {
+        FenParser parser { "4r2/8/8/8/8/8/k7/4K2R w - - 10 5" };
+
+        Game game = parser.build ();
+        const auto& board = game.get_board ();
+        CHECK (board.get_half_move_clock () == 10);
+        CHECK (board.get_full_move_clock () == 5);
+    }
+}
