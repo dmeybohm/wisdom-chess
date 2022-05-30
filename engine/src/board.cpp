@@ -11,7 +11,7 @@
 namespace wisdom
 {
     // board length in characters
-    constexpr int BOARD_LENGTH = 31;
+    constexpr int Board_Length_In_Chars = 31;
 
     auto Board::initial_board_position () -> vector<BoardPositions>
     {
@@ -71,8 +71,7 @@ namespace wisdom
         : my_squares {},
           my_code { *this, { No_En_Passant_Coord, No_En_Passant_Coord },
                       Color::White, { Castle_Both_Unavailable, Castle_Both_Unavailable } },
-          my_king_pos { make_coord (0, 0), make_coord (0, 0) },
-          raw_squares {}
+          my_king_pos { make_coord (0, 0), make_coord (0, 0) }
     {
         int8_t row;
         int8_t col;
@@ -96,7 +95,13 @@ namespace wisdom
                 set_piece (place, new_piece);
 
                 if (pieces[col] == Piece::King)
-                    this->set_king_position (color, place);
+                    set_king_position (color, place);
+
+                if (pieces[col] == Piece::Pawn)
+                {
+                    auto color_idx = color_index (color);
+                    my_pawn_count[color_idx]++;
+                }
             }
         }
 
@@ -105,31 +110,31 @@ namespace wisdom
 
         my_code = BoardCode::from_board (*this);
 
-        this->my_position = Position { *this };
-        this->my_material = Material { *this };
+        my_position = Position { *this };
+        my_material = Material { *this };
     }
 
     void Board::print_to_file (std::ostream &out) const
     {
-        out << this->to_string ();
+        out << to_string ();
         out.flush ();
     }
 
     void Board::print () const
     {
-        this->print_to_file (std::cout);
+        print_to_file (std::cout);
     }
 
     void Board::dump () const
     {
-        this->print_to_file (std::cerr);
+        print_to_file (std::cerr);
     }
 
     static void add_divider (string &result)
     {
         result += " ";
 
-        for (int col = 0; col < BOARD_LENGTH; col += 4)
+        for (int col = 0; col < Board_Length_In_Chars; col += 4)
         {
             for (int i = 0; i < 3; i++)
                 result += '-';
@@ -168,7 +173,7 @@ namespace wisdom
         {
             for (int8_t col = 0; col < Num_Columns; col++)
             {
-                ColoredPiece piece = this->piece_at (row, col);
+                ColoredPiece piece = piece_at (row, col);
 
                 if (!col)
                     result += "|";
@@ -249,7 +254,7 @@ namespace wisdom
 
             for (int8_t col = 0; col < Num_Columns; col++)
             {
-                ColoredPiece piece = this->piece_at (row, col);
+                ColoredPiece piece = piece_at (row, col);
                 if (piece == Piece_And_Color_None)
                 {
                     none_count++;
@@ -286,7 +291,7 @@ namespace wisdom
 
         output += both_castled;
 
-        auto en_passant_targets = this->get_en_passant_targets ();
+        auto en_passant_targets = get_en_passant_targets ();
         if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
             output += " " + wisdom::to_string (en_passant_targets[Color_Index_White]) + " ";
         else if (en_passant_targets[Color_Index_Black] != No_En_Passant_Coord)
@@ -294,7 +299,7 @@ namespace wisdom
         else
             output += " - ";
 
-        output += std::to_string (this->my_half_move_clock) + " " + std::to_string (this->my_full_move_clock);
+        output += std::to_string (my_half_move_clock) + " " + std::to_string (my_full_move_clock);
         return output;
     }
 
@@ -312,7 +317,6 @@ namespace wisdom
             shuffle_pieces[source_col + (source_row * Num_Columns)] = Piece_And_Color_None;
         }
     }
-
 
     void Board::randomize_positions ()
     {
@@ -354,15 +358,8 @@ namespace wisdom
             {
                 my_king_pos[color_index (piece_color (piece))] = make_coord (row, col);
             }
-//            else if (remove_chance (rng) > 50)
-//            {
-//                piece = Piece_And_Color_None;
-//            }
             my_squares[row][col] = piece;
         }
-//        std::cout << "After convert: "
-//                  << "\n";
-//        std::cout << to_string () << "\n";
 
         // update the king positions:
         // if both kings are in check, regenerate.

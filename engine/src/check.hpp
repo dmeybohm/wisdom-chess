@@ -9,6 +9,35 @@
 
 namespace wisdom
 {
+    struct DrawingStatus
+    {
+        enum Value
+        {
+            NoDraw,
+            InsufficientMaterial,
+            ByRepetition
+        } my_value;
+
+        DrawingStatus (Value value) // NOLINT(google-explicit-constructor)
+            : my_value { value }
+        {}
+
+        explicit operator bool () const
+        {
+            return my_value != NoDraw;
+        }
+
+        friend auto operator == (DrawingStatus first, DrawingStatus second) -> bool
+        {
+            return first.my_value == second.my_value;
+        }
+
+        friend auto operator != (DrawingStatus first, DrawingStatus second) -> bool
+        {
+            return !operator== (first, second);
+        }
+    };
+
     // check if the the king indicated by the WHO argument is in trouble
     // in this position
     bool is_king_threatened (const Board& board, Color who, int8_t row, int8_t col);
@@ -21,7 +50,6 @@ namespace wisdom
     bool is_king_threatened_knight_direct (const Board& board, Color who, int8_t row, int8_t col);
     bool is_king_threatened_pawn (const Board& board, Color who, int8_t row, int8_t col);
     bool is_king_threatened_pawn_dumb (const Board& board, Color who, int8_t row, int8_t col);
-    bool is_king_threatened_pawn_c (const Board& board, int who, int8_t row, int8_t col);
     bool is_king_threatened_pawn_inline (const Board& board, Color who,
                                          int8_t king_row, int8_t king_col);
     bool is_king_threatened_king (const Board& board, Color who, int8_t row, int8_t col);
@@ -57,13 +85,29 @@ namespace wisdom
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
     inline auto is_drawing_move (Board& board, [[maybe_unused]] Color who,
-                                 [[maybe_unused]] Move move, const History& history) -> bool
+                                 [[maybe_unused]] Move move, const History& history) -> DrawingStatus
     {
         auto repetition_status = history.get_threefold_repetition_status ();
         int repetition_count = repetition_status == ThreeFoldRepetitionStatus::BOTH_DECLINED ?
                 5 : 3;
-        return history.is_nth_repetition (board, repetition_count) ||
-               History::is_fifty_move_repetition (board);
+
+        if (history.is_nth_repetition (board, repetition_count) ||
+               History::is_fifty_move_repetition (board))
+        {
+            return DrawingStatus::ByRepetition;
+        }
+
+        auto& material_ref = board.get_material ();
+
+        auto white_score = material_ref.individual_score (Color::White);
+        auto black_score = material_ref.individual_score (Color::Black);
+
+        // todo
+        if (white_score < Material::WeightKing + Material::WeightKnight * 2) {
+            return DrawingStatus::InsufficientMaterial;
+        }
+
+        return DrawingStatus::NoDraw;
     }
 }
 

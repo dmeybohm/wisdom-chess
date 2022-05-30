@@ -134,7 +134,7 @@ namespace wisdom
         }
     }
 
-    void update_king_position (Board* board, Color who, Move move,
+    void update_king_position (Board* board, Color who, [[maybe_unused]] Move move,
                                UndoMove* undo_state, Coord src, Coord dst,
                                bool undo)
     {
@@ -309,9 +309,9 @@ namespace wisdom
         Coord src = move_src (move);
         Coord dst = move_dst (move);
 
-        auto src_piece = this->piece_at (src);
+        auto src_piece = piece_at (src);
         auto orig_src_piece = src_piece;
-        auto dst_piece = this->piece_at (dst);
+        auto dst_piece = piece_at (dst);
 
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) == who);
@@ -332,8 +332,9 @@ namespace wisdom
         if (is_promoting_move (move))
         {
             src_piece = move_get_promoted_piece (move);
-            this->my_material.add (src_piece);
-            this->my_material.remove (make_piece (who, Piece::Pawn));
+            my_material.add (src_piece);
+            my_material.remove (make_piece (who, Piece::Pawn));
+            update_pawn_count (who, -1);
         }
 
         // check for en passant
@@ -352,10 +353,10 @@ namespace wisdom
 
         handle_en_passant_eligibility (this, who, src_piece, move, &undo_state, 0);
 
-        this->my_code.apply_move (*this, move);
+        my_code.apply_move (*this, move);
 
-        this->set_piece (src, Piece_And_Color_None);
-        this->set_piece (dst, src_piece);
+        set_piece (src, Piece_And_Color_None);
+        set_piece (dst, src_piece);
 
         // update king position
         if (piece_type (src_piece) == Piece::King)
@@ -372,20 +373,26 @@ namespace wisdom
         if (piece_type (captured_piece) != Piece::None)
         {
             // update material estimate
-            this->my_material.remove (captured_piece);
+            my_material.remove (captured_piece);
+
+            auto captured_piece_type = piece_type (captured_piece);
 
             // update castle state if somebody takes the rook
-            if (piece_type (captured_piece) == Piece::Rook)
+            if (captured_piece_type == Piece::Rook)
             {
                 update_opponent_rook_position<false> (this, color_invert (who), dst_piece,
                                                       &undo_state, src, dst);
+            }
+            else if (captured_piece_type == Piece::Pawn)
+            {
+                update_pawn_count (color_invert (who), -1);
             }
         }
 
         my_position.apply_move (who, orig_src_piece, move, &undo_state);
         validate_castle_state (*this, move);
 
-        this->update_move_clock (who, piece_type (orig_src_piece), move, undo_state);
+        update_move_clock (who, piece_type (orig_src_piece), move, undo_state);
         set_current_turn (color_invert (who));
         return undo_state;
     }
@@ -404,7 +411,7 @@ namespace wisdom
 
         auto dst_piece_type = undo_state.taken_piece_type;
         auto dst_piece = Piece_And_Color_None;
-        auto src_piece = this->piece_at (dst);
+        auto src_piece = piece_at (dst);
         auto orig_src_piece = src_piece;
 
         assert (piece_type (src_piece) != Piece::None);
@@ -416,8 +423,9 @@ namespace wisdom
         if (is_promoting_move (move))
         {
             src_piece = make_piece (piece_color (src_piece), Piece::Pawn);
-            this->my_material.remove (orig_src_piece);
-            this->my_material.add (src_piece);
+            my_material.remove (orig_src_piece);
+            my_material.add (src_piece);
+            update_pawn_count (who, +1);
         }
 
         // check for castling
@@ -432,11 +440,11 @@ namespace wisdom
             dst_piece = handle_en_passant (this, who, src, dst, true);
 
         // Update the code:
-        this->my_code.unapply_move (*this, move, undo_state);
+        my_code.unapply_move (*this, move, undo_state);
 
         // put the pieces back
-        this->set_piece (dst, dst_piece);
-        this->set_piece (src, src_piece);
+        set_piece (dst, dst_piece);
+        set_piece (src, src_piece);
 
         // update king position
         if (piece_type (src_piece) == Piece::King)
@@ -449,11 +457,17 @@ namespace wisdom
         }
 
         ColoredPiece captured_piece = captured_material (undo_state, opponent);
-        if (piece_type (captured_piece) != Piece::None)
+        auto captured_piece_type = piece_type (captured_piece);
+        if (captured_piece_type != Piece::None)
         {
             // NOTE: we reload from the move in case of en-passant, since dst_piece
             // could be none.
-            this->my_material.add (captured_piece);
+            my_material.add (captured_piece);
+
+            if (captured_piece_type == Piece::Pawn)
+            {
+                update_pawn_count (color_invert (who), +1);
+            }
 
             if (piece_type (dst_piece) == Piece::Rook)
             {
@@ -462,10 +476,10 @@ namespace wisdom
             }
         }
 
-        this->my_position.unapply_move (who, undo_state);
+        my_position.unapply_move (who, undo_state);
         validate_castle_state (*this, move);
         set_current_turn (who);
-        this->restore_move_clock (undo_state);
+        restore_move_clock (undo_state);
     }
 
     static auto castle_parse (const string& str, Color who) -> optional<Move>
@@ -519,7 +533,7 @@ namespace wisdom
         if (tmp.size () < 4)
             return nullopt;
 
-        Coord src;
+        optional<Coord> src;
         int offset = 0;
         try
         {
@@ -543,18 +557,18 @@ namespace wisdom
         if (dst_coord.empty ())
             return nullopt;
 
-        Coord dst;
+        optional<Coord> dst;
         try
         {
             dst = coord_parse (dst_coord);
         }
-        catch ([[maybe_unused]] const CoordParseError &e)
+        catch ([[maybe_unused]] const CoordParseError& e)
         {
             return nullopt;
         }
 
         string rest { tmp.substr (offset) };
-        Move move = make_normal_movement_move (src, dst);
+        Move move = make_normal_movement_move (*src, *dst);
         if (is_capturing)
         {
             move = copy_move_with_capture (move);
@@ -590,7 +604,8 @@ namespace wisdom
 
         if (en_passant)
         {
-            move = make_special_en_passant_move (Row (src), Column (src), Row (dst), Column (dst));
+            move = make_special_en_passant_move (Row (*src), Column (*src),
+                                                 Row (*dst), Column (*dst));
         }
 
         return move;
@@ -619,10 +634,8 @@ namespace wisdom
 
     string to_string (const Move& move)
     {
-        Coord src, dst;
-
-        src = move_src (move);
-        dst = move_dst (move);
+        Coord src = move_src (move);
+        Coord dst = move_dst (move);
 
         if (is_special_castling_move (move))
         {
@@ -719,7 +732,7 @@ namespace wisdom
         return move;
     }
 
-    std::ostream& operator<< (std::ostream& os, const Move& value)
+    auto operator<< (std::ostream& os, const Move& value) -> std::ostream&
     {
         os << to_string (value);
         return os;

@@ -19,7 +19,7 @@ TEST_CASE( "Adding material works" )
             material.add (make_piece (color, piece_type));
 
             CHECK( (color_index(color) == 0 || color_index(color) == 1) );
-            CHECK( material.score(color) > 0 );
+            CHECK(material.overall_score(color) > 0 );
         }
     }
 }
@@ -38,7 +38,7 @@ TEST_CASE( "Deleting material works" )
             material.remove (make_piece (color, piece_type));
 
             CHECK( (color_index (color) == 0 || color_index (color) == 1) );
-            CHECK( material.score (color) < 0 );
+            CHECK(material.overall_score(color) < 0 );
         }
     }
 }

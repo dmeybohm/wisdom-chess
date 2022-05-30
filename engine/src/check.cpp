@@ -367,34 +367,6 @@ namespace wisdom
         return left_attack_exists || right_attack_exists;
     }
 
-    bool is_king_threatened_pawn_c (const Board& board, int who, int8_t king_row, int8_t king_col)
-    {
-        // check for pawn checks
-        int8_t r_dir = gsl::narrow_cast<int8_t> (-1 + 2 * who);
-
-        int8_t row, col;
-        int8_t what;
-        int8_t c_dir;
-
-        for (c_dir = -1; c_dir <= 1; c_dir += 2)
-        {
-            row = next_row (king_row, r_dir);
-            col = next_column (king_col, c_dir);
-
-            if (row > Last_Row || row < First_Row || col < First_Column || col > Last_Column)
-                continue;
-
-            what = board.raw_squares[row][col];
-            int8_t piece_type = gsl::narrow_cast<int8_t> (what & (0x8 - 1));
-            int8_t color = gsl::narrow_cast<int8_t> ((what & (0x18)) >> 3);
-
-            if (piece_type == 6 && color != who)
-                return true;
-        }
-
-        return false;
-    }
-
     bool is_king_threatened_king (const Board& board, Color who, int8_t king_row, int8_t king_col)
     {
         int row, col;

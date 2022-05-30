@@ -8,18 +8,7 @@ namespace wisdom
 {
     class Board;
 
-    enum material_weight
-    {
-        Material_Weight_None = 0,
-        Material_Weight_King = 1500,
-        Material_Weight_Queen = 1000,
-        Material_Weight_Rook = 500,
-        Material_Weight_Bishop = 320,
-        Material_Weight_Knight = 305,
-        Material_Weight_Pawn = 100,
-    };
-
-    struct Material
+    class Material
     {
     private:
         int my_score[Num_Players] {};
@@ -29,17 +18,33 @@ namespace wisdom
 
         explicit Material (const Board& board);
 
+        enum MaterialWeight
+        {
+            WeightNone = 0,
+            WeightKing = 1500,
+            WeightQueen = 1000,
+            WeightRook = 500,
+            WeightBishop = 320,
+            WeightKnight = 305,
+            WeightPawn = 100,
+        };
+
+        static constexpr auto min_checkmate_weight () -> int
+        {
+            return WeightKing + WeightKnight * 2;
+        }
+
         [[nodiscard]] static int weight (Piece piece) noexcept
         {
             switch (piece)
             {
-                case Piece::None: return Material_Weight_None;
-                case Piece::King: return Material_Weight_King;
-                case Piece::Queen: return Material_Weight_Queen;
-                case Piece::Rook: return Material_Weight_Rook;
-                case Piece::Bishop: return Material_Weight_Bishop;
-                case Piece::Knight: return Material_Weight_Knight;
-                case Piece::Pawn: return Material_Weight_Pawn;
+                case Piece::None: return WeightNone;
+                case Piece::King: return WeightKing;
+                case Piece::Queen: return WeightQueen;
+                case Piece::Rook: return WeightRook;
+                case Piece::Bishop: return WeightBishop;
+                case Piece::Knight: return WeightKnight;
+                case Piece::Pawn: return WeightPawn;
             }
             std::terminate ();
         }
@@ -54,7 +59,14 @@ namespace wisdom
             my_score[color_index (piece_color (piece))] -= weight (piece_type (piece));
         }
 
-        [[nodiscard]] int score (Color who) const
+        [[nodiscard]] int individual_score (Color who) const
+        {
+            ColorIndex my_index = color_index (who);
+            ColorIndex opponent_index = color_index (color_invert (who));
+            return my_score[my_index];
+        }
+
+        [[nodiscard]] int overall_score (Color who) const
         {
             ColorIndex my_index = color_index (who);
             ColorIndex opponent_index = color_index (color_invert (who));

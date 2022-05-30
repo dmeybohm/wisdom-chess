@@ -48,9 +48,10 @@ namespace wisdom
         // Number of full moves, updated after black moves.
         int my_full_move_clock = 1;
 
-    public:
-        int8_t raw_squares[Num_Rows][Num_Columns];
+        // Number of pawns on either side:
+        array<int, Num_Players> my_pawn_count {};
 
+    public:
         Board ();
 
         Board (const Board& board) = default;
@@ -64,56 +65,18 @@ namespace wisdom
         [[nodiscard]] constexpr auto piece_at (int row, int col) const
             -> ColoredPiece
         {
-            return this->my_squares[row][col];
+            return my_squares[row][col];
         }
 
         [[nodiscard]] constexpr auto piece_at (Coord coord) const
             -> ColoredPiece
         {
-            return this->my_squares[Row (coord)][Column (coord)];
-        }
-
-        void copy_squares (ColoredPiece copy_to_squares[Num_Rows][Num_Columns]) const
-        {
-            std::copy (&my_squares[0][0], &my_squares[Num_Rows - 1][Num_Columns - 1] + 1,
-                       &copy_to_squares[0][0]);
-        }
-
-        void set_piece (int8_t row, int8_t col, ColoredPiece piece)
-        {
-            this->my_squares[row][col] = piece;
-        }
-
-        void set_piece (Coord coord, ColoredPiece piece)
-        {
-            this->my_squares[Row (coord)][Column (coord)] = piece;
+            return my_squares[Row (coord)][Column (coord)];
         }
 
         void print_to_file (std::ostream& out) const;
 
         void dump () const;
-
-        void update_move_clock (Color who, Piece orig_src_piece_type, Move mv, UndoMove& undo_state)
-        {
-            undo_state.half_move_clock = this->my_half_move_clock;
-            if (is_any_capturing_move (mv) || orig_src_piece_type == Piece::Pawn)
-                this->my_half_move_clock = 0;
-            else
-                this->my_half_move_clock++;
-
-            if (who == Color::Black)
-            {
-                this->my_full_move_clock++;
-                undo_state.full_move_clock_updated = true;
-            }
-        }
-
-        void restore_move_clock (const UndoMove& undo_state)
-        {
-            this->my_half_move_clock = undo_state.half_move_clock;
-            if (undo_state.full_move_clock_updated)
-                this->my_full_move_clock--;
-        }
 
         [[nodiscard]] auto get_half_move_clock () const noexcept
             -> int
@@ -143,6 +106,12 @@ namespace wisdom
         }
         void get_material () const&& = delete;
 
+        auto get_pawn_count (Color who) -> int
+        {
+            auto idx = color_index (who);
+            return my_pawn_count[idx];
+        }
+
         [[nodiscard]] auto get_position () const& noexcept
             -> const Position&
         {
@@ -162,11 +131,6 @@ namespace wisdom
             return my_king_pos[color_index (who)];
         }
 
-        void set_king_position (Color who, Coord pos)
-        {
-            my_king_pos[color_index (who)] = pos;
-        }
-
         [[nodiscard]] auto able_to_castle (Color who, CastlingState castle_type) const
             -> bool
         {
@@ -178,24 +142,9 @@ namespace wisdom
             return neg_not_set;
         }
 
-        void apply_castle_change (Color who, CastlingState castle_state)
-        {
-            my_code.set_castle_state (who, castle_state);
-        }
-
-        void undo_castle_change (Color who, CastlingState castle_state)
-        {
-            my_code.set_castle_state (who, castle_state);
-        }
-
         [[nodiscard]] auto get_castle_state (Color who) const -> CastlingState
         {
             return my_code.castle_state (who);
-        }
-
-        void set_castle_state (Color who, CastlingState new_state)
-        {
-            my_code.set_castle_state (who, new_state);
         }
 
         [[nodiscard]] auto is_en_passant_vulnerable (Color who) const noexcept -> bool
@@ -206,11 +155,6 @@ namespace wisdom
         [[nodiscard]] auto get_current_turn () const -> Color
         {
             return my_code.current_turn ();
-        }
-
-        void set_current_turn (Color who)
-        {
-            my_code.set_current_turn (who);
         }
 
         [[nodiscard]] auto get_en_passant_target (Color who) const noexcept -> Coord
@@ -228,9 +172,30 @@ namespace wisdom
             return my_code.en_passant_targets ();
         }
 
-        void set_en_passant_target (Color who, Coord target) noexcept
+        friend class BoardBuilder;
+
+        [[nodiscard]] static auto initial_board_position () -> vector<BoardPositions>;
+
+        void randomize_positions ();
+
+        void set_king_position (Color who, Coord pos)
         {
-            set_en_passant_target (color_index (who), target);
+            my_king_pos[color_index (who)] = pos;
+        }
+
+        void apply_castle_change (Color who, CastlingState castle_state)
+        {
+            my_code.set_castle_state (who, castle_state);
+        }
+
+        void undo_castle_change (Color who, CastlingState castle_state)
+        {
+            my_code.set_castle_state (who, castle_state);
+        }
+
+        void set_castle_state (Color who, CastlingState new_state)
+        {
+            my_code.set_castle_state (who, new_state);
         }
 
         void set_en_passant_target (ColorIndex who, Coord target) noexcept
@@ -238,16 +203,57 @@ namespace wisdom
             my_code.set_en_passant_target (color_from_color_index (who), target);
         }
 
-        friend class BoardBuilder;
-
-        [[nodiscard]] const ColoredPiece* squares_ptr () const
+        void set_en_passant_target (Color who, Coord target) noexcept
         {
-            return &my_squares[0][0];
+            set_en_passant_target (color_index (who), target);
         }
 
-        [[nodiscard]] static auto initial_board_position () -> vector<BoardPositions>;
+        void set_current_turn (Color who)
+        {
+            my_code.set_current_turn (who);
+        }
 
-        void randomize_positions ();
+        void update_move_clock (Color who, Piece orig_src_piece_type, Move mv, UndoMove& undo_state)
+        {
+            undo_state.half_move_clock = my_half_move_clock;
+            if (is_any_capturing_move (mv) || orig_src_piece_type == Piece::Pawn)
+                my_half_move_clock = 0;
+            else
+                my_half_move_clock++;
+
+            if (who == Color::Black)
+            {
+                my_full_move_clock++;
+                undo_state.full_move_clock_updated = true;
+            }
+        }
+
+        void restore_move_clock (const UndoMove& undo_state)
+        {
+            my_half_move_clock = undo_state.half_move_clock;
+            if (undo_state.full_move_clock_updated)
+                my_full_move_clock--;
+        }
+
+        void set_piece (int8_t row, int8_t col, ColoredPiece piece)
+        {
+            my_squares[row][col] = piece;
+        }
+
+        void set_piece (Coord coord, ColoredPiece piece)
+        {
+            my_squares[Row (coord)][Column (coord)] = piece;
+        }
+
+    private:
+
+        void update_pawn_count (Color who, int direction)
+        {
+            assert (direction == 1 || direction == -1);
+            auto color_idx = color_index (who);
+            my_pawn_count[color_idx] += direction;
+        }
+
     };
 
     // white moves up (-)
@@ -259,7 +265,6 @@ namespace wisdom
         int8_t color_as_int = to_int8 (color);
         return gsl::narrow_cast<T>(-1 + 2 * (color_as_int - 1));
     }
-
 }
 
 #endif // WISDOM_CHESS_BOARD_HPP

@@ -148,8 +148,6 @@ namespace wisdom
                 if (my_search_depth == depth && is_drawing_move (*my_board, side, move, *my_history))
                 {
                     my_best_score = drawing_score (my_searching_color, side);
-                    std::cout << "Drawing move:" << to_string (move) << "\n";
-                    std::cout << "drawing_score: " << my_best_score << "\n";
                 }
                 else
                 {
