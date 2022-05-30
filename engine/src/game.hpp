@@ -30,13 +30,15 @@ namespace wisdom
 
     enum class GameStatus
     {
-        PLAYING,
-        CHECKMATE,
-        STALEMATE,
-        THREEFOLD_REPETITION_REACHED,
-        THREEFOLD_REPETITION_ACCEPTED,
-        FIVEFOLD_REPETITION_DRAW,
-        FIFTY_MOVES_WITHOUT_PROGRESS
+        Playing,
+        Checkmate,
+        Stalemate,
+        ThreefoldRepetitionReached,
+        ThreefoldRepetitionAccepted,
+        FivefoldRepetitionDraw,
+        FiftyMovesWithoutProgressReached,
+        FiftyMovesWithoutProgressAccepted,
+        SeventyFiveMovesWithoutProgressDraw,
     };
 
     using Players = array<Player, Num_Players>;
@@ -154,6 +156,7 @@ namespace wisdom
         [[nodiscard]] auto computer_wants_draw (Color who) const -> bool;
 
         void set_threefold_repetition_draw_status (std::pair<bool, bool> draw_desires);
+        void set_fifty_moves_without_progress_draw_status (std::pair<bool, bool> draw_desires);
 
     private:
         unique_ptr<Board> my_board = make_unique<Board> ();

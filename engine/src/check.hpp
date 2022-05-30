@@ -88,11 +88,16 @@ namespace wisdom
                                  [[maybe_unused]] Move move, const History& history) -> DrawingStatus
     {
         auto repetition_status = history.get_threefold_repetition_status ();
-        int repetition_count = repetition_status == ThreeFoldRepetitionStatus::BOTH_DECLINED ?
+        auto no_progress_status = history.get_fifty_moves_without_progress_status ();
+        int repetition_count =
+            repetition_status == DrawByRepetitionStatus::BothPlayersDeclinedDraw ?
                 5 : 3;
+        int without_progress_count =
+            no_progress_status == DrawByRepetitionStatus::BothPlayersDeclinedDraw ?
+                150 : 100;
 
         if (history.is_nth_repetition (board, repetition_count) ||
-               History::is_fifty_move_repetition (board))
+            History::has_been_n_half_moves_without_progress (board, without_progress_count))
         {
             return DrawingStatus::ByRepetition;
         }

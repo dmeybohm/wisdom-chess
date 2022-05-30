@@ -66,18 +66,18 @@ TEST_CASE( "Piece count" )
 
     SUBCASE( "Is updated from the amount of pieces on the board")
     {
-        CHECK(material.piece_count (Color::Black, Piece::Pawn) == 2 );
-        CHECK(material.piece_count (Color::White, Piece::Pawn) == 1 );
-        CHECK(material.piece_count (Color::Black, Piece::Queen) == 0 );
-        CHECK(material.piece_count (Color::Black, Piece::Rook) == 0 );
-        CHECK(material.piece_count (Color::White, Piece::Rook) == 1 );
-        CHECK(material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
+        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Queen) == 0 );
+        CHECK( material.piece_count (Color::Black, Piece::Rook) == 0 );
+        CHECK( material.piece_count (Color::White, Piece::Rook) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
 
         const auto& default_material = default_board.get_material ();
-        CHECK(default_material.piece_count (Color::White, Piece::Pawn) == 8 );
-        CHECK(default_material.piece_count (Color::Black, Piece::Pawn) == 8 );
-        CHECK(default_material.piece_count (Color::White, Piece::Rook) == 2 );
-        CHECK(default_material.piece_count (Color::Black, Piece::Rook) == 2 );
+        CHECK( default_material.piece_count (Color::White, Piece::Pawn) == 8 );
+        CHECK( default_material.piece_count (Color::Black, Piece::Pawn) == 8 );
+        CHECK( default_material.piece_count (Color::White, Piece::Rook) == 2 );
+        CHECK( default_material.piece_count (Color::Black, Piece::Rook) == 2 );
     }
 
     SUBCASE( "Is updated by a pawn doing a capture" )
@@ -85,15 +85,15 @@ TEST_CASE( "Piece count" )
         auto capture_move = move_parse ("e6xf7", Color::White);
 
         auto undo_state = brd->make_move (Color::White, capture_move);
-        CHECK(material.piece_count (Color::Black, Piece::Knight) == 0 );
-        CHECK(material.piece_count (Color::Black, Piece::Pawn) == 2 );
-        CHECK(material.piece_count (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Knight) == 0 );
+        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
+        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
 
         brd->take_back (Color::White, capture_move, undo_state);
 
-        CHECK(material.piece_count (Color::Black, Piece::Knight) == 1 );
-        CHECK(material.piece_count (Color::Black, Piece::Pawn) == 2 );
-        CHECK(material.piece_count (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
+        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
     }
 
     SUBCASE( "Is saved and restored after a pawn being captured" )
@@ -101,16 +101,16 @@ TEST_CASE( "Piece count" )
         auto capture_move = move_parse ("h2xe2", Color::White);
 
         auto undo_state = brd->make_move (Color::White, capture_move);
-        CHECK(material.piece_count (Color::Black, Piece::Knight) == 1 );
-        CHECK(material.piece_count (Color::Black, Piece::Pawn) == 1 );
-        CHECK(material.piece_count (Color::White, Piece::Pawn) == 1 );
-        CHECK(material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
+        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
 
         brd->take_back (Color::White, capture_move, undo_state);
 
-        CHECK(material.piece_count (Color::Black, Piece::Pawn) == 2 );
-        CHECK(material.piece_count (Color::White, Piece::Pawn) == 1 );
-        CHECK(material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
+        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
     }
 
     SUBCASE( "Is saved and restored after a promotion" )
@@ -119,17 +119,17 @@ TEST_CASE( "Piece count" )
         auto promoting_move = move_parse ("e2e1 (Q)", Color::Black);
 
         auto undo_state = brd->make_move (Color::Black, promoting_move);
-        CHECK(material.piece_count (Color::Black, Piece::Pawn) == 1 );
-        CHECK(material.piece_count (Color::White, Piece::Pawn) == 1 );
-        CHECK(material.piece_count (Color::Black, Piece::Queen) == 1 );
-        CHECK(material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
+        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Queen) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
 
         brd->take_back (Color::Black, promoting_move, undo_state);
 
-        CHECK(material.piece_count (Color::Black, Piece::Pawn) == 2 );
-        CHECK(material.piece_count (Color::White, Piece::Pawn) == 1 );
-        CHECK(material.piece_count (Color::Black, Piece::Queen) == 0 );
-        CHECK(material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
+        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Queen) == 0 );
+        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
     }
 
     SUBCASE( "Is saved and restored after a promotion with a capture" )
@@ -138,17 +138,17 @@ TEST_CASE( "Piece count" )
         auto promoting_move = move_parse ("e2xd1 (R)", Color::Black);
 
         auto undo_state = brd->make_move (Color::Black, promoting_move);
-        CHECK(material.piece_count (Color::Black, Piece::Pawn) == 1 );
-        CHECK(material.piece_count (Color::White, Piece::Pawn) == 1 );
-        CHECK(material.piece_count (Color::Black, Piece::Rook) == 1 );
-        CHECK(material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
+        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Rook) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
 
         brd->take_back (Color::Black, promoting_move, undo_state);
 
-        CHECK(material.piece_count (Color::Black, Piece::Pawn) == 2 );
-        CHECK(material.piece_count (Color::White, Piece::Pawn) == 1 );
-        CHECK(material.piece_count (Color::Black, Piece::Rook) == 0 );
-        CHECK(material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
+        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.piece_count (Color::Black, Piece::Rook) == 0 );
+        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
     }
 }
 

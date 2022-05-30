@@ -60,9 +60,9 @@ namespace wisdom
             }
         }
 
-        // King and bishop vs King:
         if (white_knight_count == 0 && black_knight_count == 0)
         {
+            // King and bishop vs King:
             if (black_bishop_count == 0 && white_bishop_count == 1 ||
                 white_bishop_count == 0 && black_bishop_count == 1)
             {

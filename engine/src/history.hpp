@@ -10,13 +10,13 @@
 
 namespace wisdom
 {
-    enum class ThreeFoldRepetitionStatus
+    enum class DrawByRepetitionStatus
     {
-        NOT_REACHED,
-        BOTH_DECLINED,
-        WHITE_DECLARED,
-        BLACK_DECLARED,
-        BOTH_DECLARED,
+        NotReached,
+        BothPlayersDeclinedDraw,
+        WhitePlayerRequestedDraw,
+        BlackPlayerRequestedDraw,
+        BothPlayersRequestedDraw,
     };
 
     class History
@@ -28,7 +28,9 @@ namespace wisdom
         vector<BoardCode> my_board_codes;
         vector<UndoMove> my_undo_moves;
 
-        ThreeFoldRepetitionStatus my_threefold_repetition_status = ThreeFoldRepetitionStatus::NOT_REACHED;
+        DrawByRepetitionStatus my_threefold_repetition_status = DrawByRepetitionStatus::NotReached;
+        DrawByRepetitionStatus my_fifty_moves_without_progress_status
+            = DrawByRepetitionStatus::NotReached;
 
     public:
         History()
@@ -38,9 +40,22 @@ namespace wisdom
             my_undo_moves.reserve (64);
         }
 
-        static bool is_fifty_move_repetition (const Board& board)
+        [[nodiscard]] static auto has_been_n_half_moves_without_progress (const Board& board, int n)
+            -> bool
         {
-            return board.get_half_move_clock () >= 100;
+            return board.get_half_move_clock () >= n;
+        }
+
+        [[nodiscard]] static auto has_been_seventy_five_moves_without_progress (
+            const Board& board) -> bool
+        {
+            return has_been_n_half_moves_without_progress (board, 150);
+        }
+
+        [[nodiscard]] static auto has_been_fifty_moves_without_progress (const Board& board)
+            -> bool
+        {
+            return has_been_n_half_moves_without_progress (board, 100);
         }
 
         [[nodiscard]] bool is_third_repetition (const Board& board) const;
@@ -77,14 +92,25 @@ namespace wisdom
         }
         void get_move_history () const&& = delete;
 
-        [[nodiscard]] auto get_threefold_repetition_status () const -> ThreeFoldRepetitionStatus
+        [[nodiscard]] auto get_threefold_repetition_status () const -> DrawByRepetitionStatus
         {
             return my_threefold_repetition_status;
         }
 
-        void set_threefold_repetition_status (ThreeFoldRepetitionStatus status)
+        void set_threefold_repetition_status (DrawByRepetitionStatus status)
         {
             my_threefold_repetition_status = status;
+        }
+
+        [[nodiscard]] auto get_fifty_moves_without_progress_status () const
+            -> DrawByRepetitionStatus
+        {
+            return my_fifty_moves_without_progress_status;
+        }
+
+        void set_fifty_moves_without_progress_status (DrawByRepetitionStatus status)
+        {
+            my_fifty_moves_without_progress_status = status;
         }
     };
 }
