@@ -334,7 +334,6 @@ namespace wisdom
             src_piece = move_get_promoted_piece (move);
             my_material.add (src_piece);
             my_material.remove (make_piece (who, Piece::Pawn));
-            update_pawn_count (who, -1);
         }
 
         // check for en passant
@@ -383,10 +382,6 @@ namespace wisdom
                 update_opponent_rook_position<false> (this, color_invert (who), dst_piece,
                                                       &undo_state, src, dst);
             }
-            else if (captured_piece_type == Piece::Pawn)
-            {
-                update_pawn_count (color_invert (who), -1);
-            }
         }
 
         my_position.apply_move (who, orig_src_piece, move, &undo_state);
@@ -425,7 +420,6 @@ namespace wisdom
             src_piece = make_piece (piece_color (src_piece), Piece::Pawn);
             my_material.remove (orig_src_piece);
             my_material.add (src_piece);
-            update_pawn_count (who, +1);
         }
 
         // check for castling
@@ -463,11 +457,6 @@ namespace wisdom
             // NOTE: we reload from the move in case of en-passant, since dst_piece
             // could be none.
             my_material.add (captured_piece);
-
-            if (captured_piece_type == Piece::Pawn)
-            {
-                update_pawn_count (color_invert (who), +1);
-            }
 
             if (piece_type (dst_piece) == Piece::Rook)
             {

@@ -96,12 +96,6 @@ namespace wisdom
 
                 if (pieces[col] == Piece::King)
                     set_king_position (color, place);
-
-                if (pieces[col] == Piece::Pawn)
-                {
-                    auto color_idx = color_index (color);
-                    my_pawn_count[color_idx]++;
-                }
             }
         }
 

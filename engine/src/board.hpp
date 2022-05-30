@@ -48,9 +48,6 @@ namespace wisdom
         // Number of full moves, updated after black moves.
         int my_full_move_clock = 1;
 
-        // Number of pawns on either side:
-        array<int, Num_Players> my_pawn_count {};
-
     public:
         Board ();
 
@@ -105,12 +102,6 @@ namespace wisdom
             return my_material;
         }
         void get_material () const&& = delete;
-
-        auto get_pawn_count (Color who) -> int
-        {
-            auto idx = color_index (who);
-            return my_pawn_count[idx];
-        }
 
         [[nodiscard]] auto get_position () const& noexcept
             -> const Position&
@@ -243,15 +234,6 @@ namespace wisdom
         void set_piece (Coord coord, ColoredPiece piece)
         {
             my_squares[Row (coord)][Column (coord)] = piece;
-        }
-
-    private:
-
-        void update_pawn_count (Color who, int direction)
-        {
-            assert (direction == 1 || direction == -1);
-            auto color_idx = color_index (who);
-            my_pawn_count[color_idx] += direction;
         }
 
     };

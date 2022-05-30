@@ -14,4 +14,9 @@ namespace wisdom
                 this->add (board.piece_at (row, col));
         }
     }
+
+    auto Material::check_detailed_sufficient_material_scenarios () const -> bool
+    {
+        return false;
+    }
 }
