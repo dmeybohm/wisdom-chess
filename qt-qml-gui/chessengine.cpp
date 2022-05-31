@@ -26,7 +26,7 @@ void ChessEngine::init()
 void ChessEngine::opponentMoved(Move move, Color who)
 {
     QThread::currentThread()->usleep(500);
-    auto game = myGame->engine();
+    auto game = myGame->state();
     game->move(move);
     findMove();
 }
@@ -42,24 +42,24 @@ void ChessEngine::receiveEngineMoved(wisdom::Move move, wisdom::Color who,
 
 void ChessEngine::findMove()
 {
-    auto game = myGame->engine();
+    auto gameState = myGame->state();
     Logger& output = make_standard_logger();
 
     if (myIsGameOver) {
         return;
     }
 
-    auto player = game->get_current_player();
+    auto player = gameState->get_current_player();
     if (player != Player::ChessEngine) {
         return;
     }
 
-    auto who = game->get_current_turn();
-    auto& board = game->get_board();
-    auto& history = game->get_history();
-    auto generator = game->get_move_generator();
+    auto who = gameState->get_current_turn();
+    auto& board = gameState->get_board();
+    auto& history = gameState->get_history();
+    auto generator = gameState->get_move_generator();
     if (is_checkmated(board, who, *generator)) {
-        auto who = to_string(color_invert(game->get_current_turn()));
+        auto who = to_string(color_invert(gameState->get_current_turn()));
         qDebug() << who.c_str() << " wins the game.\n";
         emit noMovesAvailable();
         return;
@@ -71,20 +71,20 @@ void ChessEngine::findMove()
         return;
     }
 
-    if (History::is_fifty_move_repetition(game->get_board())) {
+    if (History::is_fifty_move_repetition(gameState->get_board())) {
         qDebug() << "Fifty moves without a capture or pawn move. It's a draw!\n";
         emit noMovesAvailable();
         return;
     }
 
     qDebug() << "Searching for move";
-    auto optionalMove = game->find_best_move(output);
+    auto optionalMove = gameState->find_best_move(output);
 
     // TODO: we could have timed out or the thread was interrupted, and we should distinguish
     // between these two cases. If we couldn't find any move in the time, should select a move
     // at random, and otherwise exit.
     if (optionalMove.has_value()) {
-        game->move(*optionalMove);
+        gameState->move(*optionalMove);
         emit engineMoved(*optionalMove, who, myGameId);
     } else {
         emit noMovesAvailable();
@@ -109,6 +109,6 @@ void ChessEngine::reloadGame(shared_ptr<ChessGame> newGame, int newGameId)
 
 void ChessEngine::updateConfig(ChessGame::Config config)
 {
-    myGame->engine()->set_max_depth(config.maxDepth.internalDepth());
-    myGame->engine()->set_search_timeout(config.maxTime);
+    myGame->state()->set_max_depth(config.maxDepth.internalDepth());
+    myGame->state()->set_search_timeout(config.maxTime);
 }

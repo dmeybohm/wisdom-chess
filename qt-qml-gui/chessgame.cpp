@@ -51,14 +51,14 @@ auto ChessGame::clone() const ->
 
     auto fen = currentGame->get_board().to_fen_string(currentGame->get_current_turn());
     auto newGame = ChessGame::fromFen(fen, myConfig);
-    newGame->engine()->set_white_player(whitePlayer);
-    newGame->engine()->set_black_player(blackPlayer);
+    newGame->state()->set_white_player(whitePlayer);
+    newGame->state()->set_black_player(blackPlayer);
     return newGame;
 }
 
 auto ChessGame::isLegalMove(Move selectedMove) -> bool
 {
-    auto game = this->engine();
+    auto game = this->state();
     auto selectedMoveStr = to_string(selectedMove);
     qDebug() << "Selected move: " << QString(selectedMoveStr.c_str());
 
@@ -83,7 +83,7 @@ auto ChessGame::isLegalMove(Move selectedMove) -> bool
 
 void ChessGame::setConfig(Config config)
 {
-    auto gameState = this->engine();
+    auto gameState = this->state();
     gameState->set_max_depth(config.maxDepth.internalDepth());
     gameState->set_search_timeout(config.maxTime);
     myConfig = config;
@@ -91,14 +91,14 @@ void ChessGame::setConfig(Config config)
 
 void ChessGame::setPlayers(wisdom::Player whitePlayer, wisdom::Player blackPlayer)
 {
-   auto gameState = this->engine();
+   auto gameState = this->state();
    gameState->set_white_player(whitePlayer);
    gameState->set_black_player(blackPlayer);
 }
 
 void ChessGame::setupNotify(atomic<int>* gameId)
 {
-    auto engine = this->engine();
+    auto engine = this->state();
     auto initialGameId = gameId->load();
 
     engine->set_periodic_function([initialGameId, gameId](not_null<MoveTimer*> moveTimer) {
@@ -116,7 +116,7 @@ auto ChessGame::moveFromCoordinates(int srcRow, int srcColumn,
                                     int dstRow, int dstColumn, optional<Piece> promoted)
     -> pair<optional<Move>, Color>
 {
-    auto engine = this->engine();
+    auto engine = this->state();
     auto src = wisdom::make_coord(srcRow, srcColumn);
     auto dst = wisdom::make_coord(dstRow, dstColumn);
 

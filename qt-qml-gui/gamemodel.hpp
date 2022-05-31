@@ -202,7 +202,7 @@ private:
     void notifyInternalGameStateUpdated();
 
     // Get the configuration for the game.
-    ChessGame::Config gameConfig();
+    ChessGame::Config gameConfig() const;
 };
 
 #endif // GAMEMODEL_H

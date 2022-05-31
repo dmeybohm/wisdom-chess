@@ -56,7 +56,7 @@ GameModel::~GameModel()
 
 void GameModel::init()
 {
-    auto gameState = myChessGame->engine();
+    auto gameState = myChessGame->state();
     setCurrentTurn(wisdom::chess::mapColor(gameState->get_current_turn()));
     myChessGame->setPlayers(Player::Human, Player::ChessEngine);
 
@@ -145,8 +145,8 @@ void GameModel::restart()
     qDebug() << "Creating new chess game";
 
     myChessGame = std::move(ChessGame::fromPlayers(
-        myChessGame->engine()->get_player(Color::White),
-        myChessGame->engine()->get_player(Color::Black),
+        myChessGame->state()->get_player(Color::White),
+        myChessGame->state()->get_player(Color::Black),
         gameConfig()
     ));
     notifyInternalGameStateUpdated();
@@ -168,7 +168,7 @@ void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who, int game
         return;
     }
 
-    auto game = myChessGame->engine();
+    auto game = myChessGame->state();
     game->move(move);
 
     updateDisplayedGameState();
@@ -234,7 +234,7 @@ void GameModel::updateEngineConfig()
 
 auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
 {
-    auto gameState = myChessGame->engine();
+    auto gameState = myChessGame->state();
 
     gameState->move(selectedMove);
     return gameState->get_current_turn();
@@ -251,10 +251,10 @@ void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Col
     wisdom::Player oppositePlayer;
     {
         assert(!myLastDelayedMoveSignal.has_value());
-        auto lockedGame = myChessGame->engine();
-        auto board = lockedGame->get_board();
+        auto gameState = myChessGame->state();
+        auto board = gameState->get_board();
 
-        oppositePlayer = lockedGame->get_player(color_invert(who));
+        oppositePlayer = gameState->get_player(color_invert(who));
         myLastDelayedMoveSignal = [this, playerType, move, who](){
             delete myDelayedMoveTimer;
             myDelayedMoveTimer = nullptr;
@@ -265,7 +265,7 @@ void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Col
             }
         };
 
-        needProposal = lockedGame->get_history().is_third_repetition(board) && !myDrawEverProposed;
+        needProposal = gameState->get_history().is_third_repetition(board) && !myDrawEverProposed;
     }
 
     if (needProposal) {
@@ -288,8 +288,8 @@ void GameModel::updateInternalGameState()
 
 void GameModel::notifyInternalGameStateUpdated()
 {
-    auto currentGame = myChessGame->engine();
-    updateCurrentTurn(currentGame->get_current_turn());
+    auto gameState = myChessGame->state();
+    updateCurrentTurn(gameState->get_current_turn());
 
     if (myGameOverStatus != "") {
         return;
@@ -309,7 +309,7 @@ void GameModel::notifyInternalGameStateUpdated()
     updateDisplayedGameState();
 }
 
-ChessGame::Config GameModel::gameConfig()
+ChessGame::Config GameModel::gameConfig() const
 {
     return ChessGame::Config {
         MaxDepth { myMaxDepth },
@@ -371,11 +371,11 @@ auto GameModel::inCheck() -> bool
 
 void GameModel::updateDisplayedGameState()
 {
-    auto lockedGame = myChessGame->engine();
+    auto gameState = myChessGame->state();
 
-    auto who = lockedGame->get_current_turn();
-    auto board = lockedGame->get_board();
-    auto generator = lockedGame->get_move_generator();
+    auto who = gameState->get_current_turn();
+    auto& board = gameState->get_board();
+    auto generator = gameState->get_move_generator();
     setMoveStatus("");
     setGameOverStatus("");
     setInCheck(false);
@@ -392,7 +392,7 @@ void GameModel::updateDisplayedGameState()
     }
 
 
-    if (lockedGame->get_history().is_fifth_repetition(lockedGame->get_board())) {
+    if (gameState->get_history().is_fifth_repetition(gameState->get_board())) {
         setGameOverStatus("<b>Draw</b> - Fifth move repetition.");
         return;
     }

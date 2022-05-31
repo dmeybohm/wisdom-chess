@@ -67,7 +67,7 @@ public:
     static auto fromEngine(std::unique_ptr<wisdom::Game> game, Config config)
         -> std::unique_ptr<ChessGame>;
 
-    auto engine() -> gsl::not_null<wisdom::Game*>
+    auto state() -> gsl::not_null<wisdom::Game*>
     {
         return myEngine.get();
     }
