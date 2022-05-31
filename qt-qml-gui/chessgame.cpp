@@ -56,7 +56,7 @@ auto ChessGame::clone() const ->
     return newGame;
 }
 
-auto ChessGame::isLegalMove(Move selectedMove) -> bool
+auto ChessGame::isLegalMove(Move selectedMove) const -> bool
 {
     auto game = this->state();
     auto selectedMoveStr = to_string(selectedMove);
@@ -73,12 +73,10 @@ auto ChessGame::isLegalMove(Move selectedMove) -> bool
     auto legalMovesStr = to_string(legalMoves);
     qDebug() << QString(legalMovesStr.c_str());
 
-    for (auto legalMove : legalMoves) {
-        if (legalMove == selectedMove) {
-            return true;
-        }
-    }
-    return false;
+    return std::any_of(legalMoves.cbegin(), legalMoves.cend(),
+                        [selectedMove](const auto& move){
+        return move == selectedMove;
+    });
 }
 
 void ChessGame::setConfig(Config config)
@@ -89,14 +87,14 @@ void ChessGame::setConfig(Config config)
     myConfig = config;
 }
 
-void ChessGame::setPlayers(wisdom::Player whitePlayer, wisdom::Player blackPlayer)
+void ChessGame::setPlayers(wisdom::Player whitePlayer, wisdom::Player blackPlayer) // NOLINT(readability-make-member-function-const)
 {
    auto gameState = this->state();
    gameState->set_white_player(whitePlayer);
    gameState->set_black_player(blackPlayer);
 }
 
-void ChessGame::setupNotify(atomic<int>* gameId)
+void ChessGame::setupNotify(atomic<int>* gameId) // NOLINT(readability-make-member-function-const)
 {
     auto engine = this->state();
     auto initialGameId = gameId->load();
@@ -113,7 +111,8 @@ void ChessGame::setupNotify(atomic<int>* gameId)
 }
 
 auto ChessGame::moveFromCoordinates(int srcRow, int srcColumn,
-                                    int dstRow, int dstColumn, optional<Piece> promoted)
+                                    int dstRow, int dstColumn,
+                                    optional<Piece> promoted) const
     -> pair<optional<Move>, Color>
 {
     auto engine = this->state();

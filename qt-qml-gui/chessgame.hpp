@@ -24,16 +24,16 @@ public:
         : myUserDepth { userDepth }
     {
         if (userDepth <= 0) {
-            throw new wisdom::Error { "Invalid depth" };
+            throw wisdom::Error { "Invalid depth" };
         }
     }
 
-    auto internalDepth() -> int
+    [[nodiscard]] auto internalDepth() const -> int
     {
         return myUserDepth * 2 - 1;
     }
 
-    auto userDepth() -> int
+    [[nodiscard]] auto userDepth() const -> int
     {
         return myUserDepth;
     }
@@ -59,30 +59,33 @@ public:
         setConfig(config);
     }
 
-    static auto fromPlayers(wisdom::Player whitePlayer, wisdom::Player blackPlayer, Config config)
+    static auto fromPlayers(wisdom::Player whitePlayer,
+                            wisdom::Player blackPlayer, Config config)
         -> std::unique_ptr<ChessGame>;
 
-    static auto fromFen(const std::string& input, Config config) -> std::unique_ptr<ChessGame>;
+    static auto fromFen(const std::string& input, Config config)
+        -> std::unique_ptr<ChessGame>;
 
     static auto fromEngine(std::unique_ptr<wisdom::Game> game, Config config)
         -> std::unique_ptr<ChessGame>;
 
-    auto state() -> gsl::not_null<wisdom::Game*>
+    [[nodiscard]] auto state() const -> gsl::not_null<wisdom::Game*>
     {
         return myEngine.get();
     }
 
     // Clone the game state
-    auto clone() const -> std::unique_ptr<ChessGame>;
+    [[nodiscard]] auto clone() const -> std::unique_ptr<ChessGame>;
 
-    auto engine() const -> gsl::not_null<const wisdom::Game*>
+    [[nodiscard]] auto engine() const -> gsl::not_null<const wisdom::Game*>
     {
         return myEngine.get();
     }
 
-    auto isLegalMove(wisdom::Move selectedMove) -> bool;
+    auto isLegalMove(wisdom::Move selectedMove) const -> bool;
 
-    auto moveGenerator() -> gsl::not_null<wisdom::MoveGenerator*>
+    [[nodiscard]] auto moveGenerator() const
+        -> gsl::not_null<wisdom::MoveGenerator*>
     {
        return myMoveGenerator.get();
     }
@@ -92,8 +95,9 @@ public:
 
     void setupNotify(std::atomic<int>* gameId);
 
-    auto moveFromCoordinates(int srcRow, int srcColumn,
-                             int dstRow, int dstColumn, std::optional<wisdom::Piece> promoted)
+    [[nodiscard]] auto moveFromCoordinates(int srcRow, int srcColumn,
+         int dstRow, int dstColumn,
+         std::optional<wisdom::Piece> promoted) const
         -> std::pair<std::optional<wisdom::Move>, wisdom::Color>;
 
 private:
