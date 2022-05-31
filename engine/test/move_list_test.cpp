@@ -46,7 +46,7 @@ TEST_CASE( "Moving move list pointer" )
     MoveList initial {Color::Black, {"e4 d4", "d2 d1"}};
     MoveList moved = std::move (initial);
 
-    REQUIRE( initial.ptr () == nullptr );
+    REQUIRE( initial.ptr () == nullptr ); // NOLINT(bugprone-use-after-move)
     REQUIRE( moved.ptr () != nullptr );
 
     auto ptr = moved.begin ();
@@ -67,7 +67,18 @@ TEST_CASE( "Appending a move" )
 
 TEST_CASE( "Moving uncached list" )
 {
-    MoveList result = MoveList::uncached ();
+    MoveList uncached_list = MoveList::uncached ();
 
-    // todo
+    uncached_list.push_back (move_parse ("e4 d4"));
+    uncached_list.push_back (move_parse ("d2 d1"));
+
+    MoveList moved = std::move (uncached_list);
+
+    REQUIRE( uncached_list.ptr () == nullptr ); // NOLINT(bugprone-use-after-move)
+    REQUIRE( moved.ptr () != nullptr );
+
+    auto ptr = moved.begin ();
+    REQUIRE( moved.size () == 2 );
+    REQUIRE( *ptr++ == move_parse ("e4 d4", Color::Black) );
+    REQUIRE( *ptr == move_parse ("d2 d1", Color::White) );
 }
