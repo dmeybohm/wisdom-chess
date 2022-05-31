@@ -486,32 +486,3 @@ TEST_CASE( "Test able_to_castle with Castle_None returns false" )
        REQUIRE (!black_castle);
    }
 }
-
-TEST_CASE( "Test can't castle scenario 1" )
-{
-//    MoveList moves { Color::White, {
-//            "e2 e4","b8 c6",
-//            "g1 f3","a8 b8",
-//            "h1 g2","b8 a8"
-//            "e7 e6","c2 c3","d7 c6","b1 a3","f8xa3","b2xa3","c6 a4",
-//            "d1 d2","g8 e7","a1 b1","e7 c6","b1xb7","b8 d7","g1 f3","a8 b8","d2 b2",
-//            "b8 a8","f1 e2","f7 f6","e5xf6","d7xf6"}
-//    };
-//
-//    Board board;
-//    Color color = Color::White;
-//    REQUIRE(board.able_to_castle (Color::White, Castle_Kingside));
-//
-//    int i = 0;
-//    for (auto move : moves)
-//    {
-//        INFO("Move : ");
-//        CAPTURE(i);
-//        i++;
-//        board.move (color, move);
-//        CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-//        color = color_invert (color);
-//    }
-//    auto castling = move_parse ("o-o", Color::White);
-//    board.move (Color::White, castling);
-}
