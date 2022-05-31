@@ -165,10 +165,10 @@ namespace wisdom
         unique_ptr<History> my_history = make_unique<History> ();
         unique_ptr<analysis::Analytics> my_analytics = make_unique<analysis::Analytics> ();
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};
-        int my_max_depth { Max_Depth };
+        int my_max_depth { Default_Max_Depth };
 
         Players my_players = { Player::Human, Player::ChessEngine };
-        chrono::seconds my_search_timeout { Max_Search_Seconds };
+        chrono::seconds my_search_timeout { Default_Max_Search_Seconds };
 
     };
 }
