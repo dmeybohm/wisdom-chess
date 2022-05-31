@@ -37,8 +37,9 @@ public slots:
     void receiveEngineMoved(wisdom::Move move, wisdom::Color who,
                             int gameId);
 
-    // Receive draw proposal:
-    void drawProposed();
+    // Receive and response to a draw proposal:
+    void respondToDrawProposal(wisdom::Color fromColor, wisdom::Color toColor,
+                               ProposedDrawType proposalType);
 
     // Update the whole chess game state. The ownership of the game is taken.
     void reloadGame(std::shared_ptr<ChessGame> newGame, int newGameId);
@@ -62,6 +63,11 @@ private:
     bool myIsGameOver = false;
 
     void findMove();
+
+    [[nodiscard]] auto computerAcceptsDraw(wisdom::Color computerColor) const
+        -> bool;
+
+    void setDrawStatus(ProposedDrawType proposalType, bool accepted):
 };
 
 #endif // CHESSENGINE_H

@@ -10,6 +10,7 @@ using namespace wisdom;
 using std::shared_ptr;
 using std::optional;
 using gsl::not_null;
+using wisdom::GameStatus;
 
 ChessEngine::ChessEngine(shared_ptr<ChessGame> game, int gameId, QObject *parent)
     : QObject { parent }
@@ -25,7 +26,7 @@ void ChessEngine::init()
 
 void ChessEngine::opponentMoved(Move move, Color who)
 {
-    QThread::currentThread()->usleep(500);
+    QThread::usleep(500);
     auto game = myGame->state();
     game->move(move);
     findMove();
@@ -54,28 +55,55 @@ void ChessEngine::findMove()
         return;
     }
 
+    auto nextStatus = gameState->status();
     auto who = gameState->get_current_turn();
+
+    switch (nextStatus)
+    {
+    case GameStatus::Playing:
+        break;
+
+    case GameStatus::Checkmate:
+    case GameStatus::Stalemate:
+    case GameStatus::ThreefoldRepetitionAccepted:
+    case GameStatus::FiftyMovesWithoutProgressAccepted:
+    case GameStatus::FivefoldRepetitionDraw:
+    case GameStatus::SeventyFiveMovesWithoutProgressDraw:
+    case GameStatus::InsufficientMaterialDraw:
+        myIsGameOver = true;
+        emit noMovesAvailable();
+        return;
+
+    case GameStatus::ThreefoldRepetitionReached:
+        if (computerAcceptsDraw(who)) {
+            gameState->set_threefold_repetition_draw_status(
+                    { true, true }
+            );
+            myIsGameOver = true;
+            emit drawProposalResponse(true);
+            emit noMovesAvailable();
+            return;
+        }
+        gameState->set_threefold_repetition_draw_status({ false, false });
+        break;
+
+    case GameStatus::FiftyMovesWithoutProgressReached:
+        if (computerAcceptsDraw(who)) {
+            gameState->set_fifty_moves_without_progress_draw_status(
+                    { true, true }
+            );
+            myIsGameOver = true;
+            emit drawProposalResponse(true);
+            emit noMovesAvailable();
+            return;
+        }
+        gameState->set_fifty_moves_without_progress_draw_status({ false, false });
+        emit drawProposalResponse(false);
+        break;
+    }
+
     auto& board = gameState->get_board();
     auto& history = gameState->get_history();
-    auto generator = gameState->get_move_generator();
-    if (is_checkmated(board, who, *generator)) {
-        auto who = to_string(color_invert(gameState->get_current_turn()));
-        qDebug() << who.c_str() << " wins the game.\n";
-        emit noMovesAvailable();
-        return;
-    }
-
-    if (history.is_fifth_repetition(board)) {
-        qDebug() << "Fifth move repetition. It's a draw!\n";
-        emit noMovesAvailable();
-        return;
-    }
-
-    if (History::is_fifty_move_repetition(gameState->get_board())) {
-        qDebug() << "Fifty moves without a capture or pawn move. It's a draw!\n";
-        emit noMovesAvailable();
-        return;
-    }
 
     qDebug() << "Searching for move";
     auto optionalMove = gameState->find_best_move(output);
@@ -91,10 +119,41 @@ void ChessEngine::findMove()
     }
 }
 
-void ChessEngine::drawProposed()
+void ChessEngine::drawProposed(ProposedDrawType proposalType)
 {
+}
+
+auto ChessEngine::computerAcceptsDraw(Color computerColor) const -> bool
+{
+    auto gameState = myGame->state();
+    return gameState->computer_wants_draw(computerColor);
+}
+
+auto ChessEngine::respondToDrawProposal(Color fromColor, Color toColor,
+                                        ProposedDrawType proposalType)
+{
+
     myIsGameOver = true;
-    emit drawProposalResponse(true);
+    bool accepted = computerAcceptsDraw(toColor);
+    setDrawStatus (proposalType, accepted);
+    if (accepted) {
+        myIsGameOver = true;
+    }
+    emit drawProposalResponse(accepted);
+}
+
+void ChessEngine::setDrawStatus (ProposedDrawType proposalType, bool accepted)
+{
+    auto gameState = myGame->state();
+    switch (proposalType)
+    {
+        case ProposedDrawType::ThreeFoldRepetition:
+            gameState->set_threefold_repetition_draw_status({ accepted, accepted });
+            break;
+        case ProposedDrawType::FiftyMovesWithoutProgress:
+            gameState->set_fifty_moves_without_progress_draw_status({ accepted, accepted });
+            break;
+    }
 }
 
 void ChessEngine::reloadGame(shared_ptr<ChessGame> newGame, int newGameId)

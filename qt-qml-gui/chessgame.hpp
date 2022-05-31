@@ -42,6 +42,13 @@ private:
     int myUserDepth;
 };
 
+
+enum class ProposedDrawType
+{
+    ThreeFoldRepetition,
+    FiftyMovesWithoutProgress,
+};
+
 class ChessGame
 {
 public:
@@ -82,7 +89,7 @@ public:
         return myEngine.get();
     }
 
-    auto isLegalMove(wisdom::Move selectedMove) const -> bool;
+    [[nodiscard]] auto isLegalMove(wisdom::Move selectedMove) const -> bool;
 
     [[nodiscard]] auto moveGenerator() const
         -> gsl::not_null<wisdom::MoveGenerator*>
