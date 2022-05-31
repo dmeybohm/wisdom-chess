@@ -53,8 +53,8 @@ namespace wisdom
         if (white_bishop_count == 0 && black_bishop_count == 0)
         {
             // King and knight vs King:
-            if (black_knight_count == 1 && white_knight_count == 0 ||
-                white_knight_count == 1 && black_knight_count == 0)
+            if ((black_knight_count == 1 && white_knight_count == 0) ||
+                (white_knight_count == 1 && black_knight_count == 0))
             {
                 return true;
             }
@@ -63,8 +63,8 @@ namespace wisdom
         if (white_knight_count == 0 && black_knight_count == 0)
         {
             // King and bishop vs King:
-            if (black_bishop_count == 0 && white_bishop_count == 1 ||
-                white_bishop_count == 0 && black_bishop_count == 1)
+            if ((black_bishop_count == 0 && white_bishop_count == 1) ||
+                (white_bishop_count == 0 && black_bishop_count == 1))
             {
                 return true;
             }

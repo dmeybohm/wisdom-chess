@@ -386,17 +386,14 @@ namespace wisdom
     auto Board::find_first_coord_with_piece (ColoredPiece piece, Coord starting_at) const
         -> optional<Coord>
     {
-        optional<Coord> iterator = starting_at;
-
-        while (iterator.has_value ())
+        for (optional<Coord> it = starting_at;
+             it.has_value ();
+             it = next_coord (*it, +1))
         {
-            if (piece_at (*iterator) == piece)
-                return iterator;
-
-            iterator = next_coord (*iterator, +1);
+            if (piece_at (*it) == piece)
+                return it;
         }
 
         return {};
     }
-
 }
