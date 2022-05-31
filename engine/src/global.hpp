@@ -24,11 +24,10 @@
 
 #ifdef HAS_MS_GSL
 #include <gsl/gsl>
+#include <gsl/narrow>
 #else
 #include "gsl.hpp"
 #endif
-
-//#include <parallel_hashmap/phmap.h>
 
 namespace wisdom
 {
