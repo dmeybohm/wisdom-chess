@@ -31,10 +31,15 @@ class GameModel : public QObject
                WRITE setMoveStatus
                NOTIFY moveStatusChanged)
 
-    Q_PROPERTY(bool drawProposedToHuman
-               READ drawProposedToHuman
-               WRITE setDrawProposedToHuman
-               NOTIFY drawProposedToHumanChanged)
+    Q_PROPERTY(bool thirdRepetitionDrawProposed
+               READ thirdRepetitionDrawProposed
+               WRITE setThirdRepetitionDrawProposed
+               NOTIFY thirdRepetitionDrawProposedChanged)
+
+    Q_PROPERTY(bool fiftyMovesWithoutProgressDrawProposed
+               READ fiftyMovesWithoutProgressDrawProposed
+               WRITE setFiftyMovesWithoutProgressDrawProposed
+               NOTIFY fiftyMovesWithoutProgressDrawProposedChanged)
 
     Q_PROPERTY(bool inCheck
                READ inCheck
@@ -81,8 +86,11 @@ public:
     void setInCheck(const bool newInCheck);
     auto inCheck() -> bool;
 
-    void setDrawProposedToHuman(bool drawProposedToHuman);
-    auto drawProposedToHuman() -> bool;
+    void setThirdRepetitionDrawProposed(bool drawProposedToHuman);
+    auto thirdRepetitionDrawProposed() -> bool;
+
+    void setFiftyMovesWithoutProgressDrawProposed(bool drawProposedToHuman);
+    auto fiftyMovesWithoutProgressDrawProposed() -> bool;
 
     void setWhiteIsComputer(bool newWhiteIsComputer);
     auto whiteIsComputer() -> bool;
@@ -119,7 +127,8 @@ signals:
     void maxSearchTimeChanged();
 
     // Use a property to communicate to QML and the human player:
-    void drawProposedToHumanChanged();
+    void thirdRepetitionDrawProposedChanged();
+    void fiftyMovesWithoutProgressChanged();
 
     // Use a raw signal to communicate to the thread engine on the other thread.
     // We don't want to send on toggling the boolean.
@@ -160,7 +169,8 @@ private:
     QString myGameOverStatus {};
     QString myMoveStatus {};
     bool myInCheck = false;
-    bool myDrawProposedToHuman = false;
+    bool myThirdRepetitionDrawProposed = false;
+    bool myFiftyMovesWithProgressDrawProposed = false;
     bool myWhiteIsComputer = false;
     bool myBlackIsComputer = true;
     int myMaxDepth;

@@ -247,26 +247,13 @@ void GameModel::updateCurrentTurn(Color newColor)
 
 void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Color who)
 {
-    bool needProposal;
-    wisdom::Player oppositePlayer;
-    {
-        assert(!myLastDelayedMoveSignal.has_value());
-        auto gameState = myChessGame->state();
-        auto board = gameState->get_board();
-
-        oppositePlayer = gameState->get_player(color_invert(who));
-        myLastDelayedMoveSignal = [this, playerType, move, who](){
-            delete myDelayedMoveTimer;
-            myDelayedMoveTimer = nullptr;
-            if (playerType == wisdom::Player::ChessEngine) {
-                emit engineMoved(move, who, myGameId);
-            } else {
-                emit humanMoved(move, who);
-            }
-        };
-
-        needProposal = gameState->get_history().is_third_repetition(board) && !myDrawEverProposed;
+    if (playerType == wisdom::Player::ChessEngine) {
+        emit engineMoved(move, who, myGameId);
+    } else {
+        emit humanMoved(move, who);
     }
+
+    needProposal = gameState->get_history().is_third_repetition(board) && !myDrawEverProposed;
 
     if (needProposal) {
         proposeDraw(oppositePlayer);
@@ -468,19 +455,43 @@ void GameModel::setBlackIsComputer(bool newBlackIsComputer)
     }
 }
 
-void GameModel::setDrawProposedToHuman(bool drawProposed)
+auto GameModel::thirdRepetitionDrawProposed() -> bool
 {
-    qDebug() << "setDrawProposedToHuman";
-    if (myDrawProposedToHuman != drawProposed) {
-        myDrawProposedToHuman = drawProposed;
-        emit drawProposedToHumanChanged();
+    return myThirdRepetitionDrawProposed;
+}
+
+void GameModel::setThirdRepetitionDrawProposed(bool drawProposed)
+{
+    qDebug() << "setThirdRepetitionDrawProposed";
+    if (myThirdRepetitionDrawProposed != drawProposed) {
+        myThirdRepetitionDrawProposed = drawProposed;
+        emit thirdRepetitionDrawProposedChanged();
     }
 }
 
-void GameModel::proposeDraw(wisdom::Player player)
+auto GameModel::fiftyMovesWithoutProgressDrawProposed() -> bool
+{
+    return myThirdRepetitionDrawProposed;
+}
+
+void GameModel::setFiftyMovesWithoutProgressDrawProposed(bool drawProposed)
+{
+    qDebug() << "setFiftyMovesWithoutProgressDrawProposed";
+    if (myFiftyMovesWithProgressDrawProposed != drawProposed) {
+        myFiftyMovesWithProgressDrawProposed = drawProposed;
+        emit fiftyMovesWithoutProgressDrawProposedChanged();
+    }
+}
+
+void GameModel::proposeDraw(wisdom::Player player, wisdom::ProposedDrawType draw_type)
 {
     if (player == Player::Human) {
-        setDrawProposedToHuman(true);
+        switch (draw_type) {
+        case wisdom::ProposedDrawType::FiftyMovesWithoutProgress:
+            setFiftyMovesWithoutProgressDrawProposed(true);
+        case wisdom::ProposedDrawType::ThreeFoldRepetition:
+            setThirdRepetitionDrawProposed(true);
+        }
     } else {
         emit proposeDrawToEngine();
     }
