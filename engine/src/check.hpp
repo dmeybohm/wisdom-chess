@@ -9,16 +9,17 @@
 
 namespace wisdom
 {
-    struct DrawingStatus
+    struct DrawCategory
     {
         enum Value
         {
             NoDraw,
             InsufficientMaterial,
-            ByRepetition
+            ByRepetition,
+            ByNoProgress
         } my_value;
 
-        DrawingStatus (Value value) // NOLINT(google-explicit-constructor)
+        DrawCategory (Value value) // NOLINT(google-explicit-constructor)
             : my_value { value }
         {}
 
@@ -27,12 +28,12 @@ namespace wisdom
             return my_value != NoDraw;
         }
 
-        friend auto operator == (DrawingStatus first, DrawingStatus second) -> bool
+        friend auto operator == (DrawCategory first, DrawCategory second) -> bool
         {
             return first.my_value == second.my_value;
         }
 
-        friend auto operator != (DrawingStatus first, DrawingStatus second) -> bool
+        friend auto operator != (DrawCategory first, DrawCategory second) -> bool
         {
             return !operator== (first, second);
         }
@@ -85,7 +86,7 @@ namespace wisdom
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
     inline auto is_drawing_move (Board& board, [[maybe_unused]] Color who,
-                                 [[maybe_unused]] Move move, const History& history) -> DrawingStatus
+                                 [[maybe_unused]] Move move, const History& history) -> DrawCategory
     {
         auto repetition_status = history.get_threefold_repetition_status ();
         auto no_progress_status = history.get_fifty_moves_without_progress_status ();
@@ -96,18 +97,18 @@ namespace wisdom
                 no_progress_status == DrawStatus::BothPlayersDeclinedDraw ?
                 150 : 100;
 
-        if (history.is_nth_repetition (board, repetition_count) ||
-            History::has_been_n_half_moves_without_progress (board, without_progress_count))
-        {
-            return DrawingStatus::ByRepetition;
-        }
+        if (history.is_nth_repetition (board, repetition_count))
+            return DrawCategory::ByRepetition;
+
+        if (History::has_been_n_half_moves_without_progress (board, without_progress_count))
+            return DrawCategory::ByNoProgress;
 
         const auto& material_ref = board.get_material ();
 
         if (!material_ref.has_sufficient_material (board))
-            return DrawingStatus::InsufficientMaterial;
+            return DrawCategory::InsufficientMaterial;
 
-        return DrawingStatus::NoDraw;
+        return DrawCategory::NoDraw;
     }
 }
 
