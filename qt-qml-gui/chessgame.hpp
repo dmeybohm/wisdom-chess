@@ -42,13 +42,6 @@ private:
     int myUserDepth;
 };
 
-
-enum class ProposedDrawType
-{
-    ThreeFoldRepetition,
-    FiftyMovesWithoutProgress,
-};
-
 class ChessGame
 {
 public:

@@ -310,7 +310,10 @@ namespace wisdom
 
         case GameStatus::ThreefoldRepetitionReached: {
             auto draw_pair = determine_if_drawn (input_state, game);
-            game.set_threefold_repetition_draw_status (draw_pair);
+            game.set_proposed_draw_status (
+                    ProposedDrawType::ThreeFoldRepetition,
+                    draw_pair
+            );
             // Recursively (one-level deep) update the status again.
             return update_game_status (input_state, game);
         }
@@ -327,7 +330,10 @@ namespace wisdom
 
         case GameStatus::FiftyMovesWithoutProgressReached: {
             auto draw_pair = determine_if_drawn (input_state, game);
-            game.set_fifty_moves_without_progress_draw_status (draw_pair);
+            game.set_proposed_draw_status (
+                    ProposedDrawType::FiftyMovesWithoutProgress,
+                    draw_pair
+            );
             // Recursively (one-level deep) update the status again.
             return update_game_status (input_state, game);
         }

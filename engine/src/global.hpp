@@ -42,6 +42,7 @@ namespace wisdom
     using std::make_shared;
     using std::nullopt;
     using std::array;
+    using std::pair;
 
     namespace chrono = std::chrono;
 

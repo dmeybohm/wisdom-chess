@@ -11,4 +11,9 @@ namespace wisdom
     {
         return is_nth_repetition (board, 5);
     }
+
+    static void invalid_transition ()
+    {
+        throw Error { "Invalid draw status transition." };
+    }
 }

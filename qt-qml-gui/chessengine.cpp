@@ -11,6 +11,7 @@ using std::shared_ptr;
 using std::optional;
 using gsl::not_null;
 using wisdom::GameStatus;
+using wisdom::ProposedDrawType;
 
 ChessEngine::ChessEngine(shared_ptr<ChessGame> game, int gameId, QObject *parent)
     : QObject { parent }
@@ -41,6 +42,40 @@ void ChessEngine::receiveEngineMoved(wisdom::Move move, wisdom::Color who,
     }
 }
 
+auto ChessEngine::gameStatusTransition () -> wisdom::GameStatus
+{
+    auto gameState = myGame->state();
+    auto nextStatus = gameState->status();
+    auto who = gameState->get_current_turn();
+
+    switch (nextStatus)
+    {
+        case GameStatus::Playing:
+            break;
+
+        case GameStatus::Checkmate:
+        case GameStatus::Stalemate:
+        case GameStatus::ThreefoldRepetitionAccepted:
+        case GameStatus::FiftyMovesWithoutProgressAccepted:
+        case GameStatus::FivefoldRepetitionDraw:
+        case GameStatus::SeventyFiveMovesWithoutProgressDraw:
+        case GameStatus::InsufficientMaterialDraw:
+            myIsGameOver = true;
+            emit noMovesAvailable();
+            break;
+
+        case GameStatus::ThreefoldRepetitionReached:
+            handlePotentialDrawPosition(ProposedDrawType::ThreeFoldRepetition, who);
+            break;
+
+        case GameStatus::FiftyMovesWithoutProgressReached:
+            handlePotentialDrawPosition(ProposedDrawType::FiftyMovesWithoutProgress, who);
+            break;
+    }
+
+    return nextStatus;
+}
+
 void ChessEngine::findMove()
 {
     auto gameState = myGame->state();
@@ -55,52 +90,13 @@ void ChessEngine::findMove()
         return;
     }
 
-    auto nextStatus = gameState->status();
-    auto who = gameState->get_current_turn();
-
-    switch (nextStatus)
-    {
-    case GameStatus::Playing:
-        break;
-
-    case GameStatus::Checkmate:
-    case GameStatus::Stalemate:
-    case GameStatus::ThreefoldRepetitionAccepted:
-    case GameStatus::FiftyMovesWithoutProgressAccepted:
-    case GameStatus::FivefoldRepetitionDraw:
-    case GameStatus::SeventyFiveMovesWithoutProgressDraw:
-    case GameStatus::InsufficientMaterialDraw:
-        myIsGameOver = true;
-        emit noMovesAvailable();
+    auto nextStatus = gameStatusTransition();
+    if (nextStatus != GameStatus::Playing) {
+        // The game is now over - or we're waiting for a response on a draw proposal.
         return;
-
-    case GameStatus::ThreefoldRepetitionReached:
-        if (computerAcceptsDraw(who)) {
-            gameState->set_threefold_repetition_draw_status(
-                    { true, true }
-            );
-            myIsGameOver = true;
-            emit drawProposalResponse(true);
-            emit noMovesAvailable();
-            return;
-        }
-        gameState->set_threefold_repetition_draw_status({ false, false });
-        break;
-
-    case GameStatus::FiftyMovesWithoutProgressReached:
-        if (computerAcceptsDraw(who)) {
-            gameState->set_fifty_moves_without_progress_draw_status(
-                    { true, true }
-            );
-            myIsGameOver = true;
-            emit drawProposalResponse(true);
-            emit noMovesAvailable();
-            return;
-        }
-        gameState->set_fifty_moves_without_progress_draw_status({ false, false });
-        emit drawProposalResponse(false);
-        break;
     }
+
+    auto who = gameState->get_current_turn();
 
     auto& board = gameState->get_board();
     auto& history = gameState->get_history();
@@ -119,40 +115,34 @@ void ChessEngine::findMove()
     }
 }
 
-void ChessEngine::drawProposed(ProposedDrawType proposalType)
-{
-}
-
-auto ChessEngine::computerAcceptsDraw(Color computerColor) const -> bool
+void ChessEngine::handlePotentialDrawPosition(wisdom::ProposedDrawType proposedDrawType,
+                                              wisdom::Color who)
 {
     auto gameState = myGame->state();
-    return gameState->computer_wants_draw(computerColor);
-}
 
-auto ChessEngine::respondToDrawProposal(Color fromColor, Color toColor,
-                                        ProposedDrawType proposalType)
-{
+    auto acceptDraw = gameState->computer_wants_draw(who);
+    gameState->set_proposed_draw_status (
+            proposedDrawType,
+            who,
+            acceptDraw
+    );
 
-    myIsGameOver = true;
-    bool accepted = computerAcceptsDraw(toColor);
-    setDrawStatus (proposalType, accepted);
-    if (accepted) {
+    if (acceptDraw) {
         myIsGameOver = true;
+        emit updateDrawStatus (proposedDrawType, who, true);
+        emit noMovesAvailable ();
     }
-    emit drawProposalResponse(accepted);
 }
 
-void ChessEngine::setDrawStatus (ProposedDrawType proposalType, bool accepted)
+void ChessEngine::receiveDrawStatus(wisdom::ProposedDrawType drawType,
+                                    wisdom::Color player, bool accepted)
 {
     auto gameState = myGame->state();
-    switch (proposalType)
-    {
-        case ProposedDrawType::ThreeFoldRepetition:
-            gameState->set_threefold_repetition_draw_status({ accepted, accepted });
-            break;
-        case ProposedDrawType::FiftyMovesWithoutProgress:
-            gameState->set_fifty_moves_without_progress_draw_status({ accepted, accepted });
-            break;
+    gameState->set_proposed_draw_status (drawType, player, accepted);
+
+    auto nextStatus = gameStatusTransition();
+    if (nextStatus == GameStatus::Playing) {
+        findMove(); // resume playing.
     }
 }
 

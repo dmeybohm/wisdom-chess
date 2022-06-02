@@ -10,7 +10,7 @@
 
 namespace wisdom
 {
-    enum class DrawByRepetitionStatus
+    enum class DrawStatus
     {
         NotReached,
         BothPlayersDeclinedDraw,
@@ -18,6 +18,24 @@ namespace wisdom
         BlackPlayerRequestedDraw,
         BothPlayersRequestedDraw,
     };
+
+    using DrawAccepted = pair<optional<bool>, optional<bool>>;
+
+    constexpr auto update_draw_accepted (DrawAccepted initial, Color player,
+                                         bool accepted) -> DrawAccepted
+    {
+        assert (player == Color::White || player == Color::Black);
+        if (player == Color::White)
+            return { accepted, initial.second };
+        else
+            return { initial.first, accepted };
+    }
+
+    constexpr auto both_players_replied (DrawAccepted draw_accepted)
+    {
+        return draw_accepted.first.has_value () &&
+             draw_accepted.second.has_value ();
+    }
 
     class History
     {
@@ -28,9 +46,9 @@ namespace wisdom
         vector<BoardCode> my_board_codes;
         vector<UndoMove> my_undo_moves;
 
-        DrawByRepetitionStatus my_threefold_repetition_status = DrawByRepetitionStatus::NotReached;
-        DrawByRepetitionStatus my_fifty_moves_without_progress_status
-            = DrawByRepetitionStatus::NotReached;
+        DrawStatus my_threefold_repetition_status = DrawStatus::NotReached;
+        DrawStatus my_fifty_moves_without_progress_status
+            = DrawStatus::NotReached;
 
     public:
         History()
@@ -92,23 +110,23 @@ namespace wisdom
         }
         void get_move_history () const&& = delete;
 
-        [[nodiscard]] auto get_threefold_repetition_status () const -> DrawByRepetitionStatus
+        [[nodiscard]] auto get_threefold_repetition_status () const -> DrawStatus
         {
             return my_threefold_repetition_status;
         }
 
-        void set_threefold_repetition_status (DrawByRepetitionStatus status)
+        void set_threefold_repetition_status (DrawStatus status)
         {
             my_threefold_repetition_status = status;
         }
 
         [[nodiscard]] auto get_fifty_moves_without_progress_status () const
-            -> DrawByRepetitionStatus
+            -> DrawStatus
         {
             return my_fifty_moves_without_progress_status;
         }
 
-        void set_fifty_moves_without_progress_status (DrawByRepetitionStatus status)
+        void set_fifty_moves_without_progress_status (DrawStatus status)
         {
             my_fifty_moves_without_progress_status = status;
         }
