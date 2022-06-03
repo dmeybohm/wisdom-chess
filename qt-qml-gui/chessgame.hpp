@@ -51,13 +51,15 @@ public:
         wisdom::Players players;
         MaxDepth maxDepth;
         std::chrono::seconds maxTime;
+        wisdom::MoveTimer::PeriodicFunction periodicFunction;
 
         static auto defaultConfig() -> Config
         {
             return {
                 { wisdom::Player::Human, wisdom::Player::ChessEngine },
                 MaxDepth { 4 },
-                std::chrono::seconds { 4 }
+                std::chrono::seconds { 4 },
+                [](gsl::not_null<wisdom::MoveTimer*> timer){}
             };
         }
     };
@@ -102,8 +104,6 @@ public:
 
     void setConfig(Config config);
     void setPlayers(wisdom::Player whitePLayer, wisdom::Player blackPlayer);
-
-    void setupNotify(std::atomic<int>* gameId);
 
     [[nodiscard]] auto moveFromCoordinates(int srcRow, int srcColumn,
          int dstRow, int dstColumn,

@@ -184,4 +184,7 @@ void ChessEngine::updateConfig(ChessGame::Config config, int newGameId)
     myGame->state()->set_players(config.players);
 
     myGameId = newGameId;
+
+    // Possibly resume searching for the next move:
+    init();
 }

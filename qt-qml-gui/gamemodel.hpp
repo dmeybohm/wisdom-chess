@@ -196,6 +196,9 @@ private:
     // Returns the color of the next turn:
     auto updateChessEngineForHumanMove(wisdom::Move selectedMove) -> wisdom::Color;
 
+    // Build the notifier that is used to interrupt the thread.
+    auto buildNotifier() -> wisdom::MoveTimer::PeriodicFunction;
+
     // Update the current turn to the new color.
     void updateCurrentTurn(wisdom::Color newColor);
 

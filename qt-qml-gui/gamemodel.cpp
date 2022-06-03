@@ -75,7 +75,6 @@ void GameModel::init()
 {
     auto gameState = myChessGame->state();
     setCurrentTurn(wisdom::chess::mapColor(gameState->get_current_turn()));
-    myChessGame->setPlayers(Player::Human, Player::ChessEngine);
 
     setupNewEngineThread();
 }
@@ -87,7 +86,6 @@ void GameModel::setupNewEngineThread()
     // Initialize a new Game for the chess engine.
     // Any changes in the game config will be updated over a signal.
     auto computerChessGame = myChessGame->clone();
-    computerChessGame->setupNotify(&myGameId);
     auto chessEngine = new ChessEngine { std::move(computerChessGame), myGameId };
 
     myChessEngineThread = new QThread();
@@ -165,7 +163,6 @@ void GameModel::restart()
     std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
 
     myGameId++;
-    computerChessGame->setupNotify(&myGameId);
 
     // Update the engine config if needed:
     updateEngineConfig();
@@ -257,7 +254,8 @@ void GameModel::updateEngineConfig()
     emit engineConfigChanged(ChessGame::Config {
          myChessGame->state()->get_players(),
          MaxDepth { myMaxDepth },
-         std::chrono::seconds { myMaxSearchTime }
+         std::chrono::seconds { myMaxSearchTime },
+         buildNotifier()
     }, myGameId);
 }
 
@@ -267,6 +265,22 @@ auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Colo
 
     gameState->move(selectedMove);
     return gameState->get_current_turn();
+}
+
+auto GameModel::buildNotifier() -> MoveTimer::PeriodicFunction
+{
+    auto state = myChessGame->state();
+    auto initialGameId = myGameId.load();
+
+    return ([initialGameId, gameId=&myGameId](not_null<MoveTimer*> moveTimer) {
+         // This runs in the ChessEngine thread.
+         // Check if the gameId we passed in originally has changed - if so,
+         // the game is over.
+         if (initialGameId != gameId->load()) {
+             qDebug() << "Setting timeout to break the loop.";
+             moveTimer->set_triggered(true);
+         }
+    });
 }
 
 void GameModel::updateCurrentTurn(Color newColor)
@@ -395,7 +409,7 @@ void GameModel::updateDisplayedGameState()
     }
 
     case GameStatus::Stalemate: {
-        auto stalemateStr = "<b>Stalemate</b> - No legal moves for " + wisdom::to_string(who) + ". Draw";
+        auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>" + wisdom::to_string(who) + "</b>";
         setGameOverStatus(stalemateStr.c_str());
         return;
     }
@@ -548,7 +562,10 @@ void GameModel::setProposedDrawTypeAcceptance(wisdom::ProposedDrawType drawType,
                                               bool accepted)
 {
     auto gameState = myChessGame->state();
-    auto who = *getFirstHumanPlayerColor(gameState->get_players());
+    auto optionalColor = getFirstHumanPlayerColor(gameState->get_players());
+
+    assert(optionalColor.has_value());
+    auto who = *optionalColor;
     auto opponentColor = color_invert(who);
 
     gameState->set_proposed_draw_status(drawType, who, accepted);

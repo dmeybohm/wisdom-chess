@@ -38,7 +38,6 @@ auto ChessGame::fromFen(const string &input, Config config) -> unique_ptr<ChessG
 auto ChessGame::fromEngine(std::unique_ptr<wisdom::Game> game, Config config) ->
     unique_ptr<ChessGame>
 {
-    auto players = game->get_players();
     return make_unique<ChessGame>(std::move(game), config);
 }
 
@@ -47,13 +46,11 @@ auto ChessGame::clone() const ->
 {
     // Copy current game state to FEN and send on to the chess engine thread:
     auto currentGame = this->state();
-    auto whitePlayer = currentGame->get_player(wisdom::Color::White);
-    auto blackPlayer = currentGame->get_player(wisdom::Color::Black);
+    auto players = currentGame->get_players();
 
     auto fen = currentGame->get_board().to_fen_string(currentGame->get_current_turn());
     auto newGame = ChessGame::fromFen(fen, myConfig);
-    newGame->state()->set_white_player(whitePlayer);
-    newGame->state()->set_black_player(blackPlayer);
+    newGame->state()->set_players(players);
     return newGame;
 }
 
@@ -86,6 +83,7 @@ void ChessGame::setConfig(Config config)
     gameState->set_max_depth(config.maxDepth.internalDepth());
     gameState->set_search_timeout(config.maxTime);
     gameState->set_players(config.players);
+    gameState->set_periodic_function(config.periodicFunction);
     myConfig = config;
 }
 
@@ -94,22 +92,6 @@ void ChessGame::setPlayers(wisdom::Player whitePlayer, wisdom::Player blackPlaye
    auto gameState = this->state();
    gameState->set_white_player(whitePlayer);
    gameState->set_black_player(blackPlayer);
-}
-
-void ChessGame::setupNotify(atomic<int>* gameId) // NOLINT(readability-make-member-function-const)
-{
-    auto engine = this->state();
-    auto initialGameId = gameId->load();
-
-    engine->set_periodic_function([initialGameId, gameId](not_null<MoveTimer*> moveTimer) {
-        // This runs in the ChessEngine thread.
-        // Check if the gameId we passed in originally has changed - if so,
-        // the game is over.
-        if (initialGameId != gameId->load()) {
-            qDebug() << "Setting timeout to break the loop.";
-            moveTimer->set_triggered(true);
-        }
-    });
 }
 
 auto ChessGame::moveFromCoordinates(int srcRow, int srcColumn,
@@ -125,5 +107,8 @@ auto ChessGame::moveFromCoordinates(int srcRow, int srcColumn,
     qDebug() << "Mapping coordinates for " << srcRow << ":" << srcColumn << " -> "
          << dstRow << ":" << dstColumn;
 
-    return { engine->map_coordinates_to_move(src, dst, promoted), who };
+    return {
+        engine->map_coordinates_to_move(src, dst, promoted),
+        who
+    };
 }

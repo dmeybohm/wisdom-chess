@@ -11,8 +11,6 @@
 #include "move.hpp"
 #include "move_timer.hpp"
 
-class ChessEngineNotifier;
-
 //
 // Represents the computer player.
 //
