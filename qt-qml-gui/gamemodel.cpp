@@ -58,7 +58,11 @@ GameModel::GameModel(QObject *parent)
     , myMaxSearchTime { 5 }
     , myChessEngineThread { nullptr }
 {
-    myChessGame = ChessGame::fromPlayers(Player::Human, Player::ChessEngine, gameConfig());
+    myChessGame = ChessGame::fromPlayers(
+                Player::Human,
+                Player::ChessEngine,
+                ChessGame::Config::defaultConfig()
+    );
     init();
 }
 
@@ -157,9 +161,22 @@ void GameModel::restart()
         myChessGame->state()->get_player(Color::Black),
         gameConfig()
     ));
-    notifyInternalGameStateUpdated();
 
+    std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
+
+    myGameId++;
+    computerChessGame->setupNotify(&myGameId);
+
+    // Update the engine config if needed:
+    updateEngineConfig();
+
+    // send copy of the new game state to the chess engine thread:
+    emit gameUpdated(computerChessGame, myGameId);
+
+    // Notify other objects in this thread about the new game:
     emit gameStarted(myChessGame.get());
+
+    updateDisplayedGameState();
 }
 
 void GameModel::movePiece(int srcRow, int srcColumn,
@@ -237,9 +254,11 @@ void GameModel::applicationExiting()
 
 void GameModel::updateEngineConfig()
 {
-    emit engineConfigChanged(ChessGame::Config { MaxDepth { myMaxDepth },
-                                             std::chrono::seconds { myMaxSearchTime }
-    });
+    emit engineConfigChanged(ChessGame::Config {
+         myChessGame->state()->get_players(),
+         MaxDepth { myMaxDepth },
+         std::chrono::seconds { myMaxSearchTime }
+    }, myGameId);
 }
 
 auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
@@ -276,22 +295,16 @@ void GameModel::updateInternalGameState()
 void GameModel::notifyInternalGameStateUpdated()
 {
     auto gameState = myChessGame->state();
-    updateCurrentTurn(gameState->get_current_turn());
 
+    updateCurrentTurn(gameState->get_current_turn());
     if (myGameOverStatus != "") {
         return;
     }
 
-    std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
-
     myGameId++;
-    computerChessGame->setupNotify(&myGameId);
 
     // Update the engine config if needed:
-    emit updateEngineConfig();
-
-    // send copy of the new game state to the chess engine thread:
-    emit gameUpdated(computerChessGame, myGameId);
+    updateEngineConfig();
 
     updateDisplayedGameState();
 }
@@ -299,6 +312,7 @@ void GameModel::notifyInternalGameStateUpdated()
 auto GameModel::gameConfig() const -> ChessGame::Config
 {
     return ChessGame::Config {
+        myChessGame->state()->get_players(),
         MaxDepth { myMaxDepth },
         chrono::seconds { myMaxSearchTime }
     };

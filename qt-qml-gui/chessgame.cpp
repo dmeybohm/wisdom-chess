@@ -38,6 +38,7 @@ auto ChessGame::fromFen(const string &input, Config config) -> unique_ptr<ChessG
 auto ChessGame::fromEngine(std::unique_ptr<wisdom::Game> game, Config config) ->
     unique_ptr<ChessGame>
 {
+    auto players = game->get_players();
     return make_unique<ChessGame>(std::move(game), config);
 }
 
@@ -84,6 +85,7 @@ void ChessGame::setConfig(Config config)
     auto gameState = this->state();
     gameState->set_max_depth(config.maxDepth.internalDepth());
     gameState->set_search_timeout(config.maxTime);
+    gameState->set_players(config.players);
     myConfig = config;
 }
 

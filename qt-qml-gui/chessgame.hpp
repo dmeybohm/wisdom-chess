@@ -48,8 +48,18 @@ public:
     // The configuration of the chess engine.
     struct Config
     {
+        wisdom::Players players;
         MaxDepth maxDepth;
         std::chrono::seconds maxTime;
+
+        static auto defaultConfig() -> Config
+        {
+            return {
+                { wisdom::Player::Human, wisdom::Player::ChessEngine },
+                MaxDepth { 4 },
+                std::chrono::seconds { 4 }
+            };
+        }
     };
 
     explicit ChessGame(std::unique_ptr<wisdom::Game> game, Config config)
@@ -106,6 +116,7 @@ private:
             std::make_unique<wisdom::MoveGenerator>();
     Config myConfig;
 };
+
 
 
 #endif // CHESSGAME_H

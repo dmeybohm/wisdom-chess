@@ -115,7 +115,7 @@ signals:
 
     void humanMoved(wisdom::Move move, wisdom::Color who);
     void engineMoved(wisdom::Move move, wisdom::Color who, int gameId);
-    void engineConfigChanged(ChessGame::Config config);
+    void engineConfigChanged(ChessGame::Config config, int newGameId);
 
     void currentTurnChanged();
     void gameOverStatusChanged();

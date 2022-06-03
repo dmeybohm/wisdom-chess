@@ -127,9 +127,9 @@ void ChessEngine::handlePotentialDrawPosition(wisdom::ProposedDrawType proposedD
             acceptDraw
     );
 
+    emit updateDrawStatus(proposedDrawType, who, acceptDraw);
     if (acceptDraw) {
         myIsGameOver = true;
-        emit updateDrawStatus(proposedDrawType, who, true);
         emit noMovesAvailable();
     }
 
@@ -142,13 +142,15 @@ void ChessEngine::handlePotentialDrawPosition(wisdom::ProposedDrawType proposedD
             opponent,
             opponentAcceptsDraw
         );
+        emit updateDrawStatus(proposedDrawType, who, opponentAcceptsDraw);
         if (opponentAcceptsDraw) {
             myIsGameOver = true;
-            emit updateDrawStatus(proposedDrawType, who, true);
             emit noMovesAvailable();
         } else {
             // if the computer is playing itself, resume searching:
-            gameStatusTransition();
+            if (gameStatusTransition() == GameStatus::Playing) {
+                findMove();
+            }
         }
     }
 }
@@ -157,7 +159,7 @@ void ChessEngine::receiveDrawStatus(wisdom::ProposedDrawType drawType,
                                     wisdom::Color player, bool accepted)
 {
     auto gameState = myGame->state();
-    gameState->set_proposed_draw_status (drawType, player, accepted);
+    gameState->set_proposed_draw_status(drawType, player, accepted);
 
     auto nextStatus = gameStatusTransition();
     if (nextStatus == GameStatus::Playing) {
@@ -175,8 +177,11 @@ void ChessEngine::reloadGame(shared_ptr<ChessGame> newGame, int newGameId)
     init();
 }
 
-void ChessEngine::updateConfig(ChessGame::Config config)
+void ChessEngine::updateConfig(ChessGame::Config config, int newGameId)
 {
     myGame->state()->set_max_depth(config.maxDepth.internalDepth());
     myGame->state()->set_search_timeout(config.maxTime);
+    myGame->state()->set_players(config.players);
+
+    myGameId = newGameId;
 }

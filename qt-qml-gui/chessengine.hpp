@@ -45,7 +45,7 @@ public slots:
     void reloadGame(std::shared_ptr<ChessGame> newGame, int newGameId);
 
     // Update the config of the game.
-    void updateConfig(ChessGame::Config config);
+    void updateConfig(ChessGame::Config config, int newGameId);
 
 signals:
     // The engine made a move.
