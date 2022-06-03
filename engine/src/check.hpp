@@ -9,6 +9,36 @@
 
 namespace wisdom
 {
+    struct DrawCategory
+    {
+        enum Value
+        {
+            NoDraw,
+            InsufficientMaterial,
+            ByRepetition,
+            ByNoProgress
+        } my_value;
+
+        DrawCategory (Value value) // NOLINT(google-explicit-constructor)
+            : my_value { value }
+        {}
+
+        explicit operator bool () const
+        {
+            return my_value != NoDraw;
+        }
+
+        friend auto operator == (DrawCategory first, DrawCategory second) -> bool
+        {
+            return first.my_value == second.my_value;
+        }
+
+        friend auto operator != (DrawCategory first, DrawCategory second) -> bool
+        {
+            return !operator== (first, second);
+        }
+    };
+
     // check if the the king indicated by the WHO argument is in trouble
     // in this position
     bool is_king_threatened (const Board& board, Color who, int8_t row, int8_t col);
@@ -21,7 +51,6 @@ namespace wisdom
     bool is_king_threatened_knight_direct (const Board& board, Color who, int8_t row, int8_t col);
     bool is_king_threatened_pawn (const Board& board, Color who, int8_t row, int8_t col);
     bool is_king_threatened_pawn_dumb (const Board& board, Color who, int8_t row, int8_t col);
-    bool is_king_threatened_pawn_c (const Board& board, int who, int8_t row, int8_t col);
     bool is_king_threatened_pawn_inline (const Board& board, Color who,
                                          int8_t king_row, int8_t king_col);
     bool is_king_threatened_king (const Board& board, Color who, int8_t row, int8_t col);
@@ -57,13 +86,29 @@ namespace wisdom
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
     inline auto is_drawing_move (Board& board, [[maybe_unused]] Color who,
-                                 [[maybe_unused]] Move move, const History& history) -> bool
+                                 [[maybe_unused]] Move move, const History& history) -> DrawCategory
     {
         auto repetition_status = history.get_threefold_repetition_status ();
-        int repetition_count = repetition_status == ThreeFoldRepetitionStatus::BOTH_DECLINED ?
+        auto no_progress_status = history.get_fifty_moves_without_progress_status ();
+        int repetition_count =
+                repetition_status == DrawStatus::BothPlayersDeclinedDraw ?
                 5 : 3;
-        return history.is_nth_repetition (board, repetition_count) ||
-               History::is_fifty_move_repetition (board);
+        int without_progress_count =
+                no_progress_status == DrawStatus::BothPlayersDeclinedDraw ?
+                150 : 100;
+
+        if (history.is_nth_repetition (board, repetition_count))
+            return DrawCategory::ByRepetition;
+
+        if (History::has_been_n_half_moves_without_progress (board, without_progress_count))
+            return DrawCategory::ByNoProgress;
+
+        const auto& material_ref = board.get_material ();
+
+        if (!material_ref.has_sufficient_material (board))
+            return DrawCategory::InsufficientMaterial;
+
+        return DrawCategory::NoDraw;
     }
 }
 

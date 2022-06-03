@@ -63,42 +63,64 @@ namespace wisdom
 
     void Game::set_analytics (unique_ptr<analysis::Analytics> new_analytics)
     {
-        this->my_analytics = std::move (new_analytics);
+        my_analytics = std::move (new_analytics);
     }
 
-    auto Game::status() const -> GameStatus
+    auto Game::status () const -> GameStatus
     {
         if (is_checkmated (*my_board, get_current_turn (), *my_move_generator))
-            return GameStatus::CHECKMATE;
+            return GameStatus::Checkmate;
+
+        if (is_stalemated (*my_board, get_current_turn (), *my_move_generator))
+            return GameStatus::Stalemate;
 
         if (my_history->is_third_repetition (*my_board))
         {
             auto third_repetition_status = my_history->get_threefold_repetition_status ();
             switch (third_repetition_status)
             {
-            case ThreeFoldRepetitionStatus::BOTH_DECLINED:
+            case DrawStatus::BothPlayersDeclinedDraw:
                 break;
 
-            case ThreeFoldRepetitionStatus::NOT_REACHED:
-                return GameStatus::THREEFOLD_REPETITION_REACHED;
+            case DrawStatus::NotReached:
+                return GameStatus::ThreefoldRepetitionReached;
 
-            case ThreeFoldRepetitionStatus::BLACK_DECLARED:
-            case ThreeFoldRepetitionStatus::WHITE_DECLARED:
-            case ThreeFoldRepetitionStatus::BOTH_DECLARED:
-                return GameStatus::THREEFOLD_REPETITION_ACCEPTED;
+            case DrawStatus::BlackPlayerRequestedDraw:
+            case DrawStatus::WhitePlayerRequestedDraw:
+            case DrawStatus::BothPlayersRequestedDraw:
+                return GameStatus::ThreefoldRepetitionAccepted;
             }
         }
 
-        if (is_stalemated (*my_board, get_current_turn (), *my_move_generator))
-            return GameStatus::STALEMATE;
+        if (my_history->is_fifth_repetition (get_board ()))
+            return GameStatus::FivefoldRepetitionDraw;
 
-        if (get_history ().is_fifth_repetition (get_board()))
-            return GameStatus::FIVEFOLD_REPETITION_DRAW;
+        if (History::has_been_fifty_moves_without_progress (get_board ()))
+        {
+            auto fifty_moves_status = my_history->get_fifty_moves_without_progress_status ();
+            switch (fifty_moves_status)
+            {
+                case DrawStatus::BothPlayersDeclinedDraw:
+                    break;
 
-        if (History::is_fifty_move_repetition (get_board ()))
-            return GameStatus::FIFTY_MOVES_WITHOUT_PROGRESS;
+                case DrawStatus::NotReached:
+                    return GameStatus::FiftyMovesWithoutProgressReached;
 
-        return GameStatus::PLAYING;
+                case DrawStatus::BlackPlayerRequestedDraw:
+                case DrawStatus::WhitePlayerRequestedDraw:
+                case DrawStatus::BothPlayersRequestedDraw:
+                    return GameStatus::FiftyMovesWithoutProgressAccepted;
+            }
+        }
+
+        if (History::has_been_seventy_five_moves_without_progress (get_board ()))
+            return GameStatus::SeventyFiveMovesWithoutProgressDraw;
+
+        const auto& material = my_board->get_material ();
+        if (!material.has_sufficient_material (*my_board))
+            return GameStatus::InsufficientMaterialDraw;
+
+        return GameStatus::Playing;
     }
 
     auto Game::find_best_move (const Logger& logger, Color whom) const -> optional<Move>
@@ -182,21 +204,67 @@ namespace wisdom
         return score <= Min_Draw_Score;
     }
 
-    void Game::set_threefold_repetition_draw_status (std::pair<bool, bool> draw_desires)
+    static auto draw_desires_to_repetition_status (DrawAccepted draw_desires)
+         -> DrawStatus
     {
-        ThreeFoldRepetitionStatus status;
-        bool white_wants_draw = draw_desires.first;
-        bool black_wants_draw = draw_desires.second;
+        assert (both_players_replied (draw_desires));
+
+        DrawStatus status;
+        bool white_wants_draw = *draw_desires.first;
+        bool black_wants_draw = *draw_desires.second;
 
         if (white_wants_draw && black_wants_draw)
-            status = ThreeFoldRepetitionStatus::BOTH_DECLARED;
+            status = DrawStatus::BothPlayersRequestedDraw;
         else if (white_wants_draw)
-            status = ThreeFoldRepetitionStatus::WHITE_DECLARED;
+            status = DrawStatus::WhitePlayerRequestedDraw;
         else if (black_wants_draw)
-            status = ThreeFoldRepetitionStatus::BLACK_DECLARED;
+            status = DrawStatus::BlackPlayerRequestedDraw;
         else
-            status = ThreeFoldRepetitionStatus::BOTH_DECLINED;
+            status = DrawStatus::BothPlayersDeclinedDraw;
 
+        return status;
+
+    }
+
+    void Game::update_threefold_repetition_draw_status ()
+    {
+        auto status = draw_desires_to_repetition_status (my_third_repetition_draw);
         my_history->set_threefold_repetition_status (status);
+    }
+
+    void Game::update_fifty_moves_without_progress_draw_status ()
+    {
+        auto status = draw_desires_to_repetition_status (my_fifty_moves_without_progress_draw);
+        my_history->set_fifty_moves_without_progress_status (status);
+    }
+
+    void Game::set_proposed_draw_status (ProposedDrawType draw_type, Color who,
+                                         bool accepted)
+    {
+        switch (draw_type)
+        {
+            case ProposedDrawType::ThreeFoldRepetition:
+                my_third_repetition_draw = update_draw_accepted (
+                        my_third_repetition_draw, who, accepted
+                );
+                if (both_players_replied (my_third_repetition_draw))
+                    update_threefold_repetition_draw_status ();
+                break;
+
+            case ProposedDrawType::FiftyMovesWithoutProgress:
+                my_fifty_moves_without_progress_draw = update_draw_accepted (
+                    my_fifty_moves_without_progress_draw, who, accepted
+                );
+                if (both_players_replied (my_fifty_moves_without_progress_draw))
+                    update_fifty_moves_without_progress_draw_status ();
+                break;
+        }
+    }
+
+    void Game::set_proposed_draw_status (ProposedDrawType draw_type,
+                                         std::pair<bool, bool> accepted)
+    {
+        set_proposed_draw_status (draw_type, Color::White, accepted.first);
+        set_proposed_draw_status (draw_type, Color::Black, accepted.second);
     }
 }

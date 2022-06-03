@@ -21,8 +21,10 @@ namespace wisdom
         Bishop,
         Rook,
         Queen,
-        King,
+        King
     };
+
+    static constexpr std::size_t Num_Pieces = static_cast<std::size_t> (Piece::King) + 1;
 
     enum class Color : int8_t
     {
@@ -62,6 +64,11 @@ namespace wisdom
     constexpr auto to_int8 (Piece piece) -> int8_t
     {
         return static_cast<int8_t>(piece);
+    }
+
+    constexpr auto to_int (Piece piece) -> int
+    {
+        return static_cast<int>(piece);
     }
 
     constexpr auto to_int (Color color) -> int

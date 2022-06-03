@@ -296,37 +296,61 @@ namespace wisdom
 
         switch (status)
         {
-        case GameStatus::PLAYING:
+        case GameStatus::Playing:
             break;
 
-        case GameStatus::CHECKMATE:
+        case GameStatus::Checkmate:
             std::cout << to_string (color_invert (game.get_current_turn())) << " wins the game.\n";
             input_state.command = PlayCommand::StopGame;
             break;
 
-        case GameStatus::THREEFOLD_REPETITION_REACHED: {
+        case GameStatus::Stalemate:
+            input_state.command = PlayCommand::StopGame;
+            break;
+
+        case GameStatus::ThreefoldRepetitionReached: {
             auto draw_pair = determine_if_drawn (input_state, game);
-            game.set_threefold_repetition_draw_status (draw_pair);
+            game.set_proposed_draw_status (
+                    ProposedDrawType::ThreeFoldRepetition,
+                    draw_pair
+            );
             // Recursively (one-level deep) update the status again.
             return update_game_status (input_state, game);
         }
 
-        case GameStatus::THREEFOLD_REPETITION_ACCEPTED:
+        case GameStatus::ThreefoldRepetitionAccepted:
             std::cout << "Draw: threefold repetition and at least one of the players wants a draw.\n";
             input_state.command = PlayCommand::StopGame;
             break;
 
-        case GameStatus::FIVEFOLD_REPETITION_DRAW:
-            std::cout << "Draw: fifth move repetition\n";
+        case GameStatus::FivefoldRepetitionDraw:
+            std::cout << "Draw: same position repeated five times.";
             input_state.command = PlayCommand::StopGame;
             break;
 
-        case GameStatus::STALEMATE:
+        case GameStatus::FiftyMovesWithoutProgressReached: {
+            auto draw_pair = determine_if_drawn (input_state, game);
+            game.set_proposed_draw_status (
+                    ProposedDrawType::FiftyMovesWithoutProgress,
+                    draw_pair
+            );
+            // Recursively (one-level deep) update the status again.
+            return update_game_status (input_state, game);
+        }
+
+        case GameStatus::FiftyMovesWithoutProgressAccepted:
+            std::cout << "Draw: Fifty moves without a capture or pawn move and "
+                        << "at least one player wants a draw.\n";
             input_state.command = PlayCommand::StopGame;
             break;
 
-        case GameStatus::FIFTY_MOVES_WITHOUT_PROGRESS:
-            std::cout << "Fifty moves without a capture or pawn move. It's a draw!\n";
+        case GameStatus::SeventyFiveMovesWithoutProgressDraw:
+            std::cout << "Draw: Seventy five moves without a capture or pawn move.\n";
+            input_state.command = PlayCommand::StopGame;
+            break;
+
+        case GameStatus::InsufficientMaterialDraw:
+            std::cout << "Draw: Insufficient material.\n";
             input_state.command = PlayCommand::StopGame;
             break;
         }

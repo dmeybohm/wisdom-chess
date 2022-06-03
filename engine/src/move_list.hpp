@@ -118,12 +118,12 @@ namespace wisdom
             return my_moves_list->move_array + my_size;
         }
 
-        [[nodiscard]] auto cbegin () noexcept -> const Move*
+        [[nodiscard]] auto cbegin () const noexcept -> const Move*
         {
             return my_moves_list->move_array;
         }
 
-        [[nodiscard]] auto cend () noexcept -> const Move*
+        [[nodiscard]] auto cend () const noexcept -> const Move*
         {
             return my_moves_list->move_array + my_size;
         }

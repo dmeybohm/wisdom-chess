@@ -30,13 +30,22 @@ namespace wisdom
 
     enum class GameStatus
     {
-        PLAYING,
-        CHECKMATE,
-        STALEMATE,
-        THREEFOLD_REPETITION_REACHED,
-        THREEFOLD_REPETITION_ACCEPTED,
-        FIVEFOLD_REPETITION_DRAW,
-        FIFTY_MOVES_WITHOUT_PROGRESS
+        Playing,
+        Checkmate,
+        Stalemate,
+        ThreefoldRepetitionReached,
+        ThreefoldRepetitionAccepted,
+        FivefoldRepetitionDraw,
+        FiftyMovesWithoutProgressReached,
+        FiftyMovesWithoutProgressAccepted,
+        SeventyFiveMovesWithoutProgressDraw,
+        InsufficientMaterialDraw,
+    };
+
+    enum class ProposedDrawType
+    {
+        ThreeFoldRepetition,
+        FiftyMovesWithoutProgress,
     };
 
     using Players = array<Player, Num_Players>;
@@ -153,7 +162,11 @@ namespace wisdom
 
         [[nodiscard]] auto computer_wants_draw (Color who) const -> bool;
 
-        void set_threefold_repetition_draw_status (std::pair<bool, bool> draw_desires);
+        void set_proposed_draw_status (ProposedDrawType draw_type, Color who,
+                                       bool accepted);
+
+        void set_proposed_draw_status (ProposedDrawType draw_type,
+                                       std::pair<bool, bool> accepted);
 
     private:
         unique_ptr<Board> my_board = make_unique<Board> ();
@@ -161,11 +174,16 @@ namespace wisdom
         unique_ptr<History> my_history = make_unique<History> ();
         unique_ptr<analysis::Analytics> my_analytics = make_unique<analysis::Analytics> ();
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};
-        int my_max_depth { Max_Depth };
+        int my_max_depth { Default_Max_Depth };
 
         Players my_players = { Player::Human, Player::ChessEngine };
-        chrono::seconds my_search_timeout { Max_Search_Seconds };
+        chrono::seconds my_search_timeout { Default_Max_Search_Seconds };
 
+        DrawAccepted my_third_repetition_draw;
+        DrawAccepted my_fifty_moves_without_progress_draw;
+
+        void update_threefold_repetition_draw_status ();
+        void update_fifty_moves_without_progress_draw_status ();
     };
 }
 

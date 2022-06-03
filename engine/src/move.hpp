@@ -20,7 +20,8 @@ namespace wisdom
     constexpr uint8_t
             Castle_Both_Unavailable = 0b011U; // both ineligible
     constexpr uint8_t
-            Castle_Previously_None = 0b111U;   // previously was none - used for determining if a move affects castling
+            Castle_Previously_None = 0b111U;   // previously was none -
+                                               // used for determining if a move affects castling
 
     enum class MoveCategory
     {
@@ -189,7 +190,8 @@ namespace wisdom
     constexpr auto make_normal_movement_move (Coord src, Coord dst) noexcept
         -> Move
     {
-        return make_regular_move (Row (src), Column (src), Row (dst), Column (dst));
+        return make_regular_move (Row (src), Column (src),
+                                  Row (dst), Column (dst));
     }
 
     constexpr auto make_normal_capturing_move (int src_row, int src_col,
@@ -219,7 +221,8 @@ namespace wisdom
     constexpr auto make_special_castling_move (Coord src, Coord dst) noexcept
         -> Move
     {
-        return make_special_castling_move (Row (src), Column (src), Row (dst), Column (dst));
+        return make_special_castling_move (Row (src), Column (src),
+                                           Row (dst), Column (dst));
     }
 
     constexpr auto copy_move_with_capture (Move move) noexcept
@@ -228,7 +231,8 @@ namespace wisdom
         Coord src = move_src (move);
         Coord dst = move_dst (move);
         assert (move.move_category == MoveCategory::NormalMovement);
-        Move result = make_regular_move (Row (src), Column (src), Row (dst), Column (dst));
+        Move result = make_regular_move (Row (src), Column (src),
+                                         Row (dst), Column (dst));
         result.move_category = MoveCategory::NormalCapturing;
         return result;
     }
@@ -247,7 +251,8 @@ namespace wisdom
     constexpr auto make_special_en_passant_move (Coord src, Coord dst) noexcept
         -> Move
     {
-        return make_special_en_passant_move (Row (src), Column (src), Row (dst), Column (dst));
+        return make_special_en_passant_move (Row (src), Column (src),
+                                             Row (dst), Column (dst));
     }
 
     constexpr auto move_equals (Move a, Move b) noexcept
@@ -327,7 +332,7 @@ namespace wisdom
     auto to_string (const Move& move) -> string;
 
     // Send the move to the ostream.
-    std::ostream& operator<< (std::ostream& os, const Move& value);
+    auto operator<< (std::ostream& os, const Move& value) -> std::ostream&;
 }
 
 #endif // WISDOM_CHESS_MOVE_HPP

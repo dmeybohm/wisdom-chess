@@ -10,6 +10,8 @@ using namespace wisdom;
 using std::shared_ptr;
 using std::optional;
 using gsl::not_null;
+using wisdom::GameStatus;
+using wisdom::ProposedDrawType;
 
 ChessEngine::ChessEngine(shared_ptr<ChessGame> game, int gameId, QObject *parent)
     : QObject { parent }
@@ -25,8 +27,8 @@ void ChessEngine::init()
 
 void ChessEngine::opponentMoved(Move move, Color who)
 {
-    QThread::currentThread()->usleep(500);
-    auto game = myGame->engine();
+    QThread::usleep(500);
+    auto game = myGame->state();
     game->move(move);
     findMove();
 }
@@ -40,61 +42,124 @@ void ChessEngine::receiveEngineMoved(wisdom::Move move, wisdom::Color who,
     }
 }
 
+auto ChessEngine::gameStatusTransition () -> wisdom::GameStatus
+{
+    auto gameState = myGame->state();
+    auto nextStatus = gameState->status();
+    auto who = gameState->get_current_turn();
+
+    switch (nextStatus)
+    {
+        case GameStatus::Playing:
+            break;
+
+        case GameStatus::Checkmate:
+        case GameStatus::Stalemate:
+        case GameStatus::ThreefoldRepetitionAccepted:
+        case GameStatus::FiftyMovesWithoutProgressAccepted:
+        case GameStatus::FivefoldRepetitionDraw:
+        case GameStatus::SeventyFiveMovesWithoutProgressDraw:
+        case GameStatus::InsufficientMaterialDraw:
+            myIsGameOver = true;
+            emit noMovesAvailable();
+            break;
+
+        case GameStatus::ThreefoldRepetitionReached:
+            handlePotentialDrawPosition(ProposedDrawType::ThreeFoldRepetition, who);
+            break;
+
+        case GameStatus::FiftyMovesWithoutProgressReached:
+            handlePotentialDrawPosition(ProposedDrawType::FiftyMovesWithoutProgress, who);
+            break;
+    }
+
+    return nextStatus;
+}
+
 void ChessEngine::findMove()
 {
-    auto game = myGame->engine();
+    auto gameState = myGame->state();
     Logger& output = make_standard_logger();
 
     if (myIsGameOver) {
         return;
     }
 
-    auto player = game->get_current_player();
+    auto player = gameState->get_current_player();
     if (player != Player::ChessEngine) {
         return;
     }
 
-    auto who = game->get_current_turn();
-    auto& board = game->get_board();
-    auto& history = game->get_history();
-    auto generator = game->get_move_generator();
-    if (is_checkmated(board, who, *generator)) {
-        auto who = to_string(color_invert(game->get_current_turn()));
-        qDebug() << who.c_str() << " wins the game.\n";
-        emit noMovesAvailable();
+    auto nextStatus = gameStatusTransition();
+    if (nextStatus != GameStatus::Playing) {
+        // The game is now over - or we're waiting for a response on a draw proposal.
         return;
     }
 
-    if (history.is_fifth_repetition(board)) {
-        qDebug() << "Fifth move repetition. It's a draw!\n";
-        emit noMovesAvailable();
-        return;
-    }
+    auto who = gameState->get_current_turn();
 
-    if (History::is_fifty_move_repetition(game->get_board())) {
-        qDebug() << "Fifty moves without a capture or pawn move. It's a draw!\n";
-        emit noMovesAvailable();
-        return;
-    }
+    auto& board = gameState->get_board();
+    auto& history = gameState->get_history();
 
     qDebug() << "Searching for move";
-    auto optionalMove = game->find_best_move(output);
+    auto optionalMove = gameState->find_best_move(output);
 
     // TODO: we could have timed out or the thread was interrupted, and we should distinguish
     // between these two cases. If we couldn't find any move in the time, should select a move
     // at random, and otherwise exit.
     if (optionalMove.has_value()) {
-        game->move(*optionalMove);
+        gameState->move(*optionalMove);
         emit engineMoved(*optionalMove, who, myGameId);
     } else {
         emit noMovesAvailable();
     }
 }
 
-void ChessEngine::drawProposed()
+void ChessEngine::handlePotentialDrawPosition(wisdom::ProposedDrawType proposedDrawType,
+                                              wisdom::Color who)
 {
-    myIsGameOver = true;
-    emit drawProposalResponse(true);
+    auto gameState = myGame->state();
+
+    auto acceptDraw = gameState->computer_wants_draw(who);
+    gameState->set_proposed_draw_status (
+            proposedDrawType,
+            who,
+            acceptDraw
+    );
+
+    if (acceptDraw) {
+        myIsGameOver = true;
+        emit updateDrawStatus(proposedDrawType, who, true);
+        emit noMovesAvailable();
+    }
+
+    auto opponent = color_invert(who);
+    auto opponentPlayer = gameState->get_player(opponent);
+    if (opponentPlayer == Player::ChessEngine) {
+        auto opponentAcceptsDraw = gameState->computer_wants_draw(opponent);
+        gameState->set_proposed_draw_status(
+                    proposedDrawType,
+                    who,
+                    opponentAcceptsDraw
+        );
+        if (opponentAcceptsDraw) {
+            myIsGameOver = true;
+            emit updateDrawStatus(proposedDrawType, who, true);
+            emit noMovesAvailable();
+        }
+    }
+}
+
+void ChessEngine::receiveDrawStatus(wisdom::ProposedDrawType drawType,
+                                    wisdom::Color player, bool accepted)
+{
+    auto gameState = myGame->state();
+    gameState->set_proposed_draw_status (drawType, player, accepted);
+
+    auto nextStatus = gameStatusTransition();
+    if (nextStatus == GameStatus::Playing) {
+        findMove(); // resume playing.
+    }
 }
 
 void ChessEngine::reloadGame(shared_ptr<ChessGame> newGame, int newGameId)
@@ -109,6 +174,6 @@ void ChessEngine::reloadGame(shared_ptr<ChessGame> newGame, int newGameId)
 
 void ChessEngine::updateConfig(ChessGame::Config config)
 {
-    myGame->engine()->set_max_depth(config.maxDepth.internalDepth());
-    myGame->engine()->set_search_timeout(config.maxTime);
+    myGame->state()->set_max_depth(config.maxDepth.internalDepth());
+    myGame->state()->set_search_timeout(config.maxTime);
 }

@@ -24,11 +24,10 @@
 
 #ifdef HAS_MS_GSL
 #include <gsl/gsl>
+#include <gsl/narrow>
 #else
 #include "gsl.hpp"
 #endif
-
-//#include <parallel_hashmap/phmap.h>
 
 namespace wisdom
 {
@@ -43,6 +42,7 @@ namespace wisdom
     using std::make_shared;
     using std::nullopt;
     using std::array;
+    using std::pair;
 
     namespace chrono = std::chrono;
 
@@ -77,11 +77,11 @@ namespace wisdom
     // Initial Alpha value.
     constexpr int Initial_Alpha = Infinity * 3;
 
-    // Absolute max depth searched.
-    constexpr int Max_Depth = 16;
+    // Default absolute max depth searched.
+    constexpr int Default_Max_Depth = 16;
 
-    // Max time spent searching.
-    constexpr int Max_Search_Seconds = 5;
+    // Default max time spent searching.
+    constexpr int Default_Max_Search_Seconds = 5;
 
     // Minimum amount behind the computer must feel in order to
     // accept a draw offer.
