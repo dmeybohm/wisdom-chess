@@ -18,7 +18,11 @@ namespace wisdom
             return false;
 
         if (my_periodic_function.has_value ())
+        {
             (*my_periodic_function) (this);
+            if (my_triggered)
+                return true;
+        }
 
         steady_clock::time_point next_check_time = steady_clock::now ();
         auto diff_time = next_check_time - my_last_check_time;

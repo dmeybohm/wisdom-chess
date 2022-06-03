@@ -115,5 +115,6 @@ auto ChessGame::moveFromCoordinates(int srcRow, int srcColumn,
 
 void ChessGame::setPeriodicFunction(const MoveTimer::PeriodicFunction &func)
 {
-    myPeriodicFunction = func;
+    auto gameState = this->state();
+    gameState->set_periodic_function(func);
 }

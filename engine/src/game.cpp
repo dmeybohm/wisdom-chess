@@ -123,7 +123,8 @@ namespace wisdom
         return GameStatus::Playing;
     }
 
-    auto Game::find_best_move (const Logger& logger, Color whom) const -> optional<Move>
+    auto Game::find_best_move (const Logger& logger, Color whom) const
+        -> optional<Move>
     {
         if (whom == Color::None)
             whom = get_current_turn ();
@@ -137,10 +138,16 @@ namespace wisdom
             my_max_depth, *my_analytics,
         };
         SearchResult result = iterative_search.iteratively_deepen (whom);
+
+        // If user cancelled the search, discard the results.
+        if (iterative_search.is_cancelled ())
+            return {};
+
         return result.move;
     }
 
-    auto Game::load (const string& filename, const Players& players) -> optional<Game>
+    auto Game::load (const string& filename, const Players& players)
+        -> optional<Game>
     {
         string input_buf;
         std::ifstream istream;

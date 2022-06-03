@@ -27,6 +27,12 @@ namespace wisdom
 
         auto is_triggered () -> bool;
 
+        // Whether the search as a whole was cancelled.
+        [[nodiscard]] auto is_cancelled () const -> bool
+        {
+            return my_cancelled;
+        }
+
         void start () noexcept
         {
             my_started = true;
@@ -47,6 +53,11 @@ namespace wisdom
             my_triggered = triggered;
         }
 
+        void set_cancelled (bool cancelled) noexcept
+        {
+            my_cancelled = cancelled;
+        }
+
     private:
         chrono::steady_clock::time_point my_last_check_time;
         chrono::seconds my_seconds;
@@ -54,6 +65,7 @@ namespace wisdom
         int my_check_calls = 0;
         bool my_triggered = false;
         bool my_started = true;
+        bool my_cancelled = false;
     };
 }
 

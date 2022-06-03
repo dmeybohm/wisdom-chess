@@ -114,7 +114,6 @@ private:
     std::unique_ptr<wisdom::MoveGenerator> myMoveGenerator =
             std::make_unique<wisdom::MoveGenerator>();
     Config myConfig;
-    wisdom::MoveTimer::PeriodicFunction myPeriodicFunction {};
 };
 
 #endif // CHESSGAME_H

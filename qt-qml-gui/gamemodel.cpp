@@ -55,6 +55,7 @@ namespace
 GameModel::GameModel(QObject *parent)
     : QObject(parent)
     , myMaxDepth { 4 }
+    , myCurrentTurn {}
     , myMaxSearchTime { 5 }
     , myChessEngineThread { nullptr }
 {
@@ -63,7 +64,8 @@ GameModel::GameModel(QObject *parent)
                 Player::ChessEngine,
                 ChessGame::Config::defaultConfig()
     );
-    init();
+    init ();
+
 }
 
 GameModel::~GameModel()
@@ -176,6 +178,9 @@ void GameModel::restart()
     // Notify other objects in this thread about the new game:
     emit gameStarted(myChessGame.get());
 
+    // Update the config to update the notifier to use the new game Id:
+    updateEngineConfig();
+
     setCurrentTurn(wisdom::chess::mapColor(myChessGame->state()->get_current_turn()));
     updateDisplayedGameState();
 }
@@ -255,7 +260,11 @@ void GameModel::applicationExiting()
 
 void GameModel::updateEngineConfig()
 {
+    delete myUpdateConfigTimer;
+    myUpdateConfigTimer = nullptr;
+
     myConfigId++;
+    qDebug() << "New config id:" << myConfigId;
 
     emit engineConfigChanged(ChessGame::Config {
          myChessGame->state()->get_players(),
@@ -281,11 +290,18 @@ auto GameModel::buildNotifier() const -> MoveTimer::PeriodicFunction
 
     return ([gameIdPtr, initialGameId, configIdPtr, initialConfigId](not_null<MoveTimer*> moveTimer) {
          // This runs in the ChessEngine thread.
+         qDebug() << "In notifier";
+         qDebug() << "config id: " << configIdPtr->load();
 
          // Check if config has changed:
          if (initialConfigId != configIdPtr->load()) {
              qDebug() << "Setting timeout to break the loop. (Config changed)";
              moveTimer->set_triggered(true);
+
+             // Discard the results of the search. The GameModel will send
+             // an updateConfig signal to fire off a new search with the new
+             // config.
+             moveTimer->set_cancelled(true);
          }
 
          // Check if game has changed. If so, the game is over.
@@ -329,7 +345,6 @@ void GameModel::notifyInternalGameStateUpdated()
     }
 
     updateEngineConfig();
-    updateDisplayedGameState();
 }
 
 auto GameModel::gameConfig() const -> ChessGame::Config
@@ -461,6 +476,21 @@ void GameModel::updateDisplayedGameState()
     }
 }
 
+void GameModel::debouncedUpdateConfig ()
+{
+    if (myUpdateConfigTimer != nullptr) {
+        delete myUpdateConfigTimer;
+        myUpdateConfigTimer = new QTimer();
+        myUpdateConfigTimer->setInterval(chrono::milliseconds { 400 } );
+        myUpdateConfigTimer->setSingleShot(true);
+        connect(myUpdateConfigTimer, &QTimer::timeout,
+                this, [this](){
+                    updateInternalGameState ();
+                });
+        return;
+    }
+}
+
 auto GameModel::whiteIsComputer() const -> bool
 {
     return myWhiteIsComputer;
@@ -484,7 +514,7 @@ void GameModel::setMaxDepth(int maxDepth)
 {
     if (myMaxDepth != maxDepth) {
         myMaxDepth = maxDepth;
-        myChessGame->setConfig(gameConfig());
+        debouncedUpdateConfig();
         emit maxDepthChanged();
     }
 }
@@ -498,7 +528,7 @@ void GameModel::setMaxSearchTime(int maxSearchTime)
 {
     if (maxSearchTime != myMaxSearchTime) {
         myMaxSearchTime = maxSearchTime;
-        myChessGame->setConfig(gameConfig());
+        debouncedUpdateConfig();
         emit maxSearchTimeChanged();
     }
 }

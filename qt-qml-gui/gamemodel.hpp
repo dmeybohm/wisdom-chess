@@ -178,7 +178,11 @@ private:
     std::atomic<int> myConfigId = 1;
 
     // The chess engine runs in this thread, and grabs the game mutext as needed:
-    QThread* myChessEngineThread;
+    QThread* myChessEngineThread = nullptr;
+
+    // Update the config from a timer to avoid creating too many events.
+    QTimer* myUpdateConfigTimer = nullptr;
+
     wisdom::chess::ChessColor myCurrentTurn;
     QString myGameOverStatus {};
     QString myMoveStatus {};
@@ -213,9 +217,6 @@ private:
     // Emit appropriate player moved signal, or delay it for a draw proposal.
     void handleMove(wisdom::Player playerType, wisdom::Move move, wisdom::Color who);
 
-    // Update the internal game state after user changes config or starts a new game:
-    void updateInternalGameState();
-
     // Update the displayed state of the game.
     void updateDisplayedGameState();
 
@@ -227,6 +228,12 @@ private:
 
     // Get the configuration for the game.
     auto gameConfig() const -> ChessGame::Config;
+
+    // Update the internal game state after user changes config or starts a new game:
+    void updateInternalGameState();
+
+    // Debounce the update to the config.
+    void debouncedUpdateConfig();
 };
 
 #endif // GAMEMODEL_H
