@@ -47,9 +47,10 @@ auto ChessGame::clone() const ->
     // Copy current game state to FEN and send on to the chess engine thread:
     auto currentGame = this->state();
     auto players = currentGame->get_players();
+    auto newConfig = myConfig;
 
     auto fen = currentGame->get_board().to_fen_string(currentGame->get_current_turn());
-    auto newGame = ChessGame::fromFen(fen, myConfig);
+    auto newGame = ChessGame::fromFen(fen, newConfig);
     newGame->state()->set_players(players);
     return newGame;
 }

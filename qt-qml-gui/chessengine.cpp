@@ -179,9 +179,7 @@ void ChessEngine::reloadGame(shared_ptr<ChessGame> newGame, int newGameId)
 
 void ChessEngine::updateConfig(ChessGame::Config config, int newGameId)
 {
-    myGame->state()->set_max_depth(config.maxDepth.internalDepth());
-    myGame->state()->set_search_timeout(config.maxTime);
-    myGame->state()->set_players(config.players);
+    myGame->setConfig(config);
 
     myGameId = newGameId;
 

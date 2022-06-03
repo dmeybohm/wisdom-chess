@@ -160,12 +160,10 @@ void GameModel::restart()
         gameConfig()
     ));
 
-    std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
-
+    // Abort the search.
     myGameId++;
 
-    // Update the engine config if needed:
-    updateEngineConfig();
+    std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
 
     // send copy of the new game state to the chess engine thread:
     emit gameUpdated(computerChessGame, myGameId);
@@ -173,6 +171,7 @@ void GameModel::restart()
     // Notify other objects in this thread about the new game:
     emit gameStarted(myChessGame.get());
 
+    setCurrentTurn(wisdom::chess::mapColor(myChessGame->state()->get_current_turn()));
     updateDisplayedGameState();
 }
 
@@ -251,11 +250,13 @@ void GameModel::applicationExiting()
 
 void GameModel::updateEngineConfig()
 {
+    myGameId++;
+
     emit engineConfigChanged(ChessGame::Config {
          myChessGame->state()->get_players(),
          MaxDepth { myMaxDepth },
          std::chrono::seconds { myMaxSearchTime },
-         buildNotifier()
+         buildNotifier(&myGameId)
     }, myGameId);
 }
 
@@ -267,15 +268,15 @@ auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Colo
     return gameState->get_current_turn();
 }
 
-auto GameModel::buildNotifier() -> MoveTimer::PeriodicFunction
+auto GameModel::buildNotifier(atomic<int>* gameIdPtr) -> MoveTimer::PeriodicFunction
 {
-    auto initialGameId = myGameId.load();
+    auto initialGameId = gameIdPtr->load();
 
-    return ([initialGameId, gameId=&myGameId](not_null<MoveTimer*> moveTimer) {
+    return ([initialGameId, gameIdPtr](not_null<MoveTimer*> moveTimer) {
          // This runs in the ChessEngine thread.
          // Check if the gameId we passed in originally has changed - if so,
          // the game is over.
-         if (initialGameId != gameId->load()) {
+         if (initialGameId != gameIdPtr->load()) {
              qDebug() << "Setting timeout to break the loop.";
              moveTimer->set_triggered(true);
          }
@@ -408,7 +409,7 @@ void GameModel::updateDisplayedGameState()
     }
 
     case GameStatus::Stalemate: {
-        auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>" + wisdom::to_string(who) + "</b>.";
+        auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>" + wisdom::to_string(who) + "</b>";
         setGameOverStatus(stalemateStr.c_str());
         return;
     }
@@ -580,7 +581,6 @@ void GameModel::receiveChessEngineDrawStatus(wisdom::ProposedDrawType drawType,
                                              wisdom::Color who, bool accepted)
 {
     auto gameState = myChessGame->state();
-    auto opponentColor = color_invert(who);
     gameState->set_proposed_draw_status(drawType, who, accepted);
     updateDisplayedGameState();
 }

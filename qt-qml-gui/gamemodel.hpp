@@ -176,6 +176,7 @@ private:
     wisdom::chess::ChessColor myCurrentTurn;
     QString myGameOverStatus {};
     QString myMoveStatus {};
+
     bool myInCheck = false;
     bool myThirdRepetitionDrawProposed = false;
     bool myFiftyMovesWithProgressDrawProposed = false;
@@ -197,7 +198,7 @@ private:
     auto updateChessEngineForHumanMove(wisdom::Move selectedMove) -> wisdom::Color;
 
     // Build the notifier that is used to interrupt the thread.
-    auto buildNotifier() -> wisdom::MoveTimer::PeriodicFunction;
+    auto buildNotifier(std::atomic<int>* gameIdPtr) -> wisdom::MoveTimer::PeriodicFunction;
 
     // Update the current turn to the new color.
     void updateCurrentTurn(wisdom::Color newColor);
@@ -218,7 +219,7 @@ private:
     void setProposedDrawTypeAcceptance(wisdom::ProposedDrawType drawType, bool accepted);
 
     // Get the configuration for the game.
-    ChessGame::Config gameConfig() const;
+    auto gameConfig() const -> ChessGame::Config;
 };
 
 #endif // GAMEMODEL_H
