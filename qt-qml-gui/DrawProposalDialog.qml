@@ -3,19 +3,12 @@ import wisdom.chess 1.0
 import QtQuick.Controls 2.15
 
 Dialog {
-    modal: true
-    visible: _myGameModel.drawProposedToHuman
-    standardButtons: Dialog.Yes | Dialog.No
-    title: "Draw Offer"
-
+    property bool userAnswered: false
     property alias text: firstLine.text
 
-    onAccepted: {
-        _myGameModel.drawProposalResponse(true)
-    }
-    onRejected: {
-        _myGameModel.drawProposalResponse(false)
-    }
+    modal: true
+    standardButtons: Dialog.Yes | Dialog.No
+    title: "Draw Offer"
 
     Column {
         spacing: 15

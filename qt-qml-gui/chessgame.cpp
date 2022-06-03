@@ -45,7 +45,7 @@ auto ChessGame::clone() const ->
     std::unique_ptr<ChessGame>
 {
     // Copy current game state to FEN and send on to the chess engine thread:
-    auto currentGame = this->engine();
+    auto currentGame = this->state();
     auto whitePlayer = currentGame->get_player(wisdom::Color::White);
     auto blackPlayer = currentGame->get_player(wisdom::Color::Black);
 

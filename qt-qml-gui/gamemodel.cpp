@@ -81,11 +81,8 @@ void GameModel::setupNewEngineThread()
     connect(chessEngine, &ChessEngine::engineMoved,
             this, &GameModel::engineThreadMoved);
 
-    // Connect event handlers for draw proposition to the engine:
-    connect(this, &GameModel::proposeDrawToEngine,
-            chessEngine, &ChessEngine::drawProposed);
-    connect(chessEngine, &ChessEngine::drawProposalResponse,
-            this, &GameModel::drawProposalResponse);
+    connect(chessEngine, &ChessEngine::updateDrawStatus,
+            this, &GameModel::receiveChessEngineDrawStatus);
 
     // Initialize the engine when the engine thread starts:
     connect(myChessEngineThread, &QThread::started,
@@ -135,13 +132,8 @@ void GameModel::start()
 void GameModel::restart()
 {
     // let other objects in this thread know about the new game:
-    myDrawEverProposed = false;
     setGameOverStatus("");
 
-    if (myDelayedMoveTimer != nullptr) {
-        myDelayedMoveTimer->stop();
-        delete myDelayedMoveTimer;
-    }
     qDebug() << "Creating new chess game";
 
     myChessGame = std::move(ChessGame::fromPlayers(
@@ -175,7 +167,7 @@ void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who, int game
     updateCurrentTurn(wisdom::color_invert(who));
 
     // re-emit single-threaded signal to listeners:
-    checkForDrawAndEmitPlayerMoved(Player::ChessEngine, move, who);
+    handleMove(Player::ChessEngine, move, who);
 }
 
 void GameModel::promotePiece(int srcRow, int srcColumn,
@@ -203,7 +195,7 @@ void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,
     auto newColor = updateChessEngineForHumanMove(move);
     updateDisplayedGameState();
     updateCurrentTurn(newColor);
-    checkForDrawAndEmitPlayerMoved(wisdom::Player::Human, move, who);
+    handleMove(wisdom::Player::Human, move, who);
 }
 
 bool GameModel::needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn)
@@ -229,7 +221,9 @@ void GameModel::applicationExiting()
 
 void GameModel::updateEngineConfig()
 {
-    emit engineConfigChanged(ChessGame::Config { MaxDepth { myMaxDepth }, std::chrono::seconds { myMaxSearchTime }});
+    emit engineConfigChanged(ChessGame::Config { MaxDepth { myMaxDepth },
+                                             std::chrono::seconds { myMaxSearchTime }
+    });
 }
 
 auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
@@ -245,22 +239,12 @@ void GameModel::updateCurrentTurn(Color newColor)
     setCurrentTurn(wisdom::chess::mapColor(newColor));
 }
 
-void GameModel::checkForDrawAndEmitPlayerMoved(Player playerType, Move move, Color who)
+void GameModel::handleMove(Player playerType, Move move, Color who)
 {
     if (playerType == wisdom::Player::ChessEngine) {
         emit engineMoved(move, who, myGameId);
     } else {
         emit humanMoved(move, who);
-    }
-
-    needProposal = gameState->get_history().is_third_repetition(board) && !myDrawEverProposed;
-
-    if (needProposal) {
-        proposeDraw(oppositePlayer);
-    } else {
-        auto emitSignal = *myLastDelayedMoveSignal;
-        myLastDelayedMoveSignal.reset();
-        QTimer::singleShot(50, this, emitSignal);
     }
 }
 
@@ -296,7 +280,7 @@ void GameModel::notifyInternalGameStateUpdated()
     updateDisplayedGameState();
 }
 
-ChessGame::Config GameModel::gameConfig() const
+auto GameModel::gameConfig() const -> ChessGame::Config
 {
     return ChessGame::Config {
         MaxDepth { myMaxDepth },
@@ -362,41 +346,62 @@ void GameModel::updateDisplayedGameState()
 
     auto who = gameState->get_current_turn();
     auto& board = gameState->get_board();
-    auto generator = gameState->get_move_generator();
+
     setMoveStatus("");
     setGameOverStatus("");
     setInCheck(false);
-    if (is_checkmated(board, who, *generator)) {
+
+    auto nextStatus = gameState->status();
+
+    switch (nextStatus)
+    {
+    case GameStatus::Playing:
+        break;
+
+    case GameStatus::Checkmate: {
         auto whoString = "<b>Checkmate</b> - " + wisdom::to_string(color_invert(who)) + " wins the game.";
         setGameOverStatus(QString(whoString.c_str()));
         return;
     }
 
-    if (is_stalemated(board, who, *generator)) {
+    case GameStatus::Stalemate: {
         auto stalemateStr = "<b>Stalemate</b> - No legal moves for " + wisdom::to_string(who) + ". Draw";
         setGameOverStatus(stalemateStr.c_str());
         return;
     }
 
-
-    if (gameState->get_history().is_fifth_repetition(gameState->get_board())) {
-        setGameOverStatus("<b>Draw</b> - Fifth move repetition.");
+    case GameStatus::FivefoldRepetitionDraw:
+        setGameOverStatus("<b>Draw</b> - Fivefold repetition rule.");
         return;
-    }
 
-    if (wisdom::History::is_fifty_move_repetition(board)) {
-        setGameOverStatus("<b>Draw</b> - Fifty moves without a capture or pawn move.");
+    case GameStatus::ThreefoldRepetitionReached:
+        setThirdRepetitionDrawProposed(true);
+        break;
+
+    case GameStatus::FiftyMovesWithoutProgressReached:
+        setFiftyMovesWithoutProgressDrawProposed(true);
+        break;
+
+    case GameStatus::ThreefoldRepetitionAccepted:
+        setGameOverStatus("<b>Draw</b> - Threefold repetition rule");
+        return;
+
+    case GameStatus::FiftyMovesWithoutProgressAccepted:
+        setGameOverStatus("<b>Draw</b> - Fifty moves without progress.");
+        return;
+
+    case GameStatus::SeventyFiveMovesWithoutProgressDraw:
+        setGameOverStatus("<b>Draw</b> - Seventy-five moves without progress.");
+        return;
+
+    case GameStatus::InsufficientMaterialDraw:
+        setGameOverStatus("<b>Draw</b> - Insufficient material to checkmate.");
         return;
     }
 
     if (wisdom::is_king_threatened(board, who, board.get_king_position(who))) {
         setInCheck(true);
     }
-}
-
-auto GameModel::drawProposedToHuman() -> bool
-{
-    return myDrawProposedToHuman;
 }
 
 auto GameModel::whiteIsComputer() -> bool
@@ -483,32 +488,49 @@ void GameModel::setFiftyMovesWithoutProgressDrawProposed(bool drawProposed)
     }
 }
 
-void GameModel::proposeDraw(wisdom::Player player, wisdom::ProposedDrawType draw_type)
+void GameModel::proposeDraw(wisdom::Player player, wisdom::ProposedDrawType drawType)
 {
     if (player == Player::Human) {
-        switch (draw_type) {
+        switch (drawType) {
         case wisdom::ProposedDrawType::FiftyMovesWithoutProgress:
             setFiftyMovesWithoutProgressDrawProposed(true);
         case wisdom::ProposedDrawType::ThreeFoldRepetition:
             setThirdRepetitionDrawProposed(true);
         }
-    } else {
-        emit proposeDrawToEngine();
     }
-    myDrawEverProposed = true;
 }
 
-void GameModel::drawProposalResponse(bool accepted)
+void GameModel::humanWantsThreefoldRepetitionDraw(bool accepted)
 {
-    setDrawProposedToHuman(false);
-    assert(myLastDelayedMoveSignal.has_value());
-    auto emitSignal = *myLastDelayedMoveSignal;
-    myLastDelayedMoveSignal.reset();
-    emitSignal();
+   setProposedDrawTypeAcceptance(ProposedDrawType::ThreeFoldRepetition, accepted);
+}
 
-    // If the proposal was accepted, update the status.
-    if (accepted) {
-        setGameOverStatus("<b>Draw</b> - Third repetition rule.");
-        return;
+void GameModel::humanWantsFiftyMovesWithoutProgressDraw(bool accepted)
+{
+    setProposedDrawTypeAcceptance(ProposedDrawType::FiftyMovesWithoutProgress, accepted);
+}
+
+void GameModel::setProposedDrawTypeAcceptance(wisdom::ProposedDrawType drawType,
+                                              bool accepted)
+{
+    auto gameState = myChessGame->state();
+    auto who = gameState->get_current_turn();
+    auto opponentColor = color_invert(who);
+
+    gameState->set_proposed_draw_status(drawType, who, accepted);
+    if (gameState->get_player(color_invert(who)) == Player::Human) {
+        gameState->set_proposed_draw_status(drawType, opponentColor, accepted);
     }
+    emit updateDrawStatus(drawType, who, accepted);
+
+    updateDisplayedGameState();
+}
+
+void GameModel::receiveChessEngineDrawStatus(wisdom::ProposedDrawType drawType,
+                                             wisdom::Color who, bool accepted)
+{
+    auto gameState = myChessGame->state();
+    auto opponentColor = color_invert(who);
+    gameState->set_proposed_draw_status(drawType, who, accepted);
+    updateDisplayedGameState();
 }

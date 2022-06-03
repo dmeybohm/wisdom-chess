@@ -69,18 +69,18 @@ public:
     static auto fromEngine(std::unique_ptr<wisdom::Game> game, Config config)
         -> std::unique_ptr<ChessGame>;
 
-    [[nodiscard]] auto state() const -> gsl::not_null<wisdom::Game*>
+    [[nodiscard]] auto state() -> gsl::not_null<wisdom::Game*>
     {
         return myEngine.get();
     }
 
-    // Clone the game state
+    [[nodiscard]] auto state() const -> gsl::not_null<const wisdom::Game*>
+    {
+        return myEngine.get();
+    }
+
+  // Clone the game state
     [[nodiscard]] auto clone() const -> std::unique_ptr<ChessGame>;
-
-    [[nodiscard]] auto engine() const -> gsl::not_null<const wisdom::Game*>
-    {
-        return myEngine.get();
-    }
 
     [[nodiscard]] auto isLegalMove(wisdom::Move selectedMove) const -> bool;
 

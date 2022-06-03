@@ -129,8 +129,24 @@ void ChessEngine::handlePotentialDrawPosition(wisdom::ProposedDrawType proposedD
 
     if (acceptDraw) {
         myIsGameOver = true;
-        emit updateDrawStatus (proposedDrawType, who, true);
-        emit noMovesAvailable ();
+        emit updateDrawStatus(proposedDrawType, who, true);
+        emit noMovesAvailable();
+    }
+
+    auto opponent = color_invert(who);
+    auto opponentPlayer = gameState->get_player(opponent);
+    if (opponentPlayer == Player::ChessEngine) {
+        auto opponentAcceptsDraw = gameState->computer_wants_draw(opponent);
+        gameState->set_proposed_draw_status(
+                    proposedDrawType,
+                    who,
+                    opponentAcceptsDraw
+        );
+        if (opponentAcceptsDraw) {
+            myIsGameOver = true;
+            emit updateDrawStatus(proposedDrawType, who, true);
+            emit noMovesAvailable();
+        }
     }
 }
 
