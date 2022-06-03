@@ -138,14 +138,17 @@ void ChessEngine::handlePotentialDrawPosition(wisdom::ProposedDrawType proposedD
     if (opponentPlayer == Player::ChessEngine) {
         auto opponentAcceptsDraw = gameState->computer_wants_draw(opponent);
         gameState->set_proposed_draw_status(
-                    proposedDrawType,
-                    who,
-                    opponentAcceptsDraw
+            proposedDrawType,
+            opponent,
+            opponentAcceptsDraw
         );
         if (opponentAcceptsDraw) {
             myIsGameOver = true;
             emit updateDrawStatus(proposedDrawType, who, true);
             emit noMovesAvailable();
+        } else {
+            // if the computer is playing itself, resume searching:
+            gameStatusTransition();
         }
     }
 }

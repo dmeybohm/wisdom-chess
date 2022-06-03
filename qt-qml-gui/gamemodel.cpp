@@ -37,6 +37,19 @@ namespace
             assert(0); abort();
         }
     }
+
+    auto getFirstHumanPlayerColor(Players players) -> optional<Color>
+    {
+        if (players[0] == Player::Human) {
+            return Color::White;
+        }
+        if (players[1] == Player::Human) {
+            return Color::Black;
+        }
+
+        return {};
+    }
+
 }
 
 GameModel::GameModel(QObject *parent)
@@ -81,8 +94,11 @@ void GameModel::setupNewEngineThread()
     connect(chessEngine, &ChessEngine::engineMoved,
             this, &GameModel::engineThreadMoved);
 
+    // Update draw status between engine and game model:
     connect(chessEngine, &ChessEngine::updateDrawStatus,
             this, &GameModel::receiveChessEngineDrawStatus);
+    connect(this, &GameModel::updateDrawStatus,
+            chessEngine, &ChessEngine::receiveDrawStatus);
 
     // Initialize the engine when the engine thread starts:
     connect(myChessEngineThread, &QThread::started,
@@ -375,11 +391,15 @@ void GameModel::updateDisplayedGameState()
         return;
 
     case GameStatus::ThreefoldRepetitionReached:
-        setThirdRepetitionDrawProposed(true);
+        if (getFirstHumanPlayerColor(gameState->get_players()).has_value()) {
+            setThirdRepetitionDrawProposed(true);
+        }
         break;
 
     case GameStatus::FiftyMovesWithoutProgressReached:
-        setFiftyMovesWithoutProgressDrawProposed(true);
+        if (getFirstHumanPlayerColor(gameState->get_players()).has_value()) {
+            setFiftyMovesWithoutProgressDrawProposed(true);
+        }
         break;
 
     case GameStatus::ThreefoldRepetitionAccepted:
@@ -514,7 +534,7 @@ void GameModel::setProposedDrawTypeAcceptance(wisdom::ProposedDrawType drawType,
                                               bool accepted)
 {
     auto gameState = myChessGame->state();
-    auto who = gameState->get_current_turn();
+    auto who = *getFirstHumanPlayerColor(gameState->get_players());
     auto opponentColor = color_invert(who);
 
     gameState->set_proposed_draw_status(drawType, who, accepted);

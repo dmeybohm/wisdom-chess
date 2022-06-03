@@ -75,8 +75,8 @@ private:
     // other player (either the engine itself or the human) before continuing
     // the search.
     //
-    void handlePotentialDrawPosition (wisdom::ProposedDrawType proposedDrawType,
-                                      wisdom::Color who);
+    void handlePotentialDrawPosition(wisdom::ProposedDrawType proposedDrawType,
+                                     wisdom::Color who);
 
 };
 
