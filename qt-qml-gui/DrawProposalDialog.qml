@@ -24,6 +24,7 @@ Dialog {
         Text {
             text: "Would you like to declare a draw?"
             horizontalAlignment: Text.AlignHCenter
+            width: parent.width
             wrapMode: Text.WordWrap
         }
     }
