@@ -94,7 +94,9 @@ namespace wisdom
         [[nodiscard]] auto has_sufficient_material (const Board& board) const -> bool
         {
             if (piece_count (Color::White, Piece::Pawn) > 0 ||
-                piece_count (Color::Black, Piece::Pawn) > 0)
+                piece_count (Color::Black, Piece::Pawn) > 0 ||
+                piece_count (Color::White, Piece::Rook) > 0 ||
+                piece_count (Color::Black, Piece::Rook) > 0)
             {
                 return true;
             }

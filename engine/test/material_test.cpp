@@ -166,6 +166,25 @@ TEST_CASE( "has_sufficient_material()" )
         CHECK( default_material.has_sufficient_material (default_board) );
     }
 
+    SUBCASE( "Returns false if there is a rook and king" )
+    {
+        builder.add_piece ("a7", Color::Black, Piece::Rook);
+
+        auto brd = builder.build ();
+        const auto& material = brd->get_material ();
+        CHECK( material.has_sufficient_material (default_board) );
+    }
+
+    SUBCASE( "Returns false if there is a rook and king vs a rook and king" )
+    {
+        builder.add_piece ("a7", Color::Black, Piece::Rook);
+        builder.add_piece ("c5", Color::White, Piece::Rook);
+
+        auto brd = builder.build ();
+        const auto& material = brd->get_material ();
+        CHECK( material.has_sufficient_material (default_board) );
+    }
+
     SUBCASE( "Returns true if there is a king and two knights vs a king" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Knight);
