@@ -37,9 +37,9 @@ namespace wisdom
             return my_seconds;
         }
 
-        void set_periodic_function (PeriodicFunction periodic_function) noexcept
+        void set_periodic_function (const PeriodicFunction& periodic_function) noexcept
         {
-            my_periodic_function = std::move (periodic_function);
+            my_periodic_function = periodic_function;
         }
 
         void set_triggered (bool triggered) noexcept

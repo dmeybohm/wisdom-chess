@@ -86,6 +86,8 @@ void GameModel::setupNewEngineThread()
     // Initialize a new Game for the chess engine.
     // Any changes in the game config will be updated over a signal.
     auto computerChessGame = myChessGame->clone();
+    computerChessGame->setPeriodicFunction(buildNotifier());
+
     auto chessEngine = new ChessEngine { std::move(computerChessGame), myGameId };
 
     myChessEngineThread = new QThread();
@@ -158,12 +160,15 @@ void GameModel::restart()
         myChessGame->state()->get_player(Color::White),
         myChessGame->state()->get_player(Color::Black),
         gameConfig()
+
     ));
 
-    // Abort the search.
+    // Abort searches and discard any queued signals from them if we receive
+    // them later.
     myGameId++;
 
     std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
+    computerChessGame->setPeriodicFunction(buildNotifier());
 
     // send copy of the new game state to the chess engine thread:
     emit gameUpdated(computerChessGame, myGameId);
@@ -201,7 +206,7 @@ void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who, int game
 
 void GameModel::promotePiece(int srcRow, int srcColumn,
                              int dstRow, int dstColumn,
-                             QString pieceString)
+                             const QString& pieceString)
 {
     optional<Piece> pieceType = pieceFromString(pieceString);
     movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, pieceType);
@@ -250,14 +255,13 @@ void GameModel::applicationExiting()
 
 void GameModel::updateEngineConfig()
 {
-    myGameId++;
+    myConfigId++;
 
     emit engineConfigChanged(ChessGame::Config {
          myChessGame->state()->get_players(),
          MaxDepth { myMaxDepth },
          std::chrono::seconds { myMaxSearchTime },
-         buildNotifier(&myGameId)
-    }, myGameId);
+    }, buildNotifier());
 }
 
 auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
@@ -268,16 +272,25 @@ auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Colo
     return gameState->get_current_turn();
 }
 
-auto GameModel::buildNotifier(atomic<int>* gameIdPtr) -> MoveTimer::PeriodicFunction
+auto GameModel::buildNotifier() const -> MoveTimer::PeriodicFunction
 {
-    auto initialGameId = gameIdPtr->load();
+    auto initialGameId = myGameId.load();
+    auto initialConfigId = myConfigId.load();
+    const auto* gameIdPtr = &myGameId;
+    const auto* configIdPtr = &myConfigId;
 
-    return ([initialGameId, gameIdPtr](not_null<MoveTimer*> moveTimer) {
+    return ([gameIdPtr, initialGameId, configIdPtr, initialConfigId](not_null<MoveTimer*> moveTimer) {
          // This runs in the ChessEngine thread.
-         // Check if the gameId we passed in originally has changed - if so,
-         // the game is over.
+
+         // Check if config has changed:
+         if (initialConfigId != configIdPtr->load()) {
+             qDebug() << "Setting timeout to break the loop. (Config changed)";
+             moveTimer->set_triggered(true);
+         }
+
+         // Check if game has changed. If so, the game is over.
          if (initialGameId != gameIdPtr->load()) {
-             qDebug() << "Setting timeout to break the loop.";
+             qDebug() << "Setting timeout to break the loop. (Game ended)";
              moveTimer->set_triggered(true);
          }
     });
@@ -315,11 +328,7 @@ void GameModel::notifyInternalGameStateUpdated()
         return;
     }
 
-    myGameId++;
-
-    // Update the engine config if needed:
     updateEngineConfig();
-
     updateDisplayedGameState();
 }
 
@@ -328,11 +337,11 @@ auto GameModel::gameConfig() const -> ChessGame::Config
     return ChessGame::Config {
         myChessGame->state()->get_players(),
         MaxDepth { myMaxDepth },
-        chrono::seconds { myMaxSearchTime }
+        chrono::seconds { myMaxSearchTime },
     };
 }
 
-auto GameModel::currentTurn() -> wisdom::chess::ChessColor
+auto GameModel::currentTurn() const -> wisdom::chess::ChessColor
 {
     return myCurrentTurn;
 }
@@ -353,7 +362,7 @@ void GameModel::setGameOverStatus(const QString& newStatus)
     }
 }
 
-auto GameModel::gameOverStatus() -> QString
+auto GameModel::gameOverStatus() const -> QString
 {
     return myGameOverStatus;
 }
@@ -366,12 +375,12 @@ void GameModel::setMoveStatus(const QString &newStatus)
     }
 }
 
-auto GameModel::moveStatus() -> QString
+auto GameModel::moveStatus() const -> QString
 {
     return myMoveStatus;
 }
 
-void GameModel::setInCheck(const bool newInCheck)
+void GameModel::setInCheck(bool newInCheck)
 {
     if (newInCheck != myInCheck) {
         myInCheck = newInCheck;
@@ -379,7 +388,7 @@ void GameModel::setInCheck(const bool newInCheck)
     }
 }
 
-auto GameModel::inCheck() -> bool
+auto GameModel::inCheck() const -> bool
 {
     return myInCheck;
 }
@@ -452,7 +461,7 @@ void GameModel::updateDisplayedGameState()
     }
 }
 
-auto GameModel::whiteIsComputer() -> bool
+auto GameModel::whiteIsComputer() const -> bool
 {
     return myWhiteIsComputer;
 }
@@ -466,7 +475,7 @@ void GameModel::setWhiteIsComputer(bool newWhiteIsComputer)
     }
 }
 
-auto GameModel::blackIsComputer() -> bool
+auto GameModel::blackIsComputer() const -> bool
 {
     return myBlackIsComputer;
 }
@@ -480,7 +489,7 @@ void GameModel::setMaxDepth(int maxDepth)
     }
 }
 
-int GameModel::maxDepth()
+auto GameModel::maxDepth() const -> int
 {
     return myMaxDepth;
 }
@@ -494,7 +503,7 @@ void GameModel::setMaxSearchTime(int maxSearchTime)
     }
 }
 
-int GameModel::maxSearchTime()
+auto GameModel::maxSearchTime() const -> int
 {
     return myMaxSearchTime;
 }
@@ -508,7 +517,7 @@ void GameModel::setBlackIsComputer(bool newBlackIsComputer)
     }
 }
 
-auto GameModel::thirdRepetitionDrawProposed() -> bool
+auto GameModel::thirdRepetitionDrawProposed() const -> bool
 {
     return myThirdRepetitionDrawProposed;
 }
@@ -522,7 +531,7 @@ void GameModel::setThirdRepetitionDrawProposed(bool drawProposed)
     }
 }
 
-auto GameModel::fiftyMovesWithoutProgressDrawProposed() -> bool
+auto GameModel::fiftyMovesWithoutProgressDrawProposed() const -> bool
 {
     return myThirdRepetitionDrawProposed;
 }

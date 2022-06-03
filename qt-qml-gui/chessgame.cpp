@@ -21,21 +21,21 @@ using gsl::not_null;
 auto ChessGame::fromPlayers(
         wisdom::Player whitePlayer,
         wisdom::Player blackPlayer,
-        Config config
+        const Config& config
 )
     -> unique_ptr<ChessGame>
 {
     return fromEngine(std::move(make_unique<Game>(whitePlayer, blackPlayer)), config);
 }
 
-auto ChessGame::fromFen(const string &input, Config config) -> unique_ptr<ChessGame>
+auto ChessGame::fromFen(const string &input, const Config& config) -> unique_ptr<ChessGame>
 {
     FenParser parser { input };
     auto game = parser.build ();
     return fromEngine(std::make_unique<Game>(std::move(game)), config);
 }
 
-auto ChessGame::fromEngine(std::unique_ptr<wisdom::Game> game, Config config) ->
+auto ChessGame::fromEngine(std::unique_ptr<wisdom::Game> game, const Config& config) ->
     unique_ptr<ChessGame>
 {
     return make_unique<ChessGame>(std::move(game), config);
@@ -78,13 +78,12 @@ auto ChessGame::isLegalMove(Move selectedMove) const -> bool
     });
 }
 
-void ChessGame::setConfig(Config config)
+void ChessGame::setConfig(const Config& config)
 {
     auto gameState = this->state();
     gameState->set_max_depth(config.maxDepth.internalDepth());
     gameState->set_search_timeout(config.maxTime);
     gameState->set_players(config.players);
-    gameState->set_periodic_function(config.periodicFunction);
     myConfig = config;
 }
 
@@ -112,4 +111,9 @@ auto ChessGame::moveFromCoordinates(int srcRow, int srcColumn,
         engine->map_coordinates_to_move(src, dst, promoted),
         who
     };
+}
+
+void ChessGame::setPeriodicFunction(const MoveTimer::PeriodicFunction &func)
+{
+    myPeriodicFunction = func;
 }

@@ -51,7 +51,6 @@ public:
         wisdom::Players players;
         MaxDepth maxDepth;
         std::chrono::seconds maxTime;
-        wisdom::MoveTimer::PeriodicFunction periodicFunction;
 
         static auto defaultConfig() -> Config
         {
@@ -59,12 +58,11 @@ public:
                 { wisdom::Player::Human, wisdom::Player::ChessEngine },
                 MaxDepth { 4 },
                 std::chrono::seconds { 4 },
-                [](gsl::not_null<wisdom::MoveTimer*> timer){}
             };
         }
     };
 
-    explicit ChessGame(std::unique_ptr<wisdom::Game> game, Config config)
+    explicit ChessGame(std::unique_ptr<wisdom::Game> game, const Config& config)
         : myEngine { std::move(game) }
         , myConfig { config }
     {
@@ -72,13 +70,13 @@ public:
     }
 
     static auto fromPlayers(wisdom::Player whitePlayer,
-                            wisdom::Player blackPlayer, Config config)
+                            wisdom::Player blackPlayer, const Config& config)
         -> std::unique_ptr<ChessGame>;
 
-    static auto fromFen(const std::string& input, Config config)
+    static auto fromFen(const std::string& input, const Config& config)
         -> std::unique_ptr<ChessGame>;
 
-    static auto fromEngine(std::unique_ptr<wisdom::Game> game, Config config)
+    static auto fromEngine(std::unique_ptr<wisdom::Game> game, const Config& config)
         -> std::unique_ptr<ChessGame>;
 
     [[nodiscard]] auto state() -> gsl::not_null<wisdom::Game*>
@@ -102,7 +100,8 @@ public:
        return myMoveGenerator.get();
     }
 
-    void setConfig(Config config);
+    void setConfig(const Config& config);
+    void setPeriodicFunction(const wisdom::MoveTimer::PeriodicFunction& func);
     void setPlayers(wisdom::Player whitePLayer, wisdom::Player blackPlayer);
 
     [[nodiscard]] auto moveFromCoordinates(int srcRow, int srcColumn,
@@ -115,8 +114,7 @@ private:
     std::unique_ptr<wisdom::MoveGenerator> myMoveGenerator =
             std::make_unique<wisdom::MoveGenerator>();
     Config myConfig;
+    wisdom::MoveTimer::PeriodicFunction myPeriodicFunction {};
 };
-
-
 
 #endif // CHESSGAME_H

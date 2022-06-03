@@ -177,11 +177,13 @@ void ChessEngine::reloadGame(shared_ptr<ChessGame> newGame, int newGameId)
     init();
 }
 
-void ChessEngine::updateConfig(ChessGame::Config config, int newGameId)
+void ChessEngine::updateConfig(ChessGame::Config config,
+                               const wisdom::MoveTimer::PeriodicFunction& notifier)
 {
     myGame->setConfig(config);
 
-    myGameId = newGameId;
+    // Update the notifier:
+    myGame->setPeriodicFunction(notifier);
 
     // Possibly resume searching for the next move:
     init();
