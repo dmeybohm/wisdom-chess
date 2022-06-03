@@ -27,6 +27,12 @@ namespace wisdom
 
         auto is_triggered () -> bool;
 
+        // Whether the search as a whole was cancelled.
+        [[nodiscard]] auto is_cancelled () const -> bool
+        {
+            return my_cancelled;
+        }
+
         void start () noexcept
         {
             my_started = true;
@@ -37,14 +43,19 @@ namespace wisdom
             return my_seconds;
         }
 
-        void set_periodic_function (PeriodicFunction periodic_function) noexcept
+        void set_periodic_function (const PeriodicFunction& periodic_function) noexcept
         {
-            my_periodic_function = std::move (periodic_function);
+            my_periodic_function = periodic_function;
         }
 
         void set_triggered (bool triggered) noexcept
         {
             my_triggered = triggered;
+        }
+
+        void set_cancelled (bool cancelled) noexcept
+        {
+            my_cancelled = cancelled;
         }
 
     private:
@@ -54,6 +65,7 @@ namespace wisdom
         int my_check_calls = 0;
         bool my_triggered = false;
         bool my_started = true;
+        bool my_cancelled = false;
     };
 }
 

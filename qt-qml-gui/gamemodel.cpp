@@ -55,11 +55,17 @@ namespace
 GameModel::GameModel(QObject *parent)
     : QObject(parent)
     , myMaxDepth { 4 }
+    , myCurrentTurn {}
     , myMaxSearchTime { 5 }
     , myChessEngineThread { nullptr }
 {
-    myChessGame = ChessGame::fromPlayers(Player::Human, Player::ChessEngine, gameConfig());
-    init();
+    myChessGame = ChessGame::fromPlayers(
+                Player::Human,
+                Player::ChessEngine,
+                ChessGame::Config::defaultConfig()
+    );
+    init ();
+
 }
 
 GameModel::~GameModel()
@@ -71,7 +77,6 @@ void GameModel::init()
 {
     auto gameState = myChessGame->state();
     setCurrentTurn(wisdom::chess::mapColor(gameState->get_current_turn()));
-    myChessGame->setPlayers(Player::Human, Player::ChessEngine);
 
     setupNewEngineThread();
 }
@@ -83,7 +88,8 @@ void GameModel::setupNewEngineThread()
     // Initialize a new Game for the chess engine.
     // Any changes in the game config will be updated over a signal.
     auto computerChessGame = myChessGame->clone();
-    computerChessGame->setupNotify(&myGameId);
+    computerChessGame->setPeriodicFunction(buildNotifier());
+
     auto chessEngine = new ChessEngine { std::move(computerChessGame), myGameId };
 
     myChessEngineThread = new QThread();
@@ -117,11 +123,7 @@ void GameModel::setupNewEngineThread()
     connect(this, &GameModel::terminationStarted,
             myChessEngineThread, &QThread::quit);
 
-    // Update the engine's config when user changes its:
-    connect(this, &GameModel::maxDepthChanged,
-            this, &GameModel::updateEngineConfig);
-    connect(this, &GameModel::maxSearchTimeChanged,
-            this, &GameModel::updateEngineConfig);
+    // Update the engine's config when user changes it:
     connect(this, &GameModel::engineConfigChanged,
             chessEngine, &ChessEngine::updateConfig);
 
@@ -156,10 +158,27 @@ void GameModel::restart()
         myChessGame->state()->get_player(Color::White),
         myChessGame->state()->get_player(Color::Black),
         gameConfig()
-    ));
-    notifyInternalGameStateUpdated();
 
+    ));
+
+    // Abort searches and discard any queued signals from them if we receive
+    // them later.
+    myGameId++;
+
+    std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
+    computerChessGame->setPeriodicFunction(buildNotifier());
+
+    // send copy of the new game state to the chess engine thread:
+    emit gameUpdated(computerChessGame, myGameId);
+
+    // Notify other objects in this thread about the new game:
     emit gameStarted(myChessGame.get());
+
+    // Update the config to update the notifier to use the new game Id:
+    updateEngineConfig();
+
+    setCurrentTurn(wisdom::chess::mapColor(myChessGame->state()->get_current_turn()));
+    updateDisplayedGameState();
 }
 
 void GameModel::movePiece(int srcRow, int srcColumn,
@@ -188,7 +207,7 @@ void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who, int game
 
 void GameModel::promotePiece(int srcRow, int srcColumn,
                              int dstRow, int dstColumn,
-                             QString pieceString)
+                             const QString& pieceString)
 {
     optional<Piece> pieceType = pieceFromString(pieceString);
     movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, pieceType);
@@ -237,9 +256,17 @@ void GameModel::applicationExiting()
 
 void GameModel::updateEngineConfig()
 {
-    emit engineConfigChanged(ChessGame::Config { MaxDepth { myMaxDepth },
-                                             std::chrono::seconds { myMaxSearchTime }
-    });
+    delete myUpdateConfigTimer;
+    myUpdateConfigTimer = nullptr;
+
+    myConfigId++;
+    qDebug() << "New config id:" << myConfigId;
+
+    emit engineConfigChanged(ChessGame::Config {
+         myChessGame->state()->get_players(),
+         MaxDepth { myMaxDepth },
+         std::chrono::seconds { myMaxSearchTime },
+    }, buildNotifier());
 }
 
 auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
@@ -248,6 +275,36 @@ auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Colo
 
     gameState->move(selectedMove);
     return gameState->get_current_turn();
+}
+
+auto GameModel::buildNotifier() const -> MoveTimer::PeriodicFunction
+{
+    auto initialGameId = myGameId.load();
+    auto initialConfigId = myConfigId.load();
+    const auto* gameIdPtr = &myGameId;
+    const auto* configIdPtr = &myConfigId;
+
+    return ([gameIdPtr, initialGameId, configIdPtr, initialConfigId](not_null<MoveTimer*> moveTimer) {
+         // This runs in the ChessEngine thread.
+        auto currentConfigId = configIdPtr->load();
+
+         // Check if config has changed:
+         if (initialConfigId != currentConfigId) {
+             qDebug() << "Setting timeout to break the loop. (Config changed)";
+             moveTimer->set_triggered(true);
+
+             // Discard the results of the search. The GameModel will send
+             // an updateConfig signal to fire off a new search with the new
+             // config.
+             moveTimer->set_cancelled(true);
+         }
+
+         // Check if game has changed. If so, the game is over.
+         if (initialGameId != gameIdPtr->load()) {
+             qDebug() << "Setting timeout to break the loop. (Game ended)";
+             moveTimer->set_triggered(true);
+         }
+    });
 }
 
 void GameModel::updateCurrentTurn(Color newColor)
@@ -276,35 +333,25 @@ void GameModel::updateInternalGameState()
 void GameModel::notifyInternalGameStateUpdated()
 {
     auto gameState = myChessGame->state();
-    updateCurrentTurn(gameState->get_current_turn());
 
+    updateCurrentTurn(gameState->get_current_turn());
     if (myGameOverStatus != "") {
         return;
     }
 
-    std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
-
-    myGameId++;
-    computerChessGame->setupNotify(&myGameId);
-
-    // Update the engine config if needed:
-    emit updateEngineConfig();
-
-    // send copy of the new game state to the chess engine thread:
-    emit gameUpdated(computerChessGame, myGameId);
-
-    updateDisplayedGameState();
+    updateEngineConfig();
 }
 
 auto GameModel::gameConfig() const -> ChessGame::Config
 {
     return ChessGame::Config {
+        myChessGame->state()->get_players(),
         MaxDepth { myMaxDepth },
-        chrono::seconds { myMaxSearchTime }
+        chrono::seconds { myMaxSearchTime },
     };
 }
 
-auto GameModel::currentTurn() -> wisdom::chess::ChessColor
+auto GameModel::currentTurn() const -> wisdom::chess::ChessColor
 {
     return myCurrentTurn;
 }
@@ -325,7 +372,7 @@ void GameModel::setGameOverStatus(const QString& newStatus)
     }
 }
 
-auto GameModel::gameOverStatus() -> QString
+auto GameModel::gameOverStatus() const -> QString
 {
     return myGameOverStatus;
 }
@@ -338,12 +385,12 @@ void GameModel::setMoveStatus(const QString &newStatus)
     }
 }
 
-auto GameModel::moveStatus() -> QString
+auto GameModel::moveStatus() const -> QString
 {
     return myMoveStatus;
 }
 
-void GameModel::setInCheck(const bool newInCheck)
+void GameModel::setInCheck(bool newInCheck)
 {
     if (newInCheck != myInCheck) {
         myInCheck = newInCheck;
@@ -351,7 +398,7 @@ void GameModel::setInCheck(const bool newInCheck)
     }
 }
 
-auto GameModel::inCheck() -> bool
+auto GameModel::inCheck() const -> bool
 {
     return myInCheck;
 }
@@ -381,7 +428,7 @@ void GameModel::updateDisplayedGameState()
     }
 
     case GameStatus::Stalemate: {
-        auto stalemateStr = "<b>Stalemate</b> - No legal moves for " + wisdom::to_string(who) + ". Draw";
+        auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>" + wisdom::to_string(who) + "</b>";
         setGameOverStatus(stalemateStr.c_str());
         return;
     }
@@ -403,7 +450,7 @@ void GameModel::updateDisplayedGameState()
         break;
 
     case GameStatus::ThreefoldRepetitionAccepted:
-        setGameOverStatus("<b>Draw</b> - Threefold repetition rule");
+        setGameOverStatus("<b>Draw</b> - Threefold repetition rule.");
         return;
 
     case GameStatus::FiftyMovesWithoutProgressAccepted:
@@ -424,7 +471,23 @@ void GameModel::updateDisplayedGameState()
     }
 }
 
-auto GameModel::whiteIsComputer() -> bool
+void GameModel::debouncedUpdateConfig ()
+{
+    if (myUpdateConfigTimer != nullptr) {
+        myUpdateConfigTimer->start(); // reset the timer.
+        return;
+    }
+    myUpdateConfigTimer = new QTimer(this);
+    myUpdateConfigTimer->setInterval(chrono::milliseconds { 400 } );
+    myUpdateConfigTimer->setSingleShot(true);
+    connect(myUpdateConfigTimer, &QTimer::timeout,
+            this, [this](){
+        updateInternalGameState ();
+    });
+    myUpdateConfigTimer->start();
+}
+
+auto GameModel::whiteIsComputer() const -> bool
 {
     return myWhiteIsComputer;
 }
@@ -438,7 +501,7 @@ void GameModel::setWhiteIsComputer(bool newWhiteIsComputer)
     }
 }
 
-auto GameModel::blackIsComputer() -> bool
+auto GameModel::blackIsComputer() const -> bool
 {
     return myBlackIsComputer;
 }
@@ -447,12 +510,12 @@ void GameModel::setMaxDepth(int maxDepth)
 {
     if (myMaxDepth != maxDepth) {
         myMaxDepth = maxDepth;
-        myChessGame->setConfig(gameConfig());
+        debouncedUpdateConfig();
         emit maxDepthChanged();
     }
 }
 
-int GameModel::maxDepth()
+auto GameModel::maxDepth() const -> int
 {
     return myMaxDepth;
 }
@@ -461,12 +524,12 @@ void GameModel::setMaxSearchTime(int maxSearchTime)
 {
     if (maxSearchTime != myMaxSearchTime) {
         myMaxSearchTime = maxSearchTime;
-        myChessGame->setConfig(gameConfig());
+        debouncedUpdateConfig();
         emit maxSearchTimeChanged();
     }
 }
 
-int GameModel::maxSearchTime()
+auto GameModel::maxSearchTime() const -> int
 {
     return myMaxSearchTime;
 }
@@ -480,7 +543,7 @@ void GameModel::setBlackIsComputer(bool newBlackIsComputer)
     }
 }
 
-auto GameModel::thirdRepetitionDrawProposed() -> bool
+auto GameModel::thirdRepetitionDrawProposed() const -> bool
 {
     return myThirdRepetitionDrawProposed;
 }
@@ -494,7 +557,7 @@ void GameModel::setThirdRepetitionDrawProposed(bool drawProposed)
     }
 }
 
-auto GameModel::fiftyMovesWithoutProgressDrawProposed() -> bool
+auto GameModel::fiftyMovesWithoutProgressDrawProposed() const -> bool
 {
     return myThirdRepetitionDrawProposed;
 }
@@ -534,7 +597,10 @@ void GameModel::setProposedDrawTypeAcceptance(wisdom::ProposedDrawType drawType,
                                               bool accepted)
 {
     auto gameState = myChessGame->state();
-    auto who = *getFirstHumanPlayerColor(gameState->get_players());
+    auto optionalColor = getFirstHumanPlayerColor(gameState->get_players());
+
+    assert(optionalColor.has_value());
+    auto who = *optionalColor;
     auto opponentColor = color_invert(who);
 
     gameState->set_proposed_draw_status(drawType, who, accepted);
@@ -550,7 +616,6 @@ void GameModel::receiveChessEngineDrawStatus(wisdom::ProposedDrawType drawType,
                                              wisdom::Color who, bool accepted)
 {
     auto gameState = myChessGame->state();
-    auto opponentColor = color_invert(who);
     gameState->set_proposed_draw_status(drawType, who, accepted);
     updateDisplayedGameState();
 }

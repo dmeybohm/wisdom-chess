@@ -62,7 +62,13 @@ namespace wisdom
         void search (Color side, int depth, int alpha, int beta,
                      analysis::Decision& decision);
 
+
         [[nodiscard]] auto synthesize_result () const -> SearchResult;
+
+        [[nodiscard]] auto move_timer () const -> not_null<const MoveTimer*>
+        {
+            return &my_timer;
+        }
     };
 
     IterativeSearch::~IterativeSearch() = default;
@@ -86,6 +92,11 @@ namespace wisdom
     {
          impl->iteratively_deepen (side);
          return impl->synthesize_result ();
+    }
+
+    auto IterativeSearch::is_cancelled () -> bool
+    {
+        return impl->move_timer()->is_cancelled();
     }
 
     static constexpr auto drawing_score (Color searching_color, Color current_color)

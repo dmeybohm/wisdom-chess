@@ -35,6 +35,7 @@ ApplicationWindow {
     header: ToolBar {
         RowLayout {
             anchors.fill: parent
+
             Label {
                 visible: Helper.isWebAssembly()
                 text: "Wisdom Chess"

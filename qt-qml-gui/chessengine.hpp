@@ -11,8 +11,6 @@
 #include "move.hpp"
 #include "move_timer.hpp"
 
-class ChessEngineNotifier;
-
 //
 // Represents the computer player.
 //
@@ -44,8 +42,10 @@ public slots:
     // Update the whole chess game state. The ownership of the game is taken.
     void reloadGame(std::shared_ptr<ChessGame> newGame, int newGameId);
 
-    // Update the config of the game.
-    void updateConfig(ChessGame::Config config);
+    // Update the config of the game. Also update the notifier in case we
+    // had to interrupt the engine.
+    void updateConfig(ChessGame::Config config,
+                      const wisdom::MoveTimer::PeriodicFunction& notifier);
 
 signals:
     // The engine made a move.
@@ -60,8 +60,14 @@ signals:
 
 private:
     std::shared_ptr<ChessGame> myGame;
-    int myGameId;
+
     bool myIsGameOver = false;
+
+    // Identify games so that signals from them can be filtered due to being async.
+    int myGameId;
+
+    // Identify configurations to interrupt search.
+    int myConfigId;
 
     void findMove();
 

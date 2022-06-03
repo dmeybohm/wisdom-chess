@@ -74,35 +74,35 @@ public:
     Q_INVOKABLE bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
     Q_INVOKABLE void restart();
 
-    wisdom::chess::ChessColor currentTurn();
+    [[nodiscard]] auto currentTurn() const -> wisdom::chess::ChessColor;
     void setCurrentTurn(wisdom::chess::ChessColor newColor);
 
     void setGameOverStatus(const QString& newStatus);
-    auto gameOverStatus() -> QString;
+    [[nodiscard]] auto gameOverStatus() const -> QString;
 
     void setMoveStatus(const QString& newStatus);
-    auto moveStatus() -> QString;
+    [[nodiscard]] auto moveStatus() const -> QString;
 
-    void setInCheck(const bool newInCheck);
-    auto inCheck() -> bool;
+    void setInCheck(bool newInCheck);
+    [[nodiscard]] auto inCheck() const -> bool;
 
     void setThirdRepetitionDrawProposed(bool drawProposedToHuman);
-    auto thirdRepetitionDrawProposed() -> bool;
+    [[nodiscard]] auto thirdRepetitionDrawProposed() const -> bool;
 
     void setFiftyMovesWithoutProgressDrawProposed(bool drawProposedToHuman);
-    auto fiftyMovesWithoutProgressDrawProposed() -> bool;
+    [[nodiscard]] auto fiftyMovesWithoutProgressDrawProposed() const -> bool;
 
     void setWhiteIsComputer(bool newWhiteIsComputer);
-    auto whiteIsComputer() -> bool;
+    [[nodiscard]] auto whiteIsComputer() const -> bool;
 
     void setBlackIsComputer(bool newBlackIsComputer);
-    auto blackIsComputer() -> bool;
+    [[nodiscard]] auto blackIsComputer() const -> bool;
 
     void setMaxDepth(int maxDepth);
-    auto maxDepth() -> int;
+    [[nodiscard]] auto maxDepth() const -> int;
 
     void setMaxSearchTime(int maxSearchTime);
-    auto maxSearchTime() -> int;
+    [[nodiscard]] auto maxSearchTime() const -> int;
 
 signals:
     // The game object here is readonly.
@@ -115,7 +115,8 @@ signals:
 
     void humanMoved(wisdom::Move move, wisdom::Color who);
     void engineMoved(wisdom::Move move, wisdom::Color who, int gameId);
-    void engineConfigChanged(ChessGame::Config config);
+    void engineConfigChanged(ChessGame::Config config,
+                             wisdom::MoveTimer::PeriodicFunction newFunc);
 
     void currentTurnChanged();
     void gameOverStatusChanged();
@@ -146,9 +147,10 @@ public slots:
                    int dstRow, int dstColumn);
 
     void engineThreadMoved(wisdom::Move move, wisdom::Color who,
-                           int engineid);
+                           int engineId);
 
-    void promotePiece(int srcRow, int srcColumn, int dstRow, int dstColumn, QString pieceType);
+    void promotePiece(int srcRow, int srcColumn,
+                      int dstRow, int dstColumn, const QString& pieceType);
 
     void humanWantsThreefoldRepetitionDraw(bool accepted);
     void humanWantsFiftyMovesWithoutProgressDraw(bool accepted);
@@ -171,11 +173,20 @@ private:
     // queued because the signals are asynchronous. This lets us discard those signals.
     std::atomic<int> myGameId = 1;
 
+    // We identify each configuration by an Id so that when we change configs,
+    // The chess engine thread can be interrupted to load the new config sooner.
+    std::atomic<int> myConfigId = 1;
+
     // The chess engine runs in this thread, and grabs the game mutext as needed:
-    QThread* myChessEngineThread;
+    QThread* myChessEngineThread = nullptr;
+
+    // Update the config from a timer to avoid creating too many events.
+    QTimer* myUpdateConfigTimer = nullptr;
+
     wisdom::chess::ChessColor myCurrentTurn;
     QString myGameOverStatus {};
     QString myMoveStatus {};
+
     bool myInCheck = false;
     bool myThirdRepetitionDrawProposed = false;
     bool myFiftyMovesWithProgressDrawProposed = false;
@@ -196,14 +207,15 @@ private:
     // Returns the color of the next turn:
     auto updateChessEngineForHumanMove(wisdom::Move selectedMove) -> wisdom::Color;
 
+    // Build the notifier that is used to interrupt the thread.
+    [[nodiscard]] auto buildNotifier() const
+        -> wisdom::MoveTimer::PeriodicFunction;
+
     // Update the current turn to the new color.
     void updateCurrentTurn(wisdom::Color newColor);
 
     // Emit appropriate player moved signal, or delay it for a draw proposal.
     void handleMove(wisdom::Player playerType, wisdom::Move move, wisdom::Color who);
-
-    // Update the internal game state after user changes config or starts a new game:
-    void updateInternalGameState();
 
     // Update the displayed state of the game.
     void updateDisplayedGameState();
@@ -215,7 +227,13 @@ private:
     void setProposedDrawTypeAcceptance(wisdom::ProposedDrawType drawType, bool accepted);
 
     // Get the configuration for the game.
-    ChessGame::Config gameConfig() const;
+    auto gameConfig() const -> ChessGame::Config;
+
+    // Update the internal game state after user changes config or starts a new game:
+    void updateInternalGameState();
+
+    // Debounce the update to the config.
+    void debouncedUpdateConfig();
 };
 
 #endif // GAMEMODEL_H

@@ -153,9 +153,10 @@ namespace wisdom
                                                       src, dst, promoted);
         }
 
-        void set_periodic_function (MoveTimer::PeriodicFunction periodic_function)
+        void set_periodic_function (const MoveTimer::PeriodicFunction& periodic_function)
         {
-            my_periodic_function = std::move (periodic_function);
+            std::cout << "periodic function address: " << &periodic_function << "\n";
+            my_periodic_function = periodic_function;
         }
 
         [[nodiscard]] auto status () const -> GameStatus;

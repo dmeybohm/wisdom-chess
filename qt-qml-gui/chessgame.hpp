@@ -48,11 +48,21 @@ public:
     // The configuration of the chess engine.
     struct Config
     {
+        wisdom::Players players;
         MaxDepth maxDepth;
         std::chrono::seconds maxTime;
+
+        static auto defaultConfig() -> Config
+        {
+            return {
+                { wisdom::Player::Human, wisdom::Player::ChessEngine },
+                MaxDepth { 4 },
+                std::chrono::seconds { 4 },
+            };
+        }
     };
 
-    explicit ChessGame(std::unique_ptr<wisdom::Game> game, Config config)
+    explicit ChessGame(std::unique_ptr<wisdom::Game> game, const Config& config)
         : myEngine { std::move(game) }
         , myConfig { config }
     {
@@ -60,13 +70,13 @@ public:
     }
 
     static auto fromPlayers(wisdom::Player whitePlayer,
-                            wisdom::Player blackPlayer, Config config)
+                            wisdom::Player blackPlayer, const Config& config)
         -> std::unique_ptr<ChessGame>;
 
-    static auto fromFen(const std::string& input, Config config)
+    static auto fromFen(const std::string& input, const Config& config)
         -> std::unique_ptr<ChessGame>;
 
-    static auto fromEngine(std::unique_ptr<wisdom::Game> game, Config config)
+    static auto fromEngine(std::unique_ptr<wisdom::Game> game, const Config& config)
         -> std::unique_ptr<ChessGame>;
 
     [[nodiscard]] auto state() -> gsl::not_null<wisdom::Game*>
@@ -90,10 +100,9 @@ public:
        return myMoveGenerator.get();
     }
 
-    void setConfig(Config config);
+    void setConfig(const Config& config);
+    void setPeriodicFunction(const wisdom::MoveTimer::PeriodicFunction& func);
     void setPlayers(wisdom::Player whitePLayer, wisdom::Player blackPlayer);
-
-    void setupNotify(std::atomic<int>* gameId);
 
     [[nodiscard]] auto moveFromCoordinates(int srcRow, int srcColumn,
          int dstRow, int dstColumn,
@@ -106,6 +115,5 @@ private:
             std::make_unique<wisdom::MoveGenerator>();
     Config myConfig;
 };
-
 
 #endif // CHESSGAME_H
