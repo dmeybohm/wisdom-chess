@@ -142,7 +142,7 @@ void ChessEngine::handlePotentialDrawPosition(wisdom::ProposedDrawType proposedD
             opponent,
             opponentAcceptsDraw
         );
-        emit updateDrawStatus(proposedDrawType, who, opponentAcceptsDraw);
+        emit updateDrawStatus(proposedDrawType, opponent, opponentAcceptsDraw);
         if (opponentAcceptsDraw) {
             myIsGameOver = true;
             emit noMovesAvailable();

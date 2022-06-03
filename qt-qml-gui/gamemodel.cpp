@@ -269,7 +269,6 @@ auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Colo
 
 auto GameModel::buildNotifier() -> MoveTimer::PeriodicFunction
 {
-    auto state = myChessGame->state();
     auto initialGameId = myGameId.load();
 
     return ([initialGameId, gameId=&myGameId](not_null<MoveTimer*> moveTimer) {
@@ -409,7 +408,7 @@ void GameModel::updateDisplayedGameState()
     }
 
     case GameStatus::Stalemate: {
-        auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>" + wisdom::to_string(who) + "</b>";
+        auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>" + wisdom::to_string(who) + "</b>.";
         setGameOverStatus(stalemateStr.c_str());
         return;
     }
@@ -431,7 +430,7 @@ void GameModel::updateDisplayedGameState()
         break;
 
     case GameStatus::ThreefoldRepetitionAccepted:
-        setGameOverStatus("<b>Draw</b> - Threefold repetition rule");
+        setGameOverStatus("<b>Draw</b> - Threefold repetition rule.");
         return;
 
     case GameStatus::FiftyMovesWithoutProgressAccepted:
