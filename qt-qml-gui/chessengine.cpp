@@ -27,7 +27,7 @@ void ChessEngine::init()
 
 void ChessEngine::opponentMoved(Move move, Color who)
 {
-    QThread::usleep(500);
+    QThread::usleep(200000); // 200 ms
     auto game = myGame->state();
     game->move(move);
     findMove();

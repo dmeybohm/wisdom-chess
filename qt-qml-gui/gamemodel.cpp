@@ -123,11 +123,7 @@ void GameModel::setupNewEngineThread()
     connect(this, &GameModel::terminationStarted,
             myChessEngineThread, &QThread::quit);
 
-    // Update the engine's config when user changes its:
-    connect(this, &GameModel::maxDepthChanged,
-            this, &GameModel::updateEngineConfig);
-    connect(this, &GameModel::maxSearchTimeChanged,
-            this, &GameModel::updateEngineConfig);
+    // Update the engine's config when user changes it:
     connect(this, &GameModel::engineConfigChanged,
             chessEngine, &ChessEngine::updateConfig);
 
@@ -290,11 +286,10 @@ auto GameModel::buildNotifier() const -> MoveTimer::PeriodicFunction
 
     return ([gameIdPtr, initialGameId, configIdPtr, initialConfigId](not_null<MoveTimer*> moveTimer) {
          // This runs in the ChessEngine thread.
-         qDebug() << "In notifier";
-         qDebug() << "config id: " << configIdPtr->load();
+        auto currentConfigId = configIdPtr->load();
 
          // Check if config has changed:
-         if (initialConfigId != configIdPtr->load()) {
+         if (initialConfigId != currentConfigId) {
              qDebug() << "Setting timeout to break the loop. (Config changed)";
              moveTimer->set_triggered(true);
 
@@ -479,16 +474,17 @@ void GameModel::updateDisplayedGameState()
 void GameModel::debouncedUpdateConfig ()
 {
     if (myUpdateConfigTimer != nullptr) {
-        delete myUpdateConfigTimer;
-        myUpdateConfigTimer = new QTimer();
-        myUpdateConfigTimer->setInterval(chrono::milliseconds { 400 } );
-        myUpdateConfigTimer->setSingleShot(true);
-        connect(myUpdateConfigTimer, &QTimer::timeout,
-                this, [this](){
-                    updateInternalGameState ();
-                });
+        myUpdateConfigTimer->start(); // reset the timer.
         return;
     }
+    myUpdateConfigTimer = new QTimer(this);
+    myUpdateConfigTimer->setInterval(chrono::milliseconds { 400 } );
+    myUpdateConfigTimer->setSingleShot(true);
+    connect(myUpdateConfigTimer, &QTimer::timeout,
+            this, [this](){
+        updateInternalGameState ();
+    });
+    myUpdateConfigTimer->start();
 }
 
 auto GameModel::whiteIsComputer() const -> bool
