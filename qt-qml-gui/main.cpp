@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
     QObject::connect(&gameModel, &GameModel::humanMoved, &piecesModel, &PiecesModel::playerMoved);
     QObject::connect(&gameModel, &GameModel::gameStarted, &piecesModel, &PiecesModel::newGame);
 
-    qDebug() << "Returned after creating game model";
     QQmlApplicationEngine engine;
 
     auto mainQmlFile = QString { "qrc:/WisdomChessQtQml/" } + QString { MAIN_QML_FILE };

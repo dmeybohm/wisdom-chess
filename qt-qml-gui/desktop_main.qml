@@ -33,6 +33,8 @@ ApplicationWindow {
     }
 
     header: ToolBar {
+        id: toolbar
+
         RowLayout {
             anchors.fill: parent
 
@@ -40,13 +42,19 @@ ApplicationWindow {
                 visible: Helper.isWebAssembly()
                 text: "Wisdom Chess"
                 elide: Label.ElideRight
+                Layout.alignment: Qt.AlignLeft;
                 horizontalAlignment: Qt.AlignLeft
                 verticalAlignment: Qt.AlignVCenter
-                Layout.fillWidth: true
-                Layout.leftMargin: 17
             }
+
+            Item {
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignLeft;
+            }
+
             ToolButton {
-                anchors.right: parent.right
+                Layout.alignment: Qt.AlignRight;
+                font.pointSize: 14
                 text: qsTr("⋮")
                 onClicked: settingsMenu.open()
             }

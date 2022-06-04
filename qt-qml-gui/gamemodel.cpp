@@ -260,7 +260,6 @@ void GameModel::updateEngineConfig()
     myUpdateConfigTimer = nullptr;
 
     myConfigId++;
-    qDebug() << "New config id:" << myConfigId;
 
     emit engineConfigChanged(ChessGame::Config {
          myChessGame->state()->get_players(),

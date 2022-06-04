@@ -87,8 +87,6 @@ QVariant PiecesModel::data(const QModelIndex& index, int role) const
         return QVariant {};
     }
 
-    qDebug() << "Index: " << index;
-
     int dataRow = index.row();
 
     auto pieceInfo = myPieces.at(dataRow);
