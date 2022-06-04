@@ -39,10 +39,11 @@ namespace wisdom
 
     void MoveGenerator::knight_move_list_init ()
     {
-        int row, col;
-
-        FOR_EACH_ROW_AND_COL(row, col)
+        for (auto coord : CoordIterator {})
         {
+            int row = Row<int> (coord);
+            int col = Column<int> (coord);
+
             for (int k_row = -2; k_row <= 2; k_row++)
             {
                 if (!k_row)
@@ -466,10 +467,8 @@ namespace wisdom
         MoveList result { my_move_list_allocator.get () };
         MoveGeneration generation { board, result, 0, 0, who, *this };
 
-        int row, col;
-        FOR_EACH_ROW_AND_COL(row, col)
+        for (auto coord : board.all_coords ())
         {
-            auto coord = make_coord (row, col);
             ColoredPiece piece = board.piece_at (coord);
 
             if (piece_color (piece) != who)

@@ -76,8 +76,8 @@ namespace wisdom
         int8_t row;
         int8_t col;
 
-        FOR_EACH_ROW_AND_COL(row, col)
-            set_piece (make_coord (row, col), Piece_And_Color_None);
+        for (auto coord : all_coords ())
+            set_piece (coord, Piece_And_Color_None);
 
         for (auto& pos : positions)
         {
@@ -320,9 +320,10 @@ namespace wisdom
         // randomize the positions:
         array<ColoredPiece, Num_Columns * Num_Rows> shuffle_pieces {};
 
-        int8_t row, col;
-        FOR_EACH_ROW_AND_COL (row, col)
+        for (auto coord : all_coords ())
         {
+            auto row = Row (coord);
+            auto col = Column (coord);
             shuffle_pieces[col + (row * Num_Columns)] = my_squares[row][col];
         }
 
@@ -345,8 +346,11 @@ namespace wisdom
             remove_invalid_pawns (*this, last_source_row, source_col, shuffle_pieces);
         }
 
-        FOR_EACH_ROW_AND_COL (row, col)
+        for (auto coord : all_coords ())
         {
+            auto row = Row (coord);
+            auto col = Column (coord);
+
             ColoredPiece piece = shuffle_pieces[col + (row * Num_Columns)];
             if (piece_type (piece) == Piece::King)
             {

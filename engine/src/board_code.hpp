@@ -173,24 +173,24 @@ namespace wisdom
             return my_ancillary;
         }
 
-        [[nodiscard]] BoardHashCode hash_code () const
+        [[nodiscard]] auto hash_code () const -> BoardHashCode
         {
             // todo use Zobrist hashing here instead
             return pieces_hash_fn (my_pieces) ^ ancillary_hash_fn (my_ancillary);
         }
 
-        friend bool operator== (const BoardCode& first, const BoardCode& second)
+        friend auto operator== (const BoardCode& first, const BoardCode& second) -> bool
         {
             return first.my_pieces == second.my_pieces &&
                 first.my_ancillary == second.my_ancillary;
         }
 
-        friend bool operator!= (const BoardCode& first, const BoardCode& second)
+        friend auto operator!= (const BoardCode& first, const BoardCode& second) -> bool
         {
             return !(first == second);
         }
 
-        friend std::ostream &operator<< (std::ostream& os, const BoardCode& code);
+        friend auto operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&;
 
         [[nodiscard]] auto with_move (const Board& board, Move move) const -> BoardCode
         {

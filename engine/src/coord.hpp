@@ -13,25 +13,29 @@ namespace wisdom
 
     static_assert(std::is_trivial_v<Coord>);
 
-    template <typename T>
-    constexpr auto is_valid_row (T row) -> bool
+    template <class IntegerType>
+        requires std::is_integral_v<IntegerType>
+    constexpr auto is_valid_row (IntegerType row) -> bool
     {
         return row >= 0 && row < Num_Rows;
     }
 
-    template <typename T>
-    constexpr auto is_valid_column (T col) -> bool
+    template <class IntegerType>
+        requires std::is_integral_v<IntegerType>
+    constexpr auto is_valid_column (IntegerType col) -> bool
     {
         return col >= 0 && col < Num_Columns;
     }
 
-    template <class T>
-    constexpr auto next_row (T row, int direction) -> T
+    template <class IntegerType>
+        requires std::is_integral_v<IntegerType>
+    constexpr auto next_row (IntegerType row, int direction) -> IntegerType
     {
-        return gsl::narrow_cast<T>(row + direction);
+        return gsl::narrow_cast<IntegerType>(row + direction);
     }
 
     template <class T>
+        requires std::is_integral_v<T>
     constexpr auto next_column (T col, int direction) -> T
     {
         return gsl::narrow_cast<T>(col + direction);
@@ -47,16 +51,18 @@ namespace wisdom
     constexpr Coord First_Coord = make_coord (0, 0);
     constexpr Coord No_En_Passant_Coord = First_Coord;
 
-    template <class T = int8_t>
-    constexpr auto Row (Coord pos) -> T
+    template <class IntegerType = int8_t>
+        requires std::is_integral_v<IntegerType>
+    constexpr auto Row (Coord pos) -> IntegerType
     {
-        return gsl::narrow_cast<T>(pos.row_and_col >> 4);
+        return gsl::narrow_cast<IntegerType>(pos.row_and_col >> 4);
     }
 
-    template <class T = int8_t>
-    constexpr auto Column (Coord pos) -> T
+    template <class IntegerType = int8_t>
+        requires std::is_integral_v<IntegerType>
+    constexpr auto Column (Coord pos) -> IntegerType
     {
-        return gsl::narrow_cast<T>(pos.row_and_col & 0xf);
+        return gsl::narrow_cast<IntegerType>(pos.row_and_col & 0xf);
     }
 
     constexpr auto next_coord (Coord coord, int direction) -> optional<Coord>
