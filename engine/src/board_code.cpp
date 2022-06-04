@@ -16,9 +16,8 @@ namespace wisdom
     ) {
         int8_t row, col;
 
-        FOR_EACH_ROW_AND_COL(row, col)
+        for (auto coord : board.all_coords ())
         {
-            auto coord = make_coord (row, col);
             ColoredPiece piece = board.piece_at (coord);
             this->add_piece (coord, piece);
         }

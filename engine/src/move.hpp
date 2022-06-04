@@ -212,10 +212,13 @@ namespace wisdom
         return move;
     }
 
-    template <class T = int8_t>
-    constexpr auto castling_row_for_color (Color who) -> T
+    template <class IntegerType = int8_t>
+        requires std::is_integral_v<IntegerType>
+    constexpr auto castling_row_for_color (Color who) -> IntegerType
     {
-        return gsl::narrow_cast<T> (who == Color::White ? Last_Row : First_Row);
+        return gsl::narrow_cast<IntegerType> (
+                who == Color::White ? Last_Row : First_Row
+            );
     }
 
     constexpr auto make_special_castling_move (Coord src, Coord dst) noexcept

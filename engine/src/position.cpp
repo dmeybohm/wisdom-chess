@@ -224,12 +224,11 @@ namespace wisdom
     {
         int8_t row, col;
 
-        FOR_EACH_ROW_AND_COL(row, col)
+        for (auto coord : board.all_coords ())
         {
-            auto piece = board.piece_at (row, col);
-            auto place = make_coord (row, col);
+            auto piece = board.piece_at (coord);
             if (piece != Piece_And_Color_None)
-                add (piece_color (piece), place, piece);
+                add (piece_color (piece), coord, piece);
         }
     }
 }

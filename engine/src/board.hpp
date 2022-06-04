@@ -219,6 +219,11 @@ namespace wisdom
             }
         }
 
+        [[nodiscard]] auto all_coords () const -> CoordIterator
+        {
+            return CoordIterator {};
+        }
+
         void restore_move_clock (const UndoMove& undo_state)
         {
             my_half_move_clock = undo_state.half_move_clock;
@@ -249,12 +254,13 @@ namespace wisdom
 
     // white moves up (-)
     // black moves down (+)
-    template <class T = int8_t>
-    constexpr T pawn_direction (Color color)
+    template <class IntegerType = int8_t>
+        requires std::is_integral_v<IntegerType>
+    constexpr IntegerType pawn_direction (Color color)
     {
         assert (color == Color::Black || color == Color::White);
         int8_t color_as_int = to_int8 (color);
-        return gsl::narrow_cast<T>(-1 + 2 * (color_as_int - 1));
+        return gsl::narrow_cast<IntegerType>(-1 + 2 * (color_as_int - 1));
     }
 }
 

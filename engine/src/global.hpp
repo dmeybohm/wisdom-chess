@@ -21,6 +21,7 @@
 #include <cctype>
 #include <bitset>
 #include <cassert>
+#include <type_traits>
 
 #ifdef HAS_MS_GSL
 #include <gsl/gsl>
