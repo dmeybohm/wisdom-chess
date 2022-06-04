@@ -61,6 +61,8 @@ qt_add_qml_module(appWisdomChessQtQml
         images/Chess_rdt45.svg
         images/Chess_rlt45.svg
         images/bx-icon-menu.svg
+        images/bx-icon-menu-white.svg
+        images/bx-icon-menu-white.png
 )
 
 set_target_properties(appWisdomChessQtQml PROPERTIES

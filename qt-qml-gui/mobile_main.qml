@@ -46,8 +46,13 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Layout.leftMargin: 17
             }
-            ToolButton {
-                text: qsTr("⋮")
+            ImageToolButton {
+                Layout.alignment: Qt.AlignRight;
+                Layout.fillHeight: true
+                Layout.rightMargin: 10
+                implicitWidth: 25
+                implicitHeight: 25
+                imageSource: "images/bx-icon-menu-white.png"
                 onClicked: settingsMenu.visible ? settingsMenu.close() : settingsMenu.open()
             }
         }
