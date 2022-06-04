@@ -75,6 +75,7 @@ Menu {
         Text {
             text: "0:" + Helper.zeroPad(thinkingTimeSlider.value.toString())
             anchors.right: thinkingTimeSlider.left
+            anchors.rightMargin: 5
             anchors.verticalCenter: thinkingTimeSliderItem.verticalCenter
             visible: internal.menuIsFullyVisible
         }
@@ -104,6 +105,7 @@ Menu {
         Text {
             text: internal.movesLabel(maxDepthSlider.value.toString())
             anchors.right: maxDepthSlider.left
+            anchors.rightMargin: 5
             anchors.verticalCenter: maxDepthItem.verticalCenter
             visible: internal.menuIsFullyVisible
         }
@@ -150,7 +152,7 @@ Menu {
         property bool menuIsFullyVisible: settingsMenu.width >= settingsMenu.implicitWidth
 
         function movesLabel(numMoves) {
-            return numMoves == 1 ? "1 move" : numMoves + " moves"
+            return parseInt(numMoves, 10) === 1 ? "1 move" : numMoves + " moves"
         }
     }
 }
