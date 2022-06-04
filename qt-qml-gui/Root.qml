@@ -22,27 +22,23 @@ Item {
         newGameDialog.visible = true
     }
 
-    Flickable {
-        id: scrollView
-        y: 20
-        x: (parent.width - boardWidth) / 2
-        width: Math.max(boardWidth, Screen.width)
-        height: Math.min(Screen.height, boardHeight + 200)
-        contentWidth: boardWidth
-        contentHeight: boardHeight + 200
-        boundsBehavior: Flickable.StopAtBounds
 
-        ColumnLayout {
+    ColumnLayout {
+        id: colLayout
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        spacing: 5
+
+        Board {
+            id: boards
+            Layout.alignment: Qt.AlignHCenter
+        }
+
+        StatusBar {
+            id: boardStatusBar
             Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            Board {
-                id: boards
-            }
-
-            StatusBar {
-                id: boardStatusBar
-            }
+            Layout.minimumHeight: 100
         }
     }
 
