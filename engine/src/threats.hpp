@@ -20,21 +20,17 @@ namespace wisdom
         Color my_opponent;
 
         Color my_king_color;
-        Coord my_king_coord;
         int my_king_row;
         int my_king_col;
         int my_pawn_direction;
-        int my_opponent_color_shifted;
 
         InlineThreats (const Board& board, Color king_color, Coord king_coord)
             : my_board { board },
                 my_opponent { color_invert (king_color) },
                 my_king_color { king_color },
-                my_king_coord { king_coord },
                 my_king_row { Row (king_coord) },
                 my_king_col { Column (king_coord) },
-                my_pawn_direction { pawn_direction (king_color) },
-                my_opponent_color_shifted { to_colored_piece_shifted (my_opponent) }
+                my_pawn_direction { pawn_direction (king_color) }
         {
         }
 
@@ -139,7 +135,7 @@ namespace wisdom
             {
                 for (int8_t c_dir = -1; c_dir <= 1; c_dir += 2)
                 {
-                    for (int8_t row = next_row (my_king_row, r_dir),
+                    for (auto row = next_row (my_king_row, r_dir),
                                 col = next_column (my_king_col, c_dir);
                          is_valid_row (row) && is_valid_column (col);
                          row = next_row (row, r_dir), col = next_column (col, c_dir))
@@ -248,9 +244,9 @@ namespace wisdom
             // check for pawn checks
             auto r_dir = my_pawn_direction;
 
-            int8_t left_col = next_column (my_king_col, -1);
-            int8_t right_col = next_column (my_king_col, +1);
-            int8_t pawn_row = next_row (my_king_row, r_dir);
+            auto left_col = next_column (my_king_col, -1);
+            auto right_col = next_column (my_king_col, +1);
+            auto pawn_row = next_row (my_king_row, r_dir);
             if (pawn_row >= Last_Row || pawn_row <= First_Row)
                 return false;
 
@@ -273,12 +269,12 @@ namespace wisdom
 
         bool pawn_dumb ()
         {
-            int8_t r_dir = my_pawn_direction;
+            auto r_dir = my_pawn_direction;
 
             for (int8_t c_dir = -1; c_dir <= 1; c_dir += 2)
             {
-                int8_t row = next_row (my_king_row, r_dir);
-                int8_t col = next_column (my_king_col, c_dir);
+                auto row = next_row (my_king_row, r_dir);
+                auto col = next_column (my_king_col, c_dir);
 
                 if (!is_valid_row (row) || !is_valid_column (col))
                     continue;
