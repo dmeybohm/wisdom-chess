@@ -18,7 +18,7 @@ static void benchmark_search (benchmark::State& state)
         state.PauseTiming();
         auto &output = make_null_logger();
 
-        Game game { Color::White, Color::Black };
+        Game game { Player::Human, Player::ChessEngine };
 
         for (auto human_move : human_moves)
         {

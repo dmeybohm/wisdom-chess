@@ -17,19 +17,6 @@ static void bm_is_king_threatened_initial_position (benchmark::State& state)
 }
 BENCHMARK(bm_is_king_threatened_initial_position);
 
-static void bm_is_king_threatened_initial_position_inline (benchmark::State& state)
-{
-    using namespace wisdom;
-
-    Board board;
-
-    for (auto _ : state)
-    {
-        benchmark::DoNotOptimize(is_king_threatened_inline (board, Color::White, Last_Row, King_Column));
-    }
-}
-BENCHMARK(bm_is_king_threatened_initial_position_inline);
-
 static void bm_is_king_threatened_row (benchmark::State& state)
 {
     using namespace wisdom;
@@ -82,19 +69,6 @@ static void bm_is_king_threatened_diagonal_dumb (benchmark::State& state)
 }
 BENCHMARK(bm_is_king_threatened_diagonal_dumb);
 
-static void bm_is_king_threatened_knight (benchmark::State& state)
-{
-    using namespace wisdom;
-
-    Board board;
-
-    for (auto _ : state)
-    {
-        benchmark::DoNotOptimize(is_king_threatened_knight (board, Color::White, Last_Row, King_Column));
-    }
-}
-BENCHMARK(bm_is_king_threatened_knight);
-
 static void bm_is_king_threatened_knight_direct (benchmark::State& state)
 {
     using namespace wisdom;
@@ -146,19 +120,6 @@ static void bm_is_king_threatened_pawn_inline (benchmark::State& state)
     }
 }
 BENCHMARK(bm_is_king_threatened_pawn_inline);
-
-static void bm_is_king_threatened_pawn_c (benchmark::State& state)
-{
-    using namespace wisdom;
-
-    Board board;
-
-    for (auto _ : state)
-    {
-        benchmark::DoNotOptimize(is_king_threatened_pawn_c (board, 1, Last_Row, King_Column));
-    }
-}
-BENCHMARK(bm_is_king_threatened_pawn_c);
 
 static void bm_is_king_threatened_king (benchmark::State& state)
 {

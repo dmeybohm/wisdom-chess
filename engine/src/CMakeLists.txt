@@ -5,7 +5,6 @@ add_library(wisdom-chess-core STATIC
         fen_parser.cpp fen_parser.hpp coord.cpp board_builder.cpp move_list.cpp move_list.hpp
         coord_iterator.hpp analytics_sqlite.hpp history.hpp history.cpp search.hpp
         board_code.cpp board_code.hpp logger.cpp logger.hpp
-        transposition_table.cpp transposition_table.hpp variation_glimpse.cpp variation_glimpse.hpp
         output_format.cpp output_format.hpp analytics.cpp analytics.hpp search_result.hpp
         uuid.cpp uuid.hpp play.hpp play.cpp perft.cpp perft.hpp threats.hpp)
 

@@ -4,7 +4,7 @@
 #include "global.hpp"
 #include "move.hpp"
 #include "board_code.hpp"
-#include "transposition_table.hpp"
+#include "move_list.hpp"
 
 namespace wisdom
 {

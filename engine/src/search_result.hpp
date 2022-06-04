@@ -1,8 +1,6 @@
 #ifndef WISDOM_SEARCH_RESULT_HPP
 #define WISDOM_SEARCH_RESULT_HPP
 
-#include "variation_glimpse.hpp"
-
 namespace wisdom
 {
     struct SearchResult

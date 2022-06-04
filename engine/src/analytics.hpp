@@ -18,9 +18,6 @@ namespace wisdom::analysis
         virtual ~PositionImpl () = default;
 
         virtual void finalize ([[maybe_unused]] int score) = 0;
-
-        virtual void store_transposition_hit (const RelativeTransposition& relative_transposition)
-            = 0;
     };
 
     class Position
@@ -36,12 +33,6 @@ namespace wisdom::analysis
         {
             if (impl)
                 return impl->finalize (score);
-        }
-
-        void store_transposition_hit (const RelativeTransposition& relative_transposition)
-        {
-            if (impl)
-                impl->store_transposition_hit (relative_transposition);
         }
 
         [[nodiscard]] PositionImpl* get_impl_ptr () const { return impl.get (); }

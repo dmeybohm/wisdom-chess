@@ -10,8 +10,6 @@
 #include "move.hpp"
 #include "piece.hpp"
 #include "position.hpp"
-#include "transposition_table.hpp"
-#include "variation_glimpse.hpp"
 
 namespace wisdom
 {

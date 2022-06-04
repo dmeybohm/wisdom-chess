@@ -14,7 +14,6 @@ add_library(fast_tests_lib OBJECT
         move_list_test.cpp
         board_code_test.cpp
         history_test.cpp
-        variation_glimpse_test.cpp
         tests.hpp
         generate_test.cpp
         uuid_test.cpp

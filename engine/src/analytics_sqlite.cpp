@@ -218,19 +218,6 @@ namespace wisdom::analysis
         {
             return my_score;
         }
-
-        void store_transposition_hit (const RelativeTransposition& relative_transposition) override
-        {
-            Uuid transposition_hit_id;
-            string query = "INSERT INTO transposition_hits (id, position_id, decision_id, "
-                           "variation) VALUES (";
-
-            query += transposition_hit_id.to_string () + "," + my_position_id.to_string () + ","
-                + my_decision_id.to_string () + "," + "'"
-                + relative_transposition.variation_glimpse.to_string () + "'" + ")";
-
-            my_handle->exec (query);
-        }
     };
 
     class SqliteDecision : public DecisionImpl

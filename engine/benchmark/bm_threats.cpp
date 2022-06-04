@@ -34,19 +34,6 @@ static void bm_threats_is_king_threatened (benchmark::State& state)
 }
 BENCHMARK(bm_threats_is_king_threatened);
 
-static void bm_threats_is_king_threatened_inline (benchmark::State& state)
-{
-    using namespace wisdom;
-
-    Board board;
-
-    for (auto _ : state)
-    {
-        benchmark::DoNotOptimize(is_king_threatened_inline (board, Color::White, Last_Row, King_Column));
-    }
-}
-BENCHMARK(bm_threats_is_king_threatened_inline);
-
 static void bm_threats_row (benchmark::State& state)
 {
     using namespace wisdom;
@@ -108,22 +95,6 @@ static void bm_threats_diagonal_dumb (benchmark::State& state)
     }
 }
 BENCHMARK(bm_threats_diagonal_dumb);
-
-static void bm_threats_knight (benchmark::State& state)
-{
-    using namespace wisdom;
-
-    Board board;
-    InlineThreats threats { board, Color::White,
-                            make_coord (Last_Row, King_Column) };
-
-
-    for (auto _ : state)
-    {
-        benchmark::DoNotOptimize(threats.knight ());
-    }
-}
-BENCHMARK(bm_threats_knight);
 
 static void bm_threats_knight_direct (benchmark::State& state)
 {
@@ -188,22 +159,6 @@ static void bm_threats_pawn_inline (benchmark::State& state)
     }
 }
 BENCHMARK(bm_threats_pawn_inline);
-
-static void bm_threats_pawn_c (benchmark::State& state)
-{
-    using namespace wisdom;
-
-    Board board;
-    InlineThreats threats { board, Color::White,
-                            make_coord (Last_Row, King_Column) };
-
-
-    for (auto _ : state)
-    {
-        benchmark::DoNotOptimize(threats.pawn_c (0));
-    }
-}
-BENCHMARK(bm_threats_pawn_c);
 
 static void bm_threats_king (benchmark::State& state)
 {
