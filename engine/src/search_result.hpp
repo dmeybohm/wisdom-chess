@@ -7,7 +7,6 @@ namespace wisdom
 {
     struct SearchResult
     {
-        VariationGlimpse variation_glimpse;
         optional<Move> move;
         int score;
         int depth;
@@ -15,20 +14,7 @@ namespace wisdom
 
         static SearchResult from_initial () noexcept
         {
-            SearchResult result { {}, nullopt, -Initial_Alpha, 0, false };
-            return result;
-        }
-
-        static SearchResult from_timeout () noexcept
-        {
-            SearchResult result { {}, nullopt, -Initial_Alpha, 0, true };
-            return result;
-        }
-
-        static SearchResult from_evaluated_move (Move move, int score, int total_depth, int current_depth) noexcept
-        {
-            auto result = SearchResult { {}, move, score, total_depth - current_depth, false };
-            result.variation_glimpse.push_front (move);
+            SearchResult result { nullopt, -Initial_Alpha, 0, false };
             return result;
         }
     };

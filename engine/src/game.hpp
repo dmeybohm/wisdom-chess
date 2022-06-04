@@ -155,7 +155,6 @@ namespace wisdom
 
         void set_periodic_function (const MoveTimer::PeriodicFunction& periodic_function)
         {
-            std::cout << "periodic function address: " << &periodic_function << "\n";
             my_periodic_function = periodic_function;
         }
 

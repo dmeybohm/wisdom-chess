@@ -81,11 +81,9 @@ TEST_CASE ("Can find mate in 2 1/2")
     IterativeSearch search = helper.build (game.get_board (), 5);
 
     SearchResult result = search.iteratively_deepen (Color::Black);
-    REQUIRE (result.move.has_value ());
 
-    MoveList computed_moves = result.variation_glimpse.to_list ();
-
-    REQUIRE (result.score > Infinity);
+    REQUIRE( result.move.has_value () );
+    REQUIRE( result.score > Infinity );
 }
 
 TEST_CASE ("scenario with heap overflow 1")
@@ -122,7 +120,7 @@ TEST_CASE ("scenario with heap overflow 1")
     IterativeSearch search = helper.build (*board, 3, 300);
 
     SearchResult result = search.iteratively_deepen (Color::Black);
-    REQUIRE (result.move.has_value ());
+    REQUIRE( result.move.has_value () );
 }
 
 TEST_CASE ("Promoting move is taken if possible")
@@ -138,7 +136,7 @@ TEST_CASE ("Promoting move is taken if possible")
 
     auto search = helper.build (*board, 1, 30);
     auto result = search.iteratively_deepen (Color::Black);
-    REQUIRE (to_string (*result.move) == "d2 d1(Q)");
+    REQUIRE(to_string (*result.move) == "d2 d1(Q)");
 }
 
 TEST_CASE ("Promoted pawn is promoted to highest value piece even when capturing")

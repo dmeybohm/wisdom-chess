@@ -195,7 +195,7 @@ namespace wisdom
             }
         }
 
-        auto result = SearchResult { {}, best_move, best_score,
+        auto result = SearchResult { best_move, best_score,
                                      my_search_depth - depth, false };
         decision.finalize (result);
 
@@ -268,7 +268,7 @@ namespace wisdom
 
     [[nodiscard]] auto IterativeSearchImpl::synthesize_result () const -> SearchResult
     {
-        return SearchResult { {}, my_best_move,
+        return SearchResult { my_best_move,
               my_best_score, my_best_depth, my_timed_out };
     }
 
@@ -321,14 +321,6 @@ namespace wisdom
             progress_str << "move selected = " << to_string (best_move) << " [ score: "
                          << result.score << " ]\n";
             my_output->println (progress_str.str ());
-        }
-
-        // principal variation could be null if search was interrupted
-        if (result.variation_glimpse.size () > 0)
-        {
-            std::stringstream variation_str;
-            variation_str << "principal variation: " << result.variation_glimpse.to_string ();
-            my_output->println (variation_str.str ());
         }
     }
 }
