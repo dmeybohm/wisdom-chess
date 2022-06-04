@@ -27,7 +27,6 @@ void ChessEngine::init()
 
 void ChessEngine::opponentMoved(Move move, Color who)
 {
-    QThread::usleep(200000); // 200 ms
     auto game = myGame->state();
     game->move(move);
     findMove();
@@ -95,6 +94,9 @@ void ChessEngine::findMove()
         // The game is now over - or we're waiting for a response on a draw proposal.
         return;
     }
+
+    // Wait for animation to finish
+    QThread::usleep(200000); // 200 ms
 
     auto who = gameState->get_current_turn();
 

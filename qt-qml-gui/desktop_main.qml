@@ -43,6 +43,7 @@ ApplicationWindow {
                 text: "Wisdom Chess"
                 elide: Label.ElideRight
                 Layout.alignment: Qt.AlignLeft;
+                Layout.leftMargin: 17
                 horizontalAlignment: Qt.AlignLeft
                 verticalAlignment: Qt.AlignVCenter
             }
@@ -52,10 +53,12 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignLeft;
             }
 
-            ToolButton {
+            ImageToolButton {
                 Layout.alignment: Qt.AlignRight;
-                font.pointSize: 14
-                text: qsTr("⋮")
+                Layout.fillHeight: true
+                implicitWidth: 25
+                implicitHeight: 25
+                imageSource: "images/bx-icon-menu.svg"
                 onClicked: settingsMenu.open()
             }
         }

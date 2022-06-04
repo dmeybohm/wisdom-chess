@@ -45,6 +45,7 @@ qt_add_qml_module(appWisdomChessQtQml
         SettingsMenu.qml
         Root.qml
         StatusBar.qml
+        ImageToolButton.qml
         Helper.js
     RESOURCES
         images/Chess_bdt45.svg
@@ -59,6 +60,7 @@ qt_add_qml_module(appWisdomChessQtQml
         images/Chess_qlt45.svg
         images/Chess_rdt45.svg
         images/Chess_rlt45.svg
+        images/bx-icon-menu.svg
 )
 
 set_target_properties(appWisdomChessQtQml PROPERTIES
