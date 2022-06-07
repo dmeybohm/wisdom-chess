@@ -25,10 +25,11 @@ Item {
 
     ColumnLayout {
         id: colLayout
-        anchors.bottom: parent.bottom
+        anchors.top: parent.top
+        anchors.topMargin: 25
         anchors.left: parent.left
         anchors.right: parent.right
-        spacing: 5
+        spacing: 25
 
         Board {
             id: boards
@@ -38,7 +39,7 @@ Item {
         StatusBar {
             id: boardStatusBar
             Layout.fillWidth: true
-            Layout.minimumHeight: 100
+            Layout.minimumHeight: 50
         }
     }
 
