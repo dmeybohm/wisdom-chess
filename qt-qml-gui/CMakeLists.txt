@@ -43,7 +43,6 @@ qt_add_qml_module(appWisdomChessQtQml
         DrawProposalDialog.qml
         NewGameDialog.qml
         SettingsMenu.qml
-        Root.qml
         StatusBar.qml
         ImageToolButton.qml
         MobileRoot.qml
