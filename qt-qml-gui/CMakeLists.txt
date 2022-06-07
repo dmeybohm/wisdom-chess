@@ -46,6 +46,8 @@ qt_add_qml_module(appWisdomChessQtQml
         Root.qml
         StatusBar.qml
         ImageToolButton.qml
+        MobileRoot.qml
+        DesktopRoot.qml
         Helper.js
     RESOURCES
         images/Chess_bdt45.svg

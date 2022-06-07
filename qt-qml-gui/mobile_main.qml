@@ -58,7 +58,7 @@ ApplicationWindow {
         }
     }
 
-    Root {
+    MobileRoot {
         id: root
 
         Flickable {
