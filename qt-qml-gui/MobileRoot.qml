@@ -22,26 +22,13 @@ Item {
     Flickable {
         id: colLayout
 
-        property int totalContentHeight: boards.height + boardStatusBar.implicitHeight + 50
+        property int totalContentHeight: boards.height + boardStatusBar.implicitHeight + 100
 
         anchors.fill: parent
-        contentHeight: Math.max(Screen.height - toolbar.height, totalContentHeight)
-        contentWidth: Screen.width
-        height: Screen.height - toolbar.height
-        width: Screen.width
-
-        Component.onCompleted: {
-            console.log('toolbar.height: ' +toolbar.height)
-            console.log ('colLayout.height: '+colLayout.height)
-            console.log('Screen.height: '+Screen.height)
-            console.log('Screen.height adjusted: '+ (Screen.height - toolbar.height))
-            console.log('contentHeight: '+totalContentHeight)
-        }
-
-        Rectangle {
-            color: "red"
-            anchors.fill: parent
-        }
+        contentHeight: Math.max(parent.height, totalContentHeight)
+        contentWidth: parent.width
+        height: parent.height
+        width: parent.width
 
         Board {
             id: boards

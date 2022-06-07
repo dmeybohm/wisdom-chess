@@ -59,6 +59,7 @@ ApplicationWindow {
     MobileRoot {
         id: root
         toolbarHeight: toolbar.height
+        anchors.fill: parent
 
         Flickable {
 
