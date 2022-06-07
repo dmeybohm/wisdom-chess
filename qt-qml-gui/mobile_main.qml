@@ -6,6 +6,10 @@ import QtQuick.Layouts 1.15
 ApplicationWindow {
     id: topWindow
 
+    readonly property int boardWidth: boardDimensions.boardWidth
+    readonly property int boardHeight: boardDimensions.boardHeight
+    readonly property int squareSize: boardDimensions.squareSize
+
     width: Screen.width
     height: Screen.height
 
@@ -19,19 +23,13 @@ ApplicationWindow {
         root.currentFocusedItem = activeFocusItem
     }
 
-    function calculateMaxSquareSize() {
-        const maxWidth = (Screen.width - 20) / 8
-        const maxHeight = (Screen.height - 20) / 8
-        return Math.min(maxWidth, maxHeight, 64)
-    }
-
     onClosing: {
         _myGameModel.applicationExiting();
     }
 
     Screen.onPrimaryOrientationChanged: {
-        root.squareSize = calculateMaxSquareSize()
-        console.log("new square size: "+root.squareSize)
+        boardDimensions.squareSize = boardDimensions.calculateMaxSquareSize()
+        console.log("new square size: "+boardDimensions.squareSize)
     }
 
     header: ToolBar {
@@ -60,6 +58,7 @@ ApplicationWindow {
 
     MobileRoot {
         id: root
+        toolbarHeight: toolbar.height
 
         Flickable {
 
@@ -73,5 +72,9 @@ ApplicationWindow {
                 onShowNewGameDialog: root.showNewGameDialog();
             }
         }
+    }
+
+    BoardDimensions {
+        id: boardDimensions
     }
 }

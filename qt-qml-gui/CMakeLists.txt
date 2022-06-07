@@ -36,7 +36,9 @@ qt_add_qml_module(appWisdomChessQtQml
         desktop_main.qml
         mobile_main.qml
         Board.qml
+        BoardDimensions.qml
         ChessSquare.qml
+        Dialogs.qml
         Piece.qml
         PromoteDropdown.qml
         PromotedPieceModel.qml
