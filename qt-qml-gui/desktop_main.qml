@@ -64,7 +64,7 @@ ApplicationWindow {
         }
     }
 
-    Root {
+    DesktopRoot {
         id: root
 
         SettingsMenu {
