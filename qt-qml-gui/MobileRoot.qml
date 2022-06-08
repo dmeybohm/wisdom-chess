@@ -20,9 +20,7 @@ Item {
     }
 
     Flickable {
-        id: colLayout
-
-        property int totalContentHeight: boards.height + boardStatusBar.implicitHeight + 100
+        property int totalContentHeight: boards.height + boardStatusBar.implicitHeight + 150
 
         anchors.fill: parent
         contentHeight: Math.max(parent.height, totalContentHeight)
