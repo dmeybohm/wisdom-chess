@@ -10,13 +10,13 @@ FocusScope {
 
     transform: Translate {
         id: myTranslation
-        x: destinationColumn * root.squareSize
-        y: destinationRow * root.squareSize
+        x: destinationColumn * topWindow.squareSize
+        y: destinationRow * topWindow.squareSize
     }
 
     Rectangle {
-        width: root.squareSize
-        height: root.squareSize * 4
+        width: topWindow.squareSize
+        height: topWindow.squareSize * 4
         color: "lightblue"
     }
 
@@ -35,8 +35,8 @@ FocusScope {
         Repeater {
             model: myPromotedPieceModel
             delegate: Item {
-               width: root.squareSize
-               height: root.squareSize
+               width: topWindow.squareSize
+               height: topWindow.squareSize
 
                Rectangle {
                    id: myRect
@@ -47,8 +47,8 @@ FocusScope {
 
                Image {
                    source: model.whiteImage
-                   width: root.squareSize
-                   height: root.squareSize
+                   width: topWindow.squareSize
+                   height: topWindow.squareSize
                }
 
                MouseArea {

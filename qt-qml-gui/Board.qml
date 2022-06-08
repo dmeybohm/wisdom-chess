@@ -4,8 +4,8 @@ import wisdom.chess 1.0
 
 Item {
     id: myGridAndPieces
-    width: boardWidth
-    height: boardHeight
+    width: topWindow.boardWidth
+    height: topWindow.boardHeight
 
     property var animateRowAndColChange: myPiecesLayer.animateRowAndColChange
 
@@ -24,8 +24,8 @@ Item {
     }
 
     Grid {
-        width: parent.width
-        height: parent.height
+        width: topWindow.boardWidth
+        height: topWindow.boardHeight
         columns: 8
         rows: 8
         columnSpacing: 0
@@ -58,7 +58,7 @@ Item {
         id: myPiecesLayer
         x: 0
         y: 0
-        width: boardWidth; height: boardHeight
+        width: topWindow.boardWidth; height: topWindow.boardHeight
 
         // Pieces on top of the squares:
         Repeater {
@@ -87,4 +87,5 @@ Item {
             }
         }
     }
+
 }

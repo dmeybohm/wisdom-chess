@@ -2,16 +2,16 @@ import QtQuick 2.15
 
 Image {
     id: myPieceImage
-    width: root.squareSize
-    height: root.squareSize
+    width: topWindow.squareSize
+    height: topWindow.squareSize
 
     property int row: 0
     property int column: 0
 
     transform: Translate {
         id: myTranslation
-        x: column * root.squareSize
-        y: row * root.squareSize
+        x: column * topWindow.squareSize
+        y: row * topWindow.squareSize
 
         Behavior on y {
             NumberAnimation {

@@ -36,16 +36,19 @@ qt_add_qml_module(appWisdomChessQtQml
         desktop_main.qml
         mobile_main.qml
         Board.qml
+        BoardDimensions.qml
         ChessSquare.qml
+        Dialogs.qml
         Piece.qml
         PromoteDropdown.qml
         PromotedPieceModel.qml
         DrawProposalDialog.qml
         NewGameDialog.qml
         SettingsMenu.qml
-        Root.qml
         StatusBar.qml
         ImageToolButton.qml
+        MobileRoot.qml
+        DesktopRoot.qml
         Helper.js
     RESOURCES
         images/Chess_bdt45.svg

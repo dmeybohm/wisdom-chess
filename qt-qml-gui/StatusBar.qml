@@ -4,16 +4,13 @@ import wisdom.chess 1.0
 
 ColumnLayout {
     id: statusBar
-    Layout.fillWidth: true
-    Layout.fillHeight: true
-    Layout.topMargin: 35
-    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
     spacing: 5
+    implicitHeight: toMove.implicitHeight + moveStatus.implicitHeight + 80
     property int fontSize: 16
 
     Text {
+        id: toMove
         horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
         font.pointSize: statusBar.fontSize
         Layout.fillWidth: true
         color: "#ff333333"
@@ -27,7 +24,6 @@ ColumnLayout {
     Text {
         id: moveStatus
         horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
         Layout.fillWidth: true
         font.pointSize: statusBar.fontSize
         color: "#ff333333"

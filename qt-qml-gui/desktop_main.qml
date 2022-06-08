@@ -8,8 +8,12 @@ import "Helper.js" as Helper
 ApplicationWindow {
     id: topWindow
 
-    width: root.boardWidth + 48
-    height: root.boardHeight + 48 + 145
+    readonly property int boardWidth: boardDimensions.boardWidth
+    readonly property int boardHeight: boardDimensions.boardHeight
+    readonly property int squareSize: boardDimensions.squareSize
+
+    width: boardWidth + 48
+    height: boardHeight + 48 + 145
 
     visible: true
     title: qsTr("Wisdom Chess")
@@ -20,12 +24,6 @@ ApplicationWindow {
     onFocusObjectChanged: {
         root.onFocusObjectChanged(root.currentFocusedItem, activeFocusItem)
         root.currentFocusedItem = activeFocusItem
-    }
-
-    function calculateMaxSquareSize() {
-        const maxWidth = (Screen.width - 20) / 8
-        const maxHeight = (Screen.height - 20) / 8
-        return Math.min(maxWidth, maxHeight, 64)
     }
 
     onClosing: {
@@ -64,7 +62,7 @@ ApplicationWindow {
         }
     }
 
-    Root {
+    DesktopRoot {
         id: root
 
         SettingsMenu {
@@ -72,5 +70,10 @@ ApplicationWindow {
             rootWidth: root.width
             onShowNewGameDialog: root.showNewGameDialog();
         }
+
+    }
+
+    BoardDimensions {
+        id: boardDimensions
     }
 }
