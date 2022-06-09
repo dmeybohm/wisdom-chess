@@ -23,8 +23,10 @@ qt_add_executable(appWisdomChessQtQml
     gamestate.hpp
 )
 
-if (ANDROID)
+if(ANDROID)
     set(MAIN_QML_FILE mobile_main.qml)
+elseif(EMSCRIPTEN)
+    set(MAIN_QML_FILE wasm_main.qml)
 else()
     set(MAIN_QML_FILE desktop_main.qml)
 endif()
@@ -35,6 +37,7 @@ qt_add_qml_module(appWisdomChessQtQml
     QML_FILES
         desktop_main.qml
         mobile_main.qml
+        wasm_main.qml
         Board.qml
         BoardDimensions.qml
         ChessSquare.qml
@@ -66,6 +69,7 @@ qt_add_qml_module(appWisdomChessQtQml
         images/bx-icon-menu.svg
         images/bx-icon-menu-white.svg
         images/bx-icon-menu-white.png
+        images/bxs-down-arrow.svg
 )
 
 set_target_properties(appWisdomChessQtQml PROPERTIES
