@@ -38,7 +38,7 @@ Item {
         }
     }
 
-    Dialogs {
-        id: dialogs
-    }
+//    Dialogs {
+//        id: dialogs
+//    }
 }

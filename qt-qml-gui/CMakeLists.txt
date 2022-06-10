@@ -24,10 +24,19 @@ qt_add_executable(appWisdomChessQtQml
 )
 
 if(ANDROID)
+    set(PLATFORM_QML_FILES
+        MobileRoot.qml
+    )
     set(MAIN_QML_FILE mobile_main.qml)
 elseif(EMSCRIPTEN)
+    set(PLATFORM_QML_FILES
+        DesktopRoot.qml
+    )
     set(MAIN_QML_FILE wasm_main.qml)
 else()
+    set(PLATFORM_QML_FILES
+        DesktopRoot.qml
+    )
     set(MAIN_QML_FILE desktop_main.qml)
 endif()
 
@@ -35,13 +44,10 @@ qt_add_qml_module(appWisdomChessQtQml
     URI WisdomChessQtQml
     VERSION 1.0
     QML_FILES
-        desktop_main.qml
-        mobile_main.qml
-        wasm_main.qml
         Board.qml
         BoardDimensions.qml
         ChessSquare.qml
-        Dialogs.qml
+#        Dialogs.qml
         Piece.qml
         PromoteDropdown.qml
         PromotedPieceModel.qml
@@ -50,9 +56,9 @@ qt_add_qml_module(appWisdomChessQtQml
         SettingsMenu.qml
         StatusBar.qml
         ImageToolButton.qml
-        MobileRoot.qml
-        DesktopRoot.qml
         Helper.js
+        ${PLATFORM_QML_FILES}
+	${MAIN_QML_FILE}
     RESOURCES
         images/Chess_bdt45.svg
         images/Chess_blt45.svg

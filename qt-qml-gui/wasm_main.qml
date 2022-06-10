@@ -34,10 +34,10 @@ ApplicationWindow {
         id: toolbar
 
         Row {
-            anchors.centerIn: parent
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
 
             Row {
-                anchors.centerIn: parent
                 spacing: 4
 
                 ImageToolButton {
@@ -55,6 +55,7 @@ ApplicationWindow {
 
                     SettingsMenu {
                         y: rookButton.height
+                        x: -implicitWidth / 4
                         id: settingsMenu
                     }
                 }
