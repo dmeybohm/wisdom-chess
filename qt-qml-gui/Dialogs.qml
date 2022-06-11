@@ -9,7 +9,8 @@ Item {
 
     DrawProposalDialog {
         id: threefoldRepetitionDialog
-        visible: !userAnswered && _myGameModel.thirdRepetitionDrawProposed
+        visible: !_myGameModel.thirdRepetitionDrawAnswered &&
+                 _myGameModel.thirdRepetitionDrawProposed
         anchors.centerIn: parent
         width: Math.min(400, Screen.width - 50)
         height: Math.min(200, Screen.height - 10)
@@ -19,17 +20,16 @@ Item {
         // hide the dialog and break the property binding:
         onAccepted: {
             _myGameModel.humanWantsThreefoldRepetitionDraw(true)
-            userAnswered = true
         }
         onRejected: {
             _myGameModel.humanWantsThreefoldRepetitionDraw(false)
-            userAnswered = true
         }
     }
 
     DrawProposalDialog {
         id: fiftyMovesNoProgressDrawDialog
-        visible: !userAnswered && _myGameModel.fiftyMovesWithoutProgressDrawProposed
+        visible: !_myGameModel.fiftyMovesWithoutProgressDrawAnswered &&
+                 _myGameModel.fiftyMovesWithoutProgressDrawProposed
         anchors.centerIn: parent
         width: Math.min(400, Screen.width - 50)
         height: Math.min(200, Screen.height - 10)
@@ -39,11 +39,9 @@ Item {
         // hide the dialog and break the property binding:
         onAccepted: {
             _myGameModel.humanWantsFiftyMovesWithoutProgressDraw(true)
-            userAnswered = true
         }
         onRejected: {
             _myGameModel.humanWantsFiftyMovesWithoutProgressDraw(false)
-            userAnswered = true
         }
     }
 

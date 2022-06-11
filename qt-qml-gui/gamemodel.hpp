@@ -41,6 +41,16 @@ class GameModel : public QObject
                WRITE setFiftyMovesWithoutProgressDrawProposed
                NOTIFY fiftyMovesWithoutProgressDrawProposedChanged)
 
+    Q_PROPERTY(bool thirdRepetitionDrawAnswered
+               READ thirdRepetitionDrawAnswered
+               WRITE setThirdRepetitionDrawAnswered
+               NOTIFY thirdRepetitionDrawAnsweredChanged)
+
+    Q_PROPERTY(bool fiftyMovesWithoutProgressDrawAnswered
+               READ fiftyMovesWithoutProgressDrawAnswered
+               WRITE setFiftyMovesWithoutProgressDrawAnswered
+               NOTIFY fiftyMovesWithoutProgressDrawAnsweredChanged)
+
     Q_PROPERTY(bool inCheck
                READ inCheck
                WRITE setInCheck
@@ -92,6 +102,12 @@ public:
     void setFiftyMovesWithoutProgressDrawProposed(bool drawProposedToHuman);
     [[nodiscard]] auto fiftyMovesWithoutProgressDrawProposed() const -> bool;
 
+    void setThirdRepetitionDrawAnswered(bool drawProposedToHuman);
+    [[nodiscard]] auto thirdRepetitionDrawAnswered() const -> bool;
+
+    void setFiftyMovesWithoutProgressDrawAnswered(bool drawProposedToHuman);
+    [[nodiscard]] auto fiftyMovesWithoutProgressDrawAnswered() const -> bool;
+
     void setWhiteIsComputer(bool newWhiteIsComputer);
     [[nodiscard]] auto whiteIsComputer() const -> bool;
 
@@ -130,6 +146,8 @@ signals:
     // Use a property to communicate to QML and the human player:
     void thirdRepetitionDrawProposedChanged();
     void fiftyMovesWithoutProgressDrawProposedChanged();
+    void thirdRepetitionDrawAnsweredChanged();
+    void fiftyMovesWithoutProgressDrawAnsweredChanged();
 
     // Send draw response:
     void updateDrawStatus(wisdom::ProposedDrawType drawType, wisdom::Color player,
@@ -190,6 +208,8 @@ private:
     bool myInCheck = false;
     bool myThirdRepetitionDrawProposed = false;
     bool myFiftyMovesWithProgressDrawProposed = false;
+    bool myThirdRepetitionDrawAnswered = false;
+    bool myFiftyMovesWithProgressDrawAnswered = false;
     bool myWhiteIsComputer = false;
     bool myBlackIsComputer = true;
     int myMaxDepth;
@@ -234,6 +254,9 @@ private:
 
     // Debounce the update to the config.
     void debouncedUpdateConfig();
+
+    // Reset the state for a new game.
+    void resetStateForNewGame();
 };
 
 #endif // GAMEMODEL_H

@@ -178,6 +178,7 @@ void GameModel::restart()
     updateEngineConfig();
 
     setCurrentTurn(wisdom::chess::mapColor(myChessGame->state()->get_current_turn()));
+    resetStateForNewGame();
     updateDisplayedGameState();
 }
 
@@ -486,6 +487,14 @@ void GameModel::debouncedUpdateConfig ()
     myUpdateConfigTimer->start();
 }
 
+void GameModel::resetStateForNewGame()
+{
+    setThirdRepetitionDrawAnswered(false);
+    setThirdRepetitionDrawProposed(false);
+    setFiftyMovesWithoutProgressDrawAnswered(false);
+    setFiftyMovesWithoutProgressDrawProposed(false);
+}
+
 auto GameModel::whiteIsComputer() const -> bool
 {
     return myWhiteIsComputer;
@@ -563,10 +572,35 @@ auto GameModel::fiftyMovesWithoutProgressDrawProposed() const -> bool
 
 void GameModel::setFiftyMovesWithoutProgressDrawProposed(bool drawProposed)
 {
-    qDebug() << "setFiftyMovesWithoutProgressDrawProposed";
     if (myFiftyMovesWithProgressDrawProposed != drawProposed) {
         myFiftyMovesWithProgressDrawProposed = drawProposed;
         emit fiftyMovesWithoutProgressDrawProposedChanged();
+    }
+}
+
+auto GameModel::thirdRepetitionDrawAnswered() const -> bool
+{
+    return myThirdRepetitionDrawAnswered;
+}
+
+void GameModel::setThirdRepetitionDrawAnswered(bool answered)
+{
+    if (myThirdRepetitionDrawAnswered != answered) {
+        myThirdRepetitionDrawAnswered = answered;
+        emit thirdRepetitionDrawAnsweredChanged();
+    }
+}
+
+auto GameModel::fiftyMovesWithoutProgressDrawAnswered() const -> bool
+{
+    return myThirdRepetitionDrawAnswered;
+}
+
+void GameModel::setFiftyMovesWithoutProgressDrawAnswered(bool answered)
+{
+    if (myFiftyMovesWithProgressDrawAnswered != answered) {
+        myFiftyMovesWithProgressDrawAnswered = answered;
+        emit fiftyMovesWithoutProgressDrawAnsweredChanged();
     }
 }
 
@@ -584,12 +618,14 @@ void GameModel::proposeDraw(wisdom::Player player, wisdom::ProposedDrawType draw
 
 void GameModel::humanWantsThreefoldRepetitionDraw(bool accepted)
 {
-   setProposedDrawTypeAcceptance(ProposedDrawType::ThreeFoldRepetition, accepted);
+    setProposedDrawTypeAcceptance(ProposedDrawType::ThreeFoldRepetition, accepted);
+    setThirdRepetitionDrawAnswered(true);
 }
 
 void GameModel::humanWantsFiftyMovesWithoutProgressDraw(bool accepted)
 {
     setProposedDrawTypeAcceptance(ProposedDrawType::FiftyMovesWithoutProgress, accepted);
+    setFiftyMovesWithoutProgressDrawAnswered(true);
 }
 
 void GameModel::setProposedDrawTypeAcceptance(wisdom::ProposedDrawType drawType,

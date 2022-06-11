@@ -3,7 +3,6 @@ import wisdom.chess 1.0
 import QtQuick.Controls 2.15
 
 Dialog {
-    property bool userAnswered: false
     property alias text: firstLine.text
 
     modal: true
