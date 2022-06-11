@@ -34,16 +34,28 @@ ApplicationWindow {
 
     header: ToolBar {
         id: toolbar
+
         RowLayout {
             anchors.fill: parent
+
+            Image {
+                source: "images/Chess_rlt45.svg"
+                Layout.maximumWidth: 32
+                Layout.maximumHeight: 32
+
+                Layout.alignment: Qt.AlignLeft
+                Layout.leftMargin: 12
+            }
+
             Label {
                 text: "Wisdom Chess"
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignLeft
                 verticalAlignment: Qt.AlignVCenter
                 Layout.fillWidth: true
-                Layout.leftMargin: 17
+                Layout.leftMargin: 2
             }
+
             ImageToolButton {
                 Layout.alignment: Qt.AlignRight;
                 Layout.fillHeight: true

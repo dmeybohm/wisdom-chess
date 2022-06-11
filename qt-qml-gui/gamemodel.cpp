@@ -54,9 +54,9 @@ namespace
 
 GameModel::GameModel(QObject *parent)
     : QObject(parent)
-    , myMaxDepth { 4 }
+    , myMaxDepth { 3 }
     , myCurrentTurn {}
-    , myMaxSearchTime { 5 }
+    , myMaxSearchTime { 4 }
     , myChessEngineThread { nullptr }
 {
     myChessGame = ChessGame::fromPlayers(
