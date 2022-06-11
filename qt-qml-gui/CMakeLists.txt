@@ -47,7 +47,7 @@ qt_add_qml_module(appWisdomChessQtQml
         Board.qml
         BoardDimensions.qml
         ChessSquare.qml
-#        Dialogs.qml
+        Dialogs.qml
         Piece.qml
         PromoteDropdown.qml
         PromotedPieceModel.qml
@@ -58,7 +58,7 @@ qt_add_qml_module(appWisdomChessQtQml
         ImageToolButton.qml
         Helper.js
         ${PLATFORM_QML_FILES}
-	${MAIN_QML_FILE}
+        ${MAIN_QML_FILE}
     RESOURCES
         images/Chess_bdt45.svg
         images/Chess_blt45.svg
