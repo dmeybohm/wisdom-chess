@@ -11,7 +11,7 @@ Dialog {
     title: "Draw Offer"
 
     Column {
-        spacing: 10
+        spacing: 15
         anchors.left: parent.left
         anchors.right: parent.right
 
