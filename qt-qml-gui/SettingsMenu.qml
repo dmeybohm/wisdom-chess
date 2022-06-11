@@ -8,11 +8,9 @@ Menu {
     id: settingsMenu
     implicitWidth: 380
 
-    property int rootWidth
     signal showAcceptDrawDialog()
     signal showNewGameDialog()
 
-    x: rootWidth - settingsMenu.width
     MenuItem {
         text: "New Game"
         onClicked: {

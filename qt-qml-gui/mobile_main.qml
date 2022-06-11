@@ -69,7 +69,7 @@ ApplicationWindow {
 
             SettingsMenu {
                 id: settingsMenu
-                rootWidth: root.width
+                x: root.width - settingsMenu.width
                 onShowNewGameDialog: root.showNewGameDialog();
             }
         }

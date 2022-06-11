@@ -54,6 +54,7 @@ ApplicationWindow {
             ImageToolButton {
                 Layout.alignment: Qt.AlignRight;
                 Layout.fillHeight: true
+                Layout.rightMargin: 2
                 implicitWidth: 25
                 implicitHeight: 25
                 imageSource: "images/bx-icon-menu.svg"
@@ -67,7 +68,7 @@ ApplicationWindow {
 
         SettingsMenu {
             id: settingsMenu
-            rootWidth: root.width
+            x: root.width - settingsMenu.width
             onShowNewGameDialog: root.showNewGameDialog();
         }
 
