@@ -8,6 +8,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.2 COMPONENTS Quick REQUIRED)
 
+if (WIN32)
+    set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/images/Chess-icons.rc")
+endif ()
+
+
 qt_add_executable(appWisdomChessQtQml
     main.cpp
     gamemodel.hpp
@@ -21,6 +26,7 @@ qt_add_executable(appWisdomChessQtQml
     chesscolor.cpp
     chesscolor.hpp
     gamestate.hpp
+    ${app_icon_resource_windows}
 )
 
 if(ANDROID)
@@ -72,6 +78,7 @@ qt_add_qml_module(appWisdomChessQtQml
         images/Chess_qlt45.svg
         images/Chess_rdt45.svg
         images/Chess_rlt45.svg
+        images/Chess_rlt256.png
         images/bx-icon-menu.svg
         images/bx-icon-menu-white.svg
         images/bx-icon-menu-white.png

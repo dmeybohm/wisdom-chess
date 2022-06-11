@@ -56,7 +56,7 @@ public:
         {
             return {
                 { wisdom::Player::Human, wisdom::Player::ChessEngine },
-                MaxDepth { 4 },
+                MaxDepth { 3 },
                 std::chrono::seconds { 4 },
             };
         }
