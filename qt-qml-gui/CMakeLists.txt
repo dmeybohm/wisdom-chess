@@ -20,16 +20,13 @@ elseif (APPLE)
     set(app_icon_macos "${CMAKE_CURRENT_SOURCE_DIR}/images/wisdom-chess.icns")
     set_source_files_properties(${app_icon_macos} PROPERTIES
            MACOSX_PACKAGE_LOCATION "Resources")
-    set(WISDOM_CHESS_IS_MACOSX_BUNDLE MACOSX_BUNDLE)
 else()
-    set(WISDOM_CHESS_IS_MACOSX_BUNDLE "")
     set(app_icon_resource_windows "")
     set(app_icon_macos "")
 endif ()
 
 
 qt_add_executable(appWisdomChessQtQml
-    ${WISDOM_CHESS_IS_MACOSX_BUNDLE}
     main.cpp
     gamemodel.hpp
     gamemodel.cpp
@@ -103,7 +100,7 @@ qt_add_qml_module(appWisdomChessQtQml
 )
 
 set_target_properties(appWisdomChessQtQml PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+    MACOSX_BUNDLE_GUI_IDENTIFIER com.daveme.wisdomchess
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
