@@ -47,10 +47,10 @@ else()
 endif()
 
 if (SQLite3_DIR)
-    message("-- wisdom-chess: SQLite3 not found")
+    message("-- wisdom-chess: SQLite3 found")
     set(SQLite3_Found ON)
 else()
-    message("-- wisdom-chess: SQLite3 found")
+    message("-- wisdom-chess: SQLite3 not found")
     set(SQLite3_Found OFF)
 endif()
 
