@@ -473,6 +473,14 @@ namespace wisdom
             return Material::weight (piece_type (move_get_promoted_piece (a))) >
                 Material::weight (piece_type (move_get_promoted_piece (b)));
         }
+        else if (a_is_promoting && !b_is_promoting)
+        {
+            return true;
+        }
+        else if (b_is_promoting && !a_is_promoting)
+        {
+            return false;
+        }
 
         // return coordinate diff so order is consistent:
         Coord a_coord = move_src (a);
