@@ -213,12 +213,12 @@ namespace wisdom
     }
 
     template <class IntegerType = int8_t>
-        requires std::is_integral_v<IntegerType>
     constexpr auto castling_row_for_color (Color who) -> IntegerType
     {
+        static_assert (std::is_integral_v<IntegerType>);
         return gsl::narrow_cast<IntegerType> (
                 who == Color::White ? Last_Row : First_Row
-            );
+        );
     }
 
     constexpr auto make_special_castling_move (Coord src, Coord dst) noexcept
