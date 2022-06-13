@@ -116,7 +116,7 @@ namespace wisdom
         return move.move_category == MoveCategory::NormalCapturing;
     }
 
-    constexpr ColoredPiece captured_material (UndoMove undo_state, Color opponent)
+    constexpr auto captured_material (UndoMove undo_state, Color opponent) -> ColoredPiece
     {
         if (undo_state.category == MoveCategory::NormalCapturing)
         {
