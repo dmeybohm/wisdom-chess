@@ -15,6 +15,8 @@ namespace wisdom
 
         void generate (ColoredPiece piece, Coord coord);
 
+        [[nodiscard]] auto compare_moves (const Move& a, const Move& b) const -> bool;
+
         void none () const;
         void pawn () const;
         void knight () const;
@@ -461,6 +463,64 @@ namespace wisdom
         }
     }
 
+    static constexpr auto promoting_or_coord_compare (const Move& a, const Move& b) -> bool
+    {
+        bool a_is_promoting = is_promoting_move (a);
+        bool b_is_promoting = is_promoting_move (b);
+
+        if (a_is_promoting && b_is_promoting)
+        {
+            return Material::weight (piece_type (move_get_promoted_piece (a))) >
+                Material::weight (piece_type (move_get_promoted_piece (b)));
+        }
+        else if (a_is_promoting && !b_is_promoting)
+        {
+            return true;
+        }
+        else if (b_is_promoting && !a_is_promoting)
+        {
+            return false;
+        }
+
+        // return coordinate diff so order is consistent:
+        Coord a_coord = move_src (a);
+        Coord b_coord = move_src (b);
+
+        if (a_coord != b_coord)
+            return a_coord.row_and_col < b_coord.row_and_col;
+        else
+            return move_dst (a).row_and_col < move_dst (b).row_and_col;
+    }
+
+    auto MoveGeneration::compare_moves (const Move& a, const Move& b) const -> bool
+    {
+        bool a_is_capturing = is_any_capturing_move (a);
+        bool b_is_capturing = is_any_capturing_move (b);
+
+        if (!a_is_capturing && !b_is_capturing)
+        {
+            return promoting_or_coord_compare (a, b);
+        }
+
+        if (a_is_capturing && !b_is_capturing)
+        {
+            return true;
+        }
+        else if (b_is_capturing && !a_is_capturing)
+        {
+            return false;
+        }
+
+        // both are capturing: return the biggest diff between source piece and dst piece:
+        auto material_diff_a = material_diff (board, a);
+        auto material_diff_b = material_diff (board, b);
+
+        if (material_diff_a != material_diff_b)
+            return material_diff (board, a) > material_diff (board, b);
+        else
+            return promoting_or_coord_compare (a, b);
+    }
+
     auto MoveGenerator::generate_all_potential_moves (const Board& board, Color who)
         -> MoveList
     {
@@ -477,28 +537,11 @@ namespace wisdom
             generation.generate (piece, coord);
         }
 
-        // sort captured moves first:
         std::sort (result.begin (),
                    result.end (),
-                   [board](const Move& a, const Move& b) -> bool {
-            bool a_is_capturing = is_any_capturing_move (a);
-            bool b_is_capturing = is_any_capturing_move (b);
-            if (!a_is_capturing && !b_is_capturing) {
-               // return coordinate diff so order is consistent:
-               Coord a_coord = move_src (a);
-               Coord b_coord = move_src (b);
-               return a_coord.row_and_col < b_coord.row_and_col;
-            }
-
-            if (a_is_capturing && !b_is_capturing) {
-                return true;
-            } else if (b_is_capturing && !a_is_capturing) {
-                return false;
-            }
-
-            // both are capturing: return the biggest diff between source piece and dst piece:
-            return material_diff (board, a) > material_diff (board, b);
-        });
+                   [generation](const Move& a, const Move& b) {
+                        return generation.compare_moves (a, b);
+                   });
 
         return result;
     }

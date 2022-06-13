@@ -13,31 +13,31 @@ namespace wisdom
 
     static_assert(std::is_trivial_v<Coord>);
 
-    template <class IntegerType>
-        requires std::is_integral_v<IntegerType>
+    template <class IntegerType> 
     constexpr auto is_valid_row (IntegerType row) -> bool
     {
+        static_assert (std::is_integral<IntegerType>::value);
         return row >= 0 && row < Num_Rows;
     }
 
-    template <class IntegerType>
-        requires std::is_integral_v<IntegerType>
+    template <class IntegerType> 
     constexpr auto is_valid_column (IntegerType col) -> bool
     {
+        static_assert (std::is_integral<IntegerType>::value);
         return col >= 0 && col < Num_Columns;
     }
 
-    template <class IntegerType>
-        requires std::is_integral_v<IntegerType>
+    template <class IntegerType> 
     constexpr auto next_row (IntegerType row, int direction) -> IntegerType
     {
+        static_assert (std::is_integral<IntegerType>::value);
         return gsl::narrow_cast<IntegerType>(row + direction);
     }
 
-    template <class T>
-        requires std::is_integral_v<T>
+    template <class T> 
     constexpr auto next_column (T col, int direction) -> T
     {
+        static_assert (std::is_integral<T>::value);
         return gsl::narrow_cast<T>(col + direction);
     }
 
@@ -52,16 +52,16 @@ namespace wisdom
     constexpr Coord No_En_Passant_Coord = First_Coord;
 
     template <class IntegerType = int8_t>
-        requires std::is_integral_v<IntegerType>
     constexpr auto Row (Coord pos) -> IntegerType
     {
+        static_assert (std::is_integral<IntegerType>::value);
         return gsl::narrow_cast<IntegerType>(pos.row_and_col >> 4);
     }
 
     template <class IntegerType = int8_t>
-        requires std::is_integral_v<IntegerType>
     constexpr auto Column (Coord pos) -> IntegerType
     {
+        static_assert (std::is_integral<IntegerType>::value);
         return gsl::narrow_cast<IntegerType>(pos.row_and_col & 0xf);
     }
 
