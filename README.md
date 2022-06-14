@@ -1,4 +1,11 @@
-<h1><img alt="Wisdom Chess Logo" style="width: 48px; vertical-align: bottom" src="https://github.com/dmeybohm/wisdom-chess/blob/main/qt-qml-gui/images/Chess_rlt45.svg?raw=true" />Wisdom Chess</h1>
+<div style="display: flex; align-items: center">
+    <p>
+        <img alt="Wisdom Chess Logo" style="width: 128px; vertical-align: bottom" src="https://github.com/dmeybohm/wisdom-chess/blob/main/qt-qml-gui/images/Chess_rlt45.svg?raw=true" />
+    </p>
+    <h1 align="center">Wisdom Chess</h1>
+</div>
+
+----
 
 Wisdom Chess is a simple multiplatform chess engine written in C++.
 
