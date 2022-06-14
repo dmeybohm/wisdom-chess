@@ -5,8 +5,8 @@ Wisdom Chess is a simple multiplatform chess engine written in C++.
 Currently supported are Windows, macOS, and Android. 
 
 An experimental Web Assembly port also exists <a href="https://wisdom-chess.netlify.app/" target="_blank">here</a>.
-*NOTE* it does have some problems, such as not loading on Android Chrome 
-and sometimes the interface disappears. I'm thinking of porting this
+*NOTE* While the desktop builds seem stable, the Web assembly port does have some problems, 
+such as not loading on Android Chrome and sometimes the interface disappears. I'm thinking of porting this
 to [qmlweb](https://github.com/qmlweb/qmlweb) to fix those problems.
 
 ## Building
@@ -41,6 +41,20 @@ interface will be built. It's located in an executable called `chess`.
 The Qt interface is in an application titled `appWisdomChessQtQml.exe` or
 `appWisdomQtQml.app`.
 
+
+## Running Tests
+
+If you want to run the tests, there are two binaries produced `fast_tests`
+and `slow_tests`. You have to pass some flags to CMake in order to enable
+those :
+
+```sh
+cmake -DWISDOM_CHESS_FAST_TESTS=On -DWISDOM_CHESS_SLOW_TESTS=On ..
+cmake --build . -j 8
+```
+
+Make sure to run the `slow_tests` on optimized code, or
+they you may have to wait a long time.
 
 ### Copyright Info
 
