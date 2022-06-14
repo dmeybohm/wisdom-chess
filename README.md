@@ -1,6 +1,6 @@
 <h1 align="center">Wisdom Chess</h1>
 
-![Animated Chess](https://github.com/dmeybohm/wisdom-chess/blob/main/qt-qml-gui/wisdom-chess-animate.gif)
+![Animated Chess](https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/qt-qml-gui/images/wisdom-chess-animate.gif)
 
 Wisdom Chess is a simple multiplatform chess engine written in C++.
 
