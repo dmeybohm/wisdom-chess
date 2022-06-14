@@ -1,16 +1,17 @@
 <h1 align="center">Wisdom Chess</h1>
+
 <p align="center">
     <img src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/qt-qml-gui/images/wisdom-chess-animate.gif" />
 </p>
 
+----
 Wisdom Chess is a simple multiplatform chess engine written in C++.
 
 Currently supported are Windows, macOS, and Android. 
 
 An experimental Web Assembly port also exists <a href="https://wisdom-chess.netlify.app/" target="_blank">here</a>.
-*NOTE* While the desktop builds seem stable, the Web assembly port does have some problems, 
-such as not loading on Android Chrome and sometimes the interface disappears. I'm thinking of porting this
-to [qmlweb](https://github.com/qmlweb/qmlweb) to fix those problems.
+although it does still have a few issues currently such as [Issue #8](https://github.com/dmeybohm/wisdom-chess/issues/8) and 
+[Issue #9](https://github.com/dmeybohm/wisdom-chess/issues/9).
 
 ## Building
 
