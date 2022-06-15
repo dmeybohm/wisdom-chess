@@ -15,7 +15,7 @@ although it does still have a few issues currently such as [Issue #8](https://gi
 
 ## Building
 
-Use [CMake](https://cmake.org/) in order to build. Optionally, you can use the [Conan package manager](https://conan.io/)
+You can either use [CMake](https://cmake.org/) or Qt Creator (provided by Qt) in order to build. Optionally, you can use the [Conan package manager](https://conan.io/)
 to install some supplemental libraries for running tests or analysis.
 If you want to build the graphical interface, you also need to specify
 the location of the [Qt](https://www.qt.io) libaries or provide them so that CMake can find them.
@@ -30,11 +30,17 @@ cmake -DQTDIR=C:\path\to\Qt\6.2.4 ..
 cmake --build . -j 8
 ```
 
+For Qt Creator, you should just have to setup the appropriate "kit" and then 
+click "Build." See below for notes on building for Android, and see
+[this document](wasm/README.md) for notes on building the web assembly version.
+
 ## Building on Android
 
-You can build on Android using Qt Creator. You just
-need to setup your Kit to point to Android and install the appropriate
-libraries for Qt/QML there.
+You can build on Android using Qt Creator. You may have to specify
+You just need to setup your Kit to point to Android and install the appropriate
+libraries for Qt/QML there. `QT_CREATOR_SKIP_CONAN_SETUP=On` in the project's CMake build settings 
+(see [Issue #11](https://github.com/dmeybohm/wisdom-chess/issues/11)).
+
 
 ## Running
 
@@ -43,8 +49,8 @@ interface and a Qt interface. If you CMake doesn't find Qt, or you
 don't provide the `QTDIR` variable to it, then only the command line
 interface will be built. It's located in an executable called `chess`.
 The Qt interface is in an application titled `appWisdomChessQtQml.exe` or
-`appWisdomQtQml.app`.
-
+`appWisdomQtQml.app`. The command-line interface is meant more
+for debugging.
 
 ## Running Tests
 
@@ -58,7 +64,7 @@ cmake --build . -j 8
 ```
 
 Make sure to run the `slow_tests` on optimized code, or
-they you may have to wait a long time.
+you may have to wait a long time.
 
 ### Copyright Info
 
