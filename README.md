@@ -9,7 +9,7 @@ Wisdom Chess is a simple multiplatform chess engine written in C++.
 
 Currently supported are Windows, macOS, and Android. 
 
-An experimental Web Assembly port also exists <a href="https://wisdom-chess.netlify.app/" target="_blank">here</a>.
+An experimental Web Assembly port also exists <a href="https://wisdom-chess.netlify.app/" target="_blank">here</a>,
 although it does still have a few issues currently such as [Issue #8](https://github.com/dmeybohm/wisdom-chess/issues/8) and 
 [Issue #9](https://github.com/dmeybohm/wisdom-chess/issues/9).
 
