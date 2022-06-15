@@ -85,6 +85,8 @@ searches, or the max time to use to search each move.
     src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/qt-qml-gui/images/windows-wisdom-chess.png" />
 </p>
 
+----
+
 ## Running Tests
 
 If you want to run the tests, there are two binaries produced called
