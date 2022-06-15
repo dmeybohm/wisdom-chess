@@ -17,14 +17,20 @@ it does have a few issues currently such as [Issue #8](https://github.com/dmeybo
 
 ## Building
 
+For the UI, `wisdom-chess` uses [Qt](https://www.qt.io/), so you'll have to be able to 
+build packages to link against Qt.
+
 You can either use [CMake](https://cmake.org/) or Qt Creator (provided by Qt) in order 
 to build. Optionally, you can use the [Conan package manager](https://conan.io/) 
 to install some supplemental libraries for running tests or analysis.
 
 If you want to build the graphical interface, you also need to specify
-the location of the [Qt](https://www.qt.io) libaries with the `QTDIR` variable,
-or provide them so that CMake can find them.  The program has been tested 
-with Qt 6.2.4. 
+the location of the Qt libaries with the `QTDIR` variable,
+or provide on your system path so that CMake can find them with the
+`find_package()` command. The easiest way to do this is to download and
+install Qt from the [Qt website](https://www.qt.io/), but installing
+Qt with your system's package manager is also an option. The program has 
+been tested with Qt 6.2.4. 
 
 ```sh
 mkdir build
@@ -46,7 +52,7 @@ You can build on Android using Qt Creator. You may have to specify
 (see [Issue #11](https://github.com/dmeybohm/wisdom-chess/issues/11)).
 
 You need to setup your Kit to point to Android and install the appropriate
-libraries for Qt/QML there. 
+libraries for Qt/QML there. See [this "Getting Started" document](https://doc.qt.io/qt-6/android-getting-started.html) for how to use Qt on Android.
 
 ## Running
 
@@ -56,7 +62,7 @@ don't provide the `QTDIR` variable to it, then only the command line
 interface will be built. It's located in an executable called `chess`.
 The Qt interface is in an application titled `appWisdomChessQtQml.exe` or
 `appWisdomQtQml.app`. The command-line interface is meant more
-for debugging.
+for debugging, and doesn't have a help command yet.
 
 You can configure things by clicking on the hamburger menu in the
 upper right (or on the "Wisdom Chess" text in the menu bar on the
