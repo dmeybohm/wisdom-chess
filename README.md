@@ -15,6 +15,12 @@ exists <a href="https://wisdom-chess.netlify.app/" target="_blank">here</a>, alt
 it does have a few issues currently such as [Issue #8](https://github.com/dmeybohm/wisdom-chess/issues/8) and 
 [Issue #9](https://github.com/dmeybohm/wisdom-chess/issues/9).
 
+## Installing
+
+There are no binaries as of yet other than the web assembly link above,
+so if you want to use this on your system you'll have to compile from
+source currently.
+
 ## Building
 
 For the UI, `wisdom-chess` uses [Qt](https://www.qt.io/), so you'll have to be able to 
@@ -26,10 +32,14 @@ to install some supplemental libraries for running tests or analysis.
 
 If you want to build the graphical interface, you also need to specify
 the location of the Qt libaries with the `QTDIR` variable,
-or provide on your system path so that CMake can find them with the
-`find_package()` command. The easiest way to do this is to download and
-install Qt from the [Qt website](https://www.qt.io/), but installing
-Qt with your system's package manager is also an option. The program has 
+or put them on your system path so that CMake can find them with the
+`find_package()` command. You need to provide the particular version you
+want to link against. For example on my Windows laptop, Qt was installed
+to `C:\Qt` and I pass `QTDIR=C:\Qt\6.2.4`.
+
+If you don't already have Qt installed, the easiest way to get this 
+working would be to download and install Qt from the [Qt website](https://www.qt.io/), 
+but installing Qt with your system's package manager is also an option. The program has 
 been tested with Qt 6.2.4. 
 
 ```sh
