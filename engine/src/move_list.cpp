@@ -10,7 +10,7 @@ namespace wisdom
     MoveList::MoveList (Color color, std::initializer_list<czstring> list) noexcept
         : MoveList {}
     {
-        for (auto it : list)
+        for (auto&& it : list)
         {
             push_back (move_parse (it, color));
             color = color_invert (color);
@@ -20,7 +20,7 @@ namespace wisdom
     auto MoveList::to_string () const -> string
     {
         string result = "{ ";
-        for (auto move : *this)
+        for (auto&& move : *this)
             result += "[" + wisdom::to_string (move) + "] ";
         result += "}";
         return result;

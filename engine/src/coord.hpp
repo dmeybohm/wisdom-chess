@@ -41,46 +41,54 @@ namespace wisdom
         return gsl::narrow_cast<T>(col + direction);
     }
 
-    constexpr Coord make_coord (int row, int col)
+    constexpr auto make_coord (int row, int col) -> Coord
     {
         assert (is_valid_row (row) && is_valid_column (col));
-        Coord result = { .row_and_col = gsl::narrow_cast<int8_t>(row << 4 | col) };
+        Coord result = { .row_and_col = gsl::narrow_cast<int8_t>(row << 3 | col) };
         return result;
     }
 
+    // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
+    constexpr auto coord_index (Coord coord) -> int
+    {
+        return coord.row_and_col;
+    }
+
+    // Make a coordinate from an index from 0-63.
+    constexpr auto make_coord_from_index (int index) -> Coord
+    {
+        assert (index >= 0 && index < Num_Rows * Num_Columns);
+        return { .row_and_col = gsl::narrow_cast<int8_t> (index) };
+    }
+
     constexpr Coord First_Coord = make_coord (0, 0);
+    constexpr Coord End_Coord = { .row_and_col = 64 };
     constexpr Coord No_En_Passant_Coord = First_Coord;
 
     template <class IntegerType = int8_t>
     constexpr auto Row (Coord pos) -> IntegerType
     {
         static_assert (std::is_integral<IntegerType>::value);
-        return gsl::narrow_cast<IntegerType>(pos.row_and_col >> 4);
+        return gsl::narrow_cast<IntegerType>(pos.row_and_col >> 3);
     }
 
     template <class IntegerType = int8_t>
     constexpr auto Column (Coord pos) -> IntegerType
     {
         static_assert (std::is_integral<IntegerType>::value);
-        return gsl::narrow_cast<IntegerType>(pos.row_and_col & 0xf);
+        return gsl::narrow_cast<IntegerType>(pos.row_and_col & 0b111);
     }
 
     constexpr auto next_coord (Coord coord, int direction) -> optional<Coord>
     {
         assert(direction == +1 || direction == -1);
-        int row = Row<int> (coord);
-        int col = Column<int> (coord);
-        col += direction;
+        int index = coord_index (coord);
+        index += direction;
 
-        if (!is_valid_column (col))
-        {
-            col = 0;
-            row += direction;
-            if (!is_valid_row (row))
-                return {};
-        }
+        if (index < 0 || index >= 64)
+            return {};
 
-        return make_coord (row, col);
+        return make_coord_from_index (index);
     }
 
     constexpr auto operator== (Coord first, Coord second) -> bool
@@ -91,6 +99,12 @@ namespace wisdom
     constexpr bool operator!= (Coord first, Coord second)
     {
         return !operator== (first, second);
+    }
+
+    constexpr auto operator++ (Coord& coord) -> Coord&
+    {
+        coord.row_and_col++;
+        return coord;
     }
 
     static inline int char_to_row (char chr)

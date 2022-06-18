@@ -316,17 +316,12 @@ namespace wisdom
         std::random_device random_device;
         std::mt19937 rng (random_device());
 
-        // randomize the positions:
+        // randomiz pe the positions:
         array<ColoredPiece, Num_Columns * Num_Rows> shuffle_pieces {};
 
-        for (auto coord : all_coords ())
-        {
-            auto row = Row (coord);
-            auto col = Column (coord);
-            shuffle_pieces[row_col_index (row, col)] = piece_at (row, col);
-        }
+        std::copy(std::begin(my_squares), std::end(my_squares), std::begin(shuffle_pieces));
 
-        std::shuffle (&shuffle_pieces[0], &shuffle_pieces[0] + (Num_Rows * Num_Columns), rng);
+        std::shuffle (std::begin(shuffle_pieces), std::end(shuffle_pieces), rng);
 
         // ensure no pawns on the final rank - move same color ones,
         // promote opposite color ones.
