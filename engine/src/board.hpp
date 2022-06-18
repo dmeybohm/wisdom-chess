@@ -26,7 +26,7 @@ namespace wisdom
     {
     private:
         // The representation of the board.
-        ColoredPiece my_squares[Num_Rows][Num_Columns];
+        array<ColoredPiece, Num_Rows * Num_Columns> my_squares;
 
         // positions of the kings.
         Coord my_king_pos[Num_Players];
@@ -57,16 +57,30 @@ namespace wisdom
 
         void print () const;
 
+        template <typename IntegerType = int8_t>
+        [[nodiscard]] static constexpr auto row_col_index (IntegerType row, IntegerType col)
+            -> int
+        {
+            static_assert (std::is_integral_v<IntegerType>);
+            return row * Num_Columns + col;
+        }
+
+        [[nodiscard]] static constexpr auto coord_index (Coord coord)
+            -> int
+        {
+            return Row (coord) * Num_Columns + Column (coord);
+        }
+
         [[nodiscard]] constexpr auto piece_at (int row, int col) const
             -> ColoredPiece
         {
-            return my_squares[row][col];
+            return my_squares[row_col_index (row, col)];
         }
 
         [[nodiscard]] constexpr auto piece_at (Coord coord) const
             -> ColoredPiece
         {
-            return my_squares[Row (coord)][Column (coord)];
+            return my_squares[coord_index (coord)];
         }
 
         void print_to_file (std::ostream& out) const;
@@ -231,12 +245,12 @@ namespace wisdom
 
         void set_piece (int8_t row, int8_t col, ColoredPiece piece)
         {
-            my_squares[row][col] = piece;
+            my_squares[row_col_index (row, col)] = piece;
         }
 
         void set_piece (Coord coord, ColoredPiece piece)
         {
-            my_squares[Row (coord)][Column (coord)] = piece;
+            my_squares[coord_index (coord)] = piece;
         }
 
         [[nodiscard]] auto find_first_coord_with_piece (ColoredPiece piece,
