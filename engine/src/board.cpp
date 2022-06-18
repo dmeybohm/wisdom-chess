@@ -316,20 +316,24 @@ namespace wisdom
         std::random_device random_device;
         std::mt19937 rng (random_device());
 
-        // randomiz pe the positions:
         array<ColoredPiece, Num_Columns * Num_Rows> shuffle_pieces {};
 
-        std::copy(std::begin(my_squares), std::end(my_squares), std::begin(shuffle_pieces));
+        std::copy (
+            std::begin (my_squares),
+            std::end (my_squares),
+            std::begin (shuffle_pieces)
+        );
+        std::shuffle (std::begin (shuffle_pieces), std::end (shuffle_pieces), rng);
 
-        std::shuffle (std::begin(shuffle_pieces), std::end(shuffle_pieces), rng);
+        using Distribution = std::uniform_int_distribution<>;
 
         // ensure no pawns on the final rank - move same color ones,
         // promote opposite color ones.
-        std::uniform_int_distribution<> no_first_row_dist { 1, 7 };
-        std::uniform_int_distribution<> no_last_row_dist { 0, 6 };
-        std::uniform_int_distribution<> any_row_or_col { 0, 7 };
-        std::uniform_int_distribution<> no_first_or_last_dist { 1, 6 };
-        std::uniform_int_distribution<> remove_chance { 0, 100 };
+        Distribution no_first_row_dist { 1, 7 };
+        Distribution no_last_row_dist { 0, 6 };
+        Distribution any_row_or_col { 0, 7 };
+        Distribution no_first_or_last_dist { 1, 6 };
+        Distribution remove_chance { 0, 100 };
 
         for (int8_t source_col = 0; source_col < Num_Columns; source_col++)
         {
