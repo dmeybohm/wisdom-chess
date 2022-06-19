@@ -35,7 +35,7 @@ namespace wisdom
 
     void BoardBuilder::add_pieces (Color who, const vector<PieceCoordStringWithTypeState> &pieces)
     {
-        for (auto it : pieces)
+        for (auto&& it : pieces)
             this->add_piece (it.coord, who, it.piece_type);
     }
 

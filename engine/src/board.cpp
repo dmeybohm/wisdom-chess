@@ -316,25 +316,24 @@ namespace wisdom
         std::random_device random_device;
         std::mt19937 rng (random_device());
 
-        // randomize the positions:
         array<ColoredPiece, Num_Columns * Num_Rows> shuffle_pieces {};
 
-        for (auto coord : all_coords ())
-        {
-            auto row = Row (coord);
-            auto col = Column (coord);
-            shuffle_pieces[col + (row * Num_Columns)] = my_squares[row][col];
-        }
+        std::copy (
+            std::begin (my_squares),
+            std::end (my_squares),
+            std::begin (shuffle_pieces)
+        );
+        std::shuffle (std::begin (shuffle_pieces), std::end (shuffle_pieces), rng);
 
-        std::shuffle (&shuffle_pieces[0], &shuffle_pieces[0] + (Num_Rows * Num_Columns), rng);
+        using Distribution = std::uniform_int_distribution<>;
 
         // ensure no pawns on the final rank - move same color ones,
         // promote opposite color ones.
-        std::uniform_int_distribution<> no_first_row_dist { 1, 7 };
-        std::uniform_int_distribution<> no_last_row_dist { 0, 6 };
-        std::uniform_int_distribution<> any_row_or_col { 0, 7 };
-        std::uniform_int_distribution<> no_first_or_last_dist { 1, 6 };
-        std::uniform_int_distribution<> remove_chance { 0, 100 };
+        Distribution no_first_row_dist { 1, 7 };
+        Distribution no_last_row_dist { 0, 6 };
+        Distribution any_row_or_col { 0, 7 };
+        Distribution no_first_or_last_dist { 1, 6 };
+        Distribution remove_chance { 0, 100 };
 
         for (int8_t source_col = 0; source_col < Num_Columns; source_col++)
         {
@@ -345,17 +344,13 @@ namespace wisdom
             remove_invalid_pawns (*this, last_source_row, source_col, shuffle_pieces);
         }
 
-        for (auto coord : all_coords ())
+        for (auto&& coord : all_coords ())
         {
-            auto row = Row (coord);
-            auto col = Column (coord);
-
-            ColoredPiece piece = shuffle_pieces[col + (row * Num_Columns)];
+            ColoredPiece piece = shuffle_pieces[coord_index (coord)];
             if (piece_type (piece) == Piece::King)
-            {
-                my_king_pos[color_index (piece_color (piece))] = make_coord (row, col);
-            }
-            my_squares[row][col] = piece;
+                my_king_pos[color_index (piece_color (piece))] = coord;
+
+            my_squares[coord_index (coord)] = piece;
         }
 
         // update the king positions:
@@ -371,8 +366,8 @@ namespace wisdom
             Coord source_white_king_pos = my_king_pos[Color_Index_White];
             auto new_row = gsl::narrow<int8_t>(no_first_or_last_dist (rng));
             auto new_col = gsl::narrow<int8_t>(no_first_or_last_dist (rng));
-            std::swap (my_squares[Row (source_white_king_pos)][Column (source_white_king_pos)],
-                       my_squares[new_row][new_col]);
+            std::swap (my_squares[coord_index (source_white_king_pos)],
+                       my_squares[row_col_index (new_row, new_col)]);
             my_king_pos[Color_Index_White] = make_coord (new_row, new_col);
             iterations++;
         }

@@ -1,6 +1,7 @@
 #include "generate.hpp"
 #include "board.hpp"
 #include "check.hpp"
+#include "coord.hpp"
 
 namespace wisdom
 {
@@ -248,7 +249,7 @@ namespace wisdom
     {
         const auto& kt_moves = generator.generate_knight_moves (piece_row, piece_col);
 
-        for (auto knight_move : kt_moves)
+        for (const auto& knight_move : kt_moves)
             append_move (board, moves, knight_move);
     }
 
@@ -487,9 +488,9 @@ namespace wisdom
         Coord b_coord = move_src (b);
 
         if (a_coord != b_coord)
-            return a_coord.row_and_col < b_coord.row_and_col;
+            return coord_index (a_coord) < coord_index (b_coord);
         else
-            return move_dst (a).row_and_col < move_dst (b).row_and_col;
+            return coord_index (move_dst (a)) < coord_index (move_dst (b));
     }
 
     auto MoveGeneration::compare_moves (const Move& a, const Move& b) const -> bool

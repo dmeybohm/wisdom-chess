@@ -9,45 +9,43 @@ namespace wisdom
     class CoordIterator final
     {
     private:
-        int row = 0;
-        int col = 0;
+        Coord my_coord;
 
     public:
         CoordIterator () = default;
 
-        CoordIterator (int row_, int col_)
-                : row (row_), col (col_)
+        explicit CoordIterator (Coord coord)
+            : my_coord (coord)
         {}
 
-        [[nodiscard]] CoordIterator begin () // NOLINT(readability-convert-member-functions-to-static)
+        CoordIterator (int row_, int col_)
+            : my_coord (make_coord (row_, col_))
+        {}
+
+        [[nodiscard]] auto begin () -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
         {
-            return { 0, 0 };
+            return CoordIterator { First_Coord };
         }
 
-        [[nodiscard]] CoordIterator end () // NOLINT(readability-convert-member-functions-to-static)
+        [[nodiscard]] auto end () -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
         {
-            return { 8,  0 };
+            return CoordIterator { End_Coord };
         }
 
         auto operator* () const -> Coord
         {
-            return make_coord (row, col);
+            return my_coord;
         }
 
         auto operator++ () -> CoordIterator&
         {
-            col++;
-            if (col == Num_Columns)
-            {
-                row++;
-                col = 0;
-            }
+            ++my_coord;
             return *this;
         }
 
         auto operator == (const CoordIterator &other) const -> bool
         {
-            return row == other.row && col == other.col;
+            return other.my_coord == my_coord;
         }
 
         auto operator != (const CoordIterator &other) const -> bool
