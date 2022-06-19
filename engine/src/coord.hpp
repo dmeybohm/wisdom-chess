@@ -48,6 +48,10 @@ namespace wisdom
         return result;
     }
 
+    constexpr Coord First_Coord = make_coord (0, 0);
+    constexpr Coord End_Coord = { .row_and_col = Num_Rows * Num_Columns };
+    constexpr Coord No_En_Passant_Coord = First_Coord;
+
     // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
     constexpr auto coord_index (Coord coord) -> int
     {
@@ -60,10 +64,6 @@ namespace wisdom
         assert (index >= 0 && index < Num_Rows * Num_Columns);
         return { .row_and_col = gsl::narrow_cast<int8_t> (index) };
     }
-
-    constexpr Coord First_Coord = make_coord (0, 0);
-    constexpr Coord End_Coord = { .row_and_col = 64 };
-    constexpr Coord No_En_Passant_Coord = First_Coord;
 
     template <class IntegerType = int8_t>
     constexpr auto Row (Coord pos) -> IntegerType
