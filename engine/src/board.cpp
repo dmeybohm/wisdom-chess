@@ -367,7 +367,7 @@ namespace wisdom
             auto new_row = gsl::narrow<int8_t>(no_first_or_last_dist (rng));
             auto new_col = gsl::narrow<int8_t>(no_first_or_last_dist (rng));
             std::swap (my_squares[coord_index (source_white_king_pos)],
-                       my_squares[row_col_index (new_row, new_col)]);
+                       my_squares[coord_index (new_row, new_col)]);
             my_king_pos[Color_Index_White] = make_coord (new_row, new_col);
             iterations++;
         }
