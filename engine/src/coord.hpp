@@ -53,33 +53,42 @@ namespace wisdom
     constexpr Coord No_En_Passant_Coord = First_Coord;
 
     // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
-    constexpr auto coord_index (Coord coord) -> int
+    [[nodiscard]] constexpr auto coord_index (Coord coord) -> int
     {
         return coord.row_and_col;
     }
 
+    // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
+    template <typename IntegerType = int8_t>
+    [[nodiscard]] constexpr auto coord_index (IntegerType row, IntegerType col) -> int
+    {
+        static_assert (std::is_integral_v<IntegerType>);
+        Coord coord = make_coord (row, col);
+        return coord_index (coord);
+    }
+
     // Make a coordinate from an index from 0-63.
-    constexpr auto make_coord_from_index (int index) -> Coord
+    [[nodiscard]] constexpr auto make_coord_from_index (int index) -> Coord
     {
         assert (index >= 0 && index < Num_Rows * Num_Columns);
         return { .row_and_col = gsl::narrow_cast<int8_t> (index) };
     }
 
     template <class IntegerType = int8_t>
-    constexpr auto Row (Coord pos) -> IntegerType
+    [[nodiscard]] constexpr auto Row (Coord pos) -> IntegerType
     {
         static_assert (std::is_integral<IntegerType>::value);
         return gsl::narrow_cast<IntegerType>(pos.row_and_col >> 3);
     }
 
     template <class IntegerType = int8_t>
-    constexpr auto Column (Coord pos) -> IntegerType
+    [[nodiscard]] constexpr auto Column (Coord pos) -> IntegerType
     {
         static_assert (std::is_integral<IntegerType>::value);
         return gsl::narrow_cast<IntegerType>(pos.row_and_col & 0b111);
     }
 
-    constexpr auto next_coord (Coord coord, int direction) -> optional<Coord>
+    [[nodiscard]] constexpr auto next_coord (Coord coord, int direction) -> optional<Coord>
     {
         assert(direction == +1 || direction == -1);
         int index = coord_index (coord);

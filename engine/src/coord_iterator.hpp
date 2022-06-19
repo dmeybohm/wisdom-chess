@@ -9,17 +9,15 @@ namespace wisdom
     class CoordIterator final
     {
     private:
-        Coord my_coord;
+        Coord my_coord {};
 
     public:
-        CoordIterator () = default;
+        CoordIterator ()
+            : my_coord { First_Coord }
+        {}
 
         explicit CoordIterator (Coord coord)
             : my_coord (coord)
-        {}
-
-        CoordIterator (int row_, int col_)
-            : my_coord (make_coord (row_, col_))
         {}
 
         [[nodiscard]] auto begin () -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
@@ -43,12 +41,12 @@ namespace wisdom
             return *this;
         }
 
-        auto operator == (const CoordIterator &other) const -> bool
+        auto operator== (const CoordIterator &other) const -> bool
         {
             return other.my_coord == my_coord;
         }
 
-        auto operator != (const CoordIterator &other) const -> bool
+        auto operator!= (const CoordIterator &other) const -> bool
         {
             return !(*this == other);
         }
