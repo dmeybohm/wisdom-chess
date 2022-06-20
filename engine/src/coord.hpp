@@ -49,7 +49,7 @@ namespace wisdom
     }
 
     constexpr Coord First_Coord = make_coord (0, 0);
-    constexpr Coord End_Coord = { .row_and_col = Num_Rows * Num_Columns };
+    constexpr Coord End_Coord = { .row_and_col = Num_Squares };
     constexpr Coord No_En_Passant_Coord = First_Coord;
 
     // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
@@ -70,7 +70,7 @@ namespace wisdom
     // Make a coordinate from an index from 0-63.
     [[nodiscard]] constexpr auto make_coord_from_index (int index) -> Coord
     {
-        assert (index >= 0 && index < Num_Rows * Num_Columns);
+        assert (index >= 0 && index < Num_Squares);
         return { .row_and_col = gsl::narrow_cast<int8_t> (index) };
     }
 
@@ -94,7 +94,7 @@ namespace wisdom
         int index = coord_index (coord);
         index += direction;
 
-        if (index < 0 || index >= 64)
+        if (index < 0 || index >= Num_Squares)
             return {};
 
         return make_coord_from_index (index);
