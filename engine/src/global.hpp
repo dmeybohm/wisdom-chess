@@ -51,6 +51,7 @@ namespace wisdom
 
     constexpr int Num_Rows = 8;
     constexpr int Num_Columns = 8;
+    constexpr int Num_Squares = Num_Rows * Num_Columns;
 
     constexpr int First_Row = 0;
     constexpr int First_Column = 0;

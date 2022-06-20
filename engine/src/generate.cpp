@@ -63,7 +63,7 @@ namespace wisdom
                     Move knight_move = make_regular_move (k_row + row, k_col + col, row, col);
                     int dst_row = k_row + row;
                     int dst_col = k_col + col;
-                    auto index = knight_move_list_index (dst_row, dst_col);
+                    auto index = coord_index (dst_row, dst_col);
                     if (my_knight_moves[index] == nullptr) {
                         my_knight_moves[index] = make_unique<MoveList> (my_move_list_allocator.get ());
                     }
@@ -75,7 +75,7 @@ namespace wisdom
 
     auto MoveGenerator::generate_knight_moves (int row, int col) -> const MoveList&
     {
-        auto index = knight_move_list_index (row, col);
+        auto index = coord_index (row, col);
 
         if (my_knight_moves[0] == nullptr)
             knight_move_list_init ();

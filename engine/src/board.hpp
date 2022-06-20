@@ -26,7 +26,7 @@ namespace wisdom
     {
     private:
         // The representation of the board.
-        array<ColoredPiece, Num_Rows * Num_Columns> my_squares;
+        array<ColoredPiece, Num_Squares> my_squares;
 
         // positions of the kings.
         Coord my_king_pos[Num_Players];
