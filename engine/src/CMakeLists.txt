@@ -1,12 +1,12 @@
 add_library(wisdom-chess-core STATIC
         board.cpp check.cpp evaluate.cpp game.cpp game.hpp generate.cpp material.cpp move.cpp
         piece.cpp search.cpp str.cpp move_timer.cpp
-        global.hpp validate.cpp validate.hpp position.cpp position.hpp
+        global.hpp position.cpp position.hpp
         fen_parser.cpp fen_parser.hpp coord.cpp board_builder.cpp move_list.cpp move_list.hpp
         history.hpp history.cpp search.hpp
         board_code.cpp board_code.hpp logger.cpp logger.hpp
         output_format.cpp output_format.hpp
-        uuid.cpp uuid.hpp play.hpp play.cpp perft.cpp perft.hpp threats.hpp)
+        play.hpp play.cpp threats.hpp)
 
 if (Microsoft.GSL_Found)
     target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
@@ -37,10 +37,4 @@ if (EMSCRIPTEN)
 endif()
 
 target_link_libraries(chess PRIVATE wisdom::chess)
-
-# For perft testing:
-if (WISDOM_CHESS_SLOW_TESTS)
-    add_executable(perft perft_main.cpp)
-    target_link_libraries(perft PRIVATE wisdom::chess)
-endif()
 

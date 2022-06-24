@@ -1,5 +1,4 @@
 #include "board.hpp"
-#include "validate.hpp"
 #include "check.hpp"
 
 #include <iostream>
