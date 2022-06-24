@@ -67,7 +67,7 @@ namespace wisdom
         auto dst_piece = board.piece_at (dst);
         assert (piece_color (src_piece) == who);
 
-        Move result = wisdom::make_normal_movement_move (src, dst);
+        Move result = wisdom::make_regular_move (src, dst);
 
         // 1. castling is represented by two space king moves
         if (wisdom::piece_type (src_piece) == Piece::King)

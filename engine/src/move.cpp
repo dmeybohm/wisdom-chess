@@ -557,7 +557,7 @@ namespace wisdom
         }
 
         string rest { tmp.substr (offset) };
-        Move move = make_normal_movement_move (*src, *dst);
+        Move move = make_regular_move (*src, *dst);
         if (is_capturing)
         {
             move = copy_move_with_capture (move);
@@ -679,7 +679,7 @@ namespace wisdom
             return {};
 
         // make capturing if dst piece is not none
-        Move move = make_normal_movement_move (src, dst);
+        Move move = make_regular_move (src, dst);
         if (dst_piece != Piece_And_Color_None)
             move = copy_move_with_capture (move);
 
