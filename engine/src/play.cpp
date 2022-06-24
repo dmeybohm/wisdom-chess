@@ -8,7 +8,6 @@
 #include "game.hpp"
 #include "str.hpp"
 #include "logger.hpp"
-#include "analytics_sqlite.hpp"
 #include "fen_parser.hpp"
 
 #include <iostream>
@@ -113,15 +112,6 @@ namespace wisdom
         }
     }
 
-    static void load_analysis (Game& game, Logger& logger)
-    {
-        string input = prompt ("store analysis in what file");
-        if (input.empty ())
-            return;
-
-        game.set_analytics (analysis::make_sqlite_analytics (input, logger));
-    }
-
     static InputState read_move (Game& game, Logger& logger, MoveGenerator& move_generator)
     {
         InputState result;
@@ -221,11 +211,6 @@ namespace wisdom
         else if (input == "quit" || input == "exit")
         {
             result.command = PlayCommand::StopGame;
-            return result;
-        }
-        else if (input == "analyze")
-        {
-            load_analysis (game, logger);
             return result;
         }
 

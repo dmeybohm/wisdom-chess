@@ -61,11 +61,6 @@ namespace wisdom
         output.save (input, *my_board, *my_history, get_current_turn ());
     }
 
-    void Game::set_analytics (unique_ptr<analysis::Analytics> new_analytics)
-    {
-        my_analytics = std::move (new_analytics);
-    }
-
     auto Game::status () const -> GameStatus
     {
         if (is_checkmated (*my_board, get_current_turn (), *my_move_generator))
@@ -135,7 +130,7 @@ namespace wisdom
 
         IterativeSearch iterative_search {
             *my_board, *my_history, logger, overdue_timer,
-            my_max_depth, *my_analytics,
+            my_max_depth
         };
         SearchResult result = iterative_search.iteratively_deepen (whom);
 

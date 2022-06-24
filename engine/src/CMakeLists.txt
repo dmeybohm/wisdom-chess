@@ -3,17 +3,10 @@ add_library(wisdom-chess-core STATIC
         piece.cpp search.cpp str.cpp move_timer.cpp
         global.hpp validate.cpp validate.hpp position.cpp position.hpp
         fen_parser.cpp fen_parser.hpp coord.cpp board_builder.cpp move_list.cpp move_list.hpp
-        coord_iterator.hpp analytics_sqlite.hpp history.hpp history.cpp search.hpp
+        history.hpp history.cpp search.hpp
         board_code.cpp board_code.hpp logger.cpp logger.hpp
-        output_format.cpp output_format.hpp analytics.cpp analytics.hpp search_result.hpp
+        output_format.cpp output_format.hpp
         uuid.cpp uuid.hpp play.hpp play.cpp perft.cpp perft.hpp threats.hpp)
-
-if (SQLite3_Found)
-    target_sources(wisdom-chess-core PRIVATE analytics_sqlite.cpp)
-    target_link_libraries(wisdom-chess-core PUBLIC SQLite::SQLite3)
-else()
-    target_sources(wisdom-chess-core PRIVATE analytics_nosqlite.cpp)
-endif()
 
 if (Microsoft.GSL_Found)
     target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)

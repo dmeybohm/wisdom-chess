@@ -6,7 +6,6 @@
 #include "move.hpp"
 #include "move_list.hpp"
 #include "board.hpp"
-#include "analytics.hpp"
 #include "history.hpp"
 #include "move_timer.hpp"
 
@@ -144,8 +143,6 @@ namespace wisdom
             my_search_timeout = seconds;
         }
 
-        void set_analytics (unique_ptr<analysis::Analytics> new_analytics);
-
         [[nodiscard]] auto map_coordinates_to_move (Coord src, Coord dst, optional<Piece> promoted) const
             -> optional<Move>
         {
@@ -172,7 +169,6 @@ namespace wisdom
         unique_ptr<Board> my_board = make_unique<Board> ();
         unique_ptr<MoveGenerator> my_move_generator = make_unique<MoveGenerator> ();
         unique_ptr<History> my_history = make_unique<History> ();
-        unique_ptr<analysis::Analytics> my_analytics = make_unique<analysis::Analytics> ();
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};
         int my_max_depth { Default_Max_Depth };
 

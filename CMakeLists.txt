@@ -6,7 +6,6 @@ cmake_minimum_required(VERSION 3.20)
 project(WisdomChess CXX)
 
 option(WISDOM_CHESS_ASAN "Enable memory debugging of chess engine")
-option(WISDOM_CHESS_BENCHMARK "Enable benchmarking code")
 option(WISDOM_CHESS_FAST_TESTS "Enable building of fast tests" On)
 option(WISDOM_CHESS_SLOW_TESTS "Enable building of fast tests")
 

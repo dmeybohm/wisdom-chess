@@ -3,7 +3,6 @@
 #include "evaluate.hpp"
 #include "check.hpp"
 #include "search.hpp"
-#include "analytics.hpp"
 #include "logger.hpp"
 
 #include <sstream>
@@ -19,7 +18,6 @@ namespace wisdom
         not_null<Board*> my_board;
         not_null<History*> my_history;
         not_null<const Logger*> my_output;
-        not_null<analysis::Analytics*> my_analytics;
         MoveGenerator my_generator {};
         MoveTimer my_timer;
         int my_total_depth;
@@ -38,30 +36,20 @@ namespace wisdom
 
     public:
         IterativeSearchImpl (Board& board, History& history, const Logger& output,
-                             MoveTimer timer, int total_depth, analysis::Analytics& analytics) :
+                             MoveTimer timer, int total_depth) :
                 my_board { &board },
                 my_history { &history },
                 my_output { &output },
-                my_analytics { &analytics },
                 my_timer { std::move( timer )},
                 my_total_depth { total_depth }
         {
         }
 
-        IterativeSearchImpl (Board& board, History& history, const Logger& output,
-                             MoveTimer timer, int total_depth) :
-                IterativeSearchImpl (board, history, output, std::move (timer), total_depth,
-                                     analysis::make_dummy_analytics ())
-        {
-        }
-
         void iteratively_deepen (Color side);
 
-        void iterate (Color side, int depth, analysis::Iteration& iteration);
+        void iterate (Color side, int depth);
 
-        void search (Color side, int depth, int alpha, int beta,
-                     analysis::Decision& decision);
-
+        void search (Color side, int depth, int alpha, int beta);
 
         [[nodiscard]] auto synthesize_result () const -> SearchResult;
 
@@ -73,17 +61,9 @@ namespace wisdom
 
     IterativeSearch::~IterativeSearch() = default;
     IterativeSearch::IterativeSearch (Board& board, History& history, const Logger& output,
-                                      MoveTimer timer, int total_depth,
-                                      analysis::Analytics& analytics) :
-            impl { make_unique<IterativeSearchImpl> (
-                board, history, output, std::move (timer), total_depth, analytics) }
-    {
-    }
-
-    IterativeSearch::IterativeSearch (Board& board, History& history, const Logger& output,
-                                      MoveTimer timer, int total_depth) :
-            IterativeSearch (board, history, output, std::move (timer), total_depth,
-                             analysis::make_dummy_analytics ())
+                                      MoveTimer timer, int total_depth)
+            : impl { make_unique<IterativeSearchImpl> (
+                board, history, output, std::move (timer), total_depth) }
     {
     }
 
@@ -110,8 +90,7 @@ namespace wisdom
         return current_color == searching_color ? Min_Draw_Score : 0;
     }
 
-    void IterativeSearchImpl::search (Color side, int depth, int alpha, int beta, // NOLINT(misc-no-recursion)
-                                      analysis::Decision& decision)
+    void IterativeSearchImpl::search (Color side, int depth, int alpha, int beta) // NOLINT(misc-no-recursion)
     {
         std::optional<Move> best_move {};
         int best_score = -Initial_Alpha;
@@ -133,8 +112,6 @@ namespace wisdom
                 continue;
             }
 
-            auto position = decision.make_position (move);
-
             my_nodes_visited++;
 
             my_history->add_position_and_move (*my_board, move, undo_state);
@@ -153,8 +130,6 @@ namespace wisdom
             }
             else
             {
-                auto new_decision = decision.make_child (position);
-
                 // Don't recurse into a big search if this move is a draw.
                 if (my_search_depth == depth && is_drawing_move (*my_board, side, move, *my_history))
                 {
@@ -162,21 +137,17 @@ namespace wisdom
                 }
                 else
                 {
-                    search (color_invert (side), depth-1, -beta, -alpha, new_decision);
+                    search (color_invert (side), depth-1, -beta, -alpha);
                     my_best_score *= -1;
                 }
             }
 
             int score = my_best_score;
 
-            position.finalize (score);
-
             if (score > best_score)
             {
                 best_score = score;
                 best_move = move;
-
-                decision.select_position (position);
             }
 
             if (best_score > alpha)
@@ -197,7 +168,6 @@ namespace wisdom
 
         auto result = SearchResult { best_move, best_score,
                                      my_search_depth - depth, false };
-        decision.finalize (result);
 
         my_best_move = result.move;
         if (!my_best_move.has_value ())
@@ -224,8 +194,6 @@ namespace wisdom
         SearchResult best_result = SearchResult::from_initial ();
         my_searching_color = side;
 
-        auto iterative_search_analytics = my_analytics->make_iterative_search (*my_board, side);
-
         try
         {
             // For now, only look every other depth
@@ -235,8 +203,7 @@ namespace wisdom
                 ostr << "Searching depth " << depth;
                 my_output->println (ostr.str ());
 
-                auto iteration_analysis = iterative_search_analytics.make_iteration (depth);
-                iterate (side, depth, iteration_analysis);
+                iterate (side, depth);
                 if (my_timed_out)
                     break;
 
@@ -272,14 +239,11 @@ namespace wisdom
               my_best_score, my_best_depth, my_timed_out };
     }
 
-    void IterativeSearchImpl::iterate (Color side, int depth, analysis::Iteration& iteration)
+    void IterativeSearchImpl::iterate (Color side, int depth)
     {
         std::stringstream outstr;
         outstr << "finding moves for " << to_string (side);
         my_output->println (outstr.str ());
-
-        auto analyzed_search = iteration.make_search ();
-        auto analyzed_decision = analyzed_search.make_decision ();
 
         my_nodes_visited = 0;
         my_alpha_beta_cutoffs = 0;
@@ -287,13 +251,11 @@ namespace wisdom
         auto start = std::chrono::system_clock::now ();
 
         my_search_depth = depth;
-        search (side, depth, -Initial_Alpha, Initial_Alpha, analyzed_decision);
+        search (side, depth, -Initial_Alpha, Initial_Alpha);
 
         auto end = std::chrono::system_clock::now ();
 
         auto result = synthesize_result ();
-
-        analyzed_decision.finalize (result);
 
         calc_time (*my_output, my_nodes_visited, start, end);
 
@@ -324,4 +286,3 @@ namespace wisdom
         }
     }
 }
-

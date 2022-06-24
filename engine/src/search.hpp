@@ -4,16 +4,7 @@
 #include "global.hpp"
 #include "move.hpp"
 #include "move_timer.hpp"
-#include "search_result.hpp"
 #include "generate.hpp"
-
-namespace wisdom::analysis
-{
-    class Analytics;
-    class Iteration;
-    class Decision;
-    class Position;
-}
 
 namespace wisdom
 {
@@ -23,6 +14,20 @@ namespace wisdom
     class Logger;
     class History;
 
+    struct SearchResult
+    {
+        optional<Move> move;
+        int score;
+        int depth;
+        bool timed_out;
+
+        static SearchResult from_initial () noexcept
+        {
+            SearchResult result { nullopt, -Initial_Alpha, 0, false };
+            return result;
+        }
+    };
+
     class IterativeSearch
     {
     private:
@@ -31,9 +36,6 @@ namespace wisdom
     public:
         IterativeSearch (Board& board, History& history, const Logger& output,
                          MoveTimer timer, int total_depth);
-
-        IterativeSearch (Board& board, History& history, const Logger& output,
-                         MoveTimer timer, int total_depth, analysis::Analytics& analytics);
 
         ~IterativeSearch ();
 

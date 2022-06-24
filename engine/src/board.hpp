@@ -3,7 +3,6 @@
 
 #include "board_code.hpp"
 #include "coord.hpp"
-#include "coord_iterator.hpp"
 #include "generate.hpp"
 #include "global.hpp"
 #include "material.hpp"
