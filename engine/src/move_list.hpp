@@ -90,7 +90,7 @@ namespace wisdom
 
         // Delete special copy members:
         MoveList (const MoveList& other) = delete;
-        MoveList& operator= (MoveList other) = delete;
+        MoveList& operator= (const MoveList& other) = delete;
 
         // Default move members:
         MoveList (MoveList&& other) = default;
@@ -178,6 +178,11 @@ namespace wisdom
         [[nodiscard]] auto ptr () const noexcept -> move_list*
         {
             return my_moves_list.get ();
+        }
+
+        [[nodiscard]] auto allocator () const noexcept -> MoveListAllocator*
+        {
+            return my_allocator;
         }
     };
 

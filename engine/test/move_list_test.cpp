@@ -72,13 +72,42 @@ TEST_CASE( "Moving uncached list" )
     uncached_list.push_back (move_parse ("e4 d4"));
     uncached_list.push_back (move_parse ("d2 d1"));
 
-    MoveList moved = std::move (uncached_list);
+    SUBCASE( "moving uncached into cached" )
+    {
+        MoveListAllocator allocator;
+        MoveList cached { &allocator };
 
-    REQUIRE( uncached_list.ptr () == nullptr ); // NOLINT(bugprone-use-after-move)
-    REQUIRE( moved.ptr () != nullptr );
+        REQUIRE( cached.allocator () != nullptr );
+        cached = std::move (uncached_list);
+        REQUIRE( cached.allocator () == nullptr );
 
-    auto ptr = moved.begin ();
-    REQUIRE( moved.size () == 2 );
-    REQUIRE( *ptr++ == move_parse ("e4 d4", Color::Black) );
-    REQUIRE( *ptr == move_parse ("d2 d1", Color::White) );
+        REQUIRE( uncached_list.ptr () == nullptr ); // NOLINT(bugprone-use-after-move)
+        REQUIRE( cached.ptr () != nullptr );
+
+        auto ptr = cached.begin ();
+        REQUIRE( cached.size () == 2 );
+        REQUIRE( *ptr++ == move_parse ("e4 d4", Color::Black) );
+        REQUIRE( *ptr == move_parse ("d2 d1", Color::White) );
+    }
+
+    SUBCASE( "moving cached into uncached" )
+    {
+        MoveListAllocator allocator;
+        MoveList cached { &allocator };
+
+        cached.push_back (move_parse ("e3 d3"));
+        cached.push_back (move_parse ("d3 d1"));
+
+        REQUIRE( uncached_list.allocator () == nullptr );
+        uncached_list = std::move (cached);
+        REQUIRE( uncached_list.allocator () != nullptr );
+
+        REQUIRE( cached.ptr () == nullptr ); // NOLINT(bugprone-use-after-move)
+        REQUIRE( uncached_list.ptr () != nullptr );
+
+        auto ptr = uncached_list.begin ();
+        REQUIRE( uncached_list.size () == 2 );
+        REQUIRE( *ptr++ == move_parse ("e3 d3", Color::Black) );
+        REQUIRE( *ptr == move_parse ("d3 d1", Color::White) );
+    }
 }

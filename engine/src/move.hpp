@@ -91,32 +91,32 @@ namespace wisdom
 
     ////////////////////////////////////////////////////////////////////
 
-    constexpr Coord move_src (Move mv)
+    [[nodiscard]] constexpr Coord move_src (Move mv)
     {
         return make_coord (mv.src_row, mv.src_col);
     }
 
-    constexpr Coord move_dst (Move mv)
+    [[nodiscard]] constexpr Coord move_dst (Move mv)
     {
         return make_coord (mv.dst_row, mv.dst_col);
     }
 
-    constexpr int is_promoting_move (Move move)
+    [[nodiscard]] constexpr int is_promoting_move (Move move)
     {
         return move.promoted_piece_type != Piece::None;
     }
 
-    constexpr ColoredPiece move_get_promoted_piece (Move move)
+    [[nodiscard]] constexpr ColoredPiece move_get_promoted_piece (Move move)
     {
         return make_piece (move.promoted_color, move.promoted_piece_type);
     }
 
-    constexpr bool is_normal_capturing_move (Move move)
+    [[nodiscard]] constexpr bool is_normal_capturing_move (Move move)
     {
         return move.move_category == MoveCategory::NormalCapturing;
     }
 
-    constexpr auto captured_material (UndoMove undo_state, Color opponent) -> ColoredPiece
+    [[nodiscard]] constexpr auto captured_material (UndoMove undo_state, Color opponent) -> ColoredPiece
     {
         if (undo_state.category == MoveCategory::NormalCapturing)
         {
@@ -132,31 +132,31 @@ namespace wisdom
         }
     }
 
-    constexpr auto is_special_en_passant_move (Move move) noexcept
+    [[nodiscard]] constexpr auto is_special_en_passant_move (Move move) noexcept
         -> bool
     {
         return move.move_category == MoveCategory::SpecialEnPassant;
     }
 
-    constexpr auto is_any_capturing_move (Move move) noexcept
+    [[nodiscard]] constexpr auto is_any_capturing_move (Move move) noexcept
         -> bool
     {
         return is_normal_capturing_move (move) || is_special_en_passant_move (move);
     }
 
-    constexpr auto is_special_castling_move (Move move) noexcept
+    [[nodiscard]] constexpr auto is_special_castling_move (Move move) noexcept
         -> bool
     {
         return move.move_category == MoveCategory::SpecialCastling;
     }
 
-    constexpr auto is_castling_move_on_king_side (Move move) noexcept
+    [[nodiscard]] constexpr auto is_castling_move_on_king_side (Move move) noexcept
         -> bool
     {
         return is_special_castling_move (move) && move.dst_col == 6;
     }
 
-    constexpr auto copy_move_with_promotion (Move move, ColoredPiece piece) noexcept
+    [[nodiscard]] constexpr auto copy_move_with_promotion (Move move, ColoredPiece piece) noexcept
         -> Move
     {
         Move result = move;
@@ -166,7 +166,7 @@ namespace wisdom
     }
 
     // run-of-the-mill move with no promotion or capturing involved
-    constexpr auto make_regular_move (int src_row, int src_col,
+    [[nodiscard]] constexpr auto make_regular_move (int src_row, int src_col,
                                       int dst_row, int dst_col) noexcept
         -> Move
     {
@@ -187,15 +187,15 @@ namespace wisdom
         return result;
     }
 
-    constexpr auto make_normal_movement_move (Coord src, Coord dst) noexcept
+    [[nodiscard]] constexpr auto make_regular_move (Coord src, Coord dst) noexcept
         -> Move
     {
         return make_regular_move (Row (src), Column (src),
                                   Row (dst), Column (dst));
     }
 
-    constexpr auto make_normal_capturing_move (int src_row, int src_col,
-                                               int dst_row, int dst_col) noexcept
+    [[nodiscard]] constexpr auto make_normal_capturing_move (int src_row, int src_col,
+                                                             int dst_row, int dst_col) noexcept
         -> Move
     {
         Move move = make_regular_move (src_row, src_col, dst_row, dst_col);
@@ -203,8 +203,8 @@ namespace wisdom
         return move;
     }
 
-    constexpr auto make_special_castling_move (int src_row, int src_col,
-                                               int dst_row, int dst_col) noexcept
+    [[nodiscard]] constexpr auto make_special_castling_move (int src_row, int src_col,
+                                                             int dst_row, int dst_col) noexcept
         -> Move
     {
         Move move = make_regular_move (src_row, src_col, dst_row, dst_col);
@@ -213,7 +213,7 @@ namespace wisdom
     }
 
     template <class IntegerType = int8_t>
-    constexpr auto castling_row_for_color (Color who) -> IntegerType
+    [[nodiscard]] constexpr auto castling_row_for_color (Color who) -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
         return gsl::narrow_cast<IntegerType> (
@@ -221,14 +221,14 @@ namespace wisdom
         );
     }
 
-    constexpr auto make_special_castling_move (Coord src, Coord dst) noexcept
+    [[nodiscard]] constexpr auto make_special_castling_move (Coord src, Coord dst) noexcept
         -> Move
     {
         return make_special_castling_move (Row (src), Column (src),
                                            Row (dst), Column (dst));
     }
 
-    constexpr auto copy_move_with_capture (Move move) noexcept
+    [[nodiscard]] constexpr auto copy_move_with_capture (Move move) noexcept
         -> Move
     {
         Coord src = move_src (move);
@@ -242,8 +242,8 @@ namespace wisdom
 
     using PlayerCastleState = array<CastlingState, Num_Players>;
 
-    constexpr auto make_special_en_passant_move (int src_row, int src_col,
-                                         int dst_row, int dst_col) noexcept
+    [[nodiscard]] constexpr auto make_special_en_passant_move (int src_row, int src_col,
+                                                               int dst_row, int dst_col) noexcept
         -> Move
     {
         Move move = make_regular_move (src_row, src_col, dst_row, dst_col);
@@ -251,14 +251,14 @@ namespace wisdom
         return move;
     }
 
-    constexpr auto make_special_en_passant_move (Coord src, Coord dst) noexcept
+    [[nodiscard]] constexpr auto make_special_en_passant_move (Coord src, Coord dst) noexcept
         -> Move
     {
         return make_special_en_passant_move (Row (src), Column (src),
                                              Row (dst), Column (dst));
     }
 
-    constexpr auto move_equals (Move a, Move b) noexcept
+    [[nodiscard]] constexpr auto move_equals (Move a, Move b) noexcept
         -> bool
     {
         return a.src_row == b.src_row &&
@@ -283,56 +283,56 @@ namespace wisdom
     }
 
     // Pack the castle state into the move.
-    constexpr auto unpack_castle_state (CastlingState state) noexcept
+    [[nodiscard]] constexpr auto unpack_castle_state (CastlingState state) noexcept
         -> CastlingState
     {
         return state == Castle_Previously_None ? Castle_None : state;
     }
 
     // Unpack the castle state from the move.
-    constexpr auto pack_castle_state (CastlingState state) noexcept
+    [[nodiscard]] constexpr auto pack_castle_state (CastlingState state) noexcept
         -> CastlingState
     {
         return state == Castle_None ? Castle_Previously_None : state;
     }
 
-    constexpr auto current_castle_state (const UndoMove& move) noexcept
+    [[nodiscard]] constexpr auto current_castle_state (const UndoMove& move) noexcept
         -> CastlingState
     {
         return unpack_castle_state (move.current_castle_state);
     }
 
-    constexpr auto opponent_castle_state (const UndoMove& undo_state) noexcept
+    [[nodiscard]] constexpr auto opponent_castle_state (const UndoMove& undo_state) noexcept
         -> CastlingState
     {
         return unpack_castle_state (undo_state.opponent_castle_state);
     }
 
-    constexpr auto is_en_passant_vulnerable (const UndoMove& undo_state, Color who) noexcept
+    [[nodiscard]] constexpr auto is_en_passant_vulnerable (const UndoMove& undo_state, Color who) noexcept
         -> bool
     {
         return undo_state.en_passant_targets[color_index (who)] != No_En_Passant_Coord;
     }
 
     // Parse a move. Returns empty if the parse failed.
-    auto move_parse_optional (const string& str, Color who) -> optional<Move>;
+    [[nodiscard]] auto move_parse_optional (const string& str, Color who) -> optional<Move>;
 
     // The coordinate for the taken pawn.
-    auto en_passant_taken_pawn_coord (Coord src, Coord dst) -> Coord;
+    [[nodiscard]] auto en_passant_taken_pawn_coord (Coord src, Coord dst) -> Coord;
 
     // Map source/dest coordinate to corresponding move (en passant, castling, etc)
     // This doesn't check whether the move is legal or not completely - just gets what the
     // user is intending.
-    auto map_coordinates_to_move (const Board& board, Color who,
+    [[nodiscard]] auto map_coordinates_to_move (const Board& board, Color who,
                                   Coord src, Coord dst,
                                   optional<Piece> promoted_piece = {})
         -> optional<Move>;
 
     // Parse a move. Throws an exception if it could not parse the move.
-    auto move_parse (const string& str, Color color = Color::None) -> Move;
+    [[nodiscard]] auto move_parse (const string& str, Color color = Color::None) -> Move;
 
     // Convert the move to a string.
-    auto to_string (const Move& move) -> string;
+    [[nodiscard]] auto to_string (const Move& move) -> string;
 
     // Send the move to the ostream.
     auto operator<< (std::ostream& os, const Move& value) -> std::ostream&;

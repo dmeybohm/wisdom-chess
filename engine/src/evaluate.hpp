@@ -16,10 +16,6 @@ namespace wisdom
     // Evaluate the board.
     auto evaluate (Board& board, Color who, int moves_away, MoveGenerator& generator) -> int;
 
-    // Evaluate the board and check if it's a draw.
-    auto evaluate_and_check_draw (Board& board, Color who, int moves_away, Move move,
-                                  const History& history, MoveGenerator& generator) -> int;
-
     // When there are no legal moves present, return the score of this move, which
     // checks for either a stalemate or checkmate position.
     auto evaluate_without_legal_moves (Board& board, Color who, int moves_away) -> int;
