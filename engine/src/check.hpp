@@ -39,19 +39,6 @@ namespace wisdom
         }
     };
 
-    bool is_king_threatened_row (const Board& board, Color who, int8_t row, int8_t col);
-    bool is_king_threatened_column (const Board& board, Color who, int8_t row, int8_t col);
-    bool is_king_threatened_diagonal (const Board& board, Color who, int8_t row, int8_t col);
-    bool is_king_threatened_knight_direct (const Board& board, Color who, int8_t row, int8_t col);
-    bool is_king_threatened_pawn (const Board& board, Color who, int8_t row, int8_t col);
-    bool is_king_threatened_pawn_dumb (const Board& board, Color who, int8_t row, int8_t col);
-    bool is_king_threatened_pawn_inline (const Board& board, Color who,
-                                         int8_t king_row, int8_t king_col);
-    bool is_king_threatened_king (const Board& board, Color who, int8_t row, int8_t col);
-    bool is_king_threatened_king_inline (const Board& board, Color who, int row, int col);
-    bool is_king_threatened_diagonal_dumb (const Board& board, Color who,
-                                           int8_t king_row, int8_t king_col);
-
     // Whether this move was a legal move for the computer_player.
     [[nodiscard]] auto was_legal_move (Board& board, Color who, Move mv) -> bool;
 

@@ -29,7 +29,7 @@ add_executable(fast_tests test_main.cpp)
 target_link_libraries(fast_tests PRIVATE fast_tests_lib)
 
 # For perft testing:
-add_executable(perft perft_main.cpp)
+add_executable(perft perft_main.cpp perft.cpp)
 target_link_libraries(perft PRIVATE wisdom::chess)
 
 add_library(slow_tests_lib OBJECT
