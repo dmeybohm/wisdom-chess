@@ -1,6 +1,5 @@
 #include "move.hpp"
 #include "board.hpp"
-#include "validate.hpp"
 #include "generate.hpp"
 
 #include <iostream>
@@ -385,7 +384,6 @@ namespace wisdom
         }
 
         my_position.apply_move (who, orig_src_piece, move, &undo_state);
-        validate_castle_state (*this, move);
 
         update_move_clock (who, piece_type (orig_src_piece), move, undo_state);
         set_current_turn (color_invert (who));
@@ -466,7 +464,6 @@ namespace wisdom
         }
 
         my_position.unapply_move (who, undo_state);
-        validate_castle_state (*this, move);
         set_current_turn (who);
         restore_move_clock (undo_state);
     }

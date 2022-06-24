@@ -128,41 +128,6 @@ namespace wisdom
             return false;
         }
 
-        bool diagonal_dumb ()
-        {
-            // check each diagonal direction
-            for (int8_t r_dir = -1; r_dir <= 1; r_dir += 2)
-            {
-                for (int8_t c_dir = -1; c_dir <= 1; c_dir += 2)
-                {
-                    for (auto row = next_row (my_king_row, r_dir),
-                                col = next_column (my_king_col, c_dir);
-                         is_valid_row (row) && is_valid_column (col);
-                         row = next_row (row, r_dir), col = next_column (col, c_dir))
-                    {
-                        auto what = my_board.piece_at (row, col);
-
-                        if (what == Piece_And_Color_None)
-                            continue;
-
-                        if (piece_color (what) == my_king_color)
-                            break;
-
-                        auto check_piece_type = piece_type (what);
-                        if (check_piece_type == Piece::Bishop ||
-                            check_piece_type == Piece::Queen)
-                        {
-                            return true;
-                        }
-
-                        break;
-                    }
-                }
-            }
-
-            return false;
-        }
-
         int check_knight_at_square (int target_row, int target_col)
         {
             auto piece = my_board.piece_at (target_row, target_col);
@@ -267,27 +232,6 @@ namespace wisdom
             return false;
         }
 
-        bool pawn_dumb ()
-        {
-            auto r_dir = my_pawn_direction;
-
-            for (int8_t c_dir = -1; c_dir <= 1; c_dir += 2)
-            {
-                auto row = next_row (my_king_row, r_dir);
-                auto col = next_column (my_king_col, c_dir);
-
-                if (!is_valid_row (row) || !is_valid_column (col))
-                    continue;
-
-                auto what = my_board.piece_at (row, col);
-
-                if (piece_type (what) == Piece::Pawn && piece_color (what) == my_opponent)
-                    return true;
-            }
-
-            return false;
-        }
-
         bool pawn_inline ()
         {
             int r_dir = pawn_direction<int> (my_king_color);
@@ -361,37 +305,6 @@ namespace wisdom
             );
 
             return top_attack_exists | center_attack_exists | bottom_attack_exists;
-        }
-
-        //
-        // Unused methods here
-        //
-        bool king ()
-        {
-            int row, col;
-
-            // check for king checks
-            int min_row = std::max (next_row<int> (my_king_row, -1), 0);
-            int max_row = std::min (next_row<int> (my_king_row, +1), Last_Row);
-            int min_col = std::max (next_column<int> (my_king_col, -1), 0);
-            int max_col = std::min (next_column<int> (my_king_col, +1), Last_Column);
-
-            for (row = min_row; row <= max_row; row = next_row (row, 1))
-            {
-                for (col = min_col; col <= max_col; col = next_column (col, 1))
-                {
-                    if (col == my_king_col && row == my_king_row)
-                        continue;
-
-                    auto what = my_board.piece_at (row, col);
-
-                    if (piece_type (what) == Piece::King && piece_color (what) == my_opponent)
-                        return true;
-                }
-            }
-
-            return false;
-
         }
 
         // todo: make this really constexpr by unrolling the checks

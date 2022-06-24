@@ -24,14 +24,14 @@ TEST_CASE( "move_parse" )
 
     SUBCASE( "move_parse throws an exception for castling moves" )
     {
-        CHECK_THROWS_AS( move_parse ("o-o"), ParseMoveException );
-        CHECK_THROWS_WITH( move_parse ("o-o"), "Move requires color, but no color provided" );
-        CHECK_THROWS_WITH( move_parse ("o-o-o"), "Move requires color, but no color provided" );
+        CHECK_THROWS_AS( (void)move_parse ("o-o"), ParseMoveException );
+        CHECK_THROWS_WITH( (void)move_parse ("o-o"), "Move requires color, but no color provided" );
+        CHECK_THROWS_WITH( (void)move_parse ("o-o-o"), "Move requires color, but no color provided" );
     }
 
     SUBCASE( "Invalid moves throw an exception" )
     {
-        CHECK_THROWS_AS( move_parse ("invalid"), ParseMoveException );
-        CHECK_THROWS_WITH( move_parse ("invalid"), "Error parsing move: invalid" );
+        CHECK_THROWS_AS( (void)move_parse ("invalid"), ParseMoveException );
+        CHECK_THROWS_WITH( (void)move_parse ("invalid"), "Error parsing move: invalid" );
     }
 }

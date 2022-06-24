@@ -30,7 +30,7 @@ namespace wisdom
         }
 
         static constexpr std::size_t Initial_Size = 16;
-        static constexpr std::size_t Size_Increment = 4;
+        static constexpr std::size_t Size_Increment = 32;
 
         unique_ptr<move_list> alloc_move_list () noexcept;
         void dealloc_move_list (unique_ptr<move_list> move_list) noexcept;
