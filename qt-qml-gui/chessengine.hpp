@@ -28,6 +28,9 @@ public slots:
     // Startup the engine. If it's the engine's turn to move, make a move.
     void init();
 
+    // Exit the thread. Called upon application exit to cleanup.
+    void quit();
+
     // Receive events about the opponent move.
     void opponentMoved(wisdom::Move move, wisdom::Color who);
 
