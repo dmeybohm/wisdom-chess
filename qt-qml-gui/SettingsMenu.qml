@@ -126,25 +126,6 @@ Menu {
         }
     }
 
-    enter: Transition {
-        ParallelAnimation {
-            NumberAnimation {
-                property: "width"
-                from: 0
-                to: settingsMenu.implicitWidth
-                easing.type: Easing.InOutExpo
-                duration: 350
-            }
-            NumberAnimation {
-                property: "height"
-                from: 0
-                to: settingsMenu.implicitHeight
-                easing.type: Easing.InOutExpo
-                duration: 350
-            }
-        }
-    }
-
     QtObject {
         id: internal
         property bool menuIsFullyVisible: settingsMenu.width >= settingsMenu.implicitWidth

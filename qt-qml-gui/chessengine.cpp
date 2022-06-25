@@ -190,3 +190,8 @@ void ChessEngine::updateConfig(ChessGame::Config config,
     // Possibly resume searching for the next move:
     init();
 }
+
+void ChessEngine::quit()
+{
+    QThread::currentThread()->quit();
+}

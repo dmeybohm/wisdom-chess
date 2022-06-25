@@ -121,7 +121,7 @@ void GameModel::setupNewEngineThread()
 
     // exit event loop from engine thread when we start exiting:
     connect(this, &GameModel::terminationStarted,
-            myChessEngineThread, &QThread::quit);
+            chessEngine, &ChessEngine::quit);
 
     // Update the engine's config when user changes it:
     connect(this, &GameModel::engineConfigChanged,
@@ -250,9 +250,15 @@ void GameModel::applicationExiting()
 
     // End the thread by changing the game id:
     myGameId = 0;
+    qDebug() << "Terminated start...";
     emit terminationStarted();
 
+    // For desktop, we need to wait here before exiting. But on web that will hang.
+#ifndef EMSCRIPTEN
     myChessEngineThread->wait();
+#endif
+
+    qDebug() << "Termination ended.";
 }
 
 void GameModel::updateEngineConfig()
