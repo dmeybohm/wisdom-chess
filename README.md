@@ -64,6 +64,11 @@ You can build on Android using Qt Creator. You may have to specify
 You need to setup your Kit to point to Android and install the appropriate
 libraries for Qt/QML there. See [this "Getting Started" document](https://doc.qt.io/qt-6/android-getting-started.html) for how to use Qt on Android.
 
+<p align="center">
+    <img
+    src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/qt-qml-gui/images/wisdom-chess-android.png" />
+</p>
+
 ## Running
 
 There are two different interfaces generated: a command line interactive
