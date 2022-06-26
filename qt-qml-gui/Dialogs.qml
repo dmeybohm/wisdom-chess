@@ -9,6 +9,10 @@ Item {
         newGameDialog.visible = true
     }
 
+    function showAboutDialog() {
+        aboutDialog.visible = true
+    }
+
     DrawProposalDialog {
         id: threefoldRepetitionDialog
         visible: !_myGameModel.thirdRepetitionDrawAnswered &&
@@ -54,5 +58,11 @@ Item {
         width: Math.min(400, Screen.width - 50)
         height: Math.min(150, Screen.height - 10)
         padding: 40
+    }
+
+    AboutDialog {
+        id: aboutDialog
+        visible: false
+        anchors.centerIn: parent
     }
 }

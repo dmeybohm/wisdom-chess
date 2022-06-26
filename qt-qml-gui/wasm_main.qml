@@ -57,6 +57,8 @@ ApplicationWindow {
                         y: rookButton.height
                         x: -implicitWidth / 4
                         id: settingsMenu
+                        onShowAboutDialog: root.showAboutDialog()
+                        onShowNewGameDialog: root.showNewGameDialog()
                     }
                 }
 

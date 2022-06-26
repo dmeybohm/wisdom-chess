@@ -72,6 +72,7 @@ qt_add_qml_module(appWisdomChessQtQml
         PromoteDropdown.qml
         PromotedPieceModel.qml
         DrawProposalDialog.qml
+        AboutDialog.qml
         NewGameDialog.qml
         SettingsMenu.qml
         StatusBar.qml

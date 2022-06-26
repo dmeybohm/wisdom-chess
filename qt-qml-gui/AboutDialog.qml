@@ -1,0 +1,65 @@
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import "Helper.js" as Helper
+
+Dialog {
+    id: aboutDialog
+    modal: true
+    title: "About Wisdom Chess"
+    implicitWidth: Helper.isWebAssembly() ? 550 : 400
+    implicitHeight: Helper.isWebAssembly() ? 335 : 300
+
+    onAccepted: {
+        visible = false
+    }
+
+    footer: DialogButtonBox {
+        standardButtons: Dialog.Ok
+        alignment: Helper.isWebAssembly() ? Qt.AlignHCenter : Qt.AlignRight
+    }
+
+    Column {
+        anchors {
+            left: parent.left;
+            leftMargin: 25
+            rightMargin: 25
+            right: parent.right;
+            top: parent.top
+            topMargin: 30
+        }
+        spacing: 20
+
+        Text {
+            id: firstLine
+            text: "Wisdom Chess ©️ David Meybohm 2022"
+            font.pointSize: 14
+            width: parent.width
+
+            verticalAlignment: Helper.isMobile() ? Text.AlignTop : Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+        }
+
+        Text {
+            id: secondLine
+            text: "Images ©️ Colin M.L. Burnett and used under creative commons license."
+            font.pointSize: 14
+            width: parent.width
+
+            verticalAlignment: Helper.isMobile() ? Text.AlignTop : Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+        }
+
+        Text {
+            id: thirdLine
+            text: "Box icons ©️ boxicons.com and used under creative commons license."
+            font.pointSize: 14
+            width: parent.width
+
+            verticalAlignment: Helper.isMobile() ? Text.AlignTop : Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+        }
+    }
+}
