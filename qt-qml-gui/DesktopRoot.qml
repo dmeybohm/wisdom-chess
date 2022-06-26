@@ -18,6 +18,10 @@ Item {
         dialogs.showNewGameDialog()
     }
 
+    function showAboutDialog() {
+        dialogs.showAboutDialog()
+    }
+
     ColumnLayout {
         id: colLayout
         anchors.top: parent.top
@@ -28,6 +32,7 @@ Item {
 
         Board {
             id: boards
+
             Layout.alignment: Qt.AlignHCenter
         }
 

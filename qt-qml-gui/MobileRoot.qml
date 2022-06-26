@@ -19,6 +19,10 @@ Item {
         dialogs.showNewGameDialog()
     }
 
+    function showAboutDialog() {
+        dialogs.showAboutDialog()
+    }
+
     Flickable {
         property int totalContentHeight: boards.height + boardStatusBar.implicitHeight + 150
 
