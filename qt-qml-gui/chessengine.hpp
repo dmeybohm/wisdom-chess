@@ -10,6 +10,7 @@
 #include "game.hpp"
 #include "move.hpp"
 #include "move_timer.hpp"
+#include "logger.hpp"
 
 //
 // Represents the computer player.
@@ -23,6 +24,14 @@ public:
                 int gameId,
                 QObject *parent = nullptr);
 
+
+    static constexpr wisdom::Logger::LogLevel Log_Level =
+#ifdef NDEBUG
+        wisdom::Logger::LogLevel_Info
+#else
+        wisdom::Logger::LogLevel_Debug
+#endif
+        ;
 
 public slots:
     // Startup the engine. If it's the engine's turn to move, make a move.
