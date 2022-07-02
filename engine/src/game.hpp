@@ -83,8 +83,8 @@ namespace wisdom
 
         void set_current_turn (Color);
 
-        [[nodiscard]] auto get_board() const& -> Board&;
-        [[nodiscard]] auto get_board() const&& -> Board& = delete;
+        [[nodiscard]] auto get_board () const& -> Board&;
+        [[nodiscard]] auto get_board () const&& -> Board& = delete;
 
         [[nodiscard]] auto get_history () const& -> History&;
         [[nodiscard]] auto get_history () const&& -> History& = delete;

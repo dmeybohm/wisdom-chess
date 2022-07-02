@@ -69,8 +69,6 @@ auto ChessGame::isLegalMove(Move selectedMove) const -> bool
     auto who = game->get_current_turn();
     auto generator = game->get_move_generator();
     auto legalMoves = generator->generate_legal_moves(game->get_board(), who);
-    auto legalMovesStr = to_string(legalMoves);
-    qDebug() << QString(legalMovesStr.c_str());
 
     return std::any_of(legalMoves.cbegin(), legalMoves.cend(),
                         [selectedMove](const auto& move){
@@ -104,8 +102,6 @@ auto ChessGame::moveFromCoordinates(int srcRow, int srcColumn,
     auto dst = wisdom::make_coord(dstRow, dstColumn);
 
     auto who = engine->get_current_turn();
-    qDebug() << "Mapping coordinates for " << srcRow << ":" << srcColumn << " -> "
-         << dstRow << ":" << dstColumn;
 
     return {
         engine->map_coordinates_to_move(src, dst, promoted),

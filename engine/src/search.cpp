@@ -186,7 +186,7 @@ namespace wisdom
 
         std::stringstream progress_str;
         progress_str << "search took " << seconds << "s, " << nodes / seconds << " nodes/sec";
-        output.println (progress_str.str ());
+        output.info (progress_str.str ());
     }
 
     void IterativeSearchImpl::iteratively_deepen (Color side)
@@ -201,7 +201,7 @@ namespace wisdom
             {
                 std::ostringstream ostr;
                 ostr << "Searching depth " << depth;
-                my_output->println (ostr.str ());
+                my_output->info (ostr.str ());
 
                 iterate (side, depth);
                 if (my_timed_out)
@@ -243,7 +243,7 @@ namespace wisdom
     {
         std::stringstream outstr;
         outstr << "finding moves for " << to_string (side);
-        my_output->println (outstr.str ());
+        my_output->debug (outstr.str ());
 
         my_nodes_visited = 0;
         my_alpha_beta_cutoffs = 0;
@@ -265,14 +265,14 @@ namespace wisdom
         {
             std::stringstream progress_str;
             progress_str << "nodes visited = " << my_nodes_visited << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs;
-            my_output->println (progress_str.str ());
+            my_output->debug (progress_str.str ());
         }
 
         if (result.timed_out)
         {
             std::stringstream progress_str;
             progress_str << "Search timed out" << "\n";
-            my_output->println (progress_str.str ());
+            my_output->info (progress_str.str ());
             return;
         }
 
@@ -282,7 +282,7 @@ namespace wisdom
             std::stringstream progress_str;
             progress_str << "move selected = " << to_string (best_move) << " [ score: "
                          << result.score << " ]\n";
-            my_output->println (progress_str.str ());
+            my_output->info (progress_str.str ());
         }
     }
 }

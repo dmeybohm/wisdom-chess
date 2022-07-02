@@ -128,7 +128,6 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
         if (pieceModel.row == dstRow && pieceModel.column == dstColumn) {
             beginRemoveRows(QModelIndex{}, i, i);
             myPieces.removeAt(i);
-            qDebug() << "removing index: " << i;
             count--;
             endRemoveRows();
         }
@@ -146,7 +145,6 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
                 rolesChanged.append( PieceImageRole );
             }
 
-            qDebug() << "index " << i << "changed";
             emit dataChanged(changedIndex, changedIndex, rolesChanged);
         }
         if (is_special_castling_move(selectedMove)) {
@@ -161,7 +159,6 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
                 QModelIndex changedIndex = index(i, 0);
 
                 QTimer::singleShot(Rook_Animation_Delay, this, [this, changedIndex](){
-                    qDebug() << "index " << changedIndex << "changed";
                     QVector<int> rolesChanged { ColumnRole };
                     emit dataChanged(changedIndex, changedIndex, rolesChanged);
                 });
@@ -175,7 +172,6 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
             if (pieceModel.row == enPassantPawnRow && pieceModel.column == enPassantPawnCol) {
                 beginRemoveRows(QModelIndex{}, i, i);
                 myPieces.removeAt(i);
-                qDebug() << "removing index: " << i;
                 count--;
                 endRemoveRows();
             }

@@ -1,7 +1,6 @@
 #include "logger.hpp"
 
 #include <iostream>
-#include <mutex>
 
 namespace wisdom
 {
@@ -9,25 +8,45 @@ namespace wisdom
     {
     public:
         NullLogger () = default;
+        ~NullLogger () override = default;
 
-        void println ([[maybe_unused]] const string& output) const override
+        void debug ([[maybe_unused]] const string& output) const override
+        {
+        }
+
+        void info (const string& output) const override
         {
         }
     };
 
     class StandardLogger : public Logger
     {
-    private:
-        mutable std::mutex output_mutex;
-
     public:
-        StandardLogger () = default;
+        explicit StandardLogger (LogLevel level)
+            : my_log_level { level }
+        {}
 
-        void println (const string& output) const override
+        ~StandardLogger() override = default;
+
+        void debug (const string& output) const override
         {
-            std::lock_guard lock { output_mutex };
-            std::cout << output << '\n';
-            std::cout.flush ();
+            if (my_log_level >= LogLevel_Debug)
+                write (output);
+        }
+
+        void info (const string& output) const override
+        {
+            if (my_log_level >= LogLevel_Info)
+                write (output);
+        }
+
+    private:
+        LogLevel my_log_level;
+
+        static void write (const string& output)
+        {
+            auto result = output + "\n";
+            std::cout << result;
         }
     };
 
@@ -37,9 +56,9 @@ namespace wisdom
         return null_logger;
     }
 
-    auto make_standard_logger () -> Logger&
+    auto make_standard_logger (Logger::LogLevel level) -> Logger&
     {
-        static StandardLogger standard_logger {};
+        static StandardLogger standard_logger { level };
         return standard_logger;
     }
 }

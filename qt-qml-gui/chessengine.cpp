@@ -78,7 +78,7 @@ auto ChessEngine::gameStatusTransition () -> wisdom::GameStatus
 void ChessEngine::findMove()
 {
     auto gameState = myGame->state();
-    Logger& output = make_standard_logger();
+    Logger& output = make_standard_logger(Log_Level);
 
     if (myIsGameOver) {
         return;
