@@ -7,7 +7,7 @@ Dialog {
     modal: true
     title: "About Wisdom Chess"
     implicitWidth: Helper.isWebAssembly() ? 550 : 400
-    implicitHeight: Helper.isWebAssembly() ? 335 : 300
+    implicitHeight: Helper.isWebAssembly() ? 385 : 350
 
     onAccepted: {
         visible = false
@@ -54,6 +54,17 @@ Dialog {
         Text {
             id: thirdLine
             text: "Box icons ©️ boxicons.com and used under creative commons license."
+            font.pointSize: 14
+            width: parent.width
+
+            verticalAlignment: Helper.isMobile() ? Text.AlignTop : Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+        }
+
+        Text {
+            id: fourthLine
+            text: "Qt ©️ The Qt Company 2021 used under GPL / LGPL license."
             font.pointSize: 14
             width: parent.width
 
