@@ -307,7 +307,6 @@ namespace wisdom
             return top_attack_exists | center_attack_exists | bottom_attack_exists;
         }
 
-        // todo: make this really constexpr by unrolling the checks
         constexpr auto check_diagonal_threats (int target_row, int target_col)
             -> ThreatStatus
         {
@@ -333,67 +332,38 @@ namespace wisdom
             return result;
         }
 
-        // Check a diagonal for any bishop / queen threats.
-        bool diagonal ()
+        template <int horiz_direction, int vert_direction>
+        auto check_diagonal_threat () -> bool
         {
-            // northwest
+            int new_row = my_king_row;
+            int new_col = my_king_col;
+
             for (int distance = 1; distance < Num_Columns; distance++)
             {
-                int new_row = my_king_row - distance;
-                int new_col = my_king_col - distance;
-                if (new_row < 0 || new_col < 0)
-                    break;
+                new_row += vert_direction;
+                new_col += horiz_direction;
 
-                auto status = check_diagonal_threats (new_row, new_col);
+                if constexpr (vert_direction < 0)
+                {
+                    if (new_row < 0)
+                        break;
+                }
+                else
+                {
+                    if (new_row > Last_Row)
+                        break;
+                }
 
-                if (status.threatened)
-                    return true;
-
-                if (status.blocked)
-                    break;
-            }
-
-            // northeast
-            for (int distance = 1; distance < Num_Columns; distance++)
-            {
-                int new_row = my_king_row - distance;
-                int new_col = my_king_col + distance;
-                if (new_row < 0 || new_col > Last_Column)
-                    break;
-
-                auto status = check_diagonal_threats (new_row, new_col);
-
-                if (status.threatened)
-                    return true;
-
-                if (status.blocked)
-                    break;
-            }
-
-            // southeast
-            for (int distance = 1; distance < Num_Columns; distance++)
-            {
-                int new_row = my_king_row + distance;
-                int new_col = my_king_col + distance;
-                if (new_row > Last_Row || new_col > Last_Column)
-                    break;
-
-                auto status = check_diagonal_threats (new_row, new_col);
-
-                if (status.threatened)
-                    return true;
-
-                if (status.blocked)
-                    break;
-            }
-
-            // southwest
-            for (int distance = 1; distance < Num_Columns; distance++)
-            {
-                int new_row = my_king_row + distance;
-                int new_col = my_king_col - distance;
-                if (new_row > Last_Row || new_col < 0)
-                    break;
+                if constexpr (horiz_direction < 0)
+                {
+                    if (new_col < 0)
+                        break;
+                }
+                else
+                {
+                    if (new_col > Last_Column)
+                        break;
+                }
 
                 auto status = check_diagonal_threats (new_row, new_col);
 
@@ -405,6 +375,20 @@ namespace wisdom
             }
 
             return false;
+        }
+
+        // Check a diagonal for any bishop / queen threats.
+        bool diagonal ()
+        {
+            return
+                // northwest:
+                check_diagonal_threat <-1, -1> () ||
+                // northeast:
+                check_diagonal_threat<-1, +1>() ||
+                // southwest:
+                check_diagonal_threat<+1, -1>() ||
+                // southeast:
+                check_diagonal_threat<+1, +1>();
         }
     };
 }
