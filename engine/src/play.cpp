@@ -112,7 +112,7 @@ namespace wisdom
         }
     }
 
-    static InputState read_move (Game& game, Logger& logger, MoveGenerator& move_generator)
+    static InputState read_move (Game& game, MoveGenerator& move_generator)
     {
         InputState result;
         string input;
@@ -347,7 +347,7 @@ namespace wisdom
     {
         Game game;
         InputState initial_input_state;
-        Logger& output = make_standard_logger ();
+        auto output = make_standard_logger ();
         bool paused = false;
         MoveGenerator move_generator;
 
@@ -363,7 +363,7 @@ namespace wisdom
 
             if (!paused && game.get_current_player () == Player::ChessEngine)
             {
-                auto optional_move = game.find_best_move (output);
+                auto optional_move = game.find_best_move (*output);
                 if (!optional_move.has_value ())
                 {
                     std::cout << "\nCouldn't find move!\n";
@@ -376,7 +376,7 @@ namespace wisdom
             }
             else
             {
-                input_state = read_move (game, output, move_generator);
+                input_state = read_move (game, move_generator);
 
                 if (input_state.command == PlayCommand::StopGame)
                     break;

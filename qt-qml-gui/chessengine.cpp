@@ -13,6 +13,11 @@ using gsl::not_null;
 using wisdom::GameStatus;
 using wisdom::ProposedDrawType;
 
+void ChessEngine::ChessEngineLogger::info(const std::string& line) const
+{
+    qDebug() << line.c_str();
+}
+
 ChessEngine::ChessEngine(shared_ptr<ChessGame> game, int gameId, QObject *parent)
     : QObject { parent }
     , myGame { std::move(game) }
@@ -78,7 +83,7 @@ auto ChessEngine::gameStatusTransition () -> wisdom::GameStatus
 void ChessEngine::findMove()
 {
     auto gameState = myGame->state();
-    Logger& output = make_standard_logger(Log_Level);
+    auto output = ChessEngineLogger {};
 
     if (myIsGameOver) {
         return;

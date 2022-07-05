@@ -33,6 +33,14 @@ public:
 #endif
         ;
 
+    struct ChessEngineLogger : wisdom::Logger
+    {
+        void debug (const std::string& string) const override
+        {}
+
+        void info (const std::string& string) const override;
+    };
+
 public slots:
     // Startup the engine. If it's the engine's turn to move, make a move.
     void init();

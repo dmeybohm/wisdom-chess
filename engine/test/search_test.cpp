@@ -20,11 +20,16 @@ namespace wisdom::test
     struct SearchHelper
     {
         History history {};
+        static inline std::unique_ptr<wisdom::Logger> null_logger;
 
         IterativeSearch build (Board& board, int depth, int time = 30)
         {
             MoveTimer timer { time };
-            return { board, history, make_null_logger (), timer, depth };
+            if (!null_logger) {
+                null_logger = make_null_logger ();
+            }
+
+            return { board, history, *null_logger, timer, depth };
         }
     };
 }

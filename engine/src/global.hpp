@@ -47,47 +47,47 @@ namespace wisdom
 
     namespace chrono = std::chrono;
 
-    constexpr int Num_Players = 2;
+    static constexpr int Num_Players = 2;
 
-    constexpr int Num_Rows = 8;
-    constexpr int Num_Columns = 8;
-    constexpr int Num_Squares = Num_Rows * Num_Columns;
+    static constexpr int Num_Rows = 8;
+    static constexpr int Num_Columns = 8;
+    static constexpr int Num_Squares = Num_Rows * Num_Columns;
 
-    constexpr int First_Row = 0;
-    constexpr int First_Column = 0;
+    static constexpr int First_Row = 0;
+    static constexpr int First_Column = 0;
 
-    constexpr int Last_Row = 7;
-    constexpr int Last_Column = 7;
+    static constexpr int Last_Row = 7;
+    static constexpr int Last_Column = 7;
 
-    constexpr int King_Column = 4;
-    constexpr int King_Rook_Column = 7;
-    constexpr int Queen_Rook_Column = 0;
+    static constexpr int King_Column = 4;
+    static constexpr int King_Rook_Column = 7;
+    static constexpr int Queen_Rook_Column = 0;
 
     // Where the color is vulnerable to en passant:
-    constexpr int White_En_Passant_Row = 5;
-    constexpr int Black_En_Passant_Row = 2;
+    static constexpr int White_En_Passant_Row = 5;
+    static constexpr int Black_En_Passant_Row = 2;
 
-    constexpr int Kingside_Castled_King_Column = 6;
-    constexpr int Queenside_Castled_King_Column = 2;
-    constexpr int Kingside_Castled_Rook_Column = 5;
-    constexpr int Queenside_Castled_Rook_Column = 3;
+    static constexpr int Kingside_Castled_King_Column = 6;
+    static constexpr int Queenside_Castled_King_Column = 2;
+    static constexpr int Kingside_Castled_Rook_Column = 5;
+    static constexpr int Queenside_Castled_Rook_Column = 3;
 
     // Infinity score.
-    constexpr int Infinity = 65536;
-    constexpr int Negative_Infinity = -1 * Infinity;
+    static constexpr int Infinity = 65536;
+    static constexpr int Negative_Infinity = -1 * Infinity;
 
     // Initial Alpha value.
-    constexpr int Initial_Alpha = Infinity * 3;
+    static constexpr int Initial_Alpha = Infinity * 3;
 
     // Default absolute max depth searched.
-    constexpr int Default_Max_Depth = 16;
+    static constexpr int Default_Max_Depth = 16;
 
     // Default max time spent searching.
-    constexpr int Default_Max_Search_Seconds = 5;
+    static constexpr int Default_Max_Search_Seconds = 5;
 
     // Minimum amount behind the computer must feel in order to
     // accept a draw offer.
-    constexpr int Min_Draw_Score = -500;
+    static constexpr int Min_Draw_Score = -500;
 
     // Errors in this application.
     class Error : public std::exception
