@@ -20,8 +20,9 @@ namespace wisdom
         virtual void info (const string& output) const = 0;
     };
 
-    auto make_null_logger () -> Logger&;
-    auto make_standard_logger (Logger::LogLevel level = Logger::LogLevel_Debug) -> Logger&;
+    auto make_null_logger () -> unique_ptr<Logger>;
+
+    auto make_standard_logger (Logger::LogLevel level = Logger::LogLevel_Debug) -> unique_ptr<Logger>;
 }
 
 #endif // WISDOM_LOGGER_HPP

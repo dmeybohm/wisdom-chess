@@ -26,7 +26,7 @@ namespace wisdom
             : my_log_level { level }
         {}
 
-        ~StandardLogger() override = default;
+        ~StandardLogger () override = default;
 
         void debug (const string& output) const override
         {
@@ -50,15 +50,15 @@ namespace wisdom
         }
     };
 
-    auto make_null_logger () -> Logger&
+    auto make_null_logger () -> unique_ptr<Logger>
     {
-        static NullLogger null_logger {};
-        return null_logger;
+        return make_unique<NullLogger> ();
     }
 
-    auto make_standard_logger (Logger::LogLevel level) -> Logger&
+    auto make_standard_logger (Logger::LogLevel level) -> unique_ptr<Logger>
     {
-        static StandardLogger standard_logger { level };
-        return standard_logger;
+        return make_unique<StandardLogger> (level);
     }
 }
+
+

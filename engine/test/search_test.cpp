@@ -20,11 +20,16 @@ namespace wisdom::test
     struct SearchHelper
     {
         History history {};
+        static inline std::unique_ptr<wisdom::Logger> null_logger;
 
         IterativeSearch build (Board& board, int depth, int time = 30)
         {
             MoveTimer timer { time };
-            return { board, history, make_null_logger (), timer, depth };
+            if (!null_logger) {
+                null_logger = make_null_logger ();
+            }
+
+            return { board, history, *null_logger, timer, depth };
         }
     };
 }
@@ -267,5 +272,19 @@ TEST_CASE ("Can avoid stalemate")
 
     auto is_stalemate = is_stalemated (game.get_board (), Color::White, *game.get_move_generator ());
     CHECK( !is_stalemate );
+}
+
+TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
+{
+    FenParser fen { "r1bqkb1r/2pppppp/p4n2/np6/8/1B2PN2/PPPP1PPP/RNBQK2R w KQkq - 0 1 " };
+
+    auto game = fen.build ();
+
+    SearchHelper helper;
+    IterativeSearch search = helper.build (game.get_board (), 5, 5);
+    SearchResult result = search.iteratively_deepen (Color::White);
+
+    // Check the white bishop is not sacrificed:
+    CHECK( *result.move != move_parse ("b3xf7"));
 }
 
