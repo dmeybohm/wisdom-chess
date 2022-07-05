@@ -64,7 +64,7 @@ TEST_CASE ("Can find mate in 3")
 
     SearchResult result = search.iteratively_deepen (Color::White);
 
-    CHECK (result.score > Infinity);
+    CHECK (result.score > Max_Non_Checkmate_Score);
     CHECK (result.move.has_value ());
 }
 
@@ -87,7 +87,7 @@ TEST_CASE ("Can find mate in 2 1/2")
     SearchResult result = search.iteratively_deepen (Color::Black);
 
     REQUIRE( result.move.has_value () );
-    REQUIRE( result.score > Infinity );
+    REQUIRE( result.score > Max_Non_Checkmate_Score);
 }
 
 TEST_CASE ("scenario with heap overflow 1")
@@ -251,8 +251,6 @@ TEST_CASE( "Checkmate is preferred to stalemate" )
 
     REQUIRE( result.move.has_value ());
 
-    std::cout << to_string (*result.move) << "\n";
-
     game.move (*result.move);
     auto is_stalemate = is_stalemated (game.get_board (), Color::White, *game.get_move_generator ());
     CHECK( !is_stalemate );
@@ -274,17 +272,32 @@ TEST_CASE ("Can avoid stalemate")
     CHECK( !is_stalemate );
 }
 
-TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
+TEST_CASE ("Doesn't sacrifice piece to undermine opponent's castle position")
 {
     FenParser fen { "r1bqkb1r/2pppppp/p4n2/np6/8/1B2PN2/PPPP1PPP/RNBQK2R w KQkq - 0 1 " };
 
-    auto game = fen.build ();
+    SUBCASE( "Depth 5" )
+    {
+        auto game = fen.build ();
 
-    SearchHelper helper;
-    IterativeSearch search = helper.build (game.get_board (), 5, 5);
-    SearchResult result = search.iteratively_deepen (Color::White);
+        SearchHelper helper;
+        IterativeSearch search = helper.build (game.get_board (), 5, 5);
+        SearchResult result = search.iteratively_deepen (Color::White);
 
-    // Check the white bishop is not sacrificed:
-    CHECK( *result.move != move_parse ("b3xf7"));
+        // Check the white bishop is not sacrificed:
+        CHECK (*result.move != move_parse ("b3xf7"));
+    }
+
+    SUBCASE( "Depth 7" )
+    {
+        auto game = fen.build ();
+
+        SearchHelper helper;
+        IterativeSearch search = helper.build (game.get_board (), 7, 10);
+        SearchResult result = search.iteratively_deepen (Color::White);
+
+        // Check the white bishop is not sacrificed:
+        CHECK (*result.move != move_parse ("b3xf7"));
+    }
 }
 

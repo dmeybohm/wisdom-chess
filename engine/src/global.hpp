@@ -47,6 +47,17 @@ namespace wisdom
 
     namespace chrono = std::chrono;
 
+    enum MaterialWeight
+    {
+        WeightNone = 0,
+        WeightKing = 1500,
+        WeightQueen = 1000,
+        WeightRook = 500,
+        WeightBishop = 320,
+        WeightKnight = 305,
+        WeightPawn = 100,
+    };
+
     static constexpr int Num_Players = 2;
 
     static constexpr int Num_Rows = 8;
@@ -72,12 +83,21 @@ namespace wisdom
     static constexpr int Kingside_Castled_Rook_Column = 5;
     static constexpr int Queenside_Castled_Rook_Column = 3;
 
-    // Infinity score.
-    static constexpr int Infinity = 65536;
-    static constexpr int Negative_Infinity = -1 * Infinity;
+    // Scale factor for the material and position scale. Used for balancing material
+    // and position scores together.
+    static constexpr int Material_Score_Scale = 2;
+    static constexpr int Position_Score_Scale = 10;
 
-    // Initial Alpha value.
-    static constexpr int Initial_Alpha = Infinity * 3;
+    // Initial Alpha value for alpha-beta search.
+    static constexpr int Initial_Alpha = INT_MAX / 3;
+
+    // Infinite score - regular scores can never be this high.
+    // Checkmates are scored above this, depending on how far
+    // away from the current position they are.
+    static constexpr int Max_Non_Checkmate_Score
+        = Num_Squares * WeightQueen *
+        std::max (Material_Score_Scale, Position_Score_Scale);
+    static_assert (Max_Non_Checkmate_Score > 100'000 && Max_Non_Checkmate_Score < Initial_Alpha);
 
     // Default absolute max depth searched.
     static constexpr int Default_Max_Depth = 16;

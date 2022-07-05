@@ -6,7 +6,7 @@
 
 namespace wisdom
 {
-    static constexpr int Castle_Penalty = 35;
+    static constexpr int Castle_Penalty = 50;
 
     namespace
     {

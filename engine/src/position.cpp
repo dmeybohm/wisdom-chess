@@ -129,7 +129,7 @@ namespace wisdom
         assert (this->my_score[inverted] < 3000 && this->my_score[inverted] > -3000);
         int result = this->my_score[index] - this->my_score[inverted];
         assert (result < 3000);
-        return result * 9;
+        return result * Position_Score_Scale;
     }
 
     void Position::add (Color who, Coord coord, ColoredPiece piece)

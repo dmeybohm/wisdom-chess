@@ -25,13 +25,13 @@ namespace wisdom
     // further away.
     inline auto checkmate_score_in_moves (int moves) -> int
     {
-        return Infinity + Infinity / (1 + moves);
+        return Max_Non_Checkmate_Score + Max_Non_Checkmate_Score / (1 + moves);
     }
 
     // Whether the score indicates a checkmate of the opponent has been found.
     inline auto is_checkmating_opponent_score (int score) -> bool
     {
-        return score > Infinity;
+        return score > Max_Non_Checkmate_Score && score < Initial_Alpha;
     }
 }
 
