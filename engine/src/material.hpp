@@ -21,17 +21,6 @@ namespace wisdom
 
         explicit Material (const Board& board);
 
-        enum MaterialWeight
-        {
-            WeightNone = 0,
-            WeightKing = 1500,
-            WeightQueen = 1000,
-            WeightRook = 500,
-            WeightBishop = 320,
-            WeightKnight = 305,
-            WeightPawn = 100,
-        };
-
         [[nodiscard]] static int weight (Piece piece) noexcept
         {
             switch (piece)
@@ -45,6 +34,11 @@ namespace wisdom
                 case Piece::Pawn: return WeightPawn;
             }
             std::terminate ();
+        }
+
+        [[nodiscard]] static auto score_with_scale (int score) -> int
+        {
+            return score * Material_Score_Scale;
         }
 
         void add (ColoredPiece piece)
@@ -72,14 +66,14 @@ namespace wisdom
         [[nodiscard]] auto individual_score (Color who) const -> int
         {
             ColorIndex my_index = color_index (who);
-            return my_score[my_index];
+            return score_with_scale (my_score[my_index]);
         }
 
         [[nodiscard]] auto overall_score (Color who) const -> int
         {
             ColorIndex my_index = color_index (who);
             ColorIndex opponent_index = color_index (color_invert (who));
-            return my_score[my_index] - my_score[opponent_index];
+            return score_with_scale (my_score[my_index] - my_score[opponent_index]);
         }
 
         [[nodiscard]] auto piece_count (Color who, Piece type) const -> int
@@ -101,8 +95,8 @@ namespace wisdom
                 return true;
             }
 
-            if (individual_score (Color::White) > WeightKing + 2 * WeightBishop ||
-                individual_score (Color::Black) > WeightKing + 2 * WeightBishop)
+            if (individual_score (Color::White) > score_with_scale (WeightKing + 2 * WeightBishop) ||
+                individual_score (Color::Black) > score_with_scale (WeightKing + 2 * WeightBishop))
             {
                 return true;
             }

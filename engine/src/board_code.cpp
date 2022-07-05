@@ -14,8 +14,6 @@ namespace wisdom
         Color current_turn,
         PlayerCastleState castling_state
     ) {
-        int8_t row, col;
-
         for (auto coord : board.all_coords ())
         {
             ColoredPiece piece = board.piece_at (coord);
