@@ -13,6 +13,7 @@ namespace wisdom
     {
     public:
         virtual void save (const string& filename, const Board& board, const History& history, Color turn) = 0;
+        virtual ~OutputFormat() = default;
     };
 
     class FenOutputFormat : public OutputFormat
