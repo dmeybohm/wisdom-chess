@@ -86,7 +86,7 @@ namespace wisdom
     // Scale factor for the material and position scale. Used for balancing material
     // and position scores together.
     static constexpr int Material_Score_Scale = 2;
-    static constexpr int Position_Score_Scale = 10;
+    static constexpr int Position_Score_Scale = 9;
 
     // Initial Alpha value for alpha-beta search.
     static constexpr int Initial_Alpha = INT_MAX / 3;
