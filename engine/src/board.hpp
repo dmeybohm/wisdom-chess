@@ -12,13 +12,6 @@
 
 namespace wisdom
 {
-    struct BoardPositions
-    {
-        int8_t rank;
-        Color piece_color;
-        vector<Piece> pieces;
-    };
-
     class BoardBuilder;
 
     class Board
@@ -28,7 +21,7 @@ namespace wisdom
         array<ColoredPiece, Num_Squares> my_squares;
 
         // positions of the kings.
-        Coord my_king_pos[Num_Players];
+        array<Coord, Num_Players> my_king_pos;
 
         // Keep track of hashing information.
         BoardCode my_code;
@@ -50,7 +43,7 @@ namespace wisdom
 
         Board (const Board& board) = default;
 
-        explicit Board (const vector<BoardPositions>& positions);
+        explicit Board (const BoardBuilder& builder);
 
         friend bool operator== (const Board& a, const Board& b);
 
@@ -160,10 +153,6 @@ namespace wisdom
             return my_code.en_passant_targets ();
         }
 
-        friend class BoardBuilder;
-
-        [[nodiscard]] static auto initial_board_position () -> vector<BoardPositions>;
-
         void randomize_positions ();
 
         void set_king_position (Color who, Coord pos)
@@ -200,6 +189,12 @@ namespace wisdom
         {
             my_code.set_current_turn (who);
         }
+
+        [[nodiscard]] auto get_board_code () const& -> const BoardCode&
+        {
+            return my_code;
+        }
+        void get_board_code () const&& = delete;
 
         void update_move_clock (Color who, Piece orig_src_piece_type, Move mv, UndoMove& undo_state)
         {

@@ -10,6 +10,7 @@
 
 using std::string;
 using std::vector;
+using wisdom::Board;
 using wisdom::BoardBuilder;
 using wisdom::Color;
 using wisdom::Piece;
@@ -28,7 +29,7 @@ TEST_CASE( "Perft move list")
     builder.add_piece ("e5", Color::White, Piece::Pawn);
     builder.add_piece ("d7", Color::Black, Piece::Pawn);
 
-    auto board = builder.build();
+    auto board = Board { builder };
 
     string perft_move_list = wisdom::join({
         "e1c1", // white queen-side castle
@@ -38,7 +39,7 @@ TEST_CASE( "Perft move list")
         "a7a8Q", // white promotion
     }, " ");
 
-    auto wisdom_move_list = wisdom::perft::to_move_list (*board, Color::White, perft_move_list);
+    auto wisdom_move_list = wisdom::perft::to_move_list (board, Color::White, perft_move_list);
     auto converted = wisdom_move_list.to_string ();
 
     REQUIRE( converted == "{ [O-O-O] [d7 d5] [e5 d6 ep] [O-O] [a7 a8(Q)] }" );

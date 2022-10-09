@@ -14,8 +14,8 @@ TEST_CASE( "board code")
 {
     SUBCASE( "Board code is able to be set" )
     {
-        BoardCode code = BoardCode::default_position_board_code ();
-        BoardCode initial = BoardCode::default_position_board_code ();
+        BoardCode code = BoardCode::from_empty_board ();
+        BoardCode initial = BoardCode::from_empty_board ();
 
         auto initial_str = code.to_string ();
         std::size_t num_zeroes = std::count (initial_str.begin (), initial_str.end (), '0');
@@ -53,19 +53,19 @@ TEST_CASE( "board code")
         builder.add_piece ("e1", Color::Black, Piece::King);
         builder.add_piece ("e8", Color::White, Piece::King);
 
-        auto brd = builder.build ();
-        BoardCode code  = BoardCode::from_board (*brd);
+        auto brd = Board { builder };
+        BoardCode code  = BoardCode::from_board (brd);
         BoardCode initial = code;
 
         REQUIRE( initial.count_ones () > 0 );
 
         Move a8xb7 = move_parse ("a8xb7");
-        code.apply_move (*brd, a8xb7);
+        code.apply_move (brd, a8xb7);
         REQUIRE( initial != code );
 
-        UndoMove undo_state = brd->make_move (Color::White, a8xb7);
+        UndoMove undo_state = brd.make_move (Color::White, a8xb7);
 
-        code.unapply_move (*brd, a8xb7, undo_state);
+        code.unapply_move (brd, a8xb7, undo_state);
 
         REQUIRE( initial == code );
     }
@@ -79,19 +79,19 @@ TEST_CASE( "board code")
         builder.add_piece ("e1", Color::Black, Piece::King);
         builder.add_piece ("e8", Color::White, Piece::King);
 
-        auto brd = builder.build ();
-        brd->set_current_turn (Color::Black);
-        BoardCode code = BoardCode::from_board (*brd);
+        auto brd = Board { builder };
+        brd.set_current_turn (Color::Black);
+        BoardCode code = BoardCode::from_board (brd);
         BoardCode initial = code;
 
         REQUIRE( initial.count_ones () > 0 );
 
         Move b7b8_Q = move_parse ("b7b8_Q (Q)");
-        code.apply_move (*brd, b7b8_Q);
+        code.apply_move (brd, b7b8_Q);
         REQUIRE( initial != code );
 
-        UndoMove undo_state = brd->make_move (Color::Black, b7b8_Q);
-        code.unapply_move (*brd, b7b8_Q, undo_state);
+        UndoMove undo_state = brd.make_move (Color::Black, b7b8_Q);
+        code.unapply_move (brd, b7b8_Q, undo_state);
         REQUIRE( initial == code );
     }
 
@@ -104,19 +104,19 @@ TEST_CASE( "board code")
         builder.add_piece ("e8", Color::Black, Piece::King);
         builder.add_piece ("e1", Color::White, Piece::King);
 
-        auto brd = builder.build ();
-        brd->set_current_turn (Color::Black);
-        BoardCode code  = BoardCode::from_board (*brd);
+        auto brd = Board { builder };
+        brd.set_current_turn (Color::Black);
+        BoardCode code  = BoardCode::from_board (brd);
         BoardCode initial = code;
 
         REQUIRE( initial.count_ones () > 0 );
 
         Move castle_queenside = move_parse ("o-o-o", Color::Black);
-        code.apply_move (*brd, castle_queenside);
+        code.apply_move (brd, castle_queenside);
         REQUIRE( initial != code );
 
-        UndoMove undo_state = brd->make_move (Color::Black, castle_queenside);
-        code.unapply_move (*brd, castle_queenside, undo_state);
+        UndoMove undo_state = brd.make_move (Color::Black, castle_queenside);
+        code.unapply_move (brd, castle_queenside, undo_state);
         REQUIRE( initial == code );
     }
 
@@ -129,9 +129,9 @@ TEST_CASE( "board code")
         builder.add_piece ("e8", Color::Black, Piece::King);
         builder.add_piece ("e1", Color::White, Piece::King);
 
-        auto brd = builder.build ();
-        brd->set_current_turn (Color::Black);
-        BoardCode code = BoardCode::from_board (*brd);
+        auto brd = Board { builder };
+        brd.set_current_turn (Color::Black);
+        BoardCode code = BoardCode::from_board (brd);
         BoardCode initial = code;
 
         REQUIRE (initial.count_ones () > 0);
@@ -140,11 +140,11 @@ TEST_CASE( "board code")
         REQUIRE( is_promoting_move (promote_castle_move) );
         REQUIRE( is_normal_capturing_move (promote_castle_move) );
 
-        code.apply_move (*brd, promote_castle_move);
+        code.apply_move (brd, promote_castle_move);
         REQUIRE( initial != code);
 
-        UndoMove undo_state = brd->make_move (Color::Black, promote_castle_move);
-        code.unapply_move (*brd, promote_castle_move, undo_state);
+        UndoMove undo_state = brd.make_move (Color::Black, promote_castle_move);
+        code.unapply_move (brd, promote_castle_move, undo_state);
         REQUIRE( initial == code);
     }
 }
@@ -161,12 +161,12 @@ TEST_CASE( "Board code stores ancilliary state" )
         builder.add_piece ("e1", Color::White, Piece::King);
         builder.add_piece ("e8", Color::Black, Piece::King);
 
-        auto board_without_state = builder.build ();
+        auto board_without_state = Board { builder };
         builder.set_en_passant_target (Color::Black ,"d6");
-        auto board_with_state = builder.build ();
+        auto board_with_state = Board { builder };
 
-        auto with_state_code = board_with_state->get_code ();
-        auto without_state_code = board_without_state->get_code ();
+        auto with_state_code = board_with_state.get_code ();
+        auto without_state_code = board_without_state.get_code ();
         CHECK( with_state_code != without_state_code );
 
         auto en_passant_target = with_state_code.en_passant_target (Color::Black);
@@ -189,16 +189,17 @@ TEST_CASE( "Board code stores ancilliary state" )
         builder.add_piece ("e1", Color::White, Piece::King);
         builder.add_piece ("e8", Color::Black, Piece::King);
 
-        auto board_without_state = builder.build ();
+        auto board_without_state = Board { builder };
         builder.set_en_passant_target (Color::White ,"e3");
-        auto board_with_state = builder.build ();
+        auto board_with_state = Board { builder };
 
-        auto with_state_code = board_with_state->get_code ();
-        auto without_state_code = board_without_state->get_code ();
+        auto with_state_code = board_with_state.get_code ();
+        auto without_state_code = board_without_state.get_code ();
         CHECK( with_state_code != without_state_code );
 
         auto en_passant_target = with_state_code.en_passant_target (Color::White);
-        auto expected_coord = coord_parse("e3");
+
+        auto expected_coord = coord_parse ("e3");
         auto ancilliary = with_state_code.get_ancillary_bits ();
         CHECK( en_passant_target == expected_coord );
 

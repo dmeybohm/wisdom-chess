@@ -150,7 +150,7 @@ namespace wisdom
     // halfmove clock:
     void FenParser::parse_half_move (int half_moves)
     {
-        builder.set_half_moves (half_moves);
+        builder.set_half_moves_clock (half_moves);
     }
 
     // fullmove number:
@@ -208,7 +208,6 @@ namespace wisdom
 
     auto FenParser::build_board () -> Board
     {
-        Board board = *builder.build ();
-        return board;
+        return Board { builder };
     }
 }

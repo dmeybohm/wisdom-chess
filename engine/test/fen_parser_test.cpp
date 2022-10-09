@@ -36,13 +36,13 @@ TEST_CASE( "FEN notation for non-starting position" )
     builder.add_piece ("e1", Color::White, Piece::King);
     builder.add_piece ("h1", Color::White, Piece::Rook);
 
-    auto expected = builder.build();
-    CHECK( game.get_board () == *expected );
+    auto expected = Board { builder };
+    CHECK( game.get_board () == expected );
 
     CastlingState white_state = game.get_board ().get_castle_state (Color::White);
     CastlingState black_state = game.get_board ().get_castle_state (Color::Black);
-    CastlingState exp_white_state = expected->get_castle_state (Color::White);
-    CastlingState exp_black_state = expected->get_castle_state (Color::Black);
+    CastlingState exp_white_state = expected.get_castle_state (Color::White);
+    CastlingState exp_black_state = expected.get_castle_state (Color::Black);
 
     CHECK( white_state == exp_white_state );
     CHECK( black_state == exp_black_state );

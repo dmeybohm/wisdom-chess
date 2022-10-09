@@ -28,6 +28,7 @@ namespace wisdom
     using EnPassantTargets = std::array<Coord, Num_Players>;
 
     class Board;
+    class BoardBuilder;
 
     class BoardCode final
     {
@@ -47,12 +48,19 @@ namespace wisdom
             EN_PASSANT_PRESENT = 0b1000,
         };
 
+        // Private so and only used for initialization.
+        BoardCode () = default;
+
     public:
-        BoardCode (const Board& board, EnPassantTargets, Color current_turn, PlayerCastleState);
+        explicit BoardCode (const Board& board);
 
         static auto from_board (const Board& board) -> BoardCode;
 
-        static auto default_position_board_code () -> BoardCode;
+        [[nodiscard]] static auto from_board_builder (const BoardBuilder& builder) -> BoardCode;
+
+        [[nodiscard]] static auto from_default_position () -> BoardCode;
+
+        [[nodiscard]] static auto from_empty_board () -> BoardCode;
 
         void add_piece (Coord coord, ColoredPiece piece)
         {
