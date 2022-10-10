@@ -3,6 +3,7 @@
 
 #include "board.hpp"
 #include "generate.hpp"
+#include "coord.hpp"
 
 using namespace wisdom;
 
@@ -14,6 +15,9 @@ TEST_CASE( "en passant" )
 
         REQUIRE( !board.is_en_passant_vulnerable ( Color::White) );
         REQUIRE( !board.is_en_passant_vulnerable ( Color::Black) );
+
+        REQUIRE( board.get_en_passant_target (Color::White) == No_En_Passant_Coord );
+        REQUIRE( board.get_en_passant_target (Color::Black) == No_En_Passant_Coord );
 
         BoardBuilder builder;
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
