@@ -26,7 +26,10 @@ namespace wisdom
         return result;
     }
 
-    auto to_string (const MoveList& list) -> string { return list.to_string (); }
+    auto to_string (const MoveList& list) -> string
+    {
+        return list.to_string ();
+    }
 
     auto operator<< (std::ostream& os, const MoveList& list) -> std::ostream&
     {
@@ -37,8 +40,6 @@ namespace wisdom
     //
     // New Move list things
     //
-
-    std::size_t move_list_capacity (move_list& ptr) noexcept { return ptr.capacity; }
 
     void move_list_append (move_list& list, std::size_t position, Move move) noexcept
     {

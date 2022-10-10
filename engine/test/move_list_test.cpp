@@ -67,7 +67,8 @@ TEST_CASE( "Appending a move" )
 
 TEST_CASE( "Moving uncached list" )
 {
-#if 0
+    MoveListAllocator allocator;
+
     SUBCASE( "moving uncached into cached" )
     {
         MoveList uncached_list = MoveList::uncached ();
@@ -75,7 +76,6 @@ TEST_CASE( "Moving uncached list" )
         uncached_list.push_back (move_parse ("e4 d4"));
         uncached_list.push_back (move_parse ("d2 d1"));
 
-        MoveListAllocator allocator;
         MoveList cached { &allocator };
 
         REQUIRE( cached.allocator () != nullptr );
@@ -90,7 +90,6 @@ TEST_CASE( "Moving uncached list" )
         REQUIRE( *ptr++ == move_parse ("e4 d4", Color::Black) );
         REQUIRE( *ptr == move_parse ("d2 d1", Color::White) );
     }
-#endif
 
     SUBCASE( "moving cached into uncached" )
     {
@@ -99,7 +98,6 @@ TEST_CASE( "Moving uncached list" )
         uncached_list.push_back (move_parse ("e4 d4"));
         uncached_list.push_back (move_parse ("d2 d1"));
 
-        MoveListAllocator allocator;
         MoveList cached { &allocator };
 
         cached.push_back (move_parse ("e3 d3"));

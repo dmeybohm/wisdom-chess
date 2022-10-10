@@ -36,8 +36,6 @@ namespace wisdom
         void dealloc_move_list (unique_ptr<move_list> move_list) noexcept;
     };
 
-    std::size_t move_list_capacity (move_list& ptr) noexcept;
-
     void move_list_append (move_list& list, std::size_t position, Move move) noexcept;
 
     inline auto default_alloc_move_list () -> unique_ptr<move_list>
@@ -156,7 +154,7 @@ namespace wisdom
 
         [[nodiscard]] size_t capacity () const noexcept
         {
-            return move_list_capacity (*my_moves_list);
+            return my_moves_list->capacity;
         }
 
         [[nodiscard]] auto to_string () const -> string;
