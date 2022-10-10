@@ -108,35 +108,41 @@ namespace wisdom
             my_size--;
         }
 
-        [[nodiscard]] auto begin () const noexcept -> const Move*
+        [[nodiscard]] auto begin () const& noexcept -> const Move*
         {
             return my_moves_list->move_array;
         }
+        void begin () const&& = delete;
 
-        [[nodiscard]] auto end () const noexcept -> const Move*
+        [[nodiscard]] auto end () const& noexcept -> const Move*
         {
             return my_moves_list->move_array + my_size;
         }
+        void end () const&& = delete;
 
-        [[nodiscard]] auto cbegin () const noexcept -> const Move*
+        [[nodiscard]] auto cbegin () const& noexcept -> const Move*
         {
             return my_moves_list->move_array;
         }
+        void cbegin () const&& = delete;
 
-        [[nodiscard]] auto cend () const noexcept -> const Move*
+        [[nodiscard]] auto cend () const& noexcept -> const Move*
         {
             return my_moves_list->move_array + my_size;
         }
+        void cend () const&& = delete;
 
-        [[nodiscard]] auto begin () noexcept -> Move*
+        [[nodiscard]] auto begin () & noexcept -> Move*
         {
             return my_moves_list->move_array;
         }
+        void begin () && = delete;
 
-        [[nodiscard]] auto end () noexcept -> Move*
+        [[nodiscard]] auto end () & noexcept -> Move*
         {
             return my_moves_list->move_array + my_size;
         }
+        void end () && = delete;
 
         [[nodiscard]] bool empty () const noexcept
         {
