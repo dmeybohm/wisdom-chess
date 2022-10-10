@@ -174,20 +174,23 @@ namespace wisdom
             return !(*this == other);
         }
 
-        [[nodiscard]] auto data () const noexcept -> Move*
+        [[nodiscard]] auto data () const& noexcept -> Move*
         {
             return my_moves_list->move_array;
         }
+        void data () const&& = delete;
 
-        [[nodiscard]] auto ptr () const noexcept -> move_list*
+        [[nodiscard]] auto ptr () const& noexcept -> move_list*
         {
             return my_moves_list.get ();
         }
+        void ptr () const&& = delete;
 
-        [[nodiscard]] auto allocator () const noexcept -> MoveListAllocator*
+        [[nodiscard]] auto allocator () const& noexcept -> MoveListAllocator*
         {
             return my_allocator;
         }
+        void allocator () const&& = delete;
     };
 
     auto to_string (const MoveList& list) -> string;
