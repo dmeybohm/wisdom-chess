@@ -61,8 +61,8 @@ TEST_CASE( "Piece count" )
     builder.add_piece ("d1", Color::White, Piece::Bishop);
     builder.add_piece ("f2", Color::Black, Piece::Pawn);
 
-    auto brd = builder.build();
-    const auto& material = brd->get_material ();
+    auto brd = Board { builder };
+    const auto& material = brd.get_material ();
 
     SUBCASE( "Is updated from the amount of pieces on the board")
     {
@@ -84,12 +84,12 @@ TEST_CASE( "Piece count" )
     {
         auto capture_move = move_parse ("e6xf7", Color::White);
 
-        auto undo_state = brd->make_move (Color::White, capture_move);
+        auto undo_state = brd.make_move (Color::White, capture_move);
         CHECK( material.piece_count (Color::Black, Piece::Knight) == 0 );
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
 
-        brd->take_back (Color::White, capture_move, undo_state);
+        brd.take_back (Color::White, capture_move, undo_state);
 
         CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
@@ -100,13 +100,13 @@ TEST_CASE( "Piece count" )
     {
         auto capture_move = move_parse ("h2xe2", Color::White);
 
-        auto undo_state = brd->make_move (Color::White, capture_move);
+        auto undo_state = brd.make_move (Color::White, capture_move);
         CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
 
-        brd->take_back (Color::White, capture_move, undo_state);
+        brd.take_back (Color::White, capture_move, undo_state);
 
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
@@ -115,16 +115,16 @@ TEST_CASE( "Piece count" )
 
     SUBCASE( "Is saved and restored after a promotion" )
     {
-        brd->set_current_turn (Color::Black);
+        brd.set_current_turn (Color::Black);
         auto promoting_move = move_parse ("e2e1 (Q)", Color::Black);
 
-        auto undo_state = brd->make_move (Color::Black, promoting_move);
+        auto undo_state = brd.make_move (Color::Black, promoting_move);
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Queen) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
 
-        brd->take_back (Color::Black, promoting_move, undo_state);
+        brd.take_back (Color::Black, promoting_move, undo_state);
 
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
@@ -134,16 +134,16 @@ TEST_CASE( "Piece count" )
 
     SUBCASE( "Is saved and restored after a promotion with a capture" )
     {
-        brd->set_current_turn (Color::Black);
+        brd.set_current_turn (Color::Black);
         auto promoting_move = move_parse ("e2xd1 (R)", Color::Black);
 
-        auto undo_state = brd->make_move (Color::Black, promoting_move);
+        auto undo_state = brd.make_move (Color::Black, promoting_move);
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Rook) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
 
-        brd->take_back (Color::Black, promoting_move, undo_state);
+        brd.take_back (Color::Black, promoting_move, undo_state);
 
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
@@ -170,8 +170,8 @@ TEST_CASE( "has_sufficient_material()" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Rook);
 
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
         CHECK( material.has_sufficient_material (default_board) );
     }
 
@@ -180,8 +180,8 @@ TEST_CASE( "has_sufficient_material()" )
         builder.add_piece ("a7", Color::Black, Piece::Rook);
         builder.add_piece ("c5", Color::White, Piece::Rook);
 
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
         CHECK( material.has_sufficient_material (default_board) );
     }
 
@@ -190,8 +190,8 @@ TEST_CASE( "has_sufficient_material()" )
         builder.add_piece ("a7", Color::Black, Piece::Knight);
         builder.add_piece ("b7", Color::Black, Piece::Knight);
 
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
         CHECK( material.has_sufficient_material (default_board) );
     }
 
@@ -200,8 +200,8 @@ TEST_CASE( "has_sufficient_material()" )
         builder.add_piece ("a7", Color::Black, Piece::Knight);
         builder.add_piece ("c7", Color::White, Piece::Knight);
 
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
         CHECK( material.has_sufficient_material (default_board) );
     }
 
@@ -211,46 +211,46 @@ TEST_CASE( "has_sufficient_material()" )
         builder.add_piece ("b7", Color::Black, Piece::Knight);
         builder.add_piece ("c7", Color::White, Piece::Knight);
 
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
         CHECK( material.has_sufficient_material (default_board) );
     }
 
     SUBCASE( "Returns true if there is a pawn" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Pawn);
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
 
-        CHECK( material.has_sufficient_material (*brd) );
+        CHECK( material.has_sufficient_material (brd) );
     }
 
     SUBCASE( "Returns false if there are only two kings" )
     {
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
 
-        CHECK( !material.has_sufficient_material (*brd) );
+        CHECK( !material.has_sufficient_material (brd) );
     }
 
     SUBCASE( "Returns false if there is a king and knight vs. a king" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Knight);
 
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
 
-        CHECK( !material.has_sufficient_material (*brd) );
+        CHECK( !material.has_sufficient_material (brd) );
     }
 
     SUBCASE( "Returns false if there is a king and bishop vs. a king" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Bishop);
 
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
 
-        CHECK( !material.has_sufficient_material (*brd) );
+        CHECK( !material.has_sufficient_material (brd) );
     }
 
     SUBCASE( "Returns true if there is a king and bishop vs. a king and bishop of opposite colors" )
@@ -258,10 +258,10 @@ TEST_CASE( "has_sufficient_material()" )
         builder.add_piece ("a8", Color::White, Piece::Bishop);
         builder.add_piece ("a7", Color::Black, Piece::Bishop);
 
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
 
-        CHECK( material.has_sufficient_material (*brd) );
+        CHECK( material.has_sufficient_material (brd) );
     }
 
     SUBCASE( "Returns false if there is a king and bishop vs. a king and bishop of the same color" )
@@ -269,10 +269,10 @@ TEST_CASE( "has_sufficient_material()" )
         builder.add_piece ("a8", Color::White, Piece::Bishop);
         builder.add_piece ("b7", Color::Black, Piece::Bishop);
 
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
 
-        CHECK( !material.has_sufficient_material (*brd) );
+        CHECK( !material.has_sufficient_material (brd) );
     }
 
     SUBCASE( "Returns true if there is a king two bishops of opposite color vs. a king" )
@@ -280,10 +280,10 @@ TEST_CASE( "has_sufficient_material()" )
         builder.add_piece ("a8", Color::White, Piece::Bishop);
         builder.add_piece ("b8", Color::White, Piece::Bishop);
 
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
 
-        CHECK( material.has_sufficient_material (*brd) );
+        CHECK( material.has_sufficient_material (brd) );
     }
 
     SUBCASE( "Returns false if there is a king two bishops of the same color vs. a king" )
@@ -291,9 +291,9 @@ TEST_CASE( "has_sufficient_material()" )
         builder.add_piece ("a8", Color::White, Piece::Bishop);
         builder.add_piece ("b7", Color::White, Piece::Bishop);
 
-        auto brd = builder.build ();
-        const auto& material = brd->get_material ();
+        auto brd = Board { builder };
+        const auto& material = brd.get_material ();
 
-        CHECK( !material.has_sufficient_material (*brd) );
+        CHECK( !material.has_sufficient_material (brd) );
     }
 }

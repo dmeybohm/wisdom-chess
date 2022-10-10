@@ -48,10 +48,10 @@ TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
     builder.add_piece ("e1", Color::Black, Piece::King);
     builder.set_current_turn (Color::Black);
 
-    auto board = builder.build();
+    auto board = Board { builder };
 
     MoveGenerator move_generator;
-    auto move_list = move_generator.generate_all_potential_moves (*board, Color::Black);
+    auto move_list = move_generator.generate_all_potential_moves (board, Color::Black);
 
     std::string expected = "{ [c4xd3] [c4xb3] ";
     std::string converted = move_list.to_string ().substr (0, expected.size ());

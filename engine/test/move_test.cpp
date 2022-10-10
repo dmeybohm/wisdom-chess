@@ -159,12 +159,12 @@ TEST_CASE("Mapping coordinates to moves")
         builder.add_piece ("e1", Color::White, Piece::King);
         builder.add_piece ("e8", Color::Black, Piece::King);
 
-        auto board = builder.build();
+        auto board = Board { builder };
 
         Coord b7 = coord_parse ("b7");
         Coord b8 = coord_parse ("b8");
 
-        optional<Move> result = map_coordinates_to_move (*board, Color::White, b7, b8,
+        optional<Move> result = map_coordinates_to_move (board, Color::White, b7, b8,
                                                          Piece::Queen);
         auto expected = move_parse ("b7b8 (Q)", Color::White);
 
@@ -181,12 +181,12 @@ TEST_CASE("Mapping coordinates to moves")
         builder.add_piece ("e1", Color::White, Piece::King);
         builder.add_piece ("e8", Color::Black, Piece::King);
 
-        auto board = builder.build();
+        auto board = Board { builder };
 
         Coord b7 = coord_parse ("b7");
         Coord c8 = coord_parse ("c8");
 
-        optional<Move> result = map_coordinates_to_move (*board, Color::White, b7, c8,
+        optional<Move> result = map_coordinates_to_move (board, Color::White, b7, c8,
                                                          Piece::Queen);
         auto expected = move_parse ("b7xc8 (Q)", Color::White);
 
@@ -203,12 +203,12 @@ TEST_CASE("Mapping coordinates to moves")
         builder.add_piece ("e1", Color::White, Piece::King);
         builder.add_piece ("e8", Color::Black, Piece::King);
 
-        auto board = builder.build();
+        auto board = Board { builder };
 
         Coord f1 = coord_parse ("f1");
         Coord c4 = coord_parse ("c4");
 
-        optional<Move> result = map_coordinates_to_move (*board, Color::White, f1, c4);
+        optional<Move> result = map_coordinates_to_move (board, Color::White, f1, c4);
         auto expected = move_parse ("f1xc4", Color::White);
 
         CHECK( result.has_value() );
@@ -224,12 +224,12 @@ TEST_CASE("Mapping coordinates to moves")
         builder.add_piece ("e1", Color::White, Piece::King);
         builder.add_piece ("e8", Color::Black, Piece::King);
 
-        auto board = builder.build();
+        auto board = Board { builder };
 
         Coord f1 = coord_parse ("f1");
         Coord c3 = coord_parse ("c3");
 
-        optional<Move> result = map_coordinates_to_move (*board, Color::White, f1, c3);
+        optional<Move> result = map_coordinates_to_move (board, Color::White, f1, c3);
         auto expected = move_parse ("f1 c3", Color::White);
 
         CHECK( result.has_value() );

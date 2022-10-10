@@ -1,109 +1,31 @@
-#include "board.hpp"
-#include "check.hpp"
-
 #include <iostream>
 #include <ostream>
 #include <random>
 #include <algorithm>
+
+#include "board.hpp"
+#include "board_builder.hpp"
+#include "check.hpp"
 
 namespace wisdom
 {
     // board length in characters
     constexpr int Board_Length_In_Chars = 31;
 
-    auto Board::initial_board_position () -> vector<BoardPositions>
-    {
-        vector<Piece> back_rank = {
-                Piece::Rook, Piece::Knight, Piece::Bishop, Piece::Queen, Piece::King,
-                Piece::Bishop, Piece::Knight, Piece::Rook,
-        };
-
-        vector<Piece> pawns = {
-                Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::Pawn,
-                Piece::Pawn, Piece::Pawn, Piece::Pawn,
-        };
-
-        vector<BoardPositions> init_board = {
-                { 0, Color::Black, back_rank, },
-                { 1, Color::Black, pawns, },
-                { 6, Color::White, pawns, },
-                { 7, Color::White, back_rank, },
-        };
-
-        return init_board;
-    }
-
-    Board::Board () : Board { initial_board_position() }
+    Board::Board ()
+        : Board { BoardBuilder::from_default_position () }
     {
     }
 
-    static auto init_castle_state (Board& board, Color who) -> CastlingState
+    Board::Board (const BoardBuilder& builder)
+        : my_squares { builder.get_squares () }
+        , my_code { BoardCode::from_board_builder (builder) }
+        , my_king_pos { builder.get_king_positions () }
+        , my_half_move_clock { builder.get_half_moves_clock () }
+        , my_full_move_clock { builder.get_full_moves () }
+        , my_position { Position { *this } }
+        , my_material { Material { *this } }
     {
-        auto row = castling_row_for_color (who);
-        int8_t king_col = King_Column;
-
-        CastlingState state = Castle_None;
-        ColoredPiece prospective_king = board.piece_at (row, king_col);
-        ColoredPiece prospective_queen_rook = board.piece_at (row, 0);
-        ColoredPiece prospective_king_rook = board.piece_at (row, 7);
-
-        if (piece_type (prospective_king) != Piece::King ||
-            piece_color (prospective_king) != who ||
-            piece_type (prospective_queen_rook) != Piece::Rook ||
-            piece_color (prospective_queen_rook) != who)
-        {
-            state |= Castle_Queenside;
-        }
-        if (piece_type (prospective_king) != Piece::King ||
-            piece_color (prospective_king) != who ||
-            piece_type (prospective_king_rook) != Piece::Rook ||
-            piece_color (prospective_king_rook) != who)
-        {
-            state |= Castle_Kingside;
-        }
-
-        return state;
-    }
-
-    Board::Board (const vector<BoardPositions>& positions)
-        : my_squares {},
-          my_code { *this, { No_En_Passant_Coord, No_En_Passant_Coord },
-                      Color::White, { Castle_Both_Unavailable, Castle_Both_Unavailable } },
-          my_king_pos { make_coord (0, 0), make_coord (0, 0) }
-    {
-        int8_t row;
-        int8_t col;
-
-        for (auto coord : all_coords ())
-            set_piece (coord, Piece_And_Color_None);
-
-        for (auto& pos : positions)
-        {
-            auto& pieces = pos.pieces;
-            Color color = pos.piece_color;
-            row = pos.rank;
-
-            for (col = 0; col < Num_Columns && col < pieces.size (); col++)
-            {
-                if (pieces[col] == Piece::None)
-                    continue;
-
-                ColoredPiece new_piece = make_piece (color, pieces[col]);
-                Coord place = make_coord (row, col);
-                set_piece (place, new_piece);
-
-                if (pieces[col] == Piece::King)
-                    set_king_position (color, place);
-            }
-        }
-
-        set_castle_state (Color::White, init_castle_state (*this, Color::White));
-        set_castle_state (Color::Black, init_castle_state (*this, Color::Black));
-
-        my_code = BoardCode::from_board (*this);
-
-        my_position = Position { *this };
-        my_material = Material { *this };
     }
 
     void Board::print_to_file (std::ostream &out) const

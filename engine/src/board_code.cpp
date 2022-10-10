@@ -1,4 +1,3 @@
-
 #include "board_code.hpp"
 #include "board.hpp"
 #include "coord.hpp"
@@ -8,50 +7,82 @@
 
 namespace wisdom
 {
-    BoardCode::BoardCode (
-        const Board& board,
-        EnPassantTargets en_passant_targets,
-        Color current_turn,
-        PlayerCastleState castling_state
-    ) {
+    BoardCode::BoardCode (const Board& board)
+    {
         for (auto coord : board.all_coords ())
         {
             ColoredPiece piece = board.piece_at (coord);
             this->add_piece (coord, piece);
         }
 
+        auto current_turn = board.get_current_turn ();
         set_current_turn (current_turn);
-        set_en_passant_target (Color::White, en_passant_targets[Color_Index_White]);
-        set_en_passant_target (Color::Black, en_passant_targets[Color_Index_Black]);
-        set_castle_state (Color::White, castling_state[Color_Index_White]);
-        set_castle_state (Color::Black, castling_state[Color_Index_Black]);
+
+        auto en_passant_targets = board.get_en_passant_targets ();
+        if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
+        {
+            set_en_passant_target (Color::White, en_passant_targets[Color_Index_White]);
+        }
+        else if (en_passant_targets[Color_Index_Black] != No_En_Passant_Coord)
+        {
+            set_en_passant_target (Color::Black, en_passant_targets[Color_Index_Black]);
+        }
+        else
+        {
+            // this clears both targets:
+            set_en_passant_target (Color::White, No_En_Passant_Coord);
+        }
+
+        set_castle_state (Color::White, board.get_castle_state (Color::White));
+        set_castle_state (Color::Black, board.get_castle_state (Color::Black));
     }
 
     auto BoardCode::from_board (const Board& board) -> BoardCode
     {
-        PlayerCastleState castle_state = {
-            board.get_castle_state (Color::White),
-            board.get_castle_state (Color::Black)
-        };
-        return BoardCode {
-            board,
-            // todo test this part
-            board.get_en_passant_targets (),
-            board.get_current_turn (),
-            castle_state,
-        };
+        return BoardCode { board };
     }
 
-    auto BoardCode::default_position_board_code () -> BoardCode
+    auto BoardCode::from_board_builder (const BoardBuilder& builder) -> BoardCode
     {
-        BoardBuilder builder;
-        auto board = builder.build ();
-        return BoardCode {
-            *board,
-            { No_En_Passant_Coord, No_En_Passant_Coord },
-            Color::White,
-            { Castle_None, Castle_None }
-        };
+        auto result = BoardCode {};
+
+        for (auto coord : CoordIterator {})
+        {
+            ColoredPiece piece = builder.piece_at (coord);
+            result.add_piece (coord, piece);
+        }
+
+        auto current_turn = builder.get_current_turn ();
+        result.set_current_turn (current_turn);
+
+        auto en_passant_targets = builder.get_en_passant_targets ();
+        if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
+        {
+            result.set_en_passant_target (Color::White, en_passant_targets[Color_Index_White]);
+        }
+        else if (en_passant_targets[Color_Index_Black] != No_En_Passant_Coord)
+        {
+            result.set_en_passant_target (Color::Black, en_passant_targets[Color_Index_Black]);
+        }
+        else
+        {
+            result.set_en_passant_target (Color::White, No_En_Passant_Coord);
+        }
+
+        result.set_castle_state (Color::White, builder.get_castle_state (Color::White));
+        result.set_castle_state (Color::Black, builder.get_castle_state (Color::Black));
+        return result;
+    }
+
+    auto BoardCode::from_default_position () -> BoardCode
+    {
+        BoardBuilder builder = BoardBuilder::from_default_position ();
+        return BoardCode::from_board_builder (builder);
+    }
+
+    auto BoardCode::from_empty_board () -> BoardCode
+    {
+        return {};
     }
 
     void BoardCode::apply_move (const Board& board, Move move)
@@ -165,9 +196,10 @@ namespace wisdom
         return std::count (str.begin (), str.end (), '1');
     }
 
-    auto  operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&
+    auto operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&
     {
         os << "{ bits: " << code.my_pieces << ", ancillary: " << code.my_ancillary << " }";
         return os;
     }
+
 }

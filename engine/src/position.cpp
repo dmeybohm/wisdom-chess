@@ -222,8 +222,6 @@ namespace wisdom
 
     Position::Position (const Board& board)
     {
-        int8_t row, col;
-
         for (auto coord : board.all_coords ())
         {
             auto piece = board.piece_at (coord);

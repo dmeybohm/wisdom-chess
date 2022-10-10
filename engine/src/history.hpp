@@ -130,6 +130,9 @@ namespace wisdom
         {
             my_fifty_moves_without_progress_status = status;
         }
+
+        friend auto operator<< (std::ostream& os, const History& code)
+            -> std::ostream&;
     };
 }
 

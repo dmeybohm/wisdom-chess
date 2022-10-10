@@ -143,7 +143,10 @@ namespace wisdom
 
             // retrieve the old board castle status
             if (move_affects_current_castle_state (*undo_state))
-                board->undo_castle_change (who, current_castle_state (*undo_state));
+            {
+                board->undo_castle_change (who,
+                                           current_castle_state (*undo_state));
+            }
         }
         else
         {

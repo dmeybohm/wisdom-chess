@@ -58,9 +58,9 @@ TEST_CASE ("Can find mate in 3")
                             { "h1", Piece::King },
                         });
 
-    auto board = builder.build ();
+    auto board = Board { builder };
     SearchHelper helper;
-    IterativeSearch search = helper.build (*board, 5);
+    IterativeSearch search = helper.build (board, 5);
 
     SearchResult result = search.iteratively_deepen (Color::White);
 
@@ -119,9 +119,9 @@ TEST_CASE ("scenario with heap overflow 1")
                           { "g1", Piece::Rook } });
 
     builder.set_current_turn (Color::Black);
-    auto board = builder.build ();
+    auto board = Board { builder };
     SearchHelper helper;
-    IterativeSearch search = helper.build (*board, 3, 300);
+    IterativeSearch search = helper.build (board, 3, 300);
 
     SearchResult result = search.iteratively_deepen (Color::Black);
     REQUIRE( result.move.has_value () );
@@ -135,10 +135,10 @@ TEST_CASE ("Promoting move is taken if possible")
     builder.add_pieces (Color::White, { { "a4", Piece::King }, { "h4", Piece::Pawn } });
 
     builder.set_current_turn (Color::Black);
-    auto board = builder.build ();
+    auto board = Board { builder };
     SearchHelper helper;
 
-    auto search = helper.build (*board, 1, 30);
+    auto search = helper.build (board, 1, 30);
     auto result = search.iteratively_deepen (Color::Black);
     REQUIRE(to_string (*result.move) == "d2 d1(Q)");
 }

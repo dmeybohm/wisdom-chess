@@ -42,7 +42,7 @@ namespace wisdom
     }
 
     Game::Game (const BoardBuilder& builder) :
-        my_board { builder.build () },
+        my_board { make_unique<Board> (builder) },
         my_players { { Player::Human, Player::ChessEngine } }
     {}
 
