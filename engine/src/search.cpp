@@ -15,9 +15,9 @@ namespace wisdom
     class IterativeSearchImpl
     {
     private:
-        not_null<Board*> my_board;
-        not_null<History*> my_history;
-        not_null<const Logger*> my_output;
+        not_null<observer_ptr<Board>> my_board;
+        not_null<observer_ptr<History>> my_history;
+        not_null<observer_ptr<const Logger>> my_output;
         MoveGenerator my_generator {};
         MoveTimer my_timer;
         int my_total_depth;

@@ -99,15 +99,10 @@ namespace wisdom
         MoveList& operator= (const MoveList& other) = delete;
 
         MoveList (MoveList&& other) noexcept
-            : my_moves_list { nullptr }
-            , my_size { 0 }
-            , my_allocator { nullptr }
+            : my_moves_list { std::move (other.my_moves_list) }
+            , my_size { other.my_size }
+            , my_allocator { other.my_allocator }
         {
-            my_moves_list = std::move (other.my_moves_list);
-            my_size = other.my_size;
-            my_allocator = other.my_allocator;
-            other.my_size = 0;
-            other.my_allocator = nullptr;
         }
 
         MoveList& operator= (MoveList&& other) noexcept
