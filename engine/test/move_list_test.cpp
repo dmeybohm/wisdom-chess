@@ -30,6 +30,13 @@ MoveList copy_moves_and_ptr (const Move **ptr, MoveGenerator& generator)
     return moves;
 }
 
+TEST_CASE( "Converting moves to a string" )
+{
+    MoveList list = { Color::White, { "e2 d4", "a8 a1"} };
+    std::string as_string = to_string (list);
+    REQUIRE( "{ [e2 d4] [a8 a1] }" == as_string );
+}
+
 TEST_CASE( "Returning move list moves ptr" )
 {
     const Move* ptr;
@@ -130,13 +137,26 @@ TEST_CASE( "Swapping lists" )
 
         auto first_string = to_string (first);
         auto second_string = to_string (second);
-        std::cout << "first_string: " << first_string << "\n";
-        auto second_expected = string { "{ e2 d4, a8 a1 }" };
-        auto first_expected = string { "{ d7 d5", "f1 c4 }" };
-        bool first_equals =  first_expected == first_string;
-        bool second_equals = second_expected == second_string;
 
-        REQUIRE( first_equals );
-        REQUIRE( second_equals );
+        CHECK( "{ [d7 d5] [f1 c4] }" == first_string );
+        CHECK( "{ [e2 d4] [a8 a1] }" == second_string );
+    }
+
+    SUBCASE( "Swapping two move lists with different allocators" )
+    {
+        MoveListAllocator allocator;
+        MoveList first { &allocator };
+        MoveList second = { Color::Black, { "d7 d5", "f1 c4" } };
+
+        first.push_back (move_parse ("e2 d4", Color::White));
+        first.push_back (move_parse ("a8 a1", Color::Black));
+
+        std::swap (first, second);
+
+        auto first_string = to_string (first);
+        auto second_string = to_string (second);
+
+        CHECK( "{ [d7 d5] [f1 c4] }" == first_string );
+        CHECK( "{ [e2 d4] [a8 a1] }" == second_string );
     }
 }

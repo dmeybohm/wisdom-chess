@@ -12,15 +12,6 @@ namespace wisdom
     {
         Move* move_array;
         std::size_t capacity;
-
-        ~move_list()
-        {
-            if (move_array != nullptr)
-            {
-                std::cout << "Leaked!";
-                std::terminate ();
-            }
-        }
     };
 
     class MoveListAllocator
