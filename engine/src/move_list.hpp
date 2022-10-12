@@ -12,15 +12,6 @@ namespace wisdom
     {
         gsl::owner<Move*> move_array;
         std::size_t capacity;
-
-        ~move_list()
-        {
-            if (move_array != nullptr)
-            {
-                std::cout << "Leaked!" << reinterpret_cast<intptr_t>(move_array) << "\n";
-//                std::terminate ();
-            }
-        }
     };
 
     class MoveListAllocator
@@ -32,8 +23,13 @@ namespace wisdom
         ~MoveListAllocator()
         {
             for (auto& ptr : my_move_list_ptrs)
+            {
                 if (ptr && ptr->move_array)
+                {
                     free (ptr->move_array);
+                    ptr->move_array = nullptr;
+                }
+            }
         }
 
         static constexpr std::size_t Initial_Size = 16;
@@ -79,7 +75,9 @@ namespace wisdom
             if (my_moves_list != nullptr)
             {
                 if (my_allocator != nullptr)
+                {
                     my_allocator->dealloc_move_list (std::move (my_moves_list));
+                }
                 else
                 {
                     free (my_moves_list->move_array);
@@ -100,9 +98,43 @@ namespace wisdom
         MoveList (const MoveList& other) = delete;
         MoveList& operator= (const MoveList& other) = delete;
 
-        // Default move members:
-        MoveList (MoveList&& other) = default;
-        MoveList& operator= (MoveList&& other) = default;
+        MoveList (MoveList&& other) noexcept
+            : my_moves_list { nullptr }
+            , my_size { 0 }
+            , my_allocator { nullptr }
+        {
+            my_moves_list = std::move (other.my_moves_list);
+            my_size = other.my_size;
+            my_allocator = other.my_allocator;
+            other.my_size = 0;
+            other.my_allocator = nullptr;
+        }
+
+        MoveList& operator= (MoveList&& other) noexcept
+        {
+            if (this != &other)
+            {
+                if (my_moves_list != nullptr && my_moves_list->move_array != nullptr)
+                {
+                    if (my_allocator == nullptr)
+                    {
+                        free (my_moves_list->move_array);
+                        my_moves_list->move_array = nullptr;
+                    }
+                    else
+                    {
+                        my_allocator->dealloc_move_list (std::move (my_moves_list));
+                        my_moves_list = nullptr;
+                    }
+                }
+                my_moves_list = std::move (other.my_moves_list);
+                my_allocator = other.my_allocator;
+                my_size = other.my_size;
+                other.my_allocator = nullptr;
+                other.my_size = 0;
+            }
+            return *this;
+        }
 
         void push_back (Move move) noexcept
         {
