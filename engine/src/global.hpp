@@ -2,6 +2,7 @@
 #define WISDOM_CHESS_GLOBAL_HPP
 
 #include <cstdint>
+#include <climits>
 #include <exception>
 #include <string>
 #include <utility>
