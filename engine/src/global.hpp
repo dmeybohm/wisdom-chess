@@ -45,6 +45,9 @@ namespace wisdom
     using std::array;
     using std::pair;
 
+    template <typename T>
+    using observer_ptr = T*;
+
     namespace chrono = std::chrono;
 
     enum MaterialWeight

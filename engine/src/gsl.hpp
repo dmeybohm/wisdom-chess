@@ -9,6 +9,9 @@ namespace gsl
     using zstring = char*;
     using czstring = const char*;
 
+    template <typename T>
+    using owner = T;
+
     template <typename T, typename U>
     constexpr auto narrow_cast(U anything) -> T
     {

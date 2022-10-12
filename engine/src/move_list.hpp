@@ -8,12 +8,19 @@
 
 namespace wisdom
 {
-    using MoveVector = vector<Move>;
-
     struct move_list
     {
-        Move* move_array;
+        gsl::owner<Move*> move_array;
         std::size_t capacity;
+
+        ~move_list()
+        {
+            if (move_array != nullptr)
+            {
+                std::cout << "Leaked!" << reinterpret_cast<intptr_t>(move_array) << "\n";
+//                std::terminate ();
+            }
+        }
     };
 
     class MoveListAllocator
@@ -52,7 +59,7 @@ namespace wisdom
     private:
         unique_ptr<move_list> my_moves_list;
         std::size_t my_size = 0;
-        MoveListAllocator* my_allocator;
+        observer_ptr<MoveListAllocator> my_allocator;
 
         MoveList ()
             : my_allocator { nullptr }
@@ -74,7 +81,10 @@ namespace wisdom
                 if (my_allocator != nullptr)
                     my_allocator->dealloc_move_list (std::move (my_moves_list));
                 else
+                {
                     free (my_moves_list->move_array);
+                    my_moves_list->move_array = nullptr;
+                }
             }
         }
 
@@ -186,7 +196,7 @@ namespace wisdom
         }
         void ptr () const&& = delete;
 
-        [[nodiscard]] auto allocator () const& noexcept -> MoveListAllocator*
+        [[nodiscard]] auto allocator () const& noexcept -> observer_ptr<MoveListAllocator>
         {
             return my_allocator;
         }
