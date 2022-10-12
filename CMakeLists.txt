@@ -7,14 +7,14 @@ project(WisdomChess CXX)
 
 option(WISDOM_CHESS_ASAN "Enable memory debugging of chess engine")
 option(WISDOM_CHESS_FAST_TESTS "Enable building of fast tests" On)
-option(WISDOM_CHESS_SLOW_TESTS "Enable building of fast tests")
+option(WISDOM_CHESS_SLOW_TESTS "Enable building of slow tests")
 
 if (QTDIR)
     list(APPEND CMAKE_PREFIX_PATH ${QTDIR})
     message("-- wisdom-chess: QTDIR added to CMAKE_PREFIX_PATH")
 endif()
 
-find_package(Qt6 6.2 QUIET COMPONENTS Quick)
+find_package(Qt6 6.4 QUIET COMPONENTS Quick)
 
 if (WISDOM_CHESS_ASAN)
     message("-- wisdom-chess: Enabling address sanitizer")
