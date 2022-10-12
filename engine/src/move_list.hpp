@@ -10,8 +10,17 @@ namespace wisdom
 {
     struct move_list
     {
-        gsl::owner<Move*> move_array;
+        Move* move_array;
         std::size_t capacity;
+
+        ~move_list()
+        {
+            if (move_array != nullptr)
+            {
+                std::cout << "Leaked!";
+                std::terminate ();
+            }
+        }
     };
 
     class MoveListAllocator
@@ -35,20 +44,49 @@ namespace wisdom
         static constexpr std::size_t Initial_Size = 16;
         static constexpr std::size_t Size_Increment = 32;
 
-        unique_ptr<move_list> alloc_move_list () noexcept;
-        void dealloc_move_list (unique_ptr<move_list> move_list) noexcept;
+        static auto default_alloc_move_list () -> unique_ptr<move_list>
+        {
+            auto list = new move_list ();
+            list->move_array = (Move*)malloc (sizeof (Move) * MoveListAllocator::Initial_Size);
+            list->capacity = MoveListAllocator::Initial_Size;
+
+            return unique_ptr<move_list> { list };
+        }
+
+        static void move_list_append (move_list& list, std::size_t position, Move move) noexcept
+        {
+            assert (position <= list.capacity);
+
+            if (position == list.capacity)
+            {
+                list.capacity += MoveListAllocator::Size_Increment;
+
+                std::size_t new_capacity_in_bytes = list.capacity * sizeof (Move);
+                list.move_array = (Move*)realloc (list.move_array, new_capacity_in_bytes);
+            }
+
+            assert (list.move_array != nullptr);
+            list.move_array[position] = move;
+        }
+
+        auto alloc_move_list() noexcept -> unique_ptr<move_list>
+        {
+            if (!my_move_list_ptrs.empty ())
+            {
+                auto move_list_end = std::move (my_move_list_ptrs.back ());
+                my_move_list_ptrs.pop_back ();
+                return move_list_end;
+            }
+
+            return default_alloc_move_list ();
+        }
+
+        void dealloc_move_list (unique_ptr<move_list> move_list) noexcept
+        {
+            if (move_list != nullptr)
+                my_move_list_ptrs.emplace_back (std::move (move_list));
+        }
     };
-
-    void move_list_append (move_list& list, std::size_t position, Move move) noexcept;
-
-    inline auto default_alloc_move_list () -> unique_ptr<move_list>
-    {
-        auto list = new move_list ();
-        list->move_array = (Move*)malloc (sizeof (Move) * MoveListAllocator::Initial_Size);
-        list->capacity = MoveListAllocator::Initial_Size;
-
-        return unique_ptr<move_list> { list };
-    }
 
     class MoveList
     {
@@ -60,7 +98,7 @@ namespace wisdom
         MoveList ()
             : my_allocator { nullptr }
         {
-            my_moves_list = default_alloc_move_list ();
+            my_moves_list = MoveListAllocator::default_alloc_move_list ();
         }
 
     public:
@@ -103,37 +141,34 @@ namespace wisdom
             , my_size { other.my_size }
             , my_allocator { other.my_allocator }
         {
+            other.my_moves_list = nullptr;
+            other.my_size = 0;
+            other.my_allocator = nullptr;
+        }
+
+        // Implement std::swappable
+        friend void swap (MoveList& first, MoveList& second) noexcept
+        {
+            first.swap (second);
+        }
+
+        void swap (MoveList& other) noexcept
+        {
+            std::swap (my_moves_list, other.my_moves_list);
+            std::swap (my_allocator, other.my_allocator);
+            std::swap (my_size, other.my_size);
         }
 
         MoveList& operator= (MoveList&& other) noexcept
         {
-            if (this != &other)
-            {
-                if (my_moves_list != nullptr && my_moves_list->move_array != nullptr)
-                {
-                    if (my_allocator == nullptr)
-                    {
-                        free (my_moves_list->move_array);
-                        my_moves_list->move_array = nullptr;
-                    }
-                    else
-                    {
-                        my_allocator->dealloc_move_list (std::move (my_moves_list));
-                        my_moves_list = nullptr;
-                    }
-                }
-                my_moves_list = std::move (other.my_moves_list);
-                my_allocator = other.my_allocator;
-                my_size = other.my_size;
-                other.my_allocator = nullptr;
-                other.my_size = 0;
-            }
+            MoveList copy = std::move (other);
+            copy.swap (*this);
             return *this;
         }
 
         void push_back (Move move) noexcept
         {
-            move_list_append (*my_moves_list, my_size, move);
+            MoveListAllocator::move_list_append (*my_moves_list, my_size, move);
             my_size++;
         }
 

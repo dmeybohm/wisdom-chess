@@ -116,3 +116,27 @@ TEST_CASE( "Moving uncached list" )
         REQUIRE( *ptr == move_parse ("d3 d1", Color::White) );
     }
 }
+
+TEST_CASE( "Swapping lists" )
+{
+    MoveListAllocator allocator;
+
+    SUBCASE( "Swapping two simple lists" )
+    {
+        MoveList first = { Color::White, { "e2 d4", "a8 a1"} };
+        MoveList second = { Color::Black, { "d7 d5", "f1 c4" } };
+
+        std::swap (first, second);
+
+        auto first_string = to_string (first);
+        auto second_string = to_string (second);
+        std::cout << "first_string: " << first_string << "\n";
+        auto second_expected = string { "{ e2 d4, a8 a1 }" };
+        auto first_expected = string { "{ d7 d5", "f1 c4 }" };
+        bool first_equals =  first_expected == first_string;
+        bool second_equals = second_expected == second_string;
+
+        REQUIRE( first_equals );
+        REQUIRE( second_equals );
+    }
+}
