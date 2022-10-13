@@ -1,4 +1,4 @@
-import QtQuick 2.15
+import QtQuick
 import wisdom.chess 1.0
 
 FocusScope {

@@ -1,6 +1,6 @@
-import QtQuick 2.15
+import QtQuick 
 import wisdom.chess 1.0
-import QtQuick.Controls 2.15
+import QtQuick.Controls 
 
 Dialog {
     property alias text: firstLine.text
