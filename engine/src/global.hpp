@@ -2,6 +2,7 @@
 #define WISDOM_CHESS_GLOBAL_HPP
 
 #include <cstdint>
+#include <climits>
 #include <exception>
 #include <string>
 #include <utility>
@@ -44,6 +45,9 @@ namespace wisdom
     using std::nullopt;
     using std::array;
     using std::pair;
+
+    template <typename T>
+    using observer_ptr = T*;
 
     namespace chrono = std::chrono;
 

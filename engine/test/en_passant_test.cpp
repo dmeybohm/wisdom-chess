@@ -3,6 +3,7 @@
 
 #include "board.hpp"
 #include "generate.hpp"
+#include "coord.hpp"
 
 using namespace wisdom;
 
@@ -14,6 +15,9 @@ TEST_CASE( "en passant" )
 
         REQUIRE( !board.is_en_passant_vulnerable ( Color::White) );
         REQUIRE( !board.is_en_passant_vulnerable ( Color::Black) );
+
+        REQUIRE( board.get_en_passant_target (Color::White) == No_En_Passant_Coord );
+        REQUIRE( board.get_en_passant_target (Color::Black) == No_En_Passant_Coord );
 
         BoardBuilder builder;
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
@@ -51,16 +55,11 @@ TEST_CASE( "en passant" )
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
         MoveList move_list = move_generator.generate_all_potential_moves (board, Color::White);
-        std::optional<Move> optional_en_passant_move = nullopt;
+        auto maybe_en_passant_move = std::find_if (
+                move_list.begin (), move_list.end (), is_special_en_passant_move);
 
-        for (auto move : move_list)
-        {
-            if (is_special_en_passant_move (move))
-                optional_en_passant_move = move;
-        }
-
-        REQUIRE( optional_en_passant_move.has_value () );
-        auto en_passant_move = *optional_en_passant_move;
+        REQUIRE( maybe_en_passant_move != move_list.end () );
+        auto en_passant_move = *maybe_en_passant_move;
 
         // Check move types:
         REQUIRE( is_special_en_passant_move (en_passant_move) );
@@ -120,16 +119,11 @@ TEST_CASE( "en passant" )
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
         MoveList move_list = move_generator.generate_all_potential_moves (board, Color::White);
-        std::optional<Move> optional_en_passant_move = std::nullopt;
+        auto maybe_en_passant_move = std::find_if (
+                move_list.begin(), move_list.end (), is_special_en_passant_move);
 
-        for (auto move : move_list)
-        {
-            if (is_special_en_passant_move (move))
-                optional_en_passant_move = move;
-        }
-
-        REQUIRE( optional_en_passant_move.has_value () );
-        auto en_passant_move = *optional_en_passant_move;
+        REQUIRE( maybe_en_passant_move != move_list.end () );
+        auto en_passant_move = *maybe_en_passant_move;
 
         // Check move types:
         REQUIRE( is_special_en_passant_move (en_passant_move) );
