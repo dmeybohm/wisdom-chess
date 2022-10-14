@@ -67,6 +67,7 @@ namespace wisdom
         Piece promoted_piece_type: 4;
 
         MoveCategory move_category: 4;
+        bool is_packed_capacity: 2;
     };
 
     static_assert(std::is_trivial<Move>::value);
@@ -182,9 +183,41 @@ namespace wisdom
                 .promoted_color = Color::None,
                 .promoted_piece_type = Piece::None,
                 .move_category = MoveCategory::NormalMovement,
+                .is_packed_capacity = false
         };
 
         return result;
+    }
+
+    [[nodiscard]] constexpr auto make_move_with_packed_capacity (size_t size) noexcept
+        -> Move
+    {
+        assert (size <= 0xffff);
+        return Move {
+            .src_row = gsl::narrow_cast<int8_t>(size & 0x0000000f),
+            .src_col = gsl::narrow_cast<int8_t>((size & 0x000000f0) >> 4),
+            .dst_row = gsl::narrow_cast<int8_t>((size & 0x00000f00) >> 8),
+            .dst_col = gsl::narrow_cast<int8_t>((size & 0x0000f000) >> 12),
+            .promoted_color = Color::None,
+            .promoted_piece_type = Piece::None,
+            .move_category = MoveCategory::NormalMovement,
+            .is_packed_capacity = true
+        };
+    }
+
+    [[nodiscard]] constexpr auto extract_packed_capacity_from_move (Move move) noexcept
+        -> size_t
+    {
+        assert (move.is_packed_capacity);
+        int8_t src_row = move.src_row;
+        int8_t src_col = move.src_col;
+        int8_t dst_row = move.dst_row;
+        int8_t dst_col = move.dst_col;
+        uint8_t first = gsl::narrow_cast<uint8_t> (src_row);
+        uint8_t second = gsl::narrow_cast<uint8_t> (src_col);
+        uint8_t third = gsl::narrow_cast<uint8_t> (dst_row);
+        uint8_t fourth = gsl::narrow_cast<uint8_t> (dst_col);
+        return first | second << 4 | third << 8 | fourth << 12;
     }
 
     [[nodiscard]] constexpr auto make_regular_move (Coord src, Coord dst) noexcept
