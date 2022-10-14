@@ -110,6 +110,11 @@ namespace wisdom
         return static_cast<Piece>(integer);
     }
 
+    constexpr auto piece_from_int (int integer) -> Piece
+    {
+        return static_cast<Piece>(integer);
+    }
+
     constexpr auto color_from_int8 (int8_t integer) -> Color
     {
         return static_cast<Color>(integer);

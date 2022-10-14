@@ -15,6 +15,13 @@ TEST_CASE( "Parsing a move" )
     REQUIRE(make_regular_move (coord_parse ("e2"), coord_parse ("e4")) == with_spaces );
 }
 
+TEST_CASE( "Packing source and destination coordinates" )
+{
+    Move a7xc8 = move_parse ("a7xc8", Color::White);
+    CHECK( move_dst (a7xc8) == coord_parse ("c8") );
+    CHECK( move_src (a7xc8) == coord_parse ("a7") );
+}
+
 TEST_CASE( "Parsing an en-passant move" )
 {
     Move en_passant = move_parse ("   e4d5 ep   ", Color::White);

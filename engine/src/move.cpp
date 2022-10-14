@@ -610,10 +610,10 @@ namespace wisdom
             throw ParseMoveException ("Error parsing move: " + str);
 
         auto result = *optional_result;
+        auto move_category = get_move_category (result);
         if (color == Color::None &&
-            result.move_category != MoveCategory::NormalCapturing
-            &&
-            result.move_category != MoveCategory::NormalMovement)
+            move_category != MoveCategory::NormalCapturing &&
+            move_category != MoveCategory::NormalMovement)
         {
             throw ParseMoveException ("Invalid type of move in parse_simple_move");
         }

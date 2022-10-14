@@ -156,7 +156,7 @@ namespace wisdom
 
         this->remove (who, src, piece);
 
-        switch (move.move_category)
+        switch (get_move_category (move))
         {
             case MoveCategory::NormalMovement:
                 break;

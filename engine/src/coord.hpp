@@ -2,7 +2,6 @@
 #define WISDOM_CHESS_COORD_H
 
 #include "global.hpp"
-#include "piece.hpp"
 
 namespace wisdom
 {

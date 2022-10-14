@@ -57,10 +57,10 @@ namespace wisdom
 
     struct Move
     {
-        uint8_t src;
-        uint8_t dst;
-        uint8_t promoted_piece;
-        uint8_t move_category_and_packed_flag;
+        int8_t src;
+        int8_t dst;
+        int8_t promoted_piece;
+        int8_t move_category_and_packed_flag;
     };
     static_assert(sizeof(Move) == 4);
     static_assert(std::is_trivial<Move>::value);
@@ -85,27 +85,50 @@ namespace wisdom
 
     [[nodiscard]] constexpr auto move_src (Move mv) -> Coord
     {
-        return make_coord (mv.src & 0xf, mv.src >> 4);
+        return make_coord_from_index (mv.src);
     }
 
     [[nodiscard]] constexpr auto move_dst (Move mv) -> Coord
     {
-        return make_coord (mv.dst & 0xf, mv.dst >> 4);
+        return make_coord_from_index (mv.dst);
+    }
+
+    [[nodiscard]] constexpr auto move_category_from_int (int source) -> MoveCategory
+    {
+        assert (source < 4);
+        return static_cast<MoveCategory> (source);
+    }
+
+    [[nodiscard]] constexpr auto get_move_category (Move move) -> MoveCategory
+    {
+        return move_category_from_int (move.move_category_and_packed_flag);
+    }
+
+    [[nodiscard]] constexpr auto to_int (MoveCategory move_category) -> int
+    {
+        return static_cast<int> (move_category);
+    }
+
+    [[nodiscard]] constexpr auto to_int8 (MoveCategory move_category) -> int
+    {
+        return static_cast<int8_t> (move_category);
     }
 
     [[nodiscard]] constexpr auto is_promoting_move (Move move) -> bool
     {
-        return move.promoted_piece != static_cast<uint8_t> (Piece_And_Color_None.piece_type_and_color);
+        return move.promoted_piece != Piece_And_Color_None.piece_type_and_color;
     }
 
     [[nodiscard]] constexpr auto move_get_promoted_piece (Move move) -> ColoredPiece
     {
-        return piece_from_int8 (gsl::narrow_cast<int8_t> (move.promoted_piece)) ;
+        auto piece = piece_from_int (move.promoted_piece & 0xf);
+        auto color = (move.promoted_piece & 0x10) == 0x10 ? Color::Black : Color::White;
+        return make_piece (color, piece);
     }
 
     [[nodiscard]] constexpr auto is_normal_capturing_move (Move move) -> bool
     {
-        auto category = static_cast<MoveCategory> (move.move_category_and_packed_flag);
+        auto category = get_move_category (move);
         return category == MoveCategory::NormalCapturing;
     }
 
@@ -129,7 +152,8 @@ namespace wisdom
     [[nodiscard]] constexpr auto is_special_en_passant_move (Move move) noexcept
         -> bool
     {
-        return move.move_category == MoveCategory::SpecialEnPassant;
+        auto category = get_move_category (move);
+        return category == MoveCategory::SpecialEnPassant;
     }
 
     [[nodiscard]] constexpr auto is_any_capturing_move (Move move) noexcept
@@ -141,43 +165,48 @@ namespace wisdom
     [[nodiscard]] constexpr auto is_special_castling_move (Move move) noexcept
         -> bool
     {
-        auto category = static_cast<MoveCategory> (move.move_category_and_packed_flag);
+        auto category = get_move_category (move);
         return category == MoveCategory::SpecialCastling;
     }
 
     [[nodiscard]] constexpr auto is_castling_move_on_king_side (Move move) noexcept
         -> bool
     {
-        return is_special_castling_move (move) && move.dst_col == 6;
+        return is_special_castling_move (move) && Column (move_dst (move)) == 6;
     }
 
     [[nodiscard]] constexpr auto copy_move_with_promotion (Move move, ColoredPiece piece) noexcept
         -> Move
     {
         Move result = move;
-        result.promoted_piece_type = piece_type (piece);
-        result.promoted_color = piece_color (piece);
+        auto promoted_piece_type = to_int8 (piece_type (piece));
+        auto promoted_color_index = color_index (piece_color (piece));
+        result.promoted_piece = gsl::narrow_cast<int8_t> (
+            (promoted_color_index << 4) | (promoted_piece_type & 0xf)
+        );
         return result;
     }
 
     // run-of-the-mill move with no promotion or capturing involved
+    [[nodiscard]] constexpr auto make_regular_move (Coord src, Coord dst) noexcept
+        -> Move
+    {
+        return Move {
+            .src = gsl::narrow_cast<int8_t> (coord_index (src)),
+            .dst = gsl::narrow_cast<int8_t> (coord_index (dst)),
+            .promoted_piece = 0,
+            .move_category_and_packed_flag = 0,
+        };
+    }
+
     [[nodiscard]] constexpr auto make_regular_move (int src_row, int src_col,
                                                     int dst_row, int dst_col) noexcept
         -> Move
     {
-        assert (src_row >= 0 && src_row < Num_Rows);
-        assert (dst_row >= 0 && src_row < Num_Rows);
-        assert (src_col >= 0 && src_row < Num_Columns);
-        assert (dst_col >= 0 && src_row < Num_Columns);
+        Coord src = make_coord (src_row, src_col);
+        Coord dst = make_coord (dst_row, dst_col);
 
-        Move result = {
-                .src = gsl::narrow_cast<uint8_t>(src_row | (src_col << 4)),
-                .dst = gsl::narrow_cast<int8_t>(dst_row | (dst_col << 4)),
-                .promoted_piece = 0,
-                .move_category_and_packed_flag = 0,
-        };
-
-        return result;
+        return make_regular_move (src, dst);
     }
 
     [[nodiscard]] inline auto make_move_with_packed_capacity (size_t size) noexcept
@@ -185,27 +214,20 @@ namespace wisdom
     {
         assert (size <= 0xffffFFFF);
         return {
-            .src = size & 0xff;
-            .dst = (size >> 8) & 0xff;
-            .promoted_piece = (size >> 16) & 0xff;
-            .move_category_and_packed_flag = (size >> 24) & 0xff;
+            .src = gsl::narrow_cast<int8_t> (size & 0x7f),
+            .dst = gsl::narrow_cast<int8_t> ((size >> 8) & 0x7f),
+            .promoted_piece = gsl::narrow_cast<int8_t> ((size >> 16) & 0x7f),
+            .move_category_and_packed_flag = gsl::narrow_cast<int8_t> ((size >> 24) & 0x7f),
         };
     }
 
     [[nodiscard]] inline auto extract_packed_capacity_from_move (Move move) noexcept
         -> size_t
     {
-        return result.src |
-            (result.dst << 8)
-            (result.promoted_piece << 16)
-            (result.move_category_and_packed_flag << 24)
-    }
-
-    [[nodiscard]] constexpr auto make_regular_move (Coord src, Coord dst) noexcept
-        -> Move
-    {
-        return make_regular_move (Row (src), Column (src),
-                                  Row (dst), Column (dst));
+        return move.src |
+            (move.dst << 8) |
+            (move.promoted_piece << 16) |
+            (move.move_category_and_packed_flag << 24);
     }
 
     [[nodiscard]] constexpr auto make_normal_capturing_move (int src_row, int src_col,
@@ -213,7 +235,7 @@ namespace wisdom
         -> Move
     {
         Move move = make_regular_move (src_row, src_col, dst_row, dst_col);
-        move.move_category_and_packed_flag = static_cast<MoveCategory> (MoveCategory::NormalCapturing);
+        move.move_category_and_packed_flag = to_int8 (MoveCategory::NormalCapturing);
         return move;
     }
 
@@ -222,7 +244,7 @@ namespace wisdom
         -> Move
     {
         Move move = make_regular_move (src_row, src_col, dst_row, dst_col);
-        move.move_category_and_packed_flag = static_cast<MoveCategory> (MoveCategory::SpecialCastling);
+        move.move_category_and_packed_flag = to_int8 (MoveCategory::SpecialCastling);
         return move;
     }
 
@@ -247,10 +269,11 @@ namespace wisdom
     {
         Coord src = move_src (move);
         Coord dst = move_dst (move);
-        assert (move.move_category == MoveCategory::NormalMovement);
+        assert (move.move_category_and_packed_flag == to_int8 (MoveCategory::NormalMovement));
+
         Move result = make_regular_move (Row (src), Column (src),
                                          Row (dst), Column (dst));
-        move.move_category_and_packed_flag = static_cast<MoveCategory> (MoveCategory::NormalCapturing);
+        result.move_category_and_packed_flag = to_int8 (MoveCategory::NormalCapturing);
         return result;
     }
 
@@ -261,7 +284,7 @@ namespace wisdom
         -> Move
     {
         Move move = make_regular_move (src_row, src_col, dst_row, dst_col);
-        move.move_category_and_packed_flag = static_cast<MoveCategory> (MoveCategory::SpecialEnPassant);
+        move.move_category_and_packed_flag = to_int8 (MoveCategory::SpecialEnPassant);
         return move;
     }
 
@@ -278,7 +301,7 @@ namespace wisdom
         return a.src == b.src &&
                a.dst == b.dst &&
                a.promoted_piece == b.promoted_piece &&
-               a.move_category_and_packed_flag == b.move_category_and_packed_flag
+               a.move_category_and_packed_flag == b.move_category_and_packed_flag;
     }
 
     constexpr auto operator== (Move a, Move b) noexcept
