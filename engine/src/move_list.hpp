@@ -28,7 +28,7 @@ namespace wisdom
 
         static void move_list_append (MoveListPtr& move_list_ptr, std::size_t position, Move move) noexcept
         {
-            size_t old_capacity = extract_packed_capacity_from_move (move_list_ptr[0]);
+            size_t old_capacity = unpack_capacity_from_move (move_list_ptr[0]);
             assert (position <= old_capacity);
 
             if (position == old_capacity)

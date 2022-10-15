@@ -11,6 +11,8 @@ namespace wisdom
 
     using CastlingState = uint8_t;
 
+    static constexpr size_t Max_Packed_Capacity_In_Move = 0x0fffFFFFL; // 28 bit max
+
     constexpr uint8_t
             Castle_None = 0b000U;      // still eligible to castle on both sides
     constexpr uint8_t
@@ -212,22 +214,22 @@ namespace wisdom
     [[nodiscard]] inline auto make_move_with_packed_capacity (size_t size) noexcept
         -> Move
     {
-        assert (size <= 0xffffFFFF);
+        assert (size <= Max_Packed_Capacity_In_Move);
         return {
             .src = gsl::narrow_cast<int8_t> (size & 0x7f),
-            .dst = gsl::narrow_cast<int8_t> ((size >> 8) & 0x7f),
-            .promoted_piece = gsl::narrow_cast<int8_t> ((size >> 16) & 0x7f),
-            .move_category_and_packed_flag = gsl::narrow_cast<int8_t> ((size >> 24) & 0x7f),
+            .dst = gsl::narrow_cast<int8_t> ((size >> 7) & 0x7f),
+            .promoted_piece = gsl::narrow_cast<int8_t> ((size >> 14) & 0x7f),
+            .move_category_and_packed_flag = gsl::narrow_cast<int8_t> ((size >> 21) & 0x7f),
         };
     }
 
-    [[nodiscard]] inline auto extract_packed_capacity_from_move (Move move) noexcept
+    [[nodiscard]] inline auto unpack_capacity_from_move (Move move) noexcept
         -> size_t
     {
         return move.src |
-            (move.dst << 8) |
-            (move.promoted_piece << 16) |
-            (move.move_category_and_packed_flag << 24);
+            (move.dst << 7) |
+            (move.promoted_piece << 14) |
+            (move.move_category_and_packed_flag << 21);
     }
 
     [[nodiscard]] constexpr auto make_normal_capturing_move (int src_row, int src_col,

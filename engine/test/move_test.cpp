@@ -243,3 +243,46 @@ TEST_CASE("Mapping coordinates to moves")
         CHECK( *result == expected );
     }
 }
+
+TEST_CASE( "Packing and unpacking a size" )
+{
+    SUBCASE( "Less than 128")
+    {
+        size_t capacity = 72;
+
+        Move packed_move = make_move_with_packed_capacity (capacity);
+        size_t result = unpack_capacity_from_move (packed_move);
+
+        REQUIRE( result == capacity );
+    }
+
+    SUBCASE( "More than 128" )
+    {
+        size_t capacity = 240;
+
+        Move packed_move = make_move_with_packed_capacity (capacity);
+        size_t result = unpack_capacity_from_move (packed_move);
+
+        REQUIRE( result == capacity );
+    }
+
+    SUBCASE( "More than 32768" )
+    {
+        size_t capacity = 71528;
+
+        Move packed_move = make_move_with_packed_capacity (capacity);
+        size_t result = unpack_capacity_from_move (packed_move);
+
+        REQUIRE( result == capacity );
+    }
+
+    SUBCASE( "Serialize maximum" )
+    {
+        size_t capacity = 0x0fffFFFF;
+
+        Move packed_move = make_move_with_packed_capacity (capacity);
+        size_t result = unpack_capacity_from_move (packed_move);
+
+        REQUIRE( result == capacity );
+    }
+}
