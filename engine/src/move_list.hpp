@@ -15,28 +15,37 @@ namespace wisdom
     private:
         vector<MoveListPtr> my_move_list_ptrs;
 
+        MoveListAllocator () = default;
+
     public:
         static constexpr std::size_t Initial_Size = 16;
         static constexpr std::size_t Size_Increment = 32;
 
+        static auto make_unique () -> unique_ptr<MoveListAllocator>
+        {
+            // to keep constructor private, use raw  new list instead
+            // of making std::unique_ptr a friend function:
+           return unique_ptr<MoveListAllocator> (new MoveListAllocator ());
+        }
+
         static auto default_alloc_move_list () -> MoveListPtr
         {
-            auto new_list = make_unique<Move[]> (Initial_Size + 1);
-            new_list[0] = make_move_with_packed_capacity (Initial_Size);
+            auto new_list = std::make_unique<Move[]> (Initial_Size + 1);
+            new_list[0] = Move::make_as_packed_capacity (Initial_Size);
             return new_list;
         }
 
         static void move_list_append (MoveListPtr& move_list_ptr, std::size_t position, Move move) noexcept
         {
-            size_t old_capacity = unpack_capacity_from_move (move_list_ptr[0]);
+            size_t old_capacity = move_list_ptr[0].to_unpacked_capacity ();
             assert (position <= old_capacity);
 
             if (position == old_capacity)
             {
                 size_t new_capacity = old_capacity + MoveListAllocator::Size_Increment;
 
-                auto new_list = make_unique<Move[]> (new_capacity + 1);
-                new_list[0] = make_move_with_packed_capacity (new_capacity);
+                auto new_list = std::make_unique<Move[]> (new_capacity + 1);
+                new_list[0] = Move::make_as_packed_capacity (new_capacity);
                 std::copy (&move_list_ptr[1], &move_list_ptr[1] + old_capacity, &new_list[1]);
                 move_list_ptr = std::move (new_list);
             }
@@ -104,20 +113,6 @@ namespace wisdom
         MoveList& operator= (const MoveList& other) = delete;
 
         MoveList (MoveList&& other) noexcept = default;
-
-        // Implement std::swappable
-        friend void swap (MoveList& first, MoveList& second) noexcept
-        {
-            first.swap (second);
-        }
-
-        void swap (MoveList& other) noexcept
-        {
-            std::swap (my_moves_list, other.my_moves_list);
-            std::swap (my_allocator, other.my_allocator);
-            std::swap (my_size, other.my_size);
-        }
-
         MoveList& operator= (MoveList&& other) noexcept = default;
 
         void push_back (Move move) noexcept

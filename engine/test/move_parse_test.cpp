@@ -17,8 +17,8 @@ TEST_CASE( "move_parse" )
     SUBCASE( "color matters in move_parse" )
     {
         Move castle = move_parse ("o-o", Color::Black);
-        CHECK( Row (move_src (castle)) == 0 );
-        CHECK( Row (move_dst (castle)) == 0 );
+        CHECK( Row (castle.get_src ()) == 0 );
+        CHECK( Row (castle.get_dst ()) == 0 );
         CHECK( move_equals (castle, move_parse ("o-o", Color::Black)) );
     }
 

@@ -148,17 +148,17 @@ namespace wisdom
     {
         Color opponent = color_invert (who);
 
-        Coord src = move_src (move);
-        Coord dst = move_dst (move);
+        Coord src = move.get_src ();
+        Coord dst = move.get_dst ();
 
         undo_state->position_score[color_index (who)] = my_score[color_index (who)];
         undo_state->position_score[color_index (opponent)] = my_score[color_index (opponent)];
 
         this->remove (who, src, piece);
 
-        switch (get_move_category (move))
+        switch (move.get_move_category ())
         {
-            case MoveCategory::NormalMovement:
+            case MoveCategory::Default:
                 break;
 
             case MoveCategory::NormalCapturing:
@@ -169,22 +169,22 @@ namespace wisdom
                 }
                 break;
 
-            case MoveCategory::SpecialEnPassant:
+            case MoveCategory::EnPassant:
                 {
                     Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
                     this->remove (opponent, taken_pawn_coord, make_piece (opponent, Piece::Pawn));
                 }
                 break;
 
-            case MoveCategory::SpecialCastling:
+            case MoveCategory::Castling:
                 {
                     int8_t rook_src_row = castling_row_from_color (who);
                     auto rook_src_col = gsl::narrow_cast<int8_t> (
-                        is_castling_move_on_king_side (move)
+                        move.is_castling_on_kingside ()
                             ? King_Rook_Column : Queen_Rook_Column
                     );
                     auto rook_dst_col = gsl::narrow_cast<int8_t> (
-                        is_castling_move_on_king_side (move)
+                        move.is_castling_on_kingside ()
                             ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column
                     );
 
@@ -201,8 +201,7 @@ namespace wisdom
                 throw Error { "Invalid move type." };
         }
 
-        ColoredPiece dst_piece = is_promoting_move (move) ?
-                                 move_get_promoted_piece (move) : piece;
+        ColoredPiece dst_piece = move.is_promoting () ? move.get_promoted_piece () : piece;
 
         this->add (who, dst, dst_piece);
     }

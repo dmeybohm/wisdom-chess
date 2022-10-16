@@ -54,25 +54,26 @@ TEST_CASE( "en passant" )
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::Black) );
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
+        auto is_en_passant_move = [](Move move) { return move.is_en_passant (); };
         MoveList move_list = move_generator.generate_all_potential_moves (board, Color::White);
         auto maybe_en_passant_move = std::find_if (
-                move_list.begin (), move_list.end (), is_special_en_passant_move);
+                move_list.begin (), move_list.end (), is_en_passant_move);
 
         REQUIRE( maybe_en_passant_move != move_list.end () );
         auto en_passant_move = *maybe_en_passant_move;
 
         // Check move types:
-        REQUIRE( is_special_en_passant_move (en_passant_move) );
+        REQUIRE(en_passant_move.is_en_passant () );
 
         // Check position:
-        REQUIRE( Row (move_src (en_passant_move)) == 3 );
-        REQUIRE( Column (move_src (en_passant_move)) == 4 );
-        REQUIRE( Row (move_dst (en_passant_move)) == 2 );
-        REQUIRE( Column (move_dst (en_passant_move)) == 5 );
+        REQUIRE( Row (en_passant_move.get_src ()) == 3 );
+        REQUIRE( Column (en_passant_move.get_src ()) == 4 );
+        REQUIRE( Row (en_passant_move.get_dst ()) == 2 );
+        REQUIRE( Column (en_passant_move.get_dst ()) == 5 );
 
         UndoMove en_passant_undo_state = board.make_move (Color::White, en_passant_move);
 
-        REQUIRE( en_passant_undo_state.category == MoveCategory::SpecialEnPassant);
+        REQUIRE( en_passant_undo_state.category == MoveCategory::EnPassant);
         REQUIRE( is_en_passant_vulnerable (en_passant_undo_state, Color::Black) );
         REQUIRE( !is_en_passant_vulnerable (en_passant_undo_state, Color::White) );
 
@@ -119,24 +120,25 @@ TEST_CASE( "en passant" )
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
         MoveList move_list = move_generator.generate_all_potential_moves (board, Color::White);
+        auto is_en_passant_move = [](Move move) { return move.is_en_passant (); };
         auto maybe_en_passant_move = std::find_if (
-                move_list.begin(), move_list.end (), is_special_en_passant_move);
+                move_list.begin(), move_list.end (), is_en_passant_move);
 
         REQUIRE( maybe_en_passant_move != move_list.end () );
         auto en_passant_move = *maybe_en_passant_move;
 
         // Check move types:
-        REQUIRE( is_special_en_passant_move (en_passant_move) );
+        REQUIRE(en_passant_move.is_en_passant () );
 
         // Check position:
-        REQUIRE( Row (move_src (en_passant_move)) == 3 );
-        REQUIRE( Column (move_src (en_passant_move)) == 4 );
-        REQUIRE( Row (move_dst (en_passant_move)) == 2 );
-        REQUIRE( Column (move_dst (en_passant_move)) == 3 );
+        REQUIRE( Row (en_passant_move.get_src ()) == 3 );
+        REQUIRE( Column (en_passant_move.get_src ()) == 4 );
+        REQUIRE( Row (en_passant_move.get_dst ()) == 2 );
+        REQUIRE( Column (en_passant_move.get_dst ()) == 3 );
 
         UndoMove en_passant_undo_state = board.make_move (Color::White, en_passant_move);
 
-        REQUIRE( en_passant_undo_state.category == MoveCategory::SpecialEnPassant);
+        REQUIRE( en_passant_undo_state.category == MoveCategory::EnPassant);
         REQUIRE( is_en_passant_vulnerable (en_passant_undo_state, Color::Black) );
         REQUIRE( !is_en_passant_vulnerable (en_passant_undo_state, Color::White) );
 
