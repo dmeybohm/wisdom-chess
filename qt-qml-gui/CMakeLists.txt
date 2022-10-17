@@ -65,7 +65,7 @@ qt_add_qml_module(appWisdomChessQtQml
     VERSION 1.0
     QML_FILES
         Board.qml
-        BoardDimensions.qml
+        UISettings.qml
         ChessSquare.qml
         Dialogs.qml
         Piece.qml

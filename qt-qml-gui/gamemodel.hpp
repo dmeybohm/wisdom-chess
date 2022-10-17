@@ -56,26 +56,6 @@ class GameModel : public QObject
                WRITE setInCheck
                NOTIFY inCheckChanged)
 
-    Q_PROPERTY(bool whiteIsComputer
-               READ whiteIsComputer
-               WRITE setWhiteIsComputer
-               NOTIFY whiteIsComputerChanged)
-
-    Q_PROPERTY(bool blackIsComputer
-               READ blackIsComputer
-               WRITE setBlackIsComputer
-               NOTIFY blackIsComputerChanged)
-
-    Q_PROPERTY(int maxDepth
-               READ maxDepth
-               WRITE setMaxDepth
-               NOTIFY maxDepthChanged)
-
-    Q_PROPERTY(int maxSearchTime
-               READ maxSearchTime
-               WRITE setMaxSearchTime
-               NOTIFY maxSearchTimeChanged)
-
 public:
     explicit GameModel(QObject *parent = nullptr);
     ~GameModel() override;
@@ -108,17 +88,10 @@ public:
     void setFiftyMovesWithoutProgressDrawAnswered(bool drawProposedToHuman);
     [[nodiscard]] auto fiftyMovesWithoutProgressDrawAnswered() const -> bool;
 
-    void setWhiteIsComputer(bool newWhiteIsComputer);
-    [[nodiscard]] auto whiteIsComputer() const -> bool;
-
-    void setBlackIsComputer(bool newBlackIsComputer);
-    [[nodiscard]] auto blackIsComputer() const -> bool;
-
-    void setMaxDepth(int maxDepth);
-    [[nodiscard]] auto maxDepth() const -> int;
-
-    void setMaxSearchTime(int maxSearchTime);
-    [[nodiscard]] auto maxSearchTime() const -> int;
+    Q_INVOKABLE void setWhiteIsComputer(bool newWhiteIsComputer);
+    Q_INVOKABLE void setBlackIsComputer(bool newBlackIsComputer);
+    Q_INVOKABLE void setMaxDepth(int maxDepth);
+    Q_INVOKABLE void setMaxSearchTime(int maxSearchTime);
 
 signals:
     // The game object here is readonly.
@@ -138,10 +111,6 @@ signals:
     void gameOverStatusChanged();
     void moveStatusChanged();
     void inCheckChanged();
-    void whiteIsComputerChanged();
-    void blackIsComputerChanged();
-    void maxDepthChanged();
-    void maxSearchTimeChanged();
 
     // Use a property to communicate to QML and the human player:
     void thirdRepetitionDrawProposedChanged();

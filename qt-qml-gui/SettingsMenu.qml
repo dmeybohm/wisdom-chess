@@ -30,13 +30,13 @@ Menu {
 
             RadioButton {
                 text: "Human"
-                checked: !_myGameModel.whiteIsComputer
-                onClicked: _myGameModel.whiteIsComputer = false
+                checked: !uiSettings.whiteIsComputer
+                onClicked: uiSettings.whiteIsComputer = false
             }
             RadioButton {
                 text: "Computer"
-                checked: _myGameModel.whiteIsComputer
-                onClicked: _myGameModel.whiteIsComputer = true
+                checked: uiSettings.whiteIsComputer
+                onClicked: uiSettings.whiteIsComputer = true
             }
         }
     }
@@ -53,13 +53,13 @@ Menu {
 
             RadioButton {
                 text: "Human"
-                checked: !_myGameModel.blackIsComputer
-                onClicked: _myGameModel.blackIsComputer = false
+                checked: !uiSettings.blackIsComputer
+                onClicked: uiSettings.blackIsComputer = false
             }
             RadioButton {
                 text: "Computer"
-                checked: _myGameModel.blackIsComputer
-                onClicked: _myGameModel.blackIsComputer = true
+                checked: uiSettings.blackIsComputer
+                onClicked: uiSettings.blackIsComputer = true
             }
         }
     }
@@ -73,8 +73,8 @@ Menu {
             anchors.bottom: parent.bottom
             anchors.rightMargin: 10
             CheckBox {
-                checked: boardDimensions.flipped
-                onClicked: boardDimensions.flipped = !boardDimensions.flipped
+                checked: uiSettings.flipped
+                onClicked: uiSettings.flipped = !uiSettings.flipped
             }
         }
     }
@@ -95,7 +95,7 @@ Menu {
 
         Slider {
             id: thinkingTimeSlider
-            value: _myGameModel.maxSearchTime
+            value: uiSettings.maxSearchTime
             visible: internal.menuIsFullyVisible
             width: 150
             anchors {
@@ -106,7 +106,7 @@ Menu {
             from: 1
             to: 30
             onValueChanged: {
-                _myGameModel.maxSearchTime = parseInt(value, 10)
+                uiSettings.maxSearchTime = parseInt(value, 10)
             }
         }
     }
@@ -126,7 +126,7 @@ Menu {
         Slider {
             id: maxDepthSlider
             visible: internal.menuIsFullyVisible
-            value: _myGameModel.maxDepth
+            value: uiSettings.maxDepth
             width: thinkingTimeSlider.width
             anchors {
                 right: maxDepthItem.right
@@ -136,7 +136,7 @@ Menu {
             to: 8
             stepSize: 1
             onValueChanged: {
-                _myGameModel.maxDepth = parseInt(value, 10)
+                uiSettings.maxDepth = parseInt(value, 10)
             }
         }
     }
@@ -150,7 +150,7 @@ Menu {
         }
     }
 
-    Item {
+    QtObject {
         id: internal
         property bool menuIsFullyVisible: settingsMenu.width >= settingsMenu.implicitWidth
 

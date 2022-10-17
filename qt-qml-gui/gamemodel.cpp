@@ -1,8 +1,6 @@
 #include "gamemodel.hpp"
 
 #include "game.hpp"
-#include "generate.hpp"
-#include "fen_parser.hpp"
 #include "check.hpp"
 
 #include <QDebug>
@@ -501,23 +499,12 @@ void GameModel::resetStateForNewGame()
     setFiftyMovesWithoutProgressDrawProposed(false);
 }
 
-auto GameModel::whiteIsComputer() const -> bool
-{
-    return myWhiteIsComputer;
-}
-
 void GameModel::setWhiteIsComputer(bool newWhiteIsComputer)
 {
     if (myWhiteIsComputer != newWhiteIsComputer) {
         myWhiteIsComputer = newWhiteIsComputer;
         updateInternalGameState();
-        emit whiteIsComputerChanged();
     }
-}
-
-auto GameModel::blackIsComputer() const -> bool
-{
-    return myBlackIsComputer;
 }
 
 void GameModel::setMaxDepth(int maxDepth)
@@ -525,13 +512,7 @@ void GameModel::setMaxDepth(int maxDepth)
     if (myMaxDepth != maxDepth) {
         myMaxDepth = maxDepth;
         debouncedUpdateConfig();
-        emit maxDepthChanged();
     }
-}
-
-auto GameModel::maxDepth() const -> int
-{
-    return myMaxDepth;
 }
 
 void GameModel::setMaxSearchTime(int maxSearchTime)
@@ -539,13 +520,7 @@ void GameModel::setMaxSearchTime(int maxSearchTime)
     if (maxSearchTime != myMaxSearchTime) {
         myMaxSearchTime = maxSearchTime;
         debouncedUpdateConfig();
-        emit maxSearchTimeChanged();
     }
-}
-
-auto GameModel::maxSearchTime() const -> int
-{
-    return myMaxSearchTime;
 }
 
 void GameModel::setBlackIsComputer(bool newBlackIsComputer)
@@ -553,7 +528,6 @@ void GameModel::setBlackIsComputer(bool newBlackIsComputer)
     if (myBlackIsComputer != newBlackIsComputer) {
         myBlackIsComputer = newBlackIsComputer;
         updateInternalGameState();
-        emit blackIsComputerChanged();
     }
 }
 

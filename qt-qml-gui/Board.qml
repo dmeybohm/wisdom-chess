@@ -10,7 +10,7 @@ Item {
     height: topWindow.boardHeight
 
     property var animateRowAndColChange: myPiecesLayer.animateRowAndColChange
-    property bool flipped: boardDimensions.flipped
+    property bool flipped: uiSettings.flipped
 
     function onFocusObjectChanged(oldObject, newObject) {
         if (oldObject && newObject &&
