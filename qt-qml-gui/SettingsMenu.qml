@@ -64,6 +64,21 @@ Menu {
         }
     }
 
+    MenuItem {
+        text: "Flip Board"
+
+        RowLayout {
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: 10
+            CheckBox {
+                checked: boardDimensions.flipped
+                onClicked: boardDimensions.flipped = !boardDimensions.flipped
+            }
+        }
+    }
+
     MenuSeparator {}
 
     MenuItem {
@@ -135,7 +150,7 @@ Menu {
         }
     }
 
-    QtObject {
+    Item {
         id: internal
         property bool menuIsFullyVisible: settingsMenu.width >= settingsMenu.implicitWidth
 

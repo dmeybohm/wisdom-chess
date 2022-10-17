@@ -19,3 +19,7 @@ function computerOrHumanLabel(x)
 function zeroPad(num) {
     return num < 10 ? "0" + num : "" + num
 }
+
+function targetRowOrCol(flipped, rowOrCol) {
+    return flipped ? 8 - rowOrCol - 1 : rowOrCol
+}

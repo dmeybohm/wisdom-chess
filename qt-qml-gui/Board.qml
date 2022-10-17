@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import wisdom.chess 1.0
+import "Helper.js" as Helper
 
 Item {
     id: myGridAndPieces
@@ -8,22 +10,24 @@ Item {
     height: topWindow.boardHeight
 
     property var animateRowAndColChange: myPiecesLayer.animateRowAndColChange
+    property bool flipped: boardDimensions.flipped
 
     function onFocusObjectChanged(oldObject, newObject) {
         if (oldObject && newObject &&
                 'boardRow' in oldObject && 'boardRow' in newObject
         ) {
             myPiecesLayer.animateRowAndColChange(
-                oldObject.boardRow,
-                oldObject.boardColumn,
-                newObject.boardRow,
-                newObject.boardColumn
+                Helper.targetRowOrCol(flipped, oldObject.boardRow),
+                Helper.targetRowOrCol(flipped, oldObject.boardColumn),
+                Helper.targetRowOrCol(flipped, newObject.boardRow),
+                Helper.targetRowOrCol(flipped, newObject.boardColumn)
             )
             newObject.focus = false
         }
     }
 
     Grid {
+        id: squareBackground
         width: topWindow.boardWidth
         height: topWindow.boardHeight
         columns: 8
@@ -65,8 +69,8 @@ Item {
             model: _myPiecesModel
             delegate: Piece {
                 source: model.pieceImage
-                column: model.column
-                row: model.row
+                column: flipped ? 8 - model.column - 1: model.column
+                row: flipped ? 8 - model.row - 1: model.row
             }
         }
 
