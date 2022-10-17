@@ -27,6 +27,7 @@ QtObject {
         return Math.min(maxWidth, maxHeight, 64)
     }
 
+
     //
     // Update the settings on the game model when they change:
     //

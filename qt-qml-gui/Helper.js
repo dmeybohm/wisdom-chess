@@ -27,7 +27,6 @@ function targetRowOrCol(flipped, rowOrCol) {
 function promotedRow(flipped, row) {
     var shouldShiftRow = targetRowOrCol(flipped, 7);
     var shiftUpwardsRow = targetRowOrCol(flipped, 3);
-    console.log('row: '+row)
     return row === shouldShiftRow ? shiftUpwardsRow : targetRowOrCol(flipped, row);
 }
 
