@@ -23,3 +23,14 @@ function zeroPad(num) {
 function targetRowOrCol(flipped, rowOrCol) {
     return flipped ? 8 - rowOrCol - 1 : rowOrCol
 }
+
+function promotedRow(flipped, row) {
+    var shouldShiftRow = targetRowOrCol(flipped, 7);
+    var shiftUpwardsRow = targetRowOrCol(flipped, 3);
+    console.log('row: '+row)
+    return row === shouldShiftRow ? shiftUpwardsRow : targetRowOrCol(flipped, row);
+}
+
+function promotedColumn(flipped, column) {
+    return targetRowOrCol(flipped, column);
+}

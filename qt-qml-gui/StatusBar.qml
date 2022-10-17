@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Layouts 
-import wisdom.chess 1.0
+import WisdomChess 1.0
 
 ColumnLayout {
     id: statusBar

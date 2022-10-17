@@ -7,10 +7,7 @@
 #include <QTimer>
 
 #include "chesscolor.hpp"
-#include "chessengine.hpp"
 #include "chessgame.hpp"
-#include "piecesmodel.hpp"
-#include "gamestate.hpp"
 
 class GameModel : public QObject
 {

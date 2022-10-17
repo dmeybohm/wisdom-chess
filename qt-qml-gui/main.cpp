@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    auto mainQmlFile = QString { "qrc:/WisdomChessQtQml/" } + QString { MAIN_QML_FILE };
+    auto mainQmlFile = QString { "qrc:/WisdomChess/" } + QString { MAIN_QML_FILE };
     const QUrl url { mainQmlFile };
 
     qDebug() << "Creating URL";

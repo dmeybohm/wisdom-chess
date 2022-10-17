@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import wisdom.chess 1.0
+import WisdomChess 1.0
 import "Helper.js" as Helper
 
 Item {
@@ -84,6 +84,8 @@ Item {
                 promotionDropDown.sourceColumn = sourceCol
                 promotionDropDown.destinationRow = dstRow
                 promotionDropDown.destinationColumn = dstCol
+                promotionDropDown.drawAtRow = Helper.promotedRow(flipped, dstRow)
+                promotionDropDown.drawAtColumn = Helper.promotedColumn(flipped, dstCol)
                 return;
             }
             if (_myGameModel.gameOverStatus === "") {

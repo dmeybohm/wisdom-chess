@@ -2,6 +2,7 @@
 
 #include "game.hpp"
 #include "check.hpp"
+#include "chessengine.hpp"
 
 #include <QDebug>
 #include <QTimer>

@@ -1,5 +1,5 @@
 import QtQuick
-import wisdom.chess 1.0
+import WisdomChess 1.0
 
 FocusScope {
     id: dropDownTop
@@ -7,11 +7,13 @@ FocusScope {
     property int destinationColumn: 0
     property int sourceRow: 0
     property int sourceColumn: 0
+    property int drawAtRow: 0
+    property int drawAtColumn: 0
 
     transform: Translate {
         id: myTranslation
-        x: destinationColumn * topWindow.squareSize
-        y: destinationRow * topWindow.squareSize
+        x: drawAtColumn * topWindow.squareSize
+        y: drawAtRow * topWindow.squareSize
     }
 
     Rectangle {

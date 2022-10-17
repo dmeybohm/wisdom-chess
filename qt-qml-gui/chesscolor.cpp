@@ -5,7 +5,7 @@ void wisdom::chess::registerChessColorQmlType()
 {
     qmlRegisterUncreatableMetaObject(
         wisdom::chess::staticMetaObject,
-        "wisdom.chess",
+        "WisdomChess",
         1, 0,
         "ChessColor",
         "Not creatable as it is an enum type"

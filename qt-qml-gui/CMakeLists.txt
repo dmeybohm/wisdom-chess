@@ -38,7 +38,6 @@ qt_add_executable(appWisdomChessQtQml
     chessengine.cpp
     chesscolor.cpp
     chesscolor.hpp
-    gamestate.hpp
     ${app_icon_resource_windows}
     ${app_icon_macos}
 )
@@ -61,7 +60,7 @@ else()
 endif()
 
 qt_add_qml_module(appWisdomChessQtQml
-    URI WisdomChessQtQml
+    URI WisdomChess
     VERSION 1.0
     QML_FILES
         Board.qml
