@@ -54,10 +54,9 @@ TEST_CASE( "en passant" )
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::Black) );
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
-        auto is_en_passant_move = [](Move move) { return move.is_en_passant (); };
         MoveList move_list = move_generator.generate_all_potential_moves (board, Color::White);
         auto maybe_en_passant_move = std::find_if (
-                move_list.begin (), move_list.end (), is_en_passant_move);
+                move_list.begin (), move_list.end (), std::mem_fn (&Move::is_en_passant));
 
         REQUIRE( maybe_en_passant_move != move_list.end () );
         auto en_passant_move = *maybe_en_passant_move;
@@ -120,9 +119,8 @@ TEST_CASE( "en passant" )
         REQUIRE( !is_en_passant_vulnerable (first_undo_state, Color::White) );
 
         MoveList move_list = move_generator.generate_all_potential_moves (board, Color::White);
-        auto is_en_passant_move = [](Move move) { return move.is_en_passant (); };
         auto maybe_en_passant_move = std::find_if (
-                move_list.begin(), move_list.end (), is_en_passant_move);
+                move_list.begin(), move_list.end (), std::mem_fn (&Move::is_en_passant));
 
         REQUIRE( maybe_en_passant_move != move_list.end () );
         auto en_passant_move = *maybe_en_passant_move;
