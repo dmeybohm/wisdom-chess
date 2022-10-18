@@ -12,15 +12,31 @@ Item {
     property var animateRowAndColChange: myPiecesLayer.animateRowAndColChange
     property bool flipped: uiSettings.flipped
 
+    transform: Rotation {
+        origin.x: width / 2
+        origin.y: height / 2
+        angle: flipped ? 180 : 0
+        axis.x: 1
+        axis.y: 0
+        axis.z: 0
+
+        Behavior on angle {
+            NumberAnimation {
+                easing.type: Easing.OutExpo
+                duration: root.animationDelay * 2
+            }
+        }
+    }
+
     function onFocusObjectChanged(oldObject, newObject) {
         if (oldObject && newObject &&
                 'boardRow' in oldObject && 'boardRow' in newObject
         ) {
             myPiecesLayer.animateRowAndColChange(
-                Helper.targetRowOrCol(flipped, oldObject.boardRow),
-                Helper.targetRowOrCol(flipped, oldObject.boardColumn),
-                Helper.targetRowOrCol(flipped, newObject.boardRow),
-                Helper.targetRowOrCol(flipped, newObject.boardColumn)
+                oldObject.boardRow,
+                oldObject.boardColumn,
+                newObject.boardRow,
+                newObject.boardColumn
             )
             newObject.focus = false
         }
@@ -53,6 +69,7 @@ Item {
         visible: activeFocus
         focus: false
         z: 1
+        flipped: myGridAndPieces.flipped
     }
 
     //
@@ -69,14 +86,13 @@ Item {
             model: _myPiecesModel
             delegate: Piece {
                 source: model.pieceImage
-                column: flipped ? 8 - model.column - 1: model.column
-                row: flipped ? 8 - model.row - 1: model.row
+                row: model.row
+                column: model.column
+                flipped: myGridAndPieces.flipped
             }
         }
 
         function animateRowAndColChange(sourceRow, sourceCol, dstRow, dstCol) {
-            console.log('animateRowAndColChange');
-
             promotionDropDown.focus = false
             if (_myGameModel.needsPawnPromotion(sourceRow, sourceCol, dstRow, dstCol)) {
                 promotionDropDown.focus = true
@@ -84,8 +100,8 @@ Item {
                 promotionDropDown.sourceColumn = sourceCol
                 promotionDropDown.destinationRow = dstRow
                 promotionDropDown.destinationColumn = dstCol
-                promotionDropDown.drawAtRow = Helper.promotedRow(flipped, dstRow)
-                promotionDropDown.drawAtColumn = Helper.promotedColumn(flipped, dstCol)
+                promotionDropDown.drawAtRow = Helper.promotedRow(dstRow)
+                promotionDropDown.drawAtColumn = dstCol
                 return;
             }
             if (_myGameModel.gameOverStatus === "") {

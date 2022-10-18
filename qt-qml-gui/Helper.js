@@ -24,12 +24,6 @@ function targetRowOrCol(flipped, rowOrCol) {
     return flipped ? 8 - rowOrCol - 1 : rowOrCol
 }
 
-function promotedRow(flipped, row) {
-    var shouldShiftRow = targetRowOrCol(flipped, 7);
-    var shiftUpwardsRow = targetRowOrCol(flipped, 3);
-    return row === shouldShiftRow ? shiftUpwardsRow : targetRowOrCol(flipped, row);
-}
-
-function promotedColumn(flipped, column) {
-    return targetRowOrCol(flipped, column);
+function promotedRow(row) {
+    return row === 7 ? 4 : row
 }

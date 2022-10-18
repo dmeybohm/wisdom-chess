@@ -9,6 +9,11 @@ FocusScope {
     property int sourceColumn: 0
     property int drawAtRow: 0
     property int drawAtColumn: 0
+    property bool flipped: false
+
+    onDestinationColumnChanged: {
+        myPromotedPieceModel.setFirstRow(destinationRow)
+    }
 
     transform: Translate {
         id: myTranslation
@@ -40,6 +45,15 @@ FocusScope {
                width: topWindow.squareSize
                height: topWindow.squareSize
 
+               transform: Rotation {
+                    origin.x: width / 2
+                    origin.y: height / 2
+                    angle: dropDownTop.flipped ? 180 : 0
+                    axis.x: 1
+                    axis.y: 0
+                    axis.z: 0
+               }
+
                Rectangle {
                    id: myRect
                    anchors.fill: parent
@@ -58,7 +72,6 @@ FocusScope {
 
                    onClicked: {
                        if (myRect.focus) {
-                           console.log('promote piece here')
                            _myGameModel.promotePiece(
                                        sourceRow, sourceColumn,
                                        destinationRow, destinationColumn, model.piece)
@@ -66,7 +79,6 @@ FocusScope {
                            dropDownTop.focus = false
                        } else {
                            myRect.focus = true;
-                           console.log(model.piece)
                        }
                    }
                }

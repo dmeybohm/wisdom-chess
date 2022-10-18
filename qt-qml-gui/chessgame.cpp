@@ -59,7 +59,6 @@ auto ChessGame::isLegalMove(Move selectedMove) const -> bool
 {
     auto game = this->state();
     auto selectedMoveStr = to_string(selectedMove);
-    qDebug() << "Selected move: " << QString(selectedMoveStr.c_str());
 
     // If it's not the human's turn, move is illegal.
     if (game->get_current_player() != wisdom::Player::Human) {
