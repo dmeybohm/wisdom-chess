@@ -22,17 +22,17 @@ namespace wisdom
         switch (lower)
         {
             case 'k':
-                return make_piece (who, Piece::King);
+                return ColoredPiece::make (who, Piece::King);
             case 'q':
-                return make_piece (who, Piece::Queen);
+                return ColoredPiece::make (who, Piece::Queen);
             case 'r':
-                return make_piece (who, Piece::Rook);
+                return ColoredPiece::make (who, Piece::Rook);
             case 'b':
-                return make_piece (who, Piece::Bishop);
+                return ColoredPiece::make (who, Piece::Bishop);
             case 'n':
-                return make_piece (who, Piece::Knight);
+                return ColoredPiece::make (who, Piece::Knight);
             case 'p':
-                return make_piece (who, Piece::Pawn);
+                return ColoredPiece::make (who, Piece::Pawn);
             default:
                 throw FenParserError ("Invalid piece type!");
         }

@@ -22,7 +22,7 @@ TEST_CASE( "board code")
         REQUIRE( num_zeroes == initial_str.size () );
 
         Coord a8 = coord_parse ("a8");
-        ColoredPiece black_pawn = make_piece (Color::Black, Piece::Pawn);
+        ColoredPiece black_pawn = ColoredPiece::make (Color::Black, Piece::Pawn);
         code.add_piece (a8, black_pawn);
 
         REQUIRE( code != initial );
@@ -32,7 +32,7 @@ TEST_CASE( "board code")
         REQUIRE( code == initial );
 
         Coord h1 = coord_parse ("h1");
-        ColoredPiece white_king = make_piece (Color::White, Piece::King);
+        ColoredPiece white_king = ColoredPiece::make (Color::White, Piece::King);
         code.add_piece (h1, white_king);
 
         std::string result = code.to_string ();
@@ -137,8 +137,8 @@ TEST_CASE( "board code")
         REQUIRE (initial.count_ones () > 0);
 
         Move promote_castle_move = move_parse ("b7xa8 (Q)", Color::Black);
-        REQUIRE( is_promoting_move (promote_castle_move) );
-        REQUIRE( is_normal_capturing_move (promote_castle_move) );
+        REQUIRE(promote_castle_move.is_promoting () );
+        REQUIRE( promote_castle_move.is_normal_capturing () );
 
         code.apply_move (brd, promote_castle_move);
         REQUIRE( initial != code);

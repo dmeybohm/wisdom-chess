@@ -10,10 +10,11 @@ namespace wisdom
 {
     struct InlineThreats
     {
-        struct ThreatStatus
+        enum class ThreatStatus
         {
-            bool blocked;
-            bool threatened;
+            None = 0,
+            Blocked,
+            Threatened,
         };
 
         const Board& my_board;
@@ -66,8 +67,9 @@ namespace wisdom
 
             // If the check is blocked, revert to the king position itself
             // for the calculation to avoid any branching.
-            result.threatened = has_threatening_piece;
-            result.blocked = type != Piece::None;
+            result = has_threatening_piece ? ThreatStatus::Threatened :
+                type != Piece::None ? ThreatStatus::Blocked :
+                                    ThreatStatus::None;
 
             return result;
         }
@@ -78,22 +80,18 @@ namespace wisdom
             for (auto new_col = next_column (my_king_col, +1); new_col <= Last_Column; new_col++)
             {
                 auto status = check_lane_threats (my_king_row, new_col);
-
-                if (status.threatened)
+                if (status == ThreatStatus::Threatened)
                     return true;
-
-                if (status.blocked)
+                else if (status == ThreatStatus::Blocked)
                     break;
             }
 
             for (auto new_col = next_column (my_king_col, -1); new_col >= First_Column; new_col--)
             {
                 auto status = check_lane_threats (my_king_row, new_col);
-
-                if (status.threatened)
+                if (status == ThreatStatus::Threatened)
                     return true;
-
-                if (status.blocked)
+                else if (status == ThreatStatus::Blocked)
                     break;
             }
 
@@ -106,22 +104,18 @@ namespace wisdom
             for (auto new_row = next_row (my_king_row, +1); new_row <= Last_Row; new_row++)
             {
                 auto status = check_lane_threats (new_row, my_king_col);
-
-                if (status.threatened)
+                if (status == ThreatStatus::Threatened)
                     return true;
-
-                if (status.blocked)
+                else if (status == ThreatStatus::Blocked)
                     break;
             }
 
             for (auto new_row = next_row (my_king_row, -1); new_row >= First_Row; new_row--)
             {
                 auto status = check_lane_threats (new_row, my_king_col);
-
-                if (status.threatened)
+                if (status == ThreatStatus::Threatened)
                     return true;
-
-                if (status.blocked)
+                else if (status == ThreatStatus::Blocked)
                     break;
             }
 
@@ -241,10 +235,10 @@ namespace wisdom
 
             int left_attack_exists
                 = (is_valid_row (target_row) && is_valid_column (left_col)
-                   && my_board.piece_at (target_row, left_col) == make_piece (my_opponent, Piece::Pawn));
+                   && my_board.piece_at (target_row, left_col) == ColoredPiece::make (my_opponent, Piece::Pawn));
             int right_attack_exists
                 = (is_valid_row (target_row) && is_valid_column (right_col)
-                   && my_board.piece_at (target_row, right_col) == make_piece (my_opponent, Piece::Pawn));
+                   && my_board.piece_at (target_row, right_col) == ColoredPiece::make (my_opponent, Piece::Pawn));
 
             return left_attack_exists | right_attack_exists;
         }
@@ -259,7 +253,7 @@ namespace wisdom
         {
             int middle_col = next_column<int> (starting_col, +1);
             bool middle_attack_exists = false;
-            ColoredPiece opponent_king = make_piece (my_opponent, Piece::King);
+            ColoredPiece opponent_king = ColoredPiece::make (my_opponent, Piece::King);
 
             bool left_attack_exists = (
                 is_valid_row (target_row) && is_valid_column (starting_col)
@@ -310,7 +304,7 @@ namespace wisdom
         constexpr auto check_diagonal_threats (int target_row, int target_col)
             -> ThreatStatus
         {
-            ThreatStatus result {};
+            ThreatStatus result = ThreatStatus::None;
 
             ColoredPiece piece = my_board.piece_at (target_row, target_col);
             auto type = piece_type (piece);
@@ -326,8 +320,9 @@ namespace wisdom
 
             // If the check is blocked, revert to the king position itself
             // for the calculation to avoid any branching.
-            result.threatened = has_threatening_piece;
-            result.blocked = type != Piece::None;
+            result = has_threatening_piece ? ThreatStatus::Threatened :
+                                           type != Piece::None ? ThreatStatus::Blocked :
+                                    ThreatStatus::None;
 
             return result;
         }
@@ -366,11 +361,9 @@ namespace wisdom
                 }
 
                 auto status = check_diagonal_threats (new_row, new_col);
-
-                if (status.threatened)
+                if (status == ThreatStatus::Threatened)
                     return true;
-
-                if (status.blocked)
+                else if (status == ThreatStatus::Blocked)
                     break;
             }
 

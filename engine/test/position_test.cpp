@@ -71,7 +71,7 @@ TEST_CASE( "En passant updates position overall_score correctly")
     int initial_score_black = board.get_position ().overall_score (Color::Black);
 
     Move e5xd5 = move_parse ("e5d6 ep", Color::White);
-    CHECK(is_special_en_passant_move (e5xd5) );
+    CHECK(e5xd5.is_en_passant () );
 
     UndoMove undo_state = board.make_move (Color::White, e5xd5);
     board.take_back (Color::White, e5xd5, undo_state);
@@ -99,7 +99,7 @@ TEST_CASE( "Castling updates position overall_score correctly")
     for (auto castling_move_in : castling_moves)
     {
         Move castling_move = move_parse (castling_move_in, Color::White);
-        CHECK(is_special_castling_move (castling_move));
+        CHECK( castling_move.is_castling ());
 
         UndoMove undo_state = board.make_move (Color::White, castling_move);
         board.take_back (Color::White, castling_move, undo_state);
@@ -126,7 +126,7 @@ TEST_CASE( "Promoting move updates position overall_score correctly")
     for (auto promoting_move_in : promoting_moves)
     {
         Move castling_move = move_parse (promoting_move_in, Color::White);
-        CHECK(is_promoting_move (castling_move));
+        CHECK(castling_move.is_promoting () );
 
         UndoMove undo_state = board.make_move (Color::White, castling_move);
         board.take_back (Color::White, castling_move, undo_state);

@@ -87,20 +87,20 @@ namespace wisdom
 
     void BoardCode::apply_move (const Board& board, Move move)
     {
-        Coord src = move_src (move);
-        Coord dst = move_dst (move);
+        Coord src = move.get_src ();
+        Coord dst = move.get_dst ();
 
         ColoredPiece src_piece = board.piece_at (src);
 
         Piece src_piece_type = piece_type (src_piece);
         Color src_piece_color = piece_color (src_piece);
 
-        if (is_special_castling_move (move))
+        if (move.is_castling ())
         {
             int src_col, dst_col;
             int row;
 
-            if (is_castling_move_on_king_side (move))
+            if (move.is_castling_on_kingside ())
             {
                 dst_col = Kingside_Castled_Rook_Column;
                 src_col = Last_Column;
@@ -113,11 +113,11 @@ namespace wisdom
             row = src_piece_color == Color::White ? Last_Row : First_Row;
 
             Coord rook_src = make_coord (row, src_col);
-            ColoredPiece rook = make_piece (src_piece_color, Piece::Rook);
+            ColoredPiece rook = ColoredPiece::make (src_piece_color, Piece::Rook);
             remove_piece (rook_src);
             add_piece (make_coord (row, dst_col), rook);
         }
-        else if (is_special_en_passant_move (move))
+        else if (move.is_en_passant ())
         {
             // subtract horizontal pawn and add no piece there:
             Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
@@ -127,35 +127,35 @@ namespace wisdom
         remove_piece (src);
         add_piece (dst, src_piece);
 
-        if (is_promoting_move (move))
+        if (move.is_promoting ())
         {
             assert (src_piece_type == Piece::Pawn);
-            add_piece (dst, move_get_promoted_piece (move));
+            add_piece (dst, move.get_promoted_piece ());
         }
     }
 
     void BoardCode::unapply_move (const Board& board,
                                   Move move, const UndoMove& undo_state)
     {
-        Coord src = move_src (move);
-        Coord dst = move_dst (move);
+        Coord src = move.get_src ();
+        Coord dst = move.get_dst ();
 
         ColoredPiece src_piece = board.piece_at (dst);
 
         Color src_piece_color = piece_color (src_piece);
         Color opponent_color = color_invert (src_piece_color);
 
-        if (is_promoting_move (move))
+        if (move.is_promoting ())
         {
-            src_piece = make_piece (src_piece_color, Piece::Pawn);
+            src_piece = ColoredPiece::make (src_piece_color, Piece::Pawn);
         }
 
-        if (is_special_castling_move (move))
+        if (move.is_castling ())
         {
             int8_t src_col, dst_col;
             int8_t row;
 
-            if (is_castling_move_on_king_side (move))
+            if (move.is_castling_on_kingside ())
             {
                 dst_col = Kingside_Castled_Rook_Column;
                 src_col = Last_Column;
@@ -168,7 +168,7 @@ namespace wisdom
             row = gsl::narrow_cast<int8_t> (src_piece_color == Color::White ? Last_Row : First_Row);
 
             Coord rook_src = make_coord (row, src_col);
-            ColoredPiece rook = make_piece (src_piece_color, Piece::Rook);
+            ColoredPiece rook = ColoredPiece::make (src_piece_color, Piece::Rook);
             add_piece (rook_src, rook);
             remove_piece (make_coord (row, dst_col));
         }
@@ -176,15 +176,15 @@ namespace wisdom
         add_piece (src, src_piece);
         remove_piece (dst);
 
-        if (is_normal_capturing_move (move))
+        if (move.is_normal_capturing ())
         {
             ColoredPiece captured = captured_material (undo_state, opponent_color);
             add_piece (dst, captured);
         }
 
-        if (is_special_en_passant_move (move))
+        if (move.is_en_passant ())
         {
-            ColoredPiece captured_pawn = make_piece (opponent_color, Piece::Pawn);
+            ColoredPiece captured_pawn = ColoredPiece::make (opponent_color, Piece::Pawn);
             Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
             add_piece (taken_pawn_coord, captured_pawn);
         }

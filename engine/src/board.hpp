@@ -199,7 +199,7 @@ namespace wisdom
         void update_move_clock (Color who, Piece orig_src_piece_type, Move mv, UndoMove& undo_state)
         {
             undo_state.half_move_clock = my_half_move_clock;
-            if (is_any_capturing_move (mv) || orig_src_piece_type == Piece::Pawn)
+            if (mv.is_any_capturing () || orig_src_piece_type == Piece::Pawn)
                 my_half_move_clock = 0;
             else
                 my_half_move_clock++;

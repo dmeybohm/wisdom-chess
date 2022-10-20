@@ -74,7 +74,7 @@ TEST_CASE( "Appending a move" )
 
 TEST_CASE( "Moving uncached list" )
 {
-    MoveListAllocator allocator;
+    auto allocator = MoveListAllocator::make_unique();
 
     SUBCASE( "moving uncached into cached" )
     {
@@ -83,7 +83,7 @@ TEST_CASE( "Moving uncached list" )
         uncached_list.push_back (move_parse ("e4 d4"));
         uncached_list.push_back (move_parse ("d2 d1"));
 
-        MoveList cached { &allocator };
+        MoveList cached { allocator.get () };
 
         REQUIRE( cached.allocator () != nullptr );
         cached = std::move (uncached_list);
@@ -105,7 +105,7 @@ TEST_CASE( "Moving uncached list" )
         uncached_list.push_back (move_parse ("e4 d4"));
         uncached_list.push_back (move_parse ("d2 d1"));
 
-        MoveList cached { &allocator };
+        MoveList cached { allocator.get () };
 
         cached.push_back (move_parse ("e3 d3"));
         cached.push_back (move_parse ("d3 d1"));
@@ -126,7 +126,7 @@ TEST_CASE( "Moving uncached list" )
 
 TEST_CASE( "Swapping lists" )
 {
-    MoveListAllocator allocator;
+    auto allocator = MoveListAllocator::make_unique ();
 
     SUBCASE( "Swapping two simple lists" )
     {
@@ -144,8 +144,7 @@ TEST_CASE( "Swapping lists" )
 
     SUBCASE( "Swapping two move lists with different allocators" )
     {
-        MoveListAllocator allocator;
-        MoveList first { &allocator };
+        MoveList first { allocator.get () };
         MoveList second = { Color::Black, { "d7 d5", "f1 c4" } };
 
         first.push_back (move_parse ("e2 d4", Color::White));
