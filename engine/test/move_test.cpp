@@ -12,7 +12,14 @@ using namespace wisdom;
 TEST_CASE( "Parsing a move" )
 {
     Move with_spaces = move_parse ("   e2e4", Color::White);
-    REQUIRE(make_regular_move (coord_parse ("e2"), coord_parse ("e4")) == with_spaces );
+    REQUIRE( Move::make (coord_parse ("e2"), coord_parse ("e4")) == with_spaces );
+}
+
+TEST_CASE( "Packing source and destination coordinates" )
+{
+    Move a7xc8 = move_parse ("a7xc8", Color::White);
+    CHECK( a7xc8.get_dst () == coord_parse ("c8") );
+    CHECK( a7xc8.get_src () == coord_parse ("a7") );
 }
 
 TEST_CASE( "Parsing an en-passant move" )
@@ -20,7 +27,7 @@ TEST_CASE( "Parsing an en-passant move" )
     Move en_passant = move_parse ("   e4d5 ep   ", Color::White);
     Coord src = coord_parse("e4");
     Coord dst = coord_parse("d5");
-    Move expected = make_special_en_passant_move (Row (src), Column (src), Row (dst), Column (dst));
+    Move expected = Move::make_en_passant (Row (src), Column (src), Row (dst), Column (dst));
     REQUIRE( en_passant == expected );
 }
 
@@ -29,8 +36,8 @@ TEST_CASE( "Parsing a promoting move" )
     Move promoting = move_parse ("   d7d8 (B) ", Color::White);
     Coord src = coord_parse("d7");
     Coord dst = coord_parse("d8");
-    Move expected = make_regular_move (src, dst);
-    expected = copy_move_with_promotion (expected, make_piece (Color::White, Piece::Bishop));
+    Move expected = Move::make (src, dst);
+    expected = expected.with_promotion (ColoredPiece::make (Color::White, Piece::Bishop));
     REQUIRE( promoting == expected );
 }
 
@@ -39,7 +46,7 @@ TEST_CASE( "Parsing a castling move" )
     Move castling = move_parse ("   o-o-o ", Color::Black);
     Coord src = coord_parse("e8");
     Coord dst = coord_parse("c8");
-    Move expected = make_special_castling_move (Row (src), Column (src), Row (dst), Column (dst));
+    Move expected = Move::make_castling (Row (src), Column (src), Row (dst), Column (dst));
 
     REQUIRE( castling == expected );
 }
@@ -234,5 +241,48 @@ TEST_CASE("Mapping coordinates to moves")
 
         CHECK( result.has_value() );
         CHECK( *result == expected );
+    }
+}
+
+TEST_CASE( "Packing and unpacking a size" )
+{
+    SUBCASE( "Less than 128")
+    {
+        size_t capacity = 72;
+
+        Move packed_move = Move::make_as_packed_capacity (capacity);
+        size_t result = packed_move.to_unpacked_capacity ();
+
+        REQUIRE( result == capacity );
+    }
+
+    SUBCASE( "More than 128" )
+    {
+        size_t capacity = 240;
+
+        Move packed_move = Move::make_as_packed_capacity (capacity);
+        size_t result = packed_move.to_unpacked_capacity ();
+
+        REQUIRE( result == capacity );
+    }
+
+    SUBCASE( "More than 32768" )
+    {
+        size_t capacity = 71528;
+
+        Move packed_move = Move::make_as_packed_capacity (capacity);
+        size_t result = packed_move.to_unpacked_capacity ();
+
+        REQUIRE( result == capacity );
+    }
+
+    SUBCASE( "Serialize maximum" )
+    {
+        size_t capacity = Max_Packed_Capacity_In_Move;
+
+        Move packed_move = Move::make_as_packed_capacity (capacity);
+        size_t result = packed_move.to_unpacked_capacity ();
+
+        REQUIRE( result == capacity );
     }
 }

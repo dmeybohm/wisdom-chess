@@ -20,7 +20,7 @@ TEST_CASE( "Overall score" )
             {
                 Material material;
 
-                material.add (make_piece (color, piece_type));
+                material.add (ColoredPiece::make (color, piece_type));
 
                 CHECK( material.overall_score(color) > 0 );
             }
@@ -35,8 +35,8 @@ TEST_CASE( "Overall score" )
         {
             for (auto color : colors)
             {
-                material.add (make_piece (color, piece_type));
-                material.remove (make_piece (color, piece_type));
+                material.add (ColoredPiece::make (color, piece_type));
+                material.remove (ColoredPiece::make (color, piece_type));
 
                 CHECK( material.overall_score(color) == 0 );
             }

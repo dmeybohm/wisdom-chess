@@ -34,10 +34,10 @@ namespace wisdom
             if (depth == target_depth)
             {
                 counters.nodes++;
-                if (is_any_capturing_move (move))
+                if (move.is_any_capturing ())
                     counters.captures++;
 
-                if (is_special_en_passant_move (move))
+                if (move.is_en_passant ())
                     counters.en_passants++;
             }
 
@@ -60,14 +60,14 @@ namespace wisdom
         if (move_str.size () == 5)
         {
             auto promoted_type = piece_from_char (move_str[4]);
-            promoted = make_piece (who, promoted_type);
+            promoted = ColoredPiece::make (who, promoted_type);
         }
 
         auto src_piece = board.piece_at (src);
         auto dst_piece = board.piece_at (dst);
         assert (piece_color (src_piece) == who);
 
-        Move result = wisdom::make_regular_move (src, dst);
+        Move result = wisdom::Move::make (src, dst);
 
         // 1. castling is represented by two space king moves
         if (wisdom::piece_type (src_piece) == Piece::King)
@@ -77,7 +77,7 @@ namespace wisdom
             if (castling_row == Row (src) && castling_row == Row (dst)
                 && std::abs (Column (src) - Column (dst)))
             {
-                result = make_special_castling_move (src, dst);
+                result = Move::make_castling (src, dst);
             }
         }
 
@@ -87,17 +87,17 @@ namespace wisdom
             if (Row (src) != Row (dst) && Column (src) != Column (dst)
                 && dst_piece == Piece_And_Color_None)
             {
-                result = make_special_en_passant_move (src, dst);
+                result = Move::make_en_passant (src, dst);
             }
         }
 
         // 3. captures denoted without x
         if (dst_piece != Piece_And_Color_None)
-            result = wisdom::copy_move_with_capture (result);
+            result = result.with_capture ();
 
         // 4. Promotions are not in parenthesis
         if (promoted != Piece_And_Color_None)
-            result = wisdom::copy_move_with_promotion (result, promoted);
+            result = result.with_promotion (promoted);
 
         return result;
     }
@@ -125,31 +125,31 @@ namespace wisdom
 
     auto wisdom::perft::to_perft_move (const Move& move, Color who) -> string
     {
-        if (is_special_castling_move (move))
+        if (move.is_castling ())
         {
             auto row = who == Color::White ? Last_Row : First_Row;
             auto src_col = King_Column;
-            auto dst_col = is_castling_move_on_king_side (move) ? Kingside_Castled_King_Column
-                                                                : Queenside_Castled_King_Column;
+            auto dst_col = move.is_castling_on_kingside () ? Kingside_Castled_King_Column
+                                                           : Queenside_Castled_King_Column;
 
-            Move normal = wisdom::make_regular_move (row, src_col, row, dst_col);
-            return wisdom::to_string (move_src (normal)) + wisdom::to_string (move_dst (normal));
+            Move normal = wisdom::Move::make (row, src_col, row, dst_col);
+            return wisdom::to_string (normal.get_src ()) + wisdom::to_string (normal.get_dst ());
         }
 
-        if (is_special_en_passant_move (move))
+        if (move.is_en_passant ())
         {
-            return wisdom::to_string (move_src (move)) + wisdom::to_string (move_dst (move));
+            return wisdom::to_string (move.get_src ()) + wisdom::to_string (move.get_dst ());
         }
 
-        if (is_promoting_move (move))
+        if (move.is_promoting ())
         {
-            auto promoted = move_get_promoted_piece (move);
+            auto promoted = move.get_promoted_piece ();
 
-            return wisdom::to_string (move_src (move)) + wisdom::to_string (move_dst (move))
+            return wisdom::to_string (move.get_src ()) + wisdom::to_string (move.get_dst ())
                 + wisdom::piece_char (promoted);
         }
 
-        return wisdom::to_string (move_src (move)) + wisdom::to_string (move_dst (move));
+        return wisdom::to_string (move.get_src ()) + wisdom::to_string (move.get_dst ());
     }
 
     auto wisdom::perft::perft_results (const Board& board, Color active_player, int depth,

@@ -17,8 +17,8 @@ namespace wisdom
                                                  Color first_bishop_color, Color second_bishop_color)
         -> bool
     {
-        auto first_bishop = make_piece (first_bishop_color, Piece::Bishop);
-        auto second_bishop = make_piece (second_bishop_color, Piece::Bishop);
+        auto first_bishop = ColoredPiece::make (first_bishop_color, Piece::Bishop);
+        auto second_bishop = ColoredPiece::make (second_bishop_color, Piece::Bishop);
         auto first_coord = board.find_first_coord_with_piece (first_bishop);
 
         auto starting_at = first_bishop_color == second_bishop_color ?

@@ -8,59 +8,52 @@
 
 namespace wisdom
 {
-    struct move_list
-    {
-        Move* move_array;
-        std::size_t capacity;
-    };
+    using MoveListPtr = unique_ptr<Move[]>;
 
     class MoveListAllocator
     {
     private:
-        vector<unique_ptr<move_list>> my_move_list_ptrs;
+        vector<MoveListPtr> my_move_list_ptrs;
+
+        MoveListAllocator () = default;
 
     public:
-        ~MoveListAllocator()
-        {
-            for (auto& ptr : my_move_list_ptrs)
-            {
-                if (ptr && ptr->move_array)
-                {
-                    free (ptr->move_array);
-                    ptr->move_array = nullptr;
-                }
-            }
-        }
-
         static constexpr std::size_t Initial_Size = 16;
         static constexpr std::size_t Size_Increment = 32;
 
-        static auto default_alloc_move_list () -> unique_ptr<move_list>
+        static auto make_unique () -> unique_ptr<MoveListAllocator>
         {
-            auto list = new move_list ();
-            list->move_array = (Move*)malloc (sizeof (Move) * MoveListAllocator::Initial_Size);
-            list->capacity = MoveListAllocator::Initial_Size;
-
-            return unique_ptr<move_list> { list };
+            // to keep constructor private, use raw  new list instead
+            // of making std::unique_ptr a friend function:
+           return unique_ptr<MoveListAllocator> (new MoveListAllocator ());
         }
 
-        static void move_list_append (move_list& list, std::size_t position, Move move) noexcept
+        static auto default_alloc_move_list () -> MoveListPtr
         {
-            assert (position <= list.capacity);
+            auto new_list = std::make_unique<Move[]> (Initial_Size + 1);
+            new_list[0] = Move::make_as_packed_capacity (Initial_Size);
+            return new_list;
+        }
 
-            if (position == list.capacity)
+        static void move_list_append (MoveListPtr& move_list_ptr, std::size_t position, Move move) noexcept
+        {
+            size_t old_capacity = move_list_ptr[0].to_unpacked_capacity ();
+            assert (position <= old_capacity);
+
+            if (position == old_capacity)
             {
-                list.capacity += MoveListAllocator::Size_Increment;
+                size_t new_capacity = old_capacity + MoveListAllocator::Size_Increment;
 
-                std::size_t new_capacity_in_bytes = list.capacity * sizeof (Move);
-                list.move_array = (Move*)realloc (list.move_array, new_capacity_in_bytes);
+                auto new_list = std::make_unique<Move[]> (new_capacity + 1);
+                new_list[0] = Move::make_as_packed_capacity (new_capacity);
+                std::copy (&move_list_ptr[1], &move_list_ptr[1] + old_capacity, &new_list[1]);
+                move_list_ptr = std::move (new_list);
             }
 
-            assert (list.move_array != nullptr);
-            list.move_array[position] = move;
+            move_list_ptr[position + 1] = move;
         }
 
-        auto alloc_move_list() noexcept -> unique_ptr<move_list>
+        auto alloc_move_list() noexcept -> MoveListPtr
         {
             if (!my_move_list_ptrs.empty ())
             {
@@ -72,7 +65,7 @@ namespace wisdom
             return default_alloc_move_list ();
         }
 
-        void dealloc_move_list (unique_ptr<move_list> move_list) noexcept
+        void dealloc_move_list (MoveListPtr move_list) noexcept
         {
             if (move_list != nullptr)
                 my_move_list_ptrs.emplace_back (std::move (move_list));
@@ -82,7 +75,7 @@ namespace wisdom
     class MoveList
     {
     private:
-        unique_ptr<move_list> my_moves_list;
+        MoveListPtr my_moves_list;
         std::size_t my_size = 0;
         observer_ptr<MoveListAllocator> my_allocator;
 
@@ -101,17 +94,9 @@ namespace wisdom
 
         ~MoveList () 
         {
-            if (my_moves_list != nullptr)
+            if (my_moves_list != nullptr && my_allocator != nullptr)
             {
-                if (my_allocator != nullptr)
-                {
-                    my_allocator->dealloc_move_list (std::move (my_moves_list));
-                }
-                else
-                {
-                    free (my_moves_list->move_array);
-                    my_moves_list->move_array = nullptr;
-                }
+                my_allocator->dealloc_move_list (std::move (my_moves_list));
             }
         }
 
@@ -127,39 +112,12 @@ namespace wisdom
         MoveList (const MoveList& other) = delete;
         MoveList& operator= (const MoveList& other) = delete;
 
-        MoveList (MoveList&& other) noexcept
-            : my_moves_list { std::move (other.my_moves_list) }
-            , my_size { other.my_size }
-            , my_allocator { other.my_allocator }
-        {
-            other.my_moves_list = nullptr;
-            other.my_size = 0;
-            other.my_allocator = nullptr;
-        }
-
-        // Implement std::swappable
-        friend void swap (MoveList& first, MoveList& second) noexcept
-        {
-            first.swap (second);
-        }
-
-        void swap (MoveList& other) noexcept
-        {
-            std::swap (my_moves_list, other.my_moves_list);
-            std::swap (my_allocator, other.my_allocator);
-            std::swap (my_size, other.my_size);
-        }
-
-        MoveList& operator= (MoveList&& other) noexcept
-        {
-            MoveList copy = std::move (other);
-            copy.swap (*this);
-            return *this;
-        }
+        MoveList (MoveList&& other) noexcept = default;
+        MoveList& operator= (MoveList&& other) noexcept = default;
 
         void push_back (Move move) noexcept
         {
-            MoveListAllocator::move_list_append (*my_moves_list, my_size, move);
+            MoveListAllocator::move_list_append (my_moves_list, my_size, move);
             my_size++;
         }
 
@@ -171,37 +129,37 @@ namespace wisdom
 
         [[nodiscard]] auto begin () const& noexcept -> const Move*
         {
-            return my_moves_list->move_array;
+            return &my_moves_list[1];
         }
         void begin () const&& = delete;
 
         [[nodiscard]] auto end () const& noexcept -> const Move*
         {
-            return my_moves_list->move_array + my_size;
+            return &my_moves_list[1] + my_size;
         }
         void end () const&& = delete;
 
         [[nodiscard]] auto cbegin () const& noexcept -> const Move*
         {
-            return my_moves_list->move_array;
+            return &my_moves_list[1];
         }
         void cbegin () const&& = delete;
 
         [[nodiscard]] auto cend () const& noexcept -> const Move*
         {
-            return my_moves_list->move_array + my_size;
+            return &my_moves_list[1] + my_size;
         }
         void cend () const&& = delete;
 
         [[nodiscard]] auto begin () & noexcept -> Move*
         {
-            return my_moves_list->move_array;
+            return &my_moves_list[1];
         }
         void begin () && = delete;
 
         [[nodiscard]] auto end () & noexcept -> Move*
         {
-            return my_moves_list->move_array + my_size;
+            return &my_moves_list[1] + my_size;
         }
         void end () && = delete;
 
@@ -213,11 +171,6 @@ namespace wisdom
         [[nodiscard]] size_t size () const noexcept
         {
             return my_size;
-        }
-
-        [[nodiscard]] size_t capacity () const noexcept
-        {
-            return my_moves_list->capacity;
         }
 
         [[nodiscard]] auto to_string () const -> string;
@@ -239,13 +192,13 @@ namespace wisdom
 
         [[nodiscard]] auto data () const& noexcept -> Move*
         {
-            return my_moves_list->move_array;
+            return &my_moves_list[1];
         }
         void data () const&& = delete;
 
-        [[nodiscard]] auto ptr () const& noexcept -> move_list*
+        [[nodiscard]] auto ptr () const& noexcept -> const MoveListPtr&
         {
-            return my_moves_list.get ();
+            return my_moves_list;
         }
         void ptr () const&& = delete;
 

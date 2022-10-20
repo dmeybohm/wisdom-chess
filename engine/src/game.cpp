@@ -166,7 +166,7 @@ namespace wisdom
 
             Move move = move_parse (input_buf, result.get_current_turn ());
 
-            Coord dst = move_dst (move);
+            Coord dst = move.get_dst ();
             ColoredPiece piece = result.my_board->piece_at (dst);
 
             result.move (move);

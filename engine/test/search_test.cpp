@@ -191,7 +191,7 @@ TEST_CASE ("Bishop is not sacrificed scenario 1")
     // assert the bishop has moved:
     INFO ("Info:", to_string (*result.move));
     REQUIRE (game.get_board ().piece_at (coord_parse ("b4"))
-             != make_piece (Color::Black, Piece::Bishop));
+             != ColoredPiece::make (Color::Black, Piece::Bishop));
 }
 
 TEST_CASE ("Bishop is not sacrificed scenario 2 (as white)")
@@ -211,7 +211,7 @@ TEST_CASE ("Bishop is not sacrificed scenario 2 (as white)")
     // assert the bishop has moved:
     INFO ("Info:", to_string (*result.move));
     auto a3_piece = game.get_board ().piece_at (coord_parse ("a3"));
-    bool bishop_sac = a3_piece != make_piece (Color::White, Piece::Bishop);
+    bool bishop_sac = a3_piece != ColoredPiece::make (Color::White, Piece::Bishop);
     bool is_in_check = is_king_threatened (game.get_board (), Color::Black,
                                            game.get_board ().get_king_position (Color::Black));
     bool bishop_sac_or_is_in_check = bishop_sac || is_in_check;
@@ -236,7 +236,7 @@ TEST_CASE ("Advanced pawn should be captured")
     // assert the pawn at d6 has been taken:
     INFO ("Info:", to_string (*result.move));
     auto board = game.get_board ();
-    REQUIRE (board.piece_at (coord_parse ("d6")) != make_piece (Color::White, Piece::Pawn));
+    REQUIRE (board.piece_at (coord_parse ("d6")) != ColoredPiece::make (Color::White, Piece::Pawn));
 }
 
 TEST_CASE( "Checkmate is preferred to stalemate" )

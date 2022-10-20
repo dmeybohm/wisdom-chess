@@ -11,12 +11,12 @@ namespace {
 
     constexpr auto whitePiece(Piece piece) -> int8_t
     {
-        return to_int8(make_piece(Color::White, piece));
+        return to_int8(ColoredPiece::make(Color::White, piece));
     }
 
     constexpr auto blackPiece(Piece piece) -> int8_t
     {
-        return to_int8(make_piece(Color::Black, piece));
+        return to_int8(ColoredPiece::make(Color::Black, piece));
     }
 
     auto initPieceMap() -> QHash<int8_t, QString>
@@ -59,8 +59,8 @@ void PiecesModel::newGame(gsl::not_null<const ChessGame*> game)
         endRemoveRows();
     }
 
-    for (int row = 0; row < 8; row++) {
-        for (int column = 0; column < 8; column++) {
+    for (int row = 0; row < wisdom::Num_Rows; row++) {
+        for (int column = 0; column < wisdom::Num_Columns; column++) {
             auto piece = board.piece_at(row, column);
             if (piece != Piece_And_Color_None) {
                 PieceInfo newPiece {
@@ -78,7 +78,13 @@ void PiecesModel::newGame(gsl::not_null<const ChessGame*> game)
 
 int PiecesModel::rowCount(const QModelIndex& index) const
 {
-    return gsl::narrow<int>(myPieces.count());
+    if (index.isValid()) {
+        // At some index - no child rows.
+        return 0;
+    } else {
+        // At the root: equal to the number of top-level rows.
+        return gsl::narrow<int>(myPieces.count());
+    }
 }
 
 QVariant PiecesModel::data(const QModelIndex& index, int role) const
@@ -88,16 +94,16 @@ QVariant PiecesModel::data(const QModelIndex& index, int role) const
     }
 
     int dataRow = index.row();
-
     auto pieceInfo = myPieces.at(dataRow);
-    if (role == RowRole) {
+    switch (role) {
+    case RowRole:
         return pieceInfo.row;
-    } else if (role == ColumnRole) {
+    case ColumnRole:
         return pieceInfo.column;
-    } else if (role == PieceImageRole) {
+    case PieceImageRole:
         return pieceInfo.pieceImage;
-    } else {
-        return QVariant{};
+    default:
+        return QVariant {};
     }
 }
 
@@ -114,13 +120,13 @@ QHash<int, QByteArray> PiecesModel::roleNames() const
 
 void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
 {
-    Coord src = move_src(selectedMove);
-    Coord dst = move_dst(selectedMove);
+    Coord src = selectedMove.get_src();
+    Coord dst = selectedMove.get_dst();
 
-    int srcRow = Row(src);
-    int srcColumn = Column(src);
-    int dstRow = Row(dst);
-    int dstColumn = Column(dst);
+    int srcRow = Row<int>(src);
+    int srcColumn = Column<int>(src);
+    int dstRow = Row<int>(dst);
+    int dstColumn = Column<int>(dst);
 
     auto count = myPieces.count();
     for (int i = 0; i < count; i++) {
@@ -138,8 +144,8 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
             QVector<int> rolesChanged { RowRole, ColumnRole };
             QModelIndex changedIndex = index(i, 0);
 
-            if (is_promoting_move(selectedMove)) {
-                auto promotedPiece = move_get_promoted_piece(selectedMove);
+            if (selectedMove.is_promoting()) {
+                auto promotedPiece = selectedMove.get_promoted_piece();
                 auto newImagePath = myPieceToImagePath[to_int8(promotedPiece)];
                 pieceModel.pieceImage = newImagePath;
                 rolesChanged.append( PieceImageRole );
@@ -147,11 +153,11 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
 
             emit dataChanged(changedIndex, changedIndex, rolesChanged);
         }
-        if (is_special_castling_move(selectedMove)) {
+        if (selectedMove.is_castling()) {
             auto sourceRookRow = who == wisdom::Color::White ? 7 : 0;
-            auto sourceRookColumn = is_castling_move_on_king_side(selectedMove)
+            auto sourceRookColumn = selectedMove.is_castling_on_kingside()
                     ? King_Rook_Column : Queen_Rook_Column;
-            auto dstRookColumn = is_castling_move_on_king_side(selectedMove)
+            auto dstRookColumn = selectedMove.is_castling_on_kingside()
                     ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column;
 
             if (pieceModel.row == sourceRookRow && pieceModel.column == sourceRookColumn) {
@@ -164,7 +170,7 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
                 });
             }
         }
-        if (is_special_en_passant_move(selectedMove)) {
+        if (selectedMove.is_en_passant()) {
             int direction = pawn_direction(who) * -1;
             int enPassantPawnRow = dstRow + direction;
             int enPassantPawnCol = dstColumn;

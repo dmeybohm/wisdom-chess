@@ -13,10 +13,10 @@ if (ANDROID)
     # Disable precompile headers because there is a confict on android where it links
     # some code as PIC and some as non-PIC and can't combine them.
     set(PCH_ENABLED OFF)
-    message("-- wisdom-chess; ; precompiled headers disabled")
+    message("-- wisdom-chess: precompiled headers disabled")
 else()
     set(PCH_ENABLED ON)
-    message("-- wisdom-chess; ; precompiled headers enabled")
+    message("-- wisdom-chess: precompiled headers enabled")
 endif()
 
 if (NOT WIN32)

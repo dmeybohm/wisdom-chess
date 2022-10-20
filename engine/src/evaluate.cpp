@@ -16,7 +16,7 @@ namespace wisdom
             auto king_column = Column<int> (king_pos);
             auto king_row = Row<int> (king_pos);
 
-            auto rook_piece = make_piece (who, Piece::Rook);
+            auto rook_piece = ColoredPiece::make (who, Piece::Rook);
 
             if (king_row != castling_row_for_color (who))
                 return false;

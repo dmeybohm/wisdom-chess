@@ -14,7 +14,7 @@ namespace wisdom
         int my_score[Num_Players] {};
 
         // Count of pieces on either side:
-        array<array<int, Num_Pieces>, Num_Players> my_piece_count {};
+        array<array<int, Num_Piece_Types>, Num_Players> my_piece_count {};
 
     public:
         Material () = default;
