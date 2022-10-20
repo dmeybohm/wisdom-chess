@@ -78,7 +78,13 @@ void PiecesModel::newGame(gsl::not_null<const ChessGame*> game)
 
 int PiecesModel::rowCount(const QModelIndex& index) const
 {
-    return gsl::narrow<int>(myPieces.count());
+    if (index.isValid()) {
+        // At some index - no child rows.
+        return 0;
+    } else {
+        // At the root: equal to the number of top-level rows.
+        return gsl::narrow<int>(myPieces.count());
+    }
 }
 
 QVariant PiecesModel::data(const QModelIndex& index, int role) const
@@ -88,16 +94,16 @@ QVariant PiecesModel::data(const QModelIndex& index, int role) const
     }
 
     int dataRow = index.row();
-
     auto pieceInfo = myPieces.at(dataRow);
-    if (role == RowRole) {
+    switch (role) {
+    case RowRole:
         return pieceInfo.row;
-    } else if (role == ColumnRole) {
+    case ColumnRole:
         return pieceInfo.column;
-    } else if (role == PieceImageRole) {
+    case PieceImageRole:
         return pieceInfo.pieceImage;
-    } else {
-        return QVariant{};
+    default:
+        return QVariant {};
     }
 }
 
