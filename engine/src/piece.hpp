@@ -33,77 +33,10 @@ namespace wisdom
         Black = 2,
     };
 
-    struct ColoredPiece
-    {
-        int8_t piece_type_and_color;
-    };
-
     static constexpr int Color_Index_White = 0;
     static constexpr int Color_Index_Black = 1;
 
     using ColorIndex = int8_t;
-
-    static_assert(std::is_trivial<ColoredPiece>::value);
-
-    // Order here is significant - it means computer will prefer the piece at the top
-    // all else being equal, such as if the promoted piece cannot be saved from capture.
-    static constexpr Piece All_Promotable_Piece_Types[] = {
-            Piece::Queen,
-            Piece::Rook,
-            Piece::Bishop,
-            Piece::Knight,
-    };
-
-    // 3 bits for type of piece
-    static constexpr int8_t Piece_Type_Mask = 0x08-1;
-
-    // 2 bits for color
-    static constexpr int8_t Piece_Color_Mask = 0x18;
-    static constexpr int8_t Piece_Color_Shift = 3;
-
-    constexpr auto to_int8 (Piece piece) -> int8_t
-    {
-        return static_cast<int8_t>(piece);
-    }
-
-    constexpr auto to_int (Piece piece) -> int
-    {
-        return static_cast<int>(piece);
-    }
-
-    constexpr auto to_int (Color color) -> int
-    {
-        return static_cast<int>(color);
-    }
-
-    constexpr auto to_int8 (Color color) -> int8_t
-    {
-        return static_cast<int8_t>(color);
-    }
-
-    constexpr auto make_piece (Color color, Piece piece_type) noexcept
-        -> ColoredPiece
-    {
-        assert ((piece_type == Piece::None && color == Color::None) ||
-                (piece_type != Piece::None && color != Color::None));
-        auto color_as_int = to_int8 (color);
-        auto piece_as_int = to_int8 (piece_type);
-        auto result = gsl::narrow_cast<int8_t>(
-            (color_as_int << Piece_Color_Shift) |
-            (piece_as_int & Piece_Type_Mask)
-        );
-        ColoredPiece piece_with_color = { .piece_type_and_color = result };
-        return piece_with_color;
-    }
-
-    constexpr ColoredPiece Piece_And_Color_None = make_piece (Color::None, Piece::None);
-
-    constexpr auto piece_index (Piece piece) -> int
-    {
-        auto piece_as_int = static_cast<int8_t>(piece);
-        assert (piece_as_int >= to_int8 (Piece::None) && piece_as_int <= to_int8 (Piece::King));
-        return piece_as_int;
-    }
 
     constexpr auto piece_from_int8 (int8_t integer) -> Piece
     {
@@ -131,20 +64,24 @@ namespace wisdom
         return static_cast<Color>(index + 1);
     }
 
-    constexpr auto piece_type (ColoredPiece piece) -> Piece
+    constexpr auto to_int8 (Piece piece) -> int8_t
     {
-        auto result = gsl::narrow_cast<int8_t>(
-            (piece.piece_type_and_color & Piece_Type_Mask)
-        );
-        return piece_from_int8 (result);
+        return static_cast<int8_t>(piece);
     }
 
-    constexpr auto piece_color (ColoredPiece piece) -> Color
+    constexpr auto to_int (Piece piece) -> int
     {
-        auto result = gsl::narrow_cast<int8_t>(
-            (piece.piece_type_and_color & Piece_Color_Mask) >> Piece_Color_Shift
-        );
-        return color_from_int8 (result);
+        return static_cast<int>(piece);
+    }
+
+    constexpr auto to_int (Color color) -> int
+    {
+        return static_cast<int>(color);
+    }
+
+    constexpr auto to_int8 (Color color) -> int8_t
+    {
+        return static_cast<int8_t>(color);
     }
 
     constexpr auto is_color_valid (Color who) -> bool
@@ -168,14 +105,94 @@ namespace wisdom
         );
     }
 
+    constexpr auto piece_index (Piece piece) -> int
+    {
+        auto piece_as_int = static_cast<int8_t>(piece);
+        assert (piece_as_int >= to_int8 (Piece::None) && piece_as_int <= to_int8 (Piece::King));
+        return piece_as_int;
+    }
+
+    // 3 bits for type of piece
+    static constexpr int8_t Piece_Type_Mask = 0x08-1;
+
+    // 2 bits for color
+    static constexpr int8_t Piece_Color_Mask = 0x18;
+    static constexpr int8_t Piece_Color_Shift = 3;
+
+    struct ColoredPiece
+    {
+        int8_t piece_type_and_color;
+
+        static constexpr auto make (Color color, Piece piece_type) noexcept
+            -> ColoredPiece
+        {
+            assert ((piece_type == Piece::None && color == Color::None) ||
+                (piece_type != Piece::None && color != Color::None));
+            auto color_as_int = to_int8 (color);
+            auto piece_as_int = to_int8 (piece_type);
+            auto result = gsl::narrow_cast<int8_t>(
+                (color_as_int << Piece_Color_Shift) |
+                    (piece_as_int & Piece_Type_Mask)
+            );
+            ColoredPiece piece_with_color = { .piece_type_and_color = result };
+            return piece_with_color;
+        }
+
+        [[nodiscard]] constexpr auto color () const noexcept -> Color
+        {
+            auto result = gsl::narrow_cast<int8_t>(
+                (piece_type_and_color & Piece_Color_Mask) >> Piece_Color_Shift
+            );
+            return color_from_int8 (result);
+        }
+
+        [[nodiscard]] constexpr auto type () const noexcept -> Piece
+        {
+            auto result = gsl::narrow_cast<int8_t>(
+                (piece_type_and_color & Piece_Type_Mask)
+            );
+            return piece_from_int8 (result);
+        }
+
+        friend constexpr auto operator== (ColoredPiece first, ColoredPiece second) -> bool
+        {
+            return first.piece_type_and_color == second.piece_type_and_color;
+        }
+
+        friend constexpr bool operator!= (ColoredPiece first, ColoredPiece second)
+        {
+            return !operator== (first, second);
+        }
+    };
+    static_assert(std::is_trivial_v<ColoredPiece>);
+
+    // Order here is significant - it means computer will prefer the piece at the top
+    // all else being equal, such as if the promoted piece cannot be saved from capture.
+    static constexpr Piece All_Promotable_Piece_Types[] = {
+            Piece::Queen,
+            Piece::Rook,
+            Piece::Bishop,
+            Piece::Knight,
+    };
+
+    constexpr auto piece_type (ColoredPiece piece) -> Piece
+    {
+        return piece.type ();
+    }
+
+    constexpr auto piece_color (ColoredPiece piece) -> Color
+    {
+        return piece.color ();
+    }
+
+    static constexpr ColoredPiece Piece_And_Color_None = ColoredPiece::make (
+        Color::None,
+        Piece::None
+    );
+
     constexpr auto to_int8 (ColoredPiece piece) -> int8_t
     {
         return piece.piece_type_and_color;
-    }
-
-    constexpr auto to_colored_piece_shifted (Color who) -> int8_t
-    {
-       return gsl::narrow_cast<int8_t>(to_int8 (who) << Piece_Color_Shift);
     }
 
     constexpr auto piece_from_char (char p) -> Piece
@@ -220,16 +237,6 @@ namespace wisdom
             default:
                 return '?';
         }
-    }
-
-    constexpr auto operator== (ColoredPiece first, ColoredPiece second) -> bool
-    {
-        return first.piece_type_and_color == second.piece_type_and_color;
-    }
-
-    constexpr bool operator!= (ColoredPiece first, ColoredPiece second)
-    {
-        return !operator== (first, second);
     }
 
     auto to_string (Color who) -> string;

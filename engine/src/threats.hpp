@@ -235,10 +235,10 @@ namespace wisdom
 
             int left_attack_exists
                 = (is_valid_row (target_row) && is_valid_column (left_col)
-                   && my_board.piece_at (target_row, left_col) == make_piece (my_opponent, Piece::Pawn));
+                   && my_board.piece_at (target_row, left_col) == ColoredPiece::make (my_opponent, Piece::Pawn));
             int right_attack_exists
                 = (is_valid_row (target_row) && is_valid_column (right_col)
-                   && my_board.piece_at (target_row, right_col) == make_piece (my_opponent, Piece::Pawn));
+                   && my_board.piece_at (target_row, right_col) == ColoredPiece::make (my_opponent, Piece::Pawn));
 
             return left_attack_exists | right_attack_exists;
         }
@@ -253,7 +253,7 @@ namespace wisdom
         {
             int middle_col = next_column<int> (starting_col, +1);
             bool middle_attack_exists = false;
-            ColoredPiece opponent_king = make_piece (my_opponent, Piece::King);
+            ColoredPiece opponent_king = ColoredPiece::make (my_opponent, Piece::King);
 
             bool left_attack_exists = (
                 is_valid_row (target_row) && is_valid_column (starting_col)

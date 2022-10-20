@@ -225,7 +225,7 @@ namespace wisdom
             auto piece = piece_from_int (promoted_piece & 0xf);
             auto color = piece == Piece::None ? Color::None :
                 (promoted_piece & 0x10) == 0x10 ? Color::Black : Color::White;
-            return make_piece (color, piece);
+            return ColoredPiece::make (color, piece);
         }
 
         [[nodiscard]] constexpr auto is_en_passant () const noexcept
@@ -270,11 +270,11 @@ namespace wisdom
     {
         if (undo_state.category == MoveCategory::NormalCapturing)
         {
-            return make_piece (opponent, undo_state.taken_piece_type);
+            return ColoredPiece::make (opponent, undo_state.taken_piece_type);
         }
         else if (undo_state.category == MoveCategory::EnPassant)
         {
-            return make_piece (opponent, Piece::Pawn);
+            return ColoredPiece::make (opponent, Piece::Pawn);
         }
         else
         {

@@ -163,7 +163,7 @@ namespace wisdom
 
             case MoveCategory::NormalCapturing:
                 {
-                    ColoredPiece taken_piece = make_piece (opponent, undo_state->taken_piece_type);
+                    ColoredPiece taken_piece = ColoredPiece::make (opponent, undo_state->taken_piece_type);
                     Coord taken_piece_coord = dst;
                     this->remove (opponent, taken_piece_coord, taken_piece);
                 }
@@ -172,7 +172,7 @@ namespace wisdom
             case MoveCategory::EnPassant:
                 {
                     Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
-                    this->remove (opponent, taken_pawn_coord, make_piece (opponent, Piece::Pawn));
+                    this->remove (opponent, taken_pawn_coord, ColoredPiece::make (opponent, Piece::Pawn));
                 }
                 break;
 
@@ -190,7 +190,7 @@ namespace wisdom
 
                     Coord src_rook_coord = make_coord (rook_src_row, rook_src_col);
                     Coord dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
-                    ColoredPiece rook = make_piece (who, Piece::Rook);
+                    ColoredPiece rook = ColoredPiece::make (who, Piece::Rook);
 
                     this->remove (who, src_rook_coord, rook);
                     this->add (who, dst_rook_coord, rook);

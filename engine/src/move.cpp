@@ -44,7 +44,7 @@ namespace wisdom
 
         if (undo)
         {
-            ColoredPiece taken_pawn = make_piece (color_invert (who), Piece::Pawn);
+            ColoredPiece taken_pawn = ColoredPiece::make (color_invert (who), Piece::Pawn);
             board->set_piece (taken_pawn_pos, taken_pawn);
 
             return Piece_And_Color_None; // restore empty square where piece was replaced
@@ -112,7 +112,7 @@ namespace wisdom
         auto rook_src = rook_move.get_src ();
         auto rook_dst = rook_move.get_dst ();
 
-        auto empty_piece = make_piece (Color::None, Piece::None);
+        auto empty_piece = ColoredPiece::make (Color::None, Piece::None);
 
         if constexpr (undo)
         {
@@ -335,7 +335,7 @@ namespace wisdom
         {
             src_piece = move.get_promoted_piece ();
             my_material.add (src_piece);
-            my_material.remove (make_piece (who, Piece::Pawn));
+            my_material.remove (ColoredPiece::make (who, Piece::Pawn));
         }
 
         // check for en passant
@@ -413,12 +413,12 @@ namespace wisdom
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) == who);
         if (dst_piece_type != Piece::None)
-            dst_piece = make_piece (opponent, dst_piece_type);
+            dst_piece = ColoredPiece::make (opponent, dst_piece_type);
 
         // check for promotion
         if (move.is_promoting ())
         {
-            src_piece = make_piece (piece_color (src_piece), Piece::Pawn);
+            src_piece = ColoredPiece::make (piece_color (src_piece), Piece::Pawn);
             my_material.remove (orig_src_piece);
             my_material.add (src_piece);
         }
@@ -564,26 +564,26 @@ namespace wisdom
         }
 
         // grab extra identifiers describing the move
-        ColoredPiece promoted = make_piece (Color::None, Piece::None);
+        ColoredPiece promoted = ColoredPiece::make (Color::None, Piece::None);
         if (rest == "EP")
         {
             en_passant = true;
         }
         else if (rest == "(Q)")
         {
-            promoted = make_piece (who, Piece::Queen);
+            promoted = ColoredPiece::make (who, Piece::Queen);
         }
         else if (rest == "(N)")
         {
-            promoted = make_piece (who, Piece::Knight);
+            promoted = ColoredPiece::make (who, Piece::Knight);
         }
         else if (rest == "(B)")
         {
-            promoted = make_piece (who, Piece::Bishop);
+            promoted = ColoredPiece::make (who, Piece::Bishop);
         }
         else if (rest == "(R)")
         {
-            promoted = make_piece (who, Piece::Rook);
+            promoted = ColoredPiece::make (who, Piece::Rook);
         }
 
         if (piece_type (promoted) != Piece::None)
@@ -697,7 +697,7 @@ namespace wisdom
                         return Move::make_en_passant (src, dst);
 
                     if (need_pawn_promotion (Row<int> (dst), who) && promoted_piece.has_value ())
-                        return move.with_promotion (make_piece (who, *promoted_piece));
+                        return move.with_promotion (ColoredPiece::make (who, *promoted_piece));
                 }
                 break;
 

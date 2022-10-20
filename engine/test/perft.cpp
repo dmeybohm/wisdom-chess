@@ -60,7 +60,7 @@ namespace wisdom
         if (move_str.size () == 5)
         {
             auto promoted_type = piece_from_char (move_str[4]);
-            promoted = make_piece (who, promoted_type);
+            promoted = ColoredPiece::make (who, promoted_type);
         }
 
         auto src_piece = board.piece_at (src);

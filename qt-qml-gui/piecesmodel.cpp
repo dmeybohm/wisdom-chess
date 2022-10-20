@@ -11,12 +11,12 @@ namespace {
 
     constexpr auto whitePiece(Piece piece) -> int8_t
     {
-        return to_int8(make_piece(Color::White, piece));
+        return to_int8(ColoredPiece::make(Color::White, piece));
     }
 
     constexpr auto blackPiece(Piece piece) -> int8_t
     {
-        return to_int8(make_piece(Color::Black, piece));
+        return to_int8(ColoredPiece::make(Color::Black, piece));
     }
 
     auto initPieceMap() -> QHash<int8_t, QString>
@@ -59,8 +59,8 @@ void PiecesModel::newGame(gsl::not_null<const ChessGame*> game)
         endRemoveRows();
     }
 
-    for (int row = 0; row < 8; row++) {
-        for (int column = 0; column < 8; column++) {
+    for (int row = 0; row < wisdom::Num_Rows; row++) {
+        for (int column = 0; column < wisdom::Num_Columns; column++) {
             auto piece = board.piece_at(row, column);
             if (piece != Piece_And_Color_None) {
                 PieceInfo newPiece {

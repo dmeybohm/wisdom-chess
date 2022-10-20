@@ -113,7 +113,7 @@ namespace wisdom
             row = src_piece_color == Color::White ? Last_Row : First_Row;
 
             Coord rook_src = make_coord (row, src_col);
-            ColoredPiece rook = make_piece (src_piece_color, Piece::Rook);
+            ColoredPiece rook = ColoredPiece::make (src_piece_color, Piece::Rook);
             remove_piece (rook_src);
             add_piece (make_coord (row, dst_col), rook);
         }
@@ -147,7 +147,7 @@ namespace wisdom
 
         if (move.is_promoting ())
         {
-            src_piece = make_piece (src_piece_color, Piece::Pawn);
+            src_piece = ColoredPiece::make (src_piece_color, Piece::Pawn);
         }
 
         if (move.is_castling ())
@@ -168,7 +168,7 @@ namespace wisdom
             row = gsl::narrow_cast<int8_t> (src_piece_color == Color::White ? Last_Row : First_Row);
 
             Coord rook_src = make_coord (row, src_col);
-            ColoredPiece rook = make_piece (src_piece_color, Piece::Rook);
+            ColoredPiece rook = ColoredPiece::make (src_piece_color, Piece::Rook);
             add_piece (rook_src, rook);
             remove_piece (make_coord (row, dst_col));
         }
@@ -184,7 +184,7 @@ namespace wisdom
 
         if (move.is_en_passant ())
         {
-            ColoredPiece captured_pawn = make_piece (opponent_color, Piece::Pawn);
+            ColoredPiece captured_pawn = ColoredPiece::make (opponent_color, Piece::Pawn);
             Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
             add_piece (taken_pawn_coord, captured_pawn);
         }

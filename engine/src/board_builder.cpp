@@ -81,7 +81,7 @@ namespace wisdom
             return;
 
         auto coord = make_coord (row, col);
-        my_squares[coord_index (coord)] = make_piece (who, piece_type);
+        my_squares[coord_index (coord)] = ColoredPiece::make (who, piece_type);
 
         if (piece_type == Piece::King)
             my_king_positions[color_index (who)] = coord;

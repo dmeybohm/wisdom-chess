@@ -25,9 +25,9 @@ TEST_CASE( "find_first_coord_with_piece()" )
 
     SUBCASE( "Returns the first position if there is only one position with the combo" )
     {
-        auto white_king = make_piece (Color::White, Piece::King);
-        auto black_king = make_piece (Color::Black, Piece::King);
-        auto black_pawn = make_piece (Color::Black, Piece::Pawn);
+        auto white_king = ColoredPiece::make (Color::White, Piece::King);
+        auto black_king = ColoredPiece::make (Color::Black, Piece::King);
+        auto black_pawn = ColoredPiece::make (Color::Black, Piece::Pawn);
         auto white_king_pos = board.find_first_coord_with_piece (white_king);
         auto black_king_pos = board.find_first_coord_with_piece (black_king);
         auto black_pawn_pos = board.find_first_coord_with_piece (black_pawn);
@@ -43,7 +43,7 @@ TEST_CASE( "find_first_coord_with_piece()" )
 
     SUBCASE( "Returns the first position if there are multiple positions with the same combo" )
     {
-        auto white_pawn = make_piece (Color::White, Piece::Pawn);
+        auto white_pawn = ColoredPiece::make (Color::White, Piece::Pawn);
         auto white_pawn_pos = board.find_first_coord_with_piece (white_pawn);
         auto expected_white_pawn_pos = coord_parse ("a3");
         CHECK( *white_pawn_pos == expected_white_pawn_pos );
@@ -51,7 +51,7 @@ TEST_CASE( "find_first_coord_with_piece()" )
 
     SUBCASE( "Returns nullopt if no piece is found" )
     {
-        auto white_queen = make_piece (Color::White, Piece::Queen);
+        auto white_queen = ColoredPiece::make (Color::White, Piece::Queen);
         auto white_queen_pos = board.find_first_coord_with_piece (white_queen);
         CHECK( !white_queen_pos.has_value () );
     }

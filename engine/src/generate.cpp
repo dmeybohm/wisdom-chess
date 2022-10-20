@@ -102,7 +102,7 @@ namespace wisdom
         Coord src = move.get_src ();
         Coord dst = move.get_dst ();
 
-        ColoredPiece piece3 = make_piece (Color::None, Piece::None);
+        ColoredPiece piece3 = ColoredPiece::make (Color::None, Piece::None);
 
         // find which direction the king was castling in
         direction = (Column (dst) - Column (src)) / 2;
@@ -343,7 +343,7 @@ namespace wisdom
         {
             for (auto promotable_piece_type : All_Promotable_Piece_Types)
             {
-                auto promoted_piece = make_piece (who, promotable_piece_type);
+                auto promoted_piece = ColoredPiece::make (who, promotable_piece_type);
 
                 // promotion moves dont include en passant
                 for (auto& optional_move: all_pawn_moves)
