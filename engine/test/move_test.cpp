@@ -278,7 +278,7 @@ TEST_CASE( "Packing and unpacking a size" )
 
     SUBCASE( "Serialize maximum" )
     {
-        size_t capacity = 0x0fffFFFF;
+        size_t capacity = Max_Packed_Capacity_In_Move;
 
         Move packed_move = Move::make_as_packed_capacity (capacity);
         size_t result = packed_move.to_unpacked_capacity ();

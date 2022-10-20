@@ -11,7 +11,7 @@ namespace wisdom
 
     using CastlingState = uint8_t;
 
-    static constexpr size_t Max_Packed_Capacity_In_Move = 0x0fffFFFFL; // 28 bit max
+    static constexpr size_t Max_Packed_Capacity_In_Move = 0x001FFFFFL; // 21 bit max
 
     constexpr uint8_t
             Castle_None = 0b000U;      // still eligible to castle on both sides
@@ -31,6 +31,7 @@ namespace wisdom
         NormalCapturing = 1,
         EnPassant = 2,
         Castling = 3,
+        PackedCapacity = 4,
     };
 
     struct UndoMove
@@ -168,7 +169,7 @@ namespace wisdom
                 .src = gsl::narrow_cast<int8_t> (size & 0x7f),
                 .dst = gsl::narrow_cast<int8_t> ((size >> 7) & 0x7f),
                 .promoted_piece = gsl::narrow_cast<int8_t> ((size >> 14) & 0x7f),
-                .move_category = gsl::narrow_cast<int8_t> ((size >> 21) & 0x7f),
+                .move_category = to_int8 (MoveCategory::PackedCapacity),
             };
         }
 
@@ -255,10 +256,10 @@ namespace wisdom
         [[nodiscard]] constexpr auto to_unpacked_capacity () const noexcept
             -> size_t
         {
+            assert (get_move_category () == MoveCategory::PackedCapacity);
             return src |
                 (dst << 7) |
-                (promoted_piece << 14) |
-                (move_category << 21);
+                (promoted_piece << 14);
         }
     };
 
