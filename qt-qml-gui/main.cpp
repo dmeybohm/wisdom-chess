@@ -4,9 +4,9 @@
 #include <QDebug>
 #include <QQuickWindow>
 
-#include "chesscolor.hpp"
 #include "gamemodel.hpp"
 #include "piecesmodel.hpp"
+#include "ui_types.hpp"
 
 #include <QSGRendererInterface>
 
@@ -22,10 +22,11 @@ int main(int argc, char *argv[])
 #endif
 
     QGuiApplication app(argc, argv);
+
     GameModel gameModel;
     PiecesModel piecesModel;
 
-    wisdom::chess::registerChessColorQmlType();
+    wisdom::ui::registerQmlTypes();
 
     QObject::connect(&gameModel, &GameModel::engineMoved, &piecesModel, &PiecesModel::playerMoved);
     QObject::connect(&gameModel, &GameModel::humanMoved, &piecesModel, &PiecesModel::playerMoved);

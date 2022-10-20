@@ -16,7 +16,7 @@ ColumnLayout {
         color: "#ff333333"
         text: _myGameModel.gameOverStatus !== ""
           ? _myGameModel.gameOverStatus :
-           _myGameModel.currentTurn === ChessColor.White ?
+           _myGameModel.currentTurn === Color.White ?
          "<b>White</b> to move" :
          "<b>Black</b> to move"
     }

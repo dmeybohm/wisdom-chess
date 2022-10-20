@@ -6,14 +6,14 @@
 #include <QString>
 #include <QTimer>
 
-#include "chesscolor.hpp"
+#include "ui_types.hpp"
 #include "chessgame.hpp"
 
 class GameModel : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(wisdom::chess::ChessColor currentTurn
+    Q_PROPERTY(wisdom::ui::Color currentTurn
                READ currentTurn
                WRITE setCurrentTurn
                NOTIFY currentTurnChanged)
@@ -61,8 +61,8 @@ public:
     Q_INVOKABLE bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
     Q_INVOKABLE void restart();
 
-    [[nodiscard]] auto currentTurn() const -> wisdom::chess::ChessColor;
-    void setCurrentTurn(wisdom::chess::ChessColor newColor);
+    [[nodiscard]] auto currentTurn() const -> wisdom::ui::Color;
+    void setCurrentTurn(wisdom::ui::Color newColor);
 
     void setGameOverStatus(const QString& newStatus);
     [[nodiscard]] auto gameOverStatus() const -> QString;
@@ -85,8 +85,8 @@ public:
     void setFiftyMovesWithoutProgressDrawAnswered(bool drawProposedToHuman);
     [[nodiscard]] auto fiftyMovesWithoutProgressDrawAnswered() const -> bool;
 
-    Q_INVOKABLE void setWhiteIsComputer(bool newWhiteIsComputer);
-    Q_INVOKABLE void setBlackIsComputer(bool newBlackIsComputer);
+    Q_INVOKABLE void setWhitePlayer(wisdom::ui::Player whitePlayer);
+    Q_INVOKABLE void setBlackPlayer(wisdom::ui::Player blackPlayer);
     Q_INVOKABLE void setMaxDepth(int maxDepth);
     Q_INVOKABLE void setMaxSearchTime(int maxSearchTime);
 
@@ -167,7 +167,7 @@ private:
     // Update the config from a timer to avoid creating too many events.
     QTimer* myUpdateConfigTimer = nullptr;
 
-    wisdom::chess::ChessColor myCurrentTurn;
+    wisdom::ui::Color myCurrentTurn;
     QString myGameOverStatus {};
     QString myMoveStatus {};
 
@@ -176,8 +176,8 @@ private:
     bool myFiftyMovesWithProgressDrawProposed = false;
     bool myThirdRepetitionDrawAnswered = false;
     bool myFiftyMovesWithProgressDrawAnswered = false;
-    bool myWhiteIsComputer = false;
-    bool myBlackIsComputer = true;
+    wisdom::ui::Player myWhitePlayer = wisdom::ui::Player::Human;
+    wisdom::ui::Player myBlackPlayer = wisdom::ui::Player::Human;
     int myMaxDepth;
     int myMaxSearchTime;
 

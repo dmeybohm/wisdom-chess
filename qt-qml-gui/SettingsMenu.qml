@@ -1,6 +1,7 @@
 import QtQuick 
 import QtQuick.Controls 
 import QtQuick.Layouts 
+import WisdomChess
 
 import "Helper.js" as Helper
 
@@ -30,13 +31,13 @@ Menu {
 
             RadioButton {
                 text: "Human"
-                checked: !uiSettings.whiteIsComputer
-                onClicked: uiSettings.whiteIsComputer = false
+                checked: uiSettings.whitePlayer === Player.Human
+                onClicked: uiSettings.whitePlayer = Player.Human
             }
             RadioButton {
                 text: "Computer"
-                checked: uiSettings.whiteIsComputer
-                onClicked: uiSettings.whiteIsComputer = true
+                checked: uiSettings.whitePlayer === Player.Computer
+                onClicked: uiSettings.whitePlayer = Player.Computer
             }
         }
     }
@@ -53,13 +54,13 @@ Menu {
 
             RadioButton {
                 text: "Human"
-                checked: !uiSettings.blackIsComputer
-                onClicked: uiSettings.blackIsComputer = false
+                checked: uiSettings.blackPlayer === Player.Human
+                onClicked: uiSettings.blackPlayer = Player.Human
             }
             RadioButton {
                 text: "Computer"
-                checked: uiSettings.blackIsComputer
-                onClicked: uiSettings.blackIsComputer = true
+                checked: uiSettings.blackPlayer === Player.Computer
+                onClicked: uiSettings.blackPlayer = Player.Computer
             }
         }
     }

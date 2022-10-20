@@ -62,7 +62,7 @@ FocusScope {
                }
 
                Image {
-                   source: _myGameModel.currentTurn === ChessColor.White ? model.whiteImage
+                   source: _myGameModel.currentTurn === Color.White ? model.whiteImage
                                                                 : model.blackImage
                    width: topWindow.squareSize
                    height: topWindow.squareSize

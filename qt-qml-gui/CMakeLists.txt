@@ -36,8 +36,8 @@ qt_add_executable(appWisdomChessQtQml
     chessgame.cpp
     chessengine.hpp
     chessengine.cpp
-    chesscolor.cpp
-    chesscolor.hpp
+    ui_types.cpp
+    ui_types.hpp
     ${app_icon_resource_windows}
     ${app_icon_macos}
 )

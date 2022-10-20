@@ -1,5 +1,6 @@
 import QtQml
 import QtQuick
+import WisdomChess
 
 QtObject {
     //
@@ -15,8 +16,8 @@ QtObject {
     //
     // Changeable settings:
     //
-    property bool whiteIsComputer: false
-    property bool blackIsComputer: true
+    property int whitePlayer: Player.Human
+    property int blackPlayer: Player.Computer
     property int maxDepth: 3
     property int maxSearchTime: 3
     property bool flipped: false
@@ -31,12 +32,12 @@ QtObject {
     //
     // Update the settings on the game model when they change:
     //
-    onWhiteIsComputerChanged: {
-        _myGameModel.setWhiteIsComputer(whiteIsComputer)
+    onWhitePlayerChanged: {
+        _myGameModel.setWhitePlayer(whitePlayer)
     }
 
-    onBlackIsComputerChanged: {
-        _myGameModel.setBlackIsComputer(blackIsComputer)
+    onBlackPlayerChanged: {
+        _myGameModel.setBlackPlayer(blackPlayer)
     }
 
     onMaxDepthChanged: {
@@ -51,8 +52,8 @@ QtObject {
     // Initialize the settings on the game model on startup:
     //
     Component.onCompleted: {
-        _myGameModel.setWhiteIsComputer(whiteIsComputer)
-        _myGameModel.setBlackIsComputer(blackIsComputer)
+        _myGameModel.setWhiteIsComputer(whitePlayer === Player.Computer)
+        _myGameModel.setBlackIsComputer(blackPlayer === Player.Computer)
         _myGameModel.setMaxDepth(maxDepth)
         _myGameModel.setMaxSearchTime(maxSearchTime)
     }

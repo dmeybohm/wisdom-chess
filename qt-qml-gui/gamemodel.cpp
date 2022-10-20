@@ -75,7 +75,7 @@ GameModel::~GameModel()
 void GameModel::init()
 {
     auto gameState = myChessGame->state();
-    setCurrentTurn(wisdom::chess::mapColor(gameState->get_current_turn()));
+    setCurrentTurn(wisdom::ui::mapColor(gameState->get_current_turn()));
 
     setupNewEngineThread();
 }
@@ -176,7 +176,7 @@ void GameModel::restart()
     // Update the config to update the notifier to use the new game Id:
     updateEngineConfig();
 
-    setCurrentTurn(wisdom::chess::mapColor(myChessGame->state()->get_current_turn()));
+    setCurrentTurn(wisdom::ui::mapColor(myChessGame->state()->get_current_turn()));
     resetStateForNewGame();
     updateDisplayedGameState();
 }
@@ -314,7 +314,7 @@ auto GameModel::buildNotifier() const -> MoveTimer::PeriodicFunction
 
 void GameModel::updateCurrentTurn(Color newColor)
 {
-    setCurrentTurn(wisdom::chess::mapColor(newColor));
+    setCurrentTurn(wisdom::ui::mapColor(newColor));
 }
 
 void GameModel::handleMove(Player playerType, Move move, Color who)
@@ -328,9 +328,7 @@ void GameModel::handleMove(Player playerType, Move move, Color who)
 
 void GameModel::updateInternalGameState()
 {
-    auto whitePlayer = myWhiteIsComputer ? wisdom::Player::ChessEngine : wisdom::Player::Human;
-    auto blackPlayer = myBlackIsComputer ? wisdom::Player::ChessEngine : wisdom::Player::Human;
-    myChessGame->setPlayers(whitePlayer, blackPlayer);
+    myChessGame->setPlayers(mapPlayer(myWhitePlayer), mapPlayer(myBlackPlayer));
     myChessGame->setConfig(gameConfig());
     notifyInternalGameStateUpdated();
 }
@@ -356,12 +354,12 @@ auto GameModel::gameConfig() const -> ChessGame::Config
     };
 }
 
-auto GameModel::currentTurn() const -> wisdom::chess::ChessColor
+auto GameModel::currentTurn() const -> wisdom::ui::Color
 {
     return myCurrentTurn;
 }
 
-void GameModel::setCurrentTurn(wisdom::chess::ChessColor newColor)
+void GameModel::setCurrentTurn(wisdom::ui::Color newColor)
 {
     if (newColor != myCurrentTurn) {
         myCurrentTurn = newColor;
@@ -500,10 +498,10 @@ void GameModel::resetStateForNewGame()
     setFiftyMovesWithoutProgressDrawProposed(false);
 }
 
-void GameModel::setWhiteIsComputer(bool newWhiteIsComputer)
+void GameModel::setWhitePlayer(wisdom::ui::Player newPlayer)
 {
-    if (myWhiteIsComputer != newWhiteIsComputer) {
-        myWhiteIsComputer = newWhiteIsComputer;
+    if (myWhitePlayer != newPlayer) {
+        myWhitePlayer = newPlayer;
         updateInternalGameState();
     }
 }
@@ -524,10 +522,10 @@ void GameModel::setMaxSearchTime(int maxSearchTime)
     }
 }
 
-void GameModel::setBlackIsComputer(bool newBlackIsComputer)
+void GameModel::setBlackPlayer(wisdom::ui::Player newPlayer)
 {
-    if (myBlackIsComputer != newBlackIsComputer) {
-        myBlackIsComputer = newBlackIsComputer;
+    if (myBlackPlayer != newPlayer) {
+        myBlackPlayer = newPlayer;
         updateInternalGameState();
     }
 }
