@@ -24,7 +24,7 @@ namespace wisdom
         King
     };
 
-    static constexpr std::size_t Num_Pieces = static_cast<std::size_t> (Piece::King) + 1;
+    static constexpr std::size_t Num_Piece_Types = static_cast<std::size_t> (Piece::King) + 1;
 
     enum class Color : int8_t
     {
