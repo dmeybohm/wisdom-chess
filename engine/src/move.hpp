@@ -96,7 +96,7 @@ namespace wisdom
         int8_t src;
         int8_t dst;
         int8_t promoted_piece;
-        int8_t move_category_and_packed_flag;
+        int8_t move_category;
 
     public:
         [[nodiscard]] static constexpr auto make (Coord src, Coord dst) noexcept
@@ -106,7 +106,7 @@ namespace wisdom
                 .src = gsl::narrow_cast<int8_t> (coord_index (src)),
                 .dst = gsl::narrow_cast<int8_t> (coord_index (dst)),
                 .promoted_piece = gsl::narrow_cast<int8_t> (0),
-                .move_category_and_packed_flag = gsl::narrow_cast<int8_t> (0),
+                .move_category = gsl::narrow_cast<int8_t> (0),
             };
         }
 
@@ -125,7 +125,7 @@ namespace wisdom
             -> Move
         {
             Move move = Move::make (src_row, src_col, dst_row, dst_col);
-            move.move_category_and_packed_flag = to_int8 (MoveCategory::NormalCapturing);
+            move.move_category = to_int8 (MoveCategory::NormalCapturing);
             return move;
         }
 
@@ -134,7 +134,7 @@ namespace wisdom
             -> Move
         {
             Move move = Move::make (src_row, src_col, dst_row, dst_col);
-            move.move_category_and_packed_flag = to_int8 (MoveCategory::Castling);
+            move.move_category = to_int8 (MoveCategory::Castling);
             return move;
         }
 
@@ -149,7 +149,7 @@ namespace wisdom
             -> Move
         {
             Move move = make (src_row, src_col, dst_row, dst_col);
-            move.move_category_and_packed_flag = to_int8 (MoveCategory::EnPassant);
+            move.move_category = to_int8 (MoveCategory::EnPassant);
             return move;
         }
 
@@ -168,7 +168,7 @@ namespace wisdom
                 .src = gsl::narrow_cast<int8_t> (size & 0x7f),
                 .dst = gsl::narrow_cast<int8_t> ((size >> 7) & 0x7f),
                 .promoted_piece = gsl::narrow_cast<int8_t> ((size >> 14) & 0x7f),
-                .move_category_and_packed_flag = gsl::narrow_cast<int8_t> ((size >> 21) & 0x7f),
+                .move_category = gsl::narrow_cast<int8_t> ((size >> 21) & 0x7f),
             };
         }
 
@@ -198,16 +198,16 @@ namespace wisdom
         [[nodiscard]] constexpr auto with_capture () const noexcept
             -> Move
         {
-            assert (move_category_and_packed_flag == to_int8 (MoveCategory::Default));
+            assert (move_category == to_int8 (MoveCategory::Default));
 
             Move result = Move::make (get_src (), get_dst ());
-            result.move_category_and_packed_flag = to_int8 (MoveCategory::NormalCapturing);
+            result.move_category = to_int8 (MoveCategory::NormalCapturing);
             return result;
         }
 
         [[nodiscard]] constexpr auto get_move_category () const -> MoveCategory
         {
-            return move_category_from_int (move_category_and_packed_flag);
+            return move_category_from_int (move_category);
         }
 
         [[nodiscard]] constexpr auto is_normal_capturing () const -> bool
@@ -258,7 +258,7 @@ namespace wisdom
             return src |
                 (dst << 7) |
                 (promoted_piece << 14) |
-                (move_category_and_packed_flag << 21);
+                (move_category << 21);
         }
     };
 
@@ -299,7 +299,7 @@ namespace wisdom
         return a.src == b.src &&
                a.dst == b.dst &&
                a.promoted_piece == b.promoted_piece &&
-               a.move_category_and_packed_flag == b.move_category_and_packed_flag;
+               a.move_category == b.move_category;
     }
 
     constexpr auto operator== (Move a, Move b) noexcept
