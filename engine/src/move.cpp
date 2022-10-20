@@ -95,7 +95,7 @@ namespace wisdom
             };
         }
 
-        return Move::make_default (src_row, src_col, dst_row, dst_col);
+        return Move::make (src_row, src_col, dst_row, dst_col);
     }
 
     template <bool undo>
@@ -557,7 +557,7 @@ namespace wisdom
         }
 
         string rest { tmp.substr (offset) };
-        Move move = Move::make_default (*src, *dst);
+        Move move = Move::make (*src, *dst);
         if (is_capturing)
         {
             move = move.with_capture ();
@@ -678,7 +678,7 @@ namespace wisdom
             return {};
 
         // make capturing if dst piece is not none
-        Move move = Move::make_default (src, dst);
+        Move move = Move::make (src, dst);
         if (dst_piece != Piece_And_Color_None)
             move = move.with_capture ();
 

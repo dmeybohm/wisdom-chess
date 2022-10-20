@@ -60,7 +60,7 @@ namespace wisdom
                     if (!is_valid_column (k_col + col))
                         continue;
 
-                    Move knight_move = Move::make_default (k_row + row, k_col + col, row, col);
+                    Move knight_move = Move::make (k_row + row, k_col + col, row, col);
                     int dst_row = k_row + row;
                     int dst_col = k_col + col;
                     auto index = coord_index (dst_row, dst_col);
@@ -165,7 +165,7 @@ namespace wisdom
                 if (!is_valid_column (col))
                     continue;
 
-                append_move (board, moves, Move::make_default (piece_row, piece_col, row, col));
+                append_move (board, moves, Move::make (piece_row, piece_col, row, col));
             }
         }
 
@@ -195,8 +195,7 @@ namespace wisdom
             {
                 ColoredPiece piece = board.piece_at (row, piece_col);
 
-                append_move (board, moves,
-                             Move::make_default (piece_row, piece_col, row, piece_col));
+                append_move (board, moves, Move::make (piece_row, piece_col, row, piece_col));
 
                 if (piece_type (piece) != Piece::None)
                     break;
@@ -206,8 +205,7 @@ namespace wisdom
             {
                 ColoredPiece piece = board.piece_at (piece_row, col);
 
-                append_move (board, moves,
-                             Move::make_default (piece_row, piece_col, piece_row, col));
+                append_move (board, moves, Move::make (piece_row, piece_col, piece_row, col));
 
                 if (piece_type (piece) != Piece::None)
                     break;
@@ -230,7 +228,7 @@ namespace wisdom
                 {
                     ColoredPiece piece = board.piece_at (row, col);
 
-                    append_move (board, moves, Move::make_default (piece_row, piece_col, row, col));
+                    append_move (board, moves, Move::make (piece_row, piece_col, row, col));
 
                     if (piece != Piece_And_Color_None)
                         break;
@@ -306,7 +304,7 @@ namespace wisdom
 
         // single move
         if (piece_type (board.piece_at (row, piece_col)) == Piece::None)
-            all_pawn_moves[0] = Move::make_default (piece_row, piece_col, row, piece_col);
+            all_pawn_moves[0] = Move::make (piece_row, piece_col, row, piece_col);
 
         // double move
         if (is_pawn_unmoved (board, piece_row, piece_col))
@@ -316,7 +314,7 @@ namespace wisdom
             if (all_pawn_moves[0].has_value () &&
                 board.piece_at (double_row, piece_col) == Piece_And_Color_None)
             {
-                all_pawn_moves[1] = Move::make_default (piece_row, piece_col, double_row, piece_col);
+                all_pawn_moves[1] = Move::make (piece_row, piece_col, double_row, piece_col);
             }
         }
 

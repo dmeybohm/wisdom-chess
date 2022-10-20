@@ -55,7 +55,7 @@ TEST_CASE("Castling state is modified and restored for rooks")
     Board board { builder };
 
     board.set_current_turn (Color::Black);
-    Move mv = Move::make_default (0, 0, 0, 1);
+    Move mv = Move::make (0, 0, 0, 1);
 
     CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
     CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
@@ -89,7 +89,7 @@ TEST_CASE("Castling state is modified and restored for kings")
     builder.add_row_of_same_color (7, Color::White, back_rank);
     Board board { builder };
     board.set_current_turn (Color::Black);
-    Move mv = Move::make_default (0, 4, 0, 3);
+    Move mv = Move::make (0, 4, 0, 3);
 
     CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
     CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );

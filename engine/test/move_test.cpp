@@ -12,7 +12,7 @@ using namespace wisdom;
 TEST_CASE( "Parsing a move" )
 {
     Move with_spaces = move_parse ("   e2e4", Color::White);
-    REQUIRE(Move::make_default (coord_parse ("e2"), coord_parse ("e4")) == with_spaces );
+    REQUIRE( Move::make (coord_parse ("e2"), coord_parse ("e4")) == with_spaces );
 }
 
 TEST_CASE( "Packing source and destination coordinates" )
@@ -36,7 +36,7 @@ TEST_CASE( "Parsing a promoting move" )
     Move promoting = move_parse ("   d7d8 (B) ", Color::White);
     Coord src = coord_parse("d7");
     Coord dst = coord_parse("d8");
-    Move expected = Move::make_default (src, dst);
+    Move expected = Move::make (src, dst);
     expected = expected.with_promotion (make_piece (Color::White, Piece::Bishop));
     REQUIRE( promoting == expected );
 }

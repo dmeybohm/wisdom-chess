@@ -67,7 +67,7 @@ namespace wisdom
         auto dst_piece = board.piece_at (dst);
         assert (piece_color (src_piece) == who);
 
-        Move result = wisdom::Move::make_default (src, dst);
+        Move result = wisdom::Move::make (src, dst);
 
         // 1. castling is represented by two space king moves
         if (wisdom::piece_type (src_piece) == Piece::King)
@@ -132,7 +132,7 @@ namespace wisdom
             auto dst_col = move.is_castling_on_kingside () ? Kingside_Castled_King_Column
                                                            : Queenside_Castled_King_Column;
 
-            Move normal = wisdom::Move::make_default (row, src_col, row, dst_col);
+            Move normal = wisdom::Move::make (row, src_col, row, dst_col);
             return wisdom::to_string (normal.get_src ()) + wisdom::to_string (normal.get_dst ());
         }
 

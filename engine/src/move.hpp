@@ -99,7 +99,7 @@ namespace wisdom
         int8_t move_category_and_packed_flag;
 
     public:
-        [[nodiscard]] static constexpr auto make_default (Coord src, Coord dst) noexcept
+        [[nodiscard]] static constexpr auto make (Coord src, Coord dst) noexcept
         -> Move
         {
             return Move {
@@ -110,21 +110,21 @@ namespace wisdom
             };
         }
 
-        [[nodiscard]] static constexpr auto make_default (int src_row, int src_col,
-                                                          int dst_row, int dst_col) noexcept
+        [[nodiscard]] static constexpr auto make (int src_row, int src_col,
+                                                  int dst_row, int dst_col) noexcept
             -> Move
         {
             Coord src = make_coord (src_row, src_col);
             Coord dst = make_coord (dst_row, dst_col);
 
-            return make_default (src, dst);
+            return make (src, dst);
         }
 
         [[nodiscard]] static constexpr auto make_normal_capturing (int src_row, int src_col,
                                                                    int dst_row, int dst_col) noexcept
             -> Move
         {
-            Move move = Move::make_default (src_row, src_col, dst_row, dst_col);
+            Move move = Move::make (src_row, src_col, dst_row, dst_col);
             move.move_category_and_packed_flag = to_int8 (MoveCategory::NormalCapturing);
             return move;
         }
@@ -133,7 +133,7 @@ namespace wisdom
                                                            int dst_row, int dst_col) noexcept
             -> Move
         {
-            Move move = Move::make_default (src_row, src_col, dst_row, dst_col);
+            Move move = Move::make (src_row, src_col, dst_row, dst_col);
             move.move_category_and_packed_flag = to_int8 (MoveCategory::Castling);
             return move;
         }
@@ -148,7 +148,7 @@ namespace wisdom
                                                              int dst_row, int dst_col) noexcept
             -> Move
         {
-            Move move = make_default (src_row, src_col, dst_row, dst_col);
+            Move move = make (src_row, src_col, dst_row, dst_col);
             move.move_category_and_packed_flag = to_int8 (MoveCategory::EnPassant);
             return move;
         }
@@ -200,7 +200,7 @@ namespace wisdom
         {
             assert (move_category_and_packed_flag == to_int8 (MoveCategory::Default));
 
-            Move result = Move::make_default (get_src (), get_dst ());
+            Move result = Move::make (get_src (), get_dst ());
             result.move_category_and_packed_flag = to_int8 (MoveCategory::NormalCapturing);
             return result;
         }
