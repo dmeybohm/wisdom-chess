@@ -1,5 +1,6 @@
 #include "chessgame.hpp"
 #include "fen_parser.hpp"
+#include "game_settings.hpp"
 #include "move_timer.hpp"
 
 #include <QDebug>
@@ -112,4 +113,20 @@ void ChessGame::setPeriodicFunction(const MoveTimer::PeriodicFunction &func)
 {
     auto gameState = this->state();
     gameState->set_periodic_function(func);
+}
+
+auto ChessGame::Config::fromGameSettings(const GameSettings& gameSettings) -> ChessGame::Config
+{
+    return ChessGame::Config {
+        .players = {
+            mapPlayer(gameSettings.whitePlayer()), mapPlayer(gameSettings.blackPlayer())
+        },
+        .maxDepth = MaxDepth { gameSettings.maxDepth() },
+        .maxTime = std::chrono::seconds { gameSettings.maxSearchTime()}
+    };
+}
+
+ChessGame::Config ChessGame::Config::defaultConfig()
+{
+    return fromGameSettings( GameSettings {} );
 }

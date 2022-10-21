@@ -1,5 +1,5 @@
-#ifndef CHESSGAME_H
-#define CHESSGAME_H
+#ifndef WISDOM_CHESS_CHESSGAME_H
+#define WISDOM_CHESS_CHESSGAME_H
 
 #include <memory>
 #include <chrono>
@@ -42,6 +42,8 @@ private:
     int myUserDepth;
 };
 
+class GameSettings;
+
 class ChessGame
 {
 public:
@@ -52,14 +54,9 @@ public:
         MaxDepth maxDepth;
         std::chrono::seconds maxTime;
 
-        static auto defaultConfig() -> Config
-        {
-            return {
-                { wisdom::Player::Human, wisdom::Player::ChessEngine },
-                MaxDepth { 3 },
-                std::chrono::seconds { 4 },
-            };
-        }
+        static auto fromGameSettings(const GameSettings& gameSettings) -> Config;
+
+        static auto defaultConfig() -> Config;
     };
 
     explicit ChessGame(std::unique_ptr<wisdom::Game> game, const Config& config)
@@ -116,4 +113,4 @@ private:
     Config myConfig;
 };
 
-#endif // CHESSGAME_H
+#endif // WISDOM_CHESS_CHESSGAME_H
