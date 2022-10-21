@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import WisdomChess 1.0
-import "Helper.js" as Helper
+import "../Helper.js" as Helper
 
 Item {
     id: myGridAndPieces

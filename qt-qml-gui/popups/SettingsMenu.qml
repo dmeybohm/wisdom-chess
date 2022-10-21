@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts 
 import WisdomChess
 
-import "Helper.js" as Helper
+import "../Helper.js" as Helper
 
 Menu {
     id: settingsMenu

@@ -3,7 +3,7 @@ import WisdomChess 1.0
 import QtQuick.Controls 
 import QtQuick.Layouts 
 
-import "Helper.js" as Helper
+import "../Helper.js" as Helper
 
 ApplicationWindow {
     id: topWindow
@@ -57,7 +57,7 @@ ApplicationWindow {
                 Layout.rightMargin: 2
                 implicitWidth: 25
                 implicitHeight: 25
-                imageSource: "images/bx-icon-menu.svg"
+                imageSource: "../images/bx-icon-menu.svg"
                 onClicked: settingsMenu.open()
             }
         }

@@ -39,7 +39,7 @@ ApplicationWindow {
             anchors.fill: parent
 
             Image {
-                source: "images/Chess_rlt45.svg"
+                source: "../images/Chess_rlt45.svg"
                 Layout.maximumWidth: 32
                 Layout.maximumHeight: 32
 
@@ -62,7 +62,7 @@ ApplicationWindow {
                 Layout.rightMargin: 10
                 implicitWidth: 25
                 implicitHeight: 25
-                imageSource: "images/bx-icon-menu-white.png"
+                imageSource: "../images/bx-icon-menu-white.png"
                 onClicked: settingsMenu.visible ? settingsMenu.close() : settingsMenu.open()
             }
         }

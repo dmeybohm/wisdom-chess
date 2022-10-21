@@ -1,6 +1,6 @@
 import QtQuick
 
-import "Helper.js" as Helper
+import "../Helper.js" as Helper
 
 Item {
     anchors.fill: parent

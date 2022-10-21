@@ -27,59 +27,59 @@ endif ()
 
 
 qt_add_executable(appWisdomChessQtQml
-    main.cpp
-    gamemodel.hpp
-    gamemodel.cpp
-    piecesmodel.hpp
-    piecesmodel.cpp
-    chessgame.hpp
-    chessgame.cpp
-    chessengine.hpp
-    chessengine.cpp
-    ui_types.cpp
-    ui_types.hpp
-    ui_settings.hpp
-    ui_settings.cpp
-    game_settings.hpp
-    game_settings.cpp
+    main/main.cpp
+    main/gamemodel.hpp
+    main/gamemodel.cpp
+    main/piecesmodel.hpp
+    main/piecesmodel.cpp
+    main/chessgame.hpp
+    main/chessgame.cpp
+    main/chessengine.hpp
+    main/chessengine.cpp
+    main/ui_types.cpp
+    main/ui_types.hpp
+    main/ui_settings.hpp
+    main/ui_settings.cpp
+    main/game_settings.hpp
+    main/game_settings.cpp
     ${app_icon_resource_windows}
     ${app_icon_macos}
 )
 
 if(ANDROID)
     set(PLATFORM_QML_FILES
-        MobileRoot.qml
+        main/MobileRoot.qml
     )
-    set(MAIN_QML_FILE mobile_main.qml)
+    set(MAIN_QML_FILE main/mobile_main.qml)
 elseif(EMSCRIPTEN)
     set(PLATFORM_QML_FILES
-        DesktopRoot.qml
+        main/DesktopRoot.qml
     )
-    set(MAIN_QML_FILE wasm_main.qml)
+    set(MAIN_QML_FILE main/wasm_main.qml)
 else()
     set(PLATFORM_QML_FILES
-        DesktopRoot.qml
+        main/DesktopRoot.qml
     )
-    set(MAIN_QML_FILE desktop_main.qml)
+    set(MAIN_QML_FILE main/desktop_main.qml)
 endif()
 
 qt_add_qml_module(appWisdomChessQtQml
     URI WisdomChess
     VERSION 1.0
     QML_FILES
-        Board.qml
-        BoardDimensions.qml
-        ChessSquare.qml
-        Dialogs.qml
-        Piece.qml
-        PromoteDropdown.qml
-        PromotedPieceModel.qml
-        DrawProposalDialog.qml
-        AboutDialog.qml
-        NewGameDialog.qml
-        SettingsMenu.qml
-        StatusBar.qml
-        ImageToolButton.qml
+        main/Board.qml
+        main/BoardDimensions.qml
+        main/ChessSquare.qml
+        popups/Dialogs.qml
+        main/Piece.qml
+        popups/PromoteDropdown.qml
+        popups/PromotedPieceModel.qml
+        popups/DrawProposalDialog.qml
+        popups/AboutDialog.qml
+        popups/NewGameDialog.qml
+        popups/SettingsMenu.qml
+        main/StatusBar.qml
+        main/ImageToolButton.qml
         Helper.js
         ${PLATFORM_QML_FILES}
         ${MAIN_QML_FILE}

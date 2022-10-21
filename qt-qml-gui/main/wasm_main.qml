@@ -3,7 +3,7 @@ import WisdomChess 1.0
 import QtQuick.Controls 
 import QtQuick.Layouts 
 
-import "Helper.js" as Helper
+import "../Helper.js" as Helper
 
 ApplicationWindow {
     id: topWindow
@@ -45,7 +45,7 @@ ApplicationWindow {
                     implicitWidth: 32
                     implicitHeight: 32
                     anchors.verticalCenter: parent.verticalCenter
-                    imageSource: "images/Chess_rlt45.svg"
+                    imageSource: "../images/Chess_rlt45.svg"
 
                     MouseArea {
                         anchors.fill: parent
@@ -80,7 +80,7 @@ ApplicationWindow {
                     anchors.verticalCenter: parent.verticalCenter
                     implicitWidth: 15
                     implicitHeight: 15
-                    imageSource: "images/bxs-down-arrow.svg"
+                    imageSource: "../images/bxs-down-arrow.svg"
 
                     MouseArea {
                         anchors.fill: parent
