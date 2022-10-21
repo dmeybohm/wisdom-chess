@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.2 COMPONENTS Quick REQUIRED)
+find_package(Qt6 6.4 COMPONENTS Quick REQUIRED)
 
 if (WIN32)
     set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/images/Chess-icons.rc")
@@ -38,8 +38,10 @@ qt_add_executable(appWisdomChessQtQml
     chessengine.cpp
     ui_types.cpp
     ui_types.hpp
-    ui_settings.cpp
     ui_settings.hpp
+    ui_settings.cpp
+    game_settings.hpp
+    game_settings.cpp
     ${app_icon_resource_windows}
     ${app_icon_macos}
 )

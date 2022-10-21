@@ -9,6 +9,7 @@
 #include "ui_types.hpp"
 #include "chessgame.hpp"
 #include "ui_settings.hpp"
+#include "game_settings.hpp"
 
 class GameModel : public QObject
 {
@@ -59,6 +60,11 @@ class GameModel : public QObject
                WRITE setUISettings
                NOTIFY uiSettingsChanged)
 
+    Q_PROPERTY(GameSettings gameSettings
+               READ gameSettings
+               WRITE setGameSettings
+               NOTIFY gameSettingsChanged)
+
 public:
     explicit GameModel(QObject *parent = nullptr);
     ~GameModel() override;
@@ -92,7 +98,10 @@ public:
     [[nodiscard]] auto fiftyMovesWithoutProgressDrawAnswered() const -> bool;
 
     void setUISettings(const UISettings& settings);
-    [[nodiscard]] auto uiSettings() const -> UISettings;
+    [[nodiscard]] auto uiSettings() const -> const UISettings&;
+
+    [[nodiscard]] auto gameSettings() const -> const GameSettings&;
+    void setGameSettings(const GameSettings &newGameSettings);
 
 signals:
     // The game object here is readonly.
@@ -114,6 +123,7 @@ signals:
     void inCheckChanged();
 
     void uiSettingsChanged();
+    void gameSettingsChanged();
 
     // Use a property to communicate to QML and the human player:
     void thirdRepetitionDrawProposedChanged();
@@ -123,7 +133,7 @@ signals:
 
     // Send draw response:
     void updateDrawStatus(wisdom::ProposedDrawType drawType, wisdom::Color player,
-        bool accepted);
+                          bool accepted);
 
     // Use a raw signal to communicate to the thread engine on the other thread.
     // We don't want to send on toggling the boolean.
@@ -184,6 +194,7 @@ private:
     bool myFiftyMovesWithProgressDrawAnswered = false;
 
     UISettings myUISettings {};
+    GameSettings myGameSettings {};
 
     void init();
     void setupNewEngineThread();

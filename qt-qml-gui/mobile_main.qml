@@ -28,7 +28,7 @@ ApplicationWindow {
     }
 
     Screen.onPrimaryOrientationChanged: {
-        uiSettings.squareSize = boardDimensions.calculateMaxSquareSize()
+        boardDimensions.squareSize = boardDimensions.calculateMaxSquareSize()
         console.log("new square size: "+uiSettings.squareSize)
     }
 

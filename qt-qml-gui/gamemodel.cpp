@@ -323,7 +323,7 @@ void GameModel::handleMove(Player playerType, Move move, Color who)
 void GameModel::updateInternalGameState()
 {
     myChessGame->setPlayers(
-        mapPlayer(myUISettings.whitePlayer), mapPlayer(myUISettings.blackPlayer)
+        mapPlayer(myGameSettings.whitePlayer()), mapPlayer(myGameSettings.blackPlayer())
     );
     myChessGame->setConfig(gameConfig());
     notifyInternalGameStateUpdated();
@@ -345,8 +345,8 @@ auto GameModel::gameConfig() const -> ChessGame::Config
 {
     return ChessGame::Config {
         myChessGame->state()->get_players(),
-        MaxDepth { myUISettings.maxDepth },
-        chrono::seconds { myUISettings.maxSearchTime },
+        MaxDepth { myGameSettings.maxDepth() },
+        chrono::seconds { myGameSettings.maxSearchTime() },
     };
 }
 
@@ -494,17 +494,29 @@ void GameModel::resetStateForNewGame()
     setFiftyMovesWithoutProgressDrawProposed(false);
 }
 
-auto GameModel::uiSettings() const -> UISettings
+auto GameModel::uiSettings() const -> const UISettings&
 {
     return myUISettings;
 }
 
 void GameModel::setUISettings(const UISettings& settings)
 {
-    qDebug() << "setting new ui settings";
     if (myUISettings != settings) {
         myUISettings = settings;
         emit uiSettingsChanged();
+    }
+}
+
+auto GameModel::gameSettings() const -> const GameSettings&
+{
+    return myGameSettings;
+}
+
+void GameModel::setGameSettings(const GameSettings &newGameSettings)
+{
+    if (myGameSettings != newGameSettings) {
+        myGameSettings = newGameSettings;
+        emit gameSettingsChanged();
         updateInternalGameState();
     }
 }
