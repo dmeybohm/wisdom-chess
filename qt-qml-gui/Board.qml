@@ -16,9 +16,6 @@ Item {
         origin.x: width / 2
         origin.y: height / 2
         angle: flipped ? 180 : 0
-        axis.x: 1
-        axis.y: 0
-        axis.z: 0
 
         Behavior on angle {
             NumberAnimation {

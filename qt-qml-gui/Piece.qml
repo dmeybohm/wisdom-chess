@@ -33,9 +33,6 @@ Image {
             origin.x: myPieceImage.width / 2 + myTranslation.x
             origin.y: myPieceImage.height / 2 + myTranslation.y
             angle: myPieceImage.flipped ? 180 : 0
-            axis.x: 1
-            axis.y: 0
-            axis.z: 0
 
             Behavior on angle {
                 NumberAnimation {
