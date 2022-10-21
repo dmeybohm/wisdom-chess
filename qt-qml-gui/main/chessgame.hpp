@@ -55,8 +55,6 @@ public:
         std::chrono::seconds maxTime;
 
         static auto fromGameSettings(const GameSettings& gameSettings) -> Config;
-
-        static auto defaultConfig() -> Config;
     };
 
     explicit ChessGame(std::unique_ptr<wisdom::Game> game, const Config& config)

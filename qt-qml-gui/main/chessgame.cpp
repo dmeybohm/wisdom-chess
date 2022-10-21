@@ -125,8 +125,3 @@ auto ChessGame::Config::fromGameSettings(const GameSettings& gameSettings) -> Ch
         .maxTime = std::chrono::seconds { gameSettings.maxSearchTime()}
     };
 }
-
-ChessGame::Config ChessGame::Config::defaultConfig()
-{
-    return fromGameSettings( GameSettings {} );
-}

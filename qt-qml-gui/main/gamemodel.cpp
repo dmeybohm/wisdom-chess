@@ -59,10 +59,9 @@ GameModel::GameModel(QObject *parent)
     myChessGame = ChessGame::fromPlayers(
                 Player::Human,
                 Player::ChessEngine,
-                ChessGame::Config::defaultConfig()
+                ChessGame::Config::fromGameSettings (myGameSettings)
     );
     init ();
-
 }
 
 GameModel::~GameModel()
@@ -155,7 +154,6 @@ void GameModel::restart()
         myChessGame->state()->get_player(Color::White),
         myChessGame->state()->get_player(Color::Black),
         gameConfig()
-
     ));
 
     // Abort searches and discard any queued signals from them if we receive
