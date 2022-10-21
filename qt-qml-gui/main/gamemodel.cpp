@@ -203,10 +203,9 @@ void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who, int game
 
 void GameModel::promotePiece(int srcRow, int srcColumn,
                              int dstRow, int dstColumn,
-                             const QString& pieceString)
+                             wisdom::ui::PieceType pieceType)
 {
-    optional<Piece> pieceType = pieceFromString(pieceString);
-    movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, pieceType);
+    movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, mapPiece(pieceType));
 }
 
 void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,

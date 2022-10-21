@@ -150,7 +150,7 @@ public slots:
                            int engineId);
 
     void promotePiece(int srcRow, int srcColumn,
-                      int dstRow, int dstColumn, const QString& pieceType);
+                      int dstRow, int dstColumn, wisdom::ui::PieceType pieceType);
 
     void humanWantsThreefoldRepetitionDraw(bool accepted);
     void humanWantsFiftyMovesWithoutProgressDraw(bool accepted);

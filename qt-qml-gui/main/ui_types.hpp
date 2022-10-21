@@ -26,6 +26,20 @@ namespace wisdom::ui
 
     Q_ENUM_NS(Player)
 
+    enum class PieceType
+    {
+        None = 0,
+        Pawn,
+        Knight,
+        Bishop,
+        Rook,
+        Queen,
+        King
+    };
+
+    Q_ENUM_NS(PieceType)
+
+    // Register the enums in QML:
     void registerQmlTypes();
 
     constexpr auto mapColor(wisdom::Color color) -> wisdom::ui::Color
@@ -64,6 +78,35 @@ namespace wisdom::ui
         }
     }
 
+    constexpr auto mapPiece(ui::PieceType piece) -> wisdom::Piece
+    {
+        switch (piece) {
+        case PieceType::None:    return wisdom::Piece::None;
+        case PieceType::Pawn:    return wisdom::Piece::Pawn;
+        case PieceType::Knight:  return wisdom::Piece::Knight;
+        case PieceType::Bishop:  return wisdom::Piece::Bishop;
+        case PieceType::Rook:    return wisdom::Piece::Rook;
+        case PieceType::Queen:   return wisdom::Piece::Queen;
+        case PieceType::King:    return wisdom::Piece::King;
+        default:
+            assert(0); abort();
+        }
+    }
+
+    constexpr auto mapPiece(wisdom::Piece piece) -> ui::PieceType
+    {
+        switch (piece) {
+        case wisdom::Piece::None:    return PieceType::None;
+        case wisdom::Piece::Pawn:    return PieceType::Pawn;
+        case wisdom::Piece::Knight:  return PieceType::Knight;
+        case wisdom::Piece::Bishop:  return PieceType::Bishop;
+        case wisdom::Piece::Rook:    return PieceType::Rook;
+        case wisdom::Piece::Queen:   return PieceType::Queen;
+        case wisdom::Piece::King:    return PieceType::King;
+        default:
+            assert(0); abort();
+        }
+    }
 };
 
 #endif // WISDOM_CHESSCOLOR_H

@@ -17,4 +17,11 @@ void wisdom::ui::registerQmlTypes()
         "Player",
         "Not creatable as it is an enum type"
     );
+    qmlRegisterUncreatableMetaObject(
+        wisdom::ui::staticMetaObject,
+        "WisdomChess",
+        1, 0,
+        "PieceType",
+        "Not creatable as it is an enum type"
+    );
 }

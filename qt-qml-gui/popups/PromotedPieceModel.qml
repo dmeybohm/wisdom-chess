@@ -1,4 +1,5 @@
 import QtQuick
+import WisdomChess
 
 ListModel {
     property bool reversed: false
@@ -6,22 +7,22 @@ ListModel {
     ListElement {
         whiteImage: "../images/Chess_qlt45.svg"
         blackImage: "../images/Chess_qdt45.svg"
-        piece: 'queen'
+        piece: PieceType.Queen
     }
     ListElement {
         whiteImage: "../images/Chess_rlt45.svg"
         blackImage: "../images/Chess_rdt45.svg"
-        piece: 'rook'
+        piece: PieceType.Rook
     }
     ListElement {
         whiteImage: "../images/Chess_blt45.svg"
-        blackImage: ".../images/Chess_bdt45.svg"
-        piece: 'bishop'
+        blackImage: "../images/Chess_bdt45.svg"
+        piece: PieceType.Bishop
     }
     ListElement {
         whiteImage: "../images/Chess_nlt45.svg"
         blackImage: "../images/Chess_ndt45.svg"
-        piece: 'knight'
+        piece: PieceType.Knight
     }
 
     function setFirstRow(firstRow) {
