@@ -10,7 +10,7 @@ Item {
     height: topWindow.boardHeight
 
     property var animateRowAndColChange: myPiecesLayer.animateRowAndColChange
-    property bool flipped: uiSettings.flipped
+    property bool flipped: _myGameModel.uiSettings.flipped
 
     transform: Rotation {
         origin.x: width / 2

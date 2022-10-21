@@ -6,9 +6,9 @@ import QtQuick.Layouts
 ApplicationWindow {
     id: topWindow
 
-    readonly property int boardWidth: uiSettings.boardWidth
-    readonly property int boardHeight: uiSettings.boardHeight
-    readonly property int squareSize: uiSettings.squareSize
+    readonly property int boardWidth: boardDimensions.boardWidth
+    readonly property int boardHeight: boardDimensions.boardHeight
+    readonly property int squareSize: boardDimensions.squareSize
 
     width: Screen.width
     height: Screen.height
@@ -28,7 +28,7 @@ ApplicationWindow {
     }
 
     Screen.onPrimaryOrientationChanged: {
-        uiSettings.squareSize = uiSettings.calculateMaxSquareSize()
+        uiSettings.squareSize = boardDimensions.calculateMaxSquareSize()
         console.log("new square size: "+uiSettings.squareSize)
     }
 
@@ -88,7 +88,7 @@ ApplicationWindow {
         }
     }
 
-    UISettings {
-        id: uiSettings
+    BoardDimensions {
+        id: boardDimensions
     }
 }

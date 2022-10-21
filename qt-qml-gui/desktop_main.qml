@@ -8,9 +8,9 @@ import "Helper.js" as Helper
 ApplicationWindow {
     id: topWindow
 
-    readonly property int boardWidth: uiSettings.boardWidth
-    readonly property int boardHeight: uiSettings.boardHeight
-    readonly property int squareSize: uiSettings.squareSize
+    readonly property int boardWidth: boardDimensions.boardWidth
+    readonly property int boardHeight: boardDimensions.boardHeight
+    readonly property int squareSize: boardDimensions.squareSize
 
     width: boardWidth + 48
     height: boardHeight + 48 + 145
@@ -75,7 +75,7 @@ ApplicationWindow {
 
     }
 
-    UISettings {
-        id: uiSettings
+    BoardDimensions {
+        id: boardDimensions
     }
 }

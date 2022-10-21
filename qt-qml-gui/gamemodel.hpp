@@ -8,6 +8,7 @@
 
 #include "ui_types.hpp"
 #include "chessgame.hpp"
+#include "ui_settings.hpp"
 
 class GameModel : public QObject
 {
@@ -53,6 +54,11 @@ class GameModel : public QObject
                WRITE setInCheck
                NOTIFY inCheckChanged)
 
+    Q_PROPERTY(UISettings uiSettings
+               READ uiSettings
+               WRITE setUISettings
+               NOTIFY uiSettingsChanged)
+
 public:
     explicit GameModel(QObject *parent = nullptr);
     ~GameModel() override;
@@ -85,10 +91,8 @@ public:
     void setFiftyMovesWithoutProgressDrawAnswered(bool drawProposedToHuman);
     [[nodiscard]] auto fiftyMovesWithoutProgressDrawAnswered() const -> bool;
 
-    Q_INVOKABLE void setWhitePlayer(wisdom::ui::Player whitePlayer);
-    Q_INVOKABLE void setBlackPlayer(wisdom::ui::Player blackPlayer);
-    Q_INVOKABLE void setMaxDepth(int maxDepth);
-    Q_INVOKABLE void setMaxSearchTime(int maxSearchTime);
+    void setUISettings(const UISettings& settings);
+    [[nodiscard]] auto uiSettings() const -> UISettings;
 
 signals:
     // The game object here is readonly.
@@ -108,6 +112,8 @@ signals:
     void gameOverStatusChanged();
     void moveStatusChanged();
     void inCheckChanged();
+
+    void uiSettingsChanged();
 
     // Use a property to communicate to QML and the human player:
     void thirdRepetitionDrawProposedChanged();
@@ -176,10 +182,8 @@ private:
     bool myFiftyMovesWithProgressDrawProposed = false;
     bool myThirdRepetitionDrawAnswered = false;
     bool myFiftyMovesWithProgressDrawAnswered = false;
-    wisdom::ui::Player myWhitePlayer = wisdom::ui::Player::Human;
-    wisdom::ui::Player myBlackPlayer = wisdom::ui::Player::Human;
-    int myMaxDepth;
-    int myMaxSearchTime;
+
+    UISettings myUISettings {};
 
     void init();
     void setupNewEngineThread();

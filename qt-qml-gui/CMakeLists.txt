@@ -38,6 +38,8 @@ qt_add_executable(appWisdomChessQtQml
     chessengine.cpp
     ui_types.cpp
     ui_types.hpp
+    ui_settings.cpp
+    ui_settings.hpp
     ${app_icon_resource_windows}
     ${app_icon_macos}
 )
@@ -64,7 +66,7 @@ qt_add_qml_module(appWisdomChessQtQml
     VERSION 1.0
     QML_FILES
         Board.qml
-        UISettings.qml
+        BoardDimensions.qml
         ChessSquare.qml
         Dialogs.qml
         Piece.qml

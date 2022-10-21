@@ -53,9 +53,7 @@ namespace
 
 GameModel::GameModel(QObject *parent)
     : QObject(parent)
-    , myMaxDepth { 3 }
     , myCurrentTurn {}
-    , myMaxSearchTime { 4 }
     , myChessEngineThread { nullptr }
 {
     myChessGame = ChessGame::fromPlayers(
@@ -267,11 +265,7 @@ void GameModel::updateEngineConfig()
 
     myConfigId++;
 
-    emit engineConfigChanged(ChessGame::Config {
-         myChessGame->state()->get_players(),
-         MaxDepth { myMaxDepth },
-         std::chrono::seconds { myMaxSearchTime },
-    }, buildNotifier());
+    emit engineConfigChanged(gameConfig(), buildNotifier());
 }
 
 auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
@@ -328,7 +322,9 @@ void GameModel::handleMove(Player playerType, Move move, Color who)
 
 void GameModel::updateInternalGameState()
 {
-    myChessGame->setPlayers(mapPlayer(myWhitePlayer), mapPlayer(myBlackPlayer));
+    myChessGame->setPlayers(
+        mapPlayer(myUISettings.whitePlayer), mapPlayer(myUISettings.blackPlayer)
+    );
     myChessGame->setConfig(gameConfig());
     notifyInternalGameStateUpdated();
 }
@@ -349,8 +345,8 @@ auto GameModel::gameConfig() const -> ChessGame::Config
 {
     return ChessGame::Config {
         myChessGame->state()->get_players(),
-        MaxDepth { myMaxDepth },
-        chrono::seconds { myMaxSearchTime },
+        MaxDepth { myUISettings.maxDepth },
+        chrono::seconds { myUISettings.maxSearchTime },
     };
 }
 
@@ -498,34 +494,17 @@ void GameModel::resetStateForNewGame()
     setFiftyMovesWithoutProgressDrawProposed(false);
 }
 
-void GameModel::setWhitePlayer(wisdom::ui::Player newPlayer)
+auto GameModel::uiSettings() const -> UISettings
 {
-    if (myWhitePlayer != newPlayer) {
-        myWhitePlayer = newPlayer;
-        updateInternalGameState();
-    }
+    return myUISettings;
 }
 
-void GameModel::setMaxDepth(int maxDepth)
+void GameModel::setUISettings(const UISettings& settings)
 {
-    if (myMaxDepth != maxDepth) {
-        myMaxDepth = maxDepth;
-        debouncedUpdateConfig();
-    }
-}
-
-void GameModel::setMaxSearchTime(int maxSearchTime)
-{
-    if (maxSearchTime != myMaxSearchTime) {
-        myMaxSearchTime = maxSearchTime;
-        debouncedUpdateConfig();
-    }
-}
-
-void GameModel::setBlackPlayer(wisdom::ui::Player newPlayer)
-{
-    if (myBlackPlayer != newPlayer) {
-        myBlackPlayer = newPlayer;
+    qDebug() << "setting new ui settings";
+    if (myUISettings != settings) {
+        myUISettings = settings;
+        emit uiSettingsChanged();
         updateInternalGameState();
     }
 }
