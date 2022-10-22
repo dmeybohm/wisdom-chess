@@ -72,12 +72,14 @@ qt_add_qml_module(appWisdomChessQtQml
         main/ChessSquare.qml
         popups/Dialogs.qml
         main/Piece.qml
+        popups/GameMenu.qml
         popups/PromoteDropdown.qml
         popups/PromotedPieceModel.qml
         popups/DrawProposalDialog.qml
         popups/AboutDialog.qml
         popups/NewGameDialog.qml
         popups/SettingsMenu.qml
+        popups/ConfirmQuitDialog.qml
         main/StatusBar.qml
         main/ImageToolButton.qml
         Helper.js
@@ -101,6 +103,7 @@ qt_add_qml_module(appWisdomChessQtQml
         images/bx-icon-menu-white.svg
         images/bx-icon-menu-white.png
         images/bxs-down-arrow.svg
+        images/bxs-cog.svg
 )
 
 set_target_properties(appWisdomChessQtQml PROPERTIES

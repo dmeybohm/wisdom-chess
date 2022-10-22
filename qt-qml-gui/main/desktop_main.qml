@@ -32,6 +32,7 @@ ApplicationWindow {
 
     header: ToolBar {
         id: toolbar
+        height: 35
 
         RowLayout {
             anchors.fill: parent
@@ -46,31 +47,43 @@ ApplicationWindow {
                 verticalAlignment: Qt.AlignVCenter
             }
 
-            Item {
-                Layout.fillWidth: true
+            ImageToolButton {
                 Layout.alignment: Qt.AlignLeft;
+                Layout.fillHeight: true
+                Layout.rightMargin: 2
+                implicitWidth: 30
+                implicitHeight: 30
+                imageSource: "../images/bx-icon-menu.svg"
+                onClicked: gameMenu.open()
             }
 
             ImageToolButton {
                 Layout.alignment: Qt.AlignRight;
                 Layout.fillHeight: true
                 Layout.rightMargin: 2
-                implicitWidth: 25
-                implicitHeight: 25
-                imageSource: "../images/bx-icon-menu.svg"
+                implicitWidth: 30
+                implicitHeight: 30
+                imageSource: "../images/bxs-cog.svg"
                 onClicked: settingsMenu.open()
             }
+
         }
     }
 
     DesktopRoot {
         id: root
 
+        GameMenu {
+            id: gameMenu
+            x: 0
+            onShowAboutDialog: root.showAboutDialog()
+            onShowNewGameDialog: root.showNewGameDialog()
+            onQuit: root.showConfirmQuitDialog()
+        }
+
         SettingsMenu {
             id: settingsMenu
             x: root.width - settingsMenu.width
-            onShowAboutDialog: root.showAboutDialog()
-            onShowNewGameDialog: root.showNewGameDialog()
         }
 
     }

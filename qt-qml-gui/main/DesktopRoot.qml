@@ -23,6 +23,10 @@ Item {
         dialogs.showAboutDialog()
     }
 
+    function showConfirmQuitDialog() {
+        dialogs.showConfirmQuitDialog()
+    }
+
     ColumnLayout {
         id: colLayout
         anchors.top: parent.top

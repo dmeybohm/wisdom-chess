@@ -9,16 +9,6 @@ Menu {
     id: settingsMenu
     implicitWidth: 380
 
-    signal showNewGameDialog()
-    signal showAboutDialog()
-
-    MenuItem {
-        text: "New Game"
-        onClicked: {
-            settingsMenu.showNewGameDialog()
-        }
-    }
-    MenuSeparator {}
     MenuItem {
         text: "White Player"
 
@@ -139,15 +129,6 @@ Menu {
             onValueChanged: {
                 _myGameModel.gameSettings.maxDepth = parseInt(value, 10)
             }
-        }
-    }
-
-    MenuSeparator {}
-
-    MenuItem {
-        text: "About"
-        onClicked: {
-            settingsMenu.showAboutDialog()
         }
     }
 

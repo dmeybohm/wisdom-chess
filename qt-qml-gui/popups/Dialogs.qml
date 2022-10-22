@@ -13,6 +13,10 @@ Item {
         aboutDialog.visible = true
     }
 
+    function showConfirmQuitDialog() {
+        confirmQuitDialog.visible = true
+    }
+
     DrawProposalDialog {
         id: threefoldRepetitionDialog
         visible: !_myGameModel.thirdRepetitionDrawAnswered &&
@@ -63,6 +67,14 @@ Item {
     AboutDialog {
         id: aboutDialog
         visible: false
+        anchors.centerIn: parent
+    }
+
+    ConfirmQuitDialog {
+        id: confirmQuitDialog
+        visible: false
+        width: Math.min(500, Screen.width - 50)
+        height: Math.min(150, Screen.height - 10)
         anchors.centerIn: parent
     }
 }
