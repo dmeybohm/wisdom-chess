@@ -3,6 +3,7 @@ import WisdomChess
 import QtQuick.Controls 
 import QtQuick.Layouts 
 import "../popups"
+import "../Helper.js" as Helper
 
 ApplicationWindow {
     id: topWindow
@@ -10,6 +11,9 @@ ApplicationWindow {
     readonly property int boardWidth: boardDimensions.boardWidth
     readonly property int boardHeight: boardDimensions.boardHeight
     readonly property int squareSize: boardDimensions.squareSize
+
+    readonly property bool isWebAssembly: Helper.isWebAssembly()
+    readonly property bool isMobile: Helper.isMobile()
 
     width: Screen.width
     height: Screen.height

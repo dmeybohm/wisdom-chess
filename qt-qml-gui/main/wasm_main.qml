@@ -12,6 +12,9 @@ ApplicationWindow {
     readonly property int boardHeight: boardDimensions.boardHeight
     readonly property int squareSize: boardDimensions.squareSize
 
+    readonly property bool isWebAssembly: Helper.isWebAssembly()
+    readonly property bool isMobile: Helper.isMobile()
+
     width: boardWidth + 48
     height: boardHeight + 48 + 145
 

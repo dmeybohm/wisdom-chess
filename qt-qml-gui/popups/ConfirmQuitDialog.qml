@@ -21,7 +21,7 @@ Dialog {
         font.pointSize: 16
         anchors.fill: parent
 
-        verticalAlignment: Helper.isMobile() ? Text.AlignTop : Text.AlignVCenter
+        verticalAlignment: topWindow.isMobile ? Text.AlignTop : Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
     }

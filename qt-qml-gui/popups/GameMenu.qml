@@ -13,6 +13,7 @@ Menu {
     signal showSettingsDialog()
     signal quit()
 
+    property bool hideFinalItem: topWindow.isWebAssembly || topWindow.isMobile
     MenuItem {
         text: "New Game"
         onClicked: {
@@ -36,23 +37,17 @@ Menu {
 
     MenuSeparator {
         id: finalSeparator
+        height: hideFinalItem ? 0 : implicitHeight
+        visible: hideFinalItem ? false : true
     }
 
     MenuItem {
         id: quitItem
         text: "Quit"
+        height: hideFinalItem ? 0 : implicitHeight
+        visible: hideFinalItem ? false : true
         onClicked: {
             gameMenu.quit()
-        }
-    }
-
-    Component.onCompleted: {
-        // Hide quit option and separator on webassembly / mobile:
-        if (Helper.isWebAssembly() || Helper.isMobile()) {
-            finalSeparator.height = 0
-            finalSeparator.visible = false
-            quitItem.height = 0
-            quitItem.visible = false
         }
     }
 }

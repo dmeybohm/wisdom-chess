@@ -6,8 +6,8 @@ Dialog {
     id: aboutDialog
     modal: true
     title: "About Wisdom Chess"
-    implicitWidth: Helper.isWebAssembly() ? 550 : 400
-    implicitHeight: Helper.isWebAssembly() ? 385 : 350
+    implicitWidth: topWindow.isWebAssembly ? 550 : 400
+    implicitHeight: topWindow.isWebAssembly ? 385 : 350
 
     onAccepted: {
         visible = false
@@ -15,7 +15,7 @@ Dialog {
 
     footer: DialogButtonBox {
         standardButtons: Dialog.Ok
-        alignment: Helper.isWebAssembly() ? Qt.AlignHCenter : Qt.AlignRight
+        alignment: topWindow.isWebAssembly ? Qt.AlignHCenter : Qt.AlignRight
     }
 
     Column {
@@ -35,7 +35,7 @@ Dialog {
             font.pointSize: 14
             width: parent.width
 
-            verticalAlignment: Helper.isMobile() ? Text.AlignTop : Text.AlignVCenter
+            verticalAlignment: topWindow.isMobile ? Text.AlignTop : Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
         }
@@ -46,7 +46,7 @@ Dialog {
             font.pointSize: 14
             width: parent.width
 
-            verticalAlignment: Helper.isMobile() ? Text.AlignTop : Text.AlignVCenter
+            verticalAlignment: topWindow.isMobile ? Text.AlignTop : Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
         }
@@ -57,7 +57,7 @@ Dialog {
             font.pointSize: 14
             width: parent.width
 
-            verticalAlignment: Helper.isMobile() ? Text.AlignTop : Text.AlignVCenter
+            verticalAlignment: topWindow.isMobile ? Text.AlignTop : Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
         }
@@ -68,7 +68,7 @@ Dialog {
             font.pointSize: 14
             width: parent.width
 
-            verticalAlignment: Helper.isMobile() ? Text.AlignTop : Text.AlignVCenter
+            verticalAlignment: topWindow.isMobile ? Text.AlignTop : Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
         }

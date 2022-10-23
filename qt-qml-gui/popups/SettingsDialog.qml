@@ -30,6 +30,11 @@ Dialog {
         if (Helper.isMobile()) {
             width = Screen.width - 20
             contentColumn.width = width - 30
+        } else if (Helper.isWebAssembly()) {
+            width = Math.min(Screen.width - 20, 500)
+            contentColumn.width = width - 60
+            topPadding = 30
+            bottomPadding = 30
         } else {
             width = Math.min(Screen.width - 20, 400)
             contentColumn.width = width - 60
@@ -40,7 +45,7 @@ Dialog {
 
     Timer {
         id: applySettingsTimer
-        interval: 500
+        interval: 350
         repeat: false
         onTriggered: {
             internal.applySettings()
@@ -55,7 +60,7 @@ Dialog {
         property var toSaveUISettings
         property var toSaveGameSettings
 
-        property var fontSize: Helper.isMobile() ? "12" : "16"
+        property var fontSize: topWindow.isMobile ? "12" : "16"
 
         function movesLabel(numMoves) {
             return parseInt(numMoves, 10) === 1 ? "1 move" : numMoves + " moves"
