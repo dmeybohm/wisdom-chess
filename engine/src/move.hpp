@@ -78,7 +78,7 @@ namespace wisdom
 
     [[nodiscard]] constexpr auto move_category_from_int (int source) -> MoveCategory
     {
-        assert (source < 4);
+        assert (source <= 4);
         return static_cast<MoveCategory> (source);
     }
 
