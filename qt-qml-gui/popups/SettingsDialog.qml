@@ -8,6 +8,7 @@ Dialog {
     modal: true
     standardButtons: Dialog.Apply | Dialog.Cancel
     title: "Settings"
+    rightPadding: 25
 
     onApplied: {
         _myGameModel.gameSettings = internal.myGameSettings
@@ -25,6 +26,10 @@ Dialog {
 
     Component.onCompleted: {
         internal.resetSettings()
+        if (Helper.isMobile()) {
+            width = Screen.width - 20
+            contentColumn.width = width - 30
+        }
     }
 
     QtObject {
@@ -32,6 +37,7 @@ Dialog {
 
         property var myUISettings
         property var myGameSettings
+        property var fontSize: Helper.isMobile() ? "12" : "18"
 
         function movesLabel(numMoves) {
             return parseInt(numMoves, 10) === 1 ? "1 move" : numMoves + " moves"
@@ -48,25 +54,26 @@ Dialog {
     }
 
     ColumnLayout {
-
-        width: parent.width - 50
-        anchors.centerIn: parent
+        id: contentColumn
         spacing: 10
 
         RowLayout {
             Text {
                 Layout.fillWidth: true
+                font.pixelSize: internal.fontSize
                 text: "White Player"
             }
 
             RowLayout {
                 RadioButton {
                     text: "Human"
+                    font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.whitePlayer === Player.Human
                     onClicked: internal.myGameSettings.whitePlayer = Player.Human
                 }
                 RadioButton {
                     text: "Computer"
+                    font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.whitePlayer === Player.Computer
                     onClicked: internal.myGameSettings.whitePlayer = Player.Computer
                 }
@@ -77,16 +84,19 @@ Dialog {
             Text {
                 Layout.fillWidth: true
                 text: "Black Player"
+                font.pixelSize: internal.fontSize
             }
 
             RowLayout {
                 RadioButton {
                     text: "Human"
+                    font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.blackPlayer === Player.Human
                     onClicked: internal.myGameSettings.blackPlayer = Player.Human
                 }
                 RadioButton {
                     text: "Computer"
+                    font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.blackPlayer === Player.Computer
                     onClicked: internal.myGameSettings.blackPlayer = Player.Computer
                 }
@@ -97,9 +107,11 @@ Dialog {
             Text {
                 Layout.fillWidth: true
                 text: "Flip Board"
+                font.pixelSize: internal.fontSize
             }
 
             CheckBox {
+                font.pixelSize: internal.fontSize
                 checked: internal.myUISettings.flipped
                 onClicked: internal.myUISettings.flipped = !internal.myUISettings.flipped
             }
@@ -109,17 +121,20 @@ Dialog {
             Text {
                 Layout.fillWidth: true
                 text: "Thinking Time"
+                font.pixelSize: internal.fontSize
             }
 
             RowLayout {
                 Text {
                     text: "0:" + Helper.zeroPad(thinkingTimeSlider.value.toString())
+                    font.pixelSize: internal.fontSize
                 }
 
                 Slider {
                     id: thinkingTimeSlider
+                    font.pixelSize: internal.fontSize
+                    implicitWidth: 150
                     value: internal.myGameSettings.maxSearchTime
-                    width: 150
                     stepSize: 1
                     from: 1
                     to: 30
@@ -133,20 +148,25 @@ Dialog {
         }
 
         RowLayout {
+            spacing: 5
+
             Text {
                 Layout.fillWidth: true
                 text: "Search Depth"
+                font.pixelSize: internal.fontSize
             }
 
             RowLayout {
                 Text {
                     text: internal.movesLabel(maxDepthSlider.value.toString())
+                    font.pixelSize: internal.fontSize
                 }
 
                 Slider {
                     id: maxDepthSlider
+                    font.pixelSize: internal.fontSize
                     value: internal.myGameSettings.maxDepth
-                    width: thinkingTimeSlider.width
+                    implicitWidth: thinkingTimeSlider.implicitWidth
                     from: 1
                     to: 8
                     stepSize: 1
