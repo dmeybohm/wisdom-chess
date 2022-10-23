@@ -2,7 +2,7 @@
 #define WISDOM_CHESS_GLOBAL_HPP
 
 #include <cstdint>
-#include <climits>
+#include <limits>
 #include <exception>
 #include <string>
 #include <utility>
@@ -93,7 +93,7 @@ namespace wisdom
     static constexpr int Position_Score_Scale = 9;
 
     // Initial Alpha value for alpha-beta search.
-    static constexpr int Initial_Alpha = INT_MAX / 3;
+    static constexpr int Initial_Alpha = std::numeric_limits<int>::max() / 3;
 
     // Infinite score - regular scores can never be this high.
     // Checkmates are scored above this, depending on how far
