@@ -9,7 +9,8 @@ class UISettings
     Q_PROPERTY(bool flipped MEMBER myFlipped READ flipped)
 
 public:
-    bool operator == (const UISettings&) const = default;
+    friend bool operator ==(const UISettings &a, const UISettings&b);
+    friend bool operator !=(const UISettings &a, const UISettings&b);
 
     bool flipped() const;
 

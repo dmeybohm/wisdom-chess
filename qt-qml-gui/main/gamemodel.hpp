@@ -99,9 +99,11 @@ public:
 
     void setUISettings(const UISettings& settings);
     [[nodiscard]] auto uiSettings() const -> const UISettings&;
+    Q_INVOKABLE UISettings cloneUISettings();
 
     [[nodiscard]] auto gameSettings() const -> const GameSettings&;
     void setGameSettings(const GameSettings &newGameSettings);
+    Q_INVOKABLE GameSettings cloneGameSettings();
 
 signals:
     // The game object here is readonly.

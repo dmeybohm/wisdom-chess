@@ -1,6 +1,7 @@
 import QtQuick 
 import QtQuick.Controls 
 import QtQuick.Layouts 
+import "../popups"
 
 Item {
     width: parent.width
@@ -21,6 +22,10 @@ Item {
 
     function showAboutDialog() {
         dialogs.showAboutDialog()
+    }
+
+    function showSettingsDialog() {
+        dialogs.showSettingsDialog()
     }
 
     Flickable {

@@ -1,7 +1,8 @@
 import QtQuick 
-import WisdomChess 1.0
+import WisdomChess
 import QtQuick.Controls 
 import QtQuick.Layouts 
+import "../popups"
 
 import "../Helper.js" as Helper
 
@@ -79,6 +80,7 @@ ApplicationWindow {
             onShowAboutDialog: root.showAboutDialog()
             onShowNewGameDialog: root.showNewGameDialog()
             onQuit: root.showConfirmQuitDialog()
+            onShowSettingsDialog: root.showSettingsDialog()
         }
 
         SettingsMenu {

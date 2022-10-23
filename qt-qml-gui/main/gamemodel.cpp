@@ -3,6 +3,7 @@
 #include "game.hpp"
 #include "check.hpp"
 #include "chessengine.hpp"
+#include "ui_settings.hpp"
 
 #include <QDebug>
 #include <QTimer>
@@ -518,6 +519,16 @@ void GameModel::setGameSettings(const GameSettings &newGameSettings)
     }
 }
 
+auto GameModel::cloneUISettings() -> UISettings
+{
+    return myUISettings;
+}
+
+auto GameModel::cloneGameSettings() -> GameSettings
+{
+    return myGameSettings;
+}
+
 auto GameModel::thirdRepetitionDrawProposed() const -> bool
 {
     return myThirdRepetitionDrawProposed;
@@ -621,3 +632,4 @@ void GameModel::receiveChessEngineDrawStatus(wisdom::ProposedDrawType drawType,
     gameState->set_proposed_draw_status(drawType, who, accepted);
     updateDisplayedGameState();
 }
+

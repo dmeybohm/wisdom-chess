@@ -13,8 +13,9 @@ class GameSettings
     Q_PROPERTY(int maxDepth MEMBER myMaxDepth READ maxDepth)
     Q_PROPERTY(int maxSearchTime MEMBER myMaxSearchTime READ maxSearchTime)
 
-public:
-    bool operator == (const GameSettings&) const = default;
+public:    
+    friend bool operator == (const GameSettings&, const GameSettings&);
+    friend bool operator != (const GameSettings&, const GameSettings&);
 
     auto whitePlayer() const -> wisdom::ui::Player;
 

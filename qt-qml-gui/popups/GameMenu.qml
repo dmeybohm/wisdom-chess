@@ -10,6 +10,7 @@ Menu {
 
     signal showNewGameDialog()
     signal showAboutDialog()
+    signal showSettingsDialog()
     signal quit()
 
     MenuItem {
@@ -19,6 +20,13 @@ Menu {
         }
     }
     MenuSeparator {}
+
+    MenuItem {
+        text: "Settings"
+        onClicked: {
+            gameMenu.showSettingsDialog()
+        }
+    }
 
     MenuItem {
         text: "About Wisdom Chess"

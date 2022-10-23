@@ -17,6 +17,18 @@ Item {
         confirmQuitDialog.visible = true
     }
 
+    function showSettingsDialog() {
+        settingsDialog.visible = true
+    }
+
+    SettingsDialog {
+        id: settingsDialog
+        visible: false
+        anchors.centerIn: parent
+        width: Math.min(400, Screen.width - 50)
+        height: Math.min(Helper.isWebAssembly() ? 350 : 300, Screen.height - 10)
+    }
+
     DrawProposalDialog {
         id: threefoldRepetitionDialog
         visible: !_myGameModel.thirdRepetitionDrawAnswered &&

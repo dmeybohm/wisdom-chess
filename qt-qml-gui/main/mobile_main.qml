@@ -1,7 +1,8 @@
 import QtQuick 
-import WisdomChess 1.0
+import WisdomChess
 import QtQuick.Controls 
 import QtQuick.Layouts 
+import "../popups"
 
 ApplicationWindow {
     id: topWindow
@@ -63,7 +64,7 @@ ApplicationWindow {
                 implicitWidth: 25
                 implicitHeight: 25
                 imageSource: "../images/bx-icon-menu-white.png"
-                onClicked: settingsMenu.visible ? settingsMenu.close() : settingsMenu.open()
+                onClicked: gameMenu.visible ? gameMenu.close() : gameMenu.open()
             }
         }
     }
@@ -75,15 +76,16 @@ ApplicationWindow {
 
         Flickable {
 
-            visible: settingsMenu.visible
-            width: settingsMenu.width
-            height: Math.min(Screen.height, settingsMenu.height)
+            visible: gameMenu.visible
+            width: gameMenu.width
+            height: Math.min(Screen.height, gameMenu.height)
 
-            SettingsMenu {
-                id: settingsMenu
-                x: root.width - settingsMenu.width
+            GameMenu {
+                id: gameMenu
+                x: root.width - gameMenu.width
                 onShowNewGameDialog: root.showNewGameDialog();
                 onShowAboutDialog: root.showAboutDialog();
+                onShowSettingsDialog: root.showSettingsDialog();
             }
         }
     }

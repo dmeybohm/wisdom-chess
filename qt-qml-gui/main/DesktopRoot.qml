@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls 
 import QtQuick.Layouts 
 import WisdomChess
+import "../popups"
 
 Item {
     width: parent.width
@@ -25,6 +26,10 @@ Item {
 
     function showConfirmQuitDialog() {
         dialogs.showConfirmQuitDialog()
+    }
+
+    function showSettingsDialog() {
+        dialogs.showSettingsDialog()
     }
 
     ColumnLayout {

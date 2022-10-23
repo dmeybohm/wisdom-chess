@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import WisdomChess 1.0
+import WisdomChess
+import "../popups"
 import "../Helper.js" as Helper
 
 Item {
