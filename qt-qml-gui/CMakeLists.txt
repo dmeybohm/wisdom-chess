@@ -6,8 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.4 COMPONENTS Quick REQUIRED)
-
+find_package(Qt6 6.4 COMPONENTS Quick svg REQUIRED)
 if (WIN32)
     set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/images/Chess-icons.rc")
 elseif (APPLE)
@@ -123,7 +122,7 @@ endif()
 target_compile_definitions(appWisdomChessQtQml
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(appWisdomChessQtQml
-    PRIVATE Qt6::Quick)
+    PRIVATE Qt6::Quick Qt6::Svg)
 target_link_libraries(appWisdomChessQtQml
     PRIVATE wisdom::chess)
 target_compile_definitions(appWisdomChessQtQml

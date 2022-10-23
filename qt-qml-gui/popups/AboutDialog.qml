@@ -31,7 +31,7 @@ Dialog {
 
         Text {
             id: firstLine
-            text: "Wisdom Chess ©️ David Meybohm 2022"
+            text: "Wisdom Chess © David Meybohm 2022"
             font.pointSize: 14
             width: parent.width
 
@@ -42,7 +42,7 @@ Dialog {
 
         Text {
             id: secondLine
-            text: "Images ©️ Colin M.L. Burnett and used under creative commons license."
+            text: "Images © Colin M.L. Burnett and used under creative commons license."
             font.pointSize: 14
             width: parent.width
 
@@ -53,7 +53,7 @@ Dialog {
 
         Text {
             id: thirdLine
-            text: "Box icons ©️ boxicons.com and used under creative commons license."
+            text: "Box icons © boxicons.com and used under creative commons license."
             font.pointSize: 14
             width: parent.width
 
@@ -64,7 +64,7 @@ Dialog {
 
         Text {
             id: fourthLine
-            text: "Qt ©️ The Qt Company 2021 used under GPL / LGPL license."
+            text: "Qt © The Qt Company 2021 used under GPL / LGPL license."
             font.pointSize: 14
             width: parent.width
 
