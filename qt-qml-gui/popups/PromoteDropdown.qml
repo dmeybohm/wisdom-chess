@@ -1,5 +1,5 @@
 import QtQuick
-import wisdom.chess 1.0
+import WisdomChess 1.0
 
 FocusScope {
     id: dropDownTop
@@ -7,11 +7,18 @@ FocusScope {
     property int destinationColumn: 0
     property int sourceRow: 0
     property int sourceColumn: 0
+    property int drawAtRow: 0
+    property int drawAtColumn: 0
+    property bool flipped: false
+
+    onDestinationColumnChanged: {
+        myPromotedPieceModel.setFirstRow(destinationRow)
+    }
 
     transform: Translate {
         id: myTranslation
-        x: destinationColumn * topWindow.squareSize
-        y: destinationRow * topWindow.squareSize
+        x: drawAtColumn * topWindow.squareSize
+        y: drawAtRow * topWindow.squareSize
     }
 
     Rectangle {
@@ -38,6 +45,15 @@ FocusScope {
                width: topWindow.squareSize
                height: topWindow.squareSize
 
+               transform: Rotation {
+                    origin.x: width / 2
+                    origin.y: height / 2
+                    angle: dropDownTop.flipped ? 180 : 0
+                    axis.x: 1
+                    axis.y: 0
+                    axis.z: 0
+               }
+
                Rectangle {
                    id: myRect
                    anchors.fill: parent
@@ -46,7 +62,8 @@ FocusScope {
                }
 
                Image {
-                   source: model.whiteImage
+                   source: _myGameModel.currentTurn === Color.White ? model.whiteImage
+                                                                : model.blackImage
                    width: topWindow.squareSize
                    height: topWindow.squareSize
                }
@@ -56,7 +73,6 @@ FocusScope {
 
                    onClicked: {
                        if (myRect.focus) {
-                           console.log('promote piece here')
                            _myGameModel.promotePiece(
                                        sourceRow, sourceColumn,
                                        destinationRow, destinationColumn, model.piece)
@@ -64,7 +80,6 @@ FocusScope {
                            dropDownTop.focus = false
                        } else {
                            myRect.focus = true;
-                           console.log(model.piece)
                        }
                    }
                }

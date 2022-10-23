@@ -11,6 +11,10 @@ function isWebAssembly() {
     return Qt.platform.os == "wasm"
 }
 
+function isMacOS() {
+    return Qt.platform.os === "osx"
+}
+
 function computerOrHumanLabel(x)
 {
     return x ? "Computer" : "Human";
@@ -18,4 +22,12 @@ function computerOrHumanLabel(x)
 
 function zeroPad(num) {
     return num < 10 ? "0" + num : "" + num
+}
+
+function targetRowOrCol(flipped, rowOrCol) {
+    return flipped ? 8 - rowOrCol - 1 : rowOrCol
+}
+
+function promotedRow(row) {
+    return row === 7 ? 4 : row
 }

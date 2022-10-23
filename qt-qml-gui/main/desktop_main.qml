@@ -1,9 +1,10 @@
 import QtQuick 
-import wisdom.chess 1.0
+import WisdomChess
 import QtQuick.Controls 
 import QtQuick.Layouts 
 
-import "Helper.js" as Helper
+import "../popups"
+import "../Helper.js" as Helper
 
 ApplicationWindow {
     id: topWindow
@@ -11,6 +12,11 @@ ApplicationWindow {
     readonly property int boardWidth: boardDimensions.boardWidth
     readonly property int boardHeight: boardDimensions.boardHeight
     readonly property int squareSize: boardDimensions.squareSize
+
+    readonly property bool isWebAssembly: Helper.isWebAssembly()
+    readonly property bool isMobile: Helper.isMobile()
+    readonly property bool isDesktop: !Helper.isMobile() && !Helper.isWebAssembly()
+    readonly property bool isMacOS: Helper.isMacOS()
 
     width: boardWidth + 48
     height: boardHeight + 48 + 145
@@ -32,6 +38,7 @@ ApplicationWindow {
 
     header: ToolBar {
         id: toolbar
+        height: 35
 
         RowLayout {
             anchors.fill: parent
@@ -46,19 +53,14 @@ ApplicationWindow {
                 verticalAlignment: Qt.AlignVCenter
             }
 
-            Item {
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignLeft;
-            }
-
             ImageToolButton {
-                Layout.alignment: Qt.AlignRight;
+                Layout.alignment: Qt.AlignLeft;
                 Layout.fillHeight: true
                 Layout.rightMargin: 2
-                implicitWidth: 25
-                implicitHeight: 25
-                imageSource: "images/bx-icon-menu.svg"
-                onClicked: settingsMenu.open()
+                implicitWidth: 30
+                implicitHeight: 30
+                imageSource: "../images/bx-icon-menu.svg"
+                onClicked: gameMenu.open()
             }
         }
     }
@@ -66,11 +68,13 @@ ApplicationWindow {
     DesktopRoot {
         id: root
 
-        SettingsMenu {
-            id: settingsMenu
-            x: root.width - settingsMenu.width
+        GameMenu {
+            id: gameMenu
+            x: 0
             onShowAboutDialog: root.showAboutDialog()
             onShowNewGameDialog: root.showNewGameDialog()
+            onQuit: root.showConfirmQuitDialog()
+            onShowSettingsDialog: root.showSettingsDialog()
         }
 
     }

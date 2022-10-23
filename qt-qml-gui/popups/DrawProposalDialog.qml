@@ -1,5 +1,5 @@
 import QtQuick 
-import wisdom.chess 1.0
+import WisdomChess 1.0
 import QtQuick.Controls 
 
 Dialog {

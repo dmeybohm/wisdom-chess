@@ -6,17 +6,16 @@
 #include <QString>
 #include <QTimer>
 
-#include "chesscolor.hpp"
-#include "chessengine.hpp"
+#include "ui_types.hpp"
 #include "chessgame.hpp"
-#include "piecesmodel.hpp"
-#include "gamestate.hpp"
+#include "ui_settings.hpp"
+#include "game_settings.hpp"
 
 class GameModel : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(wisdom::chess::ChessColor currentTurn
+    Q_PROPERTY(wisdom::ui::Color currentTurn
                READ currentTurn
                WRITE setCurrentTurn
                NOTIFY currentTurnChanged)
@@ -56,25 +55,16 @@ class GameModel : public QObject
                WRITE setInCheck
                NOTIFY inCheckChanged)
 
-    Q_PROPERTY(bool whiteIsComputer
-               READ whiteIsComputer
-               WRITE setWhiteIsComputer
-               NOTIFY whiteIsComputerChanged)
+    Q_PROPERTY(UISettings uiSettings
+               READ uiSettings
+               WRITE setUISettings
+               NOTIFY uiSettingsChanged)
 
-    Q_PROPERTY(bool blackIsComputer
-               READ blackIsComputer
-               WRITE setBlackIsComputer
-               NOTIFY blackIsComputerChanged)
+    Q_PROPERTY(GameSettings gameSettings
+               READ gameSettings
+               WRITE setGameSettings
+               NOTIFY gameSettingsChanged)
 
-    Q_PROPERTY(int maxDepth
-               READ maxDepth
-               WRITE setMaxDepth
-               NOTIFY maxDepthChanged)
-
-    Q_PROPERTY(int maxSearchTime
-               READ maxSearchTime
-               WRITE setMaxSearchTime
-               NOTIFY maxSearchTimeChanged)
 
 public:
     explicit GameModel(QObject *parent = nullptr);
@@ -84,8 +74,8 @@ public:
     Q_INVOKABLE bool needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn);
     Q_INVOKABLE void restart();
 
-    [[nodiscard]] auto currentTurn() const -> wisdom::chess::ChessColor;
-    void setCurrentTurn(wisdom::chess::ChessColor newColor);
+    [[nodiscard]] auto currentTurn() const -> wisdom::ui::Color;
+    void setCurrentTurn(wisdom::ui::Color newColor);
 
     void setGameOverStatus(const QString& newStatus);
     [[nodiscard]] auto gameOverStatus() const -> QString;
@@ -108,17 +98,13 @@ public:
     void setFiftyMovesWithoutProgressDrawAnswered(bool drawProposedToHuman);
     [[nodiscard]] auto fiftyMovesWithoutProgressDrawAnswered() const -> bool;
 
-    void setWhiteIsComputer(bool newWhiteIsComputer);
-    [[nodiscard]] auto whiteIsComputer() const -> bool;
+    void setUISettings(const UISettings& settings);
+    [[nodiscard]] auto uiSettings() const -> const UISettings&;
+    Q_INVOKABLE UISettings cloneUISettings();
 
-    void setBlackIsComputer(bool newBlackIsComputer);
-    [[nodiscard]] auto blackIsComputer() const -> bool;
-
-    void setMaxDepth(int maxDepth);
-    [[nodiscard]] auto maxDepth() const -> int;
-
-    void setMaxSearchTime(int maxSearchTime);
-    [[nodiscard]] auto maxSearchTime() const -> int;
+    [[nodiscard]] auto gameSettings() const -> const GameSettings&;
+    void setGameSettings(const GameSettings &newGameSettings);
+    Q_INVOKABLE GameSettings cloneGameSettings();
 
 signals:
     // The game object here is readonly.
@@ -138,10 +124,9 @@ signals:
     void gameOverStatusChanged();
     void moveStatusChanged();
     void inCheckChanged();
-    void whiteIsComputerChanged();
-    void blackIsComputerChanged();
-    void maxDepthChanged();
-    void maxSearchTimeChanged();
+
+    void uiSettingsChanged();
+    void gameSettingsChanged();
 
     // Use a property to communicate to QML and the human player:
     void thirdRepetitionDrawProposedChanged();
@@ -151,7 +136,7 @@ signals:
 
     // Send draw response:
     void updateDrawStatus(wisdom::ProposedDrawType drawType, wisdom::Color player,
-        bool accepted);
+                          bool accepted);
 
     // Use a raw signal to communicate to the thread engine on the other thread.
     // We don't want to send on toggling the boolean.
@@ -168,7 +153,7 @@ public slots:
                            int engineId);
 
     void promotePiece(int srcRow, int srcColumn,
-                      int dstRow, int dstColumn, const QString& pieceType);
+                      int dstRow, int dstColumn, wisdom::ui::PieceType pieceType);
 
     void humanWantsThreefoldRepetitionDraw(bool accepted);
     void humanWantsFiftyMovesWithoutProgressDraw(bool accepted);
@@ -198,10 +183,7 @@ private:
     // The chess engine runs in this thread, and grabs the game mutext as needed:
     QThread* myChessEngineThread = nullptr;
 
-    // Update the config from a timer to avoid creating too many events.
-    QTimer* myUpdateConfigTimer = nullptr;
-
-    wisdom::chess::ChessColor myCurrentTurn;
+    wisdom::ui::Color myCurrentTurn;
     QString myGameOverStatus {};
     QString myMoveStatus {};
 
@@ -210,10 +192,9 @@ private:
     bool myFiftyMovesWithProgressDrawProposed = false;
     bool myThirdRepetitionDrawAnswered = false;
     bool myFiftyMovesWithProgressDrawAnswered = false;
-    bool myWhiteIsComputer = false;
-    bool myBlackIsComputer = true;
-    int myMaxDepth;
-    int myMaxSearchTime;
+
+    UISettings myUISettings {};
+    GameSettings myGameSettings {};
 
     void init();
     void setupNewEngineThread();
@@ -251,9 +232,6 @@ private:
 
     // Update the internal game state after user changes config or starts a new game:
     void updateInternalGameState();
-
-    // Debounce the update to the config.
-    void debouncedUpdateConfig();
 
     // Reset the state for a new game.
     void resetStateForNewGame();

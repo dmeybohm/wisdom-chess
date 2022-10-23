@@ -1,6 +1,6 @@
 import QtQuick
 
-import "Helper.js" as Helper
+import "../Helper.js" as Helper
 
 Item {
     anchors.fill: parent
@@ -13,13 +13,27 @@ Item {
         aboutDialog.visible = true
     }
 
+    function showConfirmQuitDialog() {
+        confirmQuitDialog.visible = true
+    }
+
+    function showSettingsDialog() {
+        settingsDialog.visible = true
+    }
+
+    SettingsDialog {
+        id: settingsDialog
+        visible: false
+        anchors.centerIn: parent
+    }
+
     DrawProposalDialog {
         id: threefoldRepetitionDialog
         visible: !_myGameModel.thirdRepetitionDrawAnswered &&
                  _myGameModel.thirdRepetitionDrawProposed
         anchors.centerIn: parent
         width: Math.min(400, Screen.width - 50)
-        height: Math.min(Helper.isWebAssembly() ? 250 : 200, Screen.height - 10)
+        height: Math.min(topWindow.isWebAssembly ? 250 : 200, Screen.height - 10)
         padding: 40
         text: "The same position has been repeated three times."
 
@@ -38,7 +52,7 @@ Item {
                  _myGameModel.fiftyMovesWithoutProgressDrawProposed
         anchors.centerIn: parent
         width: Math.min(400, Screen.width - 50)
-        height: Math.min(Helper.isWebAssembly() ? 250 : 200, Screen.height - 10)
+        height: Math.min(topWindow.isWebAssembly ? 250 : 200, Screen.height - 10)
         padding: 40
         text: "There have been fifty moves without a capture or pawn move."
 
@@ -63,6 +77,14 @@ Item {
     AboutDialog {
         id: aboutDialog
         visible: false
+        anchors.centerIn: parent
+    }
+
+    ConfirmQuitDialog {
+        id: confirmQuitDialog
+        visible: false
+        width: Math.min(500, Screen.width - 50)
+        height: Math.min(150, Screen.height - 10)
         anchors.centerIn: parent
     }
 }

@@ -54,7 +54,7 @@ namespace wisdom
     public:
         explicit BoardCode (const Board& board);
 
-        static auto from_board (const Board& board) -> BoardCode;
+        [[nodiscard]] static auto from_board (const Board& board) -> BoardCode;
 
         [[nodiscard]] static auto from_board_builder (const BoardBuilder& builder) -> BoardCode;
 

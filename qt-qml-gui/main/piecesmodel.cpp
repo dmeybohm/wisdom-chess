@@ -22,18 +22,18 @@ namespace {
     auto initPieceMap() -> QHash<int8_t, QString>
     {
         auto result = QHash<int8_t, QString> {
-            { whitePiece(Piece::Pawn), "images/Chess_plt45.svg" },
-            { whitePiece(Piece::Rook), "images/Chess_rlt45.svg" },
-            { whitePiece(Piece::Knight), "images/Chess_nlt45.svg" },
-            { whitePiece(Piece::Bishop), "images/Chess_blt45.svg" },
-            { whitePiece(Piece::Queen), "images/Chess_qlt45.svg" },
-            { whitePiece(Piece::King), "images/Chess_klt45.svg" },
-            { blackPiece(Piece::Pawn), "images/Chess_pdt45.svg" },
-            { blackPiece(Piece::Rook), "images/Chess_rdt45.svg" },
-            { blackPiece(Piece::Knight), "images/Chess_ndt45.svg" },
-            { blackPiece(Piece::Bishop), "images/Chess_bdt45.svg" },
-            { blackPiece(Piece::Queen), "images/Chess_qdt45.svg" },
-            { blackPiece(Piece::King), "images/Chess_kdt45.svg" },
+            { whitePiece(Piece::Pawn), "../images/Chess_plt45.svg" },
+            { whitePiece(Piece::Rook), "../images/Chess_rlt45.svg" },
+            { whitePiece(Piece::Knight), "../images/Chess_nlt45.svg" },
+            { whitePiece(Piece::Bishop), "../images/Chess_blt45.svg" },
+            { whitePiece(Piece::Queen), "../images/Chess_qlt45.svg" },
+            { whitePiece(Piece::King), "../images/Chess_klt45.svg" },
+            { blackPiece(Piece::Pawn), "../images/Chess_pdt45.svg" },
+            { blackPiece(Piece::Rook), "../images/Chess_rdt45.svg" },
+            { blackPiece(Piece::Knight), "../images/Chess_ndt45.svg" },
+            { blackPiece(Piece::Bishop), "../images/Chess_bdt45.svg" },
+            { blackPiece(Piece::Queen), "../images/Chess_qdt45.svg" },
+            { blackPiece(Piece::King), "../images/Chess_kdt45.svg" },
         };
 
         return result;
@@ -162,9 +162,11 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
 
             if (pieceModel.row == sourceRookRow && pieceModel.column == sourceRookColumn) {
                 pieceModel.column = dstRookColumn;
-                QModelIndex changedIndex = index(i, 0);
+                QPersistentModelIndex changedIndex = index(i, 0);
 
                 QTimer::singleShot(Rook_Animation_Delay, this, [this, changedIndex](){
+                    if (!changedIndex.isValid())
+                        return;
                     QVector<int> rolesChanged { ColumnRole };
                     emit dataChanged(changedIndex, changedIndex, rolesChanged);
                 });

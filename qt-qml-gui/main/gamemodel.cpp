@@ -1,9 +1,9 @@
 #include "gamemodel.hpp"
 
 #include "game.hpp"
-#include "generate.hpp"
-#include "fen_parser.hpp"
 #include "check.hpp"
+#include "chessengine.hpp"
+#include "ui_settings.hpp"
 
 #include <QDebug>
 #include <QTimer>
@@ -19,25 +19,6 @@ using std::atomic;
 
 namespace
 {
-    auto pieceFromString(const QString& piece) -> wisdom::Piece
-    {
-        if (piece == "queen") {
-            return wisdom::Piece::Queen;
-        } else if (piece == "king") {
-            return wisdom::Piece::King;
-        } else if (piece == "pawn") {
-            return wisdom::Piece::Pawn;
-        } else if (piece == "knight") {
-            return wisdom::Piece::Knight;
-        } else if (piece == "bishop") {
-            return wisdom::Piece::Bishop;
-        } else if (piece == "rook") {
-            return wisdom::Piece::Rook;
-        } else {
-            assert(0); abort();
-        }
-    }
-
     auto getFirstHumanPlayerColor(Players players) -> optional<Color>
     {
         if (players[0] == Player::Human) {
@@ -49,23 +30,19 @@ namespace
 
         return {};
     }
-
 }
 
 GameModel::GameModel(QObject *parent)
     : QObject(parent)
-    , myMaxDepth { 3 }
     , myCurrentTurn {}
-    , myMaxSearchTime { 4 }
     , myChessEngineThread { nullptr }
 {
     myChessGame = ChessGame::fromPlayers(
                 Player::Human,
                 Player::ChessEngine,
-                ChessGame::Config::defaultConfig()
+                ChessGame::Config::fromGameSettings (myGameSettings)
     );
     init ();
-
 }
 
 GameModel::~GameModel()
@@ -76,7 +53,7 @@ GameModel::~GameModel()
 void GameModel::init()
 {
     auto gameState = myChessGame->state();
-    setCurrentTurn(wisdom::chess::mapColor(gameState->get_current_turn()));
+    setCurrentTurn(wisdom::ui::mapColor(gameState->get_current_turn()));
 
     setupNewEngineThread();
 }
@@ -158,7 +135,6 @@ void GameModel::restart()
         myChessGame->state()->get_player(Color::White),
         myChessGame->state()->get_player(Color::Black),
         gameConfig()
-
     ));
 
     // Abort searches and discard any queued signals from them if we receive
@@ -177,7 +153,7 @@ void GameModel::restart()
     // Update the config to update the notifier to use the new game Id:
     updateEngineConfig();
 
-    setCurrentTurn(wisdom::chess::mapColor(myChessGame->state()->get_current_turn()));
+    setCurrentTurn(wisdom::ui::mapColor(myChessGame->state()->get_current_turn()));
     resetStateForNewGame();
     updateDisplayedGameState();
 }
@@ -208,10 +184,9 @@ void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who, int game
 
 void GameModel::promotePiece(int srcRow, int srcColumn,
                              int dstRow, int dstColumn,
-                             const QString& pieceString)
+                             wisdom::ui::PieceType pieceType)
 {
-    optional<Piece> pieceType = pieceFromString(pieceString);
-    movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, pieceType);
+    movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, mapPiece(pieceType));
 }
 
 void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,
@@ -263,16 +238,9 @@ void GameModel::applicationExiting()
 
 void GameModel::updateEngineConfig()
 {
-    delete myUpdateConfigTimer;
-    myUpdateConfigTimer = nullptr;
-
     myConfigId++;
 
-    emit engineConfigChanged(ChessGame::Config {
-         myChessGame->state()->get_players(),
-         MaxDepth { myMaxDepth },
-         std::chrono::seconds { myMaxSearchTime },
-    }, buildNotifier());
+    emit engineConfigChanged(gameConfig(), buildNotifier());
 }
 
 auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
@@ -315,7 +283,7 @@ auto GameModel::buildNotifier() const -> MoveTimer::PeriodicFunction
 
 void GameModel::updateCurrentTurn(Color newColor)
 {
-    setCurrentTurn(wisdom::chess::mapColor(newColor));
+    setCurrentTurn(wisdom::ui::mapColor(newColor));
 }
 
 void GameModel::handleMove(Player playerType, Move move, Color who)
@@ -329,9 +297,9 @@ void GameModel::handleMove(Player playerType, Move move, Color who)
 
 void GameModel::updateInternalGameState()
 {
-    auto whitePlayer = myWhiteIsComputer ? wisdom::Player::ChessEngine : wisdom::Player::Human;
-    auto blackPlayer = myBlackIsComputer ? wisdom::Player::ChessEngine : wisdom::Player::Human;
-    myChessGame->setPlayers(whitePlayer, blackPlayer);
+    myChessGame->setPlayers(
+        mapPlayer(myGameSettings.whitePlayer()), mapPlayer(myGameSettings.blackPlayer())
+    );
     myChessGame->setConfig(gameConfig());
     notifyInternalGameStateUpdated();
 }
@@ -352,17 +320,17 @@ auto GameModel::gameConfig() const -> ChessGame::Config
 {
     return ChessGame::Config {
         myChessGame->state()->get_players(),
-        MaxDepth { myMaxDepth },
-        chrono::seconds { myMaxSearchTime },
+        MaxDepth { myGameSettings.maxDepth() },
+        chrono::seconds { myGameSettings.maxSearchTime() },
     };
 }
 
-auto GameModel::currentTurn() const -> wisdom::chess::ChessColor
+auto GameModel::currentTurn() const -> wisdom::ui::Color
 {
     return myCurrentTurn;
 }
 
-void GameModel::setCurrentTurn(wisdom::chess::ChessColor newColor)
+void GameModel::setCurrentTurn(wisdom::ui::Color newColor)
 {
     if (newColor != myCurrentTurn) {
         myCurrentTurn = newColor;
@@ -477,22 +445,6 @@ void GameModel::updateDisplayedGameState()
     }
 }
 
-void GameModel::debouncedUpdateConfig ()
-{
-    if (myUpdateConfigTimer != nullptr) {
-        myUpdateConfigTimer->start(); // reset the timer.
-        return;
-    }
-    myUpdateConfigTimer = new QTimer(this);
-    myUpdateConfigTimer->setInterval(chrono::milliseconds { 400 } );
-    myUpdateConfigTimer->setSingleShot(true);
-    connect(myUpdateConfigTimer, &QTimer::timeout,
-            this, [this](){
-        updateInternalGameState ();
-    });
-    myUpdateConfigTimer->start();
-}
-
 void GameModel::resetStateForNewGame()
 {
     setThirdRepetitionDrawAnswered(false);
@@ -501,60 +453,41 @@ void GameModel::resetStateForNewGame()
     setFiftyMovesWithoutProgressDrawProposed(false);
 }
 
-auto GameModel::whiteIsComputer() const -> bool
+auto GameModel::uiSettings() const -> const UISettings&
 {
-    return myWhiteIsComputer;
+    return myUISettings;
 }
 
-void GameModel::setWhiteIsComputer(bool newWhiteIsComputer)
+void GameModel::setUISettings(const UISettings& settings)
 {
-    if (myWhiteIsComputer != newWhiteIsComputer) {
-        myWhiteIsComputer = newWhiteIsComputer;
+    if (myUISettings != settings) {
+        myUISettings = settings;
+        emit uiSettingsChanged();
+    }
+}
+
+auto GameModel::gameSettings() const -> const GameSettings&
+{
+    return myGameSettings;
+}
+
+void GameModel::setGameSettings(const GameSettings &newGameSettings)
+{
+    if (myGameSettings != newGameSettings) {
+        myGameSettings = newGameSettings;
+        emit gameSettingsChanged();
         updateInternalGameState();
-        emit whiteIsComputerChanged();
     }
 }
 
-auto GameModel::blackIsComputer() const -> bool
+auto GameModel::cloneUISettings() -> UISettings
 {
-    return myBlackIsComputer;
+    return myUISettings;
 }
 
-void GameModel::setMaxDepth(int maxDepth)
+auto GameModel::cloneGameSettings() -> GameSettings
 {
-    if (myMaxDepth != maxDepth) {
-        myMaxDepth = maxDepth;
-        debouncedUpdateConfig();
-        emit maxDepthChanged();
-    }
-}
-
-auto GameModel::maxDepth() const -> int
-{
-    return myMaxDepth;
-}
-
-void GameModel::setMaxSearchTime(int maxSearchTime)
-{
-    if (maxSearchTime != myMaxSearchTime) {
-        myMaxSearchTime = maxSearchTime;
-        debouncedUpdateConfig();
-        emit maxSearchTimeChanged();
-    }
-}
-
-auto GameModel::maxSearchTime() const -> int
-{
-    return myMaxSearchTime;
-}
-
-void GameModel::setBlackIsComputer(bool newBlackIsComputer)
-{
-    if (myBlackIsComputer != newBlackIsComputer) {
-        myBlackIsComputer = newBlackIsComputer;
-        updateInternalGameState();
-        emit blackIsComputerChanged();
-    }
+    return myGameSettings;
 }
 
 auto GameModel::thirdRepetitionDrawProposed() const -> bool
@@ -660,3 +593,4 @@ void GameModel::receiveChessEngineDrawStatus(wisdom::ProposedDrawType drawType,
     gameState->set_proposed_draw_status(drawType, who, accepted);
     updateDisplayedGameState();
 }
+

@@ -1,7 +1,9 @@
 import QtQuick 
-import wisdom.chess 1.0
+import WisdomChess
 import QtQuick.Controls 
 import QtQuick.Layouts 
+import "../popups"
+import "../Helper.js" as Helper
 
 ApplicationWindow {
     id: topWindow
@@ -9,6 +11,11 @@ ApplicationWindow {
     readonly property int boardWidth: boardDimensions.boardWidth
     readonly property int boardHeight: boardDimensions.boardHeight
     readonly property int squareSize: boardDimensions.squareSize
+
+    readonly property bool isWebAssembly: Helper.isWebAssembly()
+    readonly property bool isMobile: Helper.isMobile()
+    readonly property bool isDesktop: !Helper.isMobile() && !Helper.isWebAssembly()
+    readonly property bool isMacOS: Helper.isMacOS()
 
     width: Screen.width
     height: Screen.height
@@ -29,7 +36,7 @@ ApplicationWindow {
 
     Screen.onPrimaryOrientationChanged: {
         boardDimensions.squareSize = boardDimensions.calculateMaxSquareSize()
-        console.log("new square size: "+boardDimensions.squareSize)
+        console.log("new square size: "+uiSettings.squareSize)
     }
 
     header: ToolBar {
@@ -39,7 +46,7 @@ ApplicationWindow {
             anchors.fill: parent
 
             Image {
-                source: "images/Chess_rlt45.svg"
+                source: "../images/Chess_rlt45.svg"
                 Layout.maximumWidth: 32
                 Layout.maximumHeight: 32
 
@@ -62,8 +69,8 @@ ApplicationWindow {
                 Layout.rightMargin: 10
                 implicitWidth: 25
                 implicitHeight: 25
-                imageSource: "images/bx-icon-menu-white.png"
-                onClicked: settingsMenu.visible ? settingsMenu.close() : settingsMenu.open()
+                imageSource: "../images/bx-icon-menu-white.png"
+                onClicked: gameMenu.visible ? gameMenu.close() : gameMenu.open()
             }
         }
     }
@@ -75,15 +82,16 @@ ApplicationWindow {
 
         Flickable {
 
-            visible: settingsMenu.visible
-            width: settingsMenu.width
-            height: Math.min(Screen.height, settingsMenu.height)
+            visible: gameMenu.visible
+            width: gameMenu.width
+            height: Math.min(Screen.height, gameMenu.height)
 
-            SettingsMenu {
-                id: settingsMenu
-                x: root.width - settingsMenu.width
+            GameMenu {
+                id: gameMenu
+                x: root.width - gameMenu.width
                 onShowNewGameDialog: root.showNewGameDialog();
                 onShowAboutDialog: root.showAboutDialog();
+                onShowSettingsDialog: root.showSettingsDialog();
             }
         }
     }
