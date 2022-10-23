@@ -19,25 +19,6 @@ using std::atomic;
 
 namespace
 {
-    auto pieceFromString(const QString& piece) -> wisdom::Piece
-    {
-        if (piece == "queen") {
-            return wisdom::Piece::Queen;
-        } else if (piece == "king") {
-            return wisdom::Piece::King;
-        } else if (piece == "pawn") {
-            return wisdom::Piece::Pawn;
-        } else if (piece == "knight") {
-            return wisdom::Piece::Knight;
-        } else if (piece == "bishop") {
-            return wisdom::Piece::Bishop;
-        } else if (piece == "rook") {
-            return wisdom::Piece::Rook;
-        } else {
-            assert(0); abort();
-        }
-    }
-
     auto getFirstHumanPlayerColor(Players players) -> optional<Color>
     {
         if (players[0] == Player::Human) {
@@ -258,9 +239,6 @@ void GameModel::applicationExiting()
 
 void GameModel::updateEngineConfig()
 {
-    delete myUpdateConfigTimer;
-    myUpdateConfigTimer = nullptr;
-
     myConfigId++;
 
     emit engineConfigChanged(gameConfig(), buildNotifier());
@@ -466,22 +444,6 @@ void GameModel::updateDisplayedGameState()
     if (wisdom::is_king_threatened(board, who, board.get_king_position(who))) {
         setInCheck(true);
     }
-}
-
-void GameModel::debouncedUpdateConfig ()
-{
-    if (myUpdateConfigTimer != nullptr) {
-        myUpdateConfigTimer->start(); // reset the timer.
-        return;
-    }
-    myUpdateConfigTimer = new QTimer(this);
-    myUpdateConfigTimer->setInterval(chrono::milliseconds { 400 } );
-    myUpdateConfigTimer->setSingleShot(true);
-    connect(myUpdateConfigTimer, &QTimer::timeout,
-            this, [this](){
-        updateInternalGameState ();
-    });
-    myUpdateConfigTimer->start();
 }
 
 void GameModel::resetStateForNewGame()

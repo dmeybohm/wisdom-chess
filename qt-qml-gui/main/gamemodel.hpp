@@ -183,9 +183,6 @@ private:
     // The chess engine runs in this thread, and grabs the game mutext as needed:
     QThread* myChessEngineThread = nullptr;
 
-    // Update the config from a timer to avoid creating too many events.
-    QTimer* myUpdateConfigTimer = nullptr;
-
     wisdom::ui::Color myCurrentTurn;
     QString myGameOverStatus {};
     QString myMoveStatus {};
@@ -235,9 +232,6 @@ private:
 
     // Update the internal game state after user changes config or starts a new game:
     void updateInternalGameState();
-
-    // Debounce the update to the config.
-    void debouncedUpdateConfig();
 
     // Reset the state for a new game.
     void resetStateForNewGame();
