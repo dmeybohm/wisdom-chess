@@ -1,8 +1,8 @@
 import QtQuick 
-import WisdomChess 1.0
+import WisdomChess
 import QtQuick.Controls 
 import QtQuick.Layouts 
-
+import "../popups"
 import "../Helper.js" as Helper
 
 ApplicationWindow {
@@ -53,12 +53,13 @@ ApplicationWindow {
                         onClicked: settingsMenu.open()
                     }
 
-                    SettingsMenu {
+                   GameMenu {
                         y: rookButton.height
                         x: -implicitWidth / 4
                         id: settingsMenu
                         onShowAboutDialog: root.showAboutDialog()
                         onShowNewGameDialog: root.showNewGameDialog()
+                        onShowSettingsDialog: root.showSettingsDialog()
                     }
                 }
 

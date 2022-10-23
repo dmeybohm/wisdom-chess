@@ -25,8 +25,6 @@ Item {
         id: settingsDialog
         visible: false
         anchors.centerIn: parent
-        width: Math.min(400, Screen.width - 50)
-        height: Math.min(Helper.isWebAssembly() ? 350 : 300, Screen.height - 10)
     }
 
     DrawProposalDialog {

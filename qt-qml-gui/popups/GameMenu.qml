@@ -35,14 +35,24 @@ Menu {
     }
 
     MenuSeparator {
-        visible: !Helper.isWebAssembly()
+        id: finalSeparator
     }
 
     MenuItem {
-        visible: !Helper.isWebAssembly()
+        id: quitItem
         text: "Quit"
         onClicked: {
             gameMenu.quit()
+        }
+    }
+
+    Component.onCompleted: {
+        // Hide quit option and separator on webassembly / mobile:
+        if (Helper.isWebAssembly() || Helper.isMobile()) {
+            finalSeparator.height = 0
+            finalSeparator.visible = false
+            quitItem.height = 0
+            quitItem.visible = false
         }
     }
 }

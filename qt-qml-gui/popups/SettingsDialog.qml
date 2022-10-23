@@ -30,6 +30,11 @@ Dialog {
         if (Helper.isMobile()) {
             width = Screen.width - 20
             contentColumn.width = width - 30
+        } else {
+            width = Math.min(Screen.width - 20, 400)
+            contentColumn.width = width - 60
+            topPadding = 30
+            bottomPadding = 30
         }
     }
 
@@ -50,7 +55,7 @@ Dialog {
         property var toSaveUISettings
         property var toSaveGameSettings
 
-        property var fontSize: Helper.isMobile() ? "12" : "18"
+        property var fontSize: Helper.isMobile() ? "12" : "16"
 
         function movesLabel(numMoves) {
             return parseInt(numMoves, 10) === 1 ? "1 move" : numMoves + " moves"
@@ -73,7 +78,8 @@ Dialog {
 
     ColumnLayout {
         id: contentColumn
-        spacing: 10
+        spacing: 20
+        anchors.centerIn: parent
 
         RowLayout {
             Text {
