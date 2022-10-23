@@ -79,7 +79,6 @@ qt_add_qml_module(appWisdomChessQtQml
         popups/AboutDialog.qml
         popups/NewGameDialog.qml
         popups/SettingsDialog.qml
-        popups/SettingsMenu.qml
         popups/ConfirmQuitDialog.qml
         main/StatusBar.qml
         main/ImageToolButton.qml

@@ -57,17 +57,6 @@ ApplicationWindow {
                 imageSource: "../images/bx-icon-menu.svg"
                 onClicked: gameMenu.open()
             }
-
-            ImageToolButton {
-                Layout.alignment: Qt.AlignRight;
-                Layout.fillHeight: true
-                Layout.rightMargin: 2
-                implicitWidth: 30
-                implicitHeight: 30
-                imageSource: "../images/bxs-cog.svg"
-                onClicked: settingsMenu.open()
-            }
-
         }
     }
 
@@ -81,11 +70,6 @@ ApplicationWindow {
             onShowNewGameDialog: root.showNewGameDialog()
             onQuit: root.showConfirmQuitDialog()
             onShowSettingsDialog: root.showSettingsDialog()
-        }
-
-        SettingsMenu {
-            id: settingsMenu
-            x: root.width - settingsMenu.width
         }
 
     }

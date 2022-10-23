@@ -65,6 +65,7 @@ class GameModel : public QObject
                WRITE setGameSettings
                NOTIFY gameSettingsChanged)
 
+
 public:
     explicit GameModel(QObject *parent = nullptr);
     ~GameModel() override;

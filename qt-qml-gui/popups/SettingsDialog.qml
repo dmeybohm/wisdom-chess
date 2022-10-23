@@ -23,6 +23,30 @@ Dialog {
         internal.resetSettings()
     }
 
+    Component.onCompleted: {
+        internal.resetSettings()
+    }
+
+    QtObject {
+        id: internal
+
+        property var myUISettings
+        property var myGameSettings
+
+        function movesLabel(numMoves) {
+            return parseInt(numMoves, 10) === 1 ? "1 move" : numMoves + " moves"
+        }
+
+        function resetSettings() {
+            myUISettings = _myGameModel.cloneUISettings()
+            myGameSettings = _myGameModel.cloneGameSettings()
+        }
+
+        Component.onCompleted: {
+            resetSettings()
+        }
+    }
+
     ColumnLayout {
 
         width: parent.width - 50
@@ -99,6 +123,11 @@ Dialog {
                     stepSize: 1
                     from: 1
                     to: 30
+                    onValueChanged: {
+                        if (value && internal.myGameSettings) {
+                            internal.myGameSettings.maxSearchTime = value
+                        }
+                    }
                 }
             }
         }
@@ -121,30 +150,17 @@ Dialog {
                     from: 1
                     to: 8
                     stepSize: 1
+                    onValueChanged: {
+                        if (value && internal.myGameSettings) {
+                            internal.myGameSettings.maxDepth = parseInt(value, 10)
+                        }
+                    }
+
                 }
             }
         }
     }
 
-    QtObject {
-        id: internal
 
-        property var myUISettings
-        property var myGameSettings
-
-        function movesLabel(numMoves) {
-            return parseInt(numMoves, 10) === 1 ? "1 move" : numMoves + " moves"
-        }
-
-        function resetSettings() {
-            myUISettings = _myGameModel.cloneUISettings()
-            myGameSettings = _myGameModel.cloneGameSettings()
-
-        }
-
-        Component.onCompleted: {
-            resetSettings()
-        }
-    }
 }
 
