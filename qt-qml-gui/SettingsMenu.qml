@@ -6,7 +6,7 @@ import "Helper.js" as Helper
 
 Menu {
     id: settingsMenu
-    implicitWidth: Math.min(280, Screen.width - 60)
+    implicitWidth: Math.min(350, Screen.width - 60)
 
     signal showNewGameDialog()
     signal showAboutDialog()
