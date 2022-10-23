@@ -6,7 +6,7 @@ import "Helper.js" as Helper
 
 Menu {
     id: settingsMenu
-    implicitWidth: 380
+    implicitWidth: Math.min(280, Screen.width - 60)
 
     signal showNewGameDialog()
     signal showAboutDialog()
@@ -137,10 +137,11 @@ Menu {
 
     QtObject {
         id: internal
-        property bool menuIsFullyVisible: settingsMenu.width >= settingsMenu.implicitWidth
+        property bool menuIsFullyVisible: true
 
         function movesLabel(numMoves) {
             return parseInt(numMoves, 10) === 1 ? "1 move" : numMoves + " moves"
         }
     }
 }
+
