@@ -74,15 +74,13 @@ namespace wisdom
             auto third_repetition_status = my_history->get_threefold_repetition_status ();
             switch (third_repetition_status)
             {
-            case DrawStatus::BothPlayersDeclinedDraw:
+            case DrawStatus::Declined:
                 break;
 
             case DrawStatus::NotReached:
                 return GameStatus::ThreefoldRepetitionReached;
 
-            case DrawStatus::BlackPlayerRequestedDraw:
-            case DrawStatus::WhitePlayerRequestedDraw:
-            case DrawStatus::BothPlayersRequestedDraw:
+            case DrawStatus::Accepted:
                 return GameStatus::ThreefoldRepetitionAccepted;
             }
         }
@@ -95,15 +93,13 @@ namespace wisdom
             auto fifty_moves_status = my_history->get_fifty_moves_without_progress_status ();
             switch (fifty_moves_status)
             {
-                case DrawStatus::BothPlayersDeclinedDraw:
+                case DrawStatus::Declined:
                     break;
 
                 case DrawStatus::NotReached:
                     return GameStatus::FiftyMovesWithoutProgressReached;
 
-                case DrawStatus::BlackPlayerRequestedDraw:
-                case DrawStatus::WhitePlayerRequestedDraw:
-                case DrawStatus::BothPlayersRequestedDraw:
+                case DrawStatus::Accepted:
                     return GameStatus::FiftyMovesWithoutProgressAccepted;
             }
         }
@@ -206,26 +202,17 @@ namespace wisdom
         return score <= Min_Draw_Score;
     }
 
-    static auto draw_desires_to_repetition_status (DrawAccepted draw_desires)
+    static auto draw_desires_to_repetition_status (BothPlayersDrawStatus draw_desires)
          -> DrawStatus
     {
         assert (both_players_replied (draw_desires));
 
         DrawStatus status;
-        bool white_wants_draw = *draw_desires.first;
-        bool black_wants_draw = *draw_desires.second;
+        bool white_wants_draw = draw_desires.first == DrawStatus::Accepted;
+        bool black_wants_draw = draw_desires.second == DrawStatus::Accepted;
 
-        if (white_wants_draw && black_wants_draw)
-            status = DrawStatus::BothPlayersRequestedDraw;
-        else if (white_wants_draw)
-            status = DrawStatus::WhitePlayerRequestedDraw;
-        else if (black_wants_draw)
-            status = DrawStatus::BlackPlayerRequestedDraw;
-        else
-            status = DrawStatus::BothPlayersDeclinedDraw;
-
-        return status;
-
+        bool accepted = white_wants_draw || black_wants_draw;
+        return accepted ? DrawStatus::Accepted : DrawStatus::Declined;
     }
 
     void Game::update_threefold_repetition_draw_status ()
@@ -241,21 +228,21 @@ namespace wisdom
     }
 
     void Game::set_proposed_draw_status (ProposedDrawType draw_type, Color who,
-                                         bool accepted)
+                                         DrawStatus draw_status)
     {
         switch (draw_type)
         {
             case ProposedDrawType::ThreeFoldRepetition:
-                my_third_repetition_draw = update_draw_accepted (
-                        my_third_repetition_draw, who, accepted
+                my_third_repetition_draw = update_draw_status (
+                        my_third_repetition_draw, who, draw_status
                 );
                 if (both_players_replied (my_third_repetition_draw))
                     update_threefold_repetition_draw_status ();
                 break;
 
             case ProposedDrawType::FiftyMovesWithoutProgress:
-                my_fifty_moves_without_progress_draw = update_draw_accepted (
-                    my_fifty_moves_without_progress_draw, who, accepted
+                my_fifty_moves_without_progress_draw = update_draw_status (
+                        my_fifty_moves_without_progress_draw, who, draw_status
                 );
                 if (both_players_replied (my_fifty_moves_without_progress_draw))
                     update_fifty_moves_without_progress_draw_status ();
@@ -263,10 +250,16 @@ namespace wisdom
         }
     }
 
-    void Game::set_proposed_draw_status (ProposedDrawType draw_type,
-                                         std::pair<bool, bool> accepted)
+    void Game::set_proposed_draw_status (ProposedDrawType draw_type, Color who, bool accepted)
     {
-        set_proposed_draw_status (draw_type, Color::White, accepted.first);
-        set_proposed_draw_status (draw_type, Color::Black, accepted.second);
+        set_proposed_draw_status (draw_type, who, accepted ? DrawStatus::Accepted : DrawStatus::Declined);
     }
+
+    void Game::set_proposed_draw_status (ProposedDrawType draw_type,
+                                         std::pair<DrawStatus, DrawStatus> draw_statuses)
+    {
+        set_proposed_draw_status (draw_type, Color::White, draw_statuses.first);
+        set_proposed_draw_status (draw_type, Color::Black, draw_statuses.second);
+    }
+
 }

@@ -12,29 +12,34 @@ namespace wisdom
 {
     enum class DrawStatus
     {
-        NotReached,
-        BothPlayersDeclinedDraw,
-        WhitePlayerRequestedDraw,
-        BlackPlayerRequestedDraw,
-        BothPlayersRequestedDraw,
+        NotReached = 0,
+        Accepted,
+        Declined
     };
 
-    using DrawAccepted = pair<optional<bool>, optional<bool>>;
+    using BothPlayersDrawStatus = pair<DrawStatus, DrawStatus>;
 
-    constexpr auto update_draw_accepted (DrawAccepted initial, Color player,
-                                         bool accepted) -> DrawAccepted
+    [[nodiscard]] constexpr auto update_draw_status (BothPlayersDrawStatus initial, Color player,
+                                                     DrawStatus new_status) -> BothPlayersDrawStatus
     {
         assert (player == Color::White || player == Color::Black);
         if (player == Color::White)
-            return { accepted, initial.second };
+            return { new_status, initial.second };
         else
-            return { initial.first, accepted };
+            return { initial.first, new_status };
     }
 
-    constexpr auto both_players_replied (DrawAccepted draw_accepted)
+    [[nodiscard]] constexpr auto draw_status_is_replied (DrawStatus draw_status)
+        -> bool
     {
-        return draw_accepted.first.has_value () &&
-             draw_accepted.second.has_value ();
+        return draw_status == DrawStatus::Accepted || draw_status == DrawStatus::Declined;
+    }
+
+    [[nodiscard]] constexpr auto both_players_replied (BothPlayersDrawStatus both_players_status)
+        -> bool
+    {
+        return draw_status_is_replied (both_players_status.first) &&
+               draw_status_is_replied (both_players_status.second);
     }
 
     class History

@@ -248,27 +248,28 @@ namespace wisdom
         return (input[0] == 'y' || input[1] == 'Y');
     }
 
-    static bool player_wants_draw (Player player, Color who, Game& game, bool asked_human)
+    static auto player_wants_draw (Player player, Color who, Game& game, bool asked_human) -> DrawStatus
     {
         if (player == Player::Human)
         {
             if (asked_human)
-                return false;
-            return human_wants_draw ();
+                return DrawStatus::Declined;
+
+            return human_wants_draw () ? DrawStatus::Accepted : DrawStatus::Declined;
         }
-        return game.computer_wants_draw (who);
+        return game.computer_wants_draw (who) ? DrawStatus::Accepted : DrawStatus::Declined;
     }
 
     // After the third repetition, either player may request a draw.
-    static auto determine_if_drawn (InputState input_state, Game& game) -> std::pair<bool, bool>
+    static auto determine_if_drawn (InputState input_state, Game& game) -> std::pair<DrawStatus, DrawStatus>
     {
         auto white_player = game.get_player (Color::White);
 
-        bool white_wants_draw = player_wants_draw (
+        auto white_wants_draw = player_wants_draw (
                 white_player, Color::White, game, false
         );
         bool asked_human = white_player == Player::Human;
-        bool black_wants_draw = player_wants_draw (
+        auto black_wants_draw = player_wants_draw (
                 game.get_player (Color::Black), Color::Black, game, asked_human
         );
 
@@ -309,7 +310,7 @@ namespace wisdom
             break;
 
         case GameStatus::FivefoldRepetitionDraw:
-            std::cout << "Draw: same position repeated five times.";
+            std::cout << "Draw: same position repeated five times.\n";
             input_state.command = PlayCommand::StopGame;
             break;
 

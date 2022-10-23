@@ -160,10 +160,13 @@ namespace wisdom
         [[nodiscard]] auto computer_wants_draw (Color who) const -> bool;
 
         void set_proposed_draw_status (ProposedDrawType draw_type, Color who,
+                                       DrawStatus draw_status);
+
+        void set_proposed_draw_status (ProposedDrawType draw_type, Color who,
                                        bool accepted);
 
         void set_proposed_draw_status (ProposedDrawType draw_type,
-                                       std::pair<bool, bool> accepted);
+                                       std::pair<DrawStatus, DrawStatus> draw_statuses);
 
     private:
         unique_ptr<Board> my_board = make_unique<Board> ();
@@ -175,8 +178,14 @@ namespace wisdom
         Players my_players = { Player::Human, Player::ChessEngine };
         chrono::seconds my_search_timeout { Default_Max_Search_Seconds };
 
-        DrawAccepted my_third_repetition_draw;
-        DrawAccepted my_fifty_moves_without_progress_draw;
+        BothPlayersDrawStatus my_third_repetition_draw {
+            DrawStatus::NotReached,
+            DrawStatus::NotReached
+        };
+        BothPlayersDrawStatus my_fifty_moves_without_progress_draw {
+            DrawStatus::NotReached,
+            DrawStatus::NotReached
+        };
 
         void update_threefold_repetition_draw_status ();
         void update_fifty_moves_without_progress_draw_status ();

@@ -39,6 +39,16 @@ namespace wisdom::ui
 
     Q_ENUM_NS(PieceType)
 
+    enum class DrawByRepetitionStatus
+    {
+        NotReached,
+        Proposed,
+        Accepted,
+        Declined
+    };
+
+    Q_ENUM_NS(DrawByRepetitionStatus)
+
     // Register the enums in QML:
     void registerQmlTypes();
 
