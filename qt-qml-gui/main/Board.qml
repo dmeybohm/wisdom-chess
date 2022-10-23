@@ -21,7 +21,7 @@ Item {
         Behavior on angle {
             NumberAnimation {
                 easing.type: Easing.OutExpo
-                duration: root.animationDelay * 2
+                duration: root.animationDelay * 5
             }
         }
     }

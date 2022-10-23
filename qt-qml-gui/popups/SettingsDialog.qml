@@ -11,8 +11,7 @@ Dialog {
     rightPadding: 25
 
     onApplied: {
-        _myGameModel.gameSettings = internal.myGameSettings
-        _myGameModel.uiSettings = internal.myUISettings
+        applySettingsTimer.start()
         visible = false
     }
 
@@ -21,6 +20,8 @@ Dialog {
     }
 
     onVisibleChanged: {
+        internal.toSaveUISettings = internal.myUISettings
+        internal.toSaveGameSettings = internal.myGameSettings
         internal.resetSettings()
     }
 
@@ -32,11 +33,23 @@ Dialog {
         }
     }
 
+    Timer {
+        id: applySettingsTimer
+        interval: 500
+        repeat: false
+        onTriggered: {
+            internal.applySettings()
+        }
+    }
+
     QtObject {
         id: internal
 
         property var myUISettings
         property var myGameSettings
+        property var toSaveUISettings
+        property var toSaveGameSettings
+
         property var fontSize: Helper.isMobile() ? "12" : "18"
 
         function movesLabel(numMoves) {
@@ -46,6 +59,11 @@ Dialog {
         function resetSettings() {
             myUISettings = _myGameModel.cloneUISettings()
             myGameSettings = _myGameModel.cloneGameSettings()
+        }
+
+        function applySettings() {
+            _myGameModel.uiSettings = toSaveUISettings
+            _myGameModel.gameSettings = toSaveGameSettings
         }
 
         Component.onCompleted: {

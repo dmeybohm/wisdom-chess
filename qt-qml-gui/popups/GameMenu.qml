@@ -19,7 +19,6 @@ Menu {
             gameMenu.showNewGameDialog()
         }
     }
-    MenuSeparator {}
 
     MenuItem {
         text: "Settings"
