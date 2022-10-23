@@ -30,7 +30,6 @@ namespace
 
         return {};
     }
-
 }
 
 GameModel::GameModel(QObject *parent)

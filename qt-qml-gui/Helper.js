@@ -11,6 +11,10 @@ function isWebAssembly() {
     return Qt.platform.os == "wasm"
 }
 
+function isMacOS() {
+    return Qt.platform.os === "osx"
+}
+
 function computerOrHumanLabel(x)
 {
     return x ? "Computer" : "Human";

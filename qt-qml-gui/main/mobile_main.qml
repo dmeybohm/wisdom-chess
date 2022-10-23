@@ -14,7 +14,8 @@ ApplicationWindow {
 
     readonly property bool isWebAssembly: Helper.isWebAssembly()
     readonly property bool isMobile: Helper.isMobile()
-    readonly property bool isDesktop: !Helper.iSmobile() && !Helper.isWebAssembly()
+    readonly property bool isDesktop: !Helper.isMobile() && !Helper.isWebAssembly()
+    readonly property bool isMacOS: Helper.isMacOS()
 
     width: Screen.width
     height: Screen.height
