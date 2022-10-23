@@ -10,6 +10,8 @@ Dialog {
     title: "Settings"
     rightPadding: 25
 
+    readonly property int indicatorOffset: 6
+
     onApplied: {
         applySettingsTimer.start()
         visible = false
@@ -93,15 +95,21 @@ Dialog {
                 text: "White Player"
             }
 
+            // Use Row instead of RowLayout to avoid alignment issues on desktop:
             RowLayout {
+                spacing: isDesktop ? 15 : 0
+                Layout.alignment: Qt.AlignVCenter
+
                 RadioButton {
                     text: "Human"
+                    indicator.y: topWindow.isDesktop ? indicatorOffset : indicator.y
                     font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.whitePlayer === Player.Human
                     onClicked: internal.myGameSettings.whitePlayer = Player.Human
                 }
                 RadioButton {
                     text: "Computer"
+                    indicator.y: topWindow.isDesktop ? indicatorOffset : indicator.y
                     font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.whitePlayer === Player.Computer
                     onClicked: internal.myGameSettings.whitePlayer = Player.Computer
@@ -117,14 +125,19 @@ Dialog {
             }
 
             RowLayout {
+                spacing: topWindow.isDesktop ? 15 : 0
+                Layout.alignment: Qt.AlignVCenter
+
                 RadioButton {
                     text: "Human"
+                    indicator.y: topWindow.isDesktop ? indicatorOffset : indicator.y
                     font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.blackPlayer === Player.Human
                     onClicked: internal.myGameSettings.blackPlayer = Player.Human
                 }
                 RadioButton {
                     text: "Computer"
+                    indicator.y: topWindow.isDesktop ? indicatorOffset : indicator.y
                     font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.blackPlayer === Player.Computer
                     onClicked: internal.myGameSettings.blackPlayer = Player.Computer

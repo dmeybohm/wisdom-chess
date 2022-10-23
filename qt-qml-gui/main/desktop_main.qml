@@ -15,6 +15,7 @@ ApplicationWindow {
 
     readonly property bool isWebAssembly: Helper.isWebAssembly()
     readonly property bool isMobile: Helper.isMobile()
+    readonly property bool isDesktop: !Helper.isMobile() && !Helper.isWebAssembly()
 
     width: boardWidth + 48
     height: boardHeight + 48 + 145
