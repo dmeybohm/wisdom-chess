@@ -162,9 +162,11 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
 
             if (pieceModel.row == sourceRookRow && pieceModel.column == sourceRookColumn) {
                 pieceModel.column = dstRookColumn;
-                QModelIndex changedIndex = index(i, 0);
+                QPersistentModelIndex changedIndex = index(i, 0);
 
                 QTimer::singleShot(Rook_Animation_Delay, this, [this, changedIndex](){
+                    if (!changedIndex.isValid())
+                        return;
                     QVector<int> rolesChanged { ColumnRole };
                     emit dataChanged(changedIndex, changedIndex, rolesChanged);
                 });
