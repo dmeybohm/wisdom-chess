@@ -6,7 +6,7 @@ add_library(wisdom-chess-core STATIC
         history.hpp history.cpp search.hpp
         board_code.cpp board_code.hpp logger.cpp logger.hpp
         output_format.cpp output_format.hpp
-        play.hpp play.cpp threats.hpp)
+        threats.hpp)
 
 if (Microsoft.GSL_Found)
     target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
@@ -24,17 +24,9 @@ endif()
 target_include_directories(wisdom-chess-core PUBLIC .)
 add_library(wisdom::chess ALIAS wisdom-chess-core)
 
-add_executable(chess main.cpp)
-
-if (PCH_ENABLED)
-    target_precompile_headers(chess REUSE_FROM wisdom-chess-core)
-endif()
-
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
 
 if (EMSCRIPTEN)
     target_compile_options(wisdom-chess-core PUBLIC -pthread)
 endif()
-
-target_link_libraries(chess PRIVATE wisdom::chess)
 
