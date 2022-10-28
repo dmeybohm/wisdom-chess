@@ -84,30 +84,37 @@ namespace wisdom
             return my_piece_count[color_idx][type_idx];
         }
 
+        enum class CheckmateIsPossible
+        {
+            No,
+            Yes
+        };
+
         // Whether there is insufficient material remaining for a checkmate.
-        [[nodiscard]] auto has_sufficient_material (const Board& board) const -> bool
+        [[nodiscard]] auto checkmate_is_possible (const Board& board) const -> CheckmateIsPossible
         {
             if (piece_count (Color::White, Piece::Pawn) > 0 ||
                 piece_count (Color::Black, Piece::Pawn) > 0 ||
                 piece_count (Color::White, Piece::Rook) > 0 ||
                 piece_count (Color::Black, Piece::Rook) > 0)
             {
-                return true;
+                return CheckmateIsPossible::Yes;
             }
 
             if (individual_score (Color::White) > score_with_scale (WeightKing + 2 * WeightBishop) ||
                 individual_score (Color::Black) > score_with_scale (WeightKing + 2 * WeightBishop))
             {
-                return true;
+                return CheckmateIsPossible::Yes;
             }
 
-            return !check_insufficient_material_scenarios (board);
+            return check_insufficient_material_scenarios (board);
         }
 
     private:
         // Check for more detailed scenarios of sufficient material. This assumes there are
         // only minor pieces and king left, with no pawns.
-        [[nodiscard]] auto check_insufficient_material_scenarios (const Board& board) const -> bool;
+        [[nodiscard]] auto check_insufficient_material_scenarios (const Board& board) const
+            -> CheckmateIsPossible;
     };
 }
 

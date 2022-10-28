@@ -108,7 +108,7 @@ namespace wisdom
             return GameStatus::SeventyFiveMovesWithoutProgressDraw;
 
         const auto& material = my_board->get_material ();
-        if (!material.has_sufficient_material (*my_board))
+        if (material.checkmate_is_possible (*my_board) == Material::CheckmateIsPossible::No)
             return GameStatus::InsufficientMaterialDraw;
 
         return GameStatus::Playing;

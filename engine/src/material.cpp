@@ -15,7 +15,7 @@ namespace wisdom
 
     static auto dual_bishops_are_the_same_color (const Board& board,
                                                  Color first_bishop_color, Color second_bishop_color)
-        -> bool
+        -> Material::CheckmateIsPossible
     {
         auto first_bishop = ColoredPiece::make (first_bishop_color, Piece::Bishop);
         auto second_bishop = ColoredPiece::make (second_bishop_color, Piece::Bishop);
@@ -31,10 +31,12 @@ namespace wisdom
         assert (first_coord.has_value ());
         assert (second_coord.has_value ());
 
-        return (coord_color (*first_coord) == coord_color (*second_coord));
+        return (coord_color (*first_coord) == coord_color (*second_coord)) ?
+            Material::CheckmateIsPossible::No :
+            Material::CheckmateIsPossible::Yes;
     }
 
-    auto Material::check_insufficient_material_scenarios (const Board& board) const -> bool
+    auto Material::check_insufficient_material_scenarios (const Board& board) const -> CheckmateIsPossible
     {
         auto white_knight_count = piece_count (Color::White, Piece::Knight);
         auto black_knight_count = piece_count (Color::Black, Piece::Knight);
@@ -45,7 +47,7 @@ namespace wisdom
         if (white_knight_count + black_knight_count +
                 white_bishop_count + black_bishop_count == 0)
         {
-            return true;
+            return CheckmateIsPossible::No;
         }
 
         if (white_bishop_count == 0 && black_bishop_count == 0)
@@ -54,7 +56,7 @@ namespace wisdom
             if ((black_knight_count == 1 && white_knight_count == 0) ||
                 (white_knight_count == 1 && black_knight_count == 0))
             {
-                return true;
+                return CheckmateIsPossible::No;
             }
         }
 
@@ -64,7 +66,7 @@ namespace wisdom
             if ((black_bishop_count == 0 && white_bishop_count == 1) ||
                 (white_bishop_count == 0 && black_bishop_count == 1))
             {
-                return true;
+                return CheckmateIsPossible::No;
             }
 
             // King and bishop vs King and bishop with opposite colored bishops:
@@ -86,6 +88,6 @@ namespace wisdom
             }
         }
 
-        return false;
+        return CheckmateIsPossible::Yes;
     }
 }
