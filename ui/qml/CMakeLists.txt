@@ -25,7 +25,7 @@ else()
 endif ()
 
 
-qt_add_executable(appWisdomChessQtQml
+qt_add_executable(WisdomChessQml
     main/main.cpp
     main/gamemodel.hpp
     main/gamemodel.cpp
@@ -62,7 +62,7 @@ else()
     set(MAIN_QML_FILE main/desktop_main.qml)
 endif()
 
-qt_add_qml_module(appWisdomChessQtQml
+qt_add_qml_module(WisdomChessQml
     URI WisdomChess
     VERSION 1.0
     QML_FILES
@@ -104,7 +104,7 @@ qt_add_qml_module(appWisdomChessQtQml
         images/bxs-down-arrow.svg
 )
 
-set_target_properties(appWisdomChessQtQml PROPERTIES
+set_target_properties(WisdomChessQml PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER com.daveme.wisdomchess
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -113,16 +113,16 @@ set_target_properties(appWisdomChessQtQml PROPERTIES
 )
 
 if(EMSCRIPTEN)
-    target_compile_definitions(appWisdomChessQtQml PRIVATE USE_DEFAULT_GRAPHICS_BACKEND)
+    target_compile_definitions(WisdomChessQml PRIVATE USE_DEFAULT_GRAPHICS_BACKEND)
 else()
-    target_compile_definitions(appWisdomChessQtQml PRIVATE USE_OPENGL_GRAPHICS_BACKEND)
+    target_compile_definitions(WisdomChessQml PRIVATE USE_OPENGL_GRAPHICS_BACKEND)
 endif()
 
-target_compile_definitions(appWisdomChessQtQml
+target_compile_definitions(WisdomChessQml
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(appWisdomChessQtQml
+target_link_libraries(WisdomChessQml
     PRIVATE Qt6::Quick Qt6::Svg)
-target_link_libraries(appWisdomChessQtQml
+target_link_libraries(WisdomChessQml
     PRIVATE wisdom::chess)
-target_compile_definitions(appWisdomChessQtQml
+target_compile_definitions(WisdomChessQml
     PRIVATE MAIN_QML_FILE="${MAIN_QML_FILE}")
