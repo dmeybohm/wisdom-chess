@@ -52,7 +52,7 @@ namespace wisdom::ui
     // Register the enums in QML:
     void registerQmlTypes();
 
-    constexpr auto mapColor(wisdom::Color color) -> wisdom::ui::Color
+    [[nodiscard]] constexpr auto mapColor(wisdom::Color color) -> wisdom::ui::Color
     {
         switch (color) {
         case wisdom::Color::White: return ui::Color::White;
@@ -61,7 +61,7 @@ namespace wisdom::ui
         }
     }
 
-    constexpr auto mapColor(wisdom::ui::Color color) -> wisdom::Color
+    [[nodiscard]] constexpr auto mapColor(wisdom::ui::Color color) -> wisdom::Color
     {
         switch (color) {
         case ui::Color::White: return wisdom::Color::White;
@@ -70,7 +70,7 @@ namespace wisdom::ui
         }
     }
 
-    constexpr auto mapPlayer(wisdom::Player player) -> ui::Player
+    [[nodiscard]] constexpr auto mapPlayer(wisdom::Player player) -> ui::Player
     {
         switch (player) {
         case wisdom::Player::Human: return ui::Player::Human;
@@ -79,7 +79,7 @@ namespace wisdom::ui
         }
     }
 
-    constexpr auto mapPlayer(ui::Player player) -> wisdom::Player
+    [[nodiscard]] constexpr auto mapPlayer(ui::Player player) -> wisdom::Player
     {
         switch (player) {
         case ui::Player::Human: return wisdom::Player::Human;
@@ -88,7 +88,7 @@ namespace wisdom::ui
         }
     }
 
-    constexpr auto mapPiece(ui::PieceType piece) -> wisdom::Piece
+    [[nodiscard]] constexpr auto mapPiece(ui::PieceType piece) -> wisdom::Piece
     {
         switch (piece) {
         case PieceType::None:    return wisdom::Piece::None;
@@ -103,7 +103,7 @@ namespace wisdom::ui
         }
     }
 
-    constexpr auto mapPiece(wisdom::Piece piece) -> ui::PieceType
+    [[nodiscard]] constexpr auto mapPiece(wisdom::Piece piece) -> ui::PieceType
     {
         switch (piece) {
         case wisdom::Piece::None:    return PieceType::None;
