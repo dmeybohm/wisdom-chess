@@ -18,15 +18,19 @@ namespace wisdom
 
         [[nodiscard]] auto compare_moves (const Move& a, const Move& b) const -> bool;
 
-        void none () const;
-        void pawn () const;
-        void knight () const;
-        void bishop () const;
-        void rook () const;
-        void queen () const;
-        void king () const;
+        void none ();
+        void pawn ();
+        void knight ();
+        void bishop ();
+        void rook ();
+        void queen ();
+        void king ();
 
-        void en_passant (int en_passant_column) const;
+        void en_passant (int en_passant_column);
+
+        [[nodiscard]] static auto transform_move (ColoredPiece dst_piece, Move move) noexcept
+            -> Move;
+        void append_move (Move move) noexcept;
     };
 
     auto need_pawn_promotion (int row, Color who) -> bool
@@ -121,7 +125,7 @@ namespace wisdom
                piece_type (piece3) == Piece::None;
     }
 
-    static auto transform_move (const Board &board, ColoredPiece dst_piece, Move move) noexcept
+    auto MoveGeneration::transform_move (ColoredPiece dst_piece, Move move) noexcept
         -> Move
     {
         bool is_capture = (piece_type (dst_piece) != Piece::None);
@@ -131,7 +135,7 @@ namespace wisdom
         return move;
     }
 
-    static void append_move (const Board &board, MoveList& list, Move move) noexcept
+    void MoveGeneration::append_move (Move move) noexcept
     {
         Coord src = move.get_src ();
         Coord dst = move.get_dst ();
@@ -145,15 +149,15 @@ namespace wisdom
         if (piece_color (src_piece) == piece_color (dst_piece))
             return;
 
-        auto transformed_move = transform_move (board, dst_piece, move);
-        list.push_back (transformed_move);
+        auto transformed_move = transform_move (dst_piece, move);
+        moves.push_back (transformed_move);
     }
 
-    void MoveGeneration::none () const
+    void MoveGeneration::none ()
     {
     }
 
-    void MoveGeneration::king () const
+    void MoveGeneration::king ()
     {
         for (int row = piece_row - 1; row < 8 && row <= piece_row + 1; row++)
         {
@@ -165,7 +169,7 @@ namespace wisdom
                 if (!is_valid_column (col))
                     continue;
 
-                append_move (board, moves, Move::make (piece_row, piece_col, row, col));
+                append_move (Move::make (piece_row, piece_col, row, col));
             }
         }
 
@@ -173,18 +177,18 @@ namespace wisdom
         {
             Move queenside_castle = Move::make_castling (piece_row, piece_col, piece_row, piece_col - 2);
             if (valid_castling_move (board, queenside_castle))
-                append_move (board, moves, queenside_castle);
+                append_move (queenside_castle);
         }
 
         if (board.able_to_castle ( who, Castle_Kingside) && piece_col == King_Column)
         {
             Move kingside_castle = Move::make_castling (piece_row, piece_col, piece_row, piece_col + 2);
             if (valid_castling_move (board, kingside_castle))
-                append_move (board, moves, kingside_castle);
+                append_move (kingside_castle);
         }
     }
 
-    void MoveGeneration::rook () const
+    void MoveGeneration::rook ()
     {
         int dir;
         int row, col;
@@ -195,7 +199,7 @@ namespace wisdom
             {
                 ColoredPiece piece = board.piece_at (row, piece_col);
 
-                append_move (board, moves, Move::make (piece_row, piece_col, row, piece_col));
+                append_move (Move::make (piece_row, piece_col, row, piece_col));
 
                 if (piece_type (piece) != Piece::None)
                     break;
@@ -205,7 +209,7 @@ namespace wisdom
             {
                 ColoredPiece piece = board.piece_at (piece_row, col);
 
-                append_move (board, moves, Move::make (piece_row, piece_col, piece_row, col));
+                append_move (Move::make (piece_row, piece_col, piece_row, col));
 
                 if (piece_type (piece) != Piece::None)
                     break;
@@ -213,7 +217,7 @@ namespace wisdom
         }
     }
 
-    void MoveGeneration::bishop () const
+    void MoveGeneration::bishop ()
     {
         int r_dir, c_dir;
         int row, col;
@@ -228,7 +232,7 @@ namespace wisdom
                 {
                     ColoredPiece piece = board.piece_at (row, col);
 
-                    append_move (board, moves, Move::make (piece_row, piece_col, row, col));
+                    append_move (Move::make (piece_row, piece_col, row, col));
 
                     if (piece != Piece_And_Color_None)
                         break;
@@ -237,18 +241,18 @@ namespace wisdom
         }
     }
 
-    void MoveGeneration::queen () const
+    void MoveGeneration::queen ()
     {
         bishop ();
         rook ();
     }
 
-    void MoveGeneration::knight () const
+    void MoveGeneration::knight ()
     {
         const auto& kt_moves = generator.generate_knight_moves (piece_row, piece_col);
 
         for (const auto& knight_move : kt_moves)
-            append_move (board, moves, knight_move);
+            append_move (knight_move);
     }
 
     // Returns -1 if no column is eligible.
@@ -283,7 +287,7 @@ namespace wisdom
         return -1;
     }
 
-    void MoveGeneration::pawn () const
+    void MoveGeneration::pawn ()
     {
         int dir;
         int row;
@@ -352,7 +356,7 @@ namespace wisdom
                     {
                         auto move = *optional_move;
                         move = move.with_promotion (promoted_piece);
-                        append_move (board, moves, move);
+                        append_move (move);
                     }
                 }
             }
@@ -367,12 +371,12 @@ namespace wisdom
 
         for (auto& check_pawn_move : all_pawn_moves)
             if (check_pawn_move.has_value ())
-                append_move (board, moves, *check_pawn_move);
+                append_move (*check_pawn_move);
     }
 
     // put en passant in a separate handler
     // in order to not pollute instruction cache with it
-    void MoveGeneration::en_passant (int en_passant_column) const
+    void MoveGeneration::en_passant (int en_passant_column)
     {
         int direction;
         int take_row, take_col;
@@ -390,7 +394,7 @@ namespace wisdom
 
         Move new_move = Move::make_en_passant (piece_row, piece_col, take_row, take_col);
 
-        append_move (board, moves, new_move);
+        append_move (new_move);
     }
 
     auto MoveGenerator::generate_legal_moves (Board& board, Color who) -> MoveList
