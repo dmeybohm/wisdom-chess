@@ -223,7 +223,7 @@ namespace wisdom
     }
 
     static void remove_invalid_pawns (const Board& board, int8_t source_row, int8_t source_col,
-            array<ColoredPiece, Num_Columns * Num_Rows>& shuffle_pieces)
+            array<ColoredPiece, Num_Squares>& shuffle_pieces)
     {
         auto piece = shuffle_pieces[source_col + (source_row * Num_Columns)];
         if (piece_type (piece) == Piece::Pawn)
@@ -253,17 +253,7 @@ namespace wisdom
         Distribution no_first_row_dist { 1, 7 };
         Distribution no_last_row_dist { 0, 6 };
         Distribution any_row_or_col { 0, 7 };
-        Distribution no_first_or_last_dist { 1, 6 };
         Distribution remove_chance { 0, 100 };
-
-        for (int8_t source_col = 0; source_col < Num_Columns; source_col++)
-        {
-            int8_t first_source_row = 0;
-            auto last_source_row = gsl::narrow<int8_t> (Num_Rows - 1);
-
-            remove_invalid_pawns (*this, first_source_row, source_col, shuffle_pieces);
-            remove_invalid_pawns (*this, last_source_row, source_col, shuffle_pieces);
-        }
 
         for (auto&& coord : all_coords ())
         {
@@ -282,15 +272,24 @@ namespace wisdom
                && is_king_threatened (*this, Color::Black, my_king_pos[Color_Index_Black])
                && iterations < 1000)
         {
-            // swap king positions, but don't put on the last / first row to avoid regenerating
-            // pawns:
+            // swap king positions:
             Coord source_white_king_pos = my_king_pos[Color_Index_White];
-            auto new_row = gsl::narrow<int8_t>(no_first_or_last_dist (rng));
-            auto new_col = gsl::narrow<int8_t>(no_first_or_last_dist (rng));
+            auto new_row = gsl::narrow<int8_t>(any_row_or_col (rng));
+            auto new_col = gsl::narrow<int8_t>(any_row_or_col (rng));
             std::swap (my_squares[coord_index (source_white_king_pos)],
                        my_squares[coord_index (new_row, new_col)]);
             my_king_pos[Color_Index_White] = make_coord (new_row, new_col);
             iterations++;
+        }
+
+        // Remove invalid pawns.
+        for (int8_t source_col = 0; source_col < Num_Columns; source_col++)
+        {
+            int8_t first_source_row = 0;
+            auto last_source_row = gsl::narrow<int8_t> (Num_Rows - 1);
+
+            remove_invalid_pawns (*this, first_source_row, source_col, my_squares);
+            remove_invalid_pawns (*this, last_source_row, source_col, my_squares);
         }
 
         if (iterations >= 1000)
