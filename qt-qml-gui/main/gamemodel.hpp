@@ -1,5 +1,5 @@
-#ifndef GAMEMODEL_H
-#define GAMEMODEL_H
+#ifndef WISDOM_CHESS_GAMEMODEL_H
+#define WISDOM_CHESS_GAMEMODEL_H
 
 #include <QObject>
 #include <QThread>
@@ -13,6 +13,8 @@
 
 class GameModel : public QObject
 {
+    using DrawStatus = wisdom::ui::DrawByRepetitionStatus;
+
     Q_OBJECT
 
     Q_PROPERTY(wisdom::ui::Color currentTurn
@@ -30,26 +32,6 @@ class GameModel : public QObject
                WRITE setMoveStatus
                NOTIFY moveStatusChanged)
 
-    Q_PROPERTY(bool thirdRepetitionDrawProposed
-               READ thirdRepetitionDrawProposed
-               WRITE setThirdRepetitionDrawProposed
-               NOTIFY thirdRepetitionDrawProposedChanged)
-
-    Q_PROPERTY(bool fiftyMovesWithoutProgressDrawProposed
-               READ fiftyMovesWithoutProgressDrawProposed
-               WRITE setFiftyMovesWithoutProgressDrawProposed
-               NOTIFY fiftyMovesWithoutProgressDrawProposedChanged)
-
-    Q_PROPERTY(bool thirdRepetitionDrawAnswered
-               READ thirdRepetitionDrawAnswered
-               WRITE setThirdRepetitionDrawAnswered
-               NOTIFY thirdRepetitionDrawAnsweredChanged)
-
-    Q_PROPERTY(bool fiftyMovesWithoutProgressDrawAnswered
-               READ fiftyMovesWithoutProgressDrawAnswered
-               WRITE setFiftyMovesWithoutProgressDrawAnswered
-               NOTIFY fiftyMovesWithoutProgressDrawAnsweredChanged)
-
     Q_PROPERTY(bool inCheck
                READ inCheck
                WRITE setInCheck
@@ -65,6 +47,15 @@ class GameModel : public QObject
                WRITE setGameSettings
                NOTIFY gameSettingsChanged)
 
+    Q_PROPERTY(wisdom::ui::DrawByRepetitionStatus thirdRepetitionDrawStatus
+                       READ thirdRepetitionDrawStatus
+                       WRITE setThirdRepetitionDrawStatus
+                       NOTIFY thirdRepetitionDrawStatusChanged)
+
+    Q_PROPERTY(wisdom::ui::DrawByRepetitionStatus fiftyMovesDrawStatus
+                       READ fiftyMovesDrawStatus
+                       WRITE setFiftyMovesDrawStatus
+                       NOTIFY fiftyMovesDrawStatusChanged)
 
 public:
     explicit GameModel(QObject *parent = nullptr);
@@ -86,17 +77,13 @@ public:
     void setInCheck(bool newInCheck);
     [[nodiscard]] auto inCheck() const -> bool;
 
-    void setThirdRepetitionDrawProposed(bool drawProposedToHuman);
-    [[nodiscard]] auto thirdRepetitionDrawProposed() const -> bool;
+    void setThirdRepetitionDrawStatus(wisdom::ui::DrawByRepetitionStatus drawStatus);
+    [[nodiscard]] auto thirdRepetitionDrawStatus() const
+        -> wisdom::ui::DrawByRepetitionStatus;
 
-    void setFiftyMovesWithoutProgressDrawProposed(bool drawProposedToHuman);
-    [[nodiscard]] auto fiftyMovesWithoutProgressDrawProposed() const -> bool;
-
-    void setThirdRepetitionDrawAnswered(bool drawProposedToHuman);
-    [[nodiscard]] auto thirdRepetitionDrawAnswered() const -> bool;
-
-    void setFiftyMovesWithoutProgressDrawAnswered(bool drawProposedToHuman);
-    [[nodiscard]] auto fiftyMovesWithoutProgressDrawAnswered() const -> bool;
+    void setFiftyMovesDrawStatus(wisdom::ui::DrawByRepetitionStatus drawStatus);
+    [[nodiscard]] auto fiftyMovesDrawStatus() const
+        -> wisdom::ui::DrawByRepetitionStatus;
 
     void setUISettings(const UISettings& settings);
     [[nodiscard]] auto uiSettings() const -> const UISettings&;
@@ -129,18 +116,12 @@ signals:
     void gameSettingsChanged();
 
     // Use a property to communicate to QML and the human player:
-    void thirdRepetitionDrawProposedChanged();
-    void fiftyMovesWithoutProgressDrawProposedChanged();
-    void thirdRepetitionDrawAnsweredChanged();
-    void fiftyMovesWithoutProgressDrawAnsweredChanged();
+    void thirdRepetitionDrawStatusChanged();
+    void fiftyMovesDrawStatusChanged();
 
     // Send draw response:
     void updateDrawStatus(wisdom::ProposedDrawType drawType, wisdom::Color player,
                           bool accepted);
-
-    // Use a raw signal to communicate to the thread engine on the other thread.
-    // We don't want to send on toggling the boolean.
-    void proposeDrawToEngine();
 
     // Termination of the thread has started.
     void terminationStarted();
@@ -155,9 +136,6 @@ public slots:
     void promotePiece(int srcRow, int srcColumn,
                       int dstRow, int dstColumn, wisdom::ui::PieceType pieceType);
 
-    void humanWantsThreefoldRepetitionDraw(bool accepted);
-    void humanWantsFiftyMovesWithoutProgressDraw(bool accepted);
-
     void receiveChessEngineDrawStatus(wisdom::ProposedDrawType drawType,
         wisdom::Color who, bool accepted);
 
@@ -168,8 +146,7 @@ public slots:
 private:
     // The game is duplicated across the main thread and the chess engine thread.
     // So, the main thread has a copy of the game and so does the engine.
-    // When updates to the engine occur, the game is sent via a signal and the engine
-    // replaces the new copy.
+    // When updates to the engine occur, signals are sent between the threads to synchronize.
     std::unique_ptr<ChessGame> myChessGame;
 
     // The chess game id. We could sometimes receive moves from a previous game that were
@@ -180,30 +157,25 @@ private:
     // The chess engine thread can be interrupted to load the new config sooner.
     std::atomic<int> myConfigId = 1;
 
-    // The chess engine runs in this thread, and grabs the game mutext as needed:
+    // The chess engine runs in this thread:
     QThread* myChessEngineThread = nullptr;
 
     wisdom::ui::Color myCurrentTurn;
     QString myGameOverStatus {};
     QString myMoveStatus {};
-
     bool myInCheck = false;
-    bool myThirdRepetitionDrawProposed = false;
-    bool myFiftyMovesWithProgressDrawProposed = false;
-    bool myThirdRepetitionDrawAnswered = false;
-    bool myFiftyMovesWithProgressDrawAnswered = false;
 
     UISettings myUISettings {};
     GameSettings myGameSettings {};
+
+    DrawStatus myThirdRepetitionDrawStatus = DrawStatus::NotReached;
+    DrawStatus myFiftyMovesDrawStatus = DrawStatus::NotReached;
 
     void init();
     void setupNewEngineThread();
 
     void movePieceWithPromotion(int srcRow, int srcColumn,
                                 int dstRow, int dstColumn, std::optional<wisdom::Piece> piece);
-
-    // Propose a draw to either the human or computer.
-    void proposeDraw(wisdom::Player player, wisdom::ProposedDrawType drawType);
 
     // Returns the color of the next turn:
     auto updateChessEngineForHumanMove(wisdom::Move selectedMove) -> wisdom::Color;
@@ -225,7 +197,7 @@ private:
     void notifyInternalGameStateUpdated();
 
     // Set the proposed draw type:
-    void setProposedDrawTypeAcceptance(wisdom::ProposedDrawType drawType, bool accepted);
+    void setProposedDrawStatus(wisdom::ProposedDrawType drawType, DrawStatus status);
 
     // Get the configuration for the game.
     auto gameConfig() const -> ChessGame::Config;
@@ -237,4 +209,4 @@ private:
     void resetStateForNewGame();
 };
 
-#endif // GAMEMODEL_H
+#endif // WISDOM_CHESS_GAMEMODEL_H

@@ -1,4 +1,5 @@
 import QtQuick
+import WisdomChess
 
 import "../Helper.js" as Helper
 
@@ -29,8 +30,7 @@ Item {
 
     DrawProposalDialog {
         id: threefoldRepetitionDialog
-        visible: !_myGameModel.thirdRepetitionDrawAnswered &&
-                 _myGameModel.thirdRepetitionDrawProposed
+        visible: _myGameModel.thirdRepetitionDrawStatus == DrawByRepetitionStatus.Proposed
         anchors.centerIn: parent
         width: Math.min(400, Screen.width - 50)
         height: Math.min(topWindow.isWebAssembly ? 250 : 200, Screen.height - 10)
@@ -39,17 +39,16 @@ Item {
 
         // hide the dialog and break the property binding:
         onAccepted: {
-            _myGameModel.humanWantsThreefoldRepetitionDraw(true)
+            _myGameModel.thirdRepetitionDrawStatus = DrawByRepetitionStatus.Accepted
         }
         onRejected: {
-            _myGameModel.humanWantsThreefoldRepetitionDraw(false)
+            _myGameModel.thirdRepetitionDrawStatus = DrawByRepetitionStatus.Declined
         }
     }
 
     DrawProposalDialog {
         id: fiftyMovesNoProgressDrawDialog
-        visible: !_myGameModel.fiftyMovesWithoutProgressDrawAnswered &&
-                 _myGameModel.fiftyMovesWithoutProgressDrawProposed
+        visible: _myGameModel.fiftyMovesDrawStatus == DrawByRepetitionStatus.Proposed
         anchors.centerIn: parent
         width: Math.min(400, Screen.width - 50)
         height: Math.min(topWindow.isWebAssembly ? 250 : 200, Screen.height - 10)
@@ -58,10 +57,10 @@ Item {
 
         // hide the dialog and break the property binding:
         onAccepted: {
-            _myGameModel.humanWantsFiftyMovesWithoutProgressDraw(true)
+            _myGameModel.fiftyMovesDrawStatus = DrawByRepetitionStatus.Accepted
         }
         onRejected: {
-            _myGameModel.humanWantsFiftyMovesWithoutProgressDraw(false)
+            _myGameModel.fiftyMovesDrawStatus = DrawByRepetitionStatus.Declined
         }
     }
 
