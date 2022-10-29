@@ -152,8 +152,10 @@ TEST_CASE( "Piece count" )
     }
 }
 
-TEST_CASE( "has_sufficient_material()" )
+TEST_CASE( "checkmate_is_possible()" )
 {
+    using CheckmateIsPossible = Material::CheckmateIsPossible;
+
     Board default_board;
     BoardBuilder builder;
     const auto& default_material = default_board.get_material ();
@@ -161,51 +163,51 @@ TEST_CASE( "has_sufficient_material()" )
     builder.add_piece ("a1", Color::White, Piece::King);
     builder.add_piece ("a8", Color::Black, Piece::King);
 
-    SUBCASE( "Returns true for default board" )
+    SUBCASE( "Returns yes for default board" )
     {
-        CHECK( default_material.has_sufficient_material (default_board) );
+        CHECK(default_material.checkmate_is_possible(default_board) );
     }
 
-    SUBCASE( "Returns false if there is a rook and king" )
+    SUBCASE( "Returns no if there is a rook and king" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Rook);
 
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
-        CHECK( material.has_sufficient_material (default_board) );
+        CHECK( material.checkmate_is_possible(default_board) );
     }
 
-    SUBCASE( "Returns false if there is a rook and king vs a rook and king" )
+    SUBCASE( "Returns no if there is a rook and king vs a rook and king" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Rook);
         builder.add_piece ("c5", Color::White, Piece::Rook);
 
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
-        CHECK( material.has_sufficient_material (default_board) );
+        CHECK( material.checkmate_is_possible(default_board) );
     }
 
-    SUBCASE( "Returns true if there is a king and two knights vs a king" )
+    SUBCASE( "Returns yes if there is a king and two knights vs a king" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Knight);
         builder.add_piece ("b7", Color::Black, Piece::Knight);
 
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
-        CHECK( material.has_sufficient_material (default_board) );
+        CHECK( material.checkmate_is_possible(default_board) );
     }
 
-    SUBCASE( "Returns true if there is a king and knight vs a king and knight" )
+    SUBCASE( "Returns yes if there is a king and knight vs a king and knight" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Knight);
         builder.add_piece ("c7", Color::White, Piece::Knight);
 
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
-        CHECK( material.has_sufficient_material (default_board) );
+        CHECK( material.checkmate_is_possible(default_board) );
     }
 
-    SUBCASE( "Returns true if there is a king and two knights vs a king and knight" )
+    SUBCASE( "Returns yes if there is a king and two knights vs a king and knight" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Knight);
         builder.add_piece ("b7", Color::Black, Piece::Knight);
@@ -213,47 +215,47 @@ TEST_CASE( "has_sufficient_material()" )
 
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
-        CHECK( material.has_sufficient_material (default_board) );
+        CHECK( material.checkmate_is_possible(default_board) );
     }
 
-    SUBCASE( "Returns true if there is a pawn" )
+    SUBCASE( "Returns yes if there is a pawn" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Pawn);
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
 
-        CHECK( material.has_sufficient_material (brd) );
+        CHECK( material.checkmate_is_possible (brd) );
     }
 
-    SUBCASE( "Returns false if there are only two kings" )
+    SUBCASE( "Returns no if there are only two kings" )
     {
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
 
-        CHECK( !material.has_sufficient_material (brd) );
+        CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::No );
     }
 
-    SUBCASE( "Returns false if there is a king and knight vs. a king" )
+    SUBCASE( "Returns no if there is a king and knight vs. a king" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Knight);
 
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
 
-        CHECK( !material.has_sufficient_material (brd) );
+        CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::No );
     }
 
-    SUBCASE( "Returns false if there is a king and bishop vs. a king" )
+    SUBCASE( "Returns no if there is a king and bishop vs. a king" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Bishop);
 
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
 
-        CHECK( !material.has_sufficient_material (brd) );
+        CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::No );
     }
 
-    SUBCASE( "Returns true if there is a king and bishop vs. a king and bishop of opposite colors" )
+    SUBCASE( "Returns yes if there is a king and bishop vs. a king and bishop of opposite colors" )
     {
         builder.add_piece ("a8", Color::White, Piece::Bishop);
         builder.add_piece ("a7", Color::Black, Piece::Bishop);
@@ -261,10 +263,10 @@ TEST_CASE( "has_sufficient_material()" )
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
 
-        CHECK( material.has_sufficient_material (brd) );
+        CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::Yes );
     }
 
-    SUBCASE( "Returns false if there is a king and bishop vs. a king and bishop of the same color" )
+    SUBCASE( "Returns no if there is a king and bishop vs. a king and bishop of the same color" )
     {
         builder.add_piece ("a8", Color::White, Piece::Bishop);
         builder.add_piece ("b7", Color::Black, Piece::Bishop);
@@ -272,10 +274,10 @@ TEST_CASE( "has_sufficient_material()" )
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
 
-        CHECK( !material.has_sufficient_material (brd) );
+        CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::No);
     }
 
-    SUBCASE( "Returns true if there is a king two bishops of opposite color vs. a king" )
+    SUBCASE( "Returns yes if there is a king two bishops of opposite color vs. a king" )
     {
         builder.add_piece ("a8", Color::White, Piece::Bishop);
         builder.add_piece ("b8", Color::White, Piece::Bishop);
@@ -283,10 +285,10 @@ TEST_CASE( "has_sufficient_material()" )
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
 
-        CHECK( material.has_sufficient_material (brd) );
+        CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::Yes);
     }
 
-    SUBCASE( "Returns false if there is a king two bishops of the same color vs. a king" )
+    SUBCASE( "Returns no if there is a king two bishops of the same color vs. a king" )
     {
         builder.add_piece ("a8", Color::White, Piece::Bishop);
         builder.add_piece ("b7", Color::White, Piece::Bishop);
@@ -294,6 +296,6 @@ TEST_CASE( "has_sufficient_material()" )
         auto brd = Board { builder };
         const auto& material = brd.get_material ();
 
-        CHECK( !material.has_sufficient_material (brd) );
+        CHECK( material.checkmate_is_possible(brd) == CheckmateIsPossible::No );
     }
 }

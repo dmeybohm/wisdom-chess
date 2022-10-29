@@ -12,7 +12,7 @@ public:
     friend bool operator ==(const UISettings &a, const UISettings&b);
     friend bool operator !=(const UISettings &a, const UISettings&b);
 
-    bool flipped() const;
+    [[nodiscard]] bool flipped() const;
 
 private:
     bool myFlipped;

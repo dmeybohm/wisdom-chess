@@ -12,8 +12,10 @@
 
 #include <iostream>
 
-namespace wisdom
+namespace wisdom::ui::console
 {
+    using namespace wisdom;
+
     enum class PlayCommand
     {
         None,

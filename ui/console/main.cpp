@@ -8,7 +8,7 @@ int main ()
 {
     try
     {
-        wisdom::play ();
+        wisdom::ui::console::play ();
     }
     catch (const wisdom::Error& e)
     {

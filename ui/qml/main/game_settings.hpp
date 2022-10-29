@@ -17,13 +17,13 @@ public:
     friend bool operator == (const GameSettings&, const GameSettings&);
     friend bool operator != (const GameSettings&, const GameSettings&);
 
-    auto whitePlayer() const -> wisdom::ui::Player;
+    [[nodiscard]] auto whitePlayer() const -> wisdom::ui::Player;
 
-    auto blackPlayer() const -> wisdom::ui::Player;
+    [[nodiscard]] auto blackPlayer() const -> wisdom::ui::Player;
 
-    auto maxDepth() const -> int;
+    [[nodiscard]] auto maxDepth() const -> int;
 
-    auto maxSearchTime() const -> int;
+    [[nodiscard]] auto maxSearchTime() const -> int;
 
 private:
     wisdom::ui::Player myWhitePlayer = wisdom::ui::Player::Human;
