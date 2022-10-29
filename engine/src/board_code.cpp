@@ -33,8 +33,8 @@ namespace wisdom
             set_en_passant_target (Color::White, No_En_Passant_Coord);
         }
 
-        set_castle_state (Color::White, board.get_castle_state (Color::White));
-        set_castle_state (Color::Black, board.get_castle_state (Color::Black));
+        set_castle_state (Color::White, board.get_castling_ineligiblity(Color::White));
+        set_castle_state (Color::Black, board.get_castling_ineligiblity(Color::Black));
     }
 
     auto BoardCode::from_board (const Board& board) -> BoardCode

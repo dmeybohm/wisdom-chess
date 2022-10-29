@@ -7,23 +7,23 @@
 
 namespace wisdom
 {
+    enum class CastlingIneligible : uint8_t
+    {
+        None = 0b000U,
+        Kingside = 0b001U,
+        Queenside = 0b010U,
+        Both = static_cast<uint8_t>(CastlingIneligible::Kingside) | static_cast<uint8_t>(CastlingIneligible::Queenside)
+    };
+    using CastlingIneligibility = flags::flags<wisdom::CastlingIneligible>;
+}
+
+ALLOW_FLAGS_FOR_ENUM(wisdom::CastlingIneligible);
+
+namespace wisdom
+{
     class Board;
 
-    using CastlingState = uint8_t;
-
     static constexpr size_t Max_Packed_Capacity_In_Move = 0x001FFFFFL; // 21 bit max
-
-    constexpr uint8_t
-            Castle_None = 0b000U;      // still eligible to castle on both sides
-    constexpr uint8_t
-            Castle_Kingside = 0b001U;   // ineligible for further castling kingside
-    constexpr uint8_t
-            Castle_Queenside = 0b010U;   // ineligible for further castling queenside
-    constexpr uint8_t
-            Castle_Both_Unavailable = 0b011U; // both ineligible
-    constexpr uint8_t
-            Castle_Previously_None = 0b111U;   // previously was none -
-                                               // used for determining if a move affects castling
 
     enum class MoveCategory
     {
@@ -41,8 +41,8 @@ namespace wisdom
         Piece taken_piece_type;
         array<Coord, Num_Players> en_passant_targets;
         MoveCategory category;
-        CastlingState current_castle_state;
-        CastlingState opponent_castle_state;
+        CastlingIneligibility current_castle_state;
+        CastlingIneligibility opponent_castle_state;
         bool full_move_clock_updated;
     };
 
@@ -53,8 +53,8 @@ namespace wisdom
         .taken_piece_type = Piece::None,
         .en_passant_targets = { No_En_Passant_Coord, No_En_Passant_Coord },
         .category = MoveCategory::Default,
-        .current_castle_state = Castle_None,
-        .opponent_castle_state = Castle_None,
+        .current_castle_state = static_cast<CastlingIneligibility>(CastlingIneligible::None),
+        .opponent_castle_state = static_cast<CastlingIneligibility>(CastlingIneligible::None),
         .full_move_clock_updated = false,
     };
 
@@ -292,7 +292,7 @@ namespace wisdom
         );
     }
 
-    using PlayerCastleState = array<CastlingState, Num_Players>;
+    using PlayerCastleState = array<CastlingIneligibility, Num_Players>;
 
     [[nodiscard]] constexpr auto move_equals (Move a, Move b) noexcept
         -> bool
@@ -316,27 +316,27 @@ namespace wisdom
     }
 
     // Pack the castle state into the move.
-    [[nodiscard]] constexpr auto unpack_castle_state (CastlingState state) noexcept
-        -> CastlingState
+    [[nodiscard]] constexpr auto unpack_castle_state (CastlingIneligibility state) noexcept
+        -> CastlingIneligibility
     {
-        return state == Castle_Previously_None ? Castle_None : state;
+        return state;
     }
 
     // Unpack the castle state from the move.
-    [[nodiscard]] constexpr auto pack_castle_state (CastlingState state) noexcept
-        -> CastlingState
+    [[nodiscard]] constexpr auto pack_castle_state (CastlingIneligibility state) noexcept
+        -> CastlingIneligibility
     {
-        return state == Castle_None ? Castle_Previously_None : state;
+        return state;
     }
 
     [[nodiscard]] constexpr auto current_castle_state (const UndoMove& move) noexcept
-        -> CastlingState
+        -> CastlingIneligibility
     {
         return unpack_castle_state (move.current_castle_state);
     }
 
     [[nodiscard]] constexpr auto opponent_castle_state (const UndoMove& undo_state) noexcept
-        -> CastlingState
+        -> CastlingIneligibility
     {
         return unpack_castle_state (undo_state.opponent_castle_state);
     }

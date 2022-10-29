@@ -12,10 +12,10 @@ TEST_CASE("Initializing castling state")
         Board board;
         for (auto color : { Color::White, Color::Black} )
         {
-            auto both = board.able_to_castle (color, Castle_Kingside |
-                                                            Castle_Queenside);
-            auto king = board.able_to_castle (color, Castle_Kingside);
-            auto queen = board.able_to_castle (color, Castle_Queenside);
+            auto both = board.able_to_castle (color, CastlingIneligible::Kingside |
+                                                            CastlingIneligible::Queenside);
+            auto king = board.able_to_castle (color, CastlingIneligible::Kingside);
+            auto queen = board.able_to_castle (color, CastlingIneligible::Queenside);
             CHECK(both);
             CHECK(king);
             CHECK(queen);
@@ -31,10 +31,10 @@ TEST_CASE("Initializing castling state")
 
         for (auto color : { Color::White, Color::Black} )
         {
-            auto both = board.able_to_castle (color, Castle_Kingside |
-                                                     Castle_Queenside);
-            auto king = board.able_to_castle (color, Castle_Kingside);
-            auto queen = board.able_to_castle (color, Castle_Queenside);
+            auto both = board.able_to_castle (color, CastlingIneligible::Kingside |
+                                                     CastlingIneligible::Queenside);
+            auto king = board.able_to_castle (color, CastlingIneligible::Kingside);
+            auto queen = board.able_to_castle (color, CastlingIneligible::Queenside);
             CHECK(!both);
             CHECK(!king);
             CHECK(!queen);
@@ -57,24 +57,24 @@ TEST_CASE("Castling state is modified and restored for rooks")
     board.set_current_turn (Color::Black);
     Move mv = Move::make (0, 0, 0, 1);
 
-    CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_None );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::None );
 
     UndoMove undo_state = board.make_move (Color::Black, mv);
 
-    CHECK( !board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_Queenside );
+    CHECK( !board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::Queenside );
 
     board.take_back (Color::Black, mv, undo_state);
 
-    CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_None );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::None );
 }
 
 TEST_CASE("Castling state is modified and restored for kings")
@@ -91,24 +91,24 @@ TEST_CASE("Castling state is modified and restored for kings")
     board.set_current_turn (Color::Black);
     Move mv = Move::make (0, 4, 0, 3);
 
-    CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_None );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::None );
 
     UndoMove undo_state = board.make_move (Color::Black, mv);;
 
-    CHECK( !board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( !board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( !board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == (Castle_Queenside | Castle_Kingside));
+    CHECK( !board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( !board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( !board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == (CastlingIneligible::Queenside | CastlingIneligible::Kingside));
 
     board.take_back (Color::Black, mv, undo_state);
 
-    CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_None );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::None );
 }
 
 TEST_CASE("Castling state is modified and restored for castling queenside")
@@ -125,17 +125,17 @@ TEST_CASE("Castling state is modified and restored for castling queenside")
     board.set_current_turn (Color::Black);
     Move mv = Move::make_castling (0, 4, 0, 2);
 
-    CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Queenside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_None );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Queenside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::None );
 
     UndoMove undo_state = board.make_move (Color::Black, mv);;
 
-    CHECK( !board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( !board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( !board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Queenside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_Both_Unavailable );
+    CHECK( !board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( !board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( !board.able_to_castle (Color::Black, CastlingIneligible::Both) );
+    CHECK( board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::Both );
 
     // Check rook and king position updated:
     CHECK(Row (board.get_king_position (Color::Black)) == 0 );
@@ -147,14 +147,14 @@ TEST_CASE("Castling state is modified and restored for castling queenside")
 
     board.take_back (Color::Black, mv, undo_state);
 
-    CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Queenside)) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Both) );
 
     // check rook and king position restored:
     CHECK(Row (board.get_king_position (Color::Black)) == 0 );
     CHECK(Column (board.get_king_position (Color::Black)) == 4 );
-    CHECK( board.get_castle_state (Color::Black) == Castle_None );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::None );
     CHECK(piece_type (board.piece_at (0, 4)) == Piece::King );
     CHECK(piece_color (board.piece_at (0, 4)) == Color::Black );
     CHECK(piece_type (board.piece_at (0, 0)) == Piece::Rook );
@@ -174,17 +174,17 @@ TEST_CASE("Castling state is modified and restored for castling kingside")
     Board board { builder };
     Move mv = Move::make_castling (7, 4, 7, 6);
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_None );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::None );
 
     UndoMove undo_state = board.make_move (Color::White, mv);
 
-    CHECK( !board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( !board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( !board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == (Castle_Kingside | Castle_Queenside) );
+    CHECK( !board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( !board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( !board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::Both );
 
     // Check rook and king position updated:
     CHECK(Row (board.get_king_position (Color::White)) == 7 );
@@ -196,21 +196,21 @@ TEST_CASE("Castling state is modified and restored for castling kingside")
 
     board.take_back (Color::White, mv, undo_state);
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Queenside)) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Both) );
 
     // check rook and king position restored:
     CHECK(Row (board.get_king_position (Color::White)) == 7 );
     CHECK(Column (board.get_king_position (Color::White)) == 4 );
-    CHECK( board.get_castle_state (Color::White) == Castle_None);
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::None);
     CHECK(piece_type (board.piece_at (7, 4)) == Piece::King );
     CHECK(piece_color (board.piece_at (7, 4)) == Color::White );
     CHECK(piece_type (board.piece_at (7, 7)) == Piece::Rook );
     CHECK(piece_color (board.piece_at (7, 7)) == Color::White );
 }
 
-TEST_CASE("Opponent's castling state is modified when his rook is taken")
+TEST_CASE( "Opponent's castling state is modified when his rook is taken" )
 {
     BoardBuilder builder;
 
@@ -228,39 +228,39 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken")
     
     Move mv = Move::make_normal_capturing (1, 1, 0, 0);
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_None );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK( board.get_castling_ineligiblity (Color::White) == CastlingIneligible::None );
 
-    CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_None );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK( board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::None );
 
     UndoMove undo_state = board.make_move (Color::White, mv);
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_None );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK( board.get_castling_ineligiblity (Color::White) == CastlingIneligible::None );
 
-    CHECK( !board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_Queenside );
+    CHECK( !board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK( board.get_castling_ineligiblity (Color::Black) == CastlingIneligible::Queenside );
 
     board.take_back (Color::White, mv, undo_state);
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_None );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::None );
 
-    CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_None );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK( board.get_castling_ineligiblity (Color::Black) == CastlingIneligible::None );
 }
 
 TEST_CASE("Castling state is updated when rook captures a piece")
@@ -282,39 +282,39 @@ TEST_CASE("Castling state is updated when rook captures a piece")
 
     Move mv = Move::make_normal_capturing (0, 0, 1, 0);
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_None );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::None );
 
-    CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_None );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::None );
 
     UndoMove undo_state = board.make_move (Color::Black, mv);;
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_None );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::None );
 
-    CHECK( !board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_Queenside );
+    CHECK( !board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::Queenside );
 
     board.take_back (Color::Black, mv, undo_state);
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_None );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::None );
 
-    CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_None );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::None );
 }
 
 TEST_CASE("Opponent's castling state is modified when his rook is taken (failure scenario)")
@@ -348,39 +348,39 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
     auto board = Board { builder };
     Move mv = Move::make_normal_capturing (0, 0, 0, 1);
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_None );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::None );
 
-    CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_None );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::None );
 
     UndoMove undo_state = board.make_move (Color::Black, mv);;
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_None );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::None );
 
-    CHECK( !board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_Queenside );
+    CHECK( !board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::Queenside );
 
     board.take_back (Color::Black, mv, undo_state);
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_None );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::None );
 
-    CHECK( board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_None );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::None );
 }
 
 TEST_CASE("Castling state is modified when rook takes a piece on same column (scenario 2)")
@@ -413,39 +413,39 @@ TEST_CASE("Castling state is modified when rook takes a piece on same column (sc
 
     Move mv = Move::make_normal_capturing (7, 0, 6, 0);
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_None );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::None );
 
-    CHECK( !board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_Queenside );
+    CHECK( !board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::Queenside );
 
     UndoMove undo_state = board.make_move (Color::White, mv);
 
-    CHECK( !board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_Queenside );
+    CHECK( !board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::Queenside );
 
-    CHECK( !board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_Queenside );
+    CHECK( !board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::Queenside );
 
     board.take_back (Color::White, mv, undo_state);
 
-    CHECK( board.able_to_castle (Color::White, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::White, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::White) == Castle_None );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::White, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::White) == CastlingIneligible::None );
 
-    CHECK( !board.able_to_castle (Color::Black, Castle_Queenside) );
-    CHECK( board.able_to_castle (Color::Black, Castle_Kingside) );
-    CHECK( board.able_to_castle (Color::Black, (Castle_Kingside | Castle_Kingside)) );
-    CHECK( board.get_castle_state (Color::Black) == Castle_Queenside );
+    CHECK( !board.able_to_castle (Color::Black, CastlingIneligible::Queenside) );
+    CHECK( board.able_to_castle (Color::Black, CastlingIneligible::Kingside) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingIneligible::Kingside | CastlingIneligible::Kingside)) );
+    CHECK(board.get_castling_ineligiblity(Color::Black) == CastlingIneligible::Queenside );
 }
 
 TEST_CASE( "Test can castle" )
@@ -459,7 +459,7 @@ TEST_CASE( "Test can castle" )
 
     Board board;
     Color color = Color::White;
-    REQUIRE(board.able_to_castle (Color::White, Castle_Kingside));
+    REQUIRE(board.able_to_castle (Color::White, CastlingIneligible::Kingside));
 
     int i = 0;
     for (auto move : moves)
@@ -468,7 +468,7 @@ TEST_CASE( "Test can castle" )
         CAPTURE(i);
         i++;
         board.make_move (color, move);
-        CHECK( board.able_to_castle (Color::White, Castle_Kingside) );
+        CHECK( board.able_to_castle (Color::White, CastlingIneligible::Kingside) );
         color = color_invert (color);
     }
     auto castling = move_parse ("o-o", Color::White);
@@ -487,27 +487,27 @@ TEST_CASE( "Kingside castle state after moving queenside rook" )
         board.make_move (color, move);
         color = color_invert (color);
     }
-    bool castle_king_side = board.able_to_castle (Color::Black, Castle_Kingside);
-    bool castle_queen_side = board.able_to_castle (Color::Black, Castle_Queenside);
+    bool castle_king_side = board.able_to_castle (Color::Black, CastlingIneligible::Kingside);
+    bool castle_queen_side = board.able_to_castle (Color::Black, CastlingIneligible::Queenside);
     CHECK( !castle_queen_side );
     CHECK( castle_king_side );
 }
 
-TEST_CASE( "Test able_to_castle with Castle_None returns false" )
+TEST_CASE( "Test able_to_castle with CastlingIneligible::None returns false" )
 {
    Board board;
    {
-       auto white_castle = board.able_to_castle (Color::White, Castle_None);
-       auto black_castle = board.able_to_castle (Color::Black, Castle_None);
+       auto white_castle = board.able_to_castle (Color::White, CastlingIneligible::None);
+       auto black_castle = board.able_to_castle (Color::Black, CastlingIneligible::None);
        REQUIRE (!white_castle);
        REQUIRE (!black_castle);
    }
 
    {
-       board.set_castle_state (Color::White, Castle_None);
-       board.set_castle_state (Color::Black, Castle_None);
-       auto white_castle = board.able_to_castle (Color::White, Castle_None);
-       auto black_castle = board.able_to_castle (Color::Black, Castle_None);
+       board.set_castle_state (Color::White, CastlingIneligible::None);
+       board.set_castle_state (Color::Black, CastlingIneligible::None);
+       auto white_castle = board.able_to_castle (Color::White, CastlingIneligible::None);
+       auto black_castle = board.able_to_castle (Color::Black, CastlingIneligible::None);
        REQUIRE (!white_castle);
        REQUIRE (!black_castle);
    }

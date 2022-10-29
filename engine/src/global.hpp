@@ -31,6 +31,8 @@
 #include "gsl.hpp"
 #endif
 
+#include <flags/flags.hpp>
+
 namespace wisdom
 {
     using zstring = gsl::zstring;

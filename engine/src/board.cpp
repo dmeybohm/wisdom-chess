@@ -144,12 +144,12 @@ namespace wisdom
             return color == Color::Black ? gsl::narrow_cast<char> (tolower(ch)) : ch;
         };
 
-        auto castled = get_castle_state (color);
-        if (castled == Castle_None)
+        auto castled = get_castling_ineligiblity(color);
+        if (castled == CastlingIneligible::None)
             castled_state.append(1, convert('K')), castled_state.append(1, convert('Q'));
-        else if (castled == Castle_Kingside)
+        else if (castled == CastlingIneligible::Kingside)
             castled_state += "Q";
-        else if (castled == Castle_Queenside)
+        else if (castled == CastlingIneligible::Queenside)
             castled_state += "K";
         else
             castled_state += "";
