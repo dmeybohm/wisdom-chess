@@ -8,13 +8,6 @@ add_library(wisdom-chess-core STATIC
         output_format.cpp output_format.hpp
         threats.hpp)
 
-if (Microsoft.GSL_Found)
-    target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
-    target_compile_definitions(wisdom-chess-core PUBLIC HAS_MS_GSL)
-else()
-    target_sources(wisdom-chess-core PRIVATE gsl.hpp)
-endif()
-
 if (PCH_ENABLED)
     target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
 else()
@@ -24,6 +17,7 @@ endif()
 target_include_directories(wisdom-chess-core PUBLIC .)
 add_library(wisdom::chess ALIAS wisdom-chess-core)
 
+target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
 target_link_libraries(wisdom-chess-core PUBLIC enum-flags::enum-flags)
 

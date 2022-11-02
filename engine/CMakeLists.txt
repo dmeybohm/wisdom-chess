@@ -34,12 +34,4 @@ else()
     set(WISDOM_CHESS_FAST_TESTS Off)
 endif()
 
-if (Microsoft.GSL_DIR)
-    message("-- Found Microsoft.GSL")
-    set(Microsoft.GSL_Found ON)
-else()
-    message("-- Using bundled GSL")
-    set(Microsoft.GSL_Found OFF)
-endif()
-
 add_subdirectory(src)
