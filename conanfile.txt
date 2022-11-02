@@ -4,5 +4,4 @@ ms-gsl/4.0.0
 enum-flags/0.1a
 
 [generators]
-CMakeToolchain
 CMakeDeps

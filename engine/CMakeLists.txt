@@ -1,14 +1,14 @@
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.23)
 
 project(WisdomEngine CXX)
 
-find_package(doctest QUIET)
-find_package(Microsoft.GSL QUIET)
+find_package(doctest CONFIG QUIET)
+find_package(Microsoft.GSL CONFIG REQUIRED QUIET)
 find_package(Threads REQUIRED)
-find_package(enum-flags REQUIRED)
+find_package(enum-flags CONFIG REQUIRED)
 
 if (ANDROID)
     # Disable precompile headers because there is a confict on android where it links
