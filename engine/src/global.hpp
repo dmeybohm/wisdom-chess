@@ -24,12 +24,9 @@
 #include <cassert>
 #include <type_traits>
 
-#ifdef HAS_MS_GSL
 #include <gsl/gsl>
 #include <gsl/narrow>
-#else
-#include "gsl.hpp"
-#endif
+#include <flags/flags.hpp>
 
 namespace wisdom
 {

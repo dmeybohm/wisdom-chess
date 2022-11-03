@@ -1,13 +1,14 @@
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.23)
 
 project(WisdomEngine CXX)
 
-find_package(doctest QUIET)
-find_package(Microsoft.GSL QUIET)
+find_package(doctest CONFIG QUIET)
+find_package(Microsoft.GSL CONFIG REQUIRED)
 find_package(Threads REQUIRED)
+find_package(enum-flags CONFIG REQUIRED)
 
 if (ANDROID)
     # Disable precompile headers because there is a confict on android where it links
@@ -31,14 +32,6 @@ else()
     message("-- wisdom-chess: Tests disabled (doctest not found)")
     set(WISDOM_CHESS_SLOW_TESTS Off)
     set(WISDOM_CHESS_FAST_TESTS Off)
-endif()
-
-if (Microsoft.GSL_DIR)
-    message("-- Found Microsoft.GSL")
-    set(Microsoft.GSL_Found ON)
-else()
-    message("-- Using bundled GSL")
-    set(Microsoft.GSL_Found OFF)
 endif()
 
 add_subdirectory(src)

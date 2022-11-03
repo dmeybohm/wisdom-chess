@@ -24,8 +24,8 @@ namespace wisdom
         result.add_row_of_same_color_and_piece (6, Color::White, Piece::Pawn);
         result.add_row_of_same_color (7, Color::White, Default_Piece_Row);
 
-        result.set_castling (Color::White, Castle_None);
-        result.set_castling (Color::Black, Castle_None);
+        result.set_castling (Color::White, CastlingEligible::EitherSideEligible);
+        result.set_castling (Color::Black, CastlingEligible::EitherSideEligible);
 
         return result;
     }
@@ -41,12 +41,12 @@ namespace wisdom
     }
 
     auto BoardBuilder::calculate_castle_state_from_position (Color who) const
-        -> CastlingState
+        -> CastlingEligibility
     {
         auto row = castling_row_for_color (who);
         int8_t king_col = King_Column;
 
-        CastlingState state = Castle_None;
+        CastlingEligibility state = CastlingEligible::EitherSideEligible;
         ColoredPiece prospective_king = piece_at (make_coord (row, king_col));
         ColoredPiece prospective_queen_rook = piece_at (make_coord (row, 0));
         ColoredPiece prospective_king_rook = piece_at (make_coord (row, 7));
@@ -56,14 +56,14 @@ namespace wisdom
             piece_type (prospective_queen_rook) != Piece::Rook ||
             piece_color (prospective_queen_rook) != who)
         {
-            state |= Castle_Queenside;
+            state |= CastlingEligible::QueensideIneligible;
         }
         if (piece_type (prospective_king) != Piece::King ||
             piece_color (prospective_king) != who ||
             piece_type (prospective_king_rook) != Piece::Rook ||
             piece_color (prospective_king_rook) != who)
         {
-            state |= Castle_Kingside;
+            state |= CastlingEligible::KingsideIneligible;
         }
 
         return state;
@@ -134,7 +134,7 @@ namespace wisdom
         my_en_passant_targets[color_index (vulnerable_color)] = coord_parse (coord_str);
     }
 
-    void BoardBuilder::set_castling (Color who, CastlingState state)
+    void BoardBuilder::set_castling (Color who, CastlingEligibility state)
     {
         my_castle_states[color_index (who)] = state;
     }

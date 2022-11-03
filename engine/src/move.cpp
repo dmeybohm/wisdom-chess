@@ -11,24 +11,14 @@ namespace wisdom
         return make_coord (Row (src), Column (dst));
     }
 
-    static void save_current_castle_state (UndoMove* undo_state, CastlingState state)
+    static void save_current_castle_state (UndoMove* undo_state, CastlingEligibility state)
     {
         undo_state->current_castle_state = pack_castle_state (state);
     }
 
-    static void save_opponent_castle_state (UndoMove* undo_state, CastlingState state)
+    static void save_opponent_castle_state (UndoMove* undo_state, CastlingEligibility state)
     {
         undo_state->opponent_castle_state = pack_castle_state (state);
-    }
-
-    constexpr bool move_affects_current_castle_state (const UndoMove& move)
-    {
-        return move.current_castle_state != Castle_None;
-    }
-
-    constexpr bool move_affects_opponent_castle_state (const UndoMove& move)
-    {
-        return move.opponent_castle_state != Castle_None;
     }
 
     constexpr bool is_double_square_pawn_move (ColoredPiece src_piece, Move move)
@@ -140,27 +130,16 @@ namespace wisdom
         if (undo)
         {
             board->set_king_position (who, src);
-
-            // retrieve the old board castle status
-            if (move_affects_current_castle_state (*undo_state))
-            {
-                board->undo_castle_change (who,
-                                           current_castle_state (*undo_state));
-            }
         }
         else
         {
             board->set_king_position (who, dst);
 
             // set as not able to castle
-            if (board->able_to_castle ( who, (Castle_Kingside | Castle_Queenside)))
+            if (board->able_to_castle (who, CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible))
             {
-                // save the old castle status
-                CastlingState old_castle_state = board->get_castle_state ( who);
-                save_current_castle_state (undo_state, old_castle_state);
-
                 // set the new castle status
-                board->apply_castle_change (who, Castle_Kingside | Castle_Queenside);
+                board->remove_castling_eligibility (who, CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible);
             }
         }
     }
@@ -176,43 +155,26 @@ namespace wisdom
     {
         assert (piece_color (dst_piece) == opponent && piece_type (dst_piece) == Piece::Rook);
 
-        if constexpr (undo)
+        if constexpr (!undo)
         {
-            // need to put castle status back...it's saved in the move
-            // from do_move()...
-            if (move_affects_opponent_castle_state (*undo_state))
-                board->undo_castle_change (opponent, opponent_castle_state (*undo_state));
-        }
-        else
-        {
-            CastlingState castle_state = Castle_None;
+            CastlingEligibility castle_state = CastlingEligible::EitherSideEligible;
 
-            int castle_rook_row = opponent == Color::White ? 7 : 0;
+            int castle_rook_row = opponent == Color::White ? Last_Row : First_Row;
 
             //
             // This needs distinguishes between captures that end
             // up on the rook and moves from the rook itself.
             //
-            if (Column (dst) == 0 && Row (dst) == castle_rook_row)
-                castle_state = Castle_Queenside;
-            else if (Column (dst) == 7 && Row (dst) == castle_rook_row)
-                castle_state = Castle_Kingside;
+            if (Column (dst) == First_Column && Row (dst) == castle_rook_row)
+                castle_state = CastlingEligible::QueensideIneligible;
+            else if (Column (dst) == Last_Column && Row (dst) == castle_rook_row)
+                castle_state = CastlingEligible::KingsideIneligible;
 
             //
-            // Set inability to castle on one side. Note that
-            // Castle_Queenside/KINGSIDE are _negative_ flags, indicating the
-            // computer_player cannot castle.  This is a bit confusing, not sure why I did
-            // this.
+            // Set inability to castle on one side.
             //
             if (board->able_to_castle (opponent, castle_state))
-            {
-                // save the current castle state
-                CastlingState orig_castle_state = board->get_castle_state (opponent);
-                save_opponent_castle_state (undo_state, orig_castle_state);
-
-                castle_state |= orig_castle_state;
-                board->apply_castle_change (opponent, castle_state);
-            }
+                board->remove_castling_eligibility (opponent, castle_state);
         }
     }
 
@@ -233,16 +195,9 @@ namespace wisdom
 
         assert (piece_color (src_piece) == player && piece_type (src_piece) == Piece::Rook);
 
-        if (undo)
+        if (!undo)
         {
-            // need to put castle status back...it's saved in the move
-            // from do_move()...
-            if (move_affects_current_castle_state (*undo_state))
-                board->undo_castle_change (player, current_castle_state (*undo_state));
-        }
-        else
-        {
-            CastlingState affects_castle_state = 0;
+            CastlingEligibility affects_castle_state = CastlingEligible::EitherSideEligible;
             int castle_src_row = player == Color::White ? Last_Row : First_Row;
 
             //
@@ -252,25 +207,16 @@ namespace wisdom
             if (Row (src) == castle_src_row)
             {
                 if (Column (src) == Queen_Rook_Column)
-                    affects_castle_state = Castle_Queenside;
+                    affects_castle_state = CastlingEligible::QueensideIneligible;
                 else if (Column (src) == King_Rook_Column)
-                    affects_castle_state = Castle_Kingside;
+                    affects_castle_state = CastlingEligible::KingsideIneligible;
             }
 
-            //
-            // Set inability to castle on one side. Note that
-            // Castle_Queenside/KINGSIDE are _negative_ flags, indicating the
-            // Computer player cannot castle.  This is a bit confusing, not sure why I did
-            // this.
-            //
-            if (affects_castle_state > 0 && board->able_to_castle ( player, affects_castle_state))
+            // Set inability to castle on one side.
+            if (affects_castle_state != CastlingEligible::EitherSideEligible &&
+                board->able_to_castle (player, affects_castle_state))
             {
-                // save the current castle state
-                CastlingState orig_castle_state = board->get_castle_state ( player);
-                save_current_castle_state (undo_state, orig_castle_state);
-
-                affects_castle_state |= orig_castle_state;
-                board->apply_castle_change (player, affects_castle_state);
+                board->remove_castling_eligibility (player, affects_castle_state);
             }
         }
     }
@@ -329,6 +275,10 @@ namespace wisdom
         {
             assert (piece_color (src_piece) != piece_color (dst_piece));
         }
+
+        // Save the current castling state, regardless of whether it will be affected.
+        save_current_castle_state (&undo_state, get_castling_eligibility (who));
+        save_opponent_castle_state (&undo_state, get_castling_eligibility (opponent));
 
         // check for promotion
         if (move.is_promoting ())
@@ -410,6 +360,10 @@ namespace wisdom
         auto src_piece = piece_at (dst);
         auto orig_src_piece = src_piece;
 
+        // Restore the current castling state, regardless of whether it will be affected.
+        set_castle_state (who, current_castle_state (undo_state));
+        set_castle_state (opponent, opponent_castle_state (undo_state));
+
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) == who);
         if (dst_piece_type != Piece::None)
@@ -445,12 +399,6 @@ namespace wisdom
         if (piece_type (src_piece) == Piece::King)
             update_king_position (this, who, move, &undo_move_value, src, dst, true);
 
-        if (piece_type (orig_src_piece) == Piece::Rook)
-        {
-            update_current_rook_position (this, who, orig_src_piece, move, &undo_move_value,
-                                          src, dst, true);
-        }
-
         ColoredPiece captured_piece = captured_material (undo_state, opponent);
         auto captured_piece_type = piece_type (captured_piece);
         if (captured_piece_type != Piece::None)
@@ -458,12 +406,6 @@ namespace wisdom
             // NOTE: we reload from the move in case of en-passant, since dst_piece
             // could be none.
             my_material.add (captured_piece);
-
-            if (piece_type (dst_piece) == Piece::Rook)
-            {
-                update_opponent_rook_position<true> (this, color_invert (who), dst_piece,
-                                                     &undo_move_value, src, dst);
-            }
         }
 
         my_position.unapply_move (who, undo_state);

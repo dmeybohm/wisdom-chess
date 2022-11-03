@@ -60,7 +60,7 @@ namespace wisdom
 
         void set_en_passant_target (Color vulnerable_color, const string& coord_str);
 
-        void set_castling (Color who, CastlingState state);
+        void set_castling (Color who, CastlingEligibility state);
 
         void set_current_turn (Color who);
 
@@ -90,7 +90,7 @@ namespace wisdom
             return my_en_passant_targets;
         }
 
-        [[nodiscard]] auto get_castle_state (Color who) const -> CastlingState
+        [[nodiscard]] auto get_castle_state (Color who) const -> CastlingEligibility
         {
             if (my_castle_states[color_index (who)])
                 return *my_castle_states[color_index (who)];
@@ -123,14 +123,14 @@ namespace wisdom
         }
 
     private:
-        [[nodiscard]] auto calculate_castle_state_from_position (Color who) const -> CastlingState;
+        [[nodiscard]] auto calculate_castle_state_from_position (Color who) const -> CastlingEligibility;
 
         array<ColoredPiece, Num_Squares> my_squares;
         array<Coord, Num_Players> my_en_passant_targets {
             No_En_Passant_Coord, No_En_Passant_Coord
         };
 
-        array<optional<CastlingState>, Num_Players> my_castle_states {
+        array<optional<CastlingEligibility>, Num_Players> my_castle_states {
             nullopt, nullopt
         };
 

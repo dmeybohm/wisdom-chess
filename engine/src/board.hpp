@@ -112,20 +112,19 @@ namespace wisdom
             return my_king_pos[color_index (who)];
         }
 
-        [[nodiscard]] auto able_to_castle (Color who, CastlingState castle_type) const
-            -> bool
-        {
-            assert (castle_type != Castle_Previously_None);
-
-            auto castle_state = get_castle_state (who);
-            bool neg_not_set = ((~castle_state) & castle_type) != 0;
-
-            return neg_not_set;
-        }
-
-        [[nodiscard]] auto get_castle_state (Color who) const -> CastlingState
+        [[nodiscard]] auto get_castling_eligibility (Color who) const -> CastlingEligibility
         {
             return my_code.castle_state (who);
+        }
+
+        [[nodiscard]] auto able_to_castle (Color who, CastlingEligibility castle_types) const
+            -> bool
+        {
+            auto castle_state = get_castling_eligibility (who);
+            auto castle_bits = castle_state.underlying_value ();
+            bool neg_not_set = ((~castle_bits) & castle_types.underlying_value ()) != 0;
+
+            return neg_not_set;
         }
 
         [[nodiscard]] auto is_en_passant_vulnerable (Color who) const noexcept -> bool
@@ -160,17 +159,18 @@ namespace wisdom
             my_king_pos[color_index (who)] = pos;
         }
 
-        void apply_castle_change (Color who, CastlingState castle_state)
+        void remove_castling_eligibility (Color who, CastlingEligibility removed_castle_states)
+        {
+            CastlingEligibility orig_castle_state = get_castling_eligibility (who);
+            my_code.set_castle_state (who, orig_castle_state | removed_castle_states);
+        }
+
+        void undo_castle_change (Color who, CastlingEligibility castle_state)
         {
             my_code.set_castle_state (who, castle_state);
         }
 
-        void undo_castle_change (Color who, CastlingState castle_state)
-        {
-            my_code.set_castle_state (who, castle_state);
-        }
-
-        void set_castle_state (Color who, CastlingState new_state)
+        void set_castle_state (Color who, CastlingEligibility new_state)
         {
             my_code.set_castle_state (who, new_state);
         }
