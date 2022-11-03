@@ -239,13 +239,6 @@ namespace wisdom
 
         array<ColoredPiece, Num_Columns * Num_Rows> shuffle_pieces {};
 
-        std::copy (
-            std::begin (my_squares),
-            std::end (my_squares),
-            std::begin (shuffle_pieces)
-        );
-        std::shuffle (std::begin (shuffle_pieces), std::end (shuffle_pieces), rng);
-
         using Distribution = std::uniform_int_distribution<>;
 
         // ensure no pawns on the final rank - move same color ones,
@@ -255,48 +248,42 @@ namespace wisdom
         Distribution any_row_or_col { 0, 7 };
         Distribution remove_chance { 0, 100 };
 
-        for (auto&& coord : all_coords ())
-        {
-            ColoredPiece piece = shuffle_pieces[coord_index (coord)];
-            if (piece_type (piece) == Piece::King)
-                my_king_pos[color_index (piece_color (piece))] = coord;
-
-            my_squares[coord_index (coord)] = piece;
-        }
-
-        // update the king positions:
-        // if both kings are in check, regenerate.
         auto iterations = 0;
-        iterations++;
-        while (is_king_threatened (*this, Color::White, my_king_pos[Color_Index_White])
-               && is_king_threatened (*this, Color::Black, my_king_pos[Color_Index_Black])
-               && iterations < 1000)
-        {
-            // swap king positions:
-            Coord source_white_king_pos = my_king_pos[Color_Index_White];
-            auto new_row = gsl::narrow<int8_t>(any_row_or_col (rng));
-            auto new_col = gsl::narrow<int8_t>(any_row_or_col (rng));
-            std::swap (my_squares[coord_index (source_white_king_pos)],
-                       my_squares[coord_index (new_row, new_col)]);
-            my_king_pos[Color_Index_White] = make_coord (new_row, new_col);
-            iterations++;
-        }
 
-        // Remove invalid pawns.
-        for (int8_t source_col = 0; source_col < Num_Columns; source_col++)
+        do
         {
-            int8_t first_source_row = 0;
-            auto last_source_row = gsl::narrow<int8_t> (Num_Rows - 1);
+            std::copy (std::begin (my_squares), std::end (my_squares), std::begin (shuffle_pieces));
+            std::shuffle (std::begin (shuffle_pieces), std::end (shuffle_pieces), rng);
 
-            remove_invalid_pawns (*this, first_source_row, source_col, my_squares);
-            remove_invalid_pawns (*this, last_source_row, source_col, my_squares);
-        }
+            for (auto&& coord : all_coords ())
+            {
+                ColoredPiece piece = shuffle_pieces[coord_index (coord)];
+                if (piece_type (piece) == Piece::King)
+                    my_king_pos[color_index (piece_color (piece))] = coord;
+
+                my_squares[coord_index (coord)] = piece;
+            }
+
+            // Remove invalid pawns.
+            for (int8_t source_col = 0; source_col < Num_Columns; source_col++)
+            {
+                int8_t first_source_row = 0;
+                auto last_source_row = gsl::narrow<int8_t> (Num_Rows - 1);
+
+                remove_invalid_pawns (*this, first_source_row, source_col, my_squares);
+                remove_invalid_pawns (*this, last_source_row, source_col, my_squares);
+            }
+            // if both kings are in check, regenerate.
+        } while (is_king_threatened (*this, Color::White, my_king_pos[Color_Index_White])
+           && is_king_threatened (*this, Color::Black, my_king_pos[Color_Index_Black])
+                && ++iterations < 1000);
 
         if (iterations >= 1000)
         {
             std::cout << "Too many positions : " << to_string () << "\n";
             throw Error { "Too many iterations trying to generate a random board." };
         }
+
         // update the board code:
         my_code = BoardCode::from_board (*this);
     }
