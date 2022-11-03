@@ -14,10 +14,10 @@ TEST_CASE( "FEN notation for the starting position" )
 
     CHECK( game.get_board () == default_board );
 
-    auto default_black_state = default_board.get_castling_ineligiblity(Color::Black);
-    auto default_white_state = default_board.get_castling_ineligiblity(Color::White);
-    auto fen_white_state = game.get_board().get_castling_ineligiblity(Color::White);
-    auto fen_black_state = game.get_board().get_castling_ineligiblity(Color::Black);
+    auto default_black_state = default_board.get_castling_eligibility (Color::Black);
+    auto default_white_state = default_board.get_castling_eligibility (Color::White);
+    auto fen_white_state = game.get_board ().get_castling_eligibility (Color::White);
+    auto fen_black_state = game.get_board ().get_castling_eligibility (Color::Black);
 
     CHECK( default_white_state == fen_white_state );
     CHECK( default_black_state == fen_black_state );
@@ -39,10 +39,10 @@ TEST_CASE( "FEN notation for non-starting position" )
     auto expected = Board { builder };
     CHECK( game.get_board () == expected );
 
-    auto white_state = game.get_board().get_castling_ineligiblity(Color::White);
-    auto black_state = game.get_board().get_castling_ineligiblity(Color::Black);
-    auto exp_white_state = expected.get_castling_ineligiblity(Color::White);
-    auto exp_black_state = expected.get_castling_ineligiblity(Color::Black);
+    auto white_state = game.get_board ().get_castling_eligibility (Color::White);
+    auto black_state = game.get_board ().get_castling_eligibility (Color::Black);
+    auto exp_white_state = expected.get_castling_eligibility (Color::White);
+    auto exp_black_state = expected.get_castling_eligibility (Color::Black);
 
     CHECK( white_state == exp_white_state );
     CHECK( black_state == exp_black_state );
@@ -54,28 +54,28 @@ TEST_CASE( "FEN notation for castling" )
 
     Game game = parser_full.build();
 
-    REQUIRE(game.get_board().get_castling_ineligiblity(Color::White) == CastlingIneligible::None);
-    REQUIRE(game.get_board().get_castling_ineligiblity(Color::Black) == CastlingIneligible::None);
+    REQUIRE(game.get_board ().get_castling_eligibility (Color::White) == CastlingEligible::EitherSideEligible);
+    REQUIRE(game.get_board ().get_castling_eligibility (Color::Black) == CastlingEligible::EitherSideEligible);
 
     FenParser parser_no_black_king { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black_king.build();
 
-    REQUIRE(game.get_board().get_castling_ineligiblity(Color::White) == CastlingIneligible::None);
-    REQUIRE(game.get_board().get_castling_ineligiblity(Color::Black) == CastlingIneligible::Kingside);
+    REQUIRE(game.get_board ().get_castling_eligibility (Color::White) == CastlingEligible::EitherSideEligible);
+    REQUIRE(game.get_board ().get_castling_eligibility (Color::Black) == CastlingEligible::KingsideIneligible);
 
     FenParser parser_no_black { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black.build();
 
-    REQUIRE(game.get_board().get_castling_ineligiblity(Color::White) == CastlingIneligible::None);
-    REQUIRE(game.get_board().get_castling_ineligiblity(Color::Black) == CastlingIneligible::Kingside);
+    REQUIRE(game.get_board ().get_castling_eligibility (Color::White) == CastlingEligible::EitherSideEligible);
+    REQUIRE(game.get_board ().get_castling_eligibility (Color::Black) == CastlingEligible::KingsideIneligible);
     FenParser parser_nothing { "4r2/8/8/8/8/8/k7/4K2R w - - 0 1" };
 
     game = parser_nothing.build();
 
-    REQUIRE(game.get_board().get_castling_ineligiblity(Color::White) == CastlingIneligible::Both );
-    REQUIRE(game.get_board().get_castling_ineligiblity(Color::Black) == CastlingIneligible::Both );
+    REQUIRE(game.get_board ().get_castling_eligibility (Color::White) == CastlingEligible::BothSidesIneligible );
+    REQUIRE(game.get_board ().get_castling_eligibility (Color::Black) == CastlingEligible::BothSidesIneligible );
 }
 
 TEST_CASE( "FEN notation for en passant" )

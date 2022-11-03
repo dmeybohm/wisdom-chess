@@ -38,13 +38,13 @@ namespace wisdom
 
         auto unable_to_castle_penalty (const Board& board, Color who) -> int
         {
-            auto castle_state = board.get_castling_ineligiblity(who);
+            auto castle_state = board.get_castling_eligibility(who);
             int result = 0;
-            if (castle_state != CastlingIneligible::None)
+            if (castle_state != CastlingEligible::EitherSideEligible)
             {
-                if (castle_state & CastlingIneligible::Kingside)
+                if (castle_state & CastlingEligible::KingsideIneligible)
                     result += Castle_Penalty;
-                if (castle_state & CastlingIneligible::Queenside)
+                if (castle_state & CastlingEligible::QueensideIneligible)
                     result += Castle_Penalty;
                 if (heuristic_is_castled (board, who))
                     result -= 2 * Castle_Penalty;

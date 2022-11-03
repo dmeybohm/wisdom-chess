@@ -11,12 +11,12 @@ namespace wisdom
         return make_coord (Row (src), Column (dst));
     }
 
-    static void save_current_castle_state (UndoMove* undo_state, CastlingIneligibility state)
+    static void save_current_castle_state (UndoMove* undo_state, CastlingEligibility state)
     {
         undo_state->current_castle_state = pack_castle_state (state);
     }
 
-    static void save_opponent_castle_state (UndoMove* undo_state, CastlingIneligibility state)
+    static void save_opponent_castle_state (UndoMove* undo_state, CastlingEligibility state)
     {
         undo_state->opponent_castle_state = pack_castle_state (state);
     }
@@ -136,10 +136,10 @@ namespace wisdom
             board->set_king_position (who, dst);
 
             // set as not able to castle
-            if (board->able_to_castle (who, CastlingIneligible::Kingside | CastlingIneligible::Queenside))
+            if (board->able_to_castle (who, CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible))
             {
                 // set the new castle status
-                board->remove_castling_eligibility (who, CastlingIneligible::Kingside | CastlingIneligible::Queenside);
+                board->remove_castling_eligibility (who, CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible);
             }
         }
     }
@@ -157,7 +157,7 @@ namespace wisdom
 
         if constexpr (!undo)
         {
-            CastlingIneligibility castle_state = CastlingIneligible::None;
+            CastlingEligibility castle_state = CastlingEligible::EitherSideEligible;
 
             int castle_rook_row = opponent == Color::White ? Last_Row : First_Row;
 
@@ -166,9 +166,9 @@ namespace wisdom
             // up on the rook and moves from the rook itself.
             //
             if (Column (dst) == First_Column && Row (dst) == castle_rook_row)
-                castle_state = CastlingIneligible::Queenside;
+                castle_state = CastlingEligible::QueensideIneligible;
             else if (Column (dst) == Last_Column && Row (dst) == castle_rook_row)
-                castle_state = CastlingIneligible::Kingside;
+                castle_state = CastlingEligible::KingsideIneligible;
 
             //
             // Set inability to castle on one side.
@@ -197,7 +197,7 @@ namespace wisdom
 
         if (!undo)
         {
-            CastlingIneligibility affects_castle_state = CastlingIneligible::None;
+            CastlingEligibility affects_castle_state = CastlingEligible::EitherSideEligible;
             int castle_src_row = player == Color::White ? Last_Row : First_Row;
 
             //
@@ -207,13 +207,13 @@ namespace wisdom
             if (Row (src) == castle_src_row)
             {
                 if (Column (src) == Queen_Rook_Column)
-                    affects_castle_state = CastlingIneligible::Queenside;
+                    affects_castle_state = CastlingEligible::QueensideIneligible;
                 else if (Column (src) == King_Rook_Column)
-                    affects_castle_state = CastlingIneligible::Kingside;
+                    affects_castle_state = CastlingEligible::KingsideIneligible;
             }
 
             // Set inability to castle on one side.
-            if (affects_castle_state != CastlingIneligible::None &&
+            if (affects_castle_state != CastlingEligible::EitherSideEligible &&
                 board->able_to_castle (player, affects_castle_state))
             {
                 board->remove_castling_eligibility (player, affects_castle_state);
@@ -277,8 +277,8 @@ namespace wisdom
         }
 
         // Save the current castling state, regardless of whether it will be affected.
-        save_current_castle_state (&undo_state, get_castling_ineligiblity(who));
-        save_opponent_castle_state (&undo_state, get_castling_ineligiblity(opponent));
+        save_current_castle_state (&undo_state, get_castling_eligibility (who));
+        save_opponent_castle_state (&undo_state, get_castling_eligibility (opponent));
 
         // check for promotion
         if (move.is_promoting ())

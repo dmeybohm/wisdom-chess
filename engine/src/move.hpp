@@ -7,17 +7,17 @@
 
 namespace wisdom
 {
-    enum class CastlingIneligible : uint8_t
+    enum class CastlingEligible : uint8_t
     {
-        None = 0b000U,
-        Kingside = 0b001U,
-        Queenside = 0b010U,
-        Both = static_cast<uint8_t>(CastlingIneligible::Kingside) | static_cast<uint8_t>(CastlingIneligible::Queenside)
+        EitherSideEligible = 0b000U,
+        KingsideIneligible = 0b001U,
+        QueensideIneligible = 0b010U,
+        BothSidesIneligible = static_cast<uint8_t>(CastlingEligible::KingsideIneligible) | static_cast<uint8_t>(CastlingEligible::QueensideIneligible)
     };
-    using CastlingIneligibility = flags::flags<wisdom::CastlingIneligible>;
+    using CastlingEligibility = flags::flags<wisdom::CastlingEligible>;
 }
 
-ALLOW_FLAGS_FOR_ENUM(wisdom::CastlingIneligible);
+ALLOW_FLAGS_FOR_ENUM(wisdom::CastlingEligible);
 
 namespace wisdom
 {
@@ -41,8 +41,8 @@ namespace wisdom
         Piece taken_piece_type;
         array<Coord, Num_Players> en_passant_targets;
         MoveCategory category;
-        CastlingIneligibility current_castle_state;
-        CastlingIneligibility opponent_castle_state;
+        CastlingEligibility current_castle_state;
+        CastlingEligibility opponent_castle_state;
         bool full_move_clock_updated;
     };
 
@@ -53,8 +53,8 @@ namespace wisdom
         .taken_piece_type = Piece::None,
         .en_passant_targets = { No_En_Passant_Coord, No_En_Passant_Coord },
         .category = MoveCategory::Default,
-        .current_castle_state = static_cast<CastlingIneligibility>(CastlingIneligible::None),
-        .opponent_castle_state = static_cast<CastlingIneligibility>(CastlingIneligible::None),
+        .current_castle_state = static_cast<CastlingEligibility>(CastlingEligible::EitherSideEligible),
+        .opponent_castle_state = static_cast<CastlingEligibility>(CastlingEligible::EitherSideEligible),
         .full_move_clock_updated = false,
     };
 
@@ -292,7 +292,7 @@ namespace wisdom
         );
     }
 
-    using PlayerCastleState = array<CastlingIneligibility, Num_Players>;
+    using PlayerCastleState = array<CastlingEligibility, Num_Players>;
 
     [[nodiscard]] constexpr auto move_equals (Move a, Move b) noexcept
         -> bool
@@ -316,27 +316,27 @@ namespace wisdom
     }
 
     // Pack the castle state into the move.
-    [[nodiscard]] constexpr auto unpack_castle_state (CastlingIneligibility state) noexcept
-        -> CastlingIneligibility
+    [[nodiscard]] constexpr auto unpack_castle_state (CastlingEligibility state) noexcept
+        -> CastlingEligibility
     {
         return state;
     }
 
     // Unpack the castle state from the move.
-    [[nodiscard]] constexpr auto pack_castle_state (CastlingIneligibility state) noexcept
-        -> CastlingIneligibility
+    [[nodiscard]] constexpr auto pack_castle_state (CastlingEligibility state) noexcept
+        -> CastlingEligibility
     {
         return state;
     }
 
     [[nodiscard]] constexpr auto current_castle_state (const UndoMove& move) noexcept
-        -> CastlingIneligibility
+        -> CastlingEligibility
     {
         return unpack_castle_state (move.current_castle_state);
     }
 
     [[nodiscard]] constexpr auto opponent_castle_state (const UndoMove& undo_state) noexcept
-        -> CastlingIneligibility
+        -> CastlingEligibility
     {
         return unpack_castle_state (undo_state.opponent_castle_state);
     }

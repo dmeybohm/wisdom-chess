@@ -126,13 +126,13 @@ namespace wisdom
             my_ancillary |= current_turn_bit;
         }
 
-        [[nodiscard]] auto castle_state (Color who) const -> CastlingIneligibility
+        [[nodiscard]] auto castle_state (Color who) const -> CastlingEligibility
         {
             std::size_t target_bits = my_ancillary.to_ulong ();
             std::size_t target_bit_shift = who == Color::White ?
                                                   CASTLING_STATE_WHITE_TARGET :
                                                   CASTLING_STATE_BLACK_TARGET;
-            CastlingIneligibility result = CastlingIneligible::None;
+            CastlingEligibility result = CastlingEligible::EitherSideEligible;
             uint8_t new_value = gsl::narrow_cast<uint8_t> (
                     (target_bits >> target_bit_shift) & CASTLE_ONE_COLOR_MASK
             );
@@ -140,7 +140,7 @@ namespace wisdom
             return result;
         }
 
-        void set_castle_state (Color who, CastlingIneligibility castling_states)
+        void set_castle_state (Color who, CastlingEligibility castling_states)
         {
             uint8_t castling_bits = castling_states.underlying_value ();
             std::size_t bit_number = who == Color::White ?

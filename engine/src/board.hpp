@@ -112,15 +112,15 @@ namespace wisdom
             return my_king_pos[color_index (who)];
         }
 
-        [[nodiscard]] auto get_castling_ineligiblity (Color who) const -> CastlingIneligibility
+        [[nodiscard]] auto get_castling_eligibility (Color who) const -> CastlingEligibility
         {
             return my_code.castle_state (who);
         }
 
-        [[nodiscard]] auto able_to_castle (Color who, CastlingIneligibility castle_types) const
+        [[nodiscard]] auto able_to_castle (Color who, CastlingEligibility castle_types) const
             -> bool
         {
-            auto castle_state = get_castling_ineligiblity (who);
+            auto castle_state = get_castling_eligibility (who);
             auto castle_bits = castle_state.underlying_value ();
             bool neg_not_set = ((~castle_bits) & castle_types.underlying_value ()) != 0;
 
@@ -159,18 +159,18 @@ namespace wisdom
             my_king_pos[color_index (who)] = pos;
         }
 
-        void remove_castling_eligibility (Color who, CastlingIneligibility removed_castle_states)
+        void remove_castling_eligibility (Color who, CastlingEligibility removed_castle_states)
         {
-            CastlingIneligibility orig_castle_state = get_castling_ineligiblity (who);
+            CastlingEligibility orig_castle_state = get_castling_eligibility (who);
             my_code.set_castle_state (who, orig_castle_state | removed_castle_states);
         }
 
-        void undo_castle_change (Color who, CastlingIneligibility castle_state)
+        void undo_castle_change (Color who, CastlingEligibility castle_state)
         {
             my_code.set_castle_state (who, castle_state);
         }
 
-        void set_castle_state (Color who, CastlingIneligibility new_state)
+        void set_castle_state (Color who, CastlingEligibility new_state)
         {
             my_code.set_castle_state (who, new_state);
         }
