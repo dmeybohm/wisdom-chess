@@ -25,7 +25,7 @@ namespace wisdom
 
     static constexpr size_t Max_Packed_Capacity_In_Move = 0x001FFFFFL; // 21 bit max
 
-    enum class MoveCategory
+    enum class MoveCategory : int8_t
     {
         Default = 0,
         NormalCapturing = 1,
