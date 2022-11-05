@@ -38,7 +38,7 @@ using wisdom::test::SearchHelper;
 using namespace wisdom;
 
 // Mating moves: : 1.Ra6 f6 2.Bxf6 Rg7 3.Rxa8#
-TEST_CASE ("Can find mate in 3")
+TEST_CASE( "Can find mate in 3" )
 {
     BoardBuilder builder;
 
@@ -76,7 +76,7 @@ TEST_CASE ("Can find mate in 3")
 // ... Rd4+ 2. Ke5 f6#
 // ... Bb7+ 2. Ke5 Re4#
 //
-TEST_CASE ("Can find mate in 2 1/2")
+TEST_CASE( "Can find mate in 2 1/2" )
 {
     FenParser fen { "4n3/2k2p2/p5p1/2pK4/1r6/1n6/8/8 b - - 0 1" };
     auto game = fen.build ();
@@ -90,7 +90,7 @@ TEST_CASE ("Can find mate in 2 1/2")
     REQUIRE( result.score > Max_Non_Checkmate_Score);
 }
 
-TEST_CASE ("scenario with heap overflow 1")
+TEST_CASE( "scenario with heap overflow 1" )
 {
     BoardBuilder builder;
 
@@ -127,7 +127,7 @@ TEST_CASE ("scenario with heap overflow 1")
     REQUIRE( result.move.has_value () );
 }
 
-TEST_CASE ("Promoting move is taken if possible")
+TEST_CASE( "Promoting move is taken if possible" )
 {
     BoardBuilder builder;
 
@@ -143,7 +143,7 @@ TEST_CASE ("Promoting move is taken if possible")
     REQUIRE(to_string (*result.move) == "d2 d1(Q)");
 }
 
-TEST_CASE ("Promoted pawn is promoted to highest value piece even when capturing")
+TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing" )
 {
     FenParser parser { "rnb1kbnr/ppp1pppp/8/8/3B4/8/PPP1pPPP/RN2KB1R b KQkq - 0 1" };
 
@@ -159,7 +159,7 @@ TEST_CASE ("Promoted pawn is promoted to highest value piece even when capturing
     REQUIRE (to_string (*result.move) == "e2xf1(Q)");
 }
 
-TEST_CASE ("Finding moves regression test")
+TEST_CASE( "Finding moves regression test" )
 {
     FenParser parser { "r5rk/5p1p/5R2/4B3/8/8/7P/7K w - - 0 1" };
 
@@ -173,7 +173,7 @@ TEST_CASE ("Finding moves regression test")
     REQUIRE (result.move.has_value ());
 }
 
-TEST_CASE ("Bishop is not sacrificed scenario 1")
+TEST_CASE( "Bishop is not sacrificed scenario 1" )
 {
     FenParser fen { "r1bqk1nr/ppp2ppp/8/4p3/1bpP4/2P5/PP2NPPP/RNBQ1RK1 b kq - 0 1" };
     auto game = fen.build ();
@@ -194,7 +194,7 @@ TEST_CASE ("Bishop is not sacrificed scenario 1")
              != ColoredPiece::make (Color::Black, Piece::Bishop));
 }
 
-TEST_CASE ("Bishop is not sacrificed scenario 2 (as white)")
+TEST_CASE( "Bishop is not sacrificed scenario 2 (as white)" )
 {
     FenParser fen { "2b2bnr/pr1ppkpp/p1p5/q3P3/2P2N2/BP3N2/P2P1PPP/R3K2R w KQ - 2 1" };
     auto game = fen.build ();
@@ -218,7 +218,7 @@ TEST_CASE ("Bishop is not sacrificed scenario 2 (as white)")
     REQUIRE (bishop_sac_or_is_in_check);
 }
 
-TEST_CASE ("Advanced pawn should be captured")
+TEST_CASE( "Advanced pawn should be captured" )
 {
     FenParser fen { "rnb1k2r/ppp1qppp/4p3/3pP3/3P4/P1Q5/1PP2PPP/R3KBNR w KQkq d6 0 1" };
     auto game = fen.build ();
@@ -256,7 +256,7 @@ TEST_CASE( "Checkmate is preferred to stalemate" )
     CHECK( !is_stalemate );
 }
 
-TEST_CASE ("Can avoid stalemate")
+TEST_CASE( "Can avoid stalemate" )
 {
     FenParser fen { "6k1/1pp2pp1/7p/Pb6/3r4/5K2/8/6q1 w - - 0 1" };
     auto game = fen.build ();
@@ -267,12 +267,15 @@ TEST_CASE ("Can avoid stalemate")
     game.move (move_parse ("a5 a6", Color::White));
 
     SearchResult result = search.iteratively_deepen (Color::Black);
+    REQUIRE( result.move != std::nullopt );
+
+    game.move (*result.move);
 
     auto is_stalemate = is_stalemated (game.get_board (), Color::White, *game.get_move_generator ());
     CHECK( !is_stalemate );
 }
 
-TEST_CASE ("Doesn't sacrifice piece to undermine opponent's castle position")
+TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
 {
     FenParser fen { "r1bqkb1r/2pppppp/p4n2/np6/8/1B2PN2/PPPP1PPP/RNBQK2R w KQkq - 0 1 " };
 
