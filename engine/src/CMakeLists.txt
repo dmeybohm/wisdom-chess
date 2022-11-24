@@ -19,7 +19,7 @@ add_library(wisdom::chess ALIAS wisdom-chess-core)
 
 target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
-target_link_libraries(wisdom-chess-core PUBLIC enum-flags::enum-flags)
+target_link_libraries(wisdom-chess-core PUBLIC EnumFlags::EnumFlags)
 
 if (EMSCRIPTEN)
     target_compile_options(wisdom-chess-core PUBLIC -pthread)

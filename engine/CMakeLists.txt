@@ -8,7 +8,7 @@ project(WisdomEngine CXX)
 find_package(doctest CONFIG QUIET)
 find_package(Microsoft.GSL CONFIG REQUIRED)
 find_package(Threads REQUIRED)
-find_package(enum-flags CONFIG REQUIRED)
+find_package(enumflags CONFIG REQUIRED)
 
 if (ANDROID)
     # Disable precompile headers because there is a confict on android where it links
