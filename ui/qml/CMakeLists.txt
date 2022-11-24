@@ -47,7 +47,7 @@ qt_add_executable(WisdomChessQml
 
 # Set custom AndroidManifest.xml:
 if (ANDROID)
-    set_property(TARGET WisdomChessQml APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}//android)
+    set_property(TARGET WisdomChessQml APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android)
 endif()
 
 if(ANDROID)
