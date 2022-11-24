@@ -45,6 +45,11 @@ qt_add_executable(WisdomChessQml
     ${app_icon_macos}
 )
 
+# Set custom AndroidManifest.xml:
+if (ANDROID)
+    set_property(TARGET WisdomChessQml APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android)
+endif()
+
 if(ANDROID)
     set(PLATFORM_QML_FILES
         main/MobileRoot.qml
