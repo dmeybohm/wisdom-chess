@@ -11,7 +11,6 @@ if (ANDROID OR EMSCRIPTEN)
     list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_BINARY_DIR}/conan-dependencies")
 else()
     list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
-    list(APPEND CMAKE_FIND_ROOT_PATH ${CMAKE_BINARY_DIR})
 endif()
 
 option(WISDOM_CHESS_ASAN "Enable memory debugging of chess engine")
