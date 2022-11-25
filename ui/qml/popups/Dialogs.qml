@@ -33,7 +33,7 @@ Item {
         visible: _myGameModel.thirdRepetitionDrawStatus == DrawByRepetitionStatus.Proposed
         anchors.centerIn: parent
         width: Math.min(400, Screen.width - 50)
-        height: Math.min(topWindow.isWebAssembly ? 250 : 200, Screen.height - 10)
+        height: Math.min(250, Screen.height - 10)
         padding: 40
         text: "The same position has been repeated three times."
 
@@ -51,7 +51,7 @@ Item {
         visible: _myGameModel.fiftyMovesDrawStatus == DrawByRepetitionStatus.Proposed
         anchors.centerIn: parent
         width: Math.min(400, Screen.width - 50)
-        height: Math.min(topWindow.isWebAssembly ? 250 : 200, Screen.height - 10)
+        height: Math.min(250, Screen.height - 10)
         padding: 40
         text: "There have been fifty moves without a capture or pawn move."
 
