@@ -1,0 +1,24 @@
+.board {
+    display: grid;
+    grid-template-columns: repeat(8, 96px);
+    grid-template-rows: repeat(8, 96px);
+    border: 2px solid #ddd;
+    border-radius: 3px;
+}
+
+.square {
+    background: darkseagreen;
+    width: 96px;
+    height: 96px;
+}
+
+.square:nth-child(odd) {
+    background: #fafafa;
+}
+
+.square.odd:nth-child(odd) {
+    background: darkseagreen;
+}
+.square.odd:nth-child(even) {
+    background: #fafafa;
+}
