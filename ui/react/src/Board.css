@@ -4,12 +4,104 @@
     grid-template-rows: repeat(8, 96px);
     border: 2px solid #ddd;
     border-radius: 3px;
+    position: relative;
 }
 
 .square {
     background: darkseagreen;
     width: 96px;
     height: 96px;
+}
+
+.piece {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+}
+
+.piece.a2 {
+    top: calc(96px * 6 + 2px);
+    left: calc(96px * 0 + 2px);
+}
+
+.piece.b2 {
+    top: calc(96px * 6 + 2px);
+    left: calc(96px * 1 + 2px);
+}
+
+.piece.c2 {
+    top: calc(96px * 6 + 2px);
+    left: calc(96px * 2 + 2px);
+}
+
+.piece.d2 {
+    top: calc(96px * 6 + 2px);
+    left: calc(96px * 3 + 2px);
+}
+
+.piece.e2 {
+    top: calc(96px * 6 + 2px);
+    left: calc(96px * 4 + 2px);
+}
+
+.piece.f2 {
+    top: calc(96px * 6 + 2px);
+    left: calc(96px * 5 + 2px);
+}
+
+.piece.g2 {
+    top: calc(96px * 6 + 2px);
+    left: calc(96px * 6 + 2px);
+}
+
+.piece.h2 {
+    top: calc(96px * 6 + 2px);
+    left: calc(96px * 7 + 2px);
+}
+
+.piece.a1 {
+    top: calc(96px * 7 + 2px);
+    left: calc(96px * 0 + 2px);
+}
+
+.piece.b1 {
+    top: calc(96px * 7 + 2px);
+    left: calc(96px * 1 + 2px);
+}
+
+.piece.c1 {
+    top: calc(96px * 7 + 2px);
+    left: calc(96px * 2 + 2px);
+}
+
+.piece.d1 {
+    top: calc(96px * 7 + 2px);
+    left: calc(96px * 3 + 2px);
+}
+
+.piece.e1 {
+    top: calc(96px * 7 + 2px);
+    left: calc(96px * 4 + 2px);
+}
+
+.piece.f1 {
+    top: calc(96px * 7 + 2px);
+    left: calc(96px * 5 + 2px);
+}
+
+.piece.g1 {
+    top: calc(96px * 7 + 2px);
+    left: calc(96px * 6 + 2px);
+}
+
+.piece.h1 {
+    top: calc(96px * 7 + 2px);
+    left: calc(96px * 7 + 2px);
+}
+
+.piece.h1 {
+    top: calc(96px * 7 + 2px);
+    left: calc(96px * 7 + 2px);
 }
 
 .square:nth-child(odd) {
