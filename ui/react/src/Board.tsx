@@ -24,8 +24,6 @@ const Board = () => {
     return (
         <section className="board">
             {squares.map((square, index) => {
-                console.log(typeof squares);
-                console.log(`square: ${index} - ${Math.floor(index / 8) % 2 > 0 ? 'odd' : 'even'}`)
                 return (
                     <Square
                         key={index}

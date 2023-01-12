@@ -1,3 +1,7 @@
+body {
+    background: #c7c7c7;
+}
+
 .board {
     display: grid;
     grid-template-columns: repeat(8, 96px);
