@@ -33,52 +33,52 @@ const Board = () => {
                 );
             })}
             <div className="piece a2">
-                <img src={WhitePawn} width={96} height={96} />
+                <img src={WhitePawn}  />
             </div>
             <div className="piece b2">
-                <img src={WhitePawn} width={96} height={96} />
+                <img src={WhitePawn}  />
             </div>
             <div className="piece c2">
-                <img src={WhitePawn} width={96} height={96} />
+                <img src={WhitePawn}  />
             </div>
             <div className="piece d2">
-                <img src={WhitePawn} width={96} height={96} />
+                <img src={WhitePawn}  />
             </div>
             <div className="piece e2">
-                <img src={WhitePawn} width={96} height={96} />
+                <img src={WhitePawn}  />
             </div>
             <div className="piece f2">
-                <img src={WhitePawn} width={96} height={96} />
+                <img src={WhitePawn}  />
             </div>
             <div className="piece g2">
-                <img src={WhitePawn} width={96} height={96} />
+                <img src={WhitePawn}  />
             </div>
             <div className="piece h2">
-                <img src={WhitePawn} width={96} height={96} />
+                <img src={WhitePawn}  />
             </div>
             <div className="piece a1">
-                <img src={WhiteRook} width={96} height={96} />
+                <img src={WhiteRook}  />
             </div>
             <div className="piece b1">
-                <img src={WhiteKnight} width={96} height={96} />
+                <img src={WhiteKnight}  />
             </div>
             <div className="piece c1">
-                <img src={WhiteBishop} width={96} height={96} />
+                <img src={WhiteBishop}  />
             </div>
             <div className="piece d1">
-                <img src={WhiteQueen} width={96} height={96} />
+                <img src={WhiteQueen}  />
             </div>
             <div className="piece e1">
-                <img src={WhiteKing} width={96} height={96} />
+                <img src={WhiteKing}  />
             </div>
             <div className="piece f1">
-                <img src={WhiteBishop} width={96} height={96} />
+                <img src={WhiteBishop}  />
             </div>
             <div className="piece g1">
-                <img src={WhiteKnight} width={96} height={96} />
+                <img src={WhiteKnight}  />
             </div>
             <div className="piece h1">
-                <img src={WhiteRook} width={96} height={96} />
+                <img src={WhiteRook}  />
             </div>
         </section>
     )

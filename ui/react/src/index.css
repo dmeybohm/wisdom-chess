@@ -15,6 +15,22 @@
   -webkit-text-size-adjust: 100%;
 }
 
+:root {
+  --square-size: 48px;
+}
+
+@media screen and (min-width: 600px) {
+  :root {
+    --square-size: 64px;
+  }
+}
+
+@media screen and (min-width: 940px) {
+  :root {
+    --square-size: 96px;
+  }
+}
+
 a {
   font-weight: 500;
   color: #646cff;
