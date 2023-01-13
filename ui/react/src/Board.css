@@ -6,10 +6,15 @@ body {
     display: grid;
     grid-template-columns: repeat(8, var(--square-size));
     grid-template-rows: repeat(8, var(--square-size));
-    border: 2px solid #ddd;
+    border: var(--border-size) solid #ddd;
     border-radius: 3px;
     position: relative;
     margin-bottom: 2rem;
+    transition: transform 700ms ease-in-out;
+}
+
+.board.flipped {
+    transform: rotate(180deg);
 }
 
 .square {
@@ -20,10 +25,15 @@ body {
 
 .piece {
     position: absolute;
-    top: 2px;
-    left: 2px;
+    top: var(--border-size);
+    left: var(--border-size);
     width: var(--square-size);
     height: var(--square-size);
+    transition: transform 100ms;
+}
+
+.board.flipped .piece {
+    transform: rotate(180deg);
 }
 
 .piece img {
@@ -33,168 +43,168 @@ body {
 
 
 .piece.a8 {
-    top: calc(var(--square-size) * 0 + 2px);
-    left: calc(var(--square-size) * 0 + 2px);
+    top: calc(var(--square-size) * 0 + var(--border-size));
+    left: calc(var(--square-size) * 0 + var(--border-size));
 }
 
 .piece.b8 {
-    top: calc(var(--square-size) * 0 + 2px);
-    left: calc(var(--square-size) * 1 + 2px);
+    top: calc(var(--square-size) * 0 + var(--border-size));
+    left: calc(var(--square-size) * 1 + var(--border-size));
 }
 
 .piece.c8 {
-    top: calc(var(--square-size) * 0 + 2px);
-    left: calc(var(--square-size) * 2 + 2px);
+    top: calc(var(--square-size) * 0 + var(--border-size));
+    left: calc(var(--square-size) * 2 + var(--border-size));
 }
 
 .piece.d8 {
-    top: calc(var(--square-size) * 0 + 2px);
-    left: calc(var(--square-size) * 3 + 2px);
+    top: calc(var(--square-size) * 0 + var(--border-size));
+    left: calc(var(--square-size) * 3 + var(--border-size));
 }
 
 .piece.e8 {
-    top: calc(var(--square-size) * 0 + 2px);
-    left: calc(var(--square-size) * 4 + 2px);
+    top: calc(var(--square-size) * 0 + var(--border-size));
+    left: calc(var(--square-size) * 4 + var(--border-size));
 }
 
 .piece.f8 {
-    top: calc(var(--square-size) * 0 + 2px);
-    left: calc(var(--square-size) * 5 + 2px);
+    top: calc(var(--square-size) * 0 + var(--border-size));
+    left: calc(var(--square-size) * 5 + var(--border-size));
 }
 
 .piece.g8 {
-    top: calc(var(--square-size) * 0 + 2px);
-    left: calc(var(--square-size) * 6 + 2px);
+    top: calc(var(--square-size) * 0 + var(--border-size));
+    left: calc(var(--square-size) * 6 + var(--border-size));
 }
 
 .piece.h8 {
-    top: calc(var(--square-size) * 0 + 2px);
-    left: calc(var(--square-size) * 7 + 2px);
+    top: calc(var(--square-size) * 0 + var(--border-size));
+    left: calc(var(--square-size) * 7 + var(--border-size));
 }
 
 .piece.a7 {
-    top: calc(var(--square-size) * 1 + 2px);
-    left: calc(var(--square-size) * 0 + 2px);
+    top: calc(var(--square-size) * 1 + var(--border-size));
+    left: calc(var(--square-size) * 0 + var(--border-size));
 }
 
 .piece.b7 {
-    top: calc(var(--square-size) * 1 + 2px);
-    left: calc(var(--square-size) * 1 + 2px);
+    top: calc(var(--square-size) * 1 + var(--border-size));
+    left: calc(var(--square-size) * 1 + var(--border-size));
 }
 
 .piece.c7 {
-    top: calc(var(--square-size) * 1 + 2px);
-    left: calc(var(--square-size) * 2 + 2px);
+    top: calc(var(--square-size) * 1 + var(--border-size));
+    left: calc(var(--square-size) * 2 + var(--border-size));
 }
 
 .piece.d7 {
-    top: calc(var(--square-size) * 1 + 2px);
-    left: calc(var(--square-size) * 3 + 2px);
+    top: calc(var(--square-size) * 1 + var(--border-size));
+    left: calc(var(--square-size) * 3 + var(--border-size));
 }
 
 .piece.e7 {
-    top: calc(var(--square-size) * 1 + 2px);
-    left: calc(var(--square-size) * 4 + 2px);
+    top: calc(var(--square-size) * 1 + var(--border-size));
+    left: calc(var(--square-size) * 4 + var(--border-size));
 }
 
 .piece.f7 {
-    top: calc(var(--square-size) * 1 + 2px);
-    left: calc(var(--square-size) * 5 + 2px);
+    top: calc(var(--square-size) * 1 + var(--border-size));
+    left: calc(var(--square-size) * 5 + var(--border-size));
 }
 
 .piece.g7 {
-    top: calc(var(--square-size) * 1 + 2px);
-    left: calc(var(--square-size) * 6 + 2px);
+    top: calc(var(--square-size) * 1 + var(--border-size));
+    left: calc(var(--square-size) * 6 + var(--border-size));
 }
 
 .piece.h7 {
-    top: calc(var(--square-size) * 1 + 2px);
-    left: calc(var(--square-size) * 7 + 2px);
+    top: calc(var(--square-size) * 1 + var(--border-size));
+    left: calc(var(--square-size) * 7 + var(--border-size));
 }
 
 .piece.a2 {
-    top: calc(var(--square-size) * 6 + 2px);
-    left: calc(var(--square-size) * 0 + 2px);
+    top: calc(var(--square-size) * 6 + var(--border-size));
+    left: calc(var(--square-size) * 0 + var(--border-size));
 }
 
 .piece.b2 {
-    top: calc(var(--square-size) * 6 + 2px);
-    left: calc(var(--square-size) * 1 + 2px);
+    top: calc(var(--square-size) * 6 + var(--border-size));
+    left: calc(var(--square-size) * 1 + var(--border-size));
 }
 
 .piece.c2 {
-    top: calc(var(--square-size) * 6 + 2px);
-    left: calc(var(--square-size) * 2 + 2px);
+    top: calc(var(--square-size) * 6 + var(--border-size));
+    left: calc(var(--square-size) * 2 + var(--border-size));
 }
 
 .piece.d2 {
-    top: calc(var(--square-size) * 6 + 2px);
-    left: calc(var(--square-size) * 3 + 2px);
+    top: calc(var(--square-size) * 6 + var(--border-size));
+    left: calc(var(--square-size) * 3 + var(--border-size));
 }
 
 .piece.e2 {
-    top: calc(var(--square-size) * 6 + 2px);
-    left: calc(var(--square-size) * 4 + 2px);
+    top: calc(var(--square-size) * 6 + var(--border-size));
+    left: calc(var(--square-size) * 4 + var(--border-size));
 }
 
 .piece.f2 {
-    top: calc(var(--square-size) * 6 + 2px);
-    left: calc(var(--square-size) * 5 + 2px);
+    top: calc(var(--square-size) * 6 + var(--border-size));
+    left: calc(var(--square-size) * 5 + var(--border-size));
 }
 
 .piece.g2 {
-    top: calc(var(--square-size) * 6 + 2px);
-    left: calc(var(--square-size) * 6 + 2px);
+    top: calc(var(--square-size) * 6 + var(--border-size));
+    left: calc(var(--square-size) * 6 + var(--border-size));
 }
 
 .piece.h2 {
-    top: calc(var(--square-size) * 6 + 2px);
-    left: calc(var(--square-size) * 7 + 2px);
+    top: calc(var(--square-size) * 6 + var(--border-size));
+    left: calc(var(--square-size) * 7 + var(--border-size));
 }
 
 .piece.a1 {
-    top: calc(var(--square-size) * 7 + 2px);
-    left: calc(var(--square-size) * 0 + 2px);
+    top: calc(var(--square-size) * 7 + var(--border-size));
+    left: calc(var(--square-size) * 0 + var(--border-size));
 }
 
 .piece.b1 {
-    top: calc(var(--square-size) * 7 + 2px);
-    left: calc(var(--square-size) * 1 + 2px);
+    top: calc(var(--square-size) * 7 + var(--border-size));
+    left: calc(var(--square-size) * 1 + var(--border-size));
 }
 
 .piece.c1 {
-    top: calc(var(--square-size) * 7 + 2px);
-    left: calc(var(--square-size) * 2 + 2px);
+    top: calc(var(--square-size) * 7 + var(--border-size));
+    left: calc(var(--square-size) * 2 + var(--border-size));
 }
 
 .piece.d1 {
-    top: calc(var(--square-size) * 7 + 2px);
-    left: calc(var(--square-size) * 3 + 2px);
+    top: calc(var(--square-size) * 7 + var(--border-size));
+    left: calc(var(--square-size) * 3 + var(--border-size));
 }
 
 .piece.e1 {
-    top: calc(var(--square-size) * 7 + 2px);
-    left: calc(var(--square-size) * 4 + 2px);
+    top: calc(var(--square-size) * 7 + var(--border-size));
+    left: calc(var(--square-size) * 4 + var(--border-size));
 }
 
 .piece.f1 {
-    top: calc(var(--square-size) * 7 + 2px);
-    left: calc(var(--square-size) * 5 + 2px);
+    top: calc(var(--square-size) * 7 + var(--border-size));
+    left: calc(var(--square-size) * 5 + var(--border-size));
 }
 
 .piece.g1 {
-    top: calc(var(--square-size) * 7 + 2px);
-    left: calc(var(--square-size) * 6 + 2px);
+    top: calc(var(--square-size) * 7 + var(--border-size));
+    left: calc(var(--square-size) * 6 + var(--border-size));
 }
 
 .piece.h1 {
-    top: calc(var(--square-size) * 7 + 2px);
-    left: calc(var(--square-size) * 7 + 2px);
+    top: calc(var(--square-size) * 7 + var(--border-size));
+    left: calc(var(--square-size) * 7 + var(--border-size));
 }
 
 .piece.h1 {
-    top: calc(var(--square-size) * 7 + 2px);
-    left: calc(var(--square-size) * 7 + 2px);
+    top: calc(var(--square-size) * 7 + var(--border-size));
+    left: calc(var(--square-size) * 7 + var(--border-size));
 }
 
 .square:nth-child(odd) {

@@ -17,6 +17,7 @@
 
 :root {
   --square-size: 48px;
+  --border-size: 2px;
 }
 
 @media screen and (min-width: 600px) {
