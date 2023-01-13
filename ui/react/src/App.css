@@ -13,6 +13,37 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
+  position: relative;
+}
+
+.menu {
+  position: absolute;
+  top: 42px;
+  z-index: 20;
+  background: #fff;
+  width: 200px;
+  list-style: none;
+  margin: 0;
+  padding: .2rem 1rem;
+  border-radius: 0 0 5px 5px;
+  border: 1px solid #666;
+}
+
+.menu li {
+  text-align: left;
+  margin: 0 -1rem;
+  padding: .2rem 1rem;
+  border-bottom: 2px solid #eee;
+}
+
+.menu li:hover {
+  background: #747bff;
+  color: white;
+  cursor: pointer;
+}
+
+.menu li:last-child {
+  border-bottom: 0;
 }
 
 .container {
@@ -27,4 +58,26 @@
 }
 .status-bar div {
   margin-bottom: 1.2rem;
+}
+
+.modal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  background: #fff;
+  width: 66vw;
+  border-radius: 1rem;
+  padding: 0 0 2rem 0;
+}
+
+.modal-overlay {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: #888;
+  opacity: 0.4;
+  z-index: 2;
+  top: 0;
 }

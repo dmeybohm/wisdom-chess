@@ -2,14 +2,33 @@ import React, { useState } from 'react'
 import WhiteRook from "./assets/Chess_rlt45.svg";
 import DownArrow from "./assets/bxs-down-arrow.svg";
 
-function TopMenu() {
+interface TopMenuProps {
+    aboutClicked: () => void;
+    newGameClicked: () => void;
+    settingsClicked?: () => void;
+}
+
+function TopMenu(props: TopMenuProps) {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const Menu = (): JSX.Element => {
+        return (
+            <ul className="menu">
+                <li onClick={props.newGameClicked}>New Game</li>
+                <li onClick={props.settingsClicked}>Settings</li>
+                <li onClick={props.aboutClicked}>About</li>
+            </ul>
+        );
+    }
+
     return (
-        <div className="top-menu">
+        <div className="top-menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <img src={WhiteRook} width={32} height={32} />
             <div className="">
                 Wisdom Chess
             </div>
             <img src={DownArrow} width={12} height={12}/>
+            {(isMenuOpen) ? <Menu /> : null}
         </div>
     )
 }
