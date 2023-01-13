@@ -9,6 +9,7 @@ body {
     border: 2px solid #ddd;
     border-radius: 3px;
     position: relative;
+    margin-bottom: 2rem;
 }
 
 .square {
@@ -30,6 +31,86 @@ body {
     height: var(--square-size);
 }
 
+
+.piece.a8 {
+    top: calc(var(--square-size) * 0 + 2px);
+    left: calc(var(--square-size) * 0 + 2px);
+}
+
+.piece.b8 {
+    top: calc(var(--square-size) * 0 + 2px);
+    left: calc(var(--square-size) * 1 + 2px);
+}
+
+.piece.c8 {
+    top: calc(var(--square-size) * 0 + 2px);
+    left: calc(var(--square-size) * 2 + 2px);
+}
+
+.piece.d8 {
+    top: calc(var(--square-size) * 0 + 2px);
+    left: calc(var(--square-size) * 3 + 2px);
+}
+
+.piece.e8 {
+    top: calc(var(--square-size) * 0 + 2px);
+    left: calc(var(--square-size) * 4 + 2px);
+}
+
+.piece.f8 {
+    top: calc(var(--square-size) * 0 + 2px);
+    left: calc(var(--square-size) * 5 + 2px);
+}
+
+.piece.g8 {
+    top: calc(var(--square-size) * 0 + 2px);
+    left: calc(var(--square-size) * 6 + 2px);
+}
+
+.piece.h8 {
+    top: calc(var(--square-size) * 0 + 2px);
+    left: calc(var(--square-size) * 7 + 2px);
+}
+
+.piece.a7 {
+    top: calc(var(--square-size) * 1 + 2px);
+    left: calc(var(--square-size) * 0 + 2px);
+}
+
+.piece.b7 {
+    top: calc(var(--square-size) * 1 + 2px);
+    left: calc(var(--square-size) * 1 + 2px);
+}
+
+.piece.c7 {
+    top: calc(var(--square-size) * 1 + 2px);
+    left: calc(var(--square-size) * 2 + 2px);
+}
+
+.piece.d7 {
+    top: calc(var(--square-size) * 1 + 2px);
+    left: calc(var(--square-size) * 3 + 2px);
+}
+
+.piece.e7 {
+    top: calc(var(--square-size) * 1 + 2px);
+    left: calc(var(--square-size) * 4 + 2px);
+}
+
+.piece.f7 {
+    top: calc(var(--square-size) * 1 + 2px);
+    left: calc(var(--square-size) * 5 + 2px);
+}
+
+.piece.g7 {
+    top: calc(var(--square-size) * 1 + 2px);
+    left: calc(var(--square-size) * 6 + 2px);
+}
+
+.piece.h7 {
+    top: calc(var(--square-size) * 1 + 2px);
+    left: calc(var(--square-size) * 7 + 2px);
+}
 
 .piece.a2 {
     top: calc(var(--square-size) * 6 + 2px);
