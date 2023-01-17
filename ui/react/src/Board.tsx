@@ -2,16 +2,8 @@ import React, { useState } from 'react'
 import Square from "./Square";
 import "./Board.css";
 import {initialPieces, Piece} from "./Pieces";
-
-let initialSquares : Array<number> = [];
-for (let i = 0; i < 64; i++) {
-    initialSquares.push(i);
-}
-
-let row_or_col: Array<number> = [];
-for (let i = 0; i < 8; i++) {
-    row_or_col.push(i);
-}
+import {initialSquares, Position} from "./Squares";
+import "./Positions.css"
 
 const Board = () => {
     const [squares, setSquares] = useState(initialSquares)
@@ -20,23 +12,40 @@ const Board = () => {
 
     const handleChangeFocus = (square: string) => {
         console.log('change focus to ' +square);
-        setFocusedSquare(square)
+        setFocusedSquare(focusedSquare === square ? '' : square)
+    }
+
+    const movePiece = (src: string, dst: string) => {
+        if (src === '') {
+            return
+        }
+        // find the piece at the focused square:
+        const index = pieces.findIndex(piece => piece.position === src)
+        if (index < 0) {
+            return;
+        }
+        const piecesCopy = pieces.map(piece => { return { ... piece }; })
+        piecesCopy[index].position = dst
+        setPieces(piecesCopy)
+        setFocusedSquare('');
     }
 
     return (
         <section className="board">
             <>
-                {squares.map((square, index) => {
+                {squares.map((position: Position) => {
                     return (
                         <Square
-                            key={index}
-                            isOddRow={Boolean(Math.floor(index / 8) % 2 > 0)}
-                            square={square}
+                            key={position.index}
+                            isOddRow={position.isOddRow}
+                            position={position.position}
+                            onClick={() => movePiece(focusedSquare, position.position)}
                         />
                     );
                 })}
-                {pieces.map((piece: Piece) => (
+                {pieces.map((piece: Piece, index) => (
                     <div className={`piece ${piece.position} ${piece.position === focusedSquare ? 'focused' : ''}`}
+                         key={index}
                          onClick={() => handleChangeFocus(piece.position)}>
                         <img alt="piece" src={piece.type} />
                     </div>

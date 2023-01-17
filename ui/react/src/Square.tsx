@@ -2,14 +2,16 @@ import React from "react";
 import "./Board.css";
 
 interface Props {
-    square: number
+    position: string
     isOddRow: boolean
+    onClick: () => void;
 }
 
 const Square = (props: Props): JSX.Element => {
     return (
         <div
             className={`square ${props.isOddRow ? "odd" : ""} `}
+            onClick={props.onClick}
         >
         </div>
     );
