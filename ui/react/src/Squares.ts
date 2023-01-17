@@ -23,13 +23,13 @@ export class Position {
 
 const initialSquares : Array<Position> = [];
 
-const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-const numbers = [8, 7, 6, 5, 4, 3, 2, 1];
+const letters = [ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' ];
+const numbers = [ 8, 7, 6, 5, 4, 3, 2, 1 ];
 
 let index = 0
 
-for (let letter of letters) {
-    for (let num of numbers) {
+for (let num of numbers) {
+    for (let letter of letters) {
         initialSquares.push(new Position(letter + num, index));
         index++
     }

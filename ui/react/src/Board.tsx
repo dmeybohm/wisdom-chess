@@ -15,7 +15,8 @@ const Board = () => {
         setFocusedSquare(focusedSquare === square ? '' : square)
     }
 
-    const movePiece = (src: string, dst: string) => {
+    const handleMovePiece = (dst: string) => {
+        const src = focusedSquare;
         if (src === '') {
             return
         }
@@ -32,25 +33,23 @@ const Board = () => {
 
     return (
         <section className="board">
-            <>
-                {squares.map((position: Position) => {
-                    return (
-                        <Square
-                            key={position.index}
-                            isOddRow={position.isOddRow}
-                            position={position.position}
-                            onClick={() => movePiece(focusedSquare, position.position)}
-                        />
-                    );
-                })}
-                {pieces.map((piece: Piece, index) => (
-                    <div className={`piece ${piece.position} ${piece.position === focusedSquare ? 'focused' : ''}`}
-                         key={index}
-                         onClick={() => handleChangeFocus(piece.position)}>
-                        <img alt="piece" src={piece.type} />
-                    </div>
-                ))}
-            </>
+            {squares.map((position: Position) => {
+                return (
+                    <Square
+                        key={position.index}
+                        isOddRow={position.isOddRow}
+                        position={position.position}
+                        onClick={handleMovePiece}
+                    />
+                );
+            })}
+            {pieces.map((piece: Piece, index) => (
+                <div className={`piece ${piece.position} ${piece.position === focusedSquare ? 'focused' : ''}`}
+                     key={index}
+                     onClick={() => handleChangeFocus(piece.position)}>
+                    <img alt="piece" src={piece.type} />
+                </div>
+            ))}
         </section>
     )
 }

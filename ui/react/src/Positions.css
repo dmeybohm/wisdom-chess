@@ -1,205 +1,336 @@
+.piece {
+    transition: top ease-in-out 160ms,
+        left ease-in-out 160ms;
+}
 
-.piece.a8, .square.a8 {
+.piece.a8 {
     top: calc(var(--square-size) * 0 );
     left: calc(var(--square-size) * 0 );
 }
 
-.piece.b8, .square.b8 {
+.piece.b8 {
     top: calc(var(--square-size) * 0 );
     left: calc(var(--square-size) * 1 );
 }
 
-.piece.c8, .square.c8 {
+.piece.c8 {
     top: calc(var(--square-size) * 0 );
     left: calc(var(--square-size) * 2 );
 }
 
-.piece.d8, .square.d8 {
+.piece.d8 {
     top: calc(var(--square-size) * 0 );
     left: calc(var(--square-size) * 3 );
 }
 
-.piece.e8, .square.e8 {
+.piece.e8 {
     top: calc(var(--square-size) * 0 );
     left: calc(var(--square-size) * 4 );
 }
 
-.piece.f8, .square.f8 {
+.piece.f8 {
     top: calc(var(--square-size) * 0 );
     left: calc(var(--square-size) * 5 );
 }
 
-.piece.g8, .square.g8 {
+.piece.g8 {
     top: calc(var(--square-size) * 0 );
     left: calc(var(--square-size) * 6 );
 }
 
-.piece.h8, .square.h8 {
+.piece.h8 {
     top: calc(var(--square-size) * 0 );
     left: calc(var(--square-size) * 7 );
 }
 
-.piece.a7, .square.a7 {
+.piece.a7 {
     top: calc(var(--square-size) * 1 );
     left: calc(var(--square-size) * 0 );
 }
 
-.piece.b7, .square.b7 {
+.piece.b7 {
     top: calc(var(--square-size) * 1 );
     left: calc(var(--square-size) * 1 );
 }
 
-.piece.c7, .square.c7 {
+.piece.c7 {
     top: calc(var(--square-size) * 1 );
     left: calc(var(--square-size) * 2 );
 }
 
-.piece.d7, .square.d7 {
+.piece.d7 {
     top: calc(var(--square-size) * 1 );
     left: calc(var(--square-size) * 3 );
 }
 
-.piece.e7, .square.e7 {
+.piece.e7 {
     top: calc(var(--square-size) * 1 );
     left: calc(var(--square-size) * 4 );
 }
 
-.piece.f7, .square.f7 {
+.piece.f7 {
     top: calc(var(--square-size) * 1 );
     left: calc(var(--square-size) * 5 );
 }
 
-.piece.g7, .square.g7 {
+.piece.g7 {
     top: calc(var(--square-size) * 1 );
     left: calc(var(--square-size) * 6 );
 }
 
-.piece.h7, .square.h7 {
+.piece.h7 {
     top: calc(var(--square-size) * 1 );
     left: calc(var(--square-size) * 7 );
 }
 
-.piece.a6, .square.a6 {
+.piece.a6 {
     top: calc(var(--square-size) * 2 );
     left: calc(var(--square-size) * 0 );
 }
 
-.piece.b6, .square.b6 {
+.piece.b6 {
     top: calc(var(--square-size) * 2 );
     left: calc(var(--square-size) * 1 );
 }
 
-.piece.c6, .square.c6 {
+.piece.c6 {
     top: calc(var(--square-size) * 2 );
     left: calc(var(--square-size) * 2 );
 }
 
-.piece.d6, .square.d6 {
+.piece.d6 {
     top: calc(var(--square-size) * 2 );
     left: calc(var(--square-size) * 3 );
 }
 
-.piece.e6, .square.e6 {
+.piece.e6 {
     top: calc(var(--square-size) * 2 );
     left: calc(var(--square-size) * 4 );
 }
 
-.piece.f6, .square.f6 {
+.piece.f6 {
     top: calc(var(--square-size) * 2 );
     left: calc(var(--square-size) * 5 );
 }
 
-.piece.g6, .square.g6 {
+.piece.g6 {
     top: calc(var(--square-size) * 2 );
     left: calc(var(--square-size) * 6 );
 }
 
-.piece.h6, .square.h6 {
+.piece.h6 {
     top: calc(var(--square-size) * 2 );
     left: calc(var(--square-size) * 7 );
 }
 
-.piece.a2, .square.a2 {
+
+.piece.a5 {
+    top: calc(var(--square-size) * 3 );
+    left: calc(var(--square-size) * 0 );
+}
+
+.piece.b5 {
+    top: calc(var(--square-size) * 3 );
+    left: calc(var(--square-size) * 1 );
+}
+
+.piece.c5 {
+    top: calc(var(--square-size) * 3 );
+    left: calc(var(--square-size) * 2 );
+}
+
+.piece.d5 {
+    top: calc(var(--square-size) * 3 );
+    left: calc(var(--square-size) * 3 );
+}
+
+.piece.e5 {
+    top: calc(var(--square-size) * 3 );
+    left: calc(var(--square-size) * 4 );
+}
+
+.piece.f5 {
+    top: calc(var(--square-size) * 3 );
+    left: calc(var(--square-size) * 5 );
+}
+
+.piece.g5 {
+    top: calc(var(--square-size) * 3 );
+    left: calc(var(--square-size) * 6 );
+}
+
+.piece.h5 {
+    top: calc(var(--square-size) * 3 );
+    left: calc(var(--square-size) * 7 );
+}
+
+
+.piece.a4 {
+    top: calc(var(--square-size) * 4 );
+    left: calc(var(--square-size) * 0 );
+}
+
+.piece.b4 {
+    top: calc(var(--square-size) * 4 );
+    left: calc(var(--square-size) * 1 );
+}
+
+.piece.c4 {
+    top: calc(var(--square-size) * 4 );
+    left: calc(var(--square-size) * 2 );
+}
+
+.piece.d4 {
+    top: calc(var(--square-size) * 4 );
+    left: calc(var(--square-size) * 3 );
+}
+
+.piece.e4 {
+    top: calc(var(--square-size) * 4 );
+    left: calc(var(--square-size) * 4 );
+}
+
+.piece.f4 {
+    top: calc(var(--square-size) * 4 );
+    left: calc(var(--square-size) * 5 );
+}
+
+.piece.g4 {
+    top: calc(var(--square-size) * 4 );
+    left: calc(var(--square-size) * 6 );
+}
+
+.piece.h4 {
+    top: calc(var(--square-size) * 4 );
+    left: calc(var(--square-size) * 7 );
+}
+
+.piece.a3 {
+    top: calc(var(--square-size) * 5 );
+    left: calc(var(--square-size) * 4 );
+}
+
+.piece.b3 {
+    top: calc(var(--square-size) * 5 );
+    left: calc(var(--square-size) * 1 );
+}
+
+.piece.c3 {
+    top: calc(var(--square-size) * 5 );
+    left: calc(var(--square-size) * 2 );
+}
+
+.piece.d3 {
+    top: calc(var(--square-size) * 5 );
+    left: calc(var(--square-size) * 3 );
+}
+
+.piece.e3 {
+    top: calc(var(--square-size) * 5 );
+    left: calc(var(--square-size) * 4 );
+}
+
+.piece.f3 {
+    top: calc(var(--square-size) * 5 );
+    left: calc(var(--square-size) * 5 );
+}
+
+.piece.g3 {
+    top: calc(var(--square-size) * 5 );
+    left: calc(var(--square-size) * 6 );
+}
+
+.piece.h3 {
+    top: calc(var(--square-size) * 5 );
+    left: calc(var(--square-size) * 7 );
+}
+
+.piece.a2 {
     top: calc(var(--square-size) * 6 );
     left: calc(var(--square-size) * 0 );
 }
 
-.piece.b2, .square.b2 {
+.piece.b2 {
     top: calc(var(--square-size) * 6 );
     left: calc(var(--square-size) * 1 );
 }
 
-.piece.c2, .square.c2 {
+.piece.c2 {
     top: calc(var(--square-size) * 6 );
     left: calc(var(--square-size) * 2 );
 }
 
-.piece.d2, .square.d2 {
+.piece.d2 {
     top: calc(var(--square-size) * 6 );
     left: calc(var(--square-size) * 3 );
 }
 
-.piece.e2, .square.e2 {
+.piece.e2 {
     top: calc(var(--square-size) * 6 );
     left: calc(var(--square-size) * 4 );
 }
 
-.piece.f2, .square.f2 {
+.piece.f2 {
     top: calc(var(--square-size) * 6 );
     left: calc(var(--square-size) * 5 );
 }
 
-.piece.g2, .square.g2 {
+.piece.g2 {
     top: calc(var(--square-size) * 6 );
     left: calc(var(--square-size) * 6 );
 }
 
-.piece.h2, .square.h2 {
+.piece.h2 {
     top: calc(var(--square-size) * 6 );
     left: calc(var(--square-size) * 7 );
 }
 
-.piece.a1, .square.a1 {
+.piece.h1 {
+    top: calc(var(--square-size) * 7 );
+    left: calc(var(--square-size) * 7 );
+}
+
+.piece.a1 {
     top: calc(var(--square-size) * 7 );
     left: calc(var(--square-size) * 0 );
 }
 
-.piece.b1, .square.b1 {
+.piece.b1 {
     top: calc(var(--square-size) * 7 );
     left: calc(var(--square-size) * 1 );
 }
 
-.piece.c1, .square.c1 {
+.piece.c1 {
     top: calc(var(--square-size) * 7 );
     left: calc(var(--square-size) * 2 );
 }
 
-.piece.d1, .square.d1 {
+.piece.d1 {
     top: calc(var(--square-size) * 7 );
     left: calc(var(--square-size) * 3 );
 }
 
-.piece.e1, .square.e1 {
+.piece.e1 {
     top: calc(var(--square-size) * 7 );
     left: calc(var(--square-size) * 4 );
 }
 
-.piece.f1, .square.f1 {
+.piece.f1 {
     top: calc(var(--square-size) * 7 );
     left: calc(var(--square-size) * 5 );
 }
 
-.piece.g1, .square.g1 {
+.piece.g1 {
     top: calc(var(--square-size) * 7 );
     left: calc(var(--square-size) * 6 );
 }
 
-.piece.h1, .square.h1 {
+.piece.h1 {
     top: calc(var(--square-size) * 7 );
     left: calc(var(--square-size) * 7 );
 }
 
-.piece.h1, .square.h1 {
+.piece.h1 {
     top: calc(var(--square-size) * 7 );
     left: calc(var(--square-size) * 7 );
 }
