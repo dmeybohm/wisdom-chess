@@ -12,7 +12,6 @@ const Square = (props: Props): JSX.Element => {
         <div
             className={`square ${props.isOddRow ? "odd" : ""} `}
             onClick={() => {
-                console.log('position: '+props.position);
                 props.onClick(props.position)
             }}
         >
