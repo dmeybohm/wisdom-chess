@@ -81,3 +81,7 @@
   z-index: 2;
   top: 0;
 }
+
+.modal h1 {
+  font-size: 2rem;
+}

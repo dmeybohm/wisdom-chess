@@ -29,7 +29,12 @@ body {
     left: var(--border-size);
     width: var(--square-size);
     height: var(--square-size);
-    transition: transform 100ms;
+    transition: transform 100ms,
+        background-color 70ms;
+}
+
+.piece.focused.piece.focused {
+    background: darksalmon;
 }
 
 .board.flipped .piece {
@@ -43,168 +48,168 @@ body {
 
 
 .piece.a8 {
-    top: calc(var(--square-size) * 0 + var(--border-size));
-    left: calc(var(--square-size) * 0 + var(--border-size));
+    top: calc(var(--square-size) * 0 );
+    left: calc(var(--square-size) * 0 );
 }
 
 .piece.b8 {
-    top: calc(var(--square-size) * 0 + var(--border-size));
-    left: calc(var(--square-size) * 1 + var(--border-size));
+    top: calc(var(--square-size) * 0 );
+    left: calc(var(--square-size) * 1 );
 }
 
 .piece.c8 {
-    top: calc(var(--square-size) * 0 + var(--border-size));
-    left: calc(var(--square-size) * 2 + var(--border-size));
+    top: calc(var(--square-size) * 0 );
+    left: calc(var(--square-size) * 2 );
 }
 
 .piece.d8 {
-    top: calc(var(--square-size) * 0 + var(--border-size));
-    left: calc(var(--square-size) * 3 + var(--border-size));
+    top: calc(var(--square-size) * 0 );
+    left: calc(var(--square-size) * 3 );
 }
 
 .piece.e8 {
-    top: calc(var(--square-size) * 0 + var(--border-size));
-    left: calc(var(--square-size) * 4 + var(--border-size));
+    top: calc(var(--square-size) * 0 );
+    left: calc(var(--square-size) * 4 );
 }
 
 .piece.f8 {
-    top: calc(var(--square-size) * 0 + var(--border-size));
-    left: calc(var(--square-size) * 5 + var(--border-size));
+    top: calc(var(--square-size) * 0 );
+    left: calc(var(--square-size) * 5 );
 }
 
 .piece.g8 {
-    top: calc(var(--square-size) * 0 + var(--border-size));
-    left: calc(var(--square-size) * 6 + var(--border-size));
+    top: calc(var(--square-size) * 0 );
+    left: calc(var(--square-size) * 6 );
 }
 
 .piece.h8 {
-    top: calc(var(--square-size) * 0 + var(--border-size));
-    left: calc(var(--square-size) * 7 + var(--border-size));
+    top: calc(var(--square-size) * 0 );
+    left: calc(var(--square-size) * 7 );
 }
 
 .piece.a7 {
-    top: calc(var(--square-size) * 1 + var(--border-size));
-    left: calc(var(--square-size) * 0 + var(--border-size));
+    top: calc(var(--square-size) * 1 );
+    left: calc(var(--square-size) * 0 );
 }
 
 .piece.b7 {
-    top: calc(var(--square-size) * 1 + var(--border-size));
-    left: calc(var(--square-size) * 1 + var(--border-size));
+    top: calc(var(--square-size) * 1 );
+    left: calc(var(--square-size) * 1 );
 }
 
 .piece.c7 {
-    top: calc(var(--square-size) * 1 + var(--border-size));
-    left: calc(var(--square-size) * 2 + var(--border-size));
+    top: calc(var(--square-size) * 1 );
+    left: calc(var(--square-size) * 2 );
 }
 
 .piece.d7 {
-    top: calc(var(--square-size) * 1 + var(--border-size));
-    left: calc(var(--square-size) * 3 + var(--border-size));
+    top: calc(var(--square-size) * 1 );
+    left: calc(var(--square-size) * 3 );
 }
 
 .piece.e7 {
-    top: calc(var(--square-size) * 1 + var(--border-size));
-    left: calc(var(--square-size) * 4 + var(--border-size));
+    top: calc(var(--square-size) * 1 );
+    left: calc(var(--square-size) * 4 );
 }
 
 .piece.f7 {
-    top: calc(var(--square-size) * 1 + var(--border-size));
-    left: calc(var(--square-size) * 5 + var(--border-size));
+    top: calc(var(--square-size) * 1 );
+    left: calc(var(--square-size) * 5 );
 }
 
 .piece.g7 {
-    top: calc(var(--square-size) * 1 + var(--border-size));
-    left: calc(var(--square-size) * 6 + var(--border-size));
+    top: calc(var(--square-size) * 1 );
+    left: calc(var(--square-size) * 6 );
 }
 
 .piece.h7 {
-    top: calc(var(--square-size) * 1 + var(--border-size));
-    left: calc(var(--square-size) * 7 + var(--border-size));
+    top: calc(var(--square-size) * 1 );
+    left: calc(var(--square-size) * 7 );
 }
 
 .piece.a2 {
-    top: calc(var(--square-size) * 6 + var(--border-size));
-    left: calc(var(--square-size) * 0 + var(--border-size));
+    top: calc(var(--square-size) * 6 );
+    left: calc(var(--square-size) * 0 );
 }
 
 .piece.b2 {
-    top: calc(var(--square-size) * 6 + var(--border-size));
-    left: calc(var(--square-size) * 1 + var(--border-size));
+    top: calc(var(--square-size) * 6 );
+    left: calc(var(--square-size) * 1 );
 }
 
 .piece.c2 {
-    top: calc(var(--square-size) * 6 + var(--border-size));
-    left: calc(var(--square-size) * 2 + var(--border-size));
+    top: calc(var(--square-size) * 6 );
+    left: calc(var(--square-size) * 2 );
 }
 
 .piece.d2 {
-    top: calc(var(--square-size) * 6 + var(--border-size));
-    left: calc(var(--square-size) * 3 + var(--border-size));
+    top: calc(var(--square-size) * 6 );
+    left: calc(var(--square-size) * 3 );
 }
 
 .piece.e2 {
-    top: calc(var(--square-size) * 6 + var(--border-size));
-    left: calc(var(--square-size) * 4 + var(--border-size));
+    top: calc(var(--square-size) * 6 );
+    left: calc(var(--square-size) * 4 );
 }
 
 .piece.f2 {
-    top: calc(var(--square-size) * 6 + var(--border-size));
-    left: calc(var(--square-size) * 5 + var(--border-size));
+    top: calc(var(--square-size) * 6 );
+    left: calc(var(--square-size) * 5 );
 }
 
 .piece.g2 {
-    top: calc(var(--square-size) * 6 + var(--border-size));
-    left: calc(var(--square-size) * 6 + var(--border-size));
+    top: calc(var(--square-size) * 6 );
+    left: calc(var(--square-size) * 6 );
 }
 
 .piece.h2 {
-    top: calc(var(--square-size) * 6 + var(--border-size));
-    left: calc(var(--square-size) * 7 + var(--border-size));
+    top: calc(var(--square-size) * 6 );
+    left: calc(var(--square-size) * 7 );
 }
 
 .piece.a1 {
-    top: calc(var(--square-size) * 7 + var(--border-size));
-    left: calc(var(--square-size) * 0 + var(--border-size));
+    top: calc(var(--square-size) * 7 );
+    left: calc(var(--square-size) * 0 );
 }
 
 .piece.b1 {
-    top: calc(var(--square-size) * 7 + var(--border-size));
-    left: calc(var(--square-size) * 1 + var(--border-size));
+    top: calc(var(--square-size) * 7 );
+    left: calc(var(--square-size) * 1 );
 }
 
 .piece.c1 {
-    top: calc(var(--square-size) * 7 + var(--border-size));
-    left: calc(var(--square-size) * 2 + var(--border-size));
+    top: calc(var(--square-size) * 7 );
+    left: calc(var(--square-size) * 2 );
 }
 
 .piece.d1 {
-    top: calc(var(--square-size) * 7 + var(--border-size));
-    left: calc(var(--square-size) * 3 + var(--border-size));
+    top: calc(var(--square-size) * 7 );
+    left: calc(var(--square-size) * 3 );
 }
 
 .piece.e1 {
-    top: calc(var(--square-size) * 7 + var(--border-size));
-    left: calc(var(--square-size) * 4 + var(--border-size));
+    top: calc(var(--square-size) * 7 );
+    left: calc(var(--square-size) * 4 );
 }
 
 .piece.f1 {
-    top: calc(var(--square-size) * 7 + var(--border-size));
-    left: calc(var(--square-size) * 5 + var(--border-size));
+    top: calc(var(--square-size) * 7 );
+    left: calc(var(--square-size) * 5 );
 }
 
 .piece.g1 {
-    top: calc(var(--square-size) * 7 + var(--border-size));
-    left: calc(var(--square-size) * 6 + var(--border-size));
+    top: calc(var(--square-size) * 7 );
+    left: calc(var(--square-size) * 6 );
 }
 
 .piece.h1 {
-    top: calc(var(--square-size) * 7 + var(--border-size));
-    left: calc(var(--square-size) * 7 + var(--border-size));
+    top: calc(var(--square-size) * 7 );
+    left: calc(var(--square-size) * 7 );
 }
 
 .piece.h1 {
-    top: calc(var(--square-size) * 7 + var(--border-size));
-    left: calc(var(--square-size) * 7 + var(--border-size));
+    top: calc(var(--square-size) * 7 );
+    left: calc(var(--square-size) * 7 );
 }
 
 .square:nth-child(odd) {

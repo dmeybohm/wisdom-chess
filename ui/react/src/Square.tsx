@@ -9,7 +9,7 @@ interface Props {
 const Square = (props: Props): JSX.Element => {
     return (
         <div
-            className={`square ${props.isOddRow ? "odd" : ""}`}
+            className={`square ${props.isOddRow ? "odd" : ""} `}
         >
         </div>
     );
