@@ -1,8 +1,3 @@
-.piece {
-    transition: top ease-in-out 160ms,
-        left ease-in-out 160ms;
-}
-
 .piece.a8 {
     top: calc(var(--square-size) * 0 );
     left: calc(var(--square-size) * 0 );

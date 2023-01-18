@@ -29,8 +29,10 @@ body {
     left: var(--border-size);
     width: var(--square-size);
     height: var(--square-size);
-    transition: transform 100ms,
-        background-color 70ms;
+    transition: transform 260ms ease-in-out 220ms,
+        background-color 70ms,
+        top ease-in-out 160ms,
+        left ease-in-out 160ms;
 }
 
 .piece.focused.piece.focused {
