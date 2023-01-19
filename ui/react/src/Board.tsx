@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, {useState} from 'react'
 import Square from "./Square";
 import "./Board.css";
 import {initialPieces, Piece} from "./Pieces";
@@ -10,9 +10,45 @@ const Board = () => {
     const [focusedSquare, setFocusedSquare] = useState('')
     const [pieces, setPieces] = useState(initialPieces)
 
-    const handleChangeFocus = (square: string) => {
-        console.log('change focus to ' +square);
-        setFocusedSquare(focusedSquare === square ? '' : square)
+    const findIndexOfPieceAtPosition = (position: string) => {
+        return pieces.findIndex(piece => piece.position === position)
+    }
+
+    //
+    // Either:
+    // - change the focus to the current piece, or
+    // - take the piece if the color of the piece is different
+    //
+    const handlePieceClick = (dstSquare: string) => {
+        if (focusedSquare === '') {
+            setFocusedSquare(dstSquare)
+            return
+        }
+        if (focusedSquare === dstSquare) {
+            setFocusedSquare('')
+            return
+        }
+        const dstIndex = findIndexOfPieceAtPosition(dstSquare)
+        const srcIndex = findIndexOfPieceAtPosition(focusedSquare)
+        if (dstIndex === -1 || srcIndex === -1 || pieces[dstIndex].color === pieces[srcIndex].color) {
+            setFocusedSquare(dstSquare)
+            return
+        }
+        takePiece(srcIndex, dstIndex, dstSquare)
+        setFocusedSquare('')
+    }
+
+    const takePiece = (srcIndex: number, dstIndex: number, dstSquare: string) => {
+        const takenPiece = pieces[dstIndex]
+        setPieces(pieces.map((piece, index) => {
+                const result = { ... piece };
+                if (index === srcIndex) {
+                    result.position = dstSquare
+                }
+                return result
+            })
+            .filter(piece => piece.position !== dstSquare || piece.color !== takenPiece.color)
+        )
     }
 
     const handleMovePiece = (dst: string) => {
@@ -21,10 +57,7 @@ const Board = () => {
             return
         }
         // find the piece at the focused square:
-        const index = pieces.findIndex(piece => piece.position === src)
-        if (index < 0) {
-            return;
-        }
+        const index = findIndexOfPieceAtPosition(src)
         const piecesCopy = pieces.map(piece => { return { ... piece }; })
         piecesCopy[index].position = dst
         setPieces(piecesCopy)
@@ -43,10 +76,10 @@ const Board = () => {
                     />
                 );
             })}
-            {pieces.map((piece: Piece, index) => (
+            {pieces.map((piece: Piece) => (
                 <div className={`piece ${piece.position} ${piece.position === focusedSquare ? 'focused' : ''}`}
-                     key={index}
-                     onClick={() => handleChangeFocus(piece.position)}>
+                     key={piece.id}
+                     onClick={() => handlePieceClick(piece.position)}>
                     <img alt="piece" src={piece.type} />
                 </div>
             ))}

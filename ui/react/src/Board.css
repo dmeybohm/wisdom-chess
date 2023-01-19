@@ -48,8 +48,6 @@ body {
     height: var(--square-size);
 }
 
-
-
 .square:nth-child(odd) {
     background: #fafafa;
 }
