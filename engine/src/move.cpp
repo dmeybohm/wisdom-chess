@@ -28,27 +28,27 @@ namespace wisdom
         return piece_type (src_piece) == Piece::Pawn && abs (Row (src) - Row (dst)) == 2;
     }
 
-    auto handle_en_passant (Board* board, Color who, Coord src, Coord dst, bool undo) -> ColoredPiece
+    // Returns the taken piece
+    static auto update_for_en_passant (Board* board, Color who, Coord src, Coord dst)
+        -> ColoredPiece
+    {
+        Coord taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
+        [[maybe_unused]] ColoredPiece taken_piece = board->piece_at (taken_pawn_pos);
+
+        assert (piece_type (taken_piece) == Piece::Pawn);
+        assert (piece_color (taken_piece) == color_invert (who));
+
+        board->set_piece (taken_pawn_pos, Piece_And_Color_None);
+
+        return ColoredPiece::make (color_invert (who), Piece::Pawn);
+    }
+
+    static void unapply_for_en_passant (Board* board, Color who, Coord src, Coord dst)
     {
         Coord taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
 
-        if (undo)
-        {
-            ColoredPiece taken_pawn = ColoredPiece::make (color_invert (who), Piece::Pawn);
-            board->set_piece (taken_pawn_pos, taken_pawn);
-
-            return Piece_And_Color_None; // restore empty square where piece was replaced
-        }
-        else
-        {
-            ColoredPiece taken = board->piece_at (taken_pawn_pos);
-
-            assert(piece_type (taken) == Piece::Pawn);
-            assert(piece_color (taken) != who);
-            board->set_piece (taken_pawn_pos, Piece_And_Color_None);
-
-            return taken;
-        }
+        ColoredPiece taken_pawn = ColoredPiece::make (color_invert (who), Piece::Pawn);
+        board->set_piece (taken_pawn_pos, taken_pawn);
     }
 
     static auto get_castling_rook_move (const Board& board, Move move, Color who) -> Move
@@ -80,23 +80,19 @@ namespace wisdom
         if (!((piece_type (board.piece_at (src_row, src_col)) == Piece::Rook
                || piece_type (board.piece_at (dst_row, dst_col)) == Piece::Rook)))
         {
-            throw MoveConsistencyProblem {
-                    "move considering: " + to_string (move) + "(" + to_string (who) + " to move)"
-            };
+            throw MoveConsistencyProblem { "move considering: " + to_string (move) + "("
+                                           + to_string (who) + " to move)" };
         }
 
         return Move::make (src_row, src_col, dst_row, dst_col);
     }
 
-    template <bool undo>
-    static void handle_castling (Board* board, Color who,
-                                 Move king_move,
-                                 [[maybe_unused]] Coord src,
-                                 [[maybe_unused]] Coord dst)
+    static void apply_for_castling_move (Board* board, Color who, Move king_move,
+                                         [[maybe_unused]] Coord src, [[maybe_unused]] Coord dst)
     {
         Move rook_move = get_castling_rook_move (*board, king_move, who);
 
-        assert (piece_type (board->piece_at (undo ? dst : src)) == Piece::King);
+        assert (piece_type (board->piece_at (src)) == Piece::King);
         assert (abs (Column (src) - Column (dst)) == 2);
 
         auto rook_src = rook_move.get_src ();
@@ -104,147 +100,140 @@ namespace wisdom
 
         auto empty_piece = ColoredPiece::make (Color::None, Piece::None);
 
-        if constexpr (undo)
-        {
-            // undo the rook move
-            auto rook = board->piece_at (rook_dst);
+        auto rook = board->piece_at (rook_src);
 
-            // undo the rook move
-            board->set_piece (rook_dst, empty_piece);
-            board->set_piece (rook_src, rook);
-        }
-        else
-        {
-            auto rook = board->piece_at (rook_src);
-
-            // do the rook move
-            board->set_piece (rook_dst, rook);
-            board->set_piece (rook_src, empty_piece);
-        }
+        // do the rook move
+        board->set_piece (rook_dst, rook);
+        board->set_piece (rook_src, empty_piece);
     }
 
-    void update_king_position (Board* board, Color who, [[maybe_unused]] Move move,
-                               UndoMove* undo_state, Coord src, Coord dst,
-                               bool undo)
+    static void unapply_for_castling (Board* board, Color who, Move king_move,
+                                      [[maybe_unused]] Coord src, [[maybe_unused]] Coord dst)
     {
-        if (undo)
-        {
-            board->set_king_position (who, src);
-        }
-        else
-        {
-            board->set_king_position (who, dst);
+        Move rook_move = get_castling_rook_move (*board, king_move, who);
 
-            // set as not able to castle
-            if (board->able_to_castle (who, CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible))
-            {
-                // set the new castle status
-                board->remove_castling_eligibility (who, CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible);
-            }
+        assert (piece_type (board->piece_at (dst)) == Piece::King);
+        assert (abs (Column (src) - Column (dst)) == 2);
+
+        auto rook_src = rook_move.get_src ();
+        auto rook_dst = rook_move.get_dst ();
+
+        // undo the rook move
+        auto rook = board->piece_at (rook_dst);
+
+        // do the rook move
+        board->set_piece (rook_dst, rook);
+        board->set_piece (rook_src, Piece_And_Color_None);
+
+        // undo the rook move
+        board->set_piece (rook_dst, Piece_And_Color_None);
+        board->set_piece (rook_src, rook);
+    }
+
+    static void apply_for_king_move (Board* board, Color who, UndoMove* state,
+                                     [[maybe_unused]] Coord src, Coord dst)
+    {
+        board->set_king_position (who, dst);
+
+        // set as not able to castle
+        if (board->able_to_castle (
+                who, CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible))
+        {
+            // set the new castle status
+            board->remove_castling_eligibility (
+                who, CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible);
         }
     }
 
-    template <bool undo>
-    static void
-    update_opponent_rook_position (Board* board,
-                                   Color opponent,
-                                   [[maybe_unused]] ColoredPiece dst_piece,
-                                   UndoMove* undo_state,
-                                   [[maybe_unused]] Coord src,
-                                   Coord dst)
+    static void unapply_for_king_move (Board* board, Color who, Coord src,
+                                       [[maybe_unused]] Coord dst)
+    {
+        board->set_king_position (who, src);
+    }
+
+    static void apply_for_rook_capture (Board* board, Color opponent, ColoredPiece dst_piece,
+                                         Coord src, Coord dst)
     {
         assert (piece_color (dst_piece) == opponent && piece_type (dst_piece) == Piece::Rook);
 
-        if constexpr (!undo)
-        {
-            CastlingEligibility castle_state = CastlingEligible::EitherSideEligible;
+        CastlingEligibility castle_state = CastlingEligible::EitherSideEligible;
 
-            int castle_rook_row = opponent == Color::White ? Last_Row : First_Row;
+        int castle_rook_row = opponent == Color::White ? Last_Row : First_Row;
 
-            //
-            // This needs distinguishes between captures that end
-            // up on the rook and moves from the rook itself.
-            //
-            if (Column (dst) == First_Column && Row (dst) == castle_rook_row)
-                castle_state = CastlingEligible::QueensideIneligible;
-            else if (Column (dst) == Last_Column && Row (dst) == castle_rook_row)
-                castle_state = CastlingEligible::KingsideIneligible;
+        //
+        // This needs to distinguish between captures that end
+        // up on the rook and moves from the rook itself.
+        //
+        if (Column (dst) == First_Column && Row (dst) == castle_rook_row)
+            castle_state = CastlingEligible::QueensideIneligible;
+        else if (Column (dst) == Last_Column && Row (dst) == castle_rook_row)
+            castle_state = CastlingEligible::KingsideIneligible;
 
-            //
-            // Set inability to castle on one side.
-            //
-            if (board->able_to_castle (opponent, castle_state))
-                board->remove_castling_eligibility (opponent, castle_state);
-        }
+        //
+        // Set inability to castle on one side.
+        //
+        if (board->able_to_castle (opponent, castle_state))
+            board->remove_castling_eligibility (opponent, castle_state);
     }
 
-    static void update_current_rook_position (Board* board, Color player,
-                                              ColoredPiece src_piece, Move move,
-                                              UndoMove* undo_state,
-                                              [[maybe_unused]] Coord src,
-                                              [[maybe_unused]] Coord dst,
-                                              bool undo)
+    static void apply_for_rook_move (Board* board, Color player, ColoredPiece src_piece,
+                                     Move move, Coord src, Coord dst)
     {
-        if (!(piece_color (src_piece) == player &&
-              piece_type (src_piece) == Piece::Rook))
+        if (!(piece_color (src_piece) == player && piece_type (src_piece) == Piece::Rook))
         {
-            throw MoveConsistencyProblem {
-                "update_current_rook_position failed: move " + to_string (move)
-            };
+            throw MoveConsistencyProblem { "apply_for_rook_move failed: move "
+                                           + to_string (move) };
         }
 
         assert (piece_color (src_piece) == player && piece_type (src_piece) == Piece::Rook);
 
-        if (!undo)
+        CastlingEligibility affects_castle_state = CastlingEligible::EitherSideEligible;
+        int castle_src_row = player == Color::White ? Last_Row : First_Row;
+
+        //
+        // This needs to distinguish between captures that end
+        // up on the rook and moves from the rook itself.
+        //
+        if (Row (src) == castle_src_row)
         {
-            CastlingEligibility affects_castle_state = CastlingEligible::EitherSideEligible;
-            int castle_src_row = player == Color::White ? Last_Row : First_Row;
+            if (Column (src) == Queen_Rook_Column)
+                affects_castle_state = CastlingEligible::QueensideIneligible;
+            else if (Column (src) == King_Rook_Column)
+                affects_castle_state = CastlingEligible::KingsideIneligible;
+        }
 
-            //
-            // This needs distinguishes between captures that end
-            // up on the rook and moves from the rook itself.
-            //
-            if (Row (src) == castle_src_row)
-            {
-                if (Column (src) == Queen_Rook_Column)
-                    affects_castle_state = CastlingEligible::QueensideIneligible;
-                else if (Column (src) == King_Rook_Column)
-                    affects_castle_state = CastlingEligible::KingsideIneligible;
-            }
-
-            // Set inability to castle on one side.
-            if (affects_castle_state != CastlingEligible::EitherSideEligible &&
-                board->able_to_castle (player, affects_castle_state))
-            {
-                board->remove_castling_eligibility (player, affects_castle_state);
-            }
+        // Set inability to castle on one side.
+        if (affects_castle_state != CastlingEligible::EitherSideEligible
+            && board->able_to_castle (player, affects_castle_state))
+        {
+            board->remove_castling_eligibility (player, affects_castle_state);
         }
     }
 
-    static void handle_en_passant_eligibility (Board* board, Color who, ColoredPiece src_piece,
-                                               Move move, UndoMove* undo_state, int undo)
+    static void update_en_passant_eligibility (Board* board, Color who, ColoredPiece src_piece,
+                                               Move move, UndoMove* undo_state)
     {
         ColorIndex c_index = color_index (who);
         ColorIndex o_index = color_index (color_invert (who));
 
-        if (undo)
+        int direction = pawn_direction<int> (who);
+        Coord new_state = No_En_Passant_Coord;
+        if (is_double_square_pawn_move (src_piece, move))
         {
-            board->set_en_passant_target (o_index, undo_state->en_passant_targets[o_index]);
+            Coord src = move.get_src ();
+            int prev_row = next_row (Row<int> (src), direction);
+            new_state = make_coord (prev_row, Column (src));
         }
-        else
-        {
-            int direction = pawn_direction<int> (who);
-            Coord new_state = No_En_Passant_Coord;
-            if (is_double_square_pawn_move (src_piece, move))
-            {
-                Coord src = move.get_src ();
-                int prev_row = next_row (Row<int> (src), direction);
-                new_state = make_coord (prev_row, Column (src));
-            }
-            undo_state->en_passant_targets[o_index] = board->get_en_passant_target (o_index);
-            undo_state->en_passant_targets[c_index] = board->get_en_passant_target (c_index);
-            board->set_en_passant_target (c_index, new_state);
-        }
+        undo_state->en_passant_targets[o_index] = board->get_en_passant_target (o_index);
+        undo_state->en_passant_targets[c_index] = board->get_en_passant_target (c_index);
+        board->set_en_passant_target (c_index, new_state);
+    }
+
+    static void restore_en_passant_eligibility (Board* board, Color who, const UndoMove& undo_state)
+    {
+        ColorIndex o_index = color_index (color_invert (who));
+
+        board->set_en_passant_target (o_index, undo_state.en_passant_targets[o_index]);
     }
 
     auto Board::make_move (Color who, Move move) -> UndoMove
@@ -270,8 +259,7 @@ namespace wisdom
             undo_state.taken_piece_type = piece_type (dst_piece);
         }
 
-        if (piece_type (src_piece) != Piece::None &&
-            piece_type (dst_piece) != Piece::None)
+        if (piece_type (src_piece) != Piece::None && piece_type (dst_piece) != Piece::None)
         {
             assert (piece_color (src_piece) != piece_color (dst_piece));
         }
@@ -291,18 +279,18 @@ namespace wisdom
         // check for en passant
         if (move.is_en_passant ())
         {
-            dst_piece = handle_en_passant (this, who, src, dst, false);
+            dst_piece = update_for_en_passant (this, who, src, dst);
             undo_state.category = MoveCategory::EnPassant;
         }
 
         // check for castling
         if (move.is_castling ())
         {
-            handle_castling<false> (this, who, move, src, dst);
+            apply_for_castling_move (this, who, move, src, dst);
             undo_state.category = MoveCategory::Castling;
         }
 
-        handle_en_passant_eligibility (this, who, src_piece, move, &undo_state, 0);
+        update_en_passant_eligibility (this, who, src_piece, move, &undo_state);
 
         my_code.apply_move (*this, move);
 
@@ -311,13 +299,12 @@ namespace wisdom
 
         // update king position
         if (piece_type (src_piece) == Piece::King)
-            update_king_position (this, who, move, &undo_state, src, dst, false);
+            apply_for_king_move (this, who, &undo_state, src, dst);
 
         // update rook position -- for castling
         if (piece_type (orig_src_piece) == Piece::Rook)
         {
-            update_current_rook_position (this, who, orig_src_piece,
-                                          move, &undo_state, src, dst, false);
+            apply_for_rook_move (this, who, orig_src_piece, move, src, dst);
         }
 
         ColoredPiece captured_piece = captured_material (undo_state, opponent);
@@ -331,8 +318,7 @@ namespace wisdom
             // update castle state if somebody takes the rook
             if (captured_piece_type == Piece::Rook)
             {
-                update_opponent_rook_position<false> (this, color_invert (who), dst_piece,
-                                                      &undo_state, src, dst);
+                apply_for_rook_capture (this, color_invert (who), dst_piece, src, dst);
             }
         }
 
@@ -346,9 +332,6 @@ namespace wisdom
     void Board::take_back (Color who, Move move, const UndoMove& undo_state)
     {
         assert (my_code.current_turn () == color_invert (who));
-
-        // todo: split up the apply/unapply funcs so this isn't necessary
-        UndoMove undo_move_value = undo_state;
 
         Color opponent = color_invert (who);
 
@@ -379,14 +362,19 @@ namespace wisdom
 
         // check for castling
         if (move.is_castling ())
-            handle_castling<true> (this, who, move, src, dst);
+            unapply_for_castling (this, who, move, src, dst);
 
         // Update en passant eligibility:
-        handle_en_passant_eligibility (this, who, src_piece, move, &undo_move_value, true);
+        restore_en_passant_eligibility (this, who, undo_state);
 
         // check for en passant
         if (move.is_en_passant ())
-            dst_piece = handle_en_passant (this, who, src, dst, true);
+        {
+            unapply_for_en_passant (this, who, src, dst);
+
+            // restore empty square where piece was replaced:
+            dst_piece = Piece_And_Color_None;
+        }
 
         // Update the code:
         my_code.unapply_move (*this, move, undo_state);
@@ -397,7 +385,7 @@ namespace wisdom
 
         // update king position
         if (piece_type (src_piece) == Piece::King)
-            update_king_position (this, who, move, &undo_move_value, src, dst, true);
+            unapply_for_king_move (this, who, src, dst);
 
         ColoredPiece captured_piece = captured_material (undo_state, opponent);
         auto captured_piece_type = piece_type (captured_piece);
@@ -427,7 +415,9 @@ namespace wisdom
         string transformed { str };
         std::transform (transformed.begin (), transformed.end (), transformed.begin (),
                         [] (auto c) -> auto
-                        { return ::toupper (c); });
+                        {
+                            return ::toupper (c);
+                        });
 
         if (transformed == "O-O-O")
             dst_col = King_Column - 2;
@@ -453,7 +443,9 @@ namespace wisdom
         tmp.erase (std::remove_if (tmp.begin (), tmp.end (), isspace), tmp.end ());
         std::transform (tmp.begin (), tmp.end (), tmp.begin (),
                         [] (auto c) -> auto
-                        { return ::toupper (c); });
+                        {
+                            return ::toupper (c);
+                        });
 
         if (tmp.empty ())
             return nullopt;
@@ -471,7 +463,7 @@ namespace wisdom
             src = coord_parse (tmp.substr (0, 2));
             offset += 2;
         }
-        catch ([[maybe_unused]] const CoordParseError &e)
+        catch ([[maybe_unused]] const CoordParseError& e)
         {
             return nullopt;
         }
@@ -552,9 +544,8 @@ namespace wisdom
 
         auto result = *optional_result;
         auto move_category = result.get_move_category ();
-        if (color == Color::None &&
-            move_category != MoveCategory::NormalCapturing &&
-            move_category != MoveCategory::Default)
+        if (color == Color::None && move_category != MoveCategory::NormalCapturing
+            && move_category != MoveCategory::Default)
         {
             throw ParseMoveException ("Invalid type of move in parse_simple_move");
         }
@@ -605,10 +596,8 @@ namespace wisdom
         return result;
     }
 
-    auto map_coordinates_to_move (const Board& board, Color who,
-                                  Coord src, Coord dst,
-                                  optional<Piece> promoted_piece)
-        -> optional<Move>
+    auto map_coordinates_to_move (const Board& board, Color who, Coord src, Coord dst,
+                                  optional<Piece> promoted_piece) -> optional<Move>
     {
         ColoredPiece src_piece = board.piece_at (src);
         ColoredPiece dst_piece = board.piece_at (dst);
@@ -631,10 +620,8 @@ namespace wisdom
                 // look for en passant:
                 if (piece_type (src_piece) == Piece::Pawn)
                 {
-                    int eligible_column = eligible_en_passant_column (board,
-                                                                      Row (src),
-                                                                      Column (src),
-                                                                      who);
+                    int eligible_column
+                        = eligible_en_passant_column (board, Row (src), Column (src), who);
                     if (eligible_column == Column (dst))
                         return Move::make_en_passant (src, dst);
 
@@ -647,8 +634,7 @@ namespace wisdom
             case Piece::King:
                 if (Column (src) == King_Column)
                 {
-                    if (Column (dst) - Column (src) == 2 ||
-                       Column (dst) - Column (src) == -2)
+                    if (Column (dst) - Column (src) == 2 || Column (dst) - Column (src) == -2)
                     {
                         return Move::make_castling (src, dst);
                     }
