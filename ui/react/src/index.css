@@ -18,6 +18,29 @@
 :root {
   --square-size: 48px;
   --border-size: 2px;
+  --square-background: #5F9EA0;
+  --square-focused: darksalmon;
+}
+
+.board.flipped .piece {
+  transform: rotate(180deg);
+}
+
+.piece img {
+  width: var(--square-size);
+  height: var(--square-size);
+}
+
+.square:nth-child(odd) {
+  background: #fafafa;
+}
+
+.square.odd:nth-child(odd) {
+  background: var(--square-background);
+}
+.square.odd:nth-child(even) {
+  background: #fafafa;
+}
 }
 
 @media screen and (min-width: 600px) {

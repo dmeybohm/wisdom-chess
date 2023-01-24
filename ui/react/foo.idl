@@ -1,0 +1,6 @@
+interface Foo {
+  void Foo();
+  long getVal();
+  void setVal(long v);
+};
+

@@ -18,7 +18,7 @@ body {
 }
 
 .square {
-    background: darkseagreen;
+    background: var(--square-background);
     width: var(--square-size);
     height: var(--square-size);
 }
@@ -36,7 +36,7 @@ body {
 }
 
 .piece.focused.piece.focused {
-    background: darksalmon;
+    background: var(--square-focused);
 }
 
 .board.flipped .piece {
@@ -53,7 +53,7 @@ body {
 }
 
 .square.odd:nth-child(odd) {
-    background: darkseagreen;
+    background: var(--square-background);
 }
 .square.odd:nth-child(even) {
     background: #fafafa;
