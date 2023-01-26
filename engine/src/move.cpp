@@ -29,7 +29,7 @@ namespace wisdom
     }
 
     // Returns the taken piece
-    static auto update_for_en_passant (Board* board, Color who, Coord src, Coord dst)
+    static auto apply_for_en_passant (Board* board, Color who, Coord src, Coord dst)
         -> ColoredPiece
     {
         Coord taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
@@ -252,17 +252,6 @@ namespace wisdom
 
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) == who);
-        if (piece_type (dst_piece) != Piece::None)
-        {
-            assert (move.is_normal_capturing ());
-            undo_state.category = MoveCategory::NormalCapturing;
-            undo_state.taken_piece_type = piece_type (dst_piece);
-        }
-
-        if (piece_type (src_piece) != Piece::None && piece_type (dst_piece) != Piece::None)
-        {
-            assert (piece_color (src_piece) != piece_color (dst_piece));
-        }
 
         // Save the current castling state, regardless of whether it will be affected.
         save_current_castle_state (&undo_state, get_castling_eligibility (who));
@@ -276,18 +265,33 @@ namespace wisdom
             my_material.remove (ColoredPiece::make (who, Piece::Pawn));
         }
 
-        // check for en passant
-        if (move.is_en_passant ())
+        switch (move.get_move_category())
         {
-            dst_piece = update_for_en_passant (this, who, src, dst);
-            undo_state.category = MoveCategory::EnPassant;
-        }
+            case MoveCategory::Default:
+                assert (piece_type (dst_piece) == Piece::None);
+                break;
 
-        // check for castling
-        if (move.is_castling ())
-        {
-            apply_for_castling_move (this, who, move, src, dst);
-            undo_state.category = MoveCategory::Castling;
+            case MoveCategory::NormalCapturing:
+                assert (move.is_normal_capturing ());
+                assert (piece_color (src_piece) != piece_color (dst_piece));
+                undo_state.category = MoveCategory::NormalCapturing;
+                undo_state.taken_piece_type = piece_type (dst_piece);
+                break;
+
+            case MoveCategory::EnPassant:
+                dst_piece = apply_for_en_passant (this, who, src, dst);
+                undo_state.category = MoveCategory::EnPassant;
+                break;
+
+            case MoveCategory::Castling:
+                apply_for_castling_move (this, who, move, src, dst);
+                undo_state.category = MoveCategory::Castling;
+                break;
+
+            default:
+                throw Error {
+                    "Invalid move category: " + std::to_string (static_cast<int>(move.get_move_category()))
+                };
         }
 
         update_en_passant_eligibility (this, who, src_piece, move, &undo_state);
@@ -360,21 +364,33 @@ namespace wisdom
             my_material.add (src_piece);
         }
 
-        // check for castling
-        if (move.is_castling ())
-            unapply_for_castling (this, who, move, src, dst);
+        switch (move.get_move_category())
+        {
+            case MoveCategory::Default:
+                assert (dst_piece_type == Piece::None);
+                break;
+
+            case MoveCategory::NormalCapturing:
+                break;
+
+            case MoveCategory::EnPassant:
+                unapply_for_en_passant (this, who, src, dst);
+                // restore empty square where piece was replaced:
+                dst_piece = Piece_And_Color_None;
+                break;
+
+            case MoveCategory::Castling:
+                unapply_for_castling (this, who, move, src, dst);
+                break;
+
+            default:
+                throw Error {
+                    "Invalid move category: " + std::to_string (static_cast<int>(move.get_move_category()))
+                };
+        }
 
         // Update en passant eligibility:
         restore_en_passant_eligibility (this, who, undo_state);
-
-        // check for en passant
-        if (move.is_en_passant ())
-        {
-            unapply_for_en_passant (this, who, src, dst);
-
-            // restore empty square where piece was replaced:
-            dst_piece = Piece_And_Color_None;
-        }
 
         // Update the code:
         my_code.unapply_move (*this, move, undo_state);
