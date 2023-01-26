@@ -1,11 +1,8 @@
 importScripts('wasm-cmake.js')
 wasmCmake().then((obj) => {
 	console.log('loaded')
-	let f = new obj.Foo();
-	f.setVal(12);
-	console.log(f.getVal());
-	setTimeout(() => {
-		f.setVal(42);
-		console.log(f.getVal());
-	}, 5000);
+	let g = new obj.Game('wisdom::Human', 'wisdom::Computer');
+	g.set_max_depth( 10 );
+	console.log(g);
+	console.log(g.get_max_depth());
 })

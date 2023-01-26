@@ -12,3 +12,7 @@ endif()
 if (WISDOM_CHESS_CONSOLE_UI)
     add_subdirectory(console)
 endif()
+
+if (EMSCRIPTEN)
+    add_subdirectory(react)
+endif()
