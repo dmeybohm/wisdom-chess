@@ -1,0 +1,11 @@
+enum wisdom_Player {
+  "wisdom::Human",
+  "wisdom::Chess"
+}
+
+[Prefix="wisdom::"]
+interface Game {
+    void Game(wisdom_Player white_player, wisdom_Player black_player);
+    void set_max_depth(int max_depth);
+
+}
