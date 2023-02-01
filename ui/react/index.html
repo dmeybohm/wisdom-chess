@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + React + TS</title>
     <script>
-        const worker = new Worker('/test.js');
+        var worker = new Worker('/test.js');
+        worker.addEventListener('message', (e) => {
+          console.log('Received data from worker: ', e.data);
+        }, { once: false })
     </script>
   </head>
   <body>

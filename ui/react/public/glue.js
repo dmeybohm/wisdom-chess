@@ -197,29 +197,45 @@ Module['VoidPtr'] = VoidPtr;
   var self = this.ptr;
   _emscripten_bind_VoidPtr___destroy___0(self);
 };
-// Foo
-/** @suppress {undefinedVars, duplicate} @this{Object} */function Foo() {
-  this.ptr = _emscripten_bind_Foo_Foo_0();
-  getCache(Foo)[this.ptr] = this;
+// WebGame
+/** @suppress {undefinedVars, duplicate} @this{Object} */function WebGame(white_player, black_player) {
+  if (white_player && typeof white_player === 'object') white_player = white_player.ptr;
+  if (black_player && typeof black_player === 'object') black_player = black_player.ptr;
+  this.ptr = _emscripten_bind_WebGame_WebGame_2(white_player, black_player);
+  getCache(WebGame)[this.ptr] = this;
 };;
-Foo.prototype = Object.create(WrapperObject.prototype);
-Foo.prototype.constructor = Foo;
-Foo.prototype.__class__ = Foo;
-Foo.__cache__ = {};
-Module['Foo'] = Foo;
+WebGame.prototype = Object.create(WrapperObject.prototype);
+WebGame.prototype.constructor = WebGame;
+WebGame.prototype.__class__ = WebGame;
+WebGame.__cache__ = {};
+Module['WebGame'] = WebGame;
 
-Foo.prototype['getVal'] = Foo.prototype.getVal = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+WebGame.prototype['set_max_depth'] = WebGame.prototype.set_max_depth = /** @suppress {undefinedVars, duplicate} @this{Object} */function(max_depth) {
   var self = this.ptr;
-  return _emscripten_bind_Foo_getVal_0(self);
-};;
-
-Foo.prototype['setVal'] = Foo.prototype.setVal = /** @suppress {undefinedVars, duplicate} @this{Object} */function(v) {
-  var self = this.ptr;
-  if (v && typeof v === 'object') v = v.ptr;
-  _emscripten_bind_Foo_setVal_1(self, v);
+  if (max_depth && typeof max_depth === 'object') max_depth = max_depth.ptr;
+  _emscripten_bind_WebGame_set_max_depth_1(self, max_depth);
 };;
 
-  Foo.prototype['__destroy__'] = Foo.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+WebGame.prototype['get_max_depth'] = WebGame.prototype.get_max_depth = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
   var self = this.ptr;
-  _emscripten_bind_Foo___destroy___0(self);
+  return _emscripten_bind_WebGame_get_max_depth_0(self);
+};;
+
+  WebGame.prototype['__destroy__'] = WebGame.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */function() {
+  var self = this.ptr;
+  _emscripten_bind_WebGame___destroy___0(self);
 };
+(function() {
+  function setupEnums() {
+    
+
+    // wisdom_WebPlayer
+
+    Module['Human'] = _emscripten_enum_wisdom_WebPlayer_Human();
+
+    Module['ChessEngine'] = _emscripten_enum_wisdom_WebPlayer_ChessEngine();
+
+  }
+  if (runtimeInitialized) setupEnums();
+  else addOnInit(setupEnums);
+})();

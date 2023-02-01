@@ -5,6 +5,10 @@ import {initialPieces, Piece} from "./Pieces";
 import {initialSquares, Position} from "./Squares";
 import "./Positions.css"
 
+interface WisdomWindow {
+    worker: Worker
+}
+
 const Board = () => {
     const [squares, setSquares] = useState(initialSquares)
     const [focusedSquare, setFocusedSquare] = useState('')
@@ -62,6 +66,10 @@ const Board = () => {
         piecesCopy[index].position = dst
         setPieces(piecesCopy)
         setFocusedSquare('');
+
+        const worker = ((window as unknown) as WisdomWindow).worker
+        console.log(worker);
+        worker.postMessage('moved ' + src + " -> " + dst)
     }
 
     return (
