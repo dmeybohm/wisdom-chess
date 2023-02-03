@@ -26,7 +26,7 @@ namespace wisdom
   class WebGame
   {
   public:
-      WebGame(int white_player, int black_player)
+      WebGame (int white_player, int black_player)
           : my_game {
                   map_player (white_player),
                   map_player (black_player)

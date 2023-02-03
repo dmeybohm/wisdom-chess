@@ -12,6 +12,7 @@ message("-- emsdkIdlPath=" ${emsdkIdlPath})
 # to link that file twice.
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp
+        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}}/glue.js
     DEPENDS wisdomchess.idl
     COMMAND python3 "${emsdkIdlPath}" ${CMAKE_CURRENT_SOURCE_DIR}/wisdomchess.idl ${CMAKE_CURRENT_BINARY_DIR}/glue
         && mv ${CMAKE_CURRENT_BINARY_DIR}/glue.cpp ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp
@@ -44,9 +45,10 @@ target_link_options(wasm-cmake PRIVATE
 )
 
 # Ensure "make clean" gets rid of the wasm file:
+# (There is an ADDITIONAL_CLEAN_FILES on the target properties but that doesn't work)
 add_custom_command(
     TARGET wasm-cmake
-    COMMAND echo
+    COMMAND true
     POST_BUILD
-    BYPRODUCTS wasm-cmake.wasm
+    BYPRODUCTS wasm-cmake.wasm ${CMAKE_CURRENT_BINARY_DIR}/glue.js
 )
