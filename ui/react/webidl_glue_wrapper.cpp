@@ -45,6 +45,7 @@ namespace wisdom
             return result;
       }
 
+
   private:
       Game my_game;
   };
@@ -53,4 +54,4 @@ namespace wisdom
 // Map the enum to the global namespace:
 using wisdom_WebPlayer = wisdom::WebPlayer;
 
-#include <glue.cpp>
+#include "glue.hpp"
