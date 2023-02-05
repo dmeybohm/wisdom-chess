@@ -47,7 +47,16 @@ target_link_options(wisdom-chess-web PRIVATE
 # (There is an ADDITIONAL_CLEAN_FILES on the target properties but that doesn't work)
 add_custom_command(
     TARGET wisdom-chess-web
-    COMMAND true
+    COMMAND 
+        cp ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-web.wasm ${CMAKE_CURRENT_SOURCE_DIR}/../react/public/wisdom-chess-web.wasm &&
+        cp ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-load.js ${CMAKE_CURRENT_SOURCE_DIR}/../react/public/wisdom-chess-load.js &&
+        cp ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-web.js ${CMAKE_CURRENT_SOURCE_DIR}/../react/public/wisdom-chess-web.js &&
+        cp ${CMAKE_CURRENT_BINARY_DIR}/glue.js ${CMAKE_CURRENT_SOURCE_DIR}/../react/public/glue.js
     POST_BUILD
-    BYPRODUCTS wisdom-chess-web.wasm 
+    BYPRODUCTS 
+        wisdom-chess-web.wasm 
+        ${CMAKE_CURRENT_SOURCE_DIR}/../react/public/wisdom-chess-web.wasm
+        ${CMAKE_CURRENT_SOURCE_DIR}/../react/public/wisdom-chess-load.js
+        ${CMAKE_CURRENT_SOURCE_DIR}/../react/public/wisdom-chess-web.js
+        ${CMAKE_CURRENT_SOURCE_DIR}/../react/public/glue.js
 )

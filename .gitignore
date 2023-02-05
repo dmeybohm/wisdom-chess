@@ -2,3 +2,8 @@ cmake-build-*
 .idea
 .vs
 CMakeLists.txt.user
+ui/react/public/wisdom-chess-web.wasm
+ui/react/public/wisdom-chess-web.js
+ui/react/public/wisdom-chess-load.js
+ui/react/public/glue.js
+
