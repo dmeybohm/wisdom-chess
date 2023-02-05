@@ -8,18 +8,18 @@ interface TopMenuProps {
     settingsClicked?: () => void;
 }
 
+function Menu(): JSX.Element {
+    return (
+        <ul className="menu">
+            <li onClick={props.newGameClicked}>New Game</li>
+            <li onClick={props.settingsClicked}>Settings</li>
+            <li onClick={props.aboutClicked}>About</li>
+        </ul>
+    );
+}
+
 function TopMenu(props: TopMenuProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-    const Menu = (): JSX.Element => {
-        return (
-            <ul className="menu">
-                <li onClick={props.newGameClicked}>New Game</li>
-                <li onClick={props.settingsClicked}>Settings</li>
-                <li onClick={props.aboutClicked}>About</li>
-            </ul>
-        );
-    }
 
     return (
         <div className="top-menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
