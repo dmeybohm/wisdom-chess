@@ -11,43 +11,43 @@ message("-- emsdkIdlPath=" ${emsdkIdlPath})
 # including a cpp file in another one and messing up its dependency generation or trying
 # to link that file twice.
 add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp ${CMAKE_CURRENT_BINARY_DIR}/glue.js
-    DEPENDS wisdomchess.idl
-    COMMAND python3 "${emsdkIdlPath}" ${CMAKE_CURRENT_SOURCE_DIR}/wisdomchess.idl ${CMAKE_CURRENT_BINARY_DIR}/glue
+    OUTPUT 
+        ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp 
+        ${CMAKE_CURRENT_BINARY_DIR}/glue.js 
+        ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-load.js
+    DEPENDS 
+        wisdom-chess.idl 
+        wisdom-chess-load.js
+    COMMAND python3 "${emsdkIdlPath}" ${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess.idl ${CMAKE_CURRENT_BINARY_DIR}/glue
         && mv ${CMAKE_CURRENT_BINARY_DIR}/glue.cpp ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp
+        && cp ${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess-load.js ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-load.js
 )
 
-add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/test.js
-    DEPENDS test-src.js wisdomchess.idl webidl_glue_wrapper.cpp
-    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/test-src.js ${CMAKE_CURRENT_BINARY_DIR}/test.js
-)
-
-add_executable(wasm-cmake empty_main.cpp
+add_executable(wisdom-chess-web empty_main.cpp
         ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp
         webidl_glue_wrapper.cpp
         )
 
 # Make sure the target dependencies are included:
-set_target_properties(wasm-cmake PROPERTIES
-        LINK_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/test.js
+set_target_properties(wisdom-chess-web PROPERTIES
+        LINK_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-load.js
         LINK_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/glue.js
         )
 
-target_link_libraries(wasm-cmake PRIVATE wisdom::chess)
-target_include_directories(wasm-cmake
+target_link_libraries(wisdom-chess-web PRIVATE wisdom::chess)
+target_include_directories(wisdom-chess-web
         INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE   ${CMAKE_CURRENT_BINARY_DIR}
         )
-target_link_options(wasm-cmake PRIVATE
-    "SHELL:-s MODULARIZE=1" "SHELL:-s EXPORT_NAME='wasmCmake'" --post-js ${CMAKE_CURRENT_BINARY_DIR}/glue.js
+target_link_options(wisdom-chess-web PRIVATE
+    "SHELL:-s MODULARIZE=1" "SHELL:-s EXPORT_NAME='wisdomChessWeb'" --post-js ${CMAKE_CURRENT_BINARY_DIR}/glue.js
 )
 
 # Ensure "make clean" gets rid of the wasm file:
 # (There is an ADDITIONAL_CLEAN_FILES on the target properties but that doesn't work)
 add_custom_command(
-    TARGET wasm-cmake
+    TARGET wisdom-chess-web
     COMMAND true
     POST_BUILD
-    BYPRODUCTS wasm-cmake.wasm 
+    BYPRODUCTS wisdom-chess-web.wasm 
 )

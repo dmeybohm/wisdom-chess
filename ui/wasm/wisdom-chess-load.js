@@ -1,6 +1,6 @@
-importScripts('wasm-cmake.js')
+importScripts('wisdom-chess-web.js')
 
-wasmCmake().then((obj) => {
+wisdomChessWeb().then((obj) => {
 	console.log('loaded')
 	let g = new obj.WebGame(obj.Human, obj.ChessEngine);
 	g.set_max_depth( 10 );

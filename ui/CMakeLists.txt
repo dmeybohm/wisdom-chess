@@ -14,5 +14,5 @@ if (WISDOM_CHESS_CONSOLE_UI)
 endif()
 
 if (EMSCRIPTEN)
-    add_subdirectory(react)
+    add_subdirectory(wasm)
 endif()
