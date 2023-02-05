@@ -8,7 +8,7 @@ interface TopMenuProps {
     settingsClicked?: () => void;
 }
 
-function Menu(): JSX.Element {
+function Menu(props: TopMenuProps): JSX.Element {
     return (
         <ul className="menu">
             <li onClick={props.newGameClicked}>New Game</li>
@@ -28,7 +28,7 @@ function TopMenu(props: TopMenuProps) {
                 Wisdom Chess
             </div>
             <img src={DownArrow} width={12} height={12}/>
-            {(isMenuOpen) ? <Menu /> : null}
+            {(isMenuOpen) ? <Menu {... props} /> : null}
         </div>
     )
 }
