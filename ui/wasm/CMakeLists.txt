@@ -43,35 +43,3 @@ target_include_directories(wisdom-chess-web
 target_link_options(wisdom-chess-web PRIVATE
     "SHELL:-s MODULARIZE=1" "SHELL:-s EXPORT_NAME='wisdomChessWeb'" --post-js ${CMAKE_CURRENT_BINARY_DIR}/glue.js
 )
-
-add_custom_target(
-    wisdom-chess-react-public-dev
-    ALL
-    SOURCES
-        ${wisdomChessReactPublicPath}/wisdom-chess-web.wasm
-        ${wisdomChessReactPublicPath}/wisdom-chess-load.js
-        ${wisdomChessReactPublicPath}/wisdom-chess-web.js
-        ${wisdomChessReactPublicPath}/glue.js
-)
-add_dependencies(wisdom-chess-react-public-dev wisdom-chess-web)
-
-# Setup the wasm files in react/public for development:
-add_custom_command(
-    COMMENT
-        "Updating files in react/public for development"
-    OUTPUT
-        ${wisdomChessReactPublicPath}/wisdom-chess-web.wasm
-        ${wisdomChessReactPublicPath}/wisdom-chess-web.js
-        ${wisdomChessReactPublicPath}/wisdom-chess-load.js
-        ${wisdomChessReactPublicPath}/glue.js
-    DEPENDS
-        ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-web.wasm
-        ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-web.js
-        ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-load.js
-        ${CMAKE_CURRENT_BINARY_DIR}/glue.js
-    COMMAND 
-        cp ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-web.wasm ${wisdomChessReactPublicPath}/wisdom-chess-web.wasm &&
-        cp ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-web.js ${wisdomChessReactPublicPath}/wisdom-chess-web.js &&
-        cp ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-load.js ${wisdomChessReactPublicPath}/wisdom-chess-load.js &&
-        cp ${CMAKE_CURRENT_BINARY_DIR}/glue.js ${wisdomChessReactPublicPath}/glue.js
-)
