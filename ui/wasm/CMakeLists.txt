@@ -32,7 +32,7 @@ add_executable(wisdom-chess-web empty_main.cpp
 
 # Make sure the target dependencies are included:
 set_target_properties(wisdom-chess-web PROPERTIES
-        LINK_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/glue.js
+    LINK_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/glue.js
 )
 
 target_link_libraries(wisdom-chess-web PRIVATE wisdom::chess)
@@ -40,6 +40,7 @@ target_include_directories(wisdom-chess-web
         INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE   ${CMAKE_CURRENT_BINARY_DIR}
         )
+target_compile_options(wisdom-chess-web PRIVATE "-sWASM_WORKERS")
 target_link_options(wisdom-chess-web PRIVATE
-    "SHELL:-s MODULARIZE=1" "SHELL:-s EXPORT_NAME='wisdomChessWeb'" --post-js ${CMAKE_CURRENT_BINARY_DIR}/glue.js
+    "-sWASM_WORKERS" "SHELL:-s MODULARIZE=1" "SHELL:-s EXPORT_NAME='wisdomChessWeb'" --post-js ${CMAKE_CURRENT_BINARY_DIR}/glue.js
 )
