@@ -4,23 +4,57 @@
 
 #include "game.hpp"
 
-extern "C"
-{
-  EM_JS(void, console_log, (const char* str), {
-    console.log(UTF8ToString(str))
-  })
-
-  EMSCRIPTEN_KEEPALIVE void run_in_worker ()
-  {
-    console_log ("Hello from a worker!\n");
-  }
-}
+extern void console_log(const char *str);
 
 extern emscripten_wasm_worker_t engine_thread_manager;
 extern emscripten_wasm_worker_t engine_thread;
 
 namespace wisdom
 {
+  enum WebColor
+  {
+    NoColor,
+    White,
+    Black
+  };
+
+  auto map_color (int color) -> wisdom::Color
+  {
+    switch (static_cast<WebColor>(color))
+    {
+      case NoColor: return Color::None;
+      case White: return Color::White;
+      case Black: return Color::Black;
+    default:
+      throw new Error { "Invalid color." };
+    }
+  }
+
+  enum WebPiece
+  {
+    NoPiece,
+    Pawn,
+    Knight,
+    Bishop,
+    Rook,
+    Queen,
+    King,
+  };
+
+  auto map_piece (int piece) -> wisdom::Piece
+  {
+    switch (static_cast<WebPiece>(piece))
+    {
+      case NoPiece: return Piece::None;
+      case Knight: return Piece::Knight;
+      case Bishop: return Piece::Bishop;
+      case Rook: return Piece::Rook;
+      case Queen: return Piece::Queen;
+      case King: return Piece::King;
+      throw new Error { "Invalid piec." };
+    }
+  }
+
   enum WebPlayer
   {
       Human,
@@ -75,7 +109,9 @@ namespace wisdom
   };
 }
 
-// Map the enum to the global namespace:
+// Map enums to the global namespace:
 using wisdom_WebPlayer = wisdom::WebPlayer;
+using wisdom_WebPiece = wisdom::WebPiece;
+using wisdom_WebColor = wisdom::WebColor;
 
 #include "glue.hpp"

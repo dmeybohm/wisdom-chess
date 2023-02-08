@@ -3,9 +3,26 @@ enum wisdom_WebPlayer {
   "wisdom::ChessEngine"
 };
 
+enum wisdom_WebColor {
+  "wisdom::NoColor",
+  "wisdom::White",
+  "wisdom::Black",
+};
+
+enum wisdom_WebPiece {
+  "wisdom::NoPiece",
+  "wisdom::Pawn",
+  "wisdom::Knight",
+  "wisdom::Bishop",
+  "wisdom::Rook",
+  "wisdom::Queen",
+  "wisdom::King"
+};
+
 [Prefix="wisdom::"]
 interface WebGame {
     void WebGame(long white_player, long black_player);
+
     void set_max_depth(long max_depth);
     long get_max_depth();
     void start_worker();
