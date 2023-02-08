@@ -25,7 +25,8 @@ add_custom_command(
         && cp -f ${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess-load.js ${CMAKE_CURRENT_BINARY_DIR}/
 )
 
-add_executable(wisdom-chess-web empty_main.cpp
+add_executable(wisdom-chess-web
+        main.cpp
         ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp
         webidl_glue_wrapper.cpp
         )

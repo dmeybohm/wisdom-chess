@@ -67,9 +67,9 @@ const Board = () => {
         setPieces(piecesCopy)
         setFocusedSquare('');
 
-        const worker = ((window as unknown) as WisdomWindow).worker
-        console.log(worker);
-        worker.postMessage('moved ' + src + " -> " + dst)
+        // const worker = ((window as unknown) as WisdomWindow).worker
+        // console.log(worker);
+        // worker.postMessage('moved ' + src + " -> " + dst)
     }
 
     return (
