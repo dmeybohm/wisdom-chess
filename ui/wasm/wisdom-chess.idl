@@ -8,4 +8,5 @@ interface WebGame {
     void WebGame(long white_player, long black_player);
     void set_max_depth(long max_depth);
     long get_max_depth();
+    void start_worker();
 };
