@@ -86,6 +86,43 @@ namespace wisdom
     };
   }
 
+  struct WebColoredPiece
+  {
+    WebColoredPiece() : color{0}, piece{0} {}
+    WebColoredPiece(int color_, int piece_)
+        : color { color_ }, piece { piece_ }
+    {}
+
+    long color;
+    long piece;
+  };
+
+  struct WebColoredPieceList
+  {
+    WebColoredPieceList()
+    {
+     clear();
+    }
+
+    WebColoredPiece pieces[Num_Squares] {};
+    int length = 0;
+
+    void add_piece(WebColoredPiece piece)
+    {
+      pieces[length++] = piece;
+    }
+
+    void clear()
+    {
+      for (int i = 0; i < Num_Squares; i++) {
+        pieces[i].color = WebColor::NoColor;
+        pieces[i].piece = WebPiece::NoPiece;
+      }
+      length = 0;
+    }
+
+  };
+
   class WebGame
   {
   public:
@@ -94,7 +131,9 @@ namespace wisdom
                   map_player (white_player),
                   map_player (black_player)
             }
-      {}
+      {
+        update_piece_list();
+      }
 
       void set_max_depth (int max_depth)
       {
@@ -116,8 +155,29 @@ namespace wisdom
             std::cout << "Exiting start_worker\n";
       }
 
+      observer_ptr<WebColoredPieceList> get_piece_list ()
+      {
+            return &my_pieces;
+      }
+
   private:
       Game my_game;
+      WebColoredPieceList my_pieces;
+
+      void update_piece_list ()
+      {
+        const Board& board = my_game.get_board();
+        my_pieces.clear();
+        for (int i = 0; i < Num_Squares; i++) {
+          ColoredPiece piece = board.piece_at(make_coord_from_index(i));
+          if (piece != Piece_And_Color_None) {
+            my_pieces.add_piece(WebColoredPiece {
+                to_int(piece.color()),
+                to_int(piece.type())
+            });
+          }
+        }
+      }
   };
 }
 

@@ -55,6 +55,8 @@ function afterWisdomChessModuleLoaded(WisdomChessWeb) {
 	g.set_max_depth( 10 );
 	console.log(g);
 	console.log(g.get_max_depth());
+	const pieces = g.get_piece_list();
+	console.log(pieces);
 	g.start_worker();
 }
 
