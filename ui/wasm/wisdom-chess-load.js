@@ -53,7 +53,8 @@ function afterWisdomChessModuleLoaded(WisdomChessWeb) {
 	console.log(WisdomChessWeb)
 
 	let g = new WisdomChessWeb.WebGame(WisdomChessWeb.Human, WisdomChessWeb.ChessEngine);
-	window.wisdomChessWeb = g;
+	window.wisdomChessWeb = WisdomChessWeb
+	window.wisdomChessWebGame = g;
 	g.setMaxDepth( 5 );
 	console.log(g);
 	console.log(g.getMaxDepth());

@@ -13,9 +13,16 @@ import BlackQueen from "../assets/Chess_qdt45.svg";
 import BlackRook from "../assets/Chess_rdt45.svg";
 import BlackKing from "../assets/Chess_kdt45.svg";
 
+interface Coord {
+    row: number
+    col: number;
+}
+
 interface Game {
 
     getPieceList (): ColoredPieceList
+
+    makeMove (src: Coord, dst: Coord): boolean
 }
 
 interface ColoredPieceList {
@@ -31,8 +38,21 @@ interface ColoredPiece {
     col: number;
 }
 
+interface Coord {
+    row: number
+    col: number
+}
+
+interface WisdomChess {
+    static WebCoord = interface WebCoord {
+        public row: number;
+        public col: number;
+    }
+}
+
 interface WisdomWindow {
-    wisdomChessWeb: Game
+    wisdomChessWebGame: Game
+    wisdomChessWeb: WisdomChess
 }
 
 export function getGame (): Game {
@@ -101,4 +121,8 @@ export function getPieces(game: Game): Piece[] {
     }
 
     return result
+}
+
+export function WisdomChess(): WisdomChess {
+    return ((window as unknown) as WisdomChessWindow) as WisdomChess
 }
