@@ -40,15 +40,47 @@ export function getGame (): Game {
 }
 
 function mapPieceToIcon(piece: ColoredPiece): string {
-    return BlackKnight
+    const color = fromNumberToColor(piece.color)
+    if (color === 'white') {
+        switch (piece.piece)
+        {
+            case 1: return WhitePawn
+            case 2: return WhiteKnight
+            case 3: return WhiteBishop
+            case 4: return WhiteRook
+            case 5: return WhiteQueen
+            case 6: return WhiteKing
+            default: throw new Error("invalid piece type")
+        }
+    } else {
+        switch (piece.piece)
+        {
+            case 1: return BlackPawn
+            case 2: return BlackKnight
+            case 3: return BlackBishop
+            case 4: return BlackRook
+            case 5: return BlackQueen
+            case 6: return BlackKing
+            default: throw new Error("invalid piece type")
+        }
+    }
 }
 
 function fromNumberToColor(color: number): Color {
-    return "white"
+    switch (color)
+    {
+        case 1: return 'white'
+        case 2: return 'black'
+        default: throw new Error("Invalid color")
+    }
 }
 
 function fromRowAndColToStringCoord(row: number, col: number): string {
-    return "a8"
+    let row_char = 8 - row;
+    let col_code = 'a'.charCodeAt(0);
+    col_code += col
+    const col_char = String.fromCharCode(col_code)
+    return col_char + row_char;
 }
 
 export function getPieces(game: Game): Piece[] {

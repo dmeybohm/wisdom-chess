@@ -238,8 +238,6 @@ namespace wisdom
           list[coord_index (src)] = piece;
         }
 
-        std::string msg = "old_piece len: " + std::to_string (old_pieces.length);
-
         for (int i = 0; i < Num_Squares; i++) {
           Coord coord = make_coord_from_index (i);
           ColoredPiece piece = board.piece_at (coord);
