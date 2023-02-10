@@ -96,11 +96,11 @@ namespace wisdom
           col { col_ }
     {}
 
-    long id;
-    long color;
-    long piece;
-    long row;
-    long col;
+    int id;
+    int color;
+    int piece;
+    int row;
+    int col;
   };
 
   auto map_colored_piece (WebColoredPiece colored_piece) -> ColoredPiece
@@ -120,9 +120,14 @@ namespace wisdom
     WebColoredPiece pieces[Num_Squares] {};
     int length = 0;
 
-    void add_piece (WebColoredPiece piece)
+    void addPiece (WebColoredPiece piece)
     {
       pieces[length++] = piece;
+    }
+
+    auto pieceAt(int index) -> WebColoredPiece
+    {
+      return pieces[index];
     }
 
     void clear()
@@ -141,6 +146,10 @@ namespace wisdom
 
   class WebGame
   {
+  private:
+    Game my_game;
+    WebColoredPieceList my_pieces;
+
   public:
       WebGame (int white_player, int black_player)
           : my_game {
@@ -148,37 +157,49 @@ namespace wisdom
                   map_player (black_player)
             }
       {
-        update_piece_list();
+        const auto& board = my_game.get_board();
+        int id = 1;
+        for (int i = 0; i < Num_Squares; i++) {
+          auto coord = make_coord_from_index (i);
+          auto piece = board.piece_at (coord);
+          if (piece != Piece_And_Color_None) {
+            WebColoredPiece new_piece = WebColoredPiece {
+                id,
+                to_int (piece.color()),
+                to_int (piece.type()),
+                gsl::narrow<int> (Row (coord)),
+                gsl::narrow<int> (Column (coord))
+            };
+            my_pieces.addPiece(new_piece);
+            id++;
+          }
+        }
       }
 
-      void set_max_depth (int max_depth)
+      void setMaxDepth (int max_depth)
       {
             std::cout << "Setting max depth: " << max_depth << "\n";
             my_game.set_max_depth (max_depth);
       }
 
-      auto get_max_depth () -> int
+      auto getMaxDepth () -> int
       {
             auto result = my_game.get_max_depth ();
             std::cout << "Getting max depth: " << result << "\n";
             return result;
       }
 
-      void start_worker ()
+      void startWorker ()
       {
             std::cout << "Inside start_worker (a bit of a misnomer now?)\n";
             emscripten_wasm_worker_post_function_v (engine_thread_manager, run_in_worker);
             std::cout << "Exiting start_worker\n";
       }
 
-      observer_ptr<WebColoredPieceList> get_piece_list ()
+      WebColoredPieceList& getPieceList ()
       {
-            return &my_pieces;
+            return my_pieces;
       }
-
-  private:
-      Game my_game;
-      WebColoredPieceList my_pieces;
 
       auto find_and_remove_id (std::unordered_map<int, WebColoredPiece>& list,
                               Coord coord_to_find, ColoredPiece piece_to_find) -> int
@@ -217,6 +238,8 @@ namespace wisdom
           list[coord_index (src)] = piece;
         }
 
+        std::string msg = "old_piece len: " + std::to_string (old_pieces.length);
+
         for (int i = 0; i < Num_Squares; i++) {
           Coord coord = make_coord_from_index (i);
           ColoredPiece piece = board.piece_at (coord);
@@ -230,7 +253,7 @@ namespace wisdom
                   gsl::narrow<int8_t>(Row(coord)),
                   gsl::narrow<int8_t>(Column(coord)),
               };
-              my_pieces.add_piece(new_piece);
+              my_pieces.addPiece(new_piece);
             }
           }
         }
@@ -243,12 +266,13 @@ namespace wisdom
               return value == colored_piece;
             };
             auto it = std::find_if (list.begin (), list.end (), pred);
-            if (it == list.end ()) {
+            if (it != list.end ()) {
               throw new Error { "Couldn't find id." };
             }
             auto coord_idx = it->first;
             auto old_piece = it->second;
             auto coord = make_coord_from_index (coord_idx);
+
             WebColoredPiece new_piece = {
                 old_piece.id,
                 old_piece.color,
@@ -256,7 +280,7 @@ namespace wisdom
                 gsl::narrow<int8_t> (Row (coord)),
                 gsl::narrow<int8_t> (Column (coord)),
             };
-            my_pieces.add_piece(new_piece);
+            my_pieces.addPiece(new_piece);
           }
         }
       }

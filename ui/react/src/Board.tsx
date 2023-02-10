@@ -4,6 +4,7 @@ import "./Board.css";
 import {initialPieces, Piece} from "./Pieces";
 import {initialSquares, Position} from "./Squares";
 import "./Positions.css"
+import {getGame, getPieces} from "./lib/WisdomChess";
 
 interface WisdomWindow {
     worker: Worker
@@ -12,7 +13,8 @@ interface WisdomWindow {
 const Board = () => {
     const [squares, setSquares] = useState(initialSquares)
     const [focusedSquare, setFocusedSquare] = useState('')
-    const [pieces, setPieces] = useState(initialPieces)
+    const [game, setGame] = useState(getGame())
+    const [pieces, setPieces] = useState(getPieces(game))
 
     const findIndexOfPieceAtPosition = (position: string) => {
         return pieces.findIndex(piece => piece.position === position)
@@ -88,7 +90,7 @@ const Board = () => {
                 <div className={`piece ${piece.position} ${piece.position === focusedSquare ? 'focused' : ''}`}
                      key={piece.id}
                      onClick={() => handlePieceClick(piece.position)}>
-                    <img alt="piece" src={piece.type} />
+                    <img alt="piece" src={piece.icon} />
                 </div>
             ))}
         </section>

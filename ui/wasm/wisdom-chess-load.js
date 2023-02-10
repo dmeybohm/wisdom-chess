@@ -51,13 +51,17 @@ function afterWisdomChessModuleLoaded(WisdomChessWeb) {
 
 	console.log('after wisdom chess module loaded')	;
 	console.log(WisdomChessWeb)
+
 	let g = new WisdomChessWeb.WebGame(WisdomChessWeb.Human, WisdomChessWeb.ChessEngine);
-	g.set_max_depth( 10 );
+	g.setMaxDepth( 5 );
 	console.log(g);
-	console.log(g.get_max_depth());
-	const pieces = g.get_piece_list();
+	console.log(g.getMaxDepth());
+
+	const pieces = g.getPieceList();
 	console.log(pieces);
-	g.start_worker();
+	g.startWorker();
+
+	window.startReact();
 }
 
 // Hmm, how are those workers going to notify the main thread?

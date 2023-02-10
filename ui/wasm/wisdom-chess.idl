@@ -33,6 +33,7 @@ interface WebColoredPiece {
 interface WebColoredPieceList {
     void WebColoredPieceList();
     [Value] attribute WebColoredPiece[] pieces;
+    [Value] WebColoredPiece pieceAt(long index);
     attribute long length;
 };
 
@@ -40,9 +41,9 @@ interface WebColoredPieceList {
 interface WebGame {
     void WebGame (long white_player, long black_player);
 
-    void set_max_depth (long max_depth);
-    long get_max_depth ();
-    void start_worker ();
+    void setMaxDepth (long max_depth);
+    long getMaxDepth ();
+    void startWorker ();
 
-    [Ref] WebColoredPieceList get_piece_list ();
+    [Ref] WebColoredPieceList getPieceList ();
 };
