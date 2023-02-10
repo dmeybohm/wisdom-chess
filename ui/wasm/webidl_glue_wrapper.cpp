@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "game.hpp"
+#include "coord.hpp"
 
 extern "C"
 {
@@ -144,6 +145,26 @@ namespace wisdom
 
   };
 
+  struct WebCoord
+  {
+    int row;
+    int col;
+
+    WebCoord () : row { 0 }, col { 0 }
+    {}
+
+    WebCoord (int row_, int col_) : row { row_ }, col { col_ }
+    {}
+
+    static auto fromTextCoord(char *coord_text) -> WebCoord
+    {
+      auto coord = coord_parse (coord_text);
+      return WebCoord {
+        gsl::narrow<int>(Row(coord)), gsl::narrow<int>(Column(coord))
+      };
+    }
+  };
+
   class WebGame
   {
   private:
@@ -174,6 +195,49 @@ namespace wisdom
             id++;
           }
         }
+        std::cout << "Finished initializing piece list: " << my_pieces.length;
+      }
+
+      auto makeMove (const WebCoord& src, const WebCoord& dst) -> bool
+      {
+        auto game_src = make_coord (src.row, src.col);
+        auto game_dst = make_coord (dst.row, dst.col);
+
+        auto who = my_game.get_current_turn();
+        auto optionalMove = my_game.map_coordinates_to_move (game_src, game_dst, std::nullopt);
+        if (!optionalMove.has_value()) {
+          return false;
+        }
+        auto move = *optionalMove;
+        if (!isLegalMove(move)) {
+//          setMoveStatus("Illegal move");
+          return false;
+        }
+        my_game.move (move);
+        return true;
+        //auto newColor = updateChessEngineForHumanMove(move);
+        //updateDisplayedGameState();
+        //updateCurrentTurn(newColor);
+        //handleMove(wisdom::Player::Human, move, who);
+      }
+
+      auto isLegalMove(Move selectedMove) -> bool
+      {
+        auto selectedMoveStr = to_string (selectedMove);
+
+        // If it's not the human's turn, move is illegal.
+        if (my_game.get_current_player() != wisdom::Player::Human) {
+          return false;
+        }
+
+        auto who = my_game.get_current_turn();
+        auto generator = my_game.get_move_generator();
+        auto legalMoves = generator->generate_legal_moves(my_game.get_board(), who);
+
+        return std::any_of(legalMoves.cbegin(), legalMoves.cend(),
+                           [selectedMove](const auto& move){
+                             return move == selectedMove;
+                           });
       }
 
       void setMaxDepth (int max_depth)
@@ -196,7 +260,7 @@ namespace wisdom
             std::cout << "Exiting start_worker\n";
       }
 
-      WebColoredPieceList& getPieceList ()
+      auto getPieceList () -> WebColoredPieceList&
       {
             return my_pieces;
       }
@@ -283,6 +347,8 @@ namespace wisdom
         }
       }
   };
+
+
 }
 
 // Map enums to the global namespace:

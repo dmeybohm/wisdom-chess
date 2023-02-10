@@ -38,12 +38,22 @@ interface WebColoredPieceList {
 };
 
 [Prefix="wisdom::"]
+interface WebCoord {
+    void WebCoord (long row, long col);
+    attribute long row;
+    attribute long col;
+    [Value] static WebCoord fromTextCoord(DOMString coord);
+};
+
+[Prefix="wisdom::"]
 interface WebGame {
     void WebGame (long white_player, long black_player);
+
+    [Ref] WebColoredPieceList getPieceList ();
+
+    void makeMove ([Const, Ref] WebCoord src, [Const, Ref] WebCoord dst);
 
     void setMaxDepth (long max_depth);
     long getMaxDepth ();
     void startWorker ();
-
-    [Ref] WebColoredPieceList getPieceList ();
 };

@@ -32,11 +32,11 @@ interface ColoredPiece {
 }
 
 interface WisdomWindow {
-    game: Game
+    wisdomChessWeb: Game
 }
 
 export function getGame (): Game {
-    return ((window as unknown) as WisdomWindow).game as Game
+    return ((window as unknown) as WisdomWindow).wisdomChessWeb as Game
 }
 
 function mapPieceToIcon(piece: ColoredPiece): string {
