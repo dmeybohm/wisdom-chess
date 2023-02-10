@@ -88,18 +88,31 @@ namespace wisdom
 
   struct WebColoredPiece
   {
-    WebColoredPiece() : color{0}, piece{0} {}
-    WebColoredPiece(int color_, int piece_)
-        : color { color_ }, piece { piece_ }
+    WebColoredPiece() : id { 0 }, color { 0 }, piece { 0 }, row { 0 }, col { 0 }
     {}
 
+    WebColoredPiece(int id_, int color_, int piece_, int row_, int col_)
+        : id { id_ }, color { color_ }, piece { piece_ }, row { row_ },
+          col { col_ }
+    {}
+
+    long id;
     long color;
     long piece;
+    long row;
+    long col;
   };
+
+  auto map_colored_piece (WebColoredPiece colored_piece) -> ColoredPiece
+  {
+    auto mapped_color = map_color (colored_piece.color);
+    auto mapped_type = map_piece (colored_piece.piece);
+    return ColoredPiece::make (mapped_color, mapped_type);
+  }
 
   struct WebColoredPieceList
   {
-    WebColoredPieceList()
+    WebColoredPieceList ()
     {
      clear();
     }
@@ -107,7 +120,7 @@ namespace wisdom
     WebColoredPiece pieces[Num_Squares] {};
     int length = 0;
 
-    void add_piece(WebColoredPiece piece)
+    void add_piece (WebColoredPiece piece)
     {
       pieces[length++] = piece;
     }
@@ -115,8 +128,11 @@ namespace wisdom
     void clear()
     {
       for (int i = 0; i < Num_Squares; i++) {
+        pieces[i].id = 0;
         pieces[i].color = WebColor::NoColor;
         pieces[i].piece = WebPiece::NoPiece;
+        pieces[i].row = 0;
+        pieces[i].col = 0;
       }
       length = 0;
     }
@@ -164,17 +180,83 @@ namespace wisdom
       Game my_game;
       WebColoredPieceList my_pieces;
 
+      auto find_and_remove_id (std::unordered_map<int, WebColoredPiece>& list,
+                              Coord coord_to_find, ColoredPiece piece_to_find) -> int
+      {
+            auto found = std::find_if (list.begin (), list.end (),
+                         [piece_to_find, coord_to_find](const auto& it) -> bool {
+              auto key = it.first;
+              auto value = it.second;
+              auto piece = map_colored_piece (value);
+              auto piece_coord = make_coord (value.row, value.col);
+              return piece_to_find == piece && piece_coord == coord_to_find;
+            });
+
+            if (found != list.end ()) {
+              auto position = found->first;
+              auto value = found->second;
+              return value.id;
+            }
+
+            // find first match by row/column. Otherwise, find first match by
+            // piece / color.
+            return 0;
+      }
+
       void update_piece_list ()
       {
-        const Board& board = my_game.get_board();
-        my_pieces.clear();
+        const Board& board = my_game.get_board ();
+        WebColoredPieceList old_pieces = my_pieces;
+        std::unordered_map<int, WebColoredPiece> list {};
+        std::unordered_map<int, ColoredPiece> deferred {};
+
+        // Index the old pieces to be able to find the old ids:
+        for (int i = 0; i < old_pieces.length; i++) {
+          WebColoredPiece piece = old_pieces.pieces[i];
+          Coord src = make_coord (piece.row, piece.col);
+          list[coord_index (src)] = piece;
+        }
+
         for (int i = 0; i < Num_Squares; i++) {
-          ColoredPiece piece = board.piece_at(make_coord_from_index(i));
+          Coord coord = make_coord_from_index (i);
+          ColoredPiece piece = board.piece_at (coord);
           if (piece != Piece_And_Color_None) {
-            my_pieces.add_piece(WebColoredPiece {
-                to_int(piece.color()),
-                to_int(piece.type())
-            });
+            int id = find_and_remove_id (list, coord, piece);
+            if (id != 0) {
+              WebColoredPiece new_piece = {
+                  id,
+                  to_int(piece.color()),
+                  to_int(piece.type()),
+                  gsl::narrow<int8_t>(Row(coord)),
+                  gsl::narrow<int8_t>(Column(coord)),
+              };
+              my_pieces.add_piece(new_piece);
+            }
+          }
+        }
+
+        if (!deferred.empty ()) {
+          for (auto& value : deferred) {
+            auto colored_piece = value.second;
+            auto pred = [colored_piece](const auto& list_item) -> bool {
+              ColoredPiece value = map_colored_piece (list_item.second);
+              return value == colored_piece;
+            };
+            auto it = std::find_if (list.begin (), list.end (), pred);
+            if (it == list.end ()) {
+              throw new Error { "Couldn't find id." };
+            }
+            auto coord_idx = it->first;
+            auto old_piece = it->second;
+            auto coord = make_coord_from_index (coord_idx);
+            WebColoredPiece new_piece = {
+                old_piece.id,
+                old_piece.color,
+                old_piece.piece,
+                gsl::narrow<int8_t> (Row (coord)),
+                gsl::narrow<int8_t> (Column (coord)),
+            };
+            my_pieces.add_piece(new_piece);
           }
         }
       }

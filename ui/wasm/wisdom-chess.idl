@@ -21,9 +21,12 @@ enum wisdom_WebPiece {
 
 [Prefix="wisdom::"]
 interface WebColoredPiece {
-    void WebColoredPiece(long color, long piece);
+    void WebColoredPiece(long id, long color, long piece, long row, long col);
+    attribute long id;
     attribute long color;
     attribute long piece;
+    attribute long row;
+    attribute long col;
 };
 
 [Prefix="wisdom::"]
@@ -35,11 +38,11 @@ interface WebColoredPieceList {
 
 [Prefix="wisdom::"]
 interface WebGame {
-    void WebGame(long white_player, long black_player);
+    void WebGame (long white_player, long black_player);
 
-    void set_max_depth(long max_depth);
-    long get_max_depth();
-    void start_worker();
+    void set_max_depth (long max_depth);
+    long get_max_depth ();
+    void start_worker ();
 
-    WebColoredPieceList get_piece_list();
+    [Ref] WebColoredPieceList get_piece_list ();
 };
