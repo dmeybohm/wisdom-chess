@@ -35,9 +35,11 @@ Promise.all([
 	// Detour the JS code to a separate variable to avoid instantiating with 'r' array as "this" directly to avoid strict ECMAScript/Firefox GC problems that cause a leak, see https://bugzilla.mozilla.org/show_bug.cgi?id=1540101
 	var js = URL.createObjectURL(new Blob([r[0]], { type: 'application/javascript' }));
 	script(js).then(function(c) {
-		const promise = c({ wasm: r[1],
-		$wb: URL.createObjectURL(new Blob([r[2]], { type: 'application/javascript' })),
-		js: js });
+		const promise = c({
+			wasm: r[1],
+			$wb: URL.createObjectURL(new Blob([r[2]], { type: 'application/javascript' })),
+			js: js
+		});
 		promise.then(module => {
 			WisdomChessWeb = module
 			if (afterWisdomChessModuleLoaded) {
@@ -54,14 +56,7 @@ function afterWisdomChessModuleLoaded(WisdomChessWeb) {
 
 	let g = new WisdomChessWeb.WebGame(WisdomChessWeb.Human, WisdomChessWeb.ChessEngine);
 	window.wisdomChessWeb = WisdomChessWeb
-	window.wisdomChessWebGame = g;
-	g.setMaxDepth( 5 );
-	console.log(g);
-	console.log(g.getMaxDepth());
 
-	const pieces = g.getPieceList();
-	console.log(pieces);
-	console.log(pieces.length);
 	g.startWorker();
 
 	window.startReact();

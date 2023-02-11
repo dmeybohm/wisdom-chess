@@ -1,10 +1,10 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import Square from "./Square";
 import "./Board.css";
 import {initialPieces, Piece} from "./Pieces";
 import {initialSquares, Position} from "./Squares";
 import "./Positions.css"
-import {getGame, getPieces} from "./lib/WisdomChess";
+import {getPieces, makeGame, WisdomChess} from "./lib/WisdomChess";
 
 interface WisdomWindow {
     worker: Worker
@@ -13,8 +13,14 @@ interface WisdomWindow {
 const Board = () => {
     const [squares, setSquares] = useState(initialSquares)
     const [focusedSquare, setFocusedSquare] = useState('')
-    const [game, setGame] = useState(getGame())
-    const [pieces, setPieces] = useState(getPieces(game))
+    const [game, setGame] = useState(() => makeGame())
+    const [pieces, setPieces] = useState(() => getPieces(game))
+
+    useEffect(() => {
+        setPieces(getPieces(game))
+    }, [game])
+
+    const wisdomChess : WisdomChess = WisdomChess()
 
     const findIndexOfPieceAtPosition = (position: string) => {
         return pieces.findIndex(piece => piece.position === position)
@@ -63,11 +69,20 @@ const Board = () => {
             return
         }
         // find the piece at the focused square:
-        const index = findIndexOfPieceAtPosition(src)
-        const piecesCopy = pieces.map(piece => { return { ... piece }; })
-        piecesCopy[index].position = dst
-        setPieces(piecesCopy)
-        setFocusedSquare('');
+        console.log(wisdomChess.WebCoord)
+        console.log(src);
+        console.log(dst);
+        const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
+        const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(dst)
+        const movedSuccess = game.makeMove(srcCoord, dstCoord)
+        if (movedSuccess) {
+            setPieces(oldPieces => getPieces(game))
+        }
+        //
+        // const piecesCopy = pieces.map(piece => { return { ... piece }; })
+        // piecesCopy[index].position = dst
+        // setPieces(piecesCopy)
+        // setFocusedSquare('');
 
         // const worker = ((window as unknown) as WisdomWindow).worker
         // console.log(worker);

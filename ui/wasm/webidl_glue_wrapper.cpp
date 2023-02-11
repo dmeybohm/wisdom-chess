@@ -4,18 +4,7 @@
 
 #include "game.hpp"
 #include "coord.hpp"
-
-extern "C"
-{
-  EM_JS(void, console_log, (const char* str), {
-    console.log(UTF8ToString(str))
-  })
-
-  EMSCRIPTEN_KEEPALIVE void run_in_worker ()
-  {
-    console_log ("Hello from a worker!\n");
-  }
-}
+#include "bindings.hpp"
 
 extern emscripten_wasm_worker_t engine_thread_manager;
 extern emscripten_wasm_worker_t engine_thread;
@@ -64,7 +53,7 @@ namespace wisdom
       case Queen: return Piece::Queen;
       case King: return Piece::King;
       default:
-        throw new Error { "Invalid piec." };
+        throw new Error { "Invalid piece." };
     }
   }
 
@@ -156,10 +145,10 @@ namespace wisdom
     WebCoord (int row_, int col_) : row { row_ }, col { col_ }
     {}
 
-    static auto fromTextCoord(char *coord_text) -> WebCoord
+    static auto fromTextCoord(char *coord_text) -> WebCoord*
     {
       auto coord = coord_parse (coord_text);
-      return WebCoord {
+      return new WebCoord {
         gsl::narrow<int>(Row(coord)), gsl::narrow<int>(Column(coord))
       };
     }
@@ -195,25 +184,38 @@ namespace wisdom
             id++;
           }
         }
-        std::cout << "Finished initializing piece list: " << my_pieces.length;
+        std::cout << "Finished initializing piece list: " << my_pieces.length << "\n";
       }
 
-      auto makeMove (const WebCoord& src, const WebCoord& dst) -> bool
+      auto makeMove (const WebCoord* src, const WebCoord* dst) -> bool
       {
-        auto game_src = make_coord (src.row, src.col);
-        auto game_dst = make_coord (dst.row, dst.col);
+        std::cout << "src: " << src->col << "," << src->row << "\n";
+        std::cout << "dst: " << dst->col << "," << dst->row << "\n";
+
+        auto game_src = make_coord (src->row, src->col);
+        auto game_dst = make_coord (dst->row, dst->col);
+
+        std::cout << "game_src: " << to_string (game_src) << "\n";
+        std::cout << "game_dst: " << to_string (game_dst) << "\n";
 
         auto who = my_game.get_current_turn();
         auto optionalMove = my_game.map_coordinates_to_move (game_src, game_dst, std::nullopt);
+        std::cout << "After map_coordinates" << "\n";
         if (!optionalMove.has_value()) {
+          std::cout << "Failed to map to move" << "\n";
           return false;
         }
         auto move = *optionalMove;
         if (!isLegalMove(move)) {
+          std::cout << "Is not legal move" << "\n";
 //          setMoveStatus("Illegal move");
           return false;
         }
+        std::cout << "Trying to do move: " << to_string (move) << "\n";
         my_game.move (move);
+        std::cout << "Updating piece list..." << "\n";
+        updatePieceList();
+        std::cout << "After updatePieceList()" << "\n";
         return true;
         //auto newColor = updateChessEngineForHumanMove(move);
         //updateDisplayedGameState();
@@ -280,6 +282,7 @@ namespace wisdom
             if (found != list.end ()) {
               auto position = found->first;
               auto value = found->second;
+              list.erase (found);
               return value.id;
             }
 
@@ -288,10 +291,13 @@ namespace wisdom
             return 0;
       }
 
-      void update_piece_list ()
+      void updatePieceList ()
       {
         const Board& board = my_game.get_board ();
+
         WebColoredPieceList old_pieces = my_pieces;
+        my_pieces.clear();
+
         std::unordered_map<int, WebColoredPiece> list {};
         std::unordered_map<int, ColoredPiece> deferred {};
 
@@ -316,6 +322,8 @@ namespace wisdom
                   gsl::narrow<int8_t>(Column(coord)),
               };
               my_pieces.addPiece(new_piece);
+            } else {
+              deferred[i] = piece;
             }
           }
         }
@@ -325,15 +333,16 @@ namespace wisdom
             auto colored_piece = value.second;
             auto pred = [colored_piece](const auto& list_item) -> bool {
               ColoredPiece value = map_colored_piece (list_item.second);
+              std::cout << to_string(value) << "==" << to_string(colored_piece) << "?\n";
               return value == colored_piece;
             };
             auto it = std::find_if (list.begin (), list.end (), pred);
-            if (it != list.end ()) {
+            if (it == list.end ()) {
               throw new Error { "Couldn't find id." };
             }
             auto coord_idx = it->first;
             auto old_piece = it->second;
-            auto coord = make_coord_from_index (coord_idx);
+            auto coord = make_coord_from_index (value.first);
 
             WebColoredPiece new_piece = {
                 old_piece.id,
@@ -347,7 +356,6 @@ namespace wisdom
         }
       }
   };
-
 
 }
 

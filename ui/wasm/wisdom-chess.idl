@@ -42,7 +42,7 @@ interface WebCoord {
     void WebCoord (long row, long col);
     attribute long row;
     attribute long col;
-    [Value] static WebCoord fromTextCoord(DOMString coord);
+    static WebCoord fromTextCoord(DOMString coord);
 };
 
 [Prefix="wisdom::"]
@@ -51,7 +51,7 @@ interface WebGame {
 
     [Ref] WebColoredPieceList getPieceList ();
 
-    void makeMove ([Const, Ref] WebCoord src, [Const, Ref] WebCoord dst);
+    boolean makeMove ([Const] WebCoord src, [Const] WebCoord dst);
 
     void setMaxDepth (long max_depth);
     long getMaxDepth ();

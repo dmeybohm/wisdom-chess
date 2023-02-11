@@ -13,50 +13,29 @@ import BlackQueen from "../assets/Chess_qdt45.svg";
 import BlackRook from "../assets/Chess_rdt45.svg";
 import BlackKing from "../assets/Chess_kdt45.svg";
 
-interface Coord {
-    row: number
-    col: number;
-}
-
-interface Game {
-
-    getPieceList (): ColoredPieceList
-
-    makeMove (src: Coord, dst: Coord): boolean
-}
-
-interface ColoredPieceList {
-    length: number;
-    pieceAt: (index: number) => ColoredPiece
-}
+// These are already described in the iDL: TODO generated typescript from the IDL instead
+export type Game = any
+export type WisdomChess = any
 
 interface ColoredPiece {
-    id: number;
-    color: number;
-    piece: number;
-    row: number;
-    col: number;
-}
-
-interface Coord {
-    row: number
-    col: number
-}
-
-interface WisdomChess {
-    static WebCoord = interface WebCoord {
-        public row: number;
-        public col: number;
-    }
+    color: number
+    piece: number
 }
 
 interface WisdomWindow {
-    wisdomChessWebGame: Game
-    wisdomChessWeb: WisdomChess
+    wisdomChessWeb: unknown
 }
 
-export function getGame (): Game {
-    return ((window as unknown) as WisdomWindow).wisdomChessWeb as Game
+export function makeGame () {
+    const wisdomChess = WisdomChess()
+    if (!wisdomChess.currentGame) {
+        wisdomChess.currentGame = new wisdomChess.WebGame(wisdomChess.Human, wisdomChess.ChessEngine)
+    }
+    return wisdomChess.currentGame
+}
+
+export function WisdomChess(): WisdomChess {
+    return ((window as unknown) as WisdomWindow).wisdomChessWeb as WisdomChess
 }
 
 function mapPieceToIcon(piece: ColoredPiece): string {
@@ -121,8 +100,4 @@ export function getPieces(game: Game): Piece[] {
     }
 
     return result
-}
-
-export function WisdomChess(): WisdomChess {
-    return ((window as unknown) as WisdomChessWindow) as WisdomChess
 }
