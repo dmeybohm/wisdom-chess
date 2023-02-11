@@ -46,21 +46,8 @@ const Board = () => {
             setFocusedSquare(dstSquare)
             return
         }
-        takePiece(srcIndex, dstIndex, dstSquare)
+        handleMovePiece(dstSquare)
         setFocusedSquare('')
-    }
-
-    const takePiece = (srcIndex: number, dstIndex: number, dstSquare: string) => {
-        const takenPiece = pieces[dstIndex]
-        setPieces(pieces.map((piece, index) => {
-                const result = { ... piece };
-                if (index === srcIndex) {
-                    result.position = dstSquare
-                }
-                return result
-            })
-            .filter(piece => piece.position !== dstSquare || piece.color !== takenPiece.color)
-        )
     }
 
     const handleMovePiece = (dst: string) => {
