@@ -354,6 +354,13 @@ namespace wisdom
             my_pieces.addPiece(new_piece);
           }
         }
+
+        // Sort by the ID so that the pieces always have the same order
+        // CSS animations removing the CSS classes will work.
+        std::sort (my_pieces.pieces, my_pieces.pieces + my_pieces.length,
+                  [](const WebColoredPiece& a, const WebColoredPiece& b) {
+          return a.id < b.id;
+        });
       }
   };
 

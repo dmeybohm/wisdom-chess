@@ -29,7 +29,7 @@ interface WisdomWindow {
 export function makeGame () {
     const wisdomChess = WisdomChess()
     if (!wisdomChess.currentGame) {
-        wisdomChess.currentGame = new wisdomChess.WebGame(wisdomChess.Human, wisdomChess.ChessEngine)
+        wisdomChess.currentGame = new wisdomChess.WebGame(wisdomChess.Human, wisdomChess.Human)
     }
     return wisdomChess.currentGame
 }
