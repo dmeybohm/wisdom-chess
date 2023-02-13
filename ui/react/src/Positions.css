@@ -329,3 +329,21 @@
     top: calc(var(--square-size) * 7 );
     left: calc(var(--square-size) * 7 );
 }
+
+.pawn-promotion-dialog {
+    height: calc(var(--square-size) * 4);
+    width: var(--square-size);
+    background: orange;
+    display: flex;
+    flex-direction: column;
+}
+
+.pawn-promotion-dialog.reversed {
+    top: calc(1 * var(--square-size) * 4);
+    flex-direction: column-reverse;
+}
+
+.pawn-promotion-dialog > * {
+    width: var(--square-size);
+    height: var(--square-size);
+}

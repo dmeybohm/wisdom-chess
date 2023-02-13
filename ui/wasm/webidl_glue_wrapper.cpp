@@ -5,6 +5,7 @@
 #include "bindings.hpp"
 #include "coord.hpp"
 #include "game.hpp"
+#include "check.hpp"
 
 extern emscripten_wasm_worker_t engine_thread_manager;
 extern emscripten_wasm_worker_t engine_thread;
@@ -84,6 +85,47 @@ namespace wisdom
             default:
                 throw new Error { "Invalid player." };
         };
+    }
+
+    enum WebGameStatus
+    {
+        Playing,
+        Checkmate,
+        Stalemate,
+        ThreefoldRepetitionReached,
+        ThreefoldRepetitionAccepted,
+        FivefoldRepetitionDraw,
+        FiftyMovesWithoutProgressReached,
+        FiftyMovesWithoutProgressAccepted,
+        SeventyFiveMovesWithoutProgressDraw,
+        InsufficientMaterialDraw,
+    };
+
+    auto map_game_status (int status) -> wisdom::GameStatus
+    {
+        switch (static_cast<WebGameStatus> (status))
+        {
+            case Playing:
+                return GameStatus::Playing;
+            case Checkmate:
+                return GameStatus::Checkmate;
+            case Stalemate:
+                return GameStatus::Stalemate;
+            case ThreefoldRepetitionReached:
+                return GameStatus::ThreefoldRepetitionReached;
+            case ThreefoldRepetitionAccepted:
+                return GameStatus::ThreefoldRepetitionAccepted;
+            case FivefoldRepetitionDraw:
+                return GameStatus::FivefoldRepetitionDraw;
+            case FiftyMovesWithoutProgressReached:
+                return GameStatus::FiftyMovesWithoutProgressReached;
+            case FiftyMovesWithoutProgressAccepted:
+                return GameStatus::FiftyMovesWithoutProgressAccepted;
+            case SeventyFiveMovesWithoutProgressDraw:
+                return GameStatus::SeventyFiveMovesWithoutProgressDraw;
+            case InsufficientMaterialDraw:
+                return GameStatus::InsufficientMaterialDraw;
+        }
     }
 
     struct WebColoredPiece
@@ -171,13 +213,20 @@ namespace wisdom
     private:
         Game my_game;
         WebColoredPieceList my_pieces;
+        std::string my_move_status;
+        std::string my_game_over_status;
 
     public:
+        bool inCheck;
+        char* moveStatus;
+        char* gameOverStatus;
+
         WebGame (int white_player, int black_player) :
                 my_game { map_player (white_player), map_player (black_player) }
         {
             const auto& board = my_game.get_board();
             int id = 1;
+
             for (int i = 0; i < Num_Squares; i++)
             {
                 auto coord = make_coord_from_index (i);
@@ -192,7 +241,21 @@ namespace wisdom
                     id++;
                 }
             }
+
+            update_displayed_game_state();
             std::cout << "Finished initializing piece list: " << my_pieces.length << "\n";
+        }
+
+        auto needsPawnPromotion (const WebCoord *src, const WebCoord *dst) -> bool
+        {
+            auto game_src = make_coord (src->row, src->col);
+            auto game_dst = make_coord (dst->row, dst->col);
+
+            auto optionalMove = my_game.map_coordinates_to_move (game_src, game_dst,
+                                                                 Piece::Queen);
+            if (!optionalMove.has_value())
+                return false;
+            return optionalMove->is_promoting();
         }
 
         auto makeMove (const WebCoord* src, const WebCoord* dst) -> bool
@@ -221,19 +284,19 @@ namespace wisdom
             {
                 std::cout << "Is not legal move"
                           << "\n";
-                //          setMoveStatus("Illegal move");
+                set_move_status ("Illegal move");
                 return false;
             }
             std::cout << "Trying to do move: " << to_string (move) << "\n";
             my_game.move (move);
             std::cout << "Updating piece list..."
                       << "\n";
-            updatePieceList();
+            update_piece_list();
             std::cout << "After updatePieceList()"
                       << "\n";
+            update_displayed_game_state();
             return true;
             // auto newColor = updateChessEngineForHumanMove(move);
-            // updateDisplayedGameState();
             // updateCurrentTurn(newColor);
             // handleMove(wisdom::Player::Human, move, who);
         }
@@ -284,6 +347,8 @@ namespace wisdom
             return my_pieces;
         }
 
+    private:
+
         auto find_and_remove_id (std::unordered_map<int, WebColoredPiece>& list,
                                  Coord coord_to_find, ColoredPiece piece_to_find) -> int
         {
@@ -311,7 +376,7 @@ namespace wisdom
             return 0;
         }
 
-        void updatePieceList()
+        void update_piece_list()
         {
             const Board& board = my_game.get_board();
 
@@ -394,13 +459,104 @@ namespace wisdom
                            return a.id < b.id;
                        });
         }
-    };
 
+        void update_displayed_game_state()
+        {
+            auto who = my_game.get_current_turn();
+            auto& board = my_game.get_board();
+
+            set_move_status ("");
+            set_game_over_status ("");
+            set_in_check (false);
+
+            auto nextStatus = my_game.status();
+
+            switch (nextStatus)
+            {
+                case GameStatus::Playing:
+                    break;
+
+                case GameStatus::Checkmate:
+                {
+                    auto whoString = "<b>Checkmate</b> - " + wisdom::to_string (color_invert (who))
+                        + " wins the game.";
+                    set_game_over_status (whoString);
+                    return;
+                }
+
+                case GameStatus::Stalemate:
+                {
+                    auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>"
+                        + wisdom::to_string (who) + "</b>";
+                    set_game_over_status (stalemateStr);
+                    return;
+                }
+
+                case GameStatus::FivefoldRepetitionDraw:
+                    set_game_over_status ("<b>Draw</b> - Fivefold repetition rule.");
+                    return;
+
+                case GameStatus::ThreefoldRepetitionReached:
+//                    if (getFirstHumanPlayerColor (my_game->get_players()).has_value())
+//                    {
+//                        setThirdRepetitionDrawStatus (DrawStatus::Proposed);
+//                    }
+                    break;
+
+                case GameStatus::FiftyMovesWithoutProgressReached:
+//                    if (getFirstHumanPlayerColor (my_game->get_players()).has_value())
+//                    {
+//                        setFiftyMovesDrawStatus (DrawStatus::Proposed);
+//                    }
+                    break;
+
+                case GameStatus::ThreefoldRepetitionAccepted:
+                    set_game_over_status ("<b>Draw</b> - Threefold repetition rule.");
+                    return;
+
+                case GameStatus::FiftyMovesWithoutProgressAccepted:
+                    set_game_over_status ("<b>Draw</b> - Fifty moves without progress.");
+                    return;
+
+                case GameStatus::SeventyFiveMovesWithoutProgressDraw:
+                    set_game_over_status ("<b>Draw</b> - Seventy-five moves without progress.");
+                    return;
+
+                case GameStatus::InsufficientMaterialDraw:
+                    set_game_over_status ("<b>Draw</b> - Insufficient material to checkmate.");
+                    return;
+            }
+
+            if (wisdom::is_king_threatened (board, who, board.get_king_position (who)))
+            {
+                set_in_check (true);
+            }
+        }
+
+        void set_game_over_status (std::string new_status)
+        {
+            my_game_over_status = std::move (new_status);
+            gameOverStatus = const_cast<char*> (my_game_over_status.c_str());
+        }
+
+        void set_in_check (bool new_in_check)
+        {
+            inCheck = new_in_check;
+        }
+
+        void set_move_status (std::string new_move_status)
+        {
+            my_move_status = std::move (new_move_status);
+            moveStatus = const_cast<char*> (my_move_status.c_str());
+        }
+
+    };
 }
 
 // Map enums to the global namespace:
 using wisdom_WebPlayer = wisdom::WebPlayer;
 using wisdom_WebPiece = wisdom::WebPiece;
 using wisdom_WebColor = wisdom::WebColor;
+using wisdom_WebGameStatus = wisdom::WebGameStatus;
 
 #include "glue.hpp"

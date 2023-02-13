@@ -19,6 +19,19 @@ enum wisdom_WebPiece {
   "wisdom::King"
 };
 
+enum wisdom_WebGameStatus {
+    "wisdom::Playing",
+    "wisdom::Checkmate",
+    "wisdom::Stalemate",
+    "wisdom::ThreefoldRepetitionReached",
+    "wisdom::ThreefoldRepetitionAccepted",
+    "wisdom::FivefoldRepetitionDraw",
+    "wisdom::FiftyMovesWithoutProgressReached",
+    "wisdom::FiftyMovesWithoutProgressAccepted",
+    "wisdom::SeventyFiveMovesWithoutProgressDraw",
+    "wisdom::InsufficientMaterialDraw",
+};
+
 [Prefix="wisdom::"]
 interface WebColoredPiece {
     void WebColoredPiece(long id, long color, long piece, long row, long col);
@@ -51,7 +64,12 @@ interface WebGame {
 
     [Ref] WebColoredPieceList getPieceList ();
 
+    boolean needsPawnPromotion([Const] WebCoord src, [Const] WebCoord dst);
     boolean makeMove ([Const] WebCoord src, [Const] WebCoord dst);
+
+    attribute boolean inCheck;
+    attribute DOMString moveStatus;
+    attribute DOMString gameOverStatus;
 
     void setMaxDepth (long max_depth);
     long getMaxDepth ();

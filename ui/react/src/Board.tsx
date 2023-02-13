@@ -1,20 +1,18 @@
 import React, {useEffect, useState} from 'react'
 import Square from "./Square";
 import "./Board.css";
-import {initialPieces, Piece} from "./Pieces";
+import {Piece} from "./Pieces";
 import {initialSquares, Position} from "./Squares";
 import "./Positions.css"
 import {getPieces, makeGame, WisdomChess} from "./lib/WisdomChess";
-
-interface WisdomWindow {
-    worker: Worker
-}
+import PawnPromotionDialog from "./PawnPromotionDialog";
 
 const Board = () => {
     const [squares, setSquares] = useState(initialSquares)
     const [focusedSquare, setFocusedSquare] = useState('')
     const [game, setGame] = useState(() => makeGame())
     const [pieces, setPieces] = useState(() => getPieces(game))
+    const [pawnPromotionDialogSquare, setPawnPromotionDialogSquare] = useState('');
 
     useEffect(() => {
         setPieces(getPieces(game))
@@ -32,6 +30,7 @@ const Board = () => {
     // - take the piece if the color of the piece is different
     //
     const handlePieceClick = (dstSquare: string) => {
+        setPawnPromotionDialogSquare('')
         if (focusedSquare === '') {
             setFocusedSquare(dstSquare)
             return
@@ -51,29 +50,22 @@ const Board = () => {
     }
 
     const handleMovePiece = (dst: string) => {
+        setPawnPromotionDialogSquare('')
         const src = focusedSquare;
         if (src === '') {
             return
         }
         // find the piece at the focused square:
-        console.log(wisdomChess.WebCoord)
-        console.log(src);
-        console.log(dst);
         const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
         const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(dst)
+        if (game.needsPawnPromotion(srcCoord, dstCoord)) {
+            setPawnPromotionDialogSquare(dst)
+            return
+        }
         const movedSuccess = game.makeMove(srcCoord, dstCoord)
         if (movedSuccess) {
             setPieces(oldPieces => getPieces(game))
         }
-        //
-        // const piecesCopy = pieces.map(piece => { return { ... piece }; })
-        // piecesCopy[index].position = dst
-        // setPieces(piecesCopy)
-        // setFocusedSquare('');
-
-        // const worker = ((window as unknown) as WisdomWindow).worker
-        // console.log(worker);
-        // worker.postMessage('moved ' + src + " -> " + dst)
     }
 
     return (
@@ -95,6 +87,7 @@ const Board = () => {
                     <img alt="piece" src={piece.icon} />
                 </div>
             ))}
+            {pawnPromotionDialogSquare && <PawnPromotionDialog square={pawnPromotionDialogSquare} direction={-1} />}
         </section>
     )
 }
