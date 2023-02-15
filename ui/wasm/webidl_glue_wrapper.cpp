@@ -498,7 +498,7 @@ namespace wisdom
 
                 case GameStatus::Checkmate:
                 {
-                    auto whoString = "<b>Checkmate</b> - " + wisdom::to_string (color_invert (who))
+                    auto whoString = "<strong>Checkmate</strong> - " + wisdom::to_string (color_invert (who))
                         + " wins the game.";
                     set_game_over_status (whoString);
                     return;
@@ -506,14 +506,14 @@ namespace wisdom
 
                 case GameStatus::Stalemate:
                 {
-                    auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>"
-                        + wisdom::to_string (who) + "</b>";
+                    auto stalemateStr = "<strong>Stalemate</strong> - No legal moves for "
+                        + wisdom::to_string (who);
                     set_game_over_status (stalemateStr);
                     return;
                 }
 
                 case GameStatus::FivefoldRepetitionDraw:
-                    set_game_over_status ("<b>Draw</b> - Fivefold repetition rule.");
+                    set_game_over_status ("<strong>Draw</strong> - Fivefold repetition rule.");
                     return;
 
                 case GameStatus::ThreefoldRepetitionReached:
@@ -531,19 +531,19 @@ namespace wisdom
                     break;
 
                 case GameStatus::ThreefoldRepetitionAccepted:
-                    set_game_over_status ("<b>Draw</b> - Threefold repetition rule.");
+                    set_game_over_status ("<strong>Draw</strong> - Threefold repetition rule.");
                     return;
 
                 case GameStatus::FiftyMovesWithoutProgressAccepted:
-                    set_game_over_status ("<b>Draw</b> - Fifty moves without progress.");
+                    set_game_over_status ("<strong>Draw</strong> - Fifty moves without progress.");
                     return;
 
                 case GameStatus::SeventyFiveMovesWithoutProgressDraw:
-                    set_game_over_status ("<b>Draw</b> - Seventy-five moves without progress.");
+                    set_game_over_status ("<strong>Draw</strong> - Seventy-five moves without progress.");
                     return;
 
                 case GameStatus::InsufficientMaterialDraw:
-                    set_game_over_status ("<b>Draw</b> - Insufficient material to checkmate.");
+                    set_game_over_status ("<strong>Draw</strong> - Insufficient material to checkmate.");
                     return;
             }
 
