@@ -1,13 +1,34 @@
 import React, { useState } from 'react'
+import {WisdomChess, Game, PieceColor, pieceColorToString} from "./lib/WisdomChess";
 
-function StatusBar() {
+export interface StatusBarProps {
+    currentTurn: PieceColor
+    inCheck: boolean
+    moveStatus: string
+    gameOverStatus: string
+}
+
+function StatusBar(props: StatusBarProps) {
     return (
         <div className="status-bar">
             <div>
-                <b>White</b> to Move
+                {props.gameOverStatus ? props.gameOverStatus : (
+                    <>
+                        <strong>{pieceColorToString(props.currentTurn)}</strong> to move
+                    </>
+                )}
             </div>
             <div>
-                Check!
+                {
+                    props.moveStatus +
+                    (
+                        Boolean(props.moveStatus) && props.inCheck
+                        ? " - " : ""
+                    ) +
+                    (
+                        props.inCheck && !Boolean(props.gameOverStatus) ? "Check!" : ""
+                    )
+                }
             </div>
         </div>
     )

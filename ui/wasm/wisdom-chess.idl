@@ -71,6 +71,7 @@ interface WebGame {
     attribute DOMString moveStatus;
     attribute DOMString gameOverStatus;
 
+    wisdom_WebColor getCurrentTurn();
     void setMaxDepth (long max_depth);
     long getMaxDepth ();
     void startWorker ();

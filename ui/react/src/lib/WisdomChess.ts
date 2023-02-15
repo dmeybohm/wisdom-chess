@@ -16,6 +16,7 @@ import BlackKing from "../assets/Chess_kdt45.svg";
 // These are already described in the iDL: TODO generated typescript from the IDL instead
 export type Game = any
 export type WisdomChess = any
+export type PieceColor = any
 
 interface ColoredPiece {
     color: number
@@ -100,4 +101,19 @@ export function getPieces(game: Game): Piece[] {
     }
 
     return result
+}
+
+export function pieceColorToString(pieceColor: PieceColor) {
+    const wisdom = WisdomChess()
+    switch (pieceColor)
+    {
+        case wisdom.White:
+            return "White";
+        case wisdom.Black:
+            return "Black";
+        case wisdom.NoColor:
+            return "No Color";
+        default:
+            return "Unknown color";
+    }
 }

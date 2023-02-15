@@ -5,7 +5,7 @@ import TopMenu from "./TopMenu";
 import StatusBar from "./StatusBar";
 import Modal from "./Modal";
 import {initialSquares, Position} from "./Squares";
-import {getPieces, makeGame, WisdomChess} from "./lib/WisdomChess";
+import {getPieces, makeGame, PieceColor, WisdomChess} from "./lib/WisdomChess";
 
 function App() {
 
@@ -24,17 +24,29 @@ function App() {
         setShowSettings(true);
     }
 
+    const wisdomChess : WisdomChess = WisdomChess()
+
     const [squares, setSquares] = useState(initialSquares)
     const [focusedSquare, setFocusedSquare] = useState('')
     const [game, setGame] = useState(() => makeGame())
     const [pieces, setPieces] = useState(() => getPieces(game))
     const [pawnPromotionDialogSquare, setPawnPromotionDialogSquare] = useState('');
+    const [moveStatus, setMoveStatus] = useState('')
+    const [gameOverStatus, setGameOverStatus] = useState('');
+    const [currentTurn, setCurrentTurn] = useState<PieceColor>(wisdomChess.NoColor)
+    const [inCheck, setInCheck] = useState(false)
 
     useEffect(() => {
         setPieces(getPieces(game))
     }, [game])
 
-    const wisdomChess : WisdomChess = WisdomChess()
+    // Update the statuses when the pieces change:
+    useEffect(() => {
+        setGameOverStatus(game.gameOverStatus)
+        setMoveStatus(game.moveStatus)
+        setCurrentTurn(game.getCurrentTurn())
+        setInCheck(game.inCheck)
+    }, [pieces])
 
     const findIndexOfPieceAtPosition = (position: string) => {
         return pieces.findIndex(piece => piece.position === position)
@@ -101,7 +113,12 @@ function App() {
                     pawnPromotionDialogSquare={pawnPromotionDialogSquare}
                 />
 
-                <StatusBar />
+                <StatusBar
+                    currentTurn={currentTurn}
+                    inCheck={inCheck}
+                    moveStatus={moveStatus}
+                    gameOverStatus={gameOverStatus}
+                />
             </div>
             <Modal show={showNewGame}>
                 <h1>New Game</h1>

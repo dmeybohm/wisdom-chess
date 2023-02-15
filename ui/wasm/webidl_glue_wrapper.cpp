@@ -30,7 +30,22 @@ namespace wisdom
             case Black:
                 return Color::Black;
             default:
-                throw new Error { "Invalid color." };
+                throw Error { "Invalid color." };
+        }
+    }
+
+    auto map_color (wisdom::Color color) -> WebColor
+    {
+        switch (color)
+        {
+            case Color::None:
+                return NoColor;
+            case Color::White:
+                return White;
+            case Color::Black:
+                return Black;
+            default:
+                throw Error { "Invalid color." };
         }
     }
 
@@ -64,7 +79,7 @@ namespace wisdom
             case King:
                 return Piece::King;
             default:
-                throw new Error { "Invalid piece." };
+                throw Error { "Invalid piece." };
         }
     }
 
@@ -83,7 +98,7 @@ namespace wisdom
             case ChessEngine:
                 return Player::ChessEngine;
             default:
-                throw new Error { "Invalid player." };
+                throw Error { "Invalid player." };
         };
     }
 
@@ -218,8 +233,8 @@ namespace wisdom
 
     public:
         bool inCheck;
-        char* moveStatus;
-        char* gameOverStatus;
+        char* moveStatus{};
+        char* gameOverStatus{};
 
         WebGame (int white_player, int black_player) :
                 my_game { map_player (white_player), map_player (black_player) }
@@ -347,6 +362,11 @@ namespace wisdom
             return my_pieces;
         }
 
+        auto getCurrentTurn() -> WebColor
+        {
+            return map_color (my_game.get_current_turn());
+        }
+
     private:
 
         auto find_and_remove_id (std::unordered_map<int, WebColoredPiece>& list,
@@ -434,7 +454,7 @@ namespace wisdom
                     auto it = std::find_if (list.begin(), list.end(), pred);
                     if (it == list.end())
                     {
-                        throw new Error { "Couldn't find id." };
+                        throw Error { "Couldn't find id." };
                     }
                     auto coord_idx = it->first;
                     auto old_piece = it->second;
