@@ -51,7 +51,6 @@ Promise.all([
 
 function afterWisdomChessModuleLoaded(WisdomChessWeb) {
 
-	console.log('after wisdom chess module loaded')	;
 	console.log(WisdomChessWeb)
 
 	let g = new WisdomChessWeb.WebGame(WisdomChessWeb.Human, WisdomChessWeb.ChessEngine);

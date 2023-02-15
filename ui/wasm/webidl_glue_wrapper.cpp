@@ -30,7 +30,7 @@ namespace wisdom
             case Black:
                 return Color::Black;
             default:
-                throw new Error { "Invalid color." };
+                throw Error { "Invalid color." };
         }
     }
 
@@ -64,7 +64,7 @@ namespace wisdom
             case King:
                 return Piece::King;
             default:
-                throw new Error { "Invalid piece." };
+                throw Error { "Invalid piece." };
         }
     }
 
@@ -83,7 +83,7 @@ namespace wisdom
             case ChessEngine:
                 return Player::ChessEngine;
             default:
-                throw new Error { "Invalid player." };
+                throw Error { "Invalid player." };
         };
     }
 
@@ -222,7 +222,8 @@ namespace wisdom
         char* gameOverStatus;
 
         WebGame (int white_player, int black_player) :
-                my_game { map_player (white_player), map_player (black_player) }
+                my_game { map_player (white_player), map_player (black_player) },
+                inCheck { false }, moveStatus { nullptr }, gameOverStatus { nullptr }
         {
             const auto& board = my_game.get_board();
             int id = 1;
@@ -434,7 +435,7 @@ namespace wisdom
                     auto it = std::find_if (list.begin(), list.end(), pred);
                     if (it == list.end())
                     {
-                        throw new Error { "Couldn't find id." };
+                        throw Error { "Couldn't find id." };
                     }
                     auto coord_idx = it->first;
                     auto old_piece = it->second;
@@ -469,18 +470,18 @@ namespace wisdom
             set_game_over_status ("");
             set_in_check (false);
 
-            auto nextStatus = my_game.status();
+            auto next_status = my_game.status();
 
-            switch (nextStatus)
+            switch (next_status)
             {
                 case GameStatus::Playing:
                     break;
 
                 case GameStatus::Checkmate:
                 {
-                    auto whoString = "<b>Checkmate</b> - " + wisdom::to_string (color_invert (who))
+                    auto who_string = "<b>Checkmate</b> - " + wisdom::to_string (color_invert (who))
                         + " wins the game.";
-                    set_game_over_status (whoString);
+                    set_game_over_status (who_string);
                     return;
                 }
 

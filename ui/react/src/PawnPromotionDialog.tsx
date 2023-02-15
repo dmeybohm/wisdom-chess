@@ -3,7 +3,7 @@ import WhiteRook from "./assets/Chess_rlt45.svg";
 import WhiteBishop from "./assets/Chess_blt45.svg";
 import WhiteKnight from "./assets/Chess_nlt45.svg";
 
-export default function PawnPromotionDialog(props: { square: string, direction: number }) {
+export default function PawnPromotionDialog(props: { square: string }) {
     const row: number = parseInt(props.square.charAt(1), 10)
     const reversed = row === 1 ? 'reversed' : '';
 
