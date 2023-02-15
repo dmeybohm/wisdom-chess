@@ -232,7 +232,7 @@ namespace wisdom
         std::string my_game_over_status;
 
     public:
-        bool inCheck;
+        bool inCheck = false;
         char* moveStatus{};
         char* gameOverStatus{};
 
