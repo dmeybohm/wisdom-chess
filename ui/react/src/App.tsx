@@ -5,7 +5,7 @@ import TopMenu from "./TopMenu";
 import StatusBar from "./StatusBar";
 import Modal from "./Modal";
 import { initialSquares, Position } from "./Squares";
-import { Game, getPieces, makeGame, PieceColor, WisdomChess } from "./lib/WisdomChess";
+import { getPieces, makeGame, PieceColor, WisdomChess } from "./lib/WisdomChess";
 import { Piece } from "./Pieces";
 
 interface GameState {
@@ -26,8 +26,8 @@ type Action =
     | { type: 'move-piece', dst: string }
     | { type: 'piece-click', dst: string }
 
-function findIndexOfPieceAtPosition(pieces: Piece[], position: string) {
-    return pieces.findIndex(piece => piece.position === position)
+function findPieceAtPosition(pieces: Piece[], position: string): Piece|undefined {
+    return pieces.find(piece => piece.position === position)
 }
 
 function gameStateReducer(state: GameState, action: Action): GameState {
@@ -73,12 +73,9 @@ function gameStateReducer(state: GameState, action: Action): GameState {
             }
 
             // Change focus if piece is the same color:
-            const dstIndex = findIndexOfPieceAtPosition(newState.pieces, action.dst)
-            const srcIndex = findIndexOfPieceAtPosition(newState.pieces, newState.focusedSquare)
-            if (dstIndex === -1 ||
-                srcIndex === -1 ||
-                newState.pieces[dstIndex].color === newState.pieces[srcIndex].color
-            ) {
+            const dstPiece = findPieceAtPosition(newState.pieces, action.dst)
+            const srcPiece = findPieceAtPosition(newState.pieces, newState.focusedSquare)
+            if (!dstPiece || !srcPiece || srcPiece.color === dstPiece.color) {
                 newState.focusedSquare = action.dst
                 return updateGameStateFromGame(newState)
             }
@@ -112,7 +109,6 @@ function updateGameStateFromGame(gameState: GameState) {
 }
 
 const initialState = {
-    game: null,
     squares: initialSquares,
     focusedSquare: '',
     pieces: [],
@@ -161,8 +157,8 @@ function App() {
                     squares={gameState.squares}
                     focusedSquare={gameState.focusedSquare}
                     pieces={gameState.pieces}
-                    handleMovePiece={(dst: string) => dispatch({type: 'move-piece', dst: dst})}
-                    handlePieceClick={(dst: string) => dispatch({type: 'piece-click', dst: dst})}
+                    handleMovePiece={dst => dispatch({type: 'move-piece', dst})}
+                    handlePieceClick={dst => dispatch({type: 'piece-click', dst})}
                     pawnPromotionDialogSquare={gameState.pawnPromotionDialogSquare}
                 />
 
