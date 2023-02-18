@@ -74,5 +74,5 @@ interface WebGame {
     wisdom_WebColor getCurrentTurn();
     void setMaxDepth (long max_depth);
     long getMaxDepth ();
-    void startWorker ();
+    void initializeWorker ();
 };

@@ -54,12 +54,21 @@ function afterWisdomChessModuleLoaded(WisdomChessWeb) {
 	console.log('after wisdom chess module loaded')	;
 	console.log(WisdomChessWeb)
 
-	let g = new WisdomChessWeb.WebGame(WisdomChessWeb.Human, WisdomChessWeb.ChessEngine);
 	window.wisdomChessWeb = WisdomChessWeb
 
-	g.startWorker();
-
 	window.startReact();
+}
+
+function receiveWorkerMessage(type, message) {
+	console.log('Received worker message: ', type, message)
+	// Dispatch event from document.
+	const convertedStr = message + ""
+	if (type === "computerMoved" && window.computerMoved) {
+		window.computerMoved({ detail: message });
+	}
+	// window.dispatchEvent(new CustomEvent(convertedStr, {
+	// 	detail: { message: message }
+	// }));
 }
 
 // Hmm, how are those workers going to notify the main thread?

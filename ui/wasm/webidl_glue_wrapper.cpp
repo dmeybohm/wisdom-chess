@@ -261,7 +261,7 @@ namespace wisdom
             std::cout << "Finished initializing piece list: " << my_pieces.length << "\n";
         }
 
-        auto needsPawnPromotion (const WebCoord *src, const WebCoord *dst) -> bool
+        auto needsPawnPromotion (const WebCoord* src, const WebCoord* dst) -> bool
         {
             auto game_src = make_coord (src->row, src->col);
             auto game_dst = make_coord (dst->row, dst->col);
@@ -310,6 +310,8 @@ namespace wisdom
             std::cout << "After updatePieceList()"
                       << "\n";
             update_displayed_game_state();
+
+            send_move_to_worker (move);
             return true;
             // auto newColor = updateChessEngineForHumanMove(move);
             // updateCurrentTurn(newColor);
@@ -350,10 +352,10 @@ namespace wisdom
             return result;
         }
 
-        void startWorker()
+        void initializeWorker()
         {
             std::cout << "Inside start_worker (a bit of a misnomer now?)\n";
-            emscripten_wasm_worker_post_function_v (engine_thread_manager, run_in_worker);
+            emscripten_wasm_worker_post_function_v (engine_thread_manager, worker_initialize_game);
             std::cout << "Exiting start_worker\n";
         }
 
@@ -464,8 +466,8 @@ namespace wisdom
                         old_piece.id,
                         old_piece.color,
                         old_piece.piece,
-                        gsl::narrow<int8_t> (Row (coord)),
-                        gsl::narrow<int8_t> (Column (coord)),
+                        Row<int8_t> (coord),
+                        Column<int8_t> (coord),
                     };
                     my_pieces.addPiece (new_piece);
                 }
@@ -551,6 +553,15 @@ namespace wisdom
             {
                 set_in_check (true);
             }
+        }
+
+        void send_move_to_worker (Move move)
+        {
+            emscripten_wasm_worker_post_function_vi (
+                engine_thread,
+                worker_receive_move,
+                move.to_int()
+            );
         }
 
         void set_game_over_status (std::string new_status)

@@ -27,10 +27,11 @@ interface WisdomWindow {
     wisdomChessWeb: unknown
 }
 
-export function makeGame () {
+export function getCurrentGame () {
     const wisdomChess = WisdomChess()
     if (!wisdomChess.currentGame) {
         wisdomChess.currentGame = new wisdomChess.WebGame(wisdomChess.Human, wisdomChess.Human)
+        wisdomChess.currentGame.initializeWorker()
     }
     return wisdomChess.currentGame
 }

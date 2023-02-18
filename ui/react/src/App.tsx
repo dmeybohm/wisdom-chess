@@ -5,25 +5,28 @@ import TopMenu from "./TopMenu";
 import StatusBar from "./StatusBar";
 import Modal from "./Modal";
 import { initialSquares, Position } from "./Squares";
-import { getPieces, makeGame, PieceColor, WisdomChess } from "./lib/WisdomChess";
+import { getPieces, getCurrentGame, PieceColor, WisdomChess } from "./lib/WisdomChess";
 import { Piece } from "./Pieces";
 
-interface GameState {
-    squares:  Position[]
-    focusedSquare: string
-    pieces: Piece[]
-    pawnPromotionDialogSquare: string
-    moveStatus: string
-    gameOverStatus: string
-    currentTurn: PieceColor
-    inCheck: boolean
+const initialState = {
+    squares: initialSquares,
+    pieces: [] as Piece[],
+    focusedSquare: '',
+    pawnPromotionDialogSquare: '',
+    moveStatus: '',
+    gameOverStatus: '',
+    currentTurn: 0 as PieceColor,
+    inCheck: false,
 }
+
+type GameState = typeof initialState;
 
 // This is the web assembly module. It's constant across changes:
 let wisdomChess : any = undefined
 
 type Action =
     | { type: 'move-piece', dst: string }
+    | { type: 'computer-move-piece', src: string, dst: string }
     | { type: 'piece-click', dst: string }
 
 function findPieceAtPosition(pieces: Piece[], position: string): Piece|undefined {
@@ -32,7 +35,7 @@ function findPieceAtPosition(pieces: Piece[], position: string): Piece|undefined
 
 function gameStateReducer(state: GameState, action: Action): GameState {
     const newState = { ... state }
-    const currentGame = makeGame()
+    const currentGame = getCurrentGame()
 
     switch (action.type) {
         case 'move-piece':
@@ -48,8 +51,7 @@ function gameStateReducer(state: GameState, action: Action): GameState {
                 newState.pawnPromotionDialogSquare = action.dst
                 return updateGameStateFromGame(newState)
             }
-            const movedSuccess = currentGame.makeMove(srcCoord, dstCoord)
-            // todo set error if move state
+            currentGame.makeMove(srcCoord, dstCoord)
             return updateGameStateFromGame(newState)
 
         //
@@ -80,13 +82,24 @@ function gameStateReducer(state: GameState, action: Action): GameState {
                 return updateGameStateFromGame(newState)
             }
 
-            // take the piece:
-            const updated = gameStateReducer(
-                updateGameStateFromGame(newState),
-                { type:'move-piece', dst: action.dst}
-            )
-            newState.focusedSquare = ''
-            return updated
+            // take the piece with the move-piece action, and then remove the focus:
+            return {
+                ... gameStateReducer(
+                    updateGameStateFromGame(newState),
+                    {type: 'move-piece', dst: action.dst}
+                ),
+                focusedSquare: ''
+            }
+
+        case 'computer-move-piece':
+            newState.focusedSquare = action.src
+            return {
+                ... gameStateReducer(
+                    updateGameStateFromGame(newState),
+                    {type: 'move-piece', dst: action.dst}
+                ),
+                focusedSquare: ''
+            }
 
         default:
             return newState
@@ -97,7 +110,7 @@ function gameStateReducer(state: GameState, action: Action): GameState {
 // Update the reactive state from any changes on the Game object.
 //
 function updateGameStateFromGame(gameState: GameState) {
-    const currentGame = makeGame()
+    const currentGame = getCurrentGame()
     return {
         ... gameState,
         pieces: getPieces(currentGame),
@@ -106,17 +119,6 @@ function updateGameStateFromGame(gameState: GameState) {
         currentTurn: currentGame.getCurrentTurn(),
         inCheck: currentGame.inCheck
     }
-}
-
-const initialState = {
-    squares: initialSquares,
-    focusedSquare: '',
-    pieces: [],
-    pawnPromotionDialogSquare: '',
-    moveStatus: '',
-    gameOverStatus: '',
-    currentTurn: 0,
-    inCheck: false,
 }
 
 function App() {
@@ -144,6 +146,21 @@ function App() {
     const [gameState, dispatch] = useReducer(gameStateReducer, initialState, () => {
         return updateGameStateFromGame(initialState)
     })
+
+    useEffect(() => {
+        const listener = (event: CustomEvent) => {
+            console.log('computerMoved', event.detail)
+            const move = event.detail.split(' ')
+
+            // handle castle / promotion etc
+            dispatch({type: 'computer-move-piece', src: move[0], dst: move[1]})
+        }
+        (window as any).computerMoved = listener;
+        window.addEventListener('computerMoved', listener as EventListener);
+        return () => {
+            window.removeEventListener('computerMoved', listener as EventListener)
+        }
+    }, [])
 
     return (
         <div className="App">
