@@ -99,7 +99,7 @@ namespace wisdom
                 return Player::ChessEngine;
             default:
                 throw Error { "Invalid player." };
-        };
+        }
     }
 
     enum WebGameStatus
