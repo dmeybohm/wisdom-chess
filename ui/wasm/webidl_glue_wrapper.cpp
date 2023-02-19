@@ -311,7 +311,10 @@ namespace wisdom
                       << "\n";
             update_displayed_game_state();
 
-            send_move_to_worker (move);
+            // todo get if it's a computer:
+            if (my_game.get_current_turn() == Color::Black)
+                send_move_to_worker (move);
+
             return true;
             // auto newColor = updateChessEngineForHumanMove(move);
             // updateCurrentTurn(newColor);
@@ -355,7 +358,7 @@ namespace wisdom
         void initializeWorker()
         {
             std::cout << "Inside start_worker (a bit of a misnomer now?)\n";
-            emscripten_wasm_worker_post_function_v (engine_thread_manager, worker_initialize_game);
+            emscripten_wasm_worker_post_function_v (engine_thread, worker_initialize_game);
             std::cout << "Exiting start_worker\n";
         }
 
