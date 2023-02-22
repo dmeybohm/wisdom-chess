@@ -5,7 +5,17 @@ import TopMenu from "./TopMenu";
 import StatusBar from "./StatusBar";
 import Modal from "./Modal";
 import { initialSquares, Position } from "./Squares";
-import { getPieces, getCurrentGame, PieceColor, WisdomChess, Move, WebMove } from "./lib/WisdomChess";
+import {
+    getPieces,
+    getCurrentGame,
+    PieceColor,
+    WisdomChess,
+    Move,
+    WebMove,
+    Game,
+    HumanMove,
+    ComputerMove
+} from "./lib/WisdomChess";
 import { Piece } from "./lib/Pieces";
 
 const initialState = {
@@ -37,6 +47,17 @@ function findPieceAtPosition(pieces: Piece[], position: string): Piece|undefined
     return pieces.find(piece => piece.position === position)
 }
 
+function convertHumanMove(game: Game, humanMove: HumanMove): WebMove {
+    // find the piece at the focused square:
+    const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(humanMove.src)
+    const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(humanMove.dst)
+    return getCurrentGame().createMoveFromCoordinatesAndPromotedPiece(
+        srcCoord,
+        dstCoord,
+        humanMove.promotedPieceType,
+    )
+}
+
 function gameStateReducer(state: GameState, action: Action): GameState {
     const newState = { ... state }
     const currentGame = getCurrentGame()
@@ -49,21 +70,25 @@ function gameStateReducer(state: GameState, action: Action): GameState {
             if (src === '') {
                 return newState
             }
-            // find the piece at the focused square:
             const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
             const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(action.dst)
+
+            if (!currentGame.createMoveFromCoordinatesAndPromotedPiece(srcCoord, dstCoord)) {
+                newState.focusedSquare = ''
+                return newState
+            }
             if (currentGame.needsPawnPromotion(srcCoord, dstCoord)) {
                 newState.pawnPromotionDialogSquare = action.dst
                 return newState
             }
-            move = currentGame.createMoveFromCoordinatesAndPromotedPiece(
-                srcCoord,
-                dstCoord,
-                0,
-            )
             newState.moves = [
                 ... newState.moves,
-                move.asString()
+                {
+                    type: 'human',
+                    src: src,
+                    dst: action.dst,
+                    promotedPieceType: 0
+                }
             ]
             return newState
 
@@ -107,7 +132,10 @@ function gameStateReducer(state: GameState, action: Action): GameState {
         case 'computer-move-piece':
             newState.moves = [
                 ... newState.moves,
-                action.move.asString()
+                {
+                    type: 'computer',
+                    move: action.move.asString()
+                }
             ]
             return newState
 
@@ -123,7 +151,10 @@ function applyMoveListChanges(gameState: GameState) {
     const currentGame = getCurrentGame()
     if (currentGame.moveNumber < gameState.moves.length) {
         const nextMove = gameState.moves[currentGame.moveNumber];
-        const move = wisdomChess.WebMove.prototype.fromString(nextMove, currentGame.currentTurn)
+        const currentColor = currentGame.getCurrentTurn()
+        const move = nextMove.type === 'human'
+            ? convertHumanMove(currentGame, nextMove as HumanMove)
+            : wisdomChess.WebMove.prototype.fromString((nextMove as ComputerMove).move, currentGame.getCurrentTurn())
         currentGame.makeMove(move)
     }
 }
@@ -174,7 +205,7 @@ function App() {
     useEffect(() => {
         const listener = (event: CustomEvent) => {
             console.log('computerMoved', event.detail)
-            const move = wisdomChess.WebMove.prototype.fromString(event.detail);
+            const move = wisdomChess.WebMove.prototype.fromString(event.detail, getCurrentGame().getCurrentTurn());
             // handle castle / promotion etc
             dispatch({type: 'computer-move-piece', move: move as WebMove })
         }

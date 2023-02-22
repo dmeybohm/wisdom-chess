@@ -5,9 +5,7 @@ import './index.css'
 
 function startReact() {
     ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-        <React.StrictMode>
-            <App/>
-        </React.StrictMode>,
+        <App/>
     )
 }
 interface ReactWindow {

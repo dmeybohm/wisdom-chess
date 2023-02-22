@@ -20,6 +20,7 @@ export type PieceColor = any
 export type WebMove = {
     asString(): string
 }
+export type PieceType = any
 
 interface ColoredPiece {
     color: number
@@ -30,7 +31,22 @@ interface WisdomWindow {
     wisdomChessWeb: unknown
 }
 
-export type Move = string
+
+export type MoveType = 'human' | 'computer'
+
+export interface ComputerMove {
+    type: MoveType
+    move: string
+}
+
+export interface HumanMove {
+    type: MoveType
+    src: string,
+    dst: string,
+    promotedPieceType: PieceType
+}
+
+export type Move = ComputerMove | HumanMove;
 
 export function getCurrentGame () {
     const wisdomChess = WisdomChess()

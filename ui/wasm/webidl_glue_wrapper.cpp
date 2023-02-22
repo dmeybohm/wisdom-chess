@@ -231,10 +231,10 @@ namespace wisdom
         Move my_move;
 
     public:
-        WebMove (Move move) : my_move { move }
+        explicit WebMove (Move move) : my_move { move }
         {}
 
-        static auto fromString (char* string, int who)-> WebMove*
+        static auto fromString (char* string, int who) -> WebMove*
         {
             std::string tmp { string };
             auto color = map_color (who);
@@ -242,17 +242,15 @@ namespace wisdom
             return result;
         }
 
-        auto get_move() const -> Move
+        [[nodiscard]] auto get_move() const -> Move
         {
             return my_move;
         }
 
-        auto asString() const -> char*
+        [[nodiscard]] auto asString() const -> char*
         {
             std::string str = to_string (my_move);
-            auto result  = new char[str.length() + 1];
-            strcpy (result, str.c_str ());
-            return result;
+            return strdup (str.c_str());
         }
     };
 
@@ -312,7 +310,6 @@ namespace wisdom
             auto game_src = make_coord (src->row, src->col);
             auto game_dst = make_coord (dst->row, dst->col);
 
-            auto who = my_game.get_current_turn();
             auto optionalMove = my_game.map_coordinates_to_move (game_src, game_dst,
                                                                  map_piece (promoted_piece_type));
 
@@ -324,20 +321,19 @@ namespace wisdom
             }
 
             auto move = *optionalMove;
+            if (!isLegalMove (move))
+            {
+                std::cout << "Is not legal move"
+                          << "\n";
+                set_move_status ("Illegal move");
+                return nullptr;
+            }
             return new WebMove { move };
         }
 
         auto makeMove (const WebMove* move_param) -> bool
         {
             Move move = move_param->get_move();
-
-            if (!isLegalMove (move))
-            {
-                std::cout << "Is not legal move"
-                          << "\n";
-                set_move_status ("Illegal move");
-                return false;
-            }
 
             std::cout << "Trying to do move: " << to_string (move) << "\n";
             my_game.move (move);
