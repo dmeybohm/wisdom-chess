@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import Square from "./Square";
 import "./Board.css";
-import {Piece} from "./lib/Pieces";
-import {Position} from "./Squares";
+import { Piece } from "./lib/Pieces";
+import { Position } from "./Squares";
 import "./Positions.css"
 import PawnPromotionDialog from "./PawnPromotionDialog";
 
@@ -35,7 +35,8 @@ const Board = (props: BoardProps) => {
                     <img alt="piece" src={piece.icon} />
                 </div>
             ))}
-            {props.pawnPromotionDialogSquare && <PawnPromotionDialog square={props.pawnPromotionDialogSquare} direction={-1} />}
+            {props.pawnPromotionDialogSquare &&
+                <PawnPromotionDialog square={props.pawnPromotionDialogSquare} direction={-1} />}
         </section>
     )
 }
