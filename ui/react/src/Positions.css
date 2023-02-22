@@ -202,7 +202,7 @@
 
 .piece.a3 {
     top: calc(var(--square-size) * 5 );
-    left: calc(var(--square-size) * 4 );
+    left: calc(var(--square-size) * 0 );
 }
 
 .piece.b3 {

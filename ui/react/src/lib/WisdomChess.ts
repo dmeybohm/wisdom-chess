@@ -1,4 +1,4 @@
-import {Color, Piece} from "../Pieces";
+import {Color, Piece} from "./Pieces";
 
 import WhitePawn from "../assets/Chess_plt45.svg";
 import WhiteBishop from "../assets/Chess_blt45.svg";
@@ -13,10 +13,13 @@ import BlackQueen from "../assets/Chess_qdt45.svg";
 import BlackRook from "../assets/Chess_rdt45.svg";
 import BlackKing from "../assets/Chess_kdt45.svg";
 
-// These are already described in the iDL: TODO generated typescript from the IDL instead
+// These are already described in the IDL:
 export type Game = any
 export type WisdomChess = any
 export type PieceColor = any
+export type WebMove = {
+    asString(): string
+}
 
 interface ColoredPiece {
     color: number
@@ -26,6 +29,8 @@ interface ColoredPiece {
 interface WisdomWindow {
     wisdomChessWeb: unknown
 }
+
+export type Move = string
 
 export function getCurrentGame () {
     const wisdomChess = WisdomChess()

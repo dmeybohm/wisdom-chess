@@ -1,22 +1,26 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useMemo, useReducer, useState } from 'react'
 import './App.css'
 import Board from "./Board";
 import TopMenu from "./TopMenu";
 import StatusBar from "./StatusBar";
 import Modal from "./Modal";
 import { initialSquares, Position } from "./Squares";
-import { getPieces, getCurrentGame, PieceColor, WisdomChess } from "./lib/WisdomChess";
-import { Piece } from "./Pieces";
+import { getPieces, getCurrentGame, PieceColor, WisdomChess, Move, WebMove } from "./lib/WisdomChess";
+import { Piece } from "./lib/Pieces";
 
 const initialState = {
     squares: initialSquares,
-    pieces: [] as Piece[],
+    moves: [] as Move[],
     focusedSquare: '',
     pawnPromotionDialogSquare: '',
-    moveStatus: '',
-    gameOverStatus: '',
-    currentTurn: 0 as PieceColor,
-    inCheck: false,
+}
+
+type MoveState = {
+    moveStatus: string,
+    gameOverStatus: string,
+    currentTurn:  PieceColor,
+    inCheck: boolean,
+    pieces: Piece[],
 }
 
 type GameState = typeof initialState;
@@ -26,8 +30,8 @@ let wisdomChess : any = undefined
 
 type Action =
     | { type: 'move-piece', dst: string }
-    | { type: 'computer-move-piece', src: string, dst: string }
-    | { type: 'piece-click', dst: string }
+    | { type: 'computer-move-piece', move: WebMove }
+    | { type: 'piece-click', dst: string, pieces: Piece[] }
 
 function findPieceAtPosition(pieces: Piece[], position: string): Piece|undefined {
     return pieces.find(piece => piece.position === position)
@@ -36,23 +40,32 @@ function findPieceAtPosition(pieces: Piece[], position: string): Piece|undefined
 function gameStateReducer(state: GameState, action: Action): GameState {
     const newState = { ... state }
     const currentGame = getCurrentGame()
+    let move;
 
     switch (action.type) {
         case 'move-piece':
             newState.pawnPromotionDialogSquare = ''
             const src = newState.focusedSquare;
             if (src === '') {
-                return updateGameStateFromGame(newState)
+                return newState
             }
             // find the piece at the focused square:
             const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
             const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(action.dst)
             if (currentGame.needsPawnPromotion(srcCoord, dstCoord)) {
                 newState.pawnPromotionDialogSquare = action.dst
-                return updateGameStateFromGame(newState)
+                return newState
             }
-            currentGame.makeMove(srcCoord, dstCoord)
-            return updateGameStateFromGame(newState)
+            move = currentGame.createMoveFromCoordinatesAndPromotedPiece(
+                srcCoord,
+                dstCoord,
+                0,
+            )
+            newState.moves = [
+                ... newState.moves,
+                move.asString()
+            ]
+            return newState
 
         //
         // Either:
@@ -65,41 +78,38 @@ function gameStateReducer(state: GameState, action: Action): GameState {
             // begin focus if no focus already:
             if (newState.focusedSquare === '') {
                 newState.focusedSquare = action.dst
-                return updateGameStateFromGame(newState)
+                return newState
             }
 
             // toggle focus if already focused:
             if (newState.focusedSquare === action.dst) {
                 newState.focusedSquare = ''
-                return updateGameStateFromGame(newState)
+                return newState
             }
 
             // Change focus if piece is the same color:
-            const dstPiece = findPieceAtPosition(newState.pieces, action.dst)
-            const srcPiece = findPieceAtPosition(newState.pieces, newState.focusedSquare)
+            const dstPiece = findPieceAtPosition(action.pieces, action.dst)
+            const srcPiece = findPieceAtPosition(action.pieces, newState.focusedSquare)
             if (!dstPiece || !srcPiece || srcPiece.color === dstPiece.color) {
                 newState.focusedSquare = action.dst
-                return updateGameStateFromGame(newState)
+                return newState
             }
 
             // take the piece with the move-piece action, and then remove the focus:
             return {
                 ... gameStateReducer(
-                    updateGameStateFromGame(newState),
+                    newState,
                     {type: 'move-piece', dst: action.dst}
                 ),
                 focusedSquare: ''
             }
 
         case 'computer-move-piece':
-            newState.focusedSquare = action.src
-            return {
-                ... gameStateReducer(
-                    updateGameStateFromGame(newState),
-                    {type: 'move-piece', dst: action.dst}
-                ),
-                focusedSquare: ''
-            }
+            newState.moves = [
+                ... newState.moves,
+                action.move.asString()
+            ]
+            return newState
 
         default:
             return newState
@@ -107,17 +117,28 @@ function gameStateReducer(state: GameState, action: Action): GameState {
 }
 
 //
+// Check if the number of moves is not equal, and we need to apply / remove moves:
+//
+function applyMoveListChanges(gameState: GameState) {
+    const currentGame = getCurrentGame()
+    if (currentGame.moveNumber < gameState.moves.length) {
+        const nextMove = gameState.moves[currentGame.moveNumber];
+        const move = wisdomChess.WebMove.prototype.fromString(nextMove, currentGame.currentTurn)
+        currentGame.makeMove(move)
+    }
+}
+
+//
 // Update the reactive state from any changes on the Game object.
 //
-function updateGameStateFromGame(gameState: GameState) {
+function newMoveState(): MoveState {
     const currentGame = getCurrentGame()
     return {
-        ... gameState,
         pieces: getPieces(currentGame),
         moveStatus: currentGame.moveStatus,
         gameOverStatus: currentGame.gameOverStatus,
         currentTurn: currentGame.getCurrentTurn(),
-        inCheck: currentGame.inCheck
+        inCheck: currentGame.inCheck,
     }
 }
 
@@ -143,17 +164,19 @@ function App() {
         setShowSettings(true);
     }
 
-    const [gameState, dispatch] = useReducer(gameStateReducer, initialState, () => {
-        return updateGameStateFromGame(initialState)
-    })
+    const [gameState, dispatch] = useReducer(gameStateReducer, initialState)
+
+    const moveState = useMemo(() => {
+        applyMoveListChanges(gameState)
+        return newMoveState()
+    }, [gameState.moves])
 
     useEffect(() => {
         const listener = (event: CustomEvent) => {
             console.log('computerMoved', event.detail)
-            const move = event.detail.split(' ')
-
+            const move = wisdomChess.WebMove.prototype.fromString(event.detail);
             // handle castle / promotion etc
-            dispatch({type: 'computer-move-piece', src: move[0], dst: move[1]})
+            dispatch({type: 'computer-move-piece', move: move as WebMove })
         }
         (window as any).computerMoved = listener;
         window.addEventListener('computerMoved', listener as EventListener);
@@ -173,17 +196,17 @@ function App() {
                 <Board
                     squares={gameState.squares}
                     focusedSquare={gameState.focusedSquare}
-                    pieces={gameState.pieces}
+                    pieces={moveState.pieces}
                     handleMovePiece={dst => dispatch({type: 'move-piece', dst})}
-                    handlePieceClick={dst => dispatch({type: 'piece-click', dst})}
+                    handlePieceClick={dst => dispatch({type: 'piece-click', dst, pieces: moveState.pieces})}
                     pawnPromotionDialogSquare={gameState.pawnPromotionDialogSquare}
                 />
 
                 <StatusBar
-                    currentTurn={gameState.currentTurn}
-                    inCheck={gameState.inCheck}
-                    moveStatus={gameState.moveStatus}
-                    gameOverStatus={gameState.gameOverStatus}
+                    currentTurn={moveState.currentTurn}
+                    inCheck={moveState.inCheck}
+                    moveStatus={moveState.moveStatus}
+                    gameOverStatus={moveState.gameOverStatus}
                 />
             </div>
             <Modal show={showNewGame}>

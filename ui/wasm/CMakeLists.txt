@@ -40,10 +40,17 @@ target_include_directories(wisdom-chess-web
         INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE   ${CMAKE_CURRENT_BINARY_DIR}
 )
-target_compile_options(wisdom-chess-web PRIVATE "-sWASM_WORKERS")
-target_link_options(wisdom-chess-web PRIVATE
+target_compile_options(wisdom-chess-web PRIVATE
+        $<$<CONFIG:Debug>:-sNO_DISABLE_EXCEPTION_CATCHING>
         "-sWASM_WORKERS"
+)
+target_link_options(wisdom-chess-web PRIVATE
+        "SHELL:-s WASM_WORKERS"
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+        "SHELL:-s DEMANGLE_SUPPORT=1"
         "SHELL:-s MODULARIZE=1"
+        $<$<CONFIG:Debug>:-sASSERTIONS=2>
+        $<$<CONFIG:Debug>:-sNO_DISABLE_EXCEPTION_CATCHING>
         "SHELL:-s EXPORT_NAME='wisdomChessWeb'"
         "SHELL:-s EXPORTED_FUNCTIONS=['_malloc, _free, _main']"
         --post-js ${CMAKE_CURRENT_BINARY_DIR}/glue.js

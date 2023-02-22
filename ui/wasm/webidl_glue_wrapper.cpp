@@ -223,6 +223,39 @@ namespace wisdom
         }
     };
 
+    class WebGame;
+
+    class WebMove
+    {
+    private:
+        Move my_move;
+
+    public:
+        WebMove (Move move) : my_move { move }
+        {}
+
+        static auto fromString (char* string, int who)-> WebMove*
+        {
+            std::string tmp { string };
+            auto color = map_color (who);
+            auto result = new WebMove ( wisdom::move_parse (tmp, color) );
+            return result;
+        }
+
+        auto get_move() const -> Move
+        {
+            return my_move;
+        }
+
+        auto asString() const -> char*
+        {
+            std::string str = to_string (my_move);
+            auto result  = new char[str.length() + 1];
+            strcpy (result, str.c_str ());
+            return result;
+        }
+    };
+
     class WebGame
     {
     private:
@@ -235,6 +268,7 @@ namespace wisdom
         bool inCheck = false;
         char* moveStatus{};
         char* gameOverStatus{};
+        int moveNumber{};
 
         WebGame (int white_player, int black_player) :
                 my_game { map_player (white_player), map_player (black_player) }
@@ -258,7 +292,6 @@ namespace wisdom
             }
 
             update_displayed_game_state();
-            std::cout << "Finished initializing piece list: " << my_pieces.length << "\n";
         }
 
         auto needsPawnPromotion (const WebCoord* src, const WebCoord* dst) -> bool
@@ -273,28 +306,31 @@ namespace wisdom
             return optionalMove->is_promoting();
         }
 
-        auto makeMove (const WebCoord* src, const WebCoord* dst) -> bool
+        auto createMoveFromCoordinatesAndPromotedPiece (const WebCoord* src, const WebCoord* dst,
+                                                        int promoted_piece_type) -> WebMove*
         {
-            std::cout << "src: " << src->col << "," << src->row << "\n";
-            std::cout << "dst: " << dst->col << "," << dst->row << "\n";
-
             auto game_src = make_coord (src->row, src->col);
             auto game_dst = make_coord (dst->row, dst->col);
 
-            std::cout << "game_src: " << to_string (game_src) << "\n";
-            std::cout << "game_dst: " << to_string (game_dst) << "\n";
-
             auto who = my_game.get_current_turn();
-            auto optionalMove = my_game.map_coordinates_to_move (game_src, game_dst, std::nullopt);
-            std::cout << "After map_coordinates"
-                      << "\n";
+            auto optionalMove = my_game.map_coordinates_to_move (game_src, game_dst,
+                                                                 map_piece (promoted_piece_type));
+
             if (!optionalMove.has_value())
             {
                 std::cout << "Failed to map to move"
                           << "\n";
-                return false;
+                return nullptr;
             }
+
             auto move = *optionalMove;
+            return new WebMove { move };
+        }
+
+        auto makeMove (const WebMove* move_param) -> bool
+        {
+            Move move = move_param->get_move();
+
             if (!isLegalMove (move))
             {
                 std::cout << "Is not legal move"
@@ -302,6 +338,7 @@ namespace wisdom
                 set_move_status ("Illegal move");
                 return false;
             }
+
             std::cout << "Trying to do move: " << to_string (move) << "\n";
             my_game.move (move);
             std::cout << "Updating piece list..."
@@ -493,6 +530,7 @@ namespace wisdom
             set_move_status ("");
             set_game_over_status ("");
             set_in_check (false);
+            set_move_number (my_game.get_history().get_move_history().size());
 
             auto nextStatus = my_game.status();
 
@@ -576,6 +614,11 @@ namespace wisdom
         void set_in_check (bool new_in_check)
         {
             inCheck = new_in_check;
+        }
+
+        void set_move_number (size_t size)
+        {
+            moveNumber = gsl::narrow<int> (size);
         }
 
         void set_move_status (std::string new_move_status)

@@ -59,17 +59,29 @@ interface WebCoord {
 };
 
 [Prefix="wisdom::"]
+interface WebMove {
+    static WebMove fromString(DOMString moveText, long who);
+    DOMString asString();
+};
+
+[Prefix="wisdom::"]
 interface WebGame {
     void WebGame (long white_player, long black_player);
 
     [Ref] WebColoredPieceList getPieceList ();
 
     boolean needsPawnPromotion([Const] WebCoord src, [Const] WebCoord dst);
-    boolean makeMove ([Const] WebCoord src, [Const] WebCoord dst);
+
+    WebMove createMoveFromCoordinatesAndPromotedPiece(
+        [Const] WebCoord src, [Const] WebCoord dst, long pieceType
+    );
+
+    boolean makeMove ([Const] WebMove move);
 
     attribute boolean inCheck;
     attribute DOMString moveStatus;
     attribute DOMString gameOverStatus;
+    attribute long moveNumber;
 
     wisdom_WebColor getCurrentTurn();
     void setMaxDepth (long max_depth);
