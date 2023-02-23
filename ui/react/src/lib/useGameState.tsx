@@ -25,7 +25,7 @@ export function useGameState(initialGameState: GameState, game: Game) {
     // Wrap action functions to update the state with their return values.
     //
     const actions = {
-        movePiece: (dst: string) =>
+        humanMovePiece: (dst: string) =>
             setGameState(movePiece(gameState, game, dst)),
         pieceClick: (dst: string) =>
             setGameState(pieceClick(gameState, game, dst)),

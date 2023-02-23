@@ -68,7 +68,7 @@ function App() {
                     squares={gameState.squares}
                     focusedSquare={gameState.focusedSquare}
                     pieces={gameState.pieces}
-                    handleMovePiece={dst => actions.movePiece(dst)}
+                    handleMovePiece={dst => actions.humanMovePiece(dst)}
                     handlePieceClick={dst => actions.pieceClick(dst)}
                     pawnPromotionDialogSquare={gameState.pawnPromotionDialogSquare}
                 />
