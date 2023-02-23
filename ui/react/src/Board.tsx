@@ -5,6 +5,7 @@ import { Piece } from "./lib/Pieces";
 import { Position } from "./lib/Squares";
 import "./Positions.css"
 import PawnPromotionDialog from "./PawnPromotionDialog";
+import { PieceColor } from "./lib/WisdomChess";
 
 export interface BoardProps {
     squares: Array<Position>
@@ -13,6 +14,7 @@ export interface BoardProps {
     handleMovePiece: (dst: string) => void
     handlePieceClick: (dst: string) => void
     pawnPromotionDialogSquare: string
+    currentTurn: PieceColor
 }
 
 const Board = (props: BoardProps) => {
@@ -36,7 +38,10 @@ const Board = (props: BoardProps) => {
                 </div>
             ))}
             {props.pawnPromotionDialogSquare &&
-                <PawnPromotionDialog square={props.pawnPromotionDialogSquare} direction={-1} />}
+                <PawnPromotionDialog
+                    color={props.currentTurn}
+                    square={props.pawnPromotionDialogSquare}
+                    direction={-1} />}
         </section>
     )
 }

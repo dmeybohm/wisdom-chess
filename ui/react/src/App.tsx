@@ -65,6 +65,7 @@ function App() {
             />
             <div className="container">
                 <Board
+                    currentTurn={currentTurn}
                     squares={gameState.squares}
                     focusedSquare={gameState.focusedSquare}
                     pieces={gameState.pieces}

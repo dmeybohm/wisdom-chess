@@ -333,9 +333,10 @@
 .pawn-promotion-dialog {
     height: calc(var(--square-size) * 4);
     width: var(--square-size);
-    background: orange;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .pawn-promotion-dialog.reversed {
@@ -346,4 +347,11 @@
 .pawn-promotion-dialog > * {
     width: var(--square-size);
     height: var(--square-size);
+    background: #76b1d5;
+    box-sizing: border-box;
+    opacity: .93;
+}
+
+.pawn-promotion-dialog > *:nth-child(even) {
+    background: #9dc7e1;
 }
