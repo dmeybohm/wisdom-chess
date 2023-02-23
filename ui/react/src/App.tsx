@@ -23,10 +23,10 @@ const initialState = {
     moves: [] as Move[],
     focusedSquare: '',
     pawnPromotionDialogSquare: '',
+    moveStatus: '',
 }
 
 type MoveState = {
-    moveStatus: string,
     gameOverStatus: string,
     currentTurn:  PieceColor,
     inCheck: boolean,
@@ -59,7 +59,7 @@ function convertHumanMove(game: Game, humanMove: HumanMove): WebMove {
 }
 
 function gameStateReducer(state: GameState, action: Action): GameState {
-    const newState = { ... state }
+    const newState = { ... state, moveStatus: '' }
     const currentGame = getCurrentGame()
     let move;
 
@@ -73,8 +73,14 @@ function gameStateReducer(state: GameState, action: Action): GameState {
             const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
             const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(action.dst)
 
-            if (!currentGame.createMoveFromCoordinatesAndPromotedPiece(srcCoord, dstCoord)) {
+            move = currentGame.createMoveFromCoordinatesAndPromotedPiece(
+                srcCoord,
+                dstCoord,
+                wisdomChess.Queen
+            );
+            if (!move || !currentGame.isLegalMove(move)) {
                 newState.focusedSquare = ''
+                newState.moveStatus = currentGame.moveStatus
                 return newState
             }
             if (currentGame.needsPawnPromotion(srcCoord, dstCoord)) {
@@ -166,7 +172,6 @@ function newMoveState(): MoveState {
     const currentGame = getCurrentGame()
     return {
         pieces: getPieces(currentGame),
-        moveStatus: currentGame.moveStatus,
         gameOverStatus: currentGame.gameOverStatus,
         currentTurn: currentGame.getCurrentTurn(),
         inCheck: currentGame.inCheck,
@@ -236,7 +241,7 @@ function App() {
                 <StatusBar
                     currentTurn={moveState.currentTurn}
                     inCheck={moveState.inCheck}
-                    moveStatus={moveState.moveStatus}
+                    moveStatus={gameState.moveStatus}
                     gameOverStatus={moveState.gameOverStatus}
                 />
             </div>

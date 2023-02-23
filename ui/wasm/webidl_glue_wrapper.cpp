@@ -321,13 +321,6 @@ namespace wisdom
             }
 
             auto move = *optionalMove;
-            if (!isLegalMove (move))
-            {
-                std::cout << "Is not legal move"
-                          << "\n";
-                set_move_status ("Illegal move");
-                return nullptr;
-            }
             return new WebMove { move };
         }
 
@@ -349,18 +342,17 @@ namespace wisdom
                 send_move_to_worker (move);
 
             return true;
-            // auto newColor = updateChessEngineForHumanMove(move);
-            // updateCurrentTurn(newColor);
-            // handleMove(wisdom::Player::Human, move, who);
         }
 
-        auto isLegalMove (Move selectedMove) -> bool
+        auto isLegalMove (const WebMove* selectedMovePtr) -> bool
         {
+            Move selectedMove = selectedMovePtr->get_move();
             auto selectedMoveStr = to_string (selectedMove);
 
             // If it's not the human's turn, move is illegal.
             if (my_game.get_current_player() != wisdom::Player::Human)
             {
+                set_move_status ("Illegal move");
                 return false;
             }
 
@@ -368,11 +360,17 @@ namespace wisdom
             auto generator = my_game.get_move_generator();
             auto legalMoves = generator->generate_legal_moves (my_game.get_board(), who);
 
-            return std::any_of (legalMoves.cbegin(), legalMoves.cend(),
+            auto result = std::any_of (legalMoves.cbegin(), legalMoves.cend(),
                                 [selectedMove] (const auto& move)
                                 {
                                     return move == selectedMove;
                                 });
+            if (!result)
+            {
+                set_move_status ("Illegal move");
+                return false;
+            }
+            return result;
         }
 
         void setMaxDepth (int max_depth)

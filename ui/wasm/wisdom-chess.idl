@@ -76,6 +76,7 @@ interface WebGame {
         [Const] WebCoord src, [Const] WebCoord dst, long pieceType
     );
 
+    boolean isLegalMove([Const] WebMove move);
     boolean makeMove ([Const] WebMove move);
 
     attribute boolean inCheck;
