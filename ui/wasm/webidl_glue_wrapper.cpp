@@ -83,6 +83,29 @@ namespace wisdom
         }
     }
 
+    auto map_piece (wisdom::Piece piece) -> WebPiece
+    {
+        switch (piece)
+        {
+            case Piece::None:
+                return NoPiece;
+            case Piece::Pawn:
+                return Pawn;
+            case Piece::Knight:
+                return Knight;
+            case Piece::Bishop:
+                return Bishop;
+            case Piece::Rook:
+                return Rook;
+            case Piece::Queen:
+                return Queen;
+            case Piece::King:
+                return King;
+            default:
+                throw Error { "Invalid piece." };
+        }
+    }
+
     enum WebPlayer
     {
         Human,
@@ -332,7 +355,7 @@ namespace wisdom
             my_game.move (move);
             std::cout << "Updating piece list..."
                       << "\n";
-            update_piece_list();
+            update_piece_list (move.get_promoted_piece());
             std::cout << "After updatePieceList()"
                       << "\n";
             update_displayed_game_state();
@@ -405,11 +428,11 @@ namespace wisdom
 
     private:
 
-        auto find_and_remove_id (std::unordered_map<int, WebColoredPiece>& list,
+        auto find_and_remove_id (std::unordered_map<int, WebColoredPiece>& old_list,
                                  Coord coord_to_find, ColoredPiece piece_to_find) -> int
         {
             auto found
-                = std::find_if (list.begin(), list.end(),
+                = std::find_if (old_list.begin(), old_list.end(),
                                 [piece_to_find, coord_to_find] (const auto& it) -> bool
                                 {
                                     auto key = it.first;
@@ -419,11 +442,11 @@ namespace wisdom
                                     return piece_to_find == piece && piece_coord == coord_to_find;
                                 });
 
-            if (found != list.end())
+            if (found != old_list.end())
             {
                 auto position = found->first;
                 auto value = found->second;
-                list.erase (found);
+                old_list.erase (found);
                 return value.id;
             }
 
@@ -432,14 +455,14 @@ namespace wisdom
             return 0;
         }
 
-        void update_piece_list()
+        void update_piece_list (ColoredPiece promoted_piece)
         {
             const Board& board = my_game.get_board();
 
             WebColoredPieceList old_pieces = my_pieces;
             my_pieces.clear();
 
-            std::unordered_map<int, WebColoredPiece> list {};
+            std::unordered_map<int, WebColoredPiece> old_list {};
             std::unordered_map<int, ColoredPiece> deferred {};
 
             // Index the old pieces to be able to find the old ids:
@@ -447,7 +470,7 @@ namespace wisdom
             {
                 WebColoredPiece piece = old_pieces.pieces[i];
                 Coord src = make_coord (piece.row, piece.col);
-                list[coord_index (src)] = piece;
+                old_list[coord_index (src)] = piece;
             }
 
             for (int i = 0; i < Num_Squares; i++)
@@ -456,7 +479,7 @@ namespace wisdom
                 ColoredPiece piece = board.piece_at (coord);
                 if (piece != Piece_And_Color_None)
                 {
-                    int id = find_and_remove_id (list, coord, piece);
+                    int id = find_and_remove_id (old_list, coord, piece);
                     if (id != 0)
                     {
                         WebColoredPiece new_piece = {
@@ -479,16 +502,21 @@ namespace wisdom
             {
                 for (auto& value : deferred)
                 {
-                    auto colored_piece = value.second;
-                    auto pred = [colored_piece] (const auto& list_item) -> bool
+                    auto new_piece = value.second;
+                    auto pred = [new_piece, promoted_piece] (const auto& list_item) -> bool
                     {
-                        ColoredPiece value = map_colored_piece (list_item.second);
-                        std::cout << to_string (value) << "==" << to_string (colored_piece)
-                                  << "?\n";
-                        return value == colored_piece;
+                        ColoredPiece old_piece = map_colored_piece (list_item.second);
+                        const auto pieces_match = old_piece == new_piece;
+                        const auto promoted_piece_matches = (
+                            promoted_piece != Piece_And_Color_None
+                            && old_piece.color() == new_piece.color()
+                            && old_piece.type() == Piece::Pawn
+                            && new_piece.type() != Piece::Pawn
+                        );
+                        return old_piece == new_piece || promoted_piece_matches;
                     };
-                    auto it = std::find_if (list.begin(), list.end(), pred);
-                    if (it == list.end())
+                    auto it = std::find_if (old_list.begin(), old_list.end(), pred);
+                    if (it == old_list.end())
                     {
                         throw Error { "Couldn't find id." };
                     }
@@ -496,14 +524,13 @@ namespace wisdom
                     auto old_piece = it->second;
                     auto coord = make_coord_from_index (value.first);
 
-                    WebColoredPiece new_piece = {
+                    my_pieces.addPiece (WebColoredPiece {
                         old_piece.id,
                         old_piece.color,
-                        old_piece.piece,
+                        map_piece (new_piece.type()),
                         Row<int8_t> (coord),
                         Column<int8_t> (coord),
-                    };
-                    my_pieces.addPiece (new_piece);
+                    });
                 }
             }
 
