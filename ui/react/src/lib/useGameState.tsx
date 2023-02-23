@@ -1,6 +1,6 @@
 import { Game, getPieces, WebMove } from "./WisdomChess";
 import { useState } from "react";
-import { initialSquares } from "../Squares";
+import { initialSquares } from "./Squares";
 import { Piece } from "./Pieces";
 import { wisdomChess } from "../App";
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Square from "./Square";
 import "./Board.css";
 import { Piece } from "./lib/Pieces";
-import { Position } from "./Squares";
+import { Position } from "./lib/Squares";
 import "./Positions.css"
 import PawnPromotionDialog from "./PawnPromotionDialog";
 
