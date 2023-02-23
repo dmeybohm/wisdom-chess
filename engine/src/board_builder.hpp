@@ -68,7 +68,7 @@ namespace wisdom
 
         void set_full_moves (int new_full_moves);
 
-        [[nodiscard]] auto get_squares () const& -> array<ColoredPiece, Num_Squares>
+        [[nodiscard]] auto get_squares () const& -> const array<ColoredPiece, Num_Squares>&
         {
             return my_squares;
         }
