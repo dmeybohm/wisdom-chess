@@ -9,7 +9,7 @@ import {
     WisdomChess,
     WebMove,
 } from "./lib/WisdomChess";
-import { initialGameState, useGameState } from "./useGameState";
+import { initialGameState, useGameState } from "./lib/useGameState";
 
 // This is the web assembly module. It's constant across changes:
 export let wisdomChess : any = undefined

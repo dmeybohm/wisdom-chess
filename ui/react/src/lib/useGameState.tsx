@@ -1,8 +1,8 @@
-import { Game, getPieces, WebMove } from "./lib/WisdomChess";
+import { Game, getPieces, WebMove } from "./WisdomChess";
 import { useState } from "react";
-import { initialSquares } from "./Squares";
-import { Piece } from "./lib/Pieces";
-import { wisdomChess } from "./App";
+import { initialSquares } from "../Squares";
+import { Piece } from "./Pieces";
+import { wisdomChess } from "../App";
 
 export const initialGameState = {
     pieces: [] as Piece[],
