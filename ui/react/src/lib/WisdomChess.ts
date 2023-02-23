@@ -31,23 +31,6 @@ interface WisdomWindow {
     wisdomChessWeb: unknown
 }
 
-
-export type MoveType = 'human' | 'computer'
-
-export interface ComputerMove {
-    type: MoveType
-    move: string
-}
-
-export interface HumanMove {
-    type: MoveType
-    src: string,
-    dst: string,
-    promotedPieceType: PieceType
-}
-
-export type Move = ComputerMove | HumanMove;
-
 export function getCurrentGame () {
     const wisdomChess = WisdomChess()
     if (!wisdomChess.currentGame) {
