@@ -11,16 +11,16 @@ import BlackKnight from "./assets/Chess_ndt45.svg";
 import { PieceColor, PieceType, WisdomChess } from "./lib/WisdomChess";
 import { useState } from "react";
 
+export type PromotablePiece = {
+    type: PieceType,
+    icon: string[]
+}
+
 type PawnPromotionDialogProps = {
     square: string
     direction: number
     color: number
-    selectedPiece: (pieceType: PieceType) => void
-}
-
-type PromotablePiece = {
-    type: PieceColor,
-    icon: SVGElement[]
+    selectedPiece: (piece: PieceType) => void
 }
 
 export default function PawnPromotionDialog(props: PawnPromotionDialogProps) {
@@ -28,8 +28,8 @@ export default function PawnPromotionDialog(props: PawnPromotionDialogProps) {
     const [selectedPiece, setSelectedPiece] = useState<PieceColor>(wisdomChess.NoPiece)
 
     const pieces = [
-        { type: wisdomChess.Queen, icon: [ WhiteQueen, BlackQueen] },
-        { type: wisdomChess.Rook, icon: [ WhiteRook, BlackRook] },
+        { type: wisdomChess.Queen, icon: [ WhiteQueen, BlackQueen ] },
+        { type: wisdomChess.Rook, icon: [ WhiteRook, BlackRook ] },
         { type: wisdomChess.Bishop, icon: [ WhiteBishop, BlackBishop ] },
         { type: wisdomChess.Knight, icon: [ WhiteKnight, BlackKnight ] },
     ]
