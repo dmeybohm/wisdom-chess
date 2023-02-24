@@ -355,3 +355,8 @@
 .pawn-promotion-dialog > *:nth-child(even) {
     background: #9dc7e1;
 }
+
+.pawn-promotion-dialog .pawn-promotion-dialog__piece.selected {
+    background: darkorange;
+}
+

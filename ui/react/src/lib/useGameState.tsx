@@ -1,4 +1,4 @@
-import { Game, getPieces, WebMove } from "./WisdomChess";
+import { Game, getPieces, PieceType, WebMove } from "./WisdomChess";
 import { useState } from "react";
 import { initialSquares } from "./Squares";
 import { Piece } from "./Pieces";
@@ -30,7 +30,9 @@ export function useGameState(initialGameState: GameState, game: Game) {
         pieceClick: (dst: string) =>
             setGameState(pieceClick(gameState, game, dst)),
         computerMovePiece: (move: WebMove) =>
-            setGameState(computerMovePiece(gameState, game, move))
+            setGameState(computerMovePiece(gameState, game, move)),
+        promotePiece: (pieceType: PieceType) =>
+            setGameState(promotePiece(gameState, game, pieceType))
     }
 
     return [
@@ -116,4 +118,27 @@ function computerMovePiece(prevState: GameState, game: Game, move: WebMove): Gam
         ... prevState,
         pieces: getPieces(game)
     }
+}
+
+function promotePiece(prevState: GameState, game: Game, pieceType: PieceType): GameState {
+    const newState = { ... prevState }
+    const src = newState.focusedSquare
+    const dst = newState.pawnPromotionDialogSquare
+    newState.pawnPromotionDialogSquare = ''
+    newState.focusedSquare = ''
+
+    const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
+    const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(dst)
+
+    const move = game.createMoveFromCoordinatesAndPromotedPiece(
+        srcCoord,
+        dstCoord,
+        pieceType,
+    );
+    if (!move || !game.isLegalMove(move)) {
+        return newState
+    }
+    game.makeMove(move)
+    newState.pieces = getPieces(game)
+    return newState
 }

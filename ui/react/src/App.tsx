@@ -71,6 +71,7 @@ function App() {
                     pieces={gameState.pieces}
                     handleMovePiece={dst => actions.humanMovePiece(dst)}
                     handlePieceClick={dst => actions.pieceClick(dst)}
+                    handlePiecePromotion={pieceType => actions.promotePiece(pieceType)}
                     pawnPromotionDialogSquare={gameState.pawnPromotionDialogSquare}
                 />
 

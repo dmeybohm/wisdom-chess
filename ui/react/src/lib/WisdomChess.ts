@@ -17,10 +17,11 @@ import BlackKing from "../assets/Chess_kdt45.svg";
 export type Game = any
 export type WisdomChess = any
 export type PieceColor = any
+export type PieceType = any
+
 export type WebMove = {
     asString(): string
 }
-export type PieceType = any
 
 interface ColoredPiece {
     color: number
