@@ -69,6 +69,7 @@ function movePiece(prevState: GameState, game: Game, dst: string): GameState {
         newState.pawnPromotionDialogSquare = dst
         return newState
     }
+
     newState.focusedSquare = ''
     game.makeMove(move)
     newState.pieces = getPieces(game)
@@ -82,17 +83,18 @@ function movePiece(prevState: GameState, game: Game, dst: string): GameState {
 //
 function pieceClick(prevState: GameState, game: Game, dst: string): GameState {
     let newState = { ... prevState }
-    newState.pawnPromotionDialogSquare = ''
 
     // begin focus if no focus already:
     if (newState.focusedSquare === '') {
         newState.focusedSquare = dst
+        newState.pawnPromotionDialogSquare = ''
         return newState
     }
 
     // toggle focus if already focused:
     if (newState.focusedSquare === dst) {
         newState.focusedSquare = ''
+        newState.pawnPromotionDialogSquare = ''
         return newState
     }
 
@@ -102,13 +104,15 @@ function pieceClick(prevState: GameState, game: Game, dst: string): GameState {
     const srcPiece = findPieceAtPosition(pieces, newState.focusedSquare)
     if (!dstPiece || !srcPiece || srcPiece.color === dstPiece.color) {
         newState.focusedSquare = dst
+        newState.pawnPromotionDialogSquare = ''
         return newState
     }
 
     // take the piece with the move-piece action, and then remove the focus:
     newState = movePiece(newState, game, dst)
     newState.pieces = getPieces(game)
-    newState.focusedSquare = ''
+    if (newState.pawnPromotionDialogSquare === '')
+        newState.focusedSquare = ''
     return newState
 }
 
@@ -124,6 +128,7 @@ function promotePiece(prevState: GameState, game: Game, pieceType: PieceType): G
     const newState = { ... prevState }
     const src = newState.focusedSquare
     const dst = newState.pawnPromotionDialogSquare
+
     newState.pawnPromotionDialogSquare = ''
     newState.focusedSquare = ''
 
