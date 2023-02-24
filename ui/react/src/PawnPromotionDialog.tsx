@@ -20,7 +20,7 @@ type PawnPromotionDialogProps = {
 
 type PromotablePiece = {
     type: PieceColor,
-    icon: any[]
+    icon: SVGElement[]
 }
 
 export default function PawnPromotionDialog(props: PawnPromotionDialogProps) {

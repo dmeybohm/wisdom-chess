@@ -13,7 +13,7 @@ export const initialGameState = {
 
 type GameState = typeof initialGameState;
 
-export function useGameState(initialGameState: GameState, game: Game) {
+export function useGame(initialGameState: GameState, game: Game) {
     const [gameState, setGameState] = useState<GameState>({
         pieces: getPieces(game),
         squares: initialSquares,

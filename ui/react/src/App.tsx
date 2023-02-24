@@ -9,7 +9,7 @@ import {
     WisdomChess,
     WebMove,
 } from "./lib/WisdomChess";
-import { initialGameState, useGameState } from "./lib/useGameState";
+import { initialGameState, useGame } from "./lib/useGame";
 
 // This is the web assembly module. It's constant across changes:
 export let wisdomChess : any = undefined
@@ -35,7 +35,7 @@ function App() {
     }
 
     const gameRef = useRef(getCurrentGame())
-    const [gameState, actions] = useGameState(initialGameState, gameRef.current)
+    const [gameState, actions] = useGame(initialGameState, gameRef.current)
 
     useEffect(() => {
         const listener = (event: CustomEvent) => {
