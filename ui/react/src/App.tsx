@@ -88,6 +88,13 @@ function App() {
             </Modal>
             <Modal show={showAbout}>
                 <h1>About Modal</h1>
+                <p>
+                    <a
+                        target="_blank"
+                        href="https://github.com/dmeybohm/wisdom-chess">
+                        View the source
+                    </a>
+                </p>
                 <button onClick={() => setShowAbout(false)}>OK</button>
             </Modal>
             <Modal show={showSettings}>
