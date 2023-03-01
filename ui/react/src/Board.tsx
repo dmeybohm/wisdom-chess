@@ -11,11 +11,12 @@ export interface BoardProps {
     squares: Array<Position>
     focusedSquare: string
     pieces: Array<Piece>
-    handleMovePiece: (dst: string) => void
-    handlePieceClick: (dst: string) => void
-    handlePiecePromotion: (piece: PieceType) => void
     pawnPromotionDialogSquare: string
     currentTurn: PieceColor
+
+    onMovePiece: (dst: string) => void
+    onPieceClick: (dst: string) => void
+    onPiecePromotion: (piece: PieceType) => void
 }
 
 const Board = (props: BoardProps) => {
@@ -27,14 +28,14 @@ const Board = (props: BoardProps) => {
                         key={position.index}
                         isOddRow={position.isOddRow}
                         position={position.position}
-                        onClick={props.handleMovePiece}
+                        onClick={props.onMovePiece}
                     />
                 );
             })}
             {props.pieces.map((piece: Piece) => (
                 <div className={`piece ${piece.position} ${piece.position === props.focusedSquare ? 'focused' : ''}`}
                      key={piece.id}
-                     onClick={() => props.handlePieceClick(piece.position)}>
+                     onClick={() => props.onPieceClick(piece.position)}>
                     <img alt="piece" src={piece.icon} />
                 </div>
             ))}
@@ -43,7 +44,7 @@ const Board = (props: BoardProps) => {
                     color={props.currentTurn}
                     square={props.pawnPromotionDialogSquare}
                     direction={-1}
-                    selectedPiece={props.handlePiecePromotion}
+                    selectedPiece={props.onPiecePromotion}
                 />}
         </section>
     )

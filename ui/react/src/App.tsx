@@ -35,7 +35,8 @@ function App() {
     }
 
     const gameRef = useRef(getCurrentGame())
-    const [gameState, actions] = useGame(initialGameState, gameRef.current)
+    const gameState = useGame((state) => state)
+    const actions = useGame((state) => state.actions)
 
     useEffect(() => {
         const listener = (event: CustomEvent) => {
@@ -46,6 +47,7 @@ function App() {
         }
         (window as any).computerMoved = listener;
         window.addEventListener('computerMoved', listener as EventListener);
+        actions.init()
         return () => {
             window.removeEventListener('computerMoved', listener as EventListener)
         }
@@ -69,10 +71,10 @@ function App() {
                     squares={gameState.squares}
                     focusedSquare={gameState.focusedSquare}
                     pieces={gameState.pieces}
-                    handleMovePiece={dst => actions.humanMovePiece(dst)}
-                    handlePieceClick={dst => actions.pieceClick(dst)}
-                    handlePiecePromotion={pieceType => actions.promotePiece(pieceType)}
                     pawnPromotionDialogSquare={gameState.pawnPromotionDialogSquare}
+                    onMovePiece={dst => actions.humanMovePiece(dst)}
+                    onPieceClick={dst => actions.pieceClick(dst)}
+                    onPiecePromotion={pieceType => actions.promotePiece(pieceType)}
                 />
 
                 <StatusBar
