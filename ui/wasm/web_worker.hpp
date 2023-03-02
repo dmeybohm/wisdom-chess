@@ -1,24 +1,11 @@
-#ifndef WISDOMCHESS_WISDOM_CHESS_HPP
-#define WISDOMCHESS_WISDOM_CHESS_HPP
-
-#include <emscripten.h>
-#include <emscripten/wasm_worker.h>
-#include <iostream>
+#ifndef WISDOMCHESS_WEB_WORKER_HPP
+#define WISDOMCHESS_WEB_WORKER_HPP
 
 #include "web_types.hpp"
-#include "web_move.hpp"
-#include "web_game.hpp"
+#include "game_settings.hpp"
 
 namespace wisdom
 {
-    struct GameSettings
-    {
-        enum WebPlayer whitePlayer = Human;
-        enum WebPlayer blackPlayer = ChessEngine;
-        int thinkingTime = 2;
-        int searchDepth = 3;
-    };
-
     class WebWorker
     {
     private:
@@ -61,9 +48,6 @@ namespace wisdom
             sendResume ();
         }
     };
-
-
 }
 
-
-#endif // WISDOMCHESS_WISDOM_CHESS_HPP
+#endif // WISDOMCHESS_WEB_WORKER_HPP

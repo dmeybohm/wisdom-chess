@@ -7,8 +7,8 @@ emscripten_wasm_worker_t engine_thread;
 
 int main()
 {
-  // Initialize the worker threads:
-  engine_thread_manager = emscripten_malloc_wasm_worker (/*stack size: */8192 * 1024);
-  engine_thread = emscripten_malloc_wasm_worker (/*stack size: */8192 * 1024);
+    // Initialize the worker threads:
+    engine_thread_manager = emscripten_malloc_wasm_worker (/*stack size: */ 8192 * 1024);
+    engine_thread = emscripten_malloc_wasm_worker (/*stack size: */ 8192 * 1024);
 }
 

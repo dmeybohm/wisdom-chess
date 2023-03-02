@@ -11,14 +11,9 @@
 extern "C"
 {
     void worker_initialize_game();
-    void main_thread_receive_move (int packed_move);
-
     void start_search();
-
-    // The worker receives a move:
-    void worker_receive_move (int packed_move);
-
     void main_thread_receive_move (int packed_move);
+    void worker_receive_move (int packed_move);
 }
 
 #endif // WISDOMCHESS_BINDINGS_HPP

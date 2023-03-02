@@ -1,4 +1,13 @@
-#include "wisdom-chess.hpp"
+#include <emscripten.h>
+#include <emscripten/wasm_worker.h>
+#include <iostream>
+
+// Include the type definitions for the glue code:
+#include "web_types.hpp"
+#include "web_move.hpp"
+#include "web_game.hpp"
+#include "game_settings.hpp"
+#include "web_worker.hpp"
 
 // Map enums to the global namespace:
 using wisdom_WebPlayer = wisdom::WebPlayer;

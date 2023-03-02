@@ -1,6 +1,7 @@
 #ifndef WISDOMCHESS_WEB_MOVE_HPP
 #define WISDOMCHESS_WEB_MOVE_HPP
 
+#include "web_types.hpp"
 #include "game.hpp"
 #include "move.hpp"
 
