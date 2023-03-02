@@ -1,5 +1,4 @@
-import { Game, getCurrentGame, getPieces, PieceType, WebMove } from "./WisdomChess";
-import { useState } from "react";
+import { Game, getCurrentGame, getPieces, PieceType, resetCurrentGame, WebMove } from "./WisdomChess";
 import { initialSquares } from "./Squares";
 import { Piece } from "./Pieces";
 import { wisdomChess } from "../App";
@@ -24,6 +23,7 @@ interface GameState {
         computerMovePiece: (move: WebMove) => void
         pieceClick: (dst: string) => void
         promotePiece: (pieceType: PieceType) => void
+        startNewGame: () => void;
     }
 }
 
@@ -32,7 +32,13 @@ export const useGame = create<GameState>()((set, get) => ({
 
     actions: {
         init: () => set(state => {
-            return { pieces: getPieces(getCurrentGame())}
+            return { pieces: getPieces(getCurrentGame()) }
+        }),
+        startNewGame: () => set(state => {
+            return  {
+                ... initialGameState,
+                pieces: getPieces(resetCurrentGame())
+            }
         }),
         computerMovePiece: (move: WebMove) => set((prevState) => {
             const game = getCurrentGame()

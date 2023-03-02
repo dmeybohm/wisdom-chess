@@ -27,6 +27,12 @@ add_custom_command(
 add_executable(wisdom-chess-web
         main.cpp
         ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp
+        wisdom-chess.hpp
+        web_logger.cpp
+        web_types.hpp
+        web_game.cpp
+        web_move.cpp
+        bindings.cpp
         webidl_glue_wrapper.cpp
 )
 

@@ -41,6 +41,15 @@ export function getCurrentGame () {
     return wisdomChess.currentGame
 }
 
+export function resetCurrentGame() {
+    const wisdomChess = WisdomChess()
+    if (wisdomChess.currentGame) {
+        wisdomChess.destroy(wisdomChess.currentGame)
+    }
+    wisdomChess.currentGame = new wisdomChess.WebGame(wisdomChess.Human, wisdomChess.Human)
+    return wisdomChess.currentGame
+}
+
 export function WisdomChess(): WisdomChess {
     return ((window as unknown) as WisdomWindow).wisdomChessWeb as WisdomChess
 }

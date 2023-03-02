@@ -86,7 +86,8 @@ function App() {
             </div>
             <Modal show={showNewGame}>
                 <h1>New Game</h1>
-                <button onClick={() => setShowNewGame(false)}>OK</button>
+                <button onClick={() => actions.startNewGame()}>Cancel</button>
+                <button onClick={() => setShowNewGame(false)}>Cancel</button>
             </Modal>
             <Modal show={showAbout}>
                 <h1>About Modal</h1>

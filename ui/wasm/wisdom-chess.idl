@@ -65,10 +65,29 @@ interface WebMove {
 };
 
 [Prefix="wisdom::"]
+interface GameSettings {
+    attribute wisdom_WebPlayer whitePlayer;
+    attribute wisdom_WebPlayer blackPlayer;
+    attribute long thinkingTime;
+    attribute long searchDepth;
+};
+
+// Manage the web worker
+[Prefix="wisdom::"]
+interface WebWorker {
+    void sendNewGame();
+    void sendPause();
+    void sendResume();
+
+    GameSettings getCurrentGameSettings();
+    void setCurrentGameSettings(GameSettings newSettings);
+};
+
+[Prefix="wisdom::"]
 interface WebGame {
     void WebGame (long white_player, long black_player);
 
-    [Ref] WebColoredPieceList getPieceList ();
+    [Ref] WebColoredPieceList getPieceList();
 
     boolean needsPawnPromotion([Const] WebCoord src, [Const] WebCoord dst);
 
@@ -83,9 +102,7 @@ interface WebGame {
     attribute DOMString moveStatus;
     attribute DOMString gameOverStatus;
     attribute long moveNumber;
+    attribute long gameId;
 
     wisdom_WebColor getCurrentTurn();
-    void setMaxDepth (long max_depth);
-    long getMaxDepth ();
-    void initializeWorker ();
 };
