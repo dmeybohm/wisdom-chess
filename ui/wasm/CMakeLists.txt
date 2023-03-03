@@ -34,7 +34,7 @@ add_executable(wisdom-chess-web
         bindings.cpp
         game_settings.hpp
         webidl_glue_wrapper.cpp
-)
+        web_worker.cpp)
 
 # Make sure the target dependencies are included:
 set_target_properties(wisdom-chess-web PROPERTIES

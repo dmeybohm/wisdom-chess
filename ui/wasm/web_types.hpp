@@ -127,6 +127,19 @@ namespace wisdom
         }
     }
 
+    [[nodiscard]] inline auto map_player (wisdom::Player player) -> WebPlayer
+    {
+        switch (player)
+        {
+            case Player::Human:
+                return Human;
+            case Player::ChessEngine:
+                return ChessEngine;
+            default:
+                throw Error { "Invalid player." };
+        }
+    }
+
     enum WebGameStatus
     {
         Playing,

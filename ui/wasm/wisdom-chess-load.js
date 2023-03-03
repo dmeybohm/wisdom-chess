@@ -59,12 +59,11 @@ function afterWisdomChessModuleLoaded(WisdomChessWeb) {
 	window.startReact();
 }
 
-function receiveWorkerMessage(type, message) {
+function receiveWorkerMessage(type, gameId, message) {
 	console.log('Received worker message: ', type, message)
 	// Dispatch event from document.
-	const convertedStr = message + ""
 	if (type === "computerMoved" && window.computerMoved) {
-		window.computerMoved({ detail: message });
+		window.computerMoved({ detail: { gameId: gameId, move: message }});
 	}
 	// window.dispatchEvent(new CustomEvent(convertedStr, {
 	// 	detail: { message: message }

@@ -41,7 +41,9 @@ function App() {
     useEffect(() => {
         const listener = (event: CustomEvent) => {
             console.log('computerMoved', event.detail)
-            const move = wisdomChess.WebMove.prototype.fromString(event.detail, gameRef.current.getCurrentTurn());
+            const moveStr = event.detail.move;
+            const gameId = event.detail.gameId;
+            const move = wisdomChess.WebMove.prototype.fromString(moveStr, gameRef.current.getCurrentTurn());
             // handle castle / promotion etc
             actions.computerMovePiece(move as WebMove)
         }

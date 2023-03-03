@@ -2,14 +2,12 @@
 
 #include <string>
 
-std::unique_ptr<wisdom::Game> wisdom::worker::WebLogger::my_worker_game;
-
 extern "C"
 {
     EM_JS (void, console_log, (const char* str), { console.log (UTF8ToString (str)) })
 };
 
-void wisdom::worker::WebLogger::console_log(const char* message)
+void wisdom::worker::WebLogger::console_log (const char* message)
 {
    ::console_log (message);
 }

@@ -12,29 +12,33 @@ namespace wisdom
     class WebWorker
     {
     private:
+        static int my_game_id;
+
         GameSettings my_game_settings {};
 
         // Send new settings to the worker.
-        void sendSettings (GameSettings settings)
+        void sendSettings ()
         {
-            int whitePlayer = static_cast<int> (settings.whitePlayer);
-            int blackPlayer = static_cast<int> (settings.blackPlayer);
+            int whitePlayer = static_cast<int> (my_game_settings.whitePlayer);
+            int blackPlayer = static_cast<int> (my_game_settings.blackPlayer);
 
             emscripten_wasm_worker_post_function_sig (engine_thread,
                                                       (void*)worker_receive_settings,
                                                       "iiii",
-                                                      whitePlayer, blackPlayer,
-                                                      settings.thinkingTime, settings.searchDepth);
-
+                                                      whitePlayer,
+                                                      blackPlayer,
+                                                      my_game_settings.thinkingTime,
+                                                      my_game_settings.searchDepth);
         }
 
     public:
         // Initialize a new game with the default position.
-        void sendNewGame (int newGameId)
+        void sendNewGame ()
         {
-
+            emscripten_wasm_worker_post_function_vi (engine_thread,
+                                                     worker_reinitialize_game,
+                                                     ++my_game_id);
         }
-
 
         // Pause the worker.
         void sendPause()
@@ -46,7 +50,6 @@ namespace wisdom
         // Resume the worker.
         void sendResume()
         {
-
             emscripten_wasm_worker_post_function_v (engine_thread_manager,
                                                     worker_manager_resume_worker);
         }
@@ -59,9 +62,9 @@ namespace wisdom
         void setCurrentGameSettings (GameSettings* newSettings)
         {
             my_game_settings = GameSettings { *newSettings };
-            sendPause ();
-            sendSettings (my_game_settings);
-            sendResume ();
+            sendPause();
+            sendSettings();
+            sendResume();
         }
     };
 }
