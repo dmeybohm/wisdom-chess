@@ -22,7 +22,7 @@ namespace wisdom::test
         History history {};
         static inline std::unique_ptr<wisdom::Logger> null_logger;
 
-        IterativeSearch build (Board& board, int depth, int time = 30)
+        IterativeSearch build (const Board& board, int depth, int time = 30)
         {
             MoveTimer timer { time };
             if (!null_logger) {

@@ -23,11 +23,10 @@ namespace wisdom
 
         for (auto move : moves)
         {
-            UndoMove undo_state = board.make_move (side, move);
+            Board new_board = board.with_move (side, move);
 
             if (!was_legal_move (board, side, move))
             {
-                board.take_back (side, move, undo_state);
                 continue;
             }
 
@@ -41,9 +40,7 @@ namespace wisdom
                     counters.en_passants++;
             }
 
-            search_moves (board, color_invert (side), depth + 1, max_depth, generator);
-
-            board.take_back (side, move, undo_state);
+            search_moves (new_board, color_invert (side), depth + 1, max_depth, generator);
         }
     }
 
@@ -115,7 +112,7 @@ namespace wisdom
         for (const auto& move_str : moves_str_list)
         {
             auto move = convert_move (board_copy, who, move_str);
-            board_copy.make_move (who, move);
+            board_copy = board_copy.with_move (who, move);
             who = color_invert (who);
             result.push_back (move);
         }
@@ -156,27 +153,24 @@ namespace wisdom
                                        wisdom::MoveGenerator& generator)
         -> PerftResults
     {
-        Board board_copy = board;
         wisdom::perft::PerftResults results;
         Stats cumulative;
 
-        auto moves = generator.generate_all_potential_moves (board_copy, active_player);
+        auto moves = generator.generate_all_potential_moves (board, active_player);
 
         for (const auto& move : moves)
         {
             Stats stats;
 
             Color next_player = wisdom::color_invert (active_player);
-            auto undo_state = board_copy.make_move (active_player, move);
+            auto new_board = board.with_move (active_player, move);
 
-            if (!wisdom::was_legal_move (board_copy, active_player, move))
+            if (!wisdom::was_legal_move (new_board, active_player, move))
             {
-                board_copy.take_back (active_player, move, undo_state);
                 continue;
             }
 
-            stats.search_moves (board_copy, next_player, 1, depth, generator);
-            board_copy.take_back (active_player, move, undo_state);
+            stats.search_moves (new_board, next_player, 1, depth, generator);
 
             auto perft_move = wisdom::perft::to_perft_move (move, active_player);
             results.move_results.push_back ({ stats.counters.nodes, perft_move });
@@ -192,7 +186,7 @@ namespace wisdom
     {
         for (auto& move : list)
         {
-            board.make_move (color, move);
+            board = board.with_move (color, move);
             color = wisdom::color_invert (color);
         }
 

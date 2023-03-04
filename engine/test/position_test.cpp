@@ -118,8 +118,8 @@ TEST_CASE( "Promoting move updates position overall_score correctly")
     builder.add_piece("h7", Color::White, Piece::Pawn);
 
     auto board = Board { builder };
-    int initial_score_white = board.get_position ().overall_score (Color::White);
-    int initial_score_black = board.get_position ().overall_score (Color::Black);
+    int initial_score_white = board.get_position().overall_score (Color::White);
+    int initial_score_black = board.get_position().overall_score (Color::Black);
 
     std::vector promoting_moves { "h7h8 (Q)", "h7h8 (R)", "h7h8 (B)", "h7h8 (N)" };
     for (auto promoting_move_in : promoting_moves)
@@ -129,8 +129,8 @@ TEST_CASE( "Promoting move updates position overall_score correctly")
 
         Board after_promotion = board.with_move (Color::White, castling_move);
 
-        CHECK( initial_score_white < after_promotion.get_position ().overall_score (Color::White) );
-        CHECK( initial_score_black > after_promotion.get_position ().overall_score (Color::Black) );
+        CHECK( initial_score_white < after_promotion.get_position().overall_score (Color::White) );
+        CHECK( initial_score_black > after_promotion.get_position().overall_score (Color::Black) );
     }
 }
 

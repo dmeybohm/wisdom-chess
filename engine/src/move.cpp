@@ -217,13 +217,6 @@ namespace wisdom
         board->set_en_passant_target (c_index, new_state);
     }
 
-    static void restore_en_passant_eligibility (Board* board, Color who, const UndoMove& undo_state)
-    {
-        ColorIndex o_index = color_index (color_invert (who));
-
-        board->set_en_passant_target (o_index, undo_state.en_passant_targets[o_index]);
-    }
-
     [[nodiscard]] auto Board::with_move (Color who, Move move) const -> Board
     {
         Board result = *this;
