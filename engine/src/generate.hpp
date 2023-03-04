@@ -34,7 +34,7 @@ namespace wisdom
         [[nodiscard]] auto generate_all_potential_moves (const Board& board, Color who)
             -> MoveList;
 
-        [[nodiscard]] auto generate_legal_moves (Board& board, Color who)
+        [[nodiscard]] auto generate_legal_moves (const Board& board, Color who)
             -> MoveList;
 
         friend class MoveGeneration;

@@ -266,23 +266,6 @@ namespace wisdom
     static_assert (sizeof (Move) == 4);
     static_assert (std::is_trivial_v<Move>);
 
-    [[nodiscard]] constexpr auto captured_material (UndoMove undo_state, Color opponent)
-        -> ColoredPiece
-    {
-        if (undo_state.category == MoveCategory::NormalCapturing)
-        {
-            return ColoredPiece::make (opponent, undo_state.taken_piece_type);
-        }
-        else if (undo_state.category == MoveCategory::EnPassant)
-        {
-            return ColoredPiece::make (opponent, Piece::Pawn);
-        }
-        else
-        {
-            return Piece_And_Color_None;
-        }
-    }
-
     template <class IntegerType = int8_t>
     [[nodiscard]] constexpr auto castling_row_for_color (Color who) -> IntegerType
     {

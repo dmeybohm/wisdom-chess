@@ -144,17 +144,14 @@ namespace wisdom
         this->my_score[index] -= change (coord, who, piece);
     }
 
-    void Position::apply_move (Color who, ColoredPiece piece, Move move, not_null<UndoMove*> undo_state)
+    void Position::apply_move (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece)
     {
         Color opponent = color_invert (who);
 
         Coord src = move.get_src ();
         Coord dst = move.get_dst ();
 
-        undo_state->position_score[color_index (who)] = my_score[color_index (who)];
-        undo_state->position_score[color_index (opponent)] = my_score[color_index (opponent)];
-
-        this->remove (who, src, piece);
+        this->remove (who, src, src_piece);
 
         switch (move.get_move_category ())
         {
@@ -163,16 +160,19 @@ namespace wisdom
 
             case MoveCategory::NormalCapturing:
                 {
-                    ColoredPiece taken_piece = ColoredPiece::make (opponent, undo_state->taken_piece_type);
                     Coord taken_piece_coord = dst;
-                    this->remove (opponent, taken_piece_coord, taken_piece);
+                    this->remove (opponent, taken_piece_coord, dst_piece);
                 }
                 break;
 
             case MoveCategory::EnPassant:
                 {
                     Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
-                    this->remove (opponent, taken_pawn_coord, ColoredPiece::make (opponent, Piece::Pawn));
+                    this->remove (
+                        opponent,
+                        taken_pawn_coord,
+                        ColoredPiece::make (opponent, Piece::Pawn)
+                    );
                 }
                 break;
 
@@ -201,17 +201,9 @@ namespace wisdom
                 throw Error { "Invalid move type." };
         }
 
-        ColoredPiece dst_piece = move.is_promoting () ? move.get_promoted_piece () : piece;
+        ColoredPiece new_piece = move.is_promoting () ? move.get_promoted_piece () : src_piece;
 
-        this->add (who, dst, dst_piece);
-    }
-
-    void Position::unapply_move (Color who, const UndoMove& undo_state)
-    {
-        Color opponent = color_invert (who);
-
-        my_score[color_index (who)] = undo_state.position_score[color_index (who)];
-        my_score[color_index (opponent)] = undo_state.position_score[color_index (opponent)];
+        this->add (who, dst, new_piece);
     }
 
     int Position::individual_score (Color who) const

@@ -8,7 +8,7 @@
 
 namespace wisdom
 {
-    bool is_checkmated (Board& board, Color who, MoveGenerator& generator)
+    bool is_checkmated (const Board& board, Color who, MoveGenerator& generator)
     {
         auto coord = board.get_king_position (who);
 
@@ -20,7 +20,7 @@ namespace wisdom
         return legal_moves.empty ();
     }
 
-    auto was_legal_move (Board& board, Color who, Move mv) -> bool
+    auto was_legal_move (const Board& board, Color who, Move mv) -> bool
     {
         auto king_coord = board.get_king_position (who);
 
@@ -55,7 +55,7 @@ namespace wisdom
         return true;
     }
 
-    auto is_stalemated (Board& board, Color who, MoveGenerator& generator) -> bool
+    auto is_stalemated (const Board& board, Color who, MoveGenerator& generator) -> bool
     {
         auto coord = board.get_king_position (who);
         auto legal_moves = generator.generate_legal_moves (board, who);

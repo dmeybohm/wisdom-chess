@@ -130,7 +130,7 @@ namespace wisdom
         board->set_piece (rook_src, rook);
     }
 
-    static void apply_for_king_move (Board* board, Color who, UndoMove* state,
+    static void apply_for_king_move (Board* board, Color who,
                                      [[maybe_unused]] Coord src, Coord dst)
     {
         board->set_king_position (who, dst);
@@ -211,7 +211,7 @@ namespace wisdom
     }
 
     static void update_en_passant_eligibility (Board* board, Color who, ColoredPiece src_piece,
-                                               Move move, UndoMove* undo_state)
+                                               Move move)
     {
         ColorIndex c_index = color_index (who);
         ColorIndex o_index = color_index (color_invert (who));
@@ -224,8 +224,6 @@ namespace wisdom
             int prev_row = next_row (Row<int> (src), direction);
             new_state = make_coord (prev_row, Column (src));
         }
-        undo_state->en_passant_targets[o_index] = board->get_en_passant_target (o_index);
-        undo_state->en_passant_targets[c_index] = board->get_en_passant_target (c_index);
         board->set_en_passant_target (c_index, new_state);
     }
 
@@ -236,11 +234,17 @@ namespace wisdom
         board->set_en_passant_target (o_index, undo_state.en_passant_targets[o_index]);
     }
 
-    auto Board::make_move (Color who, Move move) -> UndoMove
+    [[nodiscard]] auto Board::with_move (Color who, Move move) const -> Board
+    {
+        Board result = *this;
+        result.make_move (who, move);
+        return result;
+    }
+
+    void Board::make_move (Color who, Move move)
     {
         assert (who == my_code.current_turn ());
 
-        UndoMove undo_state = Empty_Undo_State;
         Color opponent = color_invert (who);
 
         Coord src = move.get_src ();
@@ -253,20 +257,10 @@ namespace wisdom
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) == who);
         if (piece_type (dst_piece) != Piece::None)
-        {
             assert (move.is_normal_capturing ());
-            undo_state.category = MoveCategory::NormalCapturing;
-            undo_state.taken_piece_type = piece_type (dst_piece);
-        }
 
         if (piece_type (src_piece) != Piece::None && piece_type (dst_piece) != Piece::None)
-        {
             assert (piece_color (src_piece) != piece_color (dst_piece));
-        }
-
-        // Save the current castling state, regardless of whether it will be affected.
-        save_current_castle_state (&undo_state, get_castling_eligibility (who));
-        save_opponent_castle_state (&undo_state, get_castling_eligibility (opponent));
 
         // check for promotion
         if (move.is_promoting ())
@@ -278,19 +272,13 @@ namespace wisdom
 
         // check for en passant
         if (move.is_en_passant ())
-        {
             dst_piece = update_for_en_passant (this, who, src, dst);
-            undo_state.category = MoveCategory::EnPassant;
-        }
 
         // check for castling
         if (move.is_castling ())
-        {
             apply_for_castling_move (this, who, move, src, dst);
-            undo_state.category = MoveCategory::Castling;
-        }
 
-        update_en_passant_eligibility (this, who, src_piece, move, &undo_state);
+        update_en_passant_eligibility (this, who, src_piece, move);
 
         my_code.apply_move (*this, move);
 
@@ -299,7 +287,7 @@ namespace wisdom
 
         // update king position
         if (piece_type (src_piece) == Piece::King)
-            apply_for_king_move (this, who, &undo_state, src, dst);
+            apply_for_king_move (this, who, src, dst);
 
         // update rook position -- for castling
         if (piece_type (orig_src_piece) == Piece::Rook)
@@ -307,98 +295,22 @@ namespace wisdom
             apply_for_rook_move (this, who, orig_src_piece, move, src, dst);
         }
 
-        ColoredPiece captured_piece = captured_material (undo_state, opponent);
-        if (piece_type (captured_piece) != Piece::None)
+        if (piece_type (dst_piece) != Piece::None)
         {
             // update material estimate
-            my_material.remove (captured_piece);
+            my_material.remove (dst_piece);
 
-            auto captured_piece_type = piece_type (captured_piece);
+            auto captured_piece_type = piece_type (dst_piece);
 
             // update castle state if somebody takes the rook
             if (captured_piece_type == Piece::Rook)
-            {
                 apply_for_rook_capture (this, color_invert (who), dst_piece, src, dst);
-            }
         }
 
-        my_position.apply_move (who, orig_src_piece, move, &undo_state);
+        my_position.apply_move (who, orig_src_piece, move, dst_piece);
 
-        update_move_clock (who, piece_type (orig_src_piece), move, undo_state);
+        update_move_clock (who, piece_type (orig_src_piece), move);
         set_current_turn (color_invert (who));
-        return undo_state;
-    }
-
-    void Board::take_back (Color who, Move move, const UndoMove& undo_state)
-    {
-        assert (my_code.current_turn () == color_invert (who));
-
-        Color opponent = color_invert (who);
-
-        Coord src = move.get_src ();
-        Coord dst = move.get_dst ();
-
-        auto dst_piece_type = undo_state.taken_piece_type;
-        auto dst_piece = Piece_And_Color_None;
-        auto src_piece = piece_at (dst);
-        auto orig_src_piece = src_piece;
-
-        // Restore the current castling state, regardless of whether it will be affected.
-        set_castle_state (who, current_castle_state (undo_state));
-        set_castle_state (opponent, opponent_castle_state (undo_state));
-
-        assert (piece_type (src_piece) != Piece::None);
-        assert (piece_color (src_piece) == who);
-        if (dst_piece_type != Piece::None)
-            dst_piece = ColoredPiece::make (opponent, dst_piece_type);
-
-        // check for promotion
-        if (move.is_promoting ())
-        {
-            src_piece = ColoredPiece::make (piece_color (src_piece), Piece::Pawn);
-            my_material.remove (orig_src_piece);
-            my_material.add (src_piece);
-        }
-
-        // check for castling
-        if (move.is_castling ())
-            unapply_for_castling (this, who, move, src, dst);
-
-        // Update en passant eligibility:
-        restore_en_passant_eligibility (this, who, undo_state);
-
-        // check for en passant
-        if (move.is_en_passant ())
-        {
-            unapply_for_en_passant (this, who, src, dst);
-
-            // restore empty square where piece was replaced:
-            dst_piece = Piece_And_Color_None;
-        }
-
-        // Update the code:
-        my_code.unapply_move (*this, move, undo_state);
-
-        // put the pieces back
-        set_piece (dst, dst_piece);
-        set_piece (src, src_piece);
-
-        // update king position
-        if (piece_type (src_piece) == Piece::King)
-            unapply_for_king_move (this, who, src, dst);
-
-        ColoredPiece captured_piece = captured_material (undo_state, opponent);
-        auto captured_piece_type = piece_type (captured_piece);
-        if (captured_piece_type != Piece::None)
-        {
-            // NOTE: we reload from the move in case of en-passant, since dst_piece
-            // could be none.
-            my_material.add (captured_piece);
-        }
-
-        my_position.unapply_move (who, undo_state);
-        set_current_turn (who);
-        restore_move_clock (undo_state);
     }
 
     static auto castle_parse (const string& str, Color who) -> optional<Move>

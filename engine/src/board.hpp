@@ -103,8 +103,8 @@ namespace wisdom
         [[nodiscard]] auto to_fen_string (Color turn) const -> string;
         [[nodiscard]] auto castled_string (Color color) const -> string;
 
-        auto make_move (Color who, Move move) -> UndoMove;
-        void take_back (Color who, Move move, const UndoMove& undo_state);
+        // Throws an exception if the move couldn't be applied.
+        [[nodiscard]] auto with_move (Color who, Move move) const -> Board;
 
         [[nodiscard]] auto get_king_position (Color who) const
             -> Coord
@@ -196,19 +196,15 @@ namespace wisdom
         }
         void get_board_code () const&& = delete;
 
-        void update_move_clock (Color who, Piece orig_src_piece_type, Move mv, UndoMove& undo_state)
+        void update_move_clock (Color who, Piece orig_src_piece_type, Move mv)
         {
-            undo_state.half_move_clock = my_half_move_clock;
             if (mv.is_any_capturing () || orig_src_piece_type == Piece::Pawn)
                 my_half_move_clock = 0;
             else
                 my_half_move_clock++;
 
             if (who == Color::Black)
-            {
                 my_full_move_clock++;
-                undo_state.full_move_clock_updated = true;
-            }
         }
 
         [[nodiscard]] auto all_coords () const -> CoordIterator
@@ -236,7 +232,18 @@ namespace wisdom
         [[nodiscard]] auto find_first_coord_with_piece (ColoredPiece piece,
                                                         Coord starting_at = First_Coord) const
             -> optional<Coord>;
+
+        friend void make_move (Board& board, Color who, Move move);
+
+    private:
+        void make_move (Color who, Move move);
     };
+
+    // todo: remove
+    inline void make_move (Board& board, Color who, Move move)
+    {
+        board.make_move (who, move);
+    }
 
     constexpr auto coord_color (Coord coord) -> Color
     {
