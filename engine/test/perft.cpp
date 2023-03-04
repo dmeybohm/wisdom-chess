@@ -11,7 +11,7 @@ namespace wisdom
     using wisdom::perft::Stats;
     using wisdom::perft::to_move_list;
 
-    void Stats::search_moves (Board& board, Color side, int depth, int max_depth,
+    void Stats::search_moves (const Board& board, Color side, int depth, int max_depth, // NOLINT(misc-no-recursion)
                               MoveGenerator& generator)
     {
         if (depth >= max_depth)
@@ -25,10 +25,8 @@ namespace wisdom
         {
             Board new_board = board.with_move (side, move);
 
-            if (!was_legal_move (board, side, move))
-            {
+            if (!was_legal_move (new_board, side, move))
                 continue;
-            }
 
             if (depth == target_depth)
             {
@@ -40,7 +38,8 @@ namespace wisdom
                     counters.en_passants++;
             }
 
-            search_moves (new_board, color_invert (side), depth + 1, max_depth, generator);
+            search_moves (new_board, color_invert (side),
+                          depth + 1, max_depth, generator);
         }
     }
 

@@ -234,9 +234,12 @@ TEST_CASE( "Advanced pawn should be captured" )
 
     game.move (*result.move);
     // assert the pawn at d6 has been taken:
-    INFO ("Info:", to_string (*result.move));
-    auto board = game.get_board ();
-    REQUIRE (board.piece_at (coord_parse ("d6")) != ColoredPiece::make (Color::White, Piece::Pawn));
+    INFO ("Chosen move:", to_string (*result.move));
+
+    auto board = game.get_board();
+    auto target_piece = board.piece_at (coord_parse ("d6"));
+    CHECK( target_piece != ColoredPiece::make (Color::White, Piece::Pawn));
+    CHECK( piece_color (target_piece) == Color::Black );
 }
 
 TEST_CASE( "Checkmate is preferred to stalemate" )
