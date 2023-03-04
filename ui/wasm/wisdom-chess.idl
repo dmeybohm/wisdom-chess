@@ -34,7 +34,7 @@ enum wisdom_WebGameStatus {
 
 [Prefix="wisdom::"]
 interface WebColoredPiece {
-    void WebColoredPiece(long id, long color, long piece, long row, long col);
+    void WebColoredPiece (long id, long color, long piece, long row, long col);
     attribute long id;
     attribute long color;
     attribute long piece;
@@ -46,7 +46,7 @@ interface WebColoredPiece {
 interface WebColoredPieceList {
     void WebColoredPieceList();
     [Value] attribute WebColoredPiece[] pieces;
-    [Value] WebColoredPiece pieceAt(long index);
+    [Value] WebColoredPiece pieceAt (long index);
     attribute long length;
 };
 
@@ -55,12 +55,12 @@ interface WebCoord {
     void WebCoord (long row, long col);
     attribute long row;
     attribute long col;
-    static WebCoord fromTextCoord(DOMString coord);
+    static WebCoord fromTextCoord (DOMString coord);
 };
 
 [Prefix="wisdom::"]
 interface WebMove {
-    static WebMove fromString(DOMString moveText, long who);
+    static WebMove fromString (DOMString moveText, long who);
     DOMString asString();
 };
 
@@ -72,30 +72,17 @@ interface GameSettings {
     attribute long searchDepth;
 };
 
-// Manage the web worker
-[Prefix="wisdom::"]
-interface WebWorker {
-    void sendNewGame();
-    void sendPause();
-    void sendResume();
-
-    GameSettings getCurrentGameSettings();
-    void setCurrentGameSettings(GameSettings newSettings);
-};
-
 [Prefix="wisdom::"]
 interface WebGame {
-    void WebGame (long white_player, long black_player);
-
     [Ref] WebColoredPieceList getPieceList();
 
-    boolean needsPawnPromotion([Const] WebCoord src, [Const] WebCoord dst);
+    boolean needsPawnPromotion ([Const] WebCoord src, [Const] WebCoord dst);
 
     WebMove createMoveFromCoordinatesAndPromotedPiece(
         [Const] WebCoord src, [Const] WebCoord dst, long pieceType
     );
 
-    boolean isLegalMove([Const] WebMove move);
+    boolean isLegalMove ([Const] WebMove move);
     boolean makeMove ([Const] WebMove move);
 
     attribute boolean inCheck;
@@ -106,3 +93,17 @@ interface WebGame {
 
     wisdom_WebColor getCurrentTurn();
 };
+
+[Prefix="wisdom::"]
+interface GameModel {
+    void GameModel();
+
+    void sendPause();
+    void sendResume();
+
+    WebGame startNewGame();
+
+    GameSettings getCurrentGameSettings();
+    void setCurrentGameSettings (GameSettings newSettings);
+};
+

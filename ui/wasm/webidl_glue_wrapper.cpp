@@ -3,11 +3,11 @@
 #include <iostream>
 
 // Include the type definitions for the glue code:
-#include "web_types.hpp"
-#include "web_move.hpp"
-#include "web_game.hpp"
+#include "game_model.hpp"
 #include "game_settings.hpp"
-#include "web_worker.hpp"
+#include "web_game.hpp"
+#include "web_move.hpp"
+#include "web_types.hpp"
 
 // Map enums to the global namespace:
 using wisdom_WebPlayer = wisdom::WebPlayer;

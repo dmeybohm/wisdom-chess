@@ -42,6 +42,7 @@ Promise.all([
 		});
 		promise.then(module => {
 			WisdomChessWeb = module
+
 			if (afterWisdomChessModuleLoaded) {
 				afterWisdomChessModuleLoaded(WisdomChessWeb)
 			}
@@ -55,26 +56,20 @@ function afterWisdomChessModuleLoaded(WisdomChessWeb) {
 	console.log(WisdomChessWeb)
 
 	window.wisdomChessWeb = WisdomChessWeb
+	window.wisdomChessGameModel = new WisdomChessWeb.GameModel();
 
 	window.startReact();
 }
 
 function receiveWorkerMessage(type, gameId, message) {
 	console.log('Received worker message: ', type, message)
+
 	// Dispatch event from document.
 	if (type === "computerMoved" && window.computerMoved) {
 		window.computerMoved({ detail: { gameId: gameId, move: message }});
 	}
+
 	// window.dispatchEvent(new CustomEvent(convertedStr, {
 	// 	detail: { message: message }
 	// }));
 }
-
-// Hmm, how are those workers going to notify the main thread?
-let cnt = 0;
-onmessage = (e) => {
-	if (cnt % 10000) {
-		console.log('message received', e);
-	}
-}
-

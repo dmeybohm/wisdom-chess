@@ -1,15 +1,16 @@
-#ifndef WISDOMCHESS_WEB_WORKER_HPP
-#define WISDOMCHESS_WEB_WORKER_HPP
+#ifndef WISDOMCHESS_GAME_MODEL_HPP
+#define WISDOMCHESS_GAME_MODEL_HPP
 
 #include "web_types.hpp"
 #include "game_settings.hpp"
 #include "bindings.hpp"
+#include "web_game.hpp"
 
 #include <emscripten/wasm_worker.h>
 
 namespace wisdom
 {
-    class WebWorker
+    class GameModel
     {
     private:
         static int my_game_id;
@@ -32,12 +33,17 @@ namespace wisdom
         }
 
     public:
+        GameModel()
+        {}
+
         // Initialize a new game with the default position.
-        void sendNewGame ()
+        WebGame* startNewGame ()
         {
+            auto new_game = new WebGame();
             emscripten_wasm_worker_post_function_vi (engine_thread,
                                                      worker_reinitialize_game,
                                                      ++my_game_id);
+            return new_game;
         }
 
         // Pause the worker.
@@ -69,4 +75,4 @@ namespace wisdom
     };
 }
 
-#endif // WISDOMCHESS_WEB_WORKER_HPP
+#endif // WISDOMCHESS_GAME_MODEL_HPP

@@ -34,7 +34,7 @@ function App() {
         setShowSettings(true);
     }
 
-    const gameRef = useRef(getCurrentGame())
+    const game = getCurrentGame()
     const gameState = useGame((state) => state)
     const actions = useGame((state) => state.actions)
 
@@ -43,22 +43,29 @@ function App() {
             console.log('computerMoved', event.detail)
             const moveStr = event.detail.move;
             const gameId = event.detail.gameId;
-            const move = wisdomChess.WebMove.prototype.fromString(moveStr, gameRef.current.getCurrentTurn());
+            const game = getCurrentGame()
+            const move = wisdomChess.WebMove.prototype.fromString(moveStr, game.getCurrentTurn());
             // handle castle / promotion etc
             actions.computerMovePiece(move as WebMove)
         }
         (window as any).computerMoved = listener;
         window.addEventListener('computerMoved', listener as EventListener);
         actions.init()
+
         return () => {
             window.removeEventListener('computerMoved', listener as EventListener)
         }
     }, [])
 
-    const gameOverStatus = gameRef.current.gameOverStatus
-    const currentTurn = gameRef.current.getCurrentTurn()
-    const inCheck = gameRef.current.inCheck
-    const moveStatus = gameRef.current.moveStatus
+    const gameOverStatus = game.gameOverStatus
+    const currentTurn = game.getCurrentTurn()
+    const inCheck = game.inCheck
+    const moveStatus = game.moveStatus
+
+    const handleNewGame = () => {
+        actions.startNewGame()
+        setShowNewGame(false)
+    }
 
     return (
         <div className="App">
@@ -88,7 +95,7 @@ function App() {
             </div>
             <Modal show={showNewGame}>
                 <h1>New Game</h1>
-                <button onClick={() => actions.startNewGame()}>Cancel</button>
+                <button className="btn-highlight" onClick={handleNewGame}>Start New Game</button>
                 <button onClick={() => setShowNewGame(false)}>Cancel</button>
             </Modal>
             <Modal show={showAbout}>

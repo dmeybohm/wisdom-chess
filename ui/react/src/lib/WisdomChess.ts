@@ -15,6 +15,12 @@ import BlackKing from "../assets/Chess_kdt45.svg";
 
 // These are already described in the IDL:
 export type Game = any
+
+export type GameModel = {
+    startNewGame: () => Game
+    getCurrentGame: () => Game
+}
+
 export type WisdomChess = any
 export type PieceColor = any
 export type PieceType = any
@@ -30,24 +36,28 @@ interface ColoredPiece {
 
 interface WisdomWindow {
     wisdomChessWeb: unknown
+    wisdomChessGameModel: GameModel
+    wisdomChessCurrentGame: Game
+}
+
+export function getGameModel () {
+    const wisdomWindow = ((window as unknown) as WisdomWindow)
+    return wisdomWindow.wisdomChessGameModel
 }
 
 export function getCurrentGame () {
-    const wisdomChess = WisdomChess()
-    if (!wisdomChess.currentGame) {
-        wisdomChess.currentGame = new wisdomChess.WebGame(wisdomChess.Human, wisdomChess.Human)
-        wisdomChess.currentGame.initializeWorker()
+    const wisdomWindow = ((window as unknown) as WisdomWindow)
+    if (!wisdomWindow.wisdomChessCurrentGame) {
+        const gameModel = getGameModel()
+        wisdomWindow.wisdomChessCurrentGame =  gameModel.startNewGame()
     }
-    return wisdomChess.currentGame
+    return wisdomWindow.wisdomChessCurrentGame;
 }
 
-export function resetCurrentGame() {
-    const wisdomChess = WisdomChess()
-    if (wisdomChess.currentGame) {
-        wisdomChess.destroy(wisdomChess.currentGame)
-    }
-    wisdomChess.currentGame = new wisdomChess.WebGame(wisdomChess.Human, wisdomChess.Human)
-    return wisdomChess.currentGame
+export function startNewGame(): Game {
+    const wisdomWindow = ((window as unknown) as WisdomWindow)
+    delete wisdomWindow.wisdomChessCurrentGame
+    return getCurrentGame()
 }
 
 export function WisdomChess(): WisdomChess {

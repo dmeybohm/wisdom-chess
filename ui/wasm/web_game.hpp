@@ -6,7 +6,6 @@
 
 namespace wisdom
 {
-
     class WebGame
     {
     private:
@@ -22,6 +21,10 @@ namespace wisdom
         char* gameOverStatus{};
         int moveNumber{};
         int gameId = ++our_game_id;
+
+        WebGame ()
+            : WebGame (static_cast<int> (Human), static_cast<int> (ChessEngine))
+        {}
 
         WebGame (int white_player, int black_player) :
             my_game { map_player (white_player), map_player (black_player) }
