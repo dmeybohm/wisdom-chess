@@ -15,7 +15,7 @@ namespace wisdom
     class IterativeSearchImpl
     {
     private:
-        Board my_board;
+        Board my_original_board;
         observer_ptr<History> my_history;
         not_null<observer_ptr<const Logger>> my_output;
         MoveGenerator my_generator {};
@@ -37,7 +37,7 @@ namespace wisdom
     public:
         IterativeSearchImpl (const Board& board, History& history, const Logger& output,
                              MoveTimer timer, int total_depth) :
-                my_board { Board { board } },
+                my_original_board { Board { board } },
                 my_history { &history },
                 my_output { &output },
                 my_timer { std::move (timer) },
@@ -170,7 +170,7 @@ namespace wisdom
         if (!my_best_move.has_value ())
         {
             // if there are no legal moves, then the current player is in a stalemate or checkmate position.
-            result.score = evaluate_without_legal_moves (my_board, side, result.depth);
+            result.score = evaluate_without_legal_moves (board, side, result.depth);
         }
         my_best_score = result.score;
         my_best_depth = result.depth;
@@ -222,7 +222,7 @@ namespace wisdom
         {
             std::cerr << "Uncaught error: " << e.message () << "\n";
             std::cerr << e.extra_info () << "\n";
-            my_board.dump ();
+            my_original_board.dump ();
 
             std::cerr << "History leading up to move: " << "\n";
             std::cerr << my_history->get_move_history ().to_string () << "\n";
@@ -248,7 +248,7 @@ namespace wisdom
         auto start = std::chrono::system_clock::now ();
 
         my_search_depth = depth;
-        search (my_board, side, depth, -Initial_Alpha, Initial_Alpha);
+        search (my_original_board, side, depth, -Initial_Alpha, Initial_Alpha);
 
         auto end = std::chrono::system_clock::now ();
 
