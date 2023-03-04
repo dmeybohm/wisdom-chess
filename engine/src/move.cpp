@@ -11,16 +11,6 @@ namespace wisdom
         return make_coord (Row (src), Column (dst));
     }
 
-    static void save_current_castle_state (UndoMove* undo_state, CastlingEligibility state)
-    {
-        undo_state->current_castle_state = pack_castle_state (state);
-    }
-
-    static void save_opponent_castle_state (UndoMove* undo_state, CastlingEligibility state)
-    {
-        undo_state->opponent_castle_state = pack_castle_state (state);
-    }
-
     constexpr bool is_double_square_pawn_move (ColoredPiece src_piece, Move move)
     {
         Coord src = move.get_src ();

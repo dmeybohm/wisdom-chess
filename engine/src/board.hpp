@@ -212,13 +212,6 @@ namespace wisdom
             return CoordIterator {};
         }
 
-        void restore_move_clock (const UndoMove& undo_state)
-        {
-            my_half_move_clock = undo_state.half_move_clock;
-            if (undo_state.full_move_clock_updated)
-                my_full_move_clock--;
-        }
-
         void set_piece (int8_t row, int8_t col, ColoredPiece piece)
         {
             my_squares[coord_index (row, col)] = piece;

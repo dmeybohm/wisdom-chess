@@ -7,13 +7,14 @@
 
 using namespace wisdom;
 
-TEST_CASE("Position is initialized correctly")
+TEST_CASE( "Position is initialized correctly" )
 {
     Board board;
 
-    CHECK(board.get_position ().individual_score (Color::White) < 0 );
-    CHECK(board.get_position ().individual_score (Color::Black) < 0 );
-    CHECK(board.get_position ().individual_score (Color::White) == board.get_position ().individual_score (Color::Black));
+    CHECK( board.get_position().individual_score (Color::White) < 0 );
+    CHECK( board.get_position().individual_score (Color::Black) < 0 );
+    CHECK( board.get_position().individual_score (Color::White) ==
+           board.get_position().individual_score (Color::Black) );
 }
 
 TEST_CASE( "Center pawn elevates position overall_score" )
@@ -28,10 +29,11 @@ TEST_CASE( "Center pawn elevates position overall_score" )
     
     auto board = Board { builder };
 
-    CHECK(board.get_position ().overall_score (Color::White) > board.get_position ().overall_score (Color::Black));
+    CHECK( board.get_position().overall_score (Color::White) >
+           board.get_position().overall_score (Color::Black));
 }
 
-TEST_CASE( "Capture updates position overall_score correctly")
+TEST_CASE( "Capture updates position overall_score correctly" )
 {
     BoardBuilder builder;
 
@@ -48,11 +50,10 @@ TEST_CASE( "Capture updates position overall_score correctly")
 
     Move e4xd6 = move_parse ("e4xd6", Color::White);
 
-    UndoMove undo_state = board.make_move (Color::White, e4xd6);
-    board.take_back (Color::White, e4xd6, undo_state);
+    Board after_capture = board.with_move (Color::White, e4xd6);
 
-    CHECK( initial_score_white == board.get_position ().overall_score (Color::White) );
-    CHECK( initial_score_black == board.get_position ().overall_score (Color::Black) );
+    CHECK( initial_score_white < after_capture.get_position().overall_score (Color::White) );
+    CHECK( initial_score_black > after_capture.get_position().overall_score (Color::Black) );
 }
 
 TEST_CASE( "En passant updates position overall_score correctly")
@@ -73,11 +74,10 @@ TEST_CASE( "En passant updates position overall_score correctly")
     Move e5xd5 = move_parse ("e5d6 ep", Color::White);
     CHECK(e5xd5.is_en_passant () );
 
-    UndoMove undo_state = board.make_move (Color::White, e5xd5);
-    board.take_back (Color::White, e5xd5, undo_state);
+    Board after_en_passant = board.with_move (Color::White, e5xd5);
 
-    CHECK( initial_score_white == board.get_position ().overall_score (Color::White) );
-    CHECK( initial_score_black == board.get_position ().overall_score (Color::Black) );
+    CHECK( initial_score_white < after_en_passant.get_position().overall_score (Color::White) );
+    CHECK( initial_score_black > after_en_passant.get_position().overall_score (Color::Black) );
 }
 
 TEST_CASE( "Castling updates position overall_score correctly")
@@ -101,11 +101,10 @@ TEST_CASE( "Castling updates position overall_score correctly")
         Move castling_move = move_parse (castling_move_in, Color::White);
         CHECK( castling_move.is_castling ());
 
-        UndoMove undo_state = board.make_move (Color::White, castling_move);
-        board.take_back (Color::White, castling_move, undo_state);
+        Board after_castling = board.with_move (Color::White, castling_move);
 
-        CHECK(initial_score_white == board.get_position ().overall_score (Color::White));
-        CHECK(initial_score_black == board.get_position ().overall_score (Color::Black));
+        CHECK( initial_score_white < after_castling.get_position().overall_score (Color::White));
+        CHECK( initial_score_black > after_castling.get_position().overall_score (Color::Black));
     }
 }
 
@@ -126,13 +125,12 @@ TEST_CASE( "Promoting move updates position overall_score correctly")
     for (auto promoting_move_in : promoting_moves)
     {
         Move castling_move = move_parse (promoting_move_in, Color::White);
-        CHECK(castling_move.is_promoting () );
+        CHECK( castling_move.is_promoting () );
 
-        UndoMove undo_state = board.make_move (Color::White, castling_move);
-        board.take_back (Color::White, castling_move, undo_state);
+        Board after_promotion = board.with_move (Color::White, castling_move);
 
-        CHECK( initial_score_white == board.get_position ().overall_score (Color::White) );
-        CHECK( initial_score_black == board.get_position ().overall_score (Color::Black) );
+        CHECK( initial_score_white < after_promotion.get_position ().overall_score (Color::White) );
+        CHECK( initial_score_black > after_promotion.get_position ().overall_score (Color::Black) );
     }
 }
 
@@ -144,12 +142,11 @@ TEST_CASE("Double pawn moves are more appealing")
     auto e7e5 = move_parse("e7e5");
     auto e7e6 = move_parse("e7e6");
 
-    board.make_move (Color::White, e2e4);
-    auto undo = board.make_move (Color::Black, e7e5);
-    auto black_big_score = board.get_position ().individual_score (Color::Black);
-    board.take_back (Color::Black, e7e5, undo);
-    board.make_move (Color::Black, e7e6);
-    auto black_small_score = board.get_position ().individual_score (Color::Black);
+    Board after_white = board.with_move (Color::White, e2e4);
+    Board with_double = after_white.with_move (Color::Black, e7e5);
+    auto black_big_score = with_double.get_position().individual_score (Color::Black);
+    Board with_single = after_white.with_move (Color::Black, e7e6);
+    auto black_small_score = with_single.get_position().individual_score (Color::Black);
 
     REQUIRE( black_big_score > black_small_score );
 }
