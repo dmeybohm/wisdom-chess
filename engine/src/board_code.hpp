@@ -9,10 +9,10 @@
 namespace wisdom
 {
     // 3 Bits per piece type, +1 for color (special case: no piece == 0):
-    constexpr int Board_Code_Bits_Per_Piece = 4;
+    static constexpr int Board_Code_Bits_Per_Piece = 4;
 
     // 4 bits per square * 64 squares = 256 bits
-    constexpr int Board_Code_Total_Bits = Board_Code_Bits_Per_Piece * Num_Rows * Num_Columns;
+    static constexpr int Board_Code_Total_Bits = Board_Code_Bits_Per_Piece * Num_Rows * Num_Columns;
 
     using BoardCodeBitset = std::bitset<Board_Code_Total_Bits>;
 
