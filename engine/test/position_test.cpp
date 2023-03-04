@@ -45,15 +45,15 @@ TEST_CASE( "Capture updates position overall_score correctly" )
 
     auto board = Board { builder };
 
-    int initial_score_white = board.get_position ().overall_score (Color::White);
-    int initial_score_black = board.get_position ().overall_score (Color::Black);
+    int initial_score_white = board.get_position().overall_score (Color::White);
+    int initial_score_black = board.get_position().overall_score (Color::Black);
 
     Move e4xd6 = move_parse ("e4xd6", Color::White);
 
-    Board after_capture = board.with_move (Color::White, e4xd6);
+    board = board.with_move (Color::White, e4xd6);
 
-    CHECK( initial_score_white < after_capture.get_position().overall_score (Color::White) );
-    CHECK( initial_score_black > after_capture.get_position().overall_score (Color::Black) );
+    CHECK( initial_score_white < board.get_position().overall_score (Color::White) );
+    CHECK( initial_score_black > board.get_position().overall_score (Color::Black) );
 }
 
 TEST_CASE( "En passant updates position overall_score correctly")
@@ -68,16 +68,16 @@ TEST_CASE( "En passant updates position overall_score correctly")
 
     auto board = Board { builder };
 
-    int initial_score_white = board.get_position ().overall_score (Color::White);
-    int initial_score_black = board.get_position ().overall_score (Color::Black);
+    int initial_score_white = board.get_position().overall_score (Color::White);
+    int initial_score_black = board.get_position().overall_score (Color::Black);
 
     Move e5xd5 = move_parse ("e5d6 ep", Color::White);
-    CHECK(e5xd5.is_en_passant () );
+    CHECK( e5xd5.is_en_passant() );
 
-    Board after_en_passant = board.with_move (Color::White, e5xd5);
+    board = board.with_move (Color::White, e5xd5);
 
-    CHECK( initial_score_white < after_en_passant.get_position().overall_score (Color::White) );
-    CHECK( initial_score_black > after_en_passant.get_position().overall_score (Color::Black) );
+    CHECK( initial_score_white < board.get_position().overall_score (Color::White) );
+    CHECK( initial_score_black > board.get_position().overall_score (Color::Black) );
 }
 
 TEST_CASE( "Castling updates position overall_score correctly")
@@ -124,10 +124,10 @@ TEST_CASE( "Promoting move updates position overall_score correctly")
     std::vector promoting_moves { "h7h8 (Q)", "h7h8 (R)", "h7h8 (B)", "h7h8 (N)" };
     for (auto promoting_move_in : promoting_moves)
     {
-        Move castling_move = move_parse (promoting_move_in, Color::White);
-        CHECK( castling_move.is_promoting () );
+        Move promoting_move = move_parse (promoting_move_in, Color::White);
+        CHECK( promoting_move.is_promoting () );
 
-        Board after_promotion = board.with_move (Color::White, castling_move);
+        Board after_promotion = board.with_move (Color::White, promoting_move);
 
         CHECK( initial_score_white < after_promotion.get_position().overall_score (Color::White) );
         CHECK( initial_score_black > after_promotion.get_position().overall_score (Color::Black) );
