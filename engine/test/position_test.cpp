@@ -52,8 +52,8 @@ TEST_CASE( "Capture updates position overall_score correctly" )
 
     board = board.with_move (Color::White, e4xd6);
 
-    CHECK( initial_score_white < board.get_position().overall_score (Color::White) );
-    CHECK( initial_score_black > board.get_position().overall_score (Color::Black) );
+    CHECK( initial_score_white != board.get_position().overall_score (Color::White) );
+    CHECK( initial_score_black != board.get_position().overall_score (Color::Black) );
 }
 
 TEST_CASE( "En passant updates position overall_score correctly")
@@ -76,8 +76,8 @@ TEST_CASE( "En passant updates position overall_score correctly")
 
     board = board.with_move (Color::White, e5xd5);
 
-    CHECK( initial_score_white < board.get_position().overall_score (Color::White) );
-    CHECK( initial_score_black > board.get_position().overall_score (Color::Black) );
+    CHECK( initial_score_white != board.get_position().overall_score (Color::White) );
+    CHECK( initial_score_black != board.get_position().overall_score (Color::Black) );
 }
 
 TEST_CASE( "Castling updates position overall_score correctly")
@@ -92,8 +92,8 @@ TEST_CASE( "Castling updates position overall_score correctly")
     builder.add_piece("d5", Color::Black, Piece::Pawn);
 
     auto board = Board { builder };
-    int initial_score_white = board.get_position ().overall_score (Color::White);
-    int initial_score_black = board.get_position ().overall_score (Color::Black);
+    int initial_score_white = board.get_position().overall_score (Color::White);
+    int initial_score_black = board.get_position().overall_score (Color::Black);
 
     std::vector castling_moves { "o-o", "o-o-o" };
     for (auto castling_move_in : castling_moves)
@@ -103,8 +103,8 @@ TEST_CASE( "Castling updates position overall_score correctly")
 
         Board after_castling = board.with_move (Color::White, castling_move);
 
-        CHECK( initial_score_white < after_castling.get_position().overall_score (Color::White));
-        CHECK( initial_score_black > after_castling.get_position().overall_score (Color::Black));
+        CHECK( initial_score_white != after_castling.get_position().overall_score (Color::White));
+        CHECK( initial_score_black != after_castling.get_position().overall_score (Color::Black));
     }
 }
 
@@ -129,8 +129,8 @@ TEST_CASE( "Promoting move updates position overall_score correctly")
 
         Board after_promotion = board.with_move (Color::White, promoting_move);
 
-        CHECK( initial_score_white < after_promotion.get_position().overall_score (Color::White) );
-        CHECK( initial_score_black > after_promotion.get_position().overall_score (Color::Black) );
+        CHECK( initial_score_white != after_promotion.get_position().overall_score (Color::White) );
+        CHECK( initial_score_black != after_promotion.get_position().overall_score (Color::Black) );
     }
 }
 

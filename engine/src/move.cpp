@@ -242,7 +242,7 @@ namespace wisdom
         if (piece_type (dst_piece) != Piece::None)
             assert (move.is_normal_capturing ());
 
-        if (piece_type (src_piece) != Piece::None && piece_type (dst_piece) != Piece::None)
+        if (piece_type (dst_piece) != Piece::None)
             assert (piece_color (src_piece) != piece_color (dst_piece));
 
         // check for promotion

@@ -148,12 +148,12 @@ namespace wisdom
     {
         Color opponent = color_invert (who);
 
-        Coord src = move.get_src ();
-        Coord dst = move.get_dst ();
+        Coord src = move.get_src();
+        Coord dst = move.get_dst();
 
         this->remove (who, src, src_piece);
 
-        switch (move.get_move_category ())
+        switch (move.get_move_category())
         {
             case MoveCategory::Default:
                 break;
@@ -201,14 +201,14 @@ namespace wisdom
                 throw Error { "Invalid move type." };
         }
 
-        ColoredPiece new_piece = move.is_promoting () ? move.get_promoted_piece () : src_piece;
+        ColoredPiece new_piece = move.is_promoting() ? move.get_promoted_piece() : src_piece;
 
         this->add (who, dst, new_piece);
     }
 
     int Position::individual_score (Color who) const
     {
-        return my_score[color_index(who)];
+        return my_score[color_index (who)];
     }
 
     Position::Position (const Board& board)
@@ -219,5 +219,10 @@ namespace wisdom
             if (piece != Piece_And_Color_None)
                 add (piece_color (piece), coord, piece);
         }
+    }
+
+    auto operator<< (std::ostream& ostream, Position& position) -> std::ostream&
+    {
+        return ostream << "{ " << position.my_score[0] << ", " << position.my_score[1] << "}";
     }
 }

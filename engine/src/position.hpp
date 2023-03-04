@@ -26,6 +26,8 @@ namespace wisdom
         // Apply the move to the position.
         void apply_move (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece);
 
+        friend auto operator<< (std::ostream& ostream, Position& position) -> std::ostream&;
+
     private:
         int my_score[Num_Players]{};
 

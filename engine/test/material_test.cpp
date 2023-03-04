@@ -62,10 +62,10 @@ TEST_CASE( "Piece count" )
     builder.add_piece ("f2", Color::Black, Piece::Pawn);
 
     auto brd = Board { builder };
-    const auto& material = brd.get_material ();
 
     SUBCASE( "Is updated from the amount of pieces on the board")
     {
+        const auto& material = brd.get_material();
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Queen) == 0 );
@@ -73,7 +73,7 @@ TEST_CASE( "Piece count" )
         CHECK( material.piece_count (Color::White, Piece::Rook) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
 
-        const auto& default_material = default_board.get_material ();
+        const auto& default_material = default_board.get_material();
         CHECK( default_material.piece_count (Color::White, Piece::Pawn) == 8 );
         CHECK( default_material.piece_count (Color::Black, Piece::Pawn) == 8 );
         CHECK( default_material.piece_count (Color::White, Piece::Rook) == 2 );
@@ -85,6 +85,7 @@ TEST_CASE( "Piece count" )
         auto capture_move = move_parse ("e6xf7", Color::White);
 
         brd = brd.with_move (Color::White, capture_move);
+        const auto& material = brd.get_material();
         CHECK( material.piece_count (Color::Black, Piece::Knight) == 0 );
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
@@ -95,6 +96,7 @@ TEST_CASE( "Piece count" )
         auto capture_move = move_parse ("h2xe2", Color::White);
 
         brd = brd.with_move (Color::White, capture_move);
+        const auto& material = brd.get_material();
         CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
@@ -107,6 +109,7 @@ TEST_CASE( "Piece count" )
         auto promoting_move = move_parse ("e2e1 (Q)", Color::Black);
 
         brd = brd.with_move (Color::Black, promoting_move);
+        const auto& material = brd.get_material();
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Queen) == 1 );
@@ -119,6 +122,7 @@ TEST_CASE( "Piece count" )
         auto promoting_move = move_parse ("e2xd1 (R)", Color::Black);
 
         brd = brd.with_move (Color::Black, promoting_move);
+        const auto& material = brd.get_material();
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Rook) == 1 );
