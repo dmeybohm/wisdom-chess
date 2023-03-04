@@ -153,20 +153,20 @@ TEST_CASE("Castling state is modified and restored for castling kingside")
     CHECK( board.able_to_castle (Color::White, (CastlingEligible::KingsideIneligible | CastlingEligible::KingsideIneligible)) );
     CHECK( board.get_castling_eligibility (Color::White) == CastlingEligible::EitherSideEligible );
 
-    Board after_castling = board.with_move (Color::White, mv);
+    board = board.with_move (Color::White, mv);
 
-    CHECK( !after_castling.able_to_castle (Color::White, CastlingEligible::QueensideIneligible) );
-    CHECK( !after_castling.able_to_castle (Color::White, CastlingEligible::KingsideIneligible) );
-    CHECK( !after_castling.able_to_castle (Color::White, (CastlingEligible::KingsideIneligible | CastlingEligible::KingsideIneligible)) );
-    CHECK( after_castling.get_castling_eligibility (Color::White) == CastlingEligible::BothSidesIneligible );
+    CHECK( !board.able_to_castle (Color::White, CastlingEligible::QueensideIneligible) );
+    CHECK( !board.able_to_castle (Color::White, CastlingEligible::KingsideIneligible) );
+    CHECK( !board.able_to_castle (Color::White, (CastlingEligible::KingsideIneligible | CastlingEligible::KingsideIneligible)) );
+    CHECK( board.get_castling_eligibility (Color::White) == CastlingEligible::BothSidesIneligible );
 
     // Check rook and king position updated:
-    CHECK( Row (after_castling.get_king_position (Color::White)) == 7 );
-    CHECK( Column (after_castling.get_king_position (Color::White)) == 6 );
-    CHECK( piece_type (after_castling.piece_at (7, 6)) == Piece::King );
-    CHECK( piece_color (after_castling.piece_at (7, 6)) == Color::White );
-    CHECK( piece_type (after_castling.piece_at (7, 5)) == Piece::Rook );
-    CHECK( piece_color (after_castling.piece_at (7, 5)) == Color::White );
+    CHECK( Row (board.get_king_position (Color::White)) == 7 );
+    CHECK( Column (board.get_king_position (Color::White)) == 6 );
+    CHECK( piece_type (board.piece_at (7, 6)) == Piece::King );
+    CHECK( piece_color (board.piece_at (7, 6)) == Color::White );
+    CHECK( piece_type (board.piece_at (7, 5)) == Piece::Rook );
+    CHECK( piece_color (board.piece_at (7, 5)) == Color::White );
 }
 
 TEST_CASE( "Opponent's castling state is modified when his rook is taken" )
@@ -197,23 +197,21 @@ TEST_CASE( "Opponent's castling state is modified when his rook is taken" )
     CHECK( board.able_to_castle (Color::Black, (CastlingEligible::KingsideIneligible | CastlingEligible::KingsideIneligible)) );
     CHECK( board.get_castling_eligibility (Color::Black) == CastlingEligible::EitherSideEligible );
 
-    Board after_rook_taken = board.with_move (Color::White, mv);
+    board = board.with_move (Color::White, mv);
 
-    CHECK (after_rook_taken.able_to_castle (Color::White, CastlingEligible::QueensideIneligible));
-    CHECK (after_rook_taken.able_to_castle (Color::White, CastlingEligible::KingsideIneligible));
-    CHECK (after_rook_taken.able_to_castle (
+    CHECK (board.able_to_castle (Color::White, CastlingEligible::QueensideIneligible));
+    CHECK (board.able_to_castle (Color::White, CastlingEligible::KingsideIneligible));
+    CHECK (board.able_to_castle (
         Color::White,
         (CastlingEligible::KingsideIneligible | CastlingEligible::KingsideIneligible)));
-    CHECK (after_rook_taken.get_castling_eligibility (Color::White)
-           == CastlingEligible::EitherSideEligible);
+    CHECK (board.get_castling_eligibility (Color::White) == CastlingEligible::EitherSideEligible);
 
-    CHECK (!after_rook_taken.able_to_castle (Color::Black, CastlingEligible::QueensideIneligible));
-    CHECK (after_rook_taken.able_to_castle (Color::Black, CastlingEligible::KingsideIneligible));
-    CHECK (after_rook_taken.able_to_castle (
+    CHECK (!board.able_to_castle (Color::Black, CastlingEligible::QueensideIneligible));
+    CHECK (board.able_to_castle (Color::Black, CastlingEligible::KingsideIneligible));
+    CHECK (board.able_to_castle (
         Color::Black,
         (CastlingEligible::KingsideIneligible | CastlingEligible::KingsideIneligible)));
-    CHECK (after_rook_taken.get_castling_eligibility (Color::Black)
-           == CastlingEligible::QueensideIneligible);
+    CHECK (board.get_castling_eligibility (Color::Black) == CastlingEligible::QueensideIneligible);
 }
 
 TEST_CASE("Castling state is updated when rook captures a piece")
@@ -245,17 +243,17 @@ TEST_CASE("Castling state is updated when rook captures a piece")
     CHECK( board.able_to_castle (Color::Black, (CastlingEligible::KingsideIneligible | CastlingEligible::KingsideIneligible)) );
     CHECK( board.get_castling_eligibility (Color::Black) == CastlingEligible::EitherSideEligible );
 
-    Board after_capture = board.with_move (Color::Black, mv);;
+    board = board.with_move (Color::Black, mv);;
 
-    CHECK( after_capture.able_to_castle (Color::White, CastlingEligible::QueensideIneligible) );
-    CHECK( after_capture.able_to_castle (Color::White, CastlingEligible::KingsideIneligible) );
-    CHECK( after_capture.able_to_castle (Color::White, (CastlingEligible::KingsideIneligible | CastlingEligible::KingsideIneligible)) );
-    CHECK( after_capture.get_castling_eligibility (Color::White) == CastlingEligible::EitherSideEligible );
+    CHECK( board.able_to_castle (Color::White, CastlingEligible::QueensideIneligible) );
+    CHECK( board.able_to_castle (Color::White, CastlingEligible::KingsideIneligible) );
+    CHECK( board.able_to_castle (Color::White, (CastlingEligible::KingsideIneligible | CastlingEligible::KingsideIneligible)) );
+    CHECK( board.get_castling_eligibility (Color::White) == CastlingEligible::EitherSideEligible );
 
-    CHECK( !after_capture.able_to_castle (Color::Black, CastlingEligible::QueensideIneligible) );
-    CHECK( after_capture.able_to_castle (Color::Black, CastlingEligible::KingsideIneligible) );
-    CHECK( after_capture.able_to_castle (Color::Black, (CastlingEligible::KingsideIneligible | CastlingEligible::KingsideIneligible)) );
-    CHECK( after_capture.get_castling_eligibility (Color::Black) == CastlingEligible::QueensideIneligible );
+    CHECK( !board.able_to_castle (Color::Black, CastlingEligible::QueensideIneligible) );
+    CHECK( board.able_to_castle (Color::Black, CastlingEligible::KingsideIneligible) );
+    CHECK( board.able_to_castle (Color::Black, (CastlingEligible::KingsideIneligible | CastlingEligible::KingsideIneligible)) );
+    CHECK( board.get_castling_eligibility (Color::Black) == CastlingEligible::QueensideIneligible );
 }
 
 TEST_CASE("Opponent's castling state is modified when his rook is taken (failure scenario)")
