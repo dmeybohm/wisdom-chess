@@ -17,7 +17,7 @@ on:
 env:
   # Path to the CMake build directory.
   build: '${{ github.workspace }}/build'
-  BUILD_TYPE: Debug
+  BUILD_TYPE: Release
 
 permissions:
   contents: read
