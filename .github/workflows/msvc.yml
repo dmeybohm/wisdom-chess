@@ -50,7 +50,7 @@ jobs:
         run: cmake -B ${{ env.build }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Show ToolChain Config
-        run: type ${{ env.build }}/.cmake/api/v1/reply/toolchains-*
+        run: dir /s ${{ env.build }} *.json
         
       # Build is not required unless generated source files are used
       # - name: Build CMake
