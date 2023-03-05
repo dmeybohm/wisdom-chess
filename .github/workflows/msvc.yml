@@ -51,7 +51,7 @@ jobs:
 
       - name: Show ToolChain Config
         shell: bash
-        run: find ${{ env.build }}/.cmake -type f
+        run: find `echo ${{ env.build }} | tr '\\' /`.cmake -type f
         
       # Build is not required unless generated source files are used
       # - name: Build CMake
