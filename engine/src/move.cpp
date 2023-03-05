@@ -19,7 +19,7 @@ namespace wisdom
     }
 
     // Returns the taken piece
-    static auto update_for_en_passant (Board* board, Color who, Coord src, Coord dst)
+    static auto apply_for_en_passant (Board* board, Color who, Coord src, Coord dst)
         -> ColoredPiece
     {
         Coord taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
@@ -253,13 +253,30 @@ namespace wisdom
             my_material.remove (ColoredPiece::make (who, Piece::Pawn));
         }
 
-        // check for en passant
-        if (move.is_en_passant ())
-            dst_piece = update_for_en_passant (this, who, src, dst);
+        switch (move.get_move_category())
+        {
+            case MoveCategory::Default:
+                assert (piece_type (dst_piece) == Piece::None);
+                break;
 
-        // check for castling
-        if (move.is_castling ())
-            apply_for_castling_move (this, who, move, src, dst);
+            case MoveCategory::NormalCapturing:
+                assert (move.is_normal_capturing ());
+                assert (piece_color (src_piece) != piece_color (dst_piece));
+                break;
+
+            case MoveCategory::EnPassant:
+                dst_piece = apply_for_en_passant (this, who, src, dst);
+                break;
+
+            case MoveCategory::Castling:
+                apply_for_castling_move (this, who, move, src, dst);
+                break;
+
+            default:
+                throw Error {
+                    "Invalid move category: " + std::to_string (static_cast<int>(move.get_move_category()))
+                };
+        }
 
         update_en_passant_eligibility (this, who, src_piece, move);
 
