@@ -35,8 +35,7 @@ TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Resul
         for (const auto [depth, expectation] : expectations)
         {
             Stats stats;
-            Board copy_board = board;
-            stats.search_moves (copy_board, color, 0, depth, move_generator);
+            stats.search_moves (board, color, 0, depth, move_generator);
 
             CHECK( stats.counters.nodes == expectation.nodes );
             CHECK( stats.counters.captures == expectation.captures );

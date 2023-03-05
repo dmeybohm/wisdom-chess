@@ -49,7 +49,7 @@ namespace wisdom
 
         // Board codes and undo positions sorted by move number:
         vector<BoardCode> my_board_codes;
-        vector<UndoMove> my_undo_moves;
+        vector<observer_ptr<Board>> my_previous_boards {};
 
         DrawStatus my_threefold_repetition_status = DrawStatus::NotReached;
         DrawStatus my_fifty_moves_without_progress_status
@@ -60,7 +60,7 @@ namespace wisdom
             : my_move_history { MoveList::uncached() }
         {
             my_board_codes.reserve (64);
-            my_undo_moves.reserve (64);
+            my_previous_boards.reserve (64);
         }
 
         [[nodiscard]] static auto has_been_n_half_moves_without_progress (const Board& board, int n)
@@ -95,17 +95,22 @@ namespace wisdom
             return repetitions >= repetition_count;
         }
 
-        void add_position_and_move (const Board& board, Move move, const UndoMove& undo_state)
+        void add_position_and_move (observer_ptr<Board> board, Move move)
         {
-            my_board_codes.push_back (board.get_code ());
-            my_undo_moves.push_back (undo_state);
+            my_board_codes.push_back (board->get_code ());
+            my_previous_boards.push_back (board);
             my_move_history.push_back (move);
         }
 
-        void remove_position_and_last_move (const Board& board)
+        void add_position (observer_ptr<Board> board)
+        {
+            my_previous_boards.push_back (board);
+        }
+
+        void remove_last_position ()
         {
             my_board_codes.pop_back ();
-            my_undo_moves.pop_back ();
+            my_previous_boards.pop_back ();
             my_move_history.pop_back ();
         }
 

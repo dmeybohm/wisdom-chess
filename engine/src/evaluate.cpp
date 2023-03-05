@@ -53,13 +53,13 @@ namespace wisdom
         }
     }
 
-    auto evaluate (Board& board, Color who, int moves_away, MoveGenerator& generator) -> int
+    auto evaluate (const Board& board, Color who, int moves_away, MoveGenerator& generator) -> int
     {
         int score = 0;
         Color opponent = color_invert (who);
 
-        score += board.get_material ().overall_score (who);
-        score += board.get_position ().overall_score (who);
+        score += board.get_material().overall_score (who);
+        score += board.get_position().overall_score (who);
 
         if (is_checkmated (board, who, generator))
         {
@@ -76,7 +76,7 @@ namespace wisdom
         return score;
     }
 
-    auto evaluate_without_legal_moves (Board& board, Color who, int moves_away) -> int
+    auto evaluate_without_legal_moves (const Board& board, Color who, int moves_away) -> int
     {
         auto king_coord = board.get_king_position (who);
         return  is_king_threatened (board, who, king_coord)

@@ -134,62 +134,6 @@ namespace wisdom
         }
     }
 
-    void BoardCode::unapply_move (const Board& board,
-                                  Move move, const UndoMove& undo_state)
-    {
-        Coord src = move.get_src ();
-        Coord dst = move.get_dst ();
-
-        ColoredPiece src_piece = board.piece_at (dst);
-
-        Color src_piece_color = piece_color (src_piece);
-        Color opponent_color = color_invert (src_piece_color);
-
-        if (move.is_promoting ())
-        {
-            src_piece = ColoredPiece::make (src_piece_color, Piece::Pawn);
-        }
-
-        if (move.is_castling ())
-        {
-            int8_t src_col, dst_col;
-            int8_t row;
-
-            if (move.is_castling_on_kingside ())
-            {
-                dst_col = Kingside_Castled_Rook_Column;
-                src_col = Last_Column;
-            }
-            else
-            {
-                dst_col = Queenside_Castled_Rook_Column;
-                src_col = 0;
-            }
-            row = gsl::narrow_cast<int8_t> (src_piece_color == Color::White ? Last_Row : First_Row);
-
-            Coord rook_src = make_coord (row, src_col);
-            ColoredPiece rook = ColoredPiece::make (src_piece_color, Piece::Rook);
-            add_piece (rook_src, rook);
-            remove_piece (make_coord (row, dst_col));
-        }
-
-        add_piece (src, src_piece);
-        remove_piece (dst);
-
-        if (move.is_normal_capturing ())
-        {
-            ColoredPiece captured = captured_material (undo_state, opponent_color);
-            add_piece (dst, captured);
-        }
-
-        if (move.is_en_passant ())
-        {
-            ColoredPiece captured_pawn = ColoredPiece::make (opponent_color, Piece::Pawn);
-            Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
-            add_piece (taken_pawn_coord, captured_pawn);
-        }
-    }
-
     auto BoardCode::count_ones () const -> std::size_t
     {
         string str = my_pieces.to_string ();

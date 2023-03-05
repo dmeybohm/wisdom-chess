@@ -15,8 +15,8 @@ namespace wisdom
     class IterativeSearchImpl
     {
     private:
-        not_null<observer_ptr<Board>> my_board;
-        not_null<observer_ptr<History>> my_history;
+        Board my_original_board;
+        observer_ptr<History> my_history;
         not_null<observer_ptr<const Logger>> my_output;
         MoveGenerator my_generator {};
         MoveTimer my_timer;
@@ -35,12 +35,12 @@ namespace wisdom
         Color my_searching_color = Color::None;
 
     public:
-        IterativeSearchImpl (Board& board, History& history, const Logger& output,
+        IterativeSearchImpl (const Board& board, History& history, const Logger& output,
                              MoveTimer timer, int total_depth) :
-                my_board { &board },
+                my_original_board { Board { board } },
                 my_history { &history },
                 my_output { &output },
-                my_timer { std::move( timer )},
+                my_timer { std::move (timer) },
                 my_total_depth { total_depth }
         {
         }
@@ -49,7 +49,7 @@ namespace wisdom
 
         void iterate (Color side, int depth);
 
-        void search (Color side, int depth, int alpha, int beta);
+        void search (const Board& board, Color side, int depth, int alpha, int beta);
 
         [[nodiscard]] auto synthesize_result () const -> SearchResult;
 
@@ -60,10 +60,10 @@ namespace wisdom
     };
 
     IterativeSearch::~IterativeSearch() = default;
-    IterativeSearch::IterativeSearch (Board& board, History& history, const Logger& output,
+    IterativeSearch::IterativeSearch (const Board& board, History& history, const Logger& output,
                                       MoveTimer timer, int total_depth)
             : impl { make_unique<IterativeSearchImpl> (
-                board, history, output, std::move (timer), total_depth) }
+                Board { board }, history, output, std::move (timer), total_depth) }
     {
     }
 
@@ -90,12 +90,13 @@ namespace wisdom
         return current_color == searching_color ? Min_Draw_Score : 0;
     }
 
-    void IterativeSearchImpl::search (Color side, int depth, int alpha, int beta) // NOLINT(misc-no-recursion)
+    void IterativeSearchImpl::search (const Board& board, Color side,
+                                      int depth, int alpha, int beta) // NOLINT(misc-no-recursion)
     {
         std::optional<Move> best_move {};
         int best_score = -Initial_Alpha;
 
-        auto moves = my_generator.generate_all_potential_moves (*my_board, side);
+        auto moves = my_generator.generate_all_potential_moves (board, side);
         for (auto move : moves)
         {
             if (my_timer.is_triggered ())
@@ -104,40 +105,37 @@ namespace wisdom
                 return;
             }
 
-            UndoMove undo_state = my_board->make_move (side, move);
+            Board new_board = board.with_move (side, move);
 
-            if (!was_legal_move (*my_board, side, move))
-            {
-                my_board->take_back (side, move, undo_state);
+            if (!was_legal_move (new_board, side, move))
                 continue;
-            }
 
             my_nodes_visited++;
 
-            my_history->add_position_and_move (*my_board, move, undo_state);
+            my_history->add_position_and_move (&new_board, move);
 
             if (depth <= 0)
             {
-                if (is_drawing_move (*my_board, side, move, *my_history))
+                if (is_drawing_move (new_board, side, move, *my_history))
                 {
                     my_best_score = drawing_score (my_searching_color, side);
                 }
                 else
                 {
-                    my_best_score = evaluate (*my_board, side,
+                    my_best_score = evaluate (new_board, side,
                             my_search_depth - depth, my_generator);
                 }
             }
             else
             {
                 // Don't recurse into a big search if this move is a draw.
-                if (my_search_depth == depth && is_drawing_move (*my_board, side, move, *my_history))
+                if (my_search_depth == depth && is_drawing_move (new_board, side, move, *my_history))
                 {
                     my_best_score = drawing_score (my_searching_color, side);
                 }
                 else
                 {
-                    search (color_invert (side), depth-1, -beta, -alpha);
+                    search (new_board, color_invert (side), depth-1, -beta, -alpha);
                     my_best_score *= -1;
                 }
             }
@@ -153,8 +151,7 @@ namespace wisdom
             if (best_score > alpha)
                 alpha = best_score;
 
-            my_history->remove_position_and_last_move (*my_board);
-            my_board->take_back (side, move, undo_state);
+            my_history->remove_last_position ();
 
             if (my_timed_out)
                 return;
@@ -173,7 +170,7 @@ namespace wisdom
         if (!my_best_move.has_value ())
         {
             // if there are no legal moves, then the current player is in a stalemate or checkmate position.
-            result.score = evaluate_without_legal_moves (*my_board, side, result.depth);
+            result.score = evaluate_without_legal_moves (board, side, result.depth);
         }
         my_best_score = result.score;
         my_best_depth = result.depth;
@@ -225,7 +222,7 @@ namespace wisdom
         {
             std::cerr << "Uncaught error: " << e.message () << "\n";
             std::cerr << e.extra_info () << "\n";
-            my_board->dump ();
+            my_original_board.dump ();
 
             std::cerr << "History leading up to move: " << "\n";
             std::cerr << my_history->get_move_history ().to_string () << "\n";
@@ -251,7 +248,7 @@ namespace wisdom
         auto start = std::chrono::system_clock::now ();
 
         my_search_depth = depth;
-        search (side, depth, -Initial_Alpha, Initial_Alpha);
+        search (my_original_board, side, depth, -Initial_Alpha, Initial_Alpha);
 
         auto end = std::chrono::system_clock::now ();
 

@@ -24,11 +24,9 @@ namespace wisdom
         [[nodiscard]] int individual_score (Color who) const;
 
         // Apply the move to the position.
-        void apply_move (Color who, ColoredPiece piece, Move move,
-                         not_null<UndoMove*> undo_state);
+        void apply_move (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece);
 
-        // Restore the score from the UndoMove state
-        void unapply_move (Color who, const UndoMove& undo_state);
+        friend auto operator<< (std::ostream& ostream, Position& position) -> std::ostream&;
 
     private:
         int my_score[Num_Players]{};

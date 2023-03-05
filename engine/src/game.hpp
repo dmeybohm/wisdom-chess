@@ -83,7 +83,7 @@ namespace wisdom
 
         void set_current_turn (Color);
 
-        [[nodiscard]] auto get_board () const& -> Board&;
+        [[nodiscard]] auto get_board () const& -> const Board&;
         [[nodiscard]] auto get_board () const&& -> Board& = delete;
 
         [[nodiscard]] auto get_history () const& -> History&;
@@ -94,7 +94,7 @@ namespace wisdom
 
         [[nodiscard]] auto get_current_player () const -> Player
         {
-            return get_player (my_board->get_current_turn ());
+            return get_player (my_current_board.get_current_turn ());
         }
 
         void set_white_player (Player player)
@@ -146,7 +146,7 @@ namespace wisdom
         [[nodiscard]] auto map_coordinates_to_move (Coord src, Coord dst, optional<Piece> promoted) const
             -> optional<Move>
         {
-            return ::wisdom::map_coordinates_to_move (*my_board, get_current_turn (),
+            return ::wisdom::map_coordinates_to_move (my_current_board, get_current_turn (),
                                                       src, dst, promoted);
         }
 
@@ -169,10 +169,11 @@ namespace wisdom
                                        std::pair<DrawStatus, DrawStatus> draw_statuses);
 
     private:
-        unique_ptr<Board> my_board = make_unique<Board> ();
+        Board my_current_board {};
         unique_ptr<MoveGenerator> my_move_generator = make_unique<MoveGenerator> ();
         unique_ptr<History> my_history = make_unique<History> ();
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};
+        vector<unique_ptr<Board>> my_previous_boards {};
         int my_max_depth { Default_Max_Depth };
 
         Players my_players = { Player::Human, Player::ChessEngine };
@@ -189,6 +190,7 @@ namespace wisdom
 
         void update_threefold_repetition_draw_status ();
         void update_fifty_moves_without_progress_draw_status ();
+        void push_current_board ();
     };
 }
 

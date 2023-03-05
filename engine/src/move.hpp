@@ -34,30 +34,6 @@ namespace wisdom
         PackedCapacity = 4,
     };
 
-    struct UndoMove
-    {
-        int half_move_clock;
-        array<int, Num_Players> position_score;
-        Piece taken_piece_type;
-        array<Coord, Num_Players> en_passant_targets;
-        MoveCategory category;
-        CastlingEligibility current_castle_state;
-        CastlingEligibility opponent_castle_state;
-        bool full_move_clock_updated;
-    };
-
-    static_assert(sizeof(UndoMove) <= 24);
-
-    constexpr UndoMove Empty_Undo_State = {
-        .half_move_clock = 0,
-        .taken_piece_type = Piece::None,
-        .en_passant_targets = { No_En_Passant_Coord, No_En_Passant_Coord },
-        .category = MoveCategory::Default,
-        .current_castle_state = static_cast<CastlingEligibility>(CastlingEligible::EitherSideEligible),
-        .opponent_castle_state = static_cast<CastlingEligibility>(CastlingEligible::EitherSideEligible),
-        .full_move_clock_updated = false,
-    };
-
     class ParseMoveException : public Error
     {
     public:
@@ -266,23 +242,6 @@ namespace wisdom
     static_assert (sizeof (Move) == 4);
     static_assert (std::is_trivial_v<Move>);
 
-    [[nodiscard]] constexpr auto captured_material (UndoMove undo_state, Color opponent)
-        -> ColoredPiece
-    {
-        if (undo_state.category == MoveCategory::NormalCapturing)
-        {
-            return ColoredPiece::make (opponent, undo_state.taken_piece_type);
-        }
-        else if (undo_state.category == MoveCategory::EnPassant)
-        {
-            return ColoredPiece::make (opponent, Piece::Pawn);
-        }
-        else
-        {
-            return Piece_And_Color_None;
-        }
-    }
-
     template <class IntegerType = int8_t>
     [[nodiscard]] constexpr auto castling_row_for_color (Color who) -> IntegerType
     {
@@ -327,24 +286,6 @@ namespace wisdom
         -> CastlingEligibility
     {
         return state;
-    }
-
-    [[nodiscard]] constexpr auto current_castle_state (const UndoMove& move) noexcept
-        -> CastlingEligibility
-    {
-        return unpack_castle_state (move.current_castle_state);
-    }
-
-    [[nodiscard]] constexpr auto opponent_castle_state (const UndoMove& undo_state) noexcept
-        -> CastlingEligibility
-    {
-        return unpack_castle_state (undo_state.opponent_castle_state);
-    }
-
-    [[nodiscard]] constexpr auto is_en_passant_vulnerable (const UndoMove& undo_state, Color who) noexcept
-        -> bool
-    {
-        return undo_state.en_passant_targets[color_index (who)] != No_En_Passant_Coord;
     }
 
     // Parse a move. Returns empty if the parse failed.

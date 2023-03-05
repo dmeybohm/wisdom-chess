@@ -61,39 +61,6 @@ TEST_CASE( "Converting a move to a string" )
     REQUIRE( to_string(castling) == std::string("O-O-O") );
 }
 
-TEST_CASE( "Moving and undoing a move works" )
-{
-    Board board;
-
-    Move e2e4 = move_parse ("e2e4", Color::White);
-    Move d6d8 = move_parse ("d7d5", Color::Black);
-    Move b1c3 = move_parse ("b1c3", Color::White);
-    Move d5xe4 = move_parse ("d5xe4", Color::Black);
-    Move c3xe4 = move_parse ("c3xe4", Color::White);
-
-    UndoMove undo_state{};
-
-    undo_state = board.make_move (Color::White, e2e4);
-    board.take_back (Color::White, e2e4, undo_state);
-    board.make_move (Color::White, e2e4);
-
-    undo_state = board.make_move (Color::Black, d6d8);
-    board.take_back (Color::Black, d6d8, undo_state);
-    board.make_move (Color::Black, d6d8);
-
-    undo_state = board.make_move (Color::White, b1c3);
-    board.take_back (Color::White, b1c3, undo_state);
-    board.make_move (Color::White, b1c3);
-
-    undo_state = board.make_move (Color::Black, d5xe4);
-    board.take_back (Color::Black, d5xe4, undo_state);
-    board.make_move (Color::Black, d5xe4);
-
-    undo_state = board.make_move (Color::White, c3xe4);
-    board.take_back (Color::White, c3xe4, undo_state);
-    board.make_move (Color::White, c3xe4);
-}
-
 TEST_CASE("Mapping coordinates to moves")
 {
     SUBCASE( "Mapping en passant" )
@@ -105,10 +72,10 @@ TEST_CASE("Mapping coordinates to moves")
         Move e4e5 = move_parse ("e4e5", Color::White);
         Move d7d5 = move_parse ("d7d5", Color::Black);
 
-        board.make_move (Color::White, e2e4);
-        board.make_move (Color::Black, a7a5);
-        board.make_move (Color::White, e4e5);
-        board.make_move (Color::Black, d7d5);
+        board = board.with_move (Color::White, e2e4);
+        board = board.with_move (Color::Black, a7a5);
+        board = board.with_move (Color::White, e4e5);
+        board = board.with_move (Color::Black, d7d5);
 
         Coord e5 = coord_parse ("e5");
         Coord d6 = coord_parse ("d6");
@@ -131,12 +98,12 @@ TEST_CASE("Mapping coordinates to moves")
         Move g1f3 = move_parse ("g1f3", Color::White);
         Move g8f6 = move_parse ("g8f6", Color::Black);
 
-        board.make_move (Color::White, e2e4);
-        board.make_move (Color::Black, e7e5);
-        board.make_move (Color::White, f1c4);
-        board.make_move (Color::Black, d7d5);
-        board.make_move (Color::White, g1f3);
-        board.make_move (Color::Black, g8f6);
+        board = board.with_move (Color::White, e2e4);
+        board = board.with_move (Color::Black, e7e5);
+        board = board.with_move (Color::White, f1c4);
+        board = board.with_move (Color::Black, d7d5);
+        board = board.with_move (Color::White, g1f3);
+        board = board.with_move (Color::Black, g8f6);
 
         Coord e1 = coord_parse ("e1");
         Coord g1 = coord_parse ("g1");
@@ -146,7 +113,7 @@ TEST_CASE("Mapping coordinates to moves")
         CHECK( white_result.has_value () );
         CHECK( *white_result == white_expected );
 
-        board.make_move (Color::White, white_expected);
+        board = board.with_move (Color::White, white_expected);
 
         Coord e8 = coord_parse ("e8");
         Coord g8 = coord_parse ("g8");
