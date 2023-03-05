@@ -50,7 +50,7 @@ jobs:
         run: cmake -B ${{ env.build }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Show ToolChain Config
-        run: Get-ChildItem -Recurse "${{ env.build }}/.cmake"
+        run: find ${{ env.build }}/.cmake -type f
         
       # Build is not required unless generated source files are used
       # - name: Build CMake
