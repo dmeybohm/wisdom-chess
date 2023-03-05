@@ -50,7 +50,6 @@ namespace wisdom
         // Board codes and undo positions sorted by move number:
         vector<BoardCode> my_board_codes;
         vector<observer_ptr<Board>> my_previous_boards {};
-        vector<unique_ptr<Board>> my_previous_boards_store {};
 
         DrawStatus my_threefold_repetition_status = DrawStatus::NotReached;
         DrawStatus my_fifty_moves_without_progress_status
@@ -103,12 +102,9 @@ namespace wisdom
             my_move_history.push_back (move);
         }
 
-        void add_position_and_store (const Board& board)
+        void add_position (observer_ptr<Board> board)
         {
-            auto new_board = make_unique<Board> (board);
-            auto result = new_board.get();
-            my_previous_boards_store.push_back (std::move (new_board));
-            my_previous_boards.push_back (result);
+            my_previous_boards.push_back (board);
         }
 
         void remove_last_position ()

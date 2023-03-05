@@ -173,6 +173,7 @@ namespace wisdom
         unique_ptr<MoveGenerator> my_move_generator = make_unique<MoveGenerator> ();
         unique_ptr<History> my_history = make_unique<History> ();
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};
+        vector<unique_ptr<Board>> my_previous_boards {};
         int my_max_depth { Default_Max_Depth };
 
         Players my_players = { Player::Human, Player::ChessEngine };
@@ -189,7 +190,7 @@ namespace wisdom
 
         void update_threefold_repetition_draw_status ();
         void update_fifty_moves_without_progress_draw_status ();
-        void update_history ();
+        void push_current_board ();
     };
 }
 

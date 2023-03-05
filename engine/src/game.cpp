@@ -35,32 +35,33 @@ namespace wisdom
     Game::Game (Player white_player, Player black_player) :
         my_players { { white_player, black_player } }
     {
-        update_history ();
+        push_current_board ();
     }
 
     Game::Game (Color current_turn) :
         my_players { { Player::Human, Player::ChessEngine } }
     {
         set_current_turn (current_turn);
-        update_history();
+        push_current_board ();
     }
 
     Game::Game (const BoardBuilder& builder) :
         my_current_board { builder },
         my_players { { Player::Human, Player::ChessEngine } }
     {
-        update_history();
+        push_current_board ();
     }
 
     void Game::move (Move move)
     {
         my_current_board = my_current_board.with_move (get_current_turn(), move);
-        update_history();
+        push_current_board ();
     }
 
-    void Game::update_history()
+    void Game::push_current_board ()
     {
-        my_history->add_position_and_store (my_current_board);
+        my_previous_boards.push_back (make_unique<Board> (my_current_board));
+        my_history->add_position (my_previous_boards.back().get());
     }
 
     void Game::save (const string& input) const
