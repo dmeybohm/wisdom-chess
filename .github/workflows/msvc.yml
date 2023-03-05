@@ -47,7 +47,7 @@ jobs:
         run: conan install . -pr:b=default -s build_type=${{env.BUILD_TYPE}} --install-folder=${{ env.build }}
         
       - name: Configure CMake
-        run: cmake -B ${{ env.build }}
+        run: cmake -B ${{ env.build }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       # Build is not required unless generated source files are used
       # - name: Build CMake
