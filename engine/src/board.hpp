@@ -226,17 +226,9 @@ namespace wisdom
                                                         Coord starting_at = First_Coord) const
             -> optional<Coord>;
 
-        friend void make_move (Board& board, Color who, Move move);
-
     private:
         void make_move (Color who, Move move);
     };
-
-    // todo: remove
-    inline void make_move (Board& board, Color who, Move move)
-    {
-        board.make_move (who, move);
-    }
 
     constexpr auto coord_color (Coord coord) -> Color
     {
