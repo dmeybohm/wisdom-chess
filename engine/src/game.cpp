@@ -23,42 +23,46 @@ namespace wisdom
             return wisdom_game_output_format;
     }
 
-    Game::Game () :
-        my_players { { Player::Human, Player::ChessEngine } }
+    Game::Game ()
+        : Game { BoardBuilder::from_default_position(),  { { Player::Human, Player::ChessEngine } } }
     {
     }
 
-    Game::Game (const Players& players) :
-        my_players { players }
+    Game::Game (const Players& players)
+        : Game { BoardBuilder::from_default_position(), { { players[0], players[1] } } }
     {}
 
-    Game::Game (Player white_player, Player black_player) :
-        my_players { { white_player, black_player } }
+    Game::Game (Player white_player, Player black_player)
+        : Game { BoardBuilder::from_default_position(), { { white_player, black_player } } }
     {
-        push_current_board ();
     }
 
-    Game::Game (Color current_turn) :
-        my_players { { Player::Human, Player::ChessEngine } }
+    Game::Game (Color current_turn)
+        : Game { BoardBuilder::from_default_position(), { Player::Human, Player::ChessEngine } }
     {
         set_current_turn (current_turn);
-        push_current_board ();
     }
 
-    Game::Game (const BoardBuilder& builder) :
-        my_current_board { builder },
-        my_players { { Player::Human, Player::ChessEngine } }
+    Game::Game (const BoardBuilder& builder)
+        : Game (builder, { Player::Human, Player::ChessEngine })
     {
-        push_current_board ();
+    }
+
+    // All other constructors must call this one:
+    Game::Game (const BoardBuilder& builder, const Players& players)
+        : my_current_board { builder }
+        , my_players { players }
+    {
+        add_current_board_to_history();
     }
 
     void Game::move (Move move)
     {
         my_current_board = my_current_board.with_move (get_current_turn(), move);
-        push_current_board ();
+        add_current_board_to_history();
     }
 
-    void Game::push_current_board ()
+    void Game::add_current_board_to_history ()
     {
         my_previous_boards.push_back (make_unique<Board> (my_current_board));
         my_history->add_position (my_previous_boards.back().get());

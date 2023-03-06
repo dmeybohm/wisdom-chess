@@ -62,6 +62,9 @@ namespace wisdom
 
         explicit Game (const BoardBuilder& builder);
 
+        // All other constructors must call this one:
+        explicit Game (const BoardBuilder& builder, const Players& players);
+
         // Delete copy
         Game (const Game& other) = delete;
         Game& operator= (const Game& other) = delete;
@@ -190,7 +193,7 @@ namespace wisdom
 
         void update_threefold_repetition_draw_status ();
         void update_fifty_moves_without_progress_draw_status ();
-        void push_current_board ();
+        void add_current_board_to_history ();
     };
 }
 

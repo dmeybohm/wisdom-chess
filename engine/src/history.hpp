@@ -97,14 +97,15 @@ namespace wisdom
 
         void add_position_and_move (observer_ptr<Board> board, Move move)
         {
-            my_board_codes.push_back (board->get_code ());
-            my_previous_boards.push_back (board);
+            my_board_codes.emplace_back (board->get_code());
+            my_previous_boards.emplace_back (board);
             my_move_history.push_back (move);
         }
 
         void add_position (observer_ptr<Board> board)
         {
-            my_previous_boards.push_back (board);
+            my_board_codes.emplace_back (board->get_code());
+            my_previous_boards.emplace_back (board);
         }
 
         void remove_last_position ()
