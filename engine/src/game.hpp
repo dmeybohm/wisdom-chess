@@ -9,11 +9,6 @@
 #include "history.hpp"
 #include "move_timer.hpp"
 
-namespace wisdom::analysis
-{
-    class Analytics;
-}
-
 namespace wisdom
 {
     class Board;

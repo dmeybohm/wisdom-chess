@@ -274,20 +274,6 @@ namespace wisdom
         return !move_equals (a, b);
     }
 
-    // Pack the castle state into the move.
-    [[nodiscard]] constexpr auto unpack_castle_state (CastlingEligibility state) noexcept
-        -> CastlingEligibility
-    {
-        return state;
-    }
-
-    // Unpack the castle state from the move.
-    [[nodiscard]] constexpr auto pack_castle_state (CastlingEligibility state) noexcept
-        -> CastlingEligibility
-    {
-        return state;
-    }
-
     // Parse a move. Returns empty if the parse failed.
     [[nodiscard]] auto move_parse_optional (const string& str, Color who) -> optional<Move>;
 
