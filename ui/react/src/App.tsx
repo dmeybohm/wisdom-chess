@@ -38,25 +38,6 @@ function App() {
     const gameState = useGame((state) => state)
     const actions = useGame((state) => state.actions)
 
-    useEffect(() => {
-        const listener = (event: CustomEvent) => {
-            console.log('computerMoved', event.detail)
-            const moveStr = event.detail.move;
-            const gameId = event.detail.gameId;
-            const game = getCurrentGame()
-            const move = wisdomChess.WebMove.prototype.fromString(moveStr, game.getCurrentTurn());
-            // handle castle / promotion etc
-            actions.computerMovePiece(move as WebMove)
-        }
-        (window as any).computerMoved = listener;
-        window.addEventListener('computerMoved', listener as EventListener);
-        actions.init()
-
-        return () => {
-            window.removeEventListener('computerMoved', listener as EventListener)
-        }
-    }, [])
-
     const gameOverStatus = game.gameOverStatus
     const currentTurn = game.getCurrentTurn()
     const inCheck = game.inCheck

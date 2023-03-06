@@ -3,6 +3,7 @@ import { initialSquares } from "./Squares";
 import { Piece } from "./Pieces";
 import { wisdomChess } from "../App";
 import { create } from "zustand";
+import { ReactWindow } from "../main";
 
 export const initialGameState = {
     pieces: [] as Piece[],
@@ -11,6 +12,8 @@ export const initialGameState = {
     pawnPromotionDialogSquare: '',
 }
 
+export type ChessEngineEventType = 'computerMoved'
+
 interface GameState {
     pieces: Piece[]
     squares: typeof initialSquares,
@@ -18,12 +21,13 @@ interface GameState {
     pawnPromotionDialogSquare: string
 
     actions: {
-        init: () => void
+        init: (window: ReactWindow) => void
         startNewGame: () => void
         humanMovePiece: (dst: string) => void
         computerMovePiece: (move: WebMove) => void
         pieceClick: (dst: string) => void
         promotePiece: (pieceType: PieceType) => void
+        receiveWorkerMessage: (type: ChessEngineEventType, message: string) => void
     }
 }
 
@@ -31,17 +35,36 @@ export const useGame = create<GameState>()((set, get) => ({
     ... initialGameState,
 
     actions: {
-        init: () => set(state => {
+        init: (window: ReactWindow) => set(state => {
+            window.receiveWorkerMessage = get().actions.receiveWorkerMessage
             return { pieces: getPieces(getCurrentGame()) }
         }),
+        //
+        // Receive a message from the chess engine thread.
+        //
+        receiveWorkerMessage: (type: ChessEngineEventType, message: string) => {
+            switch (type) {
+                case 'computerMoved': {
+                    const move = wisdomChess.WebMove.prototype.fromString(
+                        message,
+                        getCurrentGame().getCurrentTurn()
+                    );
+                    get().actions.computerMovePiece(move)
+                    break;
+                }
+
+                default: {
+                    console.error("Unknown message type: ", type);
+                    break;
+                }
+            }
+        },
         startNewGame: () => set(state => {
-            const gameModel = getGameModel()
             const newGame = startNewGame()
-            const result = {
+            return {
                 ... initialGameState,
                 pieces: getPieces(newGame)
             }
-            return result
         }),
         computerMovePiece: (move: WebMove) => set((prevState) => {
             const game = getCurrentGame()

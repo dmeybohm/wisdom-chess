@@ -56,7 +56,10 @@ export function getCurrentGame () {
 
 export function startNewGame(): Game {
     const wisdomWindow = ((window as unknown) as WisdomWindow)
-    delete wisdomWindow.wisdomChessCurrentGame
+    if (wisdomWindow.wisdomChessCurrentGame) {
+        wisdomWindow.wisdomChessCurrentGame.destroy()
+        delete wisdomWindow.wisdomChessCurrentGame
+    }
     return getCurrentGame()
 }
 

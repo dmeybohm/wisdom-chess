@@ -51,14 +51,9 @@ Promise.all([
 });
 
 function afterWisdomChessModuleLoaded(WisdomChessWeb) {
-
-	console.log('after wisdom chess module loaded')	;
-	console.log(WisdomChessWeb)
-
 	window.wisdomChessWeb = WisdomChessWeb
 	window.wisdomChessGameModel = new WisdomChessWeb.GameModel();
-
-	window.startReact();
+	window.startReact(window);
 }
 
 function receiveWorkerMessage(type, gameId, message) {
