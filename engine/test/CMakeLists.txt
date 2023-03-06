@@ -18,7 +18,9 @@ if (WISDOM_CHESS_FAST_TESTS)
         tests.hpp
         generate_test.cpp
         str_test.cpp
-        board_test.cpp)
+        board_test.cpp
+        game_test.cpp
+    )
 
     target_precompile_headers(fast_tests_lib PRIVATE PRIVATE ../src/global.hpp <doctest/doctest.h>)
 
@@ -49,4 +51,3 @@ if (WISDOM_CHESS_SLOW_TESTS)
     add_executable(slow_tests test_main.cpp)
     target_link_libraries(slow_tests PRIVATE slow_tests_lib)
 endif()
-

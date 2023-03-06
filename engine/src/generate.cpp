@@ -397,19 +397,17 @@ namespace wisdom
         append_move (new_move);
     }
 
-    auto MoveGenerator::generate_legal_moves (Board& board, Color who) -> MoveList
+    auto MoveGenerator::generate_legal_moves (const Board& board, Color who) -> MoveList
     {
         MoveList non_checks { my_move_list_allocator.get () };
 
         MoveList all_moves = generate_all_potential_moves (board, who);
         for (auto move : all_moves)
         {
-            UndoMove undo_state = board.make_move (who, move);
+            Board new_board = board.with_move (who, move);
 
-            if (was_legal_move (board, who, move))
+            if (is_legal_position_after_move (new_board, who, move))
                 non_checks.push_back (move);
-
-            board.take_back (who, move, undo_state);
         }
 
         return non_checks;

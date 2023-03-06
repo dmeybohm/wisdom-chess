@@ -20,16 +20,16 @@ namespace wisdom::test
     struct SearchHelper
     {
         History history {};
-        static inline std::unique_ptr<wisdom::Logger> null_logger;
+        std::unique_ptr<wisdom::Logger> logger;
 
-        IterativeSearch build (Board& board, int depth, int time = 30)
+        IterativeSearch build (const Board& board, int depth, int time = 30)
         {
             MoveTimer timer { time };
-            if (!null_logger) {
-                null_logger = make_null_logger ();
+            if (!logger) {
+                logger = make_null_logger ();
             }
 
-            return { board, history, *null_logger, timer, depth };
+            return { board, history, *logger, timer, depth };
         }
     };
 }
@@ -223,20 +223,22 @@ TEST_CASE( "Advanced pawn should be captured" )
     FenParser fen { "rnb1k2r/ppp1qppp/4p3/3pP3/3P4/P1Q5/1PP2PPP/R3KBNR w KQkq d6 0 1" };
     auto game = fen.build ();
 
-    SearchHelper helper;
-    auto search = helper.build (game.get_board (), 3, 10);
-
     game.move (move_parse ("e5 d6 ep", Color::White));
 
+    SearchHelper helper;
+    auto search = helper.build (game.get_board (), 3, 10);
     auto result = search.iteratively_deepen (Color::Black);
 
     REQUIRE (result.move.has_value ());
 
     game.move (*result.move);
     // assert the pawn at d6 has been taken:
-    INFO ("Info:", to_string (*result.move));
-    auto board = game.get_board ();
-    REQUIRE (board.piece_at (coord_parse ("d6")) != ColoredPiece::make (Color::White, Piece::Pawn));
+    INFO ("Chosen move:", to_string (*result.move));
+
+    auto board = game.get_board();
+    auto target_piece = board.piece_at (coord_parse ("d6"));
+    CHECK( target_piece != ColoredPiece::make (Color::White, Piece::Pawn));
+    CHECK( piece_color (target_piece) == Color::Black );
 }
 
 TEST_CASE( "Checkmate is preferred to stalemate" )
@@ -261,12 +263,12 @@ TEST_CASE( "Can avoid stalemate" )
     FenParser fen { "6k1/1pp2pp1/7p/Pb6/3r4/5K2/8/6q1 w - - 0 1" };
     auto game = fen.build ();
 
-    SearchHelper helper;
-    IterativeSearch search = helper.build (game.get_board (), 5, 5);
-
     game.move (move_parse ("a5 a6", Color::White));
 
+    SearchHelper helper;
+    IterativeSearch search = helper.build (game.get_board (), 5, 5);
     SearchResult result = search.iteratively_deepen (Color::Black);
+
     REQUIRE( result.move != std::nullopt );
 
     game.move (*result.move);
@@ -284,11 +286,11 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
         auto game = fen.build ();
 
         SearchHelper helper;
-        IterativeSearch search = helper.build (game.get_board (), 5, 5);
+        IterativeSearch search = helper.build (game.get_board (), 5, 10);
         SearchResult result = search.iteratively_deepen (Color::White);
 
         // Check the white bishop is not sacrificed:
-        CHECK (*result.move != move_parse ("b3xf7"));
+        CHECK( *result.move != move_parse ("b3xf7") );
     }
 
     SUBCASE( "Depth 7" )
@@ -296,7 +298,7 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
         auto game = fen.build ();
 
         SearchHelper helper;
-        IterativeSearch search = helper.build (game.get_board (), 7, 10);
+        IterativeSearch search = helper.build (game.get_board(), 7, 10);
         SearchResult result = search.iteratively_deepen (Color::White);
 
         // Check the white bishop is not sacrificed:

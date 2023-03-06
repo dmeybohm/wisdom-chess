@@ -23,53 +23,66 @@ namespace wisdom
             return wisdom_game_output_format;
     }
 
-    Game::Game () :
-        my_players { { Player::Human, Player::ChessEngine } }
+    Game::Game ()
+        : Game { BoardBuilder::from_default_position(),  { { Player::Human, Player::ChessEngine } } }
+    {
+    }
+
+    Game::Game (const Players& players)
+        : Game { BoardBuilder::from_default_position(), { { players[0], players[1] } } }
     {}
 
-    Game::Game (const Players& players) :
-        my_players { players }
-    {}
+    Game::Game (Player white_player, Player black_player)
+        : Game { BoardBuilder::from_default_position(), { { white_player, black_player } } }
+    {
+    }
 
-    Game::Game (Player white_player, Player black_player) :
-        my_players { { white_player, black_player } }
-    {}
-
-    Game::Game (Color current_turn) :
-        my_players { { Player::Human, Player::ChessEngine } }
+    Game::Game (Color current_turn)
+        : Game { BoardBuilder::from_default_position(), { Player::Human, Player::ChessEngine } }
     {
         set_current_turn (current_turn);
     }
 
-    Game::Game (const BoardBuilder& builder) :
-        my_board { make_unique<Board> (builder) },
-        my_players { { Player::Human, Player::ChessEngine } }
-    {}
+    Game::Game (const BoardBuilder& builder)
+        : Game (builder, { Player::Human, Player::ChessEngine })
+    {
+    }
+
+    // All other constructors must call this one:
+    Game::Game (const BoardBuilder& builder, const Players& players)
+        : my_current_board { builder }
+        , my_players { players }
+    {
+        add_current_board_to_history();
+    }
 
     void Game::move (Move move)
     {
-        // do the move
-        auto undo_state = my_board->make_move (get_current_turn (), move);
+        my_current_board = my_current_board.with_move (get_current_turn(), move);
+        add_current_board_to_history();
+    }
 
-        // add this move to the history
-        my_history->add_position_and_move (*my_board, move, undo_state);
+    void Game::add_current_board_to_history ()
+    {
+        my_previous_boards.push_back (make_unique<Board> (my_current_board));
+        my_history->add_position (my_previous_boards.back().get());
     }
 
     void Game::save (const string& input) const
     {
         OutputFormat &output = make_output_format (input);
-        output.save (input, *my_board, *my_history, get_current_turn ());
+        output.save (input, my_current_board, *my_history, get_current_turn ());
     }
 
     auto Game::status () const -> GameStatus
     {
-        if (is_checkmated (*my_board, get_current_turn (), *my_move_generator))
+        if (is_checkmated (my_current_board, get_current_turn (), *my_move_generator))
             return GameStatus::Checkmate;
 
-        if (is_stalemated (*my_board, get_current_turn (), *my_move_generator))
+        if (is_stalemated (my_current_board, get_current_turn (), *my_move_generator))
             return GameStatus::Stalemate;
 
-        if (my_history->is_third_repetition (*my_board))
+        if (my_history->is_third_repetition (my_current_board))
         {
             auto third_repetition_status = my_history->get_threefold_repetition_status ();
             switch (third_repetition_status)
@@ -107,8 +120,8 @@ namespace wisdom
         if (History::has_been_seventy_five_moves_without_progress (get_board ()))
             return GameStatus::SeventyFiveMovesWithoutProgressDraw;
 
-        const auto& material = my_board->get_material ();
-        if (material.checkmate_is_possible (*my_board) == Material::CheckmateIsPossible::No)
+        const auto& material = my_current_board.get_material ();
+        if (material.checkmate_is_possible (my_current_board) == Material::CheckmateIsPossible::No)
             return GameStatus::InsufficientMaterialDraw;
 
         return GameStatus::Playing;
@@ -125,7 +138,7 @@ namespace wisdom
             overdue_timer.set_periodic_function (*my_periodic_function);
 
         IterativeSearch iterative_search {
-            *my_board, *my_history, logger, overdue_timer,
+            my_current_board, *my_history, logger, overdue_timer,
             my_max_depth
         };
         SearchResult result = iterative_search.iteratively_deepen (whom);
@@ -161,10 +174,6 @@ namespace wisdom
                 break;
 
             Move move = move_parse (input_buf, result.get_current_turn ());
-
-            Coord dst = move.get_dst ();
-            ColoredPiece piece = result.my_board->piece_at (dst);
-
             result.move (move);
         }
 
@@ -173,17 +182,17 @@ namespace wisdom
 
     auto Game::get_current_turn () const -> Color
     {
-        return my_board->get_current_turn ();
+        return my_current_board.get_current_turn ();
     }
 
     void Game::set_current_turn (Color new_turn)
     {
-        my_board->set_current_turn (new_turn);
+        my_current_board.set_current_turn (new_turn);
     }
 
-    auto Game::get_board () const& -> Board&
+    auto Game::get_board () const& -> const Board&
     {
-        return *my_board;
+        return my_current_board;
     }
 
     auto Game::get_history () const& -> History&
@@ -198,7 +207,7 @@ namespace wisdom
 
     auto Game::computer_wants_draw (Color who) const -> bool
     {
-        int score = evaluate (*my_board, who, 1, *my_move_generator);
+        int score = evaluate (my_current_board, who, 1, *my_move_generator);
         return score <= Min_Draw_Score;
     }
 

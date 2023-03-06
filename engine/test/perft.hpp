@@ -55,7 +55,7 @@ namespace wisdom::perft
     {
         MoveCounter counters;
 
-        void search_moves (wisdom::Board &board, wisdom::Color side,
+        void search_moves (const wisdom::Board &board, wisdom::Color side,
                            int depth, int max_depth, MoveGenerator& generator);
 
         void operator+= (const Stats &source)
