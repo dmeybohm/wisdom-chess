@@ -27,7 +27,7 @@ interface GameState {
         computerMovePiece: (move: WebMove) => void
         pieceClick: (dst: string) => void
         promotePiece: (pieceType: PieceType) => void
-        receiveWorkerMessage: (type: ChessEngineEventType, message: string) => void
+        receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => void
     }
 }
 
@@ -42,7 +42,7 @@ export const useGame = create<GameState>()((set, get) => ({
         //
         // Receive a message from the chess engine thread.
         //
-        receiveWorkerMessage: (type: ChessEngineEventType, message: string) => {
+        receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => {
             switch (type) {
                 case 'computerMoved': {
                     const move = wisdomChess.WebMove.prototype.fromString(

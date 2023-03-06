@@ -17,7 +17,7 @@ function startReact(window: ReactWindow) {
 
 export interface ReactWindow {
     startReact: (window: ReactWindow) => void
-    receiveWorkerMessage: (type: ChessEngineEventType, message: string) => void
+    receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => void
 }
 
 ((window as unknown) as ReactWindow).startReact = startReact
