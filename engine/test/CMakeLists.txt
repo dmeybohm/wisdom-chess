@@ -18,7 +18,9 @@ if (WISDOM_CHESS_FAST_TESTS)
         tests.hpp
         generate_test.cpp
         str_test.cpp
-        board_test.cpp)
+        board_test.cpp
+        game_test.cpp
+    )
 
     target_precompile_headers(fast_tests_lib PRIVATE PRIVATE ../src/global.hpp <doctest/doctest.h>)
 

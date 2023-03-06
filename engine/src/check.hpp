@@ -40,7 +40,7 @@ namespace wisdom
     };
 
     // Whether this move was a legal move for the computer_player.
-    [[nodiscard]] auto was_legal_move (const Board& board, Color who, Move mv) -> bool;
+    [[nodiscard]] auto is_legal_position_after_move (const Board& board, Color who, Move mv) -> bool;
 
     [[nodiscard]] inline auto is_king_threatened (const Board& board, Color who, Coord king_coord) -> bool
     {

@@ -49,7 +49,7 @@ namespace wisdom
 
         void iterate (Color side, int depth);
 
-        void search (const Board& board, Color side, int depth, int alpha, int beta);
+        void search (const Board& parent_board, Color side, int depth, int alpha, int beta);
 
         [[nodiscard]] auto synthesize_result () const -> SearchResult;
 
@@ -90,13 +90,13 @@ namespace wisdom
         return current_color == searching_color ? Min_Draw_Score : 0;
     }
 
-    void IterativeSearchImpl::search (const Board& board, Color side,
-                                      int depth, int alpha, int beta) // NOLINT(misc-no-recursion)
+    void IterativeSearchImpl::search (const Board& parent_board, // NOLINT(misc-no-recursion)
+                                      Color side, int depth, int alpha, int beta)
     {
         std::optional<Move> best_move {};
         int best_score = -Initial_Alpha;
 
-        auto moves = my_generator.generate_all_potential_moves (board, side);
+        auto moves = my_generator.generate_all_potential_moves (parent_board, side);
         for (auto move : moves)
         {
             if (my_timer.is_triggered ())
@@ -105,37 +105,37 @@ namespace wisdom
                 return;
             }
 
-            Board new_board = board.with_move (side, move);
+            Board child_board = parent_board.with_move (side, move);
 
-            if (!was_legal_move (new_board, side, move))
+            if (!is_legal_position_after_move (child_board, side, move))
                 continue;
 
             my_nodes_visited++;
 
-            my_history->add_position_and_move (&new_board, move);
+            my_history->add_position_and_move (&child_board, move);
 
             if (depth <= 0)
             {
-                if (is_drawing_move (new_board, side, move, *my_history))
+                if (is_drawing_move (child_board, side, move, *my_history))
                 {
                     my_best_score = drawing_score (my_searching_color, side);
                 }
                 else
                 {
-                    my_best_score = evaluate (new_board, side,
+                    my_best_score = evaluate (child_board, side,
                             my_search_depth - depth, my_generator);
                 }
             }
             else
             {
                 // Don't recurse into a big search if this move is a draw.
-                if (my_search_depth == depth && is_drawing_move (new_board, side, move, *my_history))
+                if (my_search_depth == depth && is_drawing_move (child_board, side, move, *my_history))
                 {
                     my_best_score = drawing_score (my_searching_color, side);
                 }
                 else
                 {
-                    search (new_board, color_invert (side), depth-1, -beta, -alpha);
+                    search (child_board, color_invert (side), depth-1, -beta, -alpha);
                     my_best_score *= -1;
                 }
             }
@@ -170,7 +170,7 @@ namespace wisdom
         if (!my_best_move.has_value ())
         {
             // if there are no legal moves, then the current player is in a stalemate or checkmate position.
-            result.score = evaluate_without_legal_moves (board, side, result.depth);
+            result.score = evaluate_without_legal_moves (parent_board, side, result.depth);
         }
         my_best_score = result.score;
         my_best_depth = result.depth;
