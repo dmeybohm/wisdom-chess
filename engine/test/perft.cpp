@@ -25,7 +25,7 @@ namespace wisdom
         {
             Board new_board = board.with_move (side, move);
 
-            if (!was_legal_move (new_board, side, move))
+            if (!is_legal_position_after_move (new_board, side, move))
                 continue;
 
             if (depth == target_depth)
@@ -164,10 +164,8 @@ namespace wisdom
             Color next_player = wisdom::color_invert (active_player);
             auto new_board = board.with_move (active_player, move);
 
-            if (!wisdom::was_legal_move (new_board, active_player, move))
-            {
+            if (!wisdom::is_legal_position_after_move (new_board, active_player, move))
                 continue;
-            }
 
             stats.search_moves (new_board, next_player, 1, depth, generator);
 
