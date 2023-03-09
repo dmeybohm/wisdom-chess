@@ -18,7 +18,7 @@ namespace wisdom
         GameSettings my_game_settings {};
 
         // Send new settings to the worker.
-        void sendSettings ()
+        void sendSettings () const
         {
             int whitePlayer = static_cast<int> (my_game_settings.whitePlayer);
             int blackPlayer = static_cast<int> (my_game_settings.blackPlayer);
@@ -33,13 +33,12 @@ namespace wisdom
         }
 
     public:
-        GameModel()
-        {}
+        GameModel() = default;
 
         // Initialize a new game with the default position.
         WebGame* startNewGame ()
         {
-            auto new_game = new WebGame();
+            auto new_game = WebGame::new_from_settings (my_game_settings);
             emscripten_wasm_worker_post_function_vi (engine_thread,
                                                      worker_reinitialize_game,
                                                      ++my_game_id);
@@ -47,20 +46,29 @@ namespace wisdom
         }
 
         // Pause the worker.
-        void sendPause()
+        void sendPause() const
         {
             emscripten_wasm_worker_post_function_v (engine_thread_manager,
                                                     worker_manager_pause_worker);
         }
 
         // Resume the worker.
-        void sendResume()
+        void sendResume() const
         {
             emscripten_wasm_worker_post_function_v (engine_thread_manager,
                                                     worker_manager_resume_worker);
         }
 
-        auto getCurrentGameSettings() -> GameSettings*
+        void notifyMove (const WebMove* move) const
+        {
+            emscripten_wasm_worker_post_function_vi (
+                engine_thread,
+                worker_receive_move,
+                move->get_move().to_int()
+            );
+        }
+
+        [[nodiscard]] auto getCurrentGameSettings() const -> GameSettings*
         {
             return new GameSettings { my_game_settings };
         }

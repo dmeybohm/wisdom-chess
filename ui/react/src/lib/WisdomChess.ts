@@ -15,10 +15,14 @@ import BlackKing from "../assets/Chess_kdt45.svg";
 
 // These are already described in the IDL:
 export type Game = any
+export type WebPlayer = any
 
 export type GameModel = {
-    startNewGame: () => Game
-    getCurrentGame: () => Game
+    startNewGame(): Game
+    getCurrentGame(): Game
+    getCurrentGameSettings(): GameSettings
+    setCurrentGameSettings(newSettings: WorkerGameSettings): void
+    notifyMove(move: WebMove): void;
 }
 
 export type WisdomChess = any
@@ -34,13 +38,22 @@ interface ColoredPiece {
     piece: number
 }
 
+export type GameSettings = {
+    whitePlayer: WebPlayer
+    blackPlayer: WebPlayer
+    thinkingTime: number
+    searchDepth: number
+}
+
+export type WorkerGameSettings = any
+
 interface WisdomWindow {
     wisdomChessWeb: unknown
     wisdomChessGameModel: GameModel
     wisdomChessCurrentGame: Game
 }
 
-export function getGameModel () {
+export function getGameModel(): GameModel {
     const wisdomWindow = ((window as unknown) as WisdomWindow)
     return wisdomWindow.wisdomChessGameModel
 }
@@ -64,6 +77,11 @@ export function startNewGame(): Game {
     return getCurrentGame()
 }
 
+export function getCurrentGameSettings(): GameSettings {
+    const gameModel = getGameModel()
+    return gameModel.getCurrentGameSettings()
+}
+
 export function WisdomChess(): WisdomChess {
     return ((window as unknown) as WisdomWindow).wisdomChessWeb as WisdomChess
 }
@@ -71,8 +89,7 @@ export function WisdomChess(): WisdomChess {
 function mapPieceToIcon(piece: ColoredPiece): string {
     const color = fromNumberToColor(piece.color)
     if (color === 'white') {
-        switch (piece.piece)
-        {
+        switch (piece.piece) {
             case 1: return WhitePawn
             case 2: return WhiteKnight
             case 3: return WhiteBishop
@@ -82,8 +99,7 @@ function mapPieceToIcon(piece: ColoredPiece): string {
             default: throw new Error("invalid piece type")
         }
     } else {
-        switch (piece.piece)
-        {
+        switch (piece.piece) {
             case 1: return BlackPawn
             case 2: return BlackKnight
             case 3: return BlackBishop
@@ -96,8 +112,7 @@ function mapPieceToIcon(piece: ColoredPiece): string {
 }
 
 function fromNumberToColor(color: number): Color {
-    switch (color)
-    {
+    switch (color) {
         case 1: return 'white'
         case 2: return 'black'
         default: throw new Error("Invalid color")
@@ -134,8 +149,7 @@ export function getPieces(game: Game): Piece[] {
 
 export function pieceColorToString(pieceColor: PieceColor) {
     const wisdom = WisdomChess()
-    switch (pieceColor)
-    {
+    switch (pieceColor) {
         case wisdom.White:
             return "White";
         case wisdom.Black:

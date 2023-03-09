@@ -6,6 +6,8 @@
 
 namespace wisdom
 {
+    class GameSettings;
+
     class WebGame
     {
     private:
@@ -50,6 +52,8 @@ namespace wisdom
             update_displayed_game_state();
         }
 
+        [[nodiscard]] static auto new_from_settings (const GameSettings& settings) -> WebGame*;
+
         auto needsPawnPromotion (const WebCoord* src, const WebCoord* dst) -> bool
         {
             auto game_src = make_coord (src->row, src->col);
@@ -90,14 +94,11 @@ namespace wisdom
             my_game.move (move);
             std::cout << "Updating piece list..."
                       << "\n";
+
             update_piece_list (move.get_promoted_piece());
             std::cout << "After updatePieceList()"
                       << "\n";
             update_displayed_game_state();
-
-            // todo get if it's a computer:
-            if (my_game.get_current_turn() == Color::Black)
-                send_move_to_worker (move);
 
             return true;
         }
@@ -133,8 +134,12 @@ namespace wisdom
 
         void setMaxDepth (int max_depth)
         {
-            std::cout << "Setting max depth: " << max_depth << "\n";
             my_game.set_max_depth (max_depth);
+        }
+
+        void setThinkingTime (std::chrono::seconds thinkingTime)
+        {
+            my_game.set_search_timeout (thinkingTime);
         }
 
         auto getMaxDepth() -> int
@@ -345,15 +350,6 @@ namespace wisdom
             }
         }
 
-        void send_move_to_worker (Move move)
-        {
-            emscripten_wasm_worker_post_function_vi (
-                engine_thread,
-                worker_receive_move,
-                move.to_int()
-            );
-        }
-
         void set_game_over_status (std::string new_status)
         {
             my_game_over_status = std::move (new_status);
@@ -376,6 +372,7 @@ namespace wisdom
             moveStatus = const_cast<char*> (my_move_status.c_str());
         }
 
+        void setThinkingTime (int thinkingTime);
     };
 };
 #endif // WISDOMCHESS_WEB_GAME_HPP

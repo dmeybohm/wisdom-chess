@@ -30,17 +30,12 @@ namespace wisdom::worker
             return GameState::get_state()->game.get();
         }
 
-        [[nodiscard]] static auto map_human_depth_to_computer_depth (int human_depth) -> int
-        {
-            return human_depth * 2 - 1;
-        }
-
         void update_settings (GameSettings new_settings)
         {
             settings = new_settings;
             game->set_search_timeout (std::chrono::seconds { settings.thinkingTime });
             game->set_max_depth (
-                GameState::map_human_depth_to_computer_depth (settings.searchDepth)
+                GameSettings::map_human_depth_to_computer_depth (settings.searchDepth)
             );
             game->set_players ({
                 map_player (settings.whitePlayer),
@@ -64,6 +59,8 @@ EMSCRIPTEN_KEEPALIVE void worker_reinitialize_game (int new_game_id)
 
 //    newGame->set_periodic_function ()
 
+    if (state->game->get_current_player() == Player::ChessEngine)
+        start_search();
 }
 
 EMSCRIPTEN_KEEPALIVE void start_search()
@@ -80,6 +77,7 @@ EMSCRIPTEN_KEEPALIVE void start_search()
     if (!move.has_value())
         throw wisdom::Error { "No moves found." };
     game->move (*move);
+
     emscripten_wasm_worker_post_function_vii (
         EMSCRIPTEN_WASM_WORKER_ID_PARENT,
         main_thread_receive_move,

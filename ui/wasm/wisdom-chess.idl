@@ -101,6 +101,9 @@ interface GameModel {
     void sendPause();
     void sendResume();
 
+    // Notify the chess engine about a human move.
+    void notifyMove ([Const] WebMove move);
+
     WebGame startNewGame();
 
     GameSettings getCurrentGameSettings();

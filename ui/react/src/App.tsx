@@ -10,6 +10,7 @@ import {
     WebMove,
 } from "./lib/WisdomChess";
 import { initialGameState, useGame } from "./lib/useGame";
+import { SettingsModal } from "./SettingsModal";
 
 // This is the web assembly module. It's constant across changes:
 export let wisdomChess : any = undefined
@@ -90,10 +91,10 @@ function App() {
                 </p>
                 <button onClick={() => setShowAbout(false)}>OK</button>
             </Modal>
-            <Modal show={showSettings}>
-                <h1>Settings Modal</h1>
-                <button onClick={() => setShowSettings(false)}>OK</button>
-            </Modal>
+            <SettingsModal
+                show={showSettings}
+                onApply={() => setShowSettings(false)}
+                onDismiss={() => setShowSettings(false) }/>
         </div>
     );
 }

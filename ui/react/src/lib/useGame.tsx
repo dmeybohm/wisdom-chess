@@ -1,4 +1,13 @@
-import {Game, getCurrentGame, getGameModel, getPieces, PieceType, startNewGame, WebMove} from "./WisdomChess";
+import {
+    Game, GameSettings,
+    getCurrentGame, getCurrentGameSettings,
+    getGameModel,
+    getPieces,
+    PieceType,
+    startNewGame,
+    WebMove,
+    WebPlayer, WisdomChess
+} from "./WisdomChess";
 import { initialSquares } from "./Squares";
 import { Piece } from "./Pieces";
 import { wisdomChess } from "../App";
@@ -10,6 +19,13 @@ export const initialGameState = {
     squares: initialSquares,
     focusedSquare: '',
     pawnPromotionDialogSquare: '',
+    settings: {
+        // Initialized from web assembly later:
+        whitePlayer: 0,
+        blackPlayer: 1,
+        thinkingTime: 2,
+        searchDepth: 3
+    }
 }
 
 export type ChessEngineEventType = 'computerMoved'
@@ -19,6 +35,7 @@ interface GameState {
     squares: typeof initialSquares,
     focusedSquare: string
     pawnPromotionDialogSquare: string
+    settings: GameSettings
 
     actions: {
         init: (window: ReactWindow) => void
@@ -27,6 +44,7 @@ interface GameState {
         computerMovePiece: (move: WebMove) => void
         pieceClick: (dst: string) => void
         promotePiece: (pieceType: PieceType) => void
+        applySettings: (newSettings: GameSettings) => void
         receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => void
     }
 }
@@ -37,7 +55,10 @@ export const useGame = create<GameState>()((set, get) => ({
     actions: {
         init: (window: ReactWindow) => set(state => {
             window.receiveWorkerMessage = get().actions.receiveWorkerMessage
-            return { pieces: getPieces(getCurrentGame()) }
+            return {
+                settings: getCurrentGameSettings(),
+                pieces: getPieces(getCurrentGame())
+            }
         }),
         //
         // Receive a message from the chess engine thread.
@@ -63,6 +84,7 @@ export const useGame = create<GameState>()((set, get) => ({
             const newGame = startNewGame()
             return {
                 ... initialGameState,
+                settings: getCurrentGameSettings(),
                 pieces: getPieces(newGame)
             }
         }),
@@ -130,11 +152,13 @@ export const useGame = create<GameState>()((set, get) => ({
                 return newState
             }
             game.makeMove(move)
+            game.notifyMove(move)
             newState.pieces = getPieces(game)
             return newState
         }),
         humanMovePiece: (dst: string) => set((prevState): Partial<GameState> => {
             const game = getCurrentGame()
+            const gameModel = getGameModel()
             const newState : Partial<GameState> = {
                 pawnPromotionDialogSquare: '',
             };
@@ -161,9 +185,26 @@ export const useGame = create<GameState>()((set, get) => ({
 
             newState.focusedSquare = ''
             game.makeMove(move)
+            gameModel.notifyMove(move)
             newState.pieces = getPieces(game)
             return newState
-        })
+        }),
+        applySettings: (newSettings: GameSettings) => set((prevState): Partial<GameState> => {
+            const wisdomChessModule = WisdomChess()
+            const workerGameSettings = new wisdomChessModule.GameSettings()
+            const gameModel = getGameModel()
+
+            // Map from JS object to lower-level WebAssembly type:
+            workerGameSettings.whitePlayer = newSettings.whitePlayer
+            workerGameSettings.blackPlayer = newSettings.blackPlayer
+            workerGameSettings.thinkingTime = newSettings.thinkingTime
+            workerGameSettings.searchDepth = newSettings.searchDepth
+
+            gameModel.setCurrentGameSettings(workerGameSettings)
+            return {
+                settings: newSettings
+            }
+        }),
     }
 }))
 
