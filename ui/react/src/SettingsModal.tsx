@@ -5,7 +5,8 @@ import { useGame } from "./lib/useGame";
 import { GameSettings, WisdomChess } from "./lib/WisdomChess";
 
 type SettingsModalProps = {
-    onApply: (newSettings: GameSettings) => void
+    flipped: boolean
+    onApply: (newSettings: GameSettings, flipped: boolean) => void
     onDismiss: () => void
 }
 
@@ -14,6 +15,7 @@ export function SettingsModal(props: SettingsModalProps) {
     const wisdomChess = WisdomChess()
     const humanWhite = useRef<HTMLInputElement|null>(null)
     const humanBlack = useRef<HTMLInputElement|null>(null)
+    const flippedRef = useRef<HTMLInputElement|null>(null)
 
     const handleApply = (e: React.SyntheticEvent) => {
         e.preventDefault()
@@ -30,55 +32,70 @@ export function SettingsModal(props: SettingsModalProps) {
             settings.thinkingTime,
             settings.searchDepth
         )
-        props.onApply(newSettings)
+        props.onApply(newSettings, Boolean(flippedRef?.current?.checked))
     }
 
     return (
         <Modal>
-            <h1>Settings Modal</h1>
+            <h1>Settings</h1>
             <form className="settings">
                 <div>White Player</div>
-                <label>
-                    <input
-                        name="whitePlayer"
-                        type="radio"
-                        ref={humanWhite}
-                        value={wisdomChess.Human}
-                        defaultChecked={settings.whitePlayer === wisdomChess.Human}
-                    />
-                    Human
-                </label>
-                <label>
-                    <input
-                        name="whitePlayer"
-                        type="radio"
-                        value={wisdomChess.ChessEngine}
-                        defaultChecked={settings.whitePlayer === wisdomChess.ChessEngine}
-                    />
-                    Computer
-                </label>
+                <div className="player-options">
+                    <label>
+                        <input
+                            name="whitePlayer"
+                            type="radio"
+                            ref={humanWhite}
+                            value={wisdomChess.Human}
+                            defaultChecked={settings.whitePlayer === wisdomChess.Human}
+                        />
+                        Human
+                    </label>
+                    <label>
+                        <input
+                            name="whitePlayer"
+                            type="radio"
+                            value={wisdomChess.ChessEngine}
+                            defaultChecked={settings.whitePlayer === wisdomChess.ChessEngine}
+                        />
+                        Computer
+                    </label>
+                </div>
                 <div>Black Player</div>
-                <label>
+                <div className="player-options">
+                    <label>
+                        <input
+                            name="blackPlayer"
+                            type="radio"
+                            ref={humanBlack}
+                            value={wisdomChess.Human}
+                            defaultChecked={settings.blackPlayer === wisdomChess.Human}
+                        />
+                        Human
+                    </label>
+                    <label>
+                        <input
+                            id="computerBlack"
+                            name="blackPlayer"
+                            type="radio"
+                            value={wisdomChess.ChessEngine}
+                            defaultChecked={settings.blackPlayer === wisdomChess.ChessEngine}
+                        />
+                        Computer
+                    </label>
+                </div>
+                <div>Flip Board</div>
+                <div className="flip-board">
                     <input
-                        name="blackPlayer"
-                        type="radio"
-                        ref={humanBlack}
-                        value={wisdomChess.Human}
-                        defaultChecked={settings.blackPlayer === wisdomChess.Human}
+                        type="checkbox"
+                        name="flipped"
+                        ref={flippedRef}
+                        value="1"
+                        defaultChecked={props.flipped}
                     />
-                    Human
-                </label>
-                <label>
-                    <input
-                        id="computerBlack"
-                        name="blackPlayer"
-                        type="radio"
-                        value={wisdomChess.ChessEngine}
-                        defaultChecked={settings.blackPlayer === wisdomChess.ChessEngine}
-                    />
-                    Computer
-                </label>
-                <div className="buttons">
+
+                </div>
+                <div className="buttons grid-columns-1-3">
                     <button onClick={handleApply}>Apply</button>
                     <button onClick={props.onDismiss}>Cancel</button>
                 </div>

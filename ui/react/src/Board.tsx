@@ -13,6 +13,7 @@ export interface BoardProps {
     pieces: Array<Piece>
     pawnPromotionDialogSquare: string
     currentTurn: PieceColor
+    flipped: boolean
 
     onMovePiece: (dst: string) => void
     onPieceClick: (dst: string) => void
@@ -21,7 +22,7 @@ export interface BoardProps {
 
 const Board = (props: BoardProps) => {
     return (
-        <section className="board">
+        <section className={`board ${props.flipped ? 'flipped' : ''}`}>
             {props.squares.map((position: Position) => {
                 return (
                     <Square

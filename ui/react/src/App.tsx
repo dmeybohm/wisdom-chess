@@ -7,7 +7,7 @@ import Modal from "./Modal";
 import {
     getCurrentGame,
     WisdomChess,
-    WebMove, GameSettings,
+    GameSettings,
 } from "./lib/WisdomChess";
 import { initialGameState, useGame } from "./lib/useGame";
 import { SettingsModal } from "./SettingsModal";
@@ -19,6 +19,7 @@ function App() {
 
     wisdomChess = WisdomChess()
 
+    const [flipped, setFlipped] = useState(false);
     const [showAbout, setShowAbout] = useState(false);
     const [showNewGame, setShowNewGame] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
@@ -49,8 +50,9 @@ function App() {
         setShowNewGame(false)
     }
 
-    function handleApplySettings(gameSettings: GameSettings) {
+    function handleApplySettings(gameSettings: GameSettings, flipped: boolean) {
         setShowSettings(false);
+        setFlipped(flipped)
         actions.applySettings(gameSettings)
     }
 
@@ -63,6 +65,7 @@ function App() {
             />
             <div className="container">
                 <Board
+                    flipped={flipped}
                     currentTurn={currentTurn}
                     squares={gameState.squares}
                     focusedSquare={gameState.focusedSquare}
@@ -83,8 +86,11 @@ function App() {
             {showNewGame &&
                 <Modal>
                     <h1>New Game</h1>
-                    <button className="btn-highlight" onClick={handleNewGame}>Start New Game</button>
-                    <button onClick={() => setShowNewGame(false)}>Cancel</button>
+                    <p>Start a new game?</p>
+                    <div className="buttons">
+                        <button className="btn-highlight" onClick={handleNewGame}>Start New Game</button>
+                        <button onClick={() => setShowNewGame(false)}>Cancel</button>
+                    </div>
                 </Modal>
             }
             {showAbout &&
@@ -102,6 +108,7 @@ function App() {
             }
             {showSettings &&
                 <SettingsModal
+                    flipped={flipped}
                     onApply={handleApplySettings}
                     onDismiss={() => setShowSettings(false) }
                 />

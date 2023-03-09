@@ -20,6 +20,7 @@
   --border-size: 2px;
   --square-background: #5F9EA0;
   --square-focused: darksalmon;
+  --menu-highlight: #747bff;
 }
 
 .board.flipped .piece {
@@ -91,6 +92,10 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+.btn-highlight {
+  border-color: var(--menu-highlight);
 }
 
 @media (prefers-color-scheme: light) {

@@ -36,7 +36,7 @@
 }
 
 .menu li:hover {
-  background: #747bff;
+  background: var(--menu-highlight);
   color: white;
   cursor: pointer;
 }
@@ -62,14 +62,19 @@
 .modal {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 30%;
   transform: translate(-50%, -50%);
   z-index: 3;
   background: #fff;
   width: 66vw;
   border-radius: 1rem;
-  padding: 0 0 2rem 0;
+  padding: 1rem 3rem 4rem;
+  box-sizing: border-box;
   max-width: 38rem;
+}
+
+.modal h1 {
+  margin-bottom: 2rem;
 }
 
 .modal-overlay {
@@ -86,6 +91,16 @@
   font-size: 2rem;
 }
 
-.btn-highlight {
-  color: #747bff;
+.modal p {
+  margin-bottom: 2rem;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: .7rem;
+}
+
+.buttons > * {
+  flex-basis: 33%;
 }

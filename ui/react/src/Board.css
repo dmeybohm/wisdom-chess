@@ -10,7 +10,7 @@ body {
     border-radius: 3px;
     position: relative;
     margin-bottom: 2rem;
-    transition: transform 700ms ease-in-out;
+    transition: transform 850ms ease-out;
 }
 
 .board.flipped {
@@ -29,7 +29,7 @@ body {
     left: var(--border-size);
     width: var(--square-size);
     height: var(--square-size);
-    transition: transform 260ms ease-in-out 220ms,
+    transition: transform 560ms ease-in-out 520ms,
         background-color 70ms,
         top ease-in-out 160ms,
         left ease-in-out 160ms;
