@@ -3,6 +3,8 @@ import React, { useMemo, useRef } from "react";
 import "./Settings.css"
 import { useGame } from "./lib/useGame";
 import { GameSettings, WisdomChess } from "./lib/WisdomChess";
+import Slider from 'rc-slider';
+import 'rc-slider/assets/index.css';
 
 type SettingsModalProps = {
     flipped: boolean
@@ -61,6 +63,7 @@ export function SettingsModal(props: SettingsModalProps) {
                         Computer
                     </label>
                 </div>
+
                 <div>Black Player</div>
                 <div className="player-options">
                     <label>
@@ -84,6 +87,7 @@ export function SettingsModal(props: SettingsModalProps) {
                         Computer
                     </label>
                 </div>
+
                 <div>Flip Board</div>
                 <div className="flip-board">
                     <input
@@ -95,6 +99,19 @@ export function SettingsModal(props: SettingsModalProps) {
                     />
 
                 </div>
+
+                <div>Thinking Time</div>
+                <div className="thinking-time">
+                    <label>0:20</label>
+                    <Slider />
+                </div>
+
+                <div>Search Depth</div>
+                <div className="search-depth">
+                    <label>3 moves</label>
+                    <Slider />
+                </div>
+
                 <div className="buttons grid-columns-1-3">
                     <button onClick={handleApply}>Apply</button>
                     <button onClick={props.onDismiss}>Cancel</button>

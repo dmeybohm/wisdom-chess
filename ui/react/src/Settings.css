@@ -7,7 +7,7 @@
     margin: auto;
 }
 
-.settings label {
+.player-options label {
     cursor: pointer;
 }
 
@@ -23,4 +23,17 @@
 
 .flip-board {
     justify-self: start;
+}
+
+.thinking-time,
+.search-depth {
+    display: flex;
+    gap: .8rem;
+    align-items: center;
+}
+
+.thinking-time label,
+.search-depth label {
+    text-align: left;
+    flex-basis: 7rem;
 }
