@@ -1,5 +1,5 @@
 import Modal from "./Modal";
-import React, { useMemo, useRef } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import "./Settings.css"
 import { useGame } from "./lib/useGame";
 import { GameSettings, WisdomChess } from "./lib/WisdomChess";
@@ -19,6 +19,9 @@ export function SettingsModal(props: SettingsModalProps) {
     const humanBlack = useRef<HTMLInputElement|null>(null)
     const flippedRef = useRef<HTMLInputElement|null>(null)
 
+    const [thinkingTime, setThinkingTime] = useState(settings.thinkingTime);
+    const [searchDepth, setSearchDepth] = useState(settings.searchDepth);
+
     const handleApply = (e: React.SyntheticEvent) => {
         e.preventDefault()
         const whitePlayer = humanWhite.current?.checked ?
@@ -31,8 +34,8 @@ export function SettingsModal(props: SettingsModalProps) {
         const newSettings = new wisdomChess.GameSettings(
             whitePlayer,
             blackPlayer,
-            settings.thinkingTime,
-            settings.searchDepth
+            thinkingTime,
+            searchDepth
         )
         props.onApply(newSettings, Boolean(flippedRef?.current?.checked))
     }
@@ -102,14 +105,25 @@ export function SettingsModal(props: SettingsModalProps) {
 
                 <div>Thinking Time</div>
                 <div className="thinking-time">
-                    <label>0:20</label>
-                    <Slider />
+                    <label>
+                        0:{thinkingTime < 10 ? '0' + thinkingTime : thinkingTime}
+                    </label>
+                    <Slider
+                        min={1}
+                        max={30}
+                        value={thinkingTime}
+                        onChange={value => setThinkingTime(Number(value))}/>
                 </div>
 
                 <div>Search Depth</div>
                 <div className="search-depth">
-                    <label>3 moves</label>
-                    <Slider />
+                    <label>{searchDepth} {searchDepth > 1 ? 'moves' : 'move'}</label>
+                    <Slider
+                        min={1}
+                        max={8}
+                        value={searchDepth}
+                        onChange={value => setSearchDepth(Number(value))}
+                    />
                 </div>
 
                 <div className="buttons grid-columns-1-3">
