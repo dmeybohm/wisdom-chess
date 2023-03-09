@@ -5,7 +5,6 @@ import { useGame } from "./lib/useGame";
 import { WisdomChess } from "./lib/WisdomChess";
 
 type SettingsModalProps = {
-    show: boolean
     onApply: () => void
     onDismiss: () => void
 }
@@ -13,9 +12,7 @@ type SettingsModalProps = {
 export function SettingsModal(props: SettingsModalProps) {
     const settings = useGame((state) => state.settings)
     return (
-        <Modal
-            show={props.show}
-        >
+        <Modal>
             <h1>Settings Modal</h1>
             <form className="settings">
                 <div>White Player</div>

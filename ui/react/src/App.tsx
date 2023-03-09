@@ -97,7 +97,6 @@ function App() {
             }
             {showSettings &&
                 <SettingsModal
-                    show={true}
                     onApply={() => setShowSettings(false)}
                     onDismiss={() => setShowSettings(false) }
                 />
