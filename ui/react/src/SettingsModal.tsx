@@ -11,6 +11,7 @@ type SettingsModalProps = {
 
 export function SettingsModal(props: SettingsModalProps) {
     const settings = useGame((state) => state.settings)
+    const wisdomChess = WisdomChess()
     return (
         <Modal>
             <h1>Settings Modal</h1>
