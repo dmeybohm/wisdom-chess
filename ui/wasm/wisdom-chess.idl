@@ -66,6 +66,8 @@ interface WebMove {
 
 [Prefix="wisdom::"]
 interface GameSettings {
+    void GameSettings ();
+    void GameSettings (long whitePlayer, long blackPlayer, long thinkingTime, long searchDepth);
     attribute wisdom_WebPlayer whitePlayer;
     attribute wisdom_WebPlayer blackPlayer;
     attribute long thinkingTime;
@@ -85,6 +87,8 @@ interface WebGame {
     boolean isLegalMove ([Const] WebMove move);
     boolean makeMove ([Const] WebMove move);
 
+    void setSettings([Const, Ref] GameSettings newSettings);
+
     attribute boolean inCheck;
     attribute DOMString moveStatus;
     attribute DOMString gameOverStatus;
@@ -102,7 +106,8 @@ interface GameModel {
     void sendResume();
 
     // Notify the chess engine about a human move.
-    void notifyMove ([Const] WebMove move);
+    void notifyHumanMove ([Const] WebMove move);
+    void notifyComputerMove();
 
     WebGame startNewGame();
 

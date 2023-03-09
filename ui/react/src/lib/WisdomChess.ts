@@ -1,4 +1,4 @@
-import {Color, Piece} from "./Pieces";
+import { Color, Piece } from "./Pieces";
 
 import WhitePawn from "../assets/Chess_plt45.svg";
 import WhiteBishop from "../assets/Chess_blt45.svg";
@@ -14,18 +14,48 @@ import BlackRook from "../assets/Chess_rdt45.svg";
 import BlackKing from "../assets/Chess_kdt45.svg";
 
 // These are already described in the IDL:
-export type Game = any
-export type WebPlayer = any
-
 export type GameModel = {
     startNewGame(): Game
     getCurrentGame(): Game
     getCurrentGameSettings(): GameSettings
     setCurrentGameSettings(newSettings: WorkerGameSettings): void
-    notifyMove(move: WebMove): void;
+    notifyHumanMove(move: WebMove): void;
+    notifyComputerMove(): void;
 }
 
-export type WisdomChess = any
+interface GameSettingsConstructor {
+    new(): GameSettings
+    new(
+        whitePlayer: WebPlayer,
+        blackPlayer: WebPlayer,
+        thinkingTime: number,
+        searchDepth: number
+    ): GameSettings
+}
+
+export type WisdomChess = {
+    White: PieceColor
+    Black: PieceColor
+    NoColor: PieceColor
+
+    Human: WebPlayer
+    ChessEngine: WebPlayer
+
+    Queen: PieceType
+    Rook: PieceType
+    Bishop: PieceType
+    Knight: PieceType
+    NoPiece: PieceType
+
+    GameSettings: GameSettingsConstructor
+
+    // Destroy a C++ object explicitly:
+    destroy(obj: any): void
+}
+
+export type Game = any
+export type WebPlayer = any
+
 export type PieceColor = any
 export type PieceType = any
 

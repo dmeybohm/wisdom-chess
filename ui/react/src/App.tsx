@@ -7,7 +7,7 @@ import Modal from "./Modal";
 import {
     getCurrentGame,
     WisdomChess,
-    WebMove,
+    WebMove, GameSettings,
 } from "./lib/WisdomChess";
 import { initialGameState, useGame } from "./lib/useGame";
 import { SettingsModal } from "./SettingsModal";
@@ -47,6 +47,11 @@ function App() {
     const handleNewGame = () => {
         actions.startNewGame()
         setShowNewGame(false)
+    }
+
+    function handleApplySettings(gameSettings: GameSettings) {
+        setShowSettings(false);
+        actions.applySettings(gameSettings)
     }
 
     return (
@@ -97,7 +102,7 @@ function App() {
             }
             {showSettings &&
                 <SettingsModal
-                    onApply={() => setShowSettings(false)}
+                    onApply={handleApplySettings}
                     onDismiss={() => setShowSettings(false) }
                 />
             }

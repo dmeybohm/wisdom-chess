@@ -54,6 +54,8 @@ namespace wisdom
 
         [[nodiscard]] static auto new_from_settings (const GameSettings& settings) -> WebGame*;
 
+        void setSettings (const GameSettings& settings);
+
         auto needsPawnPromotion (const WebCoord* src, const WebCoord* dst) -> bool
         {
             auto game_src = make_coord (src->row, src->col);

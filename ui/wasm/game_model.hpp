@@ -59,12 +59,20 @@ namespace wisdom
                                                     worker_manager_resume_worker);
         }
 
-        void notifyMove (const WebMove* move) const
+        void notifyHumanMove (const WebMove* move) const
         {
             emscripten_wasm_worker_post_function_vi (
                 engine_thread,
                 worker_receive_move,
                 move->get_move().to_int()
+            );
+        }
+
+        void notifyComputerMove() const
+        {
+            emscripten_wasm_worker_post_function_v (
+                engine_thread,
+                start_search
             );
         }
 

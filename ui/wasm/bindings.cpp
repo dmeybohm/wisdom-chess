@@ -1,7 +1,7 @@
 #include "bindings.hpp"
 #include "web_logger.hpp"
-#include "game_settings.hpp"
 #include "web_types.hpp"
+#include "game_settings.hpp"
 
 using namespace wisdom;
 
@@ -33,14 +33,7 @@ namespace wisdom::worker
         void update_settings (GameSettings new_settings)
         {
             settings = new_settings;
-            game->set_search_timeout (std::chrono::seconds { settings.thinkingTime });
-            game->set_max_depth (
-                GameSettings::map_human_depth_to_computer_depth (settings.searchDepth)
-            );
-            game->set_players ({
-                map_player (settings.whitePlayer),
-                map_player (settings.blackPlayer)
-            });
+            new_settings.apply_to_game (game.get());
         }
     };
 }
@@ -59,8 +52,7 @@ EMSCRIPTEN_KEEPALIVE void worker_reinitialize_game (int new_game_id)
 
 //    newGame->set_periodic_function ()
 
-    if (state->game->get_current_player() == Player::ChessEngine)
-        start_search();
+    start_search();
 }
 
 EMSCRIPTEN_KEEPALIVE void start_search()
@@ -68,7 +60,13 @@ EMSCRIPTEN_KEEPALIVE void start_search()
     auto state = GameState::get_state();
     auto game = GameState::get_game();
 
+    if (state->game->get_current_player() != Player::ChessEngine)
+        return;
+
     const auto& logger = wisdom::worker::get_logger();
+
+    logger.debug("Going to find best move");
+    logger.debug("Current turn: " + to_string(game->get_current_turn()));
 
     auto move = game->find_best_move(
         logger,
@@ -92,8 +90,7 @@ EMSCRIPTEN_KEEPALIVE void worker_receive_move (int packed_move)
     auto unpacked_move = Move::from_int (packed_move);
     game->move (unpacked_move);
 
-    if (game->get_current_player() == Player::ChessEngine)
-        start_search();
+    start_search();
 }
 
 void worker_receive_settings (int white_player, int black_player, int thinking_time,
@@ -102,11 +99,13 @@ void worker_receive_settings (int white_player, int black_player, int thinking_t
     auto state = GameState::get_state();
 
     state->update_settings (GameSettings {
-        .whitePlayer = static_cast<WebPlayer> (white_player),
-        .blackPlayer = static_cast<WebPlayer> (black_player),
-        .thinkingTime = thinking_time,
-        .searchDepth = search_depth
+        static_cast<WebPlayer> (white_player),
+        static_cast<WebPlayer> (black_player),
+        thinking_time,
+        search_depth
     });
+
+    start_search();
 }
 
 EM_JS (void, receiveMoveFromWorker, (int game_id, const char* str),

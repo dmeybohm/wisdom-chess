@@ -13,3 +13,8 @@ auto wisdom::WebGame::new_from_settings (const wisdom::GameSettings& settings) -
 
     return new_game;
 }
+
+void wisdom::WebGame::setSettings (const wisdom::GameSettings& settings)
+{
+    settings.apply_to_game (&my_game);
+}

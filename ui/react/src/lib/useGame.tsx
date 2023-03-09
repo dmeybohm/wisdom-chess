@@ -66,11 +66,13 @@ export const useGame = create<GameState>()((set, get) => ({
         receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => {
             switch (type) {
                 case 'computerMoved': {
+                    const gameModel = getGameModel()
                     const move = wisdomChess.WebMove.prototype.fromString(
                         message,
                         getCurrentGame().getCurrentTurn()
                     );
                     get().actions.computerMovePiece(move)
+                    gameModel.notifyComputerMove()
                     break;
                 }
 
@@ -185,7 +187,7 @@ export const useGame = create<GameState>()((set, get) => ({
 
             newState.focusedSquare = ''
             game.makeMove(move)
-            gameModel.notifyMove(move)
+            gameModel.notifyHumanMove(move)
             newState.pieces = getPieces(game)
             return newState
         }),
@@ -201,8 +203,11 @@ export const useGame = create<GameState>()((set, get) => ({
             workerGameSettings.searchDepth = newSettings.searchDepth
 
             gameModel.setCurrentGameSettings(workerGameSettings)
+            const game = getCurrentGame()
+            game.setSettings(workerGameSettings)
+
             return {
-                settings: newSettings
+                settings: workerGameSettings
             }
         }),
     }
