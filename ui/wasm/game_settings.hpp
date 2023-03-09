@@ -14,7 +14,7 @@ namespace wisdom
 #else
         int thinkingTime = 4;
 #endif
-        
+
         int searchDepth = 3;
 
         [[nodiscard]] static auto map_human_depth_to_computer_depth (int human_depth) -> int

@@ -75,26 +75,33 @@ function App() {
                     gameOverStatus={gameOverStatus}
                 />
             </div>
-            <Modal show={showNewGame}>
-                <h1>New Game</h1>
-                <button className="btn-highlight" onClick={handleNewGame}>Start New Game</button>
-                <button onClick={() => setShowNewGame(false)}>Cancel</button>
-            </Modal>
-            <Modal show={showAbout}>
-                <h1>About Modal</h1>
-                <p>
-                    <a
-                        target="_blank"
-                        href="https://github.com/dmeybohm/wisdom-chess">
-                        View the source
-                    </a>
-                </p>
-                <button onClick={() => setShowAbout(false)}>OK</button>
-            </Modal>
-            <SettingsModal
-                show={showSettings}
-                onApply={() => setShowSettings(false)}
-                onDismiss={() => setShowSettings(false) }/>
+            {showNewGame &&
+                <Modal>
+                    <h1>New Game</h1>
+                    <button className="btn-highlight" onClick={handleNewGame}>Start New Game</button>
+                    <button onClick={() => setShowNewGame(false)}>Cancel</button>
+                </Modal>
+            }
+            {showAbout &&
+                <Modal>
+                    <h1>About Modal</h1>
+                    <p>
+                        <a
+                            target="_blank"
+                            href="https://github.com/dmeybohm/wisdom-chess">
+                            View the source
+                        </a>
+                    </p>
+                    <button onClick={() => setShowAbout(false)}>OK</button>
+                </Modal>
+            }
+            {showSettings &&
+                <SettingsModal
+                    show={true}
+                    onApply={() => setShowSettings(false)}
+                    onDismiss={() => setShowSettings(false) }
+                />
+            }
         </div>
     );
 }

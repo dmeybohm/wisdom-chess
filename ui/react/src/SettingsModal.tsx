@@ -1,6 +1,8 @@
 import Modal from "./Modal";
-import React from "react";
+import React, { useMemo } from "react";
 import "./Settings.css"
+import { useGame } from "./lib/useGame";
+import { WisdomChess } from "./lib/WisdomChess";
 
 type SettingsModalProps = {
     show: boolean
@@ -9,28 +11,56 @@ type SettingsModalProps = {
 }
 
 export function SettingsModal(props: SettingsModalProps) {
+    const settings = useGame((state) => state.settings)
     return (
         <Modal
             show={props.show}
         >
             <h1>Settings Modal</h1>
-            <form>
-                <fieldset>
-                    <legend>White Player</legend>
-                    <input id="humanWhite" name="whitePlayer" type="radio" />
-                    <label htmlFor="humanWhite">Human</label>
-                    <input id="computerWhite" name="whitePlayer" type="radio" />
-                    <label htmlFor="computerWhite">Computer</label>
-                </fieldset>
-                <fieldset>
-                    <legend>Black Player</legend>
-                    <input id="humanBlack" name="blackPlayer" type="radio" />
-                    <label htmlFor="humanBlack">Human</label>
-                    <input id="computerBlack" name="blackPlayer" type="radio" />
-                    <label htmlFor="computerBlack">Computer</label>
-                </fieldset>
-                <button onClick={props.onApply}>Apply</button>
-                <button onClick={props.onDismiss}>Cancel</button>
+            <form className="settings">
+                <div>White Player</div>
+                <label>
+                    <input
+                        name="whitePlayer"
+                        type="radio"
+                        value={wisdomChess.Human}
+                        defaultChecked={settings.whitePlayer === wisdomChess.Human}
+                    />
+                    Human
+                </label>
+                <label>
+                    <input
+                        name="whitePlayer"
+                        type="radio"
+                        value={wisdomChess.ChessEngine}
+                        defaultChecked={settings.whitePlayer === wisdomChess.ChessEngine}
+                    />
+                    Computer
+                </label>
+                <div>Black Player</div>
+                <label>
+                    <input
+                        name="blackPlayer"
+                        type="radio"
+                        value={wisdomChess.Human}
+                        defaultChecked={settings.blackPlayer === wisdomChess.Human}
+                    />
+                    Human
+                </label>
+                <label>
+                    <input
+                        id="computerBlack"
+                        name="blackPlayer"
+                        type="radio"
+                        value={wisdomChess.Computer}
+                        defaultChecked={settings.blackPlayer === wisdomChess.ChessEngine}
+                    />
+                    Computer
+                </label>
+                <div className="buttons">
+                    <button onClick={props.onApply}>Apply</button>
+                    <button onClick={props.onDismiss}>Cancel</button>
+                </div>
             </form>
         </Modal>
     )
