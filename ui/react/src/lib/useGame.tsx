@@ -66,13 +66,12 @@ export const useGame = create<GameState>()((set, get) => ({
         receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => {
             switch (type) {
                 case 'computerMoved': {
-                    const gameModel = getGameModel()
                     const move = wisdomChess.WebMove.prototype.fromString(
                         message,
                         getCurrentGame().getCurrentTurn()
                     );
                     get().actions.computerMovePiece(move)
-                    gameModel.notifyComputerMove()
+                    setTimeout(() => getGameModel().notifyComputerMove(), 175)
                     break;
                 }
 
