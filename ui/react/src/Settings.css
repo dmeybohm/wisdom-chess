@@ -1,6 +1,6 @@
 .settings {
     display: grid;
-    grid-template-columns: 40% 60%;
+    grid-template-columns: 48% 52%;
     row-gap: 2rem;
     max-width: 30rem;
     column-gap: 1rem;

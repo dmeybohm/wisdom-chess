@@ -95,7 +95,7 @@ function App() {
             }
             {showAbout &&
                 <Modal>
-                    <h1>About Modal</h1>
+                    <h1>About Wisdom Chess</h1>
                     <p>
                         <a
                             target="_blank"
