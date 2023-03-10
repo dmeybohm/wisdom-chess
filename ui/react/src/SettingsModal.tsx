@@ -1,10 +1,10 @@
 import Modal from "./Modal";
 import React, { useMemo, useRef, useState } from "react";
-import "./Settings.css"
 import { useGame } from "./lib/useGame";
 import { GameSettings, WisdomChess } from "./lib/WisdomChess";
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
+import "./Settings.css"
 
 type SettingsModalProps = {
     flipped: boolean

@@ -21,6 +21,7 @@
   --square-background: #5F9EA0;
   --square-focused: darksalmon;
   --menu-highlight: #747bff;
+  --slider-color: #88b1f2;
 }
 
 .board.flipped .piece {
