@@ -47,7 +47,10 @@ Promise.all([
 				afterWisdomChessModuleLoaded(WisdomChessWeb)
 			}
 		})
-	});
+	})
+	.catch(err => {
+		window.alert("Sorry, it looks like your browser is not supported\n\nSupported browsers are Chrome, Firefox, and the latest versions of Safari and Edge.");
+	})
 });
 
 function afterWisdomChessModuleLoaded(WisdomChessWeb) {
