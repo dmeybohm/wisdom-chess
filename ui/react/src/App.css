@@ -61,16 +61,30 @@
 
 .modal {
   position: absolute;
+  top: 50%;
   left: 50%;
-  top: 30%;
-  transform: translate(-50%, -50%);
   z-index: 3;
+  transform: translate(-50%, -50%);
   background: #fff;
-  width: 66vw;
-  border-radius: 1rem;
-  padding: 1rem 3rem 4rem;
+  width: 100%;
   box-sizing: border-box;
-  max-width: 38rem;
+  padding: 1rem 0 4rem;
+}
+
+@media screen and (min-width: 48rem) {
+  .modal {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    background: #fff;
+    width: 66vw;
+    border-radius: 1rem;
+    padding: 1rem 1.5rem 4rem;
+    box-sizing: border-box;
+    max-width: 38rem;
+  }
 }
 
 .modal h1 {

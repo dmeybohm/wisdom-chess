@@ -71,7 +71,7 @@ export const useGame = create<GameState>()((set, get) => ({
                         getCurrentGame().getCurrentTurn()
                     );
                     get().actions.computerMovePiece(move)
-                    setTimeout(() => getGameModel().notifyComputerMove(), 175)
+                    setTimeout(() => getGameModel().notifyComputerMove(), 555)
                     break;
                 }
 
