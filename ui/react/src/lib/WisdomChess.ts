@@ -21,6 +21,8 @@ export type GameModel = {
     setCurrentGameSettings(newSettings: WorkerGameSettings): void
     notifyHumanMove(move: WebMove): void;
     notifyComputerMove(): void;
+    sendPause(): void;
+    sendUnpause(): void;
 }
 
 interface GameSettingsConstructor {

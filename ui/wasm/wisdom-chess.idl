@@ -103,7 +103,7 @@ interface GameModel {
     void GameModel();
 
     void sendPause();
-    void sendResume();
+    void sendUnpause();
 
     // Notify the chess engine about a human move.
     void notifyHumanMove ([Const] WebMove move);

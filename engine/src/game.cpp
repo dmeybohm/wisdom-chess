@@ -70,7 +70,7 @@ namespace wisdom
 
     void Game::save (const string& input) const
     {
-        OutputFormat &output = make_output_format (input);
+        OutputFormat& output = make_output_format (input);
         output.save (input, my_current_board, *my_history, get_current_turn ());
     }
 

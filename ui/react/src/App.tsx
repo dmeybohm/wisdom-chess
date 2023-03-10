@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import Board from "./Board";
 import TopMenu from "./TopMenu";
@@ -39,6 +39,14 @@ function App() {
     const game = getCurrentGame()
     const gameState = useGame((state) => state)
     const actions = useGame((state) => state.actions)
+
+    useEffect(() => {
+        if ([showAbout, showNewGame, showSettings].some(v => v)) {
+            actions.pauseGame();
+        } else {
+            actions.unpauseGame();
+        }
+    }, [showAbout, showNewGame, showSettings])
 
     const gameOverStatus = game.gameOverStatus
     const currentTurn = game.getCurrentTurn()

@@ -4,23 +4,23 @@ namespace wisdom
 {
     using chrono::steady_clock;
 
-    constexpr int Num_Calls_Per_Timer_Check = 10000;   // number of iterations before checking
+    static constexpr int Num_Iterations_Before_Checking = 10000;
 
     auto MoveTimer::is_triggered () -> bool
     {
         if (!my_started)
             return false;
 
-        if (my_triggered)
+        if (my_triggered || my_cancelled)
             return true;
 
-        if (++my_check_calls % Num_Calls_Per_Timer_Check != 0)
+        if (++my_check_calls % Num_Iterations_Before_Checking != 0)
             return false;
 
         if (my_periodic_function.has_value ())
         {
             (*my_periodic_function) (this);
-            if (my_triggered)
+            if (my_triggered || my_cancelled)
                 return true;
         }
 

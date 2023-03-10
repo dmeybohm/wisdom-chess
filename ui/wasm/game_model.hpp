@@ -48,15 +48,17 @@ namespace wisdom
         // Pause the worker.
         void sendPause() const
         {
-            emscripten_wasm_worker_post_function_v (engine_thread_manager,
-                                                    worker_manager_pause_worker);
+            pause_worker();
         }
 
         // Resume the worker.
-        void sendResume() const
+        void sendUnpause() const
         {
-            emscripten_wasm_worker_post_function_v (engine_thread_manager,
-                                                    worker_manager_resume_worker);
+            unpause_worker();
+
+            // Resume searching:
+            emscripten_wasm_worker_post_function_v (engine_thread,
+                                                    start_search);
         }
 
         void notifyHumanMove (const WebMove* move) const
@@ -86,7 +88,7 @@ namespace wisdom
             my_game_settings = GameSettings { *newSettings };
             sendPause();
             sendSettings();
-            sendResume();
+            sendUnpause();
         }
     };
 }

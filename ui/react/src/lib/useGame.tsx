@@ -46,6 +46,8 @@ interface GameState {
         promotePiece: (pieceType: PieceType) => void
         applySettings: (newSettings: GameSettings) => void
         receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => void
+        pauseGame: () => void
+        unpauseGame: () => void
     }
 }
 
@@ -209,6 +211,12 @@ export const useGame = create<GameState>()((set, get) => ({
                 settings: workerGameSettings
             }
         }),
+        pauseGame: () => {
+            getGameModel().sendPause()
+        },
+        unpauseGame: () => {
+            getGameModel().sendUnpause()
+        }
     }
 }))
 
