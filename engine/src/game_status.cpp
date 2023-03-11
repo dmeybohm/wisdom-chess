@@ -2,6 +2,8 @@
 
 void wisdom::GameStatusManager::update_for_status (GameStatus status)
 {
+    before_status_update (status);
+
     switch (status)
     {
         case GameStatus::Playing:
@@ -44,4 +46,6 @@ void wisdom::GameStatusManager::update_for_status (GameStatus status)
             insufficient_material();
             break;
     }
+
+    after_status_update();
 }

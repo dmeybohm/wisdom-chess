@@ -11,6 +11,8 @@
 #include "ui_settings.hpp"
 #include "game_settings.hpp"
 
+class QmlGameStatusManager;
+
 class GameModel : public QObject
 {
     using DrawStatus = wisdom::ui::DrawByRepetitionStatus;
@@ -152,6 +154,10 @@ private:
     // The chess game id. We could sometimes receive moves from a previous game that were
     // queued because the signals are asynchronous. This lets us discard those signals.
     std::atomic<int> myGameId = 1;
+
+    // Manage the game status:
+    std::unique_ptr<QmlGameStatusManager> myGameStatusManager;
+    friend class QmlGameStatusManager;
 
     // We identify each configuration by an Id so that when we change configs,
     // The chess engine thread can be interrupted to load the new config sooner.

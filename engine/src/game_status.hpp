@@ -37,6 +37,10 @@ namespace wisdom
         // Run after a status update.
         void update_for_status (GameStatus status);
 
+        // Called before/after the status updates:
+        virtual void before_status_update (GameStatus status) = 0;
+        virtual void after_status_update() = 0;
+
         //
         // Functions to call when the corresponding state is reached:
         //

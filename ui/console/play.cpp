@@ -116,6 +116,14 @@ namespace wisdom::ui::console
             return update_for_status (my_game.status());
         }
 
+        void before_status_update (GameStatus status) override
+        {
+        }
+
+        void after_status_update() override
+        {
+        }
+
         void playing() override
         {
             // nothing
