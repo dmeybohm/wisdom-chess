@@ -6,7 +6,7 @@ add_library(wisdom-chess-core STATIC
         history.hpp history.cpp search.hpp
         board_code.cpp board_code.hpp logger.cpp logger.hpp
         output_format.cpp output_format.hpp
-        threats.hpp)
+        threats.hpp game_status.cpp game_status.hpp)
 
 if (PCH_ENABLED)
     target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
