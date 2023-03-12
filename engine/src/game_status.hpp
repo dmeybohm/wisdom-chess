@@ -27,26 +27,20 @@ namespace wisdom
 
     class Game;
 
-    class GameStatusManager
+    class GameStatusUpdate
     {
-
     public:
-        GameStatusManager()  = default;
-        virtual ~GameStatusManager () = default;
+        GameStatusUpdate() = default;
+        virtual ~GameStatusUpdate() = default;
 
         // Run after a status update.
-        void update_for_status (GameStatus status);
-
-        // Called before/after the status updates:
-        virtual void before_status_update (GameStatus status) = 0;
-        virtual void after_status_update() = 0;
+        void update (GameStatus status);
 
         //
         // Functions to call when the corresponding state is reached:
         //
 
         // Playing/checkmate/stalemate:
-        virtual void playing() = 0;
         virtual void checkmate() = 0;
         virtual void stalemate() = 0;
 

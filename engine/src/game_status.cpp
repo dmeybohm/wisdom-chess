@@ -1,13 +1,10 @@
 #include "game_status.hpp"
 
-void wisdom::GameStatusManager::update_for_status (GameStatus status)
+void wisdom::GameStatusUpdate::update (GameStatus status)
 {
-    before_status_update (status);
-
     switch (status)
     {
         case GameStatus::Playing:
-            playing();
             break;
 
         case GameStatus::Checkmate:
@@ -46,6 +43,4 @@ void wisdom::GameStatusManager::update_for_status (GameStatus status)
             insufficient_material();
             break;
     }
-
-    after_status_update();
 }

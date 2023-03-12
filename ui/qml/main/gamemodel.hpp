@@ -11,7 +11,7 @@
 #include "ui_settings.hpp"
 #include "game_settings.hpp"
 
-class QmlGameStatusManager;
+class QmlGameStatusUpdate;
 
 class GameModel : public QObject
 {
@@ -156,8 +156,7 @@ private:
     std::atomic<int> myGameId = 1;
 
     // Manage the game status:
-    std::unique_ptr<QmlGameStatusManager> myGameStatusManager;
-    friend class QmlGameStatusManager;
+    friend class QmlGameStatusUpdate;
 
     // We identify each configuration by an Id so that when we change configs,
     // The chess engine thread can be interrupted to load the new config sooner.

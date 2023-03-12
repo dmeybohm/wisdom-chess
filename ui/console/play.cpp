@@ -79,7 +79,7 @@ namespace wisdom::ui::console
         return { white_wants_draw, black_wants_draw };
     }
 
-    class ConsoleGameStatusManager : public GameStatusManager
+    class ConsoleGameStatusManager : public GameStatusUpdate
     {
     private:
         InputState my_input_state {};
@@ -113,14 +113,14 @@ namespace wisdom::ui::console
                 ProposedDrawType::ThreeFoldRepetition,
                 draw_pair
             );
-            return update_for_status (my_game.status());
+            return update (my_game.status());
         }
 
-        void before_status_update (GameStatus status) override
+        void before_update (GameStatus status) override
         {
         }
 
-        void after_status_update() override
+        void after_update() override
         {
         }
 
@@ -400,7 +400,7 @@ namespace wisdom::ui::console
 
             game.get_board().print();
 
-            game_status_manager.update_for_status (game.status());
+            game_status_manager.update (game.status());
             auto input_state = game_status_manager.get_input_state();
 
             if (input_state.command == PlayCommand::StopGame)
