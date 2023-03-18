@@ -31,6 +31,10 @@ extern "C"
 
     // Remove the unpause state from the worker. This can be called from any thread.
     EMSCRIPTEN_KEEPALIVE void unpause_worker (void);
+
+    // Update the draw status.
+    EMSCRIPTEN_KEEPALIVE void main_thread_receive_draw_status (int game_id, int draw_type, int color,
+                                                               int draw_proposed);
 }
 
 #endif // WISDOMCHESS_BINDINGS_HPP

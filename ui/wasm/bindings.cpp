@@ -108,6 +108,26 @@ namespace wisdom::worker
             }
         };
 
+        void update_draw_status (wisdom::ProposedDrawType draw_type,
+                                 wisdom::Color who,
+                                 bool accepts_draw)
+        {
+            game->set_proposed_draw_status (
+                draw_type,
+                who,
+                accepts_draw
+            );
+
+            emscripten_wasm_worker_post_function_sig (
+                EM
+                (void*)main_thread_receive_draw_status,
+                "iiii",
+                game_id,
+                draw_type,
+                accepts_draw,
+            );
+        }
+
         void handle_potential_draw_position (wisdom::ProposedDrawType proposedDrawType,
                                              wisdom::Color who)
         {
@@ -118,7 +138,6 @@ namespace wisdom::worker
                 who,
                 current_player_accept_draw
             );
-
             emit updateDrawStatus(proposedDrawType, who, acceptDraw);
             if (acceptDraw) {
                 myIsGameOver = true;
@@ -262,4 +281,15 @@ EMSCRIPTEN_KEEPALIVE void unpause_worker ()
 {
     auto* state = GameState::get_state();
     state->play_status.store (GameState::Playing);
+}
+
+EM_JS (void, receiveDrawStatusFromWorker, (int game_id, int draw_type, int color, int draw_proposed),
+{
+   receiveWorkerMessage ('drawStatusUpdated', game_id, UTF8ToString (str));
+})
+
+EMSCRIPTEN_KEEPALIVE void main_thread_receive_draw_status (int game_id, int draw_type, int color,
+                                                           int draw_proposed)
+{
+    receiveDrawStatusFromWorker (game_id, draw_type, color, draw_proposed);
 }
