@@ -62,40 +62,36 @@ public:
         : myParent { parent }
     {}
 
-    void before_update (GameStatus status) override
-    {
-    }
-    void after_update() override
-    {
-    }
-    void playing() override
-    {
-    }
-
     void checkmate() override
     {
         handleGameOver();
     }
+
     void stalemate() override
     {
         handleGameOver();
     }
+
     void insufficient_material() override
     {
         handleGameOver();
     }
+
     void third_repetition_draw_accepted() override
     {
         handleGameOver();
     }
+
     void fifth_repetition_draw() override
     {
         handleGameOver();
     }
+
     void fifty_moves_without_progress_accepted() override
     {
         handleGameOver();
     }
+
     void seventy_five_moves_with_no_progress() override
     {
         handleGameOver();

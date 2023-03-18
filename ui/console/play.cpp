@@ -116,19 +116,6 @@ namespace wisdom::ui::console
             return update (my_game.status());
         }
 
-        void before_update (GameStatus status) override
-        {
-        }
-
-        void after_update() override
-        {
-        }
-
-        void playing() override
-        {
-            // nothing
-        }
-
         void checkmate() override
         {
             std::cout << to_string (color_invert (my_game.get_current_turn())) << " wins the game.\n";
