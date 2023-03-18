@@ -119,7 +119,7 @@ namespace wisdom::worker
             );
 
             emscripten_wasm_worker_post_function_sig (
-                EM
+                EMSCRIPTEN_WASM_WORKER_ID_PARENT,
                 (void*)main_thread_receive_draw_status,
                 "iiii",
                 game_id,
