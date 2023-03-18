@@ -101,7 +101,7 @@ public:
     {
         auto gameState = myParent->myGame->state();
         auto who = gameState->get_current_turn();
-        myParent->handlePotentialDrawPosition(ProposedDrawType::FiftyMovesWithoutProgress, who);
+        myParent->handlePotentialDrawPosition(ProposedDrawType::ThreeFoldRepetition, who);
     }
 
     void fifty_moves_without_progress_reached() override

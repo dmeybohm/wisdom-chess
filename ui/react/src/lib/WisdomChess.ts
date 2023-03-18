@@ -51,6 +51,14 @@ export type WisdomChess = {
 
     GameSettings: GameSettingsConstructor
 
+    NotReached: DrawProposed
+    Proposed: DrawProposed
+    Accepted: DrawProposed
+    Declined: DrawProposed
+
+    // Web move constructor:
+    WebMove: any
+
     // Destroy a C++ object explicitly:
     destroy(obj: any): void
 }
@@ -60,6 +68,7 @@ export type WebPlayer = any
 
 export type PieceColor = any
 export type PieceType = any
+export type DrawProposed = any
 
 export type WebMove = {
     asString(): string

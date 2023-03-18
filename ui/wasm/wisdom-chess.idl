@@ -74,6 +74,13 @@ interface GameSettings {
     attribute long searchDepth;
 };
 
+enum wisdom_WebDrawStatus {
+    "wisdom::NotReached",
+    "wisdom::Proposed",
+    "wisdom::Accepted",
+    "wisdom::Declined"
+};
+
 [Prefix="wisdom::"]
 interface WebGame {
     [Ref] WebColoredPieceList getPieceList();
@@ -90,12 +97,14 @@ interface WebGame {
     void setSettings([Const, Ref] GameSettings newSettings);
 
     attribute boolean inCheck;
-    attribute DOMString moveStatus;
-    attribute DOMString gameOverStatus;
+    [Const] DOMString getMoveStatus();
+    [Const] DOMString getGameOverStatus();
     attribute long moveNumber;
     attribute long gameId;
 
     wisdom_WebColor getCurrentTurn();
+    wisdom_WebDrawStatus getThirdRepetitionDrawStatus();
+    wisdom_WebDrawStatus getFiftyMovesDrawStatus();
 };
 
 [Prefix="wisdom::"]

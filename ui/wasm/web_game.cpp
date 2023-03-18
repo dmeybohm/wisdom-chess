@@ -223,6 +223,82 @@ namespace wisdom
                    });
     }
 
+    class WebGameStatusUpdate : public GameStatusUpdate
+    {
+    private:
+        observer_ptr<WebGame> parent;
+
+        auto get_first_human_player (Players players) -> optional<Color>
+        {
+            if (players[0] == Player::Human) {
+                return Color::White;
+            }
+            if (players[1] == Player::Human) {
+                return Color::Black;
+            }
+
+            return {};
+        }
+
+    public:
+        WebGameStatusUpdate (observer_ptr<WebGame> parent_) : parent { parent_ }
+        {}
+
+        void checkmate() override
+        {
+            auto who = parent->my_game.get_current_turn();
+            auto whoString = "<strong>Checkmate</strong> - " +
+                wisdom::to_string (color_invert (who)) +
+                " wins the game.";
+            parent->set_game_over_status (whoString);
+        }
+
+        void stalemate() override
+        {
+            auto who = parent->my_game.get_current_turn();
+            auto stalemateStr = "<strong>Stalemate</strong> - No legal moves for " +
+                wisdom::to_string (who);
+            parent->set_game_over_status (stalemateStr);
+        }
+
+        void insufficient_material() override
+        {
+            parent->set_game_over_status ("<strong>Draw</strong> - Insufficient material to checkmate.");
+        }
+
+        void third_repetition_draw_reached() override
+        {
+            if (get_first_human_player (parent->my_game.get_players()).has_value())
+                parent->set_third_repetition_draw_status (Proposed);
+        }
+
+        void third_repetition_draw_accepted() override
+        {
+            parent->set_game_over_status ("<strong>Draw</strong> - Threefold repetition rule.");
+        }
+
+        void fifth_repetition_draw() override
+        {
+            parent->set_game_over_status ("<strong>Draw</strong> - Fivefold repetition rule.");
+        }
+
+        void fifty_moves_without_progress_reached() override
+        {
+            if (get_first_human_player (parent->my_game.get_players()).has_value())
+                parent->set_fifty_moves_draw_status (Proposed);
+        }
+
+        void fifty_moves_without_progress_accepted() override
+        {
+            parent->set_game_over_status ("<strong>Draw</strong> - Fifty moves without progress.");
+        }
+
+        void seventy_five_moves_with_no_progress() override
+        {
+            parent->set_game_over_status ("<strong>Draw</strong> - Seventy-five moves without progress.");
+        }
+    };
+
     void WebGame::update_displayed_game_state()
     {
         auto who = my_game.get_current_turn();
@@ -233,68 +309,12 @@ namespace wisdom
         set_in_check (false);
         set_move_number (my_game.get_history().get_move_history().size());
 
+        WebGameStatusUpdate update { this };
         auto nextStatus = my_game.status();
-
-        switch (nextStatus)
-        {
-            case GameStatus::Playing:
-                break;
-
-            case GameStatus::Checkmate:
-            {
-                auto whoString = "<strong>Checkmate</strong> - " + wisdom::to_string (color_invert (who))
-                                 + " wins the game.";
-                set_game_over_status (whoString);
-                return;
-            }
-
-            case GameStatus::Stalemate:
-            {
-                auto stalemateStr = "<strong>Stalemate</strong> - No legal moves for "
-                                    + wisdom::to_string (who);
-                set_game_over_status (stalemateStr);
-                return;
-            }
-
-            case GameStatus::FivefoldRepetitionDraw:
-                set_game_over_status ("<strong>Draw</strong> - Fivefold repetition rule.");
-                return;
-
-            case GameStatus::ThreefoldRepetitionReached:
-//                    if (getFirstHumanPlayerColor (my_game->get_players()).has_value())
-//                    {
-//                        setThirdRepetitionDrawStatus (DrawStatus::Proposed);
-//                    }
-                break;
-
-            case GameStatus::FiftyMovesWithoutProgressReached:
-//                    if (getFirstHumanPlayerColor (my_game->get_players()).has_value())
-//                    {
-//                        setFiftyMovesDrawStatus (DrawStatus::Proposed);
-//                    }
-                break;
-
-            case GameStatus::ThreefoldRepetitionAccepted:
-                set_game_over_status ("<strong>Draw</strong> - Threefold repetition rule.");
-                return;
-
-            case GameStatus::FiftyMovesWithoutProgressAccepted:
-                set_game_over_status ("<strong>Draw</strong> - Fifty moves without progress.");
-                return;
-
-            case GameStatus::SeventyFiveMovesWithoutProgressDraw:
-                set_game_over_status ("<strong>Draw</strong> - Seventy-five moves without progress.");
-                return;
-
-            case GameStatus::InsufficientMaterialDraw:
-                set_game_over_status ("<strong>Draw</strong> - Insufficient material to checkmate.");
-                return;
-        }
+        update.update (nextStatus);
 
         if (wisdom::is_king_threatened (board, who, board.get_king_position (who)))
-        {
             set_in_check (true);
-        }
     }
 }
 

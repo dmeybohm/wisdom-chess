@@ -16,12 +16,12 @@ namespace wisdom
         std::string my_move_status;
         std::string my_game_over_status;
         static int our_game_id;
+        WebDrawStatus my_third_repetition_draw_status = wisdom::NotReached;
+        WebDrawStatus my_fifty_moves_draw_status = wisdom::NotReached;
 
     public:
         bool inCheck = false;
-        char* moveStatus{};
-        char* gameOverStatus{};
-        int moveNumber{};
+        int moveNumber {};
         int gameId = ++our_game_id;
 
         WebGame ()
@@ -34,7 +34,7 @@ namespace wisdom
 
         void setSettings (const GameSettings& settings);
 
-        auto needsPawnPromotion (const WebCoord* src, const WebCoord* dst) -> bool
+        auto needsPawnPromotion (const WebCoord* src, const WebCoord* dst) const -> bool
         {
             auto game_src = make_coord (src->row, src->col);
             auto game_dst = make_coord (dst->row, dst->col);
@@ -51,9 +51,9 @@ namespace wisdom
                                                                       int promoted_piece_type)
             -> WebMove*;
 
-        [[nodiscard]] auto makeMove (const WebMove *move_param) -> bool;
+        auto makeMove (const WebMove *move_param) -> bool;
 
-        [[nodiscard]] auto isLegalMove (const WebMove* selectedMovePtr) -> bool;
+        auto isLegalMove (const WebMove* selectedMovePtr) -> bool;
 
         void setMaxDepth (int max_depth)
         {
@@ -65,7 +65,7 @@ namespace wisdom
             my_game.set_search_timeout (thinkingTime);
         }
 
-        auto getMaxDepth() -> int
+        auto getMaxDepth() const -> int
         {
             auto result = my_game.get_max_depth();
             return result;
@@ -76,9 +76,29 @@ namespace wisdom
             return my_pieces;
         }
 
-        auto getCurrentTurn() -> WebColor
+        auto getCurrentTurn() const -> WebColor
         {
             return map_color (my_game.get_current_turn());
+        }
+
+        auto getMoveStatus() const -> const char*
+        {
+            return my_move_status.c_str();
+        }
+
+        auto getGameOverStatus() const -> const char*
+        {
+            return my_game_over_status.c_str();
+        }
+
+        auto getThirdRepetitionDrawStatus() -> WebDrawStatus
+        {
+            return my_third_repetition_draw_status;
+        }
+
+        auto getFiftyMovesDrawStatus() -> WebDrawStatus
+        {
+            return my_fifty_moves_draw_status;
         }
 
     private:
@@ -94,7 +114,6 @@ namespace wisdom
         void set_game_over_status (std::string new_status)
         {
             my_game_over_status = std::move (new_status);
-            gameOverStatus = const_cast<char*> (my_game_over_status.c_str());
         }
 
         void set_in_check (bool new_in_check)
@@ -110,8 +129,19 @@ namespace wisdom
         void set_move_status (std::string new_move_status)
         {
             my_move_status = std::move (new_move_status);
-            moveStatus = const_cast<char*> (my_move_status.c_str());
         }
+
+        void set_third_repetition_draw_status (WebDrawStatus new_draw_status)
+        {
+            my_third_repetition_draw_status = new_draw_status;
+        }
+
+        void set_fifty_moves_draw_status (WebDrawStatus new_draw_status)
+        {
+            my_fifty_moves_draw_status = new_draw_status;
+        }
+
+        friend class WebGameStatusUpdate;
     };
 };
 #endif // WISDOMCHESS_WEB_GAME_HPP

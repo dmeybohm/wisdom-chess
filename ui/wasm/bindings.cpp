@@ -19,6 +19,7 @@ namespace wisdom::worker
         std::unique_ptr<wisdom::Game> game;
         wisdom::GameSettings settings {};
         int game_id {};
+        bool is_game_over = false;
         std::atomic<int> play_status = PlayStatus::Playing;
 
         GameState () :
@@ -43,7 +44,112 @@ namespace wisdom::worker
             settings = new_settings;
             new_settings.apply_to_game (game.get());
         }
+
+        auto status_transitition () -> wisdom::GameStatus
+        {
+            WebEngineGameStatusUpdate status_manager { this };
+            status_manager.update (game->status());
+            return game->status ();
+        }
+
+        friend class WebEngineGameStatusUpdate;
+
+        class WebEngineGameStatusUpdate : public GameStatusUpdate
+        {
+        private:
+            observer_ptr<GameState> my_parent;
+
+        public:
+            explicit WebEngineGameStatusUpdate (observer_ptr<GameState> parent) :
+                    my_parent { parent }
+            {
+            }
+
+            void checkmate() override
+            {
+            }
+
+            void stalemate() override
+            {
+            }
+
+            void insufficient_material() override
+            {
+            }
+
+            void third_repetition_draw_accepted() override
+            {
+            }
+
+            void fifth_repetition_draw() override
+            {
+            }
+
+            void fifty_moves_without_progress_accepted() override
+            {
+            }
+
+            void seventy_five_moves_with_no_progress() override
+            {
+            }
+
+            void third_repetition_draw_reached() override
+            {
+                auto who = my_parent->game->get_current_turn();
+                my_parent->handle_potential_draw_position (ProposedDrawType::ThreeFoldRepetition,
+                                                           who);
+            }
+
+            void fifty_moves_without_progress_reached() override
+            {
+                auto who = my_parent->game->get_current_turn();
+                my_parent->handle_potential_draw_position ( ProposedDrawType::FiftyMovesWithoutProgress,
+                                                           who);
+            }
+        };
+
+        void handle_potential_draw_position (wisdom::ProposedDrawType proposedDrawType,
+                                             wisdom::Color who)
+        {
+            auto current_player_accept_draw = game->computer_wants_draw (who);
+
+            game->set_proposed_draw_status (
+                proposedDrawType,
+                who,
+                current_player_accept_draw
+            );
+
+            emit updateDrawStatus(proposedDrawType, who, acceptDraw);
+            if (acceptDraw) {
+                myIsGameOver = true;
+                emit noMovesAvailable();
+            }
+
+            auto opponent = color_invert (who);
+            auto opponent_player = game->get_player (opponent);
+            if (opponent_player == Player::ChessEngine) {
+                auto opponent_wants_draw = game->computer_wants_draw (opponent);
+                game->set_proposed_draw_status(
+                    proposedDrawType,
+                    opponent,
+                    opponent_wants_draw
+                );
+                emit updateDrawStatus(proposedDrawType, opponent, opponentAcceptsDraw);
+                if (opponent_wants_draw) {
+                    myIsGameOver = true;
+                    emit noMovesAvailable();
+                } else {
+                    // if the computer is playing itself, resume searching:
+                    if (status_transition() == GameStatus::Playing) {
+                        start_search()
+                    }
+                }
+            }
+        }
     };
+
+    };
+
 }
 
 using namespace wisdom::worker;

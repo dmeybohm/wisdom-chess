@@ -260,6 +260,21 @@ namespace wisdom
                                   gsl::narrow<int> (Column (coord)) };
         }
     };
+
+    enum WebDrawStatus
+    {
+        NotReached,
+        Proposed,
+        Accepted,
+        Declined,
+    };
 }
+
+// Map enums to the global namespace:
+using wisdom_WebPlayer = wisdom::WebPlayer;
+using wisdom_WebPiece = wisdom::WebPiece;
+using wisdom_WebColor = wisdom::WebColor;
+using wisdom_WebGameStatus = wisdom::WebGameStatus;
+using wisdom_WebDrawStatus = wisdom::WebDrawStatus;
 
 #endif // WISDOMCHESS_WEB_TYPES_HPP

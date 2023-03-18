@@ -1,4 +1,5 @@
 import {
+    DrawProposed,
     Game, GameSettings,
     getCurrentGame, getCurrentGameSettings,
     getGameModel,
@@ -9,8 +10,8 @@ import {
     WebPlayer, WisdomChess
 } from "./WisdomChess";
 import { initialSquares } from "./Squares";
+import { wisdomChess } from "../App"
 import { Piece } from "./Pieces";
-import { wisdomChess } from "../App";
 import { create } from "zustand";
 import { ReactWindow } from "../main";
 
@@ -19,6 +20,9 @@ export const initialGameState = {
     squares: initialSquares,
     focusedSquare: '',
     pawnPromotionDialogSquare: '',
+    thirdRepetitionDrawStatusUpdated: false,
+    fiftyMovesDrawStatusUpdated: false,
+
     settings: {
         // Initialized from web assembly later:
         whitePlayer: 0,
@@ -36,6 +40,8 @@ interface GameState {
     focusedSquare: string
     pawnPromotionDialogSquare: string
     settings: GameSettings
+    thirdRepetitionDrawStatusUpdated: boolean
+    fiftyMovesDrawStatusUpdated: boolean
 
     actions: {
         init: (window: ReactWindow) => void
@@ -48,6 +54,8 @@ interface GameState {
         receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => void
         pauseGame: () => void
         unpauseGame: () => void
+        setThirdRepetitionDrawStatus: (drawProposed: DrawProposed) => void
+        setFiftyMovesDrawStatus: (drawProposed: DrawProposed) => void
     }
 }
 
@@ -66,6 +74,7 @@ export const useGame = create<GameState>()((set, get) => ({
         // Receive a message from the chess engine thread.
         //
         receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => {
+            const wisdomChess = WisdomChess()
             switch (type) {
                 case 'computerMoved': {
                     const move = wisdomChess.WebMove.prototype.fromString(
@@ -216,6 +225,12 @@ export const useGame = create<GameState>()((set, get) => ({
         },
         unpauseGame: () => {
             getGameModel().sendUnpause()
+        },
+        setThirdRepetitionDrawStatus: (drawProposed: DrawProposed) => {
+            getCurrentGame().setThirdRepetitionDrawStatus(drawProposed)
+        },
+        setFiftyMovesDrawStatus: (drawProposed: DrawProposed) => {
+            getCurrentGame().setFiftyMovesDrawStatus(drawProposed)
         }
     }
 }))

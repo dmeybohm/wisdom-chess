@@ -11,8 +11,8 @@ import {
 } from "./lib/WisdomChess";
 import { initialGameState, useGame } from "./lib/useGame";
 import { SettingsModal } from "./SettingsModal";
+import { DrawDialog } from "./DrawDialog";
 
-// This is the web assembly module. It's constant across changes:
 export let wisdomChess : any = undefined
 
 function App() {
@@ -23,6 +23,9 @@ function App() {
     const [showAbout, setShowAbout] = useState(false);
     const [showNewGame, setShowNewGame] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
+
+    const [thirdRepetitionDrawAnswered, setThirdRepetitionDrawAnswered] = useState(false)
+    const [fiftyMovesDrawAnswered, setFiftyMovesDrawAnswered] = useState(false)
 
     const handleAboutClicked = (): void => {
         setShowAbout(true);
@@ -48,10 +51,24 @@ function App() {
         }
     }, [showAbout, showNewGame, showSettings])
 
-    const gameOverStatus = game.gameOverStatus
+    const handleThirdRepetitionDrawAnswer = (answer: boolean): void => {
+        setThirdRepetitionDrawAnswered(true)
+        actions.setThirdRepetitionDrawStatus(answer ? wisdomChess.Accepted : wisdomChess.Declined)
+    }
+    const handleFifthRepetitionDrawAnswer = (answer: boolean): void => {
+        setFiftyMovesDrawAnswered(true);
+        actions.setFiftyMovesDrawStatus(answer ? wisdomChess.Accepted : wisdomChess.Declined)
+    }
+
     const currentTurn = game.getCurrentTurn()
     const inCheck = game.inCheck
-    const moveStatus = game.moveStatus
+    const moveStatus = game.getMoveStatus()
+    const gameOverStatus = game.getGameOverStatus()
+    const thirdRepetitionDrawStatus = game.getThirdRepetitionDrawStatus()
+    const fiftyMovesDrawStatus = game.getFiftyMovesDrawStatus()
+
+    console.log(thirdRepetitionDrawStatus);
+    console.log(wisdomChess.Proposed);
 
     const handleNewGame = () => {
         actions.startNewGame()
@@ -120,6 +137,20 @@ function App() {
                     onApply={handleApplySettings}
                     onDismiss={() => setShowSettings(false) }
                 />
+            }
+            {thirdRepetitionDrawStatus === wisdomChess.Proposed && !thirdRepetitionDrawAnswered &&
+                <DrawDialog
+                    title={"Third Repetition Reached"}
+                    onAccepted={() => handleThirdRepetitionDrawAnswer(true)}
+                    onDeclined={() => handleThirdRepetitionDrawAnswer(false)}
+                >
+                    <p>The same position was reached three times. Either player can declare a draw now.</p>
+                </DrawDialog>
+            }
+            {fiftyMovesDrawStatus === wisdomChess.Proposed && !fiftyMovesDrawAnswered &&
+                <Modal>
+                    <h1>Fifty Moves without Progress</h1>
+                </Modal>
             }
         </div>
     );
