@@ -228,7 +228,7 @@ namespace wisdom
     private:
         observer_ptr<WebGame> parent;
 
-        auto get_first_human_player (Players players) -> optional<Color>
+        [[nodiscard]] auto get_first_human_player (Players players) -> optional<Color>
         {
             if (players[0] == Player::Human) {
                 return Color::White;
@@ -241,7 +241,7 @@ namespace wisdom
         }
 
     public:
-        WebGameStatusUpdate (observer_ptr<WebGame> parent_) : parent { parent_ }
+        explicit WebGameStatusUpdate (observer_ptr<WebGame> parent_) : parent { parent_ }
         {}
 
         void checkmate() override
@@ -268,8 +268,7 @@ namespace wisdom
 
         void third_repetition_draw_reached() override
         {
-            if (get_first_human_player (parent->my_game.get_players()).has_value())
-                parent->set_third_repetition_draw_status (Proposed);
+            // nothing
         }
 
         void third_repetition_draw_accepted() override
@@ -284,8 +283,7 @@ namespace wisdom
 
         void fifty_moves_without_progress_reached() override
         {
-            if (get_first_human_player (parent->my_game.get_players()).has_value())
-                parent->set_fifty_moves_draw_status (Proposed);
+            // nothing
         }
 
         void fifty_moves_without_progress_accepted() override

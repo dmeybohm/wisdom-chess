@@ -1,9 +1,9 @@
 import {
     DrawProposed,
-    Game, GameSettings,
+    Game, GameSettings, GameStatus,
     getCurrentGame, getCurrentGameSettings,
     getGameModel,
-    getPieces,
+    getPieces, PieceColor,
     PieceType,
     startNewGame,
     WebMove,
@@ -11,17 +11,18 @@ import {
 } from "./WisdomChess";
 import { initialSquares } from "./Squares";
 import { wisdomChess } from "../App"
-import { Piece } from "./Pieces";
+import { Color, Piece } from "./Pieces";
 import { create } from "zustand";
 import { ReactWindow } from "../main";
+
+export type DrawStatus = 'not-reached' | 'proposed' | 'accepted' | 'declined'
 
 export const initialGameState = {
     pieces: [] as Piece[],
     squares: initialSquares,
     focusedSquare: '',
+    gameStatus: 0 as GameStatus,
     pawnPromotionDialogSquare: '',
-    thirdRepetitionDrawStatusUpdated: false,
-    fiftyMovesDrawStatusUpdated: false,
 
     settings: {
         // Initialized from web assembly later:
@@ -32,16 +33,15 @@ export const initialGameState = {
     }
 }
 
-export type ChessEngineEventType = 'computerMoved'
+export type ChessEngineEventType = 'computerMoved' | 'computerDrawStatusUpdated'
 
 interface GameState {
     pieces: Piece[]
     squares: typeof initialSquares,
     focusedSquare: string
     pawnPromotionDialogSquare: string
+    gameStatus: GameStatus
     settings: GameSettings
-    thirdRepetitionDrawStatusUpdated: boolean
-    fiftyMovesDrawStatusUpdated: boolean
 
     actions: {
         init: (window: ReactWindow) => void
@@ -54,8 +54,22 @@ interface GameState {
         receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => void
         pauseGame: () => void
         unpauseGame: () => void
-        setThirdRepetitionDrawStatus: (drawProposed: DrawProposed) => void
-        setFiftyMovesDrawStatus: (drawProposed: DrawProposed) => void
+        setHumanThirdRepetitionDrawStatus: (accepted: boolean) => void
+        setHumanFiftyMovesDrawStatus: (accepted: boolean) => void
+    }
+}
+
+type ComputerDrawStatusUpdate = {
+    is_third_repetition: boolean
+    color: PieceColor,
+    accepted: boolean
+}
+
+function updateGameState(initialState: Partial<GameState>, currentGame: Game): Partial<GameState> {
+    return {
+        ... initialState,
+        pieces: getPieces(currentGame),
+        gameStatus: currentGame.getStatus(),
     }
 }
 
@@ -65,10 +79,9 @@ export const useGame = create<GameState>()((set, get) => ({
     actions: {
         init: (window: ReactWindow) => set(state => {
             window.receiveWorkerMessage = get().actions.receiveWorkerMessage
-            return {
+            return updateGameState({
                 settings: getCurrentGameSettings(),
-                pieces: getPieces(getCurrentGame())
-            }
+            }, getCurrentGame())
         }),
         //
         // Receive a message from the chess engine thread.
@@ -86,6 +99,18 @@ export const useGame = create<GameState>()((set, get) => ({
                     break;
                 }
 
+                case 'computerDrawStatusUpdated': {
+                    const params = JSON.parse(message) as ComputerDrawStatusUpdate
+                    const currentGame = getCurrentGame()
+                    currentGame.setComputerDrawStatus(params.is_third_repetition ?
+                                        'third' : 'fifty',
+                        params.color,
+                        params.accepted
+                    )
+                    get().actions.computer
+                    break;
+                }
+
                 default: {
                     console.error("Unknown message type: ", type);
                     break;
@@ -100,29 +125,31 @@ export const useGame = create<GameState>()((set, get) => ({
                 pieces: getPieces(newGame)
             }
         }),
+        computerUpdateDrawStatus: (color: Color, accepted: boolean) => set((prevState) => {
+
+        }),
         computerMovePiece: (move: WebMove) => set((prevState) => {
             const game = getCurrentGame()
             game.makeMove(move);
-            return {
-                pieces: getPieces(game)
-            }
+            return updateGameState({}, game)
         }),
         pieceClick: (dst: string) => set((prevState) => {
-            let newState : Partial<GameState> = {}
             const game = getCurrentGame()
 
             // begin focus if no focus already:
             if (prevState.focusedSquare === '') {
-                newState.focusedSquare = dst
-                newState.pawnPromotionDialogSquare = ''
-                return newState
+                return updateGameState({
+                    focusedSquare: dst,
+                    pawnPromotionDialogSquare: ''
+                }, game)
             }
 
             // toggle focus if already focused:
             if (prevState.focusedSquare === dst) {
-                newState.focusedSquare = ''
-                newState.pawnPromotionDialogSquare = ''
-                return newState
+                return updateGameState({
+                    focusedSquare: dst,
+                    pawnPromotionDialogSquare: ''
+                }, game)
             }
 
             // Change focus if piece is the same color:
@@ -130,27 +157,24 @@ export const useGame = create<GameState>()((set, get) => ({
             const dstPiece = findPieceAtPosition(pieces, dst)
             const srcPiece = findPieceAtPosition(pieces, prevState.focusedSquare)
             if (!dstPiece || !srcPiece || srcPiece.color === dstPiece.color) {
-                newState.focusedSquare = dst
-                newState.pawnPromotionDialogSquare = ''
-                return newState
+                return updateGameState({
+                    focusedSquare: dst,
+                    pawnPromotionDialogSquare: ''
+                }, game)
             }
 
             // take the piece with the move-piece action, and then remove the focus:
             get().actions.humanMovePiece(dst)
             const updatedState = get()
-            newState.pieces = getPieces(game)
             if (updatedState.pawnPromotionDialogSquare === '')
-                newState.focusedSquare = ''
-            return newState
+                updatedState.focusedSquare = ''
+            return updateGameState(updatedState, game)
         }),
         promotePiece: (pieceType: PieceType) => set((prevState) => {
             const newState : Partial<GameState> = {}
             const game = getCurrentGame()
             const src = prevState.focusedSquare
             const dst = prevState.pawnPromotionDialogSquare
-
-            newState.pawnPromotionDialogSquare = ''
-            newState.focusedSquare = ''
 
             const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
             const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(dst)
@@ -161,22 +185,24 @@ export const useGame = create<GameState>()((set, get) => ({
                 pieceType,
             );
             if (!move || !game.isLegalMove(move)) {
-                return newState
+                return updateGameState({
+                    pawnPromotionDialogSquare: '',
+                    focusedSquare: '',
+                }, game)
             }
             game.makeMove(move)
             game.notifyMove(move)
-            newState.pieces = getPieces(game)
-            return newState
+            return updateGameState(newState, game)
         }),
         humanMovePiece: (dst: string) => set((prevState): Partial<GameState> => {
             const game = getCurrentGame()
             const gameModel = getGameModel()
-            const newState : Partial<GameState> = {
-                pawnPromotionDialogSquare: '',
-            };
             const src = prevState.focusedSquare;
+
             if (src === '') {
-                return newState
+                return updateGameState({
+                    pawnPromotionDialogSquare: ''
+                }, game)
             }
             const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
             const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(dst)
@@ -187,19 +213,23 @@ export const useGame = create<GameState>()((set, get) => ({
                 wisdomChess.Queen
             );
             if (!move || !game.isLegalMove(move)) {
-                newState.focusedSquare = ''
-                return newState
+                return updateGameState({
+                    focusedSquare: '',
+                    pawnPromotionDialogSquare: '',
+                }, game)
             }
             if (game.needsPawnPromotion(srcCoord, dstCoord)) {
-                newState.pawnPromotionDialogSquare = dst
-                return newState
+                return updateGameState({
+                    focusedSquare: '',
+                    pawnPromotionDialogSquare: dst,
+                }, game)
             }
 
-            newState.focusedSquare = ''
             game.makeMove(move)
             gameModel.notifyHumanMove(move)
-            newState.pieces = getPieces(game)
-            return newState
+            return updateGameState({
+                focusedSquare: ''
+            }, game)
         }),
         applySettings: (newSettings: GameSettings) => set((prevState): Partial<GameState> => {
             const wisdomChessModule = WisdomChess()
@@ -216,9 +246,7 @@ export const useGame = create<GameState>()((set, get) => ({
             const game = getCurrentGame()
             game.setSettings(workerGameSettings)
 
-            return {
-                settings: workerGameSettings
-            }
+            return updateGameState({ settings: workerGameSettings }, game)
         }),
         pauseGame: () => {
             getGameModel().sendPause()
@@ -226,12 +254,14 @@ export const useGame = create<GameState>()((set, get) => ({
         unpauseGame: () => {
             getGameModel().sendUnpause()
         },
-        setThirdRepetitionDrawStatus: (drawProposed: DrawProposed) => {
-            getCurrentGame().setThirdRepetitionDrawStatus(drawProposed)
-        },
-        setFiftyMovesDrawStatus: (drawProposed: DrawProposed) => {
-            getCurrentGame().setFiftyMovesDrawStatus(drawProposed)
-        }
+        setHumanThirdRepetitionDrawStatus: (accepted: boolean) => set((prevState): Partial<GameState> => {
+            getCurrentGame().setHumanThirdRepetitionDrawStatus(accepted)
+            return updateGameState({}, getCurrentGame())
+        }),
+        setHumanFiftyMovesDrawStatus: (accepted: boolean) => set((prevState): Partial<GameState> => {
+            getCurrentGame().setHumanFiftyMovesDrawStatus(accepted)
+            return updateGameState({}, getCurrentGame())
+        })
     }
 }))
 

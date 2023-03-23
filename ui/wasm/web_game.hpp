@@ -16,8 +16,6 @@ namespace wisdom
         std::string my_move_status;
         std::string my_game_over_status;
         static int our_game_id;
-        WebDrawStatus my_third_repetition_draw_status = wisdom::NotReached;
-        WebDrawStatus my_fifty_moves_draw_status = wisdom::NotReached;
 
     public:
         bool inCheck = false;
@@ -91,14 +89,9 @@ namespace wisdom
             return my_game_over_status.c_str();
         }
 
-        auto getThirdRepetitionDrawStatus() -> WebDrawStatus
+        auto getStatus() const -> WebGameStatus
         {
-            return my_third_repetition_draw_status;
-        }
-
-        auto getFiftyMovesDrawStatus() -> WebDrawStatus
-        {
-            return my_fifty_moves_draw_status;
+            return map_game_status (my_game.status());
         }
 
     private:
@@ -129,16 +122,6 @@ namespace wisdom
         void set_move_status (std::string new_move_status)
         {
             my_move_status = std::move (new_move_status);
-        }
-
-        void set_third_repetition_draw_status (WebDrawStatus new_draw_status)
-        {
-            my_third_repetition_draw_status = new_draw_status;
-        }
-
-        void set_fifty_moves_draw_status (WebDrawStatus new_draw_status)
-        {
-            my_fifty_moves_draw_status = new_draw_status;
         }
 
         friend class WebGameStatusUpdate;

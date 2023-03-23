@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './App.css'
 import Board from "./Board";
 import TopMenu from "./TopMenu";
@@ -9,7 +9,7 @@ import {
     WisdomChess,
     GameSettings,
 } from "./lib/WisdomChess";
-import { initialGameState, useGame } from "./lib/useGame";
+import { useGame } from "./lib/useGame";
 import { SettingsModal } from "./SettingsModal";
 import { DrawDialog } from "./DrawDialog";
 
@@ -51,24 +51,20 @@ function App() {
         }
     }, [showAbout, showNewGame, showSettings])
 
+    // Sync the human user's answer with the state of the game:
     const handleThirdRepetitionDrawAnswer = (answer: boolean): void => {
         setThirdRepetitionDrawAnswered(true)
-        actions.setThirdRepetitionDrawStatus(answer ? wisdomChess.Accepted : wisdomChess.Declined)
+        actions.setHumanThirdRepetitionDrawStatus(answer);
     }
     const handleFifthRepetitionDrawAnswer = (answer: boolean): void => {
         setFiftyMovesDrawAnswered(true);
-        actions.setFiftyMovesDrawStatus(answer ? wisdomChess.Accepted : wisdomChess.Declined)
+        actions.setHumanFiftyMovesDrawStatus(answer);
     }
 
     const currentTurn = game.getCurrentTurn()
     const inCheck = game.inCheck
     const moveStatus = game.getMoveStatus()
     const gameOverStatus = game.getGameOverStatus()
-    const thirdRepetitionDrawStatus = game.getThirdRepetitionDrawStatus()
-    const fiftyMovesDrawStatus = game.getFiftyMovesDrawStatus()
-
-    console.log(thirdRepetitionDrawStatus);
-    console.log(wisdomChess.Proposed);
 
     const handleNewGame = () => {
         actions.startNewGame()
@@ -138,7 +134,7 @@ function App() {
                     onDismiss={() => setShowSettings(false) }
                 />
             }
-            {thirdRepetitionDrawStatus === wisdomChess.Proposed && !thirdRepetitionDrawAnswered &&
+            {gameState.gameStatus === wisdomChess.ThreefoldRepetitionReached && !thirdRepetitionDrawAnswered &&
                 <DrawDialog
                     title={"Third Repetition Reached"}
                     onAccepted={() => handleThirdRepetitionDrawAnswer(true)}
@@ -147,7 +143,7 @@ function App() {
                     <p>The same position was reached three times. Either player can declare a draw now.</p>
                 </DrawDialog>
             }
-            {fiftyMovesDrawStatus === wisdomChess.Proposed && !fiftyMovesDrawAnswered &&
+            {gameState.gameStatus === wisdomChess.FiftyMovesWithoutProgressReached && !fiftyMovesDrawAnswered &&
                 <Modal>
                     <h1>Fifty Moves without Progress</h1>
                 </Modal>

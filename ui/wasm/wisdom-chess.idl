@@ -103,8 +103,7 @@ interface WebGame {
     attribute long gameId;
 
     wisdom_WebColor getCurrentTurn();
-    wisdom_WebDrawStatus getThirdRepetitionDrawStatus();
-    wisdom_WebDrawStatus getFiftyMovesDrawStatus();
+    wisdom_WebGameStatus getGameStatus();
 };
 
 [Prefix="wisdom::"]

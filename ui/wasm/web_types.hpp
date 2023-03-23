@@ -178,6 +178,37 @@ namespace wisdom
                 return GameStatus::SeventyFiveMovesWithoutProgressDraw;
             case InsufficientMaterialDraw:
                 return GameStatus::InsufficientMaterialDraw;
+            default:
+                throw Error { "Invalid game status" };
+        }
+    }
+
+    [[nodiscard]] inline auto map_game_status (GameStatus status) -> WebGameStatus
+    {
+        switch (status)
+        {
+            case GameStatus::Playing:
+                return Playing;
+            case GameStatus::Checkmate:
+                return Checkmate;
+            case GameStatus::Stalemate:
+                return Stalemate;
+            case GameStatus::ThreefoldRepetitionReached:
+                return ThreefoldRepetitionReached;
+            case GameStatus::ThreefoldRepetitionAccepted:
+                return ThreefoldRepetitionAccepted;
+            case GameStatus::FivefoldRepetitionDraw:
+                return FivefoldRepetitionDraw;
+            case GameStatus::FiftyMovesWithoutProgressReached:
+                return FiftyMovesWithoutProgressReached;
+            case GameStatus::FiftyMovesWithoutProgressAccepted:
+                return FiftyMovesWithoutProgressAccepted;
+            case GameStatus::SeventyFiveMovesWithoutProgressDraw:
+                return SeventyFiveMovesWithoutProgressDraw;
+            case GameStatus::InsufficientMaterialDraw:
+                return InsufficientMaterialDraw;
+            default:
+                throw Error { "Invalid game status" };
         }
     }
 

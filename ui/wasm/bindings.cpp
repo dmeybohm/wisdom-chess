@@ -124,7 +124,7 @@ namespace wisdom::worker
                 "iiii",
                 game_id,
                 draw_type,
-                accepts_draw,
+                accepts_draw
             );
         }
 
@@ -138,37 +138,22 @@ namespace wisdom::worker
                 who,
                 current_player_accept_draw
             );
-            emit updateDrawStatus(proposedDrawType, who, acceptDraw);
-            if (acceptDraw) {
-                myIsGameOver = true;
-                emit noMovesAvailable();
-            }
+            update_draw_status (proposedDrawType,
+                                who,
+                                current_player_accept_draw);
 
             auto opponent = color_invert (who);
             auto opponent_player = game->get_player (opponent);
             if (opponent_player == Player::ChessEngine) {
                 auto opponent_wants_draw = game->computer_wants_draw (opponent);
-                game->set_proposed_draw_status(
-                    proposedDrawType,
-                    opponent,
-                    opponent_wants_draw
-                );
-                emit updateDrawStatus(proposedDrawType, opponent, opponentAcceptsDraw);
-                if (opponent_wants_draw) {
-                    myIsGameOver = true;
-                    emit noMovesAvailable();
-                } else {
-                    // if the computer is playing itself, resume searching:
-                    if (status_transition() == GameStatus::Playing) {
-                        start_search()
-                    }
-                }
+                update_draw_status (proposedDrawType,
+                                    opponent,
+                                    opponent_wants_draw);
             }
+
+            start_search();
         }
     };
-
-    };
-
 }
 
 using namespace wisdom::worker;
@@ -283,13 +268,21 @@ EMSCRIPTEN_KEEPALIVE void unpause_worker ()
     state->play_status.store (GameState::Playing);
 }
 
-EM_JS (void, receiveDrawStatusFromWorker, (int game_id, int draw_type, int color, int draw_proposed),
+EM_JS (void, receiveDrawStatusFromWorker, (int game_id, bool is_third_repetition, int color, bool accepts_draw),
 {
-   receiveWorkerMessage ('drawStatusUpdated', game_id, UTF8ToString (str));
+   receiveWorkerMessage (
+        'computerDrawStatusUpdated',
+        game_id,
+        JSON.stringify ({
+            is_third_repetition: is_third_repetition,
+            color: color,
+            accepts_draw: accepts_draw
+       })
+   )
 })
 
-EMSCRIPTEN_KEEPALIVE void main_thread_receive_draw_status (int game_id, int draw_type, int color,
-                                                           int draw_proposed)
+EMSCRIPTEN_KEEPALIVE void main_thread_receive_draw_status (int game_id, bool is_third_repetition,
+                                                           int color, int draw_proposed)
 {
     receiveDrawStatusFromWorker (game_id, draw_type, color, draw_proposed);
 }
