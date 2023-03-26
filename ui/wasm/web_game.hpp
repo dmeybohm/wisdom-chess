@@ -99,6 +99,15 @@ namespace wisdom
             ProposedDrawType proposed_draw_type = map_draw_by_repetition_type (type);
             Color color = map_color (who);
             my_game.set_proposed_draw_status (proposed_draw_type, color, accepted);
+            update_displayed_game_state();
+        }
+
+        void setHumanDrawStatus (int type, int who, bool accepted)
+        {
+            ProposedDrawType proposed_draw_type = map_draw_by_repetition_type (type);
+            Color color = map_color (who);
+            my_game.set_proposed_draw_status (proposed_draw_type, color, accepted);
+            update_displayed_game_state();
         }
 
     private:

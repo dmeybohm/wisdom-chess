@@ -19,6 +19,8 @@ export type GameModel = {
     getCurrentGame(): Game
     getCurrentGameSettings(): GameSettings
     setCurrentGameSettings(newSettings: WorkerGameSettings): void
+    getFirstHumanPlayerColor: PieceColor
+    getSecondHumanPlayerColor: PieceColor
     notifyHumanMove(move: WebMove): void;
     notifyComputerMove(): void;
     sendPause(): void;

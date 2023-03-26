@@ -229,7 +229,11 @@ namespace wisdom
     private:
         observer_ptr<WebGame> parent;
 
-        [[nodiscard]] auto get_first_human_player (Players players) -> optional<Color>
+    public:
+        explicit WebGameStatusUpdate (observer_ptr<WebGame> parent_) : parent { parent_ }
+        {}
+
+        [[nodiscard]] static auto get_first_human_player (Players players) -> optional<Color>
         {
             if (players[0] == Player::Human) {
                 return Color::White;
@@ -240,10 +244,6 @@ namespace wisdom
 
             return {};
         }
-
-    public:
-        explicit WebGameStatusUpdate (observer_ptr<WebGame> parent_) : parent { parent_ }
-        {}
 
         void checkmate() override
         {

@@ -90,6 +90,26 @@ namespace wisdom
             sendSettings();
             sendUnpause();
         }
+
+        [[nodiscard]] auto getFirstHumanPlayerColor () -> WebColor
+        {
+            if (my_game_settings.whitePlayer == Human)
+                return WebColor::White;
+            if (my_game_settings.blackPlayer == Human)
+                return WebColor::Black;
+            return WebColor::NoColor;
+        }
+
+        [[nodiscard]] auto getSecondHumanPlayerColor () -> WebColor
+        {
+            if (my_game_settings.whitePlayer == Human &&
+                my_game_settings.blackPlayer == Human)
+            {
+                return WebColor::Black;
+            }
+
+            return WebColor::NoColor;
+        }
     };
 }
 

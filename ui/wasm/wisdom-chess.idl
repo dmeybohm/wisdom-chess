@@ -111,6 +111,7 @@ interface WebGame {
     wisdom_WebGameStatus getGameStatus();
 
     void setComputerDrawStatus(long type, long who, boolean accepted);
+    void setHumanDrawStatus(long type, long who, boolean accepted);
 };
 
 [Prefix="wisdom::"]
@@ -128,5 +129,8 @@ interface GameModel {
 
     GameSettings getCurrentGameSettings();
     void setCurrentGameSettings (GameSettings newSettings);
+
+    wisdom_WebColor getFirstHumanPlayerColor();
+    wisdom_WebColor getSecondHumanPlayerColor();
 };
 

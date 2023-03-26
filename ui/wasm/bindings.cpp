@@ -151,8 +151,6 @@ namespace wisdom::worker
                                     opponent,
                                     opponent_wants_draw);
             }
-
-            start_search();
         }
     };
 }

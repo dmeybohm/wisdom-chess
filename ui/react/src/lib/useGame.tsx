@@ -23,6 +23,8 @@ export const initialGameState = {
     squares: initialSquares,
     focusedSquare: '',
     gameStatus: 0 as GameStatus,
+    gameOverStatus: '',
+    moveStatus: 'White to move',
     pawnPromotionDialogSquare: '',
 
     settings: {
@@ -30,7 +32,7 @@ export const initialGameState = {
         whitePlayer: 0 as WebPlayer,
         blackPlayer: 1 as WebPlayer,
         thinkingTime: 2,
-        searchDepth: 3
+        searchDepth: 3,
     }
 }
 
@@ -42,6 +44,8 @@ interface GameState {
     focusedSquare: string
     pawnPromotionDialogSquare: string
     gameStatus: GameStatus
+    gameOverStatus: string
+    moveStatus: string
     settings: GameSettings
 
     actions: {
@@ -55,8 +59,7 @@ interface GameState {
         receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => void
         pauseGame: () => void
         unpauseGame: () => void
-        setHumanThirdRepetitionDrawStatus: (accepted: boolean) => void
-        setHumanFiftyMovesDrawStatus: (accepted: boolean) => void
+        setHumanDrawStatus: (drawType: DrawByRepetitionType, who: PieceColor, accepted: boolean) => void
     }
 }
 
@@ -71,6 +74,8 @@ function updateGameState(initialState: Partial<GameState>, currentGame: Game): P
         ... initialState,
         pieces: getPieces(currentGame),
         gameStatus: currentGame.getGameStatus(),
+        moveStatus: currentGame.getMoveStatus(),
+        gameOverStatus: currentGame.getGameOverStatus(),
     }
 }
 
@@ -123,9 +128,11 @@ export const useGame = create<GameState>()((set, get) => ({
         },
         startNewGame: () => set(state => {
             startNewGame()
-            return updateGameState(initialGameState, {
+            return updateGameState({
+                focusedSquare: '',
+                pawnPromotionDialogSquare: '',
                 settings: getCurrentGameSettings(),
-            })
+            }, getCurrentGame())
         }),
         computerMovePiece: (move: WebMove) => set((prevState) => {
             const game = getCurrentGame()
@@ -253,14 +260,22 @@ export const useGame = create<GameState>()((set, get) => ({
         unpauseGame: () => {
             getGameModel().sendUnpause()
         },
-        setHumanThirdRepetitionDrawStatus: (accepted: boolean) => set((prevState): Partial<GameState> => {
-            getCurrentGame().setHumanThirdRepetitionDrawStatus(accepted)
+        setHumanDrawStatus: (drawType: DrawByRepetitionType, who: PieceColor, accepted: boolean) => set((prevState) => {
+            const currentGame = getCurrentGame()
+            const gameModel = getGameModel()
+            const firstHumanPlayer = gameModel.getFirstHumanPlayerColor()
+            const secondHumanPlayer = gameModel.getSecondHumanPlayerColor()
+
+            if (firstHumanPlayer === wisdomChess.NoColor) {
+                console.error("Invalid color for human player draw type")
+                return prevState
+            }
+            currentGame.setHumanDrawStatus(drawType, firstHumanPlayer, accepted)
+            if (secondHumanPlayer != wisdomChess.NoColor) {
+                currentGame.setHumanDrawStatus(drawType, secondHumanPlayer, accepted);
+            }
             return updateGameState({}, getCurrentGame())
         }),
-        setHumanFiftyMovesDrawStatus: (accepted: boolean) => set((prevState): Partial<GameState> => {
-            getCurrentGame().setHumanFiftyMovesDrawStatus(accepted)
-            return updateGameState({}, getCurrentGame())
-        })
     }
 }))
 

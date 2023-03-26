@@ -54,17 +54,15 @@ function App() {
     // Sync the human user's answer with the state of the game:
     const handleThirdRepetitionDrawAnswer = (answer: boolean): void => {
         setThirdRepetitionDrawAnswered(true)
-        actions.setHumanThirdRepetitionDrawStatus(answer);
+        actions.setHumanDrawStatus(wisdomChess.ThreefoldRepetition, wisdomChess.White, answer);
     }
     const handleFifthRepetitionDrawAnswer = (answer: boolean): void => {
         setFiftyMovesDrawAnswered(true);
-        actions.setHumanFiftyMovesDrawStatus(answer);
+        actions.setHumanDrawStatus(wisdomChess.FiftyMovesWithoutProgress, wisdomChess.White, answer);
     }
 
     const currentTurn = game.getCurrentTurn()
     const inCheck = game.inCheck
-    const moveStatus = game.getMoveStatus()
-    const gameOverStatus = game.getGameOverStatus()
 
     const handleNewGame = () => {
         actions.startNewGame()
@@ -100,8 +98,8 @@ function App() {
                 <StatusBar
                     currentTurn={currentTurn}
                     inCheck={inCheck}
-                    moveStatus={moveStatus}
-                    gameOverStatus={gameOverStatus}
+                    moveStatus={gameState.moveStatus}
+                    gameOverStatus={gameState.gameOverStatus}
                 />
             </div>
             {showNewGame &&
