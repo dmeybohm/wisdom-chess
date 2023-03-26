@@ -70,6 +70,9 @@ export type WisdomChess = {
     SeventyFiveMovesWithoutProgressDraw: GameStatus
     InsufficientMaterialDraw: GameStatus
 
+    ThreefoldRepetition: DrawByRepetitionType
+    FiftyMovesWithoutProgress: DrawByRepetitionType
+
     // Destroy a C++ object explicitly:
     destroy(obj: any): void
 }
@@ -80,6 +83,7 @@ export type WebPlayer = any
 export type PieceColor = any
 export type PieceType = any
 export type DrawProposed = any
+export type DrawByRepetitionType = any
 
 export type GameStatus = any
 

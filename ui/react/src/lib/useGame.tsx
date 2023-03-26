@@ -1,4 +1,5 @@
 import {
+    DrawByRepetitionType,
     DrawProposed,
     Game, GameSettings, GameStatus,
     getCurrentGame, getCurrentGameSettings,
@@ -26,8 +27,8 @@ export const initialGameState = {
 
     settings: {
         // Initialized from web assembly later:
-        whitePlayer: 0,
-        blackPlayer: 1,
+        whitePlayer: 0 as WebPlayer,
+        blackPlayer: 1 as WebPlayer,
         thinkingTime: 2,
         searchDepth: 3
     }
@@ -60,8 +61,8 @@ interface GameState {
 }
 
 type ComputerDrawStatusUpdate = {
-    is_third_repetition: boolean
-    color: PieceColor,
+    draw_type: DrawByRepetitionType
+    color: PieceColor
     accepted: boolean
 }
 
@@ -69,7 +70,7 @@ function updateGameState(initialState: Partial<GameState>, currentGame: Game): P
     return {
         ... initialState,
         pieces: getPieces(currentGame),
-        gameStatus: currentGame.getStatus(),
+        gameStatus: currentGame.getGameStatus(),
     }
 }
 
@@ -83,6 +84,7 @@ export const useGame = create<GameState>()((set, get) => ({
                 settings: getCurrentGameSettings(),
             }, getCurrentGame())
         }),
+
         //
         // Receive a message from the chess engine thread.
         //
@@ -101,13 +103,15 @@ export const useGame = create<GameState>()((set, get) => ({
 
                 case 'computerDrawStatusUpdated': {
                     const params = JSON.parse(message) as ComputerDrawStatusUpdate
-                    const currentGame = getCurrentGame()
-                    currentGame.setComputerDrawStatus(params.is_third_repetition ?
-                                        'third' : 'fifty',
-                        params.color,
-                        params.accepted
-                    )
-                    get().actions.computer
+                    set((prevState) => {
+                        const currentGame = getCurrentGame()
+                        currentGame.setComputerDrawStatus(
+                            params.draw_type,
+                            params.color,
+                            params.accepted
+                        )
+                        return updateGameState({}, getCurrentGame())
+                    })
                     break;
                 }
 
@@ -118,15 +122,10 @@ export const useGame = create<GameState>()((set, get) => ({
             }
         },
         startNewGame: () => set(state => {
-            const newGame = startNewGame()
-            return {
-                ... initialGameState,
+            startNewGame()
+            return updateGameState(initialGameState, {
                 settings: getCurrentGameSettings(),
-                pieces: getPieces(newGame)
-            }
-        }),
-        computerUpdateDrawStatus: (color: Color, accepted: boolean) => set((prevState) => {
-
+            })
         }),
         computerMovePiece: (move: WebMove) => set((prevState) => {
             const game = getCurrentGame()

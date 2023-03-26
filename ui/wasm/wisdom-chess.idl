@@ -81,6 +81,11 @@ enum wisdom_WebDrawStatus {
     "wisdom::Declined"
 };
 
+enum wisdom_WebDrawByRepetitionType {
+    "wisdom::ThreeFoldRepeition",
+    "wisdom::FiftyMovesWithoutProgress"
+};
+
 [Prefix="wisdom::"]
 interface WebGame {
     [Ref] WebColoredPieceList getPieceList();
@@ -104,6 +109,8 @@ interface WebGame {
 
     wisdom_WebColor getCurrentTurn();
     wisdom_WebGameStatus getGameStatus();
+
+    void setComputerDrawStatus(long type, long who, boolean accepted);
 };
 
 [Prefix="wisdom::"]

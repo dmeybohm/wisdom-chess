@@ -108,6 +108,7 @@ namespace wisdom
         settings.apply_to_game (&my_game);
     }
 
+
     [[nodiscard]] auto WebGame::find_and_remove_id (std::unordered_map<int,
         WebColoredPiece>& old_list, Coord coord_to_find, ColoredPiece piece_to_find) -> int
     {
@@ -314,5 +315,6 @@ namespace wisdom
         if (wisdom::is_king_threatened (board, who, board.get_king_position (who)))
             set_in_check (true);
     }
+
 }
 

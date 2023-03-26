@@ -45,7 +45,7 @@ namespace wisdom::worker
             new_settings.apply_to_game (game.get());
         }
 
-        auto status_transitition () -> wisdom::GameStatus
+        auto status_transition() -> wisdom::GameStatus
         {
             WebEngineGameStatusUpdate status_manager { this };
             status_manager.update (game->status());
@@ -123,8 +123,9 @@ namespace wisdom::worker
                 (void*)main_thread_receive_draw_status,
                 "iiii",
                 game_id,
-                draw_type,
-                accepts_draw
+                static_cast<int> (map_draw_by_repetition_type (draw_type)),
+                static_cast<int> (map_color (who)),
+                static_cast<int> (accepts_draw)
             );
         }
 
@@ -183,6 +184,8 @@ EMSCRIPTEN_KEEPALIVE void start_search()
 {
     auto state = GameState::get_state();
     auto game = GameState::get_game();
+
+    state->status_transition();
 
     if (state->game->get_current_player() != Player::ChessEngine)
         return;
@@ -268,20 +271,20 @@ EMSCRIPTEN_KEEPALIVE void unpause_worker ()
     state->play_status.store (GameState::Playing);
 }
 
-EM_JS (void, receiveDrawStatusFromWorker, (int game_id, bool is_third_repetition, int color, bool accepts_draw),
+EM_JS (void, receiveDrawStatusFromWorker, (int game_id, int draw_type, int color, bool accepts_draw),
 {
    receiveWorkerMessage (
         'computerDrawStatusUpdated',
         game_id,
         JSON.stringify ({
-            is_third_repetition: is_third_repetition,
+            draw_type: draw_type,
             color: color,
             accepts_draw: accepts_draw
        })
    )
 })
 
-EMSCRIPTEN_KEEPALIVE void main_thread_receive_draw_status (int game_id, bool is_third_repetition,
+EMSCRIPTEN_KEEPALIVE void main_thread_receive_draw_status (int game_id, int draw_type,
                                                            int color, int draw_proposed)
 {
     receiveDrawStatusFromWorker (game_id, draw_type, color, draw_proposed);

@@ -89,9 +89,16 @@ namespace wisdom
             return my_game_over_status.c_str();
         }
 
-        auto getStatus() const -> WebGameStatus
+        auto getGameStatus() const -> WebGameStatus
         {
             return map_game_status (my_game.status());
+        }
+
+        void setComputerDrawStatus (int type, int who, bool accepted)
+        {
+            ProposedDrawType proposed_draw_type = map_draw_by_repetition_type (type);
+            Color color = map_color (who);
+            my_game.set_proposed_draw_status (proposed_draw_type, color, accepted);
         }
 
     private:

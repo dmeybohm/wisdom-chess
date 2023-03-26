@@ -299,6 +299,41 @@ namespace wisdom
         Accepted,
         Declined,
     };
+
+    enum WebDrawByRepetitionType
+    {
+        ThreeFoldRepeition,
+        FiftyMovesWithoutProgress,
+    };
+
+    [[nodiscard]] inline auto map_draw_by_repetition_type (int type) -> wisdom::ProposedDrawType
+    {
+        switch (static_cast<WebDrawByRepetitionType> (type))
+        {
+            case ThreeFoldRepeition:
+                return ProposedDrawType::ThreeFoldRepetition;
+            case FiftyMovesWithoutProgress:
+                return ProposedDrawType::FiftyMovesWithoutProgress;
+            default:
+                throw Error { "Invalid draw type." };
+        }
+    }
+
+    [[nodiscard]] inline auto map_draw_by_repetition_type (wisdom::ProposedDrawType type)
+        -> WebDrawByRepetitionType
+    {
+        switch (type)
+        {
+            case ProposedDrawType::ThreeFoldRepetition:
+                return ThreeFoldRepeition;
+            case ProposedDrawType::FiftyMovesWithoutProgress:
+                return FiftyMovesWithoutProgress;
+            default:
+                throw Error { "Invalid draw type." };
+        }
+    }
+
+
 }
 
 // Map enums to the global namespace:
@@ -307,5 +342,6 @@ using wisdom_WebPiece = wisdom::WebPiece;
 using wisdom_WebColor = wisdom::WebColor;
 using wisdom_WebGameStatus = wisdom::WebGameStatus;
 using wisdom_WebDrawStatus = wisdom::WebDrawStatus;
+using wisdom_WebDrawByRepetitionType = wisdom::WebDrawByRepetitionType;
 
 #endif // WISDOMCHESS_WEB_TYPES_HPP
