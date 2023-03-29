@@ -185,11 +185,20 @@ export const useGame = create<GameState>()((set, get) => ({
             const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
             const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(dst)
 
-            const move = game.createMoveFromCoordinatesAndPromotedPiece(
-                srcCoord,
-                dstCoord,
-                pieceType,
-            );
+            let move;
+            try {
+                move = game.createMoveFromCoordinatesAndPromotedPiece(
+                    srcCoord,
+                    dstCoord,
+                    pieceType,
+                );
+            } catch (e) {
+                console.error("Error:", e)
+                return updateGameState({
+                    pawnPromotionDialogSquare: '',
+                    focusedSquare: '',
+                }, game)
+            }
             if (!move || !game.isLegalMove(move)) {
                 return updateGameState({
                     pawnPromotionDialogSquare: '',
@@ -213,24 +222,27 @@ export const useGame = create<GameState>()((set, get) => ({
             const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
             const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(dst)
 
-            const move = game.createMoveFromCoordinatesAndPromotedPiece(
-                srcCoord,
-                dstCoord,
-                wisdomChess.Queen
-            );
-            if (!move || !game.isLegalMove(move)) {
+            let move;
+            try {
+                move = game.createMoveFromCoordinatesAndPromotedPiece(
+                    srcCoord,
+                    dstCoord,
+                    wisdomChess.Queen
+                );
+            } catch (e) {
+                console.error("Error:", e)
+                console.log('returning:')
                 return updateGameState({
-                    focusedSquare: '',
                     pawnPromotionDialogSquare: '',
+                    focusedSquare: '',
                 }, game)
             }
             if (game.needsPawnPromotion(srcCoord, dstCoord)) {
                 return updateGameState({
-                    focusedSquare: '',
                     pawnPromotionDialogSquare: dst,
+                    focusedSquare: '',
                 }, game)
             }
-
             game.makeMove(move)
             gameModel.notifyHumanMove(move)
             return updateGameState({

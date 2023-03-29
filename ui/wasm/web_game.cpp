@@ -65,9 +65,7 @@ namespace wisdom
 
         if (!optionalMove.has_value())
         {
-            std::cout << "Failed to map to move"
-                      << "\n";
-            return nullptr;
+            throw new Error { "Failed to map move." };
         }
 
         auto move = *optionalMove;

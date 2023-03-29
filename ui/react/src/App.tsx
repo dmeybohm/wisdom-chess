@@ -27,16 +27,19 @@ function App() {
     const [thirdRepetitionDrawAnswered, setThirdRepetitionDrawAnswered] = useState(false)
     const [fiftyMovesDrawAnswered, setFiftyMovesDrawAnswered] = useState(false)
 
-    const handleAboutClicked = (): void => {
-        setShowAbout(true);
-    };
-
-    const handleNewGameClicked = (): void => {
-        setShowNewGame(true);
+    const handleAboutClicked = (event: React.SyntheticEvent): void => {
+        event.preventDefault()
+        setShowAbout(true)
     }
 
-    const handleSettingsClicked = (): void => {
-        setShowSettings(true);
+    const handleNewGameClicked = (event: React.SyntheticEvent): void => {
+        event.preventDefault()
+        setShowNewGame(true)
+    }
+
+    const handleSettingsClicked = (event: React.SyntheticEvent): void => {
+        event.preventDefault()
+        setShowSettings(true)
     }
 
     const game = getCurrentGame()
@@ -64,15 +67,25 @@ function App() {
     const currentTurn = game.getCurrentTurn()
     const inCheck = game.inCheck
 
-    const handleNewGame = () => {
+    const startNewGame = (event: React.SyntheticEvent) => {
+        event.preventDefault()
         actions.startNewGame()
         setShowNewGame(false)
+
+        // Reset the state:
+        setThirdRepetitionDrawAnswered(false)
+        setFiftyMovesDrawAnswered(false)
     }
 
     function handleApplySettings(gameSettings: GameSettings, flipped: boolean) {
         setShowSettings(false);
         setFlipped(flipped)
         actions.applySettings(gameSettings)
+    }
+
+    function handleCancelNewGame(e: React.SyntheticEvent) {
+        e.preventDefault()
+        setShowNewGame(false)
     }
 
     return (
@@ -107,8 +120,8 @@ function App() {
                     <h1>New Game</h1>
                     <p>Start a new game?</p>
                     <div className="buttons">
-                        <button className="btn-highlight" onClick={handleNewGame}>Start New Game</button>
-                        <button onClick={() => setShowNewGame(false)}>Cancel</button>
+                        <button className="btn-highlight" onClick={startNewGame}>Start New Game</button>
+                        <button onClick={handleCancelNewGame}>Cancel</button>
                     </div>
                 </Modal>
             }

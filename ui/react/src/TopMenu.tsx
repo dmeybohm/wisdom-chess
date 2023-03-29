@@ -3,9 +3,9 @@ import WhiteRook from "./assets/Chess_rlt45.svg";
 import DownArrow from "./assets/bxs-down-arrow.svg";
 
 interface TopMenuProps {
-    aboutClicked: () => void;
-    newGameClicked: () => void;
-    settingsClicked?: () => void;
+    aboutClicked: (event: React.SyntheticEvent) => void;
+    newGameClicked: (event: React.SyntheticEvent) => void;
+    settingsClicked?: (event: React.SyntheticEvent) => void;
 }
 
 function Menu(props: TopMenuProps): JSX.Element {
