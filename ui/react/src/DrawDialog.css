@@ -1,3 +1,4 @@
-.draw-dialog {
-    display: flex;
+.draw-dialog p {
+    margin-top: 0;
+    margin-bottom: 2rem;
 }
