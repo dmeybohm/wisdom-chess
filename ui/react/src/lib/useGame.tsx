@@ -1,6 +1,6 @@
 import {
     DrawByRepetitionType,
-    DrawProposed,
+    DrawProposed, fromColorToNumber,
     Game, GameSettings, GameStatus,
     getCurrentGame, getCurrentGameSettings,
     getGameModel,
@@ -142,18 +142,29 @@ export const useGame = create<GameState>()((set, get) => ({
         pieceClick: (dst: string) => set((prevState) => {
             const game = getCurrentGame()
 
+            // do nothing if not playing:
+            if (prevState.gameStatus != wisdomChess.Playing) {
+                return {}
+            }
+
             // begin focus if no focus already:
             if (prevState.focusedSquare === '') {
-                return updateGameState({
-                    focusedSquare: dst,
-                    pawnPromotionDialogSquare: ''
-                }, game)
+                const pieces = getPieces(game)
+                const srcPiece = findPieceAtPosition(pieces, dst)
+                if (srcPiece && game.getPlayerOfColor(fromColorToNumber(srcPiece.color)) == wisdomChess.Human) {
+                    return updateGameState({
+                        focusedSquare: dst,
+                        pawnPromotionDialogSquare: ''
+                    }, game)
+                } else {
+                    return {}
+                }
             }
 
             // toggle focus if already focused:
             if (prevState.focusedSquare === dst) {
                 return updateGameState({
-                    focusedSquare: dst,
+                    focusedSquare: '',
                     pawnPromotionDialogSquare: ''
                 }, game)
             }
@@ -232,6 +243,12 @@ export const useGame = create<GameState>()((set, get) => ({
             } catch (e) {
                 console.error("Error:", e)
                 console.log('returning:')
+                return updateGameState({
+                    pawnPromotionDialogSquare: '',
+                    focusedSquare: '',
+                }, game)
+            }
+            if (!move || !game.isLegalMove(move)) {
                 return updateGameState({
                     pawnPromotionDialogSquare: '',
                     focusedSquare: '',

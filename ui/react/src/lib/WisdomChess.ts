@@ -179,6 +179,15 @@ function fromNumberToColor(color: number): Color {
     }
 }
 
+export function fromColorToNumber(color: string): PieceColor {
+    const wisdomChess = WisdomChess()
+    switch (color) {
+        case 'white': return wisdomChess.White
+        case 'black': return wisdomChess.Black
+        default: throw new Error("Invalid color")
+    }
+}
+
 function fromRowAndColToStringCoord(row: number, col: number): string {
     let row_char = 8 - row;
     let col_code = 'a'.charCodeAt(0);

@@ -94,6 +94,12 @@ namespace wisdom
             return map_game_status (my_game.status());
         }
 
+        auto getPlayerOfColor (int color) const -> WebPlayer
+        {
+            Color mapped_color = map_color (color);
+            return map_player (my_game.get_player (mapped_color));
+        }
+
         void setComputerDrawStatus (int type, int who, bool accepted)
         {
             ProposedDrawType proposed_draw_type = map_draw_by_repetition_type (type);

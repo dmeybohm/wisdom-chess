@@ -109,6 +109,7 @@ interface WebGame {
 
     wisdom_WebColor getCurrentTurn();
     wisdom_WebGameStatus getGameStatus();
+    wisdom_WebPlayer getPlayerOfColor(long color);
 
     void setComputerDrawStatus(long type, long who, boolean accepted);
     void setHumanDrawStatus(long type, long who, boolean accepted);
