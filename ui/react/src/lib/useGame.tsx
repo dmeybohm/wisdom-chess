@@ -162,12 +162,12 @@ export const useGame = create<GameState>()((set, get) => ({
             }
 
             // toggle focus if already focused:
-            if (prevState.focusedSquare === dst) {
-                return updateGameState({
-                    focusedSquare: '',
-                    pawnPromotionDialogSquare: ''
-                }, game)
-            }
+            // if (prevState.focusedSquare === dst) {
+            //     return updateGameState({
+            //         focusedSquare: '',
+            //         pawnPromotionDialogSquare: ''
+            //     }, game)
+            // }
 
             // Change focus if piece is the same color:
             const pieces = getPieces(game)
@@ -183,13 +183,15 @@ export const useGame = create<GameState>()((set, get) => ({
             // take the piece with the move-piece action, and then remove the focus:
             get().actions.humanMovePiece(dst)
             const updatedState = get()
-            if (updatedState.pawnPromotionDialogSquare === '')
+            if (updatedState.pawnPromotionDialogSquare === '') {
                 updatedState.focusedSquare = ''
+            }
             return updateGameState(updatedState, game)
         }),
         promotePiece: (pieceType: PieceType) => set((prevState) => {
             const newState : Partial<GameState> = {}
             const game = getCurrentGame()
+            const gameModel = getGameModel()
             const src = prevState.focusedSquare
             const dst = prevState.pawnPromotionDialogSquare
 
@@ -217,8 +219,11 @@ export const useGame = create<GameState>()((set, get) => ({
                 }, game)
             }
             game.makeMove(move)
-            game.notifyMove(move)
-            return updateGameState(newState, game)
+            gameModel.notifyHumanMove(move)
+            return updateGameState({
+                focusedSquare: '',
+                pawnPromotionDialogSquare: ''
+            }, game)
         }),
         humanMovePiece: (dst: string) => set((prevState): Partial<GameState> => {
             const game = getCurrentGame()
@@ -257,7 +262,7 @@ export const useGame = create<GameState>()((set, get) => ({
             if (game.needsPawnPromotion(srcCoord, dstCoord)) {
                 return updateGameState({
                     pawnPromotionDialogSquare: dst,
-                    focusedSquare: '',
+                    focusedSquare: src
                 }, game)
             }
             game.makeMove(move)
