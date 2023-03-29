@@ -162,12 +162,12 @@ export const useGame = create<GameState>()((set, get) => ({
             }
 
             // toggle focus if already focused:
-            // if (prevState.focusedSquare === dst) {
-            //     return updateGameState({
-            //         focusedSquare: '',
-            //         pawnPromotionDialogSquare: ''
-            //     }, game)
-            // }
+            if (prevState.focusedSquare === dst) {
+                return updateGameState({
+                    focusedSquare: '',
+                    pawnPromotionDialogSquare: ''
+                }, game)
+            }
 
             // Change focus if piece is the same color:
             const pieces = getPieces(game)
