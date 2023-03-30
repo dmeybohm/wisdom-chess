@@ -160,7 +160,7 @@ function App() {
                 !fiftyMovesDrawAnswered &&
                 gameState.hasHumanPlayer &&
                 <DrawDialog
-                    title={"Third Repetition Reached"}
+                    title={"Fifty Moves Without Progress"}
                     onAccepted={() => handleFiftyMovesWithoutProgressDrawAnswer(true)}
                     onDeclined={() => handleFiftyMovesWithoutProgressDrawAnswer(false)}
                 >
