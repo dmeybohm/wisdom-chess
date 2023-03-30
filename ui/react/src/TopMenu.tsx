@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { Ref, useEffect, useRef, useState } from 'react'
 import WhiteRook from "./assets/Chess_rlt45.svg";
 import DownArrow from "./assets/bxs-down-arrow.svg";
 
@@ -18,11 +18,33 @@ function Menu(props: TopMenuProps): JSX.Element {
     );
 }
 
+
 function TopMenu(props: TopMenuProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef : Ref<HTMLDivElement>|null = useRef(null)
+
+    const toggleOpen = (e: React.SyntheticEvent): void => {
+        e.preventDefault()
+        setIsMenuOpen(!isMenuOpen)
+    }
+
+    useEffect(() => {
+        const listener = (ev: MouseEvent): void => {
+            if (!menuRef.current?.contains(ev.target as Node)) {
+                setIsMenuOpen(false)
+            }
+        }
+
+        document.addEventListener('click', listener)
+        return () => document.removeEventListener('click', listener)
+    }, [isMenuOpen])
 
     return (
-        <div className="top-menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        <div
+            ref={menuRef}
+            className="top-menu"
+            onClick={toggleOpen}
+        >
             <img src={WhiteRook} width={32} height={32} />
             <div className="">
                 Wisdom Chess
