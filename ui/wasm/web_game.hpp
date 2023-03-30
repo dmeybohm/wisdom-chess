@@ -100,13 +100,7 @@ namespace wisdom
             return map_player (my_game.get_player (mapped_color));
         }
 
-        void setComputerDrawStatus (int type, int who, bool accepted)
-        {
-            ProposedDrawType proposed_draw_type = map_draw_by_repetition_type (type);
-            Color color = map_color (who);
-            my_game.set_proposed_draw_status (proposed_draw_type, color, accepted);
-            update_displayed_game_state();
-        }
+        void setComputerDrawStatus (int type, int who, bool accepted);
 
         void setHumanDrawStatus (int type, int who, bool accepted)
         {

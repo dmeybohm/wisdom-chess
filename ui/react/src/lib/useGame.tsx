@@ -22,6 +22,7 @@ export const initialGameState = {
     pieces: [] as Piece[],
     squares: initialSquares,
     focusedSquare: '',
+    hasHumanPlayer: false,
     gameStatus: 0 as GameStatus,
     gameOverStatus: '',
     moveStatus: 'White to move',
@@ -42,6 +43,7 @@ interface GameState {
     pieces: Piece[]
     squares: typeof initialSquares,
     focusedSquare: string
+    hasHumanPlayer: boolean
     pawnPromotionDialogSquare: string
     gameStatus: GameStatus
     gameOverStatus: string
@@ -70,12 +72,15 @@ type ComputerDrawStatusUpdate = {
 }
 
 function updateGameState(initialState: Partial<GameState>, currentGame: Game): Partial<GameState> {
+    const gameModel = getGameModel()
+    const wisdomChess = WisdomChess()
     return {
         ... initialState,
         pieces: getPieces(currentGame),
         gameStatus: currentGame.getGameStatus(),
         moveStatus: currentGame.getMoveStatus(),
         gameOverStatus: currentGame.getGameOverStatus(),
+        hasHumanPlayer: gameModel.getFirstHumanPlayerColor() !== wisdomChess.NoColor,
     }
 }
 
@@ -93,8 +98,9 @@ export const useGame = create<GameState>()((set, get) => ({
         //
         // Receive a message from the chess engine thread.
         //
-        receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => {
+        receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => set(prevState => {
             const wisdomChess = WisdomChess()
+            const currentGame = getCurrentGame()
             switch (type) {
                 case 'computerMoved': {
                     const move = wisdomChess.WebMove.prototype.fromString(
@@ -108,16 +114,15 @@ export const useGame = create<GameState>()((set, get) => ({
 
                 case 'computerDrawStatusUpdated': {
                     const params = JSON.parse(message) as ComputerDrawStatusUpdate
-                    set((prevState) => {
-                        const currentGame = getCurrentGame()
-                        currentGame.setComputerDrawStatus(
-                            params.draw_type,
-                            params.color,
-                            params.accepted
-                        )
-                        return updateGameState({}, getCurrentGame())
-                    })
-                    break;
+                    console.log(params)
+                    currentGame.setComputerDrawStatus(
+                        params.draw_type,
+                        params.color,
+                        params.accepted
+                    )
+                    const result = updateGameState({}, getCurrentGame())
+                    console.log(result)
+                    return result
                 }
 
                 default: {
@@ -125,7 +130,8 @@ export const useGame = create<GameState>()((set, get) => ({
                     break;
                 }
             }
-        },
+            return {}
+        }),
         startNewGame: () => set(state => {
             startNewGame()
             return updateGameState({

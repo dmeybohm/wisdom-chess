@@ -1,5 +1,6 @@
 #include "web_game.hpp"
 #include "game_settings.hpp"
+#include "piece.hpp"
 
 int wisdom::WebGame::our_game_id;
 
@@ -106,6 +107,17 @@ namespace wisdom
         settings.apply_to_game (&my_game);
     }
 
+
+    void WebGame::setComputerDrawStatus (int type, int who, bool accepted)
+    {
+        ProposedDrawType proposed_draw_type = map_draw_by_repetition_type (type);
+        Color color = map_color (who);
+
+        std::cout << "accepted: " << accepted << "\n";
+        std::cout << "Color: " << wisdom::to_string (color) << "\n";
+        my_game.set_proposed_draw_status (proposed_draw_type, color, accepted);
+        update_displayed_game_state();
+    }
 
     [[nodiscard]] auto WebGame::find_and_remove_id (std::unordered_map<int,
         WebColoredPiece>& old_list, Coord coord_to_find, ColoredPiece piece_to_find) -> int

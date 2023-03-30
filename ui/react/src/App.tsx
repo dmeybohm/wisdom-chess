@@ -59,7 +59,7 @@ function App() {
         setThirdRepetitionDrawAnswered(true)
         actions.setHumanDrawStatus(wisdomChess.ThreefoldRepetition, wisdomChess.White, answer);
     }
-    const handleFifthRepetitionDrawAnswer = (answer: boolean): void => {
+    const handleFiftyMovesWithoutProgressDrawAnswer = (answer: boolean): void => {
         setFiftyMovesDrawAnswered(true);
         actions.setHumanDrawStatus(wisdomChess.FiftyMovesWithoutProgress, wisdomChess.White, answer);
     }
@@ -145,7 +145,9 @@ function App() {
                     onDismiss={() => setShowSettings(false) }
                 />
             }
-            {gameState.gameStatus === wisdomChess.ThreefoldRepetitionReached && !thirdRepetitionDrawAnswered &&
+            {gameState.gameStatus === wisdomChess.ThreefoldRepetitionReached &&
+                !thirdRepetitionDrawAnswered &&
+                gameState.hasHumanPlayer &&
                 <DrawDialog
                     title={"Third Repetition Reached"}
                     onAccepted={() => handleThirdRepetitionDrawAnswer(true)}
@@ -154,10 +156,16 @@ function App() {
                     <p>The same position was reached three times. Either player can declare a draw now.</p>
                 </DrawDialog>
             }
-            {gameState.gameStatus === wisdomChess.FiftyMovesWithoutProgressReached && !fiftyMovesDrawAnswered &&
-                <Modal>
-                    <h1>Fifty Moves without Progress</h1>
-                </Modal>
+            {gameState.gameStatus === wisdomChess.FiftyMovesWithoutProgressReached &&
+                !fiftyMovesDrawAnswered &&
+                gameState.hasHumanPlayer &&
+                <DrawDialog
+                    title={"Third Repetition Reached"}
+                    onAccepted={() => handleFiftyMovesWithoutProgressDrawAnswer(true)}
+                    onDeclined={() => handleFiftyMovesWithoutProgressDrawAnswer(false)}
+                >
+                    <p>There has been fifty moves without a pawn move or a piece taken. Either player can declare a draw now.</p>
+                </DrawDialog>
             }
         </div>
     );

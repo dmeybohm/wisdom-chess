@@ -134,11 +134,6 @@ namespace wisdom::worker
         {
             auto current_player_accept_draw = game->computer_wants_draw (who);
 
-            game->set_proposed_draw_status (
-                proposedDrawType,
-                who,
-                current_player_accept_draw
-            );
             update_draw_status (proposedDrawType,
                                 who,
                                 current_player_accept_draw);
@@ -180,10 +175,9 @@ EMSCRIPTEN_KEEPALIVE void worker_reinitialize_game (int new_game_id)
 
 EMSCRIPTEN_KEEPALIVE void start_search()
 {
+    const auto& logger = wisdom::worker::get_logger();
     auto state = GameState::get_state();
     auto game = GameState::get_game();
-
-    state->status_transition();
 
     if (state->game->get_current_player() != Player::ChessEngine)
         return;
@@ -192,7 +186,9 @@ EMSCRIPTEN_KEEPALIVE void start_search()
     if (play_status != GameState::Playing)
         return;
 
-    const auto& logger = wisdom::worker::get_logger();
+    auto new_status = state->status_transition();
+    if (new_status != wisdom::GameStatus::Playing)
+        return;
 
     logger.debug("Going to find best move");
     logger.debug("Current turn: " + to_string(game->get_current_turn()));
@@ -269,7 +265,7 @@ EMSCRIPTEN_KEEPALIVE void unpause_worker ()
     state->play_status.store (GameState::Playing);
 }
 
-EM_JS (void, receiveDrawStatusFromWorker, (int game_id, int draw_type, int color, bool accepts_draw),
+EM_JS (void, receiveDrawStatusFromWorker, (int game_id, int draw_type, int color, bool accepted),
 {
    receiveWorkerMessage (
         'computerDrawStatusUpdated',
@@ -277,13 +273,15 @@ EM_JS (void, receiveDrawStatusFromWorker, (int game_id, int draw_type, int color
         JSON.stringify ({
             draw_type: draw_type,
             color: color,
-            accepts_draw: accepts_draw
+            accepted: accepted
        })
    )
 })
 
 EMSCRIPTEN_KEEPALIVE void main_thread_receive_draw_status (int game_id, int draw_type,
-                                                           int color, int draw_proposed)
+                                                           int color, int accepted_draw)
 {
-    receiveDrawStatusFromWorker (game_id, draw_type, color, draw_proposed);
+    receiveDrawStatusFromWorker ( game_id, draw_type, color,
+        accepted_draw == 0 ? false : true
+    );
 }
