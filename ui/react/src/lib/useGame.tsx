@@ -114,14 +114,12 @@ export const useGame = create<GameState>()((set, get) => ({
 
                 case 'computerDrawStatusUpdated': {
                     const params = JSON.parse(message) as ComputerDrawStatusUpdate
-                    console.log(params)
                     currentGame.setComputerDrawStatus(
                         params.draw_type,
                         params.color,
                         params.accepted
                     )
                     const result = updateGameState({}, getCurrentGame())
-                    console.log(result)
                     return result
                 }
 
@@ -253,7 +251,6 @@ export const useGame = create<GameState>()((set, get) => ({
                 );
             } catch (e) {
                 console.error("Error:", e)
-                console.log('returning:')
                 return updateGameState({
                     pawnPromotionDialogSquare: '',
                     focusedSquare: '',
