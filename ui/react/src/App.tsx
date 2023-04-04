@@ -30,21 +30,29 @@ function App() {
     const handleAboutClicked = (event: React.SyntheticEvent): void => {
         event.preventDefault()
         setShowAbout(true)
+        resetState()
     }
 
     const handleNewGameClicked = (event: React.SyntheticEvent): void => {
         event.preventDefault()
         setShowNewGame(true)
+        resetState()
     }
 
     const handleSettingsClicked = (event: React.SyntheticEvent): void => {
         event.preventDefault()
         setShowSettings(true)
+        resetState()
     }
 
     const game = getCurrentGame()
     const gameState = useGame((state) => state)
     const actions = useGame((state) => state.actions)
+
+    function resetState() {
+        gameState.focusedSquare = ''
+        gameState.pawnPromotionDialogSquare = ''
+    }
 
     useEffect(() => {
         if ([showAbout, showNewGame, showSettings].some(v => v)) {

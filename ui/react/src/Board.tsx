@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import Square from "./Square";
+import React from 'react'
+import { Square, PieceOverlay } from "./Square";
 import "./Board.css";
 import { Piece } from "./lib/Pieces";
 import { Position } from "./lib/Squares";
 import "./Positions.css"
 import PawnPromotionDialog from "./PawnPromotionDialog";
 import { PieceColor, PieceType } from "./lib/WisdomChess";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 export interface BoardProps {
     squares: Array<Position>
@@ -22,32 +24,35 @@ export interface BoardProps {
 
 const Board = (props: BoardProps) => {
     return (
-        <section className={`board ${props.flipped ? 'flipped' : ''}`}>
-            {props.squares.map((position: Position) => {
-                return (
-                    <Square
-                        key={position.index}
-                        isOddRow={position.isOddRow}
-                        position={position.position}
-                        onClick={props.onMovePiece}
+        <DndProvider backend={HTML5Backend}>
+            <section className={`board ${props.flipped ? 'flipped' : ''}`}>
+                {props.squares.map((position: Position) => {
+                    return (
+                        <Square
+                            key={position.index}
+                            isOddRow={position.isOddRow}
+                            position={position.position}
+                            onClick={props.onMovePiece}
+                        />
+                    );
+                })}
+                {props.pieces.map((piece: Piece) => (
+                    <PieceOverlay
+                        key={piece.id}
+                        piece={piece}
+                        focusedSquare={props.focusedSquare}
+                        onPieceClick={props.onPieceClick}
                     />
-                );
-            })}
-            {props.pieces.map((piece: Piece) => (
-                <div className={`piece ${piece.position} ${piece.position === props.focusedSquare ? 'focused' : ''}`}
-                     key={piece.id}
-                     onClick={() => props.onPieceClick(piece.position)}>
-                    <img alt="piece" src={piece.icon} />
-                </div>
-            ))}
-            {props.pawnPromotionDialogSquare &&
-                <PawnPromotionDialog
-                    color={props.currentTurn}
-                    square={props.pawnPromotionDialogSquare}
-                    direction={-1}
-                    selectedPiece={props.onPiecePromotion}
-                />}
-        </section>
+                ))}
+                {props.pawnPromotionDialogSquare &&
+                    <PawnPromotionDialog
+                        color={props.currentTurn}
+                        square={props.pawnPromotionDialogSquare}
+                        direction={-1}
+                        selectedPiece={props.onPiecePromotion}
+                    />}
+            </section>
+        </DndProvider>
     )
 }
 
