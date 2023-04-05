@@ -54,6 +54,7 @@ interface GameState {
         init: (window: ReactWindow) => void
         startNewGame: () => void
         humanMovePiece: (dst: string) => void
+        dropPiece: (src: string, dst: string) => void
         computerMovePiece: (move: WebMove) => void
         pieceClick: (dst: string) => void
         promotePiece: (pieceType: PieceType) => void
@@ -119,8 +120,7 @@ export const useGame = create<GameState>()((set, get) => ({
                         params.color,
                         params.accepted
                     )
-                    const result = updateGameState({}, getCurrentGame())
-                    return result
+                    return updateGameState({}, getCurrentGame())
                 }
 
                 default: {
@@ -192,6 +192,10 @@ export const useGame = create<GameState>()((set, get) => ({
             }
             return updateGameState(updatedState, game)
         }),
+        dropPiece: (src: string, dst: string) => {
+            get().focusedSquare = src
+            get().actions.humanMovePiece(dst)
+        },
         promotePiece: (pieceType: PieceType) => set((prevState) => {
             const newState : Partial<GameState> = {}
             const game = getCurrentGame()

@@ -30,26 +30,25 @@ function App() {
     const handleAboutClicked = (event: React.SyntheticEvent): void => {
         event.preventDefault()
         setShowAbout(true)
-        resetState()
+        resetFocusState()
     }
 
     const handleNewGameClicked = (event: React.SyntheticEvent): void => {
         event.preventDefault()
         setShowNewGame(true)
-        resetState()
+        resetFocusState()
     }
 
     const handleSettingsClicked = (event: React.SyntheticEvent): void => {
         event.preventDefault()
         setShowSettings(true)
-        resetState()
+        resetFocusState()
     }
 
-    const game = getCurrentGame()
     const gameState = useGame((state) => state)
     const actions = useGame((state) => state.actions)
 
-    function resetState() {
+    function resetFocusState() {
         gameState.focusedSquare = ''
         gameState.pawnPromotionDialogSquare = ''
     }
@@ -83,6 +82,7 @@ function App() {
         // Reset the state:
         setThirdRepetitionDrawAnswered(false)
         setFiftyMovesDrawAnswered(false)
+        resetFocusState();
     }
 
     function handleApplySettings(gameSettings: GameSettings, flipped: boolean) {
@@ -112,6 +112,7 @@ function App() {
                     pieces={gameState.pieces}
                     pawnPromotionDialogSquare={gameState.pawnPromotionDialogSquare}
                     onMovePiece={dst => actions.humanMovePiece(dst)}
+                    onDropPiece={(src, dst) => actions.dropPiece(src, dst)}
                     onPieceClick={dst => actions.pieceClick(dst)}
                     onPiecePromotion={pieceType => actions.promotePiece(pieceType)}
                 />

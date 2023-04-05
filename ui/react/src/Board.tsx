@@ -19,6 +19,7 @@ export interface BoardProps {
 
     onMovePiece: (dst: string) => void
     onPieceClick: (dst: string) => void
+    onDropPiece: (dst: string, src: string) => void
     onPiecePromotion: (piece: PieceType) => void
 }
 
@@ -33,6 +34,7 @@ const Board = (props: BoardProps) => {
                             isOddRow={position.isOddRow}
                             position={position.position}
                             onClick={props.onMovePiece}
+                            onDropPiece={props.onDropPiece}
                         />
                     );
                 })}
