@@ -45,6 +45,7 @@ function App() {
         resetFocusState()
     }
 
+    const game = getCurrentGame()
     const gameState = useGame((state) => state)
     const actions = useGame((state) => state.actions)
 
