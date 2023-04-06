@@ -29,10 +29,13 @@ body {
     left: var(--border-size);
     width: var(--square-size);
     height: var(--square-size);
+}
+
+.piece:not(.dragging) {
     transition: transform 560ms ease-in-out 520ms,
-        background-color 70ms,
-        top ease-in-out 160ms,
-        left ease-in-out 160ms;
+    background-color 70ms,
+    top ease-in-out 160ms,
+    left ease-in-out 160ms;
 }
 
 .piece.focused.piece.focused {

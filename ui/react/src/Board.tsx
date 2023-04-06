@@ -12,6 +12,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 export interface BoardProps {
     squares: Array<Position>
     focusedSquare: string
+    droppedSquare: string
     pieces: Array<Piece>
     pawnPromotionDialogSquare: string
     currentTurn: PieceColor
@@ -43,6 +44,7 @@ const Board = (props: BoardProps) => {
                         key={piece.id}
                         piece={piece}
                         focusedSquare={props.focusedSquare}
+                        droppedSquare={props.droppedSquare}
                         onPieceClick={props.onPieceClick}
                     />
                 ))}

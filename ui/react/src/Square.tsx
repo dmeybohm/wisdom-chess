@@ -42,6 +42,7 @@ export function Square(props: SquareProps) {
 interface PieceOverlayProps {
     piece: Piece
     focusedSquare: string
+    droppedSquare: string
     onPieceClick(position: string): void
 }
 
@@ -55,15 +56,16 @@ export function PieceOverlay(props: PieceOverlayProps) {
     }, [props.piece.position])
 
     const focused = props.piece.position === props.focusedSquare ? 'focused' : ''
+    const draggingClass = props.droppedSquare === props.piece.position ? "dragging" : ''
     return (
         <>
         <div
             ref={drag}
-            className={`piece ${props.piece.position} ${focused}`}
+            className={`piece ${props.piece.position} ${focused} ${draggingClass}`}
             onClick={() => props.onPieceClick(props.piece.position)}
             style={{
+                transform: 'translate(0, 0)', // workaround background showing up
                 opacity: isDragging ? 0.5 : 1,
-                cursor: isDragging ? 'move' : '',
             }}
         >
             <img
@@ -76,7 +78,9 @@ export function PieceOverlay(props: PieceOverlayProps) {
             alt="piece"
             src={props.piece.icon}
             style={{
-                display: 'none'
+                cursor: 'move',
+                display: 'none',
+                background: 'transparent'
             }}
         />
         </>
