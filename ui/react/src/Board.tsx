@@ -46,6 +46,7 @@ const Board = (props: BoardProps) => {
                         focusedSquare={props.focusedSquare}
                         droppedSquare={props.droppedSquare}
                         onPieceClick={props.onPieceClick}
+                        onDropPiece={props.onDropPiece}
                     />
                 ))}
                 {props.pawnPromotionDialogSquare &&

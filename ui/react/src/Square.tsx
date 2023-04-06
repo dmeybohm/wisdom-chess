@@ -6,8 +6,8 @@ import { useDrag, useDrop } from 'react-dnd';
 interface SquareProps {
     position: string
     isOddRow: boolean
-    onClick: (position: string) => void;
-    onDropPiece: (src: string, dst: string) => void;
+    onClick(position: string): void;
+    onDropPiece(src: string, dst: string): void;
 }
 
 type DroppedWithPosition = {
@@ -18,8 +18,6 @@ export function Square(props: SquareProps) {
     const [{isOver}, drop] = useDrop({
         accept: 'piece',
         drop: (dropped) => {
-            console.log('drop')
-            console.log(dropped)
             props.onDropPiece((dropped as DroppedWithPosition).src, props.position)
         },
         collect: (monitor) => ({
@@ -44,6 +42,7 @@ interface PieceOverlayProps {
     focusedSquare: string
     droppedSquare: string
     onPieceClick(position: string): void
+    onDropPiece(src: string, dst: string): void;
 }
 
 export function PieceOverlay(props: PieceOverlayProps) {
@@ -54,13 +53,21 @@ export function PieceOverlay(props: PieceOverlayProps) {
             isDragging: monitor.isDragging(),
         }),
     }, [props.piece.position])
+    const [{isOver}, drop] = useDrop({
+        accept: 'piece',
+        drop: (dropped) => {
+            props.onDropPiece((dropped as DroppedWithPosition).src, props.piece.position)
+        },
+        collect: (monitor) => ({
+            isOver: monitor.isOver(),
+        })
+    })
 
     const focused = props.piece.position === props.focusedSquare ? 'focused' : ''
     const draggingClass = props.droppedSquare === props.piece.position ? "dragging" : ''
     return (
         <>
         <div
-            ref={drag}
             className={`piece ${props.piece.position} ${focused} ${draggingClass}`}
             onClick={() => props.onPieceClick(props.piece.position)}
             style={{
@@ -69,6 +76,7 @@ export function PieceOverlay(props: PieceOverlayProps) {
             }}
         >
             <img
+                ref={drag}
                 alt="piece"
                 src={props.piece.icon}
             />
@@ -78,9 +86,7 @@ export function PieceOverlay(props: PieceOverlayProps) {
             alt="piece"
             src={props.piece.icon}
             style={{
-                cursor: 'move',
                 display: 'none',
-                background: 'transparent'
             }}
         />
         </>
