@@ -98,13 +98,14 @@ function App() {
     }
 
     function handleDropPiece(src: string, dst: string) {
-        actions.dropPiece(src, dst)
+        if (src !== dst) {
+            actions.dropPiece(src, dst)
+        }
     }
 
     function handlePieceClick(dst: string) {
         actions.pieceClick(dst)
     }
-    console.log('lastDroppedSquare', gameState.lastDroppedSquare)
 
     return (
         <div className="App">
