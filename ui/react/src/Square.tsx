@@ -2,6 +2,9 @@ import React from "react";
 import "./Board.css";
 import { Piece } from "./lib/Pieces";
 import { useDrag, useDrop } from 'react-dnd';
+import { fromColorToNumber, getCurrentGame, getGameModel, WisdomChess } from "./lib/WisdomChess";
+import { useGame } from "./lib/useGame";
+import { wisdomChess } from "./App";
 
 interface SquareProps {
     position: string
@@ -46,13 +49,23 @@ interface PieceOverlayProps {
 }
 
 export function PieceOverlay(props: PieceOverlayProps) {
+    const actions = useGame((state) => state.actions)
+    const wisdomChess = WisdomChess()
+
     const [{isDragging}, drag, preview] = useDrag({
         type: 'piece',
         item: { src: props.piece.position },
+        canDrag: monitor => {
+            const game = getCurrentGame()
+            const pieceColor = fromColorToNumber(props.piece.color)
+            return pieceColor === actions.currentTurn() &&
+                game.getPlayerOfColor(pieceColor) === wisdomChess.Human
+        },
         collect: monitor => ({
             isDragging: monitor.isDragging(),
         }),
     }, [props.piece.position])
+
     const [{isOver}, drop] = useDrop({
         accept: 'piece',
         drop: (dropped) => {
@@ -61,34 +74,43 @@ export function PieceOverlay(props: PieceOverlayProps) {
         collect: (monitor) => ({
             isOver: monitor.isOver(),
         })
-    })
+    }, [props.piece.position])
 
     const focused = props.piece.position === props.focusedSquare ? 'focused' : ''
     const draggingClass = props.droppedSquare === props.piece.position ? "dragging" : ''
     return (
-        <>
         <div
+            ref={drop}
             className={`piece ${props.piece.position} ${focused} ${draggingClass}`}
             onClick={() => props.onPieceClick(props.piece.position)}
-            style={{
-                transform: 'translate(0, 0)', // workaround background showing up
-                opacity: isDragging ? 0.5 : 1,
-            }}
         >
-            <img
+            <div
                 ref={drag}
+                style={{
+                    transform: 'translate(0, 0)', // workaround background showing up
+                    opacity: isDragging ? 0.5 : 1,
+                }}
+            >
+                {!isDragging &&
+                    <img
+                        ref={drag}
+                        draggable={false}
+                        alt="piece"
+                        src={props.piece.icon}
+                    />
+                }
+            </div>
+        {isDragging &&
+            <img
+                ref={preview}
                 alt="piece"
+                draggable={false}
                 src={props.piece.icon}
+                style={{
+                    display: 'none',
+                }}
             />
+        }
         </div>
-        <img
-            ref={preview}
-            alt="piece"
-            src={props.piece.icon}
-            style={{
-                display: 'none',
-            }}
-        />
-        </>
     )
 }

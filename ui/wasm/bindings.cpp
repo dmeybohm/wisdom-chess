@@ -245,7 +245,6 @@ EM_JS (void, receiveMoveFromWorker, (int game_id, const char* str),
 EMSCRIPTEN_KEEPALIVE void main_thread_receive_move (int game_id, int packed_move)
 {
     auto& logger = wisdom::worker::get_logger();
-    logger.debug (std::to_string (packed_move));
 
     Move unpacked_move = Move::from_int (packed_move);
     auto state = GameState::get_state();

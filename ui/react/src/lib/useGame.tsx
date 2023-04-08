@@ -27,6 +27,7 @@ export const initialGameState = {
     gameOverStatus: '',
     moveStatus: 'White to move',
     pawnPromotionDialogSquare: '',
+    lastDroppedSquare: '',
 
     settings: {
         // Initialized from web assembly later:
@@ -41,7 +42,7 @@ export type ChessEngineEventType = 'computerMoved' | 'computerDrawStatusUpdated'
 
 interface GameState {
     pieces: Piece[]
-    squares: typeof initialSquares,
+    squares: typeof initialSquares
     focusedSquare: string
     hasHumanPlayer: boolean
     pawnPromotionDialogSquare: string
@@ -49,6 +50,7 @@ interface GameState {
     gameOverStatus: string
     moveStatus: string
     settings: GameSettings
+    lastDroppedSquare: string
 
     actions: {
         init: (window: ReactWindow) => void
@@ -62,6 +64,7 @@ interface GameState {
         receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => void
         pauseGame: () => void
         unpauseGame: () => void
+        currentTurn: () => PieceColor
         setHumanDrawStatus: (drawType: DrawByRepetitionType, who: PieceColor, accepted: boolean) => void
     }
 }
@@ -141,7 +144,9 @@ export const useGame = create<GameState>()((set, get) => ({
         computerMovePiece: (move: WebMove) => set((prevState) => {
             const game = getCurrentGame()
             game.makeMove(move);
-            return updateGameState({}, game)
+            return updateGameState({
+                lastDroppedSquare: ''
+            }, game)
         }),
         pieceClick: (dst: string) => set((prevState) => {
             const game = getCurrentGame()
@@ -158,6 +163,7 @@ export const useGame = create<GameState>()((set, get) => ({
                 if (srcPiece && game.getPlayerOfColor(fromColorToNumber(srcPiece.color)) == wisdomChess.Human) {
                     return updateGameState({
                         focusedSquare: dst,
+                        lastDroppedSquare: '',
                         pawnPromotionDialogSquare: ''
                     }, game)
                 } else {
@@ -169,6 +175,7 @@ export const useGame = create<GameState>()((set, get) => ({
             if (prevState.focusedSquare === dst) {
                 return updateGameState({
                     focusedSquare: '',
+                    lastDroppedSquare: '',
                     pawnPromotionDialogSquare: ''
                 }, game)
             }
@@ -180,6 +187,7 @@ export const useGame = create<GameState>()((set, get) => ({
             if (!dstPiece || !srcPiece || srcPiece.color === dstPiece.color) {
                 return updateGameState({
                     focusedSquare: dst,
+                    lastDroppedSquare: '',
                     pawnPromotionDialogSquare: ''
                 }, game)
             }
@@ -188,13 +196,22 @@ export const useGame = create<GameState>()((set, get) => ({
             get().actions.humanMovePiece(dst)
             const updatedState = get()
             if (updatedState.pawnPromotionDialogSquare === '') {
+                updatedState.lastDroppedSquare = ''
                 updatedState.focusedSquare = ''
             }
             return updateGameState(updatedState, game)
         }),
-        dropPiece: (src: string, dst: string) => {
+        dropPiece: (src: string, dst: string) => set(prevState => {
             get().focusedSquare = src
             get().actions.humanMovePiece(dst)
+            const updatedState = get()
+            return updateGameState({
+                ... updatedState,
+                lastDroppedSquare: dst
+            }, getCurrentGame())
+        }),
+        currentTurn: () => {
+            return getCurrentGame().getCurrentTurn()
         },
         promotePiece: (pieceType: PieceType) => set((prevState) => {
             const newState : Partial<GameState> = {}
@@ -218,19 +235,22 @@ export const useGame = create<GameState>()((set, get) => ({
                 return updateGameState({
                     pawnPromotionDialogSquare: '',
                     focusedSquare: '',
+                    lastDroppedSquare: '',
                 }, game)
             }
             if (!move || !game.isLegalMove(move)) {
                 return updateGameState({
                     pawnPromotionDialogSquare: '',
                     focusedSquare: '',
+                    lastDroppedSquare: '',
                 }, game)
             }
             game.makeMove(move)
             gameModel.notifyHumanMove(move)
             return updateGameState({
                 focusedSquare: '',
-                pawnPromotionDialogSquare: ''
+                pawnPromotionDialogSquare: '',
+                lastDroppedSquare: '',
             }, game)
         }),
         humanMovePiece: (dst: string) => set((prevState): Partial<GameState> => {
@@ -240,7 +260,7 @@ export const useGame = create<GameState>()((set, get) => ({
 
             if (src === '') {
                 return updateGameState({
-                    pawnPromotionDialogSquare: ''
+                    pawnPromotionDialogSquare: '',
                 }, game)
             }
             const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
@@ -269,7 +289,7 @@ export const useGame = create<GameState>()((set, get) => ({
             if (game.needsPawnPromotion(srcCoord, dstCoord)) {
                 return updateGameState({
                     pawnPromotionDialogSquare: dst,
-                    focusedSquare: src
+                    focusedSquare: src,
                 }, game)
             }
             game.makeMove(move)

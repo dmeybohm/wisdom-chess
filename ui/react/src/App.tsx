@@ -23,7 +23,6 @@ function App() {
     const [showAbout, setShowAbout] = useState(false);
     const [showNewGame, setShowNewGame] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
-    const [droppedSquare, setDroppedSquare] = useState('')
 
     const [thirdRepetitionDrawAnswered, setThirdRepetitionDrawAnswered] = useState(false)
     const [fiftyMovesDrawAnswered, setFiftyMovesDrawAnswered] = useState(false)
@@ -100,13 +99,12 @@ function App() {
 
     function handleDropPiece(src: string, dst: string) {
         actions.dropPiece(src, dst)
-        setDroppedSquare(dst)
     }
 
     function handlePieceClick(dst: string) {
         actions.pieceClick(dst)
-        setDroppedSquare('') // clear so next animation runs
     }
+    console.log('lastDroppedSquare', gameState.lastDroppedSquare)
 
     return (
         <div className="App">
@@ -122,7 +120,7 @@ function App() {
                     squares={gameState.squares}
                     focusedSquare={gameState.focusedSquare}
                     pieces={gameState.pieces}
-                    droppedSquare={droppedSquare}
+                    droppedSquare={gameState.lastDroppedSquare}
                     pawnPromotionDialogSquare={gameState.pawnPromotionDialogSquare}
                     onMovePiece={dst => actions.humanMovePiece(dst)}
                     onDropPiece={handleDropPiece}
