@@ -18,6 +18,7 @@ option(WISDOM_CHESS_FAST_TESTS "Enable building of fast tests" On)
 option(WISDOM_CHESS_SLOW_TESTS "Enable building of slow tests")
 option(WISDOM_CHESS_CONSOLE_UI "Enable building of console chess game" On)
 option(WISDOM_CHESS_QML_UI "Enable building of QML UI" On)
+option(WISDOM_CHESS_REACT_UI "Enable building of React UI" On)
 
 if (QTDIR)
     list(APPEND CMAKE_PREFIX_PATH ${QTDIR})

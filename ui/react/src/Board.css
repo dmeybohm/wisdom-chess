@@ -1,0 +1,64 @@
+body {
+    background: #c7c7c7;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(8, var(--square-size));
+    grid-template-rows: repeat(8, var(--square-size));
+    border: var(--border-size) solid #ddd;
+    border-radius: 3px;
+    position: relative;
+    margin-bottom: 2rem;
+    transition: transform 850ms ease-out;
+}
+
+.board.flipped {
+    transform: rotate(180deg);
+}
+
+.square {
+    background: var(--square-background);
+    width: var(--square-size);
+    height: var(--square-size);
+}
+
+.piece {
+    position: absolute;
+    top: var(--border-size);
+    left: var(--border-size);
+    width: var(--square-size);
+    height: var(--square-size);
+}
+
+.piece:not(.dragging) {
+    transition: transform 560ms ease-in-out 520ms,
+        background-color 70ms,
+        top ease-in-out 160ms,
+        left ease-in-out 160ms;
+}
+
+.piece.focused.piece.focused {
+    background: var(--square-focused);
+}
+
+.board.flipped .piece {
+    transform: rotate(180deg);
+}
+
+.piece img {
+    width: var(--square-size);
+    height: var(--square-size);
+}
+
+.square:nth-child(odd) {
+    background: #fafafa;
+}
+
+.square.odd:nth-child(odd) {
+    background: var(--square-background);
+}
+.square.odd:nth-child(even) {
+    background: #fafafa;
+}
+

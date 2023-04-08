@@ -46,38 +46,77 @@ void ChessEngine::receiveEngineMoved(wisdom::Move move, wisdom::Color who,
     }
 }
 
-auto ChessEngine::gameStatusTransition () -> wisdom::GameStatus
+class QmlEngineGameStatusUpdate : public GameStatusUpdate
 {
-    auto gameState = myGame->state();
-    auto nextStatus = gameState->status();
-    auto who = gameState->get_current_turn();
+private:
+    observer_ptr<ChessEngine> myParent;
 
-    switch (nextStatus)
+    void handleGameOver()
     {
-        case GameStatus::Playing:
-            break;
-
-        case GameStatus::Checkmate:
-        case GameStatus::Stalemate:
-        case GameStatus::ThreefoldRepetitionAccepted:
-        case GameStatus::FiftyMovesWithoutProgressAccepted:
-        case GameStatus::FivefoldRepetitionDraw:
-        case GameStatus::SeventyFiveMovesWithoutProgressDraw:
-        case GameStatus::InsufficientMaterialDraw:
-            myIsGameOver = true;
-            emit noMovesAvailable();
-            break;
-
-        case GameStatus::ThreefoldRepetitionReached:
-            handlePotentialDrawPosition(ProposedDrawType::ThreeFoldRepetition, who);
-            break;
-
-        case GameStatus::FiftyMovesWithoutProgressReached:
-            handlePotentialDrawPosition(ProposedDrawType::FiftyMovesWithoutProgress, who);
-            break;
+        myParent->myIsGameOver = true;
+        emit myParent->noMovesAvailable();
     }
 
-    return nextStatus;
+public:
+    explicit QmlEngineGameStatusUpdate (observer_ptr<ChessEngine> parent)
+        : myParent { parent }
+    {}
+
+    void checkmate() override
+    {
+        handleGameOver();
+    }
+
+    void stalemate() override
+    {
+        handleGameOver();
+    }
+
+    void insufficient_material() override
+    {
+        handleGameOver();
+    }
+
+    void third_repetition_draw_accepted() override
+    {
+        handleGameOver();
+    }
+
+    void fifth_repetition_draw() override
+    {
+        handleGameOver();
+    }
+
+    void fifty_moves_without_progress_accepted() override
+    {
+        handleGameOver();
+    }
+
+    void seventy_five_moves_with_no_progress() override
+    {
+        handleGameOver();
+    }
+
+    void third_repetition_draw_reached() override
+    {
+        auto gameState = myParent->myGame->state();
+        auto who = gameState->get_current_turn();
+        myParent->handlePotentialDrawPosition(ProposedDrawType::ThreeFoldRepetition, who);
+    }
+
+    void fifty_moves_without_progress_reached() override
+    {
+        auto gameState = myParent->myGame->state();
+        auto who = gameState->get_current_turn();
+        myParent->handlePotentialDrawPosition(ProposedDrawType::FiftyMovesWithoutProgress, who);
+    }
+};
+
+auto ChessEngine::gameStatusTransition () -> wisdom::GameStatus
+{
+    QmlEngineGameStatusUpdate status_manager { this };
+    status_manager.update (myGame->state()->status());
+    return myGame->state()->status ();
 }
 
 void ChessEngine::findMove()

@@ -12,6 +12,8 @@
 #include "move_timer.hpp"
 #include "logger.hpp"
 
+class QmlEngineGameStatusUpdate;
+
 //
 // Represents the computer player.
 //
@@ -86,9 +88,6 @@ private:
     // Identify games so that signals from them can be filtered due to being async.
     int myGameId;
 
-    // Identify configurations to interrupt search.
-    int myConfigId;
-
     void findMove();
 
     // Perform some operations when the game status has updated.
@@ -103,6 +102,8 @@ private:
     //
     void handlePotentialDrawPosition(wisdom::ProposedDrawType proposedDrawType,
                                      wisdom::Color who);
+
+    friend class QmlEngineGameStatusUpdate;
 
 };
 

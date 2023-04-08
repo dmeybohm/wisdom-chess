@@ -34,6 +34,143 @@ namespace wisdom::ui::console
         InputState() = default;
     };
 
+    static auto human_wants_draw (const string& msg) -> bool
+    {
+        InputState result;
+        string input;
+
+        while (toupper(input[0]) != 'Y' && toupper(input[0]) != 'N')
+        {
+            std::cout << msg;
+
+            if (!std::getline(std::cin, input))
+                continue;
+        }
+
+        return (input[0] == 'y' || input[1] == 'Y');
+    }
+
+    static auto player_wants_draw (const string& msg, Player player, Color who, Game& game, bool asked_human) -> DrawStatus
+    {
+        if (player == Player::Human)
+        {
+            if (asked_human)
+                return DrawStatus::Declined;
+
+            return human_wants_draw (msg) ? DrawStatus::Accepted : DrawStatus::Declined;
+        }
+        return game.computer_wants_draw (who) ? DrawStatus::Accepted : DrawStatus::Declined;
+    }
+
+    // After the third repetition, either player may request a draw.
+    static auto determine_if_drawn (const string& msg, InputState input_state, Game& game)
+        -> std::pair<DrawStatus, DrawStatus>
+    {
+        auto white_player = game.get_player (Color::White);
+
+        auto white_wants_draw = player_wants_draw (
+            msg, white_player, Color::White, game, false
+        );
+        bool asked_human = white_player == Player::Human;
+        auto black_wants_draw = player_wants_draw (
+            msg, game.get_player (Color::Black), Color::Black, game, asked_human
+        );
+
+        return { white_wants_draw, black_wants_draw };
+    }
+
+    class ConsoleGameStatusManager : public GameStatusUpdate
+    {
+    private:
+        InputState my_input_state {};
+        Game my_game {};
+
+    public:
+        ConsoleGameStatusManager() = default;
+        ~ConsoleGameStatusManager() override = default;
+
+        [[nodiscard]] auto get_input_state() & -> InputState
+        {
+            return my_input_state;
+        }
+
+        void set_input_state (const InputState& new_state)
+        {
+            my_input_state = new_state;
+        }
+
+        [[nodiscard]] auto get_game() & -> Game&
+        {
+            return my_game;
+        }
+        void get_game() && = delete;
+
+        void handle_draw (const string& msg, ProposedDrawType draw_type)
+        {
+            // Recursively (one-level deep) update the status again.
+            auto draw_pair = determine_if_drawn (msg, my_input_state, my_game);
+            my_game.set_proposed_draw_status (
+                ProposedDrawType::ThreeFoldRepetition,
+                draw_pair
+            );
+            return update (my_game.status());
+        }
+
+        void checkmate() override
+        {
+            std::cout << to_string (color_invert (my_game.get_current_turn())) << " wins the game.\n";
+            my_input_state.command = PlayCommand::StopGame;
+        }
+
+        void stalemate() override
+        {
+            my_input_state.command = PlayCommand::StopGame;
+        }
+
+        void insufficient_material() override
+        {
+            std::cout << "Draw: Insufficient material.\n";
+            my_input_state.command = PlayCommand::StopGame;
+        }
+
+        void third_repetition_draw_reached() override
+        {
+            std::string message = "Threefold repetition detected. Would you like a draw? [y/n]\n";
+            handle_draw (message, ProposedDrawType::ThreeFoldRepetition);
+        }
+
+        void third_repetition_draw_accepted() override
+        {
+            std::cout << "Draw: threefold repetition and at least one of the players wants a draw.\n";
+            my_input_state.command = PlayCommand::StopGame;
+        }
+
+        void fifth_repetition_draw() override
+        {
+            std::cout << "Draw: same position repeated five times.\n";
+            my_input_state.command = PlayCommand::StopGame;
+        }
+
+        void fifty_moves_without_progress_reached() override
+        {
+            std::string message = "Fifty moves without progress detected. Would you like a draw? [y/n]\n";
+            handle_draw (message, ProposedDrawType::FiftyMovesWithoutProgress);
+        }
+
+        void fifty_moves_without_progress_accepted() override
+        {
+            std::cout << "Draw: Fifty moves without a capture or pawn move and "
+                      << "at least one player wants a draw.\n";
+            my_input_state.command = PlayCommand::StopGame;
+        }
+
+        void seventy_five_moves_with_no_progress() override
+        {
+            std::cout << "Draw: Seventy five moves without a capture or pawn move.\n";
+            my_input_state.command = PlayCommand::StopGame;
+        }
+    };
+
     static void print_available_moves (Game& game, MoveGenerator& generator)
     {
         MoveList moves = generator.generate_legal_moves (game.get_board (), game.get_current_turn ());
@@ -82,7 +219,7 @@ namespace wisdom::ui::console
         return Game::load (input, current_game.get_players ());
     }
 
-    static optional<Game> load_fen (Game& current_game)
+    static optional<Game> load_fen (const Game& current_game)
     {
         string input = prompt ("FEN game");
         if (input.empty ())
@@ -234,121 +371,10 @@ namespace wisdom::ui::console
         return result;
     }
 
-    static auto human_wants_draw () -> bool
-    {
-        InputState result;
-        string input;
-
-        while (toupper(input[0]) != 'Y' && toupper(input[0]) != 'N')
-        {
-            std::cout << "Threefold repetition detected. Would you like a draw? [y/n]\n";
-
-            if (!std::getline(std::cin, input))
-                continue;
-        }
-
-        return (input[0] == 'y' || input[1] == 'Y');
-    }
-
-    static auto player_wants_draw (Player player, Color who, Game& game, bool asked_human) -> DrawStatus
-    {
-        if (player == Player::Human)
-        {
-            if (asked_human)
-                return DrawStatus::Declined;
-
-            return human_wants_draw () ? DrawStatus::Accepted : DrawStatus::Declined;
-        }
-        return game.computer_wants_draw (who) ? DrawStatus::Accepted : DrawStatus::Declined;
-    }
-
-    // After the third repetition, either player may request a draw.
-    static auto determine_if_drawn (InputState input_state, Game& game) -> std::pair<DrawStatus, DrawStatus>
-    {
-        auto white_player = game.get_player (Color::White);
-
-        auto white_wants_draw = player_wants_draw (
-                white_player, Color::White, game, false
-        );
-        bool asked_human = white_player == Player::Human;
-        auto black_wants_draw = player_wants_draw (
-                game.get_player (Color::Black), Color::Black, game, asked_human
-        );
-
-        return { white_wants_draw, black_wants_draw };
-    }
-
-    auto update_game_status (InputState input_state, Game& game) -> InputState // NOLINT(misc-no-recursion)
-    {
-        auto status = game.status ();
-
-        switch (status)
-        {
-        case GameStatus::Playing:
-            break;
-
-        case GameStatus::Checkmate:
-            std::cout << to_string (color_invert (game.get_current_turn())) << " wins the game.\n";
-            input_state.command = PlayCommand::StopGame;
-            break;
-
-        case GameStatus::Stalemate:
-            input_state.command = PlayCommand::StopGame;
-            break;
-
-        case GameStatus::ThreefoldRepetitionReached: {
-            auto draw_pair = determine_if_drawn (input_state, game);
-            game.set_proposed_draw_status (
-                    ProposedDrawType::ThreeFoldRepetition,
-                    draw_pair
-            );
-            // Recursively (one-level deep) update the status again.
-            return update_game_status (input_state, game);
-        }
-
-        case GameStatus::ThreefoldRepetitionAccepted:
-            std::cout << "Draw: threefold repetition and at least one of the players wants a draw.\n";
-            input_state.command = PlayCommand::StopGame;
-            break;
-
-        case GameStatus::FivefoldRepetitionDraw:
-            std::cout << "Draw: same position repeated five times.\n";
-            input_state.command = PlayCommand::StopGame;
-            break;
-
-        case GameStatus::FiftyMovesWithoutProgressReached: {
-            auto draw_pair = determine_if_drawn (input_state, game);
-            game.set_proposed_draw_status (
-                    ProposedDrawType::FiftyMovesWithoutProgress,
-                    draw_pair
-            );
-            // Recursively (one-level deep) update the status again.
-            return update_game_status (input_state, game);
-        }
-
-        case GameStatus::FiftyMovesWithoutProgressAccepted:
-            std::cout << "Draw: Fifty moves without a capture or pawn move and "
-                        << "at least one player wants a draw.\n";
-            input_state.command = PlayCommand::StopGame;
-            break;
-
-        case GameStatus::SeventyFiveMovesWithoutProgressDraw:
-            std::cout << "Draw: Seventy five moves without a capture or pawn move.\n";
-            input_state.command = PlayCommand::StopGame;
-            break;
-
-        case GameStatus::InsufficientMaterialDraw:
-            std::cout << "Draw: Insufficient material.\n";
-            input_state.command = PlayCommand::StopGame;
-            break;
-        }
-
-        return input_state;
-    }
-
     void play ()
     {
-        Game game;
+        ConsoleGameStatusManager game_status_manager {};
+
         InputState initial_input_state;
         auto output = make_standard_logger ();
         bool paused = false;
@@ -356,10 +382,13 @@ namespace wisdom::ui::console
 
         while (true)
         {
-            InputState input_state = initial_input_state;
-            game.get_board ().print ();
+            auto& game = game_status_manager.get_game ();
+            game_status_manager.set_input_state (initial_input_state);
 
-            input_state = update_game_status (input_state, game);
+            game.get_board().print();
+
+            game_status_manager.update (game.status());
+            auto input_state = game_status_manager.get_input_state();
 
             if (input_state.command == PlayCommand::StopGame)
                 break;

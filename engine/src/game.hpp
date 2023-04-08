@@ -8,6 +8,7 @@
 #include "board.hpp"
 #include "history.hpp"
 #include "move_timer.hpp"
+#include "game_status.hpp"
 
 namespace wisdom
 {
@@ -20,26 +21,6 @@ namespace wisdom
     {
         Human,
         ChessEngine
-    };
-
-    enum class GameStatus
-    {
-        Playing,
-        Checkmate,
-        Stalemate,
-        ThreefoldRepetitionReached,
-        ThreefoldRepetitionAccepted,
-        FivefoldRepetitionDraw,
-        FiftyMovesWithoutProgressReached,
-        FiftyMovesWithoutProgressAccepted,
-        SeventyFiveMovesWithoutProgressDraw,
-        InsufficientMaterialDraw,
-    };
-
-    enum class ProposedDrawType
-    {
-        ThreeFoldRepetition,
-        FiftyMovesWithoutProgress,
     };
 
     using Players = array<Player, Num_Players>;

@@ -377,72 +377,88 @@ auto GameModel::inCheck() const -> bool
     return myInCheck;
 }
 
+class QmlGameStatusUpdate : public GameStatusUpdate
+{
+private:
+    wisdom::observer_ptr<GameModel> myParent;
+
+public:
+    explicit QmlGameStatusUpdate (observer_ptr<GameModel> parent) : myParent { parent }
+    {
+    }
+
+    [[nodiscard]] auto getGameState() -> not_null<wisdom::Game*>
+    {
+        return myParent->myChessGame->state();
+    }
+
+    void checkmate() override
+    {
+        auto who = getGameState()->get_board().get_current_turn();
+        auto opponent = color_invert (who);
+        auto whoString = "<b>Checkmate</b> - " + wisdom::to_string (opponent) + " wins the game.";
+        myParent->setGameOverStatus (QString (whoString.c_str()));
+    }
+
+    void stalemate() override
+    {
+        auto who = getGameState()->get_board().get_current_turn();
+        auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>"
+                            + wisdom::to_string (who) + "</b>";
+        myParent->setGameOverStatus (stalemateStr.c_str());
+    }
+
+    void insufficient_material() override
+    {
+        myParent->setGameOverStatus ("<b>Draw</b> - Insufficient material to checkmate.");
+    }
+
+    void third_repetition_draw_reached() override
+    {
+        auto gameState = getGameState();
+        if (getFirstHumanPlayerColor (gameState->get_players()).has_value())
+            myParent->setThirdRepetitionDrawStatus (GameModel::DrawStatus::Proposed);
+    }
+
+    void third_repetition_draw_accepted() override
+    {
+        myParent->setGameOverStatus ("<b>Draw</b> - Threefold repetition rule.");
+    }
+
+    void fifth_repetition_draw() override
+    {
+        myParent->setGameOverStatus ("<b>Draw</b> - Fivefold repetition rule.");
+    }
+
+    void fifty_moves_without_progress_reached() override
+    {
+        auto gameState = getGameState();
+        if (getFirstHumanPlayerColor (gameState->get_players()).has_value())
+            myParent->setFiftyMovesDrawStatus (GameModel::DrawStatus::Proposed);
+    }
+
+    void fifty_moves_without_progress_accepted() override
+    {
+        myParent->setGameOverStatus ("<b>Draw</b> - Fifty moves without progress.");
+    }
+
+    void seventy_five_moves_with_no_progress() override
+    {
+        myParent->setGameOverStatus ("<b>Draw</b> - Seventy-five moves without progress.");
+    }
+};
+
 void GameModel::updateDisplayedGameState()
 {
     auto gameState = myChessGame->state();
-
-    auto who = gameState->get_current_turn();
     auto& board = gameState->get_board();
+    auto who = gameState->get_current_turn();
 
-    setMoveStatus("");
-    setGameOverStatus("");
-    setInCheck(false);
+    QmlGameStatusUpdate statusManager { this };
+    statusManager.update (gameState->status());
 
-    auto nextStatus = gameState->status();
-
-    switch (nextStatus)
-    {
-    case GameStatus::Playing:
-        break;
-
-    case GameStatus::Checkmate: {
-        auto whoString = "<b>Checkmate</b> - " + wisdom::to_string(color_invert(who)) + " wins the game.";
-        setGameOverStatus(QString(whoString.c_str()));
-        return;
-    }
-
-    case GameStatus::Stalemate: {
-        auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>" + wisdom::to_string(who) + "</b>";
-        setGameOverStatus(stalemateStr.c_str());
-        return;
-    }
-
-    case GameStatus::FivefoldRepetitionDraw:
-        setGameOverStatus("<b>Draw</b> - Fivefold repetition rule.");
-        return;
-
-    case GameStatus::ThreefoldRepetitionReached:
-        if (getFirstHumanPlayerColor(gameState->get_players()).has_value()) {
-            setThirdRepetitionDrawStatus(DrawStatus::Proposed);
-        }
-        break;
-
-    case GameStatus::FiftyMovesWithoutProgressReached:
-        if (getFirstHumanPlayerColor(gameState->get_players()).has_value()) {
-            setFiftyMovesDrawStatus(DrawStatus::Proposed);
-        }
-        break;
-
-    case GameStatus::ThreefoldRepetitionAccepted:
-        setGameOverStatus("<b>Draw</b> - Threefold repetition rule.");
-        return;
-
-    case GameStatus::FiftyMovesWithoutProgressAccepted:
-        setGameOverStatus("<b>Draw</b> - Fifty moves without progress.");
-        return;
-
-    case GameStatus::SeventyFiveMovesWithoutProgressDraw:
-        setGameOverStatus("<b>Draw</b> - Seventy-five moves without progress.");
-        return;
-
-    case GameStatus::InsufficientMaterialDraw:
-        setGameOverStatus("<b>Draw</b> - Insufficient material to checkmate.");
-        return;
-    }
-
-    if (wisdom::is_king_threatened(board, who, board.get_king_position(who))) {
-        setInCheck(true);
-    }
+    if (wisdom::is_king_threatened (board, who, board.get_king_position (who)))
+        setInCheck (true);
 }
 
 void GameModel::resetStateForNewGame()

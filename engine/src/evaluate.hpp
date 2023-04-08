@@ -23,13 +23,13 @@ namespace wisdom
     // Get the score for a checkmate discovered X moves away.
     // Checkmates closer to the current position are more valuable than those
     // further away.
-    inline auto checkmate_score_in_moves (int moves) -> int
+    constexpr auto checkmate_score_in_moves (int moves) -> int
     {
         return Max_Non_Checkmate_Score + Max_Non_Checkmate_Score / (1 + moves);
     }
 
     // Whether the score indicates a checkmate of the opponent has been found.
-    inline auto is_checkmating_opponent_score (int score) -> bool
+    constexpr auto is_checkmating_opponent_score (int score) -> bool
     {
         return score > Max_Non_Checkmate_Score && score < Initial_Alpha;
     }
