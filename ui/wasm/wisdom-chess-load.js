@@ -55,19 +55,6 @@ Promise.all([
 
 function afterWisdomChessModuleLoaded(WisdomChessWeb) {
 	window.wisdomChessWeb = WisdomChessWeb
-	window.wisdomChessGameModel = new WisdomChessWeb.GameModel();
-	window.startReact(window);
-}
-
-function receiveWorkerMessage(type, gameId, message) {
-	console.log('Received worker message: ', type, message)
-
-	// Dispatch event from document.
-	if (type === "computerMoved" && window.computerMoved) {
-		window.computerMoved({ detail: { gameId: gameId, move: message }});
-	}
-
-	// window.dispatchEvent(new CustomEvent(convertedStr, {
-	// 	detail: { message: message }
-	// }));
+	window.wisdomChessGameModel = new WisdomChessWeb.GameModel()
+	window.startReact(window)
 }
