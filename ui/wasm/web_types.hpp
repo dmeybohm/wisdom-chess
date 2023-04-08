@@ -9,7 +9,6 @@
 #include "game.hpp"
 #include "check.hpp"
 
-extern emscripten_wasm_worker_t engine_thread_manager;
 extern emscripten_wasm_worker_t engine_thread;
 
 namespace wisdom
