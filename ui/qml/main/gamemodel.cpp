@@ -454,6 +454,10 @@ void GameModel::updateDisplayedGameState()
     auto& board = gameState->get_board();
     auto who = gameState->get_current_turn();
 
+    setMoveStatus ("");
+    setGameOverStatus ("");
+    setInCheck (false);
+
     QmlGameStatusUpdate statusManager { this };
     statusManager.update (gameState->status());
 
