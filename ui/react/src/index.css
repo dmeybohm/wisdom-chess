@@ -56,18 +56,17 @@ body {
   background: #fafafa;
 }
 
-@media screen and (min-width: 600px) and (min-height: 600px) {
+@media screen and (min-width: 600px) and (min-height: 720px) {
   :root {
     --square-size: 64px;
   }
 
   body {
     height: initial;
-    min-height: 100vh;
   }
 }
 
-@media screen and (min-width: 940px) and (min-height: 940px) {
+@media screen and (min-width: 940px) and (min-height: 1040px) {
   :root {
     --square-size: 96px;
   }
