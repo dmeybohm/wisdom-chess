@@ -6,7 +6,6 @@
 
   color-scheme: light;
   color: #213547;
-  background-color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -16,12 +15,25 @@
 }
 
 :root {
-  --square-size: 48px;
+  --square-size: 40px;
   --border-size: 2px;
   --square-background: #5F9EA0;
   --square-focused: darksalmon;
   --menu-highlight: #747bff;
   --slider-color: #88b1f2;
+  --item-spacing: 1rem;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  height: 100vh;
+}
+
+@media screen and (min-width: 48rem) {
+  :root {
+    --item-spacing: 2rem;
+  }
 }
 
 .board.flipped .piece {
@@ -44,13 +56,17 @@
   background: #fafafa;
 }
 
-@media screen and (min-width: 600px) and (min-height: 600px) {
+@media screen and (min-width: 600px) and (min-height: 720px) {
   :root {
     --square-size: 64px;
   }
+
+  body {
+    height: initial;
+  }
 }
 
-@media screen and (min-width: 940px) and (min-height: 940px) {
+@media screen and (min-width: 940px) and (min-height: 1040px) {
   :root {
     --square-size: 96px;
   }
@@ -65,14 +81,8 @@ a:hover {
   color: #747bff;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
 h1 {
-  font-size: 3.2em;
+  font-size: 3.2rem;
   line-height: 1.1;
 }
 
@@ -80,7 +90,7 @@ button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
-  font-size: 1em;
+  font-size: 1rem;
   font-weight: 500;
   font-family: inherit;
   background-color: #f9f9f9;
