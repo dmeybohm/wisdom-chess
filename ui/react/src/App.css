@@ -52,11 +52,17 @@
 }
 
 .status-bar {
-  font-size: 2rem;
-
+  font-size: 1.25rem;
 }
+
+@media screen and (min-width: 48rem) {
+  .status-bar {
+    font-size: 2rem;
+  }
+}
+
 .status-bar div {
-  margin-bottom: 1.2rem;
+  margin-bottom: calc(var(--item-spacing) * .6);
 }
 
 .modal {

@@ -9,7 +9,7 @@ body {
     border: var(--border-size) solid #ddd;
     border-radius: 3px;
     position: relative;
-    margin-bottom: 2rem;
+    margin-bottom: var(--item-spacing);
     transition: transform 850ms ease-out;
 }
 
