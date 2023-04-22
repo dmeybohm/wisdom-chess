@@ -1,6 +1,7 @@
 import React, { Ref, useEffect, useRef, useState } from 'react'
 import WhiteRook from "./assets/Chess_rlt45.svg";
 import DownArrow from "./assets/bxs-down-arrow.svg";
+import "./TopMenu.css"
 
 interface TopMenuProps {
     aboutClicked: (event: React.SyntheticEvent) => void;
@@ -8,16 +9,47 @@ interface TopMenuProps {
     settingsClicked?: (event: React.SyntheticEvent) => void;
 }
 
-function Menu(props: TopMenuProps): JSX.Element {
+interface ListMenuProps extends TopMenuProps {
+    isMenuOpen: boolean
+}
+
+type LogoAndBrandProps = {
+    isMobile: boolean
+    toggleOpen?: (e: React.SyntheticEvent) => void
+    menuRef?: Ref<HTMLDivElement>
+}
+
+function LogoAndBrand(props: LogoAndBrandProps) {
     return (
-        <ul className="menu">
-            <li onClick={props.newGameClicked}>New Game</li>
-            <li onClick={props.settingsClicked}>Settings</li>
-            <li onClick={props.aboutClicked}>About</li>
+        <div
+            ref={props.menuRef}
+            onClick={props.toggleOpen}
+            className={`wisdom-chess-logo ${props.isMobile ? 'is-mobile' : 'is-desktop'}`}>
+            <img src={WhiteRook} width={32} height={32} />
+            <div>
+                Wisdom Chess
+            </div>
+            {props.isMobile &&
+                <img
+                    className="menu-arrow"
+                    src={DownArrow}
+                    width={12}
+                    height={12}
+                />
+            }
+        </div>
+    )
+}
+
+function Menu(props: ListMenuProps): JSX.Element {
+    return (
+        <ul className={`menu ${props.isMenuOpen ? 'is-open' : ''}`}>
+            <li><a onClick={props.newGameClicked}>New Game</a></li>
+            <li><a onClick={props.settingsClicked}>Settings</a></li>
+            <li><a onClick={props.aboutClicked}>About</a></li>
         </ul>
     );
 }
-
 
 function TopMenu(props: TopMenuProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,19 +71,21 @@ function TopMenu(props: TopMenuProps) {
         return () => document.removeEventListener('click', listener)
     }, [isMenuOpen])
 
+    const listMenuProps = {
+        ...props,
+        isMenuOpen
+    }
+
     return (
-        <div
-            ref={menuRef}
-            className="top-menu"
-            onClick={toggleOpen}
-        >
-            <img src={WhiteRook} width={32} height={32} />
-            <div className="">
-                Wisdom Chess
+            <div className="top-menu-container">
+                <div
+                    className="top-menu"
+                >
+                    <LogoAndBrand isMobile={false} />
+                    <LogoAndBrand isMobile={true} toggleOpen={toggleOpen} menuRef={menuRef} />
+                    <Menu { ...listMenuProps } />
+                </div>
             </div>
-            <img src={DownArrow} width={12} height={12}/>
-            {(isMenuOpen) ? <Menu {... props} /> : null}
-        </div>
     )
 }
 

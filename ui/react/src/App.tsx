@@ -107,6 +107,8 @@ function App() {
         actions.pieceClick(dst)
     }
 
+    const showModalOverlay = showSettings || showAbout || showNewGame
+
     return (
         <div className="App">
             <TopMenu
@@ -156,7 +158,7 @@ function App() {
                             View the source
                         </a>
                     </p>
-                    <button onClick={() => setShowAbout(false)}>OK</button>
+                    <button className="btn-highlight" onClick={() => setShowAbout(false)}>OK</button>
                 </Modal>
             }
             {showSettings &&
@@ -188,6 +190,7 @@ function App() {
                     <p>There has been fifty moves without a pawn move or a piece taken. Either player can declare a draw now.</p>
                 </DrawDialog>
             }
+            {showModalOverlay && <div className="modal-overlay"></div>}
         </div>
     );
 }
