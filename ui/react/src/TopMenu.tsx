@@ -1,6 +1,7 @@
 import React, { Ref, useEffect, useRef, useState } from 'react'
 import WhiteRook from "./assets/Chess_rlt45.svg";
 import DownArrow from "./assets/bxs-down-arrow.svg";
+import "./TopMenu.css"
 
 interface TopMenuProps {
     aboutClicked: (event: React.SyntheticEvent) => void;
@@ -11,9 +12,9 @@ interface TopMenuProps {
 function Menu(props: TopMenuProps): JSX.Element {
     return (
         <ul className="menu">
-            <li onClick={props.newGameClicked}>New Game</li>
-            <li onClick={props.settingsClicked}>Settings</li>
-            <li onClick={props.aboutClicked}>About</li>
+            <li><a onClick={props.newGameClicked}>New Game</a></li>
+            <li><a onClick={props.settingsClicked}>Settings</a></li>
+            <li><a onClick={props.aboutClicked}>About</a></li>
         </ul>
     );
 }
@@ -40,18 +41,27 @@ function TopMenu(props: TopMenuProps) {
     }, [isMenuOpen])
 
     return (
-        <div
-            ref={menuRef}
-            className="top-menu"
-            onClick={toggleOpen}
-        >
-            <img src={WhiteRook} width={32} height={32} />
-            <div className="">
-                Wisdom Chess
+            <div className="top-menu-container">
+                <div
+                    className="top-menu"
+                    ref={menuRef}
+                    onClick={toggleOpen}
+                >
+                    <div className="wisdom-chess-logo">
+                        <img src={WhiteRook} width={32} height={32} />
+                        <div>
+                            Wisdom Chess
+                        </div>
+                        <img
+                            className="menu-arrow"
+                            src={DownArrow}
+                            width={12}
+                            height={12}
+                        />
+                    </div>
+                    <Menu {...props } />
+                </div>
             </div>
-            <img src={DownArrow} width={12} height={12}/>
-            {(isMenuOpen) ? <Menu {... props} /> : null}
-        </div>
     )
 }
 

@@ -22,6 +22,7 @@
   --menu-highlight: #747bff;
   --slider-color: #88b1f2;
   --item-spacing: 1rem;
+  --full-board-width: calc(var(--square-size) * 8 + var(--border-size) * 2);
 }
 
 body {
