@@ -9,16 +9,19 @@ interface TopMenuProps {
     settingsClicked?: (event: React.SyntheticEvent) => void;
 }
 
-function Menu(props: TopMenuProps): JSX.Element {
+interface ListMenuProps extends TopMenuProps {
+    isMenuOpen: boolean
+}
+
+function Menu(props: ListMenuProps): JSX.Element {
     return (
-        <ul className="menu">
+        <ul className={`menu ${props.isMenuOpen ? 'is-open' : ''}`}>
             <li><a onClick={props.newGameClicked}>New Game</a></li>
             <li><a onClick={props.settingsClicked}>Settings</a></li>
             <li><a onClick={props.aboutClicked}>About</a></li>
         </ul>
     );
 }
-
 
 function TopMenu(props: TopMenuProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,6 +43,11 @@ function TopMenu(props: TopMenuProps) {
         return () => document.removeEventListener('click', listener)
     }, [isMenuOpen])
 
+    const listMenuProps = {
+        ...props,
+        isMenuOpen
+    }
+
     return (
             <div className="top-menu-container">
                 <div
@@ -59,7 +67,7 @@ function TopMenu(props: TopMenuProps) {
                             height={12}
                         />
                     </div>
-                    <Menu {...props } />
+                    <Menu { ...listMenuProps } />
                 </div>
             </div>
     )
