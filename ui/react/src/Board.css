@@ -4,6 +4,7 @@ body {
 
 .board {
     display: grid;
+    box-sizing: content-box;
     grid-template-columns: repeat(8, var(--square-size));
     grid-template-rows: repeat(8, var(--square-size));
     border: var(--border-size) solid #ddd;

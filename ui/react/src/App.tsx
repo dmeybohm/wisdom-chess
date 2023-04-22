@@ -156,7 +156,7 @@ function App() {
                             View the source
                         </a>
                     </p>
-                    <button onClick={() => setShowAbout(false)}>OK</button>
+                    <button className="btn-highlight" onClick={() => setShowAbout(false)}>OK</button>
                 </Modal>
             }
             {showSettings &&

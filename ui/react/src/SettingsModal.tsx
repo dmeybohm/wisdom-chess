@@ -127,7 +127,7 @@ export function SettingsModal(props: SettingsModalProps) {
                 </div>
 
                 <div className="buttons grid-columns-1-3">
-                    <button onClick={handleApply}>Apply</button>
+                    <button className="btn-highlight" onClick={handleApply}>Apply</button>
                     <button onClick={props.onDismiss}>Cancel</button>
                 </div>
             </form>

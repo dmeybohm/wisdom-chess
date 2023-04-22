@@ -13,6 +13,34 @@ interface ListMenuProps extends TopMenuProps {
     isMenuOpen: boolean
 }
 
+type LogoAndBrandProps = {
+    isMobile: boolean
+    toggleOpen?: (e: React.SyntheticEvent) => void
+    menuRef?: Ref<HTMLDivElement>
+}
+
+function LogoAndBrand(props: LogoAndBrandProps) {
+    return (
+        <div
+            ref={props.menuRef}
+            onClick={props.toggleOpen}
+            className={`wisdom-chess-logo ${props.isMobile ? 'is-mobile' : 'is-desktop'}`}>
+            <img src={WhiteRook} width={32} height={32} />
+            <div>
+                Wisdom Chess
+            </div>
+            {props.isMobile &&
+                <img
+                    className="menu-arrow"
+                    src={DownArrow}
+                    width={12}
+                    height={12}
+                />
+            }
+        </div>
+    )
+}
+
 function Menu(props: ListMenuProps): JSX.Element {
     return (
         <ul className={`menu ${props.isMenuOpen ? 'is-open' : ''}`}>
@@ -52,21 +80,9 @@ function TopMenu(props: TopMenuProps) {
             <div className="top-menu-container">
                 <div
                     className="top-menu"
-                    ref={menuRef}
-                    onClick={toggleOpen}
                 >
-                    <div className="wisdom-chess-logo">
-                        <img src={WhiteRook} width={32} height={32} />
-                        <div>
-                            Wisdom Chess
-                        </div>
-                        <img
-                            className="menu-arrow"
-                            src={DownArrow}
-                            width={12}
-                            height={12}
-                        />
-                    </div>
+                    <LogoAndBrand isMobile={false} />
+                    <LogoAndBrand isMobile={true} toggleOpen={toggleOpen} menuRef={menuRef} />
                     <Menu { ...listMenuProps } />
                 </div>
             </div>
