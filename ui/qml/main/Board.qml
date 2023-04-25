@@ -56,7 +56,7 @@ Item {
                 boardColumn: model.index % 8
                 bgColor: {
                     (model.index % 2 + boardRow % 2) % 2 == 0
-                            ? "#fff3f3f3" : "green"
+                            ? "#fff3f3f3" : "#FF5F9EA0"
                 }
             }
         }

@@ -5,7 +5,7 @@ namespace wisdom
 {
     Material::Material (const wisdom::Board& board)
     {
-        for (auto&& coord : board.all_coords ())
+        for (auto&& coord : Board::all_coords ())
         {
             auto piece = board.piece_at (coord);
             if (piece != Piece_And_Color_None)
