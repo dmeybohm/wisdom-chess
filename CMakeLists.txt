@@ -25,7 +25,7 @@ if (QTDIR)
     message("-- wisdom-chess: QTDIR added to CMAKE_PREFIX_PATH")
 endif()
 
-find_package(Qt6 6.4 QUIET COMPONENTS Quick)
+find_package(Qt6 QUIET COMPONENTS Quick)
 
 if (WISDOM_CHESS_ASAN)
     message("-- wisdom-chess: Enabling address sanitizer")

@@ -16,28 +16,6 @@ namespace wisdom
 
     class Board
     {
-    private:
-        // The representation of the board.
-        array<ColoredPiece, Num_Squares> my_squares;
-
-        // positions of the kings.
-        array<Coord, Num_Players> my_king_pos;
-
-        // Keep track of hashing information.
-        BoardCode my_code;
-
-        // Keep track of the material on the board.
-        Material my_material;
-
-        // Keep track of the positions on the board.
-        Position my_position;
-
-        // Number of half moves since pawn or capture.
-        int my_half_move_clock = 0;
-
-        // Number of full moves, updated after black moves.
-        int my_full_move_clock = 1;
-
     public:
         Board ();
 
@@ -207,7 +185,7 @@ namespace wisdom
                 my_full_move_clock++;
         }
 
-        [[nodiscard]] auto all_coords () const -> CoordIterator
+        [[nodiscard]] static auto all_coords () -> CoordIterator
         {
             return CoordIterator {};
         }
@@ -228,6 +206,37 @@ namespace wisdom
 
     private:
         void make_move (Color who, Move move);
+        auto apply_for_en_passant (Color who, Coord src, Coord dst) -> ColoredPiece;
+        auto get_castling_rook_move (Move move, Color who) -> Move;
+        void apply_for_castling_move (Color who, Move king_move,
+                                      [[maybe_unused]] Coord src, [[maybe_unused]] Coord dst);
+        void apply_for_king_move (Color who, [[maybe_unused]] Coord src, Coord dst);
+        void apply_for_rook_capture (Color opponent, ColoredPiece dst_piece, Coord src, Coord dst);
+        void apply_for_rook_move (Color player, ColoredPiece src_piece,
+                                  Move move, Coord src, Coord dst);
+        void update_en_passant_eligibility (Color who, ColoredPiece src_piece, Move move);
+
+    private:
+        // The representation of the board.
+        array<ColoredPiece, Num_Squares> my_squares;
+
+        // positions of the kings.
+        array<Coord, Num_Players> my_king_pos;
+
+        // Keep track of hashing information.
+        BoardCode my_code;
+
+        // Keep track of the material on the board.
+        Material my_material;
+
+        // Keep track of the positions on the board.
+        Position my_position;
+
+        // Number of half moves since pawn or capture.
+        int my_half_move_clock = 0;
+
+        // Number of full moves, updated after black moves.
+        int my_full_move_clock = 1;
     };
 
     constexpr auto coord_color (Coord coord) -> Color

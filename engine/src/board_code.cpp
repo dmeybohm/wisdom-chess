@@ -9,7 +9,7 @@ namespace wisdom
 {
     BoardCode::BoardCode (const Board& board)
     {
-        for (auto coord : board.all_coords ())
+        for (auto coord : Board::all_coords ())
         {
             ColoredPiece piece = board.piece_at (coord);
             this->add_piece (coord, piece);
