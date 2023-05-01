@@ -6,25 +6,14 @@
 
 ----
 
-Wisdom Chess is a simple multiplatform chess engine written in C++.
+Wisdom Chess is a simple multiplatform chess engine written in C++ with a React web front-end and a Qt
+mobile and desktop front-end.
 
-Currently supported are Windows, macOS, and Android. 
+View the web version at https://wisdom-chess.netlify.app
 
-An experimental Web Assembly port also 
-exists <a href="https://wisdom-chess.netlify.app/" target="_blank">here</a>, although 
-it does have a few issues currently such as [Issue #8](https://github.com/dmeybohm/wisdom-chess/issues/8) and 
-[Issue #9](https://github.com/dmeybohm/wisdom-chess/issues/9).
+## Building desktop version
 
-## Installing
-
-There are no binaries as of yet other than the web assembly link above,
-so if you want to use this on your system you'll have to compile from
-source currently.
-
-## Building
-
-For the UI, `wisdom-chess` uses [Qt](https://www.qt.io/), so you'll have to be able to 
-build packages to link against Qt.
+For the UI, `wisdom-chess` uses [Qt](https://www.qt.io/), specifically Qt version 6.
 
 You can either use [CMake](https://cmake.org/) or Qt Creator (provided by Qt) in order 
 to build. Optionally, you can use the [Conan package manager](https://conan.io/) 
@@ -75,8 +64,8 @@ There are two different interfaces generated: a command line interactive
 interface and a Qt interface. If your CMake doesn't find Qt, or you
 don't provide the `QTDIR` variable to it, then only the command line
 interface will be built. It's located in an executable called `chess`.
-The Qt interface is in an application titled `appWisdomChessQtQml.exe` or
-`appWisdomQtQml.app`. The command-line interface is meant more
+The Qt interface is in an application titled `WisdomChessQml.exe`
+`WisdomQtQml.app`. The command-line interface is called `wisdom-chess-console`
 for debugging, and doesn't have a help command yet.
 
 You can configure things by clicking on the hamburger menu in the
