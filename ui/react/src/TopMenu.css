@@ -35,6 +35,10 @@
     display: none;
 }
 
+.top-menu a:hover {
+    text-decoration: underline;
+}
+
 .menu {
     list-style: none;
     display: flex;
@@ -55,7 +59,8 @@
     color: var(--default-text-color);
 }
 
-@media screen and (max-width: 720px) {
+@media (max-width: 720px), (max-height: 720px)
+{
     .top-menu {
         position: initial;
         justify-content: center;
@@ -117,6 +122,9 @@
     .top-menu .menu-arrow {
         display: inline;
     }
-}
 
+    .top-menu a:hover {
+        text-decoration: none;
+    }
+}
 
