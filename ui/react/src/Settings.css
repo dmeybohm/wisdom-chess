@@ -4,6 +4,7 @@
     row-gap: .4rem;
     width: 80%;
     margin: auto;
+    align-items: center;
 }
 
 .settings > *:nth-child(even) {
