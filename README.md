@@ -11,6 +11,49 @@ mobile and desktop front-end.
 
 View the web version at https://wisdom-chess.netlify.app
 
+## Building the web version
+
+To build the web version, you'll first need to compile the C++ library with [Emscripten](https://emscripten.org/). 
+You also need to compile some dependencies using the [conan](https://conan.io/) package manager. 
+
+### Setting up Emscripten
+
+See [emscripten's website](https://emscripten.org/) for how to install emscripten.
+
+### Setting up Conan
+
+See [conan's website](https://conan.io/) for how to install conan.
+
+After installing, you can follow these instructions to link conan with Emscripten: 
+https://docs.conan.io/en/1.53/integrations/cross_platform/emscripten.html
+
+Conan version 1 has been tested successfully - Conan 2 may not work yet.
+
+### Building the C++ library for emscripten
+
+First, activate the emscripten environment. Then build with the emscripten compiler:
+
+```bash
+$ mkdir build
+$ cd build
+# Install packages needed to build
+$ conan install .. -pr:b=emscripten -s build_type=Release # specify build profile
+$ emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
+$ cmake --build . -j 8
+```
+
+If you want a debug version instead of a release version replace "Release" with "Debug".
+
+### Building the web front-end
+
+To build the web front-end, use (yarn)[https://yarnpkg.com/]
+
+```bash 
+cd ui/react
+yarn install
+yarn dev
+```
+
 ## Building desktop version
 
 For the UI, `wisdom-chess` uses [Qt](https://www.qt.io/), specifically Qt version 6.
