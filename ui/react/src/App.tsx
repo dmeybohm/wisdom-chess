@@ -12,6 +12,7 @@ import {
 import { useGame } from "./lib/useGame";
 import { SettingsModal } from "./SettingsModal";
 import { DrawDialog } from "./DrawDialog";
+import { AboutModal } from "./AboutModal";
 
 export let wisdomChess : any = undefined
 
@@ -149,17 +150,7 @@ function App() {
                 </Modal>
             }
             {showAbout &&
-                <Modal>
-                    <h1>About Wisdom Chess</h1>
-                    <p>
-                        <a
-                            target="_blank"
-                            href="https://github.com/dmeybohm/wisdom-chess">
-                            View the source
-                        </a>
-                    </p>
-                    <button className="btn-highlight" onClick={() => setShowAbout(false)}>OK</button>
-                </Modal>
+                <AboutModal onClick={() => setShowAbout(false) }/>
             }
             {showSettings &&
                 <SettingsModal
