@@ -44,22 +44,10 @@ namespace wisdom
 
     class History
     {
-    private:
-        MoveList my_move_history;
-
-        // Board codes and undo positions sorted by move number:
-        vector<BoardCode> my_board_codes;
-        vector<observer_ptr<Board>> my_previous_boards {};
-
-        DrawStatus my_threefold_repetition_status = DrawStatus::NotReached;
-        DrawStatus my_fifty_moves_without_progress_status
-            = DrawStatus::NotReached;
-
     public:
         History()
             : my_move_history { MoveList::uncached() }
         {
-            my_board_codes.reserve (64);
             my_previous_boards.reserve (64);
         }
 
@@ -88,29 +76,26 @@ namespace wisdom
         [[nodiscard]] bool is_nth_repetition (const Board& board, int repetition_count) const
         {
             auto& find_code = board.get_code ();
-            auto repetitions = std::count_if (my_board_codes.begin (), my_board_codes.end (),
-                    [find_code](const BoardCode& code){
-                        return (code == find_code);
+            auto repetitions = std::count_if (my_previous_boards.begin (), my_previous_boards.end (),
+                    [find_code](const observer_ptr<Board> board){
+                        return (board->get_board_code() == find_code);
                     });
             return repetitions >= repetition_count;
         }
 
         void add_position_and_move (observer_ptr<Board> board, Move move)
         {
-            my_board_codes.emplace_back (board->get_code());
             my_previous_boards.emplace_back (board);
             my_move_history.push_back (move);
         }
 
         void add_position (observer_ptr<Board> board)
         {
-            my_board_codes.emplace_back (board->get_code());
             my_previous_boards.emplace_back (board);
         }
 
         void remove_last_position ()
         {
-            my_board_codes.pop_back ();
             my_previous_boards.pop_back ();
             my_move_history.pop_back ();
         }
@@ -144,6 +129,14 @@ namespace wisdom
 
         friend auto operator<< (std::ostream& os, const History& code)
             -> std::ostream&;
+
+    private:
+        MoveList my_move_history;
+        vector<observer_ptr<Board>> my_previous_boards {};
+
+        DrawStatus my_threefold_repetition_status = DrawStatus::NotReached;
+        DrawStatus my_fifty_moves_without_progress_status
+            = DrawStatus::NotReached;
     };
 }
 

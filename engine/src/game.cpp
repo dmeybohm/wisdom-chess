@@ -59,7 +59,8 @@ namespace wisdom
     void Game::move (Move move)
     {
         my_current_board = my_current_board.with_move (get_current_turn(), move);
-        add_current_board_to_history();
+        my_previous_boards.push_back (make_unique<Board> (my_current_board));
+        my_history->add_position_and_move (my_previous_boards.back().get(), move);
     }
 
     void Game::add_current_board_to_history ()
