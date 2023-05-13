@@ -17,8 +17,8 @@ namespace wisdom
     auto operator<< (std::ostream& os, const History& history) -> std::ostream&
     {
         int move_number = 1;
-        for (auto* board : history.my_previous_boards)
-            os << "Move " << move_number++ << ": " << board->get_board_code() << "\n";
+        for (const auto& code : history.my_board_codes)
+            os << "Move " << move_number++ << ": " << code << "\n";
         return os;
     }
 }

@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <deque>
 #include <iterator>
 #include <stdexcept>
 #include <array>

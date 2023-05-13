@@ -53,20 +53,12 @@ namespace wisdom
         : my_current_board { builder }
         , my_players { players }
     {
-        add_current_board_to_history();
+        my_history = make_unique<History> (History::from_initial_board (my_current_board));
     }
 
     void Game::move (Move move)
     {
-        my_current_board = my_current_board.with_move (get_current_turn(), move);
-        my_previous_boards.push_back (make_unique<Board> (my_current_board));
-        my_history->add_position_and_move (my_previous_boards.back().get(), move);
-    }
-
-    void Game::add_current_board_to_history ()
-    {
-        my_previous_boards.push_back (make_unique<Board> (my_current_board));
-        my_history->add_position (my_previous_boards.back().get());
+        my_history->store_position (my_current_board, move);
     }
 
     void Game::save (const string& input) const

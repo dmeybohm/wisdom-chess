@@ -112,7 +112,7 @@ namespace wisdom
 
             my_nodes_visited++;
 
-            my_history->add_position_and_move (&child_board, move);
+            my_history->add_tentative_position (child_board);
 
             if (depth <= 0)
             {
@@ -151,7 +151,7 @@ namespace wisdom
             if (best_score > alpha)
                 alpha = best_score;
 
-            my_history->remove_last_position ();
+            my_history->remove_last_tentative_position();
 
             if (my_timed_out)
                 return;

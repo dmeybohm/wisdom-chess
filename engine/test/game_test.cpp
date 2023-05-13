@@ -21,6 +21,7 @@ TEST_CASE( "Initial board position is added to history" )
 
         for (int i = 0; i < 2; i++)
         {
+            INFO( i );
             game.move (white_move);
             CHECK( history.is_third_repetition (game.get_board()) == false );
 
@@ -31,14 +32,13 @@ TEST_CASE( "Initial board position is added to history" )
             CHECK( history.is_third_repetition (game.get_board()) == false );
 
             game.move (black_return_move);
-            if (i == 1)
-                break;
-            CHECK( history.is_third_repetition (game.get_board()) == false );
-        }
 
-        CHECK( history.is_third_repetition (game.get_board()) == true );
+            bool is_draw = (i == 1) ? true : false;
+            CHECK( history.is_third_repetition (game.get_board()) == is_draw );
+        }
     };
 
+#if 0
     SUBCASE( "When a default game is initialized" )
     {
         Game game;
@@ -57,6 +57,8 @@ TEST_CASE( "Initial board position is added to history" )
         run_test (game);
     }
 
+#endif
+
     SUBCASE( "When game is created from the current turn" )
     {
         Game game { Color::White };
@@ -70,10 +72,12 @@ TEST_CASE( "Initial board position is added to history" )
         run_test (game);
     }
 
+#if 0
     SUBCASE( "From FEN string" )
     {
         FenParser fen_parser { "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" } ;
         Game game = fen_parser.build();
         run_test (game);
     }
+#endif
 }

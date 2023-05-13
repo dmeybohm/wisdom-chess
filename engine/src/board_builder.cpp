@@ -8,17 +8,8 @@ namespace wisdom
 {
     auto BoardBuilder::from_default_position () -> BoardBuilder
     {
-        array<Piece, Num_Columns> back_rank = {
-                Piece::Rook, Piece::Knight, Piece::Bishop, Piece::Queen, Piece::King,
-                Piece::Bishop, Piece::Knight, Piece::Rook,
-        };
-
-        array<Piece, Num_Columns> pawns = {
-                Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::Pawn, Piece::Pawn,
-                Piece::Pawn, Piece::Pawn, Piece::Pawn,
-        };
-
         auto result = BoardBuilder {};
+
         result.add_row_of_same_color (0, Color::Black, Default_Piece_Row);
         result.add_row_of_same_color_and_piece (1, Color::Black, Piece::Pawn);
         result.add_row_of_same_color_and_piece (6, Color::White, Piece::Pawn);
