@@ -38,7 +38,6 @@ TEST_CASE( "Initial board position is added to history" )
         }
     };
 
-#if 0
     SUBCASE( "When a default game is initialized" )
     {
         Game game;
@@ -57,8 +56,6 @@ TEST_CASE( "Initial board position is added to history" )
         run_test (game);
     }
 
-#endif
-
     SUBCASE( "When game is created from the current turn" )
     {
         Game game { Color::White };
@@ -72,12 +69,10 @@ TEST_CASE( "Initial board position is added to history" )
         run_test (game);
     }
 
-#if 0
     SUBCASE( "From FEN string" )
     {
         FenParser fen_parser { "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" } ;
         Game game = fen_parser.build();
         run_test (game);
     }
-#endif
 }

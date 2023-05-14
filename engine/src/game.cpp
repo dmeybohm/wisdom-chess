@@ -38,9 +38,12 @@ namespace wisdom
     }
 
     Game::Game (Color current_turn)
-        : Game { BoardBuilder::from_default_position(), { Player::Human, Player::ChessEngine } }
+        : Game {
+                BoardBuilder::from_default_position(),
+                { Player::Human, Player::ChessEngine },
+                current_turn
+        }
     {
-        set_current_turn (current_turn);
     }
 
     Game::Game (const BoardBuilder& builder)
@@ -48,16 +51,24 @@ namespace wisdom
     {
     }
 
-    // All other constructors must call this one:
     Game::Game (const BoardBuilder& builder, const Players& players)
+        : Game { builder, players, builder.get_current_turn() }
+    {
+
+    }
+
+    // All other constructors must call this one:
+    Game::Game (const BoardBuilder& builder, const Players& players, Color current_turn)
         : my_current_board { builder }
         , my_players { players }
     {
+        set_current_turn (current_turn);
         my_history = make_unique<History> (History::from_initial_board (my_current_board));
     }
 
     void Game::move (Move move)
     {
+        my_current_board = my_current_board.with_move (get_current_turn(), move);
         my_history->store_position (my_current_board, move);
     }
 

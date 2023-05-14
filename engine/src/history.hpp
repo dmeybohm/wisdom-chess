@@ -54,7 +54,6 @@ namespace wisdom
         static auto from_initial_board (const Board& board)
         {
             auto result = History {};
-            std::cout << "adding initial board" << '\n';
             result.my_board_codes.emplace_back (board.get_board_code());
             result.my_stored_boards.emplace_back (board);
             return result;
@@ -89,8 +88,6 @@ namespace wisdom
                     [find_code](const BoardCode& code){
                         return (code == find_code);
                     });
-            std::cout << "repetition count: " << repetition_count << " repetitions: " << repetitions << "\n";
-            std::cout << "board_codes.size: " << my_board_codes.size() << " board_codes.capacity: " << my_board_codes.capacity() << "\n";
             return repetitions >= repetition_count;
         }
 

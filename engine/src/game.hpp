@@ -38,8 +38,10 @@ namespace wisdom
 
         explicit Game (const BoardBuilder& builder);
 
-        // All other constructors must call this one:
         explicit Game (const BoardBuilder& builder, const Players& players);
+
+        // All other constructors must call this one:
+        explicit Game (const BoardBuilder& builder, const Players& players, Color current_turn);
 
         // Delete copy
         Game (const Game& other) = delete;
