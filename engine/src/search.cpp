@@ -14,31 +14,11 @@ namespace wisdom
 
     class IterativeSearchImpl
     {
-    private:
-        Board my_original_board;
-        observer_ptr<History> my_history;
-        not_null<observer_ptr<const Logger>> my_output;
-        MoveGenerator my_generator {};
-        MoveTimer my_timer;
-        int my_total_depth;
-        int my_search_depth {};
-
-        optional<Move> my_best_move = nullopt;
-        int my_best_depth = -1;
-        int my_best_score = -1;
-        bool my_timed_out = false;
-
-        int my_nodes_visited = 0;
-        int my_alpha_beta_cutoffs = 0;
-        int my_total_nodes_visited = 0;
-        int my_total_alpha_beta_cutoffs = 0;
-        Color my_searching_color = Color::None;
-
     public:
-        IterativeSearchImpl (const Board& board, History& history, const Logger& output,
+        IterativeSearchImpl (const Board& board, const History& history, const Logger& output,
                              MoveTimer timer, int total_depth) :
                 my_original_board { Board { board } },
-                my_history { &history },
+                my_history { History { history } },
                 my_output { &output },
                 my_timer { std::move (timer) },
                 my_total_depth { total_depth }
@@ -57,11 +37,34 @@ namespace wisdom
         {
             return &my_timer;
         }
+
+    private:
+        Board my_original_board;
+        History my_history;
+        not_null<observer_ptr<const Logger>> my_output;
+        MoveGenerator my_generator {};
+        MoveTimer my_timer;
+        int my_total_depth;
+        int my_search_depth {};
+
+        optional<Move> my_best_move = nullopt;
+        int my_best_depth = -1;
+        int my_best_score = -1;
+        bool my_timed_out = false;
+
+        int my_nodes_visited = 0;
+        int my_alpha_beta_cutoffs = 0;
+        int my_total_nodes_visited = 0;
+        int my_total_alpha_beta_cutoffs = 0;
+        Color my_searching_color = Color::None;
     };
 
     IterativeSearch::~IterativeSearch() = default;
-    IterativeSearch::IterativeSearch (const Board& board, History& history, const Logger& output,
-                                      MoveTimer timer, int total_depth)
+    IterativeSearch::IterativeSearch (const Board& board,
+                                      const History& history,
+                                      const Logger& output,
+                                      MoveTimer timer,
+                                      int total_depth)
             : impl { make_unique<IterativeSearchImpl> (
                 Board { board }, history, output, std::move (timer), total_depth) }
     {
@@ -112,11 +115,11 @@ namespace wisdom
 
             my_nodes_visited++;
 
-            my_history->add_position_and_move (&child_board, move);
+            my_history.add_tentative_position (child_board);
 
             if (depth <= 0)
             {
-                if (is_drawing_move (child_board, side, move, *my_history))
+                if (is_drawing_move (child_board, side, move, my_history))
                 {
                     my_best_score = drawing_score (my_searching_color, side);
                 }
@@ -129,7 +132,7 @@ namespace wisdom
             else
             {
                 // Don't recurse into a big search if this move is a draw.
-                if (my_search_depth == depth && is_drawing_move (child_board, side, move, *my_history))
+                if (my_search_depth == depth && is_drawing_move (child_board, side, move, my_history))
                 {
                     my_best_score = drawing_score (my_searching_color, side);
                 }
@@ -151,7 +154,7 @@ namespace wisdom
             if (best_score > alpha)
                 alpha = best_score;
 
-            my_history->remove_last_position ();
+            my_history.remove_last_tentative_position();
 
             if (my_timed_out)
                 return;
@@ -223,9 +226,6 @@ namespace wisdom
             std::cerr << "Uncaught error: " << e.message () << "\n";
             std::cerr << e.extra_info () << "\n";
             my_original_board.dump ();
-
-            std::cerr << "History leading up to move: " << "\n";
-            std::cerr << my_history->get_move_history ().to_string () << "\n";
             std::terminate ();
         }
     }

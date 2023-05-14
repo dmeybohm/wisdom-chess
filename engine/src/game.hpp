@@ -38,8 +38,10 @@ namespace wisdom
 
         explicit Game (const BoardBuilder& builder);
 
-        // All other constructors must call this one:
         explicit Game (const BoardBuilder& builder, const Players& players);
+
+        // All other constructors must call this one:
+        explicit Game (const BoardBuilder& builder, const Players& players, Color current_turn);
 
         // Delete copy
         Game (const Game& other) = delete;
@@ -58,32 +60,32 @@ namespace wisdom
 
         void move (Move move);
 
-        [[nodiscard]] auto get_current_turn () const -> Color;
+        [[nodiscard]] auto get_current_turn() const -> Color;
 
-        void set_current_turn (Color);
+        void set_current_turn (Color new_turn);
 
-        [[nodiscard]] auto get_board () const& -> const Board&;
-        [[nodiscard]] auto get_board () const&& -> Board& = delete;
+        [[nodiscard]] auto get_board() const& -> const Board&;
+        [[nodiscard]] auto get_board() const&& -> Board& = delete;
 
-        [[nodiscard]] auto get_history () const& -> History&;
-        [[nodiscard]] auto get_history () const&& -> History& = delete;
+        [[nodiscard]] auto get_history() & -> History&;
+        [[nodiscard]] auto get_history() && -> History& = delete;
 
-        [[nodiscard]] auto get_move_generator () const& -> not_null<MoveGenerator*>;
-        [[nodiscard]] auto get_move_generator () const&& -> not_null<MoveGenerator*> = delete;
+        [[nodiscard]] auto get_move_generator() const& -> MoveGenerator&;
+        [[nodiscard]] auto get_move_generator() const&& -> MoveGenerator& = delete;
 
-        [[nodiscard]] auto get_current_player () const -> Player
+        [[nodiscard]] auto get_current_player() const -> Player
         {
-            return get_player (my_current_board.get_current_turn ());
+            return get_player (my_current_board.get_current_turn());
         }
 
         void set_white_player (Player player)
         {
-            my_players[color_index(Color::White)] = player;
+            my_players[color_index (Color::White)] = player;
         }
 
         void set_black_player (Player player)
         {
-            my_players[color_index(Color::Black)] = player;
+            my_players[color_index (Color::Black)] = player;
         }
 
         [[nodiscard]] auto get_player (Color color) const -> Player
@@ -97,12 +99,12 @@ namespace wisdom
             my_players = players;
         }
 
-        [[nodiscard]] auto get_players () const -> Players
+        [[nodiscard]] auto get_players() const -> Players
         {
             return my_players;
         }
 
-        [[nodiscard]] auto get_max_depth () const -> int
+        [[nodiscard]] auto get_max_depth() const -> int
         {
             return my_max_depth;
         }
@@ -112,7 +114,7 @@ namespace wisdom
             my_max_depth = max_depth;
         }
 
-        [[nodiscard]] auto get_search_timeout () const -> std::chrono::seconds
+        [[nodiscard]] auto get_search_timeout() const -> std::chrono::seconds
         {
             return my_search_timeout;
         }
@@ -134,7 +136,7 @@ namespace wisdom
             my_periodic_function = periodic_function;
         }
 
-        [[nodiscard]] auto status () const -> GameStatus;
+        [[nodiscard]] auto status() const -> GameStatus;
 
         [[nodiscard]] auto computer_wants_draw (Color who) const -> bool;
 
@@ -149,10 +151,9 @@ namespace wisdom
 
     private:
         Board my_current_board {};
-        unique_ptr<MoveGenerator> my_move_generator = make_unique<MoveGenerator> ();
-        unique_ptr<History> my_history = make_unique<History> ();
+        mutable MoveGenerator my_move_generator {};
+        History my_history;
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};
-        vector<unique_ptr<Board>> my_previous_boards {};
         int my_max_depth { Default_Max_Depth };
 
         Players my_players = { Player::Human, Player::ChessEngine };
@@ -167,9 +168,8 @@ namespace wisdom
             DrawStatus::NotReached
         };
 
-        void update_threefold_repetition_draw_status ();
-        void update_fifty_moves_without_progress_draw_status ();
-        void add_current_board_to_history ();
+        void update_threefold_repetition_draw_status();
+        void update_fifty_moves_without_progress_draw_status();
     };
 }
 

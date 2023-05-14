@@ -21,6 +21,7 @@ TEST_CASE( "Initial board position is added to history" )
 
         for (int i = 0; i < 2; i++)
         {
+            INFO( i );
             game.move (white_move);
             CHECK( history.is_third_repetition (game.get_board()) == false );
 
@@ -31,12 +32,10 @@ TEST_CASE( "Initial board position is added to history" )
             CHECK( history.is_third_repetition (game.get_board()) == false );
 
             game.move (black_return_move);
-            if (i == 1)
-                break;
-            CHECK( history.is_third_repetition (game.get_board()) == false );
-        }
 
-        CHECK( history.is_third_repetition (game.get_board()) == true );
+            bool is_draw = (i == 1) ? true : false;
+            CHECK( history.is_third_repetition (game.get_board()) == is_draw );
+        }
     };
 
     SUBCASE( "When a default game is initialized" )

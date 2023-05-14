@@ -12,19 +12,19 @@ namespace wisdom
         int piece_row;
         int piece_col;
         const Color who;
-        MoveGenerator& generator;
+        const MoveGenerator& generator;
 
         void generate (ColoredPiece piece, Coord coord);
 
         [[nodiscard]] auto compare_moves (const Move& a, const Move& b) const -> bool;
 
-        void none ();
-        void pawn ();
-        void knight ();
-        void bishop ();
-        void rook ();
-        void queen ();
-        void king ();
+        void none();
+        void pawn();
+        void knight();
+        void bishop();
+        void rook();
+        void queen();
+        void king();
 
         void en_passant (int en_passant_column);
 
@@ -44,7 +44,7 @@ namespace wisdom
         }
     }
 
-    void MoveGenerator::knight_move_list_init ()
+    void MoveGenerator::knight_move_list_init () const
     {
         for (auto coord : CoordIterator {})
         {
@@ -77,7 +77,7 @@ namespace wisdom
         }
     }
 
-    auto MoveGenerator::generate_knight_moves (int row, int col) -> const MoveList&
+    auto MoveGenerator::generate_knight_moves (int row, int col) const -> const MoveList&
     {
         auto index = coord_index (row, col);
 
@@ -397,7 +397,7 @@ namespace wisdom
         append_move (new_move);
     }
 
-    auto MoveGenerator::generate_legal_moves (const Board& board, Color who) -> MoveList
+    auto MoveGenerator::generate_legal_moves (const Board& board, Color who) const -> MoveList
     {
         MoveList non_checks { my_move_list_allocator.get () };
 
@@ -421,25 +421,25 @@ namespace wisdom
         switch (piece_type (piece))
         {
             case Piece::None:
-                none ();
+                none();
                 return;
             case Piece::Pawn:
-                pawn ();
+                pawn();
                 return;
             case Piece::Knight:
-                knight ();
+                knight();
                 return;
             case Piece::Bishop:
-                bishop ();
+                bishop();
                 return;
             case Piece::Rook:
-                rook ();
+                rook();
                 return;
             case Piece::Queen:
-                queen ();
+                queen();
                 return;
             case Piece::King:
-                king ();
+                king();
                 return;
         }
     }
@@ -522,13 +522,13 @@ namespace wisdom
             return promoting_or_coord_compare (a, b);
     }
 
-    auto MoveGenerator::generate_all_potential_moves (const Board& board, Color who)
+    auto MoveGenerator::generate_all_potential_moves (const Board& board, Color who) const
         -> MoveList
     {
         MoveList result { my_move_list_allocator.get () };
         MoveGeneration generation { board, result, 0, 0, who, *this };
 
-        for (auto coord : board.all_coords ())
+        for (auto coord : Board::all_coords())
         {
             ColoredPiece piece = board.piece_at (coord);
 
