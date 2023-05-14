@@ -244,24 +244,24 @@ TEST_CASE( "Advanced pawn should be captured" )
 TEST_CASE( "Checkmate is preferred to stalemate" )
 {
     FenParser fen { "6k1/1p3pp1/p1p4p/3r4/8/2K5/b2r4/8 b - - 0 1" };
-    auto game = fen.build ();
+    auto game = fen.build();
 
     SearchHelper helper;
     auto search = helper.build (game.get_board (), 5, 10);
 
     auto result = search.iteratively_deepen (Color::Black);
 
-    REQUIRE( result.move.has_value ());
+    REQUIRE( result.move.has_value());
 
     game.move (*result.move);
-    auto is_stalemate = is_stalemated (game.get_board (), Color::White, *game.get_move_generator ());
+    auto is_stalemate = is_stalemated (game.get_board(), Color::White, game.get_move_generator());
     CHECK( !is_stalemate );
 }
 
 TEST_CASE( "Can avoid stalemate" )
 {
     FenParser fen { "6k1/1pp2pp1/7p/Pb6/3r4/5K2/8/6q1 w - - 0 1" };
-    auto game = fen.build ();
+    auto game = fen.build();
 
     game.move (move_parse ("a5 a6", Color::White));
 
@@ -273,7 +273,7 @@ TEST_CASE( "Can avoid stalemate" )
 
     game.move (*result.move);
 
-    auto is_stalemate = is_stalemated (game.get_board (), Color::White, *game.get_move_generator ());
+    auto is_stalemate = is_stalemated (game.get_board(), Color::White, game.get_move_generator());
     CHECK( !is_stalemate );
 }
 

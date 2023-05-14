@@ -29,7 +29,7 @@ namespace wisdom
                 my_opponent { color_invert (king_color) },
                 my_king_color { king_color },
                 my_king_row { Row (king_coord) },
-                my_king_col { Column (king_coord) },
+                my_king_col { Column (king_coord) }
         {
         }
 

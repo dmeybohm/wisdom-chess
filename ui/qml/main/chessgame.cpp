@@ -67,8 +67,8 @@ auto ChessGame::isLegalMove(Move selectedMove) const -> bool
     }
 
     auto who = game->get_current_turn();
-    auto generator = game->get_move_generator();
-    auto legalMoves = generator->generate_legal_moves(game->get_board(), who);
+    auto& generator = game->get_move_generator();
+    auto legalMoves = generator.generate_legal_moves(game->get_board(), who);
 
     return std::any_of(legalMoves.cbegin(), legalMoves.cend(),
                         [selectedMove](const auto& move){

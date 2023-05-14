@@ -204,9 +204,9 @@ namespace wisdom
         return my_history;
     }
 
-    auto Game::get_move_generator() const& -> not_null<MoveGenerator*>
+    auto Game::get_move_generator() const& -> MoveGenerator&
     {
-        return &my_move_generator;
+        return my_move_generator;
     }
 
     auto Game::computer_wants_draw (Color who) const -> bool
