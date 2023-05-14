@@ -94,15 +94,18 @@ namespace wisdom
         void add_tentative_position (const Board& board)
         {
             my_board_codes.emplace_back (board.get_board_code());
+            my_tentative_nesting_count++;
         }
 
         void remove_last_tentative_position()
         {
             my_board_codes.pop_back ();
+            my_tentative_nesting_count--;
         }
 
         void store_position (const Board& board, Move move)
         {
+            Expects (my_tentative_nesting_count == 0);
             my_stored_boards.emplace_back (board);
             my_board_codes.emplace_back (board.get_board_code());
             my_move_history.push_back (move);
@@ -149,6 +152,7 @@ namespace wisdom
         vector<BoardCode> my_board_codes {};
         vector<Board> my_stored_boards {};
         MoveList my_move_history;
+        int my_tentative_nesting_count = 0;
 
         DrawStatus my_threefold_repetition_status = DrawStatus::NotReached;
         DrawStatus my_fifty_moves_without_progress_status
