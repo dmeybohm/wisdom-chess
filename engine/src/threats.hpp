@@ -23,7 +23,6 @@ namespace wisdom
         Color my_king_color;
         int my_king_row;
         int my_king_col;
-        int my_pawn_direction;
 
         InlineThreats (const Board& board, Color king_color, Coord king_coord)
             : my_board { board },
@@ -31,28 +30,25 @@ namespace wisdom
                 my_king_color { king_color },
                 my_king_row { Row (king_coord) },
                 my_king_col { Column (king_coord) },
-                my_pawn_direction { pawn_direction (king_color) }
         {
         }
 
         // Check if the the king indicated by the WHO argument is in trouble
         // in this position.
-        bool check_all ()
+        bool check_all()
         {
             return
-                row () ||
-                column () ||
-                diagonal () ||
-                knight_direct () ||
-                pawn_inline () ||
-                king_inline ();
+                row() ||
+                column() ||
+                diagonal() ||
+                knight() ||
+                pawn() ||
+                king();
         }
 
         constexpr auto check_lane_threats (int target_row, int target_col)
             -> ThreatStatus
         {
-            ThreatStatus result {};
-
             ColoredPiece piece = my_board.piece_at (target_row, target_col);
             auto type = piece_type (piece);
             auto target_color = piece_color (piece);
@@ -67,7 +63,7 @@ namespace wisdom
 
             // If the check is blocked, revert to the king position itself
             // for the calculation to avoid any branching.
-            result = has_threatening_piece ? ThreatStatus::Threatened :
+            ThreatStatus result = has_threatening_piece ? ThreatStatus::Threatened :
                 type != Piece::None ? ThreatStatus::Blocked :
                                     ThreatStatus::None;
 
@@ -75,7 +71,7 @@ namespace wisdom
         }
 
         // Check an entire row for any rook / queen threats.
-        bool row ()
+        bool row()
         {
             for (auto new_col = next_column (my_king_col, +1); new_col <= Last_Column; new_col++)
             {
@@ -99,7 +95,7 @@ namespace wisdom
         }
 
         // Check an entire column for any rook / queen threats.
-        bool column ()
+        bool column()
         {
             for (auto new_row = next_row (my_king_row, +1); new_row <= Last_Row; new_row++)
             {
@@ -129,7 +125,7 @@ namespace wisdom
         }
 
         template <int row_dir, int col_dir>
-        int check_knight ()
+        int check_knight()
         {
             int starting_row = my_king_row + row_dir;
             int starting_col = my_king_col + col_dir;
@@ -190,43 +186,15 @@ namespace wisdom
             }
         }
 
-        int knight_direct ()
+        bool knight()
         {
-            return check_knight<-1, 0> ()
-                || check_knight<0, +1> ()
-                || check_knight<+1, 0> ()
-                || check_knight<0, -1> ();
+            return check_knight<-1, 0>()
+                || check_knight<0, +1>()
+                || check_knight<+1, 0>()
+                || check_knight<0, -1>();
         }
 
-        bool pawn ()
-        {
-            // check for pawn checks
-            auto r_dir = my_pawn_direction;
-
-            auto left_col = next_column (my_king_col, -1);
-            auto right_col = next_column (my_king_col, +1);
-            auto pawn_row = next_row (my_king_row, r_dir);
-            if (pawn_row >= Last_Row || pawn_row <= First_Row)
-                return false;
-
-            if (left_col > First_Column)
-            {
-                auto what = my_board.piece_at (pawn_row, left_col);
-                if (piece_type (what) == Piece::Pawn && piece_color (what) == my_opponent)
-                    return true;
-            }
-
-            if (right_col < Last_Column)
-            {
-                auto what = my_board.piece_at (pawn_row, right_col);
-                if (piece_type (what) == Piece::Pawn && piece_color (what) == my_opponent)
-                    return true;
-            }
-
-            return false;
-        }
-
-        bool pawn_inline ()
+        bool pawn()
         {
             int r_dir = pawn_direction<int> (my_king_color);
             int left_col = my_king_col - 1;
@@ -274,7 +242,7 @@ namespace wisdom
             return left_attack_exists | middle_attack_exists | right_attack_exists;
         }
 
-        bool king_inline ()
+        bool king()
         {
             auto left_col = next_column<int> (my_king_col, -1);
             auto right_col = next_column<int> (my_king_col, +1);
@@ -328,7 +296,7 @@ namespace wisdom
         }
 
         template <int horiz_direction, int vert_direction>
-        auto check_diagonal_threat () -> bool
+        auto check_diagonal_threat() -> bool
         {
             int new_row = my_king_row;
             int new_col = my_king_col;
@@ -371,11 +339,11 @@ namespace wisdom
         }
 
         // Check a diagonal for any bishop / queen threats.
-        bool diagonal ()
+        bool diagonal()
         {
             return
                 // northwest:
-                check_diagonal_threat <-1, -1> () ||
+                check_diagonal_threat <-1, -1>() ||
                 // northeast:
                 check_diagonal_threat<-1, +1>() ||
                 // southwest:
