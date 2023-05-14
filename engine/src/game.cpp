@@ -131,7 +131,7 @@ namespace wisdom
         return GameStatus::Playing;
     }
 
-    auto Game::find_best_move (const Logger& logger, Color whom)
+    auto Game::find_best_move (const Logger& logger, Color whom) const
         -> optional<Move>
     {
         if (whom == Color::None)

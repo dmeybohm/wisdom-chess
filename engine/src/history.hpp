@@ -46,7 +46,6 @@ namespace wisdom
     {
     public:
         History()
-            : my_move_history { MoveList::uncached() }
         {
             my_board_codes.reserve (64);
         }
@@ -118,7 +117,7 @@ namespace wisdom
             my_move_history.pop_back();
         }
 
-        [[nodiscard]] auto get_move_history() const& -> const MoveList&
+        [[nodiscard]] auto get_move_history() const& -> const vector<Move>&
         {
             return my_move_history;
         }
@@ -151,7 +150,7 @@ namespace wisdom
     private:
         vector<BoardCode> my_board_codes {};
         vector<Board> my_stored_boards {};
-        MoveList my_move_history;
+        vector<Move> my_move_history;
         int my_tentative_nesting_count = 0;
 
         DrawStatus my_threefold_repetition_status = DrawStatus::NotReached;

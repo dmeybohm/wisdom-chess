@@ -55,7 +55,7 @@ namespace wisdom
 
         void save (const string& filename) const;
 
-        [[nodiscard]] auto find_best_move (const Logger& logger, Color whom = Color::None)
+        [[nodiscard]] auto find_best_move (const Logger& logger, Color whom = Color::None) const
             -> optional<Move>;
 
         void move (Move move);
