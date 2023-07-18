@@ -105,7 +105,7 @@ namespace wisdom
                 return;
             }
 
-            Board child_board = parent_board.with_move (side, move);
+            Board child_board = parent_board.withMove (side, move);
 
             if (!is_legal_position_after_move (child_board, side, move))
                 continue;

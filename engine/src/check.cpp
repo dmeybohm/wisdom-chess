@@ -10,7 +10,7 @@ namespace wisdom
 {
     bool is_checkmated (const Board& board, Color who, MoveGenerator& generator)
     {
-        auto coord = board.get_king_position (who);
+        auto coord = board.getKingPosition (who);
 
         if (!is_king_threatened (board, who, coord))
             return false;
@@ -22,7 +22,7 @@ namespace wisdom
 
     auto is_legal_position_after_move (const Board& board, Color who, Move mv) -> bool
     {
-        auto king_coord = board.get_king_position (who);
+        auto king_coord = board.getKingPosition (who);
 
         if (is_king_threatened (board, who, king_coord))
             return false;
@@ -57,7 +57,7 @@ namespace wisdom
 
     auto is_stalemated (const Board& board, Color who, MoveGenerator& generator) -> bool
     {
-        auto coord = board.get_king_position (who);
+        auto coord = board.getKingPosition (who);
         auto legal_moves = generator.generate_legal_moves (board, who);
 
         return legal_moves.empty () && !is_king_threatened (board, who, coord);

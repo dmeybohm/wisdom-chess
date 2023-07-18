@@ -9,7 +9,7 @@ namespace wisdom
     void FenOutputFormat::save (const string& filename, const Board& board,
                                 [[maybe_unused]] const History& history, Color turn)
     {
-        string output = board.to_fen_string (turn);
+        string output = board.toFenString (turn);
 
         std::ofstream file;
         file.open (filename);

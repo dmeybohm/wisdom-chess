@@ -74,7 +74,7 @@ TEST_CASE( "board code")
         builder.add_piece ("e8", Color::White, Piece::King);
 
         auto brd = Board { builder };
-        brd.set_current_turn (Color::Black);
+        brd.setCurrentTurn (Color::Black);
         BoardCode code = BoardCode::from_board (brd);
         BoardCode initial = code;
 
@@ -95,7 +95,7 @@ TEST_CASE( "board code")
         builder.add_piece ("e1", Color::White, Piece::King);
 
         auto brd = Board { builder };
-        brd.set_current_turn (Color::Black);
+        brd.setCurrentTurn (Color::Black);
         BoardCode code  = BoardCode::from_board (brd);
         BoardCode initial = code;
 
@@ -116,7 +116,7 @@ TEST_CASE( "board code")
         builder.add_piece ("e1", Color::White, Piece::King);
 
         auto brd = Board { builder };
-        brd.set_current_turn (Color::Black);
+        brd.setCurrentTurn (Color::Black);
         BoardCode code = BoardCode::from_board (brd);
         BoardCode initial = code;
 
@@ -147,8 +147,8 @@ TEST_CASE( "Board code stores ancilliary state" )
         builder.set_en_passant_target (Color::Black ,"d6");
         auto board_with_state = Board { builder };
 
-        auto with_state_code = board_with_state.get_code ();
-        auto without_state_code = board_without_state.get_code ();
+        auto with_state_code = board_with_state.getCode ();
+        auto without_state_code = board_without_state.getCode ();
         CHECK( with_state_code != without_state_code );
 
         auto en_passant_target = with_state_code.en_passant_target (Color::Black);
@@ -175,8 +175,8 @@ TEST_CASE( "Board code stores ancilliary state" )
         builder.set_en_passant_target (Color::White ,"e3");
         auto board_with_state = Board { builder };
 
-        auto with_state_code = board_with_state.get_code ();
-        auto without_state_code = board_without_state.get_code ();
+        auto with_state_code = board_with_state.getCode ();
+        auto without_state_code = board_without_state.getCode ();
         CHECK( with_state_code != without_state_code );
 
         auto en_passant_target = with_state_code.en_passant_target (Color::White);

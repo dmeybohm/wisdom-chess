@@ -58,7 +58,7 @@ namespace wisdom
 
     void Game::move (Move move)
     {
-        my_current_board = my_current_board.with_move (getCurrentTurn (), move);
+        my_current_board = my_current_board.withMove (getCurrentTurn (), move);
         add_current_board_to_history();
     }
 
@@ -120,7 +120,7 @@ namespace wisdom
         if (History::has_been_seventy_five_moves_without_progress (getBoard ()))
             return GameStatus::SeventyFiveMovesWithoutProgressDraw;
 
-        const auto& material = my_current_board.get_material ();
+        const auto& material = my_current_board.getMaterial ();
         if (material.checkmate_is_possible (my_current_board) == Material::CheckmateIsPossible::No)
             return GameStatus::InsufficientMaterialDraw;
 
@@ -182,12 +182,12 @@ namespace wisdom
 
     auto Game::getCurrentTurn () const -> Color
     {
-        return my_current_board.get_current_turn ();
+        return my_current_board.getCurrentTurn ();
     }
 
     void Game::setCurrentTurn (Color new_turn)
     {
-        my_current_board.set_current_turn (new_turn);
+        my_current_board.setCurrentTurn (new_turn);
     }
 
     auto Game::getBoard () const& -> const Board&

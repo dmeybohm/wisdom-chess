@@ -31,7 +31,7 @@ namespace wisdom
                 my_king_color { king_color },
                 my_king_row { Row (king_coord) },
                 my_king_col { Column (king_coord) },
-                my_pawn_direction { pawn_direction (king_color) }
+                my_pawn_direction { pawnDirection (king_color) }
         {
         }
 
@@ -228,7 +228,7 @@ namespace wisdom
 
         bool pawn_inline ()
         {
-            int r_dir = pawn_direction<int> (my_king_color);
+            int r_dir = pawnDirection<int> (my_king_color);
             int left_col = my_king_col - 1;
             int right_col = my_king_col + 1;
             int target_row = my_king_row + r_dir;

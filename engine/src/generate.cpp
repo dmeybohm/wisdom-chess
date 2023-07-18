@@ -173,14 +173,14 @@ namespace wisdom
             }
         }
 
-        if (board.able_to_castle (who, CastlingEligible::QueensideIneligible) && piece_col == King_Column)
+        if (board.ableToCastle (who, CastlingEligible::QueensideIneligible) && piece_col == King_Column)
         {
             Move queenside_castle = Move::make_castling (piece_row, piece_col, piece_row, piece_col - 2);
             if (valid_castling_move (board, queenside_castle))
                 append_move (queenside_castle);
         }
 
-        if (board.able_to_castle (who, CastlingEligible::KingsideIneligible) && piece_col == King_Column)
+        if (board.ableToCastle (who, CastlingEligible::KingsideIneligible) && piece_col == King_Column)
         {
             Move kingside_castle = Move::make_castling (piece_row, piece_col, piece_row, piece_col + 2);
             if (valid_castling_move (board, kingside_castle))
@@ -261,7 +261,7 @@ namespace wisdom
     {
         Color opponent = color_invert (who);
 
-        if (!board.is_en_passant_vulnerable (opponent))
+        if (!board.isEnPassantVulnerable (opponent))
             return -1;
 
         // if WHITE rank 4, black rank 3
@@ -270,7 +270,7 @@ namespace wisdom
 
         int left_column = column - 1;
         int right_column = column + 1;
-        int target_column = Column<int> (board.get_en_passant_target (opponent));
+        int target_column = Column<int> (board.getEnPassantTarget (opponent));
 
         if (left_column == target_column)
         {
@@ -294,7 +294,7 @@ namespace wisdom
         int take_col;
         int c_dir;
 
-        dir = pawn_direction<int> (who);
+        dir = pawnDirection<int> (who);
 
         // row is _guaranteed_ to be on the board, because
         // a pawn on the eight rank can't remain a pawn, and that's
@@ -380,7 +380,7 @@ namespace wisdom
         int direction;
         int take_row, take_col;
 
-        direction = pawn_direction<int> (who);
+        direction = pawnDirection<int> (who);
 
         take_row = next_row (piece_row, direction);
         take_col = en_passant_column;
@@ -403,7 +403,7 @@ namespace wisdom
         MoveList all_moves = generate_all_potential_moves (board, who);
         for (auto move : all_moves)
         {
-            Board new_board = board.with_move (who, move);
+            Board new_board = board.withMove (who, move);
 
             if (is_legal_position_after_move (new_board, who, move))
                 non_checks.push_back (move);
@@ -527,7 +527,7 @@ namespace wisdom
         MoveList result { my_move_list_allocator.get () };
         MoveGeneration generation { board, result, 0, 0, who, *this };
 
-        for (auto coord : board.all_coords ())
+        for (auto coord : board.allCoords ())
         {
             ColoredPiece piece = board.pieceAt (coord);
 

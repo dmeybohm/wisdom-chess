@@ -173,7 +173,7 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
             }
         }
         if (selectedMove.is_en_passant()) {
-            int direction = pawn_direction(who) * -1;
+            int direction = pawnDirection (who) * -1;
             int enPassantPawnRow = dstRow + direction;
             int enPassantPawnCol = dstColumn;
 

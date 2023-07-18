@@ -14,10 +14,10 @@ TEST_CASE( "FEN notation for the starting position" )
 
     CHECK(game.getBoard () == default_board );
 
-    auto default_black_state = default_board.get_castling_eligibility (Color::Black);
-    auto default_white_state = default_board.get_castling_eligibility (Color::White);
-    auto fen_white_state = game.getBoard ().get_castling_eligibility (Color::White);
-    auto fen_black_state = game.getBoard ().get_castling_eligibility (Color::Black);
+    auto default_black_state = default_board.getCastlingEligibility (Color::Black);
+    auto default_white_state = default_board.getCastlingEligibility (Color::White);
+    auto fen_white_state = game.getBoard ().getCastlingEligibility (Color::White);
+    auto fen_black_state = game.getBoard ().getCastlingEligibility (Color::Black);
 
     CHECK( default_white_state == fen_white_state );
     CHECK( default_black_state == fen_black_state );
@@ -39,10 +39,10 @@ TEST_CASE( "FEN notation for non-starting position" )
     auto expected = Board { builder };
     CHECK(game.getBoard () == expected );
 
-    auto white_state = game.getBoard ().get_castling_eligibility (Color::White);
-    auto black_state = game.getBoard ().get_castling_eligibility (Color::Black);
-    auto exp_white_state = expected.get_castling_eligibility (Color::White);
-    auto exp_black_state = expected.get_castling_eligibility (Color::Black);
+    auto white_state = game.getBoard ().getCastlingEligibility (Color::White);
+    auto black_state = game.getBoard ().getCastlingEligibility (Color::Black);
+    auto exp_white_state = expected.getCastlingEligibility (Color::White);
+    auto exp_black_state = expected.getCastlingEligibility (Color::Black);
 
     CHECK( white_state == exp_white_state );
     CHECK( black_state == exp_black_state );
@@ -54,28 +54,28 @@ TEST_CASE( "FEN notation for castling" )
 
     Game game = parser_full.build();
 
-    REQUIRE(game.getBoard ().get_castling_eligibility (Color::White) == CastlingEligible::EitherSideEligible);
-    REQUIRE(game.getBoard ().get_castling_eligibility (Color::Black) == CastlingEligible::EitherSideEligible);
+    REQUIRE(game.getBoard ().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible);
+    REQUIRE(game.getBoard ().getCastlingEligibility (Color::Black) == CastlingEligible::EitherSideEligible);
 
     FenParser parser_no_black_king { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black_king.build();
 
-    REQUIRE(game.getBoard ().get_castling_eligibility (Color::White) == CastlingEligible::EitherSideEligible);
-    REQUIRE(game.getBoard ().get_castling_eligibility (Color::Black) == CastlingEligible::KingsideIneligible);
+    REQUIRE(game.getBoard ().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible);
+    REQUIRE(game.getBoard ().getCastlingEligibility (Color::Black) == CastlingEligible::KingsideIneligible);
 
     FenParser parser_no_black { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black.build();
 
-    REQUIRE(game.getBoard ().get_castling_eligibility (Color::White) == CastlingEligible::EitherSideEligible);
-    REQUIRE(game.getBoard ().get_castling_eligibility (Color::Black) == CastlingEligible::KingsideIneligible);
+    REQUIRE(game.getBoard ().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible);
+    REQUIRE(game.getBoard ().getCastlingEligibility (Color::Black) == CastlingEligible::KingsideIneligible);
     FenParser parser_nothing { "4r2/8/8/8/8/8/k7/4K2R w - - 0 1" };
 
     game = parser_nothing.build();
 
-    REQUIRE(game.getBoard ().get_castling_eligibility (Color::White) == CastlingEligible::BothSidesIneligible );
-    REQUIRE(game.getBoard ().get_castling_eligibility (Color::Black) == CastlingEligible::BothSidesIneligible );
+    REQUIRE(game.getBoard ().getCastlingEligibility (Color::White) == CastlingEligible::BothSidesIneligible );
+    REQUIRE(game.getBoard ().getCastlingEligibility (Color::Black) == CastlingEligible::BothSidesIneligible );
 }
 
 TEST_CASE( "FEN notation for en passant" )
@@ -85,10 +85,10 @@ TEST_CASE( "FEN notation for en passant" )
     Game game = parser_with_black_target.build();
     auto &board = game.getBoard ();
 
-    REQUIRE( !board.is_en_passant_vulnerable (Color::White) );
-    REQUIRE( board.is_en_passant_vulnerable (Color::Black) );
+    REQUIRE( !board.isEnPassantVulnerable (Color::White) );
+    REQUIRE(board.isEnPassantVulnerable (Color::Black) );
 
-    auto black_target = board.get_en_passant_target (Color::Black);
+    auto black_target = board.getEnPassantTarget (Color::Black);
     REQUIRE( black_target == coord_parse ("e6") );
 }
 

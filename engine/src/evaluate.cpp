@@ -12,7 +12,7 @@ namespace wisdom
     {
         auto heuristic_is_castled (const Board& board, Color who) -> bool
         {
-            auto king_pos = board.get_king_position (who);
+            auto king_pos = board.getKingPosition (who);
             auto king_column = Column<int> (king_pos);
             auto king_row = Row<int> (king_pos);
 
@@ -38,7 +38,7 @@ namespace wisdom
 
         auto unable_to_castle_penalty (const Board& board, Color who) -> int
         {
-            auto castle_state = board.get_castling_eligibility(who);
+            auto castle_state = board.getCastlingEligibility (who);
             int result = 0;
             if (castle_state != CastlingEligible::EitherSideEligible)
             {
@@ -58,8 +58,8 @@ namespace wisdom
         int score = 0;
         Color opponent = color_invert (who);
 
-        score += board.get_material().overall_score (who);
-        score += board.get_position().overall_score (who);
+        score += board.getMaterial ().overall_score (who);
+        score += board.getPosition ().overall_score (who);
 
         if (is_checkmated (board, who, generator))
         {
@@ -78,7 +78,7 @@ namespace wisdom
 
     auto evaluate_without_legal_moves (const Board& board, Color who, int moves_away) -> int
     {
-        auto king_coord = board.get_king_position (who);
+        auto king_coord = board.getKingPosition (who);
         return  is_king_threatened (board, who, king_coord)
                        ? -1 * checkmate_score_in_moves (moves_away)
                        : 0;

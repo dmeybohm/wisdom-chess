@@ -44,7 +44,7 @@ namespace wisdom
         printToFile (std::cerr);
     }
 
-    static void add_divider (string &result)
+    static void addDivider (string &result)
     {
         result += " ";
 
@@ -58,7 +58,7 @@ namespace wisdom
         result += "\n";
     }
 
-    static void add_coords (string& result)
+    static void addCoords (string& result)
     {
         int col;
 
@@ -82,7 +82,7 @@ namespace wisdom
 
         char row_coord = '8';
 
-        add_divider (result);
+        addDivider (result);
         for (int8_t row = 0; row < Num_Rows; row++)
         {
             for (int8_t col = 0; col < Num_Columns; col++)
@@ -128,14 +128,14 @@ namespace wisdom
             row_coord--;
             result += "\n";
 
-            add_divider (result);;
+            addDivider (result);;
         }
 
-        add_coords (result);
+        addCoords (result);
         return result;
     }
 
-    [[nodiscard]] auto Board::castled_string (Color color) const -> string
+    [[nodiscard]] auto Board::castledString (Color color) const -> string
     {
         ColorIndex index = color_index (color);
         string castled_state;
@@ -144,7 +144,7 @@ namespace wisdom
             return color == Color::Black ? gsl::narrow_cast<char> (tolower(ch)) : ch;
         };
 
-        auto castled = get_castling_eligibility (color);
+        auto castled = getCastlingEligibility (color);
         if (castled == CastlingEligible::EitherSideEligible)
             castled_state.append(1, convert('K')), castled_state.append(1, convert('Q'));
         else if (castled == CastlingEligible::KingsideIneligible)
@@ -157,7 +157,7 @@ namespace wisdom
         return castled_state;
     }
 
-    [[nodiscard]] auto Board::to_fen_string (Color turn) const -> string
+    [[nodiscard]] auto Board::toFenString (Color turn) const -> string
     {
         string output;
 
@@ -196,8 +196,8 @@ namespace wisdom
 
         output += turn == Color::White ? " w " : " b ";
 
-        string castled_white = castled_string (Color::White);
-        string castled_black = castled_string (Color::Black);
+        string castled_white = castledString (Color::White);
+        string castled_black = castledString (Color::Black);
 
         string both_castled = castled_white + castled_black;
         if (both_castled.length() == 0)
@@ -205,7 +205,7 @@ namespace wisdom
 
         output += both_castled;
 
-        auto en_passant_targets = get_en_passant_targets ();
+        auto en_passant_targets = getEnPassantTargets ();
         if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
             output += " " + wisdom::to_string (en_passant_targets[Color_Index_White]) + " ";
         else if (en_passant_targets[Color_Index_Black] != No_En_Passant_Coord)
@@ -222,7 +222,7 @@ namespace wisdom
         return a.my_code == b.my_code;
     }
 
-    static void remove_invalid_pawns (const Board& board, int8_t source_row, int8_t source_col,
+    static void removeInvalidPawns (const Board& board, int8_t source_row, int8_t source_col,
             array<ColoredPiece, Num_Squares>& shuffle_pieces)
     {
         auto piece = shuffle_pieces[source_col + (source_row * Num_Columns)];
@@ -232,7 +232,7 @@ namespace wisdom
         }
     }
 
-    void Board::randomize_positions ()
+    void Board::randomizePositions ()
     {
         std::random_device random_device;
         std::mt19937 rng (random_device());
@@ -255,7 +255,7 @@ namespace wisdom
             std::copy (std::begin (my_squares), std::end (my_squares), std::begin (shuffle_pieces));
             std::shuffle (std::begin (shuffle_pieces), std::end (shuffle_pieces), rng);
 
-            for (auto&& coord : all_coords ())
+            for (auto&& coord : allCoords ())
             {
                 ColoredPiece piece = shuffle_pieces[coord_index (coord)];
                 if (piece_type (piece) == Piece::King)
@@ -270,8 +270,8 @@ namespace wisdom
                 int8_t first_source_row = 0;
                 auto last_source_row = gsl::narrow<int8_t> (Num_Rows - 1);
 
-                remove_invalid_pawns (*this, first_source_row, source_col, my_squares);
-                remove_invalid_pawns (*this, last_source_row, source_col, my_squares);
+                removeInvalidPawns (*this, first_source_row, source_col, my_squares);
+                removeInvalidPawns (*this, last_source_row, source_col, my_squares);
             }
             // if both kings are in check, regenerate.
         } while (is_king_threatened (*this, Color::White, my_king_pos[Color_Index_White])
@@ -288,7 +288,7 @@ namespace wisdom
         my_code = BoardCode::from_board (*this);
     }
 
-    auto Board::find_first_coord_with_piece (ColoredPiece piece, Coord starting_at) const
+    auto Board::findFirstCoordWithPiece (ColoredPiece piece, Coord starting_at) const
         -> optional<Coord>
     {
         for (optional<Coord> it = starting_at;

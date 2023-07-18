@@ -82,7 +82,7 @@ namespace wisdom
         if (History::has_been_n_half_moves_without_progress (board, without_progress_count))
             return DrawCategory::ByNoProgress;
 
-        const auto& material_ref = board.get_material ();
+        const auto& material_ref = board.getMaterial ();
 
         if (material_ref.checkmate_is_possible (board) == Material::CheckmateIsPossible::No)
             return DrawCategory::InsufficientMaterial;

@@ -393,7 +393,7 @@ public:
 
     void checkmate() override
     {
-        auto who = getGameState()->getBoard().get_current_turn();
+        auto who = getGameState()->getBoard().getCurrentTurn();
         auto opponent = color_invert (who);
         auto whoString = "<b>Checkmate</b> - " + wisdom::to_string (opponent) + " wins the game.";
         myParent->setGameOverStatus (QString (whoString.c_str()));
@@ -401,7 +401,7 @@ public:
 
     void stalemate() override
     {
-        auto who = getGameState()->getBoard().get_current_turn();
+        auto who = getGameState()->getBoard().getCurrentTurn();
         auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>"
                             + wisdom::to_string (who) + "</b>";
         myParent->setGameOverStatus (stalemateStr.c_str());
@@ -460,7 +460,7 @@ void GameModel::updateDisplayedGameState()
     QmlGameStatusUpdate statusManager { this };
     statusManager.update (gameState->status());
 
-    if (wisdom::is_king_threatened (board, who, board.get_king_position (who)))
+    if (wisdom::is_king_threatened (board, who, board.getKingPosition (who)))
         setInCheck (true);
 }
 

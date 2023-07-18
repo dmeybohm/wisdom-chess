@@ -19,7 +19,7 @@ namespace wisdom
     }
 
     // Returns the taken piece
-    auto Board::apply_for_en_passant (Color who, Coord src, Coord dst)
+    auto Board::applyForEnPassant (Color who, Coord src, Coord dst)
         -> ColoredPiece
     {
         Coord taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
@@ -28,12 +28,12 @@ namespace wisdom
         assert (piece_type (taken_piece) == Piece::Pawn);
         assert (piece_color (taken_piece) == color_invert (who));
 
-        set_piece (taken_pawn_pos, Piece_And_Color_None);
+        setPiece (taken_pawn_pos, Piece_And_Color_None);
 
         return ColoredPiece::make (color_invert (who), Piece::Pawn);
     }
 
-    auto Board::get_castling_rook_move (Move move, Color who) -> Move
+    auto Board::getCastlingRookMove (Move move, Color who) -> Move
     {
         int src_row, src_col;
         int dst_row, dst_col;
@@ -69,10 +69,10 @@ namespace wisdom
         return Move::make (src_row, src_col, dst_row, dst_col);
     }
 
-    void Board::apply_for_castling_move (Color who, Move king_move,
+    void Board::applyForCastlingMove (Color who, Move king_move,
                                          [[maybe_unused]] Coord src, [[maybe_unused]] Coord dst)
     {
-        Move rook_move = get_castling_rook_move (king_move, who);
+        Move rook_move = getCastlingRookMove (king_move, who);
 
         assert (piece_type (pieceAt (src)) == Piece::King);
         assert (abs (Column (src) - Column (dst)) == 2);
@@ -85,26 +85,26 @@ namespace wisdom
         auto rook = pieceAt (rook_src);
 
         // do the rook move
-        set_piece (rook_dst, rook);
-        set_piece (rook_src, empty_piece);
+        setPiece (rook_dst, rook);
+        setPiece (rook_src, empty_piece);
     }
 
-    void Board::apply_for_king_move (Color who,
+    void Board::applyForKingMove (Color who,
                                      [[maybe_unused]] Coord src, Coord dst)
     {
-        set_king_position (who, dst);
+        setKingPosition (who, dst);
 
         // set as not able to castle
-        if (able_to_castle (
+        if (ableToCastle (
                 who, CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible))
         {
             // set the new castle status
-            remove_castling_eligibility (
+            removeCastlingEligibility (
                 who, CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible);
         }
     }
 
-    void Board::apply_for_rook_capture (Color opponent, ColoredPiece dst_piece,
+    void Board::applyForRookCapture (Color opponent, ColoredPiece dst_piece,
                                         Coord src, Coord dst)
     {
         assert (piece_color (dst_piece) == opponent && piece_type (dst_piece) == Piece::Rook);
@@ -125,16 +125,16 @@ namespace wisdom
         //
         // Set inability to castle on one side.
         //
-        if (able_to_castle (opponent, castle_state))
-            remove_castling_eligibility (opponent, castle_state);
+        if (ableToCastle (opponent, castle_state))
+            removeCastlingEligibility (opponent, castle_state);
     }
 
-    void Board::apply_for_rook_move (Color player, ColoredPiece src_piece,
+    void Board::applyForRookMove (Color player, ColoredPiece src_piece,
                                      Move move, Coord src, Coord dst)
     {
         if (!(piece_color (src_piece) == player && piece_type (src_piece) == Piece::Rook))
         {
-            throw MoveConsistencyProblem { "apply_for_rook_move failed: move "
+            throw MoveConsistencyProblem { "applyForRookMove failed: move "
                                            + wisdom::to_string (move) };
         }
 
@@ -157,19 +157,19 @@ namespace wisdom
 
         // Set inability to castle on one side.
         if (affects_castle_state != CastlingEligible::EitherSideEligible
-            && able_to_castle (player, affects_castle_state))
+            && ableToCastle (player, affects_castle_state))
         {
-            remove_castling_eligibility (player, affects_castle_state);
+            removeCastlingEligibility (player, affects_castle_state);
         }
     }
 
-    void Board::update_en_passant_eligibility (Color who, ColoredPiece src_piece,
+    void Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece,
                                                Move move)
     {
         ColorIndex c_index = color_index (who);
         ColorIndex o_index = color_index (color_invert (who));
 
-        int direction = pawn_direction<int> (who);
+        int direction = pawnDirection<int> (who);
         Coord new_state = No_En_Passant_Coord;
         if (is_double_square_pawn_move (src_piece, move))
         {
@@ -177,17 +177,17 @@ namespace wisdom
             int prev_row = next_row (Row<int> (src), direction);
             new_state = make_coord (prev_row, Column (src));
         }
-        set_en_passant_target (c_index, new_state);
+        setEnPassantTarget (c_index, new_state);
     }
 
-    [[nodiscard]] auto Board::with_move (Color who, Move move) const -> Board
+    [[nodiscard]] auto Board::withMove (Color who, Move move) const -> Board
     {
         Board result = *this;
-        result.make_move (who, move);
+        result.makeMove (who, move);
         return result;
     }
 
-    void Board::make_move (Color who, Move move)
+    void Board::makeMove (Color who, Move move)
     {
         assert (who == my_code.current_turn ());
 
@@ -226,11 +226,11 @@ namespace wisdom
                 break;
 
             case MoveCategory::EnPassant:
-                dst_piece = apply_for_en_passant (who, src, dst);
+                dst_piece = applyForEnPassant (who, src, dst);
                 break;
 
             case MoveCategory::Castling:
-                apply_for_castling_move (who, move, src, dst);
+                applyForCastlingMove (who, move, src, dst);
                 break;
 
             default:
@@ -239,21 +239,21 @@ namespace wisdom
                 };
         }
 
-        update_en_passant_eligibility (who, src_piece, move);
+        updateEnPassantEligibility (who, src_piece, move);
 
         my_code.apply_move (*this, move);
 
-        set_piece (src, Piece_And_Color_None);
-        set_piece (dst, src_piece);
+        setPiece (src, Piece_And_Color_None);
+        setPiece (dst, src_piece);
 
         // update king position
         if (piece_type (src_piece) == Piece::King)
-            apply_for_king_move (who, src, dst);
+            applyForKingMove (who, src, dst);
 
         // update rook position -- for castling
         if (piece_type (orig_src_piece) == Piece::Rook)
         {
-            apply_for_rook_move (who, orig_src_piece, move, src, dst);
+            applyForRookMove (who, orig_src_piece, move, src, dst);
         }
 
         if (piece_type (dst_piece) != Piece::None)
@@ -265,13 +265,13 @@ namespace wisdom
 
             // update castle state if somebody takes the rook
             if (captured_piece_type == Piece::Rook)
-                apply_for_rook_capture (color_invert (who), dst_piece, src, dst);
+                applyForRookCapture (color_invert (who), dst_piece, src, dst);
         }
 
         my_position.apply_move (who, orig_src_piece, move, dst_piece);
 
-        update_move_clock (who, piece_type (orig_src_piece), move);
-        set_current_turn (color_invert (who));
+        updateMoveClock (who, piece_type (orig_src_piece), move);
+        setCurrentTurn (color_invert (who));
     }
 
     static auto castle_parse (const string& str, Color who) -> optional<Move>

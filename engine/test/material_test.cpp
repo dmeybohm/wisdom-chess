@@ -65,7 +65,7 @@ TEST_CASE( "Piece count" )
 
     SUBCASE( "Is updated from the amount of pieces on the board")
     {
-        const auto& material = brd.get_material();
+        const auto& material = brd.getMaterial ();
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Queen) == 0 );
@@ -73,7 +73,7 @@ TEST_CASE( "Piece count" )
         CHECK( material.piece_count (Color::White, Piece::Rook) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
 
-        const auto& default_material = default_board.get_material();
+        const auto& default_material = default_board.getMaterial ();
         CHECK( default_material.piece_count (Color::White, Piece::Pawn) == 8 );
         CHECK( default_material.piece_count (Color::Black, Piece::Pawn) == 8 );
         CHECK( default_material.piece_count (Color::White, Piece::Rook) == 2 );
@@ -84,8 +84,8 @@ TEST_CASE( "Piece count" )
     {
         auto capture_move = move_parse ("e6xf7", Color::White);
 
-        brd = brd.with_move (Color::White, capture_move);
-        const auto& material = brd.get_material();
+        brd = brd.withMove (Color::White, capture_move);
+        const auto& material = brd.getMaterial ();
         CHECK( material.piece_count (Color::Black, Piece::Knight) == 0 );
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
@@ -95,8 +95,8 @@ TEST_CASE( "Piece count" )
     {
         auto capture_move = move_parse ("h2xe2", Color::White);
 
-        brd = brd.with_move (Color::White, capture_move);
-        const auto& material = brd.get_material();
+        brd = brd.withMove (Color::White, capture_move);
+        const auto& material = brd.getMaterial ();
         CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
@@ -105,11 +105,11 @@ TEST_CASE( "Piece count" )
 
     SUBCASE( "Is saved and restored after a promotion" )
     {
-        brd.set_current_turn (Color::Black);
+        brd.setCurrentTurn (Color::Black);
         auto promoting_move = move_parse ("e2e1 (Q)", Color::Black);
 
-        brd = brd.with_move (Color::Black, promoting_move);
-        const auto& material = brd.get_material();
+        brd = brd.withMove (Color::Black, promoting_move);
+        const auto& material = brd.getMaterial ();
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Queen) == 1 );
@@ -118,11 +118,11 @@ TEST_CASE( "Piece count" )
 
     SUBCASE( "Is saved and restored after a promotion with a capture" )
     {
-        brd.set_current_turn (Color::Black);
+        brd.setCurrentTurn (Color::Black);
         auto promoting_move = move_parse ("e2xd1 (R)", Color::Black);
 
-        brd = brd.with_move (Color::Black, promoting_move);
-        const auto& material = brd.get_material();
+        brd = brd.withMove (Color::Black, promoting_move);
+        const auto& material = brd.getMaterial ();
         CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
         CHECK( material.piece_count (Color::Black, Piece::Rook) == 1 );
@@ -136,7 +136,7 @@ TEST_CASE( "checkmate_is_possible()" )
 
     Board default_board;
     BoardBuilder builder;
-    const auto& default_material = default_board.get_material ();
+    const auto& default_material = default_board.getMaterial ();
 
     builder.add_piece ("a1", Color::White, Piece::King);
     builder.add_piece ("a8", Color::Black, Piece::King);
@@ -151,7 +151,7 @@ TEST_CASE( "checkmate_is_possible()" )
         builder.add_piece ("a7", Color::Black, Piece::Rook);
 
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
         CHECK( material.checkmate_is_possible(default_board) );
     }
 
@@ -161,7 +161,7 @@ TEST_CASE( "checkmate_is_possible()" )
         builder.add_piece ("c5", Color::White, Piece::Rook);
 
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
         CHECK( material.checkmate_is_possible(default_board) );
     }
 
@@ -171,7 +171,7 @@ TEST_CASE( "checkmate_is_possible()" )
         builder.add_piece ("b7", Color::Black, Piece::Knight);
 
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
         CHECK( material.checkmate_is_possible(default_board) );
     }
 
@@ -181,7 +181,7 @@ TEST_CASE( "checkmate_is_possible()" )
         builder.add_piece ("c7", Color::White, Piece::Knight);
 
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
         CHECK( material.checkmate_is_possible(default_board) );
     }
 
@@ -192,7 +192,7 @@ TEST_CASE( "checkmate_is_possible()" )
         builder.add_piece ("c7", Color::White, Piece::Knight);
 
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
         CHECK( material.checkmate_is_possible(default_board) );
     }
 
@@ -200,7 +200,7 @@ TEST_CASE( "checkmate_is_possible()" )
     {
         builder.add_piece ("a7", Color::Black, Piece::Pawn);
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
 
         CHECK( material.checkmate_is_possible (brd) );
     }
@@ -208,7 +208,7 @@ TEST_CASE( "checkmate_is_possible()" )
     SUBCASE( "Returns no if there are only two kings" )
     {
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
 
         CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::No );
     }
@@ -218,7 +218,7 @@ TEST_CASE( "checkmate_is_possible()" )
         builder.add_piece ("a7", Color::Black, Piece::Knight);
 
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
 
         CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::No );
     }
@@ -228,7 +228,7 @@ TEST_CASE( "checkmate_is_possible()" )
         builder.add_piece ("a7", Color::Black, Piece::Bishop);
 
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
 
         CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::No );
     }
@@ -239,7 +239,7 @@ TEST_CASE( "checkmate_is_possible()" )
         builder.add_piece ("a7", Color::Black, Piece::Bishop);
 
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
 
         CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::Yes );
     }
@@ -250,7 +250,7 @@ TEST_CASE( "checkmate_is_possible()" )
         builder.add_piece ("b7", Color::Black, Piece::Bishop);
 
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
 
         CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::No);
     }
@@ -261,7 +261,7 @@ TEST_CASE( "checkmate_is_possible()" )
         builder.add_piece ("b8", Color::White, Piece::Bishop);
 
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
 
         CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::Yes);
     }
@@ -272,7 +272,7 @@ TEST_CASE( "checkmate_is_possible()" )
         builder.add_piece ("b7", Color::White, Piece::Bishop);
 
         auto brd = Board { builder };
-        const auto& material = brd.get_material ();
+        const auto& material = brd.getMaterial ();
 
         CHECK( material.checkmate_is_possible(brd) == CheckmateIsPossible::No );
     }

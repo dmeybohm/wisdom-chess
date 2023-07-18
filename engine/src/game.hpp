@@ -73,7 +73,7 @@ namespace wisdom
 
         [[nodiscard]] auto getCurrentPlayer () const -> Player
         {
-            return getPlayer (my_current_board.get_current_turn ());
+            return getPlayer (my_current_board.getCurrentTurn ());
         }
 
         void setWhitePlayer (Player player)

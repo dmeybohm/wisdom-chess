@@ -87,7 +87,7 @@ namespace wisdom
 
         [[nodiscard]] bool is_nth_repetition (const Board& board, int repetition_count) const
         {
-            auto& find_code = board.get_code ();
+            auto& find_code = board.getCode ();
             auto repetitions = std::count_if (my_board_codes.begin (), my_board_codes.end (),
                     [find_code](const BoardCode& code){
                         return (code == find_code);
@@ -97,14 +97,14 @@ namespace wisdom
 
         void add_position_and_move (observer_ptr<Board> board, Move move)
         {
-            my_board_codes.emplace_back (board->get_code());
+            my_board_codes.emplace_back (board->getCode ());
             my_previous_boards.emplace_back (board);
             my_move_history.push_back (move);
         }
 
         void add_position (observer_ptr<Board> board)
         {
-            my_board_codes.emplace_back (board->get_code());
+            my_board_codes.emplace_back (board->getCode ());
             my_previous_boards.emplace_back (board);
         }
 

@@ -9,16 +9,16 @@ namespace wisdom
 {
     BoardCode::BoardCode (const Board& board)
     {
-        for (auto coord : Board::all_coords ())
+        for (auto coord : Board::allCoords ())
         {
             ColoredPiece piece = board.pieceAt (coord);
             this->add_piece (coord, piece);
         }
 
-        auto current_turn = board.get_current_turn ();
+        auto current_turn = board.getCurrentTurn ();
         set_current_turn (current_turn);
 
-        auto en_passant_targets = board.get_en_passant_targets ();
+        auto en_passant_targets = board.getEnPassantTargets ();
         if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
         {
             set_en_passant_target (Color::White, en_passant_targets[Color_Index_White]);
@@ -33,8 +33,8 @@ namespace wisdom
             set_en_passant_target (Color::White, No_En_Passant_Coord);
         }
 
-        set_castle_state (Color::White, board.get_castling_eligibility(Color::White));
-        set_castle_state (Color::Black, board.get_castling_eligibility(Color::Black));
+        set_castle_state (Color::White, board.getCastlingEligibility (Color::White));
+        set_castle_state (Color::Black, board.getCastlingEligibility (Color::Black));
     }
 
     auto BoardCode::from_board (const Board& board) -> BoardCode

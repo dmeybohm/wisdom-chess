@@ -50,7 +50,7 @@ auto ChessGame::clone() const ->
     auto players = currentGame->getPlayers();
     auto newConfig = myConfig;
 
-    auto fen = currentGame->getBoard().to_fen_string(currentGame->getCurrentTurn());
+    auto fen = currentGame->getBoard().toFenString (currentGame->getCurrentTurn());
     auto newGame = ChessGame::fromFen(fen, newConfig);
     newGame->state()->setPlayers (players);
     return newGame;
