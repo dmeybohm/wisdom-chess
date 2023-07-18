@@ -47,12 +47,12 @@ auto ChessGame::clone() const ->
 {
     // Copy current game state to FEN and send on to the chess engine thread:
     auto currentGame = this->state();
-    auto players = currentGame->get_players();
+    auto players = currentGame->getPlayers();
     auto newConfig = myConfig;
 
-    auto fen = currentGame->get_board().to_fen_string(currentGame->get_current_turn());
+    auto fen = currentGame->getBoard().to_fen_string(currentGame->getCurrentTurn());
     auto newGame = ChessGame::fromFen(fen, newConfig);
-    newGame->state()->set_players(players);
+    newGame->state()->setPlayers (players);
     return newGame;
 }
 
@@ -62,13 +62,13 @@ auto ChessGame::isLegalMove(Move selectedMove) const -> bool
     auto selectedMoveStr = to_string(selectedMove);
 
     // If it's not the human's turn, move is illegal.
-    if (game->get_current_player() != wisdom::Player::Human) {
+    if (game->getCurrentPlayer() != wisdom::Player::Human) {
         return false;
     }
 
-    auto who = game->get_current_turn();
-    auto generator = game->get_move_generator();
-    auto legalMoves = generator->generate_legal_moves(game->get_board(), who);
+    auto who = game->getCurrentTurn();
+    auto generator = game->getMoveGenerator();
+    auto legalMoves = generator->generate_legal_moves(game->getBoard(), who);
 
     return std::any_of(legalMoves.cbegin(), legalMoves.cend(),
                         [selectedMove](const auto& move){
@@ -79,17 +79,17 @@ auto ChessGame::isLegalMove(Move selectedMove) const -> bool
 void ChessGame::setConfig(const Config& config)
 {
     auto gameState = this->state();
-    gameState->set_max_depth(config.maxDepth.internalDepth());
-    gameState->set_search_timeout(config.maxTime);
-    gameState->set_players(config.players);
+    gameState->setMaxDepth (config.maxDepth.internalDepth());
+    gameState->setSearchTimeout (config.maxTime);
+    gameState->setPlayers (config.players);
     myConfig = config;
 }
 
 void ChessGame::setPlayers(wisdom::Player whitePlayer, wisdom::Player blackPlayer) // NOLINT(readability-make-member-function-const)
 {
    auto gameState = this->state();
-   gameState->set_white_player(whitePlayer);
-   gameState->set_black_player(blackPlayer);
+   gameState->setWhitePlayer (whitePlayer);
+   gameState->setBlackPlayer (blackPlayer);
 }
 
 auto ChessGame::moveFromCoordinates(int srcRow, int srcColumn,
@@ -101,10 +101,9 @@ auto ChessGame::moveFromCoordinates(int srcRow, int srcColumn,
     auto src = wisdom::make_coord(srcRow, srcColumn);
     auto dst = wisdom::make_coord(dstRow, dstColumn);
 
-    auto who = engine->get_current_turn();
+    auto who = engine->getCurrentTurn();
 
-    return {
-        engine->map_coordinates_to_move(src, dst, promoted),
+    return { engine->mapCoordinatesToMove (src, dst, promoted),
         who
     };
 }
@@ -112,7 +111,7 @@ auto ChessGame::moveFromCoordinates(int srcRow, int srcColumn,
 void ChessGame::setPeriodicFunction(const MoveTimer::PeriodicFunction &func)
 {
     auto gameState = this->state();
-    gameState->set_periodic_function(func);
+    gameState->setPeriodicFunction (func);
 }
 
 auto ChessGame::Config::fromGameSettings(const GameSettings& gameSettings) -> ChessGame::Config

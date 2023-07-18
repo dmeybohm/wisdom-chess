@@ -53,7 +53,7 @@ GameModel::~GameModel()
 void GameModel::init()
 {
     auto gameState = myChessGame->state();
-    setCurrentTurn(ui::mapColor(gameState->get_current_turn()));
+    setCurrentTurn(ui::mapColor(gameState->getCurrentTurn()));
 
     setupNewEngineThread();
 }
@@ -131,9 +131,8 @@ void GameModel::restart()
 
     qDebug() << "Creating new chess game";
 
-    myChessGame = std::move(ChessGame::fromPlayers(
-        myChessGame->state()->get_player(Color::White),
-        myChessGame->state()->get_player(Color::Black),
+    myChessGame = std::move(ChessGame::fromPlayers(myChessGame->state()->getPlayer (Color::White),
+                                myChessGame->state()->getPlayer (Color::Black),
         gameConfig()
     ));
 
@@ -153,7 +152,7 @@ void GameModel::restart()
     // Update the config to update the notifier to use the new game Id:
     updateEngineConfig();
 
-    setCurrentTurn(ui::mapColor(myChessGame->state()->get_current_turn()));
+    setCurrentTurn(ui::mapColor(myChessGame->state()->getCurrentTurn()));
     resetStateForNewGame();
     updateDisplayedGameState();
 }
@@ -248,7 +247,7 @@ auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Colo
     auto gameState = myChessGame->state();
 
     gameState->move(selectedMove);
-    return gameState->get_current_turn();
+    return gameState->getCurrentTurn();
 }
 
 auto GameModel::buildNotifier() const -> MoveTimer::PeriodicFunction
@@ -308,7 +307,7 @@ void GameModel::notifyInternalGameStateUpdated()
 {
     auto gameState = myChessGame->state();
 
-    updateCurrentTurn(gameState->get_current_turn());
+    updateCurrentTurn(gameState->getCurrentTurn());
     if (myGameOverStatus != "") {
         return;
     }
@@ -319,7 +318,7 @@ void GameModel::notifyInternalGameStateUpdated()
 auto GameModel::gameConfig() const -> ChessGame::Config
 {
     return ChessGame::Config {
-        myChessGame->state()->get_players(),
+        myChessGame->state()->getPlayers(),
         MaxDepth { myGameSettings.maxDepth() },
         chrono::seconds { myGameSettings.maxSearchTime() },
     };
@@ -394,7 +393,7 @@ public:
 
     void checkmate() override
     {
-        auto who = getGameState()->get_board().get_current_turn();
+        auto who = getGameState()->getBoard().get_current_turn();
         auto opponent = color_invert (who);
         auto whoString = "<b>Checkmate</b> - " + wisdom::to_string (opponent) + " wins the game.";
         myParent->setGameOverStatus (QString (whoString.c_str()));
@@ -402,7 +401,7 @@ public:
 
     void stalemate() override
     {
-        auto who = getGameState()->get_board().get_current_turn();
+        auto who = getGameState()->getBoard().get_current_turn();
         auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>"
                             + wisdom::to_string (who) + "</b>";
         myParent->setGameOverStatus (stalemateStr.c_str());
@@ -416,7 +415,7 @@ public:
     void third_repetition_draw_reached() override
     {
         auto gameState = getGameState();
-        if (getFirstHumanPlayerColor (gameState->get_players()).has_value())
+        if (getFirstHumanPlayerColor (gameState->getPlayers()).has_value())
             myParent->setThirdRepetitionDrawStatus (GameModel::DrawStatus::Proposed);
     }
 
@@ -433,7 +432,7 @@ public:
     void fifty_moves_without_progress_reached() override
     {
         auto gameState = getGameState();
-        if (getFirstHumanPlayerColor (gameState->get_players()).has_value())
+        if (getFirstHumanPlayerColor (gameState->getPlayers()).has_value())
             myParent->setFiftyMovesDrawStatus (GameModel::DrawStatus::Proposed);
     }
 
@@ -451,8 +450,8 @@ public:
 void GameModel::updateDisplayedGameState()
 {
     auto gameState = myChessGame->state();
-    auto& board = gameState->get_board();
-    auto who = gameState->get_current_turn();
+    auto& board = gameState->getBoard();
+    auto who = gameState->getCurrentTurn();
 
     setMoveStatus ("");
     setGameOverStatus ("");
@@ -543,17 +542,17 @@ void GameModel::setFiftyMovesDrawStatus(DrawStatus drawStatus)
 void GameModel::setProposedDrawStatus(wisdom::ProposedDrawType drawType, DrawStatus status)
 {
     auto gameState = myChessGame->state();
-    auto optionalColor = getFirstHumanPlayerColor(gameState->get_players());
+    auto optionalColor = getFirstHumanPlayerColor(gameState->getPlayers());
 
     assert(optionalColor.has_value());
     auto who = *optionalColor;
     auto opponentColor = color_invert(who);
 
     bool accepted = (status == DrawStatus::Accepted);
-    gameState->set_proposed_draw_status(drawType, who, accepted);
+    gameState->setProposedDrawStatus (drawType, who, accepted);
     emit updateDrawStatus(drawType, who, accepted);
-    if (gameState->get_player(opponentColor) == Player::Human) {
-        gameState->set_proposed_draw_status(drawType, opponentColor, accepted);
+    if (gameState->getPlayer (opponentColor) == Player::Human) {
+        gameState->setProposedDrawStatus (drawType, opponentColor, accepted);
         emit updateDrawStatus(drawType, opponentColor, accepted);
     }
 
@@ -564,6 +563,6 @@ void GameModel::receiveChessEngineDrawStatus(wisdom::ProposedDrawType drawType,
                                              wisdom::Color who, bool accepted)
 {
     auto gameState = myChessGame->state();
-    gameState->set_proposed_draw_status(drawType, who, accepted);
+    gameState->setProposedDrawStatus (drawType, who, accepted);
     updateDisplayedGameState();
 }

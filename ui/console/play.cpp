@@ -59,21 +59,21 @@ namespace wisdom::ui::console
 
             return human_wants_draw (msg) ? DrawStatus::Accepted : DrawStatus::Declined;
         }
-        return game.computer_wants_draw (who) ? DrawStatus::Accepted : DrawStatus::Declined;
+        return game.computerWantsDraw (who) ? DrawStatus::Accepted : DrawStatus::Declined;
     }
 
     // After the third repetition, either player may request a draw.
     static auto determine_if_drawn (const string& msg, InputState input_state, Game& game)
         -> std::pair<DrawStatus, DrawStatus>
     {
-        auto white_player = game.get_player (Color::White);
+        auto white_player = game.getPlayer (Color::White);
 
         auto white_wants_draw = player_wants_draw (
             msg, white_player, Color::White, game, false
         );
         bool asked_human = white_player == Player::Human;
         auto black_wants_draw = player_wants_draw (
-            msg, game.get_player (Color::Black), Color::Black, game, asked_human
+            msg, game.getPlayer (Color::Black), Color::Black, game, asked_human
         );
 
         return { white_wants_draw, black_wants_draw };
@@ -109,16 +109,13 @@ namespace wisdom::ui::console
         {
             // Recursively (one-level deep) update the status again.
             auto draw_pair = determine_if_drawn (msg, my_input_state, my_game);
-            my_game.set_proposed_draw_status (
-                ProposedDrawType::ThreeFoldRepetition,
-                draw_pair
-            );
+            my_game.setProposedDrawStatus (ProposedDrawType::ThreeFoldRepetition, draw_pair);
             return update (my_game.status());
         }
 
         void checkmate() override
         {
-            std::cout << to_string (color_invert (my_game.get_current_turn())) << " wins the game.\n";
+            std::cout << to_string (color_invert (my_game.getCurrentTurn())) << " wins the game.\n";
             my_input_state.command = PlayCommand::StopGame;
         }
 
@@ -173,7 +170,7 @@ namespace wisdom::ui::console
 
     static void print_available_moves (Game& game, MoveGenerator& generator)
     {
-        MoveList moves = generator.generate_legal_moves (game.get_board (), game.get_current_turn ());
+        MoveList moves = generator.generate_legal_moves (game.getBoard(), game.getCurrentTurn());
 
         std::cout << "\nAvailable moves:\n    ";
 
@@ -216,7 +213,7 @@ namespace wisdom::ui::console
         if (input.empty ())
             return nullopt;
 
-        return Game::load (input, current_game.get_players ());
+        return Game::load (input, current_game.getPlayers());
     }
 
     static optional<Game> load_fen (const Game& current_game)
@@ -229,7 +226,7 @@ namespace wisdom::ui::console
         {
             FenParser parser { input };
             auto game = parser.build ();
-            game.set_players (current_game.get_players ());
+            game.setPlayers (current_game.getPlayers());
             return game;
         }
         catch ([[maybe_unused]] FenParserError &error)
@@ -256,7 +253,7 @@ namespace wisdom::ui::console
         InputState result;
         string input;
 
-        std::cout << "(" << wisdom::to_string (game.get_current_turn ()) << ")? ";
+        std::cout << "(" << wisdom::to_string (game.getCurrentTurn()) << ")? ";
 
         if (!std::getline (std::cin, input))
         {
@@ -278,23 +275,23 @@ namespace wisdom::ui::console
         }
         else if (input == "load")
         {
-            auto orig_players = game.get_players ();
+            auto orig_players = game.getPlayers();
             auto optional_game = load_game (game);
             if (optional_game.has_value ())
             {
                 game = std::move (*optional_game);
-                game.set_players (orig_players);
+                game.setPlayers (orig_players);
             }
             return result;
         }
         else if (input == "fen")
         {
-            auto orig_players = game.get_players ();
+            auto orig_players = game.getPlayers();
             auto optional_game = load_fen (game);
             if (optional_game.has_value ())
             {
                 game = std::move (*optional_game);
-                game.set_players (orig_players);
+                game.setPlayers (orig_players);
             }
             return result;
         }
@@ -312,39 +309,39 @@ namespace wisdom::ui::console
         {
             optional<int> max_depth = read_int ("Max depth");
             if (max_depth.has_value ())
-                game.set_max_depth (*max_depth);
+                game.setMaxDepth (*max_depth);
             return result;
         }
         else if (input == "timeout")
         {
             optional<int> search_timeout = read_int ("Search Timeout");
             if (search_timeout.has_value ())
-                game.set_search_timeout (chrono::seconds { *search_timeout });
+                game.setSearchTimeout (chrono::seconds { *search_timeout });
             return result;
         }
         else if (input == "computer_black")
         {
-            game.set_black_player (Player::ChessEngine);
+            game.setBlackPlayer (Player::ChessEngine);
             return result;
         }
         else if (input == "computer_white")
         {
-            game.set_white_player (Player::ChessEngine);
+            game.setWhitePlayer (Player::ChessEngine);
             return result;
         }
         else if (input == "human_white")
         {
-            game.set_white_player (Player::Human);
+            game.setWhitePlayer (Player::Human);
             return result;
         }
         else if (input == "human_black")
         {
-            game.set_black_player (Player::Human);
+            game.setBlackPlayer (Player::Human);
             return result;
         }
         else if (input == "switch")
         {
-            game.set_current_turn (color_invert (game.get_current_turn ()));
+            game.setCurrentTurn (color_invert (game.getCurrentTurn()));
             return result;
         }
         else if (input == "quit" || input == "exit")
@@ -353,11 +350,11 @@ namespace wisdom::ui::console
             return result;
         }
 
-        result.move = move_parse_optional (input, game.get_current_turn());
+        result.move = move_parse_optional (input, game.getCurrentTurn());
         result.command = PlayCommand::ShowError;
 
         // check the generated move list for this move to see if its valid
-        MoveList moves = move_generator.generate_legal_moves (game.get_board (), game.get_current_turn ());
+        MoveList moves = move_generator.generate_legal_moves (game.getBoard(), game.getCurrentTurn());
 
         for (auto legal_move : moves)
         {
@@ -385,7 +382,7 @@ namespace wisdom::ui::console
             auto& game = game_status_manager.get_game ();
             game_status_manager.set_input_state (initial_input_state);
 
-            game.get_board().print();
+            game.getBoard().print();
 
             game_status_manager.update (game.status());
             auto input_state = game_status_manager.get_input_state();
@@ -393,9 +390,9 @@ namespace wisdom::ui::console
             if (input_state.command == PlayCommand::StopGame)
                 break;
 
-            if (!paused && game.get_current_player () == Player::ChessEngine)
+            if (!paused && game.getCurrentPlayer() == Player::ChessEngine)
             {
-                auto optional_move = game.find_best_move (*output);
+                auto optional_move = game.findBestMove (*output);
                 if (!optional_move.has_value ())
                 {
                     std::cout << "\nCouldn't find move!\n";

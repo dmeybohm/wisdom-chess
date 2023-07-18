@@ -10,7 +10,7 @@ find_package(Microsoft.GSL CONFIG REQUIRED)
 find_package(Threads REQUIRED)
 find_package(enumflags CONFIG REQUIRED)
 
-if (ANDROID)
+if (ANDROID OR NOT WISDOM_CHESS_PCH_ENABLED)
     # Disable precompile headers because there is a confict on android where it links
     # some code as PIC and some as non-PIC and can't combine them.
     set(PCH_ENABLED OFF)

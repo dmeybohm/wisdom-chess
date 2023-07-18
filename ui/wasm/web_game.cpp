@@ -9,7 +9,7 @@ namespace wisdom
     WebGame::WebGame (int white_player, int black_player) :
         my_game { map_player (white_player), map_player (black_player) }
     {
-        const auto& board = my_game.get_board();
+        const auto& board = my_game.getBoard();
         int id = 1;
 
         for (int i = 0; i < Num_Squares; i++)
@@ -61,8 +61,8 @@ namespace wisdom
         auto game_src = make_coord (src->row, src->col);
         auto game_dst = make_coord (dst->row, dst->col);
 
-        auto optionalMove = my_game.map_coordinates_to_move (game_src, game_dst,
-                                                             map_piece (promoted_piece_type));
+        auto optionalMove = my_game.mapCoordinatesToMove (game_src, game_dst,
+                                                          map_piece (promoted_piece_type));
 
         if (!optionalMove.has_value())
         {
@@ -79,15 +79,15 @@ namespace wisdom
         auto selectedMoveStr = to_string (selectedMove);
 
         // If it's not the human's turn, move is illegal.
-        if (my_game.get_current_player() != wisdom::Player::Human)
+        if (my_game.getCurrentPlayer() != wisdom::Player::Human)
         {
             set_move_status ("Illegal move");
             return false;
         }
 
-        auto who = my_game.get_current_turn();
-        auto generator = my_game.get_move_generator();
-        auto legalMoves = generator->generate_legal_moves (my_game.get_board(), who);
+        auto who = my_game.getCurrentTurn();
+        auto generator = my_game.getMoveGenerator();
+        auto legalMoves = generator->generate_legal_moves (my_game.getBoard(), who);
 
         auto result = std::any_of (legalMoves.cbegin(), legalMoves.cend(),
                                    [selectedMove] (const auto& move)
@@ -115,7 +115,7 @@ namespace wisdom
 
         std::cout << "accepted: " << accepted << "\n";
         std::cout << "Color: " << wisdom::to_string (color) << "\n";
-        my_game.set_proposed_draw_status (proposed_draw_type, color, accepted);
+        my_game.setProposedDrawStatus (proposed_draw_type, color, accepted);
         update_displayed_game_state();
     }
 
@@ -148,7 +148,7 @@ namespace wisdom
 
     void WebGame::update_piece_list (ColoredPiece promoted_piece)
     {
-        const Board& board = my_game.get_board();
+        const Board& board = my_game.getBoard();
 
         WebColoredPieceList old_pieces = my_pieces;
         my_pieces.clear();
@@ -257,7 +257,7 @@ namespace wisdom
 
         void checkmate() override
         {
-            auto who = parent->my_game.get_current_turn();
+            auto who = parent->my_game.getCurrentTurn();
             auto whoString = "<strong>Checkmate</strong> - " +
                 wisdom::to_string (color_invert (who)) +
                 " wins the game.";
@@ -266,7 +266,7 @@ namespace wisdom
 
         void stalemate() override
         {
-            auto who = parent->my_game.get_current_turn();
+            auto who = parent->my_game.getCurrentTurn();
             auto stalemateStr = "<strong>Stalemate</strong> - No legal moves for " +
                 wisdom::to_string (who);
             parent->set_game_over_status (stalemateStr);
@@ -310,13 +310,13 @@ namespace wisdom
 
     void WebGame::update_displayed_game_state()
     {
-        auto who = my_game.get_current_turn();
-        auto& board = my_game.get_board();
+        auto who = my_game.getCurrentTurn();
+        auto& board = my_game.getBoard();
 
         set_move_status ("");
         set_game_over_status ("");
         set_in_check (false);
-        set_move_number (my_game.get_history().get_move_history().size());
+        set_move_number (my_game.getHistory().get_move_history().size());
 
         WebGameStatusUpdate update { this };
         auto nextStatus = my_game.status();

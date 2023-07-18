@@ -17,26 +17,26 @@ TEST_CASE( "Initial board position is added to history" )
         Move black_move = move_parse ("b8 c6");
         Move white_return_move = move_parse ("f3 g1");
         Move black_return_move = move_parse ("c6 b8");
-        auto& history = game.get_history();
+        auto& history = game.getHistory ();
 
         for (int i = 0; i < 2; i++)
         {
             game.move (white_move);
-            CHECK( history.is_third_repetition (game.get_board()) == false );
+            CHECK( history.is_third_repetition (game.getBoard ()) == false );
 
             game.move (black_move);
-            CHECK( history.is_third_repetition (game.get_board()) == false );
+            CHECK( history.is_third_repetition (game.getBoard ()) == false );
 
             game.move (white_return_move);
-            CHECK( history.is_third_repetition (game.get_board()) == false );
+            CHECK( history.is_third_repetition (game.getBoard ()) == false );
 
             game.move (black_return_move);
             if (i == 1)
                 break;
-            CHECK( history.is_third_repetition (game.get_board()) == false );
+            CHECK( history.is_third_repetition (game.getBoard ()) == false );
         }
 
-        CHECK( history.is_third_repetition (game.get_board()) == true );
+        CHECK( history.is_third_repetition (game.getBoard ()) == true );
     };
 
     SUBCASE( "When a default game is initialized" )

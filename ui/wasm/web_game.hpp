@@ -37,8 +37,8 @@ namespace wisdom
             auto game_src = make_coord (src->row, src->col);
             auto game_dst = make_coord (dst->row, dst->col);
 
-            auto optionalMove = my_game.map_coordinates_to_move (game_src, game_dst,
-                                                                 Piece::Queen);
+            auto optionalMove = my_game.mapCoordinatesToMove (game_src, game_dst,
+                                                              Piece::Queen);
             if (!optionalMove.has_value())
                 return false;
             return optionalMove->is_promoting();
@@ -55,17 +55,17 @@ namespace wisdom
 
         void setMaxDepth (int max_depth)
         {
-            my_game.set_max_depth (max_depth);
+            my_game.setMaxDepth (max_depth);
         }
 
         void setThinkingTime (std::chrono::seconds thinkingTime)
         {
-            my_game.set_search_timeout (thinkingTime);
+            my_game.setSearchTimeout (thinkingTime);
         }
 
         auto getMaxDepth() const -> int
         {
-            auto result = my_game.get_max_depth();
+            auto result = my_game.getMaxDepth();
             return result;
         }
 
@@ -76,7 +76,7 @@ namespace wisdom
 
         auto getCurrentTurn() const -> WebColor
         {
-            return map_color (my_game.get_current_turn());
+            return map_color (my_game.getCurrentTurn());
         }
 
         auto getMoveStatus() const -> const char*
@@ -97,7 +97,7 @@ namespace wisdom
         auto getPlayerOfColor (int color) const -> WebPlayer
         {
             Color mapped_color = map_color (color);
-            return map_player (my_game.get_player (mapped_color));
+            return map_player (my_game.getPlayer (mapped_color));
         }
 
         void setComputerDrawStatus (int type, int who, bool accepted);
@@ -106,7 +106,7 @@ namespace wisdom
         {
             ProposedDrawType proposed_draw_type = map_draw_by_repetition_type (type);
             Color color = map_color (who);
-            my_game.set_proposed_draw_status (proposed_draw_type, color, accepted);
+            my_game.setProposedDrawStatus (proposed_draw_type, color, accepted);
             update_displayed_game_state();
         }
 
@@ -143,4 +143,5 @@ namespace wisdom
         friend class WebGameStatusUpdate;
     };
 };
+
 #endif // WISDOMCHESS_WEB_GAME_HPP

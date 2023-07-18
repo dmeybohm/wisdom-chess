@@ -299,7 +299,7 @@ namespace wisdom
     // Map source/dest coordinate to corresponding move (en passant, castling, etc)
     // This doesn't check whether the move is legal or not completely - just gets what the
     // user is intending.
-    [[nodiscard]] auto map_coordinates_to_move (const Board& board, Color who,
+    [[nodiscard]] auto mapCoordinatesToMove (const Board& board, Color who,
                                   Coord src, Coord dst,
                                   optional<Piece> promoted_piece = {})
         -> optional<Move>;

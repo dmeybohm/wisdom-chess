@@ -469,8 +469,8 @@ namespace wisdom
         return result;
     }
 
-    auto map_coordinates_to_move (const Board& board, Color who, Coord src, Coord dst,
-                                  optional<Piece> promoted_piece) -> optional<Move>
+    auto mapCoordinatesToMove (const Board& board, Color who, Coord src, Coord dst,
+                               optional<Piece> promoted_piece) -> optional<Move>
     {
         ColoredPiece src_piece = board.piece_at (src);
         ColoredPiece dst_piece = board.piece_at (dst);

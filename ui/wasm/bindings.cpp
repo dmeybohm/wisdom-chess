@@ -95,14 +95,14 @@ namespace wisdom::worker
 
             void third_repetition_draw_reached() override
             {
-                auto who = my_parent->game->get_current_turn();
+                auto who = my_parent->game->getCurrentTurn();
                 my_parent->handle_potential_draw_position (ProposedDrawType::ThreeFoldRepetition,
                                                            who);
             }
 
             void fifty_moves_without_progress_reached() override
             {
-                auto who = my_parent->game->get_current_turn();
+                auto who = my_parent->game->getCurrentTurn();
                 my_parent->handle_potential_draw_position ( ProposedDrawType::FiftyMovesWithoutProgress,
                                                            who);
             }
@@ -112,7 +112,7 @@ namespace wisdom::worker
                                  wisdom::Color who,
                                  bool accepts_draw)
         {
-            game->set_proposed_draw_status (
+            game->setProposedDrawStatus (
                 draw_type,
                 who,
                 accepts_draw
@@ -132,16 +132,16 @@ namespace wisdom::worker
         void handle_potential_draw_position (wisdom::ProposedDrawType proposedDrawType,
                                              wisdom::Color who)
         {
-            auto current_player_accept_draw = game->computer_wants_draw (who);
+            auto current_player_accept_draw = game->computerWantsDraw (who);
 
             update_draw_status (proposedDrawType,
                                 who,
                                 current_player_accept_draw);
 
             auto opponent = color_invert (who);
-            auto opponent_player = game->get_player (opponent);
+            auto opponent_player = game->getPlayer (opponent);
             if (opponent_player == Player::ChessEngine) {
-                auto opponent_wants_draw = game->computer_wants_draw (opponent);
+                auto opponent_wants_draw = game->computerWantsDraw (opponent);
                 update_draw_status (proposedDrawType,
                                     opponent,
                                     opponent_wants_draw);
@@ -168,7 +168,7 @@ EMSCRIPTEN_KEEPALIVE void worker_reinitialize_game (int new_game_id)
             timer->set_cancelled (true);
         }
     };
-    state->game->set_periodic_function (periodic_func);
+    state->game->setPeriodicFunction (periodic_func);
 
     start_search();
 }
@@ -179,7 +179,7 @@ EMSCRIPTEN_KEEPALIVE void start_search()
     auto state = GameState::get_state();
     auto game = GameState::get_game();
 
-    if (state->game->get_current_player() != Player::ChessEngine)
+    if (state->game->getCurrentPlayer() != Player::ChessEngine)
         return;
 
     auto play_status = state->play_status.load();
@@ -191,11 +191,11 @@ EMSCRIPTEN_KEEPALIVE void start_search()
         return;
 
     logger.debug("Going to find best move");
-    logger.debug("Current turn: " + to_string(game->get_current_turn()));
+    logger.debug("Current turn: " + to_string(game->getCurrentTurn()));
 
-    auto move = game->find_best_move(
+    auto move = game->findBestMove(
         logger,
-        game->get_current_turn()
+        game->getCurrentTurn()
     );
     if (!move.has_value())
     {

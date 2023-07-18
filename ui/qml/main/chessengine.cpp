@@ -100,14 +100,14 @@ public:
     void third_repetition_draw_reached() override
     {
         auto gameState = myParent->myGame->state();
-        auto who = gameState->get_current_turn();
+        auto who = gameState->getCurrentTurn();
         myParent->handlePotentialDrawPosition(ProposedDrawType::ThreeFoldRepetition, who);
     }
 
     void fifty_moves_without_progress_reached() override
     {
         auto gameState = myParent->myGame->state();
-        auto who = gameState->get_current_turn();
+        auto who = gameState->getCurrentTurn();
         myParent->handlePotentialDrawPosition(ProposedDrawType::FiftyMovesWithoutProgress, who);
     }
 };
@@ -128,7 +128,7 @@ void ChessEngine::findMove()
         return;
     }
 
-    auto player = gameState->get_current_player();
+    auto player = gameState->getCurrentPlayer();
     if (player != Player::ChessEngine) {
         return;
     }
@@ -142,13 +142,13 @@ void ChessEngine::findMove()
     // Wait for animation to finish
     QThread::usleep(200000); // 200 ms
 
-    auto who = gameState->get_current_turn();
+    auto who = gameState->getCurrentTurn();
 
-    auto& board = gameState->get_board();
-    auto& history = gameState->get_history();
+    auto& board = gameState->getBoard();
+    auto& history = gameState->getHistory();
 
     qDebug() << "Searching for move";
-    auto optionalMove = gameState->find_best_move(output);
+    auto optionalMove = gameState->findBestMove (output);
 
     // TODO: we could have timed out or the thread was interrupted, and we should distinguish
     // between these two cases. If we couldn't find any move in the time, should select a move
@@ -166,12 +166,8 @@ void ChessEngine::handlePotentialDrawPosition(wisdom::ProposedDrawType proposedD
 {
     auto gameState = myGame->state();
 
-    auto acceptDraw = gameState->computer_wants_draw(who);
-    gameState->set_proposed_draw_status (
-            proposedDrawType,
-            who,
-            acceptDraw
-    );
+    auto acceptDraw = gameState->computerWantsDraw (who);
+    gameState->setProposedDrawStatus (proposedDrawType, who, acceptDraw);
 
     emit updateDrawStatus(proposedDrawType, who, acceptDraw);
     if (acceptDraw) {
@@ -180,14 +176,10 @@ void ChessEngine::handlePotentialDrawPosition(wisdom::ProposedDrawType proposedD
     }
 
     auto opponent = color_invert(who);
-    auto opponentPlayer = gameState->get_player(opponent);
+    auto opponentPlayer = gameState->getPlayer (opponent);
     if (opponentPlayer == Player::ChessEngine) {
-        auto opponentAcceptsDraw = gameState->computer_wants_draw(opponent);
-        gameState->set_proposed_draw_status(
-            proposedDrawType,
-            opponent,
-            opponentAcceptsDraw
-        );
+        auto opponentAcceptsDraw = gameState->computerWantsDraw (opponent);
+        gameState->setProposedDrawStatus (proposedDrawType, opponent, opponentAcceptsDraw);
         emit updateDrawStatus(proposedDrawType, opponent, opponentAcceptsDraw);
         if (opponentAcceptsDraw) {
             myIsGameOver = true;
@@ -205,7 +197,7 @@ void ChessEngine::receiveDrawStatus(wisdom::ProposedDrawType drawType,
                                     wisdom::Color player, bool accepted)
 {
     auto gameState = myGame->state();
-    gameState->set_proposed_draw_status(drawType, player, accepted);
+    gameState->setProposedDrawStatus (drawType, player, accepted);
 
     auto nextStatus = gameStatusTransition();
     if (nextStatus == GameStatus::Playing) {

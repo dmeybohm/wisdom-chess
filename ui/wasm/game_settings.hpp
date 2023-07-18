@@ -43,9 +43,9 @@ namespace wisdom
 
         void apply_to_game (observer_ptr<wisdom::Game> game) const
         {
-            game->set_search_timeout (std::chrono::seconds { thinkingTime });
-            game->set_max_depth (GameSettings::map_human_depth_to_computer_depth (searchDepth));
-            game->set_players ({ map_player (whitePlayer), map_player (blackPlayer) });
+            game->setSearchTimeout (std::chrono::seconds { thinkingTime });
+            game->setMaxDepth (GameSettings::map_human_depth_to_computer_depth (searchDepth));
+            game->setPlayers ({ map_player (whitePlayer), map_player (blackPlayer) });
         }
     };
 };

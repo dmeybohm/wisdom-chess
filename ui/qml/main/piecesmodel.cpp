@@ -50,7 +50,7 @@ PiecesModel::PiecesModel(QObject *parent)
 void PiecesModel::newGame(gsl::not_null<const ChessGame*> game)
 {
     auto gameState = game->state();
-    auto board = gameState->get_board();
+    auto board = gameState->getBoard();
 
     if (myPieces.count() > 0) {
         beginRemoveRows(QModelIndex{},  0,

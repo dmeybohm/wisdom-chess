@@ -79,7 +79,7 @@ TEST_CASE("Mapping coordinates to moves")
 
         Coord e5 = coord_parse ("e5");
         Coord d6 = coord_parse ("d6");
-        optional<Move> result = map_coordinates_to_move (board, Color::White, e5, d6);
+        optional<Move> result = mapCoordinatesToMove (board, Color::White, e5, d6);
 
         Move expected = move_parse ("e5 d6 ep", Color::White);
         REQUIRE( result.has_value () );
@@ -107,7 +107,7 @@ TEST_CASE("Mapping coordinates to moves")
 
         Coord e1 = coord_parse ("e1");
         Coord g1 = coord_parse ("g1");
-        optional<Move> white_result = map_coordinates_to_move (board, Color::White, e1, g1);
+        optional<Move> white_result = mapCoordinatesToMove (board, Color::White, e1, g1);
 
         Move white_expected = move_parse ("o-o", Color::White);
         CHECK( white_result.has_value () );
@@ -118,7 +118,7 @@ TEST_CASE("Mapping coordinates to moves")
         Coord e8 = coord_parse ("e8");
         Coord g8 = coord_parse ("g8");
 
-        optional<Move> black_result = map_coordinates_to_move (board, Color::Black, e8, g8);
+        optional<Move> black_result = mapCoordinatesToMove (board, Color::Black, e8, g8);
         Move black_expected = move_parse ("o-o", Color::Black);
 
         CHECK( black_result.has_value() );
@@ -138,8 +138,7 @@ TEST_CASE("Mapping coordinates to moves")
         Coord b7 = coord_parse ("b7");
         Coord b8 = coord_parse ("b8");
 
-        optional<Move> result = map_coordinates_to_move (board, Color::White, b7, b8,
-                                                         Piece::Queen);
+        optional<Move> result = mapCoordinatesToMove (board, Color::White, b7, b8, Piece::Queen);
         auto expected = move_parse ("b7b8 (Q)", Color::White);
 
         CHECK( result.has_value() );
@@ -160,8 +159,7 @@ TEST_CASE("Mapping coordinates to moves")
         Coord b7 = coord_parse ("b7");
         Coord c8 = coord_parse ("c8");
 
-        optional<Move> result = map_coordinates_to_move (board, Color::White, b7, c8,
-                                                         Piece::Queen);
+        optional<Move> result = mapCoordinatesToMove (board, Color::White, b7, c8, Piece::Queen);
         auto expected = move_parse ("b7xc8 (Q)", Color::White);
 
         CHECK( result.has_value() );
@@ -182,7 +180,7 @@ TEST_CASE("Mapping coordinates to moves")
         Coord f1 = coord_parse ("f1");
         Coord c4 = coord_parse ("c4");
 
-        optional<Move> result = map_coordinates_to_move (board, Color::White, f1, c4);
+        optional<Move> result = mapCoordinatesToMove (board, Color::White, f1, c4);
         auto expected = move_parse ("f1xc4", Color::White);
 
         CHECK( result.has_value() );
@@ -203,7 +201,7 @@ TEST_CASE("Mapping coordinates to moves")
         Coord f1 = coord_parse ("f1");
         Coord c3 = coord_parse ("c3");
 
-        optional<Move> result = map_coordinates_to_move (board, Color::White, f1, c3);
+        optional<Move> result = mapCoordinatesToMove (board, Color::White, f1, c3);
         auto expected = move_parse ("f1 c3", Color::White);
 
         CHECK( result.has_value() );

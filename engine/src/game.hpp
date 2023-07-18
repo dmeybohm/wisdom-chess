@@ -53,98 +53,98 @@ namespace wisdom
 
         void save (const string& filename) const;
 
-        [[nodiscard]] auto find_best_move (const Logger& logger, Color whom = Color::None) const
+        [[nodiscard]] auto findBestMove (const Logger& logger, Color whom = Color::None) const
             -> optional<Move>;
 
         void move (Move move);
 
-        [[nodiscard]] auto get_current_turn () const -> Color;
+        [[nodiscard]] auto getCurrentTurn () const -> Color;
 
-        void set_current_turn (Color);
+        void setCurrentTurn (Color new_turn);
 
-        [[nodiscard]] auto get_board () const& -> const Board&;
-        [[nodiscard]] auto get_board () const&& -> Board& = delete;
+        [[nodiscard]] auto getBoard () const& -> const Board&;
+        [[nodiscard]] auto getBoard () const&& -> Board& = delete;
 
-        [[nodiscard]] auto get_history () const& -> History&;
-        [[nodiscard]] auto get_history () const&& -> History& = delete;
+        [[nodiscard]] auto getHistory () const& -> History&;
+        [[nodiscard]] auto getHistory () const&& -> History& = delete;
 
-        [[nodiscard]] auto get_move_generator () const& -> not_null<MoveGenerator*>;
-        [[nodiscard]] auto get_move_generator () const&& -> not_null<MoveGenerator*> = delete;
+        [[nodiscard]] auto getMoveGenerator () const& -> not_null<MoveGenerator*>;
+        [[nodiscard]] auto getMoveGenerator () const&& -> not_null<MoveGenerator*> = delete;
 
-        [[nodiscard]] auto get_current_player () const -> Player
+        [[nodiscard]] auto getCurrentPlayer () const -> Player
         {
-            return get_player (my_current_board.get_current_turn ());
+            return getPlayer (my_current_board.get_current_turn ());
         }
 
-        void set_white_player (Player player)
+        void setWhitePlayer (Player player)
         {
             my_players[color_index(Color::White)] = player;
         }
 
-        void set_black_player (Player player)
+        void setBlackPlayer (Player player)
         {
             my_players[color_index(Color::Black)] = player;
         }
 
-        [[nodiscard]] auto get_player (Color color) const -> Player
+        [[nodiscard]] auto getPlayer (Color color) const -> Player
         {
             auto index = color_index (color);
             return my_players[index];
         }
 
-        void set_players (const Players& players)
+        void setPlayers (const Players& players)
         {
             my_players = players;
         }
 
-        [[nodiscard]] auto get_players () const -> Players
+        [[nodiscard]] auto getPlayers () const -> Players
         {
             return my_players;
         }
 
-        [[nodiscard]] auto get_max_depth () const -> int
+        [[nodiscard]] auto getMaxDepth () const -> int
         {
             return my_max_depth;
         }
 
-        void set_max_depth (int max_depth)
+        void setMaxDepth (int max_depth)
         {
             my_max_depth = max_depth;
         }
 
-        [[nodiscard]] auto get_search_timeout () const -> std::chrono::seconds
+        [[nodiscard]] auto getSearchTimeout () const -> std::chrono::seconds
         {
             return my_search_timeout;
         }
 
-        void set_search_timeout (std::chrono::seconds seconds)
+        void setSearchTimeout (std::chrono::seconds seconds)
         {
             my_search_timeout = seconds;
         }
 
-        [[nodiscard]] auto map_coordinates_to_move (Coord src, Coord dst, optional<Piece> promoted) const
+        [[nodiscard]] auto mapCoordinatesToMove (Coord src, Coord dst, optional<Piece> promoted) const
             -> optional<Move>
         {
-            return ::wisdom::map_coordinates_to_move (my_current_board, get_current_turn (),
-                                                      src, dst, promoted);
+            return ::wisdom::mapCoordinatesToMove (my_current_board, getCurrentTurn (), src, dst,
+                                                   promoted);
         }
 
-        void set_periodic_function (const MoveTimer::PeriodicFunction& periodic_function)
+        void setPeriodicFunction (const MoveTimer::PeriodicFunction& periodic_function)
         {
             my_periodic_function = periodic_function;
         }
 
         [[nodiscard]] auto status () const -> GameStatus;
 
-        [[nodiscard]] auto computer_wants_draw (Color who) const -> bool;
+        [[nodiscard]] auto computerWantsDraw (Color who) const -> bool;
 
-        void set_proposed_draw_status (ProposedDrawType draw_type, Color who,
+        void setProposedDrawStatus (ProposedDrawType draw_type, Color who,
                                        DrawStatus draw_status);
 
-        void set_proposed_draw_status (ProposedDrawType draw_type, Color who,
+        void setProposedDrawStatus (ProposedDrawType draw_type, Color who,
                                        bool accepted);
 
-        void set_proposed_draw_status (ProposedDrawType draw_type,
+        void setProposedDrawStatus (ProposedDrawType draw_type,
                                        std::pair<DrawStatus, DrawStatus> draw_statuses);
 
     private:

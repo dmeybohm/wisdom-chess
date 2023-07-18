@@ -82,7 +82,7 @@ TEST_CASE( "Can find mate in 2 1/2" )
     auto game = fen.build ();
 
     SearchHelper helper;
-    IterativeSearch search = helper.build (game.get_board (), 5);
+    IterativeSearch search = helper.build (game.getBoard (), 5);
 
     SearchResult result = search.iteratively_deepen (Color::Black);
 
@@ -150,9 +150,9 @@ TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing
     auto game = parser.build ();
 
     SearchHelper helper;
-    auto search = helper.build (game.get_board (), 3);
+    auto search = helper.build (game.getBoard (), 3);
 
-    auto board_str = game.get_board().to_string();
+    auto board_str = game.getBoard ().to_string();
     INFO( board_str );
 
     SearchResult result = search.iteratively_deepen (Color::Black);
@@ -167,7 +167,7 @@ TEST_CASE( "Finding moves regression test" )
     SearchHelper helper;
     History history;
     MoveTimer timer { 10 };
-    IterativeSearch search = helper.build (game.get_board (), 1, 10);
+    IterativeSearch search = helper.build (game.getBoard (), 1, 10);
 
     SearchResult result = search.iteratively_deepen (Color::White);
     REQUIRE (result.move.has_value ());
@@ -180,7 +180,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 1" )
 
     SearchHelper helper;
     History history;
-    auto search = helper.build (game.get_board (), 3, 180);
+    auto search = helper.build (game.getBoard (), 3, 180);
 
     auto result = search.iteratively_deepen (Color::Black);
 
@@ -190,7 +190,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 1" )
 
     // assert the bishop has moved:
     INFO ("Info:", to_string (*result.move));
-    REQUIRE (game.get_board ().piece_at (coord_parse ("b4"))
+    REQUIRE (game.getBoard ().piece_at (coord_parse ("b4"))
              != ColoredPiece::make (Color::Black, Piece::Bishop));
 }
 
@@ -200,7 +200,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 2 (as white)" )
     auto game = fen.build ();
 
     SearchHelper helper;
-    IterativeSearch search = helper.build (game.get_board (), 3, 180);
+    IterativeSearch search = helper.build (game.getBoard (), 3, 180);
 
     auto result = search.iteratively_deepen (Color::White);
 
@@ -210,10 +210,10 @@ TEST_CASE( "Bishop is not sacrificed scenario 2 (as white)" )
 
     // assert the bishop has moved:
     INFO ("Info:", to_string (*result.move));
-    auto a3_piece = game.get_board ().piece_at (coord_parse ("a3"));
+    auto a3_piece = game.getBoard ().piece_at (coord_parse ("a3"));
     bool bishop_sac = a3_piece != ColoredPiece::make (Color::White, Piece::Bishop);
-    bool is_in_check = is_king_threatened (game.get_board (), Color::Black,
-                                           game.get_board ().get_king_position (Color::Black));
+    bool is_in_check = is_king_threatened (game.getBoard (), Color::Black,
+                                           game.getBoard ().get_king_position (Color::Black));
     bool bishop_sac_or_is_in_check = bishop_sac || is_in_check;
     REQUIRE (bishop_sac_or_is_in_check);
 }
@@ -226,7 +226,7 @@ TEST_CASE( "Advanced pawn should be captured" )
     game.move (move_parse ("e5 d6 ep", Color::White));
 
     SearchHelper helper;
-    auto search = helper.build (game.get_board (), 3, 10);
+    auto search = helper.build (game.getBoard (), 3, 10);
     auto result = search.iteratively_deepen (Color::Black);
 
     REQUIRE (result.move.has_value ());
@@ -235,7 +235,7 @@ TEST_CASE( "Advanced pawn should be captured" )
     // assert the pawn at d6 has been taken:
     INFO ("Chosen move:", to_string (*result.move));
 
-    auto board = game.get_board();
+    auto board = game.getBoard ();
     auto target_piece = board.piece_at (coord_parse ("d6"));
     CHECK( target_piece != ColoredPiece::make (Color::White, Piece::Pawn));
     CHECK( piece_color (target_piece) == Color::Black );
@@ -247,14 +247,14 @@ TEST_CASE( "Checkmate is preferred to stalemate" )
     auto game = fen.build ();
 
     SearchHelper helper;
-    auto search = helper.build (game.get_board (), 5, 10);
+    auto search = helper.build (game.getBoard (), 5, 10);
 
     auto result = search.iteratively_deepen (Color::Black);
 
     REQUIRE( result.move.has_value ());
 
     game.move (*result.move);
-    auto is_stalemate = is_stalemated (game.get_board (), Color::White, *game.get_move_generator ());
+    auto is_stalemate = is_stalemated (game.getBoard (), Color::White, *game.getMoveGenerator ());
     CHECK( !is_stalemate );
 }
 
@@ -266,14 +266,14 @@ TEST_CASE( "Can avoid stalemate" )
     game.move (move_parse ("a5 a6", Color::White));
 
     SearchHelper helper;
-    IterativeSearch search = helper.build (game.get_board (), 5, 5);
+    IterativeSearch search = helper.build (game.getBoard (), 5, 5);
     SearchResult result = search.iteratively_deepen (Color::Black);
 
     REQUIRE( result.move != std::nullopt );
 
     game.move (*result.move);
 
-    auto is_stalemate = is_stalemated (game.get_board (), Color::White, *game.get_move_generator ());
+    auto is_stalemate = is_stalemated (game.getBoard (), Color::White, *game.getMoveGenerator ());
     CHECK( !is_stalemate );
 }
 
@@ -286,7 +286,7 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
         auto game = fen.build ();
 
         SearchHelper helper;
-        IterativeSearch search = helper.build (game.get_board (), 5, 10);
+        IterativeSearch search = helper.build (game.getBoard (), 5, 10);
         SearchResult result = search.iteratively_deepen (Color::White);
 
         // Check the white bishop is not sacrificed:
@@ -298,7 +298,7 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
         auto game = fen.build ();
 
         SearchHelper helper;
-        IterativeSearch search = helper.build (game.get_board(), 7, 10);
+        IterativeSearch search = helper.build (game.getBoard (), 7, 10);
         SearchResult result = search.iteratively_deepen (Color::White);
 
         // Check the white bishop is not sacrificed:

@@ -15,7 +15,7 @@ namespace wisdom
     static FenOutputFormat fen_output_format;
     static WisdomGameOutputFormat wisdom_game_output_format;
 
-    static OutputFormat& make_output_format (const string& filename)
+    static OutputFormat& makeOutputFormat (const string& filename)
     {
         if (filename.find (".fen") != string::npos)
             return fen_output_format;
@@ -40,7 +40,7 @@ namespace wisdom
     Game::Game (Color current_turn)
         : Game { BoardBuilder::from_default_position(), { Player::Human, Player::ChessEngine } }
     {
-        set_current_turn (current_turn);
+        setCurrentTurn (current_turn);
     }
 
     Game::Game (const BoardBuilder& builder)
@@ -58,7 +58,7 @@ namespace wisdom
 
     void Game::move (Move move)
     {
-        my_current_board = my_current_board.with_move (get_current_turn(), move);
+        my_current_board = my_current_board.with_move (getCurrentTurn (), move);
         add_current_board_to_history();
     }
 
@@ -70,16 +70,16 @@ namespace wisdom
 
     void Game::save (const string& input) const
     {
-        OutputFormat& output = make_output_format (input);
-        output.save (input, my_current_board, *my_history, get_current_turn ());
+        OutputFormat& output = makeOutputFormat (input);
+        output.save (input, my_current_board, *my_history, getCurrentTurn ());
     }
 
     auto Game::status () const -> GameStatus
     {
-        if (is_checkmated (my_current_board, get_current_turn (), *my_move_generator))
+        if (is_checkmated (my_current_board, getCurrentTurn (), *my_move_generator))
             return GameStatus::Checkmate;
 
-        if (is_stalemated (my_current_board, get_current_turn (), *my_move_generator))
+        if (is_stalemated (my_current_board, getCurrentTurn (), *my_move_generator))
             return GameStatus::Stalemate;
 
         if (my_history->is_third_repetition (my_current_board))
@@ -98,10 +98,10 @@ namespace wisdom
             }
         }
 
-        if (my_history->is_fifth_repetition (get_board ()))
+        if (my_history->is_fifth_repetition (getBoard ()))
             return GameStatus::FivefoldRepetitionDraw;
 
-        if (History::has_been_fifty_moves_without_progress (get_board ()))
+        if (History::has_been_fifty_moves_without_progress (getBoard ()))
         {
             auto fifty_moves_status = my_history->get_fifty_moves_without_progress_status ();
             switch (fifty_moves_status)
@@ -117,7 +117,7 @@ namespace wisdom
             }
         }
 
-        if (History::has_been_seventy_five_moves_without_progress (get_board ()))
+        if (History::has_been_seventy_five_moves_without_progress (getBoard ()))
             return GameStatus::SeventyFiveMovesWithoutProgressDraw;
 
         const auto& material = my_current_board.get_material ();
@@ -127,11 +127,11 @@ namespace wisdom
         return GameStatus::Playing;
     }
 
-    auto Game::find_best_move (const Logger& logger, Color whom) const
+    auto Game::findBestMove (const Logger& logger, Color whom) const
         -> optional<Move>
     {
         if (whom == Color::None)
-            whom = get_current_turn ();
+            whom = getCurrentTurn ();
 
         MoveTimer overdue_timer { my_search_timeout };
         if (my_periodic_function.has_value ())
@@ -173,45 +173,45 @@ namespace wisdom
             if (input_buf == "stop")
                 break;
 
-            Move move = move_parse (input_buf, result.get_current_turn ());
+            Move move = move_parse (input_buf, result.getCurrentTurn ());
             result.move (move);
         }
 
         return result;
     }
 
-    auto Game::get_current_turn () const -> Color
+    auto Game::getCurrentTurn () const -> Color
     {
         return my_current_board.get_current_turn ();
     }
 
-    void Game::set_current_turn (Color new_turn)
+    void Game::setCurrentTurn (Color new_turn)
     {
         my_current_board.set_current_turn (new_turn);
     }
 
-    auto Game::get_board () const& -> const Board&
+    auto Game::getBoard () const& -> const Board&
     {
         return my_current_board;
     }
 
-    auto Game::get_history () const& -> History&
+    auto Game::getHistory () const& -> History&
     {
         return *my_history;
     }
 
-    auto Game::get_move_generator () const& -> not_null<MoveGenerator*>
+    auto Game::getMoveGenerator () const& -> not_null<MoveGenerator*>
     {
         return my_move_generator.get ();
     }
 
-    auto Game::computer_wants_draw (Color who) const -> bool
+    auto Game::computerWantsDraw (Color who) const -> bool
     {
         int score = evaluate (my_current_board, who, 1, *my_move_generator);
         return score <= Min_Draw_Score;
     }
 
-    static auto draw_desires_to_repetition_status (BothPlayersDrawStatus draw_desires)
+    static auto drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires)
          -> DrawStatus
     {
         assert (both_players_replied (draw_desires));
@@ -226,17 +226,17 @@ namespace wisdom
 
     void Game::update_threefold_repetition_draw_status ()
     {
-        auto status = draw_desires_to_repetition_status (my_third_repetition_draw);
+        auto status = drawDesiresToRepetitionStatus (my_third_repetition_draw);
         my_history->set_threefold_repetition_status (status);
     }
 
     void Game::update_fifty_moves_without_progress_draw_status ()
     {
-        auto status = draw_desires_to_repetition_status (my_fifty_moves_without_progress_draw);
+        auto status = drawDesiresToRepetitionStatus (my_fifty_moves_without_progress_draw);
         my_history->set_fifty_moves_without_progress_status (status);
     }
 
-    void Game::set_proposed_draw_status (ProposedDrawType draw_type, Color who,
+    void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who,
                                          DrawStatus draw_status)
     {
         switch (draw_type)
@@ -259,16 +259,17 @@ namespace wisdom
         }
     }
 
-    void Game::set_proposed_draw_status (ProposedDrawType draw_type, Color who, bool accepted)
+    void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who, bool accepted)
     {
-        set_proposed_draw_status (draw_type, who, accepted ? DrawStatus::Accepted : DrawStatus::Declined);
+        setProposedDrawStatus (draw_type, who,
+                               accepted ? DrawStatus::Accepted : DrawStatus::Declined);
     }
 
-    void Game::set_proposed_draw_status (ProposedDrawType draw_type,
+    void Game::setProposedDrawStatus (ProposedDrawType draw_type,
                                          std::pair<DrawStatus, DrawStatus> draw_statuses)
     {
-        set_proposed_draw_status (draw_type, Color::White, draw_statuses.first);
-        set_proposed_draw_status (draw_type, Color::Black, draw_statuses.second);
+        setProposedDrawStatus (draw_type, Color::White, draw_statuses.first);
+        setProposedDrawStatus (draw_type, Color::Black, draw_statuses.second);
     }
 
 }
