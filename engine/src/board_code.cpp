@@ -11,7 +11,7 @@ namespace wisdom
     {
         for (auto coord : Board::all_coords ())
         {
-            ColoredPiece piece = board.piece_at (coord);
+            ColoredPiece piece = board.pieceAt (coord);
             this->add_piece (coord, piece);
         }
 
@@ -90,7 +90,7 @@ namespace wisdom
         Coord src = move.get_src ();
         Coord dst = move.get_dst ();
 
-        ColoredPiece src_piece = board.piece_at (src);
+        ColoredPiece src_piece = board.pieceAt (src);
 
         Piece src_piece_type = piece_type (src_piece);
         Color src_piece_color = piece_color (src_piece);

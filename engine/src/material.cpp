@@ -7,9 +7,9 @@ namespace wisdom
     {
         for (auto&& coord : Board::all_coords ())
         {
-            auto piece = board.piece_at (coord);
+            auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
-                this->add (board.piece_at (coord));
+                this->add (board.pieceAt (coord));
         }
     }
 

@@ -59,8 +59,8 @@ namespace wisdom
             promoted = ColoredPiece::make (who, promoted_type);
         }
 
-        auto src_piece = board.piece_at (src);
-        auto dst_piece = board.piece_at (dst);
+        auto src_piece = board.pieceAt (src);
+        auto dst_piece = board.pieceAt (dst);
         assert (piece_color (src_piece) == who);
 
         Move result = wisdom::Move::make (src, dst);

@@ -27,36 +27,36 @@ namespace wisdom
 
         void print () const;
 
-        [[nodiscard]] constexpr auto piece_at (int row, int col) const
+        [[nodiscard]] constexpr auto pieceAt (int row, int col) const
             -> ColoredPiece
         {
             return my_squares[coord_index (row, col)];
         }
 
-        [[nodiscard]] constexpr auto piece_at (Coord coord) const
+        [[nodiscard]] constexpr auto pieceAt (Coord coord) const
             -> ColoredPiece
         {
             return my_squares[coord_index (coord)];
         }
 
-        void print_to_file (std::ostream& out) const;
+        void printToFile (std::ostream& out) const;
 
         void dump () const;
 
-        [[nodiscard]] auto get_half_move_clock () const noexcept
+        [[nodiscard]] auto getHalfMoveClock () const noexcept
             -> int
         {
             return my_half_move_clock;
         }
 
-        [[nodiscard]] auto get_full_move_clock () const noexcept
+        [[nodiscard]] auto getFullMoveClock () const noexcept
             -> int
         {
             return my_full_move_clock;
         }
 
         // Convert the board to a string.
-        [[nodiscard]] auto to_string () const -> string;
+        [[nodiscard]] auto toString () const -> string;
 
         [[nodiscard]] auto get_code () const& noexcept -> const BoardCode&
         {

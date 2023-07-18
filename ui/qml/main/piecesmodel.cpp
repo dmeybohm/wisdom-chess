@@ -61,7 +61,7 @@ void PiecesModel::newGame(gsl::not_null<const ChessGame*> game)
 
     for (int row = 0; row < wisdom::Num_Rows; row++) {
         for (int column = 0; column < wisdom::Num_Columns; column++) {
-            auto piece = board.piece_at(row, column);
+            auto piece = board.pieceAt (row, column);
             if (piece != Piece_And_Color_None) {
                 PieceInfo newPiece {
                     row, column, piece, myPieceToImagePath[to_int8(piece)]

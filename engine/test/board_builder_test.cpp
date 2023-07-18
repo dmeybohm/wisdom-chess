@@ -32,10 +32,10 @@ TEST_CASE( "board_builder" )
 
         auto board = Board { builder };
 
-        ColoredPiece pawn = board.piece_at( 1, 0);
-        ColoredPiece white_king = board.piece_at (0, 6);
-        ColoredPiece black_king = board.piece_at (7, 0);
-        ColoredPiece center = board.piece_at (4, 5);
+        ColoredPiece pawn = board.pieceAt (1, 0);
+        ColoredPiece white_king = board.pieceAt (0, 6);
+        ColoredPiece black_king = board.pieceAt (7, 0);
+        ColoredPiece center = board.pieceAt (4, 5);
 
         CHECK( piece_color (pawn) == Color::White );
         CHECK( piece_color (white_king) == Color::White );
@@ -95,8 +95,8 @@ TEST_CASE( "Board can be randomized" )
     {
         for (int8_t col = 0; col < Num_Columns; col++)
         {
-            auto first_row_piece = randomized_board.piece_at (7, col);
-            auto last_row_piece = randomized_board.piece_at (0, col);
+            auto first_row_piece = randomized_board.pieceAt (7, col);
+            auto last_row_piece = randomized_board.pieceAt (0, col);
 
             CHECK( piece_type (last_row_piece) != Piece::Pawn );
             CHECK( piece_type (first_row_piece) != Piece::Pawn );

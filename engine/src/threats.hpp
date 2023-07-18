@@ -53,7 +53,7 @@ namespace wisdom
         {
             ThreatStatus result {};
 
-            ColoredPiece piece = my_board.piece_at (target_row, target_col);
+            ColoredPiece piece = my_board.pieceAt (target_row, target_col);
             auto type = piece_type (piece);
             auto target_color = piece_color (piece);
 
@@ -124,7 +124,7 @@ namespace wisdom
 
         int check_knight_at_square (int target_row, int target_col)
         {
-            auto piece = my_board.piece_at (target_row, target_col);
+            auto piece = my_board.pieceAt (target_row, target_col);
             return piece_color (piece) == my_opponent && piece_type (piece) == Piece::Knight;
         }
 
@@ -211,14 +211,14 @@ namespace wisdom
 
             if (left_col > First_Column)
             {
-                auto what = my_board.piece_at (pawn_row, left_col);
+                auto what = my_board.pieceAt (pawn_row, left_col);
                 if (piece_type (what) == Piece::Pawn && piece_color (what) == my_opponent)
                     return true;
             }
 
             if (right_col < Last_Column)
             {
-                auto what = my_board.piece_at (pawn_row, right_col);
+                auto what = my_board.pieceAt (pawn_row, right_col);
                 if (piece_type (what) == Piece::Pawn && piece_color (what) == my_opponent)
                     return true;
             }
@@ -235,10 +235,10 @@ namespace wisdom
 
             int left_attack_exists
                 = (is_valid_row (target_row) && is_valid_column (left_col)
-                   && my_board.piece_at (target_row, left_col) == ColoredPiece::make (my_opponent, Piece::Pawn));
+                   && my_board.pieceAt (target_row, left_col) == ColoredPiece::make (my_opponent, Piece::Pawn));
             int right_attack_exists
                 = (is_valid_row (target_row) && is_valid_column (right_col)
-                   && my_board.piece_at (target_row, right_col) == ColoredPiece::make (my_opponent, Piece::Pawn));
+                   && my_board.pieceAt (target_row, right_col) == ColoredPiece::make (my_opponent, Piece::Pawn));
 
             return left_attack_exists | right_attack_exists;
         }
@@ -257,18 +257,18 @@ namespace wisdom
 
             bool left_attack_exists = (
                 is_valid_row (target_row) && is_valid_column (starting_col)
-                && my_board.piece_at (target_row, starting_col) == opponent_king
+                && my_board.pieceAt (target_row, starting_col) == opponent_king
             );
             if constexpr (squares_to_check == KingThreatCheck::CheckMiddle)
             {
                 middle_attack_exists = (
                     is_valid_row (target_row) && is_valid_column (middle_col)
-                    && my_board.piece_at (target_row, middle_col) == opponent_king
+                    && my_board.pieceAt (target_row, middle_col) == opponent_king
                 );
             }
             bool right_attack_exists = (
                 is_valid_row (target_row) && is_valid_column (ending_col)
-                && my_board.piece_at (target_row, ending_col) == opponent_king
+                && my_board.pieceAt (target_row, ending_col) == opponent_king
             );
 
             return left_attack_exists | middle_attack_exists | right_attack_exists;
@@ -306,7 +306,7 @@ namespace wisdom
         {
             ThreatStatus result = ThreatStatus::None;
 
-            ColoredPiece piece = my_board.piece_at (target_row, target_col);
+            ColoredPiece piece = my_board.pieceAt (target_row, target_col);
             auto type = piece_type (piece);
             auto target_color = piece_color (piece);
 

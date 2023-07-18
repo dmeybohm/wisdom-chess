@@ -66,7 +66,7 @@ namespace wisdom
         [[nodiscard]] static auto has_been_n_half_moves_without_progress (const Board& board, int n)
             -> bool
         {
-            return board.get_half_move_clock () >= n;
+            return board.getHalfMoveClock () >= n;
         }
 
         [[nodiscard]] static auto has_been_seventy_five_moves_without_progress (

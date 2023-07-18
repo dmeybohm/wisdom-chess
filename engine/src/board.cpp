@@ -28,20 +28,20 @@ namespace wisdom
     {
     }
 
-    void Board::print_to_file (std::ostream &out) const
+    void Board::printToFile (std::ostream &out) const
     {
-        out << to_string ();
+        out << toString ();
         out.flush ();
     }
 
     void Board::print () const
     {
-        print_to_file (std::cout);
+        printToFile (std::cout);
     }
 
     void Board::dump () const
     {
-        print_to_file (std::cerr);
+        printToFile (std::cerr);
     }
 
     static void add_divider (string &result)
@@ -76,7 +76,7 @@ namespace wisdom
         result += "\n";
     }
 
-    auto Board::to_string () const -> string
+    auto Board::toString () const -> string
     {
         string result;
 
@@ -87,7 +87,7 @@ namespace wisdom
         {
             for (int8_t col = 0; col < Num_Columns; col++)
             {
-                ColoredPiece piece = piece_at (row, col);
+                ColoredPiece piece = pieceAt (row, col);
 
                 if (!col)
                     result += "|";
@@ -168,7 +168,7 @@ namespace wisdom
 
             for (int8_t col = 0; col < Num_Columns; col++)
             {
-                ColoredPiece piece = piece_at (row, col);
+                ColoredPiece piece = pieceAt (row, col);
                 if (piece == Piece_And_Color_None)
                 {
                     none_count++;
@@ -280,7 +280,7 @@ namespace wisdom
 
         if (iterations >= 1000)
         {
-            std::cout << "Too many positions : " << to_string () << "\n";
+            std::cout << "Too many positions : " << toString () << "\n";
             throw Error { "Too many iterations trying to generate a random board." };
         }
 
@@ -295,7 +295,7 @@ namespace wisdom
              it.has_value ();
              it = next_coord (*it, +1))
         {
-            if (piece_at (*it) == piece)
+            if (pieceAt (*it) == piece)
                 return it;
         }
 

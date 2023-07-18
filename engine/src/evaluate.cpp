@@ -24,12 +24,12 @@ namespace wisdom
             // check kingside castle:
             if (king_column == Kingside_Castled_King_Column)
             {
-                if (board.piece_at (king_row, Kingside_Castled_Rook_Column) == rook_piece)
+                if (board.pieceAt (king_row, Kingside_Castled_Rook_Column) == rook_piece)
                     return true;
             }
             else if (king_column == Queenside_Castled_King_Column)
             {
-                if (board.piece_at (king_row, Queenside_Castled_Rook_Column) == rook_piece)
+                if (board.pieceAt (king_row, Queenside_Castled_Rook_Column) == rook_piece)
                     return true;
             }
 

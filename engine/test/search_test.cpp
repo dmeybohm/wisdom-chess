@@ -152,7 +152,7 @@ TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing
     SearchHelper helper;
     auto search = helper.build (game.getBoard (), 3);
 
-    auto board_str = game.getBoard ().to_string();
+    auto board_str = game.getBoard ().toString ();
     INFO( board_str );
 
     SearchResult result = search.iteratively_deepen (Color::Black);
@@ -190,7 +190,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 1" )
 
     // assert the bishop has moved:
     INFO ("Info:", to_string (*result.move));
-    REQUIRE (game.getBoard ().piece_at (coord_parse ("b4"))
+    REQUIRE (game.getBoard ().pieceAt (coord_parse ("b4"))
              != ColoredPiece::make (Color::Black, Piece::Bishop));
 }
 
@@ -210,7 +210,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 2 (as white)" )
 
     // assert the bishop has moved:
     INFO ("Info:", to_string (*result.move));
-    auto a3_piece = game.getBoard ().piece_at (coord_parse ("a3"));
+    auto a3_piece = game.getBoard ().pieceAt (coord_parse ("a3"));
     bool bishop_sac = a3_piece != ColoredPiece::make (Color::White, Piece::Bishop);
     bool is_in_check = is_king_threatened (game.getBoard (), Color::Black,
                                            game.getBoard ().get_king_position (Color::Black));
@@ -236,7 +236,7 @@ TEST_CASE( "Advanced pawn should be captured" )
     INFO ("Chosen move:", to_string (*result.move));
 
     auto board = game.getBoard ();
-    auto target_piece = board.piece_at (coord_parse ("d6"));
+    auto target_piece = board.pieceAt (coord_parse ("d6"));
     CHECK( target_piece != ColoredPiece::make (Color::White, Piece::Pawn));
     CHECK( piece_color (target_piece) == Color::Black );
 }

@@ -215,7 +215,7 @@ namespace wisdom
     {
         for (auto coord : board.all_coords ())
         {
-            auto piece = board.piece_at (coord);
+            auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
                 add (piece_color (piece), coord, piece);
         }

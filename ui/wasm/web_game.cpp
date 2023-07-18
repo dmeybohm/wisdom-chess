@@ -15,7 +15,7 @@ namespace wisdom
         for (int i = 0; i < Num_Squares; i++)
         {
             auto coord = make_coord_from_index (i);
-            auto piece = board.piece_at (coord);
+            auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
             {
                 WebColoredPiece new_piece
@@ -167,7 +167,7 @@ namespace wisdom
         for (int i = 0; i < Num_Squares; i++)
         {
             Coord coord = make_coord_from_index (i);
-            ColoredPiece piece = board.piece_at (coord);
+            ColoredPiece piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
             {
                 int id = find_and_remove_id (old_list, coord, piece);

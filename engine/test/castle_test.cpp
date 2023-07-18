@@ -129,10 +129,10 @@ TEST_CASE("Castling state is modified and restored for castling queenside")
     // Check rook and king position updated:
     CHECK( Row (board.get_king_position (Color::Black)) == 0 );
     CHECK( Column (board.get_king_position (Color::Black)) == 2 );
-    CHECK( piece_type (board.piece_at (0, 2)) == Piece::King );
-    CHECK( piece_color (board.piece_at (0, 2)) == Color::Black );
-    CHECK( piece_type (board.piece_at (0, 3)) == Piece::Rook );
-    CHECK( piece_color (board.piece_at (0, 3)) == Color::Black );
+    CHECK( piece_type (board.pieceAt (0, 2)) == Piece::King );
+    CHECK( piece_color (board.pieceAt (0, 2)) == Color::Black );
+    CHECK( piece_type (board.pieceAt (0, 3)) == Piece::Rook );
+    CHECK( piece_color (board.pieceAt (0, 3)) == Color::Black );
 }
 
 TEST_CASE("Castling state is modified and restored for castling kingside")
@@ -163,10 +163,10 @@ TEST_CASE("Castling state is modified and restored for castling kingside")
     // Check rook and king position updated:
     CHECK( Row (board.get_king_position (Color::White)) == 7 );
     CHECK( Column (board.get_king_position (Color::White)) == 6 );
-    CHECK( piece_type (board.piece_at (7, 6)) == Piece::King );
-    CHECK( piece_color (board.piece_at (7, 6)) == Color::White );
-    CHECK( piece_type (board.piece_at (7, 5)) == Piece::Rook );
-    CHECK( piece_color (board.piece_at (7, 5)) == Color::White );
+    CHECK( piece_type (board.pieceAt (7, 6)) == Piece::King );
+    CHECK( piece_color (board.pieceAt (7, 6)) == Color::White );
+    CHECK( piece_type (board.pieceAt (7, 5)) == Piece::Rook );
+    CHECK( piece_color (board.pieceAt (7, 5)) == Color::White );
 }
 
 TEST_CASE( "Opponent's castling state is modified when his rook is taken" )

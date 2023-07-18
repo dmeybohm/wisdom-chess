@@ -23,7 +23,7 @@ namespace wisdom
         -> ColoredPiece
     {
         Coord taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
-        [[maybe_unused]] ColoredPiece taken_piece = piece_at (taken_pawn_pos);
+        [[maybe_unused]] ColoredPiece taken_piece = pieceAt (taken_pawn_pos);
 
         assert (piece_type (taken_piece) == Piece::Pawn);
         assert (piece_color (taken_piece) == color_invert (who));
@@ -59,8 +59,8 @@ namespace wisdom
             dst_col = Column (dst) + 1;
         }
 
-        if (!((piece_type (piece_at (src_row, src_col)) == Piece::Rook
-               || piece_type (piece_at (dst_row, dst_col)) == Piece::Rook)))
+        if (!((piece_type (pieceAt (src_row, src_col)) == Piece::Rook
+               || piece_type (pieceAt (dst_row, dst_col)) == Piece::Rook)))
         {
             throw MoveConsistencyProblem { "move considering: " + wisdom::to_string (move) + "("
                                            + wisdom::to_string (who) + " to move)" };
@@ -74,7 +74,7 @@ namespace wisdom
     {
         Move rook_move = get_castling_rook_move (king_move, who);
 
-        assert (piece_type (piece_at (src)) == Piece::King);
+        assert (piece_type (pieceAt (src)) == Piece::King);
         assert (abs (Column (src) - Column (dst)) == 2);
 
         auto rook_src = rook_move.get_src ();
@@ -82,7 +82,7 @@ namespace wisdom
 
         auto empty_piece = ColoredPiece::make (Color::None, Piece::None);
 
-        auto rook = piece_at (rook_src);
+        auto rook = pieceAt (rook_src);
 
         // do the rook move
         set_piece (rook_dst, rook);
@@ -194,9 +194,9 @@ namespace wisdom
         Coord src = move.get_src ();
         Coord dst = move.get_dst ();
 
-        auto src_piece = piece_at (src);
+        auto src_piece = pieceAt (src);
         auto orig_src_piece = src_piece;
-        auto dst_piece = piece_at (dst);
+        auto dst_piece = pieceAt (dst);
 
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) == who);
@@ -472,8 +472,8 @@ namespace wisdom
     auto mapCoordinatesToMove (const Board& board, Color who, Coord src, Coord dst,
                                optional<Piece> promoted_piece) -> optional<Move>
     {
-        ColoredPiece src_piece = board.piece_at (src);
-        ColoredPiece dst_piece = board.piece_at (dst);
+        ColoredPiece src_piece = board.pieceAt (src);
+        ColoredPiece dst_piece = board.pieceAt (dst);
 
         if (src_piece == Piece_And_Color_None)
             return {};

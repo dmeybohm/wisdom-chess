@@ -89,7 +89,7 @@ namespace wisdom
 
     static auto is_pawn_unmoved (const Board &board, int row, int col) -> bool
     {
-        ColoredPiece piece = board.piece_at (row, col);
+        ColoredPiece piece = board.pieceAt (row, col);
 
         if (piece_color (piece) == Color::White)
             return row == 6;
@@ -111,13 +111,13 @@ namespace wisdom
         // find which direction the king was castling in
         direction = (Column (dst) - Column (src)) / 2;
 
-        ColoredPiece piece1 = board.piece_at (Row (src), Column (dst) - direction);
-        ColoredPiece piece2 = board.piece_at (Row (src), Column (dst));
+        ColoredPiece piece1 = board.pieceAt (Row (src), Column (dst) - direction);
+        ColoredPiece piece2 = board.pieceAt (Row (src), Column (dst));
 
         if (direction < 0)
         {
             // check for piece next to rook on queenside
-            piece3 = board.piece_at (Row (src), Column (dst) - 1);
+            piece3 = board.pieceAt (Row (src), Column (dst) - 1);
         }
 
         return piece_type (piece1) == Piece::None &&
@@ -140,8 +140,8 @@ namespace wisdom
         Coord src = move.get_src ();
         Coord dst = move.get_dst ();
 
-        ColoredPiece src_piece = board.piece_at (src);
-        ColoredPiece dst_piece = board.piece_at (dst);
+        ColoredPiece src_piece = board.pieceAt (src);
+        ColoredPiece dst_piece = board.pieceAt (dst);
 
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) != Color::None);
@@ -197,7 +197,7 @@ namespace wisdom
         {
             for (row = next_row (piece_row, dir); is_valid_row (row); row = next_row (row, dir))
             {
-                ColoredPiece piece = board.piece_at (row, piece_col);
+                ColoredPiece piece = board.pieceAt (row, piece_col);
 
                 append_move (Move::make (piece_row, piece_col, row, piece_col));
 
@@ -207,7 +207,7 @@ namespace wisdom
 
             for (col = next_column (piece_col, dir); is_valid_column (col); col = next_column (col, dir))
             {
-                ColoredPiece piece = board.piece_at (piece_row, col);
+                ColoredPiece piece = board.pieceAt (piece_row, col);
 
                 append_move (Move::make (piece_row, piece_col, piece_row, col));
 
@@ -230,7 +230,7 @@ namespace wisdom
                      is_valid_row (row) && is_valid_column (col);
                      row = next_row (row, r_dir), col = next_column (col, c_dir))
                 {
-                    ColoredPiece piece = board.piece_at (row, col);
+                    ColoredPiece piece = board.pieceAt (row, col);
 
                     append_move (Move::make (piece_row, piece_col, row, col));
 
@@ -307,7 +307,7 @@ namespace wisdom
         array<optional<Move>, 4> all_pawn_moves { nullopt, nullopt, nullopt, nullopt };
 
         // single move
-        if (piece_type (board.piece_at (row, piece_col)) == Piece::None)
+        if (piece_type (board.pieceAt (row, piece_col)) == Piece::None)
             all_pawn_moves[0] = Move::make (piece_row, piece_col, row, piece_col);
 
         // double move
@@ -315,8 +315,7 @@ namespace wisdom
         {
             int double_row = next_row (row, dir);
 
-            if (all_pawn_moves[0].has_value () &&
-                board.piece_at (double_row, piece_col) == Piece_And_Color_None)
+            if (all_pawn_moves[0].has_value () && board.pieceAt (double_row, piece_col) == Piece_And_Color_None)
             {
                 all_pawn_moves[1] = Move::make (piece_row, piece_col, double_row, piece_col);
             }
@@ -330,7 +329,7 @@ namespace wisdom
             if (!is_valid_column (take_col))
                 continue;
 
-            ColoredPiece target_piece = board.piece_at (row, take_col);
+            ColoredPiece target_piece = board.pieceAt (row, take_col);
 
             if (target_piece != Piece_And_Color_None &&
                 piece_color (target_piece) != who)
@@ -387,7 +386,7 @@ namespace wisdom
         take_col = en_passant_column;
 
         [[maybe_unused]]
-        ColoredPiece take_piece = board.piece_at (piece_row, take_col);
+        ColoredPiece take_piece = board.pieceAt (piece_row, take_col);
 
         assert (piece_type (take_piece) == Piece::Pawn);
         assert (piece_color (take_piece) == color_invert (who));
@@ -455,10 +454,10 @@ namespace wisdom
         else
         {
             int a_material_src = Material::weight (
-                piece_type (board.piece_at (move.get_src ()))
+                piece_type (board.pieceAt (move.get_src ()))
             );
             int a_material_dst = Material::weight (
-                piece_type (board.piece_at (move.get_dst ()))
+                piece_type (board.pieceAt (move.get_dst ()))
             );
             return a_material_dst - a_material_src;
         }
@@ -530,7 +529,7 @@ namespace wisdom
 
         for (auto coord : board.all_coords ())
         {
-            ColoredPiece piece = board.piece_at (coord);
+            ColoredPiece piece = board.pieceAt (coord);
 
             if (piece_color (piece) != who)
                 continue;

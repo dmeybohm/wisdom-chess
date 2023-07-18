@@ -100,8 +100,8 @@ TEST_CASE( "Parsing half and full moves")
 
         Game game = parser.build ();
         const auto& board = game.getBoard ();
-        CHECK (board.get_half_move_clock () == 10);
-        CHECK (board.get_full_move_clock () == 5);
+        CHECK (board.getHalfMoveClock () == 10);
+        CHECK (board.getFullMoveClock () == 5);
     }
 
     SUBCASE( "Without castling or en passant square" )
@@ -110,7 +110,7 @@ TEST_CASE( "Parsing half and full moves")
 
         Game game = parser.build ();
         const auto& board = game.getBoard ();
-        CHECK (board.get_half_move_clock () == 10);
-        CHECK (board.get_full_move_clock () == 5);
+        CHECK (board.getHalfMoveClock () == 10);
+        CHECK (board.getFullMoveClock () == 5);
     }
 }
