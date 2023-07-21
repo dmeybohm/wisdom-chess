@@ -92,7 +92,7 @@ namespace wisdom
 
         [[nodiscard]] auto getCastlingEligibility (Color who) const -> CastlingEligibility
         {
-            return my_code.castle_state (who);
+            return my_code.castleState (who);
         }
 
         [[nodiscard]] auto ableToCastle (Color who, CastlingEligibility castle_types) const
@@ -107,17 +107,17 @@ namespace wisdom
 
         [[nodiscard]] auto isEnPassantVulnerable (Color who) const noexcept -> bool
         {
-            return my_code.en_passant_target (who) != No_En_Passant_Coord;
+            return my_code.enPassantTarget (who) != No_En_Passant_Coord;
         }
 
         [[nodiscard]] auto getCurrentTurn () const -> Color
         {
-            return my_code.current_turn ();
+            return my_code.currentTurn();
         }
 
         [[nodiscard]] auto getEnPassantTarget (Color who) const noexcept -> Coord
         {
-            return my_code.en_passant_target (who);
+            return my_code.enPassantTarget (who);
         }
 
         [[nodiscard]] auto getEnPassantTarget (ColorIndex who) const noexcept -> Coord
@@ -127,7 +127,7 @@ namespace wisdom
 
         [[nodiscard]] auto getEnPassantTargets () const noexcept -> EnPassantTargets
         {
-            return my_code.en_passant_targets ();
+            return my_code.enPassantTargets();
         }
 
         void randomizePositions ();
@@ -140,22 +140,22 @@ namespace wisdom
         void removeCastlingEligibility (Color who, CastlingEligibility removed_castle_states)
         {
             CastlingEligibility orig_castle_state = getCastlingEligibility (who);
-            my_code.set_castle_state (who, orig_castle_state | removed_castle_states);
+            my_code.setCastleState (who, orig_castle_state | removed_castle_states);
         }
 
         void undoCastleChange (Color who, CastlingEligibility castle_state)
         {
-            my_code.set_castle_state (who, castle_state);
+            my_code.setCastleState (who, castle_state);
         }
 
         void setCastleState (Color who, CastlingEligibility new_state)
         {
-            my_code.set_castle_state (who, new_state);
+            my_code.setCastleState (who, new_state);
         }
 
         void setEnPassantTarget (ColorIndex who, Coord target) noexcept
         {
-            my_code.set_en_passant_target (color_from_color_index (who), target);
+            my_code.setEnPassantTarget (color_from_color_index (who), target);
         }
 
         void setEnPassantTarget (Color who, Coord target) noexcept
@@ -165,7 +165,7 @@ namespace wisdom
 
         void setCurrentTurn (Color who)
         {
-            my_code.set_current_turn (who);
+            my_code.setCurrentTurn (who);
         }
 
         [[nodiscard]] auto getBoardCode () const& -> const BoardCode&

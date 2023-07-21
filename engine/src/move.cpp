@@ -189,7 +189,7 @@ namespace wisdom
 
     void Board::makeMove (Color who, Move move)
     {
-        assert (who == my_code.current_turn ());
+        assert (who == my_code.currentTurn());
 
         Coord src = move.get_src ();
         Coord dst = move.get_dst ();
@@ -241,7 +241,7 @@ namespace wisdom
 
         updateEnPassantEligibility (who, src_piece, move);
 
-        my_code.apply_move (*this, move);
+        my_code.applyMove (*this, move);
 
         setPiece (src, Piece_And_Color_None);
         setPiece (dst, src_piece);

@@ -9,7 +9,7 @@ BreakBeforeBraces: Allman
 AllowShortIfStatementsOnASingleLine: false
 IndentCaseLabels: true
 NamespaceIndentation: All
-SpaceBeforeParens: Always
+SpaceBeforeParens: NonEmptyParentheses
 AllowShortLoopsOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: None

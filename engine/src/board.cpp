@@ -19,7 +19,7 @@ namespace wisdom
 
     Board::Board (const BoardBuilder& builder)
         : my_squares { builder.getSquares () }
-        , my_code { BoardCode::from_board_builder (builder) }
+        , my_code { BoardCode::fromBoardBuilder (builder) }
         , my_king_pos { builder.getKingPositions () }
         , my_half_move_clock { builder.getHalfMovesClock () }
         , my_full_move_clock { builder.getFullMoves () }
@@ -285,7 +285,7 @@ namespace wisdom
         }
 
         // update the board code:
-        my_code = BoardCode::from_board (*this);
+        my_code = BoardCode::fromBoard (*this);
     }
 
     auto Board::findFirstCoordWithPiece (ColoredPiece piece, Coord starting_at) const
