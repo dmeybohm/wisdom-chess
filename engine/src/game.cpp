@@ -141,10 +141,10 @@ namespace wisdom
             my_current_board, *my_history, logger, overdue_timer,
             my_max_depth
         };
-        SearchResult result = iterative_search.iteratively_deepen (whom);
+        SearchResult result = iterative_search.iterativelyDeepen (whom);
 
         // If user cancelled the search, discard the results.
-        if (iterative_search.is_cancelled ())
+        if (iterative_search.isCancelled())
             return {};
 
         return result.move;

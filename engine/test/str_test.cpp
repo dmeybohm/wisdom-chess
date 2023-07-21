@@ -63,12 +63,12 @@ TEST_CASE( "toInt" )
 {
     SUBCASE( "When successful" )
     {
-        auto result = wisdom::to_int ("10");
+        auto result = wisdom::toInt ("10");
         REQUIRE( result == 10 );
     }
 
     SUBCASE( "Invalid" )
     {
-        CHECK_THROWS_AS( auto result = wisdom::to_int("invalid"), wisdom::Error );
+        CHECK_THROWS_AS( auto result = wisdom::toInt ("invalid"), wisdom::Error );
     }
 }

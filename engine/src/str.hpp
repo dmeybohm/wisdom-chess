@@ -15,7 +15,7 @@ namespace wisdom
     [[nodiscard]] auto join (const vector<string>& strings, const string& separator) -> string;
 
     // Convert the string to an integer.
-    [[nodiscard]] auto to_int (const string& str) -> int;
+    [[nodiscard]] auto toInt (const string& str) -> int;
 }
 
 #endif // WISDOM_CHESS_STR_HPP
