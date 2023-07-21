@@ -170,7 +170,7 @@ namespace wisdom
         if (!my_best_move.has_value ())
         {
             // if there are no legal moves, then the current player is in a stalemate or checkmate position.
-            result.score = evaluate_without_legal_moves (parent_board, side, result.depth);
+            result.score = evaluateWithoutLegalMoves (parent_board, side, result.depth);
         }
         my_best_score = result.score;
         my_best_depth = result.depth;
@@ -208,7 +208,7 @@ namespace wisdom
                 if (next_result.move.has_value ())
                 {
                     best_result = next_result;
-                    if (is_checkmating_opponent_score (next_result.score))
+                    if (isCheckmatingOpponentScore (next_result.score))
                         break;
                 }
             }
