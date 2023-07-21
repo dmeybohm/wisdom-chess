@@ -21,10 +21,10 @@ TEST_CASE( "en passant" )
 
         BoardBuilder builder;
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
-        builder.add_row_of_same_color ("a8", Color::Black, back_rank);
-        builder.add_row_of_same_color_and_piece ("a7", Color::Black, Piece::Pawn);
-        builder.add_piece ("e5", Color::White, Piece::Pawn);
-        builder.add_row_of_same_color ("a1", Color::White, back_rank);
+        builder.addRowOfSameColor ("a8", Color::Black, back_rank);
+        builder.addRowOfSameColorAndPiece ("a7", Color::Black, Piece::Pawn);
+        builder.addPiece ("e5", Color::White, Piece::Pawn);
+        builder.addRowOfSameColor ("a1", Color::White, back_rank);
 
         auto builder_board = Board { builder };
 
@@ -39,13 +39,13 @@ TEST_CASE( "en passant" )
 
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
 
-        builder.add_row_of_same_color ("a8", Color::Black, back_rank);
-        builder.add_row_of_same_color_and_piece ("a7", Color::Black, Piece::Pawn);
+        builder.addRowOfSameColor ("a8", Color::Black, back_rank);
+        builder.addRowOfSameColorAndPiece ("a7", Color::Black, Piece::Pawn);
 
-        builder.add_piece ("e5", Color::White, Piece::Pawn);
-        builder.add_row_of_same_color ("a1", Color::White, back_rank);
+        builder.addPiece ("e5", Color::White, Piece::Pawn);
+        builder.addRowOfSameColor ("a1", Color::White, back_rank);
 
-        builder.set_current_turn (Color::Black);
+        builder.setCurrentTurn (Color::Black);
 
         auto board = Board { builder };
 
@@ -91,11 +91,11 @@ TEST_CASE( "en passant" )
         MoveGenerator move_generator;
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
 
-        builder.add_row_of_same_color ("a8", Color::Black, back_rank);
-        builder.add_row_of_same_color_and_piece ("a7", Color::Black, Piece::Pawn);
-        builder.add_piece ("e5", Color::White, Piece::Pawn);
-        builder.add_row_of_same_color ("a1", Color::White, back_rank);
-        builder.set_current_turn (Color::Black);
+        builder.addRowOfSameColor ("a8", Color::Black, back_rank);
+        builder.addRowOfSameColorAndPiece ("a7", Color::Black, Piece::Pawn);
+        builder.addPiece ("e5", Color::White, Piece::Pawn);
+        builder.addRowOfSameColor ("a1", Color::White, back_rank);
+        builder.setCurrentTurn (Color::Black);
 
         auto board = Board { builder };
         Move pawn_move = move_parse ("d7d5");

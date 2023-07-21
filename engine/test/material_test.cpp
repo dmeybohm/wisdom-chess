@@ -52,14 +52,14 @@ TEST_CASE( "Piece count" )
     Board default_board;
     BoardBuilder builder;
 
-    builder.add_piece ("a1", Color::White, Piece::King);
-    builder.add_piece ("a8", Color::Black, Piece::King);
-    builder.add_piece ("e6", Color::White, Piece::Pawn);
-    builder.add_piece ("f7", Color::Black, Piece::Knight);
-    builder.add_piece ("h2", Color::White, Piece::Rook);
-    builder.add_piece ("e2", Color::Black, Piece::Pawn);
-    builder.add_piece ("d1", Color::White, Piece::Bishop);
-    builder.add_piece ("f2", Color::Black, Piece::Pawn);
+    builder.addPiece ("a1", Color::White, Piece::King);
+    builder.addPiece ("a8", Color::Black, Piece::King);
+    builder.addPiece ("e6", Color::White, Piece::Pawn);
+    builder.addPiece ("f7", Color::Black, Piece::Knight);
+    builder.addPiece ("h2", Color::White, Piece::Rook);
+    builder.addPiece ("e2", Color::Black, Piece::Pawn);
+    builder.addPiece ("d1", Color::White, Piece::Bishop);
+    builder.addPiece ("f2", Color::Black, Piece::Pawn);
 
     auto brd = Board { builder };
 
@@ -138,8 +138,8 @@ TEST_CASE( "checkmate_is_possible()" )
     BoardBuilder builder;
     const auto& default_material = default_board.getMaterial ();
 
-    builder.add_piece ("a1", Color::White, Piece::King);
-    builder.add_piece ("a8", Color::Black, Piece::King);
+    builder.addPiece ("a1", Color::White, Piece::King);
+    builder.addPiece ("a8", Color::Black, Piece::King);
 
     SUBCASE( "Returns yes for default board" )
     {
@@ -148,7 +148,7 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns no if there is a rook and king" )
     {
-        builder.add_piece ("a7", Color::Black, Piece::Rook);
+        builder.addPiece ("a7", Color::Black, Piece::Rook);
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
@@ -157,8 +157,8 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns no if there is a rook and king vs a rook and king" )
     {
-        builder.add_piece ("a7", Color::Black, Piece::Rook);
-        builder.add_piece ("c5", Color::White, Piece::Rook);
+        builder.addPiece ("a7", Color::Black, Piece::Rook);
+        builder.addPiece ("c5", Color::White, Piece::Rook);
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
@@ -167,8 +167,8 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns yes if there is a king and two knights vs a king" )
     {
-        builder.add_piece ("a7", Color::Black, Piece::Knight);
-        builder.add_piece ("b7", Color::Black, Piece::Knight);
+        builder.addPiece ("a7", Color::Black, Piece::Knight);
+        builder.addPiece ("b7", Color::Black, Piece::Knight);
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
@@ -177,8 +177,8 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns yes if there is a king and knight vs a king and knight" )
     {
-        builder.add_piece ("a7", Color::Black, Piece::Knight);
-        builder.add_piece ("c7", Color::White, Piece::Knight);
+        builder.addPiece ("a7", Color::Black, Piece::Knight);
+        builder.addPiece ("c7", Color::White, Piece::Knight);
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
@@ -187,9 +187,9 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns yes if there is a king and two knights vs a king and knight" )
     {
-        builder.add_piece ("a7", Color::Black, Piece::Knight);
-        builder.add_piece ("b7", Color::Black, Piece::Knight);
-        builder.add_piece ("c7", Color::White, Piece::Knight);
+        builder.addPiece ("a7", Color::Black, Piece::Knight);
+        builder.addPiece ("b7", Color::Black, Piece::Knight);
+        builder.addPiece ("c7", Color::White, Piece::Knight);
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
@@ -198,7 +198,7 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns yes if there is a pawn" )
     {
-        builder.add_piece ("a7", Color::Black, Piece::Pawn);
+        builder.addPiece ("a7", Color::Black, Piece::Pawn);
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
 
@@ -215,7 +215,7 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns no if there is a king and knight vs. a king" )
     {
-        builder.add_piece ("a7", Color::Black, Piece::Knight);
+        builder.addPiece ("a7", Color::Black, Piece::Knight);
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
@@ -225,7 +225,7 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns no if there is a king and bishop vs. a king" )
     {
-        builder.add_piece ("a7", Color::Black, Piece::Bishop);
+        builder.addPiece ("a7", Color::Black, Piece::Bishop);
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
@@ -235,8 +235,8 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns yes if there is a king and bishop vs. a king and bishop of opposite colors" )
     {
-        builder.add_piece ("a8", Color::White, Piece::Bishop);
-        builder.add_piece ("a7", Color::Black, Piece::Bishop);
+        builder.addPiece ("a8", Color::White, Piece::Bishop);
+        builder.addPiece ("a7", Color::Black, Piece::Bishop);
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
@@ -246,8 +246,8 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns no if there is a king and bishop vs. a king and bishop of the same color" )
     {
-        builder.add_piece ("a8", Color::White, Piece::Bishop);
-        builder.add_piece ("b7", Color::Black, Piece::Bishop);
+        builder.addPiece ("a8", Color::White, Piece::Bishop);
+        builder.addPiece ("b7", Color::Black, Piece::Bishop);
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
@@ -257,8 +257,8 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns yes if there is a king two bishops of opposite color vs. a king" )
     {
-        builder.add_piece ("a8", Color::White, Piece::Bishop);
-        builder.add_piece ("b8", Color::White, Piece::Bishop);
+        builder.addPiece ("a8", Color::White, Piece::Bishop);
+        builder.addPiece ("b8", Color::White, Piece::Bishop);
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
@@ -268,8 +268,8 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns no if there is a king two bishops of the same color vs. a king" )
     {
-        builder.add_piece ("a8", Color::White, Piece::Bishop);
-        builder.add_piece ("b7", Color::White, Piece::Bishop);
+        builder.addPiece ("a8", Color::White, Piece::Bishop);
+        builder.addPiece ("b7", Color::White, Piece::Bishop);
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();

@@ -20,11 +20,11 @@ TEST_CASE( "Center pawn elevates position overall_score" )
 {
     BoardBuilder builder;
 
-    builder.add_piece("e1", Color::White, Piece::King);
-    builder.add_piece("e8", Color::Black, Piece::King);
+    builder.addPiece ("e1", Color::White, Piece::King);
+    builder.addPiece ("e8", Color::Black, Piece::King);
 
-    builder.add_piece("e4", Color::White, Piece::Pawn);
-    builder.add_piece("a6", Color::Black, Piece::Pawn);
+    builder.addPiece ("e4", Color::White, Piece::Pawn);
+    builder.addPiece ("a6", Color::Black, Piece::Pawn);
     
     auto board = Board { builder };
 
@@ -35,11 +35,11 @@ TEST_CASE( "Capture updates position overall_score correctly" )
 {
     BoardBuilder builder;
 
-    builder.add_piece("e1", Color::White, Piece::King);
-    builder.add_piece("e8", Color::Black, Piece::King);
+    builder.addPiece ("e1", Color::White, Piece::King);
+    builder.addPiece ("e8", Color::Black, Piece::King);
 
-    builder.add_piece("e4", Color::White, Piece::Knight);
-    builder.add_piece("d6", Color::Black, Piece::Pawn);
+    builder.addPiece ("e4", Color::White, Piece::Knight);
+    builder.addPiece ("d6", Color::Black, Piece::Pawn);
 
     auto board = Board { builder };
 
@@ -58,11 +58,11 @@ TEST_CASE( "En passant updates position overall_score correctly")
 {
     BoardBuilder builder;
 
-    builder.add_piece("e1", Color::White, Piece::King);
-    builder.add_piece("e8", Color::Black, Piece::King);
+    builder.addPiece ("e1", Color::White, Piece::King);
+    builder.addPiece ("e8", Color::Black, Piece::King);
 
-    builder.add_piece("e5", Color::White, Piece::Pawn);
-    builder.add_piece("d5", Color::Black, Piece::Pawn);
+    builder.addPiece ("e5", Color::White, Piece::Pawn);
+    builder.addPiece ("d5", Color::Black, Piece::Pawn);
 
     auto board = Board { builder };
 
@@ -82,12 +82,12 @@ TEST_CASE( "Castling updates position overall_score correctly")
 {
     BoardBuilder builder;
 
-    builder.add_piece("e1", Color::White, Piece::King);
-    builder.add_piece("e8", Color::Black, Piece::King);
+    builder.addPiece ("e1", Color::White, Piece::King);
+    builder.addPiece ("e8", Color::Black, Piece::King);
 
-    builder.add_piece("h1", Color::White, Piece::Rook);
-    builder.add_piece("a1", Color::White, Piece::Rook);
-    builder.add_piece("d5", Color::Black, Piece::Pawn);
+    builder.addPiece ("h1", Color::White, Piece::Rook);
+    builder.addPiece ("a1", Color::White, Piece::Rook);
+    builder.addPiece ("d5", Color::Black, Piece::Pawn);
 
     auto board = Board { builder };
     int initial_score_white = board.getPosition ().overall_score (Color::White);
@@ -110,10 +110,10 @@ TEST_CASE( "Promoting move updates position overall_score correctly")
 {
     BoardBuilder builder;
 
-    builder.add_piece("e1", Color::White, Piece::King);
-    builder.add_piece("e8", Color::Black, Piece::King);
+    builder.addPiece ("e1", Color::White, Piece::King);
+    builder.addPiece ("e8", Color::Black, Piece::King);
 
-    builder.add_piece("h7", Color::White, Piece::Pawn);
+    builder.addPiece ("h7", Color::White, Piece::Pawn);
 
     auto board = Board { builder };
     int initial_score_white = board.getPosition ().overall_score (Color::White);

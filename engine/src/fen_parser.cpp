@@ -10,7 +10,7 @@ namespace wisdom
 
     Game FenParser::build ()
     {
-        builder.set_current_turn (active_player);
+        builder.setCurrentTurn (active_player);
         return Game { builder };
     }
 
@@ -74,7 +74,7 @@ namespace wisdom
             else if (isalpha (ch))
             {
                 ColoredPiece piece = parse_piece (ch);
-                builder.add_piece (row, col, piece_color (piece), piece_type (piece));
+                builder.addPiece (row, col, piece_color (piece), piece_type (piece));
                 col++;
                 if (col > Num_Columns)
                     throw FenParserError ("Invalid columns!");
@@ -104,7 +104,7 @@ namespace wisdom
         try
         {
             string cstr { str.substr (0, 2) };
-            builder.set_en_passant_target (color_invert (active_player), cstr);
+            builder.setEnPassantTarget (color_invert (active_player), cstr);
         }
         catch ([[maybe_unused]] const BoardBuilderError& e)
         {
@@ -145,20 +145,20 @@ namespace wisdom
                 white_castle &= new_state;
         }
 
-        builder.set_castling (Color::White, white_castle);
-        builder.set_castling (Color::Black, black_castle);
+        builder.setCastling (Color::White, white_castle);
+        builder.setCastling (Color::Black, black_castle);
     }
 
     // halfmove clock:
     void FenParser::parse_half_move (int half_moves)
     {
-        builder.set_half_moves_clock (half_moves);
+        builder.setHalfMovesClock (half_moves);
     }
 
     // fullmove number:
     void FenParser::parse_full_move (int full_moves)
     {
-        builder.set_full_moves (full_moves);
+        builder.setFullMoves (full_moves);
     }
 
     void FenParser::parse (const string& source)

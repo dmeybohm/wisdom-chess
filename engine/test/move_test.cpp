@@ -129,9 +129,9 @@ TEST_CASE("Mapping coordinates to moves")
     {
         BoardBuilder builder;
 
-        builder.add_piece ("b7", Color::White, Piece::Pawn);
-        builder.add_piece ("e1", Color::White, Piece::King);
-        builder.add_piece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("b7", Color::White, Piece::Pawn);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
 
         auto board = Board { builder };
 
@@ -149,10 +149,10 @@ TEST_CASE("Mapping coordinates to moves")
     {
         BoardBuilder builder;
 
-        builder.add_piece ("c8", Color::Black, Piece::Rook);
-        builder.add_piece ("b7", Color::White, Piece::Pawn);
-        builder.add_piece ("e1", Color::White, Piece::King);
-        builder.add_piece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("c8", Color::Black, Piece::Rook);
+        builder.addPiece ("b7", Color::White, Piece::Pawn);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
 
         auto board = Board { builder };
 
@@ -170,10 +170,10 @@ TEST_CASE("Mapping coordinates to moves")
     {
         BoardBuilder builder;
 
-        builder.add_piece ("c4", Color::Black, Piece::Pawn);
-        builder.add_piece ("f1", Color::White, Piece::Bishop);
-        builder.add_piece ("e1", Color::White, Piece::King);
-        builder.add_piece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("c4", Color::Black, Piece::Pawn);
+        builder.addPiece ("f1", Color::White, Piece::Bishop);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
 
         auto board = Board { builder };
 
@@ -191,10 +191,10 @@ TEST_CASE("Mapping coordinates to moves")
     {
         BoardBuilder builder;
 
-        builder.add_piece ("c4", Color::Black, Piece::Pawn);
-        builder.add_piece ("f1", Color::White, Piece::Bishop);
-        builder.add_piece ("e1", Color::White, Piece::King);
-        builder.add_piece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("c4", Color::Black, Piece::Pawn);
+        builder.addPiece ("f1", Color::White, Piece::Bishop);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
 
         auto board = Board { builder };
 

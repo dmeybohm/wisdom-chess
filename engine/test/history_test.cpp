@@ -16,8 +16,8 @@ TEST_CASE( "Third repetition is detected" )
         History history;
         BoardBuilder builder;
 
-        builder.add_piece ("e8", Color::Black, Piece::King);
-        builder.add_piece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("e1", Color::White, Piece::King);
 
         auto board = Board { builder };
 
@@ -70,10 +70,10 @@ TEST_CASE( "Third repetition is detected" )
         History history;
         BoardBuilder builder;
 
-        builder.add_piece ("e8", Color::Black, Piece::King);
-        builder.add_piece ("e7", Color::Black, Piece::Pawn);
-        builder.add_piece ("e1", Color::White, Piece::King);
-        builder.set_current_turn (Color::Black);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("e7", Color::Black, Piece::Pawn);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.setCurrentTurn (Color::Black);
 
         auto board = Board { builder };
 
@@ -237,8 +237,8 @@ TEST_CASE( "Many moves without progress are detected" )
     History history;
     BoardBuilder builder;
 
-    builder.add_piece ("e8", Color::Black, Piece::King);
-    builder.add_piece ("e1", Color::White, Piece::King);
+    builder.addPiece ("e8", Color::Black, Piece::King);
+    builder.addPiece ("e1", Color::White, Piece::King);
 
     auto board = Board { builder };
 

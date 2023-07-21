@@ -26,9 +26,9 @@ TEST_CASE( "board_builder" )
     {
         BoardBuilder builder;
 
-        builder.add_piece ("a7", Color::White, Piece::Pawn);
-        builder.add_piece ("g8", Color::White, Piece::King);
-        builder.add_piece ("a1", Color::Black, Piece::King);
+        builder.addPiece ("a7", Color::White, Piece::Pawn);
+        builder.addPiece ("g8", Color::White, Piece::King);
+        builder.addPiece ("a1", Color::Black, Piece::King);
 
         auto board = Board { builder };
 
@@ -54,7 +54,7 @@ TEST_CASE( "board_builder" )
         bool no_throw = false;
 
         try {
-            builder.add_piece ("a9", Color::White, Piece::Pawn);
+            builder.addPiece ("a9", Color::White, Piece::Pawn);
             no_throw = true;
         } catch (const CoordParseError& board_builder_exception) {
             CHECK( board_builder_exception.message() == "Invalid coordinate!" );
@@ -62,7 +62,7 @@ TEST_CASE( "board_builder" )
         REQUIRE( no_throw == false );
 
         try {
-            builder.add_piece ("j7", Color::White, Piece::Pawn);
+            builder.addPiece ("j7", Color::White, Piece::Pawn);
             no_throw = true;
         } catch (const CoordParseError& board_builder_exception) {
             CHECK( board_builder_exception.message() == "Invalid coordinate!" );
@@ -70,7 +70,7 @@ TEST_CASE( "board_builder" )
         REQUIRE( no_throw == false );
 
         try {
-            builder.add_piece ("asdf", Color::White, Piece::Pawn);
+            builder.addPiece ("asdf", Color::White, Piece::Pawn);
             no_throw = true;
         } catch (const BoardBuilderError& board_builder_exception) {
             CHECK( board_builder_exception.message() == "Invalid coordinate string!" );

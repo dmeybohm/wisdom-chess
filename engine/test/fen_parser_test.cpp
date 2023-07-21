@@ -31,10 +31,10 @@ TEST_CASE( "FEN notation for non-starting position" )
 
     BoardBuilder builder;
 
-    builder.add_piece ("e8", Color::Black, Piece::Rook);
-    builder.add_piece ("a2", Color::Black, Piece::King);
-    builder.add_piece ("e1", Color::White, Piece::King);
-    builder.add_piece ("h1", Color::White, Piece::Rook);
+    builder.addPiece ("e8", Color::Black, Piece::Rook);
+    builder.addPiece ("a2", Color::Black, Piece::King);
+    builder.addPiece ("e1", Color::White, Piece::King);
+    builder.addPiece ("h1", Color::White, Piece::Rook);
 
     auto expected = Board { builder };
     CHECK(game.getBoard () == expected );

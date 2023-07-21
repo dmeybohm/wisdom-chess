@@ -48,14 +48,14 @@ namespace wisdom
 
         for (auto coord : CoordIterator {})
         {
-            ColoredPiece piece = builder.piece_at (coord);
+            ColoredPiece piece = builder.pieceAt (coord);
             result.add_piece (coord, piece);
         }
 
-        auto current_turn = builder.get_current_turn ();
+        auto current_turn = builder.getCurrentTurn ();
         result.set_current_turn (current_turn);
 
-        auto en_passant_targets = builder.get_en_passant_targets ();
+        auto en_passant_targets = builder.getEnPassantTargets ();
         if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
         {
             result.set_en_passant_target (Color::White, en_passant_targets[Color_Index_White]);
@@ -69,14 +69,14 @@ namespace wisdom
             result.set_en_passant_target (Color::White, No_En_Passant_Coord);
         }
 
-        result.set_castle_state (Color::White, builder.get_castle_state (Color::White));
-        result.set_castle_state (Color::Black, builder.get_castle_state (Color::Black));
+        result.set_castle_state (Color::White, builder.getCastleState (Color::White));
+        result.set_castle_state (Color::Black, builder.getCastleState (Color::Black));
         return result;
     }
 
     auto BoardCode::from_default_position () -> BoardCode
     {
-        BoardBuilder builder = BoardBuilder::from_default_position ();
+        BoardBuilder builder = BoardBuilder::fromDefaultPosition ();
         return BoardCode::from_board_builder (builder);
     }
 

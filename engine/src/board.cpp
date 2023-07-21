@@ -13,22 +13,22 @@ namespace wisdom
     static constexpr int Board_Length_In_Chars = 31;
 
     Board::Board ()
-        : Board { BoardBuilder::from_default_position () }
+        : Board { BoardBuilder::fromDefaultPosition () }
     {
     }
 
     Board::Board (const BoardBuilder& builder)
-        : my_squares { builder.get_squares () }
+        : my_squares { builder.getSquares () }
         , my_code { BoardCode::from_board_builder (builder) }
-        , my_king_pos { builder.get_king_positions () }
-        , my_half_move_clock { builder.get_half_moves_clock () }
-        , my_full_move_clock { builder.get_full_moves () }
+        , my_king_pos { builder.getKingPositions () }
+        , my_half_move_clock { builder.getHalfMovesClock () }
+        , my_full_move_clock { builder.getFullMoves () }
         , my_position { Position { *this } }
         , my_material { Material { *this } }
     {
     }
 
-    void Board::printToFile (std::ostream &out) const
+    void Board::printToFile (std::ostream& out) const
     {
         out << toString ();
         out.flush ();

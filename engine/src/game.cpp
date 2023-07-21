@@ -24,21 +24,21 @@ namespace wisdom
     }
 
     Game::Game ()
-        : Game { BoardBuilder::from_default_position(),  { { Player::Human, Player::ChessEngine } } }
+        : Game { BoardBuilder::fromDefaultPosition (),  { { Player::Human, Player::ChessEngine } } }
     {
     }
 
     Game::Game (const Players& players)
-        : Game { BoardBuilder::from_default_position(), { { players[0], players[1] } } }
+        : Game { BoardBuilder::fromDefaultPosition (), { { players[0], players[1] } } }
     {}
 
     Game::Game (Player white_player, Player black_player)
-        : Game { BoardBuilder::from_default_position(), { { white_player, black_player } } }
+        : Game { BoardBuilder::fromDefaultPosition (), { { white_player, black_player } } }
     {
     }
 
     Game::Game (Color current_turn)
-        : Game { BoardBuilder::from_default_position(), { Player::Human, Player::ChessEngine } }
+        : Game { BoardBuilder::fromDefaultPosition (), { Player::Human, Player::ChessEngine } }
     {
         setCurrentTurn (current_turn);
     }

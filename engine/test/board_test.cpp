@@ -15,11 +15,11 @@ TEST_CASE( "findFirstCoordWithPiece()" )
 {
     BoardBuilder builder;
 
-    builder.add_piece ("e1", Color::White, Piece::King);
-    builder.add_piece ("e8", Color::Black, Piece::King);
-    builder.add_piece ("a2", Color::White, Piece::Pawn);
-    builder.add_piece ("a3", Color::White, Piece::Pawn);
-    builder.add_piece ("a7", Color::Black, Piece::Pawn);
+    builder.addPiece ("e1", Color::White, Piece::King);
+    builder.addPiece ("e8", Color::Black, Piece::King);
+    builder.addPiece ("a2", Color::White, Piece::Pawn);
+    builder.addPiece ("a3", Color::White, Piece::Pawn);
+    builder.addPiece ("a7", Color::Black, Piece::Pawn);
 
     auto board = Board { builder };
 

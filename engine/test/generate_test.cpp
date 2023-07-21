@@ -40,13 +40,13 @@ TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
 {
     BoardBuilder builder;
 
-    builder.add_piece ("c4", Color::Black, Piece::Pawn);
-    builder.add_piece ("e4", Color::Black, Piece::Queen);
-    builder.add_piece ("d3", Color::White, Piece::Queen);
-    builder.add_piece ("b3", Color::White, Piece::Bishop);
-    builder.add_piece ("a1", Color::White, Piece::King);
-    builder.add_piece ("e1", Color::Black, Piece::King);
-    builder.set_current_turn (Color::Black);
+    builder.addPiece ("c4", Color::Black, Piece::Pawn);
+    builder.addPiece ("e4", Color::Black, Piece::Queen);
+    builder.addPiece ("d3", Color::White, Piece::Queen);
+    builder.addPiece ("b3", Color::White, Piece::Bishop);
+    builder.addPiece ("a1", Color::White, Piece::King);
+    builder.addPiece ("e1", Color::Black, Piece::King);
+    builder.setCurrentTurn (Color::Black);
 
     auto board = Board { builder };
 

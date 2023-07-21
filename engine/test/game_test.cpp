@@ -65,7 +65,7 @@ TEST_CASE( "Initial board position is added to history" )
 
     SUBCASE( "When game is initialized from a board builder" )
     {
-        BoardBuilder builder = BoardBuilder::from_default_position();
+        BoardBuilder builder = BoardBuilder::fromDefaultPosition ();
         Game game { builder };
         run_test (game);
     }

@@ -48,10 +48,10 @@ TEST_CASE( "board code")
     {
         BoardBuilder builder;
 
-        builder.add_piece ("a8", Color::White, Piece::Bishop);
-        builder.add_piece ("b7", Color::Black, Piece::Knight);
-        builder.add_piece ("e1", Color::Black, Piece::King);
-        builder.add_piece ("e8", Color::White, Piece::King);
+        builder.addPiece ("a8", Color::White, Piece::Bishop);
+        builder.addPiece ("b7", Color::Black, Piece::Knight);
+        builder.addPiece ("e1", Color::Black, Piece::King);
+        builder.addPiece ("e8", Color::White, Piece::King);
 
         auto brd = Board { builder };
         BoardCode code  = BoardCode::from_board (brd);
@@ -68,10 +68,10 @@ TEST_CASE( "board code")
     {
         BoardBuilder builder;
 
-        builder.add_piece ("a8", Color::White, Piece::Bishop);
-        builder.add_piece ("b7", Color::Black, Piece::Pawn);
-        builder.add_piece ("e1", Color::Black, Piece::King);
-        builder.add_piece ("e8", Color::White, Piece::King);
+        builder.addPiece ("a8", Color::White, Piece::Bishop);
+        builder.addPiece ("b7", Color::Black, Piece::Pawn);
+        builder.addPiece ("e1", Color::Black, Piece::King);
+        builder.addPiece ("e8", Color::White, Piece::King);
 
         auto brd = Board { builder };
         brd.setCurrentTurn (Color::Black);
@@ -89,10 +89,10 @@ TEST_CASE( "board code")
     {
         BoardBuilder builder;
 
-        builder.add_piece ("a8", Color::Black, Piece::Rook);
-        builder.add_piece ("b6", Color::Black, Piece::Pawn);
-        builder.add_piece ("e8", Color::Black, Piece::King);
-        builder.add_piece ("e1", Color::White, Piece::King);
+        builder.addPiece ("a8", Color::Black, Piece::Rook);
+        builder.addPiece ("b6", Color::Black, Piece::Pawn);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("e1", Color::White, Piece::King);
 
         auto brd = Board { builder };
         brd.setCurrentTurn (Color::Black);
@@ -110,10 +110,10 @@ TEST_CASE( "board code")
     {
         BoardBuilder builder;
 
-        builder.add_piece ("a8", Color::White, Piece::Rook);
-        builder.add_piece ("b7", Color::Black, Piece::Pawn);
-        builder.add_piece ("e8", Color::Black, Piece::King);
-        builder.add_piece ("e1", Color::White, Piece::King);
+        builder.addPiece ("a8", Color::White, Piece::Rook);
+        builder.addPiece ("b7", Color::Black, Piece::Pawn);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("e1", Color::White, Piece::King);
 
         auto brd = Board { builder };
         brd.setCurrentTurn (Color::Black);
@@ -138,13 +138,13 @@ TEST_CASE( "Board code stores ancilliary state" )
     {
         BoardBuilder builder;
 
-        builder.add_piece ("e5", Color::White, Piece::Pawn);
-        builder.add_piece ("d5", Color::Black, Piece::Pawn);
-        builder.add_piece ("e1", Color::White, Piece::King);
-        builder.add_piece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("e5", Color::White, Piece::Pawn);
+        builder.addPiece ("d5", Color::Black, Piece::Pawn);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
 
         auto board_without_state = Board { builder };
-        builder.set_en_passant_target (Color::Black ,"d6");
+        builder.setEnPassantTarget (Color::Black, "d6");
         auto board_with_state = Board { builder };
 
         auto with_state_code = board_with_state.getCode ();
@@ -166,13 +166,13 @@ TEST_CASE( "Board code stores ancilliary state" )
     {
         BoardBuilder builder;
 
-        builder.add_piece ("e4", Color::White, Piece::Pawn);
-        builder.add_piece ("d4", Color::Black, Piece::Pawn);
-        builder.add_piece ("e1", Color::White, Piece::King);
-        builder.add_piece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("e4", Color::White, Piece::Pawn);
+        builder.addPiece ("d4", Color::Black, Piece::Pawn);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
 
         auto board_without_state = Board { builder };
-        builder.set_en_passant_target (Color::White ,"e3");
+        builder.setEnPassantTarget (Color::White, "e3");
         auto board_with_state = Board { builder };
 
         auto with_state_code = board_with_state.getCode ();

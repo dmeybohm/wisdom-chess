@@ -23,7 +23,7 @@ namespace wisdom
 
         for (auto move : moves)
         {
-            Board new_board = board.with_move (side, move);
+            Board new_board = board.withMove (side, move);
 
             if (!is_legal_position_after_move (new_board, side, move))
                 continue;
@@ -111,7 +111,7 @@ namespace wisdom
         for (const auto& move_str : moves_str_list)
         {
             auto move = convert_move (board_copy, who, move_str);
-            board_copy = board_copy.with_move (who, move);
+            board_copy = board_copy.withMove (who, move);
             who = color_invert (who);
             result.push_back (move);
         }
@@ -162,7 +162,7 @@ namespace wisdom
             Stats stats;
 
             Color next_player = wisdom::color_invert (active_player);
-            auto new_board = board.with_move (active_player, move);
+            auto new_board = board.withMove (active_player, move);
 
             if (!wisdom::is_legal_position_after_move (new_board, active_player, move))
                 continue;
@@ -183,7 +183,7 @@ namespace wisdom
     {
         for (auto& move : list)
         {
-            board = board.with_move (color, move);
+            board = board.withMove (color, move);
             color = wisdom::color_invert (color);
         }
 

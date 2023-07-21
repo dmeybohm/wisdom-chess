@@ -26,12 +26,12 @@ namespace wisdom
             Piece piece_type;
         };
 
-        constexpr BoardBuilder () : my_squares { empty_squares () }
+        constexpr BoardBuilder () : my_squares { emptySquares () }
         {}
 
-        static auto from_default_position () -> BoardBuilder;
+        static auto fromDefaultPosition() -> BoardBuilder;
 
-        [[nodiscard]] static constexpr auto empty_squares () -> array<ColoredPiece, Num_Squares>
+        [[nodiscard]] static constexpr auto emptySquares() -> array<ColoredPiece, Num_Squares>
         {
             array<ColoredPiece, Num_Squares> result {};
             for (auto i = 0; i < Num_Squares; i++)
@@ -44,60 +44,60 @@ namespace wisdom
             Piece::Bishop, Piece::Knight, Piece::Rook,
         };
 
-        void add_piece (const string& coord_str, Color who, Piece piece_type);
+        void addPiece (const string& coord_str, Color who, Piece piece_type);
 
-        void add_piece (int row, int col, Color who, Piece piece_type);
+        void addPiece (int row, int col, Color who, Piece piece_type);
 
-        void add_pieces (Color who, const vector<CoordAndPiece>& pieces);
+        void addPieces (Color who, const vector<CoordAndPiece>& pieces);
 
-        void add_row_of_same_color (int row, Color who, const PieceRow& piece_types);
+        void addRowOfSameColor (int row, Color who, const PieceRow& piece_types);
 
-        void add_row_of_same_color (const string& coord_str, Color who, const PieceRow& piece_types);
+        void addRowOfSameColor (const string& coord_str, Color who, const PieceRow& piece_types);
 
-        void add_row_of_same_color_and_piece (int row, Color who, Piece piece_type);
+        void addRowOfSameColorAndPiece (int row, Color who, Piece piece_type);
 
-        void add_row_of_same_color_and_piece (const string& coord_str, Color who, Piece piece_type);
+        void addRowOfSameColorAndPiece (const string& coord_str, Color who, Piece piece_type);
 
-        void set_en_passant_target (Color vulnerable_color, const string& coord_str);
+        void setEnPassantTarget (Color vulnerable_color, const string& coord_str);
 
-        void set_castling (Color who, CastlingEligibility state);
+        void setCastling (Color who, CastlingEligibility state);
 
-        void set_current_turn (Color who);
+        void setCurrentTurn (Color who);
 
-        void set_half_moves_clock (int new_half_moves_clock);
+        void setHalfMovesClock (int new_half_moves_clock);
 
-        void set_full_moves (int new_full_moves);
+        void setFullMoves (int new_full_moves);
 
-        [[nodiscard]] auto get_squares () const& -> const array<ColoredPiece, Num_Squares>&
+        [[nodiscard]] auto getSquares () const& -> const array<ColoredPiece, Num_Squares>&
         {
             return my_squares;
         }
-        void get_squares () const&& = delete;
+        void getSquares () const&& = delete;
 
-        [[nodiscard]] auto piece_at (Coord coord) const -> ColoredPiece
+        [[nodiscard]] auto pieceAt (Coord coord) const -> ColoredPiece
         {
             assert (coord_index (coord) < Num_Squares);
             return my_squares[coord_index (coord)];
         }
 
-        [[nodiscard]] auto get_current_turn () const -> Color
+        [[nodiscard]] auto getCurrentTurn () const -> Color
         {
             return my_current_turn;
         }
 
-        [[nodiscard]] auto get_en_passant_targets () const -> array<Coord, Num_Players>
+        [[nodiscard]] auto getEnPassantTargets () const -> array<Coord, Num_Players>
         {
             return my_en_passant_targets;
         }
 
-        [[nodiscard]] auto get_castle_state (Color who) const -> CastlingEligibility
+        [[nodiscard]] auto getCastleState (Color who) const -> CastlingEligibility
         {
             if (my_castle_states[color_index (who)])
                 return *my_castle_states[color_index (who)];
-            return calculate_castle_state_from_position (who);
+            return calculateCastleStateFromPosition (who);
         }
 
-        [[nodiscard]] auto get_king_position (Color who) -> Coord
+        [[nodiscard]] auto getKingPosition (Color who) -> Coord
         {
             auto index = color_index (who);
             if (!my_king_positions[index])
@@ -105,25 +105,25 @@ namespace wisdom
             return *my_king_positions[index];
         }
 
-        [[nodiscard]] auto get_king_positions () const -> array<Coord, Num_Players>
+        [[nodiscard]] auto getKingPositions () const -> array<Coord, Num_Players>
         {
             if (!my_king_positions[Color_Index_White] || !my_king_positions[Color_Index_Black])
                 throw BoardBuilderError { "Missing king position in constructing board." };
             return { *my_king_positions[Color_Index_White], *my_king_positions[Color_Index_Black] };
         }
 
-        [[nodiscard]] auto get_half_moves_clock () const -> int
+        [[nodiscard]] auto getHalfMovesClock () const -> int
         {
             return my_half_moves_clock;
         }
 
-        [[nodiscard]] auto get_full_moves () const -> int
+        [[nodiscard]] auto getFullMoves () const -> int
         {
             return my_full_moves;
         }
 
     private:
-        [[nodiscard]] auto calculate_castle_state_from_position (Color who) const -> CastlingEligibility;
+        [[nodiscard]] auto calculateCastleStateFromPosition (Color who) const -> CastlingEligibility;
 
         array<ColoredPiece, Num_Squares> my_squares;
         array<Coord, Num_Players> my_en_passant_targets {

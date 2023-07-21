@@ -20,14 +20,14 @@ TEST_CASE( "Perft move list")
 {
     BoardBuilder builder;
 
-    builder.add_piece ("a7", Color::White, Piece::Pawn);
-    builder.add_piece ("e8", Color::Black, Piece::King);
-    builder.add_piece ("h8", Color::Black, Piece::Rook);
-    builder.add_piece ("e1", Color::White, Piece::King);
-    builder.add_piece ("a1", Color::White, Piece::Rook);
+    builder.addPiece ("a7", Color::White, Piece::Pawn);
+    builder.addPiece ("e8", Color::Black, Piece::King);
+    builder.addPiece ("h8", Color::Black, Piece::Rook);
+    builder.addPiece ("e1", Color::White, Piece::King);
+    builder.addPiece ("a1", Color::White, Piece::Rook);
 
-    builder.add_piece ("e5", Color::White, Piece::Pawn);
-    builder.add_piece ("d7", Color::Black, Piece::Pawn);
+    builder.addPiece ("e5", Color::White, Piece::Pawn);
+    builder.addPiece ("d7", Color::Black, Piece::Pawn);
 
     auto board = Board { builder };
 
