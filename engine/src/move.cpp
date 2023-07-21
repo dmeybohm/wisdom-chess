@@ -446,14 +446,14 @@ namespace wisdom
         }
 
         string result;
-        result += to_string (src);
+        result += asString (src);
 
         if (move.is_normal_capturing ())
             result += "x";
         else
             result += " ";
 
-        result += to_string (dst);
+        result += asString (dst);
 
         if (move.is_en_passant ())
         {

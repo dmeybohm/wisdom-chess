@@ -137,7 +137,7 @@ namespace wisdom
         return gsl::narrow<char> (col + 'a');
     }
 
-    auto to_string (Coord coord) -> string;
+    auto asString (Coord coord) -> string;
 
     auto coordParse (const string& str) -> Coord;
 

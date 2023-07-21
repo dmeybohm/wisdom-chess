@@ -207,9 +207,9 @@ namespace wisdom
 
         auto en_passant_targets = getEnPassantTargets ();
         if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
-            output += " " + wisdom::to_string (en_passant_targets[Color_Index_White]) + " ";
+            output += " " + wisdom::asString (en_passant_targets[Color_Index_White]) + " ";
         else if (en_passant_targets[Color_Index_Black] != No_En_Passant_Coord)
-            output += " " + wisdom::to_string (en_passant_targets[Color_Index_Black]) + " ";
+            output += " " + wisdom::asString (en_passant_targets[Color_Index_Black]) + " ";
         else
             output += " - ";
 

@@ -129,23 +129,23 @@ namespace wisdom
                                                            : Queenside_Castled_King_Column;
 
             Move normal = wisdom::Move::make (row, src_col, row, dst_col);
-            return wisdom::to_string (normal.get_src ()) + wisdom::to_string (normal.get_dst ());
+            return wisdom::asString (normal.get_src ()) + wisdom::asString (normal.get_dst ());
         }
 
         if (move.is_en_passant ())
         {
-            return wisdom::to_string (move.get_src ()) + wisdom::to_string (move.get_dst ());
+            return wisdom::asString (move.get_src ()) + wisdom::asString (move.get_dst ());
         }
 
         if (move.is_promoting ())
         {
             auto promoted = move.get_promoted_piece ();
 
-            return wisdom::to_string (move.get_src ()) + wisdom::to_string (move.get_dst ())
+            return wisdom::asString (move.get_src ()) + wisdom::asString (move.get_dst ())
                 + wisdom::piece_char (promoted);
         }
 
-        return wisdom::to_string (move.get_src ()) + wisdom::to_string (move.get_dst ());
+        return wisdom::asString (move.get_src ()) + wisdom::asString (move.get_dst ());
     }
 
     auto wisdom::perft::perft_results (const Board& board, Color active_player, int depth,

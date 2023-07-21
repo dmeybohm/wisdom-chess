@@ -155,7 +155,7 @@ TEST_CASE( "Board code stores ancilliary state" )
         auto expected_coord = coordParse ("d6");
         auto ancilliary = with_state_code.getAncillaryBits();
         INFO(ancilliary);
-        INFO( wisdom::to_string (en_passant_target) );
+        INFO( wisdom::asString (en_passant_target) );
         CHECK( en_passant_target == expected_coord );
 
         auto opponent_target = with_state_code.enPassantTarget (Color::White);
@@ -187,7 +187,7 @@ TEST_CASE( "Board code stores ancilliary state" )
 
         auto opponent_target = with_state_code.enPassantTarget (Color::Black);
         INFO(ancilliary);
-        INFO( wisdom::to_string (opponent_target) );
+        INFO( wisdom::asString (opponent_target) );
 
         CHECK( opponent_target == No_En_Passant_Coord );
     }

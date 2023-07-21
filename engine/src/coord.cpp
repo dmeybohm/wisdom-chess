@@ -19,7 +19,7 @@ namespace wisdom
         return makeCoord (row, col);
     }
 
-    auto to_string (Coord coord) -> string
+    auto asString (Coord coord) -> string
     {
         string result = ""; // NOLINT(readability-redundant-string-init)
         result += colToChar (Column (coord));
@@ -27,9 +27,9 @@ namespace wisdom
         return result;
     }
 
-    auto operator<<(std::ostream& ostream, Coord coord) -> std::ostream&
+    auto operator<< (std::ostream& ostream, Coord coord) -> std::ostream&
     {
-        ostream << to_string (coord);
+        ostream << asString (coord);
         return ostream;
     }
 }
