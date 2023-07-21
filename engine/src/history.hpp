@@ -87,7 +87,7 @@ namespace wisdom
         {
             my_board_codes.emplace_back (board->getCode ());
             my_previous_boards.emplace_back (board);
-            my_move_history.push_back (move);
+            my_move_history.pushBack (move);
         }
 
         void addPosition (observer_ptr<Board> board)
@@ -100,7 +100,7 @@ namespace wisdom
         {
             my_board_codes.pop_back ();
             my_previous_boards.pop_back ();
-            my_move_history.pop_back ();
+            my_move_history.popBack();
         }
 
         [[nodiscard]] auto getMoveHistory() const& -> const MoveList&

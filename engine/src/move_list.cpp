@@ -12,12 +12,12 @@ namespace wisdom
     {
         for (auto&& it : list)
         {
-            push_back (moveParse (it, color));
+            pushBack (moveParse (it, color));
             color = color_invert (color);
         }
     }
 
-    auto MoveList::to_string () const -> string
+    auto MoveList::asString() const -> string
     {
         string result = "{ ";
         for (auto&& move : *this)
@@ -26,14 +26,14 @@ namespace wisdom
         return result;
     }
 
-    auto to_string (const MoveList& list) -> string
+    auto asString (const MoveList& list) -> string
     {
-        return list.to_string ();
+        return list.asString();
     }
 
     auto operator<< (std::ostream& os, const MoveList& list) -> std::ostream&
     {
-        os << to_string (list);
+        os << asString (list);
         return os;
     }
 }

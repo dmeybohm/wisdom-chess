@@ -21,7 +21,7 @@ namespace wisdom
     class MoveGenerator final
     {
     private:
-        unique_ptr<MoveListAllocator> my_move_list_allocator = MoveListAllocator::make_unique ();
+        unique_ptr<MoveListAllocator> my_move_list_allocator = MoveListAllocator::makeUnique();
         array<unique_ptr<MoveList>, Num_Squares> my_knight_moves {};
 
         void knightMoveListInit();

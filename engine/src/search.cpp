@@ -225,7 +225,7 @@ namespace wisdom
             my_original_board.dump ();
 
             std::cerr << "History leading up to move: " << "\n";
-            std::cerr << my_history->getMoveHistory().to_string () << "\n";
+            std::cerr << my_history->getMoveHistory().asString() << "\n";
             std::terminate ();
         }
     }

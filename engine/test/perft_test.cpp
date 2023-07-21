@@ -40,7 +40,7 @@ TEST_CASE( "Perft move list")
     }, " ");
 
     auto wisdom_move_list = wisdom::perft::to_move_list (board, Color::White, perft_move_list);
-    auto converted = wisdom_move_list.to_string ();
+    auto converted = wisdom_move_list.asString();
 
     REQUIRE( converted == "{ [O-O-O] [d7 d5] [e5 d6 ep] [O-O] [a7 a8(Q)] }" );
 }

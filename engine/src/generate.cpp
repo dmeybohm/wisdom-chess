@@ -71,7 +71,7 @@ namespace wisdom
                     if (my_knight_moves[index] == nullptr) {
                         my_knight_moves[index] = make_unique<MoveList> (my_move_list_allocator.get ());
                     }
-                    my_knight_moves[index]->push_back (knight_move);
+                    my_knight_moves[index]->pushBack (knight_move);
                 }
             }
         }
@@ -150,7 +150,7 @@ namespace wisdom
             return;
 
         auto transformed_move = transformMove (dst_piece, move);
-        moves.push_back (transformed_move);
+        moves.pushBack (transformed_move);
     }
 
     void MoveGeneration::none()
@@ -406,7 +406,7 @@ namespace wisdom
             Board new_board = board.withMove (who, move);
 
             if (isLegalPositionAfterMove (new_board, who, move))
-                non_checks.push_back (move);
+                non_checks.pushBack (move);
         }
 
         return non_checks;

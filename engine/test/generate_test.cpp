@@ -16,7 +16,7 @@ TEST_CASE("generate default moves")
                            "[d2 d4] [d2 d3] [e2 e4] [e2 e3] [f2 f4] [f2 f3] "
                            "[g2 g4] [g2 g3] [h2 h4] [h2 h3] [b1 a3] [b1 c3] "
                            "[g1 f3] [g1 h3] }";
-    REQUIRE( move_list.to_string() == expected );
+    REQUIRE( move_list.asString() == expected );
 }
 
 TEST_CASE("generate en passant moves")
@@ -29,7 +29,7 @@ TEST_CASE("generate en passant moves")
     board = board.withMove (Color::White, moveParse ("e4 e5", Color::White));
     board = board.withMove (Color::Black, moveParse ("f7 f5", Color::Black));
 
-    auto move_list = move_generator.generateAllPotentialMoves (board, Color::White).to_string ();
+    auto move_list = move_generator.generateAllPotentialMoves (board, Color::White).asString();
     auto pos = move_list.find ("[e5 f6 ep]");
 
     INFO( move_list );
@@ -54,7 +54,7 @@ TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
     auto move_list = move_generator.generateAllPotentialMoves (board, Color::Black);
 
     std::string expected = "{ [c4xd3] [c4xb3] ";
-    std::string converted = move_list.to_string ().substr (0, expected.size ());
+    std::string converted = move_list.asString().substr (0, expected.size ());
 
     INFO( move_list );
     REQUIRE( expected == converted );
