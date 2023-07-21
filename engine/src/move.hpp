@@ -180,8 +180,8 @@ namespace wisdom
         {
             assert (piece != Piece_And_Color_None);
             Move result = *this;
-            auto promoted_piece_type = to_int8 (piece_type (piece));
-            auto promoted_color_index = color_index (piece_color (piece));
+            auto promoted_piece_type = toInt8 (pieceType (piece));
+            auto promoted_color_index = colorIndex (pieceColor (piece));
             result.promoted_piece = gsl::narrow_cast<int8_t> (
                 (promoted_color_index << 4) | (promoted_piece_type & 0xf)
             );
@@ -210,12 +210,12 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto isPromoting() const -> bool
         {
-            return promoted_piece != to_int8 (Piece_And_Color_None);
+            return promoted_piece != toInt8 (Piece_And_Color_None);
         }
 
         [[nodiscard]] constexpr auto getPromotedPiece() const -> ColoredPiece
         {
-            auto piece = piece_from_int (promoted_piece & 0xf);
+            auto piece = pieceFromInt (promoted_piece & 0xf);
             auto color = piece == Piece::None ? Color::None :
                 (promoted_piece & 0x10) == 0x10 ? Color::Black : Color::White;
             return ColoredPiece::make (color, piece);

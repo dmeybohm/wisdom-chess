@@ -74,7 +74,7 @@ namespace wisdom
             else if (isalpha (ch))
             {
                 ColoredPiece piece = parsePiece (ch);
-                builder.addPiece (row, col, piece_color (piece), piece_type (piece));
+                builder.addPiece (row, col, pieceColor (piece), pieceType (piece));
                 col++;
                 if (col > Num_Columns)
                     throw FenParserError ("Invalid columns!");
@@ -104,7 +104,7 @@ namespace wisdom
         try
         {
             string cstr { en_passant_str.substr (0, 2) };
-            builder.setEnPassantTarget (color_invert (active_player), cstr);
+            builder.setEnPassantTarget (colorInvert (active_player), cstr);
         }
         catch ([[maybe_unused]] const BoardBuilderError& e)
         {

@@ -238,7 +238,7 @@ TEST_CASE( "Advanced pawn should be captured" )
     auto board = game.getBoard();
     auto target_piece = board.pieceAt (coordParse ("d6"));
     CHECK( target_piece != ColoredPiece::make (Color::White, Piece::Pawn));
-    CHECK( piece_color (target_piece) == Color::Black );
+    CHECK( pieceColor (target_piece) == Color::Black );
 }
 
 TEST_CASE( "Checkmate is preferred to stalemate" )

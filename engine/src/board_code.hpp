@@ -64,11 +64,10 @@ namespace wisdom
 
         void addPiece (Coord coord, ColoredPiece piece)
         {
-            Color color = piece_color (piece);
-            Piece type = piece_type (piece);
+            Color color = pieceColor (piece);
+            Piece type = pieceType (piece);
 
-            uint8_t new_value = piece == Piece_And_Color_None ? 0 :
-                                 piece_index (type) | (color_index (color) << 3);
+            uint8_t new_value = piece == Piece_And_Color_None ? 0 : pieceIndex (type) | (colorIndex (color) << 3);
             assert (new_value < 16);
 
             int8_t row = Row (coord);
@@ -120,7 +119,7 @@ namespace wisdom
 
         void setCurrentTurn (Color who)
         {
-            auto bits = color_index (who);
+            auto bits = colorIndex (who);
             auto current_turn_bit = bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT);
             my_ancillary &= ~(CURRENT_TURN_MASK << CURRENT_TURN_BIT);
             my_ancillary |= current_turn_bit;
@@ -156,7 +155,7 @@ namespace wisdom
         {
             auto bits = my_ancillary.to_ulong ();
             auto index = gsl::narrow_cast<int8_t> (bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT));
-            return color_from_color_index (index);
+            return colorFromColorIndex (index);
         }
 
         [[nodiscard]] auto enPassantTargets() const noexcept -> EnPassantTargets

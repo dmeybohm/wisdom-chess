@@ -115,7 +115,7 @@ namespace wisdom::ui::console
 
         void checkmate() override
         {
-            std::cout << to_string (color_invert (my_game.getCurrentTurn())) << " wins the game.\n";
+            std::cout << asString (colorInvert (my_game.getCurrentTurn())) << " wins the game.\n";
             my_input_state.command = PlayCommand::StopGame;
         }
 
@@ -253,7 +253,7 @@ namespace wisdom::ui::console
         InputState result;
         string input;
 
-        std::cout << "(" << wisdom::to_string (game.getCurrentTurn()) << ")? ";
+        std::cout << "(" << wisdom::asString (game.getCurrentTurn()) << ")? ";
 
         if (!std::getline (std::cin, input))
         {
@@ -341,7 +341,7 @@ namespace wisdom::ui::console
         }
         else if (input == "switch")
         {
-            game.setCurrentTurn (color_invert (game.getCurrentTurn()));
+            game.setCurrentTurn (colorInvert (game.getCurrentTurn()));
             return result;
         }
         else if (input == "quit" || input == "exit")

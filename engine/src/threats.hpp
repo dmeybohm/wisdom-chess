@@ -27,7 +27,7 @@ namespace wisdom
 
         InlineThreats (const Board& board, Color king_color, Coord king_coord)
             : my_board { board },
-                my_opponent { color_invert (king_color) },
+                my_opponent { colorInvert (king_color) },
                 my_king_color { king_color },
                 my_king_row { Row (king_coord) },
                 my_king_col { Column (king_coord) },
@@ -54,8 +54,8 @@ namespace wisdom
             ThreatStatus result {};
 
             ColoredPiece piece = my_board.pieceAt (target_row, target_col);
-            auto type = piece_type (piece);
-            auto target_color = piece_color (piece);
+            auto type = pieceType (piece);
+            auto target_color = pieceColor (piece);
 
             // 1 or 0: whether to consider a piece or revert to the king
             // position.
@@ -125,7 +125,7 @@ namespace wisdom
         int check_knight_at_square (int target_row, int target_col)
         {
             auto piece = my_board.pieceAt (target_row, target_col);
-            return piece_color (piece) == my_opponent && piece_type (piece) == Piece::Knight;
+            return pieceColor (piece) == my_opponent && pieceType (piece) == Piece::Knight;
         }
 
         template <int row_dir, int col_dir>
@@ -212,14 +212,14 @@ namespace wisdom
             if (left_col > First_Column)
             {
                 auto what = my_board.pieceAt (pawn_row, left_col);
-                if (piece_type (what) == Piece::Pawn && piece_color (what) == my_opponent)
+                if (pieceType (what) == Piece::Pawn && pieceColor (what) == my_opponent)
                     return true;
             }
 
             if (right_col < Last_Column)
             {
                 auto what = my_board.pieceAt (pawn_row, right_col);
-                if (piece_type (what) == Piece::Pawn && piece_color (what) == my_opponent)
+                if (pieceType (what) == Piece::Pawn && pieceColor (what) == my_opponent)
                     return true;
             }
 
@@ -304,8 +304,8 @@ namespace wisdom
             ThreatStatus result = ThreatStatus::None;
 
             ColoredPiece piece = my_board.pieceAt (target_row, target_col);
-            auto type = piece_type (piece);
-            auto target_color = piece_color (piece);
+            auto type = pieceType (piece);
+            auto target_color = pieceColor (piece);
 
             // 1 or 0: whether to consider a piece or revert to the king
             // position.

@@ -92,8 +92,7 @@ namespace wisdom
                 if (!col)
                     result += "|";
 
-                if (piece_type (piece) != Piece::None &&
-                    piece_color (piece) == Color::Black)
+                if (pieceType (piece) != Piece::None && pieceColor (piece) == Color::Black)
                 {
                     result += "*";
                 }
@@ -102,7 +101,7 @@ namespace wisdom
                     result += " ";
                 }
 
-                switch (piece_type (piece))
+                switch (pieceType (piece))
                 {
                     case Piece::Pawn: result += "p";
                         break;
@@ -137,7 +136,7 @@ namespace wisdom
 
     [[nodiscard]] auto Board::castledString (Color color) const -> string
     {
-        ColorIndex index = color_index (color);
+        ColorIndex index = colorIndex (color);
         string castled_state;
 
         auto convert = [color](char ch) -> char {
@@ -178,8 +177,8 @@ namespace wisdom
                     if (none_count > 0)
                         row_string += std::to_string (none_count);
                     none_count = 0;
-                    char ch = gsl::narrow_cast<char> (toupper (piece_char (piece)));
-                    if (piece_color(piece) == Color::Black)
+                    char ch = gsl::narrow_cast<char> (toupper (pieceChar (piece)));
+                    if (pieceColor (piece) == Color::Black)
                         ch = gsl::narrow_cast<char> (tolower(ch));
                     row_string.append(1, ch);
                 }
@@ -226,7 +225,7 @@ namespace wisdom
             array<ColoredPiece, Num_Squares>& shuffle_pieces)
     {
         auto piece = shuffle_pieces[source_col + (source_row * Num_Columns)];
-        if (piece_type (piece) == Piece::Pawn)
+        if (pieceType (piece) == Piece::Pawn)
         {
             shuffle_pieces[source_col + (source_row * Num_Columns)] = Piece_And_Color_None;
         }
@@ -258,8 +257,8 @@ namespace wisdom
             for (auto&& coord : allCoords ())
             {
                 ColoredPiece piece = shuffle_pieces[coordIndex (coord)];
-                if (piece_type (piece) == Piece::King)
-                    my_king_pos[color_index (piece_color (piece))] = coord;
+                if (pieceType (piece) == Piece::King)
+                    my_king_pos[colorIndex (pieceColor (piece))] = coord;
 
                 my_squares[coordIndex (coord)] = piece;
             }

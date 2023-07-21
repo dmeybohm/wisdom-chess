@@ -38,7 +38,7 @@ namespace wisdom
                     counters.en_passants++;
             }
 
-            search_moves (new_board, color_invert (side),
+            search_moves (new_board, colorInvert (side),
                           depth + 1, max_depth, generator);
         }
     }
@@ -55,21 +55,21 @@ namespace wisdom
         auto promoted = Piece_And_Color_None;
         if (move_str.size () == 5)
         {
-            auto promoted_type = piece_from_char (move_str[4]);
+            auto promoted_type = pieceFromChar (move_str[4]);
             promoted = ColoredPiece::make (who, promoted_type);
         }
 
         auto src_piece = board.pieceAt (src);
         auto dst_piece = board.pieceAt (dst);
-        assert (piece_color (src_piece) == who);
+        assert (pieceColor (src_piece) == who);
 
         Move result = wisdom::Move::make (src, dst);
 
         // 1. castling is represented by two space king moves
-        if (wisdom::piece_type (src_piece) == Piece::King)
+        if (wisdom::pieceType (src_piece) == Piece::King)
         {
             int castling_row
-                = piece_color (src_piece) == Color::White ? wisdom::Last_Row : wisdom::First_Row;
+                = pieceColor (src_piece) == Color::White ? wisdom::Last_Row : wisdom::First_Row;
             if (castling_row == Row (src) && castling_row == Row (dst)
                 && std::abs (Column (src) - Column (dst)))
             {
@@ -78,7 +78,7 @@ namespace wisdom
         }
 
         // 2. en-passant is represented without (ep) suffix
-        if (wisdom::piece_type (src_piece) == Piece::Pawn)
+        if (wisdom::pieceType (src_piece) == Piece::Pawn)
         {
             if (Row (src) != Row (dst) && Column (src) != Column (dst)
                 && dst_piece == Piece_And_Color_None)
@@ -112,7 +112,7 @@ namespace wisdom
         {
             auto move = convert_move (board_copy, who, move_str);
             board_copy = board_copy.withMove (who, move);
-            who = color_invert (who);
+            who = colorInvert (who);
             result.pushBack (move);
         }
 
@@ -142,7 +142,7 @@ namespace wisdom
             auto promoted = move.getPromotedPiece();
 
             return wisdom::asString (move.getSrc()) + wisdom::asString (move.getDst())
-                + wisdom::piece_char (promoted);
+                + wisdom::pieceChar (promoted);
         }
 
         return wisdom::asString (move.getSrc()) + wisdom::asString (move.getDst());
@@ -161,7 +161,7 @@ namespace wisdom
         {
             Stats stats;
 
-            Color next_player = wisdom::color_invert (active_player);
+            Color next_player = wisdom::colorInvert (active_player);
             auto new_board = board.withMove (active_player, move);
 
             if (!wisdom::isLegalPositionAfterMove (new_board, active_player, move))
@@ -184,7 +184,7 @@ namespace wisdom
         for (auto& move : list)
         {
             board = board.withMove (color, move);
-            color = wisdom::color_invert (color);
+            color = wisdom::colorInvert (color);
         }
 
         return color;

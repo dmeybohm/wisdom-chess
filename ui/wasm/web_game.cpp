@@ -19,7 +19,7 @@ namespace wisdom
             if (piece != Piece_And_Color_None)
             {
                 WebColoredPiece new_piece
-                    = WebColoredPiece { id, to_int (piece.color()), to_int (piece.type()),
+                    = WebColoredPiece { id, toInt (piece.color()), toInt (piece.type()),
                                         gsl::narrow<int> (Row (coord)),
                                         gsl::narrow<int> (Column (coord)) };
                 my_pieces.addPiece (new_piece);
@@ -114,7 +114,7 @@ namespace wisdom
         Color color = map_color (who);
 
         std::cout << "accepted: " << accepted << "\n";
-        std::cout << "Color: " << wisdom::to_string (color) << "\n";
+        std::cout << "Color: " << wisdom::asString (color) << "\n";
         my_game.setProposedDrawStatus (proposed_draw_type, color, accepted);
         update_displayed_game_state();
     }
@@ -175,8 +175,8 @@ namespace wisdom
                 {
                     WebColoredPiece new_piece = {
                         id,
-                        to_int (piece.color()),
-                        to_int (piece.type()),
+                        toInt (piece.color()),
+                        toInt (piece.type()),
                         gsl::narrow<int8_t> (Row (coord)),
                         gsl::narrow<int8_t> (Column (coord)),
                     };
@@ -258,8 +258,7 @@ namespace wisdom
         void checkmate() override
         {
             auto who = parent->my_game.getCurrentTurn();
-            auto whoString = "<strong>Checkmate</strong> - " +
-                wisdom::to_string (color_invert (who)) +
+            auto whoString = "<strong>Checkmate</strong> - " + wisdom::asString (colorInvert (who)) +
                 " wins the game.";
             parent->set_game_over_status (whoString);
         }
@@ -267,8 +266,7 @@ namespace wisdom
         void stalemate() override
         {
             auto who = parent->my_game.getCurrentTurn();
-            auto stalemateStr = "<strong>Stalemate</strong> - No legal moves for " +
-                wisdom::to_string (who);
+            auto stalemateStr = "<strong>Stalemate</strong> - No legal moves for " + wisdom::asString (who);
             parent->set_game_over_status (stalemateStr);
         }
 

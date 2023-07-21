@@ -100,7 +100,7 @@ namespace wisdom
         int8_t col = Column (translated_pos);
 
         // todo convert enum to integer index instead of using switch.
-        switch (piece_type (piece))
+        switch (pieceType (piece))
         {
             case Piece::Pawn:
                 return pawn_positions[row][col];
@@ -121,8 +121,8 @@ namespace wisdom
 
     int Position::overall_score (Color who) const
     {
-        ColorIndex index = color_index (who);
-        ColorIndex inverted = color_index (color_invert (who));
+        ColorIndex index = colorIndex (who);
+        ColorIndex inverted = colorIndex (colorInvert (who));
         assert (this->my_score[index] < 3000 && this->my_score[index] > -3000);
         assert (this->my_score[inverted] < 3000 && this->my_score[inverted] > -3000);
         int result = this->my_score[index] - this->my_score[inverted];
@@ -132,19 +132,19 @@ namespace wisdom
 
     void Position::add (Color who, Coord coord, ColoredPiece piece)
     {
-        ColorIndex index = color_index (who);
+        ColorIndex index = colorIndex (who);
         this->my_score[index] += change (coord, who, piece);
     }
 
     void Position::remove (Color who, Coord coord, ColoredPiece piece)
     {
-        ColorIndex index = color_index (who);
+        ColorIndex index = colorIndex (who);
         this->my_score[index] -= change (coord, who, piece);
     }
 
     void Position::apply_move (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece)
     {
-        Color opponent = color_invert (who);
+        Color opponent = colorInvert (who);
 
         Coord src = move.getSrc();
         Coord dst = move.getDst();
@@ -206,7 +206,7 @@ namespace wisdom
 
     int Position::individual_score (Color who) const
     {
-        return my_score[color_index (who)];
+        return my_score[colorIndex (who)];
     }
 
     Position::Position (const Board& board)
@@ -215,7 +215,7 @@ namespace wisdom
         {
             auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
-                add (piece_color (piece), coord, piece);
+                add (pieceColor (piece), coord, piece);
         }
     }
 

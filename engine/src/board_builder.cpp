@@ -51,17 +51,11 @@ namespace wisdom
         ColoredPiece prospective_queen_rook = pieceAt (makeCoord (row, 0));
         ColoredPiece prospective_king_rook = pieceAt (makeCoord (row, 7));
 
-        if (piece_type (prospective_king) != Piece::King ||
-            piece_color (prospective_king) != who ||
-            piece_type (prospective_queen_rook) != Piece::Rook ||
-            piece_color (prospective_queen_rook) != who)
+        if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who || pieceType (prospective_queen_rook) != Piece::Rook || pieceColor (prospective_queen_rook) != who)
         {
             state |= CastlingEligible::QueensideIneligible;
         }
-        if (piece_type (prospective_king) != Piece::King ||
-            piece_color (prospective_king) != who ||
-            piece_type (prospective_king_rook) != Piece::Rook ||
-            piece_color (prospective_king_rook) != who)
+        if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who || pieceType (prospective_king_rook) != Piece::Rook || pieceColor (prospective_king_rook) != who)
         {
             state |= CastlingEligible::KingsideIneligible;
         }
@@ -84,7 +78,7 @@ namespace wisdom
         my_squares[coordIndex (coord)] = ColoredPiece::make (who, piece_type);
 
         if (piece_type == Piece::King)
-            my_king_positions[color_index (who)] = coord;
+            my_king_positions[colorIndex (who)] = coord;
     }
 
     void BoardBuilder::addPieces (Color who, const vector<CoordAndPiece> &pieces)
@@ -131,12 +125,12 @@ namespace wisdom
 
     void BoardBuilder::setEnPassantTarget (Color vulnerable_color, const string& coord_str)
     {
-        my_en_passant_targets[color_index (vulnerable_color)] = coordParse (coord_str);
+        my_en_passant_targets[colorIndex (vulnerable_color)] = coordParse (coord_str);
     }
 
     void BoardBuilder::setCastling (Color who, CastlingEligibility state)
     {
-        my_castle_states[color_index (who)] = state;
+        my_castle_states[colorIndex (who)] = state;
     }
 
     void BoardBuilder::setHalfMovesClock (int new_half_moves_clock)

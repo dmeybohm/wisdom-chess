@@ -138,7 +138,7 @@ namespace wisdom::worker
                                 who,
                                 current_player_accept_draw);
 
-            auto opponent = color_invert (who);
+            auto opponent = colorInvert (who);
             auto opponent_player = game->getPlayer (opponent);
             if (opponent_player == Player::ChessEngine) {
                 auto opponent_wants_draw = game->computerWantsDraw (opponent);
@@ -191,7 +191,7 @@ EMSCRIPTEN_KEEPALIVE void start_search()
         return;
 
     logger.debug("Going to find best move");
-    logger.debug("Current turn: " + to_string(game->getCurrentTurn()));
+    logger.debug("Current turn: " + asString (game->getCurrentTurn()));
 
     auto move = game->findBestMove(
         logger,

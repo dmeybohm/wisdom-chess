@@ -56,7 +56,7 @@ namespace wisdom
     auto evaluate (const Board& board, Color who, int moves_away, MoveGenerator& generator) -> int
     {
         int score = 0;
-        Color opponent = color_invert (who);
+        Color opponent = colorInvert (who);
 
         score += board.getMaterial().overallScore (who);
         score += board.getPosition ().overall_score (who);

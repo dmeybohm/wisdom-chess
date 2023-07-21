@@ -87,7 +87,7 @@ namespace wisdom
         [[nodiscard]] auto getKingPosition (Color who) const
             -> Coord
         {
-            return my_king_pos[color_index (who)];
+            return my_king_pos[colorIndex (who)];
         }
 
         [[nodiscard]] auto getCastlingEligibility (Color who) const -> CastlingEligibility
@@ -122,7 +122,7 @@ namespace wisdom
 
         [[nodiscard]] auto getEnPassantTarget (ColorIndex who) const noexcept -> Coord
         {
-            return getEnPassantTarget (color_from_color_index (who));
+            return getEnPassantTarget (colorFromColorIndex (who));
         }
 
         [[nodiscard]] auto getEnPassantTargets () const noexcept -> EnPassantTargets
@@ -134,7 +134,7 @@ namespace wisdom
 
         void setKingPosition (Color who, Coord pos)
         {
-            my_king_pos[color_index (who)] = pos;
+            my_king_pos[colorIndex (who)] = pos;
         }
 
         void removeCastlingEligibility (Color who, CastlingEligibility removed_castle_states)
@@ -155,12 +155,12 @@ namespace wisdom
 
         void setEnPassantTarget (ColorIndex who, Coord target) noexcept
         {
-            my_code.setEnPassantTarget (color_from_color_index (who), target);
+            my_code.setEnPassantTarget (colorFromColorIndex (who), target);
         }
 
         void setEnPassantTarget (Color who, Coord target) noexcept
         {
-            setEnPassantTarget (color_index (who), target);
+            setEnPassantTarget (colorIndex (who), target);
         }
 
         void setCurrentTurn (Color who)
@@ -242,7 +242,7 @@ namespace wisdom
     constexpr auto coordColor (Coord coord) -> Color
     {
         int parity = (Row (coord) % 2 + Column (coord) % 2) % 2;
-        return color_from_color_index (gsl::narrow_cast<int8_t> (parity));
+        return colorFromColorIndex (gsl::narrow_cast<int8_t> (parity));
     }
 
     // white moves up (-)
@@ -252,7 +252,7 @@ namespace wisdom
     {
         static_assert (std::is_integral_v<IntegerType>);
         assert (color == Color::Black || color == Color::White);
-        int8_t color_as_int = to_int8 (color);
+        int8_t color_as_int = toInt8 (color);
         return gsl::narrow_cast<IntegerType>(-1 + 2 * (color_as_int - 1));
     }
 }

@@ -139,10 +139,10 @@ TEST_CASE("Castling state is modified and restored for castling queenside")
     // Check rook and king position updated:
     CHECK( Row (board.getKingPosition (Color::Black)) == 0 );
     CHECK( Column (board.getKingPosition (Color::Black)) == 2 );
-    CHECK( piece_type (board.pieceAt (0, 2)) == Piece::King );
-    CHECK( piece_color (board.pieceAt (0, 2)) == Color::Black );
-    CHECK( piece_type (board.pieceAt (0, 3)) == Piece::Rook );
-    CHECK( piece_color (board.pieceAt (0, 3)) == Color::Black );
+    CHECK( pieceType (board.pieceAt (0, 2)) == Piece::King );
+    CHECK( pieceColor (board.pieceAt (0, 2)) == Color::Black );
+    CHECK( pieceType (board.pieceAt (0, 3)) == Piece::Rook );
+    CHECK( pieceColor (board.pieceAt (0, 3)) == Color::Black );
 }
 
 TEST_CASE("Castling state is modified and restored for castling kingside")
@@ -177,10 +177,10 @@ TEST_CASE("Castling state is modified and restored for castling kingside")
     // Check rook and king position updated:
     CHECK( Row (board.getKingPosition (Color::White)) == 7 );
     CHECK( Column (board.getKingPosition (Color::White)) == 6 );
-    CHECK( piece_type (board.pieceAt (7, 6)) == Piece::King );
-    CHECK( piece_color (board.pieceAt (7, 6)) == Color::White );
-    CHECK( piece_type (board.pieceAt (7, 5)) == Piece::Rook );
-    CHECK( piece_color (board.pieceAt (7, 5)) == Color::White );
+    CHECK( pieceType (board.pieceAt (7, 6)) == Piece::King );
+    CHECK( pieceColor (board.pieceAt (7, 6)) == Color::White );
+    CHECK( pieceType (board.pieceAt (7, 5)) == Piece::Rook );
+    CHECK( pieceColor (board.pieceAt (7, 5)) == Color::White );
 }
 
 TEST_CASE( "Opponent's castling state is modified when his rook is taken" )
@@ -418,7 +418,7 @@ TEST_CASE( "Test can castle" )
         i++;
         board = board.withMove (color, move);
         CHECK( board.ableToCastle (Color::White, CastlingEligible::KingsideIneligible) );
-        color = color_invert (color);
+        color = colorInvert (color);
     }
     auto castling = moveParse ("o-o", Color::White);
     (void)board.withMove (Color::White, castling);
@@ -434,7 +434,7 @@ TEST_CASE( "Kingside castle state after moving queenside rook" )
     for (auto move : move_list)
     {
         board = board.withMove (color, move);
-        color = color_invert (color);
+        color = colorInvert (color);
     }
     bool castle_king_side = board.ableToCastle (Color::Black, CastlingEligible::KingsideIneligible);
     bool castle_queen_side = board.ableToCastle (Color::Black, CastlingEligible::QueensideIneligible);

@@ -135,7 +135,7 @@ namespace wisdom
                 }
                 else
                 {
-                    search (child_board, color_invert (side), depth-1, -beta, -alpha);
+                    search (child_board, colorInvert (side), depth-1, -beta, -alpha);
                     my_best_score *= -1;
                 }
             }
@@ -239,7 +239,7 @@ namespace wisdom
     void IterativeSearchImpl::iterate (Color side, int depth)
     {
         std::stringstream outstr;
-        outstr << "finding moves for " << to_string (side);
+        outstr << "finding moves for " << asString (side);
         my_output->debug (outstr.str ());
 
         my_nodes_visited = 0;

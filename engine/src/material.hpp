@@ -43,43 +43,43 @@ namespace wisdom
 
         void add (ColoredPiece piece)
         {
-            auto color_idx = color_index (piece_color (piece));
-            auto type = piece_type (piece);
+            auto color_idx = colorIndex (pieceColor (piece));
+            auto type = pieceType (piece);
 
             my_score[color_idx] += weight (type);
-            my_piece_count[color_idx][to_int (type)]++;
+            my_piece_count[color_idx][toInt (type)]++;
 
-            assert (my_piece_count[color_idx][to_int (type)] > 0);
+            assert (my_piece_count[color_idx][toInt (type)] > 0);
         }
 
         void remove (ColoredPiece piece)
         {
-            auto color_idx = color_index (piece_color (piece));
-            auto type = piece_type (piece);
+            auto color_idx = colorIndex (pieceColor (piece));
+            auto type = pieceType (piece);
 
             my_score[color_idx] -= weight (type);
-            my_piece_count[color_idx][to_int (type)]--;
+            my_piece_count[color_idx][toInt (type)]--;
 
-            assert (my_piece_count[color_idx][to_int (type)] >= 0);
+            assert (my_piece_count[color_idx][toInt (type)] >= 0);
         }
 
         [[nodiscard]] auto individualScore (Color who) const -> int
         {
-            ColorIndex my_index = color_index (who);
+            ColorIndex my_index = colorIndex (who);
             return scaledScore (my_score[my_index]);
         }
 
         [[nodiscard]] auto overallScore (Color who) const -> int
         {
-            ColorIndex my_index = color_index (who);
-            ColorIndex opponent_index = color_index (color_invert (who));
+            ColorIndex my_index = colorIndex (who);
+            ColorIndex opponent_index = colorIndex (colorInvert (who));
             return scaledScore (my_score[my_index] - my_score[opponent_index]);
         }
 
         [[nodiscard]] auto pieceCount (Color who, Piece type) const -> int
         {
-            auto color_idx = color_index (who);
-            auto type_idx = to_int (type);
+            auto color_idx = colorIndex (who);
+            auto type_idx = toInt (type);
 
             return my_piece_count[color_idx][type_idx];
         }

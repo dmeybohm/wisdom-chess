@@ -175,7 +175,7 @@ void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who, int game
     game->move(move);
 
     updateDisplayedGameState();
-    updateCurrentTurn(wisdom::color_invert(who));
+    updateCurrentTurn(wisdom::colorInvert (who));
 
     // re-emit single-threaded signal to listeners:
     handleMove(Player::ChessEngine, move, who);
@@ -394,8 +394,8 @@ public:
     void checkmate() override
     {
         auto who = getGameState()->getBoard().getCurrentTurn();
-        auto opponent = color_invert (who);
-        auto whoString = "<b>Checkmate</b> - " + wisdom::to_string (opponent) + " wins the game.";
+        auto opponent = colorInvert (who);
+        auto whoString = "<b>Checkmate</b> - " + wisdom::asString (opponent) + " wins the game.";
         myParent->setGameOverStatus (QString (whoString.c_str()));
     }
 
@@ -403,7 +403,7 @@ public:
     {
         auto who = getGameState()->getBoard().getCurrentTurn();
         auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>"
-                            + wisdom::to_string (who) + "</b>";
+                            + wisdom::asString (who) + "</b>";
         myParent->setGameOverStatus (stalemateStr.c_str());
     }
 
@@ -546,7 +546,7 @@ void GameModel::setProposedDrawStatus(wisdom::ProposedDrawType drawType, DrawSta
 
     assert(optionalColor.has_value());
     auto who = *optionalColor;
-    auto opponentColor = color_invert(who);
+    auto opponentColor = colorInvert (who);
 
     bool accepted = (status == DrawStatus::Accepted);
     gameState->setProposedDrawStatus (drawType, who, accepted);

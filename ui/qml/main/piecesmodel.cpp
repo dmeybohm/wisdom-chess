@@ -11,12 +11,12 @@ namespace {
 
     constexpr auto whitePiece(Piece piece) -> int8_t
     {
-        return to_int8(ColoredPiece::make(Color::White, piece));
+        return toInt8 (ColoredPiece::make (Color::White, piece));
     }
 
     constexpr auto blackPiece(Piece piece) -> int8_t
     {
-        return to_int8(ColoredPiece::make(Color::Black, piece));
+        return toInt8 (ColoredPiece::make (Color::Black, piece));
     }
 
     auto initPieceMap() -> QHash<int8_t, QString>
@@ -64,10 +64,10 @@ void PiecesModel::newGame(gsl::not_null<const ChessGame*> game)
             auto piece = board.pieceAt (row, column);
             if (piece != Piece_And_Color_None) {
                 PieceInfo newPiece {
-                    row, column, piece, myPieceToImagePath[to_int8(piece)]
+                    row, column, piece, myPieceToImagePath[toInt8 (piece)]
                 };
                 auto lastRow = myPieces.count();
-                auto pieceStr = to_string(piece);
+                auto pieceStr = asString (piece);
                 beginInsertRows(QModelIndex{}, gsl::narrow<int>(lastRow), gsl::narrow<int>(lastRow));
                 myPieces.append(newPiece);
                 endInsertRows();
@@ -146,7 +146,7 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
 
             if (selectedMove.isPromoting()) {
                 auto promotedPiece = selectedMove.getPromotedPiece();
-                auto newImagePath = myPieceToImagePath[to_int8(promotedPiece)];
+                auto newImagePath = myPieceToImagePath[toInt8 (promotedPiece)];
                 pieceModel.pieceImage = newImagePath;
                 rolesChanged.append( PieceImageRole );
             }

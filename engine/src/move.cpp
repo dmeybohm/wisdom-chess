@@ -15,7 +15,7 @@ namespace wisdom
     {
         Coord src = move.getSrc();
         Coord dst = move.getDst();
-        return piece_type (src_piece) == Piece::Pawn && abs (Row (src) - Row (dst)) == 2;
+        return pieceType (src_piece) == Piece::Pawn && abs (Row (src) - Row (dst)) == 2;
     }
 
     // Returns the taken piece
@@ -25,12 +25,12 @@ namespace wisdom
         Coord taken_pawn_pos = enPassantTakenPawnCoord (src, dst);
         [[maybe_unused]] ColoredPiece taken_piece = pieceAt (taken_pawn_pos);
 
-        assert (piece_type (taken_piece) == Piece::Pawn);
-        assert (piece_color (taken_piece) == color_invert (who));
+        assert (pieceType (taken_piece) == Piece::Pawn);
+        assert (pieceColor (taken_piece) == colorInvert (who));
 
         setPiece (taken_pawn_pos, Piece_And_Color_None);
 
-        return ColoredPiece::make (color_invert (who), Piece::Pawn);
+        return ColoredPiece::make (colorInvert (who), Piece::Pawn);
     }
 
     auto Board::getCastlingRookMove (Move move, Color who) -> Move
@@ -59,11 +59,11 @@ namespace wisdom
             dst_col = Column (dst) + 1;
         }
 
-        if (!((piece_type (pieceAt (src_row, src_col)) == Piece::Rook
-               || piece_type (pieceAt (dst_row, dst_col)) == Piece::Rook)))
+        if (!((pieceType (pieceAt (src_row, src_col)) == Piece::Rook
+               || pieceType (pieceAt (dst_row, dst_col)) == Piece::Rook)))
         {
             throw MoveConsistencyProblem { "move considering: " + wisdom::asString (move) + "("
-                                           + wisdom::to_string (who) + " to move)" };
+                                           + wisdom::asString (who) + " to move)" };
         }
 
         return Move::make (src_row, src_col, dst_row, dst_col);
@@ -74,7 +74,7 @@ namespace wisdom
     {
         Move rook_move = getCastlingRookMove (king_move, who);
 
-        assert (piece_type (pieceAt (src)) == Piece::King);
+        assert (pieceType (pieceAt (src)) == Piece::King);
         assert (abs (Column (src) - Column (dst)) == 2);
 
         auto rook_src = rook_move.getSrc();
@@ -107,7 +107,7 @@ namespace wisdom
     void Board::applyForRookCapture (Color opponent, ColoredPiece dst_piece,
                                      Coord src, Coord dst)
     {
-        assert (piece_color (dst_piece) == opponent && piece_type (dst_piece) == Piece::Rook);
+        assert (pieceColor (dst_piece) == opponent && pieceType (dst_piece) == Piece::Rook);
 
         CastlingEligibility castle_state = CastlingEligible::EitherSideEligible;
 
@@ -132,13 +132,13 @@ namespace wisdom
     void Board::applyForRookMove (Color player, ColoredPiece src_piece,
                                   Move move, Coord src, Coord dst)
     {
-        if (!(piece_color (src_piece) == player && piece_type (src_piece) == Piece::Rook))
+        if (!(pieceColor (src_piece) == player && pieceType (src_piece) == Piece::Rook))
         {
             throw MoveConsistencyProblem { "applyForRookMove failed: move "
                                            + wisdom::asString (move) };
         }
 
-        assert (piece_color (src_piece) == player && piece_type (src_piece) == Piece::Rook);
+        assert (pieceColor (src_piece) == player && pieceType (src_piece) == Piece::Rook);
 
         CastlingEligibility affects_castle_state = CastlingEligible::EitherSideEligible;
         int castle_src_row = player == Color::White ? Last_Row : First_Row;
@@ -165,8 +165,8 @@ namespace wisdom
 
     void Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move)
     {
-        ColorIndex c_index = color_index (who);
-        ColorIndex o_index = color_index (color_invert (who));
+        ColorIndex c_index = colorIndex (who);
+        ColorIndex o_index = colorIndex (colorInvert (who));
 
         int direction = pawnDirection<int> (who);
         Coord new_state = No_En_Passant_Coord;
@@ -197,13 +197,13 @@ namespace wisdom
         auto orig_src_piece = src_piece;
         auto dst_piece = pieceAt (dst);
 
-        assert (piece_type (src_piece) != Piece::None);
-        assert (piece_color (src_piece) == who);
-        if (piece_type (dst_piece) != Piece::None)
+        assert (pieceType (src_piece) != Piece::None);
+        assert (pieceColor (src_piece) == who);
+        if (pieceType (dst_piece) != Piece::None)
             assert (move.isNormalCapturing());
 
-        if (piece_type (dst_piece) != Piece::None)
-            assert (piece_color (src_piece) != piece_color (dst_piece));
+        if (pieceType (dst_piece) != Piece::None)
+            assert (pieceColor (src_piece) != pieceColor (dst_piece));
 
         // check for promotion
         if (move.isPromoting())
@@ -216,12 +216,12 @@ namespace wisdom
         switch (move.getMoveCategory())
         {
             case MoveCategory::Default:
-                assert (piece_type (dst_piece) == Piece::None);
+                assert (pieceType (dst_piece) == Piece::None);
                 break;
 
             case MoveCategory::NormalCapturing:
                 assert (move.isNormalCapturing());
-                assert (piece_color (src_piece) != piece_color (dst_piece));
+                assert (pieceColor (src_piece) != pieceColor (dst_piece));
                 break;
 
             case MoveCategory::EnPassant:
@@ -246,31 +246,31 @@ namespace wisdom
         setPiece (dst, src_piece);
 
         // update king position
-        if (piece_type (src_piece) == Piece::King)
+        if (pieceType (src_piece) == Piece::King)
             applyForKingMove (who, src, dst);
 
         // update rook position -- for castling
-        if (piece_type (orig_src_piece) == Piece::Rook)
+        if (pieceType (orig_src_piece) == Piece::Rook)
         {
             applyForRookMove (who, orig_src_piece, move, src, dst);
         }
 
-        if (piece_type (dst_piece) != Piece::None)
+        if (pieceType (dst_piece) != Piece::None)
         {
             // update material estimate
             my_material.remove (dst_piece);
 
-            auto captured_piece_type = piece_type (dst_piece);
+            auto captured_piece_type = pieceType (dst_piece);
 
             // update castle state if somebody takes the rook
             if (captured_piece_type == Piece::Rook)
-                applyForRookCapture (color_invert (who), dst_piece, src, dst);
+                applyForRookCapture (colorInvert (who), dst_piece, src, dst);
         }
 
         my_position.apply_move (who, orig_src_piece, move, dst_piece);
 
-        updateMoveClock (who, piece_type (orig_src_piece), move);
-        setCurrentTurn (color_invert (who));
+        updateMoveClock (who, pieceType (orig_src_piece), move);
+        setCurrentTurn (colorInvert (who));
     }
 
     static auto castleParse (const string& str, Color who) -> optional<Move>
@@ -392,7 +392,7 @@ namespace wisdom
             promoted = ColoredPiece::make (who, Piece::Rook);
         }
 
-        if (piece_type (promoted) != Piece::None)
+        if (pieceType (promoted) != Piece::None)
         {
             move = move.withPromotion (promoted);
         }
@@ -461,7 +461,7 @@ namespace wisdom
 
         if (move.isPromoting())
         {
-            string promoted_piece { piece_char (move.getPromotedPiece()) };
+            string promoted_piece { pieceChar (move.getPromotedPiece()) };
             result += "(" + promoted_piece + ")";
         }
 
@@ -477,7 +477,7 @@ namespace wisdom
         if (src_piece == Piece_And_Color_None)
             return {};
 
-        if (piece_color (src_piece) != who)
+        if (pieceColor (src_piece) != who)
             return {};
 
         // make capturing if dst piece is not none
@@ -486,11 +486,11 @@ namespace wisdom
             move = move.withCapture();
 
         // check for pawn special moves.
-        switch (piece_type (src_piece))
+        switch (pieceType (src_piece))
         {
             case Piece::Pawn:
                 // look for en passant:
-                if (piece_type (src_piece) == Piece::Pawn)
+                if (pieceType (src_piece) == Piece::Pawn)
                 {
                     int eligible_column
                         = eligibleEnPassantColumn (board, Row (src), Column (src), who);

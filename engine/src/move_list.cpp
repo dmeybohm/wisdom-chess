@@ -13,7 +13,7 @@ namespace wisdom
         for (auto&& it : list)
         {
             pushBack (moveParse (it, color));
-            color = color_invert (color);
+            color = colorInvert (color);
         }
     }
 

@@ -78,17 +78,17 @@ namespace wisdom
 
         void setWhitePlayer (Player player)
         {
-            my_players[color_index(Color::White)] = player;
+            my_players[colorIndex (Color::White)] = player;
         }
 
         void setBlackPlayer (Player player)
         {
-            my_players[color_index(Color::Black)] = player;
+            my_players[colorIndex (Color::Black)] = player;
         }
 
         [[nodiscard]] auto getPlayer (Color color) const -> Player
         {
-            auto index = color_index (color);
+            auto index = colorIndex (color);
             return my_players[index];
         }
 

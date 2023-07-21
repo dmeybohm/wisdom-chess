@@ -35,7 +35,7 @@ namespace wisdom
 
     auto needPawnPromotion (int row, Color who) -> bool
     {
-        assert (is_color_valid (who));
+        assert (isColorValid (who));
         switch (who)
         {
             case Color::White: return 0 == row;
@@ -91,7 +91,7 @@ namespace wisdom
     {
         ColoredPiece piece = board.pieceAt (row, col);
 
-        if (piece_color (piece) == Color::White)
+        if (pieceColor (piece) == Color::White)
             return row == 6;
         else
             return row == 1;
@@ -120,15 +120,13 @@ namespace wisdom
             piece3 = board.pieceAt (Row (src), Column (dst) - 1);
         }
 
-        return piece_type (piece1) == Piece::None &&
-               piece_type (piece2) == Piece::None &&
-               piece_type (piece3) == Piece::None;
+        return pieceType (piece1) == Piece::None && pieceType (piece2) == Piece::None && pieceType (piece3) == Piece::None;
     }
 
     auto MoveGeneration::transformMove (ColoredPiece dst_piece, Move move) noexcept
         -> Move
     {
-        bool is_capture = (piece_type (dst_piece) != Piece::None);
+        bool is_capture = (pieceType (dst_piece) != Piece::None);
         if (is_capture && !move.isEnPassant() && !move.isNormalCapturing())
             move = move.withCapture();
 
@@ -143,10 +141,10 @@ namespace wisdom
         ColoredPiece src_piece = board.pieceAt (src);
         ColoredPiece dst_piece = board.pieceAt (dst);
 
-        assert (piece_type (src_piece) != Piece::None);
-        assert (piece_color (src_piece) != Color::None);
+        assert (pieceType (src_piece) != Piece::None);
+        assert (pieceColor (src_piece) != Color::None);
 
-        if (piece_color (src_piece) == piece_color (dst_piece))
+        if (pieceColor (src_piece) == pieceColor (dst_piece))
             return;
 
         auto transformed_move = transformMove (dst_piece, move);
@@ -201,7 +199,7 @@ namespace wisdom
 
                 appendMove (Move::make (piece_row, piece_col, row, piece_col));
 
-                if (piece_type (piece) != Piece::None)
+                if (pieceType (piece) != Piece::None)
                     break;
             }
 
@@ -211,7 +209,7 @@ namespace wisdom
 
                 appendMove (Move::make (piece_row, piece_col, piece_row, col));
 
-                if (piece_type (piece) != Piece::None)
+                if (pieceType (piece) != Piece::None)
                     break;
             }
         }
@@ -259,7 +257,7 @@ namespace wisdom
     auto eligibleEnPassantColumn (const Board& board, int row, int column, Color who)
         -> int
     {
-        Color opponent = color_invert (who);
+        Color opponent = colorInvert (who);
 
         if (!board.isEnPassantVulnerable (opponent))
             return -1;
@@ -307,7 +305,7 @@ namespace wisdom
         array<optional<Move>, 4> all_pawn_moves { nullopt, nullopt, nullopt, nullopt };
 
         // single move
-        if (piece_type (board.pieceAt (row, piece_col)) == Piece::None)
+        if (pieceType (board.pieceAt (row, piece_col)) == Piece::None)
             all_pawn_moves[0] = Move::make (piece_row, piece_col, row, piece_col);
 
         // double move
@@ -331,8 +329,7 @@ namespace wisdom
 
             ColoredPiece target_piece = board.pieceAt (row, take_col);
 
-            if (target_piece != Piece_And_Color_None &&
-                piece_color (target_piece) != who)
+            if (target_piece != Piece_And_Color_None && pieceColor (target_piece) != who)
             {
                 if (c_dir == -1)
                     all_pawn_moves[2] = Move::makeNormalCapturing (piece_row, piece_col, row, take_col);
@@ -388,8 +385,8 @@ namespace wisdom
         [[maybe_unused]]
         ColoredPiece take_piece = board.pieceAt (piece_row, take_col);
 
-        assert (piece_type (take_piece) == Piece::Pawn);
-        assert (piece_color (take_piece) == color_invert (who));
+        assert (pieceType (take_piece) == Piece::Pawn);
+        assert (pieceColor (take_piece) == colorInvert (who));
 
         Move new_move = Move::makeEnPassant (piece_row, piece_col, take_row, take_col);
 
@@ -417,7 +414,7 @@ namespace wisdom
         this->piece_row = Row<int> (coord);
         this->piece_col = Column<int> (coord);
 
-        switch (piece_type (piece))
+        switch (pieceType (piece))
         {
             case Piece::None:
                 none();
@@ -453,11 +450,9 @@ namespace wisdom
         }
         else
         {
-            int a_material_src = Material::weight (
-                piece_type (board.pieceAt (move.getSrc()))
+            int a_material_src = Material::weight (pieceType (board.pieceAt (move.getSrc()))
             );
-            int a_material_dst = Material::weight (
-                piece_type (board.pieceAt (move.getDst()))
+            int a_material_dst = Material::weight (pieceType (board.pieceAt (move.getDst()))
             );
             return a_material_dst - a_material_src;
         }
@@ -470,8 +465,8 @@ namespace wisdom
 
         if (a_is_promoting && b_is_promoting)
         {
-            return Material::weight (piece_type (a.getPromotedPiece())) >
-                Material::weight (piece_type (b.getPromotedPiece()));
+            return Material::weight (pieceType (a.getPromotedPiece())) >
+                Material::weight (pieceType (b.getPromotedPiece()));
         }
         else if (a_is_promoting && !b_is_promoting)
         {
@@ -531,7 +526,7 @@ namespace wisdom
         {
             ColoredPiece piece = board.pieceAt (coord);
 
-            if (piece_color (piece) != who)
+            if (pieceColor (piece) != who)
                 continue;
 
             generation.generate (piece, coord);

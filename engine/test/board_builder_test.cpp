@@ -37,15 +37,15 @@ TEST_CASE( "board_builder" )
         ColoredPiece black_king = board.pieceAt (7, 0);
         ColoredPiece center = board.pieceAt (4, 5);
 
-        CHECK( piece_color (pawn) == Color::White );
-        CHECK( piece_color (white_king) == Color::White );
-        CHECK( piece_color (black_king) == Color::Black );
-        CHECK( piece_color (center) == Color::None );
+        CHECK( pieceColor (pawn) == Color::White );
+        CHECK( pieceColor (white_king) == Color::White );
+        CHECK( pieceColor (black_king) == Color::Black );
+        CHECK( pieceColor (center) == Color::None );
 
-        CHECK( piece_type (pawn) == Piece::Pawn );
-        CHECK( piece_type (white_king) == Piece::King );
-        CHECK( piece_type (black_king) == Piece::King );
-        CHECK( piece_type (center) == Piece::None );
+        CHECK( pieceType (pawn) == Piece::Pawn );
+        CHECK( pieceType (white_king) == Piece::King );
+        CHECK( pieceType (black_king) == Piece::King );
+        CHECK( pieceType (center) == Piece::None );
     }
 
     SUBCASE( "Board builder throws exception for invalid coordinate" )
@@ -98,8 +98,8 @@ TEST_CASE( "Board can be randomized" )
             auto first_row_piece = randomized_board.pieceAt (7, col);
             auto last_row_piece = randomized_board.pieceAt (0, col);
 
-            CHECK( piece_type (last_row_piece) != Piece::Pawn );
-            CHECK( piece_type (first_row_piece) != Piece::Pawn );
+            CHECK( pieceType (last_row_piece) != Piece::Pawn );
+            CHECK( pieceType (first_row_piece) != Piece::Pawn );
         }
     }
 

@@ -175,7 +175,7 @@ void ChessEngine::handlePotentialDrawPosition(wisdom::ProposedDrawType proposedD
         emit noMovesAvailable();
     }
 
-    auto opponent = color_invert(who);
+    auto opponent = colorInvert (who);
     auto opponentPlayer = gameState->getPlayer (opponent);
     if (opponentPlayer == Player::ChessEngine) {
         auto opponentAcceptsDraw = gameState->computerWantsDraw (opponent);

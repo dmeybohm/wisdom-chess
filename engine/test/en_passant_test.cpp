@@ -77,12 +77,12 @@ TEST_CASE( "en passant" )
         board = board.withMove (Color::White, en_passant_move);
 
         ColoredPiece en_passant_pawn = board.pieceAt (2, 5);
-        REQUIRE( piece_type(en_passant_pawn) == Piece::Pawn );
-        REQUIRE( piece_color (en_passant_pawn) == Color::White );
+        REQUIRE( pieceType(en_passant_pawn) == Piece::Pawn );
+        REQUIRE( pieceColor (en_passant_pawn) == Color::White );
 
         ColoredPiece taken_pawn = board.pieceAt (3, 4);
-        REQUIRE( piece_color (taken_pawn) == Color::None );
-        REQUIRE( piece_type(taken_pawn) == Piece::None );
+        REQUIRE( pieceColor (taken_pawn) == Color::None );
+        REQUIRE( pieceType(taken_pawn) == Piece::None );
     }
 
     SUBCASE( "En passant moves work on the left" )
@@ -126,11 +126,11 @@ TEST_CASE( "en passant" )
         board = board.withMove (Color::White, en_passant_move);
 
         ColoredPiece en_passant_pawn = board.pieceAt (2, 3);
-        REQUIRE( piece_type(en_passant_pawn) == Piece::Pawn );
-        REQUIRE( piece_color (en_passant_pawn) == Color::White );
+        REQUIRE( pieceType(en_passant_pawn) == Piece::Pawn );
+        REQUIRE( pieceColor (en_passant_pawn) == Color::White );
 
         ColoredPiece taken_pawn = board.pieceAt (3, 4);
-        REQUIRE( piece_color (taken_pawn) == Color::None );
-        REQUIRE( piece_type(taken_pawn) == Piece::None );
+        REQUIRE( pieceColor (taken_pawn) == Color::None );
+        REQUIRE( pieceType(taken_pawn) == Piece::None );
     }
 }

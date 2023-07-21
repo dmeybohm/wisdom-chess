@@ -92,14 +92,14 @@ namespace wisdom
 
         [[nodiscard]] auto getCastleState (Color who) const -> CastlingEligibility
         {
-            if (my_castle_states[color_index (who)])
-                return *my_castle_states[color_index (who)];
+            if (my_castle_states[colorIndex (who)])
+                return *my_castle_states[colorIndex (who)];
             return calculateCastleStateFromPosition (who);
         }
 
         [[nodiscard]] auto getKingPosition (Color who) -> Coord
         {
-            auto index = color_index (who);
+            auto index = colorIndex (who);
             if (!my_king_positions[index])
                 throw BoardBuilderError { "Missing king position in constructing board." };
             return *my_king_positions[index];
