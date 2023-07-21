@@ -135,7 +135,7 @@ namespace wisdom
 
         MoveTimer overdue_timer { my_search_timeout };
         if (my_periodic_function.has_value ())
-            overdue_timer.set_periodic_function (*my_periodic_function);
+            overdue_timer.setPeriodicFunction (*my_periodic_function);
 
         IterativeSearch iterative_search {
             my_current_board, *my_history, logger, overdue_timer,

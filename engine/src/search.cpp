@@ -76,7 +76,7 @@ namespace wisdom
 
     auto IterativeSearch::is_cancelled () -> bool
     {
-        return impl->move_timer()->is_cancelled();
+        return impl->move_timer()->isCancelled();
     }
 
     static constexpr auto drawing_score (Color searching_color, Color current_color)
@@ -99,7 +99,7 @@ namespace wisdom
         auto moves = my_generator.generateAllPotentialMoves (parent_board, side);
         for (auto move : moves)
         {
-            if (my_timer.is_triggered ())
+            if (my_timer.isTriggered())
             {
                 my_timed_out = true;
                 return;

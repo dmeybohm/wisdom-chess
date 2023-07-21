@@ -6,7 +6,7 @@ namespace wisdom
 
     static constexpr int Num_Iterations_Before_Checking = 10000;
 
-    auto MoveTimer::is_triggered () -> bool
+    auto MoveTimer::isTriggered() -> bool
     {
         if (!my_started)
             return false;
@@ -17,14 +17,14 @@ namespace wisdom
         if (++my_check_calls % Num_Iterations_Before_Checking != 0)
             return false;
 
-        if (my_periodic_function.has_value ())
+        if (my_periodic_function.has_value())
         {
             (*my_periodic_function) (this);
             if (my_triggered || my_cancelled)
                 return true;
         }
 
-        steady_clock::time_point next_check_time = steady_clock::now ();
+        steady_clock::time_point next_check_time = steady_clock::now();
         auto diff_time = next_check_time - my_last_check_time;
 
         if (diff_time >= my_seconds)

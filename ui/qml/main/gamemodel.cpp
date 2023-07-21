@@ -264,18 +264,18 @@ auto GameModel::buildNotifier() const -> MoveTimer::PeriodicFunction
          // Check if config has changed:
          if (initialConfigId != currentConfigId) {
              qDebug() << "Setting timeout to break the loop. (Config changed)";
-             moveTimer->set_triggered(true);
+             moveTimer->setTriggered (true);
 
              // Discard the results of the search. The GameModel will send
              // an updateConfig signal to fire off a new search with the new
              // config.
-             moveTimer->set_cancelled(true);
+             moveTimer->setCancelled (true);
          }
 
          // Check if game has changed. If so, the game is over.
          if (initialGameId != gameIdPtr->load()) {
              qDebug() << "Setting timeout to break the loop. (Game ended)";
-             moveTimer->set_triggered(true);
+             moveTimer->setTriggered (true);
          }
     });
 }
