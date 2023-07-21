@@ -43,17 +43,6 @@ namespace wisdom
 
     class History
     {
-    private:
-        MoveList my_move_history;
-
-        // Board codes and undo positions sorted by move number:
-        vector<BoardCode> my_board_codes;
-        vector<observer_ptr<Board>> my_previous_boards {};
-
-        DrawStatus my_threefold_repetition_status = DrawStatus::NotReached;
-        DrawStatus my_fifty_moves_without_progress_status
-            = DrawStatus::NotReached;
-
     public:
         History()
             : my_move_history { MoveList::uncached() }
@@ -143,6 +132,17 @@ namespace wisdom
 
         friend auto operator<< (std::ostream& os, const History& code)
             -> std::ostream&;
+
+    private:
+        MoveList my_move_history;
+
+        // Board codes and undo positions sorted by move number:
+        vector<BoardCode> my_board_codes;
+        vector<observer_ptr<Board>> my_previous_boards {};
+
+        DrawStatus my_threefold_repetition_status = DrawStatus::NotReached;
+        DrawStatus my_fifty_moves_without_progress_status
+            = DrawStatus::NotReached;
     };
 }
 
