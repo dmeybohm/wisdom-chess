@@ -170,7 +170,7 @@ namespace wisdom::ui::console
 
     static void print_available_moves (Game& game, MoveGenerator& generator)
     {
-        MoveList moves = generator.generate_legal_moves (game.getBoard(), game.getCurrentTurn());
+        MoveList moves = generator.generateLegalMoves (game.getBoard(), game.getCurrentTurn());
 
         std::cout << "\nAvailable moves:\n    ";
 
@@ -354,7 +354,7 @@ namespace wisdom::ui::console
         result.command = PlayCommand::ShowError;
 
         // check the generated move list for this move to see if its valid
-        MoveList moves = move_generator.generate_legal_moves (game.getBoard(), game.getCurrentTurn());
+        MoveList moves = move_generator.generateLegalMoves (game.getBoard(), game.getCurrentTurn());
 
         for (auto legal_move : moves)
         {

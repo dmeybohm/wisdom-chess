@@ -15,7 +15,7 @@ namespace wisdom
         if (!isKingThreatened (board, who, coord))
             return false;
 
-        MoveList legal_moves = generator.generate_legal_moves (board, who);
+        MoveList legal_moves = generator.generateLegalMoves (board, who);
 
         return legal_moves.empty ();
     }
@@ -57,7 +57,7 @@ namespace wisdom
     auto isStalemated (const Board& board, Color who, MoveGenerator& generator) -> bool
     {
         auto coord = board.getKingPosition (who);
-        auto legal_moves = generator.generate_legal_moves (board, who);
+        auto legal_moves = generator.generateLegalMoves (board, who);
 
         return legal_moves.empty () && !isKingThreatened (board, who, coord);
     }

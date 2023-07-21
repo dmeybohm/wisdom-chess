@@ -19,7 +19,7 @@ namespace wisdom
 
         auto target_depth = max_depth - 1;
 
-        const auto moves = generator.generate_all_potential_moves (board, side);
+        const auto moves = generator.generateAllPotentialMoves (board, side);
 
         for (auto move : moves)
         {
@@ -155,7 +155,7 @@ namespace wisdom
         wisdom::perft::PerftResults results;
         Stats cumulative;
 
-        auto moves = generator.generate_all_potential_moves (board, active_player);
+        auto moves = generator.generateAllPotentialMoves (board, active_player);
 
         for (const auto& move : moves)
         {

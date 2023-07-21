@@ -24,7 +24,7 @@ TEST_CASE( "Initializing move list" )
 MoveList copy_moves_and_ptr (const Move **ptr, MoveGenerator& generator)
 {
     Board board;
-    MoveList moves = generator.generate_all_potential_moves (board, Color::White);
+    MoveList moves = generator.generateAllPotentialMoves (board, Color::White);
 //    std::cout << "Moves first" << &moves.get_my_moves()[0] << "\n";
     *ptr = moves.data ();
     return moves;

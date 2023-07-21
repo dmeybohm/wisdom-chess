@@ -494,11 +494,11 @@ namespace wisdom
                 if (piece_type (src_piece) == Piece::Pawn)
                 {
                     int eligible_column
-                        = eligible_en_passant_column (board, Row (src), Column (src), who);
+                        = eligibleEnPassantColumn (board, Row (src), Column (src), who);
                     if (eligible_column == Column (dst))
                         return Move::make_en_passant (src, dst);
 
-                    if (need_pawn_promotion (Row<int> (dst), who) && promoted_piece.has_value ())
+                    if (needPawnPromotion (Row<int> (dst), who) && promoted_piece.has_value ())
                         return move.with_promotion (ColoredPiece::make (who, *promoted_piece));
                 }
                 break;

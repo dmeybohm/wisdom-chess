@@ -16,35 +16,35 @@ namespace wisdom
 
         void generate (ColoredPiece piece, Coord coord);
 
-        [[nodiscard]] auto compare_moves (const Move& a, const Move& b) const -> bool;
+        [[nodiscard]] auto compareMoves (const Move& a, const Move& b) const -> bool;
 
-        void none ();
-        void pawn ();
-        void knight ();
-        void bishop ();
-        void rook ();
-        void queen ();
-        void king ();
+        void none();
+        void pawn();
+        void knight();
+        void bishop();
+        void rook();
+        void queen();
+        void king();
 
-        void en_passant (int en_passant_column);
+        void enPassant (int en_passant_column);
 
-        [[nodiscard]] static auto transform_move (ColoredPiece dst_piece, Move move) noexcept
+        [[nodiscard]] static auto transformMove (ColoredPiece dst_piece, Move move) noexcept
             -> Move;
-        void append_move (Move move) noexcept;
+        void appendMove (Move move) noexcept;
     };
 
-    auto need_pawn_promotion (int row, Color who) -> bool
+    auto needPawnPromotion (int row, Color who) -> bool
     {
         assert (is_color_valid (who));
         switch (who)
         {
             case Color::White: return 0 == row;
             case Color::Black: return 7 == row;
-            default: throw Error { "Invalid color in need_pawn_promotion()" };
+            default: throw Error { "Invalid color in needPawnPromotion()" };
         }
     }
 
-    void MoveGenerator::knight_move_list_init ()
+    void MoveGenerator::knightMoveListInit()
     {
         for (auto coord : CoordIterator {})
         {
@@ -77,12 +77,12 @@ namespace wisdom
         }
     }
 
-    auto MoveGenerator::generate_knight_moves (int row, int col) -> const MoveList&
+    auto MoveGenerator::generateKnightMoves (int row, int col) -> const MoveList&
     {
         auto index = coordIndex (row, col);
 
         if (my_knight_moves[0] == nullptr)
-            knight_move_list_init ();
+            knightMoveListInit();
 
         return *my_knight_moves[index];
     }
@@ -97,7 +97,7 @@ namespace wisdom
             return row == 1;
     }
 
-    static auto valid_castling_move (const Board &board, Move move) noexcept
+    static auto validCastlingMove (const Board &board, Move move) noexcept
         -> bool
     {
         // check for an intervening piece
@@ -125,7 +125,7 @@ namespace wisdom
                piece_type (piece3) == Piece::None;
     }
 
-    auto MoveGeneration::transform_move (ColoredPiece dst_piece, Move move) noexcept
+    auto MoveGeneration::transformMove (ColoredPiece dst_piece, Move move) noexcept
         -> Move
     {
         bool is_capture = (piece_type (dst_piece) != Piece::None);
@@ -135,7 +135,7 @@ namespace wisdom
         return move;
     }
 
-    void MoveGeneration::append_move (Move move) noexcept
+    void MoveGeneration::appendMove (Move move) noexcept
     {
         Coord src = move.get_src ();
         Coord dst = move.get_dst ();
@@ -149,15 +149,15 @@ namespace wisdom
         if (piece_color (src_piece) == piece_color (dst_piece))
             return;
 
-        auto transformed_move = transform_move (dst_piece, move);
+        auto transformed_move = transformMove (dst_piece, move);
         moves.push_back (transformed_move);
     }
 
-    void MoveGeneration::none ()
+    void MoveGeneration::none()
     {
     }
 
-    void MoveGeneration::king ()
+    void MoveGeneration::king()
     {
         for (int row = piece_row - 1; row < 8 && row <= piece_row + 1; row++)
         {
@@ -169,26 +169,26 @@ namespace wisdom
                 if (!isValidColumn (col))
                     continue;
 
-                append_move (Move::make (piece_row, piece_col, row, col));
+                appendMove (Move::make (piece_row, piece_col, row, col));
             }
         }
 
         if (board.ableToCastle (who, CastlingEligible::QueensideIneligible) && piece_col == King_Column)
         {
             Move queenside_castle = Move::make_castling (piece_row, piece_col, piece_row, piece_col - 2);
-            if (valid_castling_move (board, queenside_castle))
-                append_move (queenside_castle);
+            if (validCastlingMove (board, queenside_castle))
+                appendMove (queenside_castle);
         }
 
         if (board.ableToCastle (who, CastlingEligible::KingsideIneligible) && piece_col == King_Column)
         {
             Move kingside_castle = Move::make_castling (piece_row, piece_col, piece_row, piece_col + 2);
-            if (valid_castling_move (board, kingside_castle))
-                append_move (kingside_castle);
+            if (validCastlingMove (board, kingside_castle))
+                appendMove (kingside_castle);
         }
     }
 
-    void MoveGeneration::rook ()
+    void MoveGeneration::rook()
     {
         int dir;
         int row, col;
@@ -199,7 +199,7 @@ namespace wisdom
             {
                 ColoredPiece piece = board.pieceAt (row, piece_col);
 
-                append_move (Move::make (piece_row, piece_col, row, piece_col));
+                appendMove (Move::make (piece_row, piece_col, row, piece_col));
 
                 if (piece_type (piece) != Piece::None)
                     break;
@@ -209,7 +209,7 @@ namespace wisdom
             {
                 ColoredPiece piece = board.pieceAt (piece_row, col);
 
-                append_move (Move::make (piece_row, piece_col, piece_row, col));
+                appendMove (Move::make (piece_row, piece_col, piece_row, col));
 
                 if (piece_type (piece) != Piece::None)
                     break;
@@ -217,7 +217,7 @@ namespace wisdom
         }
     }
 
-    void MoveGeneration::bishop ()
+    void MoveGeneration::bishop()
     {
         int r_dir, c_dir;
         int row, col;
@@ -232,7 +232,7 @@ namespace wisdom
                 {
                     ColoredPiece piece = board.pieceAt (row, col);
 
-                    append_move (Move::make (piece_row, piece_col, row, col));
+                    appendMove (Move::make (piece_row, piece_col, row, col));
 
                     if (piece != Piece_And_Color_None)
                         break;
@@ -241,22 +241,22 @@ namespace wisdom
         }
     }
 
-    void MoveGeneration::queen ()
+    void MoveGeneration::queen()
     {
         bishop ();
         rook ();
     }
 
-    void MoveGeneration::knight ()
+    void MoveGeneration::knight()
     {
-        const auto& kt_moves = generator.generate_knight_moves (piece_row, piece_col);
+        const auto& kt_moves = generator.generateKnightMoves (piece_row, piece_col);
 
         for (const auto& knight_move : kt_moves)
-            append_move (knight_move);
+            appendMove (knight_move);
     }
 
     // Returns -1 if no column is eligible.
-    auto eligible_en_passant_column (const Board& board, int row, int column, Color who)
+    auto eligibleEnPassantColumn (const Board& board, int row, int column, Color who)
         -> int
     {
         Color opponent = color_invert (who);
@@ -342,7 +342,7 @@ namespace wisdom
         }
 
         // promotion
-        if (need_pawn_promotion (row, who))
+        if (needPawnPromotion (row, who))
         {
             for (auto promotable_piece_type : All_Promotable_Piece_Types)
             {
@@ -355,7 +355,7 @@ namespace wisdom
                     {
                         auto move = *optional_move;
                         move = move.with_promotion (promoted_piece);
-                        append_move (move);
+                        appendMove (move);
                     }
                 }
             }
@@ -364,18 +364,18 @@ namespace wisdom
         }
 
         // en passant
-        int en_passant_column = eligible_en_passant_column (board, piece_row, piece_col, who);
+        int en_passant_column = eligibleEnPassantColumn (board, piece_row, piece_col, who);
         if (isValidColumn (en_passant_column))
-            en_passant (en_passant_column);
+            enPassant (en_passant_column);
 
         for (auto& check_pawn_move : all_pawn_moves)
             if (check_pawn_move.has_value ())
-                append_move (*check_pawn_move);
+                appendMove (*check_pawn_move);
     }
 
     // put en passant in a separate handler
     // in order to not pollute instruction cache with it
-    void MoveGeneration::en_passant (int en_passant_column)
+    void MoveGeneration::enPassant (int en_passant_column)
     {
         int direction;
         int take_row, take_col;
@@ -393,14 +393,14 @@ namespace wisdom
 
         Move new_move = Move::make_en_passant (piece_row, piece_col, take_row, take_col);
 
-        append_move (new_move);
+        appendMove (new_move);
     }
 
-    auto MoveGenerator::generate_legal_moves (const Board& board, Color who) -> MoveList
+    auto MoveGenerator::generateLegalMoves (const Board& board, Color who) -> MoveList
     {
         MoveList non_checks { my_move_list_allocator.get () };
 
-        MoveList all_moves = generate_all_potential_moves (board, who);
+        MoveList all_moves = generateAllPotentialMoves (board, who);
         for (auto move : all_moves)
         {
             Board new_board = board.withMove (who, move);
@@ -420,34 +420,34 @@ namespace wisdom
         switch (piece_type (piece))
         {
             case Piece::None:
-                none ();
+                none();
                 return;
             case Piece::Pawn:
-                pawn ();
+                pawn();
                 return;
             case Piece::Knight:
-                knight ();
+                knight();
                 return;
             case Piece::Bishop:
-                bishop ();
+                bishop();
                 return;
             case Piece::Rook:
-                rook ();
+                rook();
                 return;
             case Piece::Queen:
-                queen ();
+                queen();
                 return;
             case Piece::King:
-                king ();
+                king();
                 return;
         }
     }
 
-    static int material_diff (const Board& board, Move move)
+    static int materialDiff (const Board& board, Move move)
     {
-        assert (move.is_any_capturing ());
+        assert (move.is_any_capturing());
 
-        if (move.is_en_passant ())
+        if (move.is_en_passant())
         {
             return 0;
         }
@@ -463,7 +463,7 @@ namespace wisdom
         }
     }
 
-    static constexpr auto promoting_or_coord_compare (const Move& a, const Move& b) -> bool
+    static constexpr auto promotingOrCoordCompare (const Move& a, const Move& b) -> bool
     {
         bool a_is_promoting = a.is_promoting ();
         bool b_is_promoting = b.is_promoting ();
@@ -492,14 +492,14 @@ namespace wisdom
             return coordIndex (a.get_dst()) < coordIndex (b.get_dst());
     }
 
-    auto MoveGeneration::compare_moves (const Move& a, const Move& b) const -> bool
+    auto MoveGeneration::compareMoves (const Move& a, const Move& b) const -> bool
     {
         bool a_is_capturing = a.is_any_capturing ();
         bool b_is_capturing = b.is_any_capturing ();
 
         if (!a_is_capturing && !b_is_capturing)
         {
-            return promoting_or_coord_compare (a, b);
+            return promotingOrCoordCompare (a, b);
         }
 
         if (a_is_capturing && !b_is_capturing)
@@ -512,16 +512,16 @@ namespace wisdom
         }
 
         // both are capturing: return the biggest diff between source piece and dst piece:
-        auto material_diff_a = material_diff (board, a);
-        auto material_diff_b = material_diff (board, b);
+        auto material_diff_a = materialDiff (board, a);
+        auto material_diff_b = materialDiff (board, b);
 
         if (material_diff_a != material_diff_b)
-            return material_diff (board, a) > material_diff (board, b);
+            return materialDiff (board, a) > materialDiff (board, b);
         else
-            return promoting_or_coord_compare (a, b);
+            return promotingOrCoordCompare (a, b);
     }
 
-    auto MoveGenerator::generate_all_potential_moves (const Board& board, Color who)
+    auto MoveGenerator::generateAllPotentialMoves (const Board& board, Color who)
         -> MoveList
     {
         MoveList result { my_move_list_allocator.get () };
@@ -540,7 +540,7 @@ namespace wisdom
         std::sort (result.begin (),
                    result.end (),
                    [generation](const Move& a, const Move& b) {
-                        return generation.compare_moves (a, b);
+                        return generation.compareMoves (a, b);
                    });
 
         return result;

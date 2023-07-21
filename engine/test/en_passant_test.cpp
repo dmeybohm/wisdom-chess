@@ -55,7 +55,7 @@ TEST_CASE( "en passant" )
         Move pawn_move = move_parse ("f7f5");
         board = board.withMove (Color::Black, pawn_move);
 
-        MoveList move_list = move_generator.generate_all_potential_moves (board, Color::White);
+        MoveList move_list = move_generator.generateAllPotentialMoves (board, Color::White);
         auto maybe_en_passant_move = std::find_if (
                 move_list.begin (), move_list.end (), std::mem_fn (&Move::is_en_passant));
 
@@ -104,7 +104,7 @@ TEST_CASE( "en passant" )
 
         board = board.withMove (Color::Black, pawn_move);
 
-        MoveList move_list = move_generator.generate_all_potential_moves (board, Color::White);
+        MoveList move_list = move_generator.generateAllPotentialMoves (board, Color::White);
         auto maybe_en_passant_move = std::find_if (
                 move_list.begin(), move_list.end (), std::mem_fn (&Move::is_en_passant));
 

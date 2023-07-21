@@ -96,7 +96,7 @@ namespace wisdom
         std::optional<Move> best_move {};
         int best_score = -Initial_Alpha;
 
-        auto moves = my_generator.generate_all_potential_moves (parent_board, side);
+        auto moves = my_generator.generateAllPotentialMoves (parent_board, side);
         for (auto move : moves)
         {
             if (my_timer.is_triggered ())
