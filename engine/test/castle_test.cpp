@@ -427,7 +427,7 @@ TEST_CASE( "Test can castle" )
 TEST_CASE( "Kingside castle state after moving queenside rook" )
 {
     FenParser parser { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1" };
-    Board board = parser.build_board ();
+    Board board = parser.buildBoard();
 
     MoveList move_list { Color::White, { "e5 c6", "a8 d8", "c6xd8" } };
     Color color = Color::White;

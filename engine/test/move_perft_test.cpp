@@ -94,7 +94,7 @@ TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Resul
     SUBCASE( "Position 2 (kiwipete)" )
     {
         FenParser parser { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1" };
-        auto test_board = parser.build_board ();
+        auto test_board = parser.buildBoard();
         auto perft_board = test_board;
         std::string check = test_board.toFenString (Color::White);
         auto sub = check.substr (0, check.size() - 4);

@@ -26,8 +26,8 @@ int main (int argc, char *argv[])
 
     auto depth = wisdom::to_int (argv[1]);
     wisdom::FenParser fen { argv[2] };
-    auto board = fen.build_board () ;
-    auto current_player = fen.get_active_player ();
+    auto board = fen.buildBoard() ;
+    auto current_player = fen.getActivePlayer();
 
     if (argc == 4)
     {
