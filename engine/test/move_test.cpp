@@ -12,21 +12,21 @@ using namespace wisdom;
 TEST_CASE( "Parsing a move" )
 {
     Move with_spaces = move_parse ("   e2e4", Color::White);
-    REQUIRE( Move::make (coord_parse ("e2"), coord_parse ("e4")) == with_spaces );
+    REQUIRE( Move::make (coordParse ("e2"), coordParse ("e4")) == with_spaces );
 }
 
 TEST_CASE( "Packing source and destination coordinates" )
 {
     Move a7xc8 = move_parse ("a7xc8", Color::White);
-    CHECK( a7xc8.get_dst () == coord_parse ("c8") );
-    CHECK( a7xc8.get_src () == coord_parse ("a7") );
+    CHECK( a7xc8.get_dst () == coordParse ("c8") );
+    CHECK( a7xc8.get_src () == coordParse ("a7") );
 }
 
 TEST_CASE( "Parsing an en-passant move" )
 {
     Move en_passant = move_parse ("   e4d5 ep   ", Color::White);
-    Coord src = coord_parse("e4");
-    Coord dst = coord_parse("d5");
+    Coord src = coordParse ("e4");
+    Coord dst = coordParse ("d5");
     Move expected = Move::make_en_passant (Row (src), Column (src), Row (dst), Column (dst));
     REQUIRE( en_passant == expected );
 }
@@ -34,8 +34,8 @@ TEST_CASE( "Parsing an en-passant move" )
 TEST_CASE( "Parsing a promoting move" )
 {
     Move promoting = move_parse ("   d7d8 (B) ", Color::White);
-    Coord src = coord_parse("d7");
-    Coord dst = coord_parse("d8");
+    Coord src = coordParse ("d7");
+    Coord dst = coordParse ("d8");
     Move expected = Move::make (src, dst);
     expected = expected.with_promotion (ColoredPiece::make (Color::White, Piece::Bishop));
     REQUIRE( promoting == expected );
@@ -44,8 +44,8 @@ TEST_CASE( "Parsing a promoting move" )
 TEST_CASE( "Parsing a castling move" )
 {
     Move castling = move_parse ("   o-o-o ", Color::Black);
-    Coord src = coord_parse("e8");
-    Coord dst = coord_parse("c8");
+    Coord src = coordParse ("e8");
+    Coord dst = coordParse ("c8");
     Move expected = Move::make_castling (Row (src), Column (src), Row (dst), Column (dst));
 
     REQUIRE( castling == expected );
@@ -77,8 +77,8 @@ TEST_CASE("Mapping coordinates to moves")
         board = board.withMove (Color::White, e4e5);
         board = board.withMove (Color::Black, d7d5);
 
-        Coord e5 = coord_parse ("e5");
-        Coord d6 = coord_parse ("d6");
+        Coord e5 = coordParse ("e5");
+        Coord d6 = coordParse ("d6");
         optional<Move> result = mapCoordinatesToMove (board, Color::White, e5, d6);
 
         Move expected = move_parse ("e5 d6 ep", Color::White);
@@ -105,8 +105,8 @@ TEST_CASE("Mapping coordinates to moves")
         board = board.withMove (Color::White, g1f3);
         board = board.withMove (Color::Black, g8f6);
 
-        Coord e1 = coord_parse ("e1");
-        Coord g1 = coord_parse ("g1");
+        Coord e1 = coordParse ("e1");
+        Coord g1 = coordParse ("g1");
         optional<Move> white_result = mapCoordinatesToMove (board, Color::White, e1, g1);
 
         Move white_expected = move_parse ("o-o", Color::White);
@@ -115,8 +115,8 @@ TEST_CASE("Mapping coordinates to moves")
 
         board = board.withMove (Color::White, white_expected);
 
-        Coord e8 = coord_parse ("e8");
-        Coord g8 = coord_parse ("g8");
+        Coord e8 = coordParse ("e8");
+        Coord g8 = coordParse ("g8");
 
         optional<Move> black_result = mapCoordinatesToMove (board, Color::Black, e8, g8);
         Move black_expected = move_parse ("o-o", Color::Black);
@@ -135,8 +135,8 @@ TEST_CASE("Mapping coordinates to moves")
 
         auto board = Board { builder };
 
-        Coord b7 = coord_parse ("b7");
-        Coord b8 = coord_parse ("b8");
+        Coord b7 = coordParse ("b7");
+        Coord b8 = coordParse ("b8");
 
         optional<Move> result = mapCoordinatesToMove (board, Color::White, b7, b8, Piece::Queen);
         auto expected = move_parse ("b7b8 (Q)", Color::White);
@@ -156,8 +156,8 @@ TEST_CASE("Mapping coordinates to moves")
 
         auto board = Board { builder };
 
-        Coord b7 = coord_parse ("b7");
-        Coord c8 = coord_parse ("c8");
+        Coord b7 = coordParse ("b7");
+        Coord c8 = coordParse ("c8");
 
         optional<Move> result = mapCoordinatesToMove (board, Color::White, b7, c8, Piece::Queen);
         auto expected = move_parse ("b7xc8 (Q)", Color::White);
@@ -177,8 +177,8 @@ TEST_CASE("Mapping coordinates to moves")
 
         auto board = Board { builder };
 
-        Coord f1 = coord_parse ("f1");
-        Coord c4 = coord_parse ("c4");
+        Coord f1 = coordParse ("f1");
+        Coord c4 = coordParse ("c4");
 
         optional<Move> result = mapCoordinatesToMove (board, Color::White, f1, c4);
         auto expected = move_parse ("f1xc4", Color::White);
@@ -198,8 +198,8 @@ TEST_CASE("Mapping coordinates to moves")
 
         auto board = Board { builder };
 
-        Coord f1 = coord_parse ("f1");
-        Coord c3 = coord_parse ("c3");
+        Coord f1 = coordParse ("f1");
+        Coord c3 = coordParse ("c3");
 
         optional<Move> result = mapCoordinatesToMove (board, Color::White, f1, c3);
         auto expected = move_parse ("f1 c3", Color::White);

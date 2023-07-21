@@ -56,18 +56,18 @@ namespace wisdom
                 if (!k_row)
                     continue;
 
-                if (!is_valid_row (k_row + row))
+                if (!isValidRow (k_row + row))
                     continue;
 
                 for (int k_col = 3 - abs (k_row); k_col >= -2; k_col -= 2 * abs (k_col))
                 {
-                    if (!is_valid_column (k_col + col))
+                    if (!isValidColumn (k_col + col))
                         continue;
 
                     Move knight_move = Move::make (k_row + row, k_col + col, row, col);
                     int dst_row = k_row + row;
                     int dst_col = k_col + col;
-                    auto index = coord_index (dst_row, dst_col);
+                    auto index = coordIndex (dst_row, dst_col);
                     if (my_knight_moves[index] == nullptr) {
                         my_knight_moves[index] = make_unique<MoveList> (my_move_list_allocator.get ());
                     }
@@ -79,7 +79,7 @@ namespace wisdom
 
     auto MoveGenerator::generate_knight_moves (int row, int col) -> const MoveList&
     {
-        auto index = coord_index (row, col);
+        auto index = coordIndex (row, col);
 
         if (my_knight_moves[0] == nullptr)
             knight_move_list_init ();
@@ -161,12 +161,12 @@ namespace wisdom
     {
         for (int row = piece_row - 1; row < 8 && row <= piece_row + 1; row++)
         {
-            if (!is_valid_row (row))
+            if (!isValidRow (row))
                 continue;
 
             for (int col = piece_col - 1; col < 8 && col <= piece_col + 1; col++)
             {
-                if (!is_valid_column (col))
+                if (!isValidColumn (col))
                     continue;
 
                 append_move (Move::make (piece_row, piece_col, row, col));
@@ -195,7 +195,7 @@ namespace wisdom
 
         for (dir = -1; dir <= 1; dir += 2)
         {
-            for (row = next_row (piece_row, dir); is_valid_row (row); row = next_row (row, dir))
+            for (row = nextRow (piece_row, dir); isValidRow (row); row = nextRow (row, dir))
             {
                 ColoredPiece piece = board.pieceAt (row, piece_col);
 
@@ -205,7 +205,7 @@ namespace wisdom
                     break;
             }
 
-            for (col = next_column (piece_col, dir); is_valid_column (col); col = next_column (col, dir))
+            for (col = nextColumn (piece_col, dir); isValidColumn (col); col = nextColumn (col, dir))
             {
                 ColoredPiece piece = board.pieceAt (piece_row, col);
 
@@ -226,9 +226,9 @@ namespace wisdom
         {
             for (c_dir = -1; c_dir <= 1; c_dir += 2)
             {
-                for (row = next_row (piece_row, r_dir), col = next_column (piece_col, c_dir);
-                     is_valid_row (row) && is_valid_column (col);
-                     row = next_row (row, r_dir), col = next_column (col, c_dir))
+                for (row = nextRow (piece_row, r_dir), col = nextColumn (piece_col, c_dir);
+                     isValidRow (row) && isValidColumn (col);
+                     row = nextRow (row, r_dir), col = nextColumn (col, c_dir))
                 {
                     ColoredPiece piece = board.pieceAt (row, col);
 
@@ -274,13 +274,13 @@ namespace wisdom
 
         if (left_column == target_column)
         {
-            assert (is_valid_column (left_column));
+            assert (isValidColumn (left_column));
             return left_column;
         }
 
         if (right_column == target_column)
         {
-            assert (is_valid_column (right_column));
+            assert (isValidColumn (right_column));
             return right_column;
         }
 
@@ -299,10 +299,10 @@ namespace wisdom
         // row is _guaranteed_ to be on the board, because
         // a pawn on the eight rank can't remain a pawn, and that's
         // the only direction moved in
-        assert (is_valid_row (piece_row));
+        assert (isValidRow (piece_row));
 
-        row = next_row (piece_row, dir);
-        assert (is_valid_row (row));
+        row = nextRow (piece_row, dir);
+        assert (isValidRow (row));
 
         array<optional<Move>, 4> all_pawn_moves { nullopt, nullopt, nullopt, nullopt };
 
@@ -313,7 +313,7 @@ namespace wisdom
         // double move
         if (is_pawn_unmoved (board, piece_row, piece_col))
         {
-            int double_row = next_row (row, dir);
+            int double_row = nextRow (row, dir);
 
             if (all_pawn_moves[0].has_value () && board.pieceAt (double_row, piece_col) == Piece_And_Color_None)
             {
@@ -324,9 +324,9 @@ namespace wisdom
         // take pieces
         for (c_dir = -1; c_dir <= 1; c_dir += 2)
         {
-            take_col = next_column (piece_col, c_dir);
+            take_col = nextColumn (piece_col, c_dir);
 
-            if (!is_valid_column (take_col))
+            if (!isValidColumn (take_col))
                 continue;
 
             ColoredPiece target_piece = board.pieceAt (row, take_col);
@@ -365,7 +365,7 @@ namespace wisdom
 
         // en passant
         int en_passant_column = eligible_en_passant_column (board, piece_row, piece_col, who);
-        if (is_valid_column (en_passant_column))
+        if (isValidColumn (en_passant_column))
             en_passant (en_passant_column);
 
         for (auto& check_pawn_move : all_pawn_moves)
@@ -382,7 +382,7 @@ namespace wisdom
 
         direction = pawnDirection<int> (who);
 
-        take_row = next_row (piece_row, direction);
+        take_row = nextRow (piece_row, direction);
         take_col = en_passant_column;
 
         [[maybe_unused]]
@@ -487,9 +487,9 @@ namespace wisdom
         Coord b_coord = b.get_src ();
 
         if (a_coord != b_coord)
-            return coord_index (a_coord) < coord_index (b_coord);
+            return coordIndex (a_coord) < coordIndex (b_coord);
         else
-            return coord_index (a.get_dst ()) < coord_index (b.get_dst ());
+            return coordIndex (a.get_dst()) < coordIndex (b.get_dst());
     }
 
     auto MoveGeneration::compare_moves (const Move& a, const Move& b) const -> bool

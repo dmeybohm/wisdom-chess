@@ -14,7 +14,7 @@ namespace wisdom
 
         for (int i = 0; i < Num_Squares; i++)
         {
-            auto coord = make_coord_from_index (i);
+            auto coord = makeCoordFromIndex (i);
             auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
             {
@@ -58,8 +58,8 @@ namespace wisdom
                                                              int promoted_piece_type)
         -> WebMove*
     {
-        auto game_src = make_coord (src->row, src->col);
-        auto game_dst = make_coord (dst->row, dst->col);
+        auto game_src = makeCoord (src->row, src->col);
+        auto game_dst = makeCoord (dst->row, dst->col);
 
         auto optionalMove = my_game.mapCoordinatesToMove (game_src, game_dst,
                                                           map_piece (promoted_piece_type));
@@ -129,7 +129,7 @@ namespace wisdom
                                 auto key = it.first;
                                 auto value = it.second;
                                 auto piece = map_colored_piece (value);
-                                auto piece_coord = make_coord (value.row, value.col);
+                                auto piece_coord = makeCoord (value.row, value.col);
                                 return piece_to_find == piece && piece_coord == coord_to_find;
                             });
 
@@ -160,13 +160,13 @@ namespace wisdom
         for (int i = 0; i < old_pieces.length; i++)
         {
             WebColoredPiece piece = old_pieces.pieces[i];
-            Coord src = make_coord (piece.row, piece.col);
-            old_list[coord_index (src)] = piece;
+            Coord src = makeCoord (piece.row, piece.col);
+            old_list[coordIndex (src)] = piece;
         }
 
         for (int i = 0; i < Num_Squares; i++)
         {
-            Coord coord = make_coord_from_index (i);
+            Coord coord = makeCoordFromIndex (i);
             ColoredPiece piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
             {
@@ -213,7 +213,7 @@ namespace wisdom
                 }
                 auto coord_idx = it->first;
                 auto old_piece = it->second;
-                auto coord = make_coord_from_index (value.first);
+                auto coord = makeCoordFromIndex (value.first);
 
                 my_pieces.addPiece (WebColoredPiece {
                     old_piece.id,

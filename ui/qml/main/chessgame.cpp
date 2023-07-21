@@ -98,8 +98,8 @@ auto ChessGame::moveFromCoordinates(int srcRow, int srcColumn,
     -> pair<optional<Move>, Color>
 {
     auto engine = this->state();
-    auto src = wisdom::make_coord(srcRow, srcColumn);
-    auto dst = wisdom::make_coord(dstRow, dstColumn);
+    auto src = wisdom::makeCoord (srcRow, srcColumn);
+    auto dst = wisdom::makeCoord (dstRow, dstColumn);
 
     auto who = engine->getCurrentTurn();
 

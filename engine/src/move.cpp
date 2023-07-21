@@ -8,7 +8,7 @@ namespace wisdom
 {
     auto en_passant_taken_pawn_coord (Coord src, Coord dst) -> Coord
     {
-        return make_coord (Row (src), Column (dst));
+        return makeCoord (Row (src), Column (dst));
     }
 
     constexpr bool is_double_square_pawn_move (ColoredPiece src_piece, Move move)
@@ -174,8 +174,8 @@ namespace wisdom
         if (is_double_square_pawn_move (src_piece, move))
         {
             Coord src = move.get_src ();
-            int prev_row = next_row (Row<int> (src), direction);
-            new_state = make_coord (prev_row, Column (src));
+            int prev_row = nextRow (Row<int> (src), direction);
+            new_state = makeCoord (prev_row, Column (src));
         }
         setEnPassantTarget (c_index, new_state);
     }
@@ -333,7 +333,7 @@ namespace wisdom
         int offset = 0;
         try
         {
-            src = coord_parse (tmp.substr (0, 2));
+            src = coordParse (tmp.substr (0, 2));
             offset += 2;
         }
         catch ([[maybe_unused]] const CoordParseError& e)
@@ -356,7 +356,7 @@ namespace wisdom
         optional<Coord> dst;
         try
         {
-            dst = coord_parse (dst_coord);
+            dst = coordParse (dst_coord);
         }
         catch ([[maybe_unused]] const CoordParseError& e)
         {

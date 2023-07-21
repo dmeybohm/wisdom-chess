@@ -35,7 +35,7 @@ namespace wisdom
         if (coord_str.size () != 2)
             throw BoardBuilderError ("Invalid coordinate string!");
 
-        Coord algebraic = coord_parse (coord_str);
+        Coord algebraic = coordParse (coord_str);
 
         addPiece (Row (algebraic), Column (algebraic), who, piece_type);
     }
@@ -47,9 +47,9 @@ namespace wisdom
         int8_t king_col = King_Column;
 
         CastlingEligibility state = CastlingEligible::EitherSideEligible;
-        ColoredPiece prospective_king = pieceAt (make_coord (row, king_col));
-        ColoredPiece prospective_queen_rook = pieceAt (make_coord (row, 0));
-        ColoredPiece prospective_king_rook = pieceAt (make_coord (row, 7));
+        ColoredPiece prospective_king = pieceAt (makeCoord (row, king_col));
+        ColoredPiece prospective_queen_rook = pieceAt (makeCoord (row, 0));
+        ColoredPiece prospective_king_rook = pieceAt (makeCoord (row, 7));
 
         if (piece_type (prospective_king) != Piece::King ||
             piece_color (prospective_king) != who ||
@@ -80,8 +80,8 @@ namespace wisdom
         if (piece_type == Piece::None)
             return;
 
-        auto coord = make_coord (row, col);
-        my_squares[coord_index (coord)] = ColoredPiece::make (who, piece_type);
+        auto coord = makeCoord (row, col);
+        my_squares[coordIndex (coord)] = ColoredPiece::make (who, piece_type);
 
         if (piece_type == Piece::King)
             my_king_positions[color_index (who)] = coord;
@@ -102,7 +102,7 @@ namespace wisdom
     void BoardBuilder::addRowOfSameColorAndPiece (const string& coord_str, Color who,
                                                         Piece piece_type)
     {
-        Coord coord = coord_parse (coord_str);
+        Coord coord = coordParse (coord_str);
 
         for (int col = 0; col < Num_Columns; col++)
             addPiece (Row (coord), col, who, piece_type);
@@ -118,7 +118,7 @@ namespace wisdom
     void BoardBuilder::addRowOfSameColor (const string& coord_str, Color who,
                                               const PieceRow& piece_types)
     {
-        Coord coord = coord_parse (coord_str);
+        Coord coord = coordParse (coord_str);
 
         for (auto col = 0; col < Num_Columns; col++)
             addPiece (Row (coord), col, who, piece_types[col]);
@@ -131,7 +131,7 @@ namespace wisdom
 
     void BoardBuilder::setEnPassantTarget (Color vulnerable_color, const string& coord_str)
     {
-        my_en_passant_targets[color_index (vulnerable_color)] = coord_parse (coord_str);
+        my_en_passant_targets[color_index (vulnerable_color)] = coordParse (coord_str);
     }
 
     void BoardBuilder::setCastling (Color who, CastlingEligibility state)

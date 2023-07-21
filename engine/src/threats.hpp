@@ -77,7 +77,7 @@ namespace wisdom
         // Check an entire row for any rook / queen threats.
         bool row ()
         {
-            for (auto new_col = next_column (my_king_col, +1); new_col <= Last_Column; new_col++)
+            for (auto new_col = nextColumn (my_king_col, +1); new_col <= Last_Column; new_col++)
             {
                 auto status = check_lane_threats (my_king_row, new_col);
                 if (status == ThreatStatus::Threatened)
@@ -86,7 +86,7 @@ namespace wisdom
                     break;
             }
 
-            for (auto new_col = next_column (my_king_col, -1); new_col >= First_Column; new_col--)
+            for (auto new_col = nextColumn (my_king_col, -1); new_col >= First_Column; new_col--)
             {
                 auto status = check_lane_threats (my_king_row, new_col);
                 if (status == ThreatStatus::Threatened)
@@ -101,7 +101,7 @@ namespace wisdom
         // Check an entire column for any rook / queen threats.
         bool column ()
         {
-            for (auto new_row = next_row (my_king_row, +1); new_row <= Last_Row; new_row++)
+            for (auto new_row = nextRow (my_king_row, +1); new_row <= Last_Row; new_row++)
             {
                 auto status = check_lane_threats (new_row, my_king_col);
                 if (status == ThreatStatus::Threatened)
@@ -110,7 +110,7 @@ namespace wisdom
                     break;
             }
 
-            for (auto new_row = next_row (my_king_row, -1); new_row >= First_Row; new_row--)
+            for (auto new_row = nextRow (my_king_row, -1); new_row >= First_Row; new_row--)
             {
                 auto status = check_lane_threats (new_row, my_king_col);
                 if (status == ThreatStatus::Threatened)
@@ -203,9 +203,9 @@ namespace wisdom
             // check for pawn checks
             auto r_dir = my_pawn_direction;
 
-            auto left_col = next_column (my_king_col, -1);
-            auto right_col = next_column (my_king_col, +1);
-            auto pawn_row = next_row (my_king_row, r_dir);
+            auto left_col = nextColumn (my_king_col, -1);
+            auto right_col = nextColumn (my_king_col, +1);
+            auto pawn_row = nextRow (my_king_row, r_dir);
             if (pawn_row >= Last_Row || pawn_row <= First_Row)
                 return false;
 
@@ -234,10 +234,10 @@ namespace wisdom
             int target_row = my_king_row + r_dir;
 
             int left_attack_exists
-                = (is_valid_row (target_row) && is_valid_column (left_col)
+                = (isValidRow (target_row) && isValidColumn (left_col)
                    && my_board.pieceAt (target_row, left_col) == ColoredPiece::make (my_opponent, Piece::Pawn));
             int right_attack_exists
-                = (is_valid_row (target_row) && is_valid_column (right_col)
+                = (isValidRow (target_row) && isValidColumn (right_col)
                    && my_board.pieceAt (target_row, right_col) == ColoredPiece::make (my_opponent, Piece::Pawn));
 
             return left_attack_exists | right_attack_exists;
@@ -251,23 +251,20 @@ namespace wisdom
         bool check_king_threat_row (int target_row, int starting_col,
                                     int ending_col)
         {
-            int middle_col = next_column<int> (starting_col, +1);
+            int middle_col = nextColumn<int> (starting_col, +1);
             bool middle_attack_exists = false;
             ColoredPiece opponent_king = ColoredPiece::make (my_opponent, Piece::King);
 
-            bool left_attack_exists = (
-                is_valid_row (target_row) && is_valid_column (starting_col)
+            bool left_attack_exists = (isValidRow (target_row) && isValidColumn (starting_col)
                 && my_board.pieceAt (target_row, starting_col) == opponent_king
             );
             if constexpr (squares_to_check == KingThreatCheck::CheckMiddle)
             {
-                middle_attack_exists = (
-                    is_valid_row (target_row) && is_valid_column (middle_col)
+                middle_attack_exists = (isValidRow (target_row) && isValidColumn (middle_col)
                     && my_board.pieceAt (target_row, middle_col) == opponent_king
                 );
             }
-            bool right_attack_exists = (
-                is_valid_row (target_row) && is_valid_column (ending_col)
+            bool right_attack_exists = (isValidRow (target_row) && isValidColumn (ending_col)
                 && my_board.pieceAt (target_row, ending_col) == opponent_king
             );
 
@@ -276,12 +273,12 @@ namespace wisdom
 
         bool king_inline ()
         {
-            auto left_col = next_column<int> (my_king_col, -1);
-            auto right_col = next_column<int> (my_king_col, +1);
+            auto left_col = nextColumn<int> (my_king_col, -1);
+            auto right_col = nextColumn<int> (my_king_col, +1);
 
             // Inline checks across all three possible rows.
             bool top_attack_exists = check_king_threat_row<KingThreatCheck::CheckMiddle> (
-                next_row<int> (my_king_row, -1),
+                nextRow<int> (my_king_row, -1),
                 left_col,
                 right_col
             );
@@ -293,7 +290,7 @@ namespace wisdom
             );
 
             bool bottom_attack_exists = check_king_threat_row<KingThreatCheck::CheckMiddle> (
-                next_row (my_king_row, +1),
+                nextRow (my_king_row, +1),
                 left_col,
                 right_col
             );

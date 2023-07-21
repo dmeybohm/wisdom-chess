@@ -21,8 +21,7 @@ namespace wisdom
         auto second_bishop = ColoredPiece::make (second_bishop_color, Piece::Bishop);
         auto first_coord = board.findFirstCoordWithPiece (first_bishop);
 
-        auto starting_at = first_bishop_color == second_bishop_color ?
-            next_coord (*first_coord, +1) : First_Coord;
+        auto starting_at = first_bishop_color == second_bishop_color ? nextCoord (*first_coord, +1) : First_Coord;
         assert (starting_at.has_value ());
 
         auto second_coord = board.findFirstCoordWithPiece (second_bishop, *starting_at);

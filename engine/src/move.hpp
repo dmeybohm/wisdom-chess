@@ -80,8 +80,8 @@ namespace wisdom
         -> Move
         {
             return Move {
-                .src = gsl::narrow_cast<int8_t> (coord_index (src)),
-                .dst = gsl::narrow_cast<int8_t> (coord_index (dst)),
+                .src = gsl::narrow_cast<int8_t> (coordIndex (src)),
+                .dst = gsl::narrow_cast<int8_t> (coordIndex (dst)),
                 .promoted_piece = gsl::narrow_cast<int8_t> (0),
                 .move_category = gsl::narrow_cast<int8_t> (0),
             };
@@ -91,8 +91,8 @@ namespace wisdom
                                                   int dst_row, int dst_col) noexcept
             -> Move
         {
-            Coord src = make_coord (src_row, src_col);
-            Coord dst = make_coord (dst_row, dst_col);
+            Coord src = makeCoord (src_row, src_col);
+            Coord dst = makeCoord (dst_row, dst_col);
 
             return make (src, dst);
         }
@@ -167,12 +167,12 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto get_src () const -> Coord
         {
-            return make_coord_from_index (src);
+            return makeCoordFromIndex (src);
         }
 
         [[nodiscard]] constexpr auto get_dst () const -> Coord
         {
-            return make_coord_from_index (dst);
+            return makeCoordFromIndex (dst);
         }
 
         [[nodiscard]] constexpr auto with_promotion (ColoredPiece piece) const noexcept

@@ -41,8 +41,8 @@ namespace wisdom
 
             int8_t direction = mv.is_castling_on_kingside () ? -1 : 1;
 
-            int8_t plus_one_column = next_column (castled_col, direction);
-            int8_t plus_two_column = next_column (plus_one_column, direction);
+            int8_t plus_one_column = nextColumn (castled_col, direction);
+            int8_t plus_two_column = nextColumn (plus_one_column, direction);
 
             if (isKingThreatened (board, who, castled_row, plus_one_column) || isKingThreatened (board, who, castled_row, plus_two_column))
             {

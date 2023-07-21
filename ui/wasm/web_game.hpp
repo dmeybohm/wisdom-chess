@@ -34,8 +34,8 @@ namespace wisdom
 
         auto needsPawnPromotion (const WebCoord* src, const WebCoord* dst) const -> bool
         {
-            auto game_src = make_coord (src->row, src->col);
-            auto game_dst = make_coord (dst->row, dst->col);
+            auto game_src = makeCoord (src->row, src->col);
+            auto game_dst = makeCoord (dst->row, dst->col);
 
             auto optionalMove = my_game.mapCoordinatesToMove (game_src, game_dst,
                                                               Piece::Queen);

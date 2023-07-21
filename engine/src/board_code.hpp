@@ -115,7 +115,7 @@ namespace wisdom
             auto col = gsl::narrow<int8_t> (target_bits & 0x7);
             auto is_present = (bool)(target_bits & EN_PASSANT_PRESENT);
             auto row = vulnerable_color == Color::White ? White_En_Passant_Row : Black_En_Passant_Row;
-            return is_present ? make_coord (row, col) : No_En_Passant_Coord;
+            return is_present ? makeCoord (row, col) : No_En_Passant_Coord;
         }
 
         void setCurrentTurn (Color who)

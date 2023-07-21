@@ -30,13 +30,13 @@ namespace wisdom
         [[nodiscard]] constexpr auto pieceAt (int row, int col) const
             -> ColoredPiece
         {
-            return my_squares[coord_index (row, col)];
+            return my_squares[coordIndex (row, col)];
         }
 
         [[nodiscard]] constexpr auto pieceAt (Coord coord) const
             -> ColoredPiece
         {
-            return my_squares[coord_index (coord)];
+            return my_squares[coordIndex (coord)];
         }
 
         void printToFile (std::ostream& out) const;
@@ -192,12 +192,12 @@ namespace wisdom
 
         void setPiece (int8_t row, int8_t col, ColoredPiece piece)
         {
-            my_squares[coord_index (row, col)] = piece;
+            my_squares[coordIndex (row, col)] = piece;
         }
 
         void setPiece (Coord coord, ColoredPiece piece)
         {
-            my_squares[coord_index (coord)] = piece;
+            my_squares[coordIndex (coord)] = piece;
         }
 
         [[nodiscard]] auto findFirstCoordWithPiece (ColoredPiece piece,

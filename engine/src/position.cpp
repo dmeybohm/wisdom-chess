@@ -77,10 +77,8 @@ namespace wisdom
         int8_t row = Row (coord);
         int8_t col = Column (coord);
 
-        return make_coord (
-            gsl::narrow_cast<int8_t>(Last_Row - row),
-            gsl::narrow_cast<int8_t>(Last_Column - col)
-        );
+        return makeCoord (gsl::narrow_cast<int8_t> (Last_Row - row),
+                          gsl::narrow_cast<int8_t> (Last_Column - col));
     }
 
     static int8_t castling_row_from_color (Color who)
@@ -188,8 +186,8 @@ namespace wisdom
                             ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column
                     );
 
-                    Coord src_rook_coord = make_coord (rook_src_row, rook_src_col);
-                    Coord dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
+                    Coord src_rook_coord = makeCoord (rook_src_row, rook_src_col);
+                    Coord dst_rook_coord = makeCoord (rook_src_row, rook_dst_col);
                     ColoredPiece rook = ColoredPiece::make (who, Piece::Rook);
 
                     this->remove (who, src_rook_coord, rook);

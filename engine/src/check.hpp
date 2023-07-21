@@ -51,7 +51,7 @@ namespace wisdom
     [[nodiscard]] inline auto isKingThreatened (const Board& board, Color who, int8_t king_row,
                                                 int8_t king_col) -> bool
     {
-        return isKingThreatened (board, who, make_coord (king_row, king_col));
+        return isKingThreatened (board, who, makeCoord (king_row, king_col));
     }
 
     // Whether the board is in a checkmated position for the computer_player.

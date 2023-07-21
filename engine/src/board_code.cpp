@@ -112,10 +112,10 @@ namespace wisdom
             }
             row = src_piece_color == Color::White ? Last_Row : First_Row;
 
-            Coord rook_src = make_coord (row, src_col);
+            Coord rook_src = makeCoord (row, src_col);
             ColoredPiece rook = ColoredPiece::make (src_piece_color, Piece::Rook);
             removePiece (rook_src);
-            addPiece (make_coord (row, dst_col), rook);
+            addPiece (makeCoord (row, dst_col), rook);
         }
         else if (move.is_en_passant ())
         {

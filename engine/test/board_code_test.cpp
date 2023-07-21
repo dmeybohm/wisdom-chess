@@ -21,7 +21,7 @@ TEST_CASE( "board code")
         std::size_t num_zeroes = std::count (initial_str.begin (), initial_str.end (), '0');
         REQUIRE( num_zeroes == initial_str.size () );
 
-        Coord a8 = coord_parse ("a8");
+        Coord a8 = coordParse ("a8");
         ColoredPiece black_pawn = ColoredPiece::make (Color::Black, Piece::Pawn);
         code.addPiece (a8, black_pawn);
 
@@ -31,7 +31,7 @@ TEST_CASE( "board code")
 
         REQUIRE( code == initial );
 
-        Coord h1 = coord_parse ("h1");
+        Coord h1 = coordParse ("h1");
         ColoredPiece white_king = ColoredPiece::make (Color::White, Piece::King);
         code.addPiece (h1, white_king);
 
@@ -152,7 +152,7 @@ TEST_CASE( "Board code stores ancilliary state" )
         CHECK( with_state_code != without_state_code );
 
         auto en_passant_target = with_state_code.enPassantTarget (Color::Black);
-        auto expected_coord = coord_parse("d6");
+        auto expected_coord = coordParse ("d6");
         auto ancilliary = with_state_code.getAncillaryBits();
         INFO(ancilliary);
         INFO( wisdom::to_string (en_passant_target) );
@@ -181,7 +181,7 @@ TEST_CASE( "Board code stores ancilliary state" )
 
         auto en_passant_target = with_state_code.enPassantTarget (Color::White);
 
-        auto expected_coord = coord_parse ("e3");
+        auto expected_coord = coordParse ("e3");
         auto ancilliary = with_state_code.getAncillaryBits();
         CHECK( en_passant_target == expected_coord );
 

@@ -49,8 +49,8 @@ namespace wisdom
             throw wisdom::Error { "Invalid size of move" };
 
         // parse the move into the coordinates
-        auto src = wisdom::coord_parse (move_str.substr (0, 2));
-        auto dst = wisdom::coord_parse (move_str.substr (2, 2));
+        auto src = wisdom::coordParse (move_str.substr (0, 2));
+        auto dst = wisdom::coordParse (move_str.substr (2, 2));
 
         auto promoted = Piece_And_Color_None;
         if (move_str.size () == 5)

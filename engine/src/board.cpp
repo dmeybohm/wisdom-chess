@@ -257,11 +257,11 @@ namespace wisdom
 
             for (auto&& coord : allCoords ())
             {
-                ColoredPiece piece = shuffle_pieces[coord_index (coord)];
+                ColoredPiece piece = shuffle_pieces[coordIndex (coord)];
                 if (piece_type (piece) == Piece::King)
                     my_king_pos[color_index (piece_color (piece))] = coord;
 
-                my_squares[coord_index (coord)] = piece;
+                my_squares[coordIndex (coord)] = piece;
             }
 
             // Remove invalid pawns.
@@ -293,7 +293,7 @@ namespace wisdom
     {
         for (optional<Coord> it = starting_at;
              it.has_value ();
-             it = next_coord (*it, +1))
+             it = nextCoord (*it, +1))
         {
             if (pieceAt (*it) == piece)
                 return it;

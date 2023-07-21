@@ -76,8 +76,8 @@ namespace wisdom
 
         [[nodiscard]] auto pieceAt (Coord coord) const -> ColoredPiece
         {
-            assert (coord_index (coord) < Num_Squares);
-            return my_squares[coord_index (coord)];
+            assert (coordIndex (coord) < Num_Squares);
+            return my_squares[coordIndex (coord)];
         }
 
         [[nodiscard]] auto getCurrentTurn () const -> Color
