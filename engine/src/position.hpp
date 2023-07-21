@@ -18,13 +18,13 @@ namespace wisdom
         explicit Position (const Board& board);
 
         // My score minus my oppponent's score
-        [[nodiscard]] int overall_score (Color who) const;
+        [[nodiscard]] int overallScore (Color who) const;
 
         // The score for the individual player.
-        [[nodiscard]] int individual_score (Color who) const;
+        [[nodiscard]] int individualScore (Color who) const;
 
         // Apply the move to the position.
-        void apply_move (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece);
+        void applyMove (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece);
 
         friend auto operator<< (std::ostream& ostream, Position& position) -> std::ostream&;
 

@@ -3,6 +3,7 @@
 
 namespace wisdom
 {
+    // clang-format off
     constexpr int pawn_positions[Num_Rows][Num_Columns] = {
             {  0,  0,  0,  0,  0,  0,  0,  0 },
             { +9, +9, +9, +9, +9, +9, +9, +9 },
@@ -68,8 +69,9 @@ namespace wisdom
             { -2,  0, +1,  0,  0,  0,  0, -2 },
             { -4, -2, -2, -1, -1, -2, -2, -4 },
     };
+    // clang-format on
 
-    static Coord translate_position (Coord coord, Color who)
+    static Coord translatePosition (Coord coord, Color who)
     {
         if (who == Color::White)
             return coord;
@@ -81,21 +83,21 @@ namespace wisdom
                           gsl::narrow_cast<int8_t> (Last_Column - col));
     }
 
-    static int8_t castling_row_from_color (Color who)
+    static int8_t castlingRowFromColor (Color who)
     {
         switch (who)
         {
             case Color::White: return 7;
             case Color::Black: return 0;
             default: throw Error {
-              "Invalid color in castling_row_from_color()"
+              "Invalid color in castlingRowFromColor()"
             };
         }
     }
 
     static int change (Coord coord, Color who, ColoredPiece piece)
     {
-        Coord translated_pos = translate_position (coord, who);
+        Coord translated_pos = translatePosition (coord, who);
         int8_t row = Row (translated_pos);
         int8_t col = Column (translated_pos);
 
@@ -119,7 +121,7 @@ namespace wisdom
         }
     }
 
-    int Position::overall_score (Color who) const
+    int Position::overallScore (Color who) const
     {
         ColorIndex index = colorIndex (who);
         ColorIndex inverted = colorIndex (colorInvert (who));
@@ -142,7 +144,7 @@ namespace wisdom
         this->my_score[index] -= change (coord, who, piece);
     }
 
-    void Position::apply_move (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece)
+    void Position::applyMove (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece)
     {
         Color opponent = colorInvert (who);
 
@@ -176,7 +178,7 @@ namespace wisdom
 
             case MoveCategory::Castling:
                 {
-                    int8_t rook_src_row = castling_row_from_color (who);
+                    int8_t rook_src_row = castlingRowFromColor (who);
                     auto rook_src_col = gsl::narrow_cast<int8_t> (
                         move.isCastlingOnKingside()
                             ? King_Rook_Column : Queen_Rook_Column
@@ -204,14 +206,14 @@ namespace wisdom
         this->add (who, dst, new_piece);
     }
 
-    int Position::individual_score (Color who) const
+    int Position::individualScore (Color who) const
     {
         return my_score[colorIndex (who)];
     }
 
     Position::Position (const Board& board)
     {
-        for (auto coord : board.allCoords ())
+        for (auto coord : board.allCoords())
         {
             auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)

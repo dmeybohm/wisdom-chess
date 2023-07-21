@@ -267,7 +267,7 @@ namespace wisdom
                 applyForRookCapture (colorInvert (who), dst_piece, src, dst);
         }
 
-        my_position.apply_move (who, orig_src_piece, move, dst_piece);
+        my_position.applyMove (who, orig_src_piece, move, dst_piece);
 
         updateMoveClock (who, pieceType (orig_src_piece), move);
         setCurrentTurn (colorInvert (who));
