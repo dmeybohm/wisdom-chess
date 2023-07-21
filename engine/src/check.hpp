@@ -67,8 +67,8 @@ namespace wisdom
     inline auto isDrawingMove (const Board& board, [[maybe_unused]] Color who,
                                [[maybe_unused]] Move move, const History& history) -> DrawCategory
     {
-        auto repetition_status = history.get_threefold_repetition_status ();
-        auto no_progress_status = history.get_fifty_moves_without_progress_status ();
+        auto repetition_status = history.getThreefoldRepetitionStatus();
+        auto no_progress_status = history.getFiftyMovesWithoutProgressStatus();
         int repetition_count =
                 repetition_status == DrawStatus::Declined ?
                 5 : 3;
@@ -76,10 +76,10 @@ namespace wisdom
                 no_progress_status == DrawStatus::Declined ?
                 150 : 100;
 
-        if (history.is_nth_repetition (board, repetition_count))
+        if (history.isNthRepetition (board, repetition_count))
             return DrawCategory::ByRepetition;
 
-        if (History::has_been_n_half_moves_without_progress (board, without_progress_count))
+        if (History::hasBeenXHalfMovesWithoutProgress (board, without_progress_count))
             return DrawCategory::ByNoProgress;
 
         const auto& material_ref = board.getMaterial();

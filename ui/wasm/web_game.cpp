@@ -316,7 +316,7 @@ namespace wisdom
         set_move_status ("");
         set_game_over_status ("");
         set_in_check (false);
-        set_move_number (my_game.getHistory().get_move_history().size());
+        set_move_number (my_game.getHistory().getMoveHistory().size());
 
         WebGameStatusUpdate update { this };
         auto nextStatus = my_game.status();

@@ -19,8 +19,8 @@ namespace wisdom
 
     using BothPlayersDrawStatus = pair<DrawStatus, DrawStatus>;
 
-    [[nodiscard]] constexpr auto update_draw_status (BothPlayersDrawStatus initial, Color player,
-                                                     DrawStatus new_status) -> BothPlayersDrawStatus
+    [[nodiscard]] constexpr auto updateDrawStatus (BothPlayersDrawStatus initial, Color player,
+                                                   DrawStatus new_status) -> BothPlayersDrawStatus
     {
         assert (player == Color::White || player == Color::Black);
         if (player == Color::White)
@@ -29,17 +29,16 @@ namespace wisdom
             return { initial.first, new_status };
     }
 
-    [[nodiscard]] constexpr auto draw_status_is_replied (DrawStatus draw_status)
+    [[nodiscard]] constexpr auto drawStatusIsReplied (DrawStatus draw_status)
         -> bool
     {
         return draw_status == DrawStatus::Accepted || draw_status == DrawStatus::Declined;
     }
 
-    [[nodiscard]] constexpr auto both_players_replied (BothPlayersDrawStatus both_players_status)
+    [[nodiscard]] constexpr auto bothPlayersReplied (BothPlayersDrawStatus both_players_status)
         -> bool
     {
-        return draw_status_is_replied (both_players_status.first) &&
-               draw_status_is_replied (both_players_status.second);
+        return drawStatusIsReplied (both_players_status.first) && drawStatusIsReplied (both_players_status.second);
     }
 
     class History
@@ -63,29 +62,29 @@ namespace wisdom
             my_previous_boards.reserve (64);
         }
 
-        [[nodiscard]] static auto has_been_n_half_moves_without_progress (const Board& board, int n)
+        [[nodiscard]] static auto hasBeenXHalfMovesWithoutProgress (const Board& board, int x)
             -> bool
         {
-            return board.getHalfMoveClock () >= n;
+            return board.getHalfMoveClock () >= x;
         }
 
-        [[nodiscard]] static auto has_been_seventy_five_moves_without_progress (
+        [[nodiscard]] static auto hasBeenSeventyFiveMovesWithoutProgress (
             const Board& board) -> bool
         {
-            return has_been_n_half_moves_without_progress (board, 150);
+            return hasBeenXHalfMovesWithoutProgress (board, 150);
         }
 
-        [[nodiscard]] static auto has_been_fifty_moves_without_progress (const Board& board)
+        [[nodiscard]] static auto hasBeenFiftyMovesWithoutProgress (const Board& board)
             -> bool
         {
-            return has_been_n_half_moves_without_progress (board, 100);
+            return hasBeenXHalfMovesWithoutProgress (board, 100);
         }
 
-        [[nodiscard]] bool is_third_repetition (const Board& board) const;
+        [[nodiscard]] bool isThirdRepetition (const Board& board) const;
 
-        [[nodiscard]] bool is_fifth_repetition (const Board& board) const;
+        [[nodiscard]] bool isFifthRepetition (const Board& board) const;
 
-        [[nodiscard]] bool is_nth_repetition (const Board& board, int repetition_count) const
+        [[nodiscard]] bool isNthRepetition (const Board& board, int repetition_count) const
         {
             auto& find_code = board.getCode ();
             auto repetitions = std::count_if (my_board_codes.begin (), my_board_codes.end (),
@@ -95,49 +94,49 @@ namespace wisdom
             return repetitions >= repetition_count;
         }
 
-        void add_position_and_move (observer_ptr<Board> board, Move move)
+        void addPositionAndMove (observer_ptr<Board> board, Move move)
         {
             my_board_codes.emplace_back (board->getCode ());
             my_previous_boards.emplace_back (board);
             my_move_history.push_back (move);
         }
 
-        void add_position (observer_ptr<Board> board)
+        void addPosition (observer_ptr<Board> board)
         {
             my_board_codes.emplace_back (board->getCode ());
             my_previous_boards.emplace_back (board);
         }
 
-        void remove_last_position ()
+        void removeLastPosition()
         {
             my_board_codes.pop_back ();
             my_previous_boards.pop_back ();
             my_move_history.pop_back ();
         }
 
-        [[nodiscard]] auto get_move_history () const& -> const MoveList&
+        [[nodiscard]] auto getMoveHistory() const& -> const MoveList&
         {
             return my_move_history;
         }
-        void get_move_history () const&& = delete;
+        void getMoveHistory() const&& = delete;
 
-        [[nodiscard]] auto get_threefold_repetition_status () const -> DrawStatus
+        [[nodiscard]] auto getThreefoldRepetitionStatus() const -> DrawStatus
         {
             return my_threefold_repetition_status;
         }
 
-        void set_threefold_repetition_status (DrawStatus status)
+        void setThreefoldRepetitionStatus (DrawStatus status)
         {
             my_threefold_repetition_status = status;
         }
 
-        [[nodiscard]] auto get_fifty_moves_without_progress_status () const
+        [[nodiscard]] auto getFiftyMovesWithoutProgressStatus() const
             -> DrawStatus
         {
             return my_fifty_moves_without_progress_status;
         }
 
-        void set_fifty_moves_without_progress_status (DrawStatus status)
+        void setFiftyMovesWithoutProgressStatus (DrawStatus status)
         {
             my_fifty_moves_without_progress_status = status;
         }

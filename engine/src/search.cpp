@@ -112,7 +112,7 @@ namespace wisdom
 
             my_nodes_visited++;
 
-            my_history->add_position_and_move (&child_board, move);
+            my_history->addPositionAndMove (&child_board, move);
 
             if (depth <= 0)
             {
@@ -151,7 +151,7 @@ namespace wisdom
             if (best_score > alpha)
                 alpha = best_score;
 
-            my_history->remove_last_position ();
+            my_history->removeLastPosition();
 
             if (my_timed_out)
                 return;
@@ -225,7 +225,7 @@ namespace wisdom
             my_original_board.dump ();
 
             std::cerr << "History leading up to move: " << "\n";
-            std::cerr << my_history->get_move_history ().to_string () << "\n";
+            std::cerr << my_history->getMoveHistory().to_string () << "\n";
             std::terminate ();
         }
     }
