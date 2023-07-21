@@ -35,20 +35,22 @@ namespace wisdom
         {
         }
 
-        // Check if the the king indicated by the WHO argument is in trouble
+        // Check if the king indicated by the WHO argument is in trouble
         // in this position.
-        bool check_all ()
+        bool checkAll()
         {
+            // clang-format off
             return
-                row () ||
-                column () ||
-                diagonal () ||
-                knight_direct () ||
-                pawn_inline () ||
-                king_inline ();
+                row() ||
+                column() ||
+                diagonal() ||
+                knight() ||
+                pawn() ||
+                king();
+            // clang-format on
         }
 
-        constexpr auto check_lane_threats (int target_row, int target_col)
+        constexpr auto checkLaneThreats (int target_row, int target_col)
             -> ThreatStatus
         {
             ThreatStatus result {};
@@ -75,11 +77,11 @@ namespace wisdom
         }
 
         // Check an entire row for any rook / queen threats.
-        bool row ()
+        bool row()
         {
             for (auto new_col = nextColumn (my_king_col, +1); new_col <= Last_Column; new_col++)
             {
-                auto status = check_lane_threats (my_king_row, new_col);
+                auto status = checkLaneThreats (my_king_row, new_col);
                 if (status == ThreatStatus::Threatened)
                     return true;
                 else if (status == ThreatStatus::Blocked)
@@ -88,7 +90,7 @@ namespace wisdom
 
             for (auto new_col = nextColumn (my_king_col, -1); new_col >= First_Column; new_col--)
             {
-                auto status = check_lane_threats (my_king_row, new_col);
+                auto status = checkLaneThreats (my_king_row, new_col);
                 if (status == ThreatStatus::Threatened)
                     return true;
                 else if (status == ThreatStatus::Blocked)
@@ -99,11 +101,11 @@ namespace wisdom
         }
 
         // Check an entire column for any rook / queen threats.
-        bool column ()
+        bool column()
         {
             for (auto new_row = nextRow (my_king_row, +1); new_row <= Last_Row; new_row++)
             {
-                auto status = check_lane_threats (new_row, my_king_col);
+                auto status = checkLaneThreats (new_row, my_king_col);
                 if (status == ThreatStatus::Threatened)
                     return true;
                 else if (status == ThreatStatus::Blocked)
@@ -112,7 +114,7 @@ namespace wisdom
 
             for (auto new_row = nextRow (my_king_row, -1); new_row >= First_Row; new_row--)
             {
-                auto status = check_lane_threats (new_row, my_king_col);
+                auto status = checkLaneThreats (new_row, my_king_col);
                 if (status == ThreatStatus::Threatened)
                     return true;
                 else if (status == ThreatStatus::Blocked)
@@ -122,7 +124,7 @@ namespace wisdom
             return false;
         }
 
-        int check_knight_at_square (int target_row, int target_col)
+        int checkKnightAtSquare (int target_row, int target_col)
         {
             auto piece = my_board.pieceAt (target_row, target_col);
             return pieceColor (piece) == my_opponent && pieceType (piece) == Piece::Knight;
@@ -155,9 +157,9 @@ namespace wisdom
 
                 int attacked = 0;
                 if (left_col >= First_Column)
-                    attacked |= check_knight_at_square (target_row, left_col);
+                    attacked |= checkKnightAtSquare (target_row, left_col);
                 if (right_col <= Last_Column)
-                    attacked |= check_knight_at_square (target_row, right_col);
+                    attacked |= checkKnightAtSquare (target_row, right_col);
 
                 return attacked;
             }
@@ -182,15 +184,15 @@ namespace wisdom
 
                 int attacked = 0;
                 if (left_row >= First_Row)
-                    attacked |= check_knight_at_square (left_row, target_col);
+                    attacked |= checkKnightAtSquare (left_row, target_col);
                 if (right_row <= Last_Row)
-                    attacked |= check_knight_at_square (right_row, target_col);
+                    attacked |= checkKnightAtSquare (right_row, target_col);
 
                 return attacked;
             }
         }
 
-        int knight_direct ()
+        int knight()
         {
             return check_knight<-1, 0> ()
                 || check_knight<0, +1> ()
@@ -198,35 +200,7 @@ namespace wisdom
                 || check_knight<0, -1> ();
         }
 
-        bool pawn ()
-        {
-            // check for pawn checks
-            auto r_dir = my_pawn_direction;
-
-            auto left_col = nextColumn (my_king_col, -1);
-            auto right_col = nextColumn (my_king_col, +1);
-            auto pawn_row = nextRow (my_king_row, r_dir);
-            if (pawn_row >= Last_Row || pawn_row <= First_Row)
-                return false;
-
-            if (left_col > First_Column)
-            {
-                auto what = my_board.pieceAt (pawn_row, left_col);
-                if (pieceType (what) == Piece::Pawn && pieceColor (what) == my_opponent)
-                    return true;
-            }
-
-            if (right_col < Last_Column)
-            {
-                auto what = my_board.pieceAt (pawn_row, right_col);
-                if (pieceType (what) == Piece::Pawn && pieceColor (what) == my_opponent)
-                    return true;
-            }
-
-            return false;
-        }
-
-        bool pawn_inline ()
+        bool pawn()
         {
             int r_dir = pawnDirection<int> (my_king_color);
             int left_col = my_king_col - 1;
@@ -248,8 +222,7 @@ namespace wisdom
             DoNotCheckMiddle
         };
         template <KingThreatCheck squares_to_check>
-        bool check_king_threat_row (int target_row, int starting_col,
-                                    int ending_col)
+        bool checkKingThreatRow (int target_row, int starting_col, int ending_col)
         {
             int middle_col = nextColumn<int> (starting_col, +1);
             bool middle_attack_exists = false;
@@ -271,34 +244,25 @@ namespace wisdom
             return left_attack_exists | middle_attack_exists | right_attack_exists;
         }
 
-        bool king_inline ()
+        bool king()
         {
             auto left_col = nextColumn<int> (my_king_col, -1);
             auto right_col = nextColumn<int> (my_king_col, +1);
 
             // Inline checks across all three possible rows.
-            bool top_attack_exists = check_king_threat_row<KingThreatCheck::CheckMiddle> (
-                nextRow<int> (my_king_row, -1),
-                left_col,
-                right_col
-            );
+            bool top_attack_exists = checkKingThreatRow<KingThreatCheck::CheckMiddle> (
+                nextRow<int> (my_king_row, -1), left_col, right_col);
 
-            bool center_attack_exists = check_king_threat_row<KingThreatCheck::DoNotCheckMiddle> (
-                my_king_row,
-                left_col,
-                right_col
-            );
+            bool center_attack_exists = checkKingThreatRow<KingThreatCheck::DoNotCheckMiddle> (
+                my_king_row, left_col, right_col);
 
-            bool bottom_attack_exists = check_king_threat_row<KingThreatCheck::CheckMiddle> (
-                nextRow (my_king_row, +1),
-                left_col,
-                right_col
-            );
+            bool bottom_attack_exists = checkKingThreatRow<KingThreatCheck::CheckMiddle> (
+                nextRow (my_king_row, +1), left_col, right_col);
 
             return top_attack_exists | center_attack_exists | bottom_attack_exists;
         }
 
-        constexpr auto check_diagonal_threats (int target_row, int target_col)
+        constexpr auto checkDiagonalThreats (int target_row, int target_col)
             -> ThreatStatus
         {
             ThreatStatus result = ThreatStatus::None;
@@ -325,7 +289,7 @@ namespace wisdom
         }
 
         template <int horiz_direction, int vert_direction>
-        auto check_diagonal_threat () -> bool
+        auto checkDiagonalThreat() -> bool
         {
             int new_row = my_king_row;
             int new_col = my_king_col;
@@ -357,7 +321,7 @@ namespace wisdom
                         break;
                 }
 
-                auto status = check_diagonal_threats (new_row, new_col);
+                auto status = checkDiagonalThreats (new_row, new_col);
                 if (status == ThreatStatus::Threatened)
                     return true;
                 else if (status == ThreatStatus::Blocked)
@@ -372,13 +336,13 @@ namespace wisdom
         {
             return
                 // northwest:
-                check_diagonal_threat <-1, -1> () ||
+                checkDiagonalThreat<-1, -1>() ||
                 // northeast:
-                check_diagonal_threat<-1, +1>() ||
+                checkDiagonalThreat<-1, +1>() ||
                 // southwest:
-                check_diagonal_threat<+1, -1>() ||
+                checkDiagonalThreat<+1, -1>() ||
                 // southeast:
-                check_diagonal_threat<+1, +1>();
+                checkDiagonalThreat<+1, +1>();
         }
     };
 }

@@ -45,7 +45,7 @@ namespace wisdom
     [[nodiscard]] inline auto isKingThreatened (const Board& board, Color who, Coord king_coord) -> bool
     {
         InlineThreats threats { board, who, king_coord };
-        return threats.check_all ();
+        return threats.checkAll();
     }
 
     [[nodiscard]] inline auto isKingThreatened (const Board& board, Color who, int8_t king_row,
