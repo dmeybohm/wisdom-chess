@@ -7,8 +7,8 @@ using namespace wisdom;
 
 TEST_CASE( "Pawn direction is negative for white and positive for black" )
 {
-    CHECK(pawnDirection (Color::White) == -1 );
-    CHECK(pawnDirection (Color::Black) == +1 );
+    CHECK( pawnDirection (Color::White) == -1 );
+    CHECK( pawnDirection (Color::Black) == +1 );
 }
 
 TEST_CASE( "findFirstCoordWithPiece()" )
@@ -64,18 +64,18 @@ TEST_CASE( "coordColor()" )
     auto top_right = makeCoord (First_Row, Last_Column);
     auto bottom_left = makeCoord (Last_Row, First_Column);
 
-    CHECK(coordColor (top_left) == Color::White );
-    CHECK(coordColor (bottom_right) == Color::White );
-    CHECK(coordColor (top_right) == Color::Black );
-    CHECK(coordColor (bottom_left) == Color::Black );
+    CHECK( coordColor (top_left) == Color::White );
+    CHECK( coordColor (bottom_right) == Color::White );
+    CHECK( coordColor (top_right) == Color::Black );
+    CHECK( coordColor (bottom_left) == Color::Black );
 
     auto d5 = coordParse ("d5");
     auto e5 = coordParse ("e5");
     auto d4 = coordParse ("d4");
     auto e4 = coordParse ("e4");
 
-    CHECK(coordColor (d5) == Color::White );
-    CHECK(coordColor (e4) == Color::White );
-    CHECK(coordColor (e5) == Color::Black );
-    CHECK(coordColor (d4) == Color::Black );
+    CHECK( coordColor (d5) == Color::White );
+    CHECK( coordColor (e4) == Color::White );
+    CHECK( coordColor (e5) == Color::Black );
+    CHECK( coordColor (d4) == Color::Black );
 }

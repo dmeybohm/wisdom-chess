@@ -12,14 +12,14 @@ TEST_CASE( "board_builder" )
 {
     SUBCASE( "Specifying coordinates in algebraic notation" )
     {
-        CHECK(Row (coordParse ("a8")) == 0 );
-        CHECK(Row (coordParse ("a1")) == 7 );
-        CHECK(Column (coordParse ("a8")) == 0 );
-        CHECK(Column (coordParse ("a1")) == 0 );
-        CHECK(Row (coordParse ("h1")) == 7 );
-        CHECK(Row (coordParse ("h8")) == 0 );
-        CHECK(Column (coordParse ("h1")) == 7 );
-        CHECK(Column (coordParse ("h8")) == 7 );
+        CHECK( Row (coordParse ("a8")) == 0 );
+        CHECK( Row (coordParse ("a1")) == 7 );
+        CHECK( Column (coordParse ("a8")) == 0 );
+        CHECK( Column (coordParse ("a1")) == 0 );
+        CHECK( Row (coordParse ("h1")) == 7 );
+        CHECK( Row (coordParse ("h8")) == 0 );
+        CHECK( Column (coordParse ("h1")) == 7 );
+        CHECK( Column (coordParse ("h8")) == 7 );
     }
 
     SUBCASE( "Initializing the board builder" )
@@ -88,7 +88,7 @@ TEST_CASE( "Board can be randomized" )
 
     SUBCASE("Board code is not the same as the default" )
     {
-        REQUIRE(default_board.getCode () != randomized_board.getCode () );
+        REQUIRE( default_board.getCode () != randomized_board.getCode () );
     }
 
     SUBCASE("None of the pawns are in the back row" )

@@ -11,9 +11,9 @@ TEST_CASE( "Position is initialized correctly" )
 {
     Board board;
 
-    CHECK(board.getPosition ().individual_score (Color::White) < 0 );
-    CHECK(board.getPosition ().individual_score (Color::Black) < 0 );
-    CHECK(board.getPosition ().individual_score (Color::White) == board.getPosition ().individual_score (Color::Black) );
+    CHECK( board.getPosition().individual_score (Color::White) < 0 );
+    CHECK( board.getPosition().individual_score (Color::Black) < 0 );
+    CHECK( board.getPosition().individual_score (Color::White) == board.getPosition().individual_score (Color::Black) );
 }
 
 TEST_CASE( "Center pawn elevates position overall_score" )
@@ -28,7 +28,7 @@ TEST_CASE( "Center pawn elevates position overall_score" )
     
     auto board = Board { builder };
 
-    CHECK(board.getPosition ().overall_score (Color::White) > board.getPosition ().overall_score (Color::Black));
+    CHECK(board.getPosition().overall_score (Color::White) > board.getPosition().overall_score (Color::Black));
 }
 
 TEST_CASE( "Capture updates position overall_score correctly" )
@@ -43,15 +43,15 @@ TEST_CASE( "Capture updates position overall_score correctly" )
 
     auto board = Board { builder };
 
-    int initial_score_white = board.getPosition ().overall_score (Color::White);
-    int initial_score_black = board.getPosition ().overall_score (Color::Black);
+    int initial_score_white = board.getPosition().overall_score (Color::White);
+    int initial_score_black = board.getPosition().overall_score (Color::Black);
 
     Move e4xd6 = move_parse ("e4xd6", Color::White);
 
     board = board.withMove (Color::White, e4xd6);
 
-    CHECK( initial_score_white != board.getPosition ().overall_score (Color::White) );
-    CHECK( initial_score_black != board.getPosition ().overall_score (Color::Black) );
+    CHECK( initial_score_white != board.getPosition().overall_score (Color::White) );
+    CHECK( initial_score_black != board.getPosition().overall_score (Color::Black) );
 }
 
 TEST_CASE( "En passant updates position overall_score correctly")
@@ -66,16 +66,16 @@ TEST_CASE( "En passant updates position overall_score correctly")
 
     auto board = Board { builder };
 
-    int initial_score_white = board.getPosition ().overall_score (Color::White);
-    int initial_score_black = board.getPosition ().overall_score (Color::Black);
+    int initial_score_white = board.getPosition().overall_score (Color::White);
+    int initial_score_black = board.getPosition().overall_score (Color::Black);
 
     Move e5xd5 = move_parse ("e5d6 ep", Color::White);
     CHECK( e5xd5.is_en_passant() );
 
     board = board.withMove (Color::White, e5xd5);
 
-    CHECK( initial_score_white != board.getPosition ().overall_score (Color::White) );
-    CHECK( initial_score_black != board.getPosition ().overall_score (Color::Black) );
+    CHECK( initial_score_white != board.getPosition().overall_score (Color::White) );
+    CHECK( initial_score_black != board.getPosition().overall_score (Color::Black) );
 }
 
 TEST_CASE( "Castling updates position overall_score correctly")
@@ -90,8 +90,8 @@ TEST_CASE( "Castling updates position overall_score correctly")
     builder.addPiece ("d5", Color::Black, Piece::Pawn);
 
     auto board = Board { builder };
-    int initial_score_white = board.getPosition ().overall_score (Color::White);
-    int initial_score_black = board.getPosition ().overall_score (Color::Black);
+    int initial_score_white = board.getPosition().overall_score (Color::White);
+    int initial_score_black = board.getPosition().overall_score (Color::Black);
 
     std::vector castling_moves { "o-o", "o-o-o" };
     for (auto castling_move_in : castling_moves)
@@ -101,8 +101,8 @@ TEST_CASE( "Castling updates position overall_score correctly")
 
         Board after_castling = board.withMove (Color::White, castling_move);
 
-        CHECK( initial_score_white != after_castling.getPosition ().overall_score (Color::White));
-        CHECK( initial_score_black != after_castling.getPosition ().overall_score (Color::Black));
+        CHECK( initial_score_white != after_castling.getPosition().overall_score (Color::White));
+        CHECK( initial_score_black != after_castling.getPosition().overall_score (Color::Black));
     }
 }
 
@@ -116,8 +116,8 @@ TEST_CASE( "Promoting move updates position overall_score correctly")
     builder.addPiece ("h7", Color::White, Piece::Pawn);
 
     auto board = Board { builder };
-    int initial_score_white = board.getPosition ().overall_score (Color::White);
-    int initial_score_black = board.getPosition ().overall_score (Color::Black);
+    int initial_score_white = board.getPosition().overall_score (Color::White);
+    int initial_score_black = board.getPosition().overall_score (Color::Black);
 
     std::vector promoting_moves { "h7h8 (Q)", "h7h8 (R)", "h7h8 (B)", "h7h8 (N)" };
     for (auto promoting_move_in : promoting_moves)
@@ -127,8 +127,8 @@ TEST_CASE( "Promoting move updates position overall_score correctly")
 
         Board after_promotion = board.withMove (Color::White, promoting_move);
 
-        CHECK( initial_score_white != after_promotion.getPosition ().overall_score (Color::White) );
-        CHECK( initial_score_black != after_promotion.getPosition ().overall_score (Color::Black) );
+        CHECK( initial_score_white != after_promotion.getPosition().overall_score (Color::White) );
+        CHECK( initial_score_black != after_promotion.getPosition().overall_score (Color::Black) );
     }
 }
 
@@ -142,9 +142,9 @@ TEST_CASE("Double pawn moves are more appealing")
 
     Board after_white = board.withMove (Color::White, e2e4);
     Board with_double = after_white.withMove (Color::Black, e7e5);
-    auto black_big_score = with_double.getPosition ().individual_score (Color::Black);
+    auto black_big_score = with_double.getPosition().individual_score (Color::Black);
     Board with_single = after_white.withMove (Color::Black, e7e6);
-    auto black_small_score = with_single.getPosition ().individual_score (Color::Black);
+    auto black_small_score = with_single.getPosition().individual_score (Color::Black);
 
     REQUIRE( black_big_score > black_small_score );
 }

@@ -143,7 +143,7 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns yes for default board" )
     {
-        CHECK(default_material.checkmate_is_possible(default_board) );
+        CHECK( default_material.checkmate_is_possible(default_board) );
     }
 
     SUBCASE( "Returns no if there is a rook and king" )

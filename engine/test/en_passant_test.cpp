@@ -16,8 +16,8 @@ TEST_CASE( "en passant" )
         REQUIRE( !board.isEnPassantVulnerable (Color::White) );
         REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
 
-        REQUIRE(board.getEnPassantTarget (Color::White) == No_En_Passant_Coord );
-        REQUIRE(board.getEnPassantTarget (Color::Black) == No_En_Passant_Coord );
+        REQUIRE( board.getEnPassantTarget (Color::White) == No_En_Passant_Coord );
+        REQUIRE( board.getEnPassantTarget (Color::Black) == No_En_Passant_Coord );
 
         BoardBuilder builder;
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
@@ -71,7 +71,7 @@ TEST_CASE( "en passant" )
         REQUIRE( Row (en_passant_move.get_dst ()) == 2 );
         REQUIRE( Column (en_passant_move.get_dst ()) == 5 );
 
-        REQUIRE(board.isEnPassantVulnerable (Color::Black) );
+        REQUIRE( board.isEnPassantVulnerable (Color::Black) );
         REQUIRE( !board.isEnPassantVulnerable (Color::White) );
 
         board = board.withMove (Color::White, en_passant_move);
@@ -120,7 +120,7 @@ TEST_CASE( "en passant" )
         REQUIRE( Row (en_passant_move.get_dst ()) == 2 );
         REQUIRE( Column (en_passant_move.get_dst ()) == 3 );
 
-        REQUIRE(board.isEnPassantVulnerable (Color::Black) );
+        REQUIRE( board.isEnPassantVulnerable (Color::Black) );
         REQUIRE( !board.isEnPassantVulnerable (Color::White) );
 
         board = board.withMove (Color::White, en_passant_move);

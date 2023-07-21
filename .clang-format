@@ -20,3 +20,4 @@ BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 8
+WhitespaceSensitiveMacros: ['REQUIRE', 'CHECK']

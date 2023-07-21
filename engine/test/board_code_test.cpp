@@ -57,7 +57,7 @@ TEST_CASE( "board code")
         BoardCode code  = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE(initial.countOnes() > 0 );
+        REQUIRE( initial.countOnes() > 0 );
 
         Move a8xb7 = move_parse ("a8xb7");
         code.applyMove (brd, a8xb7);
@@ -78,7 +78,7 @@ TEST_CASE( "board code")
         BoardCode code = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE(initial.countOnes() > 0 );
+        REQUIRE( initial.countOnes() > 0 );
 
         Move b7b8_Q = move_parse ("b7b8_Q (Q)");
         code.applyMove (brd, b7b8_Q);
@@ -99,7 +99,7 @@ TEST_CASE( "board code")
         BoardCode code  = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE(initial.countOnes() > 0 );
+        REQUIRE( initial.countOnes() > 0 );
 
         Move castle_queenside = move_parse ("o-o-o", Color::Black);
         code.applyMove (brd, castle_queenside);
@@ -123,7 +123,7 @@ TEST_CASE( "board code")
         REQUIRE (initial.countOnes() > 0);
 
         Move promote_castle_move = move_parse ("b7xa8 (Q)", Color::Black);
-        REQUIRE(promote_castle_move.is_promoting () );
+        REQUIRE( promote_castle_move.is_promoting () );
         REQUIRE( promote_castle_move.is_normal_capturing () );
 
         code.applyMove (brd, promote_castle_move);

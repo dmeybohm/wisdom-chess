@@ -22,21 +22,21 @@ TEST_CASE( "Initial board position is added to history" )
         for (int i = 0; i < 2; i++)
         {
             game.move (white_move);
-            CHECK(history.isThirdRepetition (game.getBoard()) == false );
+            CHECK( history.isThirdRepetition (game.getBoard()) == false );
 
             game.move (black_move);
-            CHECK(history.isThirdRepetition (game.getBoard()) == false );
+            CHECK( history.isThirdRepetition (game.getBoard()) == false );
 
             game.move (white_return_move);
-            CHECK(history.isThirdRepetition (game.getBoard()) == false );
+            CHECK( history.isThirdRepetition (game.getBoard()) == false );
 
             game.move (black_return_move);
             if (i == 1)
                 break;
-            CHECK(history.isThirdRepetition (game.getBoard()) == false );
+            CHECK( history.isThirdRepetition (game.getBoard()) == false );
         }
 
-        CHECK(history.isThirdRepetition (game.getBoard()) == true );
+        CHECK( history.isThirdRepetition (game.getBoard()) == true );
     };
 
     SUBCASE( "When a default game is initialized" )

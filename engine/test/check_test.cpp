@@ -43,9 +43,9 @@ TEST_CASE("isKingThreatened works for bishop, rook, and king")
         for (auto col = 7; col < 8; col++)
         {
 //            INFO("White king coordinate is ", row, " ", col);
-            REQUIRE(isKingThreatened (board, Color::White, row, col) == (bool)white_king_threatened[row][col] );
+            REQUIRE( isKingThreatened (board, Color::White, row, col) == (bool)white_king_threatened[row][col] );
 //            INFO("Black king coordinate is ", row, " ", col);
-            REQUIRE(isKingThreatened (board, Color::Black, row, col) == (bool)black_king_threatened[row][col] );
+            REQUIRE( isKingThreatened (board, Color::Black, row, col) == (bool)black_king_threatened[row][col] );
         }
     }
 
