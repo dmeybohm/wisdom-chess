@@ -13,10 +13,10 @@ TEST_CASE( "Initial board position is added to history" )
     //
     auto run_test = [](Game& game)
     {
-        Move white_move = move_parse ("g1 f3");
-        Move black_move = move_parse ("b8 c6");
-        Move white_return_move = move_parse ("f3 g1");
-        Move black_return_move = move_parse ("c6 b8");
+        Move white_move = moveParse ("g1 f3");
+        Move black_move = moveParse ("b8 c6");
+        Move white_return_move = moveParse ("f3 g1");
+        Move black_return_move = moveParse ("c6 b8");
         auto& history = game.getHistory ();
 
         for (int i = 0; i < 2; i++)

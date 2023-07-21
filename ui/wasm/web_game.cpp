@@ -36,7 +36,7 @@ namespace wisdom
 
         my_game.move (move);
 
-        update_piece_list (move.get_promoted_piece());
+        update_piece_list (move.getPromotedPiece());
         update_displayed_game_state();
 
         return true;
@@ -76,7 +76,7 @@ namespace wisdom
     auto WebGame::isLegalMove (const WebMove* selectedMovePtr) -> bool
     {
         Move selectedMove = selectedMovePtr->get_move();
-        auto selectedMoveStr = to_string (selectedMove);
+        auto selectedMoveStr = asString (selectedMove);
 
         // If it's not the human's turn, move is illegal.
         if (my_game.getCurrentPlayer() != wisdom::Player::Human)

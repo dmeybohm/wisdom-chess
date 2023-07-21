@@ -50,12 +50,12 @@ namespace wisdom
         }
     };
 
-    auto make_null_logger () -> unique_ptr<Logger>
+    auto makeNullLogger() -> unique_ptr<Logger>
     {
         return make_unique<NullLogger> ();
     }
 
-    auto make_standard_logger (Logger::LogLevel level) -> unique_ptr<Logger>
+    auto makeStandardLogger (Logger::LogLevel level) -> unique_ptr<Logger>
     {
         return make_unique<StandardLogger> (level);
     }

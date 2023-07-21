@@ -176,7 +176,7 @@ namespace wisdom
 
         void updateMoveClock (Color who, Piece orig_src_piece_type, Move mv)
         {
-            if (mv.is_any_capturing () || orig_src_piece_type == Piece::Pawn)
+            if (mv.isAnyCapturing() || orig_src_piece_type == Piece::Pawn)
                 my_half_move_clock = 0;
             else
                 my_half_move_clock++;

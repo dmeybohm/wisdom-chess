@@ -120,8 +120,8 @@ QHash<int, QByteArray> PiecesModel::roleNames() const
 
 void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
 {
-    Coord src = selectedMove.get_src();
-    Coord dst = selectedMove.get_dst();
+    Coord src = selectedMove.getSrc();
+    Coord dst = selectedMove.getDst();
 
     int srcRow = Row<int>(src);
     int srcColumn = Column<int>(src);
@@ -144,8 +144,8 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
             QVector<int> rolesChanged { RowRole, ColumnRole };
             QModelIndex changedIndex = index(i, 0);
 
-            if (selectedMove.is_promoting()) {
-                auto promotedPiece = selectedMove.get_promoted_piece();
+            if (selectedMove.isPromoting()) {
+                auto promotedPiece = selectedMove.getPromotedPiece();
                 auto newImagePath = myPieceToImagePath[to_int8(promotedPiece)];
                 pieceModel.pieceImage = newImagePath;
                 rolesChanged.append( PieceImageRole );
@@ -153,11 +153,11 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
 
             emit dataChanged(changedIndex, changedIndex, rolesChanged);
         }
-        if (selectedMove.is_castling()) {
+        if (selectedMove.isCastling()) {
             auto sourceRookRow = who == wisdom::Color::White ? 7 : 0;
-            auto sourceRookColumn = selectedMove.is_castling_on_kingside()
+            auto sourceRookColumn = selectedMove.isCastlingOnKingside()
                     ? King_Rook_Column : Queen_Rook_Column;
-            auto dstRookColumn = selectedMove.is_castling_on_kingside()
+            auto dstRookColumn = selectedMove.isCastlingOnKingside()
                     ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column;
 
             if (pieceModel.row == sourceRookRow && pieceModel.column == sourceRookColumn) {
@@ -172,7 +172,7 @@ void PiecesModel::playerMoved(Move selectedMove, wisdom::Color who)
                 });
             }
         }
-        if (selectedMove.is_en_passant()) {
+        if (selectedMove.isEnPassant()) {
             int direction = pawnDirection (who) * -1;
             int enPassantPawnRow = dstRow + direction;
             int enPassantPawnCol = dstColumn;

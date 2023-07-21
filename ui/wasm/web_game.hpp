@@ -41,7 +41,7 @@ namespace wisdom
                                                               Piece::Queen);
             if (!optionalMove.has_value())
                 return false;
-            return optionalMove->is_promoting();
+            return optionalMove->isPromoting();
         }
 
         [[nodiscard]] auto createMoveFromCoordinatesAndPromotedPiece (const WebCoord* src,

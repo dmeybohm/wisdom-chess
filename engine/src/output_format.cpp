@@ -24,7 +24,7 @@ namespace wisdom
         std::ofstream file;
         file.open (filename);
         for (auto move : history.getMoveHistory())
-            file << wisdom::to_string (move) << "\n";
+            file << wisdom::asString (move) << "\n";
         file.close ();
     }
 }

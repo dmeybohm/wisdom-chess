@@ -87,20 +87,20 @@ namespace wisdom
 
     void BoardCode::applyMove (const Board& board, Move move)
     {
-        Coord src = move.get_src ();
-        Coord dst = move.get_dst ();
+        Coord src = move.getSrc();
+        Coord dst = move.getDst();
 
         ColoredPiece src_piece = board.pieceAt (src);
 
         Piece src_piece_type = piece_type (src_piece);
         Color src_piece_color = piece_color (src_piece);
 
-        if (move.is_castling ())
+        if (move.isCastling())
         {
             int src_col, dst_col;
             int row;
 
-            if (move.is_castling_on_kingside ())
+            if (move.isCastlingOnKingside())
             {
                 dst_col = Kingside_Castled_Rook_Column;
                 src_col = Last_Column;
@@ -117,20 +117,20 @@ namespace wisdom
             removePiece (rook_src);
             addPiece (makeCoord (row, dst_col), rook);
         }
-        else if (move.is_en_passant ())
+        else if (move.isEnPassant())
         {
             // subtract horizontal pawn and add no piece there:
-            Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
+            Coord taken_pawn_coord = enPassantTakenPawnCoord (src, dst);
             removePiece (taken_pawn_coord);
         }
 
         removePiece (src);
         addPiece (dst, src_piece);
 
-        if (move.is_promoting ())
+        if (move.isPromoting())
         {
             assert (src_piece_type == Piece::Pawn);
-            addPiece (dst, move.get_promoted_piece());
+            addPiece (dst, move.getPromotedPiece());
         }
     }
 

@@ -26,7 +26,7 @@ namespace wisdom::test
         {
             MoveTimer timer { time };
             if (!logger) {
-                logger = make_null_logger ();
+                logger = makeNullLogger();
             }
 
             return { board, history, *logger, timer, depth };
@@ -140,7 +140,7 @@ TEST_CASE( "Promoting move is taken if possible" )
 
     auto search = helper.build (board, 1, 30);
     auto result = search.iteratively_deepen (Color::Black);
-    REQUIRE(to_string (*result.move) == "d2 d1(Q)");
+    REQUIRE(asString (*result.move) == "d2 d1(Q)");
 }
 
 TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing" )
@@ -156,7 +156,7 @@ TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing
     INFO( board_str );
 
     SearchResult result = search.iteratively_deepen (Color::Black);
-    REQUIRE (to_string (*result.move) == "e2xf1(Q)");
+    REQUIRE (asString (*result.move) == "e2xf1(Q)");
 }
 
 TEST_CASE( "Finding moves regression test" )
@@ -189,7 +189,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 1" )
     game.move (*result.move);
 
     // assert the bishop has moved:
-    INFO ("Info:", to_string (*result.move));
+    INFO ("Info:", asString (*result.move));
     REQUIRE (game.getBoard().pieceAt (coordParse ("b4"))
              != ColoredPiece::make (Color::Black, Piece::Bishop));
 }
@@ -209,7 +209,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 2 (as white)" )
     game.move (*result.move);
 
     // assert the bishop has moved:
-    INFO ("Info:", to_string (*result.move));
+    INFO ("Info:", asString (*result.move));
     auto a3_piece = game.getBoard().pieceAt (coordParse ("a3"));
     bool bishop_sac = a3_piece != ColoredPiece::make (Color::White, Piece::Bishop);
     bool is_in_check = isKingThreatened (game.getBoard(), Color::Black,
@@ -223,7 +223,7 @@ TEST_CASE( "Advanced pawn should be captured" )
     FenParser fen { "rnb1k2r/ppp1qppp/4p3/3pP3/3P4/P1Q5/1PP2PPP/R3KBNR w KQkq d6 0 1" };
     auto game = fen.build ();
 
-    game.move (move_parse ("e5 d6 ep", Color::White));
+    game.move (moveParse ("e5 d6 ep", Color::White));
 
     SearchHelper helper;
     auto search = helper.build (game.getBoard(), 3, 10);
@@ -233,7 +233,7 @@ TEST_CASE( "Advanced pawn should be captured" )
 
     game.move (*result.move);
     // assert the pawn at d6 has been taken:
-    INFO ("Chosen move:", to_string (*result.move));
+    INFO ("Chosen move:", asString (*result.move));
 
     auto board = game.getBoard();
     auto target_piece = board.pieceAt (coordParse ("d6"));
@@ -263,7 +263,7 @@ TEST_CASE( "Can avoid stalemate" )
     FenParser fen { "6k1/1pp2pp1/7p/Pb6/3r4/5K2/8/6q1 w - - 0 1" };
     auto game = fen.build ();
 
-    game.move (move_parse ("a5 a6", Color::White));
+    game.move (moveParse ("a5 a6", Color::White));
 
     SearchHelper helper;
     IterativeSearch search = helper.build (game.getBoard(), 5, 5);
@@ -290,7 +290,7 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
         SearchResult result = search.iteratively_deepen (Color::White);
 
         // Check the white bishop is not sacrificed:
-        CHECK( *result.move != move_parse ("b3xf7") );
+        CHECK( *result.move != moveParse ("b3xf7") );
     }
 
     SUBCASE( "Depth 7" )
@@ -302,7 +302,7 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
         SearchResult result = search.iteratively_deepen (Color::White);
 
         // Check the white bishop is not sacrificed:
-        CHECK (*result.move != move_parse ("b3xf7"));
+        CHECK (*result.move != moveParse ("b3xf7"));
     }
 }
 

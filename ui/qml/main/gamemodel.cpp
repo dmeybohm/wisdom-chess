@@ -215,7 +215,7 @@ bool GameModel::needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int ds
     if (!optionalMove.has_value()) {
         return false;
     }
-    return optionalMove->is_promoting();
+    return optionalMove->isPromoting();
 }
 
 void GameModel::applicationExiting()

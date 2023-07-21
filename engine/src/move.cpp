@@ -6,15 +6,15 @@
 
 namespace wisdom
 {
-    auto en_passant_taken_pawn_coord (Coord src, Coord dst) -> Coord
+    auto enPassantTakenPawnCoord (Coord src, Coord dst) -> Coord
     {
         return makeCoord (Row (src), Column (dst));
     }
 
-    constexpr bool is_double_square_pawn_move (ColoredPiece src_piece, Move move)
+    constexpr bool isDoubleSquarePawnMove (ColoredPiece src_piece, Move move)
     {
-        Coord src = move.get_src ();
-        Coord dst = move.get_dst ();
+        Coord src = move.getSrc();
+        Coord dst = move.getDst();
         return piece_type (src_piece) == Piece::Pawn && abs (Row (src) - Row (dst)) == 2;
     }
 
@@ -22,7 +22,7 @@ namespace wisdom
     auto Board::applyForEnPassant (Color who, Coord src, Coord dst)
         -> ColoredPiece
     {
-        Coord taken_pawn_pos = en_passant_taken_pawn_coord (src, dst);
+        Coord taken_pawn_pos = enPassantTakenPawnCoord (src, dst);
         [[maybe_unused]] ColoredPiece taken_piece = pieceAt (taken_pawn_pos);
 
         assert (piece_type (taken_piece) == Piece::Pawn);
@@ -38,10 +38,10 @@ namespace wisdom
         int src_row, src_col;
         int dst_row, dst_col;
 
-        assert (move.is_castling ());
+        assert (move.isCastling());
 
-        Coord src = move.get_src ();
-        Coord dst = move.get_dst ();
+        Coord src = move.getSrc();
+        Coord dst = move.getDst();
 
         src_row = Row<int> (src);
         dst_row = Row<int> (dst);
@@ -62,7 +62,7 @@ namespace wisdom
         if (!((piece_type (pieceAt (src_row, src_col)) == Piece::Rook
                || piece_type (pieceAt (dst_row, dst_col)) == Piece::Rook)))
         {
-            throw MoveConsistencyProblem { "move considering: " + wisdom::to_string (move) + "("
+            throw MoveConsistencyProblem { "move considering: " + wisdom::asString (move) + "("
                                            + wisdom::to_string (who) + " to move)" };
         }
 
@@ -70,15 +70,15 @@ namespace wisdom
     }
 
     void Board::applyForCastlingMove (Color who, Move king_move,
-                                         [[maybe_unused]] Coord src, [[maybe_unused]] Coord dst)
+                                      [[maybe_unused]] Coord src, [[maybe_unused]] Coord dst)
     {
         Move rook_move = getCastlingRookMove (king_move, who);
 
         assert (piece_type (pieceAt (src)) == Piece::King);
         assert (abs (Column (src) - Column (dst)) == 2);
 
-        auto rook_src = rook_move.get_src ();
-        auto rook_dst = rook_move.get_dst ();
+        auto rook_src = rook_move.getSrc();
+        auto rook_dst = rook_move.getDst();
 
         auto empty_piece = ColoredPiece::make (Color::None, Piece::None);
 
@@ -105,7 +105,7 @@ namespace wisdom
     }
 
     void Board::applyForRookCapture (Color opponent, ColoredPiece dst_piece,
-                                        Coord src, Coord dst)
+                                     Coord src, Coord dst)
     {
         assert (piece_color (dst_piece) == opponent && piece_type (dst_piece) == Piece::Rook);
 
@@ -130,12 +130,12 @@ namespace wisdom
     }
 
     void Board::applyForRookMove (Color player, ColoredPiece src_piece,
-                                     Move move, Coord src, Coord dst)
+                                  Move move, Coord src, Coord dst)
     {
         if (!(piece_color (src_piece) == player && piece_type (src_piece) == Piece::Rook))
         {
             throw MoveConsistencyProblem { "applyForRookMove failed: move "
-                                           + wisdom::to_string (move) };
+                                           + wisdom::asString (move) };
         }
 
         assert (piece_color (src_piece) == player && piece_type (src_piece) == Piece::Rook);
@@ -163,17 +163,16 @@ namespace wisdom
         }
     }
 
-    void Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece,
-                                               Move move)
+    void Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move)
     {
         ColorIndex c_index = color_index (who);
         ColorIndex o_index = color_index (color_invert (who));
 
         int direction = pawnDirection<int> (who);
         Coord new_state = No_En_Passant_Coord;
-        if (is_double_square_pawn_move (src_piece, move))
+        if (isDoubleSquarePawnMove (src_piece, move))
         {
-            Coord src = move.get_src ();
+            Coord src = move.getSrc();
             int prev_row = nextRow (Row<int> (src), direction);
             new_state = makeCoord (prev_row, Column (src));
         }
@@ -191,8 +190,8 @@ namespace wisdom
     {
         assert (who == my_code.currentTurn());
 
-        Coord src = move.get_src ();
-        Coord dst = move.get_dst ();
+        Coord src = move.getSrc();
+        Coord dst = move.getDst();
 
         auto src_piece = pieceAt (src);
         auto orig_src_piece = src_piece;
@@ -201,27 +200,27 @@ namespace wisdom
         assert (piece_type (src_piece) != Piece::None);
         assert (piece_color (src_piece) == who);
         if (piece_type (dst_piece) != Piece::None)
-            assert (move.is_normal_capturing ());
+            assert (move.isNormalCapturing());
 
         if (piece_type (dst_piece) != Piece::None)
             assert (piece_color (src_piece) != piece_color (dst_piece));
 
         // check for promotion
-        if (move.is_promoting ())
+        if (move.isPromoting())
         {
-            src_piece = move.get_promoted_piece ();
+            src_piece = move.getPromotedPiece();
             my_material.add (src_piece);
             my_material.remove (ColoredPiece::make (who, Piece::Pawn));
         }
 
-        switch (move.get_move_category())
+        switch (move.getMoveCategory())
         {
             case MoveCategory::Default:
                 assert (piece_type (dst_piece) == Piece::None);
                 break;
 
             case MoveCategory::NormalCapturing:
-                assert (move.is_normal_capturing ());
+                assert (move.isNormalCapturing());
                 assert (piece_color (src_piece) != piece_color (dst_piece));
                 break;
 
@@ -235,7 +234,7 @@ namespace wisdom
 
             default:
                 throw Error {
-                    "Invalid move category: " + std::to_string (static_cast<int>(move.get_move_category()))
+                    "Invalid move category: " + std::to_string (static_cast<int>(move.getMoveCategory()))
                 };
         }
 
@@ -274,7 +273,7 @@ namespace wisdom
         setCurrentTurn (color_invert (who));
     }
 
-    static auto castle_parse (const string& str, Color who) -> optional<Move>
+    static auto castleParse (const string& str, Color who) -> optional<Move>
     {
         int src_row, dst_col;
 
@@ -299,10 +298,10 @@ namespace wisdom
         else
             return nullopt;
 
-        return Move::make_castling (src_row, King_Column, src_row, dst_col);
+        return Move::makeCastling (src_row, King_Column, src_row, dst_col);
     }
 
-    auto move_parse_optional (const string& str, Color who) -> optional<Move>
+    auto moveParseOptional (const string& str, Color who) -> optional<Move>
     {
         bool en_passant = false;
         bool is_capturing = false;
@@ -324,7 +323,7 @@ namespace wisdom
             return nullopt;
 
         if (tolower (tmp[0]) == 'o')
-            return castle_parse (tmp, who);
+            return castleParse (tmp, who);
 
         if (tmp.size () < 4)
             return nullopt;
@@ -367,7 +366,7 @@ namespace wisdom
         Move move = Move::make (*src, *dst);
         if (is_capturing)
         {
-            move = move.with_capture ();
+            move = move.withCapture();
         }
 
         // grab extra identifiers describing the move
@@ -395,28 +394,28 @@ namespace wisdom
 
         if (piece_type (promoted) != Piece::None)
         {
-            move = move.with_promotion (promoted);
+            move = move.withPromotion (promoted);
         }
 
         if (en_passant)
         {
-            move = Move::make_en_passant (Row (*src), Column (*src), Row (*dst), Column (*dst));
+            move = Move::makeEnPassant (Row (*src), Column (*src), Row (*dst), Column (*dst));
         }
 
         return move;
     }
 
-    auto move_parse (const string& str, Color color) -> Move
+    auto moveParse (const string& str, Color color) -> Move
     {
         if (tolower (str[0]) == 'o' && color == Color::None)
             throw ParseMoveException ("Move requires color, but no color provided");
 
-        auto optional_result = move_parse_optional (str, color);
+        auto optional_result = moveParseOptional (str, color);
         if (!optional_result.has_value ())
             throw ParseMoveException ("Error parsing move: " + str);
 
         auto result = *optional_result;
-        auto move_category = result.get_move_category ();
+        auto move_category = result.getMoveCategory();
         if (color == Color::None && move_category != MoveCategory::NormalCapturing
             && move_category != MoveCategory::Default)
         {
@@ -426,12 +425,12 @@ namespace wisdom
         return result;
     }
 
-    string to_string (const Move& move)
+    string asString (const Move& move)
     {
-        Coord src = move.get_src ();
-        Coord dst = move.get_dst ();
+        Coord src = move.getSrc();
+        Coord dst = move.getDst();
 
-        if (move.is_castling ())
+        if (move.isCastling())
         {
             if (Column (dst) - Column (src) < 0)
             {
@@ -448,21 +447,21 @@ namespace wisdom
         string result;
         result += asString (src);
 
-        if (move.is_normal_capturing ())
+        if (move.isNormalCapturing())
             result += "x";
         else
             result += " ";
 
         result += asString (dst);
 
-        if (move.is_en_passant ())
+        if (move.isEnPassant())
         {
             result += " ep";
         }
 
-        if (move.is_promoting ())
+        if (move.isPromoting())
         {
-            string promoted_piece { piece_char (move.get_promoted_piece ()) };
+            string promoted_piece { piece_char (move.getPromotedPiece()) };
             result += "(" + promoted_piece + ")";
         }
 
@@ -484,7 +483,7 @@ namespace wisdom
         // make capturing if dst piece is not none
         Move move = Move::make (src, dst);
         if (dst_piece != Piece_And_Color_None)
-            move = move.with_capture ();
+            move = move.withCapture();
 
         // check for pawn special moves.
         switch (piece_type (src_piece))
@@ -496,10 +495,10 @@ namespace wisdom
                     int eligible_column
                         = eligibleEnPassantColumn (board, Row (src), Column (src), who);
                     if (eligible_column == Column (dst))
-                        return Move::make_en_passant (src, dst);
+                        return Move::makeEnPassant (src, dst);
 
                     if (needPawnPromotion (Row<int> (dst), who) && promoted_piece.has_value ())
-                        return move.with_promotion (ColoredPiece::make (who, *promoted_piece));
+                        return move.withPromotion (ColoredPiece::make (who, *promoted_piece));
                 }
                 break;
 
@@ -509,7 +508,7 @@ namespace wisdom
                 {
                     if (Column (dst) - Column (src) == 2 || Column (dst) - Column (src) == -2)
                     {
-                        return Move::make_castling (src, dst);
+                        return Move::makeCastling (src, dst);
                     }
                 }
                 break;
@@ -523,7 +522,7 @@ namespace wisdom
 
     auto operator<< (std::ostream& os, const Move& value) -> std::ostream&
     {
-        os << to_string (value);
+        os << asString (value);
         return os;
     }
 }

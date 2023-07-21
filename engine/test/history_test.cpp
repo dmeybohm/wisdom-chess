@@ -21,14 +21,14 @@ TEST_CASE( "Third repetition is detected" )
 
         auto board = Board { builder };
 
-        Move black_move = move_parse ("e8 d8");
-        Move black_return_move = move_parse ("d8 e8");
+        Move black_move = moveParse ("e8 d8");
+        Move black_return_move = moveParse ("d8 e8");
 
-        Move white_move = move_parse ("e1 d1");
-        Move white_return_move = move_parse ("d1 e1");
+        Move white_move = moveParse ("e1 d1");
+        Move white_return_move = moveParse ("d1 e1");
 
         // Record initial position. we don't care about move here.
-        Move initial_move = move_parse ("d8 e8");
+        Move initial_move = moveParse ("d8 e8");
         history.addPositionAndMove (&board, initial_move);
 
         board = board.withMove (Color::White, white_move);
@@ -77,14 +77,14 @@ TEST_CASE( "Third repetition is detected" )
 
         auto board = Board { builder };
 
-        Move black_move = move_parse ("e8 d8");
-        Move black_return_move = move_parse ("d8 e8");
+        Move black_move = moveParse ("e8 d8");
+        Move black_return_move = moveParse ("d8 e8");
 
-        Move white_move = move_parse ("e1 d1");
-        Move white_return_move = move_parse ("d1 e1");
+        Move white_move = moveParse ("e1 d1");
+        Move white_return_move = moveParse ("d1 e1");
 
         // Record initial position. we don't care about move here.
-        Move initial_move = move_parse ("e7 e5");
+        Move initial_move = moveParse ("e7 e5");
         board = board.withMove (Color::Black, initial_move);
         history.addPositionAndMove (&board, initial_move);
 
@@ -130,8 +130,8 @@ TEST_CASE( "Third repetition is detected" )
         History history;
         Board board;
 
-        Move initial_white_pawn_move = move_parse ("e2 e4");
-        Move initial_black_pawn_move = move_parse ("e7 e5");
+        Move initial_white_pawn_move = moveParse ("e2 e4");
+        Move initial_black_pawn_move = moveParse ("e7 e5");
 
         board = board.withMove (Color::White, initial_white_pawn_move);
         history.addPositionAndMove (&board, initial_white_pawn_move);
@@ -141,11 +141,11 @@ TEST_CASE( "Third repetition is detected" )
         history.addPositionAndMove (&board, initial_black_pawn_move);
         REQUIRE( history.isThirdRepetition (board) == false );
 
-        Move white_move = move_parse ("e1 e2");
-        Move white_return_move = move_parse ("e2 e1");
+        Move white_move = moveParse ("e1 e2");
+        Move white_return_move = moveParse ("e2 e1");
 
-        Move black_move = move_parse ("e8 e7");
-        Move black_return_move = move_parse ("e7 e8");
+        Move black_move = moveParse ("e8 e7");
+        Move black_return_move = moveParse ("e7 e8");
 
         board = board.withMove (Color::White, white_move);
         history.addPositionAndMove (&board, white_move);
@@ -189,8 +189,8 @@ TEST_CASE( "Third repetition is detected" )
         History history;
         Board board;
 
-        Move initial_white_pawn_move = move_parse ("e2 e4");
-        Move initial_black_pawn_move = move_parse ("e7 e5");
+        Move initial_white_pawn_move = moveParse ("e2 e4");
+        Move initial_black_pawn_move = moveParse ("e7 e5");
 
         board = board.withMove (Color::White, initial_white_pawn_move);
         history.addPositionAndMove (&board, initial_white_pawn_move);
@@ -200,11 +200,11 @@ TEST_CASE( "Third repetition is detected" )
         history.addPositionAndMove (&board, initial_black_pawn_move);
         REQUIRE( history.isThirdRepetition (board) == false );
 
-        Move white_move = move_parse ("f1 e2");
-        Move white_return_move = move_parse ("e2 f1");
+        Move white_move = moveParse ("f1 e2");
+        Move white_return_move = moveParse ("e2 f1");
 
-        Move black_move = move_parse ("f8 e7");
-        Move black_return_move = move_parse ("e7 f8");
+        Move black_move = moveParse ("f8 e7");
+        Move black_return_move = moveParse ("e7 f8");
 
         for (int i = 0; i < 2; i++)
         {
@@ -242,10 +242,10 @@ TEST_CASE( "Many moves without progress are detected" )
 
     auto board = Board { builder };
 
-    Move first = move_parse ("e1 d1");
-    Move second = move_parse ("e8 d8");
-    Move third = move_parse ("d1 e1");
-    Move fourth = move_parse ("d8 e8");
+    Move first = moveParse ("e1 d1");
+    Move second = moveParse ("e8 d8");
+    Move third = moveParse ("d1 e1");
+    Move fourth = moveParse ("d8 e8");
 
     auto make_useless_moves = [&board, first, second, third, fourth](int count)
     {

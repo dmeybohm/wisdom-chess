@@ -66,7 +66,7 @@ namespace wisdom
             emscripten_wasm_worker_post_function_vi (
                 engine_thread,
                 worker_receive_move,
-                move->get_move().to_int()
+                                                     move->get_move().toInt()
             );
         }
 

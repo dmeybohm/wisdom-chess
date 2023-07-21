@@ -121,7 +121,7 @@ namespace wisdom
             return GameStatus::SeventyFiveMovesWithoutProgressDraw;
 
         const auto& material = my_current_board.getMaterial ();
-        if (material.checkmate_is_possible (my_current_board) == Material::CheckmateIsPossible::No)
+        if (material.checkmateIsPossible (my_current_board) == Material::CheckmateIsPossible::No)
             return GameStatus::InsufficientMaterialDraw;
 
         return GameStatus::Playing;
@@ -173,7 +173,7 @@ namespace wisdom
             if (input_buf == "stop")
                 break;
 
-            Move move = move_parse (input_buf, result.getCurrentTurn ());
+            Move move = moveParse (input_buf, result.getCurrentTurn());
             result.move (move);
         }
 

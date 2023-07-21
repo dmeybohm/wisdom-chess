@@ -14,9 +14,7 @@ TEST_CASE( "Initializing move list" )
     for (auto move : move_list)
         moves.push_back (move);
 
-    std::vector expected = {
-        move_parse ("e4 d4"),
-        move_parse ("d2 d1")
+    std::vector expected = { moveParse ("e4 d4"), moveParse ("d2 d1")
     };
     REQUIRE( moves == expected );
 }
@@ -58,16 +56,16 @@ TEST_CASE( "Moving move list pointer" )
 
     auto ptr = moved.begin ();
     REQUIRE( moved.size () == 2 );
-    REQUIRE( *ptr++ == move_parse ("e4 d4", Color::Black) );
-    REQUIRE( *ptr == move_parse ("d2 d1", Color::White) );
+    REQUIRE( *ptr++ == moveParse ("e4 d4", Color::Black) );
+    REQUIRE( *ptr == moveParse ("d2 d1", Color::White) );
 }
 
 TEST_CASE( "Appending a move" )
 {
     MoveList list = MoveList::uncached ();
 
-    list.push_back (move_parse ("e4 e5"));
-    list.push_back (move_parse ("d7 d5"));
+    list.push_back (moveParse ("e4 e5"));
+    list.push_back (moveParse ("d7 d5"));
 
     REQUIRE( list.size () == 2 );
 }
@@ -80,8 +78,8 @@ TEST_CASE( "Moving uncached list" )
     {
         MoveList uncached_list = MoveList::uncached ();
 
-        uncached_list.push_back (move_parse ("e4 d4"));
-        uncached_list.push_back (move_parse ("d2 d1"));
+        uncached_list.push_back (moveParse ("e4 d4"));
+        uncached_list.push_back (moveParse ("d2 d1"));
 
         MoveList cached { allocator.get () };
 
@@ -94,21 +92,21 @@ TEST_CASE( "Moving uncached list" )
 
         auto ptr = cached.begin ();
         REQUIRE( cached.size () == 2 );
-        REQUIRE( *ptr++ == move_parse ("e4 d4", Color::Black) );
-        REQUIRE( *ptr == move_parse ("d2 d1", Color::White) );
+        REQUIRE( *ptr++ == moveParse ("e4 d4", Color::Black) );
+        REQUIRE( *ptr == moveParse ("d2 d1", Color::White) );
     }
 
     SUBCASE( "moving cached into uncached" )
     {
         MoveList uncached_list = MoveList::uncached ();
 
-        uncached_list.push_back (move_parse ("e4 d4"));
-        uncached_list.push_back (move_parse ("d2 d1"));
+        uncached_list.push_back (moveParse ("e4 d4"));
+        uncached_list.push_back (moveParse ("d2 d1"));
 
         MoveList cached { allocator.get () };
 
-        cached.push_back (move_parse ("e3 d3"));
-        cached.push_back (move_parse ("d3 d1"));
+        cached.push_back (moveParse ("e3 d3"));
+        cached.push_back (moveParse ("d3 d1"));
 
         REQUIRE( uncached_list.allocator () == nullptr );
         uncached_list = std::move (cached);
@@ -119,8 +117,8 @@ TEST_CASE( "Moving uncached list" )
 
         auto ptr = uncached_list.begin ();
         REQUIRE( uncached_list.size () == 2 );
-        REQUIRE( *ptr++ == move_parse ("e3 d3", Color::Black) );
-        REQUIRE( *ptr == move_parse ("d3 d1", Color::White) );
+        REQUIRE( *ptr++ == moveParse ("e3 d3", Color::Black) );
+        REQUIRE( *ptr == moveParse ("d3 d1", Color::White) );
     }
 }
 
@@ -147,8 +145,8 @@ TEST_CASE( "Swapping lists" )
         MoveList first { allocator.get () };
         MoveList second = { Color::Black, { "d7 d5", "f1 c4" } };
 
-        first.push_back (move_parse ("e2 d4", Color::White));
-        first.push_back (move_parse ("a8 a1", Color::Black));
+        first.push_back (moveParse ("e2 d4", Color::White));
+        first.push_back (moveParse ("a8 a1", Color::Black));
 
         std::swap (first, second);
 

@@ -16,7 +16,7 @@ TEST_CASE( "Position is initialized correctly" )
     CHECK( board.getPosition().individual_score (Color::White) == board.getPosition().individual_score (Color::Black) );
 }
 
-TEST_CASE( "Center pawn elevates position overall_score" )
+TEST_CASE( "Center pawn elevates position overallScore" )
 {
     BoardBuilder builder;
 
@@ -31,7 +31,7 @@ TEST_CASE( "Center pawn elevates position overall_score" )
     CHECK(board.getPosition().overall_score (Color::White) > board.getPosition().overall_score (Color::Black));
 }
 
-TEST_CASE( "Capture updates position overall_score correctly" )
+TEST_CASE( "Capture updates position overallScore correctly" )
 {
     BoardBuilder builder;
 
@@ -46,7 +46,7 @@ TEST_CASE( "Capture updates position overall_score correctly" )
     int initial_score_white = board.getPosition().overall_score (Color::White);
     int initial_score_black = board.getPosition().overall_score (Color::Black);
 
-    Move e4xd6 = move_parse ("e4xd6", Color::White);
+    Move e4xd6 = moveParse ("e4xd6", Color::White);
 
     board = board.withMove (Color::White, e4xd6);
 
@@ -54,7 +54,7 @@ TEST_CASE( "Capture updates position overall_score correctly" )
     CHECK( initial_score_black != board.getPosition().overall_score (Color::Black) );
 }
 
-TEST_CASE( "En passant updates position overall_score correctly")
+TEST_CASE( "En passant updates position overallScore correctly")
 {
     BoardBuilder builder;
 
@@ -69,8 +69,8 @@ TEST_CASE( "En passant updates position overall_score correctly")
     int initial_score_white = board.getPosition().overall_score (Color::White);
     int initial_score_black = board.getPosition().overall_score (Color::Black);
 
-    Move e5xd5 = move_parse ("e5d6 ep", Color::White);
-    CHECK( e5xd5.is_en_passant() );
+    Move e5xd5 = moveParse ("e5d6 ep", Color::White);
+    CHECK( e5xd5.isEnPassant() );
 
     board = board.withMove (Color::White, e5xd5);
 
@@ -78,7 +78,7 @@ TEST_CASE( "En passant updates position overall_score correctly")
     CHECK( initial_score_black != board.getPosition().overall_score (Color::Black) );
 }
 
-TEST_CASE( "Castling updates position overall_score correctly")
+TEST_CASE( "Castling updates position overallScore correctly")
 {
     BoardBuilder builder;
 
@@ -96,8 +96,8 @@ TEST_CASE( "Castling updates position overall_score correctly")
     std::vector castling_moves { "o-o", "o-o-o" };
     for (auto castling_move_in : castling_moves)
     {
-        Move castling_move = move_parse (castling_move_in, Color::White);
-        CHECK( castling_move.is_castling ());
+        Move castling_move = moveParse (castling_move_in, Color::White);
+        CHECK( castling_move.isCastling ());
 
         Board after_castling = board.withMove (Color::White, castling_move);
 
@@ -106,7 +106,7 @@ TEST_CASE( "Castling updates position overall_score correctly")
     }
 }
 
-TEST_CASE( "Promoting move updates position overall_score correctly")
+TEST_CASE( "Promoting move updates position overallScore correctly")
 {
     BoardBuilder builder;
 
@@ -122,8 +122,8 @@ TEST_CASE( "Promoting move updates position overall_score correctly")
     std::vector promoting_moves { "h7h8 (Q)", "h7h8 (R)", "h7h8 (B)", "h7h8 (N)" };
     for (auto promoting_move_in : promoting_moves)
     {
-        Move promoting_move = move_parse (promoting_move_in, Color::White);
-        CHECK( promoting_move.is_promoting () );
+        Move promoting_move = moveParse (promoting_move_in, Color::White);
+        CHECK( promoting_move.isPromoting () );
 
         Board after_promotion = board.withMove (Color::White, promoting_move);
 
@@ -136,9 +136,9 @@ TEST_CASE("Double pawn moves are more appealing")
 {
     Board board;
 
-    auto e2e4 = move_parse ("e2e4");
-    auto e7e5 = move_parse("e7e5");
-    auto e7e6 = move_parse("e7e6");
+    auto e2e4 = moveParse ("e2e4");
+    auto e7e5 = moveParse ("e7e5");
+    auto e7e6 = moveParse ("e7e6");
 
     Board after_white = board.withMove (Color::White, e2e4);
     Board with_double = after_white.withMove (Color::Black, e7e5);

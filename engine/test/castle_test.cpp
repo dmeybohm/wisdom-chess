@@ -120,7 +120,7 @@ TEST_CASE("Castling state is modified and restored for castling queenside")
     builder.addRowOfSameColor (7, Color::White, back_rank);
     Board board { builder };
     board.setCurrentTurn (Color::Black);
-    Move mv = Move::make_castling (0, 4, 0, 2);
+    Move mv = Move::makeCastling (0, 4, 0, 2);
 
     CHECK( board.ableToCastle (Color::Black, CastlingEligible::QueensideIneligible) );
     CHECK( board.ableToCastle (Color::Black, CastlingEligible::KingsideIneligible) );
@@ -156,7 +156,7 @@ TEST_CASE("Castling state is modified and restored for castling kingside")
     builder.addRowOfSameColor (0, Color::Black, back_rank);
     builder.addRowOfSameColor (7, Color::White, back_rank);
     Board board { builder };
-    Move mv = Move::make_castling (7, 4, 7, 6);
+    Move mv = Move::makeCastling (7, 4, 7, 6);
 
     CHECK( board.ableToCastle (Color::White, CastlingEligible::QueensideIneligible) );
     CHECK( board.ableToCastle (Color::White, CastlingEligible::KingsideIneligible) );
@@ -199,7 +199,7 @@ TEST_CASE( "Opponent's castling state is modified when his rook is taken" )
 
     auto board = Board { builder };
     
-    Move mv = Move::make_normal_capturing (1, 1, 0, 0);
+    Move mv = Move::makeNormalCapturing (1, 1, 0, 0);
 
     CHECK( board.ableToCastle (Color::White, CastlingEligible::QueensideIneligible) );
     CHECK( board.ableToCastle (Color::White, CastlingEligible::KingsideIneligible) );
@@ -249,7 +249,7 @@ TEST_CASE("Castling state is updated when rook captures a piece")
 
     auto board = Board { builder };
 
-    Move mv = Move::make_normal_capturing (0, 0, 1, 0);
+    Move mv = Move::makeNormalCapturing (0, 0, 1, 0);
 
     CHECK( board.ableToCastle (Color::White, CastlingEligible::QueensideIneligible) );
     CHECK( board.ableToCastle (Color::White, CastlingEligible::KingsideIneligible) );
@@ -307,7 +307,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
     builder.setCurrentTurn (Color::Black);
 
     auto board = Board { builder };
-    Move mv = Move::make_normal_capturing (0, 0, 0, 1);
+    Move mv = Move::makeNormalCapturing (0, 0, 0, 1);
 
     CHECK( board.ableToCastle (Color::White, CastlingEligible::QueensideIneligible) );
     CHECK( board.ableToCastle (Color::White, CastlingEligible::KingsideIneligible) );
@@ -364,7 +364,7 @@ TEST_CASE("Castling state is modified when rook takes a piece on same column (sc
 
     auto board = Board { builder };
 
-    Move mv = Move::make_normal_capturing (7, 0, 6, 0);
+    Move mv = Move::makeNormalCapturing (7, 0, 6, 0);
 
     CHECK( board.ableToCastle (Color::White, CastlingEligible::QueensideIneligible) );
     CHECK( board.ableToCastle (Color::White, CastlingEligible::KingsideIneligible) );
@@ -420,7 +420,7 @@ TEST_CASE( "Test can castle" )
         CHECK( board.ableToCastle (Color::White, CastlingEligible::KingsideIneligible) );
         color = color_invert (color);
     }
-    auto castling = move_parse ("o-o", Color::White);
+    auto castling = moveParse ("o-o", Color::White);
     (void)board.withMove (Color::White, castling);
 }
 

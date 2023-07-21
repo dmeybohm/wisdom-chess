@@ -277,7 +277,7 @@ namespace wisdom
         {
             Move best_move = *result.move;
             std::stringstream progress_str;
-            progress_str << "move selected = " << to_string (best_move) << " [ score: "
+            progress_str << "move selected = " << asString (best_move) << " [ score: "
                          << result.score << " ]\n";
             my_output->info (progress_str.str ());
         }

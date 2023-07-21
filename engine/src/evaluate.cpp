@@ -18,7 +18,7 @@ namespace wisdom
 
             auto rook_piece = ColoredPiece::make (who, Piece::Rook);
 
-            if (king_row != castling_row_for_color (who))
+            if (king_row != castlingRowForColor (who))
                 return false;
 
             // check kingside castle:
@@ -58,7 +58,7 @@ namespace wisdom
         int score = 0;
         Color opponent = color_invert (who);
 
-        score += board.getMaterial ().overall_score (who);
+        score += board.getMaterial().overallScore (who);
         score += board.getPosition ().overall_score (who);
 
         if (isCheckmated (board, who, generator))

@@ -59,7 +59,7 @@ TEST_CASE( "join" )
     }
 }
 
-TEST_CASE( "to_int" )
+TEST_CASE( "toInt" )
 {
     SUBCASE( "When successful" )
     {

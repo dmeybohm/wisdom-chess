@@ -22,7 +22,7 @@ namespace wisdom
         {
             std::string tmp { string };
             auto color = map_color (who);
-            auto result = new WebMove ( wisdom::move_parse (tmp, color) );
+            auto result = new WebMove (wisdom::moveParse (tmp, color) );
             return result;
         }
 
@@ -33,7 +33,7 @@ namespace wisdom
 
         [[nodiscard]] auto asString() const -> char*
         {
-            std::string str = to_string (my_move);
+            std::string str = wisdom::asString (my_move);
             return strdup (str.c_str());
         }
     };

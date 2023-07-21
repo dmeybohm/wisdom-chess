@@ -49,8 +49,8 @@ TEST_CASE( "to_perft_move" )
 {
     SUBCASE( "Castling move" )
     {
-        auto white_castle = move_parse ("o-o", Color::White);
-        auto black_castle = move_parse ("o-o-o", Color::Black);
+        auto white_castle = moveParse ("o-o", Color::White);
+        auto black_castle = moveParse ("o-o-o", Color::Black);
         auto white_result = wisdom::perft::to_perft_move (white_castle, Color::White);
         auto black_result = wisdom::perft::to_perft_move (black_castle, Color::Black);
 
@@ -60,7 +60,7 @@ TEST_CASE( "to_perft_move" )
 
     SUBCASE( "Promoted move" )
     {
-        auto promote_bishop = wisdom::move_parse ("e7e8(B)", Color::White);
+        auto promote_bishop = wisdom::moveParse ("e7e8(B)", Color::White);
         auto promote_result = wisdom::perft::to_perft_move (promote_bishop, Color::White);
 
         CHECK( promote_result == "e7e8B" );
@@ -68,7 +68,7 @@ TEST_CASE( "to_perft_move" )
 
     SUBCASE( "En-passant" )
     {
-        auto en_passant = wisdom::move_parse ("e5 d6 ep", Color::White);
+        auto en_passant = wisdom::moveParse ("e5 d6 ep", Color::White);
         auto result = wisdom::perft::to_perft_move (en_passant, Color::White);
 
         CHECK( result == "e5d6" );
@@ -76,7 +76,7 @@ TEST_CASE( "to_perft_move" )
 
     SUBCASE( "Normal move" )
     {
-        auto normal = wisdom::move_parse ("a7 a5");
+        auto normal = wisdom::moveParse ("a7 a5");
         auto result = wisdom::perft::to_perft_move (normal, Color::Black);
 
         CHECK( result == "a7a5" );

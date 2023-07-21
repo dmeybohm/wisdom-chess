@@ -24,10 +24,10 @@ TEST_CASE("generate en passant moves")
     Board board;
     MoveGenerator move_generator;
 
-    board = board.withMove (Color::White, move_parse ("e2 e4", Color::White));
-    board = board.withMove (Color::Black, move_parse ("d7 d5", Color::Black));
-    board = board.withMove (Color::White, move_parse ("e4 e5", Color::White));
-    board = board.withMove (Color::Black, move_parse ("f7 f5", Color::Black));
+    board = board.withMove (Color::White, moveParse ("e2 e4", Color::White));
+    board = board.withMove (Color::Black, moveParse ("d7 d5", Color::Black));
+    board = board.withMove (Color::White, moveParse ("e4 e5", Color::White));
+    board = board.withMove (Color::Black, moveParse ("f7 f5", Color::Black));
 
     auto move_list = move_generator.generateAllPotentialMoves (board, Color::White).to_string ();
     auto pos = move_list.find ("[e5 f6 ep]");

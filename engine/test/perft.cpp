@@ -31,10 +31,10 @@ namespace wisdom
             if (depth == target_depth)
             {
                 counters.nodes++;
-                if (move.is_any_capturing ())
+                if (move.isAnyCapturing())
                     counters.captures++;
 
-                if (move.is_en_passant ())
+                if (move.isEnPassant())
                     counters.en_passants++;
             }
 
@@ -73,7 +73,7 @@ namespace wisdom
             if (castling_row == Row (src) && castling_row == Row (dst)
                 && std::abs (Column (src) - Column (dst)))
             {
-                result = Move::make_castling (src, dst);
+                result = Move::makeCastling (src, dst);
             }
         }
 
@@ -83,17 +83,17 @@ namespace wisdom
             if (Row (src) != Row (dst) && Column (src) != Column (dst)
                 && dst_piece == Piece_And_Color_None)
             {
-                result = Move::make_en_passant (src, dst);
+                result = Move::makeEnPassant (src, dst);
             }
         }
 
         // 3. captures denoted without x
         if (dst_piece != Piece_And_Color_None)
-            result = result.with_capture ();
+            result = result.withCapture();
 
         // 4. Promotions are not in parenthesis
         if (promoted != Piece_And_Color_None)
-            result = result.with_promotion (promoted);
+            result = result.withPromotion (promoted);
 
         return result;
     }
@@ -121,31 +121,31 @@ namespace wisdom
 
     auto wisdom::perft::to_perft_move (const Move& move, Color who) -> string
     {
-        if (move.is_castling ())
+        if (move.isCastling())
         {
             auto row = who == Color::White ? Last_Row : First_Row;
             auto src_col = King_Column;
-            auto dst_col = move.is_castling_on_kingside () ? Kingside_Castled_King_Column
+            auto dst_col = move.isCastlingOnKingside() ? Kingside_Castled_King_Column
                                                            : Queenside_Castled_King_Column;
 
             Move normal = wisdom::Move::make (row, src_col, row, dst_col);
-            return wisdom::asString (normal.get_src ()) + wisdom::asString (normal.get_dst ());
+            return wisdom::asString (normal.getSrc()) + wisdom::asString (normal.getDst());
         }
 
-        if (move.is_en_passant ())
+        if (move.isEnPassant())
         {
-            return wisdom::asString (move.get_src ()) + wisdom::asString (move.get_dst ());
+            return wisdom::asString (move.getSrc()) + wisdom::asString (move.getDst());
         }
 
-        if (move.is_promoting ())
+        if (move.isPromoting())
         {
-            auto promoted = move.get_promoted_piece ();
+            auto promoted = move.getPromotedPiece();
 
-            return wisdom::asString (move.get_src ()) + wisdom::asString (move.get_dst ())
+            return wisdom::asString (move.getSrc()) + wisdom::asString (move.getDst())
                 + wisdom::piece_char (promoted);
         }
 
-        return wisdom::asString (move.get_src ()) + wisdom::asString (move.get_dst ());
+        return wisdom::asString (move.getSrc()) + wisdom::asString (move.getDst());
     }
 
     auto wisdom::perft::perft_results (const Board& board, Color active_player, int depth,

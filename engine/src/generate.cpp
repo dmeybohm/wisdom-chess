@@ -103,8 +103,8 @@ namespace wisdom
         // check for an intervening piece
         int direction;
 
-        Coord src = move.get_src ();
-        Coord dst = move.get_dst ();
+        Coord src = move.getSrc();
+        Coord dst = move.getDst();
 
         ColoredPiece piece3 = ColoredPiece::make (Color::None, Piece::None);
 
@@ -129,16 +129,16 @@ namespace wisdom
         -> Move
     {
         bool is_capture = (piece_type (dst_piece) != Piece::None);
-        if (is_capture && !move.is_en_passant () && !move.is_normal_capturing ())
-            move = move.with_capture ();
+        if (is_capture && !move.isEnPassant() && !move.isNormalCapturing())
+            move = move.withCapture();
 
         return move;
     }
 
     void MoveGeneration::appendMove (Move move) noexcept
     {
-        Coord src = move.get_src ();
-        Coord dst = move.get_dst ();
+        Coord src = move.getSrc();
+        Coord dst = move.getDst();
 
         ColoredPiece src_piece = board.pieceAt (src);
         ColoredPiece dst_piece = board.pieceAt (dst);
@@ -175,14 +175,14 @@ namespace wisdom
 
         if (board.ableToCastle (who, CastlingEligible::QueensideIneligible) && piece_col == King_Column)
         {
-            Move queenside_castle = Move::make_castling (piece_row, piece_col, piece_row, piece_col - 2);
+            Move queenside_castle = Move::makeCastling (piece_row, piece_col, piece_row, piece_col - 2);
             if (validCastlingMove (board, queenside_castle))
                 appendMove (queenside_castle);
         }
 
         if (board.ableToCastle (who, CastlingEligible::KingsideIneligible) && piece_col == King_Column)
         {
-            Move kingside_castle = Move::make_castling (piece_row, piece_col, piece_row, piece_col + 2);
+            Move kingside_castle = Move::makeCastling (piece_row, piece_col, piece_row, piece_col + 2);
             if (validCastlingMove (board, kingside_castle))
                 appendMove (kingside_castle);
         }
@@ -335,9 +335,9 @@ namespace wisdom
                 piece_color (target_piece) != who)
             {
                 if (c_dir == -1)
-                    all_pawn_moves[2] = Move::make_normal_capturing (piece_row, piece_col, row, take_col);
+                    all_pawn_moves[2] = Move::makeNormalCapturing (piece_row, piece_col, row, take_col);
                 else
-                    all_pawn_moves[3] = Move::make_normal_capturing (piece_row, piece_col, row, take_col);
+                    all_pawn_moves[3] = Move::makeNormalCapturing (piece_row, piece_col, row, take_col);
             }
         }
 
@@ -354,7 +354,7 @@ namespace wisdom
                     if (optional_move.has_value ())
                     {
                         auto move = *optional_move;
-                        move = move.with_promotion (promoted_piece);
+                        move = move.withPromotion (promoted_piece);
                         appendMove (move);
                     }
                 }
@@ -391,7 +391,7 @@ namespace wisdom
         assert (piece_type (take_piece) == Piece::Pawn);
         assert (piece_color (take_piece) == color_invert (who));
 
-        Move new_move = Move::make_en_passant (piece_row, piece_col, take_row, take_col);
+        Move new_move = Move::makeEnPassant (piece_row, piece_col, take_row, take_col);
 
         appendMove (new_move);
     }
@@ -445,19 +445,19 @@ namespace wisdom
 
     static int materialDiff (const Board& board, Move move)
     {
-        assert (move.is_any_capturing());
+        assert (move.isAnyCapturing());
 
-        if (move.is_en_passant())
+        if (move.isEnPassant())
         {
             return 0;
         }
         else
         {
             int a_material_src = Material::weight (
-                piece_type (board.pieceAt (move.get_src ()))
+                piece_type (board.pieceAt (move.getSrc()))
             );
             int a_material_dst = Material::weight (
-                piece_type (board.pieceAt (move.get_dst ()))
+                piece_type (board.pieceAt (move.getDst()))
             );
             return a_material_dst - a_material_src;
         }
@@ -465,13 +465,13 @@ namespace wisdom
 
     static constexpr auto promotingOrCoordCompare (const Move& a, const Move& b) -> bool
     {
-        bool a_is_promoting = a.is_promoting ();
-        bool b_is_promoting = b.is_promoting ();
+        bool a_is_promoting = a.isPromoting();
+        bool b_is_promoting = b.isPromoting();
 
         if (a_is_promoting && b_is_promoting)
         {
-            return Material::weight (piece_type (a.get_promoted_piece ())) >
-                Material::weight (piece_type (b.get_promoted_piece ()));
+            return Material::weight (piece_type (a.getPromotedPiece())) >
+                Material::weight (piece_type (b.getPromotedPiece()));
         }
         else if (a_is_promoting && !b_is_promoting)
         {
@@ -483,19 +483,19 @@ namespace wisdom
         }
 
         // return coordinate diff so order is consistent:
-        Coord a_coord = a.get_src ();
-        Coord b_coord = b.get_src ();
+        Coord a_coord = a.getSrc();
+        Coord b_coord = b.getSrc();
 
         if (a_coord != b_coord)
             return coordIndex (a_coord) < coordIndex (b_coord);
         else
-            return coordIndex (a.get_dst()) < coordIndex (b.get_dst());
+            return coordIndex (a.getDst()) < coordIndex (b.getDst());
     }
 
     auto MoveGeneration::compareMoves (const Move& a, const Move& b) const -> bool
     {
-        bool a_is_capturing = a.is_any_capturing ();
-        bool b_is_capturing = b.is_any_capturing ();
+        bool a_is_capturing = a.isAnyCapturing();
+        bool b_is_capturing = b.isAnyCapturing();
 
         if (!a_is_capturing && !b_is_capturing)
         {

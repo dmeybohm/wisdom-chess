@@ -84,7 +84,7 @@ namespace wisdom
 
         const auto& material_ref = board.getMaterial();
 
-        if (material_ref.checkmate_is_possible (board) == Material::CheckmateIsPossible::No)
+        if (material_ref.checkmateIsPossible (board) == Material::CheckmateIsPossible::No)
             return DrawCategory::InsufficientMaterial;
 
         return DrawCategory::NoDraw;

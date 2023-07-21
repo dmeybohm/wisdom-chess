@@ -177,7 +177,7 @@ namespace wisdom::ui::console
         int count = 0;
         for (auto move : moves)
         {
-            std::cout << "[" << to_string (move) << "] ";
+            std::cout << "[" << asString (move) << "] ";
             if (++count % 10 == 0)
                 std::cout << "\n" << "    ";
         }
@@ -350,7 +350,7 @@ namespace wisdom::ui::console
             return result;
         }
 
-        result.move = move_parse_optional (input, game.getCurrentTurn());
+        result.move = moveParseOptional (input, game.getCurrentTurn());
         result.command = PlayCommand::ShowError;
 
         // check the generated move list for this move to see if its valid
@@ -358,7 +358,7 @@ namespace wisdom::ui::console
 
         for (auto legal_move : moves)
         {
-            if (result.move.has_value () && move_equals (legal_move, *result.move))
+            if (result.move.has_value () && moveEquals (legal_move, *result.move))
             {
                 result.command = PlayCommand::PlayMove;
                 break;
@@ -373,7 +373,7 @@ namespace wisdom::ui::console
         ConsoleGameStatusManager game_status_manager {};
 
         InputState initial_input_state;
-        auto output = make_standard_logger ();
+        auto output = makeStandardLogger();
         bool paused = false;
         MoveGenerator move_generator;
 
@@ -401,7 +401,7 @@ namespace wisdom::ui::console
 
                 input_state.move = optional_move;
                 if (input_state.move.has_value ())
-                    std::cout << "move selected: [" << to_string (*input_state.move) << "]\n";
+                    std::cout << "move selected: [" << asString (*input_state.move) << "]\n";
             }
             else
             {

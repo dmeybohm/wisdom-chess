@@ -30,16 +30,16 @@ namespace wisdom
         auto king_row = Row (king_coord);
         auto king_col = Column (king_coord);
 
-        if (mv.is_castling ())
+        if (mv.isCastling())
         {
-            Coord castled_pos = mv.get_dst ();
+            Coord castled_pos = mv.getDst();
             auto castled_row = Row (castled_pos);
             auto castled_col = Column (castled_pos);
 
             assert (king_row == castled_row);
             assert (king_col == castled_col);
 
-            int8_t direction = mv.is_castling_on_kingside () ? -1 : 1;
+            int8_t direction = mv.isCastlingOnKingside() ? -1 : 1;
 
             int8_t plus_one_column = nextColumn (castled_col, direction);
             int8_t plus_two_column = nextColumn (plus_one_column, direction);

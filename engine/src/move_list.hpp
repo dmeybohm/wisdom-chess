@@ -31,13 +31,13 @@ namespace wisdom
         static auto default_alloc_move_list () -> MoveListPtr
         {
             auto new_list = std::make_unique<Move[]> (Initial_Size + 1);
-            new_list[0] = Move::make_as_packed_capacity (Initial_Size);
+            new_list[0] = Move::makeAsPackedCapacity (Initial_Size);
             return new_list;
         }
 
         static void move_list_append (MoveListPtr& move_list_ptr, std::size_t position, Move move) noexcept
         {
-            size_t old_capacity = move_list_ptr[0].to_unpacked_capacity ();
+            size_t old_capacity = move_list_ptr[0].toUnpackedCapacity();
             assert (position <= old_capacity);
 
             if (position == old_capacity)
@@ -45,7 +45,7 @@ namespace wisdom
                 size_t new_capacity = old_capacity + MoveListAllocator::Size_Increment;
 
                 auto new_list = std::make_unique<Move[]> (new_capacity + 1);
-                new_list[0] = Move::make_as_packed_capacity (new_capacity);
+                new_list[0] = Move::makeAsPackedCapacity (new_capacity);
                 std::copy (&move_list_ptr[1], &move_list_ptr[1] + old_capacity, &new_list[1]);
                 move_list_ptr = std::move (new_list);
             }
@@ -177,12 +177,7 @@ namespace wisdom
 
         auto operator== (const MoveList& other) const -> bool
         {
-            return size () == other.size () && std::equal (
-                    begin (),
-                    end (),
-                    other.begin (),
-                    move_equals
-            );
+            return size () == other.size () && std::equal (begin(), end(), other.begin(), moveEquals);
         }
 
         auto operator!= (const MoveList& other) const -> bool

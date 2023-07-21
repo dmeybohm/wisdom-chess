@@ -22,7 +22,7 @@ TEST_CASE( "Overall score" )
 
                 material.add (ColoredPiece::make (color, piece_type));
 
-                CHECK( material.overall_score(color) > 0 );
+                CHECK( material.overallScore(color) > 0 );
             }
         }
     }
@@ -38,12 +38,12 @@ TEST_CASE( "Overall score" )
                 material.add (ColoredPiece::make (color, piece_type));
                 material.remove (ColoredPiece::make (color, piece_type));
 
-                CHECK( material.overall_score(color) == 0 );
+                CHECK( material.overallScore(color) == 0 );
             }
         }
 
-        CHECK( material.overall_score (Color::White) == 0 );
-        CHECK( material.overall_score (Color::Black) == 0 );
+        CHECK( material.overallScore (Color::White) == 0 );
+        CHECK( material.overallScore (Color::Black) == 0 );
     }
 }
 
@@ -66,71 +66,71 @@ TEST_CASE( "Piece count" )
     SUBCASE( "Is updated from the amount of pieces on the board")
     {
         const auto& material = brd.getMaterial ();
-        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
-        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
-        CHECK( material.piece_count (Color::Black, Piece::Queen) == 0 );
-        CHECK( material.piece_count (Color::Black, Piece::Rook) == 0 );
-        CHECK( material.piece_count (Color::White, Piece::Rook) == 1 );
-        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Pawn) == 2 );
+        CHECK( material.pieceCount (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Queen) == 0 );
+        CHECK( material.pieceCount (Color::Black, Piece::Rook) == 0 );
+        CHECK( material.pieceCount (Color::White, Piece::Rook) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Knight) == 1 );
 
         const auto& default_material = default_board.getMaterial ();
-        CHECK( default_material.piece_count (Color::White, Piece::Pawn) == 8 );
-        CHECK( default_material.piece_count (Color::Black, Piece::Pawn) == 8 );
-        CHECK( default_material.piece_count (Color::White, Piece::Rook) == 2 );
-        CHECK( default_material.piece_count (Color::Black, Piece::Rook) == 2 );
+        CHECK( default_material.pieceCount (Color::White, Piece::Pawn) == 8 );
+        CHECK( default_material.pieceCount (Color::Black, Piece::Pawn) == 8 );
+        CHECK( default_material.pieceCount (Color::White, Piece::Rook) == 2 );
+        CHECK( default_material.pieceCount (Color::Black, Piece::Rook) == 2 );
     }
 
     SUBCASE( "Is updated by a pawn doing a capture" )
     {
-        auto capture_move = move_parse ("e6xf7", Color::White);
+        auto capture_move = moveParse ("e6xf7", Color::White);
 
         brd = brd.withMove (Color::White, capture_move);
         const auto& material = brd.getMaterial ();
-        CHECK( material.piece_count (Color::Black, Piece::Knight) == 0 );
-        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 2 );
-        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Knight) == 0 );
+        CHECK( material.pieceCount (Color::Black, Piece::Pawn) == 2 );
+        CHECK( material.pieceCount (Color::White, Piece::Pawn) == 1 );
     }
 
     SUBCASE( "Is saved and restored after a pawn being captured" )
     {
-        auto capture_move = move_parse ("h2xe2", Color::White);
+        auto capture_move = moveParse ("h2xe2", Color::White);
 
         brd = brd.withMove (Color::White, capture_move);
         const auto& material = brd.getMaterial ();
-        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
-        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
-        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
-        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Pawn) == 1 );
+        CHECK( material.pieceCount (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Knight) == 1 );
     }
 
     SUBCASE( "Is saved and restored after a promotion" )
     {
         brd.setCurrentTurn (Color::Black);
-        auto promoting_move = move_parse ("e2e1 (Q)", Color::Black);
+        auto promoting_move = moveParse ("e2e1 (Q)", Color::Black);
 
         brd = brd.withMove (Color::Black, promoting_move);
         const auto& material = brd.getMaterial ();
-        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
-        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
-        CHECK( material.piece_count (Color::Black, Piece::Queen) == 1 );
-        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Pawn) == 1 );
+        CHECK( material.pieceCount (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Queen) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Knight) == 1 );
     }
 
     SUBCASE( "Is saved and restored after a promotion with a capture" )
     {
         brd.setCurrentTurn (Color::Black);
-        auto promoting_move = move_parse ("e2xd1 (R)", Color::Black);
+        auto promoting_move = moveParse ("e2xd1 (R)", Color::Black);
 
         brd = brd.withMove (Color::Black, promoting_move);
         const auto& material = brd.getMaterial ();
-        CHECK( material.piece_count (Color::Black, Piece::Pawn) == 1 );
-        CHECK( material.piece_count (Color::White, Piece::Pawn) == 1 );
-        CHECK( material.piece_count (Color::Black, Piece::Rook) == 1 );
-        CHECK( material.piece_count (Color::Black, Piece::Knight) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Pawn) == 1 );
+        CHECK( material.pieceCount (Color::White, Piece::Pawn) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Rook) == 1 );
+        CHECK( material.pieceCount (Color::Black, Piece::Knight) == 1 );
     }
 }
 
-TEST_CASE( "checkmate_is_possible()" )
+TEST_CASE( "checkmateIsPossible()" )
 {
     using CheckmateIsPossible = Material::CheckmateIsPossible;
 
@@ -143,7 +143,7 @@ TEST_CASE( "checkmate_is_possible()" )
 
     SUBCASE( "Returns yes for default board" )
     {
-        CHECK( default_material.checkmate_is_possible(default_board) );
+        CHECK( default_material.checkmateIsPossible(default_board) );
     }
 
     SUBCASE( "Returns no if there is a rook and king" )
@@ -152,7 +152,7 @@ TEST_CASE( "checkmate_is_possible()" )
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
-        CHECK( material.checkmate_is_possible(default_board) );
+        CHECK( material.checkmateIsPossible(default_board) );
     }
 
     SUBCASE( "Returns no if there is a rook and king vs a rook and king" )
@@ -162,7 +162,7 @@ TEST_CASE( "checkmate_is_possible()" )
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
-        CHECK( material.checkmate_is_possible(default_board) );
+        CHECK( material.checkmateIsPossible(default_board) );
     }
 
     SUBCASE( "Returns yes if there is a king and two knights vs a king" )
@@ -172,7 +172,7 @@ TEST_CASE( "checkmate_is_possible()" )
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
-        CHECK( material.checkmate_is_possible(default_board) );
+        CHECK( material.checkmateIsPossible(default_board) );
     }
 
     SUBCASE( "Returns yes if there is a king and knight vs a king and knight" )
@@ -182,7 +182,7 @@ TEST_CASE( "checkmate_is_possible()" )
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
-        CHECK( material.checkmate_is_possible(default_board) );
+        CHECK( material.checkmateIsPossible(default_board) );
     }
 
     SUBCASE( "Returns yes if there is a king and two knights vs a king and knight" )
@@ -193,7 +193,7 @@ TEST_CASE( "checkmate_is_possible()" )
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
-        CHECK( material.checkmate_is_possible(default_board) );
+        CHECK( material.checkmateIsPossible(default_board) );
     }
 
     SUBCASE( "Returns yes if there is a pawn" )
@@ -202,7 +202,7 @@ TEST_CASE( "checkmate_is_possible()" )
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
 
-        CHECK( material.checkmate_is_possible (brd) );
+        CHECK( material.checkmateIsPossible (brd) );
     }
 
     SUBCASE( "Returns no if there are only two kings" )
@@ -210,7 +210,7 @@ TEST_CASE( "checkmate_is_possible()" )
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
 
-        CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::No );
+        CHECK( material.checkmateIsPossible (brd) == CheckmateIsPossible::No );
     }
 
     SUBCASE( "Returns no if there is a king and knight vs. a king" )
@@ -220,7 +220,7 @@ TEST_CASE( "checkmate_is_possible()" )
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
 
-        CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::No );
+        CHECK( material.checkmateIsPossible (brd) == CheckmateIsPossible::No );
     }
 
     SUBCASE( "Returns no if there is a king and bishop vs. a king" )
@@ -230,7 +230,7 @@ TEST_CASE( "checkmate_is_possible()" )
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
 
-        CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::No );
+        CHECK( material.checkmateIsPossible (brd) == CheckmateIsPossible::No );
     }
 
     SUBCASE( "Returns yes if there is a king and bishop vs. a king and bishop of opposite colors" )
@@ -241,7 +241,7 @@ TEST_CASE( "checkmate_is_possible()" )
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
 
-        CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::Yes );
+        CHECK( material.checkmateIsPossible (brd) == CheckmateIsPossible::Yes );
     }
 
     SUBCASE( "Returns no if there is a king and bishop vs. a king and bishop of the same color" )
@@ -252,7 +252,7 @@ TEST_CASE( "checkmate_is_possible()" )
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
 
-        CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::No);
+        CHECK( material.checkmateIsPossible (brd) == CheckmateIsPossible::No);
     }
 
     SUBCASE( "Returns yes if there is a king two bishops of opposite color vs. a king" )
@@ -263,7 +263,7 @@ TEST_CASE( "checkmate_is_possible()" )
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
 
-        CHECK( material.checkmate_is_possible (brd) == CheckmateIsPossible::Yes);
+        CHECK( material.checkmateIsPossible (brd) == CheckmateIsPossible::Yes);
     }
 
     SUBCASE( "Returns no if there is a king two bishops of the same color vs. a king" )
@@ -274,6 +274,6 @@ TEST_CASE( "checkmate_is_possible()" )
         auto brd = Board { builder };
         const auto& material = brd.getMaterial ();
 
-        CHECK( material.checkmate_is_possible(brd) == CheckmateIsPossible::No );
+        CHECK( material.checkmateIsPossible(brd) == CheckmateIsPossible::No );
     }
 }

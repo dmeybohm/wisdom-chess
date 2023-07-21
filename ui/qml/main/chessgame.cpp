@@ -59,7 +59,7 @@ auto ChessGame::clone() const ->
 auto ChessGame::isLegalMove(Move selectedMove) const -> bool
 {
     auto game = this->state();
-    auto selectedMoveStr = to_string(selectedMove);
+    auto selectedMoveStr = asString (selectedMove);
 
     // If it's not the human's turn, move is illegal.
     if (game->getCurrentPlayer() != wisdom::Player::Human) {

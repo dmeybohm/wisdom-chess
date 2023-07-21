@@ -208,15 +208,14 @@ EMSCRIPTEN_KEEPALIVE void start_search()
     emscripten_wasm_worker_post_function_vii (
         EMSCRIPTEN_WASM_WORKER_ID_PARENT,
         main_thread_receive_move,
-        state->game_id,
-        move->to_int()
+        state->game_id, move->toInt()
     );
 }
 
 EMSCRIPTEN_KEEPALIVE void worker_receive_move (int packed_move)
 {
     auto game = GameState::get_game();
-    auto unpacked_move = Move::from_int (packed_move);
+    auto unpacked_move = Move::fromInt (packed_move);
     game->move (unpacked_move);
 
     start_search();
@@ -246,9 +245,9 @@ EMSCRIPTEN_KEEPALIVE void main_thread_receive_move (int game_id, int packed_move
 {
     auto& logger = wisdom::worker::get_logger();
 
-    Move unpacked_move = Move::from_int (packed_move);
+    Move unpacked_move = Move::fromInt (packed_move);
     auto state = GameState::get_state();
-    std::string str = to_string (unpacked_move);
+    std::string str = asString (unpacked_move);
     receiveMoveFromWorker (state->game_id, str.c_str());
 }
 

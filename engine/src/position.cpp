@@ -146,12 +146,12 @@ namespace wisdom
     {
         Color opponent = color_invert (who);
 
-        Coord src = move.get_src();
-        Coord dst = move.get_dst();
+        Coord src = move.getSrc();
+        Coord dst = move.getDst();
 
         this->remove (who, src, src_piece);
 
-        switch (move.get_move_category())
+        switch (move.getMoveCategory())
         {
             case MoveCategory::Default:
                 break;
@@ -165,7 +165,7 @@ namespace wisdom
 
             case MoveCategory::EnPassant:
                 {
-                    Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
+                    Coord taken_pawn_coord = enPassantTakenPawnCoord (src, dst);
                     this->remove (
                         opponent,
                         taken_pawn_coord,
@@ -178,11 +178,11 @@ namespace wisdom
                 {
                     int8_t rook_src_row = castling_row_from_color (who);
                     auto rook_src_col = gsl::narrow_cast<int8_t> (
-                        move.is_castling_on_kingside ()
+                        move.isCastlingOnKingside()
                             ? King_Rook_Column : Queen_Rook_Column
                     );
                     auto rook_dst_col = gsl::narrow_cast<int8_t> (
-                        move.is_castling_on_kingside ()
+                        move.isCastlingOnKingside()
                             ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column
                     );
 
@@ -199,7 +199,7 @@ namespace wisdom
                 throw Error { "Invalid move type." };
         }
 
-        ColoredPiece new_piece = move.is_promoting() ? move.get_promoted_piece() : src_piece;
+        ColoredPiece new_piece = move.isPromoting() ? move.getPromotedPiece() : src_piece;
 
         this->add (who, dst, new_piece);
     }

@@ -43,7 +43,7 @@ namespace wisdom
     auto BoardBuilder::calculateCastleStateFromPosition (Color who) const
         -> CastlingEligibility
     {
-        auto row = castling_row_for_color (who);
+        auto row = castlingRowForColor (who);
         int8_t king_col = King_Column;
 
         CastlingEligibility state = CastlingEligible::EitherSideEligible;
