@@ -460,7 +460,7 @@ void GameModel::updateDisplayedGameState()
     QmlGameStatusUpdate statusManager { this };
     statusManager.update (gameState->status());
 
-    if (wisdom::is_king_threatened (board, who, board.getKingPosition (who)))
+    if (wisdom::isKingThreatened (board, who, board.getKingPosition (who)))
         setInCheck (true);
 }
 

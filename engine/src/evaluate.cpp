@@ -61,11 +61,11 @@ namespace wisdom
         score += board.getMaterial ().overall_score (who);
         score += board.getPosition ().overall_score (who);
 
-        if (is_checkmated (board, who, generator))
+        if (isCheckmated (board, who, generator))
         {
             score = -1 * checkmate_score_in_moves (moves_away);
         }
-        else if (is_checkmated (board, opponent, generator))
+        else if (isCheckmated (board, opponent, generator))
         {
             score = checkmate_score_in_moves (moves_away);
         }
@@ -79,7 +79,7 @@ namespace wisdom
     auto evaluate_without_legal_moves (const Board& board, Color who, int moves_away) -> int
     {
         auto king_coord = board.getKingPosition (who);
-        return  is_king_threatened (board, who, king_coord)
+        return isKingThreatened (board, who, king_coord)
                        ? -1 * checkmate_score_in_moves (moves_away)
                        : 0;
     }

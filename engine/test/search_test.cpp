@@ -212,8 +212,8 @@ TEST_CASE( "Bishop is not sacrificed scenario 2 (as white)" )
     INFO ("Info:", to_string (*result.move));
     auto a3_piece = game.getBoard ().pieceAt (coord_parse ("a3"));
     bool bishop_sac = a3_piece != ColoredPiece::make (Color::White, Piece::Bishop);
-    bool is_in_check = is_king_threatened (game.getBoard(), Color::Black,
-                                           game.getBoard().getKingPosition (Color::Black));
+    bool is_in_check = isKingThreatened (game.getBoard(), Color::Black,
+                                         game.getBoard().getKingPosition (Color::Black));
     bool bishop_sac_or_is_in_check = bishop_sac || is_in_check;
     REQUIRE (bishop_sac_or_is_in_check);
 }
@@ -254,7 +254,7 @@ TEST_CASE( "Checkmate is preferred to stalemate" )
     REQUIRE( result.move.has_value ());
 
     game.move (*result.move);
-    auto is_stalemate = is_stalemated (game.getBoard (), Color::White, *game.getMoveGenerator ());
+    auto is_stalemate = isStalemated (game.getBoard(), Color::White, *game.getMoveGenerator());
     CHECK( !is_stalemate );
 }
 
@@ -273,7 +273,7 @@ TEST_CASE( "Can avoid stalemate" )
 
     game.move (*result.move);
 
-    auto is_stalemate = is_stalemated (game.getBoard (), Color::White, *game.getMoveGenerator ());
+    auto is_stalemate = isStalemated (game.getBoard(), Color::White, *game.getMoveGenerator());
     CHECK( !is_stalemate );
 }
 

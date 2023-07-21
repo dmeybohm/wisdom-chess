@@ -107,7 +107,7 @@ namespace wisdom
 
             Board child_board = parent_board.withMove (side, move);
 
-            if (!is_legal_position_after_move (child_board, side, move))
+            if (!isLegalPositionAfterMove (child_board, side, move))
                 continue;
 
             my_nodes_visited++;
@@ -116,7 +116,7 @@ namespace wisdom
 
             if (depth <= 0)
             {
-                if (is_drawing_move (child_board, side, move, *my_history))
+                if (isDrawingMove (child_board, side, move, *my_history))
                 {
                     my_best_score = drawing_score (my_searching_color, side);
                 }
@@ -129,7 +129,7 @@ namespace wisdom
             else
             {
                 // Don't recurse into a big search if this move is a draw.
-                if (my_search_depth == depth && is_drawing_move (child_board, side, move, *my_history))
+                if (my_search_depth == depth && isDrawingMove (child_board, side, move, *my_history))
                 {
                     my_best_score = drawing_score (my_searching_color, side);
                 }

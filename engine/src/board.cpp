@@ -274,8 +274,8 @@ namespace wisdom
                 removeInvalidPawns (*this, last_source_row, source_col, my_squares);
             }
             // if both kings are in check, regenerate.
-        } while (is_king_threatened (*this, Color::White, my_king_pos[Color_Index_White])
-           && is_king_threatened (*this, Color::Black, my_king_pos[Color_Index_Black])
+        } while (isKingThreatened (*this, Color::White, my_king_pos[Color_Index_White])
+           && isKingThreatened (*this, Color::Black, my_king_pos[Color_Index_Black])
                 && ++iterations < 1000);
 
         if (iterations >= 1000)

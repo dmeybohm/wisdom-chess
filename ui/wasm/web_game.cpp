@@ -322,7 +322,7 @@ namespace wisdom
         auto nextStatus = my_game.status();
         update.update (nextStatus);
 
-        if (wisdom::is_king_threatened (board, who, board.getKingPosition (who)))
+        if (wisdom::isKingThreatened (board, who, board.getKingPosition (who)))
             set_in_check (true);
     }
 

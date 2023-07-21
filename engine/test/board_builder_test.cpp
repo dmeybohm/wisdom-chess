@@ -107,8 +107,8 @@ TEST_CASE( "Board can be randomized" )
     {
         auto white_king_pos = randomized_board.getKingPosition (Color::White);
         auto black_king_pos = randomized_board.getKingPosition (Color::Black);
-        auto white_in_check = is_king_threatened (randomized_board, Color::White, white_king_pos);
-        auto black_in_check = is_king_threatened (randomized_board, Color::Black, black_king_pos);
+        auto white_in_check = isKingThreatened (randomized_board, Color::White, white_king_pos);
+        auto black_in_check = isKingThreatened (randomized_board, Color::Black, black_king_pos);
 
         auto invariant = !white_in_check || !black_in_check;
         REQUIRE( invariant );

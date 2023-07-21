@@ -76,10 +76,10 @@ namespace wisdom
 
     auto Game::status () const -> GameStatus
     {
-        if (is_checkmated (my_current_board, getCurrentTurn (), *my_move_generator))
+        if (isCheckmated (my_current_board, getCurrentTurn(), *my_move_generator))
             return GameStatus::Checkmate;
 
-        if (is_stalemated (my_current_board, getCurrentTurn (), *my_move_generator))
+        if (isStalemated (my_current_board, getCurrentTurn(), *my_move_generator))
             return GameStatus::Stalemate;
 
         if (my_history->is_third_repetition (my_current_board))

@@ -405,7 +405,7 @@ namespace wisdom
         {
             Board new_board = board.withMove (who, move);
 
-            if (is_legal_position_after_move (new_board, who, move))
+            if (isLegalPositionAfterMove (new_board, who, move))
                 non_checks.push_back (move);
         }
 
