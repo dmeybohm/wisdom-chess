@@ -407,41 +407,41 @@ public:
         myParent->setGameOverStatus (stalemateStr.c_str());
     }
 
-    void insufficient_material() override
+    void insufficientMaterial() override
     {
         myParent->setGameOverStatus ("<b>Draw</b> - Insufficient material to checkmate.");
     }
 
-    void third_repetition_draw_reached() override
+    void thirdRepetitionDrawReached() override
     {
         auto gameState = getGameState();
         if (getFirstHumanPlayerColor (gameState->getPlayers()).has_value())
             myParent->setThirdRepetitionDrawStatus (GameModel::DrawStatus::Proposed);
     }
 
-    void third_repetition_draw_accepted() override
+    void thirdRepetitionDrawAccepted() override
     {
         myParent->setGameOverStatus ("<b>Draw</b> - Threefold repetition rule.");
     }
 
-    void fifth_repetition_draw() override
+    void fifthRepetitionDraw() override
     {
         myParent->setGameOverStatus ("<b>Draw</b> - Fivefold repetition rule.");
     }
 
-    void fifty_moves_without_progress_reached() override
+    void fiftyMovesWithoutProgressReached() override
     {
         auto gameState = getGameState();
         if (getFirstHumanPlayerColor (gameState->getPlayers()).has_value())
             myParent->setFiftyMovesDrawStatus (GameModel::DrawStatus::Proposed);
     }
 
-    void fifty_moves_without_progress_accepted() override
+    void fiftyMovesWithoutProgressAccepted() override
     {
         myParent->setGameOverStatus ("<b>Draw</b> - Fifty moves without progress.");
     }
 
-    void seventy_five_moves_with_no_progress() override
+    void seventyFiveMovesWithNoProgress() override
     {
         myParent->setGameOverStatus ("<b>Draw</b> - Seventy-five moves without progress.");
     }

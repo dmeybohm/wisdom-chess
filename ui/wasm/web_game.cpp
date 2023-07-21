@@ -272,37 +272,37 @@ namespace wisdom
             parent->set_game_over_status (stalemateStr);
         }
 
-        void insufficient_material() override
+        void insufficientMaterial() override
         {
             parent->set_game_over_status ("<strong>Draw</strong> - Insufficient material to checkmate.");
         }
 
-        void third_repetition_draw_reached() override
+        void thirdRepetitionDrawReached() override
         {
             // nothing
         }
 
-        void third_repetition_draw_accepted() override
+        void thirdRepetitionDrawAccepted() override
         {
             parent->set_game_over_status ("<strong>Draw</strong> - Threefold repetition rule.");
         }
 
-        void fifth_repetition_draw() override
+        void fifthRepetitionDraw() override
         {
             parent->set_game_over_status ("<strong>Draw</strong> - Fivefold repetition rule.");
         }
 
-        void fifty_moves_without_progress_reached() override
+        void fiftyMovesWithoutProgressReached() override
         {
             // nothing
         }
 
-        void fifty_moves_without_progress_accepted() override
+        void fiftyMovesWithoutProgressAccepted() override
         {
             parent->set_game_over_status ("<strong>Draw</strong> - Fifty moves without progress.");
         }
 
-        void seventy_five_moves_with_no_progress() override
+        void seventyFiveMovesWithNoProgress() override
         {
             parent->set_game_over_status ("<strong>Draw</strong> - Seventy-five moves without progress.");
         }

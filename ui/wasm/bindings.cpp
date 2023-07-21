@@ -73,34 +73,34 @@ namespace wisdom::worker
             {
             }
 
-            void insufficient_material() override
+            void insufficientMaterial() override
             {
             }
 
-            void third_repetition_draw_accepted() override
+            void thirdRepetitionDrawAccepted() override
             {
             }
 
-            void fifth_repetition_draw() override
+            void fifthRepetitionDraw() override
             {
             }
 
-            void fifty_moves_without_progress_accepted() override
+            void fiftyMovesWithoutProgressAccepted() override
             {
             }
 
-            void seventy_five_moves_with_no_progress() override
+            void seventyFiveMovesWithNoProgress() override
             {
             }
 
-            void third_repetition_draw_reached() override
+            void thirdRepetitionDrawReached() override
             {
                 auto who = my_parent->game->getCurrentTurn();
                 my_parent->handle_potential_draw_position (ProposedDrawType::ThreeFoldRepetition,
                                                            who);
             }
 
-            void fifty_moves_without_progress_reached() override
+            void fiftyMovesWithoutProgressReached() override
             {
                 auto who = my_parent->game->getCurrentTurn();
                 my_parent->handle_potential_draw_position ( ProposedDrawType::FiftyMovesWithoutProgress,

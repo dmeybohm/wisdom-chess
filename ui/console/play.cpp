@@ -124,44 +124,44 @@ namespace wisdom::ui::console
             my_input_state.command = PlayCommand::StopGame;
         }
 
-        void insufficient_material() override
+        void insufficientMaterial() override
         {
             std::cout << "Draw: Insufficient material.\n";
             my_input_state.command = PlayCommand::StopGame;
         }
 
-        void third_repetition_draw_reached() override
+        void thirdRepetitionDrawReached() override
         {
             std::string message = "Threefold repetition detected. Would you like a draw? [y/n]\n";
             handle_draw (message, ProposedDrawType::ThreeFoldRepetition);
         }
 
-        void third_repetition_draw_accepted() override
+        void thirdRepetitionDrawAccepted() override
         {
             std::cout << "Draw: threefold repetition and at least one of the players wants a draw.\n";
             my_input_state.command = PlayCommand::StopGame;
         }
 
-        void fifth_repetition_draw() override
+        void fifthRepetitionDraw() override
         {
             std::cout << "Draw: same position repeated five times.\n";
             my_input_state.command = PlayCommand::StopGame;
         }
 
-        void fifty_moves_without_progress_reached() override
+        void fiftyMovesWithoutProgressReached() override
         {
             std::string message = "Fifty moves without progress detected. Would you like a draw? [y/n]\n";
             handle_draw (message, ProposedDrawType::FiftyMovesWithoutProgress);
         }
 
-        void fifty_moves_without_progress_accepted() override
+        void fiftyMovesWithoutProgressAccepted() override
         {
             std::cout << "Draw: Fifty moves without a capture or pawn move and "
                       << "at least one player wants a draw.\n";
             my_input_state.command = PlayCommand::StopGame;
         }
 
-        void seventy_five_moves_with_no_progress() override
+        void seventyFiveMovesWithNoProgress() override
         {
             std::cout << "Draw: Seventy five moves without a capture or pawn move.\n";
             my_input_state.command = PlayCommand::StopGame;

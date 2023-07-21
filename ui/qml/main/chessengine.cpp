@@ -72,39 +72,39 @@ public:
         handleGameOver();
     }
 
-    void insufficient_material() override
+    void insufficientMaterial() override
     {
         handleGameOver();
     }
 
-    void third_repetition_draw_accepted() override
+    void thirdRepetitionDrawAccepted() override
     {
         handleGameOver();
     }
 
-    void fifth_repetition_draw() override
+    void fifthRepetitionDraw() override
     {
         handleGameOver();
     }
 
-    void fifty_moves_without_progress_accepted() override
+    void fiftyMovesWithoutProgressAccepted() override
     {
         handleGameOver();
     }
 
-    void seventy_five_moves_with_no_progress() override
+    void seventyFiveMovesWithNoProgress() override
     {
         handleGameOver();
     }
 
-    void third_repetition_draw_reached() override
+    void thirdRepetitionDrawReached() override
     {
         auto gameState = myParent->myGame->state();
         auto who = gameState->getCurrentTurn();
         myParent->handlePotentialDrawPosition(ProposedDrawType::ThreeFoldRepetition, who);
     }
 
-    void fifty_moves_without_progress_reached() override
+    void fiftyMovesWithoutProgressReached() override
     {
         auto gameState = myParent->myGame->state();
         auto who = gameState->getCurrentTurn();
