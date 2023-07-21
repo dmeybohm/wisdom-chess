@@ -1,5 +1,5 @@
-#include "board.hpp"
 #include "output_format.hpp"
+#include "board.hpp"
 #include "history.hpp"
 
 #include <fstream>
@@ -14,17 +14,16 @@ namespace wisdom
         std::ofstream file;
         file.open (filename);
         file << output << "\n";
-        file.close ();
+        file.close();
     }
 
-    void WisdomGameOutputFormat::save (const string& filename,
-                                       [[maybe_unused]] const Board& board, const History& history,
-                                       [[maybe_unused]] Color turn)
+    void WisdomGameOutputFormat::save (const string& filename, [[maybe_unused]] const Board& board,
+                                       const History& history, [[maybe_unused]] Color turn)
     {
         std::ofstream file;
         file.open (filename);
         for (auto move : history.getMoveHistory())
             file << wisdom::asString (move) << "\n";
-        file.close ();
+        file.close();
     }
 }
