@@ -1,14 +1,14 @@
-#include "global.hpp"
-#include "move.hpp"
 #include "board.hpp"
-#include "generate.hpp"
-#include "search.hpp"
-#include "piece.hpp"
 #include "check.hpp"
-#include "game.hpp"
-#include "str.hpp"
-#include "logger.hpp"
 #include "fen_parser.hpp"
+#include "game.hpp"
+#include "generate.hpp"
+#include "global.hpp"
+#include "logger.hpp"
+#include "move.hpp"
+#include "piece.hpp"
+#include "search.hpp"
+#include "str.hpp"
 
 #include <iostream>
 
@@ -39,18 +39,19 @@ namespace wisdom::ui::console
         InputState result;
         string input;
 
-        while (toupper(input[0]) != 'Y' && toupper(input[0]) != 'N')
+        while (toupper (input[0]) != 'Y' && toupper (input[0]) != 'N')
         {
             std::cout << msg;
 
-            if (!std::getline(std::cin, input))
+            if (!std::getline (std::cin, input))
                 continue;
         }
 
         return (input[0] == 'y' || input[1] == 'Y');
     }
 
-    static auto playerWantsDraw (const string& msg, Player player, Color who, Game& game, bool asked_human) -> DrawStatus
+    static auto playerWantsDraw (const string& msg, Player player, Color who, Game& game,
+                                 bool asked_human) -> DrawStatus
     {
         if (player == Player::Human)
         {
@@ -70,7 +71,8 @@ namespace wisdom::ui::console
 
         auto white_wants_draw = playerWantsDraw (msg, white_player, Color::White, game, false);
         bool asked_human = white_player == Player::Human;
-        auto black_wants_draw = playerWantsDraw (msg, game.getPlayer (Color::Black), Color::Black, game, asked_human);
+        auto black_wants_draw
+            = playerWantsDraw (msg, game.getPlayer (Color::Black), Color::Black, game, asked_human);
 
         return { white_wants_draw, black_wants_draw };
     }
@@ -134,7 +136,8 @@ namespace wisdom::ui::console
 
         void thirdRepetitionDrawAccepted() override
         {
-            std::cout << "Draw: threefold repetition and at least one of the players wants a draw.\n";
+            std::cout
+                << "Draw: threefold repetition and at least one of the players wants a draw.\n";
             my_input_state.command = PlayCommand::StopGame;
         }
 
@@ -146,7 +149,8 @@ namespace wisdom::ui::console
 
         void fiftyMovesWithoutProgressReached() override
         {
-            std::string message = "Fifty moves without progress detected. Would you like a draw? [y/n]\n";
+            std::string message
+                = "Fifty moves without progress detected. Would you like a draw? [y/n]\n";
             handleDraw (message, ProposedDrawType::FiftyMovesWithoutProgress);
         }
 
@@ -175,7 +179,8 @@ namespace wisdom::ui::console
         {
             std::cout << "[" << asString (move) << "] ";
             if (++count % 10 == 0)
-                std::cout << "\n" << "    ";
+                std::cout << "\n"
+                          << "    ";
         }
 
         std::cout << "\n\n";
@@ -196,7 +201,7 @@ namespace wisdom::ui::console
     {
         string input = prompt ("save to what file");
 
-        if (input.empty ())
+        if (input.empty())
             return;
 
         game.save (input);
@@ -206,7 +211,7 @@ namespace wisdom::ui::console
     {
         string input = prompt ("load what file");
 
-        if (input.empty ())
+        if (input.empty())
             return nullopt;
 
         return Game::load (input, current_game.getPlayers());
@@ -215,17 +220,17 @@ namespace wisdom::ui::console
     static optional<Game> loadFen (const Game& current_game)
     {
         string input = prompt ("FEN game");
-        if (input.empty ())
+        if (input.empty())
             return nullopt;
 
         try
         {
             FenParser parser { input };
-            auto game = parser.build ();
+            auto game = parser.build();
             game.setPlayers (current_game.getPlayers());
             return game;
         }
-        catch ([[maybe_unused]] FenParserError &error)
+        catch ([[maybe_unused]] FenParserError& error)
         {
             return nullopt;
         }
@@ -234,12 +239,15 @@ namespace wisdom::ui::console
     static optional<int> readInt (const std::string& prompt_value)
     {
         string input = prompt (prompt_value);
-        if (input.empty ())
+        if (input.empty())
             return nullopt;
 
-        try {
-            return std::stoi(input);
-        } catch (std::invalid_argument& e) {
+        try
+        {
+            return std::stoi (input);
+        }
+        catch (std::invalid_argument& e)
+        {
             return nullopt;
         }
     }
@@ -301,7 +309,7 @@ namespace wisdom::ui::console
         {
             auto orig_players = game.getPlayers();
             auto optional_game = loadGame (game);
-            if (optional_game.has_value ())
+            if (optional_game.has_value())
             {
                 game = std::move (*optional_game);
                 game.setPlayers (orig_players);
@@ -312,7 +320,7 @@ namespace wisdom::ui::console
         {
             auto orig_players = game.getPlayers();
             auto optional_game = loadFen (game);
-            if (optional_game.has_value ())
+            if (optional_game.has_value())
             {
                 game = std::move (*optional_game);
                 game.setPlayers (orig_players);
@@ -332,14 +340,14 @@ namespace wisdom::ui::console
         else if (input == "maxdepth")
         {
             optional<int> max_depth = readInt ("Max depth");
-            if (max_depth.has_value ())
+            if (max_depth.has_value())
                 game.setMaxDepth (*max_depth);
             return result;
         }
         else if (input == "timeout")
         {
             optional<int> search_timeout = readInt ("Search Timeout");
-            if (search_timeout.has_value ())
+            if (search_timeout.has_value())
                 game.setSearchTimeout (chrono::seconds { *search_timeout });
             return result;
         }
@@ -382,7 +390,7 @@ namespace wisdom::ui::console
 
         for (auto legal_move : moves)
         {
-            if (result.move.has_value () && moveEquals (legal_move, *result.move))
+            if (result.move.has_value() && moveEquals (legal_move, *result.move))
             {
                 result.command = PlayCommand::PlayMove;
                 break;
@@ -392,7 +400,7 @@ namespace wisdom::ui::console
         return result;
     }
 
-    void play ()
+    void play()
     {
         ConsoleGameStatusManager game_status_manager {};
 
@@ -417,14 +425,14 @@ namespace wisdom::ui::console
             if (!paused && game.getCurrentPlayer() == Player::ChessEngine)
             {
                 auto optional_move = game.findBestMove (*output);
-                if (!optional_move.has_value ())
+                if (!optional_move.has_value())
                 {
                     std::cout << "\nCouldn't find move!\n";
                     break;
                 }
 
                 input_state.move = optional_move;
-                if (input_state.move.has_value ())
+                if (input_state.move.has_value())
                     std::cout << "move selected: [" << asString (*input_state.move) << "]\n";
             }
             else
@@ -451,8 +459,8 @@ namespace wisdom::ui::console
                 std::cout << "\nInvalid move\n\n";
                 continue;
             }
-            
-            if (input_state.move.has_value ())
+
+            if (input_state.move.has_value())
                 game.move (*input_state.move);
         }
     }
