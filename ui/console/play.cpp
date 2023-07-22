@@ -34,7 +34,7 @@ namespace wisdom::ui::console
         InputState() = default;
     };
 
-    static auto human_wants_draw (const string& msg) -> bool
+    static auto humanWantsDraw (const string& msg) -> bool
     {
         InputState result;
         string input;
@@ -50,31 +50,27 @@ namespace wisdom::ui::console
         return (input[0] == 'y' || input[1] == 'Y');
     }
 
-    static auto player_wants_draw (const string& msg, Player player, Color who, Game& game, bool asked_human) -> DrawStatus
+    static auto playerWantsDraw (const string& msg, Player player, Color who, Game& game, bool asked_human) -> DrawStatus
     {
         if (player == Player::Human)
         {
             if (asked_human)
                 return DrawStatus::Declined;
 
-            return human_wants_draw (msg) ? DrawStatus::Accepted : DrawStatus::Declined;
+            return humanWantsDraw (msg) ? DrawStatus::Accepted : DrawStatus::Declined;
         }
         return game.computerWantsDraw (who) ? DrawStatus::Accepted : DrawStatus::Declined;
     }
 
     // After the third repetition, either player may request a draw.
-    static auto determine_if_drawn (const string& msg, InputState input_state, Game& game)
+    static auto determineIfDrawn (const string& msg, InputState input_state, Game& game)
         -> std::pair<DrawStatus, DrawStatus>
     {
         auto white_player = game.getPlayer (Color::White);
 
-        auto white_wants_draw = player_wants_draw (
-            msg, white_player, Color::White, game, false
-        );
+        auto white_wants_draw = playerWantsDraw (msg, white_player, Color::White, game, false);
         bool asked_human = white_player == Player::Human;
-        auto black_wants_draw = player_wants_draw (
-            msg, game.getPlayer (Color::Black), Color::Black, game, asked_human
-        );
+        auto black_wants_draw = playerWantsDraw (msg, game.getPlayer (Color::Black), Color::Black, game, asked_human);
 
         return { white_wants_draw, black_wants_draw };
     }
@@ -89,26 +85,26 @@ namespace wisdom::ui::console
         ConsoleGameStatusManager() = default;
         ~ConsoleGameStatusManager() override = default;
 
-        [[nodiscard]] auto get_input_state() & -> InputState
+        [[nodiscard]] auto getInputState() & -> InputState
         {
             return my_input_state;
         }
 
-        void set_input_state (const InputState& new_state)
+        void setInputState (const InputState& new_state)
         {
             my_input_state = new_state;
         }
 
-        [[nodiscard]] auto get_game() & -> Game&
+        [[nodiscard]] auto getGame() & -> Game&
         {
             return my_game;
         }
-        void get_game() && = delete;
+        void getGame() && = delete;
 
-        void handle_draw (const string& msg, ProposedDrawType draw_type)
+        void handleDraw (const string& msg, ProposedDrawType draw_type)
         {
             // Recursively (one-level deep) update the status again.
-            auto draw_pair = determine_if_drawn (msg, my_input_state, my_game);
+            auto draw_pair = determineIfDrawn (msg, my_input_state, my_game);
             my_game.setProposedDrawStatus (ProposedDrawType::ThreeFoldRepetition, draw_pair);
             return update (my_game.status());
         }
@@ -133,7 +129,7 @@ namespace wisdom::ui::console
         void thirdRepetitionDrawReached() override
         {
             std::string message = "Threefold repetition detected. Would you like a draw? [y/n]\n";
-            handle_draw (message, ProposedDrawType::ThreeFoldRepetition);
+            handleDraw (message, ProposedDrawType::ThreeFoldRepetition);
         }
 
         void thirdRepetitionDrawAccepted() override
@@ -151,7 +147,7 @@ namespace wisdom::ui::console
         void fiftyMovesWithoutProgressReached() override
         {
             std::string message = "Fifty moves without progress detected. Would you like a draw? [y/n]\n";
-            handle_draw (message, ProposedDrawType::FiftyMovesWithoutProgress);
+            handleDraw (message, ProposedDrawType::FiftyMovesWithoutProgress);
         }
 
         void fiftyMovesWithoutProgressAccepted() override
@@ -168,7 +164,7 @@ namespace wisdom::ui::console
         }
     };
 
-    static void print_available_moves (Game& game, MoveGenerator& generator)
+    static void printAvailableMoves (Game& game, MoveGenerator& generator)
     {
         MoveList moves = generator.generateLegalMoves (game.getBoard(), game.getCurrentTurn());
 
@@ -196,7 +192,7 @@ namespace wisdom::ui::console
         return chomp (input);
     }
 
-    static void save_game (const Game& game)
+    static void saveGame (const Game& game)
     {
         string input = prompt ("save to what file");
 
@@ -206,7 +202,7 @@ namespace wisdom::ui::console
         game.save (input);
     }
 
-    static optional<Game> load_game (const Game& current_game)
+    static optional<Game> loadGame (const Game& current_game)
     {
         string input = prompt ("load what file");
 
@@ -216,7 +212,7 @@ namespace wisdom::ui::console
         return Game::load (input, current_game.getPlayers());
     }
 
-    static optional<Game> load_fen (const Game& current_game)
+    static optional<Game> loadFen (const Game& current_game)
     {
         string input = prompt ("FEN game");
         if (input.empty ())
@@ -235,7 +231,7 @@ namespace wisdom::ui::console
         }
     }
 
-    static optional<int> read_int (const std::string& prompt_value)
+    static optional<int> readInt (const std::string& prompt_value)
     {
         string input = prompt (prompt_value);
         if (input.empty ())
@@ -248,7 +244,30 @@ namespace wisdom::ui::console
         }
     }
 
-    static InputState read_move (Game& game, MoveGenerator& move_generator)
+    static void printHelp()
+    {
+        std::cout << "\nAvailable commands:\n\n";
+        std::cout << "  moves           Display available moves\n";
+        std::cout << "  load            Load a game\n";
+        std::cout << "  save            Save a game\n";
+        std::cout << "  fen             Load a position from a FEN string\n";
+        std::cout << "  pause           Pause the computer from searching for moves\n";
+        std::cout << "  unpause         Unpause the computer from searching for moves\n";
+        std::cout << "  maxdepth        Set the maximum depth for the computer to search\n";
+        std::cout << "  timeout         Set the maximum time for the computer to search\n";
+        std::cout << "  human_white     Set the white player to human\n";
+        std::cout << "  human_black     Set the black player to human\n";
+        std::cout << "  computer_white  Set the white player to computer\n";
+        std::cout << "  computer_black  Set the black player to computer\n";
+        std::cout << "  switch          Switch the current turn to the other player.\n";
+        std::cout << "  quit\n";
+        std::cout << "  exit            Quit a game\n";
+        std::cout << "  a2c3            Move the piece at a2 to c3 (example)\n";
+        std::cout << "  a2xc3           Take the piece at c3 with the piece on a2 (example)\n";
+        std::cout << "\n\n";
+    }
+
+    static InputState readMove (Game& game, MoveGenerator& move_generator)
     {
         InputState result;
         string input;
@@ -263,20 +282,25 @@ namespace wisdom::ui::console
 
         input = chomp (input);
 
-        if (input == "moves")
+        if (input == "help")
         {
-            print_available_moves (game, move_generator);
+            printHelp();
+            return result;
+        }
+        else if (input == "moves")
+        {
+            printAvailableMoves (game, move_generator);
             return result;
         }
         else if (input == "save")
         {
-            save_game (game);
+            saveGame (game);
             return result;
         }
         else if (input == "load")
         {
             auto orig_players = game.getPlayers();
-            auto optional_game = load_game (game);
+            auto optional_game = loadGame (game);
             if (optional_game.has_value ())
             {
                 game = std::move (*optional_game);
@@ -287,7 +311,7 @@ namespace wisdom::ui::console
         else if (input == "fen")
         {
             auto orig_players = game.getPlayers();
-            auto optional_game = load_fen (game);
+            auto optional_game = loadFen (game);
             if (optional_game.has_value ())
             {
                 game = std::move (*optional_game);
@@ -307,14 +331,14 @@ namespace wisdom::ui::console
         }
         else if (input == "maxdepth")
         {
-            optional<int> max_depth = read_int ("Max depth");
+            optional<int> max_depth = readInt ("Max depth");
             if (max_depth.has_value ())
                 game.setMaxDepth (*max_depth);
             return result;
         }
         else if (input == "timeout")
         {
-            optional<int> search_timeout = read_int ("Search Timeout");
+            optional<int> search_timeout = readInt ("Search Timeout");
             if (search_timeout.has_value ())
                 game.setSearchTimeout (chrono::seconds { *search_timeout });
             return result;
@@ -379,13 +403,13 @@ namespace wisdom::ui::console
 
         while (true)
         {
-            auto& game = game_status_manager.get_game ();
-            game_status_manager.set_input_state (initial_input_state);
+            auto& game = game_status_manager.getGame();
+            game_status_manager.setInputState (initial_input_state);
 
             game.getBoard().print();
 
             game_status_manager.update (game.status());
-            auto input_state = game_status_manager.get_input_state();
+            auto input_state = game_status_manager.getInputState();
 
             if (input_state.command == PlayCommand::StopGame)
                 break;
@@ -405,7 +429,7 @@ namespace wisdom::ui::console
             }
             else
             {
-                input_state = read_move (game, move_generator);
+                input_state = readMove (game, move_generator);
 
                 if (input_state.command == PlayCommand::StopGame)
                     break;
