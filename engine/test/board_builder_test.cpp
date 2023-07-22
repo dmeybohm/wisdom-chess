@@ -86,12 +86,12 @@ TEST_CASE( "Board can be randomized" )
 
     randomized_board.randomizePositions ();
 
-    SUBCASE("Board code is not the same as the default" )
+    SUBCASE( "Board code is not the same as the default" )
     {
         REQUIRE( default_board.getCode () != randomized_board.getCode () );
     }
 
-    SUBCASE("None of the pawns are in the back row" )
+    SUBCASE( "None of the pawns are in the back row" )
     {
         for (int8_t col = 0; col < Num_Columns; col++)
         {
@@ -103,7 +103,7 @@ TEST_CASE( "Board can be randomized" )
         }
     }
 
-    SUBCASE("Both kings are not in check" )
+    SUBCASE( "Both kings are not in check" )
     {
         auto white_king_pos = randomized_board.getKingPosition (Color::White);
         auto black_king_pos = randomized_board.getKingPosition (Color::Black);

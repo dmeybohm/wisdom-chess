@@ -16,10 +16,10 @@ namespace wisdom::worker
         void debug (const std::string& output) const override;
         void info (const std::string& output) const override;
 
-        static void console_log (const char* str);
+        static void consoleLog (const char* str);
     };
 
-    [[nodiscard]] inline auto get_logger() -> const WebLogger&
+    [[nodiscard]] inline auto getLogger() -> const WebLogger&
     {
         using namespace wisdom;
         static std::unique_ptr<WebLogger> worker_logger = std::make_unique<WebLogger>();

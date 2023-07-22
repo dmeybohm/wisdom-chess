@@ -11,8 +11,8 @@ namespace wisdom
         GameSettings() = default;
 
         GameSettings (int whitePlayer, int blackPlayer, int thinkingTime_, int searchDepth_)
-            : whitePlayer { map_player (map_player (whitePlayer)) }
-            , blackPlayer { map_player (map_player (blackPlayer)) }
+            : whitePlayer { mapPlayer (mapPlayer (whitePlayer)) }
+            , blackPlayer { mapPlayer (mapPlayer (blackPlayer)) }
             , thinkingTime { thinkingTime_ }
             , searchDepth { searchDepth_ }
         {}
@@ -36,16 +36,16 @@ namespace wisdom
         int searchDepth = 3;
 
 
-        [[nodiscard]] static auto map_human_depth_to_computer_depth (int human_depth) -> int
+        [[nodiscard]] static auto mapHumanDepthToComputerDepth (int human_depth) -> int
         {
             return human_depth * 2 - 1;
         }
 
-        void apply_to_game (observer_ptr<wisdom::Game> game) const
+        void applyToGame (observer_ptr<wisdom::Game> game) const
         {
             game->setSearchTimeout (std::chrono::seconds { thinkingTime });
-            game->setMaxDepth (GameSettings::map_human_depth_to_computer_depth (searchDepth));
-            game->setPlayers ({ map_player (whitePlayer), map_player (blackPlayer) });
+            game->setMaxDepth (GameSettings::mapHumanDepthToComputerDepth (searchDepth));
+            game->setPlayers ({ mapPlayer (whitePlayer), mapPlayer (blackPlayer) });
         }
     };
 };

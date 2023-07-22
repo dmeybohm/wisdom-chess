@@ -106,7 +106,7 @@ TEST_CASE( "board code")
         REQUIRE( initial != code );
     }
 
-    SUBCASE("Promoting+Capturing moves are applied and undone correctly")
+    SUBCASE( "Promoting+Capturing moves are applied and undone correctly")
     {
         BoardBuilder builder;
 
