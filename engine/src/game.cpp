@@ -75,15 +75,15 @@ namespace wisdom
     void Game::save (const string& input) const
     {
         OutputFormat& output = makeOutputFormat (input);
-        output.save (input, my_current_board, *my_history, getCurrentTurn ());
+        output.save (input, my_current_board, my_history, getCurrentTurn ());
     }
 
     auto Game::status () const -> GameStatus
     {
-        if (isCheckmated (my_current_board, getCurrentTurn(), *my_move_generator))
+        if (isCheckmated (my_current_board, getCurrentTurn(), my_move_generator))
             return GameStatus::Checkmate;
 
-        if (isStalemated (my_current_board, getCurrentTurn(), *my_move_generator))
+        if (isStalemated (my_current_board, getCurrentTurn(), my_move_generator))
             return GameStatus::Stalemate;
 
         if (my_history.isThirdRepetition (my_current_board))
@@ -199,7 +199,7 @@ namespace wisdom
         return my_current_board;
     }
 
-    auto Game::getHistory() const& -> History&
+    auto Game::getHistory() & -> History&
     {
         return my_history;
     }
@@ -228,13 +228,13 @@ namespace wisdom
         return accepted ? DrawStatus::Accepted : DrawStatus::Declined;
     }
 
-    void Game::update_threefold_repetition_draw_status()
+    void Game::updateThreefoldRepetitionDrawStatus()
     {
         auto status = drawDesiresToRepetitionStatus (my_third_repetition_draw);
         my_history.setThreefoldRepetitionStatus (status);
     }
 
-    void Game::update_fifty_moves_without_progress_draw_status()
+    void Game::updateFiftyMovesWithoutProgressDrawStatus()
     {
         auto status = drawDesiresToRepetitionStatus (my_fifty_moves_without_progress_draw);
         my_history.setFiftyMovesWithoutProgressStatus (status);
@@ -248,13 +248,13 @@ namespace wisdom
             case ProposedDrawType::ThreeFoldRepetition:
                 my_third_repetition_draw = updateDrawStatus (my_third_repetition_draw, who, draw_status);
                 if (bothPlayersReplied (my_third_repetition_draw))
-                    update_threefold_repetition_draw_status ();
+                    updateThreefoldRepetitionDrawStatus();
                 break;
 
             case ProposedDrawType::FiftyMovesWithoutProgress:
                 my_fifty_moves_without_progress_draw = updateDrawStatus (my_fifty_moves_without_progress_draw, who, draw_status);
                 if (bothPlayersReplied (my_fifty_moves_without_progress_draw))
-                    update_fifty_moves_without_progress_draw_status ();
+                    updateFiftyMovesWithoutProgressDrawStatus();
                 break;
         }
     }

@@ -77,7 +77,7 @@ namespace wisdom
         }
     }
 
-    auto MoveGenerator::generateKnightMoves (int row, int col) -> const MoveList&
+    auto MoveGenerator::generateKnightMoves (int row, int col) const -> const MoveList&
     {
         auto index = coordIndex (row, col);
 
@@ -87,7 +87,7 @@ namespace wisdom
         return *my_knight_moves[index];
     }
 
-    static auto is_pawn_unmoved (const Board &board, int row, int col) -> bool
+    static auto isPawnUnmoved (const Board &board, int row, int col) -> bool
     {
         ColoredPiece piece = board.pieceAt (row, col);
 
@@ -309,7 +309,7 @@ namespace wisdom
             all_pawn_moves[0] = Move::make (piece_row, piece_col, row, piece_col);
 
         // double move
-        if (is_pawn_unmoved (board, piece_row, piece_col))
+        if (isPawnUnmoved (board, piece_row, piece_col))
         {
             int double_row = nextRow (row, dir);
 

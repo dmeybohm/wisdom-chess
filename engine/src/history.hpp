@@ -38,7 +38,8 @@ namespace wisdom
     [[nodiscard]] constexpr auto bothPlayersReplied (BothPlayersDrawStatus both_players_status)
         -> bool
     {
-        return drawStatusIsReplied (both_players_status.first) && drawStatusIsReplied (both_players_status.second);
+        return drawStatusIsReplied (both_players_status.first) &&
+            drawStatusIsReplied (both_players_status.second);
     }
 
     class History
@@ -52,15 +53,15 @@ namespace wisdom
         static auto fromInitialBoard (const Board& board)
         {
             auto result = History {};
-            result.my_board_codes.emplace_back (board.get_board_code());
+            result.my_board_codes.emplace_back (board.getBoardCode());
             result.my_stored_boards.emplace_back (board);
             return result;
         }
 
-        [[nodiscard]] static auto hasBeenXHalfMovesWithoutProgress (const Board& board, int x)
+        [[nodiscard]] static auto hasBeenXHalfMovesWithoutProgress (const Board& board, int x_half_moves)
             -> bool
         {
-            return board.getHalfMoveClock () >= x;
+            return board.getHalfMoveClock () >= x_half_moves;
         }
 
         [[nodiscard]] static auto hasBeenSeventyFiveMovesWithoutProgress (
@@ -89,27 +90,27 @@ namespace wisdom
             return repetitions >= repetition_count;
         }
 
-        void add_tentative_position (const Board& board)
+        void addTentativePosition (const Board& board)
         {
-            my_board_codes.emplace_back (board.get_board_code());
+            my_board_codes.emplace_back (board.getBoardCode());
             my_tentative_nesting_count++;
         }
 
-        void remove_last_tentative_position()
+        void removeLastTentativePosition()
         {
             my_board_codes.pop_back ();
             my_tentative_nesting_count--;
         }
 
-        void store_position (const Board& board, Move move)
+        void storePosition (const Board& board, Move move)
         {
             Expects (my_tentative_nesting_count == 0);
             my_stored_boards.emplace_back (board);
-            my_board_codes.emplace_back (board.get_board_code());
+            my_board_codes.emplace_back (board.getBoardCode());
             my_move_history.push_back (move);
         }
 
-        void pop_last_position()
+        void popLastPosition()
         {
             my_stored_boards.pop_back();
             my_board_codes.pop_back();
@@ -132,7 +133,7 @@ namespace wisdom
             my_threefold_repetition_status = status;
         }
 
-        [[nodiscard]] auto getFiftyMovesWithoutProgress() const
+        [[nodiscard]] auto getFiftyMovesWithoutProgressStatus() const
             -> DrawStatus
         {
             return my_fifty_moves_without_progress_status;

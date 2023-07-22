@@ -113,11 +113,11 @@ namespace wisdom
 
             my_nodes_visited++;
 
-            my_history.add_tentative_position (child_board);
+            my_history.addTentativePosition (child_board);
 
             if (depth <= 0)
             {
-                if (isDrawingMove (child_board, side, move, *my_history))
+                if (isDrawingMove (child_board, side, move, my_history))
                 {
                     my_best_score = drawingScore (my_searching_color, side);
                 }
@@ -152,7 +152,7 @@ namespace wisdom
             if (best_score > alpha)
                 alpha = best_score;
 
-            my_history.remove_last_tentative_position();
+            my_history.removeLastTentativePosition();
 
             if (my_timed_out)
                 return;

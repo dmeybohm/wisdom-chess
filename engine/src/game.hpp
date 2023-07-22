@@ -67,11 +67,11 @@ namespace wisdom
         [[nodiscard]] auto getBoard () const& -> const Board&;
         [[nodiscard]] auto getBoard () const&& -> Board& = delete;
 
-        [[nodiscard]] auto getHistory () const& -> History&;
-        [[nodiscard]] auto getHistory () const&& -> History& = delete;
+        [[nodiscard]] auto getHistory () & -> History&;
+        [[nodiscard]] auto getHistory () && -> History& = delete;
 
-        [[nodiscard]] auto getMoveGenerator () const& -> not_null<MoveGenerator*>;
-        [[nodiscard]] auto getMoveGenerator () const&& -> not_null<MoveGenerator*> = delete;
+        [[nodiscard]] auto getMoveGenerator () const& -> MoveGenerator&;
+        [[nodiscard]] auto getMoveGenerator () const&& -> MoveGenerator& = delete;
 
         [[nodiscard]] auto getCurrentPlayer () const -> Player
         {
@@ -168,8 +168,8 @@ namespace wisdom
             DrawStatus::NotReached
         };
 
-        void update_threefold_repetition_draw_status();
-        void update_fifty_moves_without_progress_draw_status();
+        void updateThreefoldRepetitionDrawStatus();
+        void updateFiftyMovesWithoutProgressDrawStatus();
     };
 }
 
