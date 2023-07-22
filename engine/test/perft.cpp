@@ -1,18 +1,17 @@
 #include "perft.hpp"
 #include "board.hpp"
 #include "check.hpp"
-#include "move.hpp"
-#include "piece.hpp"
 #include "str.hpp"
 
 namespace wisdom
 {
     using wisdom::perft::MoveCounter;
     using wisdom::perft::Stats;
-    using wisdom::perft::to_move_list;
+    using wisdom::perft::toMoveList;
 
-    void Stats::search_moves (const Board& board, Color side, int depth, int max_depth, // NOLINT(misc-no-recursion)
-                              MoveGenerator& generator)
+    void Stats::searchMoves (const wisdom::Board& board, wisdom::Color side, int depth,
+                             int max_depth, // NOLINT(misc-no-recursion)
+                             MoveGenerator& generator)
     {
         if (depth >= max_depth)
             return;
@@ -38,14 +37,13 @@ namespace wisdom
                     counters.en_passants++;
             }
 
-            search_moves (new_board, colorInvert (side),
-                          depth + 1, max_depth, generator);
+            searchMoves (new_board, colorInvert (side), depth + 1, max_depth, generator);
         }
     }
 
-    auto wisdom::perft::convert_move (const Board& board, Color who, string move_str) -> Move
+    auto wisdom::perft::convertMove (const Board& board, Color who, string move_str) -> Move
     {
-        if (move_str.size () != 4 && move_str.size () != 5)
+        if (move_str.size() != 4 && move_str.size() != 5)
             throw wisdom::Error { "Invalid size of move" };
 
         // parse the move into the coordinates
@@ -53,7 +51,7 @@ namespace wisdom
         auto dst = wisdom::coordParse (move_str.substr (2, 2));
 
         auto promoted = Piece_And_Color_None;
-        if (move_str.size () == 5)
+        if (move_str.size() == 5)
         {
             auto promoted_type = pieceFromChar (move_str[4]);
             promoted = ColoredPiece::make (who, promoted_type);
@@ -91,17 +89,17 @@ namespace wisdom
         if (dst_piece != Piece_And_Color_None)
             result = result.withCapture();
 
-        // 4. Promotions are not in parenthesis
+        // 4. Promotions are not in parentheses
         if (promoted != Piece_And_Color_None)
             result = result.withPromotion (promoted);
 
         return result;
     }
 
-    auto wisdom::perft::to_move_list (const Board& board, Color who, const string& move_list)
+    auto wisdom::perft::toMoveList (const wisdom::Board& board, Color who, const string& move_list)
         -> MoveList
     {
-        MoveList result = MoveList::uncached ();
+        MoveList result = MoveList::uncached();
 
         // Make a copy of the board for modifications:
         auto board_copy = board;
@@ -110,7 +108,7 @@ namespace wisdom
 
         for (const auto& move_str : moves_str_list)
         {
-            auto move = convert_move (board_copy, who, move_str);
+            auto move = convertMove (board_copy, who, move_str);
             board_copy = board_copy.withMove (who, move);
             who = colorInvert (who);
             result.pushBack (move);
@@ -119,14 +117,14 @@ namespace wisdom
         return result;
     }
 
-    auto wisdom::perft::to_perft_move (const Move& move, Color who) -> string
+    auto wisdom::perft::toPerftMove (const Move& move, Color who) -> string
     {
         if (move.isCastling())
         {
             auto row = who == Color::White ? Last_Row : First_Row;
             auto src_col = King_Column;
             auto dst_col = move.isCastlingOnKingside() ? Kingside_Castled_King_Column
-                                                           : Queenside_Castled_King_Column;
+                                                       : Queenside_Castled_King_Column;
 
             Move normal = wisdom::Move::make (row, src_col, row, dst_col);
             return wisdom::asString (normal.getSrc()) + wisdom::asString (normal.getDst());
@@ -148,9 +146,8 @@ namespace wisdom
         return wisdom::asString (move.getSrc()) + wisdom::asString (move.getDst());
     }
 
-    auto wisdom::perft::perft_results (const Board& board, Color active_player, int depth,
-                                       wisdom::MoveGenerator& generator)
-        -> PerftResults
+    auto wisdom::perft::perftResults (const Board& board, Color active_player, int depth,
+                                      MoveGenerator& generator) -> PerftResults
     {
         wisdom::perft::PerftResults results;
         Stats cumulative;
@@ -167,9 +164,9 @@ namespace wisdom
             if (!wisdom::isLegalPositionAfterMove (new_board, active_player, move))
                 continue;
 
-            stats.search_moves (new_board, next_player, 1, depth, generator);
+            stats.searchMoves (new_board, next_player, 1, depth, generator);
 
-            auto perft_move = wisdom::perft::to_perft_move (move, active_player);
+            auto perft_move = wisdom::perft::toPerftMove (move, active_player);
             results.move_results.push_back ({ stats.counters.nodes, perft_move });
 
             cumulative += stats;
@@ -179,7 +176,7 @@ namespace wisdom
         return results;
     }
 
-    auto wisdom::perft::apply_list (Board& board, Color color, const MoveList& list) -> Color
+    auto wisdom::perft::applyList (Board& board, Color color, const MoveList& list) -> Color
     {
         for (auto& move : list)
         {
@@ -190,7 +187,7 @@ namespace wisdom
         return color;
     }
 
-    auto wisdom::perft::to_string (const PerftResults& perft_results) -> string
+    auto wisdom::perft::asString (const PerftResults& perft_results) -> string
     {
         string output;
 
