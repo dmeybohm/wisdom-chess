@@ -29,38 +29,38 @@ TEST_CASE( "Third repetition is detected" )
 
         // Record initial position. we don't care about move here.
         Move initial_move = moveParse ("d8 e8");
-        history.addPositionAndMove (&board, initial_move);
+        history.add_tentative_position (board);
 
         board = board.withMove (Color::White, white_move);
-        history.addPositionAndMove (&board, white_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::Black, black_move);
-        history.addPositionAndMove (&board, black_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::White, white_return_move);
-        history.addPositionAndMove (&board, white_return_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::Black, black_return_move);
-        history.addPositionAndMove (&board, black_return_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::White, white_move);
-        history.addPositionAndMove (&board, white_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::Black, black_move);
-        history.addPositionAndMove (&board, black_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::White, white_return_move);
-        history.addPositionAndMove (&board, white_return_move);
+        history.add_tentative_position (&board, white_return_move);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::Black, black_return_move);
-        history.addPositionAndMove (&board, black_return_move);
+        history.add_position_and_move (&board, black_return_move);
 
         REQUIRE( history.isThirdRepetition (board) == true );
     }
@@ -86,42 +86,42 @@ TEST_CASE( "Third repetition is detected" )
         // Record initial position. we don't care about move here.
         Move initial_move = moveParse ("e7 e5");
         board = board.withMove (Color::Black, initial_move);
-        history.addPositionAndMove (&board, initial_move);
+        history.add_tentative_position (board);
 
         board = board.withMove (Color::White, white_move);
-        history.addPositionAndMove (&board, white_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::Black, black_move);
-        history.addPositionAndMove (&board, black_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::White, white_return_move);
-        history.addPositionAndMove (&board, white_return_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::Black, black_return_move);
-        history.addPositionAndMove (&board, black_return_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::White, white_move);
-        history.addPositionAndMove (&board, white_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::Black, black_move);
-        history.addPositionAndMove (&board, black_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::White, white_return_move);
-        history.addPositionAndMove (&board, white_return_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::Black, black_return_move);
-        history.addPositionAndMove (&board, black_return_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::White, white_move);
-        history.addPositionAndMove (&board, white_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == true );
     }
 
@@ -134,13 +134,11 @@ TEST_CASE( "Third repetition is detected" )
         Move initial_black_pawn_move = moveParse ("e7 e5");
 
         board = board.withMove (Color::White, initial_white_pawn_move);
-        history.addPositionAndMove (&board, initial_white_pawn_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::Black, initial_black_pawn_move);
-        history.addPositionAndMove (&board, initial_black_pawn_move);
-        REQUIRE( history.isThirdRepetition (board) == false );
-
+        history.add_tentative_position (board);
         Move white_move = moveParse ("e1 e2");
         Move white_return_move = moveParse ("e2 e1");
 
@@ -148,39 +146,39 @@ TEST_CASE( "Third repetition is detected" )
         Move black_return_move = moveParse ("e7 e8");
 
         board = board.withMove (Color::White, white_move);
-        history.addPositionAndMove (&board, white_move);
+        history.add_tentative_position (board);
         REQUIRE (history.isThirdRepetition (board) == false);
 
         // This is the initial draw position, because both castle states are reset here:
         board = board.withMove (Color::Black, black_move);
-        history.addPositionAndMove (&board, black_move);
+        history.add_tentative_position (board);
         REQUIRE (history.isThirdRepetition (board) == false);
 
         for (int i = 0; i < 2; i++)
         {
             board = board.withMove (Color::White, white_return_move);
-            history.addPositionAndMove (&board, white_return_move);
+            history.add_tentative_position (board);
             REQUIRE (history.isThirdRepetition (board) == false);
 
             board = board.withMove (Color::Black, black_return_move);
-            history.addPositionAndMove (&board, black_return_move);
+            history.add_tentative_position (board);
             REQUIRE (history.isThirdRepetition (board) == false);
 
             board = board.withMove (Color::White, white_move);
-            history.addPositionAndMove (&board, white_move);
+            history.add_tentative_position (board);
             REQUIRE (history.isThirdRepetition (board) == false);
 
             if (i == 1)
                 break;
 
             board = board.withMove (Color::Black, black_move);
-            history.addPositionAndMove (&board, black_move);
+            history.add_tentative_position (board);
             REQUIRE (history.isThirdRepetition (board) == false);
         }
 
         REQUIRE( history.isThirdRepetition (board) == false );
         board = board.withMove (Color::Black, black_move);
-        history.addPositionAndMove (&board, black_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == true );
     }
 
@@ -193,11 +191,11 @@ TEST_CASE( "Third repetition is detected" )
         Move initial_black_pawn_move = moveParse ("e7 e5");
 
         board = board.withMove (Color::White, initial_white_pawn_move);
-        history.addPositionAndMove (&board, initial_white_pawn_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         board = board.withMove (Color::Black, initial_black_pawn_move);
-        history.addPositionAndMove (&board, initial_black_pawn_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == false );
 
         Move white_move = moveParse ("f1 e2");
@@ -209,25 +207,25 @@ TEST_CASE( "Third repetition is detected" )
         for (int i = 0; i < 2; i++)
         {
             board = board.withMove (Color::White, white_move);
-            history.addPositionAndMove (&board, white_move);
+            history.add_tentative_position (board);
             REQUIRE (history.isThirdRepetition (board) == false);
 
             board = board.withMove (Color::Black, black_move);
-            history.addPositionAndMove (&board, black_move);
+            history.add_tentative_position (board);
             REQUIRE (history.isThirdRepetition (board) == false);
 
             board = board.withMove (Color::White, white_return_move);
-            history.addPositionAndMove (&board, white_return_move);
+            history.add_tentative_position (board);
             REQUIRE (history.isThirdRepetition (board) == false);
 
             board = board.withMove (Color::Black, black_return_move);
-            history.addPositionAndMove (&board, black_return_move);
+            history.add_tentative_position (board);
             REQUIRE (history.isThirdRepetition (board) == false);
         }
 
         REQUIRE( history.isThirdRepetition (board) == false );
         board = board.withMove (Color::White, white_move);
-        history.addPositionAndMove (&board, white_move);
+        history.add_tentative_position (board);
         REQUIRE( history.isThirdRepetition (board) == true );
     }
 }

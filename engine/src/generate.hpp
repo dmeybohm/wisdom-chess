@@ -21,20 +21,20 @@ namespace wisdom
     class MoveGenerator final
     {
     private:
-        unique_ptr<MoveListAllocator> my_move_list_allocator = MoveListAllocator::makeUnique();
-        array<unique_ptr<MoveList>, Num_Squares> my_knight_moves {};
+        mutable unique_ptr<MoveListAllocator> my_move_list_allocator = MoveListAllocator::makeUnique ();
+        mutable array<unique_ptr<MoveList>, Num_Squares> my_knight_moves {};
 
-        void knightMoveListInit();
+        void knightMoveListInit() const;
 
-        [[nodiscard]] auto generateKnightMoves (int row, int col) -> const MoveList&;
+        [[nodiscard]] auto generateKnightMoves (int row, int col) const -> const MoveList&;
 
     public:
         MoveGenerator () = default;
 
-        [[nodiscard]] auto generateAllPotentialMoves (const Board& board, Color who)
+        [[nodiscard]] auto generateAllPotentialMoves (const Board& board, Color who) const
             -> MoveList;
 
-        [[nodiscard]] auto generateLegalMoves (const Board& board, Color who)
+        [[nodiscard]] auto generateLegalMoves (const Board& board, Color who) const
             -> MoveList;
 
         friend class MoveGeneration;

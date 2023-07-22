@@ -85,8 +85,8 @@ namespace wisdom
         }
 
         auto who = my_game.getCurrentTurn();
-        auto generator = my_game.getMoveGenerator();
-        auto legalMoves = generator->generateLegalMoves (my_game.getBoard(), who);
+        auto& generator = my_game.getMoveGenerator();
+        auto legalMoves = generator.generateLegalMoves (my_game.getBoard(), who);
 
         auto result = std::any_of (legalMoves.cbegin(), legalMoves.cend(),
                                    [selectedMove] (const auto& move)

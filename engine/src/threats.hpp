@@ -23,15 +23,13 @@ namespace wisdom
         Color my_king_color;
         int my_king_row;
         int my_king_col;
-        int my_pawn_direction;
 
         InlineThreats (const Board& board, Color king_color, Coord king_coord)
             : my_board { board },
                 my_opponent { colorInvert (king_color) },
                 my_king_color { king_color },
                 my_king_row { Row (king_coord) },
-                my_king_col { Column (king_coord) },
-                my_pawn_direction { pawnDirection (king_color) }
+                my_king_col { Column (king_coord) }
         {
         }
 
@@ -53,8 +51,6 @@ namespace wisdom
         constexpr auto checkLaneThreats (int target_row, int target_col)
             -> ThreatStatus
         {
-            ThreatStatus result {};
-
             ColoredPiece piece = my_board.pieceAt (target_row, target_col);
             auto type = pieceType (piece);
             auto target_color = pieceColor (piece);
@@ -69,7 +65,7 @@ namespace wisdom
 
             // If the check is blocked, revert to the king position itself
             // for the calculation to avoid any branching.
-            result = has_threatening_piece ? ThreatStatus::Threatened :
+            ThreatStatus result = has_threatening_piece ? ThreatStatus::Threatened :
                 type != Piece::None ? ThreatStatus::Blocked :
                                     ThreatStatus::None;
 
@@ -131,7 +127,7 @@ namespace wisdom
         }
 
         template <int row_dir, int col_dir>
-        int check_knight ()
+        int checkKnight()
         {
             int starting_row = my_king_row + row_dir;
             int starting_col = my_king_col + col_dir;
@@ -192,17 +188,17 @@ namespace wisdom
             }
         }
 
-        int knight()
+        bool knight()
         {
-            return check_knight<-1, 0> ()
-                || check_knight<0, +1> ()
-                || check_knight<+1, 0> ()
-                || check_knight<0, -1> ();
+            return checkKnight<-1, 0>()
+                || checkKnight<0, +1>()
+                || checkKnight<+1, 0>()
+                || checkKnight<0, -1>();
         }
 
         bool pawn()
         {
-            int r_dir = pawnDirection<int> (my_king_color);
+            int r_dir = pawnDirection<int>(my_king_color);
             int left_col = my_king_col - 1;
             int right_col = my_king_col + 1;
             int target_row = my_king_row + r_dir;
@@ -332,7 +328,7 @@ namespace wisdom
         }
 
         // Check a diagonal for any bishop / queen threats.
-        bool diagonal ()
+        bool diagonal()
         {
             return
                 // northwest:

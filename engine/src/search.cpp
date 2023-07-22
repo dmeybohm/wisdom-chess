@@ -14,9 +14,33 @@ namespace wisdom
 
     class IterativeSearchImpl
     {
+    public:
+        IterativeSearchImpl (const Board& board, const History& history, const Logger& output,
+                             MoveTimer timer, int total_depth) :
+            my_original_board { Board { board } },
+            my_history { History { history } },
+            my_output { &output },
+            my_timer { std::move (timer) },
+            my_total_depth { total_depth }
+        {
+        }
+
+        void iterativelyDeepen (Color side);
+
+        void iterate (Color side, int depth);
+
+        void search (const Board& parent_board, Color side, int depth, int alpha, int beta);
+
+        [[nodiscard]] auto synthesizeResult() const -> SearchResult;
+
+        [[nodiscard]] auto moveTimer() const -> not_null<const MoveTimer*>
+        {
+            return &my_timer;
+        }
+
     private:
         Board my_original_board;
-        observer_ptr<History> my_history;
+        History my_history;
         not_null<observer_ptr<const Logger>> my_output;
         MoveGenerator my_generator {};
         MoveTimer my_timer;
@@ -34,33 +58,10 @@ namespace wisdom
         int my_total_alpha_beta_cutoffs = 0;
         Color my_searching_color = Color::None;
 
-    public:
-        IterativeSearchImpl (const Board& board, History& history, const Logger& output,
-                             MoveTimer timer, int total_depth) :
-                my_original_board { Board { board } },
-                my_history { &history },
-                my_output { &output },
-                my_timer { std::move (timer) },
-                my_total_depth { total_depth }
-        {
-        }
-
-        void iterativelyDeepen (Color side);
-
-        void iterate (Color side, int depth);
-
-        void search (const Board& parent_board, Color side, int depth, int alpha, int beta);
-
-        [[nodiscard]] auto synthesizeResult() const -> SearchResult;
-
-        [[nodiscard]] auto moveTimer() const -> not_null<const MoveTimer*>
-        {
-            return &my_timer;
-        }
     };
 
     IterativeSearch::~IterativeSearch() = default;
-    IterativeSearch::IterativeSearch (const Board& board, History& history, const Logger& output,
+    IterativeSearch::IterativeSearch (const Board& board, const History& history, const Logger& output,
                                       MoveTimer timer, int total_depth)
             : impl { make_unique<IterativeSearchImpl> (
                 Board { board }, history, output, std::move (timer), total_depth) }
@@ -112,7 +113,7 @@ namespace wisdom
 
             my_nodes_visited++;
 
-            my_history->addPositionAndMove (&child_board, move);
+            my_history.add_tentative_position (child_board);
 
             if (depth <= 0)
             {
@@ -129,7 +130,7 @@ namespace wisdom
             else
             {
                 // Don't recurse into a big search if this move is a draw.
-                if (my_search_depth == depth && isDrawingMove (child_board, side, move, *my_history))
+                if (my_search_depth == depth && isDrawingMove (child_board, side, move, my_history))
                 {
                     my_best_score = drawingScore (my_searching_color, side);
                 }
@@ -151,7 +152,7 @@ namespace wisdom
             if (best_score > alpha)
                 alpha = best_score;
 
-            my_history->removeLastPosition();
+            my_history.remove_last_tentative_position();
 
             if (my_timed_out)
                 return;
@@ -223,10 +224,6 @@ namespace wisdom
             std::cerr << "Uncaught error: " << e.message () << "\n";
             std::cerr << e.extra_info () << "\n";
             my_original_board.dump ();
-
-            std::cerr << "History leading up to move: " << "\n";
-            std::cerr << my_history->getMoveHistory().asString() << "\n";
-            std::terminate ();
         }
     }
 

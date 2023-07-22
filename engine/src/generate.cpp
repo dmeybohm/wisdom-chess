@@ -12,7 +12,7 @@ namespace wisdom
         int piece_row;
         int piece_col;
         const Color who;
-        MoveGenerator& generator;
+        const MoveGenerator& generator;
 
         void generate (ColoredPiece piece, Coord coord);
 
@@ -44,7 +44,7 @@ namespace wisdom
         }
     }
 
-    void MoveGenerator::knightMoveListInit()
+    void MoveGenerator::knightMoveListInit() const
     {
         for (auto coord : CoordIterator {})
         {
@@ -393,7 +393,7 @@ namespace wisdom
         appendMove (new_move);
     }
 
-    auto MoveGenerator::generateLegalMoves (const Board& board, Color who) -> MoveList
+    auto MoveGenerator::generateLegalMoves (const Board& board, Color who) const -> MoveList
     {
         MoveList non_checks { my_move_list_allocator.get () };
 
@@ -516,13 +516,13 @@ namespace wisdom
             return promotingOrCoordCompare (a, b);
     }
 
-    auto MoveGenerator::generateAllPotentialMoves (const Board& board, Color who)
+    auto MoveGenerator::generateAllPotentialMoves (const Board& board, Color who) const
         -> MoveList
     {
         MoveList result { my_move_list_allocator.get () };
         MoveGeneration generation { board, result, 0, 0, who, *this };
 
-        for (auto coord : board.allCoords ())
+        for (auto coord : board.allCoords())
         {
             ColoredPiece piece = board.pieceAt (coord);
 

@@ -45,10 +45,16 @@ namespace wisdom
     {
     public:
         History()
-            : my_move_history { MoveList::uncached() }
         {
             my_board_codes.reserve (64);
-            my_previous_boards.reserve (64);
+        }
+
+        static auto fromInitialBoard (const Board& board)
+        {
+            auto result = History {};
+            result.my_board_codes.emplace_back (board.get_board_code());
+            result.my_stored_boards.emplace_back (board);
+            return result;
         }
 
         [[nodiscard]] static auto hasBeenXHalfMovesWithoutProgress (const Board& board, int x)
@@ -75,35 +81,42 @@ namespace wisdom
 
         [[nodiscard]] bool isNthRepetition (const Board& board, int repetition_count) const
         {
-            auto& find_code = board.getCode ();
-            auto repetitions = std::count_if (my_board_codes.begin (), my_board_codes.end (),
+            const auto& find_code = board.getCode();
+            auto repetitions = std::count_if (my_board_codes.begin(), my_board_codes.end(),
                     [find_code](const BoardCode& code){
                         return (code == find_code);
                     });
             return repetitions >= repetition_count;
         }
 
-        void addPositionAndMove (observer_ptr<Board> board, Move move)
+        void add_tentative_position (const Board& board)
         {
-            my_board_codes.emplace_back (board->getCode ());
-            my_previous_boards.emplace_back (board);
-            my_move_history.pushBack (move);
+            my_board_codes.emplace_back (board.get_board_code());
+            my_tentative_nesting_count++;
         }
 
-        void addPosition (observer_ptr<Board> board)
-        {
-            my_board_codes.emplace_back (board->getCode ());
-            my_previous_boards.emplace_back (board);
-        }
-
-        void removeLastPosition()
+        void remove_last_tentative_position()
         {
             my_board_codes.pop_back ();
-            my_previous_boards.pop_back ();
-            my_move_history.popBack();
+            my_tentative_nesting_count--;
         }
 
-        [[nodiscard]] auto getMoveHistory() const& -> const MoveList&
+        void store_position (const Board& board, Move move)
+        {
+            Expects (my_tentative_nesting_count == 0);
+            my_stored_boards.emplace_back (board);
+            my_board_codes.emplace_back (board.get_board_code());
+            my_move_history.push_back (move);
+        }
+
+        void pop_last_position()
+        {
+            my_stored_boards.pop_back();
+            my_board_codes.pop_back();
+            my_move_history.pop_back();
+        }
+
+        [[nodiscard]] auto getMoveHistory() const& -> const vector<Move>&
         {
             return my_move_history;
         }
@@ -119,7 +132,7 @@ namespace wisdom
             my_threefold_repetition_status = status;
         }
 
-        [[nodiscard]] auto getFiftyMovesWithoutProgressStatus() const
+        [[nodiscard]] auto getFiftyMovesWithoutProgress() const
             -> DrawStatus
         {
             return my_fifty_moves_without_progress_status;
@@ -134,11 +147,10 @@ namespace wisdom
             -> std::ostream&;
 
     private:
-        MoveList my_move_history;
-
-        // Board codes and undo positions sorted by move number:
-        vector<BoardCode> my_board_codes;
-        vector<observer_ptr<Board>> my_previous_boards {};
+        vector<BoardCode> my_board_codes {};
+        vector<Board> my_stored_boards {};
+        vector<Move> my_move_history;
+        int my_tentative_nesting_count = 0;
 
         DrawStatus my_threefold_repetition_status = DrawStatus::NotReached;
         DrawStatus my_fifty_moves_without_progress_status

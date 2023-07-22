@@ -38,9 +38,12 @@ namespace wisdom
     }
 
     Game::Game (Color current_turn)
-        : Game { BoardBuilder::fromDefaultPosition (), { Player::Human, Player::ChessEngine } }
+        : Game {
+                BoardBuilder::fromDefaultPosition(),
+                { Player::Human, Player::ChessEngine },
+                current_turn
+        }
     {
-        setCurrentTurn (current_turn);
     }
 
     Game::Game (const BoardBuilder& builder)
@@ -48,24 +51,25 @@ namespace wisdom
     {
     }
 
-    // All other constructors must call this one:
     Game::Game (const BoardBuilder& builder, const Players& players)
+        : Game { builder, players, builder.getCurrentTurn() }
+    {
+
+    }
+
+    // All other constructors must call this one:
+    Game::Game (const BoardBuilder& builder, const Players& players, Color current_turn)
         : my_current_board { builder }
         , my_players { players }
     {
-        add_current_board_to_history();
+        setCurrentTurn(current_turn);
+        my_history = History::fromInitialBoard (my_current_board);
     }
 
     void Game::move (Move move)
     {
-        my_current_board = my_current_board.withMove (getCurrentTurn (), move);
-        add_current_board_to_history();
-    }
-
-    void Game::add_current_board_to_history ()
-    {
-        my_previous_boards.push_back (make_unique<Board> (my_current_board));
-        my_history->addPosition (my_previous_boards.back().get());
+        my_current_board = my_current_board.withMove (getCurrentTurn(), move);
+        my_history.storePosition (my_current_board, move);
     }
 
     void Game::save (const string& input) const
@@ -82,9 +86,9 @@ namespace wisdom
         if (isStalemated (my_current_board, getCurrentTurn(), *my_move_generator))
             return GameStatus::Stalemate;
 
-        if (my_history->isThirdRepetition (my_current_board))
+        if (my_history.isThirdRepetition (my_current_board))
         {
-            auto third_repetition_status = my_history->getThreefoldRepetitionStatus();
+            auto third_repetition_status = my_history.getThreefoldRepetitionStatus();
             switch (third_repetition_status)
             {
             case DrawStatus::Declined:
@@ -98,12 +102,12 @@ namespace wisdom
             }
         }
 
-        if (my_history->isFifthRepetition (getBoard()))
+        if (my_history.isFifthRepetition (getBoard()))
             return GameStatus::FivefoldRepetitionDraw;
 
         if (History::hasBeenFiftyMovesWithoutProgress (getBoard()))
         {
-            auto fifty_moves_status = my_history->getFiftyMovesWithoutProgressStatus();
+            auto fifty_moves_status = my_history.getFiftyMovesWithoutProgressStatus();
             switch (fifty_moves_status)
             {
                 case DrawStatus::Declined:
@@ -138,7 +142,7 @@ namespace wisdom
             overdue_timer.setPeriodicFunction (*my_periodic_function);
 
         IterativeSearch iterative_search {
-            my_current_board, *my_history, logger, overdue_timer,
+            my_current_board, my_history, logger, overdue_timer,
             my_max_depth
         };
         SearchResult result = iterative_search.iterativelyDeepen (whom);
@@ -180,9 +184,9 @@ namespace wisdom
         return result;
     }
 
-    auto Game::getCurrentTurn () const -> Color
+    auto Game::getCurrentTurn() const -> Color
     {
-        return my_current_board.getCurrentTurn ();
+        return my_current_board.getCurrentTurn();
     }
 
     void Game::setCurrentTurn (Color new_turn)
@@ -190,24 +194,24 @@ namespace wisdom
         my_current_board.setCurrentTurn (new_turn);
     }
 
-    auto Game::getBoard () const& -> const Board&
+    auto Game::getBoard() const& -> const Board&
     {
         return my_current_board;
     }
 
-    auto Game::getHistory () const& -> History&
+    auto Game::getHistory() const& -> History&
     {
-        return *my_history;
+        return my_history;
     }
 
-    auto Game::getMoveGenerator () const& -> not_null<MoveGenerator*>
+    auto Game::getMoveGenerator() const& -> MoveGenerator&
     {
-        return my_move_generator.get ();
+        return my_move_generator;
     }
 
     auto Game::computerWantsDraw (Color who) const -> bool
     {
-        int score = evaluate (my_current_board, who, 1, *my_move_generator);
+        int score = evaluate (my_current_board, who, 1, my_move_generator);
         return score <= Min_Draw_Score;
     }
 
@@ -224,16 +228,16 @@ namespace wisdom
         return accepted ? DrawStatus::Accepted : DrawStatus::Declined;
     }
 
-    void Game::update_threefold_repetition_draw_status ()
+    void Game::update_threefold_repetition_draw_status()
     {
         auto status = drawDesiresToRepetitionStatus (my_third_repetition_draw);
-        my_history->setThreefoldRepetitionStatus (status);
+        my_history.setThreefoldRepetitionStatus (status);
     }
 
-    void Game::update_fifty_moves_without_progress_draw_status ()
+    void Game::update_fifty_moves_without_progress_draw_status()
     {
         auto status = drawDesiresToRepetitionStatus (my_fifty_moves_without_progress_draw);
-        my_history->setFiftyMovesWithoutProgressStatus (status);
+        my_history.setFiftyMovesWithoutProgressStatus (status);
     }
 
     void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who,
@@ -267,5 +271,4 @@ namespace wisdom
         setProposedDrawStatus (draw_type, Color::White, draw_statuses.first);
         setProposedDrawStatus (draw_type, Color::Black, draw_statuses.second);
     }
-
 }
