@@ -246,25 +246,25 @@ namespace wisdom::ui::console
 
     static void printHelp()
     {
-        std::cout << "\nAvailable commands:\n\n";
-        std::cout << "  moves           Display available moves\n";
-        std::cout << "  load            Load a game\n";
-        std::cout << "  save            Save a game\n";
-        std::cout << "  fen             Load a position from a FEN string\n";
-        std::cout << "  pause           Pause the computer from searching for moves\n";
-        std::cout << "  unpause         Unpause the computer from searching for moves\n";
-        std::cout << "  maxdepth        Set the maximum depth for the computer to search\n";
-        std::cout << "  timeout         Set the maximum time for the computer to search\n";
-        std::cout << "  human_white     Set the white player to human\n";
-        std::cout << "  human_black     Set the black player to human\n";
-        std::cout << "  computer_white  Set the white player to computer\n";
-        std::cout << "  computer_black  Set the black player to computer\n";
-        std::cout << "  switch          Switch the current turn to the other player.\n";
-        std::cout << "  quit\n";
-        std::cout << "  exit            Quit a game\n";
-        std::cout << "  a2c3            Move the piece at a2 to c3 (example)\n";
-        std::cout << "  a2xc3           Take the piece at c3 with the piece on a2 (example)\n";
-        std::cout << "\n\n";
+        std::cout << "\nAvailable commands:\n\n"
+                  << "  moves           Display available moves\n"
+                  << "  load            Load a game\n"
+                  << "  save            Save a game\n"
+                  << "  fen             Load a position from a FEN string\n"
+                  << "  pause           Pause the computer from searching for moves\n"
+                  << "  unpause         Unpause the computer from searching for moves\n"
+                  << "  maxdepth        Set the maximum depth for the computer to search\n"
+                  << "  timeout         Set the maximum time for the computer to search\n"
+                  << "  human_white     Set the white player to human\n"
+                  << "  human_black     Set the black player to human\n"
+                  << "  computer_white  Set the white player to computer\n"
+                  << "  computer_black  Set the black player to computer\n"
+                  << "  switch          Switch the current turn to the other player.\n"
+                  << "  quit\n"
+                  << "  exit            Quit a game\n"
+                  << "  a2c3            Move the piece at a2 to c3 (example)\n"
+                  << "  a2xc3           Take the piece at c3 with the piece on a2 (example)\n"
+                  << "\n\n";
     }
 
     static InputState readMove (Game& game, MoveGenerator& move_generator)
