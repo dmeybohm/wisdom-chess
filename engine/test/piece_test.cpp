@@ -19,19 +19,19 @@ TEST_CASE( "A piece can be converted" )
     for (auto color : colors) {
         for (auto piece : pieces) {
             ColoredPiece combined = ColoredPiece::make (color, piece);
-            INFO( to_string(piece_type(combined)) );
-            INFO( to_string(piece) );
-            CHECK( piece_type(combined) == piece );
-            CHECK( piece_color(combined) == color );
+            INFO(asString (pieceType (combined)) );
+            INFO(asString (piece) );
+            CHECK( pieceType(combined) == piece );
+            CHECK( pieceColor(combined) == color );
         }
     }
     CHECK( Piece_And_Color_None == ColoredPiece::make (Color::None, Piece::None) );
-    CHECK( piece_type (Piece_And_Color_None) == Piece::None );
-    CHECK( piece_color (Piece_And_Color_None) == Color::None );
+    CHECK( pieceType (Piece_And_Color_None) == Piece::None );
+    CHECK( pieceColor (Piece_And_Color_None) == Color::None );
 }
 
 TEST_CASE( "Color invert" )
 {
-    CHECK( color_invert (Color::White) == Color::Black );
-    CHECK( color_invert (Color::Black) == Color::White );
+    CHECK( colorInvert (Color::White) == Color::Black );
+    CHECK( colorInvert (Color::Black) == Color::White );
 }

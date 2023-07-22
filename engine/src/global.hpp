@@ -28,6 +28,10 @@
 #include <gsl/narrow>
 #include <flags/flags.hpp>
 
+namespace doctest {
+    class String;
+}
+
 namespace wisdom
 {
     using zstring = gsl::zstring;
@@ -147,6 +151,7 @@ namespace wisdom
             return this->my_message.c_str();
         }
     };
+
 }
 
 #endif //WISDOM_CHESS_GLOBAL_HPP

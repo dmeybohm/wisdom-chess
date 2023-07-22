@@ -1,11 +1,11 @@
 #ifndef WISDOM_CHESS_CHESSGAME_H
 #define WISDOM_CHESS_CHESSGAME_H
 
-#include <memory>
 #include <chrono>
+#include <memory>
 
-#include "move.hpp"
 #include "game.hpp"
+#include "move.hpp"
 
 // The valid internal representations of depth in the wisdom Game object is different
 // from the semantics in the UI:
@@ -20,10 +20,10 @@
 class MaxDepth
 {
 public:
-    explicit MaxDepth(int userDepth)
-        : myUserDepth { userDepth }
+    explicit MaxDepth (int userDepth) : myUserDepth { userDepth }
     {
-        if (userDepth <= 0) {
+        if (userDepth <= 0)
+        {
             throw wisdom::Error { "Invalid depth" };
         }
     }
@@ -54,61 +54,57 @@ public:
         MaxDepth maxDepth;
         std::chrono::seconds maxTime;
 
-        static auto fromGameSettings(const GameSettings& gameSettings) -> Config;
+        static auto fromGameSettings (const GameSettings& gameSettings) -> Config;
     };
 
-    explicit ChessGame(std::unique_ptr<wisdom::Game> game, const Config& config)
-        : myEngine { std::move(game) }
-        , myConfig { config }
+    explicit ChessGame (std::unique_ptr<wisdom::Game> game, const Config& config) :
+            my_engine { std::move (game) }, my_config { config }
     {
-        setConfig(config);
+        setConfig (config);
     }
 
-    static auto fromPlayers(wisdom::Player whitePlayer,
-                            wisdom::Player blackPlayer, const Config& config)
+    static auto fromPlayers (wisdom::Player whitePlayer, wisdom::Player blackPlayer,
+                             const Config& config) -> std::unique_ptr<ChessGame>;
+
+    static auto fromFen (const std::string& input, const Config& config)
         -> std::unique_ptr<ChessGame>;
 
-    static auto fromFen(const std::string& input, const Config& config)
-        -> std::unique_ptr<ChessGame>;
-
-    static auto fromEngine(std::unique_ptr<wisdom::Game> game, const Config& config)
+    static auto fromEngine (std::unique_ptr<wisdom::Game> game, const Config& config)
         -> std::unique_ptr<ChessGame>;
 
     [[nodiscard]] auto state() -> gsl::not_null<wisdom::Game*>
     {
-        return myEngine.get();
+        return my_engine.get();
     }
 
     [[nodiscard]] auto state() const -> gsl::not_null<const wisdom::Game*>
     {
-        return myEngine.get();
+        return my_engine.get();
     }
 
-  // Clone the game state
+    // Clone the game state
     [[nodiscard]] auto clone() const -> std::unique_ptr<ChessGame>;
 
-    [[nodiscard]] auto isLegalMove(wisdom::Move selectedMove) const -> bool;
+    [[nodiscard]] auto isLegalMove (wisdom::Move selectedMove) const -> bool;
 
-    [[nodiscard]] auto moveGenerator() const
-        -> gsl::not_null<wisdom::MoveGenerator*>
+    [[nodiscard]] auto moveGenerator() const -> gsl::not_null<wisdom::MoveGenerator*>
     {
-       return myMoveGenerator.get();
+        return my_move_generator.get();
     }
 
-    void setConfig(const Config& config);
-    void setPeriodicFunction(const wisdom::MoveTimer::PeriodicFunction& func);
-    void setPlayers(wisdom::Player whitePLayer, wisdom::Player blackPlayer);
+    void setConfig (const Config& config);
+    void setPeriodicFunction (const wisdom::MoveTimer::PeriodicFunction& func);
+    void setPlayers (wisdom::Player whitePLayer, wisdom::Player blackPlayer);
 
-    [[nodiscard]] auto moveFromCoordinates(int srcRow, int srcColumn,
-         int dstRow, int dstColumn,
-         std::optional<wisdom::Piece> promoted) const
+    [[nodiscard]] auto moveFromCoordinates (int srcRow, int srcColumn, int dstRow, int dstColumn,
+                                            std::optional<wisdom::Piece> promoted) const
         -> std::pair<std::optional<wisdom::Move>, wisdom::Color>;
 
 private:
-    std::unique_ptr<wisdom::Game> myEngine;
-    std::unique_ptr<wisdom::MoveGenerator> myMoveGenerator =
-            std::make_unique<wisdom::MoveGenerator>();
-    Config myConfig;
+    std::unique_ptr<wisdom::Game> my_engine;
+    std::unique_ptr<wisdom::MoveGenerator> my_move_generator
+        = std::make_unique<wisdom::MoveGenerator>();
+    Config my_config;
 };
 
 #endif // WISDOM_CHESS_CHESSGAME_H

@@ -25,27 +25,27 @@ namespace wisdom::worker
         GameState () :
             game { std::make_unique<wisdom::Game> ()}
         {
-            update_settings (settings);
+            updateSettings (settings);
         }
 
-        [[nodiscard]] static auto get_state() -> observer_ptr<GameState>
+        [[nodiscard]] static auto getState() -> observer_ptr<GameState>
         {
             static auto instance = std::make_unique<GameState>();
             return instance.get();
         }
 
-        [[nodiscard]] static auto get_game() -> observer_ptr<Game>
+        [[nodiscard]] static auto getGame() -> observer_ptr<Game>
         {
-            return GameState::get_state()->game.get();
+            return GameState::getState()->game.get();
         }
 
-        void update_settings (GameSettings new_settings)
+        void updateSettings (GameSettings new_settings)
         {
             settings = new_settings;
-            new_settings.apply_to_game (game.get());
+            new_settings.applyToGame (game.get());
         }
 
-        auto status_transition() -> wisdom::GameStatus
+        auto statusTransition() -> wisdom::GameStatus
         {
             WebEngineGameStatusUpdate status_manager { this };
             status_manager.update (game->status());
@@ -73,78 +73,72 @@ namespace wisdom::worker
             {
             }
 
-            void insufficient_material() override
+            void insufficientMaterial() override
             {
             }
 
-            void third_repetition_draw_accepted() override
+            void thirdRepetitionDrawAccepted() override
             {
             }
 
-            void fifth_repetition_draw() override
+            void fifthRepetitionDraw() override
             {
             }
 
-            void fifty_moves_without_progress_accepted() override
+            void fiftyMovesWithoutProgressAccepted() override
             {
             }
 
-            void seventy_five_moves_with_no_progress() override
+            void seventyFiveMovesWithNoProgress() override
             {
             }
 
-            void third_repetition_draw_reached() override
+            void thirdRepetitionDrawReached() override
             {
-                auto who = my_parent->game->get_current_turn();
-                my_parent->handle_potential_draw_position (ProposedDrawType::ThreeFoldRepetition,
-                                                           who);
+                auto who = my_parent->game->getCurrentTurn();
+                my_parent->handlePotentialDrawPosition (ProposedDrawType::ThreeFoldRepetition, who);
             }
 
-            void fifty_moves_without_progress_reached() override
+            void fiftyMovesWithoutProgressReached() override
             {
-                auto who = my_parent->game->get_current_turn();
-                my_parent->handle_potential_draw_position ( ProposedDrawType::FiftyMovesWithoutProgress,
-                                                           who);
+                auto who = my_parent->game->getCurrentTurn();
+                my_parent->handlePotentialDrawPosition (ProposedDrawType::FiftyMovesWithoutProgress,
+                                                        who);
             }
         };
 
-        void update_draw_status (wisdom::ProposedDrawType draw_type,
-                                 wisdom::Color who,
-                                 bool accepts_draw)
+        void updateDrawStatus (wisdom::ProposedDrawType draw_type,
+                               wisdom::Color who,
+                               bool accepts_draw)
         {
-            game->set_proposed_draw_status (
+            game->setProposedDrawStatus (
                 draw_type,
                 who,
                 accepts_draw
             );
 
             emscripten_wasm_worker_post_function_sig (
-                EMSCRIPTEN_WASM_WORKER_ID_PARENT,
-                (void*)main_thread_receive_draw_status,
+                EMSCRIPTEN_WASM_WORKER_ID_PARENT, (void*)mainThreadReceiveDrawStatus,
                 "iiii",
                 game_id,
-                static_cast<int> (map_draw_by_repetition_type (draw_type)),
-                static_cast<int> (map_color (who)),
+                static_cast<int> (mapDrawByRepetitionType (draw_type)),
+                static_cast<int> (mapColor (who)),
                 static_cast<int> (accepts_draw)
             );
         }
 
-        void handle_potential_draw_position (wisdom::ProposedDrawType proposedDrawType,
-                                             wisdom::Color who)
+        void handlePotentialDrawPosition (wisdom::ProposedDrawType proposedDrawType,
+                                          wisdom::Color who)
         {
-            auto current_player_accept_draw = game->computer_wants_draw (who);
+            auto current_player_accept_draw = game->computerWantsDraw (who);
 
-            update_draw_status (proposedDrawType,
-                                who,
-                                current_player_accept_draw);
+            updateDrawStatus (proposedDrawType, who, current_player_accept_draw);
 
-            auto opponent = color_invert (who);
-            auto opponent_player = game->get_player (opponent);
+            auto opponent = colorInvert (who);
+            auto opponent_player = game->getPlayer (opponent);
             if (opponent_player == Player::ChessEngine) {
-                auto opponent_wants_draw = game->computer_wants_draw (opponent);
-                update_draw_status (proposedDrawType,
-                                    opponent,
-                                    opponent_wants_draw);
+                auto opponent_wants_draw = game->computerWantsDraw (opponent);
+                updateDrawStatus (proposedDrawType, opponent, opponent_wants_draw);
             }
         }
     };
@@ -152,89 +146,82 @@ namespace wisdom::worker
 
 using namespace wisdom::worker;
 
-EMSCRIPTEN_KEEPALIVE void worker_reinitialize_game (int new_game_id)
+EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
 {
-    auto state = GameState::get_state();
+    auto state = GameState::getState();
 
     state->game_id = new_game_id;
 
     auto new_game = std::make_unique<Game> ();
     state->game = std::move (new_game);
-    state->update_settings (state->settings);
+    state->updateSettings (state->settings);
 
     auto periodic_func = [state](observer_ptr<MoveTimer> timer) {
         auto play_status = state->play_status.load();
         if (play_status != GameState::Playing) {
-            timer->set_cancelled (true);
+            timer->setCancelled (true);
         }
     };
-    state->game->set_periodic_function (periodic_func);
+    state->game->setPeriodicFunction (periodic_func);
 
-    start_search();
+    startSearch();
 }
 
-EMSCRIPTEN_KEEPALIVE void start_search()
+EMSCRIPTEN_KEEPALIVE void startSearch()
 {
-    const auto& logger = wisdom::worker::get_logger();
-    auto state = GameState::get_state();
-    auto game = GameState::get_game();
+    const auto& logger = wisdom::worker::getLogger();
+    auto state = GameState::getState();
+    auto game = GameState::getGame();
 
-    if (state->game->get_current_player() != Player::ChessEngine)
+    if (state->game->getCurrentPlayer() != Player::ChessEngine)
         return;
 
     auto play_status = state->play_status.load();
     if (play_status != GameState::Playing)
         return;
 
-    auto new_status = state->status_transition();
+    auto new_status = state->statusTransition();
     if (new_status != wisdom::GameStatus::Playing)
         return;
 
     logger.debug("Going to find best move");
-    logger.debug("Current turn: " + to_string(game->get_current_turn()));
+    logger.debug("Current turn: " + asString (game->getCurrentTurn()));
 
-    auto move = game->find_best_move(
+    auto move = game->findBestMove(
         logger,
-        game->get_current_turn()
+        game->getCurrentTurn()
     );
     if (!move.has_value())
     {
         // Could happen if game is paused:
-        get_logger().debug("No move found.");
+        getLogger().debug("No move found.");
         return;
     }
     game->move (*move);
 
-    emscripten_wasm_worker_post_function_vii (
-        EMSCRIPTEN_WASM_WORKER_ID_PARENT,
-        main_thread_receive_move,
-        state->game_id,
-        move->to_int()
-    );
+    emscripten_wasm_worker_post_function_vii (EMSCRIPTEN_WASM_WORKER_ID_PARENT,
+                                              mainThreadReceiveMove, state->game_id, move->toInt());
 }
 
-EMSCRIPTEN_KEEPALIVE void worker_receive_move (int packed_move)
+EMSCRIPTEN_KEEPALIVE void workerReceiveMove (int packed_move)
 {
-    auto game = GameState::get_game();
-    auto unpacked_move = Move::from_int (packed_move);
+    auto game = GameState::getGame();
+    auto unpacked_move = Move::fromInt (packed_move);
     game->move (unpacked_move);
 
-    start_search();
+    startSearch();
 }
 
-void worker_receive_settings (int white_player, int black_player, int thinking_time,
+void workerReceiveSettings (int white_player, int black_player, int thinking_time,
                               int search_depth)
 {
-    auto state = GameState::get_state();
+    auto state = GameState::getState();
 
-    state->update_settings (GameSettings {
-        static_cast<WebPlayer> (white_player),
-        static_cast<WebPlayer> (black_player),
-        thinking_time,
-        search_depth
-    });
+    state->updateSettings (GameSettings { static_cast<WebPlayer> (white_player),
+                                          static_cast<WebPlayer> (black_player), thinking_time,
+                                          search_depth });
 
-    start_search();
+    startSearch();
 }
 
 EM_JS (void, receiveMoveFromWorker, (int game_id, const char* str),
@@ -242,25 +229,25 @@ EM_JS (void, receiveMoveFromWorker, (int game_id, const char* str),
    receiveWorkerMessage ('computerMoved', game_id, UTF8ToString (str));
 })
 
-EMSCRIPTEN_KEEPALIVE void main_thread_receive_move (int game_id, int packed_move)
+EMSCRIPTEN_KEEPALIVE void mainThreadReceiveMove (int game_id, int packed_move)
 {
-    auto& logger = wisdom::worker::get_logger();
+    auto& logger = wisdom::worker::getLogger();
 
-    Move unpacked_move = Move::from_int (packed_move);
-    auto state = GameState::get_state();
-    std::string str = to_string (unpacked_move);
+    Move unpacked_move = Move::fromInt (packed_move);
+    auto state = GameState::getState();
+    std::string str = asString (unpacked_move);
     receiveMoveFromWorker (state->game_id, str.c_str());
 }
 
-EMSCRIPTEN_KEEPALIVE void pause_worker ()
+EMSCRIPTEN_KEEPALIVE void pauseWorker()
 {
-    auto* state = GameState::get_state();
+    auto* state = GameState::getState();
     state->play_status.store (GameState::Paused);
 }
 
-EMSCRIPTEN_KEEPALIVE void unpause_worker ()
+EMSCRIPTEN_KEEPALIVE void unpauseWorker()
 {
-    auto* state = GameState::get_state();
+    auto* state = GameState::getState();
     state->play_status.store (GameState::Playing);
 }
 
@@ -277,10 +264,8 @@ EM_JS (void, receiveDrawStatusFromWorker, (int game_id, int draw_type, int color
    )
 })
 
-EMSCRIPTEN_KEEPALIVE void main_thread_receive_draw_status (int game_id, int draw_type,
-                                                           int color, int accepted_draw)
+EMSCRIPTEN_KEEPALIVE void mainThreadReceiveDrawStatus (int game_id, int draw_type,
+                                                       int color, int accepted_draw)
 {
-    receiveDrawStatusFromWorker ( game_id, draw_type, color,
-        accepted_draw == 0 ? false : true
-    );
+    receiveDrawStatusFromWorker (game_id, draw_type, color, accepted_draw == 0 ? false : true);
 }

@@ -3,35 +3,35 @@
 
 using namespace wisdom;
 
-TEST_CASE( "move_parse" )
+TEST_CASE( "moveParse" )
 {
-    SUBCASE( "move_parse parses captures and non-captures" )
+    SUBCASE( "moveParse parses captures and non-captures" )
     {
-        Move capture = move_parse ("a6xb7");
-        Move non_capture = move_parse ("e4 e8");
+        Move capture = moveParse ("a6xb7");
+        Move non_capture = moveParse ("e4 e8");
 
-        CHECK( move_equals (capture, move_parse ("a6xb7", Color::White)) );
-        CHECK( move_equals (non_capture, move_parse ("e4 e8", Color::White)) );
+        CHECK( moveEquals (capture, moveParse ("a6xb7", Color::White)) );
+        CHECK( moveEquals (non_capture, moveParse ("e4 e8", Color::White)) );
     }
 
-    SUBCASE( "color matters in move_parse" )
+    SUBCASE( "color matters in moveParse" )
     {
-        Move castle = move_parse ("o-o", Color::Black);
-        CHECK( Row (castle.get_src ()) == 0 );
-        CHECK( Row (castle.get_dst ()) == 0 );
-        CHECK( move_equals (castle, move_parse ("o-o", Color::Black)) );
+        Move castle = moveParse ("o-o", Color::Black);
+        CHECK( Row (castle.getSrc ()) == 0 );
+        CHECK( Row (castle.getDst ()) == 0 );
+        CHECK( moveEquals (castle, moveParse ("o-o", Color::Black)) );
     }
 
-    SUBCASE( "move_parse throws an exception for castling moves" )
+    SUBCASE( "moveParse throws an exception for castling moves" )
     {
-        CHECK_THROWS_AS( (void)move_parse ("o-o"), ParseMoveException );
-        CHECK_THROWS_WITH( (void)move_parse ("o-o"), "Move requires color, but no color provided" );
-        CHECK_THROWS_WITH( (void)move_parse ("o-o-o"), "Move requires color, but no color provided" );
+        CHECK_THROWS_AS( (void)moveParse ("o-o"), ParseMoveException );
+        CHECK_THROWS_WITH( (void)moveParse ("o-o"), "Move requires color, but no color provided" );
+        CHECK_THROWS_WITH( (void)moveParse ("o-o-o"), "Move requires color, but no color provided" );
     }
 
     SUBCASE( "Invalid moves throw an exception" )
     {
-        CHECK_THROWS_AS( (void)move_parse ("invalid"), ParseMoveException );
-        CHECK_THROWS_WITH( (void)move_parse ("invalid"), "Error parsing move: invalid" );
+        CHECK_THROWS_AS( (void)moveParse ("invalid"), ParseMoveException );
+        CHECK_THROWS_WITH( (void)moveParse ("invalid"), "Error parsing move: invalid" );
     }
 }

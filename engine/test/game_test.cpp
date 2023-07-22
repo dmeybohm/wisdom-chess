@@ -13,28 +13,28 @@ TEST_CASE( "Initial board position is added to history" )
     //
     auto run_test = [](Game& game)
     {
-        Move white_move = move_parse ("g1 f3");
-        Move black_move = move_parse ("b8 c6");
-        Move white_return_move = move_parse ("f3 g1");
-        Move black_return_move = move_parse ("c6 b8");
-        auto& history = game.get_history();
+        Move white_move = moveParse ("g1 f3");
+        Move black_move = moveParse ("b8 c6");
+        Move white_return_move = moveParse ("f3 g1");
+        Move black_return_move = moveParse ("c6 b8");
+        auto& history = game.getHistory ();
 
         for (int i = 0; i < 2; i++)
         {
             INFO( i );
             game.move (white_move);
-            CHECK( history.is_third_repetition (game.get_board()) == false );
+            CHECK( history.isThirdRepetition (game.getBoard()) == false );
 
             game.move (black_move);
-            CHECK( history.is_third_repetition (game.get_board()) == false );
+            CHECK( history.isThirdRepetition (game.getBoard()) == false );
 
             game.move (white_return_move);
-            CHECK( history.is_third_repetition (game.get_board()) == false );
+            CHECK( history.isThirdRepetition (game.getBoard()) == false );
 
             game.move (black_return_move);
 
             bool is_draw = (i == 1) ? true : false;
-            CHECK( history.is_third_repetition (game.get_board()) == is_draw );
+            CHECK( history.isThirdRepetition (game.getBoard()) == is_draw );
         }
     };
 
@@ -64,7 +64,7 @@ TEST_CASE( "Initial board position is added to history" )
 
     SUBCASE( "When game is initialized from a board builder" )
     {
-        BoardBuilder builder = BoardBuilder::from_default_position();
+        BoardBuilder builder = BoardBuilder::fromDefaultPosition ();
         Game game { builder };
         run_test (game);
     }

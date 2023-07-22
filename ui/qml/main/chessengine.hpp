@@ -2,15 +2,15 @@
 #define CHESSENGINE_H
 
 #include <QObject>
+#include <chrono>
 #include <functional>
 #include <memory>
-#include <chrono>
 
 #include "chessgame.hpp"
 #include "game.hpp"
+#include "logger.hpp"
 #include "move.hpp"
 #include "move_timer.hpp"
-#include "logger.hpp"
 
 class QmlEngineGameStatusUpdate;
 
@@ -22,10 +22,7 @@ class ChessEngine : public QObject
     Q_OBJECT
 
 public:
-    ChessEngine(std::shared_ptr<ChessGame> game,
-                int gameId,
-                QObject *parent = nullptr);
-
+    ChessEngine (std::shared_ptr<ChessGame> game, int gameId, QObject* parent = nullptr);
 
     static constexpr wisdom::Logger::LogLevel Log_Level =
 #ifdef NDEBUG
@@ -38,7 +35,8 @@ public:
     struct ChessEngineLogger : wisdom::Logger
     {
         void debug (const std::string& string) const override
-        {}
+        {
+        }
 
         void info (const std::string& string) const override;
     };
@@ -51,42 +49,39 @@ public slots:
     void quit();
 
     // Receive events about the opponent move.
-    void opponentMoved(wisdom::Move move, wisdom::Color who);
+    void opponentMoved (wisdom::Move move, wisdom::Color who);
 
     // Receive our own move:
-    void receiveEngineMoved(wisdom::Move move, wisdom::Color who,
-                            int gameId);
+    void receiveEngineMoved (wisdom::Move move, wisdom::Color who, int gameId);
 
     // Receive the draw status:
-    void receiveDrawStatus(wisdom::ProposedDrawType drawType, wisdom::Color player,
-                           bool accepted);
+    void receiveDrawStatus (wisdom::ProposedDrawType drawType, wisdom::Color player, bool accepted);
 
     // Update the whole chess game state. The ownership of the game is taken.
-    void reloadGame(std::shared_ptr<ChessGame> newGame, int newGameId);
+    void reloadGame (std::shared_ptr<ChessGame> newGame, int newGameId);
 
     // Update the config of the game. Also update the notifier in case we
     // had to interrupt the engine.
-    void updateConfig(ChessGame::Config config,
-                      const wisdom::MoveTimer::PeriodicFunction& notifier);
+    void updateConfig (ChessGame::Config config,
+                       const wisdom::MoveTimer::PeriodicFunction& notifier);
 
 signals:
     // The engine made a move.
-    void engineMoved(wisdom::Move move, wisdom::Color who, int gameId);
+    void engineMoved (wisdom::Move move, wisdom::Color who, int gameId);
 
     // There are no available moves.
     void noMovesAvailable();
 
     // Send draw response:
-    void updateDrawStatus(wisdom::ProposedDrawType drawType, wisdom::Color player,
-                          bool accepted);
+    void updateDrawStatus (wisdom::ProposedDrawType drawType, wisdom::Color player, bool accepted);
 
 private:
-    std::shared_ptr<ChessGame> myGame;
+    std::shared_ptr<ChessGame> my_game;
 
-    bool myIsGameOver = false;
+    bool my_is_game_over = false;
 
     // Identify games so that signals from them can be filtered due to being async.
-    int myGameId;
+    int my_game_id;
 
     void findMove();
 
@@ -100,11 +95,9 @@ private:
     // other player (either the engine itself or the human) before continuing
     // the search.
     //
-    void handlePotentialDrawPosition(wisdom::ProposedDrawType proposedDrawType,
-                                     wisdom::Color who);
+    void handlePotentialDrawPosition (wisdom::ProposedDrawType proposedDrawType, wisdom::Color who);
 
     friend class QmlEngineGameStatusUpdate;
-
 };
 
 #endif // CHESSENGINE_H

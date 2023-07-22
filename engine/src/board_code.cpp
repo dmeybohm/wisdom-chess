@@ -9,98 +9,98 @@ namespace wisdom
 {
     BoardCode::BoardCode (const Board& board)
     {
-        for (auto coord : Board::all_coords ())
+        for (auto coord : Board::allCoords ())
         {
-            ColoredPiece piece = board.piece_at (coord);
-            this->add_piece (coord, piece);
+            ColoredPiece piece = board.pieceAt (coord);
+            this->addPiece (coord, piece);
         }
 
-        auto current_turn = board.get_current_turn ();
-        set_current_turn (current_turn);
+        auto current_turn = board.getCurrentTurn ();
+        setCurrentTurn (current_turn);
 
-        auto en_passant_targets = board.get_en_passant_targets ();
+        auto en_passant_targets = board.getEnPassantTargets ();
         if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
         {
-            set_en_passant_target (Color::White, en_passant_targets[Color_Index_White]);
+            setEnPassantTarget (Color::White, en_passant_targets[Color_Index_White]);
         }
         else if (en_passant_targets[Color_Index_Black] != No_En_Passant_Coord)
         {
-            set_en_passant_target (Color::Black, en_passant_targets[Color_Index_Black]);
+            setEnPassantTarget (Color::Black, en_passant_targets[Color_Index_Black]);
         }
         else
         {
             // this clears both targets:
-            set_en_passant_target (Color::White, No_En_Passant_Coord);
+            setEnPassantTarget (Color::White, No_En_Passant_Coord);
         }
 
-        set_castle_state (Color::White, board.get_castling_eligibility(Color::White));
-        set_castle_state (Color::Black, board.get_castling_eligibility(Color::Black));
+        setCastleState (Color::White, board.getCastlingEligibility (Color::White));
+        setCastleState (Color::Black, board.getCastlingEligibility (Color::Black));
     }
 
-    auto BoardCode::from_board (const Board& board) -> BoardCode
+    auto BoardCode::fromBoard (const Board& board) -> BoardCode
     {
         return BoardCode { board };
     }
 
-    auto BoardCode::from_board_builder (const BoardBuilder& builder) -> BoardCode
+    auto BoardCode::fromBoardBuilder (const BoardBuilder& builder) -> BoardCode
     {
         auto result = BoardCode {};
 
         for (auto coord : CoordIterator {})
         {
-            ColoredPiece piece = builder.piece_at (coord);
-            result.add_piece (coord, piece);
+            ColoredPiece piece = builder.pieceAt (coord);
+            result.addPiece (coord, piece);
         }
 
-        auto current_turn = builder.get_current_turn ();
-        result.set_current_turn (current_turn);
+        auto current_turn = builder.getCurrentTurn ();
+        result.setCurrentTurn (current_turn);
 
-        auto en_passant_targets = builder.get_en_passant_targets ();
+        auto en_passant_targets = builder.getEnPassantTargets ();
         if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
         {
-            result.set_en_passant_target (Color::White, en_passant_targets[Color_Index_White]);
+            result.setEnPassantTarget (Color::White, en_passant_targets[Color_Index_White]);
         }
         else if (en_passant_targets[Color_Index_Black] != No_En_Passant_Coord)
         {
-            result.set_en_passant_target (Color::Black, en_passant_targets[Color_Index_Black]);
+            result.setEnPassantTarget (Color::Black, en_passant_targets[Color_Index_Black]);
         }
         else
         {
-            result.set_en_passant_target (Color::White, No_En_Passant_Coord);
+            result.setEnPassantTarget (Color::White, No_En_Passant_Coord);
         }
 
-        result.set_castle_state (Color::White, builder.get_castle_state (Color::White));
-        result.set_castle_state (Color::Black, builder.get_castle_state (Color::Black));
+        result.setCastleState (Color::White, builder.getCastleState (Color::White));
+        result.setCastleState (Color::Black, builder.getCastleState (Color::Black));
         return result;
     }
 
-    auto BoardCode::from_default_position () -> BoardCode
+    auto BoardCode::fromDefaultPosition () -> BoardCode
     {
-        BoardBuilder builder = BoardBuilder::from_default_position ();
-        return BoardCode::from_board_builder (builder);
+        BoardBuilder builder = BoardBuilder::fromDefaultPosition ();
+        return BoardCode::fromBoardBuilder (builder);
     }
 
-    auto BoardCode::from_empty_board () -> BoardCode
+    auto BoardCode::fromEmptyBoard() -> BoardCode
     {
         return {};
     }
 
-    void BoardCode::apply_move (const Board& board, Move move)
+    void BoardCode::applyMove (const Board& board, Move move)
     {
-        Coord src = move.get_src ();
-        Coord dst = move.get_dst ();
+        Coord src = move.getSrc();
+        Coord dst = move.getDst();
 
-        ColoredPiece src_piece = board.piece_at (src);
+        ColoredPiece src_piece = board.pieceAt (src);
 
-        Piece src_piece_type = piece_type (src_piece);
-        Color src_piece_color = piece_color (src_piece);
+        Piece src_piece_type = pieceType (src_piece);
+        Color src_piece_color = pieceColor (src_piece);
 
-        if (move.is_castling ())
+        if (move.isCastling())
         {
             int src_col, dst_col;
             int row;
 
-            if (move.is_castling_on_kingside ())
+            if (move.isCastlingOnKingside())
             {
                 dst_col = Kingside_Castled_Rook_Column;
                 src_col = Last_Column;
@@ -112,29 +112,29 @@ namespace wisdom
             }
             row = src_piece_color == Color::White ? Last_Row : First_Row;
 
-            Coord rook_src = make_coord (row, src_col);
+            Coord rook_src = makeCoord (row, src_col);
             ColoredPiece rook = ColoredPiece::make (src_piece_color, Piece::Rook);
-            remove_piece (rook_src);
-            add_piece (make_coord (row, dst_col), rook);
+            removePiece (rook_src);
+            addPiece (makeCoord (row, dst_col), rook);
         }
-        else if (move.is_en_passant ())
+        else if (move.isEnPassant())
         {
             // subtract horizontal pawn and add no piece there:
-            Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
-            remove_piece (taken_pawn_coord);
+            Coord taken_pawn_coord = enPassantTakenPawnCoord (src, dst);
+            removePiece (taken_pawn_coord);
         }
 
-        remove_piece (src);
-        add_piece (dst, src_piece);
+        removePiece (src);
+        addPiece (dst, src_piece);
 
-        if (move.is_promoting ())
+        if (move.isPromoting())
         {
             assert (src_piece_type == Piece::Pawn);
-            add_piece (dst, move.get_promoted_piece ());
+            addPiece (dst, move.getPromotedPiece());
         }
     }
 
-    auto BoardCode::count_ones () const -> std::size_t
+    auto BoardCode::countOnes() const -> std::size_t
     {
         string str = my_pieces.to_string ();
         return std::count (str.begin (), str.end (), '1');

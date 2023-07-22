@@ -7,19 +7,19 @@ int wisdom::WebGame::our_game_id;
 namespace wisdom
 {
     WebGame::WebGame (int white_player, int black_player) :
-        my_game { map_player (white_player), map_player (black_player) }
+        my_game { mapPlayer (white_player), mapPlayer (black_player) }
     {
-        const auto& board = my_game.get_board();
+        const auto& board = my_game.getBoard();
         int id = 1;
 
         for (int i = 0; i < Num_Squares; i++)
         {
-            auto coord = make_coord_from_index (i);
-            auto piece = board.piece_at (coord);
+            auto coord = makeCoordFromIndex (i);
+            auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
             {
                 WebColoredPiece new_piece
-                    = WebColoredPiece { id, to_int (piece.color()), to_int (piece.type()),
+                    = WebColoredPiece { id, toInt (piece.color()), toInt (piece.type()),
                                         gsl::narrow<int> (Row (coord)),
                                         gsl::narrow<int> (Column (coord)) };
                 my_pieces.addPiece (new_piece);
@@ -27,26 +27,26 @@ namespace wisdom
             }
         }
 
-        update_displayed_game_state();
+        updateDisplayedGameState();
     }
 
     auto WebGame::makeMove (const WebMove* move_param) -> bool
     {
-        Move move = move_param->get_move();
+        Move move = move_param->getMove();
 
         my_game.move (move);
 
-        update_piece_list (move.get_promoted_piece());
-        update_displayed_game_state();
+        updatePieceList (move.getPromotedPiece());
+        updateDisplayedGameState();
 
         return true;
     }
 
-    auto WebGame::new_from_settings (const wisdom::GameSettings& settings) -> wisdom::WebGame*
+    auto WebGame::newFromSettings (const GameSettings& settings) -> wisdom::WebGame*
     {
         auto* new_game = new WebGame ( settings.whitePlayer, settings.blackPlayer );
 
-        const auto computer_depth = GameSettings::map_human_depth_to_computer_depth (settings.searchDepth);
+        const auto computer_depth = GameSettings::mapHumanDepthToComputerDepth (settings.searchDepth);
         new_game->setMaxDepth (computer_depth);
         new_game->setThinkingTime (std::chrono::seconds { settings.thinkingTime });
 
@@ -58,11 +58,10 @@ namespace wisdom
                                                              int promoted_piece_type)
         -> WebMove*
     {
-        auto game_src = make_coord (src->row, src->col);
-        auto game_dst = make_coord (dst->row, dst->col);
+        auto game_src = makeCoord (src->row, src->col);
+        auto game_dst = makeCoord (dst->row, dst->col);
 
-        auto optionalMove = my_game.map_coordinates_to_move (game_src, game_dst,
-                                                             map_piece (promoted_piece_type));
+        auto optionalMove = my_game.mapCoordinatesToMove (game_src, game_dst, mapPiece (promoted_piece_type));
 
         if (!optionalMove.has_value())
         {
@@ -75,19 +74,19 @@ namespace wisdom
 
     auto WebGame::isLegalMove (const WebMove* selectedMovePtr) -> bool
     {
-        Move selectedMove = selectedMovePtr->get_move();
-        auto selectedMoveStr = to_string (selectedMove);
+        Move selectedMove = selectedMovePtr->getMove();
+        auto selectedMoveStr = asString (selectedMove);
 
         // If it's not the human's turn, move is illegal.
-        if (my_game.get_current_player() != wisdom::Player::Human)
+        if (my_game.getCurrentPlayer() != wisdom::Player::Human)
         {
-            set_move_status ("Illegal move");
+            setMoveStatus ("Illegal move");
             return false;
         }
 
-        auto who = my_game.get_current_turn();
-        auto& generator = my_game.get_move_generator();
-        auto legalMoves = generator.generate_legal_moves (my_game.get_board(), who);
+        auto who = my_game.getCurrentTurn();
+        auto& generator = my_game.getMoveGenerator();
+        auto legalMoves = generator.generateLegalMoves (my_game.getBoard(), who);
 
         auto result = std::any_of (legalMoves.cbegin(), legalMoves.cend(),
                                    [selectedMove] (const auto& move)
@@ -96,7 +95,7 @@ namespace wisdom
                                    });
         if (!result)
         {
-            set_move_status ("Illegal move");
+            setMoveStatus ("Illegal move");
             return false;
         }
         return result;
@@ -104,22 +103,22 @@ namespace wisdom
 
     void WebGame::setSettings (const wisdom::GameSettings& settings)
     {
-        settings.apply_to_game (&my_game);
+        settings.applyToGame (&my_game);
     }
 
 
     void WebGame::setComputerDrawStatus (int type, int who, bool accepted)
     {
-        ProposedDrawType proposed_draw_type = map_draw_by_repetition_type (type);
-        Color color = map_color (who);
+        ProposedDrawType proposed_draw_type = mapDrawByRepetitionType (type);
+        Color color = mapColor (who);
 
         std::cout << "accepted: " << accepted << "\n";
-        std::cout << "Color: " << wisdom::to_string (color) << "\n";
-        my_game.set_proposed_draw_status (proposed_draw_type, color, accepted);
-        update_displayed_game_state();
+        std::cout << "Color: " << wisdom::asString (color) << "\n";
+        my_game.setProposedDrawStatus (proposed_draw_type, color, accepted);
+        updateDisplayedGameState();
     }
 
-    [[nodiscard]] auto WebGame::find_and_remove_id (std::unordered_map<int,
+    [[nodiscard]] auto WebGame::findAndRemoveId (std::unordered_map<int,
         WebColoredPiece>& old_list, Coord coord_to_find, ColoredPiece piece_to_find) -> int
     {
         auto found
@@ -128,8 +127,8 @@ namespace wisdom
                             {
                                 auto key = it.first;
                                 auto value = it.second;
-                                auto piece = map_colored_piece (value);
-                                auto piece_coord = make_coord (value.row, value.col);
+                                auto piece = mapColoredPiece (value);
+                                auto piece_coord = makeCoord (value.row, value.col);
                                 return piece_to_find == piece && piece_coord == coord_to_find;
                             });
 
@@ -146,9 +145,9 @@ namespace wisdom
         return 0;
     }
 
-    void WebGame::update_piece_list (ColoredPiece promoted_piece)
+    void WebGame::updatePieceList (ColoredPiece promoted_piece)
     {
-        const Board& board = my_game.get_board();
+        const Board& board = my_game.getBoard();
 
         WebColoredPieceList old_pieces = my_pieces;
         my_pieces.clear();
@@ -160,23 +159,23 @@ namespace wisdom
         for (int i = 0; i < old_pieces.length; i++)
         {
             WebColoredPiece piece = old_pieces.pieces[i];
-            Coord src = make_coord (piece.row, piece.col);
-            old_list[coord_index (src)] = piece;
+            Coord src = makeCoord (piece.row, piece.col);
+            old_list[coordIndex (src)] = piece;
         }
 
         for (int i = 0; i < Num_Squares; i++)
         {
-            Coord coord = make_coord_from_index (i);
-            ColoredPiece piece = board.piece_at (coord);
+            Coord coord = makeCoordFromIndex (i);
+            ColoredPiece piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
             {
-                int id = find_and_remove_id (old_list, coord, piece);
+                int id = findAndRemoveId (old_list, coord, piece);
                 if (id != 0)
                 {
                     WebColoredPiece new_piece = {
                         id,
-                        to_int (piece.color()),
-                        to_int (piece.type()),
+                        toInt (piece.color()),
+                        toInt (piece.type()),
                         gsl::narrow<int8_t> (Row (coord)),
                         gsl::narrow<int8_t> (Column (coord)),
                     };
@@ -196,7 +195,7 @@ namespace wisdom
                 auto new_piece = value.second;
                 auto pred = [new_piece, promoted_piece] (const auto& list_item) -> bool
                 {
-                    ColoredPiece old_piece = map_colored_piece (list_item.second);
+                    ColoredPiece old_piece = mapColoredPiece (list_item.second);
                     const auto pieces_match = old_piece == new_piece;
                     const auto promoted_piece_matches = (
                         promoted_piece != Piece_And_Color_None
@@ -213,12 +212,12 @@ namespace wisdom
                 }
                 auto coord_idx = it->first;
                 auto old_piece = it->second;
-                auto coord = make_coord_from_index (value.first);
+                auto coord = makeCoordFromIndex (value.first);
 
                 my_pieces.addPiece (WebColoredPiece {
                     old_piece.id,
                     old_piece.color,
-                    map_piece (new_piece.type()),
+                    mapPiece (new_piece.type()),
                     Row<int8_t> (coord),
                     Column<int8_t> (coord),
                 });
@@ -257,73 +256,73 @@ namespace wisdom
 
         void checkmate() override
         {
-            auto who = parent->my_game.get_current_turn();
-            auto whoString = "<strong>Checkmate</strong> - " +
-                wisdom::to_string (color_invert (who)) +
+            auto who = parent->my_game.getCurrentTurn();
+            auto whoString = "<strong>Checkmate</strong> - " + wisdom::asString (colorInvert (who)) +
                 " wins the game.";
-            parent->set_game_over_status (whoString);
+            parent->setGameOverStatus (whoString);
         }
 
         void stalemate() override
         {
-            auto who = parent->my_game.get_current_turn();
-            auto stalemateStr = "<strong>Stalemate</strong> - No legal moves for " +
-                wisdom::to_string (who);
-            parent->set_game_over_status (stalemateStr);
+            auto who = parent->my_game.getCurrentTurn();
+            auto stalemateStr = "<strong>Stalemate</strong> - No legal moves for " + wisdom::asString (who);
+            parent->setGameOverStatus (stalemateStr);
         }
 
-        void insufficient_material() override
+        void insufficientMaterial() override
         {
-            parent->set_game_over_status ("<strong>Draw</strong> - Insufficient material to checkmate.");
+            parent->setGameOverStatus (
+                "<strong>Draw</strong> - Insufficient material to checkmate.");
         }
 
-        void third_repetition_draw_reached() override
-        {
-            // nothing
-        }
-
-        void third_repetition_draw_accepted() override
-        {
-            parent->set_game_over_status ("<strong>Draw</strong> - Threefold repetition rule.");
-        }
-
-        void fifth_repetition_draw() override
-        {
-            parent->set_game_over_status ("<strong>Draw</strong> - Fivefold repetition rule.");
-        }
-
-        void fifty_moves_without_progress_reached() override
+        void thirdRepetitionDrawReached() override
         {
             // nothing
         }
 
-        void fifty_moves_without_progress_accepted() override
+        void thirdRepetitionDrawAccepted() override
         {
-            parent->set_game_over_status ("<strong>Draw</strong> - Fifty moves without progress.");
+            parent->setGameOverStatus ("<strong>Draw</strong> - Threefold repetition rule.");
         }
 
-        void seventy_five_moves_with_no_progress() override
+        void fifthRepetitionDraw() override
         {
-            parent->set_game_over_status ("<strong>Draw</strong> - Seventy-five moves without progress.");
+            parent->setGameOverStatus ("<strong>Draw</strong> - Fivefold repetition rule.");
+        }
+
+        void fiftyMovesWithoutProgressReached() override
+        {
+            // nothing
+        }
+
+        void fiftyMovesWithoutProgressAccepted() override
+        {
+            parent->setGameOverStatus ("<strong>Draw</strong> - Fifty moves without progress.");
+        }
+
+        void seventyFiveMovesWithNoProgress() override
+        {
+            parent->setGameOverStatus (
+                "<strong>Draw</strong> - Seventy-five moves without progress.");
         }
     };
 
-    void WebGame::update_displayed_game_state()
+    void WebGame::updateDisplayedGameState()
     {
-        auto who = my_game.get_current_turn();
-        auto& board = my_game.get_board();
+        auto who = my_game.getCurrentTurn();
+        auto& board = my_game.getBoard();
 
-        set_move_status ("");
-        set_game_over_status ("");
-        set_in_check (false);
-        set_move_number (my_game.get_history().get_move_history().size());
+        setMoveStatus ("");
+        setGameOverStatus ("");
+        setInCheck (false);
+        setMoveNumber (my_game.getHistory().getMoveHistory().size());
 
         WebGameStatusUpdate update { this };
         auto nextStatus = my_game.status();
         update.update (nextStatus);
 
-        if (wisdom::is_king_threatened (board, who, board.get_king_position (who)))
-            set_in_check (true);
+        if (wisdom::isKingThreatened (board, who, board.getKingPosition (who)))
+            setInCheck (true);
     }
 
 }

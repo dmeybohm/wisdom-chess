@@ -16,7 +16,7 @@ namespace wisdom
             parse (input);
         }
 
-        [[nodiscard]] auto get_active_player () const -> Color
+        [[nodiscard]] auto getActivePlayer() const -> Color
         {
             return active_player;
         }
@@ -24,7 +24,7 @@ namespace wisdom
         // Build the game:
         auto build () -> Game;
 
-        auto build_board () -> Board;
+        auto buildBoard() -> Board;
 
     private:
         BoardBuilder builder;
@@ -32,19 +32,19 @@ namespace wisdom
 
         void parse (const string& input);
 
-        static auto parse_piece (char ch) -> ColoredPiece;
+        static auto parsePiece (char ch) -> ColoredPiece;
 
-        void parse_pieces (string pieces_str);
+        void parsePieces (string pieces_str);
 
-        void parse_en_passant (string en_passant_str);
+        void parseEnPassant (string en_passant_str);
 
-        void parse_castling (string castling_str);
+        void parseCastling (string castling_str);
 
-        void parse_half_move (int half_moves);
+        void parseHalfMove (int half_moves);
 
-        void parse_full_move (int full_moves);
+        void parseFullMove (int full_moves);
 
-        static auto parse_active_player (char ch) -> Color;
+        static auto parseActivePlayer (char ch) -> Color;
     };
 
     class FenParserError : public Error

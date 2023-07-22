@@ -3,6 +3,7 @@
 
 namespace wisdom
 {
+    // clang-format off
     constexpr int pawn_positions[Num_Rows][Num_Columns] = {
             {  0,  0,  0,  0,  0,  0,  0,  0 },
             { +9, +9, +9, +9, +9, +9, +9, +9 },
@@ -68,8 +69,9 @@ namespace wisdom
             { -2,  0, +1,  0,  0,  0,  0, -2 },
             { -4, -2, -2, -1, -1, -2, -2, -4 },
     };
+    // clang-format on
 
-    static Coord translate_position (Coord coord, Color who)
+    static Coord translatePosition (Coord coord, Color who)
     {
         if (who == Color::White)
             return coord;
@@ -77,32 +79,30 @@ namespace wisdom
         int8_t row = Row (coord);
         int8_t col = Column (coord);
 
-        return make_coord (
-            gsl::narrow_cast<int8_t>(Last_Row - row),
-            gsl::narrow_cast<int8_t>(Last_Column - col)
-        );
+        return makeCoord (gsl::narrow_cast<int8_t> (Last_Row - row),
+                          gsl::narrow_cast<int8_t> (Last_Column - col));
     }
 
-    static int8_t castling_row_from_color (Color who)
+    static int8_t castlingRowFromColor (Color who)
     {
         switch (who)
         {
             case Color::White: return 7;
             case Color::Black: return 0;
             default: throw Error {
-              "Invalid color in castling_row_from_color()"
+              "Invalid color in castlingRowFromColor()"
             };
         }
     }
 
     static int change (Coord coord, Color who, ColoredPiece piece)
     {
-        Coord translated_pos = translate_position (coord, who);
+        Coord translated_pos = translatePosition (coord, who);
         int8_t row = Row (translated_pos);
         int8_t col = Column (translated_pos);
 
         // todo convert enum to integer index instead of using switch.
-        switch (piece_type (piece))
+        switch (pieceType (piece))
         {
             case Piece::Pawn:
                 return pawn_positions[row][col];
@@ -121,10 +121,10 @@ namespace wisdom
         }
     }
 
-    int Position::overall_score (Color who) const
+    int Position::overallScore (Color who) const
     {
-        ColorIndex index = color_index (who);
-        ColorIndex inverted = color_index (color_invert (who));
+        ColorIndex index = colorIndex (who);
+        ColorIndex inverted = colorIndex (colorInvert (who));
         assert (this->my_score[index] < 3000 && this->my_score[index] > -3000);
         assert (this->my_score[inverted] < 3000 && this->my_score[inverted] > -3000);
         int result = this->my_score[index] - this->my_score[inverted];
@@ -134,26 +134,26 @@ namespace wisdom
 
     void Position::add (Color who, Coord coord, ColoredPiece piece)
     {
-        ColorIndex index = color_index (who);
+        ColorIndex index = colorIndex (who);
         this->my_score[index] += change (coord, who, piece);
     }
 
     void Position::remove (Color who, Coord coord, ColoredPiece piece)
     {
-        ColorIndex index = color_index (who);
+        ColorIndex index = colorIndex (who);
         this->my_score[index] -= change (coord, who, piece);
     }
 
-    void Position::apply_move (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece)
+    void Position::applyMove (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece)
     {
-        Color opponent = color_invert (who);
+        Color opponent = colorInvert (who);
 
-        Coord src = move.get_src();
-        Coord dst = move.get_dst();
+        Coord src = move.getSrc();
+        Coord dst = move.getDst();
 
         this->remove (who, src, src_piece);
 
-        switch (move.get_move_category())
+        switch (move.getMoveCategory())
         {
             case MoveCategory::Default:
                 break;
@@ -167,7 +167,7 @@ namespace wisdom
 
             case MoveCategory::EnPassant:
                 {
-                    Coord taken_pawn_coord = en_passant_taken_pawn_coord (src, dst);
+                    Coord taken_pawn_coord = enPassantTakenPawnCoord (src, dst);
                     this->remove (
                         opponent,
                         taken_pawn_coord,
@@ -178,18 +178,18 @@ namespace wisdom
 
             case MoveCategory::Castling:
                 {
-                    int8_t rook_src_row = castling_row_from_color (who);
+                    int8_t rook_src_row = castlingRowFromColor (who);
                     auto rook_src_col = gsl::narrow_cast<int8_t> (
-                        move.is_castling_on_kingside ()
+                        move.isCastlingOnKingside()
                             ? King_Rook_Column : Queen_Rook_Column
                     );
                     auto rook_dst_col = gsl::narrow_cast<int8_t> (
-                        move.is_castling_on_kingside ()
+                        move.isCastlingOnKingside()
                             ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column
                     );
 
-                    Coord src_rook_coord = make_coord (rook_src_row, rook_src_col);
-                    Coord dst_rook_coord = make_coord (rook_src_row, rook_dst_col);
+                    Coord src_rook_coord = makeCoord (rook_src_row, rook_src_col);
+                    Coord dst_rook_coord = makeCoord (rook_src_row, rook_dst_col);
                     ColoredPiece rook = ColoredPiece::make (who, Piece::Rook);
 
                     this->remove (who, src_rook_coord, rook);
@@ -201,23 +201,23 @@ namespace wisdom
                 throw Error { "Invalid move type." };
         }
 
-        ColoredPiece new_piece = move.is_promoting() ? move.get_promoted_piece() : src_piece;
+        ColoredPiece new_piece = move.isPromoting() ? move.getPromotedPiece() : src_piece;
 
         this->add (who, dst, new_piece);
     }
 
-    int Position::individual_score (Color who) const
+    int Position::individualScore (Color who) const
     {
-        return my_score[color_index (who)];
+        return my_score[colorIndex (who)];
     }
 
     Position::Position (const Board& board)
     {
-        for (auto coord : board.all_coords ())
+        for (auto coord : board.allCoords())
         {
-            auto piece = board.piece_at (coord);
+            auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
-                add (piece_color (piece), coord, piece);
+                add (pieceColor (piece), coord, piece);
         }
     }
 

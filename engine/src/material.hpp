@@ -36,50 +36,50 @@ namespace wisdom
             std::terminate ();
         }
 
-        [[nodiscard]] static auto score_with_scale (int score) -> int
+        [[nodiscard]] static auto scaledScore (int score) -> int
         {
             return score * Material_Score_Scale;
         }
 
         void add (ColoredPiece piece)
         {
-            auto color_idx = color_index (piece_color (piece));
-            auto type = piece_type (piece);
+            auto color_idx = colorIndex (pieceColor (piece));
+            auto type = pieceType (piece);
 
             my_score[color_idx] += weight (type);
-            my_piece_count[color_idx][to_int (type)]++;
+            my_piece_count[color_idx][toInt (type)]++;
 
-            assert (my_piece_count[color_idx][to_int (type)] > 0);
+            assert (my_piece_count[color_idx][toInt (type)] > 0);
         }
 
         void remove (ColoredPiece piece)
         {
-            auto color_idx = color_index (piece_color (piece));
-            auto type = piece_type (piece);
+            auto color_idx = colorIndex (pieceColor (piece));
+            auto type = pieceType (piece);
 
             my_score[color_idx] -= weight (type);
-            my_piece_count[color_idx][to_int (type)]--;
+            my_piece_count[color_idx][toInt (type)]--;
 
-            assert (my_piece_count[color_idx][to_int (type)] >= 0);
+            assert (my_piece_count[color_idx][toInt (type)] >= 0);
         }
 
-        [[nodiscard]] auto individual_score (Color who) const -> int
+        [[nodiscard]] auto individualScore (Color who) const -> int
         {
-            ColorIndex my_index = color_index (who);
-            return score_with_scale (my_score[my_index]);
+            ColorIndex my_index = colorIndex (who);
+            return scaledScore (my_score[my_index]);
         }
 
-        [[nodiscard]] auto overall_score (Color who) const -> int
+        [[nodiscard]] auto overallScore (Color who) const -> int
         {
-            ColorIndex my_index = color_index (who);
-            ColorIndex opponent_index = color_index (color_invert (who));
-            return score_with_scale (my_score[my_index] - my_score[opponent_index]);
+            ColorIndex my_index = colorIndex (who);
+            ColorIndex opponent_index = colorIndex (colorInvert (who));
+            return scaledScore (my_score[my_index] - my_score[opponent_index]);
         }
 
-        [[nodiscard]] auto piece_count (Color who, Piece type) const -> int
+        [[nodiscard]] auto pieceCount (Color who, Piece type) const -> int
         {
-            auto color_idx = color_index (who);
-            auto type_idx = to_int (type);
+            auto color_idx = colorIndex (who);
+            auto type_idx = toInt (type);
 
             return my_piece_count[color_idx][type_idx];
         }
@@ -91,29 +91,25 @@ namespace wisdom
         };
 
         // Whether there is insufficient material remaining for a checkmate.
-        [[nodiscard]] auto checkmate_is_possible (const Board& board) const -> CheckmateIsPossible
+        [[nodiscard]] auto checkmateIsPossible (const Board& board) const -> CheckmateIsPossible
         {
-            if (piece_count (Color::White, Piece::Pawn) > 0 ||
-                piece_count (Color::Black, Piece::Pawn) > 0 ||
-                piece_count (Color::White, Piece::Rook) > 0 ||
-                piece_count (Color::Black, Piece::Rook) > 0)
+            if (pieceCount (Color::White, Piece::Pawn) > 0 || pieceCount (Color::Black, Piece::Pawn) > 0 || pieceCount (Color::White, Piece::Rook) > 0 || pieceCount (Color::Black, Piece::Rook) > 0)
             {
                 return CheckmateIsPossible::Yes;
             }
 
-            if (individual_score (Color::White) > score_with_scale (WeightKing + 2 * WeightBishop) ||
-                individual_score (Color::Black) > score_with_scale (WeightKing + 2 * WeightBishop))
+            if (individualScore (Color::White) > scaledScore (WeightKing + 2 * WeightBishop) || individualScore (Color::Black) > scaledScore (WeightKing + 2 * WeightBishop))
             {
                 return CheckmateIsPossible::Yes;
             }
 
-            return check_insufficient_material_scenarios (board);
+            return checkInsufficientMaterialScenarios (board);
         }
 
     private:
         // Check for more detailed scenarios of sufficient material. This assumes there are
         // only minor pieces and king left, with no pawns.
-        [[nodiscard]] auto check_insufficient_material_scenarios (const Board& board) const
+        [[nodiscard]] auto checkInsufficientMaterialScenarios (const Board& board) const
             -> CheckmateIsPossible;
     };
 }

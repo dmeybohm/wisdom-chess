@@ -1,21 +1,21 @@
 #ifndef WISDOM_CHESS_GAMESETTINGS_H
 #define WISDOM_CHESS_GAMESETTINGS_H
 
-#include <QObject>
 #include "ui_types.hpp"
+#include <QObject>
 
 class GameSettings
 {
     Q_GADGET
 
-    Q_PROPERTY(wisdom::ui::Player whitePlayer MEMBER myWhitePlayer READ whitePlayer)
-    Q_PROPERTY(wisdom::ui::Player blackPlayer MEMBER myBlackPlayer READ blackPlayer)
-    Q_PROPERTY(int maxDepth MEMBER myMaxDepth READ maxDepth)
-    Q_PROPERTY(int maxSearchTime MEMBER myMaxSearchTime READ maxSearchTime)
+    Q_PROPERTY (wisdom::ui::Player whitePlayer MEMBER my_white_player READ whitePlayer)
+    Q_PROPERTY (wisdom::ui::Player blackPlayer MEMBER my_black_player READ blackPlayer)
+    Q_PROPERTY (int maxDepth MEMBER my_max_depth READ maxDepth)
+    Q_PROPERTY (int maxSearchTime MEMBER my_max_search_time READ maxSearchTime)
 
-public:    
-    friend bool operator == (const GameSettings&, const GameSettings&);
-    friend bool operator != (const GameSettings&, const GameSettings&);
+public:
+    friend bool operator== (const GameSettings&, const GameSettings&);
+    friend bool operator!= (const GameSettings&, const GameSettings&);
 
     [[nodiscard]] auto whitePlayer() const -> wisdom::ui::Player;
 
@@ -26,10 +26,10 @@ public:
     [[nodiscard]] auto maxSearchTime() const -> int;
 
 private:
-    wisdom::ui::Player myWhitePlayer = wisdom::ui::Player::Human;
-    wisdom::ui::Player myBlackPlayer = wisdom::ui::Player::Computer;
-    int myMaxDepth = 3;
-    int myMaxSearchTime = 4;
+    wisdom::ui::Player my_white_player = wisdom::ui::Player::Human;
+    wisdom::ui::Player my_black_player = wisdom::ui::Player::Computer;
+    int my_max_depth = 3;
+    int my_max_search_time = 4;
 };
 
 #endif // WISDOM_CHESS_GAMESETTINGS_H

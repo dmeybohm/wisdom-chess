@@ -5,15 +5,15 @@
 
 using namespace wisdom;
 
-TEST_CASE("is_king_threatened works for bishop, rook, and king")
+TEST_CASE("isKingThreatened works for bishop, rook, and king")
 {
     BoardBuilder builder;
 
-    builder.add_piece ("a8", Color::Black, Piece::King);
-    builder.add_piece ("a1", Color::White, Piece::King);
+    builder.addPiece ("a8", Color::Black, Piece::King);
+    builder.addPiece ("a1", Color::White, Piece::King);
 
-    builder.add_piece ("c3", Color::Black, Piece::Bishop);
-    builder.add_piece ("d4", Color::White, Piece::Rook);
+    builder.addPiece ("c3", Color::Black, Piece::Bishop);
+    builder.addPiece ("d4", Color::White, Piece::Rook);
 
     auto board = Board { builder };
     int white_king_threatened[Num_Rows][Num_Columns] = {
@@ -43,9 +43,9 @@ TEST_CASE("is_king_threatened works for bishop, rook, and king")
         for (auto col = 7; col < 8; col++)
         {
 //            INFO("White king coordinate is ", row, " ", col);
-            REQUIRE( is_king_threatened (board, Color::White, row, col) == (bool)white_king_threatened[row][col] );
+            REQUIRE( isKingThreatened (board, Color::White, row, col) == (bool)white_king_threatened[row][col] );
 //            INFO("Black king coordinate is ", row, " ", col);
-            REQUIRE( is_king_threatened (board, Color::Black, row, col) == (bool)black_king_threatened[row][col] );
+            REQUIRE( isKingThreatened (board, Color::Black, row, col) == (bool)black_king_threatened[row][col] );
         }
     }
 

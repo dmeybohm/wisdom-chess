@@ -16,31 +16,31 @@ void wisdom::GameStatusUpdate::update (GameStatus status)
             break;
 
         case GameStatus::ThreefoldRepetitionReached:
-            third_repetition_draw_reached();
+            thirdRepetitionDrawReached();
             break;
 
         case GameStatus::ThreefoldRepetitionAccepted:
-            third_repetition_draw_accepted();
+            thirdRepetitionDrawAccepted();
             break;
 
         case GameStatus::FivefoldRepetitionDraw:
-            fifth_repetition_draw();
+            fifthRepetitionDraw();
             break;
 
         case GameStatus::FiftyMovesWithoutProgressReached:
-            fifty_moves_without_progress_reached();
+            fiftyMovesWithoutProgressReached();
             break;
 
         case GameStatus::FiftyMovesWithoutProgressAccepted:
-            fifty_moves_without_progress_accepted();
+            fiftyMovesWithoutProgressAccepted();
             break;
 
         case GameStatus::SeventyFiveMovesWithoutProgressDraw:
-            seventy_five_moves_with_no_progress();
+            seventyFiveMovesWithNoProgress();
             break;
 
         case GameStatus::InsufficientMaterialDraw:
-            insufficient_material();
+            insufficientMaterial();
             break;
     }
 }

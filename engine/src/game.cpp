@@ -15,7 +15,7 @@ namespace wisdom
     static FenOutputFormat fen_output_format;
     static WisdomGameOutputFormat wisdom_game_output_format;
 
-    static OutputFormat& make_output_format (const string& filename)
+    static OutputFormat& makeOutputFormat (const string& filename)
     {
         if (filename.find (".fen") != string::npos)
             return fen_output_format;
@@ -24,22 +24,22 @@ namespace wisdom
     }
 
     Game::Game ()
-        : Game { BoardBuilder::from_default_position(),  { { Player::Human, Player::ChessEngine } } }
+        : Game { BoardBuilder::fromDefaultPosition (),  { { Player::Human, Player::ChessEngine } } }
     {
     }
 
     Game::Game (const Players& players)
-        : Game { BoardBuilder::from_default_position(), { { players[0], players[1] } } }
+        : Game { BoardBuilder::fromDefaultPosition (), { { players[0], players[1] } } }
     {}
 
     Game::Game (Player white_player, Player black_player)
-        : Game { BoardBuilder::from_default_position(), { { white_player, black_player } } }
+        : Game { BoardBuilder::fromDefaultPosition (), { { white_player, black_player } } }
     {
     }
 
     Game::Game (Color current_turn)
         : Game {
-                BoardBuilder::from_default_position(),
+                BoardBuilder::fromDefaultPosition(),
                 { Player::Human, Player::ChessEngine },
                 current_turn
         }
@@ -52,7 +52,7 @@ namespace wisdom
     }
 
     Game::Game (const BoardBuilder& builder, const Players& players)
-        : Game { builder, players, builder.get_current_turn() }
+        : Game { builder, players, builder.getCurrentTurn() }
     {
 
     }
@@ -62,33 +62,33 @@ namespace wisdom
         : my_current_board { builder }
         , my_players { players }
     {
-        set_current_turn (current_turn);
-        my_history = History::from_initial_board (my_current_board);
+        setCurrentTurn(current_turn);
+        my_history = History::fromInitialBoard (my_current_board);
     }
 
     void Game::move (Move move)
     {
-        my_current_board = my_current_board.with_move (get_current_turn(), move);
-        my_history.store_position (my_current_board, move);
+        my_current_board = my_current_board.withMove (getCurrentTurn(), move);
+        my_history.storePosition (my_current_board, move);
     }
 
     void Game::save (const string& input) const
     {
-        OutputFormat& output = make_output_format (input);
-        output.save (input, my_current_board, my_history, get_current_turn ());
+        OutputFormat& output = makeOutputFormat (input);
+        output.save (input, my_current_board, my_history, getCurrentTurn ());
     }
 
     auto Game::status () const -> GameStatus
     {
-        if (is_checkmated (my_current_board, get_current_turn (), my_move_generator))
+        if (isCheckmated (my_current_board, getCurrentTurn(), my_move_generator))
             return GameStatus::Checkmate;
 
-        if (is_stalemated (my_current_board, get_current_turn (), my_move_generator))
+        if (isStalemated (my_current_board, getCurrentTurn(), my_move_generator))
             return GameStatus::Stalemate;
 
-        if (my_history.is_third_repetition (my_current_board))
+        if (my_history.isThirdRepetition (my_current_board))
         {
-            auto third_repetition_status = my_history.get_threefold_repetition_status ();
+            auto third_repetition_status = my_history.getThreefoldRepetitionStatus();
             switch (third_repetition_status)
             {
             case DrawStatus::Declined:
@@ -102,12 +102,12 @@ namespace wisdom
             }
         }
 
-        if (my_history.is_fifth_repetition (get_board ()))
+        if (my_history.isFifthRepetition (getBoard()))
             return GameStatus::FivefoldRepetitionDraw;
 
-        if (History::has_been_fifty_moves_without_progress (get_board ()))
+        if (History::hasBeenFiftyMovesWithoutProgress (getBoard()))
         {
-            auto fifty_moves_status = my_history.get_fifty_moves_without_progress_status ();
+            auto fifty_moves_status = my_history.getFiftyMovesWithoutProgressStatus();
             switch (fifty_moves_status)
             {
                 case DrawStatus::Declined:
@@ -121,34 +121,34 @@ namespace wisdom
             }
         }
 
-        if (History::has_been_seventy_five_moves_without_progress (get_board ()))
+        if (History::hasBeenSeventyFiveMovesWithoutProgress (getBoard()))
             return GameStatus::SeventyFiveMovesWithoutProgressDraw;
 
-        const auto& material = my_current_board.get_material ();
-        if (material.checkmate_is_possible (my_current_board) == Material::CheckmateIsPossible::No)
+        const auto& material = my_current_board.getMaterial ();
+        if (material.checkmateIsPossible (my_current_board) == Material::CheckmateIsPossible::No)
             return GameStatus::InsufficientMaterialDraw;
 
         return GameStatus::Playing;
     }
 
-    auto Game::find_best_move (const Logger& logger, Color whom) const
+    auto Game::findBestMove (const Logger& logger, Color whom) const
         -> optional<Move>
     {
         if (whom == Color::None)
-            whom = get_current_turn ();
+            whom = getCurrentTurn ();
 
         MoveTimer overdue_timer { my_search_timeout };
         if (my_periodic_function.has_value ())
-            overdue_timer.set_periodic_function (*my_periodic_function);
+            overdue_timer.setPeriodicFunction (*my_periodic_function);
 
         IterativeSearch iterative_search {
             my_current_board, my_history, logger, overdue_timer,
             my_max_depth
         };
-        SearchResult result = iterative_search.iteratively_deepen (whom);
+        SearchResult result = iterative_search.iterativelyDeepen (whom);
 
         // If user cancelled the search, discard the results.
-        if (iterative_search.is_cancelled ())
+        if (iterative_search.isCancelled())
             return {};
 
         return result.move;
@@ -177,48 +177,48 @@ namespace wisdom
             if (input_buf == "stop")
                 break;
 
-            Move move = move_parse (input_buf, result.get_current_turn ());
+            Move move = moveParse (input_buf, result.getCurrentTurn());
             result.move (move);
         }
 
         return result;
     }
 
-    auto Game::get_current_turn() const -> Color
+    auto Game::getCurrentTurn() const -> Color
     {
-        return my_current_board.get_current_turn ();
+        return my_current_board.getCurrentTurn();
     }
 
-    void Game::set_current_turn (Color new_turn)
+    void Game::setCurrentTurn (Color new_turn)
     {
-        my_current_board.set_current_turn (new_turn);
+        my_current_board.setCurrentTurn (new_turn);
     }
 
-    auto Game::get_board() const& -> const Board&
+    auto Game::getBoard() const& -> const Board&
     {
         return my_current_board;
     }
 
-    auto Game::get_history() & -> History&
+    auto Game::getHistory() & -> History&
     {
         return my_history;
     }
 
-    auto Game::get_move_generator() const& -> MoveGenerator&
+    auto Game::getMoveGenerator() const& -> MoveGenerator&
     {
         return my_move_generator;
     }
 
-    auto Game::computer_wants_draw (Color who) const -> bool
+    auto Game::computerWantsDraw (Color who) const -> bool
     {
         int score = evaluate (my_current_board, who, 1, my_move_generator);
         return score <= Min_Draw_Score;
     }
 
-    static auto draw_desires_to_repetition_status (BothPlayersDrawStatus draw_desires)
+    static auto drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires)
          -> DrawStatus
     {
-        assert (both_players_replied (draw_desires));
+        assert (bothPlayersReplied (draw_desires));
 
         DrawStatus status;
         bool white_wants_draw = draw_desires.first == DrawStatus::Accepted;
@@ -228,50 +228,47 @@ namespace wisdom
         return accepted ? DrawStatus::Accepted : DrawStatus::Declined;
     }
 
-    void Game::update_threefold_repetition_draw_status()
+    void Game::updateThreefoldRepetitionDrawStatus()
     {
-        auto status = draw_desires_to_repetition_status (my_third_repetition_draw);
-        my_history.set_threefold_repetition_status (status);
+        auto status = drawDesiresToRepetitionStatus (my_third_repetition_draw);
+        my_history.setThreefoldRepetitionStatus (status);
     }
 
-    void Game::update_fifty_moves_without_progress_draw_status()
+    void Game::updateFiftyMovesWithoutProgressDrawStatus()
     {
-        auto status = draw_desires_to_repetition_status (my_fifty_moves_without_progress_draw);
-        my_history.set_fifty_moves_without_progress_status (status);
+        auto status = drawDesiresToRepetitionStatus (my_fifty_moves_without_progress_draw);
+        my_history.setFiftyMovesWithoutProgressStatus (status);
     }
 
-    void Game::set_proposed_draw_status (ProposedDrawType draw_type, Color who,
+    void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who,
                                          DrawStatus draw_status)
     {
         switch (draw_type)
         {
             case ProposedDrawType::ThreeFoldRepetition:
-                my_third_repetition_draw = update_draw_status (
-                        my_third_repetition_draw, who, draw_status
-                );
-                if (both_players_replied (my_third_repetition_draw))
-                    update_threefold_repetition_draw_status ();
+                my_third_repetition_draw = updateDrawStatus (my_third_repetition_draw, who, draw_status);
+                if (bothPlayersReplied (my_third_repetition_draw))
+                    updateThreefoldRepetitionDrawStatus();
                 break;
 
             case ProposedDrawType::FiftyMovesWithoutProgress:
-                my_fifty_moves_without_progress_draw = update_draw_status (
-                        my_fifty_moves_without_progress_draw, who, draw_status
-                );
-                if (both_players_replied (my_fifty_moves_without_progress_draw))
-                    update_fifty_moves_without_progress_draw_status ();
+                my_fifty_moves_without_progress_draw = updateDrawStatus (my_fifty_moves_without_progress_draw, who, draw_status);
+                if (bothPlayersReplied (my_fifty_moves_without_progress_draw))
+                    updateFiftyMovesWithoutProgressDrawStatus();
                 break;
         }
     }
 
-    void Game::set_proposed_draw_status (ProposedDrawType draw_type, Color who, bool accepted)
+    void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who, bool accepted)
     {
-        set_proposed_draw_status (draw_type, who, accepted ? DrawStatus::Accepted : DrawStatus::Declined);
+        setProposedDrawStatus (draw_type, who,
+                               accepted ? DrawStatus::Accepted : DrawStatus::Declined);
     }
 
-    void Game::set_proposed_draw_status (ProposedDrawType draw_type,
+    void Game::setProposedDrawStatus (ProposedDrawType draw_type,
                                          std::pair<DrawStatus, DrawStatus> draw_statuses)
     {
-        set_proposed_draw_status (draw_type, Color::White, draw_statuses.first);
-        set_proposed_draw_status (draw_type, Color::Black, draw_statuses.second);
+        setProposedDrawStatus (draw_type, Color::White, draw_statuses.first);
+        setProposedDrawStatus (draw_type, Color::Black, draw_statuses.second);
     }
 }

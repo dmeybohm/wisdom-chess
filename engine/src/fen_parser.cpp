@@ -10,11 +10,11 @@ namespace wisdom
 
     Game FenParser::build ()
     {
-        builder.set_current_turn (active_player);
+        builder.setCurrentTurn (active_player);
         return Game { builder };
     }
 
-    auto FenParser::parse_piece (char ch) -> ColoredPiece
+    auto FenParser::parsePiece (char ch) -> ColoredPiece
     {
         int lower = tolower (ch);
         Color who = islower (ch) ? Color::Black : Color::White;
@@ -38,7 +38,7 @@ namespace wisdom
         }
     }
 
-    auto FenParser::parse_active_player (char ch) -> Color
+    auto FenParser::parseActivePlayer (char ch) -> Color
     {
         switch (ch)
         {
@@ -51,14 +51,14 @@ namespace wisdom
         }
     }
 
-    void FenParser::parse_pieces (string str)
+    void FenParser::parsePieces (string pieces_str)
     {
         char ch;
 
         // read pieces
-        for (int row = 0, col = 0; !str.empty (); str = str.substr (1))
+        for (int row = 0, col = 0; !pieces_str.empty (); pieces_str = pieces_str.substr (1))
         {
-            ch = str[0];
+            ch = pieces_str[0];
 
             if (ch == '/')
             {
@@ -73,8 +73,8 @@ namespace wisdom
             }
             else if (isalpha (ch))
             {
-                ColoredPiece piece = parse_piece (ch);
-                builder.add_piece (row, col, piece_color (piece), piece_type (piece));
+                ColoredPiece piece = parsePiece (ch);
+                builder.addPiece (row, col, pieceColor (piece), pieceType (piece));
                 col++;
                 if (col > Num_Columns)
                     throw FenParserError ("Invalid columns!");
@@ -93,18 +93,18 @@ namespace wisdom
     }
 
     // en passant target square:
-    void FenParser::parse_en_passant (string str)
+    void FenParser::parseEnPassant (string en_passant_str)
     {
-        if (str.empty ())
+        if (en_passant_str.empty ())
             return;
 
-        if (str[0] == '-')
+        if (en_passant_str[0] == '-')
             return;
 
         try
         {
-            string cstr { str.substr (0, 2) };
-            builder.set_en_passant_target (color_invert (active_player), cstr);
+            string cstr { en_passant_str.substr (0, 2) };
+            builder.setEnPassantTarget (colorInvert (active_player), cstr);
         }
         catch ([[maybe_unused]] const BoardBuilderError& e)
         {
@@ -112,16 +112,17 @@ namespace wisdom
         }
     }
 
-    void FenParser::parse_castling (string str)
+    void FenParser::parseCastling (string castling_str)
     {
         CastlingEligibility white_castle = CastlingEligible::QueensideIneligible | CastlingEligible::KingsideIneligible;
         CastlingEligibility black_castle = CastlingEligible::QueensideIneligible | CastlingEligible::KingsideIneligible;
         CastlingEligibility kingside = CastlingEligible::KingsideIneligible;
         CastlingEligibility queenside = CastlingEligible::QueensideIneligible;
 
-        for (; !str.empty () && isalpha (str[0]); str = str.substr (1))
+        for (; !castling_str.empty () && isalpha (castling_str[0]);
+             castling_str = castling_str.substr (1))
         {
-            char ch = str[0];
+            char ch = castling_str[0];
 
             if (ch == ' ' || ch == '-')
                 break;
@@ -145,20 +146,20 @@ namespace wisdom
                 white_castle &= new_state;
         }
 
-        builder.set_castling (Color::White, white_castle);
-        builder.set_castling (Color::Black, black_castle);
+        builder.setCastling (Color::White, white_castle);
+        builder.setCastling (Color::Black, black_castle);
     }
 
     // halfmove clock:
-    void FenParser::parse_half_move (int half_moves)
+    void FenParser::parseHalfMove (int half_moves)
     {
-        builder.set_half_moves_clock (half_moves);
+        builder.setHalfMovesClock (half_moves);
     }
 
     // fullmove number:
-    void FenParser::parse_full_move (int full_moves)
+    void FenParser::parseFullMove (int full_moves)
     {
-        builder.set_full_moves (full_moves);
+        builder.setFullMoves (full_moves);
     }
 
     void FenParser::parse (const string& source)
@@ -170,45 +171,45 @@ namespace wisdom
         input >> pieces_str;
         if (input.fail ())
             throw FenParserError { "Missing pieces declaration parsing FEN string" };
-        parse_pieces (pieces_str);
+        parsePieces (pieces_str);
 
         // read active computer_player:
         string active_player_str;
         input >> active_player_str;
         if (input.fail ())
             throw FenParserError { "Missing active player parsing FEN string" };
-        active_player = parse_active_player (active_player_str[0]);
+        active_player = parseActivePlayer (active_player_str[0]);
 
         // castling:
         string castling_str;
         input >> castling_str;
         if (input.fail ())
             throw FenParserError { "Missing castling string FEN string" };
-        parse_castling (castling_str);
+        parseCastling (castling_str);
 
         // en passant target square:
         string en_passant_str;
         input >> en_passant_str;
         if (input.fail ())
             throw FenParserError { "Missing en passant square parsing FEN string" };
-        parse_en_passant (en_passant_str);
+        parseEnPassant (en_passant_str);
 
         // halfmove clock:
         int half_moves;
         input >> half_moves;
         if (input.fail ())
             throw FenParserError { "Missing half move number parsing FEN string" };
-        parse_half_move (half_moves);
+        parseHalfMove (half_moves);
 
         // fullmove number:
         int full_moves;
         input >> full_moves;
         if (input.fail ())
             throw FenParserError { "Missing full move number parsing FEN string" };
-        parse_full_move (full_moves);
+        parseFullMove (full_moves);
     }
 
-    auto FenParser::build_board () -> Board
+    auto FenParser::buildBoard() -> Board
     {
         return Board { builder };
     }

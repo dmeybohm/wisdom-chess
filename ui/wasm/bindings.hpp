@@ -11,30 +11,30 @@
 extern "C"
 {
     // Reinitialize a new game.
-    EMSCRIPTEN_KEEPALIVE void worker_reinitialize_game (int new_game_id);
+    EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id);
 
     // Start searching for moves.
-    EMSCRIPTEN_KEEPALIVE void start_search();
+    EMSCRIPTEN_KEEPALIVE void startSearch();
 
     // Receive a move on the main thread from the chess engine.
-    EMSCRIPTEN_KEEPALIVE void main_thread_receive_move (int game_id, int packed_move);
+    EMSCRIPTEN_KEEPALIVE void mainThreadReceiveMove (int game_id, int packed_move);
 
     // Receive a move from the human player.
-    EMSCRIPTEN_KEEPALIVE void worker_receive_move (int packed_move);
+    EMSCRIPTEN_KEEPALIVE void workerReceiveMove (int packed_move);
 
     // Receive a settings update.
-    EMSCRIPTEN_KEEPALIVE void worker_receive_settings (int white_player, int black_player,
-                                                        int thinking_time, int search_depth);
+    EMSCRIPTEN_KEEPALIVE void workerReceiveSettings (int white_player, int black_player,
+                                                     int thinking_time, int search_depth);
 
     // Tell the worker to stop searching for moves. This can be called from any thread.
-    EMSCRIPTEN_KEEPALIVE void pause_worker (void);
+    EMSCRIPTEN_KEEPALIVE void pauseWorker (void);
 
     // Remove the unpause state from the worker. This can be called from any thread.
-    EMSCRIPTEN_KEEPALIVE void unpause_worker (void);
+    EMSCRIPTEN_KEEPALIVE void unpauseWorker (void);
 
     // Update the draw status.
-    EMSCRIPTEN_KEEPALIVE void main_thread_receive_draw_status (int game_id, int draw_type, int color,
-                                                               int draw_proposed);
+    EMSCRIPTEN_KEEPALIVE void mainThreadReceiveDrawStatus (int game_id, int draw_type, int color,
+                                                           int draw_proposed);
 }
 
 #endif // WISDOMCHESS_BINDINGS_HPP

@@ -20,7 +20,7 @@ namespace wisdom
         Black
     };
 
-    [[nodiscard]] inline auto map_color (int color) -> wisdom::Color
+    [[nodiscard]] inline auto mapColor (int color) -> wisdom::Color
     {
         switch (static_cast<WebColor> (color))
         {
@@ -35,7 +35,7 @@ namespace wisdom
         }
     }
 
-    [[nodiscard]] inline auto map_color (wisdom::Color color) -> WebColor
+    [[nodiscard]] inline auto mapColor (wisdom::Color color) -> WebColor
     {
         switch (color)
         {
@@ -61,7 +61,7 @@ namespace wisdom
         King,
     };
 
-    [[nodiscard]] inline auto map_piece (int piece) -> wisdom::Piece
+    [[nodiscard]] inline auto mapPiece (int piece) -> wisdom::Piece
     {
         switch (static_cast<WebPiece> (piece))
         {
@@ -84,7 +84,7 @@ namespace wisdom
         }
     }
 
-    [[nodiscard]] inline auto map_piece (wisdom::Piece piece) -> WebPiece
+    [[nodiscard]] inline auto mapPiece (wisdom::Piece piece) -> WebPiece
     {
         switch (piece)
         {
@@ -113,7 +113,7 @@ namespace wisdom
         ChessEngine
     };
 
-    [[nodiscard]] inline auto map_player (int player) -> wisdom::Player
+    [[nodiscard]] inline auto mapPlayer (int player) -> wisdom::Player
     {
         switch (static_cast<WebPlayer> (player))
         {
@@ -126,7 +126,7 @@ namespace wisdom
         }
     }
 
-    [[nodiscard]] inline auto map_player (wisdom::Player player) -> WebPlayer
+    [[nodiscard]] inline auto mapPlayer (wisdom::Player player) -> WebPlayer
     {
         switch (player)
         {
@@ -153,7 +153,7 @@ namespace wisdom
         InsufficientMaterialDraw,
     };
 
-    [[nodiscard]] inline auto map_game_status (int status) -> wisdom::GameStatus
+    [[nodiscard]] inline auto mapGameStatus (int status) -> wisdom::GameStatus
     {
         switch (static_cast<WebGameStatus> (status))
         {
@@ -182,7 +182,7 @@ namespace wisdom
         }
     }
 
-    [[nodiscard]] inline auto map_game_status (GameStatus status) -> WebGameStatus
+    [[nodiscard]] inline auto mapGameStatus (GameStatus status) -> WebGameStatus
     {
         switch (status)
         {
@@ -229,10 +229,10 @@ namespace wisdom
         int col;
     };
 
-    [[nodiscard]] inline auto map_colored_piece (WebColoredPiece colored_piece) -> ColoredPiece
+    [[nodiscard]] inline auto mapColoredPiece (WebColoredPiece colored_piece) -> ColoredPiece
     {
-        auto mapped_color = map_color (colored_piece.color);
-        auto mapped_type = map_piece (colored_piece.piece);
+        auto mapped_color = mapColor (colored_piece.color);
+        auto mapped_type = mapPiece (colored_piece.piece);
         return ColoredPiece::make (mapped_color, mapped_type);
     }
 
@@ -285,7 +285,7 @@ namespace wisdom
 
         static auto fromTextCoord (char* coord_text) -> WebCoord*
         {
-            auto coord = coord_parse (coord_text);
+            auto coord = coordParse (coord_text);
             return new WebCoord { gsl::narrow<int> (Row (coord)),
                                   gsl::narrow<int> (Column (coord)) };
         }
@@ -305,7 +305,7 @@ namespace wisdom
         FiftyMovesWithoutProgress,
     };
 
-    [[nodiscard]] inline auto map_draw_by_repetition_type (int type) -> wisdom::ProposedDrawType
+    [[nodiscard]] inline auto mapDrawByRepetitionType (int type) -> wisdom::ProposedDrawType
     {
         switch (static_cast<WebDrawByRepetitionType> (type))
         {
@@ -318,7 +318,7 @@ namespace wisdom
         }
     }
 
-    [[nodiscard]] inline auto map_draw_by_repetition_type (wisdom::ProposedDrawType type)
+    [[nodiscard]] inline auto mapDrawByRepetitionType (wisdom::ProposedDrawType type)
         -> WebDrawByRepetitionType
     {
         switch (type)

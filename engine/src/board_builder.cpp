@@ -6,53 +6,46 @@
 
 namespace wisdom
 {
-    auto BoardBuilder::from_default_position () -> BoardBuilder
+    auto BoardBuilder::fromDefaultPosition() -> BoardBuilder
     {
         auto result = BoardBuilder {};
+        result.addRowOfSameColor (0, Color::Black, Default_Piece_Row);
+        result.addRowOfSameColorAndPiece (1, Color::Black, Piece::Pawn);
+        result.addRowOfSameColorAndPiece (6, Color::White, Piece::Pawn);
+        result.addRowOfSameColor (7, Color::White, Default_Piece_Row);
 
-        result.add_row_of_same_color (0, Color::Black, Default_Piece_Row);
-        result.add_row_of_same_color_and_piece (1, Color::Black, Piece::Pawn);
-        result.add_row_of_same_color_and_piece (6, Color::White, Piece::Pawn);
-        result.add_row_of_same_color (7, Color::White, Default_Piece_Row);
-
-        result.set_castling (Color::White, CastlingEligible::EitherSideEligible);
-        result.set_castling (Color::Black, CastlingEligible::EitherSideEligible);
+        result.setCastling (Color::White, CastlingEligible::EitherSideEligible);
+        result.setCastling (Color::Black, CastlingEligible::EitherSideEligible);
 
         return result;
     }
 
-    void BoardBuilder::add_piece (const string& coord_str, Color who, Piece piece_type)
+    void BoardBuilder::addPiece (const string& coord_str, Color who, Piece piece_type)
     {
         if (coord_str.size () != 2)
             throw BoardBuilderError ("Invalid coordinate string!");
 
-        Coord algebraic = coord_parse (coord_str);
+        Coord algebraic = coordParse (coord_str);
 
-        add_piece (Row (algebraic), Column (algebraic), who, piece_type);
+        addPiece (Row (algebraic), Column (algebraic), who, piece_type);
     }
 
-    auto BoardBuilder::calculate_castle_state_from_position (Color who) const
+    auto BoardBuilder::calculateCastleStateFromPosition (Color who) const
         -> CastlingEligibility
     {
-        auto row = castling_row_for_color (who);
+        auto row = castlingRowForColor (who);
         int8_t king_col = King_Column;
 
         CastlingEligibility state = CastlingEligible::EitherSideEligible;
-        ColoredPiece prospective_king = piece_at (make_coord (row, king_col));
-        ColoredPiece prospective_queen_rook = piece_at (make_coord (row, 0));
-        ColoredPiece prospective_king_rook = piece_at (make_coord (row, 7));
+        ColoredPiece prospective_king = pieceAt (makeCoord (row, king_col));
+        ColoredPiece prospective_queen_rook = pieceAt (makeCoord (row, 0));
+        ColoredPiece prospective_king_rook = pieceAt (makeCoord (row, 7));
 
-        if (piece_type (prospective_king) != Piece::King ||
-            piece_color (prospective_king) != who ||
-            piece_type (prospective_queen_rook) != Piece::Rook ||
-            piece_color (prospective_queen_rook) != who)
+        if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who || pieceType (prospective_queen_rook) != Piece::Rook || pieceColor (prospective_queen_rook) != who)
         {
             state |= CastlingEligible::QueensideIneligible;
         }
-        if (piece_type (prospective_king) != Piece::King ||
-            piece_color (prospective_king) != who ||
-            piece_type (prospective_king_rook) != Piece::Rook ||
-            piece_color (prospective_king_rook) != who)
+        if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who || pieceType (prospective_king_rook) != Piece::Rook || pieceColor (prospective_king_rook) != who)
         {
             state |= CastlingEligible::KingsideIneligible;
         }
@@ -60,7 +53,7 @@ namespace wisdom
         return state;
     }
 
-    void BoardBuilder::add_piece (int row, int col, Color who, Piece piece_type)
+    void BoardBuilder::addPiece (int row, int col, Color who, Piece piece_type)
     {
         if (row < 0 || row >= Num_Rows)
             throw BoardBuilderError ("Invalid row!");
@@ -71,71 +64,71 @@ namespace wisdom
         if (piece_type == Piece::None)
             return;
 
-        auto coord = make_coord (row, col);
-        my_squares[coord_index (coord)] = ColoredPiece::make (who, piece_type);
+        auto coord = makeCoord (row, col);
+        my_squares[coordIndex (coord)] = ColoredPiece::make (who, piece_type);
 
         if (piece_type == Piece::King)
-            my_king_positions[color_index (who)] = coord;
+            my_king_positions[colorIndex (who)] = coord;
     }
 
-    void BoardBuilder::add_pieces (Color who, const vector<CoordAndPiece> &pieces)
+    void BoardBuilder::addPieces (Color who, const vector<CoordAndPiece> &pieces)
     {
         for (auto&& it : pieces)
-            add_piece (it.coord, who, it.piece_type);
+            addPiece (it.coord, who, it.piece_type);
     }
 
-    void BoardBuilder::add_row_of_same_color_and_piece (int row, Color who, Piece piece_type)
+    void BoardBuilder::addRowOfSameColorAndPiece (int row, Color who, Piece piece_type)
     {
         for (int col = 0; col < Num_Columns; col++)
-            add_piece (row, col, who, piece_type);
+            addPiece (row, col, who, piece_type);
     }
 
-    void BoardBuilder::add_row_of_same_color_and_piece (const string& coord_str, Color who,
+    void BoardBuilder::addRowOfSameColorAndPiece (const string& coord_str, Color who,
                                                         Piece piece_type)
     {
-        Coord coord = coord_parse (coord_str);
+        Coord coord = coordParse (coord_str);
 
         for (int col = 0; col < Num_Columns; col++)
-            add_piece (Row (coord), col, who, piece_type);
+            addPiece (Row (coord), col, who, piece_type);
     }
 
-    void BoardBuilder::add_row_of_same_color (int row, Color who,
+    void BoardBuilder::addRowOfSameColor (int row, Color who,
                                               const PieceRow& piece_types)
     {
         for (auto col = 0; col < Num_Columns; col++)
-            add_piece (row, col, who, piece_types[col]);
+            addPiece (row, col, who, piece_types[col]);
     }
 
-    void BoardBuilder::add_row_of_same_color (const string& coord_str, Color who,
+    void BoardBuilder::addRowOfSameColor (const string& coord_str, Color who,
                                               const PieceRow& piece_types)
     {
-        Coord coord = coord_parse (coord_str);
+        Coord coord = coordParse (coord_str);
 
         for (auto col = 0; col < Num_Columns; col++)
-            add_piece (Row (coord), col, who, piece_types[col]);
+            addPiece (Row (coord), col, who, piece_types[col]);
     }
 
-    void BoardBuilder::set_current_turn (Color who)
+    void BoardBuilder::setCurrentTurn (Color who)
     {
         my_current_turn = who;
     }
 
-    void BoardBuilder::set_en_passant_target (Color vulnerable_color, const string& coord_str)
+    void BoardBuilder::setEnPassantTarget (Color vulnerable_color, const string& coord_str)
     {
-        my_en_passant_targets[color_index (vulnerable_color)] = coord_parse (coord_str);
+        my_en_passant_targets[colorIndex (vulnerable_color)] = coordParse (coord_str);
     }
 
-    void BoardBuilder::set_castling (Color who, CastlingEligibility state)
+    void BoardBuilder::setCastling (Color who, CastlingEligibility state)
     {
-        my_castle_states[color_index (who)] = state;
+        my_castle_states[colorIndex (who)] = state;
     }
 
-    void BoardBuilder::set_half_moves_clock (int new_half_moves_clock)
+    void BoardBuilder::setHalfMovesClock (int new_half_moves_clock)
     {
         my_half_moves_clock = new_half_moves_clock;
     }
 
-    void BoardBuilder::set_full_moves (int new_full_moves)
+    void BoardBuilder::setFullMoves (int new_full_moves)
     {
         my_full_moves = new_full_moves;
     }

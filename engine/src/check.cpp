@@ -8,44 +8,43 @@
 
 namespace wisdom
 {
-    bool is_checkmated (const Board& board, Color who, MoveGenerator& generator)
+    bool isCheckmated (const Board& board, Color who, MoveGenerator& generator)
     {
-        auto coord = board.get_king_position (who);
+        auto coord = board.getKingPosition (who);
 
-        if (!is_king_threatened (board, who, coord))
+        if (!isKingThreatened (board, who, coord))
             return false;
 
-        MoveList legal_moves = generator.generate_legal_moves (board, who);
+        MoveList legal_moves = generator.generateLegalMoves (board, who);
 
         return legal_moves.empty ();
     }
 
-    auto is_legal_position_after_move (const Board& board, Color who, Move mv) -> bool
+    auto isLegalPositionAfterMove (const Board& board, Color who, Move mv) -> bool
     {
-        auto king_coord = board.get_king_position (who);
+        auto king_coord = board.getKingPosition (who);
 
-        if (is_king_threatened (board, who, king_coord))
+        if (isKingThreatened (board, who, king_coord))
             return false;
 
         auto king_row = Row (king_coord);
         auto king_col = Column (king_coord);
 
-        if (mv.is_castling ())
+        if (mv.isCastling())
         {
-            Coord castled_pos = mv.get_dst ();
+            Coord castled_pos = mv.getDst();
             auto castled_row = Row (castled_pos);
             auto castled_col = Column (castled_pos);
 
             assert (king_row == castled_row);
             assert (king_col == castled_col);
 
-            int8_t direction = mv.is_castling_on_kingside () ? -1 : 1;
+            int8_t direction = mv.isCastlingOnKingside() ? -1 : 1;
 
-            int8_t plus_one_column = next_column (castled_col, direction);
-            int8_t plus_two_column = next_column (plus_one_column, direction);
+            int8_t plus_one_column = nextColumn (castled_col, direction);
+            int8_t plus_two_column = nextColumn (plus_one_column, direction);
 
-            if (is_king_threatened (board, who, castled_row, plus_one_column) ||
-                is_king_threatened (board, who, castled_row, plus_two_column))
+            if (isKingThreatened (board, who, castled_row, plus_one_column) || isKingThreatened (board, who, castled_row, plus_two_column))
             {
                 return false;
             }
@@ -55,11 +54,11 @@ namespace wisdom
         return true;
     }
 
-    auto is_stalemated (const Board& board, Color who, MoveGenerator& generator) -> bool
+    auto isStalemated (const Board& board, Color who, MoveGenerator& generator) -> bool
     {
-        auto coord = board.get_king_position (who);
-        auto legal_moves = generator.generate_legal_moves (board, who);
+        auto coord = board.getKingPosition (who);
+        auto legal_moves = generator.generateLegalMoves (board, who);
 
-        return legal_moves.empty () && !is_king_threatened (board, who, coord);
+        return legal_moves.empty () && !isKingThreatened (board, who, coord);
     }
 }

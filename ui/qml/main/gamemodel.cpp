@@ -1,8 +1,8 @@
 #include "gamemodel.hpp"
 
-#include "game.hpp"
 #include "check.hpp"
 #include "chessengine.hpp"
+#include "game.hpp"
 #include "ui_settings.hpp"
 
 #include <QDebug>
@@ -10,21 +10,23 @@
 
 using namespace wisdom;
 namespace ui = wisdom::ui;
-using std::optional;
 using gsl::not_null;
-using std::make_shared;
-using std::shared_ptr;
-using std::pair;
 using std::atomic;
+using std::make_shared;
+using std::optional;
+using std::pair;
+using std::shared_ptr;
 
 namespace
 {
-    auto getFirstHumanPlayerColor(Players players) -> optional<Color>
+    auto getFirstHumanPlayerColor (Players players) -> optional<Color>
     {
-        if (players[0] == Player::Human) {
+        if (players[0] == Player::Human)
+        {
             return Color::White;
         }
-        if (players[1] == Player::Human) {
+        if (players[1] == Player::Human)
+        {
             return Color::Black;
         }
 
@@ -32,191 +34,187 @@ namespace
     }
 }
 
-GameModel::GameModel(QObject *parent)
-    : QObject(parent)
-    , myCurrentTurn {}
-    , myChessEngineThread { nullptr }
+GameModel::GameModel (QObject* parent) :
+        QObject (parent), my_current_turn {}, my_chess_engine_thread { nullptr }
 {
-    myChessGame = ChessGame::fromPlayers(
-                Player::Human,
-                Player::ChessEngine,
-                ChessGame::Config::fromGameSettings (myGameSettings)
-    );
-    init ();
+    my_chess_game = ChessGame::fromPlayers (Player::Human, Player::ChessEngine,
+                                            ChessGame::Config::fromGameSettings (my_game_settings));
+    init();
 }
 
 GameModel::~GameModel()
 {
-    delete myChessEngineThread;
+    delete my_chess_engine_thread;
 }
 
 void GameModel::init()
 {
-    auto gameState = myChessGame->state();
-    setCurrentTurn(ui::mapColor(gameState->get_current_turn()));
+    auto gameState = my_chess_game->state();
+    setCurrentTurn (ui::mapColor (gameState->getCurrentTurn()));
 
     setupNewEngineThread();
 }
 
 void GameModel::setupNewEngineThread()
 {
-    delete myChessEngineThread;
+    delete my_chess_engine_thread;
 
     // Initialize a new Game for the chess engine.
     // Any changes in the game config will be updated over a signal.
-    auto computerChessGame = myChessGame->clone();
-    computerChessGame->setPeriodicFunction(buildNotifier());
+    auto computer_chess_game = my_chess_game->clone();
+    computer_chess_game->setPeriodicFunction (buildNotifier());
 
-    auto chessEngine = new ChessEngine { std::move(computerChessGame), myGameId };
+    auto chess_engine = new ChessEngine { std::move (computer_chess_game), my_game_id };
 
-    myChessEngineThread = new QThread();
+    my_chess_engine_thread = new QThread();
 
     // Connect event handlers for the computer and human making moves:
-    connect(this, &GameModel::humanMoved,
-            chessEngine, &ChessEngine::opponentMoved);
-    connect(chessEngine, &ChessEngine::engineMoved,
-            this, &GameModel::engineThreadMoved);
+    connect (this, &GameModel::humanMoved,
+             chess_engine, &ChessEngine::opponentMoved);
+    connect (chess_engine, &ChessEngine::engineMoved,
+             this, &GameModel::engineThreadMoved);
 
     // Update draw status between engine and game model:
-    connect(chessEngine, &ChessEngine::updateDrawStatus,
-            this, &GameModel::receiveChessEngineDrawStatus);
-    connect(this, &GameModel::updateDrawStatus,
-            chessEngine, &ChessEngine::receiveDrawStatus);
+    connect (chess_engine, &ChessEngine::updateDrawStatus,
+             this, &GameModel::receiveChessEngineDrawStatus);
+    connect (this, &GameModel::updateDrawStatus,
+             chess_engine, &ChessEngine::receiveDrawStatus);
 
     // Initialize the engine when the engine thread starts:
-    connect(myChessEngineThread, &QThread::started,
-            chessEngine, &ChessEngine::init);
+    connect (my_chess_engine_thread, &QThread::started,
+             chess_engine, &ChessEngine::init);
 
     // If the engine finds no moves available, check whether the game is over.
-    connect(chessEngine, &ChessEngine::noMovesAvailable,
-            this, &GameModel::updateDisplayedGameState);
+    connect (chess_engine, &ChessEngine::noMovesAvailable,
+             this, &GameModel::updateDisplayedGameState);
 
     // Connect the engine's move back to itself in case it's playing itself:
     // (it will return early if it's not)
-    connect(this, &GameModel::engineMoved,
-            chessEngine, &ChessEngine::receiveEngineMoved);
+    connect (this, &GameModel::engineMoved,
+             chess_engine, &ChessEngine::receiveEngineMoved);
 
     // exit event loop from engine thread when we start exiting:
-    connect(this, &GameModel::terminationStarted,
-            chessEngine, &ChessEngine::quit);
+    connect (this, &GameModel::terminationStarted,
+             chess_engine, &ChessEngine::quit);
 
     // Update the engine's config when user changes it:
-    connect(this, &GameModel::engineConfigChanged,
-            chessEngine, &ChessEngine::updateConfig);
+    connect (this, &GameModel::engineConfigChanged,
+             chess_engine, &ChessEngine::updateConfig);
 
     // Cleanup chess engine when chess engine thread exits:
-    connect(myChessEngineThread, &QThread::finished,
-            chessEngine, &QObject::deleteLater);
+    connect (my_chess_engine_thread, &QThread::finished,
+             chess_engine, &QObject::deleteLater);
 
     // When creating a new game, send a copy of the new ChessGame to the Engine:
-    connect(this, &GameModel::gameUpdated,
-            chessEngine, &ChessEngine::reloadGame);
+    connect (this, &GameModel::gameUpdated,
+             chess_engine, &ChessEngine::reloadGame);
 
     // Move the ownership of the engine to the engine thread so slots run on that thread:
-    chessEngine->moveToThread(myChessEngineThread);
+    chess_engine->moveToThread (my_chess_engine_thread);
 }
 
 void GameModel::start()
 {
-    emit gameStarted(myChessGame.get());
+    emit gameStarted (my_chess_game.get());
 
     updateEngineConfig();
-    myChessEngineThread->start();
+    my_chess_engine_thread->start();
 }
 
 void GameModel::restart()
 {
     // let other objects in this thread know about the new game:
-    setGameOverStatus("");
+    setGameOverStatus ("");
 
     qDebug() << "Creating new chess game";
 
-    myChessGame = std::move(ChessGame::fromPlayers(
-        myChessGame->state()->get_player(Color::White),
-        myChessGame->state()->get_player(Color::Black),
-        gameConfig()
-    ));
+    my_chess_game = std::move (
+        ChessGame::fromPlayers (my_chess_game->state()->getPlayer (Color::White),
+                                my_chess_game->state()->getPlayer (Color::Black), gameConfig()));
 
     // Abort searches and discard any queued signals from them if we receive
     // them later.
-    myGameId++;
+    my_game_id++;
 
-    std::shared_ptr<ChessGame> computerChessGame = std::move(myChessGame->clone());
-    computerChessGame->setPeriodicFunction(buildNotifier());
+    std::shared_ptr<ChessGame> computer_chess_game = std::move (my_chess_game->clone());
+    computer_chess_game->setPeriodicFunction (buildNotifier());
 
     // send copy of the new game state to the chess engine thread:
-    emit gameUpdated(computerChessGame, myGameId);
+    emit gameUpdated (computer_chess_game, my_game_id);
 
     // Notify other objects in this thread about the new game:
-    emit gameStarted(myChessGame.get());
+    emit gameStarted (my_chess_game.get());
 
     // Update the config to update the notifier to use the new game Id:
     updateEngineConfig();
 
-    setCurrentTurn(ui::mapColor(myChessGame->state()->get_current_turn()));
+    setCurrentTurn (ui::mapColor (my_chess_game->state()->getCurrentTurn()));
     resetStateForNewGame();
     updateDisplayedGameState();
 }
 
-void GameModel::movePiece(int srcRow, int srcColumn,
-                          int dstRow, int dstColumn)
+void GameModel::movePiece (int src_row, int src_column, int dst_row, int dst_column)
 {
-    movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, {});
+    movePieceWithPromotion (src_row, src_column, dst_row, dst_column, {});
 }
 
-void GameModel::engineThreadMoved(wisdom::Move move, wisdom::Color who, int gameId)
+void GameModel::engineThreadMoved (wisdom::Move move, wisdom::Color who, int game_id)
 {
     // validate this signal was not sent by an old thread:
-    if (gameId != myGameId) {
+    if (game_id != my_game_id)
+    {
         qDebug() << "engineThreadMoved(): Ignored signal from invalid engine.";
         return;
     }
 
-    auto game = myChessGame->state();
-    game->move(move);
+    auto game = my_chess_game->state();
+    game->move (move);
 
     updateDisplayedGameState();
-    updateCurrentTurn(wisdom::color_invert(who));
+    updateCurrentTurn (wisdom::colorInvert (who));
 
     // re-emit single-threaded signal to listeners:
-    handleMove(Player::ChessEngine, move, who);
+    handleMove (Player::ChessEngine, move, who);
 }
 
-void GameModel::promotePiece(int srcRow, int srcColumn,
-                             int dstRow, int dstColumn,
-                             ui::PieceType pieceType)
+void GameModel::promotePiece (int src_row, int src_column, int dst_row, int dst_column,
+                              ui::PieceType piece_type)
 {
-    movePieceWithPromotion(srcRow, srcColumn, dstRow, dstColumn, mapPiece(pieceType));
+    movePieceWithPromotion (src_row, src_column, dst_row, dst_column, mapPiece (piece_type));
 }
 
-void GameModel::movePieceWithPromotion(int srcRow, int srcColumn,
-                                       int dstRow, int dstColumn,
-                                       optional<wisdom::Piece> pieceType)
+void GameModel::movePieceWithPromotion (int srcRow, int srcColumn, int dstRow, int dstColumn,
+                                        optional<wisdom::Piece> pieceType)
 {
-    auto [optionalMove, who] = myChessGame->moveFromCoordinates(srcRow, srcColumn,
-                                                                dstRow, dstColumn, pieceType);
-    if (!optionalMove.has_value()) {
+    auto [optional_move, who]
+        = my_chess_game->moveFromCoordinates (srcRow, srcColumn, dstRow, dstColumn, pieceType);
+    if (!optional_move.has_value())
+    {
         return;
     }
-    auto move = *optionalMove;
-    if (!myChessGame->isLegalMove(move)) {
-        setMoveStatus("Illegal move");
+    auto move = *optional_move;
+    if (!my_chess_game->isLegalMove (move))
+    {
+        setMoveStatus ("Illegal move");
         return;
     }
-    auto newColor = updateChessEngineForHumanMove(move);
+
+    auto new_color = updateChessEngineForHumanMove (move);
     updateDisplayedGameState();
-    updateCurrentTurn(newColor);
-    handleMove(wisdom::Player::Human, move, who);
+    updateCurrentTurn (new_color);
+    handleMove (wisdom::Player::Human, move, who);
 }
 
-bool GameModel::needsPawnPromotion(int srcRow, int srcColumn, int dstRow, int dstColumn)
+bool GameModel::needsPawnPromotion (int src_row, int src_column, int dst_row, int dst_column)
 {
-    auto [optionalMove, who] = myChessGame->moveFromCoordinates(srcRow,
-            srcColumn, dstRow, dstColumn, Piece::Queen);
-    if (!optionalMove.has_value()) {
+    auto [optional_move, who]
+        = my_chess_game->moveFromCoordinates (src_row, src_column, dst_row,
+                                                                    dst_column, Piece::Queen);
+    if (!optional_move.has_value())
+    {
         return false;
     }
-    return optionalMove->is_promoting();
+    return optional_move->isPromoting();
 }
 
 void GameModel::applicationExiting()
@@ -224,13 +222,13 @@ void GameModel::applicationExiting()
     qDebug() << "Trying to exit application...";
 
     // End the thread by changing the game id:
-    myGameId = 0;
+    my_game_id = 0;
     qDebug() << "Terminated start...";
     emit terminationStarted();
 
     // For desktop, we need to wait here before exiting. But on web that will hang.
 #ifndef EMSCRIPTEN
-    myChessEngineThread->wait();
+    my_chess_engine_thread->wait();
 #endif
 
     qDebug() << "Termination ended.";
@@ -238,78 +236,86 @@ void GameModel::applicationExiting()
 
 void GameModel::updateEngineConfig()
 {
-    myConfigId++;
+    my_config_id++;
 
-    emit engineConfigChanged(gameConfig(), buildNotifier());
+    emit engineConfigChanged (gameConfig(), buildNotifier());
 }
 
-auto GameModel::updateChessEngineForHumanMove(Move selectedMove) -> wisdom::Color
+auto GameModel::updateChessEngineForHumanMove (Move selected_move) -> wisdom::Color
 {
-    auto gameState = myChessGame->state();
+    auto game_state = my_chess_game->state();
 
-    gameState->move(selectedMove);
-    return gameState->get_current_turn();
+    game_state->move (selected_move);
+    return game_state->getCurrentTurn();
 }
 
 auto GameModel::buildNotifier() const -> MoveTimer::PeriodicFunction
 {
-    auto initialGameId = myGameId.load();
-    auto initialConfigId = myConfigId.load();
-    const auto* gameIdPtr = &myGameId;
-    const auto* configIdPtr = &myConfigId;
+    auto initial_game_id = my_game_id.load();
+    auto initial_config_id = my_config_id.load();
+    const auto* game_id_ptr = &my_game_id;
+    const auto* config_id_ptr = &my_config_id;
 
-    return ([gameIdPtr, initialGameId, configIdPtr, initialConfigId](not_null<MoveTimer*> moveTimer) {
-         // This runs in the ChessEngine thread.
-        auto currentConfigId = configIdPtr->load();
+    return (
+        [game_id_ptr, initial_game_id, config_id_ptr,
+         initial_config_id] (not_null<MoveTimer*> move_timer)
+        {
+            // This runs in the ChessEngine thread.
+            auto current_config_id = config_id_ptr->load();
 
-         // Check if config has changed:
-         if (initialConfigId != currentConfigId) {
-             qDebug() << "Setting timeout to break the loop. (Config changed)";
-             moveTimer->set_triggered(true);
+            // Check if config has changed:
+            if (initial_config_id != current_config_id)
+            {
+                qDebug() << "Setting timeout to break the loop. (Config changed)";
+                move_timer->setTriggered (true);
 
-             // Discard the results of the search. The GameModel will send
-             // an updateConfig signal to fire off a new search with the new
-             // config.
-             moveTimer->set_cancelled(true);
-         }
+                // Discard the results of the search. The GameModel will send
+                // an updateConfig signal to fire off a new search with the new
+                // config.
+                move_timer->setCancelled (true);
+            }
 
-         // Check if game has changed. If so, the game is over.
-         if (initialGameId != gameIdPtr->load()) {
-             qDebug() << "Setting timeout to break the loop. (Game ended)";
-             moveTimer->set_triggered(true);
-         }
-    });
+            // Check if game has changed. If so, the game is over.
+            if (initial_game_id != game_id_ptr->load())
+            {
+                qDebug() << "Setting timeout to break the loop. (Game ended)";
+                move_timer->setTriggered (true);
+            }
+        });
 }
 
-void GameModel::updateCurrentTurn(Color newColor)
+void GameModel::updateCurrentTurn (Color new_color)
 {
-    setCurrentTurn(ui::mapColor(newColor));
+    setCurrentTurn (ui::mapColor (new_color));
 }
 
-void GameModel::handleMove(Player playerType, Move move, Color who)
+void GameModel::handleMove (Player player_type, Move move, Color who)
 {
-    if (playerType == wisdom::Player::ChessEngine) {
-        emit engineMoved(move, who, myGameId);
-    } else {
-        emit humanMoved(move, who);
+    if (player_type == wisdom::Player::ChessEngine)
+    {
+        emit engineMoved (move, who, my_game_id);
+    }
+    else
+    {
+        emit humanMoved (move, who);
     }
 }
 
 void GameModel::updateInternalGameState()
 {
-    myChessGame->setPlayers(
-        mapPlayer(myGameSettings.whitePlayer()), mapPlayer(myGameSettings.blackPlayer())
-    );
-    myChessGame->setConfig(gameConfig());
+    my_chess_game->setPlayers (mapPlayer (my_game_settings.whitePlayer()),
+                               mapPlayer (my_game_settings.blackPlayer()));
+    my_chess_game->setConfig (gameConfig());
     notifyInternalGameStateUpdated();
 }
 
 void GameModel::notifyInternalGameStateUpdated()
 {
-    auto gameState = myChessGame->state();
+    auto game_state = my_chess_game->state();
 
-    updateCurrentTurn(gameState->get_current_turn());
-    if (myGameOverStatus != "") {
+    updateCurrentTurn (game_state->getCurrentTurn());
+    if (my_game_over_status != "")
+    {
         return;
     }
 
@@ -319,180 +325,186 @@ void GameModel::notifyInternalGameStateUpdated()
 auto GameModel::gameConfig() const -> ChessGame::Config
 {
     return ChessGame::Config {
-        myChessGame->state()->get_players(),
-        MaxDepth { myGameSettings.maxDepth() },
-        chrono::seconds { myGameSettings.maxSearchTime() },
+        my_chess_game->state()->getPlayers(),
+        MaxDepth { my_game_settings.maxDepth() },
+        chrono::seconds { my_game_settings.maxSearchTime() },
     };
 }
 
 auto GameModel::currentTurn() const -> ui::Color
 {
-    return myCurrentTurn;
+    return my_current_turn;
 }
 
-void GameModel::setCurrentTurn(ui::Color newColor)
+void GameModel::setCurrentTurn (ui::Color new_color)
 {
-    if (newColor != myCurrentTurn) {
-        myCurrentTurn = newColor;
+    if (new_color != my_current_turn)
+    {
+        my_current_turn = new_color;
         emit currentTurnChanged();
     }
 }
 
-void GameModel::setGameOverStatus(const QString& newStatus)
+void GameModel::setGameOverStatus (const QString& new_status)
 {
-    if (newStatus != myGameOverStatus) {
-        myGameOverStatus = newStatus;
+    if (new_status != my_game_over_status)
+    {
+        my_game_over_status = new_status;
         emit gameOverStatusChanged();
     }
 }
 
 auto GameModel::gameOverStatus() const -> QString
 {
-    return myGameOverStatus;
+    return my_game_over_status;
 }
 
-void GameModel::setMoveStatus(const QString &newStatus)
+void GameModel::setMoveStatus (const QString& new_status)
 {
-    if (newStatus != myMoveStatus) {
-        myMoveStatus = newStatus;
+    if (new_status != my_move_status)
+    {
+        my_move_status = new_status;
         emit moveStatusChanged();
     }
 }
 
 auto GameModel::moveStatus() const -> QString
 {
-    return myMoveStatus;
+    return my_move_status;
 }
 
-void GameModel::setInCheck(bool newInCheck)
+void GameModel::setInCheck (bool new_in_check)
 {
-    if (newInCheck != myInCheck) {
-        myInCheck = newInCheck;
+    if (new_in_check != my_in_check)
+    {
+        my_in_check = new_in_check;
         emit inCheckChanged();
     }
 }
 
 auto GameModel::inCheck() const -> bool
 {
-    return myInCheck;
+    return my_in_check;
 }
 
 class QmlGameStatusUpdate : public GameStatusUpdate
 {
 private:
-    wisdom::observer_ptr<GameModel> myParent;
+    wisdom::observer_ptr<GameModel> my_parent;
 
 public:
-    explicit QmlGameStatusUpdate (observer_ptr<GameModel> parent) : myParent { parent }
+    explicit QmlGameStatusUpdate (observer_ptr<GameModel> parent) : my_parent { parent }
     {
     }
 
     [[nodiscard]] auto getGameState() -> not_null<wisdom::Game*>
     {
-        return myParent->myChessGame->state();
+        return my_parent->my_chess_game->state();
     }
 
     void checkmate() override
     {
-        auto who = getGameState()->get_board().get_current_turn();
-        auto opponent = color_invert (who);
-        auto whoString = "<b>Checkmate</b> - " + wisdom::to_string (opponent) + " wins the game.";
-        myParent->setGameOverStatus (QString (whoString.c_str()));
+        auto who = getGameState()->getBoard().getCurrentTurn();
+        auto opponent = colorInvert (who);
+        auto who_string = "<b>Checkmate</b> - " + wisdom::asString (opponent) + " wins the game.";
+        my_parent->setGameOverStatus (QString (who_string.c_str()));
     }
 
     void stalemate() override
     {
-        auto who = getGameState()->get_board().get_current_turn();
-        auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>"
-                            + wisdom::to_string (who) + "</b>";
-        myParent->setGameOverStatus (stalemateStr.c_str());
+        auto who = getGameState()->getBoard().getCurrentTurn();
+        auto stalemate_str
+            = "<b>Stalemate</b> - No legal moves for <b>" + wisdom::asString (who) + "</b>";
+        my_parent->setGameOverStatus (stalemate_str.c_str());
     }
 
-    void insufficient_material() override
+    void insufficientMaterial() override
     {
-        myParent->setGameOverStatus ("<b>Draw</b> - Insufficient material to checkmate.");
+        my_parent->setGameOverStatus ("<b>Draw</b> - Insufficient material to checkmate.");
     }
 
-    void third_repetition_draw_reached() override
+    void thirdRepetitionDrawReached() override
     {
-        auto gameState = getGameState();
-        if (getFirstHumanPlayerColor (gameState->get_players()).has_value())
-            myParent->setThirdRepetitionDrawStatus (GameModel::DrawStatus::Proposed);
+        auto game_state = getGameState();
+        if (getFirstHumanPlayerColor (game_state->getPlayers()).has_value())
+            my_parent->setThirdRepetitionDrawStatus (GameModel::DrawStatus::Proposed);
     }
 
-    void third_repetition_draw_accepted() override
+    void thirdRepetitionDrawAccepted() override
     {
-        myParent->setGameOverStatus ("<b>Draw</b> - Threefold repetition rule.");
+        my_parent->setGameOverStatus ("<b>Draw</b> - Threefold repetition rule.");
     }
 
-    void fifth_repetition_draw() override
+    void fifthRepetitionDraw() override
     {
-        myParent->setGameOverStatus ("<b>Draw</b> - Fivefold repetition rule.");
+        my_parent->setGameOverStatus ("<b>Draw</b> - Fivefold repetition rule.");
     }
 
-    void fifty_moves_without_progress_reached() override
+    void fiftyMovesWithoutProgressReached() override
     {
-        auto gameState = getGameState();
-        if (getFirstHumanPlayerColor (gameState->get_players()).has_value())
-            myParent->setFiftyMovesDrawStatus (GameModel::DrawStatus::Proposed);
+        auto game_state = getGameState();
+        if (getFirstHumanPlayerColor (game_state->getPlayers()).has_value())
+            my_parent->setFiftyMovesDrawStatus (GameModel::DrawStatus::Proposed);
     }
 
-    void fifty_moves_without_progress_accepted() override
+    void fiftyMovesWithoutProgressAccepted() override
     {
-        myParent->setGameOverStatus ("<b>Draw</b> - Fifty moves without progress.");
+        my_parent->setGameOverStatus ("<b>Draw</b> - Fifty moves without progress.");
     }
 
-    void seventy_five_moves_with_no_progress() override
+    void seventyFiveMovesWithNoProgress() override
     {
-        myParent->setGameOverStatus ("<b>Draw</b> - Seventy-five moves without progress.");
+        my_parent->setGameOverStatus ("<b>Draw</b> - Seventy-five moves without progress.");
     }
 };
 
 void GameModel::updateDisplayedGameState()
 {
-    auto gameState = myChessGame->state();
-    auto& board = gameState->get_board();
-    auto who = gameState->get_current_turn();
+    auto game_state = my_chess_game->state();
+    auto& board = game_state->getBoard();
+    auto who = game_state->getCurrentTurn();
 
     setMoveStatus ("");
     setGameOverStatus ("");
     setInCheck (false);
 
-    QmlGameStatusUpdate statusManager { this };
-    statusManager.update (gameState->status());
+    QmlGameStatusUpdate status_manager { this };
+    status_manager.update (game_state->status());
 
-    if (wisdom::is_king_threatened (board, who, board.get_king_position (who)))
+    if (wisdom::isKingThreatened (board, who, board.getKingPosition (who)))
         setInCheck (true);
 }
 
 void GameModel::resetStateForNewGame()
 {
-    setThirdRepetitionDrawStatus(DrawStatus::NotReached);
-    setFiftyMovesDrawStatus(DrawStatus::NotReached);
+    setThirdRepetitionDrawStatus (DrawStatus::NotReached);
+    setFiftyMovesDrawStatus (DrawStatus::NotReached);
 }
 
 auto GameModel::uiSettings() const -> const UISettings&
 {
-    return myUISettings;
+    return my_ui_settings;
 }
 
-void GameModel::setUISettings(const UISettings& settings)
+void GameModel::setUISettings (const UISettings& settings)
 {
-    if (myUISettings != settings) {
-        myUISettings = settings;
+    if (my_ui_settings != settings)
+    {
+        my_ui_settings = settings;
         emit uiSettingsChanged();
     }
 }
 
 auto GameModel::gameSettings() const -> const GameSettings&
 {
-    return myGameSettings;
+    return my_game_settings;
 }
 
-void GameModel::setGameSettings(const GameSettings& newGameSettings)
+void GameModel::setGameSettings (const GameSettings& new_game_settings)
 {
-    if (myGameSettings != newGameSettings) {
-        myGameSettings = newGameSettings;
+    if (my_game_settings != new_game_settings)
+    {
+        my_game_settings = new_game_settings;
         emit gameSettingsChanged();
         updateInternalGameState();
     }
@@ -500,70 +512,75 @@ void GameModel::setGameSettings(const GameSettings& newGameSettings)
 
 auto GameModel::cloneUISettings() -> UISettings
 {
-    return myUISettings;
+    return my_ui_settings;
 }
 
 auto GameModel::cloneGameSettings() -> GameSettings
 {
-    return myGameSettings;
+    return my_game_settings;
 }
 
 auto GameModel::thirdRepetitionDrawStatus() const -> DrawStatus
 {
-    return myThirdRepetitionDrawStatus;
+    return my_third_repetition_draw_status;
 }
 
-void GameModel::setThirdRepetitionDrawStatus(DrawStatus drawStatus)
+void GameModel::setThirdRepetitionDrawStatus (DrawStatus draw_status)
 {
-    if (myThirdRepetitionDrawStatus != drawStatus) {
-        myThirdRepetitionDrawStatus = drawStatus;
+    if (my_third_repetition_draw_status != draw_status)
+    {
+        my_third_repetition_draw_status = draw_status;
         emit thirdRepetitionDrawStatusChanged();
-        if (drawStatus == DrawStatus::Accepted || drawStatus == DrawStatus::Declined) {
-            setProposedDrawStatus(ProposedDrawType::ThreeFoldRepetition, drawStatus);
+        if (draw_status == DrawStatus::Accepted || draw_status == DrawStatus::Declined)
+        {
+            setProposedDrawStatus (ProposedDrawType::ThreeFoldRepetition, draw_status);
         }
     }
 }
 
 auto GameModel::fiftyMovesDrawStatus() const -> DrawStatus
 {
-    return myFiftyMovesDrawStatus;
+    return my_fifty_moves_draw_status;
 }
 
-void GameModel::setFiftyMovesDrawStatus(DrawStatus drawStatus)
+void GameModel::setFiftyMovesDrawStatus (DrawStatus draw_status)
 {
-    if (myFiftyMovesDrawStatus != drawStatus) {
-        myFiftyMovesDrawStatus = drawStatus;
+    if (my_fifty_moves_draw_status != draw_status)
+    {
+        my_fifty_moves_draw_status = draw_status;
         emit fiftyMovesDrawStatusChanged();
-        if (drawStatus == DrawStatus::Accepted || drawStatus == DrawStatus::Declined) {
-            setProposedDrawStatus(ProposedDrawType::FiftyMovesWithoutProgress, drawStatus);
+        if (draw_status == DrawStatus::Accepted || draw_status == DrawStatus::Declined)
+        {
+            setProposedDrawStatus (ProposedDrawType::FiftyMovesWithoutProgress, draw_status);
         }
     }
 }
 
-void GameModel::setProposedDrawStatus(wisdom::ProposedDrawType drawType, DrawStatus status)
+void GameModel::setProposedDrawStatus (wisdom::ProposedDrawType draw_type, DrawStatus status)
 {
-    auto gameState = myChessGame->state();
-    auto optionalColor = getFirstHumanPlayerColor(gameState->get_players());
+    auto game_state = my_chess_game->state();
+    auto optional_color = getFirstHumanPlayerColor (game_state->getPlayers());
 
-    assert(optionalColor.has_value());
-    auto who = *optionalColor;
-    auto opponentColor = color_invert(who);
+    assert (optional_color.has_value());
+    auto who = *optional_color;
+    auto opponent_color = colorInvert (who);
 
     bool accepted = (status == DrawStatus::Accepted);
-    gameState->set_proposed_draw_status(drawType, who, accepted);
-    emit updateDrawStatus(drawType, who, accepted);
-    if (gameState->get_player(opponentColor) == Player::Human) {
-        gameState->set_proposed_draw_status(drawType, opponentColor, accepted);
-        emit updateDrawStatus(drawType, opponentColor, accepted);
+    game_state->setProposedDrawStatus (draw_type, who, accepted);
+    emit updateDrawStatus (draw_type, who, accepted);
+    if (game_state->getPlayer (opponent_color) == Player::Human)
+    {
+        game_state->setProposedDrawStatus (draw_type, opponent_color, accepted);
+        emit updateDrawStatus (draw_type, opponent_color, accepted);
     }
 
     updateDisplayedGameState();
 }
 
-void GameModel::receiveChessEngineDrawStatus(wisdom::ProposedDrawType drawType,
-                                             wisdom::Color who, bool accepted)
+void GameModel::receiveChessEngineDrawStatus (wisdom::ProposedDrawType draw_type, wisdom::Color who,
+                                              bool accepted)
 {
-    auto gameState = myChessGame->state();
-    gameState->set_proposed_draw_status(drawType, who, accepted);
+    auto gameState = my_chess_game->state();
+    gameState->setProposedDrawStatus (draw_type, who, accepted);
     updateDisplayedGameState();
 }

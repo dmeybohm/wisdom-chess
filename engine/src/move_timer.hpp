@@ -25,10 +25,10 @@ namespace wisdom
                 my_started { autostart }
         {}
 
-        auto is_triggered () -> bool;
+        auto isTriggered() -> bool;
 
         // Whether the search as a whole was cancelled.
-        [[nodiscard]] auto is_cancelled () const -> bool
+        [[nodiscard]] auto isCancelled() const -> bool
         {
             return my_cancelled;
         }
@@ -43,17 +43,17 @@ namespace wisdom
             return my_seconds;
         }
 
-        void set_periodic_function (const PeriodicFunction& periodic_function) noexcept
+        void setPeriodicFunction (const PeriodicFunction& periodic_function) noexcept
         {
             my_periodic_function = periodic_function;
         }
 
-        void set_triggered (bool triggered) noexcept
+        void setTriggered (bool triggered) noexcept
         {
             my_triggered = triggered;
         }
 
-        void set_cancelled (bool cancelled) noexcept
+        void setCancelled (bool cancelled) noexcept
         {
             my_cancelled = cancelled;
         }

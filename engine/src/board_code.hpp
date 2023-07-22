@@ -54,21 +54,20 @@ namespace wisdom
     public:
         explicit BoardCode (const Board& board);
 
-        [[nodiscard]] static auto from_board (const Board& board) -> BoardCode;
+        [[nodiscard]] static auto fromBoard (const Board& board) -> BoardCode;
 
-        [[nodiscard]] static auto from_board_builder (const BoardBuilder& builder) -> BoardCode;
+        [[nodiscard]] static auto fromBoardBuilder (const BoardBuilder& builder) -> BoardCode;
 
-        [[nodiscard]] static auto from_default_position () -> BoardCode;
+        [[nodiscard]] static auto fromDefaultPosition() -> BoardCode;
 
-        [[nodiscard]] static auto from_empty_board () -> BoardCode;
+        [[nodiscard]] static auto fromEmptyBoard() -> BoardCode;
 
-        void add_piece (Coord coord, ColoredPiece piece)
+        void addPiece (Coord coord, ColoredPiece piece)
         {
-            Color color = piece_color (piece);
-            Piece type = piece_type (piece);
+            Color color = pieceColor (piece);
+            Piece type = pieceType (piece);
 
-            uint8_t new_value = piece == Piece_And_Color_None ? 0 :
-                                 piece_index (type) | (color_index (color) << 3);
+            uint8_t new_value = piece == Piece_And_Color_None ? 0 : pieceIndex (type) | (colorIndex (color) << 3);
             assert (new_value < 16);
 
             int8_t row = Row (coord);
@@ -81,12 +80,12 @@ namespace wisdom
             }
         }
 
-        void remove_piece (Coord coord)
+        void removePiece (Coord coord)
         {
-            return add_piece (coord, Piece_And_Color_None);
+            return addPiece (coord, Piece_And_Color_None);
         }
 
-        void set_en_passant_target (Color color, Coord coord)
+        void setEnPassantTarget (Color color, Coord coord)
         {
             std::size_t target_bit_shift = color == Color::White ?
                     EN_PASSANT_WHITE_TARGET :
@@ -103,7 +102,7 @@ namespace wisdom
             my_ancillary |= coord_bits;
         }
 
-        [[nodiscard]] auto en_passant_target (Color vulnerable_color) const noexcept -> Coord
+        [[nodiscard]] auto enPassantTarget (Color vulnerable_color) const noexcept -> Coord
         {
             std::size_t target_bits = my_ancillary.to_ulong ();
             std::size_t target_bit_shift = vulnerable_color == Color::White ?
@@ -115,18 +114,18 @@ namespace wisdom
             auto col = gsl::narrow<int8_t> (target_bits & 0x7);
             auto is_present = (bool)(target_bits & EN_PASSANT_PRESENT);
             auto row = vulnerable_color == Color::White ? White_En_Passant_Row : Black_En_Passant_Row;
-            return is_present ? make_coord (row, col) : No_En_Passant_Coord;
+            return is_present ? makeCoord (row, col) : No_En_Passant_Coord;
         }
 
-        void set_current_turn (Color who)
+        void setCurrentTurn (Color who)
         {
-            auto bits = color_index (who);
+            auto bits = colorIndex (who);
             auto current_turn_bit = bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT);
             my_ancillary &= ~(CURRENT_TURN_MASK << CURRENT_TURN_BIT);
             my_ancillary |= current_turn_bit;
         }
 
-        [[nodiscard]] auto castle_state (Color who) const -> CastlingEligibility
+        [[nodiscard]] auto castleState (Color who) const -> CastlingEligibility
         {
             std::size_t target_bits = my_ancillary.to_ulong ();
             std::size_t target_bit_shift = who == Color::White ?
@@ -140,7 +139,7 @@ namespace wisdom
             return result;
         }
 
-        void set_castle_state (Color who, CastlingEligibility castling_states)
+        void setCastleState (Color who, CastlingEligibility castling_states)
         {
             uint8_t castling_bits = castling_states.underlying_value ();
             std::size_t bit_number = who == Color::White ?
@@ -152,40 +151,38 @@ namespace wisdom
             my_ancillary |= castling_bits << bit_number;
         }
 
-        [[nodiscard]] auto current_turn () const -> Color
+        [[nodiscard]] auto currentTurn() const -> Color
         {
             auto bits = my_ancillary.to_ulong ();
             auto index = gsl::narrow_cast<int8_t> (bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT));
-            return color_from_color_index (index);
+            return colorFromColorIndex (index);
         }
 
-        [[nodiscard]] auto en_passant_targets () const noexcept -> EnPassantTargets
+        [[nodiscard]] auto enPassantTargets() const noexcept -> EnPassantTargets
         {
-            EnPassantTargets result = {
-                    en_passant_target (Color::White),
-                    en_passant_target (Color::Black)
+            EnPassantTargets result = { enPassantTarget (Color::White), enPassantTarget (Color::Black)
             };
             return result;
         }
 
-        [[nodiscard]] auto to_string () const -> string
+        [[nodiscard]] auto toString() const -> string
         {
             return my_pieces.to_string ();
         }
 
-        [[nodiscard]] auto bitset_ref () const& -> const BoardCodeBitset&
+        [[nodiscard]] auto bitsetRef() const& -> const BoardCodeBitset&
         {
             return my_pieces;
         }
-        void bitset_ref () const&& = delete;
+        void bitsetRef() const&& = delete;
 
         // Return by value:
-        [[nodiscard]] auto get_ancillary_bits () -> AncillaryBitset
+        [[nodiscard]] auto getAncillaryBits() -> AncillaryBitset
         {
             return my_ancillary;
         }
 
-        [[nodiscard]] auto hash_code () const -> BoardHashCode
+        [[nodiscard]] auto hashCode() const -> BoardHashCode
         {
             // todo use Zobrist hashing here instead
             return pieces_hash_fn (my_pieces) ^ ancillary_hash_fn (my_ancillary);
@@ -204,16 +201,16 @@ namespace wisdom
 
         friend auto operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&;
 
-        [[nodiscard]] auto with_move (const Board& board, Move move) const -> BoardCode
+        [[nodiscard]] auto withMove (const Board& board, Move move) const -> BoardCode
         {
             auto copy = *this;
-            copy.apply_move (board, move);
+            copy.applyMove (board, move);
             return copy;
         }
 
-        void apply_move (const Board& board, Move move);
+        void applyMove (const Board& board, Move move);
 
-        [[nodiscard]] auto count_ones () const -> std::size_t;
+        [[nodiscard]] auto countOnes() const -> std::size_t;
     };
 }
 
@@ -224,7 +221,7 @@ namespace std
     {
         auto operator() (const wisdom::BoardCode& code) const -> std::size_t
         {
-            return code.hash_code ();
+            return code.hashCode();
         }
     };
 }

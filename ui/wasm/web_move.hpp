@@ -21,19 +21,19 @@ namespace wisdom
         static auto fromString (char* string, int who) -> WebMove*
         {
             std::string tmp { string };
-            auto color = map_color (who);
-            auto result = new WebMove ( wisdom::move_parse (tmp, color) );
+            auto color = mapColor (who);
+            auto result = new WebMove (wisdom::moveParse (tmp, color) );
             return result;
         }
 
-        [[nodiscard]] auto get_move() const -> Move
+        [[nodiscard]] auto getMove() const -> Move
         {
             return my_move;
         }
 
         [[nodiscard]] auto asString() const -> char*
         {
-            std::string str = to_string (my_move);
+            std::string str = wisdom::asString (my_move);
             return strdup (str.c_str());
         }
     };

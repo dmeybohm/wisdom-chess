@@ -39,9 +39,9 @@ namespace wisdom
 
         ~IterativeSearch ();
 
-        [[nodiscard]] auto iteratively_deepen (Color side) -> SearchResult;
+        [[nodiscard]] auto iterativelyDeepen (Color side) -> SearchResult;
 
-        [[nodiscard]] auto is_cancelled () -> bool;
+        [[nodiscard]] auto isCancelled() -> bool;
     };
 }
 

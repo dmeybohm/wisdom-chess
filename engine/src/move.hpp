@@ -52,18 +52,18 @@ namespace wisdom
         {}
     };
 
-    [[nodiscard]] constexpr auto move_category_from_int (int source) -> MoveCategory
+    [[nodiscard]] constexpr auto moveCategoryFromInt (int source) -> MoveCategory
     {
         assert (source <= 4);
         return static_cast<MoveCategory> (source);
     }
 
-    [[nodiscard]] constexpr auto to_int (MoveCategory move_category) -> int
+    [[nodiscard]] constexpr auto toInt (MoveCategory move_category) -> int
     {
         return static_cast<int> (move_category);
     }
 
-    [[nodiscard]] constexpr auto to_int8 (MoveCategory move_category) -> int
+    [[nodiscard]] constexpr auto toInt8 (MoveCategory move_category) -> int
     {
         return static_cast<int8_t> (move_category);
     }
@@ -80,8 +80,8 @@ namespace wisdom
         -> Move
         {
             return Move {
-                .src = gsl::narrow_cast<int8_t> (coord_index (src)),
-                .dst = gsl::narrow_cast<int8_t> (coord_index (dst)),
+                .src = gsl::narrow_cast<int8_t> (coordIndex (src)),
+                .dst = gsl::narrow_cast<int8_t> (coordIndex (dst)),
                 .promoted_piece = gsl::narrow_cast<int8_t> (0),
                 .move_category = gsl::narrow_cast<int8_t> (0),
             };
@@ -91,53 +91,53 @@ namespace wisdom
                                                   int dst_row, int dst_col) noexcept
             -> Move
         {
-            Coord src = make_coord (src_row, src_col);
-            Coord dst = make_coord (dst_row, dst_col);
+            Coord src = makeCoord (src_row, src_col);
+            Coord dst = makeCoord (dst_row, dst_col);
 
             return make (src, dst);
         }
 
-        [[nodiscard]] static constexpr auto make_normal_capturing (int src_row, int src_col,
+        [[nodiscard]] static constexpr auto makeNormalCapturing (int src_row, int src_col,
                                                                    int dst_row, int dst_col) noexcept
             -> Move
         {
             Move move = Move::make (src_row, src_col, dst_row, dst_col);
-            move.move_category = to_int8 (MoveCategory::NormalCapturing);
+            move.move_category = toInt8 (MoveCategory::NormalCapturing);
             return move;
         }
 
-        [[nodiscard]] static constexpr auto make_castling (int src_row, int src_col,
+        [[nodiscard]] static constexpr auto makeCastling (int src_row, int src_col,
                                                            int dst_row, int dst_col) noexcept
             -> Move
         {
             Move move = Move::make (src_row, src_col, dst_row, dst_col);
-            move.move_category = to_int8 (MoveCategory::Castling);
+            move.move_category = toInt8 (MoveCategory::Castling);
             return move;
         }
 
-        [[nodiscard]] static constexpr auto make_castling (Coord src, Coord dst) noexcept
+        [[nodiscard]] static constexpr auto makeCastling (Coord src, Coord dst) noexcept
             -> Move
         {
-            return Move::make_castling (Row (src), Column (src), Row (dst), Column (dst));
+            return Move::makeCastling (Row (src), Column (src), Row (dst), Column (dst));
         }
 
-        [[nodiscard]] static constexpr auto make_en_passant (int src_row, int src_col,
-                                                             int dst_row, int dst_col) noexcept
+        [[nodiscard]] static constexpr auto makeEnPassant (int src_row, int src_col,
+                                                           int dst_row, int dst_col) noexcept
             -> Move
         {
             Move move = make (src_row, src_col, dst_row, dst_col);
-            move.move_category = to_int8 (MoveCategory::EnPassant);
+            move.move_category = toInt8 (MoveCategory::EnPassant);
             return move;
         }
 
-        [[nodiscard]] static constexpr auto make_en_passant (Coord src, Coord dst) noexcept
+        [[nodiscard]] static constexpr auto makeEnPassant (Coord src, Coord dst) noexcept
             -> Move
         {
-            return Move::make_en_passant (Row (src), Column (src), Row (dst), Column (dst));
+            return Move::makeEnPassant (Row (src), Column (src), Row (dst), Column (dst));
         }
 
         // Pack a 28-bit integer into the move. Used for move lists to store the list length.
-        [[nodiscard]] static constexpr auto make_as_packed_capacity (size_t size) noexcept
+        [[nodiscard]] static constexpr auto makeAsPackedCapacity (size_t size) noexcept
             -> Move
         {
             assert (size <= Max_Packed_Capacity_In_Move);
@@ -145,11 +145,11 @@ namespace wisdom
                 .src = gsl::narrow_cast<int8_t> (size & 0x7f),
                 .dst = gsl::narrow_cast<int8_t> ((size >> 7) & 0x7f),
                 .promoted_piece = gsl::narrow_cast<int8_t> ((size >> 14) & 0x7f),
-                .move_category = to_int8 (MoveCategory::PackedCapacity),
+                .move_category = toInt8 (MoveCategory::PackedCapacity),
             };
         }
 
-        [[nodiscard]] static constexpr auto from_int (int packed_move)
+        [[nodiscard]] static constexpr auto fromInt (int packed_move)
             -> Move
         {
             return Move {
@@ -160,95 +160,95 @@ namespace wisdom
             };
         }
 
-        [[nodiscard]] auto to_int () -> int
+        [[nodiscard]] auto toInt() const -> int
         {
             return src | (dst << 8) | (promoted_piece << 16) | (move_category << 24);
         }
 
-        [[nodiscard]] constexpr auto get_src () const -> Coord
+        [[nodiscard]] constexpr auto getSrc() const -> Coord
         {
-            return make_coord_from_index (src);
+            return makeCoordFromIndex (src);
         }
 
-        [[nodiscard]] constexpr auto get_dst () const -> Coord
+        [[nodiscard]] constexpr auto getDst() const -> Coord
         {
-            return make_coord_from_index (dst);
+            return makeCoordFromIndex (dst);
         }
 
-        [[nodiscard]] constexpr auto with_promotion (ColoredPiece piece) const noexcept
+        [[nodiscard]] constexpr auto withPromotion (ColoredPiece piece) const noexcept
             -> Move
         {
             assert (piece != Piece_And_Color_None);
             Move result = *this;
-            auto promoted_piece_type = to_int8 (piece_type (piece));
-            auto promoted_color_index = color_index (piece_color (piece));
+            auto promoted_piece_type = toInt8 (pieceType (piece));
+            auto promoted_color_index = colorIndex (pieceColor (piece));
             result.promoted_piece = gsl::narrow_cast<int8_t> (
                 (promoted_color_index << 4) | (promoted_piece_type & 0xf)
             );
             return result;
         }
 
-        [[nodiscard]] constexpr auto with_capture () const noexcept
+        [[nodiscard]] constexpr auto withCapture() const noexcept
             -> Move
         {
-            assert (move_category == to_int8 (MoveCategory::Default));
+            assert (move_category == toInt8 (MoveCategory::Default));
 
-            Move result = Move::make (get_src (), get_dst ());
-            result.move_category = to_int8 (MoveCategory::NormalCapturing);
+            Move result = Move::make (getSrc(), getDst());
+            result.move_category = toInt8 (MoveCategory::NormalCapturing);
             return result;
         }
 
-        [[nodiscard]] constexpr auto get_move_category () const -> MoveCategory
+        [[nodiscard]] constexpr auto getMoveCategory() const -> MoveCategory
         {
-            return move_category_from_int (move_category);
+            return moveCategoryFromInt (move_category);
         }
 
-        [[nodiscard]] constexpr auto is_normal_capturing () const -> bool
+        [[nodiscard]] constexpr auto isNormalCapturing() const -> bool
         {
-            return get_move_category () == MoveCategory::NormalCapturing;
+            return getMoveCategory() == MoveCategory::NormalCapturing;
         }
 
-        [[nodiscard]] constexpr auto is_promoting () const -> bool
+        [[nodiscard]] constexpr auto isPromoting() const -> bool
         {
-            return promoted_piece != to_int8 (Piece_And_Color_None);
+            return promoted_piece != toInt8 (Piece_And_Color_None);
         }
 
-        [[nodiscard]] constexpr auto get_promoted_piece () const -> ColoredPiece
+        [[nodiscard]] constexpr auto getPromotedPiece() const -> ColoredPiece
         {
-            auto piece = piece_from_int (promoted_piece & 0xf);
+            auto piece = pieceFromInt (promoted_piece & 0xf);
             auto color = piece == Piece::None ? Color::None :
                 (promoted_piece & 0x10) == 0x10 ? Color::Black : Color::White;
             return ColoredPiece::make (color, piece);
         }
 
-        [[nodiscard]] constexpr auto is_en_passant () const noexcept
+        [[nodiscard]] constexpr auto isEnPassant() const noexcept
             -> bool
         {
-            return get_move_category () == MoveCategory::EnPassant;
+            return getMoveCategory() == MoveCategory::EnPassant;
         }
 
-        [[nodiscard]] constexpr auto is_any_capturing () const noexcept
+        [[nodiscard]] constexpr auto isAnyCapturing() const noexcept
             -> bool
         {
-            return is_normal_capturing () || is_en_passant ();
+            return isNormalCapturing() || isEnPassant();
         }
 
-        [[nodiscard]] constexpr auto is_castling () const noexcept
+        [[nodiscard]] constexpr auto isCastling() const noexcept
             -> bool
         {
-            return get_move_category () == MoveCategory::Castling;
+            return getMoveCategory() == MoveCategory::Castling;
         }
 
-        [[nodiscard]] constexpr auto is_castling_on_kingside () const noexcept
+        [[nodiscard]] constexpr auto isCastlingOnKingside() const noexcept
             -> bool
         {
-            return is_castling () && Column (get_dst ()) == Kingside_Castled_King_Column;
+            return isCastling() && Column (getDst()) == Kingside_Castled_King_Column;
         }
 
-        [[nodiscard]] constexpr auto to_unpacked_capacity () const noexcept
+        [[nodiscard]] constexpr auto toUnpackedCapacity() const noexcept
             -> size_t
         {
-            assert (get_move_category () == MoveCategory::PackedCapacity);
+            assert (getMoveCategory() == MoveCategory::PackedCapacity);
             return src |
                 (dst << 7) |
                 (promoted_piece << 14);
@@ -259,7 +259,7 @@ namespace wisdom
     static_assert (std::is_trivial_v<Move>);
 
     template <class IntegerType = int8_t>
-    [[nodiscard]] constexpr auto castling_row_for_color (Color who) -> IntegerType
+    [[nodiscard]] constexpr auto castlingRowForColor (Color who) -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
         return gsl::narrow_cast<IntegerType> (
@@ -269,7 +269,7 @@ namespace wisdom
 
     using PlayerCastleState = array<CastlingEligibility, Num_Players>;
 
-    [[nodiscard]] constexpr auto move_equals (Move a, Move b) noexcept
+    [[nodiscard]] constexpr auto moveEquals (Move a, Move b) noexcept
         -> bool
     {
         return a.src == b.src &&
@@ -281,34 +281,34 @@ namespace wisdom
     constexpr auto operator== (Move a, Move b) noexcept
         -> bool
     {
-        return move_equals (a, b);
+        return moveEquals (a, b);
     }
 
     constexpr auto operator!= (Move a, Move b) noexcept
         -> bool
     {
-        return !move_equals (a, b);
+        return !moveEquals (a, b);
     }
 
     // Parse a move. Returns empty if the parse failed.
-    [[nodiscard]] auto move_parse_optional (const string& str, Color who) -> optional<Move>;
+    [[nodiscard]] auto moveParseOptional (const string& str, Color who) -> optional<Move>;
 
     // The coordinate for the taken pawn.
-    [[nodiscard]] auto en_passant_taken_pawn_coord (Coord src, Coord dst) -> Coord;
+    [[nodiscard]] auto enPassantTakenPawnCoord (Coord src, Coord dst) -> Coord;
 
     // Map source/dest coordinate to corresponding move (en passant, castling, etc)
     // This doesn't check whether the move is legal or not completely - just gets what the
     // user is intending.
-    [[nodiscard]] auto map_coordinates_to_move (const Board& board, Color who,
-                                  Coord src, Coord dst,
-                                  optional<Piece> promoted_piece = {})
+    [[nodiscard]] auto mapCoordinatesToMove (const Board& board, Color who,
+                                             Coord src, Coord dst,
+                                             optional<Piece> promoted_piece = {})
         -> optional<Move>;
 
     // Parse a move. Throws an exception if it could not parse the move.
-    [[nodiscard]] auto move_parse (const string& str, Color color = Color::None) -> Move;
+    [[nodiscard]] auto moveParse (const string& str, Color color = Color::None) -> Move;
 
     // Convert the move to a string.
-    [[nodiscard]] auto to_string (const Move& move) -> string;
+    [[nodiscard]] auto asString (const Move& move) -> string;
 
     // Send the move to the ostream.
     auto operator<< (std::ostream& os, const Move& value) -> std::ostream&;

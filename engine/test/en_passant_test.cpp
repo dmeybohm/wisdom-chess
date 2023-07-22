@@ -13,23 +13,23 @@ TEST_CASE( "en passant" )
     {
         Board board;
 
-        REQUIRE( !board.is_en_passant_vulnerable ( Color::White) );
-        REQUIRE( !board.is_en_passant_vulnerable ( Color::Black) );
+        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
+        REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
 
-        REQUIRE( board.get_en_passant_target (Color::White) == No_En_Passant_Coord );
-        REQUIRE( board.get_en_passant_target (Color::Black) == No_En_Passant_Coord );
+        REQUIRE( board.getEnPassantTarget (Color::White) == No_En_Passant_Coord );
+        REQUIRE( board.getEnPassantTarget (Color::Black) == No_En_Passant_Coord );
 
         BoardBuilder builder;
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
-        builder.add_row_of_same_color ("a8", Color::Black, back_rank);
-        builder.add_row_of_same_color_and_piece ("a7", Color::Black, Piece::Pawn);
-        builder.add_piece ("e5", Color::White, Piece::Pawn);
-        builder.add_row_of_same_color ("a1", Color::White, back_rank);
+        builder.addRowOfSameColor ("a8", Color::Black, back_rank);
+        builder.addRowOfSameColorAndPiece ("a7", Color::Black, Piece::Pawn);
+        builder.addPiece ("e5", Color::White, Piece::Pawn);
+        builder.addRowOfSameColor ("a1", Color::White, back_rank);
 
         auto builder_board = Board { builder };
 
-        REQUIRE( !builder_board.is_en_passant_vulnerable ( Color::White) );
-        REQUIRE( !builder_board.is_en_passant_vulnerable ( Color::Black) );
+        REQUIRE( !builder_board.isEnPassantVulnerable (Color::White) );
+        REQUIRE( !builder_board.isEnPassantVulnerable (Color::Black) );
     }
 
     SUBCASE( "En passant moves work on the right" )
@@ -39,50 +39,50 @@ TEST_CASE( "en passant" )
 
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
 
-        builder.add_row_of_same_color ("a8", Color::Black, back_rank);
-        builder.add_row_of_same_color_and_piece ("a7", Color::Black, Piece::Pawn);
+        builder.addRowOfSameColor ("a8", Color::Black, back_rank);
+        builder.addRowOfSameColorAndPiece ("a7", Color::Black, Piece::Pawn);
 
-        builder.add_piece ("e5", Color::White, Piece::Pawn);
-        builder.add_row_of_same_color ("a1", Color::White, back_rank);
+        builder.addPiece ("e5", Color::White, Piece::Pawn);
+        builder.addRowOfSameColor ("a1", Color::White, back_rank);
 
-        builder.set_current_turn (Color::Black);
+        builder.setCurrentTurn (Color::Black);
 
         auto board = Board { builder };
 
-        REQUIRE( !board.is_en_passant_vulnerable (Color::Black) );
-        REQUIRE( !board.is_en_passant_vulnerable (Color::White) );
+        REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
+        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
 
-        Move pawn_move = move_parse ("f7f5");
-        board = board.with_move (Color::Black, pawn_move);
+        Move pawn_move = moveParse ("f7f5");
+        board = board.withMove (Color::Black, pawn_move);
 
-        MoveList move_list = move_generator.generate_all_potential_moves (board, Color::White);
+        MoveList move_list = move_generator.generateAllPotentialMoves (board, Color::White);
         auto maybe_en_passant_move = std::find_if (
-                move_list.begin (), move_list.end (), std::mem_fn (&Move::is_en_passant));
+                move_list.begin (), move_list.end (), std::mem_fn (&Move::isEnPassant));
 
         REQUIRE( maybe_en_passant_move != move_list.end () );
         auto en_passant_move = *maybe_en_passant_move;
 
         // Check move types:
-        REQUIRE( en_passant_move.is_en_passant () );
+        REQUIRE( en_passant_move.isEnPassant () );
 
         // Check position:
-        REQUIRE( Row (en_passant_move.get_src ()) == 3 );
-        REQUIRE( Column (en_passant_move.get_src ()) == 4 );
-        REQUIRE( Row (en_passant_move.get_dst ()) == 2 );
-        REQUIRE( Column (en_passant_move.get_dst ()) == 5 );
+        REQUIRE( Row (en_passant_move.getSrc ()) == 3 );
+        REQUIRE( Column (en_passant_move.getSrc ()) == 4 );
+        REQUIRE( Row (en_passant_move.getDst ()) == 2 );
+        REQUIRE( Column (en_passant_move.getDst ()) == 5 );
 
-        REQUIRE( board.is_en_passant_vulnerable (Color::Black) );
-        REQUIRE( !board.is_en_passant_vulnerable (Color::White) );
+        REQUIRE( board.isEnPassantVulnerable (Color::Black) );
+        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
 
-        board = board.with_move (Color::White, en_passant_move);
+        board = board.withMove (Color::White, en_passant_move);
 
-        ColoredPiece en_passant_pawn = board.piece_at (2, 5);
-        REQUIRE( piece_type(en_passant_pawn) == Piece::Pawn );
-        REQUIRE( piece_color (en_passant_pawn) == Color::White );
+        ColoredPiece en_passant_pawn = board.pieceAt (2, 5);
+        REQUIRE( pieceType(en_passant_pawn) == Piece::Pawn );
+        REQUIRE( pieceColor (en_passant_pawn) == Color::White );
 
-        ColoredPiece taken_pawn = board.piece_at (3, 4);
-        REQUIRE( piece_color (taken_pawn) == Color::None );
-        REQUIRE( piece_type(taken_pawn) == Piece::None );
+        ColoredPiece taken_pawn = board.pieceAt (3, 4);
+        REQUIRE( pieceColor (taken_pawn) == Color::None );
+        REQUIRE( pieceType(taken_pawn) == Piece::None );
     }
 
     SUBCASE( "En passant moves work on the left" )
@@ -91,46 +91,46 @@ TEST_CASE( "en passant" )
         MoveGenerator move_generator;
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
 
-        builder.add_row_of_same_color ("a8", Color::Black, back_rank);
-        builder.add_row_of_same_color_and_piece ("a7", Color::Black, Piece::Pawn);
-        builder.add_piece ("e5", Color::White, Piece::Pawn);
-        builder.add_row_of_same_color ("a1", Color::White, back_rank);
-        builder.set_current_turn (Color::Black);
+        builder.addRowOfSameColor ("a8", Color::Black, back_rank);
+        builder.addRowOfSameColorAndPiece ("a7", Color::Black, Piece::Pawn);
+        builder.addPiece ("e5", Color::White, Piece::Pawn);
+        builder.addRowOfSameColor ("a1", Color::White, back_rank);
+        builder.setCurrentTurn (Color::Black);
 
         auto board = Board { builder };
-        Move pawn_move = move_parse ("d7d5");
-        REQUIRE( !board.is_en_passant_vulnerable (Color::Black) );
-        REQUIRE( !board.is_en_passant_vulnerable (Color::White) );
+        Move pawn_move = moveParse ("d7d5");
+        REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
+        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
 
-        board = board.with_move (Color::Black, pawn_move);
+        board = board.withMove (Color::Black, pawn_move);
 
-        MoveList move_list = move_generator.generate_all_potential_moves (board, Color::White);
+        MoveList move_list = move_generator.generateAllPotentialMoves (board, Color::White);
         auto maybe_en_passant_move = std::find_if (
-                move_list.begin(), move_list.end (), std::mem_fn (&Move::is_en_passant));
+                move_list.begin(), move_list.end (), std::mem_fn (&Move::isEnPassant));
 
         REQUIRE( maybe_en_passant_move != move_list.end () );
         auto en_passant_move = *maybe_en_passant_move;
 
         // Check move types:
-        REQUIRE( en_passant_move.is_en_passant() );
+        REQUIRE( en_passant_move.isEnPassant() );
 
         // Check position:
-        REQUIRE( Row (en_passant_move.get_src ()) == 3 );
-        REQUIRE( Column (en_passant_move.get_src ()) == 4 );
-        REQUIRE( Row (en_passant_move.get_dst ()) == 2 );
-        REQUIRE( Column (en_passant_move.get_dst ()) == 3 );
+        REQUIRE( Row (en_passant_move.getSrc ()) == 3 );
+        REQUIRE( Column (en_passant_move.getSrc ()) == 4 );
+        REQUIRE( Row (en_passant_move.getDst ()) == 2 );
+        REQUIRE( Column (en_passant_move.getDst ()) == 3 );
 
-        REQUIRE( board.is_en_passant_vulnerable (Color::Black) );
-        REQUIRE( !board.is_en_passant_vulnerable (Color::White) );
+        REQUIRE( board.isEnPassantVulnerable (Color::Black) );
+        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
 
-        board = board.with_move (Color::White, en_passant_move);
+        board = board.withMove (Color::White, en_passant_move);
 
-        ColoredPiece en_passant_pawn = board.piece_at (2, 3);
-        REQUIRE( piece_type(en_passant_pawn) == Piece::Pawn );
-        REQUIRE( piece_color (en_passant_pawn) == Color::White );
+        ColoredPiece en_passant_pawn = board.pieceAt (2, 3);
+        REQUIRE( pieceType(en_passant_pawn) == Piece::Pawn );
+        REQUIRE( pieceColor (en_passant_pawn) == Color::White );
 
-        ColoredPiece taken_pawn = board.piece_at (3, 4);
-        REQUIRE( piece_color (taken_pawn) == Color::None );
-        REQUIRE( piece_type(taken_pawn) == Piece::None );
+        ColoredPiece taken_pawn = board.pieceAt (3, 4);
+        REQUIRE( pieceColor (taken_pawn) == Color::None );
+        REQUIRE( pieceType(taken_pawn) == Piece::None );
     }
 }

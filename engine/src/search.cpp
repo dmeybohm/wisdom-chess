@@ -17,23 +17,23 @@ namespace wisdom
     public:
         IterativeSearchImpl (const Board& board, const History& history, const Logger& output,
                              MoveTimer timer, int total_depth) :
-                my_original_board { Board { board } },
-                my_history { History { history } },
-                my_output { &output },
-                my_timer { std::move (timer) },
-                my_total_depth { total_depth }
+            my_original_board { Board { board } },
+            my_history { History { history } },
+            my_output { &output },
+            my_timer { std::move (timer) },
+            my_total_depth { total_depth }
         {
         }
 
-        void iteratively_deepen (Color side);
+        void iterativelyDeepen (Color side);
 
         void iterate (Color side, int depth);
 
         void search (const Board& parent_board, Color side, int depth, int alpha, int beta);
 
-        [[nodiscard]] auto synthesize_result () const -> SearchResult;
+        [[nodiscard]] auto synthesizeResult() const -> SearchResult;
 
-        [[nodiscard]] auto move_timer () const -> not_null<const MoveTimer*>
+        [[nodiscard]] auto moveTimer() const -> not_null<const MoveTimer*>
         {
             return &my_timer;
         }
@@ -57,32 +57,30 @@ namespace wisdom
         int my_total_nodes_visited = 0;
         int my_total_alpha_beta_cutoffs = 0;
         Color my_searching_color = Color::None;
+
     };
 
     IterativeSearch::~IterativeSearch() = default;
-    IterativeSearch::IterativeSearch (const Board& board,
-                                      const History& history,
-                                      const Logger& output,
-                                      MoveTimer timer,
-                                      int total_depth)
+    IterativeSearch::IterativeSearch (const Board& board, const History& history, const Logger& output,
+                                      MoveTimer timer, int total_depth)
             : impl { make_unique<IterativeSearchImpl> (
                 Board { board }, history, output, std::move (timer), total_depth) }
     {
     }
 
     SearchResult
-    IterativeSearch::iteratively_deepen (Color side)
+    IterativeSearch::iterativelyDeepen (Color side)
     {
-         impl->iteratively_deepen (side);
-         return impl->synthesize_result ();
+        impl->iterativelyDeepen (side);
+         return impl->synthesizeResult();
     }
 
-    auto IterativeSearch::is_cancelled () -> bool
+    auto IterativeSearch::isCancelled() -> bool
     {
-        return impl->move_timer()->is_cancelled();
+        return impl->moveTimer()->isCancelled();
     }
 
-    static constexpr auto drawing_score (Color searching_color, Color current_color)
+    static constexpr auto drawingScore (Color searching_color, Color current_color)
     {
         //
         // For the player looking for a move (the chess engine), a draw is considered
@@ -99,29 +97,29 @@ namespace wisdom
         std::optional<Move> best_move {};
         int best_score = -Initial_Alpha;
 
-        auto moves = my_generator.generate_all_potential_moves (parent_board, side);
+        auto moves = my_generator.generateAllPotentialMoves (parent_board, side);
         for (auto move : moves)
         {
-            if (my_timer.is_triggered ())
+            if (my_timer.isTriggered())
             {
                 my_timed_out = true;
                 return;
             }
 
-            Board child_board = parent_board.with_move (side, move);
+            Board child_board = parent_board.withMove (side, move);
 
-            if (!is_legal_position_after_move (child_board, side, move))
+            if (!isLegalPositionAfterMove (child_board, side, move))
                 continue;
 
             my_nodes_visited++;
 
-            my_history.add_tentative_position (child_board);
+            my_history.addTentativePosition (child_board);
 
             if (depth <= 0)
             {
-                if (is_drawing_move (child_board, side, move, my_history))
+                if (isDrawingMove (child_board, side, move, my_history))
                 {
-                    my_best_score = drawing_score (my_searching_color, side);
+                    my_best_score = drawingScore (my_searching_color, side);
                 }
                 else
                 {
@@ -132,13 +130,13 @@ namespace wisdom
             else
             {
                 // Don't recurse into a big search if this move is a draw.
-                if (my_search_depth == depth && is_drawing_move (child_board, side, move, my_history))
+                if (my_search_depth == depth && isDrawingMove (child_board, side, move, my_history))
                 {
-                    my_best_score = drawing_score (my_searching_color, side);
+                    my_best_score = drawingScore (my_searching_color, side);
                 }
                 else
                 {
-                    search (child_board, color_invert (side), depth-1, -beta, -alpha);
+                    search (child_board, colorInvert (side), depth-1, -beta, -alpha);
                     my_best_score *= -1;
                 }
             }
@@ -154,7 +152,7 @@ namespace wisdom
             if (best_score > alpha)
                 alpha = best_score;
 
-            my_history.remove_last_tentative_position();
+            my_history.removeLastTentativePosition();
 
             if (my_timed_out)
                 return;
@@ -173,7 +171,7 @@ namespace wisdom
         if (!my_best_move.has_value ())
         {
             // if there are no legal moves, then the current player is in a stalemate or checkmate position.
-            result.score = evaluate_without_legal_moves (parent_board, side, result.depth);
+            result.score = evaluateWithoutLegalMoves (parent_board, side, result.depth);
         }
         my_best_score = result.score;
         my_best_depth = result.depth;
@@ -189,7 +187,7 @@ namespace wisdom
         output.info (progress_str.str ());
     }
 
-    void IterativeSearchImpl::iteratively_deepen (Color side)
+    void IterativeSearchImpl::iterativelyDeepen (Color side)
     {
         SearchResult best_result = SearchResult::from_initial ();
         my_searching_color = side;
@@ -207,11 +205,11 @@ namespace wisdom
                 if (my_timed_out)
                     break;
 
-                auto next_result = synthesize_result ();
+                auto next_result = synthesizeResult();
                 if (next_result.move.has_value ())
                 {
                     best_result = next_result;
-                    if (is_checkmating_opponent_score (next_result.score))
+                    if (isCheckmatingOpponentScore (next_result.score))
                         break;
                 }
             }
@@ -226,11 +224,10 @@ namespace wisdom
             std::cerr << "Uncaught error: " << e.message () << "\n";
             std::cerr << e.extra_info () << "\n";
             my_original_board.dump ();
-            std::terminate ();
         }
     }
 
-    [[nodiscard]] auto IterativeSearchImpl::synthesize_result () const -> SearchResult
+    [[nodiscard]] auto IterativeSearchImpl::synthesizeResult() const -> SearchResult
     {
         return SearchResult { my_best_move,
               my_best_score, my_best_depth, my_timed_out };
@@ -239,7 +236,7 @@ namespace wisdom
     void IterativeSearchImpl::iterate (Color side, int depth)
     {
         std::stringstream outstr;
-        outstr << "finding moves for " << to_string (side);
+        outstr << "finding moves for " << asString (side);
         my_output->debug (outstr.str ());
 
         my_nodes_visited = 0;
@@ -252,7 +249,7 @@ namespace wisdom
 
         auto end = std::chrono::system_clock::now ();
 
-        auto result = synthesize_result ();
+        auto result = synthesizeResult();
 
         calc_time (*my_output, my_nodes_visited, start, end);
 
@@ -277,7 +274,7 @@ namespace wisdom
         {
             Move best_move = *result.move;
             std::stringstream progress_str;
-            progress_str << "move selected = " << to_string (best_move) << " [ score: "
+            progress_str << "move selected = " << asString (best_move) << " [ score: "
                          << result.score << " ]\n";
             my_output->info (progress_str.str ());
         }

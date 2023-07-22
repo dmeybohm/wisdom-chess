@@ -4,14 +4,14 @@
 
 namespace wisdom
 {
-    auto History::is_third_repetition (const Board& board) const -> bool
+    auto History::isThirdRepetition (const Board& board) const -> bool
     {
-        return is_nth_repetition (board, 3);
+        return isNthRepetition (board, 3);
     }
 
-    auto History::is_fifth_repetition (const Board& board) const -> bool
+    auto History::isFifthRepetition (const Board& board) const -> bool
     {
-        return is_nth_repetition (board, 5);
+        return isNthRepetition (board, 5);
     }
 
     auto operator<< (std::ostream& os, const History& history) -> std::ostream&
