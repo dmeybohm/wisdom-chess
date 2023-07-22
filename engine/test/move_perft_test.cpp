@@ -35,7 +35,7 @@ TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Resul
         for (const auto [depth, expectation] : expectations)
         {
             Stats stats;
-            stats.search_moves (board, color, 0, depth, move_generator);
+            stats.searchMoves (board, color, 0, depth, move_generator);
 
             CHECK( stats.counters.nodes == expectation.nodes );
             CHECK( stats.counters.captures == expectation.captures );
@@ -66,7 +66,7 @@ TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Resul
             { 2, { 400, 0, 0 } }
         };
 
-        auto perft_results = wisdom::perft::perft_results (perft_board, Color::White, 2, move_generator);
+        auto perft_results = wisdom::perft::perftResults (perft_board, Color::White, 2, move_generator);
 
         do_check (test_board, expectations, Color::White);
         auto test_sum = perft_results.total_nodes;
@@ -84,7 +84,7 @@ TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Resul
             { 3, { 8'902, 34, 0 } }
         };
 
-        auto perft_results = wisdom::perft::perft_results (perft_board, Color::White, 3, move_generator);
+        auto perft_results = wisdom::perft::perftResults (perft_board, Color::White, 3, move_generator);
         auto sum = perft_results.total_nodes;
 
         do_check (test_board, expectations, Color::White);
@@ -108,7 +108,7 @@ TEST_CASE( "Perft cases loaded from https://www.chessprogramming.org/Perft_Resul
             { 5, { 193'690'690, 35'043'416, 73'365 } },
         };
 
-        auto perft_results = wisdom::perft::perft_results (perft_board, Color::White, 2, move_generator);
+        auto perft_results = wisdom::perft::perftResults (perft_board, Color::White, 2, move_generator);
         auto sum = perft_results.total_nodes;
 
         CHECK( sum == 2039 );

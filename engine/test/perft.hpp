@@ -16,8 +16,8 @@ namespace wisdom
 namespace wisdom::perft
 {
     using std::string;
-    using wisdom::MoveListAllocator;
     using wisdom::MoveGenerator;
+    using wisdom::MoveListAllocator;
 
     struct MoveCounter
     {
@@ -55,36 +55,34 @@ namespace wisdom::perft
     {
         MoveCounter counters;
 
-        void search_moves (const wisdom::Board &board, wisdom::Color side,
-                           int depth, int max_depth, MoveGenerator& generator);
+        void searchMoves (const wisdom::Board& board, wisdom::Color side, int depth, int max_depth,
+                          MoveGenerator& generator);
 
-        void operator+= (const Stats &source)
+        void operator+= (const Stats& source)
         {
             counters += source.counters;
         }
     };
 
     // Convert a perft move list to a wisdom::MoveList.
-    auto to_move_list (const wisdom::Board& board, Color who,
-                       const string& move_list)
+    auto toMoveList (const wisdom::Board& board, Color who, const string& move_list)
         -> wisdom::MoveList;
 
     // Convert a wisdom move to a perft move.
-    auto to_perft_move (const Move& move, Color who) -> string;
+    auto toPerftMove (const Move& move, Color who) -> string;
 
     // Convert a perft move to a wisdom::Move.
-    auto convert_move (const Board& board, Color who,
-                       string move_str) -> wisdom::Move;
+    auto convertMove (const Board& board, Color who, string move_str) -> wisdom::Move;
 
     // Output the perf results to a string.
-    auto perft_results (const Board& board, Color active_player, int depth, MoveGenerator& generator)
-        -> PerftResults;
+    auto perftResults (const Board& board, Color active_player, int depth,
+                       MoveGenerator& generator) -> PerftResults;
 
     // Apply the list of moves, update active color and return it.
-    auto apply_list (Board& board, Color who, const MoveList& list) -> Color;
+    auto applyList (Board& board, Color color, const MoveList& list) -> Color;
 
     // Convert the PerftResults to a string.
-    auto to_string (const PerftResults& perft_results) -> string;
+    auto asString (const PerftResults& perft_results) -> string;
 }
 
 #endif // WISDOM_CHESS_PERFT_HPP

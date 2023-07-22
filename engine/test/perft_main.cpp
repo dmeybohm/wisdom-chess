@@ -31,12 +31,12 @@ int main (int argc, char *argv[])
 
     if (argc == 4)
     {
-        auto moves = wisdom::perft::to_move_list (board, current_player, argv[3]);
-        current_player = wisdom::perft::apply_list (board, current_player, moves);
+        auto moves = wisdom::perft::toMoveList (board, current_player, argv[3]);
+        current_player = wisdom::perft::applyList (board, current_player, moves);
     }
 
-    PerftResults results = wisdom::perft::perft_results (board, current_player, depth, move_generator);
-    std::cout << wisdom::perft::to_string (results);
+    PerftResults results = wisdom::perft::perftResults (board, current_player, depth, move_generator);
+    std::cout << wisdom::perft::asString (results);
 
     return EXIT_SUCCESS;
 }
