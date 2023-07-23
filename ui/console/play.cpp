@@ -256,8 +256,8 @@ namespace wisdom::ui::console
     {
         std::cout << "\nAvailable commands:\n\n"
                   << "  moves           Display available moves\n"
-                  << "  load            Load a game\n"
-                  << "  save            Save a game\n"
+                  << "  load            Load a game from a list of moves\n"
+                  << "  save            Save a game to a list of moves\n"
                   << "  fen             Load a position from a FEN string\n"
                   << "  pause           Pause the computer from searching for moves\n"
                   << "  unpause         Unpause the computer from searching for moves\n"
@@ -267,11 +267,19 @@ namespace wisdom::ui::console
                   << "  human_black     Set the black player to human\n"
                   << "  computer_white  Set the white player to computer\n"
                   << "  computer_black  Set the black player to computer\n"
-                  << "  switch          Switch the current turn to the other player.\n"
+                  << "  switch          Switch the current turn to the other player\n"
                   << "  quit\n"
                   << "  exit            Quit a game\n"
                   << "  a2c3            Move the piece at a2 to c3 (example)\n"
                   << "  a2xc3           Take the piece at c3 with the piece on a2 (example)\n"
+                  << "  o-o             Castle kingside\n"
+                  << "  o-o-o           Castle queenside\n"
+                  << "  a7a8(q)         Promote pawn to queen (example)\n"
+                  << "  a7xa8(q)        Capture the piece on a8 and promote the pawn to a Queen\n"
+                  << "  a7a8(r)         Promote pawn to rook (example)\n"
+                  << "  a7a8(b)         Promote pawn to bishop (example)\n"
+                  << "  a7a8(n)         Promote pawn to knight (example)\n"
+                  << "  e5f4 ep         Capture pawn with en passant if possible (example)\n"
                   << "\n\n";
     }
 
