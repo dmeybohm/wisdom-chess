@@ -8,7 +8,7 @@ namespace wisdom
 
     auto MoveTimer::isTriggered() -> bool
     {
-        if (!my_started)
+        if (my_started_time == nullopt)
             return false;
 
         if (my_triggered || my_cancelled)
@@ -24,8 +24,8 @@ namespace wisdom
                 return true;
         }
 
-        steady_clock::time_point next_check_time = steady_clock::now();
-        auto diff_time = next_check_time - my_last_check_time;
+        steady_clock::time_point check_time = steady_clock::now();
+        auto diff_time = check_time - *my_started_time;
 
         if (diff_time >= my_seconds)
         {

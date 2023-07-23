@@ -1,5 +1,5 @@
-#ifndef WISDOM_CHESS_TIMER_HPP
-#define WISDOM_CHESS_TIMER_HPP
+#ifndef WISDOM_CHESS_MOVE_TIMER_HPP
+#define WISDOM_CHESS_MOVE_TIMER_HPP
 
 #include "global.hpp"
 
@@ -11,18 +11,11 @@ namespace wisdom
         using PeriodicFunction = std::function<void(not_null<MoveTimer*>)>;
 
         explicit MoveTimer (chrono::seconds seconds)
-                : my_last_check_time { chrono::steady_clock::now () }
-                , my_seconds { seconds }
+                : my_seconds { seconds }
         {}
 
-        explicit MoveTimer (int seconds) :
-                MoveTimer( std::chrono::seconds { seconds } )
-        {}
-
-        MoveTimer (int seconds, bool autostart) :
-                my_last_check_time { chrono::steady_clock::now () },
-                my_seconds { seconds },
-                my_started { autostart }
+        explicit MoveTimer (int seconds)
+                : MoveTimer (std::chrono::seconds { seconds })
         {}
 
         auto isTriggered() -> bool;
@@ -33,12 +26,12 @@ namespace wisdom
             return my_cancelled;
         }
 
-        void start () noexcept
+        void start() noexcept
         {
-            my_started = true;
+            my_started_time = chrono::steady_clock::now();
         }
 
-        [[nodiscard]] auto seconds () const noexcept -> chrono::seconds
+        [[nodiscard]] auto seconds() const noexcept -> chrono::seconds
         {
             return my_seconds;
         }
@@ -59,14 +52,13 @@ namespace wisdom
         }
 
     private:
-        chrono::steady_clock::time_point my_last_check_time;
         chrono::seconds my_seconds;
+        std::optional<chrono::steady_clock::time_point> my_started_time {};
         std::optional<PeriodicFunction> my_periodic_function {};
         int my_check_calls = 0;
         bool my_triggered = false;
-        bool my_started = true;
         bool my_cancelled = false;
     };
 }
 
-#endif //WISDOM_CHESS_TIMER_HPP
+#endif //WISDOM_CHESS_MOVE_TIMER_HPP
