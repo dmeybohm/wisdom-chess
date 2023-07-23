@@ -492,9 +492,9 @@ namespace wisdom
                 // look for en passant:
                 if (pieceType (src_piece) == Piece::Pawn)
                 {
-                    int eligible_column
+                    optional<int> eligible_column
                         = eligibleEnPassantColumn (board, Row (src), Column (src), who);
-                    if (eligible_column == Column (dst))
+                    if (eligible_column.has_value() && eligible_column == Column (dst))
                         return Move::makeEnPassant (src, dst);
 
                     if (needPawnPromotion (Row<int> (dst), who) && promoted_piece.has_value ())

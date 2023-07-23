@@ -43,9 +43,10 @@ namespace wisdom
     [[nodiscard]] auto needPawnPromotion (int row, Color who)
         -> bool;
 
+    // Return en passant column if the board is the player is eligible.
     [[nodiscard]] auto eligibleEnPassantColumn (const Board& board,
                                                 int row, int column, Color who)
-        -> int;
+        -> optional<int>;
 }
 
 #endif // WISDOM_CHESS_GENERATE_HPP

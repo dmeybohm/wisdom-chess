@@ -241,8 +241,8 @@ namespace wisdom
 
     void MoveGeneration::queen()
     {
-        bishop ();
-        rook ();
+        bishop();
+        rook();
     }
 
     void MoveGeneration::knight()
@@ -255,16 +255,16 @@ namespace wisdom
 
     // Returns -1 if no column is eligible.
     auto eligibleEnPassantColumn (const Board& board, int row, int column, Color who)
-        -> int
+        -> optional<int>
     {
         Color opponent = colorInvert (who);
 
         if (!board.isEnPassantVulnerable (opponent))
-            return -1;
+            return nullopt;
 
         // if WHITE rank 4, black rank 3
         if ((who == Color::White ? 3 : 4) != row)
-            return -1;
+            return nullopt;
 
         int left_column = column - 1;
         int right_column = column + 1;
@@ -282,7 +282,7 @@ namespace wisdom
             return right_column;
         }
 
-        return -1;
+        return nullopt;
     }
 
     void MoveGeneration::pawn ()
@@ -313,7 +313,7 @@ namespace wisdom
         {
             int double_row = nextRow (row, dir);
 
-            if (all_pawn_moves[0].has_value () && board.pieceAt (double_row, piece_col) == Piece_And_Color_None)
+            if (all_pawn_moves[0].has_value() && board.pieceAt (double_row, piece_col) == Piece_And_Color_None)
             {
                 all_pawn_moves[1] = Move::make (piece_row, piece_col, double_row, piece_col);
             }
@@ -348,7 +348,7 @@ namespace wisdom
                 // promotion moves dont include en passant
                 for (auto& optional_move: all_pawn_moves)
                 {
-                    if (optional_move.has_value ())
+                    if (optional_move.has_value())
                     {
                         auto move = *optional_move;
                         move = move.withPromotion (promoted_piece);
@@ -361,12 +361,13 @@ namespace wisdom
         }
 
         // en passant
-        int en_passant_column = eligibleEnPassantColumn (board, piece_row, piece_col, who);
-        if (isValidColumn (en_passant_column))
-            enPassant (en_passant_column);
+        optional<int> en_passant_column
+            = eligibleEnPassantColumn (board, piece_row, piece_col, who);
+        if (en_passant_column.has_value())
+            enPassant (*en_passant_column);
 
-        for (auto& check_pawn_move : all_pawn_moves)
-            if (check_pawn_move.has_value ())
+        for (const auto& check_pawn_move : all_pawn_moves)
+            if (check_pawn_move.has_value())
                 appendMove (*check_pawn_move);
     }
 
