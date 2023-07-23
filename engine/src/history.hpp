@@ -61,7 +61,7 @@ namespace wisdom
         [[nodiscard]] static auto hasBeenXHalfMovesWithoutProgress (const Board& board, int x_half_moves)
             -> bool
         {
-            return board.getHalfMoveClock () >= x_half_moves;
+            return board.getHalfMoveClock() >= x_half_moves;
         }
 
         [[nodiscard]] static auto hasBeenSeventyFiveMovesWithoutProgress (
@@ -98,7 +98,7 @@ namespace wisdom
 
         void removeLastTentativePosition()
         {
-            my_board_codes.pop_back ();
+            my_board_codes.pop_back();
             my_tentative_nesting_count--;
         }
 

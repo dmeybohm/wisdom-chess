@@ -149,7 +149,7 @@ namespace wisdom
         Coord my_coord {};
 
     public:
-        CoordIterator ()
+        CoordIterator()
             : my_coord { First_Coord }
         {}
 
@@ -157,22 +157,22 @@ namespace wisdom
             : my_coord (coord)
         {}
 
-        [[nodiscard]] auto begin () -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
+        [[nodiscard]] auto begin() -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
         {
             return CoordIterator { First_Coord };
         }
 
-        [[nodiscard]] auto end () -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
+        [[nodiscard]] auto end() -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
         {
             return CoordIterator { End_Coord };
         }
 
-        auto operator* () const -> Coord
+        auto operator*() const -> Coord
         {
             return my_coord;
         }
 
-        auto operator++ () -> CoordIterator&
+        auto operator++() -> CoordIterator&
         {
             ++my_coord;
             return *this;

@@ -4,18 +4,18 @@
 
 using std::string;
 
-int main ()
+int main()
 {
     try
     {
-        wisdom::ui::console::play ();
+        wisdom::ui::console::play();
     }
     catch (const wisdom::Error& e)
     {
         std::cerr << "Uncaught Error!" << "\n";
-        std::cerr << e.message () << "\n";
-        std::cerr << e.extra_info () << "\n";
-        std::terminate ();
+        std::cerr << e.message() << "\n";
+        std::cerr << e.extra_info() << "\n";
+        std::terminate();
     }
 
     return 0;

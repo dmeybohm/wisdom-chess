@@ -20,4 +20,4 @@ BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 8
-WhitespaceSensitiveMacros: ['REQUIRE', 'CHECK', 'TEST_CASE', 'SUBCASE']
+WhitespaceSensitiveMacros: ['REQUIRE', 'CHECK', 'TEST_CASE', 'SUBCASE', 'INFO']

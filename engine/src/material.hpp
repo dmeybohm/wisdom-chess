@@ -17,7 +17,7 @@ namespace wisdom
         array<array<int, Num_Piece_Types>, Num_Players> my_piece_count {};
 
     public:
-        Material () = default;
+        Material() = default;
 
         explicit Material (const Board& board);
 
@@ -33,7 +33,7 @@ namespace wisdom
                 case Piece::Knight: return WeightKnight;
                 case Piece::Pawn: return WeightPawn;
             }
-            std::terminate ();
+            std::terminate();
         }
 
         [[nodiscard]] static auto scaledScore (int score) -> int

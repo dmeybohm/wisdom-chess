@@ -9,16 +9,16 @@ namespace wisdom
 {
     BoardCode::BoardCode (const Board& board)
     {
-        for (auto coord : Board::allCoords ())
+        for (auto coord : Board::allCoords())
         {
             ColoredPiece piece = board.pieceAt (coord);
             this->addPiece (coord, piece);
         }
 
-        auto current_turn = board.getCurrentTurn ();
+        auto current_turn = board.getCurrentTurn();
         setCurrentTurn (current_turn);
 
-        auto en_passant_targets = board.getEnPassantTargets ();
+        auto en_passant_targets = board.getEnPassantTargets();
         if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
         {
             setEnPassantTarget (Color::White, en_passant_targets[Color_Index_White]);
@@ -52,10 +52,10 @@ namespace wisdom
             result.addPiece (coord, piece);
         }
 
-        auto current_turn = builder.getCurrentTurn ();
+        auto current_turn = builder.getCurrentTurn();
         result.setCurrentTurn (current_turn);
 
-        auto en_passant_targets = builder.getEnPassantTargets ();
+        auto en_passant_targets = builder.getEnPassantTargets();
         if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
         {
             result.setEnPassantTarget (Color::White, en_passant_targets[Color_Index_White]);
@@ -74,9 +74,9 @@ namespace wisdom
         return result;
     }
 
-    auto BoardCode::fromDefaultPosition () -> BoardCode
+    auto BoardCode::fromDefaultPosition() -> BoardCode
     {
-        BoardBuilder builder = BoardBuilder::fromDefaultPosition ();
+        BoardBuilder builder = BoardBuilder::fromDefaultPosition();
         return BoardCode::fromBoardBuilder (builder);
     }
 
@@ -136,8 +136,8 @@ namespace wisdom
 
     auto BoardCode::countOnes() const -> std::size_t
     {
-        string str = my_pieces.to_string ();
-        return std::count (str.begin (), str.end (), '1');
+        string str = my_pieces.to_string();
+        return std::count (str.begin(), str.end(), '1');
     }
 
     auto operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&

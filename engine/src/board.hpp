@@ -17,7 +17,7 @@ namespace wisdom
     class Board
     {
     public:
-        Board ();
+        Board();
 
         Board (const Board& board) = default;
 
@@ -25,7 +25,7 @@ namespace wisdom
 
         friend bool operator== (const Board& a, const Board& b);
 
-        void print () const;
+        void print() const;
 
         [[nodiscard]] constexpr auto pieceAt (int row, int col) const
             -> ColoredPiece
@@ -41,42 +41,42 @@ namespace wisdom
 
         void printToFile (std::ostream& out) const;
 
-        void dump () const;
+        void dump() const;
 
-        [[nodiscard]] auto getHalfMoveClock () const noexcept
+        [[nodiscard]] auto getHalfMoveClock() const noexcept
             -> int
         {
             return my_half_move_clock;
         }
 
-        [[nodiscard]] auto getFullMoveClock () const noexcept
+        [[nodiscard]] auto getFullMoveClock() const noexcept
             -> int
         {
             return my_full_move_clock;
         }
 
         // Convert the board to a string.
-        [[nodiscard]] auto toString () const -> string;
+        [[nodiscard]] auto asString() const -> string;
 
-        [[nodiscard]] auto getCode () const& noexcept -> const BoardCode&
+        [[nodiscard]] auto getCode() const& noexcept -> const BoardCode&
         {
             return my_code;
         }
-        void get_code () const&& = delete;
+        void get_code() const&& = delete;
 
-        [[nodiscard]] auto getMaterial () const& noexcept
+        [[nodiscard]] auto getMaterial() const& noexcept
             -> const Material&
         {
             return my_material;
         }
-        void getMaterial () const&& = delete;
+        void getMaterial() const&& = delete;
 
-        [[nodiscard]] auto getPosition () const& noexcept
+        [[nodiscard]] auto getPosition() const& noexcept
             -> const Position&
         {
             return my_position;
         }
-        void getPosition () const&& = delete;
+        void getPosition() const&& = delete;
 
         [[nodiscard]] auto toFenString (Color turn) const -> string;
         [[nodiscard]] auto castledString (Color color) const -> string;
@@ -99,8 +99,8 @@ namespace wisdom
             -> bool
         {
             auto castle_state = getCastlingEligibility (who);
-            auto castle_bits = castle_state.underlying_value ();
-            bool neg_not_set = ((~castle_bits) & castle_types.underlying_value ()) != 0;
+            auto castle_bits = castle_state.underlying_value();
+            bool neg_not_set = ((~castle_bits) & castle_types.underlying_value()) != 0;
 
             return neg_not_set;
         }
@@ -110,7 +110,7 @@ namespace wisdom
             return my_code.enPassantTarget (who) != No_En_Passant_Coord;
         }
 
-        [[nodiscard]] auto getCurrentTurn () const -> Color
+        [[nodiscard]] auto getCurrentTurn() const -> Color
         {
             return my_code.currentTurn();
         }
@@ -125,12 +125,12 @@ namespace wisdom
             return getEnPassantTarget (colorFromColorIndex (who));
         }
 
-        [[nodiscard]] auto getEnPassantTargets () const noexcept -> EnPassantTargets
+        [[nodiscard]] auto getEnPassantTargets() const noexcept -> EnPassantTargets
         {
             return my_code.enPassantTargets();
         }
 
-        void randomizePositions ();
+        void randomizePositions();
 
         void setKingPosition (Color who, Coord pos)
         {
@@ -168,11 +168,11 @@ namespace wisdom
             my_code.setCurrentTurn (who);
         }
 
-        [[nodiscard]] auto getBoardCode () const& -> const BoardCode&
+        [[nodiscard]] auto getBoardCode() const& -> const BoardCode&
         {
             return my_code;
         }
-        void getBoardCode () const&& = delete;
+        void getBoardCode() const&& = delete;
 
         void updateMoveClock (Color who, Piece orig_src_piece_type, Move mv)
         {
@@ -185,7 +185,7 @@ namespace wisdom
                 my_full_move_clock++;
         }
 
-        [[nodiscard]] static auto allCoords () -> CoordIterator
+        [[nodiscard]] static auto allCoords() -> CoordIterator
         {
             return CoordIterator {};
         }

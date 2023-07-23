@@ -136,17 +136,17 @@ namespace wisdom
             : Error (src.my_message, src.my_extra_info)
         {}
 
-        [[nodiscard]] auto message () const noexcept -> const string&
+        [[nodiscard]] auto message() const noexcept -> const string&
         {
             return my_message;
         }
 
-        [[nodiscard]] auto extra_info () const noexcept -> const string&
+        [[nodiscard]] auto extra_info() const noexcept -> const string&
         {
             return my_message;
         }
 
-        [[nodiscard]] const char* what () const noexcept override
+        [[nodiscard]] const char* what() const noexcept override
         {
             return this->my_message.c_str();
         }

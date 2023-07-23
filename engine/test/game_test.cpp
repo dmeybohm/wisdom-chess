@@ -17,7 +17,7 @@ TEST_CASE( "Initial board position is added to history" )
         Move black_move = moveParse ("b8 c6");
         Move white_return_move = moveParse ("f3 g1");
         Move black_return_move = moveParse ("c6 b8");
-        auto& history = game.getHistory ();
+        auto& history = game.getHistory();
 
         for (int i = 0; i < 2; i++)
         {
@@ -64,7 +64,7 @@ TEST_CASE( "Initial board position is added to history" )
 
     SUBCASE( "When game is initialized from a board builder" )
     {
-        BoardBuilder builder = BoardBuilder::fromDefaultPosition ();
+        BoardBuilder builder = BoardBuilder::fromDefaultPosition();
         Game game { builder };
         run_test (game);
     }

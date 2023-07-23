@@ -44,7 +44,7 @@ namespace wisdom
     class MoveConsistencyProblem : public Error
     {
     public:
-        MoveConsistencyProblem () : Error ("Move consistency error.")
+        MoveConsistencyProblem() : Error ("Move consistency error.")
         {}
 
         explicit MoveConsistencyProblem (string extra_info) :

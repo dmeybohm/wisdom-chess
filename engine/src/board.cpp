@@ -12,17 +12,17 @@ namespace wisdom
     // board length in characters
     static constexpr int Board_Length_In_Chars = 31;
 
-    Board::Board ()
-        : Board { BoardBuilder::fromDefaultPosition () }
+    Board::Board()
+        : Board { BoardBuilder::fromDefaultPosition() }
     {
     }
 
     Board::Board (const BoardBuilder& builder)
-        : my_squares { builder.getSquares () }
+        : my_squares { builder.getSquares() }
         , my_code { BoardCode::fromBoardBuilder (builder) }
-        , my_king_pos { builder.getKingPositions () }
-        , my_half_move_clock { builder.getHalfMovesClock () }
-        , my_full_move_clock { builder.getFullMoves () }
+        , my_king_pos { builder.getKingPositions() }
+        , my_half_move_clock { builder.getHalfMovesClock() }
+        , my_full_move_clock { builder.getFullMoves() }
         , my_position { Position { *this } }
         , my_material { Material { *this } }
     {
@@ -30,16 +30,16 @@ namespace wisdom
 
     void Board::printToFile (std::ostream& out) const
     {
-        out << toString ();
-        out.flush ();
+        out << asString();
+        out.flush();
     }
 
-    void Board::print () const
+    void Board::print() const
     {
         printToFile (std::cout);
     }
 
-    void Board::dump () const
+    void Board::dump() const
     {
         printToFile (std::cerr);
     }
@@ -76,7 +76,7 @@ namespace wisdom
         result += "\n";
     }
 
-    auto Board::toString () const -> string
+    auto Board::asString() const -> string
     {
         string result;
 
@@ -204,7 +204,7 @@ namespace wisdom
 
         output += both_castled;
 
-        auto en_passant_targets = getEnPassantTargets ();
+        auto en_passant_targets = getEnPassantTargets();
         if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
             output += " " + wisdom::asString (en_passant_targets[Color_Index_White]) + " ";
         else if (en_passant_targets[Color_Index_Black] != No_En_Passant_Coord)
@@ -231,7 +231,7 @@ namespace wisdom
         }
     }
 
-    void Board::randomizePositions ()
+    void Board::randomizePositions()
     {
         std::random_device random_device;
         std::mt19937 rng (random_device());
@@ -254,7 +254,7 @@ namespace wisdom
             std::copy (std::begin (my_squares), std::end (my_squares), std::begin (shuffle_pieces));
             std::shuffle (std::begin (shuffle_pieces), std::end (shuffle_pieces), rng);
 
-            for (auto&& coord : allCoords ())
+            for (auto&& coord : allCoords())
             {
                 ColoredPiece piece = shuffle_pieces[coordIndex (coord)];
                 if (pieceType (piece) == Piece::King)
@@ -279,7 +279,7 @@ namespace wisdom
 
         if (iterations >= 1000)
         {
-            std::cout << "Too many positions : " << toString () << "\n";
+            std::cout << "Too many positions : " << asString() << "\n";
             throw Error { "Too many iterations trying to generate a random board." };
         }
 
@@ -291,7 +291,7 @@ namespace wisdom
         -> optional<Coord>
     {
         for (optional<Coord> it = starting_at;
-             it.has_value ();
+             it.has_value();
              it = nextCoord (*it, +1))
         {
             if (pieceAt (*it) == piece)

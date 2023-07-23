@@ -23,7 +23,7 @@ MoveList copy_moves_and_ptr (const Move **ptr, MoveGenerator& generator)
 {
     Board board;
     MoveList moves = generator.generateAllPotentialMoves (board, Color::White);
-    *ptr = moves.data ();
+    *ptr = moves.data();
     return moves;
 }
 
@@ -50,23 +50,23 @@ TEST_CASE( "Moving move list pointer" )
     MoveList initial {Color::Black, {"e4 d4", "d2 d1"}};
     MoveList moved = std::move (initial);
 
-    REQUIRE( initial.ptr () == nullptr ); // NOLINT(bugprone-use-after-move)
-    REQUIRE( moved.ptr () != nullptr );
+    REQUIRE( initial.ptr() == nullptr ); // NOLINT(bugprone-use-after-move)
+    REQUIRE( moved.ptr() != nullptr );
 
-    auto ptr = moved.begin ();
-    REQUIRE( moved.size () == 2 );
+    auto ptr = moved.begin();
+    REQUIRE( moved.size() == 2 );
     REQUIRE( *ptr++ == moveParse ("e4 d4", Color::Black) );
     REQUIRE( *ptr == moveParse ("d2 d1", Color::White) );
 }
 
 TEST_CASE( "Appending a move" )
 {
-    MoveList list = MoveList::uncached ();
+    MoveList list = MoveList::uncached();
 
     list.pushBack (moveParse ("e4 e5"));
     list.pushBack (moveParse ("d7 d5"));
 
-    REQUIRE( list.size () == 2 );
+    REQUIRE( list.size() == 2 );
 }
 
 TEST_CASE( "Moving uncached list" )
@@ -75,47 +75,47 @@ TEST_CASE( "Moving uncached list" )
 
     SUBCASE( "moving uncached into cached" )
     {
-        MoveList uncached_list = MoveList::uncached ();
+        MoveList uncached_list = MoveList::uncached();
 
         uncached_list.pushBack (moveParse ("e4 d4"));
         uncached_list.pushBack (moveParse ("d2 d1"));
 
-        MoveList cached { allocator.get () };
+        MoveList cached { allocator.get() };
 
-        REQUIRE( cached.allocator () != nullptr );
+        REQUIRE( cached.allocator() != nullptr );
         cached = std::move (uncached_list);
-        REQUIRE( cached.allocator () == nullptr );
+        REQUIRE( cached.allocator() == nullptr );
 
-        REQUIRE( uncached_list.ptr () == nullptr ); // NOLINT(bugprone-use-after-move)
-        REQUIRE( cached.ptr () != nullptr );
+        REQUIRE( uncached_list.ptr() == nullptr ); // NOLINT(bugprone-use-after-move)
+        REQUIRE( cached.ptr() != nullptr );
 
-        auto ptr = cached.begin ();
-        REQUIRE( cached.size () == 2 );
+        auto ptr = cached.begin();
+        REQUIRE( cached.size() == 2 );
         REQUIRE( *ptr++ == moveParse ("e4 d4", Color::Black) );
         REQUIRE( *ptr == moveParse ("d2 d1", Color::White) );
     }
 
     SUBCASE( "moving cached into uncached" )
     {
-        MoveList uncached_list = MoveList::uncached ();
+        MoveList uncached_list = MoveList::uncached();
 
         uncached_list.pushBack (moveParse ("e4 d4"));
         uncached_list.pushBack (moveParse ("d2 d1"));
 
-        MoveList cached { allocator.get () };
+        MoveList cached { allocator.get() };
 
         cached.pushBack (moveParse ("e3 d3"));
         cached.pushBack (moveParse ("d3 d1"));
 
-        REQUIRE( uncached_list.allocator () == nullptr );
+        REQUIRE( uncached_list.allocator() == nullptr );
         uncached_list = std::move (cached);
-        REQUIRE( uncached_list.allocator () != nullptr );
+        REQUIRE( uncached_list.allocator() != nullptr );
 
-        REQUIRE( cached.ptr () == nullptr ); // NOLINT(bugprone-use-after-move)
-        REQUIRE( uncached_list.ptr () != nullptr );
+        REQUIRE( cached.ptr() == nullptr ); // NOLINT(bugprone-use-after-move)
+        REQUIRE( uncached_list.ptr() != nullptr );
 
-        auto ptr = uncached_list.begin ();
-        REQUIRE( uncached_list.size () == 2 );
+        auto ptr = uncached_list.begin();
+        REQUIRE( uncached_list.size() == 2 );
         REQUIRE( *ptr++ == moveParse ("e3 d3", Color::Black) );
         REQUIRE( *ptr == moveParse ("d3 d1", Color::White) );
     }
@@ -141,7 +141,7 @@ TEST_CASE( "Swapping lists" )
 
     SUBCASE( "Swapping two move lists with different allocators" )
     {
-        MoveList first { allocator.get () };
+        MoveList first { allocator.get() };
         MoveList second = { Color::Black, { "d7 d5", "f1 c4" } };
 
         first.pushBack (moveParse ("e2 d4", Color::White));

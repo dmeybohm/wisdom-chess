@@ -9,7 +9,7 @@ TEST_CASE( "FEN notation for the starting position" )
 {
     FenParser parser { "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" };
 
-    Game game = parser.build ();
+    Game game = parser.build();
     Board default_board;
 
     CHECK( game.getBoard() == default_board );
@@ -54,22 +54,22 @@ TEST_CASE( "FEN notation for castling" )
 
     Game game = parser_full.build();
 
-    REQUIRE(game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible);
-    REQUIRE(game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::EitherSideEligible);
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::EitherSideEligible );
 
     FenParser parser_no_black_king { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black_king.build();
 
-    REQUIRE(game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible);
-    REQUIRE(game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::KingsideIneligible);
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::KingsideIneligible );
 
     FenParser parser_no_black { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black.build();
 
-    REQUIRE(game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible);
-    REQUIRE(game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::KingsideIneligible);
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::KingsideIneligible );
     FenParser parser_nothing { "4r2/8/8/8/8/8/k7/4K2R w - - 0 1" };
 
     game = parser_nothing.build();
@@ -98,19 +98,19 @@ TEST_CASE( "Parsing half and full moves")
     {
         FenParser parser { "4r2/8/8/8/8/8/k7/4K2R w Kk e6 10 5" };
 
-        Game game = parser.build ();
+        Game game = parser.build();
         const auto& board = game.getBoard();
-        CHECK (board.getHalfMoveClock () == 10);
-        CHECK (board.getFullMoveClock () == 5);
+        CHECK( board.getHalfMoveClock() == 10 );
+        CHECK( board.getFullMoveClock() == 5 );
     }
 
     SUBCASE( "Without castling or en passant square" )
     {
         FenParser parser { "4r2/8/8/8/8/8/k7/4K2R w - - 10 5" };
 
-        Game game = parser.build ();
+        Game game = parser.build();
         const auto& board = game.getBoard();
-        CHECK (board.getHalfMoveClock () == 10);
-        CHECK (board.getFullMoveClock () == 5);
+        CHECK( board.getHalfMoveClock() == 10 );
+        CHECK( board.getFullMoveClock() == 5 );
     }
 }

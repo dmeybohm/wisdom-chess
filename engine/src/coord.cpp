@@ -7,7 +7,7 @@ namespace wisdom
 {
     auto coordParse (const string& str) -> Coord
     {
-        if (str.size () != 2)
+        if (str.size() != 2)
             throw CoordParseError ("Invalid coordinate!");
 
         int col = charToCol (str.at (0));

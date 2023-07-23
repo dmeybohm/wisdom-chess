@@ -23,7 +23,7 @@ namespace wisdom
             : my_value { value }
         {}
 
-        explicit operator bool () const
+        explicit operator bool() const
         {
             return my_value != NoDraw;
         }

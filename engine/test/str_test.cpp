@@ -19,10 +19,10 @@ TEST_CASE( "split" )
         string input = "A string, to split, or not.";
         auto result = wisdom::split (input, ",");
 
-        REQUIRE (result.size () == 3);
-        REQUIRE (result[0] == "A string");
-        REQUIRE (result[1] == " to split");
-        REQUIRE (result[2] == " or not.");
+        REQUIRE( result.size() == 3 );
+        REQUIRE( result[0] == "A string" );
+        REQUIRE( result[1] == " to split" );
+        REQUIRE( result[2] == " or not." );
     }
 
     SUBCASE( "No separators" )
@@ -30,8 +30,8 @@ TEST_CASE( "split" )
         string input = "A string";
         auto result = wisdom::split (input, ",");
 
-        REQUIRE (result.size () == 1);
-        REQUIRE (result[0] == "A string");
+        REQUIRE( result.size() == 1 );
+        REQUIRE( result[0] == "A string" );
     }
 
     SUBCASE( "Empty" )
@@ -39,8 +39,8 @@ TEST_CASE( "split" )
         string input = {""};
         auto result = wisdom::split (input, ",");
 
-        REQUIRE (result.size () == 1);
-        REQUIRE (result[0] == "");
+        REQUIRE( result.size() == 1 );
+        REQUIRE( result[0] == "" );
     }
 }
 

@@ -18,8 +18,8 @@ TEST_CASE( "Parsing a move" )
 TEST_CASE( "Packing source and destination coordinates" )
 {
     Move a7xc8 = moveParse ("a7xc8", Color::White);
-    CHECK( a7xc8.getDst () == coordParse ("c8") );
-    CHECK( a7xc8.getSrc () == coordParse ("a7") );
+    CHECK( a7xc8.getDst() == coordParse ("c8") );
+    CHECK( a7xc8.getSrc() == coordParse ("a7") );
 }
 
 TEST_CASE( "Parsing an en-passant move" )
@@ -82,7 +82,7 @@ TEST_CASE("Mapping coordinates to moves")
         optional<Move> result = mapCoordinatesToMove (board, Color::White, e5, d6);
 
         Move expected = moveParse ("e5 d6 ep", Color::White);
-        REQUIRE( result.has_value () );
+        REQUIRE( result.has_value() );
         REQUIRE( *result == expected );
     }
 
@@ -110,7 +110,7 @@ TEST_CASE("Mapping coordinates to moves")
         optional<Move> white_result = mapCoordinatesToMove (board, Color::White, e1, g1);
 
         Move white_expected = moveParse ("o-o", Color::White);
-        CHECK( white_result.has_value () );
+        CHECK( white_result.has_value() );
         CHECK( *white_result == white_expected );
 
         board = board.withMove (Color::White, white_expected);
