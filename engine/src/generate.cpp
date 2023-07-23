@@ -69,7 +69,7 @@ namespace wisdom
                     int dst_col = k_col + col;
                     auto index = coordIndex (dst_row, dst_col);
                     if (my_knight_moves[index] == nullptr) {
-                        my_knight_moves[index] = make_unique<MoveList> (my_move_list_allocator.get ());
+                        my_knight_moves[index] = make_unique<MoveList> (my_move_list_allocator.get());
                     }
                     my_knight_moves[index]->pushBack (knight_move);
                 }
@@ -285,7 +285,7 @@ namespace wisdom
         return nullopt;
     }
 
-    void MoveGeneration::pawn ()
+    void MoveGeneration::pawn()
     {
         int dir;
         int row;
@@ -396,7 +396,7 @@ namespace wisdom
 
     auto MoveGenerator::generateLegalMoves (const Board& board, Color who) const -> MoveList
     {
-        MoveList non_checks { my_move_list_allocator.get () };
+        MoveList non_checks { my_move_list_allocator.get() };
 
         MoveList all_moves = generateAllPotentialMoves (board, who);
         for (auto move : all_moves)
@@ -451,10 +451,8 @@ namespace wisdom
         }
         else
         {
-            int a_material_src = Material::weight (pieceType (board.pieceAt (move.getSrc()))
-            );
-            int a_material_dst = Material::weight (pieceType (board.pieceAt (move.getDst()))
-            );
+            int a_material_src = Material::weight (pieceType (board.pieceAt (move.getSrc())));
+            int a_material_dst = Material::weight (pieceType (board.pieceAt (move.getDst())));
             return a_material_dst - a_material_src;
         }
     }
@@ -520,7 +518,7 @@ namespace wisdom
     auto MoveGenerator::generateAllPotentialMoves (const Board& board, Color who) const
         -> MoveList
     {
-        MoveList result { my_move_list_allocator.get () };
+        MoveList result { my_move_list_allocator.get() };
         MoveGeneration generation { board, result, 0, 0, who, *this };
 
         for (auto coord : board.allCoords())
@@ -533,8 +531,8 @@ namespace wisdom
             generation.generate (piece, coord);
         }
 
-        std::sort (result.begin (),
-                   result.end (),
+        std::sort (result.begin(),
+                   result.end(),
                    [generation](const Move& a, const Move& b) {
                         return generation.compareMoves (a, b);
                    });
