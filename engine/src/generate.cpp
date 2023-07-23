@@ -69,7 +69,7 @@ namespace wisdom
                     int dst_col = k_col + col;
                     auto index = coordIndex (dst_row, dst_col);
                     if (my_knight_moves[index] == nullptr) {
-                        my_knight_moves[index] = make_unique<MoveList> (my_move_list_allocator.get ());
+                        my_knight_moves[index] = make_unique<MoveList> (my_move_list_allocator.get());
                     }
                     my_knight_moves[index]->pushBack (knight_move);
                 }
@@ -241,8 +241,8 @@ namespace wisdom
 
     void MoveGeneration::queen()
     {
-        bishop ();
-        rook ();
+        bishop();
+        rook();
     }
 
     void MoveGeneration::knight()
@@ -255,16 +255,16 @@ namespace wisdom
 
     // Returns -1 if no column is eligible.
     auto eligibleEnPassantColumn (const Board& board, int row, int column, Color who)
-        -> int
+        -> optional<int>
     {
         Color opponent = colorInvert (who);
 
         if (!board.isEnPassantVulnerable (opponent))
-            return -1;
+            return nullopt;
 
         // if WHITE rank 4, black rank 3
         if ((who == Color::White ? 3 : 4) != row)
-            return -1;
+            return nullopt;
 
         int left_column = column - 1;
         int right_column = column + 1;
@@ -282,10 +282,10 @@ namespace wisdom
             return right_column;
         }
 
-        return -1;
+        return nullopt;
     }
 
-    void MoveGeneration::pawn ()
+    void MoveGeneration::pawn()
     {
         int dir;
         int row;
@@ -313,7 +313,7 @@ namespace wisdom
         {
             int double_row = nextRow (row, dir);
 
-            if (all_pawn_moves[0].has_value () && board.pieceAt (double_row, piece_col) == Piece_And_Color_None)
+            if (all_pawn_moves[0].has_value() && board.pieceAt (double_row, piece_col) == Piece_And_Color_None)
             {
                 all_pawn_moves[1] = Move::make (piece_row, piece_col, double_row, piece_col);
             }
@@ -348,7 +348,7 @@ namespace wisdom
                 // promotion moves dont include en passant
                 for (auto& optional_move: all_pawn_moves)
                 {
-                    if (optional_move.has_value ())
+                    if (optional_move.has_value())
                     {
                         auto move = *optional_move;
                         move = move.withPromotion (promoted_piece);
@@ -361,12 +361,13 @@ namespace wisdom
         }
 
         // en passant
-        int en_passant_column = eligibleEnPassantColumn (board, piece_row, piece_col, who);
-        if (isValidColumn (en_passant_column))
-            enPassant (en_passant_column);
+        optional<int> en_passant_column
+            = eligibleEnPassantColumn (board, piece_row, piece_col, who);
+        if (en_passant_column.has_value())
+            enPassant (*en_passant_column);
 
-        for (auto& check_pawn_move : all_pawn_moves)
-            if (check_pawn_move.has_value ())
+        for (const auto& check_pawn_move : all_pawn_moves)
+            if (check_pawn_move.has_value())
                 appendMove (*check_pawn_move);
     }
 
@@ -395,7 +396,7 @@ namespace wisdom
 
     auto MoveGenerator::generateLegalMoves (const Board& board, Color who) const -> MoveList
     {
-        MoveList non_checks { my_move_list_allocator.get () };
+        MoveList non_checks { my_move_list_allocator.get() };
 
         MoveList all_moves = generateAllPotentialMoves (board, who);
         for (auto move : all_moves)
@@ -450,10 +451,8 @@ namespace wisdom
         }
         else
         {
-            int a_material_src = Material::weight (pieceType (board.pieceAt (move.getSrc()))
-            );
-            int a_material_dst = Material::weight (pieceType (board.pieceAt (move.getDst()))
-            );
+            int a_material_src = Material::weight (pieceType (board.pieceAt (move.getSrc())));
+            int a_material_dst = Material::weight (pieceType (board.pieceAt (move.getDst())));
             return a_material_dst - a_material_src;
         }
     }
@@ -519,7 +518,7 @@ namespace wisdom
     auto MoveGenerator::generateAllPotentialMoves (const Board& board, Color who) const
         -> MoveList
     {
-        MoveList result { my_move_list_allocator.get () };
+        MoveList result { my_move_list_allocator.get() };
         MoveGeneration generation { board, result, 0, 0, who, *this };
 
         for (auto coord : board.allCoords())
@@ -532,8 +531,8 @@ namespace wisdom
             generation.generate (piece, coord);
         }
 
-        std::sort (result.begin (),
-                   result.end (),
+        std::sort (result.begin(),
+                   result.end(),
                    [generation](const Move& a, const Move& b) {
                         return generation.compareMoves (a, b);
                    });

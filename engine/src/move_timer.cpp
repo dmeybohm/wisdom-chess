@@ -8,7 +8,7 @@ namespace wisdom
 
     auto MoveTimer::isTriggered() -> bool
     {
-        if (my_started_time == nullopt)
+        if (!my_started_time.has_value())
             return false;
 
         if (my_triggered || my_cancelled)
