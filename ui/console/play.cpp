@@ -272,8 +272,8 @@ namespace wisdom::ui::console
                   << "  exit            Quit a game\n"
                   << "  a2c3            Move the piece at a2 to c3 (example)\n"
                   << "  a2xc3           Take the piece at c3 with the piece on a2 (example)\n"
-                  << "  o-o             Castle kingside if possible\n"
-                  << "  o-o-o           Castle queenside if possible\n"
+                  << "  o-o             Castle kingside\n"
+                  << "  o-o-o           Castle queenside\n"
                   << "  a7a8(q)         Promote pawn to queen (example)\n"
                   << "  a7xa8(q)        Capture the piece on a8 and promote the pawn to a Queen\n"
                   << "  a7a8(r)         Promote pawn to rook (example)\n"
@@ -298,12 +298,7 @@ namespace wisdom::ui::console
 
         input = chomp (input);
 
-        if (input == "help")
-        {
-            printHelp();
-            return result;
-        }
-        else if (input == "moves")
+        if (input == "moves")
         {
             printAvailableMoves (game, move_generator);
             return result;
@@ -387,6 +382,11 @@ namespace wisdom::ui::console
         else if (input == "quit" || input == "exit")
         {
             result.command = PlayCommand::StopGame;
+            return result;
+        }
+        else
+        {
+            printHelp();
             return result;
         }
 
