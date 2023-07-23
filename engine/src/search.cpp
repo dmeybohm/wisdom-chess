@@ -57,7 +57,6 @@ namespace wisdom
         int my_total_nodes_visited = 0;
         int my_total_alpha_beta_cutoffs = 0;
         Color my_searching_color = Color::None;
-
     };
 
     IterativeSearch::~IterativeSearch() = default;
@@ -72,7 +71,7 @@ namespace wisdom
     IterativeSearch::iterativelyDeepen (Color side)
     {
         impl->iterativelyDeepen (side);
-         return impl->synthesizeResult();
+        return impl->synthesizeResult();
     }
 
     auto IterativeSearch::isCancelled() -> bool
@@ -168,7 +167,7 @@ namespace wisdom
                                      my_search_depth - depth, false };
 
         my_best_move = result.move;
-        if (!my_best_move.has_value ())
+        if (!my_best_move.has_value())
         {
             // if there are no legal moves, then the current player is in a stalemate or checkmate position.
             result.score = evaluateWithoutLegalMoves (parent_board, side, result.depth);
@@ -189,11 +188,13 @@ namespace wisdom
 
     void IterativeSearchImpl::iterativelyDeepen (Color side)
     {
-        SearchResult best_result = SearchResult::from_initial ();
+        SearchResult best_result = SearchResult::from_initial();
         my_searching_color = side;
 
         try
         {
+            my_timer.start();
+
             // For now, only look every other depth
             for (int depth = 0; depth <= my_total_depth; depth == 0 ? depth++ : depth += 2)
             {
@@ -206,7 +207,7 @@ namespace wisdom
                     break;
 
                 auto next_result = synthesizeResult();
-                if (next_result.move.has_value ())
+                if (next_result.move.has_value())
                 {
                     best_result = next_result;
                     if (isCheckmatingOpponentScore (next_result.score))
@@ -259,24 +260,24 @@ namespace wisdom
         {
             std::stringstream progress_str;
             progress_str << "nodes visited = " << my_nodes_visited << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs;
-            my_output->debug (progress_str.str ());
+            my_output->debug (progress_str.str());
         }
 
         if (result.timed_out)
         {
             std::stringstream progress_str;
             progress_str << "Search timed out" << "\n";
-            my_output->info (progress_str.str ());
+            my_output->info (progress_str.str());
             return;
         }
 
-        if (result.move.has_value ())
+        if (result.move.has_value())
         {
             Move best_move = *result.move;
             std::stringstream progress_str;
             progress_str << "move selected = " << asString (best_move) << " [ score: "
                          << result.score << " ]\n";
-            my_output->info (progress_str.str ());
+            my_output->info (progress_str.str());
         }
     }
 }
