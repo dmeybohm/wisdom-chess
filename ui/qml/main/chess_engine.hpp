@@ -6,7 +6,7 @@
 #include <functional>
 #include <memory>
 
-#include "chessgame.hpp"
+#include "chess_game.hpp"
 #include "game.hpp"
 #include "logger.hpp"
 #include "move.hpp"

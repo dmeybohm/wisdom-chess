@@ -1,4 +1,4 @@
-#include "piecesmodel.hpp"
+#include "pieces_model.hpp"
 #include "coord.hpp"
 #include "move.hpp"
 

@@ -24,25 +24,24 @@ else()
     set(app_icon_macos "")
 endif ()
 
-
 qt_add_executable(WisdomChessQml
-    main/main.cpp
-    main/gamemodel.hpp
-    main/gamemodel.cpp
-    main/piecesmodel.hpp
-    main/piecesmodel.cpp
-    main/chessgame.hpp
-    main/chessgame.cpp
-    main/chessengine.hpp
-    main/chessengine.cpp
-    main/ui_types.cpp
-    main/ui_types.hpp
-    main/ui_settings.hpp
-    main/ui_settings.cpp
-    main/game_settings.hpp
-    main/game_settings.cpp
-    ${app_icon_resource_windows}
-    ${app_icon_macos}
+        main/main.cpp
+        main/game_model.hpp
+        main/game_model.cpp
+        main/pieces_model.hpp
+        main/pieces_model.cpp
+        main/chess_game.hpp
+        main/chess_game.cpp
+        main/chess_engine.hpp
+        main/chess_engine.cpp
+        main/ui_types.cpp
+        main/ui_types.hpp
+        main/ui_settings.hpp
+        main/ui_settings.cpp
+        main/game_settings.hpp
+        main/game_settings.cpp
+        ${app_icon_resource_windows}
+        ${app_icon_macos}
 )
 
 # Set custom AndroidManifest.xml:

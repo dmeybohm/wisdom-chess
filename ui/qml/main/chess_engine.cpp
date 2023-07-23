@@ -3,7 +3,7 @@
 #include <mutex>
 
 #include "check.hpp"
-#include "chessengine.hpp"
+#include "chess_engine.hpp"
 #include "logger.hpp"
 
 using namespace wisdom;
