@@ -53,7 +53,7 @@ TEST_CASE( "findFirstCoordWithPiece()" )
     {
         auto white_queen = ColoredPiece::make (Color::White, Piece::Queen);
         auto white_queen_pos = board.findFirstCoordWithPiece (white_queen);
-        CHECK( !white_queen_pos.has_value () );
+        CHECK( !white_queen_pos.has_value() );
     }
 }
 

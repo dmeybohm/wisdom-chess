@@ -12,7 +12,7 @@ namespace wisdom
             case Color::Black: return "Black";
             case Color::None: return "None";
         }
-        std::terminate ();
+        std::terminate();
     }
 
     auto asString (Piece piece) -> string
@@ -34,7 +34,7 @@ namespace wisdom
             case Piece::None:
                 return "None";
         }
-        std::terminate ();
+        std::terminate();
     }
 
     auto asString (ColoredPiece piece) -> string

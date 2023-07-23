@@ -17,9 +17,9 @@ TEST_CASE( "board code")
         BoardCode code = BoardCode::fromEmptyBoard();
         BoardCode initial = BoardCode::fromEmptyBoard();
 
-        auto initial_str = code.toString();
-        std::size_t num_zeroes = std::count (initial_str.begin (), initial_str.end (), '0');
-        REQUIRE( num_zeroes == initial_str.size () );
+        auto initial_str = code.asString();
+        std::size_t num_zeroes = std::count (initial_str.begin(), initial_str.end(), '0');
+        REQUIRE( num_zeroes == initial_str.size() );
 
         Coord a8 = coordParse ("a8");
         ColoredPiece black_pawn = ColoredPiece::make (Color::Black, Piece::Pawn);
@@ -35,12 +35,12 @@ TEST_CASE( "board code")
         ColoredPiece white_king = ColoredPiece::make (Color::White, Piece::King);
         code.addPiece (h1, white_king);
 
-        std::string result = code.toString();
+        std::string result = code.asString();
         result = result.substr (0, 4);
         CHECK( result == "0110" );
 
         code.removePiece (h1);
-        result = code.toString().substr (0, 4);
+        result = code.asString().substr (0, 4);
         CHECK( result == "0000" );
     }
 
@@ -123,8 +123,8 @@ TEST_CASE( "board code")
         REQUIRE (initial.countOnes() > 0);
 
         Move promote_castle_move = moveParse ("b7xa8 (Q)", Color::Black);
-        REQUIRE( promote_castle_move.isPromoting () );
-        REQUIRE( promote_castle_move.isNormalCapturing () );
+        REQUIRE( promote_castle_move.isPromoting() );
+        REQUIRE( promote_castle_move.isNormalCapturing() );
 
         code.applyMove (brd, promote_castle_move);
         REQUIRE( initial != code);
@@ -147,8 +147,8 @@ TEST_CASE( "Board code stores ancilliary state" )
         builder.setEnPassantTarget (Color::Black, "d6");
         auto board_with_state = Board { builder };
 
-        auto with_state_code = board_with_state.getCode ();
-        auto without_state_code = board_without_state.getCode ();
+        auto with_state_code = board_with_state.getCode();
+        auto without_state_code = board_without_state.getCode();
         CHECK( with_state_code != without_state_code );
 
         auto en_passant_target = with_state_code.enPassantTarget (Color::Black);
@@ -175,8 +175,8 @@ TEST_CASE( "Board code stores ancilliary state" )
         builder.setEnPassantTarget (Color::White, "e3");
         auto board_with_state = Board { builder };
 
-        auto with_state_code = board_with_state.getCode ();
-        auto without_state_code = board_without_state.getCode ();
+        auto with_state_code = board_with_state.getCode();
+        auto without_state_code = board_without_state.getCode();
         CHECK( with_state_code != without_state_code );
 
         auto en_passant_target = with_state_code.enPassantTarget (Color::White);

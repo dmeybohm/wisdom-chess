@@ -8,7 +8,7 @@ namespace wisdom
 {
     using string_size_t = string::size_type;
 
-    Game FenParser::build ()
+    Game FenParser::build()
     {
         builder.setCurrentTurn (active_player);
         return Game { builder };
@@ -56,7 +56,7 @@ namespace wisdom
         char ch;
 
         // read pieces
-        for (int row = 0, col = 0; !pieces_str.empty (); pieces_str = pieces_str.substr (1))
+        for (int row = 0, col = 0; !pieces_str.empty(); pieces_str = pieces_str.substr (1))
         {
             ch = pieces_str[0];
 
@@ -95,7 +95,7 @@ namespace wisdom
     // en passant target square:
     void FenParser::parseEnPassant (string en_passant_str)
     {
-        if (en_passant_str.empty ())
+        if (en_passant_str.empty())
             return;
 
         if (en_passant_str[0] == '-')
@@ -119,7 +119,7 @@ namespace wisdom
         CastlingEligibility kingside = CastlingEligible::KingsideIneligible;
         CastlingEligibility queenside = CastlingEligible::QueensideIneligible;
 
-        for (; !castling_str.empty () && isalpha (castling_str[0]);
+        for (; !castling_str.empty() && isalpha (castling_str[0]);
              castling_str = castling_str.substr (1))
         {
             char ch = castling_str[0];
@@ -169,42 +169,42 @@ namespace wisdom
         // Read the pieces:
         string pieces_str;
         input >> pieces_str;
-        if (input.fail ())
+        if (input.fail())
             throw FenParserError { "Missing pieces declaration parsing FEN string" };
         parsePieces (pieces_str);
 
         // read active computer_player:
         string active_player_str;
         input >> active_player_str;
-        if (input.fail ())
+        if (input.fail())
             throw FenParserError { "Missing active player parsing FEN string" };
         active_player = parseActivePlayer (active_player_str[0]);
 
         // castling:
         string castling_str;
         input >> castling_str;
-        if (input.fail ())
+        if (input.fail())
             throw FenParserError { "Missing castling string FEN string" };
         parseCastling (castling_str);
 
         // en passant target square:
         string en_passant_str;
         input >> en_passant_str;
-        if (input.fail ())
+        if (input.fail())
             throw FenParserError { "Missing en passant square parsing FEN string" };
         parseEnPassant (en_passant_str);
 
         // halfmove clock:
         int half_moves;
         input >> half_moves;
-        if (input.fail ())
+        if (input.fail())
             throw FenParserError { "Missing half move number parsing FEN string" };
         parseHalfMove (half_moves);
 
         // fullmove number:
         int full_moves;
         input >> full_moves;
-        if (input.fail ())
+        if (input.fail())
             throw FenParserError { "Missing full move number parsing FEN string" };
         parseFullMove (full_moves);
     }

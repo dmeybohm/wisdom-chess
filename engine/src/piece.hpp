@@ -134,7 +134,7 @@ namespace wisdom
             return piece_with_color;
         }
 
-        [[nodiscard]] constexpr auto color () const noexcept -> Color
+        [[nodiscard]] constexpr auto color() const noexcept -> Color
         {
             auto result = gsl::narrow_cast<int8_t>(
                 (piece_type_and_color & Piece_Color_Mask) >> Piece_Color_Shift
@@ -142,7 +142,7 @@ namespace wisdom
             return colorFromInt8 (result);
         }
 
-        [[nodiscard]] constexpr auto type () const noexcept -> Piece
+        [[nodiscard]] constexpr auto type() const noexcept -> Piece
         {
             auto result = gsl::narrow_cast<int8_t>(
                 (piece_type_and_color & Piece_Type_Mask)
@@ -173,12 +173,12 @@ namespace wisdom
 
     constexpr auto pieceType (ColoredPiece piece) -> Piece
     {
-        return piece.type ();
+        return piece.type();
     }
 
     constexpr auto pieceColor (ColoredPiece piece) -> Color
     {
-        return piece.color ();
+        return piece.color();
     }
 
     static constexpr ColoredPiece Piece_And_Color_None = ColoredPiece::make (

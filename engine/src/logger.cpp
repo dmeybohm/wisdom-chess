@@ -7,8 +7,8 @@ namespace wisdom
     class NullLogger : public Logger
     {
     public:
-        NullLogger () = default;
-        ~NullLogger () override = default;
+        NullLogger() = default;
+        ~NullLogger() override = default;
 
         void debug ([[maybe_unused]] const string& output) const override
         {
@@ -26,7 +26,7 @@ namespace wisdom
             : my_log_level { level }
         {}
 
-        ~StandardLogger () override = default;
+        ~StandardLogger() override = default;
 
         void debug (const string& output) const override
         {
@@ -52,7 +52,7 @@ namespace wisdom
 
     auto makeNullLogger() -> unique_ptr<Logger>
     {
-        return make_unique<NullLogger> ();
+        return make_unique<NullLogger>();
     }
 
     auto makeStandardLogger (Logger::LogLevel level) -> unique_ptr<Logger>

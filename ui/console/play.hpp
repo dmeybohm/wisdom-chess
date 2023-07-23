@@ -6,7 +6,7 @@
 
 namespace wisdom::ui::console
 {
-    void play ();
+    void play();
 };
 
 #endif //WISDOM_CHESS_PLAY_HPP

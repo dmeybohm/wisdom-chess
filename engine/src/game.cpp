@@ -23,17 +23,17 @@ namespace wisdom
             return wisdom_game_output_format;
     }
 
-    Game::Game ()
-        : Game { BoardBuilder::fromDefaultPosition (),  { { Player::Human, Player::ChessEngine } } }
+    Game::Game()
+        : Game { BoardBuilder::fromDefaultPosition(),  { { Player::Human, Player::ChessEngine } } }
     {
     }
 
     Game::Game (const Players& players)
-        : Game { BoardBuilder::fromDefaultPosition (), { { players[0], players[1] } } }
+        : Game { BoardBuilder::fromDefaultPosition(), { { players[0], players[1] } } }
     {}
 
     Game::Game (Player white_player, Player black_player)
-        : Game { BoardBuilder::fromDefaultPosition (), { { white_player, black_player } } }
+        : Game { BoardBuilder::fromDefaultPosition(), { { white_player, black_player } } }
     {
     }
 
@@ -75,10 +75,10 @@ namespace wisdom
     void Game::save (const string& input) const
     {
         OutputFormat& output = makeOutputFormat (input);
-        output.save (input, my_current_board, my_history, getCurrentTurn ());
+        output.save (input, my_current_board, my_history, getCurrentTurn());
     }
 
-    auto Game::status () const -> GameStatus
+    auto Game::status() const -> GameStatus
     {
         if (isCheckmated (my_current_board, getCurrentTurn(), my_move_generator))
             return GameStatus::Checkmate;
@@ -124,7 +124,7 @@ namespace wisdom
         if (History::hasBeenSeventyFiveMovesWithoutProgress (getBoard()))
             return GameStatus::SeventyFiveMovesWithoutProgressDraw;
 
-        const auto& material = my_current_board.getMaterial ();
+        const auto& material = my_current_board.getMaterial();
         if (material.checkmateIsPossible (my_current_board) == Material::CheckmateIsPossible::No)
             return GameStatus::InsufficientMaterialDraw;
 
@@ -135,10 +135,10 @@ namespace wisdom
         -> optional<Move>
     {
         if (whom == Color::None)
-            whom = getCurrentTurn ();
+            whom = getCurrentTurn();
 
         MoveTimer overdue_timer { my_search_timeout };
-        if (my_periodic_function.has_value ())
+        if (my_periodic_function.has_value())
             overdue_timer.setPeriodicFunction (*my_periodic_function);
 
         IterativeSearch iterative_search {
@@ -162,7 +162,7 @@ namespace wisdom
 
         istream.open (filename, std::ios::in);
 
-        if (istream.fail ())
+        if (istream.fail())
         {
             std::cout << "Failed reading " << filename << "\n";
             return {};

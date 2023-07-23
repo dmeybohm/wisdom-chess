@@ -21,7 +21,7 @@ namespace wisdom
         int depth;
         bool timed_out;
 
-        static SearchResult from_initial () noexcept
+        static SearchResult from_initial() noexcept
         {
             SearchResult result { nullopt, -Initial_Alpha, 0, false };
             return result;
@@ -37,7 +37,7 @@ namespace wisdom
         IterativeSearch (const Board& board, const History& history, const Logger& output,
                          MoveTimer timer, int total_depth);
 
-        ~IterativeSearch ();
+        ~IterativeSearch();
 
         [[nodiscard]] auto iterativelyDeepen (Color side) -> SearchResult;
 

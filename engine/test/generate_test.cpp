@@ -54,7 +54,7 @@ TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
     auto move_list = move_generator.generateAllPotentialMoves (board, Color::Black);
 
     std::string expected = "{ [c4xd3] [c4xb3] ";
-    std::string converted = move_list.asString().substr (0, expected.size ());
+    std::string converted = move_list.asString().substr (0, expected.size());
 
     INFO( move_list );
     REQUIRE( expected == converted );

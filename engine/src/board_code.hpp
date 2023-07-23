@@ -49,7 +49,7 @@ namespace wisdom
         };
 
         // Private so and only used for initialization.
-        BoardCode () = default;
+        BoardCode() = default;
 
     public:
         explicit BoardCode (const Board& board);
@@ -104,7 +104,7 @@ namespace wisdom
 
         [[nodiscard]] auto enPassantTarget (Color vulnerable_color) const noexcept -> Coord
         {
-            std::size_t target_bits = my_ancillary.to_ulong ();
+            std::size_t target_bits = my_ancillary.to_ulong();
             std::size_t target_bit_shift = vulnerable_color == Color::White ?
                                              EN_PASSANT_WHITE_TARGET :
                                              EN_PASSANT_BLACK_TARGET;
@@ -127,7 +127,7 @@ namespace wisdom
 
         [[nodiscard]] auto castleState (Color who) const -> CastlingEligibility
         {
-            std::size_t target_bits = my_ancillary.to_ulong ();
+            std::size_t target_bits = my_ancillary.to_ulong();
             std::size_t target_bit_shift = who == Color::White ?
                                                   CASTLING_STATE_WHITE_TARGET :
                                                   CASTLING_STATE_BLACK_TARGET;
@@ -141,7 +141,7 @@ namespace wisdom
 
         void setCastleState (Color who, CastlingEligibility castling_states)
         {
-            uint8_t castling_bits = castling_states.underlying_value ();
+            uint8_t castling_bits = castling_states.underlying_value();
             std::size_t bit_number = who == Color::White ?
                                                   CASTLING_STATE_WHITE_TARGET :
                                                   CASTLING_STATE_BLACK_TARGET;
@@ -153,7 +153,7 @@ namespace wisdom
 
         [[nodiscard]] auto currentTurn() const -> Color
         {
-            auto bits = my_ancillary.to_ulong ();
+            auto bits = my_ancillary.to_ulong();
             auto index = gsl::narrow_cast<int8_t> (bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT));
             return colorFromColorIndex (index);
         }
@@ -165,9 +165,9 @@ namespace wisdom
             return result;
         }
 
-        [[nodiscard]] auto toString() const -> string
+        [[nodiscard]] auto asString() const -> string
         {
-            return my_pieces.to_string ();
+            return my_pieces.to_string();
         }
 
         [[nodiscard]] auto bitsetRef() const& -> const BoardCodeBitset&

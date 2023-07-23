@@ -5,7 +5,7 @@ namespace wisdom
 {
     Material::Material (const wisdom::Board& board)
     {
-        for (auto&& coord : Board::allCoords ())
+        for (auto&& coord : Board::allCoords())
         {
             auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
@@ -22,12 +22,12 @@ namespace wisdom
         auto first_coord = board.findFirstCoordWithPiece (first_bishop);
 
         auto starting_at = first_bishop_color == second_bishop_color ? nextCoord (*first_coord, +1) : First_Coord;
-        assert (starting_at.has_value ());
+        assert (starting_at.has_value());
 
         auto second_coord = board.findFirstCoordWithPiece (second_bishop, *starting_at);
 
-        assert (first_coord.has_value ());
-        assert (second_coord.has_value ());
+        assert (first_coord.has_value());
+        assert (second_coord.has_value());
 
         return (coordColor (*first_coord) == coordColor (*second_coord)) ?
             Material::CheckmateIsPossible::No :

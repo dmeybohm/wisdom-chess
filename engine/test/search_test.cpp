@@ -64,8 +64,8 @@ TEST_CASE( "Can find mate in 3" )
 
     SearchResult result = search.iterativelyDeepen (Color::White);
 
-    CHECK (result.score > Max_Non_Checkmate_Score);
-    CHECK (result.move.has_value ());
+    CHECK( result.score > Max_Non_Checkmate_Score );
+    CHECK( result.move.has_value() );
 }
 
 //
@@ -79,14 +79,14 @@ TEST_CASE( "Can find mate in 3" )
 TEST_CASE( "Can find mate in 2 1/2" )
 {
     FenParser fen { "4n3/2k2p2/p5p1/2pK4/1r6/1n6/8/8 b - - 0 1" };
-    auto game = fen.build ();
+    auto game = fen.build();
 
     SearchHelper helper;
     IterativeSearch search = helper.build (game.getBoard(), 5);
 
     SearchResult result = search.iterativelyDeepen (Color::Black);
 
-    REQUIRE( result.move.has_value () );
+    REQUIRE( result.move.has_value() );
     REQUIRE( result.score > Max_Non_Checkmate_Score);
 }
 
@@ -124,7 +124,7 @@ TEST_CASE( "scenario with heap overflow 1" )
     IterativeSearch search = helper.build (board, 3, 300);
 
     SearchResult result = search.iterativelyDeepen (Color::Black);
-    REQUIRE( result.move.has_value () );
+    REQUIRE( result.move.has_value() );
 }
 
 TEST_CASE( "Promoting move is taken if possible" )
@@ -147,36 +147,36 @@ TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing
 {
     FenParser parser { "rnb1kbnr/ppp1pppp/8/8/3B4/8/PPP1pPPP/RN2KB1R b KQkq - 0 1" };
 
-    auto game = parser.build ();
+    auto game = parser.build();
 
     SearchHelper helper;
     auto search = helper.build (game.getBoard(), 3);
 
-    auto board_str = game.getBoard().toString();
+    auto board_str = game.getBoard().asString();
     INFO( board_str );
 
     SearchResult result = search.iterativelyDeepen (Color::Black);
-    REQUIRE (asString (*result.move) == "e2xf1(Q)");
+    REQUIRE( asString (*result.move) == "e2xf1(Q)" );
 }
 
 TEST_CASE( "Finding moves regression test" )
 {
     FenParser parser { "r5rk/5p1p/5R2/4B3/8/8/7P/7K w - - 0 1" };
 
-    auto game = parser.build ();
+    auto game = parser.build();
     SearchHelper helper;
     History history;
     MoveTimer timer { 10 };
     IterativeSearch search = helper.build (game.getBoard(), 1, 10);
 
     SearchResult result = search.iterativelyDeepen (Color::White);
-    REQUIRE (result.move.has_value ());
+    REQUIRE( result.move.has_value() );
 }
 
 TEST_CASE( "Bishop is not sacrificed scenario 1" )
 {
     FenParser fen { "r1bqk1nr/ppp2ppp/8/4p3/1bpP4/2P5/PP2NPPP/RNBQ1RK1 b kq - 0 1" };
-    auto game = fen.build ();
+    auto game = fen.build();
 
     SearchHelper helper;
     History history;
@@ -184,44 +184,44 @@ TEST_CASE( "Bishop is not sacrificed scenario 1" )
 
     auto result = search.iterativelyDeepen (Color::Black);
 
-    REQUIRE (result.move.has_value ());
+    REQUIRE( result.move.has_value() );
 
     game.move (*result.move);
 
     // assert the bishop has moved:
     INFO ("Info:", asString (*result.move));
-    REQUIRE (game.getBoard().pieceAt (coordParse ("b4"))
-             != ColoredPiece::make (Color::Black, Piece::Bishop));
+    REQUIRE( game.getBoard().pieceAt (coordParse ("b4"))
+             != ColoredPiece::make (Color::Black, Piece::Bishop) );
 }
 
 TEST_CASE( "Bishop is not sacrificed scenario 2 (as white)" )
 {
     FenParser fen { "2b2bnr/pr1ppkpp/p1p5/q3P3/2P2N2/BP3N2/P2P1PPP/R3K2R w KQ - 2 1" };
-    auto game = fen.build ();
+    auto game = fen.build();
 
     SearchHelper helper;
     IterativeSearch search = helper.build (game.getBoard(), 3, 180);
 
     auto result = search.iterativelyDeepen (Color::White);
 
-    REQUIRE (result.move.has_value ());
+    REQUIRE (result.move.has_value());
 
     game.move (*result.move);
 
     // assert the bishop has moved:
-    INFO ("Info:", asString (*result.move));
+    INFO( "Info:", asString (*result.move) );
     auto a3_piece = game.getBoard().pieceAt (coordParse ("a3"));
     bool bishop_sac = a3_piece != ColoredPiece::make (Color::White, Piece::Bishop);
     bool is_in_check = isKingThreatened (game.getBoard(), Color::Black,
                                          game.getBoard().getKingPosition (Color::Black));
     bool bishop_sac_or_is_in_check = bishop_sac || is_in_check;
-    REQUIRE (bishop_sac_or_is_in_check);
+    REQUIRE( bishop_sac_or_is_in_check );
 }
 
 TEST_CASE( "Advanced pawn should be captured" )
 {
     FenParser fen { "rnb1k2r/ppp1qppp/4p3/3pP3/3P4/P1Q5/1PP2PPP/R3KBNR w KQkq d6 0 1" };
-    auto game = fen.build ();
+    auto game = fen.build();
 
     game.move (moveParse ("e5 d6 ep", Color::White));
 
@@ -229,11 +229,11 @@ TEST_CASE( "Advanced pawn should be captured" )
     auto search = helper.build (game.getBoard(), 3, 10);
     auto result = search.iterativelyDeepen (Color::Black);
 
-    REQUIRE (result.move.has_value ());
+    REQUIRE( result.move.has_value() );
 
     game.move (*result.move);
     // assert the pawn at d6 has been taken:
-    INFO ("Chosen move:", asString (*result.move));
+    INFO( "Chosen move:", asString (*result.move) );
 
     auto board = game.getBoard();
     auto target_piece = board.pieceAt (coordParse ("d6"));
@@ -251,7 +251,7 @@ TEST_CASE( "Checkmate is preferred to stalemate" )
 
     auto result = search.iterativelyDeepen (Color::Black);
 
-    REQUIRE( result.move.has_value());
+    REQUIRE( result.move.has_value() );
 
     game.move (*result.move);
     auto is_stalemate = isStalemated (game.getBoard(), Color::White, game.getMoveGenerator());
@@ -283,7 +283,7 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
 
     SUBCASE( "Depth 5" )
     {
-        auto game = fen.build ();
+        auto game = fen.build();
 
         SearchHelper helper;
         IterativeSearch search = helper.build (game.getBoard(), 5, 10);
@@ -295,14 +295,14 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
 
     SUBCASE( "Depth 7" )
     {
-        auto game = fen.build ();
+        auto game = fen.build();
 
         SearchHelper helper;
         IterativeSearch search = helper.build (game.getBoard(), 7, 10);
         SearchResult result = search.iterativelyDeepen (Color::White);
 
         // Check the white bishop is not sacrificed:
-        CHECK (*result.move != moveParse ("b3xf7"));
+        CHECK( *result.move != moveParse ("b3xf7") );
     }
 }
 

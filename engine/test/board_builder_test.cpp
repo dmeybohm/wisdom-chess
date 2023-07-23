@@ -84,11 +84,11 @@ TEST_CASE( "Board can be randomized" )
     Board randomized_board;
     Board default_board;
 
-    randomized_board.randomizePositions ();
+    randomized_board.randomizePositions();
 
     SUBCASE( "Board code is not the same as the default" )
     {
-        REQUIRE( default_board.getCode () != randomized_board.getCode () );
+        REQUIRE( default_board.getCode() != randomized_board.getCode() );
     }
 
     SUBCASE( "None of the pawns are in the back row" )

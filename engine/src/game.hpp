@@ -28,7 +28,7 @@ namespace wisdom
     class Game
     {
     public:
-        Game ();
+        Game();
 
         explicit Game (const Players& players);
 
@@ -60,20 +60,20 @@ namespace wisdom
 
         void move (Move move);
 
-        [[nodiscard]] auto getCurrentTurn () const -> Color;
+        [[nodiscard]] auto getCurrentTurn() const -> Color;
 
         void setCurrentTurn (Color new_turn);
 
-        [[nodiscard]] auto getBoard () const& -> const Board&;
-        [[nodiscard]] auto getBoard () const&& -> Board& = delete;
+        [[nodiscard]] auto getBoard() const& -> const Board&;
+        [[nodiscard]] auto getBoard() const&& -> Board& = delete;
 
-        [[nodiscard]] auto getHistory () & -> History&;
-        [[nodiscard]] auto getHistory () && -> History& = delete;
+        [[nodiscard]] auto getHistory() & -> History&;
+        [[nodiscard]] auto getHistory() && -> History& = delete;
 
-        [[nodiscard]] auto getMoveGenerator () const& -> MoveGenerator&;
-        [[nodiscard]] auto getMoveGenerator () const&& -> MoveGenerator& = delete;
+        [[nodiscard]] auto getMoveGenerator() const& -> MoveGenerator&;
+        [[nodiscard]] auto getMoveGenerator() const&& -> MoveGenerator& = delete;
 
-        [[nodiscard]] auto getCurrentPlayer () const -> Player
+        [[nodiscard]] auto getCurrentPlayer() const -> Player
         {
             return getPlayer (my_current_board.getCurrentTurn());
         }
@@ -99,12 +99,12 @@ namespace wisdom
             my_players = players;
         }
 
-        [[nodiscard]] auto getPlayers () const -> Players
+        [[nodiscard]] auto getPlayers() const -> Players
         {
             return my_players;
         }
 
-        [[nodiscard]] auto getMaxDepth () const -> int
+        [[nodiscard]] auto getMaxDepth() const -> int
         {
             return my_max_depth;
         }
@@ -127,7 +127,7 @@ namespace wisdom
         [[nodiscard]] auto mapCoordinatesToMove (Coord src, Coord dst, optional<Piece> promoted) const
             -> optional<Move>
         {
-            return ::wisdom::mapCoordinatesToMove (my_current_board, getCurrentTurn (), src, dst,
+            return ::wisdom::mapCoordinatesToMove (my_current_board, getCurrentTurn(), src, dst,
                                                    promoted);
         }
 

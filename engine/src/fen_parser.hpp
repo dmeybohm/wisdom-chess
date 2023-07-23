@@ -22,7 +22,7 @@ namespace wisdom
         }
 
         // Build the game:
-        auto build () -> Game;
+        auto build() -> Game;
 
         auto buildBoard() -> Board;
 

@@ -285,7 +285,7 @@ namespace wisdom
             throw ParseMoveException { "Invalid color parsing castling move." };
 
         string transformed { str };
-        std::transform (transformed.begin (), transformed.end (), transformed.begin (),
+        std::transform (transformed.begin(), transformed.end(), transformed.begin(),
                         [] (auto c) -> auto
                         {
                             return ::toupper (c);
@@ -309,23 +309,23 @@ namespace wisdom
         // allow any number of spaces/tabs before the two coordinates
         string tmp { str };
 
-        if (tmp.empty ())
+        if (tmp.empty())
             return nullopt;
 
-        tmp.erase (std::remove_if (tmp.begin (), tmp.end (), isspace), tmp.end ());
-        std::transform (tmp.begin (), tmp.end (), tmp.begin (),
+        tmp.erase (std::remove_if (tmp.begin(), tmp.end(), isspace), tmp.end());
+        std::transform (tmp.begin(), tmp.end(), tmp.begin(),
                         [] (auto c) -> auto
                         {
                             return ::toupper (c);
                         });
 
-        if (tmp.empty ())
+        if (tmp.empty())
             return nullopt;
 
         if (tolower (tmp[0]) == 'o')
             return castleParse (tmp, who);
 
-        if (tmp.size () < 4)
+        if (tmp.size() < 4)
             return nullopt;
 
         optional<Coord> src;
@@ -349,7 +349,7 @@ namespace wisdom
 
         string dst_coord { tmp.substr (offset, 2) };
         offset += 2;
-        if (dst_coord.empty ())
+        if (dst_coord.empty())
             return nullopt;
 
         optional<Coord> dst;
@@ -411,7 +411,7 @@ namespace wisdom
             throw ParseMoveException ("Move requires color, but no color provided");
 
         auto optional_result = moveParseOptional (str, color);
-        if (!optional_result.has_value ())
+        if (!optional_result.has_value())
             throw ParseMoveException ("Error parsing move: " + str);
 
         auto result = *optional_result;
@@ -497,7 +497,7 @@ namespace wisdom
                     if (eligible_column.has_value() && eligible_column == Column (dst))
                         return Move::makeEnPassant (src, dst);
 
-                    if (needPawnPromotion (Row<int> (dst), who) && promoted_piece.has_value ())
+                    if (needPawnPromotion (Row<int> (dst), who) && promoted_piece.has_value())
                         return move.withPromotion (ColoredPiece::make (who, *promoted_piece));
                 }
                 break;

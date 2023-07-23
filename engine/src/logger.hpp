@@ -14,7 +14,7 @@ namespace wisdom
             LogLevel_Debug = 1,
         };
 
-        virtual ~Logger () = default;
+        virtual ~Logger() = default;
 
         virtual void debug (const string& output) const = 0;
         virtual void info (const string& output) const = 0;

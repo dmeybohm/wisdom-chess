@@ -22,7 +22,7 @@ namespace wisdom
 
     void BoardBuilder::addPiece (const string& coord_str, Color who, Piece piece_type)
     {
-        if (coord_str.size () != 2)
+        if (coord_str.size() != 2)
             throw BoardBuilderError ("Invalid coordinate string!");
 
         Coord algebraic = coordParse (coord_str);

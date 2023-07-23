@@ -22,8 +22,8 @@ namespace wisdom::worker
         bool is_game_over = false;
         std::atomic<int> play_status = PlayStatus::Playing;
 
-        GameState () :
-            game { std::make_unique<wisdom::Game> ()}
+        GameState() :
+            game { std::make_unique<wisdom::Game>()}
         {
             updateSettings (settings);
         }
@@ -49,7 +49,7 @@ namespace wisdom::worker
         {
             WebEngineGameStatusUpdate status_manager { this };
             status_manager.update (game->status());
-            return game->status ();
+            return game->status();
         }
 
         friend class WebEngineGameStatusUpdate;
@@ -152,7 +152,7 @@ EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
 
     state->game_id = new_game_id;
 
-    auto new_game = std::make_unique<Game> ();
+    auto new_game = std::make_unique<Game>();
     state->game = std::move (new_game);
     state->updateSettings (state->settings);
 

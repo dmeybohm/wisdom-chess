@@ -183,7 +183,7 @@ namespace wisdom
 
         std::stringstream progress_str;
         progress_str << "search took " << seconds << "s, " << nodes / seconds << " nodes/sec";
-        output.info (progress_str.str ());
+        output.info (progress_str.str());
     }
 
     void IterativeSearchImpl::iterativelyDeepen (Color side)
@@ -200,7 +200,7 @@ namespace wisdom
             {
                 std::ostringstream ostr;
                 ostr << "Searching depth " << depth;
-                my_output->info (ostr.str ());
+                my_output->info (ostr.str());
 
                 iterate (side, depth);
                 if (my_timed_out)
@@ -222,9 +222,9 @@ namespace wisdom
         }
         catch (const Error &e)
         {
-            std::cerr << "Uncaught error: " << e.message () << "\n";
-            std::cerr << e.extra_info () << "\n";
-            my_original_board.dump ();
+            std::cerr << "Uncaught error: " << e.message() << "\n";
+            std::cerr << e.extra_info() << "\n";
+            my_original_board.dump();
         }
     }
 
@@ -238,17 +238,17 @@ namespace wisdom
     {
         std::stringstream outstr;
         outstr << "finding moves for " << asString (side);
-        my_output->debug (outstr.str ());
+        my_output->debug (outstr.str());
 
         my_nodes_visited = 0;
         my_alpha_beta_cutoffs = 0;
 
-        auto start = std::chrono::system_clock::now ();
+        auto start = std::chrono::system_clock::now();
 
         my_search_depth = depth;
         search (my_original_board, side, depth, -Initial_Alpha, Initial_Alpha);
 
-        auto end = std::chrono::system_clock::now ();
+        auto end = std::chrono::system_clock::now();
 
         auto result = synthesizeResult();
 

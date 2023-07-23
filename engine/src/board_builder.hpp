@@ -26,7 +26,7 @@ namespace wisdom
             Piece piece_type;
         };
 
-        constexpr BoardBuilder () : my_squares { emptySquares () }
+        constexpr BoardBuilder() : my_squares { emptySquares() }
         {}
 
         static auto fromDefaultPosition() -> BoardBuilder;
@@ -68,11 +68,11 @@ namespace wisdom
 
         void setFullMoves (int new_full_moves);
 
-        [[nodiscard]] auto getSquares () const& -> const array<ColoredPiece, Num_Squares>&
+        [[nodiscard]] auto getSquares() const& -> const array<ColoredPiece, Num_Squares>&
         {
             return my_squares;
         }
-        void getSquares () const&& = delete;
+        void getSquares() const&& = delete;
 
         [[nodiscard]] auto pieceAt (Coord coord) const -> ColoredPiece
         {
@@ -80,12 +80,12 @@ namespace wisdom
             return my_squares[coordIndex (coord)];
         }
 
-        [[nodiscard]] auto getCurrentTurn () const -> Color
+        [[nodiscard]] auto getCurrentTurn() const -> Color
         {
             return my_current_turn;
         }
 
-        [[nodiscard]] auto getEnPassantTargets () const -> array<Coord, Num_Players>
+        [[nodiscard]] auto getEnPassantTargets() const -> array<Coord, Num_Players>
         {
             return my_en_passant_targets;
         }
@@ -105,19 +105,19 @@ namespace wisdom
             return *my_king_positions[index];
         }
 
-        [[nodiscard]] auto getKingPositions () const -> array<Coord, Num_Players>
+        [[nodiscard]] auto getKingPositions() const -> array<Coord, Num_Players>
         {
             if (!my_king_positions[Color_Index_White] || !my_king_positions[Color_Index_Black])
                 throw BoardBuilderError { "Missing king position in constructing board." };
             return { *my_king_positions[Color_Index_White], *my_king_positions[Color_Index_Black] };
         }
 
-        [[nodiscard]] auto getHalfMovesClock () const -> int
+        [[nodiscard]] auto getHalfMovesClock() const -> int
         {
             return my_half_moves_clock;
         }
 
-        [[nodiscard]] auto getFullMoves () const -> int
+        [[nodiscard]] auto getFullMoves() const -> int
         {
             return my_full_moves;
         }

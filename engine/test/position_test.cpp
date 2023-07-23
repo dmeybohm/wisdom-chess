@@ -97,7 +97,7 @@ TEST_CASE( "Castling updates position overallScore correctly")
     for (auto castling_move_in : castling_moves)
     {
         Move castling_move = moveParse (castling_move_in, Color::White);
-        CHECK( castling_move.isCastling ());
+        CHECK( castling_move.isCastling());
 
         Board after_castling = board.withMove (Color::White, castling_move);
 
@@ -123,7 +123,7 @@ TEST_CASE( "Promoting move updates position overallScore correctly")
     for (auto promoting_move_in : promoting_moves)
     {
         Move promoting_move = moveParse (promoting_move_in, Color::White);
-        CHECK( promoting_move.isPromoting () );
+        CHECK( promoting_move.isPromoting() );
 
         Board after_promotion = board.withMove (Color::White, promoting_move);
 

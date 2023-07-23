@@ -57,19 +57,19 @@ TEST_CASE( "en passant" )
 
         MoveList move_list = move_generator.generateAllPotentialMoves (board, Color::White);
         auto maybe_en_passant_move = std::find_if (
-                move_list.begin (), move_list.end (), std::mem_fn (&Move::isEnPassant));
+                move_list.begin(), move_list.end(), std::mem_fn (&Move::isEnPassant));
 
-        REQUIRE( maybe_en_passant_move != move_list.end () );
+        REQUIRE( maybe_en_passant_move != move_list.end() );
         auto en_passant_move = *maybe_en_passant_move;
 
         // Check move types:
-        REQUIRE( en_passant_move.isEnPassant () );
+        REQUIRE( en_passant_move.isEnPassant() );
 
         // Check position:
-        REQUIRE( Row (en_passant_move.getSrc ()) == 3 );
-        REQUIRE( Column (en_passant_move.getSrc ()) == 4 );
-        REQUIRE( Row (en_passant_move.getDst ()) == 2 );
-        REQUIRE( Column (en_passant_move.getDst ()) == 5 );
+        REQUIRE( Row (en_passant_move.getSrc()) == 3 );
+        REQUIRE( Column (en_passant_move.getSrc()) == 4 );
+        REQUIRE( Row (en_passant_move.getDst()) == 2 );
+        REQUIRE( Column (en_passant_move.getDst()) == 5 );
 
         REQUIRE( board.isEnPassantVulnerable (Color::Black) );
         REQUIRE( !board.isEnPassantVulnerable (Color::White) );
@@ -106,19 +106,19 @@ TEST_CASE( "en passant" )
 
         MoveList move_list = move_generator.generateAllPotentialMoves (board, Color::White);
         auto maybe_en_passant_move = std::find_if (
-                move_list.begin(), move_list.end (), std::mem_fn (&Move::isEnPassant));
+                move_list.begin(), move_list.end(), std::mem_fn (&Move::isEnPassant));
 
-        REQUIRE( maybe_en_passant_move != move_list.end () );
+        REQUIRE( maybe_en_passant_move != move_list.end() );
         auto en_passant_move = *maybe_en_passant_move;
 
         // Check move types:
         REQUIRE( en_passant_move.isEnPassant() );
 
         // Check position:
-        REQUIRE( Row (en_passant_move.getSrc ()) == 3 );
-        REQUIRE( Column (en_passant_move.getSrc ()) == 4 );
-        REQUIRE( Row (en_passant_move.getDst ()) == 2 );
-        REQUIRE( Column (en_passant_move.getDst ()) == 3 );
+        REQUIRE( Row (en_passant_move.getSrc()) == 3 );
+        REQUIRE( Column (en_passant_move.getSrc()) == 4 );
+        REQUIRE( Row (en_passant_move.getDst()) == 2 );
+        REQUIRE( Column (en_passant_move.getDst()) == 3 );
 
         REQUIRE( board.isEnPassantVulnerable (Color::Black) );
         REQUIRE( !board.isEnPassantVulnerable (Color::White) );

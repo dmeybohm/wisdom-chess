@@ -22,7 +22,7 @@ namespace wisdom
         int moveNumber {};
         int gameId = ++our_game_id;
 
-        WebGame ()
+        WebGame()
             : WebGame (static_cast<int> (Human), static_cast<int> (ChessEngine))
         {}
 

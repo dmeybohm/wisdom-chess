@@ -17,7 +17,7 @@ namespace wisdom
 
         MoveList legal_moves = generator.generateLegalMoves (board, who);
 
-        return legal_moves.empty ();
+        return legal_moves.empty();
     }
 
     auto isLegalPositionAfterMove (const Board& board, Color who, Move mv) -> bool
@@ -59,6 +59,6 @@ namespace wisdom
         auto coord = board.getKingPosition (who);
         auto legal_moves = generator.generateLegalMoves (board, who);
 
-        return legal_moves.empty () && !isKingThreatened (board, who, coord);
+        return legal_moves.empty() && !isKingThreatened (board, who, coord);
     }
 }
