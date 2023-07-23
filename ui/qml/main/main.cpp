@@ -4,8 +4,8 @@
 #include <QDebug>
 #include <QQuickWindow>
 
-#include "gamemodel.hpp"
-#include "piecesmodel.hpp"
+#include "game_model.hpp"
+#include "pieces_model.hpp"
 #include "ui_types.hpp"
 
 #include <QSGRendererInterface>

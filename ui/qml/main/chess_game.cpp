@@ -1,4 +1,4 @@
-#include "chessgame.hpp"
+#include "chess_game.hpp"
 #include "fen_parser.hpp"
 #include "game_settings.hpp"
 #include "move_timer.hpp"

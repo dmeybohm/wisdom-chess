@@ -6,7 +6,7 @@
 #include <QThread>
 #include <QTimer>
 
-#include "chessgame.hpp"
+#include "chess_game.hpp"
 #include "game_settings.hpp"
 #include "ui_settings.hpp"
 #include "ui_types.hpp"
