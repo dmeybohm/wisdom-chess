@@ -52,14 +52,15 @@ namespace wisdom
     constexpr Coord No_En_Passant_Coord = First_Coord;
 
     // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
-    [[nodiscard]] constexpr auto coordIndex (Coord coord) -> int
+    template <typename IntegerType = int>
+    [[nodiscard]] constexpr auto coordIndex (Coord coord) -> IntegerType
     {
         return coord.row_and_col;
     }
 
     // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
-    template <typename IntegerType = int8_t>
-    [[nodiscard]] constexpr auto coordIndex (IntegerType row, IntegerType col) -> int
+    template <typename IntegerType = int8_t, typename ResultType = int>
+    [[nodiscard]] constexpr auto coordIndex (IntegerType row, IntegerType col) -> ResultType
     {
         static_assert (std::is_integral_v<IntegerType>);
         Coord coord = makeCoord (row, col);
