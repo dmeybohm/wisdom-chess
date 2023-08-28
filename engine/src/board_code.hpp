@@ -29,17 +29,19 @@ namespace wisdom
 
         using PiecesBitset = array<bitset<Bits_Per_Pieces_Element>, Num_Pieces_Elements>;
 
-        static constexpr int Metadata_Total_Bits = 16;
+        static constexpr int Total_Metadata_Bits = 16;
 
-        using MetadataBitset = bitset<Metadata_Total_Bits>;
+        using MetadataBitset = bitset<Total_Metadata_Bits>;
 
         static std::hash<MetadataBitset> metadata_hash_fn;
 
-        enum PieceBitPositions : std::size_t {
-            PIECE_MASK = 0b1111ULL,
+        enum PieceBits : std::size_t
+        {
+            PIECE_MASK = 0b1111,
         };
 
-        enum AncillaryBitPositions : std::size_t {
+        enum MetadataBits : std::size_t
+        {
             CURRENT_TURN_BIT = 0,
             EN_PASSANT_WHITE_TARGET = 1,
             EN_PASSANT_BLACK_TARGET = 5,
@@ -165,7 +167,7 @@ namespace wisdom
         {
             std::string result;
 
-            result.reserve (Total_Piece_Bits + Metadata_Total_Bits);
+            result.reserve (Total_Piece_Bits + Total_Metadata_Bits);
 
             // Most-significant bits first (big-endian):
             for (auto i = my_pieces.crbegin(); i != my_pieces.crend(); i++)

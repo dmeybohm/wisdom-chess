@@ -12,7 +12,7 @@ using namespace wisdom;
 
 TEST_CASE( "board code")
 {
-    SUBCASE( "Board code is able to be set" )
+    SUBCASE( "Board code is able to be set for an empty board" )
     {
         BoardCode code = BoardCode::fromEmptyBoard();
         BoardCode initial = BoardCode::fromEmptyBoard();
@@ -42,6 +42,15 @@ TEST_CASE( "board code")
         code.removePiece (h1);
         result = code.asString().substr (0, 4);
         CHECK( result == "0000" );
+    }
+
+    SUBCASE( "Board code sets up a default board" )
+    {
+        BoardCode code = BoardCode::fromDefaultPosition();
+
+        auto num_ones = code.countOnes ();
+
+        CHECK( num_ones >= 32 ); // each piece must have at least one bit.
     }
 
     SUBCASE( "Capturing moves are applied and undone correctly" )
