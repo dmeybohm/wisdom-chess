@@ -29,9 +29,11 @@ namespace wisdom
 
         void iterate (Color side, int depth);
 
-        void search (const Board& parent_board, Color side, int depth, int alpha, int beta);
+        // Search for the best move, and return the best score.
+        int search (const Board& parent_board, Color side, int depth,
+                    int alpha, int beta);
 
-        [[nodiscard]] auto synthesizeResult() const -> SearchResult;
+        [[nodiscard]] auto getBestResult() const -> SearchResult;
 
         [[nodiscard]] auto moveTimer() const -> not_null<const MoveTimer*>
         {
@@ -47,10 +49,7 @@ namespace wisdom
         int my_total_depth;
         int my_search_depth {};
 
-        optional<Move> my_best_move = nullopt;
-        int my_best_depth = -1;
-        int my_best_score = -1;
-        bool my_timed_out = false;
+        SearchResult my_current_result {};
 
         int my_nodes_visited = 0;
         int my_alpha_beta_cutoffs = 0;
@@ -71,7 +70,7 @@ namespace wisdom
     IterativeSearch::iterativelyDeepen (Color side)
     {
         impl->iterativelyDeepen (side);
-        return impl->synthesizeResult();
+        return impl->getBestResult();
     }
 
     auto IterativeSearch::isCancelled() -> bool
@@ -90,8 +89,8 @@ namespace wisdom
         return current_color == searching_color ? Min_Draw_Score : 0;
     }
 
-    void IterativeSearchImpl::search (const Board& parent_board, // NOLINT(misc-no-recursion)
-                                      Color side, int depth, int alpha, int beta)
+    int IterativeSearchImpl::search (const Board& parent_board, // NOLINT(misc-no-recursion)
+                                     Color side, int depth, int alpha, int beta)
     {
         std::optional<Move> best_move {};
         int best_score = -Initial_Alpha;
@@ -99,10 +98,12 @@ namespace wisdom
         auto moves = my_generator.generateAllPotentialMoves (parent_board, side);
         for (auto move : moves)
         {
+            int score;
+
             if (my_timer.isTriggered())
             {
-                my_timed_out = true;
-                return;
+                my_current_result.timed_out = true;
+                return -Initial_Alpha;
             }
 
             Board child_board = parent_board.withMove (side, move);
@@ -118,12 +119,12 @@ namespace wisdom
             {
                 if (isDrawingMove (child_board, side, move, my_history))
                 {
-                    my_best_score = drawingScore (my_searching_color, side);
+                    score = drawingScore (my_searching_color, side);
                 }
                 else
                 {
-                    my_best_score = evaluate (child_board, side,
-                            my_search_depth - depth, my_generator);
+                    score = evaluate (child_board, side,
+                                      my_search_depth - depth, my_generator);
                 }
             }
             else
@@ -131,16 +132,13 @@ namespace wisdom
                 // Don't recurse into a big search if this move is a draw.
                 if (my_search_depth == depth && isDrawingMove (child_board, side, move, my_history))
                 {
-                    my_best_score = drawingScore (my_searching_color, side);
+                    score = drawingScore (my_searching_color, side);
                 }
                 else
                 {
-                    search (child_board, colorInvert (side), depth-1, -beta, -alpha);
-                    my_best_score *= -1;
+                    score = -1 * search (child_board, colorInvert (side), depth-1, -beta, -alpha);
                 }
             }
-
-            int score = my_best_score;
 
             if (score > best_score)
             {
@@ -153,8 +151,8 @@ namespace wisdom
 
             my_history.removeLastTentativePosition();
 
-            if (my_timed_out)
-                return;
+            if (my_current_result.timed_out)
+                return -Initial_Alpha;
 
             if (alpha >= beta)
             {
@@ -163,17 +161,17 @@ namespace wisdom
             }
         }
 
-        auto result = SearchResult { best_move, best_score,
-                                     my_search_depth - depth, false };
-
-        my_best_move = result.move;
-        if (!my_best_move.has_value())
+        my_current_result.depth = my_search_depth - depth;
+        if (!best_move.has_value())
         {
-            // if there are no legal moves, then the current player is in a stalemate or checkmate position.
-            result.score = evaluateWithoutLegalMoves (parent_board, side, result.depth);
+            // if there are no legal moves, then the current player is in a
+            // stalemate or checkmate position.
+            best_score = evaluateWithoutLegalMoves (parent_board, side,
+                                                    my_current_result.depth);
         }
-        my_best_score = result.score;
-        my_best_depth = result.depth;
+        my_current_result.move = best_move;
+        my_current_result.score = best_score;
+        return best_score;
     }
 
     static void calc_time (const Logger& output, int nodes, system_clock_t start, system_clock_t end)
@@ -188,7 +186,7 @@ namespace wisdom
 
     void IterativeSearchImpl::iterativelyDeepen (Color side)
     {
-        SearchResult best_result = SearchResult::from_initial();
+        SearchResult best_result {};
         my_searching_color = side;
 
         try
@@ -203,10 +201,10 @@ namespace wisdom
                 my_output->info (ostr.str());
 
                 iterate (side, depth);
-                if (my_timed_out)
+                if (my_current_result.timed_out)
                     break;
 
-                auto next_result = synthesizeResult();
+                auto next_result = getBestResult();
                 if (next_result.move.has_value())
                 {
                     best_result = next_result;
@@ -215,9 +213,7 @@ namespace wisdom
                 }
             }
 
-            my_best_score = best_result.score;
-            my_best_move = best_result.move;
-            my_best_depth = best_result.depth;
+            my_current_result = best_result;
             return;
         }
         catch (const Error &e)
@@ -228,10 +224,9 @@ namespace wisdom
         }
     }
 
-    [[nodiscard]] auto IterativeSearchImpl::synthesizeResult() const -> SearchResult
+    [[nodiscard]] auto IterativeSearchImpl::getBestResult() const -> SearchResult
     {
-        return SearchResult { my_best_move,
-              my_best_score, my_best_depth, my_timed_out };
+        return my_current_result;
     }
 
     void IterativeSearchImpl::iterate (Color side, int depth)
@@ -246,11 +241,12 @@ namespace wisdom
         auto start = std::chrono::system_clock::now();
 
         my_search_depth = depth;
+        my_current_result = SearchResult {};
         search (my_original_board, side, depth, -Initial_Alpha, Initial_Alpha);
 
         auto end = std::chrono::system_clock::now();
 
-        auto result = synthesizeResult();
+        auto result = getBestResult();
 
         calc_time (*my_output, my_nodes_visited, start, end);
 
