@@ -134,10 +134,12 @@ namespace wisdom
         }
     }
 
-    auto BoardCode::countOnes() const -> std::size_t
+    auto BoardCode::numberOfSetBits() const -> std::size_t
     {
-        string str = asString();
-        return std::count (str.begin(), str.end(), '1');
+        std::size_t result = my_metadata.count();
+        for (const auto& bits : my_pieces)
+            result += bits.count();
+        return result;
     }
 
     auto operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&
