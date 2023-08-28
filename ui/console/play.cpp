@@ -298,12 +298,7 @@ namespace wisdom::ui::console
 
         input = chomp (input);
 
-        if (input == "help")
-        {
-            printHelp();
-            return result;
-        }
-        else if (input == "moves")
+        if (input == "moves")
         {
             printAvailableMoves (game, move_generator);
             return result;
@@ -387,6 +382,11 @@ namespace wisdom::ui::console
         else if (input == "quit" || input == "exit")
         {
             result.command = PlayCommand::StopGame;
+            return result;
+        }
+        else
+        {
+            printHelp();
             return result;
         }
 
