@@ -45,6 +45,7 @@ namespace wisdom
     using std::make_shared;
     using std::nullopt;
     using std::array;
+    using std::bitset;
     using std::pair;
 
     template <typename T>

@@ -136,13 +136,16 @@ namespace wisdom
 
     auto BoardCode::countOnes() const -> std::size_t
     {
-        string str = my_pieces.to_string();
+        string str = asString();
         return std::count (str.begin(), str.end(), '1');
     }
 
     auto operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&
     {
-        os << "{ bits: " << code.my_pieces << ", ancillary: " << code.my_ancillary << " }";
+        os << "{ bits: ";
+        for (const auto& bits : code.my_pieces)
+            os << bits;
+        os << ", metadata: " << code.my_metadata << " }";
         return os;
     }
 

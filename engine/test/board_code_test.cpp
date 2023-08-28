@@ -12,7 +12,7 @@ using namespace wisdom;
 
 TEST_CASE( "board code")
 {
-    SUBCASE( "Board code is able to be set" )
+    SUBCASE( "Board code is able to be set for an empty board" )
     {
         BoardCode code = BoardCode::fromEmptyBoard();
         BoardCode initial = BoardCode::fromEmptyBoard();
@@ -44,7 +44,16 @@ TEST_CASE( "board code")
         CHECK( result == "0000" );
     }
 
-    SUBCASE("Capturing moves are applied and undone correctly")
+    SUBCASE( "Board code sets up a default board" )
+    {
+        BoardCode code = BoardCode::fromDefaultPosition();
+
+        auto num_ones = code.countOnes ();
+
+        CHECK( num_ones >= 32 ); // each piece must have at least one bit.
+    }
+
+    SUBCASE( "Capturing moves are applied and undone correctly" )
     {
         BoardBuilder builder;
 
@@ -64,7 +73,7 @@ TEST_CASE( "board code")
         REQUIRE( initial != code );
     }
 
-    SUBCASE("Promoting moves are applied and undone correctly")
+    SUBCASE( "Promoting moves are applied and undone correctly" )
     {
         BoardBuilder builder;
 
@@ -85,7 +94,7 @@ TEST_CASE( "board code")
         REQUIRE( initial != code );
     }
 
-    SUBCASE("Castling moves are applied and undone correctly")
+    SUBCASE( "Castling moves are applied and undone correctly" )
     {
         BoardBuilder builder;
 
@@ -131,8 +140,7 @@ TEST_CASE( "board code")
     }
 }
 
-
-TEST_CASE( "Board code stores ancilliary state" )
+TEST_CASE( "Board code stores metadata" )
 {
     SUBCASE( "Board code stores en passant state for Black" )
     {
@@ -153,8 +161,8 @@ TEST_CASE( "Board code stores ancilliary state" )
 
         auto en_passant_target = with_state_code.enPassantTarget (Color::Black);
         auto expected_coord = coordParse ("d6");
-        auto ancilliary = with_state_code.getAncillaryBits();
-        INFO(ancilliary);
+        auto metadata = with_state_code.getMetadataBits();
+        INFO( metadata );
         INFO( wisdom::asString (en_passant_target) );
         CHECK( en_passant_target == expected_coord );
 
@@ -182,11 +190,11 @@ TEST_CASE( "Board code stores ancilliary state" )
         auto en_passant_target = with_state_code.enPassantTarget (Color::White);
 
         auto expected_coord = coordParse ("e3");
-        auto ancilliary = with_state_code.getAncillaryBits();
+        auto metadata = with_state_code.getMetadataBits();
         CHECK( en_passant_target == expected_coord );
 
         auto opponent_target = with_state_code.enPassantTarget (Color::Black);
-        INFO(ancilliary);
+        INFO( metadata );
         INFO( wisdom::asString (opponent_target) );
 
         CHECK( opponent_target == No_En_Passant_Coord );
@@ -194,11 +202,39 @@ TEST_CASE( "Board code stores ancilliary state" )
 
     SUBCASE( "Board code stores castle state" )
     {
+        BoardCode board_code = BoardCode::fromDefaultPosition();
 
+        auto initial_white_state = board_code.castleState (Color::White);
+        auto initial_black_state = board_code.castleState (Color::Black);
+
+        CHECK( initial_white_state == CastlingEligible::EitherSideEligible);
+        CHECK( initial_black_state == CastlingEligible::EitherSideEligible);
+
+        board_code.setCastleState (Color::White, CastlingEligible::BothSidesIneligible);
+        auto white_state = board_code.castleState (Color::White);
+        auto black_state = board_code.castleState (Color::Black);
+
+        CHECK( white_state == CastlingEligible::BothSidesIneligible );
+        CHECK( black_state == CastlingEligible::EitherSideEligible );
+
+        board_code.setCastleState (Color::White, CastlingEligible::KingsideIneligible);
+        board_code.setCastleState (Color::Black, CastlingEligible::QueensideIneligible);
+        white_state = board_code.castleState (Color::White);
+        black_state = board_code.castleState (Color::Black);
+
+        CHECK( white_state == CastlingEligible::KingsideIneligible );
+        CHECK( black_state == CastlingEligible::QueensideIneligible );
     }
 
     SUBCASE( "Board code stores whose turn it is" )
     {
+        BoardCode board_code = BoardCode::fromDefaultPosition();
 
+        auto current_turn = board_code.currentTurn();
+        CHECK( current_turn == Color::White );
+
+        board_code.setCurrentTurn (Color::Black);
+        auto next_turn = board_code.currentTurn();
+        CHECK( next_turn == Color::Black );
     }
 }
