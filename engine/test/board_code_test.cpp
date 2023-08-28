@@ -48,9 +48,10 @@ TEST_CASE( "board code")
     {
         BoardCode code = BoardCode::fromDefaultPosition();
 
-        auto num_ones = code.countOnes ();
+        auto num_ones = code.numberOfSetBits();
 
-        CHECK( num_ones >= 32 ); // each piece must have at least one bit.
+        CHECK( num_ones >= 32 ); // each piece must have at least one bit,
+        CHECK( num_ones < 64 );  // ... but less than all the bits.
     }
 
     SUBCASE( "Capturing moves are applied and undone correctly" )
@@ -66,7 +67,7 @@ TEST_CASE( "board code")
         BoardCode code  = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.countOnes() > 0 );
+        REQUIRE( initial.numberOfSetBits() > 0 );
 
         Move a8xb7 = moveParse ("a8xb7");
         code.applyMove (brd, a8xb7);
@@ -87,7 +88,7 @@ TEST_CASE( "board code")
         BoardCode code = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.countOnes() > 0 );
+        REQUIRE( initial.numberOfSetBits() > 0 );
 
         Move b7b8_Q = moveParse ("b7b8_Q (Q)");
         code.applyMove (brd, b7b8_Q);
@@ -108,7 +109,7 @@ TEST_CASE( "board code")
         BoardCode code  = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.countOnes() > 0 );
+        REQUIRE( initial.numberOfSetBits() > 0 );
 
         Move castle_queenside = moveParse ("o-o-o", Color::Black);
         code.applyMove (brd, castle_queenside);
@@ -129,14 +130,14 @@ TEST_CASE( "board code")
         BoardCode code = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE (initial.countOnes() > 0);
+        REQUIRE( initial.numberOfSetBits() > 0 );
 
         Move promote_castle_move = moveParse ("b7xa8 (Q)", Color::Black);
         REQUIRE( promote_castle_move.isPromoting() );
         REQUIRE( promote_castle_move.isNormalCapturing() );
 
         code.applyMove (brd, promote_castle_move);
-        REQUIRE( initial != code);
+        REQUIRE( initial != code );
     }
 }
 
