@@ -114,15 +114,25 @@ namespace wisdom
         MoveList (MoveList&& other) noexcept = default;
         MoveList& operator= (MoveList&& other) noexcept = default;
 
-        void pushBack (Move move) noexcept
+        void push_back (Move move) noexcept
+        {
+            append (move);
+        }
+
+        void pop_back() noexcept
+        {
+            removeLast();
+        }
+
+        void append (Move move) noexcept
         {
             MoveListAllocator::moveListAppend (my_moves_list, my_size, move);
             my_size++;
         }
 
-        void popBack() noexcept
+        void removeLast() noexcept
         {
-            assert (my_size > 0);
+            Expects (my_size > 0);
             my_size--;
         }
 
@@ -162,7 +172,12 @@ namespace wisdom
         }
         void end() && = delete;
 
-        [[nodiscard]] bool empty() const noexcept
+        [[nodiscard]] auto empty() const noexcept -> bool
+        {
+            return isEmpty();
+        }
+
+        [[nodiscard]] auto isEmpty() const noexcept -> bool
         {
             return my_size == 0;
         }

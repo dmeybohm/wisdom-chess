@@ -63,8 +63,8 @@ TEST_CASE( "Appending a move" )
 {
     MoveList list = MoveList::uncached();
 
-    list.pushBack (moveParse ("e4 e5"));
-    list.pushBack (moveParse ("d7 d5"));
+    list.append (moveParse ("e4 e5"));
+    list.append (moveParse ("d7 d5"));
 
     REQUIRE( list.size() == 2 );
 }
@@ -77,8 +77,8 @@ TEST_CASE( "Moving uncached list" )
     {
         MoveList uncached_list = MoveList::uncached();
 
-        uncached_list.pushBack (moveParse ("e4 d4"));
-        uncached_list.pushBack (moveParse ("d2 d1"));
+        uncached_list.append (moveParse ("e4 d4"));
+        uncached_list.append (moveParse ("d2 d1"));
 
         MoveList cached { allocator.get() };
 
@@ -99,13 +99,13 @@ TEST_CASE( "Moving uncached list" )
     {
         MoveList uncached_list = MoveList::uncached();
 
-        uncached_list.pushBack (moveParse ("e4 d4"));
-        uncached_list.pushBack (moveParse ("d2 d1"));
+        uncached_list.append (moveParse ("e4 d4"));
+        uncached_list.append (moveParse ("d2 d1"));
 
         MoveList cached { allocator.get() };
 
-        cached.pushBack (moveParse ("e3 d3"));
-        cached.pushBack (moveParse ("d3 d1"));
+        cached.append (moveParse ("e3 d3"));
+        cached.append (moveParse ("d3 d1"));
 
         REQUIRE( uncached_list.allocator() == nullptr );
         uncached_list = std::move (cached);
@@ -144,8 +144,8 @@ TEST_CASE( "Swapping lists" )
         MoveList first { allocator.get() };
         MoveList second = { Color::Black, { "d7 d5", "f1 c4" } };
 
-        first.pushBack (moveParse ("e2 d4", Color::White));
-        first.pushBack (moveParse ("a8 a1", Color::Black));
+        first.append (moveParse ("e2 d4", Color::White));
+        first.append (moveParse ("a8 a1", Color::Black));
 
         std::swap (first, second);
 
