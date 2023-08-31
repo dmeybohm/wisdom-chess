@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 
 #include "board_code.hpp"
 #include "coord.hpp"
@@ -138,6 +139,40 @@ TEST_CASE( "board code")
 
         code.applyMove (brd, promote_castle_move);
         REQUIRE( initial != code );
+    }
+}
+
+TEST_CASE( "Board code can be converted" )
+{
+    SUBCASE( "to a string" )
+    {
+        std::stringstream stream;
+        BoardCode code = BoardCode::fromEmptyBoard();
+
+        code.addPiece(
+            coordParse("h1"),
+            ColoredPiece::make(Color::White, Piece::King)
+        );
+
+        auto result = code.asString().substr(0, 4);
+
+        CHECK( result == "0110" );
+    }
+
+    SUBCASE( "to an ostream" )
+    {
+        std::stringstream stream;
+        BoardCode code = BoardCode::fromEmptyBoard();
+
+        code.addPiece(
+            coordParse("h1"),
+            ColoredPiece::make(Color::White, Piece::King)
+        );
+
+        stream << code;
+        auto result = stream.str().substr(0, 4);
+
+        CHECK( result == "0110" );
     }
 }
 

@@ -144,10 +144,7 @@ namespace wisdom
 
     auto operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&
     {
-        os << "{ bits: ";
-        for (const auto& bits : code.my_pieces)
-            os << bits;
-        os << ", metadata: " << code.my_metadata << " }";
+        os << code.asString();
         return os;
     }
 

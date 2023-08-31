@@ -33,6 +33,7 @@ namespace wisdom
         int search (const Board& parent_board, Color side, int depth,
                     int alpha, int beta);
 
+        // Get the best result the search found.
         [[nodiscard]] auto getBestResult() const -> SearchResult;
 
         [[nodiscard]] auto moveTimer() const -> not_null<const MoveTimer*>
@@ -44,13 +45,12 @@ namespace wisdom
         Board my_original_board;
         History my_history;
         not_null<observer_ptr<const Logger>> my_output;
+        SearchResult my_current_result {};
         MoveGenerator my_generator {};
         MoveTimer my_timer;
+
         int my_total_depth;
         int my_search_depth {};
-
-        SearchResult my_current_result {};
-
         int my_nodes_visited = 0;
         int my_alpha_beta_cutoffs = 0;
         int my_total_nodes_visited = 0;
