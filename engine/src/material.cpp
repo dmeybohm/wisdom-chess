@@ -13,15 +13,16 @@ namespace wisdom
         }
     }
 
-    static auto dualBishopsAreTheSameColor (const Board& board,
-                                                 Color first_bishop_color, Color second_bishop_color)
+    static auto dualBishopsAreTheSameColor (const Board& board, Color first_bishop_color,
+                                            Color second_bishop_color)
         -> Material::CheckmateIsPossible
     {
         auto first_bishop = ColoredPiece::make (first_bishop_color, Piece::Bishop);
         auto second_bishop = ColoredPiece::make (second_bishop_color, Piece::Bishop);
         auto first_coord = board.findFirstCoordWithPiece (first_bishop);
 
-        auto starting_at = first_bishop_color == second_bishop_color ? nextCoord (*first_coord, +1) : First_Coord;
+        auto starting_at = first_bishop_color == second_bishop_color ? nextCoord (*first_coord, +1)
+                                                                     : First_Coord;
         assert (starting_at.has_value());
 
         auto second_coord = board.findFirstCoordWithPiece (second_bishop, *starting_at);
@@ -29,21 +30,23 @@ namespace wisdom
         assert (first_coord.has_value());
         assert (second_coord.has_value());
 
-        return (coordColor (*first_coord) == coordColor (*second_coord)) ?
-            Material::CheckmateIsPossible::No :
-            Material::CheckmateIsPossible::Yes;
+        return (coordColor (*first_coord) == coordColor (*second_coord))
+            ? Material::CheckmateIsPossible::No
+            : Material::CheckmateIsPossible::Yes;
     }
 
-    auto Material::checkInsufficientMaterialScenarios (const Board& board) const -> CheckmateIsPossible
+    auto Material::checkInsufficientMaterialScenarios (const Board& board) const
+        -> CheckmateIsPossible
     {
         auto white_knight_count = pieceCount (Color::White, Piece::Knight);
         auto black_knight_count = pieceCount (Color::Black, Piece::Knight);
         auto white_bishop_count = pieceCount (Color::White, Piece::Bishop);
         auto black_bishop_count = pieceCount (Color::Black, Piece::Bishop);
 
+        // clang-format off
         // King and King:
         if (white_knight_count + black_knight_count +
-                white_bishop_count + black_bishop_count == 0)
+            white_bishop_count + black_bishop_count == 0)
         {
             return CheckmateIsPossible::No;
         }
@@ -85,6 +88,7 @@ namespace wisdom
                 return dualBishopsAreTheSameColor (board, Color::White, Color::White);
             }
         }
+        // clang-format on
 
         return CheckmateIsPossible::Yes;
     }

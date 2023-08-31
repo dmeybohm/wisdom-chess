@@ -93,15 +93,23 @@ namespace wisdom
         // Whether there is insufficient material remaining for a checkmate.
         [[nodiscard]] auto checkmateIsPossible (const Board& board) const -> CheckmateIsPossible
         {
-            if (pieceCount (Color::White, Piece::Pawn) > 0 || pieceCount (Color::Black, Piece::Pawn) > 0 || pieceCount (Color::White, Piece::Rook) > 0 || pieceCount (Color::Black, Piece::Rook) > 0)
+            // clang-format off
+            if (pieceCount (Color::White, Piece::Pawn) > 0 ||
+                pieceCount (Color::Black, Piece::Pawn) > 0 ||
+                pieceCount (Color::White, Piece::Rook) > 0 ||
+                pieceCount (Color::Black, Piece::Rook) > 0)
             {
                 return CheckmateIsPossible::Yes;
             }
+            // clang-format on
 
-            if (individualScore (Color::White) > scaledScore (WeightKing + 2 * WeightBishop) || individualScore (Color::Black) > scaledScore (WeightKing + 2 * WeightBishop))
+            // clang-format off
+            if (individualScore (Color::White) > scaledScore (WeightKing + 2 * WeightBishop) ||
+                individualScore (Color::Black) > scaledScore (WeightKing + 2 * WeightBishop))
             {
                 return CheckmateIsPossible::Yes;
             }
+            // clang-format on
 
             return checkInsufficientMaterialScenarios (board);
         }
