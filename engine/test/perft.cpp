@@ -111,7 +111,7 @@ namespace wisdom
             auto move = convertMove (board_copy, who, move_str);
             board_copy = board_copy.withMove (who, move);
             who = colorInvert (who);
-            result.pushBack (move);
+            result.append (move);
         }
 
         return result;
