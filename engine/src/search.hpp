@@ -16,16 +16,10 @@ namespace wisdom
 
     struct SearchResult
     {
-        optional<Move> move;
-        int score;
-        int depth;
-        bool timed_out;
-
-        static SearchResult from_initial() noexcept
-        {
-            SearchResult result { nullopt, -Initial_Alpha, 0, false };
-            return result;
-        }
+        int score = -Initial_Alpha;
+        int depth { 0 };
+        optional<Move> move { nullopt };
+        bool timed_out { false };
     };
 
     class IterativeSearch
