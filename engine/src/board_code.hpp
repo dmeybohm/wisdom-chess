@@ -15,6 +15,14 @@ namespace wisdom
     class Board;
     class BoardBuilder;
 
+    using BoardCodeArray = array<array<array<uint64_t, Num_Piece_Types>, Num_Columns>, Num_Rows>;
+
+    [[nodiscard]] constexpr BoardCodeArray initializeBoardCodes()
+    {
+        const BoardCodeArray code_array {};
+        return code_array;
+    }
+
     class BoardCode final
     {
     private:
@@ -34,6 +42,9 @@ namespace wisdom
         using MetadataBitset = bitset<Total_Metadata_Bits>;
 
         static std::hash<MetadataBitset> metadata_hash_fn;
+
+
+        static constexpr BoardCodeArray our_codes = initializeBoardCodes();
 
         enum PieceBits : std::size_t
         {
@@ -170,8 +181,8 @@ namespace wisdom
             result.reserve (Total_Piece_Bits + Total_Metadata_Bits);
 
             // Most-significant bits first (big-endian):
-            for (auto i = my_pieces.crbegin(); i != my_pieces.crend(); i++)
-                result += i->to_string();
+            for (auto i = std::ssize (my_pieces) - 1; i >= 0; i--)
+                result += my_pieces[i].to_string();
 
             result += my_metadata.to_string();
             return result;
