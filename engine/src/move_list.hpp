@@ -43,7 +43,7 @@ namespace wisdom
 
             if (position == old_capacity)
             {
-                size_t new_capacity = old_capacity * 1.25;
+                size_t new_capacity = old_capacity * 1.5;
                 Expects (new_capacity + 1 > old_capacity);
 
                 auto new_list = std::make_unique<Move[]> (new_capacity + 1);
