@@ -43,7 +43,8 @@ namespace wisdom
 
             if (position == old_capacity)
             {
-                size_t new_capacity = old_capacity + MoveListAllocator::Size_Increment;
+                size_t new_capacity = old_capacity * 1.25;
+                Expects (new_capacity + 1 > old_capacity);
 
                 auto new_list = std::make_unique<Move[]> (new_capacity + 1);
                 new_list[0] = Move::makeAsPackedCapacity (new_capacity);
