@@ -10,7 +10,7 @@
 
 namespace wisdom
 {
-    using system_clock_t = chrono::time_point<chrono::system_clock>;
+    using SystemClockTime = chrono::time_point<chrono::system_clock>;
 
     class IterativeSearchImpl
     {
@@ -117,7 +117,7 @@ namespace wisdom
 
             if (depth <= 0)
             {
-                if (isDrawingMove (child_board, side, move, my_history))
+                if (isProbablyDrawingMove (child_board, side, move, my_history))
                 {
                     score = drawingScore (my_searching_color, side);
                 }
@@ -130,7 +130,7 @@ namespace wisdom
             else
             {
                 // Don't recurse into a big search if this move is a draw.
-                if (my_search_depth == depth && isDrawingMove (child_board, side, move, my_history))
+                if (my_search_depth == depth && isProbablyDrawingMove (child_board, side, move, my_history))
                 {
                     score = drawingScore (my_searching_color, side);
                 }
@@ -174,7 +174,8 @@ namespace wisdom
         return best_score;
     }
 
-    static void calc_time (const Logger& output, int nodes, system_clock_t start, system_clock_t end)
+    static void calc_time (const Logger& output, int nodes, SystemClockTime start,
+                           SystemClockTime end)
     {
         auto seconds_duration = chrono::duration<double> (end - start);
         auto seconds = seconds_duration.count();

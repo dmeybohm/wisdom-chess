@@ -64,8 +64,8 @@ namespace wisdom
     //
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
-    inline auto isDrawingMove (const Board& board, [[maybe_unused]] Color who,
-                               [[maybe_unused]] Move move, const History& history) -> DrawCategory
+    inline auto isProbablyDrawingMove (const Board& board, [[maybe_unused]] Color who,
+                                       [[maybe_unused]] Move move, const History& history) -> DrawCategory
     {
         auto repetition_status = history.getThreefoldRepetitionStatus();
         auto no_progress_status = history.getFiftyMovesWithoutProgressStatus();
@@ -76,7 +76,7 @@ namespace wisdom
                 no_progress_status == DrawStatus::Declined ?
                 150 : 100;
 
-        if (history.isNthRepetition (board, repetition_count))
+        if (history.isProbablyNthRepetition (board, repetition_count))
             return DrawCategory::ByRepetition;
 
         if (History::hasBeenXHalfMovesWithoutProgress (board, without_progress_count))

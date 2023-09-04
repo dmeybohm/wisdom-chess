@@ -4,14 +4,34 @@
 
 namespace wisdom
 {
+    [[nodiscard]] auto History::isProbablyThirdRepetition (const Board& board) const -> bool
+    {
+        return isProbablyNthRepetition (board, 3);
+    }
+
+    [[nodiscard]] auto History::isCertainlyThirdRepetition(const Board& board) const -> bool
+    {
+        return isCertainlyNthRepetition (board, 3);
+    }
+
+    [[nodiscard]] auto History::isProbablyFifthRepetition(const Board& board) const -> bool
+    {
+        return isProbablyNthRepetition (board, 5);
+    }
+
+    [[nodiscard]] auto History::isCertainlyFifthRepetition(const Board& board) const -> bool
+    {
+        return isCertainlyNthRepetition (board, 5);
+    }
+
     auto History::isThirdRepetition (const Board& board) const -> bool
     {
-        return isNthRepetition (board, 3);
+        return isProbablyThirdRepetition (board) && isCertainlyThirdRepetition (board);
     }
 
     auto History::isFifthRepetition (const Board& board) const -> bool
     {
-        return isNthRepetition (board, 5);
+        return isProbablyNthRepetition (board, 5) && isCertainlyFifthRepetition (board);
     }
 
     auto operator<< (std::ostream& os, const History& history) -> std::ostream&
