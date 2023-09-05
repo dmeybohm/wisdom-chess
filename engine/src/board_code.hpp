@@ -223,7 +223,7 @@ namespace wisdom
 
     private:
         // 48-bits Zobrist hash + a few bits for the metadata.
-        std::uint64_t my_code;
+        std::uint64_t my_code {};
     };
 }
 

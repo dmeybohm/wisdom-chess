@@ -10,15 +10,15 @@ namespace wisdom
     BoardCode::BoardCode()
     {
         for (auto coord : CoordIterator {})
-            addPiece (coord, Piece_And_Color_None);
+        {
+            auto hash = boardCodeHash (coord, Piece_And_Color_None);
+            my_code ^= hash;
+        }
     }
 
     BoardCode::BoardCode (const Board& board)
+        : BoardCode::BoardCode {}
     {
-        BoardCode empty_code = fromEmptyBoard ();
-
-        my_code = empty_code.my_code;
-
         for (auto coord : Board::allCoords())
         {
             ColoredPiece piece = board.pieceAt (coord);
@@ -156,5 +156,4 @@ namespace wisdom
         os << code.asString();
         return os;
     }
-
 }
