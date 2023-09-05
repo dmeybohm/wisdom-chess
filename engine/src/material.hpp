@@ -10,12 +10,6 @@ namespace wisdom
 
     class Material
     {
-    private:
-        int my_score[Num_Players] {};
-
-        // Count of pieces on either side:
-        array<array<int, Num_Piece_Types>, Num_Players> my_piece_count {};
-
     public:
         Material() = default;
 
@@ -119,6 +113,12 @@ namespace wisdom
         // only minor pieces and king left, with no pawns.
         [[nodiscard]] auto checkInsufficientMaterialScenarios (const Board& board) const
             -> CheckmateIsPossible;
+
+    private:
+        int my_score[Num_Players] {};
+
+        // Count of pieces on either side:
+        array<array<int, Num_Piece_Types>, Num_Players> my_piece_count {};
     };
 }
 

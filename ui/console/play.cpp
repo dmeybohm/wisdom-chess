@@ -107,7 +107,7 @@ namespace wisdom::ui::console
         {
             // Recursively (one-level deep) update the status again.
             auto draw_pair = determineIfDrawn (msg, my_input_state, my_game);
-            my_game.setProposedDrawStatus (ProposedDrawType::ThreeFoldRepetition, draw_pair);
+            my_game.setProposedDrawStatus (draw_type, draw_pair);
             return update (my_game.status());
         }
 

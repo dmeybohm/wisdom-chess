@@ -22,7 +22,7 @@ class ChessEngine : public QObject
     Q_OBJECT
 
 public:
-    ChessEngine (std::shared_ptr<ChessGame> game, int gameId, QObject* parent = nullptr);
+    ChessEngine (std::shared_ptr<ChessGame> game, int game_id, QObject* parent = nullptr);
 
     static constexpr wisdom::Logger::LogLevel Log_Level =
 #ifdef NDEBUG

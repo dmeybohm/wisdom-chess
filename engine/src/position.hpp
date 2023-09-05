@@ -29,10 +29,11 @@ namespace wisdom
         friend auto operator<< (std::ostream& ostream, Position& position) -> std::ostream&;
 
     private:
-        int my_score[Num_Players]{};
-
         void add (Color who, Coord coord, ColoredPiece piece);
         void remove (Color who, Coord coord, ColoredPiece piece);
+
+    private:
+        int my_score[Num_Players]{};
     };
 }
 

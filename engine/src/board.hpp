@@ -39,7 +39,7 @@ namespace wisdom
             return my_squares[coordIndex (coord)];
         }
 
-        void printToFile (std::ostream& out) const;
+        friend auto operator<< (std::ostream& os, const Board& board) -> std::ostream&;
 
         void dump() const;
 
@@ -58,11 +58,10 @@ namespace wisdom
         // Convert the board to a string.
         [[nodiscard]] auto asString() const -> string;
 
-        [[nodiscard]] auto getCode() const& noexcept -> const BoardCode&
+        [[nodiscard]] auto getCode() const noexcept -> BoardCode
         {
             return my_code;
         }
-        void get_code() const&& = delete;
 
         [[nodiscard]] auto getMaterial() const& noexcept
             -> const Material&
@@ -220,9 +219,6 @@ namespace wisdom
         // The representation of the board.
         array<ColoredPiece, Num_Squares> my_squares;
 
-        // positions of the kings.
-        array<Coord, Num_Players> my_king_pos;
-
         // Keep track of hashing information.
         BoardCode my_code;
 
@@ -237,6 +233,9 @@ namespace wisdom
 
         // Number of full moves, updated after black moves.
         int my_full_move_clock = 1;
+
+        // positions of the kings.
+        array<Coord, Num_Players> my_king_pos;
     };
 
     constexpr auto coordColor (Coord coord) -> Color

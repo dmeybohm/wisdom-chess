@@ -23,6 +23,7 @@
 #include <bitset>
 #include <cassert>
 #include <type_traits>
+#include <random>
 
 #include <gsl/gsl>
 #include <gsl/narrow>

@@ -80,13 +80,21 @@ namespace wisdom
 
         [[nodiscard]] bool isFifthRepetition (const Board& board) const;
 
-        [[nodiscard]] bool isNthRepetition (const Board& board, int repetition_count) const
+        [[nodiscard]] auto isProbablyThirdRepetition (const Board& board) const -> bool;
+        [[nodiscard]] auto isCertainlyThirdRepetition (const Board& board) const -> bool;
+        [[nodiscard]] auto isProbablyFifthRepetition (const Board& board) const -> bool;
+        [[nodiscard]] auto isCertainlyFifthRepetition (const Board& board) const -> bool;
+
+        [[nodiscard]] bool isProbablyNthRepetition (const Board& board, int repetition_count) const
         {
-            const auto& find_code = board.getCode();
-            auto repetitions = std::count_if (my_board_codes.begin(), my_board_codes.end(),
-                    [find_code](const BoardCode& code){
-                        return (code == find_code);
-                    });
+            auto code = board.getCode();
+            auto count = std::count (my_board_codes.begin(), my_board_codes.end(), code);
+            return count >= repetition_count;
+        }
+
+        [[nodiscard]] bool isCertainlyNthRepetition (const Board& board, int repetition_count) const
+        {
+            auto repetitions = std::count (my_stored_boards.begin(), my_stored_boards.end(), board);
             return repetitions >= repetition_count;
         }
 

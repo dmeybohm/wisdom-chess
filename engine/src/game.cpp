@@ -62,7 +62,7 @@ namespace wisdom
         : my_current_board { builder }
         , my_players { players }
     {
-        setCurrentTurn(current_turn);
+        setCurrentTurn (current_turn);
         my_history = History::fromInitialBoard (my_current_board);
     }
 

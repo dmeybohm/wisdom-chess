@@ -7,12 +7,22 @@
 
 namespace wisdom
 {
+    BoardCode::BoardCode()
+    {
+        for (auto coord : CoordIterator {})
+        {
+            auto hash = boardCodeHash (coord, Piece_And_Color_None);
+            my_code ^= hash;
+        }
+    }
+
     BoardCode::BoardCode (const Board& board)
+        : BoardCode::BoardCode {}
     {
         for (auto coord : Board::allCoords())
         {
             ColoredPiece piece = board.pieceAt (coord);
-            this->addPiece (coord, piece);
+            addPiece (coord, piece);
         }
 
         auto current_turn = board.getCurrentTurn();
@@ -82,7 +92,7 @@ namespace wisdom
 
     auto BoardCode::fromEmptyBoard() -> BoardCode
     {
-        return {};
+        return BoardCode {};
     }
 
     void BoardCode::applyMove (const Board& board, Move move)
@@ -94,6 +104,7 @@ namespace wisdom
 
         Piece src_piece_type = pieceType (src_piece);
         Color src_piece_color = pieceColor (src_piece);
+        Color opponent_color = colorInvert (src_piece_color);
 
         if (move.isCastling())
         {
@@ -114,17 +125,17 @@ namespace wisdom
 
             Coord rook_src = makeCoord (row, src_col);
             ColoredPiece rook = ColoredPiece::make (src_piece_color, Piece::Rook);
-            removePiece (rook_src);
+            removePiece (rook_src, rook);
             addPiece (makeCoord (row, dst_col), rook);
         }
         else if (move.isEnPassant())
         {
             // subtract horizontal pawn and add no piece there:
             Coord taken_pawn_coord = enPassantTakenPawnCoord (src, dst);
-            removePiece (taken_pawn_coord);
+            removePiece (taken_pawn_coord, ColoredPiece::make (opponent_color, Piece::Pawn));
         }
 
-        removePiece (src);
+        removePiece (src, src_piece);
         addPiece (dst, src_piece);
 
         if (move.isPromoting())
@@ -136,10 +147,8 @@ namespace wisdom
 
     auto BoardCode::numberOfSetBits() const -> std::size_t
     {
-        std::size_t result = my_metadata.count();
-        for (const auto& bits : my_pieces)
-            result += bits.count();
-        return result;
+        std::bitset<64> bits { my_code };
+        return bits.count();
     }
 
     auto operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&
@@ -147,5 +156,4 @@ namespace wisdom
         os << code.asString();
         return os;
     }
-
 }
