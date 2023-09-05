@@ -5,51 +5,49 @@
 #include "piece.hpp"
 #include "coord.hpp"
 #include "move.hpp"
+#include "random.hpp"
 
 namespace wisdom
 {
     using EnPassantTargets = array<Coord, Num_Players>;
 
-    using BoardHashCode = std::size_t;
+    using BoardHashCode = std::uint64_t;
 
     class Board;
     class BoardBuilder;
 
-    using BoardCodeArray = array<array<array<uint64_t, Num_Piece_Types>, Num_Columns>, Num_Rows>;
+    using BoardCodeArray = array<uint64_t, (Num_Players + 1) * Num_Piece_Types * Num_Squares>;
 
-    [[nodiscard]] constexpr BoardCodeArray initializeBoardCodes()
+    [[nodiscard]] constexpr auto initializeBoardCodes() -> BoardCodeArray
     {
-        const BoardCodeArray code_array {};
+        BoardCodeArray code_array {};
+        CompileTimeRandom random;
+
+        for (auto piece_type = 0; piece_type < Num_Piece_Types * (Num_Players + 1); piece_type++)
+        {
+            for (auto square = 0; square < Num_Squares; square++)
+                code_array[(piece_type * Num_Squares) + square] = getCompileTimeRandom48 (random);
+        }
+
         return code_array;
+    }
+
+    static constexpr BoardCodeArray All_Codes = initializeBoardCodes();
+
+    [[nodiscard]] constexpr auto boardCodeHash (Coord coord, ColoredPiece piece) -> std::uint64_t
+    {
+        auto coord_index = coordIndex (coord);
+        auto piece_color = piece.color();
+        auto piece_type = piece.type();
+        auto piece_index = pieceIndex (piece_type) * (toInt (piece_color) + 1);
+
+        return All_Codes[piece_index * Num_Squares + coord_index] << 16;
     }
 
     class BoardCode final
     {
     private:
-        // 3 Bits per piece type, +1 for color (special case: no piece == 0):
-        static constexpr int Bits_Per_Piece = 4;
-
-        // 4 bits per square * 64 squares = 256 bits
-        static constexpr int Total_Piece_Bits = Bits_Per_Piece * Num_Rows * Num_Columns;
-
-        static constexpr int Bits_Per_Pieces_Element = sizeof(BoardHashCode) * 8;
-        static constexpr int Num_Pieces_Elements = Total_Piece_Bits / Bits_Per_Pieces_Element;
-
-        using PiecesBitset = array<bitset<Bits_Per_Pieces_Element>, Num_Pieces_Elements>;
-
         static constexpr int Total_Metadata_Bits = 16;
-
-        using MetadataBitset = bitset<Total_Metadata_Bits>;
-
-        static std::hash<MetadataBitset> metadata_hash_fn;
-
-
-        static constexpr BoardCodeArray our_codes = initializeBoardCodes();
-
-        enum PieceBits : std::size_t
-        {
-            PIECE_MASK = 0b1111,
-        };
 
         enum MetadataBits : std::size_t
         {
@@ -77,23 +75,16 @@ namespace wisdom
 
         void addPiece (Coord coord, ColoredPiece piece)
         {
-            Color color = piece.color();
-            Piece type = piece.type();
+            if (piece == Piece_And_Color_None)
+                return;
 
-            std::size_t new_value = piece == Piece_And_Color_None
-                ? 0 : pieceIndex (type) | (colorIndex (color) << 3);
-            assert (new_value < 16);
-
-            auto position = piecesBitsetPositionFromCoord (coord);
-            auto new_bits = new_value << position.index_within_element;
-
-            my_pieces[position.element] &= ~(PIECE_MASK << position.index_within_element);
-            my_pieces[position.element] |= new_bits;
+            auto hash = boardCodeHash (coord, piece);
+            my_code ^= hash;
         }
 
-        void removePiece (Coord coord)
+        void removePiece (Coord coord, ColoredPiece piece)
         {
-            return addPiece (coord, Piece_And_Color_None);
+            addPiece (coord, piece);
         }
 
         void setEnPassantTarget (Color color, Coord coord)
@@ -108,14 +99,16 @@ namespace wisdom
                     Row (coord) == (color == Color::White ? White_En_Passant_Row : Black_En_Passant_Row)));
 
             // clear both targets initially. There can be only one at a given time.
-            my_metadata &= ~(EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET);
-            my_metadata |= coord_bits;
+            auto metadata = getMetadataBits();
+            metadata &= ~(EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET);
+            metadata |= coord_bits;
+            setMetadataBits (metadata);
         }
 
         [[nodiscard]] auto enPassantTarget (Color vulnerable_color) const noexcept -> Coord
         {
-            std::size_t target_bits = my_metadata.to_ulong();
-            std::size_t target_bit_shift = vulnerable_color == Color::White
+            auto target_bits = getMetadataBits();
+            auto target_bit_shift = vulnerable_color == Color::White
                 ? EN_PASSANT_WHITE_TARGET : EN_PASSANT_BLACK_TARGET;
 
             target_bits &= EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET;
@@ -130,14 +123,17 @@ namespace wisdom
         {
             auto bits = colorIndex (who);
             auto current_turn_bit = bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT);
-            my_metadata &= ~(CURRENT_TURN_MASK << CURRENT_TURN_BIT);
-            my_metadata |= current_turn_bit;
+            auto metadataBits = getMetadataBits();
+
+            metadataBits &= ~(CURRENT_TURN_MASK << CURRENT_TURN_BIT);
+            metadataBits |= current_turn_bit;
+            setMetadataBits (metadataBits);
         }
 
         [[nodiscard]] auto castleState (Color who) const -> CastlingEligibility
         {
-            std::size_t target_bits = my_metadata.to_ulong();
-            std::size_t target_bit_shift = who == Color::White
+            auto target_bits = getMetadataBits();
+            auto target_bit_shift = who == Color::White
                 ? CASTLING_STATE_WHITE_TARGET : CASTLING_STATE_BLACK_TARGET;
             CastlingEligibility result = CastlingEligible::EitherSideEligible;
             auto new_value = gsl::narrow_cast<uint8_t> (
@@ -154,13 +150,15 @@ namespace wisdom
                 ? CASTLING_STATE_WHITE_TARGET : CASTLING_STATE_BLACK_TARGET;
             std::size_t mask = CASTLE_ONE_COLOR_MASK << bit_number;
 
-            my_metadata &= ~mask;
-            my_metadata |= castling_bits << bit_number;
+            auto metadataBits = getMetadataBits();
+            metadataBits &= ~mask;
+            metadataBits |= castling_bits << bit_number;
+            setMetadataBits (metadataBits);
         }
 
         [[nodiscard]] auto currentTurn() const -> Color
         {
-            auto bits = my_metadata.to_ulong();
+            auto bits = getMetadataBits();
             auto index = gsl::narrow_cast<int8_t> (bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT));
             return colorFromColorIndex (index);
         }
@@ -174,46 +172,26 @@ namespace wisdom
             return result;
         }
 
+        [[nodiscard]] auto getMetadataBits() const -> std::uint16_t
+        {
+            return gsl::narrow_cast<uint16_t> (my_code & 0xffff);
+        }
+
         [[nodiscard]] auto asString() const -> string
         {
-            std::string result;
+            std::bitset<64> bits { my_code };
 
-            result.reserve (Total_Piece_Bits + Total_Metadata_Bits);
-
-            // Most-significant bits first (big-endian):
-            for (auto i = std::ssize (my_pieces) - 1; i >= 0; i--)
-                result += my_pieces[i].to_string();
-
-            result += my_metadata.to_string();
-            return result;
-        }
-
-        [[nodiscard]] auto getPiecesBitsetRef() const& -> const PiecesBitset&
-        {
-            return my_pieces;
-        }
-        void getPiecesBitsetRef() const&& = delete;
-
-        // Return by value:
-        [[nodiscard]] auto getMetadataBits() -> MetadataBitset
-        {
-            return my_metadata;
+            return bits.to_string();
         }
 
         [[nodiscard]] auto hashCode() const -> BoardHashCode
         {
-            BoardHashCode result = metadata_hash_fn (my_metadata);
-
-            for (const auto& bits : my_pieces)
-                result = (result * 31) ^ bits.to_ullong();
-
-            return result;
+            return my_code;
         }
 
         friend auto operator== (const BoardCode& first, const BoardCode& second) -> bool
         {
-            return first.my_pieces == second.my_pieces &&
-                first.my_metadata == second.my_metadata;
+            return first.my_code == second.my_code;
         }
 
         friend auto operator!= (const BoardCode& first, const BoardCode& second) -> bool
@@ -236,27 +214,16 @@ namespace wisdom
 
     private:
         // Private and only used for initialization.
-        BoardCode() = default;
+        BoardCode();
 
-        struct PiecesBitsetPosition
+        void setMetadataBits (uint16_t new_metadata)
         {
-            std::size_t element;
-            std::size_t index_within_element;
-        };
-
-        static auto piecesBitsetPositionFromCoord (Coord coord) -> PiecesBitsetPosition
-        {
-            auto bit_index = coordIndex<std::size_t> (coord) * Bits_Per_Piece;
-
-            return PiecesBitsetPosition {
-                .element = bit_index / Bits_Per_Pieces_Element,
-                .index_within_element = bit_index % Bits_Per_Pieces_Element,
-            };
+            my_code = (my_code & 0xfffFFFFffff0000ULL) | new_metadata;
         }
 
     private:
-        PiecesBitset my_pieces;
-        MetadataBitset my_metadata;
+        // 48-bits Zobrist hash + a few bits for the metadata.
+        std::uint64_t my_code;
     };
 }
 

@@ -1,7 +1,5 @@
 #include <iostream>
 #include <ostream>
-#include <random>
-#include <algorithm>
 
 #include "board.hpp"
 #include "board_builder.hpp"
@@ -218,7 +216,7 @@ namespace wisdom
 
     auto operator== (const Board& a, const Board& b) -> bool
     {
-        return a.my_code == b.my_code;
+        return a.my_code == b.my_code && a.my_squares == b.my_squares;
     }
 
     static void removeInvalidPawns (const Board& board, int8_t source_row, int8_t source_col,

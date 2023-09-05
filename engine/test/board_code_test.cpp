@@ -20,7 +20,8 @@ TEST_CASE( "board code")
 
         auto initial_str = code.asString();
         std::size_t num_zeroes = std::count (initial_str.begin(), initial_str.end(), '0');
-        REQUIRE( num_zeroes == initial_str.size() );
+        REQUIRE( num_zeroes > 0 );
+        REQUIRE( num_zeroes < 64 );
 
         Coord a8 = coordParse ("a8");
         ColoredPiece black_pawn = ColoredPiece::make (Color::Black, Piece::Pawn);
@@ -28,7 +29,7 @@ TEST_CASE( "board code")
 
         REQUIRE( code != initial );
 
-        code.removePiece (a8);
+        code.removePiece (a8, black_pawn);
 
         REQUIRE( code == initial );
 
@@ -37,12 +38,10 @@ TEST_CASE( "board code")
         code.addPiece (h1, white_king);
 
         std::string result = code.asString();
-        result = result.substr (0, 4);
-        CHECK( result == "0110" );
+        CHECK( code != initial );
 
-        code.removePiece (h1);
-        result = code.asString().substr (0, 4);
-        CHECK( result == "0000" );
+        code.removePiece (h1, white_king);
+        CHECK( code == initial );
     }
 
     SUBCASE( "Board code sets up a default board" )
@@ -51,8 +50,7 @@ TEST_CASE( "board code")
 
         auto num_ones = code.numberOfSetBits();
 
-        CHECK( num_ones >= 32 ); // each piece must have at least one bit,
-        CHECK( num_ones < 64 );  // ... but less than all the bits.
+        CHECK( num_ones < 64 );  // ... some number less than all the bits.
     }
 
     SUBCASE( "Capturing moves are applied and undone correctly" )
@@ -151,12 +149,14 @@ TEST_CASE( "Board code can be converted" )
 
         code.addPiece(
             coordParse("h1"),
-            ColoredPiece::make(Color::White, Piece::King)
+            ColoredPiece::make (Color::White, Piece::King)
         );
 
         auto result = code.asString().substr(0, 4);
 
-        CHECK( result == "0110" );
+        std::size_t num_zeroes = std::count (result.begin(), result.end(), '0');
+        CHECK( num_zeroes > 0 );
+        CHECK( num_zeroes < 64 );
     }
 
     SUBCASE( "to an ostream" )
@@ -166,13 +166,15 @@ TEST_CASE( "Board code can be converted" )
 
         code.addPiece(
             coordParse("h1"),
-            ColoredPiece::make(Color::White, Piece::King)
+            ColoredPiece::make (Color::White, Piece::King)
         );
 
         stream << code;
         auto result = stream.str().substr(0, 4);
 
-        CHECK( result == "0110" );
+        std::size_t num_zeroes = std::count (result.begin(), result.end(), '0');
+        CHECK( num_zeroes > 0 );
+        CHECK( num_zeroes < 64 );
     }
 }
 
