@@ -26,20 +26,14 @@ namespace wisdom
     {
     }
 
-    void Board::printToFile (std::ostream& out) const
-    {
-        out << asString();
-        out.flush();
-    }
-
     void Board::print() const
     {
-        printToFile (std::cout);
+        std::cout << *this;
     }
 
     void Board::dump() const
     {
-        printToFile (std::cerr);
+        std::cerr << *this;
     }
 
     static void addDivider (string &result)
@@ -297,5 +291,12 @@ namespace wisdom
         }
 
         return {};
+    }
+
+    auto operator<< (std::ostream& os, const Board& board) -> std::ostream&
+    {
+        os << board.asString();
+        os.flush();
+        return os;
     }
 }

@@ -39,7 +39,7 @@ namespace wisdom
             return my_squares[coordIndex (coord)];
         }
 
-        void printToFile (std::ostream& out) const;
+        friend auto operator<< (std::ostream& os, const Board& board) -> std::ostream&;
 
         void dump() const;
 
