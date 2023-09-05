@@ -31,7 +31,7 @@ namespace wisdom
 
     auto History::isFifthRepetition (const Board& board) const -> bool
     {
-        return isProbablyNthRepetition (board, 5) && isCertainlyFifthRepetition (board);
+        return isProbablyFifthRepetition (board) && isCertainlyFifthRepetition (board);
     }
 
     auto operator<< (std::ostream& os, const History& history) -> std::ostream&
