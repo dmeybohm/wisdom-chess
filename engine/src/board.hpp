@@ -220,9 +220,6 @@ namespace wisdom
         // The representation of the board.
         array<ColoredPiece, Num_Squares> my_squares;
 
-        // positions of the kings.
-        array<Coord, Num_Players> my_king_pos;
-
         // Keep track of hashing information.
         BoardCode my_code;
 
@@ -237,6 +234,9 @@ namespace wisdom
 
         // Number of full moves, updated after black moves.
         int my_full_move_clock = 1;
+
+        // positions of the kings.
+        array<Coord, Num_Players> my_king_pos;
     };
 
     constexpr auto coordColor (Coord coord) -> Color
