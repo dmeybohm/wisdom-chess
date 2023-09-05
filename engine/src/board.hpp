@@ -58,11 +58,10 @@ namespace wisdom
         // Convert the board to a string.
         [[nodiscard]] auto asString() const -> string;
 
-        [[nodiscard]] auto getCode() const& noexcept -> const BoardCode&
+        [[nodiscard]] auto getCode() const noexcept -> BoardCode
         {
             return my_code;
         }
-        void get_code() const&& = delete;
 
         [[nodiscard]] auto getMaterial() const& noexcept
             -> const Material&

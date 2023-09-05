@@ -87,9 +87,9 @@ namespace wisdom
 
         [[nodiscard]] bool isProbablyNthRepetition (const Board& board, int repetition_count) const
         {
-            const auto& find_code = board.getCode();
-            return std::count (my_board_codes.begin(), my_board_codes.end(), find_code)
-                >= repetition_count;
+            auto code = board.getCode();
+            auto count = std::count (my_board_codes.begin(), my_board_codes.end(), code);
+            return count >= repetition_count;
         }
 
         [[nodiscard]] bool isCertainlyNthRepetition (const Board& board, int repetition_count) const
