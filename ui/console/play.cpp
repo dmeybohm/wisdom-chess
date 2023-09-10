@@ -414,7 +414,7 @@ namespace wisdom::ui::console
             auto& game = game_status_manager.getGame();
             game_status_manager.setInputState (initial_input_state);
 
-            game.getBoard().print();
+            std::cout << game.getBoard() << "\n";
 
             game_status_manager.update (game.status());
             auto input_state = game_status_manager.getInputState();

@@ -23,9 +23,10 @@ namespace wisdom
 
         explicit Board (const BoardBuilder& builder);
 
-        friend bool operator== (const Board& a, const Board& b);
-
-        void print() const;
+        friend auto operator== (const Board& a, const Board& b) -> bool
+        {
+            return a.my_code == b.my_code && a.my_squares == b.my_squares;
+        }
 
         [[nodiscard]] constexpr auto pieceAt (int row, int col) const
             -> ColoredPiece
@@ -63,15 +64,13 @@ namespace wisdom
             return my_code;
         }
 
-        [[nodiscard]] auto getMaterial() const& noexcept
-            -> const Material&
+        [[nodiscard]] auto getMaterial() const& noexcept -> const Material&
         {
             return my_material;
         }
         void getMaterial() const&& = delete;
 
-        [[nodiscard]] auto getPosition() const& noexcept
-            -> const Position&
+        [[nodiscard]] auto getPosition() const& noexcept -> const Position&
         {
             return my_position;
         }
@@ -83,8 +82,7 @@ namespace wisdom
         // Throws an exception if the move couldn't be applied.
         [[nodiscard]] auto withMove (Color who, Move move) const -> Board;
 
-        [[nodiscard]] auto getKingPosition (Color who) const
-            -> Coord
+        [[nodiscard]] auto getKingPosition (Color who) const -> Coord
         {
             return my_king_pos[colorIndex (who)];
         }

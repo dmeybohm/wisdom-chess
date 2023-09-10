@@ -26,11 +26,6 @@ namespace wisdom
     {
     }
 
-    void Board::print() const
-    {
-        std::cout << *this;
-    }
-
     void Board::dump() const
     {
         std::cerr << *this;
@@ -206,11 +201,6 @@ namespace wisdom
 
         output += std::to_string (my_half_move_clock) + " " + std::to_string (my_full_move_clock);
         return output;
-    }
-
-    auto operator== (const Board& a, const Board& b) -> bool
-    {
-        return a.my_code == b.my_code && a.my_squares == b.my_squares;
     }
 
     static void removeInvalidPawns (const Board& board, int8_t source_row, int8_t source_col,
