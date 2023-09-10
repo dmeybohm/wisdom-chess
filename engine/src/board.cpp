@@ -272,15 +272,19 @@ namespace wisdom
     auto Board::findFirstCoordWithPiece (ColoredPiece piece, Coord starting_at) const
         -> optional<Coord>
     {
-        for (optional<Coord> it = starting_at;
-             it.has_value();
-             it = nextCoord (*it, +1))
-        {
-            if (pieceAt (*it) == piece)
-                return it;
-        }
+        auto coord_begin = std::begin (my_squares);
+        auto coord_end = std::end (my_squares);
 
-        return {};
+        auto finder = [piece](const ColoredPiece& p) {
+            return p == piece;
+        };
+        auto result = std::find_if (coord_begin + coordIndex (starting_at),
+                                         coord_end, finder);
+        auto diff = gsl::narrow<int> (result - coord_begin);
+
+        return (result != coord_end)
+            ? std::make_optional<Coord> (Coord::fromIndex (diff))
+            : nullopt;
     }
 
     auto operator<< (std::ostream& os, const Board& board) -> std::ostream&
