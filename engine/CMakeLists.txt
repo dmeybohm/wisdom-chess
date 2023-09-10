@@ -20,11 +20,6 @@ else()
     message("-- wisdom-chess: precompiled headers enabled")
 endif()
 
-if (NOT WIN32 AND NOT EMSCRIPTEN)
-    message("-- wisdom-chess: stack protector disabled for performance")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-stack-protector")
-endif()
-
 if (doctest_FOUND)
     message("-- wisdom-chess: Including tests with doctest")
     add_subdirectory(test)
