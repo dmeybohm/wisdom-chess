@@ -26,3 +26,8 @@ if (EMSCRIPTEN)
     target_compile_options(wisdom-chess-core PUBLIC -pthread)
 endif()
 
+if (NOT WIN32 AND NOT EMSCRIPTEN)
+    message("-- wisdom-chess: stack protector disabled for performance")
+    target_compile_options(wisdom-chess-core PUBLIC -fno-stack-protector)
+endif()
+
