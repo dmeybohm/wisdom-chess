@@ -19,8 +19,8 @@ namespace wisdom
         : my_squares { builder.getSquares() }
         , my_code { BoardCode::fromBoardBuilder (builder) }
         , my_king_pos { builder.getKingPositions() }
-        , my_half_move_clock { builder.getHalfMovesClock() }
-        , my_full_move_clock { builder.getFullMoves() }
+        , my_half_move_clock { builder.getHalfMoveClock() }
+        , my_full_move_clock { builder.getFullMoveClock() }
         , my_position { Position { *this } }
         , my_material { Material { *this } }
     {
@@ -240,11 +240,11 @@ namespace wisdom
 
             for (auto&& coord : result.allCoords())
             {
-                ColoredPiece piece = shuffle_pieces[coordIndex (coord)];
+                ColoredPiece piece = shuffle_pieces[coord.index()];
                 if (pieceType (piece) == Piece::King)
-                    result.my_king_pos[colorIndex (pieceColor (piece))] = coord;
+                    result.my_king_pos[colorIndex (piece.color())] = coord;
 
-                result.my_squares[coordIndex (coord)] = piece;
+                result.my_squares[coord.index()] = piece;
             }
 
             // Remove invalid pawns.
@@ -281,7 +281,7 @@ namespace wisdom
         auto finder = [piece](const ColoredPiece& p) {
             return p == piece;
         };
-        auto result = std::find_if (coord_begin + coordIndex (starting_at),
+        auto result = std::find_if (coord_begin + starting_at.index(),
                                     coord_end, finder);
         auto diff = gsl::narrow<int> (result - coord_begin);
 

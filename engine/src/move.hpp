@@ -69,8 +69,8 @@ namespace wisdom
         -> Move
         {
             return Move {
-                .src = gsl::narrow_cast<int8_t> (coordIndex (src)),
-                .dst = gsl::narrow_cast<int8_t> (coordIndex (dst)),
+                .src = gsl::narrow_cast<int8_t> (src.index()),
+                .dst = gsl::narrow_cast<int8_t> (dst.index()),
                 .promoted_piece = gsl::narrow_cast<int8_t> (0),
                 .move_category = gsl::narrow_cast<int8_t> (0),
             };

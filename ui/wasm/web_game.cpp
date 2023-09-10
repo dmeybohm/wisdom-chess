@@ -159,8 +159,8 @@ namespace wisdom
         for (int i = 0; i < old_pieces.length; i++)
         {
             WebColoredPiece piece = old_pieces.pieces[i];
-            Coord src = makeCoord (piece.row, piece.col);
-            old_list[coordIndex (src)] = piece;
+            Coord src = Coord::make (piece.row, piece.col);
+            old_list[src.index()] = piece;
         }
 
         for (int i = 0; i < Num_Squares; i++)

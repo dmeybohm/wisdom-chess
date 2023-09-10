@@ -30,12 +30,13 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto pieceAt (int row, int col) const -> ColoredPiece
         {
-            return my_squares[coordIndex (row, col)];
+            Coord coord = Coord::make (row, col);
+            return my_squares[coord.index()];
         }
 
         [[nodiscard]] constexpr auto pieceAt (Coord coord) const -> ColoredPiece
         {
-            return my_squares[coordIndex (coord)];
+            return my_squares[coord.index()];
         }
 
         friend auto operator<< (std::ostream& os, const Board& board) -> std::ostream&;

@@ -67,7 +67,8 @@ namespace wisdom
                     Move knight_move = Move::make (k_row + row, k_col + col, row, col);
                     int dst_row = k_row + row;
                     int dst_col = k_col + col;
-                    auto index = coordIndex (dst_row, dst_col);
+                    auto coord = Coord::make (dst_row, dst_col);
+                    auto index = coord.index();
                     if (my_knight_moves[index] == nullptr) {
                         my_knight_moves[index] = make_unique<MoveList> (my_move_list_allocator.get());
                     }
@@ -79,12 +80,12 @@ namespace wisdom
 
     auto MoveGenerator::generateKnightMoves (int row, int col) const -> const MoveList&
     {
-        auto index = coordIndex (row, col);
+        auto coord = Coord::make (row, col);
 
         if (my_knight_moves[0] == nullptr)
             knightMoveListInit();
 
-        return *my_knight_moves[index];
+        return *my_knight_moves[coord.index()];
     }
 
     static auto isPawnUnmoved (const Board &board, int row, int col) -> bool
@@ -481,9 +482,9 @@ namespace wisdom
         Coord b_coord = b.getSrc();
 
         if (a_coord != b_coord)
-            return coordIndex (a_coord) < coordIndex (b_coord);
+            return a_coord.index() < b_coord.index();
         else
-            return coordIndex (a.getDst()) < coordIndex (b.getDst());
+            return a.getDst().index() < b.getDst().index();
     }
 
     auto MoveGeneration::compareMoves (const Move& a, const Move& b) const -> bool

@@ -31,7 +31,7 @@ namespace wisdom
 
     void Board::setPiece (Coord coord, ColoredPiece piece) noexcept
     {
-        my_squares[coordIndex (coord)] = piece;
+        my_squares[coord.index()] = piece;
     }
 
     void Board::setKingPosition (Color who, Coord pos) noexcept

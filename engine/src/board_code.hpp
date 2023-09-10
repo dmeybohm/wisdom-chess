@@ -38,7 +38,7 @@ namespace wisdom
 
     [[nodiscard]] constexpr auto boardCodeHash (Coord coord, ColoredPiece piece) -> std::uint64_t
     {
-        auto coord_index = coordIndex (coord);
+        auto coord_index = coord.index();
         auto piece_color = piece.color();
         auto piece_type = piece.type();
         auto piece_index = pieceIndex (piece_type) * (toInt (piece_color) + 1);
