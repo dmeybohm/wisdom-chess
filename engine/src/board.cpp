@@ -19,16 +19,11 @@ namespace wisdom
         : my_squares { builder.getSquares() }
         , my_code { BoardCode::fromBoardBuilder (builder) }
         , my_king_pos { builder.getKingPositions() }
-        , my_half_move_clock { builder.getHalfMovesClock() }
-        , my_full_move_clock { builder.getFullMoves() }
+        , my_half_move_clock { builder.getHalfMoveClock() }
+        , my_full_move_clock { builder.getFullMoveClock() }
         , my_position { Position { *this } }
         , my_material { Material { *this } }
     {
-    }
-
-    void Board::print() const
-    {
-        std::cout << *this;
     }
 
     void Board::dump() const
@@ -128,7 +123,6 @@ namespace wisdom
 
     [[nodiscard]] auto Board::castledString (Color color) const -> string
     {
-        ColorIndex index = colorIndex (color);
         string castled_state;
 
         auto convert = [color](char ch) -> char {
@@ -208,11 +202,6 @@ namespace wisdom
         return output;
     }
 
-    auto operator== (const Board& a, const Board& b) -> bool
-    {
-        return a.my_code == b.my_code && a.my_squares == b.my_squares;
-    }
-
     static void removeInvalidPawns (const Board& board, int8_t source_row, int8_t source_col,
             array<ColoredPiece, Num_Squares>& shuffle_pieces)
     {
@@ -223,8 +212,10 @@ namespace wisdom
         }
     }
 
-    void Board::randomizePositions()
+    auto Board::withRandomPosition() const -> Board
     {
+        Board result = *this;
+
         std::random_device random_device;
         std::mt19937 rng (random_device());
 
@@ -243,16 +234,17 @@ namespace wisdom
 
         do
         {
-            std::copy (std::begin (my_squares), std::end (my_squares), std::begin (shuffle_pieces));
+            std::copy (std::begin (result.my_squares),
+                       std::end (result.my_squares), std::begin (shuffle_pieces));
             std::shuffle (std::begin (shuffle_pieces), std::end (shuffle_pieces), rng);
 
-            for (auto&& coord : allCoords())
+            for (auto&& coord : result.allCoords())
             {
-                ColoredPiece piece = shuffle_pieces[coordIndex (coord)];
+                ColoredPiece piece = shuffle_pieces[coord.index()];
                 if (pieceType (piece) == Piece::King)
-                    my_king_pos[colorIndex (pieceColor (piece))] = coord;
+                    result.my_king_pos[colorIndex (piece.color())] = coord;
 
-                my_squares[coordIndex (coord)] = piece;
+                result.my_squares[coord.index()] = piece;
             }
 
             // Remove invalid pawns.
@@ -261,12 +253,12 @@ namespace wisdom
                 int8_t first_source_row = 0;
                 auto last_source_row = gsl::narrow<int8_t> (Num_Rows - 1);
 
-                removeInvalidPawns (*this, first_source_row, source_col, my_squares);
-                removeInvalidPawns (*this, last_source_row, source_col, my_squares);
+                removeInvalidPawns (result, first_source_row, source_col, result.my_squares);
+                removeInvalidPawns (result, last_source_row, source_col, result.my_squares);
             }
             // if both kings are in check, regenerate.
-        } while (isKingThreatened (*this, Color::White, my_king_pos[Color_Index_White])
-           && isKingThreatened (*this, Color::Black, my_king_pos[Color_Index_Black])
+        } while (isKingThreatened (result, Color::White, result.my_king_pos[Color_Index_White])
+           && isKingThreatened (result, Color::Black, result.my_king_pos[Color_Index_Black])
                 && ++iterations < 1000);
 
         if (iterations >= 1000)
@@ -276,21 +268,26 @@ namespace wisdom
         }
 
         // update the board code:
-        my_code = BoardCode::fromBoard (*this);
+        result.my_code = BoardCode::fromBoard (result);
+        return result;
     }
 
     auto Board::findFirstCoordWithPiece (ColoredPiece piece, Coord starting_at) const
         -> optional<Coord>
     {
-        for (optional<Coord> it = starting_at;
-             it.has_value();
-             it = nextCoord (*it, +1))
-        {
-            if (pieceAt (*it) == piece)
-                return it;
-        }
+        auto coord_begin = std::begin (my_squares);
+        auto coord_end = std::end (my_squares);
 
-        return {};
+        auto finder = [piece](const ColoredPiece& p) {
+            return p == piece;
+        };
+        auto result = std::find_if (coord_begin + starting_at.index(),
+                                    coord_end, finder);
+        auto diff = gsl::narrow<int> (result - coord_begin);
+
+        return (result != coord_end)
+            ? std::make_optional<Coord> (Coord::fromIndex (diff))
+            : nullopt;
     }
 
     auto operator<< (std::ostream& os, const Board& board) -> std::ostream&

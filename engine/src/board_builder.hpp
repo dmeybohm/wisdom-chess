@@ -31,6 +31,8 @@ namespace wisdom
 
         static auto fromDefaultPosition() -> BoardBuilder;
 
+        static auto fromRandomPosition() -> BoardBuilder;
+
         [[nodiscard]] static constexpr auto emptySquares() -> array<ColoredPiece, Num_Squares>
         {
             array<ColoredPiece, Num_Squares> result {};
@@ -76,8 +78,8 @@ namespace wisdom
 
         [[nodiscard]] auto pieceAt (Coord coord) const -> ColoredPiece
         {
-            assert (coordIndex (coord) < Num_Squares);
-            return my_squares[coordIndex (coord)];
+            assert (coord.index() < Num_Squares);
+            return my_squares[coord.index()];
         }
 
         [[nodiscard]] auto getCurrentTurn() const -> Color
@@ -112,12 +114,12 @@ namespace wisdom
             return { *my_king_positions[Color_Index_White], *my_king_positions[Color_Index_Black] };
         }
 
-        [[nodiscard]] auto getHalfMovesClock() const -> int
+        [[nodiscard]] auto getHalfMoveClock() const -> int
         {
             return my_half_moves_clock;
         }
 
-        [[nodiscard]] auto getFullMoves() const -> int
+        [[nodiscard]] auto getFullMoveClock() const -> int
         {
             return my_full_moves;
         }

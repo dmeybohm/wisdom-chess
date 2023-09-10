@@ -25,9 +25,9 @@ namespace wisdom
         {
         }
 
-        void iterativelyDeepen (Color side);
+        [[nodiscard]] auto iterativelyDeepen (Color side) -> SearchResult;
 
-        void iterate (Color side, int depth);
+        auto iterate (Color side, int depth) -> SearchResult;
 
         // Search for the best move, and return the best score.
         int search (const Board& parent_board, Color side, int depth,
@@ -66,11 +66,9 @@ namespace wisdom
     {
     }
 
-    SearchResult
-    IterativeSearch::iterativelyDeepen (Color side)
+    SearchResult IterativeSearch::iterativelyDeepen (Color side)
     {
-        impl->iterativelyDeepen (side);
-        return impl->getBestResult();
+        return impl->iterativelyDeepen (side);
     }
 
     auto IterativeSearch::isCancelled() -> bool
@@ -174,18 +172,19 @@ namespace wisdom
         return best_score;
     }
 
-    static void calc_time (const Logger& output, int nodes, SystemClockTime start,
-                           SystemClockTime end)
+    static void logSearchTime (const Logger& output, int nodes, SystemClockTime start,
+                               SystemClockTime end)
     {
         auto seconds_duration = chrono::duration<double> (end - start);
         auto seconds = seconds_duration.count();
+        auto rate = nodes / std::max (0.000000001, seconds);
 
         std::stringstream progress_str;
-        progress_str << "search took " << seconds << "s, " << nodes / seconds << " nodes/sec";
+        progress_str << "search took " << seconds << "s, " << rate << " nodes/sec";
         output.info (progress_str.str());
     }
 
-    void IterativeSearchImpl::iterativelyDeepen (Color side)
+    auto IterativeSearchImpl::iterativelyDeepen (Color side) -> SearchResult
     {
         SearchResult best_result {};
         my_searching_color = side;
@@ -214,14 +213,14 @@ namespace wisdom
                 }
             }
 
-            my_current_result = best_result;
-            return;
+            return best_result;
         }
         catch (const Error &e)
         {
             std::cerr << "Uncaught error: " << e.message() << "\n";
             std::cerr << e.extra_info() << "\n";
             my_original_board.dump();
+            std::terminate();
         }
     }
 
@@ -230,7 +229,7 @@ namespace wisdom
         return my_current_result;
     }
 
-    void IterativeSearchImpl::iterate (Color side, int depth)
+    auto IterativeSearchImpl::iterate (Color side, int depth) -> SearchResult
     {
         std::stringstream outstr;
         outstr << "finding moves for " << asString (side);
@@ -249,7 +248,7 @@ namespace wisdom
 
         auto result = getBestResult();
 
-        calc_time (*my_output, my_nodes_visited, start, end);
+        logSearchTime (*my_output, my_nodes_visited, start, end);
 
         my_total_nodes_visited += my_nodes_visited;
         my_total_alpha_beta_cutoffs += my_alpha_beta_cutoffs;
@@ -265,10 +264,8 @@ namespace wisdom
             std::stringstream progress_str;
             progress_str << "Search timed out" << "\n";
             my_output->info (progress_str.str());
-            return;
         }
-
-        if (result.move.has_value())
+        else if (result.move.has_value())
         {
             Move best_move = *result.move;
             std::stringstream progress_str;
@@ -276,5 +273,7 @@ namespace wisdom
                          << result.score << " ]\n";
             my_output->info (progress_str.str());
         }
+
+        return result;
     }
 }

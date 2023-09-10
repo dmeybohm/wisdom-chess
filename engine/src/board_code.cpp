@@ -95,7 +95,7 @@ namespace wisdom
         return BoardCode {};
     }
 
-    void BoardCode::applyMove (const Board& board, Move move)
+    void BoardCode::applyMove (const Board& board, Move move) noexcept
     {
         Coord src = move.getSrc();
         Coord dst = move.getDst();

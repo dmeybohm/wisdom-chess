@@ -14,7 +14,7 @@ namespace wisdom
 
         for (int i = 0; i < Num_Squares; i++)
         {
-            auto coord = makeCoordFromIndex (i);
+            auto coord = Coord::fromIndex (i);
             auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
             {
@@ -159,13 +159,13 @@ namespace wisdom
         for (int i = 0; i < old_pieces.length; i++)
         {
             WebColoredPiece piece = old_pieces.pieces[i];
-            Coord src = makeCoord (piece.row, piece.col);
-            old_list[coordIndex (src)] = piece;
+            Coord src = Coord::make (piece.row, piece.col);
+            old_list[src.index()] = piece;
         }
 
         for (int i = 0; i < Num_Squares; i++)
         {
-            Coord coord = makeCoordFromIndex (i);
+            Coord coord = Coord::fromIndex (i);
             ColoredPiece piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
             {
@@ -212,7 +212,7 @@ namespace wisdom
                 }
                 auto coord_idx = it->first;
                 auto old_piece = it->second;
-                auto coord = makeCoordFromIndex (value.first);
+                auto coord = Coord::fromIndex (value.first);
 
                 my_pieces.addPiece (WebColoredPiece {
                     old_piece.id,

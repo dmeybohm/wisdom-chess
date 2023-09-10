@@ -5,99 +5,106 @@
 
 namespace wisdom
 {
-    struct Coord
-    {
-        int8_t row_and_col;
-    };
-
-    static_assert(std::is_trivial_v<Coord>);
-
     template <typename IntegerType>
     constexpr auto isValidRow (IntegerType row) -> bool
     {
-        static_assert (std::is_integral<IntegerType>::value);
+        static_assert (std::is_integral_v<IntegerType>);
         return row >= 0 && row < Num_Rows;
     }
 
     template <typename IntegerType>
     constexpr auto isValidColumn (IntegerType col) -> bool
     {
-        static_assert (std::is_integral<IntegerType>::value);
+        static_assert (std::is_integral_v<IntegerType>);
         return col >= 0 && col < Num_Columns;
     }
+
+    struct Coord
+    {
+        int8_t row_and_col;
+
+        // Make a coordinate from an index from 0-63.
+        [[nodiscard]] static constexpr auto fromIndex (int index) -> Coord
+        {
+            assert (index >= 0 && index < Num_Squares);
+            return { .row_and_col = gsl::narrow_cast<int8_t> (index) };
+        }
+
+        [[nodiscard]] static constexpr auto make (int row, int col) -> Coord
+        {
+            assert (isValidRow (row) && isValidColumn (col));
+            Coord result = { .row_and_col = gsl::narrow_cast<int8_t>(row << 3 | col) };
+            return result;
+        }
+
+        // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
+        template <typename IntegerType = int>
+        [[nodiscard]] constexpr auto index() -> IntegerType
+        {
+            return gsl::narrow_cast<IntegerType> (row_and_col);
+        }
+
+        template <typename IntegerType = int8_t>
+        [[nodiscard]] constexpr auto row () -> IntegerType
+        {
+            static_assert (std::is_integral_v<IntegerType>);
+            return gsl::narrow_cast<IntegerType>(row_and_col >> 3);
+        }
+
+        template <typename IntegerType = int8_t>
+        [[nodiscard]] constexpr auto column () -> IntegerType
+        {
+            static_assert (std::is_integral_v<IntegerType>);
+            return gsl::narrow_cast<IntegerType>(row_and_col & 0b111);
+        }
+    };
+    static_assert (std::is_trivial_v<Coord>);
 
     template <typename IntegerType>
     constexpr auto nextRow (IntegerType row, int direction) -> IntegerType
     {
-        static_assert (std::is_integral<IntegerType>::value);
+        static_assert (std::is_integral_v<IntegerType>);
         return gsl::narrow_cast<IntegerType>(row + direction);
     }
 
     template <typename T>
     constexpr auto nextColumn (T col, int direction) -> T
     {
-        static_assert (std::is_integral<T>::value);
+        static_assert (std::is_integral_v<T>);
         return gsl::narrow_cast<T>(col + direction);
     }
 
     constexpr auto makeCoord (int row, int col) -> Coord
     {
-        assert (isValidRow (row) && isValidColumn (col));
-        Coord result = { .row_and_col = gsl::narrow_cast<int8_t>(row << 3 | col) };
-        return result;
+        return Coord::make (row, col);
     }
 
     constexpr Coord First_Coord = makeCoord (0, 0);
     constexpr Coord End_Coord = { .row_and_col = Num_Squares };
     constexpr Coord No_En_Passant_Coord = First_Coord;
 
-    // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
-    template <typename IntegerType = int>
-    [[nodiscard]] constexpr auto coordIndex (Coord coord) -> IntegerType
-    {
-        return coord.row_and_col;
-    }
-
-    // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
-    template <typename IntegerType = int8_t, typename ResultType = int>
-    [[nodiscard]] constexpr auto coordIndex (IntegerType row, IntegerType col) -> ResultType
-    {
-        static_assert (std::is_integral_v<IntegerType>);
-        Coord coord = makeCoord (row, col);
-        return coordIndex (coord);
-    }
-
-    // Make a coordinate from an index from 0-63.
-    [[nodiscard]] constexpr auto makeCoordFromIndex (int index) -> Coord
-    {
-        assert (index >= 0 && index < Num_Squares);
-        return { .row_and_col = gsl::narrow_cast<int8_t> (index) };
-    }
-
     template <typename IntegerType = int8_t>
     [[nodiscard]] constexpr auto Row (Coord pos) -> IntegerType
     {
-        static_assert (std::is_integral<IntegerType>::value);
-        return gsl::narrow_cast<IntegerType>(pos.row_and_col >> 3);
+        return pos.row<IntegerType>();
     }
 
     template <typename IntegerType = int8_t>
     [[nodiscard]] constexpr auto Column (Coord pos) -> IntegerType
     {
-        static_assert (std::is_integral<IntegerType>::value);
-        return gsl::narrow_cast<IntegerType>(pos.row_and_col & 0b111);
+        return pos.column<IntegerType>();
     }
 
     [[nodiscard]] constexpr auto nextCoord (Coord coord, int direction) -> optional<Coord>
     {
-        assert(direction == +1 || direction == -1);
-        int index = coordIndex (coord);
+        Expects (direction == +1 || direction == -1);
+        int index = coord.index();
         index += direction;
 
         if (index < 0 || index >= Num_Squares)
             return {};
 
-        return makeCoordFromIndex (index);
+        return Coord::fromIndex (index);
     }
 
     constexpr auto operator== (Coord first, Coord second) -> bool

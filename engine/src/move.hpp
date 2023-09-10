@@ -41,17 +41,6 @@ namespace wisdom
         {}
     };
 
-    class MoveConsistencyProblem : public Error
-    {
-    public:
-        MoveConsistencyProblem() : Error ("Move consistency error.")
-        {}
-
-        explicit MoveConsistencyProblem (string extra_info) :
-            Error ("Move consistency error.", std::move (extra_info) )
-        {}
-    };
-
     [[nodiscard]] constexpr auto moveCategoryFromInt (int source) -> MoveCategory
     {
         assert (source <= 4);
@@ -80,8 +69,8 @@ namespace wisdom
         -> Move
         {
             return Move {
-                .src = gsl::narrow_cast<int8_t> (coordIndex (src)),
-                .dst = gsl::narrow_cast<int8_t> (coordIndex (dst)),
+                .src = gsl::narrow_cast<int8_t> (src.index()),
+                .dst = gsl::narrow_cast<int8_t> (dst.index()),
                 .promoted_piece = gsl::narrow_cast<int8_t> (0),
                 .move_category = gsl::narrow_cast<int8_t> (0),
             };
@@ -167,12 +156,12 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto getSrc() const -> Coord
         {
-            return makeCoordFromIndex (src);
+            return Coord::fromIndex (src);
         }
 
         [[nodiscard]] constexpr auto getDst() const -> Coord
         {
-            return makeCoordFromIndex (dst);
+            return Coord::fromIndex (dst);
         }
 
         [[nodiscard]] constexpr auto withPromotion (ColoredPiece piece) const noexcept

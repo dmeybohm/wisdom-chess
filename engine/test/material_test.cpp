@@ -105,7 +105,7 @@ TEST_CASE( "Piece count" )
 
     SUBCASE( "Is saved and restored after a promotion" )
     {
-        brd.setCurrentTurn (Color::Black);
+        brd = brd.withCurrentTurn (Color::Black);
         auto promoting_move = moveParse ("e2e1 (Q)", Color::Black);
 
         brd = brd.withMove (Color::Black, promoting_move);
@@ -118,7 +118,7 @@ TEST_CASE( "Piece count" )
 
     SUBCASE( "Is saved and restored after a promotion with a capture" )
     {
-        brd.setCurrentTurn (Color::Black);
+        brd = brd.withCurrentTurn (Color::Black);
         auto promoting_move = moveParse ("e2xd1 (R)", Color::Black);
 
         brd = brd.withMove (Color::Black, promoting_move);

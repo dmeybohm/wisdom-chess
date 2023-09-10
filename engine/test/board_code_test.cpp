@@ -81,9 +81,9 @@ TEST_CASE( "board code")
         builder.addPiece ("b7", Color::Black, Piece::Pawn);
         builder.addPiece ("e1", Color::Black, Piece::King);
         builder.addPiece ("e8", Color::White, Piece::King);
+        builder.setCurrentTurn (Color::Black);
 
         auto brd = Board { builder };
-        brd.setCurrentTurn (Color::Black);
         BoardCode code = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
@@ -102,9 +102,9 @@ TEST_CASE( "board code")
         builder.addPiece ("b6", Color::Black, Piece::Pawn);
         builder.addPiece ("e8", Color::Black, Piece::King);
         builder.addPiece ("e1", Color::White, Piece::King);
+        builder.setCurrentTurn (Color::Black);
 
         auto brd = Board { builder };
-        brd.setCurrentTurn (Color::Black);
         BoardCode code  = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
@@ -123,9 +123,9 @@ TEST_CASE( "board code")
         builder.addPiece ("b7", Color::Black, Piece::Pawn);
         builder.addPiece ("e8", Color::Black, Piece::King);
         builder.addPiece ("e1", Color::White, Piece::King);
+        builder.setCurrentTurn (Color::Black);
 
         auto brd = Board { builder };
-        brd.setCurrentTurn (Color::Black);
         BoardCode code = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 

@@ -11,13 +11,7 @@ namespace wisdom
     {
         string result { str };
 
-        if (result.empty())
-            return result;
-
-        if (result[result.size() - 1] == '\n')
-            result = result.substr (0, result.size() - 1);
-
-        if (result[result.size() - 1] == '\r')
+        while (!result.empty() && isspace (result.back()))
             result = result.substr (0, result.size() - 1);
 
         return result;
@@ -44,13 +38,14 @@ namespace wisdom
     {
         string result;
 
-        for (auto& str : strings)
+        for (const auto& str : strings)
             result += str + separator;
 
-        return result.substr (0, result.size() - separator.size());
+        return result.substr (0, result.size() > separator.size()
+            ? result.size() - separator.size() : 0);
     }
 
-    auto toInt (const string& str) -> int
+    auto toInt (const string& str) -> optional<int>
     {
         stringstream ss { str };
 
@@ -58,7 +53,7 @@ namespace wisdom
         ss >> x;
 
         if (ss.fail())
-            throw Error { "Failed to convert" };
+            return nullopt;
 
         return x;
     }

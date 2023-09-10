@@ -25,6 +25,12 @@ int main (int argc, char *argv[])
     }
 
     auto depth = wisdom::toInt (argv[1]);
+    if (!depth.has_value())
+    {
+        std::cerr << "Invalid depth: " << argv[1] << "\n";
+        return EXIT_FAILURE;
+    }
+
     wisdom::FenParser fen { argv[2] };
     auto board = fen.buildBoard() ;
     auto current_player = fen.getActivePlayer();
@@ -35,7 +41,7 @@ int main (int argc, char *argv[])
         current_player = wisdom::perft::applyList (board, current_player, moves);
     }
 
-    PerftResults results = wisdom::perft::perftResults (board, current_player, depth, move_generator);
+    PerftResults results = wisdom::perft::perftResults (board, current_player, *depth, move_generator);
     std::cout << wisdom::perft::asString (results);
 
     return EXIT_SUCCESS;

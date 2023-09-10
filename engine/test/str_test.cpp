@@ -6,14 +6,47 @@ using std::vector;
 
 TEST_CASE( "chomp" )
 {
-    string s { "Hello\r\n" };
-    string result = wisdom::chomp (s);
+    SUBCASE( "With text and carriage return and linefeed" )
+    {
+        string s { "Hello\r\n" };
+        string result = wisdom::chomp (s);
 
-    REQUIRE( result == "Hello" );
+        REQUIRE( result == "Hello" );
+    }
+
+    SUBCASE( "with newline" )
+    {
+        string s { "\n" };
+        string result = wisdom::chomp (s);
+
+        REQUIRE( result == "" );
+    }
+
+    SUBCASE( "with carriage return and newline" )
+    {
+        string s { "\r\n" };
+        string result = wisdom::chomp (s);
+
+        REQUIRE( result == "" );
+    }
+
+    SUBCASE( "with space at the end" )
+    {
+        string s { "Hello   \r\n" };
+        string result = wisdom::chomp (s);
+
+        REQUIRE( result == "Hello" );
+    }
 }
 
 TEST_CASE( "split" )
 {
+    SUBCASE( "Empty" )
+    {
+        auto result = wisdom::split ("", ",");
+        REQUIRE( result.size() == 1 );
+    }
+
     SUBCASE( "Three strings" )
     {
         string input = "A string, to split, or not.";
@@ -36,7 +69,7 @@ TEST_CASE( "split" )
 
     SUBCASE( "Empty" )
     {
-        string input = {""};
+        string input = "";
         auto result = wisdom::split (input, ",");
 
         REQUIRE( result.size() == 1 );
@@ -48,7 +81,7 @@ TEST_CASE( "join" )
 {
     SUBCASE( "Empty" )
     {
-        auto result = wisdom::join ({}, "");
+        auto result = wisdom::join ({}, ",");
         REQUIRE( result == "" );
     }
 
@@ -64,11 +97,13 @@ TEST_CASE( "toInt" )
     SUBCASE( "When successful" )
     {
         auto result = wisdom::toInt ("10");
-        REQUIRE( result == 10 );
+        REQUIRE( result.has_value() );
+        REQUIRE( *result == 10 );
     }
 
     SUBCASE( "Invalid" )
     {
-        CHECK_THROWS_AS( auto result = wisdom::toInt ("invalid"), wisdom::Error );
+        auto result = wisdom::toInt ("invalid");
+        REQUIRE( !result.has_value() );
     }
 }

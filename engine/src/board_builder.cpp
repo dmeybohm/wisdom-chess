@@ -41,11 +41,15 @@ namespace wisdom
         ColoredPiece prospective_queen_rook = pieceAt (makeCoord (row, 0));
         ColoredPiece prospective_king_rook = pieceAt (makeCoord (row, 7));
 
-        if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who || pieceType (prospective_queen_rook) != Piece::Rook || pieceColor (prospective_queen_rook) != who)
+        if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who
+            || pieceType (prospective_queen_rook) != Piece::Rook
+            || pieceColor (prospective_queen_rook) != who)
         {
             state |= CastlingEligible::QueensideIneligible;
         }
-        if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who || pieceType (prospective_king_rook) != Piece::Rook || pieceColor (prospective_king_rook) != who)
+        if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who
+            || pieceType (prospective_king_rook) != Piece::Rook
+            || pieceColor (prospective_king_rook) != who)
         {
             state |= CastlingEligible::KingsideIneligible;
         }
@@ -64,8 +68,8 @@ namespace wisdom
         if (piece_type == Piece::None)
             return;
 
-        auto coord = makeCoord (row, col);
-        my_squares[coordIndex (coord)] = ColoredPiece::make (who, piece_type);
+        auto coord = Coord::make (row, col);
+        my_squares[coord.index()] = ColoredPiece::make (who, piece_type);
 
         if (piece_type == Piece::King)
             my_king_positions[colorIndex (who)] = coord;
