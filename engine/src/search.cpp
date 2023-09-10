@@ -25,7 +25,7 @@ namespace wisdom
         {
         }
 
-        void iterativelyDeepen (Color side);
+        [[nodiscard]] auto iterativelyDeepen (Color side) -> SearchResult;
 
         auto iterate (Color side, int depth) -> SearchResult;
 
@@ -66,11 +66,9 @@ namespace wisdom
     {
     }
 
-    SearchResult
-    IterativeSearch::iterativelyDeepen (Color side)
+    SearchResult IterativeSearch::iterativelyDeepen (Color side)
     {
-        impl->iterativelyDeepen (side);
-        return impl->getBestResult();
+        return impl->iterativelyDeepen (side);
     }
 
     auto IterativeSearch::isCancelled() -> bool
@@ -186,7 +184,7 @@ namespace wisdom
         output.info (progress_str.str());
     }
 
-    void IterativeSearchImpl::iterativelyDeepen (Color side)
+    auto IterativeSearchImpl::iterativelyDeepen (Color side) -> SearchResult
     {
         SearchResult best_result {};
         my_searching_color = side;
@@ -215,14 +213,14 @@ namespace wisdom
                 }
             }
 
-            my_current_result = best_result;
-            return;
+            return best_result;
         }
         catch (const Error &e)
         {
             std::cerr << "Uncaught error: " << e.message() << "\n";
             std::cerr << e.extra_info() << "\n";
             my_original_board.dump();
+            std::terminate();
         }
     }
 

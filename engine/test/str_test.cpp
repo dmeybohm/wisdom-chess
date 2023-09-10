@@ -43,7 +43,7 @@ TEST_CASE( "split" )
 {
     SUBCASE( "Empty" )
     {
-        auto result = wisdom::split ({}, ",");
+        auto result = wisdom::split ("", ",");
         REQUIRE( result.size() == 1 );
     }
 
@@ -69,7 +69,7 @@ TEST_CASE( "split" )
 
     SUBCASE( "Empty" )
     {
-        string input = {""};
+        string input = "";
         auto result = wisdom::split (input, ",");
 
         REQUIRE( result.size() == 1 );
