@@ -64,14 +64,14 @@ namespace wisdom
     constexpr auto nextRow (IntegerType row, int direction) -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
-        return gsl::narrow_cast<IntegerType>(row + direction);
+        return gsl::narrow_cast<IntegerType> (row + direction);
     }
 
     template <typename T>
     constexpr auto nextColumn (T col, int direction) -> T
     {
         static_assert (std::is_integral_v<T>);
-        return gsl::narrow_cast<T>(col + direction);
+        return gsl::narrow_cast<T> (col + direction);
     }
 
     constexpr auto makeCoord (int row, int col) -> Coord
