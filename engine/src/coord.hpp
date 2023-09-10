@@ -45,17 +45,17 @@ namespace wisdom
         }
 
         template <typename IntegerType = int8_t>
-        [[nodiscard]] constexpr auto row () -> IntegerType
+        [[nodiscard]] constexpr auto row() -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
-            return gsl::narrow_cast<IntegerType>(row_and_col >> 3);
+            return gsl::narrow_cast<IntegerType> (row_and_col >> 3);
         }
 
         template <typename IntegerType = int8_t>
-        [[nodiscard]] constexpr auto column () -> IntegerType
+        [[nodiscard]] constexpr auto column() -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
-            return gsl::narrow_cast<IntegerType>(row_and_col & 0b111);
+            return gsl::narrow_cast<IntegerType> (row_and_col & 0b111);
         }
     };
     static_assert (std::is_trivial_v<Coord>);
