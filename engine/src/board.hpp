@@ -135,37 +135,6 @@ namespace wisdom
 
         void randomizePositions();
 
-        void setKingPosition (Color who, Coord pos)
-        {
-            my_king_pos[colorIndex (who)] = pos;
-        }
-
-        void removeCastlingEligibility (Color who, CastlingEligibility removed_castle_states)
-        {
-            CastlingEligibility orig_castle_state = getCastlingEligibility (who);
-            my_code.setCastleState (who, orig_castle_state | removed_castle_states);
-        }
-
-        void undoCastleChange (Color who, CastlingEligibility castle_state)
-        {
-            my_code.setCastleState (who, castle_state);
-        }
-
-        void setCastleState (Color who, CastlingEligibility new_state)
-        {
-            my_code.setCastleState (who, new_state);
-        }
-
-        void setEnPassantTarget (ColorIndex who, Coord target) noexcept
-        {
-            my_code.setEnPassantTarget (colorFromColorIndex (who), target);
-        }
-
-        void setEnPassantTarget (Color who, Coord target) noexcept
-        {
-            setEnPassantTarget (colorIndex (who), target);
-        }
-
         void setCurrentTurn (Color who)
         {
             my_code.setCurrentTurn (who);
@@ -177,30 +146,9 @@ namespace wisdom
         }
         void getBoardCode() const&& = delete;
 
-        void updateMoveClock (Color who, Piece orig_src_piece_type, Move mv)
-        {
-            if (mv.isAnyCapturing() || orig_src_piece_type == Piece::Pawn)
-                my_half_move_clock = 0;
-            else
-                my_half_move_clock++;
-
-            if (who == Color::Black)
-                my_full_move_clock++;
-        }
-
         [[nodiscard]] static auto allCoords() -> CoordIterator
         {
             return CoordIterator {};
-        }
-
-        void setPiece (int8_t row, int8_t col, ColoredPiece piece)
-        {
-            my_squares[coordIndex (row, col)] = piece;
-        }
-
-        void setPiece (Coord coord, ColoredPiece piece)
-        {
-            my_squares[coordIndex (coord)] = piece;
         }
 
         [[nodiscard]] auto findFirstCoordWithPiece (ColoredPiece piece,
@@ -209,15 +157,24 @@ namespace wisdom
 
     private:
         void makeMove (Color who, Move move);
+
         auto applyForEnPassant (Color who, Coord src, Coord dst) -> ColoredPiece;
-        auto getCastlingRookMove (Move move, Color who) -> Move;
+        void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move);
+        void setEnPassantTarget (ColorIndex who, Coord target) noexcept;
+
+        [[nodiscard]] auto getCastlingRookMove (Move move, Color who) const -> Move;
         void applyForCastlingMove (Color who, Move king_move,
                                    [[maybe_unused]] Coord src, [[maybe_unused]] Coord dst);
         void applyForKingMove (Color who, [[maybe_unused]] Coord src, Coord dst);
+        void setCastleState (Color who, CastlingEligibility new_state);
+        void removeCastlingEligibility (Color who, CastlingEligibility removed_castle_states);
         void applyForRookCapture (Color opponent, ColoredPiece dst_piece, Coord src, Coord dst);
         void applyForRookMove (Color player, ColoredPiece src_piece,
                                Move move, Coord src, Coord dst);
-        void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move);
+
+        void setKingPosition (Color who, Coord pos);
+        void setPiece (Coord coord, ColoredPiece piece);
+        void updateMoveClock (Color who, Piece orig_src_piece_type, Move move);
 
     private:
         // The representation of the board.

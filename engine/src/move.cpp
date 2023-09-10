@@ -18,6 +18,27 @@ namespace wisdom
         return pieceType (src_piece) == Piece::Pawn && abs (Row (src) - Row (dst)) == 2;
     }
 
+    void Board::updateMoveClock (Color who, Piece orig_src_piece_type, Move move)
+    {
+        if (move.isAnyCapturing() || orig_src_piece_type == Piece::Pawn)
+            my_half_move_clock = 0;
+        else
+            my_half_move_clock++;
+
+        if (who == Color::Black)
+            my_full_move_clock++;
+    }
+
+    void Board::setPiece (Coord coord, ColoredPiece piece)
+    {
+        my_squares[coordIndex (coord)] = piece;
+    }
+
+    void Board::setKingPosition (Color who, Coord pos)
+    {
+        my_king_pos[colorIndex (who)] = pos;
+    }
+
     // Returns the taken piece
     auto Board::applyForEnPassant (Color who, Coord src, Coord dst)
         -> ColoredPiece
@@ -33,7 +54,7 @@ namespace wisdom
         return ColoredPiece::make (colorInvert (who), Piece::Pawn);
     }
 
-    auto Board::getCastlingRookMove (Move move, Color who) -> Move
+    auto Board::getCastlingRookMove (Move move, Color who) const -> Move
     {
         int src_row, src_col;
         int dst_row, dst_col;
@@ -87,6 +108,17 @@ namespace wisdom
         // do the rook move
         setPiece (rook_dst, rook);
         setPiece (rook_src, empty_piece);
+    }
+
+    void Board::setCastleState (Color who, CastlingEligibility new_state)
+    {
+        my_code.setCastleState (who, new_state);
+    }
+
+    void Board::removeCastlingEligibility (Color who, CastlingEligibility removed_castle_states)
+    {
+        CastlingEligibility orig_castle_state = getCastlingEligibility (who);
+        my_code.setCastleState (who, orig_castle_state | removed_castle_states);
     }
 
     void Board::applyForKingMove (Color who,
@@ -161,6 +193,11 @@ namespace wisdom
         {
             removeCastlingEligibility (player, affects_castle_state);
         }
+    }
+
+    void Board::setEnPassantTarget (ColorIndex who, Coord target) noexcept
+    {
+        my_code.setEnPassantTarget (colorFromColorIndex (who), target);
     }
 
     void Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move)

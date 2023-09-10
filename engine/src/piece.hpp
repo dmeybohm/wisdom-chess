@@ -40,48 +40,48 @@ namespace wisdom
 
     constexpr auto pieceFromInt8 (int8_t integer) -> Piece
     {
-        return static_cast<Piece>(integer);
+        return static_cast<Piece> (integer);
     }
 
     constexpr auto pieceFromInt (int integer) -> Piece
     {
-        return static_cast<Piece>(integer);
+        return static_cast<Piece> (integer);
     }
 
     constexpr auto colorFromInt8 (int8_t integer) -> Color
     {
-        return static_cast<Color>(integer);
+        return static_cast<Color> (integer);
     }
 
     constexpr auto colorFromInt (int integer) -> Color
     {
-        return static_cast<Color>(integer);
+        return static_cast<Color> (integer);
     }
 
     constexpr auto colorFromColorIndex (ColorIndex index) -> Color
     {
         assert (index == Color_Index_White || index == Color_Index_Black);
-        return static_cast<Color>(index + 1);
+        return static_cast<Color> (index + 1);
     }
 
     constexpr auto toInt8 (Piece piece) -> int8_t
     {
-        return static_cast<int8_t>(piece);
+        return static_cast<int8_t> (piece);
     }
 
     constexpr auto toInt (Piece piece) -> int
     {
-        return static_cast<int>(piece);
+        return static_cast<int> (piece);
     }
 
     constexpr auto toInt (Color color) -> int
     {
-        return static_cast<int>(color);
+        return static_cast<int> (color);
     }
 
     constexpr auto toInt8 (Color color) -> int8_t
     {
-        return static_cast<int8_t>(color);
+        return static_cast<int8_t> (color);
     }
 
     constexpr auto isColorValid (Color who) -> bool
@@ -92,7 +92,7 @@ namespace wisdom
     constexpr auto colorIndex (Color who) -> ColorIndex
     {
         assert (who == Color::White || who == Color::Black);
-        return gsl::narrow_cast<int8_t>(toInt8 (who) - 1);
+        return gsl::narrow_cast<int8_t> (toInt8 (who) - 1);
     }
 
     constexpr auto colorInvert (Color who) -> Color
@@ -160,7 +160,7 @@ namespace wisdom
             return !operator== (first, second);
         }
     };
-    static_assert(std::is_trivial_v<ColoredPiece>);
+    static_assert (std::is_trivial_v<ColoredPiece>);
 
     // Order here is significant - it means computer will prefer the piece at the top
     // all else being equal, such as if the promoted piece cannot be saved from capture.
