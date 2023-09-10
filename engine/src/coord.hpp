@@ -45,17 +45,17 @@ namespace wisdom
         }
 
         template <typename IntegerType = int8_t>
-        [[nodiscard]] constexpr auto row () -> IntegerType
+        [[nodiscard]] constexpr auto row() -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
-            return gsl::narrow_cast<IntegerType>(row_and_col >> 3);
+            return gsl::narrow_cast<IntegerType> (row_and_col >> 3);
         }
 
         template <typename IntegerType = int8_t>
-        [[nodiscard]] constexpr auto column () -> IntegerType
+        [[nodiscard]] constexpr auto column() -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
-            return gsl::narrow_cast<IntegerType>(row_and_col & 0b111);
+            return gsl::narrow_cast<IntegerType> (row_and_col & 0b111);
         }
     };
     static_assert (std::is_trivial_v<Coord>);
@@ -64,14 +64,14 @@ namespace wisdom
     constexpr auto nextRow (IntegerType row, int direction) -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
-        return gsl::narrow_cast<IntegerType>(row + direction);
+        return gsl::narrow_cast<IntegerType> (row + direction);
     }
 
     template <typename T>
     constexpr auto nextColumn (T col, int direction) -> T
     {
         static_assert (std::is_integral_v<T>);
-        return gsl::narrow_cast<T>(col + direction);
+        return gsl::narrow_cast<T> (col + direction);
     }
 
     constexpr auto makeCoord (int row, int col) -> Coord
