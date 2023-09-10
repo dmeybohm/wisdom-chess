@@ -301,12 +301,10 @@ namespace wisdom::ui::console
         if (input == "moves")
         {
             printAvailableMoves (game, move_generator);
-            return result;
         }
         else if (input == "save")
         {
             saveGame (game);
-            return result;
         }
         else if (input == "load")
         {
@@ -317,7 +315,6 @@ namespace wisdom::ui::console
                 game = std::move (*optional_game);
                 game.setPlayers (orig_players);
             }
-            return result;
         }
         else if (input == "fen")
         {
@@ -328,80 +325,72 @@ namespace wisdom::ui::console
                 game = std::move (*optional_game);
                 game.setPlayers (orig_players);
             }
-            return result;
         }
         else if (input == "pause")
         {
             result.command = PlayCommand::Pause;
-            return result;
         }
         else if (input == "unpause")
         {
             result.command = PlayCommand::Unpause;
-            return result;
         }
         else if (input == "maxdepth")
         {
             optional<int> max_depth = readInt ("Max depth");
             if (max_depth.has_value())
                 game.setMaxDepth (*max_depth);
-            return result;
         }
         else if (input == "timeout")
         {
             optional<int> search_timeout = readInt ("Search Timeout");
             if (search_timeout.has_value())
                 game.setSearchTimeout (chrono::seconds { *search_timeout });
-            return result;
         }
         else if (input == "computer_black")
         {
             game.setBlackPlayer (Player::ChessEngine);
-            return result;
         }
         else if (input == "computer_white")
         {
             game.setWhitePlayer (Player::ChessEngine);
-            return result;
         }
         else if (input == "human_white")
         {
             game.setWhitePlayer (Player::Human);
-            return result;
         }
         else if (input == "human_black")
         {
             game.setBlackPlayer (Player::Human);
-            return result;
         }
         else if (input == "switch")
         {
             game.setCurrentTurn (colorInvert (game.getCurrentTurn()));
-            return result;
         }
         else if (input == "quit" || input == "exit")
         {
             result.command = PlayCommand::StopGame;
-            return result;
         }
         else
         {
-            printHelp();
-            return result;
-        }
+            result.move = moveParseOptional (input, game.getCurrentTurn());
+            result.command = PlayCommand::ShowError;
 
-        result.move = moveParseOptional (input, game.getCurrentTurn());
-        result.command = PlayCommand::ShowError;
-
-        // check the generated move list for this move to see if its valid
-        MoveList moves = move_generator.generateLegalMoves (game.getBoard(), game.getCurrentTurn());
-
-        for (auto legal_move : moves)
-        {
-            if (result.move.has_value() && moveEquals (legal_move, *result.move))
+            if (!result.move.has_value())
             {
-                result.command = PlayCommand::PlayMove;
-                break;
+                printHelp();
+                return result;
+            }
+
+            // check the generated move list for this move to see if its valid
+            MoveList moves = move_generator.generateLegalMoves (game.getBoard(), game.getCurrentTurn());
+
+            for (auto legal_move : moves)
+            {
+                if (result.move.has_value() && moveEquals (legal_move, *result.move))
+                {
+                    result.command = PlayCommand::PlayMove;
+                    break;
+                }
             }
         }
 
