@@ -28,14 +28,12 @@ namespace wisdom
             return a.my_code == b.my_code && a.my_squares == b.my_squares;
         }
 
-        [[nodiscard]] constexpr auto pieceAt (int row, int col) const
-            -> ColoredPiece
+        [[nodiscard]] constexpr auto pieceAt (int row, int col) const -> ColoredPiece
         {
             return my_squares[coordIndex (row, col)];
         }
 
-        [[nodiscard]] constexpr auto pieceAt (Coord coord) const
-            -> ColoredPiece
+        [[nodiscard]] constexpr auto pieceAt (Coord coord) const -> ColoredPiece
         {
             return my_squares[coordIndex (coord)];
         }
@@ -44,14 +42,12 @@ namespace wisdom
 
         void dump() const;
 
-        [[nodiscard]] auto getHalfMoveClock() const noexcept
-            -> int
+        [[nodiscard]] auto getHalfMoveClock() const noexcept -> int
         {
             return my_half_move_clock;
         }
 
-        [[nodiscard]] auto getFullMoveClock() const noexcept
-            -> int
+        [[nodiscard]] auto getFullMoveClock() const noexcept -> int
         {
             return my_full_move_clock;
         }
@@ -92,8 +88,7 @@ namespace wisdom
             return my_code.castleState (who);
         }
 
-        [[nodiscard]] auto ableToCastle (Color who, CastlingEligibility castle_types) const
-            -> bool
+        [[nodiscard]] auto ableToCastle (Color who, CastlingEligibility castle_types) const -> bool
         {
             // If either/both is passed, check both types.
             auto check_type = (castle_types == CastlingEligible::EitherSideEligible ||
@@ -140,11 +135,10 @@ namespace wisdom
             my_code.setCurrentTurn (who);
         }
 
-        [[nodiscard]] auto getBoardCode() const& -> const BoardCode&
+        [[nodiscard]] auto getBoardCode() const -> BoardCode
         {
             return my_code;
         }
-        void getBoardCode() const&& = delete;
 
         [[nodiscard]] static auto allCoords() -> CoordIterator
         {
