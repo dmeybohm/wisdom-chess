@@ -442,22 +442,88 @@ TEST_CASE( "Kingside castle state after moving queenside rook" )
     CHECK( castle_king_side );
 }
 
-TEST_CASE( "Test ableToCastle with CastlingIneligible::None returns false" )
+TEST_CASE( "Test ableToCastle" )
 {
-   Board board;
-   {
-       auto white_castle = board.ableToCastle (Color::White, CastlingEligible::EitherSideEligible);
-       auto black_castle = board.ableToCastle (Color::Black, CastlingEligible::EitherSideEligible);
-       REQUIRE (!white_castle);
-       REQUIRE (!black_castle);
-   }
+    SUBCASE( "Initial state" )
+    {
+        Board board;
 
-   {
-       board.setCastleState (Color::White, CastlingEligible::EitherSideEligible);
-       board.setCastleState (Color::Black, CastlingEligible::EitherSideEligible);
-       auto white_castle = board.ableToCastle (Color::White, CastlingEligible::EitherSideEligible);
-       auto black_castle = board.ableToCastle (Color::Black, CastlingEligible::EitherSideEligible);
-       REQUIRE (!white_castle);
-       REQUIRE (!black_castle);
-   }
+        auto white_castle = board.ableToCastle (Color::White, CastlingEligible::EitherSideEligible);
+        auto black_castle = board.ableToCastle (Color::Black, CastlingEligible::EitherSideEligible);
+        CHECK( white_castle );
+        CHECK( black_castle );
+    }
+
+    SUBCASE( "When eligible is set explicitly" )
+    {
+        BoardBuilder builder = BoardBuilder::fromDefaultPosition();
+        builder.setCastling (Color::White, CastlingEligible::EitherSideEligible);
+        builder.setCastling (Color::Black, CastlingEligible::EitherSideEligible);
+        auto board = Board { builder };
+
+        auto white_castle = board.ableToCastle (Color::White, CastlingEligible::EitherSideEligible);
+        auto black_castle = board.ableToCastle (Color::Black, CastlingEligible::EitherSideEligible);
+
+        CHECK( white_castle );
+        CHECK( black_castle );
+    }
+
+    SUBCASE( "When ineligible is set explicitly" )
+    {
+        BoardBuilder builder = BoardBuilder::fromDefaultPosition();
+        builder.setCastling (Color::White, CastlingEligible::BothSidesIneligible);
+        builder.setCastling (Color::Black, CastlingEligible::BothSidesIneligible);
+        auto board = Board { builder };
+
+        auto white_castle = board.ableToCastle (Color::White, CastlingEligible::EitherSideEligible);
+        auto black_castle = board.ableToCastle (Color::Black, CastlingEligible::EitherSideEligible);
+        CHECK( !white_castle );
+        CHECK( !black_castle );
+    }
+
+    SUBCASE( "When queenside is set ineligible" )
+    {
+        BoardBuilder builder = BoardBuilder::fromDefaultPosition();
+        builder.setCastling (Color::White, CastlingEligible::QueensideIneligible);
+        builder.setCastling (Color::Black, CastlingEligible::QueensideIneligible);
+        auto board = Board { builder };
+
+        auto white_castle = board.ableToCastle (Color::White, CastlingEligible::EitherSideEligible);
+        auto black_castle = board.ableToCastle (Color::Black, CastlingEligible::EitherSideEligible);
+        CHECK( white_castle );
+        CHECK( black_castle );
+
+        white_castle = board.ableToCastle (Color::White, CastlingEligible::KingsideIneligible);
+        black_castle = board.ableToCastle (Color::Black, CastlingEligible::KingsideIneligible);
+        CHECK( white_castle );
+        CHECK( black_castle );
+
+        white_castle = board.ableToCastle (Color::White, CastlingEligible::QueensideIneligible);
+        black_castle = board.ableToCastle (Color::Black, CastlingEligible::QueensideIneligible);
+        CHECK( !white_castle );
+        CHECK( !black_castle );
+    }
+
+    SUBCASE( "When kingside is set ineligible" )
+    {
+        BoardBuilder builder = BoardBuilder::fromDefaultPosition();
+        builder.setCastling (Color::White, CastlingEligible::KingsideIneligible);
+        builder.setCastling (Color::Black, CastlingEligible::KingsideIneligible);
+        auto board = Board { builder };
+
+        auto white_castle = board.ableToCastle (Color::White, CastlingEligible::EitherSideEligible);
+        auto black_castle = board.ableToCastle (Color::Black, CastlingEligible::EitherSideEligible);
+        CHECK( white_castle );
+        CHECK( black_castle );
+
+        white_castle = board.ableToCastle (Color::White, CastlingEligible::QueensideIneligible);
+        black_castle = board.ableToCastle (Color::Black, CastlingEligible::QueensideIneligible);
+        CHECK( white_castle );
+        CHECK( black_castle );
+
+        white_castle = board.ableToCastle (Color::White, CastlingEligible::KingsideIneligible);
+        black_castle = board.ableToCastle (Color::Black, CastlingEligible::KingsideIneligible);
+        CHECK( !white_castle );
+        CHECK( !black_castle );
+    }
 }

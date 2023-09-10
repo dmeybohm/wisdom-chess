@@ -95,9 +95,15 @@ namespace wisdom
         [[nodiscard]] auto ableToCastle (Color who, CastlingEligibility castle_types) const
             -> bool
         {
+            // If either/both is passed, check both types.
+            auto check_type = (castle_types == CastlingEligible::EitherSideEligible ||
+                    castle_types == CastlingEligible::BothSidesIneligible)
+                ? CastlingEligible::BothSidesIneligible
+                : castle_types;
+
             auto castle_state = getCastlingEligibility (who);
             auto castle_bits = castle_state.underlying_value();
-            bool neg_not_set = ((~castle_bits) & castle_types.underlying_value()) != 0;
+            bool neg_not_set = ((~castle_bits) & check_type.underlying_value()) != 0;
 
             return neg_not_set;
         }
