@@ -81,10 +81,8 @@ TEST_CASE( "board_builder" )
 
 TEST_CASE( "Board can be randomized" )
 {
-    Board randomized_board;
     Board default_board;
-
-    randomized_board.randomizePositions();
+    auto randomized_board = default_board.withRandomPosition();
 
     SUBCASE( "Board code is not the same as the default" )
     {

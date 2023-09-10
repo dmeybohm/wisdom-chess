@@ -167,12 +167,12 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto getSrc() const -> Coord
         {
-            return makeCoordFromIndex (src);
+            return Coord::fromIndex (src);
         }
 
         [[nodiscard]] constexpr auto getDst() const -> Coord
         {
-            return makeCoordFromIndex (dst);
+            return Coord::fromIndex (dst);
         }
 
         [[nodiscard]] constexpr auto withPromotion (ColoredPiece piece) const noexcept

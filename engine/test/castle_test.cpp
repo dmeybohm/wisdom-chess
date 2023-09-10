@@ -54,9 +54,9 @@ TEST_CASE( "Castling state is modified and restored for rooks" )
     BoardBuilder builder;
     builder.addRowOfSameColor (0, Color::Black, back_rank);
     builder.addRowOfSameColor (7, Color::White, back_rank);
-    Board board { builder };
+    builder.setCurrentTurn (Color::Black);
 
-    board.setCurrentTurn (Color::Black);
+    Board board { builder };
     Move mv = Move::make (0, 0, 0, 1);
 
     CHECK( board.ableToCastle (Color::Black, CastlingEligible::QueensideIneligible) );
@@ -76,7 +76,7 @@ TEST_CASE( "Castling state is modified and restored for rooks" )
     CHECK( board.getCastlingEligibility (Color::Black) == CastlingEligible::QueensideIneligible );
 }
 
-TEST_CASE("Castling state is modified and restored for kings")
+TEST_CASE( "Castling state is modified and restored for kings" )
 {
     BoardBuilder::PieceRow back_rank = {
         Piece::Rook,   Piece::None, Piece::Bishop, Piece::None, Piece::King,
@@ -86,8 +86,8 @@ TEST_CASE("Castling state is modified and restored for kings")
     BoardBuilder builder;
     builder.addRowOfSameColor (0, Color::Black, back_rank);
     builder.addRowOfSameColor (7, Color::White, back_rank);
+    builder.setCurrentTurn (Color::Black);
     Board board { builder };
-    board.setCurrentTurn (Color::Black);
     Move mv = Move::make (0, 4, 0, 3);
 
     CHECK( board.ableToCastle (Color::Black, CastlingEligible::QueensideIneligible) );
@@ -108,7 +108,7 @@ TEST_CASE("Castling state is modified and restored for kings")
            == (CastlingEligible::QueensideIneligible | CastlingEligible::KingsideIneligible));
 }
 
-TEST_CASE("Castling state is modified and restored for castling queenside")
+TEST_CASE( "Castling state is modified and restored for castling queenside" )
 {
     array<Piece, Num_Columns> back_rank = {
         Piece::Rook,   Piece::None, Piece::None, Piece::None, Piece::King,
@@ -118,8 +118,8 @@ TEST_CASE("Castling state is modified and restored for castling queenside")
     BoardBuilder builder;
     builder.addRowOfSameColor (0, Color::Black, back_rank);
     builder.addRowOfSameColor (7, Color::White, back_rank);
+    builder.setCurrentTurn (Color::Black);
     Board board { builder };
-    board.setCurrentTurn (Color::Black);
     Move mv = Move::makeCastling (0, 4, 0, 2);
 
     CHECK( board.ableToCastle (Color::Black, CastlingEligible::QueensideIneligible) );

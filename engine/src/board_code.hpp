@@ -32,7 +32,7 @@ namespace wisdom
         return code_array;
     }
 
-    static constexpr BoardCodeArray All_Codes = initializeBoardCodes();
+    static constexpr BoardCodeArray Hash_Code_Table = initializeBoardCodes();
 
     static constexpr int Total_Metadata_Bits = 16;
 
@@ -43,7 +43,7 @@ namespace wisdom
         auto piece_type = piece.type();
         auto piece_index = pieceIndex (piece_type) * (toInt (piece_color) + 1);
 
-        return All_Codes[piece_index * Num_Squares + coord_index] << Total_Metadata_Bits;
+        return Hash_Code_Table[piece_index * Num_Squares + coord_index] << Total_Metadata_Bits;
     }
 
     class BoardCode final
@@ -73,7 +73,7 @@ namespace wisdom
 
         [[nodiscard]] static auto fromEmptyBoard() -> BoardCode;
 
-        void addPiece (Coord coord, ColoredPiece piece)
+        void addPiece (Coord coord, ColoredPiece piece) noexcept
         {
             if (piece == Piece_And_Color_None)
                 return;
@@ -82,12 +82,12 @@ namespace wisdom
             my_code ^= hash;
         }
 
-        void removePiece (Coord coord, ColoredPiece piece)
+        void removePiece (Coord coord, ColoredPiece piece) noexcept
         {
             addPiece (coord, piece);
         }
 
-        void setEnPassantTarget (Color color, Coord coord)
+        void setEnPassantTarget (Color color, Coord coord) noexcept
         {
             std::size_t target_bit_shift = color == Color::White
                 ? EN_PASSANT_WHITE_TARGET : EN_PASSANT_BLACK_TARGET;
@@ -119,7 +119,7 @@ namespace wisdom
             return is_present ? makeCoord (row, col) : No_En_Passant_Coord;
         }
 
-        void setCurrentTurn (Color who)
+        void setCurrentTurn (Color who) noexcept
         {
             auto bits = colorIndex (who);
             auto current_turn_bit = bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT);
@@ -143,7 +143,7 @@ namespace wisdom
             return result;
         }
 
-        void setCastleState (Color who, CastlingEligibility castling_states)
+        void setCastleState (Color who, CastlingEligibility castling_states) noexcept
         {
             uint8_t castling_bits = castling_states.underlying_value();
             std::size_t bit_number = who == Color::White
@@ -156,7 +156,7 @@ namespace wisdom
             setMetadataBits (metadataBits);
         }
 
-        [[nodiscard]] auto currentTurn() const -> Color
+        [[nodiscard]] auto currentTurn() const noexcept -> Color
         {
             auto bits = getMetadataBits();
             auto index = gsl::narrow_cast<int8_t> (bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT));
@@ -172,43 +172,43 @@ namespace wisdom
             return result;
         }
 
-        [[nodiscard]] auto getMetadataBits() const -> std::uint16_t
+        [[nodiscard]] auto getMetadataBits() const noexcept -> std::uint16_t
         {
             return gsl::narrow_cast<uint16_t> (my_code & 0xffff);
         }
 
-        [[nodiscard]] auto asString() const -> string
+        [[nodiscard]] auto asString() const noexcept -> string
         {
             std::bitset<64> bits { my_code };
 
             return bits.to_string();
         }
 
-        [[nodiscard]] auto hashCode() const -> BoardHashCode
+        [[nodiscard]] auto hashCode() const noexcept -> BoardHashCode
         {
             return my_code;
         }
 
-        friend auto operator== (const BoardCode& first, const BoardCode& second) -> bool
+        friend auto operator== (const BoardCode& first, const BoardCode& second) noexcept -> bool
         {
             return first.my_code == second.my_code;
         }
 
-        friend auto operator!= (const BoardCode& first, const BoardCode& second) -> bool
+        friend auto operator!= (const BoardCode& first, const BoardCode& second) noexcept -> bool
         {
             return !(first == second);
         }
 
         friend auto operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&;
 
-        [[nodiscard]] auto withMove (const Board& board, Move move) const -> BoardCode
+        [[nodiscard]] auto withMove (const Board& board, Move move) const noexcept -> BoardCode
         {
             auto copy = *this;
             copy.applyMove (board, move);
             return copy;
         }
 
-        void applyMove (const Board& board, Move move);
+        void applyMove (const Board& board, Move move) noexcept;
 
         [[nodiscard]] auto numberOfSetBits() const -> std::size_t;
 

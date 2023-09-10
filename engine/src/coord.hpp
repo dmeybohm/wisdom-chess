@@ -9,10 +9,17 @@ namespace wisdom
     {
         int8_t row_and_col;
 
+        // Make a coordinate from an index from 0-63.
         [[nodiscard]] static constexpr auto fromIndex (int index) -> Coord
         {
             assert (index >= 0 && index < Num_Squares);
             return { .row_and_col = gsl::narrow_cast<int8_t> (index) };
+        }
+
+        template <typename IntegerType = int>
+        [[nodiscard]] constexpr auto index() -> IntegerType
+        {
+            return gsl::narrow_cast<IntegerType> (row_and_col);
         }
     };
     static_assert(std::is_trivial_v<Coord>);
@@ -60,7 +67,7 @@ namespace wisdom
     template <typename IntegerType = int>
     [[nodiscard]] constexpr auto coordIndex (Coord coord) -> IntegerType
     {
-        return coord.row_and_col;
+        return coord.index<IntegerType>();
     }
 
     // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
@@ -72,7 +79,6 @@ namespace wisdom
         return coordIndex (coord);
     }
 
-    // Make a coordinate from an index from 0-63.
     [[nodiscard]] constexpr auto makeCoordFromIndex (int index) -> Coord
     {
         return Coord::fromIndex (index);
@@ -101,7 +107,7 @@ namespace wisdom
         if (index < 0 || index >= Num_Squares)
             return {};
 
-        return makeCoordFromIndex (index);
+        return Coord::fromIndex (index);
     }
 
     constexpr auto operator== (Coord first, Coord second) -> bool

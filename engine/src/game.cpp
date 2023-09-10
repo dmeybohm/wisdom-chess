@@ -191,7 +191,7 @@ namespace wisdom
 
     void Game::setCurrentTurn (Color new_turn)
     {
-        my_current_board.setCurrentTurn (new_turn);
+        my_current_board = my_current_board.withCurrentTurn (new_turn);
     }
 
     auto Game::getBoard() const& -> const Board&

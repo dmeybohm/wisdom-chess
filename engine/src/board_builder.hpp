@@ -31,6 +31,8 @@ namespace wisdom
 
         static auto fromDefaultPosition() -> BoardBuilder;
 
+        static auto fromRandomPosition() -> BoardBuilder;
+
         [[nodiscard]] static constexpr auto emptySquares() -> array<ColoredPiece, Num_Squares>
         {
             array<ColoredPiece, Num_Squares> result {};

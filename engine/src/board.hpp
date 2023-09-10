@@ -75,20 +75,27 @@ namespace wisdom
         [[nodiscard]] auto toFenString (Color turn) const -> string;
         [[nodiscard]] auto castledString (Color color) const -> string;
 
-        // Throws an exception if the move couldn't be applied.
+        // Create a new board with the move applied:
         [[nodiscard]] auto withMove (Color who, Move move) const -> Board;
 
-        [[nodiscard]] auto getKingPosition (Color who) const -> Coord
+        // Create a new board with the current turn updated:
+        [[nodiscard]] auto withCurrentTurn (Color who) const -> Board;
+
+        // Randomize and return copy of current board:
+        [[nodiscard]] auto withRandomPosition() const -> Board;
+
+        [[nodiscard]] auto getKingPosition (Color who) const noexcept -> Coord
         {
             return my_king_pos[colorIndex (who)];
         }
 
-        [[nodiscard]] auto getCastlingEligibility (Color who) const -> CastlingEligibility
+        [[nodiscard]] auto getCastlingEligibility (Color who) const noexcept -> CastlingEligibility
         {
             return my_code.castleState (who);
         }
 
-        [[nodiscard]] auto ableToCastle (Color who, CastlingEligibility castle_types) const -> bool
+        [[nodiscard]] auto ableToCastle (Color who, CastlingEligibility castle_types) const noexcept
+            -> bool
         {
             // If either/both is passed, check both types.
             auto check_type = (castle_types == CastlingEligible::EitherSideEligible ||
@@ -118,21 +125,9 @@ namespace wisdom
             return my_code.enPassantTarget (who);
         }
 
-        [[nodiscard]] auto getEnPassantTarget (ColorIndex who) const noexcept -> Coord
-        {
-            return getEnPassantTarget (colorFromColorIndex (who));
-        }
-
         [[nodiscard]] auto getEnPassantTargets() const noexcept -> EnPassantTargets
         {
             return my_code.enPassantTargets();
-        }
-
-        void randomizePositions();
-
-        void setCurrentTurn (Color who)
-        {
-            my_code.setCurrentTurn (who);
         }
 
         [[nodiscard]] auto getBoardCode() const -> BoardCode
@@ -152,23 +147,25 @@ namespace wisdom
     private:
         void makeMove (Color who, Move move);
 
-        auto applyForEnPassant (Color who, Coord src, Coord dst) -> ColoredPiece;
-        void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move);
-        void setEnPassantTarget (ColorIndex who, Coord target) noexcept;
+        auto applyForEnPassant (Color who, Coord src, Coord dst) noexcept -> ColoredPiece;
+        void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept;
+        void setEnPassantTarget (Color who, Coord target) noexcept;
 
         [[nodiscard]] auto getCastlingRookMove (Move move, Color who) const -> Move;
-        void applyForCastlingMove (Color who, Move king_move,
-                                   [[maybe_unused]] Coord src, [[maybe_unused]] Coord dst);
-        void applyForKingMove (Color who, [[maybe_unused]] Coord src, Coord dst);
-        void setCastleState (Color who, CastlingEligibility new_state);
-        void removeCastlingEligibility (Color who, CastlingEligibility removed_castle_states);
-        void applyForRookCapture (Color opponent, ColoredPiece dst_piece, Coord src, Coord dst);
-        void applyForRookMove (Color player, ColoredPiece src_piece,
-                               Move move, Coord src, Coord dst);
+        void applyForCastlingMove (Color who, Move king_move, [[maybe_unused]] Coord src,
+                                   [[maybe_unused]] Coord dst) noexcept;
+        void updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst);
+        void setCastleState (Color who, CastlingEligibility new_state) noexcept;
+        void removeCastlingEligibility (Color who,
+                                        CastlingEligibility removed_castle_states) noexcept;
+        void updateAfterRookCapture (Color opponent, ColoredPiece dst_piece, Coord src, Coord dst) noexcept;
+        void updateAfterRookMove (Color player, ColoredPiece src_piece,
+                               Move move, Coord src, Coord dst) noexcept;
 
-        void setKingPosition (Color who, Coord pos);
-        void setPiece (Coord coord, ColoredPiece piece);
-        void updateMoveClock (Color who, Piece orig_src_piece_type, Move move);
+        void setKingPosition (Color who, Coord pos) noexcept;
+        void setPiece (Coord coord, ColoredPiece piece) noexcept;
+        void updateMoveClock (Color who, Piece orig_src_piece_type, Move move) noexcept;
+        void setCurrentTurn (Color who) noexcept;
 
     private:
         // The representation of the board.
