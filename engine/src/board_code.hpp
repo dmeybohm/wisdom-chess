@@ -34,6 +34,8 @@ namespace wisdom
 
     static constexpr BoardCodeArray All_Codes = initializeBoardCodes();
 
+    static constexpr int Total_Metadata_Bits = 16;
+
     [[nodiscard]] constexpr auto boardCodeHash (Coord coord, ColoredPiece piece) -> std::uint64_t
     {
         auto coord_index = coordIndex (coord);
@@ -41,14 +43,12 @@ namespace wisdom
         auto piece_type = piece.type();
         auto piece_index = pieceIndex (piece_type) * (toInt (piece_color) + 1);
 
-        return All_Codes[piece_index * Num_Squares + coord_index] << 16;
+        return All_Codes[piece_index * Num_Squares + coord_index] << Total_Metadata_Bits;
     }
 
     class BoardCode final
     {
     private:
-        static constexpr int Total_Metadata_Bits = 16;
-
         enum MetadataBits : std::size_t
         {
             CURRENT_TURN_BIT = 0,
@@ -223,7 +223,7 @@ namespace wisdom
 
     private:
         // 48-bits Zobrist hash + a few bits for the metadata.
-        std::uint64_t my_code {};
+        std::uint64_t my_code = 0;
     };
 }
 

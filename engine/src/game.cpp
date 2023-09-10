@@ -69,7 +69,7 @@ namespace wisdom
     void Game::move (Move move)
     {
         my_current_board = my_current_board.withMove (getCurrentTurn(), move);
-        my_history.storePosition (my_current_board, move);
+        my_history.addPosition (my_current_board, move);
     }
 
     void Game::save (const string& input) const

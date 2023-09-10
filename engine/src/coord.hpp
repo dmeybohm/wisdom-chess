@@ -8,35 +8,40 @@ namespace wisdom
     struct Coord
     {
         int8_t row_and_col;
-    };
 
+        [[nodiscard]] static constexpr auto fromIndex (int index) -> Coord
+        {
+            assert (index >= 0 && index < Num_Squares);
+            return { .row_and_col = gsl::narrow_cast<int8_t> (index) };
+        }
+    };
     static_assert(std::is_trivial_v<Coord>);
 
     template <typename IntegerType>
     constexpr auto isValidRow (IntegerType row) -> bool
     {
-        static_assert (std::is_integral<IntegerType>::value);
+        static_assert (std::is_integral_v<IntegerType>);
         return row >= 0 && row < Num_Rows;
     }
 
     template <typename IntegerType>
     constexpr auto isValidColumn (IntegerType col) -> bool
     {
-        static_assert (std::is_integral<IntegerType>::value);
+        static_assert (std::is_integral_v<IntegerType>);
         return col >= 0 && col < Num_Columns;
     }
 
     template <typename IntegerType>
     constexpr auto nextRow (IntegerType row, int direction) -> IntegerType
     {
-        static_assert (std::is_integral<IntegerType>::value);
+        static_assert (std::is_integral_v<IntegerType>);
         return gsl::narrow_cast<IntegerType>(row + direction);
     }
 
     template <typename T>
     constexpr auto nextColumn (T col, int direction) -> T
     {
-        static_assert (std::is_integral<T>::value);
+        static_assert (std::is_integral_v<T>);
         return gsl::narrow_cast<T>(col + direction);
     }
 
@@ -70,21 +75,20 @@ namespace wisdom
     // Make a coordinate from an index from 0-63.
     [[nodiscard]] constexpr auto makeCoordFromIndex (int index) -> Coord
     {
-        assert (index >= 0 && index < Num_Squares);
-        return { .row_and_col = gsl::narrow_cast<int8_t> (index) };
+        return Coord::fromIndex (index);
     }
 
     template <typename IntegerType = int8_t>
     [[nodiscard]] constexpr auto Row (Coord pos) -> IntegerType
     {
-        static_assert (std::is_integral<IntegerType>::value);
+        static_assert (std::is_integral_v<IntegerType>);
         return gsl::narrow_cast<IntegerType>(pos.row_and_col >> 3);
     }
 
     template <typename IntegerType = int8_t>
     [[nodiscard]] constexpr auto Column (Coord pos) -> IntegerType
     {
-        static_assert (std::is_integral<IntegerType>::value);
+        static_assert (std::is_integral_v<IntegerType>);
         return gsl::narrow_cast<IntegerType>(pos.row_and_col & 0b111);
     }
 

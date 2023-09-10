@@ -8,14 +8,6 @@
 
 namespace wisdom
 {
-    struct ScoredMove
-    {
-        Move move;
-        int score;
-    };
-
-    static_assert(std::is_trivial<ScoredMove>::value);
-
     struct MoveGeneration;
 
     class MoveGenerator final

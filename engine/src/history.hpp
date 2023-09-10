@@ -110,7 +110,7 @@ namespace wisdom
             my_tentative_nesting_count--;
         }
 
-        void storePosition (const Board& board, Move move)
+        void addPosition (const Board& board, Move move)
         {
             Expects (my_tentative_nesting_count == 0);
             my_stored_boards.emplace_back (board);
@@ -118,8 +118,9 @@ namespace wisdom
             my_move_history.push_back (move);
         }
 
-        void popLastPosition()
+        void removeLastPosition()
         {
+            Expects (my_tentative_nesting_count == 0);
             my_stored_boards.pop_back();
             my_board_codes.pop_back();
             my_move_history.pop_back();
@@ -158,12 +159,11 @@ namespace wisdom
     private:
         vector<BoardCode> my_board_codes {};
         vector<Board> my_stored_boards {};
-        vector<Move> my_move_history;
+        vector<Move> my_move_history {};
         int my_tentative_nesting_count = 0;
 
         DrawStatus my_threefold_repetition_status = DrawStatus::NotReached;
-        DrawStatus my_fifty_moves_without_progress_status
-            = DrawStatus::NotReached;
+        DrawStatus my_fifty_moves_without_progress_status = DrawStatus::NotReached;
     };
 }
 
