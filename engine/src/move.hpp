@@ -41,17 +41,6 @@ namespace wisdom
         {}
     };
 
-    class MoveConsistencyProblem : public Error
-    {
-    public:
-        MoveConsistencyProblem() : Error ("Move consistency error.")
-        {}
-
-        explicit MoveConsistencyProblem (string extra_info) :
-            Error ("Move consistency error.", std::move (extra_info) )
-        {}
-    };
-
     [[nodiscard]] constexpr auto moveCategoryFromInt (int source) -> MoveCategory
     {
         assert (source <= 4);

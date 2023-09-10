@@ -79,12 +79,7 @@ namespace wisdom
             dst_col = Column (dst) + 1;
         }
 
-        if (!((pieceType (pieceAt (src_row, src_col)) == Piece::Rook
-               || pieceType (pieceAt (dst_row, dst_col)) == Piece::Rook)))
-        {
-            throw MoveConsistencyProblem { "move considering: " + wisdom::asString (move) + "("
-                                           + wisdom::asString (who) + " to move)" };
-        }
+        Expects (pieceType (pieceAt (src_row, src_col)) == Piece::Rook);
 
         return Move::make (src_row, src_col, dst_row, dst_col);
     }
@@ -455,7 +450,7 @@ namespace wisdom
         if (color == Color::None && move_category != MoveCategory::NormalCapturing
             && move_category != MoveCategory::Default)
         {
-            throw ParseMoveException ("Invalid type of move in parse_simple_move");
+            throw ParseMoveException ("Invalid type of move in moveParse");
         }
 
         return result;

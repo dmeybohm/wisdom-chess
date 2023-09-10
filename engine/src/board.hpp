@@ -160,7 +160,7 @@ namespace wisdom
                                         CastlingEligibility removed_castle_states) noexcept;
         void updateAfterRookCapture (Color opponent, ColoredPiece dst_piece, Coord src, Coord dst) noexcept;
         void updateAfterRookMove (Color player, ColoredPiece src_piece,
-                               Move move, Coord src, Coord dst) noexcept;
+                                  Move move, Coord src, Coord dst) noexcept;
 
         void setKingPosition (Color who, Coord pos) noexcept;
         void setPiece (Coord coord, ColoredPiece piece) noexcept;
