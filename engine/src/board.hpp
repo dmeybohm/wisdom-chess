@@ -175,17 +175,17 @@ namespace wisdom
         // Keep track of hashing information.
         BoardCode my_code;
 
-        // Keep track of the material on the board.
-        Material my_material;
-
-        // Keep track of the positions on the board.
-        Position my_position;
-
         // Number of half moves since pawn or capture.
         int my_half_move_clock = 0;
 
         // Number of full moves, updated after black moves.
         int my_full_move_clock = 1;
+
+        // Keep track of the positions on the board.
+        Position my_position;
+
+        // Keep track of the material on the board.
+        Material my_material;
 
         // positions of the kings.
         array<Coord, Num_Players> my_king_pos;
