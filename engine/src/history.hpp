@@ -45,15 +45,35 @@ namespace wisdom
     class History
     {
     public:
+
+        using BoardHash16 = std::uint16_t;
+
+        // Map the board code to a more dense 16-bit code to use
+        static auto boardCodeToBoardHash16 (const BoardCode& code) -> BoardHash16
+        {
+            uint64_t bits = code.hashCode();
+            array<BoardHash16, 4> parts;
+
+            parts[0] = (bits >> 0ULL) & 0xffff;
+            parts[1] = (bits >> 16ULL) & 0xffff;
+            parts[2] = (bits >> 32ULL) & 0xffff;
+            parts[3] = (bits >> 48ULL) & 0xffff;
+
+            return parts[0] * 41 +
+                   parts[1] * 3 +
+                   parts[2] * 31 +
+                   parts[3] * 7;
+        }
+
         History()
         {
-            my_board_codes.reserve (64);
+            my_board_codes.reserve (32);
         }
 
         static auto fromInitialBoard (const Board& board)
         {
             auto result = History {};
-            result.my_board_codes.emplace_back (board.getBoardCode());
+            result.my_board_codes.emplace_back (boardCodeToBoardHash16 (board.getBoardCode()));
             result.my_stored_boards.emplace_back (board);
             return result;
         }
@@ -76,19 +96,33 @@ namespace wisdom
             return hasBeenXHalfMovesWithoutProgress (board, 100);
         }
 
-        [[nodiscard]] bool isThirdRepetition (const Board& board) const;
+        [[nodiscard]] auto isThirdRepetition (const Board& board) const -> bool
+        {
+            return isProbablyThirdRepetition (board) && isCertainlyThirdRepetition (board);
+        }
 
-        [[nodiscard]] bool isFifthRepetition (const Board& board) const;
+        [[nodiscard]] auto isFifthRepetition (const Board& board) const -> bool
+        {
+            return isProbablyFifthRepetition (board) && isCertainlyFifthRepetition (board);
+        }
 
-        [[nodiscard]] auto isProbablyThirdRepetition (const Board& board) const -> bool;
         [[nodiscard]] auto isCertainlyThirdRepetition (const Board& board) const -> bool;
-        [[nodiscard]] auto isProbablyFifthRepetition (const Board& board) const -> bool;
         [[nodiscard]] auto isCertainlyFifthRepetition (const Board& board) const -> bool;
+
+        [[nodiscard]] auto isProbablyThirdRepetition (const Board& board) const -> bool
+        {
+            return isProbablyNthRepetition (board, 3);
+        }
+
+        [[nodiscard]] auto isProbablyFifthRepetition(const Board& board) const -> bool
+        {
+            return isProbablyNthRepetition (board, 5);
+        }
 
         [[nodiscard]] bool isProbablyNthRepetition (const Board& board, int repetition_count) const
         {
-            auto code = board.getCode();
-            auto count = std::count (my_board_codes.begin(), my_board_codes.end(), code);
+            auto hash = boardCodeToBoardHash16 (board.getCode());
+            auto count = std::count (my_board_codes.begin(), my_board_codes.end(), hash);
             return count >= repetition_count;
         }
 
@@ -100,7 +134,7 @@ namespace wisdom
 
         void addTentativePosition (const Board& board)
         {
-            my_board_codes.emplace_back (board.getBoardCode());
+            my_board_codes.emplace_back (boardCodeToBoardHash16 (board.getBoardCode()));
             my_tentative_nesting_count++;
         }
 
@@ -114,7 +148,7 @@ namespace wisdom
         {
             Expects (my_tentative_nesting_count == 0);
             my_stored_boards.emplace_back (board);
-            my_board_codes.emplace_back (board.getBoardCode());
+            my_board_codes.emplace_back (boardCodeToBoardHash16 (board.getBoardCode()));
             my_move_history.push_back (move);
         }
 
@@ -157,7 +191,7 @@ namespace wisdom
             -> std::ostream&;
 
     private:
-        vector<BoardCode> my_board_codes {};
+        vector<BoardHash16> my_board_codes {};
         vector<Board> my_stored_boards {};
         vector<Move> my_move_history {};
         int my_tentative_nesting_count = 0;
