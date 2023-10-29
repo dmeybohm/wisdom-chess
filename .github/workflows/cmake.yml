@@ -23,11 +23,12 @@ jobs:
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        # Not using latest windows because still have one library that doesn't work with MSVC 2022
+        os: [ubuntu-latest, windows-2019]
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
         include:
-          - os: windows-latest
+          - os: windows-2019
             c_compiler: cl
             cpp_compiler: cl
           - os: ubuntu-latest
@@ -37,9 +38,9 @@ jobs:
             c_compiler: clang
             cpp_compiler: clang++
         exclude:
-          - os: windows-latest
+          - os: windows-2019
             c_compiler: gcc
-          - os: windows-latest
+          - os: windows-2019
             c_compiler: clang
           - os: ubuntu-latest
             c_compiler: cl
@@ -63,7 +64,8 @@ jobs:
       run: conan profile new default --detect
       
     - name: Update profile
-      if: ${{ matrix.os }} = "ubuntu-latest"
+      shell: bash
+      if: matrix.c_compiler == 'gcc'
       run: conan profile update settings.compiler.libcxx=libstdc++11 default
 
     - name: Install dependencies
@@ -85,10 +87,22 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
-    - name: Fast Tests
+    - name: Fast Tests (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
       working-directory: ${{ github.workspace }}/build/engine/test
-      run: ${{github.workspace}}/build/engine/test/fast_tests
+      run: ${{ github.workspace }}/build/engine/test/fast_tests
       
-    - name: Slow Tests
+    - name: Slow Tests (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
       working-directory: ${{ github.workspace }}/build/engine/test
-      run: ${{github.workspace}}/build/engine/test/slow_tests      
+      run: ${{ github.workspace }}/build/engine/test/slow_tests      
+
+    - name: Fast Tests (Windows)
+      if: matrix.os == 'windows-2019'
+      working-directory: ${{ github.workspace }}/build/engine/test/${{ matrix.build_type }}
+      run: ${{ github.workspace }}/build/engine/test/${{ matrix.build_type }}/fast_tests.exe
+      
+    - name: Slow Tests (Windows)
+      if: matrix.os == 'windows-2019'
+      working-directory: ${{ github.workspace }}/build/engine/test//${{ matrix.build_type }}
+      run: ${{ github.workspace }}/build/engine/test/${{ matrix.build_type }}/slow_tests.exe
