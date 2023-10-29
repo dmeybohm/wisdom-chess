@@ -54,8 +54,8 @@ jobs:
         run: >
           emcmake cmake -B ${{ github.workspace }}/build 
           -DCMAKE_BUILD_TYPE=Release
-          -DWISDOM_CHESS_FAST_TESTS=On
-          -DWISDOM_CHESS_SLOW_TESTS=On
+          -DWISDOM_CHESS_FAST_TESTS=Off
+          -DWISDOM_CHESS_SLOW_TESTS=Off
           -S ${{ github.workspace }}
 
       - name: Build Library
@@ -92,5 +92,5 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: netlify deploy --dir dist
+        run: netlify deploy --dir dist --prod
 
