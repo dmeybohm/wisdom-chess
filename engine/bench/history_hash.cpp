@@ -20,8 +20,8 @@ auto hash_64bit (const uint64_t bits) -> uint16_t
            parts[3] * 7;
 }
 
-array<int, 0xffff + 1> counts;
-array<int, 0xffff + 1> diffs;
+array<int, 0x10000> counts;
+array<int, 0x10000> diffs;
 
 int main()
 {
@@ -36,7 +36,7 @@ int main()
         counts[result]++;
     }
 
-    int expected = trials / 0xffff;
+    int expected = trials / 0x10000;
     int threshold = trials / 100000;
 
     std::cout << "Expected for " << trials << " trials: " << expected << "\n";
