@@ -1,13 +1,28 @@
 add_library(wisdom-chess-core STATIC
-        board.cpp check.cpp evaluate.cpp game.cpp game.hpp generate.cpp material.cpp move.cpp
-        piece.cpp search.cpp str.cpp move_timer.cpp
-        global.hpp position.cpp position.hpp
-        fen_parser.cpp fen_parser.hpp coord.cpp board_builder.cpp move_list.cpp move_list.hpp
-        history.hpp history.cpp search.hpp
-        board_code.cpp board_code.hpp logger.cpp logger.hpp
+        board.cpp board.hpp
+        board_builder.cpp board_builder.hpp
+        board_code.cpp board_code.hpp
+        check.cpp check.hpp
+        coord.cpp coord.hpp
+        evaluate.cpp evaluate.hpp
+        fen_parser.cpp fen_parser.hpp
+        game.cpp game.hpp
+        game_status.cpp game_status.hpp
+        generate.cpp generate.hpp
+        history.cpp history.hpp
+        logger.cpp logger.hpp
+        material.cpp material.hpp
+        move.cpp move.hpp
+        move_list.cpp move_list.hpp
+        move_timer.cpp move_timer.hpp
         output_format.cpp output_format.hpp
-        threats.hpp game_status.cpp game_status.hpp
-        random.hpp)
+        piece.cpp piece.hpp
+        position.cpp position.hpp
+        search.cpp search.hpp
+        str.cpp str.hpp
+        global.hpp
+        random.hpp
+        threats.hpp)
 
 if (PCH_ENABLED)
     target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
