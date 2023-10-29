@@ -1,0 +1,96 @@
+name: "web"
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  pull_request_target:
+    types:
+      - closed
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: mymindstorm/setup-emsdk@v11
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Verify
+        run: emcc -v
+
+      - name: Get Conan
+        uses: turtlebrowser/get-conan@main
+        with:
+          version: 1.54.0
+
+      - name: Create default profile
+        shell: bash
+        run: |
+          conan profile new default --detect
+          conan profile new emscripten
+        
+      - name: Update conan build profile for emscripten
+        shell: bash
+        run: |
+          conan profile update settings.os=Emscripten ~/.conan/profiles/emscripten 
+          conan profile update settings.os_build=Linux ~/.conan/profiles/emscripten 
+          conan profile update settings.arch_build=x86_64 ~/.conan/profiles/emscripten 
+          conan profile update settings.compiler=clang ~/.conan/profiles/emscripten 
+          conan profile update settings.compiler.version=6.0 ~/.conan/profiles/emscripten 
+          conan profile update settings.compiler.libcxx=libc++ ~/.conan/profiles/emscripten
+
+      - name: Install dependencies
+        run: conan install . -pr:b=emscripten -s build_type=Release --install-folder=${{ github.workspace }}/build
+
+      - name: Configure CMake
+        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+        run: >
+          emcmake cmake -B ${{ github.workspace }}/build 
+          -DCMAKE_BUILD_TYPE=Release
+          -DWISDOM_CHESS_FAST_TESTS=On
+          -DWISDOM_CHESS_SLOW_TESTS=On
+          -S ${{ github.workspace }}
+
+      - name: Build Library
+        # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+        run: cmake --build ${{ github.workspace }}/build --config Release
+
+      - name: Install Front-end Dependencies
+        working-directory: ${{ github.workspace }}/ui/react
+        run: npm ci
+
+      - name: Build Front-end
+        working-directory: ${{ github.workspace }}/ui/react
+        run: npm run build
+
+      - name: Update dist files
+        working-directory: ${{ github.workspace }}/ui/react
+        run: cp deploy/* dist
+
+      - name: Install Netlify CLI
+        working-directory: ${{ github.workspace }}/ui/react
+        run: npm install --save-dev netlify-cli
+
+      - name: Deploy Preview
+        if: github.event.pull_request.merged != true
+        working-directory: ${{ github.workspace }}/ui/react
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: netlify deploy --dir dist
+
+      - name: Deploy Production
+        if: github.event.pull_request.merged == true && github.base_ref == 'main'
+        working-directory: ${{ github.workspace }}/ui/react
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: netlify deploy --dir dist
+
