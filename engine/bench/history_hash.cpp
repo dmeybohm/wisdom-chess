@@ -1,3 +1,5 @@
+// Measure the distribution of the history hash function that
+// hashes a 64-bit integer to a 16-bit integer.
 #include <iostream>
 #include <cstdint>
 #include <array>
