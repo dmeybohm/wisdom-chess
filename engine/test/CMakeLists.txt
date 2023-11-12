@@ -1,3 +1,7 @@
+if (WISDOM_CHESS_FAST_TESTS OR WISDOM_CHESS_SLOW_TESTS)
+    message("Tests enabled")
+endif()
+
 if (WISDOM_CHESS_FAST_TESTS)
     add_library(fast_tests_lib OBJECT
         piece_test.cpp

@@ -5,7 +5,6 @@ cmake_minimum_required(VERSION 3.20)
 
 project(WisdomEngine CXX)
 
-find_package(doctest CONFIG QUIET)
 find_package(Microsoft.GSL CONFIG REQUIRED)
 find_package(Threads REQUIRED)
 find_package(type_safe CONFIG REQUIRED)
