@@ -172,14 +172,14 @@ namespace wisdom
             }
         }
 
-        if (board.ableToCastle (who, CastlingEligible::QueensideIneligible) && piece_col == King_Column)
+        if (board.ableToCastle (who, CastlingIneligible::Queenside) && piece_col == King_Column)
         {
             Move queenside_castle = Move::makeCastling (piece_row, piece_col, piece_row, piece_col - 2);
             if (validCastlingMove (board, queenside_castle))
                 appendMove (queenside_castle);
         }
 
-        if (board.ableToCastle (who, CastlingEligible::KingsideIneligible) && piece_col == King_Column)
+        if (board.ableToCastle (who, CastlingIneligible::Kingside) && piece_col == King_Column)
         {
             Move kingside_castle = Move::makeCastling (piece_row, piece_col, piece_row, piece_col + 2);
             if (validCastlingMove (board, kingside_castle))

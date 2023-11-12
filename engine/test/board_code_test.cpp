@@ -11,7 +11,7 @@
 
 using namespace wisdom;
 
-TEST_CASE( "board code")
+TEST_CASE( "board code" )
 {
     SUBCASE( "Board code is able to be set for an empty board" )
     {
@@ -152,7 +152,7 @@ TEST_CASE( "Board code can be converted" )
             ColoredPiece::make (Color::White, Piece::King)
         );
 
-        auto result = code.asString().substr(0, 4);
+        auto result = code.asString().substr (0, 4);
 
         std::size_t num_zeroes = std::count (result.begin(), result.end(), '0');
         CHECK( num_zeroes > 0 );
@@ -245,23 +245,23 @@ TEST_CASE( "Board code stores metadata" )
         auto initial_white_state = board_code.castleState (Color::White);
         auto initial_black_state = board_code.castleState (Color::Black);
 
-        CHECK( initial_white_state == CastlingEligible::EitherSideEligible);
-        CHECK( initial_black_state == CastlingEligible::EitherSideEligible);
+        CHECK( initial_white_state == Either_Side_Eligible );
+        CHECK( initial_black_state == Either_Side_Eligible );
 
-        board_code.setCastleState (Color::White, CastlingEligible::BothSidesIneligible);
+        board_code.setCastleState (Color::White, Neither_Side_Eligible);
         auto white_state = board_code.castleState (Color::White);
         auto black_state = board_code.castleState (Color::Black);
 
-        CHECK( white_state == CastlingEligible::BothSidesIneligible );
-        CHECK( black_state == CastlingEligible::EitherSideEligible );
+        CHECK( white_state == Neither_Side_Eligible );
+        CHECK( black_state == Either_Side_Eligible );
 
-        board_code.setCastleState (Color::White, CastlingEligible::KingsideIneligible);
-        board_code.setCastleState (Color::Black, CastlingEligible::QueensideIneligible);
+        board_code.setCastleState (Color::White, CastlingIneligible::Kingside);
+        board_code.setCastleState (Color::Black, CastlingIneligible::Queenside);
         white_state = board_code.castleState (Color::White);
         black_state = board_code.castleState (Color::Black);
 
-        CHECK( white_state == CastlingEligible::KingsideIneligible );
-        CHECK( black_state == CastlingEligible::QueensideIneligible );
+        CHECK( white_state == CastlingIneligible::Kingside );
+        CHECK( black_state == CastlingIneligible::Queenside );
     }
 
     SUBCASE( "Board code stores whose turn it is" )

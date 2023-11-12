@@ -1,7 +1,0 @@
-[requires]
-ms-gsl/4.0.0
-enum-flags/0.1a
-doctest/2.4.10
-
-[generators]
-CMakeDeps

@@ -99,14 +99,13 @@ namespace wisdom
             -> bool
         {
             // If either/both is passed, check both types.
-            auto check_type = (castle_types == CastlingEligible::EitherSideEligible ||
-                    castle_types == CastlingEligible::BothSidesIneligible)
-                ? CastlingEligible::BothSidesIneligible
+            auto check_type = (castle_types == Either_Side_Eligible || castle_types == Neither_Side_Eligible)
+                ? Neither_Side_Eligible
                 : castle_types;
 
             auto castle_state = getCastlingEligibility (who);
-            auto castle_bits = castle_state.underlying_value();
-            bool neg_not_set = ((~castle_bits) & check_type.underlying_value()) != 0;
+            auto castle_bits = toInt (castle_state);
+            bool neg_not_set = ((~castle_bits) & toInt (check_type)) != 0;
 
             return neg_not_set;
         }

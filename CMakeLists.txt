@@ -3,6 +3,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 cmake_minimum_required(VERSION 3.20)
 
+include(cmake/CPM.cmake)
+
 project(WisdomChess CXX)
 
 # Make find_package() find dependencies in the binary dir:
@@ -34,8 +36,8 @@ if (WISDOM_CHESS_ASAN)
         add_compile_options(/fsanitize=address)
         add_link_options(/fsanitize=address /zi)
     else()
-        add_compile_options(-fsanitize=address)
-        add_link_options(-fsanitize=address)
+        add_compile_options(-fsanitize=address,undefined)
+        add_link_options(-fsanitize=address,undefined)
     endif()
 endif()
 
