@@ -22,10 +22,6 @@ target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
 target_link_libraries(wisdom-chess-core PUBLIC type_safe)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(wisdom-chess-core PUBLIC -DDEBUG_ASSERT_PURE_FUNCTION="" )
-endif()
-
 if (EMSCRIPTEN)
     target_compile_options(wisdom-chess-core PUBLIC -pthread)
 endif()
