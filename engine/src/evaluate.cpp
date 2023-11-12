@@ -40,11 +40,11 @@ namespace wisdom
         {
             auto castle_state = board.getCastlingEligibility (who);
             int result = 0;
-            if (castle_state != EitherSideEligible)
+            if (castle_state != Either_Side_Eligible)
             {
-                if (castle_state & CastlingEligible::KingsideIneligible)
+                if (castle_state & CastlingIneligible::Kingside)
                     result += Castle_Penalty;
-                if (castle_state & CastlingEligible::QueensideIneligible)
+                if (castle_state & CastlingIneligible::Queenside)
                     result += Castle_Penalty;
                 if (heuristicIsCastled (board, who))
                     result -= 2 * Castle_Penalty;

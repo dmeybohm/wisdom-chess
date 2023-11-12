@@ -136,7 +136,6 @@ namespace wisdom
             auto target_bit_shift = who == Color::White
                 ? CASTLING_STATE_WHITE_TARGET : CASTLING_STATE_BLACK_TARGET;
 
-            CastlingEligibility result = EitherSideEligible;
             return makeCastlingEligibilityFromInt (
                     (target_bits >> target_bit_shift) & CASTLE_ONE_COLOR_MASK
             );

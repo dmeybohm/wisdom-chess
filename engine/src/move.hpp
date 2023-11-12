@@ -7,52 +7,66 @@
 
 namespace wisdom
 {
-    enum class CastlingEligible : uint8_t
+    enum class CastlingIneligible : uint8_t
     {
-        KingsideIneligible = 1,
-        QueensideIneligible = 2,
+        Kingside = 1,
+        Queenside = 2,
     };
-
 }
 
 namespace type_safe
 {
-    template <> struct flag_set_traits<wisdom::CastlingEligible> : std::true_type
+    template <> struct flag_set_traits<wisdom::CastlingIneligible> : std::true_type
     {
         static constexpr auto size() -> std::size_t
         {
             return 2;
         }
     };
-
 }
 
 namespace wisdom
 {
-    using CastlingEligibility = type_safe::flag_set<wisdom::CastlingEligible>;
+    using CastlingEligibility = type_safe::flag_set<wisdom::CastlingIneligible>;
 
-    static inline constexpr CastlingEligibility EitherSideEligible = type_safe::noflag;
-    static inline constexpr CastlingEligibility BothSidesIneligible =
-        CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible;
+    static constexpr CastlingEligibility Either_Side_Eligible = type_safe::noflag;
+    static constexpr CastlingEligibility Neither_Side_Eligible
+        = CastlingIneligible::Kingside | CastlingIneligible::Queenside;
 
     inline constexpr auto makeCastlingEligibilityFromInt (unsigned int flags) -> CastlingEligibility
     {
         CastlingEligibility result = type_safe::noflag;
-        Expects (flags < (0x1 + 0x2));
+        Expects (flags <= (0x1 + 0x2));
         if (flags & 0x1)
-            result.set (CastlingEligible::KingsideIneligible);
+            result.set (CastlingIneligible::Kingside);
         if (flags & 0x2)
-            result.set (CastlingEligible::QueensideIneligible);
+            result.set (CastlingIneligible::Queenside);
         return result;
+    }
+
+    // Send the move to the ostream.
+    inline auto operator<< (std::ostream& os, const CastlingEligibility& value) -> std::ostream&
+    {
+        std::string result = "{ Kingside: ";
+
+        result += value.is_set (CastlingIneligible::Kingside) ?
+            "not eligible, " : "eligible, ";
+        result += "Queenside: ";
+        result += value.is_set (CastlingIneligible::Queenside) ?
+            "not eligible" : "eligible";
+        result += " }";
+
+        os << result;
+        return os;
     }
 
     template <typename IntegerType = uint8_t>
     inline constexpr auto toInt (CastlingEligibility eligibility) -> IntegerType
     {
         IntegerType result = 0;
-        if (eligibility.is_set(CastlingEligible::KingsideIneligible))
+        if (eligibility.is_set (CastlingIneligible::Kingside))
             result |= 0x1;
-        if (eligibility.is_set(CastlingEligible::QueensideIneligible))
+        if (eligibility.is_set (CastlingIneligible::Queenside))
             result |= 0x2;
         return result;
     }

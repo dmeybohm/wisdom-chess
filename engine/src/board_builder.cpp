@@ -14,8 +14,8 @@ namespace wisdom
         result.addRowOfSameColorAndPiece (6, Color::White, Piece::Pawn);
         result.addRowOfSameColor (7, Color::White, Default_Piece_Row);
 
-        result.setCastling (Color::White, EitherSideEligible);
-        result.setCastling (Color::Black, EitherSideEligible);
+        result.setCastling (Color::White, Either_Side_Eligible);
+        result.setCastling (Color::Black, Either_Side_Eligible);
 
         return result;
     }
@@ -36,7 +36,7 @@ namespace wisdom
         auto row = castlingRowForColor (who);
         int8_t king_col = King_Column;
 
-        CastlingEligibility state = EitherSideEligible;
+        CastlingEligibility state = Either_Side_Eligible;
         ColoredPiece prospective_king = pieceAt (makeCoord (row, king_col));
         ColoredPiece prospective_queen_rook = pieceAt (makeCoord (row, 0));
         ColoredPiece prospective_king_rook = pieceAt (makeCoord (row, 7));
@@ -45,13 +45,13 @@ namespace wisdom
             || pieceType (prospective_queen_rook) != Piece::Rook
             || pieceColor (prospective_queen_rook) != who)
         {
-            state |= CastlingEligible::QueensideIneligible;
+            state |= CastlingIneligible::Queenside;
         }
         if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who
             || pieceType (prospective_king_rook) != Piece::Rook
             || pieceColor (prospective_king_rook) != who)
         {
-            state |= CastlingEligible::KingsideIneligible;
+            state |= CastlingIneligible::Kingside;
         }
 
         return state;
