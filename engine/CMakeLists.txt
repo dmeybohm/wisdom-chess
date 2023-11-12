@@ -8,7 +8,7 @@ project(WisdomEngine CXX)
 find_package(doctest CONFIG QUIET)
 find_package(Microsoft.GSL CONFIG REQUIRED)
 find_package(Threads REQUIRED)
-find_package(enumflags CONFIG REQUIRED)
+find_package(type_safe CONFIG REQUIRED)
 
 if (ANDROID OR NOT WISDOM_CHESS_PCH_ENABLED)
     # Disable precompile headers because there is a confict on android where it links

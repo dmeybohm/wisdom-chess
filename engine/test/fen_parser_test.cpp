@@ -54,28 +54,28 @@ TEST_CASE( "FEN notation for castling" )
 
     Game game = parser_full.build();
 
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible );
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::EitherSideEligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == EitherSideEligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == EitherSideEligible );
 
     FenParser parser_no_black_king { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black_king.build();
 
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == EitherSideEligible );
     REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::KingsideIneligible );
 
     FenParser parser_no_black { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black.build();
 
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == EitherSideEligible );
     REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::KingsideIneligible );
     FenParser parser_nothing { "4r2/8/8/8/8/8/k7/4K2R w - - 0 1" };
 
     game = parser_nothing.build();
 
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::BothSidesIneligible );
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::BothSidesIneligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == BothSidesIneligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == BothSidesIneligible );
 }
 
 TEST_CASE( "FEN notation for en passant" )

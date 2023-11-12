@@ -135,17 +135,16 @@ namespace wisdom
             auto target_bits = getMetadataBits();
             auto target_bit_shift = who == Color::White
                 ? CASTLING_STATE_WHITE_TARGET : CASTLING_STATE_BLACK_TARGET;
-            CastlingEligibility result = CastlingEligible::EitherSideEligible;
-            auto new_value = gsl::narrow_cast<uint8_t> (
+
+            CastlingEligibility result = EitherSideEligible;
+            return makeCastlingEligibilityFromInt (
                     (target_bits >> target_bit_shift) & CASTLE_ONE_COLOR_MASK
             );
-            result.set_underlying_value (new_value);
-            return result;
         }
 
         void setCastleState (Color who, CastlingEligibility castling_states) noexcept
         {
-            uint8_t castling_bits = castling_states.underlying_value();
+            uint8_t castling_bits = toInt (castling_states);
             std::size_t bit_number = who == Color::White
                 ? CASTLING_STATE_WHITE_TARGET : CASTLING_STATE_BLACK_TARGET;
             std::size_t mask = CASTLE_ONE_COLOR_MASK << bit_number;

@@ -9,18 +9,54 @@ namespace wisdom
 {
     enum class CastlingEligible : uint8_t
     {
-        EitherSideEligible = 0b000U,
-        KingsideIneligible = 0b001U,
-        QueensideIneligible = 0b010U,
-        BothSidesIneligible = static_cast<uint8_t>(CastlingEligible::KingsideIneligible) | static_cast<uint8_t>(CastlingEligible::QueensideIneligible)
+        KingsideIneligible = 1,
+        QueensideIneligible = 2,
     };
-    using CastlingEligibility = flags::flags<wisdom::CastlingEligible>;
+
 }
 
-ALLOW_FLAGS_FOR_ENUM(wisdom::CastlingEligible);
+namespace type_safe
+{
+    template <> struct flag_set_traits<wisdom::CastlingEligible> : std::true_type
+    {
+        static constexpr auto size() -> std::size_t
+        {
+            return 2;
+        }
+    };
+
+}
 
 namespace wisdom
 {
+    using CastlingEligibility = type_safe::flag_set<wisdom::CastlingEligible>;
+
+    static inline constexpr CastlingEligibility EitherSideEligible = type_safe::noflag;
+    static inline constexpr CastlingEligibility BothSidesIneligible =
+        CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible;
+
+    inline constexpr auto makeCastlingEligibilityFromInt (unsigned int flags) -> CastlingEligibility
+    {
+        CastlingEligibility result = type_safe::noflag;
+        Expects (flags < (0x1 + 0x2));
+        if (flags & 0x1)
+            result.set (CastlingEligible::KingsideIneligible);
+        if (flags & 0x2)
+            result.set (CastlingEligible::QueensideIneligible);
+        return result;
+    }
+
+    template <typename IntegerType = uint8_t>
+    inline constexpr auto toInt (CastlingEligibility eligibility) -> IntegerType
+    {
+        IntegerType result = 0;
+        if (eligibility.is_set(CastlingEligible::KingsideIneligible))
+            result |= 0x1;
+        if (eligibility.is_set(CastlingEligible::QueensideIneligible))
+            result |= 0x2;
+        return result;
+    }
+
     class Board;
 
     static constexpr size_t Max_Packed_Capacity_In_Move = 0x001FFFFFL; // 21 bit max
