@@ -16,12 +16,11 @@ else()
 endif()
 
 target_include_directories(wisdom-chess-core PUBLIC .)
-target_include_directories(wisdom-chess-core PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 add_library(wisdom::chess ALIAS wisdom-chess-core)
 
 target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
-target_link_libraries(wisdom-chess-core PUBLIC type_safe::type_safe)
+target_link_libraries(wisdom-chess-core PUBLIC type_safe)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(wisdom-chess-core PUBLIC -DDEBUG_ASSERT_PURE_FUNCTION="" )

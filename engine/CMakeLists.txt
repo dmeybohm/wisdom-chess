@@ -5,9 +5,17 @@ cmake_minimum_required(VERSION 3.20)
 
 project(WisdomEngine CXX)
 
-find_package(Microsoft.GSL CONFIG REQUIRED)
 find_package(Threads REQUIRED)
-find_package(type_safe CONFIG REQUIRED)
+
+CPMAddPackage("gh:foonathan/type_safe@0.2.3")
+CPMAddPackage("gh:microsoft/GSL@4.0.0")
+CPMAddPackage(
+  NAME doctest
+  GITHUB_REPOSITORY doctest/doctest
+  GIT_TAG v2.4.11
+)
+
+find_package(doctest)
 
 if (ANDROID OR NOT WISDOM_CHESS_PCH_ENABLED)
     # Disable precompile headers because there is a confict on android where it links

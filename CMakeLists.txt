@@ -3,6 +3,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 cmake_minimum_required(VERSION 3.20)
 
+include(cmake/CPM.cmake)
+
 project(WisdomChess CXX)
 
 # Make find_package() find dependencies in the binary dir:
