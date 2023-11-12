@@ -35,8 +35,8 @@ namespace wisdom
 
     inline constexpr auto makeCastlingEligibilityFromInt (unsigned int flags) -> CastlingEligibility
     {
-        CastlingEligibility result = type_safe::noflag;
-        Expects (flags <= (0x1 + 0x2));
+        CastlingEligibility result = Either_Side_Eligible;
+        assert (flags <= (0x1 + 0x2));
         if (flags & 0x1)
             result.set (CastlingIneligible::Kingside);
         if (flags & 0x2)
