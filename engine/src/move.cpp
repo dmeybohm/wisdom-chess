@@ -113,7 +113,8 @@ namespace wisdom
                                            CastlingEligibility removed_castle_states) noexcept
     {
         CastlingEligibility orig_castle_state = getCastlingEligibility (who);
-        my_code.setCastleState (who, orig_castle_state | removed_castle_states);
+        my_code.setCastleState (who,
+                                type_safe::combo (orig_castle_state) | type_safe::combo (removed_castle_states));
     }
 
     void Board::updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst)
@@ -121,11 +122,12 @@ namespace wisdom
         setKingPosition (who, dst);
 
         // set as not able to castle
-        if (ableToCastle (who, CastlingEligible::EitherSideEligible))
+        if (ableToCastle (who, Either_Side_Eligible))
         {
             // set the new castle status
             removeCastlingEligibility (
-                who, CastlingEligible::KingsideIneligible | CastlingEligible::QueensideIneligible);
+                who,
+                                       CastlingIneligible::Kingside | CastlingIneligible::Queenside);
         }
     }
 
@@ -143,9 +145,9 @@ namespace wisdom
         // up on the rook and moves from the rook itself.
         //
         if (Column (dst) == First_Column && Row (dst) == castle_rook_row)
-            castle_state = CastlingEligible::QueensideIneligible;
+            castle_state = CastlingIneligible::Queenside;
         else if (Column (dst) == Last_Column && Row (dst) == castle_rook_row)
-            castle_state = CastlingEligible::KingsideIneligible;
+            castle_state = CastlingIneligible::Kingside;
 
         //
         // Set inability to castle on one side.
@@ -159,7 +161,7 @@ namespace wisdom
     {
         Expects (pieceColor (src_piece) == player && pieceType (src_piece) == Piece::Rook);
 
-        CastlingEligibility affects_castle_state = CastlingEligible::EitherSideEligible;
+        CastlingEligibility affects_castle_state = Either_Side_Eligible;
         int castle_src_row = player == Color::White ? Last_Row : First_Row;
 
         //
@@ -169,13 +171,13 @@ namespace wisdom
         if (Row (src) == castle_src_row)
         {
             if (Column (src) == Queen_Rook_Column)
-                affects_castle_state = CastlingEligible::QueensideIneligible;
+                affects_castle_state = CastlingIneligible::Queenside;
             else if (Column (src) == King_Rook_Column)
-                affects_castle_state = CastlingEligible::KingsideIneligible;
+                affects_castle_state = CastlingIneligible::Kingside;
         }
 
         // Set inability to castle on one side.
-        if (affects_castle_state != CastlingEligible::EitherSideEligible
+        if (affects_castle_state != Either_Side_Eligible
             && ableToCastle (player, affects_castle_state))
         {
             removeCastlingEligibility (player, affects_castle_state);

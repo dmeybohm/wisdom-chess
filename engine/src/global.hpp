@@ -27,7 +27,8 @@
 
 #include <gsl/gsl>
 #include <gsl/narrow>
-#include <flags/flags.hpp>
+#include <type_safe/flag.hpp>
+#include <type_safe/flag_set.hpp>
 
 namespace doctest {
     class String;

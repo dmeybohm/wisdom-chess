@@ -54,28 +54,28 @@ TEST_CASE( "FEN notation for castling" )
 
     Game game = parser_full.build();
 
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible );
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::EitherSideEligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == Either_Side_Eligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == Either_Side_Eligible );
 
     FenParser parser_no_black_king { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black_king.build();
 
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible );
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::KingsideIneligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == Either_Side_Eligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingIneligible::Kingside );
 
     FenParser parser_no_black { "4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1" };
 
     game = parser_no_black.build();
 
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::EitherSideEligible );
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::KingsideIneligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == Either_Side_Eligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingIneligible::Kingside );
     FenParser parser_nothing { "4r2/8/8/8/8/8/k7/4K2R w - - 0 1" };
 
     game = parser_nothing.build();
 
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligible::BothSidesIneligible );
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligible::BothSidesIneligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == Neither_Side_Eligible );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == Neither_Side_Eligible );
 }
 
 TEST_CASE( "FEN notation for en passant" )
