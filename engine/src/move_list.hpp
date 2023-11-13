@@ -1,5 +1,5 @@
-#ifndef WISDOM_MOVE_LIST_HPP
-#define WISDOM_MOVE_LIST_HPP
+#ifndef WISDOM_CHESS_MOVE_LIST_HPP
+#define WISDOM_CHESS_MOVE_LIST_HPP
 
 #include "global.hpp"
 #include "move.hpp"
@@ -224,4 +224,4 @@ namespace wisdom
     auto operator<< (std::ostream& os, const MoveList& list) -> std::ostream&;
 }
 
-#endif // WISDOM_MOVE_LIST_HPP
+#endif // WISDOM_CHESS_MOVE_LIST_HPP

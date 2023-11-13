@@ -115,11 +115,11 @@ jobs:
       run: ${{ github.workspace }}/build/engine/test/slow_tests      
 
     - name: Fast Tests (Windows)
-      if: matrix.os == 'windows-2019'
+      if: matrix.os == 'windows-2019' || matrix.os == 'windows-latest'
       working-directory: ${{ github.workspace }}/build/engine/test/${{ matrix.build_type }}
       run: ${{ github.workspace }}/build/engine/test/${{ matrix.build_type }}/fast_tests.exe
       
     - name: Slow Tests (Windows)
-      if: matrix.os == 'windows-2019'
+      if: matrix.os == 'windows-2019' || matrix.os == 'windows-latest'
       working-directory: ${{ github.workspace }}/build/engine/test//${{ matrix.build_type }}
       run: ${{ github.workspace }}/build/engine/test/${{ matrix.build_type }}/slow_tests.exe

@@ -7,6 +7,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.4 COMPONENTS Quick svg REQUIRED)
+qt_policy(SET QTP0001 OLD)
+
 if (WIN32)
     set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/images/Chess-icons.rc")
 elseif (APPLE)
