@@ -7,6 +7,11 @@ message("-- cxxCompilerPath=" ${cxxCompilerPath})
 message("-- emsdkPath=" ${emsdkPath})
 message("-- emsdkIdlPath=" ${emsdkIdlPath})
 
+find_program(PYTHON3
+    NAMES
+        python3 python
+    )
+
 # Generate the API for calling. This generates it by default in "glue.cpp". This moves
 # this file to "glue.hpp" so that we can add it as a normal header file dependency instead of
 # including a cpp file in another one and messing up its dependency generation or trying
@@ -19,7 +24,7 @@ add_custom_command(
     DEPENDS 
         wisdom-chess.idl 
         wisdom-chess-load.js
-    COMMAND python3 "${emsdkIdlPath}" ${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess.idl ${CMAKE_CURRENT_BINARY_DIR}/glue
+    COMMAND "${PYTHON3}" "${emsdkIdlPath}" ${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess.idl ${CMAKE_CURRENT_BINARY_DIR}/glue
         && mv ${CMAKE_CURRENT_BINARY_DIR}/glue.cpp ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp
         && cp -f ${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess-load.js ${CMAKE_CURRENT_BINARY_DIR}/
 )
