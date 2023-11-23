@@ -24,7 +24,7 @@ namespace wisdom
         King
     };
 
-    inline constexpr std::size_t Num_Piece_Types = static_cast<std::size_t> (Piece::King) + 1;
+    static constexpr std::size_t Num_Piece_Types = static_cast<std::size_t> (Piece::King) + 1;
 
     enum class Color : int8_t
     {
@@ -33,8 +33,8 @@ namespace wisdom
         Black = 2,
     };
 
-    inline constexpr int Color_Index_White = 0;
-    inline constexpr int Color_Index_Black = 1;
+    static constexpr int Color_Index_White = 0;
+    static constexpr int Color_Index_Black = 1;
 
     using ColorIndex = int8_t;
 
@@ -109,11 +109,11 @@ namespace wisdom
     }
 
     // 3 bits for type of piece
-    inline constexpr int8_t Piece_Type_Mask = 0x08-1;
+    static constexpr int8_t Piece_Type_Mask = 0x08-1;
 
     // 2 bits for color
-    inline constexpr int8_t Piece_Color_Mask = 0x18;
-    inline constexpr int8_t Piece_Color_Shift = 3;
+    static constexpr int8_t Piece_Color_Mask = 0x18;
+    static constexpr int8_t Piece_Color_Shift = 3;
 
     struct ColoredPiece
     {
@@ -164,7 +164,7 @@ namespace wisdom
 
     // Order here is significant - it means computer will prefer the piece at the top
     // all else being equal, such as if the promoted piece cannot be saved from capture.
-    inline constexpr Piece All_Promotable_Piece_Types[] = {
+    static constexpr Piece All_Promotable_Piece_Types[] = {
             Piece::Queen,
             Piece::Rook,
             Piece::Bishop,
@@ -181,7 +181,7 @@ namespace wisdom
         return piece.color();
     }
 
-    inline constexpr ColoredPiece Piece_And_Color_None = ColoredPiece::make (
+    static constexpr ColoredPiece Piece_And_Color_None = ColoredPiece::make (
         Color::None,
         Piece::None
     );

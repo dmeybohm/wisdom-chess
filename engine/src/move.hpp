@@ -29,8 +29,8 @@ namespace wisdom
 {
     using CastlingEligibility = type_safe::flag_set<wisdom::CastlingIneligible>;
 
-    inline constexpr CastlingEligibility Either_Side_Eligible = type_safe::noflag;
-    inline constexpr CastlingEligibility Neither_Side_Eligible
+    static constexpr CastlingEligibility Either_Side_Eligible = type_safe::noflag;
+    static constexpr CastlingEligibility Neither_Side_Eligible
         = CastlingIneligible::Kingside | CastlingIneligible::Queenside;
 
     inline constexpr auto makeCastlingEligibilityFromInt (unsigned int flags) -> CastlingEligibility
@@ -73,7 +73,7 @@ namespace wisdom
 
     class Board;
 
-    inline constexpr size_t Max_Packed_Capacity_In_Move = 0x001FFFFFL; // 21 bit max
+    static constexpr size_t Max_Packed_Capacity_In_Move = 0x001FFFFFL; // 21 bit max
 
     enum class MoveCategory : int8_t
     {
