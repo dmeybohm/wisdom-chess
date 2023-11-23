@@ -32,9 +32,9 @@ namespace wisdom
         return code_array;
     }
 
-    static constexpr BoardCodeArray Hash_Code_Table = initializeBoardCodes();
+    inline constexpr BoardCodeArray Hash_Code_Table = initializeBoardCodes();
 
-    static constexpr int Total_Metadata_Bits = 16;
+    inline constexpr int Total_Metadata_Bits = 16;
 
     [[nodiscard]] constexpr auto boardCodeHash (Coord coord, ColoredPiece piece) -> std::uint64_t
     {
@@ -230,7 +230,7 @@ namespace std
     template<>
     struct hash<wisdom::BoardCode>
     {
-        auto operator() (const wisdom::BoardCode& code) const -> std::size_t
+        auto operator() (const wisdom::BoardCode& code) const noexcept -> std::size_t
         {
             return code.hashCode();
         }
