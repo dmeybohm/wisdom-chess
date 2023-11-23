@@ -17,6 +17,9 @@ jobs:
 
       - uses: mymindstorm/setup-emsdk@v11
 
+      - name: Show emcc version
+        run: emcc -v
+
       - uses: actions/setup-node@v3
         with:
           node-version: 18
