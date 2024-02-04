@@ -9,3 +9,6 @@ CMakeLists.txt.user
 /ui/react/public/wisdom-chess-load.js
 /ui/react/public/glue.js
 /ui/react/dist/
+
+# Local Netlify folder
+.netlify
