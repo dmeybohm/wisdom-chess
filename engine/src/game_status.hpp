@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_GAME_STATUS_HPP
-#define WISDOM_CHESS_GAME_STATUS_HPP
+#pragma once
 
 #include "global.hpp"
 
@@ -63,4 +62,3 @@ namespace wisdom
     };
 }
 
-#endif // WISDOM_CHESS_GAME_STATUS_HPP

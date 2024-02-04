@@ -1,5 +1,4 @@
-#ifndef WISDOMCHESS_WEB_MOVE_HPP
-#define WISDOMCHESS_WEB_MOVE_HPP
+#pragma once
 
 #include "web_types.hpp"
 #include "game.hpp"
@@ -39,4 +38,3 @@ namespace wisdom
     };
 }
 
-#endif // WISDOMCHESS_WEB_MOVE_HPP

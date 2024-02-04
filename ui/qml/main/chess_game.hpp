@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_CHESSGAME_H
-#define WISDOM_CHESS_CHESSGAME_H
+#pragma once
 
 #include <chrono>
 #include <memory>
@@ -107,4 +106,3 @@ private:
     Config my_config;
 };
 
-#endif // WISDOM_CHESS_CHESSGAME_H

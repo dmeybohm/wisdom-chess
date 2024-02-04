@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESSCOLOR_H
-#define WISDOM_CHESSCOLOR_H
+#pragma once
 
 #include <QObject>
 
@@ -157,4 +156,3 @@ namespace wisdom::ui
     }
 };
 
-#endif // WISDOM_CHESSCOLOR_H

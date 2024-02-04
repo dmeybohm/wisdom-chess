@@ -1,5 +1,4 @@
-#ifndef WISDOMCHESS_WEB_LOGGER_HPP
-#define WISDOMCHESS_WEB_LOGGER_HPP
+#pragma once
 
 #include <emscripten.h>
 
@@ -27,4 +26,3 @@ namespace wisdom::worker
     }
 }
 
-#endif // WISDOMCHESS_WEB_LOGGER_HPP

@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_UI_SETTINGS_HPP
-#define WISDOM_CHESS_UI_SETTINGS_HPP
+#pragma once
 
 #include <QObject>
 
@@ -18,4 +17,3 @@ private:
     bool my_flipped;
 };
 
-#endif // WISDOM_CHESS_UI_SETTINGS_HPP

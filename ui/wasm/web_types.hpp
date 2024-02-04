@@ -1,5 +1,4 @@
-#ifndef WISDOMCHESS_WEB_TYPES_HPP
-#define WISDOMCHESS_WEB_TYPES_HPP
+#pragma once
 
 #include <emscripten.h>
 #include <emscripten/wasm_worker.h>
@@ -343,4 +342,3 @@ using wisdom_WebGameStatus = wisdom::WebGameStatus;
 using wisdom_WebDrawStatus = wisdom::WebDrawStatus;
 using wisdom_WebDrawByRepetitionType = wisdom::WebDrawByRepetitionType;
 
-#endif // WISDOMCHESS_WEB_TYPES_HPP

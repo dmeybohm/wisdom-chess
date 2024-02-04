@@ -1,5 +1,4 @@
-#ifndef WISDOMCHESS_BINDINGS_HPP
-#define WISDOMCHESS_BINDINGS_HPP
+#pragma once
 
 #include <emscripten.h>
 #include <emscripten/wasm_worker.h>
@@ -37,4 +36,3 @@ extern "C"
                                                            int draw_proposed);
 }
 
-#endif // WISDOMCHESS_BINDINGS_HPP

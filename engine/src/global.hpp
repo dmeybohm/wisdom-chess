@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_GLOBAL_HPP
-#define WISDOM_CHESS_GLOBAL_HPP
+#pragma once
 
 #include <cstdint>
 #include <limits>
@@ -156,5 +155,3 @@ namespace wisdom
     };
 
 }
-
-#endif //WISDOM_CHESS_GLOBAL_HPP

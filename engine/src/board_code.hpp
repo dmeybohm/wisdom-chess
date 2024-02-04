@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_BOARD_CODE_HPP
-#define WISDOM_CHESS_BOARD_CODE_HPP
+#pragma once
 
 #include "global.hpp"
 #include "piece.hpp"
@@ -237,4 +236,3 @@ namespace std
     };
 }
 
-#endif //WISDOM_CHESS_BOARD_CODE_HPP

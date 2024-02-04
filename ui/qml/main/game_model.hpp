@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_GAMEMODEL_H
-#define WISDOM_CHESS_GAMEMODEL_H
+#pragma once
 
 #include <QObject>
 #include <QString>
@@ -190,4 +189,3 @@ private:
     void resetStateForNewGame();
 };
 
-#endif // WISDOM_CHESS_GAMEMODEL_H

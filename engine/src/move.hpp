@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_MOVE_HPP
-#define WISDOM_CHESS_MOVE_HPP
+#pragma once
 
 #include "global.hpp"
 #include "coord.hpp"
@@ -353,4 +352,3 @@ namespace wisdom
     auto operator<< (std::ostream& os, const Move& value) -> std::ostream&;
 }
 
-#endif // WISDOM_CHESS_MOVE_HPP

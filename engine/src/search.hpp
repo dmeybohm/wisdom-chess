@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_SEARCH_HPP
-#define WISDOM_CHESS_SEARCH_HPP
+#pragma once
 
 #include "global.hpp"
 #include "move.hpp"
@@ -39,4 +38,3 @@ namespace wisdom
     };
 }
 
-#endif // WISDOM_CHESS_SEARCH_HPP
