@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_PERFT_HPP
-#define WISDOM_CHESS_PERFT_HPP
+#pragma once
 
 #include "global.hpp"
 
@@ -84,5 +83,3 @@ namespace wisdom::perft
     // Convert the PerftResults to a string.
     auto asString (const PerftResults& perft_results) -> string;
 }
-
-#endif // WISDOM_CHESS_PERFT_HPP

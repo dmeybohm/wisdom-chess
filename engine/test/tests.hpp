@@ -1,5 +1,4 @@
-#ifndef WISDOM_TESTS_HPP
-#define WISDOM_TESTS_HPP
+#pragma once
 
 #include <doctest/doctest.h>
 
@@ -7,5 +6,3 @@
 #ifndef DEBUG
 #include <iostream>
 #endif
-
-#endif //WISDOM_TESTS_HPP
