@@ -1,5 +1,4 @@
-#ifndef PIECESMODEL_H
-#define PIECESMODEL_H
+#pragma once
 
 #include <QAbstractListModel>
 
@@ -54,4 +53,3 @@ private:
     QVector<PieceInfo> my_pieces;
 };
 
-#endif // PIECESMODEL_H

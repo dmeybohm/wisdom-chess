@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_COORD_H
-#define WISDOM_CHESS_COORD_H
+#pragma once
 
 #include "global.hpp"
 
@@ -206,4 +205,3 @@ namespace wisdom
     };
 }
 
-#endif // WISDOM_CHESS_COORD_H

@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_BOARD_BUILDER_HPP
-#define WISDOM_CHESS_BOARD_BUILDER_HPP
+#pragma once
 
 #include "global.hpp"
 #include "piece.hpp"
@@ -146,4 +145,3 @@ namespace wisdom
 
 }
 
-#endif //WISDOM_CHESS_BOARD_BUILDER_HPP

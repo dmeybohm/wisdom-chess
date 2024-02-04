@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_MOVE_LIST_HPP
-#define WISDOM_CHESS_MOVE_LIST_HPP
+#pragma once
 
 #include "global.hpp"
 #include "move.hpp"
@@ -13,19 +12,25 @@ namespace wisdom
     class MoveListAllocator
     {
     private:
-        vector<MoveListPtr> my_move_list_ptrs;
-
+        // Default constructor: private
         MoveListAllocator() = default;
 
+        // Make it so the class can only be constructed by makeUnique() outside
+        // the class, but still need a public constructor that std::make_unique can call
+        // for the factory method:
+        struct PrivateTag {};
+
     public:
+        explicit MoveListAllocator (PrivateTag tag) : MoveListAllocator()
+        {}
+
         static constexpr std::size_t Initial_Size = 16;
         static constexpr std::size_t Size_Increment = 32;
 
         static auto makeUnique() -> unique_ptr<MoveListAllocator>
         {
-            // to keep constructor private, use raw  new list instead
-            // of making std::unique_ptr a friend function:
-            return unique_ptr<MoveListAllocator> (new MoveListAllocator());
+            // to keep default constructor private, use PrivateTag
+            return std::make_unique<MoveListAllocator> (PrivateTag {});
         }
 
         static auto defaultAllocMoveList() -> MoveListPtr
@@ -72,6 +77,9 @@ namespace wisdom
             if (move_list != nullptr)
                 my_move_list_ptrs.emplace_back (std::move (move_list));
         }
+
+    private:
+        vector<MoveListPtr> my_move_list_ptrs;
     };
 
     class MoveList
@@ -223,5 +231,3 @@ namespace wisdom
 
     auto operator<< (std::ostream& os, const MoveList& list) -> std::ostream&;
 }
-
-#endif // WISDOM_CHESS_MOVE_LIST_HPP

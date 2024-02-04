@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_PIECE_HPP
-#define WISDOM_CHESS_PIECE_HPP
+#pragma once
 
 #include "global.hpp"
 
@@ -242,4 +241,3 @@ namespace wisdom
     auto operator<< (std::ostream& ostream, const ColoredPiece& value) -> std::ostream&;
 }
 
-#endif // WISDOM_CHESS_PIECE_HPP

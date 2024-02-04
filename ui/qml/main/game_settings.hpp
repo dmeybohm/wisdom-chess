@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_GAMESETTINGS_H
-#define WISDOM_CHESS_GAMESETTINGS_H
+#pragma once
 
 #include "ui_types.hpp"
 #include <QObject>
@@ -32,4 +31,3 @@ private:
     int my_max_search_time = 4;
 };
 
-#endif // WISDOM_CHESS_GAMESETTINGS_H

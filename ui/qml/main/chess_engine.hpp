@@ -1,5 +1,4 @@
-#ifndef CHESSENGINE_H
-#define CHESSENGINE_H
+#pragma once
 
 #include <QObject>
 #include <chrono>
@@ -100,4 +99,3 @@ private:
     friend class QmlEngineGameStatusUpdate;
 };
 
-#endif // CHESSENGINE_H

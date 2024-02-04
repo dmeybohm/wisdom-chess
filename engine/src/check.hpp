@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_CHECK_HPP
-#define WISDOM_CHESS_CHECK_HPP
+#pragma once
 
 #include "global.hpp"
 #include "move.hpp"
@@ -91,4 +90,3 @@ namespace wisdom
     }
 }
 
-#endif // WISDOM_CHESS_CHECK_HPP

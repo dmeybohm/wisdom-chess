@@ -52,7 +52,7 @@ jobs:
 
       - name: Install Netlify CLI
         working-directory: ${{ github.workspace }}/ui/react
-        run: npm install --save-dev netlify-cli
+        run: npm install -g netlify-cli
 
       - name: Deploy Preview
         if: github.event.pull_request.merged != true

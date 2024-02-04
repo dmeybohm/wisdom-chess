@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_GENERATE_HPP
-#define WISDOM_CHESS_GENERATE_HPP
+#pragma once
 
 #include "global.hpp"
 #include "move.hpp"
@@ -41,4 +40,3 @@ namespace wisdom
         -> optional<int>;
 }
 
-#endif // WISDOM_CHESS_GENERATE_HPP

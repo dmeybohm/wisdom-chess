@@ -1,5 +1,4 @@
-#ifndef WISDOMCHESS_RANDOM_HPP
-#define WISDOMCHESS_RANDOM_HPP
+#pragma once
 
 #include "global.hpp"
 
@@ -59,4 +58,3 @@ namespace wisdom
     }
 }
 
-#endif // WISDOMCHESS_RANDOM_HPP

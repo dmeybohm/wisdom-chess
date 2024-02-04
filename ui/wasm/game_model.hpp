@@ -1,5 +1,4 @@
-#ifndef WISDOMCHESS_GAME_MODEL_HPP
-#define WISDOMCHESS_GAME_MODEL_HPP
+#pragma once
 
 #include "web_types.hpp"
 #include "game_settings.hpp"
@@ -104,4 +103,3 @@ namespace wisdom
     };
 }
 
-#endif // WISDOMCHESS_GAME_MODEL_HPP

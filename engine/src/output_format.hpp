@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_OUTPUT_FORMAT_HPP
-#define WISDOM_CHESS_OUTPUT_FORMAT_HPP
+#pragma once
 
 #include "global.hpp"
 #include "piece.hpp"
@@ -31,4 +30,3 @@ namespace wisdom
 }
 
 
-#endif //WISDOM_CHESS_OUTPUT_FORMAT_HPP

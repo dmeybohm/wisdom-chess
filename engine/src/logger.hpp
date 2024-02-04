@@ -1,5 +1,4 @@
-#ifndef WISDOM_CHESS_LOGGER_HPP
-#define WISDOM_CHESS_LOGGER_HPP
+#pragma once
 
 #include "global.hpp"
 
@@ -25,4 +24,3 @@ namespace wisdom
     auto makeStandardLogger (Logger::LogLevel level = Logger::LogLevel_Debug) -> unique_ptr<Logger>;
 }
 
-#endif // WISDOM_CHESS_LOGGER_HPP
