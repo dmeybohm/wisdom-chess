@@ -9,14 +9,12 @@ namespace wisdom
     enum class Color : int8_t;
     struct Move;
     class MoveGenerator;
-    class MoveListAllocator;
 }
 
 namespace wisdom::perft
 {
     using std::string;
     using wisdom::MoveGenerator;
-    using wisdom::MoveListAllocator;
 
     struct MoveCounter
     {

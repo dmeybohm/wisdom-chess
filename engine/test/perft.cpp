@@ -99,7 +99,7 @@ namespace wisdom
     auto wisdom::perft::toMoveList (const wisdom::Board& board, Color who, const string& move_list)
         -> MoveList
     {
-        MoveList result = MoveList::uncached();
+        MoveList result;
 
         // Make a copy of the board for modifications:
         auto board_copy = board;

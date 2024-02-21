@@ -14,7 +14,8 @@ TEST_CASE( "Initializing move list" )
     for (auto move : move_list)
         moves.push_back (move);
 
-    std::vector expected = { moveParse ("e4 d4"), moveParse ("d2 d1")
+    std::vector expected = {
+        moveParse ("e4 d4"), moveParse ("d2 d1")
     };
     REQUIRE( moves == expected );
 }
@@ -23,7 +24,6 @@ MoveList copy_moves_and_ptr (const Move **ptr, MoveGenerator& generator)
 {
     Board board;
     MoveList moves = generator.generateAllPotentialMoves (board, Color::White);
-    *ptr = moves.data();
     return moves;
 }
 
@@ -41,7 +41,6 @@ TEST_CASE( "Returning move list moves ptr" )
     MoveList result = copy_moves_and_ptr (&ptr, move_generator);
 //    std::cout << "Moves first" << &result.get_my_moves()[0] << "\n";
 
-    REQUIRE( result.data() == ptr );
     REQUIRE( result.size() > 0 );
 }
 
@@ -49,9 +48,6 @@ TEST_CASE( "Moving move list pointer" )
 {
     MoveList initial {Color::Black, {"e4 d4", "d2 d1"}};
     MoveList moved = std::move (initial);
-
-    REQUIRE( initial.ptr() == nullptr ); // NOLINT(bugprone-use-after-move)
-    REQUIRE( moved.ptr() != nullptr );
 
     auto ptr = moved.begin();
     REQUIRE( moved.size() == 2 );
@@ -61,7 +57,7 @@ TEST_CASE( "Moving move list pointer" )
 
 TEST_CASE( "Appending a move" )
 {
-    MoveList list = MoveList::uncached();
+    MoveList list;
 
     list.append (moveParse ("e4 e5"));
     list.append (moveParse ("d7 d5"));
@@ -71,23 +67,15 @@ TEST_CASE( "Appending a move" )
 
 TEST_CASE( "Moving uncached list" )
 {
-    auto allocator = MoveListAllocator::makeUnique();
-
     SUBCASE( "moving uncached into cached" )
     {
-        MoveList uncached_list = MoveList::uncached();
+        MoveList uncached_list;
 
         uncached_list.append (moveParse ("e4 d4"));
         uncached_list.append (moveParse ("d2 d1"));
 
-        MoveList cached { allocator.get() };
-
-        REQUIRE( cached.allocator() != nullptr );
+        MoveList cached;
         cached = std::move (uncached_list);
-        REQUIRE( cached.allocator() == nullptr );
-
-        REQUIRE( uncached_list.ptr() == nullptr ); // NOLINT(bugprone-use-after-move)
-        REQUIRE( cached.ptr() != nullptr );
 
         auto ptr = cached.begin();
         REQUIRE( cached.size() == 2 );
@@ -97,22 +85,17 @@ TEST_CASE( "Moving uncached list" )
 
     SUBCASE( "moving cached into uncached" )
     {
-        MoveList uncached_list = MoveList::uncached();
+        MoveList uncached_list;
 
         uncached_list.append (moveParse ("e4 d4"));
         uncached_list.append (moveParse ("d2 d1"));
 
-        MoveList cached { allocator.get() };
+        MoveList cached;
 
         cached.append (moveParse ("e3 d3"));
         cached.append (moveParse ("d3 d1"));
 
-        REQUIRE( uncached_list.allocator() == nullptr );
         uncached_list = std::move (cached);
-        REQUIRE( uncached_list.allocator() != nullptr );
-
-        REQUIRE( cached.ptr() == nullptr ); // NOLINT(bugprone-use-after-move)
-        REQUIRE( uncached_list.ptr() != nullptr );
 
         auto ptr = uncached_list.begin();
         REQUIRE( uncached_list.size() == 2 );
@@ -123,8 +106,6 @@ TEST_CASE( "Moving uncached list" )
 
 TEST_CASE( "Swapping lists" )
 {
-    auto allocator = MoveListAllocator::makeUnique();
-
     SUBCASE( "Swapping two simple lists" )
     {
         MoveList first = { Color::White, { "e2 d4", "a8 a1"} };
@@ -141,7 +122,7 @@ TEST_CASE( "Swapping lists" )
 
     SUBCASE( "Swapping two move lists with different allocators" )
     {
-        MoveList first { allocator.get() };
+        MoveList first;
         MoveList second = { Color::Black, { "d7 d5", "f1 c4" } };
 
         first.append (moveParse ("e2 d4", Color::White));

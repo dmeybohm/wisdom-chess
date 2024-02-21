@@ -70,7 +70,7 @@ namespace wisdom
                     auto coord = Coord::make (dst_row, dst_col);
                     auto index = coord.index();
                     if (my_knight_moves[index] == nullptr) {
-                        my_knight_moves[index] = make_unique<MoveList> (my_move_list_allocator.get());
+                        my_knight_moves[index] = make_unique<MoveList> ();
                     }
                     my_knight_moves[index]->append (knight_move);
                 }
@@ -397,7 +397,7 @@ namespace wisdom
 
     auto MoveGenerator::generateLegalMoves (const Board& board, Color who) const -> MoveList
     {
-        MoveList non_checks { my_move_list_allocator.get() };
+        MoveList non_checks;
 
         MoveList all_moves = generateAllPotentialMoves (board, who);
         for (auto move : all_moves)
@@ -519,7 +519,7 @@ namespace wisdom
     auto MoveGenerator::generateAllPotentialMoves (const Board& board, Color who) const
         -> MoveList
     {
-        MoveList result { my_move_list_allocator.get() };
+        MoveList result;
         MoveGeneration generation { board, result, 0, 0, who, *this };
 
         for (auto coord : board.allCoords())
