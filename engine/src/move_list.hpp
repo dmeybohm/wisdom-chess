@@ -9,7 +9,7 @@ namespace wisdom
 {
     inline constexpr std::ptrdiff_t Max_Move_List_Size = 256 - sizeof (std::ptrdiff_t);
 
-    class MoveList
+    class MoveList // NOLINT(*-pro-type-member-init)
     {
     private:
         array<Move, Max_Move_List_Size> my_moves;
@@ -19,10 +19,6 @@ namespace wisdom
         MoveList() = default;
 
         MoveList (Color color, std::initializer_list<czstring> list) noexcept;
-
-        // Delete special copy members:
-        MoveList (const MoveList& other) = delete;
-        MoveList& operator= (const MoveList& other) = delete;
 
         void push_back (Move move) noexcept
         {
@@ -50,56 +46,49 @@ namespace wisdom
         {
             return my_moves.begin();
         }
-        void begin() const&& = delete;
 
         [[nodiscard]] auto end() const& noexcept
         {
             return my_moves.begin() + my_size;
         }
-        void end() const&& = delete;
 
         [[nodiscard]] auto cbegin() const& noexcept
         {
             return my_moves.cbegin();
         }
-        void cbegin() const&& = delete;
 
         [[nodiscard]] auto cend() const& noexcept
         {
             return my_moves.cbegin() + my_size;
         }
-        void cend() const&& = delete;
 
         [[nodiscard]] auto begin() & noexcept
         {
             return my_moves.begin();
         }
-        void begin() && = delete;
 
         [[nodiscard]] auto end() & noexcept
         {
             return my_moves.begin() + my_size;
         }
-        void end() && = delete;
 
         [[nodiscard]] auto empty() const noexcept -> bool
         {
             return isEmpty();
         }
 
-        MoveList (MoveList&& other) noexcept
+        MoveList (const MoveList& other) // NOLINT(*-pro-type-member-init)
         {
-            std::copy (other.begin(), other.end(), begin());
+            std::copy (other.my_moves.begin(), other.my_moves.end(), my_moves.begin());
             my_size = other.my_size;
-            other.my_size = 0;
         }
 
-        auto operator= (MoveList&& other) noexcept -> MoveList&
+        MoveList& operator= (const MoveList& other)
         {
-            if (&other != this) {
-                std::copy (other.begin(), other.end(), begin());
+            if (&other != this)
+            {
+                std::copy (other.my_moves.begin(), other.my_moves.end(), my_moves.begin());
                 my_size = other.my_size;
-                other.my_size = 0;
             }
             return *this;
         }

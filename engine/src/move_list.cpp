@@ -4,8 +4,6 @@
 
 namespace wisdom
 {
-    // When using an initalizer list, that is used in a context where performance
-    // isn't that important. So use the default, private, uncached constructor.
     MoveList::MoveList (Color color, std::initializer_list<czstring> list) noexcept
         : MoveList {}
     {
