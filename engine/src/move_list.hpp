@@ -12,8 +12,8 @@ namespace wisdom
     class MoveList // NOLINT(*-pro-type-member-init)
     {
     private:
-        array<Move, Max_Move_List_Size> my_moves;
         std::ptrdiff_t my_size = 0;
+        array<Move, Max_Move_List_Size> my_moves;
 
     public:
         MoveList() = default;
