@@ -522,7 +522,7 @@ namespace wisdom
         MoveList result;
         MoveGeneration generation { board, result, 0, 0, who, *this };
 
-        for (auto coord : board.allCoords())
+        for (auto coord : Board::allCoords())
         {
             ColoredPiece piece = board.pieceAt (coord);
 
