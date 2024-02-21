@@ -67,12 +67,8 @@ namespace wisdom
                     Move knight_move = Move::make (k_row + row, k_col + col, row, col);
                     int dst_row = k_row + row;
                     int dst_col = k_col + col;
-                    auto coord = Coord::make (dst_row, dst_col);
-                    auto index = coord.index();
-                    if (my_knight_moves[index] == nullptr) {
-                        my_knight_moves[index] = make_unique<MoveList> (my_move_list_allocator.get());
-                    }
-                    my_knight_moves[index]->append (knight_move);
+                    auto index = Coord::make (dst_row, dst_col).index();
+                    my_knight_moves[index].append (knight_move);
                 }
             }
         }
@@ -82,10 +78,10 @@ namespace wisdom
     {
         auto coord = Coord::make (row, col);
 
-        if (my_knight_moves[0] == nullptr)
+        if (my_knight_moves[0].isEmpty())
             knightMoveListInit();
 
-        return *my_knight_moves[coord.index()];
+        return my_knight_moves[coord.index()];
     }
 
     static auto isPawnUnmoved (const Board &board, int row, int col) -> bool
@@ -121,7 +117,8 @@ namespace wisdom
             piece3 = board.pieceAt (Row (src), Column (dst) - 1);
         }
 
-        return pieceType (piece1) == Piece::None && pieceType (piece2) == Piece::None && pieceType (piece3) == Piece::None;
+        return pieceType (piece1) == Piece::None && pieceType (piece2) == Piece::None
+            && pieceType (piece3) == Piece::None;
     }
 
     auto MoveGeneration::transformMove (ColoredPiece dst_piece, Move move) noexcept
@@ -174,14 +171,16 @@ namespace wisdom
 
         if (board.ableToCastle (who, CastlingIneligible::Queenside) && piece_col == King_Column)
         {
-            Move queenside_castle = Move::makeCastling (piece_row, piece_col, piece_row, piece_col - 2);
+            Move queenside_castle
+                = Move::makeCastling (piece_row, piece_col, piece_row, piece_col - 2);
             if (validCastlingMove (board, queenside_castle))
                 appendMove (queenside_castle);
         }
 
         if (board.ableToCastle (who, CastlingIneligible::Kingside) && piece_col == King_Column)
         {
-            Move kingside_castle = Move::makeCastling (piece_row, piece_col, piece_row, piece_col + 2);
+            Move kingside_castle
+                = Move::makeCastling (piece_row, piece_col, piece_row, piece_col + 2);
             if (validCastlingMove (board, kingside_castle))
                 appendMove (kingside_castle);
         }
@@ -204,7 +203,8 @@ namespace wisdom
                     break;
             }
 
-            for (col = nextColumn (piece_col, dir); isValidColumn (col); col = nextColumn (col, dir))
+            for (col = nextColumn (piece_col, dir); isValidColumn (col);
+                 col = nextColumn (col, dir))
             {
                 ColoredPiece piece = board.pieceAt (piece_row, col);
 
@@ -397,7 +397,7 @@ namespace wisdom
 
     auto MoveGenerator::generateLegalMoves (const Board& board, Color who) const -> MoveList
     {
-        MoveList non_checks { my_move_list_allocator.get() };
+        MoveList non_checks;
 
         MoveList all_moves = generateAllPotentialMoves (board, who);
         for (auto move : all_moves)
@@ -519,10 +519,10 @@ namespace wisdom
     auto MoveGenerator::generateAllPotentialMoves (const Board& board, Color who) const
         -> MoveList
     {
-        MoveList result { my_move_list_allocator.get() };
+        MoveList result;
         MoveGeneration generation { board, result, 0, 0, who, *this };
 
-        for (auto coord : board.allCoords())
+        for (auto coord : Board::allCoords())
         {
             ColoredPiece piece = board.pieceAt (coord);
 
