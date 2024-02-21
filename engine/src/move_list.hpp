@@ -36,6 +36,7 @@ namespace wisdom
 
         void append (Move move) noexcept
         {
+            Expects (my_size < Max_Move_List_Size);
             my_moves[my_size++] = move;
         }
 
