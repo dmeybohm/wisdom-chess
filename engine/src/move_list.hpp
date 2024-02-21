@@ -12,8 +12,8 @@ namespace wisdom
     class MoveList // NOLINT(*-pro-type-member-init)
     {
     private:
-        array<Move, Max_Move_List_Size> my_moves;
         std::ptrdiff_t my_size = 0;
+        array<Move, Max_Move_List_Size> my_moves;
 
     public:
         MoveList() = default;
@@ -79,7 +79,7 @@ namespace wisdom
 
         MoveList (const MoveList& other) // NOLINT(*-pro-type-member-init)
         {
-            std::copy (other.my_moves.begin(), other.my_moves.end(), my_moves.begin());
+            std::copy (other.my_moves.begin(), other.my_moves.begin() + other.my_size, begin());
             my_size = other.my_size;
         }
 
@@ -87,7 +87,7 @@ namespace wisdom
         {
             if (&other != this)
             {
-                std::copy (other.my_moves.begin(), other.my_moves.end(), my_moves.begin());
+                std::copy (other.begin(), other.my_moves.begin() + other.my_size, begin());
                 my_size = other.my_size;
             }
             return *this;
