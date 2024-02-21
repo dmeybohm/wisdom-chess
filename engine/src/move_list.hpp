@@ -26,7 +26,7 @@ namespace wisdom
             my_size = other.my_size;
         }
 
-        MoveList& operator= (const MoveList& other)
+        auto operator= (const MoveList& other) -> MoveList&
         {
             if (&other != this)
             {
@@ -98,7 +98,7 @@ namespace wisdom
             return my_size == 0;
         }
 
-        [[nodiscard]] size_t size() const noexcept
+        [[nodiscard]] auto size() const noexcept -> size_t
         {
             return my_size;
         }
