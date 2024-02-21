@@ -12,13 +12,29 @@ namespace wisdom
     class MoveList // NOLINT(*-pro-type-member-init)
     {
     private:
-        std::ptrdiff_t my_size = 0;
         array<Move, Max_Move_List_Size> my_moves;
+        std::ptrdiff_t my_size = 0;
 
     public:
         MoveList() = default;
 
         MoveList (Color color, std::initializer_list<czstring> list) noexcept;
+
+        MoveList (const MoveList& other) // NOLINT(*-pro-type-member-init)
+        {
+            std::copy (other.my_moves.begin(), other.my_moves.begin() + other.my_size, my_moves.begin());
+            my_size = other.my_size;
+        }
+
+        MoveList& operator= (const MoveList& other)
+        {
+            if (&other != this)
+            {
+                std::copy (other.my_moves.begin(), other.my_moves.begin() + other.my_size, my_moves.begin());
+                my_size = other.my_size;
+            }
+            return *this;
+        }
 
         void push_back (Move move) noexcept
         {
@@ -42,32 +58,32 @@ namespace wisdom
             my_size--;
         }
 
-        [[nodiscard]] auto begin() const& noexcept
+        [[nodiscard]] auto begin() const noexcept
         {
             return my_moves.begin();
         }
 
-        [[nodiscard]] auto end() const& noexcept
+        [[nodiscard]] auto end() const noexcept
         {
             return my_moves.begin() + my_size;
         }
 
-        [[nodiscard]] auto cbegin() const& noexcept
+        [[nodiscard]] auto cbegin() const noexcept
         {
             return my_moves.cbegin();
         }
 
-        [[nodiscard]] auto cend() const& noexcept
+        [[nodiscard]] auto cend() const noexcept
         {
             return my_moves.cbegin() + my_size;
         }
 
-        [[nodiscard]] auto begin() & noexcept
+        [[nodiscard]] auto begin() noexcept
         {
             return my_moves.begin();
         }
 
-        [[nodiscard]] auto end() & noexcept
+        [[nodiscard]] auto end() noexcept
         {
             return my_moves.begin() + my_size;
         }
@@ -75,22 +91,6 @@ namespace wisdom
         [[nodiscard]] auto empty() const noexcept -> bool
         {
             return isEmpty();
-        }
-
-        MoveList (const MoveList& other) // NOLINT(*-pro-type-member-init)
-        {
-            std::copy (other.my_moves.begin(), other.my_moves.begin() + other.my_size, begin());
-            my_size = other.my_size;
-        }
-
-        MoveList& operator= (const MoveList& other)
-        {
-            if (&other != this)
-            {
-                std::copy (other.begin(), other.my_moves.begin() + other.my_size, begin());
-                my_size = other.my_size;
-            }
-            return *this;
         }
 
         [[nodiscard]] auto isEmpty() const noexcept -> bool
@@ -121,8 +121,6 @@ namespace wisdom
             return my_moves;
         }
         void data() const&& = delete;
-
-        void ptr() const&& = delete;
     };
 
     auto asString (const MoveList& list) -> string;
