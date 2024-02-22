@@ -171,6 +171,17 @@ namespace wisdom
             return Move::makeEnPassant (Row (src), Column (src), Row (dst), Column (dst));
         }
 
+        [[nodiscard]] static constexpr auto fromInt (int packed_move)
+            -> Move
+        {
+            return Move {
+                .src = gsl::narrow<int8_t> (packed_move & 0x7f),
+                .dst = gsl::narrow<int8_t> ((packed_move >> 8) & 0x7f),
+                .promoted_piece = gsl::narrow<int8_t> ((packed_move >> 16) & 0x7f),
+                .move_category = gsl::narrow<int8_t> ((packed_move >> 24) & 0x7f),
+            };
+        }
+
         [[nodiscard]] auto toInt() const -> int
         {
             return src | (dst << 8) | (promoted_piece << 16) | (move_category << 24);
