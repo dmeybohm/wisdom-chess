@@ -5,9 +5,17 @@
 
 using namespace wisdom;
 
+TEST_CASE( "Move list starts empty" )
+{
+    MoveList empty_list;
+    REQUIRE( empty_list.isEmpty() );
+    REQUIRE( empty_list.empty() );
+    REQUIRE( empty_list.size() == 0 );
+}
+
 TEST_CASE( "Initializing move list" )
 {
-    MoveList move_list {Color::Black, {"e4 d4", "d2 d1"}};
+    MoveList move_list { Color::Black, { "e4 d4", "d2 d1" } };
     REQUIRE( move_list.size() == 2 );
 
     std::vector<Move> moves;
@@ -20,7 +28,7 @@ TEST_CASE( "Initializing move list" )
     REQUIRE( moves == expected );
 }
 
-MoveList copy_moves_and_ptr (const Move **ptr, MoveGenerator& generator)
+static auto copy_moves_and_ptr (const Move **ptr, MoveGenerator& generator) -> MoveList
 {
     Board board;
     MoveList moves = generator.generateAllPotentialMoves (board, Color::White);
@@ -46,8 +54,8 @@ TEST_CASE( "Returning move list moves ptr" )
 
 TEST_CASE( "Moving move list pointer" )
 {
-    MoveList initial {Color::Black, {"e4 d4", "d2 d1"}};
-    MoveList moved = std::move (initial);
+    MoveList initial { Color::Black, { "e4 d4", "d2 d1" } };
+    MoveList moved = std::move (initial); // NOLINT(*-move-const-arg)
 
     auto ptr = moved.begin();
     REQUIRE( moved.size() == 2 );
@@ -65,42 +73,49 @@ TEST_CASE( "Appending a move" )
     REQUIRE( list.size() == 2 );
 }
 
-TEST_CASE( "Moving uncached list" )
+TEST_CASE( "Copying" )
 {
-    SUBCASE( "moving uncached into cached" )
+    SUBCASE( "Initilizing from a copy" )
     {
-        MoveList uncached_list;
+        MoveList first_list;
 
-        uncached_list.append (moveParse ("e4 d4"));
-        uncached_list.append (moveParse ("d2 d1"));
+        first_list.append (moveParse ("e4 d4"));
+        first_list.append (moveParse ("d2 d1"));
+        auto first_ptr = first_list.begin();
+        REQUIRE( first_list.size() == 2 );
+        REQUIRE( *first_ptr++ == moveParse ("e4 d4", Color::Black) );
+        REQUIRE( *first_ptr == moveParse ("d2 d1", Color::White) );
 
-        MoveList cached;
-        cached = std::move (uncached_list);
-
-        auto ptr = cached.begin();
-        REQUIRE( cached.size() == 2 );
-        REQUIRE( *ptr++ == moveParse ("e4 d4", Color::Black) );
-        REQUIRE( *ptr == moveParse ("d2 d1", Color::White) );
+        MoveList second_list { first_list };
+        auto second_ptr = second_list.begin();
+        REQUIRE( second_list.size() == 2 );
+        REQUIRE( *second_ptr++ == moveParse ("e4 d4", Color::Black) );
+        REQUIRE( *second_ptr == moveParse ("d2 d1", Color::White) );
     }
 
-    SUBCASE( "moving cached into uncached" )
+    SUBCASE( "Overwriting a list works" )
     {
-        MoveList uncached_list;
+        MoveList first_list;
 
-        uncached_list.append (moveParse ("e4 d4"));
-        uncached_list.append (moveParse ("d2 d1"));
+        first_list.append (moveParse ("e4 d4"));
+        first_list.append (moveParse ("d2 d1"));
 
-        MoveList cached;
+        MoveList second_list;
 
-        cached.append (moveParse ("e3 d3"));
-        cached.append (moveParse ("d3 d1"));
+        second_list.append (moveParse ("e3 d3"));
+        second_list.append (moveParse ("d3 d1"));
 
-        uncached_list = std::move (cached);
+        first_list = second_list;
 
-        auto ptr = uncached_list.begin();
-        REQUIRE( uncached_list.size() == 2 );
-        REQUIRE( *ptr++ == moveParse ("e3 d3", Color::Black) );
-        REQUIRE( *ptr == moveParse ("d3 d1", Color::White) );
+        auto first_ptr = first_list.begin();
+        REQUIRE( first_list.size() == 2 );
+        REQUIRE( *first_ptr++ == moveParse ("e3 d3", Color::Black) );
+        REQUIRE( *first_ptr == moveParse ("d3 d1", Color::White) );
+
+        auto second_ptr = second_list.begin();
+        REQUIRE( second_list.size() == 2 );
+        REQUIRE( *second_ptr++ == moveParse ("e3 d3", Color::Black) );
+        REQUIRE( *second_ptr == moveParse ("d3 d1", Color::White) );
     }
 }
 
