@@ -72,15 +72,12 @@ namespace wisdom
 
     class Board;
 
-    inline constexpr size_t Max_Packed_Capacity_In_Move = 0x001FFFFFL; // 21 bit max
-
     enum class MoveCategory : int8_t
     {
         Default = 0,
         NormalCapturing = 1,
         EnPassant = 2,
         Castling = 3,
-        PackedCapacity = 4,
     };
 
     class ParseMoveException : public Error
@@ -172,19 +169,6 @@ namespace wisdom
             -> Move
         {
             return Move::makeEnPassant (Row (src), Column (src), Row (dst), Column (dst));
-        }
-
-        // Pack a 28-bit integer into the move. Used for move lists to store the list length.
-        [[nodiscard]] static constexpr auto makeAsPackedCapacity (size_t size) noexcept
-            -> Move
-        {
-            assert (size <= Max_Packed_Capacity_In_Move);
-            return {
-                .src = gsl::narrow_cast<int8_t> (size & 0x7f),
-                .dst = gsl::narrow_cast<int8_t> ((size >> 7) & 0x7f),
-                .promoted_piece = gsl::narrow_cast<int8_t> ((size >> 14) & 0x7f),
-                .move_category = toInt8 (MoveCategory::PackedCapacity),
-            };
         }
 
         [[nodiscard]] static constexpr auto fromInt (int packed_move)
@@ -281,15 +265,6 @@ namespace wisdom
             -> bool
         {
             return isCastling() && Column (getDst()) == Kingside_Castled_King_Column;
-        }
-
-        [[nodiscard]] constexpr auto toUnpackedCapacity() const noexcept
-            -> size_t
-        {
-            assert (getMoveCategory() == MoveCategory::PackedCapacity);
-            return src |
-                (dst << 7) |
-                (promoted_piece << 14);
         }
     };
 
