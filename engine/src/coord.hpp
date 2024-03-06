@@ -150,12 +150,16 @@ namespace wisdom
 
     auto operator<< (std::ostream& ostream, Coord coord) -> std::ostream&;
 
-    class CoordIterator final
+    class CoordIterator
     {
     private:
         Coord my_coord {};
 
     public:
+        using difference_type = Coord;
+        using value_type = Coord;
+        using reference = CoordIterator&;
+
         CoordIterator()
             : my_coord { First_Coord }
         {}
