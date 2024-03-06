@@ -9,11 +9,11 @@ namespace wisdom
 {
     BoardCode::BoardCode()
     {
-        for (auto coord : CoordIterator {})
-        {
-            auto hash = boardCodeHash (coord, Piece_And_Color_None);
-            my_code ^= hash;
-        }
+        auto iterator = Board::allCoords();
+        my_code = std::reduce (iterator.begin(), iterator.end(),
+                     my_code, [](auto value, Coord coord) {
+            return value ^ boardCodeHash (coord, Piece_And_Color_None);
+        });
     }
 
     BoardCode::BoardCode (const Board& board)

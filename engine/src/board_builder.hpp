@@ -35,8 +35,9 @@ namespace wisdom
         [[nodiscard]] static constexpr auto emptySquares() -> array<ColoredPiece, Num_Squares>
         {
             array<ColoredPiece, Num_Squares> result {};
-            for (auto i = 0; i < Num_Squares; i++)
-                result[i] = Piece_And_Color_None;
+            std::fill (std::begin (result),
+                       std::end (result),
+                       Piece_And_Color_None);
             return result;
         }
 
