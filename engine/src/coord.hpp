@@ -156,9 +156,10 @@ namespace wisdom
         Coord my_coord {};
 
     public:
-        using difference_type = Coord;
+        using difference_type = int;
         using value_type = Coord;
         using reference = CoordIterator&;
+        using iterator_category = std::forward_iterator_tag;
 
         CoordIterator()
             : my_coord { First_Coord }
