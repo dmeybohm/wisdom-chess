@@ -152,13 +152,10 @@ namespace wisdom
 
     class CoordIterator
     {
-    private:
-        Coord my_coord {};
-
     public:
         using difference_type = int;
         using value_type = Coord;
-        using reference = CoordIterator&;
+        using reference = Coord&;
         using iterator_category = std::forward_iterator_tag;
 
         CoordIterator()
@@ -199,6 +196,9 @@ namespace wisdom
         {
             return !(*this == other);
         }
+
+    private:
+        Coord my_coord {};
     };
 
     class CoordParseError : public Error

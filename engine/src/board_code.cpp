@@ -11,7 +11,7 @@ namespace wisdom
     {
         auto iterator = Board::allCoords();
         my_code = std::reduce (iterator.begin(), iterator.end(),
-                     my_code, [](auto value, Coord coord) {
+                     my_code, [](auto value, const Coord& coord) {
             return value ^ boardCodeHash (coord, Piece_And_Color_None);
         });
     }
