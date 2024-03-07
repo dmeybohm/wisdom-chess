@@ -10,9 +10,8 @@ namespace wisdom
     BoardCode::BoardCode()
     {
         auto iterator = Board::allCoords();
-        my_code = std::reduce (iterator.begin(), iterator.end(),
-                     my_code, [](auto value, const Coord& coord) {
-            return value ^ boardCodeHash (coord, Piece_And_Color_None);
+        std::for_each (iterator.begin(), iterator.end(), [this](const Coord& coord) {
+            my_code ^= boardCodeHash (coord, Piece_And_Color_None);
         });
     }
 
