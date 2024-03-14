@@ -16,6 +16,7 @@
 #include <functional>
 #include <forward_list>
 #include <algorithm>
+#include <numeric>
 #include <chrono>
 #include <iosfwd>
 #include <cctype>
@@ -104,7 +105,8 @@ namespace wisdom
     inline constexpr int Max_Non_Checkmate_Score
         = Num_Squares * WeightQueen *
         std::max (Material_Score_Scale, Position_Score_Scale);
-    static_assert (Max_Non_Checkmate_Score > 100'000 && Max_Non_Checkmate_Score < Initial_Alpha);
+    static_assert (Max_Non_Checkmate_Score > 100'000);
+    static_assert (Max_Non_Checkmate_Score * 2 < Initial_Alpha);
 
     // Default absolute max depth searched.
     inline constexpr int Default_Max_Depth = 16;

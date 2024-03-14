@@ -150,12 +150,14 @@ namespace wisdom
 
     auto operator<< (std::ostream& ostream, Coord coord) -> std::ostream&;
 
-    class CoordIterator final
+    class CoordIterator
     {
-    private:
-        Coord my_coord {};
-
     public:
+        using difference_type = int;
+        using value_type = Coord;
+        using reference = Coord&;
+        using iterator_category = std::forward_iterator_tag;
+
         CoordIterator()
             : my_coord { First_Coord }
         {}
@@ -194,6 +196,9 @@ namespace wisdom
         {
             return !(*this == other);
         }
+
+    private:
+        Coord my_coord {};
     };
 
     class CoordParseError : public Error
