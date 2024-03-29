@@ -51,31 +51,30 @@ TEST_CASE( "board_builder" )
     SUBCASE( "Board builder throws exception for invalid coordinate" )
     {
         BoardBuilder builder;
-        bool no_throw = false;
 
-        try {
-            builder.addPiece ("a9", Color::White, Piece::Pawn);
-            no_throw = true;
-        } catch (const CoordParseError& board_builder_exception) {
-            CHECK( board_builder_exception.message() == "Invalid coordinate!" );
-        }
-        REQUIRE( no_throw == false );
+        REQUIRE_THROWS_WITH_AS(
+            builder.addPiece ("a9", Color::White, Piece::Pawn),
+            "Invalid coordinate!",
+            CoordParseError
+        );
 
-        try {
-            builder.addPiece ("j7", Color::White, Piece::Pawn);
-            no_throw = true;
-        } catch (const CoordParseError& board_builder_exception) {
-            CHECK( board_builder_exception.message() == "Invalid coordinate!" );
-        }
-        REQUIRE( no_throw == false );
+        REQUIRE_THROWS_WITH_AS(
+            builder.addPiece ("j7", Color::Black, Piece::Bishop),
+            "Invalid coordinate!" ,
+            CoordParseError
+        );
 
-        try {
-            builder.addPiece ("asdf", Color::White, Piece::Pawn);
-            no_throw = true;
-        } catch (const BoardBuilderError& board_builder_exception) {
-            CHECK( board_builder_exception.message() == "Invalid coordinate string!" );
-        }
-        REQUIRE( no_throw == false );
+        REQUIRE_THROWS_WITH_AS(
+            builder.addPiece ("j9", Color::White, Piece::King),
+            "Invalid coordinate!" ,
+            CoordParseError
+        );
+
+        REQUIRE_THROWS_WITH_AS(
+            builder.addPiece ("asdf", Color::White, Piece::King),
+            "Invalid coordinate string!" ,
+            BoardBuilderError
+        );
     }
 }
 
