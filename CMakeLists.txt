@@ -20,6 +20,15 @@ if (QTDIR)
     message("-- wisdom-chess: QTDIR added to CMAKE_PREFIX_PATH")
 endif()
 
+# Enable -O3 in RelWithDebugInfo
+if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        message("-- wisdom-chess: Re-enabling -O3 option for G++/Clang")
+        string(REPLACE "-O2" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}") 
+        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O3") 
+    endif()
+endif()
+
 find_package(Qt6 QUIET COMPONENTS Quick)
 
 if (WISDOM_CHESS_ASAN)
@@ -35,3 +44,4 @@ endif()
 
 add_subdirectory(engine)
 add_subdirectory(ui)
+
