@@ -66,13 +66,13 @@ TEST_CASE( "board_builder" )
 
         REQUIRE_THROWS_WITH_AS(
             builder.addPiece ("j9", Color::White, Piece::King),
-            "Invalid coordinate!" ,
+            "Invalid coordinate!",
             CoordParseError
         );
 
         REQUIRE_THROWS_WITH_AS(
             builder.addPiece ("asdf", Color::White, Piece::King),
-            "Invalid coordinate string!" ,
+            "Invalid coordinate string!",
             BoardBuilderError
         );
     }
