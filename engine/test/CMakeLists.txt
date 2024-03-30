@@ -1,5 +1,6 @@
 if (WISDOM_CHESS_FAST_TESTS)
-    add_library(fast_tests_lib OBJECT
+
+    add_executable(fast_tests
         piece_test.cpp
         coord_test.cpp
         en_passant_test.cpp
@@ -20,34 +21,35 @@ if (WISDOM_CHESS_FAST_TESTS)
         str_test.cpp
         board_test.cpp
         game_test.cpp
-    )
+        test_main.cpp)
 
-    target_precompile_headers(fast_tests_lib PRIVATE PRIVATE ../src/global.hpp <doctest/doctest.h>)
+    target_precompile_headers(fast_tests PRIVATE PRIVATE ../src/global.hpp)
 
-    target_link_libraries(fast_tests_lib PUBLIC wisdom::chess)
-    target_link_libraries(fast_tests_lib PUBLIC doctest::doctest)
+    target_link_libraries(fast_tests PRIVATE wisdom::chess)
+    target_link_libraries(fast_tests PRIVATE doctest::doctest)
 
-    add_executable(fast_tests test_main.cpp)
-
-    target_link_libraries(fast_tests PRIVATE fast_tests_lib)
 endif()
 
 if (WISDOM_CHESS_SLOW_TESTS)
+
+    add_executable(slow_tests
+        search_test.cpp
+        perft.cpp
+        perft.hpp
+        tests.hpp
+        perft_test.cpp
+        move_perft_test.cpp
+        test_main.cpp)
+
+    target_precompile_headers(slow_tests PRIVATE PRIVATE ../src/global.hpp)
+    target_link_libraries(slow_tests PRIVATE wisdom::chess)
+    target_link_libraries(slow_tests PRIVATE doctest::doctest)
+    
     # For perft testing:
-    add_executable(perft perft_main.cpp perft.cpp)
+    add_executable(perft 
+        perft.hpp
+        perft.cpp
+        perft_main.cpp)
     target_link_libraries(perft PRIVATE wisdom::chess)
 
-    add_library(slow_tests_lib OBJECT
-            search_test.cpp
-            perft.cpp
-            tests.hpp
-            perft_test.cpp
-            move_perft_test.cpp)
-
-    target_precompile_headers(slow_tests_lib REUSE_FROM fast_tests_lib)
-    target_link_libraries(slow_tests_lib PUBLIC wisdom::chess)
-    target_link_libraries(slow_tests_lib PUBLIC doctest::doctest)
-
-    add_executable(slow_tests test_main.cpp)
-    target_link_libraries(slow_tests PRIVATE slow_tests_lib)
 endif()
