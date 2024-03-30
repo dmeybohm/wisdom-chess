@@ -1,3 +1,14 @@
+if (WISDOM_CHESS_CONSOLE_UI)
+    add_subdirectory(console)
+endif()
+
+if (QTDIR)
+    list(APPEND CMAKE_PREFIX_PATH ${QTDIR})
+    message("-- wisdom-chess: QTDIR added to CMAKE_PREFIX_PATH")
+endif()
+
+find_package(Qt6 QUIET COMPONENTS Quick)
+
 if (Qt6_FOUND AND WISDOM_CHESS_QML_UI)
     message("-- wisdom-chess: Qt6 GUI enabled.")
     add_subdirectory(qml)
@@ -7,10 +18,6 @@ else()
     else()
         message("-- wisdom-chess: Qt6 GUI disabled (not found)")
     endif()
-endif()
-
-if (WISDOM_CHESS_CONSOLE_UI)
-    add_subdirectory(console)
 endif()
 
 if (EMSCRIPTEN AND WISDOM_CHESS_REACT_UI)
