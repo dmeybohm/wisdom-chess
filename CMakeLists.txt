@@ -15,11 +15,6 @@ option(WISDOM_CHESS_QML_UI "Enable building of QML UI" On)
 option(WISDOM_CHESS_REACT_UI "Enable building of React UI" On)
 option(WISDOM_CHESS_PCH_ENABLED "Enable Pre-compiled headers" On)
 
-if (QTDIR)
-    list(APPEND CMAKE_PREFIX_PATH ${QTDIR})
-    message("-- wisdom-chess: QTDIR added to CMAKE_PREFIX_PATH")
-endif()
-
 # Enable -O3 in RelWithDebugInfo
 if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -28,8 +23,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O3") 
     endif()
 endif()
-
-find_package(Qt6 QUIET COMPONENTS Quick)
 
 if (WISDOM_CHESS_ASAN)
     message("-- wisdom-chess: Enabling address sanitizer")
