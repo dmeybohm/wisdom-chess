@@ -13,6 +13,8 @@ CPMAddPackage(
   NAME doctest
   GITHUB_REPOSITORY doctest/doctest
   GIT_TAG v2.4.11
+  OPTIONS
+     "DOCTEST_NO_INSTALL On"
 )
 
 find_package(doctest)
@@ -27,6 +29,8 @@ else()
     message("-- wisdom-chess: precompiled headers enabled")
 endif()
 
+add_subdirectory(src)
+
 if (doctest_FOUND)
     message("-- wisdom-chess: Including tests with doctest")
     add_subdirectory(test)
@@ -35,5 +39,3 @@ else()
     set(WISDOM_CHESS_SLOW_TESTS Off)
     set(WISDOM_CHESS_FAST_TESTS Off)
 endif()
-
-add_subdirectory(src)
