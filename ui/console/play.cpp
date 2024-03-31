@@ -41,7 +41,20 @@ namespace wisdom::ui::console
 
         struct Pause {};
         struct Unpause {};
-        struct StopGame {};
+
+        struct StopGame
+        {
+            bool show_final_position = true;
+
+            StopGame() = default;
+
+            static auto fromShowFinalPosition (bool new_show_final_position) -> StopGame
+            {
+                auto result = StopGame {};
+                result.show_final_position = new_show_final_position;
+                return result;
+            }
+        };
 
         struct SaveGame
         {
@@ -130,6 +143,7 @@ namespace wisdom::ui::console
         shared_ptr<Game> game;
         bool quit = false;
         bool paused = false;
+        bool show_final_position = true;
 
     public:
         ConsoleGame() : game { make_shared<Game>() }
@@ -146,6 +160,11 @@ namespace wisdom::ui::console
         void setPaused (bool new_paused)
         {
             paused = new_paused;
+        }
+
+        void setShowFinalPosition (bool new_final_position)
+        {
+            show_final_position = new_final_position;
         }
 
         static auto humanWantsDraw (const string& msg) -> bool
@@ -417,7 +436,7 @@ namespace wisdom::ui::console
             std::cout << "(" << wisdom::asString (game->getCurrentTurn()) << ")? ";
 
             if (!std::getline (std::cin, input))
-                return PlayCommand::StopGame {};
+                return PlayCommand::StopGame::fromShowFinalPosition (false);
 
             input = chomp (input);
 
@@ -504,18 +523,15 @@ namespace wisdom::ui::console
             }
             else if (input == "quit" || input == "exit")
             {
-                return PlayCommand::StopGame {};
+                return PlayCommand::StopGame::fromShowFinalPosition (false);
             }
             else
             {
                 auto optional_move = moveParseOptional (input, game->getCurrentTurn());
-                PlayCommand::AnyCommand result = PlayCommand::ShowError { "Invalid move." };
+                PlayCommand::AnyCommand result = PlayCommand::ShowError { "Invalid move or command." };
 
                 if (!optional_move.has_value())
-                {
-                    printHelp();
                     return result;
-                }
 
                 // check the generated move list for this move to see if its valid
                 MoveGenerator generator;
@@ -550,6 +566,7 @@ namespace wisdom::ui::console
             {
                 auto error_command = get<PlayCommand::ShowError> (command);
                 std::cout << "Error: \n" << error_command.message << "\n\n";
+                printHelp();
             }
             else if (holds_alternative<PlayCommand::ShowInfo> (command))
             {
@@ -568,7 +585,9 @@ namespace wisdom::ui::console
             }
             else if (holds_alternative<PlayCommand::StopGame> (command))
             {
+                auto stop_game = get<PlayCommand::StopGame> (command);
                 setQuit (true);
+                setShowFinalPosition (stop_game.show_final_position);
             }
             else if (holds_alternative<PlayCommand::SaveGame> (command))
             {
@@ -640,7 +659,6 @@ namespace wisdom::ui::console
         ConsoleGameStatusManager game_status_manager { this };
 
         auto output = makeStandardLogger();
-        MoveGenerator move_generator;
 
         while (true)
         {
@@ -668,6 +686,9 @@ namespace wisdom::ui::console
             {
                 auto command = readCommand();
                 handleCommand (command);
+
+                if (quit && !show_final_position)
+                    break;
             }
         }
     }
