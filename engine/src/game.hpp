@@ -42,9 +42,9 @@ namespace wisdom
         // All other constructors must call this one:
         explicit Game (const BoardBuilder& builder, const Players& players, Color current_turn);
 
-        // Delete copy
-        Game (const Game& other) = delete;
-        Game& operator= (const Game& other) = delete;
+        // Default copy:
+        Game (const Game& other) = default;
+        Game& operator= (const Game& other) = default;
 
         // Default move:
         Game (Game&& other) = default;
@@ -149,6 +149,10 @@ namespace wisdom
                                        std::pair<DrawStatus, DrawStatus> draw_statuses);
 
     private:
+        void updateThreefoldRepetitionDrawStatus();
+        void updateFiftyMovesWithoutProgressDrawStatus();
+
+    private:
         Board my_current_board {};
         mutable MoveGenerator my_move_generator {};
         History my_history;
@@ -166,9 +170,6 @@ namespace wisdom
             DrawStatus::NotReached,
             DrawStatus::NotReached
         };
-
-        void updateThreefoldRepetitionDrawStatus();
-        void updateFiftyMovesWithoutProgressDrawStatus();
     };
 }
 

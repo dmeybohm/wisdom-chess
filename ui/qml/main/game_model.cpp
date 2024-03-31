@@ -16,6 +16,7 @@ using std::make_shared;
 using std::optional;
 using std::pair;
 using std::shared_ptr;
+using wisdom::nonnull_observer_ptr;
 
 namespace
 {
@@ -390,14 +391,15 @@ auto GameModel::inCheck() const -> bool
 class QmlGameStatusUpdate : public GameStatusUpdate
 {
 private:
-    wisdom::observer_ptr<GameModel> my_parent;
+    nonnull_observer_ptr<GameModel> my_parent;
 
 public:
-    explicit QmlGameStatusUpdate (observer_ptr<GameModel> parent) : my_parent { parent }
+    explicit QmlGameStatusUpdate (nonnull_observer_ptr<GameModel> parent) 
+        : my_parent { parent }
     {
     }
 
-    [[nodiscard]] auto getGameState() -> not_null<wisdom::Game*>
+    [[nodiscard]] auto getGameState() -> nonnull_observer_ptr<wisdom::Game>
     {
         return my_parent->my_chess_game->state();
     }

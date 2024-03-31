@@ -44,7 +44,7 @@ namespace wisdom
     private:
         Board my_original_board;
         History my_history;
-        not_null<observer_ptr<const Logger>> my_output;
+        nonnull_observer_ptr<const Logger> my_output;
         SearchResult my_current_result {};
         MoveGenerator my_generator {};
         MoveTimer my_timer;

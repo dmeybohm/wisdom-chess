@@ -53,6 +53,9 @@ namespace wisdom
     template <typename T>
     using observer_ptr = T*;
 
+    template <typename T>
+    using nonnull_observer_ptr = gsl::not_null<observer_ptr<T>>;
+
     namespace chrono = std::chrono;
 
     enum MaterialWeight
