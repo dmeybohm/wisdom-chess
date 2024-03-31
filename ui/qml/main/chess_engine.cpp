@@ -47,7 +47,7 @@ void ChessEngine::receiveEngineMoved (wisdom::Move move, wisdom::Color who, int 
 class QmlEngineGameStatusUpdate : public GameStatusUpdate
 {
 private:
-    observer_ptr<ChessEngine> my_parent;
+    nonnull_observer_ptr<ChessEngine> my_parent;
 
     void handleGameOver()
     {
@@ -56,7 +56,8 @@ private:
     }
 
 public:
-    explicit QmlEngineGameStatusUpdate (observer_ptr<ChessEngine> parent) : my_parent { parent }
+    explicit QmlEngineGameStatusUpdate (nonnull_observer_ptr<ChessEngine> parent) 
+        : my_parent { parent }
     {
     }
 
