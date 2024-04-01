@@ -69,7 +69,7 @@ namespace wisdom::ui::console
         {
             shared_ptr<Game> new_game;
 
-            explicit LoadNewGame (std::shared_ptr<Game> game)
+            explicit LoadNewGame (shared_ptr<Game> game)
                 : new_game { std::move (game) }
             {
                 if (new_game == nullptr)
@@ -235,6 +235,7 @@ namespace wisdom::ui::console
 
             void stalemate() override
             {
+                std::cout << "Draw: stalemate.\n";
                 my_console_game->setQuit (true);
             }
 
@@ -332,7 +333,7 @@ namespace wisdom::ui::console
             return input;
         }
 
-        auto loadGame() -> std::shared_ptr<Game>
+        auto loadGame() -> shared_ptr<Game>
         {
             string input = prompt ("load what file");
 
@@ -347,7 +348,7 @@ namespace wisdom::ui::console
             return make_shared<Game> (new_game);
         }
 
-        static auto loadFen() -> std::shared_ptr<Game>
+        static auto loadFen() -> shared_ptr<Game>
         {
             string input = prompt ("FEN game");
 
