@@ -122,4 +122,4 @@ jobs:
 
     - name: Install (CMake)
       run: >
-        cmake --install ${{ steps.strings.outputs.build-output-dir }} 
+        cmake --install ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
