@@ -73,7 +73,6 @@ jobs:
       with:
         version: '6.5.*'
         modules: 'qtquick qtsvg'
-        cache: 'false'
         setup-python: 'false'
 
     - name: Configure CMake
