@@ -9,5 +9,5 @@ endif()
 target_link_libraries(wisdom-chess-console PRIVATE wisdom::chess)
 
 install(TARGETS wisdom-chess-console
-    RUNTIME DESTINATION bin)
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
