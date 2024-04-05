@@ -2,9 +2,9 @@ if (WISDOM_CHESS_CONSOLE_UI)
     add_subdirectory(console)
 endif()
 
-if (QTDIR)
-    list(APPEND CMAKE_PREFIX_PATH ${QTDIR})
-    message("-- wisdom-chess: QTDIR added to CMAKE_PREFIX_PATH")
+if (WISDOM_CHESS_QT_DIR)
+    list(APPEND CMAKE_PREFIX_PATH ${WISDOM_CHESS_QT_DIR})
+    message("-- wisdom-chess: WISDOM_CHESS_QT_DIR added to CMAKE_PREFIX_PATH")
 endif()
 
 find_package(Qt6 QUIET COMPONENTS Quick)
