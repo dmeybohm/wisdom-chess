@@ -134,4 +134,5 @@ target_compile_definitions(WisdomChessQml
     PRIVATE MAIN_QML_FILE="${MAIN_QML_FILE}")
 
 install(TARGETS WisdomChessQml
-    RUNTIME DESTINATION bin)
+    BUNDLE DESTINATION "/Applications"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
