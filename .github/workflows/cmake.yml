@@ -119,3 +119,7 @@ jobs:
       if: matrix.os == 'windows-2019' || matrix.os == 'windows-latest'
       working-directory: ${{ github.workspace }}/build/engine/test//${{ matrix.build_type }}
       run: ${{ github.workspace }}/build/engine/test/${{ matrix.build_type }}/slow_tests.exe
+
+    - name: Install (CMake)
+      run: >
+        cmake --install ${{ steps.strings.outputs.build-output-dir }} 
