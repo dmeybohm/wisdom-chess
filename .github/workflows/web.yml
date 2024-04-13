@@ -46,10 +46,6 @@ jobs:
         working-directory: ${{ github.workspace }}/ui/react
         run: npm run build
 
-      - name: Update dist files
-        working-directory: ${{ github.workspace }}/ui/react
-        run: cp deploy/* dist
-
       - name: Install Netlify CLI
         working-directory: ${{ github.workspace }}/ui/react
         run: npm install -g netlify-cli
