@@ -36,7 +36,7 @@ jobs:
 
       - name: Build Library
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-        run: cmake --build ${{ github.workspace }}/build --config Release
+        run: cmake --build ${{ github.workspace }}/build --config Release -j 4
 
       - name: Install Front-end Dependencies
         working-directory: ${{ github.workspace }}/ui/react
