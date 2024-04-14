@@ -23,6 +23,11 @@ export default defineConfig({
         theme_color: '#c7c7c7',
         icons: [
           {
+            src: 'logo-64x64.png',
+            sizes: '64x64',
+            type: 'image/png'
+          },
+          {
             src: 'logo-192x192.png',
             sizes: '192x192',
             type: 'image/png'
