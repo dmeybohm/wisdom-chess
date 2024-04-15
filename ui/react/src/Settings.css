@@ -11,6 +11,15 @@
     margin-bottom: 1rem;
 }
 
+.settings input[type="radio"] {
+    transform: scale(1.75) translateY(1px);
+    margin-right: 8px;
+}
+
+.settings .rc-slider-handle {
+    transform: translateX(-50%) scale(1.75) !important;
+}
+
 @media screen and (min-width: 48rem) {
     .settings {
         display: grid;
