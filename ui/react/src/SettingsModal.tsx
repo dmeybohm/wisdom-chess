@@ -110,7 +110,7 @@ export function SettingsModal(props: SettingsModalProps) {
                     </label>
                     <Slider
                         min={1}
-                        max={30}
+                        max={10}
                         value={thinkingTime}
                         onChange={value => setThinkingTime(Number(value))}/>
                 </div>
