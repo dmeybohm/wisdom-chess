@@ -88,6 +88,37 @@ function updateGameState(initialState: Partial<GameState>, currentGame: Game): P
     }
 }
 
+function throttle(func: Function, limit: number) {
+    let lastTimeout : ReturnType<typeof setTimeout>|null = null;
+    let lastRan : number|null = null;
+
+    return function() {
+        const context : any = this;
+        const args = arguments;
+        if (lastRan === null) {
+            func.apply(context, args);
+            lastRan = Date.now();
+            return;
+        }
+        const diff = limit - (Date.now() - lastRan);
+        clearTimeout(lastTimeout!);
+        lastTimeout = null;
+        if (diff <= 0) {
+            func.apply(context, args);
+            lastRan = Date.now();
+            return;
+        }
+        lastTimeout = setTimeout(function() {
+            func.apply(context, args);
+            lastRan = Date.now();
+            lastTimeout = null;
+        }, diff);
+    }
+}
+
+// When the computer is playing itself, this prevents too many updates too quickly.
+const throttledComputerMove = throttle(() => getGameModel().notifyComputerMove(), 250)
+
 export const useGame = create<GameState>()((set, get) => ({
     ... initialGameState,
 
@@ -112,7 +143,7 @@ export const useGame = create<GameState>()((set, get) => ({
                         getCurrentGame().getCurrentTurn()
                     );
                     get().actions.computerMovePiece(move)
-                    setTimeout(() => getGameModel().notifyComputerMove(), 555)
+                    throttledComputerMove()
                     break;
                 }
 
