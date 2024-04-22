@@ -93,10 +93,8 @@ function throttle(func: Function, limit: number) {
     let lastRan : number|null = null;
 
     return function() {
-        const context : any = this;
-        const args = arguments;
         if (lastRan === null) {
-            func.apply(context, args);
+            func()
             lastRan = Date.now();
             return;
         }
@@ -104,12 +102,12 @@ function throttle(func: Function, limit: number) {
         clearTimeout(lastTimeout!);
         lastTimeout = null;
         if (diff <= 0) {
-            func.apply(context, args);
+            func()
             lastRan = Date.now();
             return;
         }
         lastTimeout = setTimeout(function() {
-            func.apply(context, args);
+            func()
             lastRan = Date.now();
             lastTimeout = null;
         }, diff);
