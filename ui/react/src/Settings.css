@@ -12,8 +12,8 @@
 }
 
 .settings input[type="radio"] {
-    transform: scale(1.75) translateY(1px);
-    margin-right: 8px;
+    transform: scale(1.75);
+    margin-right: 10px;
 }
 
 .settings .rc-slider-handle {
