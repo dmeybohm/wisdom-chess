@@ -12,7 +12,7 @@
 }
 
 .settings input[type="radio"] {
-    transform: scale(1.75) translateY(1px);
+    transform: scale(1.75);
     margin-right: 8px;
 }
 
