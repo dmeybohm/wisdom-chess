@@ -51,7 +51,7 @@ jobs:
         run: npm install -g netlify-cli
 
       - name: Deploy Preview
-        if: github.event.pull_request.merged != true
+        if: github.event.pull_request.merged != true && github.actor != 'dependabot[bot]'
         working-directory: ${{ github.workspace }}/ui/react
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
