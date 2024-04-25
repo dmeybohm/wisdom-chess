@@ -24,11 +24,11 @@ namespace wisdom
         int my_king_col;
 
         InlineThreats (const Board& board, Color king_color, Coord king_coord)
-            : my_board { board },
-                my_opponent { colorInvert (king_color) },
-                my_king_color { king_color },
-                my_king_row { Row (king_coord) },
-                my_king_col { Column (king_coord) }
+            : my_board { board }
+            , my_opponent { colorInvert (king_color) }
+            , my_king_color { king_color }
+            , my_king_row { Row (king_coord) }
+            , my_king_col { Column (king_coord) }
         {
         }
 
@@ -189,30 +189,31 @@ namespace wisdom
 
         bool knight()
         {
-            return checkKnight<-1, 0>()
-                || checkKnight<0, +1>()
-                || checkKnight<+1, 0>()
+            return checkKnight<-1, 0>() || checkKnight<0, +1>() || checkKnight<+1, 0>()
                 || checkKnight<0, -1>();
         }
 
         bool pawn()
         {
-            int r_dir = pawnDirection<int>(my_king_color);
+            int r_dir = pawnDirection<int> (my_king_color);
             int left_col = my_king_col - 1;
             int right_col = my_king_col + 1;
             int target_row = my_king_row + r_dir;
 
             int left_attack_exists
                 = (isValidRow (target_row) && isValidColumn (left_col)
-                   && my_board.pieceAt (target_row, left_col) == ColoredPiece::make (my_opponent, Piece::Pawn));
+                   && my_board.pieceAt (target_row, left_col)
+                       == ColoredPiece::make (my_opponent, Piece::Pawn));
             int right_attack_exists
                 = (isValidRow (target_row) && isValidColumn (right_col)
-                   && my_board.pieceAt (target_row, right_col) == ColoredPiece::make (my_opponent, Piece::Pawn));
+                   && my_board.pieceAt (target_row, right_col)
+                       == ColoredPiece::make (my_opponent, Piece::Pawn));
 
             return left_attack_exists | right_attack_exists;
         }
 
-        enum class KingThreatCheck {
+        enum class KingThreatCheck
+        {
             CheckMiddle,
             DoNotCheckMiddle
         };
@@ -223,18 +224,18 @@ namespace wisdom
             bool middle_attack_exists = false;
             ColoredPiece opponent_king = ColoredPiece::make (my_opponent, Piece::King);
 
-            bool left_attack_exists = (isValidRow (target_row) && isValidColumn (starting_col)
-                && my_board.pieceAt (target_row, starting_col) == opponent_king
-            );
+            bool left_attack_exists
+                = (isValidRow (target_row) && isValidColumn (starting_col)
+                   && my_board.pieceAt (target_row, starting_col) == opponent_king);
             if constexpr (squares_to_check == KingThreatCheck::CheckMiddle)
             {
-                middle_attack_exists = (isValidRow (target_row) && isValidColumn (middle_col)
-                    && my_board.pieceAt (target_row, middle_col) == opponent_king
-                );
+                middle_attack_exists
+                    = (isValidRow (target_row) && isValidColumn (middle_col)
+                       && my_board.pieceAt (target_row, middle_col) == opponent_king);
             }
-            bool right_attack_exists = (isValidRow (target_row) && isValidColumn (ending_col)
-                && my_board.pieceAt (target_row, ending_col) == opponent_king
-            );
+            bool right_attack_exists
+                = (isValidRow (target_row) && isValidColumn (ending_col)
+                   && my_board.pieceAt (target_row, ending_col) == opponent_king);
 
             return left_attack_exists | middle_attack_exists | right_attack_exists;
         }
@@ -246,13 +247,22 @@ namespace wisdom
 
             // Inline checks across all three possible rows.
             bool top_attack_exists = checkKingThreatRow<KingThreatCheck::CheckMiddle> (
-                nextRow<int> (my_king_row, -1), left_col, right_col);
+                nextRow<int> (my_king_row, -1),
+                left_col,
+                right_col
+            );
 
             bool center_attack_exists = checkKingThreatRow<KingThreatCheck::DoNotCheckMiddle> (
-                my_king_row, left_col, right_col);
+                my_king_row,
+                left_col,
+                right_col
+            );
 
             bool bottom_attack_exists = checkKingThreatRow<KingThreatCheck::CheckMiddle> (
-                nextRow (my_king_row, +1), left_col, right_col);
+                nextRow (my_king_row, +1),
+                left_col,
+                right_col
+            );
 
             return top_attack_exists | center_attack_exists | bottom_attack_exists;
         }
@@ -341,4 +351,3 @@ namespace wisdom
         }
     };
 }
-

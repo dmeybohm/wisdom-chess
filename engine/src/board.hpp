@@ -98,7 +98,8 @@ namespace wisdom
             -> bool
         {
             // If either/both is passed, check both types.
-            auto check_type = (castle_types == Either_Side_Eligible || castle_types == Neither_Side_Eligible)
+            auto check_type
+                = (castle_types == Either_Side_Eligible || castle_types == Neither_Side_Eligible)
                 ? Neither_Side_Eligible
                 : castle_types;
 
@@ -139,8 +140,8 @@ namespace wisdom
             return CoordIterator {};
         }
 
-        [[nodiscard]] auto findFirstCoordWithPiece (ColoredPiece piece,
-                                                    Coord starting_at = First_Coord) const
+        [[nodiscard]] auto
+        findFirstCoordWithPiece (ColoredPiece piece, Coord starting_at = First_Coord) const
             -> optional<Coord>;
 
     private:
@@ -203,7 +204,6 @@ namespace wisdom
         static_assert (std::is_integral_v<IntegerType>);
         assert (color == Color::Black || color == Color::White);
         int8_t color_as_int = toInt8 (color);
-        return gsl::narrow_cast<IntegerType>(-1 + 2 * (color_as_int - 1));
+        return gsl::narrow_cast<IntegerType> (-1 + 2 * (color_as_int - 1));
     }
 }
-

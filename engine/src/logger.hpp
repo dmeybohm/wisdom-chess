@@ -23,4 +23,3 @@ namespace wisdom
 
     auto makeStandardLogger (Logger::LogLevel level = Logger::LogLevel_Debug) -> unique_ptr<Logger>;
 }
-

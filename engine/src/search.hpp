@@ -24,8 +24,13 @@ namespace wisdom
     class IterativeSearch
     {
     public:
-        IterativeSearch (const Board& board, const History& history, const Logger& output,
-                         MoveTimer timer, int total_depth);
+        IterativeSearch (
+            const Board& board,
+            const History& history,
+            const Logger& output,
+            MoveTimer timer,
+            int total_depth
+        );
 
         ~IterativeSearch();
 
@@ -37,4 +42,3 @@ namespace wisdom
         unique_ptr<IterativeSearchImpl> impl;
     };
 }
-

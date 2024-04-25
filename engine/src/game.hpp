@@ -123,11 +123,17 @@ namespace wisdom
             my_search_timeout = seconds;
         }
 
-        [[nodiscard]] auto mapCoordinatesToMove (Coord src, Coord dst, optional<Piece> promoted) const
+        [[nodiscard]] auto
+        mapCoordinatesToMove (Coord src, Coord dst, optional<Piece> promoted) const
             -> optional<Move>
         {
-            return ::wisdom::mapCoordinatesToMove (my_current_board, getCurrentTurn(), src, dst,
-                                                   promoted);
+            return ::wisdom::mapCoordinatesToMove (
+                my_current_board,
+                getCurrentTurn(),
+                src,
+                dst,
+                promoted
+            );
         }
 
         void setPeriodicFunction (const MoveTimer::PeriodicFunction& periodic_function)
@@ -139,14 +145,14 @@ namespace wisdom
 
         [[nodiscard]] auto computerWantsDraw (Color who) const -> bool;
 
-        void setProposedDrawStatus (ProposedDrawType draw_type, Color who,
-                                       DrawStatus draw_status);
+        void setProposedDrawStatus (ProposedDrawType draw_type, Color who, DrawStatus draw_status);
 
-        void setProposedDrawStatus (ProposedDrawType draw_type, Color who,
-                                       bool accepted);
+        void setProposedDrawStatus (ProposedDrawType draw_type, Color who, bool accepted);
 
-        void setProposedDrawStatus (ProposedDrawType draw_type,
-                                       std::pair<DrawStatus, DrawStatus> draw_statuses);
+        void setProposedDrawStatus (
+            ProposedDrawType draw_type, 
+            std::pair<DrawStatus, DrawStatus> draw_statuses
+        );
 
     private:
         void updateThreefoldRepetitionDrawStatus();
@@ -156,20 +162,20 @@ namespace wisdom
         Board my_current_board {};
         mutable MoveGenerator my_move_generator {};
         History my_history;
+
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};
         int my_max_depth { Default_Max_Depth };
 
         Players my_players = { Player::Human, Player::ChessEngine };
         chrono::seconds my_search_timeout { Default_Max_Search_Seconds };
 
-        BothPlayersDrawStatus my_third_repetition_draw {
+        BothPlayersDrawStatus my_third_repetition_draw { 
             DrawStatus::NotReached,
-            DrawStatus::NotReached
+            DrawStatus::NotReached 
         };
-        BothPlayersDrawStatus my_fifty_moves_without_progress_draw {
-            DrawStatus::NotReached,
-            DrawStatus::NotReached
+        BothPlayersDrawStatus my_fifty_moves_without_progress_draw { 
+            DrawStatus::NotReached, 
+            DrawStatus::NotReached 
         };
     };
 }
-

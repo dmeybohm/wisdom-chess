@@ -24,7 +24,7 @@ namespace wisdom
     }
 
     Game::Game()
-        : Game { BoardBuilder::fromDefaultPosition(),  { { Player::Human, Player::ChessEngine } } }
+        : Game { BoardBuilder::fromDefaultPosition(), { { Player::Human, Player::ChessEngine } } }
     {
     }
 
@@ -54,7 +54,6 @@ namespace wisdom
     Game::Game (const BoardBuilder& builder, const Players& players)
         : Game { builder, players, builder.getCurrentTurn() }
     {
-
     }
 
     // All other constructors must call this one:
@@ -91,14 +90,14 @@ namespace wisdom
             auto third_repetition_status = my_history.getThreefoldRepetitionStatus();
             switch (third_repetition_status)
             {
-            case DrawStatus::Declined:
-                break;
+                case DrawStatus::Declined:
+                    break;
 
-            case DrawStatus::NotReached:
-                return GameStatus::ThreefoldRepetitionReached;
+                case DrawStatus::NotReached:
+                    return GameStatus::ThreefoldRepetitionReached;
 
-            case DrawStatus::Accepted:
-                return GameStatus::ThreefoldRepetitionAccepted;
+                case DrawStatus::Accepted:
+                    return GameStatus::ThreefoldRepetitionAccepted;
             }
         }
 
@@ -240,19 +239,20 @@ namespace wisdom
         my_history.setFiftyMovesWithoutProgressStatus (status);
     }
 
-    void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who,
-                                         DrawStatus draw_status)
+    void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who, DrawStatus draw_status)
     {
         switch (draw_type)
         {
             case ProposedDrawType::ThreeFoldRepetition:
-                my_third_repetition_draw = updateDrawStatus (my_third_repetition_draw, who, draw_status);
+                my_third_repetition_draw
+                    = updateDrawStatus (my_third_repetition_draw, who, draw_status);
                 if (bothPlayersReplied (my_third_repetition_draw))
                     updateThreefoldRepetitionDrawStatus();
                 break;
 
             case ProposedDrawType::FiftyMovesWithoutProgress:
-                my_fifty_moves_without_progress_draw = updateDrawStatus (my_fifty_moves_without_progress_draw, who, draw_status);
+                my_fifty_moves_without_progress_draw
+                    = updateDrawStatus (my_fifty_moves_without_progress_draw, who, draw_status);
                 if (bothPlayersReplied (my_fifty_moves_without_progress_draw))
                     updateFiftyMovesWithoutProgressDrawStatus();
                 break;
@@ -261,13 +261,17 @@ namespace wisdom
 
     void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who, bool accepted)
     {
-        setProposedDrawStatus (draw_type, who,
-                               accepted ? DrawStatus::Accepted : DrawStatus::Declined);
+        setProposedDrawStatus (
+            draw_type,
+            who,
+            accepted ? DrawStatus::Accepted : DrawStatus::Declined
+        );
     }
 
-    void Game::setProposedDrawStatus (ProposedDrawType draw_type,
-                                         std::pair<DrawStatus, DrawStatus> draw_statuses)
-    {
+    void Game::setProposedDrawStatus (
+        ProposedDrawType draw_type, 
+        std::pair<DrawStatus, DrawStatus> draw_statuses
+    ) {
         setProposedDrawStatus (draw_type, Color::White, draw_statuses.first);
         setProposedDrawStatus (draw_type, Color::Black, draw_statuses.second);
     }

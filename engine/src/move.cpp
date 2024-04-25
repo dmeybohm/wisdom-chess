@@ -109,12 +109,14 @@ namespace wisdom
         my_code.setCastleState (who, new_state);
     }
 
-    void Board::removeCastlingEligibility (Color who,
-                                           CastlingEligibility removed_castle_states) noexcept
+    void
+    Board::removeCastlingEligibility (Color who, CastlingEligibility removed_castle_states) noexcept
     {
         CastlingEligibility orig_castle_state = getCastlingEligibility (who);
-        my_code.setCastleState (who,
-                                type_safe::combo (orig_castle_state) | type_safe::combo (removed_castle_states));
+        my_code.setCastleState (
+            who,
+            type_safe::combo (orig_castle_state) | type_safe::combo (removed_castle_states)
+        );
     }
 
     void Board::updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst)
@@ -127,7 +129,8 @@ namespace wisdom
             // set the new castle status
             removeCastlingEligibility (
                 who,
-                                       CastlingIneligible::Kingside | CastlingIneligible::Queenside);
+                CastlingIneligible::Kingside | CastlingIneligible::Queenside
+            );
         }
     }
 
@@ -318,11 +321,12 @@ namespace wisdom
             throw ParseMoveException { "Invalid color parsing castling move." };
 
         string transformed { str };
-        std::transform (transformed.begin(), transformed.end(), transformed.begin(),
-                        [] (auto c) -> auto
-                        {
-                            return ::toupper (c);
-                        });
+        std::transform (
+            transformed.begin(),
+            transformed.end(),
+            transformed.begin(),
+            [](auto c) { return ::toupper (c); }
+        );
 
         if (transformed == "O-O-O")
             dst_col = King_Column - 2;
@@ -346,11 +350,12 @@ namespace wisdom
             return nullopt;
 
         tmp.erase (std::remove_if (tmp.begin(), tmp.end(), isspace), tmp.end());
-        std::transform (tmp.begin(), tmp.end(), tmp.begin(),
-                        [] (auto c) -> auto
-                        {
-                            return ::toupper (c);
-                        });
+        std::transform (
+            tmp.begin(),
+            tmp.end(),
+            tmp.begin(),
+            [](auto c) { return ::toupper (c); }
+        );
 
         if (tmp.empty())
             return nullopt;
@@ -501,8 +506,14 @@ namespace wisdom
         return result;
     }
 
-    auto mapCoordinatesToMove (const Board& board, Color who, Coord src, Coord dst,
-                               optional<Piece> promoted_piece) -> optional<Move>
+    auto mapCoordinatesToMove (
+        const Board& board, 
+        Color who, 
+        Coord src, 
+        Coord dst, 
+        optional<Piece> promoted_piece
+    ) 
+        -> optional<Move>
     {
         ColoredPiece src_piece = board.pieceAt (src);
         ColoredPiece dst_piece = board.pieceAt (dst);

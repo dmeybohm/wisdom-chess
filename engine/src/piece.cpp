@@ -8,9 +8,12 @@ namespace wisdom
     {
         switch (who)
         {
-            case Color::White: return "White";
-            case Color::Black: return "Black";
-            case Color::None: return "None";
+            case Color::White:
+                return "White";
+            case Color::Black:
+                return "Black";
+            case Color::None:
+                return "None";
         }
         std::terminate();
     }
@@ -47,7 +50,7 @@ namespace wisdom
         return result;
     }
 
-    auto operator<< (std::ostream & ostream, const ColoredPiece &piece) -> std::ostream&
+    auto operator<< (std::ostream& ostream, const ColoredPiece& piece) -> std::ostream&
     {
         ostream << asString (piece);
         return ostream;

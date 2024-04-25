@@ -79,19 +79,22 @@ namespace wisdom
         int8_t row = Row (coord);
         int8_t col = Column (coord);
 
-        return makeCoord (gsl::narrow_cast<int8_t> (Last_Row - row),
-                          gsl::narrow_cast<int8_t> (Last_Column - col));
+        return makeCoord (
+            gsl::narrow_cast<int8_t> (Last_Row - row),
+            gsl::narrow_cast<int8_t> (Last_Column - col)
+        );
     }
 
     static int8_t castlingRowFromColor (Color who)
     {
         switch (who)
         {
-            case Color::White: return 7;
-            case Color::Black: return 0;
-            default: throw Error {
-              "Invalid color in castlingRowFromColor()"
-            };
+            case Color::White:
+                return 7;
+            case Color::Black:
+                return 0;
+            default:
+                throw Error { "Invalid color in castlingRowFromColor()" };
         }
     }
 

@@ -30,7 +30,8 @@
 #include <type_safe/flag.hpp>
 #include <type_safe/flag_set.hpp>
 
-namespace doctest {
+namespace doctest
+{
     class String;
 }
 
@@ -39,16 +40,16 @@ namespace wisdom
     using zstring = gsl::zstring;
     using czstring = gsl::czstring;
     using gsl::not_null;
-    using std::string;
-    using std::optional;
-    using std::vector;
-    using std::unique_ptr;
-    using std::make_unique;
-    using std::make_shared;
-    using std::nullopt;
     using std::array;
     using std::bitset;
+    using std::make_shared;
+    using std::make_unique;
+    using std::nullopt;
+    using std::optional;
     using std::pair;
+    using std::string;
+    using std::unique_ptr;
+    using std::vector;
 
     template <typename T>
     using observer_ptr = T*;
@@ -130,8 +131,8 @@ namespace wisdom
 
     public:
         Error (string message, string extra_info) noexcept
-                : my_message { std::move (message) }
-                , my_extra_info { std::move (extra_info) }
+            : my_message { std::move (message) }
+            , my_extra_info { std::move (extra_info) }
         {
         }
 

@@ -10,10 +10,15 @@ namespace wisdom
     BoardCode::BoardCode()
     {
         auto iterator = Board::allCoords();
-        my_code = std::accumulate (iterator.begin(), iterator.end(), my_code,
-                                   [](const auto value, const auto coord) {
-                                       return value ^ boardCodeHash (coord, Piece_And_Color_None);
-                                   });
+        my_code = std::accumulate (
+            iterator.begin(),
+            iterator.end(),
+            my_code,
+            [](const auto value, const auto coord)
+            {
+                return value ^ boardCodeHash (coord, Piece_And_Color_None); 
+            }
+        );
     }
 
     BoardCode::BoardCode (const Board& board)

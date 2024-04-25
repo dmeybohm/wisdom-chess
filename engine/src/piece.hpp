@@ -7,9 +7,10 @@ namespace wisdom
     class PieceError : public Error
     {
     public:
-        explicit PieceError (string extra_info) :
-            Error("Piece error", std::move (extra_info))
-        {}
+        explicit PieceError (string extra_info)
+            : Error ("Piece error", std::move (extra_info))
+        {
+        }
     };
 
     enum class Piece : int8_t
@@ -102,13 +103,13 @@ namespace wisdom
 
     constexpr auto pieceIndex (Piece piece) -> int
     {
-        auto piece_as_int = static_cast<int8_t>(piece);
+        auto piece_as_int = static_cast<int8_t> (piece);
         assert (piece_as_int >= toInt8 (Piece::None) && piece_as_int <= toInt8 (Piece::King));
         return piece_as_int;
     }
 
     // 3 bits for type of piece
-    inline constexpr int8_t Piece_Type_Mask = 0x08-1;
+    inline constexpr int8_t Piece_Type_Mask = 0x08 - 1;
 
     // 2 bits for color
     inline constexpr int8_t Piece_Color_Mask = 0x18;
@@ -135,7 +136,7 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto color() const noexcept -> Color
         {
-            auto result = gsl::narrow_cast<int8_t>(
+            auto result = gsl::narrow_cast<int8_t> (
                 (piece_type_and_color & Piece_Color_Mask) >> Piece_Color_Shift
             );
             return colorFromInt8 (result);
@@ -164,10 +165,10 @@ namespace wisdom
     // Order here is significant - it means computer will prefer the piece at the top
     // all else being equal, such as if the promoted piece cannot be saved from capture.
     inline constexpr Piece All_Promotable_Piece_Types[] = {
-            Piece::Queen,
-            Piece::Rook,
-            Piece::Bishop,
-            Piece::Knight,
+        Piece::Queen,
+        Piece::Rook,
+        Piece::Bishop,
+        Piece::Knight,
     };
 
     constexpr auto pieceType (ColoredPiece piece) -> Piece
@@ -194,20 +195,26 @@ namespace wisdom
     {
         switch (p)
         {
-            case 'k': case 'K':
+            case 'k':
+            case 'K':
                 return Piece::King;
-            case 'q': case 'Q':
+            case 'q':
+            case 'Q':
                 return Piece::Queen;
-            case 'r': case 'R':
+            case 'r':
+            case 'R':
                 return Piece::Rook;
-            case 'b': case 'B':
+            case 'b':
+            case 'B':
                 return Piece::Bishop;
-            case 'n': case 'N':
+            case 'n':
+            case 'N':
                 return Piece::Knight;
-            case 'p': case 'P':
+            case 'p':
+            case 'P':
                 return Piece::Pawn;
             default:
-                throw Error { "Invalid piece character"};
+                throw Error { "Invalid piece character" };
         }
     }
 
@@ -240,4 +247,3 @@ namespace wisdom
 
     auto operator<< (std::ostream& ostream, const ColoredPiece& value) -> std::ostream&;
 }
-

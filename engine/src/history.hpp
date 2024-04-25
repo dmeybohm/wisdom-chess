@@ -18,8 +18,9 @@ namespace wisdom
 
     using BothPlayersDrawStatus = pair<DrawStatus, DrawStatus>;
 
-    [[nodiscard]] constexpr auto updateDrawStatus (BothPlayersDrawStatus initial, Color player,
-                                                   DrawStatus new_status) -> BothPlayersDrawStatus
+    [[nodiscard]] constexpr auto
+    updateDrawStatus (BothPlayersDrawStatus initial, Color player, DrawStatus new_status)
+        -> BothPlayersDrawStatus
     {
         assert (player == Color::White || player == Color::Black);
         if (player == Color::White)
@@ -37,8 +38,8 @@ namespace wisdom
     [[nodiscard]] constexpr auto bothPlayersReplied (BothPlayersDrawStatus both_players_status)
         -> bool
     {
-        return drawStatusIsReplied (both_players_status.first) &&
-            drawStatusIsReplied (both_players_status.second);
+        return drawStatusIsReplied (both_players_status.first)
+            && drawStatusIsReplied (both_players_status.second);
     }
 
     class History
@@ -57,14 +58,14 @@ namespace wisdom
             return result;
         }
 
-        [[nodiscard]] static auto hasBeenXHalfMovesWithoutProgress (const Board& board, int x_half_moves)
-            -> bool
+        [[nodiscard]] static auto
+        hasBeenXHalfMovesWithoutProgress (const Board& board, int x_half_moves) -> bool
         {
             return board.getHalfMoveClock() >= x_half_moves;
         }
 
-        [[nodiscard]] static auto hasBeenSeventyFiveMovesWithoutProgress (
-            const Board& board) -> bool
+        [[nodiscard]] static auto hasBeenSeventyFiveMovesWithoutProgress (const Board& board)
+            -> bool
         {
             return hasBeenXHalfMovesWithoutProgress (board, 150);
         }
@@ -165,4 +166,3 @@ namespace wisdom
         DrawStatus my_fifty_moves_without_progress_status = DrawStatus::NotReached;
     };
 }
-

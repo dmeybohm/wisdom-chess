@@ -22,7 +22,11 @@ namespace wisdom
 
         MoveList (const MoveList& other) // NOLINT(*-pro-type-member-init)
         {
-            std::copy (other.my_moves.begin(), other.my_moves.begin() + other.my_size, my_moves.begin());
+            std::copy (
+                other.my_moves.begin(),
+                other.my_moves.begin() + other.my_size,
+                my_moves.begin()
+            );
             my_size = other.my_size;
         }
 
@@ -30,7 +34,11 @@ namespace wisdom
         {
             if (&other != this)
             {
-                std::copy (other.my_moves.begin(), other.my_moves.begin() + other.my_size, my_moves.begin());
+                std::copy (
+                    other.my_moves.begin(),
+                    other.my_moves.begin() + other.my_size,
+                    my_moves.begin()
+                );
                 my_size = other.my_size;
             }
             return *this;

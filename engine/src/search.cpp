@@ -15,13 +15,18 @@ namespace wisdom
     class IterativeSearchImpl
     {
     public:
-        IterativeSearchImpl (const Board& board, const History& history, const Logger& output,
-                             MoveTimer timer, int total_depth) :
-            my_original_board { Board { board } },
-            my_history { History { history } },
-            my_output { &output },
-            my_timer { std::move (timer) },
-            my_total_depth { total_depth }
+        IterativeSearchImpl (
+            const Board& board,
+            const History& history,
+            const Logger& output,
+            MoveTimer timer,
+            int total_depth
+        )
+            : my_original_board { Board { board } }
+            , my_history { History { history } }
+            , my_output { &output }
+            , my_timer { std::move (timer) }
+            , my_total_depth { total_depth }
         {
         }
 
@@ -59,10 +64,16 @@ namespace wisdom
     };
 
     IterativeSearch::~IterativeSearch() = default;
-    IterativeSearch::IterativeSearch (const Board& board, const History& history, const Logger& output,
-                                      MoveTimer timer, int total_depth)
-            : impl { make_unique<IterativeSearchImpl> (
-                Board { board }, history, output, std::move (timer), total_depth) }
+    IterativeSearch::IterativeSearch (
+        const Board& board,
+        const History& history,
+        const Logger& output,
+        MoveTimer timer,
+        int total_depth
+    )
+        : impl { make_unique<IterativeSearchImpl> (
+            Board { board }, history, output, std::move (timer), total_depth
+        ) }
     {
     }
 
@@ -128,13 +139,14 @@ namespace wisdom
             else
             {
                 // Don't recurse into a big search if this move is a draw.
-                if (my_search_depth == depth && isProbablyDrawingMove (child_board, side, move, my_history))
+                if (my_search_depth == depth
+                    && isProbablyDrawingMove (child_board, side, move, my_history))
                 {
                     score = drawingScore (my_searching_color, side);
                 }
                 else
                 {
-                    score = -1 * search (child_board, colorInvert (side), depth-1, -beta, -alpha);
+                    score = -1 * search (child_board, colorInvert (side), depth - 1, -beta, -alpha);
                 }
             }
 
@@ -164,16 +176,15 @@ namespace wisdom
         {
             // if there are no legal moves, then the current player is in a
             // stalemate or checkmate position.
-            best_score = evaluateWithoutLegalMoves (parent_board, side,
-                                                    my_current_result.depth);
+            best_score = evaluateWithoutLegalMoves (parent_board, side, my_current_result.depth);
         }
         my_current_result.move = best_move;
         my_current_result.score = best_score;
         return best_score;
     }
 
-    static void logSearchTime (const Logger& output, int nodes, SystemClockTime start,
-                               SystemClockTime end)
+    static void
+    logSearchTime (const Logger& output, int nodes, SystemClockTime start, SystemClockTime end)
     {
         auto seconds_duration = chrono::duration<double> (end - start);
         auto seconds = seconds_duration.count();
@@ -215,7 +226,7 @@ namespace wisdom
 
             return best_result;
         }
-        catch (const Error &e)
+        catch (const Error& e)
         {
             std::cerr << "Uncaught error: " << e.message() << "\n";
             std::cerr << e.extra_info() << "\n";
@@ -255,22 +266,24 @@ namespace wisdom
 
         {
             std::stringstream progress_str;
-            progress_str << "nodes visited = " << my_nodes_visited << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs;
+            progress_str << "nodes visited = " << my_nodes_visited
+                         << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs;
             my_output->debug (std::move (progress_str).str());
         }
 
         if (result.timed_out)
         {
             std::stringstream progress_str;
-            progress_str << "Search timed out" << "\n";
+            progress_str << "Search timed out"
+                         << "\n";
             my_output->info (std::move (progress_str).str());
         }
         else if (result.move.has_value())
         {
             Move best_move = *result.move;
             std::stringstream progress_str;
-            progress_str << "move selected = " << asString (best_move) << " [ score: "
-                         << result.score << " ]\n";
+            progress_str << "move selected = " << asString (best_move)
+                         << " [ score: " << result.score << " ]\n";
             my_output->info (std::move (progress_str).str());
         }
 

@@ -13,8 +13,11 @@ namespace wisdom
         }
     }
 
-    static auto dualBishopsAreTheSameColor (const Board& board, Color first_bishop_color,
-                                            Color second_bishop_color)
+    static auto dualBishopsAreTheSameColor (
+        const Board& board, 
+        Color first_bishop_color, 
+        Color second_bishop_color
+    )
         -> Material::CheckmateIsPossible
     {
         auto first_bishop = ColoredPiece::make (first_bishop_color, Piece::Bishop);

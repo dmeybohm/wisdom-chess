@@ -32,7 +32,7 @@ namespace wisdom
         [[nodiscard]] static constexpr auto make (int row, int col) -> Coord
         {
             assert (isValidRow (row) && isValidColumn (col));
-            Coord result = { .row_and_col = gsl::narrow_cast<int8_t>(row << 3 | col) };
+            Coord result = { .row_and_col = gsl::narrow_cast<int8_t> (row << 3 | col) };
             return result;
         }
 
@@ -187,12 +187,12 @@ namespace wisdom
             return *this;
         }
 
-        auto operator== (const CoordIterator &other) const -> bool
+        auto operator== (const CoordIterator& other) const -> bool
         {
             return other.my_coord == my_coord;
         }
 
-        auto operator!= (const CoordIterator &other) const -> bool
+        auto operator!= (const CoordIterator& other) const -> bool
         {
             return !(*this == other);
         }
@@ -204,9 +204,9 @@ namespace wisdom
     class CoordParseError : public Error
     {
     public:
-        explicit CoordParseError (string message) :
-                Error (std::move (message))
-        {}
+        explicit CoordParseError (string message)
+            : Error (std::move (message))
+        {
+        }
     };
 }
-

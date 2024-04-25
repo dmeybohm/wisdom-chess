@@ -44,11 +44,11 @@ namespace wisdom
             int8_t plus_one_column = nextColumn (castled_col, direction);
             int8_t plus_two_column = nextColumn (plus_one_column, direction);
 
-            if (isKingThreatened (board, who, castled_row, plus_one_column) || isKingThreatened (board, who, castled_row, plus_two_column))
+            if (isKingThreatened (board, who, castled_row, plus_one_column)
+                || isKingThreatened (board, who, castled_row, plus_two_column))
             {
                 return false;
             }
-
         }
 
         return true;

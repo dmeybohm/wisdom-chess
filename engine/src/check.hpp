@@ -27,12 +27,12 @@ namespace wisdom
             return my_value != NoDraw;
         }
 
-        friend auto operator == (DrawCategory first, DrawCategory second) -> bool
+        friend auto operator== (DrawCategory first, DrawCategory second) -> bool
         {
             return first.my_value == second.my_value;
         }
 
-        friend auto operator != (DrawCategory first, DrawCategory second) -> bool
+        friend auto operator!= (DrawCategory first, DrawCategory second) -> bool
         {
             return !operator== (first, second);
         }
@@ -41,30 +41,45 @@ namespace wisdom
     // Whether this move was a legal move for the computer_player.
     [[nodiscard]] auto isLegalPositionAfterMove (const Board& board, Color who, Move mv) -> bool;
 
-    [[nodiscard]] inline auto isKingThreatened (const Board& board, Color who, Coord king_coord) -> bool
+    [[nodiscard]] inline auto isKingThreatened (
+        const Board& board, 
+        Color who, 
+        Coord king_coord
+    )
+        -> bool
     {
         InlineThreats threats { board, who, king_coord };
         return threats.checkAll();
     }
 
-    [[nodiscard]] inline auto isKingThreatened (const Board& board, Color who, int8_t king_row,
-                                                int8_t king_col) -> bool
+    [[nodiscard]] inline auto isKingThreatened (
+        const Board& board, 
+        Color who, 
+        int8_t king_row, 
+        int8_t king_col
+    )
+        -> bool
     {
         return isKingThreatened (board, who, makeCoord (king_row, king_col));
     }
 
     // Whether the board is in a checkmated position for the computer_player.
-    [[nodiscard]] auto isCheckmated (const Board& board, Color who, MoveGenerator& generator) -> bool;
+    [[nodiscard]] auto isCheckmated (const Board& board, Color who, MoveGenerator& generator)
+        -> bool;
 
     // Whether in a stalemate position for white or black.
-    [[nodiscard]] auto isStalemated (const Board& board, Color who, MoveGenerator& generator) -> bool;
+    [[nodiscard]] auto isStalemated (const Board& board, Color who, MoveGenerator& generator)
+        -> bool;
 
     // Whether this move could cause a draw.
     //
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
-    inline auto isProbablyDrawingMove (const Board& board, [[maybe_unused]] Color who,
-                                       [[maybe_unused]] Move move, const History& history) -> DrawCategory
+    inline auto isProbablyDrawingMove (
+        const Board& board,
+        [[maybe_unused]] Color who,
+        [[maybe_unused]] Move move,
+        const History& history) -> DrawCategory
     {
         auto repetition_status = history.getThreefoldRepetitionStatus();
         auto no_progress_status = history.getFiftyMovesWithoutProgressStatus();
@@ -89,4 +104,3 @@ namespace wisdom
         return DrawCategory::NoDraw;
     }
 }
-

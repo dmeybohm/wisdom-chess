@@ -75,7 +75,7 @@ namespace wisdom
             my_king_positions[colorIndex (who)] = coord;
     }
 
-    void BoardBuilder::addPieces (Color who, const vector<CoordAndPiece> &pieces)
+    void BoardBuilder::addPieces (Color who, const vector<CoordAndPiece>& pieces)
     {
         for (auto&& it : pieces)
             addPiece (it.coord, who, it.piece_type);
@@ -87,8 +87,8 @@ namespace wisdom
             addPiece (row, col, who, piece_type);
     }
 
-    void BoardBuilder::addRowOfSameColorAndPiece (const string& coord_str, Color who,
-                                                        Piece piece_type)
+    void
+    BoardBuilder::addRowOfSameColorAndPiece (const string& coord_str, Color who, Piece piece_type)
     {
         Coord coord = coordParse (coord_str);
 
@@ -96,16 +96,17 @@ namespace wisdom
             addPiece (Row (coord), col, who, piece_type);
     }
 
-    void BoardBuilder::addRowOfSameColor (int row, Color who,
-                                              const PieceRow& piece_types)
+    void BoardBuilder::addRowOfSameColor (int row, Color who, const PieceRow& piece_types)
     {
         for (auto col = 0; col < Num_Columns; col++)
             addPiece (row, col, who, piece_types[col]);
     }
 
-    void BoardBuilder::addRowOfSameColor (const string& coord_str, Color who,
-                                              const PieceRow& piece_types)
-    {
+    void BoardBuilder::addRowOfSameColor (
+        const string& coord_str, 
+        Color who, 
+        const PieceRow& piece_types
+    ) {
         Coord coord = coordParse (coord_str);
 
         for (auto col = 0; col < Num_Columns; col++)

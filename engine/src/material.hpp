@@ -16,6 +16,7 @@ namespace wisdom
 
         [[nodiscard]] static int weight (Piece piece) noexcept
         {
+            // clang-format off
             switch (piece)
             {
                 case Piece::None: return WeightNone;
@@ -26,6 +27,8 @@ namespace wisdom
                 case Piece::Knight: return WeightKnight;
                 case Piece::Pawn: return WeightPawn;
             }
+            // clang-format on
+
             std::terminate();
         }
 
@@ -120,4 +123,3 @@ namespace wisdom
         array<array<int8_t, Num_Piece_Types>, Num_Players> my_piece_count {};
     };
 }
-

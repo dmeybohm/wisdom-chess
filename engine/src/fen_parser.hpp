@@ -10,7 +10,8 @@ namespace wisdom
     class FenParser final
     {
     public:
-        explicit FenParser (const string& input) : active_player { Color::White }
+        explicit FenParser (const string& input)
+            : active_player { Color::White }
         {
             parse (input);
         }
@@ -49,7 +50,9 @@ namespace wisdom
     class FenParserError : public Error
     {
     public:
-        explicit FenParserError (const string& message) : Error (message) { }
+        explicit FenParserError (const string& message)
+            : Error (message)
+        {
+        }
     };
 }
-
