@@ -13,8 +13,8 @@ namespace wisdom
         auto heuristicIsCastled (const Board& board, Color who) -> bool
         {
             auto king_pos = board.getKingPosition (who);
-            auto king_column = Column<int> (king_pos);
-            auto king_row = Row<int> (king_pos);
+            auto king_column = king_pos.column<int>();
+            auto king_row = king_pos.row<int>();
 
             auto rook_piece = ColoredPiece::make (who, Piece::Rook);
 

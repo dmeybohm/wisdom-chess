@@ -51,8 +51,8 @@ namespace wisdom
     {
         for (auto coord : CoordIterator {})
         {
-            int row = Row<int> (coord);
-            int col = Column<int> (coord);
+            int row = coord.row<int>();
+            int col = coord.column<int>();
 
             for (int k_row = -2; k_row <= 2; k_row++)
             {
@@ -109,15 +109,15 @@ namespace wisdom
         ColoredPiece piece3 = ColoredPiece::make (Color::None, Piece::None);
 
         // find which direction the king was castling in
-        direction = (Column (dst) - Column (src)) / 2;
+        direction = (dst.column() - src.column()) / 2;
 
-        ColoredPiece piece1 = board.pieceAt (Row (src), Column (dst) - direction);
-        ColoredPiece piece2 = board.pieceAt (Row (src), Column (dst));
+        ColoredPiece piece1 = board.pieceAt (src.row(), dst.column() - direction);
+        ColoredPiece piece2 = board.pieceAt (src.row(), dst.column());
 
         if (direction < 0)
         {
             // check for piece next to rook on queenside
-            piece3 = board.pieceAt (Row (src), Column (dst) - 1);
+            piece3 = board.pieceAt (src.row(), dst.column() - 1);
         }
 
         return pieceType (piece1) == Piece::None && pieceType (piece2) == Piece::None
@@ -272,7 +272,7 @@ namespace wisdom
 
         int left_column = column - 1;
         int right_column = column + 1;
-        int target_column = Column<int> (board.getEnPassantTarget (opponent));
+        int target_column = coordColumn<int> (board.getEnPassantTarget (opponent));
 
         if (left_column == target_column)
         {
@@ -416,8 +416,8 @@ namespace wisdom
 
     void MoveGeneration::generate (ColoredPiece piece, Coord coord)
     {
-        this->piece_row = Row<int> (coord);
-        this->piece_col = Column<int> (coord);
+        this->piece_row = coord.row<int>();
+        this->piece_col = coord.column<int>();
 
         switch (pieceType (piece))
         {

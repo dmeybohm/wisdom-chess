@@ -218,7 +218,8 @@ void workerReceiveSettings (int white_player, int black_player, int thinking_tim
     auto state = GameState::getState();
 
     state->updateSettings (GameSettings { static_cast<WebPlayer> (white_player),
-                                          static_cast<WebPlayer> (black_player), thinking_time,
+                                          static_cast<WebPlayer> (black_player), 
+                                          thinking_time,
                                           search_depth });
 
     startSearch();

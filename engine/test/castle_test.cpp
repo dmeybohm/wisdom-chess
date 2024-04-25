@@ -135,8 +135,8 @@ TEST_CASE( "Castling state is modified and restored for castling queenside" )
     CHECK( board.getCastlingEligibility (Color::Black) == Neither_Side_Eligible );
 
     // Check rook and king position updated:
-    CHECK( Row (board.getKingPosition (Color::Black)) == 0 );
-    CHECK( Column (board.getKingPosition (Color::Black)) == 2 );
+    CHECK( coordRow (board.getKingPosition (Color::Black)) == 0 );
+    CHECK( coordColumn (board.getKingPosition (Color::Black)) == 2 );
     CHECK( pieceType (board.pieceAt (0, 2)) == Piece::King );
     CHECK( pieceColor (board.pieceAt (0, 2)) == Color::Black );
     CHECK( pieceType (board.pieceAt (0, 3)) == Piece::Rook );
@@ -173,8 +173,8 @@ TEST_CASE("Castling state is modified and restored for castling kingside")
     CHECK( board.getCastlingEligibility (Color::White) == Neither_Side_Eligible );
 
     // Check rook and king position updated:
-    CHECK( Row (board.getKingPosition (Color::White)) == 7 );
-    CHECK( Column (board.getKingPosition (Color::White)) == 6 );
+    CHECK( coordRow (board.getKingPosition (Color::White)) == 7 );
+    CHECK( coordColumn (board.getKingPosition (Color::White)) == 6 );
     CHECK( pieceType (board.pieceAt (7, 6)) == Piece::King );
     CHECK( pieceColor (board.pieceAt (7, 6)) == Color::White );
     CHECK( pieceType (board.pieceAt (7, 5)) == Piece::Rook );

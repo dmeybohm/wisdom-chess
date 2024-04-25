@@ -6,19 +6,28 @@
 
 namespace wisdom
 {
-    auto enPassantTakenPawnCoord (Coord src, Coord dst) -> Coord
+    auto 
+    enPassantTakenPawnCoord (Coord src, Coord dst) 
+        -> Coord
     {
-        return makeCoord (Row (src), Column (dst));
+        return makeCoord (src.row(), dst.column());
     }
 
-    constexpr bool isDoubleSquarePawnMove (ColoredPiece src_piece, Move move)
+    constexpr auto 
+    isDoubleSquarePawnMove (ColoredPiece src_piece, Move move)
+        -> bool
     {
         Coord src = move.getSrc();
         Coord dst = move.getDst();
-        return pieceType (src_piece) == Piece::Pawn && abs (Row (src) - Row (dst)) == 2;
+        return pieceType (src_piece) == Piece::Pawn && abs (src.row() - dst.row()) == 2;
     }
 
-    void Board::updateMoveClock (Color who, Piece orig_src_piece_type, Move move) noexcept
+    void 
+    Board::updateMoveClock (
+        Color who, 
+        Piece orig_src_piece_type, 
+        Move move
+    ) noexcept
     {
         if (move.isAnyCapturing() || orig_src_piece_type == Piece::Pawn)
             my_half_move_clock = 0;
@@ -29,18 +38,26 @@ namespace wisdom
             my_full_move_clock++;
     }
 
-    void Board::setPiece (Coord coord, ColoredPiece piece) noexcept
+    void 
+    Board::setPiece (Coord coord, ColoredPiece piece) noexcept
     {
         my_squares[coord.index()] = piece;
     }
 
-    void Board::setKingPosition (Color who, Coord pos) noexcept
+    void 
+    Board::setKingPosition (Color who, Coord pos) noexcept
     {
         my_king_pos[colorIndex (who)] = pos;
     }
 
     // Returns the taken piece
-    auto Board::applyForEnPassant (Color who, Coord src, Coord dst) noexcept -> ColoredPiece
+    auto 
+    Board::applyForEnPassant (
+        Color who, 
+        Coord src, 
+        Coord dst
+    ) noexcept 
+        -> ColoredPiece
     {
         Coord taken_pawn_pos = enPassantTakenPawnCoord (src, dst);
         [[maybe_unused]] ColoredPiece taken_piece = pieceAt (taken_pawn_pos);
@@ -53,7 +70,12 @@ namespace wisdom
         return ColoredPiece::make (colorInvert (who), Piece::Pawn);
     }
 
-    auto Board::getCastlingRookMove (Move move, Color who) const -> Move
+    auto 
+    Board::getCastlingRookMove (
+        Move move, 
+        Color who
+    ) const 
+        -> Move
     {
         int src_row, src_col;
         int dst_row, dst_col;
@@ -63,20 +85,20 @@ namespace wisdom
         Coord src = move.getSrc();
         Coord dst = move.getDst();
 
-        src_row = Row<int> (src);
-        dst_row = Row<int> (dst);
+        src_row = src.row<int>();
+        dst_row = dst.row<int>();
 
-        if (Column (src) < Column (dst))
+        if (src.column() < dst.column())
         {
             // castle to the right (kingside)
             src_col = Last_Column;
-            dst_col = Column (dst) - 1;
+            dst_col = dst.column() - 1;
         }
         else
         {
             // castle to the left (queenside)
             src_col = 0;
-            dst_col = Column (dst) + 1;
+            dst_col = dst.column() + 1;
         }
 
         Expects (pieceType (pieceAt (src_row, src_col)) == Piece::Rook);
@@ -84,13 +106,18 @@ namespace wisdom
         return Move::make (src_row, src_col, dst_row, dst_col);
     }
 
-    void Board::applyForCastlingMove (Color who, Move king_move, [[maybe_unused]] Coord src,
-                                      [[maybe_unused]] Coord dst) noexcept
+    void 
+    Board::applyForCastlingMove (
+        Color who, 
+        Move king_move, 
+        [[maybe_unused]] Coord src, 
+        [[maybe_unused]] Coord dst
+    ) noexcept
     {
         Move rook_move = getCastlingRookMove (king_move, who);
 
         assert (pieceType (pieceAt (src)) == Piece::King);
-        assert (abs (Column (src) - Column (dst)) == 2);
+        assert (abs (src.column() - dst.column()) == 2);
 
         auto rook_src = rook_move.getSrc();
         auto rook_dst = rook_move.getDst();
@@ -104,7 +131,8 @@ namespace wisdom
         setPiece (rook_src, empty_piece);
     }
 
-    void Board::setCastleState (Color who, CastlingEligibility new_state) noexcept
+    void 
+    Board::setCastleState (Color who, CastlingEligibility new_state) noexcept
     {
         my_code.setCastleState (who, new_state);
     }
@@ -119,7 +147,8 @@ namespace wisdom
         );
     }
 
-    void Board::updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst)
+    void 
+    Board::updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst)
     {
         setKingPosition (who, dst);
 
@@ -134,8 +163,13 @@ namespace wisdom
         }
     }
 
-    void Board::updateAfterRookCapture (Color opponent, [[maybe_unused]] ColoredPiece dst_piece,
-                                        [[maybe_unused]] Coord src, Coord dst) noexcept
+    void 
+    Board::updateAfterRookCapture (
+        Color opponent,
+        [[maybe_unused]] ColoredPiece dst_piece,
+        [[maybe_unused]] Coord src,
+        Coord dst
+    ) noexcept
     {
         Expects (pieceColor (dst_piece) == opponent && pieceType (dst_piece) == Piece::Rook);
 
@@ -147,9 +181,9 @@ namespace wisdom
         // This needs to distinguish between captures that end
         // up on the rook and moves from the rook itself.
         //
-        if (Column (dst) == First_Column && Row (dst) == castle_rook_row)
+        if (dst.column() == First_Column && dst.row() == castle_rook_row)
             castle_state = CastlingIneligible::Queenside;
-        else if (Column (dst) == Last_Column && Row (dst) == castle_rook_row)
+        else if (dst.column() == Last_Column && dst.row() == castle_rook_row)
             castle_state = CastlingIneligible::Kingside;
 
         //
@@ -159,8 +193,14 @@ namespace wisdom
             removeCastlingEligibility (opponent, *castle_state);
     }
 
-    void Board::updateAfterRookMove (Color player, ColoredPiece src_piece,
-                                     Move move, Coord src, Coord dst) noexcept
+    void 
+    Board::updateAfterRookMove (
+        Color player, 
+        ColoredPiece src_piece, 
+        Move move, 
+        Coord src, 
+        Coord dst
+    ) noexcept 
     {
         Expects (pieceColor (src_piece) == player && pieceType (src_piece) == Piece::Rook);
 
@@ -171,11 +211,11 @@ namespace wisdom
         // This needs to distinguish between captures that end
         // up on the rook and moves from the rook itself.
         //
-        if (Row (src) == castle_src_row)
+        if (src.row() == castle_src_row)
         {
-            if (Column (src) == Queen_Rook_Column)
+            if (src.column() == Queen_Rook_Column)
                 affects_castle_state = CastlingIneligible::Queenside;
-            else if (Column (src) == King_Rook_Column)
+            else if (src.column() == King_Rook_Column)
                 affects_castle_state = CastlingIneligible::Kingside;
         }
 
@@ -187,44 +227,51 @@ namespace wisdom
         }
     }
 
-    void Board::setEnPassantTarget (Color who, Coord target) noexcept
+    void 
+    Board::setEnPassantTarget (Color who, Coord target) noexcept
     {
         my_code.setEnPassantTarget (who, target);
     }
 
-    void Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept
+    void 
+    Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept
     {
         int direction = pawnDirection<int> (who);
         Coord new_state = No_En_Passant_Coord;
         if (isDoubleSquarePawnMove (src_piece, move))
         {
             Coord src = move.getSrc();
-            int prev_row = nextRow (Row<int> (src), direction);
-            new_state = makeCoord (prev_row, Column (src));
+            int prev_row = nextRow (src.row<int>(), direction);
+            new_state = makeCoord (prev_row, src.column());
         }
         setEnPassantTarget (who, new_state);
     }
 
-    [[nodiscard]] auto Board::withMove (Color who, Move move) const -> Board
+    [[nodiscard]] auto 
+    Board::withMove (Color who, Move move) const -> Board
     {
         Board result = *this;
         result.makeMove (who, move);
         return result;
     }
 
-    [[nodiscard]] auto Board::withCurrentTurn (Color who) const -> Board
+    [[nodiscard]] auto 
+    Board::withCurrentTurn (Color who) const 
+        -> Board
     {
         Board result = *this;
         result.setCurrentTurn (who);
         return result;
     }
 
-    void Board::setCurrentTurn (Color who) noexcept
+    void 
+    Board::setCurrentTurn (Color who) noexcept
     {
         my_code.setCurrentTurn (who);
     }
 
-    void Board::makeMove (Color who, Move move)
+    void 
+    Board::makeMove (Color who, Move move)
     {
         assert (who == my_code.currentTurn());
 
@@ -309,7 +356,9 @@ namespace wisdom
         setCurrentTurn (colorInvert (who));
     }
 
-    static auto castleParse (const string& str, Color who) -> optional<Move>
+    static auto 
+    castleParse (const string& str, Color who) 
+        -> optional<Move>
     {
         int src_row, dst_col;
 
@@ -338,7 +387,9 @@ namespace wisdom
         return Move::makeCastling (src_row, King_Column, src_row, dst_col);
     }
 
-    auto moveParseOptional (const string& str, Color who) -> optional<Move>
+    auto 
+    moveParseOptional (const string& str, Color who) 
+        -> optional<Move>
     {
         bool en_passant = false;
         bool is_capturing = false;
@@ -437,13 +488,15 @@ namespace wisdom
 
         if (en_passant)
         {
-            move = Move::makeEnPassant (Row (*src), Column (*src), Row (*dst), Column (*dst));
+            move = Move::makeEnPassant (*src, *dst);
         }
 
         return move;
     }
 
-    auto moveParse (const string& str, Color color) -> Move
+    auto 
+    moveParse (const string& str, Color color) 
+        -> Move
     {
         if (tolower (str[0]) == 'o' && color == Color::None)
             throw ParseMoveException ("Move requires color, but no color provided");
@@ -463,14 +516,16 @@ namespace wisdom
         return result;
     }
 
-    string asString (const Move& move)
+    auto 
+    asString (const Move& move)
+        -> string
     {
         Coord src = move.getSrc();
         Coord dst = move.getDst();
 
         if (move.isCastling())
         {
-            if (Column (dst) - Column (src) < 0)
+            if (dst.column() - src.column() < 0)
             {
                 // queenside
                 return "O-O-O";
@@ -506,7 +561,8 @@ namespace wisdom
         return result;
     }
 
-    auto mapCoordinatesToMove (
+    auto 
+    mapCoordinatesToMove (
         const Board& board, 
         Color who, 
         Coord src, 
@@ -537,20 +593,20 @@ namespace wisdom
                 if (pieceType (src_piece) == Piece::Pawn)
                 {
                     optional<int> eligible_column
-                        = eligibleEnPassantColumn (board, Row (src), Column (src), who);
-                    if (eligible_column.has_value() && eligible_column == Column (dst))
+                        = eligibleEnPassantColumn (board, src.row(), src.column(), who);
+                    if (eligible_column.has_value() && eligible_column == dst.column())
                         return Move::makeEnPassant (src, dst);
 
-                    if (needPawnPromotion (Row<int> (dst), who) && promoted_piece.has_value())
+                    if (needPawnPromotion (dst.row<int>(), who) && promoted_piece.has_value())
                         return move.withPromotion (ColoredPiece::make (who, *promoted_piece));
                 }
                 break;
 
             // look for castling
             case Piece::King:
-                if (Column (src) == King_Column)
+                if (src.column() == King_Column)
                 {
-                    if (Column (dst) - Column (src) == 2 || Column (dst) - Column (src) == -2)
+                    if (dst.column() - src.column() == 2 || dst.column() - src.column() == -2)
                     {
                         return Move::makeCastling (src, dst);
                     }
@@ -564,7 +620,9 @@ namespace wisdom
         return move;
     }
 
-    auto operator<< (std::ostream& os, const Move& value) -> std::ostream&
+    auto 
+    operator<< (std::ostream& os, const Move& value) 
+        -> std::ostream&
     {
         os << asString (value);
         return os;

@@ -193,10 +193,10 @@ namespace wisdom
             -> Move
         {
             return Move::makeCastling (
-                Row (src), 
-                Column (src), 
-                Row (dst), 
-                Column (dst)
+                src.row(),
+                src.column(),
+                dst.row(),
+                dst.column()
             );
         }
 
@@ -226,7 +226,7 @@ namespace wisdom
         ) noexcept 
             -> Move
         {
-            return Move::makeEnPassant (Row (src), Column (src), Row (dst), Column (dst));
+            return Move::makeEnPassant (src.row(), src.column(), dst.row(), dst.column());
         }
 
         [[nodiscard]] static constexpr auto 
@@ -340,7 +340,7 @@ namespace wisdom
         isCastlingOnKingside() const noexcept 
             -> bool
         {
-            return isCastling() && Column (getDst()) == Kingside_Castled_King_Column;
+            return isCastling() && getDst().column() == Kingside_Castled_King_Column;
         }
     };
 

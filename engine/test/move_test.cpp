@@ -27,7 +27,7 @@ TEST_CASE( "Parsing an en-passant move" )
     Move en_passant = moveParse ("   e4d5 ep   ", Color::White);
     Coord src = coordParse ("e4");
     Coord dst = coordParse ("d5");
-    Move expected = Move::makeEnPassant (Row (src), Column (src), Row (dst), Column (dst));
+    Move expected = Move::makeEnPassant (src.row(), src.column(), dst.row(), dst.column());
     REQUIRE( en_passant == expected );
 }
 
@@ -46,7 +46,7 @@ TEST_CASE( "Parsing a castling move" )
     Move castling = moveParse ("   o-o-o ", Color::Black);
     Coord src = coordParse ("e8");
     Coord dst = coordParse ("c8");
-    Move expected = Move::makeCastling (Row (src), Column (src), Row (dst), Column (dst));
+    Move expected = Move::makeCastling (src.row(), src.column(), dst.row(), dst.column());
 
     REQUIRE( castling == expected );
 }

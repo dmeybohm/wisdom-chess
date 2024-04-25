@@ -27,8 +27,8 @@ namespace wisdom
             : my_board { board }
             , my_opponent { colorInvert (king_color) }
             , my_king_color { king_color }
-            , my_king_row { Row (king_coord) }
-            , my_king_col { Column (king_coord) }
+            , my_king_row { king_coord.row() }
+            , my_king_col { king_coord.column() }
         {
         }
 

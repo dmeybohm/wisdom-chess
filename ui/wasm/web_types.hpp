@@ -285,8 +285,8 @@ namespace wisdom
         static auto fromTextCoord (char* coord_text) -> WebCoord*
         {
             auto coord = coordParse (coord_text);
-            return new WebCoord { gsl::narrow<int> (Row (coord)),
-                                  gsl::narrow<int> (Column (coord)) };
+            return new WebCoord { gsl::narrow<int> (coord.row()),
+                                  gsl::narrow<int> (coord.column()) };
         }
     };
 

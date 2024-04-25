@@ -68,8 +68,8 @@ namespace wisdom
         {
             int castling_row
                 = pieceColor (src_piece) == Color::White ? wisdom::Last_Row : wisdom::First_Row;
-            if (castling_row == Row (src) && castling_row == Row (dst)
-                && std::abs (Column (src) - Column (dst)))
+            if (castling_row == src.row() && castling_row == dst.row()
+                && std::abs (src.column() - dst.column()))
             {
                 result = Move::makeCastling (src, dst);
             }
@@ -78,7 +78,7 @@ namespace wisdom
         // 2. en-passant is represented without (ep) suffix
         if (wisdom::pieceType (src_piece) == Piece::Pawn)
         {
-            if (Row (src) != Row (dst) && Column (src) != Column (dst)
+            if (src.row() != dst.row() && src.column() != dst.column()
                 && dst_piece == Piece_And_Color_None)
             {
                 result = Move::makeEnPassant (src, dst);

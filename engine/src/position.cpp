@@ -76,8 +76,8 @@ namespace wisdom
         if (who == Color::White)
             return coord;
 
-        int8_t row = Row (coord);
-        int8_t col = Column (coord);
+        int8_t row = coord.row();
+        int8_t col = coord.column();
 
         return makeCoord (
             gsl::narrow_cast<int8_t> (Last_Row - row),
@@ -101,8 +101,8 @@ namespace wisdom
     static int change (Coord coord, Color who, ColoredPiece piece)
     {
         Coord translated_pos = translatePosition (coord, who);
-        int8_t row = Row (translated_pos);
-        int8_t col = Column (translated_pos);
+        int8_t row = translated_pos.row();
+        int8_t col = translated_pos.column();
 
         // todo convert enum to integer index instead of using switch.
         switch (pieceType (piece))

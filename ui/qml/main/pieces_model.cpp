@@ -131,10 +131,10 @@ void PiecesModel::playerMoved (Move selected_move, wisdom::Color who)
     Coord src = selected_move.getSrc();
     Coord dst = selected_move.getDst();
 
-    int src_row = Row<int> (src);
-    int src_column = Column<int> (src);
-    int dst_row = Row<int> (dst);
-    int dst_column = Column<int> (dst);
+    int src_row = coordRow<int> (src);
+    int src_column = coordColumn<int> (src);
+    int dst_row = coordRow<int> (dst);
+    int dst_column = coordColumn<int> (dst);
 
     auto count = my_pieces.count();
     for (int i = 0; i < count; i++)
