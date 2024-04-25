@@ -31,7 +31,7 @@ namespace wisdom
         std::cerr << *this;
     }
 
-    static void addDivider (string &result)
+    static void addDivider (string& result)
     {
         result += " ";
 
@@ -39,6 +39,7 @@ namespace wisdom
         {
             for (int i = 0; i < 3; i++)
                 result += '-';
+
             result += ' ';
         }
 
@@ -90,19 +91,26 @@ namespace wisdom
 
                 switch (pieceType (piece))
                 {
-                    case Piece::Pawn: result += "p";
+                    case Piece::Pawn:
+                        result += "p";
                         break;
-                    case Piece::Knight: result += "N";
+                    case Piece::Knight:
+                        result += "N";
                         break;
-                    case Piece::Bishop: result += "B";
+                    case Piece::Bishop:
+                        result += "B";
                         break;
-                    case Piece::Rook: result += "R";
+                    case Piece::Rook:
+                        result += "R";
                         break;
-                    case Piece::Queen: result += "Q";
+                    case Piece::Queen:
+                        result += "Q";
                         break;
-                    case Piece::King: result += "K";
+                    case Piece::King:
+                        result += "K";
                         break;
-                    case Piece::None: result += " ";
+                    case Piece::None:
+                        result += " ";
                         break;
                 }
 
@@ -114,7 +122,7 @@ namespace wisdom
             row_coord--;
             result += "\n";
 
-            addDivider (result);;
+            addDivider (result);
         }
 
         addCoords (result);
@@ -125,13 +133,16 @@ namespace wisdom
     {
         string castled_state;
 
-        auto convert = [color](char ch) -> char {
-            return color == Color::Black ? gsl::narrow_cast<char> (tolower(ch)) : ch;
+        auto convert = [color](char ch) -> char
+        {
+            return color == Color::Black 
+                ? gsl::narrow_cast<char> (tolower (ch)) 
+                : ch;
         };
 
         auto castled = getCastlingEligibility (color);
         if (castled == Either_Side_Eligible)
-            castled_state.append(1, convert('K')), castled_state.append(1, convert('Q'));
+            castled_state.append (1, convert ('K')), castled_state.append (1, convert ('Q'));
         else if (castled == CastlingIneligible::Kingside)
             castled_state += "Q";
         else if (castled == CastlingIneligible::Queenside)
@@ -162,11 +173,13 @@ namespace wisdom
                 {
                     if (none_count > 0)
                         row_string += std::to_string (none_count);
+
                     none_count = 0;
                     char ch = gsl::narrow_cast<char> (toupper (pieceChar (piece)));
                     if (pieceColor (piece) == Color::Black)
-                        ch = gsl::narrow_cast<char> (tolower(ch));
-                    row_string.append(1, ch);
+                        ch = gsl::narrow_cast<char> (tolower (ch));
+
+                    row_string.append (1, ch);
                 }
             }
 
@@ -202,9 +215,12 @@ namespace wisdom
         return output;
     }
 
-    static void removeInvalidPawns (const Board& board, int8_t source_row, int8_t source_col,
-            array<ColoredPiece, Num_Squares>& shuffle_pieces)
-    {
+    static void removeInvalidPawns (
+        const Board& board,
+        int8_t source_row,
+        int8_t source_col,
+        array<ColoredPiece, Num_Squares>& shuffle_pieces
+    ) {
         auto piece = shuffle_pieces[source_col + (source_row * Num_Columns)];
         if (pieceType (piece) == Piece::Pawn)
         {
@@ -234,8 +250,11 @@ namespace wisdom
 
         do
         {
-            std::copy (std::begin (result.my_squares),
-                       std::end (result.my_squares), std::begin (shuffle_pieces));
+            std::copy (
+                std::begin (result.my_squares),
+                std::end (result.my_squares),
+                std::begin (shuffle_pieces)
+            );
             std::shuffle (std::begin (shuffle_pieces), std::end (shuffle_pieces), rng);
 
             for (auto&& coord : result.allCoords())
@@ -258,8 +277,8 @@ namespace wisdom
             }
             // if both kings are in check, regenerate.
         } while (isKingThreatened (result, Color::White, result.my_king_pos[Color_Index_White])
-           && isKingThreatened (result, Color::Black, result.my_king_pos[Color_Index_Black])
-                && ++iterations < 1000);
+                 && isKingThreatened (result, Color::Black, result.my_king_pos[Color_Index_Black])
+                 && ++iterations < 1000);
 
         if (iterations >= 1000)
         {
@@ -278,15 +297,19 @@ namespace wisdom
         auto coord_begin = std::begin (my_squares);
         auto coord_end = std::end (my_squares);
 
-        auto finder = [piece](const ColoredPiece& p) {
+        auto finder = [piece](const ColoredPiece& p)
+        {
             return p == piece;
         };
-        auto result = std::find_if (coord_begin + starting_at.index(),
-                                    coord_end, finder);
+        auto result = std::find_if (
+            coord_begin + starting_at.index(), 
+            coord_end, 
+            finder
+        );
         auto diff = gsl::narrow<int> (result - coord_begin);
 
-        return (result != coord_end)
-            ? std::make_optional<Coord> (Coord::fromIndex (diff))
+        return (result != coord_end) 
+            ? std::make_optional<Coord> (Coord::fromIndex (diff)) 
             : nullopt;
     }
 

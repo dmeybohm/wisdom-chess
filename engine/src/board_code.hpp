@@ -88,10 +88,13 @@ namespace wisdom
 
         void setEnPassantTarget (Color color, Coord coord) noexcept
         {
-            std::size_t target_bit_shift = color == Color::White
-                ? EN_PASSANT_WHITE_TARGET : EN_PASSANT_BLACK_TARGET;
+            std::size_t target_bit_shift = color == Color::White 
+                ? EN_PASSANT_WHITE_TARGET 
+                : EN_PASSANT_BLACK_TARGET;
             auto coord_bits = Column<std::size_t> (coord);
-            coord_bits |= (coord == No_En_Passant_Coord) ? 0 : EN_PASSANT_PRESENT;
+            coord_bits |= (coord == No_En_Passant_Coord) 
+                ? 0 
+                : EN_PASSANT_PRESENT;
             coord_bits <<= target_bit_shift;
 
             assert (coord == No_En_Passant_Coord || (
@@ -107,14 +110,17 @@ namespace wisdom
         [[nodiscard]] auto enPassantTarget (Color vulnerable_color) const noexcept -> Coord
         {
             auto target_bits = getMetadataBits();
-            auto target_bit_shift = vulnerable_color == Color::White
-                ? EN_PASSANT_WHITE_TARGET : EN_PASSANT_BLACK_TARGET;
+            auto target_bit_shift = vulnerable_color == Color::White 
+                ? EN_PASSANT_WHITE_TARGET 
+                : EN_PASSANT_BLACK_TARGET;
 
             target_bits &= EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET;
             target_bits >>= target_bit_shift;
             auto col = gsl::narrow<int8_t> (target_bits & 0x7);
             auto is_present = (bool)(target_bits & EN_PASSANT_PRESENT);
-            auto row = vulnerable_color == Color::White ? White_En_Passant_Row : Black_En_Passant_Row;
+            auto row = vulnerable_color == Color::White 
+                ? White_En_Passant_Row 
+                : Black_En_Passant_Row;
             return is_present ? makeCoord (row, col) : No_En_Passant_Coord;
         }
 
@@ -132,19 +138,21 @@ namespace wisdom
         [[nodiscard]] auto castleState (Color who) const -> CastlingEligibility
         {
             auto target_bits = getMetadataBits();
-            auto target_bit_shift = who == Color::White
-                ? CASTLING_STATE_WHITE_TARGET : CASTLING_STATE_BLACK_TARGET;
+            auto target_bit_shift = who == Color::White 
+                ? CASTLING_STATE_WHITE_TARGET 
+                : CASTLING_STATE_BLACK_TARGET;
 
             return makeCastlingEligibilityFromInt (
-                    (target_bits >> target_bit_shift) & CASTLE_ONE_COLOR_MASK
+                (target_bits >> target_bit_shift) & CASTLE_ONE_COLOR_MASK
             );
         }
 
         void setCastleState (Color who, CastlingEligibility castling_states) noexcept
         {
             uint8_t castling_bits = toInt (castling_states);
-            std::size_t bit_number = who == Color::White
-                ? CASTLING_STATE_WHITE_TARGET : CASTLING_STATE_BLACK_TARGET;
+            std::size_t bit_number = who == Color::White 
+                ? CASTLING_STATE_WHITE_TARGET 
+                : CASTLING_STATE_BLACK_TARGET;
             std::size_t mask = CASTLE_ONE_COLOR_MASK << bit_number;
 
             auto metadataBits = getMetadataBits();
@@ -226,7 +234,7 @@ namespace wisdom
 
 namespace std
 {
-    template<>
+    template <>
     struct hash<wisdom::BoardCode>
     {
         auto operator() (const wisdom::BoardCode& code) const noexcept -> std::size_t
@@ -235,4 +243,3 @@ namespace std
         }
     };
 }
-

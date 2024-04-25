@@ -9,17 +9,17 @@ namespace wisdom
         return isProbablyNthRepetition (board, 3);
     }
 
-    [[nodiscard]] auto History::isCertainlyThirdRepetition(const Board& board) const -> bool
+    [[nodiscard]] auto History::isCertainlyThirdRepetition (const Board& board) const -> bool
     {
         return isCertainlyNthRepetition (board, 3);
     }
 
-    [[nodiscard]] auto History::isProbablyFifthRepetition(const Board& board) const -> bool
+    [[nodiscard]] auto History::isProbablyFifthRepetition (const Board& board) const -> bool
     {
         return isProbablyNthRepetition (board, 5);
     }
 
-    [[nodiscard]] auto History::isCertainlyFifthRepetition(const Board& board) const -> bool
+    [[nodiscard]] auto History::isCertainlyFifthRepetition (const Board& board) const -> bool
     {
         return isCertainlyNthRepetition (board, 5);
     }

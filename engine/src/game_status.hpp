@@ -61,4 +61,3 @@ namespace wisdom
         virtual void seventyFiveMovesWithNoProgress() = 0;
     };
 }
-

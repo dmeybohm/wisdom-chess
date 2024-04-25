@@ -38,9 +38,12 @@ namespace wisdom
         assert (isColorValid (who));
         switch (who)
         {
-            case Color::White: return 0 == row;
-            case Color::Black: return 7 == row;
-            default: throw Error { "Invalid color in needPawnPromotion()" };
+            case Color::White:
+                return 0 == row;
+            case Color::Black:
+                return 7 == row;
+            default:
+                throw Error { "Invalid color in needPawnPromotion()" };
         }
     }
 
@@ -84,7 +87,7 @@ namespace wisdom
         return my_knight_moves[coord.index()];
     }
 
-    static auto isPawnUnmoved (const Board &board, int row, int col) -> bool
+    static auto isPawnUnmoved (const Board& board, int row, int col) -> bool
     {
         ColoredPiece piece = board.pieceAt (row, col);
 
@@ -314,7 +317,8 @@ namespace wisdom
         {
             int double_row = nextRow (row, dir);
 
-            if (all_pawn_moves[0].has_value() && board.pieceAt (double_row, piece_col) == Piece_And_Color_None)
+            if (all_pawn_moves[0].has_value()
+                && board.pieceAt (double_row, piece_col) == Piece_And_Color_None)
             {
                 all_pawn_moves[1] = Move::make (piece_row, piece_col, double_row, piece_col);
             }
@@ -347,7 +351,7 @@ namespace wisdom
                 auto promoted_piece = ColoredPiece::make (who, promotable_piece_type);
 
                 // promotion moves dont include en passant
-                for (auto& optional_move: all_pawn_moves)
+                for (auto& optional_move : all_pawn_moves)
                 {
                     if (optional_move.has_value())
                     {
@@ -384,8 +388,7 @@ namespace wisdom
         take_row = nextRow (piece_row, direction);
         take_col = en_passant_column;
 
-        [[maybe_unused]]
-        ColoredPiece take_piece = board.pieceAt (piece_row, take_col);
+        [[maybe_unused]] ColoredPiece take_piece = board.pieceAt (piece_row, take_col);
 
         assert (pieceType (take_piece) == Piece::Pawn);
         assert (pieceColor (take_piece) == colorInvert (who));
@@ -532,11 +535,11 @@ namespace wisdom
             generation.generate (piece, coord);
         }
 
-        std::sort (result.begin(),
-                   result.end(),
-                   [generation](const Move& a, const Move& b) {
-                        return generation.compareMoves (a, b);
-                   });
+        std::sort (
+            result.begin(),
+            result.end(),
+            [generation](const Move& a, const Move& b) { return generation.compareMoves (a, b); }
+        );
 
         return result;
     }

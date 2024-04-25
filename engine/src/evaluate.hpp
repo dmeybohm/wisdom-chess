@@ -33,4 +33,3 @@ namespace wisdom
         return score > Max_Non_Checkmate_Score && score < Initial_Alpha;
     }
 }
-

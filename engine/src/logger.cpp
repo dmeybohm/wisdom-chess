@@ -60,5 +60,3 @@ namespace wisdom
         return make_unique<StandardLogger> (level);
     }
 }
-
-

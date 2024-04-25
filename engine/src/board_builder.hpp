@@ -9,12 +9,13 @@ namespace wisdom
     class BoardBuilderError : public Error
     {
     public:
-        explicit BoardBuilderError (const string &message) :
-                Error (message)
-        {}
+        explicit BoardBuilderError (const string& message)
+            : Error (message)
+        {
+        }
     };
 
-    class BoardBuilder final
+    class BoardBuilder
     {
     public:
         using PieceRow = array<Piece, Num_Columns>;
@@ -25,8 +26,10 @@ namespace wisdom
             Piece piece_type;
         };
 
-        constexpr BoardBuilder() : my_squares { emptySquares() }
-        {}
+        constexpr BoardBuilder()
+            : my_squares { emptySquares() }
+        {
+        }
 
         static auto fromDefaultPosition() -> BoardBuilder;
 
@@ -35,15 +38,13 @@ namespace wisdom
         [[nodiscard]] static constexpr auto emptySquares() -> array<ColoredPiece, Num_Squares>
         {
             array<ColoredPiece, Num_Squares> result {};
-            std::fill (std::begin (result),
-                       std::end (result),
-                       Piece_And_Color_None);
+            std::fill (std::begin (result), std::end (result), Piece_And_Color_None);
             return result;
         }
 
         static constexpr PieceRow Default_Piece_Row = {
-            Piece::Rook, Piece::Knight, Piece::Bishop, Piece::Queen, Piece::King,
-            Piece::Bishop, Piece::Knight, Piece::Rook,
+            Piece::Rook, Piece::Knight, Piece::Bishop, Piece::Queen,
+            Piece::King, Piece::Bishop, Piece::Knight, Piece::Rook,
         };
 
         void addPiece (const string& coord_str, Color who, Piece piece_type);
@@ -125,24 +126,30 @@ namespace wisdom
         }
 
     private:
-        [[nodiscard]] auto calculateCastleStateFromPosition (Color who) const -> CastlingEligibility;
+        [[nodiscard]] auto calculateCastleStateFromPosition (Color who) const
+            -> CastlingEligibility;
 
+    private:
         array<ColoredPiece, Num_Squares> my_squares;
-        array<Coord, Num_Players> my_en_passant_targets {
-            No_En_Passant_Coord, No_En_Passant_Coord
-        };
 
-        array<optional<CastlingEligibility>, Num_Players> my_castle_states {
-            nullopt, nullopt
-        };
-
-        Color my_current_turn = Color::White;
         int my_half_moves_clock = 0;
         int my_full_moves = 0;
-        array<optional<Coord>, Num_Players> my_king_positions {
-            nullopt, nullopt
+        Color my_current_turn = Color::White;
+
+        array<optional<CastlingEligibility>, Num_Players> my_castle_states { 
+            nullopt, 
+            nullopt 
+        };
+
+        array<Coord, Num_Players> my_en_passant_targets { 
+            No_En_Passant_Coord,
+            No_En_Passant_Coord 
+        };
+
+        array<optional<Coord>, Num_Players> my_king_positions { 
+            nullopt, 
+            nullopt 
         };
     };
 
 }
-
