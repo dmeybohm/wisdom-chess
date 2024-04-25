@@ -109,12 +109,14 @@ namespace wisdom
         my_code.setCastleState (who, new_state);
     }
 
-    void Board::removeCastlingEligibility (Color who,
-                                           CastlingEligibility removed_castle_states) noexcept
+    void
+    Board::removeCastlingEligibility (Color who, CastlingEligibility removed_castle_states) noexcept
     {
         CastlingEligibility orig_castle_state = getCastlingEligibility (who);
-        my_code.setCastleState (who,
-                                type_safe::combo (orig_castle_state) | type_safe::combo (removed_castle_states));
+        my_code.setCastleState (
+            who,
+            type_safe::combo (orig_castle_state) | type_safe::combo (removed_castle_states)
+        );
     }
 
     void Board::updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst)
@@ -127,7 +129,8 @@ namespace wisdom
             // set the new castle status
             removeCastlingEligibility (
                 who,
-                                       CastlingIneligible::Kingside | CastlingIneligible::Queenside);
+                CastlingIneligible::Kingside | CastlingIneligible::Queenside
+            );
         }
     }
 
@@ -318,11 +321,12 @@ namespace wisdom
             throw ParseMoveException { "Invalid color parsing castling move." };
 
         string transformed { str };
-        std::transform (transformed.begin(), transformed.end(), transformed.begin(),
-                        [] (auto c) -> auto
-                        {
-                            return ::toupper (c);
-                        });
+        std::transform (
+            transformed.begin(),
+            transformed.end(),
+            transformed.begin(),
+            [](auto c) -> auto{ return ::toupper (c); }
+        );
 
         if (transformed == "O-O-O")
             dst_col = King_Column - 2;

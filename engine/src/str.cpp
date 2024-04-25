@@ -41,8 +41,10 @@ namespace wisdom
         for (const auto& str : strings)
             result += str + separator;
 
-        return result.substr (0, result.size() > separator.size()
-            ? result.size() - separator.size() : 0);
+        return result.substr (
+            0,
+            result.size() > separator.size() ? result.size() - separator.size() : 0
+        );
     }
 
     auto toInt (const string& str) -> optional<int>

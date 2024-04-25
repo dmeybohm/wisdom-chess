@@ -10,12 +10,14 @@ namespace wisdom
         using PeriodicFunction = std::function<void(not_null<MoveTimer*>)>;
 
         explicit MoveTimer (chrono::seconds seconds)
-                : my_seconds { seconds }
-        {}
+            : my_seconds { seconds }
+        {
+        }
 
         explicit MoveTimer (int seconds)
-                : MoveTimer (std::chrono::seconds { seconds })
-        {}
+            : MoveTimer (std::chrono::seconds { seconds })
+        {
+        }
 
         auto isTriggered() -> bool;
 
@@ -59,4 +61,3 @@ namespace wisdom
         bool my_cancelled = false;
     };
 }
-

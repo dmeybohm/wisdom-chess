@@ -17,7 +17,8 @@ namespace wisdom
      */
     struct CompileTimeRandom
     {
-        struct RandomState {
+        struct RandomState
+        {
             std::uint64_t state = 0;
             std::uint64_t inc = randomSeed();
         };
@@ -44,7 +45,7 @@ namespace wisdom
         {
             std::uint64_t oldState = rng.state;
             // Advance internal state
-            rng.state = oldState * 6364136223846793005ULL + (rng.inc|1);
+            rng.state = oldState * 6364136223846793005ULL + (rng.inc | 1);
             // Calculate output function (XSH RR), uses old state for max ILP
             std::uint32_t xorshifted = ((oldState >> 18u) ^ oldState) >> 27u;
             std::uint32_t rot = oldState >> 59u;
@@ -57,4 +58,3 @@ namespace wisdom
         return ((random() & 0xffff0000ULL) << 16ULL) | random();
     }
 }
-

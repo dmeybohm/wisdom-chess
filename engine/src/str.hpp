@@ -16,4 +16,3 @@ namespace wisdom
     // Convert the string to an integer.
     [[nodiscard]] auto toInt (const string& str) -> optional<int>;
 }
-
