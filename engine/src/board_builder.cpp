@@ -27,7 +27,7 @@ namespace wisdom
 
         Coord algebraic = coordParse (coord_str);
 
-        addPiece (Row (algebraic), Column (algebraic), who, piece_type);
+        addPiece (algebraic.row(), algebraic.column(), who, piece_type);
     }
 
     auto BoardBuilder::calculateCastleStateFromPosition (Color who) const
@@ -93,7 +93,7 @@ namespace wisdom
         Coord coord = coordParse (coord_str);
 
         for (int col = 0; col < Num_Columns; col++)
-            addPiece (Row (coord), col, who, piece_type);
+            addPiece (coord.row(), col, who, piece_type);
     }
 
     void BoardBuilder::addRowOfSameColor (int row, Color who, const PieceRow& piece_types)
@@ -110,7 +110,7 @@ namespace wisdom
         Coord coord = coordParse (coord_str);
 
         for (auto col = 0; col < Num_Columns; col++)
-            addPiece (Row (coord), col, who, piece_types[col]);
+            addPiece (coord.row(), col, who, piece_types[col]);
     }
 
     void BoardBuilder::setCurrentTurn (Color who)

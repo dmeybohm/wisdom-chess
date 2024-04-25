@@ -22,8 +22,8 @@ namespace wisdom
     auto asString (Coord coord) -> string
     {
         string result = ""; // NOLINT(readability-redundant-string-init)
-        result += colToChar (Column (coord));
-        result += rowToChar (Row (coord));
+        result += colToChar (coord.column());
+        result += rowToChar (coord.row());
         return result;
     }
 

@@ -192,7 +192,7 @@ namespace wisdom
 
     constexpr auto coordColor (Coord coord) -> Color
     {
-        int parity = (Row (coord) % 2 + Column (coord) % 2) % 2;
+        int parity = (coord.row() % 2 + coord.column() % 2) % 2;
         return colorFromColorIndex (gsl::narrow_cast<int8_t> (parity));
     }
 

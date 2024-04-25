@@ -91,14 +91,17 @@ namespace wisdom
             std::size_t target_bit_shift = color == Color::White 
                 ? EN_PASSANT_WHITE_TARGET 
                 : EN_PASSANT_BLACK_TARGET;
-            auto coord_bits = Column<std::size_t> (coord);
+            auto coord_bits = coord.column<std::size_t>();
             coord_bits |= (coord == No_En_Passant_Coord) 
                 ? 0 
                 : EN_PASSANT_PRESENT;
             coord_bits <<= target_bit_shift;
 
-            assert (coord == No_En_Passant_Coord || (
-                    Row (coord) == (color == Color::White ? White_En_Passant_Row : Black_En_Passant_Row)));
+            assert (
+                coord == No_En_Passant_Coord || (
+                    coord.row() == (color == Color::White ? White_En_Passant_Row : Black_En_Passant_Row)
+                )
+            );
 
             // clear both targets initially. There can be only one at a given time.
             auto metadata = getMetadataBits();

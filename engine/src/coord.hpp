@@ -23,13 +23,17 @@ namespace wisdom
         int8_t row_and_col;
 
         // Make a coordinate from an index from 0-63.
-        [[nodiscard]] static constexpr auto fromIndex (int index) -> Coord
+        [[nodiscard]] static constexpr auto 
+        fromIndex (int index) 
+            -> Coord
         {
             assert (index >= 0 && index < Num_Squares);
             return { .row_and_col = gsl::narrow_cast<int8_t> (index) };
         }
 
-        [[nodiscard]] static constexpr auto make (int row, int col) -> Coord
+        [[nodiscard]] static constexpr auto 
+        make (int row, int col) 
+            -> Coord
         {
             assert (isValidRow (row) && isValidColumn (col));
             Coord result = { .row_and_col = gsl::narrow_cast<int8_t> (row << 3 | col) };
@@ -38,20 +42,26 @@ namespace wisdom
 
         // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
         template <typename IntegerType = int>
-        [[nodiscard]] constexpr auto index() -> IntegerType
+        [[nodiscard]] constexpr auto 
+        index() 
+            -> IntegerType
         {
             return gsl::narrow_cast<IntegerType> (row_and_col);
         }
 
         template <typename IntegerType = int8_t>
-        [[nodiscard]] constexpr auto row() -> IntegerType
+        [[nodiscard]] constexpr auto 
+        row() 
+            -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
             return gsl::narrow_cast<IntegerType> (row_and_col >> 3);
         }
 
         template <typename IntegerType = int8_t>
-        [[nodiscard]] constexpr auto column() -> IntegerType
+        [[nodiscard]] constexpr auto 
+        column() 
+            -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
             return gsl::narrow_cast<IntegerType> (row_and_col & 0b111);
@@ -83,13 +93,13 @@ namespace wisdom
     constexpr Coord No_En_Passant_Coord = First_Coord;
 
     template <typename IntegerType = int8_t>
-    [[nodiscard]] constexpr auto Row (Coord pos) -> IntegerType
+    [[nodiscard]] constexpr auto coordRow (Coord pos) -> IntegerType
     {
         return pos.row<IntegerType>();
     }
 
     template <typename IntegerType = int8_t>
-    [[nodiscard]] constexpr auto Column (Coord pos) -> IntegerType
+    [[nodiscard]] constexpr auto coordColumn (Coord pos) -> IntegerType
     {
         return pos.column<IntegerType>();
     }

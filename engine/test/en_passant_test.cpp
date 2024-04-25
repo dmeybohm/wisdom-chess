@@ -66,10 +66,10 @@ TEST_CASE( "en passant" )
         REQUIRE( en_passant_move.isEnPassant() );
 
         // Check position:
-        REQUIRE( Row (en_passant_move.getSrc()) == 3 );
-        REQUIRE( Column (en_passant_move.getSrc()) == 4 );
-        REQUIRE( Row (en_passant_move.getDst()) == 2 );
-        REQUIRE( Column (en_passant_move.getDst()) == 5 );
+        REQUIRE( coordRow (en_passant_move.getSrc()) == 3 );
+        REQUIRE( coordColumn (en_passant_move.getSrc()) == 4 );
+        REQUIRE( coordRow (en_passant_move.getDst()) == 2 );
+        REQUIRE( coordColumn (en_passant_move.getDst()) == 5 );
 
         REQUIRE( board.isEnPassantVulnerable (Color::Black) );
         REQUIRE( !board.isEnPassantVulnerable (Color::White) );
@@ -115,10 +115,10 @@ TEST_CASE( "en passant" )
         REQUIRE( en_passant_move.isEnPassant() );
 
         // Check position:
-        REQUIRE( Row (en_passant_move.getSrc()) == 3 );
-        REQUIRE( Column (en_passant_move.getSrc()) == 4 );
-        REQUIRE( Row (en_passant_move.getDst()) == 2 );
-        REQUIRE( Column (en_passant_move.getDst()) == 3 );
+        REQUIRE( coordRow (en_passant_move.getSrc()) == 3 );
+        REQUIRE( coordColumn (en_passant_move.getSrc()) == 4 );
+        REQUIRE( coordRow (en_passant_move.getDst()) == 2 );
+        REQUIRE( coordColumn (en_passant_move.getDst()) == 3 );
 
         REQUIRE( board.isEnPassantVulnerable (Color::Black) );
         REQUIRE( !board.isEnPassantVulnerable (Color::White) );
