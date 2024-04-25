@@ -137,8 +137,13 @@ namespace wisdom
             };
         }
 
-        [[nodiscard]] static constexpr auto make (int src_row, int src_col,
-                                                  int dst_row, int dst_col) noexcept
+        [[nodiscard]] static constexpr auto
+        make (
+            int src_row, 
+            int src_col, 
+            int dst_row, 
+            int dst_col
+        ) noexcept 
             -> Move
         {
             Coord src = makeCoord (src_row, src_col);
@@ -147,8 +152,13 @@ namespace wisdom
             return make (src, dst);
         }
 
-        [[nodiscard]] static constexpr auto makeNormalCapturing (int src_row, int src_col,
-                                                                   int dst_row, int dst_col) noexcept
+        [[nodiscard]] static constexpr auto
+        makeNormalCapturing (
+            int src_row, 
+            int src_col, 
+            int dst_row, 
+            int dst_col
+        ) noexcept 
             -> Move
         {
             Move move = Move::make (src_row, src_col, dst_row, dst_col);
@@ -156,38 +166,71 @@ namespace wisdom
             return move;
         }
 
-        [[nodiscard]] static constexpr auto makeCastling (int src_row, int src_col,
-                                                           int dst_row, int dst_col) noexcept
+        [[nodiscard]] static constexpr auto
+        makeCastling (
+            int src_row, 
+            int src_col, 
+            int dst_row, 
+            int dst_col
+        ) noexcept 
             -> Move
         {
-            Move move = Move::make (src_row, src_col, dst_row, dst_col);
+            Move move = Move::make (
+                src_row, 
+                src_col, 
+                dst_row, 
+                dst_col
+            );
             move.move_category = toInt8 (MoveCategory::Castling);
             return move;
         }
 
-        [[nodiscard]] static constexpr auto makeCastling (Coord src, Coord dst) noexcept
+        [[nodiscard]] static constexpr auto 
+        makeCastling (
+            Coord src, 
+            Coord dst
+        ) noexcept 
             -> Move
         {
-            return Move::makeCastling (Row (src), Column (src), Row (dst), Column (dst));
+            return Move::makeCastling (
+                Row (src), 
+                Column (src), 
+                Row (dst), 
+                Column (dst)
+            );
         }
 
-        [[nodiscard]] static constexpr auto makeEnPassant (int src_row, int src_col,
-                                                           int dst_row, int dst_col) noexcept
+        [[nodiscard]] static constexpr auto
+        makeEnPassant (
+            int src_row, 
+            int src_col, 
+            int dst_row, 
+            int dst_col
+        ) noexcept 
             -> Move
         {
-            Move move = make (src_row, src_col, dst_row, dst_col);
+            Move move = make (
+                src_row, 
+                src_col, 
+                dst_row, 
+                dst_col
+            );
             move.move_category = toInt8 (MoveCategory::EnPassant);
             return move;
         }
 
-        [[nodiscard]] static constexpr auto makeEnPassant (Coord src, Coord dst) noexcept
+        [[nodiscard]] static constexpr auto 
+        makeEnPassant (
+            Coord src, 
+            Coord dst
+        ) noexcept 
             -> Move
         {
             return Move::makeEnPassant (Row (src), Column (src), Row (dst), Column (dst));
         }
 
-        [[nodiscard]] static constexpr auto fromInt (int packed_move)
-            -> Move
+        [[nodiscard]] static constexpr auto 
+        fromInt (int packed_move) -> Move
         {
             return Move {
                 .src = gsl::narrow<int8_t> (packed_move & 0x7f),

@@ -325,7 +325,7 @@ namespace wisdom
             transformed.begin(),
             transformed.end(),
             transformed.begin(),
-            [](auto c) -> auto{ return ::toupper (c); }
+            [](auto c) { return ::toupper (c); }
         );
 
         if (transformed == "O-O-O")
@@ -350,11 +350,12 @@ namespace wisdom
             return nullopt;
 
         tmp.erase (std::remove_if (tmp.begin(), tmp.end(), isspace), tmp.end());
-        std::transform (tmp.begin(), tmp.end(), tmp.begin(),
-                        [] (auto c) -> auto
-                        {
-                            return ::toupper (c);
-                        });
+        std::transform (
+            tmp.begin(),
+            tmp.end(),
+            tmp.begin(),
+            [](auto c) { return ::toupper (c); }
+        );
 
         if (tmp.empty())
             return nullopt;
@@ -505,8 +506,14 @@ namespace wisdom
         return result;
     }
 
-    auto mapCoordinatesToMove (const Board& board, Color who, Coord src, Coord dst,
-                               optional<Piece> promoted_piece) -> optional<Move>
+    auto mapCoordinatesToMove (
+        const Board& board, 
+        Color who, 
+        Coord src, 
+        Coord dst, 
+        optional<Piece> promoted_piece
+    ) 
+        -> optional<Move>
     {
         ColoredPiece src_piece = board.pieceAt (src);
         ColoredPiece dst_piece = board.pieceAt (dst);
