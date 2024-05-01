@@ -47,8 +47,8 @@ namespace wisdom
         Game& operator= (const Game& other) = default;
 
         // Default move:
-        Game (Game&& other) = default;
-        Game& operator= (Game&& other) = default;
+        Game (Game&& other) noexcept = default;
+        Game& operator= (Game&& other) noexcept = default;
 
         static auto load (const string& filename, const Players& players) -> optional<Game>;
 
