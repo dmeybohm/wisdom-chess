@@ -8,8 +8,6 @@
 
 namespace wisdom
 {
-    using EnPassantTargets = array<optional<Coord>, Num_Players>;
-
     using BoardHashCode = std::uint64_t;
 
     class Board;
@@ -55,14 +53,14 @@ namespace wisdom
         enum MetadataBits : std::size_t
         {
             CURRENT_TURN_BIT = 0,
-            EN_PASSANT_WHITE_TARGET = 1,
-            EN_PASSANT_BLACK_TARGET = 5,
-            CASTLING_STATE_WHITE_TARGET = 9,
-            CASTLING_STATE_BLACK_TARGET = 12,
+            EN_PASSANT_TARGET_BIT = 1,
+            CASTLING_STATE_WHITE_BIT = 7,
+            CASTLING_STATE_BLACK_BIT = 10,
             CURRENT_TURN_MASK = 0b1,
-            EN_PASSANT_MASK = 0b11111111,
+            EN_PASSANT_MASK = 0b11111,
             CASTLE_ONE_COLOR_MASK = 0b11,
             EN_PASSANT_PRESENT = 0b1000,
+            EN_PASSANT_IS_WHITE = 0b10000,
         };
 
     public:
@@ -100,10 +98,10 @@ namespace wisdom
 
         void setEnPassantTarget (Color color, Coord coord) noexcept
         {
-            std::size_t target_bit_shift = color == Color::White 
-                ? EN_PASSANT_WHITE_TARGET 
-                : EN_PASSANT_BLACK_TARGET;
-            auto coord_bits = coord.column<std::size_t>() | EN_PASSANT_PRESENT;
+            std::size_t target_bit_shift = EN_PASSANT_TARGET_BIT;
+            auto coord_bits = coord.column<std::size_t>()
+                | EN_PASSANT_PRESENT
+                | (color == Color::White ? EN_PASSANT_IS_WHITE : 0);
             coord_bits <<= target_bit_shift;
 
             assert (
@@ -113,37 +111,41 @@ namespace wisdom
 
             // clear both targets initially. There can be only one at a given time.
             auto metadata = getMetadataBits();
-            metadata &= ~(EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET);
+            metadata &= ~(EN_PASSANT_MASK << EN_PASSANT_TARGET_BIT);
             metadata |= coord_bits;
             setMetadataBits (metadata);
         }
 
-        void clearEnPassantTargets() noexcept
+        void clearEnPassantTarget() noexcept
         {
             auto metadata = getMetadataBits();
-            metadata &= ~(EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET);
+            metadata &= ~(EN_PASSANT_MASK << EN_PASSANT_TARGET_BIT);
             setMetadataBits (metadata);
         }
 
         [[nodiscard]] auto
-        enPassantTarget (Color vulnerable_color) const noexcept
-            -> optional<Coord>
+        enPassantTarget () const noexcept
+            -> optional<EnPassantTarget>
         {
             auto target_bits = getMetadataBits();
-            auto target_bit_shift = vulnerable_color == Color::White 
-                ? EN_PASSANT_WHITE_TARGET 
-                : EN_PASSANT_BLACK_TARGET;
+            auto target_bit_shift = EN_PASSANT_TARGET_BIT;
 
-            target_bits &= EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET;
+            target_bits &= EN_PASSANT_MASK << EN_PASSANT_TARGET_BIT;
             target_bits >>= target_bit_shift;
             auto col = gsl::narrow<int8_t> (target_bits & 0x7);
             bool is_present = ((target_bits & EN_PASSANT_PRESENT) > 0);
+            Color vulnerable_color = ((target_bits & EN_PASSANT_IS_WHITE) > 0)
+                ? Color::White
+                : Color::Black;
             auto row = vulnerable_color == Color::White 
                 ? White_En_Passant_Row 
                 : Black_En_Passant_Row;
 
             return is_present
-                ? std::make_optional (makeCoord (row, col))
+                ? std::make_optional (EnPassantTarget {
+                      .coord = makeCoord (row, col),
+                      .vulnerable_color = vulnerable_color
+                  })
                 : nullopt;
         }
 
@@ -164,8 +166,8 @@ namespace wisdom
         {
             auto target_bits = getMetadataBits();
             auto target_bit_shift = who == Color::White 
-                ? CASTLING_STATE_WHITE_TARGET 
-                : CASTLING_STATE_BLACK_TARGET;
+                ? CASTLING_STATE_WHITE_BIT
+                : CASTLING_STATE_BLACK_BIT;
 
             return makeCastlingEligibilityFromInt (
                 (target_bits >> target_bit_shift) & CASTLE_ONE_COLOR_MASK
@@ -176,8 +178,8 @@ namespace wisdom
         {
             uint8_t castling_bits = toInt (castling_states);
             std::size_t bit_number = who == Color::White 
-                ? CASTLING_STATE_WHITE_TARGET 
-                : CASTLING_STATE_BLACK_TARGET;
+                ? CASTLING_STATE_WHITE_BIT
+                : CASTLING_STATE_BLACK_BIT;
             std::size_t mask = CASTLE_ONE_COLOR_MASK << bit_number;
 
             auto metadataBits = getMetadataBits();
@@ -195,17 +197,6 @@ namespace wisdom
                 bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT)
             );
             return colorFromColorIndex (index);
-        }
-
-        [[nodiscard]] auto
-        enPassantTargets() const noexcept
-            -> EnPassantTargets
-        {
-            EnPassantTargets result = {
-                enPassantTarget (Color::White),
-                enPassantTarget (Color::Black)
-            };
-            return result;
         }
 
         [[nodiscard]] auto

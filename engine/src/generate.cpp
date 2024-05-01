@@ -67,7 +67,12 @@ namespace wisdom
                     if (!isValidColumn (k_col + col))
                         continue;
 
-                    Move knight_move = Move::make (k_row + row, k_col + col, row, col);
+                    Move knight_move = Move::make (
+                        k_row + row,
+                        k_col + col,
+                        row,
+                        col
+                    );
                     int dst_row = k_row + row;
                     int dst_col = k_col + col;
                     auto index = Coord::make (dst_row, dst_col).index();
@@ -120,7 +125,8 @@ namespace wisdom
             piece3 = board.pieceAt (src.row(), dst.column() - 1);
         }
 
-        return pieceType (piece1) == Piece::None && pieceType (piece2) == Piece::None
+        return pieceType (piece1) == Piece::None
+            && pieceType (piece2) == Piece::None
             && pieceType (piece3) == Piece::None;
     }
 
@@ -257,17 +263,16 @@ namespace wisdom
             appendMove (knight_move);
     }
 
-    // Returns -1 if no column is eligible.
     auto eligibleEnPassantColumn (const Board& board, int row, int column, Color who)
         -> optional<int>
     {
         Color opponent = colorInvert (who);
 
-        auto enPassantTarget = board.getEnPassantTarget (opponent);
-        if (!enPassantTarget.has_value())
+        auto enPassantTarget = board.getEnPassantTarget();
+        if (!enPassantTarget.has_value() || enPassantTarget->vulnerable_color != opponent)
             return nullopt;
 
-        Coord target_coord = *enPassantTarget;
+        Coord target_coord = enPassantTarget->coord;
 
         // if WHITE rank 4, black rank 3
         if ((who == Color::White ? 3 : 4) != row)

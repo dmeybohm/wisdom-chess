@@ -120,7 +120,10 @@ namespace wisdom
 
     void BoardBuilder::setEnPassantTarget (Color vulnerable_color, const string& coord_str)
     {
-        my_en_passant_targets[colorIndex (vulnerable_color)] = coordParse (coord_str);
+        my_en_passant_target = {
+            .coord = coordParse (coord_str),
+            .vulnerable_color = vulnerable_color
+        };
     }
 
     void BoardBuilder::setCastling (Color who, CastlingEligibility state)
