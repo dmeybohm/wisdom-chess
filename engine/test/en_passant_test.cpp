@@ -16,8 +16,8 @@ TEST_CASE( "en passant" )
         REQUIRE( !board.isEnPassantVulnerable (Color::White) );
         REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
 
-        REQUIRE( board.getEnPassantTarget (Color::White) == No_En_Passant_Coord );
-        REQUIRE( board.getEnPassantTarget (Color::Black) == No_En_Passant_Coord );
+        REQUIRE( board.getEnPassantTarget (Color::White) == nullopt );
+        REQUIRE( board.getEnPassantTarget (Color::Black) == nullopt );
 
         BoardBuilder builder;
         const auto& back_rank = BoardBuilder::Default_Piece_Row;

@@ -8,7 +8,7 @@
 
 namespace wisdom
 {
-    using EnPassantTargets = array<Coord, Num_Players>;
+    using EnPassantTargets = array<optional<Coord>, Num_Players>;
 
     using BoardHashCode = std::uint64_t;
 
@@ -17,7 +17,9 @@ namespace wisdom
 
     using BoardCodeArray = array<uint64_t, (Num_Players + 1) * Num_Piece_Types * Num_Squares>;
 
-    [[nodiscard]] constexpr auto initializeBoardCodes() -> BoardCodeArray
+    [[nodiscard]] constexpr auto
+    initializeBoardCodes()
+        -> BoardCodeArray
     {
         BoardCodeArray code_array {};
         CompileTimeRandom random;
@@ -35,7 +37,9 @@ namespace wisdom
 
     inline constexpr int Total_Metadata_Bits = 16;
 
-    [[nodiscard]] constexpr auto boardCodeHash (Coord coord, ColoredPiece piece) -> std::uint64_t
+    [[nodiscard]] constexpr auto
+    boardCodeHash (Coord coord, ColoredPiece piece)
+        -> std::uint64_t
     {
         auto coord_index = coord.index();
         auto piece_color = piece.color();
@@ -64,13 +68,21 @@ namespace wisdom
     public:
         explicit BoardCode (const Board& board);
 
-        [[nodiscard]] static auto fromBoard (const Board& board) -> BoardCode;
+        [[nodiscard]] static auto
+        fromBoard (const Board& board)
+            -> BoardCode;
 
-        [[nodiscard]] static auto fromBoardBuilder (const BoardBuilder& builder) -> BoardCode;
+        [[nodiscard]] static auto
+        fromBoardBuilder (const BoardBuilder& builder)
+            -> BoardCode;
 
-        [[nodiscard]] static auto fromDefaultPosition() -> BoardCode;
+        [[nodiscard]] static auto
+        fromDefaultPosition()
+            -> BoardCode;
 
-        [[nodiscard]] static auto fromEmptyBoard() -> BoardCode;
+        [[nodiscard]] static auto
+        fromEmptyBoard()
+            -> BoardCode;
 
         void addPiece (Coord coord, ColoredPiece piece) noexcept
         {
@@ -91,16 +103,12 @@ namespace wisdom
             std::size_t target_bit_shift = color == Color::White 
                 ? EN_PASSANT_WHITE_TARGET 
                 : EN_PASSANT_BLACK_TARGET;
-            auto coord_bits = coord.column<std::size_t>();
-            coord_bits |= (coord == No_En_Passant_Coord) 
-                ? 0 
-                : EN_PASSANT_PRESENT;
+            auto coord_bits = coord.column<std::size_t>() | EN_PASSANT_PRESENT;
             coord_bits <<= target_bit_shift;
 
             assert (
-                coord == No_En_Passant_Coord || (
-                    coord.row() == (color == Color::White ? White_En_Passant_Row : Black_En_Passant_Row)
-                )
+                coord.row() == (color == Color::White
+                                    ? White_En_Passant_Row : Black_En_Passant_Row)
             );
 
             // clear both targets initially. There can be only one at a given time.
@@ -110,7 +118,16 @@ namespace wisdom
             setMetadataBits (metadata);
         }
 
-        [[nodiscard]] auto enPassantTarget (Color vulnerable_color) const noexcept -> Coord
+        void clearEnPassantTargets() noexcept
+        {
+            auto metadata = getMetadataBits();
+            metadata &= ~(EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET);
+            setMetadataBits (metadata);
+        }
+
+        [[nodiscard]] auto
+        enPassantTarget (Color vulnerable_color) const noexcept
+            -> optional<Coord>
         {
             auto target_bits = getMetadataBits();
             auto target_bit_shift = vulnerable_color == Color::White 
@@ -120,11 +137,14 @@ namespace wisdom
             target_bits &= EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET;
             target_bits >>= target_bit_shift;
             auto col = gsl::narrow<int8_t> (target_bits & 0x7);
-            auto is_present = (bool)(target_bits & EN_PASSANT_PRESENT);
+            bool is_present = ((target_bits & EN_PASSANT_PRESENT) > 0);
             auto row = vulnerable_color == Color::White 
                 ? White_En_Passant_Row 
                 : Black_En_Passant_Row;
-            return is_present ? makeCoord (row, col) : No_En_Passant_Coord;
+
+            return is_present
+                ? std::make_optional (makeCoord (row, col))
+                : nullopt;
         }
 
         void setCurrentTurn (Color who) noexcept
@@ -138,7 +158,9 @@ namespace wisdom
             setMetadataBits (metadataBits);
         }
 
-        [[nodiscard]] auto castleState (Color who) const -> CastlingEligibility
+        [[nodiscard]] auto
+        castleState (Color who) const
+            -> CastlingEligibility
         {
             auto target_bits = getMetadataBits();
             auto target_bit_shift = who == Color::White 
@@ -164,14 +186,20 @@ namespace wisdom
             setMetadataBits (metadataBits);
         }
 
-        [[nodiscard]] auto currentTurn() const noexcept -> Color
+        [[nodiscard]] auto
+        currentTurn() const noexcept
+            -> Color
         {
             auto bits = getMetadataBits();
-            auto index = gsl::narrow_cast<int8_t> (bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT));
+            auto index = gsl::narrow_cast<int8_t> (
+                bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT)
+            );
             return colorFromColorIndex (index);
         }
 
-        [[nodiscard]] auto enPassantTargets() const noexcept -> EnPassantTargets
+        [[nodiscard]] auto
+        enPassantTargets() const noexcept
+            -> EnPassantTargets
         {
             EnPassantTargets result = {
                 enPassantTarget (Color::White),
@@ -180,36 +208,50 @@ namespace wisdom
             return result;
         }
 
-        [[nodiscard]] auto getMetadataBits() const noexcept -> std::uint16_t
+        [[nodiscard]] auto
+        getMetadataBits() const noexcept
+            -> std::uint16_t
         {
             return gsl::narrow_cast<uint16_t> (my_code & 0xffff);
         }
 
-        [[nodiscard]] auto asString() const noexcept -> string
+        [[nodiscard]] auto
+        asString() const noexcept
+            -> string
         {
             std::bitset<64> bits { my_code };
 
             return bits.to_string();
         }
 
-        [[nodiscard]] auto hashCode() const noexcept -> BoardHashCode
+        [[nodiscard]] auto
+        hashCode() const noexcept
+            -> BoardHashCode
         {
             return my_code;
         }
 
-        friend auto operator== (const BoardCode& first, const BoardCode& second) noexcept -> bool
+        friend auto
+        operator== (const BoardCode& first, const BoardCode& second) noexcept
+            -> bool
         {
             return first.my_code == second.my_code;
         }
 
-        friend auto operator!= (const BoardCode& first, const BoardCode& second) noexcept -> bool
+        friend auto
+        operator!= (const BoardCode& first, const BoardCode& second) noexcept
+            -> bool
         {
             return !(first == second);
         }
 
-        friend auto operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&;
+        friend auto
+        operator<< (std::ostream& os, const BoardCode& code)
+            -> std::ostream&;
 
-        [[nodiscard]] auto withMove (const Board& board, Move move) const noexcept -> BoardCode
+        [[nodiscard]] auto
+        withMove (const Board& board, Move move) const noexcept
+            -> BoardCode
         {
             auto copy = *this;
             copy.applyMove (board, move);
@@ -240,7 +282,9 @@ namespace std
     template <>
     struct hash<wisdom::BoardCode>
     {
-        auto operator() (const wisdom::BoardCode& code) const noexcept -> std::size_t
+        auto
+        operator() (const wisdom::BoardCode& code) const noexcept
+            -> std::size_t
         {
             return code.hashCode();
         }

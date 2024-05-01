@@ -90,7 +90,6 @@ namespace wisdom
 
     constexpr Coord First_Coord = makeCoord (0, 0);
     constexpr Coord End_Coord = { .row_and_col = Num_Squares };
-    constexpr Coord No_En_Passant_Coord = First_Coord;
 
     template <typename IntegerType = int8_t>
     [[nodiscard]] constexpr auto coordRow (Coord pos) -> IntegerType

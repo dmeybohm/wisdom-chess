@@ -263,8 +263,11 @@ namespace wisdom
     {
         Color opponent = colorInvert (who);
 
-        if (!board.isEnPassantVulnerable (opponent))
+        auto enPassantTarget = board.getEnPassantTarget (opponent);
+        if (!enPassantTarget.has_value())
             return nullopt;
+
+        Coord target_coord = *enPassantTarget;
 
         // if WHITE rank 4, black rank 3
         if ((who == Color::White ? 3 : 4) != row)
@@ -272,7 +275,7 @@ namespace wisdom
 
         int left_column = column - 1;
         int right_column = column + 1;
-        int target_column = coordColumn<int> (board.getEnPassantTarget (opponent));
+        int target_column = target_coord.column<int>();
 
         if (left_column == target_column)
         {
