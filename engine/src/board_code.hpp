@@ -76,10 +76,12 @@ namespace wisdom
         fromBoardBuilder (const BoardBuilder& builder)
             -> BoardCode;
 
-        [[nodiscard]] static auto fromDefaultPosition()
+        [[nodiscard]] static auto
+        fromDefaultPosition()
             -> BoardCode;
 
-        [[nodiscard]] static auto fromEmptyBoard()
+        [[nodiscard]] static auto
+        fromEmptyBoard()
             -> BoardCode;
 
         void addPiece (Coord coord, ColoredPiece piece) noexcept
