@@ -204,10 +204,10 @@ namespace wisdom
         output += both_castled;
 
         auto en_passant_targets = getEnPassantTargets();
-        if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
-            output += " " + wisdom::asString (en_passant_targets[Color_Index_White]) + " ";
-        else if (en_passant_targets[Color_Index_Black] != No_En_Passant_Coord)
-            output += " " + wisdom::asString (en_passant_targets[Color_Index_Black]) + " ";
+        if (en_passant_targets[Color_Index_White] != nullopt)
+            output += " " + wisdom::asString (*en_passant_targets[Color_Index_White]) + " ";
+        else if (en_passant_targets[Color_Index_Black] != nullopt)
+            output += " " + wisdom::asString (*en_passant_targets[Color_Index_Black]) + " ";
         else
             output += " - ";
 

@@ -116,7 +116,7 @@ namespace wisdom
         auto operator== (const MoveList& other) const -> bool
         {
             return size() == other.size() &&
-                std::equal (begin(), end(), other.begin(), moveEquals);
+                std::equal (begin(), end(), other.begin());
         }
 
         auto operator!= (const MoveList& other) const -> bool

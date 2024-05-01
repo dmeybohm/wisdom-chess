@@ -200,12 +200,11 @@ TEST_CASE( "Board code stores metadata" )
         auto en_passant_target = with_state_code.enPassantTarget (Color::Black);
         auto expected_coord = coordParse ("d6");
         auto metadata = with_state_code.getMetadataBits();
-        INFO( metadata );
-        INFO( wisdom::asString (en_passant_target) );
-        CHECK( en_passant_target == expected_coord );
+        REQUIRE( en_passant_target.has_value() );
+        CHECK( *en_passant_target == expected_coord );
 
         auto opponent_target = with_state_code.enPassantTarget (Color::White);
-        CHECK( opponent_target == No_En_Passant_Coord );
+        CHECK( opponent_target == nullopt );
     }
 
     SUBCASE( "Board code stores en passant state for White" )
@@ -229,13 +228,11 @@ TEST_CASE( "Board code stores metadata" )
 
         auto expected_coord = coordParse ("e3");
         auto metadata = with_state_code.getMetadataBits();
-        CHECK( en_passant_target == expected_coord );
+        REQUIRE( en_passant_target.has_value() );
+        CHECK( *en_passant_target == expected_coord );
 
         auto opponent_target = with_state_code.enPassantTarget (Color::Black);
-        INFO( metadata );
-        INFO( wisdom::asString (opponent_target) );
-
-        CHECK( opponent_target == No_En_Passant_Coord );
+        CHECK( opponent_target == nullopt );
     }
 
     SUBCASE( "Board code stores castle state" )

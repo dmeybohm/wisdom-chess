@@ -34,18 +34,17 @@ namespace wisdom
         setCurrentTurn (current_turn);
 
         auto en_passant_targets = board.getEnPassantTargets();
-        if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
+        if (en_passant_targets[Color_Index_White] != nullopt)
         {
-            setEnPassantTarget (Color::White, en_passant_targets[Color_Index_White]);
+            setEnPassantTarget (Color::White, *en_passant_targets[Color_Index_White]);
         }
-        else if (en_passant_targets[Color_Index_Black] != No_En_Passant_Coord)
+        else if (en_passant_targets[Color_Index_Black] != nullopt)
         {
-            setEnPassantTarget (Color::Black, en_passant_targets[Color_Index_Black]);
+            setEnPassantTarget (Color::Black, *en_passant_targets[Color_Index_Black]);
         }
         else
         {
-            // this clears both targets:
-            setEnPassantTarget (Color::White, No_En_Passant_Coord);
+            clearEnPassantTargets ();
         }
 
         setCastleState (Color::White, board.getCastlingEligibility (Color::White));
@@ -71,17 +70,17 @@ namespace wisdom
         result.setCurrentTurn (current_turn);
 
         auto en_passant_targets = builder.getEnPassantTargets();
-        if (en_passant_targets[Color_Index_White] != No_En_Passant_Coord)
+        if (en_passant_targets[Color_Index_White] != nullopt)
         {
-            result.setEnPassantTarget (Color::White, en_passant_targets[Color_Index_White]);
+            result.setEnPassantTarget (Color::White, *en_passant_targets[Color_Index_White]);
         }
-        else if (en_passant_targets[Color_Index_Black] != No_En_Passant_Coord)
+        else if (en_passant_targets[Color_Index_Black] != nullopt)
         {
-            result.setEnPassantTarget (Color::Black, en_passant_targets[Color_Index_Black]);
+            result.setEnPassantTarget (Color::Black, *en_passant_targets[Color_Index_Black]);
         }
         else
         {
-            result.setEnPassantTarget (Color::White, No_En_Passant_Coord);
+            result.clearEnPassantTargets();
         }
 
         result.setCastleState (Color::White, builder.getCastleState (Color::White));

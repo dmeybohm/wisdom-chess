@@ -358,26 +358,21 @@ namespace wisdom
 
     using PlayerCastleState = array<CastlingEligibility, Num_Players>;
 
-    [[nodiscard]] constexpr auto 
-    moveEquals (Move a, Move b) noexcept 
+    constexpr auto
+    operator== (Move a, Move b) noexcept
         -> bool
     {
-        return a.src == b.src && a.dst == b.dst && a.promoted_piece == b.promoted_piece
+        return a.src == b.src
+            && a.dst == b.dst
+            && a.promoted_piece == b.promoted_piece
             && a.move_category == b.move_category;
     }
 
-    constexpr auto 
-    operator== (Move a, Move b) noexcept 
-        -> bool
-    {
-        return moveEquals (a, b);
-    }
-
-    constexpr auto 
+    constexpr auto
     operator!= (Move a, Move b) noexcept 
         -> bool
     {
-        return !moveEquals (a, b);
+        return !operator== (a, b);
     }
 
     // Parse a move. Returns empty if the parse failed.

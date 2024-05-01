@@ -8,7 +8,7 @@
 
 namespace wisdom
 {
-    using EnPassantTargets = array<Coord, Num_Players>;
+    using EnPassantTargets = array<optional<Coord>, Num_Players>;
 
     using BoardHashCode = std::uint64_t;
 
@@ -91,16 +91,12 @@ namespace wisdom
             std::size_t target_bit_shift = color == Color::White 
                 ? EN_PASSANT_WHITE_TARGET 
                 : EN_PASSANT_BLACK_TARGET;
-            auto coord_bits = coord.column<std::size_t>();
-            coord_bits |= (coord == No_En_Passant_Coord) 
-                ? 0 
-                : EN_PASSANT_PRESENT;
+            auto coord_bits = coord.column<std::size_t>() | EN_PASSANT_PRESENT;
             coord_bits <<= target_bit_shift;
 
             assert (
-                coord == No_En_Passant_Coord || (
-                    coord.row() == (color == Color::White ? White_En_Passant_Row : Black_En_Passant_Row)
-                )
+                coord.row() == (color == Color::White
+                                    ? White_En_Passant_Row : Black_En_Passant_Row)
             );
 
             // clear both targets initially. There can be only one at a given time.
@@ -110,7 +106,16 @@ namespace wisdom
             setMetadataBits (metadata);
         }
 
-        [[nodiscard]] auto enPassantTarget (Color vulnerable_color) const noexcept -> Coord
+        void clearEnPassantTargets() noexcept
+        {
+            auto metadata = getMetadataBits();
+            metadata &= ~(EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET);
+            setMetadataBits (metadata);
+        }
+
+        [[nodiscard]] auto
+        enPassantTarget (Color vulnerable_color) const noexcept
+            -> optional<Coord>
         {
             auto target_bits = getMetadataBits();
             auto target_bit_shift = vulnerable_color == Color::White 
@@ -124,7 +129,10 @@ namespace wisdom
             auto row = vulnerable_color == Color::White 
                 ? White_En_Passant_Row 
                 : Black_En_Passant_Row;
-            return is_present ? makeCoord (row, col) : No_En_Passant_Coord;
+
+            return is_present
+                ? std::make_optional (makeCoord (row, col))
+                : nullopt;
         }
 
         void setCurrentTurn (Color who) noexcept

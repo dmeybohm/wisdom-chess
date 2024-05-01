@@ -233,18 +233,29 @@ namespace wisdom
         my_code.setEnPassantTarget (who, target);
     }
 
+    void
+    Board::clearEnPassantTargets() noexcept
+    {
+        my_code.clearEnPassantTargets();
+    }
+
     void 
     Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept
     {
         int direction = pawnDirection<int> (who);
-        Coord new_state = No_En_Passant_Coord;
+        optional<Coord> new_state = nullopt;
+
         if (isDoubleSquarePawnMove (src_piece, move))
         {
             Coord src = move.getSrc();
             int prev_row = nextRow (src.row<int>(), direction);
             new_state = makeCoord (prev_row, src.column());
+            setEnPassantTarget (who, *new_state);
         }
-        setEnPassantTarget (who, new_state);
+        else
+        {
+            clearEnPassantTargets();
+        }
     }
 
     [[nodiscard]] auto 

@@ -88,7 +88,7 @@ namespace wisdom
             return my_current_turn;
         }
 
-        [[nodiscard]] auto getEnPassantTargets() const -> array<Coord, Num_Players>
+        [[nodiscard]] auto getEnPassantTargets() const -> array<optional<Coord>, Num_Players>
         {
             return my_en_passant_targets;
         }
@@ -141,9 +141,9 @@ namespace wisdom
             nullopt 
         };
 
-        array<Coord, Num_Players> my_en_passant_targets { 
-            No_En_Passant_Coord,
-            No_En_Passant_Coord 
+        array<optional<Coord>, Num_Players> my_en_passant_targets {
+            nullopt,
+            nullopt
         };
 
         array<optional<Coord>, Num_Players> my_king_positions { 

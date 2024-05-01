@@ -112,7 +112,7 @@ namespace wisdom
 
         [[nodiscard]] auto isEnPassantVulnerable (Color who) const noexcept -> bool
         {
-            return my_code.enPassantTarget (who) != No_En_Passant_Coord;
+            return my_code.enPassantTarget (who) != nullopt;
         }
 
         [[nodiscard]] auto getCurrentTurn() const -> Color
@@ -120,12 +120,16 @@ namespace wisdom
             return my_code.currentTurn();
         }
 
-        [[nodiscard]] auto getEnPassantTarget (Color who) const noexcept -> Coord
+        [[nodiscard]] auto
+        getEnPassantTarget (Color who) const noexcept
+            -> optional<Coord>
         {
             return my_code.enPassantTarget (who);
         }
 
-        [[nodiscard]] auto getEnPassantTargets() const noexcept -> EnPassantTargets
+        [[nodiscard]] auto
+        getEnPassantTargets() const noexcept
+            -> EnPassantTargets
         {
             return my_code.enPassantTargets();
         }
@@ -135,13 +139,18 @@ namespace wisdom
             return my_code;
         }
 
-        [[nodiscard]] static auto allCoords() -> CoordIterator
+        [[nodiscard]] static auto
+        allCoords()
+            -> CoordIterator
         {
             return CoordIterator {};
         }
 
         [[nodiscard]] auto
-        findFirstCoordWithPiece (ColoredPiece piece, Coord starting_at = First_Coord) const
+        findFirstCoordWithPiece (
+            ColoredPiece piece,
+            Coord starting_at = First_Coord
+        ) const
             -> optional<Coord>;
 
     private:
@@ -150,17 +159,33 @@ namespace wisdom
         auto applyForEnPassant (Color who, Coord src, Coord dst) noexcept -> ColoredPiece;
         void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept;
         void setEnPassantTarget (Color who, Coord target) noexcept;
+        void clearEnPassantTargets() noexcept;
 
         [[nodiscard]] auto getCastlingRookMove (Move move, Color who) const -> Move;
         void applyForCastlingMove (Color who, Move king_move, [[maybe_unused]] Coord src,
                                    [[maybe_unused]] Coord dst) noexcept;
         void updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst);
         void setCastleState (Color who, CastlingEligibility new_state) noexcept;
-        void removeCastlingEligibility (Color who,
-                                        CastlingEligibility removed_castle_states) noexcept;
-        void updateAfterRookCapture (Color opponent, ColoredPiece dst_piece, Coord src, Coord dst) noexcept;
-        void updateAfterRookMove (Color player, ColoredPiece src_piece,
-                                  Move move, Coord src, Coord dst) noexcept;
+
+        void removeCastlingEligibility (
+            Color who,
+            CastlingEligibility removed_castle_states
+        ) noexcept;
+
+        void updateAfterRookCapture (
+            Color opponent,
+            ColoredPiece dst_piece,
+            Coord src,
+            Coord dst
+        ) noexcept;
+
+        void updateAfterRookMove (
+            Color player,
+            ColoredPiece src_piece,
+            Move move,
+            Coord src,
+            Coord dst
+        ) noexcept;
 
         void setKingPosition (Color who, Coord pos) noexcept;
         void setPiece (Coord coord, ColoredPiece piece) noexcept;

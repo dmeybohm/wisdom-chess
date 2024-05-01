@@ -541,7 +541,7 @@ namespace wisdom::ui::console
 
                 for (auto legal_move : moves)
                 {
-                    if (optional_move.has_value() && moveEquals (legal_move, *optional_move))
+                    if (optional_move.has_value() && legal_move == *optional_move)
                     {
                         result = PlayCommand::PlayMove { *optional_move };
                         break;
