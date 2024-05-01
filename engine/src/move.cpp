@@ -19,15 +19,17 @@ namespace wisdom
     {
         Coord src = move.getSrc();
         Coord dst = move.getDst();
-        return pieceType (src_piece) == Piece::Pawn && abs (src.row() - dst.row()) == 2;
+        return pieceType (src_piece) == Piece::Pawn
+            && abs (src.row() - dst.row()) == 2;
     }
 
-    void 
+    auto
     Board::updateMoveClock (
         Color who, 
         Piece orig_src_piece_type, 
         Move move
     ) noexcept
+        -> void
     {
         if (move.isAnyCapturing() || orig_src_piece_type == Piece::Pawn)
             my_half_move_clock = 0;
@@ -101,18 +103,19 @@ namespace wisdom
             dst_col = dst.column() + 1;
         }
 
-        Expects (pieceType (pieceAt (src_row, src_col)) == Piece::Rook);
+        assert (pieceType (pieceAt (src_row, src_col)) == Piece::Rook);
 
         return Move::make (src_row, src_col, dst_row, dst_col);
     }
 
-    void 
+    auto
     Board::applyForCastlingMove (
         Color who, 
         Move king_move, 
         [[maybe_unused]] Coord src, 
         [[maybe_unused]] Coord dst
     ) noexcept
+        -> void
     {
         Move rook_move = getCastlingRookMove (king_move, who);
 
@@ -137,8 +140,12 @@ namespace wisdom
         my_code.setCastleState (who, new_state);
     }
 
-    void
-    Board::removeCastlingEligibility (Color who, CastlingEligibility removed_castle_states) noexcept
+    auto
+    Board::removeCastlingEligibility (
+        Color who,
+        CastlingEligibility removed_castle_states
+    ) noexcept
+        -> void
     {
         CastlingEligibility orig_castle_state = getCastlingEligibility (who);
         my_code.setCastleState (
@@ -163,15 +170,17 @@ namespace wisdom
         }
     }
 
-    void 
+    auto
     Board::updateAfterRookCapture (
         Color opponent,
         [[maybe_unused]] ColoredPiece dst_piece,
         [[maybe_unused]] Coord src,
         Coord dst
     ) noexcept
+        -> void
     {
-        Expects (pieceColor (dst_piece) == opponent && pieceType (dst_piece) == Piece::Rook);
+        assert (pieceColor (dst_piece) == opponent);
+        assert (pieceType (dst_piece) == Piece::Rook);
 
         optional<CastlingEligibility> castle_state = nullopt;
 
@@ -193,16 +202,18 @@ namespace wisdom
             removeCastlingEligibility (opponent, *castle_state);
     }
 
-    void 
+    auto
     Board::updateAfterRookMove (
         Color player, 
         ColoredPiece src_piece, 
         Move move, 
         Coord src, 
         Coord dst
-    ) noexcept 
+    ) noexcept
+        -> void
     {
-        Expects (pieceColor (src_piece) == player && pieceType (src_piece) == Piece::Rook);
+        assert (pieceColor (src_piece) == player);
+        assert (pieceType (src_piece) == Piece::Rook);
 
         CastlingEligibility affects_castle_state = Either_Side_Eligible;
         int castle_src_row = player == Color::White ? Last_Row : First_Row;

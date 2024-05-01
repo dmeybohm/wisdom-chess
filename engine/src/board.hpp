@@ -22,79 +22,114 @@ namespace wisdom
 
         explicit Board (const BoardBuilder& builder);
 
-        friend auto operator== (const Board& a, const Board& b) -> bool
+        friend auto
+        operator== (const Board& a, const Board& b)
+            -> bool
         {
             return a.my_code == b.my_code && a.my_squares == b.my_squares;
         }
 
-        [[nodiscard]] constexpr auto pieceAt (int row, int col) const -> ColoredPiece
+        [[nodiscard]] constexpr auto
+        pieceAt (int row, int col) const
+            -> ColoredPiece
         {
             Coord coord = Coord::make (row, col);
             return my_squares[coord.index()];
         }
 
-        [[nodiscard]] constexpr auto pieceAt (Coord coord) const -> ColoredPiece
+        [[nodiscard]] constexpr auto
+        pieceAt (Coord coord) const
+            -> ColoredPiece
         {
             return my_squares[coord.index()];
         }
 
-        friend auto operator<< (std::ostream& os, const Board& board) -> std::ostream&;
+        friend auto
+        operator<< (std::ostream& os, const Board& board)
+            -> std::ostream&;
 
         void dump() const;
 
-        [[nodiscard]] auto getHalfMoveClock() const noexcept -> int
+        [[nodiscard]] auto
+        getHalfMoveClock() const noexcept
+            -> int
         {
             return my_half_move_clock;
         }
 
-        [[nodiscard]] auto getFullMoveClock() const noexcept -> int
+        [[nodiscard]] auto
+        getFullMoveClock() const noexcept
+            -> int
         {
             return my_full_move_clock;
         }
 
         // Convert the board to a string.
-        [[nodiscard]] auto asString() const -> string;
+        [[nodiscard]] auto
+        asString() const
+            -> string;
 
-        [[nodiscard]] auto getCode() const noexcept -> BoardCode
+        [[nodiscard]] auto
+        getCode() const noexcept
+            -> BoardCode
         {
             return my_code;
         }
 
-        [[nodiscard]] auto getMaterial() const& noexcept -> const Material&
+        [[nodiscard]] auto
+        getMaterial() const& noexcept
+            -> const Material&
         {
             return my_material;
         }
         void getMaterial() const&& = delete;
 
-        [[nodiscard]] auto getPosition() const& noexcept -> const Position&
+        [[nodiscard]] auto
+        getPosition() const& noexcept
+            -> const Position&
         {
             return my_position;
         }
         void getPosition() const&& = delete;
 
-        [[nodiscard]] auto toFenString (Color turn) const -> string;
-        [[nodiscard]] auto castledString (Color color) const -> string;
+        [[nodiscard]] auto
+        toFenString (Color turn) const
+            -> string;
+        [[nodiscard]] auto
+        castledString (Color color) const
+            -> string;
 
         // Create a new board with the move applied:
-        [[nodiscard]] auto withMove (Color who, Move move) const -> Board;
+        [[nodiscard]] auto
+        withMove (Color who, Move move) const
+            -> Board;
 
         // Create a new board with the current turn updated:
-        [[nodiscard]] auto withCurrentTurn (Color who) const -> Board;
+        [[nodiscard]] auto
+        withCurrentTurn (Color who) const
+            -> Board;
 
         // Randomize and return copy of current board:
-        [[nodiscard]] auto withRandomPosition() const -> Board;
+        [[nodiscard]] auto
+        withRandomPosition() const
+            -> Board;
 
-        [[nodiscard]] auto getKingPosition (Color who) const noexcept -> Coord
+        [[nodiscard]] auto
+        getKingPosition (Color who) const noexcept
+            -> Coord
         {
             return my_king_pos[colorIndex (who)];
         }
 
-        [[nodiscard]] auto getCastlingEligibility (Color who) const noexcept -> CastlingEligibility
+        [[nodiscard]] auto
+        getCastlingEligibility (Color who) const noexcept
+            -> CastlingEligibility
         {
             return my_code.castleState (who);
         }
 
-        [[nodiscard]] auto ableToCastle (Color who, CastlingEligibility castle_types) const noexcept
+        [[nodiscard]] auto
+        ableToCastle (Color who, CastlingEligibility castle_types) const noexcept
             -> bool
         {
             // If either/both is passed, check both types.
@@ -162,8 +197,12 @@ namespace wisdom
         void clearEnPassantTargets() noexcept;
 
         [[nodiscard]] auto getCastlingRookMove (Move move, Color who) const -> Move;
-        void applyForCastlingMove (Color who, Move king_move, [[maybe_unused]] Coord src,
-                                   [[maybe_unused]] Coord dst) noexcept;
+        void applyForCastlingMove (
+            Color who,
+            Move king_move,
+            [[maybe_unused]] Coord src,
+            [[maybe_unused]] Coord dst
+        ) noexcept;
         void updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst);
         void setCastleState (Color who, CastlingEligibility new_state) noexcept;
 
