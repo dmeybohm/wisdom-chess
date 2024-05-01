@@ -147,8 +147,7 @@ namespace wisdom
 
         [[nodiscard]] auto isEnPassantVulnerable (Color who) const noexcept -> bool
         {
-            auto target = my_code.enPassantTarget();
-            return target.has_value() && target->vulnerable_color == who;
+            return my_code.enPassantTarget (who) != nullopt;
         }
 
         [[nodiscard]] auto getCurrentTurn() const -> Color
@@ -157,10 +156,17 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        getEnPassantTarget() const noexcept
-            -> optional<EnPassantTarget>
+        getEnPassantTarget (Color who) const noexcept
+            -> optional<Coord>
         {
-            return my_code.enPassantTarget();
+            return my_code.enPassantTarget (who);
+        }
+
+        [[nodiscard]] auto
+        getEnPassantTargets() const noexcept
+            -> EnPassantTargets
+        {
+            return my_code.enPassantTargets();
         }
 
         [[nodiscard]] auto getBoardCode() const -> BoardCode
@@ -188,7 +194,7 @@ namespace wisdom
         auto applyForEnPassant (Color who, Coord src, Coord dst) noexcept -> ColoredPiece;
         void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept;
         void setEnPassantTarget (Color who, Coord target) noexcept;
-        void clearEnPassantTarget() noexcept;
+        void clearEnPassantTargets() noexcept;
 
         [[nodiscard]] auto getCastlingRookMove (Move move, Color who) const -> Move;
         void applyForCastlingMove (

@@ -33,17 +33,18 @@ namespace wisdom
         auto current_turn = board.getCurrentTurn();
         setCurrentTurn (current_turn);
 
-        auto en_passant_target = board.getEnPassantTarget();
-        if (en_passant_target != nullopt)
+        auto en_passant_targets = board.getEnPassantTargets();
+        if (en_passant_targets[Color_Index_White] != nullopt)
         {
-            setEnPassantTarget (
-                en_passant_target->vulnerable_color,
-                en_passant_target->coord
-            );
+            setEnPassantTarget (Color::White, *en_passant_targets[Color_Index_White]);
+        }
+        else if (en_passant_targets[Color_Index_Black] != nullopt)
+        {
+            setEnPassantTarget (Color::Black, *en_passant_targets[Color_Index_Black]);
         }
         else
         {
-            clearEnPassantTarget();
+            clearEnPassantTargets ();
         }
 
         setCastleState (Color::White, board.getCastlingEligibility (Color::White));
@@ -68,17 +69,18 @@ namespace wisdom
         auto current_turn = builder.getCurrentTurn();
         result.setCurrentTurn (current_turn);
 
-        auto en_passant_target = builder.getEnPassantTarget();
-        if (en_passant_target.has_value())
+        auto en_passant_targets = builder.getEnPassantTargets();
+        if (en_passant_targets[Color_Index_White] != nullopt)
         {
-            result.setEnPassantTarget (
-                en_passant_target->vulnerable_color,
-                en_passant_target->coord
-            );
+            result.setEnPassantTarget (Color::White, *en_passant_targets[Color_Index_White]);
+        }
+        else if (en_passant_targets[Color_Index_Black] != nullopt)
+        {
+            result.setEnPassantTarget (Color::Black, *en_passant_targets[Color_Index_Black]);
         }
         else
         {
-            result.clearEnPassantTarget();
+            result.clearEnPassantTargets();
         }
 
         result.setCastleState (Color::White, builder.getCastleState (Color::White));

@@ -27,12 +27,6 @@ namespace type_safe
 
 namespace wisdom
 {
-    struct EnPassantTarget
-    {
-        Coord coord;
-        Color vulnerable_color;
-    };
-
     using CastlingEligibility = type_safe::flag_set<wisdom::CastlingIneligible>;
 
     inline constexpr CastlingEligibility Either_Side_Eligible = type_safe::noflag;

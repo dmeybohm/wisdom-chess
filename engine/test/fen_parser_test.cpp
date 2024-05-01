@@ -88,10 +88,8 @@ TEST_CASE( "FEN notation for en passant" )
     REQUIRE( !board.isEnPassantVulnerable (Color::White) );
     REQUIRE( board.isEnPassantVulnerable (Color::Black) );
 
-    auto black_target = board.getEnPassantTarget ();
-    REQUIRE( black_target.has_value() );
-    CHECK( black_target->vulnerable_color == Color::Black );
-    CHECK( black_target->coord == coordParse ("e6") );
+    auto black_target = board.getEnPassantTarget (Color::Black);
+    REQUIRE( black_target == coordParse ("e6") );
 }
 
 TEST_CASE( "Parsing half and full moves")
