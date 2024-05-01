@@ -197,14 +197,12 @@ TEST_CASE( "Board code stores metadata" )
         auto without_state_code = board_without_state.getCode();
         CHECK( with_state_code != without_state_code );
 
-        auto en_passant_target = with_state_code.enPassantTarget (Color::Black);
+        auto en_passant_target = with_state_code.enPassantTarget ();
         auto expected_coord = coordParse ("d6");
         auto metadata = with_state_code.getMetadataBits();
         REQUIRE( en_passant_target.has_value() );
-        CHECK( *en_passant_target == expected_coord );
-
-        auto opponent_target = with_state_code.enPassantTarget (Color::White);
-        CHECK( opponent_target == nullopt );
+        CHECK( en_passant_target->vulnerable_color == Color::Black );
+        CHECK( en_passant_target->coord == expected_coord );
     }
 
     SUBCASE( "Board code stores en passant state for White" )
@@ -224,15 +222,12 @@ TEST_CASE( "Board code stores metadata" )
         auto without_state_code = board_without_state.getCode();
         CHECK( with_state_code != without_state_code );
 
-        auto en_passant_target = with_state_code.enPassantTarget (Color::White);
+        auto en_passant_target = with_state_code.enPassantTarget();
 
         auto expected_coord = coordParse ("e3");
-        auto metadata = with_state_code.getMetadataBits();
         REQUIRE( en_passant_target.has_value() );
-        CHECK( *en_passant_target == expected_coord );
-
-        auto opponent_target = with_state_code.enPassantTarget (Color::Black);
-        CHECK( opponent_target == nullopt );
+        CHECK( en_passant_target->vulnerable_color == Color::White );
+        CHECK( en_passant_target->coord == expected_coord );
     }
 
     SUBCASE( "Board code stores castle state" )
