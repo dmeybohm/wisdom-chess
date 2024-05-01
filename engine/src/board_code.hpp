@@ -54,8 +54,8 @@ namespace wisdom
         {
             CURRENT_TURN_BIT = 0,
             EN_PASSANT_TARGET_BIT = 1,
-            CASTLING_STATE_WHITE_BIT = 9,
-            CASTLING_STATE_BLACK_BIT = 12,
+            CASTLING_STATE_WHITE_BIT = 7,
+            CASTLING_STATE_BLACK_BIT = 10,
             CURRENT_TURN_MASK = 0b1,
             EN_PASSANT_MASK = 0b11111,
             CASTLE_ONE_COLOR_MASK = 0b11,
