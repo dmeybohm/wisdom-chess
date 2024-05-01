@@ -198,14 +198,16 @@ namespace wisdom
         string castled_black = castledString (Color::Black);
 
         string both_castled = castled_white + castled_black;
-        if (both_castled.empty())
+        if (both_castled.length() == 0)
             both_castled = "-";
 
         output += both_castled;
 
-        auto en_passant_target = getEnPassantTarget();
-        if (en_passant_target != nullopt)
-            output += " " + wisdom::asString (en_passant_target->coord) + " ";
+        auto en_passant_targets = getEnPassantTargets();
+        if (en_passant_targets[Color_Index_White] != nullopt)
+            output += " " + wisdom::asString (*en_passant_targets[Color_Index_White]) + " ";
+        else if (en_passant_targets[Color_Index_Black] != nullopt)
+            output += " " + wisdom::asString (*en_passant_targets[Color_Index_Black]) + " ";
         else
             output += " - ";
 

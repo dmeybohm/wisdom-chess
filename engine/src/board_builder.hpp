@@ -33,8 +33,9 @@ namespace wisdom
 
         static auto fromDefaultPosition() -> BoardBuilder;
 
-        [[nodiscard]] static constexpr auto emptySquares()
-            -> array<ColoredPiece, Num_Squares>
+        static auto fromRandomPosition() -> BoardBuilder;
+
+        [[nodiscard]] static constexpr auto emptySquares() -> array<ColoredPiece, Num_Squares>
         {
             array<ColoredPiece, Num_Squares> result {};
             std::fill (std::begin (result), std::end (result), Piece_And_Color_None);
@@ -87,11 +88,9 @@ namespace wisdom
             return my_current_turn;
         }
 
-        [[nodiscard]] auto
-        getEnPassantTarget() const
-            -> optional<EnPassantTarget>
+        [[nodiscard]] auto getEnPassantTargets() const -> array<optional<Coord>, Num_Players>
         {
-            return my_en_passant_target;
+            return my_en_passant_targets;
         }
 
         [[nodiscard]] auto getCastleState (Color who) const -> CastlingEligibility
@@ -142,12 +141,15 @@ namespace wisdom
             nullopt 
         };
 
-        array<optional<Coord>, Num_Players> my_king_positions {
+        array<optional<Coord>, Num_Players> my_en_passant_targets {
+            nullopt,
+            nullopt
+        };
+
+        array<optional<Coord>, Num_Players> my_king_positions { 
             nullopt, 
             nullopt 
         };
-
-        optional<EnPassantTarget> my_en_passant_target { nullopt };
     };
 
 }
