@@ -135,7 +135,7 @@ namespace wisdom
             target_bits &= EN_PASSANT_MASK << EN_PASSANT_WHITE_TARGET;
             target_bits >>= target_bit_shift;
             auto col = gsl::narrow<int8_t> (target_bits & 0x7);
-            auto is_present = (bool)(target_bits & EN_PASSANT_PRESENT);
+            bool is_present = ((target_bits & EN_PASSANT_PRESENT) > 0);
             auto row = vulnerable_color == Color::White 
                 ? White_En_Passant_Row 
                 : Black_En_Passant_Row;
@@ -189,7 +189,9 @@ namespace wisdom
             -> Color
         {
             auto bits = getMetadataBits();
-            auto index = gsl::narrow_cast<int8_t> (bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT));
+            auto index = gsl::narrow_cast<int8_t> (
+                bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT)
+            );
             return colorFromColorIndex (index);
         }
 
