@@ -243,14 +243,13 @@ namespace wisdom
     Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept
     {
         int direction = pawnDirection<int> (who);
-        optional<Coord> new_state = nullopt;
 
         if (isDoubleSquarePawnMove (src_piece, move))
         {
             Coord src = move.getSrc();
             int prev_row = nextRow (src.row<int>(), direction);
-            new_state = makeCoord (prev_row, src.column());
-            setEnPassantTarget (who, *new_state);
+            Coord new_state = makeCoord (prev_row, src.column());
+            setEnPassantTarget (who, new_state);
         }
         else
         {
