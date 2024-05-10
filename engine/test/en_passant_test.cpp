@@ -9,15 +9,14 @@ using namespace wisdom;
 
 TEST_CASE( "en passant" )
 {
-    SUBCASE( "En passant state starts out as negative 1" )
+    SUBCASE( "En passant state starts out as not vulnerable" )
     {
         Board board;
 
         REQUIRE( !board.isEnPassantVulnerable (Color::White) );
         REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
 
-        REQUIRE( board.getEnPassantTarget (Color::White) == nullopt );
-        REQUIRE( board.getEnPassantTarget (Color::Black) == nullopt );
+        REQUIRE( board.getEnPassantTarget() == nullopt );
 
         BoardBuilder builder;
         const auto& back_rank = BoardBuilder::Default_Piece_Row;

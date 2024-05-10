@@ -245,9 +245,9 @@ namespace wisdom
     }
 
     void
-    Board::clearEnPassantTargets() noexcept
+    Board::clearEnPassantTarget() noexcept
     {
-        my_code.clearEnPassantTargets();
+        my_code.clearEnPassantTarget();
     }
 
     void 
@@ -264,7 +264,7 @@ namespace wisdom
         }
         else
         {
-            clearEnPassantTargets();
+            clearEnPassantTarget();
         }
     }
 
