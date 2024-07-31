@@ -162,6 +162,7 @@ namespace wisdom
         Board my_current_board {};
         mutable MoveGenerator my_move_generator {};
         History my_history;
+        mutable optional<int> my_move_timer_iterations = nullopt;
 
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};
         int my_max_depth { Default_Max_Depth };

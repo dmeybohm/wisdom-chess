@@ -38,6 +38,8 @@ namespace wisdom
 
         [[nodiscard]] auto isCancelled() -> bool;
 
+        [[nodiscard]] auto moveTimer() const -> not_null<const MoveTimer*>;
+
     private:
         unique_ptr<IterativeSearchImpl> impl;
     };

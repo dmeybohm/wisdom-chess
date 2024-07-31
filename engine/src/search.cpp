@@ -87,6 +87,11 @@ namespace wisdom
         return impl->moveTimer()->isCancelled();
     }
 
+    auto IterativeSearch::moveTimer() const -> not_null<const MoveTimer*>
+    {
+        return impl->moveTimer();
+    }
+
     static constexpr auto drawingScore (Color searching_color, Color current_color)
     {
         //

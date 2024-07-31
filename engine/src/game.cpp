@@ -140,11 +140,17 @@ namespace wisdom
         if (my_periodic_function.has_value())
             overdue_timer.setPeriodicFunction (*my_periodic_function);
 
+        if (my_move_timer_iterations.has_value())
+            overdue_timer.setCurrentIterations (*my_move_timer_iterations);
+
         IterativeSearch iterative_search {
             my_current_board, my_history, logger, overdue_timer,
             my_max_depth
         };
         SearchResult result = iterative_search.iterativelyDeepen (whom);
+
+        my_move_timer_iterations = iterative_search.moveTimer()->getCurrentIterations();
+        std::cout << "storing iterations: " << *my_move_timer_iterations << "\n";
 
         // If user cancelled the search, discard the results.
         if (iterative_search.isCancelled())
