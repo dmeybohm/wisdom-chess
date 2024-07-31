@@ -44,7 +44,7 @@ namespace wisdom
                     my_current_iterations = Max_Iterations_Before_Checking;
                 
             } else if (
-                check_time_diff > chrono::seconds(1) &&
+                check_time_diff > chrono::milliseconds (500) &&
                 my_current_iterations > Min_Iterations_Before_Checking
             ) {
                 std::cout << "Halving iterations: " << my_current_iterations << "\n";
