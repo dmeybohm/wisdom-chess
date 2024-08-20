@@ -39,7 +39,6 @@ namespace wisdom
                 my_current_iterations < Max_Iterations_Before_Checking
             ) {
                 my_current_iterations *= 2;
-                std::cout << "Doubling iterations: " << my_current_iterations << "\n";
                 if (my_current_iterations > Max_Iterations_Before_Checking)
                     my_current_iterations = Max_Iterations_Before_Checking;
                 
@@ -47,7 +46,6 @@ namespace wisdom
                 check_time_diff > chrono::milliseconds (500) &&
                 my_current_iterations > Min_Iterations_Before_Checking
             ) {
-                std::cout << "Halving iterations: " << my_current_iterations << "\n";
                 my_current_iterations /= 2;
                 if (my_current_iterations < Min_Iterations_Before_Checking)
                     my_current_iterations = Min_Iterations_Before_Checking;

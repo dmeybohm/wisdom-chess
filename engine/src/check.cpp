@@ -27,9 +27,6 @@ namespace wisdom
         if (isKingThreatened (board, who, king_coord))
             return false;
 
-        auto king_row = king_coord.row();
-        auto king_col = king_coord.column();
-
         if (mv.isCastling())
         {
             Coord castled_pos = mv.getDst();
