@@ -150,7 +150,6 @@ namespace wisdom
         SearchResult result = iterative_search.iterativelyDeepen (whom);
 
         my_move_timer_iterations = iterative_search.moveTimer()->getCurrentIterations();
-        std::cout << "storing iterations: " << *my_move_timer_iterations << "\n";
 
         // If user cancelled the search, discard the results.
         if (iterative_search.isCancelled())

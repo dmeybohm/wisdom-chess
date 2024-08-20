@@ -59,7 +59,7 @@ namespace wisdom
         {
             my_current_iterations = std::max(
                 Min_Iterations_Before_Checking,
-                std::min(current_iterations, Max_Iterations_Before_Checking)
+                std::min (current_iterations, Max_Iterations_Before_Checking)
             );
         }
 
