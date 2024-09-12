@@ -216,7 +216,7 @@ namespace wisdom
 
     Position::Position (const Board& board)
     {
-        for (auto coord : board.allCoords())
+        for (auto coord : Board::allCoords())
         {
             auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
