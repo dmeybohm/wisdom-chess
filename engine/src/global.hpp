@@ -124,6 +124,42 @@ namespace wisdom
     // accept a draw offer.
     inline constexpr int Min_Draw_Score = -500;
 
+    // constexpr versoin of gsl::narrow_cast (no exception at runtime:
+    template <typename Target, typename Source>
+    constexpr auto narrow_cast (Source value) noexcept
+        -> Target
+    {
+        // Check if Source can fit into Target without truncation
+        if constexpr (std::is_arithmetic_v<Source> && std::is_arithmetic_v<Target>)
+        {
+            if (value < std::numeric_limits<Target>::min() || value > std::numeric_limits<Target>::max())
+            {
+                // At compile-time, trigger an error if there's truncation
+                std::terminate ();
+            }
+        }
+
+        return gsl::narrow_cast<Target> (value);
+    }
+
+    // constexpr versoin of gsl::narrow (exception at runtime):
+    template <typename Target, typename Source>
+    constexpr auto narrow (Source value)
+        -> Target
+    {
+        // Check if Source can fit into Target without truncation
+        if constexpr (std::is_arithmetic_v<Source> && std::is_arithmetic_v<Target>)
+        {
+            if (value < std::numeric_limits<Target>::min() || value > std::numeric_limits<Target>::max())
+            {
+                // At compile-time, trigger an error if there's truncation
+                throw std::runtime_error("narrow_cast: narrowing occurred");
+            }
+        }
+
+        return gsl::narrow<Target> (value);
+    }
+
     // Errors in this application.
     class Error : public std::exception
     {

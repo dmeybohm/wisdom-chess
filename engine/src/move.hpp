@@ -136,10 +136,10 @@ namespace wisdom
             -> Move
         {
             return Move {
-                .src = gsl::narrow_cast<int8_t> (src.index()),
-                .dst = gsl::narrow_cast<int8_t> (dst.index()),
-                .promoted_piece = gsl::narrow_cast<int8_t> (0),
-                .move_category = gsl::narrow_cast<int8_t> (0),
+                .src = narrow_cast<int8_t> (src.index()),
+                .dst = narrow_cast<int8_t> (dst.index()),
+                .promoted_piece = narrow_cast<int8_t> (0),
+                .move_category = narrow_cast<int8_t> (0),
             };
         }
 
@@ -239,10 +239,10 @@ namespace wisdom
         fromInt (int packed_move) -> Move
         {
             return Move {
-                .src = gsl::narrow<int8_t> (packed_move & 0x7f),
-                .dst = gsl::narrow<int8_t> ((packed_move >> 8) & 0x7f),
-                .promoted_piece = gsl::narrow<int8_t> ((packed_move >> 16) & 0x7f),
-                .move_category = gsl::narrow<int8_t> ((packed_move >> 24) & 0x7f),
+                .src = static_cast<int8_t> (packed_move & 0x7f),
+                .dst = static_cast<int8_t> ((packed_move >> 8) & 0x7f),
+                .promoted_piece = static_cast<int8_t> ((packed_move >> 16) & 0x7f),
+                .move_category = static_cast<int8_t> ((packed_move >> 24) & 0x7f),
             };
         }
 
@@ -272,7 +272,7 @@ namespace wisdom
             Move result = *this;
             auto promoted_piece_type = toInt8 (pieceType (piece));
             auto promoted_color_index = colorIndex (pieceColor (piece));
-            result.promoted_piece = gsl::narrow_cast<int8_t> (
+            result.promoted_piece = static_cast<int8_t> (
                 (promoted_color_index << 4) | (promoted_piece_type & 0xf)
             );
             return result;
@@ -359,7 +359,7 @@ namespace wisdom
         -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
-        return gsl::narrow_cast<IntegerType> (who == Color::White ? Last_Row : First_Row);
+        return static_cast<IntegerType> (who == Color::White ? Last_Row : First_Row);
     }
 
     using PlayerCastleState = array<CastlingEligibility, Num_Players>;

@@ -47,51 +47,6 @@ namespace wisdom
         }
     }
 
-    void MoveGenerator::knightMoveListInit() const
-    {
-        for (auto coord : CoordIterator {})
-        {
-            int row = coord.row<int>();
-            int col = coord.column<int>();
-
-            for (int k_row = -2; k_row <= 2; k_row++)
-            {
-                if (!k_row)
-                    continue;
-
-                if (!isValidRow (k_row + row))
-                    continue;
-
-                for (int k_col = 3 - abs (k_row); k_col >= -2; k_col -= 2 * abs (k_col))
-                {
-                    if (!isValidColumn (k_col + col))
-                        continue;
-
-                    Move knight_move = Move::make (
-                        k_row + row,
-                        k_col + col,
-                        row,
-                        col
-                    );
-                    int dst_row = k_row + row;
-                    int dst_col = k_col + col;
-                    auto index = Coord::make (dst_row, dst_col).index();
-                    my_knight_moves[index].append (knight_move);
-                }
-            }
-        }
-    }
-
-    auto MoveGenerator::generateKnightMoves (int row, int col) const -> const MoveList&
-    {
-        auto coord = Coord::make (row, col);
-
-        if (my_knight_moves[0].isEmpty())
-            knightMoveListInit();
-
-        return my_knight_moves[coord.index()];
-    }
-
     static auto isPawnUnmoved (const Board& board, int row, int col) -> bool
     {
         ColoredPiece piece = board.pieceAt (row, col);
@@ -257,7 +212,7 @@ namespace wisdom
 
     void MoveGeneration::knight()
     {
-        const auto& kt_moves = generator.generateKnightMoves (piece_row, piece_col);
+        const auto& kt_moves = MoveGenerator::getKnightMoveList (piece_row, piece_col);
 
         for (const auto& knight_move : kt_moves)
             appendMove (knight_move);

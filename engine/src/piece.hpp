@@ -95,13 +95,17 @@ namespace wisdom
         return gsl::narrow_cast<int8_t> (toInt8 (who) - 1);
     }
 
-    constexpr auto colorInvert (Color who) -> Color
+    constexpr auto
+    colorInvert (Color who)
+        -> Color
     {
         assert (isColorValid (who));
         return colorFromColorIndex (gsl::narrow_cast<int8_t> (!colorIndex (who)));
     }
 
-    constexpr auto pieceIndex (Piece piece) -> int
+    constexpr auto
+    pieceIndex (Piece piece)
+        -> int
     {
         auto piece_as_int = static_cast<int8_t> (piece);
         assert (piece_as_int >= toInt8 (Piece::None) && piece_as_int <= toInt8 (Piece::King));
