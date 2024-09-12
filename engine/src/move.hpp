@@ -120,7 +120,7 @@ namespace wisdom
     [[nodiscard]] constexpr auto 
     toInt8 (MoveCategory move_category) -> int
     {
-        return narrow_cast<int8_t> (move_category);
+        return static_cast<int8_t> (move_category);
     }
 
     struct Move
