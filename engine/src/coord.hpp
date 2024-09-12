@@ -49,7 +49,7 @@ namespace wisdom
             -> Coord
         {
             assert (isValidRow (row) && isValidColumn (col));
-            Coord result = { .row_and_col = static_cast<int8_t> (row << 3 | col) };
+            Coord result = { .row_and_col = narrow_cast<int8_t> (row << 3 | col) };
             return result;
         }
 
@@ -59,7 +59,7 @@ namespace wisdom
         index() 
             -> IntegerType
         {
-            return static_cast<IntegerType> (row_and_col);
+            return narrow_cast<IntegerType> (row_and_col);
         }
 
         template <typename IntegerType = int8_t>
@@ -68,7 +68,7 @@ namespace wisdom
             -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
-            return static_cast<IntegerType> (row_and_col >> 3);
+            return narrow_cast<IntegerType> (row_and_col >> 3);
         }
 
         template <typename IntegerType = int8_t>
@@ -77,7 +77,7 @@ namespace wisdom
             -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
-            return static_cast<IntegerType> (row_and_col & 0b111);
+            return narrow_cast<IntegerType> (row_and_col & 0b111);
         }
     };
     static_assert (std::is_trivial_v<Coord>);

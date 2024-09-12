@@ -120,7 +120,7 @@ namespace wisdom
     [[nodiscard]] constexpr auto 
     toInt8 (MoveCategory move_category) -> int
     {
-        return static_cast<int8_t> (move_category);
+        return narrow_cast<int8_t> (move_category);
     }
 
     struct Move
@@ -272,7 +272,7 @@ namespace wisdom
             Move result = *this;
             auto promoted_piece_type = toInt8 (pieceType (piece));
             auto promoted_color_index = colorIndex (pieceColor (piece));
-            result.promoted_piece = static_cast<int8_t> (
+            result.promoted_piece = narrow_cast<int8_t> (
                 (promoted_color_index << 4) | (promoted_piece_type & 0xf)
             );
             return result;
