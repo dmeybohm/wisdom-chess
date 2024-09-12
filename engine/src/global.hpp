@@ -50,6 +50,8 @@ namespace wisdom
     using std::string;
     using std::unique_ptr;
     using std::vector;
+    using std::string_view;
+    using std::span;
 
     template <typename T>
     using observer_ptr = T*;
