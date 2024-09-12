@@ -292,4 +292,17 @@ namespace wisdom
 
         optional<EnPassantTarget> my_en_passant_target { nullopt };
     };
+
+    namespace
+    {
+        consteval auto
+        initDefaultBoardBuilder()
+            -> BoardBuilder
+        {
+            return BoardBuilder::fromDefaultPosition();
+        }
+    }
+
+    inline constexpr BoardBuilder default_board_builder =
+        initDefaultBoardBuilder();
 }
