@@ -9,9 +9,13 @@ namespace wisdom
 {
     struct MoveGeneration;
 
-    using KnightMoveList = array<Move, 8>;
+    struct KnightMoveList
+    {
+        size_t size;
+        array<Move, 8> moves;
+    };
+
     using KnightMoveLists = array<KnightMoveList, Num_Squares>;
-    using KnightMoveSizes = array<size_t, Num_Squares>;
 
     namespace
     {
@@ -25,10 +29,9 @@ namespace wisdom
 
         consteval auto
         knightMoveListInit()
-            -> pair<KnightMoveLists, KnightMoveSizes>
+            -> KnightMoveLists
         {
             KnightMoveLists result {};
-            KnightMoveSizes sizes {};
 
             for (auto coord : CoordIterator {})
             {
@@ -58,14 +61,14 @@ namespace wisdom
                         );
                         auto index = knight_move.getSrc().index();
 
-                        auto& size_ref  = sizes[index];
-                        auto& array_ref = result[index];
+                        auto& size_ref = result[index].size;
+                        auto& array_ref = result[index].moves;
                         array_ref[size_ref] = knight_move;
                         size_ref++;
                     }
                 }
             }
-            return { result, sizes };
+            return result;
         }
     }
 
@@ -84,7 +87,7 @@ namespace wisdom
 
         // Store a list of knight moves and their sizes, generated at
         // compile-time:
-        static constexpr pair<KnightMoveLists, KnightMoveSizes> Knight_Moves =
+        static constexpr KnightMoveLists Knight_Moves =
             knightMoveListInit();
 
         // Get a std::span of the knight move list and the compile-time
@@ -96,10 +99,8 @@ namespace wisdom
             auto coord = Coord::make (row, col);
             const auto square = coord.index();
 
-            const auto& list = Knight_Moves.first[square];
-            const auto size = Knight_Moves.second[square];
-
-            return { list.data(), size };
+            const auto& list = Knight_Moves[square];
+            return { list.moves.data(), list.size };
         }
     };
 
