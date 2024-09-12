@@ -86,11 +86,6 @@ public:
 
     [[nodiscard]] auto isLegalMove (wisdom::Move selectedMove) const -> bool;
 
-    [[nodiscard]] auto moveGenerator() const -> gsl::not_null<wisdom::MoveGenerator*>
-    {
-        return my_move_generator.get();
-    }
-
     void setConfig (const Config& config);
     void setPeriodicFunction (const wisdom::MoveTimer::PeriodicFunction& func);
     void setPlayers (wisdom::Player whitePLayer, wisdom::Player blackPlayer);
@@ -101,8 +96,6 @@ public:
 
 private:
     std::unique_ptr<wisdom::Game> my_engine;
-    std::unique_ptr<wisdom::MoveGenerator> my_move_generator
-        = std::make_unique<wisdom::MoveGenerator>();
     Config my_config;
 };
 

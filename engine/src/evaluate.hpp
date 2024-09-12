@@ -13,7 +13,7 @@ namespace wisdom
     class MoveGenerator;
 
     // Evaluate the board.
-    auto evaluate (const Board& board, Color who, int moves_away, MoveGenerator& generator) -> int;
+    auto evaluate (const Board& board, Color who, int moves_away) -> int;
 
     // When there are no legal moves present, return the score of this move, which
     // checks for either a stalemate or checkmate position.

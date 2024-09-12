@@ -71,20 +71,17 @@ namespace wisdom
 
     class MoveGenerator final
     {
-    public:
         MoveGenerator() = default;
 
-        [[nodiscard]] auto
-        generateAllPotentialMoves (const Board& board, Color who) const
+    public:
+        [[nodiscard]] static auto
+        generateAllPotentialMoves (const Board& board, Color who)
             -> MoveList;
 
-        [[nodiscard]] auto
-        generateLegalMoves (const Board& board, Color who) const
+        [[nodiscard]] static auto
+        generateLegalMoves (const Board& board, Color who)
             -> MoveList;
 
-        friend class MoveGeneration;
-
-    private:
         // Store a list of knight moves and their sizes, generated at
         // compile-time:
         static constexpr pair<KnightMoveLists, KnightMoveSizes> Knight_Moves =

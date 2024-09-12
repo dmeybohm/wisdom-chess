@@ -34,7 +34,6 @@ TEST_CASE( "en passant" )
     SUBCASE( "En passant moves work on the right" )
     {
         BoardBuilder builder;
-        MoveGenerator move_generator;
 
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
 
@@ -54,7 +53,7 @@ TEST_CASE( "en passant" )
         Move pawn_move = moveParse ("f7f5");
         board = board.withMove (Color::Black, pawn_move);
 
-        MoveList move_list = move_generator.generateAllPotentialMoves (board, Color::White);
+        MoveList move_list = MoveGenerator::generateAllPotentialMoves (board, Color::White);
         auto maybe_en_passant_move = std::find_if (
                 move_list.begin(), move_list.end(), std::mem_fn (&Move::isEnPassant));
 
@@ -87,7 +86,6 @@ TEST_CASE( "en passant" )
     SUBCASE( "En passant moves work on the left" )
     {
         BoardBuilder builder;
-        MoveGenerator move_generator;
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
 
         builder.addRowOfSameColor ("a8", Color::Black, back_rank);
@@ -103,7 +101,7 @@ TEST_CASE( "en passant" )
 
         board = board.withMove (Color::Black, pawn_move);
 
-        MoveList move_list = move_generator.generateAllPotentialMoves (board, Color::White);
+        MoveList move_list = MoveGenerator::generateAllPotentialMoves (board, Color::White);
         auto maybe_en_passant_move = std::find_if (
                 move_list.begin(), move_list.end(), std::mem_fn (&Move::isEnPassant));
 

@@ -28,10 +28,10 @@ TEST_CASE( "Initializing move list" )
     REQUIRE( moves == expected );
 }
 
-static auto copy_moves_and_ptr (const Move **ptr, MoveGenerator& generator) -> MoveList
+static auto copy_moves_and_ptr (const Move **ptr) -> MoveList
 {
     Board board;
-    MoveList moves = generator.generateAllPotentialMoves (board, Color::White);
+    MoveList moves = MoveGenerator::generateAllPotentialMoves (board, Color::White);
     return moves;
 }
 
@@ -45,8 +45,7 @@ TEST_CASE( "Converting moves to a string" )
 TEST_CASE( "Returning move list moves ptr" )
 {
     const Move* ptr;
-    MoveGenerator move_generator;
-    MoveList result = copy_moves_and_ptr (&ptr, move_generator);
+    MoveList result = copy_moves_and_ptr (&ptr);
 //    std::cout << "Moves first" << &result.get_my_moves()[0] << "\n";
 
     REQUIRE( result.size() > 0 );

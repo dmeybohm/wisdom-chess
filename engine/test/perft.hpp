@@ -52,8 +52,7 @@ namespace wisdom::perft
     {
         MoveCounter counters;
 
-        void searchMoves (const wisdom::Board& board, wisdom::Color side, int depth, int max_depth,
-                          MoveGenerator& generator);
+        void searchMoves (const wisdom::Board& board, wisdom::Color side, int depth, int max_depth);
 
         void operator+= (const Stats& source)
         {
@@ -62,22 +61,32 @@ namespace wisdom::perft
     };
 
     // Convert a perft move list to a wisdom::MoveList.
-    auto toMoveList (const wisdom::Board& board, Color who, const string& move_list)
+    auto
+    toMoveList (const wisdom::Board& board, Color who, const string& move_list)
         -> wisdom::MoveList;
 
     // Convert a wisdom move to a perft move.
-    auto toPerftMove (const Move& move, Color who) -> string;
+    auto
+    toPerftMove (const Move& move, Color who)
+        -> string;
 
     // Convert a perft move to a wisdom::Move.
-    auto convertMove (const Board& board, Color who, string move_str) -> wisdom::Move;
+    auto
+    convertMove (const Board& board, Color who, string move_str)
+        -> wisdom::Move;
 
     // Output the perf results to a string.
-    auto perftResults (const Board& board, Color active_player, int depth,
-                       MoveGenerator& generator) -> PerftResults;
+    auto
+    perftResults (const Board& board, Color active_player, int depth)
+        -> PerftResults;
 
     // Apply the list of moves, update active color and return it.
-    auto applyList (Board& board, Color color, const MoveList& list) -> Color;
+    auto
+    applyList (Board& board, Color color, const MoveList& list)
+        -> Color;
 
     // Convert the PerftResults to a string.
-    auto asString (const PerftResults& perft_results) -> string;
+    auto
+    asString (const PerftResults& perft_results)
+        -> string;
 }

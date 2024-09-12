@@ -69,9 +69,6 @@ namespace wisdom
         [[nodiscard]] auto getHistory() & -> History&;
         [[nodiscard]] auto getHistory() && -> History& = delete;
 
-        [[nodiscard]] auto getMoveGenerator() const& -> MoveGenerator&;
-        [[nodiscard]] auto getMoveGenerator() const&& -> MoveGenerator& = delete;
-
         [[nodiscard]] auto getCurrentPlayer() const -> Player
         {
             return getPlayer (my_current_board.getCurrentTurn());
@@ -160,7 +157,6 @@ namespace wisdom
 
     private:
         Board my_current_board {};
-        mutable MoveGenerator my_move_generator {};
         History my_history;
 
         optional<MoveTimer::PeriodicFunction> my_periodic_function {};

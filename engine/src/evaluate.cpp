@@ -53,7 +53,7 @@ namespace wisdom
         }
     }
 
-    auto evaluate (const Board& board, Color who, int moves_away, MoveGenerator& generator) -> int
+    auto evaluate (const Board& board, Color who, int moves_away) -> int
     {
         int score = 0;
         Color opponent = colorInvert (who);
@@ -61,11 +61,11 @@ namespace wisdom
         score += board.getMaterial().overallScore (who);
         score += board.getPosition().overallScore (who);
 
-        if (isCheckmated (board, who, generator))
+        if (isCheckmated (board, who))
         {
             score = -1 * checkmateScoreInMoves (moves_away);
         }
-        else if (isCheckmated (board, opponent, generator))
+        else if (isCheckmated (board, opponent))
         {
             score = checkmateScoreInMoves (moves_away);
         }

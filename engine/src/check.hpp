@@ -64,11 +64,13 @@ namespace wisdom
     }
 
     // Whether the board is in a checkmated position for the computer_player.
-    [[nodiscard]] auto isCheckmated (const Board& board, Color who, MoveGenerator& generator)
+    [[nodiscard]] auto
+    isCheckmated (const Board& board, Color who)
         -> bool;
 
     // Whether in a stalemate position for white or black.
-    [[nodiscard]] auto isStalemated (const Board& board, Color who, MoveGenerator& generator)
+    [[nodiscard]] auto
+    isStalemated (const Board& board, Color who)
         -> bool;
 
     // Whether this move could cause a draw.

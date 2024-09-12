@@ -12,7 +12,6 @@ namespace wisdom
         int piece_row;
         int piece_col;
         const Color who;
-        const MoveGenerator& generator;
 
         void generate (ColoredPiece piece, Coord coord);
 
@@ -361,7 +360,8 @@ namespace wisdom
         appendMove (new_move);
     }
 
-    auto MoveGenerator::generateLegalMoves (const Board& board, Color who) const -> MoveList
+    auto
+    MoveGenerator::generateLegalMoves (const Board& board, Color who) -> MoveList
     {
         MoveList non_checks;
 
@@ -482,11 +482,12 @@ namespace wisdom
             return promotingOrCoordCompare (a, b);
     }
 
-    auto MoveGenerator::generateAllPotentialMoves (const Board& board, Color who) const
+    auto
+    MoveGenerator::generateAllPotentialMoves (const Board& board, Color who)
         -> MoveList
     {
         MoveList result;
-        MoveGeneration generation { board, result, 0, 0, who, *this };
+        MoveGeneration generation { board, result, 0, 0, who };
 
         for (auto coord : Board::allCoords())
         {

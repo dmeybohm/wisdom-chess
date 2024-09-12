@@ -297,10 +297,8 @@ namespace wisdom::ui::console
 
         void printAvailableMoves()
         {
-            MoveGenerator generator;
-
             MoveList moves
-                = generator.generateLegalMoves (game->getBoard(), game->getCurrentTurn());
+                = MoveGenerator::generateLegalMoves (game->getBoard(), game->getCurrentTurn());
             std::cout << "\nAvailable moves:\n    ";
 
             int count = 0;
@@ -535,9 +533,8 @@ namespace wisdom::ui::console
                     return result;
 
                 // check the generated move list for this move to see if its valid
-                MoveGenerator generator;
                 MoveList moves
-                    = generator.generateLegalMoves (game->getBoard(), game->getCurrentTurn());
+                    = MoveGenerator::generateLegalMoves (game->getBoard(), game->getCurrentTurn());
 
                 for (auto legal_move : moves)
                 {
