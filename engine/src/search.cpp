@@ -51,7 +51,6 @@ namespace wisdom
         History my_history;
         nonnull_observer_ptr<const Logger> my_output;
         SearchResult my_current_result {};
-        MoveGenerator my_generator {};
         MoveTimer my_timer;
 
         int my_total_depth;
@@ -104,7 +103,7 @@ namespace wisdom
         std::optional<Move> best_move {};
         int best_score = -Initial_Alpha;
 
-        auto moves = my_generator.generateAllPotentialMoves (parent_board, side);
+        auto moves = MoveGenerator::generateAllPotentialMoves (parent_board, side);
         for (auto move : moves)
         {
             int score;
@@ -132,8 +131,7 @@ namespace wisdom
                 }
                 else
                 {
-                    score = evaluate (child_board, side,
-                                      my_search_depth - depth, my_generator);
+                    score = evaluate (child_board, side, my_search_depth - depth);
                 }
             }
             else

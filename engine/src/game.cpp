@@ -79,10 +79,10 @@ namespace wisdom
 
     auto Game::status() const -> GameStatus
     {
-        if (isCheckmated (my_current_board, getCurrentTurn(), my_move_generator))
+        if (isCheckmated (my_current_board, getCurrentTurn()))
             return GameStatus::Checkmate;
 
-        if (isStalemated (my_current_board, getCurrentTurn(), my_move_generator))
+        if (isStalemated (my_current_board, getCurrentTurn()))
             return GameStatus::Stalemate;
 
         if (my_history.isThirdRepetition (my_current_board))
@@ -203,14 +203,9 @@ namespace wisdom
         return my_history;
     }
 
-    auto Game::getMoveGenerator() const& -> MoveGenerator&
-    {
-        return my_move_generator;
-    }
-
     auto Game::computerWantsDraw (Color who) const -> bool
     {
-        int score = evaluate (my_current_board, who, 1, my_move_generator);
+        int score = evaluate (my_current_board, who, 1);
         return score <= Min_Draw_Score;
     }
 

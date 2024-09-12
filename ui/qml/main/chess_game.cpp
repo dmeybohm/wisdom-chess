@@ -2,6 +2,7 @@
 #include "fen_parser.hpp"
 #include "game_settings.hpp"
 #include "move_timer.hpp"
+#include "generate.hpp"
 
 #include <QDebug>
 
@@ -18,6 +19,7 @@ using wisdom::Game;
 using wisdom::Move;
 using wisdom::MoveTimer;
 using wisdom::Piece;
+using wisdom::MoveGenerator;
 
 auto ChessGame::fromPlayers (wisdom::Player whitePlayer, wisdom::Player blackPlayer,
                              const Config& config) -> unique_ptr<ChessGame>
@@ -63,8 +65,7 @@ auto ChessGame::isLegalMove (Move selectedMove) const -> bool
     }
 
     auto who = game->getCurrentTurn();
-    auto& generator = game->getMoveGenerator();
-    auto legalMoves = generator.generateLegalMoves (game->getBoard(), who);
+    auto legalMoves = MoveGenerator::generateLegalMoves (game->getBoard(), who);
 
     return std::any_of (legalMoves.cbegin(), legalMoves.cend(),
                         [selectedMove] (const auto& move)

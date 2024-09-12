@@ -5,20 +5,6 @@
 
 namespace wisdom
 {
-    auto coordParse (const string& str) -> Coord
-    {
-        if (str.size() != 2)
-            throw CoordParseError ("Invalid coordinate!");
-
-        int col = charToCol (str.at (0));
-        int row = charToRow (str.at (1));
-
-        if (!isValidRow (row) || !isValidColumn (col))
-            throw CoordParseError ("Invalid coordinate!");
-
-        return makeCoord (row, col);
-    }
-
     auto asString (Coord coord) -> string
     {
         string result = ""; // NOLINT(readability-redundant-string-init)

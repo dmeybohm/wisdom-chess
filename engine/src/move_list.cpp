@@ -4,16 +4,6 @@
 
 namespace wisdom
 {
-    MoveList::MoveList (Color color, std::initializer_list<czstring> list) noexcept
-        : MoveList {}
-    {
-        for (auto&& it : list)
-        {
-            append (moveParse (it, color));
-            color = colorInvert (color);
-        }
-    }
-
     auto MoveList::asString() const -> string
     {
         string result = "{ ";

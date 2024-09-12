@@ -5,18 +5,31 @@
 namespace wisdom
 {
     template <typename IntegerType>
-    constexpr auto isValidRow (IntegerType row) -> bool
+    constexpr auto
+    isValidRow (IntegerType row)
+        -> bool
     {
         static_assert (std::is_integral_v<IntegerType>);
         return row >= 0 && row < Num_Rows;
     }
 
     template <typename IntegerType>
-    constexpr auto isValidColumn (IntegerType col) -> bool
+    constexpr auto
+    isValidColumn (IntegerType col)
+        -> bool
     {
         static_assert (std::is_integral_v<IntegerType>);
         return col >= 0 && col < Num_Columns;
     }
+
+    class CoordParseError : public Error
+    {
+    public:
+        explicit CoordParseError (string message)
+            : Error (std::move (message))
+        {
+        }
+    };
 
     struct Coord
     {
@@ -28,7 +41,7 @@ namespace wisdom
             -> Coord
         {
             assert (index >= 0 && index < Num_Squares);
-            return { .row_and_col = gsl::narrow_cast<int8_t> (index) };
+            return { .row_and_col = narrow_cast<int8_t> (index) };
         }
 
         [[nodiscard]] static constexpr auto 
@@ -36,7 +49,7 @@ namespace wisdom
             -> Coord
         {
             assert (isValidRow (row) && isValidColumn (col));
-            Coord result = { .row_and_col = gsl::narrow_cast<int8_t> (row << 3 | col) };
+            Coord result = { .row_and_col = narrow_cast<int8_t> (row << 3 | col) };
             return result;
         }
 
@@ -46,7 +59,7 @@ namespace wisdom
         index() 
             -> IntegerType
         {
-            return gsl::narrow_cast<IntegerType> (row_and_col);
+            return narrow_cast<IntegerType> (row_and_col);
         }
 
         template <typename IntegerType = int8_t>
@@ -55,7 +68,7 @@ namespace wisdom
             -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
-            return gsl::narrow_cast<IntegerType> (row_and_col >> 3);
+            return narrow_cast<IntegerType> (row_and_col >> 3);
         }
 
         template <typename IntegerType = int8_t>
@@ -64,26 +77,32 @@ namespace wisdom
             -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
-            return gsl::narrow_cast<IntegerType> (row_and_col & 0b111);
+            return narrow_cast<IntegerType> (row_and_col & 0b111);
         }
     };
     static_assert (std::is_trivial_v<Coord>);
 
     template <typename IntegerType>
-    constexpr auto nextRow (IntegerType row, int direction) -> IntegerType
+    constexpr auto
+    nextRow (IntegerType row, int direction)
+        -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
-        return gsl::narrow_cast<IntegerType> (row + direction);
+        return narrow_cast<IntegerType> (row + direction);
     }
 
     template <typename T>
-    constexpr auto nextColumn (T col, int direction) -> T
+    constexpr auto
+    nextColumn (T col, int direction)
+        -> T
     {
         static_assert (std::is_integral_v<T>);
-        return gsl::narrow_cast<T> (col + direction);
+        return narrow_cast<T> (col + direction);
     }
 
-    constexpr auto makeCoord (int row, int col) -> Coord
+    constexpr auto
+    makeCoord (int row, int col)
+        -> Coord
     {
         return Coord::make (row, col);
     }
@@ -92,18 +111,24 @@ namespace wisdom
     constexpr Coord End_Coord = { .row_and_col = Num_Squares };
 
     template <typename IntegerType = int8_t>
-    [[nodiscard]] constexpr auto coordRow (Coord pos) -> IntegerType
+    [[nodiscard]] constexpr auto
+    coordRow (Coord pos)
+        -> IntegerType
     {
         return pos.row<IntegerType>();
     }
 
     template <typename IntegerType = int8_t>
-    [[nodiscard]] constexpr auto coordColumn (Coord pos) -> IntegerType
+    [[nodiscard]] constexpr auto
+    coordColumn (Coord pos)
+        -> IntegerType
     {
         return pos.column<IntegerType>();
     }
 
-    [[nodiscard]] constexpr auto nextCoord (Coord coord, int direction) -> optional<Coord>
+    [[nodiscard]] constexpr auto
+    nextCoord (Coord coord, int direction)
+        -> optional<Coord>
     {
         Expects (direction == +1 || direction == -1);
         int index = coord.index();
@@ -115,47 +140,74 @@ namespace wisdom
         return Coord::fromIndex (index);
     }
 
-    constexpr auto operator== (Coord first, Coord second) -> bool
+    constexpr auto
+    operator== (Coord first, Coord second)
+        -> bool
     {
         return first.row_and_col == second.row_and_col;
     }
 
-    constexpr bool operator!= (Coord first, Coord second)
+    constexpr bool
+    operator!= (Coord first, Coord second)
     {
         return !operator== (first, second);
     }
 
-    constexpr auto operator++ (Coord& coord) -> Coord&
+    constexpr auto
+    operator++ (Coord& coord)
+        -> Coord&
     {
         coord.row_and_col++;
         return coord;
     }
 
-    static inline int charToRow (char chr)
+    static constexpr auto
+    charToRow (char chr)
+        -> int
     {
-        return 8 - (tolower (chr) - '0');
+        return 8 - (toLower (chr) - '0');
     }
 
-    static inline int charToCol (char chr)
+    static constexpr auto
+    charToCol (char chr)
+        -> int
     {
-        return tolower (chr) - 'a';
+        return toLower (chr) - 'a';
     }
 
-    constexpr char rowToChar (int8_t row)
+    constexpr auto
+    rowToChar (int8_t row)
+        -> char
     {
         assert (isValidRow (row));
-        return gsl::narrow<char> (8 - row + '0');
+        return narrow<char> (8 - row + '0');
     }
 
-    constexpr char colToChar (int8_t col)
+    constexpr auto
+    colToChar (int8_t col)
+        -> char
     {
         assert (isValidColumn (col));
-        return gsl::narrow<char> (col + 'a');
+        return narrow<char> (col + 'a');
     }
 
     auto asString (Coord coord) -> string;
 
-    auto coordParse (const string& str) -> Coord;
+    constexpr auto
+    coordParse (string_view str)
+        -> Coord
+    {
+        if (str.size() != 2)
+            throw CoordParseError ("Invalid coordinate!");
+
+        int col = charToCol (str.at (0));
+        int row = charToRow (str.at (1));
+
+        if (!isValidRow (row) || !isValidColumn (col))
+            throw CoordParseError ("Invalid coordinate!");
+
+        return makeCoord (row, col);
+    }
 
     auto operator<< (std::ostream& ostream, Coord coord) -> std::ostream&;
 
@@ -167,41 +219,53 @@ namespace wisdom
         using reference = Coord&;
         using iterator_category = std::forward_iterator_tag;
 
-        CoordIterator()
+        constexpr CoordIterator()
             : my_coord { First_Coord }
         {}
 
-        explicit CoordIterator (Coord coord)
+        explicit constexpr CoordIterator (Coord coord)
             : my_coord (coord)
         {}
 
-        [[nodiscard]] auto begin() -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
+        [[nodiscard]] constexpr auto
+        begin()
+            -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
         {
             return CoordIterator { First_Coord };
         }
 
-        [[nodiscard]] auto end() -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
+        [[nodiscard]] constexpr auto
+        end()
+            -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
         {
             return CoordIterator { End_Coord };
         }
 
-        auto operator*() const -> Coord
+        constexpr auto
+        operator*() const
+            -> Coord
         {
             return my_coord;
         }
 
-        auto operator++() -> CoordIterator&
+        constexpr auto
+        operator++()
+            -> CoordIterator&
         {
             ++my_coord;
             return *this;
         }
 
-        auto operator== (const CoordIterator& other) const -> bool
+        constexpr auto
+        operator== (const CoordIterator& other) const
+            -> bool
         {
             return other.my_coord == my_coord;
         }
 
-        auto operator!= (const CoordIterator& other) const -> bool
+        constexpr auto
+        operator!= (const CoordIterator& other) const
+            -> bool
         {
             return !(*this == other);
         }
@@ -210,12 +274,4 @@ namespace wisdom
         Coord my_coord {};
     };
 
-    class CoordParseError : public Error
-    {
-    public:
-        explicit CoordParseError (string message)
-            : Error (std::move (message))
-        {
-        }
-    };
 }

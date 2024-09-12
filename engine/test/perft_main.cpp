@@ -16,8 +16,6 @@ using wisdom::perft::PerftResults;
 
 int main (int argc, char *argv[])
 {
-    wisdom::MoveGenerator move_generator;
-
     if (argc != 3 && argc != 4)
     {
         std::cerr << "Need two or three args" << "\n";
@@ -41,7 +39,7 @@ int main (int argc, char *argv[])
         current_player = wisdom::perft::applyList (board, current_player, moves);
     }
 
-    PerftResults results = wisdom::perft::perftResults (board, current_player, *depth, move_generator);
+    PerftResults results = wisdom::perft::perftResults (board, current_player, *depth);
     std::cout << wisdom::perft::asString (results);
 
     return EXIT_SUCCESS;

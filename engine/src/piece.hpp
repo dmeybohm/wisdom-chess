@@ -92,16 +92,20 @@ namespace wisdom
     constexpr auto colorIndex (Color who) -> ColorIndex
     {
         assert (who == Color::White || who == Color::Black);
-        return gsl::narrow_cast<int8_t> (toInt8 (who) - 1);
+        return narrow_cast<int8_t> (toInt8 (who) - 1);
     }
 
-    constexpr auto colorInvert (Color who) -> Color
+    constexpr auto
+    colorInvert (Color who)
+        -> Color
     {
         assert (isColorValid (who));
-        return colorFromColorIndex (gsl::narrow_cast<int8_t> (!colorIndex (who)));
+        return colorFromColorIndex (narrow_cast<int8_t> (!colorIndex (who)));
     }
 
-    constexpr auto pieceIndex (Piece piece) -> int
+    constexpr auto
+    pieceIndex (Piece piece)
+        -> int
     {
         auto piece_as_int = static_cast<int8_t> (piece);
         assert (piece_as_int >= toInt8 (Piece::None) && piece_as_int <= toInt8 (Piece::King));
@@ -126,7 +130,7 @@ namespace wisdom
                 (piece_type != Piece::None && color != Color::None));
             auto color_as_int = toInt8 (color);
             auto piece_as_int = toInt8 (piece_type);
-            auto result = gsl::narrow_cast<int8_t>(
+            auto result = narrow_cast<int8_t>(
                 (color_as_int << Piece_Color_Shift) |
                     (piece_as_int & Piece_Type_Mask)
             );
@@ -136,7 +140,7 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto color() const noexcept -> Color
         {
-            auto result = gsl::narrow_cast<int8_t> (
+            auto result = narrow_cast<int8_t> (
                 (piece_type_and_color & Piece_Color_Mask) >> Piece_Color_Shift
             );
             return colorFromInt8 (result);
@@ -144,7 +148,7 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto type() const noexcept -> Piece
         {
-            auto result = gsl::narrow_cast<int8_t>(
+            auto result = narrow_cast<int8_t>(
                 (piece_type_and_color & Piece_Type_Mask)
             );
             return pieceFromInt8 (result);

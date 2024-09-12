@@ -50,6 +50,8 @@ namespace wisdom
     using std::string;
     using std::unique_ptr;
     using std::vector;
+    using std::string_view;
+    using std::span;
 
     template <typename T>
     using observer_ptr = T*;
@@ -121,6 +123,62 @@ namespace wisdom
     // Minimum amount behind the computer must feel in order to
     // accept a draw offer.
     inline constexpr int Min_Draw_Score = -500;
+
+    // constexpr versoin of narrow_cast (no exception at runtime:
+    template <typename Target, typename Source> constexpr auto
+    narrow_cast (Source value) noexcept
+        -> Target
+    {
+        static_assert (std::is_arithmetic_v<Source>);
+        static_assert (std::is_arithmetic_v<Target>);
+
+        // Check if Source can fit into Target without truncation
+        if (std::is_constant_evaluated())
+        {
+            if (value < std::numeric_limits<Target>::min() ||
+                value > std::numeric_limits<Target>::max())
+            {
+                // At compile-time, trigger an error if there's truncation
+                std::terminate ();
+            }
+        }
+
+        return gsl::narrow_cast<Target> (value);
+    }
+
+    // constexpr versoin of narrow (exception at runtime):
+    template <typename Target, typename Source> constexpr auto
+    narrow (Source value)
+        -> Target
+    {
+        static_assert (std::is_arithmetic_v<Source>);
+        static_assert (std::is_arithmetic_v<Target>);
+
+        // Check if Source can fit into Target without truncation
+        if (std::is_constant_evaluated())
+        {
+            if (value < std::numeric_limits<Target>::min() ||
+                value > std::numeric_limits<Target>::max())
+            {
+                // At compile-time, trigger an error if there's truncation
+                throw std::runtime_error("narrow_cast: narrowing occurred");
+            }
+        }
+
+        return gsl::narrow<Target> (value);
+    }
+
+    // constexpr version of tolower():
+    constexpr auto
+    toLower (int ch) noexcept
+        -> int
+    {
+        if (ch >= 'A' && ch <= 'Z')
+        {
+            return ch + ('a' - 'A');
+        }
+        return ch;
+    }
 
     // Errors in this application.
     class Error : public std::exception

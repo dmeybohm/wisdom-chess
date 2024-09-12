@@ -16,11 +16,19 @@ namespace wisdom
         array<Move, Max_Move_List_Size> my_moves;
 
     public:
-        MoveList() = default;
+        constexpr MoveList() = default; // NOLINT(*-pro-type-member-init)
 
-        MoveList (Color color, std::initializer_list<czstring> list) noexcept;
+        constexpr MoveList (Color color, std::initializer_list<czstring> list) noexcept
+            : MoveList {}
+        {
+            for (auto&& it : list)
+            {
+                append (moveParse (it, color));
+                color = colorInvert (color);
+            }
+        }
 
-        MoveList (const MoveList& other) // NOLINT(*-pro-type-member-init)
+        constexpr MoveList (const MoveList& other) // NOLINT(*-pro-type-member-init)
         {
             std::copy (
                 other.my_moves.begin(),
@@ -30,7 +38,9 @@ namespace wisdom
             my_size = other.my_size;
         }
 
-        auto operator= (const MoveList& other) -> MoveList&
+        constexpr auto
+        operator= (const MoveList& other)
+            -> MoveList&
         {
             if (&other != this)
             {
@@ -44,87 +54,108 @@ namespace wisdom
             return *this;
         }
 
-        void push_back (Move move) noexcept
+        constexpr void
+        push_back (Move move) noexcept
         {
             append (move);
         }
 
-        void pop_back() noexcept
+        constexpr void
+        pop_back() noexcept
         {
             removeLast();
         }
 
-        void append (Move move) noexcept
+        constexpr void
+        append (Move move) noexcept
         {
-            Expects (my_size < Max_Move_List_Size);
             my_moves[my_size++] = move;
         }
 
-        void removeLast() noexcept
+        constexpr void
+        removeLast() noexcept
         {
             Expects (my_size > 0);
             my_size--;
         }
 
-        [[nodiscard]] auto begin() const noexcept
+        [[nodiscard]]
+        constexpr auto
+        begin() const noexcept
         {
             return my_moves.begin();
         }
 
-        [[nodiscard]] auto end() const noexcept
+        [[nodiscard]] constexpr auto
+        end() const noexcept
         {
             return my_moves.begin() + my_size;
         }
 
-        [[nodiscard]] auto cbegin() const noexcept
+        [[nodiscard]] constexpr auto
+        cbegin() const noexcept
         {
             return my_moves.cbegin();
         }
 
-        [[nodiscard]] auto cend() const noexcept
+        [[nodiscard]] constexpr auto
+        cend() const noexcept
         {
             return my_moves.cbegin() + my_size;
         }
 
-        [[nodiscard]] auto begin() noexcept
+        [[nodiscard]] constexpr auto
+        begin() noexcept
         {
             return my_moves.begin();
         }
 
-        [[nodiscard]] auto end() noexcept
+        [[nodiscard]] constexpr auto
+        end() noexcept
         {
             return my_moves.begin() + my_size;
         }
 
-        [[nodiscard]] auto empty() const noexcept -> bool
+        [[nodiscard]] constexpr auto
+        empty() const noexcept
+            -> bool
         {
             return isEmpty();
         }
 
-        [[nodiscard]] auto isEmpty() const noexcept -> bool
+        [[nodiscard]] constexpr auto
+        isEmpty() const noexcept
+            -> bool
         {
             return my_size == 0;
         }
 
-        [[nodiscard]] auto size() const noexcept -> size_t
+        [[nodiscard]] constexpr auto
+        size() const noexcept
+            -> size_t
         {
             return my_size;
         }
 
         [[nodiscard]] auto asString() const -> string;
 
-        auto operator== (const MoveList& other) const -> bool
+        constexpr auto
+        operator== (const MoveList& other) const
+            -> bool
         {
             return size() == other.size() &&
                 std::equal (begin(), end(), other.begin());
         }
 
-        auto operator!= (const MoveList& other) const -> bool
+        constexpr auto
+        operator!= (const MoveList& other) const
+            -> bool
         {
             return !(*this == other);
         }
 
-        [[nodiscard]] auto data() const& noexcept
+        [[nodiscard]] constexpr auto
+        data() const& noexcept
         {
             return my_moves;
         }

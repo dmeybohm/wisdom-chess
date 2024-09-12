@@ -11,7 +11,7 @@ namespace wisdom
     static constexpr int Board_Length_In_Chars = 31;
 
     Board::Board()
-        : Board { BoardBuilder::fromDefaultPosition() }
+        : Board { default_board_builder }
     {
     }
 
@@ -136,7 +136,7 @@ namespace wisdom
         auto convert = [color](char ch) -> char
         {
             return color == Color::Black 
-                ? gsl::narrow_cast<char> (tolower (ch)) 
+                ? narrow_cast<char> (tolower (ch))
                 : ch;
         };
 
@@ -175,9 +175,9 @@ namespace wisdom
                         row_string += std::to_string (none_count);
 
                     none_count = 0;
-                    char ch = gsl::narrow_cast<char> (toupper (pieceChar (piece)));
+                    char ch = narrow_cast<char> (toupper (pieceChar (piece)));
                     if (pieceColor (piece) == Color::Black)
-                        ch = gsl::narrow_cast<char> (tolower (ch));
+                        ch = narrow_cast<char> (tolower (ch));
 
                     row_string.append (1, ch);
                 }
@@ -268,7 +268,7 @@ namespace wisdom
             for (int8_t source_col = 0; source_col < Num_Columns; source_col++)
             {
                 int8_t first_source_row = 0;
-                auto last_source_row = gsl::narrow<int8_t> (Num_Rows - 1);
+                auto last_source_row = narrow<int8_t> (Num_Rows - 1);
 
                 removeInvalidPawns (result, first_source_row, source_col, result.my_squares);
                 removeInvalidPawns (result, last_source_row, source_col, result.my_squares);
@@ -304,7 +304,7 @@ namespace wisdom
             coord_end, 
             finder
         );
-        auto diff = gsl::narrow<int> (result - coord_begin);
+        auto diff = narrow<int> (result - coord_begin);
 
         return (result != coord_end) 
             ? std::make_optional<Coord> (Coord::fromIndex (diff)) 
