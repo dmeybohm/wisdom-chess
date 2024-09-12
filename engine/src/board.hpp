@@ -251,7 +251,7 @@ namespace wisdom
     constexpr auto coordColor (Coord coord) -> Color
     {
         int parity = (coord.row() % 2 + coord.column() % 2) % 2;
-        return colorFromColorIndex (gsl::narrow_cast<int8_t> (parity));
+        return colorFromColorIndex (narrow_cast<int8_t> (parity));
     }
 
     // white moves up (-)
@@ -262,6 +262,6 @@ namespace wisdom
         static_assert (std::is_integral_v<IntegerType>);
         assert (color == Color::Black || color == Color::White);
         int8_t color_as_int = toInt8 (color);
-        return gsl::narrow_cast<IntegerType> (-1 + 2 * (color_as_int - 1));
+        return narrow_cast<IntegerType> (-1 + 2 * (color_as_int - 1));
     }
 }

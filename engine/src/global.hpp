@@ -124,7 +124,7 @@ namespace wisdom
     // accept a draw offer.
     inline constexpr int Min_Draw_Score = -500;
 
-    // constexpr versoin of gsl::narrow_cast (no exception at runtime:
+    // constexpr versoin of narrow_cast (no exception at runtime:
     template <typename Target, typename Source>
     constexpr auto narrow_cast (Source value) noexcept
         -> Target
@@ -146,7 +146,7 @@ namespace wisdom
         return gsl::narrow_cast<Target> (value);
     }
 
-    // constexpr versoin of gsl::narrow (exception at runtime):
+    // constexpr versoin of narrow (exception at runtime):
     template <typename Target, typename Source>
     constexpr auto narrow (Source value)
         -> Target

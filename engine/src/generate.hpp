@@ -85,9 +85,13 @@ namespace wisdom
         friend class MoveGeneration;
 
     private:
+        // Store a list of knight moves and their sizes, generated at
+        // compile-time:
         static constexpr pair<KnightMoveLists, KnightMoveSizes> Knight_Moves =
             knightMoveListInit();
 
+        // Get a std::span of the knight move list and the compile-time
+        // calculated length:
         [[nodiscard]] static auto
         getKnightMoveList (int row, int col)
             -> span<const Move>

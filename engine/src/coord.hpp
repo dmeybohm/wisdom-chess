@@ -41,7 +41,7 @@ namespace wisdom
             -> Coord
         {
             assert (index >= 0 && index < Num_Squares);
-            return { .row_and_col = gsl::narrow_cast<int8_t> (index) };
+            return { .row_and_col = narrow_cast<int8_t> (index) };
         }
 
         [[nodiscard]] static constexpr auto 
@@ -88,7 +88,7 @@ namespace wisdom
         -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
-        return gsl::narrow_cast<IntegerType> (row + direction);
+        return narrow_cast<IntegerType> (row + direction);
     }
 
     template <typename T>
@@ -97,7 +97,7 @@ namespace wisdom
         -> T
     {
         static_assert (std::is_integral_v<T>);
-        return gsl::narrow_cast<T> (col + direction);
+        return narrow_cast<T> (col + direction);
     }
 
     constexpr auto
