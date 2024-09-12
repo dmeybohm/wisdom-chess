@@ -80,8 +80,8 @@ namespace wisdom
         int8_t col = coord.column();
 
         return makeCoord (
-            gsl::narrow_cast<int8_t> (Last_Row - row),
-            gsl::narrow_cast<int8_t> (Last_Column - col)
+            narrow_cast<int8_t> (Last_Row - row),
+            narrow_cast<int8_t> (Last_Column - col)
         );
     }
 
@@ -182,11 +182,11 @@ namespace wisdom
             case MoveCategory::Castling:
                 {
                     int8_t rook_src_row = castlingRowFromColor (who);
-                    auto rook_src_col = gsl::narrow_cast<int8_t> (
+                    auto rook_src_col = narrow_cast<int8_t> (
                         move.isCastlingOnKingside()
                             ? King_Rook_Column : Queen_Rook_Column
                     );
-                    auto rook_dst_col = gsl::narrow_cast<int8_t> (
+                    auto rook_dst_col = narrow_cast<int8_t> (
                         move.isCastlingOnKingside()
                             ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column
                     );
@@ -216,7 +216,7 @@ namespace wisdom
 
     Position::Position (const Board& board)
     {
-        for (auto coord : board.allCoords())
+        for (auto coord : Board::allCoords())
         {
             auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)

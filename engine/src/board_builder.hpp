@@ -6,6 +6,18 @@
 
 namespace wisdom
 {
+    namespace
+    {
+        [[nodiscard]] consteval auto
+        emptySquares()
+            -> array<ColoredPiece, Num_Squares>
+        {
+            array<ColoredPiece, Num_Squares> result {};
+            std::fill (std::begin (result), std::end (result), Piece_And_Color_None);
+            return result;
+        }
+    }
+
     class BoardBuilderError : public Error
     {
     public:
@@ -31,77 +43,177 @@ namespace wisdom
         {
         }
 
-        static auto fromDefaultPosition() -> BoardBuilder;
-
-        [[nodiscard]] static constexpr auto emptySquares()
-            -> array<ColoredPiece, Num_Squares>
-        {
-            array<ColoredPiece, Num_Squares> result {};
-            std::fill (std::begin (result), std::end (result), Piece_And_Color_None);
-            return result;
-        }
-
         static constexpr PieceRow Default_Piece_Row = {
             Piece::Rook, Piece::Knight, Piece::Bishop, Piece::Queen,
             Piece::King, Piece::Bishop, Piece::Knight, Piece::Rook,
         };
 
-        void addPiece (const string& coord_str, Color who, Piece piece_type);
+        static constexpr auto
+        fromDefaultPosition()
+            -> BoardBuilder
+        {
+            auto result = BoardBuilder {};
+            result.addRowOfSameColor (0, Color::Black, Default_Piece_Row);
+            result.addRowOfSameColorAndPiece (1, Color::Black, Piece::Pawn);
+            result.addRowOfSameColorAndPiece (6, Color::White, Piece::Pawn);
+            result.addRowOfSameColor (7, Color::White, Default_Piece_Row);
 
-        void addPiece (int row, int col, Color who, Piece piece_type);
+            result.setCastling (Color::White, Either_Side_Eligible);
+            result.setCastling (Color::Black, Either_Side_Eligible);
 
-        void addPieces (Color who, const vector<CoordAndPiece>& pieces);
+            return result;
+        }
 
-        void addRowOfSameColor (int row, Color who, const PieceRow& piece_types);
+        constexpr void
+        addPiece (string_view coord_str, Color who, Piece piece_type)
+        {
+            if (coord_str.size() != 2)
+                throw BoardBuilderError ("Invalid coordinate string!");
 
-        void addRowOfSameColor (const string& coord_str, Color who, const PieceRow& piece_types);
+            Coord algebraic = coordParse (coord_str);
 
-        void addRowOfSameColorAndPiece (int row, Color who, Piece piece_type);
+            addPiece (algebraic.row(), algebraic.column(), who, piece_type);
+        }
 
-        void addRowOfSameColorAndPiece (const string& coord_str, Color who, Piece piece_type);
+        constexpr void
+        addPiece (int row, int col, Color who, Piece piece_type)
+        {
+            if (row < 0 || row >= Num_Rows)
+                throw BoardBuilderError ("Invalid row!");
 
-        void setEnPassantTarget (Color vulnerable_color, const string& coord_str);
+            if (col < 0 || col >= Num_Columns)
+                throw BoardBuilderError ("Invalid column!");
 
-        void setCastling (Color who, CastlingEligibility state);
+            if (piece_type == Piece::None)
+                return;
 
-        void setCurrentTurn (Color who);
+            auto coord = Coord::make (row, col);
+            my_squares[coord.index()] = ColoredPiece::make (who, piece_type);
 
-        void setHalfMovesClock (int new_half_moves_clock);
+            if (piece_type == Piece::King)
+                my_king_positions[colorIndex (who)] = coord;
+        }
 
-        void setFullMoves (int new_full_moves);
+        // Not constexpr because of dynamic vector:
+        void addPieces (Color who, const vector<CoordAndPiece>& pieces)
+        {
+            for (auto&& it : pieces)
+            {
+                string_view str_view { it.coord };
+                addPiece (str_view, who, it.piece_type);
+            }
+        }
 
-        [[nodiscard]] auto getSquares() const& -> const array<ColoredPiece, Num_Squares>&
+        constexpr void
+        addRowOfSameColorAndPiece (int row, Color who, Piece piece_type)
+        {
+            for (int col = 0; col < Num_Columns; col++)
+                addPiece (row, col, who, piece_type);
+        }
+
+        constexpr void
+        addRowOfSameColorAndPiece (string_view coord_str, Color who, Piece piece_type)
+        {
+            Coord coord = coordParse (coord_str);
+
+            for (int col = 0; col < Num_Columns; col++)
+                addPiece (coord.row(), col, who, piece_type);
+        }
+
+        constexpr void
+        addRowOfSameColor (int row, Color who, const PieceRow& piece_types)
+        {
+            for (auto col = 0; col < Num_Columns; col++)
+                addPiece (row, col, who, piece_types[col]);
+        }
+
+        constexpr void
+        addRowOfSameColor (
+            string_view coord_str,
+            Color who,
+            const PieceRow& piece_types
+        ) {
+            Coord coord = coordParse (coord_str);
+
+            for (auto col = 0; col < Num_Columns; col++)
+                addPiece (coord.row(), col, who, piece_types[col]);
+        }
+
+        constexpr void
+        setCurrentTurn (Color who)
+        {
+            my_current_turn = who;
+        }
+
+        constexpr void
+        setEnPassantTarget (Color vulnerable_color, string_view coord_str)
+        {
+            my_en_passant_target = {
+                .coord = coordParse (coord_str),
+                .vulnerable_color = vulnerable_color
+            };
+        }
+
+        constexpr void
+        setCastling (Color who, CastlingEligibility state)
+        {
+            my_castle_states[colorIndex (who)] = state;
+        }
+
+        constexpr void
+        setHalfMovesClock (int new_half_moves_clock)
+        {
+            my_half_moves_clock = new_half_moves_clock;
+        }
+
+        constexpr void
+        setFullMoves (int new_full_moves)
+        {
+            my_full_moves = new_full_moves;
+        }
+
+        [[nodiscard]] constexpr auto
+        getSquares() const&
+                -> const array<ColoredPiece, Num_Squares>&
         {
             return my_squares;
         }
         void getSquares() const&& = delete;
 
-        [[nodiscard]] auto pieceAt (Coord coord) const -> ColoredPiece
+        [[nodiscard]] constexpr auto
+        pieceAt (Coord coord) const
+            -> ColoredPiece
         {
             assert (coord.index() < Num_Squares);
             return my_squares[coord.index()];
         }
 
-        [[nodiscard]] auto getCurrentTurn() const -> Color
+        [[nodiscard]] constexpr auto
+        getCurrentTurn() const
+            -> Color
         {
             return my_current_turn;
         }
 
-        [[nodiscard]] auto
+        [[nodiscard]] constexpr auto
         getEnPassantTarget() const
             -> optional<EnPassantTarget>
         {
             return my_en_passant_target;
         }
 
-        [[nodiscard]] auto getCastleState (Color who) const -> CastlingEligibility
+        [[nodiscard]] constexpr auto
+        getCastleState (Color who) const
+            -> CastlingEligibility
         {
             if (my_castle_states[colorIndex (who)])
                 return *my_castle_states[colorIndex (who)];
             return calculateCastleStateFromPosition (who);
         }
 
-        [[nodiscard]] auto getKingPosition (Color who) -> Coord
+        [[nodiscard]] constexpr auto
+        getKingPosition (Color who)
+            -> Coord
         {
             auto index = colorIndex (who);
             if (!my_king_positions[index])
@@ -109,26 +221,57 @@ namespace wisdom
             return *my_king_positions[index];
         }
 
-        [[nodiscard]] auto getKingPositions() const -> array<Coord, Num_Players>
+        [[nodiscard]] constexpr auto
+        getKingPositions() const
+            -> array<Coord, Num_Players>
         {
             if (!my_king_positions[Color_Index_White] || !my_king_positions[Color_Index_Black])
                 throw BoardBuilderError { "Missing king position in constructing board." };
             return { *my_king_positions[Color_Index_White], *my_king_positions[Color_Index_Black] };
         }
 
-        [[nodiscard]] auto getHalfMoveClock() const -> int
+        [[nodiscard]] constexpr auto
+        getHalfMoveClock() const
+            -> int
         {
             return my_half_moves_clock;
         }
 
-        [[nodiscard]] auto getFullMoveClock() const -> int
+        [[nodiscard]] constexpr auto
+        getFullMoveClock() const
+            -> int
         {
             return my_full_moves;
         }
 
     private:
-        [[nodiscard]] auto calculateCastleStateFromPosition (Color who) const
-            -> CastlingEligibility;
+        [[nodiscard]] constexpr auto
+        calculateCastleStateFromPosition (Color who) const
+            -> CastlingEligibility
+        {
+            auto row = castlingRowForColor (who);
+            int8_t king_col = King_Column;
+
+            CastlingEligibility state = Either_Side_Eligible;
+            ColoredPiece prospective_king = pieceAt (makeCoord (row, king_col));
+            ColoredPiece prospective_queen_rook = pieceAt (makeCoord (row, 0));
+            ColoredPiece prospective_king_rook = pieceAt (makeCoord (row, 7));
+
+            if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who
+                || pieceType (prospective_queen_rook) != Piece::Rook
+                || pieceColor (prospective_queen_rook) != who)
+            {
+                state |= CastlingIneligible::Queenside;
+            }
+            if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who
+                || pieceType (prospective_king_rook) != Piece::Rook
+                || pieceColor (prospective_king_rook) != who)
+            {
+                state |= CastlingIneligible::Kingside;
+            }
+
+            return state;
+        }
 
     private:
         array<ColoredPiece, Num_Squares> my_squares;
@@ -137,7 +280,7 @@ namespace wisdom
         int my_full_moves = 0;
         Color my_current_turn = Color::White;
 
-        array<optional<CastlingEligibility>, Num_Players> my_castle_states { 
+        array<optional<CastlingEligibility>, Num_Players> my_castle_states {
             nullopt, 
             nullopt 
         };
@@ -150,4 +293,16 @@ namespace wisdom
         optional<EnPassantTarget> my_en_passant_target { nullopt };
     };
 
+    namespace
+    {
+        consteval auto
+        initDefaultBoardBuilder()
+            -> BoardBuilder
+        {
+            return BoardBuilder::fromDefaultPosition();
+        }
+    }
+
+    inline constexpr BoardBuilder default_board_builder =
+        initDefaultBoardBuilder();
 }

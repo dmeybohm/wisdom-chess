@@ -9,16 +9,18 @@ namespace wisdom
     using wisdom::perft::Stats;
     using wisdom::perft::toMoveList;
 
-    void Stats::searchMoves (const wisdom::Board& board, wisdom::Color side, int depth,
-                             int max_depth, // NOLINT(misc-no-recursion)
-                             MoveGenerator& generator)
-    {
+    void Stats::searchMoves ( // NOLINT(misc-no-recursion)
+        const wisdom::Board& board,
+        wisdom::Color side,
+        int depth,
+        int max_depth
+    ) {
         if (depth >= max_depth)
             return;
 
         auto target_depth = max_depth - 1;
 
-        const auto moves = generator.generateAllPotentialMoves (board, side);
+        const auto moves = MoveGenerator::generateAllPotentialMoves (board, side);
 
         for (auto move : moves)
         {
@@ -37,7 +39,7 @@ namespace wisdom
                     counters.en_passants++;
             }
 
-            searchMoves (new_board, colorInvert (side), depth + 1, max_depth, generator);
+            searchMoves (new_board, colorInvert (side), depth + 1, max_depth);
         }
     }
 
@@ -146,13 +148,14 @@ namespace wisdom
         return wisdom::asString (move.getSrc()) + wisdom::asString (move.getDst());
     }
 
-    auto wisdom::perft::perftResults (const Board& board, Color active_player, int depth,
-                                      MoveGenerator& generator) -> PerftResults
+    auto
+    wisdom::perft::perftResults (const Board& board, Color active_player, int depth)
+        -> PerftResults
     {
         wisdom::perft::PerftResults results;
         Stats cumulative;
 
-        auto moves = generator.generateAllPotentialMoves (board, active_player);
+        auto moves = MoveGenerator::generateAllPotentialMoves (board, active_player);
 
         for (const auto& move : moves)
         {
@@ -164,7 +167,7 @@ namespace wisdom
             if (!wisdom::isLegalPositionAfterMove (new_board, active_player, move))
                 continue;
 
-            stats.searchMoves (new_board, next_player, 1, depth, generator);
+            stats.searchMoves (new_board, next_player, 1, depth);
 
             auto perft_move = wisdom::perft::toPerftMove (move, active_player);
             results.move_results.push_back ({ stats.counters.nodes, perft_move });
