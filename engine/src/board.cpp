@@ -136,7 +136,7 @@ namespace wisdom
         auto convert = [color](char ch) -> char
         {
             return color == Color::Black 
-                ? gsl::narrow_cast<char> (tolower (ch)) 
+                ? gsl::narrow_cast<char> (tolower (ch))
                 : ch;
         };
 

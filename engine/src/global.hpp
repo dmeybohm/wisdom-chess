@@ -129,10 +129,14 @@ namespace wisdom
     constexpr auto narrow_cast (Source value) noexcept
         -> Target
     {
+        static_assert (std::is_arithmetic_v<Source>);
+        static_assert (std::is_arithmetic_v<Target>);
+
         // Check if Source can fit into Target without truncation
-        if constexpr (std::is_arithmetic_v<Source> && std::is_arithmetic_v<Target>)
+        if (std::is_constant_evaluated())
         {
-            if (value < std::numeric_limits<Target>::min() || value > std::numeric_limits<Target>::max())
+            if (value < std::numeric_limits<Target>::min() ||
+                value > std::numeric_limits<Target>::max())
             {
                 // At compile-time, trigger an error if there's truncation
                 std::terminate ();
@@ -147,10 +151,14 @@ namespace wisdom
     constexpr auto narrow (Source value)
         -> Target
     {
+        static_assert (std::is_arithmetic_v<Source>);
+        static_assert (std::is_arithmetic_v<Target>);
+
         // Check if Source can fit into Target without truncation
-        if constexpr (std::is_arithmetic_v<Source> && std::is_arithmetic_v<Target>)
+        if (std::is_constant_evaluated())
         {
-            if (value < std::numeric_limits<Target>::min() || value > std::numeric_limits<Target>::max())
+            if (value < std::numeric_limits<Target>::min() ||
+                value > std::numeric_limits<Target>::max())
             {
                 // At compile-time, trigger an error if there's truncation
                 throw std::runtime_error("narrow_cast: narrowing occurred");
@@ -158,6 +166,18 @@ namespace wisdom
         }
 
         return gsl::narrow<Target> (value);
+    }
+
+    // constexpr version of tolower():
+    constexpr auto
+    toLower (int ch) noexcept
+        -> int
+    {
+        if (ch >= 'A' && ch <= 'Z')
+        {
+            return ch + ('a' - 'A');
+        }
+        return ch;
     }
 
     // Errors in this application.

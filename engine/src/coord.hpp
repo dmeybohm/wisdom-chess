@@ -165,14 +165,14 @@ namespace wisdom
     charToRow (char chr)
         -> int
     {
-        return 8 - (tolower (chr) - '0');
+        return 8 - (toLower (chr) - '0');
     }
 
     static constexpr auto
     charToCol (char chr)
         -> int
     {
-        return tolower (chr) - 'a';
+        return toLower (chr) - 'a';
     }
 
     constexpr auto
@@ -180,7 +180,7 @@ namespace wisdom
         -> char
     {
         assert (isValidRow (row));
-        return gsl::narrow<char> (8 - row + '0');
+        return narrow<char> (8 - row + '0');
     }
 
     constexpr auto
@@ -188,7 +188,7 @@ namespace wisdom
         -> char
     {
         assert (isValidColumn (col));
-        return gsl::narrow<char> (col + 'a');
+        return narrow<char> (col + 'a');
     }
 
     auto asString (Coord coord) -> string;

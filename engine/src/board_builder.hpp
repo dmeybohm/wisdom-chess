@@ -8,14 +8,14 @@ namespace wisdom
 {
     namespace
     {
-        [[nodiscard]] consteval auto emptySquares()
+        [[nodiscard]] consteval auto
+        emptySquares()
             -> array<ColoredPiece, Num_Squares>
         {
             array<ColoredPiece, Num_Squares> result {};
             std::fill (std::begin (result), std::end (result), Piece_And_Color_None);
             return result;
         }
-
     }
 
     class BoardBuilderError : public Error
