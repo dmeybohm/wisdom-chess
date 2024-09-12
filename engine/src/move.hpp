@@ -239,10 +239,10 @@ namespace wisdom
         fromInt (int packed_move) -> Move
         {
             return Move {
-                .src = static_cast<int8_t> (packed_move & 0x7f),
-                .dst = static_cast<int8_t> ((packed_move >> 8) & 0x7f),
-                .promoted_piece = static_cast<int8_t> ((packed_move >> 16) & 0x7f),
-                .move_category = static_cast<int8_t> ((packed_move >> 24) & 0x7f),
+                .src = narrow_cast<int8_t> (packed_move & 0x7f),
+                .dst = narrow_cast<int8_t> ((packed_move >> 8) & 0x7f),
+                .promoted_piece = narrow_cast<int8_t> ((packed_move >> 16) & 0x7f),
+                .move_category = narrow_cast<int8_t> ((packed_move >> 24) & 0x7f),
             };
         }
 
@@ -359,7 +359,7 @@ namespace wisdom
         -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
-        return static_cast<IntegerType> (who == Color::White ? Last_Row : First_Row);
+        return narrow_cast<IntegerType> (who == Color::White ? Last_Row : First_Row);
     }
 
     using PlayerCastleState = array<CastlingEligibility, Num_Players>;
