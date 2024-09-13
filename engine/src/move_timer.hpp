@@ -40,7 +40,6 @@ namespace wisdom
         {}
 
     private:
-        static std::atomic<int> saved_iterations;
         int current_iterations;
     };
 

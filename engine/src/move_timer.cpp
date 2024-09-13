@@ -7,7 +7,7 @@ namespace wisdom
 {
     using chrono::steady_clock;
 
-    std::atomic<int> TimingAdjustment::saved_iterations {};
+    static std::atomic<int> timing_adjustment_saved_iterations {};
 
     auto MoveTimer::isTriggered() -> bool
     {
@@ -70,7 +70,7 @@ namespace wisdom
     auto TimingAdjustment::create() -> TimingAdjustment
     {
         auto iterations = std::clamp (
-            TimingAdjustment::saved_iterations.load(),
+            timing_adjustment_saved_iterations.load(),
             Min_Iterations_Before_Checking,
             Max_Iterations_Before_Checking
         );
@@ -79,6 +79,6 @@ namespace wisdom
 
     void TimingAdjustment::setSavedIterations (int iterations)
     {
-        TimingAdjustment::saved_iterations.store (iterations);
+        timing_adjustment_saved_iterations.store (iterations);
     }
 }
