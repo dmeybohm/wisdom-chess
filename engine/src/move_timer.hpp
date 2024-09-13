@@ -7,6 +7,11 @@ namespace wisdom
     inline constexpr int Min_Iterations_Before_Checking = 10'000;
     inline constexpr int Max_Iterations_Before_Checking = 1'000'000;
 
+    inline constexpr chrono::milliseconds Lower_Bound_Timer_Check =
+        chrono::milliseconds { 100 };
+    inline constexpr chrono::milliseconds Upper_Bound_Timer_Check =
+        chrono::milliseconds { 150 };
+
     struct MoveTimer;
 
     struct TimingAdjustment
@@ -16,8 +21,8 @@ namespace wisdom
 
     struct TimerState
     {
-        optional<chrono::steady_clock::time_point> my_started_time {};
-        optional<chrono::steady_clock::time_point> my_last_check_time {};
+        optional<chrono::steady_clock::time_point> started_time {};
+        optional<chrono::steady_clock::time_point> last_check_time {};
 
         int check_calls = 0;
         bool triggered = false;
@@ -51,7 +56,7 @@ namespace wisdom
         {
             // Reset the state but preserve a few values:
             my_timer_state = TimerState {};
-            my_timer_state.my_started_time = chrono::steady_clock::now();
+            my_timer_state.started_time = chrono::steady_clock::now();
         }
 
         [[nodiscard]] auto

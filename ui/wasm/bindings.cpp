@@ -169,7 +169,7 @@ EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
 
 EMSCRIPTEN_KEEPALIVE void startSearch()
 {
-    const auto& logger = wisdom::worker::getLogger();
+    auto logger = wisdom::worker::makeLogger();
     auto state = GameState::getState();
     auto game = GameState::getGame();
 
@@ -184,8 +184,8 @@ EMSCRIPTEN_KEEPALIVE void startSearch()
     if (new_status != wisdom::GameStatus::Playing)
         return;
 
-    logger.debug("Going to find best move");
-    logger.debug("Current turn: " + asString (game->getCurrentTurn()));
+    logger->debug("Going to find best move");
+    logger->debug("Current turn: " + asString (game->getCurrentTurn()));
 
     auto move = game->findBestMove(
         logger,
@@ -194,7 +194,7 @@ EMSCRIPTEN_KEEPALIVE void startSearch()
     if (!move.has_value())
     {
         // Could happen if game is paused:
-        getLogger().debug("No move found.");
+        logger->debug("No move found.");
         return;
     }
     game->move (*move);
@@ -232,8 +232,6 @@ EM_JS (void, receiveMoveFromWorker, (int game_id, const char* str),
 
 EMSCRIPTEN_KEEPALIVE void mainThreadReceiveMove (int game_id, int packed_move)
 {
-    auto& logger = wisdom::worker::getLogger();
-
     Move unpacked_move = Move::fromInt (packed_move);
     auto state = GameState::getState();
     std::string str = asString (unpacked_move);

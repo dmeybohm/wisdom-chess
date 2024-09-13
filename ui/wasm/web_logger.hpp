@@ -18,11 +18,11 @@ namespace wisdom::worker
         static void consoleLog (const char* str);
     };
 
-    [[nodiscard]] inline auto getLogger() -> const WebLogger&
+    [[nodiscard]] inline auto makeLogger() -> shared_ptr<WebLogger>
     {
         using namespace wisdom;
-        static std::unique_ptr<WebLogger> worker_logger = std::make_unique<WebLogger>();
-        return *worker_logger;
+        static std::shared_ptr<WebLogger> worker_logger = std::make_shared<WebLogger>();
+        return worker_logger;
     }
 }
 
