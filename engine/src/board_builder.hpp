@@ -303,6 +303,6 @@ namespace wisdom
         }
     }
 
-    inline constexpr BoardBuilder default_board_builder =
+    inline constexpr BoardBuilder Default_Board_Builder =
         initDefaultBoardBuilder();
 }

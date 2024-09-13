@@ -11,7 +11,7 @@ namespace wisdom
     static constexpr int Board_Length_In_Chars = 31;
 
     Board::Board()
-        : Board { default_board_builder }
+        : Board { Default_Board_Builder }
     {
     }
 
