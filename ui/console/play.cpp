@@ -669,7 +669,7 @@ namespace wisdom::ui::console
 
             if (!paused && game->getCurrentPlayer() == Player::ChessEngine)
             {
-                auto optional_move = game->findBestMove (*output);
+                auto optional_move = game->findBestMove (output);
                 if (!optional_move.has_value())
                 {
                     std::cout << "\nCouldn't find move!\n";

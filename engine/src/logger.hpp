@@ -19,7 +19,11 @@ namespace wisdom
         virtual void info (const string& output) const = 0;
     };
 
-    auto makeNullLogger() -> unique_ptr<Logger>;
+    auto
+    makeNullLogger()
+        -> shared_ptr<Logger>;
 
-    auto makeStandardLogger (Logger::LogLevel level = Logger::LogLevel_Debug) -> unique_ptr<Logger>;
+    auto
+    makeStandardLogger (Logger::LogLevel level = Logger::LogLevel_Debug)
+        -> shared_ptr<Logger>;
 }

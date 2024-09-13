@@ -18,40 +18,50 @@ namespace wisdom
         IterativeSearchImpl (
             const Board& board,
             const History& history,
-            const Logger& output,
+            shared_ptr<Logger> output,
             MoveTimer timer,
             int total_depth
         )
             : my_original_board { Board { board } }
             , my_history { History { history } }
-            , my_output { &output }
+            , my_output { std::move (output) }
             , my_timer { std::move (timer) }
             , my_total_depth { total_depth }
         {
         }
 
-        [[nodiscard]] auto iterativelyDeepen (Color side) -> SearchResult;
+        [[nodiscard]] auto
+        iterativelyDeepen (Color side)
+            -> SearchResult;
 
-        auto iterate (Color side, int depth) -> SearchResult;
+        auto
+        iterate (Color side, int depth)
+            -> SearchResult;
 
         // Search for the best move, and return the best score.
-        int search (const Board& parent_board, Color side, int depth,
-                    int alpha, int beta);
+        auto
+        search (const Board& parent_board, Color side, int depth,
+                int alpha, int beta)
+            -> int;
 
         // Get the best result the search found.
-        [[nodiscard]] auto getBestResult() const -> SearchResult;
+        [[nodiscard]] auto
+        getBestResult() const
+            -> SearchResult;
 
-        [[nodiscard]] auto moveTimer() const -> not_null<const MoveTimer*>
+        [[nodiscard]] auto
+        moveTimer() const&
+            -> const MoveTimer&
         {
-            return &my_timer;
+            return my_timer;
         }
 
     private:
         Board my_original_board;
         History my_history;
-        nonnull_observer_ptr<const Logger> my_output;
         SearchResult my_current_result {};
         MoveTimer my_timer;
+        shared_ptr<Logger> my_output;
 
         int my_total_depth;
         int my_search_depth {};
@@ -63,27 +73,39 @@ namespace wisdom
     };
 
     IterativeSearch::~IterativeSearch() = default;
+
     IterativeSearch::IterativeSearch (
         const Board& board,
         const History& history,
-        const Logger& output,
-        MoveTimer timer,
+        shared_ptr<Logger> output,
+        const MoveTimer& timer,
         int total_depth
-    )
-        : impl { make_unique<IterativeSearchImpl> (
-            Board { board }, history, output, std::move (timer), total_depth
-        ) }
+    ) : impl {
+            make_unique<IterativeSearchImpl> (
+                Board { board },
+                  history,
+                  std::move (output),
+                  timer,
+                  total_depth
+            )
+        }
     {
     }
 
-    SearchResult IterativeSearch::iterativelyDeepen (Color side)
+    auto IterativeSearch::iterativelyDeepen (Color side)
+        -> SearchResult
     {
         return impl->iterativelyDeepen (side);
     }
 
     auto IterativeSearch::isCancelled() -> bool
     {
-        return impl->moveTimer()->isCancelled();
+        return impl->moveTimer().isCancelled();
+    }
+
+    auto IterativeSearch::moveTimer() const& -> const MoveTimer&
+    {
+        return impl->moveTimer();
     }
 
     static constexpr auto drawingScore (Color searching_color, Color current_color)

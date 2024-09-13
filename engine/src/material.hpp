@@ -14,7 +14,9 @@ namespace wisdom
 
         explicit Material (const Board& board);
 
-        [[nodiscard]] static int weight (Piece piece) noexcept
+        [[nodiscard]] static auto
+        weight (Piece piece) noexcept
+            -> int
         {
             // clang-format off
             switch (piece)
@@ -32,7 +34,9 @@ namespace wisdom
             std::terminate();
         }
 
-        [[nodiscard]] static auto scaledScore (int score) -> int
+        [[nodiscard]] static auto 
+        scaledScore (int score) 
+            -> int
         {
             return score * Material_Score_Scale;
         }
@@ -59,20 +63,26 @@ namespace wisdom
             assert (my_piece_count[color_idx][toInt (type)] >= 0);
         }
 
-        [[nodiscard]] auto individualScore (Color who) const -> int
+        [[nodiscard]] auto 
+        individualScore (Color who) const 
+            -> int
         {
             ColorIndex my_index = colorIndex (who);
             return scaledScore (my_score[my_index]);
         }
 
-        [[nodiscard]] auto overallScore (Color who) const -> int
+        [[nodiscard]] auto 
+        overallScore (Color who) const 
+            -> int
         {
             ColorIndex my_index = colorIndex (who);
             ColorIndex opponent_index = colorIndex (colorInvert (who));
             return scaledScore (my_score[my_index] - my_score[opponent_index]);
         }
 
-        [[nodiscard]] auto pieceCount (Color who, Piece type) const -> int
+        [[nodiscard]] auto 
+        pieceCount (Color who, Piece type) const 
+            -> int
         {
             auto color_idx = colorIndex (who);
             auto type_idx = toInt (type);
@@ -87,7 +97,9 @@ namespace wisdom
         };
 
         // Whether there is insufficient material remaining for a checkmate.
-        [[nodiscard]] auto checkmateIsPossible (const Board& board) const -> CheckmateIsPossible
+        [[nodiscard]] auto 
+        checkmateIsPossible (const Board& board) const 
+            -> CheckmateIsPossible
         {
             // clang-format off
             if (pieceCount (Color::White, Piece::Pawn) > 0 ||
@@ -113,7 +125,8 @@ namespace wisdom
     private:
         // Check for more detailed scenarios of sufficient material. This assumes there are
         // only minor pieces and king left, with no pawns.
-        [[nodiscard]] auto checkInsufficientMaterialScenarios (const Board& board) const
+        [[nodiscard]] auto 
+        checkInsufficientMaterialScenarios (const Board& board) const
             -> CheckmateIsPossible;
 
     private:

@@ -1,3 +1,5 @@
+#include <bitset>
+
 #include "board_code.hpp"
 #include "board.hpp"
 #include "coord.hpp"
@@ -157,5 +159,12 @@ namespace wisdom
     {
         os << code.asString();
         return os;
+    }
+
+    auto BoardCode::asString() const noexcept
+        -> string
+    {
+        std::bitset<64> bits { my_code };
+        return bits.to_string();
     }
 }

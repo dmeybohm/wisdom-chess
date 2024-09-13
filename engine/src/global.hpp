@@ -20,7 +20,6 @@
 #include <chrono>
 #include <iosfwd>
 #include <cctype>
-#include <bitset>
 #include <cassert>
 #include <type_traits>
 #include <random>
@@ -41,7 +40,6 @@ namespace wisdom
     using czstring = gsl::czstring;
     using gsl::not_null;
     using std::array;
-    using std::bitset;
     using std::make_shared;
     using std::make_unique;
     using std::nullopt;
@@ -49,6 +47,7 @@ namespace wisdom
     using std::pair;
     using std::string;
     using std::unique_ptr;
+    using std::shared_ptr;
     using std::vector;
     using std::string_view;
     using std::span;

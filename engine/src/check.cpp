@@ -27,17 +27,14 @@ namespace wisdom
         if (isKingThreatened (board, who, king_coord))
             return false;
 
-        auto king_row = king_coord.row();
-        auto king_col = king_coord.column();
-
         if (mv.isCastling())
         {
             Coord castled_pos = mv.getDst();
             auto castled_row = castled_pos.row();
             auto castled_col = castled_pos.column();
 
-            assert (king_row == castled_row);
-            assert (king_col == castled_col);
+            assert (king_coord.row() == castled_row);
+            assert (king_coord.column() == castled_col);
 
             int8_t direction = mv.isCastlingOnKingside() ? -1 : 1;
 

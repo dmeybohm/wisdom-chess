@@ -27,16 +27,25 @@ namespace wisdom
         IterativeSearch (
             const Board& board,
             const History& history,
-            const Logger& output,
-            MoveTimer timer,
+            shared_ptr<Logger> output,
+            const MoveTimer& timer,
             int total_depth
         );
 
         ~IterativeSearch();
 
-        [[nodiscard]] auto iterativelyDeepen (Color side) -> SearchResult;
+        [[nodiscard]] auto
+        iterativelyDeepen (Color side)
+            -> SearchResult;
 
-        [[nodiscard]] auto isCancelled() -> bool;
+        [[nodiscard]] auto
+        isCancelled()
+            -> bool;
+
+        [[nodiscard]] auto
+        moveTimer() const&
+            -> const MoveTimer&;
+        void moveTimer() && = delete;
 
     private:
         unique_ptr<IterativeSearchImpl> impl;

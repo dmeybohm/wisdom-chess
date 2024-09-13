@@ -87,17 +87,20 @@ namespace wisdom
         auto who = my_game.getCurrentTurn();
         auto legalMoves = MoveGenerator::generateLegalMoves (my_game.getBoard(), who);
 
-        auto result = std::any_of (legalMoves.cbegin(), legalMoves.cend(),
-                                   [selectedMove] (const auto& move)
-                                   {
-                                       return move == selectedMove;
-                                   });
-        if (!result)
+        auto has_move = std::any_of (
+            legalMoves.cbegin(),
+            legalMoves.cend(),
+            [selectedMove] (const auto& move)
+            {
+                return move == selectedMove;
+            }
+        );
+        if (!has_move)
         {
             setMoveStatus ("Illegal move");
             return false;
         }
-        return result;
+        return has_move;
     }
 
     void WebGame::setSettings (const wisdom::GameSettings& settings)

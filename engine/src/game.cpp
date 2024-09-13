@@ -130,18 +130,17 @@ namespace wisdom
         return GameStatus::Playing;
     }
 
-    auto Game::findBestMove (const Logger& logger, Color whom) const
+    auto Game::findBestMove (shared_ptr<Logger> logger, Color whom) const
         -> optional<Move>
     {
         if (whom == Color::None)
             whom = getCurrentTurn();
 
-        MoveTimer overdue_timer { my_search_timeout };
-        if (my_periodic_function.has_value())
-            overdue_timer.setPeriodicFunction (*my_periodic_function);
-
         IterativeSearch iterative_search {
-            my_current_board, my_history, logger, overdue_timer,
+            my_current_board,
+            my_history,
+            std::move (logger),
+            my_move_timer,
             my_max_depth
         };
         SearchResult result = iterative_search.iterativelyDeepen (whom);
