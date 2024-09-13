@@ -121,7 +121,7 @@ auto ChessEngine::gameStatusTransition() -> wisdom::GameStatus
 void ChessEngine::findMove()
 {
     auto game_state = my_game->state();
-    auto output = ChessEngineLogger {};
+    auto output = make_shared<ChessEngineLogger>();
 
     if (my_is_game_over)
     {

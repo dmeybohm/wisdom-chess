@@ -49,6 +49,7 @@ namespace wisdom
     using std::pair;
     using std::string;
     using std::unique_ptr;
+    using std::shared_ptr;
     using std::vector;
     using std::string_view;
     using std::span;

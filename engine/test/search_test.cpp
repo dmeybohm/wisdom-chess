@@ -20,16 +20,14 @@ namespace wisdom::test
     struct SearchHelper
     {
         History history {};
-        std::unique_ptr<wisdom::Logger> logger;
+        shared_ptr<Logger> logger = makeNullLogger();
+        MoveTimer timer = MoveTimer {30 };
 
-        IterativeSearch build (const Board& board, int depth, int time = 30)
+        auto build (const Board& board, int depth, int time = 30)
+            -> IterativeSearch
         {
-            MoveTimer timer { time };
-            if (!logger) {
-                logger = makeNullLogger();
-            }
-
-            return { board, history, *logger, timer, depth };
+            timer.setSeconds (chrono::seconds { time });
+            return { board, history, logger, timer, depth };
         }
     };
 }
@@ -42,21 +40,25 @@ TEST_CASE( "Can find mate in 3" )
 {
     BoardBuilder builder;
 
-    builder.addPieces (Color::Black,
-                       {
-                           { "a8", Piece::Rook },
-                           { "g8", Piece::Rook },
-                           { "h8", Piece::King },
-                           { "f7", Piece::Pawn },
-                           { "h7", Piece::Pawn },
-                       });
-    builder.addPieces (Color::White,
-                       {
-                           { "f6", Piece::Rook },
-                           { "e5", Piece::Bishop },
-                           { "h2", Piece::Pawn },
-                           { "h1", Piece::King },
-                       });
+    builder.addPieces (
+        Color::Black,
+        {
+            { "a8", Piece::Rook },
+            { "g8", Piece::Rook },
+            { "h8", Piece::King },
+            { "f7", Piece::Pawn },
+            { "h7", Piece::Pawn },
+        }
+    );
+    builder.addPieces (
+        Color::White,
+        {
+            { "f6", Piece::Rook },
+            { "e5", Piece::Bishop },
+            { "h2", Piece::Pawn },
+            { "h1", Piece::King },
+        }
+    );
 
     auto board = Board { builder };
     SearchHelper helper;
@@ -94,29 +96,45 @@ TEST_CASE( "scenario with heap overflow 1" )
 {
     BoardBuilder builder;
 
-    builder.addPieces (Color::Black,
-                       { { "c8", Piece::Rook }, { "f8", Piece::Rook }, { "h8", Piece::King } });
-    builder.addPieces (Color::Black,
-                       {
-                           { "c7", Piece::Pawn },
-                           { "h7", Piece::Knight },
-                       });
-    builder.addPieces (Color::Black,
-                       { { "a6", Piece::Pawn },
-                         { "c6", Piece::Bishop },
-                         { "b5", Piece::Pawn },
-                         { "d5", Piece::Pawn } });
+    builder.addPieces (
+        Color::Black,
+        {
+            { "c8", Piece::Rook },
+            { "f8", Piece::Rook },
+            { "h8", Piece::King }
+        }
+    );
+    builder.addPieces (
+        Color::Black,
+        {
+            { "c7", Piece::Pawn },
+            { "h7", Piece::Knight },
+        }
+    );
+    builder.addPieces (
+        Color::Black,
+        {
+            { "a6", Piece::Pawn },
+            { "c6", Piece::Bishop },
+            { "b5", Piece::Pawn },
+            { "d5", Piece::Pawn }
+        }
+    );
 
-    builder.addPieces (Color::White,
-                       { { "e5", Piece::Pawn },
-                         { "a3", Piece::Knight },
-                         { "c3", Piece::Pawn },
-                         { "e3", Piece::Pawn },
-                         { "a2", Piece::Pawn },
-                         { "b2", Piece::Pawn },
-                         { "h2", Piece::Pawn },
-                         { "b1", Piece::King },
-                         { "g1", Piece::Rook } });
+    builder.addPieces (
+        Color::White,
+        {
+            { "e5", Piece::Pawn },
+            { "a3", Piece::Knight },
+            { "c3", Piece::Pawn },
+            { "e3", Piece::Pawn },
+            { "a2", Piece::Pawn },
+            { "b2", Piece::Pawn },
+            { "h2", Piece::Pawn },
+            { "b1", Piece::King },
+            { "g1", Piece::Rook }
+        }
+    );
 
     builder.setCurrentTurn (Color::Black);
     auto board = Board { builder };
@@ -131,8 +149,20 @@ TEST_CASE( "Promoting move is taken if possible" )
 {
     BoardBuilder builder;
 
-    builder.addPieces (Color::Black, { { "d7", Piece::King }, { "d2", Piece::Pawn } });
-    builder.addPieces (Color::White, { { "a4", Piece::King }, { "h4", Piece::Pawn } });
+    builder.addPieces (
+        Color::Black,
+        {
+            { "d7", Piece::King },
+            { "d2", Piece::Pawn }
+        }
+    );
+    builder.addPieces (
+        Color::White,
+        {
+            { "a4", Piece::King },
+            { "h4", Piece::Pawn }
+        }
+    );
 
     builder.setCurrentTurn (Color::Black);
     auto board = Board { builder };

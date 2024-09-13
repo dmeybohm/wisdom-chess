@@ -33,9 +33,6 @@ namespace wisdom
             auto castled_row = castled_pos.row();
             auto castled_col = castled_pos.column();
 
-            assert (king_row == castled_row);
-            assert (king_col == castled_col);
-
             int8_t direction = mv.isCastlingOnKingside() ? -1 : 1;
 
             int8_t plus_one_column = nextColumn (castled_col, direction);

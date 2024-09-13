@@ -54,7 +54,10 @@ namespace wisdom
 
         void save (const string& filename) const;
 
-        [[nodiscard]] auto findBestMove (const Logger& logger, Color whom = Color::None) const
+        [[nodiscard]] auto findBestMove (
+            shared_ptr<Logger> logger,
+            Color whom = Color::None
+        ) const
             -> optional<Move>;
 
         void move (Move move);
@@ -112,12 +115,12 @@ namespace wisdom
 
         [[nodiscard]] auto getSearchTimeout() const -> std::chrono::seconds
         {
-            return my_search_timeout;
+            return my_move_timer.getSeconds();
         }
 
         void setSearchTimeout (std::chrono::seconds seconds)
         {
-            my_search_timeout = seconds;
+            my_move_timer.setSeconds (seconds);
         }
 
         [[nodiscard]] auto
@@ -135,7 +138,7 @@ namespace wisdom
 
         void setPeriodicFunction (const MoveTimer::PeriodicFunction& periodic_function)
         {
-            my_periodic_function = periodic_function;
+            my_move_timer.setPeriodicFunction (periodic_function);
         }
 
         [[nodiscard]] auto status() const -> GameStatus;
@@ -158,13 +161,10 @@ namespace wisdom
     private:
         Board my_current_board {};
         History my_history;
-        mutable optional<int> my_move_timer_iterations = nullopt;
-
-        optional<MoveTimer::PeriodicFunction> my_periodic_function {};
+        MoveTimer my_move_timer { Default_Max_Search_Seconds };
         int my_max_depth { Default_Max_Depth };
 
         Players my_players = { Player::Human, Player::ChessEngine };
-        chrono::seconds my_search_timeout { Default_Max_Search_Seconds };
 
         BothPlayersDrawStatus my_third_repetition_draw { 
             DrawStatus::NotReached,

@@ -7,6 +7,23 @@ namespace wisdom
     inline constexpr int Min_Iterations_Before_Checking = 10'000;
     inline constexpr int Max_Iterations_Before_Checking = 1'000'000;
 
+    struct MoveTimer;
+
+    struct TimingAdjustment
+    {
+        int current_iterations = Min_Iterations_Before_Checking;
+    };
+
+    struct TimerState
+    {
+        optional<chrono::steady_clock::time_point> my_started_time {};
+        optional<chrono::steady_clock::time_point> my_last_check_time {};
+
+        int check_calls = 0;
+        bool triggered = false;
+        bool cancelled = false;
+    };
+
     class MoveTimer
     {
     public:
@@ -27,17 +44,26 @@ namespace wisdom
         // Whether the search as a whole was cancelled.
         [[nodiscard]] auto isCancelled() const -> bool
         {
-            return my_cancelled;
+            return my_timer_state.cancelled;
         }
 
         void start() noexcept
         {
-            my_started_time = chrono::steady_clock::now();
+            // Reset the state but preserve a few values:
+            my_timer_state = TimerState {};
+            my_timer_state.my_started_time = chrono::steady_clock::now();
         }
 
-        [[nodiscard]] auto seconds() const noexcept -> chrono::seconds
+        [[nodiscard]] auto
+        getSeconds() const noexcept
+            -> chrono::seconds
         {
             return my_seconds;
+        }
+
+        void setSeconds (chrono::seconds new_seconds)
+        {
+            my_seconds = new_seconds;
         }
 
         void setPeriodicFunction (const PeriodicFunction& periodic_function) noexcept
@@ -47,35 +73,20 @@ namespace wisdom
 
         void setTriggered (bool triggered) noexcept
         {
-            my_triggered = triggered;
+            my_timer_state.triggered = triggered;
         }
 
         void setCancelled (bool cancelled) noexcept
         {
-            my_cancelled = cancelled;
-        }
-
-        void setCurrentIterations (int current_iterations)
-        {
-            my_current_iterations = std::max(
-                Min_Iterations_Before_Checking,
-                std::min (current_iterations, Max_Iterations_Before_Checking)
-            );
-        }
-
-        [[nodiscard]] auto getCurrentIterations() const -> int
-        {
-            return my_current_iterations;
+            my_timer_state.cancelled = cancelled;
         }
 
     private:
         chrono::seconds my_seconds;
-        std::optional<chrono::steady_clock::time_point> my_started_time {};
-        std::optional<chrono::steady_clock::time_point> my_last_check_time {};
-        std::optional<PeriodicFunction> my_periodic_function {};
-        int my_check_calls = 0;
-        int my_current_iterations = Min_Iterations_Before_Checking;
-        bool my_triggered = false;
-        bool my_cancelled = false;
+
+        shared_ptr<TimingAdjustment> my_timing_adjustment = make_shared<TimingAdjustment>();
+        optional<PeriodicFunction> my_periodic_function {};
+
+        TimerState my_timer_state {};
     };
 }
