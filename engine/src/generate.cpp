@@ -5,6 +5,81 @@
 
 namespace wisdom
 {
+    struct KnightMoveList
+    {
+        size_t size;
+        array<Move, 8> moves;
+    };
+
+    using KnightMoveLists = array<KnightMoveList, Num_Squares>;
+
+    namespace
+    {
+        consteval auto
+        absoluteValue (auto integer)
+            -> decltype (integer)
+        {
+            static_assert (std::is_integral_v<decltype (integer)>);
+            return integer < 0 ? integer * -1 : integer;
+        }
+
+        consteval auto
+        knightMoveListInit()
+            -> KnightMoveLists
+        {
+            KnightMoveLists result {};
+
+            for (auto coord : CoordIterator {})
+            {
+                auto row = coord.row<int>();
+                auto col = coord.column<int>();
+
+                for (int k_row = -2; k_row <= 2; k_row++)
+                {
+                    if (!k_row)
+                        continue;
+
+                    if (!isValidRow (k_row + row))
+                        continue;
+
+                    for (auto k_col = 3 - absoluteValue (k_row); k_col >= -2;
+                         k_col -= 2 * absoluteValue (k_col))
+                    {
+                        if (!isValidColumn (k_col + col))
+                            continue;
+
+                        Move knight_move = Move::make (k_row + row, k_col + col, row, col);
+                        auto index = knight_move.getSrc().index();
+
+                        auto& size_ref = result[index].size;
+                        auto& array_ref = result[index].moves;
+                        array_ref[size_ref] = knight_move;
+                        size_ref++;
+                    }
+                }
+            }
+            return result;
+        }
+    }
+
+    // Store a list of knight moves and their sizes, generated at
+    // compile-time:
+    static constexpr KnightMoveLists Knight_Moves =
+        knightMoveListInit();
+
+    // Get a std::span of the knight move list and the compile-time
+    // calculated length:
+    [[nodiscard]] static auto
+    getKnightMoveList (int row, int col)
+        -> span<const Move>
+    {
+        auto coord = Coord::make (row, col);
+        const auto square = coord.index();
+
+        const auto& list = Knight_Moves[square];
+        return { list.moves.data(), list.size };
+    }
+
     struct MoveGeneration
     {
         const Board& board;
@@ -211,7 +286,7 @@ namespace wisdom
 
     void MoveGeneration::knight()
     {
-        const auto& kt_moves = MoveGenerator::getKnightMoveList (piece_row, piece_col);
+        const auto& kt_moves = getKnightMoveList (piece_row, piece_col);
 
         for (const auto& knight_move : kt_moves)
             appendMove (knight_move);
@@ -360,8 +435,7 @@ namespace wisdom
         appendMove (new_move);
     }
 
-    auto
-    MoveGenerator::generateLegalMoves (const Board& board, Color who) -> MoveList
+    auto generateLegalMoves (const Board& board, Color who) -> MoveList
     {
         MoveList non_checks;
 
@@ -482,8 +556,7 @@ namespace wisdom
             return promotingOrCoordCompare (a, b);
     }
 
-    auto
-    MoveGenerator::generateAllPotentialMoves (const Board& board, Color who)
+    auto generateAllPotentialMoves (const Board& board, Color who)
         -> MoveList
     {
         MoveList result;
@@ -507,4 +580,5 @@ namespace wisdom
 
         return result;
     }
+
 }

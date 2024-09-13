@@ -85,7 +85,7 @@ namespace wisdom
         }
 
         auto who = my_game.getCurrentTurn();
-        auto legalMoves = MoveGenerator::generateLegalMoves (my_game.getBoard(), who);
+        auto legalMoves = generateLegalMoves (my_game.getBoard(), who);
 
         auto has_move = std::any_of (
             legalMoves.cbegin(),

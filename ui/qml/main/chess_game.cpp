@@ -19,7 +19,6 @@ using wisdom::Game;
 using wisdom::Move;
 using wisdom::MoveTimer;
 using wisdom::Piece;
-using wisdom::MoveGenerator;
 
 auto ChessGame::fromPlayers (wisdom::Player whitePlayer, wisdom::Player blackPlayer,
                              const Config& config) -> unique_ptr<ChessGame>
@@ -65,7 +64,7 @@ auto ChessGame::isLegalMove (Move selectedMove) const -> bool
     }
 
     auto who = game->getCurrentTurn();
-    auto legalMoves = MoveGenerator::generateLegalMoves (game->getBoard(), who);
+    auto legalMoves = generateLegalMoves (game->getBoard(), who);
 
     return std::any_of (legalMoves.cbegin(), legalMoves.cend(),
                         [selectedMove] (const auto& move)
@@ -112,8 +111,10 @@ void ChessGame::setPeriodicFunction (const MoveTimer::PeriodicFunction& func)
 
 auto ChessGame::Config::fromGameSettings (const GameSettings& gameSettings) -> ChessGame::Config
 {
-    return ChessGame::Config { .players = { mapPlayer (gameSettings.whitePlayer()),
-                                            mapPlayer (gameSettings.blackPlayer()) },
-                               .maxDepth = MaxDepth { gameSettings.maxDepth() },
-                               .maxTime = std::chrono::seconds { gameSettings.maxSearchTime() } };
+    return ChessGame::Config {
+        .players = { mapPlayer (gameSettings.whitePlayer()),
+                     mapPlayer (gameSettings.blackPlayer()) },
+        .maxDepth = MaxDepth { gameSettings.maxDepth() },
+        .maxTime = std::chrono::seconds { gameSettings.maxSearchTime() }
+    };
 }
