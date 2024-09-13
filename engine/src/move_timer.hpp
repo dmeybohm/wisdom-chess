@@ -54,7 +54,6 @@ namespace wisdom
 
         void start() noexcept
         {
-            // Reset the state but preserve a few values:
             my_timer_state = TimerState {};
             my_timer_state.started_time = chrono::steady_clock::now();
         }
