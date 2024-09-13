@@ -27,7 +27,7 @@ namespace wisdom
     {
         KnightMoveLists result {};
 
-        for (auto coord : CoordIterator {})
+        for (auto coord : Board::allCoords())
         {
             auto row = coord.row<int>();
             auto col = coord.column<int>();

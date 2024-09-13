@@ -172,7 +172,7 @@ namespace wisdom
             return my_code;
         }
 
-        [[nodiscard]] static auto
+        [[nodiscard]] static constexpr auto
         allCoords()
             -> CoordIterator
         {
