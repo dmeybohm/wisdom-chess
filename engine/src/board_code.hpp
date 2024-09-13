@@ -208,12 +208,7 @@ namespace wisdom
 
         [[nodiscard]] auto
         asString() const noexcept
-            -> string
-        {
-            std::bitset<64> bits { my_code };
-
-            return bits.to_string();
-        }
+            -> string;
 
         [[nodiscard]] auto
         hashCode() const noexcept

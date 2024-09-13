@@ -27,7 +27,7 @@ namespace wisdom
         steady_clock::time_point check_time = steady_clock::now();
         auto diff_time = check_time - *my_timer_state.started_time;
 
-        // adjust the next iteration if less than 250ms:
+        // adjust the next iteration if last check took too long / too short:
         if (my_timer_state.last_check_time.has_value())
         {
             auto last_time = *my_timer_state.last_check_time;
