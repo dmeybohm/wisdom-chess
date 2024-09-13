@@ -123,7 +123,8 @@ namespace wisdom
         -> Color
     {
         assert (isColorValid (who));
-        return colorFromColorIndex (narrow_cast<int8_t> (!colorIndex (who)));
+        uint8_t inverted = !colorIndex (who);
+        return colorFromColorIndex (narrow_cast<int8_t> (inverted));
     }
 
     constexpr auto
