@@ -38,8 +38,11 @@ namespace
 GameModel::GameModel (QObject* parent) :
         QObject (parent), my_current_turn {}, my_chess_engine_thread { nullptr }
 {
-    my_chess_game = ChessGame::fromPlayers (Player::Human, Player::ChessEngine,
-                                            ChessGame::Config::fromGameSettings (my_game_settings));
+    my_chess_game = ChessGame::fromPlayers (
+        Player::Human,
+        Player::ChessEngine,
+        ChessGame::Config::fromGameSettings (my_game_settings)
+    );
     init();
 }
 
@@ -130,8 +133,12 @@ void GameModel::restart()
     qDebug() << "Creating new chess game";
 
     my_chess_game = std::move (
-        ChessGame::fromPlayers (my_chess_game->state()->getPlayer (Color::White),
-                                my_chess_game->state()->getPlayer (Color::Black), gameConfig()));
+        ChessGame::fromPlayers (
+            my_chess_game->state()->getPlayer (Color::White),
+            my_chess_game->state()->getPlayer (Color::Black),
+            gameConfig()
+        )
+    );
 
     // Abort searches and discard any queued signals from them if we receive
     // them later.

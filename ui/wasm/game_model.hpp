@@ -22,12 +22,15 @@ namespace wisdom
             int whitePlayer = static_cast<int> (my_game_settings.whitePlayer);
             int blackPlayer = static_cast<int> (my_game_settings.blackPlayer);
 
-            emscripten_wasm_worker_post_function_sig (engine_thread, (void*)workerReceiveSettings,
-                                                      "iiii",
-                                                      whitePlayer,
-                                                      blackPlayer,
-                                                      my_game_settings.thinkingTime,
-                                                      my_game_settings.searchDepth);
+            emscripten_wasm_worker_post_function_sig (
+                engine_thread,
+                (void*)workerReceiveSettings,
+                "iiii",
+                whitePlayer,
+                blackPlayer,
+                my_game_settings.thinkingTime,
+                my_game_settings.searchDepth
+            );
         }
 
     public:
@@ -37,8 +40,11 @@ namespace wisdom
         WebGame* startNewGame()
         {
             auto new_game = WebGame::newFromSettings (my_game_settings);
-            emscripten_wasm_worker_post_function_vi (engine_thread, workerReinitializeGame,
-                                                     ++my_game_id);
+            emscripten_wasm_worker_post_function_vi (
+                engine_thread,
+                workerReinitializeGame,
+                ++my_game_id
+            );
             return new_game;
         }
 

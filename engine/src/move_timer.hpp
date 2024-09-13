@@ -16,7 +16,32 @@ namespace wisdom
 
     struct TimingAdjustment
     {
-        int current_iterations = Min_Iterations_Before_Checking;
+        static auto create()
+            -> TimingAdjustment;
+
+        [[nodiscard]] auto
+        getIterations () const
+            -> int
+        {
+            return current_iterations;
+        }
+
+        void setIterations (int iterations)
+        {
+            current_iterations = iterations;
+            setSavedIterations (iterations);
+        }
+
+    private:
+        static void setSavedIterations (int);
+
+        explicit TimingAdjustment (int iterations)
+            : current_iterations { iterations }
+        {}
+
+    private:
+        static std::atomic<int> saved_iterations;
+        int current_iterations;
     };
 
     struct TimerState
@@ -88,7 +113,7 @@ namespace wisdom
     private:
         chrono::seconds my_seconds;
 
-        shared_ptr<TimingAdjustment> my_timing_adjustment = make_shared<TimingAdjustment>();
+        TimingAdjustment my_timing_adjustment = TimingAdjustment::create();
         optional<PeriodicFunction> my_periodic_function {};
 
         TimerState my_timer_state {};
