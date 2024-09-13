@@ -24,7 +24,8 @@ namespace wisdom
         King
     };
 
-    inline constexpr std::size_t Num_Piece_Types = static_cast<std::size_t> (Piece::King) + 1;
+    inline constexpr std::size_t Num_Piece_Types = 
+        static_cast<std::size_t> (Piece::King) + 1;
 
     enum class Color : int8_t
     {
@@ -38,58 +39,80 @@ namespace wisdom
 
     using ColorIndex = int8_t;
 
-    constexpr auto pieceFromInt8 (int8_t integer) -> Piece
+    constexpr auto 
+    pieceFromInt8 (int8_t integer) 
+        -> Piece
     {
         return static_cast<Piece> (integer);
     }
 
-    constexpr auto pieceFromInt (int integer) -> Piece
+    constexpr auto 
+    pieceFromInt (int integer) 
+        -> Piece
     {
         return static_cast<Piece> (integer);
     }
 
-    constexpr auto colorFromInt8 (int8_t integer) -> Color
+    constexpr auto 
+    colorFromInt8 (int8_t integer) 
+        -> Color
     {
         return static_cast<Color> (integer);
     }
 
-    constexpr auto colorFromInt (int integer) -> Color
+    constexpr auto 
+    colorFromInt (int integer) 
+        -> Color
     {
         return static_cast<Color> (integer);
     }
 
-    constexpr auto colorFromColorIndex (ColorIndex index) -> Color
+    constexpr auto 
+    colorFromColorIndex (ColorIndex index) 
+        -> Color
     {
         assert (index == Color_Index_White || index == Color_Index_Black);
         return static_cast<Color> (index + 1);
     }
 
-    constexpr auto toInt8 (Piece piece) -> int8_t
+    constexpr auto 
+    toInt8 (Piece piece) 
+        -> int8_t
     {
         return static_cast<int8_t> (piece);
     }
 
-    constexpr auto toInt (Piece piece) -> int
+    constexpr auto 
+    toInt (Piece piece) 
+        -> int
     {
         return static_cast<int> (piece);
     }
 
-    constexpr auto toInt (Color color) -> int
+    constexpr auto 
+    toInt (Color color) 
+        -> int
     {
         return static_cast<int> (color);
     }
 
-    constexpr auto toInt8 (Color color) -> int8_t
+    constexpr auto 
+    toInt8 (Color color) 
+        -> int8_t
     {
         return static_cast<int8_t> (color);
     }
 
-    constexpr auto isColorValid (Color who) -> bool
+    constexpr auto 
+    isColorValid (Color who) 
+        -> bool
     {
         return (who == Color::White || who == Color::Black);
     }
 
-    constexpr auto colorIndex (Color who) -> ColorIndex
+    constexpr auto 
+    colorIndex (Color who) 
+        -> ColorIndex
     {
         assert (who == Color::White || who == Color::Black);
         return narrow_cast<int8_t> (toInt8 (who) - 1);
@@ -123,7 +146,8 @@ namespace wisdom
     {
         int8_t piece_type_and_color;
 
-        static constexpr auto make (Color color, Piece piece_type) noexcept
+        static constexpr auto 
+        make (Color color, Piece piece_type) noexcept
             -> ColoredPiece
         {
             assert ((piece_type == Piece::None && color == Color::None) ||
@@ -138,7 +162,9 @@ namespace wisdom
             return piece_with_color;
         }
 
-        [[nodiscard]] constexpr auto color() const noexcept -> Color
+        [[nodiscard]] constexpr auto 
+        color() const noexcept 
+            -> Color
         {
             auto result = narrow_cast<int8_t> (
                 (piece_type_and_color & Piece_Color_Mask) >> Piece_Color_Shift
@@ -146,7 +172,9 @@ namespace wisdom
             return colorFromInt8 (result);
         }
 
-        [[nodiscard]] constexpr auto type() const noexcept -> Piece
+        [[nodiscard]] constexpr auto 
+        type() const noexcept 
+            -> Piece
         {
             auto result = narrow_cast<int8_t>(
                 (piece_type_and_color & Piece_Type_Mask)
@@ -154,12 +182,16 @@ namespace wisdom
             return pieceFromInt8 (result);
         }
 
-        friend constexpr auto operator== (ColoredPiece first, ColoredPiece second) -> bool
+        friend constexpr auto 
+        operator== (ColoredPiece first, ColoredPiece second) 
+            -> bool
         {
             return first.piece_type_and_color == second.piece_type_and_color;
         }
 
-        friend constexpr bool operator!= (ColoredPiece first, ColoredPiece second)
+        friend constexpr auto 
+        operator!= (ColoredPiece first, ColoredPiece second)
+            -> bool
         {
             return !operator== (first, second);
         }
@@ -175,12 +207,16 @@ namespace wisdom
         Piece::Knight,
     };
 
-    constexpr auto pieceType (ColoredPiece piece) -> Piece
+    constexpr auto 
+    pieceType (ColoredPiece piece) 
+        -> Piece
     {
         return piece.type();
     }
 
-    constexpr auto pieceColor (ColoredPiece piece) -> Color
+    constexpr auto 
+    pieceColor (ColoredPiece piece) 
+        -> Color
     {
         return piece.color();
     }
@@ -190,12 +226,16 @@ namespace wisdom
         Piece::None
     );
 
-    constexpr auto toInt8 (ColoredPiece piece) -> int8_t
+    constexpr auto 
+    toInt8 (ColoredPiece piece) 
+        -> int8_t
     {
         return piece.piece_type_and_color;
     }
 
-    constexpr auto pieceFromChar (char p) -> Piece
+    constexpr auto 
+    pieceFromChar (char p) 
+        -> Piece
     {
         switch (p)
         {
@@ -222,7 +262,9 @@ namespace wisdom
         }
     }
 
-    constexpr auto pieceChar (ColoredPiece piece) -> char
+    constexpr auto 
+    pieceChar (ColoredPiece piece) 
+        -> char
     {
         Piece type = pieceType (piece);
 
@@ -249,5 +291,7 @@ namespace wisdom
     auto asString (ColoredPiece piece) -> string;
     auto asString (Piece piece) -> string;
 
-    auto operator<< (std::ostream& ostream, const ColoredPiece& value) -> std::ostream&;
+    auto 
+    operator<< (std::ostream& ostream, const ColoredPiece& value) 
+        -> std::ostream&;
 }

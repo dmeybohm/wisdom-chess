@@ -71,7 +71,9 @@ namespace wisdom
         auto isTriggered() -> bool;
 
         // Whether the search as a whole was cancelled.
-        [[nodiscard]] auto isCancelled() const -> bool
+        [[nodiscard]] auto 
+        isCancelled() const 
+            -> bool
         {
             return my_timer_state.cancelled;
         }

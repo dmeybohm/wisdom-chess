@@ -92,23 +92,30 @@ namespace wisdom
     {
     }
 
-    auto IterativeSearch::iterativelyDeepen (Color side)
+    auto 
+    IterativeSearch::iterativelyDeepen (Color side)
         -> SearchResult
     {
         return impl->iterativelyDeepen (side);
     }
 
-    auto IterativeSearch::isCancelled() -> bool
+    auto 
+    IterativeSearch::isCancelled() 
+        -> bool
     {
         return impl->moveTimer().isCancelled();
     }
 
-    auto IterativeSearch::moveTimer() const& -> const MoveTimer&
+    auto 
+    IterativeSearch::moveTimer() const& 
+        -> const MoveTimer&
     {
         return impl->moveTimer();
     }
 
-    static constexpr auto drawingScore (Color searching_color, Color current_color)
+    static constexpr auto 
+    drawingScore (Color searching_color, Color current_color)
+        -> int
     {
         //
         // For the player looking for a move (the chess engine), a draw is considered
@@ -119,8 +126,15 @@ namespace wisdom
         return current_color == searching_color ? Min_Draw_Score : 0;
     }
 
-    int IterativeSearchImpl::search (const Board& parent_board, // NOLINT(misc-no-recursion)
-                                     Color side, int depth, int alpha, int beta)
+    auto 
+    IterativeSearchImpl::search ( // NOLINT(misc-no-recursion)
+        const Board& parent_board, 
+        Color side, 
+        int depth, 
+        int alpha, 
+        int beta
+    )
+        -> int
     {
         std::optional<Move> best_move {};
         int best_score = -Initial_Alpha;
@@ -203,8 +217,14 @@ namespace wisdom
         return best_score;
     }
 
-    static void
-    logSearchTime (const Logger& output, int nodes, SystemClockTime start, SystemClockTime end)
+    static auto
+    logSearchTime (
+        const Logger& output, 
+        int nodes, 
+        SystemClockTime start, 
+        SystemClockTime end
+    )
+        -> void
     {
         auto seconds_duration = chrono::duration<double> (end - start);
         auto seconds = seconds_duration.count();
@@ -215,7 +235,9 @@ namespace wisdom
         output.info (std::move (progress_str).str());
     }
 
-    auto IterativeSearchImpl::iterativelyDeepen (Color side) -> SearchResult
+    auto 
+    IterativeSearchImpl::iterativelyDeepen (Color side) 
+        -> SearchResult
     {
         SearchResult best_result {};
         my_searching_color = side;
@@ -255,12 +277,16 @@ namespace wisdom
         }
     }
 
-    [[nodiscard]] auto IterativeSearchImpl::getBestResult() const -> SearchResult
+    [[nodiscard]] auto 
+    IterativeSearchImpl::getBestResult() const 
+        -> SearchResult
     {
         return my_current_result;
     }
 
-    auto IterativeSearchImpl::iterate (Color side, int depth) -> SearchResult
+    auto 
+    IterativeSearchImpl::iterate (Color side, int depth) 
+        -> SearchResult
     {
         std::stringstream outstr;
         outstr << "finding moves for " << asString (side);

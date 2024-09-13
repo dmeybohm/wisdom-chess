@@ -10,7 +10,9 @@ namespace wisdom
 
     namespace
     {
-        auto heuristicIsCastled (const Board& board, Color who) -> bool
+        auto 
+        heuristicIsCastled (const Board& board, Color who) 
+            -> bool
         {
             auto king_pos = board.getKingPosition (who);
             auto king_column = king_pos.column<int>();
@@ -36,7 +38,9 @@ namespace wisdom
             return false;
         }
 
-        auto unableToCastlePenalty (const Board& board, Color who) -> int
+        auto 
+        unableToCastlePenalty (const Board& board, Color who)
+            -> int
         {
             auto castle_state = board.getCastlingEligibility (who);
             int result = 0;
@@ -53,7 +57,9 @@ namespace wisdom
         }
     }
 
-    auto evaluate (const Board& board, Color who, int moves_away) -> int
+    auto 
+    evaluate (const Board& board, Color who, int moves_away) 
+        -> int
     {
         int score = 0;
         Color opponent = colorInvert (who);
@@ -76,7 +82,9 @@ namespace wisdom
         return score;
     }
 
-    auto evaluateWithoutLegalMoves (const Board& board, Color who, int moves_away) -> int
+    auto 
+    evaluateWithoutLegalMoves (const Board& board, Color who, int moves_away) 
+        -> int
     {
         auto king_coord = board.getKingPosition (who);
         return isKingThreatened (board, who, king_coord)

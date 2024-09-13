@@ -20,7 +20,9 @@ namespace wisdom
         return legal_moves.isEmpty();
     }
 
-    auto isLegalPositionAfterMove (const Board& board, Color who, Move mv) -> bool
+    auto 
+    isLegalPositionAfterMove (const Board& board, Color who, Move mv) 
+        -> bool
     {
         auto king_coord = board.getKingPosition (who);
 

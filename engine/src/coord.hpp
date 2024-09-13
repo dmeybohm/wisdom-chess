@@ -147,8 +147,9 @@ namespace wisdom
         return first.row_and_col == second.row_and_col;
     }
 
-    constexpr bool
+    constexpr auto
     operator!= (Coord first, Coord second)
+        -> bool
     {
         return !operator== (first, second);
     }

@@ -15,7 +15,7 @@ namespace wisdom
 
     using BoardCodeArray = array<uint64_t, (Num_Players + 1) * Num_Piece_Types * Num_Squares>;
 
-    [[nodiscard]] constexpr auto
+    [[nodiscard]] consteval auto
     initializeBoardCodes()
         -> BoardCodeArray
     {

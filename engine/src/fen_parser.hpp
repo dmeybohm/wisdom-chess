@@ -16,7 +16,9 @@ namespace wisdom
             parse (input);
         }
 
-        [[nodiscard]] auto getActivePlayer() const -> Color
+        [[nodiscard]] auto 
+        getActivePlayer() const 
+            -> Color
         {
             return active_player;
         }

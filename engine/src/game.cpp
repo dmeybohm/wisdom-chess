@@ -15,7 +15,9 @@ namespace wisdom
     static FenOutputFormat fen_output_format;
     static WisdomGameOutputFormat wisdom_game_output_format;
 
-    static OutputFormat& makeOutputFormat (const string& filename)
+    static auto 
+    makeOutputFormat (const string& filename)
+        -> OutputFormat& 
     {
         if (filename.find (".fen") != string::npos)
             return fen_output_format;
@@ -208,7 +210,8 @@ namespace wisdom
         return score <= Min_Draw_Score;
     }
 
-    static auto drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires)
+    static auto 
+    drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires)
          -> DrawStatus
     {
         assert (bothPlayersReplied (draw_desires));

@@ -71,7 +71,9 @@ namespace wisdom
     };
     // clang-format on
 
-    static Coord translatePosition (Coord coord, Color who)
+    static auto 
+    translatePosition (Coord coord, Color who)
+        -> Coord
     {
         if (who == Color::White)
             return coord;
@@ -85,7 +87,9 @@ namespace wisdom
         );
     }
 
-    static int8_t castlingRowFromColor (Color who)
+    static auto 
+    castlingRowFromColor (Color who)
+        -> int8_t
     {
         switch (who)
         {
@@ -98,7 +102,9 @@ namespace wisdom
         }
     }
 
-    static int change (Coord coord, Color who, ColoredPiece piece)
+    static auto 
+    change (Coord coord, Color who, ColoredPiece piece)
+        -> int
     {
         Coord translated_pos = translatePosition (coord, who);
         int8_t row = translated_pos.row();
@@ -124,7 +130,9 @@ namespace wisdom
         }
     }
 
-    int Position::overallScore (Color who) const
+    auto 
+    Position::overallScore (Color who) const
+        -> int
     {
         ColorIndex index = colorIndex (who);
         ColorIndex inverted = colorIndex (colorInvert (who));
@@ -209,7 +217,9 @@ namespace wisdom
         this->add (who, dst, new_piece);
     }
 
-    int Position::individualScore (Color who) const
+    auto 
+    Position::individualScore (Color who) const
+        -> int
     {
         return my_score[colorIndex (who)];
     }
@@ -224,7 +234,9 @@ namespace wisdom
         }
     }
 
-    auto operator<< (std::ostream& ostream, Position& position) -> std::ostream&
+    auto 
+    operator<< (std::ostream& ostream, Position& position) 
+        -> std::ostream&
     {
         return ostream << "{ " << position.my_score[0] << ", " << position.my_score[1] << "}";
     }

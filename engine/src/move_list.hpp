@@ -38,6 +38,19 @@ namespace wisdom
             my_size = other.my_size;
         }
 
+        [[nodiscard]] static constexpr auto
+        fromZeroInitialized()
+            -> MoveList
+        {
+            auto list = MoveList {};
+            std::fill (
+                std::begin (list.my_moves), 
+                std::end (list.my_moves), 
+                Move {} 
+            );
+            return list;
+        }
+
         constexpr auto
         operator= (const MoveList& other)
             -> MoveList&

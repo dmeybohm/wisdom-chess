@@ -29,13 +29,15 @@ namespace wisdom
             return { initial.first, new_status };
     }
 
-    [[nodiscard]] constexpr auto drawStatusIsReplied (DrawStatus draw_status)
+    [[nodiscard]] constexpr auto 
+    drawStatusIsReplied (DrawStatus draw_status)
         -> bool
     {
         return draw_status == DrawStatus::Accepted || draw_status == DrawStatus::Declined;
     }
 
-    [[nodiscard]] constexpr auto bothPlayersReplied (BothPlayersDrawStatus both_players_status)
+    [[nodiscard]] constexpr auto 
+    bothPlayersReplied (BothPlayersDrawStatus both_players_status)
         -> bool
     {
         return drawStatusIsReplied (both_players_status.first)
@@ -50,7 +52,9 @@ namespace wisdom
             my_board_codes.reserve (64);
         }
 
-        static auto fromInitialBoard (const Board& board)
+        static auto 
+        fromInitialBoard (const Board& board)
+            -> History
         {
             auto result = History {};
             result.my_board_codes.emplace_back (board.getBoardCode());
@@ -64,13 +68,15 @@ namespace wisdom
             return board.getHalfMoveClock() >= x_half_moves;
         }
 
-        [[nodiscard]] static auto hasBeenSeventyFiveMovesWithoutProgress (const Board& board)
+        [[nodiscard]] static auto 
+        hasBeenSeventyFiveMovesWithoutProgress (const Board& board)
             -> bool
         {
             return hasBeenXHalfMovesWithoutProgress (board, 150);
         }
 
-        [[nodiscard]] static auto hasBeenFiftyMovesWithoutProgress (const Board& board)
+        [[nodiscard]] static auto 
+        hasBeenFiftyMovesWithoutProgress (const Board& board)
             -> bool
         {
             return hasBeenXHalfMovesWithoutProgress (board, 100);
@@ -80,19 +86,23 @@ namespace wisdom
 
         [[nodiscard]] bool isFifthRepetition (const Board& board) const;
 
-        [[nodiscard]] auto isProbablyThirdRepetition (const Board& board) const -> bool;
-        [[nodiscard]] auto isCertainlyThirdRepetition (const Board& board) const -> bool;
-        [[nodiscard]] auto isProbablyFifthRepetition (const Board& board) const -> bool;
-        [[nodiscard]] auto isCertainlyFifthRepetition (const Board& board) const -> bool;
+        [[nodiscard]] bool isProbablyThirdRepetition (const Board& board) const;
+        [[nodiscard]] bool isCertainlyThirdRepetition (const Board& board) const;
+        [[nodiscard]] bool isProbablyFifthRepetition (const Board& board) const;
+        [[nodiscard]] bool isCertainlyFifthRepetition (const Board& board) const;
 
-        [[nodiscard]] bool isProbablyNthRepetition (const Board& board, int repetition_count) const
+        [[nodiscard]] auto 
+        isProbablyNthRepetition (const Board& board, int repetition_count) const
+            -> bool
         {
             auto code = board.getCode();
             auto count = std::count (my_board_codes.begin(), my_board_codes.end(), code);
             return count >= repetition_count;
         }
 
-        [[nodiscard]] bool isCertainlyNthRepetition (const Board& board, int repetition_count) const
+        [[nodiscard]] auto 
+        isCertainlyNthRepetition (const Board& board, int repetition_count) const
+            -> bool
         {
             auto repetitions = std::count (my_stored_boards.begin(), my_stored_boards.end(), board);
             return repetitions >= repetition_count;
@@ -126,13 +136,17 @@ namespace wisdom
             my_move_history.pop_back();
         }
 
-        [[nodiscard]] auto getMoveHistory() const& -> const vector<Move>&
+        [[nodiscard]] auto 
+        getMoveHistory() const& 
+            -> const vector<Move>&
         {
             return my_move_history;
         }
         void getMoveHistory() const&& = delete;
 
-        [[nodiscard]] auto getThreefoldRepetitionStatus() const -> DrawStatus
+        [[nodiscard]] auto 
+        getThreefoldRepetitionStatus() const 
+            -> DrawStatus
         {
             return my_threefold_repetition_status;
         }
@@ -142,7 +156,8 @@ namespace wisdom
             my_threefold_repetition_status = status;
         }
 
-        [[nodiscard]] auto getFiftyMovesWithoutProgressStatus() const
+        [[nodiscard]] auto 
+        getFiftyMovesWithoutProgressStatus() const
             -> DrawStatus
         {
             return my_fifty_moves_without_progress_status;
@@ -153,7 +168,8 @@ namespace wisdom
             my_fifty_moves_without_progress_status = status;
         }
 
-        friend auto operator<< (std::ostream& os, const History& code)
+        friend auto 
+        operator<< (std::ostream& os, const History& code)
             -> std::ostream&;
 
     private:

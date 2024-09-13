@@ -133,8 +133,8 @@ namespace wisdom
             -> bool
         {
             // If either/both is passed, check both types.
-            auto check_type
-                = (castle_types == Either_Side_Eligible || castle_types == Neither_Side_Eligible)
+            auto check_type = 
+                (castle_types == Either_Side_Eligible || castle_types == Neither_Side_Eligible)
                 ? Neither_Side_Eligible
                 : castle_types;
 
@@ -151,7 +151,9 @@ namespace wisdom
             return target.has_value() && target->vulnerable_color == who;
         }
 
-        [[nodiscard]] auto getCurrentTurn() const -> Color
+        [[nodiscard]] auto 
+        getCurrentTurn() const 
+            -> Color
         {
             return my_code.currentTurn();
         }
@@ -163,7 +165,9 @@ namespace wisdom
             return my_code.enPassantTarget();
         }
 
-        [[nodiscard]] auto getBoardCode() const -> BoardCode
+        [[nodiscard]] auto 
+        getBoardCode() const 
+            -> BoardCode
         {
             return my_code;
         }
@@ -190,7 +194,10 @@ namespace wisdom
         void setEnPassantTarget (Color who, Coord target) noexcept;
         void clearEnPassantTarget() noexcept;
 
-        [[nodiscard]] auto getCastlingRookMove (Move move, Color who) const -> Move;
+        [[nodiscard]] auto 
+        getCastlingRookMove (Move move, Color who) const 
+            -> Move;
+
         void applyForCastlingMove (
             Color who,
             Move king_move,
@@ -248,7 +255,9 @@ namespace wisdom
         array<Coord, Num_Players> my_king_pos;
     };
 
-    constexpr auto coordColor (Coord coord) -> Color
+    constexpr auto 
+    coordColor (Coord coord) 
+        -> Color
     {
         int parity = (coord.row() % 2 + coord.column() % 2) % 2;
         return colorFromColorIndex (narrow_cast<int8_t> (parity));
@@ -256,8 +265,9 @@ namespace wisdom
 
     // white moves up (-)
     // black moves down (+)
-    template <class IntegerType = int8_t>
-    constexpr IntegerType pawnDirection (Color color)
+    template <class IntegerType = int8_t> constexpr auto 
+    pawnDirection (Color color)
+        -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
         assert (color == Color::Black || color == Color::White);

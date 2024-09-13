@@ -216,5 +216,4 @@ namespace wisdom
             return this->my_message.c_str();
         }
     };
-
 }

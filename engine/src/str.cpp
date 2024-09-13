@@ -17,7 +17,11 @@ namespace wisdom
         return result;
     }
 
-    auto split (const string& source, const string& separator) -> vector<string>
+    auto split (
+        const string& source, 
+        const string& separator
+    ) 
+        -> vector<string>
     {
         vector<string> result;
         string::size_type offset = 0;
@@ -34,7 +38,11 @@ namespace wisdom
         return result;
     }
 
-    auto join (const vector<string>& strings, const string& separator) -> string
+    auto join (
+        const vector<string>& strings, 
+        const string& separator
+    ) 
+        -> string
     {
         string result;
 
@@ -47,7 +55,9 @@ namespace wisdom
         );
     }
 
-    auto toInt (const string& str) -> optional<int>
+    auto 
+    toInt (const string& str) 
+        -> optional<int>
     {
         stringstream ss { str };
 
