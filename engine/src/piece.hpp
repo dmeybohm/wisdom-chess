@@ -262,8 +262,8 @@ namespace wisdom
         }
     }
 
-    constexpr auto 
-    pieceChar (ColoredPiece piece) 
+    constexpr auto
+    pieceToChar (ColoredPiece piece)
         -> char
     {
         Piece type = pieceType (piece);

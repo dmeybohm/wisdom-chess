@@ -575,7 +575,7 @@ namespace wisdom
 
         if (move.isPromoting())
         {
-            string promoted_piece { pieceChar (move.getPromotedPiece()) };
+            string promoted_piece { pieceToChar (move.getPromotedPiece()) };
             result += "(" + promoted_piece + ")";
         }
 

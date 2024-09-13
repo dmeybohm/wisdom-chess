@@ -177,7 +177,7 @@ namespace wisdom
                         row_string += std::to_string (none_count);
 
                     none_count = 0;
-                    char ch = narrow_cast<char> (toupper (pieceChar (piece)));
+                    char ch = narrow_cast<char> (toupper (pieceToChar (piece)));
                     if (pieceColor (piece) == Color::Black)
                         ch = narrow_cast<char> (tolower (ch));
 
