@@ -13,53 +13,50 @@ namespace wisdom
 
     using KnightMoveLists = array<KnightMoveList, Num_Squares>;
 
-    namespace
+    static consteval auto
+    absoluteValue (auto integer)
+        -> decltype (integer)
     {
-        consteval auto
-        absoluteValue (auto integer)
-            -> decltype (integer)
-        {
-            static_assert (std::is_integral_v<decltype (integer)>);
-            return integer < 0 ? integer * -1 : integer;
-        }
+        static_assert (std::is_integral_v<decltype (integer)>);
+        return integer < 0 ? integer * -1 : integer;
+    }
 
-        consteval auto
-        knightMoveListInit()
-            -> KnightMoveLists
-        {
-            KnightMoveLists result {};
+    static consteval auto
+    knightMoveListInit()
+        -> KnightMoveLists
+    {
+        KnightMoveLists result {};
 
-            for (auto coord : CoordIterator {})
+        for (auto coord : CoordIterator {})
+        {
+            auto row = coord.row<int>();
+            auto col = coord.column<int>();
+
+            for (int k_row = -2; k_row <= 2; k_row++)
             {
-                auto row = coord.row<int>();
-                auto col = coord.column<int>();
+                if (!k_row)
+                    continue;
 
-                for (int k_row = -2; k_row <= 2; k_row++)
+                if (!isValidRow (k_row + row))
+                    continue;
+
+                for (auto k_col = 3 - absoluteValue (k_row); k_col >= -2;
+                     k_col -= 2 * absoluteValue (k_col))
                 {
-                    if (!k_row)
+                    if (!isValidColumn (k_col + col))
                         continue;
 
-                    if (!isValidRow (k_row + row))
-                        continue;
+                    Move knight_move = Move::make (k_row + row, k_col + col, row, col);
+                    auto index = knight_move.getSrc().index();
 
-                    for (auto k_col = 3 - absoluteValue (k_row); k_col >= -2;
-                         k_col -= 2 * absoluteValue (k_col))
-                    {
-                        if (!isValidColumn (k_col + col))
-                            continue;
-
-                        Move knight_move = Move::make (k_row + row, k_col + col, row, col);
-                        auto index = knight_move.getSrc().index();
-
-                        auto& size_ref = result[index].size;
-                        auto& array_ref = result[index].moves;
-                        array_ref[size_ref] = knight_move;
-                        size_ref++;
-                    }
+                    auto& size_ref = result[index].size;
+                    auto& array_ref = result[index].moves;
+                    array_ref[size_ref] = knight_move;
+                    size_ref++;
                 }
             }
-            return result;
         }
+        return result;
     }
 
     // Store a list of knight moves and their sizes, generated at
