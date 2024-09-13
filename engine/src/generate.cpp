@@ -281,7 +281,7 @@ namespace wisdom
             appendMove (knight_move);
     }
 
-    auto 
+    auto
     eligibleEnPassantColumn (const Board& board, int row, int column, Color who)
         -> optional<int>
     {
@@ -581,4 +581,19 @@ namespace wisdom
         return non_checks;
     }
 
+    auto
+    needPawnPromotion (int row, Color who)
+        -> bool
+    {
+        assert (isColorValid (who));
+        switch (who)
+        {
+            case Color::White:
+                return 0 == row;
+            case Color::Black:
+                return 7 == row;
+            default:
+                throw Error { "Invalid color in needPawnPromotion()" };
+        }
+    }
 }
