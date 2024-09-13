@@ -31,7 +31,7 @@ TEST_CASE( "Initializing move list" )
 static auto copy_moves_and_ptr (const Move **ptr) -> MoveList
 {
     Board board;
-    MoveList moves = MoveGenerator::generateAllPotentialMoves (board, Color::White);
+    MoveList moves = generateAllPotentialMoves (board, Color::White);
     return moves;
 }
 

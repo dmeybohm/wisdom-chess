@@ -125,7 +125,7 @@ namespace wisdom
         std::optional<Move> best_move {};
         int best_score = -Initial_Alpha;
 
-        auto moves = MoveGenerator::generateAllPotentialMoves (parent_board, side);
+        auto moves = generateAllPotentialMoves (parent_board, side);
         for (auto move : moves)
         {
             int score;
