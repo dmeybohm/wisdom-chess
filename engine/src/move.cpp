@@ -268,7 +268,7 @@ namespace wisdom
         }
     }
 
-    [[nodiscard]] auto 
+    auto 
     Board::withMove (Color who, Move move) const -> Board
     {
         Board result = *this;
@@ -276,7 +276,7 @@ namespace wisdom
         return result;
     }
 
-    [[nodiscard]] auto 
+    auto 
     Board::withCurrentTurn (Color who) const 
         -> Board
     {
@@ -575,7 +575,7 @@ namespace wisdom
 
         if (move.isPromoting())
         {
-            string promoted_piece { pieceChar (move.getPromotedPiece()) };
+            string promoted_piece { pieceToChar (move.getPromotedPiece()) };
             result += "(" + promoted_piece + ")";
         }
 

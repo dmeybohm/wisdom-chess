@@ -50,7 +50,9 @@ namespace wisdom
         return result;
     }
 
-    auto operator<< (std::ostream& ostream, const ColoredPiece& piece) -> std::ostream&
+    auto 
+    operator<< (std::ostream& ostream, const ColoredPiece& piece) 
+        -> std::ostream&
     {
         ostream << asString (piece);
         return ostream;

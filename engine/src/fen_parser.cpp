@@ -14,7 +14,9 @@ namespace wisdom
         return Game { builder };
     }
 
-    auto FenParser::parsePiece (char ch) -> ColoredPiece
+    auto 
+    FenParser::parsePiece (char ch) 
+        -> ColoredPiece
     {
         int lower = tolower (ch);
         Color who = islower (ch) ? Color::Black : Color::White;
@@ -38,7 +40,9 @@ namespace wisdom
         }
     }
 
-    auto FenParser::parseActivePlayer (char ch) -> Color
+    auto 
+    FenParser::parseActivePlayer (char ch) 
+        -> Color
     {
         switch (ch)
         {
@@ -207,7 +211,9 @@ namespace wisdom
         parseFullMove (full_moves);
     }
 
-    auto FenParser::buildBoard() -> Board
+    auto 
+    FenParser::buildBoard() 
+        -> Board
     {
         return Board { builder };
     }

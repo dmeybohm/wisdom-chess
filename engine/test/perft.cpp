@@ -142,7 +142,7 @@ namespace wisdom
             auto promoted = move.getPromotedPiece();
 
             return wisdom::asString (move.getSrc()) + wisdom::asString (move.getDst())
-                + wisdom::pieceChar (promoted);
+                + wisdom::pieceToChar (promoted);
         }
 
         return wisdom::asString (move.getSrc()) + wisdom::asString (move.getDst());

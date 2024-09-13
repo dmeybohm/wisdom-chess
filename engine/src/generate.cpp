@@ -27,7 +27,7 @@ namespace wisdom
     {
         KnightMoveLists result {};
 
-        for (auto coord : CoordIterator {})
+        for (auto coord : Board::allCoords())
         {
             auto row = coord.row<int>();
             auto col = coord.column<int>();
@@ -64,19 +64,6 @@ namespace wisdom
     static constexpr KnightMoveLists Knight_Moves =
         knightMoveListInit();
 
-    // Get a std::span of the knight move list and the compile-time
-    // calculated length:
-    [[nodiscard]] static auto
-    getKnightMoveList (int row, int col)
-        -> span<const Move>
-    {
-        auto coord = Coord::make (row, col);
-        const auto square = coord.index();
-
-        const auto& list = Knight_Moves[square];
-        return { list.moves.data(), list.size };
-    }
-
     struct MoveGeneration
     {
         const Board& board;
@@ -87,7 +74,9 @@ namespace wisdom
 
         void generate (ColoredPiece piece, Coord coord);
 
-        [[nodiscard]] auto compareMoves (const Move& a, const Move& b) const -> bool;
+        [[nodiscard]] auto 
+        compareMoves (const Move& a, const Move& b) const 
+            -> bool;
 
         void none();
         void pawn();
@@ -99,24 +88,25 @@ namespace wisdom
 
         void enPassant (int en_passant_column);
 
-        [[nodiscard]] static auto transformMove (ColoredPiece dst_piece, Move move) noexcept
+        // Get a std::span of the knight move list and the compile-time
+        // calculated length:
+        [[nodiscard]] static auto
+        getKnightMoveList (int row, int col)
+            -> span<const Move>
+        {
+            auto coord = Coord::make (row, col);
+            const auto square = coord.index();
+
+            const auto& list = Knight_Moves[square];
+            return { list.moves.data(), list.size };
+        }
+
+        [[nodiscard]] static auto 
+        transformMove (ColoredPiece dst_piece, Move move) noexcept
             -> Move;
+
         void appendMove (Move move) noexcept;
     };
-
-    auto needPawnPromotion (int row, Color who) -> bool
-    {
-        assert (isColorValid (who));
-        switch (who)
-        {
-            case Color::White:
-                return 0 == row;
-            case Color::Black:
-                return 7 == row;
-            default:
-                throw Error { "Invalid color in needPawnPromotion()" };
-        }
-    }
 
     static auto isPawnUnmoved (const Board& board, int row, int col) -> bool
     {
@@ -204,7 +194,8 @@ namespace wisdom
             }
         }
 
-        if (board.ableToCastle (who, CastlingIneligible::Queenside) && piece_col == King_Column)
+        if (board.ableToCastle (who, CastlingIneligible::Queenside) && 
+            piece_col == King_Column)
         {
             Move queenside_castle
                 = Move::makeCastling (piece_row, piece_col, piece_row, piece_col - 2);
@@ -212,7 +203,8 @@ namespace wisdom
                 appendMove (queenside_castle);
         }
 
-        if (board.ableToCastle (who, CastlingIneligible::Kingside) && piece_col == King_Column)
+        if (board.ableToCastle (who, CastlingIneligible::Kingside) && 
+            piece_col == King_Column)
         {
             Move kingside_castle
                 = Move::makeCastling (piece_row, piece_col, piece_row, piece_col + 2);
@@ -289,7 +281,8 @@ namespace wisdom
             appendMove (knight_move);
     }
 
-    auto eligibleEnPassantColumn (const Board& board, int row, int column, Color who)
+    auto 
+    eligibleEnPassantColumn (const Board& board, int row, int column, Color who)
         -> optional<int>
     {
         Color opponent = colorInvert (who);
@@ -432,22 +425,6 @@ namespace wisdom
         appendMove (new_move);
     }
 
-    auto generateLegalMoves (const Board& board, Color who) -> MoveList
-    {
-        MoveList non_checks;
-
-        MoveList all_moves = generateAllPotentialMoves (board, who);
-        for (auto move : all_moves)
-        {
-            Board new_board = board.withMove (who, move);
-
-            if (isLegalPositionAfterMove (new_board, who, move))
-                non_checks.append (move);
-        }
-
-        return non_checks;
-    }
-
     void MoveGeneration::generate (ColoredPiece piece, Coord coord)
     {
         this->piece_row = coord.row<int>();
@@ -479,7 +456,9 @@ namespace wisdom
         }
     }
 
-    static int materialDiff (const Board& board, Move move)
+    static auto 
+    materialDiff (const Board& board, Move move)
+        -> int
     {
         assert (move.isAnyCapturing());
 
@@ -495,7 +474,9 @@ namespace wisdom
         }
     }
 
-    static constexpr auto promotingOrCoordCompare (const Move& a, const Move& b) -> bool
+    static constexpr auto 
+    promotingOrCoordCompare (const Move& a, const Move& b) 
+        -> bool
     {
         bool a_is_promoting = a.isPromoting();
         bool b_is_promoting = b.isPromoting();
@@ -524,7 +505,9 @@ namespace wisdom
             return a.getDst().index() < b.getDst().index();
     }
 
-    auto MoveGeneration::compareMoves (const Move& a, const Move& b) const -> bool
+    auto 
+    MoveGeneration::compareMoves (const Move& a, const Move& b) const 
+        -> bool
     {
         bool a_is_capturing = a.isAnyCapturing();
         bool b_is_capturing = b.isAnyCapturing();
@@ -553,7 +536,8 @@ namespace wisdom
             return promotingOrCoordCompare (a, b);
     }
 
-    auto generateAllPotentialMoves (const Board& board, Color who)
+    auto 
+    generateAllPotentialMoves (const Board& board, Color who)
         -> MoveList
     {
         MoveList result;
@@ -576,6 +560,25 @@ namespace wisdom
         );
 
         return result;
+    }
+
+
+    auto 
+    generateLegalMoves (const Board& board, Color who) 
+        -> MoveList
+    {
+        MoveList non_checks;
+
+        MoveList all_moves = generateAllPotentialMoves (board, who);
+        for (auto move : all_moves)
+        {
+            Board new_board = board.withMove (who, move);
+
+            if (isLegalPositionAfterMove (new_board, who, move))
+                non_checks.append (move);
+        }
+
+        return non_checks;
     }
 
 }

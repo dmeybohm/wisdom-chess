@@ -4,37 +4,39 @@
 
 namespace wisdom
 {
-    [[nodiscard]] auto History::isProbablyThirdRepetition (const Board& board) const -> bool
+    bool History::isProbablyThirdRepetition (const Board& board) const
     {
         return isProbablyNthRepetition (board, 3);
     }
 
-    [[nodiscard]] auto History::isCertainlyThirdRepetition (const Board& board) const -> bool
+    bool History::isCertainlyThirdRepetition (const Board& board) const
     {
         return isCertainlyNthRepetition (board, 3);
     }
 
-    [[nodiscard]] auto History::isProbablyFifthRepetition (const Board& board) const -> bool
+    bool History::isProbablyFifthRepetition (const Board& board) const
     {
         return isProbablyNthRepetition (board, 5);
     }
 
-    [[nodiscard]] auto History::isCertainlyFifthRepetition (const Board& board) const -> bool
+    bool History::isCertainlyFifthRepetition (const Board& board) const
     {
         return isCertainlyNthRepetition (board, 5);
     }
 
-    auto History::isThirdRepetition (const Board& board) const -> bool
+    bool History::isThirdRepetition (const Board& board) const
     {
         return isProbablyThirdRepetition (board) && isCertainlyThirdRepetition (board);
     }
 
-    auto History::isFifthRepetition (const Board& board) const -> bool
+    bool History::isFifthRepetition (const Board& board) const
     {
         return isProbablyFifthRepetition (board) && isCertainlyFifthRepetition (board);
     }
 
-    auto operator<< (std::ostream& os, const History& history) -> std::ostream&
+    auto 
+    operator<< (std::ostream& os, const History& history) 
+        -> std::ostream&
     {
         int move_number = 1;
         for (const auto& code : history.my_board_codes)

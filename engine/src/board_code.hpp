@@ -15,7 +15,7 @@ namespace wisdom
 
     using BoardCodeArray = array<uint64_t, (Num_Players + 1) * Num_Piece_Types * Num_Squares>;
 
-    [[nodiscard]] constexpr auto
+    [[nodiscard]] consteval auto
     initializeBoardCodes()
         -> BoardCodeArray
     {
@@ -246,7 +246,9 @@ namespace wisdom
 
         void applyMove (const Board& board, Move move) noexcept;
 
-        [[nodiscard]] auto numberOfSetBits() const -> std::size_t;
+        [[nodiscard]] auto
+        numberOfSetBits() const
+            -> std::size_t;
 
     private:
         // Private and only used for initialization.

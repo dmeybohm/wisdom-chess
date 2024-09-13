@@ -27,19 +27,25 @@ namespace wisdom
             return my_value != NoDraw;
         }
 
-        friend auto operator== (DrawCategory first, DrawCategory second) -> bool
+        friend auto 
+        operator== (DrawCategory first, DrawCategory second) 
+            -> bool
         {
             return first.my_value == second.my_value;
         }
 
-        friend auto operator!= (DrawCategory first, DrawCategory second) -> bool
+        friend auto 
+        operator!= (DrawCategory first, DrawCategory second) 
+            -> bool
         {
             return !operator== (first, second);
         }
     };
 
     // Whether this move was a legal move for the computer_player.
-    [[nodiscard]] auto isLegalPositionAfterMove (const Board& board, Color who, Move mv) -> bool;
+    [[nodiscard]] auto 
+    isLegalPositionAfterMove (const Board& board, Color who, Move mv) 
+        -> bool;
 
     [[nodiscard]] inline auto isKingThreatened (
         const Board& board, 
@@ -77,11 +83,14 @@ namespace wisdom
     //
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
-    inline auto isProbablyDrawingMove (
+    [[nodiscard]] inline auto 
+    isProbablyDrawingMove (
         const Board& board,
         [[maybe_unused]] Color who,
         [[maybe_unused]] Move move,
-        const History& history) -> DrawCategory
+        const History& history
+    ) 
+        -> DrawCategory
     {
         auto repetition_status = history.getThreefoldRepetitionStatus();
         auto no_progress_status = history.getFiftyMovesWithoutProgressStatus();

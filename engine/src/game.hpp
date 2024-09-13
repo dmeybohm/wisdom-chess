@@ -11,8 +11,6 @@
 
 namespace wisdom
 {
-    class Board;
-    class History;
     class BoardBuilder;
     class Logger;
 
@@ -98,12 +96,16 @@ namespace wisdom
             my_players = players;
         }
 
-        [[nodiscard]] auto getPlayers() const -> Players
+        [[nodiscard]] auto 
+        getPlayers() const 
+            -> Players
         {
             return my_players;
         }
 
-        [[nodiscard]] auto getMaxDepth() const -> int
+        [[nodiscard]] auto 
+        getMaxDepth() const 
+            -> int
         {
             return my_max_depth;
         }
@@ -113,7 +115,9 @@ namespace wisdom
             my_max_depth = max_depth;
         }
 
-        [[nodiscard]] auto getSearchTimeout() const -> std::chrono::seconds
+        [[nodiscard]] auto 
+        getSearchTimeout() const 
+            -> std::chrono::seconds
         {
             return my_move_timer.getSeconds();
         }
@@ -145,9 +149,17 @@ namespace wisdom
 
         [[nodiscard]] auto computerWantsDraw (Color who) const -> bool;
 
-        void setProposedDrawStatus (ProposedDrawType draw_type, Color who, DrawStatus draw_status);
+        void setProposedDrawStatus (
+            ProposedDrawType draw_type, 
+            Color who, 
+            DrawStatus draw_status
+        );
 
-        void setProposedDrawStatus (ProposedDrawType draw_type, Color who, bool accepted);
+        void setProposedDrawStatus (
+            ProposedDrawType draw_type, 
+            Color who, 
+            bool accepted
+        );
 
         void setProposedDrawStatus (
             ProposedDrawType draw_type, 

@@ -217,8 +217,9 @@ namespace wisdom
             CheckMiddle,
             DoNotCheckMiddle
         };
-        template <KingThreatCheck squares_to_check>
-        bool checkKingThreatRow (int target_row, int starting_col, int ending_col)
+        template <KingThreatCheck squares_to_check> auto 
+        checkKingThreatRow (int target_row, int starting_col, int ending_col)
+            -> bool
         {
             int middle_col = nextColumn<int> (starting_col, +1);
             bool middle_attack_exists = false;
@@ -267,7 +268,8 @@ namespace wisdom
             return top_attack_exists | center_attack_exists | bottom_attack_exists;
         }
 
-        constexpr auto checkDiagonalThreats (int target_row, int target_col)
+        constexpr auto 
+        checkDiagonalThreats (int target_row, int target_col)
             -> ThreatStatus
         {
             ThreatStatus result = ThreatStatus::None;
@@ -293,8 +295,9 @@ namespace wisdom
             return result;
         }
 
-        template <int horiz_direction, int vert_direction>
-        auto checkDiagonalThreat() -> bool
+        template <int horiz_direction, int vert_direction> auto 
+        checkDiagonalThreat() 
+            -> bool
         {
             int new_row = my_king_row;
             int new_col = my_king_col;

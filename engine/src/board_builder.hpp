@@ -94,8 +94,8 @@ namespace wisdom
                 my_king_positions[colorIndex (who)] = coord;
         }
 
-        // Not constexpr because of dynamic vector:
-        void addPieces (Color who, const vector<CoordAndPiece>& pieces)
+        constexpr void 
+        addPieces (Color who, const std::initializer_list<CoordAndPiece>& pieces)
         {
             for (auto&& it : pieces)
             {
@@ -303,6 +303,6 @@ namespace wisdom
         }
     }
 
-    inline constexpr BoardBuilder default_board_builder =
+    inline constexpr BoardBuilder Default_Board_Builder =
         initDefaultBoardBuilder();
 }

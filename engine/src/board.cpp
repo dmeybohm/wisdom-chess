@@ -11,7 +11,7 @@ namespace wisdom
     static constexpr int Board_Length_In_Chars = 31;
 
     Board::Board()
-        : Board { default_board_builder }
+        : Board { Default_Board_Builder }
     {
     }
 
@@ -129,7 +129,7 @@ namespace wisdom
         return result;
     }
 
-    [[nodiscard]] auto Board::castledString (Color color) const -> string
+    auto Board::castledString (Color color) const -> string
     {
         string castled_state;
 
@@ -153,7 +153,9 @@ namespace wisdom
         return castled_state;
     }
 
-    [[nodiscard]] auto Board::toFenString (Color turn) const -> string
+    [[nodiscard]] auto 
+    Board::toFenString (Color turn) const 
+        -> string
     {
         string output;
 
@@ -175,7 +177,7 @@ namespace wisdom
                         row_string += std::to_string (none_count);
 
                     none_count = 0;
-                    char ch = narrow_cast<char> (toupper (pieceChar (piece)));
+                    char ch = narrow_cast<char> (toupper (pieceToChar (piece)));
                     if (pieceColor (piece) == Color::Black)
                         ch = narrow_cast<char> (tolower (ch));
 
@@ -213,7 +215,8 @@ namespace wisdom
         return output;
     }
 
-    static void removeInvalidPawns (
+    static void 
+    removeInvalidPawns (
         const Board& board,
         int8_t source_row,
         int8_t source_col,
@@ -289,7 +292,11 @@ namespace wisdom
         return result;
     }
 
-    auto Board::findFirstCoordWithPiece (ColoredPiece piece, Coord starting_at) const
+    auto 
+    Board::findFirstCoordWithPiece (
+        ColoredPiece piece, 
+        Coord starting_at
+    ) const
         -> optional<Coord>
     {
         auto coord_begin = std::begin (my_squares);

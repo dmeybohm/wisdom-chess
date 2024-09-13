@@ -18,7 +18,9 @@ namespace type_safe
     template <>
     struct flag_set_traits<wisdom::CastlingIneligible> : std::true_type
     {
-        static constexpr auto size() -> std::size_t
+        static constexpr auto 
+        size() 
+            -> std::size_t
         {
             return 2;
         }
@@ -105,20 +107,23 @@ namespace wisdom
     };
 
     [[nodiscard]] constexpr auto 
-    moveCategoryFromInt (int source) -> MoveCategory
+    moveCategoryFromInt (int source) 
+        -> MoveCategory
     {
         assert (source <= 4);
         return static_cast<MoveCategory> (source);
     }
 
     [[nodiscard]] constexpr auto 
-    toInt (MoveCategory move_category) -> int
+    toInt (MoveCategory move_category) 
+        -> int
     {
         return static_cast<int> (move_category);
     }
 
     [[nodiscard]] constexpr auto 
-    toInt8 (MoveCategory move_category) -> int
+    toInt8 (MoveCategory move_category) 
+        -> int
     {
         return static_cast<int8_t> (move_category);
     }
@@ -247,19 +252,22 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto 
-        toInt() const -> int
+        toInt() const 
+            -> int
         {
             return src | (dst << 8) | (promoted_piece << 16) | (move_category << 24);
         }
 
         [[nodiscard]] constexpr auto 
-        getSrc() const -> Coord
+        getSrc() const 
+            -> Coord
         {
             return Coord::fromIndex (src);
         }
 
         [[nodiscard]] constexpr auto 
-        getDst() const -> Coord
+        getDst() const 
+            -> Coord
         {
             return Coord::fromIndex (dst);
         }
