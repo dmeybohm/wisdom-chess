@@ -127,14 +127,13 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    nextCoord (Coord coord, int direction)
+    nextCoord (Coord coord)
         -> optional<Coord>
     {
-        Expects (direction == +1 || direction == -1);
         int index = coord.index();
-        index += direction;
+        index += 1;
 
-        if (index < 0 || index >= Num_Squares)
+        if (index >= Num_Squares)
             return {};
 
         return Coord::fromIndex (index);
