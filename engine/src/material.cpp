@@ -13,24 +13,17 @@ namespace wisdom
         }
     }
 
-    static auto dualBishopsAreTheSameColor (
-        const Board& board, 
-        Color first_bishop_color, 
-        Color second_bishop_color
-    )
+    [[nodiscard]] static auto 
+    dualBishopsAreTheSameColor (const Board& board)
         -> Material::CheckmateIsPossible
     {
-        auto first_bishop = ColoredPiece::make (first_bishop_color, Piece::Bishop);
-        auto second_bishop = ColoredPiece::make (second_bishop_color, Piece::Bishop);
-        auto first_coord = board.findFirstCoordWithPiece (first_bishop);
+        auto first_coord = board.findFirstCoordWithPiece (Piece::Bishop);
+        assert (first_coord.has_value());
 
-        auto starting_at = first_bishop_color == second_bishop_color ? nextCoord (*first_coord, +1)
-                                                                     : First_Coord;
+        auto starting_at = nextCoord (*first_coord);
         assert (starting_at.has_value());
 
-        auto second_coord = board.findFirstCoordWithPiece (second_bishop, *starting_at);
-
-        assert (first_coord.has_value());
+        auto second_coord = board.findFirstCoordWithPiece (Piece::Bishop, *starting_at);
         assert (second_coord.has_value());
 
         return (coordColor (*first_coord) == coordColor (*second_coord))
@@ -46,52 +39,33 @@ namespace wisdom
         auto white_bishop_count = pieceCount (Color::White, Piece::Bishop);
         auto black_bishop_count = pieceCount (Color::Black, Piece::Bishop);
 
-        // clang-format off
-        // King and King:
-        if (white_knight_count + black_knight_count +
-            white_bishop_count + black_bishop_count == 0)
-        {
-            return CheckmateIsPossible::No;
-        }
+        auto knight_sum = black_knight_count + white_knight_count;
+        auto bishop_sum = black_bishop_count + white_bishop_count;
 
-        if (white_bishop_count == 0 && black_bishop_count == 0)
+        auto minor_piece_sum = knight_sum + bishop_sum;
+
+        // King and King:
+        if (minor_piece_sum == 0)
+            return CheckmateIsPossible::No;
+
+        if (bishop_sum == 0)
         {
             // King and knight vs King:
-            if ((black_knight_count == 1 && white_knight_count == 0) ||
-                (white_knight_count == 1 && black_knight_count == 0))
-            {
+            if (knight_sum == 1)
                 return CheckmateIsPossible::No;
-            }
         }
 
-        if (white_knight_count == 0 && black_knight_count == 0)
+        if (knight_sum == 0)
         {
             // King and bishop vs King:
-            if ((black_bishop_count == 0 && white_bishop_count == 1) ||
-                (white_bishop_count == 0 && black_bishop_count == 1))
-            {
+            if (bishop_sum == 1)
                 return CheckmateIsPossible::No;
-            }
 
-            // King and bishop vs King and bishop with opposite colored bishops:
-            if (black_bishop_count == 1 && white_bishop_count == 1)
-            {
-                return dualBishopsAreTheSameColor (board, Color::White, Color::Black);
-            }
-
-            //
-            // King and two bishops vs King;
-            //
-            if (black_bishop_count == 2 && white_bishop_count == 0)
-            {
-                return dualBishopsAreTheSameColor (board, Color::Black, Color::Black);
-            }
-            if (white_bishop_count == 2 && black_bishop_count == 0)
-            {
-                return dualBishopsAreTheSameColor (board, Color::White, Color::White);
-            }
+            // King and bishop vs King and bishop with opposite colored bishops, 
+            // or King and two bishops vs King;
+            if (bishop_sum == 2)
+                return dualBishopsAreTheSameColor (board);
         }
-        // clang-format on
 
         return CheckmateIsPossible::Yes;
     }

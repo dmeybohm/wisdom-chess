@@ -181,7 +181,7 @@ namespace wisdom
 
         [[nodiscard]] auto
         findFirstCoordWithPiece (
-            ColoredPiece piece,
+            Piece piece,
             Coord starting_at = First_Coord
         ) const
             -> optional<Coord>;

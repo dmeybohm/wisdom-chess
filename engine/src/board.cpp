@@ -294,7 +294,7 @@ namespace wisdom
 
     auto 
     Board::findFirstCoordWithPiece (
-        ColoredPiece piece, 
+        Piece piece_type, 
         Coord starting_at
     ) const
         -> optional<Coord>
@@ -302,9 +302,9 @@ namespace wisdom
         auto coord_begin = std::begin (my_squares);
         auto coord_end = std::end (my_squares);
 
-        auto finder = [piece](const ColoredPiece& p)
+        auto finder = [piece_type](const ColoredPiece& colored_piece)
         {
-            return p == piece;
+            return colored_piece.type() == piece_type;
         };
         auto result = std::find_if (
             coord_begin + starting_at.index(), 

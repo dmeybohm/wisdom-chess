@@ -23,14 +23,24 @@ TEST_CASE( "findFirstCoordWithPiece()" )
 
     auto board = Board { builder };
 
+    SUBCASE( "Returns the first position if there are multiple positions with the same combo" )
+    {
+        auto white_pawn = ColoredPiece::make (Color::White, Piece::Pawn);
+        auto black_pawn_pos = board.findFirstCoordWithPiece (Piece::Pawn);
+        auto expected_black_pawn_pos = coordParse ("a7");
+        CHECK( *black_pawn_pos == expected_black_pawn_pos );
+    }
+
     SUBCASE( "Returns the first position if there is only one position with the combo" )
     {
-        auto white_king = ColoredPiece::make (Color::White, Piece::King);
-        auto black_king = ColoredPiece::make (Color::Black, Piece::King);
-        auto black_pawn = ColoredPiece::make (Color::Black, Piece::Pawn);
-        auto white_king_pos = board.findFirstCoordWithPiece (white_king);
-        auto black_king_pos = board.findFirstCoordWithPiece (black_king);
-        auto black_pawn_pos = board.findFirstCoordWithPiece (black_pawn);
+        auto black_king_pos = board.findFirstCoordWithPiece (Piece::King);
+        REQUIRE( black_king_pos.has_value() );
+        auto after_black_king = nextCoord (*black_king_pos);
+        REQUIRE( after_black_king.has_value() );
+
+        auto white_king_pos = board.findFirstCoordWithPiece (Piece::King, *after_black_king);
+        REQUIRE( white_king_pos.has_value() );
+        auto black_pawn_pos = board.findFirstCoordWithPiece (Piece::Pawn);
 
         auto expected_white_king_pos = coordParse ("e1");
         auto expected_black_king_pos= coordParse ("e8");
@@ -41,18 +51,9 @@ TEST_CASE( "findFirstCoordWithPiece()" )
         CHECK( *black_pawn_pos == expected_black_pawn_pos );
     }
 
-    SUBCASE( "Returns the first position if there are multiple positions with the same combo" )
-    {
-        auto white_pawn = ColoredPiece::make (Color::White, Piece::Pawn);
-        auto white_pawn_pos = board.findFirstCoordWithPiece (white_pawn);
-        auto expected_white_pawn_pos = coordParse ("a3");
-        CHECK( *white_pawn_pos == expected_white_pawn_pos );
-    }
-
     SUBCASE( "Returns nullopt if no piece is found" )
     {
-        auto white_queen = ColoredPiece::make (Color::White, Piece::Queen);
-        auto white_queen_pos = board.findFirstCoordWithPiece (white_queen);
+        auto white_queen_pos = board.findFirstCoordWithPiece (Piece::Queen);
         CHECK( !white_queen_pos.has_value() );
     }
 }

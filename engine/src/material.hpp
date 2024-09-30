@@ -45,22 +45,24 @@ namespace wisdom
         {
             auto color_idx = colorIndex (pieceColor (piece));
             auto type = pieceType (piece);
+            auto type_idx = toInt (type);
 
             my_score[color_idx] += weight (type);
-            my_piece_count[color_idx][toInt (type)]++;
+            my_piece_count[color_idx][type_idx]++;
 
-            assert (my_piece_count[color_idx][toInt (type)] > 0);
+            assert (my_piece_count[color_idx][type_idx] > 0);
         }
 
         void remove (ColoredPiece piece)
         {
             auto color_idx = colorIndex (pieceColor (piece));
             auto type = pieceType (piece);
+            auto type_idx = toInt (type);
 
             my_score[color_idx] -= weight (type);
-            my_piece_count[color_idx][toInt (type)]--;
+            my_piece_count[color_idx][type_idx]--;
 
-            assert (my_piece_count[color_idx][toInt (type)] >= 0);
+            assert (my_piece_count[color_idx][type_idx] >= 0);
         }
 
         [[nodiscard]] auto 
