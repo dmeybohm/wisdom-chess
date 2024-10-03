@@ -2,7 +2,6 @@ add_library(wisdom-chess-core STATIC
         board.cpp board.hpp
         board_builder.hpp
         board_code.cpp board_code.hpp
-        check.cpp check.hpp
         coord.cpp coord.hpp
         evaluate.cpp evaluate.hpp
         fen_parser.cpp fen_parser.hpp

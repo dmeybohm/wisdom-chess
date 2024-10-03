@@ -6,16 +6,13 @@
 
 namespace wisdom
 {
-    namespace
+    [[nodiscard]] consteval auto
+    emptySquares()
+        -> array<ColoredPiece, Num_Squares>
     {
-        [[nodiscard]] consteval auto
-        emptySquares()
-            -> array<ColoredPiece, Num_Squares>
-        {
-            array<ColoredPiece, Num_Squares> result {};
-            std::fill (std::begin (result), std::end (result), Piece_And_Color_None);
-            return result;
-        }
+        array<ColoredPiece, Num_Squares> result {};
+        std::fill (std::begin (result), std::end (result), Piece_And_Color_None);
+        return result;
     }
 
     class BoardBuilderError : public Error
@@ -293,14 +290,11 @@ namespace wisdom
         optional<EnPassantTarget> my_en_passant_target { nullopt };
     };
 
-    namespace
+    consteval auto
+    initDefaultBoardBuilder()
+        -> BoardBuilder
     {
-        consteval auto
-        initDefaultBoardBuilder()
-            -> BoardBuilder
-        {
-            return BoardBuilder::fromDefaultPosition();
-        }
+        return BoardBuilder::fromDefaultPosition();
     }
 
     inline constexpr BoardBuilder Default_Board_Builder =

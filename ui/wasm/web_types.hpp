@@ -6,7 +6,7 @@
 #include "bindings.hpp"
 #include "coord.hpp"
 #include "game.hpp"
-#include "check.hpp"
+#include "evaluate.hpp"
 
 extern emscripten_wasm_worker_t engine_thread;
 

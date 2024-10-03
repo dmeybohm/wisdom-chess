@@ -3,7 +3,7 @@
 #include "board.hpp"
 #include "str.hpp"
 #include "move_list.hpp"
-#include "check.hpp"
+#include "evaluate.hpp"
 #include "move_list.hpp"
 
 #include <iostream>

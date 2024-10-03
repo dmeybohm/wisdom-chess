@@ -3,7 +3,7 @@
 
 #include "board.hpp"
 #include "board_builder.hpp"
-#include "check.hpp"
+#include "evaluate.hpp"
 
 namespace wisdom
 {

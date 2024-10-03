@@ -8,7 +8,6 @@
 #include "move_timer.hpp"
 #include "search.hpp"
 #include "tests.hpp"
-#include "check.hpp"
 #include "evaluate.hpp"
 
 #include <iostream>

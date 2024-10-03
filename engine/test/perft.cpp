@@ -1,6 +1,6 @@
 #include "perft.hpp"
 #include "board.hpp"
-#include "check.hpp"
+#include "evaluate.hpp"
 #include "str.hpp"
 
 namespace wisdom

@@ -2,7 +2,7 @@
 #include <QThread>
 #include <mutex>
 
-#include "check.hpp"
+#include "evaluate.hpp"
 #include "chess_engine.hpp"
 #include "logger.hpp"
 
