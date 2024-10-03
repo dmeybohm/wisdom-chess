@@ -1,7 +1,6 @@
 #include "piece.hpp"
 #include "board.hpp"
 #include "evaluate.hpp"
-#include "check.hpp"
 #include "search.hpp"
 #include "logger.hpp"
 

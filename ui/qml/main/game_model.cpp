@@ -1,6 +1,6 @@
 #include "game_model.hpp"
 
-#include "check.hpp"
+#include "evaluate.hpp"
 #include "chess_engine.hpp"
 #include "game.hpp"
 #include "ui_settings.hpp"

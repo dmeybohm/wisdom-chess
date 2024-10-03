@@ -3,7 +3,7 @@
 #include "generate.hpp"
 #include "move_list.hpp"
 #include "board.hpp"
-#include "check.hpp"
+#include "evaluate.hpp"
 #include "fen_parser.hpp"
 #include "perft.hpp"
 

@@ -1,6 +1,6 @@
 #include "generate.hpp"
 #include "board.hpp"
-#include "check.hpp"
+#include "evaluate.hpp"
 #include "coord.hpp"
 
 namespace wisdom
@@ -403,8 +403,6 @@ namespace wisdom
                 appendMove (*check_pawn_move);
     }
 
-    // put en passant in a separate handler
-    // in order to not pollute instruction cache with it
     void MoveGeneration::enPassant (int en_passant_column)
     {
         int direction;

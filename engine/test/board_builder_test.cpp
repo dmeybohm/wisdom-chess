@@ -1,7 +1,7 @@
 #include "tests.hpp"
 #include "board_builder.hpp"
 #include "board.hpp"
-#include "check.hpp"
+#include "evaluate.hpp"
 #include "coord.hpp"
 
 #include <random>

@@ -4,7 +4,6 @@
 #include "output_format.hpp"
 #include "move_timer.hpp"
 #include "search.hpp"
-#include "check.hpp"
 #include "evaluate.hpp"
 
 #include <fstream>

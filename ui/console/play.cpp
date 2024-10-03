@@ -1,8 +1,9 @@
 #include "board.hpp"
-#include "check.hpp"
+#include "evaluate.hpp"
 #include "fen_parser.hpp"
 #include "game.hpp"
 #include "str.hpp"
+#include "logger.hpp"
 
 #include <variant>
 #include <iostream>
