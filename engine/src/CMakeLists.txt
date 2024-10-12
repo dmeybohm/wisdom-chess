@@ -1,4 +1,27 @@
 add_library(wisdom-chess-core STATIC
+        ../../include/wisdom-chess/engine/board_builder.hpp
+        ../../include/wisdom-chess/engine/board_code.hpp
+        ../../include/wisdom-chess/engine/board.hpp
+        ../../include/wisdom-chess/engine/coord.hpp
+        ../../include/wisdom-chess/engine/evaluate.hpp
+        ../../include/wisdom-chess/engine/fen_parser.hpp
+        ../../include/wisdom-chess/engine/game.hpp
+        ../../include/wisdom-chess/engine/game_status.hpp
+        ../../include/wisdom-chess/engine/generate.hpp
+        ../../include/wisdom-chess/engine/global.hpp
+        ../../include/wisdom-chess/engine/history.hpp
+        ../../include/wisdom-chess/engine/logger.hpp
+        ../../include/wisdom-chess/engine/material.hpp
+        ../../include/wisdom-chess/engine/move.hpp
+        ../../include/wisdom-chess/engine/move_list.hpp
+        ../../include/wisdom-chess/engine/move_timer.hpp
+        ../../include/wisdom-chess/engine/output_format.hpp
+        ../../include/wisdom-chess/engine/piece.hpp
+        ../../include/wisdom-chess/engine/position.hpp
+        ../../include/wisdom-chess/engine/random.hpp
+        ../../include/wisdom-chess/engine/search.hpp
+        ../../include/wisdom-chess/engine/str.hpp
+        ../../include/wisdom-chess/engine/threats.hpp
         board.cpp
         board_code.cpp
         coord.cpp
