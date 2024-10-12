@@ -1,4 +1,4 @@
-add_executable(wisdom-chess-console main.cpp play.cpp play.hpp)
+add_executable(wisdom-chess-console main.cpp play.cpp)
 
 target_link_libraries(wisdom-chess-console PRIVATE wisdom::chess)
 

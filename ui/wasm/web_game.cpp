@@ -2,8 +2,8 @@
 
 #include "wisdom-chess/engine/piece.hpp"
 
-#include "web_game.hpp"
-#include "game_settings.hpp"
+#include "wisdom-chess/wasm/web_game.hpp"
+#include "wisdom-chess/wasm/game_settings.hpp"
 
 int wisdom::WebGame::our_game_id;
 

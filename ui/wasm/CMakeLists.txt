@@ -50,6 +50,7 @@ target_link_libraries(wisdom-chess-web PRIVATE wisdom::chess)
 target_include_directories(wisdom-chess-web
         INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE   ${CMAKE_CURRENT_BINARY_DIR}
+                  include
 )
 target_compile_options(wisdom-chess-web PRIVATE
         $<$<CONFIG:Debug>:-sNO_DISABLE_EXCEPTION_CATCHING>

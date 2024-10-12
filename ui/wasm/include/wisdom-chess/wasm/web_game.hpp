@@ -1,7 +1,7 @@
 #pragma once
 
-#include "web_types.hpp"
-#include "web_move.hpp"
+#include "wisdom-chess/wasm/web_types.hpp"
+#include "wisdom-chess/wasm/web_move.hpp"
 
 namespace wisdom
 {

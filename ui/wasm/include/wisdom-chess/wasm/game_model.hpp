@@ -2,10 +2,10 @@
 
 #include <emscripten/wasm_worker.h>
 
-#include "web_types.hpp"
-#include "game_settings.hpp"
-#include "bindings.hpp"
-#include "web_game.hpp"
+#include "wisdom-chess/wasm/web_types.hpp"
+#include "wisdom-chess/wasm/game_settings.hpp"
+#include "wisdom-chess/wasm/bindings.hpp"
+#include "wisdom-chess/wasm/web_game.hpp"
 
 namespace wisdom
 {

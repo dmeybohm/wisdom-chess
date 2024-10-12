@@ -7,7 +7,7 @@
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 
-#include "bindings.hpp"
+#include "wisdom-chess/wasm/bindings.hpp"
 
 extern emscripten_wasm_worker_t engine_thread;
 

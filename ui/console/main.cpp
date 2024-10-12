@@ -2,9 +2,10 @@
 
 #include "wisdom-chess/engine/global.hpp"
 
-#include "play.hpp"
-
-using std::string;
+namespace wisdom::ui::console
+{
+    void play();
+};
 
 int main()
 {
