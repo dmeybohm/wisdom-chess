@@ -1,13 +1,14 @@
-#include "tests.hpp"
-#include "piece.hpp"
-#include "generate.hpp"
-#include "move_list.hpp"
-#include "board.hpp"
-#include "evaluate.hpp"
-#include "fen_parser.hpp"
-#include "perft.hpp"
-
 #include <iostream>
+
+#include "wisdom-chess/engine/piece.hpp"
+#include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/move_list.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/fen_parser.hpp"
+
+#include "wisdom-chess-tests.hpp"
+#include "wisdom-chess-perft.hpp"
 
 using wisdom::Board;
 using wisdom::Color;

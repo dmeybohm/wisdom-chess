@@ -1,8 +1,11 @@
-#include "play.hpp"
-
 #include <iostream>
 
-using std::string;
+#include "wisdom-chess/engine/global.hpp"
+
+namespace wisdom::ui::console
+{
+    void play();
+};
 
 int main()
 {

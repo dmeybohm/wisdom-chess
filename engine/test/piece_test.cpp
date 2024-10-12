@@ -1,8 +1,8 @@
-#include <doctest/doctest.h>
-
-#include "piece.hpp"
-
 #include <iostream>
+
+#include "wisdom-chess/engine/piece.hpp"
+
+#include "wisdom-chess-tests.hpp"
 
 using std::vector;
 using namespace wisdom;

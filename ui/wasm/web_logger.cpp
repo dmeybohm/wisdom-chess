@@ -1,6 +1,6 @@
-#include "web_logger.hpp"
-
 #include <string>
+
+#include "wisdom-chess/wasm/web_logger.hpp"
 
 extern "C"
 {

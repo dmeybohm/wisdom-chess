@@ -1,9 +1,9 @@
-#include "bindings.hpp"
-#include "web_logger.hpp"
-#include "web_types.hpp"
-#include "game_settings.hpp"
-
 #include <atomic>
+
+#include "wisdom-chess/wasm/bindings.hpp"
+#include "wisdom-chess/wasm/web_logger.hpp"
+#include "wisdom-chess/wasm/web_types.hpp"
+#include "wisdom-chess/wasm/game_settings.hpp"
 
 using namespace wisdom;
 

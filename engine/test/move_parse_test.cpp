@@ -1,5 +1,6 @@
-#include <doctest/doctest.h>
-#include "move.hpp"
+#include "wisdom-chess/engine/move.hpp"
+
+#include "wisdom-chess-tests.hpp"
 
 using namespace wisdom;
 

@@ -1,7 +1,7 @@
-#include "evaluate.hpp"
-#include "board.hpp"
-#include "position.hpp"
-#include "search.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/position.hpp"
+#include "wisdom-chess/engine/search.hpp"
 
 namespace wisdom
 {

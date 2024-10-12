@@ -1,10 +1,11 @@
-#include "chess_game.hpp"
-#include "fen_parser.hpp"
-#include "game_settings.hpp"
-#include "move_timer.hpp"
-#include "generate.hpp"
-
 #include <QDebug>
+
+#include "wisdom-chess/engine/fen_parser.hpp"
+#include "wisdom-chess/engine/move_timer.hpp"
+#include "wisdom-chess/engine/generate.hpp"
+
+#include "wisdom-chess/qml/chess_game.hpp"
+#include "wisdom-chess/qml/game_settings.hpp"
 
 using gsl::not_null;
 using std::atomic;

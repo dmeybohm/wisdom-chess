@@ -1,13 +1,13 @@
-#include <doctest/doctest.h>
-#include "board.hpp"
-#include "board_builder.hpp"
-
 #include <algorithm>
 #include <iostream>
 #include <sstream>
 
-#include "board_code.hpp"
-#include "coord.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/board_code.hpp"
+#include "wisdom-chess/engine/coord.hpp"
+
+#include "wisdom-chess-tests.hpp"
 
 using namespace wisdom;
 

@@ -1,12 +1,13 @@
-#include "perft.hpp"
-#include "fen_parser.hpp"
-#include "board.hpp"
-#include "str.hpp"
-#include "move_list.hpp"
-#include "evaluate.hpp"
-#include "move_list.hpp"
-
 #include <iostream>
+
+#include "wisdom-chess/engine/fen_parser.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/str.hpp"
+#include "wisdom-chess/engine/move_list.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/move_list.hpp"
+
+#include "wisdom-chess-perft.hpp"
 
 using wisdom::Board;
 using wisdom::MoveList;

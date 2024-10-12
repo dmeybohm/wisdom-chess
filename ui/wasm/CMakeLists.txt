@@ -18,26 +18,24 @@ find_program(PYTHON3
 # to link that file twice.
 add_custom_command(
     OUTPUT 
-        ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp 
+        ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-wasm-glue.hpp 
         ${CMAKE_CURRENT_BINARY_DIR}/glue.js 
         ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-load.js
     DEPENDS 
         wisdom-chess.idl 
         wisdom-chess-load.js
     COMMAND "${PYTHON3}" "${emsdkIdlPath}" ${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess.idl ${CMAKE_CURRENT_BINARY_DIR}/glue
-        && mv ${CMAKE_CURRENT_BINARY_DIR}/glue.cpp ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp
+        && mv ${CMAKE_CURRENT_BINARY_DIR}/glue.cpp ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-wasm-glue.hpp
         && cp -f ${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess-load.js ${CMAKE_CURRENT_BINARY_DIR}/
 )
 
 add_executable(wisdom-chess-web
         main.cpp
-        ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-wasm-glue.hpp
         web_logger.cpp
-        web_types.hpp
         web_game.cpp
         web_move.cpp
         bindings.cpp
-        game_settings.hpp
         webidl_glue_wrapper.cpp
         game_model.cpp)
 
@@ -50,6 +48,7 @@ target_link_libraries(wisdom-chess-web PRIVATE wisdom::chess)
 target_include_directories(wisdom-chess-web
         INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE   ${CMAKE_CURRENT_BINARY_DIR}
+                  include
 )
 target_compile_options(wisdom-chess-web PRIVATE
         $<$<CONFIG:Debug>:-sNO_DISABLE_EXCEPTION_CATCHING>

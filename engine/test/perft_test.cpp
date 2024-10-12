@@ -1,12 +1,13 @@
-#include "tests.hpp"
-#include "perft.hpp"
-#include "board_builder.hpp"
-#include "board.hpp"
-#include "str.hpp"
-#include "fen_parser.hpp"
-#include "generate.hpp"
-
 #include <iostream>
+
+#include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/str.hpp"
+#include "wisdom-chess/engine/fen_parser.hpp"
+#include "wisdom-chess/engine/generate.hpp"
+
+#include "wisdom-chess-tests.hpp"
+#include "wisdom-chess-perft.hpp"
 
 using std::string;
 using std::vector;

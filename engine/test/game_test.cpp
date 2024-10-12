@@ -1,7 +1,8 @@
-#include "tests.hpp"
-#include "board_builder.hpp"
-#include "game.hpp"
-#include "fen_parser.hpp"
+#include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/engine/fen_parser.hpp"
+
+#include "wisdom-chess-tests.hpp"
 
 using namespace wisdom;
 

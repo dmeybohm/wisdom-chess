@@ -1,6 +1,6 @@
-#include "logger.hpp"
-
 #include <iostream>
+
+#include "wisdom-chess/engine/logger.hpp"
 
 namespace wisdom
 {

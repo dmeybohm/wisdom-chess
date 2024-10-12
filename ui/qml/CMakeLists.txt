@@ -28,19 +28,19 @@ endif ()
 
 qt_add_executable(WisdomChessQml
         main/main.cpp
-        main/game_model.hpp
+        include/wisdom-chess/qml/game_model.hpp
         main/game_model.cpp
-        main/pieces_model.hpp
+        include/wisdom-chess/qml/pieces_model.hpp
         main/pieces_model.cpp
-        main/chess_game.hpp
+        include/wisdom-chess/qml/chess_game.hpp
         main/chess_game.cpp
-        main/chess_engine.hpp
+        include/wisdom-chess/qml/chess_engine.hpp
         main/chess_engine.cpp
         main/ui_types.cpp
-        main/ui_types.hpp
-        main/ui_settings.hpp
+        include/wisdom-chess/qml/ui_types.hpp
+        include/wisdom-chess/qml/ui_settings.hpp
         main/ui_settings.cpp
-        main/game_settings.hpp
+        include/wisdom-chess/qml/game_settings.hpp
         main/game_settings.cpp
         ${app_icon_resource_windows}
         ${app_icon_macos}
@@ -132,6 +132,8 @@ target_link_libraries(WisdomChessQml
     PRIVATE wisdom::chess)
 target_compile_definitions(WisdomChessQml
     PRIVATE MAIN_QML_FILE="${MAIN_QML_FILE}")
+
+target_include_directories(WisdomChessQml PRIVATE include)
 
 install(TARGETS WisdomChessQml
     BUNDLE DESTINATION "/Applications"

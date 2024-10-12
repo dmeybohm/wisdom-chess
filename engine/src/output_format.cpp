@@ -1,8 +1,8 @@
-#include "output_format.hpp"
-#include "board.hpp"
-#include "history.hpp"
-
 #include <fstream>
+
+#include "wisdom-chess/engine/output_format.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/history.hpp"
 
 namespace wisdom
 {

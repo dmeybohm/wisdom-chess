@@ -1,7 +1,8 @@
-#include <doctest/doctest.h>
-#include "board_builder.hpp"
-#include "board.hpp"
-#include "evaluate.hpp"
+#include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+
+#include "wisdom-chess-tests.hpp"
 
 using namespace wisdom;
 

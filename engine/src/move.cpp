@@ -1,8 +1,8 @@
-#include "move.hpp"
-#include "board.hpp"
-#include "generate.hpp"
-
 #include <iostream>
+
+#include "wisdom-chess/engine/move.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/generate.hpp"
 
 namespace wisdom
 {
