@@ -50,7 +50,6 @@ else()
         ../../include/wisdom-chess/engine/global.hpp)
 endif()
 
-target_include_directories(wisdom-chess-core PRIVATE .)
 target_include_directories(wisdom-chess-core PUBLIC ../../include)
 add_library(wisdom::chess ALIAS wisdom-chess-core)
 
