@@ -36,7 +36,13 @@ void ChessEngine::opponentMoved (Move move, Color who)
     findMove();
 }
 
-void ChessEngine::receiveEngineMoved (wisdom::Move move, wisdom::Color who, int gameId)
+auto 
+ChessEngine::receiveEngineMoved (
+    wisdom::Move move, 
+    wisdom::Color who, 
+    int gameId
+)
+    -> void
 {
     if (gameId == this->my_game_id)
     {
@@ -57,7 +63,9 @@ private:
     }
 
 public:
-    explicit QmlEngineGameStatusUpdate (nonnull_observer_ptr<ChessEngine> parent) 
+    explicit QmlEngineGameStatusUpdate (
+        nonnull_observer_ptr<ChessEngine> parent
+    ) 
         : my_parent { parent }
     {
     }
@@ -112,7 +120,9 @@ public:
     }
 };
 
-auto ChessEngine::gameStatusTransition() -> wisdom::GameStatus
+auto 
+ChessEngine::gameStatusTransition() 
+    -> wisdom::GameStatus
 {
     QmlEngineGameStatusUpdate status_manager { this };
     status_manager.update (my_game->state()->status());
@@ -167,8 +177,11 @@ void ChessEngine::findMove()
     }
 }
 
-void ChessEngine::handlePotentialDrawPosition (wisdom::ProposedDrawType proposedDrawType,
-                                               wisdom::Color who)
+auto ChessEngine::handlePotentialDrawPosition (
+    wisdom::ProposedDrawType proposedDrawType, 
+    wisdom::Color who
+)
+    -> void
 {
     auto game_state = my_game->state();
 
@@ -205,8 +218,13 @@ void ChessEngine::handlePotentialDrawPosition (wisdom::ProposedDrawType proposed
     }
 }
 
-void ChessEngine::receiveDrawStatus (wisdom::ProposedDrawType drawType, wisdom::Color player,
-                                     bool accepted)
+auto 
+ChessEngine::receiveDrawStatus (
+    wisdom::ProposedDrawType drawType, 
+    wisdom::Color player, 
+    bool accepted
+)
+    -> void
 {
     auto game_state = my_game->state();
     game_state->setProposedDrawStatus (drawType, player, accepted);
@@ -228,8 +246,12 @@ void ChessEngine::reloadGame (shared_ptr<ChessGame> newGame, int newGameId)
     init();
 }
 
-void ChessEngine::updateConfig (ChessGame::Config config,
-                                const wisdom::MoveTimer::PeriodicFunction& notifier)
+auto 
+ChessEngine::updateConfig (
+    ChessGame::Config config,
+    const wisdom::MoveTimer::PeriodicFunction& notifier
+)
+    -> void
 {
     my_game->setConfig (config);
 

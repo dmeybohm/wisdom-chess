@@ -1,16 +1,22 @@
 #include "wisdom-chess/qml/ui_settings.hpp"
 
-bool operator== (const UISettings& a, const UISettings& b)
+auto 
+operator== (const UISettings& a, const UISettings& b)
+    -> bool
 {
     return a.my_flipped == b.my_flipped;
 }
 
-bool operator!= (const UISettings& a, const UISettings& b)
+auto 
+operator!= (const UISettings& a, const UISettings& b)
+    -> bool
 {
     return !operator== (a, b);
 }
 
-bool UISettings::flipped() const
+auto 
+UISettings::flipped() const
+    -> bool
 {
     return my_flipped;
 }

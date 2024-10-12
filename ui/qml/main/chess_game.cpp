@@ -21,26 +21,42 @@ using wisdom::Move;
 using wisdom::MoveTimer;
 using wisdom::Piece;
 
-auto ChessGame::fromPlayers (wisdom::Player whitePlayer, wisdom::Player blackPlayer,
-                             const Config& config) -> unique_ptr<ChessGame>
+auto 
+ChessGame::fromPlayers (
+    wisdom::Player whitePlayer, 
+    wisdom::Player blackPlayer, 
+    const Config& config
+) 
+    -> unique_ptr<ChessGame>
 {
     return fromEngine (std::move (make_unique<Game> (whitePlayer, blackPlayer)), config);
 }
 
-auto ChessGame::fromFen (const string& input, const Config& config) -> unique_ptr<ChessGame>
+auto 
+ChessGame::fromFen (
+    const string& input, 
+    const Config& config
+) 
+    -> unique_ptr<ChessGame>
 {
     FenParser parser { input };
     auto game = parser.build();
     return fromEngine (std::make_unique<Game> (std::move (game)), config);
 }
 
-auto ChessGame::fromEngine (std::unique_ptr<wisdom::Game> game, const Config& config)
+auto 
+ChessGame::fromEngine (
+    std::unique_ptr<wisdom::Game> game, 
+    const Config& config
+)
     -> unique_ptr<ChessGame>
 {
     return make_unique<ChessGame> (std::move (game), config);
 }
 
-auto ChessGame::clone() const -> std::unique_ptr<ChessGame>
+auto 
+ChessGame::clone() const 
+    -> std::unique_ptr<ChessGame>
 {
     // Copy current game state to FEN and send on to the chess engine thread:
     auto currentGame = this->state();
@@ -53,7 +69,9 @@ auto ChessGame::clone() const -> std::unique_ptr<ChessGame>
     return newGame;
 }
 
-auto ChessGame::isLegalMove (Move selectedMove) const -> bool
+auto 
+ChessGame::isLegalMove (Move selectedMove) const 
+    -> bool
 {
     auto game = this->state();
     auto selectedMoveStr = asString (selectedMove);
@@ -83,17 +101,28 @@ void ChessGame::setConfig (const Config& config)
     my_config = config;
 }
 
-void ChessGame::setPlayers (
+auto 
+ChessGame::setPlayers (
     wisdom::Player whitePlayer,
-    wisdom::Player blackPlayer) // NOLINT(readability-make-member-function-const)
+    wisdom::Player blackPlayer
+) 
+    -> void
+    // NOLINT(readability-make-member-function-const)
 {
     auto gameState = this->state();
     gameState->setWhitePlayer (whitePlayer);
     gameState->setBlackPlayer (blackPlayer);
 }
 
-auto ChessGame::moveFromCoordinates (int srcRow, int srcColumn, int dstRow, int dstColumn,
-                                     optional<Piece> promoted) const -> pair<optional<Move>, Color>
+auto 
+ChessGame::moveFromCoordinates (
+    int srcRow, 
+    int srcColumn, 
+    int dstRow, 
+    int dstColumn,
+    optional<Piece> promoted
+) const 
+    -> pair<optional<Move>, Color>
 {
     auto engine = this->state();
     auto src = wisdom::makeCoord (srcRow, srcColumn);
@@ -110,7 +139,11 @@ void ChessGame::setPeriodicFunction (const MoveTimer::PeriodicFunction& func)
     gameState->setPeriodicFunction (func);
 }
 
-auto ChessGame::Config::fromGameSettings (const GameSettings& gameSettings) -> ChessGame::Config
+auto 
+ChessGame::Config::fromGameSettings (
+    const GameSettings& gameSettings
+) 
+    -> ChessGame::Config
 {
     return ChessGame::Config {
         .players = { mapPlayer (gameSettings.whitePlayer()),

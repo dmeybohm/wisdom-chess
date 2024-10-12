@@ -22,7 +22,11 @@ class ChessEngine : public QObject
     Q_OBJECT
 
 public:
-    ChessEngine (std::shared_ptr<ChessGame> game, int game_id, QObject* parent = nullptr);
+    ChessEngine (
+        std::shared_ptr<ChessGame> game, 
+        int game_id, 
+        QObject* parent = nullptr
+    );
 
     static constexpr wisdom::Logger::LogLevel Log_Level =
 #ifdef NDEBUG
@@ -55,7 +59,11 @@ public slots:
     void receiveEngineMoved (wisdom::Move move, wisdom::Color who, int gameId);
 
     // Receive the draw status:
-    void receiveDrawStatus (wisdom::ProposedDrawType drawType, wisdom::Color player, bool accepted);
+    void receiveDrawStatus (
+        wisdom::ProposedDrawType drawType, 
+        wisdom::Color player, 
+        bool accepted
+    );
 
     // Update the whole chess game state. The ownership of the game is taken.
     void reloadGame (std::shared_ptr<ChessGame> newGame, int newGameId);
@@ -73,7 +81,11 @@ signals:
     void noMovesAvailable();
 
     // Send draw response:
-    void updateDrawStatus (wisdom::ProposedDrawType drawType, wisdom::Color player, bool accepted);
+    void updateDrawStatus (
+        wisdom::ProposedDrawType drawType, 
+        wisdom::Color player, 
+        bool accepted
+    );
 
 private:
     std::shared_ptr<ChessGame> my_game;
@@ -95,7 +107,10 @@ private:
     // other player (either the engine itself or the human) before continuing
     // the search.
     //
-    void handlePotentialDrawPosition (wisdom::ProposedDrawType proposedDrawType, wisdom::Color who);
+    void handlePotentialDrawPosition (
+        wisdom::ProposedDrawType proposedDrawType, 
+        wisdom::Color who
+    );
 
     friend class QmlEngineGameStatusUpdate;
 };

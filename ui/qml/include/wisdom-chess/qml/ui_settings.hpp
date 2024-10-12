@@ -5,13 +5,22 @@
 class UISettings
 {
     Q_GADGET
-    Q_PROPERTY (bool flipped MEMBER my_flipped READ flipped)
+    Q_PROPERTY (bool flipped 
+        MEMBER my_flipped 
+        READ flipped)
 
 public:
-    friend bool operator== (const UISettings& a, const UISettings& b);
-    friend bool operator!= (const UISettings& a, const UISettings& b);
+    friend auto 
+    operator== (const UISettings& a, const UISettings& b) 
+        -> bool;
 
-    [[nodiscard]] bool flipped() const;
+    friend auto 
+    operator!= (const UISettings& a, const UISettings& b) 
+        -> bool;
+
+    [[nodiscard]] auto 
+    flipped() const 
+        -> bool;
 
 private:
     bool my_flipped;
