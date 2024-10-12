@@ -16,14 +16,14 @@ if (WISDOM_CHESS_FAST_TESTS)
         move_list_test.cpp
         board_code_test.cpp
         history_test.cpp
-        tests.hpp
         generate_test.cpp
         str_test.cpp
         board_test.cpp
         game_test.cpp
         test_main.cpp)
 
-    target_precompile_headers(fast_tests PRIVATE PRIVATE ../src/global.hpp)
+    target_precompile_headers(fast_tests PRIVATE PRIVATE 
+        ../../include/wisdom-chess/engine/global.hpp)
 
     target_link_libraries(fast_tests PRIVATE wisdom::chess)
     target_link_libraries(fast_tests PRIVATE doctest::doctest)
@@ -35,19 +35,18 @@ if (WISDOM_CHESS_SLOW_TESTS)
     add_executable(slow_tests
         search_test.cpp
         perft.cpp
-        perft.hpp
-        tests.hpp
         perft_test.cpp
         move_perft_test.cpp
         test_main.cpp)
 
-    target_precompile_headers(slow_tests PRIVATE PRIVATE ../src/global.hpp)
+    target_precompile_headers(slow_tests PRIVATE PRIVATE 
+        ../../include/wisdom-chess/engine/global.hpp)
+
     target_link_libraries(slow_tests PRIVATE wisdom::chess)
     target_link_libraries(slow_tests PRIVATE doctest::doctest)
     
     # For perft testing:
     add_executable(perft 
-        perft.hpp
         perft.cpp
         perft_main.cpp)
     target_link_libraries(perft PRIVATE wisdom::chess)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "global.hpp"
+#include "wisdom-chess/engine/global.hpp"
 
 namespace wisdom
 {

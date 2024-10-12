@@ -3,10 +3,11 @@
 #include <emscripten.h>
 #include <emscripten/wasm_worker.h>
 
+#include "wisdom-chess/engine/coord.hpp"
+#include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+
 #include "bindings.hpp"
-#include "coord.hpp"
-#include "game.hpp"
-#include "evaluate.hpp"
 
 extern emscripten_wasm_worker_t engine_thread;
 

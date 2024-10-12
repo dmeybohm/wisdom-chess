@@ -3,9 +3,9 @@
 #include <emscripten.h>
 #include <emscripten/wasm_worker.h>
 
-#include "game.hpp"
-#include "move.hpp"
-#include "logger.hpp"
+#include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/engine/move.hpp"
+#include "wisdom-chess/engine/logger.hpp"
 
 extern "C"
 {

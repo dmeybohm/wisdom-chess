@@ -1,8 +1,9 @@
-#include "pieces_model.hpp"
-#include "coord.hpp"
-#include "move.hpp"
-
 #include <QTimer>
+
+#include "wisdom-chess/engine/coord.hpp"
+#include "wisdom-chess/engine/move.hpp"
+
+#include "pieces_model.hpp"
 
 using namespace wisdom;
 using namespace std;

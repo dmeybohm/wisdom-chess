@@ -1,5 +1,5 @@
-#include "material.hpp"
-#include "board.hpp"
+#include "wisdom-chess/engine/material.hpp"
+#include "wisdom-chess/engine/board.hpp"
 
 namespace wisdom
 {

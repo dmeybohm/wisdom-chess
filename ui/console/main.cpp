@@ -1,6 +1,8 @@
-#include "play.hpp"
-
 #include <iostream>
+
+#include "wisdom-chess/engine/global.hpp"
+
+#include "play.hpp"
 
 using std::string;
 

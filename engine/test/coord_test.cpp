@@ -1,6 +1,6 @@
-#include <doctest/doctest.h>
+#include "wisdom-chess/engine/coord.hpp"
 
-#include "coord.hpp"
+#include "wisdom-chess-tests.hpp"
 
 using namespace wisdom;
 

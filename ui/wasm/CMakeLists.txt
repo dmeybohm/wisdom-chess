@@ -18,20 +18,20 @@ find_program(PYTHON3
 # to link that file twice.
 add_custom_command(
     OUTPUT 
-        ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp 
+        ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-wasm-glue.hpp 
         ${CMAKE_CURRENT_BINARY_DIR}/glue.js 
         ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-load.js
     DEPENDS 
         wisdom-chess.idl 
         wisdom-chess-load.js
     COMMAND "${PYTHON3}" "${emsdkIdlPath}" ${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess.idl ${CMAKE_CURRENT_BINARY_DIR}/glue
-        && mv ${CMAKE_CURRENT_BINARY_DIR}/glue.cpp ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp
+        && mv ${CMAKE_CURRENT_BINARY_DIR}/glue.cpp ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-wasm-glue.hpp
         && cp -f ${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess-load.js ${CMAKE_CURRENT_BINARY_DIR}/
 )
 
 add_executable(wisdom-chess-web
         main.cpp
-        ${CMAKE_CURRENT_BINARY_DIR}/glue.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-wasm-glue.hpp
         web_logger.cpp
         web_types.hpp
         web_game.cpp

@@ -1,7 +1,8 @@
-#include "perft.hpp"
-#include "board.hpp"
-#include "evaluate.hpp"
-#include "str.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/str.hpp"
+
+#include "wisdom-chess-perft.hpp"
 
 namespace wisdom
 {

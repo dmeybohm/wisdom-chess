@@ -1,13 +1,14 @@
-#include "board.hpp"
-#include "evaluate.hpp"
-#include "fen_parser.hpp"
-#include "game.hpp"
-#include "str.hpp"
-#include "logger.hpp"
-
 #include <variant>
 #include <iostream>
 #include <memory>
+
+#include "wisdom-chess/engine/global.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/fen_parser.hpp"
+#include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/engine/str.hpp"
+#include "wisdom-chess/engine/logger.hpp"
 
 namespace wisdom::ui::console
 {

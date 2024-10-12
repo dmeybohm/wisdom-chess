@@ -1,9 +1,9 @@
+#include <atomic>
+
 #include "bindings.hpp"
 #include "web_logger.hpp"
 #include "web_types.hpp"
 #include "game_settings.hpp"
-
-#include <atomic>
 
 using namespace wisdom;
 

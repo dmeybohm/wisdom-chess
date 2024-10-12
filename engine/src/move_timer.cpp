@@ -1,7 +1,7 @@
-#include "move_timer.hpp"
-
 #include <cmath>
 #include <atomic>
+
+#include "wisdom-chess/engine/move_timer.hpp"
 
 namespace wisdom
 {

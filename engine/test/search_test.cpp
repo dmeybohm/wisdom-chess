@@ -1,16 +1,17 @@
-#include "board.hpp"
-#include "board_builder.hpp"
-#include "fen_parser.hpp"
-#include "game.hpp"
-#include "history.hpp"
-#include "logger.hpp"
-#include "move.hpp"
-#include "move_timer.hpp"
-#include "search.hpp"
-#include "tests.hpp"
-#include "evaluate.hpp"
-
 #include <iostream>
+
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/fen_parser.hpp"
+#include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/engine/history.hpp"
+#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/engine/move.hpp"
+#include "wisdom-chess/engine/move_timer.hpp"
+#include "wisdom-chess/engine/search.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+
+#include "wisdom-chess-tests.hpp"
 
 namespace wisdom::test
 {

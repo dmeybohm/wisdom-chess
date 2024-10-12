@@ -1,6 +1,6 @@
-#include "piece.hpp"
-
 #include <iostream>
+
+#include "wisdom-chess/engine/piece.hpp"
 
 namespace wisdom
 {

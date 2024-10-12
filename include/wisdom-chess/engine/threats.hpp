@@ -1,9 +1,9 @@
 #pragma once
 
-#include "global.hpp"
+#include "wisdom-chess/engine/global.hpp"
 
-#include "board.hpp"
-#include "piece.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/piece.hpp"
 
 namespace wisdom
 {

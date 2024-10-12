@@ -1,10 +1,11 @@
-#include "tests.hpp"
-#include "board_builder.hpp"
-#include "board.hpp"
-#include "evaluate.hpp"
-#include "coord.hpp"
-
 #include <random>
+
+#include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/coord.hpp"
+
+#include "wisdom-chess-tests.hpp"
 
 using namespace wisdom;
 

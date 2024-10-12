@@ -2,9 +2,10 @@
 #include <QThread>
 #include <mutex>
 
-#include "evaluate.hpp"
 #include "chess_engine.hpp"
-#include "logger.hpp"
+
+#include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/logger.hpp"
 
 using namespace wisdom;
 using gsl::not_null;

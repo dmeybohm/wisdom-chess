@@ -1,11 +1,11 @@
 #pragma once
 
+#include <emscripten/wasm_worker.h>
+
 #include "web_types.hpp"
 #include "game_settings.hpp"
 #include "bindings.hpp"
 #include "web_game.hpp"
-
-#include <emscripten/wasm_worker.h>
 
 namespace wisdom
 {

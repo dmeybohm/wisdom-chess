@@ -1,11 +1,12 @@
-#include "piece.hpp"
-#include "board.hpp"
-#include "evaluate.hpp"
-#include "search.hpp"
-#include "logger.hpp"
-
 #include <sstream>
 #include <utility>
+#include <iostream>
+
+#include "wisdom-chess/engine/piece.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/search.hpp"
+#include "wisdom-chess/engine/logger.hpp"
 
 namespace wisdom
 {

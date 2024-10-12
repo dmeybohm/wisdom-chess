@@ -1,9 +1,9 @@
 #pragma once
 
-#include "global.hpp"
-#include "move.hpp"
-#include "move_timer.hpp"
-#include "generate.hpp"
+#include "wisdom-chess/engine/global.hpp"
+#include "wisdom-chess/engine/move.hpp"
+#include "wisdom-chess/engine/move_timer.hpp"
+#include "wisdom-chess/engine/generate.hpp"
 
 namespace wisdom
 {

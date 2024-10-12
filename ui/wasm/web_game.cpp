@@ -1,6 +1,9 @@
+#include <iostream>
+
+#include "wisdom-chess/engine/piece.hpp"
+
 #include "web_game.hpp"
 #include "game_settings.hpp"
-#include "piece.hpp"
 
 int wisdom::WebGame::our_game_id;
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "board_builder.hpp"
-#include "global.hpp"
+#include "wisdom-chess/engine/global.hpp"
+#include "wisdom-chess/engine/board_builder.hpp"
 
 namespace wisdom
 {

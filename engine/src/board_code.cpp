@@ -1,11 +1,10 @@
 #include <bitset>
-
-#include "board_code.hpp"
-#include "board.hpp"
-#include "coord.hpp"
-#include "board_builder.hpp"
-
 #include <ostream>
+
+#include "wisdom-chess/engine/board_code.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/coord.hpp"
+#include "wisdom-chess/engine/board_builder.hpp"
 
 namespace wisdom
 {

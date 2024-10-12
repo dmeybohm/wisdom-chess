@@ -1,9 +1,9 @@
 #pragma once
 
-#include "global.hpp"
-#include "move.hpp"
+#include <iosfwd>
 
-#include <iostream>
+#include "wisdom-chess/engine/global.hpp"
+#include "wisdom-chess/engine/move.hpp"
 
 namespace wisdom
 {

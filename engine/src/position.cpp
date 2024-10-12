@@ -1,5 +1,7 @@
-#include "position.hpp"
-#include "board.hpp"
+#include <iostream>
+
+#include "wisdom-chess/engine/position.hpp"
+#include "wisdom-chess/engine/board.hpp"
 
 namespace wisdom
 {

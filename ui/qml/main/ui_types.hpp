@@ -2,8 +2,8 @@
 
 #include <QObject>
 
-#include "game.hpp"
-#include "piece.hpp"
+#include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/engine/piece.hpp"
 
 namespace wisdom::ui
 {

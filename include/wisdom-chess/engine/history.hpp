@@ -1,11 +1,11 @@
 #pragma once
 
-#include "global.hpp"
+#include "wisdom-chess/engine/global.hpp"
 
-#include "move_list.hpp"
-#include "piece.hpp"
-#include "board.hpp"
-#include "move.hpp"
+#include "wisdom-chess/engine/move_list.hpp"
+#include "wisdom-chess/engine/piece.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/move.hpp"
 
 namespace wisdom
 {

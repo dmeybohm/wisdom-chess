@@ -1,7 +1,8 @@
 #pragma once
 
-#include "ui_types.hpp"
 #include <QObject>
+
+#include "ui_types.hpp"
 
 class GameSettings
 {

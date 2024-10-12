@@ -1,5 +1,6 @@
-#include "ui_types.hpp"
 #include <QQmlEngine>
+
+#include "ui_types.hpp"
 
 void wisdom::ui::registerQmlTypes()
 {

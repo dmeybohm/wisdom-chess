@@ -1,5 +1,6 @@
-#include "tests.hpp"
-#include "str.hpp"
+#include "wisdom-chess/engine/str.hpp"
+
+#include "wisdom-chess-tests.hpp"
 
 using std::string;
 using std::vector;

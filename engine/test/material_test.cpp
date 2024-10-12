@@ -1,8 +1,8 @@
-#include <doctest/doctest.h>
+#include "wisdom-chess/engine/material.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/board_builder.hpp"
 
-#include "material.hpp"
-#include "board.hpp"
-#include "board_builder.hpp"
+#include "wisdom-chess-tests.hpp"
 
 using std::vector;
 using namespace wisdom;

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "history.hpp"
+#include "wisdom-chess/engine/history.hpp"
 
 namespace wisdom
 {

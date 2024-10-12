@@ -1,13 +1,13 @@
-#include "game.hpp"
-#include "board_builder.hpp"
-#include "str.hpp"
-#include "output_format.hpp"
-#include "move_timer.hpp"
-#include "search.hpp"
-#include "evaluate.hpp"
-
 #include <fstream>
 #include <iostream>
+
+#include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/engine/str.hpp"
+#include "wisdom-chess/engine/output_format.hpp"
+#include "wisdom-chess/engine/move_timer.hpp"
+#include "wisdom-chess/engine/search.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/board_builder.hpp"
 
 namespace wisdom
 {

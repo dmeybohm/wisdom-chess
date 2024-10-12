@@ -1,7 +1,7 @@
-#include "generate.hpp"
-#include "board.hpp"
-#include "evaluate.hpp"
-#include "coord.hpp"
+#include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/coord.hpp"
 
 namespace wisdom
 {

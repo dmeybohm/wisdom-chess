@@ -1,6 +1,6 @@
-#include "web_logger.hpp"
-
 #include <string>
+
+#include "web_logger.hpp"
 
 extern "C"
 {

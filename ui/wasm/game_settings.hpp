@@ -1,7 +1,8 @@
 #pragma once
 
+#include "wisdom-chess/engine/game.hpp"
+
 #include "web_types.hpp"
-#include "game.hpp"
 
 namespace wisdom
 {

@@ -3,12 +3,11 @@
 #include <QQmlContext>
 #include <QDebug>
 #include <QQuickWindow>
+#include <QSGRendererInterface>
 
 #include "game_model.hpp"
 #include "pieces_model.hpp"
 #include "ui_types.hpp"
-
-#include <QSGRendererInterface>
 
 using namespace wisdom;
 

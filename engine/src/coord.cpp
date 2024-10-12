@@ -1,7 +1,7 @@
-#include "board.hpp"
-#include "board_builder.hpp"
-#include "coord.hpp"
-#include "move.hpp"
+#include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/coord.hpp"
+#include "wisdom-chess/engine/move.hpp"
+#include "wisdom-chess/engine/board_builder.hpp"
 
 namespace wisdom
 {
