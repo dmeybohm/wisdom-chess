@@ -5,10 +5,10 @@
 #include <QThread>
 #include <QTimer>
 
-#include "chess_game.hpp"
-#include "game_settings.hpp"
-#include "ui_settings.hpp"
-#include "ui_types.hpp"
+#include "wisdom-chess/qml/chess_game.hpp"
+#include "wisdom-chess/qml/game_settings.hpp"
+#include "wisdom-chess/qml/ui_settings.hpp"
+#include "wisdom-chess/qml/ui_types.hpp"
 
 class QmlGameStatusUpdate;
 

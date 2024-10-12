@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-#include "ui_types.hpp"
+#include "wisdom-chess/qml/ui_types.hpp"
 
 class GameSettings
 {

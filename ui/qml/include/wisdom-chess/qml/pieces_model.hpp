@@ -2,7 +2,7 @@
 
 #include <QAbstractListModel>
 
-#include "chess_game.hpp"
+#include "wisdom-chess/qml/chess_game.hpp"
 
 struct PieceInfo
 {

@@ -1,4 +1,4 @@
-#include "game_settings.hpp"
+#include "wisdom-chess/qml/game_settings.hpp"
 
 bool operator== (const GameSettings& a, const GameSettings& b)
 {

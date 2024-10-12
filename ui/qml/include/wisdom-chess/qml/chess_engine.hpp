@@ -10,7 +10,7 @@
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 
-#include "chess_game.hpp"
+#include "wisdom-chess/qml/chess_game.hpp"
 
 class QmlEngineGameStatusUpdate;
 

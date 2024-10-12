@@ -1,7 +1,6 @@
 #pragma once
 
 #include "wisdom-chess/engine/global.hpp"
-
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/piece.hpp"
 

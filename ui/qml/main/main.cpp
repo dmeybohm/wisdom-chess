@@ -5,9 +5,9 @@
 #include <QQuickWindow>
 #include <QSGRendererInterface>
 
-#include "game_model.hpp"
-#include "pieces_model.hpp"
-#include "ui_types.hpp"
+#include "wisdom-chess/qml/game_model.hpp"
+#include "wisdom-chess/qml/pieces_model.hpp"
+#include "wisdom-chess/qml/ui_types.hpp"
 
 using namespace wisdom;
 

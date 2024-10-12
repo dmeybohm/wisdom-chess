@@ -1,6 +1,6 @@
 #include <QQmlEngine>
 
-#include "ui_types.hpp"
+#include "wisdom-chess/qml/ui_types.hpp"
 
 void wisdom::ui::registerQmlTypes()
 {

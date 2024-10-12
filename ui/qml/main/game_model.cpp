@@ -3,9 +3,9 @@
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/game.hpp"
 
-#include "game_model.hpp"
-#include "chess_engine.hpp"
-#include "ui_settings.hpp"
+#include "wisdom-chess/qml/game_model.hpp"
+#include "wisdom-chess/qml/chess_engine.hpp"
+#include "wisdom-chess/qml/ui_settings.hpp"
 
 using namespace wisdom;
 namespace ui = wisdom::ui;

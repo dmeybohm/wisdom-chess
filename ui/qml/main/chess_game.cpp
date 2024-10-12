@@ -4,8 +4,8 @@
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 
-#include "chess_game.hpp"
-#include "game_settings.hpp"
+#include "wisdom-chess/qml/chess_game.hpp"
+#include "wisdom-chess/qml/game_settings.hpp"
 
 using gsl::not_null;
 using std::atomic;

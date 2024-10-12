@@ -3,7 +3,7 @@
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/move.hpp"
 
-#include "pieces_model.hpp"
+#include "wisdom-chess/qml/pieces_model.hpp"
 
 using namespace wisdom;
 using namespace std;
