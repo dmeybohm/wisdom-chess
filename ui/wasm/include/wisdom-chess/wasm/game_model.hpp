@@ -37,7 +37,9 @@ namespace wisdom
         GameModel() = default;
 
         // Initialize a new game with the default position.
-        WebGame* startNewGame()
+        auto 
+        startNewGame()
+            -> WebGame*
         {
             auto new_game = WebGame::newFromSettings (my_game_settings);
             emscripten_wasm_worker_post_function_vi (
@@ -74,7 +76,9 @@ namespace wisdom
             emscripten_wasm_worker_post_function_v (engine_thread, startSearch);
         }
 
-        [[nodiscard]] auto getCurrentGameSettings() const -> GameSettings*
+        [[nodiscard]] auto 
+        getCurrentGameSettings() const 
+            -> GameSettings*
         {
             return new GameSettings { my_game_settings };
         }
@@ -87,7 +91,9 @@ namespace wisdom
             sendUnpause();
         }
 
-        [[nodiscard]] auto getFirstHumanPlayerColor() -> WebColor
+        [[nodiscard]] auto 
+        getFirstHumanPlayerColor() 
+            -> WebColor
         {
             if (my_game_settings.whitePlayer == Human)
                 return WebColor::White;
@@ -96,7 +102,9 @@ namespace wisdom
             return WebColor::NoColor;
         }
 
-        [[nodiscard]] auto getSecondHumanPlayerColor() -> WebColor
+        [[nodiscard]] auto 
+        getSecondHumanPlayerColor() 
+            -> WebColor
         {
             if (my_game_settings.whitePlayer == Human &&
                 my_game_settings.blackPlayer == Human)

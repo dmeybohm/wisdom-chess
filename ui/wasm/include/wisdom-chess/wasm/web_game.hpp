@@ -27,11 +27,18 @@ namespace wisdom
 
         WebGame (int white_player, int black_player);
 
-        [[nodiscard]] static auto newFromSettings (const GameSettings& settings) -> WebGame*;
+        [[nodiscard]] static auto 
+        newFromSettings (const GameSettings& settings) 
+            -> WebGame*;
 
         void setSettings (const GameSettings& settings);
 
-        auto needsPawnPromotion (const WebCoord* src, const WebCoord* dst) const -> bool
+        [[nodiscard]] auto 
+        needsPawnPromotion (
+            const WebCoord* src, 
+            const WebCoord* dst
+        ) const 
+            -> bool
         {
             auto game_src = makeCoord (src->row, src->col);
             auto game_dst = makeCoord (dst->row, dst->col);
@@ -43,14 +50,22 @@ namespace wisdom
             return optionalMove->isPromoting();
         }
 
-        [[nodiscard]] auto createMoveFromCoordinatesAndPromotedPiece (const WebCoord* src,
-                                                                      const WebCoord* dst,
-                                                                      int promoted_piece_type)
+        [[nodiscard]] auto 
+        createMoveFromCoordinatesAndPromotedPiece (
+            const WebCoord* src, 
+            const WebCoord* dst, 
+            int promoted_piece_type
+        )
             -> WebMove*;
 
-        auto makeMove (const WebMove *move_param) -> bool;
+        [[nodiscard]] auto makeMove (
+            const WebMove *move_param
+        ) 
+            -> bool;
 
-        auto isLegalMove (const WebMove* selectedMovePtr) -> bool;
+        [[nodiscard]] auto 
+        isLegalMove (const WebMove* selectedMovePtr) 
+            -> bool;
 
         void setMaxDepth (int max_depth)
         {
@@ -62,38 +77,52 @@ namespace wisdom
             my_game.setSearchTimeout (thinkingTime);
         }
 
-        auto getMaxDepth() const -> int
+        [[nodiscard]] auto 
+        getMaxDepth() const 
+            -> int
         {
             auto result = my_game.getMaxDepth();
             return result;
         }
 
-        auto getPieceList() -> WebColoredPieceList&
+        [[nodiscard]] auto 
+        getPieceList() 
+            -> WebColoredPieceList&
         {
             return my_pieces;
         }
 
-        auto getCurrentTurn() const -> WebColor
+        [[nodiscard]] auto 
+        getCurrentTurn() const 
+            -> WebColor
         {
             return mapColor (my_game.getCurrentTurn());
         }
 
-        auto getMoveStatus() const -> const char*
+        [[nodiscard]] auto 
+        getMoveStatus() const 
+            -> const char*
         {
             return my_move_status.c_str();
         }
 
-        auto getGameOverStatus() const -> const char*
+        [[nodiscard]] auto 
+        getGameOverStatus() const 
+            -> const char*
         {
             return my_game_over_status.c_str();
         }
 
-        auto getGameStatus() const -> WebGameStatus
+        [[nodiscard]] auto 
+        getGameStatus() const 
+            -> WebGameStatus
         {
             return mapGameStatus (my_game.status());
         }
 
-        auto getPlayerOfColor (int color) const -> WebPlayer
+        [[nodiscard]] auto 
+        getPlayerOfColor (int color) const 
+            -> WebPlayer
         {
             Color mapped_color = mapColor (color);
             return mapPlayer (my_game.getPlayer (mapped_color));
@@ -111,9 +140,12 @@ namespace wisdom
 
     private:
 
-        [[nodiscard]] auto findAndRemoveId (std::unordered_map<int, WebColoredPiece>& old_list,
-                                               Coord coord_to_find,
-                                               ColoredPiece piece_to_find) -> int;
+        [[nodiscard]] auto findAndRemoveId (
+            std::unordered_map<int, 
+            WebColoredPiece>& old_list, 
+            Coord coord_to_find, 
+            ColoredPiece piece_to_find
+        ) -> int;
 
         void updatePieceList (ColoredPiece promoted_piece);
 

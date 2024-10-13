@@ -36,7 +36,9 @@ namespace wisdom
         int searchDepth = 3;
 
 
-        [[nodiscard]] static auto mapHumanDepthToComputerDepth (int human_depth) -> int
+        [[nodiscard]] static auto 
+        mapHumanDepthToComputerDepth (int human_depth) 
+            -> int
         {
             return human_depth * 2 - 1;
         }

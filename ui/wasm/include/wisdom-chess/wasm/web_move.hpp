@@ -18,7 +18,9 @@ namespace wisdom
         explicit WebMove (Move move) : my_move { move }
         {}
 
-        static auto fromString (char* string, int who) -> WebMove*
+        [[nodiscard]] static auto 
+        fromString (char* string, int who) 
+            -> WebMove*
         {
             std::string tmp { string };
             auto color = mapColor (who);
@@ -26,12 +28,16 @@ namespace wisdom
             return result;
         }
 
-        [[nodiscard]] auto getMove() const -> Move
+        [[nodiscard]] auto 
+        getMove() const 
+            -> Move
         {
             return my_move;
         }
 
-        [[nodiscard]] auto asString() const -> char*
+        [[nodiscard]] auto 
+        asString() const 
+            -> char*
         {
             std::string str = wisdom::asString (my_move);
             return strdup (str.c_str());

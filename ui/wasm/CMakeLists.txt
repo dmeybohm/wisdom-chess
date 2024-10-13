@@ -34,7 +34,6 @@ add_executable(wisdom-chess-web
         ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-wasm-glue.hpp
         web_logger.cpp
         web_game.cpp
-        web_move.cpp
         bindings.cpp
         webidl_glue_wrapper.cpp
         game_model.cpp)
