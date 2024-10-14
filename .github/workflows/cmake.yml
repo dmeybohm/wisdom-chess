@@ -93,33 +93,33 @@ jobs:
 
     - name: Fast Tests (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
-      working-directory: ${{ github.workspace }}/build/engine/test
-      run: ${{ github.workspace }}/build/engine/test/fast_tests
+      working-directory: ${{ github.workspace }}/build/src/wisdom-chess/engine/test
+      run: ${{ github.workspace }}/build/src/wisdom-chess/engine/test/fast_tests
       
     - name: Slow Tests (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
-      working-directory: ${{ github.workspace }}/build/engine/test
-      run: ${{ github.workspace }}/build/engine/test/slow_tests      
+      working-directory: ${{ github.workspace }}/build/src/wisdom-chess/engine/test
+      run: ${{ github.workspace }}/build/src/wisdom-chess/engine/test/slow_tests      
 
     - name: Fast Tests (macOS)
       if: matrix.os == 'macos-latest'
-      working-directory: ${{ github.workspace }}/build/engine/test
-      run: ${{ github.workspace }}/build/engine/test/fast_tests
+      working-directory: ${{ github.workspace }}/build/src/wisdom-chess/engine/test
+      run: ${{ github.workspace }}/build/src/wisdom-chess/engine/test/fast_tests
       
     - name: Slow Tests (macOS)
       if: matrix.os == 'macos-latest'
-      working-directory: ${{ github.workspace }}/build/engine/test
-      run: ${{ github.workspace }}/build/engine/test/slow_tests      
+      working-directory: ${{ github.workspace }}/build/src/wisdom-chess/engine/test
+      run: ${{ github.workspace }}/build/src/wisdom-chess/engine/test/slow_tests      
 
     - name: Fast Tests (Windows)
       if: matrix.os == 'windows-2019' || matrix.os == 'windows-latest'
-      working-directory: ${{ github.workspace }}/build/engine/test/${{ matrix.build_type }}
-      run: ${{ github.workspace }}/build/engine/test/${{ matrix.build_type }}/fast_tests.exe
+      working-directory: ${{ github.workspace }}/build/src/wisdom-chess/engine/test/${{ matrix.build_type }}
+      run: ${{ github.workspace }}/build/src/wisdom-chess/engine/test/${{ matrix.build_type }}/fast_tests.exe
       
     - name: Slow Tests (Windows)
       if: matrix.os == 'windows-2019' || matrix.os == 'windows-latest'
-      working-directory: ${{ github.workspace }}/build/engine/test//${{ matrix.build_type }}
-      run: ${{ github.workspace }}/build/engine/test/${{ matrix.build_type }}/slow_tests.exe
+      working-directory: ${{ github.workspace }}/build/src/wisdom-chess/engine/test//${{ matrix.build_type }}
+      run: ${{ github.workspace }}/build/src/wisdom-chess/engine/test/${{ matrix.build_type }}/slow_tests.exe
 
     - name: Install (CMake)
       run: >

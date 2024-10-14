@@ -39,20 +39,20 @@ jobs:
         run: cmake --build ${{ github.workspace }}/build --config Release -j 4
 
       - name: Install Front-end Dependencies
-        working-directory: ${{ github.workspace }}/ui/react
+        working-directory: ${{ github.workspace }}/src/wisdom-chess/ui/react
         run: npm ci
 
       - name: Build Front-end
-        working-directory: ${{ github.workspace }}/ui/react
+        working-directory: ${{ github.workspace }}/src/wisdom-chess/ui/react
         run: npm run build
 
       - name: Install Netlify CLI
-        working-directory: ${{ github.workspace }}/ui/react
+        working-directory: ${{ github.workspace }}/src/wisdom-chess/ui/react
         run: npm install -g netlify-cli
 
       - name: Deploy Preview
         if: github.event.pull_request.merged != true && github.actor != 'dependabot[bot]'
-        working-directory: ${{ github.workspace }}/ui/react
+        working-directory: ${{ github.workspace }}/src/wisdom-chess/ui/react
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -60,7 +60,7 @@ jobs:
 
       - name: Deploy Production
         if: github.event.pull_request.merged == true && github.base_ref == 'main'
-        working-directory: ${{ github.workspace }}/ui/react
+        working-directory: ${{ github.workspace }}/src/wisdom-chess/ui/react
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

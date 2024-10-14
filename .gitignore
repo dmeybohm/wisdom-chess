@@ -3,13 +3,13 @@ cmake-build-*
 .vs
 .vscode
 CMakeLists.txt.user
-/ui/react/public/wisdom-chess-web.wasm
-/ui/react/public/wisdom-chess-web.js
-/ui/react/public/wisdom-chess-web.ww.js
-/ui/react/public/wisdom-chess-load.js
-/ui/react/public/glue.js
-/ui/react/dist/
-/ui/react/dev-dist/
+/src/wisdom-chess/ui/react/public/wisdom-chess-web.wasm
+/src/wisdom-chess/ui/react/public/wisdom-chess-web.js
+/src/wisdom-chess/ui/react/public/wisdom-chess-web.ww.js
+/src/wisdom-chess/ui/react/public/wisdom-chess-load.js
+/src/wisdom-chess/ui/react/public/glue.js
+/src/wisdom-chess/ui/react/dist/
+/src/wisdom-chess/ui/react/dev-dist/
 
 # Local Netlify folder
 .netlify
