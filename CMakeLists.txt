@@ -37,6 +37,5 @@ if (WISDOM_CHESS_ASAN)
     endif()
 endif()
 
-add_subdirectory(engine)
-add_subdirectory(ui)
+add_subdirectory(src)
 
