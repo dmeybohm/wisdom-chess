@@ -163,26 +163,22 @@ void GameModel::restart()
     updateDisplayedGameState();
 }
 
-auto 
+void
 GameModel::movePiece (
     int src_row, 
     int src_column, 
     int dst_row, 
     int dst_column
-)
-    -> void
-{
+) {
     movePieceWithPromotion (src_row, src_column, dst_row, dst_column, {});
 }
 
-auto 
+void 
 GameModel::engineThreadMoved (
     wisdom::Move move, 
     wisdom::Color who, 
     int game_id
-)
-    -> void
-{
+) {
     // validate this signal was not sent by an old thread:
     if (game_id != my_game_id)
     {
@@ -200,16 +196,14 @@ GameModel::engineThreadMoved (
     handleMove (Player::ChessEngine, move, who);
 }
 
-auto 
+void 
 GameModel::promotePiece (
     int src_row, 
     int src_column, 
     int dst_row, 
     int dst_column, 
     ui::PieceType piece_type
-)
-    -> void
-{
+) {
     movePieceWithPromotion (
         src_row, 
         src_column, 
@@ -219,16 +213,14 @@ GameModel::promotePiece (
     );
 }
 
-auto 
+void 
 GameModel::movePieceWithPromotion (
     int srcRow, 
     int srcColumn, 
     int dstRow, 
     int dstColumn, 
     optional<wisdom::Piece> pieceType
-)
-    -> void
-{
+) {
     auto [optional_move, who]
         = my_chess_game->moveFromCoordinates (srcRow, srcColumn, dstRow, dstColumn, pieceType);
     if (!optional_move.has_value())
@@ -349,14 +341,12 @@ void GameModel::updateCurrentTurn (Color new_color)
     setCurrentTurn (ui::mapColor (new_color));
 }
 
-auto 
+void 
 GameModel::handleMove (
     Player player_type, 
     Move move, 
     Color who
-)
-    -> void
-{
+) {
     if (player_type == wisdom::Player::ChessEngine)
     {
         emit engineMoved (move, who, my_game_id);
@@ -645,13 +635,11 @@ void GameModel::setFiftyMovesDrawStatus (DrawStatus draw_status)
     }
 }
 
-auto 
+void 
 GameModel::setProposedDrawStatus (
     wisdom::ProposedDrawType draw_type, 
     DrawStatus status
-)
-    -> void
-{
+) {
     auto game_state = my_chess_game->state();
     auto optional_color = getFirstHumanPlayerColor (game_state->getPlayers());
 
@@ -671,14 +659,12 @@ GameModel::setProposedDrawStatus (
     updateDisplayedGameState();
 }
 
-auto 
+void 
 GameModel::receiveChessEngineDrawStatus (
     wisdom::ProposedDrawType draw_type, 
     wisdom::Color who, 
     bool accepted
-)
-    -> void
-{
+) {
     auto gameState = my_chess_game->state();
     gameState->setProposedDrawStatus (draw_type, who, accepted);
     updateDisplayedGameState();

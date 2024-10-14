@@ -217,15 +217,13 @@ namespace wisdom
         return best_score;
     }
 
-    static auto
+    static void
     logSearchTime (
         const Logger& output, 
         int nodes, 
         SystemClockTime start, 
         SystemClockTime end
-    )
-        -> void
-    {
+    ) {
         auto seconds_duration = chrono::duration<double> (end - start);
         auto seconds = seconds_duration.count();
         auto rate = nodes / std::max (0.000000001, seconds);

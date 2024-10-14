@@ -113,14 +113,12 @@ namespace wisdom::worker
             }
         };
 
-        auto 
+        void 
         updateDrawStatus (
             wisdom::ProposedDrawType draw_type,
             wisdom::Color who,
             bool accepts_draw
-        )
-            -> void
-        {
+        ) {
             game->setProposedDrawStatus (
                 draw_type,
                 who,
@@ -137,13 +135,11 @@ namespace wisdom::worker
             );
         }
 
-        auto 
+        void 
         handlePotentialDrawPosition (
             wisdom::ProposedDrawType proposedDrawType, 
             wisdom::Color who
-        )
-            -> void
-        {
+        ) {
             auto current_player_accept_draw = game->computerWantsDraw (who);
 
             updateDrawStatus (proposedDrawType, who, current_player_accept_draw);
@@ -230,15 +226,13 @@ EMSCRIPTEN_KEEPALIVE void workerReceiveMove (int packed_move)
     startSearch();
 }
 
-auto
+void
 workerReceiveSettings (
     int white_player, 
     int black_player, 
     int thinking_time, 
     int search_depth
-)
-    -> void
-{
+) {
     auto state = GameState::getState();
 
     state->updateSettings (
@@ -258,13 +252,11 @@ EM_JS (void, receiveMoveFromWorker, (int game_id, const char* str),
    receiveWorkerMessage ('computerMoved', game_id, UTF8ToString (str));
 })
 
-EMSCRIPTEN_KEEPALIVE auto 
+EMSCRIPTEN_KEEPALIVE void
 mainThreadReceiveMove (
     int game_id, 
     int packed_move
-)
-    -> void
-{
+) {
     Move unpacked_move = Move::fromInt (packed_move);
     auto state = GameState::getState();
     std::string str = asString (unpacked_move);
@@ -296,15 +288,13 @@ EM_JS (void, receiveDrawStatusFromWorker, (int game_id, int draw_type, int color
    )
 })
 
-EMSCRIPTEN_KEEPALIVE auto 
+EMSCRIPTEN_KEEPALIVE void 
 mainThreadReceiveDrawStatus (
     int game_id, 
     int draw_type, 
     int color, 
     int accepted_draw
-)
-    -> void
-{
+) {
     receiveDrawStatusFromWorker (
         game_id, 
         draw_type, 

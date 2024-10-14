@@ -101,14 +101,11 @@ void ChessGame::setConfig (const Config& config)
     my_config = config;
 }
 
-auto 
+void
 ChessGame::setPlayers (
     wisdom::Player whitePlayer,
     wisdom::Player blackPlayer
-) 
-    -> void
-    // NOLINT(readability-make-member-function-const)
-{
+) { // NOLINT(readability-make-member-function-const)
     auto gameState = this->state();
     gameState->setWhitePlayer (whitePlayer);
     gameState->setBlackPlayer (blackPlayer);

@@ -139,13 +139,11 @@ PiecesModel::roleNames() const
     return mapping;
 }
 
-auto 
+void
 PiecesModel::playerMoved (
     Move selected_move, 
     wisdom::Color who
-)
-    -> void
-{
+) {
     Coord src = selected_move.getSrc();
     Coord dst = selected_move.getDst();
 

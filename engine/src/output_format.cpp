@@ -6,14 +6,13 @@
 
 namespace wisdom
 {
-    auto FenOutputFormat::save (
+    void 
+    FenOutputFormat::save (
         const string& filename, 
         const Board& board,
         [[maybe_unused]] const History& history, 
         Color turn
-    ) 
-        -> void
-    {
+    ) {
         string output = board.toFenString (turn);
 
         std::ofstream file;
@@ -22,14 +21,13 @@ namespace wisdom
         file.close();
     }
 
-    auto WisdomGameOutputFormat::save (
+    void 
+    WisdomGameOutputFormat::save (
         const string& filename, 
         [[maybe_unused]] const Board& board,
         const History& history, 
         [[maybe_unused]] Color turn
-    ) 
-        -> void
-    {
+    ) {
         std::ofstream file;
         file.open (filename);
         for (auto move : history.getMoveHistory())

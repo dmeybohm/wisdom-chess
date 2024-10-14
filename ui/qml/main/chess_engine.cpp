@@ -36,14 +36,12 @@ void ChessEngine::opponentMoved (Move move, Color who)
     findMove();
 }
 
-auto 
+void
 ChessEngine::receiveEngineMoved (
     wisdom::Move move, 
     wisdom::Color who, 
     int gameId
-)
-    -> void
-{
+) {
     if (gameId == this->my_game_id)
     {
         // Do another move if the engine is hooked up to itself:
@@ -177,12 +175,11 @@ void ChessEngine::findMove()
     }
 }
 
-auto ChessEngine::handlePotentialDrawPosition (
+void 
+ChessEngine::handlePotentialDrawPosition (
     wisdom::ProposedDrawType proposedDrawType, 
     wisdom::Color who
-)
-    -> void
-{
+) {
     auto game_state = my_game->state();
 
     auto acceptDraw = game_state->computerWantsDraw (who);
@@ -218,14 +215,12 @@ auto ChessEngine::handlePotentialDrawPosition (
     }
 }
 
-auto 
+void
 ChessEngine::receiveDrawStatus (
     wisdom::ProposedDrawType drawType, 
     wisdom::Color player, 
     bool accepted
-)
-    -> void
-{
+) {
     auto game_state = my_game->state();
     game_state->setProposedDrawStatus (drawType, player, accepted);
 
@@ -246,13 +241,11 @@ void ChessEngine::reloadGame (shared_ptr<ChessGame> newGame, int newGameId)
     init();
 }
 
-auto 
+void 
 ChessEngine::updateConfig (
     ChessGame::Config config,
     const wisdom::MoveTimer::PeriodicFunction& notifier
-)
-    -> void
-{
+) {
     my_game->setConfig (config);
 
     // Update the notifier:
