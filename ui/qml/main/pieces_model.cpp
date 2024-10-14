@@ -10,18 +10,23 @@ using namespace std;
 
 namespace
 {
-
-    constexpr auto whitePiece (Piece piece) -> int8_t
+    constexpr auto 
+    whitePiece (Piece piece) 
+        -> int8_t
     {
         return toInt8 (ColoredPiece::make (Color::White, piece));
     }
 
-    constexpr auto blackPiece (Piece piece) -> int8_t
+    constexpr auto 
+    blackPiece (Piece piece) 
+        -> int8_t
     {
         return toInt8 (ColoredPiece::make (Color::Black, piece));
     }
 
-    auto initPieceMap() -> QHash<int8_t, QString>
+    auto 
+    initPieceMap() 
+        -> QHash<int8_t, QString>
     {
         auto result = QHash<int8_t, QString> {
             { whitePiece (Piece::Pawn), "../images/Chess_plt45.svg" },
@@ -94,7 +99,12 @@ int PiecesModel::rowCount (const QModelIndex& index) const
     }
 }
 
-QVariant PiecesModel::data (const QModelIndex& index, int role) const
+auto 
+PiecesModel::data (
+    const QModelIndex& index, 
+    int role
+) const
+    -> QVariant
 {
     if (!index.isValid())
     {
@@ -116,7 +126,9 @@ QVariant PiecesModel::data (const QModelIndex& index, int role) const
     }
 }
 
-QHash<int, QByteArray> PiecesModel::roleNames() const
+auto 
+PiecesModel::roleNames() const
+    -> QHash<int, QByteArray> 
 {
     static QHash<int, QByteArray> mapping {
         { RowRole, "row" },
@@ -127,8 +139,11 @@ QHash<int, QByteArray> PiecesModel::roleNames() const
     return mapping;
 }
 
-void PiecesModel::playerMoved (Move selected_move, wisdom::Color who)
-{
+void
+PiecesModel::playerMoved (
+    Move selected_move, 
+    wisdom::Color who
+) {
     Coord src = selected_move.getSrc();
     Coord dst = selected_move.getDst();
 
@@ -180,14 +195,17 @@ void PiecesModel::playerMoved (Move selected_move, wisdom::Color who)
                 piece_model.column = dst_rook_column;
                 QPersistentModelIndex changed_index = index (i, 0);
 
-                QTimer::singleShot (Rook_Animation_Delay, this,
-                                    [this, changed_index]()
-                                    {
-                                        if (!changed_index.isValid())
-                                            return;
-                                        QVector<int> roles_changed { ColumnRole };
-                                        emit dataChanged (changed_index, changed_index, roles_changed);
-                                    });
+                QTimer::singleShot (
+                    Rook_Animation_Delay, 
+                    this, 
+                    [this, changed_index]()
+                    {
+                        if (!changed_index.isValid())
+                            return;
+                        QVector<int> roles_changed { ColumnRole };
+                        emit dataChanged (changed_index, changed_index, roles_changed);
+                    }
+                );
             }
         }
         if (selected_move.isEnPassant())

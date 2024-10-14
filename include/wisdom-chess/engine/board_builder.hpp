@@ -11,7 +11,11 @@ namespace wisdom
         -> array<ColoredPiece, Num_Squares>
     {
         array<ColoredPiece, Num_Squares> result {};
-        std::fill (std::begin (result), std::end (result), Piece_And_Color_None);
+        std::fill (
+            std::begin (result),
+            std::end (result),
+            Piece_And_Color_None
+        );
         return result;
     }
 
@@ -88,7 +92,11 @@ namespace wisdom
             my_squares[coord.index()] = ColoredPiece::make (who, piece_type);
 
             if (piece_type == Piece::King)
-                my_king_positions[colorIndex (who)] = coord;
+            {
+                auto color_index = colorIndex (who);
+                my_king_positions[color_index] = coord;
+            }
+
         }
 
         constexpr void 
@@ -154,7 +162,8 @@ namespace wisdom
         constexpr void
         setCastling (Color who, CastlingEligibility state)
         {
-            my_castle_states[colorIndex (who)] = state;
+            auto index = colorIndex (who);
+            my_castle_states[index] = state;
         }
 
         constexpr void
@@ -203,8 +212,9 @@ namespace wisdom
         getCastleState (Color who) const
             -> CastlingEligibility
         {
-            if (my_castle_states[colorIndex (who)])
-                return *my_castle_states[colorIndex (who)];
+            auto index = colorIndex (who);
+            if (my_castle_states[index].has_value())
+                return *my_castle_states[index];
             return calculateCastleStateFromPosition (who);
         }
 
@@ -213,8 +223,14 @@ namespace wisdom
             -> Coord
         {
             auto index = colorIndex (who);
-            if (!my_king_positions[index])
-                throw BoardBuilderError { "Missing king position in constructing board." };
+
+            if (!my_king_positions[index].has_value())
+            {
+                throw BoardBuilderError {
+                    "Missing king position in constructing board."
+                };
+            }
+
             return *my_king_positions[index];
         }
 
@@ -222,8 +238,13 @@ namespace wisdom
         getKingPositions() const
             -> array<Coord, Num_Players>
         {
-            if (!my_king_positions[Color_Index_White] || !my_king_positions[Color_Index_Black])
-                throw BoardBuilderError { "Missing king position in constructing board." };
+            if (!my_king_positions[Color_Index_White].has_value() ||
+                !my_king_positions[Color_Index_Black].has_value())
+            {
+                throw BoardBuilderError {
+                    "Missing king position in constructing board."
+                };
+            }
             return { *my_king_positions[Color_Index_White], *my_king_positions[Color_Index_Black] };
         }
 

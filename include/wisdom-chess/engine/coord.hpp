@@ -139,14 +139,14 @@ namespace wisdom
         return Coord::fromIndex (index);
     }
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     operator== (Coord first, Coord second)
         -> bool
     {
         return first.row_and_col == second.row_and_col;
     }
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     operator!= (Coord first, Coord second)
         -> bool
     {
@@ -161,21 +161,21 @@ namespace wisdom
         return coord;
     }
 
-    static constexpr auto
+    [[nodiscard]] static constexpr auto
     charToRow (char chr)
         -> int
     {
         return 8 - (toLower (chr) - '0');
     }
 
-    static constexpr auto
+    [[nodiscard]] static constexpr auto
     charToCol (char chr)
         -> int
     {
         return toLower (chr) - 'a';
     }
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     rowToChar (int8_t row)
         -> char
     {
@@ -183,7 +183,7 @@ namespace wisdom
         return narrow<char> (8 - row + '0');
     }
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     colToChar (int8_t col)
         -> char
     {
@@ -191,9 +191,11 @@ namespace wisdom
         return narrow<char> (col + 'a');
     }
 
-    auto asString (Coord coord) -> string;
+    [[nodiscard]] auto
+    asString (Coord coord)
+        -> string;
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     coordParse (string_view str)
         -> Coord
     {
@@ -219,29 +221,31 @@ namespace wisdom
         using reference = Coord&;
         using iterator_category = std::forward_iterator_tag;
 
-        constexpr CoordIterator()
+        constexpr
+        CoordIterator()
             : my_coord { First_Coord }
         {}
 
-        explicit constexpr CoordIterator (Coord coord)
+        explicit constexpr
+        CoordIterator (Coord coord)
             : my_coord (coord)
         {}
 
         [[nodiscard]] constexpr auto
-        begin()
-            -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
+        begin()  // NOLINT(readability-convert-member-functions-to-static)
+            -> CoordIterator
         {
             return CoordIterator { First_Coord };
         }
 
         [[nodiscard]] constexpr auto
-        end()
-            -> CoordIterator // NOLINT(readability-convert-member-functions-to-static)
+        end()   // NOLINT(readability-convert-member-functions-to-static)
+            -> CoordIterator
         {
             return CoordIterator { End_Coord };
         }
 
-        constexpr auto
+        [[nodiscard]] constexpr auto
         operator*() const
             -> Coord
         {
@@ -256,14 +260,14 @@ namespace wisdom
             return *this;
         }
 
-        constexpr auto
+        [[nodiscard]] constexpr auto
         operator== (const CoordIterator& other) const
             -> bool
         {
             return other.my_coord == my_coord;
         }
 
-        constexpr auto
+        [[nodiscard]] constexpr auto
         operator!= (const CoordIterator& other) const
             -> bool
         {

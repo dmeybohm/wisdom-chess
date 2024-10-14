@@ -22,19 +22,23 @@ namespace wisdom::worker
         bool is_game_over = false;
         std::atomic<int> play_status = PlayStatus::Playing;
 
-        GameState() :
-            game { std::make_unique<wisdom::Game>()}
+        GameState() 
+            : game { std::make_unique<wisdom::Game>()}
         {
             updateSettings (settings);
         }
 
-        [[nodiscard]] static auto getState() -> observer_ptr<GameState>
+        [[nodiscard]] static auto 
+        getState() 
+            -> observer_ptr<GameState>
         {
             static auto instance = std::make_unique<GameState>();
             return instance.get();
         }
 
-        [[nodiscard]] static auto getGame() -> observer_ptr<Game>
+        [[nodiscard]] static auto 
+        getGame() 
+            -> observer_ptr<Game>
         {
             return GameState::getState()->game.get();
         }
@@ -45,7 +49,9 @@ namespace wisdom::worker
             new_settings.applyToGame (game.get());
         }
 
-        auto statusTransition() -> wisdom::GameStatus
+        auto 
+        statusTransition() 
+            -> wisdom::GameStatus
         {
             WebEngineGameStatusUpdate status_manager { this };
             status_manager.update (game->status());
@@ -60,8 +66,8 @@ namespace wisdom::worker
             observer_ptr<GameState> my_parent;
 
         public:
-            explicit WebEngineGameStatusUpdate (observer_ptr<GameState> parent) :
-                    my_parent { parent }
+            explicit WebEngineGameStatusUpdate (observer_ptr<GameState> parent) 
+                : my_parent { parent }
             {
             }
 
@@ -107,10 +113,12 @@ namespace wisdom::worker
             }
         };
 
-        void updateDrawStatus (wisdom::ProposedDrawType draw_type,
-                               wisdom::Color who,
-                               bool accepts_draw)
-        {
+        void 
+        updateDrawStatus (
+            wisdom::ProposedDrawType draw_type,
+            wisdom::Color who,
+            bool accepts_draw
+        ) {
             game->setProposedDrawStatus (
                 draw_type,
                 who,
@@ -127,9 +135,11 @@ namespace wisdom::worker
             );
         }
 
-        void handlePotentialDrawPosition (wisdom::ProposedDrawType proposedDrawType,
-                                          wisdom::Color who)
-        {
+        void 
+        handlePotentialDrawPosition (
+            wisdom::ProposedDrawType proposedDrawType, 
+            wisdom::Color who
+        ) {
             auto current_player_accept_draw = game->computerWantsDraw (who);
 
             updateDrawStatus (proposedDrawType, who, current_player_accept_draw);
@@ -199,8 +209,12 @@ EMSCRIPTEN_KEEPALIVE void startSearch()
     }
     game->move (*move);
 
-    emscripten_wasm_worker_post_function_vii (EMSCRIPTEN_WASM_WORKER_ID_PARENT,
-                                              mainThreadReceiveMove, state->game_id, move->toInt());
+    emscripten_wasm_worker_post_function_vii (
+        EMSCRIPTEN_WASM_WORKER_ID_PARENT, 
+        mainThreadReceiveMove, 
+        state->game_id, 
+        move->toInt()
+    );
 }
 
 EMSCRIPTEN_KEEPALIVE void workerReceiveMove (int packed_move)
@@ -212,15 +226,23 @@ EMSCRIPTEN_KEEPALIVE void workerReceiveMove (int packed_move)
     startSearch();
 }
 
-void workerReceiveSettings (int white_player, int black_player, int thinking_time,
-                              int search_depth)
-{
+void
+workerReceiveSettings (
+    int white_player, 
+    int black_player, 
+    int thinking_time, 
+    int search_depth
+) {
     auto state = GameState::getState();
 
-    state->updateSettings (GameSettings { static_cast<WebPlayer> (white_player),
-                                          static_cast<WebPlayer> (black_player), 
-                                          thinking_time,
-                                          search_depth });
+    state->updateSettings (
+        GameSettings { 
+            static_cast<WebPlayer> (white_player),
+            static_cast<WebPlayer> (black_player), 
+            thinking_time, 
+            search_depth 
+        }
+    );
 
     startSearch();
 }
@@ -230,8 +252,11 @@ EM_JS (void, receiveMoveFromWorker, (int game_id, const char* str),
    receiveWorkerMessage ('computerMoved', game_id, UTF8ToString (str));
 })
 
-EMSCRIPTEN_KEEPALIVE void mainThreadReceiveMove (int game_id, int packed_move)
-{
+EMSCRIPTEN_KEEPALIVE void
+mainThreadReceiveMove (
+    int game_id, 
+    int packed_move
+) {
     Move unpacked_move = Move::fromInt (packed_move);
     auto state = GameState::getState();
     std::string str = asString (unpacked_move);
@@ -263,8 +288,17 @@ EM_JS (void, receiveDrawStatusFromWorker, (int game_id, int draw_type, int color
    )
 })
 
-EMSCRIPTEN_KEEPALIVE void mainThreadReceiveDrawStatus (int game_id, int draw_type,
-                                                       int color, int accepted_draw)
-{
-    receiveDrawStatusFromWorker (game_id, draw_type, color, accepted_draw == 0 ? false : true);
+EMSCRIPTEN_KEEPALIVE void 
+mainThreadReceiveDrawStatus (
+    int game_id, 
+    int draw_type, 
+    int color, 
+    int accepted_draw
+) {
+    receiveDrawStatusFromWorker (
+        game_id, 
+        draw_type, 
+        color, 
+        accepted_draw == 0 ? false : true
+    );
 }

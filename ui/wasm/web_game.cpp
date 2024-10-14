@@ -9,8 +9,11 @@ int wisdom::WebGame::our_game_id;
 
 namespace wisdom
 {
-    WebGame::WebGame (int white_player, int black_player) :
-        my_game { mapPlayer (white_player), mapPlayer (black_player) }
+    WebGame::WebGame (int white_player, int black_player) 
+        : my_game { 
+            mapPlayer (white_player), 
+            mapPlayer (black_player) 
+        }
     {
         const auto& board = my_game.getBoard();
         int id = 1;
@@ -33,7 +36,9 @@ namespace wisdom
         updateDisplayedGameState();
     }
 
-    auto WebGame::makeMove (const WebMove* move_param) -> bool
+    auto 
+    WebGame::makeMove (const WebMove* move_param) 
+        -> bool
     {
         Move move = move_param->getMove();
 
@@ -45,7 +50,9 @@ namespace wisdom
         return true;
     }
 
-    auto WebGame::newFromSettings (const GameSettings& settings) -> wisdom::WebGame*
+    auto 
+    WebGame::newFromSettings (const GameSettings& settings) 
+        -> wisdom::WebGame*
     {
         auto* new_game = new WebGame ( settings.whitePlayer, settings.blackPlayer );
 
@@ -56,9 +63,12 @@ namespace wisdom
         return new_game;
     }
 
-    auto WebGame::createMoveFromCoordinatesAndPromotedPiece (const WebCoord* src,
-                                                             const WebCoord* dst,
-                                                             int promoted_piece_type)
+    auto 
+    WebGame::createMoveFromCoordinatesAndPromotedPiece (
+        const WebCoord* src,
+        const WebCoord* dst,
+        int promoted_piece_type
+    )
         -> WebMove*
     {
         auto game_src = makeCoord (src->row, src->col);
@@ -75,7 +85,9 @@ namespace wisdom
         return new WebMove { move };
     }
 
-    auto WebGame::isLegalMove (const WebMove* selectedMovePtr) -> bool
+    auto 
+    WebGame::isLegalMove (const WebMove* selectedMovePtr) 
+        -> bool
     {
         Move selectedMove = selectedMovePtr->getMove();
         auto selectedMoveStr = asString (selectedMove);
@@ -111,7 +123,6 @@ namespace wisdom
         settings.applyToGame (&my_game);
     }
 
-
     void WebGame::setComputerDrawStatus (int type, int who, bool accepted)
     {
         ProposedDrawType proposed_draw_type = mapDrawByRepetitionType (type);
@@ -123,19 +134,28 @@ namespace wisdom
         updateDisplayedGameState();
     }
 
-    [[nodiscard]] auto WebGame::findAndRemoveId (std::unordered_map<int,
-        WebColoredPiece>& old_list, Coord coord_to_find, ColoredPiece piece_to_find) -> int
+    [[nodiscard]] auto 
+    WebGame::findAndRemoveId (
+        std::unordered_map<int,
+        WebColoredPiece>& old_list, 
+        Coord coord_to_find, 
+        ColoredPiece piece_to_find
+    ) 
+        -> int
     {
-        auto found
-            = std::find_if (old_list.begin(), old_list.end(),
-                            [piece_to_find, coord_to_find] (const auto& it) -> bool
-                            {
-                                auto key = it.first;
-                                auto value = it.second;
-                                auto piece = mapColoredPiece (value);
-                                auto piece_coord = makeCoord (value.row, value.col);
-                                return piece_to_find == piece && piece_coord == coord_to_find;
-                            });
+        auto found = std::find_if (
+            old_list.begin(), 
+            old_list.end(),
+            [piece_to_find, coord_to_find] (const auto& it) 
+                -> bool 
+            {
+                auto key = it.first;
+                auto value = it.second;
+                auto piece = mapColoredPiece (value);
+                auto piece_coord = makeCoord (value.row, value.col);
+                return piece_to_find == piece && piece_coord == coord_to_find;
+            }
+        );
 
         if (found != old_list.end())
         {
@@ -231,11 +251,14 @@ namespace wisdom
 
         // Sort by the ID so that the pieces always have the same order
         // CSS animations removing the CSS classes will work.
-        std::sort (my_pieces.pieces, my_pieces.pieces + my_pieces.length,
-                   [] (const WebColoredPiece& a, const WebColoredPiece& b)
-                   {
-                       return a.id < b.id;
-                   });
+        std::sort (
+            my_pieces.pieces, 
+            my_pieces.pieces + my_pieces.length,
+            [] (const WebColoredPiece& a, const WebColoredPiece& b)
+            {
+                return a.id < b.id;
+            }
+        );
     }
 
     class WebGameStatusUpdate : public GameStatusUpdate
@@ -247,7 +270,9 @@ namespace wisdom
         explicit WebGameStatusUpdate (observer_ptr<WebGame> parent_) : parent { parent_ }
         {}
 
-        [[nodiscard]] static auto get_first_human_player (Players players) -> optional<Color>
+        [[nodiscard]] static auto 
+        get_first_human_player (Players players) 
+            -> optional<Color>
         {
             if (players[0] == Player::Human) {
                 return Color::White;

@@ -19,7 +19,8 @@ using wisdom::nonnull_observer_ptr;
 
 namespace
 {
-    auto getFirstHumanPlayerColor (Players players) -> optional<Color>
+    auto 
+        getFirstHumanPlayerColor (Players players) -> optional<Color>
     {
         if (players[0] == Player::Human)
         {
@@ -34,8 +35,10 @@ namespace
     }
 }
 
-GameModel::GameModel (QObject* parent) :
-        QObject (parent), my_current_turn {}, my_chess_engine_thread { nullptr }
+GameModel::GameModel (QObject* parent) 
+    : QObject (parent)
+    , my_current_turn {}
+    , my_chess_engine_thread { nullptr }
 {
     my_chess_game = ChessGame::fromPlayers (
         Player::Human,
@@ -160,13 +163,22 @@ void GameModel::restart()
     updateDisplayedGameState();
 }
 
-void GameModel::movePiece (int src_row, int src_column, int dst_row, int dst_column)
-{
+void
+GameModel::movePiece (
+    int src_row, 
+    int src_column, 
+    int dst_row, 
+    int dst_column
+) {
     movePieceWithPromotion (src_row, src_column, dst_row, dst_column, {});
 }
 
-void GameModel::engineThreadMoved (wisdom::Move move, wisdom::Color who, int game_id)
-{
+void 
+GameModel::engineThreadMoved (
+    wisdom::Move move, 
+    wisdom::Color who, 
+    int game_id
+) {
     // validate this signal was not sent by an old thread:
     if (game_id != my_game_id)
     {
@@ -184,15 +196,31 @@ void GameModel::engineThreadMoved (wisdom::Move move, wisdom::Color who, int gam
     handleMove (Player::ChessEngine, move, who);
 }
 
-void GameModel::promotePiece (int src_row, int src_column, int dst_row, int dst_column,
-                              ui::PieceType piece_type)
-{
-    movePieceWithPromotion (src_row, src_column, dst_row, dst_column, mapPiece (piece_type));
+void 
+GameModel::promotePiece (
+    int src_row, 
+    int src_column, 
+    int dst_row, 
+    int dst_column, 
+    ui::PieceType piece_type
+) {
+    movePieceWithPromotion (
+        src_row, 
+        src_column, 
+        dst_row, 
+        dst_column, 
+        mapPiece (piece_type)
+    );
 }
 
-void GameModel::movePieceWithPromotion (int srcRow, int srcColumn, int dstRow, int dstColumn,
-                                        optional<wisdom::Piece> pieceType)
-{
+void 
+GameModel::movePieceWithPromotion (
+    int srcRow, 
+    int srcColumn, 
+    int dstRow, 
+    int dstColumn, 
+    optional<wisdom::Piece> pieceType
+) {
     auto [optional_move, who]
         = my_chess_game->moveFromCoordinates (srcRow, srcColumn, dstRow, dstColumn, pieceType);
     if (!optional_move.has_value())
@@ -212,11 +240,22 @@ void GameModel::movePieceWithPromotion (int srcRow, int srcColumn, int dstRow, i
     handleMove (wisdom::Player::Human, move, who);
 }
 
-bool GameModel::needsPawnPromotion (int src_row, int src_column, int dst_row, int dst_column)
+auto 
+GameModel::needsPawnPromotion (
+    int src_row, 
+    int src_column, 
+    int dst_row, 
+    int dst_column
+)
+    -> bool
 {
-    auto [optional_move, who]
-        = my_chess_game->moveFromCoordinates (src_row, src_column, dst_row,
-                                                                    dst_column, Piece::Queen);
+    auto [optional_move, who] = my_chess_game->moveFromCoordinates (
+        src_row, 
+        src_column, 
+        dst_row, 
+        dst_column, 
+        Piece::Queen
+    );
     if (!optional_move.has_value())
     {
         return false;
@@ -248,7 +287,11 @@ void GameModel::updateEngineConfig()
     emit engineConfigChanged (gameConfig(), buildNotifier());
 }
 
-auto GameModel::updateChessEngineForHumanMove (Move selected_move) -> wisdom::Color
+auto 
+GameModel::updateChessEngineForHumanMove (
+    Move selected_move
+) 
+    -> wisdom::Color
 {
     auto game_state = my_chess_game->state();
 
@@ -256,7 +299,9 @@ auto GameModel::updateChessEngineForHumanMove (Move selected_move) -> wisdom::Co
     return game_state->getCurrentTurn();
 }
 
-auto GameModel::buildNotifier() const -> MoveTimer::PeriodicFunction
+auto 
+GameModel::buildNotifier() const 
+    -> MoveTimer::PeriodicFunction
 {
     auto initial_game_id = my_game_id.load();
     auto initial_config_id = my_config_id.load();
@@ -296,8 +341,12 @@ void GameModel::updateCurrentTurn (Color new_color)
     setCurrentTurn (ui::mapColor (new_color));
 }
 
-void GameModel::handleMove (Player player_type, Move move, Color who)
-{
+void 
+GameModel::handleMove (
+    Player player_type, 
+    Move move, 
+    Color who
+) {
     if (player_type == wisdom::Player::ChessEngine)
     {
         emit engineMoved (move, who, my_game_id);
@@ -329,7 +378,9 @@ void GameModel::notifyInternalGameStateUpdated()
     updateEngineConfig();
 }
 
-auto GameModel::gameConfig() const -> ChessGame::Config
+auto 
+GameModel::gameConfig() const 
+    -> ChessGame::Config
 {
     return ChessGame::Config {
         my_chess_game->state()->getPlayers(),
@@ -338,7 +389,9 @@ auto GameModel::gameConfig() const -> ChessGame::Config
     };
 }
 
-auto GameModel::currentTurn() const -> ui::Color
+auto 
+GameModel::currentTurn() const 
+    -> ui::Color
 {
     return my_current_turn;
 }
@@ -361,7 +414,9 @@ void GameModel::setGameOverStatus (const QString& new_status)
     }
 }
 
-auto GameModel::gameOverStatus() const -> QString
+auto 
+GameModel::gameOverStatus() const 
+    -> QString
 {
     return my_game_over_status;
 }
@@ -375,7 +430,9 @@ void GameModel::setMoveStatus (const QString& new_status)
     }
 }
 
-auto GameModel::moveStatus() const -> QString
+auto 
+GameModel::moveStatus() const 
+    -> QString
 {
     return my_move_status;
 }
@@ -389,7 +446,9 @@ void GameModel::setInCheck (bool new_in_check)
     }
 }
 
-auto GameModel::inCheck() const -> bool
+auto 
+GameModel::inCheck() const 
+    -> bool
 {
     return my_in_check;
 }
@@ -489,7 +548,9 @@ void GameModel::resetStateForNewGame()
     setFiftyMovesDrawStatus (DrawStatus::NotReached);
 }
 
-auto GameModel::uiSettings() const -> const UISettings&
+auto 
+GameModel::uiSettings() const 
+    -> const UISettings&
 {
     return my_ui_settings;
 }
@@ -503,7 +564,9 @@ void GameModel::setUISettings (const UISettings& settings)
     }
 }
 
-auto GameModel::gameSettings() const -> const GameSettings&
+auto 
+GameModel::gameSettings() const 
+    -> const GameSettings&
 {
     return my_game_settings;
 }
@@ -518,17 +581,23 @@ void GameModel::setGameSettings (const GameSettings& new_game_settings)
     }
 }
 
-auto GameModel::cloneUISettings() -> UISettings
+auto 
+GameModel::cloneUISettings() 
+    -> UISettings
 {
     return my_ui_settings;
 }
 
-auto GameModel::cloneGameSettings() -> GameSettings
+auto 
+GameModel::cloneGameSettings() 
+    -> GameSettings
 {
     return my_game_settings;
 }
 
-auto GameModel::thirdRepetitionDrawStatus() const -> DrawStatus
+auto 
+GameModel::thirdRepetitionDrawStatus() const 
+    -> DrawStatus
 {
     return my_third_repetition_draw_status;
 }
@@ -546,7 +615,9 @@ void GameModel::setThirdRepetitionDrawStatus (DrawStatus draw_status)
     }
 }
 
-auto GameModel::fiftyMovesDrawStatus() const -> DrawStatus
+auto 
+GameModel::fiftyMovesDrawStatus() const 
+    -> DrawStatus
 {
     return my_fifty_moves_draw_status;
 }
@@ -564,8 +635,11 @@ void GameModel::setFiftyMovesDrawStatus (DrawStatus draw_status)
     }
 }
 
-void GameModel::setProposedDrawStatus (wisdom::ProposedDrawType draw_type, DrawStatus status)
-{
+void 
+GameModel::setProposedDrawStatus (
+    wisdom::ProposedDrawType draw_type, 
+    DrawStatus status
+) {
     auto game_state = my_chess_game->state();
     auto optional_color = getFirstHumanPlayerColor (game_state->getPlayers());
 
@@ -585,9 +659,12 @@ void GameModel::setProposedDrawStatus (wisdom::ProposedDrawType draw_type, DrawS
     updateDisplayedGameState();
 }
 
-void GameModel::receiveChessEngineDrawStatus (wisdom::ProposedDrawType draw_type, wisdom::Color who,
-                                              bool accepted)
-{
+void 
+GameModel::receiveChessEngineDrawStatus (
+    wisdom::ProposedDrawType draw_type, 
+    wisdom::Color who, 
+    bool accepted
+) {
     auto gameState = my_chess_game->state();
     gameState->setProposedDrawStatus (draw_type, who, accepted);
     updateDisplayedGameState();

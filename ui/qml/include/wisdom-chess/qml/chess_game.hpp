@@ -19,7 +19,8 @@
 class MaxDepth
 {
 public:
-    explicit MaxDepth (int userDepth) : myUserDepth { userDepth }
+    explicit MaxDepth (int userDepth) 
+        : myUserDepth { userDepth }
     {
         if (userDepth <= 0)
         {
@@ -27,12 +28,16 @@ public:
         }
     }
 
-    [[nodiscard]] auto internalDepth() const -> int
+    [[nodiscard]] auto 
+    internalDepth() const 
+        -> int
     {
         return myUserDepth * 2 - 1;
     }
 
-    [[nodiscard]] auto userDepth() const -> int
+    [[nodiscard]] auto 
+    userDepth() const 
+        -> int
     {
         return myUserDepth;
     }
@@ -56,42 +61,75 @@ public:
         static auto fromGameSettings (const GameSettings& gameSettings) -> Config;
     };
 
-    explicit ChessGame (std::unique_ptr<wisdom::Game> game, const Config& config) :
-            my_engine { std::move (game) }, my_config { config }
+    explicit ChessGame (
+        std::unique_ptr<wisdom::Game> game, 
+        const Config& config
+    ) 
+        : my_engine { std::move (game) } 
+        , my_config { config }
     {
         setConfig (config);
     }
 
-    static auto fromPlayers (wisdom::Player whitePlayer, wisdom::Player blackPlayer,
-                             const Config& config) -> std::unique_ptr<ChessGame>;
-
-    static auto fromFen (const std::string& input, const Config& config)
+    static auto fromPlayers (
+        wisdom::Player whitePlayer, 
+        wisdom::Player blackPlayer, 
+        const Config& config
+    ) 
         -> std::unique_ptr<ChessGame>;
 
-    static auto fromEngine (std::unique_ptr<wisdom::Game> game, const Config& config)
+    static auto fromFen (
+        const std::string& input, 
+        const Config& confilg
+    )
         -> std::unique_ptr<ChessGame>;
 
-    [[nodiscard]] auto state() -> gsl::not_null<wisdom::Game*>
+    static auto fromEngine (
+        std::unique_ptr<wisdom::Game> game, 
+        const Config& config
+    )
+        -> std::unique_ptr<ChessGame>;
+
+    [[nodiscard]] auto 
+    state() 
+        -> gsl::not_null<wisdom::Game*>
     {
         return my_engine.get();
     }
 
-    [[nodiscard]] auto state() const -> gsl::not_null<const wisdom::Game*>
+    [[nodiscard]] auto 
+    state() const 
+        -> gsl::not_null<const wisdom::Game*>
     {
         return my_engine.get();
     }
 
     // Clone the game state
-    [[nodiscard]] auto clone() const -> std::unique_ptr<ChessGame>;
+    [[nodiscard]] auto 
+    clone() const 
+        -> std::unique_ptr<ChessGame>;
 
-    [[nodiscard]] auto isLegalMove (wisdom::Move selectedMove) const -> bool;
+    [[nodiscard]] auto 
+    isLegalMove (wisdom::Move selectedMove) const 
+        -> bool;
 
     void setConfig (const Config& config);
-    void setPeriodicFunction (const wisdom::MoveTimer::PeriodicFunction& func);
-    void setPlayers (wisdom::Player whitePLayer, wisdom::Player blackPlayer);
+    void setPeriodicFunction (
+        const wisdom::MoveTimer::PeriodicFunction& func
+    );
+    void setPlayers (
+        wisdom::Player whitePLayer, 
+        wisdom::Player blackPlayer
+    );
 
-    [[nodiscard]] auto moveFromCoordinates (int srcRow, int srcColumn, int dstRow, int dstColumn,
-                                            std::optional<wisdom::Piece> promoted) const
+    [[nodiscard]] auto 
+    moveFromCoordinates (
+        int srcRow, 
+        int srcColumn, 
+        int dstRow, 
+        int dstColumn, 
+        std::optional<wisdom::Piece> promoted
+    ) const
         -> std::pair<std::optional<wisdom::Move>, wisdom::Color>;
 
 private:

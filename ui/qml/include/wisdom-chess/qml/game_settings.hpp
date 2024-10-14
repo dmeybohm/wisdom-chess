@@ -8,22 +8,43 @@ class GameSettings
 {
     Q_GADGET
 
-    Q_PROPERTY (wisdom::ui::Player whitePlayer MEMBER my_white_player READ whitePlayer)
-    Q_PROPERTY (wisdom::ui::Player blackPlayer MEMBER my_black_player READ blackPlayer)
-    Q_PROPERTY (int maxDepth MEMBER my_max_depth READ maxDepth)
-    Q_PROPERTY (int maxSearchTime MEMBER my_max_search_time READ maxSearchTime)
+    Q_PROPERTY (wisdom::ui::Player whitePlayer 
+            MEMBER my_white_player 
+            READ whitePlayer)
+    Q_PROPERTY (wisdom::ui::Player blackPlayer 
+            MEMBER my_black_player 
+            READ blackPlayer)
+    Q_PROPERTY (int maxDepth 
+            MEMBER my_max_depth 
+            READ maxDepth)
+    Q_PROPERTY (int maxSearchTime 
+            MEMBER my_max_search_time 
+            READ maxSearchTime)
 
 public:
-    friend bool operator== (const GameSettings&, const GameSettings&);
-    friend bool operator!= (const GameSettings&, const GameSettings&);
+    friend auto 
+    operator== (const GameSettings&, const GameSettings&) 
+        -> bool;
 
-    [[nodiscard]] auto whitePlayer() const -> wisdom::ui::Player;
+    friend auto 
+    operator!= (const GameSettings&, const GameSettings&) 
+        -> bool;
 
-    [[nodiscard]] auto blackPlayer() const -> wisdom::ui::Player;
+    [[nodiscard]] auto 
+    whitePlayer() const 
+        -> wisdom::ui::Player;
 
-    [[nodiscard]] auto maxDepth() const -> int;
+    [[nodiscard]] auto 
+    blackPlayer() const 
+        -> wisdom::ui::Player;
 
-    [[nodiscard]] auto maxSearchTime() const -> int;
+    [[nodiscard]] auto 
+    maxDepth() const 
+        -> int;
+
+    [[nodiscard]] auto 
+    maxSearchTime() const 
+        -> int;
 
 private:
     wisdom::ui::Player my_white_player = wisdom::ui::Player::Human;

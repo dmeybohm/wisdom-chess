@@ -39,35 +39,35 @@ namespace wisdom
 
     using ColorIndex = int8_t;
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     pieceFromInt8 (int8_t integer) 
         -> Piece
     {
         return static_cast<Piece> (integer);
     }
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     pieceFromInt (int integer) 
         -> Piece
     {
         return static_cast<Piece> (integer);
     }
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     colorFromInt8 (int8_t integer) 
         -> Color
     {
         return static_cast<Color> (integer);
     }
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     colorFromInt (int integer) 
         -> Color
     {
         return static_cast<Color> (integer);
     }
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     colorFromColorIndex (ColorIndex index) 
         -> Color
     {
@@ -75,42 +75,42 @@ namespace wisdom
         return static_cast<Color> (index + 1);
     }
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     toInt8 (Piece piece) 
         -> int8_t
     {
         return static_cast<int8_t> (piece);
     }
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     toInt (Piece piece) 
         -> int
     {
         return static_cast<int> (piece);
     }
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     toInt (Color color) 
         -> int
     {
         return static_cast<int> (color);
     }
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     toInt8 (Color color) 
         -> int8_t
     {
         return static_cast<int8_t> (color);
     }
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     isColorValid (Color who) 
         -> bool
     {
         return (who == Color::White || who == Color::Black);
     }
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     colorIndex (Color who) 
         -> ColorIndex
     {
@@ -118,7 +118,7 @@ namespace wisdom
         return narrow_cast<int8_t> (toInt8 (who) - 1);
     }
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     colorInvert (Color who)
         -> Color
     {
@@ -127,7 +127,7 @@ namespace wisdom
         return colorFromColorIndex (narrow_cast<int8_t> (inverted));
     }
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     pieceIndex (Piece piece)
         -> int
     {
@@ -183,14 +183,14 @@ namespace wisdom
             return pieceFromInt8 (result);
         }
 
-        friend constexpr auto 
+        [[nodiscard]] friend constexpr auto
         operator== (ColoredPiece first, ColoredPiece second) 
             -> bool
         {
             return first.piece_type_and_color == second.piece_type_and_color;
         }
 
-        friend constexpr auto 
+        [[nodiscard]] friend constexpr auto
         operator!= (ColoredPiece first, ColoredPiece second)
             -> bool
         {
@@ -208,14 +208,14 @@ namespace wisdom
         Piece::Knight,
     };
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     pieceType (ColoredPiece piece) 
         -> Piece
     {
         return piece.type();
     }
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     pieceColor (ColoredPiece piece) 
         -> Color
     {
@@ -227,14 +227,14 @@ namespace wisdom
         Piece::None
     );
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     toInt8 (ColoredPiece piece) 
         -> int8_t
     {
         return piece.piece_type_and_color;
     }
 
-    constexpr auto 
+    [[nodiscard]] constexpr auto
     pieceFromChar (char p) 
         -> Piece
     {
@@ -263,7 +263,7 @@ namespace wisdom
         }
     }
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     pieceToChar (ColoredPiece piece)
         -> char
     {
@@ -288,9 +288,17 @@ namespace wisdom
         }
     }
 
-    auto asString (Color who) -> string;
-    auto asString (ColoredPiece piece) -> string;
-    auto asString (Piece piece) -> string;
+    [[nodiscard]] auto
+    asString (Color who)
+        -> string;
+
+    [[nodiscard]] auto
+    asString (ColoredPiece piece)
+        -> string;
+
+    [[nodiscard]] auto
+    asString (Piece piece)
+        -> string;
 
     auto 
     operator<< (std::ostream& ostream, const ColoredPiece& value) 
