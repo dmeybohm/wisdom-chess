@@ -208,7 +208,7 @@ namespace wisdom
 
         [[nodiscard]] auto extra_info() const noexcept -> const string&
         {
-            return my_message;
+            return my_extra_info;
         }
 
         [[nodiscard]] const char* what() const noexcept override
