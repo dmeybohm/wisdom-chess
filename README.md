@@ -1,7 +1,7 @@
 <h1 align="center">Wisdom Chess</h1>
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/ui/qml/images/wisdom-chess-animate.gif" />
+    <img src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/src/wisdom-chess/ui/qml/images/wisdom-chess-animate.gif" />
 </p>
 
 ----
@@ -88,14 +88,14 @@ for how to use Qt on Android.
 
 <p align="center">
     <img
-    src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/ui/qml/images/wisdom-chess-android.png" />
+    src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/src/wisdom-chess/ui/qml/images/wisdom-chess-android.png" />
 </p>
 
 ## Running
 
 <p align="center">
     <img
-    src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/ui/qml/images/windows-wisdom-chess.png" />
+    src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/src/wisdom-chess/ui/qml/images/windows-wisdom-chess.png" />
 </p>
 
 ## Running Tests
