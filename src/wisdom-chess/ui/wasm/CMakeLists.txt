@@ -55,7 +55,6 @@ target_compile_options(wisdom-chess-web PRIVATE
 )
 target_link_options(wisdom-chess-web PRIVATE
         "SHELL:-s WASM_WORKERS"
-        "SHELL:-s DEMANGLE_SUPPORT=1"
         "SHELL:-s MODULARIZE=1"
         "SHELL:-s INITIAL_MEMORY=33554432"
         "SHELL:-s MAXIMUM_MEMORY=1073741824"
