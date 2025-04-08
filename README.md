@@ -1,8 +1,7 @@
 <h1 align="center">Wisdom Chess</h1>
 
 <p align="center">
-    <img
-    src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/src/wisdom-chess/ui/qml/images/wisdom-chess-animate.gif" />
+    <img src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/src/wisdom-chess/ui/qml/images/wisdom-chess-animate.gif" />
 </p>
 
 ----
