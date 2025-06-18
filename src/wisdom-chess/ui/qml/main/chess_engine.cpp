@@ -14,9 +14,20 @@ using std::shared_ptr;
 using wisdom::GameStatus;
 using wisdom::ProposedDrawType;
 
+void ChessEngine::ChessEngineLogger::debug (const std::string& line) const
+{
+    if (ChessEngine::Log_Level >= wisdom::Logger::LogLevel_Debug) 
+    {
+        qDebug() << line.c_str();
+    }
+}
+
 void ChessEngine::ChessEngineLogger::info (const std::string& line) const
 {
-    qDebug() << line.c_str();
+    if (ChessEngine::Log_Level >= wisdom::Logger::LogLevel_Info) 
+    {
+        qDebug() << line.c_str();
+    }
 }
 
 ChessEngine::ChessEngine (shared_ptr<ChessGame> game, int gameId, QObject* parent) :

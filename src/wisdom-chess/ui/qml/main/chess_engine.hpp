@@ -38,9 +38,7 @@ public:
 
     struct ChessEngineLogger : wisdom::Logger
     {
-        void debug (const std::string& string) const override
-        {
-        }
+        void debug (const std::string& string) const override;
 
         void info (const std::string& string) const override;
     };

@@ -6,6 +6,9 @@
 
 namespace wisdom
 {
+    // Put destructor here to put vtable in this translation unit:
+    OutputFormat::~OutputFormat() = default;
+
     void 
     FenOutputFormat::save (
         const string& filename, 

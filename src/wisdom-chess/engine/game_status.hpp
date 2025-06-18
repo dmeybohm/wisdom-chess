@@ -30,7 +30,9 @@ namespace wisdom
     {
     public:
         GameStatusUpdate() = default;
-        virtual ~GameStatusUpdate() = default;
+
+        // Put virtual destructor in the .cpp file to put vtable there:
+        virtual ~GameStatusUpdate();
 
         // Run after a status update.
         void update (GameStatus status);

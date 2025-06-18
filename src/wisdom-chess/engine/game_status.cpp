@@ -1,5 +1,8 @@
 #include "wisdom-chess/engine/game_status.hpp"
 
+// Put destructor here to put vtable in this translation unit:
+wisdom::GameStatusUpdate::~GameStatusUpdate() = default;
+
 void wisdom::GameStatusUpdate::update (GameStatus status)
 {
     switch (status)
