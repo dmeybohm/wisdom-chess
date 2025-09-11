@@ -151,7 +151,7 @@ namespace wisdom
     makeCastlingEligibilityFromInt (unsigned int flags)
         -> CastlingEligibility
 	{
-		return CastlingEligibility {gsl::narrow<uint8_t> (flags) };
+		return CastlingEligibility { gsl::narrow<uint8_t> (flags) };
 	}
 
     // Send the castling eligibility to the ostream.

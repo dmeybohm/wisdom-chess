@@ -297,8 +297,6 @@ namespace wisdom
         return narrow_cast<IntegerType> (who == Color::White ? Last_Row : First_Row);
     }
 
-    using PlayerCastleState = array<CastlingEligibility, Num_Players>;
-
     constexpr auto
     operator== (Move a, Move b) noexcept
         -> bool
