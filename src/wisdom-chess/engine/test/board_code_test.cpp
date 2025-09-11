@@ -237,15 +237,15 @@ TEST_CASE( "Board code stores metadata" )
         auto initial_white_state = board_code.castleState (Color::White);
         auto initial_black_state = board_code.castleState (Color::Black);
 
-        CHECK( initial_white_state == Either_Side_Eligible );
-        CHECK( initial_black_state == Either_Side_Eligible );
+        CHECK( initial_white_state == CastlingEligibility::Either_Side );
+        CHECK( initial_black_state == CastlingEligibility::Either_Side );
 
-        board_code.setCastleState (Color::White, Neither_Side_Eligible);
+        board_code.setCastleState (Color::White, CastlingEligibility::Neither_Side);
         auto white_state = board_code.castleState (Color::White);
         auto black_state = board_code.castleState (Color::Black);
 
-        CHECK( white_state == Neither_Side_Eligible );
-        CHECK( black_state == Either_Side_Eligible );
+        CHECK( white_state == CastlingEligibility::Neither_Side );
+        CHECK( black_state == CastlingEligibility::Either_Side );
 
         board_code.setCastleState (Color::White, CastlingIneligible::Kingside);
         board_code.setCastleState (Color::Black, CastlingIneligible::Queenside);

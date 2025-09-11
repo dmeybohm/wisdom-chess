@@ -118,8 +118,8 @@ namespace wisdom
 
     void FenParser::parseCastling (string castling_str)
     {
-        CastlingEligibility white_castle = Neither_Side_Eligible;
-        CastlingEligibility black_castle = Neither_Side_Eligible;
+        CastlingEligibility white_castle = CastlingEligibility::Neither_Side;
+        CastlingEligibility black_castle = CastlingEligibility::Neither_Side;
 
         for (; !castling_str.empty() && isalpha (castling_str[0]);
              castling_str = castling_str.substr (1))
@@ -130,7 +130,7 @@ namespace wisdom
                 break;
 
             Color who = islower (ch) ? Color::Black : Color::White;
-            CastlingEligibility new_ineligible = Either_Side_Eligible;
+            CastlingEligibility new_ineligible = CastlingEligibility::Either_Side;
 
             switch (tolower (ch))
             {

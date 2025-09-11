@@ -8,7 +8,7 @@ namespace wisdom
     {
     private:
         uint8_t my_flags;
-        
+
         static constexpr auto
         fromInt (unsigned int flags)
             -> CastlingEligibility
@@ -22,7 +22,7 @@ namespace wisdom
 
         constexpr explicit
         CastlingEligibility (uint8_t flags) noexcept
-			: my_flags (flags)
+            : my_flags { flags }
         {
             assert (flags &~ (0x1|0x2) == 0);
         }
@@ -127,6 +127,10 @@ namespace wisdom
             return gsl::narrow_cast<IntegerType> (my_flags);
         }
 
+        // Static constants for common eligibility states (defined after class)
+        static const CastlingEligibility Either_Side;
+        static const CastlingEligibility Neither_Side;
+
     };
 
     template <typename IntegerType = uint8_t>
@@ -143,9 +147,11 @@ namespace wisdom
         constexpr static CastlingEligibility Queenside { 2 };
     };
 
-    inline constexpr CastlingEligibility Either_Side_Eligible {};
-    inline constexpr CastlingEligibility Neither_Side_Eligible
+    // Define the static constants for CastlingEligibility
+    inline constexpr CastlingEligibility CastlingEligibility::Either_Side {};
+    inline constexpr CastlingEligibility CastlingEligibility::Neither_Side
         = CastlingIneligible::Kingside | CastlingIneligible::Queenside;
+
 
     constexpr auto
     makeCastlingEligibilityFromInt (unsigned int flags)

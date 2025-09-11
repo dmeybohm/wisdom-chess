@@ -44,7 +44,7 @@ TEST_CASE( "CastlingEligibility - Construction from flags" )
     
     SUBCASE( "Both sides ineligible" )
     {
-        CastlingEligibility eligibility{ 3 };
+        CastlingEligibility eligibility { 3 };
         CHECK( eligibility.isSet (CastlingIneligible::Kingside) );
         CHECK( eligibility.isSet (CastlingIneligible::Queenside) );
         CHECK( static_cast<bool> (eligibility) );
@@ -244,18 +244,18 @@ TEST_CASE( "CastlingIneligible - static constants" )
 
 TEST_CASE( "Global constants" )
 {
-    SUBCASE( "Either_Side_Eligible" )
+    SUBCASE( "CastlingEligibility::Either_Side" )
     {
-        CHECK( Either_Side_Eligible.toInt<uint8_t>() == 0 );
-        CHECK( !static_cast<bool> (Either_Side_Eligible) );
+        CHECK( CastlingEligibility::Either_Side.toInt<uint8_t>() == 0 );
+        CHECK( !static_cast<bool> (CastlingEligibility::Either_Side) );
     }
     
-    SUBCASE( "Neither_Side_Eligible" )
+    SUBCASE( "CastlingEligibility::Neither_Side" )
     {
-        CHECK( Neither_Side_Eligible.toInt<uint8_t>() == 3 );
-        CHECK( static_cast<bool> (Neither_Side_Eligible) );
-        CHECK( Neither_Side_Eligible.isSet (CastlingIneligible::Kingside) );
-        CHECK( Neither_Side_Eligible.isSet (CastlingIneligible::Queenside) );
+        CHECK( CastlingEligibility::Neither_Side.toInt<uint8_t>() == 3 );
+        CHECK( static_cast<bool> (CastlingEligibility::Neither_Side) );
+        CHECK( CastlingEligibility::Neither_Side.isSet (CastlingIneligible::Kingside) );
+        CHECK( CastlingEligibility::Neither_Side.isSet (CastlingIneligible::Queenside) );
     }
 }
 

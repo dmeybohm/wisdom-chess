@@ -141,7 +141,7 @@ namespace wisdom
         };
 
         auto castled = getCastlingEligibility (color);
-        if (castled == Either_Side_Eligible)
+        if (castled == CastlingEligibility::Either_Side)
             castled_state.append (1, convert ('K')), castled_state.append (1, convert ('Q'));
         else if (castled == CastlingIneligible::Kingside)
             castled_state += "Q";
