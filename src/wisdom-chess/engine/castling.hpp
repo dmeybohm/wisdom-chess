@@ -121,7 +121,7 @@ namespace wisdom
 
         template <typename IntegerType = uint8_t>
         constexpr auto
-        toInt()
+        toInt() const
             -> IntegerType
         {
             return gsl::narrow_cast<IntegerType> (my_flags);

@@ -6,6 +6,7 @@ if (WISDOM_CHESS_FAST_TESTS)
         en_passant_test.cpp
         material_test.cpp
         castle_test.cpp
+        castling_eligibility_test.cpp
         pawn_promotion_test.cpp
         board_builder_test.cpp
         check_test.cpp
