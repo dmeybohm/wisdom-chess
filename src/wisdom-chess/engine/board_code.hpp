@@ -188,11 +188,6 @@ namespace wisdom
             setMetadataBits (metadataBits);
         }
 
-        void setCastleState (Color who, CastlingIneligible flag) noexcept
-        {
-            setCastleState (who, CastlingEligibility { flag });
-        }
-
         [[nodiscard]] auto
         currentTurn() const noexcept
             -> Color

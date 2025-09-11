@@ -167,12 +167,6 @@ namespace wisdom
         }
 
         constexpr void
-        setCastling (Color who, CastlingIneligible flag)
-        {
-            setCastling (who, CastlingEligibility { flag });
-        }
-
-        constexpr void
         setHalfMovesClock (int new_half_moves_clock)
         {
             my_half_moves_clock = new_half_moves_clock;
