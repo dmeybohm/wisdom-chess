@@ -11,7 +11,7 @@ CPMAddPackage("gh:microsoft/GSL@4.0.0")
 CPMAddPackage(
   NAME doctest
   GITHUB_REPOSITORY doctest/doctest
-  GIT_TAG v2.4.11
+  GIT_TAG v2.4.12
   OPTIONS
      "DOCTEST_NO_INSTALL On"
 )
