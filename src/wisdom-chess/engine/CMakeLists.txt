@@ -7,7 +7,6 @@ project(WisdomEngine CXX)
 
 find_package(Threads REQUIRED)
 
-CPMAddPackage("gh:foonathan/type_safe@0.2.3")
 CPMAddPackage("gh:microsoft/GSL@4.0.0")
 CPMAddPackage(
   NAME doctest
@@ -33,6 +32,7 @@ add_library(wisdom-chess-core STATIC
         board_builder.hpp
         board_code.hpp
         board.hpp
+        castling.hpp
         coord.hpp
         evaluate.hpp
         fen_parser.hpp
@@ -84,7 +84,6 @@ add_library(wisdom::chess ALIAS wisdom-chess-core)
 
 target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
-target_link_libraries(wisdom-chess-core PUBLIC type_safe)
 
 if (EMSCRIPTEN)
     target_compile_options(wisdom-chess-core PUBLIC -pthread)

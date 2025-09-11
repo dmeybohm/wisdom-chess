@@ -26,8 +26,6 @@
 
 #include <gsl/gsl>
 #include <gsl/narrow>
-#include <type_safe/flag.hpp>
-#include <type_safe/flag_set.hpp>
 
 namespace doctest
 {

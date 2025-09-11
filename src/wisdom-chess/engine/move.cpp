@@ -144,7 +144,7 @@ namespace wisdom
         CastlingEligibility orig_castle_state = getCastlingEligibility (who);
         my_code.setCastleState (
             who,
-            type_safe::combo (orig_castle_state) | type_safe::combo (removed_castle_states)
+            orig_castle_state | removed_castle_states
         );
     }
 

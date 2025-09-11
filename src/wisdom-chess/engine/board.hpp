@@ -146,6 +146,13 @@ namespace wisdom
             return neg_not_set;
         }
 
+        [[nodiscard]] auto
+        ableToCastle (Color who, CastlingIneligible castle_type) const noexcept
+            -> bool
+        {
+            return ableToCastle (who, CastlingEligibility { castle_type });
+        }
+
         [[nodiscard]] auto isEnPassantVulnerable (Color who) const noexcept -> bool
         {
             auto target = my_code.enPassantTarget();

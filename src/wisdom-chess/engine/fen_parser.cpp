@@ -143,9 +143,9 @@ namespace wisdom
             }
 
             if (who == Color::Black)
-                black_castle ^= type_safe::combo<CastlingIneligible> (new_ineligible);
+                black_castle = black_castle ^ new_ineligible;
             else
-                white_castle ^= type_safe::combo<CastlingIneligible> (new_ineligible);
+                white_castle = white_castle ^ new_ineligible;
         }
 
         builder.setCastling (Color::White, white_castle);

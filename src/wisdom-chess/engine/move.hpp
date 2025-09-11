@@ -3,29 +3,7 @@
 #include "wisdom-chess/engine/global.hpp"
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/piece.hpp"
-
-namespace wisdom
-{
-    enum class CastlingIneligible : uint8_t
-    {
-        Kingside = 1,
-        Queenside = 2,
-    };
-}
-
-namespace type_safe
-{
-    template <>
-    struct flag_set_traits<wisdom::CastlingIneligible> : std::true_type
-    {
-        static constexpr auto 
-        size() 
-            -> std::size_t
-        {
-            return 2;
-        }
-    };
-}
+#include "wisdom-chess/engine/castling.hpp"
 
 namespace wisdom
 {
@@ -35,57 +13,6 @@ namespace wisdom
         Color vulnerable_color;
     };
 
-    using CastlingEligibility = type_safe::flag_set<wisdom::CastlingIneligible>;
-
-    inline constexpr CastlingEligibility Either_Side_Eligible = type_safe::noflag;
-    inline constexpr CastlingEligibility Neither_Side_Eligible
-        = CastlingIneligible::Kingside | CastlingIneligible::Queenside;
-
-    inline constexpr auto 
-    makeCastlingEligibilityFromInt (unsigned int flags) 
-        -> CastlingEligibility
-    {
-        CastlingEligibility result = Either_Side_Eligible;
-        assert (flags <= (0x1 + 0x2));
-        if (flags & 0x1)
-            result.set (CastlingIneligible::Kingside);
-        if (flags & 0x2)
-            result.set (CastlingIneligible::Queenside);
-        return result;
-    }
-
-    // Send the move to the ostream.
-    inline auto 
-    operator<< (std::ostream& os, const CastlingEligibility& value) 
-        -> std::ostream& 
-    {
-        std::string result = "{ Kingside: ";
-
-        result += value.is_set (CastlingIneligible::Kingside) 
-            ? "not eligible, " 
-            : "eligible, ";
-        result += "Queenside: ";
-        result += value.is_set (CastlingIneligible::Queenside) 
-            ? "not eligible" 
-            : "eligible";
-        result += " }";
-
-        os << result;
-        return os;
-    }
-
-    template <typename IntegerType = uint8_t>
-    inline constexpr auto 
-    toInt (CastlingEligibility eligibility) 
-        -> IntegerType
-    {
-        IntegerType result = 0;
-        if (eligibility.is_set (CastlingIneligible::Kingside))
-            result |= 0x1;
-        if (eligibility.is_set (CastlingIneligible::Queenside))
-            result |= 0x2;
-        return result;
-    }
 
     class Board;
 
