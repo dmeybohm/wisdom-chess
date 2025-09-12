@@ -118,8 +118,8 @@ namespace wisdom
 
     void FenParser::parseCastling (string castling_str)
     {
-        CastlingEligibility white_castle = Neither_Side_Eligible;
-        CastlingEligibility black_castle = Neither_Side_Eligible;
+        CastlingEligibility white_castle = CastlingEligibility::Neither_Side;
+        CastlingEligibility black_castle = CastlingEligibility::Neither_Side;
 
         for (; !castling_str.empty() && isalpha (castling_str[0]);
              castling_str = castling_str.substr (1))
@@ -130,7 +130,7 @@ namespace wisdom
                 break;
 
             Color who = islower (ch) ? Color::Black : Color::White;
-            CastlingEligibility new_ineligible = Either_Side_Eligible;
+            CastlingEligibility new_ineligible = CastlingEligibility::Either_Side;
 
             switch (tolower (ch))
             {
@@ -143,9 +143,9 @@ namespace wisdom
             }
 
             if (who == Color::Black)
-                black_castle ^= type_safe::combo<CastlingIneligible> (new_ineligible);
+                black_castle = black_castle ^ new_ineligible;
             else
-                white_castle ^= type_safe::combo<CastlingIneligible> (new_ineligible);
+                white_castle = white_castle ^ new_ineligible;
         }
 
         builder.setCastling (Color::White, white_castle);

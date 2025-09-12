@@ -135,8 +135,8 @@ namespace wisdom
         {
             // If either/both is passed, check both types.
             auto check_type = 
-                (castle_types == Either_Side_Eligible || castle_types == Neither_Side_Eligible)
-                ? Neither_Side_Eligible
+                (castle_types == CastlingEligibility::Either_Side || castle_types == CastlingEligibility::Neither_Side)
+                ? CastlingEligibility::Neither_Side
                 : castle_types;
 
             auto castle_state = getCastlingEligibility (who);

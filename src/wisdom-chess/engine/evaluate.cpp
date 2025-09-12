@@ -41,7 +41,7 @@ namespace wisdom
     {
         auto castle_state = board.getCastlingEligibility (who);
         int result = 0;
-        if (castle_state != Either_Side_Eligible)
+        if (castle_state != CastlingEligibility::Either_Side)
         {
             if (castle_state & CastlingIneligible::Kingside)
                 result += Castle_Penalty;
