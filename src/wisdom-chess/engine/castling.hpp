@@ -13,7 +13,7 @@ namespace wisdom
         fromInt (unsigned int flags)
             -> CastlingEligibility
         {
-            return CastlingEligibility (gsl::narrow_cast<uint8_t> (flags));
+            return CastlingEligibility (narrow_cast<uint8_t> (flags));
         }
 
     public:
@@ -124,7 +124,7 @@ namespace wisdom
         toInt() const
             -> IntegerType
         {
-            return gsl::narrow_cast<IntegerType> (my_flags);
+            return narrow_cast<IntegerType> (my_flags);
         }
 
         // Static constants for common eligibility states (defined after class)
@@ -157,7 +157,7 @@ namespace wisdom
     makeCastlingEligibilityFromInt (unsigned int flags)
         -> CastlingEligibility
 	{
-		return CastlingEligibility { gsl::narrow<uint8_t> (flags) };
+		return CastlingEligibility { narrow<uint8_t> (flags) };
 	}
 
     // Send the castling eligibility to the ostream.

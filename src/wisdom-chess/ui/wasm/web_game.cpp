@@ -26,8 +26,8 @@ namespace wisdom
             {
                 WebColoredPiece new_piece
                     = WebColoredPiece { id, toInt (piece.color()), toInt (piece.type()),
-                                        gsl::narrow<int> (coord.row()),
-                                        gsl::narrow<int> (coord.column()) };
+                                        narrow<int> (coord.row()),
+                                        narrow<int> (coord.column()) };
                 my_pieces.addPiece (new_piece);
                 id++;
             }
@@ -201,8 +201,8 @@ namespace wisdom
                         id,
                         toInt (piece.color()),
                         toInt (piece.type()),
-                        gsl::narrow<int8_t> (coord.row()),
-                        gsl::narrow<int8_t> (coord.column()),
+                        narrow<int8_t> (coord.row()),
+                        narrow<int8_t> (coord.column()),
                     };
                     my_pieces.addPiece (new_piece);
                 }

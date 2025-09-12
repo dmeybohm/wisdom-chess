@@ -163,7 +163,7 @@ namespace wisdom
 
         void setMoveNumber (size_t size)
         {
-            moveNumber = gsl::narrow<int> (size);
+            moveNumber = narrow<int> (size);
         }
 
         void setMoveStatus (std::string new_move_status)
