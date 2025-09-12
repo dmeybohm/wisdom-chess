@@ -309,8 +309,8 @@ namespace wisdom
         {
             auto coord = coordParse (coord_text);
             return new WebCoord { 
-                gsl::narrow<int> (coord.row()), 
-                gsl::narrow<int> (coord.column()) 
+                narrow<int> (coord.row()), 
+                narrow<int> (coord.column()) 
             };
         }
     };

@@ -82,6 +82,7 @@ namespace wisdom
         constexpr void
         append (Move move) noexcept
         {
+            assert (my_size < Max_Move_List_Size);
             my_moves[my_size++] = move;
         }
 

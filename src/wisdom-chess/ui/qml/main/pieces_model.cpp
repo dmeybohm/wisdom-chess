@@ -61,7 +61,7 @@ void PiecesModel::newGame (gsl::not_null<const ChessGame*> game)
 
     if (my_pieces.count() > 0)
     {
-        beginRemoveRows (QModelIndex {}, 0, gsl::narrow<int> (my_pieces.count() - 1));
+        beginRemoveRows (QModelIndex {}, 0, wisdom::narrow<int> (my_pieces.count() - 1));
         my_pieces.clear();
         endRemoveRows();
     }
@@ -76,8 +76,8 @@ void PiecesModel::newGame (gsl::not_null<const ChessGame*> game)
                 PieceInfo newPiece { row, column, piece, my_piece_to_image_path[toInt8 (piece)] };
                 auto lastRow = my_pieces.count();
                 auto pieceStr = asString (piece);
-                beginInsertRows (QModelIndex {}, gsl::narrow<int> (lastRow),
-                                 gsl::narrow<int> (lastRow));
+                beginInsertRows (QModelIndex {}, wisdom::narrow<int> (lastRow),
+                                 wisdom::narrow<int> (lastRow));
                 my_pieces.append (newPiece);
                 endInsertRows();
             }
@@ -95,7 +95,7 @@ int PiecesModel::rowCount (const QModelIndex& index) const
     else
     {
         // At the root: equal to the number of top-level rows.
-        return gsl::narrow<int> (my_pieces.count());
+        return wisdom::narrow<int> (my_pieces.count());
     }
 }
 
