@@ -11,11 +11,21 @@ option(WISDOM_CHESS_ASAN "Enable memory debugging of chess engine")
 option(WISDOM_CHESS_FAST_TESTS "Enable building of fast tests" On)
 option(WISDOM_CHESS_SLOW_TESTS "Enable building of slow tests")
 option(WISDOM_CHESS_CONSOLE_UI "Enable building of console chess game" On)
-option(WISDOM_CHESS_QML_UI "Enable building of QML UI if detected" On)
-option(WISDOM_CHESS_QML_UI_REQUIRED "Enable building of QML UI")
-option(WISDOM_CHESS_QT_DIR "Directory for Qt libraries")
 option(WISDOM_CHESS_REACT_UI "Enable building of React UI" On)
+option(WISDOM_CHESS_REACT_BUILD_INTEGRATED "Build React frontend as part of CMake build" ${WISDOM_CHESS_REACT_BUILD_INTEGRATED_DEFAULT})
 option(WISDOM_CHESS_PCH_ENABLED "Enable Pre-compiled headers" On)
+
+# QML UI option: AUTO (build if Qt6 found), ON (require Qt6), OFF (disable)
+set(WISDOM_CHESS_QML_UI "AUTO" CACHE STRING "Build QML UI: AUTO (if Qt6 found), ON (require Qt6), OFF (disable)")
+set_property(CACHE WISDOM_CHESS_QML_UI PROPERTY STRINGS AUTO ON OFF)
+option(WISDOM_CHESS_QT_DIR "Directory for Qt libraries")
+
+# Set default for integrated React build based on whether it's a WASM build
+if(EMSCRIPTEN AND NOT DEFINED WISDOM_CHESS_REACT_BUILD_INTEGRATED)
+    set(WISDOM_CHESS_REACT_BUILD_INTEGRATED_DEFAULT ON)
+else()
+    set(WISDOM_CHESS_REACT_BUILD_INTEGRATED_DEFAULT OFF)
+endif()
 
 # Enable -O3 in RelWithDebugInfo
 if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
@@ -38,4 +48,3 @@ if (WISDOM_CHESS_ASAN)
 endif()
 
 add_subdirectory(src)
-
