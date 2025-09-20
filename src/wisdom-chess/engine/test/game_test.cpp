@@ -41,39 +41,40 @@ TEST_CASE( "Initial board position is added to history" )
 
     SUBCASE( "When a default game is initialized" )
     {
-        Game game;
+        Game game = Game::createStandardGame();
         run_test (game);
     }
 
     SUBCASE( "When game is created from two players" )
     {
-        Game game { Player::Human, Player::Human };
+        Game game = Game::createGame (Player::Human, Player::Human);
         run_test (game);
     }
 
     SUBCASE( "When game is created from an array of two players" )
     {
-        Game game { { Player::ChessEngine, Player::ChessEngine } };
+        Game game = Game::createGame (Players { Player::ChessEngine, Player::ChessEngine });
         run_test (game);
     }
 
     SUBCASE( "When game is created from the current turn" )
     {
-        Game game { Color::White };
+        // Note: No direct factory for Color, but we can create standard and set turn
+        Game game = Game::createStandardGame();
+        game.setCurrentTurn (Color::White);
         run_test (game);
     }
 
     SUBCASE( "When game is initialized from a board builder" )
     {
         BoardBuilder builder = BoardBuilder::fromDefaultPosition();
-        Game game { builder };
+        Game game = Game::createGameFromBoard (builder);
         run_test (game);
     }
 
     SUBCASE( "From FEN string" )
     {
-        FenParser fen_parser { "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" } ;
-        Game game = fen_parser.build();
+        Game game = Game::createGameFromFen ("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         run_test (game);
     }
 }

@@ -9,10 +9,12 @@ int wisdom::WebGame::our_game_id;
 
 namespace wisdom
 {
-    WebGame::WebGame (int white_player, int black_player) 
-        : my_game { 
-            mapPlayer (white_player), 
-            mapPlayer (black_player) 
+    WebGame::WebGame (int white_player, int black_player)
+        : my_game {
+            Game::createGame (
+                mapPlayer (white_player),
+                mapPlayer (black_player)
+            )
         }
     {
         const auto& board = my_game.getBoard();

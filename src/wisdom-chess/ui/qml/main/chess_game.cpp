@@ -29,7 +29,7 @@ ChessGame::fromPlayers (
 ) 
     -> unique_ptr<ChessGame>
 {
-    return fromEngine (std::move (make_unique<Game> (whitePlayer, blackPlayer)), config);
+    return fromEngine (std::move (make_unique<Game> (Game::createGame (whitePlayer, blackPlayer))), config);
 }
 
 auto 
@@ -39,8 +39,7 @@ ChessGame::fromFen (
 ) 
     -> unique_ptr<ChessGame>
 {
-    FenParser parser { input };
-    auto game = parser.build();
+    auto game = Game::createGameFromFen (input);
     return fromEngine (std::make_unique<Game> (std::move (game)), config);
 }
 

@@ -148,7 +148,7 @@ namespace wisdom::ui::console
         bool show_final_position = true;
 
     public:
-        ConsoleGame() : game { make_shared<Game>() }
+        ConsoleGame() : game { make_shared<Game> (Game::createStandardGame()) }
         {
         }
 
@@ -339,12 +339,12 @@ namespace wisdom::ui::console
             if (input.empty())
                 return nullptr;
 
-            auto optional_game = Game::load (input, game->getPlayers());
+            auto optional_game = Game::loadGame (input, game->getPlayers());
             if (!optional_game.has_value())
                 return nullptr;
 
             Game new_game = std::move (*optional_game);
-            return make_shared<Game> (new_game);
+            return make_shared<Game> (std::move (new_game));
         }
 
         static auto loadFen() -> shared_ptr<Game>
@@ -356,9 +356,8 @@ namespace wisdom::ui::console
 
             try
             {
-                FenParser parser { input };
-                Game new_game = parser.build();
-                return make_shared<Game> (new_game);
+                Game new_game = Game::createGameFromFen (input);
+                return make_shared<Game> (std::move (new_game));
             }
             catch ([[maybe_unused]] FenParserError& error)
             {
