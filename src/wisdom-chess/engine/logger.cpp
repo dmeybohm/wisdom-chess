@@ -4,6 +4,9 @@
 
 namespace wisdom
 {
+    // Put destructor here to put vtable in this translation unit:
+    Logger::~Logger() = default;
+
     class NullLogger : public Logger
     {
     public:

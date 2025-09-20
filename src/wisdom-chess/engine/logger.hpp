@@ -13,7 +13,8 @@ namespace wisdom
             LogLevel_Debug = 1,
         };
 
-        virtual ~Logger() = default;
+        // Put virtual destructor in the .cpp file to put vtable there:
+        virtual ~Logger();
 
         virtual void debug (const string& output) const = 0;
         virtual void info (const string& output) const = 0;

@@ -18,7 +18,8 @@ namespace wisdom
             Color turn
         ) = 0;
 
-        virtual ~OutputFormat() = default;
+        // virtual destructor to put vtable in .cpp file:
+        virtual ~OutputFormat();
     };
 
     class FenOutputFormat : public OutputFormat
