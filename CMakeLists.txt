@@ -15,6 +15,7 @@ option(WISDOM_CHESS_QML_UI "Enable building of QML UI if detected" On)
 option(WISDOM_CHESS_QML_UI_REQUIRED "Enable building of QML UI")
 option(WISDOM_CHESS_QT_DIR "Directory for Qt libraries")
 option(WISDOM_CHESS_REACT_UI "Enable building of React UI" On)
+option(WISDOM_CHESS_REACT_BUILD_INTEGRATED "Build React frontend as part of CMake build" OFF)
 option(WISDOM_CHESS_PCH_ENABLED "Enable Pre-compiled headers" On)
 
 # Enable -O3 in RelWithDebugInfo
