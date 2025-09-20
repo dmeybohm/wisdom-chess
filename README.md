@@ -6,118 +6,162 @@
 
 ----
 
-Wisdom Chess is a simple multiplatform chess engine written in C++ with a React web front-end and a Qt
-mobile and desktop front-end.
+Wisdom Chess is a multiplatform chess engine written in C++20 with multiple front-ends:
+- **Web**: React frontend with WebAssembly chess engine
+- **Web (QML)**: Qt QML application compiled to WebAssembly
+- **Desktop**: Qt QML application for Windows, macOS, and Linux
+- **Mobile**: Qt QML application for Android
+- **Console**: Command-line interface
 
-View the web version at https://wisdom-chess.netlify.app
+🌐 **[Play online at wisdom-chess.netlify.app](https://wisdom-chess.netlify.app)**
 
-## Building the web version
+## Features
 
-To build the web version, you'll first need to compile the C++ library with [Emscripten](https://emscripten.org/). 
-You also need to compile some dependencies using the [conan](https://conan.io/) package manager. 
+- Full chess engine with move validation and game rules
+- Configurable search depth and time limits for engine strength
+- Clean, modern user interfaces across all platforms
+- WebAssembly for high-performance web chess
+- Cross-platform compatibility
 
-### Setting up Emscripten
+## Building
 
-See [emscripten's website](https://emscripten.org/) for how to install emscripten.
+### Prerequisites
 
-### Setting up Conan
+- **C++ Compiler**: GCC, Clang, or MSVC with C++20 support
+- **CMake**: Version 3.20 or higher
+- **Optional**: Qt 6.x for desktop/mobile GUI
+- **Optional**: Emscripten SDK for web version
+- **Optional**: Node.js for React frontend development
 
-See [conan's website](https://conan.io/) for how to install conan.
+### Quick Start (Console Version)
 
-After installing, you can follow these instructions to link conan with Emscripten: 
-https://docs.conan.io/en/1.53/integrations/cross_platform/emscripten.html
-
-Conan version 1 has been tested successfully - Conan 2 may not work yet.
-
-### Building the C++ library for emscripten
-
-First, activate the emscripten environment. Then build with the emscripten compiler:
+The simplest way to try Wisdom Chess:
 
 ```bash
-$ mkdir build
-$ cd build
-# Install packages needed to build
-$ conan install .. -pr:b=emscripten -s build_type=Release # specify build profile
-$ emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
-$ cmake --build . -j 8
+git clone https://github.com/dmeybohm/wisdom-chess.git
+cd wisdom-chess
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build . -j8
+./src/wisdom-chess/ui/console/wisdom-chess-console
 ```
 
-If you want a debug version instead of a release version replace "Release" with "Debug".
+### Web Version (React + WebAssembly)
 
-### Building the web front-end
+1. **Install Emscripten SDK**:
+   ```bash
+   git clone https://github.com/emscripten-core/emsdk.git
+   cd emsdk
+   ./emsdk install latest
+   ./emsdk activate latest
+   source ./emsdk_env.sh
+   ```
 
-To build the web front-end, use (yarn)[https://yarnpkg.com/]
+2. **Build WebAssembly + React (Integrated)**:
+   ```bash
+   mkdir build-web && cd build-web
+   emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
+   cmake --build . --target wisdom-chess-react
+   ```
 
-```bash 
-cd ui/react
-yarn install
-yarn dev
+   This automatically:
+   - Builds the WebAssembly chess engine
+   - Runs `npm install` for React dependencies
+   - Builds the production React frontend
+   - Output is in `src/wisdom-chess/ui/react/dist/`
+
+3. **Development server**:
+   ```bash
+   cmake --build . --target wisdom-chess-react-dev
+   ```
+   Starts development server at `http://localhost:5173`
+
+### Desktop Version (Qt QML)
+
+1. **Install Qt 6.x** from [qt.io](https://www.qt.io/)
+
+2. **Build with Qt**:
+   ```bash
+   mkdir build-desktop && cd build-desktop
+   cmake .. -DWISDOM_CHESS_QT_DIR=~/Qt/6.9.2/gcc_64 -DCMAKE_BUILD_TYPE=Release
+   cmake --build . --target WisdomChessQml
+   ./src/wisdom-chess/ui/qml/WisdomChessQml
+   ```
+
+### Web Version (Qt QML + WebAssembly)
+
+The Qt QML interface can also be compiled to WebAssembly:
+
+```bash
+# Setup Emscripten (see web version instructions above)
+source ./emsdk_env.sh
+
+mkdir build-qml-wasm && cd build-qml-wasm
+emcmake cmake .. -DWISDOM_CHESS_QT_DIR=~/Qt/6.9.2/wasm_multithread -DCMAKE_BUILD_TYPE=Release
+cmake --build . --target WisdomChessQml
+# Serve the generated files with a web server
 ```
 
-## Building desktop version
+Note: Requires Qt for WebAssembly, which is a separate Qt installation.
 
-For the UI, `wisdom-chess` uses [Qt](https://www.qt.io/), specifically Qt version 6.
+### Android Version
 
-You can either use [CMake](https://cmake.org/) or Qt Creator (provided by Qt) in order 
-to build. You will need to some supplemental libraries, for which you can use the 
-[Conan package manager](https://conan.io/) ([vcpkg](https://vcpkg.io/) might work also, 
-but hasn't been tested.
-
-Here's an example set of build commands:
-
-```sh
-mkdir build
-cd build
-# Install packages needed to build
-conan install .. -pr:b=default # specify build profile
-cmake -DQTDIR=C:\path\to\Qt\6.5.0 ..
-cmake --build . -j 8
-```
-
-For Qt Creator on desktop, you should just have to setup the appropriate "kit" 
-and then click "Build." See below for notes on building for Android, and see
-[this document](wasm/README.md) for notes on building the web assembly version.
-
-## Building on Android
-
-You can build on Android using Qt Creator. 
-
-You need to set up your Kit to point to Android and install the appropriate
-libraries for Qt/QML there. See [this "Getting Started" document](https://doc.qt.io/qt-6/android-getting-started.html) 
-for how to use Qt on Android.
+Use Qt Creator with Android NDK configured. See [Qt Android documentation](https://doc.qt.io/qt-6/android-getting-started.html) for setup details.
 
 <p align="center">
-    <img
-    src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/src/wisdom-chess/ui/qml/images/wisdom-chess-android.png" />
+    <img src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/src/wisdom-chess/ui/qml/images/wisdom-chess-android.png" />
 </p>
 
-## Running
+## Build Options
 
-<p align="center">
-    <img
-    src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/src/wisdom-chess/ui/qml/images/windows-wisdom-chess.png" />
-</p>
+| Option | Default | Description |
+|--------|---------|-------------|
+| `WISDOM_CHESS_QML_UI` | AUTO | Qt QML UI: AUTO/ON/OFF |
+| `WISDOM_CHESS_REACT_BUILD_INTEGRATED` | ON (web), OFF (others) | Integrate Node.js build |
+| `WISDOM_CHESS_FAST_TESTS` | ON | Build fast test suite |
+| `WISDOM_CHESS_SLOW_TESTS` | OFF | Build comprehensive test suite |
+
+### Examples:
+```bash
+# Force Qt GUI even if not found (fails if Qt missing)
+cmake .. -DWISDOM_CHESS_QML_UI=ON
+
+# Disable Qt GUI completely
+cmake .. -DWISDOM_CHESS_QML_UI=OFF
+
+# Enable slow tests for thorough validation
+cmake .. -DWISDOM_CHESS_SLOW_TESTS=ON
+```
 
 ## Running Tests
 
-If you want to run the tests, there are two binaries produced called
-`fast_tests` and `slow_tests`. You have to pass some flags to CMake 
-in order to enable those :
+```bash
+# Fast tests (runs in seconds)
+./src/wisdom-chess/engine/test/fast_tests
 
-```sh
-cmake -DWISDOM_CHESS_FAST_TESTS=On -DWISDOM_CHESS_SLOW_TESTS=On ..
-cmake --build . -j 8
+# Slow tests (comprehensive, takes longer)
+cmake .. -DWISDOM_CHESS_SLOW_TESTS=ON
+cmake --build .
+./src/wisdom-chess/engine/test/slow_tests
 ```
 
-Make sure to run the `slow_tests` on optimized code, or
-you may have to wait a long time.
+## Screenshots
 
-### Copyright Info
+<p align="center">
+    <img src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/src/wisdom-chess/ui/qml/images/windows-wisdom-chess.png" />
+</p>
 
-Images copyright Colin M.L. Burnett and used under creative commons license.
-https://creativecommons.org/licenses/by-sa/3.0/
+## Contributing
 
-Some icons are from https://boxicons.com/ and used by Creative Commons 4.0 
-license.
+See `CLAUDE.md` for development guidelines including code style, build instructions, and architecture notes.
 
-The chess program itself is released under the MIT license.
+## License
+
+Copyright © Dave Meybohm
+
+The chess engine and applications are released under the MIT License.
+
+### Third-Party Assets
+
+- Chess piece images: Copyright Colin M.L. Burnett, used under [Creative Commons BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
+- UI icons: From [Boxicons](https://boxicons.com/), used under [Creative Commons 4.0](https://creativecommons.org/licenses/by/4.0/)

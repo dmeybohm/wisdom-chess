@@ -107,6 +107,28 @@ cmake --build . --target wisdom-chess-react
 cmake --build . --target wisdom-chess-react-dev
 ```
 
+### WebAssembly + Qt QML Build
+
+```bash
+# Setup Emscripten environment
+source ~/projects/3rdparty/emsdk/emsdk_env.sh
+
+# Create build directory
+mkdir build-qml-wasm && cd build-qml-wasm
+
+# Configure with Qt for WebAssembly
+emcmake cmake .. \
+  -DWISDOM_CHESS_QT_DIR=~/Qt/6.9.2/wasm_multithread \
+  -DWISDOM_CHESS_QML_UI=ON \
+  -DCMAKE_BUILD_TYPE=Release
+
+# Build QML WebAssembly application
+cmake --build . --target WisdomChessQml
+
+# Note: The QML WebAssembly build uses wasm_main.qml and does not use the wasm/ directory
+# The resulting .wasm and .js files need to be served by a web server
+```
+
 ### Build Options
 
 | Option | Type | Default | Description |
@@ -157,9 +179,13 @@ npm run build  # This runs tsc && vite build
 
 - `src/wisdom-chess/engine/` - Core chess engine
 - `src/wisdom-chess/ui/console/` - Console UI
-- `src/wisdom-chess/ui/qml/` - Qt QML UI
-- `src/wisdom-chess/ui/wasm/` - WebAssembly bindings
+- `src/wisdom-chess/ui/qml/` - Qt QML UI (desktop, mobile, and WebAssembly)
+- `src/wisdom-chess/ui/wasm/` - WebAssembly bindings for React frontend
 - `src/wisdom-chess/ui/react/` - React web frontend
+
+Note: There are two WebAssembly frontends:
+1. Qt QML compiled to WebAssembly (uses `qml/` directory with `wasm_main.qml`)
+2. React frontend with WebAssembly chess engine (uses `wasm/` + `react/` directories)
 
 ## API Design Notes
 
