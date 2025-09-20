@@ -8,6 +8,7 @@
 
 Wisdom Chess is a multiplatform chess engine written in C++20 with multiple front-ends:
 - **Web**: React frontend with WebAssembly chess engine
+- **Web (QML)**: Qt QML application compiled to WebAssembly
 - **Desktop**: Qt QML application for Windows, macOS, and Linux
 - **Mobile**: Qt QML application for Android
 - **Console**: Command-line interface
@@ -86,6 +87,22 @@ cmake --build . -j8
    cmake --build . --target WisdomChessQml
    ./src/wisdom-chess/ui/qml/WisdomChessQml
    ```
+
+### Web Version (Qt QML + WebAssembly)
+
+The Qt QML interface can also be compiled to WebAssembly:
+
+```bash
+# Setup Emscripten (see web version instructions above)
+source ./emsdk_env.sh
+
+mkdir build-qml-wasm && cd build-qml-wasm
+emcmake cmake .. -DWISDOM_CHESS_QT_DIR=~/Qt/6.9.2/wasm_multithread -DCMAKE_BUILD_TYPE=Release
+cmake --build . --target WisdomChessQml
+# Serve the generated files with a web server
+```
+
+Note: Requires Qt for WebAssembly, which is a separate Qt installation.
 
 ### Android Version
 
