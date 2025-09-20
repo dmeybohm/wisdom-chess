@@ -24,9 +24,8 @@ namespace wisdom
         CastlingEligibility (uint8_t flags) noexcept
             : my_flags { flags }
         {
-            assert (flags &~ (0x1|0x2) == 0);
+            assert ((flags &~ (0x1|0x2)) == 0);
         }
-
 
         [[nodiscard]] constexpr auto
         isSet (CastlingEligibility flags) const noexcept
@@ -120,7 +119,7 @@ namespace wisdom
         }
 
         template <typename IntegerType = uint8_t>
-        constexpr auto
+        [[nodiscard]] constexpr auto
         toInt() const
             -> IntegerType
         {

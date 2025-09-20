@@ -8,6 +8,7 @@
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/fen_parser.hpp"
 
 namespace wisdom
 {
@@ -64,6 +65,51 @@ namespace wisdom
     {
         setCurrentTurn (current_turn);
         my_history = History::fromInitialBoard (my_current_board);
+    }
+
+    // Factory function implementations
+    auto Game::createStandardGame() -> Game
+    {
+        return Game {};
+    }
+
+    auto Game::createGame (const Players& players) -> Game
+    {
+        return Game { players };
+    }
+
+    auto Game::createGame (Player white_player, Player black_player) -> Game
+    {
+        return Game { white_player, black_player };
+    }
+
+    auto Game::createGameFromFen (const string& fen) -> Game
+    {
+        FenParser parser { fen };
+        return parser.build();
+    }
+
+    auto Game::createGameFromFen (const string& fen, const Players& players) -> Game
+    {
+        FenParser parser { fen };
+        auto game = parser.build();
+        game.setPlayers (players);
+        return game;
+    }
+
+    auto Game::createGameFromBoard (const BoardBuilder& builder) -> Game
+    {
+        return Game { builder };
+    }
+
+    auto Game::createGameFromBoard (const BoardBuilder& builder, const Players& players) -> Game
+    {
+        return Game { builder, players };
+    }
+
+    auto Game::loadGame (const string& filename, const Players& players) -> optional<Game>
+    {
+        return load (filename, players);
     }
 
     void Game::move (Move move)
@@ -167,7 +213,7 @@ namespace wisdom
             return {};
         }
 
-        Game result { players };
+        Game result = Game::createGame (players);
 
         while (std::getline (istream, input_buf))
         {

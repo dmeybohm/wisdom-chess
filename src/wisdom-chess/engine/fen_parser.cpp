@@ -11,7 +11,7 @@ namespace wisdom
     Game FenParser::build()
     {
         builder.setCurrentTurn (active_player);
-        return Game { builder };
+        return Game::createGameFromBoard (builder);
     }
 
     auto 

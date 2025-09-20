@@ -25,20 +25,37 @@ namespace wisdom
     class Game
     {
     public:
-        Game();
+        // Factory functions - preferred way to create games
+        [[nodiscard]] static auto
+        createStandardGame()
+			-> Game;
 
-        explicit Game (const Players& players);
+        [[nodiscard]] static auto
+        createGame (const Players& players)
+			-> Game;
 
-        Game (Player white_player, Player black_player);
+        [[nodiscard]] static auto
+        createGame (Player white_player, Player black_player)
+			-> Game;
 
-        explicit Game (Color current_turn);
+        [[nodiscard]] static auto createGameFromFen (const string& fen)
+			-> Game;
 
-        explicit Game (const BoardBuilder& builder);
+        [[nodiscard]] static auto
+        createGameFromFen (const string& fen, const Players& players)
+			-> Game;
 
-        explicit Game (const BoardBuilder& builder, const Players& players);
+        [[nodiscard]] static auto
+        createGameFromBoard (const BoardBuilder& builder)
+            -> Game;
 
-        // All other constructors must call this one:
-        explicit Game (const BoardBuilder& builder, const Players& players, Color current_turn);
+        [[nodiscard]] static auto
+        createGameFromBoard (const BoardBuilder& builder, const Players& players)
+			-> Game;
+
+        [[nodiscard]] static auto
+        loadGame (const string& filename, const Players& players)
+            -> optional<Game>;
 
         // Default copy:
         Game (const Game& other) = default;
@@ -48,7 +65,8 @@ namespace wisdom
         Game (Game&& other) noexcept = default;
         Game& operator= (Game&& other) noexcept = default;
 
-        static auto load (const string& filename, const Players& players) -> optional<Game>;
+
+    public:
 
         void save (const string& filename) const;
 
@@ -167,6 +185,19 @@ namespace wisdom
         );
 
     private:
+        // Implementation constructors - hidden from users
+        Game();
+        explicit Game (const Players& players);
+        explicit Game (Player white_player, Player black_player);
+        explicit Game (Color current_turn);
+        explicit Game (const BoardBuilder& builder);
+        explicit Game (const BoardBuilder& builder, const Players& players);
+
+        // All other constructors must call this one:
+        explicit Game (const BoardBuilder& builder, const Players& players, Color current_turn);
+
+        // Private implementation functions
+        static auto load (const string& filename, const Players& players) -> optional<Game>;
         void updateThreefoldRepetitionDrawStatus();
         void updateFiftyMovesWithoutProgressDrawStatus();
 
