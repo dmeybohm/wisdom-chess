@@ -12,7 +12,86 @@ Follow these guidelines:
    - Refer to `.clang-format` for guidance of about the rules, but prefer to
      follow the existing style patterns (spaces after non-empty functions,
      spaces around macros in tests, extended functions declaration across
-     multiple lines, etc).
+     multiple lines, etc). The style used here is a bit unique, but designed
+     for good readability, and not loading up lines with too much noise.
+     
+     Here are some examples of formatting functions:
+```cpp
+    [[nodiscard]] auto 
+    isCertainlyNthRepetition (const Board& board, int repetition_count) const
+        -> bool
+    {
+        auto repetitions = std::count (my_stored_boards.begin(), my_stored_boards.end(), board);
+        return repetitions >= repetition_count;
+    }
+
+    [[nodiscard]] bool isProbablyThirdRepetition (const Board& board) const;
+    
+    void addTentativePosition (const Board& board)
+    {
+        my_board_codes.emplace_back (board.getBoardCode());
+        my_tentative_nesting_count++;
+    }
+
+    [[nodiscard]] auto 
+    getMoveHistory() const& 
+        -> const vector<Move>&
+    {
+        return my_move_history;
+    }
+    void getMoveHistory() const&& = delete;
+
+
+    [[nodiscard]] constexpr auto 
+    drawStatusIsReplied (DrawStatus draw_status)
+        -> bool
+    {
+        return draw_status == DrawStatus::Accepted || draw_status == DrawStatus::Declined;
+    }
+    
+    // Whether this move could cause a draw.
+    //
+    // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
+    // in the search process to efficiently overlap that processing which needs to occur anyway.
+    [[nodiscard]] inline auto
+    isProbablyDrawingMove (
+        const Board& board,
+        [[maybe_unused]] Color who,
+        [[maybe_unused]] Move move,
+        const History& history
+    )
+        -> DrawCategory
+    {
+        auto repetition_status = history.getThreefoldRepetitionStatus();
+        auto no_progress_status = history.getFiftyMovesWithoutProgressStatus();
+        ...
+  }
+```
+
+     Here are some examples of formatting in tests:
+```cpp
+TEST_CASE( "Board code stores metadata" )
+{
+    SUBCASE( "setMetadataBits preserves high bits of hash code" )
+    {
+        BoardCode code = BoardCode::fromEmptyBoard();
+
+        code.addPiece(
+            coordParse("a1"),
+            ColoredPiece::make(Color::White, Piece::King)
+        );
+        code.addPiece(
+            coordParse("h8"),
+            ColoredPiece::make(Color::Black, Piece::King)
+        );
+
+        code.setCastleState(Color::White, CastlingEligibility::Either_Side);
+        code.setCastleState(Color::Black, CastlingEligibility::Either_Side);
+
+        // ...
+    }
+}
+```
 
 2. **Code Style Guidelines**:
    - Use trailing return types with auto: `auto functionName() -> ReturnType`
@@ -58,7 +137,8 @@ cmake --build . -j8
 ./src/wisdom-chess/engine/test/fast_tests
 
 # Run slow tests - only run when making more extensive changes, 
-# after fast tests are passing.
+# after fast tests are passing, and only run with optimizations
+# enabled (release or release with debug info) because it's slow.
 cmake .. -DWISDOM_CHESS_SLOW_TESTS=On
 ./src/wisdom-chess/engine/test/slow_tests
 ```

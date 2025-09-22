@@ -180,6 +180,48 @@ TEST_CASE( "Board code can be converted" )
 
 TEST_CASE( "Board code stores metadata" )
 {
+    SUBCASE( "setMetadataBits preserves high bits of hash code" )
+    {
+        BoardCode code = BoardCode::fromEmptyBoard();
+
+        code.addPiece (
+            coordParse ("a1"),
+            ColoredPiece::make (Color::White, Piece::King)
+        );
+        code.addPiece (
+            coordParse ("h8"),
+            ColoredPiece::make (Color::Black, Piece::King)
+        );
+
+        code.setCastleState (Color::White, CastlingEligibility::Either_Side);
+        code.setCastleState (Color::Black, CastlingEligibility::Either_Side);
+
+        auto initial_hash = code.hashCode();
+        auto high_48_bits = initial_hash & 0xfffffffFFFF0000ULL;
+        auto low_16_bits = initial_hash & 0xffffULL;
+
+        code.setCurrentTurn (Color::Black);
+        code.setCastleState (Color::White, CastlingEligibility::Neither_Side);
+        code.setCastleState (Color::Black, CastlingIneligible::Queenside);
+        code.setEnPassantTarget (Color::White, coordParse ("e3"));
+
+        auto modified_hash = code.hashCode();
+        auto modified_high_48_bits = modified_hash & 0xfffffffFFFF0000ULL;
+        auto modified_low_16_bits = modified_hash & 0xffffULL;
+
+        CHECK( modified_high_48_bits == high_48_bits );
+
+        CHECK( modified_low_16_bits != low_16_bits );
+
+        code.clearEnPassantTarget();
+        code.setCastleState (Color::White, CastlingEligibility::Either_Side);
+        code.setCastleState (Color::Black, CastlingEligibility::Either_Side);
+        code.setCurrentTurn (Color::White);
+
+        auto restored_hash = code.hashCode();
+        CHECK( restored_hash == initial_hash );
+    }
+
     SUBCASE( "Board code stores en passant state for Black" )
     {
         BoardBuilder builder;
