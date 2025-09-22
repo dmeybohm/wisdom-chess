@@ -17,6 +17,17 @@ Follow these guidelines:
      
      Here are some examples of formatting functions:
 ```cpp
+namespace wisdom
+{
+    template <typename IntegerType>
+    constexpr auto
+    isValidRow (IntegerType row)
+        -> bool
+    {
+        static_assert (std::is_integral_v<IntegerType>);
+        return row >= 0 && row < Num_Rows;
+    }
+    
     [[nodiscard]] auto 
     isCertainlyNthRepetition (const Board& board, int repetition_count) const
         -> bool
@@ -89,6 +100,39 @@ TEST_CASE( "Board code stores metadata" )
         code.setCastleState(Color::Black, CastlingEligibility::Either_Side);
 
         // ...
+    }
+    
+    auto
+    isLegalPositionAfterMove (const Board& board, Color who, Move mv)
+        -> bool
+    {
+        auto king_coord = board.getKingPosition (who);
+
+        if (isKingThreatened (board, who, king_coord))
+            return false;
+
+        if (mv.isCastling())
+        {
+            Coord castled_pos = mv.getDst();
+            auto castled_row = castled_pos.row();
+            auto castled_col = castled_pos.column();
+
+            assert (king_coord.row() == castled_row);
+            assert (king_coord.column() == castled_col);
+
+            int8_t direction = mv.isCastlingOnKingside() ? -1 : 1;
+
+            int8_t plus_one_column = nextColumn (castled_col, direction);
+            int8_t plus_two_column = nextColumn (plus_one_column, direction);
+
+            if (isKingThreatened (board, who, castled_row, plus_one_column)
+                || isKingThreatened (board, who, castled_row, plus_two_column))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 ```
