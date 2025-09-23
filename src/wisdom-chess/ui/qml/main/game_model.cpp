@@ -111,6 +111,12 @@ void GameModel::setupNewEngineThread()
     connect (this, &GameModel::engineConfigChanged,
              chess_engine, &ChessEngine::updateConfig);
 
+    // Pause/unpause engine:
+    connect (this, &GameModel::pauseEngine,
+             chess_engine, &ChessEngine::pause);
+    connect (this, &GameModel::unpauseEngine,
+             chess_engine, &ChessEngine::unpause);
+
     // Cleanup chess engine when chess engine thread exits:
     connect (my_chess_engine_thread, &QThread::finished,
              chess_engine, &QObject::deleteLater);
@@ -381,10 +387,16 @@ GameModel::handleMove (
 
 void GameModel::updateInternalGameState()
 {
+    // Pause engine before updating settings
+    emit pauseEngine();
+
     my_chess_game->setPlayers (mapPlayer (my_game_settings.whitePlayer()),
                                mapPlayer (my_game_settings.blackPlayer()));
     my_chess_game->setConfig (gameConfig());
     notifyInternalGameStateUpdated();
+
+    // Resume engine after settings update
+    emit unpauseEngine();
 }
 
 void GameModel::notifyInternalGameStateUpdated()

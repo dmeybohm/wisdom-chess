@@ -143,9 +143,13 @@ signals:
         int gameId
     );
     void engineConfigChanged (
-        ChessGame::Config config, 
+        ChessGame::Config config,
         wisdom::MoveTimer::PeriodicFunction newFunc
     );
+
+    // Pause/unpause engine
+    void pauseEngine();
+    void unpauseEngine();
 
     void currentTurnChanged();
     void gameOverStatusChanged();

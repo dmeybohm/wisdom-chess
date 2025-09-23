@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <atomic>
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -71,6 +72,12 @@ public slots:
     void updateConfig (ChessGame::Config config,
                        const wisdom::MoveTimer::PeriodicFunction& notifier);
 
+    // Pause the engine to stop searching for moves.
+    void pause();
+
+    // Resume the engine to continue searching for moves.
+    void unpause();
+
 signals:
     // The engine made a move.
     void engineMoved (wisdom::Move move, wisdom::Color who, int gameId);
@@ -86,12 +93,20 @@ signals:
     );
 
 private:
+    enum PlayStatus {
+        Playing = 0,
+        Paused = 1,
+    };
+
     std::shared_ptr<ChessGame> my_game;
 
     bool my_is_game_over = false;
 
     // Identify games so that signals from them can be filtered due to being async.
     int my_game_id;
+
+    // Control engine execution state
+    std::atomic<int> my_play_status = PlayStatus::Playing;
 
     void findMove();
 
@@ -106,9 +121,12 @@ private:
     // the search.
     //
     void handlePotentialDrawPosition (
-        wisdom::ProposedDrawType proposedDrawType, 
+        wisdom::ProposedDrawType proposedDrawType,
         wisdom::Color who
     );
+
+    // Check if engine should be paused (used by periodic function)
+    [[nodiscard]] auto isPaused() const -> bool { return my_play_status.load() == PlayStatus::Paused; }
 
     friend class QmlEngineGameStatusUpdate;
 };

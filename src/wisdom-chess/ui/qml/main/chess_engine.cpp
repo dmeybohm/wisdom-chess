@@ -154,6 +154,12 @@ void ChessEngine::findMove()
         return;
     }
 
+    auto play_status = my_play_status.load();
+    if (play_status != PlayStatus::Playing)
+    {
+        return;
+    }
+
     auto nextStatus = gameStatusTransition();
     if (nextStatus != GameStatus::Playing)
     {
@@ -252,17 +258,42 @@ void ChessEngine::reloadGame (shared_ptr<ChessGame> newGame, int newGameId)
     init();
 }
 
-void 
+void
 ChessEngine::updateConfig (
     ChessGame::Config config,
     const wisdom::MoveTimer::PeriodicFunction& notifier
 ) {
     my_game->setConfig (config);
 
+    // Create a pause-aware notifier that wraps the original one
+    auto pause_aware_notifier = [this, notifier](not_null<MoveTimer*> move_timer) {
+        // Check if we're paused first
+        if (isPaused()) {
+            move_timer->setCancelled(true);
+            return;
+        }
+
+        // Call the original notifier
+        notifier(move_timer);
+    };
+
     // Update the notifier:
-    my_game->setPeriodicFunction (notifier);
+    my_game->setPeriodicFunction (pause_aware_notifier);
 
     // Possibly resume searching for the next move:
+    init();
+}
+
+void ChessEngine::pause()
+{
+    my_play_status.store(PlayStatus::Paused);
+}
+
+void ChessEngine::unpause()
+{
+    my_play_status.store(PlayStatus::Playing);
+
+    // Resume searching if it's the engine's turn
     init();
 }
 
