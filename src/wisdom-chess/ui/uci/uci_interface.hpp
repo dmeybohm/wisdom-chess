@@ -18,25 +18,25 @@ namespace wisdom
         UciInterface();
         ~UciInterface() = default;
 
-        auto run() -> void;
+        void run();
 
     private:
-        auto processCommand (const string& line) -> void;
-        auto handleUci() -> void;
-        auto handleIsReady() -> void;
-        auto handleNewGame() -> void;
-        auto handlePosition (const vector<string>& tokens) -> void;
-        auto handleGo (const vector<string>& tokens) -> void;
-        auto handleStop() -> void;
-        auto handleQuit() -> void;
+        void processCommand (const string& line);
+        void handleUci();
+        void handleIsReady();
+        void handleNewGame();
+        void handlePosition (const vector<string>& tokens);
+        void handleGo (const vector<string>& tokens);
+        void handleStop();
+        void handleQuit();
 
         auto parsePosition (const vector<string>& tokens) -> bool;
         auto tokenizeCommand (const string& line) -> vector<string>;
         auto parseUciMove (const string& uci_move) -> optional<Move>;
         auto moveToUci (const Move& move) -> string;
 
-        auto sendEngineInfo() -> void;
-        auto sendBestMove (const optional<Move>& move) -> void;
+        void sendEngineInfo();
+        void sendBestMove (const optional<Move>& move);
 
         Game my_game;
         shared_ptr<Logger> my_logger;

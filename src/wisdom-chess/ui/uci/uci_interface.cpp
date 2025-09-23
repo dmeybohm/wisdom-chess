@@ -13,9 +13,7 @@ namespace wisdom
     {
     }
 
-    auto
-    UciInterface::run()
-        -> void
+    void UciInterface::run()
     {
         string line;
         while (std::getline (std::cin, line))
@@ -24,9 +22,7 @@ namespace wisdom
         }
     }
 
-    auto
-    UciInterface::processCommand (const string& line)
-        -> void
+    void UciInterface::processCommand (const string& line)
     {
         auto tokens = tokenizeCommand (line);
         if (tokens.empty())
@@ -71,9 +67,7 @@ namespace wisdom
         }
     }
 
-    auto
-    UciInterface::handleUci()
-        -> void
+    void UciInterface::handleUci()
     {
         std::cout << "id name Wisdom Chess\n";
         std::cout << "id author Dave Meybohm\n";
@@ -82,24 +76,18 @@ namespace wisdom
         std::cout.flush();
     }
 
-    auto
-    UciInterface::handleIsReady()
-        -> void
+    void UciInterface::handleIsReady()
     {
         std::cout << "readyok\n";
         std::cout.flush();
     }
 
-    auto
-    UciInterface::handleNewGame()
-        -> void
+    void UciInterface::handleNewGame()
     {
         my_game = Game::createStandardGame();
     }
 
-    auto
-    UciInterface::handlePosition (const vector<string>& tokens)
-        -> void
+    void UciInterface::handlePosition (const vector<string>& tokens)
     {
         if (tokens.size() < 2)
             return;
@@ -160,23 +148,17 @@ namespace wisdom
         }
     }
 
-    auto
-    UciInterface::handleGo (const vector<string>& tokens)
-        -> void
+    void UciInterface::handleGo (const vector<string>& tokens)
     {
         auto best_move = my_game.findBestMove (my_logger);
         sendBestMove (best_move);
     }
 
-    auto
-    UciInterface::handleStop()
-        -> void
+    void UciInterface::handleStop()
     {
     }
 
-    auto
-    UciInterface::handleQuit()
-        -> void
+    void UciInterface::handleQuit()
     {
         std::exit (0);
     }
@@ -197,9 +179,7 @@ namespace wisdom
         return tokens;
     }
 
-    auto
-    UciInterface::sendEngineInfo()
-        -> void
+    void UciInterface::sendEngineInfo()
     {
     }
 
@@ -261,9 +241,7 @@ namespace wisdom
         return result;
     }
 
-    auto
-    UciInterface::sendBestMove (const optional<Move>& move)
-        -> void
+    void UciInterface::sendBestMove (const optional<Move>& move)
     {
         if (move)
         {
