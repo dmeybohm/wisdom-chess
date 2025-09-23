@@ -50,7 +50,7 @@ jobs:
 
       - name: Install Netlify CLI
         working-directory: ${{ github.workspace }}/src/wisdom-chess/ui/react
-        run: npm install -g netlify-cli
+        run: npm install -g netlify-cli && npm install -g '@netlify/edge-functions-bootstrap'
 
       - name: Deploy Preview
         if: github.event.pull_request.merged != true && github.actor != 'dependabot[bot]'
