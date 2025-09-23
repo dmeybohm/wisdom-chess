@@ -256,7 +256,7 @@ namespace wisdom
 
         void setMetadataBits (uint16_t new_metadata)
         {
-            my_code = (my_code & 0xfffFFFFffff0000ULL) | new_metadata;
+            my_code = (my_code & 0xfffffffFFFF0000ULL) | new_metadata;
         }
 
     private:

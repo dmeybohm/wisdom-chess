@@ -142,6 +142,12 @@ namespace wisdom::ui::console
     class ConsoleGame
     {
     private:
+        // We use shared_ptr here (rather than unique_ptr) for two reasons:
+        // 1. It keeps command objects copyable - LoadNewGame needs to hold a Game pointer,
+        //    and if we used unique_ptr, all command objects would become move-only,
+        //    complicating the command handling logic.
+        // 2. It allows reassigning the game without copying - we can simply assign the
+        //    new shared_ptr rather than having to move or copy the Game object itself.
         shared_ptr<Game> game;
         bool quit = false;
         bool paused = false;
@@ -343,8 +349,7 @@ namespace wisdom::ui::console
             if (!optional_game.has_value())
                 return nullptr;
 
-            Game new_game = std::move (*optional_game);
-            return make_shared<Game> (std::move (new_game));
+            return make_shared<Game> (std::move (*optional_game));
         }
 
         static auto loadFen() -> shared_ptr<Game>

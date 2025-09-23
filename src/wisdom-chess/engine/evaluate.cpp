@@ -102,7 +102,7 @@ namespace wisdom
 
     auto
     isLegalPositionAfterMove (const Board& board, Color who, Move mv)
-    -> bool
+        -> bool
     {
         auto king_coord = board.getKingPosition (who);
 
