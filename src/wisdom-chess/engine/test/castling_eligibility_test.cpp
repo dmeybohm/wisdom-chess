@@ -8,10 +8,10 @@ TEST_CASE( "CastlingEligibility - Default construction" )
 {
     CastlingEligibility eligibility {};
     
-    SUBCASE( "Default is eligible for both sides" )
+    SUBCASE( "Default is eligible for neither side" )
     {
-        CHECK( !eligibility.isSet (CastlingIneligible::Kingside) );
-        CHECK( !eligibility.isSet (CastlingIneligible::Queenside) );
+        CHECK( !eligibility.isSet (CastlingRights::Kingside) );
+        CHECK( !eligibility.isSet (CastlingRights::Queenside) );
         CHECK( !static_cast<bool> (eligibility) );
     }
     
@@ -24,29 +24,29 @@ TEST_CASE( "CastlingEligibility - Default construction" )
 
 TEST_CASE( "CastlingEligibility - Construction from flags" )
 {
-    SUBCASE( "Kingside ineligible" )
+    SUBCASE( "Kingside eligible" )
     {
         CastlingEligibility eligibility{ 1 };
-        CHECK( eligibility.isSet (CastlingIneligible::Kingside) );
-        CHECK( !eligibility.isSet (CastlingIneligible::Queenside) );
+        CHECK( eligibility.isSet (CastlingRights::Kingside) );
+        CHECK( !eligibility.isSet (CastlingRights::Queenside) );
         CHECK( static_cast<bool> (eligibility) );
         CHECK( eligibility.toInt<uint8_t>() == 1 );
     }
     
-    SUBCASE( "Queenside ineligible" )
+    SUBCASE( "Queenside eligible" )
     {
         CastlingEligibility eligibility{ 2 };
-        CHECK( !eligibility.isSet (CastlingIneligible::Kingside) );
-        CHECK( eligibility.isSet (CastlingIneligible::Queenside) );
+        CHECK( !eligibility.isSet (CastlingRights::Kingside) );
+        CHECK( eligibility.isSet (CastlingRights::Queenside) );
         CHECK( static_cast<bool> (eligibility) );
         CHECK( eligibility.toInt<uint8_t>() == 2 );
     }
     
-    SUBCASE( "Both sides ineligible" )
+    SUBCASE( "Both sides eligible" )
     {
         CastlingEligibility eligibility { 3 };
-        CHECK( eligibility.isSet (CastlingIneligible::Kingside) );
-        CHECK( eligibility.isSet (CastlingIneligible::Queenside) );
+        CHECK( eligibility.isSet (CastlingRights::Kingside) );
+        CHECK( eligibility.isSet (CastlingRights::Queenside) );
         CHECK( static_cast<bool> (eligibility) );
         CHECK( eligibility.toInt<uint8_t>() == 3 );
     }
@@ -61,16 +61,16 @@ TEST_CASE( "CastlingEligibility - makeCastlingEligibilityFromInt" )
         
         auto one = makeCastlingEligibilityFromInt (1);
         CHECK( one.toInt<uint8_t>() == 1 );
-        CHECK( one.isSet (CastlingIneligible::Kingside) );
+        CHECK( one.isSet (CastlingRights::Kingside) );
         
         auto two = makeCastlingEligibilityFromInt (2);
         CHECK( two.toInt<uint8_t>() == 2 );
-        CHECK( two.isSet (CastlingIneligible::Queenside) );
+        CHECK( two.isSet (CastlingRights::Queenside) );
         
         auto three = makeCastlingEligibilityFromInt (3);
         CHECK( three.toInt<uint8_t>() == 3 );
-        CHECK( three.isSet (CastlingIneligible::Kingside) );
-        CHECK( three.isSet (CastlingIneligible::Queenside) );
+        CHECK( three.isSet (CastlingRights::Kingside) );
+        CHECK( three.isSet (CastlingRights::Queenside) );
     }
 }
 
@@ -78,58 +78,58 @@ TEST_CASE( "CastlingEligibility - set and clear operations" )
 {
     CastlingEligibility eligibility {};
     
-    SUBCASE( "Set kingside ineligible" )
+    SUBCASE( "Set kingside eligible" )
     {
-        eligibility.set (CastlingIneligible::Kingside);
-        CHECK( eligibility.isSet (CastlingIneligible::Kingside) );
-        CHECK( !eligibility.isSet (CastlingIneligible::Queenside) );
+        eligibility.set (CastlingRights::Kingside);
+        CHECK( eligibility.isSet (CastlingRights::Kingside) );
+        CHECK( !eligibility.isSet (CastlingRights::Queenside) );
         CHECK( eligibility.toInt<uint8_t>() == 1 );
     }
     
-    SUBCASE( "Set queenside ineligible" )
+    SUBCASE( "Set queenside eligible" )
     {
-        eligibility.set (CastlingIneligible::Queenside);
-        CHECK( !eligibility.isSet (CastlingIneligible::Kingside) );
-        CHECK( eligibility.isSet (CastlingIneligible::Queenside) );
+        eligibility.set (CastlingRights::Queenside);
+        CHECK( !eligibility.isSet (CastlingRights::Kingside) );
+        CHECK( eligibility.isSet (CastlingRights::Queenside) );
         CHECK( eligibility.toInt<uint8_t>() == 2 );
     }
     
-    SUBCASE( "Set both sides ineligible" )
+    SUBCASE( "Set both sides eligible" )
     {
-        eligibility.set (CastlingIneligible::Kingside);
-        eligibility.set (CastlingIneligible::Queenside);
-        CHECK( eligibility.isSet (CastlingIneligible::Kingside) );
-        CHECK( eligibility.isSet (CastlingIneligible::Queenside) );
+        eligibility.set (CastlingRights::Kingside);
+        eligibility.set (CastlingRights::Queenside);
+        CHECK( eligibility.isSet (CastlingRights::Kingside) );
+        CHECK( eligibility.isSet (CastlingRights::Queenside) );
         CHECK( eligibility.toInt<uint8_t>() == 3 );
     }
     
     SUBCASE( "Clear operations" )
     {
-        eligibility.set (CastlingIneligible::Kingside | CastlingIneligible::Queenside);
+        eligibility.set (CastlingRights::Kingside | CastlingRights::Queenside);
         CHECK( eligibility.toInt<uint8_t>() == 3 );
         
-        eligibility.clear (CastlingIneligible::Kingside);
-        CHECK( !eligibility.isSet (CastlingIneligible::Kingside) );
-        CHECK( eligibility.isSet (CastlingIneligible::Queenside) );
+        eligibility.clear (CastlingRights::Kingside);
+        CHECK( !eligibility.isSet (CastlingRights::Kingside) );
+        CHECK( eligibility.isSet (CastlingRights::Queenside) );
         CHECK( eligibility.toInt<uint8_t>() == 2 );
         
-        eligibility.clear (CastlingIneligible::Queenside);
-        CHECK( !eligibility.isSet (CastlingIneligible::Kingside) );
-        CHECK( !eligibility.isSet (CastlingIneligible::Queenside) );
+        eligibility.clear (CastlingRights::Queenside);
+        CHECK( !eligibility.isSet (CastlingRights::Kingside) );
+        CHECK( !eligibility.isSet (CastlingRights::Queenside) );
         CHECK( eligibility.toInt<uint8_t>() == 0 );
     }
 }
 
 TEST_CASE( "CastlingEligibility - bitwise operators" )
 {
-    auto kingside = CastlingIneligible::Kingside;
-    auto queenside = CastlingIneligible::Queenside;
+    auto kingside = CastlingRights::Kingside;
+    auto queenside = CastlingRights::Queenside;
     
     SUBCASE( "OR operator" )
     {
         auto both = kingside | queenside;
-        CHECK( both.isSet (CastlingIneligible::Kingside) );
-        CHECK( both.isSet (CastlingIneligible::Queenside) );
+        CHECK( both.isSet (CastlingRights::Kingside) );
+        CHECK( both.isSet (CastlingRights::Queenside) );
         CHECK( both.toInt<uint8_t>() == 3 );
     }
     
@@ -148,8 +148,8 @@ TEST_CASE( "CastlingEligibility - bitwise operators" )
         auto both = kingside | queenside;
         auto result = both ^ kingside;
         
-        CHECK( !result.isSet (CastlingIneligible::Kingside) );
-        CHECK( result.isSet (CastlingIneligible::Queenside) );
+        CHECK( !result.isSet (CastlingRights::Kingside) );
+        CHECK( result.isSet (CastlingRights::Queenside) );
         CHECK( result.toInt<uint8_t>() == 2 );
     }
 }
@@ -160,45 +160,45 @@ TEST_CASE( "CastlingEligibility - assignment operators" )
     
     SUBCASE( "OR assignment" )
     {
-        eligibility |= CastlingIneligible::Kingside;
+        eligibility |= CastlingRights::Kingside;
         CHECK( eligibility.toInt<uint8_t>() == 1 );
         
-        eligibility |= CastlingIneligible::Queenside;
+        eligibility |= CastlingRights::Queenside;
         CHECK( eligibility.toInt<uint8_t>() == 3 );
     }
     
     SUBCASE( "AND assignment" )
     {
-        eligibility = CastlingIneligible::Kingside | CastlingIneligible::Queenside;
-        eligibility &= CastlingIneligible::Kingside;
+        eligibility = CastlingRights::Kingside | CastlingRights::Queenside;
+        eligibility &= CastlingRights::Kingside;
         CHECK( eligibility.toInt<uint8_t>() == 1 );
     }
     
     SUBCASE( "XOR assignment" )
     {
-        eligibility = CastlingIneligible::Kingside | CastlingIneligible::Queenside;
-        eligibility ^= CastlingIneligible::Kingside;
+        eligibility = CastlingRights::Kingside | CastlingRights::Queenside;
+        eligibility ^= CastlingRights::Kingside;
         CHECK( eligibility.toInt<uint8_t>() == 2 );
     }
     
     SUBCASE( "Regular assignment" )
     {
-        eligibility = CastlingIneligible::Queenside;
+        eligibility = CastlingRights::Queenside;
         CHECK( eligibility.toInt<uint8_t>() == 2 );
     }
 }
 
 TEST_CASE( "CastlingEligibility - equality operators" )
 {
-    auto kingside = CastlingIneligible::Kingside;
-    auto queenside = CastlingIneligible::Queenside;
+    auto kingside = CastlingRights::Kingside;
+    auto queenside = CastlingRights::Queenside;
     auto both = kingside | queenside;
     
     SUBCASE( "Equality" )
     {
-        CHECK( kingside == CastlingIneligible::Kingside );
-        CHECK( queenside == CastlingIneligible::Queenside );
-        CHECK( both == (CastlingIneligible::Kingside | CastlingIneligible::Queenside) );
+        CHECK( kingside == CastlingRights::Kingside );
+        CHECK( queenside == CastlingRights::Queenside );
+        CHECK( both == (CastlingRights::Kingside | CastlingRights::Queenside) );
     }
     
     SUBCASE( "Inequality" )
@@ -219,26 +219,26 @@ TEST_CASE( "CastlingEligibility - bool conversion" )
     
     SUBCASE( "Non-empty eligibility is true" )
     {
-        CHECK( static_cast<bool> (CastlingIneligible::Kingside) );
-        CHECK( static_cast<bool> (CastlingIneligible::Queenside) );
-        CHECK( static_cast<bool> (CastlingIneligible::Kingside | CastlingIneligible::Queenside) );
+        CHECK( static_cast<bool> (CastlingRights::Kingside) );
+        CHECK( static_cast<bool> (CastlingRights::Queenside) );
+        CHECK( static_cast<bool> (CastlingRights::Kingside | CastlingRights::Queenside) );
     }
 }
 
-TEST_CASE( "CastlingIneligible - static constants" )
+TEST_CASE( "CastlingRights - static constants" )
 {
     SUBCASE( "Kingside constant" )
     {
-        CHECK( CastlingIneligible::Kingside.toInt<uint8_t>() == 1 );
-        CHECK( CastlingIneligible::Kingside.isSet (CastlingIneligible::Kingside) );
-        CHECK( !CastlingIneligible::Kingside.isSet (CastlingIneligible::Queenside) );
+        CHECK( CastlingRights::Kingside.toInt<uint8_t>() == 1 );
+        CHECK( CastlingRights::Kingside.isSet (CastlingRights::Kingside) );
+        CHECK( !CastlingRights::Kingside.isSet (CastlingRights::Queenside) );
     }
     
     SUBCASE( "Queenside constant" )
     {
-        CHECK( CastlingIneligible::Queenside.toInt<uint8_t>() == 2 );
-        CHECK( !CastlingIneligible::Queenside.isSet (CastlingIneligible::Kingside) );
-        CHECK( CastlingIneligible::Queenside.isSet (CastlingIneligible::Queenside) );
+        CHECK( CastlingRights::Queenside.toInt<uint8_t>() == 2 );
+        CHECK( !CastlingRights::Queenside.isSet (CastlingRights::Kingside) );
+        CHECK( CastlingRights::Queenside.isSet (CastlingRights::Queenside) );
     }
 }
 
@@ -246,33 +246,67 @@ TEST_CASE( "Global constants" )
 {
     SUBCASE( "CastlingEligibility::Either_Side" )
     {
-        CHECK( CastlingEligibility::Either_Side.toInt<uint8_t>() == 0 );
-        CHECK( !static_cast<bool> (CastlingEligibility::Either_Side) );
+        CHECK( CastlingEligibility::Either_Side.toInt<uint8_t>() == 3 );
+        CHECK( static_cast<bool> (CastlingEligibility::Either_Side) );
     }
     
     SUBCASE( "CastlingEligibility::Neither_Side" )
     {
-        CHECK( CastlingEligibility::Neither_Side.toInt<uint8_t>() == 3 );
-        CHECK( static_cast<bool> (CastlingEligibility::Neither_Side) );
-        CHECK( CastlingEligibility::Neither_Side.isSet (CastlingIneligible::Kingside) );
-        CHECK( CastlingEligibility::Neither_Side.isSet (CastlingIneligible::Queenside) );
+        CHECK( CastlingEligibility::Neither_Side.toInt<uint8_t>() == 0 );
+        CHECK( !static_cast<bool> (CastlingEligibility::Neither_Side) );
+        CHECK( !CastlingEligibility::Neither_Side.isSet (CastlingRights::Kingside) );
+        CHECK( !CastlingEligibility::Neither_Side.isSet (CastlingRights::Queenside) );
     }
 }
 
 TEST_CASE( "toInt template function" )
 {
-    auto eligibility = CastlingIneligible::Kingside | CastlingIneligible::Queenside;
-    
-    SUBCASE( "Different integer types" )
+    auto eligibility = CastlingRights::Kingside | CastlingRights::Queenside;
+
+    SUBCASE( "Different unsigned integer types" )
     {
         CHECK( toInt<uint8_t> (eligibility) == 3 );
         CHECK( toInt<uint16_t> (eligibility) == 3 );
         CHECK( toInt<uint32_t> (eligibility) == 3 );
-        CHECK( toInt<int> (eligibility) == 3 );
+        CHECK( toInt<uint64_t> (eligibility) == 3 );
+
+        // These would fail to compile due to static_assert:
+        // CHECK( toInt<int> (eligibility) == 3 );        // signed int - compilation error
+        // CHECK( toInt<signed char> (eligibility) == 3 ); // signed char - compilation error
     }
-    
+
     SUBCASE( "Default template parameter" )
     {
         CHECK( toInt (eligibility) == 3 );
+    }
+
+    SUBCASE( "Type safety - ensure unsigned arithmetic" )
+    {
+        // Verify toInt returns unsigned types by default
+        auto result = toInt (eligibility);
+        static_assert (std::is_same_v<decltype(result), uint8_t>);
+        static_assert (std::is_unsigned_v<decltype(result)>);
+
+        // Verify bitwise operations work correctly with unsigned types
+        uint8_t castle_bits = 3;  // Both sides eligible
+        auto check_bits_signed = ~0;  // This is signed int
+        auto check_bits_unsigned = static_cast<uint8_t>(~0);  // This is uint8_t
+
+        // Demonstrate the potential issue
+        CHECK( check_bits_signed == -1 );  // ~0 as signed int
+        CHECK( check_bits_unsigned == 255 );  // ~0 as uint8_t
+
+        // The important test: both should fail the equality check
+        CHECK( (castle_bits & check_bits_signed) != check_bits_signed );
+        CHECK( (castle_bits & check_bits_unsigned) != check_bits_unsigned );
+
+        // Verify the actual implementation matches our understanding
+        using flags_type = uint8_t;
+        static_assert (std::is_unsigned_v<flags_type>);
+
+        auto max_flags = static_cast<flags_type>(~flags_type{0});  // What ableToCastle uses
+        CHECK( max_flags == 255 );
+        CHECK( (castle_bits & max_flags) == castle_bits );  // 3 & 255 == 3
+        CHECK( (castle_bits & max_flags) != max_flags );    // 3 != 255, so equality fails
     }
 }

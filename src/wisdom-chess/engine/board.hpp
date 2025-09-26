@@ -133,17 +133,18 @@ namespace wisdom
         ableToCastle (Color who, CastlingEligibility castle_types) const noexcept
             -> bool
         {
-            // If either/both is passed, check both types.
-            auto check_type = 
-                (castle_types == CastlingEligibility::Either_Side || castle_types == CastlingEligibility::Neither_Side)
-                ? CastlingEligibility::Neither_Side
-                : castle_types;
-
             auto castle_state = getCastlingEligibility (who);
-            auto castle_bits = toInt (castle_state);
-            bool neg_not_set = ((~castle_bits) & toInt (check_type)) != 0;
+            auto castle_bits = toInt<uint8_t> (castle_state);
 
-            return neg_not_set;
+            // Use a bitmask that always fails for Neither_Side (more performant than branching)
+            auto check_bits = castle_types == CastlingEligibility::Neither_Side
+                ? static_cast<uint8_t> (~uint8_t { 0 })  // All bits set, always fails
+                : toInt<uint8_t> (castle_types);
+
+            // Check if all requested castling rights are available
+            bool has_rights = (castle_bits & check_bits) == check_bits;
+
+            return has_rights;
         }
 
         [[nodiscard]] auto isEnPassantVulnerable (Color who) const noexcept -> bool

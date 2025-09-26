@@ -202,7 +202,7 @@ TEST_CASE( "Board code stores metadata" )
 
         code.setCurrentTurn (Color::Black);
         code.setCastleState (Color::White, CastlingEligibility::Neither_Side);
-        code.setCastleState (Color::Black, CastlingIneligible::Queenside);
+        code.setCastleState (Color::Black, CastlingRights::Queenside);
         code.setEnPassantTarget (Color::White, coordParse ("e3"));
 
         auto modified_hash = code.getHashCode();
@@ -239,7 +239,7 @@ TEST_CASE( "Board code stores metadata" )
         auto without_state_code = board_without_state.getCode();
         CHECK( with_state_code != without_state_code );
 
-        auto en_passant_target = with_state_code.enPassantTarget ();
+        auto en_passant_target = with_state_code.getEnPassantTarget ();
         auto expected_coord = coordParse ("d6");
         auto metadata = with_state_code.getMetadataBits();
         REQUIRE( en_passant_target.has_value() );
@@ -289,13 +289,13 @@ TEST_CASE( "Board code stores metadata" )
         CHECK( white_state == CastlingEligibility::Neither_Side );
         CHECK( black_state == CastlingEligibility::Either_Side );
 
-        board_code.setCastleState (Color::White, CastlingIneligible::Kingside);
-        board_code.setCastleState (Color::Black, CastlingIneligible::Queenside);
+        board_code.setCastleState (Color::White, CastlingRights::Kingside);
+        board_code.setCastleState (Color::Black, CastlingRights::Queenside);
         white_state = board_code.getCastleState (Color::White);
         black_state = board_code.getCastleState (Color::Black);
 
-        CHECK( white_state == CastlingIneligible::Kingside );
-        CHECK( black_state == CastlingIneligible::Queenside );
+        CHECK( white_state == CastlingRights::Kingside );
+        CHECK( black_state == CastlingRights::Queenside );
     }
 
     SUBCASE( "Board code stores whose turn it is" )
