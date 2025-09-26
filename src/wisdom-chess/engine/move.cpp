@@ -284,7 +284,7 @@ namespace wisdom
     void 
     Board::makeMove (Color who, Move move)
     {
-        assert (who == my_code.currentTurn());
+        assert (who == my_code.getCurrentTurn());
 
         Coord src = move.getSrc();
         Coord dst = move.getDst();
