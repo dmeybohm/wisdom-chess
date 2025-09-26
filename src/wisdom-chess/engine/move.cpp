@@ -142,10 +142,8 @@ namespace wisdom
         CastlingEligibility removed_castle_states
     ) noexcept {
         CastlingEligibility orig_castle_state = getCastlingEligibility (who);
-        my_code.setCastleState (
-            who,
-            orig_castle_state | removed_castle_states
-        );
+        orig_castle_state.clear (removed_castle_states);
+        my_code.setCastleState (who, orig_castle_state);
     }
 
     void 
@@ -159,7 +157,7 @@ namespace wisdom
             // set the new castle status
             removeCastlingEligibility (
                 who,
-                CastlingIneligible::Kingside | CastlingIneligible::Queenside
+                CastlingRights::Kingside | CastlingRights::Queenside
             );
         }
     }
@@ -183,9 +181,9 @@ namespace wisdom
         // up on the rook and moves from the rook itself.
         //
         if (dst.column() == First_Column && dst.row() == castle_rook_row)
-            castle_state = CastlingIneligible::Queenside;
+            castle_state = CastlingRights::Queenside;
         else if (dst.column() == Last_Column && dst.row() == castle_rook_row)
-            castle_state = CastlingIneligible::Kingside;
+            castle_state = CastlingRights::Kingside;
 
         //
         // Set inability to castle on one side.
@@ -215,9 +213,9 @@ namespace wisdom
         if (src.row() == castle_src_row)
         {
             if (src.column() == Queen_Rook_Column)
-                affects_castle_state = CastlingIneligible::Queenside;
+                affects_castle_state = CastlingRights::Queenside;
             else if (src.column() == King_Rook_Column)
-                affects_castle_state = CastlingIneligible::Kingside;
+                affects_castle_state = CastlingRights::Kingside;
         }
 
         // Set inability to castle on one side.
