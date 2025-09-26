@@ -27,7 +27,7 @@ namespace wisdom::test
             -> IterativeSearch
         {
             timer.setSeconds (chrono::seconds { time });
-            return { board, history, logger, timer, depth };
+            return IterativeSearch::create (board, history, logger, timer, depth);
         }
     };
 }

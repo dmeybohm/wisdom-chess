@@ -221,13 +221,13 @@ namespace wisdom
         if (whom == Color::None)
             whom = getCurrentTurn();
 
-        IterativeSearch iterative_search {
+        IterativeSearch iterative_search = IterativeSearch::create (
             my_pimpl->my_current_board,
             my_pimpl->my_history,
             std::move (logger),
             my_pimpl->my_move_timer,
             my_pimpl->my_max_depth
-        };
+        );
         SearchResult result = iterative_search.iterativelyDeepen (whom);
 
         // If user cancelled the search, discard the results.

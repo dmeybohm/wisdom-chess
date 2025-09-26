@@ -74,22 +74,65 @@ namespace wisdom
 
     IterativeSearch::~IterativeSearch() = default;
 
-    IterativeSearch::IterativeSearch (
+    // Private constructor for factory functions
+    IterativeSearch::IterativeSearch (unique_ptr<IterativeSearchImpl> impl)
+        : impl { std::move (impl) }
+    {
+    }
+
+    // Factory function implementations
+    auto IterativeSearch::create (
         const Board& board,
         const History& history,
-        shared_ptr<Logger> output,
+        shared_ptr<Logger> logger,
         const MoveTimer& timer,
-        int total_depth
-    ) : impl {
+        int max_depth
+    ) -> IterativeSearch
+    {
+        return IterativeSearch {
             make_unique<IterativeSearchImpl> (
                 Board { board },
-                  history,
-                  std::move (output),
-                  timer,
-                  total_depth
+                history,
+                std::move (logger),
+                timer,
+                max_depth
             )
-        }
+        };
+    }
+
+    auto IterativeSearch::create (
+        const Board& board,
+        const History& history,
+        shared_ptr<Logger> logger,
+        int search_seconds,
+        int max_depth
+    ) -> IterativeSearch
     {
+        return IterativeSearch {
+            make_unique<IterativeSearchImpl> (
+                Board { board },
+                history,
+                std::move (logger),
+                MoveTimer { search_seconds },
+                max_depth
+            )
+        };
+    }
+
+    auto IterativeSearch::createWithDefaults (
+        const Board& board,
+        const History& history
+    ) -> IterativeSearch
+    {
+        return IterativeSearch {
+            make_unique<IterativeSearchImpl> (
+                Board { board },
+                history,
+                makeNullLogger(),
+                MoveTimer { Default_Max_Search_Seconds },
+                Default_Max_Depth
+            )
+        };
     }
 
     auto 

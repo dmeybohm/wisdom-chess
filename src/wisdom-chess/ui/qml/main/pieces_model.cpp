@@ -2,6 +2,7 @@
 
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/move.hpp"
+#include "wisdom-chess/engine/board.hpp"
 
 #include "wisdom-chess/ui/qml/main/pieces_model.hpp"
 
