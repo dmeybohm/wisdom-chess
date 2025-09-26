@@ -126,6 +126,7 @@ namespace wisdom
         toInt() const
             -> IntegerType
         {
+            static_assert (std::is_unsigned_v<IntegerType>,
             return narrow_cast<IntegerType> (my_flags);
         }
 
@@ -145,10 +146,11 @@ namespace wisdom
 
     template <typename IntegerType = uint8_t>
     constexpr auto
-    toInt (CastlingEligibility eligibility) 
+    toInt (CastlingEligibility eligibility)
         -> IntegerType
     {
-        return eligibility.toInt();
+        static_assert (std::is_unsigned_v<IntegerType>);
+        return eligibility.toInt<IntegerType>();
     }
 
     namespace CastlingRights

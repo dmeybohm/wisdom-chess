@@ -133,13 +133,13 @@ namespace wisdom
         ableToCastle (Color who, CastlingEligibility castle_types) const noexcept
             -> bool
         {
-            // Special case: asking for "neither side" means no castling is possible
-            if (castle_types == CastlingEligibility::Neither_Side)
-                return false;
-
             auto castle_state = getCastlingEligibility (who);
-            auto castle_bits = toInt (castle_state);
-            auto check_bits = toInt (castle_types);
+            auto castle_bits = toInt<uint8_t> (castle_state);
+
+            // Use a bitmask that always fails for Neither_Side (more performant than branching)
+            auto check_bits = castle_types == CastlingEligibility::Neither_Side
+                ? static_cast<uint8_t> (~uint8_t { 0 })  // All bits set, always fails
+                : toInt<uint8_t> (castle_types);
 
             // Check if all requested castling rights are available
             bool has_rights = (castle_bits & check_bits) == check_bits;

@@ -262,17 +262,51 @@ TEST_CASE( "Global constants" )
 TEST_CASE( "toInt template function" )
 {
     auto eligibility = CastlingRights::Kingside | CastlingRights::Queenside;
-    
-    SUBCASE( "Different integer types" )
+
+    SUBCASE( "Different unsigned integer types" )
     {
         CHECK( toInt<uint8_t> (eligibility) == 3 );
         CHECK( toInt<uint16_t> (eligibility) == 3 );
         CHECK( toInt<uint32_t> (eligibility) == 3 );
-        CHECK( toInt<int> (eligibility) == 3 );
+        CHECK( toInt<uint64_t> (eligibility) == 3 );
+
+        // These would fail to compile due to static_assert:
+        // CHECK( toInt<int> (eligibility) == 3 );        // signed int - compilation error
+        // CHECK( toInt<signed char> (eligibility) == 3 ); // signed char - compilation error
     }
-    
+
     SUBCASE( "Default template parameter" )
     {
         CHECK( toInt (eligibility) == 3 );
+    }
+
+    SUBCASE( "Type safety - ensure unsigned arithmetic" )
+    {
+        // Verify toInt returns unsigned types by default
+        auto result = toInt (eligibility);
+        static_assert (std::is_same_v<decltype(result), uint8_t>);
+        static_assert (std::is_unsigned_v<decltype(result)>);
+
+        // Verify bitwise operations work correctly with unsigned types
+        uint8_t castle_bits = 3;  // Both sides eligible
+        auto check_bits_signed = ~0;  // This is signed int
+        auto check_bits_unsigned = static_cast<uint8_t>(~0);  // This is uint8_t
+
+        // Demonstrate the potential issue
+        CHECK( check_bits_signed == -1 );  // ~0 as signed int
+        CHECK( check_bits_unsigned == 255 );  // ~0 as uint8_t
+
+        // The important test: both should fail the equality check
+        CHECK( (castle_bits & check_bits_signed) != check_bits_signed );
+        CHECK( (castle_bits & check_bits_unsigned) != check_bits_unsigned );
+
+        // Verify the actual implementation matches our understanding
+        using flags_type = uint8_t;
+        static_assert (std::is_unsigned_v<flags_type>);
+
+        auto max_flags = static_cast<flags_type>(~flags_type{0});  // What ableToCastle uses
+        CHECK( max_flags == 255 );
+        CHECK( (castle_bits & max_flags) == castle_bits );  // 3 & 255 == 3
+        CHECK( (castle_bits & max_flags) != max_flags );    // 3 != 255, so equality fails
     }
 }
