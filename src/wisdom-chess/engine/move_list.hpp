@@ -82,7 +82,7 @@ namespace wisdom
         constexpr void
         append (Move move) noexcept
         {
-            assert (my_size < Max_Move_List_Size);
+            Expects (my_size < Max_Move_List_Size);
             my_moves[my_size++] = move;
         }
 
@@ -153,7 +153,7 @@ namespace wisdom
 
         [[nodiscard]] auto asString() const -> string;
 
-        constexpr auto
+        [[nodiscard]] constexpr auto
         operator== (const MoveList& other) const
             -> bool
         {
@@ -161,7 +161,7 @@ namespace wisdom
                 std::equal (begin(), end(), other.begin());
         }
 
-        constexpr auto
+        [[nodiscard]] constexpr auto
         operator!= (const MoveList& other) const
             -> bool
         {
@@ -174,6 +174,28 @@ namespace wisdom
             return my_moves;
         }
         void data() const&& = delete;
+
+        [[nodiscard]] constexpr auto
+        front() const
+            -> Move
+        {
+            Expects (my_size > 0);
+            return my_moves[0];
+        }
+
+        [[nodiscard]] constexpr auto
+        back() const
+            -> Move
+        {
+            Expects (my_size > 0);
+            return my_moves[my_size - 1];
+        }
+
+        constexpr void
+        clear() noexcept
+        {
+            my_size = 0;
+        }
     };
 
     auto asString (const MoveList& list) -> string;

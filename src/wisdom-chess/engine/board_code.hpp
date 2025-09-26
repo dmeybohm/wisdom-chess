@@ -104,7 +104,7 @@ namespace wisdom
                 | (color == Color::White ? EN_PASSANT_IS_WHITE : 0);
             coord_bits <<= target_bit_shift;
 
-            assert (
+            Expects (
                 coord.row() == (color == Color::White
                                     ? White_En_Passant_Row : Black_En_Passant_Row)
             );
@@ -124,7 +124,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        enPassantTarget () const noexcept
+        getEnPassantTarget () const noexcept
             -> optional<EnPassantTarget>
         {
             auto target_bits = getMetadataBits();
@@ -161,7 +161,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        castleState (Color who) const
+        getCastleState (Color who) const
             -> CastlingEligibility
         {
             auto target_bits = getMetadataBits();
@@ -189,7 +189,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        currentTurn() const noexcept
+        getCurrentTurn() const noexcept
             -> Color
         {
             auto bits = getMetadataBits();
@@ -210,21 +210,21 @@ namespace wisdom
         asString() const noexcept
             -> string;
 
-        [[nodiscard]] auto
-        hashCode() const noexcept
+        [[nodiscard]] constexpr auto
+        getHashCode() const noexcept
             -> BoardHashCode
         {
             return my_code;
         }
 
-        friend auto
+        [[nodiscard]] friend auto
         operator== (const BoardCode& first, const BoardCode& second) noexcept
             -> bool
         {
             return first.my_code == second.my_code;
         }
 
-        friend auto
+        [[nodiscard]] friend auto
         operator!= (const BoardCode& first, const BoardCode& second) noexcept
             -> bool
         {
@@ -254,7 +254,7 @@ namespace wisdom
         // Private and only used for initialization.
         BoardCode();
 
-        void setMetadataBits (uint16_t new_metadata)
+        constexpr void setMetadataBits (uint16_t new_metadata) noexcept
         {
             my_code = (my_code & 0xfffffffFFFF0000ULL) | new_metadata;
         }
@@ -274,7 +274,7 @@ namespace std
         operator() (const wisdom::BoardCode& code) const noexcept
             -> std::size_t
         {
-            return code.hashCode();
+            return code.getHashCode();
         }
     };
 }

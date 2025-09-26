@@ -55,6 +55,7 @@ add_library(wisdom-chess-core STATIC
         threats.hpp
         board.cpp
         board_code.cpp
+        castling.cpp
         coord.cpp
         evaluate.cpp
         fen_parser.cpp
