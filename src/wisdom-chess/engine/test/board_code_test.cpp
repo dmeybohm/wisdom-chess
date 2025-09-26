@@ -196,7 +196,7 @@ TEST_CASE( "Board code stores metadata" )
         code.setCastleState (Color::White, CastlingEligibility::Either_Side);
         code.setCastleState (Color::Black, CastlingEligibility::Either_Side);
 
-        auto initial_hash = code.hashCode();
+        auto initial_hash = code.getHashCode();
         auto high_48_bits = initial_hash & 0xfffffffFFFF0000ULL;
         auto low_16_bits = initial_hash & 0xffffULL;
 
@@ -205,7 +205,7 @@ TEST_CASE( "Board code stores metadata" )
         code.setCastleState (Color::Black, CastlingIneligible::Queenside);
         code.setEnPassantTarget (Color::White, coordParse ("e3"));
 
-        auto modified_hash = code.hashCode();
+        auto modified_hash = code.getHashCode();
         auto modified_high_48_bits = modified_hash & 0xfffffffFFFF0000ULL;
         auto modified_low_16_bits = modified_hash & 0xffffULL;
 
@@ -218,7 +218,7 @@ TEST_CASE( "Board code stores metadata" )
         code.setCastleState (Color::Black, CastlingEligibility::Either_Side);
         code.setCurrentTurn (Color::White);
 
-        auto restored_hash = code.hashCode();
+        auto restored_hash = code.getHashCode();
         CHECK( restored_hash == initial_hash );
     }
 
@@ -239,7 +239,7 @@ TEST_CASE( "Board code stores metadata" )
         auto without_state_code = board_without_state.getCode();
         CHECK( with_state_code != without_state_code );
 
-        auto en_passant_target = with_state_code.enPassantTarget ();
+        auto en_passant_target = with_state_code.getEnPassantTarget ();
         auto expected_coord = coordParse ("d6");
         auto metadata = with_state_code.getMetadataBits();
         REQUIRE( en_passant_target.has_value() );
@@ -264,7 +264,7 @@ TEST_CASE( "Board code stores metadata" )
         auto without_state_code = board_without_state.getCode();
         CHECK( with_state_code != without_state_code );
 
-        auto en_passant_target = with_state_code.enPassantTarget();
+        auto en_passant_target = with_state_code.getEnPassantTarget();
 
         auto expected_coord = coordParse ("e3");
         REQUIRE( en_passant_target.has_value() );
@@ -276,23 +276,23 @@ TEST_CASE( "Board code stores metadata" )
     {
         BoardCode board_code = BoardCode::fromDefaultPosition();
 
-        auto initial_white_state = board_code.castleState (Color::White);
-        auto initial_black_state = board_code.castleState (Color::Black);
+        auto initial_white_state = board_code.getCastleState (Color::White);
+        auto initial_black_state = board_code.getCastleState (Color::Black);
 
         CHECK( initial_white_state == CastlingEligibility::Either_Side );
         CHECK( initial_black_state == CastlingEligibility::Either_Side );
 
         board_code.setCastleState (Color::White, CastlingEligibility::Neither_Side);
-        auto white_state = board_code.castleState (Color::White);
-        auto black_state = board_code.castleState (Color::Black);
+        auto white_state = board_code.getCastleState (Color::White);
+        auto black_state = board_code.getCastleState (Color::Black);
 
         CHECK( white_state == CastlingEligibility::Neither_Side );
         CHECK( black_state == CastlingEligibility::Either_Side );
 
         board_code.setCastleState (Color::White, CastlingIneligible::Kingside);
         board_code.setCastleState (Color::Black, CastlingIneligible::Queenside);
-        white_state = board_code.castleState (Color::White);
-        black_state = board_code.castleState (Color::Black);
+        white_state = board_code.getCastleState (Color::White);
+        black_state = board_code.getCastleState (Color::Black);
 
         CHECK( white_state == CastlingIneligible::Kingside );
         CHECK( black_state == CastlingIneligible::Queenside );
@@ -302,11 +302,11 @@ TEST_CASE( "Board code stores metadata" )
     {
         BoardCode board_code = BoardCode::fromDefaultPosition();
 
-        auto current_turn = board_code.currentTurn();
+        auto current_turn = board_code.getCurrentTurn();
         CHECK( current_turn == Color::White );
 
         board_code.setCurrentTurn (Color::Black);
-        auto next_turn = board_code.currentTurn();
+        auto next_turn = board_code.getCurrentTurn();
         CHECK( next_turn == Color::Black );
     }
 }

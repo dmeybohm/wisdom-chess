@@ -126,7 +126,7 @@ namespace wisdom
         getCastlingEligibility (Color who) const noexcept
             -> CastlingEligibility
         {
-            return my_code.castleState (who);
+            return my_code.getCastleState (who);
         }
 
         [[nodiscard]] auto
@@ -148,7 +148,7 @@ namespace wisdom
 
         [[nodiscard]] auto isEnPassantVulnerable (Color who) const noexcept -> bool
         {
-            auto target = my_code.enPassantTarget();
+            auto target = my_code.getEnPassantTarget();
             return target.has_value() && target->vulnerable_color == who;
         }
 
@@ -156,14 +156,14 @@ namespace wisdom
         getCurrentTurn() const 
             -> Color
         {
-            return my_code.currentTurn();
+            return my_code.getCurrentTurn();
         }
 
         [[nodiscard]] auto
         getEnPassantTarget() const noexcept
             -> optional<EnPassantTarget>
         {
-            return my_code.enPassantTarget();
+            return my_code.getEnPassantTarget();
         }
 
         [[nodiscard]] auto 

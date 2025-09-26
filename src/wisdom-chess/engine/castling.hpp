@@ -160,23 +160,8 @@ namespace wisdom
 	}
 
     // Send the castling eligibility to the ostream.
-    inline auto
+    auto
     operator<< (std::ostream& os, const CastlingEligibility& value)
-        -> std::ostream&
-    {
-        std::string result = "{ Kingside: ";
-
-        result += value.isSet (CastlingIneligible::Kingside)
-            ? "not eligible, "
-            : "eligible, ";
-        result += "Queenside: ";
-        result += value.isSet (CastlingIneligible::Queenside)
-            ? "not eligible"
-            : "eligible";
-        result += " }";
-
-        os << result;
-        return os;
-    }
+        -> std::ostream&;
 
 }
