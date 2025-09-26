@@ -270,22 +270,22 @@ namespace wisdom
             auto row = castlingRowForColor (who);
             int8_t king_col = King_Column;
 
-            CastlingEligibility state = CastlingEligibility::Either_Side;
+            CastlingEligibility state = CastlingEligibility::Neither_Side;
             ColoredPiece prospective_king = pieceAt (makeCoord (row, king_col));
             ColoredPiece prospective_queen_rook = pieceAt (makeCoord (row, 0));
             ColoredPiece prospective_king_rook = pieceAt (makeCoord (row, 7));
 
-            if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who
-                || pieceType (prospective_queen_rook) != Piece::Rook
-                || pieceColor (prospective_queen_rook) != who)
+            if (pieceType (prospective_king) == Piece::King && pieceColor (prospective_king) == who
+                && pieceType (prospective_queen_rook) == Piece::Rook
+                && pieceColor (prospective_queen_rook) == who)
             {
-                state |= CastlingIneligible::Queenside;
+                state |= CastlingRights::Queenside;
             }
-            if (pieceType (prospective_king) != Piece::King || pieceColor (prospective_king) != who
-                || pieceType (prospective_king_rook) != Piece::Rook
-                || pieceColor (prospective_king_rook) != who)
+            if (pieceType (prospective_king) == Piece::King && pieceColor (prospective_king) == who
+                && pieceType (prospective_king_rook) == Piece::Rook
+                && pieceColor (prospective_king_rook) == who)
             {
-                state |= CastlingIneligible::Kingside;
+                state |= CastlingRights::Kingside;
             }
 
             return state;

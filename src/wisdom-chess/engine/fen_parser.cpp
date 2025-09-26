@@ -130,22 +130,22 @@ namespace wisdom
                 break;
 
             Color who = islower (ch) ? Color::Black : Color::White;
-            CastlingEligibility new_ineligible = CastlingEligibility::Either_Side;
+            CastlingEligibility castling_right = CastlingEligibility::Neither_Side;
 
             switch (tolower (ch))
             {
                 case 'k':
-                    new_ineligible ^= CastlingIneligible::Kingside;
+                    castling_right = CastlingRights::Kingside;
                     break;
                 case 'q':
-                    new_ineligible ^= CastlingIneligible::Queenside;
+                    castling_right = CastlingRights::Queenside;
                     break;
             }
 
             if (who == Color::Black)
-                black_castle = black_castle ^ new_ineligible;
+                black_castle |= castling_right;
             else
-                white_castle = white_castle ^ new_ineligible;
+                white_castle |= castling_right;
         }
 
         builder.setCastling (Color::White, white_castle);

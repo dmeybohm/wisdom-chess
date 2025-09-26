@@ -4,6 +4,9 @@
 
 namespace wisdom
 {
+    // Represents castling eligibility using intuitive bit logic:
+    // Bit set (1) = eligible to castle on that side
+    // Bit clear (0) = not eligible to castle on that side
     class CastlingEligibility
     {
     private:
@@ -24,7 +27,7 @@ namespace wisdom
         CastlingEligibility (uint8_t flags) noexcept
             : my_flags { flags }
         {
-            assert ((flags &~ (0x1|0x2)) == 0);
+            Expects ((flags &~ (0x1|0x2)) == 0);
         }
 
         [[nodiscard]] constexpr auto
@@ -46,21 +49,21 @@ namespace wisdom
             my_flags &= ~flags.my_flags;
         }
         
-        constexpr auto
+        [[nodiscard]] constexpr auto
         operator| (CastlingEligibility other) const noexcept
             -> CastlingEligibility
         {
             return fromInt (my_flags | other.my_flags);
         }
         
-        constexpr auto
+        [[nodiscard]] constexpr auto
         operator& (CastlingEligibility other) const noexcept
             -> CastlingEligibility
         {
             return fromInt (my_flags & other.my_flags);
         }
         
-        constexpr auto
+        [[nodiscard]] constexpr auto
         operator^ (CastlingEligibility other) const noexcept
             -> CastlingEligibility
         {
@@ -91,7 +94,7 @@ namespace wisdom
             return *this;
         }
         
-        constexpr auto
+        [[nodiscard]] constexpr auto
         operator== (CastlingEligibility other) const noexcept
             -> bool
         {
@@ -105,7 +108,7 @@ namespace wisdom
             return *this;
         }
 
-        constexpr auto
+        [[nodiscard]] constexpr auto
         operator!= (CastlingEligibility other) const noexcept
             -> bool
         {
@@ -126,6 +129,14 @@ namespace wisdom
             return narrow_cast<IntegerType> (my_flags);
         }
 
+        [[nodiscard]] constexpr auto
+        canCastleKingside() const noexcept
+            -> bool;
+
+        [[nodiscard]] constexpr auto
+        canCastleQueenside() const noexcept
+            -> bool;
+
         // Static constants for common eligibility states (defined after class)
         static const CastlingEligibility Either_Side;
         static const CastlingEligibility Neither_Side;
@@ -140,24 +151,39 @@ namespace wisdom
         return eligibility.toInt();
     }
 
-    namespace CastlingIneligible
+    namespace CastlingRights
     {
         constexpr static CastlingEligibility Kingside { 1 };
         constexpr static CastlingEligibility Queenside { 2 };
     };
 
     // Define the static constants for CastlingEligibility
-    inline constexpr CastlingEligibility CastlingEligibility::Either_Side {};
-    inline constexpr CastlingEligibility CastlingEligibility::Neither_Side
-        = CastlingIneligible::Kingside | CastlingIneligible::Queenside;
+    inline constexpr CastlingEligibility CastlingEligibility::Either_Side
+        = CastlingRights::Kingside | CastlingRights::Queenside;
+    inline constexpr CastlingEligibility CastlingEligibility::Neither_Side {};
 
 
     constexpr auto
     makeCastlingEligibilityFromInt (unsigned int flags)
         -> CastlingEligibility
-	{
-		return CastlingEligibility { narrow<uint8_t> (flags) };
-	}
+    {
+        return CastlingEligibility { narrow<uint8_t> (flags) };
+    }
+
+    // Inline definitions for helper methods
+    inline constexpr auto
+    CastlingEligibility::canCastleKingside() const noexcept
+        -> bool
+    {
+        return isSet (CastlingRights::Kingside);
+    }
+
+    inline constexpr auto
+    CastlingEligibility::canCastleQueenside() const noexcept
+        -> bool
+    {
+        return isSet (CastlingRights::Queenside);
+    }
 
     // Send the castling eligibility to the ostream.
     auto
