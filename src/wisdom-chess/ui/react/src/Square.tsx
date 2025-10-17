@@ -2,8 +2,7 @@ import React from "react";
 import "./Board.css";
 import { Piece } from "./lib/Pieces";
 import { useDrag, useDrop } from 'react-dnd';
-import { fromColorToNumber, getCurrentGame, getGameModel, WisdomChess } from "./lib/WisdomChess";
-import { useGame } from "./lib/useGame";
+import { fromColorToNumber, getCurrentGame, getGameModel, WisdomChess, PieceColor } from "./lib/WisdomChess";
 import { wisdomChess } from "./App";
 
 interface SquareProps {
@@ -44,12 +43,12 @@ interface PieceOverlayProps {
     piece: Piece
     focusedSquare: string
     droppedSquare: string
+    currentTurn: PieceColor
     onPieceClick(position: string): void
     onDropPiece(src: string, dst: string): void;
 }
 
 export function PieceOverlay(props: PieceOverlayProps) {
-    const actions = useGame((state) => state.actions)
     const wisdomChess = WisdomChess()
 
     const [{isDragging}, drag, preview] = useDrag({
@@ -58,13 +57,13 @@ export function PieceOverlay(props: PieceOverlayProps) {
         canDrag: monitor => {
             const game = getCurrentGame()
             const pieceColor = fromColorToNumber(props.piece.color)
-            return pieceColor === actions.currentTurn() &&
+            return pieceColor === props.currentTurn &&
                 game.getPlayerOfColor(pieceColor) === wisdomChess.Human
         },
         collect: monitor => ({
             isDragging: monitor.isDragging(),
         }),
-    }, [props.piece.position])
+    }, [props.piece.position, props.currentTurn])
 
     const [{isOver}, drop] = useDrop({
         accept: 'piece',

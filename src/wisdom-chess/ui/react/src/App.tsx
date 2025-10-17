@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import './App.css'
 import Board from "./Board";
 import TopMenu from "./TopMenu";
@@ -8,13 +8,75 @@ import {
     getCurrentGame,
     WisdomChess,
     GameSettings,
+    GameStatus,
+    PieceColor,
+    PieceType,
+    WebMove,
+    getGameModel,
+    getPieces,
+    getCurrentGameSettings,
+    startNewGame as startNewGameEngine,
+    Game,
+    DrawByRepetitionType,
+    fromColorToNumber,
 } from "./lib/WisdomChess";
-import { useGame } from "./lib/useGame";
 import { SettingsModal } from "./SettingsModal";
 import { DrawDialog } from "./DrawDialog";
 import { AboutModal } from "./AboutModal";
+import { Piece } from "./lib/Pieces";
+import { initialSquares } from "./lib/Squares";
 
 export let wisdomChess : any = undefined
+
+type ChessEngineEventType = 'computerMoved' | 'computerDrawStatusUpdated'
+
+type ComputerDrawStatusUpdate = {
+    draw_type: DrawByRepetitionType
+    color: PieceColor
+    accepted: boolean
+}
+
+function updateGameState(currentGame: Game) {
+    const gameModel = getGameModel()
+    const wisdomChessModule = WisdomChess()
+    return {
+        pieces: getPieces(currentGame),
+        gameStatus: currentGame.getGameStatus(),
+        moveStatus: currentGame.getMoveStatus(),
+        gameOverStatus: currentGame.getGameOverStatus(),
+        hasHumanPlayer: gameModel.getFirstHumanPlayerColor() !== wisdomChessModule.NoColor,
+    }
+}
+
+function throttle(func: Function, limit: number) {
+    let lastTimeout : ReturnType<typeof setTimeout>|null = null;
+    let lastRan : number|null = null;
+
+    return function() {
+        if (lastRan === null) {
+            func()
+            lastRan = Date.now();
+            return;
+        }
+        const diff = limit - (Date.now() - lastRan);
+        clearTimeout(lastTimeout!);
+        lastTimeout = null;
+        if (diff <= 0) {
+            func()
+            lastRan = Date.now();
+            return;
+        }
+        lastTimeout = setTimeout(function() {
+            func()
+            lastRan = Date.now();
+            lastTimeout = null;
+        }, diff);
+    }
+}
+
+function findPieceAtPosition(pieces: Piece[], position: string): Piece|undefined {
+    return pieces.find(piece => piece.position === position)
+}
 
 function App() {
 
@@ -27,6 +89,41 @@ function App() {
 
     const [thirdRepetitionDrawAnswered, setThirdRepetitionDrawAnswered] = useState(false)
     const [fiftyMovesDrawAnswered, setFiftyMovesDrawAnswered] = useState(false)
+
+    const [pieces, setPieces] = useState<Piece[]>([])
+    const [squares] = useState(initialSquares)
+    const [focusedSquare, setFocusedSquare] = useState('')
+    const [hasHumanPlayer, setHasHumanPlayer] = useState(false)
+    const [pawnPromotionDialogSquare, setPawnPromotionDialogSquare] = useState('')
+    const [gameStatus, setGameStatus] = useState<GameStatus>(0)
+    const [gameOverStatus, setGameOverStatus] = useState('')
+    const [moveStatus, setMoveStatus] = useState('White to move')
+    const [settings, setSettings] = useState<GameSettings>({
+        whitePlayer: 0,
+        blackPlayer: 1,
+        thinkingTime: 2,
+        searchDepth: 3,
+    })
+    const [lastDroppedSquare, setLastDroppedSquare] = useState('')
+
+    const updateState = useCallback((updates: Partial<ReturnType<typeof updateGameState>> & {
+        focusedSquare?: string
+        pawnPromotionDialogSquare?: string
+        lastDroppedSquare?: string
+        settings?: GameSettings
+    }) => {
+        if (updates.pieces !== undefined) setPieces(updates.pieces)
+        if (updates.gameStatus !== undefined) setGameStatus(updates.gameStatus)
+        if (updates.moveStatus !== undefined) setMoveStatus(updates.moveStatus)
+        if (updates.gameOverStatus !== undefined) setGameOverStatus(updates.gameOverStatus)
+        if (updates.hasHumanPlayer !== undefined) setHasHumanPlayer(updates.hasHumanPlayer)
+        if (updates.focusedSquare !== undefined) setFocusedSquare(updates.focusedSquare)
+        if (updates.pawnPromotionDialogSquare !== undefined) setPawnPromotionDialogSquare(updates.pawnPromotionDialogSquare)
+        if (updates.lastDroppedSquare !== undefined) setLastDroppedSquare(updates.lastDroppedSquare)
+        if (updates.settings !== undefined) setSettings(updates.settings)
+    }, [])
+
+    const throttledComputerMove = useCallback(throttle(() => getGameModel().notifyComputerMove(), 250), [])
 
     const handleAboutClicked = (event: React.SyntheticEvent): void => {
         event.preventDefault()
@@ -47,30 +144,285 @@ function App() {
     }
 
     const game = getCurrentGame()
-    const gameState = useGame((state) => state)
-    const actions = useGame((state) => state.actions)
 
     function resetFocusState() {
-        gameState.focusedSquare = ''
-        gameState.pawnPromotionDialogSquare = ''
+        setFocusedSquare('')
+        setPawnPromotionDialogSquare('')
     }
+
+    const receiveWorkerMessage = useCallback((type: ChessEngineEventType, gameId: number, message: string) => {
+        const currentGame = getCurrentGame()
+        switch (type) {
+            case 'computerMoved': {
+                const move = wisdomChess.WebMove.prototype.fromString(
+                    message,
+                    currentGame.getCurrentTurn()
+                );
+                computerMovePiece(move)
+                throttledComputerMove()
+                break;
+            }
+
+            case 'computerDrawStatusUpdated': {
+                const params = JSON.parse(message) as ComputerDrawStatusUpdate
+                currentGame.setComputerDrawStatus(
+                    params.draw_type,
+                    params.color,
+                    params.accepted
+                )
+                updateState({
+                    ...updateGameState(currentGame)
+                })
+                break;
+            }
+
+            default: {
+                console.error("Unknown message type: ", type);
+                break;
+            }
+        }
+    }, [throttledComputerMove])
+
+    const computerMovePiece = useCallback((move: WebMove) => {
+        const currentGame = getCurrentGame()
+        currentGame.makeMove(move);
+        updateState({
+            ...updateGameState(currentGame),
+            lastDroppedSquare: ''
+        })
+    }, [updateState])
+
+    const humanMovePiece = useCallback((dst: string) => {
+        const currentGame = getCurrentGame()
+        const gameModel = getGameModel()
+        const src = focusedSquare;
+
+        if (src === '') {
+            setPawnPromotionDialogSquare('')
+            return
+        }
+        const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
+        const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(dst)
+
+        let move;
+        try {
+            move = currentGame.createMoveFromCoordinatesAndPromotedPiece(
+                srcCoord,
+                dstCoord,
+                wisdomChess.Queen
+            );
+        } catch (e) {
+            console.error("Error:", e)
+            updateState({
+                ...updateGameState(currentGame),
+                pawnPromotionDialogSquare: '',
+                focusedSquare: '',
+            })
+            return
+        }
+        if (!move || !currentGame.isLegalMove(move)) {
+            updateState({
+                ...updateGameState(currentGame),
+                pawnPromotionDialogSquare: '',
+                focusedSquare: '',
+            })
+            return
+        }
+        if (currentGame.needsPawnPromotion(srcCoord, dstCoord)) {
+            updateState({
+                ...updateGameState(currentGame),
+                pawnPromotionDialogSquare: dst,
+                focusedSquare: src,
+            })
+            return
+        }
+        currentGame.makeMove(move)
+        gameModel.notifyHumanMove(move)
+        updateState({
+            ...updateGameState(currentGame),
+            focusedSquare: ''
+        })
+    }, [focusedSquare, updateState])
+
+    const promotePiece = useCallback((pieceType: PieceType) => {
+        const currentGame = getCurrentGame()
+        const gameModel = getGameModel()
+        const src = focusedSquare
+        const dst = pawnPromotionDialogSquare
+
+        const srcCoord = wisdomChess.WebCoord.prototype.fromTextCoord(src)
+        const dstCoord = wisdomChess.WebCoord.prototype.fromTextCoord(dst)
+
+        let move;
+        try {
+            move = currentGame.createMoveFromCoordinatesAndPromotedPiece(
+                srcCoord,
+                dstCoord,
+                pieceType,
+            );
+        } catch (e) {
+            console.error("Error:", e)
+            updateState({
+                ...updateGameState(currentGame),
+                pawnPromotionDialogSquare: '',
+                focusedSquare: '',
+                lastDroppedSquare: '',
+            })
+            return
+        }
+        if (!move || !currentGame.isLegalMove(move)) {
+            updateState({
+                ...updateGameState(currentGame),
+                pawnPromotionDialogSquare: '',
+                focusedSquare: '',
+                lastDroppedSquare: '',
+            })
+            return
+        }
+        currentGame.makeMove(move)
+        gameModel.notifyHumanMove(move)
+        updateState({
+            ...updateGameState(currentGame),
+            focusedSquare: '',
+            pawnPromotionDialogSquare: '',
+            lastDroppedSquare: '',
+        })
+    }, [focusedSquare, pawnPromotionDialogSquare, updateState])
+
+    const pieceClick = useCallback((dst: string) => {
+        const currentGame = getCurrentGame()
+
+        if (gameStatus != wisdomChess.Playing) {
+            return
+        }
+
+        if (focusedSquare === '') {
+            const currentPieces = getPieces(currentGame)
+            const srcPiece = findPieceAtPosition(currentPieces, dst)
+            if (srcPiece && currentGame.getPlayerOfColor(fromColorToNumber(srcPiece.color)) == wisdomChess.Human) {
+                updateState({
+                    ...updateGameState(currentGame),
+                    focusedSquare: dst,
+                    lastDroppedSquare: '',
+                    pawnPromotionDialogSquare: ''
+                })
+            }
+            return
+        }
+
+        if (focusedSquare === dst) {
+            updateState({
+                ...updateGameState(currentGame),
+                focusedSquare: '',
+                lastDroppedSquare: '',
+                pawnPromotionDialogSquare: ''
+            })
+            return
+        }
+
+        const currentPieces = getPieces(currentGame)
+        const dstPiece = findPieceAtPosition(currentPieces, dst)
+        const srcPiece = findPieceAtPosition(currentPieces, focusedSquare)
+        if (!dstPiece || !srcPiece || srcPiece.color === dstPiece.color) {
+            updateState({
+                ...updateGameState(currentGame),
+                focusedSquare: dst,
+                lastDroppedSquare: '',
+                pawnPromotionDialogSquare: ''
+            })
+            return
+        }
+
+        humanMovePiece(dst)
+        if (pawnPromotionDialogSquare === '') {
+            setLastDroppedSquare('')
+            setFocusedSquare('')
+        }
+    }, [gameStatus, focusedSquare, humanMovePiece, pawnPromotionDialogSquare, updateState])
+
+    const dropPiece = useCallback((src: string, dst: string) => {
+        setFocusedSquare(src)
+        humanMovePiece(dst)
+        updateState({
+            ...updateGameState(getCurrentGame()),
+            lastDroppedSquare: dst
+        })
+    }, [humanMovePiece, updateState])
+
+    const pauseGame = useCallback(() => {
+        getGameModel().sendPause()
+    }, [])
+
+    const unpauseGame = useCallback(() => {
+        getGameModel().sendUnpause()
+    }, [])
+
+    const applySettings = useCallback((newSettings: GameSettings) => {
+        const wisdomChessModule = WisdomChess()
+        const workerGameSettings = new wisdomChessModule.GameSettings()
+        const gameModel = getGameModel()
+
+        workerGameSettings.whitePlayer = newSettings.whitePlayer
+        workerGameSettings.blackPlayer = newSettings.blackPlayer
+        workerGameSettings.thinkingTime = newSettings.thinkingTime
+        workerGameSettings.searchDepth = newSettings.searchDepth
+
+        gameModel.setCurrentGameSettings(workerGameSettings)
+        const currentGame = getCurrentGame()
+        currentGame.setSettings(workerGameSettings)
+
+        updateState({
+            ...updateGameState(currentGame),
+            settings: workerGameSettings
+        })
+    }, [updateState])
+
+    const setHumanDrawStatus = useCallback((drawType: DrawByRepetitionType, who: PieceColor, accepted: boolean) => {
+        const currentGame = getCurrentGame()
+        const gameModel = getGameModel()
+        const firstHumanPlayer = gameModel.getFirstHumanPlayerColor()
+        const secondHumanPlayer = gameModel.getSecondHumanPlayerColor()
+
+        if (firstHumanPlayer === wisdomChess.NoColor) {
+            console.error("Invalid color for human player draw type")
+            return
+        }
+        currentGame.setHumanDrawStatus(drawType, firstHumanPlayer, accepted)
+        if (secondHumanPlayer != wisdomChess.NoColor) {
+            currentGame.setHumanDrawStatus(drawType, secondHumanPlayer, accepted);
+        }
+        updateState({
+            ...updateGameState(getCurrentGame())
+        })
+    }, [updateState])
+
+    useEffect(() => {
+        updateState({
+            settings: getCurrentGameSettings(),
+            ...updateGameState(getCurrentGame())
+        })
+
+        const reactWindow = (window as any)
+        if (reactWindow.setReceiveWorkerMessageCallback) {
+            reactWindow.setReceiveWorkerMessageCallback(receiveWorkerMessage)
+        }
+    }, [receiveWorkerMessage])
 
     useEffect(() => {
         if ([showAbout, showNewGame, showSettings].some(v => v)) {
-            actions.pauseGame();
+            pauseGame();
         } else {
-            actions.unpauseGame();
+            unpauseGame();
         }
-    }, [showAbout, showNewGame, showSettings])
+    }, [showAbout, showNewGame, showSettings, pauseGame, unpauseGame])
 
-    // Sync the human user's answer with the state of the game:
     const handleThirdRepetitionDrawAnswer = (answer: boolean): void => {
         setThirdRepetitionDrawAnswered(true)
-        actions.setHumanDrawStatus(wisdomChess.ThreefoldRepetition, wisdomChess.White, answer);
+        setHumanDrawStatus(wisdomChess.ThreefoldRepetition, wisdomChess.White, answer);
     }
     const handleFiftyMovesWithoutProgressDrawAnswer = (answer: boolean): void => {
         setFiftyMovesDrawAnswered(true);
-        actions.setHumanDrawStatus(wisdomChess.FiftyMovesWithoutProgress, wisdomChess.White, answer);
+        setHumanDrawStatus(wisdomChess.FiftyMovesWithoutProgress, wisdomChess.White, answer);
     }
 
     const currentTurn = game.getCurrentTurn()
@@ -78,10 +430,15 @@ function App() {
 
     const startNewGame = (event: React.SyntheticEvent) => {
         event.preventDefault()
-        actions.startNewGame()
+        startNewGameEngine()
+        updateState({
+            focusedSquare: '',
+            pawnPromotionDialogSquare: '',
+            settings: getCurrentGameSettings(),
+            ...updateGameState(getCurrentGame())
+        })
         setShowNewGame(false)
 
-        // Reset the state:
         setThirdRepetitionDrawAnswered(false)
         setFiftyMovesDrawAnswered(false)
         resetFocusState();
@@ -90,7 +447,7 @@ function App() {
     function handleApplySettings(gameSettings: GameSettings, flipped: boolean) {
         setShowSettings(false);
         setFlipped(flipped)
-        actions.applySettings(gameSettings)
+        applySettings(gameSettings)
     }
 
     function handleCancelNewGame(e: React.SyntheticEvent) {
@@ -100,12 +457,12 @@ function App() {
 
     function handleDropPiece(src: string, dst: string) {
         if (src !== dst) {
-            actions.dropPiece(src, dst)
+            dropPiece(src, dst)
         }
     }
 
     function handlePieceClick(dst: string) {
-        actions.pieceClick(dst)
+        pieceClick(dst)
     }
 
     const showModalOverlay = showSettings || showAbout || showNewGame
@@ -121,22 +478,22 @@ function App() {
                 <Board
                     flipped={flipped}
                     currentTurn={currentTurn}
-                    squares={gameState.squares}
-                    focusedSquare={gameState.focusedSquare}
-                    pieces={gameState.pieces}
-                    droppedSquare={gameState.lastDroppedSquare}
-                    pawnPromotionDialogSquare={gameState.pawnPromotionDialogSquare}
-                    onMovePiece={dst => actions.humanMovePiece(dst)}
+                    squares={squares}
+                    focusedSquare={focusedSquare}
+                    pieces={pieces}
+                    droppedSquare={lastDroppedSquare}
+                    pawnPromotionDialogSquare={pawnPromotionDialogSquare}
+                    onMovePiece={humanMovePiece}
                     onDropPiece={handleDropPiece}
                     onPieceClick={handlePieceClick}
-                    onPiecePromotion={pieceType => actions.promotePiece(pieceType)}
+                    onPiecePromotion={promotePiece}
                 />
 
                 <StatusBar
                     currentTurn={currentTurn}
                     inCheck={inCheck}
-                    moveStatus={gameState.moveStatus}
-                    gameOverStatus={gameState.gameOverStatus}
+                    moveStatus={moveStatus}
+                    gameOverStatus={gameOverStatus}
                 />
             </div>
             {showNewGame &&
@@ -155,13 +512,14 @@ function App() {
             {showSettings &&
                 <SettingsModal
                     flipped={flipped}
+                    settings={settings}
                     onApply={handleApplySettings}
                     onDismiss={() => setShowSettings(false) }
                 />
             }
-            {gameState.gameStatus === wisdomChess.ThreefoldRepetitionReached &&
+            {gameStatus === wisdomChess.ThreefoldRepetitionReached &&
                 !thirdRepetitionDrawAnswered &&
-                gameState.hasHumanPlayer &&
+                hasHumanPlayer &&
                 <DrawDialog
                     title={"Third Repetition Reached"}
                     onAccepted={() => handleThirdRepetitionDrawAnswer(true)}
@@ -170,9 +528,9 @@ function App() {
                     <p>The same position was reached three times. Either player can declare a draw now.</p>
                 </DrawDialog>
             }
-            {gameState.gameStatus === wisdomChess.FiftyMovesWithoutProgressReached &&
+            {gameStatus === wisdomChess.FiftyMovesWithoutProgressReached &&
                 !fiftyMovesDrawAnswered &&
-                gameState.hasHumanPlayer &&
+                hasHumanPlayer &&
                 <DrawDialog
                     title={"Fifty Moves Without Progress"}
                     onAccepted={() => handleFiftyMovesWithoutProgressDrawAnswer(true)}

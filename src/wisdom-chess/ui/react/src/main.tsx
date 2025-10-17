@@ -2,13 +2,15 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
-import { ChessEngineEventType, useGame } from "./lib/useGame";
+
+type ChessEngineEventType = 'computerMoved' | 'computerDrawStatusUpdated'
+
+let receiveWorkerMessageCallback: ((type: ChessEngineEventType, gameId: number, message: string) => void) | null = null
 
 function startReact(window: ReactWindow) {
-    const state = useGame.getState()
-    state.actions.init(window)
+    const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
-    ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+    root.render(
         <React.StrictMode>
             <App/>
         </React.StrictMode>,
@@ -18,6 +20,16 @@ function startReact(window: ReactWindow) {
 export interface ReactWindow {
     startReact: (window: ReactWindow) => void
     receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => void
+    setReceiveWorkerMessageCallback: (callback: (type: ChessEngineEventType, gameId: number, message: string) => void) => void
 }
 
-((window as unknown) as ReactWindow).startReact = startReact
+const reactWindow = ((window as unknown) as ReactWindow)
+reactWindow.startReact = startReact
+reactWindow.setReceiveWorkerMessageCallback = (callback) => {
+    receiveWorkerMessageCallback = callback
+}
+reactWindow.receiveWorkerMessage = (type: ChessEngineEventType, gameId: number, message: string) => {
+    if (receiveWorkerMessageCallback) {
+        receiveWorkerMessageCallback(type, gameId, message)
+    }
+}

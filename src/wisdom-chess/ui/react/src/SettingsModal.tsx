@@ -1,6 +1,5 @@
 import Modal from "./Modal";
 import React, { useMemo, useRef, useState } from "react";
-import { useGame } from "./lib/useGame";
 import { GameSettings, WisdomChess } from "./lib/WisdomChess";
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -8,12 +7,13 @@ import "./Settings.css"
 
 type SettingsModalProps = {
     flipped: boolean
+    settings: GameSettings
     onApply: (newSettings: GameSettings, flipped: boolean) => void
     onDismiss: () => void
 }
 
 export function SettingsModal(props: SettingsModalProps) {
-    const settings = useGame((state) => state.settings)
+    const settings = props.settings
     const wisdomChess = WisdomChess()
     const humanWhite = useRef<HTMLInputElement|null>(null)
     const humanBlack = useRef<HTMLInputElement|null>(null)
