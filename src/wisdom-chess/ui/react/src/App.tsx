@@ -106,12 +106,12 @@ function App() {
     })
     const [lastDroppedSquare, setLastDroppedSquare] = useState('')
 
-    const updateState = useCallback((updates: Partial<ReturnType<typeof updateGameState>> & {
+    function updateState(updates: Partial<ReturnType<typeof updateGameState>> & {
         focusedSquare?: string
         pawnPromotionDialogSquare?: string
         lastDroppedSquare?: string
         settings?: GameSettings
-    }) => {
+    }) {
         if (updates.pieces !== undefined) setPieces(updates.pieces)
         if (updates.gameStatus !== undefined) setGameStatus(updates.gameStatus)
         if (updates.moveStatus !== undefined) setMoveStatus(updates.moveStatus)
@@ -121,7 +121,7 @@ function App() {
         if (updates.pawnPromotionDialogSquare !== undefined) setPawnPromotionDialogSquare(updates.pawnPromotionDialogSquare)
         if (updates.lastDroppedSquare !== undefined) setLastDroppedSquare(updates.lastDroppedSquare)
         if (updates.settings !== undefined) setSettings(updates.settings)
-    }, [])
+    }
 
     const throttledComputerMove = useCallback(throttle(() => getGameModel().notifyComputerMove(), 250), [])
 
@@ -148,6 +148,15 @@ function App() {
     function resetFocusState() {
         setFocusedSquare('')
         setPawnPromotionDialogSquare('')
+    }
+
+    function computerMovePiece(move: WebMove) {
+        const currentGame = getCurrentGame()
+        currentGame.makeMove(move);
+        updateState({
+            ...updateGameState(currentGame),
+            lastDroppedSquare: ''
+        })
     }
 
     const receiveWorkerMessage = useCallback((type: ChessEngineEventType, gameId: number, message: string) => {
@@ -183,16 +192,7 @@ function App() {
         }
     }, [throttledComputerMove])
 
-    const computerMovePiece = useCallback((move: WebMove) => {
-        const currentGame = getCurrentGame()
-        currentGame.makeMove(move);
-        updateState({
-            ...updateGameState(currentGame),
-            lastDroppedSquare: ''
-        })
-    }, [updateState])
-
-    const humanMovePiece = useCallback((dst: string) => {
+    function humanMovePiece(dst: string) {
         const currentGame = getCurrentGame()
         const gameModel = getGameModel()
         const src = focusedSquare;
@@ -242,9 +242,9 @@ function App() {
             ...updateGameState(currentGame),
             focusedSquare: ''
         })
-    }, [focusedSquare, updateState])
+    }
 
-    const promotePiece = useCallback((pieceType: PieceType) => {
+    function promotePiece(pieceType: PieceType) {
         const currentGame = getCurrentGame()
         const gameModel = getGameModel()
         const src = focusedSquare
@@ -287,9 +287,9 @@ function App() {
             pawnPromotionDialogSquare: '',
             lastDroppedSquare: '',
         })
-    }, [focusedSquare, pawnPromotionDialogSquare, updateState])
+    }
 
-    const pieceClick = useCallback((dst: string) => {
+    function pieceClick(dst: string) {
         const currentGame = getCurrentGame()
 
         if (gameStatus != wisdomChess.Playing) {
@@ -338,16 +338,16 @@ function App() {
             setLastDroppedSquare('')
             setFocusedSquare('')
         }
-    }, [gameStatus, focusedSquare, humanMovePiece, pawnPromotionDialogSquare, updateState])
+    }
 
-    const dropPiece = useCallback((src: string, dst: string) => {
+    function dropPiece(src: string, dst: string) {
         setFocusedSquare(src)
         humanMovePiece(dst)
         updateState({
             ...updateGameState(getCurrentGame()),
             lastDroppedSquare: dst
         })
-    }, [humanMovePiece, updateState])
+    }
 
     const pauseGame = useCallback(() => {
         getGameModel().sendPause()
@@ -357,7 +357,7 @@ function App() {
         getGameModel().sendUnpause()
     }, [])
 
-    const applySettings = useCallback((newSettings: GameSettings) => {
+    function applySettings(newSettings: GameSettings) {
         const wisdomChessModule = WisdomChess()
         const workerGameSettings = new wisdomChessModule.GameSettings()
         const gameModel = getGameModel()
@@ -375,9 +375,9 @@ function App() {
             ...updateGameState(currentGame),
             settings: workerGameSettings
         })
-    }, [updateState])
+    }
 
-    const setHumanDrawStatus = useCallback((drawType: DrawByRepetitionType, who: PieceColor, accepted: boolean) => {
+    function setHumanDrawStatus(drawType: DrawByRepetitionType, who: PieceColor, accepted: boolean) {
         const currentGame = getCurrentGame()
         const gameModel = getGameModel()
         const firstHumanPlayer = gameModel.getFirstHumanPlayerColor()
@@ -394,7 +394,7 @@ function App() {
         updateState({
             ...updateGameState(getCurrentGame())
         })
-    }, [updateState])
+    }
 
     useEffect(() => {
         updateState({
