@@ -44,6 +44,10 @@ jobs:
         working-directory: ${{ github.workspace }}/src/wisdom-chess/ui/react
         run: npm ci
 
+      - name: Test Front-end
+        working-directory: ${{ github.workspace }}/src/wisdom-chess/ui/react
+        run: npm run test -- --run
+
       - name: Build Front-end
         working-directory: ${{ github.workspace }}/src/wisdom-chess/ui/react
         run: npm run build
