@@ -318,8 +318,8 @@ function App() {
     }
 
     function startNewGame(e: React.SyntheticEvent) {
-        e.preventDefault()
-        startNewGameEngine()
+        gameRef.current = startNewGameEngine()
+
         dispatch({ type: 'CLEAR_FOCUS' })
         dispatch({
             type: 'ENGINE_SYNC',
@@ -333,7 +333,6 @@ function App() {
         who: PieceColor,
         accepted: boolean
     ) {
-        const wisdomChess = wisdomChessRef.current
         const game = gameRef.current
         const model = modelRef.current
 
@@ -353,16 +352,19 @@ function App() {
     const [fiftyMovesDrawAnswered, setFiftyMovesDrawAnswered] = useState(false)
 
     const handleThirdRepetitionDrawAnswer = (answer: boolean) => {
+        const wisdomChess = wisdomChessRef.current
         setThirdRepetitionDrawAnswered(true)
-        setHumanDrawStatus(WisdomChess().ThreefoldRepetition, WisdomChess().White, answer)
+        setHumanDrawStatus(wisdomChess.ThreefoldRepetition, wisdomChess.White, answer)
     }
     const handleFiftyMovesWithoutProgressDrawAnswer = (answer: boolean) => {
+        const wisdomChess = wisdomChessRef.current
         setFiftyMovesDrawAnswered(true)
-        setHumanDrawStatus(WisdomChess().FiftyMovesWithoutProgress, WisdomChess().White, answer)
+        setHumanDrawStatus(wisdomChess.FiftyMovesWithoutProgress, wisdomChess.White, answer)
     }
 
     // ----- Render -----
     const showModalOverlay = showSettings || showAbout || showNewGame
+    const wisdomChess = wisdomChessRef.current
 
     return (
         <div className="App">
@@ -419,7 +421,7 @@ function App() {
                 <AboutModal onClick={() => setShowAbout(false)} />
             )}
 
-            {state.gameStatus === WisdomChess().ThreefoldRepetitionReached &&
+            {state.gameStatus === wisdomChess.ThreefoldRepetitionReached &&
                 !thirdRepetitionDrawAnswered && state.hasHumanPlayer && (
                 <DrawDialog
                     title={'Third Repetition Reached'}
@@ -430,7 +432,7 @@ function App() {
                 </DrawDialog>
             )}
 
-            {state.gameStatus === WisdomChess().FiftyMovesWithoutProgressReached &&
+            {state.gameStatus === wisdomChess.FiftyMovesWithoutProgressReached &&
                 !fiftyMovesDrawAnswered && state.hasHumanPlayer && (
                 <DrawDialog
                     title={'Fifty Moves Without Progress'}

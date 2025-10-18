@@ -17,7 +17,7 @@ export function AboutModal(props: { onClick: () => void }) {
                         View the source
                     </a>
                 </p>
-                <button className="btn-highlight" onClick={props.onClick}>OK</button>
+                <button type="button" className="btn-highlight" onClick={props.onClick}>OK</button>
             </div>
         </Modal>
     )

@@ -17,8 +17,8 @@ export function DrawDialog(props: DrawDialogProps) {
                 {props.children}
                 <p>Do you want to declare a draw?</p>
                 <div className="buttons">
-                    <button onClick={props.onAccepted}>Yes</button>
-                    <button onClick={props.onDeclined}>No</button>
+                    <button type="button" onClick={props.onAccepted}>Yes</button>
+                    <button type="button" onClick={props.onDeclined}>No</button>
                 </div>
             </form>
         </Modal>
