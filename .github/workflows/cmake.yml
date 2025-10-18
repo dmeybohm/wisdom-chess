@@ -65,18 +65,11 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: Cache Qt
-      id: cache-qt
-      uses: actions/cache@v4
-      with:
-        path: ${{ runner.temp }}/Qt
-        key: ${{ runner.os }}-QtCache-${{ matrix.cpp_compiler }}-6.6
-
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
       with:
         version: '6.6.*'
-        cache: ${{ steps.cache-qt.outputs.cache-hit }}
+        cache: true
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
