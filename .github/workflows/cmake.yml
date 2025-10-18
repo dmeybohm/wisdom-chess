@@ -76,7 +76,7 @@ jobs:
       uses: jurplel/install-qt-action@v3
       with:
         version: '6.6.*'
-        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        cache: ${{ steps.cache-qt.outputs.cache-hit }}
 
     - name: Cache CMake build
       uses: actions/cache@v4
