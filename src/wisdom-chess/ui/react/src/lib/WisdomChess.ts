@@ -140,7 +140,7 @@ export type GameSettings = {
 
 export type WorkerGameSettings = any
 
-interface WisdomWindow {
+export interface WisdomWindow extends ReactWindow {
     wisdomChessWeb: unknown
     wisdomChessGameModel: GameModel
     wisdomChessCurrentGame: Game

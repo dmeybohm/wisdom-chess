@@ -73,8 +73,8 @@ describe('reducer', () => {
         it('can update pieces array', () => {
             const initialState = createInitialState()
             const mockPieces = [
-                { position: 'e2', color: 0, type: 5 },
-                { position: 'e7', color: 1, type: 5 },
+                { id: 1, icon: 'pawn-white.svg', position: 'e2', color: 'white' as const },
+                { id: 2, icon: 'pawn-black.svg', position: 'e7', color: 'black' as const },
             ]
             const action: Action = {
                 type: 'ENGINE_SYNC',
