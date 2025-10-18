@@ -5,6 +5,7 @@
 
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/move.hpp"
+#include "wisdom-chess/engine/move_timer.hpp"
 
 // The valid internal representations of depth in the wisdom Game object is different
 // from the semantics in the UI:

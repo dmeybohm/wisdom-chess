@@ -24,13 +24,37 @@ namespace wisdom
     class IterativeSearch
     {
     public:
-        IterativeSearch (
+        // Factory functions - preferred way to create searches
+        [[nodiscard]] static auto
+        create (
             const Board& board,
             const History& history,
-            shared_ptr<Logger> output,
+            shared_ptr<Logger> logger,
             const MoveTimer& timer,
-            int total_depth
-        );
+            int max_depth
+        ) -> IterativeSearch;
+
+        [[nodiscard]] static auto
+        create (
+            const Board& board,
+            const History& history,
+            shared_ptr<Logger> logger,
+            int search_seconds,
+            int max_depth
+        ) -> IterativeSearch;
+
+        [[nodiscard]] static auto
+        createWithDefaults (
+            const Board& board,
+            const History& history
+        ) -> IterativeSearch;
+
+        // Copy and move constructors
+        IterativeSearch (const IterativeSearch& other) = delete;
+        IterativeSearch& operator= (const IterativeSearch& other) = delete;
+
+        IterativeSearch (IterativeSearch&& other) noexcept = default;
+        IterativeSearch& operator= (IterativeSearch&& other) noexcept = default;
 
         ~IterativeSearch();
 
@@ -49,5 +73,8 @@ namespace wisdom
 
     private:
         unique_ptr<IterativeSearchImpl> impl;
+
+        // Private constructor for factory functions
+        explicit IterativeSearch (unique_ptr<IterativeSearchImpl> impl);
     };
 }

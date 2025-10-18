@@ -3,6 +3,7 @@
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/board.hpp"
 
 #include "wisdom-chess/ui/qml/main/chess_game.hpp"
 #include "wisdom-chess/ui/qml/main/game_settings.hpp"
