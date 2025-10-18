@@ -45,6 +45,7 @@ const Board = (props: BoardProps) => {
                         piece={piece}
                         focusedSquare={props.focusedSquare}
                         droppedSquare={props.droppedSquare}
+                        currentTurn={props.currentTurn}
                         onPieceClick={props.onPieceClick}
                         onDropPiece={props.onDropPiece}
                     />

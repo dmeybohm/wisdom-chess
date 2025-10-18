@@ -1,19 +1,22 @@
 import Modal from "./Modal";
-import React, { useMemo, useRef, useState } from "react";
-import { useGame } from "./lib/useGame";
-import { GameSettings, WisdomChess } from "./lib/WisdomChess";
+import React, { useRef, useState } from "react";
+import {
+    WebGameSettings,
+    WisdomChess
+} from "./lib/WisdomChess";
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import "./Settings.css"
 
 type SettingsModalProps = {
     flipped: boolean
-    onApply: (newSettings: GameSettings, flipped: boolean) => void
+    settings: WebGameSettings
+    onApply: (newSettings: WebGameSettings, flipped: boolean) => void
     onDismiss: () => void
 }
 
 export function SettingsModal(props: SettingsModalProps) {
-    const settings = useGame((state) => state.settings)
+    const settings = props.settings
     const wisdomChess = WisdomChess()
     const humanWhite = useRef<HTMLInputElement|null>(null)
     const humanBlack = useRef<HTMLInputElement|null>(null)
@@ -31,12 +34,12 @@ export function SettingsModal(props: SettingsModalProps) {
             wisdomChess.Human :
             wisdomChess.ChessEngine
 
-        const newSettings = new wisdomChess.GameSettings(
-            whitePlayer,
-            blackPlayer,
-            thinkingTime,
-            searchDepth
-        )
+        const newSettings : WebGameSettings = {
+            whitePlayer: whitePlayer,
+            blackPlayer: blackPlayer,
+            thinkingTime: thinkingTime,
+            searchDepth: searchDepth
+        }
         props.onApply(newSettings, Boolean(flippedRef?.current?.checked))
     }
 
@@ -127,8 +130,8 @@ export function SettingsModal(props: SettingsModalProps) {
                 </div>
 
                 <div className="buttons grid-columns-1-3">
-                    <button className="btn-highlight" onClick={handleApply}>Apply</button>
-                    <button onClick={props.onDismiss}>Cancel</button>
+                    <button type="button" className="btn-highlight" onClick={handleApply}>Apply</button>
+                    <button type="button" onClick={props.onDismiss}>Cancel</button>
                 </div>
             </form>
         </Modal>
