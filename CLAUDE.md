@@ -276,7 +276,7 @@ cmake .. -DWISDOM_CHESS_SLOW_TESTS=On
 
 ```bash
 # Configure with Qt path (adjust path as needed)
-cmake .. -DWISDOM_CHESS_QT_DIR=~/Qt/6.9.2/gcc_64 -DCMAKE_BUILD_TYPE=Release
+cmake .. -DWISDOM_CHESS_QT_DIR=~/Qt/6.6.2/gcc_64 -DCMAKE_BUILD_TYPE=Release
 
 # Or force QML UI to be built (fails if Qt not found)
 cmake .. -DWISDOM_CHESS_QML_UI=ON -DCMAKE_BUILD_TYPE=Release
