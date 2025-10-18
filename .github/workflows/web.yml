@@ -18,15 +18,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache emsdk
-        uses: actions/cache@v4
-        with:
-          path: emsdk-cache
-          key: ${{ runner.os }}-emsdk-${{ hashFiles('.emscripten_cache') }}
-
       - uses: mymindstorm/setup-emsdk@v14
         with:
           version: 3.1.37
+          actions-cache-folder: emsdk-cache
 
       - uses: actions/setup-node@v4
         with:
