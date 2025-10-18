@@ -2,34 +2,37 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
+import {
+    ReceiveWorkerMessageCallback,
+    ChessEngineEventType,
+    ReactWindow
+} from "./lib/WisdomChess"
 
-type ChessEngineEventType = 'computerMoved' | 'computerDrawStatusUpdated'
-
-let receiveWorkerMessageCallback: ((type: ChessEngineEventType, gameId: number, message: string) => void) | null = null
+let receiveWorkerMessageCallback: ReceiveWorkerMessageCallback | null = null
+let pending: Array<[ChessEngineEventType, number, string]> = []
 
 function startReact(window: ReactWindow) {
     const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
-
     root.render(
         <React.StrictMode>
-            <App/>
+            <App />
         </React.StrictMode>,
     )
 }
 
-export interface ReactWindow {
-    startReact: (window: ReactWindow) => void
-    receiveWorkerMessage: (type: ChessEngineEventType, gameId: number, message: string) => void
-    setReceiveWorkerMessageCallback: (callback: (type: ChessEngineEventType, gameId: number, message: string) => void) => void
-}
-
-const reactWindow = ((window as unknown) as ReactWindow)
+const reactWindow = (window as unknown) as ReactWindow
 reactWindow.startReact = startReact
-reactWindow.setReceiveWorkerMessageCallback = (callback) => {
-    receiveWorkerMessageCallback = callback
+reactWindow.setReceiveWorkerMessageCallback = (cb: ReceiveWorkerMessageCallback) => {
+    receiveWorkerMessageCallback = cb
+    if (receiveWorkerMessageCallback && pending.length) {
+        for (const args of pending) receiveWorkerMessageCallback(...args)
+        pending = []
+    }
 }
-reactWindow.receiveWorkerMessage = (type: ChessEngineEventType, gameId: number, message: string) => {
+reactWindow.receiveWorkerMessage = (type, gameId, message) => {
     if (receiveWorkerMessageCallback) {
         receiveWorkerMessageCallback(type, gameId, message)
+    } else {
+        pending.push([type, gameId, message])
     }
 }

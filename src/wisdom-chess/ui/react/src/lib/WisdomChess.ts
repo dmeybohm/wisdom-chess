@@ -1,3 +1,4 @@
+import { initialSquares } from './Squares'
 import { Color, Piece } from "./Pieces";
 
 import WhitePawn from "../assets/Chess_plt45.svg";
@@ -12,6 +13,37 @@ import BlackKnight from "../assets/Chess_ndt45.svg";
 import BlackQueen from "../assets/Chess_qdt45.svg";
 import BlackRook from "../assets/Chess_rdt45.svg";
 import BlackKing from "../assets/Chess_kdt45.svg";
+
+export type ChessEngineEventType = 'computerMoved' | 'computerDrawStatusUpdated'
+
+export type ReceiveWorkerMessageCallback =
+    (type: ChessEngineEventType, gameId: number, message: string) => void;
+
+export interface ReactWindow {
+    startReact: (window: ReactWindow) => void
+    receiveWorkerMessage: ReceiveWorkerMessageCallback
+    setReceiveWorkerMessageCallback: (callback: ReceiveWorkerMessageCallback) => void
+}
+
+export type WebGameSettings = {
+    whitePlayer: number
+    blackPlayer: number
+    thinkingTime: number
+    searchDepth: number
+}
+
+export type GameState = {
+    pieces: Piece[]
+    squares: typeof initialSquares
+    focusedSquare: string
+    pawnPromotionDialogSquare: string
+    lastDroppedSquare: string
+    gameStatus: GameStatus
+    moveStatus: string
+    gameOverStatus: string
+    settings: WebGameSettings
+    hasHumanPlayer: boolean
+}
 
 // These are already described in the IDL:
 export type GameModel = {
@@ -60,6 +92,7 @@ export type WisdomChess = {
 
     // Web move constructor:
     WebMove: any
+    WebCoord: any
 
     Playing: GameStatus
     Checkmate: GameStatus
@@ -118,7 +151,7 @@ export function getGameModel(): GameModel {
     return wisdomWindow.wisdomChessGameModel
 }
 
-export function getCurrentGame () {
+export function getCurrentGame (): Game {
     const wisdomWindow = ((window as unknown) as WisdomWindow)
     if (!wisdomWindow.wisdomChessCurrentGame) {
         const gameModel = getGameModel()
