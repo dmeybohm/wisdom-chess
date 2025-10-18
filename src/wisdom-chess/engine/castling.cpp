@@ -11,14 +11,11 @@ namespace wisdom
     {
         std::string result = "{ Kingside: ";
 
-        result += !value.isSet (CastlingIneligible::Kingside)
+        result += value.isSet (CastlingRights::Kingside)
             ? "eligible, "
             : "not eligible, ";
         result += "Queenside: ";
-        result += !value.isSet (CastlingIneligible::Queenside)
-            ? "eligible"
-            : "not eligible";
-        result += " }";
+        result += value.isSet (CastlingRights::Queenside);
 
         os << result;
         return os;

@@ -55,12 +55,12 @@ TEST_CASE( "FEN notation for castling" )
     game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1");
 
     REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligibility::Either_Side );
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingIneligible::Kingside );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingRights::Queenside );
 
     game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1");
 
     REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligibility::Either_Side );
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingIneligible::Kingside );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingRights::Queenside );
 
     game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w - - 0 1");
 

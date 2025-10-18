@@ -43,9 +43,9 @@ namespace wisdom
         int result = 0;
         if (castle_state != CastlingEligibility::Either_Side)
         {
-            if (castle_state & CastlingIneligible::Kingside)
+            if (!castle_state.canCastleKingside())
                 result += Castle_Penalty;
-            if (castle_state & CastlingIneligible::Queenside)
+            if (!castle_state.canCastleQueenside())
                 result += Castle_Penalty;
             if (heuristicIsCastled (board, who))
                 result -= 2 * Castle_Penalty;

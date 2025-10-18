@@ -194,7 +194,7 @@ namespace wisdom
             }
         }
 
-        if (board.ableToCastle (who, CastlingIneligible::Queenside) && 
+        if (board.ableToCastle (who, CastlingRights::Queenside) && 
             piece_col == King_Column)
         {
             Move queenside_castle
@@ -203,7 +203,7 @@ namespace wisdom
                 appendMove (queenside_castle);
         }
 
-        if (board.ableToCastle (who, CastlingIneligible::Kingside) && 
+        if (board.ableToCastle (who, CastlingRights::Kingside) && 
             piece_col == King_Column)
         {
             Move kingside_castle
