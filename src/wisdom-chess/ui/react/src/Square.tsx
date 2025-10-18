@@ -2,8 +2,12 @@ import React from "react";
 import "./Board.css";
 import { Piece } from "./lib/Pieces";
 import { useDrag, useDrop } from 'react-dnd';
-import { fromColorToNumber, getCurrentGame, getGameModel, WisdomChess, PieceColor } from "./lib/WisdomChess";
-import { wisdomChess } from "./App";
+import {
+    fromColorToNumber,
+    getCurrentGame,
+    WisdomChess,
+    PieceColor
+} from "./lib/WisdomChess";
 
 interface SquareProps {
     position: string
