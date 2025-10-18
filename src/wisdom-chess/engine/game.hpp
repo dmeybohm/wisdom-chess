@@ -3,16 +3,19 @@
 #include "wisdom-chess/engine/global.hpp"
 #include "wisdom-chess/engine/piece.hpp"
 #include "wisdom-chess/engine/move.hpp"
-#include "wisdom-chess/engine/move_list.hpp"
-#include "wisdom-chess/engine/board.hpp"
-#include "wisdom-chess/engine/history.hpp"
+#include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
+#include "wisdom-chess/engine/history.hpp"
 #include "wisdom-chess/engine/game_status.hpp"
 
 namespace wisdom
 {
     class BoardBuilder;
     class Logger;
+    class Board;
+
+    enum class DrawStatus;
+    enum class ProposedDrawType;
 
     enum class Player
     {
@@ -21,6 +24,8 @@ namespace wisdom
     };
 
     using Players = array<Player, Num_Players>;
+    // Type alias to avoid needing complete MoveTimer definition in header
+    using PeriodicFunction = std::function<void(not_null<MoveTimer*>)>;
 
     class Game
     {
@@ -57,14 +62,16 @@ namespace wisdom
         loadGame (const string& filename, const Players& players)
             -> optional<Game>;
 
-        // Default copy:
-        Game (const Game& other) = default;
-        Game& operator= (const Game& other) = default;
+        // Copy constructor and assignment
+        Game (const Game& other);
+        Game& operator= (const Game& other);
 
-        // Default move:
-        Game (Game&& other) noexcept = default;
-        Game& operator= (Game&& other) noexcept = default;
+        // Move constructor and assignment
+        Game (Game&& other) noexcept;
+        Game& operator= (Game&& other) noexcept;
 
+        // Destructor
+        ~Game();
 
     public:
 
@@ -88,80 +95,31 @@ namespace wisdom
         [[nodiscard]] auto getHistory() & -> History&;
         [[nodiscard]] auto getHistory() && -> History& = delete;
 
-        [[nodiscard]] auto getCurrentPlayer() const -> Player
-        {
-            return getPlayer (my_current_board.getCurrentTurn());
-        }
+        [[nodiscard]] auto getCurrentPlayer() const -> Player;
 
-        void setWhitePlayer (Player player)
-        {
-            my_players[colorIndex (Color::White)] = player;
-        }
+        void setWhitePlayer (Player player);
 
-        void setBlackPlayer (Player player)
-        {
-            my_players[colorIndex (Color::Black)] = player;
-        }
+        void setBlackPlayer (Player player);
 
-        [[nodiscard]] auto getPlayer (Color color) const -> Player
-        {
-            auto index = colorIndex (color);
-            return my_players[index];
-        }
+        [[nodiscard]] auto getPlayer (Color color) const -> Player;
 
-        void setPlayers (const Players& players)
-        {
-            my_players = players;
-        }
+        void setPlayers (const Players& players);
 
-        [[nodiscard]] auto 
-        getPlayers() const 
-            -> Players
-        {
-            return my_players;
-        }
+        [[nodiscard]] auto getPlayers() const -> Players;
 
-        [[nodiscard]] auto 
-        getMaxDepth() const 
-            -> int
-        {
-            return my_max_depth;
-        }
+        [[nodiscard]] auto getMaxDepth() const -> int;
 
-        void setMaxDepth (int max_depth)
-        {
-            my_max_depth = max_depth;
-        }
+        void setMaxDepth (int max_depth);
 
-        [[nodiscard]] auto 
-        getSearchTimeout() const 
-            -> std::chrono::seconds
-        {
-            return my_move_timer.getSeconds();
-        }
+        [[nodiscard]] auto getSearchTimeout() const -> std::chrono::seconds;
 
-        void setSearchTimeout (std::chrono::seconds seconds)
-        {
-            my_move_timer.setSeconds (seconds);
-        }
+        void setSearchTimeout (std::chrono::seconds seconds);
 
         [[nodiscard]] auto
         mapCoordinatesToMove (Coord src, Coord dst, optional<Piece> promoted) const
-            -> optional<Move>
-        {
-            return ::wisdom::mapCoordinatesToMove (
-                my_current_board,
-                getCurrentTurn(),
-                src,
-                dst,
-                promoted
-            );
-        }
+            -> optional<Move>;
 
-        void setPeriodicFunction (const MoveTimer::PeriodicFunction& periodic_function)
-        {
-            my_move_timer.setPeriodicFunction (periodic_function);
-        }
+        void setPeriodicFunction (const PeriodicFunction& periodic_function);
 
         [[nodiscard]] auto status() const -> GameStatus;
 
@@ -185,37 +143,12 @@ namespace wisdom
         );
 
     private:
-        // Implementation constructors - hidden from users
-        Game();
-        explicit Game (const Players& players);
-        explicit Game (Player white_player, Player black_player);
-        explicit Game (Color current_turn);
-        explicit Game (const BoardBuilder& builder);
-        explicit Game (const BoardBuilder& builder, const Players& players);
-
-        // All other constructors must call this one:
-        explicit Game (const BoardBuilder& builder, const Players& players, Color current_turn);
-
         // Private implementation functions
+        class Impl;
+        explicit Game (unique_ptr<Impl> impl);
         static auto load (const string& filename, const Players& players) -> optional<Game>;
-        void updateThreefoldRepetitionDrawStatus();
-        void updateFiftyMovesWithoutProgressDrawStatus();
 
     private:
-        Board my_current_board {};
-        History my_history;
-        MoveTimer my_move_timer { Default_Max_Search_Seconds };
-        int my_max_depth { Default_Max_Depth };
-
-        Players my_players = { Player::Human, Player::ChessEngine };
-
-        BothPlayersDrawStatus my_third_repetition_draw { 
-            DrawStatus::NotReached,
-            DrawStatus::NotReached 
-        };
-        BothPlayersDrawStatus my_fifty_moves_without_progress_draw { 
-            DrawStatus::NotReached, 
-            DrawStatus::NotReached 
-        };
+        unique_ptr<Impl> my_pimpl;
     };
 }

@@ -13,7 +13,6 @@
 namespace wisdom::ui::console
 {
     using namespace wisdom;
-    using std::shared_ptr;
     using std::holds_alternative;
     using std::get;
     using std::string;
@@ -69,13 +68,11 @@ namespace wisdom::ui::console
 
         struct LoadNewGame
         {
-            shared_ptr<Game> new_game;
+            Game new_game;
 
-            explicit LoadNewGame (shared_ptr<Game> game)
+            explicit LoadNewGame (Game game)
                 : new_game { std::move (game) }
             {
-                if (new_game == nullptr)
-                    throw Error { "Missing game." };
             }
         };
 
@@ -142,19 +139,13 @@ namespace wisdom::ui::console
     class ConsoleGame
     {
     private:
-        // We use shared_ptr here (rather than unique_ptr) for two reasons:
-        // 1. It keeps command objects copyable - LoadNewGame needs to hold a Game pointer,
-        //    and if we used unique_ptr, all command objects would become move-only,
-        //    complicating the command handling logic.
-        // 2. It allows reassigning the game without copying - we can simply assign the
-        //    new shared_ptr rather than having to move or copy the Game object itself.
-        shared_ptr<Game> game;
+        Game game;
         bool quit = false;
         bool paused = false;
         bool show_final_position = true;
 
     public:
-        ConsoleGame() : game { make_shared<Game> (Game::createStandardGame()) }
+        ConsoleGame() : game { Game::createStandardGame() }
         {
         }
 
@@ -200,18 +191,18 @@ namespace wisdom::ui::console
 
                 return humanWantsDraw (msg) ? DrawStatus::Accepted : DrawStatus::Declined;
             }
-            return game->computerWantsDraw (who) ? DrawStatus::Accepted : DrawStatus::Declined;
+            return game.computerWantsDraw (who) ? DrawStatus::Accepted : DrawStatus::Declined;
         }
 
         // After the third repetition, either player may request a draw.
         auto determineIfDrawn (const string& msg) -> std::pair<DrawStatus, DrawStatus>
         {
-            auto white_player = game->getPlayer (Color::White);
+            auto white_player = game.getPlayer (Color::White);
 
             auto white_wants_draw = playerWantsDraw (msg, white_player, Color::White, false);
             bool asked_human = white_player == Player::Human;
             auto black_wants_draw
-                = playerWantsDraw (msg, game->getPlayer (Color::Black), Color::Black, asked_human);
+                = playerWantsDraw (msg, game.getPlayer (Color::Black), Color::Black, asked_human);
 
             return { white_wants_draw, black_wants_draw };
         }
@@ -296,7 +287,7 @@ namespace wisdom::ui::console
         private:
             [[nodiscard]] auto getGame() & -> Game&
             {
-                return *my_console_game->game;
+                return my_console_game->game;
             }
 
         private:
@@ -305,7 +296,7 @@ namespace wisdom::ui::console
 
         void printAvailableMoves()
         {
-            MoveList moves = generateLegalMoves (game->getBoard(), game->getCurrentTurn());
+            MoveList moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
             std::cout << "\nAvailable moves:\n    ";
 
             int count = 0;
@@ -338,35 +329,35 @@ namespace wisdom::ui::console
             return input;
         }
 
-        auto loadGame() -> shared_ptr<Game>
+        auto loadGame() -> optional<Game>
         {
             string input = prompt ("load what file");
 
             if (input.empty())
-                return nullptr;
+                return nullopt;
 
-            auto optional_game = Game::loadGame (input, game->getPlayers());
+            auto optional_game = Game::loadGame (input, game.getPlayers());
             if (!optional_game.has_value())
-                return nullptr;
+                return nullopt;
 
-            return make_shared<Game> (std::move (*optional_game));
+            return std::move (*optional_game);
         }
 
-        static auto loadFen() -> shared_ptr<Game>
+        static auto loadFen() -> optional<Game>
         {
             string input = prompt ("FEN game");
 
             if (input.empty())
-                return nullptr;
+                return nullopt;
 
             try
             {
                 Game new_game = Game::createGameFromFen (input);
-                return make_shared<Game> (std::move (new_game));
+                return std::move (new_game);
             }
             catch ([[maybe_unused]] FenParserError& error)
             {
-                return nullptr;
+                return nullopt;
             }
         }
 
@@ -388,16 +379,15 @@ namespace wisdom::ui::console
         }
 
         // Copy the configuration from the old game to the new game.
-        static void copyConfig (nonnull_observer_ptr<Game> old_game,
-                                nonnull_observer_ptr<Game> new_game)
+        static void copyConfig (const Game& old_game, Game& new_game)
         {
-            auto orig_players = old_game->getPlayers();
-            auto orig_timeout = old_game->getSearchTimeout();
-            auto orig_max_depth = old_game->getMaxDepth();
+            auto orig_players = old_game.getPlayers();
+            auto orig_timeout = old_game.getSearchTimeout();
+            auto orig_max_depth = old_game.getMaxDepth();
 
-            new_game->setPlayers (orig_players);
-            new_game->setSearchTimeout (orig_timeout);
-            new_game->setMaxDepth (orig_max_depth);
+            new_game.setPlayers (orig_players);
+            new_game.setSearchTimeout (orig_timeout);
+            new_game.setMaxDepth (orig_max_depth);
         }
 
         static void printHelp()
@@ -437,7 +427,7 @@ namespace wisdom::ui::console
         {
             string input;
 
-            std::cout << "(" << wisdom::asString (game->getCurrentTurn()) << ")? ";
+            std::cout << "(" << wisdom::asString (game.getCurrentTurn()) << ")? ";
 
             if (!std::getline (std::cin, input))
                 return PlayCommand::StopGame::fromShowFinalPosition (false);
@@ -465,8 +455,8 @@ namespace wisdom::ui::console
             {
                 auto new_game = loadGame();
 
-                if (new_game != nullptr)
-                    return PlayCommand::LoadNewGame { new_game };
+                if (new_game.has_value())
+                    return PlayCommand::LoadNewGame { std::move (*new_game) };
                 else
                     return PlayCommand::ShowError ("Error loading game.");
             }
@@ -474,8 +464,8 @@ namespace wisdom::ui::console
             {
                 auto new_game = loadFen();
 
-                if (new_game != nullptr)
-                    return PlayCommand::LoadNewGame { new_game };
+                if (new_game.has_value())
+                    return PlayCommand::LoadNewGame { std::move (*new_game) };
                 else
                     return PlayCommand::ShowError { "Failed loading FEN string." };
             }
@@ -531,14 +521,14 @@ namespace wisdom::ui::console
             }
             else
             {
-                auto optional_move = moveParseOptional (input, game->getCurrentTurn());
+                auto optional_move = moveParseOptional (input, game.getCurrentTurn());
                 PlayCommand::AnyCommand result = PlayCommand::ShowError { "Invalid move or command." };
 
                 if (!optional_move.has_value())
                     return result;
 
                 // check the generated move list for this move to see if its valid
-                MoveList moves = generateLegalMoves (game->getBoard(), game->getCurrentTurn());
+                MoveList moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
 
                 for (auto legal_move : moves)
                 {
@@ -596,7 +586,7 @@ namespace wisdom::ui::console
                 auto save_game = get<PlayCommand::SaveGame> (command);
 
                 // todo: handle errors here
-                game->save (save_game.file_path);
+                game.save (save_game.file_path);
                 std::cout << "Game saved to " << save_game.file_path << "\n\n";
             }
             else if (holds_alternative<PlayCommand::PrintAvailableMoves> (command))
@@ -606,13 +596,13 @@ namespace wisdom::ui::console
             else if (holds_alternative<PlayCommand::SetMaxDepth> (command))
             {
                 auto max_depth_command = get<PlayCommand::SetMaxDepth> (command);
-                game->setMaxDepth (max_depth_command.max_depth);
+                game.setMaxDepth (max_depth_command.max_depth);
                 std::cout << "Max depth set to " << max_depth_command.max_depth << ".\n";
             }
             else if (holds_alternative<PlayCommand::SetSearchTimeout> (command))
             {
                 auto search_timeout = get<PlayCommand::SetSearchTimeout> (command);
-                game->setSearchTimeout (chrono::seconds { search_timeout.seconds });
+                game.setSearchTimeout (chrono::seconds { search_timeout.seconds });
                 std::cout << "Timeout set to " << search_timeout.seconds.count() << " seconds.\n";
             }
             else if (holds_alternative<PlayCommand::LoadNewGame> (command))
@@ -620,23 +610,23 @@ namespace wisdom::ui::console
                 auto load_game = get<PlayCommand::LoadNewGame> (command);
 
                 // Keep the same player config:
-                copyConfig (game.get(), load_game.new_game.get());
-                game = load_game.new_game;
+                copyConfig (game, load_game.new_game);
+                game = std::move (load_game.new_game);
 
                 std::cout << "\nNew game successfully loaded.\n\n";
             }
             else if (holds_alternative<PlayCommand::SwitchSides> (command))
             {
-                game->setCurrentTurn (colorInvert (game->getCurrentTurn()));
+                game.setCurrentTurn (colorInvert (game.getCurrentTurn()));
                 std::cout << "Players switched.\n";
             }
             else if (holds_alternative<PlayCommand::SetPlayer> (command))
             {
                 auto set_player = get<PlayCommand::SetPlayer> (command);
 
-                auto players = game->getPlayers();
+                auto players = game.getPlayers();
                 players[colorIndex(set_player.side)] = set_player.player_type;
-                game->setPlayers (players);
+                game.setPlayers (players);
 
                 auto player_type_str = set_player.player_type == Player::ChessEngine
                     ? "computer"
@@ -647,7 +637,7 @@ namespace wisdom::ui::console
             else if (holds_alternative<PlayCommand::PlayMove> (command))
             {
                 auto play_move = get<PlayCommand::PlayMove> (command);
-                game->move (play_move.move);
+                game.move (play_move.move);
             }
             else
             {
@@ -664,16 +654,16 @@ namespace wisdom::ui::console
 
         while (true)
         {
-            std::cout << game->getBoard() << "\n";
+            std::cout << game.getBoard() << "\n";
 
-            game_status_manager.update (game->status());
+            game_status_manager.update (game.status());
 
             if (quit)
                 break;
 
-            if (!paused && game->getCurrentPlayer() == Player::ChessEngine)
+            if (!paused && game.getCurrentPlayer() == Player::ChessEngine)
             {
-                auto optional_move = game->findBestMove (output);
+                auto optional_move = game.findBestMove (output);
                 if (!optional_move.has_value())
                 {
                     std::cout << "\nCouldn't find move!\n";
@@ -682,7 +672,7 @@ namespace wisdom::ui::console
 
                 auto move = *optional_move;
                 std::cout << "move selected: [" << asString (move) << "]\n";
-                game->move (move);
+                game.move (move);
             }
             else
             {
