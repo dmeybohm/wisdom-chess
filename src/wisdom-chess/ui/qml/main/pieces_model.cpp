@@ -1,5 +1,3 @@
-#include <QTimer>
-
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/board.hpp"
@@ -100,9 +98,9 @@ int PiecesModel::rowCount (const QModelIndex& index) const
     }
 }
 
-auto 
+auto
 PiecesModel::data (
-    const QModelIndex& index, 
+    const QModelIndex& index,
     int role
 ) const
     -> QVariant
@@ -122,19 +120,22 @@ PiecesModel::data (
             return piece_info.column;
         case PieceImageRole:
             return piece_info.pieceImage;
+        case IsCastlingRookRole:
+            return piece_info.is_castling_rook;
         default:
             return QVariant {};
     }
 }
 
-auto 
+auto
 PiecesModel::roleNames() const
-    -> QHash<int, QByteArray> 
+    -> QHash<int, QByteArray>
 {
     static QHash<int, QByteArray> mapping {
         { RowRole, "row" },
         { ColumnRole, "column" },
         { PieceImageRole, "pieceImage" },
+        { IsCastlingRookRole, "isCastlingRook" },
     };
 
     return mapping;
@@ -142,7 +143,7 @@ PiecesModel::roleNames() const
 
 void
 PiecesModel::playerMoved (
-    Move selected_move, 
+    Move selected_move,
     wisdom::Color who
 ) {
     Coord src = selected_move.getSrc();
@@ -157,6 +158,9 @@ PiecesModel::playerMoved (
     for (int i = 0; i < count; i++)
     {
         auto& piece_model = my_pieces[i];
+
+        piece_model.is_castling_rook = false;
+
         if (piece_model.row == dst_row && piece_model.column == dst_column)
         {
             beginRemoveRows (QModelIndex {}, i, i);
@@ -194,19 +198,11 @@ PiecesModel::playerMoved (
             if (piece_model.row == source_rook_row && piece_model.column == source_rook_column)
             {
                 piece_model.column = dst_rook_column;
-                QPersistentModelIndex changed_index = index (i, 0);
+                piece_model.is_castling_rook = true;
 
-                QTimer::singleShot (
-                    Rook_Animation_Delay, 
-                    this, 
-                    [this, changed_index]()
-                    {
-                        if (!changed_index.isValid())
-                            return;
-                        QVector<int> roles_changed { ColumnRole };
-                        emit dataChanged (changed_index, changed_index, roles_changed);
-                    }
-                );
+                QVector<int> roles_changed { ColumnRole, IsCastlingRookRole };
+                QModelIndex changed_index = index (i, 0);
+                emit dataChanged (changed_index, changed_index, roles_changed);
             }
         }
         if (selected_move.isEnPassant())

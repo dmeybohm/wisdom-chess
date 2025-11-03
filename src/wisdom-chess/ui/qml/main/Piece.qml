@@ -8,6 +8,7 @@ Image {
     property int row: 0
     property int column: 0
     property bool flipped: false
+    property bool isCastlingRook: false
 
     transform: [
         Translate {
@@ -16,12 +17,14 @@ Image {
             y: row * topWindow.squareSize
 
             Behavior on y {
+                enabled: !myPieceImage.isCastlingRook
                 NumberAnimation {
                     easing.type: Easing.OutExpo
                     duration: root.animationDelay
                 }
             }
             Behavior on x {
+                enabled: !myPieceImage.isCastlingRook
                 NumberAnimation {
                     easing.type: Easing.OutExpo
                     duration: root.animationDelay
@@ -42,5 +45,27 @@ Image {
             }
         }
     ]
+
+    SequentialAnimation {
+        id: castlingRookAnimation
+        running: false
+
+        PauseAnimation {
+            duration: 225
+        }
+        NumberAnimation {
+            target: myTranslation
+            property: "x"
+            to: myPieceImage.column * topWindow.squareSize
+            easing.type: Easing.OutExpo
+            duration: root.animationDelay
+        }
+    }
+
+    onIsCastlingRookChanged: {
+        if (isCastlingRook) {
+            castlingRookAnimation.restart()
+        }
+    }
 
 }
