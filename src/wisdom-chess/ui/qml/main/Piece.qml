@@ -9,6 +9,7 @@ Image {
     property int column: 0
     property bool flipped: false
     property bool isCastlingRook: false
+    property int castlingSourceColumn: -1
 
     transform: [
         Translate {
@@ -62,10 +63,25 @@ Image {
         }
     }
 
-    onIsCastlingRookChanged: {
-        if (isCastlingRook) {
-            castlingRookAnimation.restart()
+    Connections {
+        target: castlingRookAnimation
+        function onStopped() {
+            rebindX()
         }
+    }
+
+    function rebindX() {
+        myTranslation.x = Qt.binding(
+            function() { return myPieceImage.column * topWindow.squareSize }
+        )
+    }
+
+    onIsCastlingRookChanged: {
+        // break the binding so we can set an absolute start
+        myTranslation.x = myTranslation.x   // this no-ops the current value but detaches a binding if any
+        myTranslation.x = castlingSourceColumn * topWindow.squareSize
+        castlingRookAnimation.stop()
+        castlingRookAnimation.start()
     }
 
 }
