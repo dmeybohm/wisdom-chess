@@ -163,7 +163,7 @@ PiecesModel::playerMoved (
         auto& piece_model = my_pieces[i];
 
         piece_model.is_castling_rook = false;
-        piece_model.castling_source_column = 0;
+        piece_model.castling_source_column = -1;
 
         if (piece_model.row == dst_row && piece_model.column == dst_column)
         {

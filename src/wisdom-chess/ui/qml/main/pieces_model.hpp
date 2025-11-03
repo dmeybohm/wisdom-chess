@@ -13,7 +13,7 @@ struct PieceInfo
         , pieceImage { "" }
         , piece { wisdom::Piece_And_Color_None }
         , is_castling_rook { false }
-        , castling_source_column { 0 }
+        , castling_source_column { -1 }
     {
     }
 
@@ -28,7 +28,7 @@ struct PieceInfo
         , piece { piece }
         , pieceImage { std::move (pieceImage) }
         , is_castling_rook { false }
-        , castling_source_column { 0 }
+        , castling_source_column { -1 }
     {
     }
 

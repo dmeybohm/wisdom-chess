@@ -9,7 +9,7 @@ Image {
     property int column: 0
     property bool flipped: false
     property bool isCastlingRook: false
-    property int castlingSourceColumn: 0
+    property int castlingSourceColumn: -1
 
     transform: [
         Translate {
