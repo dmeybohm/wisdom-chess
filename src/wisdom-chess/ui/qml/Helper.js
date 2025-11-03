@@ -1,3 +1,4 @@
+.pragma library
 
 function isMobile() {
     switch (Qt.platform.os) {
