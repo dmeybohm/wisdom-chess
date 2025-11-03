@@ -61,20 +61,27 @@ Image {
             easing.type: Easing.OutExpo
             duration: root.animationDelay
         }
-        ScriptAction {
-            script: {
-                myTranslation.x = Qt.binding(
-                    function() { return myPieceImage.column * topWindow.squareSize }
-                )
-            }
+    }
+
+    Connections {
+        target: castlingRookAnimation
+        function onStopped() {
+            rebindX()
         }
     }
 
+    function rebindX() {
+        myTranslation.x = Qt.binding(
+            function() { return myPieceImage.column * topWindow.squareSize }
+        )
+    }
+
     onIsCastlingRookChanged: {
-        if (isCastlingRook) {
-            myTranslation.x = castlingSourceColumn * topWindow.squareSize
-            castlingRookAnimation.restart()
-        }
+        // break the binding so we can set an absolute start
+        myTranslation.x = myTranslation.x   // this no-ops the current value but detaches a binding if any
+        myTranslation.x = castlingSourceColumn * topWindow.squareSize
+        castlingRookAnimation.stop()
+        castlingRookAnimation.start()
     }
 
 }
