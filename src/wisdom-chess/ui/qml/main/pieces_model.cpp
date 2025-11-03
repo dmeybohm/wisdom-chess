@@ -122,6 +122,8 @@ PiecesModel::data (
             return piece_info.pieceImage;
         case IsCastlingRookRole:
             return piece_info.is_castling_rook;
+        case CastlingSourceColumnRole:
+            return piece_info.castling_source_column;
         default:
             return QVariant {};
     }
@@ -136,6 +138,7 @@ PiecesModel::roleNames() const
         { ColumnRole, "column" },
         { PieceImageRole, "pieceImage" },
         { IsCastlingRookRole, "isCastlingRook" },
+        { CastlingSourceColumnRole, "castlingSourceColumn" },
     };
 
     return mapping;
@@ -160,6 +163,7 @@ PiecesModel::playerMoved (
         auto& piece_model = my_pieces[i];
 
         piece_model.is_castling_rook = false;
+        piece_model.castling_source_column = 0;
 
         if (piece_model.row == dst_row && piece_model.column == dst_column)
         {
@@ -197,12 +201,14 @@ PiecesModel::playerMoved (
 
             if (piece_model.row == source_rook_row && piece_model.column == source_rook_column)
             {
+                QModelIndex changed_index = index (i, 0);
+
+                piece_model.castling_source_column = source_rook_column;
+                emit dataChanged (changed_index, changed_index, QVector<int> { CastlingSourceColumnRole });
+
                 piece_model.column = dst_rook_column;
                 piece_model.is_castling_rook = true;
-
-                QVector<int> roles_changed { ColumnRole, IsCastlingRookRole };
-                QModelIndex changed_index = index (i, 0);
-                emit dataChanged (changed_index, changed_index, roles_changed);
+                emit dataChanged (changed_index, changed_index, QVector<int> { ColumnRole, IsCastlingRookRole });
             }
         }
         if (selected_move.isEnPassant())

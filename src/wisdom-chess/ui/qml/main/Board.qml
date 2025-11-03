@@ -87,6 +87,8 @@ Item {
                 row: model.row
                 column: model.column
                 flipped: myGridAndPieces.flipped
+                isCastlingRook: model.isCastlingRook
+                castlingSourceColumn: model.castlingSourceColumn
             }
         }
 

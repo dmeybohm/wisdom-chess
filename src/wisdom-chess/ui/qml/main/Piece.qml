@@ -9,6 +9,7 @@ Image {
     property int column: 0
     property bool flipped: false
     property bool isCastlingRook: false
+    property int castlingSourceColumn: 0
 
     transform: [
         Translate {
@@ -60,10 +61,18 @@ Image {
             easing.type: Easing.OutExpo
             duration: root.animationDelay
         }
+        ScriptAction {
+            script: {
+                myTranslation.x = Qt.binding(
+                    function() { return myPieceImage.column * topWindow.squareSize }
+                )
+            }
+        }
     }
 
     onIsCastlingRookChanged: {
         if (isCastlingRook) {
+            myTranslation.x = castlingSourceColumn * topWindow.squareSize
             castlingRookAnimation.restart()
         }
     }
