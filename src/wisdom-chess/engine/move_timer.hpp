@@ -20,7 +20,7 @@ namespace wisdom
             -> TimingAdjustment;
 
         [[nodiscard]] auto
-        getIterations () const
+        getIterations() const
             -> int
         {
             return current_iterations;

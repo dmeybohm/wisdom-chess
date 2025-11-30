@@ -6,7 +6,7 @@
 
 using namespace wisdom;
 
-TEST_CASE("generate default moves")
+TEST_CASE( "generate default moves" )
 {
     Board board;
 
@@ -19,7 +19,7 @@ TEST_CASE("generate default moves")
     REQUIRE( move_list.asString() == expected );
 }
 
-TEST_CASE("generate en passant moves")
+TEST_CASE( "generate en passant moves" )
 {
     Board board;
 

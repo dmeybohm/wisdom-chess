@@ -115,7 +115,7 @@ TEST_CASE( "board code" )
         REQUIRE( initial != code );
     }
 
-    SUBCASE( "Promoting+Capturing moves are applied and undone correctly")
+    SUBCASE( "Promoting+Capturing moves are applied and undone correctly" )
     {
         BoardBuilder builder;
 
@@ -148,7 +148,7 @@ TEST_CASE( "Board code can be converted" )
         BoardCode code = BoardCode::fromEmptyBoard();
 
         code.addPiece(
-            coordParse("h1"),
+            coordParse ("h1"),
             ColoredPiece::make (Color::White, Piece::King)
         );
 
@@ -165,12 +165,12 @@ TEST_CASE( "Board code can be converted" )
         BoardCode code = BoardCode::fromEmptyBoard();
 
         code.addPiece(
-            coordParse("h1"),
+            coordParse ("h1"),
             ColoredPiece::make (Color::White, Piece::King)
         );
 
         stream << code;
-        auto result = stream.str().substr(0, 4);
+        auto result = stream.str().substr (0, 4);
 
         std::size_t num_zeroes = std::count (result.begin(), result.end(), '0');
         CHECK( num_zeroes > 0 );
@@ -239,7 +239,7 @@ TEST_CASE( "Board code stores metadata" )
         auto without_state_code = board_without_state.getCode();
         CHECK( with_state_code != without_state_code );
 
-        auto en_passant_target = with_state_code.getEnPassantTarget ();
+        auto en_passant_target = with_state_code.getEnPassantTarget();
         auto expected_coord = coordParse ("d6");
         auto metadata = with_state_code.getMetadataBits();
         REQUIRE( en_passant_target.has_value() );

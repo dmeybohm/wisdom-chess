@@ -124,7 +124,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        getEnPassantTarget () const noexcept
+        getEnPassantTarget() const noexcept
             -> optional<EnPassantTarget>
         {
             auto target_bits = getMetadataBits();

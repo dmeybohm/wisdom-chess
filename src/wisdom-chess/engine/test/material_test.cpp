@@ -22,7 +22,7 @@ TEST_CASE( "Overall score" )
 
                 material.add (ColoredPiece::make (color, piece_type));
 
-                CHECK( material.overallScore(color) > 0 );
+                CHECK( material.overallScore (color) > 0 );
             }
         }
     }
@@ -38,7 +38,7 @@ TEST_CASE( "Overall score" )
                 material.add (ColoredPiece::make (color, piece_type));
                 material.remove (ColoredPiece::make (color, piece_type));
 
-                CHECK( material.overallScore(color) == 0 );
+                CHECK( material.overallScore (color) == 0 );
             }
         }
 
@@ -63,7 +63,7 @@ TEST_CASE( "Piece count" )
 
     auto brd = Board { builder };
 
-    SUBCASE( "Is updated from the amount of pieces on the board")
+    SUBCASE( "Is updated from the amount of pieces on the board" )
     {
         const auto& material = brd.getMaterial();
         CHECK( material.pieceCount (Color::Black, Piece::Pawn) == 2 );
@@ -143,7 +143,7 @@ TEST_CASE( "checkmateIsPossible()" )
 
     SUBCASE( "Returns yes for default board" )
     {
-        CHECK( default_material.checkmateIsPossible(default_board) );
+        CHECK( default_material.checkmateIsPossible (default_board) );
     }
 
     SUBCASE( "Returns no if there is a rook and king" )
@@ -152,7 +152,7 @@ TEST_CASE( "checkmateIsPossible()" )
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial();
-        CHECK( material.checkmateIsPossible(default_board) );
+        CHECK( material.checkmateIsPossible (default_board) );
     }
 
     SUBCASE( "Returns no if there is a rook and king vs a rook and king" )
@@ -162,7 +162,7 @@ TEST_CASE( "checkmateIsPossible()" )
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial();
-        CHECK( material.checkmateIsPossible(default_board) );
+        CHECK( material.checkmateIsPossible (default_board) );
     }
 
     SUBCASE( "Returns yes if there is a king and two knights vs a king" )
@@ -172,7 +172,7 @@ TEST_CASE( "checkmateIsPossible()" )
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial();
-        CHECK( material.checkmateIsPossible(default_board) );
+        CHECK( material.checkmateIsPossible (default_board) );
     }
 
     SUBCASE( "Returns yes if there is a king and knight vs a king and knight" )
@@ -182,7 +182,7 @@ TEST_CASE( "checkmateIsPossible()" )
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial();
-        CHECK( material.checkmateIsPossible(default_board) );
+        CHECK( material.checkmateIsPossible (default_board) );
     }
 
     SUBCASE( "Returns yes if there is a king and two knights vs a king and knight" )
@@ -193,7 +193,7 @@ TEST_CASE( "checkmateIsPossible()" )
 
         auto brd = Board { builder };
         const auto& material = brd.getMaterial();
-        CHECK( material.checkmateIsPossible(default_board) );
+        CHECK( material.checkmateIsPossible (default_board) );
     }
 
     SUBCASE( "Returns yes if there is a pawn" )
