@@ -252,7 +252,7 @@ TEST_CASE( "checkmateIsPossible()" )
         auto brd = Board { builder };
         const auto& material = brd.getMaterial();
 
-        CHECK( material.checkmateIsPossible (brd) == CheckmateIsPossible::No);
+        CHECK( material.checkmateIsPossible (brd) == CheckmateIsPossible::No );
     }
 
     SUBCASE( "Returns yes if there is a king two bishops of opposite color vs. a king" )
@@ -263,7 +263,7 @@ TEST_CASE( "checkmateIsPossible()" )
         auto brd = Board { builder };
         const auto& material = brd.getMaterial();
 
-        CHECK( material.checkmateIsPossible (brd) == CheckmateIsPossible::Yes);
+        CHECK( material.checkmateIsPossible (brd) == CheckmateIsPossible::Yes );
     }
 
     SUBCASE( "Returns no if there is a king two bishops of the same color vs. a king" )
@@ -274,6 +274,6 @@ TEST_CASE( "checkmateIsPossible()" )
         auto brd = Board { builder };
         const auto& material = brd.getMaterial();
 
-        CHECK( material.checkmateIsPossible(brd) == CheckmateIsPossible::No );
+        CHECK( material.checkmateIsPossible (brd) == CheckmateIsPossible::No );
     }
 }

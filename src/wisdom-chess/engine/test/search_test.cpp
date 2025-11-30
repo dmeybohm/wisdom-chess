@@ -89,7 +89,7 @@ TEST_CASE( "Can find mate in 2 1/2" )
     SearchResult result = search.iterativelyDeepen (Color::Black);
 
     REQUIRE( result.move.has_value() );
-    REQUIRE( result.score > Max_Non_Checkmate_Score);
+    REQUIRE( result.score > Max_Non_Checkmate_Score );
 }
 
 TEST_CASE( "scenario with heap overflow 1" )
@@ -170,7 +170,7 @@ TEST_CASE( "Promoting move is taken if possible" )
 
     auto search = helper.build (board, 1, 30);
     auto result = search.iterativelyDeepen (Color::Black);
-    REQUIRE(asString (*result.move) == "d2 d1(Q)");
+    REQUIRE( asString (*result.move) == "d2 d1(Q)" );
 }
 
 TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing" )
@@ -267,7 +267,7 @@ TEST_CASE( "Advanced pawn should be captured" )
 
     auto board = game.getBoard();
     auto target_piece = board.pieceAt (coordParse ("d6"));
-    CHECK( target_piece != ColoredPiece::make (Color::White, Piece::Pawn));
+    CHECK( target_piece != ColoredPiece::make (Color::White, Piece::Pawn) );
     CHECK( pieceColor (target_piece) == Color::Black );
 }
 

@@ -19,10 +19,10 @@ TEST_CASE( "A piece can be converted" )
     for (auto color : colors) {
         for (auto piece : pieces) {
             ColoredPiece combined = ColoredPiece::make (color, piece);
-            INFO(asString (pieceType (combined)) );
-            INFO(asString (piece) );
-            CHECK( pieceType(combined) == piece );
-            CHECK( pieceColor(combined) == color );
+            INFO( asString (pieceType (combined)) );
+            INFO( asString (piece) );
+            CHECK( pieceType (combined) == piece );
+            CHECK( pieceColor (combined) == color );
         }
     }
     CHECK( Piece_And_Color_None == ColoredPiece::make (Color::None, Piece::None) );

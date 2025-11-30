@@ -194,8 +194,8 @@ EMSCRIPTEN_KEEPALIVE void startSearch()
     if (new_status != wisdom::GameStatus::Playing)
         return;
 
-    logger->debug("Going to find best move");
-    logger->debug("Current turn: " + asString (game->getCurrentTurn()));
+    logger->debug ("Going to find best move");
+    logger->debug ("Current turn: " + asString (game->getCurrentTurn()));
 
     auto move = game->findBestMove(
         logger,
@@ -204,7 +204,7 @@ EMSCRIPTEN_KEEPALIVE void startSearch()
     if (!move.has_value())
     {
         // Could happen if game is paused:
-        logger->debug("No move found.");
+        logger->debug ("No move found.");
         return;
     }
     game->move (*move);

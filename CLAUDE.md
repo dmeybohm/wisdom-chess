@@ -9,7 +9,8 @@ Follow these guidelines:
 1. **Code Formatting**:
 
 The project follows an idiosyncratic format for C++ code. You can
-check with the linter under `scripts/linter`. Run:
+check with the linter under `scripts/linter`. After building the linter,
+with `npm run build` inside `scripts/linter`, run:
 
 ```
 node scripts/linter/dist/index.js <cppfile>

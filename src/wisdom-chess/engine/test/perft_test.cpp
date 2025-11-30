@@ -17,7 +17,7 @@ using wisdom::Color;
 using wisdom::Piece;
 using wisdom::FenParser;
 
-TEST_CASE( "Perft move list")
+TEST_CASE( "Perft move list" )
 {
     BoardBuilder builder;
 
@@ -32,7 +32,7 @@ TEST_CASE( "Perft move list")
 
     auto board = Board { builder };
 
-    string perft_move_list = wisdom::join({
+    string perft_move_list = wisdom::join ({
         "e1c1", // white queen-side castle
         "d7d5",
         "e5d6", // white en-passant
