@@ -15,6 +15,7 @@ check with the linter under `scripts/linter`. Run:
 node scripts/linter/dist/index.js <cppfile>
 ```
 to check if the format matches.
+
 2. **Code Style Guidelines**:
    - Use trailing return types with auto: `auto functionName() -> ReturnType`
    - Use `[[nodiscard]]` for functions that return values that shouldn't be ignored
