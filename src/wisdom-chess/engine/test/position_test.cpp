@@ -28,7 +28,9 @@ TEST_CASE( "Center pawn elevates position overallScore" )
     
     auto board = Board { builder };
 
-    CHECK(board.getPosition().overallScore (Color::White) > board.getPosition().overallScore (Color::Black));
+	auto white_score = board.getPosition().overallScore (Color::White);
+	auto black_score = board.getPosition().overallScore (Color::Black);
+    CHECK( white_score > black_score );
 }
 
 TEST_CASE( "Capture updates position overallScore correctly" )
@@ -54,7 +56,7 @@ TEST_CASE( "Capture updates position overallScore correctly" )
     CHECK( initial_score_black != board.getPosition().overallScore (Color::Black) );
 }
 
-TEST_CASE( "En passant updates position overallScore correctly")
+TEST_CASE( "En passant updates position overallScore correctly" )
 {
     BoardBuilder builder;
 
@@ -78,7 +80,7 @@ TEST_CASE( "En passant updates position overallScore correctly")
     CHECK( initial_score_black != board.getPosition().overallScore (Color::Black) );
 }
 
-TEST_CASE( "Castling updates position overallScore correctly")
+TEST_CASE( "Castling updates position overallScore correctly" )
 {
     BoardBuilder builder;
 
@@ -97,16 +99,16 @@ TEST_CASE( "Castling updates position overallScore correctly")
     for (auto castling_move_in : castling_moves)
     {
         Move castling_move = moveParse (castling_move_in, Color::White);
-        CHECK( castling_move.isCastling());
+        CHECK( castling_move.isCastling() );
 
         Board after_castling = board.withMove (Color::White, castling_move);
 
-        CHECK( initial_score_white != after_castling.getPosition().overallScore (Color::White));
-        CHECK( initial_score_black != after_castling.getPosition().overallScore (Color::Black));
+        CHECK( initial_score_white != after_castling.getPosition().overallScore (Color::White) );
+        CHECK( initial_score_black != after_castling.getPosition().overallScore (Color::Black) );
     }
 }
 
-TEST_CASE( "Promoting move updates position overallScore correctly")
+TEST_CASE( "Promoting move updates position overallScore correctly" )
 {
     BoardBuilder builder;
 
@@ -132,7 +134,7 @@ TEST_CASE( "Promoting move updates position overallScore correctly")
     }
 }
 
-TEST_CASE("Double pawn moves are more appealing")
+TEST_CASE( "Double pawn moves are more appealing" )
 {
     Board board;
 

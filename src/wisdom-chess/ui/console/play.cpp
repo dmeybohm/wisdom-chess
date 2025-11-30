@@ -311,7 +311,9 @@ namespace wisdom::ui::console
             std::cout << "\n\n";
         }
 
-        static string prompt (const string& prompt)
+        static auto
+        prompt (const string& prompt)
+            -> string
         {
             string input;
 
@@ -323,13 +325,17 @@ namespace wisdom::ui::console
             return chomp (input);
         }
 
-        static auto saveGame() -> string
+        static auto
+        saveGame()
+            -> string
         {
             string input = prompt ("save to what file");
             return input;
         }
 
-        auto loadGame() -> optional<Game>
+        auto
+        loadGame()
+            -> optional<Game>
         {
             string input = prompt ("load what file");
 
@@ -343,7 +349,9 @@ namespace wisdom::ui::console
             return std::move (*optional_game);
         }
 
-        static auto loadFen() -> optional<Game>
+        static auto
+        loadFen()
+            -> optional<Game>
         {
             string input = prompt ("FEN game");
 
@@ -361,7 +369,9 @@ namespace wisdom::ui::console
             }
         }
 
-        static auto readInt (const std::string& prompt_value) -> optional<int>
+        static auto
+        readInt (const std::string& prompt_value)
+            -> optional<int>
         {
             string input = prompt (prompt_value);
 
@@ -625,7 +635,7 @@ namespace wisdom::ui::console
                 auto set_player = get<PlayCommand::SetPlayer> (command);
 
                 auto players = game.getPlayers();
-                players[colorIndex(set_player.side)] = set_player.player_type;
+                players[colorIndex (set_player.side)] = set_player.player_type;
                 game.setPlayers (players);
 
                 auto player_type_str = set_player.player_type == Player::ChessEngine

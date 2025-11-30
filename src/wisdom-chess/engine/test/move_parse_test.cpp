@@ -11,16 +11,16 @@ TEST_CASE( "moveParse" )
         Move capture = moveParse ("a6xb7");
         Move non_capture = moveParse ("e4 e8");
 
-        CHECK(( capture == moveParse ("a6xb7", Color::White)) );
-        CHECK(( non_capture == moveParse ("e4 e8", Color::White)) );
+        CHECK( ( capture == moveParse ("a6xb7", Color::White) ) );
+        CHECK( ( non_capture == moveParse ("e4 e8", Color::White) ) );
     }
 
     SUBCASE( "color matters in moveParse" )
     {
         Move castle = moveParse ("o-o", Color::Black);
-        CHECK(( coordRow (castle.getSrc()) == 0 ));
-        CHECK(( coordRow (castle.getDst()) == 0 ));
-        CHECK(( castle == moveParse ("o-o", Color::Black) ));
+        CHECK( ( coordRow (castle.getSrc()) == 0 ) );
+        CHECK( ( coordRow (castle.getDst()) == 0 ) );
+        CHECK( ( castle == moveParse ("o-o", Color::Black) ) );
     }
 
     SUBCASE( "moveParse throws an exception for castling moves" )

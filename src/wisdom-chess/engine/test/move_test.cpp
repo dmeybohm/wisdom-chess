@@ -54,14 +54,16 @@ TEST_CASE( "Parsing a castling move" )
 TEST_CASE( "Converting a move to a string" )
 {
     Move with_spaces = moveParse ("   e2e4", Color::White);
-    REQUIRE( asString(with_spaces) == std::string("e2 e4") );
+    REQUIRE( asString (with_spaces) == std::string {"e2 e4" } );
+
     Move en_passant = moveParse ("   e4d5 ep   ", Color::White);
-    REQUIRE( asString(en_passant) == std::string("e4 d5 ep") );
+    REQUIRE( asString (en_passant) == std::string {"e4 d5 ep" } );
+
     Move castling = moveParse ("   o-o-o ", Color::Black);
-    REQUIRE( asString(castling) == std::string("O-O-O") );
+    REQUIRE( asString (castling) == std::string { "O-O-O" } );
 }
 
-TEST_CASE("Mapping coordinates to moves")
+TEST_CASE( "Mapping coordinates to moves" )
 {
     SUBCASE( "Mapping en passant" )
     {

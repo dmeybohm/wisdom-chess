@@ -11,25 +11,25 @@
 
 using namespace wisdom;
 
-int main(int argc, char *argv[])
+int main (int argc, char *argv[])
 {
 #ifdef USE_OPENGL_GRAPHICS_BACKEND
     // Workaround resizing flickering issue. Seems like the default rendering
     // backends for QML have some issues on my hardware still, so revert to
     // OpenGL which should be more stable.
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::GraphicsApi::OpenGL);
+    QQuickWindow::setGraphicsApi (QSGRendererInterface::GraphicsApi::OpenGL);
 #endif
 
-    QGuiApplication app(argc, argv);
+    QGuiApplication app {argc, argv };
 
     GameModel game_model;
     PiecesModel pieces_model;
 
     wisdom::ui::registerQmlTypes();
 
-    QObject::connect(&game_model, &GameModel::engineMoved, &pieces_model, &PiecesModel::playerMoved);
-    QObject::connect(&game_model, &GameModel::humanMoved, &pieces_model, &PiecesModel::playerMoved);
-    QObject::connect(&game_model, &GameModel::gameStarted, &pieces_model, &PiecesModel::newGame);
+    QObject::connect (&game_model, &GameModel::engineMoved, &pieces_model, &PiecesModel::playerMoved);
+    QObject::connect (&game_model, &GameModel::humanMoved, &pieces_model, &PiecesModel::playerMoved);
+    QObject::connect (&game_model, &GameModel::gameStarted, &pieces_model, &PiecesModel::newGame);
 
     QQmlApplicationEngine engine;
 
@@ -38,16 +38,16 @@ int main(int argc, char *argv[])
 
     qDebug() << "Creating URL";
 
-    engine.rootContext()->setContextProperty("_myGameModel", &game_model);
-    engine.rootContext()->setContextProperty("_myPiecesModel", &pieces_model);
+    engine.rootContext()->setContextProperty ("_myGameModel", &game_model);
+    engine.rootContext()->setContextProperty ("_myPiecesModel", &pieces_model);
 
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl & obj_url) {
+    QObject::connect (&engine, &QQmlApplicationEngine::objectCreated,
+                      &app, [url](QObject *obj, const QUrl & obj_url) {
         if (!obj && url == obj_url)
-            QCoreApplication::exit(-1);
+            QCoreApplication::exit (-1);
     }, Qt::QueuedConnection);
 
-    engine.load(url);
+    engine.load (url);
 
     game_model.start();
     qDebug() << "sceneGraph backend: " << QQuickWindow::sceneGraphBackend();
