@@ -6,7 +6,7 @@
 
 using namespace wisdom;
 
-TEST_CASE("isKingThreatened works for bishop, rook, and king")
+TEST_CASE( "isKingThreatened works for bishop, rook, and king" )
 {
     BoardBuilder builder;
 

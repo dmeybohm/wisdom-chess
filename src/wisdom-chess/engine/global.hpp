@@ -136,7 +136,7 @@ namespace wisdom
                 value > std::numeric_limits<Target>::max())
             {
                 // At compile-time, trigger an error if there's truncation
-                std::terminate ();
+                std::terminate();
             }
         }
 
@@ -158,7 +158,7 @@ namespace wisdom
                 value > std::numeric_limits<Target>::max())
             {
                 // At compile-time, trigger an error if there's truncation
-                throw std::runtime_error("narrow_cast: narrowing occurred");
+                throw std::runtime_error ("narrow_cast: narrowing occurred");
             }
         }
 

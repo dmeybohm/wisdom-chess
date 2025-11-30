@@ -6,7 +6,7 @@
 
 using namespace wisdom;
 
-TEST_CASE("Initializing castling state")
+TEST_CASE( "Initializing castling state" )
 {
     SUBCASE( "From default position" )
     {
@@ -152,7 +152,7 @@ TEST_CASE( "Castling state is modified and restored for castling queenside" )
     CHECK( pieceColor (board.pieceAt (0, 3)) == Color::Black );
 }
 
-TEST_CASE("Castling state is modified and restored for castling kingside")
+TEST_CASE( "Castling state is modified and restored for castling kingside" )
 {
     array<Piece, Num_Columns> back_rank = {
         Piece::Rook,  Piece::None, Piece::None, Piece::None, Piece::King,
@@ -244,7 +244,7 @@ TEST_CASE( "Opponent's castling state is modified when his rook is taken" )
     CHECK (board.getCastlingEligibility (Color::Black) == CastlingRights::Kingside);
 }
 
-TEST_CASE("Castling state is updated when rook captures a piece")
+TEST_CASE( "Castling state is updated when rook captures a piece" )
 {
     BoardBuilder builder;
 
@@ -298,7 +298,7 @@ TEST_CASE("Castling state is updated when rook captures a piece")
     CHECK( board.getCastlingEligibility (Color::Black) == CastlingRights::Kingside );
 }
 
-TEST_CASE("Opponent's castling state is modified when his rook is taken (failure scenario)")
+TEST_CASE( "Opponent's castling state is modified when his rook is taken (failure scenario)" )
 {
     BoardBuilder builder;
 
@@ -360,7 +360,7 @@ TEST_CASE("Opponent's castling state is modified when his rook is taken (failure
     CHECK( board.getCastlingEligibility (Color::Black) == CastlingRights::Kingside );
 }
 
-TEST_CASE("Castling state is modified when rook takes a piece on same column (scenario 2)")
+TEST_CASE( "Castling state is modified when rook takes a piece on same column (scenario 2)" )
 {
     BoardBuilder builder;
 
@@ -437,8 +437,8 @@ TEST_CASE( "Test can castle" )
     int i = 0;
     for (auto move : moves)
     {
-        INFO("Move : ");
-        CAPTURE(i);
+        INFO( "Move : " );
+        CAPTURE( i );
         i++;
         board = board.withMove (color, move);
         CHECK( board.ableToCastle (Color::White, CastlingRights::Kingside) );
