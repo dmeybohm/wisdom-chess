@@ -16,16 +16,16 @@ namespace wisdom
     struct TranspositionEntry
     {
         BoardHashCode hash_code = 0;
+        Move best_move {};
         int score = 0;
         int16_t depth = 0;
         BoundType bound_type = BoundType::Exact;
-        Move best_move {};
     };
 
     class TranspositionTable
     {
     public:
-        explicit TranspositionTable (size_t size_in_mb = 64);
+        explicit TranspositionTable (size_t size_in_mb = 8);
 
         [[nodiscard]] auto
         probe (BoardHashCode hash, int depth, int alpha, int beta, int ply)
@@ -60,6 +60,13 @@ namespace wisdom
             return my_probes;
         }
 
+        [[nodiscard]] auto
+        getStoredEntriesCount() const
+            -> size_t
+        {
+            return my_stored_entries;
+        }
+
     private:
         [[nodiscard]] auto
         scoreToTT (int score, int ply) const
@@ -73,5 +80,6 @@ namespace wisdom
         size_t my_size_mask;
         size_t my_hits = 0;
         size_t my_probes = 0;
+        size_t my_stored_entries = 0;
     };
 }

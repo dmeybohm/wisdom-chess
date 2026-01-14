@@ -122,6 +122,8 @@ namespace wisdom
         entry.depth = narrow<int16_t> (depth);
         entry.bound_type = bound_type;
         entry.best_move = best_move;
+
+        my_stored_entries++;
     }
 
     void
@@ -130,5 +132,6 @@ namespace wisdom
         std::fill (my_entries.begin(), my_entries.end(), TranspositionEntry {});
         my_hits = 0;
         my_probes = 0;
+        my_stored_entries = 0;
     }
 }

@@ -231,7 +231,12 @@ namespace wisdom
         auto hash = parent_board.getCode().getHashCode();
 
         if (auto tt_score = my_tt->probe (hash, depth, alpha, beta, ply))
+        {
+            my_current_result.move = my_tt->getBestMove (hash);
+            my_current_result.score = *tt_score;
+            my_current_result.depth = my_search_depth - depth;
             return *tt_score;
+        }
 
         auto tt_move = my_tt->getBestMove (hash);
 
@@ -434,7 +439,8 @@ namespace wisdom
             std::stringstream progress_str;
             progress_str << "nodes visited = " << my_nodes_visited
                          << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs << "\n";
-            progress_str << "transposition_table: probes: " << my_tt->getProbeCount() 
+            progress_str << "transposition table: entries: " << my_tt->getStoredEntriesCount() 
+                << " probes: " << my_tt->getProbeCount()
                 << " hits: "  << my_tt->getHitCount();
 
             my_output->debug (std::move (progress_str).str());
