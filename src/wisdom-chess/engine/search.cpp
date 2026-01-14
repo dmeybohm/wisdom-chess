@@ -166,17 +166,7 @@ namespace wisdom
         }
 
         auto tt_move = my_transposition_table.getBestMove (hash);
-
-        auto moves = generateAllPotentialMoves (parent_board, side);
-
-        if (tt_move.has_value())
-        {
-            auto it = std::find (moves.begin(), moves.end(), *tt_move);
-            if (it != moves.end())
-            {
-                std::rotate (moves.begin(), it, it + 1);
-            }
-        }
+        auto moves = generateAllPotentialMoves (parent_board, side, tt_move);
 
         for (auto move : moves)
         {
