@@ -5,6 +5,7 @@
 #include "wisdom-chess/engine/history.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/game_status.hpp"
+#include "wisdom-chess/engine/transposition_table.hpp"
 
 namespace wisdom
 {
@@ -26,6 +27,7 @@ namespace wisdom
         History my_history;
         MoveTimer my_move_timer { Default_Max_Search_Seconds };
         int my_max_depth { Default_Max_Depth };
+        mutable TranspositionTable my_transposition_table { 64 };
 
         Players my_players = { Player::Human, Player::ChessEngine };
 

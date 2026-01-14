@@ -12,6 +12,7 @@ namespace wisdom
     class Board;
     class Logger;
     class History;
+    class TranspositionTable;
 
     struct SearchResult
     {
@@ -32,6 +33,16 @@ namespace wisdom
             shared_ptr<Logger> logger,
             const MoveTimer& timer,
             int max_depth
+        ) -> IterativeSearch;
+
+        [[nodiscard]] static auto
+        create (
+            const Board& board,
+            const History& history,
+            shared_ptr<Logger> logger,
+            const MoveTimer& timer,
+            int max_depth,
+            TranspositionTable& tt
         ) -> IterativeSearch;
 
         [[nodiscard]] static auto

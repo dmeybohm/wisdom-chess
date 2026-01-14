@@ -28,6 +28,26 @@ namespace wisdom
             , my_output { std::move (output) }
             , my_timer { std::move (timer) }
             , my_total_depth { total_depth }
+            , my_owned_tt { make_unique<TranspositionTable> (64) }
+            , my_tt { my_owned_tt.get() }
+        {
+        }
+
+        IterativeSearchImpl (
+            const Board& board,
+            const History& history,
+            shared_ptr<Logger> output,
+            MoveTimer timer,
+            int total_depth,
+            TranspositionTable& external_tt
+        )
+            : my_original_board { Board { board } }
+            , my_history { History { history } }
+            , my_output { std::move (output) }
+            , my_timer { std::move (timer) }
+            , my_total_depth { total_depth }
+            , my_owned_tt { nullptr }
+            , my_tt { &external_tt }
         {
         }
 
@@ -63,7 +83,8 @@ namespace wisdom
         SearchResult my_current_result {};
         MoveTimer my_timer;
         shared_ptr<Logger> my_output;
-        TranspositionTable my_tt { 64 };
+        unique_ptr<TranspositionTable> my_owned_tt;
+        TranspositionTable* my_tt;
 
         int my_total_depth;
         int my_search_depth {};
@@ -98,6 +119,27 @@ namespace wisdom
                 std::move (logger),
                 timer,
                 max_depth
+            )
+        };
+    }
+
+    auto IterativeSearch::create (
+        const Board& board,
+        const History& history,
+        shared_ptr<Logger> logger,
+        const MoveTimer& timer,
+        int max_depth,
+        TranspositionTable& tt
+    ) -> IterativeSearch
+    {
+        return IterativeSearch {
+            make_unique<IterativeSearchImpl> (
+                Board { board },
+                history,
+                std::move (logger),
+                timer,
+                max_depth,
+                tt
             )
         };
     }
@@ -188,10 +230,10 @@ namespace wisdom
 
         auto hash = parent_board.getCode().getHashCode();
 
-        if (auto tt_score = my_tt.probe (hash, depth, alpha, beta, ply))
+        if (auto tt_score = my_tt->probe (hash, depth, alpha, beta, ply))
             return *tt_score;
 
-        auto tt_move = my_tt.getBestMove (hash);
+        auto tt_move = my_tt->getBestMove (hash);
 
         auto moves = generateAllPotentialMoves (parent_board, side);
 
@@ -284,7 +326,7 @@ namespace wisdom
             BoundType bound_type = (best_score <= original_alpha) ? BoundType::UpperBound
                                  : (best_score >= beta) ? BoundType::LowerBound
                                  : BoundType::Exact;
-            my_tt.store (
+            my_tt->store (
                 hash,
                 best_score,
                 depth,
@@ -391,9 +433,13 @@ namespace wisdom
         {
             std::stringstream progress_str;
             progress_str << "nodes visited = " << my_nodes_visited
-                         << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs;
+                         << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs << "\n";
+            progress_str << "transposition_table: probes: " << my_tt->getProbeCount() 
+                << " hits: "  << my_tt->getHitCount();
+
             my_output->debug (std::move (progress_str).str());
         }
+    
 
         if (result.timed_out)
         {
