@@ -10,6 +10,7 @@
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/transposition_table.hpp"
 
 #include "wisdom-chess-tests.hpp"
 
@@ -21,13 +22,14 @@ namespace wisdom::test
     {
         History history {};
         shared_ptr<Logger> logger = makeNullLogger();
-        MoveTimer timer = MoveTimer {30 };
+        MoveTimer timer = MoveTimer { 30 };
+        TranspositionTable transposition_table { 8 };
 
         auto build (const Board& board, int depth, int time = 30)
             -> IterativeSearch
         {
             timer.setSeconds (chrono::seconds { time });
-            return IterativeSearch::create (board, history, logger, timer, depth);
+            return IterativeSearch::create (board, history, logger, timer, depth, transposition_table);
         }
     };
 }

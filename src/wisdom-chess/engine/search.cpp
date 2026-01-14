@@ -21,33 +21,15 @@ namespace wisdom
             const History& history,
             shared_ptr<Logger> output,
             MoveTimer timer,
-            int total_depth
-        )
-            : my_original_board { Board { board } }
-            , my_history { History { history } }
-            , my_output { std::move (output) }
-            , my_timer { std::move (timer) }
-            , my_total_depth { total_depth }
-            , my_owned_tt { make_unique<TranspositionTable> (64) }
-            , my_tt { my_owned_tt.get() }
-        {
-        }
-
-        IterativeSearchImpl (
-            const Board& board,
-            const History& history,
-            shared_ptr<Logger> output,
-            MoveTimer timer,
             int total_depth,
-            TranspositionTable& external_tt
+            TranspositionTable& transposition_table
         )
             : my_original_board { Board { board } }
             , my_history { History { history } }
             , my_output { std::move (output) }
             , my_timer { std::move (timer) }
             , my_total_depth { total_depth }
-            , my_owned_tt { nullptr }
-            , my_tt { &external_tt }
+            , my_transposition_table { transposition_table }
         {
         }
 
@@ -83,8 +65,7 @@ namespace wisdom
         SearchResult my_current_result {};
         MoveTimer my_timer;
         shared_ptr<Logger> my_output;
-        unique_ptr<TranspositionTable> my_owned_tt;
-        TranspositionTable* my_tt;
+        TranspositionTable& my_transposition_table;
 
         int my_total_depth;
         int my_search_depth {};
@@ -103,33 +84,14 @@ namespace wisdom
     {
     }
 
-    // Factory function implementations
-    auto IterativeSearch::create (
-        const Board& board,
-        const History& history,
-        shared_ptr<Logger> logger,
-        const MoveTimer& timer,
-        int max_depth
-    ) -> IterativeSearch
-    {
-        return IterativeSearch {
-            make_unique<IterativeSearchImpl> (
-                Board { board },
-                history,
-                std::move (logger),
-                timer,
-                max_depth
-            )
-        };
-    }
-
+    // Factory function implementation
     auto IterativeSearch::create (
         const Board& board,
         const History& history,
         shared_ptr<Logger> logger,
         const MoveTimer& timer,
         int max_depth,
-        TranspositionTable& tt
+        TranspositionTable& transposition_table
     ) -> IterativeSearch
     {
         return IterativeSearch {
@@ -139,42 +101,7 @@ namespace wisdom
                 std::move (logger),
                 timer,
                 max_depth,
-                tt
-            )
-        };
-    }
-
-    auto IterativeSearch::create (
-        const Board& board,
-        const History& history,
-        shared_ptr<Logger> logger,
-        int search_seconds,
-        int max_depth
-    ) -> IterativeSearch
-    {
-        return IterativeSearch {
-            make_unique<IterativeSearchImpl> (
-                Board { board },
-                history,
-                std::move (logger),
-                MoveTimer { search_seconds },
-                max_depth
-            )
-        };
-    }
-
-    auto IterativeSearch::createWithDefaults (
-        const Board& board,
-        const History& history
-    ) -> IterativeSearch
-    {
-        return IterativeSearch {
-            make_unique<IterativeSearchImpl> (
-                Board { board },
-                history,
-                makeNullLogger(),
-                MoveTimer { Default_Max_Search_Seconds },
-                Default_Max_Depth
+                transposition_table
             )
         };
     }
@@ -230,15 +157,15 @@ namespace wisdom
 
         auto hash = parent_board.getCode().getHashCode();
 
-        if (auto tt_score = my_tt->probe (hash, depth, alpha, beta, ply))
+        if (auto tt_score = my_transposition_table.probe (hash, depth, alpha, beta, ply))
         {
-            my_current_result.move = my_tt->getBestMove (hash);
+            my_current_result.move = my_transposition_table.getBestMove (hash);
             my_current_result.score = *tt_score;
             my_current_result.depth = my_search_depth - depth;
             return *tt_score;
         }
 
-        auto tt_move = my_tt->getBestMove (hash);
+        auto tt_move = my_transposition_table.getBestMove (hash);
 
         auto moves = generateAllPotentialMoves (parent_board, side);
 
@@ -331,7 +258,7 @@ namespace wisdom
             BoundType bound_type = (best_score <= original_alpha) ? BoundType::UpperBound
                                  : (best_score >= beta) ? BoundType::LowerBound
                                  : BoundType::Exact;
-            my_tt->store (
+            my_transposition_table.store (
                 hash,
                 best_score,
                 depth,
@@ -420,7 +347,7 @@ namespace wisdom
         my_nodes_visited = 0;
         my_alpha_beta_cutoffs = 0;
 
-        auto tt_stats_start = my_tt->getStats();
+        auto tt_stats_start = my_transposition_table.getStats();
         auto start = std::chrono::system_clock::now();
 
         my_search_depth = depth;
@@ -440,7 +367,7 @@ namespace wisdom
             std::stringstream progress_str;
             progress_str << "nodes visited = " << my_nodes_visited
                          << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs << "\n";
-            auto tt_stats_end = my_tt->getStats();
+            auto tt_stats_end = my_transposition_table.getStats();
             auto hit_rate = computeHitRate (tt_stats_start, tt_stats_end);
             auto probes_this_iteration = tt_stats_end.probes - tt_stats_start.probes;
             auto hits_this_iteration = tt_stats_end.hits - tt_stats_start.hits;
@@ -448,7 +375,7 @@ namespace wisdom
                 << ", probes = " << probes_this_iteration
                 << ", hits = "  << hits_this_iteration
                 << ", hit rate = " << hit_rate << "%"
-                << ", size = "  << my_tt->getSize();
+                << ", size = "  << my_transposition_table.getSize();
 
             my_output->debug (std::move (progress_str).str());
         }
