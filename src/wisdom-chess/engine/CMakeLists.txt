@@ -53,6 +53,7 @@ add_library(wisdom-chess-core STATIC
         search.hpp
         str.hpp
         threats.hpp
+        transposition_table.hpp
         board.cpp
         board_code.cpp
         castling.cpp
@@ -72,7 +73,8 @@ add_library(wisdom-chess-core STATIC
         piece.cpp 
         position.cpp 
         search.cpp
-        str.cpp)
+        str.cpp
+        transposition_table.cpp)
 
 if (PCH_ENABLED)
     target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)

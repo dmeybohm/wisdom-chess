@@ -7,6 +7,7 @@
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/engine/transposition_table.hpp"
 
 namespace wisdom
 {
@@ -41,7 +42,7 @@ namespace wisdom
         // Search for the best move, and return the best score.
         auto
         search (const Board& parent_board, Color side, int depth,
-                int alpha, int beta)
+                int alpha, int beta, int ply)
             -> int;
 
         // Get the best result the search found.
@@ -62,6 +63,7 @@ namespace wisdom
         SearchResult my_current_result {};
         MoveTimer my_timer;
         shared_ptr<Logger> my_output;
+        TranspositionTable my_tt { 64 };
 
         int my_total_depth;
         int my_search_depth {};
@@ -169,20 +171,39 @@ namespace wisdom
         return current_color == searching_color ? Min_Draw_Score : 0;
     }
 
-    auto 
+    auto
     IterativeSearchImpl::search ( // NOLINT(misc-no-recursion)
-        const Board& parent_board, 
-        Color side, 
-        int depth, 
-        int alpha, 
-        int beta
+        const Board& parent_board,
+        Color side,
+        int depth,
+        int alpha,
+        int beta,
+        int ply
     )
         -> int
     {
+        int original_alpha = alpha;
         std::optional<Move> best_move {};
         int best_score = -Initial_Alpha;
 
+        auto hash = parent_board.getCode().getHashCode();
+
+        if (auto tt_score = my_tt.probe (hash, depth, alpha, beta, ply))
+            return *tt_score;
+
+        auto tt_move = my_tt.getBestMove (hash);
+
         auto moves = generateAllPotentialMoves (parent_board, side);
+
+        if (tt_move.has_value())
+        {
+            auto it = std::find (moves.begin(), moves.end(), *tt_move);
+            if (it != moves.end())
+            {
+                std::rotate (moves.begin(), it, it + 1);
+            }
+        }
+
         for (auto move : moves)
         {
             int score;
@@ -223,7 +244,7 @@ namespace wisdom
                 }
                 else
                 {
-                    score = -1 * search (child_board, colorInvert (side), depth - 1, -beta, -alpha);
+                    score = -1 * search (child_board, colorInvert (side), depth - 1, -beta, -alpha, ply + 1);
                 }
             }
 
@@ -257,6 +278,22 @@ namespace wisdom
         }
         my_current_result.move = best_move;
         my_current_result.score = best_score;
+
+        if (!my_current_result.timed_out)
+        {
+            BoundType bound_type = (best_score <= original_alpha) ? BoundType::UpperBound
+                                 : (best_score >= beta) ? BoundType::LowerBound
+                                 : BoundType::Exact;
+            my_tt.store (
+                hash,
+                best_score,
+                depth,
+                bound_type,
+                best_move.value_or (Move {}),
+                ply
+            );
+        }
+
         return best_score;
     }
 
@@ -340,7 +377,7 @@ namespace wisdom
 
         my_search_depth = depth;
         my_current_result = SearchResult {};
-        search (my_original_board, side, depth, -Initial_Alpha, Initial_Alpha);
+        search (my_original_board, side, depth, -Initial_Alpha, Initial_Alpha, 0);
 
         auto end = std::chrono::system_clock::now();
 

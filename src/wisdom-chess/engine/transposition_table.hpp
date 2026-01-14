@@ -1,0 +1,77 @@
+#pragma once
+
+#include "wisdom-chess/engine/global.hpp"
+#include "wisdom-chess/engine/board_code.hpp"
+#include "wisdom-chess/engine/move.hpp"
+
+namespace wisdom
+{
+    enum class BoundType : uint8_t
+    {
+        Exact,
+        LowerBound,
+        UpperBound
+    };
+
+    struct TranspositionEntry
+    {
+        BoardHashCode hash_code = 0;
+        int score = 0;
+        int16_t depth = 0;
+        BoundType bound_type = BoundType::Exact;
+        Move best_move {};
+    };
+
+    class TranspositionTable
+    {
+    public:
+        explicit TranspositionTable (size_t size_in_mb = 64);
+
+        [[nodiscard]] auto
+        probe (BoardHashCode hash, int depth, int alpha, int beta, int ply)
+            -> optional<int>;
+
+        [[nodiscard]] auto
+        getBestMove (BoardHashCode hash)
+            -> optional<Move>;
+
+        void store (
+            BoardHashCode hash,
+            int score,
+            int depth,
+            BoundType bound_type,
+            Move best_move,
+            int ply
+        );
+
+        void clear();
+
+        [[nodiscard]] auto
+        getHitCount() const
+            -> size_t
+        {
+            return my_hits;
+        }
+
+        [[nodiscard]] auto
+        getProbeCount() const
+            -> size_t
+        {
+            return my_probes;
+        }
+
+    private:
+        [[nodiscard]] auto
+        scoreToTT (int score, int ply) const
+            -> int;
+
+        [[nodiscard]] auto
+        scoreFromTT (int score, int ply) const
+            -> int;
+
+        vector<TranspositionEntry> my_entries;
+        size_t my_size_mask;
+        size_t my_hits = 0;
+        size_t my_probes = 0;
+    };
+}
