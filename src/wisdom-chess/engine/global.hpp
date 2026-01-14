@@ -115,7 +115,7 @@ namespace wisdom
     inline constexpr int Default_Max_Depth = 16;
 
     // Default max time spent searching.
-    inline constexpr int Default_Max_Search_Seconds = 5;
+    inline constexpr int Default_Max_Search_Seconds = 2;
 
     // Minimum amount behind the computer must feel in order to
     // accept a draw offer.
