@@ -420,6 +420,7 @@ namespace wisdom
         my_nodes_visited = 0;
         my_alpha_beta_cutoffs = 0;
 
+        auto tt_stats_start = my_tt->getStats();
         auto start = std::chrono::system_clock::now();
 
         my_search_depth = depth;
@@ -439,12 +440,13 @@ namespace wisdom
             std::stringstream progress_str;
             progress_str << "nodes visited = " << my_nodes_visited
                          << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs << "\n";
-            auto probes = my_tt->getProbeCount();
-            auto hits = my_tt->getHitCount();
-            auto hit_rate = probes > 0 ? (100.0 * hits / probes) : 0.0;
-            progress_str << "transposition table: entries = " << my_tt->getStoredEntriesCount()
-                << ", probes = " << probes
-                << ", hits = "  << hits
+            auto tt_stats_end = my_tt->getStats();
+            auto hit_rate = computeHitRate (tt_stats_start, tt_stats_end);
+            auto probes_this_iteration = tt_stats_end.probes - tt_stats_start.probes;
+            auto hits_this_iteration = tt_stats_end.hits - tt_stats_start.hits;
+            progress_str << "transposition table: entries = " << tt_stats_end.stored_entries
+                << ", probes = " << probes_this_iteration
+                << ", hits = "  << hits_this_iteration
                 << ", hit rate = " << hit_rate << "%"
                 << ", size = "  << my_tt->getSize();
 

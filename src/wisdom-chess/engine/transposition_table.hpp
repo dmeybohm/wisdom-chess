@@ -6,6 +6,22 @@
 
 namespace wisdom
 {
+    struct TranspositionTableStats
+    {
+        size_t probes = 0;
+        size_t hits = 0;
+        size_t stored_entries = 0;
+    };
+
+    [[nodiscard]] inline auto
+    computeHitRate (const TranspositionTableStats& start, const TranspositionTableStats& end)
+        -> double
+    {
+        auto delta_probes = end.probes - start.probes;
+        auto delta_hits = end.hits - start.hits;
+        return delta_probes > 0 ? (100.0 * static_cast<double> (delta_hits) / static_cast<double> (delta_probes)) : 0.0;
+    }
+
     enum class BoundType : uint8_t
     {
         Exact,
@@ -65,6 +81,20 @@ namespace wisdom
             -> size_t
         {
             return my_stored_entries;
+        }
+
+        [[nodiscard]] auto
+        getSize() const
+            -> size_t
+        {
+            return my_entries.size();
+        }
+
+        [[nodiscard]] auto
+        getStats() const
+            -> TranspositionTableStats
+        {
+            return TranspositionTableStats { my_probes, my_hits, my_stored_entries };
         }
 
     private:
