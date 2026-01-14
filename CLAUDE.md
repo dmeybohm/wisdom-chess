@@ -192,6 +192,7 @@ cmake --build . --target WisdomChessQml
 | `WISDOM_CHESS_PCH_ENABLED` | Bool | ON | Use precompiled headers |
 | `WISDOM_CHESS_ASAN` | Bool | OFF | Enable address sanitizer |
 | `WISDOM_CHESS_BUILD_LINTER` | Bool | ON | Build C++ style linter (native builds only) |
+| `WISDOM_CHESS_FILC_COMPAT` | Bool | OFF | Enable FIL-c runtime compatibility |
 
 ### QML UI Options
 
