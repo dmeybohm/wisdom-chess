@@ -27,7 +27,7 @@ namespace wisdom
         History my_history;
         MoveTimer my_move_timer { Default_Max_Search_Seconds };
         int my_max_depth { Default_Max_Depth };
-        mutable TranspositionTable my_transposition_table { 8 };
+        mutable TranspositionTable my_transposition_table = TranspositionTable::fromMegabytes (TranspositionTable::Default_Size_In_Megabytes);
 
         Players my_players = { Player::Human, Player::ChessEngine };
 

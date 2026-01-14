@@ -12,7 +12,7 @@ TEST_CASE( "Transposition table" )
 {
     SUBCASE( "stores and retrieves exact scores" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         int score = 100;
@@ -28,7 +28,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "returns empty for different hash" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         BoardHashCode different_hash = 87654321ULL;
@@ -44,7 +44,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "returns empty for insufficient depth" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         int score = 100;
@@ -60,7 +60,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "returns score when stored depth is greater" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         int score = 100;
@@ -77,7 +77,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "lower bound causes cutoff when score >= beta" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         int score = 500;
@@ -95,7 +95,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "lower bound does not cause cutoff when score < beta" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         int score = 300;
@@ -112,7 +112,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "upper bound causes cutoff when score <= alpha" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         int score = 50;
@@ -130,7 +130,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "upper bound does not cause cutoff when score > alpha" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         int score = 200;
@@ -147,7 +147,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "getBestMove returns stored move" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         Move move = Move::make (1, 2, 3, 4);
@@ -162,7 +162,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "getBestMove returns empty for different hash" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         BoardHashCode different_hash = 87654321ULL;
@@ -176,7 +176,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "does not replace deeper entry with shallower one" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         Move move1 = Move::make (1, 1, 2, 2);
@@ -196,7 +196,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "replaces entry with deeper or equal depth" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         Move move1 = Move::make (1, 1, 2, 2);
@@ -212,7 +212,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "clear resets the table" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         tt.store (hash, 100, 5, BoundType::Exact, Move::make (0, 0, 1, 1), 0);
@@ -225,7 +225,7 @@ TEST_CASE( "Transposition table" )
 
     SUBCASE( "tracks hit and probe counts" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
         BoardHashCode hash = 12345678ULL;
         tt.store (hash, 100, 5, BoundType::Exact, Move::make (0, 0, 1, 1), 0);
@@ -247,7 +247,7 @@ TEST_CASE( "Transposition table with real board positions" )
 {
     SUBCASE( "stores and retrieves using actual board hash" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
         Board board = Board { BoardBuilder::fromDefaultPosition() };
 
         auto hash = board.getCode().getHashCode();
@@ -262,7 +262,7 @@ TEST_CASE( "Transposition table with real board positions" )
 
     SUBCASE( "different positions have different hashes" )
     {
-        TranspositionTable tt { 1 };
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
         Board board1 = Board { BoardBuilder::fromDefaultPosition() };
 
         BoardBuilder builder;

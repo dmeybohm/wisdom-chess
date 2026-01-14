@@ -3,7 +3,12 @@
 
 namespace wisdom
 {
-    TranspositionTable::TranspositionTable (size_t size_in_mb)
+    TranspositionTable::TranspositionTable()
+        : TranspositionTable { Default_Size_In_Megabytes }
+    {
+    }
+
+    TranspositionTable::TranspositionTable (int size_in_mb)
     {
         constexpr size_t bytes_per_mb = 1024 * 1024;
         size_t entry_count = (size_in_mb * bytes_per_mb) / sizeof (TranspositionEntry);
@@ -17,6 +22,13 @@ namespace wisdom
         my_size_mask = power_of_2 - 1;
     }
 
+    auto
+    TranspositionTable::fromMegabytes (int size)
+        -> TranspositionTable
+    {
+        return TranspositionTable { size };
+    }
+    
     auto
     TranspositionTable::scoreToTT (int score, int ply) const
         -> int

@@ -40,8 +40,16 @@ namespace wisdom
 
     class TranspositionTable
     {
+        explicit TranspositionTable (int size_in_megabytes);
+
     public:
-        explicit TranspositionTable (size_t size_in_mb = 8);
+        static constexpr int Default_Size_In_Megabytes = 16;
+
+        explicit TranspositionTable();
+
+        [[nodiscard]] static auto
+        fromMegabytes (int size)
+            -> TranspositionTable;
 
         [[nodiscard]] auto
         probe (BoardHashCode hash, int depth, int alpha, int beta, int ply)

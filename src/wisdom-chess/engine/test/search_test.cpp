@@ -23,7 +23,7 @@ namespace wisdom::test
         History history {};
         shared_ptr<Logger> logger = makeNullLogger();
         MoveTimer timer = MoveTimer { 30 };
-        TranspositionTable transposition_table { 8 };
+        TranspositionTable transposition_table = TranspositionTable::fromMegabytes (TranspositionTable::Default_Size_In_Megabytes);
 
         auto build (const Board& board, int depth, int time = 30)
             -> IterativeSearch
