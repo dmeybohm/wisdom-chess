@@ -372,10 +372,10 @@ namespace wisdom
             auto probes_this_iteration = tt_stats_end.probes - tt_stats_start.probes;
             auto hits_this_iteration = tt_stats_end.hits - tt_stats_start.hits;
             progress_str << "transposition table: entries = " << tt_stats_end.stored_entries
+                << "/" << my_transposition_table.getSize()
                 << ", probes = " << probes_this_iteration
                 << ", hits = "  << hits_this_iteration
-                << ", hit rate = " << hit_rate << "%"
-                << ", size = "  << my_transposition_table.getSize();
+                << ", hit rate = " << hit_rate << "%";
 
             my_output->debug (std::move (progress_str).str());
         }
