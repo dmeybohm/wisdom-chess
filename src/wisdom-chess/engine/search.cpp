@@ -439,9 +439,14 @@ namespace wisdom
             std::stringstream progress_str;
             progress_str << "nodes visited = " << my_nodes_visited
                          << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs << "\n";
-            progress_str << "transposition table: entries: " << my_tt->getStoredEntriesCount() 
-                << " probes: " << my_tt->getProbeCount()
-                << " hits: "  << my_tt->getHitCount();
+            auto probes = my_tt->getProbeCount();
+            auto hits = my_tt->getHitCount();
+            auto hit_rate = probes > 0 ? (100.0 * hits / probes) : 0.0;
+            progress_str << "transposition table: entries = " << my_tt->getStoredEntriesCount()
+                << ", probes = " << probes
+                << ", hits = "  << hits
+                << ", hit rate = " << hit_rate << "%"
+                << ", size = "  << my_tt->getSize();
 
             my_output->debug (std::move (progress_str).str());
         }
