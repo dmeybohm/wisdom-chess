@@ -36,8 +36,8 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.6.*'
-          target: 'wasm'
-          host: 'all_os'
+          target: 'desktop'
+          host: 'linux'
           arch: 'wasm_multithread'
           cache: true
 
