@@ -19,12 +19,10 @@
     <style>
       /* Make the html body cover the entire (visual) viewport with no scroll bars. */
       html, body { padding: 0; margin: 0; overflow:hidden; height: 100vh }
-      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas { border: 0px none; background-color: white; height:100%; width:100%;  }
-      /* The contenteditable property is set to true for the canvas in order to support
-         clipboard events. Hide the resulting focus frame and set the cursor back to
-         the default cursor. */
-      canvas { outline: 0px solid transparent; caret-color: transparent; cursor:default }
+      /* Qt container element - Qt creates its own canvas inside */
+      #qtcontainer { height: 100%; width: 100%; }
+      /* Style for Qt-created canvas elements */
+      #qtcontainer canvas { border: 0px none; background-color: white; }
     </style>
   </head>
   <body onload="init()">
@@ -36,14 +34,14 @@
         <noscript>JavaScript is disabled. Please enable JavaScript to use this application.</noscript>
       </center>
     </figure>
-    <canvas id="qtcanvas" oncontextmenu="event.preventDefault()" contenteditable="true"></canvas>
+    <div id="qtcontainer" oncontextmenu="event.preventDefault()"></div>
 
     <script type="text/javascript" src="qtloader.js"></script>
     <script type="text/javascript" src="WisdomChessQml.js"></script>
     <script type='text/javascript'>
         async function init() {
           const spinner = document.querySelector('#qtspinner');
-          const canvas = document.querySelector('#qtcanvas');
+          const container = document.querySelector('#qtcontainer');
           const status = document.querySelector('#qtstatus');
 
           try {
@@ -52,7 +50,7 @@
                   qt: {
                       onLoaded: () => {
                           spinner.style.display = 'none';
-                          canvas.style.display = 'block';
+                          container.style.display = 'block';
                       },
                       onExit: (exitData) => {
                           status.innerHTML = "Application exit";
@@ -61,16 +59,16 @@
                           if (exitData.text !== undefined)
                               status.innerHTML += " (" + exitData.text + ")";
                           spinner.style.display = 'block';
-                          canvas.style.display = 'none';
+                          container.style.display = 'none';
                       },
                       entryFunction: createQtAppInstance,
-                      containerElements: [canvas]
+                      containerElements: [container]
                   }
               });
           } catch (error) {
               status.innerHTML = error.toString();
               spinner.style.display = 'block';
-              canvas.style.display = 'none';
+              container.style.display = 'none';
           }
       }
     </script>
