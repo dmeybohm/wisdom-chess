@@ -11,7 +11,8 @@ export default defineConfig({
       includeAssets: ['logo-192x192.png', 'logo-512x512.png'],
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm}'],
-        maximumFileSizeToCacheInBytes: 10000000
+        maximumFileSizeToCacheInBytes: 10000000,
+        navigateFallbackDenylist: [/^\/qml/]
       },
       devOptions: {
         enabled: true
