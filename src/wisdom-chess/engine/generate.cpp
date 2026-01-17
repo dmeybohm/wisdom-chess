@@ -71,6 +71,7 @@ namespace wisdom
         int piece_row;
         int piece_col;
         const Color who;
+        optional<Move> priority_move;
 
         void generate (ColoredPiece piece, Coord coord);
 
@@ -503,10 +504,21 @@ namespace wisdom
             return a.getDst().index() < b.getDst().index();
     }
 
-    auto 
-    MoveGeneration::compareMoves (const Move& a, const Move& b) const 
+    auto
+    MoveGeneration::compareMoves (const Move& a, const Move& b) const
         -> bool
     {
+        if (priority_move.has_value())
+        {
+            bool a_is_priority = (a == *priority_move);
+            bool b_is_priority = (b == *priority_move);
+
+            if (a_is_priority && !b_is_priority)
+                return true;
+            if (b_is_priority && !a_is_priority)
+                return false;
+        }
+
         bool a_is_capturing = a.isAnyCapturing();
         bool b_is_capturing = b.isAnyCapturing();
 
@@ -534,12 +546,12 @@ namespace wisdom
             return promotingOrCoordCompare (a, b);
     }
 
-    auto 
-    generateAllPotentialMoves (const Board& board, Color who)
+    auto
+    generateAllPotentialMoves (const Board& board, Color who, optional<Move> priority_move)
         -> MoveList
     {
         MoveList result;
-        MoveGeneration generation { board, result, 0, 0, who };
+        MoveGeneration generation { board, result, 0, 0, who, priority_move };
 
         for (auto coord : Board::allCoords())
         {
@@ -558,6 +570,13 @@ namespace wisdom
         );
 
         return result;
+    }
+
+    auto
+    generateAllPotentialMoves (const Board& board, Color who)
+        -> MoveList
+    {
+        return generateAllPotentialMoves (board, who, nullopt);
     }
 
 

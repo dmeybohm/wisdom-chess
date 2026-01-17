@@ -7,9 +7,14 @@
 
 namespace wisdom
 {
-    // Generate all potential moves including illegal moves for the player..
+    // Generate all potential moves including illegal moves for the player.
     [[nodiscard]] auto
     generateAllPotentialMoves (const Board& board, Color who)
+        -> MoveList;
+
+    // Generate all potential moves with priority move sorted first.
+    [[nodiscard]] auto
+    generateAllPotentialMoves (const Board& board, Color who, optional<Move> priority_move)
         -> MoveList;
 
     // Generate only legal moves from the board for the player.

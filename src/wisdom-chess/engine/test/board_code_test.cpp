@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <set>
 #include <sstream>
 
 #include "wisdom-chess/engine/board.hpp"
@@ -18,10 +19,7 @@ TEST_CASE( "board code" )
         BoardCode code = BoardCode::fromEmptyBoard();
         BoardCode initial = BoardCode::fromEmptyBoard();
 
-        auto initial_str = code.asString();
-        std::size_t num_zeroes = std::count (initial_str.begin(), initial_str.end(), '0');
-        REQUIRE( num_zeroes > 0 );
-        REQUIRE( num_zeroes < 64 );
+        CHECK( code.getHashCode() == 0 );
 
         Coord a8 = coordParse ("a8");
         ColoredPiece black_pawn = ColoredPiece::make (Color::Black, Piece::Pawn);
@@ -37,7 +35,6 @@ TEST_CASE( "board code" )
         ColoredPiece white_king = ColoredPiece::make (Color::White, Piece::King);
         code.addPiece (h1, white_king);
 
-        std::string result = code.asString();
         CHECK( code != initial );
 
         code.removePiece (h1, white_king);
@@ -137,6 +134,83 @@ TEST_CASE( "board code" )
 
         code.applyMove (brd, promote_castle_move);
         REQUIRE( initial != code );
+    }
+
+    SUBCASE( "Promotion hash matches fresh board computation" )
+    {
+        BoardBuilder builder;
+
+        builder.addPiece ("b7", Color::White, Piece::Pawn);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.setCurrentTurn (Color::White);
+
+        Board before = Board { builder };
+        Move promote_move = moveParse ("b7b8 (Q)", Color::White);
+        Board after = before.withMove (Color::White, promote_move);
+
+        BoardBuilder expected_builder;
+        expected_builder.addPiece ("b8", Color::White, Piece::Queen);
+        expected_builder.addPiece ("e8", Color::Black, Piece::King);
+        expected_builder.addPiece ("e1", Color::White, Piece::King);
+        expected_builder.setCurrentTurn (Color::Black);
+
+        auto expected_code = BoardCode::fromBoardBuilder (expected_builder);
+        auto actual_code = after.getCode();
+
+        CHECK( actual_code.getHashCode() == expected_code.getHashCode() );
+    }
+
+    SUBCASE( "Capture hash matches fresh board computation" )
+    {
+        BoardBuilder builder;
+
+        builder.addPiece ("e4", Color::White, Piece::Knight);
+        builder.addPiece ("d6", Color::Black, Piece::Bishop);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.setCurrentTurn (Color::White);
+
+        Board before = Board { builder };
+        Move capture_move = moveParse ("e4xd6", Color::White);
+        Board after = before.withMove (Color::White, capture_move);
+
+        BoardBuilder expected_builder;
+        expected_builder.addPiece ("d6", Color::White, Piece::Knight);
+        expected_builder.addPiece ("e8", Color::Black, Piece::King);
+        expected_builder.addPiece ("e1", Color::White, Piece::King);
+        expected_builder.setCurrentTurn (Color::Black);
+
+        auto expected_code = BoardCode::fromBoardBuilder (expected_builder);
+        auto actual_code = after.getCode();
+
+        CHECK( actual_code.getHashCode() == expected_code.getHashCode() );
+    }
+
+    SUBCASE( "Promotion with capture hash matches fresh board computation" )
+    {
+        BoardBuilder builder;
+
+        builder.addPiece ("b7", Color::White, Piece::Pawn);
+        builder.addPiece ("a8", Color::Black, Piece::Rook);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.setCurrentTurn (Color::White);
+
+        Board before = Board { builder };
+        Move promote_capture = moveParse ("b7xa8 (Q)", Color::White);
+        Board after = before.withMove (Color::White, promote_capture);
+
+        BoardBuilder expected_builder;
+        expected_builder.addPiece ("a8", Color::White, Piece::Queen);
+        expected_builder.addPiece ("e8", Color::Black, Piece::King);
+        expected_builder.addPiece ("e1", Color::White, Piece::King);
+        expected_builder.setCurrentTurn (Color::Black);
+
+        auto expected_code = BoardCode::fromBoardBuilder (expected_builder);
+        auto actual_code = after.getCode();
+
+        CHECK( actual_code.getHashCode() == expected_code.getHashCode() );
     }
 }
 
@@ -308,5 +382,71 @@ TEST_CASE( "Board code stores metadata" )
         board_code.setCurrentTurn (Color::Black);
         auto next_turn = board_code.getCurrentTurn();
         CHECK( next_turn == Color::Black );
+    }
+}
+
+TEST_CASE( "Zobrist piece index mapping" )
+{
+    SUBCASE( "All piece-color combinations have unique indices" )
+    {
+        std::set<int> seen_indices;
+
+        for (auto color : { Color::White, Color::Black })
+        {
+            for (auto piece : { Piece::Pawn, Piece::Knight, Piece::Bishop,
+                                Piece::Rook, Piece::Queen, Piece::King })
+            {
+                auto index = zobristPieceIndex (color, piece);
+                auto [it, inserted] = seen_indices.insert (index);
+                CHECK_MESSAGE (
+                    inserted,
+                    "Duplicate index " << index << " for "
+                        << (color == Color::White ? "White" : "Black") << " "
+                        << pieceToChar (ColoredPiece::make (color, piece))
+                );
+            }
+        }
+
+        CHECK( seen_indices.size() == 12 );
+    }
+
+    SUBCASE( "White and black pieces have different indices for same piece type" )
+    {
+        for (auto piece : { Piece::Pawn, Piece::Knight, Piece::Bishop,
+                            Piece::Rook, Piece::Queen, Piece::King })
+        {
+            auto white_index = zobristPieceIndex (Color::White, piece);
+            auto black_index = zobristPieceIndex (Color::Black, piece);
+            CHECK( white_index != black_index );
+        }
+    }
+
+    SUBCASE( "Indices are within valid table bounds" )
+    {
+        constexpr int max_valid_index = Num_Players * Num_Piece_Types - 1;
+
+        for (auto color : { Color::White, Color::Black })
+        {
+            for (auto piece : { Piece::Pawn, Piece::Knight, Piece::Bishop,
+                                Piece::Rook, Piece::Queen, Piece::King })
+            {
+                auto index = zobristPieceIndex (color, piece);
+                CHECK( index >= 0 );
+                CHECK( index <= max_valid_index );
+            }
+        }
+    }
+
+    SUBCASE( "Different colored pieces at same square have different hashes" )
+    {
+        Coord h3 = coordParse ("h3");
+
+        ColoredPiece white_knight = ColoredPiece::make (Color::White, Piece::Knight);
+        ColoredPiece black_bishop = ColoredPiece::make (Color::Black, Piece::Bishop);
+
+        auto white_hash = boardCodeHash (h3, white_knight);
+        auto black_hash = boardCodeHash (h3, black_bishop);
+
+        CHECK( white_hash != black_hash );
     }
 }

@@ -226,7 +226,8 @@ namespace wisdom
             my_pimpl->my_history,
             std::move (logger),
             my_pimpl->my_move_timer,
-            my_pimpl->my_max_depth
+            my_pimpl->my_max_depth,
+            my_pimpl->my_transposition_table
         );
         SearchResult result = iterative_search.iterativelyDeepen (whom);
 

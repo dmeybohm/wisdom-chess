@@ -8,19 +8,7 @@
 
 namespace wisdom
 {
-    BoardCode::BoardCode()
-    {
-        auto iterator = Board::allCoords();
-        my_code = std::accumulate (
-            iterator.begin(),
-            iterator.end(),
-            my_code,
-            [](const auto value, const auto coord)
-            {
-                return value ^ boardCodeHash (coord, Piece_And_Color_None); 
-            }
-        );
-    }
+    BoardCode::BoardCode() = default;
 
     BoardCode::BoardCode (const Board& board)
         : BoardCode::BoardCode {}
@@ -137,14 +125,22 @@ namespace wisdom
             Coord taken_pawn_coord = enPassantTakenPawnCoord (src, dst);
             removePiece (taken_pawn_coord, ColoredPiece::make (opponent_color, Piece::Pawn));
         }
+        else if (move.isNormalCapturing())
+        {
+            ColoredPiece dst_piece = board.pieceAt (dst);
+            removePiece (dst, dst_piece);
+        }
 
         removePiece (src, src_piece);
-        addPiece (dst, src_piece);
 
         if (move.isPromoting())
         {
             assert (src_piece_type == Piece::Pawn);
             addPiece (dst, move.getPromotedPiece());
+        }
+        else
+        {
+            addPiece (dst, src_piece);
         }
     }
 

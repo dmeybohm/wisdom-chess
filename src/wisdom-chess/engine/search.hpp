@@ -12,6 +12,7 @@ namespace wisdom
     class Board;
     class Logger;
     class History;
+    class TranspositionTable;
 
     struct SearchResult
     {
@@ -24,29 +25,14 @@ namespace wisdom
     class IterativeSearch
     {
     public:
-        // Factory functions - preferred way to create searches
         [[nodiscard]] static auto
         create (
             const Board& board,
             const History& history,
             shared_ptr<Logger> logger,
             const MoveTimer& timer,
-            int max_depth
-        ) -> IterativeSearch;
-
-        [[nodiscard]] static auto
-        create (
-            const Board& board,
-            const History& history,
-            shared_ptr<Logger> logger,
-            int search_seconds,
-            int max_depth
-        ) -> IterativeSearch;
-
-        [[nodiscard]] static auto
-        createWithDefaults (
-            const Board& board,
-            const History& history
+            int max_depth,
+            TranspositionTable& transposition_table
         ) -> IterativeSearch;
 
         // Copy and move constructors
