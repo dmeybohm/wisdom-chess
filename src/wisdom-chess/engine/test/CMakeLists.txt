@@ -38,6 +38,7 @@ if (WISDOM_CHESS_SLOW_TESTS)
         perft.cpp
         perft_test.cpp
         move_perft_test.cpp
+        hash_collision_slow_test.cpp
         test_main.cpp)
 
     target_precompile_headers(slow_tests PRIVATE PRIVATE ../global.hpp)

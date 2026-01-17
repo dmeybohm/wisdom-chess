@@ -36,13 +36,18 @@ namespace wisdom
     inline constexpr int Total_Metadata_Bits = 16;
 
     [[nodiscard]] constexpr auto
+    zobristPieceIndex (Color piece_color, Piece piece_type)
+        -> int
+    {
+        return colorIndex (piece_color) * Num_Piece_Types + pieceIndex (piece_type);
+    }
+
+    [[nodiscard]] constexpr auto
     boardCodeHash (Coord coord, ColoredPiece piece)
         -> std::uint64_t
     {
         auto coord_index = coord.index();
-        auto piece_color = piece.color();
-        auto piece_type = piece.type();
-        auto piece_index = pieceIndex (piece_type) * (toInt (piece_color) + 1);
+        auto piece_index = zobristPieceIndex (piece.color(), piece.type());
 
         return Hash_Code_Table[piece_index * Num_Squares + coord_index] << Total_Metadata_Bits;
     }

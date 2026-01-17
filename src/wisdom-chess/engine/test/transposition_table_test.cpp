@@ -1,10 +1,14 @@
 #include "wisdom-chess/engine/transposition_table.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/board_code.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/global.hpp"
 
 #include "wisdom-chess-tests.hpp"
+
+#include <bitset>
+#include <unordered_set>
 
 using namespace wisdom;
 
@@ -286,5 +290,131 @@ TEST_CASE( "Transposition table with real board positions" )
         REQUIRE( result2.has_value() );
         CHECK( *result1 == 100 );
         CHECK( *result2 == 200 );
+    }
+}
+
+TEST_CASE( "Hash collision analysis" )
+{
+    SUBCASE( "Metadata bits produce distinct hashes" )
+    {
+        BoardBuilder builder;
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("a1", Color::White, Piece::Rook);
+        builder.addPiece ("h1", Color::White, Piece::Rook);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("a8", Color::Black, Piece::Rook);
+        builder.addPiece ("h8", Color::Black, Piece::Rook);
+        builder.addPiece ("e4", Color::White, Piece::Pawn);
+        builder.addPiece ("d4", Color::Black, Piece::Pawn);
+
+        std::unordered_set<BoardHashCode> hashes;
+
+        auto addHash = [&hashes] (const BoardCode& code) {
+            auto hash = code.getHashCode();
+            auto [it, inserted] = hashes.insert (hash);
+            CHECK( inserted );
+        };
+
+        BoardCode code = BoardCode::fromBoardBuilder (builder);
+        addHash (code);
+
+        code.setCurrentTurn (Color::Black);
+        addHash (code);
+        code.setCurrentTurn (Color::White);
+
+        code.setCastleState (Color::White, CastlingEligibility::Neither_Side);
+        addHash (code);
+
+        code.setCastleState (Color::White, CastlingRights::Kingside);
+        addHash (code);
+
+        code.setCastleState (Color::White, CastlingRights::Queenside);
+        addHash (code);
+
+        code.setCastleState (Color::White, CastlingEligibility::Either_Side);
+        code.setCastleState (Color::Black, CastlingEligibility::Neither_Side);
+        addHash (code);
+
+        code.setCastleState (Color::Black, CastlingEligibility::Either_Side);
+
+        for (int col = 0; col < 8; ++col)
+        {
+            code.clearEnPassantTarget();
+            code.setEnPassantTarget (Color::White, makeCoord (White_En_Passant_Row, col));
+            addHash (code);
+        }
+
+        for (int col = 0; col < 8; ++col)
+        {
+            code.clearEnPassantTarget();
+            code.setEnPassantTarget (Color::Black, makeCoord (Black_En_Passant_Row, col));
+            addHash (code);
+        }
+    }
+
+    SUBCASE( "Zobrist table has unique values" )
+    {
+        std::unordered_set<uint64_t> seen_values;
+
+        for (const auto& hash_value : Hash_Code_Table)
+        {
+            if (hash_value == 0)
+                continue;
+
+            auto [it, inserted] = seen_values.insert (hash_value);
+            CHECK_MESSAGE ( inserted, "Duplicate value found in Hash_Code_Table" );
+        }
+    }
+
+    SUBCASE( "Zobrist table has good bit distribution" )
+    {
+        std::array<int, 48> bit_counts {};
+
+        for (const auto& hash_value : Hash_Code_Table)
+        {
+            if (hash_value == 0)
+                continue;
+
+            for (int bit = 0; bit < 48; ++bit)
+            {
+                if ((hash_value >> bit) & 1)
+                    bit_counts[bit]++;
+            }
+        }
+
+        int non_zero_entries = 0;
+        for (const auto& hash_value : Hash_Code_Table)
+        {
+            if (hash_value != 0)
+                non_zero_entries++;
+        }
+
+        for (int bit = 0; bit < 48; ++bit)
+        {
+            double ratio = static_cast<double> (bit_counts[bit]) / non_zero_entries;
+            CHECK_MESSAGE ( ratio > 0.3, "Bit " << bit << " is set too rarely: " << ratio );
+            CHECK_MESSAGE ( ratio < 0.7, "Bit " << bit << " is set too often: " << ratio );
+        }
+    }
+
+    SUBCASE( "Different piece placements produce unique hashes" )
+    {
+        std::unordered_set<BoardHashCode> hashes;
+
+        for (int row = 1; row < Num_Rows - 1; ++row)
+        {
+            for (int col = 0; col < Num_Columns; ++col)
+            {
+                BoardBuilder builder;
+                builder.addPiece ("e1", Color::White, Piece::King);
+                builder.addPiece ("e8", Color::Black, Piece::King);
+                builder.addPiece (row, col, Color::White, Piece::Knight);
+
+                Board board { builder };
+                auto hash = board.getCode().getHashCode();
+                auto [it, inserted] = hashes.insert (hash);
+                CHECK( inserted );
+            }
+        }
     }
 }
