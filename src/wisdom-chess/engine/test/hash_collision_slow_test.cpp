@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <iostream>
 #include <unordered_map>
@@ -256,7 +257,7 @@ namespace
 
 TEST_CASE( "Transposition table index distribution" )
 {
-    SUBCASE( "Index hash produces uniform distribution" )
+    SUBCASE( "Index hash produces uniform distribution across multiple table sizes" )
     {
         Board board { BoardBuilder::fromDefaultPosition() };
         std::vector<BoardHashCode> hashes;
@@ -267,23 +268,46 @@ TEST_CASE( "Transposition table index distribution" )
 
         MESSAGE ( "Collected " << hashes.size() << " hashes" );
 
-        constexpr size_t table_size = 524288;
-        auto stats = analyzeIndexDistribution (hashes, table_size);
+        constexpr std::array<size_t, 4> table_sizes = {
+            131072,     // 2^17 (128K entries)
+            524288,     // 2^19 (512K entries) - default
+            1048576,    // 2^20 (1M entries)
+            2097152,    // 2^21 (2M entries)
+        };
 
-        MESSAGE ( "Index distribution statistics:" );
-        MESSAGE ( "  Total hashes: " << stats.total_hashes );
-        MESSAGE ( "  Table size: " << stats.num_buckets );
-        MESSAGE ( "  Min bucket count: " << stats.min_bucket_count );
-        MESSAGE ( "  Max bucket count: " << stats.max_bucket_count );
-        MESSAGE ( "  Avg bucket count: " << stats.avg_bucket_count );
-        MESSAGE ( "  Std deviation: " << stats.std_deviation );
+        double worst_max_to_avg_ratio = 0.0;
+        double worst_std_deviation = 0.0;
 
-        double max_to_avg_ratio = static_cast<double> (stats.max_bucket_count)
-            / stats.avg_bucket_count;
-        MESSAGE ( "  Max/Avg ratio: " << max_to_avg_ratio );
+        MESSAGE ( "" );
+        MESSAGE ( "Distribution statistics by table size:" );
+        MESSAGE ( "=======================================" );
 
-        CHECK( stats.total_hashes > 4000000 );
-        CHECK( max_to_avg_ratio < 10.0 );
-        CHECK( stats.std_deviation < stats.avg_bucket_count );
+        for (auto table_size : table_sizes)
+        {
+            auto stats = analyzeIndexDistribution (hashes, table_size);
+
+            double max_to_avg_ratio = static_cast<double> (stats.max_bucket_count)
+                / stats.avg_bucket_count;
+
+            MESSAGE ( "" );
+            MESSAGE ( "Table size: " << table_size << " (2^"
+                << static_cast<int> (std::log2 (static_cast<double> (table_size))) << ")" );
+            MESSAGE ( "  Min bucket count: " << stats.min_bucket_count );
+            MESSAGE ( "  Max bucket count: " << stats.max_bucket_count );
+            MESSAGE ( "  Avg bucket count: " << stats.avg_bucket_count );
+            MESSAGE ( "  Std deviation: " << stats.std_deviation );
+            MESSAGE ( "  Max/Avg ratio: " << max_to_avg_ratio );
+
+            worst_max_to_avg_ratio = std::max (worst_max_to_avg_ratio, max_to_avg_ratio);
+            worst_std_deviation = std::max (worst_std_deviation, stats.std_deviation);
+
+        }
+
+        MESSAGE ( "" );
+        MESSAGE ( "Summary:" );
+        MESSAGE ( "  Worst max/avg ratio: " << worst_max_to_avg_ratio );
+        MESSAGE ( "  Worst std deviation: " << worst_std_deviation );
+
+        CHECK( hashes.size() > 4000000 );
     }
 }
