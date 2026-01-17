@@ -35,6 +35,15 @@ Menu {
         }
     }
 
+    MenuItem {
+        text: "React Version"
+        height: topWindow.isWebAssembly ? implicitHeight : 0
+        visible: topWindow.isWebAssembly
+        onClicked: {
+            Qt.openUrlExternally(_myGameModel.browserOriginUrl() + "/")
+        }
+    }
+
     MenuSeparator {
         id: finalSeparator
         height: hideFinalItem ? 0 : implicitHeight

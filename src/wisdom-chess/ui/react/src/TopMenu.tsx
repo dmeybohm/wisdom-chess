@@ -47,7 +47,7 @@ function Menu(props: ListMenuProps): JSX.Element {
             <li><a onClick={props.newGameClicked}>New Game</a></li>
             <li><a onClick={props.settingsClicked}>Settings</a></li>
             <li><a onClick={props.aboutClicked}>About</a></li>
-            <li><a href="/qml/">QML Version</a></li>
+            <li><a href="/qml/" target="_blank" rel="noopener">QML Version</a></li>
         </ul>
     );
 }

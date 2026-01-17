@@ -63,6 +63,7 @@ public:
     ~GameModel() override;
 
     Q_INVOKABLE void start();
+    Q_INVOKABLE QString browserOriginUrl();
     Q_INVOKABLE bool needsPawnPromotion (
         int src_row, 
         int src_column, 
