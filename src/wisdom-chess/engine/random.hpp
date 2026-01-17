@@ -4,11 +4,11 @@
 
 namespace wisdom
 {
-    constexpr auto 
-    randomSeed() 
+    constexpr auto
+    randomSeed()
         -> std::uint64_t
     {
-        return 0x123456789abcdefaULL;
+        return 0x23bULL;
     }
 
     /**

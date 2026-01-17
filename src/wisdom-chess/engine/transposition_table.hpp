@@ -6,6 +6,13 @@
 
 namespace wisdom
 {
+    [[nodiscard]] constexpr auto
+    foldHashTo32Bits (BoardHashCode hash)
+        -> uint32_t
+    {
+        return static_cast<uint32_t> ((hash >> 32) ^ hash);
+    }
+
     struct TranspositionTableStats
     {
         size_t probes = 0;

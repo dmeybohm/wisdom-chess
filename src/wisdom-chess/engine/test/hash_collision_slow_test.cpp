@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <array>
+#include <cmath>
 #include <iostream>
 #include <unordered_map>
 
@@ -7,6 +10,7 @@
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/transposition_table.hpp"
 
 #include "wisdom-chess-tests.hpp"
 
@@ -169,5 +173,141 @@ TEST_CASE( "Large-scale hash collision detection" )
 
         CHECK( total_positions > 1000000 );
         CHECK( total_collisions == 0 );
+    }
+}
+
+namespace
+{
+    struct IndexDistributionStats
+    {
+        int64_t total_hashes = 0;
+        size_t num_buckets = 0;
+        size_t min_bucket_count = 0;
+        size_t max_bucket_count = 0;
+        double avg_bucket_count = 0.0;
+        double std_deviation = 0.0;
+    };
+
+    void collectHashesForDistribution (
+        const Board& board,
+        Color side,
+        int depth,
+        int max_depth,
+        std::vector<BoardHashCode>& hashes
+    )
+    {
+        if (depth >= max_depth)
+            return;
+
+        const auto moves = generateAllPotentialMoves (board, side);
+
+        for (auto move : moves)
+        {
+            Board new_board = board.withMove (side, move);
+
+            if (!isLegalPositionAfterMove (new_board, side, move))
+                continue;
+
+            hashes.push_back (new_board.getCode().getHashCode());
+
+            collectHashesForDistribution (
+                new_board, colorInvert (side), depth + 1, max_depth, hashes
+            );
+        }
+    }
+
+    auto analyzeIndexDistribution (
+        const std::vector<BoardHashCode>& hashes,
+        size_t table_size
+    )
+        -> IndexDistributionStats
+    {
+        size_t size_mask = table_size - 1;
+        std::vector<size_t> bucket_counts (table_size, 0);
+
+        for (auto hash : hashes)
+        {
+            auto index = wisdom::foldHashTo32Bits (hash) & size_mask;
+            bucket_counts[index]++;
+        }
+
+        IndexDistributionStats stats;
+        stats.total_hashes = wisdom::narrow_cast<int64_t> (hashes.size());
+        stats.num_buckets = table_size;
+
+        auto [min_it, max_it] = std::minmax_element (
+            bucket_counts.begin(), bucket_counts.end()
+        );
+        stats.min_bucket_count = *min_it;
+        stats.max_bucket_count = *max_it;
+        stats.avg_bucket_count = static_cast<double> (hashes.size())
+            / static_cast<double> (table_size);
+
+        double sum_squared_diff = 0.0;
+        for (auto count : bucket_counts)
+        {
+            double diff = static_cast<double> (count) - stats.avg_bucket_count;
+            sum_squared_diff += diff * diff;
+        }
+        stats.std_deviation = std::sqrt (sum_squared_diff / static_cast<double> (table_size));
+
+        return stats;
+    }
+}
+
+TEST_CASE( "Transposition table index distribution" )
+{
+    SUBCASE( "Index hash produces uniform distribution across multiple table sizes" )
+    {
+        Board board { BoardBuilder::fromDefaultPosition() };
+        std::vector<BoardHashCode> hashes;
+        hashes.reserve (5000000);
+
+        hashes.push_back (board.getCode().getHashCode());
+        collectHashesForDistribution (board, Color::White, 0, 5, hashes);
+
+        MESSAGE ( "Collected " << hashes.size() << " hashes" );
+
+        constexpr std::array<size_t, 4> table_sizes = {
+            131072,     // 2^17 (128K entries)
+            524288,     // 2^19 (512K entries) - default
+            1048576,    // 2^20 (1M entries)
+            2097152,    // 2^21 (2M entries)
+        };
+
+        double worst_max_to_avg_ratio = 0.0;
+        double worst_std_deviation = 0.0;
+
+        MESSAGE ( "" );
+        MESSAGE ( "Distribution statistics by table size:" );
+        MESSAGE ( "=======================================" );
+
+        for (auto table_size : table_sizes)
+        {
+            auto stats = analyzeIndexDistribution (hashes, table_size);
+
+            double max_to_avg_ratio = static_cast<double> (stats.max_bucket_count)
+                / stats.avg_bucket_count;
+
+            MESSAGE ( "" );
+            MESSAGE ( "Table size: " << table_size << " (2^"
+                << static_cast<int> (std::log2 (static_cast<double> (table_size))) << ")" );
+            MESSAGE ( "  Min bucket count: " << stats.min_bucket_count );
+            MESSAGE ( "  Max bucket count: " << stats.max_bucket_count );
+            MESSAGE ( "  Avg bucket count: " << stats.avg_bucket_count );
+            MESSAGE ( "  Std deviation: " << stats.std_deviation );
+            MESSAGE ( "  Max/Avg ratio: " << max_to_avg_ratio );
+
+            worst_max_to_avg_ratio = std::max (worst_max_to_avg_ratio, max_to_avg_ratio);
+            worst_std_deviation = std::max (worst_std_deviation, stats.std_deviation);
+
+        }
+
+        MESSAGE ( "" );
+        MESSAGE ( "Summary:" );
+        MESSAGE ( "  Worst max/avg ratio: " << worst_max_to_avg_ratio );
+        MESSAGE ( "  Worst std deviation: " << worst_std_deviation );
+
+        CHECK( hashes.size() > 4000000 );
     }
 }
