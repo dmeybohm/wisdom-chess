@@ -63,7 +63,7 @@ namespace wisdom
     {
         my_probes++;
 
-        auto index = ((hash >> 32) ^ hash) & my_size_mask;
+        auto index = foldHashTo32Bits (hash) & my_size_mask;
         auto& entry = my_entries[index];
 
         if (entry.hash_code != hash)
@@ -104,7 +104,7 @@ namespace wisdom
     TranspositionTable::getBestMove (BoardHashCode hash)
         -> optional<Move>
     {
-        auto index = ((hash >> 32) ^ hash) & my_size_mask;
+        auto index = foldHashTo32Bits (hash) & my_size_mask;
         auto& entry = my_entries[index];
 
         if (entry.hash_code != hash)
@@ -126,7 +126,7 @@ namespace wisdom
         int ply
     )
     {
-        auto index = ((hash >> 32) ^ hash) & my_size_mask;
+        auto index = foldHashTo32Bits (hash) & my_size_mask;
         auto& entry = my_entries[index];
 
         if (entry.hash_code == hash && entry.depth > depth)
