@@ -46,8 +46,10 @@ jobs:
 
       - name: Verify Qt Installation
         run: |
+          echo "QT_ROOT_DIR: $QT_ROOT_DIR"
           echo "Qt6_DIR: $Qt6_DIR"
-          ls -la $Qt6_DIR || true
+          ls -la $QT_ROOT_DIR || true
+          find $QT_ROOT_DIR -name "*.cmake" -path "*/lib/cmake/Qt6/*" | head -5 || true
 
       # Build React WASM (existing)
       - name: Configure CMake (React WASM)
@@ -84,7 +86,7 @@ jobs:
           -DWISDOM_CHESS_REACT_UI=OFF
           -DWISDOM_CHESS_FAST_TESTS=OFF
           -DWISDOM_CHESS_SLOW_TESTS=OFF
-          -DWISDOM_CHESS_QT_DIR=$Qt6_DIR
+          -DWISDOM_CHESS_QT_DIR=${{ env.QT_ROOT_DIR }}
           -S ${{ github.workspace }}
 
       - name: Build QML WASM
