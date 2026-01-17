@@ -8,9 +8,9 @@ namespace wisdom
     inline constexpr int Max_Iterations_Before_Checking = 1'000'000;
 
     inline constexpr chrono::milliseconds Lower_Bound_Timer_Check =
-        chrono::milliseconds { 100 };
+        chrono::milliseconds { 25 };
     inline constexpr chrono::milliseconds Upper_Bound_Timer_Check =
-        chrono::milliseconds { 150 };
+        chrono::milliseconds { 50 };
 
     struct MoveTimer;
 
