@@ -1,5 +1,9 @@
 #include <QDebug>
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/game.hpp"
 
@@ -125,6 +129,24 @@ void GameModel::start()
 
     updateEngineConfig();
     my_chess_engine_thread->start();
+}
+
+auto GameModel::browserOriginUrl() -> QString
+{
+#ifdef EMSCRIPTEN
+    char* origin = reinterpret_cast<char*>(EM_ASM_PTR({
+        var str = window.location.origin;
+        var len = lengthBytesUTF8(str) + 1;
+        var buf = _malloc(len);
+        stringToUTF8(str, buf, len);
+        return buf;
+    }));
+    QString result = QString::fromUtf8(origin);
+    free(origin);
+    return result;
+#else
+    return QString {};
+#endif
 }
 
 void GameModel::restart()
