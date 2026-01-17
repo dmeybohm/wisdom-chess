@@ -111,6 +111,13 @@ namespace wisdom
     static_assert (Max_Non_Checkmate_Score > 100'000);
     static_assert (Max_Non_Checkmate_Score * 2 < Initial_Alpha);
 
+    // Base checkmate score. Uses linear scoring: closer checkmates subtract
+    // fewer moves (checkmateScoreInMoves(n) = Checkmate_Score - n).
+    // This allows transposition table mate score adjustments to work correctly.
+    inline constexpr int Checkmate_Score = Max_Non_Checkmate_Score * 2;
+    static_assert (Checkmate_Score > Max_Non_Checkmate_Score);
+    static_assert (Checkmate_Score < Initial_Alpha);
+
     // Default absolute max depth searched.
     inline constexpr int Default_Max_Depth = 16;
 

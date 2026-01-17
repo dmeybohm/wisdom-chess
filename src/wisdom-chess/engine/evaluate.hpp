@@ -129,19 +129,19 @@ namespace wisdom
 
     // Get the score for a checkmate discovered X moves away.
     // Checkmates closer to the current position are more valuable than those
-    // further away.
-    constexpr auto 
-    checkmateScoreInMoves (int moves) 
+    // further away. Uses linear scoring for correct transposition table adjustment.
+    constexpr auto
+    checkmateScoreInMoves (int moves)
         -> int
     {
-        return Max_Non_Checkmate_Score + Max_Non_Checkmate_Score / (1 + moves);
+        return Checkmate_Score - moves;
     }
 
     // Whether the score indicates a checkmate of the opponent has been found.
-    constexpr auto 
-    isCheckmatingOpponentScore (int score) 
+    constexpr auto
+    isCheckmatingOpponentScore (int score)
         -> bool
     {
-        return score > Max_Non_Checkmate_Score && score < Initial_Alpha;
+        return score > Max_Non_Checkmate_Score && score <= Checkmate_Score;
     }
 }
