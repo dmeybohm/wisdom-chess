@@ -77,16 +77,16 @@ jobs:
         run: npm run build
 
       # Build QML WASM (new)
+      # Use qt-cmake from the WASM Qt installation which sets up cross-compilation properly
       - name: Configure CMake (QML WASM)
         run: >
-          emcmake cmake -B ${{ github.workspace }}/build-qml
+          ${{ env.QT_ROOT_DIR }}/bin/qt-cmake -B ${{ github.workspace }}/build-qml
           -DCMAKE_BUILD_TYPE=Release
           -DWISDOM_CHESS_QML_UI=ON
           -DWISDOM_CHESS_CONSOLE_UI=OFF
           -DWISDOM_CHESS_REACT_UI=OFF
           -DWISDOM_CHESS_FAST_TESTS=OFF
           -DWISDOM_CHESS_SLOW_TESTS=OFF
-          -DWISDOM_CHESS_QT_DIR=${{ env.QT_ROOT_DIR }}
           -S ${{ github.workspace }}
 
       - name: Build QML WASM
