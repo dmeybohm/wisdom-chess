@@ -7,6 +7,7 @@
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/board_code.hpp"
 #include "wisdom-chess/engine/coord.hpp"
+#include "wisdom-chess/engine/fen_parser.hpp"
 
 #include "wisdom-chess-tests.hpp"
 
@@ -50,7 +51,7 @@ TEST_CASE( "board code" )
         CHECK( num_ones < 64 );  // ... some number less than all the bits.
     }
 
-    SUBCASE( "Capturing moves are applied and undone correctly" )
+    SUBCASE( "Capturing moves are applied correctly" )
     {
         BoardBuilder builder;
 
@@ -70,7 +71,7 @@ TEST_CASE( "board code" )
         REQUIRE( initial != code );
     }
 
-    SUBCASE( "Promoting moves are applied and undone correctly" )
+    SUBCASE( "Promoting moves are applied correctly" )
     {
         BoardBuilder builder;
 
@@ -91,7 +92,7 @@ TEST_CASE( "board code" )
         REQUIRE( initial != code );
     }
 
-    SUBCASE( "Castling moves are applied and undone correctly" )
+    SUBCASE( "Castling moves are applied correctly" )
     {
         BoardBuilder builder;
 
@@ -112,7 +113,7 @@ TEST_CASE( "board code" )
         REQUIRE( initial != code );
     }
 
-    SUBCASE( "Promoting+Capturing moves are applied and undone correctly" )
+    SUBCASE( "Promoting+Capturing moves are applied correctly" )
     {
         BoardBuilder builder;
 
@@ -134,6 +135,87 @@ TEST_CASE( "board code" )
 
         code.applyMove (brd, promote_castle_move);
         REQUIRE( initial != code );
+    }
+
+    SUBCASE( "Reverting board to same position gives the same board code" )
+    {
+        Board default_board;
+        BoardCode code = default_board.getCode();
+
+        Move white_knight_ahead = moveParse ("g1f3", Color::White),
+             white_knight_return = moveParse ("f3g1", Color::White);
+        Move black_knight_ahead = moveParse ("g8f6", Color::Black),
+             black_knight_return = moveParse ("f6g8", Color::Black);
+
+        Board new_board = default_board
+            .withMove (Color::White, white_knight_ahead)
+            .withMove (Color::Black, black_knight_ahead)
+            .withMove (Color::White, white_knight_return)
+            .withMove (Color::Black, black_knight_return);
+
+        BoardCode new_code = new_board.getCode();
+        REQUIRE( code == new_code );
+    }
+
+    SUBCASE( "Position from withMove() and from FEN yields same board code" )
+    {
+        Board default_board;
+
+        Move white_knight_ahead = moveParse ("g1f3", Color::White);
+        Move black_knight_ahead = moveParse ("g8f6", Color::Black);
+
+        Board moved_board = default_board
+            .withMove (Color::White, white_knight_ahead)
+            .withMove (Color::Black, black_knight_ahead);
+
+        BoardCode moved_code = moved_board.getCode();
+
+        FenParser parser ("rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2");
+        Board fen_board = parser.buildBoard();
+        BoardCode fen_code = fen_board.getCode();
+
+        REQUIRE( moved_code == fen_code );
+    }
+
+    SUBCASE( "Position from withMove() and from BoardBuilder yields same board code" )
+    {
+        Board default_board;
+
+        Move white_knight_ahead = moveParse ("g1f3", Color::White);
+        Move black_knight_ahead = moveParse ("g8f6", Color::Black);
+
+        Board moved_board = default_board
+            .withMove (Color::White, white_knight_ahead)
+            .withMove (Color::Black, black_knight_ahead);
+
+        BoardCode moved_code = moved_board.getCode();
+
+        BoardBuilder builder;
+        builder.addPiece ("a1", Color::White, Piece::Rook);
+        builder.addPiece ("b1", Color::White, Piece::Knight);
+        builder.addPiece ("c1", Color::White, Piece::Bishop);
+        builder.addPiece ("d1", Color::White, Piece::Queen);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("f1", Color::White, Piece::Bishop);
+        builder.addPiece ("f3", Color::White, Piece::Knight);
+        builder.addPiece ("h1", Color::White, Piece::Rook);
+        builder.addRowOfSameColorAndPiece (6, Color::White, Piece::Pawn);
+
+        builder.addPiece ("a8", Color::Black, Piece::Rook);
+        builder.addPiece ("b8", Color::Black, Piece::Knight);
+        builder.addPiece ("c8", Color::Black, Piece::Bishop);
+        builder.addPiece ("d8", Color::Black, Piece::Queen);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("f8", Color::Black, Piece::Bishop);
+        builder.addPiece ("f6", Color::Black, Piece::Knight);
+        builder.addPiece ("h8", Color::Black, Piece::Rook);
+        builder.addRowOfSameColorAndPiece (1, Color::Black, Piece::Pawn);
+
+        builder.setCurrentTurn (Color::White);
+
+        BoardCode builder_code = BoardCode::fromBoardBuilder (builder);
+
+        REQUIRE( moved_code == builder_code );
     }
 
     SUBCASE( "Promotion hash matches fresh board computation" )
@@ -226,7 +308,7 @@ TEST_CASE( "Board code can be converted" )
             ColoredPiece::make (Color::White, Piece::King)
         );
 
-        auto result = code.asString().substr (0, 4);
+        auto result = code.asString();
 
         std::size_t num_zeroes = std::count (result.begin(), result.end(), '0');
         CHECK( num_zeroes > 0 );
@@ -244,7 +326,7 @@ TEST_CASE( "Board code can be converted" )
         );
 
         stream << code;
-        auto result = stream.str().substr (0, 4);
+        auto result = stream.str();
 
         std::size_t num_zeroes = std::count (result.begin(), result.end(), '0');
         CHECK( num_zeroes > 0 );
@@ -448,5 +530,22 @@ TEST_CASE( "Zobrist piece index mapping" )
         auto black_hash = boardCodeHash (h3, black_bishop);
 
         CHECK( white_hash != black_hash );
+    }
+
+    SUBCASE( "initializeBoardCodes produces values indexed by zobristPieceIndex" )
+    {
+        for (auto color : { Color::White, Color::Black })
+        {
+            for (auto piece : { Piece::Pawn, Piece::Knight, Piece::Bishop,
+                                Piece::Rook, Piece::Queen, Piece::King })
+            {
+                auto piece_index = zobristPieceIndex (color, piece);
+                for (auto square = 0; square < Num_Squares; square++)
+                {
+                    auto hash_value = Hash_Code_Table[piece_index * Num_Squares + square];
+                    CHECK( hash_value != 0 );
+                }
+            }
+        }
     }
 }

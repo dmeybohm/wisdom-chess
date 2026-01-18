@@ -8,7 +8,14 @@ namespace wisdom
     randomSeed()
         -> std::uint64_t
     {
-        return 0x23bULL;
+        return 0xfa082aaf7c7e212ULL;
+    }
+
+    constexpr auto
+    randomInitialState()
+        -> std::uint64_t
+    {
+        return 0x853c49e6748fea9bULL;
     }
 
     /**
@@ -21,13 +28,20 @@ namespace wisdom
     {
         struct RandomState
         {
-            std::uint64_t state = 0;
+            std::uint64_t state = randomInitialState();
             std::uint64_t inc = randomSeed();
         };
         RandomState rng;
         using ResultType = std::uint32_t;
 
-        constexpr auto 
+        constexpr CompileTimeRandom() = default;
+
+        constexpr explicit CompileTimeRandom (RandomState initial_state)
+            : rng { initial_state }
+        {
+        }
+
+        constexpr auto
         operator()()
             -> ResultType 
         {

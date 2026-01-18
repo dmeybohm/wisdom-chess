@@ -13,7 +13,16 @@ namespace wisdom
     class Board;
     class BoardBuilder;
 
-    using BoardCodeArray = array<uint64_t, (Num_Players + 1) * Num_Piece_Types * Num_Squares>;
+    inline constexpr std::size_t Zobrist_Table_Size = Num_Players * Num_Piece_Types * Num_Squares;
+
+    using BoardCodeArray = array<uint64_t, Zobrist_Table_Size>;
+
+	[[nodiscard]] constexpr auto
+	zobristPieceIndex (Color piece_color, Piece piece_type)
+		-> int
+	{
+		return colorIndex (piece_color) * Num_Piece_Types + (pieceIndex (piece_type) - 1);
+	}
 
     [[nodiscard]] consteval auto
     initializeBoardCodes()
@@ -22,10 +31,15 @@ namespace wisdom
         BoardCodeArray code_array {};
         CompileTimeRandom random;
 
-        for (auto piece_type = 0; piece_type < Num_Piece_Types * (Num_Players + 1); piece_type++)
+        for (auto color : { Color::White, Color::Black })
         {
-            for (auto square = 0; square < Num_Squares; square++)
-                code_array[(piece_type * Num_Squares) + square] = getCompileTimeRandom48 (random);
+            for (auto piece : { Piece::Pawn, Piece::Knight, Piece::Bishop,
+                                Piece::Rook, Piece::Queen, Piece::King })
+            {
+                auto piece_index = zobristPieceIndex (color, piece);
+                for (auto square = 0; square < Num_Squares; square++)
+                    code_array[piece_index * Num_Squares + square] = getCompileTimeRandom48 (random);
+            }
         }
 
         return code_array;
@@ -35,12 +49,6 @@ namespace wisdom
 
     inline constexpr int Total_Metadata_Bits = 16;
 
-    [[nodiscard]] constexpr auto
-    zobristPieceIndex (Color piece_color, Piece piece_type)
-        -> int
-    {
-        return colorIndex (piece_color) * Num_Piece_Types + pieceIndex (piece_type);
-    }
 
     [[nodiscard]] constexpr auto
     boardCodeHash (Coord coord, ColoredPiece piece)

@@ -3,12 +3,15 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <random>
 #include <vector>
 
 #include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/board_code.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/random.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 
 using wisdom::Board;
@@ -16,61 +19,30 @@ using wisdom::BoardBuilder;
 using wisdom::BoardHashCode;
 using wisdom::Color;
 using wisdom::colorInvert;
+using wisdom::CompileTimeRandom;
 using wisdom::foldHashTo32Bits;
 using wisdom::generateAllPotentialMoves;
+using wisdom::getCompileTimeRandom48;
 using wisdom::isLegalPositionAfterMove;
-using wisdom::Num_Piece_Types;
-using wisdom::Num_Players;
 using wisdom::Num_Squares;
+using wisdom::randomInitialState;
+using wisdom::randomSeed;
+using wisdom::Total_Metadata_Bits;
+using wisdom::Zobrist_Table_Size;
 using wisdom::zobristPieceIndex;
 
 namespace
 {
-    constexpr std::size_t Zobrist_Table_Size = (Num_Players + 1) * Num_Piece_Types * Num_Squares;
-    constexpr int Total_Metadata_Bits = 16;
 
     using ZobristTable = std::array<std::uint64_t, Zobrist_Table_Size>;
-
-    class RuntimePcg32
-    {
-    public:
-        explicit RuntimePcg32 (std::uint64_t seed)
-            : my_state { 0 }
-            , my_inc { seed | 1ULL }
-        {
-            next();
-            my_state += seed;
-            next();
-        }
-
-        auto next() -> std::uint32_t
-        {
-            std::uint64_t old_state = my_state;
-            my_state = old_state * 6364136223846793005ULL + my_inc;
-            std::uint32_t xorshifted = static_cast<std::uint32_t> (
-                ((old_state >> 18u) ^ old_state) >> 27u
-            );
-            std::uint32_t rot = static_cast<std::uint32_t> (old_state >> 59u);
-            return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
-        }
-
-        auto next48() -> std::uint64_t
-        {
-            return ((next() & 0xffff0000ULL) << 16ULL) | next();
-        }
-
-    private:
-        std::uint64_t my_state;
-        std::uint64_t my_inc;
-    };
 
     auto generateZobristTable (std::uint64_t seed) -> ZobristTable
     {
         ZobristTable table {};
-        RuntimePcg32 rng { seed };
+        CompileTimeRandom rng { CompileTimeRandom::RandomState { randomInitialState(), seed } };
 
         for (std::size_t i = 0; i < Zobrist_Table_Size; i++)
-            table[i] = rng.next48();
+            table[i] = getCompileTimeRandom48 (rng);
 
         return table;
     }
@@ -246,7 +218,7 @@ namespace
 
 auto main() -> int
 {
-    constexpr std::uint64_t Current_Seed = 0x123456789abcdefaULL;
+    const std::uint64_t Current_Seed = randomSeed();
     constexpr std::uint64_t Num_Seeds_To_Test = 1000;
 
     auto positions = collectAllPositions();
@@ -258,18 +230,22 @@ auto main() -> int
         printStats (stats);
     std::cout << "Worst ratio: " << current_result.worst_ratio << "\n" << std::endl;
 
-    std::cout << "Testing " << Num_Seeds_To_Test << " seeds..." << std::endl;
+    std::cout << "Testing " << Num_Seeds_To_Test << " random seeds..." << std::endl;
+
+    std::random_device rd;
+    std::mt19937_64 rng { rd() };
 
     std::vector<SeedResult> results;
     results.reserve (Num_Seeds_To_Test);
 
-    for (std::uint64_t seed = 1; seed <= Num_Seeds_To_Test; seed++)
+    for (std::uint64_t i = 0; i < Num_Seeds_To_Test; i++)
     {
+        auto seed = rng();
         auto result = evaluateSeed (seed, positions);
         results.push_back (result);
 
-        if (seed % 100 == 0)
-            std::cout << "  Progress: " << seed << "/" << Num_Seeds_To_Test << std::endl;
+        if ((i + 1) % 100 == 0)
+            std::cout << "  Progress: " << (i + 1) << "/" << Num_Seeds_To_Test << std::endl;
     }
 
     std::sort (results.begin(), results.end(), [] (const auto& a, const auto& b) {
