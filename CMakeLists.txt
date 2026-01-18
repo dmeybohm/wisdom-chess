@@ -49,3 +49,18 @@ if (WISDOM_CHESS_ASAN)
 endif()
 
 add_subdirectory(src)
+
+# C++ style linter (only for native builds, not WASM)
+if(NOT EMSCRIPTEN)
+    option(WISDOM_CHESS_BUILD_LINTER "Build the C++ style linter" ON)
+    if(WISDOM_CHESS_BUILD_LINTER)
+        add_subdirectory(scripts/linter)
+
+        add_custom_target(lint
+            COMMAND wisdom-linter ${CMAKE_SOURCE_DIR}/src
+            DEPENDS wisdom-linter
+            COMMENT "Running C++ style linter"
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        )
+    endif()
+endif()

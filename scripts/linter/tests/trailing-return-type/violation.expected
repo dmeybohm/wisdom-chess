@@ -1,0 +1,1 @@
+1:1:trailing-return-type:Function 'getChar' should use trailing return type: auto getChar(...) -> char

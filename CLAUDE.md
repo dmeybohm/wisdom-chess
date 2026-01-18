@@ -8,12 +8,15 @@ Follow these guidelines:
 
 1. **Code Formatting**:
 
-The project follows an idiosyncratic format for C++ code. You can
-check with the linter under `scripts/linter`. After building the linter,
-with `npm run build` inside `scripts/linter`, run:
+The project follows an idiosyncratic format for C++ code. The C++ style linter
+is built automatically with the project. After building, run:
 
-```
-node scripts/linter/dist/index.js <cppfile>
+```bash
+# Run linter on specific file
+./build/scripts/linter/wisdom-linter <cppfile>
+
+# Run linter on entire source tree
+cmake --build build --target lint
 ```
 to check if the format matches.
 
@@ -135,6 +138,7 @@ cmake --build . --target WisdomChessQml
 | `WISDOM_CHESS_SLOW_TESTS` | Bool | OFF | Build slow tests |
 | `WISDOM_CHESS_PCH_ENABLED` | Bool | ON | Use precompiled headers |
 | `WISDOM_CHESS_ASAN` | Bool | OFF | Enable address sanitizer |
+| `WISDOM_CHESS_BUILD_LINTER` | Bool | ON | Build C++ style linter (native builds only) |
 
 ### QML UI Options
 
