@@ -5,12 +5,94 @@
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/coord.hpp"
 
+#include <algorithm>
+#include <chrono>
+
 namespace wisdom
 {
+    namespace
+    {
+        class UciLogger : public Logger
+        {
+        public:
+            explicit UciLogger (bool debug_enabled)
+                : my_debug_enabled { debug_enabled }
+            {
+            }
+
+            void debug (const string& output) const override
+            {
+                if (my_debug_enabled)
+                {
+                    std::cout << "info string " << output << "\n";
+                    std::cout.flush();
+                }
+            }
+
+            void info (const string& output) const override
+            {
+                std::cout << "info " << output << "\n";
+                std::cout.flush();
+            }
+
+        private:
+            bool my_debug_enabled;
+        };
+
+        auto
+        findTokenValue (const vector<string>& tokens, const string& name)
+            -> optional<int>
+        {
+            auto it = std::find (tokens.begin(), tokens.end(), name);
+            if (it != tokens.end() && (it + 1) != tokens.end())
+            {
+                try
+                {
+                    return std::stoi (*(it + 1));
+                }
+                catch (...)
+                {
+                    return nullopt;
+                }
+            }
+            return nullopt;
+        }
+
+        auto
+        hasToken (const vector<string>& tokens, const string& name)
+            -> bool
+        {
+            return std::find (tokens.begin(), tokens.end(), name) != tokens.end();
+        }
+
+        auto
+        toLower (string str)
+            -> string
+        {
+            std::transform (str.begin(), str.end(), str.begin(),
+                [] (unsigned char c) { return std::tolower (c); });
+            return str;
+        }
+    }
+
     UciInterface::UciInterface()
         : my_game { Game::createStandardGame() }
         , my_logger { makeNullLogger() }
     {
+    }
+
+    UciInterface::~UciInterface()
+    {
+        waitForSearchThread();
+    }
+
+    void UciInterface::waitForSearchThread()
+    {
+        if (my_search_thread.joinable())
+        {
+            my_search_id.fetch_add (1);
+            my_search_thread.join();
+        }
     }
 
     void UciInterface::run()
@@ -58,6 +140,10 @@ namespace wisdom
         {
             handleQuit();
         }
+        else if (command == "setoption")
+        {
+            handleSetOption (tokens);
+        }
         else if (command == "debug")
         {
             if (tokens.size() > 1 && tokens[1] == "on")
@@ -78,12 +164,15 @@ namespace wisdom
 
     void UciInterface::handleIsReady()
     {
+        waitForSearchThread();
         std::cout << "readyok\n";
         std::cout.flush();
     }
 
     void UciInterface::handleNewGame()
     {
+        waitForSearchThread();
+        std::lock_guard<std::mutex> lock { my_game_mutex };
         my_game = Game::createStandardGame();
     }
 
@@ -91,6 +180,9 @@ namespace wisdom
     {
         if (tokens.size() < 2)
             return;
+
+        waitForSearchThread();
+        std::lock_guard<std::mutex> lock { my_game_mutex };
 
         if (tokens[1] == "startpos")
         {
@@ -150,16 +242,137 @@ namespace wisdom
 
     void UciInterface::handleGo (const vector<string>& tokens)
     {
-        auto best_move = my_game.findBestMove (my_logger);
-        sendBestMove (best_move);
+        waitForSearchThread();
+
+        auto depth = findTokenValue (tokens, "depth");
+        auto movetime = findTokenValue (tokens, "movetime");
+        auto wtime = findTokenValue (tokens, "wtime");
+        auto btime = findTokenValue (tokens, "btime");
+        auto winc = findTokenValue (tokens, "winc");
+        auto binc = findTokenValue (tokens, "binc");
+        bool infinite = hasToken (tokens, "infinite");
+
+        int search_depth = my_settings.default_depth;
+        std::chrono::milliseconds search_time { 0 };
+
+        if (depth.has_value())
+        {
+            search_depth = std::clamp (*depth, 1, 64);
+        }
+
+        if (movetime.has_value())
+        {
+            search_time = std::chrono::milliseconds { *movetime };
+        }
+        else if (wtime.has_value() || btime.has_value())
+        {
+            std::lock_guard<std::mutex> lock { my_game_mutex };
+            Color current_turn = my_game.getCurrentTurn();
+
+            int time_remaining = 0;
+            int increment = 0;
+
+            if (current_turn == Color::White)
+            {
+                time_remaining = wtime.value_or (0);
+                increment = winc.value_or (0);
+            }
+            else
+            {
+                time_remaining = btime.value_or (0);
+                increment = binc.value_or (0);
+            }
+
+            int time_for_move = (time_remaining / 30) + increment;
+            time_for_move = std::max (time_for_move, 100);
+            search_time = std::chrono::milliseconds { time_for_move };
+        }
+        else if (infinite)
+        {
+            search_time = std::chrono::hours { 24 };
+        }
+
+        int current_search_id = my_search_id.fetch_add (1) + 1;
+
+        Game game_copy = [this]
+        {
+            std::lock_guard<std::mutex> lock { my_game_mutex };
+            return my_game;
+        }();
+
+        my_search_thread = std::jthread (
+            [this, game = std::move (game_copy), search_depth, search_time, current_search_id] () mutable
+            {
+                game.setMaxDepth (search_depth);
+                if (search_time.count() > 0)
+                {
+                    auto seconds = std::chrono::duration_cast<std::chrono::seconds> (search_time);
+                    if (seconds.count() == 0)
+                        seconds = std::chrono::seconds { 1 };
+                    game.setSearchTimeout (seconds);
+                }
+                game.setPeriodicFunction (buildNotifier (current_search_id));
+
+                auto logger = std::make_shared<UciLogger> (my_debug_mode);
+                auto best_move = game.findBestMove (logger);
+
+                if (my_search_id.load() == current_search_id)
+                {
+                    sendBestMove (best_move);
+                }
+            });
+    }
+
+    void UciInterface::handleSetOption (const vector<string>& tokens)
+    {
+        auto name_it = std::find (tokens.begin(), tokens.end(), "name");
+        auto value_it = std::find (tokens.begin(), tokens.end(), "value");
+
+        if (name_it == tokens.end() || name_it + 1 == tokens.end())
+            return;
+
+        string option_name;
+        auto it = name_it + 1;
+        while (it != tokens.end() && it != value_it)
+        {
+            if (!option_name.empty())
+                option_name += " ";
+            option_name += *it;
+            ++it;
+        }
+
+        option_name = toLower (option_name);
+
+        optional<int> value;
+        if (value_it != tokens.end() && value_it + 1 != tokens.end())
+        {
+            try
+            {
+                value = std::stoi (*(value_it + 1));
+            }
+            catch (...)
+            {
+            }
+        }
+
+        if (option_name == "hash" && value.has_value())
+        {
+            my_settings.hash_size_mb = std::clamp (*value, 1, 1024);
+        }
+        else if (option_name == "depth" && value.has_value())
+        {
+            my_settings.default_depth = std::clamp (*value, 1, 64);
+        }
     }
 
     void UciInterface::handleStop()
     {
+        my_search_id.fetch_add (1);
     }
 
     void UciInterface::handleQuit()
     {
+        waitForSearchThread();
         std::exit (0);
     }
 
@@ -181,6 +394,9 @@ namespace wisdom
 
     void UciInterface::sendEngineInfo()
     {
+        std::cout << "option name Hash type spin default 16 min 1 max 1024\n";
+        std::cout << "option name Depth type spin default " << Default_Max_Depth
+                  << " min 1 max 64\n";
     }
 
     auto
@@ -252,5 +468,19 @@ namespace wisdom
             std::cout << "bestmove (none)\n";
         }
         std::cout.flush();
+    }
+
+    auto
+    UciInterface::buildNotifier (int initial_search_id)
+        -> MoveTimer::PeriodicFunction
+    {
+        return [this, initial_search_id] (not_null<MoveTimer*> timer)
+        {
+            if (my_search_id.load() != initial_search_id)
+            {
+                timer->setTriggered (true);
+                timer->setCancelled (true);
+            }
+        };
     }
 }
