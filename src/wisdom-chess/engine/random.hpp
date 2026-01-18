@@ -8,7 +8,7 @@ namespace wisdom
     randomSeed()
         -> std::uint64_t
     {
-        return 0x23bULL;
+        return 0xfa082aaf7c7e212ULL;
     }
 
     constexpr auto
