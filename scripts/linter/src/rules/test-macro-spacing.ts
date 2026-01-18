@@ -2,16 +2,74 @@ import { LintRule, LintContext, LintViolation } from '../types';
 
 // Test macros that need spaces inside parentheses: MACRO( content )
 const TEST_MACROS = [
+    // Test structure
     'TEST_CASE',
     'SUBCASE',
+
+    // Basic assertions
     'CHECK',
     'CHECK_FALSE',
     'REQUIRE',
     'REQUIRE_FALSE',
     'WARN',
     'WARN_FALSE',
+
+    // Binary comparisons
+    'CHECK_EQ',
+    'CHECK_NE',
+    'CHECK_GT',
+    'CHECK_LT',
+    'CHECK_GE',
+    'CHECK_LE',
+    'REQUIRE_EQ',
+    'REQUIRE_NE',
+    'REQUIRE_GT',
+    'REQUIRE_LT',
+    'REQUIRE_GE',
+    'REQUIRE_LE',
+    'WARN_EQ',
+    'WARN_NE',
+    'WARN_GT',
+    'WARN_LT',
+    'WARN_GE',
+    'WARN_LE',
+
+    // Unary
+    'CHECK_UNARY',
+    'CHECK_UNARY_FALSE',
+    'REQUIRE_UNARY',
+    'REQUIRE_UNARY_FALSE',
+    'WARN_UNARY',
+    'WARN_UNARY_FALSE',
+
+    // Exception handling
+    'CHECK_THROWS',
+    'CHECK_THROWS_AS',
+    'CHECK_THROWS_WITH',
+    'CHECK_THROWS_WITH_AS',
+    'CHECK_NOTHROW',
+    'REQUIRE_THROWS',
+    'REQUIRE_THROWS_AS',
+    'REQUIRE_THROWS_WITH',
+    'REQUIRE_THROWS_WITH_AS',
+    'REQUIRE_NOTHROW',
+    'WARN_THROWS',
+    'WARN_THROWS_AS',
+    'WARN_THROWS_WITH',
+    'WARN_THROWS_WITH_AS',
+    'WARN_NOTHROW',
+
+    // Message variants
+    'CHECK_MESSAGE',
+    'REQUIRE_MESSAGE',
+    'WARN_MESSAGE',
+
+    // Logging
     'INFO',
     'CAPTURE',
+    'MESSAGE',
+    'FAIL',
+    'FAIL_CHECK',
 ];
 
 // Pattern: MACRO(x - no space after opening paren
