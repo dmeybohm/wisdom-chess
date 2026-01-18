@@ -68,6 +68,24 @@ sed -i "s/wisdom-chess-load\.js?v=dev/wisdom-chess-load.js?v=$LOADER_HASH/" "$DI
 echo "Updated loader version to: $LOADER_HASH"
 echo ""
 
+# Verify the loader was correctly generated with hashed filenames
+echo "Verifying loader content..."
+if grep -q '@WASM_FILE@\|@WASM_JS_FILE@' "$DIST_DIR/wisdom-chess-load.js"; then
+    echo "ERROR: Loader still contains template placeholders!"
+    echo "Template substitution may have failed."
+    grep -n '@' "$DIST_DIR/wisdom-chess-load.js" || true
+    exit 1
+fi
+
+if ! grep -q "wisdom-chess-web\.[a-f0-9]\{8\}\.wasm" "$DIST_DIR/wisdom-chess-load.js"; then
+    echo "ERROR: Loader does not contain hashed WASM filename!"
+    echo "Loader content (lines with 'binary'):"
+    grep "binary(" "$DIST_DIR/wisdom-chess-load.js" || true
+    exit 1
+fi
+echo "OK: Loader contains hashed filenames"
+echo ""
+
 echo "=== React distribution ready ==="
 echo "Files in $DIST_DIR:"
 ls -la "$DIST_DIR"

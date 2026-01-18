@@ -53,16 +53,18 @@ else
     echo "OK: wisdom-chess-load.js exists"
 
     # Check loader doesn't contain unreplaced placeholders
-    if grep -q '@WASM_FILE@\|@GLUE_FILE@' "$DEPLOY_DIR/wisdom-chess-load.js"; then
+    if grep -q '@WASM_FILE@\|@WASM_JS_FILE@\|@WASM_WORKER_FILE@' "$DEPLOY_DIR/wisdom-chess-load.js"; then
         echo "ERROR: wisdom-chess-load.js contains unreplaced placeholders"
+        grep -n '@' "$DEPLOY_DIR/wisdom-chess-load.js" || true
         ERRORS=$((ERRORS + 1))
     else
         echo "OK: no unreplaced placeholders in loader"
     fi
 
-    # Check loader doesn't reference unhashed filenames
-    if grep -q '"wisdom-chess-web\.wasm"\|"wisdom-chess-web\.js"' "$DEPLOY_DIR/wisdom-chess-load.js"; then
+    # Check loader doesn't reference unhashed filenames (single quotes in source)
+    if grep -q "'wisdom-chess-web\.wasm'\|'wisdom-chess-web\.js'" "$DEPLOY_DIR/wisdom-chess-load.js"; then
         echo "ERROR: wisdom-chess-load.js references unhashed filenames"
+        grep -n "wisdom-chess-web\." "$DEPLOY_DIR/wisdom-chess-load.js" | head -5
         ERRORS=$((ERRORS + 1))
     else
         echo "OK: loader references hashed filenames"
