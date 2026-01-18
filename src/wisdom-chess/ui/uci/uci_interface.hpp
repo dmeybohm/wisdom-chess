@@ -61,7 +61,7 @@ namespace wisdom
 
         std::mutex my_game_mutex;
         std::atomic<int> my_search_id { 0 };
-        std::jthread my_search_thread;
+        std::thread my_search_thread;
 
         UciSettings my_settings;
     };

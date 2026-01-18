@@ -300,7 +300,7 @@ namespace wisdom
             return my_game;
         }();
 
-        my_search_thread = std::jthread (
+        my_search_thread = std::thread (
             [this, game = std::move (game_copy), search_depth, search_time, current_search_id] () mutable
             {
                 game.setMaxDepth (search_depth);
