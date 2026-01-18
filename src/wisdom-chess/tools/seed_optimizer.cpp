@@ -18,12 +18,15 @@ using wisdom::BoardBuilder;
 using wisdom::BoardHashCode;
 using wisdom::Color;
 using wisdom::colorInvert;
+using wisdom::CompileTimeRandom;
 using wisdom::foldHashTo32Bits;
 using wisdom::generateAllPotentialMoves;
+using wisdom::getCompileTimeRandom48;
 using wisdom::isLegalPositionAfterMove;
 using wisdom::Num_Piece_Types;
 using wisdom::Num_Players;
 using wisdom::Num_Squares;
+using wisdom::randomInitialState;
 using wisdom::randomSeed;
 using wisdom::zobristPieceIndex;
 
@@ -34,46 +37,13 @@ namespace
 
     using ZobristTable = std::array<std::uint64_t, Zobrist_Table_Size>;
 
-    class RuntimePcg32
-    {
-    public:
-        explicit RuntimePcg32 (std::uint64_t seed)
-            : my_state { 0 }
-            , my_inc { seed | 1ULL }
-        {
-            next();
-            my_state += seed;
-            next();
-        }
-
-        auto next() -> std::uint32_t
-        {
-            std::uint64_t old_state = my_state;
-            my_state = old_state * 6364136223846793005ULL + my_inc;
-            std::uint32_t xorshifted = static_cast<std::uint32_t> (
-                ((old_state >> 18u) ^ old_state) >> 27u
-            );
-            std::uint32_t rot = static_cast<std::uint32_t> (old_state >> 59u);
-            return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
-        }
-
-        auto next48() -> std::uint64_t
-        {
-            return ((next() & 0xffff0000ULL) << 16ULL) | next();
-        }
-
-    private:
-        std::uint64_t my_state;
-        std::uint64_t my_inc;
-    };
-
     auto generateZobristTable (std::uint64_t seed) -> ZobristTable
     {
         ZobristTable table {};
-        RuntimePcg32 rng { seed };
+        CompileTimeRandom rng { CompileTimeRandom::RandomState { randomInitialState(), seed } };
 
         for (std::size_t i = 0; i < Zobrist_Table_Size; i++)
-            table[i] = rng.next48();
+            table[i] = getCompileTimeRandom48 (rng);
 
         return table;
     }

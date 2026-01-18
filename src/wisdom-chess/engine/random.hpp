@@ -34,7 +34,14 @@ namespace wisdom
         RandomState rng;
         using ResultType = std::uint32_t;
 
-        constexpr auto 
+        constexpr CompileTimeRandom() = default;
+
+        constexpr explicit CompileTimeRandom (RandomState initial_state)
+            : rng { initial_state }
+        {
+        }
+
+        constexpr auto
         operator()()
             -> ResultType 
         {
