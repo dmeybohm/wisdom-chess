@@ -157,12 +157,15 @@ namespace wisdom
 
         auto hash = parent_board.getCode().getHashCode();
 
-        if (auto tt_score = my_transposition_table.probe (hash, depth, alpha, beta, ply))
+        if (ply > 0)
         {
-            my_current_result.move = my_transposition_table.getBestMove (hash);
-            my_current_result.score = *tt_score;
-            my_current_result.depth = my_search_depth - depth;
-            return *tt_score;
+            if (auto tt_score = my_transposition_table.probe (hash, depth, alpha, beta, ply))
+            {
+                my_current_result.move = my_transposition_table.getBestMove (hash);
+                my_current_result.score = *tt_score;
+                my_current_result.depth = my_search_depth - depth;
+                return *tt_score;
+            }
         }
 
         auto tt_move = my_transposition_table.getBestMove (hash);

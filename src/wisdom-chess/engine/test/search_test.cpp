@@ -338,3 +338,28 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
     }
 }
 
+TEST_CASE( "Root TT hit should not bypass iterative deepening search" )
+{
+    Board board = Board { BoardBuilder::fromDefaultPosition() };
+    TranspositionTable tt = TranspositionTable::fromMegabytes (1);
+
+    auto hash = board.getCode().getHashCode();
+    Move fake_move = Move::make (coordParse ("e2"), coordParse ("e4"));
+    tt.store (hash, 100, 10, BoundType::Exact, fake_move, 0);
+
+    History history;
+    auto logger = makeNullLogger();
+    MoveTimer timer { 30 };
+
+    IterativeSearch search = IterativeSearch::create (board, history, logger, timer, 5, tt);
+
+    auto stats_before = tt.getStats();
+    SearchResult result = search.iterativelyDeepen (Color::White);
+    auto stats_after = tt.getStats();
+
+    REQUIRE( result.move.has_value() );
+
+    auto probes = stats_after.probes - stats_before.probes;
+    CHECK( probes > 10 );
+}
+
