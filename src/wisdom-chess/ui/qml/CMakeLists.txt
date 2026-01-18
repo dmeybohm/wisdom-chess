@@ -119,6 +119,14 @@ set_target_properties(WisdomChessQml PROPERTIES
 )
 
 if(EMSCRIPTEN)
+    # Qt's wasm_multithread uses pthreads, which combined with ALLOW_MEMORY_GROWTH
+    # can slow down JavaScript glue code. This is acceptable for a chess engine where
+    # most computation happens in WASM. Suppress the warning but inform at configure time.
+    # See: https://github.com/WebAssembly/design/issues/1271
+    message(STATUS "wisdom-chess: QML WASM build uses pthreads + memory growth (may affect JS glue performance)")
+    target_link_options(WisdomChessQml PRIVATE
+        -Wno-pthreads-mem-growth
+    )
     target_compile_definitions(WisdomChessQml PRIVATE USE_DEFAULT_GRAPHICS_BACKEND)
 else()
     target_compile_definitions(WisdomChessQml PRIVATE USE_OPENGL_GRAPHICS_BACKEND)
