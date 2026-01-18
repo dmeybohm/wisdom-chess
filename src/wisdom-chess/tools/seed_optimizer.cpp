@@ -26,7 +26,7 @@ using wisdom::zobristPieceIndex;
 
 namespace
 {
-    constexpr std::size_t Zobrist_Table_Size = (Num_Players + 1) * Num_Piece_Types * Num_Squares;
+    constexpr std::size_t Zobrist_Table_Size = Num_Players * Num_Piece_Types * Num_Squares;
     constexpr int Total_Metadata_Bits = 16;
 
     using ZobristTable = std::array<std::uint64_t, Zobrist_Table_Size>;
