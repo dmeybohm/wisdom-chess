@@ -3,12 +3,14 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <random>
 #include <vector>
 
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/random.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 
 using wisdom::Board;
@@ -22,6 +24,7 @@ using wisdom::isLegalPositionAfterMove;
 using wisdom::Num_Piece_Types;
 using wisdom::Num_Players;
 using wisdom::Num_Squares;
+using wisdom::randomSeed;
 using wisdom::zobristPieceIndex;
 
 namespace
@@ -246,7 +249,7 @@ namespace
 
 auto main() -> int
 {
-    constexpr std::uint64_t Current_Seed = 0x123456789abcdefaULL;
+    const std::uint64_t Current_Seed = randomSeed();
     constexpr std::uint64_t Num_Seeds_To_Test = 1000;
 
     auto positions = collectAllPositions();
@@ -258,18 +261,22 @@ auto main() -> int
         printStats (stats);
     std::cout << "Worst ratio: " << current_result.worst_ratio << "\n" << std::endl;
 
-    std::cout << "Testing " << Num_Seeds_To_Test << " seeds..." << std::endl;
+    std::cout << "Testing " << Num_Seeds_To_Test << " random seeds..." << std::endl;
+
+    std::random_device rd;
+    std::mt19937_64 rng { rd() };
 
     std::vector<SeedResult> results;
     results.reserve (Num_Seeds_To_Test);
 
-    for (std::uint64_t seed = 1; seed <= Num_Seeds_To_Test; seed++)
+    for (std::uint64_t i = 0; i < Num_Seeds_To_Test; i++)
     {
+        auto seed = rng();
         auto result = evaluateSeed (seed, positions);
         results.push_back (result);
 
-        if (seed % 100 == 0)
-            std::cout << "  Progress: " << seed << "/" << Num_Seeds_To_Test << std::endl;
+        if ((i + 1) % 100 == 0)
+            std::cout << "  Progress: " << (i + 1) << "/" << Num_Seeds_To_Test << std::endl;
     }
 
     std::sort (results.begin(), results.end(), [] (const auto& a, const auto& b) {

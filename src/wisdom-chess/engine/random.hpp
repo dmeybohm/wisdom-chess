@@ -11,6 +11,13 @@ namespace wisdom
         return 0x23bULL;
     }
 
+    constexpr auto
+    randomInitialState()
+        -> std::uint64_t
+    {
+        return 0x853c49e6748fea9bULL;
+    }
+
     /**
      * Derived from Jason Turner's YouTube video:  https://godbolt.org/g/zbWvXK
      *
@@ -21,7 +28,7 @@ namespace wisdom
     {
         struct RandomState
         {
-            std::uint64_t state = 0x853c49e6748fea9bULL;
+            std::uint64_t state = randomInitialState();
             std::uint64_t inc = randomSeed();
         };
         RandomState rng;
