@@ -221,7 +221,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 1" )
     game.move (*result.move);
 
     // assert the bishop has moved:
-    INFO ("Info:", asString (*result.move));
+    INFO( "Info:", asString (*result.move) );
     REQUIRE( game.getBoard().pieceAt (coordParse ("b4"))
              != ColoredPiece::make (Color::Black, Piece::Bishop) );
 }
@@ -236,7 +236,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 2 (as white)" )
 
     auto result = search.iterativelyDeepen (Color::White);
 
-    REQUIRE (result.move.has_value());
+    REQUIRE( result.move.has_value() );
 
     game.move (*result.move);
 

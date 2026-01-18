@@ -80,6 +80,12 @@ function createNoLeadingSpacePattern(macros: string[]): RegExp {
     return new RegExp(`\\b(${macroPattern})\\(([^\\s)])`, 'g');
 }
 
+// Pattern: MACRO ( - space before opening paren (should be MACRO()
+function createSpaceBeforeParenPattern(macros: string[]): RegExp {
+    const macroPattern = macros.join('|');
+    return new RegExp(`\\b(${macroPattern})\\s+\\(`, 'g');
+}
+
 // Pattern: MACRO(content ) without proper closing - content) instead of content )
 // This is trickier - we need to find ) that isn't preceded by space
 function checkClosingSpace(line: string, macroName: string, openParenIndex: number): { hasError: boolean; column: number } | null {
@@ -128,6 +134,7 @@ export const testMacroSpacingRule: LintRule = {
     check(context: LintContext): LintViolation[] {
         const violations: LintViolation[] = [];
         const noLeadingSpacePattern = createNoLeadingSpacePattern(TEST_MACROS);
+        const spaceBeforeParenPattern = createSpaceBeforeParenPattern(TEST_MACROS);
 
         for (let i = 0; i < context.lines.length; i++) {
             const line = context.lines[i];
@@ -136,6 +143,23 @@ export const testMacroSpacingRule: LintRule = {
             // Skip comment lines
             if (isComment(line)) {
                 continue;
+            }
+
+            // Check for space before opening paren: MACRO ( instead of MACRO(
+            spaceBeforeParenPattern.lastIndex = 0;
+            let spaceMatch;
+
+            while ((spaceMatch = spaceBeforeParenPattern.exec(line)) !== null) {
+                const macroName = spaceMatch[1];
+                const matchStart = spaceMatch.index;
+
+                violations.push({
+                    rule: 'test-macro-spacing',
+                    message: `Unexpected space before '(' in '${macroName}'`,
+                    line: lineNumber,
+                    column: matchStart + macroName.length + 1,
+                    severity: 'error',
+                });
             }
 
             // Check for missing leading space: MACRO(x instead of MACRO( x

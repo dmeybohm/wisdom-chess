@@ -398,7 +398,7 @@ TEST_CASE( "Zobrist piece index mapping" )
             {
                 auto index = zobristPieceIndex (color, piece);
                 auto [it, inserted] = seen_indices.insert (index);
-                CHECK_MESSAGE (
+                CHECK_MESSAGE(
                     inserted,
                     "Duplicate index " << index << " for "
                         << (color == Color::White ? "White" : "Black") << " "

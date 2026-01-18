@@ -148,33 +148,33 @@ TEST_CASE( "Third repetition is detected" )
 
         board = board.withMove (Color::White, white_move);
         history.addTentativePosition (board);
-        REQUIRE (history.isProbablyThirdRepetition (board) == false);
+        REQUIRE( history.isProbablyThirdRepetition (board) == false );
 
         // This is the initial draw position, because both castle states are reset here:
         board = board.withMove (Color::Black, black_move);
         history.addTentativePosition (board);
-        REQUIRE (history.isProbablyThirdRepetition (board) == false);
+        REQUIRE( history.isProbablyThirdRepetition (board) == false );
 
         for (int i = 0; i < 2; i++)
         {
             board = board.withMove (Color::White, white_return_move);
             history.addTentativePosition (board);
-            REQUIRE (history.isProbablyThirdRepetition (board) == false);
+            REQUIRE( history.isProbablyThirdRepetition (board) == false );
 
             board = board.withMove (Color::Black, black_return_move);
             history.addTentativePosition (board);
-            REQUIRE (history.isProbablyThirdRepetition (board) == false);
+            REQUIRE( history.isProbablyThirdRepetition (board) == false );
 
             board = board.withMove (Color::White, white_move);
             history.addTentativePosition (board);
-            REQUIRE (history.isProbablyThirdRepetition (board) == false);
+            REQUIRE( history.isProbablyThirdRepetition (board) == false );
 
             if (i == 1)
                 break;
 
             board = board.withMove (Color::Black, black_move);
             history.addTentativePosition (board);
-            REQUIRE (history.isProbablyThirdRepetition (board) == false);
+            REQUIRE( history.isProbablyThirdRepetition (board) == false );
         }
 
         REQUIRE( history.isProbablyThirdRepetition (board) == false );
@@ -209,19 +209,19 @@ TEST_CASE( "Third repetition is detected" )
         {
             board = board.withMove (Color::White, white_move);
             history.addTentativePosition (board);
-            REQUIRE (history.isProbablyThirdRepetition (board) == false);
+            REQUIRE( history.isProbablyThirdRepetition (board) == false );
 
             board = board.withMove (Color::Black, black_move);
             history.addTentativePosition (board);
-            REQUIRE (history.isProbablyThirdRepetition (board) == false);
+            REQUIRE( history.isProbablyThirdRepetition (board) == false );
 
             board = board.withMove (Color::White, white_return_move);
             history.addTentativePosition (board);
-            REQUIRE (history.isProbablyThirdRepetition (board) == false);
+            REQUIRE( history.isProbablyThirdRepetition (board) == false );
 
             board = board.withMove (Color::Black, black_return_move);
             history.addTentativePosition (board);
-            REQUIRE (history.isProbablyThirdRepetition (board) == false);
+            REQUIRE( history.isProbablyThirdRepetition (board) == false );
         }
 
         REQUIRE( history.isProbablyThirdRepetition (board) == false );
