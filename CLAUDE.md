@@ -17,8 +17,21 @@ is built automatically with the project. After building, run:
 
 # Run linter on entire source tree
 cmake --build build --target lint
+
+# Run linter tests
+./scripts/linter/tests/run-tests.sh build/scripts/linter/wisdom-linter
 ```
-to check if the format matches.
+
+**Linter Rules:**
+
+- **namespace-braces**: Namespace opening braces must be on their own line
+- **trailing-return-type**: Functions must use `auto fn() -> ReturnType` syntax
+- **test-macro-spacing**: Test macros need spaces inside parens: `CHECK( x )` not `CHECK(x)`
+- **function-call-spacing**: Functions with args need space before paren: `foo (x)` not `foo(x)`; zero-arg functions have no space: `bar()` not `bar ()`
+
+**Configuration:** The linter reads `.wisdomstylerc.json` if present. Rules can be `"error"`, `"warning"`, or `"off"`.
+
+**Adding Rules:** Rules are in `scripts/linter/rules/`. Create a new `Rule` subclass, implement `name()`, `description()`, and `check()`, then register it in `rules/init.cpp`.
 
 2. **Code Style Guidelines**:
    - Use trailing return types with auto: `auto functionName() -> ReturnType`
