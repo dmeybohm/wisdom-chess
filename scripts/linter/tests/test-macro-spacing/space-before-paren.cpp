@@ -1,0 +1,2 @@
+CHECK ( true );
+REQUIRE ( false );

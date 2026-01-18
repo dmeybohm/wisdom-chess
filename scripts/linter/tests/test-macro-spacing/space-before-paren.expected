@@ -1,0 +1,2 @@
+1:7:test-macro-spacing:Unexpected space before '(' in 'CHECK'
+2:9:test-macro-spacing:Unexpected space before '(' in 'REQUIRE'

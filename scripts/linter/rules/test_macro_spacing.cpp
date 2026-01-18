@@ -36,10 +36,24 @@ namespace
         {
             std::vector<LintViolation> violations;
 
-            static const std::vector<std::string> test_macros = { "TEST_CASE", "SUBCASE", "CHECK",
-                                                                  "CHECK_FALSE", "REQUIRE",
-                                                                  "REQUIRE_FALSE", "WARN",
-                                                                  "WARN_FALSE", "INFO", "CAPTURE" };
+            static const std::vector<std::string> test_macros = {
+                "TEST_CASE", "SUBCASE", "CHECK", "CHECK_FALSE", "REQUIRE", "REQUIRE_FALSE",
+                "WARN", "WARN_FALSE", "INFO", "CAPTURE", "GENERATE", "SECTION",
+                "CHECK_EQ", "CHECK_NE", "CHECK_GT", "CHECK_LT", "CHECK_GE", "CHECK_LE",
+                "REQUIRE_EQ", "REQUIRE_NE", "REQUIRE_GT", "REQUIRE_LT", "REQUIRE_GE", "REQUIRE_LE",
+                "WARN_EQ", "WARN_NE", "WARN_GT", "WARN_LT", "WARN_GE", "WARN_LE",
+                "CHECK_UNARY", "CHECK_UNARY_FALSE",
+                "REQUIRE_UNARY", "REQUIRE_UNARY_FALSE",
+                "WARN_UNARY", "WARN_UNARY_FALSE",
+                "REQUIRE_THROWS", "REQUIRE_THROWS_AS", "REQUIRE_THROWS_WITH",
+                "REQUIRE_THROWS_WITH_AS", "REQUIRE_NOTHROW",
+                "CHECK_THROWS", "CHECK_THROWS_AS", "CHECK_THROWS_WITH",
+                "CHECK_THROWS_WITH_AS", "CHECK_NOTHROW",
+                "WARN_THROWS", "WARN_THROWS_AS", "WARN_THROWS_WITH", "WARN_THROWS_WITH_AS",
+                "WARN_NOTHROW",
+                "CHECK_MESSAGE", "REQUIRE_MESSAGE", "WARN_MESSAGE",
+                "MESSAGE", "FAIL", "FAIL_CHECK",
+            };
 
             for ( size_t i = 0; i < context.lines.size(); ++i )
             {
@@ -63,13 +77,32 @@ namespace
                         }
 
                         size_t after_macro = pos + macro.size();
-                        if ( after_macro >= line.size() || line[after_macro] != '(' )
+                        size_t open_paren = after_macro;
+                        bool has_space_before_paren = false;
+
+                        while ( open_paren < line.size() &&
+                                ( line[open_paren] == ' ' || line[open_paren] == '\t' ) )
+                        {
+                            has_space_before_paren = true;
+                            ++open_paren;
+                        }
+
+                        if ( open_paren >= line.size() || line[open_paren] != '(' )
                         {
                             ++pos;
                             continue;
                         }
 
-                        size_t open_paren = after_macro;
+                        if ( has_space_before_paren )
+                        {
+                            violations.push_back( LintViolation {
+                                std::string { name() },
+                                "Unexpected space before '(' in '" + macro + "'",
+                                line_number,
+                                static_cast<int>( open_paren + 1 ),
+                                Severity::Error,
+                            } );
+                        }
                         if ( open_paren + 1 < line.size() && line[open_paren + 1] != ' ' &&
                              line[open_paren + 1] != ')' )
                         {
