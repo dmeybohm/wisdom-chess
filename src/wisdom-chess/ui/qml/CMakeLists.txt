@@ -138,3 +138,17 @@ target_include_directories(WisdomChessQml PRIVATE ../../..)
 install(TARGETS WisdomChessQml
     BUNDLE DESTINATION "/Applications"
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
+if(EMSCRIPTEN)
+    set(QML_WASM_HASHED_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/hashed")
+
+    add_custom_command(TARGET WisdomChessQml
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND}
+            -DBINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
+            -DTEMPLATE_FILE=${CMAKE_CURRENT_SOURCE_DIR}/wasm/index.html.in
+            -DOUTPUT_DIR=${QML_WASM_HASHED_OUTPUT_DIR}
+            -P ${CMAKE_SOURCE_DIR}/cmake/ProcessQmlWasmFiles.cmake
+        COMMENT "Processing QML WASM files with cache-busting hashes"
+    )
+endif()
