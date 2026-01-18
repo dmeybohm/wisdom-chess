@@ -141,8 +141,8 @@ auto GameModel::browserOriginUrl() -> QString
         stringToUTF8(str, buf, len);
         return buf;
     }));
-    QString result = QString::fromUtf8(origin);
-    free(origin);
+    QString result = QString::fromUtf8 (origin);
+    free (origin);
     return result;
 #else
     return QString {};

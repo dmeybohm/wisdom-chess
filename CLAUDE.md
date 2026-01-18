@@ -8,14 +8,30 @@ Follow these guidelines:
 
 1. **Code Formatting**:
 
-The project follows an idiosyncratic format for C++ code. You can
-check with the linter under `scripts/linter`. After building the linter,
-with `npm run build` inside `scripts/linter`, run:
+The project follows an idiosyncratic format for C++ code. The C++ style linter
+is built automatically with the project. After building, run:
 
+```bash
+# Run linter on specific file
+./build/scripts/linter/wisdom-linter <cppfile>
+
+# Run linter on entire source tree
+cmake --build build --target lint
+
+# Run linter tests
+./scripts/linter/tests/run-tests.sh build/scripts/linter/wisdom-linter
 ```
-node scripts/linter/dist/index.js <cppfile>
-```
-to check if the format matches.
+
+**Linter Rules:**
+
+- **namespace-braces**: Namespace opening braces must be on their own line
+- **trailing-return-type**: Functions must use `auto fn() -> ReturnType` syntax
+- **test-macro-spacing**: Test macros need spaces inside parens: `CHECK( x )` not `CHECK(x)`
+- **function-call-spacing**: Functions with args need space before paren: `foo (x)` not `foo(x)`; zero-arg functions have no space: `bar()` not `bar ()`
+
+**Configuration:** The linter reads `.wisdomstylerc.json` if present. Rules can be `"error"`, `"warning"`, or `"off"`.
+
+**Adding Rules:** Rules are in `scripts/linter/rules/`. Create a new `Rule` subclass, implement `name()`, `description()`, and `check()`, then register it in `rules/init.cpp`.
 
 2. **Code Style Guidelines**:
    - Use trailing return types with auto: `auto functionName() -> ReturnType`
@@ -135,6 +151,7 @@ cmake --build . --target WisdomChessQml
 | `WISDOM_CHESS_SLOW_TESTS` | Bool | OFF | Build slow tests |
 | `WISDOM_CHESS_PCH_ENABLED` | Bool | ON | Use precompiled headers |
 | `WISDOM_CHESS_ASAN` | Bool | OFF | Enable address sanitizer |
+| `WISDOM_CHESS_BUILD_LINTER` | Bool | ON | Build C++ style linter (native builds only) |
 
 ### QML UI Options
 

@@ -1,0 +1,2 @@
+1:11:test-macro-spacing:Missing space after '(' in 'TEST_CASE'
+1:22:test-macro-spacing:Missing space before ')' in 'TEST_CASE'

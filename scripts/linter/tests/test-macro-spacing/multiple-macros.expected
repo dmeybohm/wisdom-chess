@@ -1,0 +1,6 @@
+1:11:test-macro-spacing:Missing space after '(' in 'TEST_CASE'
+1:17:test-macro-spacing:Missing space before ')' in 'TEST_CASE'
+3:11:test-macro-spacing:Missing space after '(' in 'CHECK'
+3:16:test-macro-spacing:Missing space before ')' in 'CHECK'
+4:13:test-macro-spacing:Missing space after '(' in 'REQUIRE'
+4:19:test-macro-spacing:Missing space before ')' in 'REQUIRE'

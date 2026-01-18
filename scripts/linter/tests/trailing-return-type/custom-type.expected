@@ -1,0 +1,1 @@
+1:1:trailing-return-type:Function 'createCustom' should use trailing return type: auto createCustom(...) -> CustomType

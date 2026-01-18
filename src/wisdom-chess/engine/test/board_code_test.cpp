@@ -170,7 +170,7 @@ TEST_CASE( "board code" )
 
         BoardCode moved_code = moved_board.getCode();
 
-        FenParser parser ("rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2");
+        FenParser parser {"rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2"};
         Board fen_board = parser.buildBoard();
         BoardCode fen_code = fen_board.getCode();
 

@@ -1,0 +1,4 @@
+CustomType createCustom()
+{
+    return CustomType{};
+}
