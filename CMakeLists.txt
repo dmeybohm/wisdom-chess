@@ -47,4 +47,11 @@ if (WISDOM_CHESS_ASAN)
     endif()
 endif()
 
+# Enable experimental library features for jthread support on AppleClang
+if (APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    message("-- wisdom-chess: Enabling experimental library for AppleClang (jthread support)")
+    add_compile_options(-fexperimental-library)
+    add_link_options(-fexperimental-library)
+endif()
+
 add_subdirectory(src)
