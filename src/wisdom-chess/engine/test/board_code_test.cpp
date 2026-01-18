@@ -308,7 +308,7 @@ TEST_CASE( "Board code can be converted" )
             ColoredPiece::make (Color::White, Piece::King)
         );
 
-        auto result = code.asString().substr (0, 4);
+        auto result = code.asString();
 
         std::size_t num_zeroes = std::count (result.begin(), result.end(), '0');
         CHECK( num_zeroes > 0 );
@@ -326,7 +326,7 @@ TEST_CASE( "Board code can be converted" )
         );
 
         stream << code;
-        auto result = stream.str().substr (0, 4);
+        auto result = stream.str();
 
         std::size_t num_zeroes = std::count (result.begin(), result.end(), '0');
         CHECK( num_zeroes > 0 );
@@ -530,5 +530,22 @@ TEST_CASE( "Zobrist piece index mapping" )
         auto black_hash = boardCodeHash (h3, black_bishop);
 
         CHECK( white_hash != black_hash );
+    }
+
+    SUBCASE( "initializeBoardCodes produces values indexed by zobristPieceIndex" )
+    {
+        for (auto color : { Color::White, Color::Black })
+        {
+            for (auto piece : { Piece::Pawn, Piece::Knight, Piece::Bishop,
+                                Piece::Rook, Piece::Queen, Piece::King })
+            {
+                auto piece_index = zobristPieceIndex (color, piece);
+                for (auto square = 0; square < Num_Squares; square++)
+                {
+                    auto hash_value = Hash_Code_Table[piece_index * Num_Squares + square];
+                    CHECK( hash_value != 0 );
+                }
+            }
+        }
     }
 }

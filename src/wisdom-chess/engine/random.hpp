@@ -21,7 +21,7 @@ namespace wisdom
     {
         struct RandomState
         {
-            std::uint64_t state = 0;
+            std::uint64_t state = 0x853c49e6748fea9bULL;
             std::uint64_t inc = randomSeed();
         };
         RandomState rng;
