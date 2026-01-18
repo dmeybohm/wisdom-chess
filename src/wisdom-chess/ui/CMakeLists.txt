@@ -1,5 +1,6 @@
-if (WISDOM_CHESS_CONSOLE_UI)
+if (WISDOM_CHESS_CONSOLE_UI AND NOT EMSCRIPTEN)
     add_subdirectory(console)
+    add_subdirectory(uci)
 endif()
 
 if (WISDOM_CHESS_QT_DIR)
