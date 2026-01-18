@@ -48,6 +48,8 @@ namespace
                 "INFO", "CAPTURE", "GENERATE", "SECTION", "Q_OBJECT", "Q_PROPERTY", "Q_SIGNAL",
                 "Q_SLOT", "Q_EMIT", "Q_INVOKABLE", "Q_DECLARE_METATYPE", "Q_ENUM", "Q_FLAG",
                 "Q_NAMESPACE", "emit", "signals", "slots",
+                "EM_ASM", "EM_ASM_PTR", "EM_ASM_INT", "EM_ASM_DOUBLE", "EM_ASM_ARGS",
+                "lengthBytesUTF8", "stringToUTF8", "UTF8ToString", "_malloc", "_free",
             };
 
             auto isInsideString = []( const std::string& line, size_t position ) -> bool {
