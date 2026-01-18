@@ -28,17 +28,22 @@ function script(url) { // Downloads a script file and adds it to DOM
 }
 
 Promise.all([
-	binary('wisdom-chess-web.js'),
-	binary('wisdom-chess-web.wasm'),
-	binary('wisdom-chess-web.ww.js')
+	binary('@WASM_JS_FILE@'),
+	binary('@WASM_FILE@'),
+	binary('@WASM_WORKER_FILE@')
 ]).then((r) => {
 	// Detour the JS code to a separate variable to avoid instantiating with 'r' array as "this" directly to avoid strict ECMAScript/Firefox GC problems that cause a leak, see https://bugzilla.mozilla.org/show_bug.cgi?id=1540101
 	var js = URL.createObjectURL(new Blob([r[0]], { type: 'application/javascript' }));
+	var workerBlobUrl = URL.createObjectURL(new Blob([r[2]], { type: 'application/javascript' }));
 	script(js).then(function(c) {
 		const promise = c({
-			wasm: r[1],
-			$wb: URL.createObjectURL(new Blob([r[2]], { type: 'application/javascript' })),
-			js: js
+			wasmBinary: r[1],
+			locateFile: function(path) {
+				if (path.endsWith('.ww.js')) {
+					return workerBlobUrl;
+				}
+				return path;
+			}
 		});
 		promise.then(module => {
 			WisdomChessWeb = module
