@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -78,9 +79,10 @@ private:
     [[nodiscard]] auto resolveFiles( const std::vector<std::string>& patterns ) const
         -> std::vector<std::filesystem::path>;
     [[nodiscard]] static auto isCppFile( const std::filesystem::path& path ) -> bool;
-    [[nodiscard]] auto getEnabledRules() const -> std::vector<const Rule*>;
+    [[nodiscard]] auto getEnabledRules() const -> std::vector<std::shared_ptr<Rule>>;
 
     LinterConfig my_config;
+    std::vector<std::shared_ptr<Rule>> my_rules;
 };
 
 [[nodiscard]] auto formatResults( const std::vector<LintResult>& results, OutputFormat format )
@@ -90,6 +92,8 @@ private:
 
 [[nodiscard]] auto getDefaultConfig() -> LinterConfig;
 
-[[nodiscard]] auto getAllRules() -> std::vector<const Rule*>;
+[[nodiscard]] auto getAllRules() -> std::vector<std::shared_ptr<Rule>>;
+
+[[nodiscard]] auto registerAllRules() -> std::vector<std::shared_ptr<Rule>>;
 
 } // namespace wisdom_linter

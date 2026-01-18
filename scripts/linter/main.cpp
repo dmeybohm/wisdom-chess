@@ -26,7 +26,7 @@ namespace
     void printRules()
     {
         std::cout << "Available rules:\n\n";
-        for ( const auto* rule : getAllRules() )
+        for ( const auto& rule : getAllRules() )
         {
             std::cout << "  " << rule->name() << "\n";
             std::cout << "    " << rule->description() << "\n\n";

@@ -8,6 +8,11 @@ add_executable(wisdom-linter
     main.cpp
     linter.cpp
     linter.hpp
+    rules/init.cpp
+    rules/namespace_braces.cpp
+    rules/trailing_return_type.cpp
+    rules/test_macro_spacing.cpp
+    rules/function_call_spacing.cpp
 )
 
 target_compile_options(wisdom-linter PRIVATE
