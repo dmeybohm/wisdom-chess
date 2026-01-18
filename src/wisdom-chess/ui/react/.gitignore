@@ -7,6 +7,11 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# WASM build artifacts copied to public/
+public/*.wasm
+public/*.js
+public/.wasm-files-copied
+
 node_modules
 dist
 dist-ssr

@@ -1,3 +1,28 @@
 /*
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
+
+# HTML files: short cache so users get new asset references
+/index.html
+  Cache-Control: public, max-age=3600
+
+/qml/index.html
+  Cache-Control: public, max-age=3600
+
+# Hashed WASM and JS files: immutable long cache
+/*.*.wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+# QML files: use query params for cache busting
+# These have stable names but query params change on each build
+/qml/WisdomChessQml.wasm
+  Cache-Control: public, max-age=86400
+
+/qml/WisdomChessQml.js
+  Cache-Control: public, max-age=86400
+
+/qml/qtloader.js
+  Cache-Control: public, max-age=86400

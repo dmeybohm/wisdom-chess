@@ -76,6 +76,15 @@ jobs:
         working-directory: ${{ github.workspace }}/src/wisdom-chess/ui/react
         run: npm run build
 
+      - name: Copy hashed WASM files to React dist
+        run: |
+          # Copy hashed WASM files from build to dist
+          cp ${{ github.workspace }}/build/src/wisdom-chess/ui/wasm/hashed/*.wasm ${{ github.workspace }}/src/wisdom-chess/ui/react/dist/
+          cp ${{ github.workspace }}/build/src/wisdom-chess/ui/wasm/hashed/*.js ${{ github.workspace }}/src/wisdom-chess/ui/react/dist/
+
+      - name: Update loader version
+        run: ${{ github.workspace }}/scripts/update-loader-version.sh ${{ github.workspace }}/src/wisdom-chess/ui/react
+
       # Build QML WASM (new)
       # Use qt-cmake from the WASM Qt installation which sets up cross-compilation properly
       - name: Configure CMake (QML WASM)
@@ -102,14 +111,21 @@ jobs:
           # QML goes in /qml/ subdirectory
           mkdir -p ${{ github.workspace }}/deploy/qml
 
-          # Copy QML build artifacts
-          cp ${{ github.workspace }}/build-qml/src/wisdom-chess/ui/qml/WisdomChessQml.* ${{ github.workspace }}/deploy/qml/ 2>/dev/null || true
-          cp ${{ github.workspace }}/build-qml/src/wisdom-chess/ui/qml/qtloader.js ${{ github.workspace }}/deploy/qml/ 2>/dev/null || true
+          # Copy QML build artifacts from hashed/ directory (files keep original names,
+          # but index.html has query params for cache busting)
+          cp ${{ github.workspace }}/build-qml/src/wisdom-chess/ui/qml/hashed/WisdomChessQml.wasm ${{ github.workspace }}/deploy/qml/
+          cp ${{ github.workspace }}/build-qml/src/wisdom-chess/ui/qml/hashed/WisdomChessQml.js ${{ github.workspace }}/deploy/qml/
+          cp ${{ github.workspace }}/build-qml/src/wisdom-chess/ui/qml/hashed/qtloader.js ${{ github.workspace }}/deploy/qml/
+          # Copy processed index.html with query param versions
+          cp ${{ github.workspace }}/build-qml/src/wisdom-chess/ui/qml/hashed/index.html ${{ github.workspace }}/deploy/qml/
 
-          # Copy QML static assets (index.html, icons, etc.)
-          cp ${{ github.workspace }}/src/wisdom-chess/ui/qml/wasm/* ${{ github.workspace }}/deploy/qml/
+          # Copy QML static assets (icons, etc.) but NOT index.html or netlify.toml
+          cp ${{ github.workspace }}/src/wisdom-chess/ui/qml/wasm/*.svg ${{ github.workspace }}/deploy/qml/ 2>/dev/null || true
+          cp ${{ github.workspace }}/src/wisdom-chess/ui/qml/wasm/*.webmanifest ${{ github.workspace }}/deploy/qml/ 2>/dev/null || true
+          cp ${{ github.workspace }}/src/wisdom-chess/ui/qml/wasm/*.png ${{ github.workspace }}/deploy/qml/ 2>/dev/null || true
+          cp ${{ github.workspace }}/src/wisdom-chess/ui/qml/wasm/*.ico ${{ github.workspace }}/deploy/qml/ 2>/dev/null || true
 
-          # Remove QML's netlify.toml (use React's)
+          # Remove QML's netlify.toml if present (use React's)
           rm -f ${{ github.workspace }}/deploy/qml/netlify.toml
 
           ls -la ${{ github.workspace }}/deploy

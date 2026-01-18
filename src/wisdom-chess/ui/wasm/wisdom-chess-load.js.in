@@ -28,9 +28,9 @@ function script(url) { // Downloads a script file and adds it to DOM
 }
 
 Promise.all([
-	binary('wisdom-chess-web.js'),
-	binary('wisdom-chess-web.wasm'),
-	binary('wisdom-chess-web.ww.js')
+	binary('@WASM_JS_FILE@'),
+	binary('@WASM_FILE@'),
+	binary('@WASM_WORKER_FILE@')
 ]).then((r) => {
 	// Detour the JS code to a separate variable to avoid instantiating with 'r' array as "this" directly to avoid strict ECMAScript/Firefox GC problems that cause a leak, see https://bugzilla.mozilla.org/show_bug.cgi?id=1540101
 	var js = URL.createObjectURL(new Blob([r[0]], { type: 'application/javascript' }));

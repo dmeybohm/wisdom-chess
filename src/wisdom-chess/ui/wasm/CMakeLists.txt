@@ -17,16 +17,13 @@ find_program(PYTHON3
 # including a cpp file in another one and messing up its dependency generation or trying
 # to link that file twice.
 add_custom_command(
-    OUTPUT 
-        ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-wasm-glue.hpp 
-        ${CMAKE_CURRENT_BINARY_DIR}/glue.js 
-        ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-load.js
-    DEPENDS 
-        wisdom-chess.idl 
-        wisdom-chess-load.js
+    OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-wasm-glue.hpp
+        ${CMAKE_CURRENT_BINARY_DIR}/glue.js
+    DEPENDS
+        wisdom-chess.idl
     COMMAND "${PYTHON3}" "${emsdkIdlPath}" ${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess.idl ${CMAKE_CURRENT_BINARY_DIR}/glue
         && mv ${CMAKE_CURRENT_BINARY_DIR}/glue.cpp ${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-wasm-glue.hpp
-        && cp -f ${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess-load.js ${CMAKE_CURRENT_BINARY_DIR}/
 )
 
 add_executable(wisdom-chess-web
@@ -72,4 +69,16 @@ add_custom_command(TARGET wisdom-chess-web
         BYPRODUCTS
             wisdom-chess-web.wasm
             wisdom-chess-web.ww.js
+)
+
+set(WASM_HASHED_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/hashed")
+
+add_custom_command(TARGET wisdom-chess-web
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND}
+            -DBINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
+            -DTEMPLATE_FILE=${CMAKE_CURRENT_SOURCE_DIR}/wisdom-chess-load.js.in
+            -DOUTPUT_DIR=${WASM_HASHED_OUTPUT_DIR}
+            -P ${CMAKE_SOURCE_DIR}/cmake/ProcessWasmFiles.cmake
+        COMMENT "Processing WASM files with cache-busting hashes"
 )

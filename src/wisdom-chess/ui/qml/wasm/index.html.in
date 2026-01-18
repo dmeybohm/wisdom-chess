@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <!--Set visual viewport size for mobile devices to the device size,
+        witch results in a scale of 1 and a 1:1 mapping between CSS pixels
+        and Qt device independent pixels. -->
+    <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0"/>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <title>Wisdom Chess</title>
+    <style>
+      /* Make the html body cover the entire (visual) viewport with no scroll bars. */
+      html, body { padding: 0; margin: 0; overflow:hidden; height: 100vh }
+      /* Qt container element - Qt creates its own canvas inside */
+      #qtcontainer { height: 100%; width: 100%; }
+      /* Style for Qt-created canvas elements */
+      #qtcontainer canvas { border: 0px none; background-color: white; }
+    </style>
+  </head>
+  <body onload="init()">
+    <figure style="overflow:visible;" id="qtspinner">
+      <center style="margin-top:1.5em; line-height:150%">
+        <img src="wisdom-chess.svg" width="320" height="320" style="display:block"></img>
+        <strong>Wisdom Chess</strong>
+        <div id="qtstatus"></div>
+        <noscript>JavaScript is disabled. Please enable JavaScript to use this application.</noscript>
+      </center>
+    </figure>
+    <div id="qtcontainer" oncontextmenu="event.preventDefault()"></div>
+
+    <script type="text/javascript" src="qtloader.js?v=@QTLOADER_HASH@"></script>
+    <script type="text/javascript" src="WisdomChessQml.js?v=@QML_JS_HASH@"></script>
+    <script type='text/javascript'>
+        async function init() {
+          const spinner = document.querySelector('#qtspinner');
+          const container = document.querySelector('#qtcontainer');
+          const status = document.querySelector('#qtstatus');
+
+          try {
+              status.innerHTML = "Loading...";
+              await qtLoad({
+                  qt: {
+                      onLoaded: () => {
+                          spinner.style.display = 'none';
+                          container.style.display = 'block';
+                      },
+                      onExit: (exitData) => {
+                          status.innerHTML = "Application exit";
+                          if (exitData.code !== undefined)
+                              status.innerHTML += " with code " + exitData.code;
+                          if (exitData.text !== undefined)
+                              status.innerHTML += " (" + exitData.text + ")";
+                          spinner.style.display = 'block';
+                          container.style.display = 'none';
+                      },
+                      entryFunction: createQtAppInstance,
+                      containerElements: [container]
+                  }
+              });
+          } catch (error) {
+              status.innerHTML = error.toString();
+              spinner.style.display = 'block';
+              container.style.display = 'none';
+          }
+      }
+    </script>
+  </body>
+</html>
