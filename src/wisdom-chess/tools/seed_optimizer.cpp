@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/board_code.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/generate.hpp"
@@ -23,17 +24,15 @@ using wisdom::foldHashTo32Bits;
 using wisdom::generateAllPotentialMoves;
 using wisdom::getCompileTimeRandom48;
 using wisdom::isLegalPositionAfterMove;
-using wisdom::Num_Piece_Types;
-using wisdom::Num_Players;
 using wisdom::Num_Squares;
 using wisdom::randomInitialState;
 using wisdom::randomSeed;
+using wisdom::Total_Metadata_Bits;
+using wisdom::Zobrist_Table_Size;
 using wisdom::zobristPieceIndex;
 
 namespace
 {
-    constexpr std::size_t Zobrist_Table_Size = Num_Players * Num_Piece_Types * Num_Squares;
-    constexpr int Total_Metadata_Bits = 16;
 
     using ZobristTable = std::array<std::uint64_t, Zobrist_Table_Size>;
 
