@@ -228,20 +228,21 @@ TEST_CASE( "Opponent's castling state is modified when his rook is taken" )
 
     board = board.withMove (Color::White, mv);
 
-    CHECK (board.ableToCastle (Color::White, CastlingRights::Queenside));
-    CHECK (board.ableToCastle (Color::White, CastlingRights::Kingside));
+    CHECK( board.ableToCastle (Color::White, CastlingRights::Queenside) );
+    CHECK( board.ableToCastle (Color::White, CastlingRights::Kingside) );
     CHECK( board.ableToCastle (
         Color::White,
         (CastlingRights::Kingside | CastlingRights::Kingside)
     ) );
     CHECK( board.getCastlingEligibility (Color::White) == CastlingEligibility::Either_Side );
 
-    CHECK (!board.ableToCastle (Color::Black, CastlingRights::Queenside));
-    CHECK (board.ableToCastle (Color::Black, CastlingRights::Kingside));
-    CHECK (board.ableToCastle (
+    CHECK( !board.ableToCastle (Color::Black, CastlingRights::Queenside) );
+    CHECK( board.ableToCastle (Color::Black, CastlingRights::Kingside) );
+    CHECK( board.ableToCastle (
         Color::Black,
-        (CastlingRights::Kingside | CastlingRights::Kingside)));
-    CHECK (board.getCastlingEligibility (Color::Black) == CastlingRights::Kingside);
+        (CastlingRights::Kingside | CastlingRights::Kingside)
+    ) );
+    CHECK( board.getCastlingEligibility (Color::Black) == CastlingRights::Kingside );
 }
 
 TEST_CASE( "Castling state is updated when rook captures a piece" )

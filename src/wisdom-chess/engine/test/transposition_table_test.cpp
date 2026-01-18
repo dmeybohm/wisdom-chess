@@ -362,7 +362,7 @@ TEST_CASE( "Hash collision analysis" )
                 continue;
 
             auto [it, inserted] = seen_values.insert (hash_value);
-            CHECK_MESSAGE ( inserted, "Duplicate value found in Hash_Code_Table" );
+            CHECK_MESSAGE( inserted, "Duplicate value found in Hash_Code_Table" );
         }
     }
 
@@ -392,8 +392,8 @@ TEST_CASE( "Hash collision analysis" )
         for (int bit = 0; bit < 48; ++bit)
         {
             double ratio = static_cast<double> (bit_counts[bit]) / non_zero_entries;
-            CHECK_MESSAGE ( ratio > 0.3, "Bit " << bit << " is set too rarely: " << ratio );
-            CHECK_MESSAGE ( ratio < 0.7, "Bit " << bit << " is set too often: " << ratio );
+            CHECK_MESSAGE( ratio > 0.3, "Bit " << bit << " is set too rarely: " << ratio );
+            CHECK_MESSAGE( ratio < 0.7, "Bit " << bit << " is set too often: " << ratio );
         }
     }
 

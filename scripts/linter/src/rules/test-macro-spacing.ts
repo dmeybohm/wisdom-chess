@@ -2,16 +2,74 @@ import { LintRule, LintContext, LintViolation } from '../types';
 
 // Test macros that need spaces inside parentheses: MACRO( content )
 const TEST_MACROS = [
+    // Test structure
     'TEST_CASE',
     'SUBCASE',
+
+    // Basic assertions
     'CHECK',
     'CHECK_FALSE',
     'REQUIRE',
     'REQUIRE_FALSE',
     'WARN',
     'WARN_FALSE',
+
+    // Binary comparisons
+    'CHECK_EQ',
+    'CHECK_NE',
+    'CHECK_GT',
+    'CHECK_LT',
+    'CHECK_GE',
+    'CHECK_LE',
+    'REQUIRE_EQ',
+    'REQUIRE_NE',
+    'REQUIRE_GT',
+    'REQUIRE_LT',
+    'REQUIRE_GE',
+    'REQUIRE_LE',
+    'WARN_EQ',
+    'WARN_NE',
+    'WARN_GT',
+    'WARN_LT',
+    'WARN_GE',
+    'WARN_LE',
+
+    // Unary
+    'CHECK_UNARY',
+    'CHECK_UNARY_FALSE',
+    'REQUIRE_UNARY',
+    'REQUIRE_UNARY_FALSE',
+    'WARN_UNARY',
+    'WARN_UNARY_FALSE',
+
+    // Exception handling
+    'CHECK_THROWS',
+    'CHECK_THROWS_AS',
+    'CHECK_THROWS_WITH',
+    'CHECK_THROWS_WITH_AS',
+    'CHECK_NOTHROW',
+    'REQUIRE_THROWS',
+    'REQUIRE_THROWS_AS',
+    'REQUIRE_THROWS_WITH',
+    'REQUIRE_THROWS_WITH_AS',
+    'REQUIRE_NOTHROW',
+    'WARN_THROWS',
+    'WARN_THROWS_AS',
+    'WARN_THROWS_WITH',
+    'WARN_THROWS_WITH_AS',
+    'WARN_NOTHROW',
+
+    // Message variants
+    'CHECK_MESSAGE',
+    'REQUIRE_MESSAGE',
+    'WARN_MESSAGE',
+
+    // Logging
     'INFO',
     'CAPTURE',
+    'MESSAGE',
+    'FAIL',
+    'FAIL_CHECK',
 ];
 
 // Pattern: MACRO(x - no space after opening paren
@@ -20,6 +78,12 @@ function createNoLeadingSpacePattern(macros: string[]): RegExp {
     const macroPattern = macros.join('|');
     // Match MACRO( followed by non-whitespace (but not just closing paren)
     return new RegExp(`\\b(${macroPattern})\\(([^\\s)])`, 'g');
+}
+
+// Pattern: MACRO ( - space before opening paren (should be MACRO()
+function createSpaceBeforeParenPattern(macros: string[]): RegExp {
+    const macroPattern = macros.join('|');
+    return new RegExp(`\\b(${macroPattern})\\s+\\(`, 'g');
 }
 
 // Pattern: MACRO(content ) without proper closing - content) instead of content )
@@ -70,6 +134,7 @@ export const testMacroSpacingRule: LintRule = {
     check(context: LintContext): LintViolation[] {
         const violations: LintViolation[] = [];
         const noLeadingSpacePattern = createNoLeadingSpacePattern(TEST_MACROS);
+        const spaceBeforeParenPattern = createSpaceBeforeParenPattern(TEST_MACROS);
 
         for (let i = 0; i < context.lines.length; i++) {
             const line = context.lines[i];
@@ -78,6 +143,23 @@ export const testMacroSpacingRule: LintRule = {
             // Skip comment lines
             if (isComment(line)) {
                 continue;
+            }
+
+            // Check for space before opening paren: MACRO ( instead of MACRO(
+            spaceBeforeParenPattern.lastIndex = 0;
+            let spaceMatch;
+
+            while ((spaceMatch = spaceBeforeParenPattern.exec(line)) !== null) {
+                const macroName = spaceMatch[1];
+                const matchStart = spaceMatch.index;
+
+                violations.push({
+                    rule: 'test-macro-spacing',
+                    message: `Unexpected space before '(' in '${macroName}'`,
+                    line: lineNumber,
+                    column: matchStart + macroName.length + 1,
+                    severity: 'error',
+                });
             }
 
             // Check for missing leading space: MACRO(x instead of MACRO( x
