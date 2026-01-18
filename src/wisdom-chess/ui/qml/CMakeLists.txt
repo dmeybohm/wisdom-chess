@@ -127,6 +127,27 @@ if(EMSCRIPTEN)
     target_link_options(WisdomChessQml PRIVATE
         -Wno-pthreads-mem-growth
     )
+
+    # Verify Emscripten version matches Qt requirements
+    # Qt prebuilt binaries require specific Emscripten versions for ABI compatibility
+    if(DEFINED QT_VERSION_MAJOR AND DEFINED QT_VERSION_MINOR)
+        if(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR EQUAL 6)
+            set(EXPECTED_EMSCRIPTEN "3.1.37")
+        elseif(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR EQUAL 7)
+            set(EXPECTED_EMSCRIPTEN "3.1.50")
+        elseif(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR EQUAL 9)
+            set(EXPECTED_EMSCRIPTEN "3.1.70")
+        elseif(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR EQUAL 10)
+            set(EXPECTED_EMSCRIPTEN "4.0.7")
+        endif()
+
+        if(DEFINED EXPECTED_EMSCRIPTEN AND NOT EMSCRIPTEN_VERSION VERSION_EQUAL EXPECTED_EMSCRIPTEN)
+            message(FATAL_ERROR "Qt ${QT_VERSION} requires Emscripten ${EXPECTED_EMSCRIPTEN}, "
+                               "but you are using ${EMSCRIPTEN_VERSION}. "
+                               "Please install the correct version: ./emsdk install ${EXPECTED_EMSCRIPTEN} && ./emsdk activate ${EXPECTED_EMSCRIPTEN}")
+        endif()
+    endif()
+
     target_compile_definitions(WisdomChessQml PRIVATE USE_DEFAULT_GRAPHICS_BACKEND)
 else()
     target_compile_definitions(WisdomChessQml PRIVATE USE_OPENGL_GRAPHICS_BACKEND)
