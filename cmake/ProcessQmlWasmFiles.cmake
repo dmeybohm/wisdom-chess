@@ -47,6 +47,7 @@ file(MAKE_DIRECTORY "${OUTPUT_DIR}")
 
 compute_hash_and_copy("${BINARY_DIR}/WisdomChessQml.js" "${OUTPUT_DIR}" QML_JS_HASH)
 compute_hash_and_copy("${BINARY_DIR}/WisdomChessQml.wasm" "${OUTPUT_DIR}" QML_WASM_HASH)
+compute_hash_and_copy("${BINARY_DIR}/WisdomChessQml.worker.js" "${OUTPUT_DIR}" QML_WORKER_HASH)
 compute_hash_and_copy("${BINARY_DIR}/qtloader.js" "${OUTPUT_DIR}" QTLOADER_HASH)
 
 configure_file("${TEMPLATE_FILE}" "${OUTPUT_DIR}/index.html" @ONLY)
