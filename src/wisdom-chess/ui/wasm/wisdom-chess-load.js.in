@@ -36,7 +36,7 @@ Promise.all([
 	var js = URL.createObjectURL(new Blob([r[0]], { type: 'application/javascript' }));
 	script(js).then(function(c) {
 		const promise = c({
-			wasm: r[1],
+			wasmBinary: r[1],
 			$wb: URL.createObjectURL(new Blob([r[2]], { type: 'application/javascript' })),
 			js: js
 		});
