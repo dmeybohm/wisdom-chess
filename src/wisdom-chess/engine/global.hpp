@@ -76,6 +76,19 @@ namespace wisdom
         Hard
     };
 
+    [[nodiscard]] constexpr auto
+    asString (Difficulty difficulty)
+        -> string_view
+    {
+        switch (difficulty)
+        {
+            case Difficulty::Easy: return "easy";
+            case Difficulty::Medium: return "medium";
+            case Difficulty::Hard: return "hard";
+        }
+        return "unknown";
+    }
+
     inline constexpr int Top_Moves_Count = 3;
 
     inline constexpr int Num_Players = 2;

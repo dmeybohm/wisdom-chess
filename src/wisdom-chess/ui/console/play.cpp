@@ -88,6 +88,15 @@ namespace wisdom::ui::console
             {}
         };
 
+        struct SetDifficulty
+        {
+            Difficulty difficulty;
+
+            explicit SetDifficulty (Difficulty new_difficulty)
+                : difficulty { new_difficulty }
+            {}
+        };
+
         struct SetMaxDepth
         {
             int max_depth;
@@ -131,6 +140,7 @@ namespace wisdom::ui::console
             SwitchSides,
             SetPlayer,
             SetSearchTimeout,
+            SetDifficulty,
             SetMaxDepth,
             PlayMove
         >;
@@ -388,16 +398,31 @@ namespace wisdom::ui::console
             }
         }
 
+        static auto
+        parseDifficulty (const string& str)
+            -> optional<Difficulty>
+        {
+            if (str == "easy")
+                return Difficulty::Easy;
+            if (str == "medium")
+                return Difficulty::Medium;
+            if (str == "hard")
+                return Difficulty::Hard;
+            return nullopt;
+        }
+
         // Copy the configuration from the old game to the new game.
         static void copyConfig (const Game& old_game, Game& new_game)
         {
             auto orig_players = old_game.getPlayers();
             auto orig_timeout = old_game.getSearchTimeout();
             auto orig_max_depth = old_game.getMaxDepth();
+            auto orig_difficulty = old_game.getDifficulty();
 
             new_game.setPlayers (orig_players);
             new_game.setSearchTimeout (orig_timeout);
             new_game.setMaxDepth (orig_max_depth);
+            new_game.setDifficulty (orig_difficulty);
         }
 
         static void printHelp()
@@ -412,6 +437,7 @@ namespace wisdom::ui::console
                 << "  unpause         Unpause the computer from searching for moves\n"
                 << "  maxdepth        Set the maximum depth for the computer to search\n"
                 << "  timeout         Set the maximum time for the computer to search\n"
+                << "  difficulty      Set computer difficulty (easy, medium, hard)\n"
                 << "  human_white     Set the white player to human\n"
                 << "  human_black     Set the black player to human\n"
                 << "  computer_white  Set the white player to computer\n"
@@ -504,6 +530,16 @@ namespace wisdom::ui::console
                     return PlayCommand::SetSearchTimeout { chrono::seconds { *search_timeout } };
                 else
                     return PlayCommand::ShowError { "Invalid search timeout." };
+            }
+            else if (input == "difficulty")
+            {
+                string difficulty_str = prompt ("Difficulty (easy, medium, hard)");
+                auto difficulty = parseDifficulty (difficulty_str);
+
+                if (difficulty.has_value())
+                    return PlayCommand::SetDifficulty { *difficulty };
+                else
+                    return PlayCommand::ShowError { "Invalid difficulty. Use: easy, medium, hard" };
             }
             else if (input == "computer_black")
             {
@@ -614,6 +650,12 @@ namespace wisdom::ui::console
                 auto search_timeout = get<PlayCommand::SetSearchTimeout> (command);
                 game.setSearchTimeout (chrono::seconds { search_timeout.seconds });
                 std::cout << "Timeout set to " << search_timeout.seconds.count() << " seconds.\n";
+            }
+            else if (holds_alternative<PlayCommand::SetDifficulty> (command))
+            {
+                auto set_difficulty = get<PlayCommand::SetDifficulty> (command);
+                game.setDifficulty (set_difficulty.difficulty);
+                std::cout << "Difficulty set to " << asString (set_difficulty.difficulty) << ".\n";
             }
             else if (holds_alternative<PlayCommand::LoadNewGame> (command))
             {
