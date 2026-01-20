@@ -159,6 +159,14 @@ namespace wisdom
 
         if (ply > 0)
         {
+            // Check if this position is a draw due to repetition BEFORE using TT score.
+            // The TT stores scores without history context, so a position that was
+            // previously scored as +600 might now be a draw (3rd repetition).
+            if (my_history.isProbablyThirdRepetition (parent_board))
+            {
+                return drawingScore (my_searching_color, colorInvert (side));
+            }
+
             if (auto tt_score = my_transposition_table.probe (hash, depth, alpha, beta, ply))
             {
                 my_current_result.move = my_transposition_table.getBestMove (hash);
