@@ -34,10 +34,11 @@ namespace wisdom
 #endif
 
         int searchDepth = Default_Max_Depth / 2;
+        enum WebDifficulty difficulty = Medium;
 
 
-        [[nodiscard]] static auto 
-        mapHumanDepthToComputerDepth (int human_depth) 
+        [[nodiscard]] static auto
+        mapHumanDepthToComputerDepth (int human_depth)
             -> int
         {
             return human_depth * 2;
@@ -48,6 +49,7 @@ namespace wisdom
             game->setSearchTimeout (std::chrono::seconds { thinkingTime });
             game->setMaxDepth (GameSettings::mapHumanDepthToComputerDepth (searchDepth));
             game->setPlayers ({ mapPlayer (whitePlayer), mapPlayer (blackPlayer) });
+            game->setDifficulty (mapDifficulty (difficulty));
         }
     };
 };

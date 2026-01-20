@@ -69,6 +69,15 @@ namespace wisdom
         WeightPawn = 100,
     };
 
+    enum class Difficulty
+    {
+        Easy,
+        Medium,
+        Hard
+    };
+
+    inline constexpr int Top_Moves_Count = 3;
+
     inline constexpr int Num_Players = 2;
 
     inline constexpr int Num_Rows = 8;

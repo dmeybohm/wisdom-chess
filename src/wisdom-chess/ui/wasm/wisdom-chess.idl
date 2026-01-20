@@ -72,6 +72,7 @@ interface GameSettings {
     attribute wisdom_WebPlayer blackPlayer;
     attribute long thinkingTime;
     attribute long searchDepth;
+    attribute wisdom_WebDifficulty difficulty;
 };
 
 enum wisdom_WebDrawStatus {
@@ -84,6 +85,12 @@ enum wisdom_WebDrawStatus {
 enum wisdom_WebDrawByRepetitionType {
     "wisdom::ThreeFoldRepeition",
     "wisdom::FiftyMovesWithoutProgress"
+};
+
+enum wisdom_WebDifficulty {
+    "wisdom::Easy",
+    "wisdom::Medium",
+    "wisdom::Hard"
 };
 
 [Prefix="wisdom::"]

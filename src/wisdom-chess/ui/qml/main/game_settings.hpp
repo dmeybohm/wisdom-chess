@@ -18,9 +18,12 @@ class GameSettings
     Q_PROPERTY (int maxDepth 
             MEMBER my_max_depth 
             READ maxDepth)
-    Q_PROPERTY (int maxSearchTime 
-            MEMBER my_max_search_time 
+    Q_PROPERTY (int maxSearchTime
+            MEMBER my_max_search_time
             READ maxSearchTime)
+    Q_PROPERTY (wisdom::ui::Difficulty difficulty
+            MEMBER my_difficulty
+            READ difficulty)
 
 public:
     friend auto 
@@ -43,14 +46,19 @@ public:
     maxDepth() const 
         -> int;
 
-    [[nodiscard]] auto 
-    maxSearchTime() const 
+    [[nodiscard]] auto
+    maxSearchTime() const
         -> int;
+
+    [[nodiscard]] auto
+    difficulty() const
+        -> wisdom::ui::Difficulty;
 
 private:
     wisdom::ui::Player my_white_player = wisdom::ui::Player::Human;
     wisdom::ui::Player my_black_player = wisdom::ui::Player::Computer;
     int my_max_depth = wisdom::Default_Max_Depth / 2;
     int my_max_search_time = 4;
+    wisdom::ui::Difficulty my_difficulty = wisdom::ui::Difficulty::Medium;
 };
 

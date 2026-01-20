@@ -34,6 +34,7 @@ function toWebSettings(wasm: any): WebGameSettings {
         blackPlayer: wasm.blackPlayer,
         thinkingTime: wasm.thinkingTime,
         searchDepth: wasm.searchDepth,
+        difficulty: wasm.difficulty,
     }
 }
 

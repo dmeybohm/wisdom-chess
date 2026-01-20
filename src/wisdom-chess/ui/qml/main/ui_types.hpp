@@ -48,6 +48,15 @@ namespace wisdom::ui
 
     Q_ENUM_NS (DrawByRepetitionStatus)
 
+    enum class Difficulty
+    {
+        Easy,
+        Medium,
+        Hard
+    };
+
+    Q_ENUM_NS (Difficulty)
+
     // Register the enums in QML:
     void registerQmlTypes();
 
@@ -141,8 +150,8 @@ namespace wisdom::ui
         }
     }
 
-    [[nodiscard]] constexpr auto 
-    mapPiece (wisdom::Piece piece) 
+    [[nodiscard]] constexpr auto
+    mapPiece (wisdom::Piece piece)
         -> ui::PieceType
     {
         switch (piece)
@@ -161,6 +170,42 @@ namespace wisdom::ui
                 return PieceType::Queen;
             case wisdom::Piece::King:
                 return PieceType::King;
+            default:
+                assert (0);
+                abort();
+        }
+    }
+
+    [[nodiscard]] constexpr auto
+    mapDifficulty (ui::Difficulty difficulty)
+        -> wisdom::Difficulty
+    {
+        switch (difficulty)
+        {
+            case ui::Difficulty::Easy:
+                return wisdom::Difficulty::Easy;
+            case ui::Difficulty::Medium:
+                return wisdom::Difficulty::Medium;
+            case ui::Difficulty::Hard:
+                return wisdom::Difficulty::Hard;
+            default:
+                assert (0);
+                abort();
+        }
+    }
+
+    [[nodiscard]] constexpr auto
+    mapDifficulty (wisdom::Difficulty difficulty)
+        -> ui::Difficulty
+    {
+        switch (difficulty)
+        {
+            case wisdom::Difficulty::Easy:
+                return ui::Difficulty::Easy;
+            case wisdom::Difficulty::Medium:
+                return ui::Difficulty::Medium;
+            case wisdom::Difficulty::Hard:
+                return ui::Difficulty::Hard;
             default:
                 assert (0);
                 abort();

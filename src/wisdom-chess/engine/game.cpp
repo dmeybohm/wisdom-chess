@@ -162,6 +162,84 @@ namespace wisdom
         output.save (input, my_pimpl->my_current_board, my_pimpl->my_history, getCurrentTurn());
     }
 
+    // Score threshold: only consider alternative moves if within this range of best
+    inline constexpr int Difficulty_Score_Threshold = 300;
+
+    static auto
+    selectMoveByDifficulty (
+        const SearchResult& result,
+        Difficulty difficulty,
+        std::mt19937& rng
+    ) -> optional<Move>
+    {
+        // Hard difficulty: always play the best move
+        if (difficulty == Difficulty::Hard)
+            return result.move;
+
+        // No alternatives available, fall back to best move
+        if (!result.top_moves[0].has_value())
+            return result.move;
+
+        const auto& best_move = *result.top_moves[0];
+
+        // Always play checkmate regardless of difficulty
+        if (isCheckmatingOpponentScore (best_move.score))
+            return result.move;
+
+        // Set up probability distribution based on difficulty
+        // Easy: 50% best, 35% second, 15% third
+        // Medium: 80% best, 15% second, 5% third
+        int prob_best, prob_second;
+        if (difficulty == Difficulty::Easy)
+        {
+            prob_best = 50;
+            prob_second = 35;
+            // prob_third = 15 (implicit)
+        }
+        else // Medium
+        {
+            prob_best = 80;
+            prob_second = 15;
+            // prob_third = 5 (implicit)
+        }
+
+        std::uniform_int_distribution<int> dist (1, 100);
+        int roll = dist (rng);
+
+        // Determine which move to select based on probability
+        int selected_index = 0;
+        if (roll <= prob_best)
+        {
+            selected_index = 0;
+        }
+        else if (roll <= prob_best + prob_second)
+        {
+            selected_index = 1;
+        }
+        else
+        {
+            selected_index = 2;
+        }
+
+        // Check if selected move exists and is within score threshold
+        while (selected_index > 0)
+        {
+            if (result.top_moves[selected_index].has_value())
+            {
+                int score_diff = best_move.score - result.top_moves[selected_index]->score;
+                if (score_diff <= Difficulty_Score_Threshold)
+                {
+                    return result.top_moves[selected_index]->move;
+                }
+            }
+            // Fall back to a better move if this one doesn't qualify
+            --selected_index;
+        }
+
+        // Return the best move
+        return result.top_moves[0]->move;
+    }
+
     auto Game::status() const -> GameStatus
     {
         if (isCheckmated (my_pimpl->my_current_board))
@@ -235,7 +313,7 @@ namespace wisdom
         if (iterative_search.isCancelled())
             return {};
 
-        return result.move;
+        return selectMoveByDifficulty (result, my_pimpl->my_difficulty, my_pimpl->my_rng);
     }
 
     auto Game::load (const string& filename, const Players& players)
@@ -395,6 +473,16 @@ namespace wisdom
     void Game::setMaxDepth (int max_depth)
     {
         my_pimpl->my_max_depth = max_depth;
+    }
+
+    auto Game::getDifficulty() const -> Difficulty
+    {
+        return my_pimpl->my_difficulty;
+    }
+
+    void Game::setDifficulty (Difficulty difficulty)
+    {
+        my_pimpl->my_difficulty = difficulty;
     }
 
     auto Game::getSearchTimeout() const -> std::chrono::seconds

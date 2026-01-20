@@ -14,12 +14,19 @@ namespace wisdom
     class History;
     class TranspositionTable;
 
+    struct RankedMove
+    {
+        Move move {};
+        int score = -Initial_Alpha;
+    };
+
     struct SearchResult
     {
         int score = -Initial_Alpha;
         int depth { 0 };
         optional<Move> move { nullopt };
         bool timed_out { false };
+        array<optional<RankedMove>, Top_Moves_Count> top_moves {};
     };
 
     class IterativeSearch

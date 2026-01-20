@@ -74,6 +74,9 @@ namespace wisdom
         int my_total_nodes_visited = 0;
         int my_total_alpha_beta_cutoffs = 0;
         Color my_searching_color = Color::None;
+
+        // For tracking top moves at root level for difficulty settings
+        vector<RankedMove> my_root_move_scores {};
     };
 
     IterativeSearch::~IterativeSearch() = default;
@@ -202,6 +205,10 @@ namespace wisdom
 
             score = -1 * search (child_board, colorInvert (side), depth - 1, -beta, -alpha, ply + 1);
 
+            // Collect root-level move scores for difficulty selection
+            if (ply == 0)
+                my_root_move_scores.push_back (RankedMove { move, score });
+
             if (score > best_score)
             {
                 best_score = score;
@@ -329,6 +336,7 @@ namespace wisdom
 
         my_nodes_visited = 0;
         my_alpha_beta_cutoffs = 0;
+        my_root_move_scores.clear();
 
         auto tt_stats_start = my_transposition_table.getStats();
         auto start = std::chrono::system_clock::now();
@@ -338,6 +346,15 @@ namespace wisdom
         search (my_original_board, side, depth, -Initial_Alpha, Initial_Alpha, 0);
 
         auto end = std::chrono::system_clock::now();
+
+        // Sort root moves by score (descending) and store top moves
+        std::sort (my_root_move_scores.begin(), my_root_move_scores.end(),
+            [] (const RankedMove& a, const RankedMove& b) {
+                return a.score > b.score;
+            }
+        );
+        for (size_t i = 0; i < Top_Moves_Count && i < my_root_move_scores.size(); ++i)
+            my_current_result.top_moves[i] = my_root_move_scores[i];
 
         auto result = getBestResult();
 

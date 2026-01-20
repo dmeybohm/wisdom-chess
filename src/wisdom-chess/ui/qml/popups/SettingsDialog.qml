@@ -221,6 +221,38 @@ Dialog {
                 }
             }
         }
+
+        RowLayout {
+            spacing: 5
+
+            Text {
+                Layout.fillWidth: true
+                text: "Difficulty"
+                font.pixelSize: internal.fontSize
+            }
+
+            RowLayout {
+                Text {
+                    text: ["Easy", "Medium", "Hard"][difficultySlider.value]
+                    font.pixelSize: internal.fontSize
+                }
+
+                Slider {
+                    id: difficultySlider
+                    font.pixelSize: internal.fontSize
+                    value: internal.myGameSettings.difficulty
+                    implicitWidth: thinkingTimeSlider.implicitWidth
+                    from: 0
+                    to: 2
+                    stepSize: 1
+                    onValueChanged: {
+                        if (internal.myGameSettings) {
+                            internal.myGameSettings.difficulty = parseInt(value, 10)
+                        }
+                    }
+                }
+            }
+        }
     }
 
 

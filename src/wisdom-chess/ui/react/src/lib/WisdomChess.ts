@@ -30,6 +30,7 @@ export type WebGameSettings = {
     blackPlayer: number
     thinkingTime: number
     searchDepth: number
+    difficulty: number  // 0=Easy, 1=Medium, 2=Hard
 }
 
 export type GameState = {
@@ -83,6 +84,10 @@ export type WisdomChess = {
     Knight: PieceType
     NoPiece: PieceType
 
+    Easy: WebDifficulty
+    Medium: WebDifficulty
+    Hard: WebDifficulty
+
     GameSettings: GameSettingsConstructor
 
     NotReached: DrawProposed
@@ -114,6 +119,7 @@ export type WisdomChess = {
 
 export type Game = any
 export type WebPlayer = any
+export type WebDifficulty = any
 
 export type PieceColor = any
 export type PieceType = any
@@ -136,6 +142,7 @@ export type GameSettings = {
     blackPlayer: WebPlayer
     thinkingTime: number
     searchDepth: number
+    difficulty: number  // 0=Easy, 1=Medium, 2=Hard
 }
 
 export type WorkerGameSettings = any

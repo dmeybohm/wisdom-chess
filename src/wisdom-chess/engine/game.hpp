@@ -111,6 +111,10 @@ namespace wisdom
 
         void setMaxDepth (int max_depth);
 
+        [[nodiscard]] auto getDifficulty() const -> Difficulty;
+
+        void setDifficulty (Difficulty difficulty);
+
         [[nodiscard]] auto getSearchTimeout() const -> std::chrono::seconds;
 
         void setSearchTimeout (std::chrono::seconds seconds);

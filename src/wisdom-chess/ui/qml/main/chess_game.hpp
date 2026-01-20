@@ -57,6 +57,7 @@ public:
         wisdom::Players players;
         MaxDepth maxDepth;
         std::chrono::seconds maxTime;
+        wisdom::Difficulty difficulty = wisdom::Difficulty::Medium;
 
         static auto fromGameSettings (const GameSettings& gameSettings) -> Config;
     };

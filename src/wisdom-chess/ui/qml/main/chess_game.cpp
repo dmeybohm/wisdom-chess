@@ -98,6 +98,7 @@ void ChessGame::setConfig (const Config& config)
     gameState->setMaxDepth (config.maxDepth.internalDepth());
     gameState->setSearchTimeout (config.maxTime);
     gameState->setPlayers (config.players);
+    gameState->setDifficulty (config.difficulty);
     my_config = config;
 }
 
@@ -136,16 +137,17 @@ void ChessGame::setPeriodicFunction (const MoveTimer::PeriodicFunction& func)
     gameState->setPeriodicFunction (func);
 }
 
-auto 
+auto
 ChessGame::Config::fromGameSettings (
     const GameSettings& gameSettings
-) 
+)
     -> ChessGame::Config
 {
     return ChessGame::Config {
         .players = { mapPlayer (gameSettings.whitePlayer()),
                      mapPlayer (gameSettings.blackPlayer()) },
         .maxDepth = MaxDepth { gameSettings.maxDepth() },
-        .maxTime = std::chrono::seconds { gameSettings.maxSearchTime() }
+        .maxTime = std::chrono::seconds { gameSettings.maxSearchTime() },
+        .difficulty = mapDifficulty (gameSettings.difficulty())
     };
 }

@@ -17,6 +17,7 @@ const createInitialState = (): GameState => ({
         blackPlayer: 1,
         thinkingTime: 5,
         searchDepth: 4,
+        difficulty: 1,  // Medium
     },
     hasHumanPlayer: true,
 })
@@ -193,6 +194,7 @@ describe('reducer', () => {
                 blackPlayer: 1,
                 thinkingTime: 10,
                 searchDepth: 6,
+                difficulty: 2,  // Hard
             }
 
             const action: Action = {
@@ -212,6 +214,7 @@ describe('reducer', () => {
                 blackPlayer: 0,
                 thinkingTime: 15,
                 searchDepth: 5,
+                difficulty: 0,  // Easy
             }
 
             const action: Action = {
@@ -237,6 +240,7 @@ describe('reducer', () => {
                     blackPlayer: 1,
                     thinkingTime: 5,
                     searchDepth: 4,
+                    difficulty: 1,  // Medium
                 },
             }
 

@@ -24,6 +24,7 @@ export function SettingsModal(props: SettingsModalProps) {
 
     const [thinkingTime, setThinkingTime] = useState(settings.thinkingTime);
     const [searchDepth, setSearchDepth] = useState(settings.searchDepth);
+    const [difficulty, setDifficulty] = useState(settings.difficulty);
 
     const handleApply = (e: React.SyntheticEvent) => {
         e.preventDefault()
@@ -38,7 +39,8 @@ export function SettingsModal(props: SettingsModalProps) {
             whitePlayer: whitePlayer,
             blackPlayer: blackPlayer,
             thinkingTime: thinkingTime,
-            searchDepth: searchDepth
+            searchDepth: searchDepth,
+            difficulty: difficulty
         }
         props.onApply(newSettings, Boolean(flippedRef?.current?.checked))
     }
@@ -126,6 +128,17 @@ export function SettingsModal(props: SettingsModalProps) {
                         max={8}
                         value={searchDepth}
                         onChange={value => setSearchDepth(Number(value))}
+                    />
+                </div>
+
+                <div>Difficulty</div>
+                <div className="difficulty">
+                    <label>{["Easy", "Medium", "Hard"][difficulty]}</label>
+                    <Slider
+                        min={0}
+                        max={2}
+                        value={difficulty}
+                        onChange={value => setDifficulty(Number(value))}
                     />
                 </div>
 

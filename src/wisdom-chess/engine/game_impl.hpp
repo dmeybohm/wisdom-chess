@@ -27,9 +27,13 @@ namespace wisdom
         History my_history;
         MoveTimer my_move_timer { Default_Max_Search_Seconds };
         int my_max_depth { Default_Max_Depth };
+        Difficulty my_difficulty { Difficulty::Hard };
         mutable TranspositionTable my_transposition_table = TranspositionTable::fromMegabytes (TranspositionTable::Default_Size_In_Megabytes);
 
         Players my_players = { Player::Human, Player::ChessEngine };
+
+        // Random number generator for difficulty-based move selection
+        mutable std::mt19937 my_rng { std::random_device{}() };
 
         BothPlayersDrawStatus my_third_repetition_draw {
             DrawStatus::NotReached,

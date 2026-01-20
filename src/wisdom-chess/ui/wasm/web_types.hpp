@@ -344,7 +344,7 @@ namespace wisdom
         }
     }
 
-    [[nodiscard]] inline auto 
+    [[nodiscard]] inline auto
     mapDrawByRepetitionType (wisdom::ProposedDrawType type)
         -> WebDrawByRepetitionType
     {
@@ -359,6 +359,46 @@ namespace wisdom
         }
     }
 
+    enum WebDifficulty
+    {
+        Easy = 0,
+        Medium = 1,
+        Hard = 2
+    };
+
+    [[nodiscard]] inline auto
+    mapDifficulty (int difficulty)
+        -> wisdom::Difficulty
+    {
+        switch (static_cast<WebDifficulty> (difficulty))
+        {
+            case Easy:
+                return Difficulty::Easy;
+            case Medium:
+                return Difficulty::Medium;
+            case Hard:
+                return Difficulty::Hard;
+            default:
+                throw Error { "Invalid difficulty." };
+        }
+    }
+
+    [[nodiscard]] inline auto
+    mapDifficulty (wisdom::Difficulty difficulty)
+        -> WebDifficulty
+    {
+        switch (difficulty)
+        {
+            case Difficulty::Easy:
+                return Easy;
+            case Difficulty::Medium:
+                return Medium;
+            case Difficulty::Hard:
+                return Hard;
+            default:
+                throw Error { "Invalid difficulty." };
+        }
+    }
 
 }
 
@@ -369,4 +409,5 @@ using wisdom_WebColor = wisdom::WebColor;
 using wisdom_WebGameStatus = wisdom::WebGameStatus;
 using wisdom_WebDrawStatus = wisdom::WebDrawStatus;
 using wisdom_WebDrawByRepetitionType = wisdom::WebDrawByRepetitionType;
+using wisdom_WebDifficulty = wisdom::WebDifficulty;
 

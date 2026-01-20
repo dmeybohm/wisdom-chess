@@ -32,4 +32,11 @@ void wisdom::ui::registerQmlTypes()
         "DrawByRepetitionStatus",
         "Not creatable as it is an enum type"
     );
+    qmlRegisterUncreatableMetaObject(
+        wisdom::ui::staticMetaObject,
+        "WisdomChess",
+        1, 0,
+        "Difficulty",
+        "Not creatable as it is an enum type"
+    );
 }
