@@ -22,7 +22,6 @@ to check if the format matches.
    - Use `[[nodiscard]]` for functions that return values that shouldn't be ignored
    - Everything is in the `wisdom::` namespace
    - Use `wisdom::narrow` and `wisdom::narrow_cast` for narrowing conversions
-   - No comments unless explicitly requested
 
 ## Build Instructions
 
