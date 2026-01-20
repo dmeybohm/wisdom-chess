@@ -39,6 +39,7 @@ namespace wisdom
     TranspositionTable::fromEntries (size_t entry_count)
         -> TranspositionTable
     {
+        assert (entry_count >= 2);
         return TranspositionTable { FromEntriesTag {}, entry_count };
     }
     
