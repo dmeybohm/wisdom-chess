@@ -156,7 +156,7 @@ namespace wisdom
             return drawingScore (my_searching_color, side);
         }
 
-        if (depth < 0)
+        if (depth <= 0)
         {
             return evaluate (parent_board, side, my_search_depth - depth);
         }
