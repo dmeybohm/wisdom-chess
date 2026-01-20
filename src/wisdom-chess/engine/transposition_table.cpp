@@ -31,6 +31,7 @@ namespace wisdom
 
     TranspositionTable::TranspositionTable (FromEntriesTag, size_t entry_count)
     {
+        Expects (entry_count >= 2);
         my_entries.resize (entry_count);
         my_size_mask = entry_count - 1;
     }
@@ -39,7 +40,7 @@ namespace wisdom
     TranspositionTable::fromEntries (size_t entry_count)
         -> TranspositionTable
     {
-        assert (entry_count >= 2);
+        Expects (entry_count >= 2);
         return TranspositionTable { FromEntriesTag {}, entry_count };
     }
     

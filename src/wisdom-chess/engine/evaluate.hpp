@@ -70,12 +70,17 @@ namespace wisdom
         return isKingThreatened (board, who, makeCoord (king_row, king_col));
     }
 
-    // Whether the board is in a checkmated position for the computer_player.
+    // Whether the board is in a checkmated position for the specified player.
     [[nodiscard]] auto
-    isCheckmated (const Board& board, Color who)
+    isPlayerCheckmated (const Board& board, Color who)
         -> bool;
 
-    // Whether in a stalemate position for white or black.
+	// Whether the board is in a checkmated position for either player.
+	[[nodiscard]] auto
+	isCheckmated (const Board& board)
+		-> bool;
+
+	// Whether in a stalemate position for white or black.
     [[nodiscard]] auto
     isStalemated (const Board& board, Color who)
         -> bool;

@@ -7,15 +7,14 @@
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 
-// The valid internal representations of depth in the wisdom Game object is different
-// from the semantics in the UI:
+// The internal depth representation maps to half-moves (plies):
 //
-// 1 half move = Internal Depth 0
-// 2 half moves = Internal Depth 1
-// 4 half moves = 2 full moves = Internal Depth 3
-// 6 half moves = 3 full moves = Internal Depth 5
+// Internal Depth 1 = 1 ply (half move)
+// Internal Depth 2 = 2 plies (1 full move)
+// Internal Depth 4 = 4 plies (2 full moves)
+// Internal Depth 6 = 6 plies (3 full moves)
 //
-// The UI specifies only full moves, and this class maps to the internal representation.
+// The UI specifies full moves, so internal depth = user depth * 2.
 //
 class MaxDepth
 {
@@ -33,7 +32,7 @@ public:
     internalDepth() const 
         -> int
     {
-        return myUserDepth * 2 - 1;
+        return myUserDepth * 2;
     }
 
     [[nodiscard]] auto 
