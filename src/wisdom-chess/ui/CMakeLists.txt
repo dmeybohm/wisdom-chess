@@ -1,3 +1,6 @@
+# Shared viewmodel base library (used by QML and WASM)
+add_subdirectory(viewmodel)
+
 if (WISDOM_CHESS_CONSOLE_UI AND NOT EMSCRIPTEN)
     add_subdirectory(console)
     add_subdirectory(uci)

@@ -101,11 +101,11 @@ interface WebGame {
 
     void setSettings([Const, Ref] GameSettings newSettings);
 
-    attribute boolean inCheck;
+    boolean getInCheck();
     [Const] DOMString getMoveStatus();
     [Const] DOMString getGameOverStatus();
     attribute long moveNumber;
-    attribute long gameId;
+    long getGameId();
 
     wisdom_WebColor getCurrentTurn();
     wisdom_WebGameStatus getGameStatus();
