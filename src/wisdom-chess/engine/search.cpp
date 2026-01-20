@@ -151,6 +151,16 @@ namespace wisdom
     )
         -> int
     {
+        if (isProbablyDrawingMove (parent_board, side, Move {}, my_history))
+        {
+            return drawingScore (my_searching_color, side);
+        }
+
+        if (depth < 0)
+        {
+            return evaluate (parent_board, side, my_search_depth - depth);
+        }
+
         int original_alpha = alpha;
         std::optional<Move> best_move {};
         int best_score = -Initial_Alpha;
@@ -159,14 +169,6 @@ namespace wisdom
 
         if (ply > 0)
         {
-            // Check if this position is a draw due to repetition BEFORE using TT score.
-            // The TT stores scores without history context, so a position that was
-            // previously scored as +600 might now be a draw (3rd repetition).
-            if (my_history.isProbablyThirdRepetition (parent_board))
-            {
-                return drawingScore (my_searching_color, colorInvert (side));
-            }
-
             if (auto tt_score = my_transposition_table.probe (hash, depth, alpha, beta, ply))
             {
                 my_current_result.move = my_transposition_table.getBestMove (hash);
@@ -198,30 +200,7 @@ namespace wisdom
 
             my_history.addTentativePosition (child_board);
 
-            if (depth <= 0)
-            {
-                if (isProbablyDrawingMove (child_board, side, move, my_history))
-                {
-                    score = drawingScore (my_searching_color, side);
-                }
-                else
-                {
-                    score = evaluate (child_board, side, my_search_depth - depth);
-                }
-            }
-            else
-            {
-                // Don't recurse into a big search if this move is a draw.
-                if (my_search_depth == depth
-                    && isProbablyDrawingMove (child_board, side, move, my_history))
-                {
-                    score = drawingScore (my_searching_color, side);
-                }
-                else
-                {
-                    score = -1 * search (child_board, colorInvert (side), depth - 1, -beta, -alpha, ply + 1);
-                }
-            }
+            score = -1 * search (child_board, colorInvert (side), depth - 1, -beta, -alpha, ply + 1);
 
             if (score > best_score)
             {
@@ -299,8 +278,7 @@ namespace wisdom
         {
             my_timer.start();
 
-            // For now, only look every other depth
-            for (int depth = 0; depth <= my_total_depth; depth == 0 ? depth++ : depth += 2)
+            for (int depth = 1; depth <= my_total_depth; depth += 2)
             {
                 std::ostringstream ostr;
                 ostr << "Searching depth " << depth;

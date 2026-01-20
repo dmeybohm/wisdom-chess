@@ -28,6 +28,20 @@ namespace wisdom
     {
         return TranspositionTable { size };
     }
+
+    TranspositionTable::TranspositionTable (FromEntriesTag, size_t entry_count)
+    {
+        my_entries.resize (entry_count);
+        my_size_mask = entry_count - 1;
+    }
+
+    auto
+    TranspositionTable::fromEntries (size_t entry_count)
+        -> TranspositionTable
+    {
+        assert (entry_count >= 2);
+        return TranspositionTable { FromEntriesTag {}, entry_count };
+    }
     
     auto
     TranspositionTable::scoreToTT (int score, int ply) const
