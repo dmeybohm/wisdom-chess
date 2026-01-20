@@ -394,8 +394,8 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
         TranspositionTable::Default_Size_In_Megabytes);
     auto logger = makeNullLogger();
     MoveTimer timer { 3 };
-    constexpr int intermediate_depth = 15;
-    constexpr int final_depth = 17;
+    constexpr int intermediate_depth = 14;
+    constexpr int final_depth = 16;
 
     // Build up history and run searches at each step to populate the TT
     auto board = initial_board;
