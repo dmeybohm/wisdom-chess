@@ -164,7 +164,7 @@ namespace wisdom
 
     auto Game::status() const -> GameStatus
     {
-        if (isCheckmated (my_pimpl->my_current_board, getCurrentTurn()))
+        if (isPlayerCheckmated (my_pimpl->my_current_board, getCurrentTurn()))
             return GameStatus::Checkmate;
 
         if (isStalemated (my_pimpl->my_current_board, getCurrentTurn()))

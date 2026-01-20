@@ -60,13 +60,9 @@ namespace wisdom
         int score = 0;
         Color opponent = colorInvert (who);
 
-        if (isCheckmated (board, who))
+        if (isPlayerCheckmated (board, who))
         {
             return -1 * checkmateScoreInMoves (moves_away);
-        }
-        else if (isCheckmated (board, opponent))
-        {
-            return checkmateScoreInMoves (moves_away);
         }
 
         score += board.getMaterial().overallScore (who);
@@ -88,7 +84,7 @@ namespace wisdom
             : 0;
     }
 
-    bool isCheckmated (const Board& board, Color who)
+    bool isPlayerCheckmated (const Board& board, Color who)
     {
         auto coord = board.getKingPosition (who);
 
