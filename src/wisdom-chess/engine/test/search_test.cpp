@@ -363,3 +363,138 @@ TEST_CASE( "Root TT hit should not bypass iterative deepening search" )
     CHECK( probes > 10 );
 }
 
+TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when ahead" )
+{
+    // Position: Black ahead (bishop+rook+pawn vs rook+pawn)
+    // Black: Kg7, Bd6, Pf4, Rg4
+    // White: Kb1, Ra6, Pg2
+    //
+    // If Black plays Bd6-b8 followed by Bb8-d6, White can play Ra2-a6
+    // for 3rd repetition (draw). Black should avoid this since it's winning.
+    //
+    // The bug: When the transposition table has cached evaluations of
+    // intermediate positions, the search may return a cached score that
+    // doesn't account for the repetition history.
+
+    BoardBuilder builder;
+    builder.addPiece ("g7", Color::Black, Piece::King);
+    builder.addPiece ("d6", Color::Black, Piece::Bishop);
+    builder.addPiece ("f4", Color::Black, Piece::Pawn);
+    builder.addPiece ("g4", Color::Black, Piece::Rook);
+    builder.addPiece ("b1", Color::White, Piece::King);
+    builder.addPiece ("a6", Color::White, Piece::Rook);
+    builder.addPiece ("g2", Color::White, Piece::Pawn);
+    builder.setCurrentTurn (Color::Black);
+
+    auto initial_board = Board { builder };
+
+    // Use a shared transposition table across all searches to simulate
+    // how a real game would have cached positions from earlier searches.
+    TranspositionTable tt = TranspositionTable::fromMegabytes (
+        TranspositionTable::Default_Size_In_Megabytes);
+    auto logger = makeNullLogger();
+    MoveTimer timer { 3 };
+    constexpr int intermediate_depth = 14;
+    constexpr int final_depth = 16;
+
+    // Build up history and run searches at each step to populate the TT
+    auto board = initial_board;
+    History history = History::fromInitialBoard (board);
+
+    // 1st occurrence: Bd6, Ra6 (initial position) - already added by fromInitialBoard
+
+    // Search from initial position (Black to move)
+    {
+        timer.setSeconds (chrono::seconds { 1 });
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
+        (void)search.iterativelyDeepen (Color::Black);
+    }
+
+    // Black: Bd6-b8
+    auto move1 = moveParse ("d6 b8");
+    board = board.withMove (Color::Black, move1);
+    history.addPosition (board, move1);
+
+    // Search from this position (White to move)
+    {
+        timer.setSeconds (chrono::seconds { 1 });
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
+        (void)search.iterativelyDeepen (Color::White);
+    }
+
+    // White: Ra6-a2
+    auto move2 = moveParse ("a6 a2");
+    board = board.withMove (Color::White, move2);
+    history.addPosition (board, move2);
+
+    // Search from this position (Black to move)
+    {
+        timer.setSeconds (chrono::seconds { 1 });
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
+        (void)search.iterativelyDeepen (Color::Black);
+    }
+
+    // Black: Bb8-d6
+    auto move3 = moveParse ("b8 d6");
+    board = board.withMove (Color::Black, move3);
+    history.addPosition (board, move3);
+
+    // 2nd occurrence: Bd6, Ra6
+    // Search from this position (White to move)
+    {
+        timer.setSeconds (chrono::seconds { 1 });
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
+        (void)search.iterativelyDeepen (Color::White);
+    }
+
+    // White: Ra2-a6
+    auto move4 = moveParse ("a2 a6");
+    board = board.withMove (Color::White, move4);
+    history.addPosition (board, move4);
+
+    // Search from this position (Black to move)
+    {
+        timer.setSeconds (chrono::seconds { 1 });
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
+        (void)search.iterativelyDeepen (Color::Black);
+    }
+
+    // Black: Bd6-b8
+    auto move5 = moveParse ("d6 b8");
+    board = board.withMove (Color::Black, move5);
+    history.addPosition (board, move5);
+
+    // Search from this position (White to move)
+    {
+        timer.setSeconds (chrono::seconds { 1 });
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
+        (void)search.iterativelyDeepen (Color::White);
+    }
+
+    // Current position: Bb8, Ra2 (Black to move)
+    // White: Ra6-a2
+    auto move6 = moveParse ("a6 a2");
+    board = board.withMove (Color::White, move6);
+    history.addPosition (board, move6);
+
+    // Now if Black plays Bb8-d6, White plays Ra2-a6 = 3rd repetition = draw
+    // The TT now has cached scores for these positions from earlier searches
+    // that didn't have the full repetition history.
+
+    timer.setSeconds (chrono::seconds { 1 });
+    auto search = IterativeSearch::create (board, history, logger, timer, final_depth, tt);
+    auto result = search.iterativelyDeepen (Color::Black);
+
+    REQUIRE( result.move.has_value() );
+
+    INFO( "Move chosen: ", asString (*result.move) );
+    INFO( "Score: ", result.score );
+
+    // Black should NOT choose Bb8-d6 because it allows White to draw
+    // The material advantage (~600 centipawns) is worth more than a draw
+    CHECK( *result.move != moveParse ("b8 d6") );
+
+    // Alternatively, check that the score is significantly positive (not near 0/draw)
+    CHECK( result.score > 100 );
+}
+
