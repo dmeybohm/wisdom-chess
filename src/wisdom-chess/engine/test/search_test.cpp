@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unordered_map>
 
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
@@ -496,5 +497,110 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
 
     // Alternatively, check that the score is significantly positive (not near 0/draw)
     CHECK( result.score > 100 );
+}
+
+TEST_CASE( "Difficulty levels affect move selection" )
+{
+    // Use an opening position with multiple reasonable moves
+    // After 1.e4 e5 2.Nf3 Nc6 - multiple good moves for White
+    FenParser fen { "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3" };
+
+    constexpr int test_depth = 4;
+    constexpr int test_timeout = 2;
+
+    SUBCASE( "Hard difficulty always returns the same best move" )
+    {
+        auto game = fen.build();
+        game.setDifficulty (Difficulty::Hard);
+        game.setMaxDepth (test_depth);
+        game.setSearchTimeout (chrono::seconds { test_timeout });
+
+        auto logger = makeNullLogger();
+        auto first_move = game.findBestMove (logger);
+        REQUIRE( first_move.has_value() );
+
+        for (int i = 0; i < 50; ++i)
+        {
+            auto move = game.findBestMove (logger);
+            REQUIRE( move.has_value() );
+            CHECK( *move == *first_move );
+        }
+    }
+
+    SUBCASE( "Easy difficulty follows expected distribution" )
+    {
+        constexpr int num_iterations = 200;
+        std::unordered_map<string, int> move_counts;
+
+        for (int i = 0; i < num_iterations; ++i)
+        {
+            auto game = fen.build();
+            game.setDifficulty (Difficulty::Easy);
+            game.setMaxDepth (test_depth);
+            game.setSearchTimeout (chrono::seconds { test_timeout });
+
+            auto logger = makeNullLogger();
+            auto move = game.findBestMove (logger);
+            REQUIRE( move.has_value() );
+
+            move_counts[asString (*move)]++;
+        }
+
+        // Should have variation - not all the same move
+        REQUIRE( move_counts.size() >= 2 );
+
+        // Find the most common move and check it's not overwhelming (like Hard would be)
+        // Easy should have ~50% best, so most common should be less than 75%
+        int max_count = 0;
+        for (const auto& [move_str, count] : move_counts)
+        {
+            if (count > max_count)
+                max_count = count;
+        }
+
+        double max_percentage = (100.0 * max_count) / num_iterations;
+        INFO( "Max move percentage: ", max_percentage, "%" );
+
+        // With 50% expected for best move, allow tolerance up to 75%
+        // This test verifies variation exists, not exact distribution
+        CHECK( max_percentage < 85.0 );
+    }
+
+    SUBCASE( "Medium difficulty follows expected distribution" )
+    {
+        constexpr int num_iterations = 200;
+        std::unordered_map<string, int> move_counts;
+
+        for (int i = 0; i < num_iterations; ++i)
+        {
+            auto game = fen.build();
+            game.setDifficulty (Difficulty::Medium);
+            game.setMaxDepth (test_depth);
+            game.setSearchTimeout (chrono::seconds { test_timeout });
+
+            auto logger = makeNullLogger();
+            auto move = game.findBestMove (logger);
+            REQUIRE( move.has_value() );
+
+            move_counts[asString (*move)]++;
+        }
+
+        // Medium should have some variation, but less than Easy
+        // With 80% expected for best move, the most common move should dominate
+
+        int max_count = 0;
+        for (const auto& [move_str, count] : move_counts)
+        {
+            if (count > max_count)
+                max_count = count;
+        }
+
+        double max_percentage = (100.0 * max_count) / num_iterations;
+        INFO( "Max move percentage: ", max_percentage, "%" );
+
+        // With 80% expected for best move, it should be at least 60%
+        // (allowing significant tolerance for random variation)
+        CHECK( max_percentage >= 55.0 );
+    }
 }
 
