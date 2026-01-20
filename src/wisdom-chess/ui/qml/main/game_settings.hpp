@@ -2,6 +2,7 @@
 
 #include <QObject>
 
+#include "wisdom-chess/engine/global.hpp"
 #include "wisdom-chess/ui/qml/main/ui_types.hpp"
 
 class GameSettings
@@ -49,7 +50,7 @@ public:
 private:
     wisdom::ui::Player my_white_player = wisdom::ui::Player::Human;
     wisdom::ui::Player my_black_player = wisdom::ui::Player::Computer;
-    int my_max_depth = 3;
+    int my_max_depth = wisdom::Default_Max_Depth / 2;
     int my_max_search_time = 4;
 };
 
