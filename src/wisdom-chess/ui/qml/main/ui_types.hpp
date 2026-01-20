@@ -4,6 +4,7 @@
 
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/piece.hpp"
+#include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
 
 namespace wisdom::ui
 {
@@ -37,16 +38,6 @@ namespace wisdom::ui
     };
 
     Q_ENUM_NS (PieceType)
-
-    enum class DrawByRepetitionStatus
-    {
-        NotReached,
-        Proposed,
-        Accepted,
-        Declined
-    };
-
-    Q_ENUM_NS (DrawByRepetitionStatus)
 
     // Register the enums in QML:
     void registerQmlTypes();
