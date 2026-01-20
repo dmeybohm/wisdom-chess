@@ -33,7 +33,7 @@ namespace wisdom
         int thinkingTime = 4;
 #endif
 
-        int searchDepth = 3;
+        int searchDepth = Default_Max_Depth / 2;
 
 
         [[nodiscard]] static auto 
