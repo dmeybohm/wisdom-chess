@@ -272,13 +272,14 @@ namespace wisdom
         -> SearchResult
     {
         SearchResult best_result {};
+
         my_searching_color = side;
 
         try
         {
             my_timer.start();
 
-            for (int depth = 1; depth <= my_total_depth; depth == 1 ? depth++ : depth += 2)
+            for (int depth = 1; depth <= my_total_depth; depth++)
             {
                 std::ostringstream ostr;
                 ostr << "Searching depth " << depth;
@@ -288,8 +289,11 @@ namespace wisdom
                 if (my_current_result.timed_out)
                     break;
 
+            	// Update, but only do so if we saw opponent's reply
+            	// (limited version of quiescence)
                 auto next_result = getBestResult();
-                if (next_result.move.has_value())
+                if (next_result.move.has_value() &&
+                	(!best_result.move.has_value() || depth % 2 == 0))
                 {
                     best_result = next_result;
                     if (isCheckmatingOpponentScore (next_result.score))
