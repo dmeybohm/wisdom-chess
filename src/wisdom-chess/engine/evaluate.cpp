@@ -96,7 +96,7 @@ namespace wisdom
         return legal_moves.isEmpty();
     }
 
-    auto isCheckmated (const Board &board) -> bool
+    auto isCheckmated (const Board& board) -> bool
 	{
 		return isPlayerCheckmated (board, Color::White) ||
 			isPlayerCheckmated (board, Color::Black);
