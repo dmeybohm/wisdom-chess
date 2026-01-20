@@ -278,7 +278,7 @@ namespace wisdom
         {
             my_timer.start();
 
-            for (int depth = 1; depth <= my_total_depth; depth += 2)
+            for (int depth = 1; depth <= my_total_depth; depth == 1 ? depth++ : depth += 2)
             {
                 std::ostringstream ostr;
                 ostr << "Searching depth " << depth;

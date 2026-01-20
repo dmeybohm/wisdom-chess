@@ -64,7 +64,7 @@ TEST_CASE( "Can find mate in 3" )
 
     auto board = Board { builder };
     SearchHelper helper;
-    IterativeSearch search = helper.build (board, 5);
+    IterativeSearch search = helper.build (board, 6);
 
     SearchResult result = search.iterativelyDeepen (Color::White);
 
@@ -86,7 +86,7 @@ TEST_CASE( "Can find mate in 2 1/2" )
     auto game = fen.build();
 
     SearchHelper helper;
-    IterativeSearch search = helper.build (game.getBoard(), 5);
+    IterativeSearch search = helper.build (game.getBoard(), 6);
 
     SearchResult result = search.iterativelyDeepen (Color::Black);
 
@@ -141,7 +141,7 @@ TEST_CASE( "scenario with heap overflow 1" )
     builder.setCurrentTurn (Color::Black);
     auto board = Board { builder };
     SearchHelper helper;
-    IterativeSearch search = helper.build (board, 3, 300);
+    IterativeSearch search = helper.build (board, 4, 300);
 
     SearchResult result = search.iterativelyDeepen (Color::Black);
     REQUIRE( result.move.has_value() );
@@ -170,7 +170,7 @@ TEST_CASE( "Promoting move is taken if possible" )
     auto board = Board { builder };
     SearchHelper helper;
 
-    auto search = helper.build (board, 1, 30);
+    auto search = helper.build (board, 2, 30);
     auto result = search.iterativelyDeepen (Color::Black);
     REQUIRE( asString (*result.move) == "d2 d1(Q)" );
 }
@@ -182,7 +182,7 @@ TEST_CASE( "Promoted pawn is promoted to highest value piece even when capturing
     auto game = parser.build();
 
     SearchHelper helper;
-    auto search = helper.build (game.getBoard(), 3);
+    auto search = helper.build (game.getBoard(), 4);
 
     auto board_str = game.getBoard().asString();
     INFO( board_str );
@@ -199,7 +199,7 @@ TEST_CASE( "Finding moves regression test" )
     SearchHelper helper;
     History history;
     MoveTimer timer { 10 };
-    IterativeSearch search = helper.build (game.getBoard(), 1, 10);
+    IterativeSearch search = helper.build (game.getBoard(), 2, 10);
 
     SearchResult result = search.iterativelyDeepen (Color::White);
     REQUIRE( result.move.has_value() );
@@ -212,7 +212,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 1" )
 
     SearchHelper helper;
     History history;
-    auto search = helper.build (game.getBoard(), 3, 180);
+    auto search = helper.build (game.getBoard(), 4, 180);
 
     auto result = search.iterativelyDeepen (Color::Black);
 
@@ -232,7 +232,7 @@ TEST_CASE( "Bishop is not sacrificed scenario 2 (as white)" )
     auto game = fen.build();
 
     SearchHelper helper;
-    IterativeSearch search = helper.build (game.getBoard(), 3, 180);
+    IterativeSearch search = helper.build (game.getBoard(), 4, 180);
 
     auto result = search.iterativelyDeepen (Color::White);
 
@@ -258,7 +258,7 @@ TEST_CASE( "Advanced pawn should be captured" )
     game.move (moveParse ("e5 d6 ep", Color::White));
 
     SearchHelper helper;
-    auto search = helper.build (game.getBoard(), 3, 10);
+    auto search = helper.build (game.getBoard(), 4, 10);
     auto result = search.iterativelyDeepen (Color::Black);
 
     REQUIRE( result.move.has_value() );
@@ -279,7 +279,7 @@ TEST_CASE( "Checkmate is preferred to stalemate" )
     auto game = fen.build();
 
     SearchHelper helper;
-    auto search = helper.build (game.getBoard(), 5, 10);
+    auto search = helper.build (game.getBoard(), 6, 10);
 
     auto result = search.iterativelyDeepen (Color::Black);
 
@@ -298,7 +298,7 @@ TEST_CASE( "Can avoid stalemate" )
     game.move (moveParse ("a5 a6", Color::White));
 
     SearchHelper helper;
-    IterativeSearch search = helper.build (game.getBoard(), 5, 5);
+    IterativeSearch search = helper.build (game.getBoard(), 6, 5);
     SearchResult result = search.iterativelyDeepen (Color::Black);
 
     REQUIRE( result.move != std::nullopt );
@@ -313,24 +313,24 @@ TEST_CASE( "Doesn't sacrifice piece to undermine opponent's castle position" )
 {
     FenParser fen { "r1bqkb1r/2pppppp/p4n2/np6/8/1B2PN2/PPPP1PPP/RNBQK2R w KQkq - 0 1 " };
 
-    SUBCASE( "Depth 5" )
+    SUBCASE( "Depth 6" )
     {
         auto game = fen.build();
 
         SearchHelper helper;
-        IterativeSearch search = helper.build (game.getBoard(), 5, 10);
+        IterativeSearch search = helper.build (game.getBoard(), 6, 10);
         SearchResult result = search.iterativelyDeepen (Color::White);
 
         // Check the white bishop is not sacrificed:
         CHECK( *result.move != moveParse ("b3xf7") );
     }
 
-    SUBCASE( "Depth 7" )
+    SUBCASE( "Depth 8" )
     {
         auto game = fen.build();
 
         SearchHelper helper;
-        IterativeSearch search = helper.build (game.getBoard(), 7, 10);
+        IterativeSearch search = helper.build (game.getBoard(), 8, 10);
         SearchResult result = search.iterativelyDeepen (Color::White);
 
         // Check the white bishop is not sacrificed:
@@ -351,7 +351,7 @@ TEST_CASE( "Root TT hit should not bypass iterative deepening search" )
     auto logger = makeNullLogger();
     MoveTimer timer { 30 };
 
-    IterativeSearch search = IterativeSearch::create (board, history, logger, timer, 5, tt);
+    IterativeSearch search = IterativeSearch::create (board, history, logger, timer, 6, tt);
 
     auto stats_before = tt.getStats();
     SearchResult result = search.iterativelyDeepen (Color::White);
@@ -394,8 +394,8 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
         TranspositionTable::Default_Size_In_Megabytes);
     auto logger = makeNullLogger();
     MoveTimer timer { 3 };
-    constexpr int intermediate_depth = 14;
-    constexpr int final_depth = 16;
+    constexpr int intermediate_depth = 15;
+    constexpr int final_depth = 17;
 
     // Build up history and run searches at each step to populate the TT
     auto board = initial_board;

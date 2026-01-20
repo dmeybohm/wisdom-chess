@@ -40,7 +40,7 @@ namespace wisdom
         mapHumanDepthToComputerDepth (int human_depth) 
             -> int
         {
-            return human_depth * 2 - 1;
+            return human_depth * 2;
         }
 
         void applyToGame (observer_ptr<wisdom::Game> game) const
