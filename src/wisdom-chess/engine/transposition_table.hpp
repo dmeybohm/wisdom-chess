@@ -49,6 +49,9 @@ namespace wisdom
     {
         explicit TranspositionTable (int size_in_megabytes);
 
+        struct FromEntriesTag {};
+        TranspositionTable (FromEntriesTag, size_t entry_count);
+
     public:
         static constexpr int Default_Size_In_Megabytes = 16;
 
@@ -56,6 +59,10 @@ namespace wisdom
 
         [[nodiscard]] static auto
         fromMegabytes (int size)
+            -> TranspositionTable;
+
+        [[nodiscard]] static auto
+        fromEntries (size_t entry_count)
             -> TranspositionTable;
 
         [[nodiscard]] auto
