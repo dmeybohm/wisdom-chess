@@ -16,6 +16,15 @@ namespace wisdom
 
         GameSettings my_game_settings {};
 
+    public:
+        [[nodiscard]] static auto
+        currentGameId()
+            -> int
+        {
+            return my_game_id;
+        }
+
+    private:
         // Send new settings to the worker.
         void sendSettings() const
         {
@@ -37,15 +46,16 @@ namespace wisdom
         GameModel() = default;
 
         // Initialize a new game with the default position.
-        auto 
+        auto
         startNewGame()
             -> WebGame*
         {
-            auto new_game = WebGame::newFromSettings (my_game_settings);
+            ++my_game_id;
+            auto new_game = WebGame::newFromSettings (my_game_settings, my_game_id);
             emscripten_wasm_worker_post_function_vi (
                 engine_thread,
                 workerReinitializeGame,
-                ++my_game_id
+                my_game_id
             );
             return new_game;
         }

@@ -1,6 +1,7 @@
 #include <atomic>
 
 #include "wisdom-chess/ui/wasm/bindings.hpp"
+#include "wisdom-chess/ui/wasm/game_model.hpp"
 #include "wisdom-chess/ui/wasm/web_logger.hpp"
 #include "wisdom-chess/ui/wasm/web_types.hpp"
 #include "wisdom-chess/ui/wasm/game_settings.hpp"
@@ -254,13 +255,17 @@ EM_JS (void, receiveMoveFromWorker, (int game_id, const char* str),
 
 EMSCRIPTEN_KEEPALIVE void
 mainThreadReceiveMove (
-    int game_id, 
+    int game_id,
     int packed_move
 ) {
+    // Validate game_id against the authoritative GameModel ID.
+    // Reject stale moves from old games.
+    if (game_id != GameModel::currentGameId())
+        return;
+
     Move unpacked_move = Move::fromInt (packed_move);
-    auto state = GameState::getState();
     std::string str = asString (unpacked_move);
-    receiveMoveFromWorker (state->game_id, str.c_str());
+    receiveMoveFromWorker (game_id, str.c_str());
 }
 
 EMSCRIPTEN_KEEPALIVE void pauseWorker()
