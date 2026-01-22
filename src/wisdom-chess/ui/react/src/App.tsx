@@ -118,6 +118,13 @@ function App() {
             const onMsg = (type: ChessEngineEventType, gameId: number, message: string) => {
                 const game = gameRef.current
                 const mod = wisdomChessRef.current
+
+                // Reject stale moves from previous games
+                if (gameId !== game.gameId) {
+                    console.debug('Ignoring message from old game:', gameId, 'current:', game.gameId)
+                    return
+                }
+
                 switch (type) {
                     case 'computerMoved': {
                         const move = mod.WebMove.prototype.fromString(message, game.getCurrentTurn())
