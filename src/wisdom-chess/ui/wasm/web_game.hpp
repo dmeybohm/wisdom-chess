@@ -14,21 +14,16 @@ namespace wisdom
         WebColoredPieceList my_pieces;
         std::string my_move_status;
         std::string my_game_over_status;
-        static int our_game_id;
 
     public:
         bool inCheck = false;
         int moveNumber {};
-        int gameId = ++our_game_id;
+        int gameId {};
 
-        WebGame()
-            : WebGame (static_cast<int> (Human), static_cast<int> (ChessEngine))
-        {}
+        WebGame (int white_player, int black_player, int game_id);
 
-        WebGame (int white_player, int black_player);
-
-        [[nodiscard]] static auto 
-        newFromSettings (const GameSettings& settings) 
+        [[nodiscard]] static auto
+        newFromSettings (const GameSettings& settings, int game_id)
             -> WebGame*;
 
         void setSettings (const GameSettings& settings);

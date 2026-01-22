@@ -5,17 +5,16 @@
 #include "wisdom-chess/ui/wasm/web_game.hpp"
 #include "wisdom-chess/ui/wasm/game_settings.hpp"
 
-int wisdom::WebGame::our_game_id;
-
 namespace wisdom
 {
-    WebGame::WebGame (int white_player, int black_player)
+    WebGame::WebGame (int white_player, int black_player, int game_id)
         : my_game {
             Game::createGame (
                 mapPlayer (white_player),
                 mapPlayer (black_player)
             )
         }
+        , gameId { game_id }
     {
         const auto& board = my_game.getBoard();
         int id = 1;
@@ -52,11 +51,11 @@ namespace wisdom
         return true;
     }
 
-    auto 
-    WebGame::newFromSettings (const GameSettings& settings) 
+    auto
+    WebGame::newFromSettings (const GameSettings& settings, int game_id)
         -> wisdom::WebGame*
     {
-        auto* new_game = new WebGame ( settings.whitePlayer, settings.blackPlayer );
+        auto* new_game = new WebGame (settings.whitePlayer, settings.blackPlayer, game_id);
 
         const auto computer_depth = GameSettings::mapHumanDepthToComputerDepth (settings.searchDepth);
         new_game->setMaxDepth (computer_depth);

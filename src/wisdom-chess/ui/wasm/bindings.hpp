@@ -9,22 +9,22 @@
 
 extern "C"
 {
-    // Reinitialize a new game.
+    // Reinitialize a new game. Called from the main thread
     EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id);
 
-    // Start searching for moves.
+    // Start searching for moves. Called from the main thread.
     EMSCRIPTEN_KEEPALIVE void startSearch();
 
-    // Receive a move on the main thread from the chess engine.
+    // Called from the worker. Receive a move on the main thread from the chess engine.
     EMSCRIPTEN_KEEPALIVE void mainThreadReceiveMove (
         int game_id, 
         int packed_move
     );
 
-    // Receive a move from the human player.
+    // Receive a move from the human player from the main thread.
     EMSCRIPTEN_KEEPALIVE void workerReceiveMove (int packed_move);
 
-    // Receive a settings update.
+    // Receive a settings update from the main thread.
     EMSCRIPTEN_KEEPALIVE void workerReceiveSettings (
         int white_player, 
         int black_player, 
@@ -32,10 +32,10 @@ extern "C"
         int search_depth
     );
 
-    // Tell the worker to stop searching for moves. This can be called from any thread.
+    // Called from the main thread to tell the worker to stop searching for moves.
     EMSCRIPTEN_KEEPALIVE void pauseWorker (void);
 
-    // Remove the unpause state from the worker. This can be called from any thread.
+    // Called form the main thread to unpause the worker.
     EMSCRIPTEN_KEEPALIVE void unpauseWorker (void);
 
     // Update the draw status.
