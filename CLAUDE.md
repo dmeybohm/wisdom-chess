@@ -1,5 +1,46 @@
 # Claude Instructions for Wisdom Chess
 
+## Git
+
+Unless otherwise asked, we should do the work on a feature branch.
+Often the branch will already be checked out, but we should check
+out a new feature branch before starting to work. If the main
+branch is currently checked out, ask which feature branch to switch
+to prior to beginning work.
+
+We should commit after each significant step. You should add a
+`Co-Authored-By` annotation for Claude to each commit.
+
+Be wary of rebasing to undo a mistake. You can amend the previous
+commit, but if you have to go back further in the history, prefer
+to make a new commit instead.
+
+## Feature log
+
+When planning how to implement a feature, we should store the plans
+in markdown format in the feature logs.
+
+This is to keep track of development and design rationales. The
+feature log is located in the `features/` directory, and it is
+organized by year and then month. All plan documents for each
+feature should go in the `features/$year/$month/{$git_branch_name}.md`.
+Each document there should have the plan for implementing the
+feature.
+
+If you need to document the implementation status, prefer to add a
+"Implementation Progress" section in the feature's corresponding
+markdown file, as opposed to adding markdown files in other
+locations, to keep the feature development documentation organized.
+You can include a "Session #1" subsection for the first
+implementation progress part, and then subsequently increment the
+number for additional sections. Indexes of the feature documents
+will be generated automatically for keeping them browsable, so you
+only need to update the individual feature documents.
+
+You can also consult the `features/` directory if you're confused
+about how something was implemented in order to try to clarify, if
+the code is not clear.
+
 ## Code Style Guidelines
 
 ### C++ Code Style
