@@ -78,7 +78,27 @@ efficient on ARM and WASM targets.
 **New Board accessors added:** `pieceAtIndex(int)` for index-based access
 without Coord construction, `squareData()` for raw pointer to the square array.
 
-### 5. Branchless Knight Check
+### 5. Column Scan with Gathered Occupancy Bitmask
+
+**Before:** Per-square loop scanning up and down from the king's row, same
+branching pattern as the original rank scan.
+
+**After:** Gather 8 stride-8 column bytes into a packed `uint64_t` via an
+unrolled loop (8 loads + 7 shift-ORs), then reuse the same
+`buildOccupancyMask` + `scanLane` logic from the rank scan.
+
+**Refactoring:** `buildOccupancyMask` now takes a `uint64_t` directly (not a
+pointer), and a shared `scanLane` template takes the occupancy mask, king
+position along the lane, and a check callback. Both `row()` and `column()`
+are now thin wrappers that load/gather data and call `scanLane`.
+
+**Rationale:** Although the column gather (8 stride-8 loads) is more expensive
+than the rank load (single `memcpy`), the back-end savings are the same:
+replacing up to 7 branching iterations with 2 targeted piece checks. The
+worst case (open file) benefits most; the common case avoids branch
+mispredictions on the scan loop.
+
+### 6. Branchless Knight Check
 
 **Before:** Early-exit loop with `if (valid && match) return true` branching
 per offset. 8 conditional branches in the loop body.
@@ -112,3 +132,10 @@ Replaced per-square rank loop with SWAR occupancy bitmask + `countr_zero`/
 bounds and OR-accumulated results. Initial OR-fold approach for occupancy mask
 had cross-byte contamination bug; fixed by switching to Mycroft's "has zero
 byte" SWAR technique which operates on byte boundaries correctly.
+
+### Session #3: Column scan with gathered occupancy bitmask
+
+Extended the SWAR bitmask approach to column scanning by gathering 8 stride-8
+bytes into a packed `uint64_t`. Refactored `buildOccupancyMask` to accept a
+`uint64_t` directly and extracted a shared `scanLane` template so both `row()`
+and `column()` use the same scan logic with different load strategies.
