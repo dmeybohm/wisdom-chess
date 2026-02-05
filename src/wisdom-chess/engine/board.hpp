@@ -45,6 +45,21 @@ namespace wisdom
             return my_squares[coord.index()];
         }
 
+        [[nodiscard]] constexpr auto
+        pieceAtIndex (int index) const
+            -> ColoredPiece
+        {
+            assert (index >= 0 && index < Num_Squares);
+            return my_squares[index];
+        }
+
+        [[nodiscard]] constexpr auto
+        squareData() const noexcept
+            -> const ColoredPiece*
+        {
+            return my_squares.data();
+        }
+
         friend auto
         operator<< (std::ostream& os, const Board& board)
             -> std::ostream&;
