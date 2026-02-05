@@ -37,32 +37,29 @@ namespace wisdom
         {
             // clang-format off
             return
+                pawn() ||
+                knight() ||
                 row() ||
                 column() ||
                 diagonal() ||
-                knight() ||
-                pawn() ||
                 king();
             // clang-format on
         }
 
-        constexpr auto checkLaneThreats (int target_row, int target_col)
+        template <Piece sliding_piece>
+        constexpr auto checkSlidingThreats (int target_row, int target_col)
             -> ThreatStatus
         {
             ColoredPiece piece = my_board.pieceAt (target_row, target_col);
             auto type = pieceType (piece);
             auto target_color = pieceColor (piece);
 
-            // 1 or 0: whether to consider a piece or revert to the king
-            // position.
-            int is_rook = type == Piece::Rook;
+            int is_sliding = type == sliding_piece;
             int is_queen = type == Piece::Queen;
             int is_opponent_color = target_color == my_opponent;
 
-            int has_threatening_piece = (is_rook | is_queen) & is_opponent_color;
+            int has_threatening_piece = (is_sliding | is_queen) & is_opponent_color;
 
-            // If the check is blocked, revert to the king position itself
-            // for the calculation to avoid any branching.
             ThreatStatus result = has_threatening_piece ? ThreatStatus::Threatened :
                 type != Piece::None ? ThreatStatus::Blocked :
                                     ThreatStatus::None;
@@ -75,7 +72,7 @@ namespace wisdom
         {
             for (auto new_col = nextColumn (my_king_col, +1); new_col <= Last_Column; new_col++)
             {
-                auto status = checkLaneThreats (my_king_row, new_col);
+                auto status = checkSlidingThreats<Piece::Rook> (my_king_row, new_col);
                 if (status == ThreatStatus::Threatened)
                     return true;
                 else if (status == ThreatStatus::Blocked)
@@ -84,7 +81,7 @@ namespace wisdom
 
             for (auto new_col = nextColumn (my_king_col, -1); new_col >= First_Column; new_col--)
             {
-                auto status = checkLaneThreats (my_king_row, new_col);
+                auto status = checkSlidingThreats<Piece::Rook> (my_king_row, new_col);
                 if (status == ThreatStatus::Threatened)
                     return true;
                 else if (status == ThreatStatus::Blocked)
@@ -99,7 +96,7 @@ namespace wisdom
         {
             for (auto new_row = nextRow (my_king_row, +1); new_row <= Last_Row; new_row++)
             {
-                auto status = checkLaneThreats (new_row, my_king_col);
+                auto status = checkSlidingThreats<Piece::Rook> (new_row, my_king_col);
                 if (status == ThreatStatus::Threatened)
                     return true;
                 else if (status == ThreatStatus::Blocked)
@@ -108,7 +105,7 @@ namespace wisdom
 
             for (auto new_row = nextRow (my_king_row, -1); new_row >= First_Row; new_row--)
             {
-                auto status = checkLaneThreats (new_row, my_king_col);
+                auto status = checkSlidingThreats<Piece::Rook> (new_row, my_king_col);
                 if (status == ThreatStatus::Threatened)
                     return true;
                 else if (status == ThreatStatus::Blocked)
@@ -118,78 +115,31 @@ namespace wisdom
             return false;
         }
 
-        int checkKnightAtSquare (int target_row, int target_col)
-        {
-            auto piece = my_board.pieceAt (target_row, target_col);
-            return pieceColor (piece) == my_opponent && pieceType (piece) == Piece::Knight;
-        }
-
-        template <int row_dir, int col_dir>
-        int checkKnight()
-        {
-            int starting_row = my_king_row + row_dir;
-            int starting_col = my_king_col + col_dir;
-
-            if constexpr (row_dir != 0)
-            {
-                // starting square is along the row - so go left or right
-                // with the column along the same direction as the row.
-                auto target_row = starting_row + row_dir;
-                if constexpr (row_dir > 0)
-                {
-                    if (target_row > Last_Row)
-                        return false;
-                }
-                else
-                {
-                    if (target_row < First_Row)
-                        return false;
-                }
-
-                auto left_col = my_king_col - 1;
-                auto right_col = my_king_col + 1;
-
-                int attacked = 0;
-                if (left_col >= First_Column)
-                    attacked |= checkKnightAtSquare (target_row, left_col);
-                if (right_col <= Last_Column)
-                    attacked |= checkKnightAtSquare (target_row, right_col);
-
-                return attacked;
-            }
-            else
-            {
-                // starting square is along the row - so go left or right
-                // with the column along the same direction as the row.
-                auto target_col = starting_col + col_dir;
-                if constexpr (col_dir > 0)
-                {
-                    if (target_col > Last_Column)
-                        return false;
-                }
-                else
-                {
-                    if (target_col < First_Column)
-                        return false;
-                }
-
-                auto left_row = my_king_row - 1;
-                auto right_row = my_king_row + 1;
-
-                int attacked = 0;
-                if (left_row >= First_Row)
-                    attacked |= checkKnightAtSquare (left_row, target_col);
-                if (right_row <= Last_Row)
-                    attacked |= checkKnightAtSquare (right_row, target_col);
-
-                return attacked;
-            }
-        }
-
         bool knight()
         {
-            return checkKnight<-1, 0>() || checkKnight<0, +1>() || checkKnight<+1, 0>()
-                || checkKnight<0, -1>();
+            static constexpr struct
+            {
+                int row;
+                int col;
+            } offsets[] = {
+                { -2, -1 }, { -2, +1 }, { -1, -2 }, { -1, +2 },
+                { +1, -2 }, { +1, +2 }, { +2, -1 }, { +2, +1 },
+            };
+
+            ColoredPiece opponent_knight = ColoredPiece::make (my_opponent, Piece::Knight);
+
+            for (auto [dr, dc] : offsets)
+            {
+                int target_row = my_king_row + dr;
+                int target_col = my_king_col + dc;
+                if (isValidRow (target_row) && isValidColumn (target_col)
+                    && my_board.pieceAt (target_row, target_col) == opponent_knight)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         bool pawn()
@@ -267,35 +217,8 @@ namespace wisdom
             return top_attack_exists | center_attack_exists | bottom_attack_exists;
         }
 
-        constexpr auto 
-        checkDiagonalThreats (int target_row, int target_col)
-            -> ThreatStatus
-        {
-            ThreatStatus result = ThreatStatus::None;
-
-            ColoredPiece piece = my_board.pieceAt (target_row, target_col);
-            auto type = pieceType (piece);
-            auto target_color = pieceColor (piece);
-
-            // 1 or 0: whether to consider a piece or revert to the king
-            // position.
-            int is_bishop = type == Piece::Bishop;
-            int is_queen = type == Piece::Queen;
-            int is_opponent_color = target_color == my_opponent;
-
-            int has_threatening_piece = (is_bishop | is_queen) & is_opponent_color;
-
-            // If the check is blocked, revert to the king position itself
-            // for the calculation to avoid any branching.
-            result = has_threatening_piece ? ThreatStatus::Threatened :
-                                           type != Piece::None ? ThreatStatus::Blocked :
-                                    ThreatStatus::None;
-
-            return result;
-        }
-
-        template <int horiz_direction, int vert_direction> auto 
-        checkDiagonalThreat() 
+        template <int horiz_direction, int vert_direction> auto
+        checkDiagonalThreat()
             -> bool
         {
             int new_row = my_king_row;
@@ -328,7 +251,7 @@ namespace wisdom
                         break;
                 }
 
-                auto status = checkDiagonalThreats (new_row, new_col);
+                auto status = checkSlidingThreats<Piece::Bishop> (new_row, new_col);
                 if (status == ThreatStatus::Threatened)
                     return true;
                 else if (status == ThreatStatus::Blocked)
