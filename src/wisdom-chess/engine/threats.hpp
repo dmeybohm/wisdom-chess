@@ -159,7 +159,7 @@ namespace wisdom
         // Check an entire row for any rook / queen threats using occupancy bitmask.
         bool row()
         {
-            const ColoredPiece* rank_ptr = my_board.squareData() + my_king_row * Num_Columns;
+            const ColoredPiece* rank_ptr = my_board.squareData().data() + my_king_row * Num_Columns;
             uint8_t occupied = buildOccupancyMask (loadRank (rank_ptr));
 
             return scanLane (occupied, my_king_col, [&] (int col) {
@@ -171,7 +171,7 @@ namespace wisdom
         bool column()
         {
             uint8_t occupied = buildOccupancyMask (
-                gatherColumn (my_board.squareData(), my_king_col)
+                gatherColumn (my_board.squareData().data(), my_king_col)
             );
 
             return scanLane (occupied, my_king_row, [&] (int row) {
@@ -284,7 +284,7 @@ namespace wisdom
         // Check both diagonals for any bishop / queen threats using occupancy bitmask.
         bool diagonal()
         {
-            const ColoredPiece* data = my_board.squareData();
+            const ColoredPiece* data = my_board.squareData().data();
 
             // Main diagonal (NW-SE): stride 9
             {
