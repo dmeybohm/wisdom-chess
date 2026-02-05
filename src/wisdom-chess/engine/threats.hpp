@@ -57,7 +57,7 @@ namespace wisdom
             uint64_t nonzero_mask = zero_detect ^ high_bits;
 
             // Pack the high bit of each byte into a single byte via multiply-shift.
-            auto occupied = static_cast<uint8_t> (
+            auto occupied = narrow_cast<uint8_t> (
                 (nonzero_mask * UINT64_C (0x0002040810204081)) >> 56
             );
 
@@ -80,7 +80,7 @@ namespace wisdom
             for (int r = 0; r < Num_Rows; r++)
             {
                 auto byte = static_cast<uint64_t> (
-                    static_cast<uint8_t> (data[r * Num_Columns + col].piece_type_and_color)
+                    narrow_cast<uint8_t> (data[r * Num_Columns + col].piece_type_and_color)
                 );
                 result |= byte << (r * 8);
             }
@@ -99,7 +99,7 @@ namespace wisdom
             for (int i = 0; i < length; i++)
             {
                 auto byte = static_cast<uint64_t> (
-                    static_cast<uint8_t> (data[index].piece_type_and_color)
+                    narrow_cast<uint8_t> (data[index].piece_type_and_color)
                 );
                 result |= byte << (i * 8);
                 index += stride;
@@ -136,7 +136,7 @@ namespace wisdom
             occupied &= ~(1u << king_pos);
 
             // Forward scan: find nearest piece above king_pos
-            uint8_t fwd_mask = occupied & static_cast<uint8_t> (~((1u << (king_pos + 1)) - 1));
+            uint8_t fwd_mask = occupied & narrow_cast<uint8_t> (~((1u << (king_pos + 1)) - 1));
             if (fwd_mask != 0)
             {
                 int nearest = std::countr_zero (static_cast<unsigned> (fwd_mask));
@@ -145,7 +145,7 @@ namespace wisdom
             }
 
             // Backward scan: find nearest piece below king_pos
-            uint8_t bwd_mask = occupied & static_cast<uint8_t> ((1u << king_pos) - 1);
+            uint8_t bwd_mask = occupied & narrow_cast<uint8_t> ((1u << king_pos) - 1);
             if (bwd_mask != 0)
             {
                 int nearest = std::bit_width (static_cast<unsigned> (bwd_mask)) - 1;
@@ -198,7 +198,7 @@ namespace wisdom
                 auto r = static_cast<unsigned> (my_king_row + dr);
                 auto c = static_cast<unsigned> (my_king_col + dc);
                 int valid = (r < 8u) & (c < 8u);
-                int index = valid ? static_cast<int> (r * 8 + c) : 0;
+                int index = valid ? narrow_cast<int> (r * 8 + c) : 0;
                 int match = (my_board.pieceAtIndex (index) == opponent_knight) & valid;
                 found |= match;
             }
