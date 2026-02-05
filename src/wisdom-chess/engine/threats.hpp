@@ -4,6 +4,9 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/piece.hpp"
 
+#include <bit>
+#include <cstring>
+
 namespace wisdom
 {
     struct InlineThreats
@@ -67,25 +70,69 @@ namespace wisdom
             return result;
         }
 
-        // Check an entire row for any rook / queen threats.
+        // Build an 8-bit occupancy mask from 8 contiguous ColoredPiece bytes.
+        // Bit N is set when column N is occupied (non-zero byte).
+        // Uses the standard "has zero byte" SWAR technique to detect non-zero bytes
+        // without cross-byte contamination from bit shifts.
+        static auto buildOccupancyMask (const ColoredPiece* rank_ptr) -> uint8_t
+        {
+            uint64_t rank_data;
+            std::memcpy (&rank_data, rank_ptr, sizeof (rank_data));
+
+            // Detect zero bytes using Mycroft's "has zero byte" trick:
+            //   ((v - 0x0101..01) & ~v & 0x8080..80) has high bit set for each ZERO byte.
+            // Invert to get high bit set for each NON-ZERO byte (occupied squares).
+            constexpr uint64_t low_ones = UINT64_C (0x0101010101010101);
+            constexpr uint64_t high_bits = UINT64_C (0x8080808080808080);
+
+            uint64_t zero_detect = (rank_data - low_ones) & ~rank_data & high_bits;
+            uint64_t nonzero_mask = zero_detect ^ high_bits;
+
+            // Pack the high bit of each byte into a single byte via multiply-shift.
+            // The multiply by 0x0002040810204081 accumulates bit 7 of each byte
+            // into the top byte, and >> 56 extracts it.
+            auto occupied = static_cast<uint8_t> (
+                (nonzero_mask * UINT64_C (0x0002040810204081)) >> 56
+            );
+
+            return occupied;
+        }
+
+        // Check if the nearest piece in a direction is an opponent rook or queen.
+        auto checkRankPieceAt (int col) -> bool
+        {
+            int index = my_king_row * Num_Columns + col;
+            ColoredPiece piece = my_board.pieceAtIndex (index);
+            auto type = pieceType (piece);
+            auto color = pieceColor (piece);
+            return color == my_opponent && (type == Piece::Rook || type == Piece::Queen);
+        }
+
+        // Check an entire row for any rook / queen threats using occupancy bitmask.
         bool row()
         {
-            for (auto new_col = nextColumn (my_king_col, +1); new_col <= Last_Column; new_col++)
+            const ColoredPiece* rank_ptr = my_board.squareData() + my_king_row * Num_Columns;
+            uint8_t occupied = buildOccupancyMask (rank_ptr);
+
+            // Clear the king's own bit
+            occupied &= ~(1u << my_king_col);
+
+            // Right scan: mask off columns <= king_col, find nearest piece rightward
+            uint8_t right_mask = occupied & static_cast<uint8_t> (~((1u << (my_king_col + 1)) - 1));
+            if (right_mask != 0)
             {
-                auto status = checkSlidingThreats<Piece::Rook> (my_king_row, new_col);
-                if (status == ThreatStatus::Threatened)
+                int nearest_right = std::countr_zero (static_cast<unsigned> (right_mask));
+                if (checkRankPieceAt (nearest_right))
                     return true;
-                else if (status == ThreatStatus::Blocked)
-                    break;
             }
 
-            for (auto new_col = nextColumn (my_king_col, -1); new_col >= First_Column; new_col--)
+            // Left scan: mask off columns >= king_col, find nearest piece leftward
+            uint8_t left_mask = occupied & static_cast<uint8_t> ((1u << my_king_col) - 1);
+            if (left_mask != 0)
             {
-                auto status = checkSlidingThreats<Piece::Rook> (my_king_row, new_col);
-                if (status == ThreatStatus::Threatened)
+                int nearest_left = std::bit_width (static_cast<unsigned> (left_mask)) - 1;
+                if (checkRankPieceAt (nearest_left))
                     return true;
-                else if (status == ThreatStatus::Blocked)
-                    break;
             }
 
             return false;
@@ -127,19 +174,19 @@ namespace wisdom
             };
 
             ColoredPiece opponent_knight = ColoredPiece::make (my_opponent, Piece::Knight);
+            int found = 0;
 
             for (auto [dr, dc] : offsets)
             {
-                int target_row = my_king_row + dr;
-                int target_col = my_king_col + dc;
-                if (isValidRow (target_row) && isValidColumn (target_col)
-                    && my_board.pieceAt (target_row, target_col) == opponent_knight)
-                {
-                    return true;
-                }
+                auto r = static_cast<unsigned> (my_king_row + dr);
+                auto c = static_cast<unsigned> (my_king_col + dc);
+                int valid = (r < 8u) & (c < 8u);
+                int index = valid ? static_cast<int> (r * 8 + c) : 0;
+                int match = (my_board.pieceAtIndex (index) == opponent_knight) & valid;
+                found |= match;
             }
 
-            return false;
+            return found != 0;
         }
 
         bool pawn()
