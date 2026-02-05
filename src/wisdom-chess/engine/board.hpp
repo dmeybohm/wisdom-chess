@@ -55,9 +55,9 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto
         squareData() const noexcept
-            -> const ColoredPiece*
+            -> span<const ColoredPiece, Num_Squares>
         {
-            return my_squares.data();
+            return my_squares;
         }
 
         friend auto
