@@ -8,13 +8,13 @@
 namespace wisdom
 {
     WebGame::WebGame (int white_player, int black_player, int game_id)
-        : my_game {
+        : GameViewModelBase { game_id }
+        , my_game {
             Game::createGame (
                 mapPlayer (white_player),
                 mapPlayer (black_player)
             )
         }
-        , gameId { game_id }
     {
         const auto& board = my_game.getBoard();
         int id = 1;
@@ -34,11 +34,11 @@ namespace wisdom
             }
         }
 
-        updateDisplayedGameState();
+        updateWebDisplayedGameState();
     }
 
-    auto 
-    WebGame::makeMove (const WebMove* move_param) 
+    auto
+    WebGame::makeMove (const WebMove* move_param)
         -> bool
     {
         Move move = move_param->getMove();
@@ -46,7 +46,7 @@ namespace wisdom
         my_game.move (move);
 
         updatePieceList (move.getPromotedPiece());
-        updateDisplayedGameState();
+        updateWebDisplayedGameState();
 
         return true;
     }
@@ -64,7 +64,7 @@ namespace wisdom
         return new_game;
     }
 
-    auto 
+    auto
     WebGame::createMoveFromCoordinatesAndPromotedPiece (
         const WebCoord* src,
         const WebCoord* dst,
@@ -86,12 +86,11 @@ namespace wisdom
         return new WebMove { move };
     }
 
-    auto 
-    WebGame::isLegalMove (const WebMove* selectedMovePtr) 
+    auto
+    WebGame::isLegalMove (const WebMove* selectedMovePtr)
         -> bool
     {
         Move selectedMove = selectedMovePtr->getMove();
-        auto selectedMoveStr = asString (selectedMove);
 
         // If it's not the human's turn, move is illegal.
         if (my_game.getCurrentPlayer() != wisdom::Player::Human)
@@ -100,23 +99,12 @@ namespace wisdom
             return false;
         }
 
-        auto who = my_game.getCurrentTurn();
-        auto legalMoves = generateLegalMoves (my_game.getBoard(), who);
-
-        auto has_move = std::any_of (
-            legalMoves.cbegin(),
-            legalMoves.cend(),
-            [selectedMove] (const auto& move)
-            {
-                return move == selectedMove;
-            }
-        );
-        if (!has_move)
+        bool isLegal = GameViewModelBase::isLegalMove (selectedMove);
+        if (!isLegal)
         {
             setMoveStatus ("Illegal move");
-            return false;
         }
-        return has_move;
+        return isLegal;
     }
 
     void WebGame::setSettings (const wisdom::GameSettings& settings)
@@ -132,23 +120,23 @@ namespace wisdom
         std::cout << "accepted: " << accepted << "\n";
         std::cout << "Color: " << wisdom::asString (color) << "\n";
         my_game.setProposedDrawStatus (proposed_draw_type, color, accepted);
-        updateDisplayedGameState();
+        updateWebDisplayedGameState();
     }
 
-    [[nodiscard]] auto 
+    [[nodiscard]] auto
     WebGame::findAndRemoveId (
         std::unordered_map<int,
-        WebColoredPiece>& old_list, 
-        Coord coord_to_find, 
+        WebColoredPiece>& old_list,
+        Coord coord_to_find,
         ColoredPiece piece_to_find
-    ) 
+    )
         -> int
     {
         auto found = std::find_if (
-            old_list.begin(), 
+            old_list.begin(),
             old_list.end(),
-            [piece_to_find, coord_to_find] (const auto& it) 
-                -> bool 
+            [piece_to_find, coord_to_find] (const auto& it)
+                -> bool
             {
                 auto key = it.first;
                 auto value = it.second;
@@ -253,7 +241,7 @@ namespace wisdom
         // Sort by the ID so that the pieces always have the same order
         // CSS animations removing the CSS classes will work.
         std::sort (
-            my_pieces.pieces, 
+            my_pieces.pieces,
             my_pieces.pieces + my_pieces.length,
             [] (const WebColoredPiece& a, const WebColoredPiece& b)
             {
@@ -262,99 +250,12 @@ namespace wisdom
         );
     }
 
-    class WebGameStatusUpdate : public GameStatusUpdate
+    void WebGame::updateWebDisplayedGameState()
     {
-    private:
-        observer_ptr<WebGame> parent;
+        // Call the base class implementation to update shared state:
+        updateDisplayedGameState();
 
-    public:
-        explicit WebGameStatusUpdate (observer_ptr<WebGame> parent_) : parent { parent_ }
-        {}
-
-        [[nodiscard]] static auto 
-        get_first_human_player (Players players) 
-            -> optional<Color>
-        {
-            if (players[0] == Player::Human) {
-                return Color::White;
-            }
-            if (players[1] == Player::Human) {
-                return Color::Black;
-            }
-
-            return {};
-        }
-
-        void checkmate() override
-        {
-            auto who = parent->my_game.getCurrentTurn();
-            auto whoString = "<strong>Checkmate</strong> - " + wisdom::asString (colorInvert (who)) +
-                " wins the game.";
-            parent->setGameOverStatus (whoString);
-        }
-
-        void stalemate() override
-        {
-            auto who = parent->my_game.getCurrentTurn();
-            auto stalemateStr = "<strong>Stalemate</strong> - No legal moves for " + wisdom::asString (who);
-            parent->setGameOverStatus (stalemateStr);
-        }
-
-        void insufficientMaterial() override
-        {
-            parent->setGameOverStatus (
-                "<strong>Draw</strong> - Insufficient material to checkmate.");
-        }
-
-        void thirdRepetitionDrawReached() override
-        {
-            // nothing
-        }
-
-        void thirdRepetitionDrawAccepted() override
-        {
-            parent->setGameOverStatus ("<strong>Draw</strong> - Threefold repetition rule.");
-        }
-
-        void fifthRepetitionDraw() override
-        {
-            parent->setGameOverStatus ("<strong>Draw</strong> - Fivefold repetition rule.");
-        }
-
-        void fiftyMovesWithoutProgressReached() override
-        {
-            // nothing
-        }
-
-        void fiftyMovesWithoutProgressAccepted() override
-        {
-            parent->setGameOverStatus ("<strong>Draw</strong> - Fifty moves without progress.");
-        }
-
-        void seventyFiveMovesWithNoProgress() override
-        {
-            parent->setGameOverStatus (
-                "<strong>Draw</strong> - Seventy-five moves without progress.");
-        }
-    };
-
-    void WebGame::updateDisplayedGameState()
-    {
-        auto who = my_game.getCurrentTurn();
-        auto& board = my_game.getBoard();
-
-        setMoveStatus ("");
-        setGameOverStatus ("");
-        setInCheck (false);
+        // Update WASM-specific state:
         setMoveNumber (my_game.getHistory().getMoveHistory().size());
-
-        WebGameStatusUpdate update { this };
-        auto nextStatus = my_game.status();
-        update.update (nextStatus);
-
-        if (wisdom::isKingThreatened (board, who, board.getKingPosition (who)))
-            setInCheck (true);
     }
-
 }
-
