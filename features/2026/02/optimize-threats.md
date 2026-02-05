@@ -50,7 +50,65 @@ non-queen threat (rook vs bishop). Parameterizing on the piece type eliminates
 the duplication while maintaining the same generated code through template
 specialization.
 
+### 4. Rank Scan with SWAR Occupancy Bitmask
+
+**Before:** Per-square loop scanning right then left from the king's column,
+calling `checkSlidingThreats<Piece::Rook>` at each square until a piece or
+board edge is found. Up to 7 iterations with branching per square.
+
+**After:** Load the king's rank as a `uint64_t` via `memcpy`, build an 8-bit
+occupancy mask using Mycroft's "has zero byte" SWAR technique, then use
+`std::countr_zero`/`std::bit_width` to find the nearest piece in each direction.
+Only 2 targeted piece checks instead of up to 7 loop iterations.
+
+**Algorithm:**
+1. `memcpy` 8 contiguous `ColoredPiece` bytes into a `uint64_t`
+2. Detect zero bytes: `(v - 0x0101..01) & ~v & 0x8080..80` → high bit set for
+   each empty square. XOR with `0x8080..80` inverts to get occupied squares.
+3. Pack high bits into a single byte via multiply-shift
+4. Clear king's own bit, split into right/left masks
+5. `countr_zero` (right) / `bit_width - 1` (left) find nearest pieces
+6. Check only those 1-2 squares for opponent rook/queen
+
+**Rationale:** Replaces O(n) scanning with O(1) bit manipulation. The SWAR
+technique avoids cross-byte contamination that naive bit-shift folding would
+cause. `countr_zero`/`bit_width` compile to `tzcnt`/`lzcnt` on x86 and are
+efficient on ARM and WASM targets.
+
+**New Board accessors added:** `pieceAtIndex(int)` for index-based access
+without Coord construction, `squareData()` for raw pointer to the square array.
+
+### 5. Branchless Knight Check
+
+**Before:** Early-exit loop with `if (valid && match) return true` branching
+per offset. 8 conditional branches in the loop body.
+
+**After:** Branchless accumulation: unsigned comparison for bounds check
+(`(unsigned)r < 8u`), conditional index (`valid ? index : 0` → `cmov`),
+AND-masked match, OR-accumulated result. No branches in the loop body.
+
+**Rationale:** The no-threat case (most common) already checks all 8 squares.
+Removing branches eliminates misprediction cost on the hot path and enables
+compiler auto-vectorization of the uniform loop body.
+
 ## Testing
 
 - All 85 fast test cases pass (2666 assertions)
-- Linter passes clean on `threats.hpp`
+- All 19 slow test cases pass (86 assertions, ~12.5M positions via perft)
+- Linter passes clean on `threats.hpp` and `board.hpp`
+
+## Implementation Progress
+
+### Session #1: Initial refactoring (reorder, simplify, unify)
+
+Reordered `checkAll()` for short-circuit efficiency, simplified knight check
+from template approach to offset array, unified lane/diagonal helpers into a
+single template.
+
+### Session #2: SWAR bitmask rank scan and branchless knight
+
+Replaced per-square rank loop with SWAR occupancy bitmask + `countr_zero`/
+`bit_width` nearest-piece lookup. Made knight check branchless with unsigned
+bounds and OR-accumulated results. Initial OR-fold approach for occupancy mask
+had cross-byte contamination bug; fixed by switching to Mycroft's "has zero
+byte" SWAR technique which operates on byte boundaries correctly.
