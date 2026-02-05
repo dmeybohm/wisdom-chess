@@ -11,13 +11,6 @@ namespace wisdom
 {
     struct InlineThreats
     {
-        enum class ThreatStatus
-        {
-            None = 0,
-            Blocked,
-            Threatened,
-        };
-
         const Board& my_board;
         Color my_opponent;
 
@@ -47,27 +40,6 @@ namespace wisdom
                 diagonal() ||
                 king();
             // clang-format on
-        }
-
-        template <Piece sliding_piece>
-        constexpr auto checkSlidingThreats (int target_row, int target_col)
-            -> ThreatStatus
-        {
-            ColoredPiece piece = my_board.pieceAt (target_row, target_col);
-            auto type = pieceType (piece);
-            auto target_color = pieceColor (piece);
-
-            int is_sliding = type == sliding_piece;
-            int is_queen = type == Piece::Queen;
-            int is_opponent_color = target_color == my_opponent;
-
-            int has_threatening_piece = (is_sliding | is_queen) & is_opponent_color;
-
-            ThreatStatus result = has_threatening_piece ? ThreatStatus::Threatened :
-                type != Piece::None ? ThreatStatus::Blocked :
-                                    ThreatStatus::None;
-
-            return result;
         }
 
         // Build an 8-bit occupancy mask from 8 packed bytes in a uint64_t.
@@ -115,6 +87,26 @@ namespace wisdom
             return result;
         }
 
+        // Gather bytes along a diagonal into a packed uint64_t.
+        // start_index is the board index of the first square, stride is the
+        // step between consecutive squares (9 for main diagonal, 7 for anti-diagonal),
+        // and length is the number of squares (1-8).
+        static auto gatherDiagonal (const ColoredPiece* data, int start_index, int stride, int length)
+            -> uint64_t
+        {
+            uint64_t result = 0;
+            int index = start_index;
+            for (int i = 0; i < length; i++)
+            {
+                auto byte = static_cast<uint64_t> (
+                    static_cast<uint8_t> (data[index].piece_type_and_color)
+                );
+                result |= byte << (i * 8);
+                index += stride;
+            }
+            return result;
+        }
+
         // Check if the piece at (row, col) is an opponent rook or queen.
         auto isOpponentRookOrQueen (int row, int col) -> bool
         {
@@ -123,6 +115,15 @@ namespace wisdom
             auto type = pieceType (piece);
             auto color = pieceColor (piece);
             return color == my_opponent && (type == Piece::Rook || type == Piece::Queen);
+        }
+
+        // Check if the piece at a board index is an opponent bishop or queen.
+        auto isOpponentBishopOrQueen (int index) -> bool
+        {
+            ColoredPiece piece = my_board.pieceAtIndex (index);
+            auto type = pieceType (piece);
+            auto color = pieceColor (piece);
+            return color == my_opponent && (type == Piece::Bishop || type == Piece::Queen);
         }
 
         // Scan a lane (rank or column) for rook/queen threats using an occupancy
@@ -280,62 +281,48 @@ namespace wisdom
             return top_attack_exists | center_attack_exists | bottom_attack_exists;
         }
 
-        template <int horiz_direction, int vert_direction> auto
-        checkDiagonalThreat()
-            -> bool
+        // Check both diagonals for any bishop / queen threats using occupancy bitmask.
+        bool diagonal()
         {
-            int new_row = my_king_row;
-            int new_col = my_king_col;
+            const ColoredPiece* data = my_board.squareData();
 
-            for (int distance = 1; distance < Num_Columns; distance++)
+            // Main diagonal (NW-SE): stride 9
             {
-                new_row += vert_direction;
-                new_col += horiz_direction;
+                int steps_nw = std::min (my_king_row, my_king_col);
+                int steps_se = std::min (Last_Row - my_king_row, Last_Column - my_king_col);
+                int start_index = (my_king_row - steps_nw) * Num_Columns
+                    + (my_king_col - steps_nw);
+                int length = steps_nw + 1 + steps_se;
 
-                if constexpr (vert_direction < 0)
-                {
-                    if (new_row < 0)
-                        break;
-                }
-                else
-                {
-                    if (new_row > Last_Row)
-                        break;
-                }
+                uint8_t occupied = buildOccupancyMask (
+                    gatherDiagonal (data, start_index, 9, length)
+                );
 
-                if constexpr (horiz_direction < 0)
-                {
-                    if (new_col < 0)
-                        break;
-                }
-                else
-                {
-                    if (new_col > Last_Column)
-                        break;
-                }
-
-                auto status = checkSlidingThreats<Piece::Bishop> (new_row, new_col);
-                if (status == ThreatStatus::Threatened)
+                if (scanLane (occupied, steps_nw, [&] (int pos) {
+                    return isOpponentBishopOrQueen (start_index + pos * 9);
+                }))
                     return true;
-                else if (status == ThreatStatus::Blocked)
-                    break;
+            }
+
+            // Anti-diagonal (NE-SW): stride 7
+            {
+                int steps_ne = std::min (my_king_row, Last_Column - my_king_col);
+                int steps_sw = std::min (Last_Row - my_king_row, my_king_col);
+                int start_index = (my_king_row - steps_ne) * Num_Columns
+                    + (my_king_col + steps_ne);
+                int length = steps_ne + 1 + steps_sw;
+
+                uint8_t occupied = buildOccupancyMask (
+                    gatherDiagonal (data, start_index, 7, length)
+                );
+
+                if (scanLane (occupied, steps_ne, [&] (int pos) {
+                    return isOpponentBishopOrQueen (start_index + pos * 7);
+                }))
+                    return true;
             }
 
             return false;
-        }
-
-        // Check a diagonal for any bishop / queen threats.
-        bool diagonal()
-        {
-            return
-                // northwest:
-                checkDiagonalThreat<-1, -1>() ||
-                // northeast:
-                checkDiagonalThreat<-1, +1>() ||
-                // southwest:
-                checkDiagonalThreat<+1, -1>() ||
-                // southeast:
-                checkDiagonalThreat<+1, +1>();
         }
     };
 }
