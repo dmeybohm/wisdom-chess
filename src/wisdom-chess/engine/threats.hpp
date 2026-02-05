@@ -64,17 +64,19 @@ namespace wisdom
             return occupied;
         }
 
+        using BoardSpan = span<const ColoredPiece, Num_Squares>;
+
         // Load 8 contiguous rank bytes into a uint64_t.
-        static auto loadRank (const ColoredPiece* rank_ptr) -> uint64_t
+        static auto loadRank (BoardSpan data, int row) -> uint64_t
         {
             uint64_t result;
-            std::memcpy (&result, rank_ptr, sizeof (result));
+            std::memcpy (&result, &data[row * Num_Columns], sizeof (result));
             return result;
         }
 
         // Gather 8 column bytes (stride-8) into a packed uint64_t.
         // Byte N of the result holds the piece at row N in the given column.
-        static auto gatherColumn (const ColoredPiece* data, int col) -> uint64_t
+        static auto gatherColumn (BoardSpan data, int col) -> uint64_t
         {
             uint64_t result = 0;
             for (int r = 0; r < Num_Rows; r++)
@@ -91,7 +93,7 @@ namespace wisdom
         // start_index is the board index of the first square, stride is the
         // step between consecutive squares (9 for main diagonal, 7 for anti-diagonal),
         // and length is the number of squares (1-8).
-        static auto gatherDiagonal (const ColoredPiece* data, int start_index, int stride, int length)
+        static auto gatherDiagonal (BoardSpan data, int start_index, int stride, int length)
             -> uint64_t
         {
             uint64_t result = 0;
@@ -159,8 +161,9 @@ namespace wisdom
         // Check an entire row for any rook / queen threats using occupancy bitmask.
         bool row()
         {
-            const ColoredPiece* rank_ptr = my_board.squareData().data() + my_king_row * Num_Columns;
-            uint8_t occupied = buildOccupancyMask (loadRank (rank_ptr));
+            uint8_t occupied = buildOccupancyMask (
+                loadRank (my_board.squareData(), my_king_row)
+            );
 
             return scanLane (occupied, my_king_col, [&] (int col) {
                 return isOpponentRookOrQueen (my_king_row, col);
@@ -171,7 +174,7 @@ namespace wisdom
         bool column()
         {
             uint8_t occupied = buildOccupancyMask (
-                gatherColumn (my_board.squareData().data(), my_king_col)
+                gatherColumn (my_board.squareData(), my_king_col)
             );
 
             return scanLane (occupied, my_king_row, [&] (int row) {
@@ -284,7 +287,7 @@ namespace wisdom
         // Check both diagonals for any bishop / queen threats using occupancy bitmask.
         bool diagonal()
         {
-            const ColoredPiece* data = my_board.squareData().data();
+            BoardSpan data = my_board.squareData();
 
             // Main diagonal (NW-SE): stride 9
             {
