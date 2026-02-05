@@ -98,7 +98,30 @@ replacing up to 7 branching iterations with 2 targeted piece checks. The
 worst case (open file) benefits most; the common case avoids branch
 mispredictions on the scan loop.
 
-### 6. Branchless Knight Check
+### 6. Diagonal Scan with Gathered Occupancy Bitmask
+
+**Before:** Four `checkDiagonalThreat<horiz, vert>()` template instantiations,
+each a per-square loop with `if constexpr` bounds checking and
+`checkSlidingThreats<Piece::Bishop>` calls. ~45 lines of template code.
+
+**After:** Two `gatherDiagonal` + `scanLane` calls — one for the main diagonal
+(stride 9), one for the anti-diagonal (stride 7). Variable-length diagonals
+(1-8 squares) are handled naturally since unused high bytes in the packed
+`uint64_t` are zero, producing zero bits in the occupancy mask that are never
+selected as nearest pieces. Removed the now-unused `ThreatStatus` enum and
+`checkSlidingThreats` template.
+
+**Algorithm:** Compute the diagonal's start index and length from the king's
+position, gather bytes with the appropriate stride, build occupancy mask via
+`buildOccupancyMask`, scan with `scanLane`, and check only the 1-2 nearest
+pieces for opponent bishop/queen.
+
+**Rationale:** Same win as the column optimization — replaces up to 7 branching
+iterations per ray (4 rays total) with 2 gather loops + 2 scanLane calls (at
+most 4 targeted piece checks total). The gather loop has no branching per
+iteration.
+
+### 7. Branchless Knight Check
 
 **Before:** Early-exit loop with `if (valid && match) return true` branching
 per offset. 8 conditional branches in the loop body.
@@ -133,9 +156,16 @@ bounds and OR-accumulated results. Initial OR-fold approach for occupancy mask
 had cross-byte contamination bug; fixed by switching to Mycroft's "has zero
 byte" SWAR technique which operates on byte boundaries correctly.
 
-### Session #3: Column scan with gathered occupancy bitmask
+### Session #3: Column and diagonal scan with gathered occupancy bitmask
 
 Extended the SWAR bitmask approach to column scanning by gathering 8 stride-8
 bytes into a packed `uint64_t`. Refactored `buildOccupancyMask` to accept a
 `uint64_t` directly and extracted a shared `scanLane` template so both `row()`
 and `column()` use the same scan logic with different load strategies.
+
+Then extended to diagonal scanning: gather bytes along each full diagonal
+(stride 9 for main, stride 7 for anti-diagonal) into a packed `uint64_t`,
+reusing the same `buildOccupancyMask` + `scanLane` infrastructure. Diagonals
+have variable length (1-8 squares), which is handled by zero-padding the
+unused high bytes. Removed the 4 `checkDiagonalThreat` template instantiations
+and the now-dead `ThreatStatus` enum and `checkSlidingThreats` helper.
