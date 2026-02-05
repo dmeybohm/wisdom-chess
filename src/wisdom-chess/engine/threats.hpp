@@ -70,27 +70,21 @@ namespace wisdom
             return result;
         }
 
-        // Build an 8-bit occupancy mask from 8 contiguous ColoredPiece bytes.
-        // Bit N is set when column N is occupied (non-zero byte).
-        // Uses the standard "has zero byte" SWAR technique to detect non-zero bytes
+        // Build an 8-bit occupancy mask from 8 packed bytes in a uint64_t.
+        // Bit N is set when byte N is non-zero (occupied square).
+        // Uses Mycroft's "has zero byte" SWAR technique to detect non-zero bytes
         // without cross-byte contamination from bit shifts.
-        static auto buildOccupancyMask (const ColoredPiece* rank_ptr) -> uint8_t
+        static auto buildOccupancyMask (uint64_t packed_data) -> uint8_t
         {
-            uint64_t rank_data;
-            std::memcpy (&rank_data, rank_ptr, sizeof (rank_data));
-
-            // Detect zero bytes using Mycroft's "has zero byte" trick:
-            //   ((v - 0x0101..01) & ~v & 0x8080..80) has high bit set for each ZERO byte.
-            // Invert to get high bit set for each NON-ZERO byte (occupied squares).
             constexpr uint64_t low_ones = UINT64_C (0x0101010101010101);
             constexpr uint64_t high_bits = UINT64_C (0x8080808080808080);
 
-            uint64_t zero_detect = (rank_data - low_ones) & ~rank_data & high_bits;
+            // ((v - 0x0101..01) & ~v & 0x8080..80) has high bit set for each ZERO byte.
+            // XOR with 0x8080..80 inverts to get high bit set for NON-ZERO bytes.
+            uint64_t zero_detect = (packed_data - low_ones) & ~packed_data & high_bits;
             uint64_t nonzero_mask = zero_detect ^ high_bits;
 
             // Pack the high bit of each byte into a single byte via multiply-shift.
-            // The multiply by 0x0002040810204081 accumulates bit 7 of each byte
-            // into the top byte, and >> 56 extracts it.
             auto occupied = static_cast<uint8_t> (
                 (nonzero_mask * UINT64_C (0x0002040810204081)) >> 56
             );
@@ -98,68 +92,90 @@ namespace wisdom
             return occupied;
         }
 
-        // Check if the nearest piece in a direction is an opponent rook or queen.
-        auto checkRankPieceAt (int col) -> bool
+        // Load 8 contiguous rank bytes into a uint64_t.
+        static auto loadRank (const ColoredPiece* rank_ptr) -> uint64_t
         {
-            int index = my_king_row * Num_Columns + col;
+            uint64_t result;
+            std::memcpy (&result, rank_ptr, sizeof (result));
+            return result;
+        }
+
+        // Gather 8 column bytes (stride-8) into a packed uint64_t.
+        // Byte N of the result holds the piece at row N in the given column.
+        static auto gatherColumn (const ColoredPiece* data, int col) -> uint64_t
+        {
+            uint64_t result = 0;
+            for (int r = 0; r < Num_Rows; r++)
+            {
+                auto byte = static_cast<uint64_t> (
+                    static_cast<uint8_t> (data[r * Num_Columns + col].piece_type_and_color)
+                );
+                result |= byte << (r * 8);
+            }
+            return result;
+        }
+
+        // Check if the piece at (row, col) is an opponent rook or queen.
+        auto isOpponentRookOrQueen (int row, int col) -> bool
+        {
+            int index = row * Num_Columns + col;
             ColoredPiece piece = my_board.pieceAtIndex (index);
             auto type = pieceType (piece);
             auto color = pieceColor (piece);
             return color == my_opponent && (type == Piece::Rook || type == Piece::Queen);
         }
 
-        // Check an entire row for any rook / queen threats using occupancy bitmask.
-        bool row()
+        // Scan a lane (rank or column) for rook/queen threats using an occupancy
+        // bitmask. king_pos is the king's position along the lane (col for ranks,
+        // row for columns). check_piece takes the nearest-piece lane index and
+        // returns true if it's an opponent rook/queen.
+        template <typename CheckFn>
+        static auto scanLane (uint8_t occupied, int king_pos, CheckFn check_piece) -> bool
         {
-            const ColoredPiece* rank_ptr = my_board.squareData() + my_king_row * Num_Columns;
-            uint8_t occupied = buildOccupancyMask (rank_ptr);
+            occupied &= ~(1u << king_pos);
 
-            // Clear the king's own bit
-            occupied &= ~(1u << my_king_col);
-
-            // Right scan: mask off columns <= king_col, find nearest piece rightward
-            uint8_t right_mask = occupied & static_cast<uint8_t> (~((1u << (my_king_col + 1)) - 1));
-            if (right_mask != 0)
+            // Forward scan: find nearest piece above king_pos
+            uint8_t fwd_mask = occupied & static_cast<uint8_t> (~((1u << (king_pos + 1)) - 1));
+            if (fwd_mask != 0)
             {
-                int nearest_right = std::countr_zero (static_cast<unsigned> (right_mask));
-                if (checkRankPieceAt (nearest_right))
+                int nearest = std::countr_zero (static_cast<unsigned> (fwd_mask));
+                if (check_piece (nearest))
                     return true;
             }
 
-            // Left scan: mask off columns >= king_col, find nearest piece leftward
-            uint8_t left_mask = occupied & static_cast<uint8_t> ((1u << my_king_col) - 1);
-            if (left_mask != 0)
+            // Backward scan: find nearest piece below king_pos
+            uint8_t bwd_mask = occupied & static_cast<uint8_t> ((1u << king_pos) - 1);
+            if (bwd_mask != 0)
             {
-                int nearest_left = std::bit_width (static_cast<unsigned> (left_mask)) - 1;
-                if (checkRankPieceAt (nearest_left))
+                int nearest = std::bit_width (static_cast<unsigned> (bwd_mask)) - 1;
+                if (check_piece (nearest))
                     return true;
             }
 
             return false;
         }
 
-        // Check an entire column for any rook / queen threats.
+        // Check an entire row for any rook / queen threats using occupancy bitmask.
+        bool row()
+        {
+            const ColoredPiece* rank_ptr = my_board.squareData() + my_king_row * Num_Columns;
+            uint8_t occupied = buildOccupancyMask (loadRank (rank_ptr));
+
+            return scanLane (occupied, my_king_col, [&] (int col) {
+                return isOpponentRookOrQueen (my_king_row, col);
+            });
+        }
+
+        // Check an entire column for any rook / queen threats using occupancy bitmask.
         bool column()
         {
-            for (auto new_row = nextRow (my_king_row, +1); new_row <= Last_Row; new_row++)
-            {
-                auto status = checkSlidingThreats<Piece::Rook> (new_row, my_king_col);
-                if (status == ThreatStatus::Threatened)
-                    return true;
-                else if (status == ThreatStatus::Blocked)
-                    break;
-            }
+            uint8_t occupied = buildOccupancyMask (
+                gatherColumn (my_board.squareData(), my_king_col)
+            );
 
-            for (auto new_row = nextRow (my_king_row, -1); new_row >= First_Row; new_row--)
-            {
-                auto status = checkSlidingThreats<Piece::Rook> (new_row, my_king_col);
-                if (status == ThreatStatus::Threatened)
-                    return true;
-                else if (status == ThreatStatus::Blocked)
-                    break;
-            }
-
-            return false;
+            return scanLane (occupied, my_king_row, [&] (int row) {
+                return isOpponentRookOrQueen (row, my_king_col);
+            });
         }
 
         bool knight()
