@@ -15,6 +15,7 @@ option(WISDOM_CHESS_REACT_UI "Enable building of React UI" On)
 option(WISDOM_CHESS_REACT_BUILD_INTEGRATED "Build React frontend as part of CMake build" ${WISDOM_CHESS_REACT_BUILD_INTEGRATED_DEFAULT})
 option(WISDOM_CHESS_PCH_ENABLED "Enable Pre-compiled headers" On)
 option(WISDOM_CHESS_TOOLS "Build research/analysis tools" Off)
+option(WISDOM_CHESS_BENCHMARKS "Enable building of benchmarks" Off)
 
 # QML UI option: AUTO (build if Qt6 found), ON (require Qt6), OFF (disable)
 set(WISDOM_CHESS_QML_UI "AUTO" CACHE STRING "Build QML UI: AUTO (if Qt6 found), ON (require Qt6), OFF (disable)")

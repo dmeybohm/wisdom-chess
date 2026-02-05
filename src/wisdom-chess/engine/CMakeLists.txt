@@ -105,3 +105,7 @@ else()
     set(WISDOM_CHESS_SLOW_TESTS Off)
     set(WISDOM_CHESS_FAST_TESTS Off)
 endif()
+
+if (WISDOM_CHESS_BENCHMARKS AND NOT EMSCRIPTEN)
+    add_subdirectory(bench)
+endif()
