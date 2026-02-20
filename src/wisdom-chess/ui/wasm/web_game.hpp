@@ -166,11 +166,9 @@ namespace wisdom
 
         void updatePieceList (ColoredPiece promoted_piece);
 
-        void updateWebDisplayedGameState();
-
-        void setMoveNumber (size_t size)
+        void onDisplayedGameStateUpdated() override
         {
-            moveNumber = narrow<int> (size);
+            moveNumber = narrow<int> (getGame()->getHistory().getMoveHistory().size());
         }
 
         friend class WebGameStatusUpdate;

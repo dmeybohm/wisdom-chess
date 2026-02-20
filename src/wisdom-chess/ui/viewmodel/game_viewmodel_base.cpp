@@ -233,6 +233,8 @@ namespace wisdom::ui
         {
             setInCheck (true);
         }
+
+        onDisplayedGameStateUpdated();
     }
 
     void GameViewModelBase::setProposedDrawStatus (

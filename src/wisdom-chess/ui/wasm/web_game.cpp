@@ -34,7 +34,7 @@ namespace wisdom
             }
         }
 
-        updateWebDisplayedGameState();
+        updateDisplayedGameState();
     }
 
     auto
@@ -46,7 +46,7 @@ namespace wisdom
         my_game.move (move);
 
         updatePieceList (move.getPromotedPiece());
-        updateWebDisplayedGameState();
+        updateDisplayedGameState();
 
         return true;
     }
@@ -120,7 +120,7 @@ namespace wisdom
         std::cout << "accepted: " << accepted << "\n";
         std::cout << "Color: " << wisdom::asString (color) << "\n";
         my_game.setProposedDrawStatus (proposed_draw_type, color, accepted);
-        updateWebDisplayedGameState();
+        updateDisplayedGameState();
     }
 
     [[nodiscard]] auto
@@ -248,14 +248,5 @@ namespace wisdom
                 return a.id < b.id;
             }
         );
-    }
-
-    void WebGame::updateWebDisplayedGameState()
-    {
-        // Call the base class implementation to update shared state:
-        updateDisplayedGameState();
-
-        // Update WASM-specific state:
-        setMoveNumber (my_game.getHistory().getMoveHistory().size());
     }
 }

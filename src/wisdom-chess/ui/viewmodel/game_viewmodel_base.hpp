@@ -67,6 +67,7 @@ namespace wisdom::ui
         virtual void onCurrentTurnChanged() {}
         virtual void onThirdRepetitionDrawStatusChanged() {}
         virtual void onFiftyMovesDrawStatusChanged() {}
+        virtual void onDisplayedGameStateUpdated() {}
 
         void setInCheck (bool value);
         void setMoveStatus (std::string value);
