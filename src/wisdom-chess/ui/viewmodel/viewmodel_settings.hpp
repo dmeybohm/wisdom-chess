@@ -10,8 +10,8 @@ namespace wisdom::ui
     {
         wisdom::Player whitePlayer = wisdom::Player::Human;
         wisdom::Player blackPlayer = wisdom::Player::ChessEngine;
-        int searchDepth = 8;
-        int thinkingTime = 2;
+        int searchDepth = Default_Max_Depth / 2;
+        int thinkingTime = Default_Max_Search_Seconds;
 
         ViewModelSettings() = default;
 

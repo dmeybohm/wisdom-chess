@@ -27,11 +27,7 @@ namespace wisdom
         enum WebPlayer whitePlayer = Human;
         enum WebPlayer blackPlayer = ChessEngine;
 
-#if NDEBUG
-        int thinkingTime = 2;
-#else
-        int thinkingTime = 4;
-#endif
+        int thinkingTime = Default_Max_Search_Seconds;
 
         int searchDepth = Default_Max_Depth / 2;
 
