@@ -12,65 +12,76 @@ namespace wisdom::ui
             : my_parent { parent }
         {}
 
-        void checkmate() override
+    protected:
+        void onGameEnded (GameStatus status) override
         {
             auto game = my_parent->getGame();
-            auto who = game->getCurrentTurn();
-            auto opponent = colorInvert (who);
-            auto whoString = "<b>Checkmate</b> - " + asString (opponent) + " wins the game.";
-            my_parent->setGameOverStatus (whoString);
-        }
 
-        void stalemate() override
-        {
-            auto game = my_parent->getGame();
-            auto who = game->getCurrentTurn();
-            auto stalemateStr = "<b>Stalemate</b> - No legal moves for <b>"
-                + asString (who) + "</b>";
-            my_parent->setGameOverStatus (stalemateStr);
-        }
-
-        void insufficientMaterial() override
-        {
-            my_parent->setGameOverStatus ("<b>Draw</b> - Insufficient material to checkmate.");
-        }
-
-        void thirdRepetitionDrawReached() override
-        {
-            auto game = my_parent->getGame();
-            if (getFirstHumanPlayerColor (game->getPlayers()).has_value())
+            switch (status)
             {
-                my_parent->setThirdRepetitionDrawStatus (DrawByRepetitionStatus::Proposed);
+                case GameStatus::Checkmate:
+                {
+                    auto opponent = colorInvert (game->getCurrentTurn());
+                    my_parent->setGameOverStatus (
+                        my_parent->formatBold ("Checkmate") + " - "
+                        + asString (opponent) + " wins the game."
+                    );
+                    break;
+                }
+                case GameStatus::Stalemate:
+                {
+                    auto who = game->getCurrentTurn();
+                    my_parent->setGameOverStatus (
+                        my_parent->formatBold ("Stalemate") + " - No legal moves for "
+                        + my_parent->formatBold (asString (who))
+                    );
+                    break;
+                }
+                case GameStatus::InsufficientMaterialDraw:
+                    my_parent->setGameOverStatus (
+                        my_parent->formatBold ("Draw") + " - Insufficient material to checkmate."
+                    );
+                    break;
+                case GameStatus::ThreefoldRepetitionAccepted:
+                    my_parent->setGameOverStatus (
+                        my_parent->formatBold ("Draw") + " - Threefold repetition rule."
+                    );
+                    break;
+                case GameStatus::FivefoldRepetitionDraw:
+                    my_parent->setGameOverStatus (
+                        my_parent->formatBold ("Draw") + " - Fivefold repetition rule."
+                    );
+                    break;
+                case GameStatus::FiftyMovesWithoutProgressAccepted:
+                    my_parent->setGameOverStatus (
+                        my_parent->formatBold ("Draw") + " - Fifty moves without progress."
+                    );
+                    break;
+                case GameStatus::SeventyFiveMovesWithoutProgressDraw:
+                    my_parent->setGameOverStatus (
+                        my_parent->formatBold ("Draw") + " - Seventy-five moves without progress."
+                    );
+                    break;
+                default:
+                    break;
             }
         }
 
-        void thirdRepetitionDrawAccepted() override
-        {
-            my_parent->setGameOverStatus ("<b>Draw</b> - Threefold repetition rule.");
-        }
-
-        void fifthRepetitionDraw() override
-        {
-            my_parent->setGameOverStatus ("<b>Draw</b> - Fivefold repetition rule.");
-        }
-
-        void fiftyMovesWithoutProgressReached() override
+        void onDrawProposed (ProposedDrawType type) override
         {
             auto game = my_parent->getGame();
-            if (getFirstHumanPlayerColor (game->getPlayers()).has_value())
+            if (!getFirstHumanPlayerColor (game->getPlayers()).has_value())
+                return;
+
+            switch (type)
             {
-                my_parent->setFiftyMovesDrawStatus (DrawByRepetitionStatus::Proposed);
+                case ProposedDrawType::ThreeFoldRepetition:
+                    my_parent->setThirdRepetitionDrawStatus (DrawByRepetitionStatus::Proposed);
+                    break;
+                case ProposedDrawType::FiftyMovesWithoutProgress:
+                    my_parent->setFiftyMovesDrawStatus (DrawByRepetitionStatus::Proposed);
+                    break;
             }
-        }
-
-        void fiftyMovesWithoutProgressAccepted() override
-        {
-            my_parent->setGameOverStatus ("<b>Draw</b> - Fifty moves without progress.");
-        }
-
-        void seventyFiveMovesWithNoProgress() override
-        {
-            my_parent->setGameOverStatus ("<b>Draw</b> - Seventy-five moves without progress.");
         }
     };
 
@@ -154,6 +165,13 @@ namespace wisdom::ui
         -> wisdom::Color
     {
         return my_current_turn;
+    }
+
+    auto
+    GameViewModelBase::formatBold (const std::string& text) const
+        -> std::string
+    {
+        return "<b>" + text + "</b>";
     }
 
     void GameViewModelBase::setInCheck (bool value)

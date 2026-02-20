@@ -9,6 +9,7 @@
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/ui/viewmodel/game_viewmodel_base.hpp"
 
 namespace wisdom::ui::console
 {
@@ -136,16 +137,52 @@ namespace wisdom::ui::console
         >;
     }
 
-    class ConsoleGame
+    class ConsoleGame : public ui::GameViewModelBase
     {
     private:
-        Game game;
+        Game my_game;
         bool quit = false;
         bool paused = false;
         bool show_final_position = true;
 
+    protected:
+        [[nodiscard]] auto getGame() -> observer_ptr<Game> override
+        {
+            return &my_game;
+        }
+
+        [[nodiscard]] auto getGame() const -> observer_ptr<const Game> override
+        {
+            return &my_game;
+        }
+
+        [[nodiscard]] auto
+        formatBold (const std::string& text) const
+            -> std::string override
+        {
+            return text;
+        }
+
+        void onGameOverStatusChanged() override
+        {
+            auto status = gameOverStatus();
+            if (!status.empty())
+            {
+                std::cout << status << "\n";
+                quit = true;
+            }
+        }
+
+        void onInCheckChanged() override
+        {
+            if (inCheck())
+            {
+                std::cout << "Check!\n";
+            }
+        }
+
     public:
-        ConsoleGame() : game { Game::createStandardGame() }
+        ConsoleGame() : my_game { Game::createStandardGame() }
         {
         }
 
@@ -191,112 +228,45 @@ namespace wisdom::ui::console
 
                 return humanWantsDraw (msg) ? DrawStatus::Accepted : DrawStatus::Declined;
             }
-            return game.computerWantsDraw (who) ? DrawStatus::Accepted : DrawStatus::Declined;
+            return my_game.computerWantsDraw (who) ? DrawStatus::Accepted : DrawStatus::Declined;
         }
 
         // After the third repetition, either player may request a draw.
         auto determineIfDrawn (const string& msg) -> std::pair<DrawStatus, DrawStatus>
         {
-            auto white_player = game.getPlayer (Color::White);
+            auto white_player = my_game.getPlayer (Color::White);
 
             auto white_wants_draw = playerWantsDraw (msg, white_player, Color::White, false);
             bool asked_human = white_player == Player::Human;
             auto black_wants_draw
-                = playerWantsDraw (msg, game.getPlayer (Color::Black), Color::Black, asked_human);
+                = playerWantsDraw (msg, my_game.getPlayer (Color::Black), Color::Black, asked_human);
 
             return { white_wants_draw, black_wants_draw };
         }
 
-        class ConsoleGameStatusManager : public GameStatusUpdate
+        // Handle draw proposals synchronously before calling updateDisplayedGameState().
+        void handleDrawProposals()
         {
-        public:
-            explicit ConsoleGameStatusManager (nonnull_observer_ptr<ConsoleGame> game) :
-                    my_console_game { game }
+            auto status = my_game.status();
+
+            if (status == GameStatus::ThreefoldRepetitionReached)
             {
+                string message = "Threefold repetition detected. Would you like a draw? [y/n]\n";
+                auto draw_pair = determineIfDrawn (message);
+                my_game.setProposedDrawStatus (ProposedDrawType::ThreeFoldRepetition, draw_pair);
             }
-
-            ~ConsoleGameStatusManager() override = default;
-
-            void handleDraw (const string& msg, ProposedDrawType draw_type)
+            else if (status == GameStatus::FiftyMovesWithoutProgressReached)
             {
-                // Recursively (one-level deep) update the status again.
-                auto draw_pair = my_console_game->determineIfDrawn (msg);
-                getGame().setProposedDrawStatus (draw_type, draw_pair);
-                return update (getGame().status());
-            }
-
-            void checkmate() override
-            {
-                std::cout << asString (colorInvert (getGame().getCurrentTurn()))
-                          << " wins the game.\n";
-                my_console_game->setQuit (true);
-            }
-
-            void stalemate() override
-            {
-                std::cout << "Draw: stalemate.\n";
-                my_console_game->setQuit (true);
-            }
-
-            void insufficientMaterial() override
-            {
-                std::cout << "Draw: Insufficient material.\n";
-                my_console_game->setQuit (true);
-            }
-
-            void thirdRepetitionDrawReached() override
-            {
-                std::string message
-                    = "Threefold repetition detected. Would you like a draw? [y/n]\n";
-                handleDraw (message, ProposedDrawType::ThreeFoldRepetition);
-            }
-
-            void thirdRepetitionDrawAccepted() override
-            {
-                std::cout
-                    << "Draw: threefold repetition and at least one of the players wants a draw.\n";
-                my_console_game->setQuit (true);
-            }
-
-            void fifthRepetitionDraw() override
-            {
-                std::cout << "Draw: same position repeated five times.\n";
-                my_console_game->setQuit (true);
-            }
-
-            void fiftyMovesWithoutProgressReached() override
-            {
-                std::string message
+                string message
                     = "Fifty moves without progress detected. Would you like a draw? [y/n]\n";
-                handleDraw (message, ProposedDrawType::FiftyMovesWithoutProgress);
+                auto draw_pair = determineIfDrawn (message);
+                my_game.setProposedDrawStatus (ProposedDrawType::FiftyMovesWithoutProgress, draw_pair);
             }
-
-            void fiftyMovesWithoutProgressAccepted() override
-            {
-                std::cout << "Draw: Fifty moves without a capture or pawn move and "
-                          << "at least one player wants a draw.\n";
-                my_console_game->setQuit (true);
-            }
-
-            void seventyFiveMovesWithNoProgress() override
-            {
-                std::cout << "Draw: Seventy five moves without a capture or pawn move.\n";
-                my_console_game->setQuit (true);
-            }
-
-        private:
-            [[nodiscard]] auto getGame() & -> Game&
-            {
-                return my_console_game->game;
-            }
-
-        private:
-            nonnull_observer_ptr<ConsoleGame> my_console_game;
-        };
+        }
 
         void printAvailableMoves()
         {
-            MoveList moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
+            MoveList moves = generateLegalMoves (my_game.getBoard(), my_game.getCurrentTurn());
             std::cout << "\nAvailable moves:\n    ";
 
             int count = 0;
@@ -342,7 +312,7 @@ namespace wisdom::ui::console
             if (input.empty())
                 return nullopt;
 
-            auto optional_game = Game::loadGame (input, game.getPlayers());
+            auto optional_game = Game::loadGame (input, my_game.getPlayers());
             if (!optional_game.has_value())
                 return nullopt;
 
@@ -437,7 +407,7 @@ namespace wisdom::ui::console
         {
             string input;
 
-            std::cout << "(" << wisdom::asString (game.getCurrentTurn()) << ")? ";
+            std::cout << "(" << wisdom::asString (my_game.getCurrentTurn()) << ")? ";
 
             if (!std::getline (std::cin, input))
                 return PlayCommand::StopGame::fromShowFinalPosition (false);
@@ -531,14 +501,14 @@ namespace wisdom::ui::console
             }
             else
             {
-                auto optional_move = moveParseOptional (input, game.getCurrentTurn());
+                auto optional_move = moveParseOptional (input, my_game.getCurrentTurn());
                 PlayCommand::AnyCommand result = PlayCommand::ShowError { "Invalid move or command." };
 
                 if (!optional_move.has_value())
                     return result;
 
                 // check the generated move list for this move to see if its valid
-                MoveList moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
+                MoveList moves = generateLegalMoves (my_game.getBoard(), my_game.getCurrentTurn());
 
                 for (auto legal_move : moves)
                 {
@@ -596,7 +566,7 @@ namespace wisdom::ui::console
                 auto save_game = get<PlayCommand::SaveGame> (command);
 
                 // todo: handle errors here
-                game.save (save_game.file_path);
+                my_game.save (save_game.file_path);
                 std::cout << "Game saved to " << save_game.file_path << "\n\n";
             }
             else if (holds_alternative<PlayCommand::PrintAvailableMoves> (command))
@@ -606,13 +576,13 @@ namespace wisdom::ui::console
             else if (holds_alternative<PlayCommand::SetMaxDepth> (command))
             {
                 auto max_depth_command = get<PlayCommand::SetMaxDepth> (command);
-                game.setMaxDepth (max_depth_command.max_depth);
+                my_game.setMaxDepth (max_depth_command.max_depth);
                 std::cout << "Max depth set to " << max_depth_command.max_depth << ".\n";
             }
             else if (holds_alternative<PlayCommand::SetSearchTimeout> (command))
             {
                 auto search_timeout = get<PlayCommand::SetSearchTimeout> (command);
-                game.setSearchTimeout (chrono::seconds { search_timeout.seconds });
+                my_game.setSearchTimeout (chrono::seconds { search_timeout.seconds });
                 std::cout << "Timeout set to " << search_timeout.seconds.count() << " seconds.\n";
             }
             else if (holds_alternative<PlayCommand::LoadNewGame> (command))
@@ -620,23 +590,24 @@ namespace wisdom::ui::console
                 auto load_game = get<PlayCommand::LoadNewGame> (command);
 
                 // Keep the same player config:
-                copyConfig (game, load_game.new_game);
-                game = std::move (load_game.new_game);
+                copyConfig (my_game, load_game.new_game);
+                my_game = std::move (load_game.new_game);
+                resetStateForNewGame();
 
                 std::cout << "\nNew game successfully loaded.\n\n";
             }
             else if (holds_alternative<PlayCommand::SwitchSides> (command))
             {
-                game.setCurrentTurn (colorInvert (game.getCurrentTurn()));
+                my_game.setCurrentTurn (colorInvert (my_game.getCurrentTurn()));
                 std::cout << "Players switched.\n";
             }
             else if (holds_alternative<PlayCommand::SetPlayer> (command))
             {
                 auto set_player = get<PlayCommand::SetPlayer> (command);
 
-                auto players = game.getPlayers();
+                auto players = my_game.getPlayers();
                 players[colorIndex (set_player.side)] = set_player.player_type;
-                game.setPlayers (players);
+                my_game.setPlayers (players);
 
                 auto player_type_str = set_player.player_type == Player::ChessEngine
                     ? "computer"
@@ -647,7 +618,7 @@ namespace wisdom::ui::console
             else if (holds_alternative<PlayCommand::PlayMove> (command))
             {
                 auto play_move = get<PlayCommand::PlayMove> (command);
-                game.move (play_move.move);
+                my_game.move (play_move.move);
             }
             else
             {
@@ -658,22 +629,22 @@ namespace wisdom::ui::console
 
     void ConsoleGame::play()
     {
-        ConsoleGameStatusManager game_status_manager { this };
-
         auto output = makeStandardLogger();
 
         while (true)
         {
-            std::cout << game.getBoard() << "\n";
+            std::cout << my_game.getBoard() << "\n";
 
-            game_status_manager.update (game.status());
+            // Handle draw proposals synchronously before updating displayed state:
+            handleDrawProposals();
+            updateDisplayedGameState();
 
             if (quit)
                 break;
 
-            if (!paused && game.getCurrentPlayer() == Player::ChessEngine)
+            if (!paused && my_game.getCurrentPlayer() == Player::ChessEngine)
             {
-                auto optional_move = game.findBestMove (output);
+                auto optional_move = my_game.findBestMove (output);
                 if (!optional_move.has_value())
                 {
                     std::cout << "\nCouldn't find move!\n";
@@ -682,7 +653,7 @@ namespace wisdom::ui::console
 
                 auto move = *optional_move;
                 std::cout << "move selected: [" << asString (move) << "]\n";
-                game.move (move);
+                my_game.move (move);
             }
             else
             {
