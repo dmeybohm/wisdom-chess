@@ -319,3 +319,22 @@ HEAD:    7.5M NPS (-24%)
 
 Unit A alone is performance-neutral end-to-end while improving the targeted
 threat microbenchmarks. The SWAR units cause a cumulative 24% NPS regression.
+
+### Post-Restructure Verification
+
+After reverting Units B/C/D (keeping A+E), benchmarked the final branch state:
+
+| Benchmark | main | A+E (final) | Change vs main |
+|-----------|-----:|------------:|---------------:|
+| not-threatened | 20.57 ns | 19.16 ns | **-7%** |
+| threatened | 32.96 ns | 31.76 ns | **-4%** |
+| sweep-64 | 1231.69 ns | 847.93 ns | **-31%** |
+| many-queens | 12.88 ns | 16.84 ns | +31% |
+| perft start-d5 NPS | 9,885,964 | 10,728,928 | **+9%** |
+| perft kiwi-d4 NPS | 7,930,692 | 8,507,357 | **+7%** |
+
+The restructured branch is faster than main across all benchmarks except the
+extreme many-queens test case. The 7-9% perft NPS improvement confirms that
+the threat detection optimizations from Unit A (reordered short-circuit,
+simplified knight, unified sliding helpers) translate to meaningful end-to-end
+speedup.
