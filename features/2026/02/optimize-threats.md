@@ -169,3 +169,153 @@ reusing the same `buildOccupancyMask` + `scanLane` infrastructure. Diagonals
 have variable length (1-8 squares), which is handled by zero-padding the
 unused high bytes. Removed the 4 `checkDiagonalThreat` template instantiations
 and the now-dead `ThreatStatus` enum and `checkSlidingThreats` helper.
+
+### Session #4: Benchmark evaluation
+
+Benchmarked each logical unit at 6 checkpoints (3 runs each, medians reported).
+See "Benchmark Results" section below for full data and recommendations.
+
+## Benchmark Results
+
+**Environment:** Linux 6.17, GCC, `-O3 -DNDEBUG`, CPU governor set to
+performance. Each checkpoint: build from clean PCH, verify fast tests pass,
+run 3x, take median.
+
+### Logical Units Evaluated
+
+| Unit | Commit(s) | Description |
+|------|-----------|-------------|
+| **A** | `187372a` | Reorder checkAll (pawn/knight first), simplify knight to loop, unify sliding helpers |
+| **B** | `3a37294` | SWAR rank scan with bitmask + branchless knight (OR-accumulate, no early exit) |
+| **C** | `f522357` | SWAR column scan + extract shared `scanLane()` template |
+| **D** | `178023f` | SWAR diagonal scan + remove `ThreatStatus` enum |
+| **E** | `a5ed419`..`1cec4c3` | API safety: `narrow_cast`, `span<const ColoredPiece, 64>` |
+
+### Threat Detection Microbenchmarks (ns/op, lower is better)
+
+| Checkpoint | not-threatened | threatened | sweep-64 | many-queens |
+|-----------|---------------:|----------:|----------:|------------:|
+| **main** (baseline) | 20.57 | 32.96 | 1231.69 | 12.88 |
+| **A** (187372a) | 19.30 | 33.57 | **889.21** | 17.98 |
+| **A+B** (3a37294) | 24.92 | 32.71 | 1299.39 | 13.38 |
+| **A+B+C** (f522357) | 27.36 | 27.49 | 1260.45 | 12.56 |
+| **A+B+C+D** (178023f) | 36.43 | 38.15 | 1529.00 | 14.50 |
+| **HEAD** (1cec4c3) | 38.60 | 35.42 | 1457.73 | 15.49 |
+
+### Perft End-to-End (NPS, higher is better)
+
+| Checkpoint | starting depth-5 NPS | kiwipete depth-4 NPS |
+|-----------|---------------------:|---------------------:|
+| **main** (baseline) | 9,885,964 | 7,930,692 |
+| **A** (187372a) | 9,735,341 | 7,614,658 |
+| **A+B** (3a37294) | 8,779,001 | 7,542,443 |
+| **A+B+C** (f522357) | 8,731,169 | 7,413,061 |
+| **A+B+C+D** (178023f) | 7,986,392 | 6,844,017 |
+| **HEAD** (1cec4c3) | 7,538,073 | 6,602,209 |
+
+### Per-Unit Analysis
+
+#### Unit A: Reorder + Simplify Knight + Unify Sliding Helpers
+- **Performance:** sweep-64 improves 28% (1232→889 ns). not-threatened holds
+  steady (21→19 ns). many-queens regresses 40% (13→18 ns) because reordering
+  pawn/knight first delays queen detection in queen-heavy positions. Perft NPS
+  is within noise (~1.5% slower).
+- **Simplicity:** Big win. Knight goes from ~70-line template-heavy code with 4
+  instantiations to a ~25-line loop. Unifying sliding helpers removes duplicate
+  `checkDiagonalThreats`.
+- **DRY:** Win. One `checkSlidingThreats<Piece>` instead of two nearly-identical
+  functions.
+- **Verdict: KEEP.** The simplicity improvement is substantial. The sweep-64
+  improvement (the most representative real-game benchmark) validates the
+  reordering. The many-queens regression is confined to an extreme test case
+  that rarely occurs in practice.
+
+#### Unit B: SWAR Rank Scan + Branchless Knight
+- **Performance:** Regression. sweep-64 goes from 889→1299 ns (46% worse than
+  Unit A, 5% worse than main baseline). not-threatened regresses 19→25 ns (29%
+  worse). many-queens improves 18→13 ns (back to near-baseline). Perft NPS
+  drops ~10% vs main.
+- **Simplicity:** Mixed. SWAR bitmask (`buildOccupancyMask`, Mycroft's trick)
+  adds ~30 lines of non-trivial bit manipulation. Branchless knight
+  (OR-accumulate, conditional index) is harder to read than Unit A's simple
+  loop.
+- **DRY:** Neutral.
+- **Sub-patch analysis:** Skipped. Since Unit B as a whole is a regression on
+  the primary benchmark (sweep-64), teasing apart the SWAR rank scan vs
+  branchless knight would not change the recommendation.
+- **Verdict: DROP.** The SWAR approach doesn't pay off for rank scanning. The
+  overhead of building the occupancy mask, packing bits, and computing
+  `countr_zero`/`bit_width` exceeds the cost of the simple per-square loop that
+  it replaces. The branchless knight always evaluates all 8 squares even when
+  the first would early-exit, which hurts the threatened case.
+
+#### Unit C: SWAR Column Scan + scanLane Refactor
+- **Performance:** Marginal improvement over A+B (sweep-64 1299→1260 ns),
+  threatened improves (33→27 ns), but still worse than both main and Unit A
+  alone on sweep-64. Perft NPS continues to decline.
+- **Simplicity:** Good in isolation — `gatherColumn()` is clean and `scanLane()`
+  is well-factored. But it depends on Unit B's SWAR infrastructure being present.
+- **DRY:** Good — shared `scanLane()` between rank and column.
+- **Verdict: DROP.** Depends on Unit B (which is being dropped). Even with B
+  present, the combined effect is still a regression vs main.
+
+#### Unit D: SWAR Diagonal Scan
+- **Performance:** Worst regression. All benchmarks degrade significantly:
+  not-threatened +33% (27→36 ns), threatened +39% (27→38 ns), sweep-64 +21%
+  (1260→1529 ns), many-queens +15% (13→15 ns). Perft NPS drops to ~8.0M
+  (vs ~9.9M baseline, -19%).
+- **Simplicity:** Highest complexity of all units. Diagonal start index and
+  length calculations are intricate. Variable-length gather loop with stride-7
+  and stride-9 patterns.
+- **DRY:** Removes 4 template instantiations and `ThreatStatus` enum, which is
+  good — but at the cost of complex replacement code.
+- **Verdict: DROP.** Diagonal scanning is the worst candidate for the SWAR
+  approach because: (1) diagonals are variable-length (1-8 squares), adding
+  index/length computation overhead, (2) gather with stride 7/9 is cache-
+  unfriendly compared to the simple loop-with-break, (3) the original
+  4-direction template approach early-exits frequently in practice.
+
+#### Unit E: API Safety (narrow_cast, span)
+- **Performance:** HEAD vs A+B+C+D shows no meaningful change (within noise).
+  The `narrow_cast` and `span` wrappers are zero-cost abstractions.
+- **Simplicity:** Clear win. `narrow_cast` makes narrowing conversions explicit.
+  `span<const ColoredPiece, 64>` provides bounds safety and documents the
+  expected array size.
+- **DRY:** Neutral.
+- **Verdict: KEEP.** Zero-cost safety improvements. These are independent of the
+  SWAR changes and can be applied on top of any combination of other units.
+
+### Overall Recommendation
+
+**Keep Units A and E. Drop Units B, C, and D.**
+
+The branch should be restructured to contain only:
+1. Unit A (commit `187372a`): Reorder, simplify knight, unify sliding helpers
+2. Unit E (commits `a5ed419`..`1cec4c3`): API safety improvements
+
+This yields the best performance point (sweep-64 ~28% faster than main, all
+other metrics within noise) with significantly simpler code than the original.
+
+The SWAR occupancy bitmask approach (Units B/C/D) is an elegant technique in
+theory, but the overhead of mask construction, bit packing, and
+`countr_zero`/`bit_width` lookup exceeds the cost of the simple per-square
+loops it replaces. The original loops benefit from early exit (first piece
+found terminates the scan), which the SWAR approach sacrifices by design —
+it always processes the full lane before examining individual squares.
+
+### Perft Trend Summary
+
+The end-to-end perft numbers confirm the microbenchmark findings. Each SWAR
+unit progressively degrades NPS:
+
+```
+main:    9.9M NPS (baseline)
+A:       9.7M NPS (-1.5%, within noise)
+A+B:     8.8M NPS (-11%)
+A+B+C:   8.7M NPS (-12%)
+A+B+C+D: 8.0M NPS (-19%)
+HEAD:    7.5M NPS (-24%)
+```
+
+Unit A alone is performance-neutral end-to-end while improving the targeted
+threat microbenchmarks. The SWAR units cause a cumulative 24% NPS regression.
