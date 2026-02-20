@@ -31,7 +31,7 @@ namespace wisdom::ui
         internalDepth() const
             -> int
         {
-            return searchDepth * 2 - 1;
+            return searchDepth * 2;
         }
 
         void applyToGame (observer_ptr<Game> game) const
