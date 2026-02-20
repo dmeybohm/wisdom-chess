@@ -13,7 +13,7 @@
 
 class QmlGameStatusUpdate;
 
-class GameModel : public QObject, public wisdom::ui::GameViewModelBase<GameModel>
+class GameModel : public QObject, public wisdom::ui::GameViewModelBase
 {
     using DrawStatus = wisdom::ui::DrawByRepetitionStatus;
 
@@ -62,14 +62,6 @@ class GameModel : public QObject, public wisdom::ui::GameViewModelBase<GameModel
 public:
     explicit GameModel (QObject* parent = nullptr);
     ~GameModel() override;
-
-    [[nodiscard]] auto
-    getGame()
-        -> wisdom::observer_ptr<wisdom::Game>;
-
-    [[nodiscard]] auto
-    getGame() const
-        -> wisdom::observer_ptr<const wisdom::Game>;
 
     [[nodiscard]] auto
     gameId() const
@@ -205,12 +197,20 @@ public slots:
     void updateEngineConfig();
 
 protected:
-    void onInCheckChanged();
-    void onMoveStatusChanged();
-    void onGameOverStatusChanged();
-    void onCurrentTurnChanged();
-    void onThirdRepetitionDrawStatusChanged();
-    void onFiftyMovesDrawStatusChanged();
+    [[nodiscard]] auto
+    getGame()
+        -> wisdom::observer_ptr<wisdom::Game> override;
+
+    [[nodiscard]] auto
+    getGame() const
+        -> wisdom::observer_ptr<const wisdom::Game> override;
+
+    void onInCheckChanged() override;
+    void onMoveStatusChanged() override;
+    void onGameOverStatusChanged() override;
+    void onCurrentTurnChanged() override;
+    void onThirdRepetitionDrawStatusChanged() override;
+    void onFiftyMovesDrawStatusChanged() override;
 
 private:
     void init();

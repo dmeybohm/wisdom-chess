@@ -8,7 +8,7 @@ namespace wisdom
 {
     class GameSettings;
 
-    class WebGame : public ui::GameViewModelBase<WebGame>
+    class WebGame : public ui::GameViewModelBase
     {
     private:
         Game my_game;
@@ -19,20 +19,6 @@ namespace wisdom
         int moveNumber {};
 
         WebGame (int white_player, int black_player, int game_id);
-
-        [[nodiscard]] auto
-        getGame()
-            -> observer_ptr<Game>
-        {
-            return &my_game;
-        }
-
-        [[nodiscard]] auto
-        getGame() const
-            -> observer_ptr<const Game>
-        {
-            return &my_game;
-        }
 
         [[nodiscard]] static auto
         newFromSettings (const GameSettings& settings, int game_id)
@@ -152,6 +138,21 @@ namespace wisdom
             Color color = mapColor (who);
             my_game.setProposedDrawStatus (proposed_draw_type, color, accepted);
             updateDisplayedGameState();
+        }
+
+    protected:
+        [[nodiscard]] auto
+        getGame()
+            -> observer_ptr<Game> override
+        {
+            return &my_game;
+        }
+
+        [[nodiscard]] auto
+        getGame() const
+            -> observer_ptr<const Game> override
+        {
+            return &my_game;
         }
 
     private:
