@@ -57,3 +57,31 @@ GameViewModelBase  (regular class, not a template)
 - Converted CRTP template to regular NVI class
 - All 85 fast tests pass
 - Linter passes on all modified files
+
+### Session #2: NVI Hooks + Console Integration
+
+Added two-level dispatch to `GameStatusUpdate`:
+- 9 pure virtual methods changed to virtual with defaults delegating to 2 hooks:
+  `onGameEnded(GameStatus)` and `onDrawProposed(ProposedDrawType)`
+- Existing overrides still work; new code can choose which level to override
+
+Refactored all `GameStatusUpdate` subclasses to use hooks:
+- `QmlEngineGameStatusUpdate`: 9 overrides -> 2 hook overrides
+- `WebEngineGameStatusUpdate`: 9 overrides (7 no-ops) -> 1 hook override
+- `ViewModelStatusUpdate`: 9 overrides -> 2 hook overrides with switch statements
+
+Added `formatBold()` virtual to `GameViewModelBase`:
+- Default returns `<b>text</b>` (HTML)
+- Console overrides to return plain text
+
+Integrated console with `GameViewModelBase`:
+- `ConsoleGame` now inherits from `ui::GameViewModelBase`
+- Removed `ConsoleGameStatusManager` class entirely
+- Console handles draw proposals synchronously via `handleDrawProposals()`
+  in the game loop before `updateDisplayedGameState()`
+- `onGameOverStatusChanged()` prints status and sets quit flag
+- `onInCheckChanged()` prints "Check!" when king is threatened
+- `LoadNewGame` handler calls `resetStateForNewGame()`
+- Console CMakeLists.txt links `wisdom::viewmodel`, removed duplicate link line
+
+All 85 fast tests pass. Linter passes on all 8 modified files.
