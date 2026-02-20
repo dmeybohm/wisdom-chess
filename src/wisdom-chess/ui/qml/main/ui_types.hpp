@@ -43,14 +43,15 @@ namespace wisdom::ui
     void registerQmlTypes();
 
     [[nodiscard]] constexpr auto 
-    mapColor (wisdom::Color color) 
+    mapColor (wisdom::Color color)
         -> wisdom::ui::Color
     {
+        using enum wisdom::Color;
         switch (color)
         {
-            case wisdom::Color::White:
+            case White:
                 return ui::Color::White;
-            case wisdom::Color::Black:
+            case Black:
                 return ui::Color::Black;
             default:
                 assert (0);
@@ -59,14 +60,15 @@ namespace wisdom::ui
     }
 
     [[nodiscard]] constexpr auto 
-    mapColor (wisdom::ui::Color color) 
+    mapColor (wisdom::ui::Color color)
         -> wisdom::Color
     {
+        using enum ui::Color;
         switch (color)
         {
-            case ui::Color::White:
+            case White:
                 return wisdom::Color::White;
-            case ui::Color::Black:
+            case Black:
                 return wisdom::Color::Black;
             default:
                 assert (0);
@@ -75,14 +77,15 @@ namespace wisdom::ui
     }
 
     [[nodiscard]] constexpr auto 
-    mapPlayer (wisdom::Player player) 
+    mapPlayer (wisdom::Player player)
         -> ui::Player
     {
+        using enum wisdom::Player;
         switch (player)
         {
-            case wisdom::Player::Human:
+            case Human:
                 return ui::Player::Human;
-            case wisdom::Player::ChessEngine:
+            case ChessEngine:
                 return ui::Player::Computer;
             default:
                 assert (0);
@@ -91,14 +94,15 @@ namespace wisdom::ui
     }
 
     [[nodiscard]] constexpr auto 
-    mapPlayer (ui::Player player) 
+    mapPlayer (ui::Player player)
         -> wisdom::Player
     {
+        using enum ui::Player;
         switch (player)
         {
-            case ui::Player::Human:
+            case Human:
                 return wisdom::Player::Human;
-            case ui::Player::Computer:
+            case Computer:
                 return wisdom::Player::ChessEngine;
             default:
                 assert (0);
@@ -107,24 +111,25 @@ namespace wisdom::ui
     }
 
     [[nodiscard]] constexpr auto 
-    mapPiece (ui::PieceType piece) 
+    mapPiece (ui::PieceType piece)
         -> wisdom::Piece
     {
+        using enum PieceType;
         switch (piece)
         {
-            case PieceType::None:
+            case None:
                 return wisdom::Piece::None;
-            case PieceType::Pawn:
+            case Pawn:
                 return wisdom::Piece::Pawn;
-            case PieceType::Knight:
+            case Knight:
                 return wisdom::Piece::Knight;
-            case PieceType::Bishop:
+            case Bishop:
                 return wisdom::Piece::Bishop;
-            case PieceType::Rook:
+            case Rook:
                 return wisdom::Piece::Rook;
-            case PieceType::Queen:
+            case Queen:
                 return wisdom::Piece::Queen;
-            case PieceType::King:
+            case King:
                 return wisdom::Piece::King;
             default:
                 assert (0);
@@ -133,24 +138,25 @@ namespace wisdom::ui
     }
 
     [[nodiscard]] constexpr auto 
-    mapPiece (wisdom::Piece piece) 
+    mapPiece (wisdom::Piece piece)
         -> ui::PieceType
     {
+        using enum wisdom::Piece;
         switch (piece)
         {
-            case wisdom::Piece::None:
+            case None:
                 return PieceType::None;
-            case wisdom::Piece::Pawn:
+            case Pawn:
                 return PieceType::Pawn;
-            case wisdom::Piece::Knight:
+            case Knight:
                 return PieceType::Knight;
-            case wisdom::Piece::Bishop:
+            case Bishop:
                 return PieceType::Bishop;
-            case wisdom::Piece::Rook:
+            case Rook:
                 return PieceType::Rook;
-            case wisdom::Piece::Queen:
+            case Queen:
                 return PieceType::Queen;
-            case wisdom::Piece::King:
+            case King:
                 return PieceType::King;
             default:
                 assert (0);

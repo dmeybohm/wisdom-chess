@@ -38,17 +38,18 @@ namespace wisdom
     }
 
     [[nodiscard]] inline auto 
-    mapColor (wisdom::Color color) 
+    mapColor (wisdom::Color color)
         -> WebColor
     {
+        using enum Color;
         switch (color)
         {
-            case Color::None:
+            case None:
                 return NoColor;
-            case Color::White:
-                return White;
-            case Color::Black:
-                return Black;
+            case White:
+                return ::wisdom::White;
+            case Black:
+                return ::wisdom::Black;
             default:
                 throw Error { "Invalid color." };
         }
@@ -91,25 +92,26 @@ namespace wisdom
     }
 
     [[nodiscard]] inline auto 
-    mapPiece (wisdom::Piece piece) 
+    mapPiece (wisdom::Piece piece)
         -> WebPiece
     {
+        using enum Piece;
         switch (piece)
         {
-            case Piece::None:
+            case None:
                 return NoPiece;
-            case Piece::Pawn:
-                return Pawn;
-            case Piece::Knight:
-                return Knight;
-            case Piece::Bishop:
-                return Bishop;
-            case Piece::Rook:
-                return Rook;
-            case Piece::Queen:
-                return Queen;
-            case Piece::King:
-                return King;
+            case Pawn:
+                return ::wisdom::Pawn;
+            case Knight:
+                return ::wisdom::Knight;
+            case Bishop:
+                return ::wisdom::Bishop;
+            case Rook:
+                return ::wisdom::Rook;
+            case Queen:
+                return ::wisdom::Queen;
+            case King:
+                return ::wisdom::King;
             default:
                 throw Error { "Invalid piece." };
         }
@@ -137,15 +139,16 @@ namespace wisdom
     }
 
     [[nodiscard]] inline auto 
-    mapPlayer (wisdom::Player player) 
+    mapPlayer (wisdom::Player player)
         -> WebPlayer
     {
+        using enum Player;
         switch (player)
         {
-            case Player::Human:
-                return Human;
-            case Player::ChessEngine:
-                return ChessEngine;
+            case Human:
+                return ::wisdom::Human;
+            case ChessEngine:
+                return ::wisdom::ChessEngine;
             default:
                 throw Error { "Invalid player." };
         }
@@ -197,31 +200,32 @@ namespace wisdom
     }
 
     [[nodiscard]] inline auto 
-    mapGameStatus (GameStatus status) 
+    mapGameStatus (GameStatus status)
         -> WebGameStatus
     {
+        using enum GameStatus;
         switch (status)
         {
-            case GameStatus::Playing:
-                return Playing;
-            case GameStatus::Checkmate:
-                return Checkmate;
-            case GameStatus::Stalemate:
-                return Stalemate;
-            case GameStatus::ThreefoldRepetitionReached:
-                return ThreefoldRepetitionReached;
-            case GameStatus::ThreefoldRepetitionAccepted:
-                return ThreefoldRepetitionAccepted;
-            case GameStatus::FivefoldRepetitionDraw:
-                return FivefoldRepetitionDraw;
-            case GameStatus::FiftyMovesWithoutProgressReached:
-                return FiftyMovesWithoutProgressReached;
-            case GameStatus::FiftyMovesWithoutProgressAccepted:
-                return FiftyMovesWithoutProgressAccepted;
-            case GameStatus::SeventyFiveMovesWithoutProgressDraw:
-                return SeventyFiveMovesWithoutProgressDraw;
-            case GameStatus::InsufficientMaterialDraw:
-                return InsufficientMaterialDraw;
+            case Playing:
+                return ::wisdom::Playing;
+            case Checkmate:
+                return ::wisdom::Checkmate;
+            case Stalemate:
+                return ::wisdom::Stalemate;
+            case ThreefoldRepetitionReached:
+                return ::wisdom::ThreefoldRepetitionReached;
+            case ThreefoldRepetitionAccepted:
+                return ::wisdom::ThreefoldRepetitionAccepted;
+            case FivefoldRepetitionDraw:
+                return ::wisdom::FivefoldRepetitionDraw;
+            case FiftyMovesWithoutProgressReached:
+                return ::wisdom::FiftyMovesWithoutProgressReached;
+            case FiftyMovesWithoutProgressAccepted:
+                return ::wisdom::FiftyMovesWithoutProgressAccepted;
+            case SeventyFiveMovesWithoutProgressDraw:
+                return ::wisdom::SeventyFiveMovesWithoutProgressDraw;
+            case InsufficientMaterialDraw:
+                return ::wisdom::InsufficientMaterialDraw;
             default:
                 throw Error { "Invalid game status" };
         }
@@ -348,12 +352,13 @@ namespace wisdom
     mapDrawByRepetitionType (wisdom::ProposedDrawType type)
         -> WebDrawByRepetitionType
     {
+        using enum ProposedDrawType;
         switch (type)
         {
-            case ProposedDrawType::ThreeFoldRepetition:
+            case ThreeFoldRepetition:
                 return ThreeFoldRepeition;
-            case ProposedDrawType::FiftyMovesWithoutProgress:
-                return FiftyMovesWithoutProgress;
+            case FiftyMovesWithoutProgress:
+                return ::wisdom::FiftyMovesWithoutProgress;
             default:
                 throw Error { "Invalid draw type." };
         }
