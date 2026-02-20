@@ -272,7 +272,8 @@ private:
     // When updates to the engine occur, signals are sent between the threads to synchronize.
     std::unique_ptr<ChessGame> my_chess_game;
 
-    // The game id is used to detect stale signals from the engine thread.
+    // The chess game id. We could sometimes receive moves from a previous game that were
+    // queued because the signals are asynchronous. This lets us discard those signals.
     std::atomic<int> my_game_id { 1 };
 
     // We identify each configuration by an Id so that when we change configs,

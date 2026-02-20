@@ -105,9 +105,13 @@ namespace wisdom::ui
         void setThirdRepetitionDrawStatus (DrawByRepetitionStatus value);
         void setFiftyMovesDrawStatus (DrawByRepetitionStatus value);
 
+        // Reset the state for a new game.
         void resetStateForNewGame();
+
+        // Update the displayed state of the game.
         void updateDisplayedGameState();
 
+        // Set the proposed draw status:
         void setProposedDrawStatus (
             wisdom::ProposedDrawType drawType,
             DrawByRepetitionStatus status

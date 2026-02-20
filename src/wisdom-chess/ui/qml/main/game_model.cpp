@@ -64,6 +64,8 @@ void GameModel::setupNewEngineThread()
 {
     delete my_chess_engine_thread;
 
+    // Initialize a new Game for the chess engine.
+    // Any changes in the game config will be updated over a signal.
     auto computer_chess_game = my_chess_game->clone();
     computer_chess_game->setPeriodicFunction (buildNotifier());
 
@@ -71,37 +73,48 @@ void GameModel::setupNewEngineThread()
 
     my_chess_engine_thread = new QThread();
 
+    // Connect event handlers for the computer and human making moves:
     connect (this, &GameModel::humanMoved,
              chess_engine, &ChessEngine::opponentMoved);
     connect (chess_engine, &ChessEngine::engineMoved,
              this, &GameModel::engineThreadMoved);
 
+    // Update draw status between engine and game model:
     connect (chess_engine, &ChessEngine::updateDrawStatus,
              this, &GameModel::receiveChessEngineDrawStatus);
     connect (this, &GameModel::updateDrawStatus,
              chess_engine, &ChessEngine::receiveDrawStatus);
 
+    // Initialize the engine when the engine thread starts:
     connect (my_chess_engine_thread, &QThread::started,
              chess_engine, &ChessEngine::init);
 
+    // If the engine finds no moves available, check whether the game is over.
     connect (chess_engine, &ChessEngine::noMovesAvailable,
              this, [this]() { updateDisplayedGameState(); });
 
+    // Connect the engine's move back to itself in case it's playing itself:
+    // (it will return early if it's not)
     connect (this, &GameModel::engineMoved,
              chess_engine, &ChessEngine::receiveEngineMoved);
 
+    // exit event loop from engine thread when we start exiting:
     connect (this, &GameModel::terminationStarted,
              chess_engine, &ChessEngine::quit);
 
+    // Update the engine's config when user changes it:
     connect (this, &GameModel::engineConfigChanged,
              chess_engine, &ChessEngine::updateConfig);
 
+    // Cleanup chess engine when chess engine thread exits:
     connect (my_chess_engine_thread, &QThread::finished,
              chess_engine, &QObject::deleteLater);
 
+    // When creating a new game, send a copy of the new ChessGame to the Engine:
     connect (this, &GameModel::gameUpdated,
              chess_engine, &ChessEngine::reloadGame);
 
+    // Move the ownership of the engine to the engine thread so slots run on that thread:
     chess_engine->moveToThread (my_chess_engine_thread);
 }
 
@@ -145,15 +158,20 @@ void GameModel::restart()
         )
     );
 
+    // Abort searches and discard any queued signals from them if we receive
+    // them later.
     incrementGameId();
 
     std::shared_ptr<ChessGame> computer_chess_game = std::move (my_chess_game->clone());
     computer_chess_game->setPeriodicFunction (buildNotifier());
 
+    // send copy of the new game state to the chess engine thread:
     emit gameUpdated (computer_chess_game, gameId());
 
+    // Notify other objects in this thread about the new game:
     emit gameStarted (my_chess_game.get());
 
+    // Update the config to update the notifier to use the new game Id:
     updateEngineConfig();
 
     setCurrentTurn (my_chess_game->state()->getCurrentTurn());
@@ -177,6 +195,7 @@ GameModel::engineThreadMoved (
     wisdom::Color who,
     int game_id
 ) {
+    // validate this signal was not sent by an old thread:
     if (game_id != gameId())
     {
         qDebug() << "engineThreadMoved(): Ignored signal from invalid engine.";
@@ -189,6 +208,7 @@ GameModel::engineThreadMoved (
     updateDisplayedGameState();
     updateCurrentTurn (wisdom::colorInvert (who));
 
+    // re-emit single-threaded signal to listeners:
     handleMove (Player::ChessEngine, move, who);
 }
 
@@ -252,10 +272,12 @@ void GameModel::applicationExiting()
 {
     qDebug() << "Trying to exit application...";
 
+    // End the thread by changing the game id:
     incrementGameId();
     qDebug() << "Terminated start...";
     emit terminationStarted();
 
+    // For desktop, we need to wait here before exiting. But on web that will hang.
 #ifndef EMSCRIPTEN
     my_chess_engine_thread->wait();
 #endif
@@ -307,16 +329,22 @@ GameModel::buildNotifier() const
         [game_id_ptr, initial_game_id, config_id_ptr,
          initial_config_id] (not_null<MoveTimer*> move_timer)
         {
+            // This runs in the ChessEngine thread.
             auto current_config_id = config_id_ptr->load();
 
+            // Check if config has changed:
             if (initial_config_id != current_config_id)
             {
                 qDebug() << "Setting timeout to break the loop. (Config changed)";
                 move_timer->setTriggered (true);
 
+                // Discard the results of the search. The GameModel will send
+                // an updateConfig signal to fire off a new search with the new
+                // config.
                 move_timer->setCancelled (true);
             }
 
+            // Check if game has changed. If so, the game is over.
             if (initial_game_id != game_id_ptr->load())
             {
                 qDebug() << "Setting timeout to break the loop. (Game ended)";
