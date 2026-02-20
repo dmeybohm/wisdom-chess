@@ -247,7 +247,8 @@ namespace wisdom::ui
         ViewModelStatusUpdate statusObserver { this };
         statusObserver.update (game->status());
 
-        if (isKingThreatened (board, who, board.getKingPosition (who)))
+        if (my_game_over_status.empty()
+            && isKingThreatened (board, who, board.getKingPosition (who)))
         {
             setInCheck (true);
         }
