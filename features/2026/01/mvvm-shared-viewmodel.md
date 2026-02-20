@@ -120,3 +120,32 @@ The implementation was verified by:
 2. Building and running the WASM/React application in a browser
 3. Verifying all game features work: new game, moves, pawn promotion, check
    detection, draw proposals, and game over states
+
+## Implementation Progress
+
+### Session #1: CRTP Refactoring
+
+Replaced virtual inheritance with CRTP (Curiously Recurring Template Pattern):
+
+**Problem:** The initial design used runtime polymorphism (`virtual getGame()`,
+virtual `on*Changed()` callbacks) for a compile-time-known hierarchy with exactly
+2 derived classes. Additionally, `game_id` was placed in the shared base despite
+having fundamentally different semantics in each frontend:
+- QML uses `std::atomic<int>` for cross-thread synchronization
+- WASM uses a plain `int` for message identification
+
+**Solution:**
+- `GameViewModelBase` is now `GameViewModelBase<Derived>` — a header-only CRTP template
+- All virtual dispatch replaced with static dispatch via `derived().getGame()` / `derived().on*Changed()`
+- `game_id` removed from the base; each frontend owns its own:
+  - `GameModel` has `std::atomic<int> my_game_id`
+  - `WebGame` has `int my_game_id`
+- `ViewModelStatusUpdate` became a private nested `StatusUpdateObserver` class
+- `game_viewmodel_base.cpp` deleted — all logic is inline in the header
+
+**Files changed:**
+- `game_viewmodel_base.hpp` — rewritten as CRTP template
+- `game_viewmodel_base.cpp` — deleted
+- `viewmodel/CMakeLists.txt` — removed .cpp from sources
+- `game_model.hpp/cpp` — owns `my_game_id`, `gameId()`, `incrementGameId()`
+- `web_game.hpp/cpp` — owns `my_game_id`, uses it in `getGameId()`

@@ -283,16 +283,28 @@ GameModel::updateChessEngineForHumanMove (
 }
 
 auto
+GameModel::gameId() const
+    -> int
+{
+    return my_game_id.load();
+}
+
+void GameModel::incrementGameId()
+{
+    my_game_id++;
+}
+
+auto
 GameModel::buildNotifier() const
     -> MoveTimer::PeriodicFunction
 {
     auto initial_game_id = gameId();
     auto initial_config_id = my_config_id.load();
-    const auto* base_ptr = static_cast<const GameViewModelBase*> (this);
+    const auto* game_id_ptr = &my_game_id;
     const auto* config_id_ptr = &my_config_id;
 
     return (
-        [base_ptr, initial_game_id, config_id_ptr,
+        [game_id_ptr, initial_game_id, config_id_ptr,
          initial_config_id] (not_null<MoveTimer*> move_timer)
         {
             auto current_config_id = config_id_ptr->load();
@@ -305,7 +317,7 @@ GameModel::buildNotifier() const
                 move_timer->setCancelled (true);
             }
 
-            if (initial_game_id != base_ptr->gameId())
+            if (initial_game_id != game_id_ptr->load())
             {
                 qDebug() << "Setting timeout to break the loop. (Game ended)";
                 move_timer->setTriggered (true);

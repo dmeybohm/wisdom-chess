@@ -8,11 +8,12 @@ namespace wisdom
 {
     class GameSettings;
 
-    class WebGame : public ui::GameViewModelBase
+    class WebGame : public ui::GameViewModelBase<WebGame>
     {
     private:
         Game my_game;
         WebColoredPieceList my_pieces;
+        int my_game_id;
 
     public:
         int moveNumber {};
@@ -21,14 +22,14 @@ namespace wisdom
 
         [[nodiscard]] auto
         getGame()
-            -> observer_ptr<Game> override
+            -> observer_ptr<Game>
         {
             return &my_game;
         }
 
         [[nodiscard]] auto
         getGame() const
-            -> observer_ptr<const Game> override
+            -> observer_ptr<const Game>
         {
             return &my_game;
         }
@@ -125,7 +126,7 @@ namespace wisdom
         getGameId() const
             -> int
         {
-            return gameId();
+            return my_game_id;
         }
 
         [[nodiscard]] auto

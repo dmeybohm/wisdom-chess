@@ -13,7 +13,7 @@
 
 class QmlGameStatusUpdate;
 
-class GameModel : public QObject, public wisdom::ui::GameViewModelBase
+class GameModel : public QObject, public wisdom::ui::GameViewModelBase<GameModel>
 {
     using DrawStatus = wisdom::ui::DrawByRepetitionStatus;
 
@@ -65,11 +65,15 @@ public:
 
     [[nodiscard]] auto
     getGame()
-        -> wisdom::observer_ptr<wisdom::Game> override;
+        -> wisdom::observer_ptr<wisdom::Game>;
 
     [[nodiscard]] auto
     getGame() const
-        -> wisdom::observer_ptr<const wisdom::Game> override;
+        -> wisdom::observer_ptr<const wisdom::Game>;
+
+    [[nodiscard]] auto
+    gameId() const
+        -> int;
 
     Q_INVOKABLE void start();
     Q_INVOKABLE QString browserOriginUrl();
@@ -201,12 +205,12 @@ public slots:
     void updateEngineConfig();
 
 protected:
-    void onInCheckChanged() override;
-    void onMoveStatusChanged() override;
-    void onGameOverStatusChanged() override;
-    void onCurrentTurnChanged() override;
-    void onThirdRepetitionDrawStatusChanged() override;
-    void onFiftyMovesDrawStatusChanged() override;
+    void onInCheckChanged();
+    void onMoveStatusChanged();
+    void onGameOverStatusChanged();
+    void onCurrentTurnChanged();
+    void onThirdRepetitionDrawStatusChanged();
+    void onFiftyMovesDrawStatusChanged();
 
 private:
     void init();
@@ -261,10 +265,15 @@ private:
     friend class QmlGameStatusUpdate;
 
 private:
+    void incrementGameId();
+
     // The game is duplicated across the main thread and the chess engine thread.
     // So, the main thread has a copy of the game and so does the engine.
     // When updates to the engine occur, signals are sent between the threads to synchronize.
     std::unique_ptr<ChessGame> my_chess_game;
+
+    // The game id is used to detect stale signals from the engine thread.
+    std::atomic<int> my_game_id { 1 };
 
     // We identify each configuration by an Id so that when we change configs,
     // The chess engine thread can be interrupted to load the new config sooner.

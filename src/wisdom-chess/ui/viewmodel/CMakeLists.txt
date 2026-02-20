@@ -1,7 +1,6 @@
 add_library(wisdom-viewmodel-base STATIC
     viewmodel_types.cpp
     viewmodel_settings.cpp
-    game_viewmodel_base.cpp
 )
 
 target_include_directories(wisdom-viewmodel-base
