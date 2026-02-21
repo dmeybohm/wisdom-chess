@@ -7,6 +7,8 @@ include(cmake/CPM.cmake)
 
 project(WisdomChess CXX)
 
+enable_testing()
+
 option(WISDOM_CHESS_ASAN "Enable memory debugging of chess engine")
 option(WISDOM_CHESS_FAST_TESTS "Enable building of fast tests" On)
 option(WISDOM_CHESS_SLOW_TESTS "Enable building of slow tests" On)
