@@ -171,7 +171,7 @@ namespace wisdom::ui
     GameViewModelBase::formatBold (const std::string& text) const
         -> std::string
     {
-        return "<b>" + text + "</b>";
+        return "<strong>" + text + "</strong>";
     }
 
     void GameViewModelBase::setInCheck (bool value)
