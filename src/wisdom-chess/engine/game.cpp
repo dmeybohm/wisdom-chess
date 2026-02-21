@@ -173,15 +173,16 @@ namespace wisdom
         if (my_pimpl->my_history.isThirdRepetition (my_pimpl->my_current_board))
         {
             auto third_repetition_status = my_pimpl->my_history.getThreefoldRepetitionStatus();
+            using enum DrawStatus;
             switch (third_repetition_status)
             {
-                case DrawStatus::Declined:
+                case Declined:
                     break;
 
-                case DrawStatus::NotReached:
+                case NotReached:
                     return GameStatus::ThreefoldRepetitionReached;
 
-                case DrawStatus::Accepted:
+                case Accepted:
                     return GameStatus::ThreefoldRepetitionAccepted;
             }
         }
@@ -192,15 +193,16 @@ namespace wisdom
         if (History::hasBeenFiftyMovesWithoutProgress (getBoard()))
         {
             auto fifty_moves_status = my_pimpl->my_history.getFiftyMovesWithoutProgressStatus();
+            using enum DrawStatus;
             switch (fifty_moves_status)
             {
-                case DrawStatus::Declined:
+                case Declined:
                     break;
 
-                case DrawStatus::NotReached:
+                case NotReached:
                     return GameStatus::FiftyMovesWithoutProgressReached;
 
-                case DrawStatus::Accepted:
+                case Accepted:
                     return GameStatus::FiftyMovesWithoutProgressAccepted;
             }
         }

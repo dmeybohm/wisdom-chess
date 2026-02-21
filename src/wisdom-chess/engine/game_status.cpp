@@ -5,44 +5,45 @@ wisdom::GameStatusUpdate::~GameStatusUpdate() = default;
 
 void wisdom::GameStatusUpdate::update (GameStatus status)
 {
+    using enum GameStatus;
     switch (status)
     {
-        case GameStatus::Playing:
+        case Playing:
             break;
 
-        case GameStatus::Checkmate:
+        case Checkmate:
             checkmate();
             break;
 
-        case GameStatus::Stalemate:
+        case Stalemate:
             stalemate();
             break;
 
-        case GameStatus::ThreefoldRepetitionReached:
+        case ThreefoldRepetitionReached:
             thirdRepetitionDrawReached();
             break;
 
-        case GameStatus::ThreefoldRepetitionAccepted:
+        case ThreefoldRepetitionAccepted:
             thirdRepetitionDrawAccepted();
             break;
 
-        case GameStatus::FivefoldRepetitionDraw:
+        case FivefoldRepetitionDraw:
             fifthRepetitionDraw();
             break;
 
-        case GameStatus::FiftyMovesWithoutProgressReached:
+        case FiftyMovesWithoutProgressReached:
             fiftyMovesWithoutProgressReached();
             break;
 
-        case GameStatus::FiftyMovesWithoutProgressAccepted:
+        case FiftyMovesWithoutProgressAccepted:
             fiftyMovesWithoutProgressAccepted();
             break;
 
-        case GameStatus::SeventyFiveMovesWithoutProgressDraw:
+        case SeventyFiveMovesWithoutProgressDraw:
             seventyFiveMovesWithNoProgress();
             break;
 
-        case GameStatus::InsufficientMaterialDraw:
+        case InsufficientMaterialDraw:
             insufficientMaterial();
             break;
     }

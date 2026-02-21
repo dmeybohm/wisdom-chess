@@ -19,7 +19,8 @@ namespace wisdom::ui
 
             switch (status)
             {
-                case GameStatus::Checkmate:
+                using enum GameStatus;
+                case Checkmate:
                 {
                     auto opponent = colorInvert (game->getCurrentTurn());
                     my_parent->setGameOverStatus (
@@ -28,7 +29,7 @@ namespace wisdom::ui
                     );
                     break;
                 }
-                case GameStatus::Stalemate:
+                case Stalemate:
                 {
                     auto who = game->getCurrentTurn();
                     my_parent->setGameOverStatus (
@@ -37,27 +38,27 @@ namespace wisdom::ui
                     );
                     break;
                 }
-                case GameStatus::InsufficientMaterialDraw:
+                case InsufficientMaterialDraw:
                     my_parent->setGameOverStatus (
                         my_parent->formatBold ("Draw") + " - Insufficient material to checkmate."
                     );
                     break;
-                case GameStatus::ThreefoldRepetitionAccepted:
+                case ThreefoldRepetitionAccepted:
                     my_parent->setGameOverStatus (
                         my_parent->formatBold ("Draw") + " - Threefold repetition rule."
                     );
                     break;
-                case GameStatus::FivefoldRepetitionDraw:
+                case FivefoldRepetitionDraw:
                     my_parent->setGameOverStatus (
                         my_parent->formatBold ("Draw") + " - Fivefold repetition rule."
                     );
                     break;
-                case GameStatus::FiftyMovesWithoutProgressAccepted:
+                case FiftyMovesWithoutProgressAccepted:
                     my_parent->setGameOverStatus (
                         my_parent->formatBold ("Draw") + " - Fifty moves without progress."
                     );
                     break;
-                case GameStatus::SeventyFiveMovesWithoutProgressDraw:
+                case SeventyFiveMovesWithoutProgressDraw:
                     my_parent->setGameOverStatus (
                         my_parent->formatBold ("Draw") + " - Seventy-five moves without progress."
                     );
@@ -75,10 +76,11 @@ namespace wisdom::ui
 
             switch (type)
             {
-                case ProposedDrawType::ThreeFoldRepetition:
+                using enum ProposedDrawType;
+                case ThreeFoldRepetition:
                     my_parent->setThirdRepetitionDrawStatus (DrawByRepetitionStatus::Proposed);
                     break;
-                case ProposedDrawType::FiftyMovesWithoutProgress:
+                case FiftyMovesWithoutProgress:
                     my_parent->setFiftyMovesDrawStatus (DrawByRepetitionStatus::Proposed);
                     break;
             }
