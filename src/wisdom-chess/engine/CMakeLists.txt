@@ -18,6 +18,10 @@ CPMAddPackage(
 
 find_package(doctest)
 
+if (doctest_FOUND)
+    include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)
+endif()
+
 if (ANDROID OR NOT WISDOM_CHESS_PCH_ENABLED)
     # Disable precompile headers because there is a confict on android where it links
     # some code as PIC and some as non-PIC and can't combine them.
