@@ -474,7 +474,7 @@ namespace wisdom
     UciInterface::buildNotifier (int initial_search_id)
         -> MoveTimer::PeriodicFunction
     {
-        return [this, initial_search_id] (not_null<MoveTimer*> timer)
+        return [this, initial_search_id] (nonnull_observer_ptr<MoveTimer> timer)
         {
             if (my_search_id.load() != initial_search_id)
             {

@@ -343,7 +343,7 @@ GameModel::buildNotifier() const
 
     return (
         [game_id_ptr, initial_game_id, config_id_ptr,
-         initial_config_id, paused_ptr] (not_null<MoveTimer*> move_timer)
+         initial_config_id, paused_ptr] (nonnull_observer_ptr<MoveTimer> move_timer)
         {
             // This runs in the ChessEngine thread.
 

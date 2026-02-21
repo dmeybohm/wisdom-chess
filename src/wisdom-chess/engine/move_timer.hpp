@@ -56,7 +56,7 @@ namespace wisdom
     class MoveTimer
     {
     public:
-        using PeriodicFunction = std::function<void(not_null<MoveTimer*>)>;
+        using PeriodicFunction = std::function<void(nonnull_observer_ptr<MoveTimer>)>;
 
         explicit MoveTimer (chrono::seconds seconds)
             : my_seconds { seconds }

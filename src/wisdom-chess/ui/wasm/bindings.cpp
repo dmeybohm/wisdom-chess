@@ -131,7 +131,7 @@ EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
     state->game = Game::createStandardGame();
     state->updateSettings (state->settings);
 
-    auto periodic_func = [state](observer_ptr<MoveTimer> timer) {
+    auto periodic_func = [state](nonnull_observer_ptr<MoveTimer> timer) {
         auto play_status = state->play_status.load();
         if (play_status != GameState::Playing) {
             timer->setCancelled (true);
