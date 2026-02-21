@@ -352,6 +352,7 @@ GameModel::buildNotifier() const
             if (paused_ptr->load())
             {
                 move_timer->setCancelled (true);
+                return;
             }
 
             // Check if config has changed:
