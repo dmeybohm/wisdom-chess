@@ -60,3 +60,24 @@ All changes applied and verified:
 - Build succeeds with no warnings related to these changes
 - All 85 fast tests pass
 - Linter passes on modified files
+
+### Session #2
+
+Rebased onto main after the MVVM refactoring (PR #196) merged. The
+rebase was clean with no conflicts.
+
+Evaluated new files introduced by main for `using enum` candidates:
+
+- **`game_viewmodel_base.cpp`** — Added `using enum GameStatus;` to the
+  `onGameEnded()` switch (7 cases) and `using enum ProposedDrawType;` to
+  the `onDrawProposed()` switch (2 cases). These switches had long
+  qualified enum names that benefited from the same treatment.
+
+Files evaluated but not changed:
+- `play.cpp`, `game_model.cpp`, `web_game.cpp` — use if/else chains, not
+  switches, so `using enum` would pollute function scope without the
+  clear scoping benefit.
+- NVI default implementations in `game_status.cpp` — single-line bodies
+  with one enum reference each; `using enum` would be noise.
+
+Verified: linter passes, build succeeds, all 85 fast tests pass.
