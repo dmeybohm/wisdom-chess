@@ -117,3 +117,50 @@ jobs:
     - name: Install (CMake)
       run: >
         cmake --install ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+
+  build-filc:
+    needs: lint
+    runs-on: ubuntu-latest
+
+    env:
+      FILC_VERSION: "0.678"
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Cache FIL-C installation
+      id: cache-filc
+      uses: actions/cache@v4
+      with:
+        path: filc-${{ env.FILC_VERSION }}-linux-x86_64
+        key: filc-${{ env.FILC_VERSION }}-linux-x86_64
+
+    - name: Install FIL-C
+      if: steps.cache-filc.outputs.cache-hit != 'true'
+      run: |
+        sudo apt-get update && sudo apt-get install -y patchelf
+        curl -L -o filc.tar.xz https://github.com/pizlonator/fil-c/releases/download/v${{ env.FILC_VERSION }}/filc-${{ env.FILC_VERSION }}-linux-x86_64.tar.xz
+        tar xf filc.tar.xz
+        cd filc-${{ env.FILC_VERSION }}-linux-x86_64
+        ./setup.sh
+
+    - name: Verify FIL-C
+      run: filc-${{ env.FILC_VERSION }}-linux-x86_64/build/bin/fil++ --version
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ github.workspace }}/build
+        -DCMAKE_CXX_COMPILER=${{ github.workspace }}/filc-${{ env.FILC_VERSION }}-linux-x86_64/build/bin/fil++
+        -DCMAKE_BUILD_TYPE=Release
+        -DWISDOM_CHESS_CONSOLE_UI=Off
+        -DWISDOM_CHESS_QML_UI=Off
+        -DWISDOM_CHESS_FAST_TESTS=On
+        -DWISDOM_CHESS_SLOW_TESTS=Off
+        -DWISDOM_CHESS_BUILD_LINTER=Off
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: cmake --build ${{ github.workspace }}/build --config Release -j 4
+
+    - name: Run Tests
+      run: ctest --test-dir ${{ github.workspace }}/build --build-config Release --output-on-failure -j 2
