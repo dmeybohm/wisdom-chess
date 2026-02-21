@@ -66,50 +66,16 @@ namespace wisdom::worker
             observer_ptr<GameState> my_parent;
 
         public:
-            explicit WebEngineGameStatusUpdate (observer_ptr<GameState> parent) 
+            explicit WebEngineGameStatusUpdate (observer_ptr<GameState> parent)
                 : my_parent { parent }
             {
             }
 
-            void checkmate() override
-            {
-            }
-
-            void stalemate() override
-            {
-            }
-
-            void insufficientMaterial() override
-            {
-            }
-
-            void thirdRepetitionDrawAccepted() override
-            {
-            }
-
-            void fifthRepetitionDraw() override
-            {
-            }
-
-            void fiftyMovesWithoutProgressAccepted() override
-            {
-            }
-
-            void seventyFiveMovesWithNoProgress() override
-            {
-            }
-
-            void thirdRepetitionDrawReached() override
+        protected:
+            void onDrawProposed (ProposedDrawType type) override
             {
                 auto who = my_parent->game.getCurrentTurn();
-                my_parent->handlePotentialDrawPosition (ProposedDrawType::ThreeFoldRepetition, who);
-            }
-
-            void fiftyMovesWithoutProgressReached() override
-            {
-                auto who = my_parent->game.getCurrentTurn();
-                my_parent->handlePotentialDrawPosition (ProposedDrawType::FiftyMovesWithoutProgress,
-                                                        who);
+                my_parent->handlePotentialDrawPosition (type, who);
             }
         };
 

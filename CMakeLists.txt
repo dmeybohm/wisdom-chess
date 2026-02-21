@@ -22,7 +22,7 @@ option(WISDOM_CHESS_BENCHMARKS "Enable building of benchmarks" Off)
 # QML UI option: AUTO (build if Qt6 found), ON (require Qt6), OFF (disable)
 set(WISDOM_CHESS_QML_UI "AUTO" CACHE STRING "Build QML UI: AUTO (if Qt6 found), ON (require Qt6), OFF (disable)")
 set_property(CACHE WISDOM_CHESS_QML_UI PROPERTY STRINGS AUTO ON OFF)
-option(WISDOM_CHESS_QT_DIR "Directory for Qt libraries")
+set(WISDOM_CHESS_QT_DIR "" CACHE PATH "Directory for Qt libraries")
 
 # Set default for integrated React build based on whether it's a WASM build
 if(EMSCRIPTEN AND NOT DEFINED WISDOM_CHESS_REACT_BUILD_INTEGRATED)

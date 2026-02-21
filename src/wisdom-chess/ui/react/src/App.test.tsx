@@ -9,7 +9,8 @@ const createMockGame = (): Game => ({
     getMoveStatus: vi.fn(() => 'White to move'),
     getGameOverStatus: vi.fn(() => ''),
     getCurrentTurn: vi.fn(() => 0),
-    inCheck: vi.fn(() => false),
+    getInCheck: vi.fn(() => false),
+    getGameId: vi.fn(() => 0),
     getPieceList: vi.fn(() => ({
         length: 0,
         pieceAt: vi.fn(() => null),

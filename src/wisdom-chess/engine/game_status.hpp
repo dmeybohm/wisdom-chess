@@ -26,6 +26,25 @@ namespace wisdom
 
     class Game;
 
+    //
+    // GameStatusUpdate provides a two-level dispatch for handling game status changes.
+    //
+    // Level 1 (fine-grained): Override individual virtual methods (checkmate(), stalemate(), etc.)
+    //   for precise control over each status transition.
+    //
+    // Level 2 (simplified): Override the two hook methods:
+    //   - onGameEnded(GameStatus) — called for all 7 game-ending statuses:
+    //       Checkmate, Stalemate, InsufficientMaterialDraw, ThreefoldRepetitionAccepted,
+    //       FivefoldRepetitionDraw, FiftyMovesWithoutProgressAccepted,
+    //       SeventyFiveMovesWithoutProgressDraw
+    //   - onDrawProposed(ProposedDrawType) — called for 2 draw-proposal statuses:
+    //       ThreefoldRepetitionReached, FiftyMovesWithoutProgressReached
+    //
+    // The dispatch flow is: update() -> individual virtual method -> hook.
+    // Override at whichever level suits your needs. The individual methods have
+    // default implementations that delegate to the hooks, so you only need to
+    // override at one level.
+    //
     class GameStatusUpdate
     {
     public:
@@ -38,28 +57,25 @@ namespace wisdom
         void update (GameStatus status);
 
         //
-        // Functions to call when the corresponding state is reached:
+        // Level 1: Fine-grained virtual methods for each status.
+        // Default implementations delegate to onGameEnded() or onDrawProposed().
         //
 
-        // Playing/checkmate/stalemate:
-        virtual void checkmate() = 0;
-        virtual void stalemate() = 0;
+        virtual void checkmate();
+        virtual void stalemate();
+        virtual void insufficientMaterial();
+        virtual void thirdRepetitionDrawReached();
+        virtual void thirdRepetitionDrawAccepted();
+        virtual void fifthRepetitionDraw();
+        virtual void fiftyMovesWithoutProgressReached();
+        virtual void fiftyMovesWithoutProgressAccepted();
+        virtual void seventyFiveMovesWithNoProgress();
 
-        // Insufficient material draw:
-        virtual void insufficientMaterial() = 0;
-
-        // Third repetition draw was reached. Ask each player about a draw.
-        virtual void thirdRepetitionDrawReached() = 0;
-        virtual void thirdRepetitionDrawAccepted() = 0;
-
-        // Fifth Repetition draw was reached.
-        virtual void fifthRepetitionDraw() = 0;
-
-        // Fifty moves without progress. Ask each player about a draw.
-        virtual void fiftyMovesWithoutProgressReached() = 0;
-        virtual void fiftyMovesWithoutProgressAccepted() = 0;
-
-        // Seventy-five moves without progress draw reached:
-        virtual void seventyFiveMovesWithNoProgress() = 0;
+    protected:
+        //
+        // Level 2: Simplified hooks. Override these for broad handling.
+        //
+        virtual void onGameEnded (GameStatus status);
+        virtual void onDrawProposed (ProposedDrawType type);
     };
 }

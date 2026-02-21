@@ -2,23 +2,21 @@
 
 #include "wisdom-chess/ui/wasm/web_types.hpp"
 #include "wisdom-chess/ui/wasm/web_move.hpp"
+#include "wisdom-chess/ui/viewmodel/game_viewmodel_base.hpp"
 
 namespace wisdom
 {
     class GameSettings;
 
-    class WebGame
+    class WebGame : public ui::GameViewModelBase
     {
     private:
         Game my_game;
         WebColoredPieceList my_pieces;
-        std::string my_move_status;
-        std::string my_game_over_status;
+        int my_game_id;
 
     public:
-        bool inCheck = false;
         int moveNumber {};
-        int gameId {};
 
         WebGame (int white_player, int black_player, int game_id);
 
@@ -28,38 +26,33 @@ namespace wisdom
 
         void setSettings (const GameSettings& settings);
 
-        [[nodiscard]] auto 
+        [[nodiscard]] auto
         needsPawnPromotion (
-            const WebCoord* src, 
+            const WebCoord* src,
             const WebCoord* dst
-        ) const 
+        ) const
             -> bool
         {
-            auto game_src = makeCoord (src->row, src->col);
-            auto game_dst = makeCoord (dst->row, dst->col);
-
-            auto optionalMove = my_game.mapCoordinatesToMove (game_src, game_dst,
-                                                              Piece::Queen);
-            if (!optionalMove.has_value())
-                return false;
-            return optionalMove->isPromoting();
+            return GameViewModelBase::needsPawnPromotion (
+                src->row, src->col, dst->row, dst->col
+            );
         }
 
-        [[nodiscard]] auto 
+        [[nodiscard]] auto
         createMoveFromCoordinatesAndPromotedPiece (
-            const WebCoord* src, 
-            const WebCoord* dst, 
+            const WebCoord* src,
+            const WebCoord* dst,
             int promoted_piece_type
         )
             -> WebMove*;
 
         [[nodiscard]] auto makeMove (
             const WebMove *move_param
-        ) 
+        )
             -> bool;
 
-        [[nodiscard]] auto 
-        isLegalMove (const WebMove* selectedMovePtr) 
+        [[nodiscard]] auto
+        isLegalMove (const WebMove* selectedMovePtr)
             -> bool;
 
         void setMaxDepth (int max_depth)
@@ -72,51 +65,65 @@ namespace wisdom
             my_game.setSearchTimeout (thinkingTime);
         }
 
-        [[nodiscard]] auto 
-        getMaxDepth() const 
+        [[nodiscard]] auto
+        getMaxDepth() const
             -> int
         {
             auto result = my_game.getMaxDepth();
             return result;
         }
 
-        [[nodiscard]] auto 
-        getPieceList() 
+        [[nodiscard]] auto
+        getPieceList()
             -> WebColoredPieceList&
         {
             return my_pieces;
         }
 
-        [[nodiscard]] auto 
-        getCurrentTurn() const 
+        [[nodiscard]] auto
+        getCurrentTurn() const
             -> WebColor
         {
             return mapColor (my_game.getCurrentTurn());
         }
 
-        [[nodiscard]] auto 
-        getMoveStatus() const 
+        [[nodiscard]] auto
+        getMoveStatus() const
             -> const char*
         {
-            return my_move_status.c_str();
+            return moveStatus().c_str();
         }
 
-        [[nodiscard]] auto 
-        getGameOverStatus() const 
+        [[nodiscard]] auto
+        getGameOverStatus() const
             -> const char*
         {
-            return my_game_over_status.c_str();
+            return gameOverStatus().c_str();
         }
 
-        [[nodiscard]] auto 
-        getGameStatus() const 
+        [[nodiscard]] auto
+        getInCheck() const
+            -> bool
+        {
+            return inCheck();
+        }
+
+        [[nodiscard]] auto
+        getGameId() const
+            -> int
+        {
+            return my_game_id;
+        }
+
+        [[nodiscard]] auto
+        getGameStatus() const
             -> WebGameStatus
         {
             return mapGameStatus (my_game.status());
         }
 
-        [[nodiscard]] auto 
-        getPlayerOfColor (int color) const 
+        [[nodiscard]] auto
+        getPlayerOfColor (int color) const
             -> WebPlayer
         {
             Color mapped_color = mapColor (color);
@@ -133,40 +140,37 @@ namespace wisdom
             updateDisplayedGameState();
         }
 
+    protected:
+        [[nodiscard]] auto
+        getGame()
+            -> observer_ptr<Game> override
+        {
+            return &my_game;
+        }
+
+        [[nodiscard]] auto
+        getGame() const
+            -> observer_ptr<const Game> override
+        {
+            return &my_game;
+        }
+
     private:
 
         [[nodiscard]] auto findAndRemoveId (
-            std::unordered_map<int, 
-            WebColoredPiece>& old_list, 
-            Coord coord_to_find, 
+            std::unordered_map<int,
+            WebColoredPiece>& old_list,
+            Coord coord_to_find,
             ColoredPiece piece_to_find
         ) -> int;
 
         void updatePieceList (ColoredPiece promoted_piece);
 
-        void updateDisplayedGameState();
-
-        void setGameOverStatus (std::string new_status)
+        void onDisplayedGameStateUpdated() override
         {
-            my_game_over_status = std::move (new_status);
-        }
-
-        void setInCheck (bool new_in_check)
-        {
-            inCheck = new_in_check;
-        }
-
-        void setMoveNumber (size_t size)
-        {
-            moveNumber = narrow<int> (size);
-        }
-
-        void setMoveStatus (std::string new_move_status)
-        {
-            my_move_status = std::move (new_move_status);
+            moveNumber = narrow<int> (getGame()->getHistory().getMoveHistory().size());
         }
 
         friend class WebGameStatusUpdate;
     };
 };
-

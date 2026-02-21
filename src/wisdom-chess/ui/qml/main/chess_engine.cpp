@@ -65,67 +65,26 @@ class QmlEngineGameStatusUpdate : public GameStatusUpdate
 private:
     nonnull_observer_ptr<ChessEngine> my_parent;
 
-    void handleGameOver()
+public:
+    explicit QmlEngineGameStatusUpdate (
+        nonnull_observer_ptr<ChessEngine> parent
+    )
+        : my_parent { parent }
+    {
+    }
+
+protected:
+    void onGameEnded ([[maybe_unused]] GameStatus status) override
     {
         my_parent->my_is_game_over = true;
         emit my_parent->noMovesAvailable();
     }
 
-public:
-    explicit QmlEngineGameStatusUpdate (
-        nonnull_observer_ptr<ChessEngine> parent
-    ) 
-        : my_parent { parent }
-    {
-    }
-
-    void checkmate() override
-    {
-        handleGameOver();
-    }
-
-    void stalemate() override
-    {
-        handleGameOver();
-    }
-
-    void insufficientMaterial() override
-    {
-        handleGameOver();
-    }
-
-    void thirdRepetitionDrawAccepted() override
-    {
-        handleGameOver();
-    }
-
-    void fifthRepetitionDraw() override
-    {
-        handleGameOver();
-    }
-
-    void fiftyMovesWithoutProgressAccepted() override
-    {
-        handleGameOver();
-    }
-
-    void seventyFiveMovesWithNoProgress() override
-    {
-        handleGameOver();
-    }
-
-    void thirdRepetitionDrawReached() override
+    void onDrawProposed (ProposedDrawType type) override
     {
         auto game_state = my_parent->my_game->state();
         auto who = game_state->getCurrentTurn();
-        my_parent->handlePotentialDrawPosition (ProposedDrawType::ThreeFoldRepetition, who);
-    }
-
-    void fiftyMovesWithoutProgressReached() override
-    {
-        auto game_state = my_parent->my_game->state();
-        auto who = game_state->getCurrentTurn();
-        my_parent->handlePotentialDrawPosition (ProposedDrawType::FiftyMovesWithoutProgress, who);
+        my_parent->handlePotentialDrawPosition (type, who);
     }
 };
 

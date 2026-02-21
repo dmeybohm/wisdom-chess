@@ -107,7 +107,7 @@ function App() {
     })
 
     const currentTurn = gameRef.current.getCurrentTurn()
-    const inCheck = gameRef.current.inCheck
+    const inCheck = gameRef.current.getInCheck()
 
     // Bootstrap + engine message hookup:
     useEffect(() => {
@@ -120,8 +120,8 @@ function App() {
                 const mod = wisdomChessRef.current
 
                 // Reject stale moves from previous games
-                if (gameId !== game.gameId) {
-                    console.debug('Ignoring message from old game:', gameId, 'current:', game.gameId)
+                if (gameId !== game.getGameId()) {
+                    console.debug('Ignoring message from old game:', gameId, 'current:', game.getGameId())
                     return
                 }
 

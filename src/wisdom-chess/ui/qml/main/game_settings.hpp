@@ -51,6 +51,6 @@ private:
     wisdom::ui::Player my_white_player = wisdom::ui::Player::Human;
     wisdom::ui::Player my_black_player = wisdom::ui::Player::Computer;
     int my_max_depth = wisdom::Default_Max_Depth / 2;
-    int my_max_search_time = 4;
+    int my_max_search_time = wisdom::Default_Max_Search_Seconds;
 };
 
