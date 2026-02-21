@@ -29,7 +29,7 @@ if (WISDOM_CHESS_FAST_TESTS)
     target_link_libraries(fast_tests PRIVATE wisdom::chess)
     target_link_libraries(fast_tests PRIVATE doctest::doctest)
 
-    add_test(NAME fast_tests COMMAND fast_tests)
+    doctest_discover_tests(fast_tests)
 
 endif()
 
@@ -48,7 +48,7 @@ if (WISDOM_CHESS_SLOW_TESTS)
     target_link_libraries(slow_tests PRIVATE wisdom::chess)
     target_link_libraries(slow_tests PRIVATE doctest::doctest)
 
-    add_test(NAME slow_tests COMMAND slow_tests)
+    doctest_discover_tests(slow_tests)
 
     # For perft testing:
     add_executable(perft 
