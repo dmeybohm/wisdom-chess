@@ -109,6 +109,8 @@ namespace wisdom
         void setCancelled (bool cancelled) noexcept
         {
             my_timer_state.cancelled = cancelled;
+            if (cancelled)
+                my_timer_state.triggered = true;
         }
 
     private:

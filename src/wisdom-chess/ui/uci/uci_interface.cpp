@@ -478,7 +478,6 @@ namespace wisdom
         {
             if (my_search_id.load() != initial_search_id)
             {
-                timer->setTriggered (true);
                 timer->setCancelled (true);
             }
         };

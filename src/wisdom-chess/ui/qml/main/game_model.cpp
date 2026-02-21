@@ -358,7 +358,6 @@ GameModel::buildNotifier() const
             if (initial_config_id != current_config_id)
             {
                 qDebug() << "Setting timeout to break the loop. (Config changed)";
-                move_timer->setTriggered (true);
 
                 // Discard the results of the search. The GameModel will send
                 // an updateConfig signal to fire off a new search with the new
