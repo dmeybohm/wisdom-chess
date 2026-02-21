@@ -112,6 +112,22 @@ Use Qt Creator with Android NDK configured. See [Qt Android documentation](https
     <img src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/src/wisdom-chess/ui/qml/images/wisdom-chess-android.png" />
 </p>
 
+### Building with FIL-C
+
+[FIL-C](https://github.com/nicowilliams/fil-c) is auto-detected at configure time via the `__PIZLONATOR_WAS_HERE__` preprocessor macro. When detected, `WISDOM_CHESS_FILC_COMPAT` is automatically enabled, which disables POSIX signals in doctest (unsupported by FIL-C). No special flags are needed:
+
+```bash
+mkdir build-filc && cd build-filc
+cmake .. -DCMAKE_C_COMPILER=filc -DCMAKE_CXX_COMPILER=filc++ -DCMAKE_BUILD_TYPE=Release
+cmake --build . -j8
+```
+
+To manually override the setting:
+```bash
+cmake .. -DWISDOM_CHESS_FILC_COMPAT=OFF  # Force disable
+cmake .. -DWISDOM_CHESS_FILC_COMPAT=ON   # Force enable
+```
+
 ## Build Options
 
 | Option | Default | Description |
