@@ -346,7 +346,6 @@ GameModel::buildNotifier() const
          initial_config_id, paused_ptr] (not_null<MoveTimer*> move_timer)
         {
             // This runs in the ChessEngine thread.
-            auto current_config_id = config_id_ptr->load();
 
             // Check if the game is paused (e.g. menu or dialog is open):
             if (paused_ptr->load())
@@ -356,6 +355,7 @@ GameModel::buildNotifier() const
             }
 
             // Check if config has changed:
+            auto current_config_id = config_id_ptr->load();
             if (initial_config_id != current_config_id)
             {
                 qDebug() << "Setting timeout to break the loop. (Config changed)";
