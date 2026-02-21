@@ -1,4 +1,4 @@
-# Refactor GameViewModelBase: CRTP to NVI (Non-Virtual Interface)
+# Refactor GameViewModelBase: CRTP to NVI (Non-Virtual Interface Idiom)
 
 ## Summary
 

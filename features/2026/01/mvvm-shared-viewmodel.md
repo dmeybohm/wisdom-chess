@@ -150,6 +150,6 @@ having fundamentally different semantics in each frontend:
 - `game_model.hpp/cpp` — owns `my_game_id`, `gameId()`, `incrementGameId()`
 - `web_game.hpp/cpp` — owns `my_game_id`, uses it in `getGameId()`
 
-### Session #2: NVI Refactoring (CRTP → Non-Virtual Interface)
+### Session #2: NVI Refactoring (CRTP → Non-Virtual Interface Idiom)
 
 See `features/2026/02/mvvm-shared-viewmodel-nvi.md` for details.
