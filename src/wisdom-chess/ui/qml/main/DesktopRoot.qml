@@ -8,6 +8,7 @@ Item {
     width: parent.width
     height: parent.height
 
+    readonly property bool anyDialogOpen: dialogs.anyDialogOpen
     readonly property int animationDelay: 200 // milliseconds
 
     property var currentFocusedItem: null

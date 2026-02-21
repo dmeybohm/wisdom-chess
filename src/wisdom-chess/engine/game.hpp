@@ -25,7 +25,7 @@ namespace wisdom
 
     using Players = array<Player, Num_Players>;
     // Type alias to avoid needing complete MoveTimer definition in header
-    using PeriodicFunction = std::function<void(not_null<MoveTimer*>)>;
+    using PeriodicFunction = std::function<void(nonnull_observer_ptr<MoveTimer>)>;
 
     class Game
     {

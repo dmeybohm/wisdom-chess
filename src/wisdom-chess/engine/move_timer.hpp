@@ -56,7 +56,7 @@ namespace wisdom
     class MoveTimer
     {
     public:
-        using PeriodicFunction = std::function<void(not_null<MoveTimer*>)>;
+        using PeriodicFunction = std::function<void(nonnull_observer_ptr<MoveTimer>)>;
 
         explicit MoveTimer (chrono::seconds seconds)
             : my_seconds { seconds }
@@ -101,17 +101,19 @@ namespace wisdom
             my_periodic_function = periodic_function;
         }
 
+        void setCancelled (bool cancelled) noexcept
+        {
+            my_timer_state.cancelled = cancelled;
+            if (cancelled)
+                my_timer_state.triggered = true;
+        }
+
+    private:
         void setTriggered (bool triggered) noexcept
         {
             my_timer_state.triggered = triggered;
         }
 
-        void setCancelled (bool cancelled) noexcept
-        {
-            my_timer_state.cancelled = cancelled;
-        }
-
-    private:
         chrono::seconds my_seconds;
 
         TimingAdjustment my_timing_adjustment = TimingAdjustment::create();
