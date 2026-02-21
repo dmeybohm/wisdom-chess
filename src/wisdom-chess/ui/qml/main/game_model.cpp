@@ -364,6 +364,7 @@ GameModel::buildNotifier() const
                 // an updateConfig signal to fire off a new search with the new
                 // config.
                 move_timer->setCancelled (true);
+                return;
             }
 
             // Check if game has changed. If so, the game is over.
