@@ -6,6 +6,11 @@ import "../Helper.js" as Helper
 Item {
     anchors.fill: parent
 
+    readonly property bool anyDialogOpen: settingsDialog.visible
+        || newGameDialog.visible
+        || aboutDialog.visible
+        || confirmQuitDialog.visible
+
     function showNewGameDialog() {
         newGameDialog.visible = true
     }

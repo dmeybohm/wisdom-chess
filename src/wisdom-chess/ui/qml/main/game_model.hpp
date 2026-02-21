@@ -77,6 +77,9 @@ public:
     );
     Q_INVOKABLE void restart();
 
+    Q_INVOKABLE void pause();
+    Q_INVOKABLE void unpause();
+
     [[nodiscard]] auto
     qmlCurrentTurn() const
         -> wisdom::ui::Color;
@@ -163,6 +166,9 @@ signals:
 
     // Termination of the thread has started.
     void terminationStarted();
+
+    // Resume searching after being unpaused.
+    void resumeSearching();
 
 public slots:
     void movePiece (
@@ -282,6 +288,10 @@ private:
 
     // The chess engine runs in this thread:
     QThread* my_chess_engine_thread = nullptr;
+
+    // Whether the game is paused (e.g. menu or dialog is open).
+    // Read by the engine thread's periodic function to cancel searches.
+    std::atomic<bool> my_paused { false };
 
     UISettings my_ui_settings {};
     GameSettings my_game_settings {};

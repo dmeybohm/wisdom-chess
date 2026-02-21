@@ -25,6 +25,15 @@ ApplicationWindow {
     title: qsTr("Wisdom Chess")
     color: "silver"
 
+    readonly property bool anyPopupOpen: gameMenu.visible || root.anyDialogOpen
+
+    onAnyPopupOpenChanged: {
+        if (anyPopupOpen)
+            _myGameModel.pause()
+        else
+            _myGameModel.unpause()
+    }
+
     property var currentFocusedItem: null
 
     onFocusObjectChanged: {

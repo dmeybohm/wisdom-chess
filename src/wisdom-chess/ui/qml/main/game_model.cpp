@@ -114,6 +114,10 @@ void GameModel::setupNewEngineThread()
     connect (this, &GameModel::gameUpdated,
              chess_engine, &ChessEngine::reloadGame);
 
+    // Resume searching when the game is unpaused:
+    connect (this, &GameModel::resumeSearching,
+             chess_engine, &ChessEngine::init);
+
     // Move the ownership of the engine to the engine thread so slots run on that thread:
     chess_engine->moveToThread (my_chess_engine_thread);
 }
@@ -268,6 +272,17 @@ GameModel::needsPawnPromotion (
     return GameViewModelBase::needsPawnPromotion (src_row, src_column, dst_row, dst_column);
 }
 
+void GameModel::pause()
+{
+    my_paused.store (true);
+}
+
+void GameModel::unpause()
+{
+    my_paused.store (false);
+    emit resumeSearching();
+}
+
 void GameModel::applicationExiting()
 {
     qDebug() << "Trying to exit application...";
@@ -324,13 +339,20 @@ GameModel::buildNotifier() const
     auto initial_config_id = my_config_id.load();
     const auto* game_id_ptr = &my_game_id;
     const auto* config_id_ptr = &my_config_id;
+    const auto* paused_ptr = &my_paused;
 
     return (
         [game_id_ptr, initial_game_id, config_id_ptr,
-         initial_config_id] (not_null<MoveTimer*> move_timer)
+         initial_config_id, paused_ptr] (not_null<MoveTimer*> move_timer)
         {
             // This runs in the ChessEngine thread.
             auto current_config_id = config_id_ptr->load();
+
+            // Check if the game is paused (e.g. menu or dialog is open):
+            if (paused_ptr->load())
+            {
+                move_timer->setCancelled (true);
+            }
 
             // Check if config has changed:
             if (initial_config_id != current_config_id)
