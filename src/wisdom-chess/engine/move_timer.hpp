@@ -101,11 +101,6 @@ namespace wisdom
             my_periodic_function = periodic_function;
         }
 
-        void setTriggered (bool triggered) noexcept
-        {
-            my_timer_state.triggered = triggered;
-        }
-
         void setCancelled (bool cancelled) noexcept
         {
             my_timer_state.cancelled = cancelled;
@@ -114,6 +109,11 @@ namespace wisdom
         }
 
     private:
+        void setTriggered (bool triggered) noexcept
+        {
+            my_timer_state.triggered = triggered;
+        }
+
         chrono::seconds my_seconds;
 
         TimingAdjustment my_timing_adjustment = TimingAdjustment::create();

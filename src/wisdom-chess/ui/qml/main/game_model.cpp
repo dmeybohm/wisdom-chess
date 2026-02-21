@@ -369,7 +369,7 @@ GameModel::buildNotifier() const
             if (initial_game_id != game_id_ptr->load())
             {
                 qDebug() << "Setting timeout to break the loop. (Game ended)";
-                move_timer->setTriggered (true);
+                move_timer->setCancelled (true);
             }
         });
 }
