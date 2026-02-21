@@ -111,25 +111,8 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} -j 4
 
-    - name: Run Fast Tests
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      shell: bash
-      run: |
-        if [ "${{ runner.os }}" == "Windows" ]; then
-          ./src/wisdom-chess/engine/test/${{ matrix.build_type }}/fast_tests.exe
-        else
-          ./src/wisdom-chess/engine/test/fast_tests
-        fi
-
-    - name: Run Slow Tests
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      shell: bash
-      run: |
-        if [ "${{ runner.os }}" == "Windows" ]; then
-          ./src/wisdom-chess/engine/test/${{ matrix.build_type }}/slow_tests.exe
-        else
-          ./src/wisdom-chess/engine/test/slow_tests
-        fi
+    - name: Run Tests
+      run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} --build-config ${{ matrix.build_type }} --output-on-failure -j 2
 
     - name: Install (CMake)
       run: >
