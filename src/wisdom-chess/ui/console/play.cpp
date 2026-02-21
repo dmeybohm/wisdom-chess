@@ -175,7 +175,7 @@ namespace wisdom::ui::console
 
         void onInCheckChanged() override
         {
-            if (inCheck())
+            if (inCheck() && gameOverStatus().empty())
             {
                 std::cout << "Check!\n";
             }
