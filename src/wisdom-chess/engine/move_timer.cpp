@@ -14,7 +14,7 @@ namespace wisdom
         if (!my_timer_state.started_time.has_value())
             return false;
 
-        if (my_timer_state.triggered || my_timer_state.cancelled)
+        if (my_timer_state.triggered)
             return true;
 
         if (++my_timer_state.check_calls % my_timing_adjustment.getIterations() != 0)
@@ -23,7 +23,7 @@ namespace wisdom
         if (my_periodic_function.has_value())
         {
             (*my_periodic_function) (this);
-            if (my_timer_state.triggered || my_timer_state.cancelled)
+            if (my_timer_state.triggered)
                 return true;
         }
 
