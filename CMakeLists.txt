@@ -4,10 +4,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 cmake_minimum_required(VERSION 3.20)
 
 include(cmake/CPM.cmake)
+include(CheckCXXSourceCompiles)
 
 project(WisdomChess CXX)
 
 enable_testing()
+
+# Auto-detect FIL-C compiler
+check_cxx_source_compiles("
+    int main() {
+    #ifndef __PIZLONATOR_WAS_HERE__
+        #error Not FIL-C
+    #endif
+        return 0;
+    }
+" WISDOM_CHESS_FILC_DETECTED)
+
+if(NOT DEFINED WISDOM_CHESS_FILC_DETECTED)
+    set(WISDOM_CHESS_FILC_DETECTED OFF)
+endif()
 
 option(WISDOM_CHESS_ASAN "Enable memory debugging of chess engine")
 option(WISDOM_CHESS_FAST_TESTS "Enable building of fast tests" On)
@@ -18,6 +33,7 @@ option(WISDOM_CHESS_REACT_BUILD_INTEGRATED "Build React frontend as part of CMak
 option(WISDOM_CHESS_PCH_ENABLED "Enable Pre-compiled headers" On)
 option(WISDOM_CHESS_TOOLS "Build research/analysis tools" Off)
 option(WISDOM_CHESS_BENCHMARKS "Enable building of benchmarks" Off)
+option(WISDOM_CHESS_FILC_COMPAT "Enable FIL-C runtime compatibility (auto-detected, disables POSIX signals in doctest)" ${WISDOM_CHESS_FILC_DETECTED})
 
 # QML UI option: AUTO (build if Qt6 found), ON (require Qt6), OFF (disable)
 set(WISDOM_CHESS_QML_UI "AUTO" CACHE STRING "Build QML UI: AUTO (if Qt6 found), ON (require Qt6), OFF (disable)")
@@ -49,6 +65,10 @@ if (WISDOM_CHESS_ASAN)
         add_compile_options(-fsanitize=address,undefined)
         add_link_options(-fsanitize=address,undefined)
     endif()
+endif()
+
+if (WISDOM_CHESS_FILC_COMPAT)
+    message("-- wisdom-chess: Enabling FIL-c runtime compatibility")
 endif()
 
 add_subdirectory(src)

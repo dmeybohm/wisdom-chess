@@ -31,6 +31,10 @@ if (WISDOM_CHESS_FAST_TESTS)
 
     doctest_discover_tests(fast_tests)
 
+    if (WISDOM_CHESS_FILC_COMPAT)
+        target_compile_definitions(fast_tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
+    endif()
+
 endif()
 
 if (WISDOM_CHESS_SLOW_TESTS)
@@ -49,6 +53,10 @@ if (WISDOM_CHESS_SLOW_TESTS)
     target_link_libraries(slow_tests PRIVATE doctest::doctest)
 
     doctest_discover_tests(slow_tests)
+
+    if (WISDOM_CHESS_FILC_COMPAT)
+        target_compile_definitions(slow_tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
+    endif()
 
     # For perft testing:
     add_executable(perft 

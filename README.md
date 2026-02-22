@@ -112,6 +112,35 @@ Use Qt Creator with Android NDK configured. See [Qt Android documentation](https
     <img src="https://raw.githubusercontent.com/dmeybohm/wisdom-chess/main/src/wisdom-chess/ui/qml/images/wisdom-chess-android.png" />
 </p>
 
+### Building with FIL-C
+
+[FIL-C](https://github.com/pizlonator/fil-c) is auto-detected at configure time via the `__PIZLONATOR_WAS_HERE__` preprocessor macro. When detected, `WISDOM_CHESS_FILC_COMPAT` is automatically enabled, which disables POSIX signals in doctest (unsupported by FIL-C).
+
+```bash
+# Set FILC_ROOT to your FIL-C installation (adjust path as needed):
+export FILC_ROOT=/usr/local/filc-0.678-linux-x86_64
+
+mkdir build-filc && cd build-filc
+cmake .. \
+  -DCMAKE_CXX_COMPILER=$FILC_ROOT/build/bin/fil++ \
+  -DCMAKE_BUILD_TYPE=Release
+cmake --build . -j8
+```
+
+If binaries fail to find FIL-C runtime libraries at execution time, add an rpath via linker flags:
+```bash
+cmake .. \
+  -DCMAKE_CXX_COMPILER=$FILC_ROOT/build/bin/fil++ \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_EXE_LINKER_FLAGS="-Wl,-rpath,$FILC_ROOT/pizfix/lib"
+```
+
+To manually override the FIL-C compatibility setting:
+```bash
+cmake .. -DWISDOM_CHESS_FILC_COMPAT=OFF  # Force disable
+cmake .. -DWISDOM_CHESS_FILC_COMPAT=ON   # Force enable
+```
+
 ## Build Options
 
 | Option | Default | Description |
