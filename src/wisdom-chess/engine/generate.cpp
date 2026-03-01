@@ -376,15 +376,13 @@ namespace wisdom
         {
             for (auto promotable_piece_type : All_Promotable_Piece_Types)
             {
-                auto promoted_piece = ColoredPiece::make (who, promotable_piece_type);
-
                 // promotion moves dont include en passant
                 for (auto& optional_move : all_pawn_moves)
                 {
                     if (optional_move.has_value())
                     {
                         auto move = *optional_move;
-                        move = move.withPromotion (promoted_piece);
+                        move = move.withPromotion (promotable_piece_type);
                         appendMove (move);
                     }
                 }
@@ -482,8 +480,8 @@ namespace wisdom
 
         if (a_is_promoting && b_is_promoting)
         {
-            return Material::weight (pieceType (a.getPromotedPiece())) >
-                Material::weight (pieceType (b.getPromotedPiece()));
+            return Material::weight (a.getPromotedPiece()) >
+                Material::weight (b.getPromotedPiece());
         }
         else if (a_is_promoting && !b_is_promoting)
         {

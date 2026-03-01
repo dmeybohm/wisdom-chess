@@ -182,7 +182,7 @@ PiecesModel::playerMoved (
 
             if (selected_move.isPromoting())
             {
-                auto promotedPiece = selected_move.getPromotedPiece();
+                auto promotedPiece = ColoredPiece::make (who, selected_move.getPromotedPiece());
                 auto newImagePath = my_piece_to_image_path[toInt8 (promotedPiece)];
                 piece_model.pieceImage = newImagePath;
                 roles_changed.append (PieceImageRole);

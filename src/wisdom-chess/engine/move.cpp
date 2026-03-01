@@ -301,7 +301,7 @@ namespace wisdom
 
         if (move.isPromoting())
         {
-            src_piece = move.getPromotedPiece();
+            src_piece = ColoredPiece::make (who, move.getPromotedPiece());
             my_material.add (src_piece);
             my_material.remove (ColoredPiece::make (who, Piece::Pawn));
         }
@@ -468,29 +468,29 @@ namespace wisdom
         }
 
         // grab extra identifiers describing the move
-        ColoredPiece promoted = ColoredPiece::make (Color::None, Piece::None);
+        Piece promoted = Piece::None;
         if (rest == "EP")
         {
             en_passant = true;
         }
         else if (rest == "(Q)")
         {
-            promoted = ColoredPiece::make (who, Piece::Queen);
+            promoted = Piece::Queen;
         }
         else if (rest == "(N)")
         {
-            promoted = ColoredPiece::make (who, Piece::Knight);
+            promoted = Piece::Knight;
         }
         else if (rest == "(B)")
         {
-            promoted = ColoredPiece::make (who, Piece::Bishop);
+            promoted = Piece::Bishop;
         }
         else if (rest == "(R)")
         {
-            promoted = ColoredPiece::make (who, Piece::Rook);
+            promoted = Piece::Rook;
         }
 
-        if (pieceType (promoted) != Piece::None)
+        if (promoted != Piece::None)
         {
             move = move.withPromotion (promoted);
         }
@@ -563,8 +563,8 @@ namespace wisdom
 
         if (move.isPromoting())
         {
-            string promoted_piece { pieceToChar (move.getPromotedPiece()) };
-            result += "(" + promoted_piece + ")";
+            string promoted_char { pieceToChar (move.getPromotedPiece()) };
+            result += "(" + promoted_char + ")";
         }
 
         return result;
@@ -607,7 +607,7 @@ namespace wisdom
                         return Move::makeEnPassant (src, dst);
 
                     if (needPawnPromotion (dst.row<int>(), who) && promoted_piece.has_value())
-                        return move.withPromotion (ColoredPiece::make (who, *promoted_piece));
+                        return move.withPromotion (*promoted_piece);
                 }
                 break;
 

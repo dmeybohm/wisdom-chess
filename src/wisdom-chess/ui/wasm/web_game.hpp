@@ -164,7 +164,7 @@ namespace wisdom
             ColoredPiece piece_to_find
         ) -> int;
 
-        void updatePieceList (ColoredPiece promoted_piece);
+        void updatePieceList (Piece promoted_piece_type);
 
         void onDisplayedGameStateUpdated() override
         {

@@ -159,7 +159,7 @@ namespace wisdom
         return 0;
     }
 
-    void WebGame::updatePieceList (ColoredPiece promoted_piece)
+    void WebGame::updatePieceList (Piece promoted_piece_type)
     {
         const Board& board = my_game.getBoard();
 
@@ -207,17 +207,17 @@ namespace wisdom
             for (auto& value : deferred)
             {
                 auto new_piece = value.second;
-                auto pred = [new_piece, promoted_piece] (const auto& list_item) -> bool
+                auto pred = [new_piece, promoted_piece_type] (const auto& list_item) -> bool
                 {
                     ColoredPiece old_piece = mapColoredPiece (list_item.second);
                     const auto pieces_match = old_piece == new_piece;
                     const auto promoted_piece_matches = (
-                        promoted_piece != Piece_And_Color_None
+                        promoted_piece_type != Piece::None
                         && old_piece.color() == new_piece.color()
                         && old_piece.type() == Piece::Pawn
                         && new_piece.type() != Piece::Pawn
                     );
-                    return old_piece == new_piece || promoted_piece_matches;
+                    return pieces_match || promoted_piece_matches;
                 };
                 auto it = std::find_if (old_list.begin(), old_list.end(), pred);
                 if (it == old_list.end())

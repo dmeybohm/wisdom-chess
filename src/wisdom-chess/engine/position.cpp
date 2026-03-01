@@ -214,7 +214,9 @@ namespace wisdom
                 throw Error { "Invalid move type." };
         }
 
-        ColoredPiece new_piece = move.isPromoting() ? move.getPromotedPiece() : src_piece;
+        ColoredPiece new_piece = move.isPromoting()
+            ? ColoredPiece::make (who, move.getPromotedPiece())
+            : src_piece;
 
         this->add (who, dst, new_piece);
     }

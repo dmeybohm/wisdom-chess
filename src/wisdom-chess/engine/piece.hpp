@@ -264,11 +264,9 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    pieceToChar (ColoredPiece piece)
+    pieceToChar (Piece type)
         -> char
     {
-        Piece type = pieceType (piece);
-
         switch (type)
         {
             case Piece::King:
@@ -286,6 +284,13 @@ namespace wisdom
             default:
                 return '?';
         }
+    }
+
+    [[nodiscard]] constexpr auto
+    pieceToChar (ColoredPiece piece)
+        -> char
+    {
+        return pieceToChar (pieceType (piece));
     }
 
     [[nodiscard]] auto

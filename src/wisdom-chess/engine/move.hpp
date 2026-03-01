@@ -199,17 +199,13 @@ namespace wisdom
             return Coord::fromIndex (dst);
         }
 
-        [[nodiscard]] constexpr auto 
-        withPromotion (ColoredPiece piece) const noexcept 
+        [[nodiscard]] constexpr auto
+        withPromotion (Piece piece_type) const noexcept
             -> Move
         {
-            assert (piece != Piece_And_Color_None);
+            assert (piece_type != Piece::None);
             Move result = *this;
-            auto promoted_piece_type = toInt8 (pieceType (piece));
-            auto promoted_color_index = colorIndex (pieceColor (piece));
-            result.promoted_piece = narrow_cast<int8_t> (
-                (promoted_color_index << 4) | (promoted_piece_type & 0xf)
-            );
+            result.promoted_piece = toInt8 (piece_type);
             return result;
         }
 
@@ -238,22 +234,18 @@ namespace wisdom
             return getMoveCategory() == MoveCategory::NormalCapturing;
         }
 
-        [[nodiscard]] constexpr auto 
-        isPromoting() const 
+        [[nodiscard]] constexpr auto
+        isPromoting() const
             -> bool
         {
-            return promoted_piece != toInt8 (Piece_And_Color_None);
+            return promoted_piece != toInt8 (Piece::None);
         }
 
-        [[nodiscard]] constexpr auto 
-        getPromotedPiece() const 
-            -> ColoredPiece
+        [[nodiscard]] constexpr auto
+        getPromotedPiece() const
+            -> Piece
         {
-            auto piece = pieceFromInt (promoted_piece & 0xf);
-            auto color = piece == Piece::None     ? Color::None
-                : (promoted_piece & 0x10) == 0x10 ? Color::Black
-                                                  : Color::White;
-            return ColoredPiece::make (color, piece);
+            return pieceFromInt (promoted_piece);
         }
 
         [[nodiscard]] constexpr auto 

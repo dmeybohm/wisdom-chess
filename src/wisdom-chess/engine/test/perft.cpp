@@ -53,11 +53,10 @@ namespace wisdom
         auto src = wisdom::coordParse (move_str.substr (0, 2));
         auto dst = wisdom::coordParse (move_str.substr (2, 2));
 
-        auto promoted = Piece_And_Color_None;
+        auto promoted = Piece::None;
         if (move_str.size() == 5)
         {
-            auto promoted_type = pieceFromChar (move_str[4]);
-            promoted = ColoredPiece::make (who, promoted_type);
+            promoted = pieceFromChar (move_str[4]);
         }
 
         auto src_piece = board.pieceAt (src);
@@ -93,7 +92,7 @@ namespace wisdom
             result = result.withCapture();
 
         // 4. Promotions are not in parentheses
-        if (promoted != Piece_And_Color_None)
+        if (promoted != Piece::None)
             result = result.withPromotion (promoted);
 
         return result;
