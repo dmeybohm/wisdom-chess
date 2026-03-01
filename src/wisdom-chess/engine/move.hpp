@@ -83,20 +83,52 @@ namespace wisdom
 
     struct Move
     {
-        int8_t src;
-        int8_t dst;
-        int8_t combined;
+        // Packed layout: src(6) | dst(6) | combined(4) = 16 bits
+        uint16_t my_data;
+
+    private:
+        static constexpr int Src_Bits = 6;
+        static constexpr int Dst_Bits = 6;
+        static constexpr int Dst_Shift = 6;
+        static constexpr int Combined_Shift = 12;
+        static constexpr uint16_t Src_Mask = 0x3f;
+        static constexpr uint16_t Dst_Mask = 0x3f;
+        static constexpr uint16_t Combined_Mask = 0xf;
+
+        [[nodiscard]] static constexpr auto
+        pack (int src_idx, int dst_idx, int combined_val) noexcept
+            -> uint16_t
+        {
+            return narrow_cast<uint16_t> (
+                (src_idx & Src_Mask)
+                | ((dst_idx & Dst_Mask) << Dst_Shift)
+                | ((combined_val & Combined_Mask) << Combined_Shift)
+            );
+        }
+
+        [[nodiscard]] constexpr auto
+        getCombined() const noexcept
+            -> int
+        {
+            return (my_data >> Combined_Shift) & Combined_Mask;
+        }
+
+        constexpr void
+        setCombined (int combined_val) noexcept
+        {
+            my_data = narrow_cast<uint16_t> (
+                (my_data & 0x0fff) | ((combined_val & Combined_Mask) << Combined_Shift)
+            );
+        }
 
     public:
         [[nodiscard]] static constexpr auto
         make (Coord src, Coord dst) noexcept
             -> Move
         {
-            return Move {
-                .src = narrow_cast<int8_t> (src.index()),
-                .dst = narrow_cast<int8_t> (dst.index()),
-                .combined = Combined_Default,
-            };
+            Move m;
+            m.my_data = pack (src.index(), dst.index(), Combined_Default);
+            return m;
         }
 
         [[nodiscard]] static constexpr auto
@@ -108,10 +140,7 @@ namespace wisdom
         ) noexcept
             -> Move
         {
-            Coord src = makeCoord (src_row, src_col);
-            Coord dst = makeCoord (dst_row, dst_col);
-
-            return make (src, dst);
+            return make (makeCoord (src_row, src_col), makeCoord (dst_row, dst_col));
         }
 
         [[nodiscard]] static constexpr auto
@@ -124,7 +153,7 @@ namespace wisdom
             -> Move
         {
             Move move = Move::make (src_row, src_col, dst_row, dst_col);
-            move.combined = Combined_NormalCapture;
+            move.setCombined (Combined_NormalCapture);
             return move;
         }
 
@@ -137,13 +166,8 @@ namespace wisdom
         ) noexcept
             -> Move
         {
-            Move move = Move::make (
-                src_row,
-                src_col,
-                dst_row,
-                dst_col
-            );
-            move.combined = Combined_Castling;
+            Move move = Move::make (src_row, src_col, dst_row, dst_col);
+            move.setCombined (Combined_Castling);
             return move;
         }
 
@@ -171,13 +195,8 @@ namespace wisdom
         ) noexcept
             -> Move
         {
-            Move move = make (
-                src_row,
-                src_col,
-                dst_row,
-                dst_col
-            );
-            move.combined = Combined_EnPassant;
+            Move move = make (src_row, src_col, dst_row, dst_col);
+            move.setCombined (Combined_EnPassant);
             return move;
         }
 
@@ -194,32 +213,30 @@ namespace wisdom
         [[nodiscard]] static constexpr auto
         fromInt (int packed_move) -> Move
         {
-            return Move {
-                .src = narrow_cast<int8_t> (packed_move & 0x3f),
-                .dst = narrow_cast<int8_t> ((packed_move >> 6) & 0x3f),
-                .combined = narrow_cast<int8_t> ((packed_move >> 12) & 0xf),
-            };
+            Move m;
+            m.my_data = narrow_cast<uint16_t> (packed_move & 0xffff);
+            return m;
         }
 
         [[nodiscard]] constexpr auto
         toInt() const
             -> int
         {
-            return (src & 0x3f) | ((dst & 0x3f) << 6) | ((combined & 0xf) << 12);
+            return my_data;
         }
 
         [[nodiscard]] constexpr auto
         getSrc() const
             -> Coord
         {
-            return Coord::fromIndex (src);
+            return Coord::fromIndex (my_data & Src_Mask);
         }
 
         [[nodiscard]] constexpr auto
         getDst() const
             -> Coord
         {
-            return Coord::fromIndex (dst);
+            return Coord::fromIndex ((my_data >> Dst_Shift) & Dst_Mask);
         }
 
         [[nodiscard]] constexpr auto
@@ -228,9 +245,9 @@ namespace wisdom
         {
             assert (piece_type != Piece::None);
             Move result = *this;
-            bool is_capture = (result.combined == Combined_NormalCapture);
+            bool is_capture = (result.getCombined() == Combined_NormalCapture);
             auto base = is_capture ? Combined_PromoteCaptureBase : Combined_PromoteBase;
-            result.combined = narrow_cast<int8_t> (base + promotionPieceOffset (piece_type));
+            result.setCombined (base + promotionPieceOffset (piece_type));
             return result;
         }
 
@@ -238,9 +255,9 @@ namespace wisdom
         withCapture() const noexcept
             -> Move
         {
-            assert (combined == Combined_Default);
+            assert (getCombined() == Combined_Default);
             Move result = *this;
-            result.combined = Combined_NormalCapture;
+            result.setCombined (Combined_NormalCapture);
             return result;
         }
 
@@ -248,9 +265,10 @@ namespace wisdom
         getMoveCategory() const
             -> MoveCategory
         {
-            if (combined <= Combined_Castling)
-                return static_cast<MoveCategory> (combined);
-            if (combined >= Combined_PromoteCaptureBase)
+            auto c = getCombined();
+            if (c <= Combined_Castling)
+                return static_cast<MoveCategory> (c);
+            if (c >= Combined_PromoteCaptureBase)
                 return MoveCategory::NormalCapturing;
             return MoveCategory::Default;
         }
@@ -259,26 +277,28 @@ namespace wisdom
         isNormalCapturing() const
             -> bool
         {
-            return combined == Combined_NormalCapture
-                || combined >= Combined_PromoteCaptureBase;
+            auto c = getCombined();
+            return c == Combined_NormalCapture
+                || c >= Combined_PromoteCaptureBase;
         }
 
         [[nodiscard]] constexpr auto
         isPromoting() const
             -> bool
         {
-            return combined >= Combined_PromoteBase;
+            return getCombined() >= Combined_PromoteBase;
         }
 
         [[nodiscard]] constexpr auto
         getPromotedPiece() const
             -> Piece
         {
-            if (combined < Combined_PromoteBase)
+            auto c = getCombined();
+            if (c < Combined_PromoteBase)
                 return Piece::None;
-            int8_t offset = (combined >= Combined_PromoteCaptureBase)
-                ? narrow_cast<int8_t> (combined - Combined_PromoteCaptureBase)
-                : narrow_cast<int8_t> (combined - Combined_PromoteBase);
+            int8_t offset = (c >= Combined_PromoteCaptureBase)
+                ? narrow_cast<int8_t> (c - Combined_PromoteCaptureBase)
+                : narrow_cast<int8_t> (c - Combined_PromoteBase);
             return pieceFromPromotionOffset (offset);
         }
 
@@ -286,7 +306,7 @@ namespace wisdom
         isEnPassant() const noexcept
             -> bool
         {
-            return combined == Combined_EnPassant;
+            return getCombined() == Combined_EnPassant;
         }
 
         [[nodiscard]] constexpr auto
@@ -300,7 +320,7 @@ namespace wisdom
         isCastling() const noexcept
             -> bool
         {
-            return combined == Combined_Castling;
+            return getCombined() == Combined_Castling;
         }
 
         [[nodiscard]] constexpr auto
@@ -311,7 +331,7 @@ namespace wisdom
         }
     };
 
-    static_assert (sizeof (Move) == 3);
+    static_assert (sizeof (Move) == 2);
     static_assert (std::is_trivial_v<Move>);
 
     template <class IntegerType = int8_t>
@@ -327,16 +347,14 @@ namespace wisdom
     operator== (Move a, Move b) noexcept
         -> bool
     {
-        return a.src == b.src
-            && a.dst == b.dst
-            && a.combined == b.combined;
+        return a.my_data == b.my_data;
     }
 
     constexpr auto
     operator!= (Move a, Move b) noexcept
         -> bool
     {
-        return !operator== (a, b);
+        return a.my_data != b.my_data;
     }
 
     // Parse a move. Returns empty if the parse failed.
