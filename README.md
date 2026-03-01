@@ -166,12 +166,12 @@ cmake .. -DWISDOM_CHESS_SLOW_TESTS=ON
 
 ```bash
 # Fast tests (runs in seconds)
-./src/wisdom-chess/engine/test/fast_tests
+./src/wisdom-chess/engine/test/wisdom-chess-fast-tests
 
 # Slow tests (comprehensive, takes longer)
 cmake .. -DWISDOM_CHESS_SLOW_TESTS=ON
 cmake --build .
-./src/wisdom-chess/engine/test/slow_tests
+./src/wisdom-chess/engine/test/wisdom-chess-slow-tests
 ```
 
 ## Screenshots

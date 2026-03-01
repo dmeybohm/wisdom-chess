@@ -209,7 +209,7 @@ cd build && ctest -j 4 --test-dir . -L fast
 cd build && ctest -j 4 --test-dir . -L slow
 
 # Run a specific test directly with success output
-build/src/wisdom-chess/engine/test/fast_tests --success
+build/src/wisdom-chess/engine/test/wisdom-chess-fast-tests --success
 ```
 
 ### Linting and Type Checking
