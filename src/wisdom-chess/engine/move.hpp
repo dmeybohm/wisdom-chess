@@ -329,6 +329,13 @@ namespace wisdom
         {
             return isCastling() && getDst().column() == Kingside_Castled_King_Column;
         }
+
+        [[nodiscard]] constexpr auto
+        isNullMove() const noexcept
+            -> bool
+        {
+            return my_data == 0;
+        }
     };
 
     static_assert (sizeof (Move) == 2);
