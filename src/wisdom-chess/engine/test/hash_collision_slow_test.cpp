@@ -108,72 +108,69 @@ namespace
     }
 }
 
-TEST_CASE( "Large-scale hash collision detection" )
+TEST_CASE( "Hash collision: Perft depth 5 from starting position" )
 {
-    SUBCASE( "Perft depth 5 from starting position" )
-    {
-        Board board { BoardBuilder::fromDefaultPosition() };
-        auto stats = runCollisionTest (board, Color::White, 5);
+    Board board { BoardBuilder::fromDefaultPosition() };
+    auto stats = runCollisionTest (board, Color::White, 5);
 
-        MESSAGE( "Positions visited: " << stats.positions_visited );
-        MESSAGE( "Collisions found: " << stats.collisions_found );
+    MESSAGE( "Positions visited: " << stats.positions_visited );
+    MESSAGE( "Collisions found: " << stats.collisions_found );
+
+    if (stats.collisions_found > 0)
+    {
+        MESSAGE( "Example collisions:" );
+        for (const auto& [fen1, fen2] : stats.collision_examples)
+        {
+            MESSAGE( "  FEN1: " << fen1 );
+            MESSAGE( "  FEN2: " << fen2 );
+        }
+    }
+
+    CHECK( stats.positions_visited > 4000000 );
+    CHECK( stats.collisions_found == 0 );
+}
+
+TEST_CASE( "Hash collision: Multiple starting positions" )
+{
+    std::vector<std::pair<string, int>> test_positions = {
+        { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 4 },
+        { "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", 5 },
+        { "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1", 4 },
+        { "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 0 1", 4 },
+    };
+
+    int64_t total_positions = 0;
+    int64_t total_collisions = 0;
+
+    for (const auto& [fen, depth] : test_positions)
+    {
+        FenParser parser { fen };
+        Board board = parser.buildBoard();
+        Color active = parser.getActivePlayer();
+
+        auto stats = runCollisionTest (board, active, depth);
+        total_positions += stats.positions_visited;
+        total_collisions += stats.collisions_found;
+
+        MESSAGE( "Position: " << fen.substr (0, 40) << "..." );
+        MESSAGE( "  Visited: " << stats.positions_visited << ", Collisions: " << stats.collisions_found );
 
         if (stats.collisions_found > 0)
         {
-            MESSAGE( "Example collisions:" );
+            MESSAGE( "  Example collisions:" );
             for (const auto& [fen1, fen2] : stats.collision_examples)
             {
-                MESSAGE( "  FEN1: " << fen1 );
-                MESSAGE( "  FEN2: " << fen2 );
+                MESSAGE( "    FEN1: " << fen1 );
+                MESSAGE( "    FEN2: " << fen2 );
             }
         }
-
-        CHECK( stats.positions_visited > 4000000 );
-        CHECK( stats.collisions_found == 0 );
     }
 
-    SUBCASE( "Multiple starting positions for diversity" )
-    {
-        std::vector<std::pair<string, int>> test_positions = {
-            { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 4 },
-            { "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", 5 },
-            { "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1", 4 },
-            { "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 0 1", 4 },
-        };
+    MESSAGE( "Total positions: " << total_positions );
+    MESSAGE( "Total collisions: " << total_collisions );
 
-        int64_t total_positions = 0;
-        int64_t total_collisions = 0;
-
-        for (const auto& [fen, depth] : test_positions)
-        {
-            FenParser parser { fen };
-            Board board = parser.buildBoard();
-            Color active = parser.getActivePlayer();
-
-            auto stats = runCollisionTest (board, active, depth);
-            total_positions += stats.positions_visited;
-            total_collisions += stats.collisions_found;
-
-            MESSAGE( "Position: " << fen.substr (0, 40) << "..." );
-            MESSAGE( "  Visited: " << stats.positions_visited << ", Collisions: " << stats.collisions_found );
-
-            if (stats.collisions_found > 0)
-            {
-                MESSAGE( "  Example collisions:" );
-                for (const auto& [fen1, fen2] : stats.collision_examples)
-                {
-                    MESSAGE( "    FEN1: " << fen1 );
-                    MESSAGE( "    FEN2: " << fen2 );
-                }
-            }
-        }
-
-        MESSAGE( "Total positions: " << total_positions );
-        MESSAGE( "Total collisions: " << total_collisions );
-
-        CHECK( total_positions > 1000000 );
-        CHECK( total_collisions == 0 );
-    }
+    CHECK( total_positions > 1000000 );
+    CHECK( total_collisions == 0 );
 }
 
 namespace
@@ -257,57 +254,54 @@ namespace
 
 TEST_CASE( "Transposition table index distribution" )
 {
-    SUBCASE( "Index hash produces uniform distribution across multiple table sizes" )
+    Board board { BoardBuilder::fromDefaultPosition() };
+    std::vector<BoardHashCode> hashes;
+    hashes.reserve (5000000);
+
+    hashes.push_back (board.getCode().getHashCode());
+    collectHashesForDistribution (board, Color::White, 0, 5, hashes);
+
+    MESSAGE( "Collected " << hashes.size() << " hashes" );
+
+    constexpr std::array<size_t, 4> table_sizes = {
+        131072,     // 2^17 (128K entries)
+        524288,     // 2^19 (512K entries) - default
+        1048576,    // 2^20 (1M entries)
+        2097152,    // 2^21 (2M entries)
+    };
+
+    double worst_max_to_avg_ratio = 0.0;
+    double worst_std_deviation = 0.0;
+
+    MESSAGE( "" );
+    MESSAGE( "Distribution statistics by table size:" );
+    MESSAGE( "=======================================" );
+
+    for (auto table_size : table_sizes)
     {
-        Board board { BoardBuilder::fromDefaultPosition() };
-        std::vector<BoardHashCode> hashes;
-        hashes.reserve (5000000);
+        auto stats = analyzeIndexDistribution (hashes, table_size);
 
-        hashes.push_back (board.getCode().getHashCode());
-        collectHashesForDistribution (board, Color::White, 0, 5, hashes);
-
-        MESSAGE( "Collected " << hashes.size() << " hashes" );
-
-        constexpr std::array<size_t, 4> table_sizes = {
-            131072,     // 2^17 (128K entries)
-            524288,     // 2^19 (512K entries) - default
-            1048576,    // 2^20 (1M entries)
-            2097152,    // 2^21 (2M entries)
-        };
-
-        double worst_max_to_avg_ratio = 0.0;
-        double worst_std_deviation = 0.0;
+        double max_to_avg_ratio = static_cast<double> (stats.max_bucket_count)
+            / stats.avg_bucket_count;
 
         MESSAGE( "" );
-        MESSAGE( "Distribution statistics by table size:" );
-        MESSAGE( "=======================================" );
+        MESSAGE( "Table size: " << table_size << " (2^"
+            << static_cast<int> (std::log2 (static_cast<double> (table_size))) << ")" );
+        MESSAGE( "  Min bucket count: " << stats.min_bucket_count );
+        MESSAGE( "  Max bucket count: " << stats.max_bucket_count );
+        MESSAGE( "  Avg bucket count: " << stats.avg_bucket_count );
+        MESSAGE( "  Std deviation: " << stats.std_deviation );
+        MESSAGE( "  Max/Avg ratio: " << max_to_avg_ratio );
 
-        for (auto table_size : table_sizes)
-        {
-            auto stats = analyzeIndexDistribution (hashes, table_size);
+        worst_max_to_avg_ratio = std::max (worst_max_to_avg_ratio, max_to_avg_ratio);
+        worst_std_deviation = std::max (worst_std_deviation, stats.std_deviation);
 
-            double max_to_avg_ratio = static_cast<double> (stats.max_bucket_count)
-                / stats.avg_bucket_count;
-
-            MESSAGE( "" );
-            MESSAGE( "Table size: " << table_size << " (2^"
-                << static_cast<int> (std::log2 (static_cast<double> (table_size))) << ")" );
-            MESSAGE( "  Min bucket count: " << stats.min_bucket_count );
-            MESSAGE( "  Max bucket count: " << stats.max_bucket_count );
-            MESSAGE( "  Avg bucket count: " << stats.avg_bucket_count );
-            MESSAGE( "  Std deviation: " << stats.std_deviation );
-            MESSAGE( "  Max/Avg ratio: " << max_to_avg_ratio );
-
-            worst_max_to_avg_ratio = std::max (worst_max_to_avg_ratio, max_to_avg_ratio);
-            worst_std_deviation = std::max (worst_std_deviation, stats.std_deviation);
-
-        }
-
-        MESSAGE( "" );
-        MESSAGE( "Summary:" );
-        MESSAGE( "  Worst max/avg ratio: " << worst_max_to_avg_ratio );
-        MESSAGE( "  Worst std deviation: " << worst_std_deviation );
-
-        CHECK( hashes.size() > 4000000 );
     }
+
+    MESSAGE( "" );
+    MESSAGE( "Summary:" );
+    MESSAGE( "  Worst max/avg ratio: " << worst_max_to_avg_ratio );
+    MESSAGE( "  Worst std deviation: " << worst_std_deviation );
+
+    CHECK( hashes.size() > 4000000 );
 }

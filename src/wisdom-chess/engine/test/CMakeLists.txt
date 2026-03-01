@@ -1,6 +1,6 @@
 if (WISDOM_CHESS_FAST_TESTS)
 
-    add_executable(fast_tests
+    add_executable(wisdom-chess-fast-tests
         piece_test.cpp
         coord_test.cpp
         en_passant_test.cpp
@@ -24,22 +24,22 @@ if (WISDOM_CHESS_FAST_TESTS)
         transposition_table_test.cpp
         test_main.cpp)
 
-    target_precompile_headers(fast_tests PRIVATE PRIVATE ../global.hpp)
+    target_precompile_headers(wisdom-chess-fast-tests PRIVATE PRIVATE ../global.hpp)
 
-    target_link_libraries(fast_tests PRIVATE wisdom::chess)
-    target_link_libraries(fast_tests PRIVATE doctest::doctest)
+    target_link_libraries(wisdom-chess-fast-tests PRIVATE wisdom::chess)
+    target_link_libraries(wisdom-chess-fast-tests PRIVATE doctest::doctest)
 
-    doctest_discover_tests(fast_tests)
+    doctest_discover_tests(wisdom-chess-fast-tests PROPERTIES LABELS fast)
 
     if (WISDOM_CHESS_FILC_COMPAT)
-        target_compile_definitions(fast_tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
+        target_compile_definitions(wisdom-chess-fast-tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
     endif()
 
 endif()
 
 if (WISDOM_CHESS_SLOW_TESTS)
 
-    add_executable(slow_tests
+    add_executable(wisdom-chess-slow-tests
         search_test.cpp
         perft.cpp
         perft_test.cpp
@@ -47,15 +47,15 @@ if (WISDOM_CHESS_SLOW_TESTS)
         hash_collision_slow_test.cpp
         test_main.cpp)
 
-    target_precompile_headers(slow_tests PRIVATE PRIVATE ../global.hpp)
+    target_precompile_headers(wisdom-chess-slow-tests PRIVATE PRIVATE ../global.hpp)
 
-    target_link_libraries(slow_tests PRIVATE wisdom::chess)
-    target_link_libraries(slow_tests PRIVATE doctest::doctest)
+    target_link_libraries(wisdom-chess-slow-tests PRIVATE wisdom::chess)
+    target_link_libraries(wisdom-chess-slow-tests PRIVATE doctest::doctest)
 
-    doctest_discover_tests(slow_tests)
+    doctest_discover_tests(wisdom-chess-slow-tests PROPERTIES LABELS slow)
 
     if (WISDOM_CHESS_FILC_COMPAT)
-        target_compile_definitions(slow_tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
+        target_compile_definitions(wisdom-chess-slow-tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
     endif()
 
     # For perft testing:
