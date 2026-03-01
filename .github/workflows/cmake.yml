@@ -112,7 +112,7 @@ jobs:
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} -j 4
 
     - name: Run Tests
-      run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} --build-config ${{ matrix.build_type }} --output-on-failure -j 2
+      run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} --build-config ${{ matrix.build_type }} --output-on-failure -j 4
 
     - name: Install (CMake)
       run: >
@@ -163,4 +163,4 @@ jobs:
       run: cmake --build ${{ github.workspace }}/build --config Release -j 4
 
     - name: Run Tests
-      run: ctest --test-dir ${{ github.workspace }}/build --build-config Release --output-on-failure -j 2
+      run: ctest --test-dir ${{ github.workspace }}/build --build-config Release --output-on-failure -j 4
