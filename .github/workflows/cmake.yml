@@ -57,6 +57,7 @@ jobs:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
+            cmake_generator: Ninja
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
@@ -93,14 +94,28 @@ jobs:
         version: '6.6.*'
         cache: true
 
+    - name: Set up MSVC dev environment
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Cache CPM downloads
+      uses: actions/cache@v4
+      with:
+        path: ~/cpm-cache
+        key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          cpm-${{ runner.os }}-
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        ${{ matrix.cmake_generator && format('-G {0}', matrix.cmake_generator) }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCPM_SOURCE_CACHE=~/cpm-cache
         -DWISDOM_CHESS_QML_UI=On
         -DWISDOM_CHESS_QML_UI_REQUIRED=On
         -DWISDOM_CHESS_FAST_TESTS=On
