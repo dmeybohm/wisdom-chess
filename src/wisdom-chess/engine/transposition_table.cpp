@@ -125,7 +125,7 @@ namespace wisdom
         if (entry.hash_code != hash)
             return nullopt;
 
-        if (entry.best_move.src == 0 && entry.best_move.dst == 0)
+        if (entry.best_move.isNullMove())
             return nullopt;
 
         return entry.best_move;

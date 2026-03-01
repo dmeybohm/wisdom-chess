@@ -37,7 +37,7 @@ TEST_CASE( "Parsing a promoting move" )
     Coord src = coordParse ("d7");
     Coord dst = coordParse ("d8");
     Move expected = Move::make (src, dst);
-    expected = expected.withPromotion (ColoredPiece::make (Color::White, Piece::Bishop));
+    expected = expected.withPromotion (Piece::Bishop);
     REQUIRE( promoting == expected );
 }
 

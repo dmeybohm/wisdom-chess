@@ -449,8 +449,7 @@ namespace wisdom
 
         if (move.isPromoting())
         {
-            ColoredPiece promoted = move.getPromotedPiece();
-            char piece_char = tolower (pieceToChar (promoted));
+            char piece_char = tolower (pieceToChar (move.getPromotedPiece()));
             result += piece_char;
         }
 
