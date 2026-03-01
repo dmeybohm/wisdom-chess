@@ -29,7 +29,7 @@ if (WISDOM_CHESS_FAST_TESTS)
     target_link_libraries(fast_tests PRIVATE wisdom::chess)
     target_link_libraries(fast_tests PRIVATE doctest::doctest)
 
-    doctest_discover_tests(fast_tests)
+    doctest_discover_tests(fast_tests PROPERTIES LABELS fast)
 
     if (WISDOM_CHESS_FILC_COMPAT)
         target_compile_definitions(fast_tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
@@ -52,7 +52,7 @@ if (WISDOM_CHESS_SLOW_TESTS)
     target_link_libraries(slow_tests PRIVATE wisdom::chess)
     target_link_libraries(slow_tests PRIVATE doctest::doctest)
 
-    doctest_discover_tests(slow_tests)
+    doctest_discover_tests(slow_tests PROPERTIES LABELS slow)
 
     if (WISDOM_CHESS_FILC_COMPAT)
         target_compile_definitions(slow_tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)

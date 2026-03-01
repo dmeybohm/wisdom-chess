@@ -96,20 +96,18 @@ cmake --build build --target lint
 # Create build directory
 mkdir build && cd build
 
-# Configure
-cmake .. -DCMAKE_BUILD_TYPE=Release
+# Configure (includes slow tests; use Release for acceptable speed)
+cmake .. -DCMAKE_BUILD_TYPE=Release -DWISDOM_CHESS_SLOW_TESTS=On
 
 # Build
 cmake --build . -j8
 
-# Run tests
-./src/wisdom-chess/engine/test/fast_tests
+# Run all tests in parallel (recommended - better pipelining)
+ctest -j 4 --test-dir .
 
-# Run slow tests - only run when making more extensive changes, 
-# after fast tests are passing, and only run with optimizations
-# enabled (release or release with debug info) because it's slow.
-cmake .. -DWISDOM_CHESS_SLOW_TESTS=On
-./src/wisdom-chess/engine/test/slow_tests
+# Run only fast or slow tests separately if needed
+ctest -j 4 --test-dir . -L fast
+ctest -j 4 --test-dir . -L slow
 ```
 
 ### Qt QML UI Build
@@ -203,14 +201,15 @@ cmake --build . --target WisdomChessQml
 ### Testing
 
 ```bash
-# Run fast tests (default)
-build/src/wisdom-chess/engine/test/fast_tests
+# Run all tests in parallel (recommended)
+cd build && ctest -j 4 --test-dir .
 
-# Run with success output
+# Run only fast or slow tests separately if needed
+cd build && ctest -j 4 --test-dir . -L fast
+cd build && ctest -j 4 --test-dir . -L slow
+
+# Run a specific test directly with success output
 build/src/wisdom-chess/engine/test/fast_tests --success
-
-# Run slow tests (if built)
-build/src/wisdom-chess/engine/test/slow_tests
 ```
 
 ### Linting and Type Checking
