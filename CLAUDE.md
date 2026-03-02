@@ -70,10 +70,6 @@ cmake --build build --target lint
 - **test-macro-spacing**: Test macros need spaces inside parens: `CHECK( x )` not `CHECK(x)`
 - **function-call-spacing**: Functions with args need space before paren: `foo (x)` not `foo(x)`; zero-arg functions have no space: `bar()` not `bar ()`
 
-**Configuration:** The linter reads `.wisdomstylerc.json` if present. Rules can be `"error"`, `"warning"`, or `"off"`.
-
-**Adding Rules:** Rules are in `scripts/linter/rules/`. Create a new `Rule` subclass, implement `name()`, `description()`, and `check()`, then register it in `rules/init.cpp`.
-
 2. **Code Style Guidelines**:
    - Use trailing return types with auto: `auto functionName() -> ReturnType`
    - Use `[[nodiscard]]` for functions that return values that shouldn't be ignored
@@ -136,7 +132,8 @@ mkdir build-wasm && cd build-wasm
 emcmake cmake .. \
   -DWISDOM_CHESS_BUILD_CONSOLE=OFF \
   -DWISDOM_CHESS_BUILD_QT_QML=OFF \
-  -DWISDOM_CHESS_BUILD_ENGINE_TESTS=OFF \
+  -DWISDOM_CHESS_BUILD_FAST_TESTS=OFF \
+  -DWISDOM_CHESS_BUILD_SLOW_TESTS=OFF \
   -DWISDOM_CHESS_BUILD_WASM=ON \
   -DWISDOM_CHESS_BUILD_REACT=ON \
   -DCMAKE_BUILD_TYPE=Release
@@ -176,7 +173,7 @@ cmake --build . --target WisdomChessQml
 # The resulting .wasm and .js files need to be served by a web server
 ```
 
-### Build Options
+### Relevant Build Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -190,13 +187,7 @@ cmake --build . --target WisdomChessQml
 | `WISDOM_CHESS_PCH_ENABLED` | Bool | ON | Use precompiled headers |
 | `WISDOM_CHESS_ASAN` | Bool | OFF | Enable address sanitizer |
 | `WISDOM_CHESS_BUILD_LINTER` | Bool | ON | Build C++ style linter (native builds only) |
-| `WISDOM_CHESS_FILC_COMPAT` | Bool | Auto-detected | Enable FIL-C runtime compatibility (auto-detected via `__PIZLONATOR_WAS_HERE__`) |
-
-### QML UI Options
-
-- `AUTO`: Build if Qt6 is found (default)
-- `ON`: Require Qt6, fail if not found
-- `OFF`: Disable even if Qt6 is available
+| `WISDOM_CHESS_FILC_COMPAT` | Bool | Auto-detected | Enable FIL-C runtime compatibility |
 
 ### Testing
 
@@ -239,32 +230,12 @@ Note: There are two WebAssembly frontends:
 
 ## API Design Notes
 
-### Game Class
-- The `Game` class uses factory functions to encapsulate its construction complexity:
-  - `Game::createStandardGame()` - standard chess setup
-  - `Game::createGame(players)` - custom player configuration
-  - `Game::createGameFromFen(fen)` - load from FEN string
-  - `Game::createGameFromBoard(builder)` - custom board setup
-- Game constructors are private to ensure proper initialization
-- This pattern is specific to Game due to its complex initialization requirements
-
 ### General API Guidelines
 - All public API is in the `wisdom::` namespace
 - Use `[[nodiscard]]` for factory functions and getters where appropriate
 - Prefer simple constructors for most classes (allows `make_unique`, aggregate init, etc.)
-- Only use factory functions when there's a clear benefit (complex initialization, multiple construction paths, etc.)
 
 ## Common Tasks
-
-### Working with the Game Class
-1. Always use factory functions to create Game objects
-2. Update all UI frontends when changing Game creation APIs
-3. Ensure tests use the appropriate factory functions
-
-### Modifying CMake Build
-1. Add options to top-level CMakeLists.txt
-2. Use consistent `WISDOM_CHESS_` prefix
-3. Document the option in this file
 
 ### Working with Multiple Frontends
 The project uses the Observer pattern with `GameStatusUpdate` interface:
