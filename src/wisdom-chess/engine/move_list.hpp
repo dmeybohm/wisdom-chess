@@ -7,7 +7,8 @@
 
 namespace wisdom
 {
-    inline constexpr std::ptrdiff_t Max_Move_List_Size = 256 - sizeof (std::ptrdiff_t);
+    inline constexpr std::ptrdiff_t Num_Moves_For_Size = sizeof (std::ptrdiff_t) / sizeof (Move);
+    inline constexpr std::ptrdiff_t Max_Move_List_Size = 256 - Num_Moves_For_Size;
 
     class MoveList // NOLINT(*-pro-type-member-init)
     {
