@@ -7,7 +7,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.4 COMPONENTS Quick Svg REQUIRED)
-qt_policy(SET QTP0001 OLD)
+qt_policy(SET QTP0001 NEW)
+qt_policy(SET QTP0004 NEW)
 
 if(APPLE AND TARGET WrapOpenGL::WrapOpenGL)
     # Qt < 6.8.4 / 6.9.2 links the AGL framework via its FindWrapOpenGL
