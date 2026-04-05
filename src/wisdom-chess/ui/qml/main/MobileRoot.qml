@@ -1,7 +1,6 @@
 import QtQuick 
 import QtQuick.Controls 
-import QtQuick.Layouts 
-import "../popups"
+import QtQuick.Layouts
 
 Item {
     width: parent.width
