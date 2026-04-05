@@ -1,5 +1,4 @@
 import QtQuick
-import WisdomChess
 
 import "../Helper.js" as Helper
 

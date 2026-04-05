@@ -1,5 +1,4 @@
 import QtQuick
-import WisdomChess
 
 ListModel {
     property bool reversed: false
