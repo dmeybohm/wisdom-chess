@@ -232,6 +232,10 @@ namespace wisdom::ui
 
     void GameViewModelBase::resetStateForNewGame()
     {
+        setInCheck (false);
+        setMoveStatus ("");
+        setGameOverStatus ("");
+        setCurrentTurn (wisdom::Color::White);
         setThirdRepetitionDrawStatus (DrawByRepetitionStatus::NotReached);
         setFiftyMovesDrawStatus (DrawByRepetitionStatus::NotReached);
     }
