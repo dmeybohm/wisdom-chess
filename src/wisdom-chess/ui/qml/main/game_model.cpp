@@ -150,8 +150,6 @@ auto GameModel::browserOriginUrl() -> QString
 
 void GameModel::restart()
 {
-    setGameOverStatus ("");
-
     qDebug() << "Creating new chess game";
 
     my_chess_game = std::move (

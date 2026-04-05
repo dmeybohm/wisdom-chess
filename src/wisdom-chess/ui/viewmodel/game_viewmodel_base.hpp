@@ -120,6 +120,8 @@ namespace wisdom::ui
     private:
         friend class ViewModelStatusUpdate;
 
+        // Transient per-game state. Any new fields added here must also be
+        // reset in resetStateForNewGame().
         bool my_in_check = false;
         std::string my_move_status;
         std::string my_game_over_status;
