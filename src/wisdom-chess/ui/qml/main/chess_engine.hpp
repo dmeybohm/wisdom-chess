@@ -68,7 +68,7 @@ public slots:
 
     // Update the config of the game. Also update the notifier in case we
     // had to interrupt the engine.
-    void updateConfig (ChessGame::Config config,
+    void updateConfig (const ChessGame::Config& config,
                        const wisdom::MoveTimer::PeriodicFunction& notifier);
 
 signals:

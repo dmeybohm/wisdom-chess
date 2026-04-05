@@ -10,7 +10,7 @@ struct PieceInfo
     PieceInfo()
         : row { 0 }
         , column { 0 }
-        , pieceImage { "" }
+        , pieceImage {}
         , piece { wisdom::Piece_And_Color_None }
         , is_castling_rook { false }
         , castling_source_column { -1 }
