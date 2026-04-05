@@ -33,13 +33,13 @@ int main (int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    auto main_qml_file = QString { "qrc:/WisdomChess/" } + QString { MAIN_QML_FILE };
+    auto main_qml_file = QStringLiteral ("qrc:/WisdomChess/") + QStringLiteral (MAIN_QML_FILE);
     const QUrl url { main_qml_file };
 
     qDebug() << "Creating URL";
 
-    engine.rootContext()->setContextProperty ("_myGameModel", &game_model);
-    engine.rootContext()->setContextProperty ("_myPiecesModel", &pieces_model);
+    engine.rootContext()->setContextProperty (QStringLiteral ("_myGameModel"), &game_model);
+    engine.rootContext()->setContextProperty (QStringLiteral ("_myPiecesModel"), &pieces_model);
 
     QObject::connect (&engine, &QQmlApplicationEngine::objectCreated,
                       &app, [url](QObject *obj, const QUrl & obj_url) {

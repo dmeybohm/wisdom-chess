@@ -213,7 +213,7 @@ void ChessEngine::reloadGame (shared_ptr<ChessGame> newGame, int newGameId)
 
 void 
 ChessEngine::updateConfig (
-    ChessGame::Config config,
+    const ChessGame::Config& config,
     const wisdom::MoveTimer::PeriodicFunction& notifier
 ) {
     my_game->setConfig (config);
