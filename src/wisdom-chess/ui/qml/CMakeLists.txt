@@ -6,8 +6,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.4 COMPONENTS Quick Svg REQUIRED)
-qt_policy(SET QTP0001 OLD)
+# Qt 6.8+ is required for the QTP0004 policy below (and the QML files
+# rely on its generated subdirectory qmldir files for implicit imports).
+find_package(Qt6 6.8 COMPONENTS Quick Svg REQUIRED)
+qt_policy(SET QTP0001 NEW)
+qt_policy(SET QTP0004 NEW)
 
 if(APPLE AND TARGET WrapOpenGL::WrapOpenGL)
     # Qt < 6.8.4 / 6.9.2 links the AGL framework via its FindWrapOpenGL
@@ -151,9 +154,13 @@ if(EMSCRIPTEN)
             set(EXPECTED_EMSCRIPTEN "3.1.37")
         elseif(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR EQUAL 7)
             set(EXPECTED_EMSCRIPTEN "3.1.50")
+        elseif(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR EQUAL 8)
+            set(EXPECTED_EMSCRIPTEN "3.1.56")
         elseif(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR EQUAL 9)
             set(EXPECTED_EMSCRIPTEN "3.1.70")
         elseif(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR EQUAL 10)
+            set(EXPECTED_EMSCRIPTEN "4.0.7")
+        elseif(QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR EQUAL 11)
             set(EXPECTED_EMSCRIPTEN "4.0.7")
         endif()
 

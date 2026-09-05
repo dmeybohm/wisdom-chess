@@ -1,5 +1,4 @@
 import QtQuick
-import WisdomChess 1.0
 
 FocusScope {
     id: dropDownTop

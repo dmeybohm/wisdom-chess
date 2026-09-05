@@ -1,6 +1,5 @@
-import QtQuick 
-import WisdomChess 1.0
-import QtQuick.Controls 
+import QtQuick
+import QtQuick.Controls
 
 Dialog {
     property alias text: firstLine.text

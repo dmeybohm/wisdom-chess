@@ -15,7 +15,8 @@ endif()
 if(WISDOM_CHESS_QML_UI STREQUAL "OFF")
     message("-- wisdom-chess: QML UI disabled by user")
 else()
-    find_package(Qt6 QUIET COMPONENTS Quick)
+    # Keep this minimum in sync with the one in qml/CMakeLists.txt.
+    find_package(Qt6 6.8 QUIET COMPONENTS Quick)
 
     if(NOT Qt6_FOUND AND UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
         # Prebuilt Qt on Linux hard-requires OpenGL development files at
@@ -34,10 +35,10 @@ else()
         message("-- wisdom-chess: Qt6 found. Building QML UI.")
         add_subdirectory(qml)
     elseif(WISDOM_CHESS_QML_UI STREQUAL "ON")
-        message(FATAL_ERROR "-- wisdom-chess: QML UI required but Qt6 not found. Install Qt6 or set WISDOM_CHESS_QT_DIR to Qt installation path.")
+        message(FATAL_ERROR "-- wisdom-chess: QML UI required but Qt6 (>= 6.8) not found. Install Qt 6.8 or newer, or set WISDOM_CHESS_QT_DIR to a Qt installation path.")
     else()
         # AUTO mode - Qt6 not found, skip QML UI
-        message("-- wisdom-chess: Qt6 not found. QML UI disabled.")
+        message("-- wisdom-chess: Qt6 (>= 6.8) not found. QML UI disabled.")
     endif()
 endif()
 
