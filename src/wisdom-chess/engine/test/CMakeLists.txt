@@ -22,6 +22,7 @@ if (WISDOM_CHESS_FAST_TESTS)
         board_test.cpp
         game_test.cpp
         transposition_table_test.cpp
+        logger_test.cpp
         test_main.cpp)
 
     target_precompile_headers(wisdom-chess-fast-tests PRIVATE PRIVATE ../global.hpp)
