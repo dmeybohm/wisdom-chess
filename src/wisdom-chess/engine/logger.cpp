@@ -265,8 +265,6 @@ namespace wisdom
 
     void BufferedLogger::setEnabled (bool enabled)
     {
-        std::lock_guard lock { my_mutex };
-
         if (enabled && !my_enabled)
             my_buffer.drainTo (*my_sink);
 
@@ -277,7 +275,6 @@ namespace wisdom
     BufferedLogger::isEnabled() const
         -> bool
     {
-        std::lock_guard lock { my_mutex };
         return my_enabled;
     }
 
@@ -294,8 +291,6 @@ namespace wisdom
     void BufferedLogger::log (LogLevel level, const string& output) const
     {
         auto line = formatLogTimestamp (chrono::system_clock::now()) + output;
-
-        std::lock_guard lock { my_mutex };
 
         if (!my_enabled)
         {

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <mutex>
-
 #include "wisdom-chess/engine/global.hpp"
 
 namespace wisdom
@@ -114,6 +112,8 @@ namespace wisdom
     // a ring buffer instead of being forwarded. Enabling replays the retained
     // lines into the sink and clears the buffer; later lines go straight
     // through.
+    //
+    // Not thread-safe: use one instance per thread.
     class BufferedLogger : public Logger
     {
     public:
@@ -136,7 +136,6 @@ namespace wisdom
 
     private:
         shared_ptr<Logger> my_sink;
-        mutable std::mutex my_mutex;
         mutable LogRingBuffer my_buffer;
         bool my_enabled;
 

@@ -75,8 +75,10 @@ All six steps landed on `debug-logging-toggle`, one commit each.
   truncated. `push` takes a `string_view` because the text is copied
   into the ring. `BufferedLogger` wraps a sink, prepends a
   `[HH:MM:SS.mmm]` local-time stamp, buffers while disabled, and
-  replays then clears on the off-to-on transition. Access is guarded by
-  a mutex. `formatLogTimestamp` uses `localtime_r` / `localtime_s` and
+  replays then clears on the off-to-on transition. It is not
+  thread-safe; each frontend uses it from a single thread (the console
+  main thread, the QML engine thread, the WASM worker).
+  `formatLogTimestamp` uses `localtime_r` / `localtime_s` and
   `strftime`, so it builds under Emscripten and MSVC.
 - **Tests** (`engine/test/logger_test.cpp`, fast suite): ring buffer
   ordering, byte accounting, eviction, truncation, a record straddling
