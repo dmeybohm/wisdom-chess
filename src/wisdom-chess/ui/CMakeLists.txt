@@ -17,6 +17,19 @@ if(WISDOM_CHESS_QML_UI STREQUAL "OFF")
 else()
     find_package(Qt6 QUIET COMPONENTS Quick)
 
+    if(NOT Qt6_FOUND AND UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
+        # Prebuilt Qt on Linux hard-requires OpenGL development files at
+        # configure time (Qt6Gui -> WrapOpenGL), and a missing libglvnd is
+        # the usual reason Qt6 "isn't found" on a machine that has Qt.
+        find_package(OpenGL QUIET)
+        if(NOT OpenGL_FOUND)
+            message(WARNING
+                "-- wisdom-chess: OpenGL development files were not found; "
+                "Qt6 cannot be configured without them. Install libglvnd-dev "
+                "(Debian/Ubuntu) or libglvnd-devel (Fedora) and re-run CMake.")
+        endif()
+    endif()
+
     if(Qt6_FOUND)
         message("-- wisdom-chess: Qt6 found. Building QML UI.")
         add_subdirectory(qml)
