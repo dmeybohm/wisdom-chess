@@ -299,7 +299,7 @@ namespace wisdom
 
         if (!my_enabled)
         {
-            my_buffer.push (level, std::move (line));
+            my_buffer.push (level, line);
             return;
         }
 
