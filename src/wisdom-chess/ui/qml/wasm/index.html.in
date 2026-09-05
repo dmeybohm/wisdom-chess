@@ -61,7 +61,7 @@
                           spinner.style.display = 'block';
                           container.style.display = 'none';
                       },
-                      entryFunction: createQtAppInstance,
+                      entryFunction: window.WisdomChessQml_entry ?? window.createQtAppInstance,
                       containerElements: [container]
                   }
               });
