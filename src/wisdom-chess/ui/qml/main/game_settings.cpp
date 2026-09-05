@@ -7,7 +7,8 @@ operator== (const GameSettings& a, const GameSettings& b)
     return a.my_white_player == b.my_white_player && 
         a.my_black_player == b.my_black_player && 
         a.my_max_depth == b.my_max_depth && 
-        a.my_max_search_time == b.my_max_search_time;
+        a.my_max_search_time == b.my_max_search_time &&
+        a.my_debug_logging == b.my_debug_logging;
 }
 
 auto 
@@ -43,4 +44,11 @@ GameSettings::maxSearchTime() const
     -> int
 {
     return my_max_search_time;
+}
+
+auto 
+GameSettings::debugLogging() const 
+    -> bool
+{
+    return my_debug_logging;
 }

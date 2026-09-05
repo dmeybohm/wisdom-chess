@@ -146,6 +146,7 @@ ChessGame::Config::fromGameSettings (
         .players = { mapPlayer (gameSettings.whitePlayer()),
                      mapPlayer (gameSettings.blackPlayer()) },
         .maxDepth = MaxDepth { gameSettings.maxDepth() },
-        .maxTime = std::chrono::seconds { gameSettings.maxSearchTime() }
+        .maxTime = std::chrono::seconds { gameSettings.maxSearchTime() },
+        .debugLogging = gameSettings.debugLogging()
     };
 }

@@ -28,14 +28,7 @@ public:
         QObject* parent = nullptr
     );
 
-    static constexpr wisdom::Logger::LogLevel Log_Level =
-#ifdef NDEBUG
-        wisdom::Logger::LogLevel_Info
-#else
-        wisdom::Logger::LogLevel_Debug
-#endif
-        ;
-
+    // Forwards engine output to qDebug().
     struct ChessEngineLogger : wisdom::Logger
     {
         void debug (const std::string& string) const override;
@@ -93,7 +86,14 @@ private:
     // Identify games so that signals from them can be filtered due to being async.
     int my_game_id;
 
+    // Retains search output while debug logging is off and replays it when
+    // the setting is switched on.
+    std::shared_ptr<wisdom::BufferedLogger> my_logger;
+
     void findMove();
+
+    // Keep the logger in sync with the game's config.
+    void syncDebugLogging();
 
     // Perform some operations when the game status has updated.
     // Return the status.
