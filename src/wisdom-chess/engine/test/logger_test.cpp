@@ -39,15 +39,27 @@ namespace
     }
 }
 
+namespace
+{
+    constexpr size_t Overhead = LogRingBuffer::Record_Overhead;
+
+    // Bytes one line of the given text length occupies in the buffer.
+    constexpr auto recordSize (size_t text_length) -> size_t
+    {
+        return Overhead + text_length;
+    }
+}
+
 TEST_CASE( "LogRingBuffer" )
 {
     SUBCASE( "starts empty with the requested capacity" )
     {
-        LogRingBuffer buffer { 10 };
+        LogRingBuffer buffer { 100 };
 
         CHECK( buffer.empty() );
+        CHECK( buffer.count() == 0 );
         CHECK( buffer.sizeBytes() == 0 );
-        CHECK( buffer.capacityBytes() == 10 );
+        CHECK( buffer.capacityBytes() == 100 );
         CHECK( buffer.entries().empty() );
     }
 
@@ -58,7 +70,7 @@ TEST_CASE( "LogRingBuffer" )
         CHECK( buffer.capacityBytes() == 64 * 1024 );
     }
 
-    SUBCASE( "preserves order and counts bytes" )
+    SUBCASE( "preserves order, levels and byte accounting" )
     {
         LogRingBuffer buffer { 100 };
 
@@ -66,80 +78,127 @@ TEST_CASE( "LogRingBuffer" )
         buffer.push (Logger::LogLevel_Debug, "two");
         buffer.push (Logger::LogLevel_Info, "three");
 
-        REQUIRE( buffer.entries().size() == 3 );
-        CHECK( buffer.sizeBytes() == 11 );
-        CHECK( buffer.entries()[0].text == "one" );
-        CHECK( buffer.entries()[0].level == Logger::LogLevel_Info );
-        CHECK( buffer.entries()[1].text == "two" );
-        CHECK( buffer.entries()[1].level == Logger::LogLevel_Debug );
-        CHECK( buffer.entries()[2].text == "three" );
+        auto entries = buffer.entries();
+        REQUIRE( entries.size() == 3 );
+        CHECK( buffer.count() == 3 );
+        CHECK( buffer.sizeBytes() == recordSize (3) + recordSize (3) + recordSize (5) );
+        CHECK( entries[0].text == "one" );
+        CHECK( entries[0].level == Logger::LogLevel_Info );
+        CHECK( entries[1].text == "two" );
+        CHECK( entries[1].level == Logger::LogLevel_Debug );
+        CHECK( entries[2].text == "three" );
+        CHECK( entries[2].level == Logger::LogLevel_Info );
         CHECK( !buffer.empty() );
     }
 
     SUBCASE( "fills exactly to capacity without evicting" )
     {
-        LogRingBuffer buffer { 8 };
+        LogRingBuffer buffer { 2 * recordSize (4) };
 
         buffer.push (Logger::LogLevel_Info, "aaaa");
         buffer.push (Logger::LogLevel_Info, "bbbb");
 
-        REQUIRE( buffer.entries().size() == 2 );
-        CHECK( buffer.sizeBytes() == 8 );
+        CHECK( buffer.count() == 2 );
+        CHECK( buffer.sizeBytes() == buffer.capacityBytes() );
     }
 
-    SUBCASE( "evicts the oldest whole entry when full" )
+    SUBCASE( "evicts the oldest whole line when full" )
     {
-        LogRingBuffer buffer { 10 };
+        LogRingBuffer buffer { 2 * recordSize (4) + 2 };
 
         buffer.push (Logger::LogLevel_Info, "aaaa");
         buffer.push (Logger::LogLevel_Info, "bbbb");
         buffer.push (Logger::LogLevel_Info, "cccc");
 
-        REQUIRE( buffer.entries().size() == 2 );
-        CHECK( buffer.sizeBytes() == 8 );
-        CHECK( buffer.entries()[0].text == "bbbb" );
-        CHECK( buffer.entries()[1].text == "cccc" );
+        auto entries = buffer.entries();
+        REQUIRE( entries.size() == 2 );
+        CHECK( buffer.sizeBytes() == 2 * recordSize (4) );
+        CHECK( entries[0].text == "bbbb" );
+        CHECK( entries[1].text == "cccc" );
     }
 
-    SUBCASE( "evicts several entries for one large push" )
+    SUBCASE( "evicts several lines for one large push" )
     {
-        LogRingBuffer buffer { 10 };
+        LogRingBuffer buffer { 3 * recordSize (3) };
 
         buffer.push (Logger::LogLevel_Info, "aaa");
         buffer.push (Logger::LogLevel_Info, "bbb");
         buffer.push (Logger::LogLevel_Info, "ccc");
-        buffer.push (Logger::LogLevel_Info, "dddddddd");
+        buffer.push (Logger::LogLevel_Info, "dddddddddddd");
 
-        REQUIRE( buffer.entries().size() == 1 );
-        CHECK( buffer.sizeBytes() == 8 );
-        CHECK( buffer.entries()[0].text == "dddddddd" );
+        auto entries = buffer.entries();
+        REQUIRE( entries.size() == 1 );
+        CHECK( buffer.sizeBytes() == recordSize (12) );
+        CHECK( entries[0].text == "dddddddddddd" );
     }
 
-    SUBCASE( "truncates an entry larger than the capacity" )
+    SUBCASE( "truncates a line that cannot fit on its own" )
     {
-        LogRingBuffer buffer { 5 };
+        LogRingBuffer buffer { recordSize (5) };
 
-        buffer.push (Logger::LogLevel_Info, "keep me");
+        buffer.push (Logger::LogLevel_Info, "keep");
         buffer.push (Logger::LogLevel_Debug, "abcdefgh");
 
-        REQUIRE( buffer.entries().size() == 1 );
-        CHECK( buffer.sizeBytes() == 5 );
-        CHECK( buffer.entries()[0].text == "abcde" );
-        CHECK( buffer.entries()[0].level == Logger::LogLevel_Debug );
+        auto entries = buffer.entries();
+        REQUIRE( entries.size() == 1 );
+        CHECK( buffer.sizeBytes() == buffer.capacityBytes() );
+        CHECK( entries[0].text == "abcde" );
+        CHECK( entries[0].level == Logger::LogLevel_Debug );
     }
 
-    SUBCASE( "keeps wrapping as entries keep arriving" )
+    SUBCASE( "a line straddling the end of the storage reads back intact" )
     {
-        LogRingBuffer buffer { 6 };
+        // Two lines fill the buffer up to 4 bytes short of the end, so the
+        // third line's header and text wrap around to the start.
+        LogRingBuffer buffer { 2 * recordSize (6) + 4 };
 
-        for (int i = 0; i < 100; i++)
+        buffer.push (Logger::LogLevel_Info, "first!");
+        buffer.push (Logger::LogLevel_Debug, "second");
+        buffer.push (Logger::LogLevel_Info, "third!");
+
+        auto entries = buffer.entries();
+        REQUIRE( entries.size() == 2 );
+        CHECK( entries[0].text == "second" );
+        CHECK( entries[0].level == Logger::LogLevel_Debug );
+        CHECK( entries[1].text == "third!" );
+        CHECK( entries[1].level == Logger::LogLevel_Info );
+    }
+
+    SUBCASE( "keeps wrapping as lines keep arriving" )
+    {
+        LogRingBuffer buffer { 3 * recordSize (2) + 1 };
+
+        for (int i = 0; i < 1000; i++)
             buffer.push (Logger::LogLevel_Info, std::to_string (i % 10) + "x");
 
-        REQUIRE( buffer.entries().size() == 3 );
-        CHECK( buffer.sizeBytes() == 6 );
-        CHECK( buffer.entries()[0].text == "7x" );
-        CHECK( buffer.entries()[1].text == "8x" );
-        CHECK( buffer.entries()[2].text == "9x" );
+        auto entries = buffer.entries();
+        REQUIRE( entries.size() == 3 );
+        CHECK( buffer.sizeBytes() == 3 * recordSize (2) );
+        CHECK( entries[0].text == "7x" );
+        CHECK( entries[1].text == "8x" );
+        CHECK( entries[2].text == "9x" );
+    }
+
+    SUBCASE( "mixed line lengths survive many wraps" )
+    {
+        LogRingBuffer buffer { 64 };
+        vector<string> pushed;
+
+        for (int i = 0; i < 500; i++)
+        {
+            auto text = string (1 + (i * 7) % 20, static_cast<char> ('a' + i % 26));
+            pushed.push_back (text);
+            buffer.push (Logger::LogLevel_Info, text);
+        }
+
+        auto entries = buffer.entries();
+        REQUIRE( !entries.empty() );
+        CHECK( buffer.sizeBytes() <= buffer.capacityBytes() );
+
+        // The retained lines are exactly the most recent ones, in order:
+        auto first_kept = pushed.size() - entries.size();
+        for (size_t i = 0; i < entries.size(); i++)
+            CHECK( entries[i].text == pushed[first_kept + i] );
     }
 
     SUBCASE( "drainTo replays in order with levels and then clears" )
@@ -162,6 +221,7 @@ TEST_CASE( "LogRingBuffer" )
         CHECK( sink.lines[2].text == "third" );
 
         CHECK( buffer.empty() );
+        CHECK( buffer.count() == 0 );
         CHECK( buffer.sizeBytes() == 0 );
     }
 
@@ -175,7 +235,7 @@ TEST_CASE( "LogRingBuffer" )
         CHECK( sink.lines.empty() );
     }
 
-    SUBCASE( "clear discards everything" )
+    SUBCASE( "clear discards everything and the buffer is reusable" )
     {
         LogRingBuffer buffer { 100 };
 
@@ -187,8 +247,10 @@ TEST_CASE( "LogRingBuffer" )
         CHECK( buffer.sizeBytes() == 0 );
 
         buffer.push (Logger::LogLevel_Info, "three");
-        REQUIRE( buffer.entries().size() == 1 );
-        CHECK( buffer.sizeBytes() == 5 );
+        auto entries = buffer.entries();
+        REQUIRE( entries.size() == 1 );
+        CHECK( entries[0].text == "three" );
+        CHECK( buffer.sizeBytes() == recordSize (5) );
     }
 }
 
@@ -300,9 +362,9 @@ TEST_CASE( "BufferedLogger" )
 
     SUBCASE( "honors the capacity while buffering" )
     {
-        // Each line is a 15 byte timestamp plus one character, so 40 bytes
-        // holds two lines.
-        BufferedLogger logger { sink, false, 40 };
+        // Each line is a 15 byte timestamp plus one character of text, so
+        // this holds exactly two lines.
+        BufferedLogger logger { sink, false, 2 * recordSize (16) };
 
         logger.info ("1");
         logger.info ("2");

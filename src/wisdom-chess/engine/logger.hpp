@@ -1,6 +1,5 @@
 #pragma once
 
-#include <deque>
 #include <mutex>
 
 #include "wisdom-chess/engine/global.hpp"
@@ -32,25 +31,37 @@ namespace wisdom
         string text;
     };
 
-    // Retains the most recent log lines up to a byte budget. When the budget
-    // is exceeded, the oldest whole entries are evicted first.
+    // Retains the most recent log lines in a single contiguous byte buffer
+    // with wraparound. Each line is stored as a small header (level and
+    // length) followed by its bytes. When the buffer is full, the oldest
+    // whole lines are evicted first.
     class LogRingBuffer
     {
     public:
+        // Bytes of header stored before each line's text.
+        static constexpr size_t Record_Overhead = sizeof (uint8_t) + sizeof (uint32_t);
+
         explicit LogRingBuffer (size_t capacity_bytes = Default_Log_Buffer_Bytes);
 
-        // Append an entry. An entry larger than the capacity is truncated.
-        void push (Logger::LogLevel level, string text);
+        // Append a line. A line that cannot fit on its own is truncated.
+        void push (Logger::LogLevel level, string_view text);
 
-        // Replay every entry in order through the sink, then clear the buffer.
+        // Replay every line in order through the sink, then clear the buffer.
         void drainTo (const Logger& sink);
 
         void clear();
 
+        // Copy the retained lines out, oldest first.
         [[nodiscard]] auto
         entries() const
-            -> const std::deque<LogEntry>&;
+            -> vector<LogEntry>;
 
+        // Number of retained lines.
+        [[nodiscard]] auto
+        count() const
+            -> size_t;
+
+        // Bytes in use, including the per-line headers.
         [[nodiscard]] auto
         sizeBytes() const
             -> size_t;
@@ -64,9 +75,34 @@ namespace wisdom
             -> bool;
 
     private:
-        size_t my_capacity_bytes;
-        size_t my_size_bytes = 0;
-        std::deque<LogEntry> my_entries;
+        vector<char> my_storage;
+        size_t my_head = 0;     // Offset of the oldest record.
+        size_t my_used = 0;     // Bytes in use, headers included.
+        size_t my_count = 0;
+
+        struct Record
+        {
+            Logger::LogLevel level;
+            size_t length;
+        };
+
+        [[nodiscard]] auto
+        tailOffset() const
+            -> size_t;
+
+        [[nodiscard]] auto
+        readRecord (size_t offset) const
+            -> Record;
+
+        [[nodiscard]] auto
+        readText (size_t offset, size_t length) const
+            -> string;
+
+        void writeBytes (const char* source, size_t length);
+        void popFront();
+
+        template <typename Visitor>
+        void forEachEntry (Visitor&& visit) const;
     };
 
     // Format a local-time prefix of the form "[HH:MM:SS.mmm] ".

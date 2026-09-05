@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstring>
 #include <ctime>
 #include <iostream>
 
@@ -56,69 +57,169 @@ namespace wisdom
     };
 
     LogRingBuffer::LogRingBuffer (size_t capacity_bytes)
-        : my_capacity_bytes { capacity_bytes }
+        : my_storage (std::max (capacity_bytes, Record_Overhead + 1))
     {}
 
-    void LogRingBuffer::push (Logger::LogLevel level, string text)
+    auto
+    LogRingBuffer::tailOffset() const
+        -> size_t
     {
-        if (text.size() > my_capacity_bytes)
-            text.resize (my_capacity_bytes);
+        return (my_head + my_used) % my_storage.size();
+    }
 
-        while (!my_entries.empty() && my_size_bytes + text.size() > my_capacity_bytes)
+    void LogRingBuffer::writeBytes (const char* source, size_t length)
+    {
+        auto offset = tailOffset();
+        auto until_end = std::min (length, my_storage.size() - offset);
+
+        std::memcpy (&my_storage[offset], source, until_end);
+        if (length > until_end)
+            std::memcpy (&my_storage[0], source + until_end, length - until_end);
+
+        my_used += length;
+    }
+
+    auto
+    LogRingBuffer::readRecord (size_t offset) const
+        -> Record
+    {
+        uint8_t level_byte = 0;
+        uint32_t length = 0;
+        char header[Record_Overhead];
+
+        for (size_t i = 0; i < Record_Overhead; i++)
+            header[i] = my_storage[(offset + i) % my_storage.size()];
+
+        std::memcpy (&level_byte, header, sizeof level_byte);
+        std::memcpy (&length, header + sizeof level_byte, sizeof length);
+
+        return Record {
+            static_cast<Logger::LogLevel> (level_byte),
+            length
+        };
+    }
+
+    auto
+    LogRingBuffer::readText (size_t offset, size_t length) const
+        -> string
+    {
+        auto text = string (length, '\0');
+        auto until_end = std::min (length, my_storage.size() - offset);
+
+        std::memcpy (text.data(), &my_storage[offset], until_end);
+        if (length > until_end)
+            std::memcpy (text.data() + until_end, &my_storage[0], length - until_end);
+
+        return text;
+    }
+
+    void LogRingBuffer::popFront()
+    {
+        auto record = readRecord (my_head);
+        auto record_size = Record_Overhead + record.length;
+
+        my_head = (my_head + record_size) % my_storage.size();
+        my_used -= record_size;
+        my_count--;
+    }
+
+    void LogRingBuffer::push (Logger::LogLevel level, string_view text)
+    {
+        auto max_text = my_storage.size() - Record_Overhead;
+        if (text.size() > max_text)
+            text = text.substr (0, max_text);
+
+        auto record_size = Record_Overhead + text.size();
+        while (my_count > 0 && my_used + record_size > my_storage.size())
+            popFront();
+
+        auto level_byte = narrow<uint8_t> (static_cast<int> (level));
+        auto length = narrow<uint32_t> (text.size());
+        char header[Record_Overhead];
+        std::memcpy (header, &level_byte, sizeof level_byte);
+        std::memcpy (header + sizeof level_byte, &length, sizeof length);
+
+        writeBytes (header, Record_Overhead);
+        writeBytes (text.data(), text.size());
+        my_count++;
+    }
+
+    template <typename Visitor>
+    void LogRingBuffer::forEachEntry (Visitor&& visit) const
+    {
+        auto offset = my_head;
+
+        for (size_t i = 0; i < my_count; i++)
         {
-            my_size_bytes -= my_entries.front().text.size();
-            my_entries.pop_front();
-        }
+            auto record = readRecord (offset);
+            auto text_offset = (offset + Record_Overhead) % my_storage.size();
 
-        my_size_bytes += text.size();
-        my_entries.push_back (LogEntry { level, std::move (text) });
+            visit (record.level, readText (text_offset, record.length));
+            offset = (text_offset + record.length) % my_storage.size();
+        }
     }
 
     void LogRingBuffer::drainTo (const Logger& sink)
     {
-        for (const auto& entry : my_entries)
+        forEachEntry ([&sink] (Logger::LogLevel level, const string& text)
         {
-            if (entry.level >= Logger::LogLevel_Debug)
-                sink.debug (entry.text);
+            if (level >= Logger::LogLevel_Debug)
+                sink.debug (text);
             else
-                sink.info (entry.text);
-        }
+                sink.info (text);
+        });
 
         clear();
     }
 
     void LogRingBuffer::clear()
     {
-        my_entries.clear();
-        my_size_bytes = 0;
+        my_head = 0;
+        my_used = 0;
+        my_count = 0;
     }
 
     auto
     LogRingBuffer::entries() const
-        -> const std::deque<LogEntry>&
+        -> vector<LogEntry>
     {
-        return my_entries;
+        vector<LogEntry> result;
+        result.reserve (my_count);
+
+        forEachEntry ([&result] (Logger::LogLevel level, string text)
+        {
+            result.push_back (LogEntry { level, std::move (text) });
+        });
+
+        return result;
+    }
+
+    auto
+    LogRingBuffer::count() const
+        -> size_t
+    {
+        return my_count;
     }
 
     auto
     LogRingBuffer::sizeBytes() const
         -> size_t
     {
-        return my_size_bytes;
+        return my_used;
     }
 
     auto
     LogRingBuffer::capacityBytes() const
         -> size_t
     {
-        return my_capacity_bytes;
+        return my_storage.size();
     }
 
     auto
     LogRingBuffer::empty() const
         -> bool
     {
-        return my_entries.empty();
+        return my_count == 0;
     }
 
     auto
