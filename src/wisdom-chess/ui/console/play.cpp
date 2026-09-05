@@ -118,6 +118,15 @@ namespace wisdom::ui::console
             {}
         };
 
+        struct SetDebugLogging
+        {
+            bool enabled;
+
+            explicit SetDebugLogging (bool new_enabled)
+                : enabled { new_enabled }
+            {}
+        };
+
         using AnyCommand = std::variant<
             None,
             Help,
@@ -133,7 +142,8 @@ namespace wisdom::ui::console
             SetPlayer,
             SetSearchTimeout,
             SetMaxDepth,
-            PlayMove
+            PlayMove,
+            SetDebugLogging
         >;
     }
 
@@ -144,6 +154,9 @@ namespace wisdom::ui::console
         bool quit = false;
         bool paused = false;
         bool show_final_position = true;
+
+        // Search output is retained while disabled and replayed once enabled.
+        shared_ptr<BufferedLogger> my_logger = makeBufferedLogger (makeStandardLogger());
 
     protected:
         [[nodiscard]] auto getGame() -> observer_ptr<Game> override
@@ -382,6 +395,7 @@ namespace wisdom::ui::console
                 << "  unpause         Unpause the computer from searching for moves\n"
                 << "  maxdepth        Set the maximum depth for the computer to search\n"
                 << "  timeout         Set the maximum time for the computer to search\n"
+                << "  debug           Turn debug logging on or off (debug on / debug off)\n"
                 << "  human_white     Set the white player to human\n"
                 << "  human_black     Set the black player to human\n"
                 << "  computer_white  Set the white player to computer\n"
@@ -474,6 +488,25 @@ namespace wisdom::ui::console
                     return PlayCommand::SetSearchTimeout { chrono::seconds { *search_timeout } };
                 else
                     return PlayCommand::ShowError { "Invalid search timeout." };
+            }
+            else if (input == "debug on")
+            {
+                return PlayCommand::SetDebugLogging { true };
+            }
+            else if (input == "debug off")
+            {
+                return PlayCommand::SetDebugLogging { false };
+            }
+            else if (input == "debug")
+            {
+                string answer = prompt ("Debug logging (on/off)");
+
+                if (answer == "on")
+                    return PlayCommand::SetDebugLogging { true };
+                else if (answer == "off")
+                    return PlayCommand::SetDebugLogging { false };
+                else
+                    return PlayCommand::ShowError { "Expected 'on' or 'off'." };
             }
             else if (input == "computer_black")
             {
@@ -620,6 +653,12 @@ namespace wisdom::ui::console
                 auto play_move = get<PlayCommand::PlayMove> (command);
                 my_game.move (play_move.move);
             }
+            else if (holds_alternative<PlayCommand::SetDebugLogging> (command))
+            {
+                auto set_debug = get<PlayCommand::SetDebugLogging> (command);
+                my_logger->setEnabled (set_debug.enabled);
+                std::cout << "Debug logging " << (set_debug.enabled ? "on" : "off") << ".\n";
+            }
             else
             {
                 throw Error { "Undefined command." };
@@ -629,8 +668,6 @@ namespace wisdom::ui::console
 
     void ConsoleGame::play()
     {
-        auto output = makeStandardLogger();
-
         while (true)
         {
             std::cout << my_game.getBoard() << "\n";
@@ -644,7 +681,7 @@ namespace wisdom::ui::console
 
             if (!paused && my_game.getCurrentPlayer() == Player::ChessEngine)
             {
-                auto optional_move = my_game.findBestMove (output);
+                auto optional_move = my_game.findBestMove (my_logger);
                 if (!optional_move.has_value())
                 {
                     std::cout << "\nCouldn't find move!\n";
