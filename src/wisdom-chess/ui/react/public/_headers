@@ -9,6 +9,10 @@
 /qml/index.html
   Cache-Control: public, max-age=3600
 
+# Service worker: always revalidate so updates are picked up promptly
+/sw.js
+  Cache-Control: no-cache
+
 # Hashed WASM and JS files: immutable long cache
 /*.*.wasm
   Cache-Control: public, max-age=31536000, immutable

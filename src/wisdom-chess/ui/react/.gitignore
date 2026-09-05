@@ -11,6 +11,7 @@ lerna-debug.log*
 public/*.wasm
 public/*.js
 public/.wasm-files-copied
+!public/sw.js
 
 node_modules
 dist
