@@ -56,10 +56,13 @@ jobs:
       # Qt >= 6.7 WASM packages live under host 'all_os' / target 'wasm'.
       # aqtinstall's --autodesktop (added automatically by the action) also
       # installs the Linux desktop Qt that the WASM qt-cmake needs as host.
+      # NOTE: must be an exact version - aqtinstall 3.3.0 fails to resolve
+      # wildcard specs like '6.9.*' for wasm arches ("No versions of Qt
+      # exist for spec=6.9.* with host=all_os, target=wasm").
       - name: Install Qt (WASM multithread)
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.9.*'
+          version: '6.9.3'
           target: 'wasm'
           host: 'all_os'
           arch: 'wasm_multithread'
