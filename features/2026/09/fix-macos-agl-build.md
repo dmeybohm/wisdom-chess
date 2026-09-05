@@ -78,6 +78,23 @@ So the CI must move to at least the 6.8 line.
 - Remaining: confirm the macOS CI job passes once a PR is opened, and
   manually check Metal rendering on real macOS hardware.
 
+### Session #2
+
+- The first PR run still failed at the Build step on macOS. Cause:
+  the open-source Qt 6.8 line for macOS tops out at **6.8.3** (6.8.4+
+  patch releases are commercial-only under the LTS policy), so
+  `version: '6.8.*'` installed 6.8.3 — which still has the AGL bug.
+  The 6.9 line is public through 6.9.3 and the fix landed in 6.9.2,
+  so CI now uses `version: '6.9.*'`.
+- Hardened the defensive strip in `qml/CMakeLists.txt`: removed the
+  `find_library(AGL)` gate (macOS 26 may retain a stale framework
+  stub that makes the probe succeed while linking still fails) and
+  now always remove AGL entries — both the literal `-framework AGL`
+  flag and any `AGL.framework` path. Linking AGL is never needed;
+  its symbols are dead Carbon-era glue.
+- Verified the strip mechanism cross-directory-scope with a simulated
+  imported target (property change propagates to the parent scope).
+
 ## Out of scope / follow-ups
 
 - `.github/workflows/web.yml` still installs Qt 6.6 for the

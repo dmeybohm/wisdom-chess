@@ -10,19 +10,18 @@ find_package(Qt6 6.4 COMPONENTS Quick Svg REQUIRED)
 qt_policy(SET QTP0001 OLD)
 
 if(APPLE AND TARGET WrapOpenGL::WrapOpenGL)
-    # Qt < 6.8.4 links the AGL framework via its FindWrapOpenGL module, but
-    # Apple removed AGL from the macOS 26 SDK (QTBUG-137687). When the SDK
-    # has no AGL, strip the dangling "-framework AGL" flag so linking
-    # succeeds with older Qt versions.
-    find_library(WISDOM_CHESS_AGL_FRAMEWORK AGL)
-    if(NOT WISDOM_CHESS_AGL_FRAMEWORK)
-        get_target_property(_wisdom_wrap_opengl_libs WrapOpenGL::WrapOpenGL
-            INTERFACE_LINK_LIBRARIES)
-        if(_wisdom_wrap_opengl_libs)
-            list(FILTER _wisdom_wrap_opengl_libs EXCLUDE REGEX "-framework AGL")
-            set_target_properties(WrapOpenGL::WrapOpenGL PROPERTIES
-                INTERFACE_LINK_LIBRARIES "${_wisdom_wrap_opengl_libs}")
-        endif()
+    # Qt < 6.8.4 / 6.9.2 links the AGL framework via its FindWrapOpenGL
+    # module, but Apple removed AGL from the macOS 26 SDK (QTBUG-137687),
+    # which breaks linking with "ld: framework 'AGL' not found". Nothing
+    # uses AGL symbols (it is dead Carbon-era glue), so strip it
+    # unconditionally whether Qt added it as a flag or as a found path.
+    get_target_property(_wisdom_wrap_opengl_libs WrapOpenGL::WrapOpenGL
+        INTERFACE_LINK_LIBRARIES)
+    if(_wisdom_wrap_opengl_libs)
+        list(FILTER _wisdom_wrap_opengl_libs
+            EXCLUDE REGEX "-framework AGL|AGL\\.framework")
+        set_target_properties(WrapOpenGL::WrapOpenGL PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${_wisdom_wrap_opengl_libs}")
     endif()
 endif()
 
