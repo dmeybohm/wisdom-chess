@@ -91,7 +91,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.6.*'
+        version: '6.8.*'
         cache: true
 
     - name: Set up MSVC dev environment
@@ -117,7 +117,6 @@ jobs:
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -DCPM_SOURCE_CACHE=~/cpm-cache
         -DWISDOM_CHESS_QML_UI=On
-        -DWISDOM_CHESS_QML_UI_REQUIRED=On
         -DWISDOM_CHESS_FAST_TESTS=On
         -DWISDOM_CHESS_SLOW_TESTS=On
         -S ${{ github.workspace }}

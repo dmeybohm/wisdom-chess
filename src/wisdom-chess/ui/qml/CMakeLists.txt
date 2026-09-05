@@ -9,6 +9,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 6.4 COMPONENTS Quick Svg REQUIRED)
 qt_policy(SET QTP0001 OLD)
 
+if(APPLE AND TARGET WrapOpenGL::WrapOpenGL)
+    # Qt < 6.8.4 links the AGL framework via its FindWrapOpenGL module, but
+    # Apple removed AGL from the macOS 26 SDK (QTBUG-137687). When the SDK
+    # has no AGL, strip the dangling "-framework AGL" flag so linking
+    # succeeds with older Qt versions.
+    find_library(WISDOM_CHESS_AGL_FRAMEWORK AGL)
+    if(NOT WISDOM_CHESS_AGL_FRAMEWORK)
+        get_target_property(_wisdom_wrap_opengl_libs WrapOpenGL::WrapOpenGL
+            INTERFACE_LINK_LIBRARIES)
+        if(_wisdom_wrap_opengl_libs)
+            list(FILTER _wisdom_wrap_opengl_libs EXCLUDE REGEX "-framework AGL")
+            set_target_properties(WrapOpenGL::WrapOpenGL PROPERTIES
+                INTERFACE_LINK_LIBRARIES "${_wisdom_wrap_opengl_libs}")
+        endif()
+    endif()
+endif()
+
 if (WIN32)
     set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/images/Chess-icons.rc")
 elseif (APPLE)
@@ -148,6 +165,10 @@ if(EMSCRIPTEN)
         endif()
     endif()
 
+    target_compile_definitions(WisdomChessQml PRIVATE USE_DEFAULT_GRAPHICS_BACKEND)
+elseif(APPLE)
+    # OpenGL is deprecated on macOS (and AGL was removed in macOS 26), so
+    # use Qt's default scene graph backend there (Metal).
     target_compile_definitions(WisdomChessQml PRIVATE USE_DEFAULT_GRAPHICS_BACKEND)
 else()
     target_compile_definitions(WisdomChessQml PRIVATE USE_OPENGL_GRAPHICS_BACKEND)

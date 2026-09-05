@@ -55,6 +55,29 @@ So the CI must move to at least the 6.8 line.
    time, so building without it is not supported — but the failure
    should explain itself.
 
+## Implementation Progress
+
+### Session #1
+
+- Bumped CI Qt to `6.8.*` and removed the dead
+  `WISDOM_CHESS_QML_UI_REQUIRED` flag in `.github/workflows/cmake.yml`.
+- Added the AGL strip after `find_package(Qt6 ...)` in
+  `src/wisdom-chess/ui/qml/CMakeLists.txt`, and switched Apple builds
+  to `USE_DEFAULT_GRAPHICS_BACKEND` (Metal).
+- Placed the missing-OpenGL hint in `src/wisdom-chess/ui/CMakeLists.txt`
+  rather than `qml/CMakeLists.txt`: when OpenGL dev files are missing,
+  the `find_package(Qt6 QUIET COMPONENTS Quick)` probe there is what
+  fails, so `qml/` is never entered. The hint only prints when Qt6 was
+  not found and OpenGL is also missing.
+- Verified on Linux (Ubuntu 24.04, Qt 6.11.2): full `WisdomChessQml`
+  build and link succeed; the Qt-not-found AUTO path still prints its
+  normal message; all 85 fast tests pass. Notably, with Qt 6.11 the
+  "Could NOT find OpenGL" configure lines are benign when only the
+  dev package is missing — configure and link still succeed; older Qt
+  and the forced-GL runtime path still want the dev files installed.
+- Remaining: confirm the macOS CI job passes once a PR is opened, and
+  manually check Metal rendering on real macOS hardware.
+
 ## Out of scope / follow-ups
 
 - `.github/workflows/web.yml` still installs Qt 6.6 for the
