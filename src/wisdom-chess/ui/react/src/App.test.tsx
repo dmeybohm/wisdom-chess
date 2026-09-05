@@ -32,6 +32,7 @@ const createMockGameModel = (): GameModel => ({
         blackPlayer: 1,
         thinkingTime: 5,
         searchDepth: 4,
+        debugLogging: false,
     })),
     getFirstHumanPlayerColor: vi.fn(() => 0),
     getSecondHumanPlayerColor: vi.fn(() => 2),
@@ -68,6 +69,7 @@ const createMockWisdomChess = (): WisdomChess => ({
         this.blackPlayer = 1
         this.thinkingTime = 5
         this.searchDepth = 4
+        this.debugLogging = false
     }) as any,
     WebMove: {
         prototype: {

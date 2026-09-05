@@ -72,6 +72,7 @@ interface GameSettings {
     attribute wisdom_WebPlayer blackPlayer;
     attribute long thinkingTime;
     attribute long searchDepth;
+    attribute boolean debugLogging;
 };
 
 enum wisdom_WebDrawStatus {

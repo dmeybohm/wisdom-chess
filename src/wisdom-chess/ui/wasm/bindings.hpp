@@ -29,7 +29,8 @@ extern "C"
         int white_player, 
         int black_player, 
         int thinking_time, 
-        int search_depth
+        int search_depth,
+        int debug_logging
     );
 
     // Called from the main thread to tell the worker to stop searching for moves.

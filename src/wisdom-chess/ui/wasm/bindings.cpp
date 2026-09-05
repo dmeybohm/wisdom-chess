@@ -6,6 +6,8 @@
 #include "wisdom-chess/ui/wasm/web_types.hpp"
 #include "wisdom-chess/ui/wasm/game_settings.hpp"
 
+#include "wisdom-chess/engine/logger.hpp"
+
 using namespace wisdom;
 
 namespace wisdom::worker
@@ -21,6 +23,10 @@ namespace wisdom::worker
         wisdom::GameSettings settings {};
         int game_id {};
         std::atomic<int> play_status = PlayStatus::Playing;
+
+        // Retains search output while debug logging is off and replays it
+        // when the setting is switched on.
+        shared_ptr<BufferedLogger> logger = makeBufferedLogger (wisdom::worker::makeLogger());
 
         GameState()
             : game { Game::createStandardGame() }
@@ -47,6 +53,7 @@ namespace wisdom::worker
         {
             settings = new_settings;
             new_settings.applyToGame (&game);
+            logger->setEnabled (new_settings.debugLogging);
         }
 
         auto
@@ -144,9 +151,9 @@ EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
 
 EMSCRIPTEN_KEEPALIVE void startSearch()
 {
-    auto logger = wisdom::worker::makeLogger();
     auto state = GameState::getState();
     auto game = GameState::getGame();
+    auto logger = state->logger;
 
     if (state->game.getCurrentPlayer() != Player::ChessEngine)
         return;
@@ -196,7 +203,8 @@ workerReceiveSettings (
     int white_player, 
     int black_player, 
     int thinking_time, 
-    int search_depth
+    int search_depth,
+    int debug_logging
 ) {
     auto state = GameState::getState();
 
@@ -205,7 +213,8 @@ workerReceiveSettings (
             static_cast<WebPlayer> (white_player),
             static_cast<WebPlayer> (black_player), 
             thinking_time, 
-            search_depth 
+            search_depth,
+            debug_logging != 0
         }
     );
 
