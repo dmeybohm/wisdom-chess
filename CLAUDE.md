@@ -86,7 +86,7 @@ cmake --build build --target lint
 
 - **C++ Compiler**: GCC, Clang, or MSVC with C++20 support
 - **CMake**: Version 3.20 or higher
-- **Optional**: Qt 6.x for QML UI
+- **Optional**: Qt 6.8+ for QML UI
 - **Optional**: Emscripten SDK for WebAssembly/React build
 - **Optional**: Node.js for React frontend development
 

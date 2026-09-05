@@ -6,7 +6,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.4 COMPONENTS Quick Svg REQUIRED)
+# Qt 6.8+ is required for the QTP0004 policy below (and the QML files
+# rely on its generated subdirectory qmldir files for implicit imports).
+find_package(Qt6 6.8 COMPONENTS Quick Svg REQUIRED)
 qt_policy(SET QTP0001 NEW)
 qt_policy(SET QTP0004 NEW)
 

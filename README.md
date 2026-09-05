@@ -29,7 +29,7 @@ Wisdom Chess is a multiplatform chess engine written in C++20 with multiple fron
 
 - **C++ Compiler**: GCC, Clang, or MSVC with C++20 support
 - **CMake**: Version 3.20 or higher
-- **Optional**: Qt 6.x for desktop/mobile GUI
+- **Optional**: Qt 6.8+ for desktop/mobile GUI
 - **Optional**: Emscripten SDK for web version
 - **Optional**: Node.js for React frontend development
 
@@ -78,7 +78,7 @@ cmake --build . -j8
 
 ### Desktop Version (Qt QML)
 
-1. **Install Qt 6.x** from [qt.io](https://www.qt.io/)
+1. **Install Qt 6.8 or newer** from [qt.io](https://www.qt.io/)
 
 2. **Build with Qt**:
    ```bash
