@@ -60,3 +60,42 @@ or time, so it restarts an in-flight search. That is acceptable.
 4. QML setting, config, and engine-owned logger.
 5. WASM RPC/IDL plumbing and React UI.
 6. Record progress below.
+
+## Implementation Progress
+
+### Session #1
+
+All six steps landed on `debug-logging-toggle`, one commit each.
+
+- **Engine** (`logger.hpp/.cpp`): `LogRingBuffer` is a single
+  preallocated byte buffer with wraparound. Each line is stored as a
+  one-byte level and a four-byte length followed by its text
+  (`Record_Overhead` bytes of header per line), and the oldest whole
+  lines are evicted first. A line that cannot fit on its own is
+  truncated. `push` takes a `string_view` because the text is copied
+  into the ring. `BufferedLogger` wraps a sink, prepends a
+  `[HH:MM:SS.mmm]` local-time stamp, buffers while disabled, and
+  replays then clears on the off-to-on transition. Access is guarded by
+  a mutex. `formatLogTimestamp` uses `localtime_r` / `localtime_s` and
+  `strftime`, so it builds under Emscripten and MSVC.
+- **Tests** (`engine/test/logger_test.cpp`, fast suite): ring buffer
+  ordering, byte accounting, eviction, truncation, a record straddling
+  the end of storage, many-wrap stress with mixed lengths, drain,
+  clear; `BufferedLogger` buffer/replay/re-disable semantics, capacity,
+  and timestamp shape.
+- **Console**: `debug on`, `debug off`, and a bare `debug` that
+  prompts. Verified by piping commands: the engine's first search is
+  silent, and `debug on` prints the retained timestamped trace.
+- **QML**: `GameSettings.debugLogging`, `ChessGame::Config::debugLogging`,
+  `ChessGame::config()`, `ChessEngine` owns the logger and re-syncs it
+  in `updateConfig` and `reloadGame`. The `NDEBUG` log level is gone.
+  Built and smoke-run headless; the dialog was not exercised
+  interactively.
+- **WASM + React**: fifth `int` on `workerReceiveSettings` (`"iiiii"`),
+  `GameState::logger`, IDL attribute. Built with Emscripten 4.0.7 and
+  confirmed `get_debugLogging` / `set_debugLogging` in the generated
+  glue. React `tsc && vite build` passes and all 29 vitest tests pass.
+  Not exercised in a browser.
+
+Behavior change to be aware of: the console no longer prints the
+search trace until `debug on` is entered.
