@@ -57,6 +57,7 @@ public:
         wisdom::Players players;
         MaxDepth maxDepth;
         std::chrono::seconds maxTime;
+        bool debugLogging = false;
 
         static auto fromGameSettings (const GameSettings& gameSettings) -> Config;
     };
@@ -102,6 +103,13 @@ public:
         -> gsl::not_null<const wisdom::Game*>
     {
         return my_engine.get();
+    }
+
+    [[nodiscard]] auto 
+    config() const 
+        -> const Config&
+    {
+        return my_config;
     }
 
     // Clone the game state

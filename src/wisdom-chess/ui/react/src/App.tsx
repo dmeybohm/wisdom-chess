@@ -34,6 +34,7 @@ function toWebSettings(wasm: any): WebGameSettings {
         blackPlayer: wasm.blackPlayer,
         thinkingTime: wasm.thinkingTime,
         searchDepth: wasm.searchDepth,
+        debugLogging: Boolean(wasm.debugLogging),
     }
 }
 
@@ -268,6 +269,7 @@ function App() {
         wasmGameSettings.blackPlayer = gameSettings.blackPlayer
         wasmGameSettings.thinkingTime = gameSettings.thinkingTime
         wasmGameSettings.searchDepth = gameSettings.searchDepth
+        wasmGameSettings.debugLogging = gameSettings.debugLogging
 
         modelRef.current.setCurrentGameSettings(wasmGameSettings)
         gameRef.current.setSettings(wasmGameSettings)

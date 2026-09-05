@@ -30,6 +30,7 @@ export type WebGameSettings = {
     blackPlayer: number
     thinkingTime: number
     searchDepth: number
+    debugLogging: boolean
 }
 
 export type GameState = {
@@ -136,6 +137,7 @@ export type GameSettings = {
     blackPlayer: WebPlayer
     thinkingTime: number
     searchDepth: number
+    debugLogging: boolean
 }
 
 export type WorkerGameSettings = any

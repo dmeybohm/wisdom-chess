@@ -161,6 +161,20 @@ Dialog {
         RowLayout {
             Text {
                 Layout.fillWidth: true
+                text: "Debug Logging"
+                font.pixelSize: internal.fontSize
+            }
+
+            CheckBox {
+                font.pixelSize: internal.fontSize
+                checked: internal.myGameSettings.debugLogging
+                onClicked: internal.myGameSettings.debugLogging = !internal.myGameSettings.debugLogging
+            }
+        }
+
+        RowLayout {
+            Text {
+                Layout.fillWidth: true
                 text: "Thinking Time"
                 font.pixelSize: internal.fontSize
             }

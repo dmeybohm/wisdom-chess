@@ -91,7 +91,7 @@
         justify-self: start;
     }
 
-    .flip-board {
+    .flip-board, .debug-logging {
         justify-self: start;
     }
 

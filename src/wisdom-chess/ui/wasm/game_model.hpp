@@ -34,11 +34,12 @@ namespace wisdom
             emscripten_wasm_worker_post_function_sig (
                 engine_thread,
                 (void*)workerReceiveSettings,
-                "iiii",
+                "iiiii",
                 whitePlayer,
                 blackPlayer,
                 my_game_settings.thinkingTime,
-                my_game_settings.searchDepth
+                my_game_settings.searchDepth,
+                static_cast<int> (my_game_settings.debugLogging)
             );
         }
 

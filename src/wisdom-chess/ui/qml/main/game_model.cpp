@@ -424,6 +424,7 @@ GameModel::gameConfig() const
         my_chess_game->state()->getPlayers(),
         MaxDepth { my_game_settings.maxDepth() },
         chrono::seconds { my_game_settings.maxSearchTime() },
+        my_game_settings.debugLogging(),
     };
 }
 

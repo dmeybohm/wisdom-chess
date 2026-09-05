@@ -19,6 +19,7 @@ export function SettingsModal(props: SettingsModalProps) {
     const humanWhite = useRef<HTMLInputElement|null>(null)
     const humanBlack = useRef<HTMLInputElement|null>(null)
     const flippedRef = useRef<HTMLInputElement|null>(null)
+    const debugLoggingRef = useRef<HTMLInputElement|null>(null)
 
     const [thinkingTime, setThinkingTime] = useState(settings.thinkingTime);
     const [searchDepth, setSearchDepth] = useState(settings.searchDepth);
@@ -36,7 +37,8 @@ export function SettingsModal(props: SettingsModalProps) {
             whitePlayer: whitePlayer,
             blackPlayer: blackPlayer,
             thinkingTime: thinkingTime,
-            searchDepth: searchDepth
+            searchDepth: searchDepth,
+            debugLogging: Boolean(debugLoggingRef.current?.checked)
         }
         props.onApply(newSettings, Boolean(flippedRef?.current?.checked))
     }
@@ -102,6 +104,17 @@ export function SettingsModal(props: SettingsModalProps) {
                         defaultChecked={props.flipped}
                     />
 
+                </div>
+
+                <div>Debug Logging</div>
+                <div className="debug-logging">
+                    <input
+                        type="checkbox"
+                        name="debugLogging"
+                        ref={debugLoggingRef}
+                        value="1"
+                        defaultChecked={settings.debugLogging}
+                    />
                 </div>
 
                 <div>Thinking Time</div>

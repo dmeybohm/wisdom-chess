@@ -16,23 +16,26 @@ using wisdom::ProposedDrawType;
 
 void ChessEngine::ChessEngineLogger::debug (const std::string& line) const
 {
-    if (ChessEngine::Log_Level >= wisdom::Logger::LogLevel_Debug) 
-    {
-        qDebug() << line.c_str();
-    }
+    qDebug() << line.c_str();
 }
 
 void ChessEngine::ChessEngineLogger::info (const std::string& line) const
 {
-    if (ChessEngine::Log_Level >= wisdom::Logger::LogLevel_Info) 
-    {
-        qDebug() << line.c_str();
-    }
+    qDebug() << line.c_str();
 }
 
 ChessEngine::ChessEngine (shared_ptr<ChessGame> game, int gameId, QObject* parent) :
-        QObject { parent }, my_game { std::move (game) }, my_game_id { gameId }
+        QObject { parent }, 
+        my_game { std::move (game) }, 
+        my_game_id { gameId },
+        my_logger { makeBufferedLogger (make_shared<ChessEngineLogger>()) }
 {
+    syncDebugLogging();
+}
+
+void ChessEngine::syncDebugLogging()
+{
+    my_logger->setEnabled (my_game->config().debugLogging);
 }
 
 void ChessEngine::init()
@@ -100,7 +103,6 @@ ChessEngine::gameStatusTransition()
 void ChessEngine::findMove()
 {
     auto game_state = my_game->state();
-    auto output = make_shared<ChessEngineLogger>();
 
     if (my_is_game_over)
     {
@@ -128,8 +130,8 @@ void ChessEngine::findMove()
     auto& board = game_state->getBoard();
     auto& history = game_state->getHistory();
 
-    qDebug() << "Searching for move";
-    auto optionalMove = game_state->findBestMove (output);
+    my_logger->debug ("Searching for move");
+    auto optionalMove = game_state->findBestMove (my_logger);
 
     // TODO: we could have timed out or the thread was interrupted, and we should distinguish
     // between these two cases. If we couldn't find any move in the time, should select a move
@@ -206,6 +208,7 @@ void ChessEngine::reloadGame (shared_ptr<ChessGame> newGame, int newGameId)
     my_game = std::move (newGame);
     my_game_id = newGameId;
     my_is_game_over = false;
+    syncDebugLogging();
 
     // Possibly resume searching for the next move:
     init();
@@ -217,6 +220,7 @@ ChessEngine::updateConfig (
     const wisdom::MoveTimer::PeriodicFunction& notifier
 ) {
     my_game->setConfig (config);
+    syncDebugLogging();
 
     // Update the notifier:
     my_game->setPeriodicFunction (notifier);
