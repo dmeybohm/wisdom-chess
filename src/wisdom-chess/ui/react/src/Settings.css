@@ -16,8 +16,11 @@
     margin-right: 10px;
 }
 
-.settings .rc-slider-handle {
-    transform: translateX(-50%) scale(1.75) !important;
+.settings input[type="range"] {
+    flex: 1;
+    min-width: 0;
+    accent-color: var(--slider-color);
+    cursor: pointer;
 }
 
 @media screen and (min-width: 48rem) {
@@ -64,10 +67,6 @@
 .thinking-time label,
 .search-depth label {
     flex-basis: 7rem;
-}
-
-.rc-slider-track {
-    background-color: var(--slider-color);
 }
 
 @media screen and (min-width: 48rem) {

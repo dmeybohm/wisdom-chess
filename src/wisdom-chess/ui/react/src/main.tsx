@@ -36,3 +36,10 @@ reactWindow.receiveWorkerMessage = (type, gameId, message) => {
         pending.push([type, gameId, message])
     }
 }
+
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .catch(error => console.warn('Service worker registration failed:', error))
+    })
+}

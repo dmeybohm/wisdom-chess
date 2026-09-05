@@ -4,8 +4,6 @@ import {
     WebGameSettings,
     WisdomChess
 } from "./lib/WisdomChess";
-import Slider from 'rc-slider';
-import 'rc-slider/assets/index.css';
 import "./Settings.css"
 
 type SettingsModalProps = {
@@ -111,21 +109,26 @@ export function SettingsModal(props: SettingsModalProps) {
                     <label>
                         0:{thinkingTime < 10 ? '0' + thinkingTime : thinkingTime}
                     </label>
-                    <Slider
+                    <input
+                        type="range"
+                        name="thinkingTime"
                         min={1}
                         max={10}
                         value={thinkingTime}
-                        onChange={value => setThinkingTime(Number(value))}/>
+                        onChange={e => setThinkingTime(Number(e.target.value))}
+                    />
                 </div>
 
                 <div>Search Depth</div>
                 <div className="search-depth">
                     <label>{searchDepth} {searchDepth > 1 ? 'moves' : 'move'}</label>
-                    <Slider
+                    <input
+                        type="range"
+                        name="searchDepth"
                         min={1}
                         max={8}
                         value={searchDepth}
-                        onChange={value => setSearchDepth(Number(value))}
+                        onChange={e => setSearchDepth(Number(e.target.value))}
                     />
                 </div>
 

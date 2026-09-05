@@ -104,3 +104,31 @@ no Dependabot bumps.
   `prepare-deployment.sh` still copies them (it copies `dist/*`).
 - Manually: load the deployed preview, go offline, reload, confirm the
   app still starts and the engine wasm loads.
+
+## Implementation Progress
+
+### Session #1
+
+Implemented steps 1 and 2; step 3 (react-dnd) deferred as planned.
+
+- Removed `vite-plugin-pwa` and `rc-slider` from `package.json`.
+  `package-lock.json` went from 589 entries to 251 (13777 -> 5679 lines).
+- `public/manifest.webmanifest`: static copy of the previously generated
+  manifest, linked from `index.html`.
+- `public/sw.js`: hand-written service worker (network-first for
+  navigations, cache-first for content-hashed assets and `?v=` URLs,
+  stale-while-revalidate otherwise, `/qml/` untouched). Added a
+  `!public/sw.js` exception to the React `.gitignore`, which otherwise
+  ignores `public/*.js` for the copied wasm loader.
+- `main.tsx` registers `/sw.js` on load in production builds only, so
+  the dev server no longer runs a worker.
+- `public/_headers`: `Cache-Control: no-cache` for `/sw.js` so a new
+  worker is picked up promptly on deploy.
+- `SettingsModal.tsx`: the two sliders are now `<input type="range">`,
+  styled in `Settings.css` with `accent-color: var(--slider-color)`.
+- Verified locally with Node 24: `npm run test -- --run` (29 tests
+  pass) and `npm run build` (dist contains `sw.js` and
+  `manifest.webmanifest`, no Workbox output).
+
+Still to do: check the offline reload and the range sliders in a browser
+on a deploy preview.
