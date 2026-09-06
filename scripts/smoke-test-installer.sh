@@ -28,6 +28,10 @@ echo ""
 
 fail() {
     echo "Error: $*" >&2
+    if [ -d "$INSTALL_ROOT" ]; then
+        echo "--- installed tree (depth 4) ---" >&2
+        find "$INSTALL_ROOT" -maxdepth 4 | sort >&2
+    fi
     exit 1
 }
 

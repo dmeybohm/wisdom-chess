@@ -24,7 +24,10 @@ endif()
 # pointed us at one. IQTA_TOOLS is the Tools directory exported by
 # jurplel/install-qt-action in CI.
 if(NOT CPACK_IFW_ROOT AND "$ENV{CPACK_IFW_ROOT}" STREQUAL "" AND "$ENV{QTIFWDIR}" STREQUAL "")
-    set(_wisdom_qt_tools_dirs "$ENV{IQTA_TOOLS}")
+    # Normalise to forward slashes: on Windows the action exports a
+    # backslash path, and backslashes are escape characters once the value
+    # is written into CPackConfig.cmake.
+    file(TO_CMAKE_PATH "$ENV{IQTA_TOOLS}" _wisdom_qt_tools_dirs)
     if(WIN32)
         list(APPEND _wisdom_qt_tools_dirs
             "C:/Qt/Tools" "$ENV{HOMEDRIVE}/Qt/Tools" "$ENV{USERPROFILE}/Qt/Tools")
@@ -40,6 +43,7 @@ if(NOT CPACK_IFW_ROOT AND "$ENV{CPACK_IFW_ROOT}" STREQUAL "" AND "$ENV{QTIFWDIR}
         if(_wisdom_ifw_dirs)
             list(SORT _wisdom_ifw_dirs COMPARE NATURAL ORDER DESCENDING)
             list(GET _wisdom_ifw_dirs 0 CPACK_IFW_ROOT)
+            file(TO_CMAKE_PATH "${CPACK_IFW_ROOT}" CPACK_IFW_ROOT)
             break()
         endif()
     endforeach()

@@ -91,6 +91,16 @@ jobs:
       - name: Build installer
         run: cmake --build build-installer --config Release --target installer -j 4
 
+      - name: Show the staged package layout
+        if: always()
+        shell: bash
+        run: |
+          for data in build-installer/_CPack_Packages/*/IFW/*/packages/*/data; do
+            echo "== $data"
+            find "$data" -maxdepth 3 -not -path "*/qml/*" -not -path "*/Frameworks/*" -not -path "*/lib/*" | sort
+          done
+          cat build-installer/_CPack_Packages/*/IFW/*/config/config.xml
+
       - name: Smoke test the installer
         shell: bash
         run: scripts/smoke-test-installer.sh build-installer "$RUNNER_TEMP/wisdom-chess-smoke"

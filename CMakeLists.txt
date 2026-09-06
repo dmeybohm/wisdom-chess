@@ -82,7 +82,12 @@ if(WISDOM_CHESS_INSTALLER AND WIN32)
     if(NOT MSVC)
         message(FATAL_ERROR "-- wisdom-chess: the Windows installer build requires MSVC (it bundles vc_redist.x64.exe)")
     endif()
-    set(WISDOM_CHESS_VCREDIST "$ENV{VCToolsRedistDir}/vc_redist.x64.exe"
+    # VCToolsRedistDir comes from vcvars with backslashes and a trailing
+    # separator; normalise it so the path survives being written into the
+    # generated install scripts.
+    file(TO_CMAKE_PATH "$ENV{VCToolsRedistDir}" _wisdom_vc_redist_dir)
+    string(REGEX REPLACE "/+$" "" _wisdom_vc_redist_dir "${_wisdom_vc_redist_dir}")
+    set(WISDOM_CHESS_VCREDIST "${_wisdom_vc_redist_dir}/vc_redist.x64.exe"
         CACHE FILEPATH "vc_redist.x64.exe to bundle in the Windows installer")
     if(NOT EXISTS "${WISDOM_CHESS_VCREDIST}")
         message(FATAL_ERROR "-- wisdom-chess: vc_redist.x64.exe not found at '${WISDOM_CHESS_VCREDIST}'. "

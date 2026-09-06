@@ -213,10 +213,11 @@ endif()
 # BUNDLE DESTINATION must stay relative: Qt's bundle deployment assumes the
 # .app sits at the top of the install prefix, and CPack stages installs
 # under its own prefix when building the installer.
+# COMPONENT only applies to the artifact group it follows, so it has to be
+# repeated for the bundle (macOS) and the plain executable (Linux, Windows).
 install(TARGETS WisdomChessQml
-    BUNDLE DESTINATION .
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-    COMPONENT Application)
+    BUNDLE DESTINATION . COMPONENT Application
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT Application)
 
 if(WISDOM_CHESS_INSTALLER)
     # Deploy the Qt runtime (libraries, plugins, QML modules, qt.conf) next
