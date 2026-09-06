@@ -1,6 +1,5 @@
 #include <cstdio>
 #include <cstring>
-#include <ctime>
 #include <iostream>
 
 #include "wisdom-chess/engine/logger.hpp"
@@ -226,27 +225,27 @@ namespace wisdom
     formatLogTimestamp (chrono::system_clock::time_point time)
         -> string
     {
-        auto whole_seconds = chrono::time_point_cast<chrono::seconds> (time);
-        auto millis = chrono::duration_cast<chrono::milliseconds> (time - whole_seconds).count();
-        std::time_t seconds_since_epoch = chrono::system_clock::to_time_t (whole_seconds);
+        using chrono::duration_cast;
 
-        std::tm local_time {};
-#ifdef _WIN32
-        localtime_s (&local_time, &seconds_since_epoch);
-#else
-        localtime_r (&seconds_since_epoch, &local_time);
-#endif
+        // system_clock counts from the Unix epoch in UTC, so the remainder
+        // modulo one day is the UTC time of day. No time zone lookup needed.
+        auto since_midnight =
+            duration_cast<chrono::milliseconds> (time.time_since_epoch()) % chrono::hours { 24 };
 
-        char clock_text[16];
-        std::strftime (clock_text, sizeof clock_text, "%H:%M:%S", &local_time);
+        auto hours = duration_cast<chrono::hours> (since_midnight);
+        auto minutes = duration_cast<chrono::minutes> (since_midnight - hours);
+        auto seconds = duration_cast<chrono::seconds> (since_midnight - hours - minutes);
+        auto millis = since_midnight - hours - minutes - seconds;
 
         char result[32];
         std::snprintf (
             result,
             sizeof result,
-            "[%s.%03lld] ",
-            clock_text,
-            static_cast<long long> (millis)
+            "[%02d:%02d:%02d.%03d] ",
+            narrow<int> (hours.count()),
+            narrow<int> (minutes.count()),
+            narrow<int> (seconds.count()),
+            narrow<int> (millis.count())
         );
         return result;
     }
