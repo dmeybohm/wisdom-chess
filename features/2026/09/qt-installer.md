@@ -87,7 +87,44 @@ file was `chess-icons.rc` (only worked on case-insensitive filesystems).
 
 ### Session #1
 
-(see below)
+- Implemented all nine plan steps on the `qt-installer` branch (developed
+  on Linux, Ubuntu 24.04, Qt 6.11.2, QtIFW 4.11, CMake 3.28.3).
+- Icons: no SVG rasterizer or ImageMagick was available locally, so
+  `scripts/generate-icons.py` uses Pillow only and takes the 512 px
+  `wasm/android-chrome-512x512.png` app mark as its source. The `.ico`
+  now has 16/24/32/48/64/128/256 entries, the `.icns` 16 to 1024 (1x/2x).
+- Verified on Linux:
+  - `cmake --install --component Application` stages `bin/WisdomChessQml`
+    with RUNPATH `$ORIGIN/../lib`, `bin/qt.conf` (`Prefix = ..`), Qt and
+    ICU libraries in `lib/`, `plugins/platforms/libqxcb.so` (RUNPATH
+    `$ORIGIN/../../lib`), and the QtQml/QtQuick/Controls/Layouts QML
+    modules; `ldd` resolves everything from the staged tree; the console
+    binary is excluded; qmltooling and the Wayland plugin types are not
+    shipped. The staged tree is about 115 MB.
+  - The staged app runs, and `/proc/<pid>/maps` shows only plugins and
+    QML modules from the staged tree, nothing from the system Qt.
+  - `cmake --build build-qt --target installer` produces
+    `wisdom-chess-0.1.0-Linux-x86_64.run` (about 74 MB) with the expected
+    `config.xml` (TargetDir `/opt/WisdomChess`, RunProgram, Modern style)
+    and `package.xml` (MIT license, `installscript.qs`, forced install).
+  - Unattended per-user install works:
+    `./wisdom-chess-0.1.0-Linux-x86_64.run --platform minimal --root ~/wc-test
+    --accept-licenses --confirm-command install` installs the tree, writes
+    `~/.local/share/applications/wisdom-chess.desktop`, and the installed
+    app launches. `WisdomChessMaintenanceTool --confirm-command purge`
+    removes both the directory and the menu entry.
+  - The first run showed `CreateDesktopEntry` prepends `[Desktop Entry]`
+    itself, so the header was dropped from the script's content string.
+  - Symbol floors of the built binary: `GLIBC_2.34`, `GLIBCXX_3.4.32`
+    (GCC 13), noted in the README.
+  - The default configuration (option OFF) still configures, builds and
+    passes all 88 fast tests; the style linter passes on `main.cpp`.
+- Not verified here (needs the respective machines): the Windows build
+  (`VERSIONINFO` resource, `vc_redist` bundling and the `Execute`
+  operation, shortcuts) and the macOS build (`macdeployqt` via the deploy
+  script, `.dmg` output, `CFBundleName`). The elevated `/opt/WisdomChess`
+  install path on Linux was also not run because it needs a password
+  prompt; only the `--root` path under `$HOME` was exercised.
 
 ## Out of scope / follow-ups
 
