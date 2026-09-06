@@ -1,0 +1,104 @@
+# Binary installers with the Qt Installer Framework
+
+## Problem
+
+There is no way to ship the desktop Qt QML app to end users. The tree has
+no packaging at all: no CPack, no `windeployqt`/`macdeployqt`/Linux deploy
+step. The existing `install(TARGETS WisdomChessQml ...)` copies a bare
+binary with its Qt RPATH stripped, so an installed program cannot even
+find Qt. The macOS rule installs the bundle to an absolute `/Applications`,
+which breaks any staged packaging.
+
+Smaller gaps in the same area: the only version number (`0.1`) lives in
+the QML sub-project while the top-level `project()` has none (CPack would
+silently package as 0.1.1); `Chess.ico` has only 16/32 px entries and
+`wisdom-chess.icns` a single 64 px entry; the Windows `.rc` has no
+`VERSIONINFO`; and the `.rc` was referenced as `Chess-icons.rc` while the
+file was `chess-icons.rc` (only worked on case-insensitive filesystems).
+
+## Decisions
+
+- **Qt Installer Framework** via CPack's built-in IFW generator, driven by
+  the `install()` rules plus Qt's `qt_generate_deploy_qml_app_script`,
+  rather than hand-written `config.xml`/`package.xml` and manual
+  `binarycreator` calls. CPack IFW already emits `.run`/`.exe`/`.dmg`, and
+  the Qt deploy script honours CPack's per-component staging prefix.
+- **Local builds only.** No CI or release workflow changes.
+- **Unsigned installers**; the README documents the SmartScreen and
+  Gatekeeper workarounds.
+- **Binary stays `WisdomChessQml`**; the user-facing name is "Wisdom
+  Chess" everywhere (installer title, Start Menu, shortcuts, `.desktop`,
+  macOS `CFBundleName`).
+- **Linux installs system-wide to `/opt/WisdomChess`** (installer
+  elevates), `.desktop` entry in `/usr/share/applications`; `--root` under
+  `$HOME` gets a per-user entry instead.
+
+## Verified against the local Qt 6.11.2 / CMake 3.28 module sources
+
+- `qt_generate_deploy_qml_app_script` must be called from the directory
+  that called `find_package(Qt6)` (`QT_DEPLOY_SUPPORT` is directory
+  scoped), so it lives in the qml `CMakeLists.txt`, not a top-level module.
+- The Linux deploy step rewrites plugin RPATHs but never touches the
+  executable, so `INSTALL_RPATH "$ORIGIN/../lib"` is set explicitly.
+- The plugin-selection keywords (`EXCLUDE_PLUGIN_TYPES` etc.) only exist
+  since Qt 6.10 and unknown keywords are fatal, so they are guarded on
+  `Qt6_VERSION`; CI's Qt 6.9 keeps working (the option is OFF there anyway).
+- Windows: windeployqt copies the CRT by default but may fall back to loose
+  DLLs, so `vc_redist.x64.exe` is bundled explicitly and run by the
+  installer, with `NO_COMPILER_RUNTIME` passed to the deploy script.
+- CMake 3.28's `CPackIFW.cmake` only auto-searches
+  `Tools/QtInstallerFramework/<ver>` for versions up to 4.5, so
+  `cmake/Installer.cmake` globs for the newest one under `~/Qt`/`C:/Qt`.
+- `configure_file` blanks undefined `@VAR@` tokens, so the component script
+  (which uses `@TargetDir@` etc.) is kept static.
+
+## Plan
+
+1. **Hoist the version** to `project(WisdomChess VERSION 0.1.0 ...)` in the
+   top-level `CMakeLists.txt`; the qml sub-project uses
+   `${WisdomChess_VERSION}`, gains `MACOSX_BUNDLE_BUNDLE_NAME "Wisdom Chess"`
+   and a `WISDOM_CHESS_VERSION` define; `main.cpp` sets the application
+   name/version/organisation.
+2. **Windows resources**: rename to `wisdom-chess-icon.rc` /
+   `wisdom-chess.ico` (fixes the case mismatch) and add a `configure_file`d
+   `wisdom-chess-version.rc.in` with a `VERSIONINFO` block.
+3. **Fix the install rule** in `src/wisdom-chess/ui/qml/CMakeLists.txt`:
+   `BUNDLE DESTINATION .`, `COMPONENT Application`, `INSTALL_RPATH` on Linux.
+4. **Deploy script** (same file, gated on `WISDOM_CHESS_INSTALLER`):
+   `qt_generate_deploy_qml_app_script` + `install(SCRIPT ...)`, the Linux
+   menu icon, and `vc_redist.x64.exe` on Windows.
+5. **Top-level option** `WISDOM_CHESS_INSTALLER` (default OFF), the MSVC /
+   vc_redist check, and `include(cmake/Installer.cmake)` after
+   `add_subdirectory(src)`.
+6. **`cmake/Installer.cmake`**: QtIFW lookup, CPack identity, IFW look
+   and per-platform target dirs / run-program, `include(CPackIFW)` +
+   `include(CPack)`, the `Application` component with the MIT license and
+   the component script, and the `installer` custom target.
+7. **`installer/installscript.qs`**: Start Menu + desktop shortcuts and
+   vc_redist on Windows; `.desktop` entry on Linux (system-wide via the
+   elevated helper, per-user when the target is under `$HOME`).
+8. **Icons**: `scripts/generate-icons.py` (Pillow only) regenerates the
+   `.ico` (16..256), `.icns` (16..1024) and the installer PNGs from the
+   512 px app mark.
+9. **Docs**: README "Installers" section with per-platform commands and
+   the unsigned-installer notes; CLAUDE.md option row and build snippet.
+
+## Implementation Progress
+
+### Session #1
+
+(see below)
+
+## Out of scope / follow-ups
+
+- CI release workflow / GitHub Releases; code signing and notarization.
+- Wayland: opt in via `INCLUDE_PLUGINS qwayland` once the deploy keywords
+  are available in the CI Qt version.
+- Optional "create desktop shortcut" wizard page (`USER_INTERFACES`).
+- A drag-and-drop DMG (CPack `DragNDrop`) as the more idiomatic macOS
+  delivery.
+- Building the Linux installer in an older-glibc container (e.g. Ubuntu
+  22.04) for wider compatibility.
+- An attribution page in the installer for the CC BY-SA piece images.
+- Show the version in the QML About dialog now that
+  `WISDOM_CHESS_VERSION` exists.

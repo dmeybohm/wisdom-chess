@@ -123,6 +123,24 @@ cmake .. -DWISDOM_CHESS_QML_UI=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build . --target WisdomChessQml
 ```
 
+### Installer Build (Qt Installer Framework)
+
+```bash
+# Requires QtIFW 4.x (auto-detected under ~/Qt or C:/Qt, else -DCPACK_IFW_ROOT=...)
+cmake .. -DWISDOM_CHESS_QT_DIR=~/Qt/6.9.2/gcc_64 -DCMAKE_BUILD_TYPE=Release \
+    -DWISDOM_CHESS_INSTALLER=ON
+
+# Produces wisdom-chess-<version>-<OS>-<arch>.run / .exe / .dmg in the build dir
+cmake --build . --target installer
+```
+
+The CPack/IFW configuration lives in `cmake/Installer.cmake`; the Qt runtime
+deployment script and install rules are in `src/wisdom-chess/ui/qml/CMakeLists.txt`;
+the installer's component script (shortcuts, .desktop entry, vc_redist) is
+`installer/installscript.qs`. Icons are regenerated with `scripts/generate-icons.py`.
+On Windows the installer build requires MSVC and `vc_redist.x64.exe`
+(`VCToolsRedistDir` from a VS developer prompt, or `-DWISDOM_CHESS_VCREDIST=<path>`).
+
 ### WebAssembly + React Build
 
 ```bash
@@ -191,6 +209,7 @@ cmake --build . --target WisdomChessQml
 | `WISDOM_CHESS_ASAN` | Bool | OFF | Enable address sanitizer |
 | `WISDOM_CHESS_BUILD_LINTER` | Bool | ON | Build C++ style linter (native builds only) |
 | `WISDOM_CHESS_FILC_COMPAT` | Bool | Auto-detected | Enable FIL-C runtime compatibility (auto-detected via `__PIZLONATOR_WAS_HERE__`) |
+| `WISDOM_CHESS_INSTALLER` | Bool | OFF | Build a Qt Installer Framework installer for the desktop QML app (`installer` target; needs QtIFW, see `CPACK_IFW_ROOT`) |
 
 ### QML UI Options
 

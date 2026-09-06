@@ -88,6 +88,70 @@ cmake --build . -j8
    ./src/wisdom-chess/ui/qml/WisdomChessQml
    ```
 
+### Installers (Qt Installer Framework)
+
+The desktop app can be packaged into a self-contained installer with the
+[Qt Installer Framework](https://doc.qt.io/qtinstallerframework/) (QtIFW).
+The installer bundles the Qt runtime, so users do not need Qt installed.
+
+1. **Install QtIFW 4.x** with the Qt Maintenance Tool (under *Qt > Developer
+   and Designer Tools*). It is auto-detected under `~/Qt` or `C:/Qt`;
+   otherwise pass `-DCPACK_IFW_ROOT=<path to Tools/QtInstallerFramework/<version>>`.
+
+2. **Configure with `WISDOM_CHESS_INSTALLER=ON` and build the `installer` target**:
+
+   Linux:
+   ```bash
+   cmake -S . -B build-installer -DCMAKE_BUILD_TYPE=Release \
+       -DWISDOM_CHESS_QT_DIR=~/Qt/6.9.2/gcc_64 -DWISDOM_CHESS_INSTALLER=ON
+   cmake --build build-installer --target installer
+   # -> build-installer/wisdom-chess-<version>-Linux-x86_64.run
+   ```
+
+   Windows (from an *x64 Native Tools Command Prompt for VS*, so that
+   `vc_redist.x64.exe` can be found; or pass `-DWISDOM_CHESS_VCREDIST=<path>`):
+   ```bat
+   cmake -S . -B build-installer -G Ninja -DCMAKE_BUILD_TYPE=Release ^
+       -DWISDOM_CHESS_QT_DIR=C:/Qt/6.9.2/msvc2022_64 -DWISDOM_CHESS_INSTALLER=ON
+   cmake --build build-installer --target installer
+   REM -> build-installer\wisdom-chess-<version>-Windows-AMD64.exe
+   ```
+
+   macOS:
+   ```bash
+   cmake -S . -B build-installer -DCMAKE_BUILD_TYPE=Release \
+       -DWISDOM_CHESS_QT_DIR=~/Qt/6.9.2/macos -DWISDOM_CHESS_INSTALLER=ON
+   cmake --build build-installer --target installer
+   # -> build-installer/wisdom-chess-<version>-Darwin-arm64.dmg
+   ```
+
+The installers are **not code-signed**, so operating systems warn before
+running them:
+
+- **Windows**: SmartScreen shows "Windows protected your PC". Click
+  *More info*, then *Run anyway*. The installer asks for administrator
+  rights to install into `Program Files\Wisdom Chess`, adds Start Menu
+  and desktop shortcuts, and installs the MSVC runtime if needed.
+- **macOS**: Gatekeeper refuses to open the installer app on the mounted
+  disk image. Right-click it and choose *Open*, or allow it under
+  *System Settings > Privacy & Security > Open Anyway*. Alternatively
+  clear the quarantine flag: `xattr -dr com.apple.quarantine <installer.app>`.
+  The app is installed to `/Applications/Wisdom Chess/`.
+- **Linux**: make the file executable (`chmod +x wisdom-chess-*.run`) and
+  run it. It asks for your password to install into `/opt/WisdomChess`
+  and adds a *Wisdom Chess* entry to the application menu. Use
+  `./wisdom-chess-*.run --root ~/WisdomChess` to install into your home
+  directory instead. The bundled Qt needs the usual X11/xcb libraries
+  from your distribution; on Debian/Ubuntu that is
+  `libxcb-cursor0 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0
+  libxcb-keysyms1 libxcb-render-util0 libxcb-shape0 libgl1 libegl1
+  libfontconfig1`. The binary links against the build machine's C and C++
+  runtimes, so it needs a distribution at least as new as the one it was
+  built on (glibc 2.34+ for the bundled Qt; the `libstdc++` of the GCC
+  used for the build).
+
+Uninstall with the *WisdomChessMaintenanceTool* placed next to the app.
+
 ### Web Version (Qt QML + WebAssembly)
 
 The Qt QML interface can also be compiled to WebAssembly:
@@ -149,6 +213,7 @@ cmake .. -DWISDOM_CHESS_FILC_COMPAT=ON   # Force enable
 | `WISDOM_CHESS_REACT_BUILD_INTEGRATED` | ON (web), OFF (others) | Integrate Node.js build |
 | `WISDOM_CHESS_FAST_TESTS` | ON | Build fast test suite |
 | `WISDOM_CHESS_SLOW_TESTS` | OFF | Build comprehensive test suite |
+| `WISDOM_CHESS_INSTALLER` | OFF | Build a Qt Installer Framework installer (`installer` target) |
 
 ### Examples:
 ```bash
