@@ -129,8 +129,13 @@ jobs:
       run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} --build-config ${{ matrix.build_type }} --output-on-failure -j 4
 
     - name: Install (CMake)
+      # Smoke-test the install rules into a scratch prefix. The default prefix
+      # (/usr/local) is not writable at its top level on the macOS runners,
+      # and the app bundle now installs relative to the prefix.
       run: >
-        cmake --install ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+        cmake --install ${{ steps.strings.outputs.build-output-dir }}
+        --config ${{ matrix.build_type }}
+        --prefix ${{ github.workspace }}/install-test
 
   build-filc:
     needs: lint
