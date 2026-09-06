@@ -103,7 +103,10 @@ namespace wisdom
         void forEachEntry (Visitor&& visit) const;
     };
 
-    // Format a local-time prefix of the form "[HH:MM:SS.mmm] ".
+    // Format a UTC time-of-day prefix of the form "[HH:MM:SS.mmm] ".
+    // UTC is used because converting to local time needs either the
+    // platform's localtime_r/localtime_s or a C++20 time zone database,
+    // which the WebAssembly (libc++) builds do not provide.
     [[nodiscard]] auto
     formatLogTimestamp (chrono::system_clock::time_point time)
         -> string;

@@ -273,6 +273,28 @@ TEST_CASE( "formatLogTimestamp" )
         CHECK( hasTimestamp (stamp) );
         CHECK( stamp.substr (9) == ".042] " );
     }
+
+    SUBCASE( "is the UTC time of day" )
+    {
+        // The Unix epoch is midnight UTC, so the offset from it is the stamp.
+        auto epoch = chrono::system_clock::time_point {};
+        auto time = epoch
+            + chrono::hours { 13 } + chrono::minutes { 5 }
+            + chrono::seconds { 9 } + chrono::milliseconds { 7 };
+
+        CHECK( formatLogTimestamp (epoch) == "[00:00:00.000] " );
+        CHECK( formatLogTimestamp (time) == "[13:05:09.007] " );
+    }
+
+    SUBCASE( "wraps at midnight" )
+    {
+        auto epoch = chrono::system_clock::time_point {};
+        auto time = epoch + chrono::hours { 24 * 3 + 23 } + chrono::minutes { 59 }
+            + chrono::seconds { 59 } + chrono::milliseconds { 999 };
+
+        CHECK( formatLogTimestamp (time) == "[23:59:59.999] " );
+        CHECK( formatLogTimestamp (time + chrono::milliseconds { 1 }) == "[00:00:00.000] " );
+    }
 }
 
 TEST_CASE( "BufferedLogger" )
