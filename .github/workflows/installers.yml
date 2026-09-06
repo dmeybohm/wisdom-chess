@@ -1,0 +1,128 @@
+# Builds the Qt Installer Framework installers for Linux, Windows and macOS,
+# installs each one headlessly as a smoke test, and uploads them. Tags of the
+# form v* additionally get a GitHub Release with the installers attached.
+# See features/2026/09/qt-installer.md.
+name: Installers
+
+on:
+  push:
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - ".github/workflows/installers.yml"
+      - "CMakeLists.txt"
+      - "cmake/Installer.cmake"
+      - "installer/**"
+      - "scripts/generate-icons.py"
+      - "scripts/smoke-test-installer.sh"
+      - "src/wisdom-chess/ui/qml/CMakeLists.txt"
+      - "src/wisdom-chess/ui/qml/images/**"
+      - "src/wisdom-chess/ui/qml/main/main.cpp"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check that the tag matches the project version
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          version=$(sed -nE 's/^ *VERSION +([0-9.]+).*/\1/p' CMakeLists.txt | head -1)
+          if [ "${GITHUB_REF_NAME#v}" != "$version" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match the project version $version in CMakeLists.txt"
+            exit 1
+          fi
+
+      - name: Install Qt and the Qt Installer Framework
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.*'
+          cache: true
+          # Pin the IFW variant: without one, aqt installs every variant.
+          tools: 'tools_ifw,qt.tools.ifw.47'
+
+      - name: Set up MSVC dev environment
+        # Also exports VCToolsRedistDir, which CMake uses to find vc_redist.x64.exe.
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Cache CPM downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/cpm-cache
+          key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            cpm-${{ runner.os }}-
+
+      - name: Configure CMake
+        shell: bash
+        run: >
+          cmake -B build-installer
+          ${{ runner.os == 'Windows' && '-G Ninja' || '' }}
+          -DCMAKE_BUILD_TYPE=Release
+          -DCPM_SOURCE_CACHE=~/cpm-cache
+          -DWISDOM_CHESS_QML_UI=On
+          -DWISDOM_CHESS_INSTALLER=On
+          -DWISDOM_CHESS_CONSOLE_UI=Off
+          -DWISDOM_CHESS_REACT_UI=Off
+          -DWISDOM_CHESS_FAST_TESTS=Off
+          -DWISDOM_CHESS_SLOW_TESTS=Off
+          -DWISDOM_CHESS_BUILD_LINTER=Off
+          -S .
+
+      - name: Build installer
+        run: cmake --build build-installer --config Release --target installer -j 4
+
+      - name: Smoke test the installer
+        shell: bash
+        run: scripts/smoke-test-installer.sh build-installer "$RUNNER_TEMP/wisdom-chess-smoke"
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ runner.os }}
+          path: |
+            build-installer/wisdom-chess-*.run
+            build-installer/wisdom-chess-*.exe
+            build-installer/wisdom-chess-*.dmg
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download installers
+        uses: actions/download-artifact@v4
+        with:
+          pattern: installer-*
+          merge-multiple: true
+          path: installers
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: installers/*
+          generate_release_notes: true

@@ -83,6 +83,37 @@ file was `chess-icons.rc` (only worked on case-insensitive filesystems).
 9. **Docs**: README "Installers" section with per-platform commands and
    the unsigned-installer notes; CLAUDE.md option row and build snippet.
 
+## CI integration
+
+`.github/workflows/installers.yml` builds the three installers on
+GitHub-hosted runners. Decisions:
+
+- **Triggers**: `v*` tags create a GitHub Release with the installers
+  attached (`softprops/action-gh-release@v3`, `contents: write` only on the
+  release job); `workflow_dispatch` and pull requests that touch
+  installer-related paths upload artifacts only, so the PR that adds the
+  workflow validates itself. A tag must match the top-level project
+  `VERSION`.
+- **Runners**: `ubuntu-latest` (24.04, GCC 13), `windows-latest`
+  (MSVC via `ilammy/msvc-dev-cmd`, which also exports `VCToolsRedistDir`
+  for `vc_redist.x64.exe`), `macos-latest` (macOS 26, arm64).
+  `ubuntu-22.04` was considered for an older glibc baseline but GitHub
+  starts brownouts on 2026-09-17 and retires it in April 2027; an
+  older-baseline build via a container stays a follow-up.
+- **Qt / QtIFW**: `jurplel/install-qt-action@v4` with Qt `6.9.*` and
+  `tools: 'tools_ifw,qt.tools.ifw.47'`. The variant is pinned because the
+  action passes `tools` straight to `aqt install-tool`, which installs
+  every variant when none is given; 4.7 is the only variant published on
+  the mirror for all three hosts. The action exports `IQTA_TOOLS`, which
+  `cmake/Installer.cmake` now searches first.
+- **Smoke test** on all platforms: `scripts/smoke-test-installer.sh`
+  installs with `--platform minimal --root <tmp> --accept-licenses
+  --confirm-command install`, checks the executable, `qt.conf`, the
+  platform plugin, the QtQuick.Controls module (and `ldd` / the `.desktop`
+  entry on Linux, `CFBundleName` on macOS, `vc_redist.x64.exe` on Windows),
+  then purges with the maintenance tool. On macOS the `.dmg` is mounted
+  with `hdiutil` first.
+
 ## Implementation Progress
 
 ### Session #1
@@ -128,14 +159,19 @@ file was `chess-icons.rc` (only worked on case-insensitive filesystems).
 
 ## Out of scope / follow-ups
 
-- CI release workflow / GitHub Releases; code signing and notarization.
+- Code signing and notarization (secrets-driven `signtool` / `codesign` +
+  `notarytool` steps in the workflow).
+- macOS universal (arm64 + x86_64) binary: Qt's `clang_64` is universal,
+  so `CMAKE_OSX_ARCHITECTURES="arm64;x86_64"` should work once PCH is
+  checked for multi-arch builds.
+- Windows arm64 and Linux arm64 installers.
 - Wayland: opt in via `INCLUDE_PLUGINS qwayland` once the deploy keywords
   are available in the CI Qt version.
 - Optional "create desktop shortcut" wizard page (`USER_INTERFACES`).
 - A drag-and-drop DMG (CPack `DragNDrop`) as the more idiomatic macOS
   delivery.
-- Building the Linux installer in an older-glibc container (e.g. Ubuntu
-  22.04) for wider compatibility.
+- Building the Linux installer in an older-glibc container
+  (`container: ubuntu:22.04` on `ubuntu-latest`) for wider compatibility.
 - An attribution page in the installer for the CC BY-SA piece images.
 - Show the version in the QML About dialog now that
   `WISDOM_CHESS_VERSION` exists.

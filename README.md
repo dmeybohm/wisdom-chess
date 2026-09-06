@@ -90,7 +90,15 @@ cmake --build . -j8
 
 ### Installers (Qt Installer Framework)
 
-The desktop app can be packaged into a self-contained installer with the
+Prebuilt installers for Linux (x86_64), Windows (x64) and macOS (Apple
+Silicon) are attached to each tagged release on the
+[GitHub Releases page](https://github.com/dmeybohm/wisdom-chess/releases).
+They are built by the `Installers` GitHub Actions workflow, which also
+runs on pull requests that touch the installer and can be started by hand
+from the Actions tab.
+
+The desktop app can also be packaged locally into a self-contained
+installer with the
 [Qt Installer Framework](https://doc.qt.io/qtinstallerframework/) (QtIFW).
 The installer bundles the Qt runtime, so users do not need Qt installed.
 
@@ -147,10 +155,14 @@ running them:
   libxcb-keysyms1 libxcb-render-util0 libxcb-shape0 libgl1 libegl1
   libfontconfig1`. The binary links against the build machine's C and C++
   runtimes, so it needs a distribution at least as new as the one it was
-  built on (glibc 2.34+ for the bundled Qt; the `libstdc++` of the GCC
-  used for the build).
+  built on: the release installers are built on Ubuntu 24.04 (glibc 2.39,
+  GCC 13).
 
 Uninstall with the *WisdomChessMaintenanceTool* placed next to the app.
+
+To check an installer without clicking through it, install it headlessly
+with `scripts/smoke-test-installer.sh <build-dir> <install-root>`; this is
+what CI runs on all three platforms.
 
 ### Web Version (Qt QML + WebAssembly)
 

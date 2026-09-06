@@ -141,6 +141,15 @@ the installer's component script (shortcuts, .desktop entry, vc_redist) is
 On Windows the installer build requires MSVC and `vc_redist.x64.exe`
 (`VCToolsRedistDir` from a VS developer prompt, or `-DWISDOM_CHESS_VCREDIST=<path>`).
 
+CI: `.github/workflows/installers.yml` builds all three installers on
+`ubuntu-latest`, `windows-latest` and `macos-latest` (Qt 6.9, QtIFW 4.7 via
+`jurplel/install-qt-action`), smoke-tests each with
+`scripts/smoke-test-installer.sh` (headless install, tree checks, purge) and
+uploads them as artifacts. It runs on pull requests touching installer files,
+on `workflow_dispatch`, and on `v*` tags, where it also creates a GitHub
+Release with the installers attached. The tag must match the `VERSION` in the
+top-level `CMakeLists.txt`.
+
 ### WebAssembly + React Build
 
 ```bash

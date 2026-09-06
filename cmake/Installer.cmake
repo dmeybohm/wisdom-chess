@@ -21,16 +21,22 @@ endif()
 # CMake's CPackIFW module only searches Tools/QtInstallerFramework/<version>
 # directories for versions it knew about when it was released (up to 4.5 in
 # CMake 3.28), so look for the newest one ourselves unless the user already
-# pointed us at one.
+# pointed us at one. IQTA_TOOLS is the Tools directory exported by
+# jurplel/install-qt-action in CI.
 if(NOT CPACK_IFW_ROOT AND "$ENV{CPACK_IFW_ROOT}" STREQUAL "" AND "$ENV{QTIFWDIR}" STREQUAL "")
+    set(_wisdom_qt_tools_dirs "$ENV{IQTA_TOOLS}")
     if(WIN32)
-        set(_wisdom_qt_roots "C:/Qt" "$ENV{HOMEDRIVE}/Qt" "$ENV{USERPROFILE}/Qt")
+        list(APPEND _wisdom_qt_tools_dirs
+            "C:/Qt/Tools" "$ENV{HOMEDRIVE}/Qt/Tools" "$ENV{USERPROFILE}/Qt/Tools")
     else()
-        set(_wisdom_qt_roots "$ENV{HOME}/Qt" "/opt/Qt")
+        list(APPEND _wisdom_qt_tools_dirs "$ENV{HOME}/Qt/Tools" "/opt/Qt/Tools")
     endif()
-    foreach(_wisdom_qt_root IN LISTS _wisdom_qt_roots)
+    foreach(_wisdom_tools_dir IN LISTS _wisdom_qt_tools_dirs)
+        if(NOT _wisdom_tools_dir)
+            continue()
+        endif()
         file(GLOB _wisdom_ifw_dirs LIST_DIRECTORIES true
-            "${_wisdom_qt_root}/Tools/QtInstallerFramework/*")
+            "${_wisdom_tools_dir}/QtInstallerFramework/*")
         if(_wisdom_ifw_dirs)
             list(SORT _wisdom_ifw_dirs COMPARE NATURAL ORDER DESCENDING)
             list(GET _wisdom_ifw_dirs 0 CPACK_IFW_ROOT)
