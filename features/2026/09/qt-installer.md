@@ -157,6 +157,48 @@ GitHub-hosted runners. Decisions:
   install path on Linux was also not run because it needs a password
   prompt; only the `--root` path under `$HOME` was exercised.
 
+### Session #2
+
+- Added `.github/workflows/installers.yml`, `scripts/smoke-test-installer.sh`
+  and the `IQTA_TOOLS` lookup in `cmake/Installer.cmake`; documented the
+  CI flow. The smoke-test script passed locally against the Linux
+  installer before pushing.
+- First CI runs on the PR: Linux passed; macOS failed in the smoke test;
+  Windows failed in `cpack`; and the regular CMake workflow's macOS
+  "Install (CMake)" step failed.
+  - **macOS**: in `install(TARGETS)`, `COMPONENT` only applies to the
+    artifact group it follows, so `COMPONENT Application` was attached to
+    `RUNTIME` only and the `BUNDLE` fell into "Unspecified", which
+    `CPACK_COMPONENTS_ALL` excludes. The bundle was never staged;
+    macdeployqt then reported "Could not find bundle binary" against the
+    directory the QML deploy step had created. Fixed by repeating
+    `COMPONENT Application` after `BUNDLE DESTINATION .`.
+  - **Windows**: `IQTA_TOOLS` (and `VCToolsRedistDir`) are backslash paths;
+    written into `CPackConfig.cmake` they became invalid escapes
+    (`Invalid character escape '\a'`). Fixed with `file(TO_CMAKE_PATH)`
+    on both.
+  - **CMake workflow**: the install smoke test used the default prefix
+    `/usr/local`, whose top level is not writable on the macOS runner now
+    that the bundle installs relative to the prefix. It now installs into
+    `<workspace>/install-test`.
+  - Added a "Show the staged package layout" step (`if: always()`) and a
+    tree dump in the smoke script on failure so the next failure is
+    diagnosable from the log.
+- Second run (`f688e58`): all three jobs pass, as does the CMake
+  workflow. Results:
+  - Linux: `wisdom-chess-0.1.0-Linux-x86_64.run`, headless install, `ldd`
+    clean, `.desktop` entry, purge OK.
+  - Windows: `wisdom-chess-0.1.0-Windows-AMD64.exe` (76 MB), installed
+    tree 146 MB; `vc_redist.x64.exe` was bundled and the elevated
+    `Execute` ran; shortcuts, `qwindows.dll`, QtQuick.Controls present;
+    purge OK.
+  - macOS: `wisdom-chess-0.1.0-Darwin-arm64.dmg` (40 MB), installed
+    bundle 154 MB with `QtCore.framework`, `libqcocoa.dylib`,
+    QtQuick.Controls, `CFBundleName` "Wisdom Chess"; purge via the
+    maintenance tool `.app` OK.
+- The `release` job is skipped on PRs; it runs on the first `v0.1.0` tag
+  pushed to `main` after merge.
+
 ## Out of scope / follow-ups
 
 - Code signing and notarization (secrets-driven `signtool` / `codesign` +
