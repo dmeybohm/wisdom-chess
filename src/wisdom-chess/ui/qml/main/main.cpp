@@ -21,6 +21,10 @@ int main (int argc, char *argv[])
 #endif
 
     QGuiApplication app {argc, argv };
+    QGuiApplication::setApplicationName (QStringLiteral ("Wisdom Chess"));
+    QGuiApplication::setApplicationVersion (QStringLiteral (WISDOM_CHESS_VERSION));
+    QGuiApplication::setOrganizationName (QStringLiteral ("daveme"));
+    QGuiApplication::setOrganizationDomain (QStringLiteral ("daveme.com"));
 
     GameModel game_model;
     PiecesModel pieces_model;
