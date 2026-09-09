@@ -48,11 +48,11 @@ should be confirmed before fixing.
   *(verified)* `engine/castling.cpp:18`:
   `result += value.isSet (CastlingRights::Queenside);` emits `\x00` or
   `\x01` instead of "eligible" / "not eligible". Fixed in Session #4.
-- [ ] **`TranspositionTable (int size_in_mb)` has no lower bound.**
+- [x] **`TranspositionTable (int size_in_mb)` has no lower bound.**
   *(verified)* `engine/transposition_table.cpp:11-23`: size 0 yields
   `power_of_2 == 0`, so `my_size_mask` becomes `SIZE_MAX` and every probe
   indexes out of bounds. `fromEntries` has `Expects (entry_count >= 2)`;
-  this constructor needs the same.
+  this constructor needs the same. Fixed in Session #7.
 - [ ] **`Board::withRandomPosition` keeps stale castling rights.**
   *(verified)* `engine/board.cpp:291` rebuilds the board code from the
   shuffled squares but the castling eligibility is unchanged. A later
@@ -324,3 +324,23 @@ should be confirmed before fixing.
   `engine/test/move_parse_test.cpp` covering `moveParse` with and without
   a color and `moveParseOptional` returning `nullopt`. Fast suite remains
   90 tests, all passing.
+
+### Session #7
+
+- Added `Expects (size_in_mb >= 1)` to the megabyte constructor in
+  `engine/transposition_table.cpp`, matching the existing precondition on
+  `fromEntries`, plus `Ensures (power_of_2 >= 2)` on the computed entry
+  count. The multiplication now casts the `int` to `size_t` explicitly
+  instead of relying on the implicit conversion, which would have wrapped a
+  negative size to a huge value.
+- GSL contract violations terminate in this build rather than throw, so the
+  zero case cannot be asserted from doctest. Verified with a standalone
+  probe that `fromMegabytes (0)` now aborts instead of constructing an
+  empty table.
+- Added a "Transposition table sizing" test case to
+  `engine/test/transposition_table_test.cpp` pinning that a 1 MB table is a
+  non-empty power of two that fits its budget and that the default
+  constructor matches `Default_Size_In_Megabytes`. Fast suite is now 91
+  tests, all passing.
+- The only production caller that takes user input, the UCI `hash` option,
+  already clamps to the range 1 to 1024 MB.
