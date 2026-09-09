@@ -15,7 +15,9 @@ namespace wisdom
             ? "eligible, "
             : "not eligible, ";
         result += "Queenside: ";
-        result += value.isSet (CastlingRights::Queenside);
+        result += value.isSet (CastlingRights::Queenside)
+            ? "eligible }"
+            : "not eligible }";
 
         os << result;
         return os;

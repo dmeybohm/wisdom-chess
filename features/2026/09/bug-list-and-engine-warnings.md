@@ -44,10 +44,10 @@ should be confirmed before fixing.
   `engine/move.cpp:510` reads `str[0]`; the empty guard is inside
   `moveParseOptional` (`engine/move.cpp:409`), which runs afterwards.
   Reachable from `Game::load` with a blank line.
-- [ ] **`CastlingEligibility` stream operator appends a bool as a char.**
+- [x] **`CastlingEligibility` stream operator appends a bool as a char.**
   *(verified)* `engine/castling.cpp:18`:
   `result += value.isSet (CastlingRights::Queenside);` emits `\x00` or
-  `\x01` instead of "eligible" / "not eligible".
+  `\x01` instead of "eligible" / "not eligible". Fixed in Session #4.
 - [ ] **`TranspositionTable (int size_in_mb)` has no lower bound.**
   *(verified)* `engine/transposition_table.cpp:11-23`: size 0 yields
   `power_of_2 == 0`, so `my_size_mask` becomes `SIZE_MAX` and every probe
@@ -286,3 +286,14 @@ should be confirmed before fixing.
     to `std::size_t`.
 - Full build has zero warnings, 88 fast tests pass, linter clean on all
   touched files.
+
+### Session #4
+
+- Fixed `operator<< (std::ostream&, const CastlingEligibility&)` in
+  `engine/castling.cpp`. The queenside branch now appends "eligible" or
+  "not eligible" like the kingside branch, and the output gets its closing
+  brace, so the format is
+  `{ Kingside: eligible, Queenside: not eligible }`.
+- Added a "Stream output" test case to
+  `engine/test/castling_eligibility_test.cpp` covering all four
+  combinations. Fast suite is now 89 tests, all passing.
