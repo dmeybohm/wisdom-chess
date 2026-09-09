@@ -101,13 +101,6 @@ namespace wisdom
             return my_flags == other.my_flags;
         }
 
-        constexpr CastlingEligibility&
-        operator= (CastlingEligibility flags) noexcept
-        {
-            my_flags = flags.my_flags;
-            return *this;
-        }
-
         [[nodiscard]] constexpr auto
         operator!= (CastlingEligibility other) const noexcept
             -> bool

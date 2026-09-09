@@ -213,8 +213,8 @@ should be confirmed before fixing.
   from a sibling scope, and references target `chess`, which does not
   exist. The console binary never gets a PCH.
 - [x] Engine compiles with no warning flags. Fixed in this branch.
-- [ ] Clear the 60 warning sites the new flags report (see Session #1
-  below). `CastlingEligibility` copy constructor first.
+- [ ] Clear the remaining warning sites the new flags report (see Session
+  #1 below). The `CastlingEligibility` deprecated-copy group is fixed.
 - [ ] No sanitizer job, no Debug build and no Linux/Clang in
   `.github/workflows/cmake.yml`. `WISDOM_CHESS_ASAN` is unused by CI.
 - [ ] Linter self-tests (`scripts/linter/tests/run-tests.sh`) are not run
@@ -252,3 +252,13 @@ should be confirmed before fixing.
   These are left for a follow-up branch so the flag change stays isolated.
   Fixing the `CastlingEligibility` special members alone removes 50 of
   the 60 sites.
+
+### Session #2
+
+- Removed the hand-written `CastlingEligibility::operator=` in
+  `engine/castling.hpp`. It did exactly what the implicit assignment does,
+  and its presence made the implicit copy constructor deprecated, which was
+  the source of all 50 `-Wdeprecated-copy` sites. The type is now trivially
+  copyable. Full build clean of that warning, 88 fast tests pass, linter
+  clean. The 10 remaining sites (reorder, unused parameter and variable,
+  enum/non-enum conditional) are still open.
