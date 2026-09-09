@@ -92,6 +92,11 @@ add_library(wisdom::chess ALIAS wisdom-chess-core)
 target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
 
+target_compile_options(wisdom-chess-core PRIVATE
+    $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra>
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+)
+
 if (EMSCRIPTEN)
     target_compile_options(wisdom-chess-core PUBLIC -pthread)
 endif()
