@@ -26,10 +26,10 @@ namespace wisdom
         )
             : my_original_board { Board { board } }
             , my_history { History { history } }
-            , my_output { std::move (output) }
             , my_timer { std::move (timer) }
-            , my_total_depth { total_depth }
+            , my_output { std::move (output) }
             , my_transposition_table { transposition_table }
+            , my_total_depth { total_depth }
         {
         }
 

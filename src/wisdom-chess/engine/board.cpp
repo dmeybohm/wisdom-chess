@@ -18,11 +18,11 @@ namespace wisdom
     Board::Board (const BoardBuilder& builder)
         : my_squares { builder.getSquares() }
         , my_code { BoardCode::fromBoardBuilder (builder) }
-        , my_king_pos { builder.getKingPositions() }
         , my_half_move_clock { builder.getHalfMoveClock() }
         , my_full_move_clock { builder.getFullMoveClock() }
         , my_position { Position { *this } }
         , my_material { Material { *this } }
+        , my_king_pos { builder.getKingPositions() }
     {
     }
 
@@ -217,7 +217,6 @@ namespace wisdom
 
     static void 
     removeInvalidPawns (
-        const Board& board,
         int8_t source_row,
         int8_t source_col,
         array<ColoredPiece, Num_Squares>& shuffle_pieces
@@ -273,8 +272,8 @@ namespace wisdom
                 int8_t first_source_row = 0;
                 auto last_source_row = narrow<int8_t> (Num_Rows - 1);
 
-                removeInvalidPawns (result, first_source_row, source_col, result.my_squares);
-                removeInvalidPawns (result, last_source_row, source_col, result.my_squares);
+                removeInvalidPawns (first_source_row, source_col, result.my_squares);
+                removeInvalidPawns (last_source_row, source_col, result.my_squares);
             }
             // if both kings are in check, regenerate.
         } while (isKingThreatened (result, Color::White, result.my_king_pos[Color_Index_White])

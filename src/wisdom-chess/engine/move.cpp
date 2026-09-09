@@ -71,10 +71,7 @@ namespace wisdom
     }
 
     auto 
-    Board::getCastlingRookMove (
-        Move move, 
-        Color who
-    ) const 
+    Board::getCastlingRookMove (Move move) const
         -> Move
     {
         int src_row, src_col;
@@ -108,12 +105,11 @@ namespace wisdom
 
     void
     Board::applyForCastlingMove (
-        Color who, 
-        Move king_move, 
-        [[maybe_unused]] Coord src, 
+        Move king_move,
+        [[maybe_unused]] Coord src,
         [[maybe_unused]] Coord dst
     ) noexcept {
-        Move rook_move = getCastlingRookMove (king_move, who);
+        Move rook_move = getCastlingRookMove (king_move);
 
         assert (pieceType (pieceAt (src)) == Piece::King);
         assert (abs (src.column() - dst.column()) == 2);
@@ -194,11 +190,9 @@ namespace wisdom
 
     void
     Board::updateAfterRookMove (
-        Color player, 
-        ColoredPiece src_piece, 
-        Move move, 
-        Coord src, 
-        Coord dst
+        Color player,
+        [[maybe_unused]] ColoredPiece src_piece,
+        Coord src
     ) noexcept {
         assert (pieceColor (src_piece) == player);
         assert (pieceType (src_piece) == Piece::Rook);
@@ -322,7 +316,7 @@ namespace wisdom
                 break;
 
             case MoveCategory::Castling:
-                applyForCastlingMove (who, move, src, dst);
+                applyForCastlingMove (move, src, dst);
                 break;
 
             default:
@@ -344,7 +338,7 @@ namespace wisdom
         }
         else if (pieceType (orig_src_piece) == Piece::Rook)
         {
-            updateAfterRookMove (who, orig_src_piece, move, src, dst);
+            updateAfterRookMove (who, orig_src_piece, src);
         }
 
         if (pieceType (dst_piece) != Piece::None)

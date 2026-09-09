@@ -93,7 +93,6 @@ namespace wisdom
 
         ColoredPiece src_piece = board.pieceAt (src);
 
-        Piece src_piece_type = pieceType (src_piece);
         Color src_piece_color = pieceColor (src_piece);
         Color opponent_color = colorInvert (src_piece_color);
 

@@ -302,7 +302,6 @@ namespace wisdom
     {
         assert (bothPlayersReplied (draw_desires));
 
-        DrawStatus status;
         bool white_wants_draw = draw_desires.first == DrawStatus::Accepted;
         bool black_wants_draw = draw_desires.second == DrawStatus::Accepted;
 

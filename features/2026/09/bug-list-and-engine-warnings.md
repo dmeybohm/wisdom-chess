@@ -64,10 +64,11 @@ should be confirmed before fixing.
   (`engine/fen_parser.cpp:135-143`, no `default`); `parsePieces` checks
   `row > Num_Rows` instead of `>=` (`engine/fen_parser.cpp:70,83`), so
   `row == 8` reaches `BoardBuilder::addPiece` and throws the wrong type.
-- [ ] `Board::Board (const BoardBuilder&)` initializer order does not
+- [x] `Board::Board (const BoardBuilder&)` initializer order does not
   match declaration order and `my_position { Position { *this } }` reads a
-  partially constructed object (`engine/board.cpp:19-25`). Works only
-  because `my_squares` is declared first. Needs a comment at minimum.
+  partially constructed object (`engine/board.cpp:19-25`). Fixed in
+  Session #3: initializer list reordered and a comment added on
+  `my_squares`.
 - [ ] `MoveList (Color, std::initializer_list<czstring>) noexcept` calls
   `moveParse`, which throws (`engine/move_list.hpp:22-30`). Drop the
   `noexcept`.
@@ -123,9 +124,8 @@ should be confirmed before fixing.
 - [ ] `castlingRowForColor` (`engine/move.hpp:344-351`) and
   `castlingRowFromColor` (`engine/position.cpp:92-105`) are the same
   function.
-- [ ] Dead code: `DrawStatus status;` (`engine/game.cpp:305`),
-  `castled_state += "";` (`engine/board.cpp:151`), unused parameters on
-  `applyForCastlingMove` and `isProbablyDrawingMove`, unreferenced
+- [ ] Dead code: `castled_state += "";` (`engine/board.cpp:151`), unused
+  parameters on `isProbablyDrawingMove`, unreferenced
   `Board::pieceAtIndex`, `Board::squareData`, `MoveList::fromZeroInitialized`,
   `BoardCode::withMove`, `TranspositionTable::getStoredEntriesCount`,
   `MoveGeneration::none()`.
@@ -213,8 +213,8 @@ should be confirmed before fixing.
   from a sibling scope, and references target `chess`, which does not
   exist. The console binary never gets a PCH.
 - [x] Engine compiles with no warning flags. Fixed in this branch.
-- [ ] Clear the remaining warning sites the new flags report (see Session
-  #1 below). The `CastlingEligibility` deprecated-copy group is fixed.
+- [x] Clear the warning sites the new flags report. Done in Sessions #2
+  and #3; the engine now builds warning-free under `-Wall -Wextra`.
 - [ ] No sanitizer job, no Debug build and no Linux/Clang in
   `.github/workflows/cmake.yml`. `WISDOM_CHESS_ASAN` is unused by CI.
 - [ ] Linter self-tests (`scripts/linter/tests/run-tests.sh`) are not run
@@ -262,3 +262,27 @@ should be confirmed before fixing.
   copyable. Full build clean of that warning, 88 fast tests pass, linter
   clean. The 10 remaining sites (reorder, unused parameter and variable,
   enum/non-enum conditional) are still open.
+
+### Session #3
+
+- Fixed the ten remaining warning sites so the engine builds clean under
+  `-Wall -Wextra` with GCC:
+  - `-Wreorder`: reordered the `IterativeSearchImpl` initializer list in
+    `engine/search.cpp` and the `Board (const BoardBuilder&)` initializer
+    list in `engine/board.cpp` to match declaration order. The member
+    declaration order in `board.hpp` was left alone so the 120-byte layout
+    is unchanged (verified with a `sizeof` probe against both layouts).
+    Added a comment on `my_squares` explaining that `Position` and
+    `Material` read it through `*this` during construction.
+  - `-Wunused-parameter`: removed `who` from `getCastlingRookMove` and,
+    since it was only forwarded there, from `applyForCastlingMove`;
+    removed `move` and `dst` from `updateAfterRookMove` and marked
+    `src_piece` `[[maybe_unused]]` because it is used only in asserts;
+    removed `board` from `removeInvalidPawns`.
+  - `-Wunused-variable`: deleted `src_piece_type` in
+    `BoardCode::applyMove` and `status` in `drawDesiresToRepetitionStatus`.
+  - `-Wextra` enum/non-enum conditional: cast both arms of the
+    `EN_PASSANT_IS_WHITE` conditional in `BoardCode::setEnPassantTarget`
+    to `std::size_t`.
+- Full build has zero warnings, 88 fast tests pass, linter clean on all
+  touched files.
