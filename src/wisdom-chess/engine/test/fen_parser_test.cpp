@@ -82,6 +82,25 @@ TEST_CASE( "FEN notation for en passant" )
     CHECK( black_target->coord == coordParse ("e6") );
 }
 
+TEST_CASE( "FEN notation with an invalid en passant square" )
+{
+    SUBCASE( "Square outside the board" )
+    {
+        CHECK_THROWS_AS(
+            (void)Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w KQkq z9 0 1"),
+            FenParserError
+        );
+    }
+
+    SUBCASE( "Square with a missing rank" )
+    {
+        CHECK_THROWS_AS(
+            (void)Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w KQkq e 0 1"),
+            FenParserError
+        );
+    }
+}
+
 TEST_CASE( "Parsing half and full moves" )
 {
     SUBCASE( "With castling and en passant square" )

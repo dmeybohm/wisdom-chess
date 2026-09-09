@@ -36,10 +36,10 @@ should be confirmed before fixing.
   (`-6 -8 -8 -9 -9 -4 -4 -6`) and `bishop_positions` are not left-right
   symmetric. Black therefore prefers the opposite wing from White. Mirror
   only the rank, or make the tables symmetric.
-- [ ] **FEN en-passant parser catches the wrong exception.** *(verified)*
+- [x] **FEN en-passant parser catches the wrong exception.** *(verified)*
   `engine/fen_parser.cpp:113` catches `BoardBuilderError`, but
   `coordParse` throws `CoordParseError` (`engine/coord.hpp:203,209`). The
-  rewrap to `FenParserError` never fires.
+  rewrap to `FenParserError` never fires. Fixed in Session #5.
 - [ ] **`moveParse` indexes `str[0]` before the empty check.** *(verified)*
   `engine/move.cpp:510` reads `str[0]`; the empty guard is inside
   `moveParseOptional` (`engine/move.cpp:409`), which runs afterwards.
@@ -297,3 +297,15 @@ should be confirmed before fixing.
 - Added a "Stream output" test case to
   `engine/test/castling_eligibility_test.cpp` covering all four
   combinations. Fast suite is now 89 tests, all passing.
+
+### Session #5
+
+- Fixed `FenParser::parseEnPassant` in `engine/fen_parser.cpp` to catch
+  `CoordParseError`, the type `coordParse` actually throws, so a malformed
+  en-passant square now surfaces as a `FenParserError` carrying the
+  original message.
+- Added a "FEN notation with an invalid en passant square" test case to
+  `engine/test/fen_parser_test.cpp` with two subcases: a square off the
+  board (`z9`) and a square missing its rank (`e`). Both failed before the
+  fix with "threw a DIFFERENT exception" and pass after. Fast suite is now
+  90 tests, all passing.

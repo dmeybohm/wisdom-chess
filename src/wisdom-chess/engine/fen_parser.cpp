@@ -110,9 +110,9 @@ namespace wisdom
             string cstr { en_passant_str.substr (0, 2) };
             builder.setEnPassantTarget (colorInvert (active_player), cstr);
         }
-        catch ([[maybe_unused]] const BoardBuilderError& e)
+        catch (const CoordParseError& e)
         {
-            throw FenParserError ("Error parsing en passant coordinate!");
+            throw FenParserError ("Error parsing en passant coordinate: " + e.message());
         }
     }
 
