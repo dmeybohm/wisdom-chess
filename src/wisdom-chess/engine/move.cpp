@@ -501,6 +501,9 @@ namespace wisdom
     moveParse (const string& str, Color color) 
         -> Move
     {
+        if (str.empty())
+            throw ParseMoveException ("Error parsing move: empty string");
+
         if (tolower (str[0]) == 'o' && color == Color::None)
             throw ParseMoveException ("Move requires color, but no color provided");
 

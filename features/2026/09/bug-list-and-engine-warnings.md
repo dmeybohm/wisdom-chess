@@ -40,10 +40,10 @@ should be confirmed before fixing.
   `engine/fen_parser.cpp:113` catches `BoardBuilderError`, but
   `coordParse` throws `CoordParseError` (`engine/coord.hpp:203,209`). The
   rewrap to `FenParserError` never fires. Fixed in Session #5.
-- [ ] **`moveParse` indexes `str[0]` before the empty check.** *(verified)*
+- [x] **`moveParse` indexes `str[0]` before the empty check.** *(verified)*
   `engine/move.cpp:510` reads `str[0]`; the empty guard is inside
   `moveParseOptional` (`engine/move.cpp:409`), which runs afterwards.
-  Reachable from `Game::load` with a blank line.
+  Reachable from `Game::load` with a blank line. Fixed in Session #6.
 - [x] **`CastlingEligibility` stream operator appends a bool as a char.**
   *(verified)* `engine/castling.cpp:18`:
   `result += value.isSet (CastlingRights::Queenside);` emits `\x00` or
@@ -308,4 +308,19 @@ should be confirmed before fixing.
   `engine/test/fen_parser_test.cpp` with two subcases: a square off the
   board (`z9`) and a square missing its rank (`e`). Both failed before the
   fix with "threw a DIFFERENT exception" and pass after. Fast suite is now
+  90 tests, all passing.
+
+### Session #6
+
+- Added an explicit empty-string guard at the top of `moveParse` in
+  `engine/move.cpp`, before the castling-prefix check reads `str[0]`. An
+  empty move string now throws `ParseMoveException` with the message
+  "Error parsing move: empty string". Note that `std::string::operator[]`
+  at `size()` is defined to return a null character, so the old code was
+  not undefined behavior in practice; the guard makes the intent explicit
+  and keeps the function safe if the parameter type ever changes to
+  `string_view`.
+- Added an "Empty and whitespace-only input" subcase to
+  `engine/test/move_parse_test.cpp` covering `moveParse` with and without
+  a color and `moveParseOptional` returning `nullopt`. Fast suite remains
   90 tests, all passing.
