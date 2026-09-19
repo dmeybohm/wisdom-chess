@@ -5,6 +5,7 @@
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QTest>
+#include <QtQuickTest/quicktest.h>
 
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/ui/qml/main/game_model.hpp"
@@ -54,6 +55,33 @@ namespace wisdom::ui::test
                 QStringLiteral ("qrc:/qt/qml/WisdomChess/") + QString::fromLatin1 (main_qml_file)
             });
             game_model.start();
+        }
+
+        // A test can end with a menu or dialog open, which the application
+        // never has when its window goes away. Closing them first keeps
+        // them from outliving the window; on macOS the test after one left
+        // open crashed.
+        ~Application()
+        {
+            if (window() == nullptr)
+                return;
+
+            auto open_popups = [this]
+            {
+                QList<QObject*> result;
+                for (auto* object : window()->findChildren<QObject*>())
+                {
+                    if (object->inherits ("QQuickPopup") && object->property ("visible").toBool())
+                        result << object;
+                }
+                return result;
+            };
+
+            for (auto* popup : open_popups())
+                QMetaObject::invokeMethod (popup, "close");
+
+            if (!QTest::qWaitFor ([&] { return open_popups().isEmpty(); }))
+                qWarning ("A menu or dialog was still open when the application was destroyed");
         }
 
         Application (const Application&) = delete;
@@ -151,8 +179,16 @@ namespace wisdom::ui::test
             return false;
         }
 
+        // Clicks the middle of the item as it will be drawn. A person only
+        // ever clicks what has been drawn, and Qt lays items out just before
+        // drawing them. Until then an item's position can be stale: a
+        // dialog's buttons all start at the same place, so without the wait
+        // a click meant for No lands on Yes (Qt 6.9).
         void clickItem (QQuickItem* item)
         {
+            if (!QQuickTest::qWaitForPolish (window()))
+                QFAIL( "The window was not laid out in time" );
+
             auto center = item->mapToScene (QPointF { item->width() / 2, item->height() / 2 });
             QTest::mouseClick (window(), Qt::LeftButton, Qt::NoModifier, center.toPoint());
             QCoreApplication::processEvents();
@@ -243,10 +279,7 @@ namespace wisdom::ui::test
 
         void click (const char* coord_text)
         {
-            auto* square = squareAt (coord_text);
-            auto center = square->mapToScene (QPointF { square->width() / 2, square->height() / 2 });
-            QTest::mouseClick (window(), Qt::LeftButton, Qt::NoModifier, center.toPoint());
-            QCoreApplication::processEvents();
+            clickItem (squareAt (coord_text));
         }
 
         // A move the way a player makes one: click the piece, click the target.

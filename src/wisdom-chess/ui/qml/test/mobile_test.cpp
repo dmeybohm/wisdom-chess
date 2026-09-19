@@ -44,7 +44,7 @@ private slots:
     {
         QCOMPARE( my_app->squares().size(), 64 );
         QCOMPARE( my_app->pieces().size(), 32 );
-        QVERIFY( my_app->showsText (QStringLiteral ("<b>White</b> to move")) );
+        QTRY_VERIFY( my_app->showsText (QStringLiteral ("<b>White</b> to move")) );
 
         for (auto coord : { "a1", "e1", "h8" })
             QVERIFY2( drawnOn (*my_app, my_app->pieceAt (coord), coord), coord );
@@ -75,7 +75,7 @@ private slots:
         QCOMPARE( my_app->squares().size(), 64 );
     }
 
-    void theMenuOpensAndCloses()
+    void theMenuOpens()
     {
         auto tool_buttons = my_app->shownItemsOfClass ("QQuickToolButton");
         QCOMPARE( tool_buttons.size(), 1 );

@@ -81,7 +81,7 @@ function(wisdom_chess_add_qml_ui_test test_name source)
     string(REPLACE "_" "-" target_suffix "${target_suffix}")
     set(target "wisdom-chess-qml-${target_suffix}")
 
-    target_link_libraries(${target} PRIVATE Qt6::Quick Qt6::Svg)
+    target_link_libraries(${target} PRIVATE Qt6::Quick Qt6::QuickTest Qt6::Svg)
     qt_add_resources(${target} "${target_suffix}-qml"
         PREFIX "/qt/qml/WisdomChess"
         FILES ${arg_RESOURCE_FILES})

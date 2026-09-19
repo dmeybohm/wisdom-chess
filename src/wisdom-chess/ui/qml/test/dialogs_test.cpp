@@ -43,7 +43,7 @@ private slots:
 
     void theStatusBarFollowsTheGame()
     {
-        QVERIFY( my_app->showsText (QStringLiteral ("<b>White</b> to move")) );
+        QTRY_VERIFY( my_app->showsText (QStringLiteral ("<b>White</b> to move")) );
 
         my_app->move ("e2", "e4");
         QTRY_VERIFY( my_app->showsText (QStringLiteral ("<b>Black</b> to move")) );
@@ -90,7 +90,7 @@ private slots:
         chooseFromMenu (QStringLiteral ("New Game"));
         auto* dialog = my_app->popupWithTitle (QStringLiteral ("New Game"));
         QTRY_VERIFY( dialog->property ("visible").toBool() );
-        QVERIFY( my_app->showsText (QStringLiteral ("Start a new game?")) );
+        QTRY_VERIFY( my_app->showsText (QStringLiteral ("Start a new game?")) );
 
         clickButton (QStringLiteral ("No"));
 
@@ -113,7 +113,7 @@ private slots:
         QTRY_COMPARE( my_app->pieces().size(), 32 );
         QVERIFY( my_app->piecesMatchTheBoard() );
         QVERIFY( my_app->boardPieceAt ("e2") == ColoredPiece::make (Color::White, Piece::Pawn) );
-        QVERIFY( my_app->showsText (QStringLiteral ("<b>White</b> to move")) );
+        QTRY_VERIFY( my_app->showsText (QStringLiteral ("<b>White</b> to move")) );
     }
 
     void anOpenDialogKeepsClicksFromTheBoard()
@@ -132,7 +132,7 @@ private slots:
         chooseFromMenu (QStringLiteral ("About Wisdom Chess"));
         auto* dialog = my_app->popupWithTitle (QStringLiteral ("About Wisdom Chess"));
         QTRY_VERIFY( dialog->property ("visible").toBool() );
-        QVERIFY( my_app->showsText (QStringLiteral ("Wisdom Chess ©")) );
+        QTRY_VERIFY( my_app->showsText (QStringLiteral ("Wisdom Chess ©")) );
 
         clickButton (QStringLiteral ("OK"));
 
@@ -245,7 +245,7 @@ private slots:
         repeatThePositionThreeTimes();
         auto* dialog = my_app->popupWithTitle (QStringLiteral ("Draw Offer"));
         QTRY_VERIFY( dialog->property ("visible").toBool() );
-        QVERIFY( my_app->showsText (QStringLiteral ("repeated three times")) );
+        QTRY_VERIFY( my_app->showsText (QStringLiteral ("repeated three times")) );
 
         clickButton (QStringLiteral ("Yes"));
 
@@ -318,7 +318,7 @@ private slots:
         QVERIFY( engine_moved.wait (15000) );
         QVERIFY( my_app->game_model.qmlCurrentTurn() == wisdom::ui::Color::White );
         QTRY_VERIFY( my_app->piecesMatchTheBoard() );
-        QVERIFY( my_app->showsText (QStringLiteral ("<b>White</b> to move")) );
+        QTRY_VERIFY( my_app->showsText (QStringLiteral ("<b>White</b> to move")) );
 
         // And again, so the engine is shown to follow the game.
         my_app->move ("d2", "d4");
