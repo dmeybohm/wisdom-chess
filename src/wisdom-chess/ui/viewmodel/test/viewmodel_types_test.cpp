@@ -3,9 +3,9 @@
 #include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
 
 using namespace wisdom;
+using wisdom::ui::fullMovesToPlyDepth;
 using wisdom::ui::getFirstHumanPlayerColor;
 
-using wisdom::ui::fullMovesToPlyDepth;
 TEST_CASE( "getFirstHumanPlayerColor" )
 {
     SUBCASE( "White comes first when both players are human" )
