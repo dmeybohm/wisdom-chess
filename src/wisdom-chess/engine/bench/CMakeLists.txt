@@ -5,7 +5,8 @@ add_executable(wisdom-chess-benchmarks
     bench_move_generation.cpp
     bench_threats.cpp
     bench_legality.cpp
-    bench_perft.cpp)
+    bench_perft.cpp
+    bench_search.cpp)
 
 target_link_libraries(wisdom-chess-benchmarks PRIVATE wisdom::chess)
 target_link_libraries(wisdom-chess-benchmarks PRIVATE nanobench)
