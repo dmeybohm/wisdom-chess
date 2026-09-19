@@ -344,3 +344,42 @@ should be confirmed before fixing.
   tests, all passing.
 - The only production caller that takes user input, the UCI `hash` option,
   already clamps to the range 1 to 1024 MB.
+
+### Session #8
+
+- Replaced all twelve GSL `Expects` / `Ensures` uses in the engine. GSL 4.0
+  removed `GSL_THROW_ON_CONTRACT_VIOLATION`, so its contract macros always
+  call `std::terminate()` and the failures could not be asserted from
+  doctest.
+- Added three helpers to `engine/global.hpp`, each taking a defaulted
+  `std::source_location`:
+  - `expects (cond)` throws `PreconditionError`.
+  - `ensures (cond)` throws `PostconditionError`.
+  - `noexcept_expects (cond)` prints the failure to stderr and calls
+    `std::terminate()`.
+  Both error types derive from `wisdom::Error`. The message holds the file
+  and line, and `extra_info()` holds the function name. The throwing and
+  terminating paths live out of line in the new `engine/global.cpp` so the
+  inline callers stay small. All three helpers are `constexpr`, so a failed
+  condition during constant evaluation is a compile error.
+- `noexcept_expects` is used in the functions that are `noexcept`: the
+  `CastlingEligibility (uint8_t)` constructor, `MoveList::append` and
+  `removeLast`, and `BoardCode::setEnPassantTarget`. These are hot-path
+  internal invariants. Keeping them `noexcept` and terminating matches the
+  old GSL behaviour exactly, so there is no performance change. Their failure
+  paths are deliberately not tested.
+- Considered and rejected: throwing from the hot-path checks in Debug builds
+  or in tests only. The checks sit in inline header functions, so a
+  test-only switch would compile the same inline functions two ways in one
+  program, an ODR violation. The fix would have been a second copy of the
+  engine library built for the tests, which was not worth it for conditions
+  that should never happen.
+- `expects` / `ensures` are used everywhere else: the transposition table
+  sizing, `History::addPosition` / `removeLastPosition`, and
+  `MoveList::front` / `back`.
+- New tests: zero and negative megabyte sizes and entry counts below two are
+  rejected by `TranspositionTable`; `front()` / `back()` on an empty
+  `MoveList` throw; `History` refuses to commit or remove positions while
+  tentative positions are pending. This replaces the standalone probe from
+  session 7. Fast suite is now 93 tests, all passing, along with the 23 slow
+  tests.

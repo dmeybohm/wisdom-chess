@@ -268,6 +268,14 @@ TEST_CASE( "Transposition table sizing" )
         CHECK( by_default.getSize() == by_constant.getSize() );
         CHECK( by_default.getSize() >= 2 );
     }
+
+    SUBCASE( "Sizes too small to hold any entries are rejected" )
+    {
+        CHECK_THROWS_AS( (void)TranspositionTable::fromMegabytes (0), PreconditionError );
+        CHECK_THROWS_AS( (void)TranspositionTable::fromMegabytes (-1), PreconditionError );
+        CHECK_THROWS_AS( (void)TranspositionTable::fromEntries (0), PreconditionError );
+        CHECK_THROWS_AS( (void)TranspositionTable::fromEntries (1), PreconditionError );
+    }
 }
 
 TEST_CASE( "Transposition table with real board positions" )

@@ -67,6 +67,7 @@ add_library(wisdom-chess-core STATIC
         game.cpp
         game_status.cpp
         generate.cpp
+        global.cpp
         history.cpp
         logger.cpp 
         material.cpp 

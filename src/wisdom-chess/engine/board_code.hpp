@@ -119,7 +119,7 @@ namespace wisdom
                        : std::size_t { 0 });
             coord_bits <<= target_bit_shift;
 
-            Expects (
+            noexcept_expects (
                 coord.row() == (color == Color::White
                                     ? White_En_Passant_Row : Black_En_Passant_Row)
             );

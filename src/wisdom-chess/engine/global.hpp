@@ -23,6 +23,7 @@
 #include <cassert>
 #include <type_traits>
 #include <random>
+#include <source_location>
 
 #include <gsl/gsl>
 #include <gsl/narrow>
@@ -221,4 +222,60 @@ namespace wisdom
             return this->my_message.c_str();
         }
     };
+
+    class PreconditionError : public Error
+    {
+    public:
+        using Error::Error;
+    };
+
+    class PostconditionError : public Error
+    {
+    public:
+        using Error::Error;
+    };
+
+    [[noreturn]] void
+    throwPreconditionError (const std::source_location& location);
+
+    [[noreturn]] void
+    throwPostconditionError (const std::source_location& location);
+
+    // Throws PreconditionError when the condition is false. In a constant
+    // expression, a false condition is a compile error instead.
+    constexpr void
+    expects (
+        bool condition,
+        const std::source_location& location = std::source_location::current()
+    )
+    {
+        if (!condition) [[unlikely]]
+            throwPreconditionError (location);
+    }
+
+    [[noreturn]] void
+    terminateOnPreconditionFailure (const std::source_location& location) noexcept;
+
+    // Prints the failure and terminates when the condition is false. For
+    // noexcept functions, where expects() could not propagate its exception.
+    constexpr void
+    noexcept_expects (
+        bool condition,
+        const std::source_location& location = std::source_location::current()
+    ) noexcept
+    {
+        if (!condition) [[unlikely]]
+            terminateOnPreconditionFailure (location);
+    }
+
+    // Throws PostconditionError when the condition is false.
+    constexpr void
+    ensures (
+        bool condition,
+        const std::source_location& location = std::source_location::current()
+    )
+    {
+        if (!condition) [[unlikely]]
+            throwPostconditionError (location);
+    }
 }

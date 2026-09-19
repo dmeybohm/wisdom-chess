@@ -27,7 +27,7 @@ namespace wisdom
         CastlingEligibility (uint8_t flags) noexcept
             : my_flags { flags }
         {
-            Expects ((flags &~ (0x1|0x2)) == 0);
+            noexcept_expects ((flags &~ (0x1|0x2)) == 0);
         }
 
         [[nodiscard]] constexpr auto

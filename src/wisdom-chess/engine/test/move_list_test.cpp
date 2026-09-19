@@ -152,3 +152,11 @@ TEST_CASE( "Swapping lists" )
         CHECK( "{ [e2 d4] [a8 a1] }" == second_string );
     }
 }
+
+TEST_CASE( "Reading the ends of an empty move list throws" )
+{
+    MoveList list;
+
+    CHECK_THROWS_AS( (void)list.front(), PreconditionError );
+    CHECK_THROWS_AS( (void)list.back(), PreconditionError );
+}
