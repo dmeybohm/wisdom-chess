@@ -28,8 +28,7 @@ TEST_CASE( "Third repetition is detected" )
         Move white_move = moveParse ("e1 d1");
         Move white_return_move = moveParse ("d1 e1");
 
-        // Record initial position. we don't care about move here.
-        Move initial_move = moveParse ("d8 e8");
+        // Record initial position.
         history.addTentativePosition (board);
 
         board = board.withMove (Color::White, white_move);

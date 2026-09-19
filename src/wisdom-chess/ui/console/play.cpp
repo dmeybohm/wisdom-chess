@@ -343,8 +343,7 @@ namespace wisdom::ui::console
 
             try
             {
-                Game new_game = Game::createGameFromFen (input);
-                return std::move (new_game);
+                return Game::createGameFromFen (input);
             }
             catch ([[maybe_unused]] FenParserError& error)
             {

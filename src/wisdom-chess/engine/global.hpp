@@ -129,7 +129,29 @@ namespace wisdom
     // accept a draw offer.
     inline constexpr int Min_Draw_Score = -500;
 
-    // constexpr versoin of narrow_cast (no exception at runtime:
+    template <typename T>
+    [[nodiscard]] constexpr auto
+    isNegative (T value) noexcept
+        -> bool
+    {
+        if constexpr (std::is_signed_v<T>)
+            return value < T {};
+        else
+            return false;
+    }
+
+    // Whether converting the value to Target and back preserves it.
+    template <typename Target, typename Source>
+    [[nodiscard]] constexpr auto
+    isLosslessConversion (Source value) noexcept
+        -> bool
+    {
+        auto converted = static_cast<Target> (value);
+        return static_cast<Source> (converted) == value
+            && isNegative (converted) == isNegative (value);
+    }
+
+    // constexpr version of narrow_cast (no exception at runtime):
     template <typename Target, typename Source> constexpr auto
     narrow_cast (Source value) noexcept
         -> Target
@@ -140,8 +162,7 @@ namespace wisdom
         // Check if Source can fit into Target without truncation
         if (std::is_constant_evaluated())
         {
-            if (value < std::numeric_limits<Target>::min() ||
-                value > std::numeric_limits<Target>::max())
+            if (!isLosslessConversion<Target> (value))
             {
                 // At compile-time, trigger an error if there's truncation
                 std::terminate();
@@ -151,7 +172,7 @@ namespace wisdom
         return gsl::narrow_cast<Target> (value);
     }
 
-    // constexpr versoin of narrow (exception at runtime):
+    // constexpr version of narrow (exception at runtime):
     template <typename Target, typename Source> constexpr auto
     narrow (Source value)
         -> Target
@@ -162,8 +183,7 @@ namespace wisdom
         // Check if Source can fit into Target without truncation
         if (std::is_constant_evaluated())
         {
-            if (value < std::numeric_limits<Target>::min() ||
-                value > std::numeric_limits<Target>::max())
+            if (!isLosslessConversion<Target> (value))
             {
                 // At compile-time, trigger an error if there's truncation
                 throw std::runtime_error ("narrow_cast: narrowing occurred");

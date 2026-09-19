@@ -26,7 +26,6 @@ TEST_CASE( "findFirstCoordWithPiece()" )
 
     SUBCASE( "Returns the first position if there are multiple positions with the same combo" )
     {
-        auto white_pawn = ColoredPiece::make (Color::White, Piece::Pawn);
         auto black_pawn_pos = board.findFirstCoordWithPiece (Piece::Pawn);
         auto expected_black_pawn_pos = coordParse ("a7");
         CHECK( *black_pawn_pos == expected_black_pawn_pos );

@@ -408,3 +408,29 @@ warnings on the engine target, so none of these were visible there.
   sources with GCC without `NDEBUG` (no errors) and the engine plus non-Qt UI
   sources with Clang `-Wall -Wextra` (no diagnostics). Release build and all
   116 tests pass.
+
+### Session #10
+
+Warnings GCC raises with `-Wall -Wextra` on the targets that do not normally
+get those flags: the tests, the console UI, and header templates they
+instantiate.
+
+- The compile-time range check in `narrow` and `narrow_cast`
+  (`engine/global.hpp`) compared the value against the target's limits
+  directly. With mixed signedness the usual arithmetic conversions made the
+  comparison wrong as well as noisy: a constant `-1` narrowed to an unsigned
+  type passed the check. Replaced it with `isLosslessConversion<Target>`,
+  the same round-trip plus sign test `gsl::narrow` uses at runtime. It works
+  for every arithmetic type, including the `char` targets used in
+  `board.cpp` and `coord.hpp`, which rules out `std::in_range`.
+- Added `engine/test/global_test.cpp` with `static_assert` coverage of the
+  in-range, out-of-range and sign-change cases, plus a runtime check that
+  `narrow` throws when the value does not fit.
+- Removed unused locals in `board_code_test.cpp`, `board_test.cpp` and
+  `history_test.cpp`, and the vestigial pointer parameter of the helper in
+  `move_list_test.cpp`.
+- `loadFen()` in `ui/console/play.cpp` now returns the factory result
+  directly instead of `std::move` on a local.
+- Verified: GCC without `NDEBUG` and Emscripten's Clang, both with
+  `-Wall -Wextra`, report nothing across the engine, tests, viewmodel, UCI
+  and console sources. Fast suite is now 95 tests; all 118 tests pass.

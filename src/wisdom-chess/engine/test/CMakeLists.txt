@@ -21,6 +21,7 @@ if (WISDOM_CHESS_FAST_TESTS)
         str_test.cpp
         board_test.cpp
         game_test.cpp
+        global_test.cpp
         transposition_table_test.cpp
         logger_test.cpp
         test_main.cpp)
