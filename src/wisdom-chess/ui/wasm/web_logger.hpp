@@ -14,8 +14,10 @@ namespace wisdom::worker
 
         void debug (const std::string& output) const override;
         void info (const std::string& output) const override;
+        void emergency (const std::string& output) const override;
 
         static void consoleLog (const char* str);
+        static void consoleError (const char* str);
     };
 
     [[nodiscard]] inline auto 

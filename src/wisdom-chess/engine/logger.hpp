@@ -18,6 +18,9 @@ namespace wisdom
 
         virtual void debug (const string& output) const = 0;
         virtual void info (const string& output) const = 0;
+
+        // A fatal message, sent just before the process terminates. Must not buffer.
+        virtual void emergency (const string& output) const = 0;
     };
 
     // How much log output to retain while debug logging is switched off.
@@ -136,6 +139,7 @@ namespace wisdom
 
         void debug (const string& output) const override;
         void info (const string& output) const override;
+        void emergency (const string& output) const override;
 
     private:
         shared_ptr<Logger> my_sink;

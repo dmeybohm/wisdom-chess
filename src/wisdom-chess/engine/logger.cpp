@@ -22,6 +22,10 @@ namespace wisdom
         void info ([[maybe_unused]] const string& output) const override
         {
         }
+
+        void emergency ([[maybe_unused]] const string& output) const override
+        {
+        }
     };
 
     class StandardLogger : public Logger
@@ -43,6 +47,11 @@ namespace wisdom
         {
             if (my_log_level >= LogLevel_Info)
                 write (output);
+        }
+
+        void emergency (const string& output) const override
+        {
+            std::cerr << output + "\n";
         }
 
     private:
@@ -285,6 +294,11 @@ namespace wisdom
     void BufferedLogger::info (const string& output) const
     {
         log (LogLevel_Info, output);
+    }
+
+    void BufferedLogger::emergency (const string& output) const
+    {
+        my_sink->emergency (formatLogTimestamp (chrono::system_clock::now()) + output);
     }
 
     void BufferedLogger::log (LogLevel level, const string& output) const

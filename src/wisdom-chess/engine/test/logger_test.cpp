@@ -23,6 +23,13 @@ namespace
         {
             lines.push_back (LogEntry { LogLevel_Info, output });
         }
+
+        void emergency (const string& output) const override
+        {
+            emergencies.push_back (output);
+        }
+
+        mutable vector<string> emergencies;
     };
 
     const std::regex Timestamp_Prefix { R"(^\[\d{2}:\d{2}:\d{2}\.\d{3}\] )" };
@@ -410,5 +417,22 @@ TEST_CASE( "BufferedLogger" )
         REQUIRE( sink->lines.size() == 2 );
         CHECK( hasTimestamp (sink->lines[0].text) );
         CHECK( hasTimestamp (sink->lines[1].text) );
+    }
+
+    SUBCASE( "emergencies bypass the buffer while disabled" )
+    {
+        auto logger = makeBufferedLogger (sink);
+
+        logger->info ("buffered");
+        logger->emergency ("fatal");
+
+        CHECK( sink->lines.empty() );
+        REQUIRE( sink->emergencies.size() == 1 );
+        CHECK( hasTimestamp (sink->emergencies[0]) );
+        CHECK( withoutTimestamp (sink->emergencies[0]) == "fatal" );
+
+        logger->setEnabled (true);
+        REQUIRE( sink->lines.size() == 1 );
+        CHECK( withoutTimestamp (sink->lines[0].text) == "buffered" );
     }
 }

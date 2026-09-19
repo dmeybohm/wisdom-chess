@@ -60,6 +60,12 @@ namespace wisdom
                 sendLine ("info " + output);
             }
 
+            void emergency (const string& output) const override
+            {
+                std::cout << "info string " << output << "\n";
+                std::cout.flush();
+            }
+
         private:
             bool my_debug_enabled;
         };

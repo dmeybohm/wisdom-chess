@@ -24,6 +24,11 @@ void ChessEngine::ChessEngineLogger::info (const std::string& line) const
     qDebug() << line.c_str();
 }
 
+void ChessEngine::ChessEngineLogger::emergency (const std::string& line) const
+{
+    qCritical() << line.c_str();
+}
+
 ChessEngine::ChessEngine (shared_ptr<ChessGame> game, int gameId, QObject* parent) :
         QObject { parent }, 
         my_game { std::move (game) }, 
