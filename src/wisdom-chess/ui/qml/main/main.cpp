@@ -5,6 +5,8 @@
 #include <QQuickWindow>
 #include <QSGRendererInterface>
 
+#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/ui/qml/main/chess_engine.hpp"
 #include "wisdom-chess/ui/qml/main/game_model.hpp"
 #include "wisdom-chess/ui/qml/main/pieces_model.hpp"
 #include "wisdom-chess/ui/qml/main/ui_types.hpp"
@@ -13,6 +15,9 @@ using namespace wisdom;
 
 int main (int argc, char *argv[])
 {
+    wisdom::setEmergencyLogger (std::make_shared<ChessEngine::ChessEngineLogger>());
+    wisdom::installEmergencyTerminateHandler();
+
 #ifdef USE_OPENGL_GRAPHICS_BACKEND
     // Workaround resizing flickering issue. Seems like the default rendering
     // backends for QML have some issues on my hardware still, so revert to

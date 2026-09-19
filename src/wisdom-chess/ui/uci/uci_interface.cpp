@@ -342,7 +342,7 @@ namespace wisdom
                 }
                 game.setPeriodicFunction (buildNotifier (current_search_id));
 
-                auto logger = std::make_shared<UciLogger> (debug_mode);
+                auto logger = makeUciLogger (debug_mode);
                 auto best_move = game.findBestMove (logger);
 
                 if (my_search_id.load() == current_search_id)
@@ -510,5 +510,12 @@ namespace wisdom
                 timer->setSeconds (chrono::seconds { 0 });
             }
         };
+    }
+
+    auto
+    makeUciLogger (bool debug_enabled)
+        -> std::shared_ptr<Logger>
+    {
+        return std::make_shared<UciLogger> (debug_enabled);
     }
 }
