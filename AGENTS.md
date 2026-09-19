@@ -273,7 +273,9 @@ doctest ones: `QCOMPARE( a, b )`.
 the real models and work it by clicking. They share
 `application_fixture.hpp`; add one with `wisdom_chess_add_qml_ui_test()`.
 `ctest` runs them with `QT_QPA_PLATFORM=offscreen` and
-`QT_QUICK_BACKEND=software`; set both when running an executable by hand.
+`QT_QUICK_BACKEND=software`, and on macOS with `QT_QUICK_CONTROLS_STYLE=Fusion`
+because the native macOS style crashes without Cocoa; set these when running
+an executable by hand.
 Each test fails on any QML warning. Click through the fixture's
 `clickItem()`, which waits for pending layout first: until then an item's
 position can be stale, and on Qt 6.9 a click aimed at a dialog's No button

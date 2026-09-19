@@ -400,6 +400,55 @@ against 6.11.2.
   `-j 8` against 6.9.3; linter clean. Not verified: macOS and Windows,
   which need the next CI run.
 
+### Session #10
+
+The run on `0e999de` was green on Linux and still red on macOS (the same
+two crashes) and Windows (no output). Closing popups at teardown had not
+helped, so the "menu left open" theory was wrong.
+
+- A temporary commit (`4f2d28d`) added two workflow steps that run only
+  when the tests fail on macOS or Windows:
+  `scripts/ci/diagnose-qml-tests.sh` reruns the dialogs and mobile tests
+  under the default, Fusion and Basic styles with `-v2` logs written to
+  files, runs each test function in its own process, and on macOS runs
+  them under `lldb` for a backtrace; the logs are uploaded as an artifact.
+  Run 35467045697.
+- **Style matters, and only style.** Fusion passed everything on both
+  platforms. The platforms' default styles, macOS and Windows, are the
+  native-look ones; Linux defaults to Fusion, which is why Linux never
+  failed.
+- **macOS: a crash in Qt's native style.** Run one function per process,
+  every test that opens a dialog crashed, and the menu-only tests passed,
+  so no earlier test is needed. The `lldb` backtrace: `EXC_BAD_ACCESS` at
+  address 0x4 in `objc_msgSend`, called from
+  `libqtquickcontrols2nativestyleplugin`, called from
+  `QQuickWindowPrivate::polishItems()`. The native macOS style draws its
+  controls through Cocoa, which the `offscreen` platform does not have.
+  The application runs on the Cocoa platform, so this is a limit of the
+  test setup, not an application bug. The UI tests now set
+  `QT_QUICK_CONTROLS_STYLE=Fusion` on macOS; the native macOS style goes
+  untested by them.
+- **Windows: one strict check.** The native Windows style failed only
+  `aNewGameCanBeDeclined`, at "Start a new game?", also in its own
+  process. The Windows log does carry Qt Test's output when written to a
+  file; why ctest showed none is still unknown. Locally the Basic style
+  fails the same way.
+- **Cause of the Windows failure.** `NewGameDialog.qml` is 150 px tall
+  with 40 px of padding. That leaves the content 4 px high in Fusion and
+  -35 px in Basic, and `Text { anchors.fill: parent }` gets that height.
+  Qt still draws the text; screenshots taken offscreen show it centred on
+  the sliver in Fusion and squeezed against the buttons in Basic.
+  `showsText()` required a box of non-zero size. It now uses the text's
+  `paintedWidth` and `paintedHeight`, the size it is drawn at.
+- **Finding, not fixed:** the New Game and Quit dialogs are too short for
+  their own padding (`height: Math.min(150, ...)`, `padding: 40`). The text
+  only looks right because it overflows its box. With a style whose title
+  and buttons are taller it crowds the buttons. Worth a look on Windows,
+  where users get the native style.
+- Verified locally against Qt 6.9.3 and 6.11.2: all 180 fast tests pass,
+  and the dialogs test passes under Basic and Fusion. The macOS style
+  switch is only exercised on CI.
+
 ### What the Session #16 removal bug really was
 
 With the `i--; continue;` fix in `PiecesModel::playerMoved` reverted, the

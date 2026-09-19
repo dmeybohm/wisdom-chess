@@ -267,6 +267,11 @@ should be confirmed before fixing.
   open menu, then the button's click on release sees it closed and opens
   it again (`ui/qml/main/mobile_main.qml`). Found on the `qml-tests`
   branch.
+- [ ] The New Game and Quit dialogs are too short for their padding
+  (`popups/NewGameDialog.qml`, `popups/ConfirmQuitDialog.qml`: height at
+  most 150, padding 40), so their text has no room and is drawn outside
+  its box. With taller title and button bars, as in the Basic style, it
+  crowds the buttons. Found on the `qml-tests` branch.
 - [ ] `ChessGame::setPlayers()` changes the game's players but not
   `config().players` (`ui/qml/main/chess_game.cpp`). Found on the
   `qml-tests` branch.
