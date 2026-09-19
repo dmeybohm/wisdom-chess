@@ -108,7 +108,8 @@ should be confirmed before fixing.
   between moves needs a benchmark that searches consecutive positions of
   one game without clearing; add that alongside the fix.
 - [ ] Leaf evaluation calls full legal-move generation when in check
-  (`engine/evaluate.cpp:63, 87-97`).
+  (`engine/evaluate.cpp:63, 87-97`). Measured, with the alternatives, in
+  [faster-legal-move-test.md](faster-legal-move-test.md).
 - [x] `compareMoves` recomputes `materialDiff` in the return
   (`engine/generate.cpp:538-542`); the sort lambda captures
   `MoveGeneration` by value (`engine/generate.cpp:564-568`).
