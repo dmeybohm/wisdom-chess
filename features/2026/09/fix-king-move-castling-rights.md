@@ -60,4 +60,15 @@ rights are already gone.
   the seven that follow a lost queenside right are negated.
 - Found while debugging the new test in a Debug build:
   `FenParser::buildBoard()` ignores the side to move in the FEN, unlike
-  `FenParser::build()`. Not changed here.
+  `FenParser::build()`. Fixed in Session #3.
+
+### Session #3
+
+- `FenParser::buildBoard()` now sets the side to move from the FEN, as
+  `FenParser::build()` already did. Added a test that failed before the
+  change. The benchmarks that call `buildBoard()` read the side to move
+  separately, so they were unaffected.
+- `updateAfterRookMove()` now uses `optional<CastlingEligibility>` for
+  "not a corner rook", as `updateAfterRookCapture()` does, instead of the
+  `Both_Sides` placeholder.
+- All tests pass: 116 in Debug, 139 in Release with the slow tests.
