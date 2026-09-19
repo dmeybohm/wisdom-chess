@@ -218,6 +218,7 @@ namespace wisdom
     FenParser::buildBoard() 
         -> Board
     {
+        builder.setCurrentTurn (active_player);
         return Board { builder };
     }
 }

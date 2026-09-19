@@ -45,6 +45,21 @@ TEST_CASE( "FEN notation for non-starting position" )
     CHECK( black_state == exp_black_state );
 }
 
+TEST_CASE( "FEN parser sets the side to move on a built board" )
+{
+    SUBCASE( "White to move" )
+    {
+        FenParser parser { "4k3/8/8/8/8/8/8/4K3 w - - 0 1" };
+        CHECK( parser.buildBoard().getCurrentTurn() == Color::White );
+    }
+
+    SUBCASE( "Black to move" )
+    {
+        FenParser parser { "4k3/8/8/8/8/8/8/4K3 b - - 0 1" };
+        CHECK( parser.buildBoard().getCurrentTurn() == Color::Black );
+    }
+}
+
 TEST_CASE( "FEN notation for castling" )
 {
     Game game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w KQkq - 0 1");
