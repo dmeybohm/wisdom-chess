@@ -60,9 +60,10 @@ namespace wisdom
         int score = 0;
         Color opponent = colorInvert (who);
 
-        if (isPlayerCheckmated (board, who))
+        if (isCheckmated (board))
         {
-            return -1 * checkmateScoreInMoves (moves_away);
+            int sign = who == board.getCurrentTurn() ? -1 : 1;
+            return sign * checkmateScoreInMoves (moves_away);
         }
 
         score += board.getMaterial().overallScore (who);
@@ -84,22 +85,12 @@ namespace wisdom
             : 0;
     }
 
-    bool isPlayerCheckmated (const Board& board, Color who)
-    {
-        auto coord = board.getKingPosition (who);
-
-        if (!isKingThreatened (board, who, coord))
-            return false;
-
-        assert (who == board.getCurrentTurn());
-
-        return !hasLegalMove (board);
-    }
-
     auto isCheckmated (const Board& board) -> bool
     {
-        return isPlayerCheckmated (board, Color::White) ||
-            isPlayerCheckmated (board, Color::Black);
+        auto who = board.getCurrentTurn();
+        auto coord = board.getKingPosition (who);
+
+        return isKingThreatened (board, who, coord) && !hasLegalMove (board);
     }
 
     auto
@@ -135,10 +126,10 @@ namespace wisdom
         return true;
     }
 
-    auto isStalemated (const Board& board, Color who) -> bool
+    auto isStalemated (const Board& board) -> bool
     {
+        auto who = board.getCurrentTurn();
         auto coord = board.getKingPosition (who);
-        assert (who == board.getCurrentTurn());
 
         return !isKingThreatened (board, who, coord) && !hasLegalMove (board);
     }

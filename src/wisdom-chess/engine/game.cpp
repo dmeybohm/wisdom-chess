@@ -166,7 +166,7 @@ namespace wisdom
         if (isCheckmated (my_pimpl->my_current_board))
             return GameStatus::Checkmate;
 
-        if (isStalemated (my_pimpl->my_current_board, getCurrentTurn()))
+        if (isStalemated (my_pimpl->my_current_board))
             return GameStatus::Stalemate;
 
         if (my_pimpl->my_history.isThirdRepetition (my_pimpl->my_current_board))

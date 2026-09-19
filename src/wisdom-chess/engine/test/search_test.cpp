@@ -286,7 +286,7 @@ TEST_CASE( "Checkmate is preferred to stalemate" )
     REQUIRE( result.move.has_value() );
 
     game.move (*result.move);
-    auto is_stalemate = isStalemated (game.getBoard(), Color::White);
+    auto is_stalemate = isStalemated (game.getBoard());
     CHECK( !is_stalemate );
 }
 
@@ -305,7 +305,7 @@ TEST_CASE( "Can avoid stalemate" )
 
     game.move (*result.move);
 
-    auto is_stalemate = isStalemated (game.getBoard(), Color::White);
+    auto is_stalemate = isStalemated (game.getBoard());
     CHECK( !is_stalemate );
 }
 

@@ -87,9 +87,10 @@ TEST_CASE( "hasLegalMove" )
         );
 
         CHECK( !hasLegalMove (board) );
-        CHECK( isPlayerCheckmated (board, Color::White) );
-        CHECK( !isPlayerCheckmated (board, Color::Black) );
-        CHECK( !isStalemated (board, Color::White) );
+        CHECK( isCheckmated (board) );
+        CHECK( !isStalemated (board) );
+        CHECK( evaluate (board, Color::White, 1) == -checkmateScoreInMoves (1) );
+        CHECK( evaluate (board, Color::Black, 1) == checkmateScoreInMoves (1) );
     }
 
     SUBCASE( "A stalemated player has no legal move" )
@@ -97,8 +98,8 @@ TEST_CASE( "hasLegalMove" )
         auto board = boardFromFen ("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
 
         CHECK( !hasLegalMove (board) );
-        CHECK( isStalemated (board, Color::Black) );
-        CHECK( !isPlayerCheckmated (board, Color::Black) );
+        CHECK( isStalemated (board) );
+        CHECK( !isCheckmated (board) );
     }
 
     SUBCASE( "A player in check with an evasion has a legal move" )
@@ -106,8 +107,8 @@ TEST_CASE( "hasLegalMove" )
         auto board = boardFromFen ("4k3/8/8/8/8/8/4r3/4K3 w - - 0 1");
 
         CHECK( hasLegalMove (board) );
-        CHECK( !isPlayerCheckmated (board, Color::White) );
-        CHECK( !isStalemated (board, Color::White) );
+        CHECK( !isCheckmated (board) );
+        CHECK( !isStalemated (board) );
     }
 
     SUBCASE( "A player in check whose only evasion is a block has a legal move" )

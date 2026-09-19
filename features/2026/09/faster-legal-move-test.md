@@ -210,3 +210,27 @@ exactly where this mate test runs, so the two designs meet.
   117 fast tests passing; Release build with all 140 tests passing;
   linter clean on the changed files.
 
+### Session #5
+
+- Dropped `who` from the mate and stalemate tests. In a legal position
+  only the side to move can be checkmated or stalemated, so the parameter
+  carried no information once `hasLegalMove()` stopped taking it.
+  - `isCheckmated (board)`: the side to move is in check and has no legal
+    move. It used to test both colors; the side not to move can only be
+    in check in an illegal position.
+  - `isPlayerCheckmated()` is removed; it had become the same function.
+  - `isStalemated (board)`.
+  - The two asserts from Session #4 went with the parameter.
+- `evaluate (board, who, moves_away)` keeps `who`, because
+  `Game::computerWantsDraw()` calls it for the side not to move to score
+  from that player's view. It now scores a mate from both views:
+  `-mate` when `who` is the mated side to move, `+mate` when `who` is the
+  other side, which previously got a material score. Nothing reaches the
+  new case today, since `Game::status()` reports checkmate before any draw
+  offer is evaluated, and the search always passes the side to move.
+- Tests: the mate, stalemate and evasion cases use the new signatures,
+  and the mate case asserts `evaluate()` from both sides.
+- Verified: Debug build of every non-QML target with no warnings and 117
+  fast tests passing; Release with all 140 passing; linter clean. The
+  depth-8 searches reach the same moves and scores as in Session #2.
+
