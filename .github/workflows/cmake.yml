@@ -138,24 +138,6 @@ jobs:
     - name: Run Tests
       run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} --build-config ${{ matrix.build_type }} --output-on-failure -j 4
 
-    # TEMPORARY: diagnostics for the QML UI tests that fail on macOS and
-    # Windows only. Remove both steps, and scripts/ci/diagnose-qml-tests.sh,
-    # once those failures are understood.
-    - name: Diagnose QML test failures
-      if: failure() && runner.os != 'Linux'
-      shell: bash
-      timeout-minutes: 20
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      run: bash "${{ github.workspace }}/scripts/ci/diagnose-qml-tests.sh"
-
-    - name: Upload QML diagnostics
-      if: failure() && runner.os != 'Linux'
-      uses: actions/upload-artifact@v4
-      with:
-        name: qml-diagnostics-${{ matrix.os }}-${{ matrix.build_type }}
-        path: ${{ steps.strings.outputs.build-output-dir }}/qml-diagnostics
-        if-no-files-found: warn
-
     - name: Install (CMake)
       # Smoke-test the install rules into a scratch prefix. The default prefix
       # (/usr/local) is not writable at its top level on the macOS runners,
