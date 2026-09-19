@@ -53,7 +53,7 @@ namespace wisdom
                     if (isKingThreatened (new_board, opponent, opponent_king))
                     {
                         counters.checks++;
-                        if (!hasLegalMove (new_board, opponent))
+                        if (!hasLegalMove (new_board))
                             counters.checkmates++;
                     }
                 }

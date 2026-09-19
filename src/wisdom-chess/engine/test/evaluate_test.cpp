@@ -25,33 +25,27 @@ namespace
     constexpr auto Black_Stalemated = "7k/5Q2/6K1/8/8/8/8/8 b - - 0 1";
 }
 
+// Only the player to move can be checkmated or stalemated, so both tests
+// read that player from the board.
 TEST_CASE( "Checkmate detection" )
 {
     SUBCASE( "The starting position is not checkmate" )
     {
         Board board;
-
         CHECK( !isCheckmated (board) );
-        CHECK( !isPlayerCheckmated (board, Color::White) );
-        CHECK( !isPlayerCheckmated (board, Color::Black) );
+
+        board = board.withMove (Color::White, moveParse ("e2 e4", Color::White));
+        CHECK( !isCheckmated (board) );
     }
 
     SUBCASE( "White is checkmated" )
     {
-        auto board = boardFromFen (Fools_Mate);
-
-        CHECK( isCheckmated (board) );
-        CHECK( isPlayerCheckmated (board, Color::White) );
-        CHECK( !isPlayerCheckmated (board, Color::Black) );
+        CHECK( isCheckmated (boardFromFen (Fools_Mate)) );
     }
 
     SUBCASE( "Black is checkmated" )
     {
-        auto board = boardFromFen (Scholars_Mate);
-
-        CHECK( isCheckmated (board) );
-        CHECK( isPlayerCheckmated (board, Color::Black) );
-        CHECK( !isPlayerCheckmated (board, Color::White) );
+        CHECK( isCheckmated (boardFromFen (Scholars_Mate)) );
     }
 
     SUBCASE( "A check that can be answered by capturing the checker is not checkmate" )
@@ -64,6 +58,17 @@ TEST_CASE( "Checkmate detection" )
         CHECK( !isCheckmated (board) );
     }
 
+    SUBCASE( "A check that can only be blocked is not checkmate" )
+    {
+        // The rook can block on g7.
+        auto board = boardFromFen ("6rk/7p/8/8/8/8/1B6/K7 b - - 0 1");
+        CHECK( !isCheckmated (board) );
+
+        // A light-squared bishop in its place cannot.
+        auto without_blocker = boardFromFen ("6bk/7p/8/8/8/8/1B6/K7 b - - 0 1");
+        CHECK( isCheckmated (without_blocker) );
+    }
+
     SUBCASE( "Stalemate is not checkmate" )
     {
         CHECK( !isCheckmated (boardFromFen (White_Stalemated)) );
@@ -71,46 +76,49 @@ TEST_CASE( "Checkmate detection" )
     }
 }
 
-// isStalemated() looks for a legal move, which is only defined for the side
-// to move, so each position is asked about that side alone.
 TEST_CASE( "Stalemate detection" )
 {
     SUBCASE( "White is stalemated" )
     {
-        auto board = boardFromFen (White_Stalemated);
-
-        CHECK( isStalemated (board, Color::White) );
+        CHECK( isStalemated (boardFromFen (White_Stalemated)) );
     }
 
     SUBCASE( "Black is stalemated" )
     {
-        auto board = boardFromFen (Black_Stalemated);
-
-        CHECK( isStalemated (board, Color::Black) );
+        CHECK( isStalemated (boardFromFen (Black_Stalemated)) );
     }
 
     SUBCASE( "Checkmate is not stalemate" )
     {
-        CHECK( !isStalemated (boardFromFen (Fools_Mate), Color::White) );
-        CHECK( !isStalemated (boardFromFen (Scholars_Mate), Color::Black) );
+        CHECK( !isStalemated (boardFromFen (Fools_Mate)) );
+        CHECK( !isStalemated (boardFromFen (Scholars_Mate)) );
     }
 
     SUBCASE( "The starting position is not stalemate" )
     {
         Board board;
-        CHECK( !isStalemated (board, Color::White) );
+        CHECK( !isStalemated (board) );
 
         board = board.withMove (Color::White, moveParse ("e2 e4", Color::White));
-        CHECK( !isStalemated (board, Color::Black) );
+        CHECK( !isStalemated (board) );
     }
 
     SUBCASE( "A spare pawn move prevents stalemate" )
     {
         auto board = boardFromFen ("7k/5Q2/6K1/8/8/p7/P7/8 b - - 0 1");
-        CHECK( isStalemated (board, Color::Black) );
+        CHECK( isStalemated (board) );
 
         auto with_spare_move = boardFromFen ("7k/5Q2/6K1/8/p7/8/P7/8 b - - 0 1");
-        CHECK( !isStalemated (with_spare_move, Color::Black) );
+        CHECK( !isStalemated (with_spare_move) );
+    }
+
+    SUBCASE( "The same position is stalemate only for the player it traps" )
+    {
+        auto trapped_to_move = boardFromFen ("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
+        auto other_to_move = boardFromFen ("7k/5Q2/6K1/8/8/8/8/8 w - - 0 1");
+
+        CHECK( isStalemated (trapped_to_move) );
+        CHECK( !isStalemated (other_to_move) );
     }
 }
 
@@ -220,13 +228,15 @@ TEST_CASE( "Checkmate scores" )
         CHECK( evaluate (board, Color::White, 1) < evaluate (board, Color::White, 3) );
     }
 
-    SUBCASE( "Only the evaluated player is tested for checkmate" )
+    SUBCASE( "The player giving checkmate gets the same score with the opposite sign" )
     {
-        auto board = boardFromFen (Fools_Mate);
-        auto score = evaluate (board, Color::Black, 0);
+        auto white_mated = boardFromFen (Fools_Mate);
+        auto black_mated = boardFromFen (Scholars_Mate);
 
-        CHECK( score < Max_Non_Checkmate_Score );
-        CHECK( score > -1 * Max_Non_Checkmate_Score );
+        CHECK( evaluate (white_mated, Color::Black, 3) == checkmateScoreInMoves (3) );
+        CHECK( evaluate (black_mated, Color::White, 3) == checkmateScoreInMoves (3) );
+        CHECK( evaluate (black_mated, Color::Black, 3) == -1 * checkmateScoreInMoves (3) );
+        CHECK( isCheckmatingOpponentScore (evaluate (white_mated, Color::Black, 3)) );
     }
 
     SUBCASE( "Without legal moves, check decides between mate and stalemate" )

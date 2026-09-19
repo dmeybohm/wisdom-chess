@@ -29,7 +29,7 @@ fixed separately, unless the fix is needed for the test to exist.
 - Add `castles`, `promotions`, `checks` and `checkmates` to `MoveCounter`.
   A check is counted when the opponent's king is attacked after the move,
   and a checkmate when that opponent then has no legal move. The checkmate
-  count exercises `isPlayerCheckmated` and `hasLegalMove` against published
+  count exercises `isCheckmated` and `hasLegalMove` against published
   numbers, which the `faster-legal-move-test` change makes worth having.
 - Add the full counter rows for positions 1 to 4 from
   <https://www.chessprogramming.org/Perft_Results>, and the node counts for
@@ -161,3 +161,28 @@ Noticed while writing the tests. None is fixed here.
 - `makeOutputFormat()` looks for ".fen" anywhere in the path, not at the
   end, so a directory called `my.fen.games` turns every save into a FEN
   file.
+
+### Session #2
+
+Rebased on `main` after PR #242, which changed the functions several of
+these tests call: `isPlayerCheckmated()` is gone, `isCheckmated()`,
+`isStalemated()` and `hasLegalMove()` take only the board and read the side
+to move from it, and `evaluate()` gives the player delivering mate the
+positive mate score, where it used to give a material score.
+
+- The rebase itself had no conflicts, but `evaluate_test.cpp` and
+  `perft.cpp` no longer compiled. They are adapted in one commit on top, so
+  the commits before it do not build against the new `main`.
+- `evaluate_test.cpp`: the mate and stalemate cases use the new signatures.
+  The case that pinned the old behaviour, a plain score for the mating
+  side, now expects `+checkmateScoreInMoves (n)` from that side for both
+  colors. New: a check that can only be blocked is not mate, with the same
+  position made mate by swapping the blocker for a bishop of the wrong
+  color, and one position that is stalemate with Black to move and not
+  with White to move.
+- The Session #1 lesson about asking only for the side to move no longer
+  applies to these three functions, which cannot be asked anything else.
+  It still applies to `generateLegalMoves()` and `Board::withMove()`.
+  `AGENTS.md` says so.
+- Verified: GCC Release with all 202 tests and Debug with all 174 fast
+  tests passing, no warnings, linter clean.

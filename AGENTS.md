@@ -256,9 +256,10 @@ Besides the engine's doctest executables, `ctest` runs:
   A UCI script that starts a search must send `stop` before `quit`, or no
   `bestmove` is printed.
 
-`hasLegalMove()`, `generateLegalMoves()` and `isStalemated()` may only be
-asked about the side to move; `Board::withMove()` asserts it in Debug. Run new
-engine tests in a Debug build as well as Release.
+`isCheckmated()`, `isStalemated()` and `hasLegalMove()` read the side to move
+from the board. `generateLegalMoves()` and `Board::withMove()` still take a
+color, which must be the side to move; `withMove()` asserts it in Debug. Run
+new engine tests in a Debug build as well as Release.
 
 ### Linting and Type Checking
 
