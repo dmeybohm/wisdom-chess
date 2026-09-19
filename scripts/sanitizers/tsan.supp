@@ -1,0 +1,38 @@
+# ThreadSanitizer suppressions for the QML UI tests.
+#
+# Qt's QMutex uses a raw futex() syscall on Linux instead of
+# pthread_mutex_lock/unlock, and the Qt build under test is not itself
+# sanitizer-instrumented, so TSan cannot see the happens-before edges Qt
+# establishes internally when it marshals data across threads. Every
+# suppression below is for a race entirely inside Qt/glib/libstdc++
+# runtime code (never inside our own wisdom:: or GameModel/ChessEngine
+# frames), reached only because our code is what triggers the underlying
+# cross-thread signal/slot delivery or thread start/stop.
+
+# Qt copies and later destroys a std::function argument (the periodic-
+# search notifier from GameModel::buildNotifier()) through QMetaType when
+# marshaling GameModel::engineConfigChanged(...) across the queued
+# connection to ChessEngine::updateConfig(). Seen as an operator
+# delete/delete[] race inside QtPrivate::QMetaTypeForType<...>::getDtor()/
+# getCopyCtr(), triggered from GameModel::updateEngineConfig()
+# (game_model.cpp:393). Observed in wisdom-chess-qml-application-test and
+# wisdom-chess-qml-dialogs-test.
+race:QMetaType
+
+# Qt's glib-based event dispatcher wakes another thread's event loop by
+# writing to an eventfd; the write/read pair is only a wakeup signal, and
+# the actual cross-thread hand-off is protected by the same uninstrumented
+# Qt locking as above. Seen from GameModel::updateEngineConfig() and
+# GameModel::stopEngineThread() starting/stopping the engine thread, with
+# the racing write()/eventfd() calls inside libglib-2.0.so.0.
+race:eventfd
+
+# QtQuick's internal QThreadPool ('Thread (pooled)') touches Qt's
+# implicitly-shared container refcounting (QArrayData::allocate, then a
+# memmove inside libQt6Core.so.6) from more than one pooled worker thread
+# at once. Entirely inside Qt's own container implementation; our code
+# only triggers it indirectly via a UI click
+# (wisdom::ui::test::Application::clickItem() opening a menu/starting a
+# game). Observed in wisdom-chess-qml-dialogs-test and
+# wisdom-chess-qml-mobile-test.
+race:QArrayData

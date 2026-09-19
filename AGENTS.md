@@ -222,7 +222,8 @@ cmake --build . --target WisdomChessQml
 | `WISDOM_CHESS_FAST_TESTS` | Bool | ON | Build fast tests |
 | `WISDOM_CHESS_SLOW_TESTS` | Bool | OFF | Build slow tests |
 | `WISDOM_CHESS_PCH_ENABLED` | Bool | ON | Use precompiled headers |
-| `WISDOM_CHESS_ASAN` | Bool | OFF | Enable address sanitizer |
+| `WISDOM_CHESS_ASAN` | Bool | OFF | Enable AddressSanitizer and UndefinedBehaviorSanitizer |
+| `WISDOM_CHESS_TSAN` | Bool | OFF | Enable ThreadSanitizer (mutually exclusive with `WISDOM_CHESS_ASAN`) |
 | `WISDOM_CHESS_BUILD_LINTER` | Bool | ON | Build C++ style linter (native builds only) |
 | `WISDOM_CHESS_FILC_COMPAT` | Bool | Auto-detected | Enable FIL-C runtime compatibility (auto-detected via `__PIZLONATOR_WAS_HERE__`) |
 | `WISDOM_CHESS_INSTALLER` | Bool | OFF | Build a Qt Installer Framework installer for the desktop QML app (`installer` target; needs QtIFW, see `CPACK_IFW_ROOT`) |
@@ -297,6 +298,39 @@ An enum that QML compares against must be in the meta-object of
 `wisdom::ui` (`ui/qml/main/ui_types.hpp`). A missing one is `undefined` in
 QML and no warning is given. Enums from the Qt-free view-model library need
 a mirror enum there, as `DrawByRepetitionStatus` has.
+
+CI runs a `sanitizers` matrix job with Clang: AddressSanitizer+UndefinedBehaviorSanitizer
+with the QML UI (fast and slow tests) and ThreadSanitizer without it (fast
+tests only, since the slow suite is single-threaded). QML is off for the
+ThreadSanitizer leg: QtQuick's internal thread pool and Qt's own
+(uninstrumented, futex-based) locking produce a steady stream of
+timing-dependent false positives between different pooled worker threads
+across different QML UI test cases; `scripts/sanitizers/tsan.supp` covers
+the shapes seen so far, but a new interleaving can still surface an
+unsuppressed one. Reproduce locally with `clang++-18` or newer:
+
+```bash
+CC=clang-18 CXX=clang++-18 cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DWISDOM_CHESS_QML_UI=On -DWISDOM_CHESS_SLOW_TESTS=On -DWISDOM_CHESS_ASAN=On
+cmake --build build-asan -j $(nproc)
+ASAN_OPTIONS=detect_leaks=1:strict_string_checks=1:check_initialization_order=1 \
+UBSAN_OPTIONS=print_stacktrace=1 \
+ctest --test-dir build-asan -j 4 --output-on-failure
+
+CC=clang-18 CXX=clang++-18 cmake -S . -B build-tsan -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DWISDOM_CHESS_QML_UI=Off -DWISDOM_CHESS_TSAN=On
+cmake --build build-tsan -j $(nproc)
+TSAN_OPTIONS=suppressions=$(pwd)/scripts/sanitizers/tsan.supp:halt_on_error=1:second_deadlock_stack=1 \
+ctest --test-dir build-tsan -j 4 --output-on-failure
+```
+
+Pass `-DWISDOM_CHESS_QML_UI=On` to `build-tsan` to dig into a QML/TSan
+race directly; expect it to need suppression tuning per the note above.
+Use `./scripts/install-ci-qt.sh` to build against CI's Qt 6.9 instead of a
+newer local Qt when reproducing a CI-only failure. A sanitizer report
+entirely inside third-party code (Qt, glib, fontconfig, ...) goes in
+`scripts/sanitizers/lsan.supp` or `scripts/sanitizers/tsan.supp`, never one
+that touches our own code.
 
 ### Linting and Type Checking
 
