@@ -235,9 +235,11 @@ requires a timing and thread-coordination design.
   (`ui/qml/main/chess_game.cpp:555-567`), dropping move history. Safe only
   because it runs when history is empty; needs a comment or a real copy.
   Commented in Session #20.
-- [ ] `ChessGame::isLegalMove` (`ui/qml/main/chess_game.cpp:73`)
+- [x] `ChessGame::isLegalMove` (`ui/qml/main/chess_game.cpp:73`)
   duplicates `GameViewModelBase::isLegalMove`
   (`ui/viewmodel/game_viewmodel_base.cpp:107`). *(verified)*
+  Removed on the `frontend-cleanups` branch; `GameModel` now uses the
+  inherited implementation. See [frontend-cleanups.md](frontend-cleanups.md).
 - [x] `GameModel::~GameModel` deletes the engine thread without
   `quit()`/`wait()` (`ui/qml/main/game_model.cpp:336`). Fixed on the
   `qml-engine-thread-shutdown` branch; see
@@ -282,13 +284,16 @@ requires a timing and thread-coordination design.
   most 150, padding 40), so their text has no room and is drawn outside
   its box. With taller title and button bars, as in the Basic style, it
   crowds the buttons. Found on the `qml-tests` branch.
-- [ ] `ChessGame::setPlayers()` changes the game's players but not
+- [x] `ChessGame::setPlayers()` changes the game's players but not
   `config().players` (`ui/qml/main/chess_game.cpp`). Found on the
   `qml-tests` branch.
+  Fixed on the `frontend-cleanups` branch.
 - [ ] `QThread::usleep (200000)` in the engine slot to wait for animation
   (`ui/qml/main/chess_engine.cpp:126`). *(verified)*
-- [ ] `ViewModelSettings` (`ui/viewmodel/viewmodel_settings.hpp`) appears
+- [x] `ViewModelSettings` (`ui/viewmodel/viewmodel_settings.hpp`) appears
   unused; the `userDepth * 2` mapping is written three times.
+  Removed and the remaining conversions consolidated on the
+  `frontend-cleanups` branch.
 
 ### Tests
 
