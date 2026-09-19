@@ -150,6 +150,8 @@ private slots:
 
         QVERIFY( game->state()->getPlayer (Color::White) == Player::ChessEngine );
         QVERIFY( game->state()->getPlayer (Color::Black) == Player::Human );
+        QVERIFY( game->config().players[0] == Player::ChessEngine );
+        QVERIFY( game->config().players[1] == Player::Human );
     }
 
     void fromFenLoadsThePositionAndTheSideToMove()
@@ -190,30 +192,6 @@ private slots:
 
         QVERIFY( fenOf (*clone) != fenOf (*game) );
         QVERIFY( game->state()->getCurrentTurn() == Color::White );
-    }
-
-    void isLegalMove()
-    {
-        auto game = ChessGame::fromPlayers (Player::Human, Player::Human, makeConfig());
-
-        QVERIFY( game->isLegalMove (moveParse ("e2 e4", Color::White)) );
-        QVERIFY( !game->isLegalMove (moveParse ("e2 e5", Color::White)) );
-        QVERIFY( !game->isLegalMove (moveParse ("e7 e5", Color::Black)) );
-    }
-
-    void noMoveIsLegalOnTheComputersTurn()
-    {
-        auto game = ChessGame::fromPlayers (Player::ChessEngine, Player::Human, makeConfig());
-
-        QVERIFY( !game->isLegalMove (moveParse ("e2 e4", Color::White)) );
-    }
-
-    void aMoveThatLeavesTheKingInCheckIsNotLegal()
-    {
-        auto game = ChessGame::fromFen ("k3r3/8/8/8/8/8/4R3/4K3 w - - 0 1", makeConfig());
-
-        QVERIFY( !game->isLegalMove (moveParse ("e2 d2", Color::White)) );
-        QVERIFY( game->isLegalMove (moveParse ("e2 e5", Color::White)) );
     }
 
     void moveFromCoordinates()

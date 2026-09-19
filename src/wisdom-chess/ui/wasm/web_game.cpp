@@ -84,7 +84,7 @@ namespace wisdom
     {
         auto* new_game = new WebGame (settings.whitePlayer, settings.blackPlayer, game_id);
 
-        const auto computer_depth = GameSettings::mapHumanDepthToComputerDepth (settings.searchDepth);
+        const auto computer_depth = ui::fullMovesToPlyDepth (settings.searchDepth);
         new_game->setMaxDepth (computer_depth);
         new_game->setThinkingTime (std::chrono::seconds { settings.thinkingTime });
 

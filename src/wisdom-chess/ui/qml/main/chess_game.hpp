@@ -6,6 +6,7 @@
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
+#include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
 
 // The internal depth representation maps to half-moves (plies):
 //
@@ -32,7 +33,7 @@ public:
     internalDepth() const 
         -> int
     {
-        return myUserDepth * 2;
+        return wisdom::ui::fullMovesToPlyDepth (myUserDepth);
     }
 
     [[nodiscard]] auto 
@@ -117,10 +118,6 @@ public:
     [[nodiscard]] auto 
     clone() const 
         -> std::unique_ptr<ChessGame>;
-
-    [[nodiscard]] auto 
-    isLegalMove (wisdom::Move selectedMove) const 
-        -> bool;
 
     void setConfig (const Config& config);
     void setPeriodicFunction (

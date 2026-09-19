@@ -2,7 +2,6 @@
 
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
-#include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/board.hpp"
 
 #include "wisdom-chess/ui/qml/main/chess_game.hpp"
@@ -75,29 +74,6 @@ ChessGame::clone() const
     return newGame;
 }
 
-auto 
-ChessGame::isLegalMove (Move selectedMove) const 
-    -> bool
-{
-    auto game = this->state();
-    auto selectedMoveStr = asString (selectedMove);
-
-    // If it's not the human's turn, move is illegal.
-    if (game->getCurrentPlayer() != wisdom::Player::Human)
-    {
-        return false;
-    }
-
-    auto who = game->getCurrentTurn();
-    auto legalMoves = generateLegalMoves (game->getBoard(), who);
-
-    return std::any_of (legalMoves.cbegin(), legalMoves.cend(),
-                        [selectedMove] (const auto& move)
-                        {
-                            return move == selectedMove;
-                        });
-}
-
 void ChessGame::setConfig (const Config& config)
 {
     auto gameState = this->state();
@@ -112,9 +88,9 @@ ChessGame::setPlayers (
     wisdom::Player whitePlayer,
     wisdom::Player blackPlayer
 ) { // NOLINT(readability-make-member-function-const)
-    auto gameState = this->state();
-    gameState->setWhitePlayer (whitePlayer);
-    gameState->setBlackPlayer (blackPlayer);
+    const wisdom::Players players { whitePlayer, blackPlayer };
+    this->state()->setPlayers (players);
+    my_config.players = players;
 }
 
 auto 

@@ -5,6 +5,7 @@
 using namespace wisdom;
 using wisdom::ui::getFirstHumanPlayerColor;
 
+using wisdom::ui::fullMovesToPlyDepth;
 TEST_CASE( "getFirstHumanPlayerColor" )
 {
     SUBCASE( "White comes first when both players are human" )
@@ -22,4 +23,9 @@ TEST_CASE( "getFirstHumanPlayerColor" )
     {
         CHECK( !getFirstHumanPlayerColor ({ Player::ChessEngine, Player::ChessEngine }).has_value() );
     }
+}
+
+TEST_CASE( "Full-move depth is converted to plies" )
+{
+    CHECK( fullMovesToPlyDepth (4) == 8 );
 }
