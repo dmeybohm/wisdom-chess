@@ -95,8 +95,13 @@ namespace wisdom
         isProbablyNthRepetition (const Board& board, int repetition_count) const
             -> bool
         {
+            // A position cannot recur across a capture or a pawn move.
             auto code = board.getCode();
-            auto count = std::count (my_board_codes.begin(), my_board_codes.end(), code);
+            auto reversible_count = std::min (
+                narrow<std::ptrdiff_t> (my_board_codes.size()),
+                std::ptrdiff_t { board.getHalfMoveClock() } + 1
+            );
+            auto count = std::count (my_board_codes.end() - reversible_count, my_board_codes.end(), code);
             return count >= repetition_count;
         }
 
