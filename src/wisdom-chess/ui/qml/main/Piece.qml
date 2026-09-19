@@ -52,7 +52,7 @@ Image {
         running: false
 
         PauseAnimation {
-            duration: 225
+            duration: root.castlingRookPause
         }
         NumberAnimation {
             target: myTranslation

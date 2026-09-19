@@ -277,12 +277,19 @@ the real models and work it by clicking. They share
 `QT_QUICK_BACKEND=software`, and on macOS with `QT_QUICK_CONTROLS_STYLE=Fusion`
 because the native macOS style crashes without Cocoa; set these when running
 an executable by hand.
+`GameModel` holds an engine move back until the move before it has
+finished animating, for `animationDelay` milliseconds and
+`castlingRookPause` more after castling. A test that would otherwise race
+the hold calls `setAnimationDelay()` to make it long enough to measure or
+short enough to ignore.
 Each test fails on any QML warning. Click through the fixture's
 `clickItem()`, which waits for pending layout first: until then an item's
 position can be stale, and on Qt 6.9 a click aimed at a dialog's No button
-lands on Yes. CI uses Qt 6.9; `aqt install-qt linux desktop 6.9.3
-linux_gcc_64` (from `pip install aqtinstall`, no root needed) gets a
-matching Qt for reproducing a CI-only failure. A known defect that is not being fixed
+lands on Yes. CI uses Qt 6.9, not the Qt under `~/Qt`;
+`./scripts/install-ci-qt.sh` installs a matching one for reproducing a
+CI-only failure and prints the `-DWISDOM_CHESS_QT_DIR=...` to build
+against. It needs no root and takes a version and a directory as optional
+arguments. A known defect that is not being fixed
 yet is pinned with `QEXPECT_FAIL`, so that fixing it fails the test and the
 marker gets removed.
 

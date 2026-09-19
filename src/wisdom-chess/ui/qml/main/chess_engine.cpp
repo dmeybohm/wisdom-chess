@@ -127,9 +127,6 @@ void ChessEngine::findMove()
         return;
     }
 
-    // Wait for animation to finish
-    QThread::usleep (200000); // 200 ms
-
     auto who = game_state->getCurrentTurn();
 
     my_logger->debug ("Searching for move");

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QElapsedTimer>
 #include <QObject>
 #include <QString>
 #include <QThread>
@@ -59,7 +60,27 @@ class GameModel : public QObject, public wisdom::ui::GameViewModelBase
         WRITE setQmlFiftyMovesDrawStatus
         NOTIFY fiftyMovesDrawStatusChanged)
 
+    // How long a piece takes to move, in milliseconds. The board animates
+    // for this long, and a move is held back until the one before it has
+    // finished animating.
+    Q_PROPERTY (int animationDelay
+        READ animationDelay
+        WRITE setAnimationDelay
+        NOTIFY animationDelayChanged)
+
+    // How long the rook of a castling move waits before it follows the king.
+    Q_PROPERTY (int castlingRookPause
+        READ castlingRookPause
+        CONSTANT)
+
 public:
+    // The board animates a move for this long, in milliseconds.
+    static constexpr int Default_Animation_Delay = 200;
+
+    // The rook of a castling move waits this long before it follows the
+    // king, and then animates for the animation delay.
+    static constexpr int Castling_Rook_Pause = 225;
+
     explicit GameModel (QObject* parent = nullptr);
     ~GameModel() override;
 
@@ -117,6 +138,15 @@ public:
     void setGameSettings (const GameSettings& new_game_settings);
     Q_INVOKABLE GameSettings cloneGameSettings();
 
+    [[nodiscard]] auto
+    animationDelay() const
+        -> int;
+    void setAnimationDelay (int new_delay);
+
+    [[nodiscard]] auto
+    castlingRookPause() const
+        -> int;
+
 signals:
     // The game object here is readonly.
     void gameStarted (
@@ -152,6 +182,7 @@ signals:
 
     void uiSettingsChanged();
     void gameSettingsChanged();
+    void animationDelayChanged();
 
     // Use a property to communicate to QML and the human player:
     void thirdRepetitionDrawStatusChanged();
@@ -211,6 +242,11 @@ protected:
     getGame() const
         -> wisdom::observer_ptr<const wisdom::Game> override;
 
+    // Whether an engine move is waiting for the board to finish animating.
+    [[nodiscard]] auto
+    isHoldingAMove() const
+        -> bool;
+
     void onInCheckChanged() override;
     void onMoveStatusChanged() override;
     void onGameOverStatusChanged() override;
@@ -252,6 +288,20 @@ private:
         wisdom::Move move,
         wisdom::Color who
     );
+
+    // Apply an engine move to the displayed game and announce it.
+    void showEngineMove (
+        wisdom::Move move,
+        wisdom::Color who
+    );
+
+    // How much of the last move's animation is left, in milliseconds.
+    [[nodiscard]] auto
+    remainingAnimation() const
+        -> int;
+
+    // Show the move that was held back, if it still belongs to this game.
+    void showHeldMove();
 
     // Set up and trigger the state update.
     void notifyInternalGameStateUpdated();
@@ -295,6 +345,25 @@ private:
     // Whether the game is paused (e.g. menu or dialog is open).
     // Read by the engine thread's periodic function to cancel searches.
     std::atomic<bool> my_paused { false };
+
+    // An engine move that arrived while the move before it was still
+    // animating. Only one can be outstanding: the engine searches again
+    // once the move it found has been shown.
+    struct HeldMove
+    {
+        wisdom::Move move;
+        wisdom::Color who;
+        int game_id;
+    };
+
+    // Since the last move was shown, and how long it animates for.
+    QElapsedTimer my_animating_since;
+    int my_animation_duration = 0;
+
+    std::optional<HeldMove> my_held_move {};
+    QTimer my_hold_timer;
+
+    int my_animation_delay = Default_Animation_Delay;
 
     UISettings my_ui_settings {};
     GameSettings my_game_settings {};
