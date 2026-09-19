@@ -176,6 +176,11 @@ should be confirmed before fixing.
 
 ### Frontends
 
+The remaining low-risk cleanup items are being addressed on the
+`frontend-cleanups` branch; see [frontend-cleanups.md](frontend-cleanups.md).
+The engine thread's animation delay remains separate because replacing it
+requires a timing and thread-coordination design.
+
 - [x] **Pointer thrown instead of exception.** *(verified)*
   `ui/wasm/web_game.cpp:82`: `throw new Error { "Failed to map move." };`.
   No C++ `catch (Error&)` will match and the object leaks.
