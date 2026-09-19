@@ -138,6 +138,16 @@ TEST_CASE( "FEN parser rejects malformed piece and castling fields" )
         );
     }
 
+    SUBCASE( "Non-letter characters in the castling field" )
+    {
+        for (const char* castling : { "K1", "K$", "K-", "-K", "--" })
+        {
+            CAPTURE( castling );
+            auto fen = std::string { "4k3/8/8/8/8/8/8/4K2R w " } + castling + " - 0 1";
+            CHECK_THROWS_AS( (void)Game::createGameFromFen (fen), FenParserError );
+        }
+    }
+
     SUBCASE( "Valid castling letters still parse" )
     {
         CHECK_NOTHROW( (void)Game::createGameFromFen ("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1") );

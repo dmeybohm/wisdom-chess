@@ -108,7 +108,9 @@ namespace wisdom
     {
         if (my_search_thread.joinable())
         {
-            my_search_id.fetch_add (1);
+            // A stopped search still owes the GUI its bestmove, so let it finish.
+            if (!my_stop_requested.load())
+                my_search_id.fetch_add (1);
             my_search_thread.join();
         }
     }
