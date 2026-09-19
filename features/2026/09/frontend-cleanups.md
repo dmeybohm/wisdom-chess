@@ -42,3 +42,17 @@ rather than a mechanical cleanup.
 - Built the Emscripten `wisdom-chess-web` target successfully.
 - Ran the full C++ `lint` target successfully.
 - Left the engine thread's animation delay open for separate design work.
+
+### Session #2
+
+- Added an application-level QML test that clicks a legal move while the side
+  to move is computer-controlled. It checks that `GameModel` reports an
+  illegal move and leaves the board and turn unchanged.
+- Extended the clone test to call `setPlayers()` first and verify that the
+  clone's stored config agrees with its engine state.
+- Mutation-checked both regressions: removing the human-turn guard fails the
+  application test, and removing the `my_config.players` update fails the
+  clone test.
+- Re-ran `QML: ChessGame`, `QML: application`, the 10-case view-model
+  suite, and the full C++ linter successfully.
+- The pre-existing WASM depth coverage gap remains outside this branch.

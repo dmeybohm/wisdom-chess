@@ -171,11 +171,13 @@ private slots:
     {
         auto game = ChessGame::fromPlayers (Player::Human, Player::ChessEngine, makeConfig());
         game->state()->move (moveParse ("e2 e4", Color::White));
+        game->setPlayers (Player::ChessEngine, Player::Human);
 
         auto clone = game->clone();
 
         QCOMPARE( fenOf (*clone), fenOf (*game) );
         QVERIFY( clone->state()->getPlayers() == game->state()->getPlayers() );
+        QVERIFY( clone->config().players == clone->state()->getPlayers() );
         QCOMPARE( clone->state()->getMaxDepth(), game->state()->getMaxDepth() );
         QCOMPARE( clone->state()->getSearchTimeout().count(), 7 );
 
