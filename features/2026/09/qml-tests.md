@@ -60,8 +60,9 @@ The work is split by how much of Qt a test needs to be running:
 
 ### Session #1
 
-Item 1 works as a prototype. Three Qt Test executables, 57 test functions,
-about 0.1 seconds in total.
+Item 1 works as a prototype. Three Qt Test executables, about 0.1 seconds
+in total. Qt Test reports 57 passes; it counts each data row, and each
+executable's built-in init and cleanup steps, as one.
 
 - `ui/qml/test/CMakeLists.txt` builds `wisdom-chess-qml-test-support`, a
   static library holding a second compilation of `pieces_model`,
@@ -70,8 +71,8 @@ about 0.1 seconds in total.
   `WisdomChessQml` target is not touched. The subdirectory is added when
   `WISDOM_CHESS_FAST_TESTS` is on, the build is not for Android or
   WebAssembly, and `Qt6Test` is found.
-- The tests are `QML: PiecesModel` (24 functions), `QML: ChessGame` (18)
-  and `QML: settings and types` (15), all labelled `fast`.
+- The tests are `QML: PiecesModel` (24 passes), `QML: ChessGame` (18) and
+  `QML: settings and types` (15), all labelled `fast`.
 - The `PiecesModel` tests play moves on a `Game` and on the model, then
   compare the model with a fresh one filled from the board, so the board is
   the oracle for every kind of move. `QAbstractItemModelTester` is attached
