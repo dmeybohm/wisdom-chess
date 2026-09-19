@@ -18,14 +18,14 @@ Image {
             y: row * topWindow.squareSize
 
             Behavior on y {
-                enabled: !myPieceImage.isCastlingRook
+                enabled: !myPieceImage.isCastlingRook && !castlingRookAnimation.running
                 NumberAnimation {
                     easing.type: Easing.OutExpo
                     duration: root.animationDelay
                 }
             }
             Behavior on x {
-                enabled: !myPieceImage.isCastlingRook
+                enabled: !myPieceImage.isCastlingRook && !castlingRookAnimation.running
                 NumberAnimation {
                     easing.type: Easing.OutExpo
                     duration: root.animationDelay
@@ -77,6 +77,10 @@ Image {
     }
 
     onIsCastlingRookChanged: {
+        // The role is cleared again by the next move; only its start matters.
+        if (!isCastlingRook)
+            return
+
         // break the binding so we can set an absolute start
         myTranslation.x = myTranslation.x   // this no-ops the current value but detaches a binding if any
         myTranslation.x = castlingSourceColumn * topWindow.squareSize

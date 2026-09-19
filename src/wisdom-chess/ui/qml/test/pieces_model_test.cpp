@@ -304,6 +304,42 @@ private slots:
         QCOMPARE( roleOf (fixture.model, rook_row, PiecesModel::CastlingSourceColumnRole).toInt(), -1 );
     }
 
+    void clearingTheCastlingRolesIsAnnounced()
+    {
+        Fixture fixture { "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1" };
+        fixture.play ("o-o");
+        auto rook_row = listRowAt (fixture.model, "f1");
+        QSignalSpy changed { &fixture.model, &PiecesModel::dataChanged };
+
+        fixture.play ("a8 a7");
+
+        bool announced = false;
+        for (const auto& arguments : changed)
+        {
+            auto roles = arguments.at (2).value<QList<int>>();
+            if (arguments.at (0).toModelIndex().row() == rook_row
+                && roles.contains (PiecesModel::IsCastlingRookRole)
+                && roles.contains (PiecesModel::CastlingSourceColumnRole))
+            {
+                announced = true;
+            }
+        }
+        QVERIFY( announced );
+    }
+
+    // Only a row whose roles were set has anything to announce.
+    void aPlainMoveAnnouncesNoCastlingRoles()
+    {
+        Fixture fixture;
+        QSignalSpy changed { &fixture.model, &PiecesModel::dataChanged };
+
+        fixture.play ("e2 e4");
+        fixture.play ("e7 e5");
+
+        for (const auto& arguments : changed)
+            QVERIFY( !arguments.at (2).value<QList<int>>().contains (PiecesModel::IsCastlingRookRole) );
+    }
+
     // The captured pawn sits directly before the castled rook in the list,
     // so the rook shifts into the removed row's place. It must still be
     // visited, or it keeps the roles that replay its castling animation.

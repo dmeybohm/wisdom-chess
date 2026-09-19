@@ -362,6 +362,74 @@ private slots:
         QVERIFY( drawnOn (*my_app, rook, "e1") );
     }
 
+    // Once the castling is over the rook is an ordinary piece again: the
+    // delegate is told so, and its later moves slide like any other move.
+    void theCastledRookAnimatesItsLaterMoves()
+    {
+        my_app->move ("e2", "e4");
+        my_app->move ("e7", "e5");
+        my_app->move ("g1", "f3");
+        my_app->move ("b8", "c6");
+        my_app->move ("f1", "c4");
+        my_app->move ("f8", "c5");
+        auto* rook = my_app->pieceAt ("h1");
+
+        my_app->move ("e1", "g1");
+        QCOMPARE( rook->property ("isCastlingRook").toBool(), true );
+        QTRY_VERIFY( drawnOn (*my_app, rook, "f1") );
+
+        // Arriving is not quite the end of the castling animation, and the
+        // ordinary move animation stays off until it has stopped.
+        QTest::qWait (100);
+
+        my_app->move ("g8", "f6");
+        QCOMPARE( rook->property ("isCastlingRook").toBool(), false );
+        QCOMPARE( rook->property ("castlingSourceColumn").toInt(), -1 );
+
+        auto f1 = drawnAt (my_app->squareAt ("f1"));
+        auto e1 = drawnAt (my_app->squareAt ("e1"));
+        my_app->move ("f1", "e1");
+
+        bool seen_between = false;
+        for (int elapsed = 0; elapsed < 500 && !drawnOn (*my_app, rook, "e1"); elapsed += 5)
+        {
+            auto x = drawnAt (rook).x();
+            if (x > e1.x() + 0.5 && x < f1.x() - 0.5)
+                seen_between = true;
+            QTest::qWait (5);
+        }
+
+        QVERIFY( seen_between );
+        QVERIFY( drawnOn (*my_app, rook, "e1") );
+    }
+
+    // The opponent can answer before the rook has finished sliding.
+    void aMoveDuringTheCastlingAnimationDoesNotDisturbIt()
+    {
+        my_app->move ("e2", "e4");
+        my_app->move ("e7", "e5");
+        my_app->move ("g1", "f3");
+        my_app->move ("b8", "c6");
+        my_app->move ("f1", "c4");
+        my_app->move ("f8", "c5");
+        auto* rook = my_app->pieceAt ("h1");
+        auto f1 = drawnAt (my_app->squareAt ("f1"));
+        auto h1 = drawnAt (my_app->squareAt ("h1"));
+
+        my_app->move ("e1", "g1");
+        QTest::qWait (100);
+        my_app->move ("g8", "f6");
+
+        for (int elapsed = 0; elapsed < 800; elapsed += 10)
+        {
+            auto at = drawnAt (rook);
+            QVERIFY2( at.x() >= f1.x() - 0.5 && at.x() <= h1.x() + 0.5,
+                      qPrintable (QStringLiteral ("rook drawn at x = %1").arg (at.x())) );
+            QTest::qWait (10);
+        }
+        QVERIFY( drawnOn (*my_app, rook, "f1") );
+    }
+
     void aPromotionGoesThroughTheDropdown()
     {
         my_app->move ("h2", "h4");
