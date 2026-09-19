@@ -269,10 +269,19 @@ display. Add one with `wisdom_chess_add_qml_test()` in that directory's
 `wisdom-chess-qml-test-support` there. The Qt Test macros are styled like the
 doctest ones: `QCOMPARE( a, b )`.
 
-`QML: application` loads the real desktop QML with the real models and plays
-by clicking squares. `ctest` runs it with `QT_QPA_PLATFORM=offscreen` and
-`QT_QUICK_BACKEND=software`; set both when running the executable by hand.
-It fails on any QML warning.
+`QML: application`, `QML: dialogs` and `QML: mobile` load the real QML with
+the real models and work it by clicking. They share
+`application_fixture.hpp`; add one with `wisdom_chess_add_qml_ui_test()`.
+`ctest` runs them with `QT_QPA_PLATFORM=offscreen` and
+`QT_QUICK_BACKEND=software`; set both when running an executable by hand.
+Each test fails on any QML warning. A known defect that is not being fixed
+yet is pinned with `QEXPECT_FAIL`, so that fixing it fails the test and the
+marker gets removed.
+
+An enum that QML compares against must be in the meta-object of
+`wisdom::ui` (`ui/qml/main/ui_types.hpp`). A missing one is `undefined` in
+QML and no warning is given. Enums from the Qt-free view-model library need
+a mirror enum there, as `DrawByRepetitionStatus` has.
 
 ### Linting and Type Checking
 

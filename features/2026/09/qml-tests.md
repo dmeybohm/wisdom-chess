@@ -247,6 +247,81 @@ engine thread in `~GameModel` through a new `stopEngineThread()`.
 - The "Not verified: the CI platforms" remarks in Sessions #1, #3 and #4
   describe the state before this run.
 
+### Session #7
+
+The rest of the UI: the status bar, the menu, every dialog, an engine move
+and the mobile QML. Two more executables, `QML: dialogs` (19 tests, about
+2 seconds) and `QML: mobile` (5 tests, half a second). The fixture moved to
+`application_fixture.hpp` so that all three UI executables share it, and
+`wisdom_chess_add_qml_ui_test()` embeds the QML in each.
+
+- **Finding, fixed: the draw offer dialogs never opened.** The shared
+  view-model refactoring in January (`29208c8`) moved
+  `DrawByRepetitionStatus` into the view-model library, which has no Qt, and
+  its `Q_ENUM_NS` was lost on the way. In QML
+  `DrawByRepetitionStatus.Proposed` became undefined, so
+  `visible: _myGameModel.thirdRepetitionDrawStatus == DrawByRepetitionStatus.Proposed`
+  in `Dialogs.qml` was never true, silently. The model did reach
+  `Proposed`; nothing showed it. Both draw dialogs and the two assignments
+  in their handlers were affected.
+  - Adding `Q_ENUM_NS (DrawByRepetitionStatus)` to `ui_types.hpp` does
+    nothing: moc only registers an enum it sees declared, and says nothing
+    when it does not.
+  - The fix is a mirror enum in `ui_types.hpp`, `QmlDrawByRepetitionStatus`,
+    whose values are written in terms of the real enum's, so they cannot
+    drift. QML finds an enum value by its key in the namespace's
+    meta-object, whatever the enum is called, so the QML files are
+    unchanged.
+  - Tests: each of the four keys is found exactly once in the meta-object
+    with the right value, and in the UI a threefold repetition opens the
+    dialog, Yes ends the game with the draw announced, and No lets play go
+    on without the offer being repeated. Writing the enum property from QML
+    with a number works, which the accept and decline tests show.
+- **Finding, not fixed: the About dialog has no OK button.**
+  `AboutDialog.qml` sets `standardButtons: Dialog.Ok` on a custom `footer`,
+  but a `Dialog` gives its footer the dialog's own `standardButtons`, which
+  that file never sets. The footer reports `NoButton` and a count of 0,
+  where the New Game dialog's reports `Yes|No` and 2. The dialog closes
+  with Escape or a click outside it, and one test does that. The likely fix
+  is to set `standardButtons` on the `Dialog`.
+  `theAboutDialogHasAnOkButton` is an expected failure.
+- **Finding, not fixed: the first click after a draw offer is lost.** The
+  offer opens while `Board.qml` is still handling the click that caused it,
+  so the dialog remembers that square as the item to give focus back to.
+  When it closes, the board takes the next click as the target of a move
+  from that square. Dialogs opened from the menu do not do this, and a test
+  shows that. `theFirstClickAfterADrawOfferSelectsAPiece` is an expected
+  failure; the two draw tests spend a click on an empty square first and
+  say why.
+- The two expected failures use `QEXPECT_FAIL`, so they are reported as
+  `XFAIL`, do not fail the run, and turn into a failure (`XPASS`) the day
+  the behaviour is fixed, which is the reminder to delete the marker.
+- Settings dialog: Apply takes effect after its 350 ms timer, Cancel drops
+  the edits and a reopened dialog shows the settings in force, and the
+  dialog opens showing the current players and slider values. The radio
+  buttons and check boxes have no names, so they are found by class and
+  ordered by position.
+- Quit: No closes the dialog with no `quit` signal; Yes emits the engine's
+  `quit` once. Outside an event loop that is harmless.
+- The engine: with Black set to the computer at depth 1, a click move is
+  answered and the delegates match the board afterwards, twice in a row.
+  About 0.4 seconds, most of it the engine slot's 200 ms sleep.
+- Popups are found with `findChildren()`, since they are objects that
+  belong to their declaring item, and their buttons by walking the item
+  tree, which includes the overlay they are drawn in.
+- **Mobile.** `mobile_main.qml` and `MobileRoot.qml` are only in the
+  Android build's module. `QML: mobile` embeds them too, with a module
+  description made at build time from the application's plus one line
+  naming `MobileRoot` (`append_lines.cmake`). `Helper.isMobile()` is false
+  on a desktop, so this shows that the files load and work, not how they
+  look on a phone. The orientation handler is run by emitting
+  `QScreen::primaryOrientationChanged`. With the bug list's
+  `uiSettings.squareSize` put back, that test fails with the
+  ReferenceError. Reverted.
+- Verified: Release and Debug with all 180 fast tests passing, no warnings;
+  the six QML tests repeated 15 times at `-j 8`; linter clean; the real
+  binary starts offscreen without QML errors. Not yet run on CI.
+
 ### What the Session #16 removal bug really was
 
 With the `i--; continue;` fix in `PiecesModel::playerMoved` reverted, the
@@ -293,5 +368,7 @@ The model tests could not see that. The UI test did.
 
 ### Next
 
-The dialogs and the game menu, an engine move at depth 1, and the mobile
-QML. Someone should also watch a castled rook move on a real screen once.
+Decide on the two findings that are pinned as expected failures: the About
+dialog's missing button and the click lost after a draw offer. Someone
+should also watch a castled rook move, and a draw offer open, on a real
+screen once.
