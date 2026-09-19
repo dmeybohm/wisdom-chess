@@ -349,8 +349,8 @@ TEST_CASE( "Board code stores metadata" )
             ColoredPiece::make (Color::Black, Piece::King)
         );
 
-        code.setCastleState (Color::White, CastlingEligibility::Either_Side);
-        code.setCastleState (Color::Black, CastlingEligibility::Either_Side);
+        code.setCastleState (Color::White, CastlingEligibility::Both_Sides);
+        code.setCastleState (Color::Black, CastlingEligibility::Both_Sides);
 
         auto initial_hash = code.getHashCode();
         auto high_48_bits = initial_hash & 0xfffffffFFFF0000ULL;
@@ -370,8 +370,8 @@ TEST_CASE( "Board code stores metadata" )
         CHECK( modified_low_16_bits != low_16_bits );
 
         code.clearEnPassantTarget();
-        code.setCastleState (Color::White, CastlingEligibility::Either_Side);
-        code.setCastleState (Color::Black, CastlingEligibility::Either_Side);
+        code.setCastleState (Color::White, CastlingEligibility::Both_Sides);
+        code.setCastleState (Color::Black, CastlingEligibility::Both_Sides);
         code.setCurrentTurn (Color::White);
 
         auto restored_hash = code.getHashCode();
@@ -434,15 +434,15 @@ TEST_CASE( "Board code stores metadata" )
         auto initial_white_state = board_code.getCastleState (Color::White);
         auto initial_black_state = board_code.getCastleState (Color::Black);
 
-        CHECK( initial_white_state == CastlingEligibility::Either_Side );
-        CHECK( initial_black_state == CastlingEligibility::Either_Side );
+        CHECK( initial_white_state == CastlingEligibility::Both_Sides );
+        CHECK( initial_black_state == CastlingEligibility::Both_Sides );
 
         board_code.setCastleState (Color::White, CastlingEligibility::Neither_Side);
         auto white_state = board_code.getCastleState (Color::White);
         auto black_state = board_code.getCastleState (Color::Black);
 
         CHECK( white_state == CastlingEligibility::Neither_Side );
-        CHECK( black_state == CastlingEligibility::Either_Side );
+        CHECK( black_state == CastlingEligibility::Both_Sides );
 
         board_code.setCastleState (Color::White, CastlingRights::Kingside);
         board_code.setCastleState (Color::Black, CastlingRights::Queenside);

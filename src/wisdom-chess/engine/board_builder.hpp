@@ -59,8 +59,8 @@ namespace wisdom
             result.addRowOfSameColorAndPiece (6, Color::White, Piece::Pawn);
             result.addRowOfSameColor (7, Color::White, Default_Piece_Row);
 
-            result.setCastling (Color::White, CastlingEligibility::Either_Side);
-            result.setCastling (Color::Black, CastlingEligibility::Either_Side);
+            result.setCastling (Color::White, CastlingEligibility::Both_Sides);
+            result.setCastling (Color::Black, CastlingEligibility::Both_Sides);
 
             return result;
         }

@@ -132,7 +132,7 @@ namespace wisdom
             -> bool;
 
         // Static constants for common eligibility states (defined after class)
-        static const CastlingEligibility Either_Side;
+        static const CastlingEligibility Both_Sides;
         static const CastlingEligibility Neither_Side;
 
     };
@@ -153,7 +153,7 @@ namespace wisdom
     };
 
     // Define the static constants for CastlingEligibility
-    inline constexpr CastlingEligibility CastlingEligibility::Either_Side
+    inline constexpr CastlingEligibility CastlingEligibility::Both_Sides
         = CastlingRights::Kingside | CastlingRights::Queenside;
     inline constexpr CastlingEligibility CastlingEligibility::Neither_Side {};
 
