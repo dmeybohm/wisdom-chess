@@ -796,8 +796,32 @@ this session restarts the branch from `main`. Scope: the quick items only.
   directory before using the linter path, so the relative path documented
   in `AGENTS.md` failed all 19 tests; it now resolves the path first.
 - Verified: Release and Debug desktop builds and the QML build have no
-  warnings; all 133 C++ tests pass (110 fast, 23 slow); `tsc` is clean and
+  warnings; all 135 C++ tests pass (112 fast, 23 slow); `tsc` is clean and
   the 30 React tests pass; the linter and its 19 self-tests pass.
+- Search benchmarks: added `engine/bench/bench_search.cpp` to the
+  benchmarks target. It searches to depth 6 under nanobench, and once to
+  depth 8 with manual timing, from the starting, Kiwipete and Italian
+  positions and from two scripted games of 80 and 200 non-capturing plies,
+  so the repetition check has a long history to scan. The transposition
+  table is cleared before every search. The suite now takes about 16
+  seconds, up from about 2.
+- Measured the search changes with it: the commit before them against the
+  branch, six alternating rounds, comparing within each round because the
+  laptop's clock speed drifted 10 to 24% over the run even with the
+  `performance` governor. The long-history searches were faster in every
+  round: median 8 to 10% at 80 plies and 11% at 200 plies. The three
+  short-history positions had medians of 2 to 4% faster with ranges that
+  cross zero, so no detectable change. The chosen moves and scores were
+  identical. The move generation, threat, legality and perft benchmarks
+  compared against `main` all had medians within 4% and ranges that cross
+  zero.
+- Review finding on the bounded repetition scan: the FEN parser accepted a
+  negative half-move clock, which made the scan compute an iterator past
+  the end of the history. `FenParser` now throws `FenParserError` for a
+  negative half-move clock or full-move number, and
+  `BoardBuilder::setHalfMovesClock` / `setFullMoves` throw
+  `BoardBuilderError`, so no `Board` can hold a negative clock. The scan
+  itself is unchanged and stays free of checks. Tests cover both layers.
 - Left for discussion, as each needs a design decision or runtime
   checking: quiescence search, the per-search transposition table copy,
   full move generation at leaf nodes in check, whether
