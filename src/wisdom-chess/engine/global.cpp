@@ -1,6 +1,8 @@
 #include "wisdom-chess/engine/global.hpp"
+#include "wisdom-chess/engine/logger.hpp"
 
-#include <cstdio>
+#include <cstdlib>
+#include <iostream>
 
 namespace wisdom
 {
@@ -27,13 +29,27 @@ namespace wisdom
     void
     terminateOnPreconditionFailure (const std::source_location& location) noexcept
     {
-        std::fprintf (
-            stderr, "Precondition failed at %s:%u in %s\n",
-            location.file_name(), static_cast<unsigned> (location.line()),
-            location.function_name()
-        );
-        std::fflush (stderr);
-        std::terminate();
+        try
+        {
+            logEmergency (
+                describeFailure ("Precondition", location) + " in " + location.function_name()
+            );
+        }
+        catch (...)
+        {
+            // Building the message failed, most likely for lack of memory.
+            try
+            {
+                std::cerr << "Precondition failed at " << location.file_name() << ':'
+                          << location.line() << '\n';
+            }
+            catch (...)
+            {
+            }
+        }
+
+        // Already reported, so skip the terminate handler's less specific message.
+        std::abort();
     }
 
     void

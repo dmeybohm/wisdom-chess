@@ -1,6 +1,7 @@
-#include <iostream>
+#include <cstdlib>
 
 #include "wisdom-chess/engine/global.hpp"
+#include "wisdom-chess/engine/logger.hpp"
 
 namespace wisdom::ui::console
 {
@@ -9,16 +10,16 @@ namespace wisdom::ui::console
 
 int main()
 {
+    wisdom::installEmergencyTerminateHandler();
+
     try
     {
         wisdom::ui::console::play();
     }
     catch (const wisdom::Error& e)
     {
-        std::cerr << "Uncaught Error!" << "\n";
-        std::cerr << e.message() << "\n";
-        std::cerr << e.extra_info() << "\n";
-        std::terminate();
+        wisdom::logEmergency ("Uncaught error: " + e.message() + "\n" + e.extra_info());
+        std::abort();
     }
 
     return 0;

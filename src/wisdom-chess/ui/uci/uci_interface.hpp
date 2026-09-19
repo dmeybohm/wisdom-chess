@@ -66,4 +66,9 @@ namespace wisdom
 
         UciSettings my_settings;
     };
+
+    // A logger that writes UCI "info" lines to standard output.
+    [[nodiscard]] auto
+    makeUciLogger (bool debug_enabled)
+        -> std::shared_ptr<Logger>;
 }

@@ -1,6 +1,6 @@
+#include <cstdlib>
 #include <sstream>
 #include <utility>
-#include <iostream>
 
 #include "wisdom-chess/engine/piece.hpp"
 #include "wisdom-chess/engine/board.hpp"
@@ -305,10 +305,11 @@ namespace wisdom
         }
         catch (const Error& e)
         {
-            std::cerr << "Uncaught error: " << e.message() << "\n";
-            std::cerr << e.extra_info() << "\n";
-            my_original_board.dump();
-            std::terminate();
+            logEmergency (
+                "Uncaught error: " + e.message() + "\n" + e.extra_info() + "\n"
+                + my_original_board.asString()
+            );
+            std::abort();
         }
     }
 

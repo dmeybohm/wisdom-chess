@@ -28,12 +28,14 @@ public:
         QObject* parent = nullptr
     );
 
-    // Forwards engine output to qDebug().
+    // Forwards engine output to qDebug(), and fatal messages to qCritical().
     struct ChessEngineLogger : wisdom::Logger
     {
         void debug (const std::string& string) const override;
 
         void info (const std::string& string) const override;
+
+        void emergency (const std::string& string) const override;
     };
 
 public slots:

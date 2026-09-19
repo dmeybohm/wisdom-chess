@@ -1,6 +1,9 @@
+#include <atomic>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <mutex>
 
 #include "wisdom-chess/engine/logger.hpp"
 
@@ -20,6 +23,10 @@ namespace wisdom
         }
 
         void info ([[maybe_unused]] const string& output) const override
+        {
+        }
+
+        void emergency ([[maybe_unused]] const string& output) const override
         {
         }
     };
@@ -43,6 +50,11 @@ namespace wisdom
         {
             if (my_log_level >= LogLevel_Info)
                 write (output);
+        }
+
+        void emergency (const string& output) const override
+        {
+            std::cerr << output << '\n';
         }
 
     private:
@@ -287,6 +299,22 @@ namespace wisdom
         log (LogLevel_Info, output);
     }
 
+    void BufferedLogger::emergency (const string& output) const
+    {
+        string line;
+        try
+        {
+            line = formatLogTimestamp (chrono::system_clock::now()) + output;
+        }
+        catch (...)
+        {
+            // Out of memory: the bare message is better than none.
+            my_sink->emergency (output);
+            return;
+        }
+        my_sink->emergency (line);
+    }
+
     void BufferedLogger::log (LogLevel level, const string& output) const
     {
         auto line = formatLogTimestamp (chrono::system_clock::now()) + output;
@@ -322,5 +350,113 @@ namespace wisdom
         -> shared_ptr<BufferedLogger>
     {
         return make_shared<BufferedLogger> (std::move (sink), enabled);
+    }
+
+    namespace
+    {
+        std::mutex emergency_logger_mutex;
+        shared_ptr<Logger> emergency_logger;
+        std::atomic_flag emergency_in_progress;
+
+        struct EmergencyInProgressRelease
+        {
+            ~EmergencyInProgressRelease()
+            {
+                emergency_in_progress.clear();
+            }
+        };
+
+        auto
+        describeCurrentException()
+            -> string
+        {
+            auto current = std::current_exception();
+            if (!current)
+                return "Terminated without an active exception";
+
+            try
+            {
+                std::rethrow_exception (current);
+            }
+            catch (const Error& e)
+            {
+                auto result = "Uncaught error: " + e.message();
+                if (!e.extra_info().empty())
+                    result += "\n" + e.extra_info();
+                return result;
+            }
+            catch (const std::exception& e)
+            {
+                return string { "Uncaught exception: " } + e.what();
+            }
+            catch (...)
+            {
+                return "Uncaught unknown exception";
+            }
+        }
+
+        [[noreturn]] void emergencyTerminateHandler() noexcept
+        {
+            try
+            {
+                logEmergency (describeCurrentException());
+            }
+            catch (...)
+            {
+                // Describing the exception failed, most likely for lack of memory.
+                try
+                {
+                    std::cerr << "Terminating after an uncaught exception\n";
+                }
+                catch (...)
+                {
+                }
+            }
+            std::abort();
+        }
+    }
+
+    void setEmergencyLogger (shared_ptr<Logger> logger)
+    {
+        // Swap, so the previous logger is destroyed outside the lock.
+        std::lock_guard lock { emergency_logger_mutex };
+        emergency_logger.swap (logger);
+    }
+
+    void logEmergency (const string& message) noexcept
+    {
+        // Each sink gets its own attempt, so a failure in one cannot cost the other.
+        try
+        {
+            std::cerr << message << '\n';
+        }
+        catch (...)
+        {
+        }
+
+        try
+        {
+            // A logger that fails while reporting must not recurse into itself.
+            if (emergency_in_progress.test_and_set())
+                return;
+            EmergencyInProgressRelease release;
+
+            shared_ptr<Logger> logger;
+            {
+                std::lock_guard lock { emergency_logger_mutex };
+                logger = emergency_logger;
+            }
+
+            if (logger)
+                logger->emergency (message);
+        }
+        catch (...)
+        {
+        }
+    }
+
+    void installEmergencyTerminateHandler()
+    {
+        std::set_terminate (emergencyTerminateHandler);
     }
 }

@@ -14,14 +14,40 @@ namespace wisdom
 {
     namespace
     {
-        std::mutex output_mutex;
+        std::timed_mutex output_mutex;
 
         // The search thread and the command loop both write to stdout, so
         // each line is written whole under a lock.
         void sendLine (const string& line)
         {
-            std::lock_guard<std::mutex> lock { output_mutex };
+            std::lock_guard<std::timed_mutex> lock { output_mutex };
             std::cout << line << "\n";
+            std::cout.flush();
+        }
+
+        // How long a fatal message waits for the output lock. The process is
+        // about to abort, so it must not hang behind a writer that is blocked.
+        constexpr auto Emergency_Output_Lock_Wait = std::chrono::milliseconds { 250 };
+
+        // Writes every line of the message as its own "info string", under the
+        // output lock when it can be had in time, and without allocating.
+        void sendEmergencyLines (string_view message)
+        {
+            std::unique_lock<std::timed_mutex> lock { output_mutex, std::defer_lock };
+            [[maybe_unused]] bool locked = lock.try_lock_for (Emergency_Output_Lock_Wait);
+
+            if (!message.empty() && message.back() == '\n')
+                message.remove_suffix (1);
+
+            while (true)
+            {
+                auto line_end = message.find ('\n');
+                std::cout << "info string " << message.substr (0, line_end) << '\n';
+
+                if (line_end == string_view::npos)
+                    break;
+                message.remove_prefix (line_end + 1);
+            }
             std::cout.flush();
         }
 
@@ -58,6 +84,11 @@ namespace wisdom
             void info (const string& output) const override
             {
                 sendLine ("info " + output);
+            }
+
+            void emergency (const string& output) const override
+            {
+                sendEmergencyLines (output);
             }
 
         private:
@@ -336,7 +367,7 @@ namespace wisdom
                 }
                 game.setPeriodicFunction (buildNotifier (current_search_id));
 
-                auto logger = std::make_shared<UciLogger> (debug_mode);
+                auto logger = makeUciLogger (debug_mode);
                 auto best_move = game.findBestMove (logger);
 
                 if (my_search_id.load() == current_search_id)
@@ -504,5 +535,12 @@ namespace wisdom
                 timer->setSeconds (chrono::seconds { 0 });
             }
         };
+    }
+
+    auto
+    makeUciLogger (bool debug_enabled)
+        -> std::shared_ptr<Logger>
+    {
+        return std::make_shared<UciLogger> (debug_enabled);
     }
 }
