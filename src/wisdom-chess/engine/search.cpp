@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <sstream>
 #include <utility>
 
@@ -303,11 +302,10 @@ namespace wisdom
         }
         catch (const Error& e)
         {
-            logEmergency (
-                "Uncaught error: " + e.message() + "\n" + e.extra_info() + "\n"
-                + my_original_board.asString()
-            );
-            std::abort();
+            throw SearchError {
+                e.message(),
+                e.extra_info() + "\n" + my_original_board.asString()
+            };
         }
     }
 

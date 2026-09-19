@@ -22,6 +22,13 @@ namespace wisdom
         bool timed_out { false };
     };
 
+    // An error raised while searching. The extra info ends with the board searched.
+    class SearchError : public Error
+    {
+    public:
+        using Error::Error;
+    };
+
     class IterativeSearch
     {
     public:

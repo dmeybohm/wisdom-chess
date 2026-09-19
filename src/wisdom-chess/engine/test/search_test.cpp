@@ -32,9 +32,27 @@ namespace wisdom::test
             return IterativeSearch::create (board, history, logger, timer, depth, transposition_table);
         }
     };
+
+    // Fails as soon as the search reports its first depth.
+    struct ThrowingLogger : Logger
+    {
+        void debug ([[maybe_unused]] const string& output) const override
+        {
+        }
+
+        void info ([[maybe_unused]] const string& output) const override
+        {
+            throw Error { "boom", "extra detail" };
+        }
+
+        void emergency ([[maybe_unused]] const string& output) const override
+        {
+        }
+    };
 }
 
 using wisdom::test::SearchHelper;
+using wisdom::test::ThrowingLogger;
 using namespace wisdom;
 
 // Mating moves: : 1.Ra6 f6 2.Bxf6 Rg7 3.Rxa8#
@@ -498,3 +516,23 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     CHECK( result.score > 100 );
 }
 
+
+TEST_CASE( "An error during the search is rethrown with the board" )
+{
+    SearchHelper helper;
+    helper.logger = std::make_shared<ThrowingLogger>();
+
+    Board board { BoardBuilder::fromDefaultPosition() };
+    auto search = helper.build (board, 1);
+
+    try
+    {
+        (void)search.iterativelyDeepen (Color::White);
+        FAIL( "The search did not throw" );
+    }
+    catch (const SearchError& e)
+    {
+        CHECK( e.message() == "boom" );
+        CHECK( e.extra_info() == "extra detail\n" + board.asString() );
+    }
+}

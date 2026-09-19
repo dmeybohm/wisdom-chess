@@ -70,6 +70,7 @@ if (WISDOM_CHESS_FAST_TESTS)
     wisdom_chess_add_fatal_test(bad-castling-flags "Precondition failed at .*castling\\.hpp")
     wisdom_chess_add_fatal_test(bad-en-passant-row "Precondition failed at .*board_code\\.hpp")
     wisdom_chess_add_fatal_test(uncaught-error "Uncaught error: boom")
+    wisdom_chess_add_fatal_test(search-error "Uncaught error: boom.extra detail.[^[]*\\|")
     wisdom_chess_add_fatal_test(expects-through-noexcept "Uncaught error: Precondition failed at")
 
 endif()

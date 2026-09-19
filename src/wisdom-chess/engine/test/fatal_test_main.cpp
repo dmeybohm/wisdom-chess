@@ -11,7 +11,11 @@
 #include "wisdom-chess/engine/board_code.hpp"
 #include "wisdom-chess/engine/castling.hpp"
 #include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/engine/history.hpp"
 #include "wisdom-chess/engine/move_list.hpp"
+#include "wisdom-chess/engine/move_timer.hpp"
+#include "wisdom-chess/engine/search.hpp"
+#include "wisdom-chess/engine/transposition_table.hpp"
 
 using namespace wisdom;
 
@@ -76,6 +80,26 @@ namespace
         throw Error { "boom", "extra detail" };
     }
 
+    struct ThrowingLogger : MarkedLogger
+    {
+        void info ([[maybe_unused]] const string& output) const override
+        {
+            throw Error { "boom", "extra detail" };
+        }
+    };
+
+    void searchError()
+    {
+        Board board { BoardBuilder::fromDefaultPosition() };
+        History history;
+        MoveTimer timer { 30 };
+        auto transposition_table = TranspositionTable::fromMegabytes (1);
+        auto search = IterativeSearch::create (
+            board, history, std::make_shared<ThrowingLogger>(), timer, 1, transposition_table
+        );
+        (void)search.iterativelyDeepen (Color::White);
+    }
+
     void expectsThroughNoexcept()
     {
         volatile bool condition = false;
@@ -114,6 +138,8 @@ main (int argc, char* argv[])
         badEnPassantRow();
     else if (test_case == "uncaught-error")
         uncaughtError();
+    else if (test_case == "search-error")
+        searchError();
     else if (test_case == "expects-through-noexcept")
         expectsThroughNoexcept();
     else
