@@ -79,6 +79,19 @@ TEST_CASE( "board_builder" )
     }
 }
 
+TEST_CASE( "Board builder rejects negative move clocks" )
+{
+    BoardBuilder builder;
+
+    CHECK_THROWS_AS( builder.setHalfMovesClock (-1), BoardBuilderError );
+    CHECK_THROWS_AS( builder.setFullMoves (-1), BoardBuilderError );
+
+    builder.setHalfMovesClock (0);
+    builder.setFullMoves (0);
+    CHECK( builder.getHalfMoveClock() == 0 );
+    CHECK( builder.getFullMoveClock() == 0 );
+}
+
 TEST_CASE( "Board can be randomized" )
 {
     Board default_board;

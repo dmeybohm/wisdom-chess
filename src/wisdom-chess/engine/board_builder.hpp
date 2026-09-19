@@ -169,12 +169,18 @@ namespace wisdom
         constexpr void
         setHalfMovesClock (int new_half_moves_clock)
         {
+            if (new_half_moves_clock < 0)
+                throw BoardBuilderError ("Negative half moves clock!");
+
             my_half_moves_clock = new_half_moves_clock;
         }
 
         constexpr void
         setFullMoves (int new_full_moves)
         {
+            if (new_full_moves < 0)
+                throw BoardBuilderError ("Negative full moves!");
+
             my_full_moves = new_full_moves;
         }
 

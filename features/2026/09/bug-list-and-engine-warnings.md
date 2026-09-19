@@ -85,6 +85,10 @@ should be confirmed before fixing.
   `depth <= 0` (`engine/search.cpp:159-162`). `iterativelyDeepen` then
   discards every odd-depth result (`engine/search.cpp:295-296`) as a
   substitute, throwing away roughly half the search time.
+  Measure any change here with the `search/*` benchmarks added in
+  Session #20 (`engine/bench/bench_search.cpp`). They search to a fixed
+  depth, so they show the cost per depth; quiescence changes what a depth
+  means, so compare the moves and scores they reach as well as the time.
 - [x] **Repetition check scans the whole history at every node.**
   `isProbablyDrawingMove` calls `History::isProbablyNthRepetition`, which
   does `std::count` over all board codes (`engine/history.hpp:94-101`).
@@ -99,6 +103,10 @@ should be confirmed before fixing.
   constructor copies it (`engine/game.cpp:77-80`). The UCI frontend copies
   the `Game` on every `go` (`ui/uci/uci_interface.cpp:295-301`), copying
   about 12 MB and discarding the learned table.
+  The `search/*` benchmarks clear the table before every search, so they
+  measure a cold table only. Showing the benefit of a table that survives
+  between moves needs a benchmark that searches consecutive positions of
+  one game without clearing; add that alongside the fix.
 - [ ] Leaf evaluation calls full legal-move generation when in check
   (`engine/evaluate.cpp:63, 87-97`).
 - [x] `compareMoves` recomputes `materialDiff` in the return

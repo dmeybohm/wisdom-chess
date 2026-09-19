@@ -120,6 +120,25 @@ TEST_CASE( "Parsing half and full moves" )
     }
 }
 
+TEST_CASE( "FEN parser rejects negative move clocks" )
+{
+    SUBCASE( "Half move clock" )
+    {
+        CHECK_THROWS_AS(
+            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - -2 5"),
+            FenParserError
+        );
+    }
+
+    SUBCASE( "Full move number" )
+    {
+        CHECK_THROWS_AS(
+            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 10 -5"),
+            FenParserError
+        );
+    }
+}
+
 TEST_CASE( "FEN parser rejects malformed piece and castling fields" )
 {
     SUBCASE( "More than eight ranks" )
