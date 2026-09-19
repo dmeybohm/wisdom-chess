@@ -337,7 +337,6 @@ auto getDefaultConfig() -> LinterConfig
             { "trailing-return-type", Severity::Warning },
             { "namespace-braces", Severity::Error },
         },
-        { "**/build/**", "**/node_modules/**", "**/.git/**" },
     };
 }
 

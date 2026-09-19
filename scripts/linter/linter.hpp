@@ -63,7 +63,6 @@ enum class OutputFormat
 struct LinterConfig
 {
     std::unordered_map<std::string, Severity> rules;
-    std::vector<std::string> ignore;
 };
 
 class Linter

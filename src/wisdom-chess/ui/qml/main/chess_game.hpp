@@ -112,7 +112,8 @@ public:
         return my_config;
     }
 
-    // Clone the game state
+    // Clone the current position. The move history is not copied, so this
+    // is only equivalent to the original at the start of a game.
     [[nodiscard]] auto 
     clone() const 
         -> std::unique_ptr<ChessGame>;

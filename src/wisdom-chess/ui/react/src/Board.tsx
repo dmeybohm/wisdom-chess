@@ -20,7 +20,7 @@ export interface BoardProps {
 
     onMovePiece: (dst: string) => void
     onPieceClick: (dst: string) => void
-    onDropPiece: (dst: string, src: string) => void
+    onDropPiece: (src: string, dst: string) => void
     onPiecePromotion: (piece: PieceType) => void
 }
 

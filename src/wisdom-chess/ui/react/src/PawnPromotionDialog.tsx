@@ -8,7 +8,7 @@ import BlackRook from "./assets/Chess_rdt45.svg";
 import BlackBishop from "./assets/Chess_bdt45.svg";
 import BlackKnight from "./assets/Chess_ndt45.svg";
 
-import { PieceColor, PieceType, WisdomChess } from "./lib/WisdomChess";
+import { PieceType, WisdomChess } from "./lib/WisdomChess";
 import { useState } from "react";
 
 export type PromotablePiece = {
@@ -25,7 +25,7 @@ type PawnPromotionDialogProps = {
 
 export default function PawnPromotionDialog(props: PawnPromotionDialogProps) {
     const wisdomChess = WisdomChess()
-    const [selectedPiece, setSelectedPiece] = useState<PieceColor>(wisdomChess.NoPiece)
+    const [selectedPiece, setSelectedPiece] = useState<PieceType>(wisdomChess.NoPiece)
 
     const pieces = [
         { type: wisdomChess.Queen, icon: [ WhiteQueen, BlackQueen ] },
