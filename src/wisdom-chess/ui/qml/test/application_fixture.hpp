@@ -30,7 +30,7 @@ namespace wisdom::ui::test
     class Application
     {
     public:
-        Application()
+        explicit Application (const char* main_qml_file = "main/desktop_main.qml")
         {
             QObject::connect (&game_model, &GameModel::engineMoved,
                               &pieces_model, &PiecesModel::playerMoved);
@@ -50,7 +50,9 @@ namespace wisdom::ui::test
             context->setContextProperty (QStringLiteral ("_myGameModel"), &game_model);
             context->setContextProperty (QStringLiteral ("_myPiecesModel"), &pieces_model);
 
-            my_engine.load (QUrl { QStringLiteral ("qrc:/qt/qml/WisdomChess/main/desktop_main.qml") });
+            my_engine.load (QUrl {
+                QStringLiteral ("qrc:/qt/qml/WisdomChess/") + QString::fromLatin1 (main_qml_file)
+            });
             game_model.start();
         }
 
