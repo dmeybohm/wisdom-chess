@@ -280,6 +280,13 @@ Note: There are two WebAssembly frontends:
 - Prefer simple constructors for most classes (allows `make_unique`, aggregate init, etc.)
 - Only use factory functions when there's a clear benefit (complex initialization, multiple construction paths, etc.)
 
+### Contracts and Fatal Errors
+- `expects (cond)` and `ensures (cond)` in `engine/global.hpp` throw `PreconditionError` / `PostconditionError`. Use them for checks on caller input.
+- `noexcept_expects (cond)` reports the failure and aborts. Use it only inside `noexcept` functions, where an exception could not propagate.
+- Before terminating, report through `logEmergency()` (`engine/logger.hpp`), never raw `std::cerr`. It writes to `std::cerr` and to the logger registered with `setEmergencyLogger()`.
+- Every `Logger` must implement `emergency()` without buffering.
+- Each frontend calls `setEmergencyLogger()` and `installEmergencyTerminateHandler()` as the first statements of `main()`.
+
 ## Common Tasks
 
 ### Working with the Game Class
