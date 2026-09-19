@@ -129,5 +129,36 @@ has this open item under "Build and infrastructure":
 
 ## Implementation Progress
 
-Not started. This document was written in the planning session; add
-"Session #1" when implementation begins.
+### Session #1
+
+- Added `WISDOM_CHESS_TSAN`, fixed `WISDOM_CHESS_ASAN` to add
+  `-fno-sanitize-recover=undefined -fno-omit-frame-pointer`, and made the
+  two mutually exclusive.
+- **Local ASan+UBSan** (`build-asan`, `clang++-18`, `RelWithDebInfo`, QML
+  on, fast+slow tests): found and fixed a real leak.
+  `GameModel::setupNewEngineThread()` moved the `ChessEngine` onto
+  `my_chess_engine_thread` and relied on `QThread::finished ->
+  deleteLater()` to clean it up, but that signal only fires once the
+  thread has actually run. `ApplicationTest::aModelThatNeverStartedCanBeDestroyed()`
+  destroys a `GameModel` without ever calling `start()`, leaking the
+  engine, its cloned `Game`, `TranspositionTable` (12 MB) and `History` —
+  12,650,232 bytes across 16 allocations. Fixed by tracking whether the
+  thread was ever started and deleting the engine directly if not
+  (`src/wisdom-chess/ui/qml/main/game_model.{hpp,cpp}`). Full suite
+  (fast + slow, 212 tests) is green in ~75s — well under the ~10 minute
+  threshold for dropping slow tests from the CI job, so they stay in.
+- **Local TSan** (`build-tsan`, fast tests only): all races found trace to
+  Qt/glib internals (`QMetaType`'s `std::function` marshaling for a
+  cross-thread queued signal, glib's `eventfd` thread wakeup, and
+  QtQuick's pooled-thread `QArrayData` refcounting), never to a frame in
+  our own code touching the racing memory — consistent with Qt's `QMutex`
+  using a raw `futex()` on Linux that TSan cannot see, and the Qt build
+  under test not being sanitizer-instrumented. Suppressed with three
+  narrow `race:` entries in `scripts/sanitizers/tsan.supp` (function-name
+  matches: `QMetaType`, `eventfd`, `QArrayData`). QML stayed on for TSan;
+  the `WISDOM_CHESS_QML_UI=Off` fallback was not needed. All 183 fast
+  tests green with the suppressions applied.
+- `scripts/sanitizers/lsan.supp` created empty — the ASan/LSan run found
+  no third-party-only leaks.
+- Added the `sanitizers` matrix job to `.github/workflows/cmake.yml` and
+  documented both options and the local repro commands in `AGENTS.md`.

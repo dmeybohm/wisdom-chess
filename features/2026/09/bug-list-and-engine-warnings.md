@@ -340,9 +340,10 @@ replacement are in
 - [x] Engine compiles with no warning flags. Fixed in this branch.
 - [x] Clear the warning sites the new flags report. Done in Sessions #2
   and #3; the engine now builds warning-free under `-Wall -Wextra`.
-- [ ] No sanitizer job and no Linux/Clang in
+- [x] No sanitizer job and no Linux/Clang in
   `.github/workflows/cmake.yml`. `WISDOM_CHESS_ASAN` is unused by CI.
-  The missing Debug build was added in Session #12.
+  The missing Debug build was added in Session #12. Closed by the
+  `sanitizers` job, see [ci-sanitizers.md](ci-sanitizers.md).
 - [x] Linter self-tests (`scripts/linter/tests/run-tests.sh`) are not run
   in CI. `LinterConfig::ignore` is populated and never read.
   The self-tests were added to the CI lint job in Session #17 and the
