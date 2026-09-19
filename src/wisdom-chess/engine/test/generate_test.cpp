@@ -7,7 +7,33 @@
 
 #include "wisdom-chess-tests.hpp"
 
+#include <algorithm>
+
 using namespace wisdom;
+
+namespace
+{
+    // For comparing what was generated without depending on the order.
+    auto
+    sortedMoves (const MoveList& list)
+        -> std::vector<Move>
+    {
+        std::vector<Move> result { list.begin(), list.end() };
+        std::sort (
+            result.begin(),
+            result.end(),
+            [] (Move a, Move b) { return a.toInt() < b.toInt(); }
+        );
+        return result;
+    }
+
+    auto
+    containsMove (const MoveList& list, Move wanted)
+        -> bool
+    {
+        return std::find (list.begin(), list.end(), wanted) != list.end();
+    }
+}
 
 TEST_CASE( "generate default moves" )
 {
@@ -15,11 +41,14 @@ TEST_CASE( "generate default moves" )
 
     auto move_list = generateAllPotentialMoves (board, Color::White);
 
-    std::string expected = "{ [a2 a4] [a2 a3] [b2 b4] [b2 b3] [c2 c4] [c2 c3] "
-                           "[d2 d4] [d2 d3] [e2 e4] [e2 e3] [f2 f4] [f2 f3] "
-                           "[g2 g4] [g2 g3] [h2 h4] [h2 h3] [b1 a3] [b1 c3] "
-                           "[g1 f3] [g1 h3] }";
-    REQUIRE( move_list.asString() == expected );
+    MoveList expected { Color::White, {
+        "a2 a4", "a2 a3", "b2 b4", "b2 b3", "c2 c4", "c2 c3", "d2 d4", "d2 d3",
+        "e2 e4", "e2 e3", "f2 f4", "f2 f3", "g2 g4", "g2 g3", "h2 h4", "h2 h3",
+        "b1 a3", "b1 c3", "g1 f3", "g1 h3",
+    } };
+
+    INFO( move_list );
+    REQUIRE( sortedMoves (move_list) == sortedMoves (expected) );
 }
 
 TEST_CASE( "generate en passant moves" )
@@ -31,11 +60,13 @@ TEST_CASE( "generate en passant moves" )
     board = board.withMove (Color::White, moveParse ("e4 e5", Color::White));
     board = board.withMove (Color::Black, moveParse ("f7 f5", Color::Black));
 
-    auto move_list = generateAllPotentialMoves (board, Color::White).asString();
-    auto pos = move_list.find ("[e5 f6 ep]");
+    auto move_list = generateAllPotentialMoves (board, Color::White);
 
     INFO( move_list );
-    REQUIRE( pos != std::string::npos );
+    CHECK( containsMove (move_list, moveParse ("e5 f6 ep", Color::White)) );
+
+    // Only the pawn that just moved two squares can be taken that way.
+    CHECK( !containsMove (move_list, moveParse ("e5 d6 ep", Color::White)) );
 }
 
 TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
@@ -54,11 +85,10 @@ TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
 
     auto move_list = generateAllPotentialMoves (board, Color::Black);
 
-    std::string expected = "{ [c4xd3] [c4xb3] ";
-    std::string converted = move_list.asString().substr (0, expected.size());
-
     INFO( move_list );
-    REQUIRE( expected == converted );
+    REQUIRE( move_list.size() >= 2 );
+    CHECK( *move_list.begin() == moveParse ("c4xd3", Color::Black) );
+    CHECK( *(move_list.begin() + 1) == moveParse ("c4xb3", Color::Black) );
 }
 
 TEST_CASE( "hasLegalMove" )
