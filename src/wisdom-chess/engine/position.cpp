@@ -80,13 +80,7 @@ namespace wisdom
         if (who == Color::White)
             return coord;
 
-        int8_t row = coord.row();
-        int8_t col = coord.column();
-
-        return makeCoord (
-            narrow_cast<int8_t> (Last_Row - row),
-            narrow_cast<int8_t> (Last_Column - col)
-        );
+        return makeCoord (narrow_cast<int8_t> (Last_Row - coord.row()), coord.column());
     }
 
     static auto 

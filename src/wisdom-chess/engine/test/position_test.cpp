@@ -16,6 +16,26 @@ TEST_CASE( "Position is initialized correctly" )
     CHECK( board.getPosition().individualScore (Color::White) == board.getPosition().individualScore (Color::Black) );
 }
 
+TEST_CASE( "Position scores are the same for both colors on mirrored ranks" )
+{
+    BoardBuilder builder;
+
+    builder.addPiece ("g1", Color::White, Piece::King);
+    builder.addPiece ("g8", Color::Black, Piece::King);
+
+    builder.addPiece ("f3", Color::White, Piece::Pawn);
+    builder.addPiece ("f6", Color::Black, Piece::Pawn);
+
+    builder.addPiece ("g5", Color::White, Piece::Bishop);
+    builder.addPiece ("g4", Color::Black, Piece::Bishop);
+
+    auto board = Board { builder };
+
+    CHECK( board.getPosition().individualScore (Color::White)
+           == board.getPosition().individualScore (Color::Black) );
+    CHECK( board.getPosition().overallScore (Color::White) == 0 );
+}
+
 TEST_CASE( "Center pawn elevates position overallScore" )
 {
     BoardBuilder builder;
