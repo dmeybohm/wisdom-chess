@@ -191,11 +191,11 @@ should be confirmed before fixing.
   property lives on `_myGameModel`. ReferenceError on every orientation
   change.
   Fixed in Session #16.
-- [ ] **Leaked WebIDL objects.** `getCurrentGameSettings()` returns a
+- [x] **Leaked WebIDL objects.** `getCurrentGameSettings()` returns a
   `new GameSettings` (`ui/wasm/game_model.hpp`) that `App.tsx:106, 287`
   never destroys; `App.tsx:184-185, 195` allocates three objects per move
   and frees none. `WebMove::asString` returns `strdup`
-  (`ui/wasm/web_move.hpp:43`). *(strdup verified)*
+  (`ui/wasm/web_move.hpp:43`). *(strdup verified)* Fixed in Session #21.
 - [ ] **`any` at the WASM boundary.** *(verified)*
   `ui/react/src/lib/WisdomChess.ts:95-143` declares `Game`, `PieceColor`,
   `PieceType`, `GameStatus`, `WebMove`, `WebCoord` and others as `any`.
@@ -849,3 +849,47 @@ this session restarts the branch from `main`. Scope: the quick items only.
   shutdown and `usleep`, the duplicated `isLegalMove`, `ViewModelSettings`,
   the missing perft and unit-test coverage, and the sanitizer and Linux
   Clang CI jobs.
+
+### Session #21
+
+Leaked WebIDL objects. The generated glue wraps every pointer a C++
+function returns and never frees it; only an explicit `destroy()` does.
+
+- Sites found, one more than the checklist recorded:
+  - `getCurrentGameSettings()` allocates a `GameSettings`. `App.tsx` called
+    it inside the `useReducer` initial-state argument, which React
+    evaluates on every render and then ignores, so the app leaked one
+    object per render and not just one at startup. A short test that
+    opens the About dialog saw three allocations. It is also called when a
+    new game starts.
+  - A human move allocates two `WebCoord`s and a `WebMove`, including on
+    the paths that return early for a promotion prompt or an illegal move.
+  - A computer move allocates a `WebMove` through `WebMove::fromString`.
+  - Applying settings allocates a `GameSettings` with `new`.
+  - `WebMove::asString` returned `strdup` memory that the glue copies into
+    a JavaScript string and never frees. Nothing in the React code called
+    it.
+- Checked first that C++ keeps none of these pointers: `makeMove`,
+  `isLegalMove`, `needsPawnPromotion` and `notifyHumanMove` read the value
+  during the call, and both settings setters copy.
+- Fix, in `ui/react/src/lib/WisdomChess.ts`: `getCurrentGameSettings()` now
+  copies the fields into a plain `WebGameSettings` and destroys the C++
+  object, so callers never hold one, and `App.tsx` no longer needs its own
+  `toWebSettings`. A new `withWasmObjects (objects, callback)` runs the
+  callback and destroys every listed object afterwards, also when the
+  callback throws or returns early; the move handlers and the settings
+  handler use it. The reducer's initial state uses the lazy initializer
+  form, so the settings are read once.
+- Removed `WebMove::asString` from the IDL, `web_move.hpp` and the
+  TypeScript type instead of fixing it, since it had no caller.
+- Tests: the settings are read once and freed across re-renders (fails
+  with three calls when the eager initializer is restored), the computer
+  move and the applied settings object are freed, and `withWasmObjects`
+  frees late additions, frees on a throw and skips empty entries. 35 React
+  tests pass and `tsc` is clean. The wasm target builds without warnings
+  and the regenerated glue has no `asString`. Not exercised in a browser.
+- Not done, as it changes the interface: the leaks exist because the IDL
+  makes JavaScript own short-lived C++ objects. Passing squares as strings
+  and moves as the integer `Move::toInt()` already provides would remove
+  `WebCoord` and `WebMove` from the interface, leaving nothing to free.
+  That fits with the open item on `any` types at the WASM boundary.

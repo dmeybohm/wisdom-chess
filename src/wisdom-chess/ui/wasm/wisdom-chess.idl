@@ -61,7 +61,6 @@ interface WebCoord {
 [Prefix="wisdom::"]
 interface WebMove {
     static WebMove fromString (DOMString moveText, long who);
-    DOMString asString();
 };
 
 [Prefix="wisdom::"]

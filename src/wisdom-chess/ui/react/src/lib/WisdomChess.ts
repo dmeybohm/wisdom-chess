@@ -123,9 +123,7 @@ export type DrawByRepetitionType = any
 
 export type GameStatus = any
 
-export type WebMove = {
-    asString(): string
-}
+export type WebMove = object
 
 interface ColoredPiece {
     color: number
@@ -172,9 +170,33 @@ export function startNewGame(): Game {
     return getCurrentGame()
 }
 
-export function getCurrentGameSettings(): GameSettings {
-    const gameModel = getGameModel()
-    return gameModel.getCurrentGameSettings()
+// Copies the settings out of the C++ object and frees it.
+export function getCurrentGameSettings(): WebGameSettings {
+    const wasmSettings = getGameModel().getCurrentGameSettings()
+    try {
+        return {
+            whitePlayer: wasmSettings.whitePlayer,
+            blackPlayer: wasmSettings.blackPlayer,
+            thinkingTime: wasmSettings.thinkingTime,
+            searchDepth: wasmSettings.searchDepth,
+            debugLogging: Boolean(wasmSettings.debugLogging),
+        }
+    } finally {
+        WisdomChess().destroy(wasmSettings)
+    }
+}
+
+// Objects returned across the WebIDL boundary are owned by the caller.
+// Runs the callback and then frees every object it was given.
+export function withWasmObjects<T>(objects: unknown[], callback: () => T): T {
+    try {
+        return callback()
+    } finally {
+        const wisdomChess = WisdomChess()
+        for (const object of objects) {
+            if (object) wisdomChess.destroy(object)
+        }
+    }
 }
 
 export function WisdomChess(): WisdomChess {

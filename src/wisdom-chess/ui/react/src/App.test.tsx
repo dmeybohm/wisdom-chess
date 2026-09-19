@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
 import type { WisdomWindow, Game, GameModel, WisdomChess } from './lib/WisdomChess'
+import { withWasmObjects } from './lib/WisdomChess'
 
 const createMockGame = (): Game => ({
     getGameStatus: vi.fn(() => 0),
@@ -236,5 +237,99 @@ describe('App', () => {
 
         expect(setCallbackSpy).toHaveBeenCalled()
         expect(typeof setCallbackSpy.mock.calls[0][0]).toBe('function')
+    })
+})
+
+describe('WebIDL object ownership', () => {
+    let mockGame: Game
+    let mockGameModel: GameModel
+    let mockWisdomChess: WisdomChess
+    let wisdomWindow: WisdomWindow
+
+    beforeEach(() => {
+        mockGame = createMockGame()
+        mockGameModel = createMockGameModel()
+        mockWisdomChess = createMockWisdomChess()
+
+        wisdomWindow = window as unknown as WisdomWindow
+        wisdomWindow.wisdomChessWeb = mockWisdomChess
+        wisdomWindow.wisdomChessGameModel = mockGameModel
+        wisdomWindow.wisdomChessCurrentGame = mockGame
+        wisdomWindow.setReceiveWorkerMessageCallback = vi.fn()
+        wisdomWindow.receiveWorkerMessage = vi.fn()
+    })
+
+    it('reads the settings once and frees them, however often the app renders', async () => {
+        const user = userEvent.setup()
+        const wasmSettings = { whitePlayer: 0, blackPlayer: 1, thinkingTime: 5, searchDepth: 4, debugLogging: false }
+        vi.mocked(mockGameModel.getCurrentGameSettings).mockReturnValue(wasmSettings)
+
+        render(<App />)
+        await user.click(screen.getByText('About'))
+
+        expect(mockGameModel.getCurrentGameSettings).toHaveBeenCalledTimes(1)
+        expect(mockWisdomChess.destroy).toHaveBeenCalledWith(wasmSettings)
+    })
+
+    it('frees the move created for a computer move', () => {
+        const wasmMove = {}
+        vi.mocked(mockWisdomChess.WebMove.prototype.fromString).mockReturnValue(wasmMove)
+
+        render(<App />)
+
+        const onMessage = vi.mocked(wisdomWindow.setReceiveWorkerMessageCallback).mock.calls[0][0]
+        act(() => onMessage('computerMoved', 0, 'e2 e4'))
+
+        expect(mockGame.makeMove).toHaveBeenCalledWith(wasmMove)
+        expect(mockWisdomChess.destroy).toHaveBeenCalledWith(wasmMove)
+    })
+
+    it('frees the settings object built when settings are applied', async () => {
+        const user = userEvent.setup()
+        render(<App />)
+
+        await user.click(screen.getByText('Settings'))
+        await user.click(screen.getByText('Apply'))
+
+        const wasmSettings = vi.mocked(mockWisdomChess.GameSettings).mock.instances[0]
+        expect(mockGameModel.setCurrentGameSettings).toHaveBeenCalledWith(wasmSettings)
+        expect(mockWisdomChess.destroy).toHaveBeenCalledWith(wasmSettings)
+    })
+})
+
+describe('withWasmObjects', () => {
+    let mockWisdomChess: WisdomChess
+
+    beforeEach(() => {
+        mockWisdomChess = createMockWisdomChess()
+        const wisdomWindow = window as unknown as WisdomWindow
+        wisdomWindow.wisdomChessWeb = mockWisdomChess
+    })
+
+    it('frees objects added while the callback runs and returns its result', () => {
+        const owned: unknown[] = []
+        const first = {}
+        const second = {}
+
+        const result = withWasmObjects(owned, () => {
+            owned.push(first)
+            owned.push(second)
+            return 42
+        })
+
+        expect(result).toBe(42)
+        expect(mockWisdomChess.destroy).toHaveBeenCalledWith(first)
+        expect(mockWisdomChess.destroy).toHaveBeenCalledWith(second)
+    })
+
+    it('frees objects when the callback throws and skips empty entries', () => {
+        const object = {}
+
+        expect(() => withWasmObjects([object, null, undefined], () => {
+            throw new Error('failed')
+        })).toThrow('failed')
+
+        expect(mockWisdomChess.destroy).toHaveBeenCalledTimes(1)
+        expect(mockWisdomChess.destroy).toHaveBeenCalledWith(object)
     })
 })

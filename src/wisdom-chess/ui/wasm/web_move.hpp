@@ -34,14 +34,6 @@ namespace wisdom
         {
             return my_move;
         }
-
-        [[nodiscard]] auto 
-        asString() const 
-            -> char*
-        {
-            std::string str = wisdom::asString (my_move);
-            return strdup (str.c_str());
-        }
     };
 }
 
