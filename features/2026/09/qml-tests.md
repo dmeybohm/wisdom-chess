@@ -57,3 +57,76 @@ The work is split by how much of Qt a test needs to be running:
   writes them, and equality. The `ui_types` mappings round-trip.
 
 ## Implementation Progress
+
+### Session #1
+
+Item 1 works as a prototype. Three Qt Test executables, 57 test functions,
+about 0.1 seconds in total.
+
+- `ui/qml/test/CMakeLists.txt` builds `wisdom-chess-qml-test-support`, a
+  static library holding a second compilation of `pieces_model`,
+  `chess_game`, `game_settings`, `ui_settings` and `ui_types`, and one
+  executable per test file through `wisdom_chess_add_qml_test()`. The
+  `WisdomChessQml` target is not touched. The subdirectory is added when
+  `WISDOM_CHESS_FAST_TESTS` is on, the build is not for Android or
+  WebAssembly, and `Qt6Test` is found.
+- The tests are `QML: PiecesModel` (24 functions), `QML: ChessGame` (18)
+  and `QML: settings and types` (15), all labelled `fast`.
+- The `PiecesModel` tests play moves on a `Game` and on the model, then
+  compare the model with a fresh one filled from the board, so the board is
+  the oracle for every kind of move. `QAbstractItemModelTester` is attached
+  throughout.
+- Confirmed headless: all three pass with `DISPLAY`, `WAYLAND_DISPLAY` and
+  `XDG_SESSION_TYPE` removed from the environment, as expected under
+  `QCoreApplication`.
+- The QML directory declares `cmake_minimum_required (VERSION 3.16)`, which
+  switches off policy CMP0110, so `add_test()` cut the test names at the
+  first space and no test ran. The test directory sets the policy.
+- Qt Test macros are written `QCOMPARE (a, b)`, with the call spacing the
+  linter wants and the QML sources already use for `Q_PROPERTY (...)`. The
+  padded `CHECK( x )` form is only exempt for the doctest macros.
+- Verified: GCC Release and Debug against Qt 6.11.2, no warnings, all 120
+  fast tests pass, linter clean. Not verified: the three CI platforms. On
+  Windows the test executables need the Qt DLLs on `PATH`, which
+  `install-qt-action` sets up by default.
+
+### What the Session #16 removal bug really was
+
+With the `i--; continue;` fix in `PiecesModel::playerMoved` reverted, the
+first version of these tests still passed, including a capture where the
+mover directly follows the captured piece in the list. The bug list says
+the old loop skipped the element after a removal. It did not quite: the
+`piece_model` reference kept pointing at the same slot, which now held the
+next element, so the rest of the loop body ran on that element in the same
+iteration. What the element missed was the top of the loop, where the
+castling roles are cleared. A captured piece at the end of the list also
+left the reference one past the last element.
+
+The observable defect is therefore narrow: capture the piece listed
+directly before a rook that has just castled, and the rook keeps
+`isCastlingRook` and its source column, which drive the castling
+animation. `aCaptureBesideTheCastledRookStillClearsItsRoles` sets that up
+(queenside castling, then a capture on h2) and fails without the fix:
+`isCastlingRook` stays true.
+
+### Findings
+
+Not fixed here.
+
+- `UISettings::my_flipped` has no initializer. `GameModel` value-initializes
+  its member, which zeroes it, but `UISettings settings;` anywhere else
+  reads an indeterminate `bool`. `GameSettings` initializes every member.
+- A `ChessGame::Config`'s players override the players the `Game` was
+  created with, because the constructor calls `setConfig()`. The
+  `fromPlayers (white, black, config)` arguments are therefore ignored
+  whenever they differ from `config.players`. The tests pin this.
+- `PiecesModel::playerMoved` clears the castling roles without emitting
+  `dataChanged` for them, so a view is only told about the clearing if the
+  same row changes for another reason.
+
+### Next
+
+Item 2, the QML load smoke test, is the next step and the first to need
+`QT_QPA_PLATFORM=offscreen`. Item 3 waits for the `~GameModel` thread
+shutdown fix.
+

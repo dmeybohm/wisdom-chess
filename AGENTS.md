@@ -261,6 +261,14 @@ from the board. `generateLegalMoves()` and `Board::withMove()` still take a
 color, which must be the side to move; `withMove()` asserts it in Debug. Run
 new engine tests in a Debug build as well as Release.
 
+When the QML UI is built and `Qt6Test` is found, `ctest` also runs the
+`QML: ...` tests in `src/wisdom-chess/ui/qml/test`. They use Qt Test, not
+doctest, and cover the QML frontend's C++ classes that need no thread or
+display. Add one with `wisdom_chess_add_qml_test()` in that directory's
+`CMakeLists.txt`; the sources under test are listed in
+`wisdom-chess-qml-test-support` there. Write the Qt Test macros with the
+ordinary call spacing, `QCOMPARE (a, b)`.
+
 ### Linting and Type Checking
 
 When making changes, always run:
