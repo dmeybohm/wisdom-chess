@@ -467,6 +467,39 @@ TEST_CASE( "Kingside castle state after moving queenside rook" )
     CHECK( castle_king_side );
 }
 
+TEST_CASE( "King move removes the remaining castling right" )
+{
+    SUBCASE( "Only kingside remaining" )
+    {
+        FenParser parser { "4k3/8/8/8/8/8/8/4K2R w K - 0 1" };
+        Board board = parser.buildBoard();
+
+        board = board.withMove (Color::White, moveParse ("e1 d1"));
+
+        CHECK( board.getCastlingEligibility (Color::White) == CastlingEligibility::Neither_Side );
+    }
+
+    SUBCASE( "Only queenside remaining" )
+    {
+        FenParser parser { "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1" };
+        Board board = parser.buildBoard();
+
+        board = board.withMove (Color::White, moveParse ("e1 f1"));
+
+        CHECK( board.getCastlingEligibility (Color::White) == CastlingEligibility::Neither_Side );
+    }
+
+    SUBCASE( "Castling with only one side remaining" )
+    {
+        FenParser parser { "4k3/8/8/8/8/8/8/4K2R w K - 0 1" };
+        Board board = parser.buildBoard();
+
+        board = board.withMove (Color::White, moveParse ("o-o", Color::White));
+
+        CHECK( board.getCastlingEligibility (Color::White) == CastlingEligibility::Neither_Side );
+    }
+}
+
 TEST_CASE( "Test ableToCastle" )
 {
     SUBCASE( "Initial state" )

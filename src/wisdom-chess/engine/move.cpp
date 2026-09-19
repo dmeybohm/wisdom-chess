@@ -120,14 +120,10 @@ namespace wisdom
         setKingPosition (who, dst);
 
         // set as not able to castle
-        if (ableToCastle (who, CastlingEligibility::Either_Side))
-        {
-            // set the new castle status
-            removeCastlingEligibility (
-                who,
-                CastlingRights::Kingside | CastlingRights::Queenside
-            );
-        }
+        removeCastlingEligibility (
+            who,
+            CastlingRights::Kingside | CastlingRights::Queenside
+        );
     }
 
     void
