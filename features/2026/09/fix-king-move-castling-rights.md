@@ -44,3 +44,20 @@ rights are already gone.
 - Engine-vs-engine fuzzing of the WASM build through Node (worker
   messages, pauses, settings changes, new games) found no other
   exceptions.
+
+### Session #2
+
+- Checked the other uses of `Either_Side`. Everything else, tests
+  included, already treats it as "both sides": it is set as the default
+  eligibility, compared for equality in the FEN writer and in
+  `unableToCastlePenalty()`, and has the value 3. `updateAfterRookMove()`
+  also uses it as a "not a corner rook" placeholder that is never passed
+  to `ableToCastle()`.
+- Renamed it to `Both_Sides` so the name matches its meaning.
+- Fixed 22 combined checks in `castle_test.cpp` that passed
+  `Kingside | Kingside` where `Kingside | Queenside` was meant. Each now
+  expects true only when the next assertion shows both rights remaining;
+  the seven that follow a lost queenside right are negated.
+- Found while debugging the new test in a Debug build:
+  `FenParser::buildBoard()` ignores the side to move in the FEN, unlike
+  `FenParser::build()`. Not changed here.
