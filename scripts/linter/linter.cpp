@@ -1,6 +1,7 @@
 #include "linter.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -37,7 +38,8 @@ auto Linter::getEnabledRules() const -> std::vector<std::shared_ptr<Rule>>
 auto Linter::isCppFile( const std::filesystem::path& path ) -> bool
 {
     auto ext = path.extension().string();
-    std::transform( ext.begin(), ext.end(), ext.begin(), ::tolower );
+    std::transform( ext.begin(), ext.end(), ext.begin(),
+        []( unsigned char ch ) { return static_cast<char>( std::tolower( ch ) ); } );
     return ext == ".cpp" || ext == ".hpp" || ext == ".h";
 }
 

@@ -449,7 +449,7 @@ namespace wisdom
 
         if (move.isPromoting())
         {
-            char piece_char = tolower (pieceToChar (move.getPromotedPiece()));
+            char piece_char = narrow_cast<char> (tolower (pieceToChar (move.getPromotedPiece())));
             result += piece_char;
         }
 

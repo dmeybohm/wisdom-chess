@@ -492,3 +492,42 @@ instantiate.
   warnings under `-Wall -Wextra`, and all 95 fast tests pass in well under
   a second. The workflow file parses and the new entry expands as intended.
   The job itself has not run on GitHub yet.
+
+### Session #13
+
+Warnings from the first CI run with warnings enabled on every target (run
+35442137275, commit `35e42e6`). All eight jobs passed. macOS reported three
+warning lines and Windows 108, from seven distinct sites.
+
+- Added `truncate<Target> (value)` to `engine/global.hpp`: a named conversion
+  to a narrower unsigned type that deliberately discards the high bits.
+  `narrow_cast` cannot be used for that, because its compile-time check
+  rejects lossy conversions. `truncate` refuses signed types and widening
+  at compile time. Covered in `engine/test/global_test.cpp`.
+- `engine/random.hpp` produced 96 of the Windows lines, two warnings
+  repeated for every file that includes it: a 64 to 32 bit truncation
+  (C4244) and unary minus on an unsigned value (C4146). Both are the
+  standard PCG output step. The truncations now use `truncate`, and the
+  rotate amount is written `(32u - rot) & 31u`, which is the same value
+  modulo 32. Because these numbers seed the hash tables, the change was
+  verified with a probe comparing sampled outputs and a checksum over 1.2
+  million draws before and after: identical.
+- `engine/test/check_test.cpp` passed loop `int`s to `isKingThreatened`,
+  which takes `int8_t`. It now converts with `narrow<int8_t>`.
+- `tolower` returns `int`: `ui/uci/uci_interface.cpp` now uses
+  `narrow_cast<char>` like `board.cpp`, and `scripts/linter/linter.cpp` uses
+  a small lambda instead of passing `::tolower` to `std::transform`. Checked
+  that the UCI engine still prints a lowercase promotion, `a7a8q`.
+- `ui/console/play.cpp`: dropped the unused name from a catch clause (C4101).
+- macOS `-Wpessimizing-move`: two `std::move` calls around temporaries in
+  `ui/qml/main/game_model.cpp`, which GCC does not flag because they are an
+  assignment and a converting initialization rather than returns.
+- macOS `ld: ignoring duplicate libraries` on the console: it linked the
+  engine directly and again through `wisdom::viewmodel`, which links it
+  publicly. The console now names only the viewmodel library.
+- Left alone: eight C4702 "unreachable code" warnings that come from inside
+  Qt 6.9.3's own headers under `/W4`.
+- Verified: desktop (GCC), QML (Qt 6.11.2) and wasm (Emscripten Clang)
+  builds report no warnings, all 119 tests pass, and the linter's own 19
+  tests pass. The MSVC and AppleClang results can only be confirmed by the
+  next CI run.

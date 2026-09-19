@@ -364,7 +364,7 @@ namespace wisdom::ui::console
             {
                 return std::stoi (input);
             }
-            catch (std::invalid_argument& e)
+            catch (std::invalid_argument&)
             {
                 return nullopt;
             }

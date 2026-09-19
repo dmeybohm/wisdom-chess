@@ -193,6 +193,18 @@ namespace wisdom
         return gsl::narrow<Target> (value);
     }
 
+    // Converts to a narrower unsigned type, deliberately discarding the high bits.
+    template <typename Target, typename Source>
+    [[nodiscard]] constexpr auto
+    truncate (Source value) noexcept
+        -> Target
+    {
+        static_assert (std::is_unsigned_v<Source> && std::is_unsigned_v<Target>);
+        static_assert (sizeof (Target) <= sizeof (Source));
+
+        return static_cast<Target> (value);
+    }
+
     // constexpr version of tolower():
     constexpr auto
     toLower (int ch) noexcept

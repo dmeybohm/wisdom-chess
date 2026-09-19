@@ -30,6 +30,16 @@ TEST_CASE( "Lossless conversion checks" )
     }
 }
 
+TEST_CASE( "truncate discards the high bits" )
+{
+    static_assert (truncate<uint32_t> (uint64_t { 0x1234'5678'9abc'def0ULL }) == 0x9abc'def0U);
+    static_assert (truncate<uint8_t> (uint32_t { 0x1ff }) == 0xff);
+    static_assert (truncate<uint16_t> (uint16_t { 0xbeef }) == 0xbeef);
+
+    uint64_t runtime_value = 0xffff'ffff'0000'0001ULL;
+    CHECK( truncate<uint32_t> (runtime_value) == 1U );
+}
+
 TEST_CASE( "narrow throws at runtime when the value does not fit" )
 {
     int too_big = 300;

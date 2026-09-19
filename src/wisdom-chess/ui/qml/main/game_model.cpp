@@ -152,19 +152,17 @@ void GameModel::restart()
 {
     qDebug() << "Creating new chess game";
 
-    my_chess_game = std::move (
-        ChessGame::fromPlayers (
-            my_chess_game->state()->getPlayer (Color::White),
-            my_chess_game->state()->getPlayer (Color::Black),
-            gameConfig()
-        )
+    my_chess_game = ChessGame::fromPlayers (
+        my_chess_game->state()->getPlayer (Color::White),
+        my_chess_game->state()->getPlayer (Color::Black),
+        gameConfig()
     );
 
     // Abort searches and discard any queued signals from them if we receive
     // them later.
     incrementGameId();
 
-    std::shared_ptr<ChessGame> computer_chess_game = std::move (my_chess_game->clone());
+    std::shared_ptr<ChessGame> computer_chess_game = my_chess_game->clone();
     computer_chess_game->setPeriodicFunction (buildNotifier());
 
     // send copy of the new game state to the chess engine thread:
