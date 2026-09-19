@@ -1,5 +1,6 @@
 import { initialSquares } from './Squares'
 import { Color, Piece } from "./Pieces";
+import type WisdomChessModule from './wisdom-chess-module'
 
 import WhitePawn from "../assets/Chess_plt45.svg";
 import WhiteBishop from "../assets/Chess_blt45.svg";
@@ -26,8 +27,8 @@ export interface ReactWindow {
 }
 
 export type WebGameSettings = {
-    whitePlayer: number
-    blackPlayer: number
+    whitePlayer: WebPlayer
+    blackPlayer: WebPlayer
     thinkingTime: number
     searchDepth: number
     debugLogging: boolean
@@ -46,101 +47,30 @@ export type GameState = {
     hasHumanPlayer: boolean
 }
 
-// These are already described in the IDL:
-export type GameModel = {
-    startNewGame(): Game
-    getCurrentGame(): Game
-    getCurrentGameSettings(): GameSettings
-    setCurrentGameSettings(newSettings: WorkerGameSettings): void
-    getFirstHumanPlayerColor: PieceColor
-    getSecondHumanPlayerColor: PieceColor
-    notifyHumanMove(packedMove: number): void;
-    notifyComputerMove(): void;
-    sendPause(): void;
-    sendUnpause(): void;
-}
+// The module and its classes and enums, as described by the IDL:
+export type WisdomChess = typeof WisdomChessModule
+export type Game = WisdomChessModule.WebGame
+export type GameModel = WisdomChessModule.GameModel
+export type GameSettings = WisdomChessModule.GameSettings
+export type ColoredPiece = WisdomChessModule.WebColoredPiece
 
-interface GameSettingsConstructor {
-    new(): GameSettings
-    new(
-        whitePlayer: WebPlayer,
-        blackPlayer: WebPlayer,
-        thinkingTime: number,
-        searchDepth: number
-    ): GameSettings
-}
+export type WebPlayer = WisdomChessModule.wisdom_WebPlayer
+export type PieceColor = WisdomChessModule.wisdom_WebColor
+export type PieceType = WisdomChessModule.wisdom_WebPiece
+export type GameStatus = WisdomChessModule.wisdom_WebGameStatus
+export type DrawProposed = WisdomChessModule.wisdom_WebDrawStatus
+export type DrawByRepetitionType = WisdomChessModule.wisdom_WebDrawByRepetitionType
 
-export type WisdomChess = {
-    White: PieceColor
-    Black: PieceColor
-    NoColor: PieceColor
-
-    Human: WebPlayer
-    ChessEngine: WebPlayer
-
-    Queen: PieceType
-    Rook: PieceType
-    Bishop: PieceType
-    Knight: PieceType
-    NoPiece: PieceType
-
-    GameSettings: GameSettingsConstructor
-
-    NotReached: DrawProposed
-    Proposed: DrawProposed
-    Accepted: DrawProposed
-    Declined: DrawProposed
-
-    Playing: GameStatus
-    Checkmate: GameStatus
-    Stalemate: GameStatus
-    ThreefoldRepetitionReached: GameStatus
-    ThreefoldRepetitionAccepted: GameStatus
-    FivefoldRepetitionDraw: GameStatus
-    FiftyMovesWithoutProgressReached: GameStatus
-    FiftyMovesWithoutProgressAccepted: GameStatus
-    SeventyFiveMovesWithoutProgressDraw: GameStatus
-    InsufficientMaterialDraw: GameStatus
-
-    ThreefoldRepetition: DrawByRepetitionType
-    FiftyMovesWithoutProgress: DrawByRepetitionType
-
-    // Destroy a C++ object explicitly:
-    destroy(obj: any): void
-}
-
-export type Game = any
-export type WebPlayer = any
-
-export type PieceColor = any
-export type PieceType = any
-export type DrawProposed = any
-export type DrawByRepetitionType = any
-
-export type GameStatus = any
+// A C++ object that JavaScript owns and has to destroy.
+export type WasmObject = Game | GameModel | GameSettings
 
 // Returned by Game.makeHumanMove() when the move is not legal.
 export const ILLEGAL_MOVE = -1
 
-interface ColoredPiece {
-    color: number
-    piece: number
-}
-
-export type GameSettings = {
-    whitePlayer: WebPlayer
-    blackPlayer: WebPlayer
-    thinkingTime: number
-    searchDepth: number
-    debugLogging: boolean
-}
-
-export type WorkerGameSettings = any
-
 export interface WisdomWindow extends ReactWindow {
-    wisdomChessWeb: unknown
+    wisdomChessWeb: WisdomChess
     wisdomChessGameModel: GameModel
-    wisdomChessCurrentGame: Game
+    wisdomChessCurrentGame?: Game
 }
 
 export function getGameModel(): GameModel {
@@ -185,50 +115,40 @@ export function getCurrentGameSettings(): WebGameSettings {
 
 // Objects returned across the WebIDL boundary are owned by the caller.
 // Runs the callback and then frees every object it was given.
-export function withWasmObjects<T>(objects: unknown[], callback: () => T): T {
+export function withWasmObjects<T>(objects: WasmObject[], callback: () => T): T {
     try {
         return callback()
     } finally {
         const wisdomChess = WisdomChess()
         for (const object of objects) {
-            if (object) wisdomChess.destroy(object)
+            wisdomChess.destroy(object)
         }
     }
 }
 
 export function WisdomChess(): WisdomChess {
-    return ((window as unknown) as WisdomWindow).wisdomChessWeb as WisdomChess
+    return ((window as unknown) as WisdomWindow).wisdomChessWeb
 }
 
 function mapPieceToIcon(piece: ColoredPiece): string {
-    const color = fromNumberToColor(piece.color)
-    if (color === 'white') {
-        switch (piece.piece) {
-            case 1: return WhitePawn
-            case 2: return WhiteKnight
-            case 3: return WhiteBishop
-            case 4: return WhiteRook
-            case 5: return WhiteQueen
-            case 6: return WhiteKing
-            default: throw new Error("invalid piece type")
-        }
-    } else {
-        switch (piece.piece) {
-            case 1: return BlackPawn
-            case 2: return BlackKnight
-            case 3: return BlackBishop
-            case 4: return BlackRook
-            case 5: return BlackQueen
-            case 6: return BlackKing
-            default: throw new Error("invalid piece type")
-        }
+    const wisdomChess = WisdomChess()
+    const isWhite = fromNumberToColor(piece.color) === 'white'
+    switch (piece.piece) {
+        case wisdomChess.Pawn: return isWhite ? WhitePawn : BlackPawn
+        case wisdomChess.Knight: return isWhite ? WhiteKnight : BlackKnight
+        case wisdomChess.Bishop: return isWhite ? WhiteBishop : BlackBishop
+        case wisdomChess.Rook: return isWhite ? WhiteRook : BlackRook
+        case wisdomChess.Queen: return isWhite ? WhiteQueen : BlackQueen
+        case wisdomChess.King: return isWhite ? WhiteKing : BlackKing
+        default: throw new Error("invalid piece type")
     }
 }
 
-function fromNumberToColor(color: number): Color {
+function fromNumberToColor(color: PieceColor): Color {
+    const wisdomChess = WisdomChess()
     switch (color) {
-        case 1: return 'white'
-        case 2: return 'black'
+        case wisdomChess.White: return 'white'
+        case wisdomChess.Black: return 'black'
         default: throw new Error("Invalid color")
     }
 }

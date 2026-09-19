@@ -28,7 +28,7 @@ namespace wisdom
             if (piece != Piece_And_Color_None)
             {
                 WebColoredPiece new_piece
-                    = WebColoredPiece { id, toInt (piece.color()), toInt (piece.type()),
+                    = WebColoredPiece { id, mapColor (piece.color()), mapPiece (piece.type()),
                                         narrow<int> (coord.row()),
                                         narrow<int> (coord.column()) };
                 my_pieces.addPiece (new_piece);
@@ -193,8 +193,8 @@ namespace wisdom
                 {
                     WebColoredPiece new_piece = {
                         id,
-                        toInt (piece.color()),
-                        toInt (piece.type()),
+                        mapColor (piece.color()),
+                        mapPiece (piece.type()),
                         narrow<int8_t> (coord.row()),
                         narrow<int8_t> (coord.column()),
                     };

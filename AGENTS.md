@@ -179,6 +179,14 @@ cmake --build . --target wisdom-chess-react
 cmake --build . --target wisdom-chess-react-dev
 ```
 
+The TypeScript types for the WASM module are generated from
+`src/wisdom-chess/ui/wasm/wisdom-chess.idl`. After changing the IDL, run
+`npm run generate:wasm-types` in `src/wisdom-chess/ui/react` and commit
+`src/lib/wisdom-chess-module.d.ts` and `src/test/wasm-enum-values.ts`. CI
+runs `npm run check:wasm-types` and fails if they are stale. The generator
+(`webidl-dts-gen`) is run through a pinned `npx` and is deliberately not a
+dependency. Use enum types in the IDL, not `long`, for enum values.
+
 ### WebAssembly + Qt QML Build
 
 ```bash

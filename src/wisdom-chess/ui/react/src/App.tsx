@@ -14,7 +14,6 @@ import {
     getCurrentGameSettings,
     withWasmObjects,
     startNewGame as startNewGameEngine,
-    GameStatus,
     PieceColor,
     PieceType,
     DrawByRepetitionType,
@@ -42,7 +41,7 @@ function snapshotFromEngine() {
     }
 }
 
-function throttle<T extends (...args: any[]) => void>(func: T, limit: number) {
+function throttle<T extends (...args: never[]) => void>(func: T, limit: number) {
     let lastTimeout: ReturnType<typeof setTimeout> | null = null
     let lastRan: number | null = null
     const throttled = (...args: Parameters<T>) => {
@@ -66,11 +65,11 @@ function throttle<T extends (...args: any[]) => void>(func: T, limit: number) {
             lastTimeout = null
         }, diff)
     }
-    ;(throttled as any).cancel = () => {
+    const cancel = () => {
         if (lastTimeout !== null) clearTimeout(lastTimeout)
         lastTimeout = null
     }
-    return throttled as T & { cancel: () => void }
+    return Object.assign(throttled, { cancel })
 }
 
 
@@ -91,7 +90,7 @@ function App() {
         focusedSquare: '',
         pawnPromotionDialogSquare: '',
         lastDroppedSquare: '',
-        gameStatus: 0 as GameStatus,
+        gameStatus: WisdomChess().Playing,
         gameOverStatus: '',
         moveStatus: 'White to move',
         settings: getCurrentGameSettings(),

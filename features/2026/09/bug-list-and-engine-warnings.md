@@ -196,13 +196,14 @@ should be confirmed before fixing.
   never destroys; `App.tsx:184-185, 195` allocates three objects per move
   and frees none. `WebMove::asString` returns `strdup`
   (`ui/wasm/web_move.hpp:43`). *(strdup verified)* Fixed in Session #21.
-- [ ] **`any` at the WASM boundary.** *(verified)*
+- [x] **`any` at the WASM boundary.** *(verified)*
   `ui/react/src/lib/WisdomChess.ts:95-143` declares `Game`, `PieceColor`,
   `PieceType`, `GameStatus`, `WebMove`, `WebCoord` and others as `any`.
   Consequences that compile today: `onDropPiece` is declared
   `(dst, src)` in `Board.tsx:23` but `(src, dst)` in `Square.tsx:16`;
   `PawnPromotionDialog.tsx` types `selectedPiece` as `PieceColor`.
-  Session #20 corrected those two declarations; the `any` types remain.
+  Session #20 corrected those two declarations. The types are now
+  generated from the IDL; see `wasm-boundary-types.md`.
 - [x] **Console number prompts abort on out-of-range input.** *(verified)*
   `readInt` in `ui/console/play.cpp` caught `std::invalid_argument` from
   `std::stoi` but not `std::out_of_range`, so a very large number at the
@@ -955,6 +956,4 @@ JavaScript owns no short-lived C++ objects.
   then Start New Game, both worked; no console errors or uncaught
   exceptions. Not checked there: promotion, drag and drop, the draw
   dialogs, and other browsers.
-- Still open under the `any` item: `Game` and most enum types in
-  `lib/WisdomChess.ts` are `any`, which is why the wrong mock values and
-  the old argument-order slip compiled.
+- The `any` item was done afterwards on the `wasm-boundary-types` branch.

@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "generate:wasm-types": "node scripts/generate-wasm-types.mjs",
+    "check:wasm-types": "node scripts/generate-wasm-types.mjs --check",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"

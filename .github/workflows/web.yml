@@ -85,6 +85,10 @@ jobs:
         working-directory: src/wisdom-chess/ui/react
         run: npm ci
 
+      - name: Check Generated WASM Types
+        working-directory: src/wisdom-chess/ui/react
+        run: npm run check:wasm-types
+
       - name: Test Front-end
         working-directory: src/wisdom-chess/ui/react
         run: npm run test -- --run

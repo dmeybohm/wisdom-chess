@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { reducer, type Action } from './reducer'
 import { GameState } from './lib/WisdomChess'
 import { initialSquares } from './lib/Squares'
+import { wasmEnums } from './test/wasmEnums'
 
 const createInitialState = (): GameState => ({
     pieces: [],
@@ -9,12 +10,12 @@ const createInitialState = (): GameState => ({
     focusedSquare: '',
     pawnPromotionDialogSquare: '',
     lastDroppedSquare: '',
-    gameStatus: 0,
+    gameStatus: wasmEnums.Playing,
     moveStatus: 'White to move',
     gameOverStatus: '',
     settings: {
-        whitePlayer: 0,
-        blackPlayer: 1,
+        whitePlayer: wasmEnums.Human,
+        blackPlayer: wasmEnums.ChessEngine,
         thinkingTime: 5,
         searchDepth: 4,
         debugLogging: false,
@@ -30,7 +31,7 @@ describe('reducer', () => {
                 type: 'BOOTSTRAP',
                 snapshot: {
                     moveStatus: 'Black to move',
-                    gameStatus: 1,
+                    gameStatus: wasmEnums.Checkmate,
                 },
             }
 
@@ -140,7 +141,7 @@ describe('reducer', () => {
         it('preserves other state', () => {
             const initialState = createInitialState()
             initialState.moveStatus = 'Black to move'
-            initialState.gameStatus = 2
+            initialState.gameStatus = wasmEnums.Stalemate
 
             const action: Action = { type: 'CLEAR_FOCUS' }
 
@@ -190,8 +191,8 @@ describe('reducer', () => {
             const initialState = createInitialState()
 
             const newSettings = {
-                whitePlayer: 1,
-                blackPlayer: 1,
+                whitePlayer: wasmEnums.ChessEngine,
+                blackPlayer: wasmEnums.ChessEngine,
                 thinkingTime: 10,
                 searchDepth: 6,
                 debugLogging: false,
@@ -210,8 +211,8 @@ describe('reducer', () => {
         it('creates a new settings object', () => {
             const initialState = createInitialState()
             const newSettings = {
-                whitePlayer: 0,
-                blackPlayer: 0,
+                whitePlayer: wasmEnums.Human,
+                blackPlayer: wasmEnums.Human,
                 thinkingTime: 15,
                 searchDepth: 5,
                 debugLogging: false,
@@ -236,8 +237,8 @@ describe('reducer', () => {
             const action: Action = {
                 type: 'SET_SETTINGS',
                 settings: {
-                    whitePlayer: 0,
-                    blackPlayer: 1,
+                    whitePlayer: wasmEnums.Human,
+                    blackPlayer: wasmEnums.ChessEngine,
                     thinkingTime: 5,
                     searchDepth: 4,
                     debugLogging: false,
