@@ -11,7 +11,7 @@
 
 namespace wisdom
 {
-    using SystemClockTime = chrono::time_point<chrono::system_clock>;
+    using SteadyClockTime = chrono::time_point<chrono::steady_clock>;
 
     class IterativeSearchImpl
     {
@@ -255,8 +255,8 @@ namespace wisdom
     logSearchTime (
         const Logger& output, 
         int nodes, 
-        SystemClockTime start, 
-        SystemClockTime end
+        SteadyClockTime start, 
+        SteadyClockTime end
     ) {
         auto seconds_duration = chrono::duration<double> (end - start);
         auto seconds = seconds_duration.count();
@@ -331,13 +331,13 @@ namespace wisdom
         my_alpha_beta_cutoffs = 0;
 
         auto tt_stats_start = my_transposition_table.getStats();
-        auto start = std::chrono::system_clock::now();
+        auto start = std::chrono::steady_clock::now();
 
         my_search_depth = depth;
         my_current_result = SearchResult {};
         search (my_original_board, side, depth, -Initial_Alpha, Initial_Alpha, 0);
 
-        auto end = std::chrono::system_clock::now();
+        auto end = std::chrono::steady_clock::now();
 
         auto result = getBestResult();
 

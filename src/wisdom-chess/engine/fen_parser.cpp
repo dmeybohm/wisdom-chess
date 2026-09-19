@@ -67,7 +67,7 @@ namespace wisdom
             if (ch == '/')
             {
                 row++;
-                if (row > Num_Rows)
+                if (row >= Num_Rows)
                     throw FenParserError ("Invalid row!");
                 col = 0;
             }
@@ -140,6 +140,8 @@ namespace wisdom
                 case 'q':
                     castling_right = CastlingRights::Queenside;
                     break;
+                default:
+                    throw FenParserError ("Invalid castling character!");
             }
 
             if (who == Color::Black)

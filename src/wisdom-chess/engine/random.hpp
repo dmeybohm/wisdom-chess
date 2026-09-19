@@ -59,7 +59,7 @@ namespace wisdom
         max()
             -> ResultType
         {
-            return std::numeric_limits<ResultType>::min();
+            return std::numeric_limits<ResultType>::max();
         }
 
     private:

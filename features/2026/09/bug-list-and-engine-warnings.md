@@ -53,25 +53,29 @@ should be confirmed before fixing.
   `power_of_2 == 0`, so `my_size_mask` becomes `SIZE_MAX` and every probe
   indexes out of bounds. `fromEntries` has `Expects (entry_count >= 2)`;
   this constructor needs the same. Fixed in Session #7.
-- [ ] **`Board::withRandomPosition` keeps stale castling rights.**
+- [x] **`Board::withRandomPosition` keeps stale castling rights.**
   *(verified)* `engine/board.cpp:291` rebuilds the board code from the
   shuffled squares but the castling eligibility is unchanged. A later
   castling move would hit the assert in `getCastlingRookMove`
   (`engine/move.cpp:104`) or move a non-rook in release. Test-only path.
-- [ ] `CompileTimeRandom::max()` returns `numeric_limits::min()`
+  Fixed in Session #15.
+- [x] `CompileTimeRandom::max()` returns `numeric_limits::min()`
   (`engine/random.hpp:58-63`). Violates *UniformRandomBitGenerator*.
-- [ ] `parseCastling` silently ignores unknown letters
+  Fixed in Session #15.
+- [x] `parseCastling` silently ignores unknown letters
   (`engine/fen_parser.cpp:135-143`, no `default`); `parsePieces` checks
   `row > Num_Rows` instead of `>=` (`engine/fen_parser.cpp:70,83`), so
   `row == 8` reaches `BoardBuilder::addPiece` and throws the wrong type.
+  Fixed in Session #15.
 - [x] `Board::Board (const BoardBuilder&)` initializer order does not
   match declaration order and `my_position { Position { *this } }` reads a
   partially constructed object (`engine/board.cpp:19-25`). Fixed in
   Session #3: initializer list reordered and a comment added on
   `my_squares`.
-- [ ] `MoveList (Color, std::initializer_list<czstring>) noexcept` calls
+- [x] `MoveList (Color, std::initializer_list<czstring>) noexcept` calls
   `moveParse`, which throws (`engine/move_list.hpp:22-30`). Drop the
   `noexcept`.
+  Fixed in Session #15.
 - [ ] `Error`'s copy constructor is `noexcept` but copies two strings
   (`engine/global.hpp:205-207`).
 
@@ -99,8 +103,9 @@ should be confirmed before fixing.
 - [ ] `compareMoves` recomputes `materialDiff` in the return
   (`engine/generate.cpp:538-542`); the sort lambda captures
   `MoveGeneration` by value (`engine/generate.cpp:564-568`).
-- [ ] Search timing uses `system_clock` (`engine/search.cpp:334, 340`);
+- [x] Search timing uses `system_clock` (`engine/search.cpp:334, 340`);
   use `steady_clock` as `MoveTimer` already does.
+  Fixed in Session #15.
 - [ ] `MoveList::data()` returns the 504-byte array by value
   (`engine/move_list.hpp:172-176`). Unused today.
 
@@ -124,7 +129,8 @@ should be confirmed before fixing.
 - [ ] `castlingRowForColor` (`engine/move.hpp:344-351`) and
   `castlingRowFromColor` (`engine/position.cpp:92-105`) are the same
   function.
-- [ ] Dead code: `castled_state += "";` (`engine/board.cpp:151`), unused
+- [ ] Dead code: ~~`castled_state += "";` (`engine/board.cpp:151`)~~
+  (removed in Session #15), unused
   parameters on `isProbablyDrawingMove`, unreferenced
   `Board::pieceAtIndex`, `Board::squareData`, `MoveList::fromZeroInitialized`,
   `BoardCode::withMove`, `TranspositionTable::getStoredEntriesCount`,
@@ -565,3 +571,29 @@ warning lines and Windows 108, from seven distinct sites.
   jobs.
 - Verified: no warnings in the desktop build, all 119 tests pass, linter
   clean on the changed files.
+
+### Session #15
+
+Worked through the contained items left on the checklist, engine first.
+
+- `CompileTimeRandom::max()` returned `numeric_limits::min()`, so the type
+  reported an empty range. It now returns `max()`; pinned with
+  `static_assert`s in `engine/test/global_test.cpp`.
+- `MoveList (Color, initializer_list<czstring>)` was `noexcept` but calls
+  `moveParse`, which throws, so a bad move string terminated the program.
+  Dropped the `noexcept`; a test now expects `ParseMoveException`.
+- FEN parser: a ninth rank slipped past `row > Num_Rows` and failed later
+  with the wrong exception type; the check is now `>=`. `parseCastling`
+  ignored unknown letters; it now throws `FenParserError`. Tests cover
+  both, plus the valid `KQkq` and `-` forms.
+- `Board::withRandomPosition` kept the original castling rights. It also
+  kept the en passant target and the cached material and position scores,
+  which were stale for the same reason. All four are now reset or
+  recomputed after the shuffle, and the randomized-board test checks them.
+- Search timing in `engine/search.cpp` uses `steady_clock`, matching
+  `MoveTimer`, so a wall-clock adjustment can no longer produce a negative
+  or inflated search time in the log.
+- Removed the no-op `castled_state += "";` in `engine/board.cpp`.
+- Not changed: `Error`'s `noexcept` copy constructor. For an exception type
+  that is the conventional choice, since a throwing copy during a `throw`
+  terminates anyway. The item stays open as a judgement call.
