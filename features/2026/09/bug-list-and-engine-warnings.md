@@ -255,16 +255,14 @@ should be confirmed before fixing.
   its `Q_ENUM_NS`, so `DrawByRepetitionStatus.Proposed` is undefined in
   `popups/Dialogs.qml` and the dialogs' `visible` bindings are never true.
   Fixed there with a mirror enum that supplies the keys.
-- [ ] The About dialog has no OK button. `popups/AboutDialog.qml` sets
+- [x] The About dialog has no OK button. `popups/AboutDialog.qml` sets
   `standardButtons` on a custom footer, which the `Dialog` overwrites with
   its own unset value. It closes only with Escape or a click outside.
-  Found on the `qml-tests` branch, where a test is marked as an expected
-  failure.
-- [ ] The first click after answering a draw offer is lost. The dialog
+  Found and fixed on the `qml-tests` branch.
+- [x] The first click after answering a draw offer is lost. The dialog
   opens during the click that caused it and gives focus back to that
   square when it closes, so `main/Board.qml` takes the next click as a
-  move target. Found on the `qml-tests` branch, with an expected-failure
-  test.
+  move target. Found and fixed on the `qml-tests` branch.
 - [ ] `ChessGame::setPlayers()` changes the game's players but not
   `config().players` (`ui/qml/main/chess_game.cpp`). Found on the
   `qml-tests` branch.

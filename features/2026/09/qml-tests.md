@@ -277,7 +277,7 @@ and the mobile QML. Two more executables, `QML: dialogs` (19 tests, about
     dialog, Yes ends the game with the draw announced, and No lets play go
     on without the offer being repeated. Writing the enum property from QML
     with a number works, which the accept and decline tests show.
-- **Finding, not fixed: the About dialog has no OK button.**
+- **Finding, fixed in Session #8: the About dialog has no OK button.**
   `AboutDialog.qml` sets `standardButtons: Dialog.Ok` on a custom `footer`,
   but a `Dialog` gives its footer the dialog's own `standardButtons`, which
   that file never sets. The footer reports `NoButton` and a count of 0,
@@ -285,7 +285,8 @@ and the mobile QML. Two more executables, `QML: dialogs` (19 tests, about
   with Escape or a click outside it, and one test does that. The likely fix
   is to set `standardButtons` on the `Dialog`.
   `theAboutDialogHasAnOkButton` is an expected failure.
-- **Finding, not fixed: the first click after a draw offer is lost.** The
+- **Finding, fixed in Session #8: the first click after a draw offer is
+  lost.** The
   offer opens while `Board.qml` is still handling the click that caused it,
   so the dialog remembers that square as the item to give focus back to.
   When it closes, the board takes the next click as the target of a move
@@ -321,6 +322,31 @@ and the mobile QML. Two more executables, `QML: dialogs` (19 tests, about
 - Verified: Release and Debug with all 180 fast tests passing, no warnings;
   the six QML tests repeated 15 times at `-j 8`; linter clean; the real
   binary starts offscreen without QML errors. Not yet run on CI.
+
+### Session #8
+
+The two findings that Session #7 pinned as expected failures, fixed.
+
+- **About dialog.** `standardButtons: Dialog.Ok` moved from the footer to
+  the `Dialog`, which is where a `Dialog` takes its footer's buttons from.
+  The custom footer stays for its alignment. Tests: the dialog closes with
+  its OK button, and still closes with Escape.
+- **The click lost after a draw offer.** `Board.qml`'s
+  `onFocusObjectChanged` now lets go of the clicked square's focus before
+  it makes the move, not after. The move is what can open a draw offer,
+  and a dialog gives the focus back to whatever had it when it opened. The
+  coordinates are read into constants first, since clearing the focus
+  re-enters the window's focus handler. Promotion, castling and the rest
+  of `QML: application` pass unchanged.
+- The markers did their job. With the `Board.qml` fix in, the
+  expected-failure test reported `XPASS`, which fails the run, and the two
+  draw tests that had spent a click on an empty square to get round the
+  bug failed because that click now counted. The marker and both
+  workarounds are gone, and no `QEXPECT_FAIL` is left in the tests.
+- Verified: Release and Debug with all 180 fast tests passing, no
+  warnings; the six QML tests repeated 15 times at `-j 8`; linter clean;
+  the real binary, whose QML is compiled ahead of time, starts offscreen
+  without QML errors. Not yet run on CI, and not looked at on a screen.
 
 ### What the Session #16 removal bug really was
 
@@ -368,7 +394,6 @@ The model tests could not see that. The UI test did.
 
 ### Next
 
-Decide on the two findings that are pinned as expected failures: the About
-dialog's missing button and the click lost after a draw offer. Someone
-should also watch a castled rook move, and a draw offer open, on a real
-screen once.
+Nothing is queued. `ChessGame::setPlayers()` leaving `config().players`
+stale is open in the bug list. Someone should watch a castled rook move, a
+draw offer open, and the About dialog close on a real screen once.
