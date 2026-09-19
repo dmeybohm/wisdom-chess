@@ -259,6 +259,13 @@ GameModel::remainingAnimation() const
     return narrow_cast<int> (my_animation_duration - elapsed);
 }
 
+auto
+GameModel::isHoldingAMove() const
+    -> bool
+{
+    return my_held_move.has_value();
+}
+
 void GameModel::showHeldMove()
 {
     if (!my_held_move.has_value())

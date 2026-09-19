@@ -314,6 +314,37 @@ local 6.11.2: both build the QML UI without warnings, the linter is clean
 on every C++ file touched, and all 182 fast tests pass in each. The
 dialogs test ran 10 more times in each build, 20 for 20.
 
+### Session #2
+
+`aNewGameDropsAReplyThatIsStillHeld` cost 2.0 seconds of the dialogs
+test's 6.0, and it bought that time with two blind waits: 500 ms on the
+assumption that a depth-1 search always finishes in less, and 1.5 s to
+show that nothing fired afterwards. A slower machine would have broken
+the first assumption and the test would have passed for the wrong reason,
+because a reply shown at once also leaves `engineMoved` uncounted at the
+moment it looks.
+
+`GameModel::isHoldingAMove()` is protected, and `InspectableGameModel`
+re-exports it the way it already does `getGame()`. The test now waits for
+the move to be held rather than guessing how long that takes, and after
+`restart()` it asserts the hold is empty. Showing a move is the only way
+out of the hold, so an empty hold means the reply is gone and not merely
+late; the short wait that follows is a net for anything unexpected. The
+test takes 0.65 s, `QML: dialogs` 4.4 s, and with the change reverted it
+still fails.
+
+An idea that did not survive contact with the numbers: setting
+`animationDelay` to 0 in the fixture to speed the suite up. No
+`application` or `mobile` test uses the engine, so the hold costs them
+nothing, and they are where the time is — `QML: application` takes 5.8 s
+watching animations, which is what it is for, and
+`theCastledRookAnimatesItsLaterMoves` fails outright if a move animates
+in no time. In `dialogs` it would have saved the 0.4 s that
+`theEngineAnswersAMove` spends holding two replies, inside a file that
+runs beside the 5.8 s one. `ctest -L fast` stays at 6.3 s either way, so
+`theEngineAnswersAMove` keeps the shipped default and goes on exercising
+it end to end.
+
 Still to do: the checks by hand in the desktop app (a game at depth 1, a
 recapture of the piece that just moved, castling followed by a fast reply,
 engine against engine, and New Game while a reply is held), which need a

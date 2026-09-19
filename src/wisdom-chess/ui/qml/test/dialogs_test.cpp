@@ -390,13 +390,15 @@ private slots:
         QSignalSpy engine_moved { &my_app->game_model, &GameModel::engineMoved };
 
         my_app->move ("e2", "e4");
-        QTest::qWait (Engine_Reply_Time);
+        QTRY_VERIFY( my_app->game_model.isHoldingAMove() );
         QCOMPARE( engine_moved.count(), 0 );
 
         my_app->game_model.restart();
 
-        // Long enough that the hold on the move would have ended.
-        QVERIFY( !engine_moved.wait (Held_Animation_Delay) );
+        // Nothing holds the move any more, and showing one is the only way
+        // out of the hold, so the reply is gone rather than merely late.
+        QVERIFY( !my_app->game_model.isHoldingAMove() );
+        QVERIFY( !engine_moved.wait (Engine_Reply_Time) );
         QCOMPARE( my_app->pieces().size(), 32 );
         QVERIFY( my_app->piecesMatchTheBoard() );
     }

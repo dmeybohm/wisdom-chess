@@ -242,6 +242,11 @@ protected:
     getGame() const
         -> wisdom::observer_ptr<const wisdom::Game> override;
 
+    // Whether an engine move is waiting for the board to finish animating.
+    [[nodiscard]] auto
+    isHoldingAMove() const
+        -> bool;
+
     void onInCheckChanged() override;
     void onMoveStatusChanged() override;
     void onGameOverStatusChanged() override;

@@ -37,6 +37,8 @@ namespace wisdom::ui::test
             else
                 game->setBlackPlayer (wisdom::Player::ChessEngine);
         }
+
+        using GameModel::isHoldingAMove;
     };
 
     // The application as main.cpp assembles it: both models, the signal
