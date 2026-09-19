@@ -3,6 +3,7 @@
 #include "wisdom-chess/engine/game.hpp"
 
 #include "wisdom-chess/ui/wasm/web_types.hpp"
+#include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
 
 namespace wisdom
 {
@@ -49,17 +50,10 @@ namespace wisdom
         // buffer and replayed once switched on.
         bool debugLogging = false;
 
-        [[nodiscard]] static auto 
-        mapHumanDepthToComputerDepth (int human_depth) 
-            -> int
-        {
-            return human_depth * 2;
-        }
-
         void applyToGame (observer_ptr<wisdom::Game> game) const
         {
             game->setSearchTimeout (std::chrono::seconds { thinkingTime });
-            game->setMaxDepth (GameSettings::mapHumanDepthToComputerDepth (searchDepth));
+            game->setMaxDepth (ui::fullMovesToPlyDepth (searchDepth));
             game->setPlayers ({ mapPlayer (whitePlayer), mapPlayer (blackPlayer) });
         }
     };

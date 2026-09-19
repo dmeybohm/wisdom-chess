@@ -3,6 +3,7 @@
 #include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
 
 using namespace wisdom;
+using wisdom::ui::fullMovesToPlyDepth;
 using wisdom::ui::getFirstHumanPlayerColor;
 
 TEST_CASE( "getFirstHumanPlayerColor" )
@@ -22,4 +23,9 @@ TEST_CASE( "getFirstHumanPlayerColor" )
     {
         CHECK( !getFirstHumanPlayerColor ({ Player::ChessEngine, Player::ChessEngine }).has_value() );
     }
+}
+
+TEST_CASE( "Full-move depth is converted to plies" )
+{
+    CHECK( fullMovesToPlyDepth (4) == 8 );
 }

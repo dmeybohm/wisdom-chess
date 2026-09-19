@@ -24,6 +24,19 @@ namespace wisdom::ui::test
         {
             return getGame()->getBoard();
         }
+
+        // Mark the side to move as computer-controlled without starting a
+        // search, so tests can exercise input during the engine's turn.
+        void makeCurrentPlayerComputer()
+        {
+            auto game = getGame();
+            auto who = game->getCurrentTurn();
+
+            if (who == wisdom::Color::White)
+                game->setWhitePlayer (wisdom::Player::ChessEngine);
+            else
+                game->setBlackPlayer (wisdom::Player::ChessEngine);
+        }
     };
 
     // The application as main.cpp assembles it: both models, the signal

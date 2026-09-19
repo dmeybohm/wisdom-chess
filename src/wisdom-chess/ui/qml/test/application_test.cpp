@@ -115,6 +115,19 @@ private slots:
         QCOMPARE( my_app->game_model.qmlMoveStatus(), QString {} );
     }
 
+    void aMoveDuringTheComputersTurnIsRejected()
+    {
+        auto* pawn = my_app->pieceAt ("e2");
+        my_app->game_model.makeCurrentPlayerComputer();
+
+        my_app->move ("e2", "e4");
+
+        QCOMPARE( my_app->game_model.qmlMoveStatus(), QStringLiteral ("Illegal move") );
+        QCOMPARE( my_app->pieceAt ("e2"), pawn );
+        QVERIFY( my_app->boardPieceAt ("e4") == wisdom::Piece_And_Color_None );
+        QVERIFY( my_app->game_model.qmlCurrentTurn() == wisdom::ui::Color::White );
+    }
+
     void aCaptureRemovesThePieceFromTheBoard()
     {
         my_app->move ("e2", "e4");

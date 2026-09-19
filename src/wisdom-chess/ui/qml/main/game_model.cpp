@@ -245,7 +245,7 @@ GameModel::movePieceWithPromotion (
         return;
     }
     auto move = *optional_move;
-    if (!my_chess_game->isLegalMove (move))
+    if (!GameViewModelBase::isLegalMove (move))
     {
         setMoveStatus ("Illegal move");
         return;
