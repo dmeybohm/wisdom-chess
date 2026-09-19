@@ -26,7 +26,7 @@ if (WISDOM_CHESS_FAST_TESTS)
         logger_test.cpp
         test_main.cpp)
 
-    target_precompile_headers(wisdom-chess-fast-tests PRIVATE PRIVATE ../global.hpp)
+    target_precompile_headers(wisdom-chess-fast-tests PRIVATE ../global.hpp)
 
     target_link_libraries(wisdom-chess-fast-tests PRIVATE wisdom::chess)
     target_link_libraries(wisdom-chess-fast-tests PRIVATE doctest::doctest)
@@ -50,7 +50,7 @@ if (WISDOM_CHESS_SLOW_TESTS)
         hash_collision_slow_test.cpp
         test_main.cpp)
 
-    target_precompile_headers(wisdom-chess-slow-tests PRIVATE PRIVATE ../global.hpp)
+    target_precompile_headers(wisdom-chess-slow-tests PRIVATE ../global.hpp)
 
     target_link_libraries(wisdom-chess-slow-tests PRIVATE wisdom::chess)
     target_link_libraries(wisdom-chess-slow-tests PRIVATE doctest::doctest)

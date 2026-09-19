@@ -159,10 +159,11 @@ should be confirmed before fixing.
   so the `if` at line 319 skips `sendBestMove`. The UCI protocol requires
   `bestmove` after `stop`.
   Fixed in Session #16.
-- [ ] **Draw-answered flags never reset on new game.** *(verified)*
+- [x] **Draw-answered flags never reset on new game.** *(verified)*
   `thirdRepetitionDrawAnswered` and `fiftyMovesDrawAnswered`
   (`ui/react/src/App.tsx:312-313`) are not cleared in `startNewGame`
   (`App.tsx:281-290`), so the draw dialog appears at most once per session.
+  Fixed in Session #17.
 - [x] **`PiecesModel::playerMoved` skips an element after removal.**
   *(verified)* `ui/qml/main/pieces_model.cpp:160-176` calls
   `my_pieces.removeAt (i)` inside a forward loop without adjusting `i`,
@@ -217,15 +218,17 @@ should be confirmed before fixing.
 - [ ] No tests for `evaluate.cpp`, `game_status.cpp`, `move_timer.cpp`,
   `output_format.cpp`, the console UI, UCI, view-model or QML C++.
 - [ ] `generate_test.cpp` compares `asString()` output; brittle.
-- [ ] React `App.test.tsx:46-85` mock hard-codes `Pawn: 5`; the real enum
+- [x] React `App.test.tsx:46-85` mock hard-codes `Pawn: 5`; the real enum
   has `Pawn = 1`, `Queen = 5`.
+  Fixed in Session #17.
 
 ### Build and infrastructure
 
-- [ ] **React integrated-build default read before it is set.**
+- [x] **React integrated-build default read before it is set.**
   *(verified)* `CMakeLists.txt:36` uses
   `WISDOM_CHESS_REACT_BUILD_INTEGRATED_DEFAULT`, which is assigned at
   lines 49-53. The option has always defaulted OFF, contrary to the docs.
+  Fixed in Session #17.
 - [x] **Dead `if` hides a bogus target.** *(verified)*
   `ui/console/CMakeLists.txt:5-6` tests `PCH_ENABLED`, a normal variable
   from a sibling scope, and references target `chess`, which does not
@@ -238,16 +241,22 @@ should be confirmed before fixing.
   The missing Debug build was added in Session #12.
 - [ ] Linter self-tests (`scripts/linter/tests/run-tests.sh`) are not run
   in CI. `LinterConfig::ignore` is populated and never read.
-- [ ] `WISDOM_CHESS_SLOW_TESTS` defaults On (`CMakeLists.txt:33`) but
+  The self-tests were added to the CI lint job in Session #17; the unread
+  `ignore` list remains.
+- [x] `WISDOM_CHESS_SLOW_TESTS` defaults On (`CMakeLists.txt:33`) but
   README and CLAUDE.md say OFF.
-- [ ] CLAUDE.md describes `.wisdomstylerc.json` and an automatic feature
+  Fixed in Session #17.
+- [x] CLAUDE.md describes `.wisdomstylerc.json` and an automatic feature
   index generator; neither exists. *(verified: no such file)*
-- [ ] `target_precompile_headers(... PRIVATE PRIVATE ...)` in
+  Fixed in Session #17.
+- [x] `target_precompile_headers(... PRIVATE PRIVATE ...)` in
   `engine/CMakeLists.txt:84` and the test and bench CMake files.
+  Fixed in Session #17.
 - [ ] `-fno-stack-protector` is `PUBLIC` on the engine
   (`engine/CMakeLists.txt:101`) and propagates to all UI code.
-- [ ] `cmake_minimum_required` comes after `set(CMAKE_CXX_STANDARD)`
+- [x] `cmake_minimum_required` comes after `set(CMAKE_CXX_STANDARD)`
   in the top-level and engine CMake files.
+  Fixed in Session #17.
 
 ## Implementation Progress
 
@@ -648,3 +657,39 @@ Frontend items from the checklist.
   pass, linter clean. Not exercised at runtime: the QML list fix, the QML
   log line and the console draw prompt, which need a GUI session or a draw
   offer to reach.
+
+### Session #17
+
+The small React, CMake and documentation items.
+
+- React: `startNewGame` in `App.tsx` now clears `thirdRepetitionDrawAnswered`
+  and `fiftyMovesDrawAnswered`, so the draw dialog can appear in every game
+  and not only once per page load. A new test in `App.test.tsx` answers
+  the dialog, starts a new game and expects the dialog again; it was
+  confirmed to fail with the fix removed.
+- React: the test mock's piece values now match `WebPiece` in
+  `ui/wasm/web_types.hpp` (`NoPiece = 0`, `Pawn = 1` ... `Queen = 5`). The
+  mock had `Queen: 0` and `Pawn: 5`.
+- CMake: `WISDOM_CHESS_REACT_BUILD_INTEGRATED` read its default variable
+  before that variable was set, so the option always defaulted to OFF. The
+  default is now computed before the `option()` calls. Checked with fresh
+  configures: ON under Emscripten, OFF natively.
+- CMake: `WISDOM_CHESS_SLOW_TESTS` now defaults to Off. The README,
+  `AGENTS.md`, the build scripts and every CI job already assumed Off and
+  pass the option explicitly when they want the slow tests, so the code
+  was the odd one out. Existing build trees keep their cached value.
+- CMake: `cmake_minimum_required` now comes first in the top-level and
+  engine files, and the doubled `PRIVATE PRIVATE` in four
+  `target_precompile_headers` calls is a single `PRIVATE`.
+- CI: the lint job runs the linter's own test suite before linting.
+- `AGENTS.md` (formerly `CLAUDE.md`): removed the claims that the linter
+  reads `.wisdomstylerc.json` and that feature indexes are generated
+  automatically; neither exists. The WebAssembly configure example used
+  five `WISDOM_CHESS_BUILD_*` options that do not exist and were silently
+  ignored; it now uses the real option names, matching
+  `scripts/build-react-wasm.sh` and `web.yml`.
+- Left open: `-fno-stack-protector` being `PUBLIC` on the engine, which is a
+  hardening decision for the UI targets, not a cleanup.
+- Verified: desktop build with no warnings and all 122 C++ tests passing,
+  `tsc` clean, 30 React tests passing, workflow YAML parses, linter
+  self-tests pass 19 of 19 when run the way the new CI step runs them.

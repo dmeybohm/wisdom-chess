@@ -33,9 +33,8 @@ markdown file, as opposed to adding markdown files in other
 locations, to keep the feature development documentation organized.
 You can include a "Session #1" subsection for the first
 implementation progress part, and then subsequently increment the
-number for additional sections. Indexes of the feature documents
-will be generated automatically for keeping them browsable, so you
-only need to update the individual feature documents.
+number for additional sections. There is no generated index of the
+feature documents, so you only need to update the individual documents.
 
 You can also consult the `features/` directory if you're confused
 about how something was implemented in order to try to clarify, if
@@ -70,7 +69,7 @@ cmake --build build --target lint
 - **test-macro-spacing**: Test macros need spaces inside parens: `CHECK( x )` not `CHECK(x)`
 - **function-call-spacing**: Functions with args need space before paren: `foo (x)` not `foo(x)`; zero-arg functions have no space: `bar()` not `bar ()`
 
-**Configuration:** The linter reads `.wisdomstylerc.json` if present. Rules can be `"error"`, `"warning"`, or `"off"`.
+**Configuration:** There is no configuration file. Rule severities come from `getDefaultConfig()` in `scripts/linter/linter.cpp`; `--rules` selects rules on the command line and `--list-rules` shows them.
 
 **Adding Rules:** Rules are in `scripts/linter/rules/`. Create a new `Rule` subclass, implement `name()`, `description()`, and `check()`, then register it in `rules/init.cpp`.
 
@@ -161,11 +160,10 @@ mkdir build-wasm && cd build-wasm
 
 # Configure (React build is integrated by default for WASM)
 emcmake cmake .. \
-  -DWISDOM_CHESS_BUILD_CONSOLE=OFF \
-  -DWISDOM_CHESS_BUILD_QT_QML=OFF \
-  -DWISDOM_CHESS_BUILD_ENGINE_TESTS=OFF \
-  -DWISDOM_CHESS_BUILD_WASM=ON \
-  -DWISDOM_CHESS_BUILD_REACT=ON \
+  -DWISDOM_CHESS_CONSOLE_UI=OFF \
+  -DWISDOM_CHESS_QML_UI=OFF \
+  -DWISDOM_CHESS_FAST_TESTS=OFF \
+  -DWISDOM_CHESS_SLOW_TESTS=OFF \
   -DCMAKE_BUILD_TYPE=Release
 
 # Build WASM engine and React frontend

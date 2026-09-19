@@ -286,6 +286,8 @@ function App() {
             type: 'ENGINE_SYNC',
             snapshot: { ...snapshotFromEngine(), settings: toWebSettings(getCurrentGameSettings()) },
         })
+        setThirdRepetitionDrawAnswered(false)
+        setFiftyMovesDrawAnswered(false)
         setShowNewGame(false)
     }
 

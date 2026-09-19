@@ -49,12 +49,12 @@ const createMockWisdomChess = (): WisdomChess => ({
     NoColor: 2,
     Human: 0,
     ChessEngine: 1,
-    Queen: 0,
-    Rook: 1,
-    Bishop: 2,
-    Knight: 3,
-    Pawn: 5,
-    NoPiece: 6,
+    NoPiece: 0,
+    Pawn: 1,
+    Knight: 2,
+    Bishop: 3,
+    Rook: 4,
+    Queen: 5,
     Playing: 0,
     Checkmate: 1,
     Stalemate: 2,
@@ -169,6 +169,29 @@ describe('App', () => {
         await user.click(newGameButton)
 
         expect(screen.getByText('Start a new Game?')).toBeInTheDocument()
+    })
+
+    it('asks about a draw again after a new game is started', async () => {
+        const createDrawnGame = (): Game => {
+            const game = createMockGame()
+            vi.mocked(game.getGameStatus).mockReturnValue(mockWisdomChess.ThreefoldRepetitionReached)
+            return game
+        }
+        const wisdomWindow = window as unknown as WisdomWindow
+        wisdomWindow.wisdomChessCurrentGame = createDrawnGame()
+        vi.mocked(mockGameModel.startNewGame).mockImplementation(createDrawnGame)
+
+        const user = userEvent.setup()
+        render(<App />)
+
+        expect(screen.getByText('Third Repetition Reached')).toBeInTheDocument()
+        await user.click(screen.getByText('No'))
+        expect(screen.queryByText('Third Repetition Reached')).not.toBeInTheDocument()
+
+        await user.click(screen.getByText('New Game'))
+        await user.click(screen.getByText('Start New Game'))
+
+        expect(screen.getByText('Third Repetition Reached')).toBeInTheDocument()
     })
 
     it('pauses the game when a modal is open', async () => {
