@@ -46,13 +46,13 @@ const createMockGameModel = (): GameModel => ({
 
 const createMockWisdomChess = (): WisdomChess => ({
     ...wasmEnums,
-    GameSettings: vi.fn(function (this: any) {
+    GameSettings: vi.fn(function (this: GameSettings) {
         this.whitePlayer = wasmEnums.Human
         this.blackPlayer = wasmEnums.ChessEngine
         this.thinkingTime = 5
         this.searchDepth = 4
         this.debugLogging = false
-    }) as any,
+    }),
     destroy: vi.fn(),
 } as unknown as WisdomChess)
 
