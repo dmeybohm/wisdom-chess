@@ -230,13 +230,13 @@ TEST_CASE( "Third repetition is detected" )
     }
 }
 
-TEST_CASE( "Repetition check tolerates the largest half move clock" )
+TEST_CASE( "Repetition check tolerates a half move clock longer than the history" )
 {
     BoardBuilder builder;
 
     builder.addPiece ("e1", Color::White, Piece::King);
     builder.addPiece ("e8", Color::Black, Piece::King);
-    builder.setHalfMovesClock (std::numeric_limits<int>::max());
+    builder.setHalfMovesClock (Max_Half_Move_Clock);
 
     auto board = Board { builder };
     auto history = History::fromInitialBoard (board);

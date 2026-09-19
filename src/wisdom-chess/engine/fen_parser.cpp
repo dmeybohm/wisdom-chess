@@ -152,8 +152,8 @@ namespace wisdom
     // halfmove clock:
     void FenParser::parseHalfMove (int half_moves)
     {
-        if (half_moves < 0)
-            throw FenParserError { "Negative half move clock parsing FEN string" };
+        if (half_moves < 0 || half_moves > Max_Half_Move_Clock)
+            throw FenParserError { "Half move clock out of range parsing FEN string" };
 
         builder.setHalfMovesClock (half_moves);
     }
@@ -161,8 +161,8 @@ namespace wisdom
     // fullmove number:
     void FenParser::parseFullMove (int full_moves)
     {
-        if (full_moves < 0)
-            throw FenParserError { "Negative full move number parsing FEN string" };
+        if (full_moves < 0 || full_moves > Max_Full_Move_Number)
+            throw FenParserError { "Full move number out of range parsing FEN string" };
 
         builder.setFullMoves (full_moves);
     }

@@ -29,6 +29,9 @@ namespace wisdom
         Piece orig_src_piece_type, 
         Move move
     ) noexcept {
+        assert (my_half_move_clock < std::numeric_limits<int>::max());
+        assert (my_full_move_clock < std::numeric_limits<int>::max());
+
         if (move.isAnyCapturing() || orig_src_piece_type == Piece::Pawn)
             my_half_move_clock = 0;
         else

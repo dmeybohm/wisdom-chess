@@ -79,17 +79,24 @@ TEST_CASE( "board_builder" )
     }
 }
 
-TEST_CASE( "Board builder rejects negative move clocks" )
+TEST_CASE( "Board builder rejects move clocks that are out of range" )
 {
     BoardBuilder builder;
 
     CHECK_THROWS_AS( builder.setHalfMovesClock (-1), BoardBuilderError );
     CHECK_THROWS_AS( builder.setFullMoves (-1), BoardBuilderError );
+    CHECK_THROWS_AS( builder.setHalfMovesClock (Max_Half_Move_Clock + 1), BoardBuilderError );
+    CHECK_THROWS_AS( builder.setFullMoves (Max_Full_Move_Number + 1), BoardBuilderError );
 
     builder.setHalfMovesClock (0);
     builder.setFullMoves (0);
     CHECK( builder.getHalfMoveClock() == 0 );
     CHECK( builder.getFullMoveClock() == 0 );
+
+    builder.setHalfMovesClock (Max_Half_Move_Clock);
+    builder.setFullMoves (Max_Full_Move_Number);
+    CHECK( builder.getHalfMoveClock() == Max_Half_Move_Clock );
+    CHECK( builder.getFullMoveClock() == Max_Full_Move_Number );
 }
 
 TEST_CASE( "Board can be randomized" )
