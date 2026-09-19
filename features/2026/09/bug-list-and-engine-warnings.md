@@ -476,3 +476,19 @@ instantiate.
   `-DWISDOM_CHESS_BENCHMARKS=ON`, which has CPM fetch nanobench (there is no
   apt package, and none is needed); it also builds with no warnings. Not
   verified: MSVC `/W4`, which only CI can show.
+
+### Session #12
+
+- Added one Debug job to `.github/workflows/cmake.yml`: Ubuntu, GCC. CI
+  previously built only Release and RelWithDebInfo, both of which define
+  `NDEBUG`, so the broken `assert` from session 9 could not have been caught
+  there. The job is a single extra `include` entry in the build matrix; the
+  other six jobs are unchanged.
+- The Debug job configures with `WISDOM_CHESS_SLOW_TESTS=Off` through a new
+  optional `slow_tests` matrix value that defaults to `On`. The slow suite
+  is not usable without optimization, so Debug runs only the fast tests.
+  The QML UI stays on in that job so asserts in the UI code compile too.
+- Verified locally with a Debug tree built from the same sources: no
+  warnings under `-Wall -Wextra`, and all 95 fast tests pass in well under
+  a second. The workflow file parses and the new entry expands as intended.
+  The job itself has not run on GitHub yet.
