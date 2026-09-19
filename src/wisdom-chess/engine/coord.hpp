@@ -56,7 +56,7 @@ namespace wisdom
         // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
         template <typename IntegerType = int>
         [[nodiscard]] constexpr auto 
-        index() 
+        index() const
             -> IntegerType
         {
             return narrow_cast<IntegerType> (row_and_col);
@@ -64,7 +64,7 @@ namespace wisdom
 
         template <typename IntegerType = int8_t>
         [[nodiscard]] constexpr auto 
-        row() 
+        row() const
             -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
@@ -73,7 +73,7 @@ namespace wisdom
 
         template <typename IntegerType = int8_t>
         [[nodiscard]] constexpr auto 
-        column() 
+        column() const
             -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
@@ -218,7 +218,7 @@ namespace wisdom
     public:
         using difference_type = int;
         using value_type = Coord;
-        using reference = Coord&;
+        using reference = Coord;
         using iterator_category = std::forward_iterator_tag;
 
         constexpr
@@ -232,14 +232,14 @@ namespace wisdom
         {}
 
         [[nodiscard]] constexpr auto
-        begin()  // NOLINT(readability-convert-member-functions-to-static)
+        begin() const
             -> CoordIterator
         {
-            return CoordIterator { First_Coord };
+            return *this;
         }
 
         [[nodiscard]] constexpr auto
-        end()   // NOLINT(readability-convert-member-functions-to-static)
+        end() const  // NOLINT(readability-convert-member-functions-to-static)
             -> CoordIterator
         {
             return CoordIterator { End_Coord };
@@ -260,6 +260,15 @@ namespace wisdom
             return *this;
         }
 
+        constexpr auto
+        operator++ (int)
+            -> CoordIterator
+        {
+            auto previous = *this;
+            ++my_coord;
+            return previous;
+        }
+
         [[nodiscard]] constexpr auto
         operator== (const CoordIterator& other) const
             -> bool
@@ -277,5 +286,6 @@ namespace wisdom
     private:
         Coord my_coord {};
     };
+    static_assert (std::forward_iterator<CoordIterator>);
 
 }

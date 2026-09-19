@@ -605,3 +605,26 @@ TEST_CASE( "ableToCastle with CastlingEligibility::Neither_Side always returns f
         CHECK( !board.ableToCastle (Color::Black, CastlingEligibility::Neither_Side) );
     }
 }
+
+TEST_CASE( "Rook move for a castling move" )
+{
+    SUBCASE( "White kingside" )
+    {
+        CHECK( castlingRookMove (moveParse ("o-o", Color::White)) == moveParse ("h1 f1") );
+    }
+
+    SUBCASE( "White queenside" )
+    {
+        CHECK( castlingRookMove (moveParse ("o-o-o", Color::White)) == moveParse ("a1 d1") );
+    }
+
+    SUBCASE( "Black kingside" )
+    {
+        CHECK( castlingRookMove (moveParse ("o-o", Color::Black)) == moveParse ("h8 f8") );
+    }
+
+    SUBCASE( "Black queenside" )
+    {
+        CHECK( castlingRookMove (moveParse ("o-o-o", Color::Black)) == moveParse ("a8 d8") );
+    }
+}

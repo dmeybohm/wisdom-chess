@@ -97,9 +97,9 @@ namespace wisdom
     }
 
     auto isCheckmated (const Board& board) -> bool
-	{
-		return isPlayerCheckmated (board, Color::White) ||
-			isPlayerCheckmated (board, Color::Black);
+    {
+        return isPlayerCheckmated (board, Color::White) ||
+            isPlayerCheckmated (board, Color::Black);
     }
 
     auto

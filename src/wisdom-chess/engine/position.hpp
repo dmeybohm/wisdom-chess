@@ -30,7 +30,7 @@ namespace wisdom
         void applyMove (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece);
 
         friend auto 
-        operator<< (std::ostream& ostream, Position& position) 
+        operator<< (std::ostream& ostream, const Position& position)
             -> std::ostream&;
 
     private:

@@ -279,10 +279,7 @@ namespace wisdom
                  && ++iterations < 1000);
 
         if (iterations >= 1000)
-        {
-            std::cout << "Too many positions : " << asString() << "\n";
-            throw Error { "Too many iterations trying to generate a random board." };
-        }
+            throw Error { "Too many iterations trying to generate a random board.", asString() };
 
         // The shuffled squares share nothing with the original game state.
         result.setCastleState (Color::White, CastlingEligibility::Neither_Side);

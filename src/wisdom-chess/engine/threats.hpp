@@ -33,7 +33,7 @@ namespace wisdom
 
         // Check if the king indicated by the WHO argument is in trouble
         // in this position.
-        bool checkAll()
+        bool checkAll() const
         {
             // clang-format off
             return
@@ -47,7 +47,7 @@ namespace wisdom
         }
 
         template <Piece sliding_piece>
-        constexpr auto checkSlidingThreats (int target_row, int target_col)
+        constexpr auto checkSlidingThreats (int target_row, int target_col) const
             -> ThreatStatus
         {
             ColoredPiece piece = my_board.pieceAt (target_row, target_col);
@@ -68,7 +68,7 @@ namespace wisdom
         }
 
         // Check an entire row for any rook / queen threats.
-        bool row()
+        bool row() const
         {
             for (auto new_col = nextColumn (my_king_col, +1); new_col <= Last_Column; new_col++)
             {
@@ -92,7 +92,7 @@ namespace wisdom
         }
 
         // Check an entire column for any rook / queen threats.
-        bool column()
+        bool column() const
         {
             for (auto new_row = nextRow (my_king_row, +1); new_row <= Last_Row; new_row++)
             {
@@ -115,7 +115,7 @@ namespace wisdom
             return false;
         }
 
-        bool knight()
+        bool knight() const
         {
             static constexpr struct
             {
@@ -142,7 +142,7 @@ namespace wisdom
             return false;
         }
 
-        bool pawn()
+        bool pawn() const
         {
             int r_dir = pawnDirection<int> (my_king_color);
             int left_col = my_king_col - 1;
@@ -167,7 +167,7 @@ namespace wisdom
             DoNotCheckMiddle
         };
         template <KingThreatCheck squares_to_check> auto
-        checkKingThreatRow (int target_row, int starting_col, int ending_col)
+        checkKingThreatRow (int target_row, int starting_col, int ending_col) const
             -> bool
         {
             int middle_col = nextColumn<int> (starting_col, +1);
@@ -190,7 +190,7 @@ namespace wisdom
             return left_attack_exists | middle_attack_exists | right_attack_exists;
         }
 
-        bool king()
+        bool king() const
         {
             auto left_col = nextColumn<int> (my_king_col, -1);
             auto right_col = nextColumn<int> (my_king_col, +1);
@@ -218,7 +218,7 @@ namespace wisdom
         }
 
         template <int horiz_direction, int vert_direction> auto
-        checkDiagonalThreat()
+        checkDiagonalThreat() const
             -> bool
         {
             int new_row = my_king_row;
@@ -262,7 +262,7 @@ namespace wisdom
         }
 
         // Check a diagonal for any bishop / queen threats.
-        bool diagonal()
+        bool diagonal() const
         {
             return
                 // northwest:

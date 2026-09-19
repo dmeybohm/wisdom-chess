@@ -75,12 +75,12 @@ namespace wisdom
     isPlayerCheckmated (const Board& board, Color who)
         -> bool;
 
-	// Whether the board is in a checkmated position for either player.
-	[[nodiscard]] auto
-	isCheckmated (const Board& board)
-		-> bool;
+    // Whether the board is in a checkmated position for either player.
+    [[nodiscard]] auto
+    isCheckmated (const Board& board)
+        -> bool;
 
-	// Whether in a stalemate position for white or black.
+    // Whether in a stalemate position for white or black.
     [[nodiscard]] auto
     isStalemated (const Board& board, Color who)
         -> bool;
@@ -90,12 +90,7 @@ namespace wisdom
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
     [[nodiscard]] inline auto
-    isProbablyDrawingMove (
-        const Board& board,
-        [[maybe_unused]] Color who,
-        [[maybe_unused]] Move move,
-        const History& history
-    )
+    isProbablyDrawingMove (const Board& board, const History& history)
         -> DrawCategory
     {
         auto repetition_status = history.getThreefoldRepetitionStatus();

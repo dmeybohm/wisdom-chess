@@ -151,7 +151,7 @@ namespace wisdom
     )
         -> int
     {
-        if (isProbablyDrawingMove (parent_board, side, Move {}, my_history))
+        if (isProbablyDrawingMove (parent_board, my_history))
         {
             return drawingScore (my_searching_color, side);
         }
@@ -289,11 +289,11 @@ namespace wisdom
                 if (my_current_result.timed_out)
                     break;
 
-            	// Update, but only do so if we saw opponent's reply
-            	// (limited version of quiescence)
+                // Update, but only do so if we saw opponent's reply
+                // (limited version of quiescence)
                 auto next_result = getBestResult();
                 if (next_result.move.has_value() &&
-                	(!best_result.move.has_value() || depth % 2 == 0))
+                    (!best_result.move.has_value() || depth % 2 == 0))
                 {
                     best_result = next_result;
                     if (isCheckmatingOpponentScore (next_result.score))

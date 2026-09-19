@@ -99,13 +99,6 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        getStoredEntriesCount() const
-            -> size_t
-        {
-            return my_stored_entries;
-        }
-
-        [[nodiscard]] auto
         getSize() const
             -> size_t
         {

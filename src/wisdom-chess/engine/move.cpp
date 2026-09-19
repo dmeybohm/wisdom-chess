@@ -70,52 +70,21 @@ namespace wisdom
         return ColoredPiece::make (colorInvert (who), Piece::Pawn);
     }
 
-    auto 
-    Board::getCastlingRookMove (Move move) const
-        -> Move
-    {
-        int src_row, src_col;
-        int dst_row, dst_col;
-
-        assert (move.isCastling());
-
-        Coord src = move.getSrc();
-        Coord dst = move.getDst();
-
-        src_row = src.row<int>();
-        dst_row = dst.row<int>();
-
-        if (src.column() < dst.column())
-        {
-            // castle to the right (kingside)
-            src_col = Last_Column;
-            dst_col = dst.column() - 1;
-        }
-        else
-        {
-            // castle to the left (queenside)
-            src_col = 0;
-            dst_col = dst.column() + 1;
-        }
-
-        assert (pieceType (pieceAt (src_row, src_col)) == Piece::Rook);
-
-        return Move::make (src_row, src_col, dst_row, dst_col);
-    }
-
     void
     Board::applyForCastlingMove (
         Move king_move,
         [[maybe_unused]] Coord src,
         [[maybe_unused]] Coord dst
     ) noexcept {
-        Move rook_move = getCastlingRookMove (king_move);
+        Move rook_move = castlingRookMove (king_move);
 
         assert (pieceType (pieceAt (src)) == Piece::King);
         assert (abs (src.column() - dst.column()) == 2);
 
         auto rook_src = rook_move.getSrc();
         auto rook_dst = rook_move.getDst();
+
+        assert (pieceType (pieceAt (rook_src)) == Piece::Rook);
 
         auto empty_piece = ColoredPiece::make (Color::None, Piece::None);
 

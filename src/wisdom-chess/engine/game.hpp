@@ -33,22 +33,22 @@ namespace wisdom
         // Factory functions - preferred way to create games
         [[nodiscard]] static auto
         createStandardGame()
-			-> Game;
+            -> Game;
 
         [[nodiscard]] static auto
         createGame (const Players& players)
-			-> Game;
+            -> Game;
 
         [[nodiscard]] static auto
         createGame (Player white_player, Player black_player)
-			-> Game;
+            -> Game;
 
         [[nodiscard]] static auto createGameFromFen (const string& fen)
-			-> Game;
+            -> Game;
 
         [[nodiscard]] static auto
         createGameFromFen (const string& fen, const Players& players)
-			-> Game;
+            -> Game;
 
         [[nodiscard]] static auto
         createGameFromBoard (const BoardBuilder& builder)
@@ -56,7 +56,7 @@ namespace wisdom
 
         [[nodiscard]] static auto
         createGameFromBoard (const BoardBuilder& builder, const Players& players)
-			-> Game;
+            -> Game;
 
         [[nodiscard]] static auto
         loadGame (const string& filename, const Players& players)

@@ -39,19 +39,6 @@ namespace wisdom
             my_size = other.my_size;
         }
 
-        [[nodiscard]] static constexpr auto
-        fromZeroInitialized()
-            -> MoveList
-        {
-            auto list = MoveList {};
-            std::fill (
-                std::begin (list.my_moves), 
-                std::end (list.my_moves), 
-                Move {} 
-            );
-            return list;
-        }
-
         constexpr auto
         operator= (const MoveList& other)
             -> MoveList&
@@ -168,13 +155,6 @@ namespace wisdom
         {
             return !(*this == other);
         }
-
-        [[nodiscard]] constexpr auto
-        data() const& noexcept
-        {
-            return my_moves;
-        }
-        void data() const&& = delete;
 
         [[nodiscard]] constexpr auto
         front() const

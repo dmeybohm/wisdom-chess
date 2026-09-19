@@ -350,6 +350,24 @@ namespace wisdom
         return narrow_cast<IntegerType> (who == Color::White ? Last_Row : First_Row);
     }
 
+    // The rook's half of a castling move, derived from the king's half.
+    [[nodiscard]] constexpr auto
+    castlingRookMove (Move king_move) noexcept
+        -> Move
+    {
+        assert (king_move.isCastling());
+
+        auto row = king_move.getSrc().row<int>();
+        bool is_kingside = king_move.isCastlingOnKingside();
+
+        return Move::make (
+            row,
+            is_kingside ? King_Rook_Column : Queen_Rook_Column,
+            row,
+            is_kingside ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column
+        );
+    }
+
     constexpr auto
     operator== (Move a, Move b) noexcept
         -> bool
