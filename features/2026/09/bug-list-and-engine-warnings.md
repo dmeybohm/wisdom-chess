@@ -30,12 +30,12 @@ should be confirmed before fixing.
 
 ### Engine: correctness
 
-- [ ] **Piece-square tables mirrored on both axes for Black.** *(verified)*
+- [x] **Piece-square tables mirrored on both axes for Black.** *(verified)*
   `translatePosition` in `engine/position.cpp:76-90` flips row and column,
   but `pawn_positions` (row 5: `+1 -1 -2 0 0 2 -1 +1`), `king_positions`
   (`-6 -8 -8 -9 -9 -4 -4 -6`) and `bishop_positions` are not left-right
   symmetric. Black therefore prefers the opposite wing from White. Mirror
-  only the rank, or make the tables symmetric.
+  only the rank, or make the tables symmetric. Fixed in Session #20.
 - [x] **FEN en-passant parser catches the wrong exception.** *(verified)*
   `engine/fen_parser.cpp:113` catches `BoardBuilderError`, but
   `coordParse` throws `CoordParseError` (`engine/coord.hpp:203,209`). The
@@ -85,29 +85,39 @@ should be confirmed before fixing.
   `depth <= 0` (`engine/search.cpp:159-162`). `iterativelyDeepen` then
   discards every odd-depth result (`engine/search.cpp:295-296`) as a
   substitute, throwing away roughly half the search time.
-- [ ] **Repetition check scans the whole history at every node.**
+  Measure any change here with the `search/*` benchmarks added in
+  Session #20 (`engine/bench/bench_search.cpp`). They search to a fixed
+  depth, so they show the cost per depth; quiescence changes what a depth
+  means, so compare the moves and scores they reach as well as the time.
+- [x] **Repetition check scans the whole history at every node.**
   `isProbablyDrawingMove` calls `History::isProbablyNthRepetition`, which
   does `std::count` over all board codes (`engine/history.hpp:94-101`).
-  Bound the scan by the half-move clock.
-- [ ] **Search result passed through a member overwritten at every ply.**
+  Bound the scan by the half-move clock. Fixed in Session #20.
+- [x] **Search result passed through a member overwritten at every ply.**
   `my_current_result` is written at every node
   (`engine/search.cpp:174-176, 226-234`); correctness depends on the root
   call writing last. Write it only at `ply == 0` or return a struct.
+  Fixed in Session #20.
 - [ ] **Transposition table deep-copied per search.** The TT is a value
   member of `Game::Impl` (`engine/game_impl.hpp:30`) and `Game`'s copy
   constructor copies it (`engine/game.cpp:77-80`). The UCI frontend copies
   the `Game` on every `go` (`ui/uci/uci_interface.cpp:295-301`), copying
   about 12 MB and discarding the learned table.
+  The `search/*` benchmarks clear the table before every search, so they
+  measure a cold table only. Showing the benefit of a table that survives
+  between moves needs a benchmark that searches consecutive positions of
+  one game without clearing; add that alongside the fix.
 - [ ] Leaf evaluation calls full legal-move generation when in check
   (`engine/evaluate.cpp:63, 87-97`).
-- [ ] `compareMoves` recomputes `materialDiff` in the return
+- [x] `compareMoves` recomputes `materialDiff` in the return
   (`engine/generate.cpp:538-542`); the sort lambda captures
   `MoveGeneration` by value (`engine/generate.cpp:564-568`).
+  Fixed in Session #20.
 - [x] Search timing uses `system_clock` (`engine/search.cpp:334, 340`);
   use `steady_clock` as `MoveTimer` already does.
   Fixed in Session #15.
-- [ ] `MoveList::data()` returns the 504-byte array by value
-  (`engine/move_list.hpp:172-176`). Unused today.
+- [x] `MoveList::data()` returns the 504-byte array by value
+  (`engine/move_list.hpp:172-176`). Unused today. Removed in Session #20.
 
 ### Engine: error handling and hygiene
 
@@ -118,34 +128,38 @@ should be confirmed before fixing.
 - [ ] Direct `std::cout`/`std::cerr` in library code bypassing `Logger`:
   `engine/board.cpp:31, 286`, `engine/game.cpp:253`,
   ~~`engine/search.cpp:308-309`~~. The `search.cpp` site was fixed on the
-  `emergency-logger` branch; the `board.cpp` and `game.cpp` sites remain.
-- [ ] `Game::load` returns `nullopt` on open failure but throws on a bad
-  move (`engine/game.cpp:251-255, 266`). Pick one.
-- [ ] `Coord::index()`, `row()`, `column()` are not `const`
+  `emergency-logger` branch. Session #20 removed the two `std::cout` sites;
+  `Board::dump()` still writes to `std::cerr`, which is its purpose as a
+  debugger helper.
+- [x] `Game::load` returns `nullopt` on open failure but throws on a bad
+  move (`engine/game.cpp:251-255, 266`). Pick one. Fixed in Session #20.
+- [x] `Coord::index()`, `row()`, `column()` are not `const`
   (`engine/coord.hpp:58-81`); all `InlineThreats` methods are non-`const`
   (`engine/threats.hpp:36-265`); `operator<< (ostream&, Position&)` takes
-  a non-const reference (`engine/position.hpp:32-34`).
-- [ ] Duplicated castling rook column logic in `Board::getCastlingRookMove`
+  a non-const reference (`engine/position.hpp:32-34`). Fixed in
+  Session #20.
+- [x] Duplicated castling rook column logic in `Board::getCastlingRookMove`
   (`engine/move.cpp:73-107`), `BoardCode::applyMove`
   (`engine/board_code.cpp:102-121`) and `Position::applyMove`
-  (`engine/position.cpp:194-210`).
-- [ ] `castlingRowForColor` (`engine/move.hpp:344-351`) and
+  (`engine/position.cpp:194-210`). Fixed in Session #20.
+- [x] `castlingRowForColor` (`engine/move.hpp:344-351`) and
   `castlingRowFromColor` (`engine/position.cpp:92-105`) are the same
-  function.
-- [ ] Dead code: ~~`castled_state += "";` (`engine/board.cpp:151`)~~
+  function. Fixed in Session #20.
+- [x] Dead code: ~~`castled_state += "";` (`engine/board.cpp:151`)~~
   (removed in Session #15), unused
   parameters on `isProbablyDrawingMove`, unreferenced
   `Board::pieceAtIndex`, `Board::squareData`, `MoveList::fromZeroInitialized`,
   `BoardCode::withMove`, `TranspositionTable::getStoredEntriesCount`,
-  `MoveGeneration::none()`.
-- [ ] `CoordIterator` (`engine/coord.hpp:216-279`) claims
+  `MoveGeneration::none()`. Removed in Session #20.
+- [x] `CoordIterator` (`engine/coord.hpp:216-279`) claims
   `forward_iterator_tag` but has no postfix `++`, its `reference` is
   `Coord&` while `operator*` returns by value, and `begin()` ignores the
-  stored coordinate.
-- [ ] Mixed tabs and spaces: `engine/evaluate.hpp:78-81`,
+  stored coordinate. Fixed in Session #20.
+- [x] Mixed tabs and spaces: `engine/evaluate.hpp:78-81`,
   `engine/evaluate.cpp:99-103`, `engine/game.hpp:36-59`,
   `engine/board_code.hpp:20-25`, `engine/search.cpp:292-296`. Candidate
-  for a linter rule.
+  for a linter rule. The tabs were replaced in Session #20; the linter
+  rule is not written.
 
 ### Frontends
 
@@ -188,14 +202,16 @@ should be confirmed before fixing.
   Consequences that compile today: `onDropPiece` is declared
   `(dst, src)` in `Board.tsx:23` but `(src, dst)` in `Square.tsx:16`;
   `PawnPromotionDialog.tsx` types `selectedPiece` as `PieceColor`.
+  Session #20 corrected those two declarations; the `any` types remain.
 - [x] **Console number prompts abort on out-of-range input.** *(verified)*
   `readInt` in `ui/console/play.cpp` caught `std::invalid_argument` from
   `std::stoi` but not `std::out_of_range`, so a very large number at the
   `maxdepth` or `timeout` prompt terminated the program. Found and fixed
   in Session #14.
-- [ ] `ChessGame::clone()` round-trips through FEN
+- [x] `ChessGame::clone()` round-trips through FEN
   (`ui/qml/main/chess_game.cpp:555-567`), dropping move history. Safe only
   because it runs when history is empty; needs a comment or a real copy.
+  Commented in Session #20.
 - [ ] `ChessGame::isLegalMove` (`ui/qml/main/chess_game.cpp:73`)
   duplicates `GameViewModelBase::isLegalMove`
   (`ui/viewmodel/game_viewmodel_base.cpp:107`). *(verified)*
@@ -242,10 +258,10 @@ should be confirmed before fixing.
 - [ ] No sanitizer job and no Linux/Clang in
   `.github/workflows/cmake.yml`. `WISDOM_CHESS_ASAN` is unused by CI.
   The missing Debug build was added in Session #12.
-- [ ] Linter self-tests (`scripts/linter/tests/run-tests.sh`) are not run
+- [x] Linter self-tests (`scripts/linter/tests/run-tests.sh`) are not run
   in CI. `LinterConfig::ignore` is populated and never read.
-  The self-tests were added to the CI lint job in Session #17; the unread
-  `ignore` list remains.
+  The self-tests were added to the CI lint job in Session #17 and the
+  unread `ignore` list was removed in Session #20.
 - [x] `WISDOM_CHESS_SLOW_TESTS` defaults On (`CMakeLists.txt:33`) but
   README and CLAUDE.md say OFF.
   Fixed in Session #17.
@@ -727,3 +743,109 @@ The small React, CMake and documentation items.
   of reusing the engine's. They keep the stack protector.
 - Verified: clang build with `-fstack-protector-strong` and GCC build
   both succeed with no warnings, and all 99 fast tests pass under each.
+
+### Session #20
+
+The earlier work was merged in PRs #233 and #235 and the branch deleted, so
+this session restarts the branch from `main`. Scope: the quick items only.
+
+- Piece-square tables: `translatePosition` in `engine/position.cpp` now
+  mirrors only the rank for Black. A new test in `position_test.cpp` builds
+  a position whose ranks are mirrored between the colors and expects equal
+  scores; without the fix it reported 9 against 4.
+- Search: `search()` writes `my_current_result` only at `ply == 0`. The
+  writes on the transposition-table hit path were dead, since that path
+  runs only at `ply > 0`. `my_search_depth - depth` was always equal to
+  `ply`, so the member is gone and `ply` is used directly. The result's
+  `depth` field, which nothing reads, now holds the searched depth; it was
+  always zero before.
+- Repetition check: `History::isProbablyNthRepetition` looks back at most
+  `half-move clock + 1` positions, because a position cannot recur across
+  a capture or pawn move. The existing repetition tests and the slow suite
+  pass unchanged.
+- Castling: added `castlingRookMove (Move king_move)` to `engine/move.hpp`
+  and used it in `Board::applyForCastlingMove`, `BoardCode::applyMove` and
+  `Position::applyMove`. `Board::getCastlingRookMove` and
+  `castlingRowFromColor` are gone. Tested for all four castling moves.
+- `Game::load` returns `nullopt` for an unparseable move as well as for a
+  file that cannot be opened, and no longer prints. The console already
+  reports "Error loading game." for `nullopt`. New tests cover a missing
+  file, the `stop` marker and a bad move. It still does not check that the
+  moves are legal.
+- `Board::withRandomPosition` puts the board in the `Error`'s extra info
+  instead of printing it.
+- Const-correctness: `Coord::index()`, `row()`, `column()`, every
+  `InlineThreats` method, and `operator<< (ostream&, const Position&)`.
+- `CoordIterator`: `reference` is `Coord`, postfix `++` added, `begin()`
+  returns the iterator itself so a constructed starting coordinate is
+  honoured, and a `static_assert` pins `std::forward_iterator`.
+- `compareMoves` reuses the material differences it already computed, and
+  the sort lambda captures `MoveGeneration` by reference.
+- Removed unreferenced code: `Board::pieceAtIndex`, `Board::squareData`,
+  `MoveList::fromZeroInitialized`, `MoveList::data`, `BoardCode::withMove`,
+  `TranspositionTable::getStoredEntriesCount`, `MoveGeneration::none()`,
+  and the unused parameters of `isProbablyDrawingMove`.
+- Tabs replaced with spaces in the five listed engine files and
+  `position_test.cpp`.
+- React: `Board.tsx` declares `onDropPiece` as `(src, dst)`, matching
+  `Square.tsx` and the handler in `App.tsx`; `PawnPromotionDialog.tsx`
+  holds its selection as `PieceType`.
+- QML: documented on `ChessGame::clone()` that the move history is not
+  copied.
+- Linter: removed the unread `LinterConfig::ignore`. `run-tests.sh` changed
+  directory before using the linter path, so the relative path documented
+  in `AGENTS.md` failed all 19 tests; it now resolves the path first.
+- Verified: Release and Debug desktop builds and the QML build have no
+  warnings; all 136 C++ tests pass (113 fast, 23 slow); `tsc` is clean and
+  the 30 React tests pass; the linter and its 19 self-tests pass.
+- Search benchmarks: added `engine/bench/bench_search.cpp` to the
+  benchmarks target. It searches to depth 6 under nanobench, and once to
+  depth 8 with manual timing, from the starting, Kiwipete and Italian
+  positions and from two scripted games of 80 and 200 non-capturing plies,
+  so the repetition check has a long history to scan. The transposition
+  table is cleared before every search. The suite now takes about 16
+  seconds, up from about 2.
+- Measured the search changes with it: the commit before them against the
+  branch, six alternating rounds, comparing within each round because the
+  laptop's clock speed drifted 10 to 24% over the run even with the
+  `performance` governor. The long-history searches were faster in every
+  round: median 8 to 10% at 80 plies and 11% at 200 plies. The three
+  short-history positions had medians of 2 to 4% faster with ranges that
+  cross zero, so no detectable change. The chosen moves and scores were
+  identical. The move generation, threat, legality and perft benchmarks
+  compared against `main` all had medians within 4% and ranges that cross
+  zero.
+- Review finding on the bounded repetition scan: the FEN parser accepted a
+  negative half-move clock, which made the scan compute an iterator past
+  the end of the history. `FenParser` now throws `FenParserError` for a
+  negative half-move clock or full-move number, and
+  `BoardBuilder::setHalfMovesClock` / `setFullMoves` throw
+  `BoardBuilderError`, so no `Board` can hold a negative clock. Tests
+  cover both layers.
+- Second review finding on the same scan: adding one to the clock before
+  clamping overflowed for a clock of `INT_MAX` where `ptrdiff_t` is 32
+  bits, as under Emscripten. The bound is now
+  `clock < history_size ? clock + 1 : history_size`, which cannot overflow
+  for any `int` and costs the same single comparison. Not reproduced on
+  wasm32; the 64-bit test only documents the case.
+- The same input exposed an older overflow: `Board::updateMoveClock`
+  increments both clocks, so a move from a position loaded with a clock of
+  `INT_MAX` was undefined behaviour. Normal play cannot get near that; the
+  draw rules end a game at a half-move clock of 150, and the longest legal
+  game is under 9,000 moves. Added `Max_Half_Move_Clock` and
+  `Max_Full_Move_Number`, both 10,000, to `engine/global.hpp`. The FEN
+  parser and the board builder reject larger values the same way they
+  reject negative ones, and `updateMoveClock` asserts that neither clock
+  is at `INT_MAX`. Considered and rejected: `noexcept_expects` in the
+  scan. A pasted FEN is caller input, which should throw rather than
+  abort, and the check would run at every search node. A limit of 150 was
+  also rejected because `Game::move` does not stop at a draw, so the
+  engine can load and analyse positions past it today.
+- Left for discussion, as each needs a design decision or runtime
+  checking: quiescence search, the per-search transposition table copy,
+  full move generation at leaf nodes in check, whether
+  `iterativelyDeepen` should propagate errors, `Error`'s `noexcept` copy
+  constructor, the WebIDL leaks and `any` types, the QML engine-thread
+  shutdown and `usleep`, the duplicated `isLegalMove`, `ViewModelSettings`,
+  the missing perft and unit-test coverage, and the sanitizer and Linux
+  Clang CI jobs.

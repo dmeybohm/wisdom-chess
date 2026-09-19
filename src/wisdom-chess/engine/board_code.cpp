@@ -98,25 +98,10 @@ namespace wisdom
 
         if (move.isCastling())
         {
-            int src_col, dst_col;
-            int row;
-
-            if (move.isCastlingOnKingside())
-            {
-                dst_col = Kingside_Castled_Rook_Column;
-                src_col = Last_Column;
-            }
-            else
-            {
-                dst_col = Queenside_Castled_Rook_Column;
-                src_col = 0;
-            }
-            row = src_piece_color == Color::White ? Last_Row : First_Row;
-
-            Coord rook_src = makeCoord (row, src_col);
+            Move rook_move = castlingRookMove (move);
             ColoredPiece rook = ColoredPiece::make (src_piece_color, Piece::Rook);
-            removePiece (rook_src, rook);
-            addPiece (makeCoord (row, dst_col), rook);
+            removePiece (rook_move.getSrc(), rook);
+            addPiece (rook_move.getDst(), rook);
         }
         else if (move.isEnPassant())
         {

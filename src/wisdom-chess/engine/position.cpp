@@ -80,28 +80,7 @@ namespace wisdom
         if (who == Color::White)
             return coord;
 
-        int8_t row = coord.row();
-        int8_t col = coord.column();
-
-        return makeCoord (
-            narrow_cast<int8_t> (Last_Row - row),
-            narrow_cast<int8_t> (Last_Column - col)
-        );
-    }
-
-    static auto 
-    castlingRowFromColor (Color who)
-        -> int8_t
-    {
-        switch (who)
-        {
-            case Color::White:
-                return 7;
-            case Color::Black:
-                return 0;
-            default:
-                throw Error { "Invalid color in castlingRowFromColor()" };
-        }
+        return makeCoord (narrow_cast<int8_t> (Last_Row - coord.row()), coord.column());
     }
 
     static auto 
@@ -191,22 +170,11 @@ namespace wisdom
 
             case MoveCategory::Castling:
                 {
-                    int8_t rook_src_row = castlingRowFromColor (who);
-                    auto rook_src_col = narrow_cast<int8_t> (
-                        move.isCastlingOnKingside()
-                            ? King_Rook_Column : Queen_Rook_Column
-                    );
-                    auto rook_dst_col = narrow_cast<int8_t> (
-                        move.isCastlingOnKingside()
-                            ? Kingside_Castled_Rook_Column : Queenside_Castled_Rook_Column
-                    );
-
-                    Coord src_rook_coord = makeCoord (rook_src_row, rook_src_col);
-                    Coord dst_rook_coord = makeCoord (rook_src_row, rook_dst_col);
+                    Move rook_move = castlingRookMove (move);
                     ColoredPiece rook = ColoredPiece::make (who, Piece::Rook);
 
-                    this->remove (who, src_rook_coord, rook);
-                    this->add (who, dst_rook_coord, rook);
+                    this->remove (who, rook_move.getSrc(), rook);
+                    this->add (who, rook_move.getDst(), rook);
                 }
                 break;
 
@@ -239,7 +207,7 @@ namespace wisdom
     }
 
     auto 
-    operator<< (std::ostream& ostream, Position& position) 
+    operator<< (std::ostream& ostream, const Position& position)
         -> std::ostream&
     {
         return ostream << "{ " << position.my_score[0] << ", " << position.my_score[1] << "}";

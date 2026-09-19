@@ -120,6 +120,53 @@ TEST_CASE( "Parsing half and full moves" )
     }
 }
 
+TEST_CASE( "FEN parser rejects move clocks that are out of range" )
+{
+    SUBCASE( "Negative half move clock" )
+    {
+        CHECK_THROWS_AS(
+            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - -2 5"),
+            FenParserError
+        );
+    }
+
+    SUBCASE( "Negative full move number" )
+    {
+        CHECK_THROWS_AS(
+            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 10 -5"),
+            FenParserError
+        );
+    }
+
+    SUBCASE( "Half move clock above the limit" )
+    {
+        CHECK_THROWS_AS(
+            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 10001 5"),
+            FenParserError
+        );
+        CHECK_THROWS_AS(
+            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 2147483647 5"),
+            FenParserError
+        );
+    }
+
+    SUBCASE( "Full move number above the limit" )
+    {
+        CHECK_THROWS_AS(
+            (void)Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 10 10001"),
+            FenParserError
+        );
+    }
+
+    SUBCASE( "The limits themselves are accepted" )
+    {
+        Game game = Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 10000 10000");
+
+        CHECK( game.getBoard().getHalfMoveClock() == Max_Half_Move_Clock );
+        CHECK( game.getBoard().getFullMoveClock() == Max_Full_Move_Number );
+    }
+}
+
 TEST_CASE( "FEN parser rejects malformed piece and castling fields" )
 {
     SUBCASE( "More than eight ranks" )

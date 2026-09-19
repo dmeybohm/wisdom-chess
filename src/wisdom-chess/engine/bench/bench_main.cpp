@@ -9,6 +9,7 @@ namespace wisdom::bench
     void runThreatBenchmarks (ankerl::nanobench::Bench& bench);
     void runLegalityBenchmarks (ankerl::nanobench::Bench& bench);
     void runPerftBenchmarks (ankerl::nanobench::Bench& bench);
+    void runSearchBenchmarks (ankerl::nanobench::Bench& bench);
 }
 
 auto main() -> int
@@ -30,6 +31,9 @@ auto main() -> int
 
     std::cout << "\n--- Perft ---\n";
     wisdom::bench::runPerftBenchmarks (bench);
+
+    std::cout << "\n--- Search ---\n";
+    wisdom::bench::runSearchBenchmarks (bench);
 
     return 0;
 }

@@ -5,9 +5,15 @@
 # Example: ./run-tests.sh "../../../build/scripts/linter/wisdom-linter"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
 
 LINTER="$1"
+
+# Resolve a relative linter path before changing directory.
+if [ -f "$LINTER" ]; then
+    LINTER="$(cd "$(dirname "$LINTER")" && pwd)/$(basename "$LINTER")"
+fi
+
+cd "$SCRIPT_DIR"
 PASS=0
 FAIL=0
 

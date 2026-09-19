@@ -28,3 +28,33 @@ TEST_CASE( "Coord_parse specifying coordinates in algebraic notation" )
     CHECK( coordColumn (coordParse ("h1")) == 7 );
     CHECK( coordColumn (coordParse ("h8")) == 7 );
 }
+
+TEST_CASE( "CoordIterator" )
+{
+    SUBCASE( "A default iterator visits every square in index order" )
+    {
+        int expected_index = 0;
+
+        for (auto coord : CoordIterator {})
+            CHECK( coord.index() == expected_index++ );
+
+        CHECK( expected_index == Num_Squares );
+    }
+
+    SUBCASE( "Iteration begins at the stored coordinate" )
+    {
+        CoordIterator iterator { coordParse ("a1") };
+
+        CHECK( *iterator.begin() == coordParse ("a1") );
+        CHECK( std::distance (iterator.begin(), iterator.end()) == Num_Columns );
+    }
+
+    SUBCASE( "Postfix increment returns the previous position" )
+    {
+        CoordIterator iterator;
+        auto previous = iterator++;
+
+        CHECK( *previous == First_Coord );
+        CHECK( *iterator == makeCoord (0, 1) );
+    }
+}

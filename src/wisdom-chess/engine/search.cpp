@@ -68,7 +68,6 @@ namespace wisdom
         TranspositionTable& my_transposition_table;
 
         int my_total_depth;
-        int my_search_depth {};
         int my_nodes_visited = 0;
         int my_alpha_beta_cutoffs = 0;
         int my_total_nodes_visited = 0;
@@ -151,14 +150,14 @@ namespace wisdom
     )
         -> int
     {
-        if (isProbablyDrawingMove (parent_board, side, Move {}, my_history))
+        if (isProbablyDrawingMove (parent_board, my_history))
         {
             return drawingScore (my_searching_color, side);
         }
 
         if (depth <= 0)
         {
-            return evaluate (parent_board, side, my_search_depth - depth);
+            return evaluate (parent_board, side, ply);
         }
 
         int original_alpha = alpha;
@@ -170,12 +169,7 @@ namespace wisdom
         if (ply > 0)
         {
             if (auto tt_score = my_transposition_table.probe (hash, depth, alpha, beta, ply))
-            {
-                my_current_result.move = my_transposition_table.getBestMove (hash);
-                my_current_result.score = *tt_score;
-                my_current_result.depth = my_search_depth - depth;
                 return *tt_score;
-            }
         }
 
         auto tt_move = my_transposition_table.getBestMove (hash);
@@ -223,15 +217,19 @@ namespace wisdom
             }
         }
 
-        my_current_result.depth = my_search_depth - depth;
         if (!best_move.has_value())
         {
             // if there are no legal moves, then the current player is in a
             // stalemate or checkmate position.
-            best_score = evaluateWithoutLegalMoves (parent_board, side, my_current_result.depth);
+            best_score = evaluateWithoutLegalMoves (parent_board, side, ply);
         }
-        my_current_result.move = best_move;
-        my_current_result.score = best_score;
+
+        if (ply == 0)
+        {
+            my_current_result.move = best_move;
+            my_current_result.score = best_score;
+            my_current_result.depth = depth;
+        }
 
         if (!my_current_result.timed_out)
         {
@@ -289,11 +287,11 @@ namespace wisdom
                 if (my_current_result.timed_out)
                     break;
 
-            	// Update, but only do so if we saw opponent's reply
-            	// (limited version of quiescence)
+                // Update, but only do so if we saw opponent's reply
+                // (limited version of quiescence)
                 auto next_result = getBestResult();
                 if (next_result.move.has_value() &&
-                	(!best_result.move.has_value() || depth % 2 == 0))
+                    (!best_result.move.has_value() || depth % 2 == 0))
                 {
                     best_result = next_result;
                     if (isCheckmatingOpponentScore (next_result.score))
@@ -334,7 +332,6 @@ namespace wisdom
         auto tt_stats_start = my_transposition_table.getStats();
         auto start = std::chrono::steady_clock::now();
 
-        my_search_depth = depth;
         my_current_result = SearchResult {};
         search (my_original_board, side, depth, -Initial_Alpha, Initial_Alpha, 0);
 

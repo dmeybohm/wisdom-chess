@@ -79,7 +79,6 @@ namespace wisdom
         compareMoves (const Move& a, const Move& b) const 
             -> bool;
 
-        void none();
         void pawn();
         void knight();
         void bishop();
@@ -173,10 +172,6 @@ namespace wisdom
 
         auto transformed_move = transformMove (dst_piece, move);
         moves.append (transformed_move);
-    }
-
-    void MoveGeneration::none()
-    {
     }
 
     void MoveGeneration::king()
@@ -430,7 +425,6 @@ namespace wisdom
         switch (pieceType (piece))
         {
             case Piece::None:
-                none();
                 return;
             case Piece::Pawn:
                 pawn();
@@ -539,7 +533,7 @@ namespace wisdom
         auto material_diff_b = materialDiff (board, b);
 
         if (material_diff_a != material_diff_b)
-            return materialDiff (board, a) > materialDiff (board, b);
+            return material_diff_a > material_diff_b;
         else
             return promotingOrCoordCompare (a, b);
     }
@@ -564,7 +558,7 @@ namespace wisdom
         std::sort (
             result.begin(),
             result.end(),
-            [generation](const Move& a, const Move& b) { return generation.compareMoves (a, b); }
+            [&generation](const Move& a, const Move& b) { return generation.compareMoves (a, b); }
         );
 
         return result;

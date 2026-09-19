@@ -95,6 +95,10 @@ namespace wisdom
     inline constexpr int Kingside_Castled_Rook_Column = 5;
     inline constexpr int Queenside_Castled_Rook_Column = 3;
 
+    // Largest move clocks accepted as input. No legal game is this long.
+    inline constexpr int Max_Half_Move_Clock = 10'000;
+    inline constexpr int Max_Full_Move_Number = 10'000;
+
     // Scale factor for the material and position scale. Used for balancing material
     // and position scores together.
     inline constexpr int Material_Score_Scale = 2;

@@ -1,5 +1,4 @@
 #include <fstream>
-#include <iostream>
 
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/game_impl.hpp"
@@ -249,10 +248,7 @@ namespace wisdom
         istream.open (filename, std::ios::in);
 
         if (istream.fail())
-        {
-            std::cout << "Failed reading " << filename << "\n";
             return {};
-        }
 
         Game result = Game::createGame (players);
 
@@ -263,8 +259,11 @@ namespace wisdom
             if (input_buf == "stop")
                 break;
 
-            Move move = moveParse (input_buf, result.getCurrentTurn());
-            result.move (move);
+            auto move = moveParseOptional (input_buf, result.getCurrentTurn());
+            if (!move.has_value())
+                return {};
+
+            result.move (*move);
         }
 
         return result;

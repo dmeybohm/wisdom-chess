@@ -17,12 +17,12 @@ namespace wisdom
 
     using BoardCodeArray = array<uint64_t, Zobrist_Table_Size>;
 
-	[[nodiscard]] constexpr auto
-	zobristPieceIndex (Color piece_color, Piece piece_type)
-		-> int
-	{
-		return colorIndex (piece_color) * Num_Piece_Types + (pieceIndex (piece_type) - 1);
-	}
+    [[nodiscard]] constexpr auto
+    zobristPieceIndex (Color piece_color, Piece piece_type)
+        -> int
+    {
+        return colorIndex (piece_color) * Num_Piece_Types + (pieceIndex (piece_type) - 1);
+    }
 
     [[nodiscard]] consteval auto
     initializeBoardCodes()
@@ -249,15 +249,6 @@ namespace wisdom
         friend auto
         operator<< (std::ostream& os, const BoardCode& code)
             -> std::ostream&;
-
-        [[nodiscard]] auto
-        withMove (const Board& board, Move move) const noexcept
-            -> BoardCode
-        {
-            auto copy = *this;
-            copy.applyMove (board, move);
-            return copy;
-        }
 
         void applyMove (const Board& board, Move move) noexcept;
 

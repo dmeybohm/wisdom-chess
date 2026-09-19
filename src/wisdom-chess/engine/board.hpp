@@ -47,21 +47,6 @@ namespace wisdom
             return my_squares[coord.index()];
         }
 
-        [[nodiscard]] constexpr auto
-        pieceAtIndex (int index) const
-            -> ColoredPiece
-        {
-            assert (index >= 0 && index < Num_Squares);
-            return my_squares[index];
-        }
-
-        [[nodiscard]] constexpr auto
-        squareData() const noexcept
-            -> span<const ColoredPiece, Num_Squares>
-        {
-            return my_squares;
-        }
-
         friend auto
         operator<< (std::ostream& os, const Board& board)
             -> std::ostream&;
@@ -212,10 +197,6 @@ namespace wisdom
         void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept;
         void setEnPassantTarget (Color who, Coord target) noexcept;
         void clearEnPassantTarget() noexcept;
-
-        [[nodiscard]] auto 
-        getCastlingRookMove (Move move) const
-            -> Move;
 
         void applyForCastlingMove (
             Move king_move,
