@@ -233,18 +233,18 @@ namespace wisdom
 
     struct WebColoredPiece
     {
-        WebColoredPiece() : id { 0 }, color { 0 }, piece { 0 }, row { 0 }, col { 0 }
+        WebColoredPiece() : id { 0 }, color { NoColor }, piece { NoPiece }, row { 0 }, col { 0 }
         {
         }
 
-        WebColoredPiece (int id_, int color_, int piece_, int row_, int col_) :
+        WebColoredPiece (int id_, WebColor color_, WebPiece piece_, int row_, int col_) :
                 id { id_ }, color { color_ }, piece { piece_ }, row { row_ }, col { col_ }
         {
         }
 
         int id;
-        int color;
-        int piece;
+        WebColor color;
+        WebPiece piece;
         int row;
         int col;
     };
@@ -304,7 +304,7 @@ namespace wisdom
 
     enum WebDrawByRepetitionType
     {
-        ThreeFoldRepeition,
+        ThreefoldRepetition,
         FiftyMovesWithoutProgress,
     };
 
@@ -314,7 +314,7 @@ namespace wisdom
     {
         switch (static_cast<WebDrawByRepetitionType> (type))
         {
-            case ThreeFoldRepeition:
+            case ThreefoldRepetition:
                 return ProposedDrawType::ThreeFoldRepetition;
             case FiftyMovesWithoutProgress:
                 return ProposedDrawType::FiftyMovesWithoutProgress;
@@ -331,7 +331,7 @@ namespace wisdom
         switch (type)
         {
             case ThreeFoldRepetition:
-                return ThreeFoldRepeition;
+                return ThreefoldRepetition;
             case FiftyMovesWithoutProgress:
                 return ::wisdom::FiftyMovesWithoutProgress;
             default:

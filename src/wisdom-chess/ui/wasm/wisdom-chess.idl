@@ -34,10 +34,10 @@ enum wisdom_WebGameStatus {
 
 [Prefix="wisdom::"]
 interface WebColoredPiece {
-    void WebColoredPiece (long id, long color, long piece, long row, long col);
+    void WebColoredPiece (long id, wisdom_WebColor color, wisdom_WebPiece piece, long row, long col);
     attribute long id;
-    attribute long color;
-    attribute long piece;
+    attribute wisdom_WebColor color;
+    attribute wisdom_WebPiece piece;
     attribute long row;
     attribute long col;
 };
@@ -53,7 +53,7 @@ interface WebColoredPieceList {
 [Prefix="wisdom::"]
 interface GameSettings {
     void GameSettings ();
-    void GameSettings (long whitePlayer, long blackPlayer, long thinkingTime, long searchDepth);
+    void GameSettings (wisdom_WebPlayer whitePlayer, wisdom_WebPlayer blackPlayer, long thinkingTime, long searchDepth);
     attribute wisdom_WebPlayer whitePlayer;
     attribute wisdom_WebPlayer blackPlayer;
     attribute long thinkingTime;
@@ -69,7 +69,7 @@ enum wisdom_WebDrawStatus {
 };
 
 enum wisdom_WebDrawByRepetitionType {
-    "wisdom::ThreeFoldRepeition",
+    "wisdom::ThreefoldRepetition",
     "wisdom::FiftyMovesWithoutProgress"
 };
 
@@ -82,7 +82,7 @@ interface WebGame {
 
     // Returns the packed move for GameModel.notifyHumanMove(), or -1 if the
     // move is not legal.
-    long makeHumanMove (DOMString src, DOMString dst, long pieceType);
+    long makeHumanMove (DOMString src, DOMString dst, wisdom_WebPiece pieceType);
 
     void makeComputerMove (DOMString moveText);
 
@@ -96,10 +96,10 @@ interface WebGame {
 
     wisdom_WebColor getCurrentTurn();
     wisdom_WebGameStatus getGameStatus();
-    wisdom_WebPlayer getPlayerOfColor(long color);
+    wisdom_WebPlayer getPlayerOfColor(wisdom_WebColor color);
 
-    void setComputerDrawStatus(long type, long who, boolean accepted);
-    void setHumanDrawStatus(long type, long who, boolean accepted);
+    void setComputerDrawStatus(wisdom_WebDrawByRepetitionType type, wisdom_WebColor who, boolean accepted);
+    void setHumanDrawStatus(wisdom_WebDrawByRepetitionType type, wisdom_WebColor who, boolean accepted);
 };
 
 [Prefix="wisdom::"]
