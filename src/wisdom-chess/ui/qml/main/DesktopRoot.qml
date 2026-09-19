@@ -7,7 +7,8 @@ Item {
     height: parent.height
 
     readonly property bool anyDialogOpen: dialogs.anyDialogOpen
-    readonly property int animationDelay: 200 // milliseconds
+    readonly property int animationDelay: _myGameModel.animationDelay
+    readonly property int castlingRookPause: _myGameModel.castlingRookPause
 
     property var currentFocusedItem: null
 

@@ -1,3 +1,4 @@
+#include <QElapsedTimer>
 #include <QSignalSpy>
 #include <QTest>
 
@@ -11,6 +12,17 @@ using namespace wisdom::ui::test;
 namespace
 {
     constexpr int Settings_Apply_Delay = 350;
+
+    // Long enough to measure the hold on an engine move, short enough to
+    // keep the test quick.
+    constexpr int Test_Animation_Delay = 400;
+
+    // A hold that outlasts a search, so a reply can be caught while it is
+    // still being held back.
+    constexpr int Held_Animation_Delay = 1500;
+
+    // How long a reply at the lowest depth takes to arrive.
+    constexpr int Engine_Reply_Time = 500;
 }
 
 class DialogsTest : public QObject
@@ -328,7 +340,101 @@ private slots:
         QTRY_VERIFY( my_app->piecesMatchTheBoard() );
     }
 
+    // The engine searches while the player's piece is still moving, but its
+    // reply is not shown until that piece has arrived. Otherwise two pieces
+    // move at once, and a piece that is captured while it slides disappears.
+    void theEnginesReplyWaitsForThePlayersPiece()
+    {
+        letTheEngineAnswer (Test_Animation_Delay);
+
+        auto gap = timeTheReplyTo ("e2", "e4");
+
+        QVERIFY( gap >= Test_Animation_Delay );
+    }
+
+    // The rook of a castling move only starts after the king, so the hold
+    // has to cover its pause as well.
+    void theEnginesReplyWaitsForTheCastlingRook()
+    {
+        // Clear the king's side while both players are still human.
+        my_app->move ("e2", "e4");
+        my_app->move ("e7", "e5");
+        my_app->move ("g1", "f3");
+        my_app->move ("g8", "f6");
+        my_app->move ("f1", "c4");
+        my_app->move ("f8", "c5");
+        letTheEngineAnswer (Test_Animation_Delay);
+
+        auto gap = timeTheReplyTo ("e1", "g1");
+
+        QVERIFY( my_app->boardPieceAt ("g1") == ColoredPiece::make (Color::White, Piece::King) );
+        QVERIFY( gap >= Test_Animation_Delay + my_app->game_model.castlingRookPause() );
+    }
+
+    // Nothing is animating on a board nobody has moved on yet.
+    void theEnginesFirstMoveAsWhiteIsNotHeld()
+    {
+        my_app->changeGameSetting ("maxDepth", 1);
+        my_app->changeGameSetting ("maxSearchTime", 1);
+        my_app->game_model.setAnimationDelay (Held_Animation_Delay);
+        QSignalSpy engine_moved { &my_app->game_model, &GameModel::engineMoved };
+
+        my_app->changeGameSetting ("whitePlayer", wisdom::ui::Player::Computer);
+
+        QVERIFY( engine_moved.wait (Engine_Reply_Time) );
+    }
+
+    void aNewGameDropsAReplyThatIsStillHeld()
+    {
+        letTheEngineAnswer (Held_Animation_Delay);
+        QSignalSpy engine_moved { &my_app->game_model, &GameModel::engineMoved };
+
+        my_app->move ("e2", "e4");
+        QTest::qWait (Engine_Reply_Time);
+        QCOMPARE( engine_moved.count(), 0 );
+
+        my_app->game_model.restart();
+
+        // Long enough that the hold on the move would have ended.
+        QVERIFY( !engine_moved.wait (Held_Animation_Delay) );
+        QCOMPARE( my_app->pieces().size(), 32 );
+        QVERIFY( my_app->piecesMatchTheBoard() );
+    }
+
 private:
+    // Black answers with the engine, as fast as it can, holding each move
+    // for the given animation delay.
+    void letTheEngineAnswer (int animation_delay)
+    {
+        my_app->changeGameSetting ("maxDepth", 1);
+        my_app->changeGameSetting ("maxSearchTime", 1);
+        my_app->game_model.setAnimationDelay (animation_delay);
+        my_app->changeGameSetting ("blackPlayer", wisdom::ui::Player::Computer);
+    }
+
+    // Makes the move and returns the milliseconds between it being shown
+    // and the engine's reply being shown, or -1 if no reply came.
+    [[nodiscard]] auto
+    timeTheReplyTo (const char* src_text, const char* dst_text)
+        -> qint64
+    {
+        QElapsedTimer since_the_move;
+        qint64 gap = -1;
+
+        auto on_move = QObject::connect (&my_app->game_model, &GameModel::humanMoved,
+            [&] { since_the_move.restart(); });
+        auto on_reply = QObject::connect (&my_app->game_model, &GameModel::engineMoved,
+            [&] { if (gap < 0) gap = since_the_move.elapsed(); });
+
+        my_app->move (src_text, dst_text);
+        auto replied = QTest::qWaitFor ([&] { return gap >= 0; }, 15000);
+
+        QObject::disconnect (on_move);
+        QObject::disconnect (on_reply);
+        return replied ? gap : -1;
+    }
+
+
     void openMenu()
     {
         auto tool_buttons = my_app->shownItemsOfClass ("QQuickToolButton");

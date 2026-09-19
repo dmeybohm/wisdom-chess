@@ -58,6 +58,10 @@ void GameModel::init()
     auto gameState = my_chess_game->state();
     setCurrentTurn (gameState->getCurrentTurn());
 
+    my_hold_timer.setSingleShot (true);
+    my_hold_timer.setTimerType (Qt::PreciseTimer);
+    connect (&my_hold_timer, &QTimer::timeout, this, &GameModel::showHeldMove);
+
     setupNewEngineThread();
 }
 
@@ -163,6 +167,12 @@ void GameModel::restart()
     // them later.
     incrementGameId();
 
+    // Nothing of the old game is animating, and a move it was holding back
+    // belongs to a board that is gone.
+    my_hold_timer.stop();
+    my_held_move.reset();
+    my_animating_since.invalidate();
+
     std::shared_ptr<ChessGame> computer_chess_game = my_chess_game->clone();
     computer_chess_game->setPeriodicFunction (buildNotifier());
 
@@ -203,6 +213,24 @@ GameModel::engineThreadMoved (
         return;
     }
 
+    // Hold the move back until the move before it has finished animating,
+    // so that two pieces are never moving at once.
+    auto remaining = remainingAnimation();
+    if (remaining == 0)
+    {
+        showEngineMove (move, who);
+        return;
+    }
+
+    my_held_move = HeldMove { move, who, game_id };
+    my_hold_timer.start (remaining);
+}
+
+void
+GameModel::showEngineMove (
+    Move move,
+    Color who
+) {
     auto game = my_chess_game->state();
     game->move (move);
 
@@ -211,6 +239,43 @@ GameModel::engineThreadMoved (
 
     // re-emit single-threaded signal to listeners:
     handleMove (Player::ChessEngine, move, who);
+}
+
+auto
+GameModel::remainingAnimation() const
+    -> int
+{
+    if (!my_animating_since.isValid())
+    {
+        return 0;
+    }
+
+    auto elapsed = my_animating_since.elapsed();
+    if (elapsed >= my_animation_duration)
+    {
+        return 0;
+    }
+
+    return narrow_cast<int> (my_animation_duration - elapsed);
+}
+
+void GameModel::showHeldMove()
+{
+    if (!my_held_move.has_value())
+    {
+        return;
+    }
+
+    auto held = *my_held_move;
+    my_held_move.reset();
+
+    if (held.game_id != gameId())
+    {
+        qDebug() << "showHeldMove(): Dropped a move from a previous game.";
+        return;
+    }
+
+    showEngineMove (held.move, held.who);
 }
 
 void
@@ -398,6 +463,11 @@ GameModel::handleMove (
     {
         emit humanMoved (move, who);
     }
+
+    // The listeners above move the piece on the board, so the animation
+    // starts now. A castling rook waits for the king before it moves.
+    my_animation_duration = my_animation_delay + (move.isCastling() ? Castling_Rook_Pause : 0);
+    my_animating_since.restart();
 }
 
 void GameModel::updateInternalGameState()
@@ -552,6 +622,29 @@ void GameModel::setGameSettings (const GameSettings& new_game_settings)
         emit gameSettingsChanged();
         updateInternalGameState();
     }
+}
+
+auto
+GameModel::animationDelay() const
+    -> int
+{
+    return my_animation_delay;
+}
+
+void GameModel::setAnimationDelay (int new_delay)
+{
+    if (my_animation_delay != new_delay)
+    {
+        my_animation_delay = new_delay;
+        emit animationDelayChanged();
+    }
+}
+
+auto
+GameModel::castlingRookPause() const
+    -> int
+{
+    return Castling_Rook_Pause;
 }
 
 auto
