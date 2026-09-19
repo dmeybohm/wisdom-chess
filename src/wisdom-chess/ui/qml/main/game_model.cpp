@@ -75,6 +75,7 @@ void GameModel::setupNewEngineThread()
     computer_chess_game->setPeriodicFunction (buildNotifier());
 
     auto chess_engine = new ChessEngine { std::move (computer_chess_game), gameId() };
+    my_chess_engine = chess_engine;
 
     my_chess_engine_thread = new QThread();
 
@@ -132,6 +133,7 @@ void GameModel::start()
     emit gameStarted (my_chess_game.get());
 
     updateEngineConfig();
+    my_engine_thread_started = true;
     my_chess_engine_thread->start();
 }
 
@@ -361,6 +363,15 @@ void GameModel::applicationExiting()
 
 void GameModel::stopEngineThread()
 {
+    if (!my_engine_thread_started)
+    {
+        // The thread was never started, so QThread::finished will never fire
+        // to deleteLater() the engine moved onto it. Delete it directly.
+        delete my_chess_engine;
+        my_chess_engine = nullptr;
+        return;
+    }
+
     if (!my_chess_engine_thread->isRunning())
         return;
 

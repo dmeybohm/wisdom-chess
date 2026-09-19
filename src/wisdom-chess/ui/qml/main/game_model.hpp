@@ -13,6 +13,7 @@
 #include "wisdom-chess/ui/viewmodel/game_viewmodel_base.hpp"
 
 class QmlGameStatusUpdate;
+class ChessEngine;
 
 class GameModel : public QObject, public wisdom::ui::GameViewModelBase
 {
@@ -341,6 +342,15 @@ private:
 
     // The chess engine runs in this thread:
     QThread* my_chess_engine_thread = nullptr;
+
+    // The engine QObject moved onto my_chess_engine_thread. It is normally
+    // deleted via QThread::finished -> deleteLater(), which only fires once
+    // the thread has actually run and exited its event loop. Tracked here
+    // so it can be deleted directly if the thread never started.
+    ChessEngine* my_chess_engine = nullptr;
+
+    // Whether start() has ever been called for the current engine thread.
+    bool my_engine_thread_started = false;
 
     // Whether the game is paused (e.g. menu or dialog is open).
     // Read by the engine thread's periodic function to cancel searches.
