@@ -13,6 +13,7 @@ add_executable(wisdom-linter
     rules/trailing_return_type.cpp
     rules/test_macro_spacing.cpp
     rules/function_call_spacing.cpp
+    rules/no_tabs.cpp
 )
 
 target_compile_options(wisdom-linter PRIVATE

@@ -225,37 +225,42 @@ namespace wisdom
     class Error : public std::exception
     {
     private:
-        string my_message;
-        string my_extra_info;
+        struct Text
+        {
+            string message;
+            string extra_info;
+        };
+
+        // Shared, so that copying the exception cannot throw.
+        shared_ptr<const Text> my_text;
 
     public:
-        Error (string message, string extra_info) noexcept
-            : my_message { std::move (message) }
-            , my_extra_info { std::move (extra_info) }
+        Error (string message, string extra_info)
+            : my_text { make_shared<const Text> (Text { std::move (message), std::move (extra_info) }) }
         {
         }
 
-        explicit Error (string message) noexcept :
+        explicit Error (string message) :
             Error (std::move (message), "")
         {}
 
-        Error (const Error& src) noexcept
-            : Error (src.my_message, src.my_extra_info)
-        {}
+        // Declared so that there is no move, which would leave my_text empty.
+        Error (const Error& src) noexcept = default;
+        auto operator= (const Error& src) noexcept -> Error& = default;
 
         [[nodiscard]] auto message() const noexcept -> const string&
         {
-            return my_message;
+            return my_text->message;
         }
 
         [[nodiscard]] auto extra_info() const noexcept -> const string&
         {
-            return my_extra_info;
+            return my_text->extra_info;
         }
 
         [[nodiscard]] const char* what() const noexcept override
         {
-            return this->my_message.c_str();
+            return my_text->message.c_str();
         }
     };
 

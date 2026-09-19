@@ -51,6 +51,7 @@ namespace wisdom
         operator<< (std::ostream& os, const Board& board)
             -> std::ostream&;
 
+        // Writes the board to std::cerr. Meant to be called from a debugger.
         void dump() const;
 
         [[nodiscard]] auto

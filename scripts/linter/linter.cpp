@@ -336,6 +336,7 @@ auto getDefaultConfig() -> LinterConfig
             { "test-macro-spacing", Severity::Error },
             { "trailing-return-type", Severity::Warning },
             { "namespace-braces", Severity::Error },
+            { "no-tabs", Severity::Error },
         },
     };
 }

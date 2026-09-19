@@ -76,8 +76,10 @@ should be confirmed before fixing.
   `moveParse`, which throws (`engine/move_list.hpp:22-30`). Drop the
   `noexcept`.
   Fixed in Session #15.
-- [ ] `Error`'s copy constructor is `noexcept` but copies two strings
-  (`engine/global.hpp:205-207`).
+- [x] `Error`'s copy constructor is `noexcept` but copies two strings
+  (`engine/global.hpp:205-207`). Fixed on the `error-hygiene` branch: the
+  text is shared, so a copy allocates nothing. See
+  [error-hygiene.md](error-hygiene.md).
 
 ### Engine: search and performance
 
@@ -129,16 +131,19 @@ should be confirmed before fixing.
 
 ### Engine: error handling and hygiene
 
-- [ ] `iterativelyDeepen` catches `Error`, prints to `std::cerr` and calls
+- [x] `iterativelyDeepen` catches `Error`, prints to `std::cerr` and calls
   `std::terminate()` (`engine/search.cpp:306-312`). Let it propagate.
   The `emergency-logger` branch made it report through `logEmergency()`
-  and abort; whether it should propagate instead is still open.
-- [ ] Direct `std::cout`/`std::cerr` in library code bypassing `Logger`:
+  and abort. The `error-hygiene` branch made it propagate as a
+  `SearchError` that carries the board; see
+  [error-hygiene.md](error-hygiene.md).
+- [x] Direct `std::cout`/`std::cerr` in library code bypassing `Logger`:
   `engine/board.cpp:31, 286`, `engine/game.cpp:253`,
   ~~`engine/search.cpp:308-309`~~. The `search.cpp` site was fixed on the
   `emergency-logger` branch. Session #20 removed the two `std::cout` sites;
   `Board::dump()` still writes to `std::cerr`, which is its purpose as a
-  debugger helper.
+  debugger helper. Its declaration says so since the `error-hygiene`
+  branch, and the item is closed.
 - [x] `Game::load` returns `nullopt` on open failure but throws on a bad
   move (`engine/game.cpp:251-255, 266`). Pick one. Fixed in Session #20.
 - [x] `Coord::index()`, `row()`, `column()` are not `const`
@@ -166,8 +171,8 @@ should be confirmed before fixing.
 - [x] Mixed tabs and spaces: `engine/evaluate.hpp:78-81`,
   `engine/evaluate.cpp:99-103`, `engine/game.hpp:36-59`,
   `engine/board_code.hpp:20-25`, `engine/search.cpp:292-296`. Candidate
-  for a linter rule. The tabs were replaced in Session #20; the linter
-  rule is not written.
+  for a linter rule. The tabs were replaced in Session #20; the `no-tabs`
+  linter rule was added on the `error-hygiene` branch.
 
 ### Frontends
 

@@ -68,6 +68,7 @@ cmake --build build --target lint
 - **trailing-return-type**: Functions must use `auto fn() -> ReturnType` syntax
 - **test-macro-spacing**: Test macros, doctest's and Qt Test's, need spaces inside parens: `CHECK( x )` not `CHECK(x)`, `QCOMPARE( a, b )` not `QCOMPARE (a, b)`
 - **function-call-spacing**: Functions with args need space before paren: `foo (x)` not `foo(x)`; zero-arg functions have no space: `bar()` not `bar ()`
+- **no-tabs**: No tab characters; indent with spaces
 
 **Configuration:** There is no configuration file. Rule severities come from `getDefaultConfig()` in `scripts/linter/linter.cpp`; `--rules` selects rules on the command line and `--list-rules` shows them.
 
@@ -319,6 +320,7 @@ Note: There are two WebAssembly frontends:
 ### Contracts and Fatal Errors
 - `expects (cond)` and `ensures (cond)` in `engine/global.hpp` throw `PreconditionError` / `PostconditionError`. Use them for checks on caller input.
 - `noexcept_expects (cond)` reports the failure and aborts. Use it only inside `noexcept` functions, where an exception could not propagate.
+- The engine does not abort on a failed search. `iterativelyDeepen()` throws `SearchError` (`engine/search.hpp`), whose extra info ends with the board being searched. Uncaught, it reaches the terminate handler below.
 - Before terminating, report through `logEmergency()` (`engine/logger.hpp`), never raw `std::cerr`. It writes to `std::cerr` and to the logger registered with `setEmergencyLogger()`.
 - Every `Logger` must implement `emergency()` without buffering.
 - Each frontend calls `setEmergencyLogger()` and `installEmergencyTerminateHandler()` as the first statements of `main()`.
