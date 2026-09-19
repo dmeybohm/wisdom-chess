@@ -6,7 +6,7 @@ target_link_libraries(wisdom-chess-console PRIVATE wisdom::viewmodel)
 wisdom_chess_enable_warnings(wisdom-chess-console)
 
 if (WISDOM_CHESS_PCH_ENABLED)
-    target_precompile_headers(wisdom-chess-console REUSE_FROM wisdom-chess-core)
+    target_precompile_headers(wisdom-chess-console PRIVATE ../../engine/global.hpp)
 endif()
 
 install(TARGETS wisdom-chess-console

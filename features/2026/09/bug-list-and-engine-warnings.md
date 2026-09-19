@@ -709,3 +709,18 @@ The small React, CMake and documentation items.
 - The slow suite took 50.95 processor-seconds against 50 to 53 in earlier
   runs this session, so no measurable change. Desktop and QML builds have
   no warnings and all 122 tests pass.
+
+### Session #19
+
+- The macOS build on PR #235 failed with `stack protector mode differs in
+  PCH file vs. current file`. The console and UCI targets reused the
+  engine's precompiled header (`REUSE_FROM wisdom-chess-core`), which is
+  now built with `-fno-stack-protector` while they are not. GCC accepts
+  the mismatch, which is why Session #18 saw no problem. Clang rejects it,
+  and it only shows up where the stack protector is on by default, as
+  with Apple clang.
+- Reproduced on Linux with clang 18 and `-fstack-protector-strong`, then
+  gave both targets their own precompiled header of `global.hpp` instead
+  of reusing the engine's. They keep the stack protector.
+- Verified: clang build with `-fstack-protector-strong` and GCC build
+  both succeed with no warnings, and all 99 fast tests pass under each.

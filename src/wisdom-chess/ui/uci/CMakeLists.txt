@@ -10,6 +10,6 @@ if (WISDOM_CHESS_CONSOLE_UI)
     wisdom_chess_enable_warnings(wisdom-chess-uci)
 
     if (WISDOM_CHESS_PCH_ENABLED)
-        target_precompile_headers(wisdom-chess-uci REUSE_FROM wisdom-chess-core)
+        target_precompile_headers(wisdom-chess-uci PRIVATE ../../engine/global.hpp)
     endif()
 endif()
