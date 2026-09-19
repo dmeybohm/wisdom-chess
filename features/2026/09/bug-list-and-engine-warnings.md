@@ -263,6 +263,10 @@ should be confirmed before fixing.
   opens during the click that caused it and gives focus back to that
   square when it closes, so `main/Board.qml` takes the next click as a
   move target. Found and fixed on the `qml-tests` branch.
+- [ ] The mobile menu button cannot close the menu. The press closes the
+  open menu, then the button's click on release sees it closed and opens
+  it again (`ui/qml/main/mobile_main.qml`). Found on the `qml-tests`
+  branch.
 - [ ] `ChessGame::setPlayers()` changes the game's players but not
   `config().players` (`ui/qml/main/chess_game.cpp`). Found on the
   `qml-tests` branch.

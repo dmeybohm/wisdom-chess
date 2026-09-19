@@ -348,6 +348,58 @@ The two findings that Session #7 pinned as expected failures, fixed.
   the real binary, whose QML is compiled ahead of time, starts offscreen
   without QML errors. Not yet run on CI, and not looked at on a screen.
 
+### Session #9
+
+The second CI run, on `0f78ef5` (run 35463217588), failed `QML: dialogs` on
+every platform and `QML: mobile` on macOS Release. `QML: application` and
+everything else passed. CI installs Qt 6.9.3; the tests had only been run
+against 6.11.2.
+
+- **Linux: No acted as Yes.** On the Debug job all five failures were one
+  thing: declining a new game restarted it, declining a draw drew the game,
+  declining Quit quit. The Release job hit it once. OK, Cancel and Apply
+  worked, and no QML warnings were printed.
+- An ASAN and UBSAN Debug build against 6.11.2 was clean and passed 40 runs
+  of the dialogs test, eight at a time. That rules out a memory error in
+  our code but cannot see into Qt, which is not instrumented.
+- **Reproduced with Qt 6.9.3**, installed with `aqtinstall` into a scratch
+  directory: three failures locally, all No acting as Yes.
+- **Cause.** Straight after the dialog opens on 6.9.3, both buttons report
+  the same position, centred at (348, 426.5). The button row is laid out
+  in the next polish, before the first frame is drawn; 300 ms later No is
+  at (434, 426.5). The test aimed at No's centre, which was Yes's, and the
+  click went to Yes. On 6.11.2 the row is already laid out by then.
+  Nobody can click a frame that has not been drawn, so this is a test bug,
+  not an application bug.
+- **Fix.** `Application::clickItem()` calls `QQuickTest::qWaitForPolish()`
+  on the window before reading the item's position, and `click()` on a
+  square goes through it. The UI tests link `Qt6::QuickTest`, which the
+  default Qt install includes; the test directory is only added when it is
+  found. The one-shot text checks after a dialog opens, one of which
+  failed on macOS RelWithDebInfo for the same reason (the text had no size
+  yet), are `QTRY_VERIFY` now.
+- **macOS: SIGSEGV at 0x4, 0x5 and 0x6.** Each crash came in the first
+  test after one that ended with a menu left open, or, once, two tests
+  after a dialog was left open. It does not happen on Linux with either Qt
+  version. With no Mac and no Valgrind this is unconfirmed. The fixture's
+  destructor now closes any open menu or dialog, and waits for it to close,
+  before the application is destroyed, which is what a real session always
+  does before its window goes away.
+- **Windows** printed no test output at all, so nothing is known about its
+  failure beyond the exit code. It is expected to be the No-as-Yes problem.
+- **Finding, not fixed: the mobile menu button cannot close the menu.**
+  While writing a check for it: pressing the button is a press outside the
+  open menu, which closes it; the button's click then fires on release,
+  sees the menu closed, and opens it again (`mobile_main.qml`,
+  `gameMenu.visible ? gameMenu.close() : gameMenu.open()`). Probed: the
+  menu is hidden after the press and shown again after the release. The
+  test that was to check it is renamed `theMenuOpens` and checks only
+  that. The desktop layout only opens the menu from its button.
+- Verified: all 180 fast tests pass against Qt 6.9.3 (Debug), 6.11.2
+  (Release) and the ASAN build; the six QML tests repeated 20 times at
+  `-j 8` against 6.9.3; linter clean. Not verified: macOS and Windows,
+  which need the next CI run.
+
 ### What the Session #16 removal bug really was
 
 With the `i--; continue;` fix in `PiecesModel::playerMoved` reverted, the
@@ -394,6 +446,7 @@ The model tests could not see that. The UI test did.
 
 ### Next
 
-Nothing is queued. `ChessGame::setPlayers()` leaving `config().players`
-stale is open in the bug list. Someone should watch a castled rook move, a
-draw offer open, and the About dialog close on a real screen once.
+Push and check the macOS and Windows jobs: the macOS crash fix is the
+unconfirmed one. `ChessGame::setPlayers()` and the mobile menu button are
+open in the bug list. Someone should watch a castled rook move, a draw
+offer open, and the About dialog close on a real screen once.

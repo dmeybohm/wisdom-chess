@@ -274,7 +274,12 @@ the real models and work it by clicking. They share
 `application_fixture.hpp`; add one with `wisdom_chess_add_qml_ui_test()`.
 `ctest` runs them with `QT_QPA_PLATFORM=offscreen` and
 `QT_QUICK_BACKEND=software`; set both when running an executable by hand.
-Each test fails on any QML warning. A known defect that is not being fixed
+Each test fails on any QML warning. Click through the fixture's
+`clickItem()`, which waits for pending layout first: until then an item's
+position can be stale, and on Qt 6.9 a click aimed at a dialog's No button
+lands on Yes. CI uses Qt 6.9; `aqt install-qt linux desktop 6.9.3
+linux_gcc_64` (from `pip install aqtinstall`, no root needed) gets a
+matching Qt for reproducing a CI-only failure. A known defect that is not being fixed
 yet is pinned with `QEXPECT_FAIL`, so that fixing it fails the test and the
 marker gets removed.
 
