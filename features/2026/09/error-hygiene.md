@@ -100,8 +100,11 @@ rule in `AGENTS.md`.
   `SearchError`.
 - The "Fatal sites" section of [emergency-logger.md](emergency-logger.md)
   describes the search catch-all as reporting and aborting; this branch
-  supersedes that. `terminateOnPreconditionFailure` is now the only place
-  where the engine ends the process itself.
+  supersedes that. What is left in the engine that ends the process:
+  `terminateOnPreconditionFailure`, and `std::terminate()` after
+  exhaustive enum switches in `piece.cpp` and `material.hpp`, which an
+  invalid enum value would reach. Those go through the terminate handler,
+  which can only report "Terminated without an active exception".
 - Verified: Release build (GCC) with no warnings and all 205 tests passing
   (176 fast, 29 slow); Debug build with no warnings and the 176 fast tests
   passing; QML build against Qt 6.11.2 with no warnings and its 34 `QML`,
