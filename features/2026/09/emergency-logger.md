@@ -31,7 +31,7 @@ It is pure virtual so that every logger states what it does:
 | `NullLogger` | Nothing. |
 | `StandardLogger` | Writes the line to `std::cerr`. |
 | `BufferedLogger` | Forwards straight to the sink's `emergency()` with the usual timestamp prefix, bypassing the ring buffer and ignoring the enabled flag. It never touches the buffer, so it is safe from any thread. |
-| `UciLogger` | Prints `info string <message>` to stdout and flushes, regardless of debug mode. UCI GUIs show `info string` lines and usually drop stderr. |
+| `UciLogger` | Prints each line of the message as its own `info string` line on stdout, regardless of debug mode, under the same output lock as `sendLine()` (see Session #5). UCI GUIs show `info string` lines and usually drop stderr. |
 | `ChessEngineLogger` (QML) | `qCritical()`, which goes through Qt's message handler. `qDebug`, used by `info`/`debug`, is commonly filtered out in release configurations. |
 | `WebLogger` (wasm) | `console.error` through a new `EM_JS` `consoleError`. |
 
@@ -226,3 +226,38 @@ Two review comments.
 - Verified after the rebase: desktop, QML and wasm builds with no warnings,
   all 129 tests passing, and the UCI binary answering `isready` during a
   search and `bestmove` after `stop`.
+
+### Session #5
+
+Review comment: the UCI emergency output bypassed `sendLine()` and its
+`output_mutex`, both of which arrived from `main` with the rebase. A fatal
+message from the search thread could therefore interleave with `readyok` or
+another reply from the command thread.
+
+- `UciLogger::emergency()` now calls a new `sendEmergencyLines()` in
+  `ui/uci/uci_interface.cpp`, which writes under `output_mutex`.
+- It does not simply call `sendLine()`, for two reasons. `sendLine()` takes a
+  ready-made string, which would mean allocating in a fatal path. And a
+  process about to abort must not wait indefinitely for a lock, so
+  `output_mutex` became a `std::timed_mutex` and the emergency writer waits
+  at most 250 ms for it, then writes regardless. An unserialized message is
+  better than a process that never aborts.
+- Found while fixing it: only the first line of a multi-line message got the
+  `info string` prefix. The search's fatal message carries the board and an
+  uncaught `Error` carries its extra info, so the remaining lines reached
+  the GUI as garbage. Every line is now prefixed, and one trailing newline
+  no longer produces an empty `info string` line.
+- Verified with a stress probe: three threads writing through `info()`
+  while the main thread sends 3,000 two-line emergencies. Against the old
+  file, 6,704 of 69,000 lines were malformed; none of the second lines was
+  prefixed and 356 first lines were cut by other output. Against the new
+  file, 0 of 66,000 were malformed and all 6,000 emergency lines were
+  intact. Scratch binaries confirm the single-line and multi-line formats,
+  and the real UCI binary still answers `isready` during a search and
+  `bestmove` after `stop`. All 129 tests pass with no build warnings.
+- Not tested: the 250 ms timeout path itself, since the mutex cannot be
+  reached from outside the file.
+- A limit this does not remove: if the GUI has stopped reading and the
+  stdout pipe is full, the emergency write blocks like any other write and
+  the abort is delayed. The message has already gone to `std::cerr` by
+  then, because `logEmergency()` writes there first.
