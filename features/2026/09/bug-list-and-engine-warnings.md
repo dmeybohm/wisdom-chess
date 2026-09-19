@@ -254,6 +254,29 @@ should be confirmed before fixing.
   constructor applies the config's players afterwards
   (`ui/qml/main/chess_game.cpp`). Both callers passed matching players, so
   nothing misbehaved. Found and fixed on the `qml-tests` branch.
+- [x] **The draw offer dialogs never open in the QML frontend.** Found on
+  the `qml-tests` branch. The shared view-model refactoring (`29208c8`)
+  moved `DrawByRepetitionStatus` out of `ui/qml/main/ui_types.hpp` and lost
+  its `Q_ENUM_NS`, so `DrawByRepetitionStatus.Proposed` is undefined in
+  `popups/Dialogs.qml` and the dialogs' `visible` bindings are never true.
+  Fixed there with a mirror enum that supplies the keys.
+- [x] The About dialog has no OK button. `popups/AboutDialog.qml` sets
+  `standardButtons` on a custom footer, which the `Dialog` overwrites with
+  its own unset value. It closes only with Escape or a click outside.
+  Found and fixed on the `qml-tests` branch.
+- [x] The first click after answering a draw offer is lost. The dialog
+  opens during the click that caused it and gives focus back to that
+  square when it closes, so `main/Board.qml` takes the next click as a
+  move target. Found and fixed on the `qml-tests` branch.
+- [ ] The mobile menu button cannot close the menu. The press closes the
+  open menu, then the button's click on release sees it closed and opens
+  it again (`ui/qml/main/mobile_main.qml`). Found on the `qml-tests`
+  branch.
+- [ ] The New Game and Quit dialogs are too short for their padding
+  (`popups/NewGameDialog.qml`, `popups/ConfirmQuitDialog.qml`: height at
+  most 150, padding 40), so their text has no room and is drawn outside
+  its box. With taller title and button bars, as in the Basic style, it
+  crowds the buttons. Found on the `qml-tests` branch.
 - [ ] `ChessGame::setPlayers()` changes the game's players but not
   `config().players` (`ui/qml/main/chess_game.cpp`). Found on the
   `qml-tests` branch.
@@ -279,9 +302,9 @@ should be confirmed before fixing.
   tests for `Game::status()`, which had none. The QML C++ followed on the
   `qml-tests` branch, with Qt Test: the models and settings on their own,
   and the real desktop QML driven offscreen by clicks. They pass on the
-  Linux, macOS and Windows CI jobs. Still untested there: the dialogs and
-  the game menu, an engine move, and the mobile QML, which only the
-  Android build includes. See [qml-tests.md](qml-tests.md).
+  Linux, macOS and Windows CI jobs. The menu, the dialogs, an engine move
+  and the mobile QML followed; those have not run on CI yet. See
+  [qml-tests.md](qml-tests.md).
 - [x] `generate_test.cpp` compares `asString()` output; brittle. Fixed on
   the `more-tests` branch.
 - [x] React `App.test.tsx:46-85` mock hard-codes `Pawn: 5`; the real enum

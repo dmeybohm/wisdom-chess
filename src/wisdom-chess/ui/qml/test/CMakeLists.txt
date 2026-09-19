@@ -44,12 +44,10 @@ wisdom_chess_add_qml_test("QML: PiecesModel" pieces_model_test.cpp)
 wisdom_chess_add_qml_test("QML: ChessGame" chess_game_test.cpp)
 wisdom_chess_add_qml_test("QML: settings and types" settings_test.cpp)
 
-# The application test loads the real QML. The files live in the application
-# executable's resources, so they are embedded again here under the same
-# resource paths, from the lists the application's QML module recorded.
-wisdom_chess_add_qml_test("QML: application" application_test.cpp)
-target_link_libraries(wisdom-chess-qml-application-test PRIVATE Qt6::Quick Qt6::Svg)
-
+# The UI tests load the real QML. The files live in the application
+# executable's resources, so they are embedded again in each test executable
+# under the same resource paths, from the lists the application's QML module
+# recorded.
 get_target_property(app_qml_files WisdomChessQml QT_QML_MODULE_QML_FILES)
 get_target_property(app_resources WisdomChessQml QT_QML_MODULE_RESOURCES)
 get_target_property(app_module_dir WisdomChessQml QT_QML_MODULE_OUTPUT_DIRECTORY)
@@ -70,10 +68,63 @@ foreach(qmldir qmldir main/qmldir popups/qmldir)
     list(APPEND test_resource_files "${qmldir_file}")
 endforeach()
 
-qt_add_resources(wisdom-chess-qml-application-test "application_qml"
-    PREFIX "/qt/qml/WisdomChess"
-    FILES ${test_resource_files})
-add_dependencies(wisdom-chess-qml-application-test WisdomChessQml)
+# RESOURCE_FILES, if given, replaces the list of files to embed.
+function(wisdom_chess_add_qml_ui_test test_name source)
+    cmake_parse_arguments(PARSE_ARGV 2 arg "" "" "RESOURCE_FILES")
+    if(NOT arg_RESOURCE_FILES)
+        set(arg_RESOURCE_FILES ${test_resource_files})
+    endif()
 
-set_tests_properties("QML: application" PROPERTIES
-    ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software")
+    wisdom_chess_add_qml_test("${test_name}" ${source})
+
+    get_filename_component(target_suffix "${source}" NAME_WE)
+    string(REPLACE "_" "-" target_suffix "${target_suffix}")
+    set(target "wisdom-chess-qml-${target_suffix}")
+
+    target_link_libraries(${target} PRIVATE Qt6::Quick Qt6::QuickTest Qt6::Svg)
+    qt_add_resources(${target} "${target_suffix}-qml"
+        PREFIX "/qt/qml/WisdomChess"
+        FILES ${arg_RESOURCE_FILES})
+    add_dependencies(${target} WisdomChessQml)
+
+    set(environment "QT_QPA_PLATFORM=offscreen" "QT_QUICK_BACKEND=software")
+
+    # The native macOS style draws its controls through Cocoa, which the
+    # offscreen platform does not have: it crashes laying out the first
+    # dialog button. Windows' native style works offscreen and is kept.
+    if (APPLE)
+        list(APPEND environment "QT_QUICK_CONTROLS_STYLE=Fusion")
+    endif()
+
+    set_tests_properties("${test_name}" PROPERTIES ENVIRONMENT "${environment}")
+endfunction()
+
+wisdom_chess_add_qml_ui_test("QML: application" application_test.cpp)
+wisdom_chess_add_qml_ui_test("QML: dialogs" dialogs_test.cpp)
+
+# The mobile QML belongs to the Android build's module only. Its two files are
+# added here, with a module description that also names MobileRoot.
+set(mobile_qmldir "${CMAKE_CURRENT_BINARY_DIR}/mobile/qmldir")
+add_custom_command(
+    OUTPUT "${mobile_qmldir}"
+    COMMAND ${CMAKE_COMMAND}
+        "-DINPUT_FILE=${app_module_dir}/qmldir"
+        "-DOUTPUT_FILE=${mobile_qmldir}"
+        "-DEXTRA_LINES=MobileRoot 1.0 main/MobileRoot.qml"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/append_lines.cmake"
+    DEPENDS "${app_module_dir}/qmldir" "${CMAKE_CURRENT_SOURCE_DIR}/append_lines.cmake"
+    VERBATIM
+)
+set_source_files_properties("${mobile_qmldir}" PROPERTIES QT_RESOURCE_ALIAS "qmldir")
+
+set(mobile_resource_files ${test_resource_files})
+list(REMOVE_ITEM mobile_resource_files "${app_module_dir}/qmldir")
+list(APPEND mobile_resource_files "${mobile_qmldir}")
+foreach(file main/mobile_main.qml main/MobileRoot.qml)
+    set(absolute_file "${CMAKE_CURRENT_SOURCE_DIR}/../${file}")
+    set_source_files_properties("${absolute_file}" PROPERTIES QT_RESOURCE_ALIAS "${file}")
+    list(APPEND mobile_resource_files "${absolute_file}")
+endforeach()
+
+wisdom_chess_add_qml_ui_test("QML: mobile" mobile_test.cpp
+    RESOURCE_FILES ${mobile_resource_files})

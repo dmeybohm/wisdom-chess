@@ -6,6 +6,9 @@ Dialog {
     id: aboutDialog
     modal: true
     title: "About Wisdom Chess"
+
+    // A Dialog gives its footer these buttons, replacing any set there.
+    standardButtons: Dialog.Ok
     implicitWidth: topWindow.isWebAssembly ? 550 : 400
     implicitHeight: topWindow.isWebAssembly ? 385 : 350
 
@@ -14,7 +17,6 @@ Dialog {
     }
 
     footer: DialogButtonBox {
-        standardButtons: Dialog.Ok
         alignment: topWindow.isWebAssembly ? Qt.AlignHCenter : Qt.AlignRight
     }
 

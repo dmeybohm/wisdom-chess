@@ -247,6 +247,209 @@ engine thread in `~GameModel` through a new `stopEngineThread()`.
 - The "Not verified: the CI platforms" remarks in Sessions #1, #3 and #4
   describe the state before this run.
 
+### Session #7
+
+The rest of the UI: the status bar, the menu, every dialog, an engine move
+and the mobile QML. Two more executables, `QML: dialogs` (19 tests, about
+2 seconds) and `QML: mobile` (5 tests, half a second). The fixture moved to
+`application_fixture.hpp` so that all three UI executables share it, and
+`wisdom_chess_add_qml_ui_test()` embeds the QML in each.
+
+- **Finding, fixed: the draw offer dialogs never opened.** The shared
+  view-model refactoring in January (`29208c8`) moved
+  `DrawByRepetitionStatus` into the view-model library, which has no Qt, and
+  its `Q_ENUM_NS` was lost on the way. In QML
+  `DrawByRepetitionStatus.Proposed` became undefined, so
+  `visible: _myGameModel.thirdRepetitionDrawStatus == DrawByRepetitionStatus.Proposed`
+  in `Dialogs.qml` was never true, silently. The model did reach
+  `Proposed`; nothing showed it. Both draw dialogs and the two assignments
+  in their handlers were affected.
+  - Adding `Q_ENUM_NS (DrawByRepetitionStatus)` to `ui_types.hpp` does
+    nothing: moc only registers an enum it sees declared, and says nothing
+    when it does not.
+  - The fix is a mirror enum in `ui_types.hpp`, `QmlDrawByRepetitionStatus`,
+    whose values are written in terms of the real enum's, so they cannot
+    drift. QML finds an enum value by its key in the namespace's
+    meta-object, whatever the enum is called, so the QML files are
+    unchanged.
+  - Tests: each of the four keys is found exactly once in the meta-object
+    with the right value, and in the UI a threefold repetition opens the
+    dialog, Yes ends the game with the draw announced, and No lets play go
+    on without the offer being repeated. Writing the enum property from QML
+    with a number works, which the accept and decline tests show.
+- **Finding, fixed in Session #8: the About dialog has no OK button.**
+  `AboutDialog.qml` sets `standardButtons: Dialog.Ok` on a custom `footer`,
+  but a `Dialog` gives its footer the dialog's own `standardButtons`, which
+  that file never sets. The footer reports `NoButton` and a count of 0,
+  where the New Game dialog's reports `Yes|No` and 2. The dialog closes
+  with Escape or a click outside it, and one test does that. The likely fix
+  is to set `standardButtons` on the `Dialog`.
+  `theAboutDialogHasAnOkButton` is an expected failure.
+- **Finding, fixed in Session #8: the first click after a draw offer is
+  lost.** The
+  offer opens while `Board.qml` is still handling the click that caused it,
+  so the dialog remembers that square as the item to give focus back to.
+  When it closes, the board takes the next click as the target of a move
+  from that square. Dialogs opened from the menu do not do this, and a test
+  shows that. `theFirstClickAfterADrawOfferSelectsAPiece` is an expected
+  failure; the two draw tests spend a click on an empty square first and
+  say why.
+- The two expected failures use `QEXPECT_FAIL`, so they are reported as
+  `XFAIL`, do not fail the run, and turn into a failure (`XPASS`) the day
+  the behaviour is fixed, which is the reminder to delete the marker.
+- Settings dialog: Apply takes effect after its 350 ms timer, Cancel drops
+  the edits and a reopened dialog shows the settings in force, and the
+  dialog opens showing the current players and slider values. The radio
+  buttons and check boxes have no names, so they are found by class and
+  ordered by position.
+- Quit: No closes the dialog with no `quit` signal; Yes emits the engine's
+  `quit` once. Outside an event loop that is harmless.
+- The engine: with Black set to the computer at depth 1, a click move is
+  answered and the delegates match the board afterwards, twice in a row.
+  About 0.4 seconds, most of it the engine slot's 200 ms sleep.
+- Popups are found with `findChildren()`, since they are objects that
+  belong to their declaring item, and their buttons by walking the item
+  tree, which includes the overlay they are drawn in.
+- **Mobile.** `mobile_main.qml` and `MobileRoot.qml` are only in the
+  Android build's module. `QML: mobile` embeds them too, with a module
+  description made at build time from the application's plus one line
+  naming `MobileRoot` (`append_lines.cmake`). `Helper.isMobile()` is false
+  on a desktop, so this shows that the files load and work, not how they
+  look on a phone. The orientation handler is run by emitting
+  `QScreen::primaryOrientationChanged`. With the bug list's
+  `uiSettings.squareSize` put back, that test fails with the
+  ReferenceError. Reverted.
+- Verified: Release and Debug with all 180 fast tests passing, no warnings;
+  the six QML tests repeated 15 times at `-j 8`; linter clean; the real
+  binary starts offscreen without QML errors. Not yet run on CI.
+
+### Session #8
+
+The two findings that Session #7 pinned as expected failures, fixed.
+
+- **About dialog.** `standardButtons: Dialog.Ok` moved from the footer to
+  the `Dialog`, which is where a `Dialog` takes its footer's buttons from.
+  The custom footer stays for its alignment. Tests: the dialog closes with
+  its OK button, and still closes with Escape.
+- **The click lost after a draw offer.** `Board.qml`'s
+  `onFocusObjectChanged` now lets go of the clicked square's focus before
+  it makes the move, not after. The move is what can open a draw offer,
+  and a dialog gives the focus back to whatever had it when it opened. The
+  coordinates are read into constants first, since clearing the focus
+  re-enters the window's focus handler. Promotion, castling and the rest
+  of `QML: application` pass unchanged.
+- The markers did their job. With the `Board.qml` fix in, the
+  expected-failure test reported `XPASS`, which fails the run, and the two
+  draw tests that had spent a click on an empty square to get round the
+  bug failed because that click now counted. The marker and both
+  workarounds are gone, and no `QEXPECT_FAIL` is left in the tests.
+- Verified: Release and Debug with all 180 fast tests passing, no
+  warnings; the six QML tests repeated 15 times at `-j 8`; linter clean;
+  the real binary, whose QML is compiled ahead of time, starts offscreen
+  without QML errors. Not yet run on CI, and not looked at on a screen.
+
+### Session #9
+
+The second CI run, on `0f78ef5` (run 35463217588), failed `QML: dialogs` on
+every platform and `QML: mobile` on macOS Release. `QML: application` and
+everything else passed. CI installs Qt 6.9.3; the tests had only been run
+against 6.11.2.
+
+- **Linux: No acted as Yes.** On the Debug job all five failures were one
+  thing: declining a new game restarted it, declining a draw drew the game,
+  declining Quit quit. The Release job hit it once. OK, Cancel and Apply
+  worked, and no QML warnings were printed.
+- An ASAN and UBSAN Debug build against 6.11.2 was clean and passed 40 runs
+  of the dialogs test, eight at a time. That rules out a memory error in
+  our code but cannot see into Qt, which is not instrumented.
+- **Reproduced with Qt 6.9.3**, installed with `aqtinstall` into a scratch
+  directory: three failures locally, all No acting as Yes.
+- **Cause.** Straight after the dialog opens on 6.9.3, both buttons report
+  the same position, centred at (348, 426.5). The button row is laid out
+  in the next polish, before the first frame is drawn; 300 ms later No is
+  at (434, 426.5). The test aimed at No's centre, which was Yes's, and the
+  click went to Yes. On 6.11.2 the row is already laid out by then.
+  Nobody can click a frame that has not been drawn, so this is a test bug,
+  not an application bug.
+- **Fix.** `Application::clickItem()` calls `QQuickTest::qWaitForPolish()`
+  on the window before reading the item's position, and `click()` on a
+  square goes through it. The UI tests link `Qt6::QuickTest`, which the
+  default Qt install includes; the test directory is only added when it is
+  found. The one-shot text checks after a dialog opens, one of which
+  failed on macOS RelWithDebInfo for the same reason (the text had no size
+  yet), are `QTRY_VERIFY` now.
+- **macOS: SIGSEGV at 0x4, 0x5 and 0x6.** Each crash came in the first
+  test after one that ended with a menu left open, or, once, two tests
+  after a dialog was left open. It does not happen on Linux with either Qt
+  version. With no Mac and no Valgrind this is unconfirmed. The fixture's
+  destructor now closes any open menu or dialog, and waits for it to close,
+  before the application is destroyed, which is what a real session always
+  does before its window goes away.
+- **Windows** printed no test output at all, so nothing is known about its
+  failure beyond the exit code. It is expected to be the No-as-Yes problem.
+- **Finding, not fixed: the mobile menu button cannot close the menu.**
+  While writing a check for it: pressing the button is a press outside the
+  open menu, which closes it; the button's click then fires on release,
+  sees the menu closed, and opens it again (`mobile_main.qml`,
+  `gameMenu.visible ? gameMenu.close() : gameMenu.open()`). Probed: the
+  menu is hidden after the press and shown again after the release. The
+  test that was to check it is renamed `theMenuOpens` and checks only
+  that. The desktop layout only opens the menu from its button.
+- Verified: all 180 fast tests pass against Qt 6.9.3 (Debug), 6.11.2
+  (Release) and the ASAN build; the six QML tests repeated 20 times at
+  `-j 8` against 6.9.3; linter clean. Not verified: macOS and Windows,
+  which need the next CI run.
+
+### Session #10
+
+The run on `0e999de` was green on Linux and still red on macOS (the same
+two crashes) and Windows (no output). Closing popups at teardown had not
+helped, so the "menu left open" theory was wrong.
+
+- A temporary commit (`4f2d28d`) added two workflow steps that run only
+  when the tests fail on macOS or Windows:
+  `scripts/ci/diagnose-qml-tests.sh` reruns the dialogs and mobile tests
+  under the default, Fusion and Basic styles with `-v2` logs written to
+  files, runs each test function in its own process, and on macOS runs
+  them under `lldb` for a backtrace; the logs are uploaded as an artifact.
+  Run 35467045697.
+- **Style matters, and only style.** Fusion passed everything on both
+  platforms. The platforms' default styles, macOS and Windows, are the
+  native-look ones; Linux defaults to Fusion, which is why Linux never
+  failed.
+- **macOS: a crash in Qt's native style.** Run one function per process,
+  every test that opens a dialog crashed, and the menu-only tests passed,
+  so no earlier test is needed. The `lldb` backtrace: `EXC_BAD_ACCESS` at
+  address 0x4 in `objc_msgSend`, called from
+  `libqtquickcontrols2nativestyleplugin`, called from
+  `QQuickWindowPrivate::polishItems()`. The native macOS style draws its
+  controls through Cocoa, which the `offscreen` platform does not have.
+  The application runs on the Cocoa platform, so this is a limit of the
+  test setup, not an application bug. The UI tests now set
+  `QT_QUICK_CONTROLS_STYLE=Fusion` on macOS; the native macOS style goes
+  untested by them.
+- **Windows: one strict check.** The native Windows style failed only
+  `aNewGameCanBeDeclined`, at "Start a new game?", also in its own
+  process. The Windows log does carry Qt Test's output when written to a
+  file; why ctest showed none is still unknown. Locally the Basic style
+  fails the same way.
+- **Cause of the Windows failure.** `NewGameDialog.qml` is 150 px tall
+  with 40 px of padding. That leaves the content 4 px high in Fusion and
+  -35 px in Basic, and `Text { anchors.fill: parent }` gets that height.
+  Qt still draws the text; screenshots taken offscreen show it centred on
+  the sliver in Fusion and squeezed against the buttons in Basic.
+  `showsText()` required a box of non-zero size. It now uses the text's
+  `paintedWidth` and `paintedHeight`, the size it is drawn at.
+- **Finding, not fixed:** the New Game and Quit dialogs are too short for
+  their own padding (`height: Math.min(150, ...)`, `padding: 40`). The text
+  only looks right because it overflows its box. With a style whose title
+  and buttons are taller it crowds the buttons. Worth a look on Windows,
+  where users get the native style.
+- Verified locally against Qt 6.9.3 and 6.11.2: all 180 fast tests pass,
+  and the dialogs test passes under Basic and Fusion. On CI, run
+  35467500393 on `8444548` passed every job: three Linux, two macOS, two
+  Windows, lint and Fil-C. The diagnostics commit was then reverted.
+
 ### What the Session #16 removal bug really was
 
 With the `i--; continue;` fix in `PiecesModel::playerMoved` reverted, the
@@ -293,5 +496,8 @@ The model tests could not see that. The UI test did.
 
 ### Next
 
-The dialogs and the game menu, an engine move at depth 1, and the mobile
-QML. Someone should also watch a castled rook move on a real screen once.
+The branch is green on all three platforms. Open in the bug list:
+`ChessGame::setPlayers()`, the mobile menu button, and the New Game and
+Quit dialogs' height. Not covered by any test: the native macOS style.
+Someone should watch a castled rook move, a draw offer open, and the About
+dialog close on a real screen once.

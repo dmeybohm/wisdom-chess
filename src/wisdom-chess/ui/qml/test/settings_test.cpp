@@ -144,6 +144,42 @@ private slots:
         static_assert (static_cast<int> (ui::PieceType::King) == 6);
     }
 
+    // QML resolves DrawByRepetitionStatus.Proposed by looking the key up in
+    // this namespace's meta-object. Without the keys the comparisons in
+    // Dialogs.qml are against undefined, and no draw offer ever appears.
+    void theDrawStatusKeysAreVisibleToQml_data()
+    {
+        QTest::addColumn<QString> ("key");
+        QTest::addColumn<int> ("value");
+
+        QTest::newRow ("NotReached") << "NotReached" << static_cast<int> (ui::DrawByRepetitionStatus::NotReached);
+        QTest::newRow ("Proposed") << "Proposed" << static_cast<int> (ui::DrawByRepetitionStatus::Proposed);
+        QTest::newRow ("Accepted") << "Accepted" << static_cast<int> (ui::DrawByRepetitionStatus::Accepted);
+        QTest::newRow ("Declined") << "Declined" << static_cast<int> (ui::DrawByRepetitionStatus::Declined);
+    }
+
+    void theDrawStatusKeysAreVisibleToQml()
+    {
+        QFETCH( QString, key );
+        QFETCH( int, value );
+
+        const auto& meta_object = ui::staticMetaObject;
+        int found = 0;
+        for (int i = 0; i < meta_object.enumeratorCount(); i++)
+        {
+            bool ok = false;
+            auto key_value = meta_object.enumerator (i).keyToValue (key.toUtf8().constData(), &ok);
+            if (ok)
+            {
+                QCOMPARE( key_value, value );
+                found++;
+            }
+        }
+
+        // Exactly one, or QML's lookup by key would be ambiguous.
+        QCOMPARE( found, 1 );
+    }
+
     void theEnumsAreVisibleToTheMetaObjectSystem()
     {
         const auto& meta_object = ui::staticMetaObject;

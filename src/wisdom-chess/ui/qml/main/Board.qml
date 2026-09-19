@@ -28,13 +28,21 @@ Item {
         if (oldObject && newObject &&
                 'boardRow' in oldObject && 'boardRow' in newObject
         ) {
-            myPiecesLayer.animateRowAndColChange(
-                oldObject.boardRow,
-                oldObject.boardColumn,
-                newObject.boardRow,
-                newObject.boardColumn
-            )
+            const sourceRow = oldObject.boardRow
+            const sourceColumn = oldObject.boardColumn
+            const destinationRow = newObject.boardRow
+            const destinationColumn = newObject.boardColumn
+
+            // Before the move, which can open a draw offer: a dialog gives
+            // the focus back to whatever had it when it opened.
             newObject.focus = false
+
+            myPiecesLayer.animateRowAndColChange(
+                sourceRow,
+                sourceColumn,
+                destinationRow,
+                destinationColumn
+            )
         }
     }
 
