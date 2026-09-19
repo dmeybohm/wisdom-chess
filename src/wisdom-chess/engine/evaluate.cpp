@@ -91,7 +91,9 @@ namespace wisdom
         if (!isKingThreatened (board, who, coord))
             return false;
 
-        return !hasLegalMove (board, who);
+        assert (who == board.getCurrentTurn());
+
+        return !hasLegalMove (board);
     }
 
     auto isCheckmated (const Board& board) -> bool
@@ -136,6 +138,8 @@ namespace wisdom
     auto isStalemated (const Board& board, Color who) -> bool
     {
         auto coord = board.getKingPosition (who);
-        return !isKingThreatened (board, who, coord) && !hasLegalMove (board, who);
+        assert (who == board.getCurrentTurn());
+
+        return !isKingThreatened (board, who, coord) && !hasLegalMove (board);
     }
 }

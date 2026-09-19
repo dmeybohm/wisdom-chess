@@ -591,9 +591,11 @@ namespace wisdom
     }
 
     auto
-    hasLegalMove (const Board& board, Color who)
+    hasLegalMove (const Board& board)
         -> bool
     {
+        Color who = board.getCurrentTurn();
+
         MoveList all_moves = generateAllPotentialMoves (board, who);
         for (auto move : all_moves)
         {

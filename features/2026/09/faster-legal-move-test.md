@@ -194,3 +194,19 @@ exactly where this mate test runs, so the two designs meet.
 - Reproduced the abort in a Debug build first. All 111 fast tests now
   pass in both Debug and Release.
 
+### Session #4
+
+- `hasLegalMove()` now takes only the board and reads the side to move
+  from it, so it cannot be asked about the wrong side, which was the
+  mistake behind Session #3. The earlier sections of this document still
+  show the two-argument form.
+- `isPlayerCheckmated()` and `isStalemated()` keep their `who` parameter
+  and assert that it is the side to move before calling
+  `hasLegalMove()`. In `isPlayerCheckmated()` the assert comes after the
+  in-check test, because `isCheckmated()` asks about both colors and the
+  side not to move returns there; it can only be in check in an illegal
+  position.
+- Verified: Debug build of every non-QML target with no warnings and all
+  117 fast tests passing; Release build with all 140 tests passing;
+  linter clean on the changed files.
+
