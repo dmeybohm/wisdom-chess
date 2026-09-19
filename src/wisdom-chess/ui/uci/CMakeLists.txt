@@ -7,6 +7,7 @@ if (WISDOM_CHESS_CONSOLE_UI)
     target_link_libraries(wisdom-chess-uci
         wisdom-chess-core
     )
+    wisdom_chess_enable_warnings(wisdom-chess-uci)
 
     if (WISDOM_CHESS_PCH_ENABLED)
         target_precompile_headers(wisdom-chess-uci REUSE_FROM wisdom-chess-core)

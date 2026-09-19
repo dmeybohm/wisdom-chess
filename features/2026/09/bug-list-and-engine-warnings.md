@@ -434,3 +434,43 @@ instantiate.
 - Verified: GCC without `NDEBUG` and Emscripten's Clang, both with
   `-Wall -Wextra`, report nothing across the engine, tests, viewmodel, UCI
   and console sources. Fast suite is now 95 tests; all 118 tests pass.
+
+### Session #11
+
+- `-Wall -Wextra` (and `/W4` on MSVC) was only applied to the engine
+  library, so the tests and every UI could collect warnings unnoticed. Moved
+  the flags into `wisdom_chess_enable_warnings()` in the new
+  `cmake/Warnings.cmake` and applied it to every project target: the engine,
+  the fast and slow tests, `perft`, the benchmarks, the viewmodel library,
+  the console, UCI, QML and wasm front ends, and `seed_optimizer`. The
+  flags are `PRIVATE`, so they do not leak into dependencies. The linter
+  keeps its own stricter set.
+- Warnings that turned up, all fixed:
+  - `perft::convertMove` used its `who` parameter only inside an `assert`,
+    so it was unused in Release. This is the mirror image of the session 9
+    bug, where a variable used only in an `assert` broke Debug. The check is
+    a precondition on the caller's input in a test helper, so it is now
+    `expects (...)` and active in every build mode.
+  - QML: `PieceInfo`'s second constructor initialized members out of
+    declaration order; `ChessGame::fromPlayers` wrapped a temporary in
+    `std::move`, blocking copy elision; `ChessEngine` had two unused locals
+    and slot parameters that must stay to match their signals, now marked
+    `[[maybe_unused]]`.
+  - Qt's generated moc and QML cache sources and the generated WebIDL glue
+    compile clean under the flags, so no per-file suppressions were needed.
+- Diagnosed while in the CMake files: the console target's precompiled
+  header block tested `PCH_ENABLED`, a plain variable set in the engine's
+  directory scope and invisible from `ui/console`, and named a target
+  `chess` that does not exist. The block was dead code, and would have been
+  a configure error had the variable been visible. It now tests
+  `WISDOM_CHESS_PCH_ENABLED` and reuses the engine's PCH, as the UCI target
+  already did.
+- Lesson recorded: a warning pass needs both modes. Building without
+  `NDEBUG` finds code that only compiles inside `assert`; building with it
+  finds names that are only used inside `assert`.
+- Verified: desktop Release build (GCC), QML build against Qt 6.11.2 (59
+  objects) and wasm build under Emscripten's Clang (32 objects) all report
+  no warnings; a GCC syntax pass without `NDEBUG` over the engine, tests,
+  console, UCI, viewmodel and tools reports none either. All 118 tests
+  pass. Not verified: the benchmarks target, which is off in the local build
+  trees and needs nanobench fetched, and MSVC `/W4`, which only CI can show.

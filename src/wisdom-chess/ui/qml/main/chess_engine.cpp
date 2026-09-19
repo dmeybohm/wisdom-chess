@@ -43,7 +43,7 @@ void ChessEngine::init()
     findMove();
 }
 
-void ChessEngine::opponentMoved (Move move, Color who)
+void ChessEngine::opponentMoved (Move move, [[maybe_unused]] Color who)
 {
     auto game = my_game->state();
     game->move (move);
@@ -52,8 +52,8 @@ void ChessEngine::opponentMoved (Move move, Color who)
 
 void
 ChessEngine::receiveEngineMoved (
-    wisdom::Move move, 
-    wisdom::Color who, 
+    [[maybe_unused]] wisdom::Move move,
+    [[maybe_unused]] wisdom::Color who,
     int gameId
 ) {
     if (gameId == this->my_game_id)
@@ -126,9 +126,6 @@ void ChessEngine::findMove()
     QThread::usleep (200000); // 200 ms
 
     auto who = game_state->getCurrentTurn();
-
-    auto& board = game_state->getBoard();
-    auto& history = game_state->getHistory();
 
     my_logger->debug ("Searching for move");
     auto optionalMove = game_state->findBestMove (my_logger);

@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 cmake_minimum_required(VERSION 3.20)
 
 include(cmake/CPM.cmake)
+include(cmake/Warnings.cmake)
 include(CheckCXXSourceCompiles)
 
 project(WisdomChess

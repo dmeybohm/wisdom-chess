@@ -61,7 +61,7 @@ namespace wisdom
 
         auto src_piece = board.pieceAt (src);
         auto dst_piece = board.pieceAt (dst);
-        assert (pieceColor (src_piece) == who);
+        expects (pieceColor (src_piece) == who);
 
         Move result = wisdom::Move::make (src, dst);
 

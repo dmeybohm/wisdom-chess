@@ -9,6 +9,7 @@ add_executable(wisdom-chess-benchmarks
 
 target_link_libraries(wisdom-chess-benchmarks PRIVATE wisdom::chess)
 target_link_libraries(wisdom-chess-benchmarks PRIVATE nanobench)
+wisdom_chess_enable_warnings(wisdom-chess-benchmarks)
 
 if (PCH_ENABLED)
     target_precompile_headers(wisdom-chess-benchmarks PRIVATE PRIVATE ../global.hpp)
