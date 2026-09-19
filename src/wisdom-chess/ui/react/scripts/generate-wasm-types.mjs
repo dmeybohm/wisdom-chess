@@ -1,4 +1,6 @@
-// Generates src/lib/wisdom-chess-module.d.ts from the WebIDL interface.
+// Generates, from the WebIDL interface:
+//   src/lib/wisdom-chess-module.d.ts   the module's types
+//   src/test/wasm-enum-values.ts       the enum values, for test doubles
 //
 //   node scripts/generate-wasm-types.mjs           write the file
 //   node scripts/generate-wasm-types.mjs --check   fail if the file is stale
@@ -14,7 +16,8 @@ const MODULE_NAME = 'WisdomChessModule'
 
 const reactDir = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const idlPath = resolve(reactDir, '../wasm/wisdom-chess.idl')
-const outputPath = join(reactDir, 'src/lib/wisdom-chess-module.d.ts')
+const typesPath = join(reactDir, 'src/lib/wisdom-chess-module.d.ts')
+const enumValuesPath = join(reactDir, 'src/test/wasm-enum-values.ts')
 
 const HEADER = `// Generated from ui/wasm/wisdom-chess.idl. Do not edit.
 // Regenerate with: npm run generate:wasm-types
@@ -75,30 +78,52 @@ function brandEnums(declarations, enums) {
     return result
 }
 
+// The C++ enums are plain enums, numbered from zero in declaration order.
+function enumValuesSource(enums) {
+    const lines = enums.flatMap(({ name, members }) => [
+        `    // ${name}`,
+        ...members.map((member, index) => `    ${member}: ${index},`),
+    ])
+    return `export const wasmEnumValues = {\n${lines.join('\n')}\n} as const\n`
+}
+
 const idl = readFileSync(idlPath, 'utf8')
 const enums = parseEnums(idl)
 if (enums.length === 0)
     fail(`no enums found in ${idlPath}`)
 
 const workDir = mkdtempSync(join(tmpdir(), 'wasm-types-'))
-let generated
+let types
 try {
-    generated = HEADER + brandEnums(runGenerator(idlPath, join(workDir, 'module.d.ts')), enums)
+    types = brandEnums(runGenerator(idlPath, join(workDir, 'module.d.ts')), enums)
 } finally {
     rmSync(workDir, { recursive: true, force: true })
 }
 
+const outputs = [
+    { path: typesPath, content: HEADER + types },
+    { path: enumValuesPath, content: HEADER + enumValuesSource(enums) },
+]
+
 if (process.argv.includes('--check')) {
-    let current = ''
-    try {
-        current = readFileSync(outputPath, 'utf8')
-    } catch {
-        // A missing file is reported as stale below.
+    const stale = outputs.filter(({ path, content }) => {
+        try {
+            return readFileSync(path, 'utf8') !== content
+        } catch {
+            return true
+        }
+    })
+    if (stale.length > 0) {
+        fail(
+            `out of date with ${idlPath}:\n`
+            + stale.map(({ path }) => `  ${path}\n`).join('')
+            + 'Run: npm run generate:wasm-types'
+        )
     }
-    if (current !== generated)
-        fail(`${outputPath} is out of date with ${idlPath}.\nRun: npm run generate:wasm-types`)
-    console.log('wisdom-chess-module.d.ts is up to date')
+    console.log('generated WASM types are up to date')
 } else {
-    writeFileSync(outputPath, generated)
-    console.log(`wrote ${outputPath}`)
+    for (const { path, content } of outputs) {
+        writeFileSync(path, content)
+        console.log(`wrote ${path}`)
+    }
 }

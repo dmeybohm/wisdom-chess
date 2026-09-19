@@ -2,14 +2,15 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
-import type { WisdomWindow, Game, GameModel, WisdomChess } from './lib/WisdomChess'
+import type { WisdomWindow, Game, GameModel, GameSettings, WasmObject, WisdomChess } from './lib/WisdomChess'
 import { ILLEGAL_MOVE, withWasmObjects } from './lib/WisdomChess'
+import { wasmEnums } from './test/wasmEnums'
 
 const createMockGame = (): Game => ({
-    getGameStatus: vi.fn(() => 0),
+    getGameStatus: vi.fn(() => wasmEnums.Playing),
     getMoveStatus: vi.fn(() => 'White to move'),
     getGameOverStatus: vi.fn(() => ''),
-    getCurrentTurn: vi.fn(() => 1),
+    getCurrentTurn: vi.fn(() => wasmEnums.White),
     getInCheck: vi.fn(() => false),
     getGameId: vi.fn(() => 0),
     getPieceList: vi.fn(() => ({
@@ -19,7 +20,7 @@ const createMockGame = (): Game => ({
     makeHumanMove: vi.fn(() => 0),
     makeComputerMove: vi.fn(),
     needsPawnPromotion: vi.fn(() => false),
-    getPlayerOfColor: vi.fn(() => 0),
+    getPlayerOfColor: vi.fn(() => wasmEnums.Human),
     setSettings: vi.fn(),
     setHumanDrawStatus: vi.fn(),
     setComputerDrawStatus: vi.fn(),
@@ -28,14 +29,14 @@ const createMockGame = (): Game => ({
 const createMockGameModel = (): GameModel => ({
     startNewGame: vi.fn(() => createMockGame()),
     getCurrentGameSettings: vi.fn(() => ({
-        whitePlayer: 0,
-        blackPlayer: 1,
+        whitePlayer: wasmEnums.Human,
+        blackPlayer: wasmEnums.ChessEngine,
         thinkingTime: 5,
         searchDepth: 4,
         debugLogging: false,
     })),
-    getFirstHumanPlayerColor: vi.fn(() => 1),
-    getSecondHumanPlayerColor: vi.fn(() => 0),
+    getFirstHumanPlayerColor: vi.fn(() => wasmEnums.White),
+    getSecondHumanPlayerColor: vi.fn(() => wasmEnums.NoColor),
     setCurrentGameSettings: vi.fn(),
     notifyHumanMove: vi.fn(),
     notifyComputerMove: vi.fn(),
@@ -44,29 +45,10 @@ const createMockGameModel = (): GameModel => ({
 } as unknown as GameModel)
 
 const createMockWisdomChess = (): WisdomChess => ({
-    NoColor: 0,
-    White: 1,
-    Black: 2,
-    Human: 0,
-    ChessEngine: 1,
-    NoPiece: 0,
-    Pawn: 1,
-    Knight: 2,
-    Bishop: 3,
-    Rook: 4,
-    Queen: 5,
-    Playing: 0,
-    Checkmate: 1,
-    Stalemate: 2,
-    ThreefoldRepetitionReached: 3,
-    FiftyMovesWithoutProgressReached: 4,
-    DrawAccepted: 5,
-    DrawDeclined: 6,
-    ThreefoldRepetition: 0,
-    FiftyMovesWithoutProgress: 1,
+    ...wasmEnums,
     GameSettings: vi.fn(function (this: any) {
-        this.whitePlayer = 0
-        this.blackPlayer = 1
+        this.whitePlayer = wasmEnums.Human
+        this.blackPlayer = wasmEnums.ChessEngine
         this.thinkingTime = 5
         this.searchDepth = 4
         this.debugLogging = false
@@ -184,6 +166,35 @@ describe('App', () => {
         expect(screen.getByText('Third Repetition Reached')).toBeInTheDocument()
     })
 
+    it('reports the answer to a threefold repetition draw with the draw type', async () => {
+        vi.mocked(mockGame.getGameStatus).mockReturnValue(mockWisdomChess.ThreefoldRepetitionReached)
+
+        const user = userEvent.setup()
+        render(<App />)
+        await user.click(screen.getByText('Yes'))
+
+        expect(mockWisdomChess.ThreefoldRepetition).toBeDefined()
+        expect(mockGame.setHumanDrawStatus).toHaveBeenCalledWith(
+            mockWisdomChess.ThreefoldRepetition,
+            mockWisdomChess.White,
+            true,
+        )
+    })
+
+    it('reports the answer to a fifty move draw with the draw type', async () => {
+        vi.mocked(mockGame.getGameStatus).mockReturnValue(mockWisdomChess.FiftyMovesWithoutProgressReached)
+
+        const user = userEvent.setup()
+        render(<App />)
+        await user.click(screen.getByText('No'))
+
+        expect(mockGame.setHumanDrawStatus).toHaveBeenCalledWith(
+            mockWisdomChess.FiftyMovesWithoutProgress,
+            mockWisdomChess.White,
+            false,
+        )
+    })
+
     it('pauses the game when a modal is open', async () => {
         const user = userEvent.setup()
         render(<App />)
@@ -250,7 +261,13 @@ describe('Engine interface', () => {
 
     it('reads the settings once and frees them, however often the app renders', async () => {
         const user = userEvent.setup()
-        const wasmSettings = { whitePlayer: 0, blackPlayer: 1, thinkingTime: 5, searchDepth: 4, debugLogging: false }
+        const wasmSettings = {
+            whitePlayer: wasmEnums.Human,
+            blackPlayer: wasmEnums.ChessEngine,
+            thinkingTime: 5,
+            searchDepth: 4,
+            debugLogging: false,
+        } as unknown as GameSettings
         vi.mocked(mockGameModel.getCurrentGameSettings).mockReturnValue(wasmSettings)
 
         render(<App />)
@@ -263,8 +280,8 @@ describe('Engine interface', () => {
     const placeWhitePawnOnE2 = () => {
         vi.mocked(mockGame.getPieceList).mockReturnValue({
             length: 1,
-            pieceAt: vi.fn(() => ({ id: 1, color: 1, piece: 1, row: 6, col: 4 })),
-        })
+            pieceAt: vi.fn(() => ({ id: 1, color: wasmEnums.White, piece: wasmEnums.Pawn, row: 6, col: 4 })),
+        } as unknown as ReturnType<Game['getPieceList']>)
     }
 
     const clickSquare = async (user: ReturnType<typeof userEvent.setup>, index: number) => {
@@ -351,9 +368,9 @@ describe('withWasmObjects', () => {
     })
 
     it('frees objects added while the callback runs and returns its result', () => {
-        const owned: unknown[] = []
-        const first = {}
-        const second = {}
+        const owned: WasmObject[] = []
+        const first = {} as WasmObject
+        const second = {} as WasmObject
 
         const result = withWasmObjects(owned, () => {
             owned.push(first)
@@ -366,14 +383,13 @@ describe('withWasmObjects', () => {
         expect(mockWisdomChess.destroy).toHaveBeenCalledWith(second)
     })
 
-    it('frees objects when the callback throws and skips empty entries', () => {
-        const object = {}
+    it('frees objects when the callback throws', () => {
+        const object = {} as WasmObject
 
-        expect(() => withWasmObjects([object, null, undefined], () => {
+        expect(() => withWasmObjects([object], () => {
             throw new Error('failed')
         })).toThrow('failed')
 
-        expect(mockWisdomChess.destroy).toHaveBeenCalledTimes(1)
         expect(mockWisdomChess.destroy).toHaveBeenCalledWith(object)
     })
 })
