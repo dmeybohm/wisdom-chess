@@ -38,19 +38,27 @@ if (WISDOM_CHESS_FAST_TESTS)
         target_compile_definitions(wisdom-chess-fast-tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
     endif()
 
-    # Fatal errors end the process, so each case runs as its own test. A case
-    # passes when the emergency logger reports the expected message and the
-    # process then aborts, and fails if it carries on past the error.
+    # Fatal errors end the process, so each case runs as its own test, through
+    # run_fatal_test.cmake. A case passes when the emergency logger reported the
+    # expected message and the process then terminated abnormally.
     add_executable(wisdom-chess-fatal-tests fatal_test_main.cpp)
     target_link_libraries(wisdom-chess-fatal-tests PRIVATE wisdom::chess)
     wisdom_chess_enable_warnings(wisdom-chess-fatal-tests)
 
+    if (WISDOM_CHESS_FILC_COMPAT)
+        target_compile_definitions(wisdom-chess-fatal-tests PRIVATE WISDOM_CHESS_FILC_COMPAT)
+    endif()
+
     function(wisdom_chess_add_fatal_test test_case expected_output)
-        add_test(NAME "Fatal: ${test_case}" COMMAND wisdom-chess-fatal-tests ${test_case})
-        set_tests_properties("Fatal: ${test_case}" PROPERTIES
-            LABELS fast
-            PASS_REGULAR_EXPRESSION "\\[emergency\\] ${expected_output}.*\\[aborted\\]"
-            FAIL_REGULAR_EXPRESSION "\\[survived\\]")
+        add_test(
+            NAME "Fatal: ${test_case}"
+            COMMAND ${CMAKE_COMMAND}
+                "-DFATAL_TEST_EXECUTABLE=$<TARGET_FILE:wisdom-chess-fatal-tests>"
+                "-DFATAL_TEST_CASE=${test_case}"
+                "-DFATAL_TEST_EXPECTED=${expected_output}"
+                -P "${CMAKE_CURRENT_SOURCE_DIR}/run_fatal_test.cmake"
+        )
+        set_tests_properties("Fatal: ${test_case}" PROPERTIES LABELS fast)
     endfunction()
 
     wisdom_chess_add_fatal_test(append-overflow "Precondition failed at .*move_list\\.hpp")

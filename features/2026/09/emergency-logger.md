@@ -52,7 +52,8 @@ void installEmergencyTerminateHandler();
   `shared_ptr` was avoided because Emscripten's libc++ support is recent.
 - `logEmergency()` writes to `std::cerr` first, then calls the registered
   logger's `emergency()`. `std::cerr` is unit-buffered, so the message is out
-  before the logger runs and survives if the logger fails.
+  before the logger runs and survives if the logger fails. The two sinks are
+  tried independently (see Session #3).
 - It never throws. It also does not recurse: if the logger itself reports an
   emergency, the nested call only writes `std::cerr`.
 - `installEmergencyTerminateHandler()` sets a `std::terminate` handler that
@@ -170,3 +171,43 @@ Tests for the terminating paths, which cannot run inside doctest.
   `[survived]` marker; the check was then restored. All six pass in both
   Release and Debug builds, in about 0.01 seconds in total. Full suite: 129
   tests passing, no build warnings, linter clean.
+
+### Session #3
+
+Two review comments.
+
+- **A failed `std::cerr` write skipped the registered logger.** `logEmergency`
+  wrapped both sinks in one `try` and wrote `message + "\n"`, so a failed
+  allocation for that temporary, or a stream set to throw, jumped to the
+  `catch` before `emergency()` was called. Fixed by streaming
+  `message << '\n'`, which needs no temporary, and by giving each sink its own
+  `try`. C++ streams are kept: the allocation came from the concatenation,
+  not from the stream. The same weakness sat one level up, where the fatal
+  sites build their message before calling `logEmergency`; on failure
+  `terminateOnPreconditionFailure` and the terminate handler now fall back to
+  a plain stream write with no allocation, and `BufferedLogger::emergency()`
+  falls back to the bare message if it cannot add the timestamp.
+  New test: with `std::cerr` replaced by a buffer that rejects every write and
+  exceptions enabled on the stream, the registered logger still receives the
+  message. Confirmed that this test fails against the old single-`try` body.
+- **The fatal tests failed under FIL-C.** They relied on catching `SIGABRT`
+  to turn the abort into a normal exit, because CTest fails any test that
+  dies from a signal. FIL-C turns `abort()` into a trap that cannot be
+  caught. The tests were adapted, not skipped, since a memory-safety
+  build is where these checks are most interesting. Each test now runs
+  `engine/test/run_fatal_test.cmake` through `cmake -P`. The script launches
+  the case, merges its output, and fails if `[survived]` appears, if the
+  result is `0`, or if the `[emergency]` line with the expected message is
+  missing. The verdict no longer depends on how the process dies, so
+  `PASS_REGULAR_EXPRESSION`, `FAIL_REGULAR_EXPRESSION` and the `[aborted]`
+  marker are gone. The `SIGABRT` handler remains only to avoid a core dump
+  per case (about a second each here) and is compiled out when
+  `WISDOM_CHESS_FILC_COMPAT` is set.
+- Verified: all six pass normally in about 0.05 seconds. With
+  `WISDOM_CHESS_FILC_COMPAT=ON` in a scratch tree, which removes the handler
+  so each process dies from an uncaught signal and the script sees
+  "Subprocess aborted", all six still pass. Called directly, the script
+  rejects a wrong expected message, a case that reports nothing, and a
+  process that exits `0`; the earlier mutation check covers `[survived]`.
+  FIL-C itself is not installed here, so the FIL-C CI job is the real
+  confirmation. Full suite: 129 tests passing, no build warnings.

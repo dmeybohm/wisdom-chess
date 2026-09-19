@@ -1,8 +1,7 @@
 // Each case triggers one fatal error, so it has to run in its own process.
-// CTest checks the output: see the "Fatal:" tests in CMakeLists.txt.
+// run_fatal_test.cmake launches it and checks the output and the exit result.
 
 #include <csignal>
-#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <string_view>
@@ -34,14 +33,15 @@ namespace
         }
     };
 
-    // CTest fails any test that dies from a signal, whatever it printed, so
-    // turn the abort into a marker and an ordinary exit.
+#ifndef WISDOM_CHESS_FILC_COMPAT
+    // Exits with a failure status, which saves writing a core dump per case.
+    // The test does not depend on this: FIL-C turns abort() into a trap that
+    // cannot be caught, and the runner script accepts either ending.
     extern "C" void onAbort ([[maybe_unused]] int signal_number)
     {
-        std::fputs ("[aborted]\n", stdout);
-        std::fflush (stdout);
         std::_Exit (EXIT_FAILURE);
     }
+#endif
 
     void appendOverflow()
     {
@@ -95,7 +95,9 @@ main (int argc, char* argv[])
     // No dialog box or error report when the case aborts.
     _set_abort_behavior (0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
 #endif
+#ifndef WISDOM_CHESS_FILC_COMPAT
     std::signal (SIGABRT, onAbort);
+#endif
 
     setEmergencyLogger (std::make_shared<MarkedLogger>());
     installEmergencyTerminateHandler();
