@@ -83,13 +83,28 @@ executable's built-in init and cleanup steps, as one.
 - The QML directory declares `cmake_minimum_required (VERSION 3.16)`, which
   switches off policy CMP0110, so `add_test()` cut the test names at the
   first space and no test ran. The test directory sets the policy.
-- Qt Test macros are written `QCOMPARE (a, b)`, with the call spacing the
-  linter wants and the QML sources already use for `Q_PROPERTY (...)`. The
-  padded `CHECK( x )` form is only exempt for the doctest macros.
+- Qt Test macros were first written `QCOMPARE (a, b)`, because the linter
+  only knew the doctest macros as test macros. Session #2 changed the
+  linter and the tests to the padded form.
 - Verified: GCC Release and Debug against Qt 6.11.2, no warnings, all 120
   fast tests pass, linter clean. Not verified: the three CI platforms. On
   Windows the test executables need the Qt DLLs on `PATH`, which
   `install-qt-action` sets up by default.
+
+### Session #2
+
+- The linter treats the Qt Test macros as test macros, so they are written
+  like the doctest ones: `QCOMPARE( a, b )`, no space before the
+  parenthesis and padding inside it. `QVERIFY`, `QVERIFY2`, `QCOMPARE` and
+  its `_EQ` family, the `QTRY_` forms, the two `QVERIFY_THROWS_` forms,
+  `QFETCH`, `QFETCH_GLOBAL`, `QFAIL`, `QSKIP`, `QEXPECT_FAIL` and the three
+  `QTEST_..._MAIN` macros were added to the list in `test-macro-spacing`
+  and to the exemptions in `function-call-spacing`. Other Qt macros such as
+  `Q_PROPERTY (...)` keep the ordinary call spacing.
+- Two fixtures in `scripts/linter/tests/test-macro-spacing` cover it: one
+  clean file, including a multi-line `QCOMPARE(`, and one with each kind of
+  violation. The linter's self-tests go from 19 to 21.
+- The three QML test files were converted. Linter clean over the tree.
 
 ### What the Session #16 removal bug really was
 

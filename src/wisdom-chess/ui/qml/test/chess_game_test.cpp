@@ -35,7 +35,7 @@ namespace
     {
         const auto& meta_object = GameSettings::staticMetaObject;
         auto property = meta_object.property (meta_object.indexOfProperty (name));
-        QVERIFY (property.writeOnGadget (&settings, QVariant::fromValue (value)));
+        QVERIFY( property.writeOnGadget (&settings, QVariant::fromValue (value)) );
     }
 }
 
@@ -48,14 +48,14 @@ private slots:
     {
         MaxDepth depth { 4 };
 
-        QCOMPARE (depth.userDepth(), 4);
-        QCOMPARE (depth.internalDepth(), 8);
+        QCOMPARE( depth.userDepth(), 4 );
+        QCOMPARE( depth.internalDepth(), 8 );
     }
 
     void maxDepthMustBePositive()
     {
-        QVERIFY_THROWS_EXCEPTION (wisdom::Error, MaxDepth { 0 });
-        QVERIFY_THROWS_EXCEPTION (wisdom::Error, MaxDepth { -1 });
+        QVERIFY_THROWS_EXCEPTION( wisdom::Error, MaxDepth { 0 } );
+        QVERIFY_THROWS_EXCEPTION( wisdom::Error, MaxDepth { -1 } );
     }
 
     void configFromDefaultGameSettings()
@@ -64,12 +64,12 @@ private slots:
 
         auto config = ChessGame::Config::fromGameSettings (settings);
 
-        QVERIFY (config.players[0] == Player::Human);
-        QVERIFY (config.players[1] == Player::ChessEngine);
-        QCOMPARE (config.maxDepth.userDepth(), wisdom::Default_Max_Depth / 2);
-        QCOMPARE (config.maxDepth.internalDepth(), wisdom::Default_Max_Depth);
-        QCOMPARE (config.maxTime.count(), wisdom::Default_Max_Search_Seconds);
-        QCOMPARE (config.debugLogging, false);
+        QVERIFY( config.players[0] == Player::Human );
+        QVERIFY( config.players[1] == Player::ChessEngine );
+        QCOMPARE( config.maxDepth.userDepth(), wisdom::Default_Max_Depth / 2 );
+        QCOMPARE( config.maxDepth.internalDepth(), wisdom::Default_Max_Depth );
+        QCOMPARE( config.maxTime.count(), wisdom::Default_Max_Search_Seconds );
+        QCOMPARE( config.debugLogging, false );
     }
 
     void configFromChangedGameSettings()
@@ -83,11 +83,11 @@ private slots:
 
         auto config = ChessGame::Config::fromGameSettings (settings);
 
-        QVERIFY (config.players[0] == Player::ChessEngine);
-        QVERIFY (config.players[1] == Player::Human);
-        QCOMPARE (config.maxDepth.internalDepth(), 4);
-        QCOMPARE (config.maxTime.count(), 9);
-        QCOMPARE (config.debugLogging, true);
+        QVERIFY( config.players[0] == Player::ChessEngine );
+        QVERIFY( config.players[1] == Player::Human );
+        QCOMPARE( config.maxDepth.internalDepth(), 4 );
+        QCOMPARE( config.maxTime.count(), 9 );
+        QCOMPARE( config.debugLogging, true );
     }
 
     void aGameAppliesItsConfigToTheEngine()
@@ -97,13 +97,13 @@ private slots:
         );
         auto state = game->state();
 
-        QCOMPARE (state->getMaxDepth(), 6);
-        QCOMPARE (state->getSearchTimeout().count(), 7);
+        QCOMPARE( state->getMaxDepth(), 6 );
+        QCOMPARE( state->getSearchTimeout().count(), 7 );
 
         // The players in the config win over the ones the game was made with.
-        QVERIFY (state->getPlayer (Color::White) == Player::Human);
-        QVERIFY (state->getPlayer (Color::Black) == Player::ChessEngine);
-        QCOMPARE (game->config().maxDepth.userDepth(), 3);
+        QVERIFY( state->getPlayer (Color::White) == Player::Human );
+        QVERIFY( state->getPlayer (Color::Black) == Player::ChessEngine );
+        QCOMPARE( game->config().maxDepth.userDepth(), 3 );
     }
 
     void setConfigReplacesTheSettings()
@@ -118,10 +118,10 @@ private slots:
         });
 
         auto state = game->state();
-        QCOMPARE (state->getMaxDepth(), 2);
-        QCOMPARE (state->getSearchTimeout().count(), 2);
-        QVERIFY (state->getPlayer (Color::White) == Player::ChessEngine);
-        QCOMPARE (game->config().debugLogging, true);
+        QCOMPARE( state->getMaxDepth(), 2 );
+        QCOMPARE( state->getSearchTimeout().count(), 2 );
+        QVERIFY( state->getPlayer (Color::White) == Player::ChessEngine );
+        QCOMPARE( game->config().debugLogging, true );
     }
 
     void setPlayers()
@@ -130,21 +130,21 @@ private slots:
 
         game->setPlayers (Player::ChessEngine, Player::Human);
 
-        QVERIFY (game->state()->getPlayer (Color::White) == Player::ChessEngine);
-        QVERIFY (game->state()->getPlayer (Color::Black) == Player::Human);
+        QVERIFY( game->state()->getPlayer (Color::White) == Player::ChessEngine );
+        QVERIFY( game->state()->getPlayer (Color::Black) == Player::Human );
     }
 
     void fromFenLoadsThePositionAndTheSideToMove()
     {
         auto game = ChessGame::fromFen ("4k3/8/8/8/8/8/8/R3K3 b Q - 3 20", makeConfig());
 
-        QVERIFY (game->state()->getCurrentTurn() == Color::Black);
-        QCOMPARE (fenOf (*game), std::string { "4k3/8/8/8/8/8/8/R3K3 b Q - 3 20" });
+        QVERIFY( game->state()->getCurrentTurn() == Color::Black );
+        QCOMPARE( fenOf (*game), std::string { "4k3/8/8/8/8/8/8/R3K3 b Q - 3 20" } );
     }
 
     void fromFenRejectsNonsense()
     {
-        QVERIFY_THROWS_EXCEPTION (wisdom::Error, ChessGame::fromFen ("not a fen", makeConfig()));
+        QVERIFY_THROWS_EXCEPTION( wisdom::Error, ChessGame::fromFen ("not a fen", makeConfig()) );
     }
 
     void aCloneHasThePositionPlayersAndConfig()
@@ -156,13 +156,13 @@ private slots:
 
         auto clone = game->clone();
 
-        QCOMPARE (fenOf (*clone), fenOf (*game));
-        QVERIFY (clone->state()->getPlayers() == game->state()->getPlayers());
-        QCOMPARE (clone->state()->getMaxDepth(), game->state()->getMaxDepth());
-        QCOMPARE (clone->state()->getSearchTimeout().count(), 7);
+        QCOMPARE( fenOf (*clone), fenOf (*game) );
+        QVERIFY( clone->state()->getPlayers() == game->state()->getPlayers() );
+        QCOMPARE( clone->state()->getMaxDepth(), game->state()->getMaxDepth() );
+        QCOMPARE( clone->state()->getSearchTimeout().count(), 7 );
 
         // Documented on clone(): the moves played so far are not copied.
-        QVERIFY (clone->state()->getHistory().getMoveHistory().empty());
+        QVERIFY( clone->state()->getHistory().getMoveHistory().empty() );
     }
 
     void aCloneIsIndependent()
@@ -172,17 +172,17 @@ private slots:
 
         clone->state()->move (moveParse ("e2 e4", Color::White));
 
-        QVERIFY (fenOf (*clone) != fenOf (*game));
-        QVERIFY (game->state()->getCurrentTurn() == Color::White);
+        QVERIFY( fenOf (*clone) != fenOf (*game) );
+        QVERIFY( game->state()->getCurrentTurn() == Color::White );
     }
 
     void isLegalMove()
     {
         auto game = ChessGame::fromPlayers (Player::Human, Player::Human, makeConfig());
 
-        QVERIFY (game->isLegalMove (moveParse ("e2 e4", Color::White)));
-        QVERIFY (!game->isLegalMove (moveParse ("e2 e5", Color::White)));
-        QVERIFY (!game->isLegalMove (moveParse ("e7 e5", Color::Black)));
+        QVERIFY( game->isLegalMove (moveParse ("e2 e4", Color::White)) );
+        QVERIFY( !game->isLegalMove (moveParse ("e2 e5", Color::White)) );
+        QVERIFY( !game->isLegalMove (moveParse ("e7 e5", Color::Black)) );
     }
 
     void noMoveIsLegalOnTheComputersTurn()
@@ -191,15 +191,15 @@ private slots:
             Player::Human, Player::Human, makeConfig (Player::ChessEngine, Player::Human)
         );
 
-        QVERIFY (!game->isLegalMove (moveParse ("e2 e4", Color::White)));
+        QVERIFY( !game->isLegalMove (moveParse ("e2 e4", Color::White)) );
     }
 
     void aMoveThatLeavesTheKingInCheckIsNotLegal()
     {
         auto game = ChessGame::fromFen ("k3r3/8/8/8/8/8/4R3/4K3 w - - 0 1", makeConfig());
 
-        QVERIFY (!game->isLegalMove (moveParse ("e2 d2", Color::White)));
-        QVERIFY (game->isLegalMove (moveParse ("e2 e5", Color::White)));
+        QVERIFY( !game->isLegalMove (moveParse ("e2 d2", Color::White)) );
+        QVERIFY( game->isLegalMove (moveParse ("e2 e5", Color::White)) );
     }
 
     void moveFromCoordinates()
@@ -212,9 +212,9 @@ private slots:
             src.row<int>(), src.column<int>(), dst.row<int>(), dst.column<int>(), std::nullopt
         );
 
-        QVERIFY (who == Color::White);
-        QVERIFY (move.has_value());
-        QVERIFY (*move == moveParse ("e2 e4", Color::White));
+        QVERIFY( who == Color::White );
+        QVERIFY( move.has_value() );
+        QVERIFY( *move == moveParse ("e2 e4", Color::White) );
     }
 
     void moveFromCoordinatesRecognizesSpecialMoves()
@@ -233,15 +233,15 @@ private slots:
         auto promoting = ChessGame::fromFen ("1n2k3/P7/8/8/8/8/8/4K3 w - - 0 1", makeConfig());
         auto en_passant = ChessGame::fromFen ("4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1", makeConfig());
 
-        QVERIFY (map (*castling, "e1", "g1") == moveParse ("o-o", Color::White));
-        QVERIFY (map (*castling, "e1", "c1") == moveParse ("o-o-o", Color::White));
-        QVERIFY (map (*promoting, "a7", "a8", Piece::Rook) == moveParse ("a7 a8(R)", Color::White));
-        QVERIFY (map (*promoting, "a7", "b8", Piece::Queen) == moveParse ("a7xb8(Q)", Color::White));
-        QVERIFY (map (*en_passant, "e5", "d6") == moveParse ("e5 d6 ep", Color::White));
-        QVERIFY (!map (*castling, "c3", "c4").has_value());
+        QVERIFY( map (*castling, "e1", "g1") == moveParse ("o-o", Color::White) );
+        QVERIFY( map (*castling, "e1", "c1") == moveParse ("o-o-o", Color::White) );
+        QVERIFY( map (*promoting, "a7", "a8", Piece::Rook) == moveParse ("a7 a8(R)", Color::White) );
+        QVERIFY( map (*promoting, "a7", "b8", Piece::Queen) == moveParse ("a7xb8(Q)", Color::White) );
+        QVERIFY( map (*en_passant, "e5", "d6") == moveParse ("e5 d6 ep", Color::White) );
+        QVERIFY( !map (*castling, "c3", "c4").has_value() );
     }
 };
 
-QTEST_GUILESS_MAIN (ChessGameTest)
+QTEST_GUILESS_MAIN( ChessGameTest )
 
 #include "chess_game_test.moc"

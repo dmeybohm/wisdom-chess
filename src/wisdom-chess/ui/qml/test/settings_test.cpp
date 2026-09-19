@@ -31,28 +31,28 @@ private slots:
     {
         GameSettings settings;
 
-        QVERIFY (settings.whitePlayer() == ui::Player::Human);
-        QVERIFY (settings.blackPlayer() == ui::Player::Computer);
-        QCOMPARE (settings.maxDepth(), wisdom::Default_Max_Depth / 2);
-        QCOMPARE (settings.maxSearchTime(), wisdom::Default_Max_Search_Seconds);
-        QCOMPARE (settings.debugLogging(), false);
+        QVERIFY( settings.whitePlayer() == ui::Player::Human );
+        QVERIFY( settings.blackPlayer() == ui::Player::Computer );
+        QCOMPARE( settings.maxDepth(), wisdom::Default_Max_Depth / 2 );
+        QCOMPARE( settings.maxSearchTime(), wisdom::Default_Max_Search_Seconds );
+        QCOMPARE( settings.debugLogging(), false );
     }
 
     void gameSettingsPropertiesAreWritable()
     {
         GameSettings settings;
 
-        QVERIFY (writeProperty (settings, "whitePlayer", ui::Player::Computer));
-        QVERIFY (writeProperty (settings, "blackPlayer", ui::Player::Human));
-        QVERIFY (writeProperty (settings, "maxDepth", 5));
-        QVERIFY (writeProperty (settings, "maxSearchTime", 11));
-        QVERIFY (writeProperty (settings, "debugLogging", true));
+        QVERIFY( writeProperty (settings, "whitePlayer", ui::Player::Computer) );
+        QVERIFY( writeProperty (settings, "blackPlayer", ui::Player::Human) );
+        QVERIFY( writeProperty (settings, "maxDepth", 5) );
+        QVERIFY( writeProperty (settings, "maxSearchTime", 11) );
+        QVERIFY( writeProperty (settings, "debugLogging", true) );
 
-        QVERIFY (settings.whitePlayer() == ui::Player::Computer);
-        QVERIFY (settings.blackPlayer() == ui::Player::Human);
-        QCOMPARE (settings.maxDepth(), 5);
-        QCOMPARE (settings.maxSearchTime(), 11);
-        QCOMPARE (settings.debugLogging(), true);
+        QVERIFY( settings.whitePlayer() == ui::Player::Computer );
+        QVERIFY( settings.blackPlayer() == ui::Player::Human );
+        QCOMPARE( settings.maxDepth(), 5 );
+        QCOMPARE( settings.maxSearchTime(), 11 );
+        QCOMPARE( settings.debugLogging(), true );
     }
 
     void gameSettingsEquality_data()
@@ -70,17 +70,17 @@ private slots:
     // Each property on its own makes two settings unequal.
     void gameSettingsEquality()
     {
-        QFETCH (QString, property);
-        QFETCH (QVariant, value);
+        QFETCH( QString, property );
+        QFETCH( QVariant, value );
 
         GameSettings original;
         GameSettings changed;
-        QVERIFY (original == changed);
+        QVERIFY( original == changed );
 
-        QVERIFY (writeProperty (changed, property.toUtf8().constData(), value));
+        QVERIFY( writeProperty (changed, property.toUtf8().constData(), value) );
 
-        QVERIFY (original != changed);
-        QVERIFY (!(original == changed));
+        QVERIFY( original != changed );
+        QVERIFY( !(original == changed) );
     }
 
     void uiSettings()
@@ -88,13 +88,13 @@ private slots:
         UISettings settings {};
         UISettings flipped {};
 
-        QCOMPARE (settings.flipped(), false);
-        QVERIFY (settings == flipped);
+        QCOMPARE( settings.flipped(), false );
+        QVERIFY( settings == flipped );
 
-        QVERIFY (writeProperty (flipped, "flipped", true));
+        QVERIFY( writeProperty (flipped, "flipped", true) );
 
-        QCOMPARE (flipped.flipped(), true);
-        QVERIFY (settings != flipped);
+        QCOMPARE( flipped.flipped(), true );
+        QVERIFY( settings != flipped );
     }
 
     void colorsRoundTrip()
@@ -122,7 +122,7 @@ private slots:
         };
 
         for (auto piece : pieces)
-            QVERIFY (ui::mapPiece (ui::mapPiece (piece)) == piece);
+            QVERIFY( ui::mapPiece (ui::mapPiece (piece)) == piece );
 
         static_assert (ui::mapPiece (wisdom::Piece::Queen) == ui::PieceType::Queen);
         static_assert (ui::mapPiece (ui::PieceType::Knight) == wisdom::Piece::Knight);
@@ -140,15 +140,15 @@ private slots:
     {
         const auto& meta_object = ui::staticMetaObject;
 
-        QVERIFY (meta_object.indexOfEnumerator ("Color") >= 0);
-        QVERIFY (meta_object.indexOfEnumerator ("Player") >= 0);
-        QVERIFY (meta_object.indexOfEnumerator ("PieceType") >= 0);
+        QVERIFY( meta_object.indexOfEnumerator ("Color") >= 0 );
+        QVERIFY( meta_object.indexOfEnumerator ("Player") >= 0 );
+        QVERIFY( meta_object.indexOfEnumerator ("PieceType") >= 0 );
 
         auto piece_type = meta_object.enumerator (meta_object.indexOfEnumerator ("PieceType"));
-        QCOMPARE (piece_type.keyToValue ("Queen"), static_cast<int> (ui::PieceType::Queen));
+        QCOMPARE( piece_type.keyToValue ("Queen"), static_cast<int> (ui::PieceType::Queen) );
     }
 };
 
-QTEST_GUILESS_MAIN (SettingsTest)
+QTEST_GUILESS_MAIN( SettingsTest )
 
 #include "settings_test.moc"

@@ -133,7 +133,7 @@ private slots:
     {
         PiecesModel model;
 
-        QCOMPARE (model.rowCount ({}), 0);
+        QCOMPARE( model.rowCount ({}), 0 );
     }
 
     void roleNamesAreWhatTheQmlDelegatesUse()
@@ -141,40 +141,40 @@ private slots:
         PiecesModel model;
         auto names = model.roleNames();
 
-        QCOMPARE (names[PiecesModel::RowRole], QByteArray { "row" });
-        QCOMPARE (names[PiecesModel::ColumnRole], QByteArray { "column" });
-        QCOMPARE (names[PiecesModel::PieceImageRole], QByteArray { "pieceImage" });
-        QCOMPARE (names[PiecesModel::IsCastlingRookRole], QByteArray { "isCastlingRook" });
-        QCOMPARE (names[PiecesModel::CastlingSourceColumnRole],
-                  QByteArray { "castlingSourceColumn" });
+        QCOMPARE( names[PiecesModel::RowRole], QByteArray { "row" } );
+        QCOMPARE( names[PiecesModel::ColumnRole], QByteArray { "column" } );
+        QCOMPARE( names[PiecesModel::PieceImageRole], QByteArray { "pieceImage" } );
+        QCOMPARE( names[PiecesModel::IsCastlingRookRole], QByteArray { "isCastlingRook" } );
+        QCOMPARE( names[PiecesModel::CastlingSourceColumnRole],
+                  QByteArray { "castlingSourceColumn" } );
     }
 
     void aNewGameShowsTheStartingPosition()
     {
         Fixture fixture;
 
-        QCOMPARE (fixture.model.rowCount ({}), 32);
-        QVERIFY (fixture.matchesBoard());
+        QCOMPARE( fixture.model.rowCount ({}), 32 );
+        QVERIFY( fixture.matchesBoard() );
 
         auto squares = squaresOf (fixture.model);
-        QCOMPARE (squares.at ({ 7, 4 }), QStringLiteral ("../images/Chess_klt45.svg"));
-        QCOMPARE (squares.at ({ 0, 3 }), QStringLiteral ("../images/Chess_qdt45.svg"));
-        QCOMPARE (squares.at ({ 6, 0 }), QStringLiteral ("../images/Chess_plt45.svg"));
+        QCOMPARE( squares.at ({ 7, 4 }), QStringLiteral ("../images/Chess_klt45.svg") );
+        QCOMPARE( squares.at ({ 0, 3 }), QStringLiteral ("../images/Chess_qdt45.svg") );
+        QCOMPARE( squares.at ({ 6, 0 }), QStringLiteral ("../images/Chess_plt45.svg") );
     }
 
     void aListItemHasNoChildRows()
     {
         Fixture fixture;
 
-        QCOMPARE (fixture.model.rowCount (fixture.model.index (0, 0)), 0);
+        QCOMPARE( fixture.model.rowCount (fixture.model.index (0, 0)), 0 );
     }
 
     void anInvalidIndexOrAnUnknownRoleHasNoData()
     {
         Fixture fixture;
 
-        QVERIFY (!fixture.model.data (QModelIndex {}, PiecesModel::RowRole).isValid());
-        QVERIFY (!fixture.model.data (fixture.model.index (0, 0), Qt::DisplayRole).isValid());
+        QVERIFY( !fixture.model.data (QModelIndex {}, PiecesModel::RowRole).isValid() );
+        QVERIFY( !fixture.model.data (fixture.model.index (0, 0), Qt::DisplayRole).isValid() );
     }
 
     void noPieceStartsAsACastlingRook()
@@ -183,8 +183,8 @@ private slots:
 
         for (int i = 0; i < fixture.model.rowCount ({}); i++)
         {
-            QCOMPARE (roleOf (fixture.model, i, PiecesModel::IsCastlingRookRole).toBool(), false);
-            QCOMPARE (roleOf (fixture.model, i, PiecesModel::CastlingSourceColumnRole).toInt(), -1);
+            QCOMPARE( roleOf (fixture.model, i, PiecesModel::IsCastlingRookRole).toBool(), false );
+            QCOMPARE( roleOf (fixture.model, i, PiecesModel::CastlingSourceColumnRole).toInt(), -1 );
         }
     }
 
@@ -197,18 +197,18 @@ private slots:
 
         fixture.play ("e2 e4");
 
-        QVERIFY (fixture.matchesBoard());
-        QCOMPARE (fixture.model.rowCount ({}), 32);
-        QCOMPARE (listRowAt (fixture.model, "e4"), list_row);
-        QCOMPARE (removed.count(), 0);
-        QCOMPARE (changed.count(), 1);
+        QVERIFY( fixture.matchesBoard() );
+        QCOMPARE( fixture.model.rowCount ({}), 32 );
+        QCOMPARE( listRowAt (fixture.model, "e4"), list_row );
+        QCOMPARE( removed.count(), 0 );
+        QCOMPARE( changed.count(), 1 );
 
         auto arguments = changed.takeFirst();
-        QCOMPARE (arguments.at (0).toModelIndex().row(), list_row);
+        QCOMPARE( arguments.at (0).toModelIndex().row(), list_row );
         auto roles = arguments.at (2).value<QList<int>>();
-        QVERIFY (roles.contains (PiecesModel::RowRole));
-        QVERIFY (roles.contains (PiecesModel::ColumnRole));
-        QVERIFY (!roles.contains (PiecesModel::PieceImageRole));
+        QVERIFY( roles.contains (PiecesModel::RowRole) );
+        QVERIFY( roles.contains (PiecesModel::ColumnRole) );
+        QVERIFY( !roles.contains (PiecesModel::PieceImageRole) );
     }
 
     // The model lists pieces from the eighth rank down, so a White capture
@@ -222,15 +222,15 @@ private slots:
         fixture.play ("d7 d5");
         fixture.play ("e4xd5");
 
-        QVERIFY (fixture.matchesBoard());
-        QCOMPARE (fixture.model.rowCount ({}), 31);
-        QCOMPARE (removed.count(), 1);
+        QVERIFY( fixture.matchesBoard() );
+        QCOMPARE( fixture.model.rowCount ({}), 31 );
+        QCOMPARE( removed.count(), 1 );
 
         fixture.play ("d8xd5");
 
-        QVERIFY (fixture.matchesBoard());
-        QCOMPARE (fixture.model.rowCount ({}), 30);
-        QCOMPARE (removed.count(), 2);
+        QVERIFY( fixture.matchesBoard() );
+        QCOMPARE( fixture.model.rowCount ({}), 30 );
+        QCOMPARE( removed.count(), 2 );
     }
 
     // The mover follows the captured piece in the list, so it shifts into
@@ -238,13 +238,13 @@ private slots:
     void theMoverDirectlyAfterTheCapturedPieceStillMoves()
     {
         Fixture fixture { "4k3/8/8/3pR3/8/8/8/4K3 w - - 0 1" };
-        QCOMPARE (listRowAt (fixture.model, "e5"), listRowAt (fixture.model, "d5") + 1);
+        QCOMPARE( listRowAt (fixture.model, "e5"), listRowAt (fixture.model, "d5") + 1 );
 
         fixture.play ("e5xd5");
 
-        QVERIFY (fixture.matchesBoard());
-        QCOMPARE (fixture.model.rowCount ({}), 3);
-        QCOMPARE (listRowAt (fixture.model, "e5"), -1);
+        QVERIFY( fixture.matchesBoard() );
+        QCOMPARE( fixture.model.rowCount ({}), 3 );
+        QCOMPARE( listRowAt (fixture.model, "e5"), -1 );
     }
 
     void castling_data()
@@ -266,28 +266,28 @@ private slots:
 
     void castling()
     {
-        QFETCH (QString, fen);
-        QFETCH (QString, move);
-        QFETCH (QString, rookSquare);
-        QFETCH (int, rookSourceColumn);
+        QFETCH( QString, fen );
+        QFETCH( QString, move );
+        QFETCH( QString, rookSquare );
+        QFETCH( int, rookSourceColumn );
 
         Fixture fixture { fen.toUtf8().constData() };
 
         fixture.play (move.toUtf8().constData());
 
-        QVERIFY (fixture.matchesBoard());
-        QCOMPARE (fixture.model.rowCount ({}), 6);
+        QVERIFY( fixture.matchesBoard() );
+        QCOMPARE( fixture.model.rowCount ({}), 6 );
 
         // Only the castled rook carries the roles that drive its animation.
         auto rook_row = listRowAt (fixture.model, rookSquare.toUtf8().constData());
-        QVERIFY (rook_row >= 0);
+        QVERIFY( rook_row >= 0 );
         for (int i = 0; i < fixture.model.rowCount ({}); i++)
         {
             auto is_rook = roleOf (fixture.model, i, PiecesModel::IsCastlingRookRole).toBool();
             auto source = roleOf (fixture.model, i, PiecesModel::CastlingSourceColumnRole).toInt();
 
-            QCOMPARE (is_rook, i == rook_row);
-            QCOMPARE (source, i == rook_row ? rookSourceColumn : -1);
+            QCOMPARE( is_rook, i == rook_row );
+            QCOMPARE( source, i == rook_row ? rookSourceColumn : -1 );
         }
     }
 
@@ -298,10 +298,10 @@ private slots:
         fixture.play ("o-o");
         fixture.play ("a8 a7");
 
-        QVERIFY (fixture.matchesBoard());
+        QVERIFY( fixture.matchesBoard() );
         auto rook_row = listRowAt (fixture.model, "f1");
-        QCOMPARE (roleOf (fixture.model, rook_row, PiecesModel::IsCastlingRookRole).toBool(), false);
-        QCOMPARE (roleOf (fixture.model, rook_row, PiecesModel::CastlingSourceColumnRole).toInt(), -1);
+        QCOMPARE( roleOf (fixture.model, rook_row, PiecesModel::IsCastlingRookRole).toBool(), false );
+        QCOMPARE( roleOf (fixture.model, rook_row, PiecesModel::CastlingSourceColumnRole).toInt(), -1 );
     }
 
     // The captured pawn sits directly before the castled rook in the list,
@@ -310,18 +310,18 @@ private slots:
     void aCaptureBesideTheCastledRookStillClearsItsRoles()
     {
         Fixture fixture { "4k2r/8/8/8/8/8/7P/R3K3 w Q - 0 1" };
-        QCOMPARE (listRowAt (fixture.model, "a1"), listRowAt (fixture.model, "h2") + 1);
+        QCOMPARE( listRowAt (fixture.model, "a1"), listRowAt (fixture.model, "h2") + 1 );
 
         fixture.play ("o-o-o");
         auto rook_row = listRowAt (fixture.model, "d1");
-        QCOMPARE (roleOf (fixture.model, rook_row, PiecesModel::IsCastlingRookRole).toBool(), true);
+        QCOMPARE( roleOf (fixture.model, rook_row, PiecesModel::IsCastlingRookRole).toBool(), true );
 
         fixture.play ("h8xh2");
 
-        QVERIFY (fixture.matchesBoard());
+        QVERIFY( fixture.matchesBoard() );
         rook_row = listRowAt (fixture.model, "d1");
-        QCOMPARE (roleOf (fixture.model, rook_row, PiecesModel::IsCastlingRookRole).toBool(), false);
-        QCOMPARE (roleOf (fixture.model, rook_row, PiecesModel::CastlingSourceColumnRole).toInt(), -1);
+        QCOMPARE( roleOf (fixture.model, rook_row, PiecesModel::IsCastlingRookRole).toBool(), false );
+        QCOMPARE( roleOf (fixture.model, rook_row, PiecesModel::CastlingSourceColumnRole).toInt(), -1 );
     }
 
     void enPassantByWhite()
@@ -334,9 +334,9 @@ private slots:
         fixture.play ("d7 d5");
         fixture.play ("e5 d6 ep");
 
-        QVERIFY (fixture.matchesBoard());
-        QCOMPARE (fixture.model.rowCount ({}), 31);
-        QCOMPARE (listRowAt (fixture.model, "d5"), -1);
+        QVERIFY( fixture.matchesBoard() );
+        QCOMPARE( fixture.model.rowCount ({}), 31 );
+        QCOMPARE( listRowAt (fixture.model, "d5"), -1 );
     }
 
     void enPassantByBlack()
@@ -350,9 +350,9 @@ private slots:
         fixture.play ("e2 e4");
         fixture.play ("d4 e3 ep");
 
-        QVERIFY (fixture.matchesBoard());
-        QCOMPARE (fixture.model.rowCount ({}), 31);
-        QCOMPARE (listRowAt (fixture.model, "e4"), -1);
+        QVERIFY( fixture.matchesBoard() );
+        QCOMPARE( fixture.model.rowCount ({}), 31 );
+        QCOMPARE( listRowAt (fixture.model, "e4"), -1 );
     }
 
     void promotionChangesTheImage()
@@ -362,11 +362,11 @@ private slots:
 
         fixture.play ("a7 a8(Q)");
 
-        QVERIFY (fixture.matchesBoard());
-        QCOMPARE (squaresOf (fixture.model).at ({ 0, 0 }),
-                  QStringLiteral ("../images/Chess_qlt45.svg"));
-        QCOMPARE (changed.count(), 1);
-        QVERIFY (changed.first().at (2).value<QList<int>>().contains (PiecesModel::PieceImageRole));
+        QVERIFY( fixture.matchesBoard() );
+        QCOMPARE( squaresOf (fixture.model).at ({ 0, 0 }),
+                  QStringLiteral ("../images/Chess_qlt45.svg") );
+        QCOMPARE( changed.count(), 1 );
+        QVERIFY( changed.first().at (2).value<QList<int>>().contains (PiecesModel::PieceImageRole) );
     }
 
     void promotionWithACapture()
@@ -375,10 +375,10 @@ private slots:
 
         fixture.play ("a7xb8(N)");
 
-        QVERIFY (fixture.matchesBoard());
-        QCOMPARE (fixture.model.rowCount ({}), 3);
-        QCOMPARE (squaresOf (fixture.model).at ({ 0, 1 }),
-                  QStringLiteral ("../images/Chess_nlt45.svg"));
+        QVERIFY( fixture.matchesBoard() );
+        QCOMPARE( fixture.model.rowCount ({}), 3 );
+        QCOMPARE( squaresOf (fixture.model).at ({ 0, 1 }),
+                  QStringLiteral ("../images/Chess_nlt45.svg") );
     }
 
     void promotionByBlack()
@@ -387,9 +387,9 @@ private slots:
 
         fixture.play ("a2 a1(R)");
 
-        QVERIFY (fixture.matchesBoard());
-        QCOMPARE (squaresOf (fixture.model).at ({ 7, 0 }),
-                  QStringLiteral ("../images/Chess_rdt45.svg"));
+        QVERIFY( fixture.matchesBoard() );
+        QCOMPARE( squaresOf (fixture.model).at ({ 7, 0 }),
+                  QStringLiteral ("../images/Chess_rdt45.svg") );
     }
 
     void aLongerGameStaysInStep()
@@ -404,7 +404,7 @@ private slots:
         for (auto move : moves)
         {
             fixture.play (move);
-            QVERIFY2 (fixture.matchesBoard(), move);
+            QVERIFY2( fixture.matchesBoard(), move );
         }
     }
 
@@ -419,12 +419,12 @@ private slots:
         auto new_game = ChessGame::fromFen ("4k3/8/8/8/8/8/8/R3K3 w Q - 0 1", makeConfig());
         fixture.model.newGame (new_game.get());
 
-        QCOMPARE (removed.count(), 1);
-        QCOMPARE (fixture.model.rowCount ({}), 3);
-        QCOMPARE (squaresOf (fixture.model), squaresOf (*new_game));
+        QCOMPARE( removed.count(), 1 );
+        QCOMPARE( fixture.model.rowCount ({}), 3 );
+        QCOMPARE( squaresOf (fixture.model), squaresOf (*new_game) );
     }
 };
 
-QTEST_GUILESS_MAIN (PiecesModelTest)
+QTEST_GUILESS_MAIN( PiecesModelTest )
 
 #include "pieces_model_test.moc"

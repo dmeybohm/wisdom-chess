@@ -66,7 +66,7 @@ cmake --build build --target lint
 
 - **namespace-braces**: Namespace opening braces must be on their own line
 - **trailing-return-type**: Functions must use `auto fn() -> ReturnType` syntax
-- **test-macro-spacing**: Test macros need spaces inside parens: `CHECK( x )` not `CHECK(x)`
+- **test-macro-spacing**: Test macros, doctest's and Qt Test's, need spaces inside parens: `CHECK( x )` not `CHECK(x)`, `QCOMPARE( a, b )` not `QCOMPARE (a, b)`
 - **function-call-spacing**: Functions with args need space before paren: `foo (x)` not `foo(x)`; zero-arg functions have no space: `bar()` not `bar ()`
 
 **Configuration:** There is no configuration file. Rule severities come from `getDefaultConfig()` in `scripts/linter/linter.cpp`; `--rules` selects rules on the command line and `--list-rules` shows them.
@@ -266,8 +266,8 @@ When the QML UI is built and `Qt6Test` is found, `ctest` also runs the
 doctest, and cover the QML frontend's C++ classes that need no thread or
 display. Add one with `wisdom_chess_add_qml_test()` in that directory's
 `CMakeLists.txt`; the sources under test are listed in
-`wisdom-chess-qml-test-support` there. Write the Qt Test macros with the
-ordinary call spacing, `QCOMPARE (a, b)`.
+`wisdom-chess-qml-test-support` there. The Qt Test macros are styled like the
+doctest ones: `QCOMPARE( a, b )`.
 
 ### Linting and Type Checking
 

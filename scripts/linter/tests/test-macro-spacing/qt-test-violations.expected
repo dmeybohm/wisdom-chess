@@ -1,0 +1,8 @@
+3:13:test-macro-spacing:Missing space after '(' in 'QVERIFY'
+3:18:test-macro-spacing:Missing space before ')' in 'QVERIFY'
+4:14:test-macro-spacing:Unexpected space before '(' in 'QCOMPARE'
+4:15:test-macro-spacing:Missing space after '(' in 'QCOMPARE'
+4:28:test-macro-spacing:Missing space before ')' in 'QCOMPARE'
+5:31:test-macro-spacing:Missing space before ')' in 'QVERIFY2'
+8:12:test-macro-spacing:Missing space after '(' in 'QTEST_MAIN'
+8:23:test-macro-spacing:Missing space before ')' in 'QTEST_MAIN'
