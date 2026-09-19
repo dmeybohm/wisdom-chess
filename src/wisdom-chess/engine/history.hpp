@@ -97,10 +97,9 @@ namespace wisdom
         {
             // A position cannot recur across a capture or a pawn move.
             auto code = board.getCode();
-            auto reversible_count = std::min (
-                narrow<std::ptrdiff_t> (my_board_codes.size()),
-                std::ptrdiff_t { board.getHalfMoveClock() } + 1
-            );
+            auto history_size = std::ssize (my_board_codes);
+            auto clock = board.getHalfMoveClock();
+            auto reversible_count = clock < history_size ? clock + 1 : history_size;
             auto count = std::count (my_board_codes.end() - reversible_count, my_board_codes.end(), code);
             return count >= repetition_count;
         }
