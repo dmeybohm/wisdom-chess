@@ -222,6 +222,9 @@ private:
     void init();
     void setupNewEngineThread();
 
+    // Stop the engine thread and, where possible, wait for it to finish.
+    void stopEngineThread();
+
     void movePieceWithPromotion (
         int srcRow,
         int srcColumn,

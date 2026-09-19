@@ -224,8 +224,10 @@ should be confirmed before fixing.
 - [ ] `ChessGame::isLegalMove` (`ui/qml/main/chess_game.cpp:73`)
   duplicates `GameViewModelBase::isLegalMove`
   (`ui/viewmodel/game_viewmodel_base.cpp:107`). *(verified)*
-- [ ] `GameModel::~GameModel` deletes the engine thread without
-  `quit()`/`wait()` (`ui/qml/main/game_model.cpp:336`).
+- [x] `GameModel::~GameModel` deletes the engine thread without
+  `quit()`/`wait()` (`ui/qml/main/game_model.cpp:336`). Fixed on the
+  `qml-engine-thread-shutdown` branch; see
+  [qml-engine-thread-shutdown.md](qml-engine-thread-shutdown.md).
 - [x] Debug `std::cout` in `ui/wasm/web_game.cpp:120-121`. *(verified)*
   Fixed in Session #16.
 - [ ] `QThread::usleep (200000)` in the engine slot to wait for animation

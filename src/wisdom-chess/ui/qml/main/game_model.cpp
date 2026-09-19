@@ -35,6 +35,7 @@ GameModel::GameModel (QObject* parent)
 
 GameModel::~GameModel()
 {
+    stopEngineThread();
     delete my_chess_engine_thread;
 }
 
@@ -282,6 +283,14 @@ void GameModel::unpause()
 void GameModel::applicationExiting()
 {
     qDebug() << "Trying to exit application...";
+    stopEngineThread();
+    qDebug() << "Termination ended.";
+}
+
+void GameModel::stopEngineThread()
+{
+    if (!my_chess_engine_thread->isRunning())
+        return;
 
     // End the thread by changing the game id:
     incrementGameId();
@@ -292,8 +301,6 @@ void GameModel::applicationExiting()
 #ifndef EMSCRIPTEN
     my_chess_engine_thread->wait();
 #endif
-
-    qDebug() << "Termination ended.";
 }
 
 void GameModel::updateEngineConfig()
