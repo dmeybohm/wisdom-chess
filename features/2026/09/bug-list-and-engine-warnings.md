@@ -472,5 +472,7 @@ instantiate.
   objects) and wasm build under Emscripten's Clang (32 objects) all report
   no warnings; a GCC syntax pass without `NDEBUG` over the engine, tests,
   console, UCI, viewmodel and tools reports none either. All 118 tests
-  pass. Not verified: the benchmarks target, which is off in the local build
-  trees and needs nanobench fetched, and MSVC `/W4`, which only CI can show.
+  pass. The benchmarks target was checked afterwards by configuring with
+  `-DWISDOM_CHESS_BENCHMARKS=ON`, which has CPM fetch nanobench (there is no
+  apt package, and none is needed); it also builds with no warnings. Not
+  verified: MSVC `/W4`, which only CI can show.
