@@ -175,3 +175,22 @@ exactly where this mate test runs, so the two designs meet.
   the same way.
 - Recorded the per-piece form of option 2, why a full move iterator was
   rejected, and how quiescence search interacts with this work.
+
+### Session #3
+
+- Review finding: the Ubuntu Debug CI job aborted in the new test with
+  `Assertion 'who == my_code.getCurrentTurn()' failed`. Three places
+  called `hasLegalMove()` for the side not to move; it applies moves
+  through `Board::withMove()`, which asserts the color in Debug. Release
+  compiles the assert away, which is why Session #2 did not see it. This
+  is the Session #11 lesson from the bug list again: run the tests in
+  both modes.
+- The tests now ask only about the side to move. The starting-position
+  case plays 1. e4 before asking about Black, the checkmate case drops
+  the Black query, and the agreement case uses each position's own side
+  to move, with three Black-to-move positions added to keep both colors
+  covered. `hasLegalMove()` itself is unchanged; `generateLegalMoves()`
+  has the same precondition.
+- Reproduced the abort in a Debug build first. All 111 fast tests now
+  pass in both Debug and Release.
+
