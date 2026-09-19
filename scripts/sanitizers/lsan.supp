@@ -1,0 +1,6 @@
+# LeakSanitizer suppressions for third-party leaks (Qt, fontconfig, etc.)
+# not reachable from our own wisdom:: or QML UI code. Empty for now: the
+# full ctest suite (fast + slow, QML included) runs leak-clean under
+# AddressSanitizer/LeakSanitizer as of this writing. Add entries here only
+# for a leak confirmed to be entirely inside third-party code, with a
+# comment naming the library and the stack seen.
