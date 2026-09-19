@@ -1,6 +1,9 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
+#include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/fen_parser.hpp"
+#include "wisdom-chess/engine/game.hpp"
 
 #include "wisdom-chess-tests.hpp"
 
@@ -56,4 +59,86 @@ TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
 
     INFO( move_list );
     REQUIRE( expected == converted );
+}
+
+TEST_CASE( "hasLegalMove" )
+{
+    auto boardFromFen = [](const char* fen_text) {
+        FenParser fen { fen_text };
+        auto game = fen.build();
+        return Board { game.getBoard() };
+    };
+
+    SUBCASE( "The starting position has legal moves" )
+    {
+        Board board;
+
+        CHECK( hasLegalMove (board, Color::White) );
+        CHECK( hasLegalMove (board, Color::Black) );
+    }
+
+    SUBCASE( "A checkmated player has no legal move" )
+    {
+        auto board = boardFromFen (
+            "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3"
+        );
+
+        CHECK( !hasLegalMove (board, Color::White) );
+        CHECK( hasLegalMove (board, Color::Black) );
+        CHECK( isPlayerCheckmated (board, Color::White) );
+        CHECK( !isPlayerCheckmated (board, Color::Black) );
+        CHECK( !isStalemated (board, Color::White) );
+    }
+
+    SUBCASE( "A stalemated player has no legal move" )
+    {
+        auto board = boardFromFen ("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
+
+        CHECK( !hasLegalMove (board, Color::Black) );
+        CHECK( isStalemated (board, Color::Black) );
+        CHECK( !isPlayerCheckmated (board, Color::Black) );
+    }
+
+    SUBCASE( "A player in check with an evasion has a legal move" )
+    {
+        auto board = boardFromFen ("4k3/8/8/8/8/8/4r3/4K3 w - - 0 1");
+
+        CHECK( hasLegalMove (board, Color::White) );
+        CHECK( !isPlayerCheckmated (board, Color::White) );
+        CHECK( !isStalemated (board, Color::White) );
+    }
+
+    SUBCASE( "A player in check whose only evasion is a block has a legal move" )
+    {
+        auto board = boardFromFen ("6rk/6pp/8/8/8/8/1B6/K6R b - - 0 1");
+        auto with_check = board.withMove (Color::Black, moveParse ("g7 g6", Color::Black));
+        with_check = with_check.withMove (Color::White, moveParse ("b2 f6", Color::White));
+
+        auto legal_moves = generateLegalMoves (with_check, Color::Black);
+
+        CHECK( legal_moves.size() == 1 );
+        CHECK( hasLegalMove (with_check, Color::Black) );
+    }
+
+    SUBCASE( "Agrees with generateLegalMoves" )
+    {
+        const char* fens[] = {
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+            "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",
+            "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
+            "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8",
+        };
+
+        for (auto fen_text : fens)
+        {
+            auto board = boardFromFen (fen_text);
+
+            for (auto who : { Color::White, Color::Black })
+            {
+                INFO( fen_text );
+                CHECK( hasLegalMove (board, who)
+                       == !generateLegalMoves (board, who).isEmpty() );
+            }
+        }
+    }
 }

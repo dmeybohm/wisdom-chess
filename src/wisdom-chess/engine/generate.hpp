@@ -22,6 +22,11 @@ namespace wisdom
     generateLegalMoves (const Board& board, Color who)
         -> MoveList;
 
+    // Whether the player has at least one legal move.
+    [[nodiscard]] auto
+    hasLegalMove (const Board& board, Color who)
+        -> bool;
+
     // Whether the pawn needs to be promoted when it arrives at the row.
     [[nodiscard]] auto
     needPawnPromotion (int row, Color who) 

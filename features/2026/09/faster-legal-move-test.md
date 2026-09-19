@@ -67,6 +67,17 @@ all 30 to 40 board copies and legality tests.
    an unsorted entry point into `MoveGeneration`. Not measured; it can
    save at most what option 1 leaves behind.
 
+   The cheap form: `MoveGeneration::generate (piece, coord)` already
+   works one piece at a time, so `hasLegalMove()` can generate one
+   piece's moves (at most 27), test them and return before touching the
+   next piece, king first. About 15 lines. A true resumable iterator over
+   all moves was considered and rejected: it means rewriting the nested
+   generation loops as a state machine, `MoveList` is a fixed 1 KB array
+   on the stack so there is no memory to save, and the search could not
+   use it, because alpha-beta needs the transposition-table move and the
+   captures first. Ordering without a full list needs staged generation
+   (table move, captures, quiet moves), which is a generator redesign.
+
 3. **Extend the search by one ply when in check at depth 0.** The
    conventional answer: do not evaluate the leaf, search one ply deeper,
    and let the normal move loop detect mate through
@@ -83,6 +94,35 @@ all 30 to 40 board copies and legality tests.
    steps, captures of the checker and blocks directly. Fastest, but
    `InlineThreats` only returns a `bool`, so it needs new attacker-finding
    code. Not worth it while 2 to 5% of leaves are in check.
+
+## Effect on quiescence search
+
+Quiescence search replaces the `evaluate()` call at `depth <= 0`, which is
+exactly where this mate test runs, so the two designs meet.
+
+- A quiescence node normally may not stand pat while in check: it
+  searches every evasion instead. That is option 3. Mate is then found by
+  the move loop through `evaluateWithoutLegalMoves()`, and `evaluate()`
+  no longer needs a mate test at all, because a side that is not in check
+  cannot be checkmated. The one `isKingThreatened` call per leaf stays;
+  it becomes the test for whether standing pat is allowed.
+- The table above sizes that cost: 2 to 5% of horizon nodes are in check,
+  each with 3 to 8 legal evasions out of about 35 pseudo-legal moves. The
+  legality work `hasLegalMove()` spends there today would be spent
+  searching those evasions.
+- Evasion searches can chain through a series of checks. Bound it, by
+  allowing evasions only in the first quiescence plies or by relying on
+  the repetition check, and measure the node count either way.
+- If the first quiescence version only searches captures even when in
+  check, a node in check with no legal capture still needs a mate test,
+  and `hasLegalMove()` is the function to call. Do not go back to
+  `generateLegalMoves()` there.
+- Stalemate at the horizon is not detected today and would not be under
+  quiescence either.
+- Quiescence needs a captures-only generator, and its nodes outnumber the
+  main search's, so the full generate-and-sort that option 2 avoids
+  matters more there. The staged generation described under option 2 is
+  the shared piece of work.
 
 ## Plan
 
@@ -102,3 +142,36 @@ all 30 to 40 board copies and legality tests.
 ### Session #1
 
 - Wrote this document from the analysis above. No code changed yet.
+
+### Session #2
+
+- Added `hasLegalMove (board, who)` to `generate.hpp` / `generate.cpp`:
+  the `generateLegalMoves()` loop, returning `true` at the first legal
+  move. `isPlayerCheckmated()` and `isStalemated()` use it.
+  `isStalemated()` now tests the king first, so a side in check skips
+  move generation entirely.
+- Tests in `generate_test.cpp`: the starting position, a checkmate
+  (fool's mate), a stalemate, a check with several evasions, a check
+  whose only evasion is a block, and agreement with
+  `generateLegalMoves()` for both colors on four perft positions. The
+  mate and stalemate cases also assert `isPlayerCheckmated()` and
+  `isStalemated()`, which had no direct tests.
+- Verified: no warnings, all 140 tests pass (117 fast, 23 slow), linter
+  clean on the changed files.
+- Measured by linking the same driver against the engine library twice,
+  once with the previous `evaluate.cpp` in front of it, so only that file
+  differs. Depth 8, cleared table, five alternating rounds, medians:
+
+  | Position | Before | After | Faster by |
+  |---|---|---|---|
+  | starting | 2.335s | 2.230s | 4.5% |
+  | kiwipete | 1.932s | 1.838s | 4.9% |
+  | italian | 2.671s | 2.400s | 10.1% |
+  | position4 | 0.453s | 0.433s | 4.4% |
+
+  The new code was faster in all 20 paired runs, and the moves and scores
+  were identical. The `search/*` benchmarks were not used because the
+  build tree has benchmarks off; the driver searches the same positions
+  the same way.
+- Recorded the per-piece form of option 2, why a full move iterator was
+  rejected, and how quiescence search interacts with this work.
