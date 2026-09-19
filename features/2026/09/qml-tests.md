@@ -446,8 +446,9 @@ helped, so the "menu left open" theory was wrong.
   and buttons are taller it crowds the buttons. Worth a look on Windows,
   where users get the native style.
 - Verified locally against Qt 6.9.3 and 6.11.2: all 180 fast tests pass,
-  and the dialogs test passes under Basic and Fusion. The macOS style
-  switch is only exercised on CI.
+  and the dialogs test passes under Basic and Fusion. On CI, run
+  35467500393 on `8444548` passed every job: three Linux, two macOS, two
+  Windows, lint and Fil-C. The diagnostics commit was then reverted.
 
 ### What the Session #16 removal bug really was
 
@@ -495,7 +496,8 @@ The model tests could not see that. The UI test did.
 
 ### Next
 
-Push and check the macOS and Windows jobs: the macOS crash fix is the
-unconfirmed one. `ChessGame::setPlayers()` and the mobile menu button are
-open in the bug list. Someone should watch a castled rook move, a draw
-offer open, and the About dialog close on a real screen once.
+The branch is green on all three platforms. Open in the bug list:
+`ChessGame::setPlayers()`, the mobile menu button, and the New Game and
+Quit dialogs' height. Not covered by any test: the native macOS style.
+Someone should watch a castled rook move, a draw offer open, and the About
+dialog close on a real screen once.
