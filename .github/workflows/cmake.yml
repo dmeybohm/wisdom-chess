@@ -193,3 +193,56 @@ jobs:
 
     - name: Run Tests
       run: ctest --test-dir ${{ github.workspace }}/build --build-config Release --output-on-failure -j 4
+
+  sanitizers:
+    needs: lint
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer: [address, thread]
+
+    env:
+      ASAN_OPTIONS: detect_leaks=1:strict_string_checks=1:check_initialization_order=1
+      UBSAN_OPTIONS: print_stacktrace=1
+      LSAN_OPTIONS: suppressions=${{ github.workspace }}/scripts/sanitizers/lsan.supp
+      TSAN_OPTIONS: suppressions=${{ github.workspace }}/scripts/sanitizers/tsan.supp:halt_on_error=1:second_deadlock_stack=1
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.*'
+        cache: true
+
+    - name: Cache CPM downloads
+      uses: actions/cache@v4
+      with:
+        path: ~/cpm-cache
+        key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          cpm-${{ runner.os }}-
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ github.workspace }}/build
+        -DCMAKE_CXX_COMPILER=clang++
+        -DCMAKE_C_COMPILER=clang
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo
+        -DCPM_SOURCE_CACHE=~/cpm-cache
+        -DWISDOM_CHESS_QML_UI=On
+        -DWISDOM_CHESS_BUILD_LINTER=Off
+        -DWISDOM_CHESS_FAST_TESTS=On
+        -DWISDOM_CHESS_SLOW_TESTS=${{ matrix.sanitizer == 'address' && 'On' || 'Off' }}
+        -DWISDOM_CHESS_ASAN=${{ matrix.sanitizer == 'address' && 'On' || 'Off' }}
+        -DWISDOM_CHESS_TSAN=${{ matrix.sanitizer == 'thread' && 'On' || 'Off' }}
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: cmake --build ${{ github.workspace }}/build -j 4
+
+    - name: Run Tests
+      run: ctest --test-dir ${{ github.workspace }}/build --output-on-failure -j 4
