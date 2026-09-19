@@ -252,8 +252,9 @@ should be confirmed before fixing.
 - [x] `target_precompile_headers(... PRIVATE PRIVATE ...)` in
   `engine/CMakeLists.txt:84` and the test and bench CMake files.
   Fixed in Session #17.
-- [ ] `-fno-stack-protector` is `PUBLIC` on the engine
+- [x] `-fno-stack-protector` is `PUBLIC` on the engine
   (`engine/CMakeLists.txt:101`) and propagates to all UI code.
+  Fixed in Session #18.
 - [x] `cmake_minimum_required` comes after `set(CMAKE_CXX_STANDARD)`
   in the top-level and engine CMake files.
   Fixed in Session #17.
@@ -693,3 +694,18 @@ The small React, CMake and documentation items.
 - Verified: desktop build with no warnings and all 122 C++ tests passing,
   `tsc` clean, 30 React tests passing, workflow YAML parses, linter
   self-tests pass 19 of 19 when run the way the new CI step runs them.
+
+### Session #18
+
+- `-fno-stack-protector` is now `PRIVATE` on `wisdom-chess-core`. It was
+  `PUBLIC`, so every target linking the engine, including the tests and
+  all the UIs, also had the stack protector switched off. The engine's own
+  sources, where the search and move generation run, keep the flag.
+- Checked the generated flags: only the engine target carries it now; the
+  tests, console, UCI, viewmodel and QML targets do not. The console and
+  UCI targets reuse the engine's precompiled header, and CMake builds with
+  `-Winvalid-pch`; no warning appeared, so the header is still accepted
+  despite the differing flag.
+- The slow suite took 50.95 processor-seconds against 50 to 53 in earlier
+  runs this session, so no measurable change. Desktop and QML builds have
+  no warnings and all 122 tests pass.

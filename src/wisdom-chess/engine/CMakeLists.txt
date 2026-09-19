@@ -101,7 +101,7 @@ endif()
 
 if (NOT WIN32 AND NOT EMSCRIPTEN)
     message("-- wisdom-chess: stack protector disabled for performance")
-    target_compile_options(wisdom-chess-core PUBLIC -fno-stack-protector)
+    target_compile_options(wisdom-chess-core PRIVATE -fno-stack-protector)
 endif()
 
 if (doctest_FOUND)
