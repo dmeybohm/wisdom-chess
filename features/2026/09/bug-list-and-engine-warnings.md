@@ -178,8 +178,10 @@ should be confirmed before fixing.
 
 The remaining low-risk cleanup items are being addressed on the
 `frontend-cleanups` branch; see [frontend-cleanups.md](frontend-cleanups.md).
-The engine thread's animation delay remains separate because replacing it
-requires a timing and thread-coordination design.
+The engine thread's animation delay was kept separate because replacing
+it needed a timing and thread-coordination design; that design and the
+replacement are in
+[qml-engine-move-delay.md](qml-engine-move-delay.md).
 
 - [x] **Pointer thrown instead of exception.** *(verified)*
   `ui/wasm/web_game.cpp:82`: `throw new Error { "Failed to map move." };`.
@@ -288,8 +290,11 @@ requires a timing and thread-coordination design.
   `config().players` (`ui/qml/main/chess_game.cpp`). Found on the
   `qml-tests` branch.
   Fixed on the `frontend-cleanups` branch.
-- [ ] `QThread::usleep (200000)` in the engine slot to wait for animation
-  (`ui/qml/main/chess_engine.cpp:126`). *(verified)*
+- [x] `QThread::usleep (200000)` in the engine slot to wait for animation
+  (`ui/qml/main/chess_engine.cpp:126`). *(verified)* Fixed in
+  [qml-engine-move-delay.md](qml-engine-move-delay.md): `GameModel` holds
+  a reply that arrives while the move before it is still animating, so the
+  search and the animation overlap and the engine thread never blocks.
 - [x] `ViewModelSettings` (`ui/viewmodel/viewmodel_settings.hpp`) appears
   unused; the `userDepth * 2` mapping is written three times.
   Removed and the remaining conversions consolidated on the

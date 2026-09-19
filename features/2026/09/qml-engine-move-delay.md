@@ -243,3 +243,78 @@ In `src/wisdom-chess/ui/qml/test/dialogs_test.cpp`, next to
   QML testing notes in `AGENTS.md`.
 
 ## Implementation Progress
+
+### Session #1
+
+Both parts are implemented.
+
+**`scripts/install-ci-qt.sh`.** As planned. It reads `version: '6.9.*'` out
+of `.github/workflows/cmake.yml` and passes `6.9` to
+`aqt list-qt linux desktop --spec`, so it follows CI when the workflow
+changes; a version given as the first argument, or in
+`WISDOM_CHESS_QT_VERSION`, skips the lookup. The install goes under
+`${XDG_CACHE_HOME:-$HOME/.cache}/wisdom-chess/qt`, overridable by the
+second argument or `WISDOM_CHESS_QT_CACHE`, with `aqtinstall` in
+`aqt-venv` beside it. `aqt` runs with that directory as the working
+directory, so `aqtinstall.log` lands there and not in the source tree.
+The platform check is a `case` on `uname -s` that stops anywhere but
+Linux, and `python3` and its `venv` module are checked before anything is
+created.
+
+Verified: a run from nothing installed 6.9.3 in 21 seconds (1.7 GB); a
+second run and a run with an explicit `6.9.3` were both no-ops and printed
+the path; a Debug build against it passed all 182 fast tests, the six
+`QML:` ones included. `shellcheck` is not installed here, so that check is
+outstanding. `AGENTS.md` now points at the script instead of spelling out
+the `aqt` command, and the manual install in the scratch directory is
+gone.
+
+**The hold.** As designed, with these details:
+
+- `handleMove()` sets the duration and restarts the elapsed timer *after*
+  emitting, not before. The listeners it emits to are what move the piece,
+  so the animation starts then, and a test that measures from `humanMoved`
+  cannot see a gap shorter than the hold.
+- The two constants live on `GameModel` as `Default_Animation_Delay` and
+  `Castling_Rook_Pause`. `PiecesModel::Rook_Animation_Delay`, a third copy
+  of 225 that nothing used, is deleted.
+- `remainingAnimation()` returns 0 when the elapsed timer is invalid or
+  the animation is over, which is the "show it at once" case.
+
+**Tests.** Four new cases in `dialogs_test.cpp`, with
+`letTheEngineAnswer()` and `timeTheReplyTo()` helpers. The timing helper
+disconnects its two lambdas before returning, since they capture locals.
+With the sleep put back and the hold bypassed, three of the four fail:
+
+| Test | Old code |
+|---|---|
+| `theEnginesReplyWaitsForThePlayersPiece` | FAIL |
+| `theEnginesReplyWaitsForTheCastlingRook` | FAIL |
+| `aNewGameDropsAReplyThatIsStillHeld` | FAIL |
+| `theEnginesFirstMoveAsWhiteIsNotHeld` | pass |
+
+The last one passes either way: the old sleep was 200 ms and the test
+allows 500 ms for the reply. It guards the new code against holding a
+move when nothing is animating.
+
+**`theEngineAnswersAMove` takes 0.51 s before and 0.51 s after** (three
+runs each, Debug against 6.9.3). There is nothing to win in that test: it
+makes two moves at depth 1, and a reply that costs milliseconds to find
+waits 200 ms either way — before the search or after the player's move.
+What the change buys is elsewhere: a search longer than the animation now
+pays nothing, the 200 ms is gone from the first move as White and from a
+search resumed after a dialog, castling is covered, and the engine thread
+stays free. The whole `QML: dialogs` test grew from 2.7 s to 6.0 s,
+because the new cases wait out holds of 400 ms and 1.5 s on purpose; it
+runs beside `QML: application` (5.9 s), so `ctest -L fast` still finishes
+in 6.4 s.
+
+**Verification run.** Debug against CI's Qt 6.9.3 and Release against the
+local 6.11.2: both build the QML UI without warnings, the linter is clean
+on every C++ file touched, and all 182 fast tests pass in each. The
+dialogs test ran 10 more times in each build, 20 for 20.
+
+Still to do: the checks by hand in the desktop app (a game at depth 1, a
+recapture of the piece that just moved, castling followed by a fast reply,
+engine against engine, and New Game while a reply is held), which need a
+person watching the board.

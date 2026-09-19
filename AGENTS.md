@@ -277,6 +277,11 @@ the real models and work it by clicking. They share
 `QT_QUICK_BACKEND=software`, and on macOS with `QT_QUICK_CONTROLS_STYLE=Fusion`
 because the native macOS style crashes without Cocoa; set these when running
 an executable by hand.
+`GameModel` holds an engine move back until the move before it has
+finished animating, for `animationDelay` milliseconds and
+`castlingRookPause` more after castling. A test that would otherwise race
+the hold calls `setAnimationDelay()` to make it long enough to measure or
+short enough to ignore.
 Each test fails on any QML warning. Click through the fixture's
 `clickItem()`, which waits for pending layout first: until then an item's
 position can be stale, and on Qt 6.9 a click aimed at a dialog's No button
