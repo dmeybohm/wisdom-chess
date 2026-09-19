@@ -196,19 +196,30 @@ namespace wisdom
         -> string;
 
     [[nodiscard]] constexpr auto
+    coordParseOptional (string_view str) noexcept
+        -> optional<Coord>
+    {
+        if (str.size() != 2)
+            return nullopt;
+
+        int col = charToCol (str[0]);
+        int row = charToRow (str[1]);
+
+        if (!isValidRow (row) || !isValidColumn (col))
+            return nullopt;
+
+        return makeCoord (row, col);
+    }
+
+    [[nodiscard]] constexpr auto
     coordParse (string_view str)
         -> Coord
     {
-        if (str.size() != 2)
+        auto result = coordParseOptional (str);
+        if (!result.has_value())
             throw CoordParseError ("Invalid coordinate!");
 
-        int col = charToCol (str.at (0));
-        int row = charToRow (str.at (1));
-
-        if (!isValidRow (row) || !isValidColumn (col))
-            throw CoordParseError ("Invalid coordinate!");
-
-        return makeCoord (row, col);
+        return *result;
     }
 
     auto operator<< (std::ostream& ostream, Coord coord) -> std::ostream&;

@@ -51,20 +51,6 @@ interface WebColoredPieceList {
 };
 
 [Prefix="wisdom::"]
-interface WebCoord {
-    void WebCoord (long row, long col);
-    attribute long row;
-    attribute long col;
-    static WebCoord fromTextCoord (DOMString coord);
-};
-
-[Prefix="wisdom::"]
-interface WebMove {
-    static WebMove fromString (DOMString moveText, long who);
-    DOMString asString();
-};
-
-[Prefix="wisdom::"]
 interface GameSettings {
     void GameSettings ();
     void GameSettings (long whitePlayer, long blackPlayer, long thinkingTime, long searchDepth);
@@ -91,14 +77,14 @@ enum wisdom_WebDrawByRepetitionType {
 interface WebGame {
     [Ref] WebColoredPieceList getPieceList();
 
-    boolean needsPawnPromotion ([Const] WebCoord src, [Const] WebCoord dst);
+    // Squares are in algebraic notation, such as "e2".
+    boolean needsPawnPromotion (DOMString src, DOMString dst);
 
-    WebMove createMoveFromCoordinatesAndPromotedPiece(
-        [Const] WebCoord src, [Const] WebCoord dst, long pieceType
-    );
+    // Returns the packed move for GameModel.notifyHumanMove(), or -1 if the
+    // move is not legal.
+    long makeHumanMove (DOMString src, DOMString dst, long pieceType);
 
-    boolean isLegalMove ([Const] WebMove move);
-    boolean makeMove ([Const] WebMove move);
+    void makeComputerMove (DOMString moveText);
 
     void setSettings([Const, Ref] GameSettings newSettings);
 
@@ -124,7 +110,7 @@ interface GameModel {
     void sendUnpause();
 
     // Notify the chess engine about a human move.
-    void notifyHumanMove ([Const] WebMove move);
+    void notifyHumanMove (long packedMove);
     void notifyComputerMove();
 
     WebGame startNewGame();

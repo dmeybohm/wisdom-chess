@@ -54,7 +54,7 @@ export type GameModel = {
     setCurrentGameSettings(newSettings: WorkerGameSettings): void
     getFirstHumanPlayerColor: PieceColor
     getSecondHumanPlayerColor: PieceColor
-    notifyHumanMove(move: WebMove): void;
+    notifyHumanMove(packedMove: number): void;
     notifyComputerMove(): void;
     sendPause(): void;
     sendUnpause(): void;
@@ -91,10 +91,6 @@ export type WisdomChess = {
     Accepted: DrawProposed
     Declined: DrawProposed
 
-    // Web move constructor:
-    WebMove: any
-    WebCoord: any
-
     Playing: GameStatus
     Checkmate: GameStatus
     Stalemate: GameStatus
@@ -123,9 +119,8 @@ export type DrawByRepetitionType = any
 
 export type GameStatus = any
 
-export type WebMove = {
-    asString(): string
-}
+// Returned by Game.makeHumanMove() when the move is not legal.
+export const ILLEGAL_MOVE = -1
 
 interface ColoredPiece {
     color: number
@@ -172,9 +167,33 @@ export function startNewGame(): Game {
     return getCurrentGame()
 }
 
-export function getCurrentGameSettings(): GameSettings {
-    const gameModel = getGameModel()
-    return gameModel.getCurrentGameSettings()
+// Copies the settings out of the C++ object and frees it.
+export function getCurrentGameSettings(): WebGameSettings {
+    const wasmSettings = getGameModel().getCurrentGameSettings()
+    try {
+        return {
+            whitePlayer: wasmSettings.whitePlayer,
+            blackPlayer: wasmSettings.blackPlayer,
+            thinkingTime: wasmSettings.thinkingTime,
+            searchDepth: wasmSettings.searchDepth,
+            debugLogging: Boolean(wasmSettings.debugLogging),
+        }
+    } finally {
+        WisdomChess().destroy(wasmSettings)
+    }
+}
+
+// Objects returned across the WebIDL boundary are owned by the caller.
+// Runs the callback and then frees every object it was given.
+export function withWasmObjects<T>(objects: unknown[], callback: () => T): T {
+    try {
+        return callback()
+    } finally {
+        const wisdomChess = WisdomChess()
+        for (const object of objects) {
+            if (object) wisdomChess.destroy(object)
+        }
+    }
 }
 
 export function WisdomChess(): WisdomChess {

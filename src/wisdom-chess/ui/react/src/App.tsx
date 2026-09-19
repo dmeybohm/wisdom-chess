@@ -12,12 +12,13 @@ import {
     getGameModel,
     getPieces,
     getCurrentGameSettings,
+    withWasmObjects,
     startNewGame as startNewGameEngine,
     GameStatus,
     PieceColor,
     PieceType,
-    WebMove,
     DrawByRepetitionType,
+    ILLEGAL_MOVE,
     fromColorToNumber,
     ReactWindow,
     ChessEngineEventType,
@@ -27,16 +28,6 @@ import {
 import Modal from "./Modal";
 import {initialSquares} from "./lib/Squares";
 import { reducer } from './reducer'
-
-function toWebSettings(wasm: any): WebGameSettings {
-    return {
-        whitePlayer: wasm.whitePlayer,
-        blackPlayer: wasm.blackPlayer,
-        thinkingTime: wasm.thinkingTime,
-        searchDepth: wasm.searchDepth,
-        debugLogging: Boolean(wasm.debugLogging),
-    }
-}
 
 function snapshotFromEngine() {
     const game = getCurrentGame()
@@ -94,7 +85,7 @@ function App() {
     const [showSettings, setShowSettings] = useState(false)
     const [showAbout, setShowAbout] = useState(false)
 
-    const [state, dispatch] = useReducer(reducer, {
+    const [state, dispatch] = useReducer(reducer, null, () => ({
         pieces: [],
         squares: initialSquares,
         focusedSquare: '',
@@ -103,9 +94,9 @@ function App() {
         gameStatus: 0 as GameStatus,
         gameOverStatus: '',
         moveStatus: 'White to move',
-        settings: toWebSettings(getCurrentGameSettings()),
+        settings: getCurrentGameSettings(),
         hasHumanPlayer: false,
-    })
+    }))
 
     const currentTurn = gameRef.current.getCurrentTurn()
     const inCheck = gameRef.current.getInCheck()
@@ -128,8 +119,7 @@ function App() {
 
                 switch (type) {
                     case 'computerMoved': {
-                        const move = mod.WebMove.prototype.fromString(message, game.getCurrentTurn())
-                        game.makeMove(move)
+                        game.makeComputerMove(message)
                         throttledComputerMove()
                         dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
                         break
@@ -181,28 +171,15 @@ function App() {
                 return
             }
 
-            const srcCoord = mod.WebCoord.prototype.fromTextCoord(src)
-            const dstCoord = mod.WebCoord.prototype.fromTextCoord(dst)
-
-            if (game.needsPawnPromotion(srcCoord, dstCoord) && !promote) {
+            if (game.needsPawnPromotion(src, dst) && !promote) {
                 dispatch({ type: 'REQUEST_PROMOTION', src, dst })
                 return
             }
 
-            const pieceType = promote ?? mod.Queen
-            let move: WebMove | null = null
-            try {
-                move = game.createMoveFromCoordinatesAndPromotedPiece(srcCoord, dstCoord, pieceType)
-            } catch {
-                // illegal
+            const move = game.makeHumanMove(src, dst, promote ?? mod.Queen)
+            if (move !== ILLEGAL_MOVE) {
+                model.notifyHumanMove(move)
             }
-            if (!move || !game.isLegalMove(move)) {
-                dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
-                return
-            }
-
-            game.makeMove(move)
-            model.notifyHumanMove(move)
             dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
         },
         [],
@@ -265,14 +242,16 @@ function App() {
 
         const wisdomChess = wisdomChessRef.current
         const wasmGameSettings = new wisdomChess.GameSettings()
-        wasmGameSettings.whitePlayer = gameSettings.whitePlayer
-        wasmGameSettings.blackPlayer = gameSettings.blackPlayer
-        wasmGameSettings.thinkingTime = gameSettings.thinkingTime
-        wasmGameSettings.searchDepth = gameSettings.searchDepth
-        wasmGameSettings.debugLogging = gameSettings.debugLogging
+        withWasmObjects([wasmGameSettings], () => {
+            wasmGameSettings.whitePlayer = gameSettings.whitePlayer
+            wasmGameSettings.blackPlayer = gameSettings.blackPlayer
+            wasmGameSettings.thinkingTime = gameSettings.thinkingTime
+            wasmGameSettings.searchDepth = gameSettings.searchDepth
+            wasmGameSettings.debugLogging = gameSettings.debugLogging
 
-        modelRef.current.setCurrentGameSettings(wasmGameSettings)
-        gameRef.current.setSettings(wasmGameSettings)
+            modelRef.current.setCurrentGameSettings(wasmGameSettings)
+            gameRef.current.setSettings(wasmGameSettings)
+        })
 
         dispatch({ type: 'SET_SETTINGS', settings: gameSettings })
         dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
@@ -284,7 +263,7 @@ function App() {
         dispatch({ type: 'CLEAR_FOCUS' })
         dispatch({
             type: 'ENGINE_SYNC',
-            snapshot: { ...snapshotFromEngine(), settings: toWebSettings(getCurrentGameSettings()) },
+            snapshot: { ...snapshotFromEngine(), settings: getCurrentGameSettings() },
         })
         setThirdRepetitionDrawAnswered(false)
         setFiftyMovesDrawAnswered(false)

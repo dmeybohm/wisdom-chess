@@ -191,11 +191,11 @@ should be confirmed before fixing.
   property lives on `_myGameModel`. ReferenceError on every orientation
   change.
   Fixed in Session #16.
-- [ ] **Leaked WebIDL objects.** `getCurrentGameSettings()` returns a
+- [x] **Leaked WebIDL objects.** `getCurrentGameSettings()` returns a
   `new GameSettings` (`ui/wasm/game_model.hpp`) that `App.tsx:106, 287`
   never destroys; `App.tsx:184-185, 195` allocates three objects per move
   and frees none. `WebMove::asString` returns `strdup`
-  (`ui/wasm/web_move.hpp:43`). *(strdup verified)*
+  (`ui/wasm/web_move.hpp:43`). *(strdup verified)* Fixed in Session #21.
 - [ ] **`any` at the WASM boundary.** *(verified)*
   `ui/react/src/lib/WisdomChess.ts:95-143` declares `Game`, `PieceColor`,
   `PieceType`, `GameStatus`, `WebMove`, `WebCoord` and others as `any`.
@@ -849,3 +849,112 @@ this session restarts the branch from `main`. Scope: the quick items only.
   shutdown and `usleep`, the duplicated `isLegalMove`, `ViewModelSettings`,
   the missing perft and unit-test coverage, and the sanitizer and Linux
   Clang CI jobs.
+
+### Session #21
+
+Leaked WebIDL objects. The generated glue wraps every pointer a C++
+function returns and never frees it; only an explicit `destroy()` does.
+
+- Sites found, one more than the checklist recorded:
+  - `getCurrentGameSettings()` allocates a `GameSettings`. `App.tsx` called
+    it inside the `useReducer` initial-state argument, which React
+    evaluates on every render and then ignores, so the app leaked one
+    object per render and not just one at startup. A short test that
+    opens the About dialog saw three allocations. It is also called when a
+    new game starts.
+  - A human move allocates two `WebCoord`s and a `WebMove`, including on
+    the paths that return early for a promotion prompt or an illegal move.
+  - A computer move allocates a `WebMove` through `WebMove::fromString`.
+  - Applying settings allocates a `GameSettings` with `new`.
+  - `WebMove::asString` returned `strdup` memory that the glue copies into
+    a JavaScript string and never frees. Nothing in the React code called
+    it.
+- Checked first that C++ keeps none of these pointers: `makeMove`,
+  `isLegalMove`, `needsPawnPromotion` and `notifyHumanMove` read the value
+  during the call, and both settings setters copy.
+- Fix, in `ui/react/src/lib/WisdomChess.ts`: `getCurrentGameSettings()` now
+  copies the fields into a plain `WebGameSettings` and destroys the C++
+  object, so callers never hold one, and `App.tsx` no longer needs its own
+  `toWebSettings`. A new `withWasmObjects (objects, callback)` runs the
+  callback and destroys every listed object afterwards, also when the
+  callback throws or returns early; the move handlers and the settings
+  handler use it. The reducer's initial state uses the lazy initializer
+  form, so the settings are read once.
+- Removed `WebMove::asString` from the IDL, `web_move.hpp` and the
+  TypeScript type instead of fixing it, since it had no caller.
+- Tests: the settings are read once and freed across re-renders (fails
+  with three calls when the eager initializer is restored), the computer
+  move and the applied settings object are freed, and `withWasmObjects`
+  frees late additions, frees on a throw and skips empty entries. 35 React
+  tests pass and `tsc` is clean. The wasm target builds without warnings
+  and the regenerated glue has no `asString`. Not exercised in a browser.
+- The interface still made JavaScript own short-lived C++ objects, so
+  every new call site would have to remember to free them. Session #22
+  removes those objects from the interface.
+
+### Session #22
+
+Removed `WebCoord` and `WebMove` from the WebIDL interface so that
+JavaScript owns no short-lived C++ objects.
+
+- Strings need no `destroy()`. For a `DOMString` argument the glue copies
+  the text into a scratch buffer it owns and rewinds on the next call. For
+  a `DOMString` result it copies the bytes into a JavaScript string and
+  never frees the pointer, so C++ must return memory it already owns, as
+  `getMoveStatus()` does with a member string. `asString` broke that rule,
+  which is why it could only be fixed in C++.
+- New `WebGame` interface:
+  - `needsPawnPromotion (DOMString src, DOMString dst)`.
+  - `makeHumanMove (DOMString src, DOMString dst, long pieceType)` maps the
+    squares to a move, checks that it is legal and the human's turn, makes
+    it, and returns it packed with `Move::toInt()`, or `-1`
+    (`WebGame::Illegal_Move`, `ILLEGAL_MOVE` in TypeScript). It replaces
+    `fromTextCoord` twice, `createMoveFromCoordinatesAndPromotedPiece`,
+    `isLegalMove` and `makeMove`.
+  - `makeComputerMove (DOMString moveText)` takes the text the engine
+    worker already sends, replacing `WebMove.fromString` and `makeMove`.
+  - `GameModel.notifyHumanMove (long packedMove)`.
+- The move goes to the worker as an integer, not as text, for two reasons:
+  the worker call `emscripten_wasm_worker_post_function_vi` carries only
+  integers and already sent `toInt()`, and parsing move text needs the
+  side to move, which `GameModel` does not know.
+- `web_move.hpp` and `WebCoord` are deleted. `App.tsx`'s move handler is
+  about a third of its previous length and has no cleanup to get wrong.
+  `withWasmObjects` remains for the one `GameSettings` object that
+  applying settings builds.
+- Found while checking in a browser: the wasm target passes
+  `-sNO_DISABLE_EXCEPTION_CATCHING` only in Debug, so in Release a C++
+  `catch` never runs and every `throw` surfaces in JavaScript as a raw
+  pointer. A `try`/`catch` around `coordParse` therefore did nothing. Added
+  `coordParseOptional`, a `noexcept` parser returning `optional<Coord>`, to
+  `engine/coord.hpp`, with `coordParse` now built on it, mirroring
+  `moveParseOptional`. The wasm layer uses it, also guarding a null
+  pointer, so a malformed square is reported as an illegal move. Any other
+  C++ `catch` in the wasm build is equally inert in Release.
+- The old code threw `Error` for a move that could not be mapped and relied
+  on a JavaScript `try`/`catch`; that path now returns `-1` without
+  throwing. As before, only a mapped but illegal move sets the "Illegal
+  move" status.
+- The test mock numbered the colors `White: 0, Black: 1, NoColor: 2`; the
+  real enum is `NoColor: 0, White: 1, Black: 2`, which `fromNumberToColor`
+  depends on. It only surfaced once a test put a piece on the board.
+  Corrected, the same kind of error as the piece values in Session #17.
+- Tests: `coordParseOptional` in `coord_test.cpp`. In `App.test.tsx`, a
+  human move driven through clicks calls `makeHumanMove ('e2', 'e4',
+  Queen)` and passes the result to `notifyHumanMove`; an illegal move does
+  not notify the engine; a promotion is requested before any move is made;
+  a computer move is passed on as text; a message from an earlier game is
+  ignored.
+- Verified: 137 C++ tests and 39 React tests pass, `tsc` and the linter
+  are clean, and the wasm target and the production React bundle build
+  without warnings. Also run in headless Chromium against the Vite dev
+  server, driven over the DevTools protocol: the old names are gone from
+  the module; a malformed square and an illegal move both return `-1`;
+  clicking the e2 pawn and then e4 made the move, the engine replied
+  1...d5, and the status bar updated; Settings then Apply, and New Game
+  then Start New Game, both worked; no console errors or uncaught
+  exceptions. Not checked there: promotion, drag and drop, the draw
+  dialogs, and other browsers.
+- Still open under the `any` item: `Game` and most enum types in
+  `lib/WisdomChess.ts` are `any`, which is why the wrong mock values and
+  the old argument-order slip compiled.
