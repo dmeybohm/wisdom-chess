@@ -87,8 +87,16 @@ function(wisdom_chess_add_qml_ui_test test_name source)
         FILES ${arg_RESOURCE_FILES})
     add_dependencies(${target} WisdomChessQml)
 
-    set_tests_properties("${test_name}" PROPERTIES
-        ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software")
+    set(environment "QT_QPA_PLATFORM=offscreen" "QT_QUICK_BACKEND=software")
+
+    # The native macOS style draws its controls through Cocoa, which the
+    # offscreen platform does not have: it crashes laying out the first
+    # dialog button. Windows' native style works offscreen and is kept.
+    if (APPLE)
+        list(APPEND environment "QT_QUICK_CONTROLS_STYLE=Fusion")
+    endif()
+
+    set_tests_properties("${test_name}" PROPERTIES ENVIRONMENT "${environment}")
 endfunction()
 
 wisdom_chess_add_qml_ui_test("QML: application" application_test.cpp)

@@ -173,7 +173,7 @@ namespace wisdom::ui::test
         {
             for (auto* item : itemsWithProperties ("text", "wrapMode"))
             {
-                if (item->property ("text").toString().contains (text) && isShown (item))
+                if (item->property ("text").toString().contains (text) && isTextShown (item))
                     return true;
             }
             return false;
@@ -306,9 +306,24 @@ namespace wisdom::ui::test
         isShown (const QQuickItem* item)
             -> bool
         {
-            if (item->width() <= 0 || item->height() <= 0)
-                return false;
+            return item->width() > 0 && item->height() > 0 && isVisibleThroughAncestors (item);
+        }
 
+        // Text is drawn at its own size even when its box has none, as in a
+        // dialog too short for its padding, so the drawn size is what counts.
+        [[nodiscard]] static auto
+        isTextShown (const QQuickItem* item)
+            -> bool
+        {
+            return item->property ("paintedWidth").toDouble() > 0
+                && item->property ("paintedHeight").toDouble() > 0
+                && isVisibleThroughAncestors (item);
+        }
+
+        [[nodiscard]] static auto
+        isVisibleThroughAncestors (const QQuickItem* item)
+            -> bool
+        {
             for (auto* ancestor = item; ancestor != nullptr; ancestor = ancestor->parentItem())
             {
                 if (!ancestor->isVisible())
