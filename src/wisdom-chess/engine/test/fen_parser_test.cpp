@@ -49,17 +49,17 @@ TEST_CASE( "FEN notation for castling" )
 {
     Game game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w KQkq - 0 1");
 
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligibility::Either_Side );
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligibility::Either_Side );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligibility::Both_Sides );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligibility::Both_Sides );
 
     game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1");
 
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligibility::Either_Side );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligibility::Both_Sides );
     REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingRights::Queenside );
 
     game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1");
 
-    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligibility::Either_Side );
+    REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligibility::Both_Sides );
     REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingRights::Queenside );
 
     game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w - - 0 1");

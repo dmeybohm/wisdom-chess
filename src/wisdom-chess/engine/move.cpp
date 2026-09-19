@@ -165,7 +165,7 @@ namespace wisdom
         assert (pieceColor (src_piece) == player);
         assert (pieceType (src_piece) == Piece::Rook);
 
-        CastlingEligibility affects_castle_state = CastlingEligibility::Either_Side;
+        CastlingEligibility affects_castle_state = CastlingEligibility::Both_Sides;
         int castle_src_row = player == Color::White ? Last_Row : First_Row;
 
         //
@@ -181,7 +181,7 @@ namespace wisdom
         }
 
         // Set inability to castle on one side.
-        if (affects_castle_state != CastlingEligibility::Either_Side
+        if (affects_castle_state != CastlingEligibility::Both_Sides
             && ableToCastle (player, affects_castle_state))
         {
             removeCastlingEligibility (player, affects_castle_state);

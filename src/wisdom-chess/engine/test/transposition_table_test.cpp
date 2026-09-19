@@ -362,11 +362,11 @@ TEST_CASE( "Hash collision analysis" )
         code.setCastleState (Color::White, CastlingRights::Queenside);
         addHash (code);
 
-        code.setCastleState (Color::White, CastlingEligibility::Either_Side);
+        code.setCastleState (Color::White, CastlingEligibility::Both_Sides);
         code.setCastleState (Color::Black, CastlingEligibility::Neither_Side);
         addHash (code);
 
-        code.setCastleState (Color::Black, CastlingEligibility::Either_Side);
+        code.setCastleState (Color::Black, CastlingEligibility::Both_Sides);
 
         for (int col = 0; col < 8; ++col)
         {

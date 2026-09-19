@@ -245,10 +245,10 @@ TEST_CASE( "CastlingRights - static constants" )
 
 TEST_CASE( "Global constants" )
 {
-    SUBCASE( "CastlingEligibility::Either_Side" )
+    SUBCASE( "CastlingEligibility::Both_Sides" )
     {
-        CHECK( CastlingEligibility::Either_Side.toInt<uint8_t>() == 3 );
-        CHECK( static_cast<bool> (CastlingEligibility::Either_Side) );
+        CHECK( CastlingEligibility::Both_Sides.toInt<uint8_t>() == 3 );
+        CHECK( static_cast<bool> (CastlingEligibility::Both_Sides) );
     }
     
     SUBCASE( "CastlingEligibility::Neither_Side" )
@@ -271,7 +271,7 @@ TEST_CASE( "CastlingEligibility - Stream output" )
 
     SUBCASE( "Both sides eligible" )
     {
-        CHECK( asStreamed (CastlingEligibility::Either_Side)
+        CHECK( asStreamed (CastlingEligibility::Both_Sides)
                == "{ Kingside: eligible, Queenside: eligible }" );
     }
 
