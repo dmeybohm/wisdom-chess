@@ -18,6 +18,8 @@ if (WISDOM_CHESS_FAST_TESTS)
         board_code_test.cpp
         history_test.cpp
         generate_test.cpp
+        evaluate_test.cpp
+        game_status_test.cpp
         str_test.cpp
         board_test.cpp
         game_test.cpp
