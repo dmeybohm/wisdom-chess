@@ -280,9 +280,11 @@ an executable by hand.
 Each test fails on any QML warning. Click through the fixture's
 `clickItem()`, which waits for pending layout first: until then an item's
 position can be stale, and on Qt 6.9 a click aimed at a dialog's No button
-lands on Yes. CI uses Qt 6.9; `aqt install-qt linux desktop 6.9.3
-linux_gcc_64` (from `pip install aqtinstall`, no root needed) gets a
-matching Qt for reproducing a CI-only failure. A known defect that is not being fixed
+lands on Yes. CI uses Qt 6.9, not the Qt under `~/Qt`;
+`./scripts/install-ci-qt.sh` installs a matching one for reproducing a
+CI-only failure and prints the `-DWISDOM_CHESS_QT_DIR=...` to build
+against. It needs no root and takes a version and a directory as optional
+arguments. A known defect that is not being fixed
 yet is pinned with `QEXPECT_FAIL`, so that fixing it fails the test and the
 marker gets removed.
 
