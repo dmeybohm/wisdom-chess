@@ -73,13 +73,17 @@ export interface WisdomWindow extends ReactWindow {
     wisdomChessCurrentGame?: Game
 }
 
+// The page's globals, set up by the WebAssembly loader and main.tsx.
+export function getWisdomWindow(): WisdomWindow {
+    return (window as unknown) as WisdomWindow
+}
+
 export function getGameModel(): GameModel {
-    const wisdomWindow = ((window as unknown) as WisdomWindow)
-    return wisdomWindow.wisdomChessGameModel
+    return getWisdomWindow().wisdomChessGameModel
 }
 
 export function getCurrentGame (): Game {
-    const wisdomWindow = ((window as unknown) as WisdomWindow)
+    const wisdomWindow = getWisdomWindow()
     if (!wisdomWindow.wisdomChessCurrentGame) {
         const gameModel = getGameModel()
         wisdomWindow.wisdomChessCurrentGame =  gameModel.startNewGame()
@@ -89,7 +93,7 @@ export function getCurrentGame (): Game {
 
 export function startNewGame(): Game {
     const wisdomChess = WisdomChess()
-    const wisdomWindow = ((window as unknown) as WisdomWindow)
+    const wisdomWindow = getWisdomWindow()
     if (wisdomWindow.wisdomChessCurrentGame) {
         wisdomChess.destroy(wisdomWindow.wisdomChessCurrentGame)
         delete wisdomWindow.wisdomChessCurrentGame
@@ -127,7 +131,7 @@ export function withWasmObjects<T>(objects: WasmObject[], callback: () => T): T 
 }
 
 export function WisdomChess(): WisdomChess {
-    return ((window as unknown) as WisdomWindow).wisdomChessWeb
+    return getWisdomWindow().wisdomChessWeb
 }
 
 function mapPieceToIcon(piece: ColoredPiece): string {

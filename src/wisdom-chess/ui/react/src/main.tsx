@@ -5,7 +5,8 @@ import './index.css'
 import {
     ReceiveWorkerMessageCallback,
     ChessEngineEventType,
-    ReactWindow
+    ReactWindow,
+    getWisdomWindow
 } from "./lib/WisdomChess"
 
 let receiveWorkerMessageCallback: ReceiveWorkerMessageCallback | null = null
@@ -20,7 +21,7 @@ function startReact(window: ReactWindow) {
     )
 }
 
-const reactWindow = (window as unknown) as ReactWindow
+const reactWindow: ReactWindow = getWisdomWindow()
 reactWindow.startReact = startReact
 reactWindow.setReceiveWorkerMessageCallback = (cb: ReceiveWorkerMessageCallback) => {
     receiveWorkerMessageCallback = cb

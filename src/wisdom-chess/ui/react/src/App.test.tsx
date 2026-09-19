@@ -3,7 +3,7 @@ import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
 import type { WisdomWindow, Game, GameModel, GameSettings, WasmObject, WisdomChess } from './lib/WisdomChess'
-import { ILLEGAL_MOVE, withWasmObjects } from './lib/WisdomChess'
+import { ILLEGAL_MOVE, getWisdomWindow, withWasmObjects } from './lib/WisdomChess'
 import { wasmEnums } from './test/wasmEnums'
 
 const createMockGame = (): Game => ({
@@ -46,13 +46,13 @@ const createMockGameModel = (): GameModel => ({
 
 const createMockWisdomChess = (): WisdomChess => ({
     ...wasmEnums,
-    GameSettings: vi.fn(function (this: any) {
+    GameSettings: vi.fn(function (this: GameSettings) {
         this.whitePlayer = wasmEnums.Human
         this.blackPlayer = wasmEnums.ChessEngine
         this.thinkingTime = 5
         this.searchDepth = 4
         this.debugLogging = false
-    }) as any,
+    }),
     destroy: vi.fn(),
 } as unknown as WisdomChess)
 
@@ -66,7 +66,7 @@ describe('App', () => {
         mockGameModel = createMockGameModel()
         mockWisdomChess = createMockWisdomChess()
 
-        const wisdomWindow = window as unknown as WisdomWindow
+        const wisdomWindow = getWisdomWindow()
         wisdomWindow.wisdomChessWeb = mockWisdomChess
         wisdomWindow.wisdomChessGameModel = mockGameModel
         wisdomWindow.wisdomChessCurrentGame = mockGame
@@ -149,7 +149,7 @@ describe('App', () => {
             vi.mocked(game.getGameStatus).mockReturnValue(mockWisdomChess.ThreefoldRepetitionReached)
             return game
         }
-        const wisdomWindow = window as unknown as WisdomWindow
+        const wisdomWindow = getWisdomWindow()
         wisdomWindow.wisdomChessCurrentGame = createDrawnGame()
         vi.mocked(mockGameModel.startNewGame).mockImplementation(createDrawnGame)
 
@@ -229,7 +229,7 @@ describe('App', () => {
     })
 
     it('registers worker message callback on mount', () => {
-        const wisdomWindow = window as unknown as WisdomWindow
+        const wisdomWindow = getWisdomWindow()
         const setCallbackSpy = vi.fn()
         wisdomWindow.setReceiveWorkerMessageCallback = setCallbackSpy
 
@@ -251,7 +251,7 @@ describe('Engine interface', () => {
         mockGameModel = createMockGameModel()
         mockWisdomChess = createMockWisdomChess()
 
-        wisdomWindow = window as unknown as WisdomWindow
+        wisdomWindow = getWisdomWindow()
         wisdomWindow.wisdomChessWeb = mockWisdomChess
         wisdomWindow.wisdomChessGameModel = mockGameModel
         wisdomWindow.wisdomChessCurrentGame = mockGame
@@ -363,7 +363,7 @@ describe('withWasmObjects', () => {
 
     beforeEach(() => {
         mockWisdomChess = createMockWisdomChess()
-        const wisdomWindow = window as unknown as WisdomWindow
+        const wisdomWindow = getWisdomWindow()
         wisdomWindow.wisdomChessWeb = mockWisdomChess
     })
 
