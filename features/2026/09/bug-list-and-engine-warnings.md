@@ -796,7 +796,7 @@ this session restarts the branch from `main`. Scope: the quick items only.
   directory before using the linter path, so the relative path documented
   in `AGENTS.md` failed all 19 tests; it now resolves the path first.
 - Verified: Release and Debug desktop builds and the QML build have no
-  warnings; all 135 C++ tests pass (112 fast, 23 slow); `tsc` is clean and
+  warnings; all 136 C++ tests pass (113 fast, 23 slow); `tsc` is clean and
   the 30 React tests pass; the linter and its 19 self-tests pass.
 - Search benchmarks: added `engine/bench/bench_search.cpp` to the
   benchmarks target. It searches to depth 6 under nanobench, and once to
@@ -820,8 +820,27 @@ this session restarts the branch from `main`. Scope: the quick items only.
   the end of the history. `FenParser` now throws `FenParserError` for a
   negative half-move clock or full-move number, and
   `BoardBuilder::setHalfMovesClock` / `setFullMoves` throw
-  `BoardBuilderError`, so no `Board` can hold a negative clock. The scan
-  itself is unchanged and stays free of checks. Tests cover both layers.
+  `BoardBuilderError`, so no `Board` can hold a negative clock. Tests
+  cover both layers.
+- Second review finding on the same scan: adding one to the clock before
+  clamping overflowed for a clock of `INT_MAX` where `ptrdiff_t` is 32
+  bits, as under Emscripten. The bound is now
+  `clock < history_size ? clock + 1 : history_size`, which cannot overflow
+  for any `int` and costs the same single comparison. Not reproduced on
+  wasm32; the 64-bit test only documents the case.
+- The same input exposed an older overflow: `Board::updateMoveClock`
+  increments both clocks, so a move from a position loaded with a clock of
+  `INT_MAX` was undefined behaviour. Normal play cannot get near that; the
+  draw rules end a game at a half-move clock of 150, and the longest legal
+  game is under 9,000 moves. Added `Max_Half_Move_Clock` and
+  `Max_Full_Move_Number`, both 10,000, to `engine/global.hpp`. The FEN
+  parser and the board builder reject larger values the same way they
+  reject negative ones, and `updateMoveClock` asserts that neither clock
+  is at `INT_MAX`. Considered and rejected: `noexcept_expects` in the
+  scan. A pasted FEN is caller input, which should throw rather than
+  abort, and the check would run at every search node. A limit of 150 was
+  also rejected because `Game::move` does not stop at a draw, so the
+  engine can load and analyse positions past it today.
 - Left for discussion, as each needs a design decision or runtime
   checking: quiescence search, the per-search transposition table copy,
   full move generation at leaf nodes in check, whether
