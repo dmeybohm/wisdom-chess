@@ -30,7 +30,13 @@ ChessGame::fromPlayers (
 ) 
     -> unique_ptr<ChessGame>
 {
-    return fromEngine (make_unique<Game> (Game::createGame (whitePlayer, blackPlayer)), config);
+    auto config_with_players = config;
+    config_with_players.players = { whitePlayer, blackPlayer };
+
+    return fromEngine (
+        make_unique<Game> (Game::createGame (whitePlayer, blackPlayer)),
+        config_with_players
+    );
 }
 
 auto 

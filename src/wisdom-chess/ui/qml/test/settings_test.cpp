@@ -83,6 +83,14 @@ private slots:
         QVERIFY( !(original == changed) );
     }
 
+    // Without braces: the member has to initialize itself.
+    void uiSettingsStartUnflipped()
+    {
+        UISettings settings;
+
+        QCOMPARE( settings.flipped(), false );
+    }
+
     void uiSettings()
     {
         UISettings settings {};

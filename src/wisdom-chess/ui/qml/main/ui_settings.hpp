@@ -23,6 +23,6 @@ public:
         -> bool;
 
 private:
-    bool my_flipped;
+    bool my_flipped = false;
 };
 

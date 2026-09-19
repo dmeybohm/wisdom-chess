@@ -92,18 +92,36 @@ private slots:
 
     void aGameAppliesItsConfigToTheEngine()
     {
-        auto game = ChessGame::fromPlayers (
-            Player::Human, Player::Human, makeConfig (Player::Human, Player::ChessEngine)
-        );
+        auto game = ChessGame::fromPlayers (Player::Human, Player::ChessEngine, makeConfig());
         auto state = game->state();
 
         QCOMPARE( state->getMaxDepth(), 6 );
         QCOMPARE( state->getSearchTimeout().count(), 7 );
-
-        // The players in the config win over the ones the game was made with.
-        QVERIFY( state->getPlayer (Color::White) == Player::Human );
-        QVERIFY( state->getPlayer (Color::Black) == Player::ChessEngine );
         QCOMPARE( game->config().maxDepth.userDepth(), 3 );
+    }
+
+    // The config carries players too. The ones asked for by name win, and
+    // the stored config agrees with the game afterwards.
+    void fromPlayersUsesThePlayersItIsGiven()
+    {
+        auto game = ChessGame::fromPlayers (
+            Player::ChessEngine, Player::Human, makeConfig (Player::Human, Player::Human)
+        );
+
+        QVERIFY( game->state()->getPlayer (Color::White) == Player::ChessEngine );
+        QVERIFY( game->state()->getPlayer (Color::Black) == Player::Human );
+        QVERIFY( game->config().players[0] == Player::ChessEngine );
+        QVERIFY( game->config().players[1] == Player::Human );
+    }
+
+    void fromFenTakesThePlayersFromTheConfig()
+    {
+        auto game = ChessGame::fromFen (
+            "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1", makeConfig (Player::ChessEngine, Player::Human)
+        );
+
+        QVERIFY( game->state()->getPlayer (Color::White) == Player::ChessEngine );
+        QVERIFY( game->state()->getPlayer (Color::Black) == Player::Human );
     }
 
     void setConfigReplacesTheSettings()
@@ -149,9 +167,7 @@ private slots:
 
     void aCloneHasThePositionPlayersAndConfig()
     {
-        auto game = ChessGame::fromPlayers (
-            Player::Human, Player::Human, makeConfig (Player::Human, Player::ChessEngine)
-        );
+        auto game = ChessGame::fromPlayers (Player::Human, Player::ChessEngine, makeConfig());
         game->state()->move (moveParse ("e2 e4", Color::White));
 
         auto clone = game->clone();
@@ -187,9 +203,7 @@ private slots:
 
     void noMoveIsLegalOnTheComputersTurn()
     {
-        auto game = ChessGame::fromPlayers (
-            Player::Human, Player::Human, makeConfig (Player::ChessEngine, Player::Human)
-        );
+        auto game = ChessGame::fromPlayers (Player::ChessEngine, Player::Human, makeConfig());
 
         QVERIFY( !game->isLegalMove (moveParse ("e2 e4", Color::White)) );
     }
