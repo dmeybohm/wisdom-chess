@@ -57,13 +57,6 @@ namespace
             game_model.start();
         }
 
-        // The window's closing handler does this in the application. The
-        // model must not be destroyed while its engine thread runs.
-        ~Application()
-        {
-            game_model.applicationExiting();
-        }
-
         Application (const Application&) = delete;
         auto operator= (const Application&) -> Application& = delete;
 
@@ -240,6 +233,32 @@ private slots:
         my_app.reset();
 
         QVERIFY2( warnings.isEmpty(), qPrintable (warnings.join (QLatin1Char ('\n'))) );
+    }
+
+    // Every test here ends by destroying a GameModel whose engine thread
+    // is running, without the closing handler having run. These two say so
+    // by name, with and without the handler's call coming first.
+    void aModelCanBeDestroyedWhileItsEngineThreadRuns()
+    {
+        auto model = std::make_unique<GameModel>();
+        model->start();
+
+        model.reset();
+    }
+
+    void aModelCanBeDestroyedAfterTheApplicationExited()
+    {
+        auto model = std::make_unique<GameModel>();
+        model->start();
+
+        model->applicationExiting();
+        model->applicationExiting();
+        model.reset();
+    }
+
+    void aModelThatNeverStartedCanBeDestroyed()
+    {
+        GameModel model;
     }
 
     void theWindowShowsTheStartingPosition()

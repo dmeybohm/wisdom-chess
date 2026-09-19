@@ -212,6 +212,28 @@ The three queued fixes, each with a test that failed first.
   binary, whose QML is compiled ahead of time, started offscreen with no
   QML errors. The animation itself has not been looked at on a screen.
 
+### Session #5
+
+Rebased on `main` after PR #243 (`more-tests`) and PR #244, which stops the
+engine thread in `~GameModel` through a new `stopEngineThread()`.
+
+- One conflict, in `AGENTS.md`: both branches had added a testing note
+  after the same code block. Both notes are kept. This branch never edited
+  `game_model.cpp`, so the destructor fix applied untouched.
+- Session #3 worked around the destructor by calling
+  `applicationExiting()` from the test fixture's destructor. That is
+  removed, so all the UI tests now end the way the fix is for: a
+  `GameModel` destroyed while its thread runs, with no closing handler
+  first. Three tests name the cases: destroyed while running, destroyed
+  after `applicationExiting()` called twice, and destroyed without ever
+  being started. With the `stopEngineThread()` call taken out of the
+  destructor, the first dies with `QThread: Destroyed while thread '' is
+  still running`. Put back.
+- The Session #3 paragraph above about `GameModel` describes the state
+  before that fix.
+- Verified: Release and Debug with all 178 fast tests passing, which now
+  include the `more-tests` work; no warnings; linter clean.
+
 ### What the Session #16 removal bug really was
 
 With the `i--; continue;` fix in `PiecesModel::playerMoved` reverted, the

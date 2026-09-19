@@ -272,8 +272,7 @@ doctest ones: `QCOMPARE( a, b )`.
 `QML: application` loads the real desktop QML with the real models and plays
 by clicking squares. `ctest` runs it with `QT_QPA_PLATFORM=offscreen` and
 `QT_QUICK_BACKEND=software`; set both when running the executable by hand.
-It fails on any QML warning. A test that creates a `GameModel` must call
-`applicationExiting()` before destroying it, as the fixture there does.
+It fails on any QML warning.
 
 ### Linting and Type Checking
 
