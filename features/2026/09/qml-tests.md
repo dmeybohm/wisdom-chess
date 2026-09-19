@@ -234,6 +234,19 @@ engine thread in `~GameModel` through a new `stopEngineThread()`.
 - Verified: Release and Debug with all 178 fast tests passing, which now
   include the `more-tests` work; no warnings; linter clean.
 
+### Session #6
+
+- First CI run, on the branch as pushed at `12a1973`: the tests passed on
+  macOS and Windows, as reported from GitHub Actions. That settles the open
+  question from Sessions #1 and #3. The offscreen platform plugin, the
+  software renderer, window activation through
+  `QTest::qWaitForWindowActive()` and mouse clicks on the offscreen window
+  all work on the hosted macOS and Windows runners, and the Windows test
+  executables found the Qt DLLs through the `PATH` that
+  `install-qt-action` sets. No workflow change was needed.
+- The "Not verified: the CI platforms" remarks in Sessions #1, #3 and #4
+  describe the state before this run.
+
 ### What the Session #16 removal bug really was
 
 With the `i--; continue;` fix in `PiecesModel::playerMoved` reverted, the
@@ -280,6 +293,5 @@ The model tests could not see that. The UI test did.
 
 ### Next
 
-The dialogs and the game menu, an engine move at depth 1, the mobile QML,
-and the first CI run on all three platforms. Someone should also watch a
-castled rook move on a real screen once.
+The dialogs and the game menu, an engine move at depth 1, and the mobile
+QML. Someone should also watch a castled rook move on a real screen once.
