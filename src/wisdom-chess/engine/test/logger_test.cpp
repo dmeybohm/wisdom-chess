@@ -453,6 +453,31 @@ namespace
         }
     };
 
+    // Makes every write to std::cerr throw, for the lifetime of the object.
+    struct FailingCerr
+    {
+        struct RejectingBuffer : std::streambuf
+        {
+        };
+
+        RejectingBuffer rejecting;
+        std::streambuf* original_buffer = std::cerr.rdbuf (&rejecting);
+        std::ios::iostate original_exceptions = std::cerr.exceptions();
+
+        FailingCerr()
+        {
+            std::cerr.exceptions (std::ios::badbit | std::ios::failbit);
+        }
+
+        ~FailingCerr()
+        {
+            std::cerr.exceptions (std::ios::goodbit);
+            std::cerr.clear();
+            std::cerr.rdbuf (original_buffer);
+            std::cerr.exceptions (original_exceptions);
+        }
+    };
+
     struct ThrowingLogger : RecordingLogger
     {
         void emergency (const string& output) const override
@@ -520,6 +545,22 @@ TEST_CASE( "Emergency logger" )
 
         CHECK( logger->emergencies.size() == 1 );
         CHECK( cerr.captured.str() == "fatal\nnested\n" );
+    }
+
+    SUBCASE( "a failing std::cerr does not stop the registered logger" )
+    {
+        auto logger = std::make_shared<RecordingLogger>();
+        setEmergencyLogger (logger);
+
+        {
+            FailingCerr failing_cerr;
+            CHECK_THROWS( std::cerr << "proof that writes throw" << '\n' );
+
+            CHECK_NOTHROW( logEmergency ("fatal") );
+        }
+
+        REQUIRE( logger->emergencies.size() == 1 );
+        CHECK( logger->emergencies[0] == "fatal" );
     }
 
     SUBCASE( "replacing the logger stops messages to the old one" )

@@ -2,6 +2,7 @@
 #include "wisdom-chess/engine/logger.hpp"
 
 #include <cstdlib>
+#include <iostream>
 
 namespace wisdom
 {
@@ -36,6 +37,15 @@ namespace wisdom
         }
         catch (...)
         {
+            // Building the message failed, most likely for lack of memory.
+            try
+            {
+                std::cerr << "Precondition failed at " << location.file_name() << ':'
+                          << location.line() << '\n';
+            }
+            catch (...)
+            {
+            }
         }
 
         // Already reported, so skip the terminate handler's less specific message.

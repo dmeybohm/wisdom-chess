@@ -54,7 +54,7 @@ namespace wisdom
 
         void emergency (const string& output) const override
         {
-            std::cerr << output + "\n";
+            std::cerr << output << '\n';
         }
 
     private:
@@ -301,7 +301,18 @@ namespace wisdom
 
     void BufferedLogger::emergency (const string& output) const
     {
-        my_sink->emergency (formatLogTimestamp (chrono::system_clock::now()) + output);
+        string line;
+        try
+        {
+            line = formatLogTimestamp (chrono::system_clock::now()) + output;
+        }
+        catch (...)
+        {
+            // Out of memory: the bare message is better than none.
+            my_sink->emergency (output);
+            return;
+        }
+        my_sink->emergency (line);
     }
 
     void BufferedLogger::log (LogLevel level, const string& output) const
@@ -392,6 +403,14 @@ namespace wisdom
             }
             catch (...)
             {
+                // Describing the exception failed, most likely for lack of memory.
+                try
+                {
+                    std::cerr << "Terminating after an uncaught exception\n";
+                }
+                catch (...)
+                {
+                }
             }
             std::abort();
         }
@@ -406,10 +425,17 @@ namespace wisdom
 
     void logEmergency (const string& message) noexcept
     {
+        // Each sink gets its own attempt, so a failure in one cannot cost the other.
         try
         {
-            std::cerr << message + "\n";
+            std::cerr << message << '\n';
+        }
+        catch (...)
+        {
+        }
 
+        try
+        {
             // A logger that fails while reporting must not recurse into itself.
             if (emergency_in_progress.test_and_set())
                 return;
