@@ -106,6 +106,69 @@ executable's built-in init and cleanup steps, as one.
   violation. The linter's self-tests go from 19 to 21.
 - The three QML test files were converted. Linter clean over the tree.
 
+### Session #3
+
+The UI tests: `QML: application` loads the real `desktop_main.qml` with the
+real `GameModel` and `PiecesModel`, wired as `main.cpp` wires them, and
+plays by clicking squares. It covers plan items 2 and 4 and, in practice,
+most of item 3. Eleven tests, about 3.5 seconds, under
+`QT_QPA_PLATFORM=offscreen` and `QT_QUICK_BACKEND=software`.
+
+- **Getting the QML into a test.** The build tree's copy of the module
+  cannot be loaded from disk: its `qmldir` says
+  `prefer :/qt/qml/WisdomChess/`, so one file cannot name another unless
+  the resources exist ("ImageToolButton is not a type"). The test
+  executable embeds the same files under the same resource paths. The
+  lists come from the application target's `QT_QML_MODULE_QML_FILES` and
+  `QT_QML_MODULE_RESOURCES` properties, plus the three generated `qmldir`
+  files, so nothing is listed twice and the application target is still
+  untouched. The test then loads `qrc:/qt/qml/WisdomChess/main/desktop_main.qml`
+  exactly as the application does.
+- **`GameModel` is usable in a test after all.** Item 3 was thought to be
+  blocked by `~GameModel` deleting a running thread. The application avoids
+  that by calling `applicationExiting()` from the window's closing handler,
+  which stops the thread and waits. The test fixture does the same in its
+  destructor. The hazard is real: the first prototype returned early from
+  a failed check, skipped that call, and died with `QThread: Destroyed
+  while thread '' is still running`. The bug-list item stays open.
+- Both players are made human first, through `setGameSettings()`, so the
+  engine thread runs but never searches and the tests do not depend on the
+  engine's choice of move.
+- Items are found by their properties, walking `childItems()`: a
+  `Repeater`'s delegates are not QObject children of anything the window
+  owns, so `findChildren()` sees none of them. The QML has no
+  `objectName`s and none were added.
+- Clicks are real mouse events on the offscreen window. A move is two
+  clicks, because `Board.qml` moves a piece when focus passes from one
+  square to another. That needs an active window;
+  `QTest::qWaitForWindowActive()` works offscreen.
+- Tests: the starting position is drawn where the squares are; every piece
+  image loads; a move; an illegal move sets and then clears "Illegal
+  move"; a capture removes a delegate; castling; promotion to a knight
+  through the dropdown, which takes one click to highlight an entry and a
+  second to choose it; check; checkmate, after which the board takes no
+  more moves; restart; flipping the board, after which clicks still reach
+  the right squares. Every test also fails if the QML engine reported any
+  warning, which is what would have caught the `uiSettings`
+  ReferenceError, had it been in the desktop QML.
+- The castling test samples where the rook is drawn every 10 ms through
+  castling, the opponent's next move, and a later move by the same rook.
+  It must stay between its source and destination squares throughout.
+- **It catches the naive version of queued fix 3.** With `dataChanged`
+  emitted when the castling roles clear, the model tests still pass, but
+  this test fails: on the move after castling the rook is drawn outside
+  its path, and after its next move it is not on its square. Reverted.
+- Not covered: `mobile_main.qml` and `MobileRoot.qml`, which are only part
+  of the Android module; the dialogs and the game menu; drag and drop, if
+  any; the engine actually moving, which needs a search and so a timeout
+  or a depth-1 setting.
+- Verified: GCC Release and Debug against Qt 6.11.2 with no warnings; the
+  four QML tests repeated 15 times at `-j 8` with no failure; all 121 fast
+  tests pass; linter clean. Not verified: the CI platforms. The software
+  renderer and the offscreen plugin ship with Qt on all three, but window
+  activation offscreen on Windows and macOS is the part most likely to
+  need attention.
+
 ### What the Session #16 removal bug really was
 
 With the `i--; continue;` fix in `PiecesModel::playerMoved` reverted, the
@@ -142,9 +205,10 @@ Not fixed here.
 
 ### Queued fixes
 
-The three findings above are to be fixed after the UI tests (items 2 and
-4) exist, because the fixes can change what the QML does and the tests
-should be there to show it.
+The three findings above were held back until the UI tests existed,
+because the fixes can change what the QML does. Session #3 added those
+tests, and showed that the obvious form of fix 3 breaks the castling
+animation. The fixes are still to do.
 
 1. Give `UISettings::my_flipped` an initializer.
 2. `ChessGame::fromPlayers()` ignores its player arguments. Both callers
@@ -166,7 +230,6 @@ should be there to show it.
 
 ### Next
 
-Item 2, the QML load smoke test, is the next step and the first to need
-`QT_QPA_PLATFORM=offscreen`. Item 3 waits for the `~GameModel` thread
-shutdown fix.
-
+The queued fixes, now that the UI tests can judge them. After that: the
+dialogs and the game menu, an engine move at depth 1, and the first CI run
+on all three platforms.
