@@ -169,6 +169,49 @@ most of item 3. Eleven tests, about 3.5 seconds, under
   activation offscreen on Windows and macOS is the part most likely to
   need attention.
 
+### Session #4
+
+The three queued fixes, each with a test that failed first.
+
+- **Castling roles.** `PiecesModel::playerMoved` now emits `dataChanged`
+  for `IsCastlingRookRole` and `CastlingSourceColumnRole` on a row whose
+  roles it clears, and only on such a row. `Piece.qml` changed with it:
+  `onIsCastlingRookChanged` returns at once when the role has turned off,
+  and the two move `Behavior`s are also disabled while
+  `castlingRookAnimation` is running, so a reply that arrives before the
+  rook has finished sliding cannot start a second animation on the same
+  property.
+  - What this fixes for a player: after castling, the rook's delegate kept
+    `isCastlingRook` true for the rest of the game, which left its move
+    animations switched off. A castled rook jumped to its square on every
+    later move while all other pieces slid.
+  - Tests that failed before: the model announces the clearing
+    (`clearingTheCastlingRolesIsAnnounced`), and in the UI the delegate's
+    role goes back to false and the rook is seen between e1 and f1 while
+    moving (`theCastledRookAnimatesItsLaterMoves`). Tests that guard the
+    hazard: the rook stays on its path through castling and the next
+    moves, including a reply 100 ms into the animation.
+  - A sampling probe, since removed, showed the castled rook covering
+    f1 to e1 with the same easing curve as a knight move.
+  - The UI test needs a 100 ms pause between the rook arriving and the
+    next move. Arriving is not quite the end of the castling animation,
+    and no player moves within a millisecond of it.
+- **`UISettings::my_flipped`** is initialized to false.
+  `uiSettingsStartUnflipped` default-initializes one without braces.
+- **`ChessGame::fromPlayers()`** puts the players it is given into the
+  config it stores, so the arguments are honoured and `config().players`
+  agrees with the game. Both callers in `game_model.cpp` already passed
+  players equal to the config's, so the application behaves as before.
+  `fromFen()` has no player arguments and still takes them from the config;
+  a test pins that. Three tests that relied on the config overriding the
+  named players were rewritten to say what they mean.
+- Still open, noticed here: `ChessGame::setPlayers()` changes the game's
+  players but not `config().players`.
+- Verified: Release and Debug, 121 tests each, no warnings; the QML tests
+  repeated 15 times at `-j 8`; linter clean; the real `WisdomChessQml`
+  binary, whose QML is compiled ahead of time, started offscreen with no
+  QML errors. The animation itself has not been looked at on a screen.
+
 ### What the Session #16 removal bug really was
 
 With the `i--; continue;` fix in `PiecesModel::playerMoved` reverted, the
@@ -190,7 +233,7 @@ animation. `aCaptureBesideTheCastledRookStillClearsItsRoles` sets that up
 
 ### Findings
 
-Not fixed here.
+All three were fixed in Session #4.
 
 - `UISettings::my_flipped` has no initializer. `GameModel` value-initializes
   its member, which zeroes it, but `UISettings settings;` anywhere else
@@ -205,31 +248,16 @@ Not fixed here.
 
 ### Queued fixes
 
-The three findings above were held back until the UI tests existed,
-because the fixes can change what the QML does. Session #3 added those
-tests, and showed that the obvious form of fix 3 breaks the castling
-animation. The fixes are still to do.
-
-1. Give `UISettings::my_flipped` an initializer.
-2. `ChessGame::fromPlayers()` ignores its player arguments. Both callers
-   are in `game_model.cpp`: the constructor passes Human and ChessEngine,
-   which is what the default `GameSettings` say anyway, and `restart()`
-   passes the current game's players next to `gameConfig()`. Decide whether
-   the arguments or the config should win, then drop the loser.
-3. Emitting `dataChanged` when the castling roles clear is not safe as
-   things stand. `Piece.qml`'s `onIsCastlingRookChanged` runs on any
-   change, true to false included: it sets the x translation to
-   `castlingSourceColumn * squareSize`, which would be column -1, and
-   restarts the castling animation. Today the delegate is never told the
-   role went back to false, so after castling the rook's delegate keeps
-   `isCastlingRook` true. Its `Behavior on x` and `Behavior on y` stay
-   disabled, so its later moves are not animated. A second castling by the
-   same rook cannot happen, so the handler never needs to fire twice. A fix
-   has to change the handler and the model together, and needs a UI test
-   that watches the rook's delegate through castling and the moves after.
+Held back until the UI tests existed, then done in Session #4: the
+`UISettings` initializer, `fromPlayers()` ignoring its arguments, and the
+castling roles cleared without `dataChanged`. Session #3 showed why the
+order mattered: emitting the signal without changing `Piece.qml` made its
+`onIsCastlingRookChanged` handler, which ran on any change, send the rook
+to column -1 and replay the castling animation on the move after castling.
+The model tests could not see that. The UI test did.
 
 ### Next
 
-The queued fixes, now that the UI tests can judge them. After that: the
-dialogs and the game menu, an engine move at depth 1, and the first CI run
-on all three platforms.
+The dialogs and the game menu, an engine move at depth 1, the mobile QML,
+and the first CI run on all three platforms. Someone should also watch a
+castled rook move on a real screen once.
