@@ -129,3 +129,44 @@ covered by any placement.
 - Not verified, needs a manual run: that the message appears in a browser's
   devtools console for the wasm build, and in the Qt message output or
   logcat for the QML build.
+
+### Session #2
+
+Tests for the terminating paths, which cannot run inside doctest.
+
+- Considered and rejected: a switch that makes `noexcept_expects` log without
+  terminating, so doctest could assert on the log. Execution would continue
+  into the code the check guards. For `MoveList::append` at capacity that is
+  a write past the end of the array, so the test itself would be undefined
+  behaviour. Making it sound would need early returns in the hot path that
+  exist only for tests, the failure helper could no longer be
+  `[[noreturn]]`, and the tests would prove "log and continue", which
+  production never does.
+- Instead each fatal case runs in its own process under CTest.
+  `engine/test/fatal_test_main.cpp` builds `wisdom-chess-fatal-tests`, which
+  registers a logger that prints `[emergency] <message>`, installs the
+  terminate handler, and runs the case named on its command line:
+  `append-overflow`, `remove-from-empty`, `bad-castling-flags`,
+  `bad-en-passant-row`, `uncaught-error` and `expects-through-noexcept`.
+  The last one throws `expects()` through a `noexcept` lambda and checks that
+  the terminate handler reports it.
+- CTest fails any test that dies from a signal, whatever it printed, so the
+  pass expression alone was not enough: the first attempt reported all six
+  as "Subprocess aborted", and each wrote a core dump, about a second apiece.
+  The executable now handles `SIGABRT`, prints `[aborted]` and exits
+  normally. Calling stdio there is allowed because the signal comes from
+  `abort()`, not asynchronously.
+- Each test's `PASS_REGULAR_EXPRESSION` requires the `[emergency]` line with
+  the expected message followed by `[aborted]`, and its
+  `FAIL_REGULAR_EXPRESSION` is `[survived]`, which the executable prints if a
+  case returns. So a case passes only if the failure was reported through
+  the emergency logger and the process really did abort. The tests carry
+  the `fast` label and are added by a small `wisdom_chess_add_fatal_test()`
+  helper in `engine/test/CMakeLists.txt`.
+- On MSVC the executable calls `_set_abort_behavior` so an abort raises no
+  dialog or error report. Not verified locally; the Windows CI job will show.
+- Verified that the tests can fail: with the `noexcept_expects` removed from
+  `MoveList::removeLast`, "Fatal: remove-from-empty" failed on the
+  `[survived]` marker; the check was then restored. All six pass in both
+  Release and Debug builds, in about 0.01 seconds in total. Full suite: 129
+  tests passing, no build warnings, linter clean.

@@ -38,6 +38,28 @@ if (WISDOM_CHESS_FAST_TESTS)
         target_compile_definitions(wisdom-chess-fast-tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
     endif()
 
+    # Fatal errors end the process, so each case runs as its own test. A case
+    # passes when the emergency logger reports the expected message and the
+    # process then aborts, and fails if it carries on past the error.
+    add_executable(wisdom-chess-fatal-tests fatal_test_main.cpp)
+    target_link_libraries(wisdom-chess-fatal-tests PRIVATE wisdom::chess)
+    wisdom_chess_enable_warnings(wisdom-chess-fatal-tests)
+
+    function(wisdom_chess_add_fatal_test test_case expected_output)
+        add_test(NAME "Fatal: ${test_case}" COMMAND wisdom-chess-fatal-tests ${test_case})
+        set_tests_properties("Fatal: ${test_case}" PROPERTIES
+            LABELS fast
+            PASS_REGULAR_EXPRESSION "\\[emergency\\] ${expected_output}.*\\[aborted\\]"
+            FAIL_REGULAR_EXPRESSION "\\[survived\\]")
+    endfunction()
+
+    wisdom_chess_add_fatal_test(append-overflow "Precondition failed at .*move_list\\.hpp")
+    wisdom_chess_add_fatal_test(remove-from-empty "Precondition failed at .*move_list\\.hpp")
+    wisdom_chess_add_fatal_test(bad-castling-flags "Precondition failed at .*castling\\.hpp")
+    wisdom_chess_add_fatal_test(bad-en-passant-row "Precondition failed at .*board_code\\.hpp")
+    wisdom_chess_add_fatal_test(uncaught-error "Uncaught error: boom")
+    wisdom_chess_add_fatal_test(expects-through-noexcept "Uncaught error: Precondition failed at")
+
 endif()
 
 if (WISDOM_CHESS_SLOW_TESTS)
