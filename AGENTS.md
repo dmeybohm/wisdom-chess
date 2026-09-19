@@ -300,8 +300,14 @@ QML and no warning is given. Enums from the Qt-free view-model library need
 a mirror enum there, as `DrawByRepetitionStatus` has.
 
 CI runs a `sanitizers` matrix job with Clang: AddressSanitizer+UndefinedBehaviorSanitizer
-(fast and slow tests) and ThreadSanitizer (fast tests only, since the slow
-suite is single-threaded). Reproduce locally with `clang++-18` or newer:
+with the QML UI (fast and slow tests) and ThreadSanitizer without it (fast
+tests only, since the slow suite is single-threaded). QML is off for the
+ThreadSanitizer leg: QtQuick's internal thread pool and Qt's own
+(uninstrumented, futex-based) locking produce a steady stream of
+timing-dependent false positives between different pooled worker threads
+across different QML UI test cases; `scripts/sanitizers/tsan.supp` covers
+the shapes seen so far, but a new interleaving can still surface an
+unsuppressed one. Reproduce locally with `clang++-18` or newer:
 
 ```bash
 CC=clang-18 CXX=clang++-18 cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=RelWithDebInfo \
@@ -312,12 +318,14 @@ UBSAN_OPTIONS=print_stacktrace=1 \
 ctest --test-dir build-asan -j 4 --output-on-failure
 
 CC=clang-18 CXX=clang++-18 cmake -S . -B build-tsan -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-  -DWISDOM_CHESS_QML_UI=On -DWISDOM_CHESS_TSAN=On
+  -DWISDOM_CHESS_QML_UI=Off -DWISDOM_CHESS_TSAN=On
 cmake --build build-tsan -j $(nproc)
 TSAN_OPTIONS=suppressions=$(pwd)/scripts/sanitizers/tsan.supp:halt_on_error=1:second_deadlock_stack=1 \
 ctest --test-dir build-tsan -j 4 --output-on-failure
 ```
 
+Pass `-DWISDOM_CHESS_QML_UI=On` to `build-tsan` to dig into a QML/TSan
+race directly; expect it to need suppression tuning per the note above.
 Use `./scripts/install-ci-qt.sh` to build against CI's Qt 6.9 instead of a
 newer local Qt when reproducing a CI-only failure. A sanitizer report
 entirely inside third-party code (Qt, glib, fontconfig, ...) goes in

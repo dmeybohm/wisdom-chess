@@ -155,10 +155,31 @@ has this open item under "Build and infrastructure":
   using a raw `futex()` on Linux that TSan cannot see, and the Qt build
   under test not being sanitizer-instrumented. Suppressed with three
   narrow `race:` entries in `scripts/sanitizers/tsan.supp` (function-name
-  matches: `QMetaType`, `eventfd`, `QArrayData`). QML stayed on for TSan;
-  the `WISDOM_CHESS_QML_UI=Off` fallback was not needed. All 183 fast
-  tests green with the suppressions applied.
+  matches: `QMetaType`, `eventfd`, `QArrayData`). All 183 fast tests green
+  locally with the suppressions applied and QML on. Superseded in
+  Session #2 below.
 - `scripts/sanitizers/lsan.supp` created empty — the ASan/LSan run found
   no third-party-only leaks.
 - Added the `sanitizers` matrix job to `.github/workflows/cmake.yml` and
   documented both options and the local repro commands in `AGENTS.md`.
+- Opened [PR #250](https://github.com/dmeybohm/wisdom-chess/pull/250).
+
+### Session #2
+
+PR #250's first CI run: `sanitizers (address)` passed; `sanitizers
+(thread)` failed on `QML: dialogs`, a `QArrayData`/`memmove` race the
+local `race:QArrayData` suppression did not catch. Same Clang 18.1.3
+locally and in CI, so not a toolchain difference: the race was between a
+pooled worker thread from `DialogsTest::aNewGameCanBeDeclined()`'s
+`clickButton()` and a lingering pooled thread from the previous test
+case's `theMenuOpensFromTheToolbar()`/`openMenu()`/`clickItem()`, still
+"running" when the next test's click spawned a new one — a different,
+timing-dependent interleaving of the same underlying QtQuick
+thread-pool/`QArrayData` noise, not a new bug. Since a suppression tuned
+on one local run's interleaving already failed to cover CI's, and QtQuick
+worker-thread scheduling is inherently nondeterministic, applied the
+plan's documented fallback instead of continuing to chase individual
+occurrences: `WISDOM_CHESS_QML_UI=Off` for the `thread` leg of the
+`sanitizers` job (`address` keeps QML). `tsan.supp` is kept as-is; it
+still documents real Qt/glib-internal noise and applies if QML is turned
+back on for local TSan debugging (see the note added in `AGENTS.md`).
