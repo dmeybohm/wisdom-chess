@@ -127,29 +127,27 @@ private slots:
         QVERIFY( my_app->boardPieceAt ("e2") == ColoredPiece::make (Color::White, Piece::Pawn) );
     }
 
-    void theAboutDialogOpensAndCloses()
+    void theAboutDialogClosesWithItsButton()
     {
         chooseFromMenu (QStringLiteral ("About Wisdom Chess"));
         auto* dialog = my_app->popupWithTitle (QStringLiteral ("About Wisdom Chess"));
         QTRY_VERIFY( dialog->property ("visible").toBool() );
         QVERIFY( my_app->showsText (QStringLiteral ("Wisdom Chess ©")) );
 
-        QTest::keyClick (my_app->window(), Qt::Key_Escape);
+        clickButton (QStringLiteral ("OK"));
 
         QTRY_VERIFY( !dialog->property ("visible").toBool() );
     }
 
-    // AboutDialog.qml asks for an OK button on its footer, but a Dialog
-    // gives its footer the dialog's own standardButtons, which are not set.
-    void theAboutDialogHasAnOkButton()
+    void theAboutDialogClosesWithEscape()
     {
         chooseFromMenu (QStringLiteral ("About Wisdom Chess"));
         auto* dialog = my_app->popupWithTitle (QStringLiteral ("About Wisdom Chess"));
         QTRY_VERIFY( dialog->property ("visible").toBool() );
-        QTest::qWait (200);
 
-        QEXPECT_FAIL( "", "The About dialog has no buttons: see qml-tests.md, Session #7", Continue );
-        QVERIFY( my_app->buttonWithText (QStringLiteral ("OK")) != nullptr );
+        QTest::keyClick (my_app->window(), Qt::Key_Escape);
+
+        QTRY_VERIFY( !dialog->property ("visible").toBool() );
     }
 
     void quittingAsksFirst()
@@ -254,9 +252,7 @@ private slots:
         QTRY_VERIFY( !dialog->property ("visible").toBool() );
         QTRY_VERIFY( my_app->showsText (QStringLiteral ("Threefold repetition")) );
 
-        // The game is over. The first click is spent on an empty square,
-        // so that the move is refused for that reason and no other.
-        my_app->click ("a4");
+        // The game is over.
         my_app->move ("e2", "e4");
         QVERIFY( my_app->boardPieceAt ("e2") == ColoredPiece::make (Color::White, Piece::Pawn) );
     }
@@ -272,22 +268,18 @@ private slots:
         QTRY_VERIFY( !dialog->property ("visible").toBool() );
         QCOMPARE( my_app->game_model.qmlGameOverStatus(), QString {} );
 
-        // Play goes on, and the same offer is not made again. The first
-        // click is spent on an empty square: see
-        // theFirstClickAfterADrawOfferSelectsAPiece.
-        my_app->click ("a4");
+        // Play goes on, and the same offer is not made again.
         my_app->move ("e2", "e4");
         QVERIFY( my_app->boardPieceAt ("e4") == ColoredPiece::make (Color::White, Piece::Pawn) );
         QVERIFY( !dialog->property ("visible").toBool() );
     }
 
-    // A draw offer opens while the board is still handling the click that
-    // caused it, so the dialog remembers that square as the one to give the
-    // focus back to. When it closes, the board reads the player's next
-    // click as the target of a move from there, and the click is lost.
-    // Dialogs opened from the menu do not do this; the test before the
-    // expected failure shows that.
-    void theFirstClickAfterADialogSelectsAPiece()
+    // A dialog gives the focus back, when it closes, to whatever had it
+    // when it opened. If that were a square, the board would take the
+    // player's next click as the target of a move from there and the click
+    // would be lost. A draw offer opens in the middle of handling a click,
+    // which is why Board.qml lets go of the focus before it makes the move.
+    void theFirstClickAfterAMenuDialogSelectsAPiece()
     {
         my_app->move ("e2", "e4");
         chooseFromMenu (QStringLiteral ("New Game"));
@@ -297,6 +289,7 @@ private slots:
         QTRY_VERIFY( !new_game->property ("visible").toBool() );
 
         my_app->move ("d7", "d5");
+
         QVERIFY( my_app->boardPieceAt ("d5") == ColoredPiece::make (Color::Black, Piece::Pawn) );
     }
 
@@ -310,7 +303,6 @@ private slots:
 
         my_app->move ("e2", "e4");
 
-        QEXPECT_FAIL( "", "The first click after a draw offer is lost: see qml-tests.md, Session #7", Continue );
         QVERIFY( my_app->boardPieceAt ("e4") == ColoredPiece::make (Color::White, Piece::Pawn) );
     }
 
