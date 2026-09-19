@@ -44,12 +44,10 @@ wisdom_chess_add_qml_test("QML: PiecesModel" pieces_model_test.cpp)
 wisdom_chess_add_qml_test("QML: ChessGame" chess_game_test.cpp)
 wisdom_chess_add_qml_test("QML: settings and types" settings_test.cpp)
 
-# The application test loads the real QML. The files live in the application
-# executable's resources, so they are embedded again here under the same
-# resource paths, from the lists the application's QML module recorded.
-wisdom_chess_add_qml_test("QML: application" application_test.cpp)
-target_link_libraries(wisdom-chess-qml-application-test PRIVATE Qt6::Quick Qt6::Svg)
-
+# The UI tests load the real QML. The files live in the application
+# executable's resources, so they are embedded again in each test executable
+# under the same resource paths, from the lists the application's QML module
+# recorded.
 get_target_property(app_qml_files WisdomChessQml QT_QML_MODULE_QML_FILES)
 get_target_property(app_resources WisdomChessQml QT_QML_MODULE_RESOURCES)
 get_target_property(app_module_dir WisdomChessQml QT_QML_MODULE_OUTPUT_DIRECTORY)
@@ -70,10 +68,22 @@ foreach(qmldir qmldir main/qmldir popups/qmldir)
     list(APPEND test_resource_files "${qmldir_file}")
 endforeach()
 
-qt_add_resources(wisdom-chess-qml-application-test "application_qml"
-    PREFIX "/qt/qml/WisdomChess"
-    FILES ${test_resource_files})
-add_dependencies(wisdom-chess-qml-application-test WisdomChessQml)
+function(wisdom_chess_add_qml_ui_test test_name source)
+    wisdom_chess_add_qml_test("${test_name}" ${source})
 
-set_tests_properties("QML: application" PROPERTIES
-    ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software")
+    get_filename_component(target_suffix "${source}" NAME_WE)
+    string(REPLACE "_" "-" target_suffix "${target_suffix}")
+    set(target "wisdom-chess-qml-${target_suffix}")
+
+    target_link_libraries(${target} PRIVATE Qt6::Quick Qt6::Svg)
+    qt_add_resources(${target} "${target_suffix}-qml"
+        PREFIX "/qt/qml/WisdomChess"
+        FILES ${test_resource_files})
+    add_dependencies(${target} WisdomChessQml)
+
+    set_tests_properties("${test_name}" PROPERTIES
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software")
+endfunction()
+
+wisdom_chess_add_qml_ui_test("QML: application" application_test.cpp)
+wisdom_chess_add_qml_ui_test("QML: dialogs" dialogs_test.cpp)
