@@ -27,7 +27,7 @@ namespace wisdom
         CastlingEligibility (uint8_t flags) noexcept
             : my_flags { flags }
         {
-            Expects ((flags &~ (0x1|0x2)) == 0);
+            noexcept_expects ((flags &~ (0x1|0x2)) == 0);
         }
 
         [[nodiscard]] constexpr auto
@@ -99,13 +99,6 @@ namespace wisdom
             -> bool
         {
             return my_flags == other.my_flags;
-        }
-
-        constexpr CastlingEligibility&
-        operator= (CastlingEligibility flags) noexcept
-        {
-            my_flags = flags.my_flags;
-            return *this;
         }
 
         [[nodiscard]] constexpr auto

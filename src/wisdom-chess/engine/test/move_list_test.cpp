@@ -29,7 +29,7 @@ TEST_CASE( "Initializing move list" )
     REQUIRE( moves == expected );
 }
 
-static auto copy_moves_and_ptr (const Move **ptr) -> MoveList
+static auto copy_moves() -> MoveList
 {
     Board board;
     MoveList moves = generateAllPotentialMoves (board, Color::White);
@@ -45,8 +45,7 @@ TEST_CASE( "Converting moves to a string" )
 
 TEST_CASE( "Returning move list moves ptr" )
 {
-    const Move* ptr;
-    MoveList result = copy_moves_and_ptr (&ptr);
+    MoveList result = copy_moves();
 //    std::cout << "Moves first" << &result.get_my_moves()[0] << "\n";
 
     REQUIRE( result.size() > 0 );
@@ -151,4 +150,12 @@ TEST_CASE( "Swapping lists" )
         CHECK( "{ [d7 d5] [f1 c4] }" == first_string );
         CHECK( "{ [e2 d4] [a8 a1] }" == second_string );
     }
+}
+
+TEST_CASE( "Reading the ends of an empty move list throws" )
+{
+    MoveList list;
+
+    CHECK_THROWS_AS( (void)list.front(), PreconditionError );
+    CHECK_THROWS_AS( (void)list.back(), PreconditionError );
 }

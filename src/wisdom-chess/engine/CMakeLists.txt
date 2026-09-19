@@ -67,6 +67,7 @@ add_library(wisdom-chess-core STATIC
         game.cpp
         game_status.cpp
         generate.cpp
+        global.cpp
         history.cpp
         logger.cpp 
         material.cpp 
@@ -91,6 +92,8 @@ add_library(wisdom::chess ALIAS wisdom-chess-core)
 
 target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
+
+wisdom_chess_enable_warnings(wisdom-chess-core)
 
 if (EMSCRIPTEN)
     target_compile_options(wisdom-chess-core PUBLIC -pthread)

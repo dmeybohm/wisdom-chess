@@ -114,10 +114,12 @@ namespace wisdom
             std::size_t target_bit_shift = EN_PASSANT_TARGET_BIT;
             auto coord_bits = coord.column<std::size_t>()
                 | EN_PASSANT_PRESENT
-                | (color == Color::White ? EN_PASSANT_IS_WHITE : 0);
+                | (color == Color::White
+                       ? static_cast<std::size_t> (EN_PASSANT_IS_WHITE)
+                       : std::size_t { 0 });
             coord_bits <<= target_bit_shift;
 
-            Expects (
+            noexcept_expects (
                 coord.row() == (color == Color::White
                                     ? White_En_Passant_Row : Black_En_Passant_Row)
             );

@@ -25,8 +25,8 @@ struct PieceInfo
     )
         : row { row }
         , column { column }
-        , piece { piece }
         , pieceImage { std::move (pieceImage) }
+        , piece { piece }
         , is_castling_rook { false }
         , castling_source_column { -1 }
     {

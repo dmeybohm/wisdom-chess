@@ -21,6 +21,8 @@ namespace wisdom
 
         Board (const Board& board) = default;
 
+        auto operator= (const Board& board) -> Board& = default;
+
         explicit Board (const BoardBuilder& builder);
 
         friend auto
@@ -212,11 +214,10 @@ namespace wisdom
         void clearEnPassantTarget() noexcept;
 
         [[nodiscard]] auto 
-        getCastlingRookMove (Move move, Color who) const 
+        getCastlingRookMove (Move move) const
             -> Move;
 
         void applyForCastlingMove (
-            Color who,
             Move king_move,
             [[maybe_unused]] Coord src,
             [[maybe_unused]] Coord dst
@@ -238,10 +239,8 @@ namespace wisdom
 
         void updateAfterRookMove (
             Color player,
-            ColoredPiece src_piece,
-            Move move,
-            Coord src,
-            Coord dst
+            [[maybe_unused]] ColoredPiece src_piece,
+            Coord src
         ) noexcept;
 
         void setKingPosition (Color who, Coord pos) noexcept;
@@ -250,7 +249,8 @@ namespace wisdom
         void setCurrentTurn (Color who) noexcept;
 
     private:
-        // The representation of the board.
+        // The representation of the board. This must be declared first:
+        // the Position and Material constructors read it through *this.
         array<ColoredPiece, Num_Squares> my_squares;
 
         // Keep track of hashing information.

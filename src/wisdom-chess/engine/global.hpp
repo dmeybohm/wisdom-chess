@@ -23,6 +23,7 @@
 #include <cassert>
 #include <type_traits>
 #include <random>
+#include <source_location>
 
 #include <gsl/gsl>
 #include <gsl/narrow>
@@ -128,7 +129,29 @@ namespace wisdom
     // accept a draw offer.
     inline constexpr int Min_Draw_Score = -500;
 
-    // constexpr versoin of narrow_cast (no exception at runtime:
+    template <typename T>
+    [[nodiscard]] constexpr auto
+    isNegative (T value) noexcept
+        -> bool
+    {
+        if constexpr (std::is_signed_v<T>)
+            return value < T {};
+        else
+            return false;
+    }
+
+    // Whether converting the value to Target and back preserves it.
+    template <typename Target, typename Source>
+    [[nodiscard]] constexpr auto
+    isLosslessConversion (Source value) noexcept
+        -> bool
+    {
+        auto converted = static_cast<Target> (value);
+        return static_cast<Source> (converted) == value
+            && isNegative (converted) == isNegative (value);
+    }
+
+    // constexpr version of narrow_cast (no exception at runtime):
     template <typename Target, typename Source> constexpr auto
     narrow_cast (Source value) noexcept
         -> Target
@@ -139,8 +162,7 @@ namespace wisdom
         // Check if Source can fit into Target without truncation
         if (std::is_constant_evaluated())
         {
-            if (value < std::numeric_limits<Target>::min() ||
-                value > std::numeric_limits<Target>::max())
+            if (!isLosslessConversion<Target> (value))
             {
                 // At compile-time, trigger an error if there's truncation
                 std::terminate();
@@ -150,7 +172,7 @@ namespace wisdom
         return gsl::narrow_cast<Target> (value);
     }
 
-    // constexpr versoin of narrow (exception at runtime):
+    // constexpr version of narrow (exception at runtime):
     template <typename Target, typename Source> constexpr auto
     narrow (Source value)
         -> Target
@@ -161,8 +183,7 @@ namespace wisdom
         // Check if Source can fit into Target without truncation
         if (std::is_constant_evaluated())
         {
-            if (value < std::numeric_limits<Target>::min() ||
-                value > std::numeric_limits<Target>::max())
+            if (!isLosslessConversion<Target> (value))
             {
                 // At compile-time, trigger an error if there's truncation
                 throw std::runtime_error ("narrow_cast: narrowing occurred");
@@ -170,6 +191,18 @@ namespace wisdom
         }
 
         return gsl::narrow<Target> (value);
+    }
+
+    // Converts to a narrower unsigned type, deliberately discarding the high bits.
+    template <typename Target, typename Source>
+    [[nodiscard]] constexpr auto
+    truncate (Source value) noexcept
+        -> Target
+    {
+        static_assert (std::is_unsigned_v<Source> && std::is_unsigned_v<Target>);
+        static_assert (sizeof (Target) <= sizeof (Source));
+
+        return static_cast<Target> (value);
     }
 
     // constexpr version of tolower():
@@ -221,4 +254,60 @@ namespace wisdom
             return this->my_message.c_str();
         }
     };
+
+    class PreconditionError : public Error
+    {
+    public:
+        using Error::Error;
+    };
+
+    class PostconditionError : public Error
+    {
+    public:
+        using Error::Error;
+    };
+
+    [[noreturn]] void
+    throwPreconditionError (const std::source_location& location);
+
+    [[noreturn]] void
+    throwPostconditionError (const std::source_location& location);
+
+    // Throws PreconditionError when the condition is false. In a constant
+    // expression, a false condition is a compile error instead.
+    constexpr void
+    expects (
+        bool condition,
+        const std::source_location& location = std::source_location::current()
+    )
+    {
+        if (!condition) [[unlikely]]
+            throwPreconditionError (location);
+    }
+
+    [[noreturn]] void
+    terminateOnPreconditionFailure (const std::source_location& location) noexcept;
+
+    // Prints the failure and terminates when the condition is false. For
+    // noexcept functions, where expects() could not propagate its exception.
+    constexpr void
+    noexcept_expects (
+        bool condition,
+        const std::source_location& location = std::source_location::current()
+    ) noexcept
+    {
+        if (!condition) [[unlikely]]
+            terminateOnPreconditionFailure (location);
+    }
+
+    // Throws PostconditionError when the condition is false.
+    constexpr void
+    ensures (
+        bool condition,
+        const std::source_location& location = std::source_location::current()
+    )
+    {
+        if (!condition) [[unlikely]]
+            throwPostconditionError (location);
+    }
 }

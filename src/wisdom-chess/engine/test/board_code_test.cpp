@@ -397,7 +397,6 @@ TEST_CASE( "Board code stores metadata" )
 
         auto en_passant_target = with_state_code.getEnPassantTarget();
         auto expected_coord = coordParse ("d6");
-        auto metadata = with_state_code.getMetadataBits();
         REQUIRE( en_passant_target.has_value() );
         CHECK( en_passant_target->vulnerable_color == Color::Black );
         CHECK( en_passant_target->coord == expected_coord );

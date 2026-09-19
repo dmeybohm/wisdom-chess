@@ -12,7 +12,7 @@ namespace wisdom
     inline constexpr chrono::milliseconds Upper_Bound_Timer_Check =
         chrono::milliseconds { 50 };
 
-    struct MoveTimer;
+    class MoveTimer;
 
     struct TimingAdjustment
     {

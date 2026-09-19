@@ -21,6 +21,7 @@ if (WISDOM_CHESS_FAST_TESTS)
         str_test.cpp
         board_test.cpp
         game_test.cpp
+        global_test.cpp
         transposition_table_test.cpp
         logger_test.cpp
         test_main.cpp)
@@ -29,6 +30,7 @@ if (WISDOM_CHESS_FAST_TESTS)
 
     target_link_libraries(wisdom-chess-fast-tests PRIVATE wisdom::chess)
     target_link_libraries(wisdom-chess-fast-tests PRIVATE doctest::doctest)
+    wisdom_chess_enable_warnings(wisdom-chess-fast-tests)
 
     doctest_discover_tests(wisdom-chess-fast-tests PROPERTIES LABELS fast)
 
@@ -52,6 +54,7 @@ if (WISDOM_CHESS_SLOW_TESTS)
 
     target_link_libraries(wisdom-chess-slow-tests PRIVATE wisdom::chess)
     target_link_libraries(wisdom-chess-slow-tests PRIVATE doctest::doctest)
+    wisdom_chess_enable_warnings(wisdom-chess-slow-tests)
 
     doctest_discover_tests(wisdom-chess-slow-tests PROPERTIES LABELS slow)
 
@@ -64,5 +67,6 @@ if (WISDOM_CHESS_SLOW_TESTS)
         perft.cpp
         perft_main.cpp)
     target_link_libraries(perft PRIVATE wisdom::chess)
+    wisdom_chess_enable_warnings(perft)
 
 endif()

@@ -30,7 +30,7 @@ ChessGame::fromPlayers (
 ) 
     -> unique_ptr<ChessGame>
 {
-    return fromEngine (std::move (make_unique<Game> (Game::createGame (whitePlayer, blackPlayer))), config);
+    return fromEngine (make_unique<Game> (Game::createGame (whitePlayer, blackPlayer)), config);
 }
 
 auto 

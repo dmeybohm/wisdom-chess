@@ -195,6 +195,7 @@ target_link_libraries(WisdomChessQml
     PRIVATE Qt6::Quick Qt6::Svg)
 target_link_libraries(WisdomChessQml
     PRIVATE wisdom::chess wisdom::viewmodel)
+wisdom_chess_enable_warnings(WisdomChessQml)
 target_compile_definitions(WisdomChessQml
     PRIVATE MAIN_QML_FILE="${MAIN_QML_FILE}")
 

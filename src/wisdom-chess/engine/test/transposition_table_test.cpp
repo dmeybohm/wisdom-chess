@@ -247,6 +247,37 @@ TEST_CASE( "Transposition table" )
     }
 }
 
+TEST_CASE( "Transposition table sizing" )
+{
+    SUBCASE( "Smallest allowed size is a non-empty power of two" )
+    {
+        TranspositionTable tt = TranspositionTable::fromMegabytes (1);
+        auto size = tt.getSize();
+
+        CHECK( size >= 2 );
+        CHECK( (size & (size - 1)) == 0 );
+        CHECK( size * sizeof (TranspositionEntry) <= 1024 * 1024 );
+    }
+
+    SUBCASE( "Default size matches the named constant" )
+    {
+        TranspositionTable by_default {};
+        TranspositionTable by_constant
+            = TranspositionTable::fromMegabytes (TranspositionTable::Default_Size_In_Megabytes);
+
+        CHECK( by_default.getSize() == by_constant.getSize() );
+        CHECK( by_default.getSize() >= 2 );
+    }
+
+    SUBCASE( "Sizes too small to hold any entries are rejected" )
+    {
+        CHECK_THROWS_AS( (void)TranspositionTable::fromMegabytes (0), PreconditionError );
+        CHECK_THROWS_AS( (void)TranspositionTable::fromMegabytes (-1), PreconditionError );
+        CHECK_THROWS_AS( (void)TranspositionTable::fromEntries (0), PreconditionError );
+        CHECK_THROWS_AS( (void)TranspositionTable::fromEntries (1), PreconditionError );
+    }
+}
+
 TEST_CASE( "Transposition table with real board positions" )
 {
     SUBCASE( "stores and retrieves using actual board hash" )

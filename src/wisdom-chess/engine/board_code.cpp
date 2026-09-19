@@ -93,7 +93,6 @@ namespace wisdom
 
         ColoredPiece src_piece = board.pieceAt (src);
 
-        Piece src_piece_type = pieceType (src_piece);
         Color src_piece_color = pieceColor (src_piece);
         Color opponent_color = colorInvert (src_piece_color);
 
@@ -135,7 +134,7 @@ namespace wisdom
 
         if (move.isPromoting())
         {
-            assert (src_piece_type == Piece::Pawn);
+            assert (pieceType (src_piece) == Piece::Pawn);
             addPiece (dst, ColoredPiece::make (src_piece_color, move.getPromotedPiece()));
         }
         else

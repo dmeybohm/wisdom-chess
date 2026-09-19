@@ -122,7 +122,7 @@ namespace wisdom
 
         void addPosition (const Board& board, Move move)
         {
-            Expects (my_tentative_nesting_count == 0);
+            expects (my_tentative_nesting_count == 0);
             my_stored_boards.emplace_back (board);
             my_board_codes.emplace_back (board.getBoardCode());
             my_move_history.push_back (move);
@@ -130,7 +130,7 @@ namespace wisdom
 
         void removeLastPosition()
         {
-            Expects (my_tentative_nesting_count == 0);
+            expects (my_tentative_nesting_count == 0);
             my_stored_boards.pop_back();
             my_board_codes.pop_back();
             my_move_history.pop_back();

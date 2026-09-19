@@ -9,4 +9,5 @@ target_include_directories(wisdom-viewmodel-base
 )
 
 target_link_libraries(wisdom-viewmodel-base PUBLIC wisdom::chess)
+wisdom_chess_enable_warnings(wisdom-viewmodel-base)
 add_library(wisdom::viewmodel ALIAS wisdom-viewmodel-base)

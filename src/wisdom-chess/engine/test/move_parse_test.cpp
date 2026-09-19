@@ -35,4 +35,15 @@ TEST_CASE( "moveParse" )
         CHECK_THROWS_AS( (void)moveParse ("invalid"), ParseMoveException );
         CHECK_THROWS_WITH( (void)moveParse ("invalid"), "Error parsing move: invalid" );
     }
+
+    SUBCASE( "Empty and whitespace-only input" )
+    {
+        CHECK_THROWS_AS( (void)moveParse (""), ParseMoveException );
+        CHECK_THROWS_WITH( (void)moveParse (""), "Error parsing move: empty string" );
+        CHECK_THROWS_AS( (void)moveParse ("", Color::White), ParseMoveException );
+        CHECK_THROWS_AS( (void)moveParse ("   "), ParseMoveException );
+
+        CHECK( !moveParseOptional ("", Color::White).has_value() );
+        CHECK( !moveParseOptional ("  \t ", Color::White).has_value() );
+    }
 }

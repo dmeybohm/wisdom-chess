@@ -10,13 +10,20 @@ namespace wisdom
 
     TranspositionTable::TranspositionTable (int size_in_mb)
     {
+        // A zero or negative size would round down to an empty table with an
+        // all-ones mask, and every probe would then index out of bounds.
+        expects (size_in_mb >= 1);
+
         constexpr size_t bytes_per_mb = 1024 * 1024;
-        size_t entry_count = (size_in_mb * bytes_per_mb) / sizeof (TranspositionEntry);
+        size_t entry_count = (static_cast<size_t> (size_in_mb) * bytes_per_mb)
+            / sizeof (TranspositionEntry);
 
         size_t power_of_2 = 1;
         while (power_of_2 < entry_count)
             power_of_2 <<= 1;
         power_of_2 >>= 1;
+
+        ensures (power_of_2 >= 2);
 
         my_entries.resize (power_of_2);
         my_size_mask = power_of_2 - 1;
@@ -31,7 +38,7 @@ namespace wisdom
 
     TranspositionTable::TranspositionTable (FromEntriesTag, size_t entry_count)
     {
-        Expects (entry_count >= 2);
+        expects (entry_count >= 2);
         my_entries.resize (entry_count);
         my_size_mask = entry_count - 1;
     }
@@ -40,7 +47,7 @@ namespace wisdom
     TranspositionTable::fromEntries (size_t entry_count)
         -> TranspositionTable
     {
-        Expects (entry_count >= 2);
+        expects (entry_count >= 2);
         return TranspositionTable { FromEntriesTag {}, entry_count };
     }
     

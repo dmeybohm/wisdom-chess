@@ -71,9 +71,9 @@ namespace wisdom
             // Advance internal state
             rng.state = oldState * 6364136223846793005ULL + (rng.inc | 1);
             // Calculate output function (XSH RR), uses old state for max ILP
-            std::uint32_t xorshifted = ((oldState >> 18u) ^ oldState) >> 27u;
-            std::uint32_t rot = oldState >> 59u;
-            return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
+            auto xorshifted = truncate<std::uint32_t> (((oldState >> 18u) ^ oldState) >> 27u);
+            auto rot = truncate<std::uint32_t> (oldState >> 59u);
+            return (xorshifted >> rot) | (xorshifted << ((32u - rot) & 31u));
         }
     };
 
