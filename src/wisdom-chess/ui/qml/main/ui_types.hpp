@@ -39,6 +39,20 @@ namespace wisdom::ui
 
     Q_ENUM_NS (PieceType)
 
+    // DrawByRepetitionStatus is declared in the view-model library, which
+    // does not use Qt, and moc only registers enums it sees declared. QML
+    // looks up DrawByRepetitionStatus.Proposed by key in this namespace's
+    // meta-object, so this mirror supplies the keys with the same values.
+    enum class QmlDrawByRepetitionStatus
+    {
+        NotReached = static_cast<int> (DrawByRepetitionStatus::NotReached),
+        Proposed = static_cast<int> (DrawByRepetitionStatus::Proposed),
+        Accepted = static_cast<int> (DrawByRepetitionStatus::Accepted),
+        Declined = static_cast<int> (DrawByRepetitionStatus::Declined),
+    };
+
+    Q_ENUM_NS (QmlDrawByRepetitionStatus)
+
     // Register the enums in QML:
     void registerQmlTypes();
 
