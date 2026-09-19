@@ -19,7 +19,7 @@ import {
     DrawByRepetitionType,
     ILLEGAL_MOVE,
     fromColorToNumber,
-    ReactWindow,
+    getWisdomWindow,
     ChessEngineEventType,
     GameState,
     WebGameSettings
@@ -104,7 +104,7 @@ function App() {
     useEffect(() => {
         dispatch({ type: 'BOOTSTRAP', snapshot: snapshotFromEngine() })
 
-        const w = (window as unknown) as ReactWindow
+        const w = getWisdomWindow()
         if (w.setReceiveWorkerMessageCallback) {
             const onMsg = (type: ChessEngineEventType, gameId: number, message: string) => {
                 const game = gameRef.current
