@@ -73,11 +73,11 @@ TEST_CASE( "hasLegalMove" )
     {
         Board board;
 
-        CHECK( hasLegalMove (board, Color::White) );
+        CHECK( hasLegalMove (board) );
 
         board = board.withMove (Color::White, moveParse ("e2 e4", Color::White));
 
-        CHECK( hasLegalMove (board, Color::Black) );
+        CHECK( hasLegalMove (board) );
     }
 
     SUBCASE( "A checkmated player has no legal move" )
@@ -86,28 +86,29 @@ TEST_CASE( "hasLegalMove" )
             "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3"
         );
 
-        CHECK( !hasLegalMove (board, Color::White) );
-        CHECK( isPlayerCheckmated (board, Color::White) );
-        CHECK( !isPlayerCheckmated (board, Color::Black) );
-        CHECK( !isStalemated (board, Color::White) );
+        CHECK( !hasLegalMove (board) );
+        CHECK( isCheckmated (board) );
+        CHECK( !isStalemated (board) );
+        CHECK( evaluate (board, Color::White, 1) == -checkmateScoreInMoves (1) );
+        CHECK( evaluate (board, Color::Black, 1) == checkmateScoreInMoves (1) );
     }
 
     SUBCASE( "A stalemated player has no legal move" )
     {
         auto board = boardFromFen ("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
 
-        CHECK( !hasLegalMove (board, Color::Black) );
-        CHECK( isStalemated (board, Color::Black) );
-        CHECK( !isPlayerCheckmated (board, Color::Black) );
+        CHECK( !hasLegalMove (board) );
+        CHECK( isStalemated (board) );
+        CHECK( !isCheckmated (board) );
     }
 
     SUBCASE( "A player in check with an evasion has a legal move" )
     {
         auto board = boardFromFen ("4k3/8/8/8/8/8/4r3/4K3 w - - 0 1");
 
-        CHECK( hasLegalMove (board, Color::White) );
-        CHECK( !isPlayerCheckmated (board, Color::White) );
-        CHECK( !isStalemated (board, Color::White) );
+        CHECK( hasLegalMove (board) );
+        CHECK( !isCheckmated (board) );
+        CHECK( !isStalemated (board) );
     }
 
     SUBCASE( "A player in check whose only evasion is a block has a legal move" )
@@ -119,7 +120,7 @@ TEST_CASE( "hasLegalMove" )
         auto legal_moves = generateLegalMoves (with_check, Color::Black);
 
         CHECK( legal_moves.size() == 1 );
-        CHECK( hasLegalMove (with_check, Color::Black) );
+        CHECK( hasLegalMove (with_check) );
     }
 
     SUBCASE( "Agrees with generateLegalMoves" )
@@ -140,7 +141,7 @@ TEST_CASE( "hasLegalMove" )
             auto who = board.getCurrentTurn();
 
             INFO( fen_text );
-            CHECK( hasLegalMove (board, who)
+            CHECK( hasLegalMove (board)
                    == !generateLegalMoves (board, who).isEmpty() );
         }
     }
