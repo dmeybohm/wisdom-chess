@@ -113,9 +113,12 @@ should be confirmed before fixing.
 
 - [ ] `iterativelyDeepen` catches `Error`, prints to `std::cerr` and calls
   `std::terminate()` (`engine/search.cpp:306-312`). Let it propagate.
+  The `emergency-logger` branch made it report through `logEmergency()`
+  and abort; whether it should propagate instead is still open.
 - [ ] Direct `std::cout`/`std::cerr` in library code bypassing `Logger`:
   `engine/board.cpp:31, 286`, `engine/game.cpp:253`,
-  `engine/search.cpp:308-309`.
+  ~~`engine/search.cpp:308-309`~~. The `search.cpp` site was fixed on the
+  `emergency-logger` branch; the `board.cpp` and `game.cpp` sites remain.
 - [ ] `Game::load` returns `nullopt` on open failure but throws on a bad
   move (`engine/game.cpp:251-255, 266`). Pick one.
 - [ ] `Coord::index()`, `row()`, `column()` are not `const`

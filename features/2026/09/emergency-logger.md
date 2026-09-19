@@ -1,7 +1,8 @@
 # Emergency logger for fatal engine errors
 
-Branch: `emergency-logger`, created from `bug-list-and-engine-warnings`. It
-depends on `noexcept_expects` and `engine/global.cpp`, which exist only there.
+Branch: `emergency-logger`. It builds on `noexcept_expects` and
+`engine/global.cpp` from `bug-list-and-engine-warnings`, and was started from
+that branch before it merged. It has since been rebased onto `main`.
 
 ## Motivation
 
@@ -211,3 +212,17 @@ Two review comments.
   process that exits `0`; the earlier mutation check covers `[survived]`.
   FIL-C itself is not installed here, so the FIL-C CI job is the real
   confirmation. Full suite: 129 tests passing, no build warnings.
+
+### Session #4
+
+- Rebased onto `main` after `bug-list-and-engine-warnings` merged as pull
+  request 235 with three further commits. One conflict, in
+  `ui/uci/uci_interface.cpp`: `main` had changed the search lambda to capture
+  a copy of the debug flag, so the search thread no longer reads the member,
+  while this branch had switched the same line to `makeUciLogger()`. Kept
+  both: `makeUciLogger (debug_mode)`.
+- The bug list document is now on this branch, so its entries for the
+  `search.cpp` fatal path were updated there.
+- Verified after the rebase: desktop, QML and wasm builds with no warnings,
+  all 129 tests passing, and the UCI binary answering `isready` during a
+  search and `bestmove` after `stop`.
