@@ -160,4 +160,14 @@ namespace wisdom
     auto
     makeBufferedLogger (shared_ptr<Logger> sink, bool enabled = false)
         -> shared_ptr<BufferedLogger>;
+
+    // Registers the logger whose emergency() receives fatal messages.
+    // Pass nullptr to go back to std::cerr only.
+    void setEmergencyLogger (shared_ptr<Logger> logger);
+
+    // Writes the message to std::cerr and to the registered logger's emergency().
+    void logEmergency (const string& message) noexcept;
+
+    // Reports uncaught exceptions through logEmergency() before terminating.
+    void installEmergencyTerminateHandler();
 }

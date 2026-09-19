@@ -1,6 +1,9 @@
+#include <atomic>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <mutex>
 
 #include "wisdom-chess/engine/logger.hpp"
 
@@ -336,5 +339,98 @@ namespace wisdom
         -> shared_ptr<BufferedLogger>
     {
         return make_shared<BufferedLogger> (std::move (sink), enabled);
+    }
+
+    namespace
+    {
+        std::mutex emergency_logger_mutex;
+        shared_ptr<Logger> emergency_logger;
+        std::atomic_flag emergency_in_progress;
+
+        struct EmergencyInProgressRelease
+        {
+            ~EmergencyInProgressRelease()
+            {
+                emergency_in_progress.clear();
+            }
+        };
+
+        auto
+        describeCurrentException()
+            -> string
+        {
+            auto current = std::current_exception();
+            if (!current)
+                return "Terminated without an active exception";
+
+            try
+            {
+                std::rethrow_exception (current);
+            }
+            catch (const Error& e)
+            {
+                auto result = "Uncaught error: " + e.message();
+                if (!e.extra_info().empty())
+                    result += "\n" + e.extra_info();
+                return result;
+            }
+            catch (const std::exception& e)
+            {
+                return string { "Uncaught exception: " } + e.what();
+            }
+            catch (...)
+            {
+                return "Uncaught unknown exception";
+            }
+        }
+
+        [[noreturn]] void emergencyTerminateHandler() noexcept
+        {
+            try
+            {
+                logEmergency (describeCurrentException());
+            }
+            catch (...)
+            {
+            }
+            std::abort();
+        }
+    }
+
+    void setEmergencyLogger (shared_ptr<Logger> logger)
+    {
+        // Swap, so the previous logger is destroyed outside the lock.
+        std::lock_guard lock { emergency_logger_mutex };
+        emergency_logger.swap (logger);
+    }
+
+    void logEmergency (const string& message) noexcept
+    {
+        try
+        {
+            std::cerr << message + "\n";
+
+            // A logger that fails while reporting must not recurse into itself.
+            if (emergency_in_progress.test_and_set())
+                return;
+            EmergencyInProgressRelease release;
+
+            shared_ptr<Logger> logger;
+            {
+                std::lock_guard lock { emergency_logger_mutex };
+                logger = emergency_logger;
+            }
+
+            if (logger)
+                logger->emergency (message);
+        }
+        catch (...)
+        {
+        }
+    }
+
+    void installEmergencyTerminateHandler()
+    {
+        std::set_terminate (emergencyTerminateHandler);
     }
 }
