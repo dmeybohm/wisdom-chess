@@ -125,6 +125,30 @@ Not fixed here.
   `dataChanged` for them, so a view is only told about the clearing if the
   same row changes for another reason.
 
+### Queued fixes
+
+The three findings above are to be fixed after the UI tests (items 2 and
+4) exist, because the fixes can change what the QML does and the tests
+should be there to show it.
+
+1. Give `UISettings::my_flipped` an initializer.
+2. `ChessGame::fromPlayers()` ignores its player arguments. Both callers
+   are in `game_model.cpp`: the constructor passes Human and ChessEngine,
+   which is what the default `GameSettings` say anyway, and `restart()`
+   passes the current game's players next to `gameConfig()`. Decide whether
+   the arguments or the config should win, then drop the loser.
+3. Emitting `dataChanged` when the castling roles clear is not safe as
+   things stand. `Piece.qml`'s `onIsCastlingRookChanged` runs on any
+   change, true to false included: it sets the x translation to
+   `castlingSourceColumn * squareSize`, which would be column -1, and
+   restarts the castling animation. Today the delegate is never told the
+   role went back to false, so after castling the rook's delegate keeps
+   `isCastlingRook` true. Its `Behavior on x` and `Behavior on y` stay
+   disabled, so its later moves are not animated. A second castling by the
+   same rook cannot happen, so the handler never needs to fire twice. A fix
+   has to change the handler and the model together, and needs a UI test
+   that watches the rook's delegate through castling and the moves after.
+
 ### Next
 
 Item 2, the QML load smoke test, is the next step and the first to need
