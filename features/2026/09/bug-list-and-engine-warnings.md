@@ -89,6 +89,11 @@ should be confirmed before fixing.
   Session #20 (`engine/bench/bench_search.cpp`). They search to a fixed
   depth, so they show the cost per depth; quiescence changes what a depth
   means, so compare the moves and scores they reach as well as the time.
+  Quiescence replaces the leaf `evaluate()` call where the in-check mate
+  test runs. See "Effect on quiescence search" in
+  [faster-legal-move-test.md](faster-legal-move-test.md) for how often
+  horizon nodes are in check, what searching their evasions would cost,
+  and what happens to the mate test.
 - [x] **Repetition check scans the whole history at every node.**
   `isProbablyDrawingMove` calls `History::isProbablyNthRepetition`, which
   does `std::count` over all board codes (`engine/history.hpp:94-101`).
@@ -107,8 +112,11 @@ should be confirmed before fixing.
   measure a cold table only. Showing the benefit of a table that survives
   between moves needs a benchmark that searches consecutive positions of
   one game without clearing; add that alongside the fix.
-- [ ] Leaf evaluation calls full legal-move generation when in check
-  (`engine/evaluate.cpp:63, 87-97`).
+- [x] Leaf evaluation calls full legal-move generation when in check
+  (`engine/evaluate.cpp:63, 87-97`). Measured, with the alternatives, in
+  [faster-legal-move-test.md](faster-legal-move-test.md). Fixed on the
+  `faster-legal-move-test` branch: the mate and stalemate tests stop at
+  the first legal move.
 - [x] `compareMoves` recomputes `materialDiff` in the return
   (`engine/generate.cpp:538-542`); the sort lambda captures
   `MoveGeneration` by value (`engine/generate.cpp:564-568`).

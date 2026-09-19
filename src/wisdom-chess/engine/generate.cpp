@@ -591,6 +591,22 @@ namespace wisdom
     }
 
     auto
+    hasLegalMove (const Board& board, Color who)
+        -> bool
+    {
+        MoveList all_moves = generateAllPotentialMoves (board, who);
+        for (auto move : all_moves)
+        {
+            Board new_board = board.withMove (who, move);
+
+            if (isLegalPositionAfterMove (new_board, who, move))
+                return true;
+        }
+
+        return false;
+    }
+
+    auto
     needPawnPromotion (int row, Color who)
         -> bool
     {
