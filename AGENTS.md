@@ -246,6 +246,21 @@ cd build && ctest -j 4 --test-dir . -L slow
 build/src/wisdom-chess/engine/test/wisdom-chess-fast-tests --success
 ```
 
+Besides the engine's doctest executables, `ctest` runs:
+
+- `wisdom-chess-viewmodel-tests` (`ui/viewmodel/test`), doctest cases for the
+  shared view-model.
+- The `UCI: ...` and `Console: ...` tests, which run those binaries with
+  scripted standard input and match the output against regular expressions.
+  Add one with `wisdom_chess_add_cli_test()` from `cmake/CliTests.cmake`.
+  A UCI script that starts a search must send `stop` before `quit`, or no
+  `bestmove` is printed.
+
+`isCheckmated()`, `isStalemated()` and `hasLegalMove()` read the side to move
+from the board. `generateLegalMoves()` and `Board::withMove()` still take a
+color, which must be the side to move; `withMove()` asserts it in Debug. Run
+new engine tests in a Debug build as well as Release.
+
 ### Linting and Type Checking
 
 When making changes, always run:

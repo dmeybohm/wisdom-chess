@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(cmake/CPM.cmake)
 include(cmake/Warnings.cmake)
+include(cmake/CliTests.cmake)
 include(CheckCXXSourceCompiles)
 
 project(WisdomChess

@@ -239,13 +239,17 @@ should be confirmed before fixing.
   `engine/test/check_test.cpp:44`: `for (auto col = 7; col < 8; col++)`.
   Only column h is checked, so 56 of 64 expected values are dead data.
   Fixed in Session #14.
-- [ ] Perft asserts node counts for only positions 1 and 2. Positions 3,
+- [x] Perft asserts node counts for only positions 1 and 2. Positions 3,
   4 and 5 appear in `hash_collision_slow_test.cpp:136-139` for collision
   checks only; position 6 is absent. `MoveCounter` lacks castles,
-  promotions and checks.
+  promotions and checks. Fixed on the `more-tests` branch; see
+  [more-tests.md](more-tests.md).
 - [ ] No tests for `evaluate.cpp`, `game_status.cpp`, `move_timer.cpp`,
   `output_format.cpp`, the console UI, UCI, view-model or QML C++.
-- [ ] `generate_test.cpp` compares `asString()` output; brittle.
+  All but the QML C++ were added on the `more-tests` branch, along with
+  tests for `Game::status()`, which had none.
+- [x] `generate_test.cpp` compares `asString()` output; brittle. Fixed on
+  the `more-tests` branch.
 - [x] React `App.test.tsx:46-85` mock hard-codes `Pawn: 5`; the real enum
   has `Pawn = 1`, `Queen = 5`.
   Fixed in Session #17.

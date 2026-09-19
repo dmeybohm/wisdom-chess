@@ -21,11 +21,19 @@ namespace wisdom::perft
         int64_t nodes = 0;
         int64_t captures = 0;
         int64_t en_passants = 0;
+        int64_t castles = 0;
+        int64_t promotions = 0;
+        int64_t checks = 0;
+        int64_t checkmates = 0;
 
         void operator+= (const MoveCounter& src)
         {
             this->captures += src.captures;
             this->en_passants += src.en_passants;
+            this->castles += src.castles;
+            this->promotions += src.promotions;
+            this->checks += src.checks;
+            this->checkmates += src.checkmates;
             this->nodes += src.nodes;
         }
     };
@@ -34,6 +42,7 @@ namespace wisdom::perft
     {
         int depth;
         MoveCounter expectation;
+        bool count_checks = true;
     };
 
     struct PerftMoveResult
@@ -51,6 +60,9 @@ namespace wisdom::perft
     struct Stats
     {
         MoveCounter counters;
+
+        // Counting checks and checkmates tests the king for every leaf node.
+        bool count_checks = true;
 
         void searchMoves (const wisdom::Board& board, wisdom::Color side, int depth, int max_depth);
 

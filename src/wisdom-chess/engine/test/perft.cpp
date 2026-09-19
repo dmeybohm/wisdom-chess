@@ -1,5 +1,6 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/str.hpp"
 
 #include "wisdom-chess-perft.hpp"
@@ -38,6 +39,24 @@ namespace wisdom
 
                 if (move.isEnPassant())
                     counters.en_passants++;
+
+                if (move.isCastling())
+                    counters.castles++;
+
+                if (move.isPromoting())
+                    counters.promotions++;
+
+                if (count_checks)
+                {
+                    auto opponent = colorInvert (side);
+                    auto opponent_king = new_board.getKingPosition (opponent);
+                    if (isKingThreatened (new_board, opponent, opponent_king))
+                    {
+                        counters.checks++;
+                        if (!hasLegalMove (new_board))
+                            counters.checkmates++;
+                    }
+                }
             }
 
             searchMoves (new_board, colorInvert (side), depth + 1, max_depth);
@@ -160,6 +179,7 @@ namespace wisdom
         for (const auto& move : moves)
         {
             Stats stats;
+            stats.count_checks = false;
 
             Color next_player = wisdom::colorInvert (active_player);
             auto new_board = board.withMove (active_player, move);

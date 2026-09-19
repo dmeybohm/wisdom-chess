@@ -41,9 +41,12 @@ TEST_CASE( "Perft move list" )
     }, " ");
 
     auto wisdom_move_list = wisdom::perft::toMoveList (board, Color::White, perft_move_list);
-    auto converted = wisdom_move_list.asString();
+    wisdom::MoveList expected { Color::White, {
+        "o-o-o", "d7 d5", "e5 d6 ep", "o-o", "a7 a8(Q)",
+    } };
 
-    REQUIRE( converted == "{ [O-O-O] [d7 d5] [e5 d6 ep] [O-O] [a7 a8(Q)] }" );
+    INFO( wisdom_move_list );
+    REQUIRE( wisdom_move_list == expected );
 }
 
 TEST_CASE( "toPerftMove" )
