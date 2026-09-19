@@ -53,25 +53,29 @@ should be confirmed before fixing.
   `power_of_2 == 0`, so `my_size_mask` becomes `SIZE_MAX` and every probe
   indexes out of bounds. `fromEntries` has `Expects (entry_count >= 2)`;
   this constructor needs the same. Fixed in Session #7.
-- [ ] **`Board::withRandomPosition` keeps stale castling rights.**
+- [x] **`Board::withRandomPosition` keeps stale castling rights.**
   *(verified)* `engine/board.cpp:291` rebuilds the board code from the
   shuffled squares but the castling eligibility is unchanged. A later
   castling move would hit the assert in `getCastlingRookMove`
   (`engine/move.cpp:104`) or move a non-rook in release. Test-only path.
-- [ ] `CompileTimeRandom::max()` returns `numeric_limits::min()`
+  Fixed in Session #15.
+- [x] `CompileTimeRandom::max()` returns `numeric_limits::min()`
   (`engine/random.hpp:58-63`). Violates *UniformRandomBitGenerator*.
-- [ ] `parseCastling` silently ignores unknown letters
+  Fixed in Session #15.
+- [x] `parseCastling` silently ignores unknown letters
   (`engine/fen_parser.cpp:135-143`, no `default`); `parsePieces` checks
   `row > Num_Rows` instead of `>=` (`engine/fen_parser.cpp:70,83`), so
   `row == 8` reaches `BoardBuilder::addPiece` and throws the wrong type.
+  Fixed in Session #15.
 - [x] `Board::Board (const BoardBuilder&)` initializer order does not
   match declaration order and `my_position { Position { *this } }` reads a
   partially constructed object (`engine/board.cpp:19-25`). Fixed in
   Session #3: initializer list reordered and a comment added on
   `my_squares`.
-- [ ] `MoveList (Color, std::initializer_list<czstring>) noexcept` calls
+- [x] `MoveList (Color, std::initializer_list<czstring>) noexcept` calls
   `moveParse`, which throws (`engine/move_list.hpp:22-30`). Drop the
   `noexcept`.
+  Fixed in Session #15.
 - [ ] `Error`'s copy constructor is `noexcept` but copies two strings
   (`engine/global.hpp:205-207`).
 
@@ -99,8 +103,9 @@ should be confirmed before fixing.
 - [ ] `compareMoves` recomputes `materialDiff` in the return
   (`engine/generate.cpp:538-542`); the sort lambda captures
   `MoveGeneration` by value (`engine/generate.cpp:564-568`).
-- [ ] Search timing uses `system_clock` (`engine/search.cpp:334, 340`);
+- [x] Search timing uses `system_clock` (`engine/search.cpp:334, 340`);
   use `steady_clock` as `MoveTimer` already does.
+  Fixed in Session #15.
 - [ ] `MoveList::data()` returns the 504-byte array by value
   (`engine/move_list.hpp:172-176`). Unused today.
 
@@ -124,7 +129,8 @@ should be confirmed before fixing.
 - [ ] `castlingRowForColor` (`engine/move.hpp:344-351`) and
   `castlingRowFromColor` (`engine/position.cpp:92-105`) are the same
   function.
-- [ ] Dead code: `castled_state += "";` (`engine/board.cpp:151`), unused
+- [ ] Dead code: ~~`castled_state += "";` (`engine/board.cpp:151`)~~
+  (removed in Session #15), unused
   parameters on `isProbablyDrawingMove`, unreferenced
   `Board::pieceAtIndex`, `Board::squareData`, `MoveList::fromZeroInitialized`,
   `BoardCode::withMove`, `TranspositionTable::getStoredEntriesCount`,
@@ -140,28 +146,34 @@ should be confirmed before fixing.
 
 ### Frontends
 
-- [ ] **Pointer thrown instead of exception.** *(verified)*
+- [x] **Pointer thrown instead of exception.** *(verified)*
   `ui/wasm/web_game.cpp:82`: `throw new Error { "Failed to map move." };`.
   No C++ `catch (Error&)` will match and the object leaks.
-- [ ] **Console draw prompt tests the wrong character.** *(verified)*
+  Fixed in Session #16.
+- [x] **Console draw prompt tests the wrong character.** *(verified)*
   `ui/console/play.cpp:231`: `input[0] == 'y' || input[1] == 'Y'`. A
   capital `Y` is treated as declining.
-- [ ] **UCI `stop` suppresses `bestmove`.** *(verified)*
+  Fixed in Session #16.
+- [x] **UCI `stop` suppresses `bestmove`.** *(verified)*
   `handleStop` (`ui/uci/uci_interface.cpp:368-371`) bumps `my_search_id`,
   so the `if` at line 319 skips `sendBestMove`. The UCI protocol requires
   `bestmove` after `stop`.
-- [ ] **Draw-answered flags never reset on new game.** *(verified)*
+  Fixed in Session #16.
+- [x] **Draw-answered flags never reset on new game.** *(verified)*
   `thirdRepetitionDrawAnswered` and `fiftyMovesDrawAnswered`
   (`ui/react/src/App.tsx:312-313`) are not cleared in `startNewGame`
   (`App.tsx:281-290`), so the draw dialog appears at most once per session.
-- [ ] **`PiecesModel::playerMoved` skips an element after removal.**
+  Fixed in Session #17.
+- [x] **`PiecesModel::playerMoved` skips an element after removal.**
   *(verified)* `ui/qml/main/pieces_model.cpp:160-176` calls
   `my_pieces.removeAt (i)` inside a forward loop without adjusting `i`,
   and then reads the `piece_model` reference it just invalidated.
-- [ ] **`uiSettings` is undefined in `mobile_main.qml`.** *(verified)*
+  Fixed in Session #16.
+- [x] **`uiSettings` is undefined in `mobile_main.qml`.** *(verified)*
   `ui/qml/main/mobile_main.qml:46` logs `uiSettings.squareSize`; the
   property lives on `_myGameModel`. ReferenceError on every orientation
   change.
+  Fixed in Session #16.
 - [ ] **Leaked WebIDL objects.** `getCurrentGameSettings()` returns a
   `new GameSettings` (`ui/wasm/game_model.hpp`) that `App.tsx:106, 287`
   never destroys; `App.tsx:184-185, 195` allocates three objects per move
@@ -186,7 +198,8 @@ should be confirmed before fixing.
   (`ui/viewmodel/game_viewmodel_base.cpp:107`). *(verified)*
 - [ ] `GameModel::~GameModel` deletes the engine thread without
   `quit()`/`wait()` (`ui/qml/main/game_model.cpp:336`).
-- [ ] Debug `std::cout` in `ui/wasm/web_game.cpp:120-121`. *(verified)*
+- [x] Debug `std::cout` in `ui/wasm/web_game.cpp:120-121`. *(verified)*
+  Fixed in Session #16.
 - [ ] `QThread::usleep (200000)` in the engine slot to wait for animation
   (`ui/qml/main/chess_engine.cpp:126`). *(verified)*
 - [ ] `ViewModelSettings` (`ui/viewmodel/viewmodel_settings.hpp`) appears
@@ -205,15 +218,17 @@ should be confirmed before fixing.
 - [ ] No tests for `evaluate.cpp`, `game_status.cpp`, `move_timer.cpp`,
   `output_format.cpp`, the console UI, UCI, view-model or QML C++.
 - [ ] `generate_test.cpp` compares `asString()` output; brittle.
-- [ ] React `App.test.tsx:46-85` mock hard-codes `Pawn: 5`; the real enum
+- [x] React `App.test.tsx:46-85` mock hard-codes `Pawn: 5`; the real enum
   has `Pawn = 1`, `Queen = 5`.
+  Fixed in Session #17.
 
 ### Build and infrastructure
 
-- [ ] **React integrated-build default read before it is set.**
+- [x] **React integrated-build default read before it is set.**
   *(verified)* `CMakeLists.txt:36` uses
   `WISDOM_CHESS_REACT_BUILD_INTEGRATED_DEFAULT`, which is assigned at
   lines 49-53. The option has always defaulted OFF, contrary to the docs.
+  Fixed in Session #17.
 - [x] **Dead `if` hides a bogus target.** *(verified)*
   `ui/console/CMakeLists.txt:5-6` tests `PCH_ENABLED`, a normal variable
   from a sibling scope, and references target `chess`, which does not
@@ -226,16 +241,23 @@ should be confirmed before fixing.
   The missing Debug build was added in Session #12.
 - [ ] Linter self-tests (`scripts/linter/tests/run-tests.sh`) are not run
   in CI. `LinterConfig::ignore` is populated and never read.
-- [ ] `WISDOM_CHESS_SLOW_TESTS` defaults On (`CMakeLists.txt:33`) but
+  The self-tests were added to the CI lint job in Session #17; the unread
+  `ignore` list remains.
+- [x] `WISDOM_CHESS_SLOW_TESTS` defaults On (`CMakeLists.txt:33`) but
   README and CLAUDE.md say OFF.
-- [ ] CLAUDE.md describes `.wisdomstylerc.json` and an automatic feature
+  Fixed in Session #17.
+- [x] CLAUDE.md describes `.wisdomstylerc.json` and an automatic feature
   index generator; neither exists. *(verified: no such file)*
-- [ ] `target_precompile_headers(... PRIVATE PRIVATE ...)` in
+  Fixed in Session #17.
+- [x] `target_precompile_headers(... PRIVATE PRIVATE ...)` in
   `engine/CMakeLists.txt:84` and the test and bench CMake files.
-- [ ] `-fno-stack-protector` is `PUBLIC` on the engine
+  Fixed in Session #17.
+- [x] `-fno-stack-protector` is `PUBLIC` on the engine
   (`engine/CMakeLists.txt:101`) and propagates to all UI code.
-- [ ] `cmake_minimum_required` comes after `set(CMAKE_CXX_STANDARD)`
+  Fixed in Session #18.
+- [x] `cmake_minimum_required` comes after `set(CMAKE_CXX_STANDARD)`
   in the top-level and engine CMake files.
+  Fixed in Session #17.
 
 ## Implementation Progress
 
@@ -565,3 +587,140 @@ warning lines and Windows 108, from seven distinct sites.
   jobs.
 - Verified: no warnings in the desktop build, all 119 tests pass, linter
   clean on the changed files.
+
+### Session #15
+
+Worked through the contained items left on the checklist, engine first.
+
+- `CompileTimeRandom::max()` returned `numeric_limits::min()`, so the type
+  reported an empty range. It now returns `max()`; pinned with
+  `static_assert`s in `engine/test/global_test.cpp`.
+- `MoveList (Color, initializer_list<czstring>)` was `noexcept` but calls
+  `moveParse`, which throws, so a bad move string terminated the program.
+  Dropped the `noexcept`; a test now expects `ParseMoveException`.
+- FEN parser: a ninth rank slipped past `row > Num_Rows` and failed later
+  with the wrong exception type; the check is now `>=`. `parseCastling`
+  ignored unknown letters; it now throws `FenParserError`. Tests cover
+  both, plus the valid `KQkq` and `-` forms.
+- `Board::withRandomPosition` kept the original castling rights. It also
+  kept the en passant target and the cached material and position scores,
+  which were stale for the same reason. All four are now reset or
+  recomputed after the shuffle, and the randomized-board test checks them.
+- Search timing in `engine/search.cpp` uses `steady_clock`, matching
+  `MoveTimer`, so a wall-clock adjustment can no longer produce a negative
+  or inflated search time in the log.
+- Removed the no-op `castled_state += "";` in `engine/board.cpp`.
+- Not changed: `Error`'s `noexcept` copy constructor. For an exception type
+  that is the conventional choice, since a throwing copy during a `throw`
+  terminates anyway. The item stays open as a judgement call.
+
+### Session #16
+
+Frontend items from the checklist.
+
+- `ui/wasm/web_game.cpp` threw `new Error`, a pointer no `catch (Error&)`
+  matches and which leaks. It now throws by value. Also removed two debug
+  `std::cout` lines from `setComputerDrawStatus`.
+- Console draw prompt (`ui/console/play.cpp`) tested `input[1] == 'Y'`, so
+  a capital `Y` declined the draw. It now compares `toupper (input[0])`.
+  The same loop spun forever once stdin reached end of file; it now treats
+  that as declining.
+- `PiecesModel::playerMoved` removed rows inside a forward loop without
+  adjusting the index, then kept using a reference the removal had
+  invalidated. After a removal the loop now steps the index back and, for
+  the captured piece, continues with the next iteration, so every piece is
+  visited once and no stale reference is read.
+- `mobile_main.qml` logged `uiSettings.squareSize`, which does not exist
+  and raised a ReferenceError on every orientation change. It now reads
+  `boardDimensions.squareSize`.
+- UCI `stop`. `handleStop` bumped the search id, the same signal used when
+  a search is superseded, so the search thread stayed silent and no
+  `bestmove` followed, which the protocol requires. `stop` now sets its own
+  flag. The periodic callback reacts to it by setting the timer's budget to
+  zero through the existing `setSeconds`, so the search ends through its
+  normal timeout path and iterative deepening returns the last completed
+  depth. Cancelling was not an option, because `Game::findBestMove`
+  deliberately discards a cancelled search, and `MoveTimer`'s interface was
+  left unchanged. When the search returns no move at all (stop before depth
+  1 completes, or a very short time limit) the UCI front end picks a random
+  legal move, so `bestmove (none)` is only sent when there are no legal
+  moves.
+  Checked by driving the binary: stop after two seconds returns a searched
+  move; an immediate stop returns a legal move; a superseded search still
+  produces exactly one `bestmove`; a checkmated position returns `(none)`;
+  a stop does not leak into the following `go`.
+- Follow-up worth its own design: the search exposes nothing per depth, so
+  no front end sees progress and UCI cannot emit `info depth ... score ...
+  pv ...` lines (it currently prints `info Searching depth N`, which is not
+  valid UCI syntax). A per-depth result callback would fix that and let
+  UCI answer `stop` from its own record of the latest depth.
+- Verified: desktop, QML and wasm builds with no warnings, all 122 tests
+  pass, linter clean. Not exercised at runtime: the QML list fix, the QML
+  log line and the console draw prompt, which need a GUI session or a draw
+  offer to reach.
+
+### Session #17
+
+The small React, CMake and documentation items.
+
+- React: `startNewGame` in `App.tsx` now clears `thirdRepetitionDrawAnswered`
+  and `fiftyMovesDrawAnswered`, so the draw dialog can appear in every game
+  and not only once per page load. A new test in `App.test.tsx` answers
+  the dialog, starts a new game and expects the dialog again; it was
+  confirmed to fail with the fix removed.
+- React: the test mock's piece values now match `WebPiece` in
+  `ui/wasm/web_types.hpp` (`NoPiece = 0`, `Pawn = 1` ... `Queen = 5`). The
+  mock had `Queen: 0` and `Pawn: 5`.
+- CMake: `WISDOM_CHESS_REACT_BUILD_INTEGRATED` read its default variable
+  before that variable was set, so the option always defaulted to OFF. The
+  default is now computed before the `option()` calls. Checked with fresh
+  configures: ON under Emscripten, OFF natively.
+- CMake: `WISDOM_CHESS_SLOW_TESTS` now defaults to Off. The README,
+  `AGENTS.md`, the build scripts and every CI job already assumed Off and
+  pass the option explicitly when they want the slow tests, so the code
+  was the odd one out. Existing build trees keep their cached value.
+- CMake: `cmake_minimum_required` now comes first in the top-level and
+  engine files, and the doubled `PRIVATE PRIVATE` in four
+  `target_precompile_headers` calls is a single `PRIVATE`.
+- CI: the lint job runs the linter's own test suite before linting.
+- `AGENTS.md` (formerly `CLAUDE.md`): removed the claims that the linter
+  reads `.wisdomstylerc.json` and that feature indexes are generated
+  automatically; neither exists. The WebAssembly configure example used
+  five `WISDOM_CHESS_BUILD_*` options that do not exist and were silently
+  ignored; it now uses the real option names, matching
+  `scripts/build-react-wasm.sh` and `web.yml`.
+- Left open: `-fno-stack-protector` being `PUBLIC` on the engine, which is a
+  hardening decision for the UI targets, not a cleanup.
+- Verified: desktop build with no warnings and all 122 C++ tests passing,
+  `tsc` clean, 30 React tests passing, workflow YAML parses, linter
+  self-tests pass 19 of 19 when run the way the new CI step runs them.
+
+### Session #18
+
+- `-fno-stack-protector` is now `PRIVATE` on `wisdom-chess-core`. It was
+  `PUBLIC`, so every target linking the engine, including the tests and
+  all the UIs, also had the stack protector switched off. The engine's own
+  sources, where the search and move generation run, keep the flag.
+- Checked the generated flags: only the engine target carries it now; the
+  tests, console, UCI, viewmodel and QML targets do not. The console and
+  UCI targets reuse the engine's precompiled header, and CMake builds with
+  `-Winvalid-pch`; no warning appeared, so the header is still accepted
+  despite the differing flag.
+- The slow suite took 50.95 processor-seconds against 50 to 53 in earlier
+  runs this session, so no measurable change. Desktop and QML builds have
+  no warnings and all 122 tests pass.
+
+### Session #19
+
+- The macOS build on PR #235 failed with `stack protector mode differs in
+  PCH file vs. current file`. The console and UCI targets reused the
+  engine's precompiled header (`REUSE_FROM wisdom-chess-core`), which is
+  now built with `-fno-stack-protector` while they are not. GCC accepts
+  the mismatch, which is why Session #18 saw no problem. Clang rejects it,
+  and it only shows up where the stack protector is on by default, as
+  with Apple clang.
+- Reproduced on Linux with clang 18 and `-fstack-protector-strong`, then
+  gave both targets their own precompiled header of `global.hpp` instead
+  of reusing the engine's. They keep the stack protector.
+- Verified: clang build with `-fstack-protector-strong` and GCC build
+  both succeed with no warnings, and all 99 fast tests pass under each.

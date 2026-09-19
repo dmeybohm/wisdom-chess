@@ -147,8 +147,6 @@ namespace wisdom
             castled_state += convert ('K');
         else if (castled == CastlingRights::Queenside)
             castled_state += convert ('Q');
-        else
-            castled_state += "";
 
         return castled_state;
     }
@@ -286,8 +284,14 @@ namespace wisdom
             throw Error { "Too many iterations trying to generate a random board." };
         }
 
-        // update the board code:
+        // The shuffled squares share nothing with the original game state.
+        result.setCastleState (Color::White, CastlingEligibility::Neither_Side);
+        result.setCastleState (Color::Black, CastlingEligibility::Neither_Side);
+        result.my_code.clearEnPassantTarget();
+
         result.my_code = BoardCode::fromBoard (result);
+        result.my_position = Position { result };
+        result.my_material = Material { result };
         return result;
     }
 

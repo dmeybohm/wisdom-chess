@@ -79,7 +79,7 @@ namespace wisdom
 
         if (!optionalMove.has_value())
         {
-            throw new Error { "Failed to map move." };
+            throw Error { "Failed to map move." };
         }
 
         auto move = *optionalMove;
@@ -117,8 +117,6 @@ namespace wisdom
         ProposedDrawType proposed_draw_type = mapDrawByRepetitionType (type);
         Color color = mapColor (who);
 
-        std::cout << "accepted: " << accepted << "\n";
-        std::cout << "Color: " << wisdom::asString (color) << "\n";
         my_game.setProposedDrawStatus (proposed_draw_type, color, accepted);
         updateDisplayedGameState();
     }

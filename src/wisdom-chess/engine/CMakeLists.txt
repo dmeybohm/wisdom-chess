@@ -1,7 +1,7 @@
+cmake_minimum_required(VERSION 3.20)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-cmake_minimum_required(VERSION 3.20)
 
 project(WisdomEngine CXX)
 
@@ -82,7 +82,7 @@ add_library(wisdom-chess-core STATIC
         transposition_table.cpp)
 
 if (PCH_ENABLED)
-    target_precompile_headers(wisdom-chess-core PRIVATE PRIVATE global.hpp)
+    target_precompile_headers(wisdom-chess-core PRIVATE global.hpp)
 else()
     target_sources(wisdom-chess-core PRIVATE global.hpp)
 endif()
@@ -101,7 +101,7 @@ endif()
 
 if (NOT WIN32 AND NOT EMSCRIPTEN)
     message("-- wisdom-chess: stack protector disabled for performance")
-    target_compile_options(wisdom-chess-core PUBLIC -fno-stack-protector)
+    target_compile_options(wisdom-chess-core PRIVATE -fno-stack-protector)
 endif()
 
 if (doctest_FOUND)

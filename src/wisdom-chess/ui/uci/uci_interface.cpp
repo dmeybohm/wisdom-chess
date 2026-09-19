@@ -4,14 +4,43 @@
 #include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/coord.hpp"
+#include "wisdom-chess/engine/generate.hpp"
 
 #include <algorithm>
 #include <chrono>
+#include <random>
 
 namespace wisdom
 {
     namespace
     {
+        std::mutex output_mutex;
+
+        // The search thread and the command loop both write to stdout, so
+        // each line is written whole under a lock.
+        void sendLine (const string& line)
+        {
+            std::lock_guard<std::mutex> lock { output_mutex };
+            std::cout << line << "\n";
+            std::cout.flush();
+        }
+
+        // For a search that ended before completing any depth.
+        auto
+        pickRandomLegalMove (const Game& game)
+            -> optional<Move>
+        {
+            auto moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
+            if (moves.isEmpty())
+                return nullopt;
+
+            std::random_device random_device;
+            std::mt19937 rng { random_device() };
+            std::uniform_int_distribution<std::size_t> pick { 0, moves.size() - 1 };
+
+            return *(moves.begin() + narrow<std::ptrdiff_t> (pick (rng)));
+        }
+
         class UciLogger : public Logger
         {
         public:
@@ -23,16 +52,12 @@ namespace wisdom
             void debug (const string& output) const override
             {
                 if (my_debug_enabled)
-                {
-                    std::cout << "info string " << output << "\n";
-                    std::cout.flush();
-                }
+                    sendLine ("info string " + output);
             }
 
             void info (const string& output) const override
             {
-                std::cout << "info " << output << "\n";
-                std::cout.flush();
+                sendLine ("info " + output);
             }
 
         private:
@@ -90,7 +115,9 @@ namespace wisdom
     {
         if (my_search_thread.joinable())
         {
-            my_search_id.fetch_add (1);
+            // A stopped search still owes the GUI its bestmove, so let it finish.
+            if (!my_stop_requested.load())
+                my_search_id.fetch_add (1);
             my_search_thread.join();
         }
     }
@@ -155,18 +182,15 @@ namespace wisdom
 
     void UciInterface::handleUci()
     {
-        std::cout << "id name Wisdom Chess\n";
-        std::cout << "id author Dave Meybohm\n";
+        sendLine ("id name Wisdom Chess");
+        sendLine ("id author Dave Meybohm");
         sendEngineInfo();
-        std::cout << "uciok\n";
-        std::cout.flush();
+        sendLine ("uciok");
     }
 
     void UciInterface::handleIsReady()
     {
-        waitForSearchThread();
-        std::cout << "readyok\n";
-        std::cout.flush();
+        sendLine ("readyok");
     }
 
     void UciInterface::handleNewGame()
@@ -218,10 +242,7 @@ namespace wisdom
             catch (...)
             {
                 if (my_debug_mode)
-                {
-                    std::cout << "info string Invalid FEN: " << fen_string << "\n";
-                    std::cout.flush();
-                }
+                    sendLine ("info string Invalid FEN: " + fen_string);
                 return;
             }
 
@@ -293,6 +314,7 @@ namespace wisdom
         }
 
         int current_search_id = my_search_id.fetch_add (1) + 1;
+        my_stop_requested.store (false);
 
         Game game_copy = [this]
         {
@@ -301,7 +323,8 @@ namespace wisdom
         }();
 
         my_search_thread = std::thread (
-            [this, game = std::move (game_copy), search_depth, search_time, current_search_id] () mutable
+            [this, game = std::move (game_copy), search_depth, search_time, current_search_id,
+             debug_mode = my_debug_mode] () mutable
             {
                 game.setMaxDepth (search_depth);
                 if (search_time.count() > 0)
@@ -313,11 +336,14 @@ namespace wisdom
                 }
                 game.setPeriodicFunction (buildNotifier (current_search_id));
 
-                auto logger = std::make_shared<UciLogger> (my_debug_mode);
+                auto logger = std::make_shared<UciLogger> (debug_mode);
                 auto best_move = game.findBestMove (logger);
 
                 if (my_search_id.load() == current_search_id)
                 {
+                    if (!best_move.has_value())
+                        best_move = pickRandomLegalMove (game);
+
                     sendBestMove (best_move);
                 }
             });
@@ -367,7 +393,7 @@ namespace wisdom
 
     void UciInterface::handleStop()
     {
-        my_search_id.fetch_add (1);
+        my_stop_requested.store (true);
     }
 
     void UciInterface::handleQuit()
@@ -394,9 +420,9 @@ namespace wisdom
 
     void UciInterface::sendEngineInfo()
     {
-        std::cout << "option name Hash type spin default 16 min 1 max 1024\n";
-        std::cout << "option name Depth type spin default " << Default_Max_Depth
-                  << " min 1 max 64\n";
+        sendLine ("option name Hash type spin default 16 min 1 max 1024");
+        sendLine ("option name Depth type spin default " + std::to_string (Default_Max_Depth)
+                  + " min 1 max 64");
     }
 
     auto
@@ -458,15 +484,7 @@ namespace wisdom
 
     void UciInterface::sendBestMove (const optional<Move>& move)
     {
-        if (move)
-        {
-            std::cout << "bestmove " << moveToUci (*move) << "\n";
-        }
-        else
-        {
-            std::cout << "bestmove (none)\n";
-        }
-        std::cout.flush();
+        sendLine ("bestmove " + (move ? moveToUci (*move) : string { "(none)" }));
     }
 
     auto
@@ -478,6 +496,12 @@ namespace wisdom
             if (my_search_id.load() != initial_search_id)
             {
                 timer->setCancelled (true);
+            }
+            else if (my_stop_requested.load())
+            {
+                // "stop" means the time is up: the search ends through its
+                // normal timeout and keeps the last completed depth.
+                timer->setSeconds (chrono::seconds { 0 });
             }
         };
     }

@@ -1,4 +1,5 @@
 #include "wisdom-chess/engine/global.hpp"
+#include "wisdom-chess/engine/random.hpp"
 
 #include "wisdom-chess-tests.hpp"
 
@@ -48,4 +49,11 @@ TEST_CASE( "narrow throws at runtime when the value does not fit" )
     CHECK( narrow<int8_t> (100) == 100 );
     CHECK_THROWS( (void)narrow<int8_t> (too_big) );
     CHECK_THROWS( (void)narrow<std::size_t> (negative) );
+}
+
+TEST_CASE( "CompileTimeRandom reports the full range of its result type" )
+{
+    static_assert (CompileTimeRandom::min() == 0);
+    static_assert (CompileTimeRandom::max() == std::numeric_limits<uint32_t>::max());
+    static_assert (CompileTimeRandom::min() < CompileTimeRandom::max());
 }

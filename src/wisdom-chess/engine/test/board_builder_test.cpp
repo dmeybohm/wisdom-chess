@@ -89,6 +89,19 @@ TEST_CASE( "Board can be randomized" )
         REQUIRE( default_board.getCode() != randomized_board.getCode() );
     }
 
+    SUBCASE( "No state is carried over from the original game" )
+    {
+        CHECK( randomized_board.getCastlingEligibility (Color::White) == CastlingEligibility::Neither_Side );
+        CHECK( randomized_board.getCastlingEligibility (Color::Black) == CastlingEligibility::Neither_Side );
+        CHECK( !randomized_board.getEnPassantTarget().has_value() );
+
+        Material recounted { randomized_board };
+        CHECK( randomized_board.getMaterial().individualScore (Color::White)
+               == recounted.individualScore (Color::White) );
+        CHECK( randomized_board.getMaterial().individualScore (Color::Black)
+               == recounted.individualScore (Color::Black) );
+    }
+
     SUBCASE( "None of the pawns are in the back row" )
     {
         for (int8_t col = 0; col < Num_Columns; col++)

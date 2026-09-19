@@ -19,7 +19,7 @@ namespace wisdom
     public:
         constexpr MoveList() = default; // NOLINT(*-pro-type-member-init)
 
-        constexpr MoveList (Color color, std::initializer_list<czstring> list) noexcept
+        constexpr MoveList (Color color, std::initializer_list<czstring> list)
             : MoveList {}
         {
             for (auto&& it : list)

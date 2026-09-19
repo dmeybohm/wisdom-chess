@@ -67,7 +67,7 @@ namespace wisdom
             if (ch == '/')
             {
                 row++;
-                if (row > Num_Rows)
+                if (row >= Num_Rows)
                     throw FenParserError ("Invalid row!");
                 col = 0;
             }
@@ -121,31 +121,28 @@ namespace wisdom
         CastlingEligibility white_castle = CastlingEligibility::Neither_Side;
         CastlingEligibility black_castle = CastlingEligibility::Neither_Side;
 
-        for (; !castling_str.empty() && isalpha (castling_str[0]);
-             castling_str = castling_str.substr (1))
+        if (castling_str != "-")
         {
-            char ch = castling_str[0];
-
-            if (ch == ' ' || ch == '-')
-                break;
-
-            Color who = islower (ch) ? Color::Black : Color::White;
-            CastlingEligibility castling_right = CastlingEligibility::Neither_Side;
-
-            switch (tolower (ch))
+            for (char ch : castling_str)
             {
-                case 'k':
-                    castling_right = CastlingRights::Kingside;
-                    break;
-                case 'q':
-                    castling_right = CastlingRights::Queenside;
-                    break;
+                switch (ch)
+                {
+                    case 'K':
+                        white_castle |= CastlingRights::Kingside;
+                        break;
+                    case 'Q':
+                        white_castle |= CastlingRights::Queenside;
+                        break;
+                    case 'k':
+                        black_castle |= CastlingRights::Kingside;
+                        break;
+                    case 'q':
+                        black_castle |= CastlingRights::Queenside;
+                        break;
+                    default:
+                        throw FenParserError ("Invalid castling character!");
+                }
             }
-
-            if (who == Color::Black)
-                black_castle |= castling_right;
-            else
-                white_castle |= castling_right;
         }
 
         builder.setCastling (Color::White, white_castle);

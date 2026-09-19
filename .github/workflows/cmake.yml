@@ -31,6 +31,9 @@ jobs:
       - name: Build Linter
         run: cmake --build ${{ github.workspace }}/build --target wisdom-linter -j 4
 
+      - name: Run Linter Self-Tests
+        run: ./scripts/linter/tests/run-tests.sh ${{ github.workspace }}/build/scripts/linter/wisdom-linter
+
       - name: Run Linter
         run: cmake --build ${{ github.workspace }}/build --target lint
 
