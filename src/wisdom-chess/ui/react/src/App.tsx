@@ -17,8 +17,8 @@ import {
     GameStatus,
     PieceColor,
     PieceType,
-    WebMove,
     DrawByRepetitionType,
+    ILLEGAL_MOVE,
     fromColorToNumber,
     ReactWindow,
     ChessEngineEventType,
@@ -119,8 +119,7 @@ function App() {
 
                 switch (type) {
                     case 'computerMoved': {
-                        const move = mod.WebMove.prototype.fromString(message, game.getCurrentTurn())
-                        withWasmObjects([move], () => game.makeMove(move))
+                        game.makeComputerMove(message)
                         throttledComputerMove()
                         dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
                         break
@@ -172,36 +171,16 @@ function App() {
                 return
             }
 
-            const owned: unknown[] = []
+            if (game.needsPawnPromotion(src, dst) && !promote) {
+                dispatch({ type: 'REQUEST_PROMOTION', src, dst })
+                return
+            }
 
-            withWasmObjects(owned, () => {
-                const srcCoord = mod.WebCoord.prototype.fromTextCoord(src)
-                owned.push(srcCoord)
-                const dstCoord = mod.WebCoord.prototype.fromTextCoord(dst)
-                owned.push(dstCoord)
-
-                if (game.needsPawnPromotion(srcCoord, dstCoord) && !promote) {
-                    dispatch({ type: 'REQUEST_PROMOTION', src, dst })
-                    return
-                }
-
-                const pieceType = promote ?? mod.Queen
-                let move: WebMove | null = null
-                try {
-                    move = game.createMoveFromCoordinatesAndPromotedPiece(srcCoord, dstCoord, pieceType)
-                    owned.push(move)
-                } catch {
-                    // illegal
-                }
-                if (!move || !game.isLegalMove(move)) {
-                    dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
-                    return
-                }
-
-                game.makeMove(move)
+            const move = game.makeHumanMove(src, dst, promote ?? mod.Queen)
+            if (move !== ILLEGAL_MOVE) {
                 model.notifyHumanMove(move)
-                dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
-            })
+            }
+            dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
         },
         [],
     )

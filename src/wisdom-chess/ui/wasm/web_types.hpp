@@ -294,31 +294,6 @@ namespace wisdom
         }
     };
 
-    struct WebCoord
-    {
-        int row;
-        int col;
-
-        WebCoord() : row { 0 }, col { 0 }
-        {
-        }
-
-        WebCoord (int row_, int col_) : row { row_ }, col { col_ }
-        {
-        }
-
-        [[nodiscard]] static auto 
-        fromTextCoord (char* coord_text) 
-            -> WebCoord*
-        {
-            auto coord = coordParse (coord_text);
-            return new WebCoord { 
-                narrow<int> (coord.row()), 
-                narrow<int> (coord.column()) 
-            };
-        }
-    };
-
     enum WebDrawStatus
     {
         NotReached,

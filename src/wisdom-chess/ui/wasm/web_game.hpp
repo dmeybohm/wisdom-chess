@@ -1,7 +1,6 @@
 #pragma once
 
 #include "wisdom-chess/ui/wasm/web_types.hpp"
-#include "wisdom-chess/ui/wasm/web_move.hpp"
 #include "wisdom-chess/ui/viewmodel/game_viewmodel_base.hpp"
 
 namespace wisdom
@@ -26,34 +25,21 @@ namespace wisdom
 
         void setSettings (const GameSettings& settings);
 
-        [[nodiscard]] auto
-        needsPawnPromotion (
-            const WebCoord* src,
-            const WebCoord* dst
-        ) const
-            -> bool
-        {
-            return GameViewModelBase::needsPawnPromotion (
-                src->row, src->col, dst->row, dst->col
-            );
-        }
+        // Returned by makeHumanMove() when the move is not legal.
+        static constexpr int Illegal_Move = -1;
 
+        // Squares are given in algebraic notation, such as "e2".
         [[nodiscard]] auto
-        createMoveFromCoordinatesAndPromotedPiece (
-            const WebCoord* src,
-            const WebCoord* dst,
-            int promoted_piece_type
-        )
-            -> WebMove*;
-
-        [[nodiscard]] auto makeMove (
-            const WebMove *move_param
-        )
+        needsPawnPromotion (const char* src, const char* dst) const
             -> bool;
 
+        // Make the human's move and return it packed for
+        // GameModel::notifyHumanMove(), or Illegal_Move.
         [[nodiscard]] auto
-        isLegalMove (const WebMove* selectedMovePtr)
-            -> bool;
+        makeHumanMove (const char* src, const char* dst, int promoted_piece_type)
+            -> int;
+
+        void makeComputerMove (const char* move_text);
 
         void setMaxDepth (int max_depth)
         {
@@ -156,6 +142,7 @@ namespace wisdom
         }
 
     private:
+        void applyMove (Move move);
 
         [[nodiscard]] auto findAndRemoveId (
             std::unordered_map<int,

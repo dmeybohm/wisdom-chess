@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "wisdom-chess/engine/coord.hpp"
+#include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/piece.hpp"
 
 #include "wisdom-chess/ui/wasm/web_game.hpp"
@@ -37,18 +39,43 @@ namespace wisdom
         updateDisplayedGameState();
     }
 
-    auto
-    WebGame::makeMove (const WebMove* move_param)
-        -> bool
+    static auto
+    parseSquare (const char* text) noexcept
+        -> optional<Coord>
     {
-        Move move = move_param->getMove();
+        if (text == nullptr)
+            return nullopt;
 
+        return coordParseOptional (text);
+    }
+
+    void WebGame::applyMove (Move move)
+    {
         my_game.move (move);
 
         updatePieceList (move.getPromotedPiece());
         updateDisplayedGameState();
+    }
 
-        return true;
+    auto
+    WebGame::needsPawnPromotion (const char* src, const char* dst) const
+        -> bool
+    {
+        auto src_coord = parseSquare (src);
+        auto dst_coord = parseSquare (dst);
+
+        if (!src_coord.has_value() || !dst_coord.has_value())
+            return false;
+
+        return GameViewModelBase::needsPawnPromotion (
+            src_coord->row<int>(), src_coord->column<int>(),
+            dst_coord->row<int>(), dst_coord->column<int>()
+        );
+    }
+
+    void WebGame::makeComputerMove (const char* move_text)
+    {
+        applyMove (moveParse (move_text, my_game.getCurrentTurn()));
     }
 
     auto
@@ -65,46 +92,28 @@ namespace wisdom
     }
 
     auto
-    WebGame::createMoveFromCoordinatesAndPromotedPiece (
-        const WebCoord* src,
-        const WebCoord* dst,
-        int promoted_piece_type
-    )
-        -> WebMove*
+    WebGame::makeHumanMove (const char* src, const char* dst, int promoted_piece_type)
+        -> int
     {
-        auto game_src = makeCoord (src->row, src->col);
-        auto game_dst = makeCoord (dst->row, dst->col);
+        auto src_coord = parseSquare (src);
+        auto dst_coord = parseSquare (dst);
 
-        auto optionalMove = my_game.mapCoordinatesToMove (game_src, game_dst, mapPiece (promoted_piece_type));
+        if (!src_coord.has_value() || !dst_coord.has_value())
+            return Illegal_Move;
 
-        if (!optionalMove.has_value())
-        {
-            throw Error { "Failed to map move." };
-        }
+        auto move = my_game.mapCoordinatesToMove (*src_coord, *dst_coord, mapPiece (promoted_piece_type));
 
-        auto move = *optionalMove;
-        return new WebMove { move };
-    }
+        if (!move.has_value())
+            return Illegal_Move;
 
-    auto
-    WebGame::isLegalMove (const WebMove* selectedMovePtr)
-        -> bool
-    {
-        Move selectedMove = selectedMovePtr->getMove();
-
-        // If it's not the human's turn, move is illegal.
-        if (my_game.getCurrentPlayer() != wisdom::Player::Human)
+        if (my_game.getCurrentPlayer() != wisdom::Player::Human || !isLegalMove (*move))
         {
             setMoveStatus ("Illegal move");
-            return false;
+            return Illegal_Move;
         }
 
-        bool isLegal = GameViewModelBase::isLegalMove (selectedMove);
-        if (!isLegal)
-        {
-            setMoveStatus ("Illegal move");
-        }
-        return isLegal;
+        applyMove (*move);
+        return move->toInt();
     }
 
     void WebGame::setSettings (const wisdom::GameSettings& settings)

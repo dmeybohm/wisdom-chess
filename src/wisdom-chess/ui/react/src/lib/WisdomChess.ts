@@ -54,7 +54,7 @@ export type GameModel = {
     setCurrentGameSettings(newSettings: WorkerGameSettings): void
     getFirstHumanPlayerColor: PieceColor
     getSecondHumanPlayerColor: PieceColor
-    notifyHumanMove(move: WebMove): void;
+    notifyHumanMove(packedMove: number): void;
     notifyComputerMove(): void;
     sendPause(): void;
     sendUnpause(): void;
@@ -91,10 +91,6 @@ export type WisdomChess = {
     Accepted: DrawProposed
     Declined: DrawProposed
 
-    // Web move constructor:
-    WebMove: any
-    WebCoord: any
-
     Playing: GameStatus
     Checkmate: GameStatus
     Stalemate: GameStatus
@@ -123,7 +119,8 @@ export type DrawByRepetitionType = any
 
 export type GameStatus = any
 
-export type WebMove = object
+// Returned by Game.makeHumanMove() when the move is not legal.
+export const ILLEGAL_MOVE = -1
 
 interface ColoredPiece {
     color: number

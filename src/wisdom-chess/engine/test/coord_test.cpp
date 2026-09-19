@@ -58,3 +58,18 @@ TEST_CASE( "CoordIterator" )
         CHECK( *iterator == makeCoord (0, 1) );
     }
 }
+
+TEST_CASE( "Parsing a coordinate without exceptions" )
+{
+    CHECK( coordParseOptional ("e2") == coordParse ("e2") );
+    CHECK( coordParseOptional ("h8") == coordParse ("h8") );
+
+    CHECK( !coordParseOptional ("").has_value() );
+    CHECK( !coordParseOptional ("e").has_value() );
+    CHECK( !coordParseOptional ("e22").has_value() );
+    CHECK( !coordParseOptional ("z9").has_value() );
+    CHECK( !coordParseOptional ("i1").has_value() );
+    CHECK( !coordParseOptional ("a0").has_value() );
+
+    CHECK_THROWS_AS( (void)coordParse ("z9"), CoordParseError );
+}

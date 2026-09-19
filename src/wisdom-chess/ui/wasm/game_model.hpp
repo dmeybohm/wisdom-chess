@@ -76,10 +76,10 @@ namespace wisdom
             emscripten_wasm_worker_post_function_v (engine_thread, startSearch);
         }
 
-        void notifyHumanMove (const WebMove* move) const
+        // Takes the packed move that WebGame::makeHumanMove() returned.
+        void notifyHumanMove (int packed_move) const
         {
-            emscripten_wasm_worker_post_function_vi (engine_thread, workerReceiveMove,
-                                                     move->getMove().toInt());
+            emscripten_wasm_worker_post_function_vi (engine_thread, workerReceiveMove, packed_move);
         }
 
         void notifyComputerMove() const

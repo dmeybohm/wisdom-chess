@@ -3,23 +3,22 @@ import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
 import type { WisdomWindow, Game, GameModel, WisdomChess } from './lib/WisdomChess'
-import { withWasmObjects } from './lib/WisdomChess'
+import { ILLEGAL_MOVE, withWasmObjects } from './lib/WisdomChess'
 
 const createMockGame = (): Game => ({
     getGameStatus: vi.fn(() => 0),
     getMoveStatus: vi.fn(() => 'White to move'),
     getGameOverStatus: vi.fn(() => ''),
-    getCurrentTurn: vi.fn(() => 0),
+    getCurrentTurn: vi.fn(() => 1),
     getInCheck: vi.fn(() => false),
     getGameId: vi.fn(() => 0),
     getPieceList: vi.fn(() => ({
         length: 0,
         pieceAt: vi.fn(() => null),
     })),
-    isLegalMove: vi.fn(() => true),
-    makeMove: vi.fn(),
+    makeHumanMove: vi.fn(() => 0),
+    makeComputerMove: vi.fn(),
     needsPawnPromotion: vi.fn(() => false),
-    createMoveFromCoordinatesAndPromotedPiece: vi.fn(),
     getPlayerOfColor: vi.fn(() => 0),
     setSettings: vi.fn(),
     setHumanDrawStatus: vi.fn(),
@@ -35,8 +34,8 @@ const createMockGameModel = (): GameModel => ({
         searchDepth: 4,
         debugLogging: false,
     })),
-    getFirstHumanPlayerColor: vi.fn(() => 0),
-    getSecondHumanPlayerColor: vi.fn(() => 2),
+    getFirstHumanPlayerColor: vi.fn(() => 1),
+    getSecondHumanPlayerColor: vi.fn(() => 0),
     setCurrentGameSettings: vi.fn(),
     notifyHumanMove: vi.fn(),
     notifyComputerMove: vi.fn(),
@@ -45,9 +44,9 @@ const createMockGameModel = (): GameModel => ({
 } as unknown as GameModel)
 
 const createMockWisdomChess = (): WisdomChess => ({
-    White: 0,
-    Black: 1,
-    NoColor: 2,
+    NoColor: 0,
+    White: 1,
+    Black: 2,
     Human: 0,
     ChessEngine: 1,
     NoPiece: 0,
@@ -72,16 +71,6 @@ const createMockWisdomChess = (): WisdomChess => ({
         this.searchDepth = 4
         this.debugLogging = false
     }) as any,
-    WebMove: {
-        prototype: {
-            fromString: vi.fn(),
-        },
-    } as any,
-    WebCoord: {
-        prototype: {
-            fromTextCoord: vi.fn(() => ({})),
-        },
-    } as any,
     destroy: vi.fn(),
 } as unknown as WisdomChess)
 
@@ -240,7 +229,7 @@ describe('App', () => {
     })
 })
 
-describe('WebIDL object ownership', () => {
+describe('Engine interface', () => {
     let mockGame: Game
     let mockGameModel: GameModel
     let mockWisdomChess: WisdomChess
@@ -271,17 +260,72 @@ describe('WebIDL object ownership', () => {
         expect(mockWisdomChess.destroy).toHaveBeenCalledWith(wasmSettings)
     })
 
-    it('frees the move created for a computer move', () => {
-        const wasmMove = {}
-        vi.mocked(mockWisdomChess.WebMove.prototype.fromString).mockReturnValue(wasmMove)
+    const placeWhitePawnOnE2 = () => {
+        vi.mocked(mockGame.getPieceList).mockReturnValue({
+            length: 1,
+            pieceAt: vi.fn(() => ({ id: 1, color: 1, piece: 1, row: 6, col: 4 })),
+        })
+    }
 
+    const clickSquare = async (user: ReturnType<typeof userEvent.setup>, index: number) => {
+        await user.click(document.querySelectorAll('.square')[index])
+    }
+
+    it('makes a human move from square names and notifies the engine', async () => {
+        const user = userEvent.setup()
+        placeWhitePawnOnE2()
+        vi.mocked(mockGame.makeHumanMove).mockReturnValue(1234)
+
+        render(<App />)
+        await user.click(document.querySelector('.piece.e2')!)
+        await clickSquare(user, 36)
+
+        expect(mockGame.makeHumanMove).toHaveBeenCalledWith('e2', 'e4', mockWisdomChess.Queen)
+        expect(mockGameModel.notifyHumanMove).toHaveBeenCalledWith(1234)
+    })
+
+    it('does not notify the engine about an illegal human move', async () => {
+        const user = userEvent.setup()
+        placeWhitePawnOnE2()
+        vi.mocked(mockGame.makeHumanMove).mockReturnValue(ILLEGAL_MOVE)
+
+        render(<App />)
+        await user.click(document.querySelector('.piece.e2')!)
+        await clickSquare(user, 36)
+
+        expect(mockGame.makeHumanMove).toHaveBeenCalled()
+        expect(mockGameModel.notifyHumanMove).not.toHaveBeenCalled()
+    })
+
+    it('asks for a promotion piece before making the move', async () => {
+        const user = userEvent.setup()
+        placeWhitePawnOnE2()
+        vi.mocked(mockGame.needsPawnPromotion).mockReturnValue(true)
+
+        render(<App />)
+        await user.click(document.querySelector('.piece.e2')!)
+        await clickSquare(user, 36)
+
+        expect(mockGame.needsPawnPromotion).toHaveBeenCalledWith('e2', 'e4')
+        expect(mockGame.makeHumanMove).not.toHaveBeenCalled()
+    })
+
+    it('passes a computer move to the game as text', () => {
         render(<App />)
 
         const onMessage = vi.mocked(wisdomWindow.setReceiveWorkerMessageCallback).mock.calls[0][0]
         act(() => onMessage('computerMoved', 0, 'e2 e4'))
 
-        expect(mockGame.makeMove).toHaveBeenCalledWith(wasmMove)
-        expect(mockWisdomChess.destroy).toHaveBeenCalledWith(wasmMove)
+        expect(mockGame.makeComputerMove).toHaveBeenCalledWith('e2 e4')
+    })
+
+    it('ignores a computer move from an earlier game', () => {
+        render(<App />)
+
+        const onMessage = vi.mocked(wisdomWindow.setReceiveWorkerMessageCallback).mock.calls[0][0]
+        act(() => onMessage('computerMoved', 7, 'e2 e4'))
+
+        expect(mockGame.makeComputerMove).not.toHaveBeenCalled()
     })
 
     it('frees the settings object built when settings are applied', async () => {
