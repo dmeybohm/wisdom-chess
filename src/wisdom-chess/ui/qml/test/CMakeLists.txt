@@ -1,0 +1,79 @@
+# Tests for the QML frontend's C++ classes that need neither a thread nor a
+# display. They run under QCoreApplication, so no platform plugin is loaded.
+
+# The QML directory asks for CMake 3.16, which predates test names with spaces.
+cmake_policy(SET CMP0110 NEW)
+
+# The application's sources are compiled straight into its executable, which
+# a test cannot link, so the ones under test are built again here.
+qt_add_library(wisdom-chess-qml-test-support STATIC
+    ../main/pieces_model.hpp
+    ../main/pieces_model.cpp
+    ../main/chess_game.hpp
+    ../main/chess_game.cpp
+    ../main/game_settings.hpp
+    ../main/game_settings.cpp
+    ../main/ui_settings.hpp
+    ../main/ui_settings.cpp
+    ../main/ui_types.hpp
+    ../main/ui_types.cpp
+    ../main/game_model.hpp
+    ../main/game_model.cpp
+    ../main/chess_engine.hpp
+    ../main/chess_engine.cpp
+)
+target_link_libraries(wisdom-chess-qml-test-support
+    PUBLIC Qt6::Core Qt6::Qml wisdom::chess wisdom::viewmodel)
+target_include_directories(wisdom-chess-qml-test-support PUBLIC ../../../..)
+wisdom_chess_enable_warnings(wisdom-chess-qml-test-support)
+
+function(wisdom_chess_add_qml_test test_name source)
+    get_filename_component(target_suffix "${source}" NAME_WE)
+    string(REPLACE "_" "-" target_suffix "${target_suffix}")
+    set(target "wisdom-chess-qml-${target_suffix}")
+
+    qt_add_executable(${target} ${source})
+    target_link_libraries(${target} PRIVATE wisdom-chess-qml-test-support Qt6::Test)
+    wisdom_chess_enable_warnings(${target})
+
+    add_test(NAME "${test_name}" COMMAND ${target})
+    set_tests_properties("${test_name}" PROPERTIES LABELS fast)
+endfunction()
+
+wisdom_chess_add_qml_test("QML: PiecesModel" pieces_model_test.cpp)
+wisdom_chess_add_qml_test("QML: ChessGame" chess_game_test.cpp)
+wisdom_chess_add_qml_test("QML: settings and types" settings_test.cpp)
+
+# The application test loads the real QML. The files live in the application
+# executable's resources, so they are embedded again here under the same
+# resource paths, from the lists the application's QML module recorded.
+wisdom_chess_add_qml_test("QML: application" application_test.cpp)
+target_link_libraries(wisdom-chess-qml-application-test PRIVATE Qt6::Quick Qt6::Svg)
+
+get_target_property(app_qml_files WisdomChessQml QT_QML_MODULE_QML_FILES)
+get_target_property(app_resources WisdomChessQml QT_QML_MODULE_RESOURCES)
+get_target_property(app_module_dir WisdomChessQml QT_QML_MODULE_OUTPUT_DIRECTORY)
+
+set(test_resource_files "")
+foreach(file IN LISTS app_qml_files app_resources)
+    get_filename_component(absolute_file "${file}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
+    file(RELATIVE_PATH alias "${CMAKE_CURRENT_SOURCE_DIR}/.." "${absolute_file}")
+    set_source_files_properties("${absolute_file}" PROPERTIES QT_RESOURCE_ALIAS "${alias}")
+    list(APPEND test_resource_files "${absolute_file}")
+endforeach()
+
+# The generated module descriptions, which let one QML file name another.
+foreach(qmldir qmldir main/qmldir popups/qmldir)
+    set(qmldir_file "${app_module_dir}/${qmldir}")
+    set_source_files_properties("${qmldir_file}" PROPERTIES
+        QT_RESOURCE_ALIAS "${qmldir}" GENERATED TRUE)
+    list(APPEND test_resource_files "${qmldir_file}")
+endforeach()
+
+qt_add_resources(wisdom-chess-qml-application-test "application_qml"
+    PREFIX "/qt/qml/WisdomChess"
+    FILES ${test_resource_files})
+add_dependencies(wisdom-chess-qml-application-test WisdomChessQml)
+
+set_tests_properties("QML: application" PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software")

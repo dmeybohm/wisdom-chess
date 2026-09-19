@@ -162,8 +162,18 @@ PiecesModel::playerMoved (
     {
         auto& piece_model = my_pieces[i];
 
-        piece_model.is_castling_rook = false;
-        piece_model.castling_source_column = -1;
+        if (piece_model.is_castling_rook || piece_model.castling_source_column != -1)
+        {
+            piece_model.is_castling_rook = false;
+            piece_model.castling_source_column = -1;
+
+            QModelIndex cleared_index = index (i, 0);
+            emit dataChanged (
+                cleared_index,
+                cleared_index,
+                QVector<int> { IsCastlingRookRole, CastlingSourceColumnRole }
+            );
+        }
 
         if (piece_model.row == dst_row && piece_model.column == dst_column)
         {

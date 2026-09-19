@@ -53,6 +53,15 @@ namespace
                 "WARN_NOTHROW",
                 "CHECK_MESSAGE", "REQUIRE_MESSAGE", "WARN_MESSAGE",
                 "MESSAGE", "FAIL", "FAIL_CHECK",
+                "QVERIFY", "QVERIFY2", "QCOMPARE",
+                "QCOMPARE_EQ", "QCOMPARE_NE", "QCOMPARE_LT", "QCOMPARE_LE", "QCOMPARE_GT",
+                "QCOMPARE_GE",
+                "QTRY_VERIFY", "QTRY_VERIFY2", "QTRY_COMPARE",
+                "QTRY_VERIFY_WITH_TIMEOUT", "QTRY_VERIFY2_WITH_TIMEOUT",
+                "QTRY_COMPARE_WITH_TIMEOUT",
+                "QVERIFY_THROWS_EXCEPTION", "QVERIFY_THROWS_NO_EXCEPTION",
+                "QFETCH", "QFETCH_GLOBAL", "QFAIL", "QSKIP", "QEXPECT_FAIL",
+                "QTEST_MAIN", "QTEST_GUILESS_MAIN", "QTEST_APPLESS_MAIN",
             };
 
             for ( size_t i = 0; i < context.lines.size(); ++i )
