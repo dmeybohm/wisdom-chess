@@ -383,3 +383,28 @@ should be confirmed before fixing.
   tentative positions are pending. This replaces the standalone probe from
   session 7. Fast suite is now 93 tests, all passing, along with the 23 slow
   tests.
+
+### Session #9
+
+Found while syntax-checking the sources with Emscripten's Clang and with GCC
+without `NDEBUG`. CI builds only Release and RelWithDebInfo with GCC-style
+warnings on the engine target, so none of these were visible there.
+
+- Debug builds of the engine did not compile. The promotion branch of
+  `BoardCode::applyMove` asserted on `src_piece_type`, a local that session
+  work in "Fix the remaining engine warnings under -Wall -Wextra" removed
+  as unused. It only looked unused because Release compiles the `assert`
+  away. The assert now calls `pieceType (src_piece)` directly, so there is
+  no local to go unused in Release.
+- `Board` declared a defaulted copy constructor but no copy assignment, which
+  makes the implicit assignment deprecated (`-Wdeprecated-copy` on Clang).
+  Added a defaulted copy assignment operator.
+- `MoveTimer` was forward declared as a `struct` and defined as a `class`,
+  and the wasm `GameSettings` the other way around. Harmless on the Itanium
+  ABI but a possible link error under MSVC. The forward declarations now
+  match the definitions.
+- Removed three unused locals in `ui/wasm/web_game.cpp`.
+- Verified by compiling all 58 engine, test, viewmodel, UCI and console
+  sources with GCC without `NDEBUG` (no errors) and the engine plus non-Qt UI
+  sources with Clang `-Wall -Wextra` (no diagnostics). Release build and all
+  116 tests pass.

@@ -138,7 +138,6 @@ namespace wisdom
             [piece_to_find, coord_to_find] (const auto& it)
                 -> bool
             {
-                auto key = it.first;
                 auto value = it.second;
                 auto piece = mapColoredPiece (value);
                 auto piece_coord = makeCoord (value.row, value.col);
@@ -148,7 +147,6 @@ namespace wisdom
 
         if (found != old_list.end())
         {
-            auto position = found->first;
             auto value = found->second;
             old_list.erase (found);
             return value.id;
@@ -224,7 +222,6 @@ namespace wisdom
                 {
                     throw Error { "Couldn't find id." };
                 }
-                auto coord_idx = it->first;
                 auto old_piece = it->second;
                 auto coord = Coord::fromIndex (value.first);
 

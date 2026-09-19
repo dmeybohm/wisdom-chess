@@ -21,6 +21,8 @@ namespace wisdom
 
         Board (const Board& board) = default;
 
+        auto operator= (const Board& board) -> Board& = default;
+
         explicit Board (const BoardBuilder& builder);
 
         friend auto

@@ -6,7 +6,7 @@
 
 namespace wisdom
 {
-    class GameSettings;
+    struct GameSettings;
 
     class WebGame : public ui::GameViewModelBase
     {
