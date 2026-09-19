@@ -173,6 +173,11 @@ should be confirmed before fixing.
   Consequences that compile today: `onDropPiece` is declared
   `(dst, src)` in `Board.tsx:23` but `(src, dst)` in `Square.tsx:16`;
   `PawnPromotionDialog.tsx` types `selectedPiece` as `PieceColor`.
+- [x] **Console number prompts abort on out-of-range input.** *(verified)*
+  `readInt` in `ui/console/play.cpp` caught `std::invalid_argument` from
+  `std::stoi` but not `std::out_of_range`, so a very large number at the
+  `maxdepth` or `timeout` prompt terminated the program. Found and fixed
+  in Session #14.
 - [ ] `ChessGame::clone()` round-trips through FEN
   (`ui/qml/main/chess_game.cpp:555-567`), dropping move history. Safe only
   because it runs when history is empty; needs a comment or a real copy.
@@ -189,9 +194,10 @@ should be confirmed before fixing.
 
 ### Tests
 
-- [ ] **Threat test inner loop runs once.** *(verified)*
+- [x] **Threat test inner loop runs once.** *(verified)*
   `engine/test/check_test.cpp:44`: `for (auto col = 7; col < 8; col++)`.
   Only column h is checked, so 56 of 64 expected values are dead data.
+  Fixed in Session #14.
 - [ ] Perft asserts node counts for only positions 1 and 2. Positions 3,
   4 and 5 appear in `hash_collision_slow_test.cpp:136-139` for collision
   checks only; position 6 is absent. `MoveCounter` lacks castles,
@@ -208,15 +214,16 @@ should be confirmed before fixing.
   *(verified)* `CMakeLists.txt:36` uses
   `WISDOM_CHESS_REACT_BUILD_INTEGRATED_DEFAULT`, which is assigned at
   lines 49-53. The option has always defaulted OFF, contrary to the docs.
-- [ ] **Dead `if` hides a bogus target.** *(verified)*
+- [x] **Dead `if` hides a bogus target.** *(verified)*
   `ui/console/CMakeLists.txt:5-6` tests `PCH_ENABLED`, a normal variable
   from a sibling scope, and references target `chess`, which does not
-  exist. The console binary never gets a PCH.
+  exist. The console binary never gets a PCH. Fixed in Session #11.
 - [x] Engine compiles with no warning flags. Fixed in this branch.
 - [x] Clear the warning sites the new flags report. Done in Sessions #2
   and #3; the engine now builds warning-free under `-Wall -Wextra`.
-- [ ] No sanitizer job, no Debug build and no Linux/Clang in
+- [ ] No sanitizer job and no Linux/Clang in
   `.github/workflows/cmake.yml`. `WISDOM_CHESS_ASAN` is unused by CI.
+  The missing Debug build was added in Session #12.
 - [ ] Linter self-tests (`scripts/linter/tests/run-tests.sh`) are not run
   in CI. `LinterConfig::ignore` is populated and never read.
 - [ ] `WISDOM_CHESS_SLOW_TESTS` defaults On (`CMakeLists.txt:33`) but
@@ -531,3 +538,30 @@ warning lines and Windows 108, from seven distinct sites.
   builds report no warnings, all 119 tests pass, and the linter's own 19
   tests pass. The MSVC and AppleClang results can only be confirmed by the
   next CI run.
+
+### Session #14
+
+- Threat test (`engine/test/check_test.cpp`): the inner loop now covers all
+  eight columns, using `Num_Rows` and `Num_Columns`. The `INFO` line that
+  names the square is enabled, and the checks are `CHECK` so that every
+  mismatch is reported, not only the first. All 128 comparisons
+  pass, so the 56 previously unchecked table values were correct and the
+  engine agrees with them. The defect was only in the test's coverage.
+- Console number prompts: reproduced first. Typing
+  `99999999999999999999` at the `maxdepth` prompt aborted the console with
+  an uncaught `std::out_of_range` from `std::stoi`. `readInt` now uses the
+  engine's `toInt`, which reports failure through its `optional` result, so
+  the exception handling is gone. The same input now prints "Invalid
+  search depth." and the session continues; an empty line is rejected the
+  same way and a valid depth is still accepted.
+- Extended the `toInt` test in `engine/test/str_test.cpp` with empty input
+  and values just past and far past the `int` range, since the console now
+  relies on that behaviour.
+- The two `std::stoi` calls in `ui/uci/uci_interface.cpp` were checked and
+  left alone; both already catch every exception.
+- Checklist housekeeping: marked the console precompiled-header item as
+  fixed in Session #11 and noted that Session #12 added the Debug build
+  named in the CI item, which stays open for the sanitizer and Linux Clang
+  jobs.
+- Verified: no warnings in the desktop build, all 119 tests pass, linter
+  clean on the changed files.

@@ -107,4 +107,18 @@ TEST_CASE( "toInt" )
         auto result = wisdom::toInt ("invalid");
         REQUIRE( !result.has_value() );
     }
+
+    SUBCASE( "Empty" )
+    {
+        auto result = wisdom::toInt ("");
+        REQUIRE( !result.has_value() );
+    }
+
+    SUBCASE( "Too large or too small to fit in an int" )
+    {
+        CHECK( !wisdom::toInt ("99999999999999999999").has_value() );
+        CHECK( !wisdom::toInt ("-99999999999999999999").has_value() );
+        CHECK( !wisdom::toInt ("2147483648").has_value() );
+        CHECK( wisdom::toInt ("2147483647") == std::numeric_limits<int>::max() );
+    }
 }
