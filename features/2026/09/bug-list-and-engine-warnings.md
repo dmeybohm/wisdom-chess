@@ -193,7 +193,11 @@ should be confirmed before fixing.
   *(verified)* `ui/qml/main/pieces_model.cpp:160-176` calls
   `my_pieces.removeAt (i)` inside a forward loop without adjusting `i`,
   and then reads the `piece_model` reference it just invalidated.
-  Fixed in Session #16.
+  Fixed in Session #16. The `qml-tests` branch reverted the fix to test
+  it and found the defect narrower than described here: the stale
+  reference pointed at the element that had shifted into the slot, so that
+  piece was still processed, but it missed the reset of its castling
+  roles. A test there now fails without the fix.
 - [x] **`uiSettings` is undefined in `mobile_main.qml`.** *(verified)*
   `ui/qml/main/mobile_main.qml:46` logs `uiSettings.squareSize`; the
   property lives on `_myGameModel`. ReferenceError on every orientation
@@ -228,8 +232,26 @@ should be confirmed before fixing.
   `quit()`/`wait()` (`ui/qml/main/game_model.cpp:336`). Fixed on the
   `qml-engine-thread-shutdown` branch; see
   [qml-engine-thread-shutdown.md](qml-engine-thread-shutdown.md).
+  The `qml-tests` branch has a test that aborts without the fix.
 - [x] Debug `std::cout` in `ui/wasm/web_game.cpp:120-121`. *(verified)*
   Fixed in Session #16.
+- [x] **A castled rook never animates again.** Found on the `qml-tests`
+  branch. `PiecesModel::playerMoved` cleared the rook's castling roles
+  without emitting `dataChanged`, so the `Piece.qml` delegate kept
+  `isCastlingRook` true and its move animations stayed disabled for the
+  rest of the game. Emitting the signal alone made it worse: the
+  delegate's handler ran on any change and replayed the castling animation
+  from column -1. Fixed there in the model and `Piece.qml` together.
+- [x] `UISettings::my_flipped` has no initializer
+  (`ui/qml/main/ui_settings.hpp`). Found and fixed on the `qml-tests`
+  branch.
+- [x] `ChessGame::fromPlayers()` ignores its player arguments, because the
+  constructor applies the config's players afterwards
+  (`ui/qml/main/chess_game.cpp`). Both callers passed matching players, so
+  nothing misbehaved. Found and fixed on the `qml-tests` branch.
+- [ ] `ChessGame::setPlayers()` changes the game's players but not
+  `config().players` (`ui/qml/main/chess_game.cpp`). Found on the
+  `qml-tests` branch.
 - [ ] `QThread::usleep (200000)` in the engine slot to wait for animation
   (`ui/qml/main/chess_engine.cpp:126`). *(verified)*
 - [ ] `ViewModelSettings` (`ui/viewmodel/viewmodel_settings.hpp`) appears
@@ -246,10 +268,15 @@ should be confirmed before fixing.
   checks only; position 6 is absent. `MoveCounter` lacks castles,
   promotions and checks. Fixed on the `more-tests` branch; see
   [more-tests.md](more-tests.md).
-- [ ] No tests for `evaluate.cpp`, `game_status.cpp`, `move_timer.cpp`,
+- [x] No tests for `evaluate.cpp`, `game_status.cpp`, `move_timer.cpp`,
   `output_format.cpp`, the console UI, UCI, view-model or QML C++.
   All but the QML C++ were added on the `more-tests` branch, along with
-  tests for `Game::status()`, which had none.
+  tests for `Game::status()`, which had none. The QML C++ followed on the
+  `qml-tests` branch, with Qt Test: the models and settings on their own,
+  and the real desktop QML driven offscreen by clicks. They pass on the
+  Linux, macOS and Windows CI jobs. Still untested there: the dialogs and
+  the game menu, an engine move, and the mobile QML, which only the
+  Android build includes. See [qml-tests.md](qml-tests.md).
 - [x] `generate_test.cpp` compares `asString()` output; brittle. Fixed on
   the `more-tests` branch.
 - [x] React `App.test.tsx:46-85` mock hard-codes `Pawn: 5`; the real enum
