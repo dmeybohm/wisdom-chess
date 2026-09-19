@@ -183,3 +183,14 @@ occurrences: `WISDOM_CHESS_QML_UI=Off` for the `thread` leg of the
 `sanitizers` job (`address` keeps QML). `tsan.supp` is kept as-is; it
 still documents real Qt/glib-internal noise and applies if QML is turned
 back on for local TSan debugging (see the note added in `AGENTS.md`).
+
+That first attempt used `-DWISDOM_CHESS_QML_UI=Off` (mixed case) and
+still failed the same way: `src/wisdom-chess/ui/CMakeLists.txt:15` checks
+`WISDOM_CHESS_QML_UI STREQUAL "OFF"`, a case-sensitive string compare,
+not a CMake bool. `"Off" != "OFF"`, so it fell through to the AUTO
+branch and built QML anyway once Qt was findable — silently defeating
+the fix. A local check of that first attempt had "passed" only because
+`WISDOM_CHESS_QT_DIR` was left unset that time, so Qt wasn't findable
+regardless of the flag. Fixed to exact-case `ON`/`OFF`, this time
+verified with `WISDOM_CHESS_QT_DIR` set: the configure log reads "QML UI
+disabled by user", and `build-tsan-noqml` passes all 177 fast tests.
