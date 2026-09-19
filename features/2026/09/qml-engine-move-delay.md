@@ -28,6 +28,20 @@ and the 200 ms is a copy of `animationDelay` in `DesktopRoot.qml` and
 `MobileRoot.qml`, not tied to it. The `QML: dialogs` test
 `theEngineAnswersAMove` spends most of its 0.4 seconds in this sleep.
 
+Three more things are wrong with it:
+
+- The wait is serial with the search. A search that takes two seconds
+  still pays the 200 ms first, although the animation would have finished
+  long before the reply. The wait only matters when the search ends sooner
+  than the animation: at a low depth, with a short time limit, or in a
+  forced position.
+- It runs when nothing is animating: the engine's first move as White, a
+  search resumed after a draw dialog, and a search restarted by a config
+  change.
+- It never covered castling. The rook waits 225 ms and then moves for
+  200 ms (`Piece.qml`), so a fast reply starts while the rook is still
+  moving.
+
 The plan for removing it comes after the preliminary action item below.
 
 ## Preliminary action item: a script to install the Qt that CI uses
@@ -120,5 +134,112 @@ commands, and delete the manual install left in the scratch directory.
 - A Debug build against that path passes all fast tests, including the
   six `QML:` tests.
 - `shellcheck`, if available, reports nothing.
+
+## Plan: hold the engine's move in the GUI
+
+The engine searches as soon as it is its turn. `GameModel`, on the GUI
+thread, holds an engine move that arrives before the previous move has
+finished animating, and shows it when the animation is done. The search
+and the animation overlap, so a search longer than the animation pays
+nothing, and the engine thread never blocks.
+
+### Alternatives considered
+
+- **`QTimer::singleShot` in the engine thread.** The smallest change, and
+  the thread's event loop stays alive. It keeps the serial 200 ms and the
+  copied constant, and adds a state the code does not have today: a config
+  change or a reloaded game during the wait could queue a second search, so
+  it would need a guard.
+- **A handshake with QML when the animation finishes.** No timing constant
+  at all. But the animations are `Behavior`s on each of up to 32 delegates
+  with no single finished signal, a captured piece's delegate is destroyed
+  while it animates, and the UI tests run offscreen with the software
+  backend, where animation timing is the least reliable.
+- **Deleting the sleep.** At depth 1 the reply arrives within milliseconds,
+  so two pieces move at once, and when the engine recaptures, the piece
+  that is still sliding disappears.
+
+### Design
+
+`chess_engine.cpp`: delete the `usleep` and its comment. `<QThread>` stays,
+because `quit()` uses it.
+
+`game_model.hpp` and `game_model.cpp`:
+
+- Two properties, so that the durations have one source that both C++ and
+  QML read:
+  - `animationDelay`, 200 ms, with `setAnimationDelay()` and
+    `animationDelayChanged`. It is settable so that a test can choose a
+    long hold.
+  - `castlingRookPause`, 225 ms, constant.
+- New members: a `QElapsedTimer` for when the last move was shown, the hold
+  that move needs in milliseconds, a single-shot `QTimer` with
+  `Qt::PreciseTimer`, and an `optional` held move (`move`, `who`,
+  `game_id`).
+- `handleMove()` runs for human and engine moves alike and is where
+  `PiecesModel::playerMoved` is triggered from. It restarts the elapsed
+  timer and sets the hold to `animationDelay`, plus `castlingRookPause` when
+  the move is castling.
+- `engineThreadMoved()` keeps its game id check first. If no move has been
+  shown yet, or the hold has elapsed, it shows the move at once. Otherwise
+  it stores the move and starts the timer for the remainder. The code that
+  applies and announces the move goes into a private `showEngineMove()`.
+- When the timer fires, it takes the held move, checks its game id against
+  `gameId()` again, and calls `showEngineMove()`.
+- `restart()` stops the timer, clears the held move and invalidates the
+  elapsed timer. A new board has nothing animating, so an engine playing
+  White moves at once.
+
+QML: `DesktopRoot.qml` and `MobileRoot.qml` bind `animationDelay` to
+`_myGameModel.animationDelay` and gain a `castlingRookPause` bound the same
+way. The `PauseAnimation` in `Piece.qml` uses `root.castlingRookPause`
+instead of `225`. Check `desktop_main.qml`, `mobile_main.qml` and
+`wasm_main.qml` for other literal copies.
+
+Why it stays correct:
+
+- Engine against engine stays paced. The engine thread starts its next
+  search from `GameModel::engineMoved`, through
+  `ChessEngine::receiveEngineMoved`, and that signal is now emitted when
+  the move is shown.
+- For the same reason only one engine move can be outstanding, so one held
+  slot is enough.
+- The human cannot move during a hold. The GUI's `Game` still has the
+  engine to move, and `ChessGame::isLegalMove` rejects a move then.
+- A pause (an open menu or dialog) does not interact. A held move is shown
+  the way a queued `engineMoved` signal is shown today.
+- A held move that belongs to an earlier game is dropped twice over:
+  `restart()` clears it, and the timer's slot checks the game id.
+
+### Tests
+
+In `src/wisdom-chess/ui/qml/test/dialogs_test.cpp`, next to
+`theEngineAnswersAMove`, with the helpers in `application_fixture.hpp`:
+
+- A depth-1 reply is not shown before the hold ends. Spy on `humanMoved`
+  and `engineMoved` and expect at least `animationDelay` between them.
+- New Game drops a held move. Set `animationDelay` to five seconds, move,
+  wait long enough for a depth-1 search, call `restart()`, and expect no
+  `engineMoved`, 32 pieces, and `piecesMatchTheBoard()`.
+- After castling, the hold is `animationDelay` plus `castlingRookPause`.
+- The engine's first move as White is shown without a hold.
+- Record which of these fail with the change reverted. The New Game test
+  has no counterpart in the old code.
+
+### Verification
+
+- Release and Debug builds with the QML UI and no warnings; the linter
+  clean on the C++ files touched.
+- `ctest -R "^QML:"` passes. Record the time of `theEngineAnswersAMove`
+  before and after.
+- The same in a Debug build against CI's Qt, installed by
+  `scripts/install-ci-qt.sh`.
+- By hand in the desktop app: a game at depth 1, a recapture of the piece
+  that just moved, castling followed by a fast reply, engine against
+  engine, and New Game while a reply is held.
+- Afterwards, tick the `usleep` item in
+  [bug-list-and-engine-warnings.md](bug-list-and-engine-warnings.md) and
+  point it here. If the tests use `setAnimationDelay()`, mention it in the
+  QML testing notes in `AGENTS.md`.
 
 ## Implementation Progress
