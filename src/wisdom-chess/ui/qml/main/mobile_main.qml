@@ -43,7 +43,7 @@ ApplicationWindow {
 
     Screen.onPrimaryOrientationChanged: {
         boardDimensions.squareSize = boardDimensions.calculateMaxSquareSize()
-        console.log("new square size: "+uiSettings.squareSize)
+        console.log("new square size: "+boardDimensions.squareSize)
     }
 
     header: ToolBar {

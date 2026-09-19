@@ -4,14 +4,32 @@
 #include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/coord.hpp"
+#include "wisdom-chess/engine/generate.hpp"
 
 #include <algorithm>
 #include <chrono>
+#include <random>
 
 namespace wisdom
 {
     namespace
     {
+        // For a search that ended before completing any depth.
+        auto
+        pickRandomLegalMove (const Game& game)
+            -> optional<Move>
+        {
+            auto moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
+            if (moves.isEmpty())
+                return nullopt;
+
+            std::random_device random_device;
+            std::mt19937 rng { random_device() };
+            std::uniform_int_distribution<std::size_t> pick { 0, moves.size() - 1 };
+
+            return *(moves.begin() + narrow<std::ptrdiff_t> (pick (rng)));
+        }
+
         class UciLogger : public Logger
         {
         public:
@@ -293,6 +311,7 @@ namespace wisdom
         }
 
         int current_search_id = my_search_id.fetch_add (1) + 1;
+        my_stop_requested.store (false);
 
         Game game_copy = [this]
         {
@@ -318,6 +337,9 @@ namespace wisdom
 
                 if (my_search_id.load() == current_search_id)
                 {
+                    if (!best_move.has_value())
+                        best_move = pickRandomLegalMove (game);
+
                     sendBestMove (best_move);
                 }
             });
@@ -367,7 +389,7 @@ namespace wisdom
 
     void UciInterface::handleStop()
     {
-        my_search_id.fetch_add (1);
+        my_stop_requested.store (true);
     }
 
     void UciInterface::handleQuit()
@@ -478,6 +500,12 @@ namespace wisdom
             if (my_search_id.load() != initial_search_id)
             {
                 timer->setCancelled (true);
+            }
+            else if (my_stop_requested.load())
+            {
+                // "stop" means the time is up: the search ends through its
+                // normal timeout and keeps the last completed depth.
+                timer->setSeconds (chrono::seconds { 0 });
             }
         };
     }

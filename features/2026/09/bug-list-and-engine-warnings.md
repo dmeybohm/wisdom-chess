@@ -146,28 +146,33 @@ should be confirmed before fixing.
 
 ### Frontends
 
-- [ ] **Pointer thrown instead of exception.** *(verified)*
+- [x] **Pointer thrown instead of exception.** *(verified)*
   `ui/wasm/web_game.cpp:82`: `throw new Error { "Failed to map move." };`.
   No C++ `catch (Error&)` will match and the object leaks.
-- [ ] **Console draw prompt tests the wrong character.** *(verified)*
+  Fixed in Session #16.
+- [x] **Console draw prompt tests the wrong character.** *(verified)*
   `ui/console/play.cpp:231`: `input[0] == 'y' || input[1] == 'Y'`. A
   capital `Y` is treated as declining.
-- [ ] **UCI `stop` suppresses `bestmove`.** *(verified)*
+  Fixed in Session #16.
+- [x] **UCI `stop` suppresses `bestmove`.** *(verified)*
   `handleStop` (`ui/uci/uci_interface.cpp:368-371`) bumps `my_search_id`,
   so the `if` at line 319 skips `sendBestMove`. The UCI protocol requires
   `bestmove` after `stop`.
+  Fixed in Session #16.
 - [ ] **Draw-answered flags never reset on new game.** *(verified)*
   `thirdRepetitionDrawAnswered` and `fiftyMovesDrawAnswered`
   (`ui/react/src/App.tsx:312-313`) are not cleared in `startNewGame`
   (`App.tsx:281-290`), so the draw dialog appears at most once per session.
-- [ ] **`PiecesModel::playerMoved` skips an element after removal.**
+- [x] **`PiecesModel::playerMoved` skips an element after removal.**
   *(verified)* `ui/qml/main/pieces_model.cpp:160-176` calls
   `my_pieces.removeAt (i)` inside a forward loop without adjusting `i`,
   and then reads the `piece_model` reference it just invalidated.
-- [ ] **`uiSettings` is undefined in `mobile_main.qml`.** *(verified)*
+  Fixed in Session #16.
+- [x] **`uiSettings` is undefined in `mobile_main.qml`.** *(verified)*
   `ui/qml/main/mobile_main.qml:46` logs `uiSettings.squareSize`; the
   property lives on `_myGameModel`. ReferenceError on every orientation
   change.
+  Fixed in Session #16.
 - [ ] **Leaked WebIDL objects.** `getCurrentGameSettings()` returns a
   `new GameSettings` (`ui/wasm/game_model.hpp`) that `App.tsx:106, 287`
   never destroys; `App.tsx:184-185, 195` allocates three objects per move
@@ -192,7 +197,8 @@ should be confirmed before fixing.
   (`ui/viewmodel/game_viewmodel_base.cpp:107`). *(verified)*
 - [ ] `GameModel::~GameModel` deletes the engine thread without
   `quit()`/`wait()` (`ui/qml/main/game_model.cpp:336`).
-- [ ] Debug `std::cout` in `ui/wasm/web_game.cpp:120-121`. *(verified)*
+- [x] Debug `std::cout` in `ui/wasm/web_game.cpp:120-121`. *(verified)*
+  Fixed in Session #16.
 - [ ] `QThread::usleep (200000)` in the engine slot to wait for animation
   (`ui/qml/main/chess_engine.cpp:126`). *(verified)*
 - [ ] `ViewModelSettings` (`ui/viewmodel/viewmodel_settings.hpp`) appears
@@ -597,3 +603,48 @@ Worked through the contained items left on the checklist, engine first.
 - Not changed: `Error`'s `noexcept` copy constructor. For an exception type
   that is the conventional choice, since a throwing copy during a `throw`
   terminates anyway. The item stays open as a judgement call.
+
+### Session #16
+
+Frontend items from the checklist.
+
+- `ui/wasm/web_game.cpp` threw `new Error`, a pointer no `catch (Error&)`
+  matches and which leaks. It now throws by value. Also removed two debug
+  `std::cout` lines from `setComputerDrawStatus`.
+- Console draw prompt (`ui/console/play.cpp`) tested `input[1] == 'Y'`, so
+  a capital `Y` declined the draw. It now compares `toupper (input[0])`.
+  The same loop spun forever once stdin reached end of file; it now treats
+  that as declining.
+- `PiecesModel::playerMoved` removed rows inside a forward loop without
+  adjusting the index, then kept using a reference the removal had
+  invalidated. After a removal the loop now steps the index back and, for
+  the captured piece, continues with the next iteration, so every piece is
+  visited once and no stale reference is read.
+- `mobile_main.qml` logged `uiSettings.squareSize`, which does not exist
+  and raised a ReferenceError on every orientation change. It now reads
+  `boardDimensions.squareSize`.
+- UCI `stop`. `handleStop` bumped the search id, the same signal used when
+  a search is superseded, so the search thread stayed silent and no
+  `bestmove` followed, which the protocol requires. `stop` now sets its own
+  flag. The periodic callback reacts to it by setting the timer's budget to
+  zero through the existing `setSeconds`, so the search ends through its
+  normal timeout path and iterative deepening returns the last completed
+  depth. Cancelling was not an option, because `Game::findBestMove`
+  deliberately discards a cancelled search, and `MoveTimer`'s interface was
+  left unchanged. When the search returns no move at all (stop before depth
+  1 completes, or a very short time limit) the UCI front end picks a random
+  legal move, so `bestmove (none)` is only sent when there are no legal
+  moves.
+  Checked by driving the binary: stop after two seconds returns a searched
+  move; an immediate stop returns a legal move; a superseded search still
+  produces exactly one `bestmove`; a checkmated position returns `(none)`;
+  a stop does not leak into the following `go`.
+- Follow-up worth its own design: the search exposes nothing per depth, so
+  no front end sees progress and UCI cannot emit `info depth ... score ...
+  pv ...` lines (it currently prints `info Searching depth N`, which is not
+  valid UCI syntax). A per-depth result callback would fix that and let
+  UCI answer `stop` from its own record of the latest depth.
+- Verified: desktop, QML and wasm builds with no warnings, all 122 tests
+  pass, linter clean. Not exercised at runtime: the QML list fix, the QML
+  log line and the console draw prompt, which need a GUI session or a draw
+  offer to reach.

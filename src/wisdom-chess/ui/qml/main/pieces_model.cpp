@@ -171,6 +171,10 @@ PiecesModel::playerMoved (
             my_pieces.removeAt (i);
             count--;
             endRemoveRows();
+
+            // The next piece has shifted into this index.
+            i--;
+            continue;
         }
         if ((piece_model.row == src_row && piece_model.column == src_column))
         {
@@ -223,6 +227,7 @@ PiecesModel::playerMoved (
                 my_pieces.removeAt (i);
                 count--;
                 endRemoveRows();
+                i--;
             }
         }
     }

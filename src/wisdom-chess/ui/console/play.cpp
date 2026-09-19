@@ -225,10 +225,10 @@ namespace wisdom::ui::console
                 std::cout << msg;
 
                 if (!std::getline (std::cin, input))
-                    continue;
+                    return false;
             }
 
-            return (input[0] == 'y' || input[1] == 'Y');
+            return toupper (input[0]) == 'Y';
         }
 
         auto playerWantsDraw (const string& msg, Player player, Color who, bool asked_human)
