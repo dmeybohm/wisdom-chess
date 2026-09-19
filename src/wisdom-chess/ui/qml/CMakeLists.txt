@@ -272,3 +272,12 @@ if(EMSCRIPTEN)
         COMMENT "Processing QML WASM files with cache-busting hashes"
     )
 endif()
+
+if (WISDOM_CHESS_FAST_TESTS AND NOT ANDROID AND NOT EMSCRIPTEN)
+    find_package(Qt6 COMPONENTS Test QUIET)
+    if (Qt6Test_FOUND)
+        add_subdirectory(test)
+    else()
+        message("-- wisdom-chess: Qt6Test not found. QML C++ tests disabled.")
+    endif()
+endif()
