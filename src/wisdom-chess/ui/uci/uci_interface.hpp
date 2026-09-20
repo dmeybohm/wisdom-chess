@@ -4,6 +4,7 @@
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
+#include "wisdom-chess/engine/transposition_table.hpp"
 
 #include <atomic>
 #include <iostream>
@@ -18,7 +19,7 @@ namespace wisdom
 
     struct UciSettings
     {
-        int hash_size_mb = 16;
+        int hash_size_mb = TranspositionTable::Default_Size_In_Megabytes;
         int default_depth = Default_Max_Depth;
     };
 
@@ -65,6 +66,11 @@ namespace wisdom
         std::thread my_search_thread;
 
         UciSettings my_settings;
+
+        // Declared after my_settings so that it can be sized from it. The
+        // search thread owns it while it runs; the main thread touches it
+        // only after waitForSearchThread().
+        TranspositionTable my_transposition_table;
     };
 
     // A logger that writes UCI "info" lines to standard output.

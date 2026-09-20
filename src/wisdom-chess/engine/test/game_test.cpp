@@ -2,9 +2,14 @@
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/history.hpp"
+#include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/engine/transposition_table.hpp"
 
 #include "wisdom-chess-tests.hpp"
 
+#include <algorithm>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 
@@ -121,4 +126,51 @@ TEST_CASE( "Loading a saved game" )
     }
 
     std::filesystem::remove (path);
+}
+
+TEST_CASE( "findBestMove searches with the caller's transposition table" )
+{
+    auto game = Game::createStandardGame();
+    game.setMaxDepth (3);
+    game.setSearchTimeout (std::chrono::seconds { 30 });
+
+    auto logger = makeNullLogger();
+    TranspositionTable table = TranspositionTable::fromMegabytes (1);
+
+    REQUIRE( table.getStats().stored_entries == 0 );
+
+    auto first_move = game.findBestMove (logger, &table);
+
+    REQUIRE( first_move.has_value() );
+    CHECK( table.getStats().stored_entries > 0 );
+
+    SUBCASE( "the warm table is reused by the next search" )
+    {
+        game.move (*first_move);
+
+        auto stats_before = table.getStats();
+        auto second_move = game.findBestMove (logger, &table);
+        auto stats_after = table.getStats();
+
+        REQUIRE( second_move.has_value() );
+
+        MoveList legal_moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
+        CHECK( std::find (legal_moves.begin(), legal_moves.end(), *second_move)
+               != legal_moves.end() );
+
+        // Entries written under the first root are probed under the second.
+        CHECK( stats_after.hits > stats_before.hits );
+    }
+
+    SUBCASE( "a cleared table starts cold again" )
+    {
+        table.clear();
+        CHECK( table.getStats().stored_entries == 0 );
+        CHECK( table.getStats().hits == 0 );
+
+        auto move_again = game.findBestMove (logger, &table);
+
+        REQUIRE( move_again.has_value() );
+        CHECK( *move_again == *first_move );
+    }
 }

@@ -9,6 +9,7 @@
 #include "wisdom-chess/engine/logger.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
+#include "wisdom-chess/engine/transposition_table.hpp"
 
 #include "wisdom-chess/ui/qml/main/chess_game.hpp"
 
@@ -82,6 +83,10 @@ signals:
 
 private:
     std::shared_ptr<ChessGame> my_game;
+
+    // The engine thread owns the table; it outlives the games handed to
+    // reloadGame() and is cleared by it.
+    wisdom::TranspositionTable my_transposition_table;
 
     bool my_is_game_over = false;
 

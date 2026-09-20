@@ -13,6 +13,7 @@ namespace wisdom
     class BoardBuilder;
     class Logger;
     class Board;
+    class TranspositionTable;
 
     enum class DrawStatus;
     enum class ProposedDrawType;
@@ -77,8 +78,12 @@ namespace wisdom
 
         void save (const string& filename) const;
 
+        // Searches for the best move using the caller's transposition table.
+        // The table is search state, not game state: the caller owns it and
+        // decides when it is cleared or reused between searches.
         [[nodiscard]] auto findBestMove (
             shared_ptr<Logger> logger,
+            nonnull_observer_ptr<TranspositionTable> transposition_table,
             Color whom = Color::None
         ) const
             -> optional<Move>;

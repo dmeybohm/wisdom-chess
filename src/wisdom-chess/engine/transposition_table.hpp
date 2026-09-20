@@ -57,6 +57,16 @@ namespace wisdom
 
         explicit TranspositionTable();
 
+        // A table has exactly one owner. Copying is deleted so that a table
+        // cannot be silently duplicated or shared between threads.
+        TranspositionTable (const TranspositionTable&) = delete;
+        auto operator= (const TranspositionTable&) -> TranspositionTable& = delete;
+
+        TranspositionTable (TranspositionTable&&) noexcept = default;
+        auto operator= (TranspositionTable&&) noexcept -> TranspositionTable& = default;
+
+        ~TranspositionTable() = default;
+
         [[nodiscard]] static auto
         fromMegabytes (int size)
             -> TranspositionTable;

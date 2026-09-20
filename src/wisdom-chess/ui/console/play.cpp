@@ -9,6 +9,7 @@
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/engine/transposition_table.hpp"
 #include "wisdom-chess/ui/viewmodel/game_viewmodel_base.hpp"
 
 namespace wisdom::ui::console
@@ -151,6 +152,7 @@ namespace wisdom::ui::console
     {
     private:
         Game my_game;
+        TranspositionTable my_transposition_table;
         bool quit = false;
         bool paused = false;
         bool show_final_position = true;
@@ -612,6 +614,7 @@ namespace wisdom::ui::console
                 // Keep the same player config:
                 copyConfig (my_game, load_game.new_game);
                 my_game = std::move (load_game.new_game);
+                my_transposition_table.clear();
                 resetStateForNewGame();
 
                 std::cout << "\nNew game successfully loaded.\n\n";
@@ -668,7 +671,7 @@ namespace wisdom::ui::console
 
             if (!paused && my_game.getCurrentPlayer() == Player::ChessEngine)
             {
-                auto optional_move = my_game.findBestMove (my_logger);
+                auto optional_move = my_game.findBestMove (my_logger, &my_transposition_table);
                 if (!optional_move.has_value())
                 {
                     std::cout << "\nCouldn't find move!\n";

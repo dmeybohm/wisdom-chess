@@ -134,6 +134,7 @@ namespace wisdom
     UciInterface::UciInterface()
         : my_game { Game::createStandardGame() }
         , my_logger { makeNullLogger() }
+        , my_transposition_table { TranspositionTable::fromMegabytes (my_settings.hash_size_mb) }
     {
     }
 
@@ -227,6 +228,7 @@ namespace wisdom
     void UciInterface::handleNewGame()
     {
         waitForSearchThread();
+        my_transposition_table.clear();
         std::lock_guard<std::mutex> lock { my_game_mutex };
         my_game = Game::createStandardGame();
     }
@@ -353,9 +355,14 @@ namespace wisdom
             return my_game;
         }();
 
+        // The game is copied per search so that a later "position" cannot
+        // disturb it, but the table is lent to the thread so that what one
+        // search learns is available to the next.
+        nonnull_observer_ptr<TranspositionTable> table = &my_transposition_table;
+
         my_search_thread = std::thread (
-            [this, game = std::move (game_copy), search_depth, search_time, current_search_id,
-             debug_mode = my_debug_mode] () mutable
+            [this, game = std::move (game_copy), table, search_depth, search_time,
+             current_search_id, debug_mode = my_debug_mode] () mutable
             {
                 game.setMaxDepth (search_depth);
                 if (search_time.count() > 0)
@@ -368,7 +375,7 @@ namespace wisdom
                 game.setPeriodicFunction (buildNotifier (current_search_id));
 
                 auto logger = makeUciLogger (debug_mode);
-                auto best_move = game.findBestMove (logger);
+                auto best_move = game.findBestMove (logger, table);
 
                 if (my_search_id.load() == current_search_id)
                 {
@@ -415,6 +422,10 @@ namespace wisdom
         if (option_name == "hash" && value.has_value())
         {
             my_settings.hash_size_mb = std::clamp (*value, 1, 1024);
+
+            // The running search holds the table, so it has to finish first.
+            waitForSearchThread();
+            my_transposition_table = TranspositionTable::fromMegabytes (my_settings.hash_size_mb);
         }
         else if (option_name == "depth" && value.has_value())
         {
