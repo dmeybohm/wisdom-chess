@@ -174,3 +174,39 @@ TEST_CASE( "findBestMove searches with the caller's transposition table" )
         CHECK( *move_again == *first_move );
     }
 }
+
+TEST_CASE( "A draw-derived score is not reused for a position with a different clock" )
+{
+    //
+    // The board hash covers the pieces, the side to move, castling rights and
+    // en passant, but not the halfmove clock. These two positions therefore
+    // share every hash in the search, while only the first is close enough to
+    // the fifty-move limit for the draw rule to apply.
+    //
+    const auto near_fifty_move_fen = "8/8/4k3/8/8/4K3/8/7R w - - 96 200";
+    const auto fresh_clock_fen = "8/8/4k3/8/8/4K3/8/7R w - - 0 200";
+
+    auto logger = makeNullLogger();
+
+    auto searchFen = [&] (const char* fen, TranspositionTable& table)
+    {
+        auto game = Game::createGameFromFen (fen);
+        game.setMaxDepth (4);
+        game.setSearchTimeout (std::chrono::seconds { 30 });
+        return game.findBestMove (logger, &table);
+    };
+
+    TranspositionTable cold = TranspositionTable::fromMegabytes (1);
+    auto expected = searchFen (fresh_clock_fen, cold);
+    REQUIRE( expected.has_value() );
+
+    TranspositionTable shared = TranspositionTable::fromMegabytes (1);
+    auto near_fifty_move = searchFen (near_fifty_move_fen, shared);
+    REQUIRE( near_fifty_move.has_value() );
+
+    // The drawing scores the first search produced must not decide this one.
+    auto with_warm_table = searchFen (fresh_clock_fen, shared);
+
+    REQUIRE( with_warm_table.has_value() );
+    CHECK( *with_warm_table == *expected );
+}

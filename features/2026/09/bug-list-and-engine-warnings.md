@@ -118,7 +118,7 @@ should be confirmed before fixing.
   of `Game` and each frontend owns one, with the
   `search/warm-table` benchmark added. See
   [transposition-table-ownership.md](transposition-table-ownership.md).
-- [ ] **Draw scores stored under board-only keys.** `search()`
+- [x] **Draw scores stored under board-only keys.** `search()`
   (`engine/search.cpp:152`) returns `drawingScore()` before it probes or
   stores, so a repeating node is never written to the table, but its
   ancestors are, and they carry a score that only holds for the history
@@ -131,6 +131,11 @@ should be confirmed before fixing.
   Fixing it at the root means keeping path-dependence out of stored
   scores: either do not store a score that a draw check produced, or key
   such entries by the repetition context as well.
+  Fixed on the `path-dependent-draw-scores` branch by the first of those:
+  a node whose subtree hit the draw check is not stored. The sharpest
+  case turned out to be the fifty-move rule rather than repetition, since
+  the halfmove clock is not part of the hash. See
+  [path-dependent-draw-scores.md](path-dependent-draw-scores.md).
 - [x] Leaf evaluation calls full legal-move generation when in check
   (`engine/evaluate.cpp:63, 87-97`). Measured, with the alternatives, in
   [faster-legal-move-test.md](faster-legal-move-test.md). Fixed on the

@@ -402,10 +402,18 @@ Note: There are two WebAssembly frontends:
 - Draw scores are the exception, because a repetition or fifty-move draw is a
   property of the path, not of the board. `search()` returns a draw score
   before it probes or stores, so a repeating node is never stored, but its
-  ancestors are, and they carry the draw score under a board-only key. A
-  table must therefore not be carried over to a position reached by a
-  different history: UCI keeps its table only when a `position` command
-  continues the current game, and clears it otherwise.
+  ancestors would otherwise carry that score under a board-only key. A node
+  whose subtree hit the draw check is therefore not stored at all
+  (`my_draw_nodes` in `engine/search.cpp`). The test is the whole subtree,
+  not the winning child: a drawing line that lost still suppressed the true
+  value, and under another history it may be worth more than the line chosen.
+- The halfmove clock is not part of the hash, so two positions differing only
+  in it share every entry. That is the case to think about when changing how
+  draw scores are handled; `game_test.cpp` pins it.
+- A probe returns before the children are explored, so a score stored where no
+  draw was available can still be read where one is. UCI limits how far that
+  travels by keeping its table only when a `position` command continues the
+  current game.
 
 ### General API Guidelines
 - All public API is in the `wisdom::` namespace

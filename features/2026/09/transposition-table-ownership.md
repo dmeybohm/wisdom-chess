@@ -197,7 +197,16 @@ leaving the existing cold-table benchmarks unchanged.
 
 ### Session #2: draw scores crossing between unrelated positions
 
-Review found a real regression, reproduced exactly as reported:
+> **Corrected afterwards.** The reading of the repro below is wrong. The
+> line produces no draw scores at all, and the 90-versus-0 is the parity
+> of the search depth plus a legitimate reuse of deeper entries; at equal
+> depths the warm and cold answers agree. The concern is real by another
+> route, the fifty-move rule, and is fixed in
+> [path-dependent-draw-scores.md](path-dependent-draw-scores.md), whose
+> Session #1 has the measurements. The change below is kept, for the
+> reason given there.
+
+Review found a regression, reproduced exactly as reported:
 
 ```
 position startpos moves g1f3 g8f6 f3g1 f6g8
