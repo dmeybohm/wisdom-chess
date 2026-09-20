@@ -156,10 +156,10 @@ check_tools() {
 
 # The version CI asks install-qt-action for, such as 6.9.*.
 ci_version_spec() {
-    local spec
-    spec="$(sed -n "s/^[[:space:]]*version:[[:space:]]*['\"]\\(.*\\)['\"][[:space:]]*$/\\1/p" "$WORKFLOW" | head -1)"
-    [ -n "$spec" ] || fail "no Qt version found in $WORKFLOW"
-    echo "$spec"
+    local matches
+    matches="$(sed -n "s/^[[:space:]]*version:[[:space:]]*['\"]\\(.*\\)['\"][[:space:]]*$/\\1/p" "$WORKFLOW")"
+    [ -n "$matches" ] || fail "no Qt version found in $WORKFLOW"
+    echo "${matches%%$'\n'*}"
 }
 
 # aqtinstall, in its own virtual environment, is used for both the version
@@ -315,9 +315,15 @@ build_qt_module() {
 # prefix would link and run, and report nothing that goes through Qt.
 verify_instrumented() {
     local library="$PREFIX/lib/$1"
+    local symbols
 
     [ -e "$library" ] || fail "no $1 in $PREFIX/lib"
-    nm -D --undefined-only "$library" | grep -q __tsan_func_entry \
+
+    # Read the symbols first rather than piping into grep: grep -q stops at
+    # the first match, and the SIGPIPE that leaves nm with would fail the
+    # pipeline under pipefail.
+    symbols="$(nm -D --undefined-only "$library")"
+    grep -q __tsan_func_entry <<< "$symbols" \
         || fail "$library is not ThreadSanitizer-instrumented; check that" \
                 "configure accepted -sanitize thread"
 }
@@ -347,8 +353,11 @@ build_qt() {
     record_build_host
 }
 
-# A prefix built against a newer glibc than the one here cannot load.
-smoke_qt() {
+# BUILD-HOST is written last, so a prefix left behind by an interrupted
+# build does not count as one. A prefix built against a newer glibc than
+# the one here cannot load, which is what the smoke run catches.
+prefix_is_usable() {
+    [ -e "$PREFIX/BUILD-HOST" ] || return 1
     "$PREFIX/bin/qmake" -query QT_VERSION > /dev/null 2>&1
 }
 
@@ -384,7 +393,7 @@ download_qt() {
     tar --use-compress-program=unzstd -xf "$tarball" -C "$PREFIX"
     rm -f "$tarball" "$tarball.sha256"
 
-    if ! smoke_qt; then
+    if ! prefix_is_usable; then
         echo "The downloaded prefix does not run here; building instead" >&2
         rm -rf "$PREFIX"
         return 1
@@ -481,7 +490,7 @@ ARCHIVE="qt-tsan-$KEY.tar.zst"
 echo "Qt $QT_VERSION, $CXX $CLANG_MAJOR, key $KEY"
 echo "Prefix: $PREFIX"
 
-if [ -e "$PREFIX/bin/qmake" ] && smoke_qt; then
+if prefix_is_usable; then
     echo "Reusing the prefix already in the cache"
 elif [ "$DOWNLOAD" = yes ] && download_qt; then
     echo "Using the prebuilt prefix from the $RELEASE_TAG release"
