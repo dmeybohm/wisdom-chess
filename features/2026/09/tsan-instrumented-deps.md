@@ -189,10 +189,19 @@ build, plus our own remote, not the ConanCenter recipe.
    current leg. Suggested order: land the script and remove the leg as
    asked here, then consider the download-based leg as a follow-up once the
    prefix has proven stable.
+
+   *Answered:* take the suggested order. The leg is removed here; a
+   download-based one is a follow-up.
 2. **Conan**: confirm the recommendation above, or say which remote we
    would use.
+
+   *Answered:* no Conan, as recommended.
 3. **Release tag for the binaries**: a single moving `tsan-deps` release,
    as planned, or one release per Qt version.
+
+   *Answered:* a single moving `tsan-deps` release. The assets are named
+   by the cache key, which covers the Qt version, so one release holds
+   every prefix without collisions.
 
 ## Out of scope
 
@@ -215,3 +224,66 @@ build, plus our own remote, not the ConanCenter recipe.
   `GameModel` and the `ChessEngine` thread in a scratch test, seen to be
   reported with both stacks symbolised through Qt frames, then removed.
 - The `sanitizers` job is green on the PR with only the ASan leg.
+
+## Implementation Progress
+
+### Session #1
+
+**`scripts/build-tsan.sh`** (step 1-4). Checks its tools and the
+fontconfig and freetype development files, resolves the Qt version the
+way `install-ci-qt.sh` does, fetches the four module sources with
+`aqt install-src` from its own virtual environment, builds them in
+order, then configures `build-tsan` against the prefix and runs `ctest`.
+Options came out as planned: `--qt-version`, `--cache-dir`,
+`--build-dir`, `--no-download`, `--deps-only`, `--upload`, `-j`, and
+everything after `--` goes to `ctest`.
+
+Two details that were not in the plan:
+
+- The modules are configured one at a time (`qtbase/configure`, then
+  `qt-configure-module` for the rest) rather than as a top-level
+  super-build, because `aqt install-src --archives` hands over the module
+  directories without the top-level build files.
+- After qtbase is installed the script checks that `libQt6Core.so` has an
+  undefined `__tsan_func_entry`, and the same for `libQt6Quick.so` at the
+  end. Without that check a prefix that silently lost `-sanitize thread`
+  would link and run and simply report nothing, which is the failure this
+  whole feature exists to avoid.
+
+**Final configure arguments**, as accepted by Qt 6.9.3 (step 1 asked for
+the settled list to be recorded here):
+
+```
+-release -force-debug-info -sanitize thread -nomake examples -nomake tests
+-no-glib -no-dbus -no-icu -no-openssl -no-opengl -fontconfig
+-system-freetype -qt-zlib -qt-libpng -qt-libjpeg -qt-pcre -qt-harfbuzz
+-qt-doubleconversion
+```
+
+plus `-cmake-generator Ninja` and, through the `--` passthrough,
+`-DCMAKE_{C,CXX}_FLAGS_RELWITHDEBINFO=-O2 -gline-tables-only -DNDEBUG`
+for the line-table-only debug info. `-g1` is not a Qt configure option;
+overriding the RelWithDebInfo flags is how it is spelled. The resulting
+`config.summary` confirms Threads sanitizer yes, GLib no, OpenGL no,
+Fontconfig yes with the system FreeType.
+
+`-no-opengl` and no xcb configured without complaint, so the fallback in
+the dependency table was not needed.
+
+**Font dependencies.** `-fontconfig -system-freetype` was kept over Qt's
+bundled freetype. Bundling would have avoided a system package and
+instrumented the font stack, but without fontconfig Qt falls back to
+`QFreeTypeFontDatabase`, which only reads `$QT_QPA_FONTDIR`; getting that
+wrong renders with no fonts at all, and the QML UI tests drive the
+interface by clicking item positions, so a font-metric shift would look
+like a test failure. Both libraries are reached from the GUI thread only
+under `QT_QUICK_BACKEND=software`, which is the criterion the dependency
+table uses.
+
+**CI** (step 6). The `thread` entry, the `sanitizers` matrix, the
+`matrix.sanitizer` expressions and `TSAN_OPTIONS` are gone; the job is
+now a plain ASan and UBSan run with the QML UI and the slow tests.
+
+**Documentation** (step 7). The sanitizer paragraph in `AGENTS.md` now
+describes CI as ASan and UBSan only, explains why TSan needs an
+instrumented Qt, and documents the script, the cache key and `--upload`.
