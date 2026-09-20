@@ -19,4 +19,4 @@ CMakeLists.txt.user
 *.sw[a-p]
 
 # Worktrees
-worktree/
+/worktree/
