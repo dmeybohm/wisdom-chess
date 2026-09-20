@@ -72,6 +72,11 @@ namespace wisdom
         int my_total_nodes_visited = 0;
         int my_total_alpha_beta_cutoffs = 0;
         Color my_searching_color = Color::None;
+
+        // Counts the nodes that ended in a draw score. A node compares this
+        // against the value it saw before searching its children, to find out
+        // whether its own score depends on the path that reached it.
+        size_t my_draw_nodes = 0;
     };
 
     IterativeSearch::~IterativeSearch() = default;
@@ -151,6 +156,7 @@ namespace wisdom
     {
         if (isProbablyDrawingMove (parent_board, my_history))
         {
+            my_draw_nodes++;
             return drawingScore (my_searching_color, side);
         }
 
@@ -162,6 +168,7 @@ namespace wisdom
         int original_alpha = alpha;
         std::optional<Move> best_move {};
         int best_score = -Initial_Alpha;
+        auto draw_nodes_before = my_draw_nodes;
 
         auto hash = parent_board.getCode().getHashCode();
 
@@ -230,7 +237,15 @@ namespace wisdom
             my_current_result.depth = depth;
         }
 
-        if (!my_current_result.timed_out)
+        // A score that any node below this one derived from a repetition or
+        // the fifty-move counter belongs to the path, not to the board, and
+        // the table is keyed by the board alone. It must not be stored, even
+        // when the drawing line lost: under another history that line may be
+        // worth more than the one chosen here, which would make this score
+        // wrong rather than merely pessimistic.
+        bool score_depends_on_path = my_draw_nodes != draw_nodes_before;
+
+        if (!my_current_result.timed_out && !score_depends_on_path)
         {
             BoundType bound_type = (best_score <= original_alpha) ? BoundType::UpperBound
                                  : (best_score >= beta) ? BoundType::LowerBound
