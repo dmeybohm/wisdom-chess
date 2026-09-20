@@ -40,7 +40,7 @@ set -o pipefail
 # prefixes without any of the hashed inputs below changing.
 RECIPE_REVISION=1
 
-# The release of this repository that holds the prebuilt prefixes.
+# The release that holds the prebuilt prefixes.
 RELEASE_TAG=tsan-deps
 
 # qtdeclarative needs qtshadertools at build time; the rest is what the QML
@@ -305,7 +305,12 @@ build_qt_module() {
     mkdir -p "$module_build"
 
     # Both configure and qt-configure-module work in the current directory.
-    [ -f "$module_build/CMakeCache.txt" ] \
+    #
+    # build.ninja is the marker, not CMakeCache.txt: CMake writes the cache
+    # before configuration finishes, so a configure that failed part way
+    # would otherwise look done and the next run would build an
+    # incompletely configured directory.
+    [ -f "$module_build/build.ninja" ] \
         || (cd "$module_build" && configure_qt_module "$module")
 
     quietly_instrumented cmake --build "$module_build" --parallel "$JOBS"
@@ -366,20 +371,34 @@ prefix_is_usable() {
 # Sharing the prefix through a release of this repository.
 #
 
-repo_slug() {
+# The owner/name the assets live on, taken from the origin remote. Both
+# https://github.com/owner/name.git and git@github.com:owner/name.git
+# reduce to owner/name. A clone whose origin is a fork, or is not GitHub
+# at all, names the repository through WISDOM_CHESS_TSAN_REPO instead.
+release_repo() {
     local url
+
+    if [ -n "${WISDOM_CHESS_TSAN_REPO:-}" ]; then
+        echo "$WISDOM_CHESS_TSAN_REPO"
+        return 0
+    fi
+
     url="$(git -C "$REPO_DIR" remote get-url origin 2> /dev/null || true)"
+    case "$url" in
+        *github.com[:/]?*) ;;
+        *) return 1 ;;
+    esac
+
     url="${url#*github.com[:/]}"
     echo "${url%.git}"
 }
 
 download_qt() {
     local base tarball
-    local slug
+    local repo
 
-    slug="$(repo_slug)"
-    [ -n "$slug" ] || return 1
-    base="https://github.com/$slug/releases/download/$RELEASE_TAG"
+    repo="$(release_repo)" || return 1
+    base="https://github.com/$repo/releases/download/$RELEASE_TAG"
     tarball="$CACHE_DIR/$ARCHIVE"
 
     echo "Looking for a prebuilt prefix at $base/$ARCHIVE"
@@ -416,8 +435,11 @@ pack_qt() {
 }
 
 upload_qt() {
-    local slug
-    slug="$(repo_slug)"
+    local repo
+
+    repo="$(release_repo)" \
+        || fail "origin is not a GitHub remote; name the repository to upload" \
+                "to in WISDOM_CHESS_TSAN_REPO, as owner/name"
 
     command -v gh > /dev/null || missing_package \
         "gh is not installed." "sudo apt-get install gh"
@@ -431,13 +453,13 @@ upload_qt() {
 
     pack_qt
 
-    gh release view "$RELEASE_TAG" --repo "$slug" > /dev/null 2>&1 \
-        || gh release create "$RELEASE_TAG" --repo "$slug" \
+    gh release view "$RELEASE_TAG" --repo "$repo" > /dev/null 2>&1 \
+        || gh release create "$RELEASE_TAG" --repo "$repo" \
             --title "ThreadSanitizer dependency builds" \
             --notes "Instrumented Qt prefixes for scripts/build-tsan.sh, named by the key the script computes."
 
     echo "=== Uploading to the $RELEASE_TAG release ==="
-    gh release upload "$RELEASE_TAG" --repo "$slug" --clobber \
+    gh release upload "$RELEASE_TAG" --repo "$repo" --clobber \
         "$CACHE_DIR/$ARCHIVE" "$CACHE_DIR/$ARCHIVE.sha256"
 }
 
@@ -479,7 +501,13 @@ CLANG_MAJOR="$("$CXX" -dumpversion | cut -d. -f1)"
 [ "$CLANG_MAJOR" -ge 18 ] 2> /dev/null \
     || fail "clang 18 or newer is needed; $CXX reports $CLANG_MAJOR"
 
-mkdir -p "$CACHE_DIR"
+mkdir -p "$CACHE_DIR" "$BUILD_DIR"
+
+# Absolute from here on: the prefix is passed to CMake, and aqt runs from
+# inside the cache directory, so a relative path would resolve twice.
+CACHE_DIR="$(cd "$CACHE_DIR" && pwd)"
+BUILD_DIR="$(cd "$BUILD_DIR" && pwd)"
+
 setup_aqt
 resolve_version
 
