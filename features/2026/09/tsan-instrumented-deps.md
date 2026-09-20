@@ -287,3 +287,49 @@ now a plain ASan and UBSan run with the QML UI and the slow tests.
 **Documentation** (step 7). The sanitizer paragraph in `AGENTS.md` now
 describes CI as ASan and UBSan only, explains why TSan needs an
 instrumented Qt, and documents the script, the cache key and `--upload`.
+
+**Suppressions** (step 5). `scripts/sanitizers/tsan.supp` is empty. All
+six `QML: ...` tests pass twenty runs each
+(`ctest -R QML --repeat until-fail:20`) with no suppressions and no
+ThreadSanitizer report, which answers all three entries at once:
+`race:QMetaType` and `race:eventfd` were artifacts of Qt's
+uninstrumented locking and glib's event dispatcher, and `race:QArrayData`
+was QtQuick's thread pool touching Qt's container refcounting, which TSan
+can now see Qt synchronise.
+
+### Verification
+
+- A clean run built Qt and passed all 183 fast tests with the QML UI on.
+  **Qt build: about 1h15m** on 8 cores, **prefix 492 MB**, **archive
+  96 MB** (`zstd -19`, 3m35s to pack), far under GitHub's 2 GB per-asset
+  limit.
+- A second run reused the prefix, rebuilt nothing of Qt, and finished the
+  application build and the whole suite in **45 seconds**.
+- The instrumentation is real: `libQt6Core`, `libQt6Qml`, `libQt6Quick`
+  and `libQt6Svg` all carry undefined `__tsan_*` entry points, and
+  `ldd` shows no glib, ICU, D-Bus or OpenSSL on qtbase's link line.
+- **The build can fail.** A temporary unsynchronised `int`, written by
+  `ChessEngine::init()` on the engine thread and by `GameModel::start()`
+  on the GUI thread after `QThread::start()`, was reported in three of
+  the QML tests with both stacks symbolised down to `file:line` through
+  Qt's own frames (`qobject.cpp:4170`, `qthread_unix.cpp:395`,
+  `qqmldelegatemodel.cpp:1904`) and through moc-generated sources. The
+  scratch change has been removed.
+
+Two false starts on that last point are worth recording, because they
+say something about where a race can hide. Writing the scratch variable
+from `GameModel::updateEngineConfig()` and from the search notifier
+produced nothing: the queued connection that carries the config to the
+engine, and the `engineMoved` signal coming back, order those two
+accesses, so there is no race to find. Moving the engine-side write into
+the notifier alone also produced nothing, because most of the QML tests
+call `makeBothPlayersHuman()` and the engine never searches, so the
+notifier never runs. Only a write on the engine thread's entry point
+raced.
+
+### Not done here
+
+- `--upload` has not been run, so there is no `tsan-deps` release yet and
+  the download path is untested end to end. The first maintainer to run
+  `./scripts/build-tsan.sh --upload` creates it.
+- The download-based CI leg from open question 1 remains a follow-up.
