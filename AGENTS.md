@@ -299,15 +299,9 @@ An enum that QML compares against must be in the meta-object of
 QML and no warning is given. Enums from the Qt-free view-model library need
 a mirror enum there, as `DrawByRepetitionStatus` has.
 
-CI runs a `sanitizers` matrix job with Clang: AddressSanitizer+UndefinedBehaviorSanitizer
-with the QML UI (fast and slow tests) and ThreadSanitizer without it (fast
-tests only, since the slow suite is single-threaded). QML is off for the
-ThreadSanitizer leg: QtQuick's internal thread pool and Qt's own
-(uninstrumented, futex-based) locking produce a steady stream of
-timing-dependent false positives between different pooled worker threads
-across different QML UI test cases; `scripts/sanitizers/tsan.supp` covers
-the shapes seen so far, but a new interleaving can still surface an
-unsuppressed one. Reproduce locally with `clang++-18` or newer:
+CI's `sanitizers` job runs AddressSanitizer and UndefinedBehaviorSanitizer
+with Clang, with the QML UI and both the fast and the slow tests.
+Reproduce it locally with `clang++-18` or newer:
 
 ```bash
 CC=clang-18 CXX=clang++-18 cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=RelWithDebInfo \
@@ -316,16 +310,33 @@ cmake --build build-asan -j $(nproc)
 ASAN_OPTIONS=detect_leaks=1:strict_string_checks=1:check_initialization_order=1 \
 UBSAN_OPTIONS=print_stacktrace=1 \
 ctest --test-dir build-asan -j 4 --output-on-failure
-
-CC=clang-18 CXX=clang++-18 cmake -S . -B build-tsan -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-  -DWISDOM_CHESS_QML_UI=Off -DWISDOM_CHESS_TSAN=On
-cmake --build build-tsan -j $(nproc)
-TSAN_OPTIONS=suppressions=$(pwd)/scripts/sanitizers/tsan.supp:halt_on_error=1:second_deadlock_stack=1 \
-ctest --test-dir build-tsan -j 4 --output-on-failure
 ```
 
-Pass `-DWISDOM_CHESS_QML_UI=On` to `build-tsan` to dig into a QML/TSan
-race directly; expect it to need suppression tuning per the note above.
+ThreadSanitizer is not in CI, because it needs a Qt that is instrumented
+too. Qt's `QMutex` locks through a raw `futex()` that TSan cannot
+intercept, and the `QtTsan` calls that would tell TSan about those locks
+compile to nothing unless Qt itself is built with `-fsanitize=thread`, so
+against a prebuilt Qt every hand-off Qt protects correctly is reported as
+a race. `./scripts/build-tsan.sh` builds that Qt, builds the application
+against it with the QML UI on, and runs `ctest`:
+
+```bash
+./scripts/build-tsan.sh                     # everything
+./scripts/build-tsan.sh --deps-only         # just the Qt prefix
+./scripts/build-tsan.sh -- -R QML           # extra arguments go to ctest
+```
+
+The prefix is named by a hash of the Qt version, the module list, the
+configure arguments, the Clang major version and the architecture, and
+lives under `$XDG_CACHE_HOME/wisdom-chess/qt-tsan/`, so changing any of
+them builds a new Qt rather than reusing a stale one. The first build
+takes about an hour; after that the script reuses the prefix. A
+maintainer shares one with `--upload`, which packs it and puts it on the
+`tsan-deps` release, where later runs find it by the same key and
+download it instead of building. `--upload` checks `gh auth status`
+first, and the script never runs `sudo`: a missing tool or development
+package is reported with the command that installs it.
+
 Use `./scripts/install-ci-qt.sh` to build against CI's Qt 6.9 instead of a
 newer local Qt when reproducing a CI-only failure. A sanitizer report
 entirely inside third-party code (Qt, glib, fontconfig, ...) goes in
