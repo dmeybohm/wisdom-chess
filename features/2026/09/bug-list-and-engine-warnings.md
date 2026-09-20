@@ -105,7 +105,7 @@ should be confirmed before fixing.
   (`engine/search.cpp:174-176, 226-234`); correctness depends on the root
   call writing last. Write it only at `ply == 0` or return a struct.
   Fixed in Session #20.
-- [ ] **Transposition table deep-copied per search.** The TT is a value
+- [x] **Transposition table deep-copied per search.** The TT is a value
   member of `Game::Impl` (`engine/game_impl.hpp:30`) and `Game`'s copy
   constructor copies it (`engine/game.cpp:77-80`). The UCI frontend copies
   the `Game` on every `go` (`ui/uci/uci_interface.cpp:295-301`), copying
@@ -114,6 +114,10 @@ should be confirmed before fixing.
   measure a cold table only. Showing the benefit of a table that survives
   between moves needs a benchmark that searches consecutive positions of
   one game without clearing; add that alongside the fix.
+  Fixed on the `transposition-table-ownership` branch: the table moved out
+  of `Game` and each frontend owns one, with the
+  `search/warm-table` benchmark added. See
+  [transposition-table-ownership.md](transposition-table-ownership.md).
 - [x] Leaf evaluation calls full legal-move generation when in check
   (`engine/evaluate.cpp:63, 87-97`). Measured, with the alternatives, in
   [faster-legal-move-test.md](faster-legal-move-test.md). Fixed on the

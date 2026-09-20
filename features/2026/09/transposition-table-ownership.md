@@ -127,3 +127,76 @@ deterministic.
    list.
 
 ## Implementation Progress
+
+### Session #1
+
+Implemented as planned. The design survived contact with the code; no
+step had to be rethought.
+
+**Engine.** `TranspositionTable` deletes both copy operations and defaults
+both moves, pinned by four `static_assert`s at the top of
+`transposition_table_test.cpp`. `my_transposition_table` is gone from
+`Game::Impl`, along with `game_impl.hpp`'s include of the table, and
+`Game::findBestMove` takes the caller's table. The parameter is a
+`nonnull_observer_ptr<TranspositionTable>` rather than the `&` the plan
+showed: that is the convention the codebase already uses for a mutable
+borrow, as in `MoveTimer::PeriodicFunction`, and it keeps the borrow
+visible at the call site. `game.hpp` forward-declares the table, so the
+header did not grow an include.
+
+**Frontends.** Each owns one as in the table above. The UCI member is
+declared after `my_settings` so it can be sized from
+`my_settings.hash_size_mb`, whose default is now
+`TranspositionTable::Default_Size_In_Megabytes` instead of a second
+literal 16. `handleGo` hands the search thread a
+`nonnull_observer_ptr` to it while still copying the game.
+`handleSetOption` waits for the search thread before rebuilding the table,
+as the plan required.
+
+**Tests.** `game_test.cpp` gained a case that a search through
+`Game::findBestMove` stores entries in the caller's table, that a second
+search on the following position probes what the first stored
+(`hits` strictly increases) and returns a legal move, and that a cleared
+table reproduces the original choice. Five UCI CLI tests cover
+consecutive positions, a mate in one found again with a table the
+previous search filled on that position, `ucinewgame` between searches,
+and the `Hash` option both before a search and resizing between two.
+Checked that the two-`bestmove` regexes are not vacuous: CMake's `.`
+crosses newlines, and the binary really prints two lines.
+
+**Verification.** 207 tests pass in the default build, and 189 in a QML
+build against Qt 6.11.2, including the three tests that drive the real
+QML. The wasm engine compiles without warnings. The UCI tests were also
+run under ThreadSanitizer, in a `-DWISDOM_CHESS_TSAN=On` build with the
+QML UI off, so no instrumented Qt was needed: 21 UCI tests pass and a
+longer hand-driven script — four depth-4 searches interleaved with a
+`Hash` resize and a `ucinewgame` — reports no race.
+
+### Benchmark
+
+`search/warm-table` in `bench_search.cpp` builds a 30-ply line from the
+engine's own depth-3 choices, then searches every position of it to depth
+6 twice. It plays the *scripted* move rather than the chosen one, so
+clearing the table cannot send the two replays down different games and
+make the times incomparable. Two runs, Release, `WISDOM_CHESS_BENCHMARKS=On`:
+
+| | run 1 | run 2 |
+|---|---|---|
+| cleared before every search | 6.045s | 6.135s |
+| cleared only before the first | 4.272s | 4.270s |
+| moves chosen differently | 2 of 30 | 2 of 30 |
+
+A table that survives between moves is worth about 30% of search time
+over a game, and changes 2 of 30 chosen moves — the behaviour change the
+design anticipated, now measured.
+
+The option that builds the benchmarks, `WISDOM_CHESS_BENCHMARKS`, was
+undocumented; it is now in the build options table in `AGENTS.md`.
+`searchToDepth` was split so that `searchWithTable` does not clear,
+leaving the existing cold-table benchmarks unchanged.
+
+### Not done
+
+Nothing from the plan was left out. The QML and wasm main-thread games no
+longer allocate a table at all, which the motivation listed but the plan
+did not call for as a separate step — it falls out of removing the member.
