@@ -7,6 +7,7 @@
 #include "wisdom-chess/ui/wasm/game_settings.hpp"
 
 #include "wisdom-chess/engine/logger.hpp"
+#include "wisdom-chess/engine/transposition_table.hpp"
 
 using namespace wisdom;
 
@@ -20,6 +21,7 @@ namespace wisdom::worker
         };
 
         wisdom::Game game;
+        wisdom::TranspositionTable transposition_table;
         wisdom::GameSettings settings {};
         int game_id {};
         std::atomic<int> play_status = PlayStatus::Playing;
@@ -136,6 +138,7 @@ EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
     state->game_id = new_game_id;
 
     state->game = Game::createStandardGame();
+    state->transposition_table.clear();
     state->updateSettings (state->settings);
 
     auto periodic_func = [state](nonnull_observer_ptr<MoveTimer> timer) {
@@ -171,6 +174,7 @@ EMSCRIPTEN_KEEPALIVE void startSearch()
 
     auto move = game->findBestMove(
         logger,
+        &state->transposition_table,
         game->getCurrentTurn()
     );
     if (!move.has_value())

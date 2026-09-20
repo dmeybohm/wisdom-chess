@@ -222,6 +222,7 @@ cmake --build . --target WisdomChessQml
 | `WISDOM_CHESS_FAST_TESTS` | Bool | ON | Build fast tests |
 | `WISDOM_CHESS_SLOW_TESTS` | Bool | OFF | Build slow tests |
 | `WISDOM_CHESS_PCH_ENABLED` | Bool | ON | Use precompiled headers |
+| `WISDOM_CHESS_BENCHMARKS` | Bool | OFF | Build the `wisdom-chess-benchmarks` target (`engine/bench`) |
 | `WISDOM_CHESS_ASAN` | Bool | OFF | Enable AddressSanitizer and UndefinedBehaviorSanitizer |
 | `WISDOM_CHESS_TSAN` | Bool | OFF | Enable ThreadSanitizer (mutually exclusive with `WISDOM_CHESS_ASAN`) |
 | `WISDOM_CHESS_BUILD_LINTER` | Bool | ON | Build C++ style linter (native builds only) |
@@ -378,6 +379,33 @@ Note: There are two WebAssembly frontends:
   - `Game::createGameFromBoard(builder)` - custom board setup
 - Game constructors are private to ensure proper initialization
 - This pattern is specific to Game due to its complex initialization requirements
+
+### Transposition Table
+- The table is search state, not game state, so `Game` does not hold one.
+  `Game::findBestMove()` takes the caller's table as a
+  `nonnull_observer_ptr<TranspositionTable>`.
+- `TranspositionTable` is move-only. A table has exactly one owner, so it
+  cannot be shared between two threads or copied by accident.
+- Whoever runs searches owns one and keeps it across moves, which is what makes
+  the table worth having: `UciInterface`, `ConsoleGame`, `worker::GameState`
+  (wasm) and `ChessEngine` (QML). Each clears it when a new game starts, and
+  UCI rebuilds it at the requested size on `setoption name Hash`.
+- A frontend that hands the table to a search thread must not touch it again
+  until that thread has finished. In UCI that is what `waitForSearchThread()`
+  is for; every handler that clears, rebuilds or replaces the table calls it
+  first.
+- Entries stay valid across moves: they are keyed by position hash, and mate
+  scores are stored relative to the node rather than the root. A search
+  therefore starts from what the previous one learned, so an engine move can
+  differ from what a cold table would have chosen. `go depth N` on a fresh
+  process is still deterministic.
+- Draw scores are the exception, because a repetition or fifty-move draw is a
+  property of the path, not of the board. `search()` returns a draw score
+  before it probes or stores, so a repeating node is never stored, but its
+  ancestors are, and they carry the draw score under a board-only key. A
+  table must therefore not be carried over to a position reached by a
+  different history: UCI keeps its table only when a `position` command
+  continues the current game, and clears it otherwise.
 
 ### General API Guidelines
 - All public API is in the `wisdom::` namespace

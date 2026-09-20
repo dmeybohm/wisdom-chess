@@ -130,7 +130,7 @@ void ChessEngine::findMove()
     auto who = game_state->getCurrentTurn();
 
     my_logger->debug ("Searching for move");
-    auto optionalMove = game_state->findBestMove (my_logger);
+    auto optionalMove = game_state->findBestMove (my_logger, &my_transposition_table);
 
     // TODO: we could have timed out or the thread was interrupted, and we should distinguish
     // between these two cases. If we couldn't find any move in the time, should select a move
@@ -207,6 +207,7 @@ void ChessEngine::reloadGame (shared_ptr<ChessGame> newGame, int newGameId)
     my_game = std::move (newGame);
     my_game_id = newGameId;
     my_is_game_over = false;
+    my_transposition_table.clear();
     syncDebugLogging();
 
     // Possibly resume searching for the next move:

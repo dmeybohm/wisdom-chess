@@ -6,6 +6,7 @@
 #include "wisdom-chess/engine/output_format.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/search.hpp"
+#include "wisdom-chess/engine/transposition_table.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
@@ -216,7 +217,11 @@ namespace wisdom
         return GameStatus::Playing;
     }
 
-    auto Game::findBestMove (shared_ptr<Logger> logger, Color whom) const
+    auto Game::findBestMove (
+        shared_ptr<Logger> logger,
+        nonnull_observer_ptr<TranspositionTable> transposition_table,
+        Color whom
+    ) const
         -> optional<Move>
     {
         if (whom == Color::None)
@@ -228,7 +233,7 @@ namespace wisdom
             std::move (logger),
             my_pimpl->my_move_timer,
             my_pimpl->my_max_depth,
-            my_pimpl->my_transposition_table
+            *transposition_table
         );
         SearchResult result = iterative_search.iterativelyDeepen (whom);
 

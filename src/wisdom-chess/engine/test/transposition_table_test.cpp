@@ -12,6 +12,13 @@
 
 using namespace wisdom;
 
+// A table has exactly one owner: it can be moved, but never copied, so that a
+// silent duplicate cannot be shared between two searching threads.
+static_assert (!std::is_copy_constructible_v<TranspositionTable>);
+static_assert (!std::is_copy_assignable_v<TranspositionTable>);
+static_assert (std::is_nothrow_move_constructible_v<TranspositionTable>);
+static_assert (std::is_nothrow_move_assignable_v<TranspositionTable>);
+
 TEST_CASE( "Transposition table" )
 {
     SUBCASE( "stores and retrieves exact scores" )

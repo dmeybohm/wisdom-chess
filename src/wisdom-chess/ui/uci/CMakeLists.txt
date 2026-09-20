@@ -85,6 +85,43 @@ if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS)
         EXPECTED "info Searching depth 1" "bestmove [a-h][1-8][a-h][1-8]"
         FORBIDDEN "Searching depth 2")
 
+    # The transposition table belongs to the interface, not to the game, so it
+    # survives the "position" command and the per-"go" copy of the game.
+    wisdom_chess_add_cli_test("UCI: consecutive positions each answer" wisdom-chess-uci
+        INPUT "position startpos" "go depth 2" "stop"
+              "position startpos moves e2e4 e7e5" "go depth 2" "stop" "quit"
+        EXPECTED "bestmove [a-h][1-8][a-h][1-8].*bestmove [a-h][1-8][a-h][1-8]")
+
+    # The second search probes a table the first one filled on this position.
+    wisdom_chess_add_cli_test("UCI: a warm table still finds a mate in one" wisdom-chess-uci
+        INPUT "position fen 6k1/5ppp/8/8/8/8/8/R3K3 w - - 0 1" "go depth 2" "stop"
+              "position fen 6k1/5ppp/8/8/8/8/8/R3K3 w - - 0 1" "go depth 2" "stop" "quit"
+        EXPECTED "bestmove a1a8.*bestmove a1a8")
+
+    # A repetition draw is a property of the path, not of the board, so the
+    # scores the first line produces must not survive into an unrelated
+    # position. The fresh starting position is worth 90 here, not the 0 that
+    # the repetition line stored under the same board hashes.
+    wisdom_chess_add_cli_test("UCI: an unrelated position does not inherit draw scores" wisdom-chess-uci
+        INPUT "position startpos moves g1f3 g8f6 f3g1 f6g8" "go depth 4" "stop"
+              "position startpos" "go depth 3" "stop" "quit"
+        EXPECTED "score: 90 \\][ \t\r\n]*bestmove b1c3")
+
+    wisdom_chess_add_cli_test("UCI: a search answers after the Hash option" wisdom-chess-uci
+        INPUT "setoption name Hash value 1" "position startpos" "go depth 2" "stop" "quit"
+        EXPECTED "bestmove [a-h][1-8][a-h][1-8]")
+
+    # Resizing discards the warm table; the search that follows still answers.
+    wisdom_chess_add_cli_test("UCI: the Hash option resizes between searches" wisdom-chess-uci
+        INPUT "position startpos" "go depth 2" "stop" "setoption name Hash value 1"
+              "position startpos moves d2d4" "go depth 2" "stop" "quit"
+        EXPECTED "bestmove [a-h][1-8][a-h][1-8].*bestmove [a-h][1-8][a-h][1-8]")
+
+    wisdom_chess_add_cli_test("UCI: ucinewgame between searches" wisdom-chess-uci
+        INPUT "position startpos" "go depth 2" "stop" "ucinewgame"
+              "position startpos moves d2d4" "go depth 2" "stop" "quit"
+        EXPECTED "bestmove [a-h][1-8][a-h][1-8].*bestmove [a-h][1-8][a-h][1-8]")
+
     wisdom_chess_add_cli_test("UCI: an invalid FEN is reported in debug mode" wisdom-chess-uci
         INPUT "debug on" "position fen not a fen at all ok" "isready" "quit"
         EXPECTED "info string Invalid FEN: not a fen at all ok" "readyok")
