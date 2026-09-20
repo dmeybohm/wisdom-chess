@@ -399,6 +399,13 @@ Note: There are two WebAssembly frontends:
   therefore starts from what the previous one learned, so an engine move can
   differ from what a cold table would have chosen. `go depth N` on a fresh
   process is still deterministic.
+- Draw scores are the exception, because a repetition or fifty-move draw is a
+  property of the path, not of the board. `search()` returns a draw score
+  before it probes or stores, so a repeating node is never stored, but its
+  ancestors are, and they carry the draw score under a board-only key. A
+  table must therefore not be carried over to a position reached by a
+  different history: UCI keeps its table only when a `position` command
+  continues the current game, and clears it otherwise.
 
 ### General API Guidelines
 - All public API is in the `wisdom::` namespace

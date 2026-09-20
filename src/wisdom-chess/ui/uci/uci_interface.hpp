@@ -57,6 +57,11 @@ namespace wisdom
         void waitForSearchThread();
 
         Game my_game;
+
+        // The last "position" command applied, so that the next one can be
+        // recognized as continuing the same game or not.
+        vector<string> my_position_tokens;
+
         shared_ptr<Logger> my_logger;
         bool my_debug_mode = false;
 

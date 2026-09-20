@@ -98,6 +98,15 @@ if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS)
               "position fen 6k1/5ppp/8/8/8/8/8/R3K3 w - - 0 1" "go depth 2" "stop" "quit"
         EXPECTED "bestmove a1a8.*bestmove a1a8")
 
+    # A repetition draw is a property of the path, not of the board, so the
+    # scores the first line produces must not survive into an unrelated
+    # position. The fresh starting position is worth 90 here, not the 0 that
+    # the repetition line stored under the same board hashes.
+    wisdom_chess_add_cli_test("UCI: an unrelated position does not inherit draw scores" wisdom-chess-uci
+        INPUT "position startpos moves g1f3 g8f6 f3g1 f6g8" "go depth 4" "stop"
+              "position startpos" "go depth 3" "stop" "quit"
+        EXPECTED "score: 90 \\][ \t\r\n]*bestmove b1c3")
+
     wisdom_chess_add_cli_test("UCI: a search answers after the Hash option" wisdom-chess-uci
         INPUT "setoption name Hash value 1" "position startpos" "go depth 2" "stop" "quit"
         EXPECTED "bestmove [a-h][1-8][a-h][1-8]")

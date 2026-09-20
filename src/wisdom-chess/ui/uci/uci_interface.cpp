@@ -129,6 +129,38 @@ namespace wisdom
                 [] (unsigned char c) { return std::tolower (c); });
             return str;
         }
+
+        // A "position" command continues the current game when it starts from
+        // the same place and its move list begins with the moves already
+        // played. Anything else is a different game or an unrelated analysis
+        // position, whose search must not see scores that a previous history
+        // produced: a repetition draw is a property of the path, not of the
+        // board, but the table is keyed by the board alone.
+        [[nodiscard]] auto
+        continuesPosition (const vector<string>& previous, const vector<string>& current)
+            -> bool
+        {
+            auto previous_moves = std::find (previous.begin(), previous.end(), "moves");
+            auto current_moves = std::find (current.begin(), current.end(), "moves");
+
+            // The tokens before "moves" name the starting position.
+            if (!std::equal (
+                    previous.begin(), previous_moves,
+                    current.begin(), current_moves
+                ))
+            {
+                return false;
+            }
+
+            // The moves already played must be a prefix of the new move list.
+            if (std::distance (previous_moves, previous.end())
+                > std::distance (current_moves, current.end()))
+            {
+                return false;
+            }
+
+            return std::equal (previous_moves, previous.end(), current_moves);
+        }
     }
 
     UciInterface::UciInterface()
@@ -229,6 +261,7 @@ namespace wisdom
     {
         waitForSearchThread();
         my_transposition_table.clear();
+        my_position_tokens.clear();
         std::lock_guard<std::mutex> lock { my_game_mutex };
         my_game = Game::createStandardGame();
     }
@@ -240,6 +273,8 @@ namespace wisdom
 
         waitForSearchThread();
         std::lock_guard<std::mutex> lock { my_game_mutex };
+
+        bool applied = false;
 
         if (tokens[1] == "startpos")
         {
@@ -257,6 +292,8 @@ namespace wisdom
                     }
                 }
             }
+
+            applied = true;
         }
         else if (tokens[1] == "fen" && tokens.size() >= 8)
         {
@@ -291,7 +328,17 @@ namespace wisdom
                     }
                 }
             }
+
+            applied = true;
         }
+
+        if (!applied)
+            return;
+
+        if (!continuesPosition (my_position_tokens, tokens))
+            my_transposition_table.clear();
+
+        my_position_tokens = tokens;
     }
 
     void UciInterface::handleGo (const vector<string>& tokens)

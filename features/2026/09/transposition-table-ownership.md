@@ -195,6 +195,63 @@ undocumented; it is now in the build options table in `AGENTS.md`.
 `searchToDepth` was split so that `searchWithTable` does not clear,
 leaving the existing cold-table benchmarks unchanged.
 
+### Session #2: draw scores crossing between unrelated positions
+
+Review found a real regression, reproduced exactly as reported:
+
+```
+position startpos moves g1f3 g8f6 f3g1 f6g8
+go depth 4
+position startpos
+go depth 3
+```
+
+The second search evaluated the fresh starting position as 0 on 20 nodes
+with 20 of 20 table hits, where a fresh process gives 90 on 575 nodes.
+
+The mechanism is not what the shape of it suggests. `search()` calls
+`isProbablyDrawingMove()` and returns a draw score *before* it probes or
+stores, so a node that repeats under the current history is never itself
+written to the table. What is written is its **ancestors**: the draw score
+propagates up and is stored under board-only keys. The first line above
+reaches the starting position for the third time, so its search is full of
+draw scores, and they land under hashes that a fresh startpos search reads
+back.
+
+The plan anticipated the general problem — "the usual graph-history
+problem ... not made worse in kind" — and that judgement still holds for
+play within one game, which is what every engine accepts by keeping a
+table across moves. It was wrong about `position` specifically: that
+command can install an entirely unrelated history, and before this branch
+the table could not survive it.
+
+**Fix.** `handlePosition` clears the table unless the new command
+continues the current game, meaning it names the same starting point and
+its move list begins with the moves already played. `ucinewgame` also
+forgets the recorded command. Normal play extends the move list by one
+each turn, so it is a continuation and keeps its warm table; the
+benchmark above is unaffected, and a hand check confirms entries and hits
+still carry across `position startpos moves e2e4` to
+`position startpos moves e2e4 e7e5`. A different FEN, a different game,
+or an analysis position gets a cleared table. A differing halfmove clock
+is a differing FEN token, so the fifty-move half of the same concern is
+covered by the same test.
+
+**Regression test.** `UCI: an unrelated position does not inherit draw
+scores` runs the repro and requires the answer before `bestmove` to be
+worth 90 rather than 0. Verified that it fails when the clear is disabled,
+and that the regex distinguishes the two outputs rather than matching
+both. 213 tests pass, and the 22 UCI tests still pass under
+ThreadSanitizer.
+
+**Still not addressed.** Reuse across a continuation keeps classic
+graph-history interaction: the history grows by a move, so a stored score
+that assumed a position was not a repetition can be stale. That is the
+pre-existing condition the plan described, it is what other engines live
+with, and fixing it properly means keeping path-dependence out of stored
+scores — a search change, not a UCI one. Worth its own entry on the bug
+list rather than a widening of this branch.
+
 ### Not done
 
 Nothing from the plan was left out. The QML and wasm main-thread games no

@@ -118,6 +118,19 @@ should be confirmed before fixing.
   of `Game` and each frontend owns one, with the
   `search/warm-table` benchmark added. See
   [transposition-table-ownership.md](transposition-table-ownership.md).
+- [ ] **Draw scores stored under board-only keys.** `search()`
+  (`engine/search.cpp:152`) returns `drawingScore()` before it probes or
+  stores, so a repeating node is never written to the table, but its
+  ancestors are, and they carry a score that only holds for the history
+  that produced it. Within one game this is the usual graph-history
+  interaction and is what keeping a table across moves costs everywhere.
+  Across an unrelated history it is worse, which is why UCI clears the
+  table when a `position` command does not continue the current game
+  (Session #2 of
+  [transposition-table-ownership.md](transposition-table-ownership.md)).
+  Fixing it at the root means keeping path-dependence out of stored
+  scores: either do not store a score that a draw check produced, or key
+  such entries by the repetition context as well.
 - [x] Leaf evaluation calls full legal-move generation when in check
   (`engine/evaluate.cpp:63, 87-97`). Measured, with the alternatives, in
   [faster-legal-move-test.md](faster-legal-move-test.md). Fixed on the
