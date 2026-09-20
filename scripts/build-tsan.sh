@@ -260,8 +260,9 @@ fetch_sources() {
     sources_present && return 0
 
     echo "=== Downloading the Qt $QT_VERSION sources ==="
-    "$AQT" install-src linux desktop "$QT_VERSION" \
-        --archives "${QT_MODULES[@]}" --outputdir "$CACHE_DIR/src"
+    # aqt writes aqtinstall.log to the current directory.
+    (cd "$CACHE_DIR" && "$AQT" install-src linux desktop "$QT_VERSION" \
+        --archives "${QT_MODULES[@]}" --outputdir "$CACHE_DIR/src")
 
     sources_present || fail "the sources are incomplete under $SRC_DIR"
 }
