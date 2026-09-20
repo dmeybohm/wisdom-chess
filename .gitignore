@@ -17,3 +17,6 @@ CMakeLists.txt.user
 
 # Vim swap files
 *.sw[a-p]
+
+# Worktrees
+worktree/
