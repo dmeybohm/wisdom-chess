@@ -20,6 +20,9 @@ namespace wisdom
         int depth { 0 };
         optional<Move> move { nullopt };
         bool timed_out { false };
+
+        // Nodes visited across every depth of the search.
+        int64_t nodes { 0 };
     };
 
     // An error raised while searching. The extra info ends with the board searched.

@@ -195,9 +195,34 @@ and how long a fixed time budget takes to reach them. Record:
 - the maximum quiescence ply reached (to decide on the evasion bound),
 - the time for the default frontend depth on each benchmark position.
 
+### Search report
+
+The `search/*` benchmarks time a search and print nothing else. Every
+search change so far has needed the move, score and node count as well,
+and each time a throwaway driver was written for it (Session #20 of the
+bug list, [faster-legal-move-test.md](faster-legal-move-test.md), and
+the first attempt at a baseline here). Keep one instead:
+
+- `SearchResult` gains `nodes`, the nodes visited across every depth of
+  the search, so a caller need not parse the log. Quiescence adds its
+  own count next to it.
+- `wisdom-chess-benchmarks --search-report [max-depth]` searches each
+  report position once per depth, from 1 to the maximum, with a cleared
+  table, and prints one line per search: the move, the score, the depth
+  the result came from, the node count and the time. It runs instead of
+  the timed suites, which take about 16 seconds and report nothing it
+  needs. Without the flag the program behaves as before.
+- The report positions are the starting position, Kiwipete, the Italian
+  game, perft positions 3 and 4, and a quiet middlegame. The last was the
+  most expensive search in the first baseline.
+
+The depth the result came from shows the odd-depth rule at work: today
+an odd-depth search returns the even depth before it.
+
 ## Plan
 
-1. Take the baseline benchmark numbers on `main`.
+1. Add the search report, and take the baseline numbers with it before
+   changing the search.
 2. Split `evaluate()` into the mate test and a static evaluation.
    No behaviour change; existing tests cover it.
 3. Add `generateCaptures()` as a filter over the full list, with tests.

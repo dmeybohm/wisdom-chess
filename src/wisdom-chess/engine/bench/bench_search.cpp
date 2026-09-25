@@ -218,4 +218,57 @@ namespace wisdom::bench
 
         runWarmTableBenchmark (30, 6);
     }
+
+    void runSearchReport (int max_depth)
+    {
+        struct ReportPosition
+        {
+            const char* name;
+            const char* fen;
+        };
+
+        const ReportPosition positions[] = {
+            { "starting", Starting_Position_Fen },
+            { "kiwipete", Kiwipete_Fen },
+            { "italian", Italian_Game_Fen },
+            { "position3", Position3_Fen },
+            { "position4", Position4_Fen },
+            { "middlegame", Quiet_Middlegame_Fen },
+        };
+
+        auto table = TranspositionTable::fromMegabytes (
+            TranspositionTable::Default_Size_In_Megabytes
+        );
+
+        std::cout << std::left << std::setw (12) << "position"
+                  << std::right << std::setw (6) << "depth"
+                  << "  " << std::left << std::setw (10) << "move"
+                  << std::right << std::setw (8) << "score"
+                  << std::setw (8) << "from"
+                  << std::setw (12) << "nodes"
+                  << std::setw (10) << "seconds" << "\n";
+
+        for (const auto& position : positions)
+        {
+            Game game = Game::createGameFromFen (position.fen);
+
+            for (int depth = 1; depth <= max_depth; depth++)
+            {
+                auto start = std::chrono::steady_clock::now();
+                auto result = searchToDepth (game, table, depth);
+                auto end = std::chrono::steady_clock::now();
+                auto seconds = std::chrono::duration<double> (end - start).count();
+
+                std::cout << std::left << std::setw (12) << position.name
+                          << std::right << std::setw (6) << depth
+                          << "  " << std::left << std::setw (10)
+                          << (result.move.has_value() ? asString (*result.move) : "(none)")
+                          << std::right << std::setw (8) << result.score
+                          << std::setw (8) << result.depth
+                          << std::setw (12) << result.nodes
+                          << std::setw (10) << std::fixed << std::setprecision (3)
+                          << seconds << "\n";
+            }
+        }
+    }
 }

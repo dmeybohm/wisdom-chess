@@ -536,3 +536,26 @@ TEST_CASE( "An error during the search is rethrown with the board" )
         CHECK( e.extra_info() == "extra detail\n" + board.asString() );
     }
 }
+
+TEST_CASE( "The search result counts the nodes of every depth" )
+{
+    Board board { BoardBuilder::fromDefaultPosition() };
+
+    SUBCASE( "One ply visits each root move once" )
+    {
+        SearchHelper helper;
+        auto search = helper.build (board, 1);
+        SearchResult result = search.iterativelyDeepen (Color::White);
+
+        CHECK( result.nodes == 20 );
+    }
+
+    SUBCASE( "A deeper search includes the shallower depths" )
+    {
+        SearchHelper helper;
+        auto search = helper.build (board, 2);
+        SearchResult result = search.iterativelyDeepen (Color::White);
+
+        CHECK( result.nodes > 20 + 20 );
+    }
+}

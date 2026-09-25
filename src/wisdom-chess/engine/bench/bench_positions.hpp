@@ -22,6 +22,10 @@ namespace wisdom::bench
     inline constexpr auto Italian_Game_Fen
         = "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4";
 
+    // Quiet middlegame: symmetrical pawn structure, both sides castled.
+    inline constexpr auto Quiet_Middlegame_Fen
+        = "r2q1rk1/pp2bppp/2n1bn2/3p4/3P4/2NBBN2/PP3PPP/R2Q1RK1 w - - 0 11";
+
     // Many-queens endgame: heavy threat-checking load.
     inline constexpr auto Many_Queens_Fen
         = "Q3k3/3Q1Q2/8/8/8/8/2q1q3/3K4 w - - 0 1";
