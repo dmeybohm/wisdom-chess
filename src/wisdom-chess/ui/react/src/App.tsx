@@ -339,10 +339,6 @@ function App() {
                     <p>{drawOffer.message}</p>
                 </DrawDialog>
             )}
-
-            {anyModalOpen && (
-                <div className="modal-overlay"></div>
-            )}
         </div>
     )
 }

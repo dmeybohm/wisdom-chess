@@ -195,6 +195,14 @@ describe('App', () => {
         )
     })
 
+    it('shows the overlay behind a draw dialog', () => {
+        vi.mocked(mockGame.getGameStatus).mockReturnValue(mockWisdomChess.ThreefoldRepetitionReached)
+
+        render(<App />)
+
+        expect(document.querySelector('.modal-overlay')).not.toBeNull()
+    })
+
     it('pauses the game when a modal is open', async () => {
         const user = userEvent.setup()
         render(<App />)
