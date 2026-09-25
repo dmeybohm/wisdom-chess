@@ -69,3 +69,41 @@ accesses after `qml-enum-registration`.
   mobile orientation test covers the recompute.
 - Android and wasm are not built here. The files are linted and loaded
   by the tests on Linux, and the CI installers build the desktop app.
+
+## Implementation Progress
+
+### Session #1
+
+Done as planned, with two corrections found by lint and the tests.
+
+- **The menu property's type.** `MainWindow` first declared its menu as
+  `required property Popup menu`. Lint reported that a `GameMenu` cannot
+  be assigned to `Popup`, and at run time the property was null: in
+  `QtQuick.Controls` the styled `Menu` type derives from the template
+  `Menu`, not from the styled `Popup`. The property is a `GameMenu`,
+  which is what all three mains pass.
+- **Focus tracking.** The first version bound a `focusedItem` property
+  to `Window.activeFocusItem` and acted in its change handler. The board
+  clears the new item's focus there (so a dialog can give focus back
+  without the next click being taken as a move), which changed the
+  binding's source inside its own handler: a binding loop, reported as a
+  QML warning and so a test failure. `GameRoot` now handles the window's
+  `activeFocusItemChanged` signal through a `Connections` on
+  `Window.window`, as the window's signal handler did before; the
+  comment there says why it is not a binding.
+- `Platform.qml` computes the flags from `Qt.platform.os`; the three
+  Helper functions are gone. `BoardDimensions` is a singleton; the
+  fixture's `squareSize()` reads it through
+  `QQmlEngine::singletonInstance`. `MobileRoot`'s unused `toolbarHeight`
+  went with the rest, and the mobile main no longer logs the recomputed
+  square size.
+- `wasm_main.qml` keeps its `ToolButton`s' own `onClicked` and one
+  `MouseArea` on the title `Label`, which is not clickable itself.
+- New `QML: wasm` test with three cases.
+- `qmllint`: 89 unqualified before, 36 after, all `_myGameModel` (35)
+  and `_myPiecesModel` (1). Nothing else is reported at any level.
+- Verified: full `ctest` (192 tests) passes; the four QML UI tests pass
+  under `Basic` and `Fusion`; the C++ `lint` target is clean. Not built
+  for Android or wasm, and not run on CI.
+- Net: 22 files, 151 insertions, 374 deletions before the new test and
+  this log.

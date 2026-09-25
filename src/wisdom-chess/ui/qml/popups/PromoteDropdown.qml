@@ -18,13 +18,13 @@ FocusScope {
 
     transform: Translate {
         id: myTranslation
-        x: dropDownTop.drawAtColumn * topWindow.squareSize
-        y: dropDownTop.drawAtRow * topWindow.squareSize
+        x: dropDownTop.drawAtColumn * BoardDimensions.squareSize
+        y: dropDownTop.drawAtRow * BoardDimensions.squareSize
     }
 
     Rectangle {
-        width: topWindow.squareSize
-        height: topWindow.squareSize * 4
+        width: BoardDimensions.squareSize
+        height: BoardDimensions.squareSize * 4
         color: "lightblue"
     }
 
@@ -48,8 +48,8 @@ FocusScope {
                required property string blackImage
                required property int piece
 
-               width: topWindow.squareSize
-               height: topWindow.squareSize
+               width: BoardDimensions.squareSize
+               height: BoardDimensions.squareSize
 
                transform: Rotation {
                     origin.x: choice.width / 2
@@ -70,8 +70,8 @@ FocusScope {
                Image {
                    source: _myGameModel.currentTurn === Color.White ? choice.whiteImage
                                                                 : choice.blackImage
-                   width: topWindow.squareSize
-                   height: topWindow.squareSize
+                   width: BoardDimensions.squareSize
+                   height: BoardDimensions.squareSize
                }
 
                MouseArea {

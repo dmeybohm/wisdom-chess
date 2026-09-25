@@ -7,8 +7,8 @@ Item {
     property alias boardRow: myRect.boardRow;
     property alias boardColumn: myRect.boardColumn;
 
-    width: topWindow.squareSize
-    height: topWindow.squareSize
+    width: BoardDimensions.squareSize
+    height: BoardDimensions.squareSize
 
     Rectangle {
         id: myRect

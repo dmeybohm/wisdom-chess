@@ -8,15 +8,15 @@ Dialog {
 
     // A Dialog gives its footer these buttons, replacing any set there.
     standardButtons: Dialog.Ok
-    implicitWidth: topWindow.isWebAssembly ? 550 : 400
-    implicitHeight: topWindow.isWebAssembly ? 385 : 350
+    implicitWidth: Platform.isWebAssembly ? 550 : 400
+    implicitHeight: Platform.isWebAssembly ? 385 : 350
 
     onAccepted: {
         visible = false
     }
 
     footer: DialogButtonBox {
-        alignment: topWindow.isWebAssembly ? Qt.AlignHCenter : Qt.AlignRight
+        alignment: Platform.isWebAssembly ? Qt.AlignHCenter : Qt.AlignRight
     }
 
     Column {
@@ -30,48 +30,25 @@ Dialog {
         }
         spacing: 20
 
-        Text {
-            id: firstLine
-            text: "Wisdom Chess © David Meybohm 2022"
-            font.pointSize: 14
-            width: parent.width
+        Repeater {
+            model: [
+                "Wisdom Chess © David Meybohm 2022",
+                "Images © Colin M.L. Burnett and used under creative commons license.",
+                "Box icons © boxicons.com and used under creative commons license.",
+                "Qt © The Qt Company 2021 used under GPL / LGPL license."
+            ]
 
-            verticalAlignment: topWindow.isMobile ? Text.AlignTop : Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-        }
+            Text {
+                required property string modelData
 
-        Text {
-            id: secondLine
-            text: "Images © Colin M.L. Burnett and used under creative commons license."
-            font.pointSize: 14
-            width: parent.width
+                text: modelData
+                font.pointSize: 14
+                width: parent.width
 
-            verticalAlignment: topWindow.isMobile ? Text.AlignTop : Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-        }
-
-        Text {
-            id: thirdLine
-            text: "Box icons © boxicons.com and used under creative commons license."
-            font.pointSize: 14
-            width: parent.width
-
-            verticalAlignment: topWindow.isMobile ? Text.AlignTop : Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-        }
-
-        Text {
-            id: fourthLine
-            text: "Qt © The Qt Company 2021 used under GPL / LGPL license."
-            font.pointSize: 14
-            width: parent.width
-
-            verticalAlignment: topWindow.isMobile ? Text.AlignTop : Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
+                verticalAlignment: Platform.isMobile ? Text.AlignTop : Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+            }
         }
     }
 }

@@ -105,3 +105,4 @@ wisdom_chess_add_qml_ui_test("QML: application" application_test.cpp)
 wisdom_chess_add_qml_ui_test("QML: dialogs" dialogs_test.cpp)
 
 wisdom_chess_add_qml_ui_test("QML: mobile" mobile_test.cpp)
+wisdom_chess_add_qml_ui_test("QML: wasm" wasm_test.cpp)

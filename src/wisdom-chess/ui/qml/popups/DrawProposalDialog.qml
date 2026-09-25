@@ -7,6 +7,9 @@ Dialog {
     modal: true
     standardButtons: Dialog.Yes | Dialog.No
     title: "Draw Offer"
+    width: Math.min(400, Screen.width - 50)
+    height: Math.min(250, Screen.height - 10)
+    padding: 40
 
     Column {
         spacing: 15

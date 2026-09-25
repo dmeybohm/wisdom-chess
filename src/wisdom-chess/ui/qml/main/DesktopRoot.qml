@@ -1,38 +1,10 @@
-import QtQuick 
+import QtQuick
 import QtQuick.Layouts
 
-Item {
-    width: parent.width
-    height: parent.height
-
-    readonly property bool anyDialogOpen: dialogs.anyDialogOpen
-    readonly property int animationDelay: _myGameModel.animationDelay
-    readonly property int castlingRookPause: _myGameModel.castlingRookPause
-
-    property var currentFocusedItem: null
-
-    function onFocusObjectChanged(oldFocusItem, newFocusItem) {
-        boards.onFocusObjectChanged(oldFocusItem, newFocusItem)
-    }
-
-    function showNewGameDialog() {
-        dialogs.showNewGameDialog()
-    }
-
-    function showAboutDialog() {
-        dialogs.showAboutDialog()
-    }
-
-    function showConfirmQuitDialog() {
-        dialogs.showConfirmQuitDialog()
-    }
-
-    function showSettingsDialog() {
-        dialogs.showSettingsDialog()
-    }
+GameRoot {
+    board: boards
 
     ColumnLayout {
-        id: colLayout
         anchors.top: parent.top
         anchors.topMargin: 25
         anchors.left: parent.left
@@ -46,13 +18,8 @@ Item {
         }
 
         StatusBar {
-            id: boardStatusBar
             Layout.fillWidth: true
             Layout.minimumHeight: 50
         }
-    }
-
-    Dialogs {
-        id: dialogs
     }
 }

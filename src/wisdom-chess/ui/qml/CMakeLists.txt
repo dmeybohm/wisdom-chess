@@ -83,6 +83,9 @@ else()
     set(MAIN_QML_FILE main/desktop_main.qml)
 endif()
 
+set_source_files_properties(main/BoardDimensions.qml main/Platform.qml
+    PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+
 qt_add_qml_module(WisdomChessQml
     URI WisdomChess
     VERSION 1.0
@@ -105,6 +108,9 @@ qt_add_qml_module(WisdomChessQml
         Helper.js
         # Every platform's root is in the module, whichever one MAIN_QML_FILE
         # loads, so qmllint sees them all and the tests find them.
+        main/Platform.qml
+        main/MainWindow.qml
+        main/GameRoot.qml
         main/DesktopRoot.qml
         main/MobileRoot.qml
         main/desktop_main.qml

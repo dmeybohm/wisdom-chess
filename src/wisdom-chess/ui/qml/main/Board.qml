@@ -4,8 +4,8 @@ import QtQuick
 
 Item {
     id: myGridAndPieces
-    width: topWindow.boardWidth
-    height: topWindow.boardHeight
+    width: BoardDimensions.boardWidth
+    height: BoardDimensions.boardHeight
 
     property bool flipped: _myGameModel.uiSettings.flipped
 
@@ -17,12 +17,12 @@ Item {
         Behavior on angle {
             NumberAnimation {
                 easing.type: Easing.OutExpo
-                duration: root.animationDelay * 5
+                duration: _myGameModel.animationDelay * 5
             }
         }
     }
 
-    function onFocusObjectChanged(oldObject, newObject) {
+    function focusMoved(oldObject, newObject) {
         if (oldObject && newObject &&
                 'boardRow' in oldObject && 'boardRow' in newObject
         ) {
@@ -46,8 +46,8 @@ Item {
 
     Grid {
         id: squareBackground
-        width: topWindow.boardWidth
-        height: topWindow.boardHeight
+        width: BoardDimensions.boardWidth
+        height: BoardDimensions.boardHeight
         columns: 8
         rows: 8
         columnSpacing: 0
@@ -81,7 +81,7 @@ Item {
         id: myPiecesLayer
         x: 0
         y: 0
-        width: topWindow.boardWidth; height: topWindow.boardHeight
+        width: BoardDimensions.boardWidth; height: BoardDimensions.boardHeight
 
         // Pieces on top of the squares:
         Repeater {

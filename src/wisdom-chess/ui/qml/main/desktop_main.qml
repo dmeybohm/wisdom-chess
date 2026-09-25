@@ -2,52 +2,20 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-ApplicationWindow {
-    id: topWindow
-
-    readonly property int boardWidth: boardDimensions.boardWidth
-    readonly property int boardHeight: boardDimensions.boardHeight
-    readonly property int squareSize: boardDimensions.squareSize
-
-    readonly property bool isWebAssembly: Helper.isWebAssembly()
-    readonly property bool isMobile: Helper.isMobile()
-    readonly property bool isDesktop: !Helper.isMobile() && !Helper.isWebAssembly()
-    readonly property bool isMacOS: Helper.isMacOS()
-
-    width: boardWidth + 48
-    height: boardHeight + 48 + 145
-
-    visible: true
-    title: qsTr("Wisdom Chess")
-    color: "silver"
-
-    readonly property bool anyPopupOpen: gameMenu.visible || root.anyDialogOpen
-
-    onAnyPopupOpenChanged: {
-        if (anyPopupOpen)
-            _myGameModel.pause()
-        else
-            _myGameModel.unpause()
-    }
-
-    onFocusObjectChanged: {
-        root.onFocusObjectChanged(root.currentFocusedItem, activeFocusItem)
-        root.currentFocusedItem = activeFocusItem
-    }
-
-    onClosing: {
-        _myGameModel.applicationExiting();
-    }
+MainWindow {
+    width: BoardDimensions.boardWidth + 48
+    height: BoardDimensions.boardHeight + 48 + 145
+    gameRoot: root
+    menu: gameMenu
 
     header: ToolBar {
-        id: toolbar
         height: 35
 
         RowLayout {
             anchors.fill: parent
 
             Label {
-                visible: Helper.isWebAssembly()
+                visible: Platform.isWebAssembly
                 text: "Wisdom Chess"
                 elide: Label.ElideRight
                 Layout.alignment: Qt.AlignLeft;
@@ -74,15 +42,10 @@ ApplicationWindow {
         GameMenu {
             id: gameMenu
             x: 0
-            onShowAboutDialog: root.showAboutDialog()
-            onShowNewGameDialog: root.showNewGameDialog()
-            onQuit: root.showConfirmQuitDialog()
-            onShowSettingsDialog: root.showSettingsDialog()
+            onShowAboutDialog: root.dialogs.showAboutDialog()
+            onShowNewGameDialog: root.dialogs.showNewGameDialog()
+            onQuit: root.dialogs.showConfirmQuitDialog()
+            onShowSettingsDialog: root.dialogs.showSettingsDialog()
         }
-
-    }
-
-    BoardDimensions {
-        id: boardDimensions
     }
 }

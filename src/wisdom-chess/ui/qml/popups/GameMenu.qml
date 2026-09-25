@@ -10,7 +10,7 @@ Menu {
     signal showSettingsDialog()
     signal quit()
 
-    readonly property bool hideFinalItem: topWindow.isWebAssembly || topWindow.isMobile
+    readonly property bool hideFinalItem: Platform.isWebAssembly || Platform.isMobile
     MenuItem {
         text: "New Game"
         onClicked: {
@@ -34,8 +34,8 @@ Menu {
 
     MenuItem {
         text: "React Version"
-        height: topWindow.isWebAssembly ? implicitHeight : 0
-        visible: topWindow.isWebAssembly
+        height: Platform.isWebAssembly ? implicitHeight : 0
+        visible: Platform.isWebAssembly
         onClicked: {
             Qt.openUrlExternally(_myGameModel.browserOriginUrl() + "/")
         }

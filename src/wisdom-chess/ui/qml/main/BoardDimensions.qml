@@ -1,14 +1,13 @@
-import QtQml
+pragma Singleton
+
 import QtQuick
 
 QtObject {
-    //
-    // Constant settings.
-    //
     readonly property int boardWidth: squareSize * 8
     readonly property int boardHeight: boardWidth
 
-    // The square size, which gets updated based on screen size.
+    // The square size, which the mobile main recomputes when the screen
+    // turns.
     property int squareSize: calculateMaxSquareSize()
 
     function calculateMaxSquareSize() {

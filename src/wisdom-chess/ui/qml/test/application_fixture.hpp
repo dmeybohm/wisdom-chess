@@ -269,10 +269,13 @@ namespace wisdom::ui::test
         }
 
         [[nodiscard]] auto
-        squareSize() const
+        squareSize()
             -> double
         {
-            return window()->property ("squareSize").toDouble();
+            auto* dimensions = my_engine.singletonInstance<QObject*> (
+                "WisdomChess", "BoardDimensions"
+            );
+            return dimensions->property ("squareSize").toDouble();
         }
 
         [[nodiscard]] auto

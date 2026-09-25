@@ -1,111 +1,60 @@
 import QtQuick
 import QtQuick.Controls
 
-ApplicationWindow {
-    id: topWindow
-
-    readonly property int boardWidth: boardDimensions.boardWidth
-    readonly property int boardHeight: boardDimensions.boardHeight
-    readonly property int squareSize: boardDimensions.squareSize
-
-    readonly property bool isWebAssembly: Helper.isWebAssembly()
-    readonly property bool isMobile: Helper.isMobile()
-    readonly property bool isDesktop: !Helper.isMobile() && !Helper.isWebAssembly()
-    readonly property bool isMacOS: Helper.isMacOS()
-
-    width: boardWidth + 48
-    height: boardHeight + 48 + 145
-
-    visible: true
-    title: qsTr("Wisdom Chess")
-    color: "silver"
-
-    readonly property bool anyPopupOpen: settingsMenu.visible || root.anyDialogOpen
-
-    onAnyPopupOpenChanged: {
-        if (anyPopupOpen)
-            _myGameModel.pause()
-        else
-            _myGameModel.unpause()
-    }
-
-    onFocusObjectChanged: {
-        root.onFocusObjectChanged(root.currentFocusedItem, activeFocusItem)
-        root.currentFocusedItem = activeFocusItem
-    }
-
-    onClosing: {
-        _myGameModel.applicationExiting();
-    }
+MainWindow {
+    width: BoardDimensions.boardWidth + 48
+    height: BoardDimensions.boardHeight + 48 + 145
+    gameRoot: root
+    menu: settingsMenu
 
     header: ToolBar {
-        id: toolbar
-
+        // The icon, the title and the arrow all open the menu.
         Row {
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.centerIn: parent
+            spacing: 4
 
-            Row {
-                spacing: 4
+            ImageToolButton {
+                id: rookButton
+                implicitWidth: 32
+                implicitHeight: 32
+                anchors.verticalCenter: parent.verticalCenter
+                imageSource: "../images/Chess_rlt45.svg"
+                onClicked: settingsMenu.open()
 
-                ImageToolButton {
-                    id: rookButton
-                    implicitWidth: 32
-                    implicitHeight: 32
-                    anchors.verticalCenter: parent.verticalCenter
-                    imageSource: "../images/Chess_rlt45.svg"
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: settingsMenu.open()
-                    }
-
-                   GameMenu {
-                        y: rookButton.height
-                        x: -implicitWidth / 4
-                        id: settingsMenu
-                        onShowAboutDialog: root.showAboutDialog()
-                        onShowNewGameDialog: root.showNewGameDialog()
-                        onShowSettingsDialog: root.showSettingsDialog()
-                    }
+                GameMenu {
+                    id: settingsMenu
+                    y: rookButton.height
+                    x: -implicitWidth / 4
+                    onShowAboutDialog: root.dialogs.showAboutDialog()
+                    onShowNewGameDialog: root.dialogs.showNewGameDialog()
+                    onShowSettingsDialog: root.dialogs.showSettingsDialog()
                 }
+            }
 
-                Label {
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    text: "Wisdom Chess"
-                    verticalAlignment: Text.AlignVCenter
+            Label {
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                text: "Wisdom Chess"
+                verticalAlignment: Text.AlignVCenter
 
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: settingsMenu.open()
-                    }
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: settingsMenu.open()
                 }
+            }
 
-                ImageToolButton {
-                    id: menuButton
-                    anchors.verticalCenter: parent.verticalCenter
-                    implicitWidth: 15
-                    implicitHeight: 15
-                    imageSource: "../images/bxs-down-arrow.svg"
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: settingsMenu.open()
-                    }
-                }
+            ImageToolButton {
+                anchors.verticalCenter: parent.verticalCenter
+                implicitWidth: 15
+                implicitHeight: 15
+                imageSource: "../images/bxs-down-arrow.svg"
+                onClicked: settingsMenu.open()
             }
         }
     }
 
     DesktopRoot {
         id: root
-    }
-
-    BoardDimensions {
-        id: boardDimensions
     }
 }

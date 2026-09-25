@@ -9,7 +9,7 @@ Dialog {
     title: "Settings"
     rightPadding: 25
 
-    readonly property int indicatorOffset: topWindow.isMacOS ? 2 : 6
+    readonly property int indicatorOffset: Platform.isMacOS ? 2 : 6
 
     onApplied: {
         applySettingsTimer.start()
@@ -26,11 +26,11 @@ Dialog {
         internal.resetSettings()
     }
 
-    width: topWindow.isMobile
+    width: Platform.isMobile
         ? Screen.width - 20
-        : Math.min(Screen.width - 20, topWindow.isWebAssembly ? 500 : 400)
-    topPadding: topWindow.isMobile ? padding : 30
-    bottomPadding: topWindow.isMobile ? padding : 30
+        : Math.min(Screen.width - 20, Platform.isWebAssembly ? 500 : 400)
+    topPadding: Platform.isMobile ? padding : 30
+    bottomPadding: Platform.isMobile ? padding : 30
 
     Component.onCompleted: internal.resetSettings()
 
@@ -51,7 +51,7 @@ Dialog {
         property var toSaveUISettings
         property var toSaveGameSettings
 
-        readonly property int fontSize: topWindow.isMobile ? 12 : 16
+        readonly property int fontSize: Platform.isMobile ? 12 : 16
 
         function movesLabel(numMoves) {
             return parseInt(numMoves, 10) === 1 ? "1 move" : numMoves + " moves"
@@ -76,7 +76,7 @@ Dialog {
         id: contentColumn
         spacing: 20
         anchors.centerIn: parent
-        width: settingsDialog.width - (topWindow.isMobile ? 30 : 60)
+        width: settingsDialog.width - (Platform.isMobile ? 30 : 60)
 
         RowLayout {
             Text {
@@ -87,7 +87,7 @@ Dialog {
 
             // Use Row instead of RowLayout to avoid alignment issues on desktop:
             RowLayout {
-                spacing: topWindow.isDesktop ? 15 : 0
+                spacing: Platform.isDesktop ? 15 : 0
                 Layout.alignment: Qt.AlignVCenter
 
                 RadioButton {
@@ -115,7 +115,7 @@ Dialog {
             }
 
             RowLayout {
-                spacing: topWindow.isDesktop ? 15 : 0
+                spacing: Platform.isDesktop ? 15 : 0
                 Layout.alignment: Qt.AlignVCenter
 
                 RadioButton {

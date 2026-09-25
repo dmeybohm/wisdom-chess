@@ -2,46 +2,14 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-ApplicationWindow {
-    id: topWindow
-
-    readonly property int boardWidth: boardDimensions.boardWidth
-    readonly property int boardHeight: boardDimensions.boardHeight
-    readonly property int squareSize: boardDimensions.squareSize
-
-    readonly property bool isWebAssembly: Helper.isWebAssembly()
-    readonly property bool isMobile: Helper.isMobile()
-    readonly property bool isDesktop: !Helper.isMobile() && !Helper.isWebAssembly()
-    readonly property bool isMacOS: Helper.isMacOS()
-
+MainWindow {
     width: Screen.width
     height: Screen.height
-
-    visible: true
-    title: qsTr("Wisdom Chess")
-    color: "silver"
-
-    readonly property bool anyPopupOpen: gameMenu.visible || root.anyDialogOpen
-
-    onAnyPopupOpenChanged: {
-        if (anyPopupOpen)
-            _myGameModel.pause()
-        else
-            _myGameModel.unpause()
-    }
-
-    onFocusObjectChanged: {
-        root.onFocusObjectChanged(root.currentFocusedItem, activeFocusItem)
-        root.currentFocusedItem = activeFocusItem
-    }
-
-    onClosing: {
-        _myGameModel.applicationExiting();
-    }
+    gameRoot: root
+    menu: gameMenu
 
     Screen.onPrimaryOrientationChanged: {
-        boardDimensions.squareSize = boardDimensions.calculateMaxSquareSize()
-        console.log("new square size: "+boardDimensions.squareSize)
+        BoardDimensions.squareSize = BoardDimensions.calculateMaxSquareSize()
     }
 
     header: ToolBar {
@@ -82,7 +50,6 @@ ApplicationWindow {
 
     MobileRoot {
         id: root
-        toolbarHeight: toolbar.height
         anchors.fill: parent
 
         GameMenu {
@@ -93,13 +60,9 @@ ApplicationWindow {
             x: toolbar.width - gameMenu.width
             y: toolbar.height
             closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
-            onShowNewGameDialog: root.showNewGameDialog();
-            onShowAboutDialog: root.showAboutDialog();
-            onShowSettingsDialog: root.showSettingsDialog();
+            onShowNewGameDialog: root.dialogs.showNewGameDialog()
+            onShowAboutDialog: root.dialogs.showAboutDialog()
+            onShowSettingsDialog: root.dialogs.showSettingsDialog()
         }
-    }
-
-    BoardDimensions {
-        id: boardDimensions
     }
 }
