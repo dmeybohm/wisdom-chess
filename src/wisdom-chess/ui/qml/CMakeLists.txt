@@ -126,7 +126,6 @@ qt_add_qml_module(WisdomChessQml
         images/Chess_rlt45.svg
         images/Chess_rlt256.png
         images/bx-icon-menu.svg
-        images/bx-icon-menu-white.svg
         images/bx-icon-menu-white.png
         images/bxs-down-arrow.svg
 )

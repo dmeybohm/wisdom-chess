@@ -30,7 +30,6 @@ ApplicationWindow {
             _myGameModel.unpause()
     }
 
-    property var currentFocusedItem: null
     onFocusObjectChanged: {
         root.onFocusObjectChanged(root.currentFocusedItem, activeFocusItem)
         root.currentFocusedItem = activeFocusItem

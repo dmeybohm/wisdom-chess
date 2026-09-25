@@ -53,6 +53,7 @@ Image {
     SequentialAnimation {
         id: castlingRookAnimation
         running: false
+        onStopped: myPieceImage.rebindX()
 
         PauseAnimation {
             duration: root.castlingRookPause
@@ -63,13 +64,6 @@ Image {
             to: myPieceImage.column * topWindow.squareSize
             easing.type: Easing.OutExpo
             duration: root.animationDelay
-        }
-    }
-
-    Connections {
-        target: castlingRookAnimation
-        function onStopped() {
-            myPieceImage.rebindX()
         }
     }
 
@@ -84,9 +78,9 @@ Image {
         if (!isCastlingRook)
             return
 
-        // break the binding so we can set an absolute start
-        myTranslation.x = myTranslation.x   // this no-ops the current value but detaches a binding if any
-        myTranslation.x = castlingSourceColumn * topWindow.squareSize
+        // Assigning a value replaces the binding, so the rook starts from
+        // its old square; rebindX() restores the binding when it arrives.
+        myTranslation.x = myPieceImage.castlingSourceColumn * topWindow.squareSize
         castlingRookAnimation.stop()
         castlingRookAnimation.start()
     }
