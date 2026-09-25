@@ -20,9 +20,7 @@ Dialog {
         id: firstLine
         text: "Start a new game?"
         font.pointSize: 16
-        anchors.fill: parent
-
-        verticalAlignment: topWindow.isMobile ? Text.AlignTop : Text.AlignVCenter
+        width: parent.width
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
     }

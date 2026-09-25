@@ -88,3 +88,32 @@ in the bug list, and restyling the dialogs beyond their size.
   which the UI tests already turn into a failure.
 - Removing the fixed height changes how the dialogs look on every
   platform. The screenshots in step 3 are the check.
+
+## Implementation Progress
+
+### Session #1
+
+- Added `dialogFitsText (dialog, text)` to `application_fixture.hpp`. After
+  waiting for layout it checks that the text's box is at least its painted
+  size, that the box lies inside the dialog's `contentItem`, and that the
+  content ends above the `footer`. New tests
+  `theNewGameDialogHasRoomForItsText` and `theQuitDialogHasRoomForItsText`
+  in `dialogs_test.cpp` use it, and `aNewGameCanBeStartedFromTheMenu` in
+  `mobile_test.cpp` checks it before clicking Yes.
+- Before the fix, with Qt 6.11.2 offscreen: New Game failed under Fusion and
+  Basic on desktop and mobile; Quit failed under Basic only, as expected
+  from its smaller default padding.
+- Fix: the `Text` in both dialogs has `width: parent.width` instead of
+  `anchors.fill: parent`, and the mobile-only `verticalAlignment` is gone.
+  `Dialogs.qml` no longer sets a `height` on either dialog, so `Dialog`
+  sizes itself from the title, the wrapped text, the buttons and the
+  padding. No screen-height cap was needed: the text is one or two lines.
+- Screenshots showed that the Quit dialog, now at its natural height with
+  the style's default padding, was shorter than before under Fusion and
+  its text sat against the buttons. It now has `padding: 40` like New
+  Game, which is what the bug list had assumed it already had. The two
+  dialogs now look alike in both styles.
+- Verified: all 191 `ctest` tests pass, and the dialogs, mobile and
+  application UI tests pass under both `QT_QUICK_CONTROLS_STYLE=Fusion` and
+  `Basic`. Linter clean. Not checked locally: Qt 6.9 and the native Windows
+  and macOS styles, which CI covers for Windows.

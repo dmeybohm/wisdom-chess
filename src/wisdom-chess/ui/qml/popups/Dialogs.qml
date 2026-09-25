@@ -73,7 +73,6 @@ Item {
         visible: false
         anchors.centerIn: parent
         width: Math.min(400, Screen.width - 50)
-        height: Math.min(150, Screen.height - 10)
         padding: 40
     }
 
@@ -87,7 +86,7 @@ Item {
         id: confirmQuitDialog
         visible: false
         width: Math.min(500, Screen.width - 50)
-        height: Math.min(150, Screen.height - 10)
+        padding: 40
         anchors.centerIn: parent
     }
 }

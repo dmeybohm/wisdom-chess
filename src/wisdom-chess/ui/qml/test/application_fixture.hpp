@@ -194,6 +194,35 @@ namespace wisdom::ui::test
             return false;
         }
 
+        // Whether the dialog lays out this text in a box big enough to hold
+        // it, inside the dialog's content area and above its buttons.
+        [[nodiscard]] auto
+        dialogFitsText (const QObject* dialog, const QString& text) const
+            -> bool
+        {
+            if (!QQuickTest::qWaitForPolish (window()))
+                return false;
+
+            auto* content = dialog->property ("contentItem").value<QQuickItem*>();
+            auto* footer = dialog->property ("footer").value<QQuickItem*>();
+            if (content == nullptr || footer == nullptr)
+                return false;
+
+            auto content_rect = sceneRect (content);
+            auto footer_top = footer->mapToScene (QPointF { 0, 0 }).y();
+            for (auto* item : itemsWithProperties ("text", "wrapMode"))
+            {
+                if (!item->property ("text").toString().contains (text) || !isTextShown (item))
+                    continue;
+
+                return item->height() >= item->property ("paintedHeight").toDouble()
+                    && item->width() >= item->property ("paintedWidth").toDouble()
+                    && content_rect.contains (sceneRect (item))
+                    && content_rect.bottom() <= footer_top;
+            }
+            return false;
+        }
+
         // Clicks the middle of the item as it will be drawn. A person only
         // ever clicks what has been drawn, and Qt lays items out just before
         // drawing them. Until then an item's position can be stale: a
@@ -333,6 +362,13 @@ namespace wisdom::ui::test
             return item->property ("paintedWidth").toDouble() > 0
                 && item->property ("paintedHeight").toDouble() > 0
                 && isVisibleThroughAncestors (item);
+        }
+
+        [[nodiscard]] static auto
+        sceneRect (const QQuickItem* item)
+            -> QRectF
+        {
+            return item->mapRectToScene (QRectF { 0, 0, item->width(), item->height() });
         }
 
         [[nodiscard]] static auto

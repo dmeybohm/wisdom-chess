@@ -130,6 +130,8 @@ private slots:
 
         auto* dialog = my_app->popupWithTitle (QStringLiteral ("New Game"));
         QTRY_VERIFY( dialog->property ("visible").toBool() );
+        QTRY_VERIFY( dialog->property ("opened").toBool() );
+        QVERIFY( my_app->dialogFitsText (dialog, QStringLiteral ("Start a new game?")) );
         QTRY_VERIFY( my_app->buttonWithText (QStringLiteral ("Yes")) != nullptr );
         my_app->clickItem (my_app->buttonWithText (QStringLiteral ("Yes")));
 
