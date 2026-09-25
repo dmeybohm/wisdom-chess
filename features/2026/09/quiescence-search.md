@@ -242,3 +242,39 @@ an odd-depth search returns the even depth before it.
 ### Session #1
 
 - Wrote this plan. No code changed yet.
+
+### Session #2
+
+- Added the search report (step 1). `SearchResult::nodes` holds the
+  nodes visited across every depth, tested in `search_test.cpp`, and
+  `wisdom-chess-benchmarks --search-report [max-depth]` prints the
+  table below. Documented in the build options table in `AGENTS.md`.
+- Baseline on `main` (`8b59ede`), Release, GCC, cleared table for each
+  search. Depths 6 and 8; "from" is the depth the result came from:
+
+  | Position | Depth | Move | Score | From | Nodes | Seconds |
+  |---|---|---|---|---|---|---|
+  | starting | 6 | e2 e3 | -101 | 6 | 424,006 | 0.095 |
+  | starting | 8 | e2 e3 | -128 | 8 | 9,233,813 | 2.185 |
+  | kiwipete | 6 | e2xa6 | -179 | 6 | 183,982 | 0.120 |
+  | kiwipete | 8 | e2xa6 | -197 | 8 | 2,942,256 | 1.838 |
+  | italian | 6 | f3 g5 | -219 | 6 | 214,376 | 0.092 |
+  | italian | 8 | f3 g5 | -213 | 8 | 5,358,645 | 2.375 |
+  | position3 | 6 | e2 e3 | -27 | 6 | 30,704 | 0.010 |
+  | position3 | 8 | b4xf4 | 36 | 8 | 175,296 | 0.053 |
+  | position4 | 6 | g1 h1 | -1386 | 6 | 151,053 | 0.047 |
+  | position4 | 8 | c4 c5 | -1221 | 8 | 1,110,834 | 0.432 |
+  | middlegame | 6 | f3 g5 | -218 | 6 | 1,404,109 | 0.499 |
+  | middlegame | 8 | d1 b1 | -164 | 8 | 103,433,445 | 37.937 |
+
+- What the baseline shows:
+  - Scores swing between odd and even depths. At even depths the side
+    to move is scored after the opponent's last move, usually a capture
+    that nothing answers, so the scores are pessimistic. From the
+    starting position, White scores -101 after e2 e3 at depth 6 and +146
+    after e2 e4 at depth 5.
+  - The odd-depth searches are expensive and thrown away. The depth-7
+    middlegame search takes 6.7s, thirteen times the depth-6 search, and
+    returns the depth-6 move.
+  - The quiet middlegame is the outlier at depth 8, with 103M nodes in
+    38s. It is the position to watch when choosing depths later.
