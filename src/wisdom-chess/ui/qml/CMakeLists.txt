@@ -77,19 +77,10 @@ if (ANDROID)
 endif()
 
 if(ANDROID)
-    set(PLATFORM_QML_FILES
-        main/MobileRoot.qml
-    )
     set(MAIN_QML_FILE main/mobile_main.qml)
 elseif(EMSCRIPTEN)
-    set(PLATFORM_QML_FILES
-        main/DesktopRoot.qml
-    )
     set(MAIN_QML_FILE main/wasm_main.qml)
 else()
-    set(PLATFORM_QML_FILES
-        main/DesktopRoot.qml
-    )
     set(MAIN_QML_FILE main/desktop_main.qml)
 endif()
 
@@ -113,8 +104,13 @@ qt_add_qml_module(WisdomChessQml
         main/StatusBar.qml
         main/ImageToolButton.qml
         Helper.js
-        ${PLATFORM_QML_FILES}
-        ${MAIN_QML_FILE}
+        # Every platform's root is in the module, whichever one MAIN_QML_FILE
+        # loads, so qmllint sees them all and the tests find them.
+        main/DesktopRoot.qml
+        main/MobileRoot.qml
+        main/desktop_main.qml
+        main/mobile_main.qml
+        main/wasm_main.qml
     RESOURCES
         images/Chess_bdt45.svg
         images/Chess_blt45.svg
