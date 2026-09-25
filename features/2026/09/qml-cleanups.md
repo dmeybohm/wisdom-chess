@@ -250,8 +250,9 @@ Linux, offscreen.
   says to delete the override once `qml-enum-registration` and
   `qml-singletons` land.
 - **CI (step 7).** A `Lint QML` step in the `build` job, Linux Release
-  only, runs `all_qmllint`. `AGENTS.md` documents the target, the
-  configuration and the conventions the fixes introduced. Not yet run on
+  only, runs `all_qmllint`. `AGENTS.md` has a bullet on the target and the
+  configuration file among its QML test gotchas (reduced from a longer
+  section when #257 simplified the file). Not yet run on
   CI, and not checked against Qt 6.9's `qmllint`.
 - **Verified (step 8).** All 191 `ctest` tests pass; the three QML UI
   tests pass under `Basic` and `Fusion`; the C++ `lint` target is clean.
