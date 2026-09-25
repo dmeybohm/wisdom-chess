@@ -259,7 +259,7 @@ cmake --build .
 
 ## Contributing
 
-See `CLAUDE.md` for development guidelines including code style, build instructions, and architecture notes.
+See `AGENTS.md` for development guidelines including code style, build instructions, and architecture notes.
 
 ## License
 
