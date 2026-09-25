@@ -259,7 +259,7 @@ describe('Engine interface', () => {
         wisdomWindow.receiveWorkerMessage = vi.fn()
     })
 
-    it('reads the settings once and frees them, however often the app renders', async () => {
+    it('reads the settings when the settings dialog opens and frees them', async () => {
         const user = userEvent.setup()
         const wasmSettings = {
             whitePlayer: wasmEnums.Human,
@@ -272,7 +272,9 @@ describe('Engine interface', () => {
 
         render(<App />)
         await user.click(screen.getByText('About'))
+        expect(mockGameModel.getCurrentGameSettings).not.toHaveBeenCalled()
 
+        await user.click(screen.getByText('Settings'))
         expect(mockGameModel.getCurrentGameSettings).toHaveBeenCalledTimes(1)
         expect(mockWisdomChess.destroy).toHaveBeenCalledWith(wasmSettings)
     })

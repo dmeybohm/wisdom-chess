@@ -3,7 +3,6 @@ import "./Board.css";
 import { Piece } from "./lib/Pieces";
 import { useDrag, useDrop } from 'react-dnd';
 import {
-    fromColorToNumber,
     getCurrentGame,
     WisdomChess,
     PieceColor
@@ -60,9 +59,8 @@ export function PieceOverlay(props: PieceOverlayProps) {
         item: { src: props.piece.position },
         canDrag: monitor => {
             const game = getCurrentGame()
-            const pieceColor = fromColorToNumber(props.piece.color)
-            return pieceColor === props.currentTurn &&
-                game.getPlayerOfColor(pieceColor) === wisdomChess.Human
+            return props.piece.color === props.currentTurn &&
+                game.getPlayerOfColor(props.piece.color) === wisdomChess.Human
         },
         collect: monitor => ({
             isDragging: monitor.isDragging(),

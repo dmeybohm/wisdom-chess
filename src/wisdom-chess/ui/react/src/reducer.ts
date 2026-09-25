@@ -1,18 +1,42 @@
-import { GameState, WebGameSettings } from './lib/WisdomChess'
+import { Piece } from './lib/Pieces'
+import { GameStatus, PieceColor } from './lib/WisdomChess'
+
+// What the view reads from the current game after each change.
+export type EngineSnapshot = {
+    pieces: Piece[]
+    currentTurn: PieceColor
+    inCheck: boolean
+    gameStatus: GameStatus
+    moveStatus: string
+    gameOverStatus: string
+    hasHumanPlayer: boolean
+}
+
+export type GameState = EngineSnapshot & {
+    focusedSquare: string
+    pawnPromotionDialogSquare: string
+    lastDroppedSquare: string
+}
 
 export type Action =
-    | { type: 'BOOTSTRAP'; snapshot: Partial<GameState> }
-    | { type: 'ENGINE_SYNC'; snapshot: Partial<GameState> }
+    | { type: 'SYNC'; snapshot: EngineSnapshot }
     | { type: 'FOCUS'; square: string }
     | { type: 'CLEAR_FOCUS' }
     | { type: 'REQUEST_PROMOTION'; src: string; dst: string }
-    | { type: 'SET_SETTINGS'; settings: WebGameSettings }
     | { type: 'SET_LAST_DROPPED'; square: string }
+
+export function initialState(snapshot: EngineSnapshot): GameState {
+    return {
+        ...snapshot,
+        focusedSquare: '',
+        pawnPromotionDialogSquare: '',
+        lastDroppedSquare: '',
+    }
+}
 
 export function reducer(state: GameState, action: Action): GameState {
     switch (action.type) {
-        case 'BOOTSTRAP':
-        case 'ENGINE_SYNC':
+        case 'SYNC':
             return { ...state, ...action.snapshot }
 
         case 'FOCUS':
@@ -38,13 +62,7 @@ export function reducer(state: GameState, action: Action): GameState {
                 pawnPromotionDialogSquare: action.dst,
             }
 
-        case 'SET_SETTINGS':
-            return { ...state, settings: { ...action.settings } }
-
         case 'SET_LAST_DROPPED':
             return { ...state, lastDroppedSquare: action.square }
-
-        default:
-            return state
     }
 }

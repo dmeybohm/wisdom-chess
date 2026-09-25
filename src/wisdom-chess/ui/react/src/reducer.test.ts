@@ -1,91 +1,59 @@
 import { describe, it, expect } from 'vitest'
-import { reducer, type Action } from './reducer'
-import { GameState } from './lib/WisdomChess'
-import { initialSquares } from './lib/Squares'
+import { initialState as makeInitialState, reducer, type Action, type EngineSnapshot, type GameState } from './reducer'
 import { wasmEnums } from './test/wasmEnums'
 
-const createInitialState = (): GameState => ({
+const createSnapshot = (): EngineSnapshot => ({
     pieces: [],
-    squares: initialSquares,
-    focusedSquare: '',
-    pawnPromotionDialogSquare: '',
-    lastDroppedSquare: '',
+    currentTurn: wasmEnums.White,
+    inCheck: false,
     gameStatus: wasmEnums.Playing,
     moveStatus: 'White to move',
     gameOverStatus: '',
-    settings: {
-        whitePlayer: wasmEnums.Human,
-        blackPlayer: wasmEnums.ChessEngine,
-        thinkingTime: 5,
-        searchDepth: 4,
-        debugLogging: false,
-    },
     hasHumanPlayer: true,
 })
 
+const createInitialState = (): GameState => makeInitialState(createSnapshot())
+
 describe('reducer', () => {
-    describe('BOOTSTRAP action', () => {
-        it('merges snapshot into state', () => {
+    describe('initialState', () => {
+        it('starts from the snapshot with nothing selected', () => {
+            const state = makeInitialState(createSnapshot())
+
+            expect(state.moveStatus).toBe('White to move')
+            expect(state.focusedSquare).toBe('')
+            expect(state.pawnPromotionDialogSquare).toBe('')
+            expect(state.lastDroppedSquare).toBe('')
+        })
+    })
+
+    describe('SYNC action', () => {
+        it('replaces the engine fields and keeps the selection', () => {
             const initialState = createInitialState()
+            initialState.focusedSquare = 'e2'
+            const mockPieces = [
+                { id: 1, icon: 'pawn-white.svg', position: 'e2', color: wasmEnums.White },
+                { id: 2, icon: 'pawn-black.svg', position: 'e7', color: wasmEnums.Black },
+            ]
             const action: Action = {
-                type: 'BOOTSTRAP',
+                type: 'SYNC',
                 snapshot: {
-                    moveStatus: 'Black to move',
+                    ...createSnapshot(),
+                    pieces: mockPieces,
+                    currentTurn: wasmEnums.Black,
+                    inCheck: true,
+                    moveStatus: 'Black in check',
                     gameStatus: wasmEnums.Checkmate,
                 },
             }
 
             const newState = reducer(initialState, action)
 
-            expect(newState.moveStatus).toBe('Black to move')
-            expect(newState.gameStatus).toBe(1)
-            expect(newState.focusedSquare).toBe('')
-        })
-
-        it('returns a new state object', () => {
-            const initialState = createInitialState()
-            const action: Action = {
-                type: 'BOOTSTRAP',
-                snapshot: { moveStatus: 'Test' },
-            }
-
-            const newState = reducer(initialState, action)
-
-            expect(newState).not.toBe(initialState)
-        })
-    })
-
-    describe('ENGINE_SYNC action', () => {
-        it('merges snapshot into state', () => {
-            const initialState = createInitialState()
-            const action: Action = {
-                type: 'ENGINE_SYNC',
-                snapshot: {
-                    moveStatus: 'White in check',
-                    gameOverStatus: '',
-                },
-            }
-
-            const newState = reducer(initialState, action)
-
-            expect(newState.moveStatus).toBe('White in check')
-            expect(newState.gameOverStatus).toBe('')
-        })
-
-        it('can update pieces array', () => {
-            const initialState = createInitialState()
-            const mockPieces = [
-                { id: 1, icon: 'pawn-white.svg', position: 'e2', color: 'white' as const },
-                { id: 2, icon: 'pawn-black.svg', position: 'e7', color: 'black' as const },
-            ]
-            const action: Action = {
-                type: 'ENGINE_SYNC',
-                snapshot: { pieces: mockPieces },
-            }
-
-            const newState = reducer(initialState, action)
-
             expect(newState.pieces).toEqual(mockPieces)
+            expect(newState.currentTurn).toBe(wasmEnums.Black)
+            expect(newState.inCheck).toBe(true)
+            expect(newState.moveStatus).toBe('Black in check')
+            expect(newState.gameStatus).toBe(wasmEnums.Checkmate)
+            expect(newState.focusedSquare).toBe('e2')
         })
     })
 
@@ -186,72 +154,6 @@ describe('reducer', () => {
         })
     })
 
-    describe('SET_SETTINGS action', () => {
-        it('updates settings', () => {
-            const initialState = createInitialState()
-
-            const newSettings = {
-                whitePlayer: wasmEnums.ChessEngine,
-                blackPlayer: wasmEnums.ChessEngine,
-                thinkingTime: 10,
-                searchDepth: 6,
-                debugLogging: false,
-            }
-
-            const action: Action = {
-                type: 'SET_SETTINGS',
-                settings: newSettings,
-            }
-
-            const newState = reducer(initialState, action)
-
-            expect(newState.settings).toEqual(newSettings)
-        })
-
-        it('creates a new settings object', () => {
-            const initialState = createInitialState()
-            const newSettings = {
-                whitePlayer: wasmEnums.Human,
-                blackPlayer: wasmEnums.Human,
-                thinkingTime: 15,
-                searchDepth: 5,
-                debugLogging: false,
-            }
-
-            const action: Action = {
-                type: 'SET_SETTINGS',
-                settings: newSettings,
-            }
-
-            const newState = reducer(initialState, action)
-
-            expect(newState.settings).not.toBe(initialState.settings)
-            expect(newState.settings).toEqual(newSettings)
-        })
-
-        it('preserves other state', () => {
-            const initialState = createInitialState()
-            initialState.focusedSquare = 'e4'
-            initialState.moveStatus = 'Black to move'
-
-            const action: Action = {
-                type: 'SET_SETTINGS',
-                settings: {
-                    whitePlayer: wasmEnums.Human,
-                    blackPlayer: wasmEnums.ChessEngine,
-                    thinkingTime: 5,
-                    searchDepth: 4,
-                    debugLogging: false,
-                },
-            }
-
-            const newState = reducer(initialState, action)
-
-            expect(newState.focusedSquare).toBe('e4')
-            expect(newState.moveStatus).toBe('Black to move')
-        })
-    })
-
     describe('SET_LAST_DROPPED action', () => {
         it('updates lastDroppedSquare', () => {
             const initialState = createInitialState()
@@ -301,12 +203,10 @@ describe('reducer', () => {
         it('always returns a new state object', () => {
             const initialState = createInitialState()
             const actions: Action[] = [
-                { type: 'BOOTSTRAP', snapshot: {} },
-                { type: 'ENGINE_SYNC', snapshot: {} },
+                { type: 'SYNC', snapshot: createSnapshot() },
                 { type: 'FOCUS', square: 'e2' },
                 { type: 'CLEAR_FOCUS' },
                 { type: 'REQUEST_PROMOTION', src: 'e7', dst: 'e8' },
-                { type: 'SET_SETTINGS', settings: initialState.settings },
                 { type: 'SET_LAST_DROPPED', square: 'e4' },
             ]
 
