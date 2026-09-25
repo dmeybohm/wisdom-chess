@@ -57,14 +57,21 @@ namespace wisdom
     evaluate (const Board& board, Color who, int moves_away) 
         -> int
     {
-        int score = 0;
-        Color opponent = colorInvert (who);
-
         if (isCheckmated (board))
         {
             int sign = who == board.getCurrentTurn() ? -1 : 1;
             return sign * checkmateScoreInMoves (moves_away);
         }
+
+        return evaluateWithoutMateTest (board, who);
+    }
+
+    auto
+    evaluateWithoutMateTest (const Board& board, Color who)
+        -> int
+    {
+        int score = 0;
+        Color opponent = colorInvert (who);
 
         score += board.getMaterial().overallScore (who);
         score += board.getPosition().overallScore (who);
