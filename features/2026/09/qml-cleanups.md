@@ -98,8 +98,10 @@ so they have never been linted.
 
 15. `Board.qml`: `property var animateRowAndColChange`, never read
     outside the file.
-16. `DesktopRoot.qml`, `MobileRoot.qml`: `currentFocusedItem`; the
-    window's copy is the one used.
+16. The three mains declare a `currentFocusedItem` on the window that
+    nothing reads; the copy on `DesktopRoot.qml` and `MobileRoot.qml` is
+    the one the mains write. (The review had this the wrong way round;
+    lint's `missing-property` caught it in Session #1.)
 17. `BoardDimensions.qml`: `totalSquares`.
 18. `Helper.js`: `computerOrHumanLabel`, `targetRowOrCol`.
 19. `images/bx-icon-menu-white.svg` is a resource but nothing uses it;
@@ -204,3 +206,56 @@ the unlinted files surfaces now.
 
 Out of scope: restyling the dialogs, and anything in the C++ models
 beyond what the singleton registration needs.
+
+## Implementation Progress
+
+### Session #1
+
+Steps 1 to 8 of this branch's plan are done, one commit each. Qt 6.11.2,
+Linux, offscreen.
+
+- **Module (step 1).** The three platform roots are in the module on every
+  platform; `MAIN_QML_FILE` still picks the entry point. The mobile UI
+  test embeds the same resources as the others, and `append_lines.cmake`
+  is gone.
+- **Baseline (step 2).** With the roots included, lint reported 137
+  unqualified accesses and 12 unused imports. The three files added 8
+  unqualified `_myGameModel` accesses and 3 unused imports, nothing else.
+- **Lint fixes (step 3).** Helper and unused imports removed; parent
+  members qualified with ids; `Board.qml` and `PromoteDropdown.qml` use
+  `pragma ComponentBehavior: Bound` with required properties. `Piece.qml`
+  declares its five roles as required properties, so the `Repeater` fills
+  them itself and the delegate in `Board.qml` only binds `flipped`. After
+  this: 100 unqualified, 0 unused imports. Every remaining one is a
+  cross-file id (`topWindow`, `root`), a context property or an enum.
+- **Dead code and polish (steps 4, 13, 23, 24).** As listed, except:
+  the windows' `currentFocusedItem` was the dead copy, not the roots' (see
+  finding 16); the `Flickable` around the mobile menu (finding 21) is left
+  for after `mobile-menu-toggle` merges, since that branch edits the same
+  lines; and the About text (finding 25) is content, not code, and is left
+  to the author. The settings dialog's bindings reference `topWindow`
+  five more times, so the count is 105 unqualified, all cross-file.
+- **Finding 7 is settled: keep the `height: 0` hack.** A probe of a
+  `Menu` with an invisible `MenuItem` and `MenuSeparator` under Fusion and
+  Basic showed the menu keeping its full height (63 px against 31 px for a
+  one-item menu in Fusion; 93 against 40 in Basic); with `height: 0` as
+  well it matched the one-item menu.
+- **`main.cpp` (step 5)** uses `objectCreationFailed`; the debug line is
+  gone.
+- **Lint configuration (step 6).** The lint target exited zero with 105
+  warnings: since Qt 6.7 `qmllint` only fails when `--max-warnings` is
+  set. `src/wisdom-chess/ui/qml/.qmllint.ini` sets `MaxWarnings=0` and
+  `UnqualifiedAccess=info`. Verified both ways: the target exits 0 with
+  114 infos, and exits non-zero when the override is removed. The file
+  says to delete the override once `qml-enum-registration` and
+  `qml-singletons` land.
+- **CI (step 7).** A `Lint QML` step in the `build` job, Linux Release
+  only, runs `all_qmllint`. `AGENTS.md` documents the target, the
+  configuration and the conventions the fixes introduced. Not yet run on
+  CI, and not checked against Qt 6.9's `qmllint`.
+- **Verified (step 8).** All 191 `ctest` tests pass; the three QML UI
+  tests pass under `Basic` and `Fusion`; the C++ `lint` target is clean.
+  The promotion dropdown's click path, which now reads `choice.piece` and
+  the `dropDownTop` properties, is covered by
+  `aPromotionGoesThroughTheDropdown` in `application_test.cpp`, which
+  opens the dropdown, highlights an entry and chooses the knight.
