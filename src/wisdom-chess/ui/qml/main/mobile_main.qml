@@ -5,8 +5,6 @@ import QtQuick.Layouts
 MainWindow {
     width: Screen.width
     height: Screen.height
-    gameRoot: root
-    menu: gameMenu
 
     Screen.onPrimaryOrientationChanged: {
         BoardDimensions.squareSize = BoardDimensions.calculateMaxSquareSize()
@@ -50,6 +48,7 @@ MainWindow {
 
     MobileRoot {
         id: root
+        menu: gameMenu
         anchors.fill: parent
 
         GameMenu {
@@ -60,9 +59,6 @@ MainWindow {
             x: toolbar.width - gameMenu.width
             y: toolbar.height
             closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
-            onShowNewGameDialog: root.dialogs.showNewGameDialog()
-            onShowAboutDialog: root.dialogs.showAboutDialog()
-            onShowSettingsDialog: root.dialogs.showSettingsDialog()
         }
     }
 }

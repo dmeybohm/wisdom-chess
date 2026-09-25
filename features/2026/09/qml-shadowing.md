@@ -53,3 +53,37 @@ The selection rewrite touches the interplay with dialogs that
 [qml-tests.md](qml-tests.md) found a defect in. The tests for a move, an
 illegal move, a capture, promotion, the draw offer's focus return and
 the menu dialog's focus return all exercise it.
+
+## Implementation Progress
+
+### Session #1
+
+The QML side went as planned; the C++ side did not do what it was for.
+
+- **`GameRoot`** takes the menu, answers its four signals by calling
+  `dialogs` by id, and holds the pause-while-a-popup-is-open logic.
+  `MainWindow` is five lines. The mains set `menu` on their root and
+  lost their forwarding lines.
+- **Selection by clicks.** `ChessSquare` emits `clicked()`; `Board`
+  keeps `selectedRow` and `selectedColumn`, and the delegate binds the
+  square's `focus` to being the selected one, so the highlight and the
+  focus a dialog returns both follow the selection without any item
+  being cast. `GameRoot`'s window-level tracking and `board` property
+  are gone. The tests for moves, an illegal move, promotion and both
+  focus-return cases pass.
+- **`GameModel` final, `getGame()` and `isHoldingAMove()` public**, the
+  fixture's subclass replaced by two helpers on `Application`. This
+  removed nothing: moc records the class as final, but qmltyperegistrar
+  writes `isFinal` only on properties (Qt's own qmltypes have it on 466
+  properties and on no component or method), so qmllint cannot know a
+  type is final and the ten method calls still warn on 6.11's lint. The
+  per-property `FINAL`, removed as redundant and then restored, is what
+  clears the property warnings. The change is in its own commit and can
+  be dropped; it is kept as a true statement about the class, and moc's
+  record of it would serve a future qmltyperegistrar that emits it.
+- **Lint level.** `CompilerWarnings` stays at `info`. At `warning` CI's
+  Qt 6.9 would pass with zero findings, but every local lint with 6.11
+  would fail on the ten method calls, which nothing in the code can fix.
+- `qmllint` on 6.11.2: 10 informational, all `GameModel` methods; 27
+  before this branch. Full `ctest` (192) passes; the four UI tests pass
+  under `Basic` and `Fusion`; the C++ `lint` target is clean.

@@ -1,13 +1,15 @@
 import QtQuick
 
-// A square takes the focus when clicked; Board turns the focus moving from
-// one square to another into a move.
+// A square of the board. Board selects it on a click by giving it the
+// focus, which is its highlight.
 Item {
     id: chessSquare
 
     property color bgColor: "white"
     property int boardRow: 0
     property int boardColumn: 0
+
+    signal clicked()
 
     width: BoardDimensions.squareSize
     height: BoardDimensions.squareSize
@@ -20,6 +22,6 @@ Item {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: chessSquare.focus = !chessSquare.focus
+        onClicked: chessSquare.clicked()
     }
 }

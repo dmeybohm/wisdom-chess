@@ -1,7 +1,6 @@
 import QtQuick
 
 GameRoot {
-    board: boards
 
     Flickable {
         property int totalContentHeight: boards.height + boardStatusBar.implicitHeight + 150

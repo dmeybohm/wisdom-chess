@@ -5,8 +5,6 @@ import QtQuick.Layouts
 MainWindow {
     width: BoardDimensions.boardWidth + 48
     height: BoardDimensions.boardHeight + 48 + 145
-    gameRoot: root
-    menu: gameMenu
 
     header: ToolBar {
         height: 35
@@ -38,14 +36,11 @@ MainWindow {
 
     DesktopRoot {
         id: root
+        menu: gameMenu
 
         GameMenu {
             id: gameMenu
             x: 0
-            onShowAboutDialog: root.dialogs.showAboutDialog()
-            onShowNewGameDialog: root.dialogs.showNewGameDialog()
-            onQuit: root.dialogs.showConfirmQuitDialog()
-            onShowSettingsDialog: root.dialogs.showSettingsDialog()
         }
     }
 }

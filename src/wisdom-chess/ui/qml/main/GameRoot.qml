@@ -1,32 +1,45 @@
 import QtQuick
 
-// What the desktop and mobile roots share: the dialogs, and the focus
-// tracking that turns a click on one square and then another into a move.
+// What the desktop and mobile roots share: the dialogs, the menu's way
+// into them, and the pause while either is open.
 Item {
     id: gameRoot
 
-    // The board the derived root lays out.
-    required property Board board
+    // The menu the derived main lays out.
+    required property GameMenu menu
 
     readonly property alias dialogs: dialogs
-    readonly property bool anyDialogOpen: dialogs.anyDialogOpen
 
     width: parent.width
     height: parent.height
 
-    // The item that last had active focus in the window. A change is a
-    // square losing focus and another gaining it, or a dialog taking it.
-    // This is a signal handler rather than a bound property because the
-    // board clears the new item's focus, which a binding would loop on.
-    property Item previousFocusedItem: null
+    // The engine holds its move while a menu or a dialog is open.
+    readonly property bool anyPopupOpen: menu.visible || dialogs.anyDialogOpen
+
+    onAnyPopupOpenChanged: {
+        if (anyPopupOpen)
+            GameModel.pause()
+        else
+            GameModel.unpause()
+    }
 
     Connections {
-        target: gameRoot.Window.window
+        target: gameRoot.menu
 
-        function onActiveFocusItemChanged(): void {
-            const focusedItem = gameRoot.Window.window.activeFocusItem
-            gameRoot.board.focusMoved(gameRoot.previousFocusedItem, focusedItem)
-            gameRoot.previousFocusedItem = focusedItem
+        function onShowNewGameDialog(): void {
+            dialogs.showNewGameDialog()
+        }
+
+        function onShowAboutDialog(): void {
+            dialogs.showAboutDialog()
+        }
+
+        function onShowSettingsDialog(): void {
+            dialogs.showSettingsDialog()
+        }
+
+        function onQuit(): void {
+            dialogs.showConfirmQuitDialog()
         }
     }
 

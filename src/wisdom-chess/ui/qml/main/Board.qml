@@ -22,23 +22,28 @@ Item {
         }
     }
 
-    function focusMoved(oldItem: Item, newItem: Item): void {
-        // A cast to the wrong type is null: a dialog or a promotion choice.
-        const source = oldItem as ChessSquare
-        const destination = newItem as ChessSquare
-        if (source === null || destination === null)
+    // The selected square, or -1. A click selects, a second click on the
+    // same square deselects, and a click on another square moves. The
+    // selected square has the focus, which is its highlight; a dialog that
+    // takes the focus gives it back to it. Nothing is selected after a
+    // move, so the destination is not focused when a draw offer opens.
+    property int selectedRow: -1
+    property int selectedColumn: -1
+
+    function squareClicked(row: int, column: int): void {
+        if (selectedRow < 0) {
+            selectedRow = row
+            selectedColumn = column
             return
+        }
 
-        // Before the move, which can open a draw offer: a dialog gives
-        // the focus back to whatever had it when it opened.
-        destination.focus = false
+        const sourceRow = selectedRow
+        const sourceColumn = selectedColumn
+        selectedRow = -1
+        selectedColumn = -1
 
-        myPiecesLayer.animateRowAndColChange(
-            source.boardRow,
-            source.boardColumn,
-            destination.boardRow,
-            destination.boardColumn
-        )
+        if (sourceRow !== row || sourceColumn !== column)
+            myPiecesLayer.animateRowAndColChange(sourceRow, sourceColumn, row, column)
     }
 
     Grid {
@@ -57,6 +62,9 @@ Item {
                 required property int index
                 boardRow: Math.floor(square.index / 8)
                 boardColumn: square.index % 8
+                focus: square.boardRow === myGridAndPieces.selectedRow
+                    && square.boardColumn === myGridAndPieces.selectedColumn
+                onClicked: myGridAndPieces.squareClicked(square.boardRow, square.boardColumn)
                 bgColor: (square.index + square.boardRow) % 2 == 0
                     ? "#fff3f3f3" : "#FF5F9EA0"
             }

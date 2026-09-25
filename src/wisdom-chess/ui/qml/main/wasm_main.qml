@@ -4,8 +4,6 @@ import QtQuick.Controls
 MainWindow {
     width: BoardDimensions.boardWidth + 48
     height: BoardDimensions.boardHeight + 48 + 145
-    gameRoot: root
-    menu: settingsMenu
 
     header: ToolBar {
         // The icon, the title and the arrow all open the menu.
@@ -25,9 +23,6 @@ MainWindow {
                     id: settingsMenu
                     y: rookButton.height
                     x: -implicitWidth / 4
-                    onShowAboutDialog: root.dialogs.showAboutDialog()
-                    onShowNewGameDialog: root.dialogs.showNewGameDialog()
-                    onShowSettingsDialog: root.dialogs.showSettingsDialog()
                 }
             }
 
@@ -56,5 +51,6 @@ MainWindow {
 
     DesktopRoot {
         id: root
+        menu: settingsMenu
     }
 }

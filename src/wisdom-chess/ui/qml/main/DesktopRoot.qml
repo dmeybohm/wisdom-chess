@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 
 GameRoot {
-    board: boards
 
     ColumnLayout {
         anchors.top: parent.top
