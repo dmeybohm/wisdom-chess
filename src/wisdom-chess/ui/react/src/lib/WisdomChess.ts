@@ -20,7 +20,7 @@ export type ReceiveWorkerMessageCallback =
     (type: ChessEngineEventType, gameId: number, message: string) => void;
 
 export interface ReactWindow {
-    startReact: (window: ReactWindow) => void
+    startReact: () => void
     receiveWorkerMessage: ReceiveWorkerMessageCallback
     setReceiveWorkerMessageCallback: (callback: ReceiveWorkerMessageCallback) => void
 }
