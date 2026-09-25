@@ -96,6 +96,8 @@ should be confirmed before fixing.
   [faster-legal-move-test.md](faster-legal-move-test.md) for how often
   horizon nodes are in check, what searching their evasions would cost,
   and what happens to the mate test.
+  Planned on the `quiescence-search` branch; see
+  [quiescence-search.md](quiescence-search.md).
 - [x] **Repetition check scans the whole history at every node.**
   `isProbablyDrawingMove` calls `History::isProbablyNthRepetition`, which
   does `std::count` over all board codes (`engine/history.hpp:94-101`).
