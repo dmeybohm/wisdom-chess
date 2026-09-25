@@ -10,7 +10,7 @@ Dialog {
     padding: 40
 
     onAccepted: {
-        _myGameModel.restart()
+        GameModel.restart()
         visible = false
     }
     onRejected: {

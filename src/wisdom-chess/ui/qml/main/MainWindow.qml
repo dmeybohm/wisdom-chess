@@ -18,10 +18,10 @@ ApplicationWindow {
 
     onAnyPopupOpenChanged: {
         if (anyPopupOpen)
-            _myGameModel.pause()
+            GameModel.pause()
         else
-            _myGameModel.unpause()
+            GameModel.unpause()
     }
 
-    onClosing: _myGameModel.applicationExiting()
+    onClosing: GameModel.applicationExiting()
 }

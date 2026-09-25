@@ -37,7 +37,7 @@ Menu {
         height: Platform.isWebAssembly ? implicitHeight : 0
         visible: Platform.isWebAssembly
         onClicked: {
-            Qt.openUrlExternally(_myGameModel.browserOriginUrl() + "/")
+            Qt.openUrlExternally(GameModel.browserOriginUrl() + "/")
         }
     }
 

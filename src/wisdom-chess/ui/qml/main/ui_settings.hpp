@@ -1,10 +1,12 @@
 #pragma once
 
 #include <QObject>
+#include <QtQmlIntegration/qqmlintegration.h>
 
 class UISettings
 {
     Q_GADGET
+    QML_ANONYMOUS
     Q_PROPERTY (bool flipped 
         MEMBER my_flipped 
         READ flipped)

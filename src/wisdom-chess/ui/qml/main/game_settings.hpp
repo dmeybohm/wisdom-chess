@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QtQmlIntegration/qqmlintegration.h>
 
 #include "wisdom-chess/engine/global.hpp"
 #include "wisdom-chess/ui/qml/main/ui_types.hpp"
@@ -8,6 +9,7 @@
 class GameSettings
 {
     Q_GADGET
+    QML_ANONYMOUS
 
     Q_PROPERTY (wisdom::ui::Player whitePlayer 
             MEMBER my_white_player 

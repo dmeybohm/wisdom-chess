@@ -24,14 +24,14 @@ Image {
                 enabled: !myPieceImage.isCastlingRook && !castlingRookAnimation.running
                 NumberAnimation {
                     easing.type: Easing.OutExpo
-                    duration: _myGameModel.animationDelay
+                    duration: GameModel.animationDelay
                 }
             }
             Behavior on x {
                 enabled: !myPieceImage.isCastlingRook && !castlingRookAnimation.running
                 NumberAnimation {
                     easing.type: Easing.OutExpo
-                    duration: _myGameModel.animationDelay
+                    duration: GameModel.animationDelay
                 }
             }
         },
@@ -44,7 +44,7 @@ Image {
             Behavior on angle {
                 NumberAnimation {
                     easing.type: Easing.OutExpo
-                    duration: _myGameModel.animationDelay * .5
+                    duration: GameModel.animationDelay * .5
                 }
             }
         }
@@ -56,14 +56,14 @@ Image {
         onStopped: myPieceImage.rebindX()
 
         PauseAnimation {
-            duration: _myGameModel.castlingRookPause
+            duration: GameModel.castlingRookPause
         }
         NumberAnimation {
             target: myTranslation
             property: "x"
             to: myPieceImage.column * BoardDimensions.squareSize
             easing.type: Easing.OutExpo
-            duration: _myGameModel.animationDelay
+            duration: GameModel.animationDelay
         }
     }
 

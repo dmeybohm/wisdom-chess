@@ -68,7 +68,7 @@ FocusScope {
                }
 
                Image {
-                   source: _myGameModel.currentTurn === Color.White ? choice.whiteImage
+                   source: GameModel.currentTurn === Color.White ? choice.whiteImage
                                                                 : choice.blackImage
                    width: BoardDimensions.squareSize
                    height: BoardDimensions.squareSize
@@ -79,7 +79,7 @@ FocusScope {
 
                    onClicked: {
                        if (myRect.focus) {
-                           _myGameModel.promotePiece(
+                           GameModel.promotePiece(
                                        dropDownTop.sourceRow, dropDownTop.sourceColumn,
                                        dropDownTop.destinationRow, dropDownTop.destinationColumn,
                                        choice.piece)

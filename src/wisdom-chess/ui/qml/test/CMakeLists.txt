@@ -9,6 +9,8 @@ cmake_policy(SET CMP0110 NEW)
 qt_add_library(wisdom-chess-qml-test-support STATIC
     ../main/pieces_model.hpp
     ../main/pieces_model.cpp
+    ../main/qml_singletons.hpp
+    ../main/qml_singletons.cpp
     ../main/chess_game.hpp
     ../main/chess_game.cpp
     ../main/game_settings.hpp

@@ -7,7 +7,7 @@ Item {
     width: BoardDimensions.boardWidth
     height: BoardDimensions.boardHeight
 
-    property bool flipped: _myGameModel.uiSettings.flipped
+    property bool flipped: GameModel.uiSettings.flipped
 
     transform: Rotation {
         origin.x: myGridAndPieces.width / 2
@@ -17,7 +17,7 @@ Item {
         Behavior on angle {
             NumberAnimation {
                 easing.type: Easing.OutExpo
-                duration: _myGameModel.animationDelay * 5
+                duration: GameModel.animationDelay * 5
             }
         }
     }
@@ -85,7 +85,7 @@ Item {
 
         // Pieces on top of the squares:
         Repeater {
-            model: _myPiecesModel
+            model: PiecesModel
             delegate: Piece {
                 flipped: myGridAndPieces.flipped
             }
@@ -93,7 +93,7 @@ Item {
 
         function animateRowAndColChange(sourceRow, sourceCol, dstRow, dstCol) {
             promotionDropDown.focus = false
-            if (_myGameModel.needsPawnPromotion(sourceRow, sourceCol, dstRow, dstCol)) {
+            if (GameModel.needsPawnPromotion(sourceRow, sourceCol, dstRow, dstCol)) {
                 promotionDropDown.focus = true
                 promotionDropDown.sourceRow = sourceRow
                 promotionDropDown.sourceColumn = sourceCol
@@ -103,8 +103,8 @@ Item {
                 promotionDropDown.drawAtColumn = dstCol
                 return;
             }
-            if (_myGameModel.gameOverStatus === "") {
-                _myGameModel.movePiece(sourceRow, sourceCol, dstRow, dstCol);
+            if (GameModel.gameOverStatus === "") {
+                GameModel.movePiece(sourceRow, sourceCol, dstRow, dstCol);
             }
         }
     }

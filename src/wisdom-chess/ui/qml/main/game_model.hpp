@@ -51,13 +51,14 @@ class GameModel : public QObject, public wisdom::ui::GameViewModelBase
         WRITE setGameSettings
         NOTIFY gameSettingsChanged)
 
-    Q_PROPERTY (wisdom::ui::DrawByRepetitionStatus thirdRepetitionDrawStatus
-        READ thirdRepetitionDrawStatus
+    // In the mirror enum QML knows; the view-model's enum has no meta-object.
+    Q_PROPERTY (wisdom::ui::QmlDrawByRepetitionStatus thirdRepetitionDrawStatus
+        READ qmlThirdRepetitionDrawStatus
         WRITE setQmlThirdRepetitionDrawStatus
         NOTIFY thirdRepetitionDrawStatusChanged)
 
-    Q_PROPERTY (wisdom::ui::DrawByRepetitionStatus fiftyMovesDrawStatus
-        READ fiftyMovesDrawStatus
+    Q_PROPERTY (wisdom::ui::QmlDrawByRepetitionStatus fiftyMovesDrawStatus
+        READ qmlFiftyMovesDrawStatus
         WRITE setQmlFiftyMovesDrawStatus
         NOTIFY fiftyMovesDrawStatusChanged)
 
@@ -123,9 +124,17 @@ public:
     qmlInCheck() const
         -> bool;
 
-    void setQmlThirdRepetitionDrawStatus (DrawStatus draw_status);
+    [[nodiscard]] auto
+    qmlThirdRepetitionDrawStatus() const
+        -> wisdom::ui::QmlDrawByRepetitionStatus;
 
-    void setQmlFiftyMovesDrawStatus (DrawStatus draw_status);
+    void setQmlThirdRepetitionDrawStatus (wisdom::ui::QmlDrawByRepetitionStatus draw_status);
+
+    [[nodiscard]] auto
+    qmlFiftyMovesDrawStatus() const
+        -> wisdom::ui::QmlDrawByRepetitionStatus;
+
+    void setQmlFiftyMovesDrawStatus (wisdom::ui::QmlDrawByRepetitionStatus draw_status);
 
     void setUISettings (const UISettings& settings);
     [[nodiscard]] auto

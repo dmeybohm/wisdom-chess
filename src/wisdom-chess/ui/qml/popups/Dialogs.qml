@@ -32,31 +32,31 @@ Item {
 
     DrawProposalDialog {
         id: threefoldRepetitionDialog
-        visible: _myGameModel.thirdRepetitionDrawStatus == DrawByRepetitionStatus.Proposed
+        visible: GameModel.thirdRepetitionDrawStatus == DrawByRepetitionStatus.Proposed
         anchors.centerIn: parent
         text: "The same position has been repeated three times."
 
         // hide the dialog and break the property binding:
         onAccepted: {
-            _myGameModel.thirdRepetitionDrawStatus = DrawByRepetitionStatus.Accepted
+            GameModel.thirdRepetitionDrawStatus = DrawByRepetitionStatus.Accepted
         }
         onRejected: {
-            _myGameModel.thirdRepetitionDrawStatus = DrawByRepetitionStatus.Declined
+            GameModel.thirdRepetitionDrawStatus = DrawByRepetitionStatus.Declined
         }
     }
 
     DrawProposalDialog {
         id: fiftyMovesNoProgressDrawDialog
-        visible: _myGameModel.fiftyMovesDrawStatus == DrawByRepetitionStatus.Proposed
+        visible: GameModel.fiftyMovesDrawStatus == DrawByRepetitionStatus.Proposed
         anchors.centerIn: parent
         text: "There have been fifty moves without a capture or pawn move."
 
         // hide the dialog and break the property binding:
         onAccepted: {
-            _myGameModel.fiftyMovesDrawStatus = DrawByRepetitionStatus.Accepted
+            GameModel.fiftyMovesDrawStatus = DrawByRepetitionStatus.Accepted
         }
         onRejected: {
-            _myGameModel.fiftyMovesDrawStatus = DrawByRepetitionStatus.Declined
+            GameModel.fiftyMovesDrawStatus = DrawByRepetitionStatus.Declined
         }
     }
 

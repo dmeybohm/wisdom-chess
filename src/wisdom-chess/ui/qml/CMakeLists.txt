@@ -57,6 +57,8 @@ qt_add_executable(WisdomChessQml
         main/game_model.cpp
         main/pieces_model.hpp
         main/pieces_model.cpp
+        main/qml_singletons.hpp
+        main/qml_singletons.cpp
         main/chess_game.hpp
         main/chess_game.cpp
         main/chess_engine.hpp

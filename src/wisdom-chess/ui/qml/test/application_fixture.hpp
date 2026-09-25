@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QQmlApplicationEngine>
-#include <QQmlContext>
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QTest>
@@ -10,6 +9,7 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/ui/qml/main/game_model.hpp"
 #include "wisdom-chess/ui/qml/main/pieces_model.hpp"
+#include "wisdom-chess/ui/qml/main/qml_singletons.hpp"
 #include "wisdom-chess/ui/qml/main/ui_types.hpp"
 
 namespace wisdom::ui::test
@@ -62,9 +62,8 @@ namespace wisdom::ui::test
                         warnings << error.toString();
                 });
 
-            auto* context = my_engine.rootContext();
-            context->setContextProperty (QStringLiteral ("_myGameModel"), &game_model);
-            context->setContextProperty (QStringLiteral ("_myPiecesModel"), &pieces_model);
+            GameModelSingleton::setInstance (&game_model);
+            PiecesModelSingleton::setInstance (&pieces_model);
 
             my_engine.load (QUrl {
                 QStringLiteral ("qrc:/qt/qml/WisdomChess/") + QString::fromLatin1 (main_qml_file)

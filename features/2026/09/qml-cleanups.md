@@ -260,3 +260,11 @@ Linux, offscreen.
   the `dropDownTop` properties, is covered by
   `aPromotionGoesThroughTheDropdown` in `application_test.cpp`, which
   opens the dropdown, highlights an entry and chooses the knight.
+
+### Status of the separate branches
+
+All four exist, stacked on this branch in this order:
+`qml-enum-registration`, `qml-main-window`, `qml-promotion-order`,
+`qml-singletons`. Each has its own document. With the last one,
+`.qmllint.ini`'s unqualified-access override is gone and `qmllint`
+reports nothing.

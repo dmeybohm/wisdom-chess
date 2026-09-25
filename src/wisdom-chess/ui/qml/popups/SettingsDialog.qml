@@ -58,13 +58,13 @@ Dialog {
         }
 
         function resetSettings() {
-            myUISettings = _myGameModel.cloneUISettings()
-            myGameSettings = _myGameModel.cloneGameSettings()
+            myUISettings = GameModel.cloneUISettings()
+            myGameSettings = GameModel.cloneGameSettings()
         }
 
         function applySettings() {
-            _myGameModel.uiSettings = toSaveUISettings
-            _myGameModel.gameSettings = toSaveGameSettings
+            GameModel.uiSettings = toSaveUISettings
+            GameModel.gameSettings = toSaveGameSettings
         }
 
         Component.onCompleted: {

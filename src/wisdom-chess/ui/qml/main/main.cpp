@@ -1,6 +1,5 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <QQmlContext>
 #include <QDebug>
 #include <QQuickWindow>
 #include <QSGRendererInterface>
@@ -9,6 +8,7 @@
 #include "wisdom-chess/ui/qml/main/chess_engine.hpp"
 #include "wisdom-chess/ui/qml/main/game_model.hpp"
 #include "wisdom-chess/ui/qml/main/pieces_model.hpp"
+#include "wisdom-chess/ui/qml/main/qml_singletons.hpp"
 #include "wisdom-chess/ui/qml/main/ui_types.hpp"
 
 using namespace wisdom;
@@ -43,8 +43,8 @@ int main (int argc, char *argv[])
     auto main_qml_file = QStringLiteral ("qrc:/qt/qml/WisdomChess/") + QStringLiteral (MAIN_QML_FILE);
     const QUrl url { main_qml_file };
 
-    engine.rootContext()->setContextProperty (QStringLiteral ("_myGameModel"), &game_model);
-    engine.rootContext()->setContextProperty (QStringLiteral ("_myPiecesModel"), &pieces_model);
+    GameModelSingleton::setInstance (&game_model);
+    PiecesModelSingleton::setInstance (&pieces_model);
 
     QObject::connect (&engine, &QQmlApplicationEngine::objectCreationFailed,
                       &app, [] { QCoreApplication::exit (-1); }, Qt::QueuedConnection);
