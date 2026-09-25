@@ -1,8 +1,5 @@
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
-
-import "../Helper.js" as Helper
 
 Menu {
     id: gameMenu
@@ -13,7 +10,7 @@ Menu {
     signal showSettingsDialog()
     signal quit()
 
-    property bool hideFinalItem: topWindow.isWebAssembly || topWindow.isMobile
+    readonly property bool hideFinalItem: topWindow.isWebAssembly || topWindow.isMobile
     MenuItem {
         text: "New Game"
         onClicked: {
@@ -46,15 +43,15 @@ Menu {
 
     MenuSeparator {
         id: finalSeparator
-        height: hideFinalItem ? 0 : implicitHeight
-        visible: hideFinalItem ? false : true
+        height: gameMenu.hideFinalItem ? 0 : implicitHeight
+        visible: !gameMenu.hideFinalItem
     }
 
     MenuItem {
         id: quitItem
         text: "Quit"
-        height: hideFinalItem ? 0 : implicitHeight
-        visible: hideFinalItem ? false : true
+        height: gameMenu.hideFinalItem ? 0 : implicitHeight
+        visible: !gameMenu.hideFinalItem
         onClicked: {
             gameMenu.quit()
         }

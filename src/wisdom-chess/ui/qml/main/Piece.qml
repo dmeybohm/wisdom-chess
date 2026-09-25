@@ -5,17 +5,20 @@ Image {
     width: topWindow.squareSize
     height: topWindow.squareSize
 
-    property int row: 0
-    property int column: 0
+    required property string pieceImage
+    required property int row
+    required property int column
+    required property bool isCastlingRook
+    required property int castlingSourceColumn
     property bool flipped: false
-    property bool isCastlingRook: false
-    property int castlingSourceColumn: -1
+
+    source: pieceImage
 
     transform: [
         Translate {
             id: myTranslation
-            x: column * topWindow.squareSize
-            y: row * topWindow.squareSize
+            x: myPieceImage.column * topWindow.squareSize
+            y: myPieceImage.row * topWindow.squareSize
 
             Behavior on y {
                 enabled: !myPieceImage.isCastlingRook && !castlingRookAnimation.running
@@ -66,7 +69,7 @@ Image {
     Connections {
         target: castlingRookAnimation
         function onStopped() {
-            rebindX()
+            myPieceImage.rebindX()
         }
     }
 

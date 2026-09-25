@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Controls
-import "../Helper.js" as Helper
 
 Dialog {
     id: topDialog

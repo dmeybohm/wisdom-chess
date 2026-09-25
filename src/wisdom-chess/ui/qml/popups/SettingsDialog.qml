@@ -1,9 +1,9 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import "../Helper.js" as Helper
 
 Dialog {
+    id: settingsDialog
     modal: true
     standardButtons: Dialog.Apply | Dialog.Cancel
     title: "Settings"
@@ -101,14 +101,14 @@ Dialog {
 
                 RadioButton {
                     text: "Human"
-                    indicator.y: indicatorOffset
+                    indicator.y: settingsDialog.indicatorOffset
                     font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.whitePlayer === Player.Human
                     onClicked: internal.myGameSettings.whitePlayer = Player.Human
                 }
                 RadioButton {
                     text: "Computer"
-                    indicator.y: indicatorOffset
+                    indicator.y: settingsDialog.indicatorOffset
                     font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.whitePlayer === Player.Computer
                     onClicked: internal.myGameSettings.whitePlayer = Player.Computer
@@ -129,14 +129,14 @@ Dialog {
 
                 RadioButton {
                     text: "Human"
-                    indicator.y: indicatorOffset
+                    indicator.y: settingsDialog.indicatorOffset
                     font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.blackPlayer === Player.Human
                     onClicked: internal.myGameSettings.blackPlayer = Player.Human
                 }
                 RadioButton {
                     text: "Computer"
-                    indicator.y: indicatorOffset
+                    indicator.y: settingsDialog.indicatorOffset
                     font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.blackPlayer === Player.Computer
                     onClicked: internal.myGameSettings.blackPlayer = Player.Computer
