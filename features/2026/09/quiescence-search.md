@@ -483,3 +483,63 @@ an odd-depth search returns the even depth before it.
     (Session #4).
   - A single shared `boardFromFen` test helper; there are now four
     copies.
+
+### Session #7
+
+- Considered turning quiescence off at deeper depths and going back to
+  keeping only even depths there. Rejected before measuring:
+  - It would not change play at the default settings. The 2-second
+    limit stops the slow positions well short of depth 8.
+  - Iterative deepening plays the deepest completed depth, so the final
+    move would again come from a search that ignores the opponent's last
+    capture.
+  - It would bring back the discarded odd depths.
+  - The transposition table would mix scores with and without
+    quiescence, and cannot tell them apart.
+- Measured a cap on capture plies instead, not committed: a quiescence
+  node not in check, at or beyond the cap, returns its static score.
+  Evasions keep their own limit. Depth 8, cleared table, one run each
+  (time, move, score):
+
+  | Position | Baseline | Uncapped | Cap 6 | Cap 4 | Cap 2 |
+  |---|---|---|---|---|---|
+  | starting | 2.19s e2 e3 -128 | 1.24s e2 e4 0 | 1.21s e2 e4 0 | 1.85s d2 d4 0 | 1.86s b1 c3 -18 |
+  | kiwipete | 1.84s e2xa6 -197 | 3.67s d5xe6 48 | 3.34s d5xe6 48 | 3.26s d5xe6 -116 | 2.78s e2xa6 -197 |
+  | italian | 2.38s f3 g5 -213 | 23.19s d1 e2 -54 | 20.83s d1 e2 -54 | 14.88s b1 c3 -86 | 21.29s f3 g5 -162 |
+  | position3 | 0.05s b4xf4 36 | 0.08s b4xf4 63 | 0.09s b4xf4 63 | 0.08s b4xf4 63 | 0.10s b4xf4 63 |
+  | position4 | 0.43s c4 c5 -1221 | 1.34s c4 c5 -928 | 0.62s c4 c5 -928 | 0.55s c4 c5 -978 | 0.69s c4 c5 -1005 |
+  | middlegame | 37.9s d1 b1 -164 | 186.5s f3 g5 39 | 166.4s f3 g5 39 | 70.9s f3 g5 30 | 84.3s f3 g5 16 |
+
+  Nodes at depth 8, main search and quiescence (totals across depths 1
+  to 8, like the baseline's):
+
+  | Position | Baseline | Uncapped | Cap 4 | Cap 2 |
+  |---|---|---|---|---|
+  | italian | 5.4M + 0 | 12.7M + 27.9M | 10.8M + 17.4M | 22.8M + 19.4M |
+  | middlegame | 103.4M + 0 | 66.9M + 297.8M | 50.6M + 107.1M | 110.2M + 87.5M |
+
+- What it shows:
+  - Cap 6 changes nothing but time: the same moves and scores as
+    uncapped, and up to 11% faster, except position 4 at twice as fast.
+  - Cap 4 is the fastest cap on the slow positions: the middlegame takes
+    71s instead of 186s and the Italian game 15s instead of 23s. That is
+    still 1.9 and 6.3 times the baseline. It changes the depth-8 move in
+    two positions and the score in four.
+  - Cap 2 drifts back toward the baseline's behaviour. Kiwipete returns
+    the baseline's move and score, the Italian game its move, and the
+    main search grows again because the cut-short scores order moves
+    worse. It is slower than cap 4 on both slow positions, and faster
+    only on Kiwipete.
+  - The two slow positions fail differently. In the middlegame the main
+    search visits fewer nodes than the baseline and quiescence is the
+    whole cost, which is what static exchange evaluation targets. In the
+    Italian game the main search itself visits 2.4 times the baseline's
+    nodes before quiescence adds anything, and no cap on quiescence can
+    fix that half. The likely cause is move ordering: scores that include
+    quiescence are closer together, so a best-captures-first order finds
+    fewer early cutoffs. Killer moves or a history heuristic are the
+    usual remedy.
+- Conclusion: no cap. It trades accuracy for a speed-up that leaves the
+  slow positions several times slower than the baseline. Next are static
+  exchange evaluation for the quiescence half, and measuring move
+  ordering in the main search (killer moves) for the other half.
