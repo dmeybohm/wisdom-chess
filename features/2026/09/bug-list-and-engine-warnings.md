@@ -299,10 +299,11 @@ replacement are in
   opens during the click that caused it and gives focus back to that
   square when it closes, so `main/Board.qml` takes the next click as a
   move target. Found and fixed on the `qml-tests` branch.
-- [ ] The mobile menu button cannot close the menu. The press closes the
+- [x] The mobile menu button cannot close the menu. The press closes the
   open menu, then the button's click on release sees it closed and opens
   it again (`ui/qml/main/mobile_main.qml`). Found on the `qml-tests`
-  branch.
+  branch. Fixed on the `mobile-menu-toggle` branch; see
+  [mobile-menu-toggle.md](mobile-menu-toggle.md).
 - [ ] The New Game and Quit dialogs are too short for their padding
   (`popups/NewGameDialog.qml`, `popups/ConfirmQuitDialog.qml`: height at
   most 150, padding 40), so their text has no room and is drawn outside

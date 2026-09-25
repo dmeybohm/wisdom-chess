@@ -30,5 +30,23 @@ opens it again.
 
 `GameMenu.qml` and `desktop_main.qml` are unchanged: the desktop button
 only opens the menu. The `Flickable` around `GameMenu` in
-`mobile_main.qml` does nothing, since a popup is drawn in the window's
-overlay and not inside it; removing it is a separate cleanup.
+`mobile_main.qml` looks like it does nothing, since a popup is drawn in
+the window's overlay and not inside it. That is not checked; removing it
+would be a separate cleanup.
+
+## Implementation Progress
+
+### Session #1
+
+- Added two tests to `ui/qml/test/mobile_test.cpp`.
+  `theMenuButtonClosesTheMenu` clicks the button twice and expects the
+  menu gone; it failed before the fix, with the menu shown again.
+  `theMenuOpensBelowTheToolbarAtTheRightEdge` pins where the menu is
+  drawn: its right edge at the window's, its top below the toolbar. It
+  passed before the fix, so the reparenting does not move the menu.
+- `GameMenu` in `mobile_main.qml` now has `parent: toolbar`, is placed
+  relative to it, and closes on Escape or a press outside the toolbar.
+- Verified: all 191 tests pass against Qt 6.11.2 (Release); the QML
+  tests pass against CI's Qt 6.9.3; the mobile, application and dialogs
+  tests pass 20 times over at `-j 8`; linter clean. Not verified: on an
+  Android device, since the test loads the mobile QML on the desktop.
