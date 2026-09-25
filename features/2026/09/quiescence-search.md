@@ -406,3 +406,57 @@ an odd-depth search returns the even depth before it.
   cannot pass by never reaching them. With en passant removed from the
   captures-only mode it failed on three of the five positions and named
   the first mismatching position of each.
+
+### Session #5
+
+- Step 6: `iterativelyDeepen()` keeps the result of every completed
+  depth. The rule that kept an odd depth only when no even depth had
+  finished is gone, along with its comment calling it a limited form of
+  quiescence. A search to a fixed depth visits the same nodes as
+  before; what changes is the result an odd depth returns, and what a
+  timed search returns when it stops after an odd depth. All 224 tests
+  pass, including "Root TT hit should not bypass iterative deepening
+  search"; none of the search tests depended on the old rule.
+- Depth 8, cleared table, search report. These node counts are the
+  same as step 5's, since only the returned result changed:
+
+  | Position | Baseline | Now | Baseline nodes | Now nodes |
+  |---|---|---|---|---|
+  | starting | 2.19s | 1.24s | 9,233,813 | 3,428,897 |
+  | kiwipete | 1.84s | 3.67s | 2,942,256 | 8,146,457 |
+  | italian | 2.38s | 23.19s | 5,358,645 | 40,600,924 |
+  | position3 | 0.05s | 0.08s | 175,296 | 245,693 |
+  | position4 | 0.43s | 1.34s | 1,110,834 | 2,690,549 |
+  | middlegame | 37.94s | 186.47s | 103,433,445 | 364,717,327 |
+
+  The Italian and middlegame positions blow up at depth 8: 7.6 and 5.3
+  times the baseline's nodes, and quiescence accounts for 69% and 82%
+  of them. Quiescence searches every capture sequence, including
+  captures that lose material, such as a queen taking a defended pawn.
+  Nothing prunes them yet.
+- The frontends are limited by time, not depth. `Default_Max_Depth` is
+  16 plies and `Default_Max_Search_Seconds` is 2, and the QML and wasm
+  settings start from those. So the question that matters for play is
+  where a 2-second search gets. Measured with a scratch driver against
+  `main` (`8b59ede`) and this branch, cleared table, two runs each, both
+  identical:
+
+  | Position | main: depth, move, score | branch: depth, move, score |
+  |---|---|---|
+  | starting | 6, e2 e3, -101 | 8, e2 e4, 0 |
+  | kiwipete | 8, e2xa6, -197 | 7, e2xa6, 66 |
+  | italian | 6, f3 g5, -219 | 7, b1 c3, -32 |
+  | position3 | 10, b4xf4, 27 | 10, b4xf4, 36 |
+  | position4 | 8, c4 c5, -1221 | 8, c4 c5, -928 |
+  | middlegame | 6, f3 g5, -218 | 6, f3 g5, 54 |
+
+  In two seconds the branch reaches the same depth on three positions,
+  a deeper one on two, and one ply less on Kiwipete. Every result it
+  returns includes quiescence. The scores no longer carry the
+  pessimism of an unanswered last capture.
+- Step 7, the default depths: no change needed. Play is bounded by the
+  2-second limit, which the branch uses at least as well as `main`.
+  What a depth means has changed, though: a fixed-depth search, such as
+  UCI `go depth N`, can now take several times longer in tactical
+  positions, as the depth-8 table shows. `AGENTS.md` says nothing about
+  how long a depth takes, so it needs no update.
