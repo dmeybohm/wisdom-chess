@@ -53,7 +53,6 @@ const Board = (props: BoardProps) => {
                     <PawnPromotionDialog
                         color={props.currentTurn}
                         square={props.pawnPromotionDialogSquare}
-                        direction={-1}
                         selectedPiece={props.onPiecePromotion}
                     />}
             </section>
