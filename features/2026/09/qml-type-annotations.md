@@ -119,3 +119,15 @@ enabled at `info` so the count stays visible without failing the lint.
 - Verified: `all_qmllint` exits 0; full `ctest` (192) passes; the four
   QML UI tests pass under `Basic` and `Fusion`; the C++ `lint` target is
   clean. Not run on CI.
+
+### Checked against CI's Qt 6.9.3
+
+`./scripts/install-ci-qt.sh` had Qt 6.9.3 cached; the module was built
+and linted against it in `build-qt69`.
+
+- `all_qmllint` exits 0 with 17 informational findings, a subset of the
+  27 from 6.11.2: 6.9's `qmllint` does not report `GameModel`'s methods
+  as shadowable, and the rest are the same members through QML-declared
+  properties plus Qt's `activeFocusItem`. Nothing new.
+- The seven QML test binaries pass, and the four UI tests pass under
+  `Basic` and `Fusion`.
