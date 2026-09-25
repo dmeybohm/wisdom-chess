@@ -148,6 +148,7 @@ function App() {
         () => throttle(() => modelRef.current.notifyComputerMove(), 250),
         [],
     )
+    useEffect(() => () => throttledComputerMove.cancel(), [throttledComputerMove])
 
     // Modal Pausing
     useEffect(() => {
@@ -179,6 +180,7 @@ function App() {
             if (move !== ILLEGAL_MOVE) {
                 model.notifyHumanMove(move)
             }
+            dispatch({ type: 'CLEAR_FOCUS' })
             dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
         },
         [],
@@ -257,6 +259,7 @@ function App() {
     }
 
     function startNewGame(e: React.SyntheticEvent) {
+        throttledComputerMove.cancel()
         gameRef.current = startNewGameEngine()
 
         dispatch({ type: 'CLEAR_FOCUS' })

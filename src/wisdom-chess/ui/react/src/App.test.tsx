@@ -327,6 +327,34 @@ describe('Engine interface', () => {
         expect(mockGame.makeHumanMove).not.toHaveBeenCalled()
     })
 
+    it('closes the promotion dialog once the piece is chosen', async () => {
+        const user = userEvent.setup()
+        placeWhitePawnOnE2()
+        vi.mocked(mockGame.needsPawnPromotion).mockReturnValue(true)
+
+        render(<App />)
+        await user.click(document.querySelector('.piece.e2')!)
+        await clickSquare(user, 36)
+        const queen = () => document.querySelector('.pawn-promotion-dialog__piece')!
+        await user.click(queen())
+        await user.click(queen())
+
+        expect(mockGame.makeHumanMove).toHaveBeenCalledWith('e2', 'e4', mockWisdomChess.Queen)
+        expect(document.querySelector('.pawn-promotion-dialog')).toBeNull()
+    })
+
+    it('clears the selected square after a click move', async () => {
+        const user = userEvent.setup()
+        placeWhitePawnOnE2()
+
+        render(<App />)
+        await user.click(document.querySelector('.piece.e2')!)
+        expect(document.querySelector('.piece.e2.focused')).not.toBeNull()
+        await clickSquare(user, 36)
+
+        expect(document.querySelector('.focused')).toBeNull()
+    })
+
     it('passes a computer move to the game as text', () => {
         render(<App />)
 
@@ -343,6 +371,24 @@ describe('Engine interface', () => {
         act(() => onMessage('computerMoved', 7, 'e2 e4'))
 
         expect(mockGame.makeComputerMove).not.toHaveBeenCalled()
+    })
+
+    it('drops a throttled search request when the app unmounts', () => {
+        vi.useFakeTimers()
+        try {
+            const { unmount } = render(<App />)
+            const onMessage = vi.mocked(wisdomWindow.setReceiveWorkerMessageCallback).mock.calls[0][0]
+            act(() => onMessage('computerMoved', 0, 'e2 e4'))
+            act(() => onMessage('computerMoved', 0, 'e7 e5'))
+            expect(mockGameModel.notifyComputerMove).toHaveBeenCalledTimes(1)
+
+            unmount()
+            vi.advanceTimersByTime(1000)
+
+            expect(mockGameModel.notifyComputerMove).toHaveBeenCalledTimes(1)
+        } finally {
+            vi.useRealTimers()
+        }
     })
 
     it('frees the settings object built when settings are applied', async () => {
