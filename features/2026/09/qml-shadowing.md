@@ -87,3 +87,10 @@ The QML side went as planned; the C++ side did not do what it was for.
 - `qmllint` on 6.11.2: 10 informational, all `GameModel` methods; 27
   before this branch. Full `ctest` (192) passes; the four UI tests pass
   under `Basic` and `Fusion`; the C++ `lint` target is clean.
+
+### Checked against CI's Qt 6.9.3
+
+`all_qmllint` reports nothing at any level, with the compiler category
+on. The seven QML test binaries pass, and the four UI tests pass under
+`Basic` and `Fusion`. So CI's lint is fully compile-clean; only 6.11's
+`qmllint` still reports the ten method calls, as information.
