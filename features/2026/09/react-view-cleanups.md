@@ -167,3 +167,23 @@ Fix the bugs separately from the refactors, each with its own commit.
   `PATH` here. Drag and drop, promotion, the draw dialogs (which now have an
   overlay) and the settings dialog should be tried in a browser before
   merging.
+
+### Session #3
+
+- Built the WASM frontend with the emsdk in `~/projects/3rdparty/emsdk`
+  (`emcmake cmake -S . -B build-web`, target `wisdom-chess-react`) and
+  drove the Vite dev server headlessly with Chromium through
+  `puppeteer-core`. The checks, all passing against the real engine:
+  - A click move focuses and then clears, and the engine replies.
+  - A native HTML5 drag and drop through react-dnd moves a piece.
+  - The settings dialog shows the current players, applies a black-human
+    change and the board flip, and reopens with the applied values.
+  - A human-vs-human game reaches promotion (`bxa8`). The dialog shows
+    four pieces without a `false` class, picking the knight twice closes
+    it, a knight lands on a8, and nothing stays focused.
+  - Shuffling the knights reaches the threefold dialog, with the overlay
+    behind it, and "No" closes it.
+  - The mobile menu opens from the logo and closes on an outside click.
+  - The whole run logs no console errors or warnings.
+- This closes the manual check left open in Session #2. The `<a>` menu
+  items and the second `drag` ref remain as noted there.
