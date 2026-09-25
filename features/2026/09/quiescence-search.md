@@ -395,3 +395,14 @@ an odd-depth search returns the even depth before it.
   to 1.551s after. It is still three times the baseline's 0.499s at
   depth 6, for twice the nodes.
 - Full suite passes (223 tests), linter clean, no warnings.
+- The perft tests check `generateAllPotentialMoves()`, which now runs
+  through the shared helper, and still pass. They never call
+  `generateCaptures()`, so the scratch check above became a slow test:
+  "Perft: generateCaptures agrees with the full move list at every node"
+  in `move_perft_test.cpp`. It walks the perft tree of positions 2 to 6
+  (depth 4 for position 3, depth 3 for the rest), 311,870 positions in
+  0.6s, and compares the sets at every node. It also requires that en
+  passant and promotions turned up among the captures somewhere, so it
+  cannot pass by never reaching them. With en passant removed from the
+  captures-only mode it failed on three of the five positions and named
+  the first mismatching position of each.
