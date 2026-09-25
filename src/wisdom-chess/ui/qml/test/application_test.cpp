@@ -292,6 +292,29 @@ private slots:
         QVERIFY( my_app->game_model.qmlCurrentTurn() == wisdom::ui::Color::Black );
     }
 
+    // The list is reversed for a promotion on the far rank so the queen
+    // stays on the target square. That once keyed off the column, which a
+    // first promotion on the a-file leaves at its default.
+    void aPromotionOnTheFarRankOffersTheQueenOnTheTargetSquare()
+    {
+        my_app->move ("b1", "c3");
+        my_app->move ("b7", "b5");
+        my_app->move ("a1", "b1");
+        my_app->move ("b5", "b4");
+        my_app->move ("h2", "h3");
+        my_app->move ("b4", "b3");
+        my_app->move ("h3", "h4");
+        my_app->move ("b3", "a2");
+        my_app->move ("h4", "h5");
+        my_app->move ("a2", "a1");
+        QVERIFY( my_app->boardPieceAt ("a2") == ColoredPiece::make (Color::Black, Piece::Pawn) );
+
+        my_app->click ("a1");
+        my_app->click ("a1");
+
+        QVERIFY( my_app->boardPieceAt ("a1") == ColoredPiece::make (Color::Black, Piece::Queen) );
+    }
+
     void checkmateIsAnnounced()
     {
         my_app->move ("f2", "f3");

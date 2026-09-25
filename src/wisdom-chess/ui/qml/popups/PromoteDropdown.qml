@@ -12,7 +12,7 @@ FocusScope {
     property int drawAtColumn: 0
     property bool flipped: false
 
-    onDestinationColumnChanged: {
+    onDestinationRowChanged: {
         myPromotedPieceModel.setFirstRow(destinationRow)
     }
 

@@ -31,3 +31,18 @@ on the target square. All four pieces stay selectable.
    `Board.qml` sets the row before the column, and the reversal reads
    only the row, so the order of assignment does not matter.
 3. Tick the bug list entry and add an Implementation Progress section.
+
+## Implementation Progress
+
+### Session #1
+
+- `aPromotionOnTheFarRankOffersTheQueenOnTheTargetSquare` in
+  `application_test.cpp` plays 1. Nc3 b5 2. Rb1 b4 3. h3 b3 4. h4 bxa2
+  5. h5 a1 and clicks a1 twice. Before the fix it failed: the piece on a1
+  was not a queen. After changing the handler to `onDestinationRowChanged`
+  it passes, under `Basic` and `Fusion`.
+- The two-promotions-on-one-file case has the same cause and the same
+  fix; it is not tested separately, since the game to reach it is long
+  and the handler now reads the only property the reversal depends on.
+- Verified: the seven QML test binaries pass, `qmllint` reports nothing
+  new, the C++ linter is clean.
