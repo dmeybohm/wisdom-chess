@@ -412,6 +412,24 @@ describe('Engine interface', () => {
         expect(mockGameModel.setCurrentGameSettings).toHaveBeenCalledWith(wasmSettings)
         expect(mockWisdomChess.destroy).toHaveBeenCalledWith(wasmSettings)
     })
+
+    it('applies the choices made in the settings dialog', async () => {
+        const user = userEvent.setup()
+        render(<App />)
+
+        await user.click(screen.getByText('Settings'))
+        await user.click(screen.getAllByLabelText('Computer')[0])
+        await user.click(screen.getAllByLabelText('Human')[1])
+        await user.click(document.querySelector('input[name="debugLogging"]')!)
+        await user.click(document.querySelector('input[name="flipped"]')!)
+        await user.click(screen.getByText('Apply'))
+
+        const wasmSettings = vi.mocked(mockWisdomChess.GameSettings).mock.instances[0]
+        expect(wasmSettings.whitePlayer).toBe(mockWisdomChess.ChessEngine)
+        expect(wasmSettings.blackPlayer).toBe(mockWisdomChess.Human)
+        expect(wasmSettings.debugLogging).toBe(true)
+        expect(document.querySelector('.board.flipped')).not.toBeNull()
+    })
 })
 
 describe('withWasmObjects', () => {

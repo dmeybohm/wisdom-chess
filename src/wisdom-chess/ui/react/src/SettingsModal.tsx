@@ -1,5 +1,5 @@
 import Modal from "./Modal";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
     WebGameSettings,
     WisdomChess
@@ -14,96 +14,60 @@ type SettingsModalProps = {
 }
 
 export function SettingsModal(props: SettingsModalProps) {
-    const settings = props.settings
     const wisdomChess = WisdomChess()
-    const humanWhite = useRef<HTMLInputElement|null>(null)
-    const humanBlack = useRef<HTMLInputElement|null>(null)
-    const flippedRef = useRef<HTMLInputElement|null>(null)
-    const debugLoggingRef = useRef<HTMLInputElement|null>(null)
+    const [settings, setSettings] = useState(props.settings)
+    const [flipped, setFlipped] = useState(props.flipped)
+    const { thinkingTime, searchDepth } = settings
 
-    const [thinkingTime, setThinkingTime] = useState(settings.thinkingTime);
-    const [searchDepth, setSearchDepth] = useState(settings.searchDepth);
+    const update = (changes: Partial<WebGameSettings>) =>
+        setSettings(current => ({ ...current, ...changes }))
 
     const handleApply = (e: React.SyntheticEvent) => {
         e.preventDefault()
-        const whitePlayer = humanWhite.current?.checked ?
-            wisdomChess.Human :
-            wisdomChess.ChessEngine
-        const blackPlayer = humanBlack.current?.checked ?
-            wisdomChess.Human :
-            wisdomChess.ChessEngine
-
-        const newSettings : WebGameSettings = {
-            whitePlayer: whitePlayer,
-            blackPlayer: blackPlayer,
-            thinkingTime: thinkingTime,
-            searchDepth: searchDepth,
-            debugLogging: Boolean(debugLoggingRef.current?.checked)
-        }
-        props.onApply(newSettings, Boolean(flippedRef?.current?.checked))
+        props.onApply(settings, flipped)
     }
+
+    const playerOptions = (name: 'whitePlayer' | 'blackPlayer') => (
+        <div className="player-options">
+            <label>
+                <input
+                    name={name}
+                    type="radio"
+                    checked={settings[name] === wisdomChess.Human}
+                    onChange={() => update({ [name]: wisdomChess.Human })}
+                />
+                Human
+            </label>
+            <label>
+                <input
+                    name={name}
+                    type="radio"
+                    checked={settings[name] === wisdomChess.ChessEngine}
+                    onChange={() => update({ [name]: wisdomChess.ChessEngine })}
+                />
+                Computer
+            </label>
+        </div>
+    )
 
     return (
         <Modal>
             <h1>Settings</h1>
             <form className="settings">
                 <div>White Player</div>
-                <div className="player-options">
-                    <label>
-                        <input
-                            name="whitePlayer"
-                            type="radio"
-                            ref={humanWhite}
-                            value={wisdomChess.Human}
-                            defaultChecked={settings.whitePlayer === wisdomChess.Human}
-                        />
-                        Human
-                    </label>
-                    <label>
-                        <input
-                            name="whitePlayer"
-                            type="radio"
-                            value={wisdomChess.ChessEngine}
-                            defaultChecked={settings.whitePlayer === wisdomChess.ChessEngine}
-                        />
-                        Computer
-                    </label>
-                </div>
+                {playerOptions('whitePlayer')}
 
                 <div>Black Player</div>
-                <div className="player-options">
-                    <label>
-                        <input
-                            name="blackPlayer"
-                            type="radio"
-                            ref={humanBlack}
-                            value={wisdomChess.Human}
-                            defaultChecked={settings.blackPlayer === wisdomChess.Human}
-                        />
-                        Human
-                    </label>
-                    <label>
-                        <input
-                            id="computerBlack"
-                            name="blackPlayer"
-                            type="radio"
-                            value={wisdomChess.ChessEngine}
-                            defaultChecked={settings.blackPlayer === wisdomChess.ChessEngine}
-                        />
-                        Computer
-                    </label>
-                </div>
+                {playerOptions('blackPlayer')}
 
                 <div>Flip Board</div>
                 <div className="flip-board">
                     <input
                         type="checkbox"
                         name="flipped"
-                        ref={flippedRef}
-                        value="1"
-                        defaultChecked={props.flipped}
+                        checked={flipped}
+                        onChange={e => setFlipped(e.target.checked)}
                     />
-
                 </div>
 
                 <div>Debug Logging</div>
@@ -111,16 +75,15 @@ export function SettingsModal(props: SettingsModalProps) {
                     <input
                         type="checkbox"
                         name="debugLogging"
-                        ref={debugLoggingRef}
-                        value="1"
-                        defaultChecked={settings.debugLogging}
+                        checked={settings.debugLogging}
+                        onChange={e => update({ debugLogging: e.target.checked })}
                     />
                 </div>
 
                 <div>Thinking Time</div>
                 <div className="thinking-time">
                     <label>
-                        0:{thinkingTime < 10 ? '0' + thinkingTime : thinkingTime}
+                        0:{String(thinkingTime).padStart(2, '0')}
                     </label>
                     <input
                         type="range"
@@ -128,7 +91,7 @@ export function SettingsModal(props: SettingsModalProps) {
                         min={1}
                         max={10}
                         value={thinkingTime}
-                        onChange={e => setThinkingTime(Number(e.target.value))}
+                        onChange={e => update({ thinkingTime: Number(e.target.value) })}
                     />
                 </div>
 
@@ -141,7 +104,7 @@ export function SettingsModal(props: SettingsModalProps) {
                         min={1}
                         max={8}
                         value={searchDepth}
-                        onChange={e => setSearchDepth(Number(e.target.value))}
+                        onChange={e => update({ searchDepth: Number(e.target.value) })}
                     />
                 </div>
 
