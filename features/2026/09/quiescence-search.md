@@ -543,3 +543,12 @@ an odd-depth search returns the even depth before it.
   slow positions several times slower than the baseline. Next are static
   exchange evaluation for the quiescence half, and measuring move
   ordering in the main search (killer moves) for the other half.
+
+### Session #8
+
+- Rebased onto `main` at `185c0d5`. `main` had simplified `AGENTS.md`
+  to conventions and gotchas, and the build options table that Session
+  #2 added the `--search-report` flag to no longer exists. The flag is
+  not a convention or a gotcha, so the rebase kept `main`'s file.
+  `wisdom-chess-benchmarks` prints its usage on a bad argument, and
+  "Search report" above describes the report.
