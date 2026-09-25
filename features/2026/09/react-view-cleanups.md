@@ -129,3 +129,41 @@ Fix the bugs separately from the refactors, each with its own commit.
   and `tsc --noEmit` is clean.
 - Confirmed bug 1 with a temporary App test (not committed).
 - Recorded the findings and plan above. No code changes yet.
+
+### Session #2
+
+- Moved the worktree to `worktree/react-view-cleanups`.
+- Bugs 1–3: `applyHumanMove()` dispatches `CLEAR_FOCUS` once a move is
+  made, legal or not. The throttle is cancelled on unmount and when a new
+  game starts. New App tests cover each case, and all three fail without
+  the fix.
+- Found and fixed a fourth bug while simplifying `StatusBar`. The stalemate
+  message has two bold spans, and the greedy regex rendered the literal
+  tags between them. `StatusBar.test.tsx` pins the fix and fails against
+  the old parser.
+- State shape (4–9): the reducer has a single `SYNC` action carrying an
+  `EngineSnapshot`, and `initialState()` builds the first state from it, so
+  there is no bootstrap dispatch. `GameState` lives in `reducer.ts`.
+  `squares` and `settings` are no longer state. The settings are read when
+  the settings dialog opens: the model is their only source of truth, and
+  the object is still freed right away. The test that pinned "settings
+  read once" now pins "read when the dialog opens, and freed". `Piece.color`
+  is a `PieceColor`, the draw dialogs share `drawOfferFor()` and
+  `answerDraw()`, and `modelRef` and `wisdomChessRef` are gone.
+- Components (10–16) as planned, except for two items left open:
+  - `TopMenu` items are still `<a>` without `href`. `<button>` picks up
+    the global button styles, which needs a visual check.
+  - The second `drag` ref on the `PieceOverlay` image is still there.
+    When the image unmounts at drag start, React calls that ref with
+    `null`, which may matter to the hidden-preview workaround. It needs a
+    browser to check.
+- `startReact()` takes no argument, and `wisdom-chess-load.js.in` no longer
+  passes one.
+- Added tests for the settings dialog round trip (which also passes against
+  the old modal, confirming unchanged behavior), the draw dialog overlay,
+  and the mobile menu toggle. 47 vitest tests pass. `tsc --noEmit` and
+  `npm run build` are clean.
+- Not done: a manual check against the real WASM build. `emcc` is not on
+  `PATH` here. Drag and drop, promotion, the draw dialogs (which now have an
+  overlay) and the settings dialog should be tried in a browser before
+  merging.
