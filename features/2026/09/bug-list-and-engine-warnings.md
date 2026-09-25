@@ -83,7 +83,7 @@ should be confirmed before fixing.
 
 ### Engine: search and performance
 
-- [ ] **No quiescence search.** `search()` calls `evaluate()` at
+- [x] **No quiescence search.** `search()` calls `evaluate()` at
   `depth <= 0` (`engine/search.cpp:159-162`). `iterativelyDeepen` then
   discards every odd-depth result (`engine/search.cpp:295-296`) as a
   substitute, throwing away roughly half the search time.
@@ -96,8 +96,16 @@ should be confirmed before fixing.
   [faster-legal-move-test.md](faster-legal-move-test.md) for how often
   horizon nodes are in check, what searching their evasions would cost,
   and what happens to the mate test.
-  Planned on the `quiescence-search` branch; see
-  [quiescence-search.md](quiescence-search.md).
+  Fixed on the `quiescence-search` branch: `search()` calls a
+  quiescence search at depth 0, and every completed depth is kept. In
+  the 2-second searches the frontends run, it reaches the same depth
+  as before or deeper on five of six benchmark positions, and one ply
+  less on Kiwipete. See [quiescence-search.md](quiescence-search.md).
+  Fixed-depth searches of tactical positions are several times slower
+  at depth 8. Delta pruning did not help without giving up checking
+  lines ([quiescence-delta-pruning.md](quiescence-delta-pruning.md));
+  static exchange evaluation and cheaper evasion nodes are the next
+  candidates.
 - [x] **Repetition check scans the whole history at every node.**
   `isProbablyDrawingMove` calls `History::isProbablyNthRepetition`, which
   does `std::count` over all board codes (`engine/history.hpp:94-101`).

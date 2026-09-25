@@ -460,3 +460,26 @@ an odd-depth search returns the even depth before it.
   UCI `go depth N`, can now take several times longer in tactical
   positions, as the depth-8 table shows. `AGENTS.md` says nothing about
   how long a depth takes, so it needs no update.
+
+### Session #6
+
+- Tried delta pruning to bring down the depth-8 cost. Kept on the
+  `quiescence-delta-pruning` branch, not merged here: never pruning a
+  capture that gives check made it no faster, and pruning such captures
+  bought 21 to 36% on the tactical positions by dropping the lines
+  quiescence exists to search. It changed position 4's score at depths
+  1 to 3. The measurements are in
+  [quiescence-delta-pruning.md](quiescence-delta-pruning.md).
+- Step 8: checked off the item in
+  [bug-list-and-engine-warnings.md](bug-list-and-engine-warnings.md).
+- Follow-ups, in the order the measurements suggest:
+  - Static exchange evaluation in quiescence, for the depth-8 blowup in
+    the Italian and middlegame positions.
+  - Cheaper evasion nodes: an evasion node generates and sorts the full
+    move list. This would also make delta pruning with the check
+    exemption worth having.
+  - Break the tie between two capturing queen promotions of equal value
+    in `promotingOrCoordCompare`, so move order is fully determined
+    (Session #4).
+  - A single shared `boardFromFen` test helper; there are now four
+    copies.
