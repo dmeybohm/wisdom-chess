@@ -18,8 +18,8 @@ namespace wisdom
         -> MoveList;
 
     // Generate the potential captures and promotions to a queen for the
-    // player, including illegal moves, in the same order as
-    // generateAllPotentialMoves().
+    // player, including illegal moves, ordered as generateAllPotentialMoves()
+    // orders them.
     [[nodiscard]] auto
     generateCaptures (const Board& board, Color who)
         -> MoveList;

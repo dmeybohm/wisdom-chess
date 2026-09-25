@@ -350,3 +350,48 @@ an odd-depth search returns the even depth before it.
   which now carry real results and can replace deeper even depths.
 - Full suite passes (223 tests, including QML), linter clean, no
   warnings.
+
+### Session #4
+
+- Step 5: `MoveGeneration` has a `captures_only` flag. `appendMove()`
+  drops a move to an empty square unless it is en passant or a
+  promotion, `king()` skips castling, and `pawn()` skips
+  under-promotions. `generateAllPotentialMoves()` and
+  `generateCaptures()` share one generate-and-sort helper. Sliding
+  pieces still walk their rays; only the append and the sort get
+  shorter.
+- The search report showed small node count changes in Kiwipete and
+  position 4 (under 0.5%) with the same moves and scores. The cause is
+  the move order, not the moves. `compareMoves` treats two queen
+  promotions that capture pieces of equal value as equal, since
+  `promotingOrCoordCompare` compares only the promoted piece when both
+  moves promote. `std::sort` may put equal elements in any order, and
+  it depends on the rest of the list, which in the full list includes
+  the under-promotions. So the claim in step 3 that `generateCaptures()`
+  keeps the full list's order was never guaranteed, and the test only
+  passed because its positions had no such pair.
+  - A scratch check over 53,017 positions from random games out of the
+    starting position, Kiwipete and position 4 found no difference in
+    the set of moves.
+  - The test now compares sets and includes a position with two pawns
+    that can each promote by capturing a rook.
+  - Not changed here: breaking the tie in `promotingOrCoordCompare` by
+    coordinates, as it already does for moves that do not promote. That
+    would make the order total, but it changes the main search's move
+    order too, so it belongs in its own change.
+- Timing against step 4, depth 6, medians of five alternating rounds.
+  Nodes and moves as above:
+
+  | Position | Step 4 | Step 5 | Faster by |
+  |---|---|---|---|
+  | starting | 0.048s | 0.031s | 35% |
+  | kiwipete | 0.349s | 0.244s | 30% |
+  | italian | 0.435s | 0.302s | 31% |
+  | position3 | 0.009s | 0.007s | 22% |
+  | position4 | 0.236s | 0.144s | 39% |
+  | middlegame | 2.785s | 1.548s | 44% |
+
+  The middlegame rounds ranged from 2.770s to 2.794s before and 1.545s
+  to 1.551s after. It is still three times the baseline's 0.499s at
+  depth 6, for twice the nodes.
+- Full suite passes (223 tests), linter clean, no warnings.

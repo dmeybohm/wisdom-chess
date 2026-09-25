@@ -214,7 +214,7 @@ TEST_CASE( "generateCaptures" )
         CHECK( containsMove (captures, moveParse ("a7xb8 (Q)", Color::White)) );
     }
 
-    SUBCASE( "Matches the captures and queen promotions of all moves, in order" )
+    SUBCASE( "Matches the captures and queen promotions of all moves" )
     {
         const char* fens[] = {
             "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
@@ -223,6 +223,7 @@ TEST_CASE( "generateCaptures" )
             "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8",
             "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10",
             "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3",
+            "nr3kr1/Pp1p1P1p/1P6/nPp4p/B7/B2N4/P2P2P1/5RK1 w - - 0 1",
         };
 
         for (auto fen_text : fens)
@@ -233,21 +234,18 @@ TEST_CASE( "generateCaptures" )
             {
                 INFO( fen_text, " ", asString (who) );
 
-                std::vector<Move> expected;
+                MoveList expected;
                 for (auto move : generateAllPotentialMoves (board, who))
                 {
                     if (move.isPromoting()
                             ? move.getPromotedPiece() == Piece::Queen
                             : move.isAnyCapturing())
                     {
-                        expected.push_back (move);
+                        expected.append (move);
                     }
                 }
 
-                auto captures = generateCaptures (board, who);
-                std::vector<Move> actual { captures.begin(), captures.end() };
-
-                CHECK( actual == expected );
+                CHECK( sortedMoves (generateCaptures (board, who)) == sortedMoves (expected) );
             }
         }
     }
