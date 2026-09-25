@@ -128,6 +128,16 @@ private slots:
         QTRY_VERIFY( my_app->showsText (QStringLiteral ("<b>White</b> to move")) );
     }
 
+    void theNewGameDialogHasRoomForItsText()
+    {
+        chooseFromMenu (QStringLiteral ("New Game"));
+        auto* dialog = my_app->popupWithTitle (QStringLiteral ("New Game"));
+        QTRY_VERIFY( dialog->property ("visible").toBool() );
+        QTRY_VERIFY( dialog->property ("opened").toBool() );
+
+        QVERIFY( my_app->dialogFitsText (dialog, QStringLiteral ("Start a new game?")) );
+    }
+
     void anOpenDialogKeepsClicksFromTheBoard()
     {
         chooseFromMenu (QStringLiteral ("New Game"));
@@ -179,6 +189,17 @@ private slots:
         clickButton (QStringLiteral ("Yes"));
 
         QTRY_COMPARE( quit.count(), 1 );
+    }
+
+    void theQuitDialogHasRoomForItsText()
+    {
+        chooseFromMenu (QStringLiteral ("Quit"));
+        auto* dialog = my_app->popupWithTitle (QStringLiteral ("Quit Wisdom Chess"));
+        QTRY_VERIFY( dialog->property ("visible").toBool() );
+        QTRY_VERIFY( dialog->property ("opened").toBool() );
+
+        QVERIFY( my_app->dialogFitsText (
+            dialog, QStringLiteral ("Are you sure you want to end the game?")) );
     }
 
     void settingsAreAppliedAfterApply()

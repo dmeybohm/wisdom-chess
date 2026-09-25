@@ -304,11 +304,13 @@ replacement are in
   it again (`ui/qml/main/mobile_main.qml`). Found on the `qml-tests`
   branch. Fixed on the `mobile-menu-toggle` branch; see
   [mobile-menu-toggle.md](mobile-menu-toggle.md).
-- [ ] The New Game and Quit dialogs are too short for their padding
+- [x] The New Game and Quit dialogs are too short for their padding
   (`popups/NewGameDialog.qml`, `popups/ConfirmQuitDialog.qml`: height at
   most 150, padding 40), so their text has no room and is drawn outside
   its box. With taller title and button bars, as in the Basic style, it
   crowds the buttons. Found on the `qml-tests` branch.
+  Fixed on the `qml-dialog-heights` branch: the dialogs take their height
+  from their content. See [qml-dialog-heights.md](qml-dialog-heights.md).
 - [x] `ChessGame::setPlayers()` changes the game's players but not
   `config().players` (`ui/qml/main/chess_game.cpp`). Found on the
   `qml-tests` branch.
