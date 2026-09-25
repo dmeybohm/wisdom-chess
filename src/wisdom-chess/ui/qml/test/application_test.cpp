@@ -113,7 +113,7 @@ private slots:
     void aMoveDuringTheComputersTurnIsRejected()
     {
         auto* pawn = my_app->pieceAt ("e2");
-        my_app->game_model.makeCurrentPlayerComputer();
+        my_app->makeCurrentPlayerComputer();
 
         my_app->move ("e2", "e4");
 

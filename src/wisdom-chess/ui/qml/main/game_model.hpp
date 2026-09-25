@@ -15,7 +15,7 @@
 class QmlGameStatusUpdate;
 class ChessEngine;
 
-class GameModel : public QObject, public wisdom::ui::GameViewModelBase
+class GameModel final : public QObject, public wisdom::ui::GameViewModelBase
 {
     using DrawStatus = wisdom::ui::DrawByRepetitionStatus;
 
@@ -253,7 +253,7 @@ public slots:
 
     void updateEngineConfig();
 
-protected:
+public:
     [[nodiscard]] auto
     getGame()
         -> wisdom::observer_ptr<wisdom::Game> override;
@@ -267,6 +267,7 @@ protected:
     isHoldingAMove() const
         -> bool;
 
+protected:
     void onInCheckChanged() override;
     void onMoveStatusChanged() override;
     void onGameOverStatusChanged() override;
