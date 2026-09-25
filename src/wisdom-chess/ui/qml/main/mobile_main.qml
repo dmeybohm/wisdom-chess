@@ -95,7 +95,12 @@ ApplicationWindow {
 
             GameMenu {
                 id: gameMenu
-                x: root.width - gameMenu.width
+                // A press on the menu button must not close the menu, or the
+                // button's click on release would open it again.
+                parent: toolbar
+                x: toolbar.width - gameMenu.width
+                y: toolbar.height
+                closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
                 onShowNewGameDialog: root.showNewGameDialog();
                 onShowAboutDialog: root.showAboutDialog();
                 onShowSettingsDialog: root.showSettingsDialog();

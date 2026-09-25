@@ -85,6 +85,40 @@ private slots:
         QVERIFY( my_app->buttonWithText (QStringLiteral ("Settings")) != nullptr );
     }
 
+    // Pressing the button is a press outside the menu. It once closed the
+    // menu on the press, and the click on release opened it again.
+    void theMenuButtonClosesTheMenu()
+    {
+        auto tool_buttons = my_app->shownItemsOfClass ("QQuickToolButton");
+        QCOMPARE( tool_buttons.size(), 1 );
+
+        my_app->clickItem (tool_buttons[0]);
+        QTRY_VERIFY( my_app->buttonWithText (QStringLiteral ("New Game")) != nullptr );
+
+        my_app->clickItem (tool_buttons[0]);
+        QTRY_VERIFY( my_app->buttonWithText (QStringLiteral ("New Game")) == nullptr );
+    }
+
+    void theMenuOpensBelowTheToolbarAtTheRightEdge()
+    {
+        auto tool_buttons = my_app->shownItemsOfClass ("QQuickToolButton");
+        QCOMPARE( tool_buttons.size(), 1 );
+        my_app->clickItem (tool_buttons[0]);
+        QTRY_VERIFY( my_app->buttonWithText (QStringLiteral ("New Game")) != nullptr );
+
+        QVERIFY( QQuickTest::qWaitForPolish (my_app->window()) );
+        auto* toolbar = ancestorOfClass (tool_buttons[0], "QQuickToolBar");
+        QVERIFY( toolbar != nullptr );
+        auto* menu = ancestorOfClass (
+            my_app->buttonWithText (QStringLiteral ("New Game")), "QQuickPopupItem"
+        );
+        QVERIFY( menu != nullptr );
+
+        auto top_right = menu->mapToScene (QPointF { menu->width(), 0 });
+        QCOMPARE( top_right.x(), my_app->window()->width() );
+        QVERIFY( top_right.y() >= toolbar->height() );
+    }
+
     void aNewGameCanBeStartedFromTheMenu()
     {
         my_app->move ("e2", "e4");
@@ -105,6 +139,15 @@ private slots:
     }
 
 private:
+    [[nodiscard]] static auto
+    ancestorOfClass (QQuickItem* item, const char* class_name)
+        -> QQuickItem*
+    {
+        while (item != nullptr && !item->inherits (class_name))
+            item = item->parentItem();
+        return item;
+    }
+
     std::unique_ptr<Application> my_app;
 };
 
