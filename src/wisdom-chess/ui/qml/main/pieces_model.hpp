@@ -42,7 +42,7 @@ struct PieceInfo
 
 class ChessGame;
 
-class PiecesModel : public QAbstractListModel
+class PiecesModel final : public QAbstractListModel
 {
     Q_OBJECT
 

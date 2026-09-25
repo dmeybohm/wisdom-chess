@@ -10,7 +10,7 @@ QtObject {
     // turns.
     property int squareSize: calculateMaxSquareSize()
 
-    function calculateMaxSquareSize() {
+    function calculateMaxSquareSize(): int {
         const maxWidth = (Screen.width - 20) / 8
         const maxHeight = (Screen.height - 20) / 8
         return Math.min(maxWidth, maxHeight, 64)

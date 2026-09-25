@@ -8,19 +8,19 @@ Item {
         || aboutDialog.visible
         || confirmQuitDialog.visible
 
-    function showNewGameDialog() {
+    function showNewGameDialog(): void {
         newGameDialog.visible = true
     }
 
-    function showAboutDialog() {
+    function showAboutDialog(): void {
         aboutDialog.visible = true
     }
 
-    function showConfirmQuitDialog() {
+    function showConfirmQuitDialog(): void {
         confirmQuitDialog.visible = true
     }
 
-    function showSettingsDialog() {
+    function showSettingsDialog(): void {
         settingsDialog.visible = true
     }
 

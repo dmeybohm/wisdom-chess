@@ -12,8 +12,21 @@ FocusScope {
     property int drawAtColumn: 0
     property bool flipped: false
 
-    onDestinationRowChanged: {
-        myPromotedPieceModel.setFirstRow(destinationRow)
+    // Queen first, on the target square, with the rest hanging down from
+    // it. A promotion on the far rank draws the list upwards from that
+    // square instead (drawAtRow), so the order is reversed to keep the
+    // queen on it.
+    readonly property list<int> choices: destinationRow === 7
+        ? [PieceType.Knight, PieceType.Bishop, PieceType.Rook, PieceType.Queen]
+        : [PieceType.Queen, PieceType.Rook, PieceType.Bishop, PieceType.Knight]
+
+    function imageFor(piece: int): string {
+        const letter = piece === PieceType.Queen ? "q"
+            : piece === PieceType.Rook ? "r"
+            : piece === PieceType.Bishop ? "b"
+            : "n"
+        const side = GameModel.currentTurn === Color.White ? "l" : "d"
+        return "../images/Chess_" + letter + side + "t45.svg"
     }
 
     transform: Translate {
@@ -32,21 +45,17 @@ FocusScope {
         anchors.fill: parent
     }
 
-    PromotedPieceModel {
-        id: myPromotedPieceModel
-    }
-
     Grid {
         rows: 4
         columns: 1
 
         Repeater {
-            model: myPromotedPieceModel
+            model: 4
+
             delegate: Item {
                id: choice
-               required property string whiteImage
-               required property string blackImage
-               required property int piece
+               required property int index
+               readonly property int piece: dropDownTop.choices[index]
 
                width: BoardDimensions.squareSize
                height: BoardDimensions.squareSize
@@ -68,8 +77,7 @@ FocusScope {
                }
 
                Image {
-                   source: GameModel.currentTurn === Color.White ? choice.whiteImage
-                                                                : choice.blackImage
+                   source: dropDownTop.imageFor(choice.piece)
                    width: BoardDimensions.squareSize
                    height: BoardDimensions.squareSize
                }
@@ -93,5 +101,4 @@ FocusScope {
             }
         }
     }
-
 }

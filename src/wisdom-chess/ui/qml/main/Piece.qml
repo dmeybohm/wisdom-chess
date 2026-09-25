@@ -67,9 +67,9 @@ Image {
         }
     }
 
-    function rebindX() {
+    function rebindX(): void {
         myTranslation.x = Qt.binding(
-            function() { return myPieceImage.column * BoardDimensions.squareSize }
+            function(): real { return myPieceImage.column * BoardDimensions.squareSize }
         )
     }
 

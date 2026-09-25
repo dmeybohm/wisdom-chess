@@ -6,7 +6,7 @@
 class UISettings
 {
     Q_GADGET
-    QML_ANONYMOUS
+    QML_VALUE_TYPE (uiSettings)
     Q_PROPERTY (bool flipped 
         MEMBER my_flipped 
         READ flipped)

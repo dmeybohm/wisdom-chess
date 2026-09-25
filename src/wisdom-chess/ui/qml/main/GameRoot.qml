@@ -23,7 +23,7 @@ Item {
     Connections {
         target: gameRoot.Window.window
 
-        function onActiveFocusItemChanged() {
+        function onActiveFocusItemChanged(): void {
             const focusedItem = gameRoot.Window.window.activeFocusItem
             gameRoot.board.focusMoved(gameRoot.previousFocusedItem, focusedItem)
             gameRoot.previousFocusedItem = focusedItem

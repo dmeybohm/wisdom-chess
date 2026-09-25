@@ -64,3 +64,58 @@ as the lint caught a removed property earlier in this series.
    count recorded here.
 9. Verify as the other branches: `all_qmllint`, `ctest`, the UI tests
    under `Basic` and `Fusion`, the C++ lint target.
+
+## Implementation Progress
+
+### Session #1
+
+From 84 compiler findings to 27, all of one kind, with the category
+enabled at `info` so the count stays visible without failing the lint.
+
+- **Annotations** on every function in the module, parameters and
+  return types. `Helper.js` could not take them, being plain JavaScript,
+  so its two functions moved to their only callers (`zeroPad` into the
+  settings dialog, `promotedRow` inlined in `Board.qml`) and the file is
+  gone. The anonymous function in `Piece.qml`'s `Qt.binding` takes a
+  return type too.
+- **`final`**: `PiecesModel` is `final`. `GameModel` cannot be, because
+  the test fixture's `InspectableGameModel` derives from it to reach
+  protected members; its ten properties are `FINAL` instead, which
+  clears the property warnings and leaves ten for its methods. Making
+  the fixture a friend of `GameModel` rather than a subclass would allow
+  `final` and clear those; that puts a test name in a production header,
+  so it is left as an option.
+- **Typed settings copies.** `UISettings` and `GameSettings` are the
+  value types `uiSettings` and `gameSettings`, and the dialog's four
+  copies use them. That exposed a binding loop the `var` copies had
+  hidden: writing a member of a typed value-type property notifies, and
+  the sliders wrote the setting back from `onValueChanged` while their
+  `value` was bound to it. They write from `onMoved` now, which only the
+  user's drag emits; the tests read slider values and change settings
+  through the model, so they were unaffected either way.
+- **The promotion list** is a `readonly property list<int>` in
+  `PromoteDropdown.qml`, reversed by a pure binding on the destination
+  row, with the image named by a typed function from the piece and the
+  side to move. The delegate reads its piece from the list by index, so
+  the `Repeater`'s model is the count. `PromotedPieceModel.qml`, with its
+  `reversed` flag and in-place `swap()`, is gone; the class of defect
+  fixed on `qml-promotion-order` cannot recur, and both promotion tests
+  pass.
+- **`focusMoved`** takes `Item`s and casts with `as`, which yields null
+  for a dialog or a promotion choice; `instanceof` was tried first and
+  qmlcachegen cannot compile it. `ChessSquare` takes the focus on its
+  root item so the focused item is a `ChessSquare`; the fixture finds
+  squares by the same properties, now on that item.
+- **`Qt.platform.os`** lines in `Platform.qml` are wrapped in
+  `qmllint disable compiler` and `enable`.
+- **What remains**, 27 informational: members reached through
+  QML-declared properties (`GameRoot.dialogs` 10, `ChessSquare` 4,
+  `GameRoot.board`, `MainWindow.gameRoot`), which the `final` property
+  keyword would settle but that is documented only from Qt 6.11 and CI
+  builds with 6.9; `GameModel`'s ten methods, above; and Qt's own
+  `Window.window.activeFocusItem`. When CI moves to a Qt with `final`
+  properties, add it, raise `CompilerWarnings` to `warning`, and the
+  lint enforces compilability.
+- Verified: `all_qmllint` exits 0; full `ctest` (192) passes; the four
+  QML UI tests pass under `Basic` and `Fusion`; the C++ `lint` target is
+  clean. Not run on CI.

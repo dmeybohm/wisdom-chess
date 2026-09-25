@@ -46,23 +46,27 @@ Dialog {
     QtObject {
         id: internal
 
-        property var myUISettings
-        property var myGameSettings
-        property var toSaveUISettings
-        property var toSaveGameSettings
+        property uiSettings myUISettings
+        property gameSettings myGameSettings
+        property uiSettings toSaveUISettings
+        property gameSettings toSaveGameSettings
 
         readonly property int fontSize: Platform.isMobile ? 12 : 16
 
-        function movesLabel(numMoves) {
-            return parseInt(numMoves, 10) === 1 ? "1 move" : numMoves + " moves"
+        function movesLabel(numMoves: int): string {
+            return numMoves === 1 ? "1 move" : numMoves + " moves"
         }
 
-        function resetSettings() {
+        function zeroPad(num: int): string {
+            return num < 10 ? "0" + num : "" + num
+        }
+
+        function resetSettings(): void {
             myUISettings = GameModel.cloneUISettings()
             myGameSettings = GameModel.cloneGameSettings()
         }
 
-        function applySettings() {
+        function applySettings(): void {
             GameModel.uiSettings = toSaveUISettings
             GameModel.gameSettings = toSaveGameSettings
         }
@@ -172,7 +176,7 @@ Dialog {
 
             RowLayout {
                 Text {
-                    text: "0:" + Helper.zeroPad(thinkingTimeSlider.value.toString())
+                    text: "0:" + internal.zeroPad(thinkingTimeSlider.value)
                     font.pixelSize: internal.fontSize
                 }
 
@@ -184,11 +188,9 @@ Dialog {
                     stepSize: 1
                     from: 1
                     to: 30
-                    onValueChanged: {
-                        if (value && internal.myGameSettings) {
-                            internal.myGameSettings.maxSearchTime = value
-                        }
-                    }
+                    // moved, not valueChanged: the value is bound to the
+                    // setting, so writing it back on every change loops.
+                    onMoved: internal.myGameSettings.maxSearchTime = value
                 }
             }
         }
@@ -204,7 +206,7 @@ Dialog {
 
             RowLayout {
                 Text {
-                    text: internal.movesLabel(maxDepthSlider.value.toString())
+                    text: internal.movesLabel(maxDepthSlider.value)
                     font.pixelSize: internal.fontSize
                 }
 
@@ -216,12 +218,7 @@ Dialog {
                     from: 1
                     to: 8
                     stepSize: 1
-                    onValueChanged: {
-                        if (value && internal.myGameSettings) {
-                            internal.myGameSettings.maxDepth = parseInt(value, 10)
-                        }
-                    }
-
+                    onMoved: internal.myGameSettings.maxDepth = value
                 }
             }
         }

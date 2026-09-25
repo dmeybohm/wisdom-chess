@@ -99,7 +99,6 @@ qt_add_qml_module(WisdomChessQml
         main/Piece.qml
         popups/GameMenu.qml
         popups/PromoteDropdown.qml
-        popups/PromotedPieceModel.qml
         popups/DrawProposalDialog.qml
         popups/AboutDialog.qml
         popups/NewGameDialog.qml
@@ -107,7 +106,6 @@ qt_add_qml_module(WisdomChessQml
         popups/ConfirmQuitDialog.qml
         main/StatusBar.qml
         main/ImageToolButton.qml
-        Helper.js
         # Every platform's root is in the module, whichever one MAIN_QML_FILE
         # loads, so qmllint sees them all and the tests find them.
         main/Platform.qml

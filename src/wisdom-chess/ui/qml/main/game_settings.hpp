@@ -9,7 +9,7 @@
 class GameSettings
 {
     Q_GADGET
-    QML_ANONYMOUS
+    QML_VALUE_TYPE (gameSettings)
 
     Q_PROPERTY (wisdom::ui::Player whitePlayer 
             MEMBER my_white_player 

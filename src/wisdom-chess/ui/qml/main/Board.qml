@@ -22,26 +22,23 @@ Item {
         }
     }
 
-    function focusMoved(oldObject, newObject) {
-        if (oldObject && newObject &&
-                'boardRow' in oldObject && 'boardRow' in newObject
-        ) {
-            const sourceRow = oldObject.boardRow
-            const sourceColumn = oldObject.boardColumn
-            const destinationRow = newObject.boardRow
-            const destinationColumn = newObject.boardColumn
+    function focusMoved(oldItem: Item, newItem: Item): void {
+        // A cast to the wrong type is null: a dialog or a promotion choice.
+        const source = oldItem as ChessSquare
+        const destination = newItem as ChessSquare
+        if (source === null || destination === null)
+            return
 
-            // Before the move, which can open a draw offer: a dialog gives
-            // the focus back to whatever had it when it opened.
-            newObject.focus = false
+        // Before the move, which can open a draw offer: a dialog gives
+        // the focus back to whatever had it when it opened.
+        destination.focus = false
 
-            myPiecesLayer.animateRowAndColChange(
-                sourceRow,
-                sourceColumn,
-                destinationRow,
-                destinationColumn
-            )
-        }
+        myPiecesLayer.animateRowAndColChange(
+            source.boardRow,
+            source.boardColumn,
+            destination.boardRow,
+            destination.boardColumn
+        )
     }
 
     Grid {
@@ -91,7 +88,7 @@ Item {
             }
         }
 
-        function animateRowAndColChange(sourceRow, sourceCol, dstRow, dstCol) {
+        function animateRowAndColChange(sourceRow: int, sourceCol: int, dstRow: int, dstCol: int): void {
             promotionDropDown.focus = false
             if (GameModel.needsPawnPromotion(sourceRow, sourceCol, dstRow, dstCol)) {
                 promotionDropDown.focus = true
@@ -99,7 +96,9 @@ Item {
                 promotionDropDown.sourceColumn = sourceCol
                 promotionDropDown.destinationRow = dstRow
                 promotionDropDown.destinationColumn = dstCol
-                promotionDropDown.drawAtRow = Helper.promotedRow(dstRow)
+                // The list hangs down from the target square, or up from
+                // it on the far rank.
+                promotionDropDown.drawAtRow = dstRow === 7 ? 4 : dstRow
                 promotionDropDown.drawAtColumn = dstCol
                 return;
             }
