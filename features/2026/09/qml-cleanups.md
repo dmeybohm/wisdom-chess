@@ -230,9 +230,9 @@ Linux, offscreen.
   cross-file id (`topWindow`, `root`), a context property or an enum.
 - **Dead code and polish (steps 4, 13, 23, 24).** As listed, except:
   the windows' `currentFocusedItem` was the dead copy, not the roots' (see
-  finding 16); the `Flickable` around the mobile menu (finding 21) is left
-  for after `mobile-menu-toggle` merges, since that branch edits the same
-  lines; and the About text (finding 25) is content, not code, and is left
+  finding 16); the `Flickable` around the mobile menu (finding 21) was deferred
+  while `mobile-menu-toggle` still edited the same lines, and removed once
+  the branch was rebased on main with that merged; and the About text (finding 25) is content, not code, and is left
   to the author. The settings dialog's bindings reference `topWindow`
   five more times, so the count is 105 unqualified, all cross-file.
 - **Finding 7 is settled: keep the `height: 0` hack.** A probe of a
