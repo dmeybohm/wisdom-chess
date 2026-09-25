@@ -547,7 +547,7 @@ TEST_CASE( "The search result counts the nodes of every depth" )
         auto search = helper.build (board, 1);
         SearchResult result = search.iterativelyDeepen (Color::White);
 
-        CHECK( result.nodes == 20 );
+        CHECK( result.nodes - result.quiescence_nodes == 20 );
     }
 
     SUBCASE( "A deeper search includes the shallower depths" )
@@ -557,5 +557,81 @@ TEST_CASE( "The search result counts the nodes of every depth" )
         SearchResult result = search.iterativelyDeepen (Color::White);
 
         CHECK( result.nodes > 20 + 20 );
+    }
+}
+
+TEST_CASE( "Quiescence search" )
+{
+    auto boardFromFen = [](const char* fen_text) {
+        FenParser fen { fen_text };
+        auto game = fen.build();
+        return Board { game.getBoard() };
+    };
+
+    SUBCASE( "A defended pawn is not taken at the horizon" )
+    {
+        SearchHelper helper;
+        auto board = boardFromFen ("4k3/8/4p3/3p4/8/8/8/3QK3 w - - 0 1");
+        auto search = helper.build (board, 1);
+        SearchResult result = search.iterativelyDeepen (Color::White);
+
+        REQUIRE( result.move.has_value() );
+        CHECK( *result.move != moveParse ("d1xd5", Color::White) );
+    }
+
+    SUBCASE( "A capture that wins after the recapture is taken" )
+    {
+        SearchHelper helper;
+        auto board = boardFromFen ("3rk3/8/8/3n4/8/8/3R4/3QK3 w - - 0 1");
+        auto search = helper.build (board, 2);
+        SearchResult result = search.iterativelyDeepen (Color::White);
+
+        REQUIRE( result.move.has_value() );
+        CHECK( *result.move == moveParse ("d2xd5", Color::White) );
+    }
+
+    SUBCASE( "A mate on the last ply is found by searching the evasions" )
+    {
+        SearchHelper helper;
+        auto board = boardFromFen ("6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1");
+        auto search = helper.build (board, 1);
+        SearchResult result = search.iterativelyDeepen (Color::White);
+
+        REQUIRE( result.move.has_value() );
+        CHECK( *result.move == moveParse ("a1 a8", Color::White) );
+        CHECK( result.score == checkmateScoreInMoves (1) );
+    }
+
+    SUBCASE( "A check with an evasion is not scored as mate" )
+    {
+        SearchHelper helper;
+        auto board = boardFromFen ("6k1/5pp1/8/8/8/8/8/R5K1 w - - 0 1");
+        auto search = helper.build (board, 1);
+        SearchResult result = search.iterativelyDeepen (Color::White);
+
+        REQUIRE( result.move.has_value() );
+        CHECK( !isCheckmatingOpponentScore (result.score) );
+    }
+
+    SUBCASE( "A root without a draw below it is stored" )
+    {
+        SearchHelper helper;
+        Board board;
+        auto search = helper.build (board, 1);
+        (void)search.iterativelyDeepen (Color::White);
+
+        auto hash = board.getCode().getHashCode();
+        CHECK( helper.transposition_table.probe (hash, 1, -Initial_Alpha, Initial_Alpha, 0) );
+    }
+
+    SUBCASE( "A capture into insufficient material keeps the root out of the table" )
+    {
+        SearchHelper helper;
+        auto board = boardFromFen ("4k3/8/1b6/8/3N4/8/8/4K3 w - - 0 1");
+        auto search = helper.build (board, 1);
+        (void)search.iterativelyDeepen (Color::White);
+
+        auto hash = board.getCode().getHashCode();
+        CHECK( !helper.transposition_table.probe (hash, 1, -Initial_Alpha, Initial_Alpha, 0) );
     }
 }

@@ -246,6 +246,7 @@ namespace wisdom::bench
                   << std::right << std::setw (8) << "score"
                   << std::setw (8) << "from"
                   << std::setw (12) << "nodes"
+                  << std::setw (12) << "qnodes"
                   << std::setw (10) << "seconds" << "\n";
 
         for (const auto& position : positions)
@@ -266,6 +267,7 @@ namespace wisdom::bench
                           << std::right << std::setw (8) << result.score
                           << std::setw (8) << result.depth
                           << std::setw (12) << result.nodes
+                          << std::setw (12) << result.quiescence_nodes
                           << std::setw (10) << std::fixed << std::setprecision (3)
                           << seconds << "\n";
             }

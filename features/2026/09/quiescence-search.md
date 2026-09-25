@@ -278,3 +278,75 @@ an odd-depth search returns the even depth before it.
     returns the depth-6 move.
   - The quiet middlegame is the outlier at depth 8, with 103M nodes in
     38s. It is the position to watch when choosing depths later.
+
+### Session #3
+
+- Step 2: `evaluateWithoutMateTest()` holds the material, position and
+  castling terms, and `evaluate()` runs the mate test and then calls it.
+  The search report was identical to the baseline apart from timing.
+- Step 3: `generateCaptures()` filters `generateAllPotentialMoves()` for
+  captures, en passant and promotions to a queen, keeping the order.
+  Tested on six positions for both colors against the same filter
+  written out in the test, so the dedicated generator in step 5 has a
+  reference.
+- Step 4: `quiesce()` as designed, called from `search()` at
+  `depth <= 0`, with `Max_Quiescence_Evasion_Ply = 4`. `SearchResult`
+  gains `quiescence_nodes`; `nodes` now counts both kinds, and the
+  report prints both.
+- Tests in `search_test.cpp`, each run against the commit before
+  quiescence as well:
+  - a defended pawn is not taken at depth 1 (fails before),
+  - a capture that wins after the recapture is taken at depth 2 (fails
+    before),
+  - a mate on the last ply is found through the evasion search, and a
+    check with an evasion is not scored as mate (both pass before too,
+    since `evaluate()` used to find the mate; they now guard the
+    evasion path),
+  - a knight left to a bishop capture that leaves king and bishop
+    against king keeps the root out of the table (fails before), with a
+    control that a root without a draw below it is stored.
+  Not added: a timeout that lands inside quiescence. It cannot be aimed
+  there reliably; the UCI `stop` tests exercise the timeout path.
+- `UCI: a promotion is written in lower case` failed. With the black
+  king out of reach, a depth-2 search played `a1b1`: quiescence still
+  counts the promotion at the leaf, so a king move first scores as the
+  promotion plus a better king square. Nothing stops the pawn, so this
+  is a shallow-depth artifact rather than an error. The test is about
+  the move's notation, so it now uses a position where the black king
+  would win the pawn if White waited (`8/P1k5/8/8/8/8/8/K7 w`); it
+  promotes there at depths 1 to 4, before and after this change.
+- Evasion limit, depth 6. Node counts are deterministic; times are one
+  run each:
+
+  | Position | 0 | 2 | 4 | 8 | unbounded |
+  |---|---|---|---|---|---|
+  | starting | 198,907 | 90,710 | 89,236 | 89,869 | 89,983 |
+  | kiwipete | 454,798 | 468,666 | 498,924 | 578,117 | 662,528 |
+  | italian | 858,140 | 1,135,173 | 523,964 | 581,332 | 612,350 |
+  | position3 | 30,674 | 22,157 | 18,286 | 18,459 | 18,459 |
+  | position4 | 128,702 | 312,680 | 280,559 | 228,272 | 276,611 |
+  | middlegame | 3,785,964 | 2,613,404 | 2,816,370 | 3,274,354 | 3,409,184 |
+
+  - Unbounded evasions terminated everywhere. Against a limit of 4 they
+    cost 33% more nodes in Kiwipete, 21% in the middlegame and 17% in the
+    Italian game, and about the same elsewhere. No series of checks ran away on these
+    positions, but they are not built to provoke one, so the limit stays
+    as a safety net.
+  - Limits 0 and 2 change the move in the Italian position (`d1 e2` and
+    `d2 d3` instead of `b1 c3`) and cost more there, because the
+    truncated scores order moves worse.
+  - Limits 4, 8 and unbounded choose the same move everywhere. Scores
+    differ in three positions by 6 to 56 (kiwipete 102 against 75,
+    position4 -984 against -928, middlegame 54 against 48), so a limit
+    of 4 does cut some real lines short. It is the cheapest of the three
+    on five of the six positions, so it stays at 4.
+- Cost against the baseline at depth 6: the starting position and
+  position 3 need fewer nodes (89,236 against 424,006 and 18,286 against
+  30,704), since the steadier scores order moves better. The other four
+  need 1.9 to 2.7 times as many, and the time per node is higher too:
+  the quiet middlegame takes 2.8s instead of 0.5s for twice the nodes.
+  Quiescence nodes are 29 to 81% of the total. Two things should bring that down: the
+  dedicated capture generator in step 5, and the odd depths in step 6,
+  which now carry real results and can replace deeper even depths.
+- Full suite passes (223 tests, including QML), linter clean, no
+  warnings.
