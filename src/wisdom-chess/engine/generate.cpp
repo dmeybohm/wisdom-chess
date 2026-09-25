@@ -572,6 +572,23 @@ namespace wisdom
     }
 
 
+    auto
+    generateCaptures (const Board& board, Color who)
+        -> MoveList
+    {
+        MoveList result;
+
+        for (auto move : generateAllPotentialMoves (board, who))
+        {
+            bool is_queen_promotion = move.getPromotedPiece() == Piece::Queen;
+
+            if (is_queen_promotion || (move.isAnyCapturing() && !move.isPromoting()))
+                result.append (move);
+        }
+
+        return result;
+    }
+
     auto 
     generateLegalMoves (const Board& board, Color who) 
         -> MoveList

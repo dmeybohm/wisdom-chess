@@ -63,7 +63,7 @@ TEST_CASE( "generate en passant moves" )
     auto move_list = generateAllPotentialMoves (board, Color::White);
 
     INFO( move_list );
-    CHECK( containsMove (move_list, moveParse ("e5 f6 ep", Color::White)) );
+    CHECK( containsMove (move_list, moveParse ("e5f6 ep", Color::White)) );
 
     // Only the pawn that just moved two squares can be taken that way.
     CHECK( !containsMove (move_list, moveParse ("e5 d6 ep", Color::White)) );
@@ -173,6 +173,82 @@ TEST_CASE( "hasLegalMove" )
             INFO( fen_text );
             CHECK( hasLegalMove (board)
                    == !generateLegalMoves (board, who).isEmpty() );
+        }
+    }
+}
+
+TEST_CASE( "generateCaptures" )
+{
+    auto boardFromFen = [](const char* fen_text) {
+        FenParser fen { fen_text };
+        auto game = fen.build();
+        return Board { game.getBoard() };
+    };
+
+    SUBCASE( "The starting position has none" )
+    {
+        Board board;
+
+        CHECK( generateCaptures (board, Color::White).isEmpty() );
+        CHECK( generateCaptures (board, Color::Black).isEmpty() );
+    }
+
+    SUBCASE( "En passant is a capture" )
+    {
+        auto board = boardFromFen (
+            "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3"
+        );
+        auto captures = generateCaptures (board, Color::White);
+
+        CHECK( captures.size() == 1 );
+        CHECK( containsMove (captures, moveParse ("e5f6 ep", Color::White)) );
+    }
+
+    SUBCASE( "Only promotions to a queen are included" )
+    {
+        auto board = boardFromFen ("1n6/P7/8/8/8/8/8/k6K w - - 0 1");
+        auto captures = generateCaptures (board, Color::White);
+
+        CHECK( captures.size() == 2 );
+        CHECK( containsMove (captures, moveParse ("a7a8 (Q)", Color::White)) );
+        CHECK( containsMove (captures, moveParse ("a7xb8 (Q)", Color::White)) );
+    }
+
+    SUBCASE( "Matches the captures and queen promotions of all moves, in order" )
+    {
+        const char* fens[] = {
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+            "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",
+            "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
+            "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8",
+            "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10",
+            "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3",
+        };
+
+        for (auto fen_text : fens)
+        {
+            auto board = boardFromFen (fen_text);
+
+            for (auto who : { Color::White, Color::Black })
+            {
+                INFO( fen_text, " ", asString (who) );
+
+                std::vector<Move> expected;
+                for (auto move : generateAllPotentialMoves (board, who))
+                {
+                    if (move.isPromoting()
+                            ? move.getPromotedPiece() == Piece::Queen
+                            : move.isAnyCapturing())
+                    {
+                        expected.push_back (move);
+                    }
+                }
+
+                auto captures = generateCaptures (board, who);
+                std::vector<Move> actual { captures.begin(), captures.end() };
+
+                CHECK( actual == expected );
+            }
         }
     }
 }
