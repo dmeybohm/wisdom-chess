@@ -56,3 +56,32 @@ Out of scope: the context properties (`qml-singletons`) and putting the
 QML module into a library the tests could link, which would replace the
 tests' re-embedding of the module's resources. That is a larger build
 change and is noted in `qml-cleanups.md` as a possible follow-up.
+
+## Implementation Progress
+
+### Session #1
+
+Done as planned, with one addition.
+
+- `ui_types.hpp` ends with the four namespaces; `ui_types.cpp`,
+  `registerQmlTypes()` and its four call sites are gone. The generated
+  registration calls `qmlRegisterNamespaceAndRevisions` once per name
+  with `wisdom::ui`'s meta-object as the foreign one, which is the
+  hand-written registration expressed declaratively.
+- **Include path.** qmltyperegistrar includes the header as
+  `<ui_types.hpp>`, guarded by `__has_include`, so with `main/` off the
+  include path the generated file compiled to a registration of nothing
+  and the build then failed on the unknown namespace. The application
+  target and the UI test executables now have `main/` on their include
+  path, with a comment in each CMake file saying why.
+- The UI tests compile the generated file as planned; they needed no
+  other change beyond dropping `initTestCase()`.
+- `qmllint`: 105 unqualified before, 89 after (the plan's estimate of 31
+  enum accesses counted lines, not names). What is left: `topWindow` 43,
+  `_myGameModel` 39, `root` 6, `_myPiecesModel` 1; nothing else. The module's `qmltypes` lists `Color`,
+  `Player`, `PieceType` and `DrawByRepetitionStatus`.
+- `.qmllint.ini` now names only the context properties as the reason for
+  the info downgrade. `AGENTS.md` is unchanged: the comment above the
+  namespaces in `ui_types.hpp` says where the QML names come from.
+- Verified: full `ctest` passes; the QML UI tests pass under `Basic` and
+  `Fusion`; the C++ `lint` target is clean. Not run on CI.

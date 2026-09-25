@@ -34,8 +34,6 @@ int main (int argc, char *argv[])
     GameModel game_model;
     PiecesModel pieces_model;
 
-    wisdom::ui::registerQmlTypes();
-
     QObject::connect (&game_model, &GameModel::engineMoved, &pieces_model, &PiecesModel::playerMoved);
     QObject::connect (&game_model, &GameModel::humanMoved, &pieces_model, &PiecesModel::playerMoved);
     QObject::connect (&game_model, &GameModel::gameStarted, &pieces_model, &PiecesModel::newGame);

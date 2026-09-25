@@ -61,7 +61,6 @@ qt_add_executable(WisdomChessQml
         main/chess_game.cpp
         main/chess_engine.hpp
         main/chess_engine.cpp
-        main/ui_types.cpp
         main/ui_types.hpp
         main/ui_settings.hpp
         main/ui_settings.cpp
@@ -194,7 +193,9 @@ wisdom_chess_enable_warnings(WisdomChessQml)
 target_compile_definitions(WisdomChessQml
     PRIVATE MAIN_QML_FILE="${MAIN_QML_FILE}")
 
-target_include_directories(WisdomChessQml PRIVATE ../../..)
+# The generated QML type registration includes the module's headers by
+# their base names, so their directory is on the include path.
+target_include_directories(WisdomChessQml PRIVATE ../../.. main)
 
 include(GNUInstallDirs)
 
