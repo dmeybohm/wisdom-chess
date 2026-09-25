@@ -45,16 +45,11 @@ int main (int argc, char *argv[])
     auto main_qml_file = QStringLiteral ("qrc:/qt/qml/WisdomChess/") + QStringLiteral (MAIN_QML_FILE);
     const QUrl url { main_qml_file };
 
-    qDebug() << "Creating URL";
-
     engine.rootContext()->setContextProperty (QStringLiteral ("_myGameModel"), &game_model);
     engine.rootContext()->setContextProperty (QStringLiteral ("_myPiecesModel"), &pieces_model);
 
-    QObject::connect (&engine, &QQmlApplicationEngine::objectCreated,
-                      &app, [url](QObject *obj, const QUrl & obj_url) {
-        if (!obj && url == obj_url)
-            QCoreApplication::exit (-1);
-    }, Qt::QueuedConnection);
+    QObject::connect (&engine, &QQmlApplicationEngine::objectCreationFailed,
+                      &app, [] { QCoreApplication::exit (-1); }, Qt::QueuedConnection);
 
     engine.load (url);
 
