@@ -12,6 +12,10 @@ namespace wisdom
 {
     using SteadyClockTime = chrono::time_point<chrono::steady_clock>;
 
+    // Quiescence plies past which a side in check is scored instead of
+    // searching its evasions, so a series of checks cannot run on.
+    static constexpr int Max_Quiescence_Evasion_Ply = 4;
+
     class IterativeSearchImpl
     {
     public:
@@ -46,6 +50,12 @@ namespace wisdom
                 int alpha, int beta, int ply)
             -> int;
 
+        // Search captures until the position is quiet, and return the best score.
+        auto
+        quiesce (const Board& board, Color side, int alpha, int beta, int ply,
+                 int quiescence_ply)
+            -> int;
+
         // Get the best result the search found.
         [[nodiscard]] auto
         getBestResult() const
@@ -69,8 +79,10 @@ namespace wisdom
         int my_total_depth;
         int my_nodes_visited = 0;
         int my_alpha_beta_cutoffs = 0;
-        int my_total_nodes_visited = 0;
+        int64_t my_total_nodes_visited = 0;
         int my_total_alpha_beta_cutoffs = 0;
+        int64_t my_quiescence_nodes_visited = 0;
+        int64_t my_total_quiescence_nodes_visited = 0;
         Color my_searching_color = Color::None;
 
         // Counts the nodes that ended in a draw score. A node compares this
@@ -162,7 +174,7 @@ namespace wisdom
 
         if (depth <= 0)
         {
-            return evaluate (parent_board, side, ply);
+            return quiesce (parent_board, side, alpha, beta, ply, 0);
         }
 
         int original_alpha = alpha;
@@ -263,6 +275,94 @@ namespace wisdom
         return best_score;
     }
 
+    auto
+    IterativeSearchImpl::quiesce ( // NOLINT(misc-no-recursion)
+        const Board& board,
+        Color side,
+        int alpha,
+        int beta,
+        int ply,
+        int quiescence_ply
+    )
+        -> int
+    {
+        // The main search has already checked the first node for a draw.
+        if (quiescence_ply > 0 && isProbablyDrawingMove (board, my_history))
+        {
+            my_draw_nodes++;
+            return drawingScore (my_searching_color, side);
+        }
+
+        bool in_check = isKingThreatened (board, side, board.getKingPosition (side));
+        int best_score = -Initial_Alpha;
+        MoveList moves;
+
+        if (in_check)
+        {
+            if (quiescence_ply >= Max_Quiescence_Evasion_Ply)
+            {
+                return hasLegalMove (board)
+                    ? evaluateWithoutMateTest (board, side)
+                    : evaluateWithoutLegalMoves (board, side, ply);
+            }
+
+            moves = generateAllPotentialMoves (board, side);
+        }
+        else
+        {
+            best_score = evaluateWithoutMateTest (board, side);
+            if (best_score >= beta)
+                return best_score;
+            if (best_score > alpha)
+                alpha = best_score;
+
+            moves = generateCaptures (board, side);
+        }
+
+        bool found_legal_move = false;
+
+        for (auto move : moves)
+        {
+            if (my_timer.isTriggered())
+            {
+                my_current_result.timed_out = true;
+                return -Initial_Alpha;
+            }
+
+            Board child_board = board.withMove (side, move);
+
+            if (!isLegalPositionAfterMove (child_board, side, move))
+                continue;
+
+            found_legal_move = true;
+            my_quiescence_nodes_visited++;
+
+            my_history.addTentativePosition (child_board);
+
+            int score = -1 * quiesce (child_board, colorInvert (side), -beta, -alpha,
+                                      ply + 1, quiescence_ply + 1);
+
+            my_history.removeLastTentativePosition();
+
+            if (my_current_result.timed_out)
+                return -Initial_Alpha;
+
+            if (score > best_score)
+                best_score = score;
+
+            if (best_score > alpha)
+                alpha = best_score;
+
+            if (alpha >= beta)
+                break;
+        }
+
+        if (in_check && !found_legal_move)
+            best_score = evaluateWithoutLegalMoves (board, side, ply);
+
+        return best_score;
+    }
+
     static void
     logSearchTime (
         const Logger& output, 
@@ -301,11 +401,8 @@ namespace wisdom
                 if (my_current_result.timed_out)
                     break;
 
-                // Update, but only do so if we saw opponent's reply
-                // (limited version of quiescence)
                 auto next_result = getBestResult();
-                if (next_result.move.has_value() &&
-                    (!best_result.move.has_value() || depth % 2 == 0))
+                if (next_result.move.has_value())
                 {
                     best_result = next_result;
                     if (isCheckmatingOpponentScore (next_result.score))
@@ -313,6 +410,8 @@ namespace wisdom
                 }
             }
 
+            best_result.nodes = my_total_nodes_visited + my_total_quiescence_nodes_visited;
+            best_result.quiescence_nodes = my_total_quiescence_nodes_visited;
             return best_result;
         }
         catch (const Error& e)
@@ -341,6 +440,7 @@ namespace wisdom
 
         my_nodes_visited = 0;
         my_alpha_beta_cutoffs = 0;
+        my_quiescence_nodes_visited = 0;
 
         auto tt_stats_start = my_transposition_table.getStats();
         auto start = std::chrono::steady_clock::now();
@@ -356,10 +456,12 @@ namespace wisdom
 
         my_total_nodes_visited += my_nodes_visited;
         my_total_alpha_beta_cutoffs += my_alpha_beta_cutoffs;
+        my_total_quiescence_nodes_visited += my_quiescence_nodes_visited;
 
         {
             std::stringstream progress_str;
             progress_str << "nodes visited = " << my_nodes_visited
+                         << ", quiescence nodes = " << my_quiescence_nodes_visited
                          << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs << "\n";
             auto tt_stats_end = my_transposition_table.getStats();
             auto hit_rate = computeHitRate (tt_stats_start, tt_stats_end);

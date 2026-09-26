@@ -73,6 +73,9 @@ namespace wisdom
         const Color who;
         optional<Move> priority_move;
 
+        // Generate only captures and promotions to a queen.
+        bool captures_only = false;
+
         void generate (ColoredPiece piece, Coord coord);
 
         [[nodiscard]] auto 
@@ -170,6 +173,12 @@ namespace wisdom
         if (pieceColor (src_piece) == pieceColor (dst_piece))
             return;
 
+        if (captures_only && pieceType (dst_piece) == Piece::None
+            && !move.isEnPassant() && !move.isPromoting())
+        {
+            return;
+        }
+
         auto transformed_move = transformMove (dst_piece, move);
         moves.append (transformed_move);
     }
@@ -189,6 +198,9 @@ namespace wisdom
                 appendMove (Move::make (piece_row, piece_col, row, col));
             }
         }
+
+        if (captures_only)
+            return;
 
         if (board.ableToCastle (who, CastlingRights::Queenside) && 
             piece_col == King_Column)
@@ -371,6 +383,9 @@ namespace wisdom
         {
             for (auto promotable_piece_type : All_Promotable_Piece_Types)
             {
+                if (captures_only && promotable_piece_type != Piece::Queen)
+                    continue;
+
                 // promotion moves dont include en passant
                 for (auto& optional_move : all_pawn_moves)
                 {
@@ -538,12 +553,19 @@ namespace wisdom
             return promotingOrCoordCompare (a, b);
     }
 
-    auto
-    generateAllPotentialMoves (const Board& board, Color who, optional<Move> priority_move)
+    static auto
+    generateSortedMoves (
+        const Board& board,
+        Color who,
+        optional<Move> priority_move,
+        bool captures_only
+    )
         -> MoveList
     {
         MoveList result;
-        MoveGeneration generation { board, result, 0, 0, who, priority_move };
+        MoveGeneration generation {
+            board, result, 0, 0, who, priority_move, captures_only
+        };
 
         for (auto coord : Board::allCoords())
         {
@@ -565,12 +587,26 @@ namespace wisdom
     }
 
     auto
+    generateAllPotentialMoves (const Board& board, Color who, optional<Move> priority_move)
+        -> MoveList
+    {
+        return generateSortedMoves (board, who, priority_move, false);
+    }
+
+    auto
     generateAllPotentialMoves (const Board& board, Color who)
         -> MoveList
     {
         return generateAllPotentialMoves (board, who, nullopt);
     }
 
+
+    auto
+    generateCaptures (const Board& board, Color who)
+        -> MoveList
+    {
+        return generateSortedMoves (board, who, nullopt, true);
+    }
 
     auto 
     generateLegalMoves (const Board& board, Color who) 

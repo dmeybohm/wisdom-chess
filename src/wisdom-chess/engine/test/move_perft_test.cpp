@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 
 #include "wisdom-chess/engine/piece.hpp"
@@ -232,4 +233,120 @@ TEST_CASE( "Perft: Position 6" )
     };
 
     doCheckNodes (board, expectations, Color::White);
+}
+
+namespace
+{
+    struct CaptureCheck
+    {
+        int64_t positions = 0;
+        int64_t mismatches = 0;
+        int64_t en_passants = 0;
+        int64_t promotions = 0;
+        std::string first_mismatch;
+    };
+
+    auto
+    sortedByValue (const wisdom::MoveList& list)
+        -> vector<wisdom::Move>
+    {
+        vector<wisdom::Move> result { list.begin(), list.end() };
+        std::sort (
+            result.begin(),
+            result.end(),
+            [] (wisdom::Move a, wisdom::Move b) { return a.toInt() < b.toInt(); }
+        );
+        return result;
+    }
+
+    // Compare generateCaptures() with the full move list at every node of the
+    // perft tree, down to the given depth.
+    void checkCapturesAtEveryNode ( // NOLINT(misc-no-recursion)
+        const Board& board,
+        Color side,
+        int depth,
+        CaptureCheck& check
+    )
+    {
+        auto all_moves = wisdom::generateAllPotentialMoves (board, side);
+        auto captures = wisdom::generateCaptures (board, side);
+
+        wisdom::MoveList expected;
+        for (auto move : all_moves)
+        {
+            if (move.isPromoting()
+                    ? move.getPromotedPiece() == wisdom::Piece::Queen
+                    : move.isAnyCapturing())
+            {
+                expected.append (move);
+            }
+        }
+
+        check.positions++;
+        if (sortedByValue (captures) != sortedByValue (expected))
+        {
+            if (check.mismatches == 0)
+                check.first_mismatch = board.toFenString (side);
+            check.mismatches++;
+        }
+
+        for (auto move : captures)
+        {
+            if (move.isEnPassant())
+                check.en_passants++;
+            if (move.isPromoting())
+                check.promotions++;
+        }
+
+        if (depth == 0)
+            return;
+
+        for (auto move : all_moves)
+        {
+            Board child = board.withMove (side, move);
+
+            if (wisdom::isLegalPositionAfterMove (child, side, move))
+                checkCapturesAtEveryNode (child, wisdom::colorInvert (side), depth - 1, check);
+        }
+    }
+}
+
+TEST_CASE( "Perft: generateCaptures agrees with the full move list at every node" )
+{
+    struct Position
+    {
+        const char* fen;
+        int depth;
+    };
+
+    const Position positions[] = {
+        { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 3 },
+        { "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", 4 },
+        { "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1", 3 },
+        { "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8", 3 },
+        { "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 3 },
+    };
+
+    CaptureCheck total;
+
+    for (const auto& position : positions)
+    {
+        FenParser parser { position.fen };
+        auto board = parser.buildBoard();
+
+        CaptureCheck check;
+        checkCapturesAtEveryNode (board, board.getCurrentTurn(), position.depth, check);
+
+        INFO( position.fen );
+        INFO( "first mismatch: ", check.first_mismatch );
+        CHECK( check.mismatches == 0 );
+
+        total.positions += check.positions;
+        total.en_passants += check.en_passants;
+        total.promotions += check.promotions;
+    }
+
+    INFO( "positions checked: ", total.positions );
+    CHECK( total.en_passants > 0 );
+    CHECK( total.promotions > 0 );
 }

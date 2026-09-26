@@ -48,8 +48,11 @@ if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS)
         INPUT "position startpos moves f2f3 e7e5 g2g4 d8h4" "go depth 2" "stop" "quit"
         EXPECTED "bestmove \\(none\\)")
 
+    # The black king would win the pawn if White waited, so White promotes
+    # now. With the king out of reach a shallow search may wait, since
+    # quiescence still sees the promotion.
     wisdom_chess_add_cli_test("UCI: a promotion is written in lower case" wisdom-chess-uci
-        INPUT "position fen 8/P6k/8/8/8/8/8/K7 w - - 0 1" "go depth 2" "stop" "quit"
+        INPUT "position fen 8/P1k5/8/8/8/8/8/K7 w - - 0 1" "go depth 2" "stop" "quit"
         EXPECTED "bestmove a7a8q")
 
     # Promoting to a rook is checkmate here. Promoting to a knight leaves

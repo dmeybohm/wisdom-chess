@@ -116,6 +116,12 @@ namespace wisdom
     evaluate (const Board& board, Color who, int moves_away) 
         -> int;
 
+    // Evaluate the board without testing whether the side to move is
+    // checkmated, for callers that already know it is not.
+    [[nodiscard]] auto
+    evaluateWithoutMateTest (const Board& board, Color who)
+        -> int;
+
     // When there are no legal moves present, return the score of this move, which
     // checks for either a stalemate or checkmate position.
     [[nodiscard]] auto 
