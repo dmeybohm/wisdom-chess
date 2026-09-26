@@ -7,6 +7,7 @@ import {
     WisdomChess,
     PieceColor
 } from "./lib/WisdomChess";
+import { hasFinePointer } from "./lib/Pointer";
 
 interface SquareProps {
     position: string
@@ -54,6 +55,9 @@ export function PieceOverlay(props: PieceOverlayProps) {
         type: 'piece',
         item: { src: props.piece.position },
         canDrag: () => {
+            if (!hasFinePointer()) {
+                return false
+            }
             const game = getCurrentGame()
             return props.piece.color === props.currentTurn &&
                 game.getPlayerOfColor(props.piece.color) === wisdomChess.Human
