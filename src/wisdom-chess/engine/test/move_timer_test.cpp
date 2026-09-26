@@ -6,9 +6,8 @@ using namespace wisdom;
 
 namespace
 {
-    // The timer looks at the clock once in so many calls, and never less
-    // often than this, so twice that many calls must include a look.
-    constexpr int Enough_Calls = Max_Iterations_Before_Checking * 2;
+    // Enough calls for the timer to look at the clock several times.
+    constexpr int Enough_Calls = Calls_Between_Clock_Checks * 4;
 
     auto
     callsUntilTriggered (MoveTimer& timer)
@@ -72,8 +71,7 @@ TEST_CASE( "MoveTimer" )
         auto calls = callsUntilTriggered (timer);
 
         REQUIRE( calls.has_value() );
-        CHECK( *calls >= Min_Iterations_Before_Checking );
-        CHECK( *calls <= Max_Iterations_Before_Checking );
+        CHECK( *calls == Calls_Between_Clock_Checks );
         CHECK( !timer.isCancelled() );
     }
 
@@ -137,8 +135,7 @@ TEST_CASE( "MoveTimer periodic function" )
         timer.start();
 
         CHECK( !callsUntilTriggered (timer).has_value() );
-        CHECK( periodic_calls >= Enough_Calls / Max_Iterations_Before_Checking );
-        CHECK( periodic_calls <= Enough_Calls / Min_Iterations_Before_Checking );
+        CHECK( periodic_calls == Enough_Calls / Calls_Between_Clock_Checks );
         CHECK( seen_timer == &timer );
     }
 
@@ -195,38 +192,4 @@ TEST_CASE( "MoveTimer periodic function" )
         CHECK( periodic_calls == 1 );
         CHECK( !timer.isCancelled() );
     }
-}
-
-TEST_CASE( "TimingAdjustment" )
-{
-    auto original = TimingAdjustment::create().getIterations();
-
-    SUBCASE( "It starts within the bounds" )
-    {
-        CHECK( original >= Min_Iterations_Before_Checking );
-        CHECK( original <= Max_Iterations_Before_Checking );
-    }
-
-    SUBCASE( "A new timer starts from the last saved value" )
-    {
-        auto adjustment = TimingAdjustment::create();
-        adjustment.setIterations (Min_Iterations_Before_Checking + 123);
-
-        CHECK( adjustment.getIterations() == Min_Iterations_Before_Checking + 123 );
-        CHECK( TimingAdjustment::create().getIterations()
-               == Min_Iterations_Before_Checking + 123 );
-    }
-
-    SUBCASE( "A saved value outside the bounds is clamped for the next timer" )
-    {
-        auto adjustment = TimingAdjustment::create();
-
-        adjustment.setIterations (1);
-        CHECK( TimingAdjustment::create().getIterations() == Min_Iterations_Before_Checking );
-
-        adjustment.setIterations (Max_Iterations_Before_Checking + 1);
-        CHECK( TimingAdjustment::create().getIterations() == Max_Iterations_Before_Checking );
-    }
-
-    TimingAdjustment::create().setIterations (original);
 }

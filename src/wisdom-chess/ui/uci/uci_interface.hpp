@@ -19,8 +19,15 @@ namespace wisdom
 
     struct UciSettings
     {
+        static constexpr int Default_Move_Overhead_Ms = 10;
+        static constexpr int Max_Move_Overhead_Ms = 5000;
+
         int hash_size_mb = TranspositionTable::Default_Size_In_Megabytes;
         int default_depth = Default_Max_Depth;
+
+        // Clock time kept back for everything outside the search: starting
+        // it, answering, and the delay before the GUI reads the answer.
+        int move_overhead_ms = Default_Move_Overhead_Ms;
     };
 
     class UciInterface

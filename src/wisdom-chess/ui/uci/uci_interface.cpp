@@ -384,11 +384,13 @@ namespace wisdom
                 increment = binc.value_or (0);
             }
 
-            // Never more than half of what is left, so a short clock
-            // cannot run out.
-            int time_for_move = (time_remaining / 30) + increment;
+            // Never more than half of what is left after the overhead, so a
+            // short clock cannot run out. A budget of zero would mean no
+            // limit, so the least is one millisecond.
+            int available = std::max (time_remaining - my_settings.move_overhead_ms, 0);
+            int time_for_move = (available / 30) + increment;
             time_for_move = std::max (time_for_move, 100);
-            time_for_move = std::min (time_for_move, time_remaining / 2);
+            time_for_move = std::min (time_for_move, available / 2);
             search_time = std::chrono::milliseconds { std::max (time_for_move, 1) };
         }
         else if (infinite)
@@ -476,6 +478,11 @@ namespace wisdom
         {
             my_settings.default_depth = std::clamp (*value, 1, 64);
         }
+        else if (option_name == "move overhead" && value.has_value())
+        {
+            my_settings.move_overhead_ms =
+                std::clamp (*value, 0, UciSettings::Max_Move_Overhead_Ms);
+        }
     }
 
     void UciInterface::handleStop()
@@ -510,6 +517,9 @@ namespace wisdom
         sendLine ("option name Hash type spin default 16 min 1 max 1024");
         sendLine ("option name Depth type spin default " + std::to_string (Default_Max_Depth)
                   + " min 1 max 64");
+        sendLine ("option name Move Overhead type spin default "
+                  + std::to_string (UciSettings::Default_Move_Overhead_Ms)
+                  + " min 0 max " + std::to_string (UciSettings::Max_Move_Overhead_Ms));
     }
 
     auto
