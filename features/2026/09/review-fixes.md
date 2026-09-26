@@ -610,3 +610,18 @@ Build, CI and docs:
 
 Left for later branches: the React draw answer (step 11 above); the
 `web::` namespace was not needed once the enums became enum classes.
+
+### Session #3
+
+The first PR CI run found two build issues with warnings treated as errors.
+AppleClang and sanitizer Clang reject two unused `this` captures in the
+console command visitor; both lambdas call the static `printHelp()`, so the
+captures were removed. MSVC reports C4702 from Qt 6.9 headers while
+compiling generated `Board.qml` cache code, despite `/external:W0`. The
+QML executable now suppresses that warning on MSVC while retaining `/W4`
+and `/WX` for other warnings.
+
+The local Release build with `WISDOM_CHESS_WERROR=On` passes, as do all
+243 CTest cases and the style linter. The console target also builds
+with Clang 18 and `WISDOM_CHESS_WERROR=On`. MSVC verification requires
+the PR's Windows CI job.

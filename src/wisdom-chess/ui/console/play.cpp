@@ -554,8 +554,8 @@ namespace wisdom::ui::console
             std::visit (
                 Overloaded {
                     [] (const PlayCommand::None&) {},
-                    [this] (const PlayCommand::Help&) { printHelp(); },
-                    [this] (const PlayCommand::ShowError& error)
+                    [] (const PlayCommand::Help&) { printHelp(); },
+                    [] (const PlayCommand::ShowError& error)
                     {
                         std::cout << "Error: \n" << error.message << "\n\n";
                         printHelp();
