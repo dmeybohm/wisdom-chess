@@ -464,7 +464,7 @@ namespace wisdom::ui::console
             {
                 optional<int> max_depth = readInt ("Max depth");
 
-                if (max_depth.has_value() && *max_depth >= 0)
+                if (max_depth.has_value() && *max_depth > 0)
                     return PlayCommand::SetMaxDepth { *max_depth };
                 else
                     return PlayCommand::ShowError { "Invalid search depth." };
@@ -473,7 +473,7 @@ namespace wisdom::ui::console
             {
                 optional<int> search_timeout = readInt ("Search Timeout");
 
-                if (search_timeout.has_value() && *search_timeout >= 0)
+                if (search_timeout.has_value() && *search_timeout > 0)
                     return PlayCommand::SetSearchTimeout { chrono::seconds { *search_timeout } };
                 else
                     return PlayCommand::ShowError { "Invalid search timeout." };

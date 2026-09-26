@@ -132,6 +132,16 @@ namespace wisdom
             my_move_history.push_back (move);
         }
 
+        // Replace the position most recently added, which is the current
+        // one, with a board that stands in its place, such as the same
+        // board with the other side to move.
+        void replaceLastPosition (const Board& board)
+        {
+            expects (my_tentative_nesting_count == 0);
+            my_stored_boards.back() = board;
+            my_board_codes.back() = board.getBoardCode();
+        }
+
         void removeLastPosition()
         {
             expects (my_tentative_nesting_count == 0);

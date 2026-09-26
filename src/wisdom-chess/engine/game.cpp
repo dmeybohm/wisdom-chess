@@ -281,7 +281,9 @@ namespace wisdom
 
     void Game::setCurrentTurn (Color new_turn)
     {
+        expects (isColorValid (new_turn));
         my_pimpl->my_current_board = my_pimpl->my_current_board.withCurrentTurn (new_turn);
+        my_pimpl->my_history.replaceLastPosition (my_pimpl->my_current_board);
     }
 
     auto Game::getBoard() const& -> const Board&
@@ -296,6 +298,7 @@ namespace wisdom
 
     auto Game::computerWantsDraw (Color who) const -> bool
     {
+        expects (isColorValid (who));
         int score = evaluate (my_pimpl->my_current_board, who, 1);
         return score <= Min_Draw_Score;
     }
@@ -327,6 +330,7 @@ namespace wisdom
 
     void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who, DrawStatus draw_status)
     {
+        expects (isColorValid (who));
         switch (draw_type)
         {
             case ProposedDrawType::ThreeFoldRepetition:
@@ -379,6 +383,7 @@ namespace wisdom
 
     auto Game::getPlayer (Color color) const -> Player
     {
+        expects (isColorValid (color));
         return my_pimpl->my_players[colorIndex (color)];
     }
 
@@ -399,6 +404,7 @@ namespace wisdom
 
     void Game::setMaxDepth (int max_depth)
     {
+        expects (max_depth > 0);
         my_pimpl->my_max_depth = max_depth;
     }
 
@@ -409,6 +415,7 @@ namespace wisdom
 
     void Game::setSearchTimeout (std::chrono::milliseconds timeout)
     {
+        expects (timeout > std::chrono::milliseconds::zero());
         my_pimpl->my_move_timer.setTimeLimit (timeout);
     }
 
