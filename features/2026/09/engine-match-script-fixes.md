@@ -157,3 +157,17 @@ Found while testing the first fix:
 - The unit tests gave every game a round of its own for this; four new
   tests cover all losses, wins and draws without losses, unfinished games,
   and a replayed game. 15 tests pass.
+
+### Session #3
+
+- Review comment on PR #272: games without a Round tag were merged. The
+  replay key was `(Round, White, Black)`, so with no Round tag every game
+  between the same two engines, in the same colours, shared a key. A win
+  and a loss tallied as one loss, with a note that a game had been
+  replayed. Reproduced before fixing.
+- Only a numeric Round tag, which fastchess always writes, now takes part
+  in de-duplication. A game with no Round tag, or with the PGN standard's
+  `?` or `-` for an unknown round, is always counted. The same win and
+  loss now tally as 1 / 0 / 1 with no note. A new test covers a missing
+  tag, `?` and `-`; 16 tests pass, and the two earlier matches tally as
+  before.

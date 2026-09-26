@@ -11,11 +11,13 @@ TALLY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "engine-m
 
 
 def game(white, black, result, termination="normal", round_number=None):
-    # Unless a test says otherwise, every game gets a round of its own.
+    # Unless a test says otherwise, every game gets a round of its own. A
+    # round of "" leaves the tag out.
     game.rounds += 1
     number = game.rounds if round_number is None else round_number
+    round_line = f'[Round "{number}"]\n' if number != "" else ""
     return (
-        f'[Event "?"]\n[Round "{number}"]\n[White "{white}"]\n[Black "{black}"]\n'
+        f'[Event "?"]\n{round_line}[White "{white}"]\n[Black "{black}"]\n'
         f'[Result "{result}"]\n[Termination "{termination}"]\n\n1. e4 e5 {result}\n\n'
     )
 
@@ -123,6 +125,17 @@ class TallyTest(unittest.TestCase):
         output = self.tally(games, "base", "new").stdout
         self.assertIn("1 / 0 / 1", output)
         self.assertIn("1 game(s) were replayed after a resume", output)
+
+    def test_games_without_a_numeric_round_are_all_counted(self):
+        for round_number in ("", "?", "-"):
+            with self.subTest(round_number=round_number):
+                games = [
+                    game("new", "base", "1-0", round_number=round_number),
+                    game("new", "base", "0-1", round_number=round_number),
+                ]
+                output = self.tally(games, "base", "new").stdout
+                self.assertIn("1 / 0 / 1", output)
+                self.assertNotIn("replayed", output)
 
     def test_one_name_prints_the_usage(self):
         result = self.tally([game("new", "base", "1-0")], "base")

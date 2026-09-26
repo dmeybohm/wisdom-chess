@@ -17,7 +17,9 @@ playing strength.
 
 A resumed match replays the rounds that were unfinished when it was
 interrupted, so the PGN can hold a game twice. A round and its two colours
-name one game, and only the last game played for each is counted.
+name one game, and only the last game played for each is counted. Games
+without a numeric Round tag, which fastchess always writes, are all
+counted.
 """
 
 import math
@@ -85,9 +87,14 @@ def main():
     finished = set()
 
     games = {}
-    for game in re.split(r"\n(?=\[Event )", text):
+    for index, game in enumerate(re.split(r"\n(?=\[Event )", text)):
         tags = dict(re.findall(r'\[(\w+) "([^"]*)"\]', game))
-        games[(tags.get("Round"), tags.get("White"), tags.get("Black"))] = (tags, game)
+        round_tag = tags.get("Round", "")
+        if re.fullmatch(r"\d+(\.\d+)*", round_tag):
+            key = (round_tag, tags.get("White"), tags.get("Black"))
+        else:
+            key = index
+        games[key] = (tags, game)
     replayed = text.count("[Event ") - len(games)
 
     for tags, game in games.values():
