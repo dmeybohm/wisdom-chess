@@ -130,9 +130,15 @@ namespace wisdom
     // Default max time spent searching.
     inline constexpr int Default_Max_Search_Seconds = 2;
 
-    // Minimum amount behind the computer must feel in order to
-    // accept a draw offer.
+    // The computer accepts a draw offer only when its evaluation is at or
+    // below this score, in pawns times the material scale.
     inline constexpr int Min_Draw_Score = -500;
+
+    // What the search scores a draw it could claim on its own move, by
+    // repetition or the fifty-move rule. Negative, so the engine plays on
+    // unless it is this far behind. Independent of Min_Draw_Score, which
+    // governs draw offers rather than search.
+    inline constexpr int Search_Draw_Contempt = -500;
 
     template <typename T>
     [[nodiscard]] constexpr auto

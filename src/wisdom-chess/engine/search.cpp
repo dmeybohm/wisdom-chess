@@ -146,13 +146,10 @@ namespace wisdom
     drawingScore (Color searching_color, Color current_color)
         -> int
     {
-        //
-        // For the player looking for a move (the chess engine), a draw is considered
-        // less preferable because it is more boring.
-        //
-        // When considering its opponent has a draw, consider it neutral.
-        //
-        return current_color == searching_color ? Min_Draw_Score : 0;
+        // The engine would rather play on than claim a draw, so a draw on
+        // its own move counts against it; a draw its opponent could claim
+        // is neutral.
+        return current_color == searching_color ? Search_Draw_Contempt : 0;
     }
 
     auto
