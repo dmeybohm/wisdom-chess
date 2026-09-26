@@ -366,7 +366,7 @@ namespace wisdom
     static void
     logSearchTime (
         const Logger& output, 
-        int nodes, 
+        int64_t nodes,
         SteadyClockTime start, 
         SteadyClockTime end
     ) {
@@ -452,7 +452,12 @@ namespace wisdom
 
         auto result = getBestResult();
 
-        logSearchTime (*my_output, my_nodes_visited, start, end);
+        logSearchTime (
+            *my_output,
+            my_nodes_visited + my_quiescence_nodes_visited,
+            start,
+            end
+        );
 
         my_total_nodes_visited += my_nodes_visited;
         my_total_alpha_beta_cutoffs += my_alpha_beta_cutoffs;
