@@ -189,7 +189,7 @@ namespace wisdom
     void UciInterface::run()
     {
         string line;
-        while (std::getline (std::cin, line))
+        while (!my_quit_requested && std::getline (std::cin, line))
         {
             processCommand (line);
         }
@@ -274,66 +274,48 @@ namespace wisdom
         waitForSearchThread();
         std::lock_guard<std::mutex> lock { my_game_mutex };
 
-        bool applied = false;
+        Game new_game = Game::createStandardGame();
+        auto moves_it = std::find (tokens.begin(), tokens.end(), "moves");
 
         if (tokens[1] == "startpos")
         {
-            my_game = Game::createStandardGame();
-
-            auto moves_it = std::find (tokens.begin(), tokens.end(), "moves");
-            if (moves_it != tokens.end())
-            {
-                for (auto it = moves_it + 1; it != tokens.end(); ++it)
-                {
-                    auto move = parseUciMove (*it);
-                    if (move)
-                    {
-                        my_game.move (*move);
-                    }
-                }
-            }
-
-            applied = true;
+            // Already the standard game.
         }
-        else if (tokens[1] == "fen" && tokens.size() >= 8)
+        else if (tokens[1] == "fen")
         {
-            string fen_string;
-            for (size_t i = 2; i < 8 && i < tokens.size(); ++i)
+            // The FEN's fields run up to "moves" or the end of the line. The
+            // two clocks may be left off, as some GUIs do.
+            vector<string> fields { tokens.begin() + 2, moves_it };
+            if (fields.size() < 4 || fields.size() > 6)
             {
-                if (i > 2)
-                    fen_string += " ";
-                fen_string += tokens[i];
-            }
-
-            try
-            {
-                my_game = Game::createGameFromFen (fen_string);
-            }
-            catch (...)
-            {
-                if (my_debug_mode)
-                    sendLine ("info string Invalid FEN: " + fen_string);
+                sendLine ("info string Invalid FEN: expected 4 to 6 fields");
                 return;
             }
+            if (fields.size() == 4)
+                fields.emplace_back ("0");
+            if (fields.size() == 5)
+                fields.emplace_back ("1");
 
-            auto moves_it = std::find (tokens.begin(), tokens.end(), "moves");
-            if (moves_it != tokens.end())
+            string fen_string = join (fields, " ");
+            try
             {
-                for (auto it = moves_it + 1; it != tokens.end(); ++it)
-                {
-                    auto move = parseUciMove (*it);
-                    if (move)
-                    {
-                        my_game.move (*move);
-                    }
-                }
+                new_game = Game::createGameFromFen (fen_string);
             }
-
-            applied = true;
+            catch (const Error& e)
+            {
+                sendLine ("info string Invalid FEN: " + fen_string + " (" + e.message() + ")");
+                return;
+            }
+        }
+        else
+        {
+            return;
         }
 
-        if (!applied)
+        if (moves_it != tokens.end() && !applyMoves (new_game, moves_it + 1, tokens.end()))
             return;
+
+        my_game = std::move (new_game);
 
         if (!continuesPosition (my_position_tokens, tokens))
             my_transposition_table.clear();
@@ -493,7 +475,7 @@ namespace wisdom
     void UciInterface::handleQuit()
     {
         waitForSearchThread();
-        std::exit (0);
+        my_quit_requested = true;
     }
 
     auto
@@ -523,7 +505,36 @@ namespace wisdom
     }
 
     auto
-    UciInterface::parseUciMove (const string& uci_move)
+    UciInterface::applyMoves (
+        Game& game,
+        vector<string>::const_iterator first,
+        vector<string>::const_iterator last
+    ) -> bool
+    {
+        for (auto it = first; it != last; ++it)
+        {
+            auto move = parseUciMove (game, *it);
+            if (!move.has_value())
+            {
+                sendLine ("info string Unparseable move in position: " + *it);
+                return false;
+            }
+
+            auto legal_moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
+            if (std::find (legal_moves.begin(), legal_moves.end(), *move) == legal_moves.end())
+            {
+                sendLine ("info string Illegal move in position: " + *it);
+                return false;
+            }
+
+            game.move (*move);
+        }
+
+        return true;
+    }
+
+    auto
+    UciInterface::parseUciMove (const Game& game, const string& uci_move)
         -> optional<Move>
     {
         if (uci_move.length() < 4)
@@ -549,8 +560,8 @@ namespace wisdom
             }
 
             return mapCoordinatesToMove (
-                my_game.getBoard(),
-                my_game.getCurrentTurn(),
+                game.getBoard(),
+                game.getCurrentTurn(),
                 src_coord,
                 dst_coord,
                 promoted_piece
@@ -581,7 +592,7 @@ namespace wisdom
 
     void UciInterface::sendBestMove (const optional<Move>& move)
     {
-        sendLine ("bestmove " + (move ? moveToUci (*move) : string { "(none)" }));
+        sendLine ("bestmove " + (move ? moveToUci (*move) : string { "0000" }));
     }
 
     auto
