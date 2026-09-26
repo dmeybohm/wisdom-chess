@@ -734,17 +734,15 @@ namespace wisdom::ui::qml
         expects (optional_color.has_value());
         auto who = *optional_color;
         auto opponent_color = colorInvert (who);
-
         bool accepted = (status == DrawStatus::Accepted);
-        game_state->setProposedDrawStatus (draw_type, who, accepted);
+
+        // The base records the answer for every human player; the engine
+        // thread then hears about each of them.
+        GameViewModelBase::setProposedDrawStatus (draw_type, status);
+
         emit updateDrawStatus (draw_type, who, accepted);
         if (game_state->getPlayer (opponent_color) == Player::Human)
-        {
-            game_state->setProposedDrawStatus (draw_type, opponent_color, accepted);
             emit updateDrawStatus (draw_type, opponent_color, accepted);
-        }
-
-        updateDisplayedGameState();
     }
 
     void

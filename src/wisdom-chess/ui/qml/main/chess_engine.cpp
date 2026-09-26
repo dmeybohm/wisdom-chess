@@ -6,8 +6,10 @@
 #include "wisdom-chess/engine/logger.hpp"
 
 #include "wisdom-chess/ui/qml/main/chess_engine.hpp"
+#include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
 
 using namespace wisdom;
+namespace ui = wisdom::ui;
 using gsl::not_null;
 using std::optional;
 using std::shared_ptr;
@@ -109,8 +111,7 @@ namespace wisdom::ui::qml
         -> wisdom::GameStatus
     {
         QmlEngineGameStatusUpdate status_manager { this };
-        status_manager.update (my_game->state()->status());
-        return my_game->state()->status();
+        return ui::transitionGameStatus (status_manager, *my_game->state());
     }
 
     void ChessEngine::findMove()
@@ -160,37 +161,31 @@ namespace wisdom::ui::qml
         wisdom::Color who
     ) {
         auto game_state = my_game->state();
+        bool any_accepted = false;
 
-        auto acceptDraw = game_state->computerWantsDraw (who);
-        game_state->setProposedDrawStatus (proposedDrawType, who, acceptDraw);
-
-        emit updateDrawStatus (proposedDrawType, who, acceptDraw);
-        if (acceptDraw)
-        {
-            my_is_game_over = true;
-            emit noMovesAvailable();
-        }
-
-        auto opponent = colorInvert (who);
-        auto opponentPlayer = game_state->getPlayer (opponent);
-        if (opponentPlayer == Player::ChessEngine)
-        {
-            auto opponentAcceptsDraw = game_state->computerWantsDraw (opponent);
-            game_state->setProposedDrawStatus (proposedDrawType, opponent, opponentAcceptsDraw);
-            emit updateDrawStatus (proposedDrawType, opponent, opponentAcceptsDraw);
-            if (opponentAcceptsDraw)
+        ui::negotiateDraw (
+            game_state,
+            proposedDrawType,
+            who,
+            [this, proposedDrawType, &any_accepted] (Color player, bool accepted)
             {
-                my_is_game_over = true;
-                emit noMovesAvailable();
-            }
-            else
-            {
-                // if the computer is playing itself, resume searching:
-                if (gameStatusTransition() == GameStatus::Playing)
+                emit updateDrawStatus (proposedDrawType, player, accepted);
+                if (accepted)
                 {
-                    findMove();
+                    any_accepted = true;
+                    my_is_game_over = true;
+                    emit noMovesAvailable();
                 }
             }
+        );
+
+        // When the computer is playing itself and both sides declined,
+        // resume searching:
+        auto opponent = colorInvert (who);
+        if (!any_accepted && game_state->getPlayer (opponent) == Player::ChessEngine
+            && gameStatusTransition() == GameStatus::Playing)
+        {
+            findMove();
         }
     }
 

@@ -43,6 +43,7 @@ endfunction()
 
 wisdom_chess_add_qml_test("QML: PiecesModel" pieces_model_test.cpp)
 wisdom_chess_add_qml_test("QML: ChessGame" chess_game_test.cpp)
+wisdom_chess_add_qml_test("QML: ChessEngine" chess_engine_test.cpp)
 wisdom_chess_add_qml_test("QML: settings and types" settings_test.cpp)
 
 # The UI tests load the real QML. The files live in the application
