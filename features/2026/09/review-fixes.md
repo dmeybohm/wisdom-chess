@@ -666,3 +666,11 @@ horizon-stalemate search test and all 137 fast engine tests pass in
 Debug. The full Release CTest run took 24.05 seconds, versus 23.71
 seconds before this change; that is a suite measurement, not a search
 throughput benchmark.
+
+`isProbablyDrawingMove()` sounded like a predicate but returned a
+`DrawCategory`. Renamed the category-returning calculation to
+`probableDrawCategory()` and made `isProbablyDrawingMove()` a one-line
+boolean wrapper. Search uses the predicate; category tests keep checking
+the specific reason for a draw and also cover true and false predicate
+results. All 244 Release CTest cases, the Debug fast engine suite and
+horizon search test, and the lint target pass.

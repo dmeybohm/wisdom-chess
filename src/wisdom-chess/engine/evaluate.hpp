@@ -62,7 +62,7 @@ namespace wisdom
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
     [[nodiscard]] inline auto
-    isProbablyDrawingMove (const Board& board, const History& history)
+    probableDrawCategory (const Board& board, const History& history)
         -> DrawCategory
     {
         auto repetition_status = history.getThreefoldRepetitionStatus();
@@ -86,6 +86,13 @@ namespace wisdom
             return DrawCategory::InsufficientMaterial;
 
         return DrawCategory::NoDraw;
+    }
+
+    [[nodiscard]] inline auto
+    isProbablyDrawingMove (const Board& board, const History& history)
+        -> bool
+    {
+        return probableDrawCategory (board, history) != DrawCategory::NoDraw;
     }
 
     // Evaluate the board.
