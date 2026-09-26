@@ -29,6 +29,11 @@ namespace wisdom
     generateLegalMoves (const Board& board, Color who)
         -> MoveList;
 
+    // Generate only the legal en passant captures for the player to move.
+    [[nodiscard]] auto
+    generateLegalEnPassantMoves (const Board& board)
+        -> MoveList;
+
     // Whether the player to move has at least one legal move.
     [[nodiscard]] auto
     hasLegalMove (const Board& board)
