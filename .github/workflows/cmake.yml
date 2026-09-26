@@ -102,6 +102,7 @@ jobs:
         -DCPM_SOURCE_CACHE=~/cpm-cache
         -DWISDOM_CHESS_QML_UI=On
         -DWISDOM_CHESS_FAST_TESTS=On
+        -DWISDOM_CHESS_WERROR=On
         -DWISDOM_CHESS_SLOW_TESTS=On
         -S ${{ github.workspace }}
 
@@ -167,6 +168,7 @@ jobs:
         -DWISDOM_CHESS_QML_UI=On
         -DWISDOM_CHESS_BUILD_LINTER=Off
         -DWISDOM_CHESS_FAST_TESTS=On
+        -DWISDOM_CHESS_WERROR=On
         -DWISDOM_CHESS_SLOW_TESTS=On
         -S ${{ github.workspace }}
 
@@ -186,6 +188,7 @@ jobs:
         -DWISDOM_CHESS_QML_UI=On
         -DWISDOM_CHESS_BUILD_LINTER=Off
         -DWISDOM_CHESS_FAST_TESTS=On
+        -DWISDOM_CHESS_WERROR=On
         -DWISDOM_CHESS_SLOW_TESTS=Off
         -S ${{ github.workspace }}
 
@@ -270,6 +273,7 @@ jobs:
         -DWISDOM_CHESS_QML_UI=On
         -DWISDOM_CHESS_BUILD_LINTER=Off
         -DWISDOM_CHESS_FAST_TESTS=On
+        -DWISDOM_CHESS_WERROR=On
         -DWISDOM_CHESS_SLOW_TESTS=On
         -DWISDOM_CHESS_ASAN=On
         -S ${{ github.workspace }}

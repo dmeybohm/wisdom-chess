@@ -49,6 +49,10 @@ namespace wisdom
 
     inline constexpr int Total_Metadata_Bits = 16;
 
+    // The low Total_Metadata_Bits hold the turn, castling and en passant
+    // state; the Zobrist hash of the pieces occupies the bits above.
+    inline constexpr std::uint64_t Metadata_Mask = (std::uint64_t { 1 } << Total_Metadata_Bits) - 1;
+    inline constexpr std::uint64_t Piece_Hash_Mask = ~Metadata_Mask;
 
     [[nodiscard]] constexpr auto
     boardCodeHash (Coord coord, ColoredPiece piece)
@@ -218,7 +222,7 @@ namespace wisdom
         getMetadataBits() const noexcept
             -> std::uint16_t
         {
-            return narrow_cast<uint16_t> (my_code & 0xffff);
+            return narrow_cast<uint16_t> (my_code & Metadata_Mask);
         }
 
         [[nodiscard]] auto
@@ -252,21 +256,17 @@ namespace wisdom
 
         void applyMove (const Board& board, Move move) noexcept;
 
-        [[nodiscard]] auto
-        numberOfSetBits() const
-            -> std::size_t;
-
     private:
         // Private and only used for initialization.
         BoardCode();
 
         constexpr void setMetadataBits (uint16_t new_metadata) noexcept
         {
-            my_code = (my_code & 0xfffffffFFFF0000ULL) | new_metadata;
+            my_code = (my_code & Piece_Hash_Mask) | new_metadata;
         }
 
     private:
-        // 48-bits Zobrist hash + a few bits for the metadata.
+        // 48-bit Zobrist hash of the pieces above 16 bits of metadata.
         std::uint64_t my_code = 0;
     };
 }

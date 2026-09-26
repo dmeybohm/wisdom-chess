@@ -61,6 +61,8 @@ jobs:
 
       - name: Build React WASM
         run: scripts/build-react-wasm.sh build ${{ github.workspace }} RelWithDebInfo
+        env:
+          WISDOM_CHESS_WERROR: On
 
       - name: Install Front-end Dependencies
         working-directory: src/wisdom-chess/ui/react

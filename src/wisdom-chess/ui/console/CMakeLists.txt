@@ -58,6 +58,20 @@ if (WISDOM_CHESS_FAST_TESTS)
             "Max depth set to 4\\."
             "Timeout set to 3 seconds\\.")
 
+    wisdom_chess_add_cli_test("Console: zero is not a search depth or timeout" wisdom-chess-console
+        INPUT "human_black" "maxdepth" "0" "timeout" "0" "maxdepth" "-1" "quit"
+        EXPECTED
+            "Invalid search depth\\..*Invalid search timeout\\..*Invalid search depth\\."
+        FORBIDDEN "Max depth set to" "Timeout set to")
+
+    wisdom_chess_add_cli_test("Console: an empty answer to a draw offer asks again" wisdom-chess-console
+        INPUT "human_black"
+            "g1f3" "g8f6" "f3g1" "f6g8" "g1f3" "g8f6" "f3g1" "f6g8"
+            "" "maybe" "y" "quit"
+        EXPECTED
+            "Would you like a draw\\?.*Would you like a draw\\?.*Would you like a draw\\?"
+            "Draw - Threefold repetition rule\\.")
+
     wisdom_chess_add_cli_test("Console: a capital Y accepts a draw by repetition" wisdom-chess-console
         INPUT "human_black"
             "g1f3" "g8f6" "f3g1" "f6g8" "g1f3" "g8f6" "f3g1" "f6g8"
@@ -80,6 +94,11 @@ if (WISDOM_CHESS_FAST_TESTS)
             "Game saved to "
             "New game successfully loaded.*\\[g1 f3\\]"
         FORBIDDEN "\\[e2 e4\\]")
+
+    wisdom_chess_add_cli_test("Console: a save that cannot be written is reported" wisdom-chess-console
+        INPUT "human_black" "e2e4" "save" "${CMAKE_CURRENT_BINARY_DIR}/no-such-dir/game.txt" "quit"
+        EXPECTED "Error saving game: Cannot open .*no-such-dir/game.txt for writing\\."
+        FORBIDDEN "Game saved to")
 
     wisdom_chess_add_cli_test("Console: a missing saved game" wisdom-chess-console
         INPUT "human_black" "load" "${CMAKE_CURRENT_BINARY_DIR}/no-such-file.txt" "quit"

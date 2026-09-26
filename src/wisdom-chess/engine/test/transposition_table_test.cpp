@@ -241,16 +241,16 @@ TEST_CASE( "Transposition table" )
         BoardHashCode hash = 12345678ULL;
         tt.store (hash, 100, 5, BoundType::Exact, Move::make (0, 0, 1, 1), 0);
 
-        CHECK( tt.getProbeCount() == 0 );
-        CHECK( tt.getHitCount() == 0 );
+        CHECK( tt.getStats().probes == 0 );
+        CHECK( tt.getStats().hits == 0 );
 
         (void)tt.probe (hash, 5, -Initial_Alpha, Initial_Alpha, 0);
-        CHECK( tt.getProbeCount() == 1 );
-        CHECK( tt.getHitCount() == 1 );
+        CHECK( tt.getStats().probes == 1 );
+        CHECK( tt.getStats().hits == 1 );
 
         (void)tt.probe (hash, 10, -Initial_Alpha, Initial_Alpha, 0);
-        CHECK( tt.getProbeCount() == 2 );
-        CHECK( tt.getHitCount() == 1 );
+        CHECK( tt.getStats().probes == 2 );
+        CHECK( tt.getStats().hits == 1 );
     }
 }
 

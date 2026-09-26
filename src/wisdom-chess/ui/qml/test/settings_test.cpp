@@ -4,6 +4,8 @@
 #include "wisdom-chess/ui/qml/main/ui_settings.hpp"
 #include "wisdom-chess/ui/qml/main/ui_types.hpp"
 
+using namespace wisdom::ui::qml;
+
 namespace ui = wisdom::ui;
 
 namespace

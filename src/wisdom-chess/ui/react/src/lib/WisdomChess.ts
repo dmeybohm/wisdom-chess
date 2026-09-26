@@ -87,6 +87,24 @@ export function startNewGame(): Game {
     return getCurrentGame()
 }
 
+// The ranges the settings controls offer, from the engine's settings.
+export type SettingsLimits = {
+    minThinkingTime: number
+    maxThinkingTime: number
+    minSearchDepth: number
+    maxSearchDepth: number
+}
+
+export function getSettingsLimits(): SettingsLimits {
+    const model = getGameModel()
+    return {
+        minThinkingTime: model.getMinThinkingTime(),
+        maxThinkingTime: model.getMaxThinkingTime(),
+        minSearchDepth: model.getMinSearchDepth(),
+        maxSearchDepth: model.getMaxSearchDepth(),
+    }
+}
+
 // Copies the settings out of the C++ object and frees it.
 export function getCurrentGameSettings(): WebGameSettings {
     const wasmSettings = getGameModel().getCurrentGameSettings()

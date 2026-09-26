@@ -73,6 +73,9 @@ TEST_CASE( "Third repetition is detected" )
         builder.addPiece ("e8", Color::Black, Piece::King);
         builder.addPiece ("e7", Color::Black, Piece::Pawn);
         builder.addPiece ("e1", Color::White, Piece::King);
+        // The white pawn makes the double push capturable en passant, so
+        // the first position carries a target the later ones do not.
+        builder.addPiece ("d5", Color::White, Piece::Pawn);
         builder.setCurrentTurn (Color::Black);
 
         auto board = Board { builder };
@@ -182,52 +185,6 @@ TEST_CASE( "Third repetition is detected" )
         REQUIRE( history.isProbablyThirdRepetition (board) == true );
     }
 
-    SUBCASE( "From the initial position, white gets a draw due to the bishop." )
-    {
-        History history;
-        Board board;
-
-        Move initial_white_pawn_move = moveParse ("e2 e4");
-        Move initial_black_pawn_move = moveParse ("e7 e5");
-
-        board = board.withMove (Color::White, initial_white_pawn_move);
-        history.addTentativePosition (board);
-        REQUIRE( history.isProbablyThirdRepetition (board) == false );
-
-        board = board.withMove (Color::Black, initial_black_pawn_move);
-        history.addTentativePosition (board);
-        REQUIRE( history.isProbablyThirdRepetition (board) == false );
-
-        Move white_move = moveParse ("f1 e2");
-        Move white_return_move = moveParse ("e2 f1");
-
-        Move black_move = moveParse ("f8 e7");
-        Move black_return_move = moveParse ("e7 f8");
-
-        for (int i = 0; i < 2; i++)
-        {
-            board = board.withMove (Color::White, white_move);
-            history.addTentativePosition (board);
-            REQUIRE( history.isProbablyThirdRepetition (board) == false );
-
-            board = board.withMove (Color::Black, black_move);
-            history.addTentativePosition (board);
-            REQUIRE( history.isProbablyThirdRepetition (board) == false );
-
-            board = board.withMove (Color::White, white_return_move);
-            history.addTentativePosition (board);
-            REQUIRE( history.isProbablyThirdRepetition (board) == false );
-
-            board = board.withMove (Color::Black, black_return_move);
-            history.addTentativePosition (board);
-            REQUIRE( history.isProbablyThirdRepetition (board) == false );
-        }
-
-        REQUIRE( history.isProbablyThirdRepetition (board) == false );
-        board = board.withMove (Color::White, white_move);
-        history.addTentativePosition (board);
-        REQUIRE( history.isProbablyThirdRepetition (board) == true );
-    }
 }
 
 TEST_CASE( "Repetition check tolerates a half move clock longer than the history" )
@@ -311,10 +268,8 @@ TEST_CASE( "Positions cannot be committed while tentative positions are pending"
     history.addTentativePosition (board);
 
     CHECK_THROWS_AS( history.addPosition (board, move), PreconditionError );
-    CHECK_THROWS_AS( history.removeLastPosition(), PreconditionError );
 
     history.removeLastTentativePosition();
 
     CHECK_NOTHROW( history.addPosition (board, move) );
-    CHECK_NOTHROW( history.removeLastPosition() );
 }

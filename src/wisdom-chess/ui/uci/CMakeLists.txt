@@ -46,7 +46,7 @@ if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS)
 
     wisdom_chess_add_cli_test("UCI: no move in a checkmated position" wisdom-chess-uci
         INPUT "position startpos moves f2f3 e7e5 g2g4 d8h4" "go depth 2" "stop" "quit"
-        EXPECTED "bestmove \\(none\\)")
+        EXPECTED "bestmove 0000")
 
     # The black king would win the pawn if White waited, so White promotes
     # now. With the king out of reach a shallow search may wait, since
@@ -59,7 +59,7 @@ if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS)
     # Black one legal move.
     wisdom_chess_add_cli_test("UCI: a rook promotion in the move list" wisdom-chess-uci
         INPUT "position fen 7k/P7/6K1/8/8/8/8/8 w - - 0 1 moves a7a8r" "go depth 2" "stop" "quit"
-        EXPECTED "bestmove \\(none\\)")
+        EXPECTED "bestmove 0000")
 
     wisdom_chess_add_cli_test("UCI: a knight promotion in the move list" wisdom-chess-uci
         INPUT "position fen 7k/P7/6K1/8/8/8/8/8 w - - 0 1 moves a7a8n" "go depth 2" "stop" "quit"
@@ -73,6 +73,27 @@ if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS)
     wisdom_chess_add_cli_test("UCI: queenside castling in the move list" wisdom-chess-uci
         INPUT "position fen 7k/p5pp/8/8/8/8/8/R3K3 w Q - 0 1 moves e1c1 a7a6" "go depth 2" "stop" "quit"
         EXPECTED "bestmove d1d8")
+
+    # The position before the bad command is kept, so the mate is still there.
+    wisdom_chess_add_cli_test("UCI: an illegal move in the move list is reported and rejected" wisdom-chess-uci
+        INPUT "position startpos moves f2f3 e7e5 g2g4" "position startpos moves e2e5" "go depth 2" "stop" "quit"
+        EXPECTED "info string Illegal move in position: e2e5" "bestmove d8h4")
+
+    wisdom_chess_add_cli_test("UCI: a move into check in the move list is rejected" wisdom-chess-uci
+        INPUT "position fen 6k1/8/8/8/8/8/8/4KR2 b - - 0 1 moves g8f8" "isready" "quit"
+        EXPECTED "info string Illegal move in position: g8f8" "readyok")
+
+    wisdom_chess_add_cli_test("UCI: an unparseable move in the move list is reported and rejected" wisdom-chess-uci
+        INPUT "position startpos moves f2f3 e7e5 g2g4" "position startpos moves e2e4 zz99 e7e5" "go depth 2" "stop" "quit"
+        EXPECTED "info string Unparseable move in position: zz99" "bestmove d8h4")
+
+    wisdom_chess_add_cli_test("UCI: a FEN without clocks is accepted" wisdom-chess-uci
+        INPUT "position fen 6k1/5ppp/8/8/8/8/8/R3K3 w - -" "go depth 2" "stop" "quit"
+        EXPECTED "bestmove a1a8")
+
+    wisdom_chess_add_cli_test("UCI: a FEN without clocks is accepted before a move list" wisdom-chess-uci
+        INPUT "position fen 7k/P7/6K1/8/8/8/8/8 w - - moves a7a8n" "go depth 2" "stop" "quit"
+        EXPECTED "bestmove h8g8")
 
     wisdom_chess_add_cli_test("UCI: stop answers an infinite search with a move" wisdom-chess-uci
         INPUT "position startpos" "go infinite" "stop" "quit"
@@ -137,8 +158,7 @@ if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS)
         INPUT "debug on" "position fen not a fen at all ok" "isready" "quit"
         EXPECTED "info string Invalid FEN: not a fen at all ok" "readyok")
 
-    wisdom_chess_add_cli_test("UCI: an invalid FEN is ignored otherwise" wisdom-chess-uci
+    wisdom_chess_add_cli_test("UCI: an invalid FEN is reported without debug mode too" wisdom-chess-uci
         INPUT "position fen not a fen at all ok" "isready" "quit"
-        EXPECTED "readyok"
-        FORBIDDEN "Invalid FEN")
+        EXPECTED "info string Invalid FEN: not a fen at all ok" "readyok")
 endif()

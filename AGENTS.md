@@ -54,10 +54,12 @@ cmake --build build --target lint
 
 ## Building and testing
 
-Build recipes for every frontend are in `README.md`; the CMake options are
-in the top-level `CMakeLists.txt`. Document a new option in both. For
-development, configure a Release build with the slow tests on and run
-everything through `ctest`:
+Build recipes for every frontend and the table of CMake options are in
+`docs/building.md`; the options themselves are defined in the top-level
+`CMakeLists.txt`. Document a new option in both. `README.md` is written
+for players and points at `docs/building.md`. For development, configure
+a Release build with the slow tests on and run everything through
+`ctest`:
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DWISDOM_CHESS_SLOW_TESTS=On

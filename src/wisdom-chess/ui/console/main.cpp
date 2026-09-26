@@ -10,6 +10,7 @@ namespace wisdom::ui::console
 
 int main()
 {
+    wisdom::setEmergencyLogger (wisdom::makeStandardLogger());
     wisdom::installEmergencyTerminateHandler();
 
     try

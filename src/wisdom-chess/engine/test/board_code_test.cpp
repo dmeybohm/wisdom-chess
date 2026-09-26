@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <bit>
 #include <iostream>
 #include <set>
 #include <sstream>
@@ -12,6 +13,13 @@
 #include "wisdom-chess-tests.hpp"
 
 using namespace wisdom;
+
+static auto
+numberOfSetBits (const BoardCode& code)
+    -> int
+{
+    return std::popcount (code.getHashCode());
+}
 
 TEST_CASE( "board code" )
 {
@@ -46,7 +54,7 @@ TEST_CASE( "board code" )
     {
         BoardCode code = BoardCode::fromDefaultPosition();
 
-        auto num_ones = code.numberOfSetBits();
+        auto num_ones = numberOfSetBits (code);
 
         CHECK( num_ones < 64 );  // ... some number less than all the bits.
     }
@@ -64,7 +72,7 @@ TEST_CASE( "board code" )
         BoardCode code  = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.numberOfSetBits() > 0 );
+        REQUIRE( numberOfSetBits (initial) > 0 );
 
         Move a8xb7 = moveParse ("a8xb7");
         code.applyMove (brd, a8xb7);
@@ -85,7 +93,7 @@ TEST_CASE( "board code" )
         BoardCode code = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.numberOfSetBits() > 0 );
+        REQUIRE( numberOfSetBits (initial) > 0 );
 
         Move b7b8_Q = moveParse ("b7b8_Q (Q)");
         code.applyMove (brd, b7b8_Q);
@@ -106,7 +114,7 @@ TEST_CASE( "board code" )
         BoardCode code  = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.numberOfSetBits() > 0 );
+        REQUIRE( numberOfSetBits (initial) > 0 );
 
         Move castle_queenside = moveParse ("o-o-o", Color::Black);
         code.applyMove (brd, castle_queenside);
@@ -127,7 +135,7 @@ TEST_CASE( "board code" )
         BoardCode code = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.numberOfSetBits() > 0 );
+        REQUIRE( numberOfSetBits (initial) > 0 );
 
         Move promote_castle_move = moveParse ("b7xa8 (Q)", Color::Black);
         REQUIRE( promote_castle_move.isPromoting() );
@@ -353,8 +361,8 @@ TEST_CASE( "Board code stores metadata" )
         code.setCastleState (Color::Black, CastlingEligibility::Both_Sides);
 
         auto initial_hash = code.getHashCode();
-        auto high_48_bits = initial_hash & 0xfffffffFFFF0000ULL;
-        auto low_16_bits = initial_hash & 0xffffULL;
+        auto high_48_bits = initial_hash & Piece_Hash_Mask;
+        auto low_16_bits = initial_hash & Metadata_Mask;
 
         code.setCurrentTurn (Color::Black);
         code.setCastleState (Color::White, CastlingEligibility::Neither_Side);
@@ -362,8 +370,8 @@ TEST_CASE( "Board code stores metadata" )
         code.setEnPassantTarget (Color::White, coordParse ("e3"));
 
         auto modified_hash = code.getHashCode();
-        auto modified_high_48_bits = modified_hash & 0xfffffffFFFF0000ULL;
-        auto modified_low_16_bits = modified_hash & 0xffffULL;
+        auto modified_high_48_bits = modified_hash & Piece_Hash_Mask;
+        auto modified_low_16_bits = modified_hash & Metadata_Mask;
 
         CHECK( modified_high_48_bits == high_48_bits );
 
@@ -376,6 +384,34 @@ TEST_CASE( "Board code stores metadata" )
 
         auto restored_hash = code.getHashCode();
         CHECK( restored_hash == initial_hash );
+    }
+
+    SUBCASE( "setMetadataBits keeps every hash bit of every piece" )
+    {
+        std::uint64_t bits_seen = 0;
+
+        for (auto color : { Color::White, Color::Black })
+        {
+            for (auto piece : { Piece::Pawn, Piece::Knight, Piece::Bishop,
+                                Piece::Rook, Piece::Queen, Piece::King })
+            {
+                for (auto coord : Board::allCoords())
+                {
+                    BoardCode code = BoardCode::fromEmptyBoard();
+                    code.addPiece (coord, ColoredPiece::make (color, piece));
+
+                    auto piece_hash = code.getHashCode() & Piece_Hash_Mask;
+                    bits_seen |= piece_hash;
+
+                    code.setCurrentTurn (Color::Black);
+                    CHECK( (code.getHashCode() & Piece_Hash_Mask) == piece_hash );
+                }
+            }
+        }
+
+        // The Zobrist values reach every bit above the metadata, so a
+        // mask that dropped any of them would have failed above.
+        CHECK( bits_seen == Piece_Hash_Mask );
     }
 
     SUBCASE( "Board code stores en passant state for Black" )

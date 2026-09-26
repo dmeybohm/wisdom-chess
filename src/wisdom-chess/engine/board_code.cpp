@@ -128,12 +128,6 @@ namespace wisdom
         }
     }
 
-    auto BoardCode::numberOfSetBits() const -> std::size_t
-    {
-        std::bitset<64> bits { my_code };
-        return bits.count();
-    }
-
     auto operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&
     {
         os << code.asString();

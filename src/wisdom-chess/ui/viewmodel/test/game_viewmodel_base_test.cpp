@@ -1,6 +1,7 @@
 #include <doctest/doctest.h>
 
 #include "wisdom-chess/ui/viewmodel/game_viewmodel_base.hpp"
+#include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
 
 using namespace wisdom;
 using wisdom::ui::DrawByRepetitionStatus;
@@ -418,4 +419,65 @@ TEST_CASE( "GameViewModelBase::needsPawnPromotion" )
     CHECK( !needs_promotion ("e2", "e4") );
     CHECK( !needs_promotion ("e1", "d1") );
     CHECK( !needs_promotion ("c3", "c4") );
+}
+
+TEST_CASE( "negotiateDraw answers for the engine players" )
+{
+    // A rook endgame the engine is winning, so it declines.
+    auto game = Game::createGameFromFen ("4k3/8/8/8/8/8/8/R3K3 w - - 100 80", Engines);
+    vector<std::pair<Color, bool>> answers;
+    auto record = [&answers] (Color who, bool accepted)
+    {
+        answers.emplace_back (who, accepted);
+    };
+
+    SUBCASE( "Two engines both answer, the side to move first" )
+    {
+        wisdom::ui::negotiateDraw (&game, ProposedDrawType::FiftyMovesWithoutProgress, Color::White, record);
+
+        REQUIRE( answers.size() == 2 );
+        CHECK( answers[0].first == Color::White );
+        CHECK( answers[1].first == Color::Black );
+        CHECK( answers[0].second == game.computerWantsDraw (Color::White) );
+        CHECK( answers[1].second == game.computerWantsDraw (Color::Black) );
+
+        // Both answers were recorded in the game before the callback ran.
+        CHECK( game.status() != GameStatus::FiftyMovesWithoutProgressReached );
+    }
+
+    SUBCASE( "Only the engine answers when its opponent is human" )
+    {
+        game.setPlayers (Players { Player::ChessEngine, Player::Human });
+
+        wisdom::ui::negotiateDraw (&game, ProposedDrawType::FiftyMovesWithoutProgress, Color::White, record);
+
+        REQUIRE( answers.size() == 1 );
+        CHECK( answers[0].first == Color::White );
+        CHECK( game.status() == GameStatus::FiftyMovesWithoutProgressReached );
+    }
+
+    SUBCASE( "A human side to move is skipped and the engine opponent answers" )
+    {
+        game.setPlayers (Players { Player::Human, Player::ChessEngine });
+
+        wisdom::ui::negotiateDraw (&game, ProposedDrawType::FiftyMovesWithoutProgress, Color::White, record);
+
+        REQUIRE( answers.size() == 1 );
+        CHECK( answers[0].first == Color::Black );
+    }
+}
+
+TEST_CASE( "transitionGameStatus runs the update and returns the status" )
+{
+    struct CountingUpdate : GameStatusUpdate
+    {
+        int updates = 0;
+        void onGameEnded (GameStatus) override { updates++; }
+    };
+
+    auto game = Game::createGameFromFen (Fools_Mate, Humans);
+    CountingUpdate update;
+
+    CHECK( wisdom::ui::transitionGameStatus (update, game) == GameStatus::Checkmate );
+    CHECK( update.updates == 1 );
 }

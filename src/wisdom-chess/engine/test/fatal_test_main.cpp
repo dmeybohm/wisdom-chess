@@ -59,7 +59,7 @@ namespace
     void removeFromEmpty()
     {
         MoveList list;
-        list.pop_back();
+        list.removeLast();
     }
 
     void badCastlingFlags()

@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "wisdom-chess/engine/move.hpp"
+#include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 
@@ -197,6 +198,8 @@ namespace wisdom
         my_code.clearEnPassantTarget();
     }
 
+    // FEN records the passed square after every double pawn push, whether
+    // or not the opponent has a legal en passant capture.
     void 
     Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept
     {
@@ -283,11 +286,6 @@ namespace wisdom
             case MoveCategory::Castling:
                 applyForCastlingMove (move, src, dst);
                 break;
-
-            default:
-                throw Error {
-                    "Invalid move category: " + std::to_string (static_cast<int>(move.getMoveCategory()))
-                };
         }
 
         updateEnPassantEligibility (who, src_piece, move);
@@ -342,7 +340,7 @@ namespace wisdom
             transformed.begin(),
             transformed.end(),
             transformed.begin(),
-            [](auto c) { return ::toupper (c); }
+            toUpper
         );
 
         if (transformed == "O-O-O")
@@ -368,18 +366,18 @@ namespace wisdom
         if (tmp.empty())
             return nullopt;
 
-        tmp.erase (std::remove_if (tmp.begin(), tmp.end(), isspace), tmp.end());
+        tmp.erase (std::remove_if (tmp.begin(), tmp.end(), isSpace), tmp.end());
         std::transform (
             tmp.begin(),
             tmp.end(),
             tmp.begin(),
-            [](auto c) { return ::toupper (c); }
+            toUpper
         );
 
         if (tmp.empty())
             return nullopt;
 
-        if (tolower (tmp[0]) == 'o')
+        if (toLower (tmp[0]) == 'o')
             return castleParse (tmp, who);
 
         if (tmp.size() < 4)
@@ -406,8 +404,6 @@ namespace wisdom
 
         string dst_coord { tmp.substr (offset, 2) };
         offset += 2;
-        if (dst_coord.empty())
-            return nullopt;
 
         optional<Coord> dst;
         try
@@ -469,7 +465,7 @@ namespace wisdom
         if (str.empty())
             throw ParseMoveException ("Error parsing move: empty string");
 
-        if (tolower (str[0]) == 'o' && color == Color::None)
+        if (toLower (str[0]) == 'o' && color == Color::None)
             throw ParseMoveException ("Move requires color, but no color provided");
 
         auto optional_result = moveParseOptional (str, color);
@@ -560,18 +556,16 @@ namespace wisdom
         switch (pieceType (src_piece))
         {
             case Piece::Pawn:
-                // look for en passant:
-                if (pieceType (src_piece) == Piece::Pawn)
-                {
-                    optional<int> eligible_column
-                        = eligibleEnPassantColumn (board, src.row(), src.column(), who);
-                    if (eligible_column.has_value() && eligible_column == dst.column())
-                        return Move::makeEnPassant (src, dst);
+            {
+                optional<int> eligible_column
+                    = eligibleEnPassantColumn (board, src.row(), src.column(), who);
+                if (eligible_column.has_value() && eligible_column == dst.column())
+                    return Move::makeEnPassant (src, dst);
 
-                    if (needPawnPromotion (dst.row<int>(), who) && promoted_piece.has_value())
-                        return move.withPromotion (*promoted_piece);
-                }
+                if (needPawnPromotion (dst.row<int>(), who) && promoted_piece.has_value())
+                    return move.withPromotion (*promoted_piece);
                 break;
+            }
 
             // look for castling
             case Piece::King:

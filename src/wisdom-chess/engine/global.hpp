@@ -28,11 +28,6 @@
 #include <gsl/gsl>
 #include <gsl/narrow>
 
-namespace doctest
-{
-    class String;
-}
-
 namespace wisdom
 {
     using zstring = gsl::zstring;
@@ -90,6 +85,12 @@ namespace wisdom
     inline constexpr int White_En_Passant_Row = 5;
     inline constexpr int Black_En_Passant_Row = 2;
 
+    // Where a pawn starts, and the row it must stand on to capture en passant.
+    inline constexpr int White_Pawn_Start_Row = 6;
+    inline constexpr int Black_Pawn_Start_Row = 1;
+    inline constexpr int White_Pawn_En_Passant_Capture_Row = 3;
+    inline constexpr int Black_Pawn_En_Passant_Capture_Row = 4;
+
     inline constexpr int Kingside_Castled_King_Column = 6;
     inline constexpr int Queenside_Castled_King_Column = 2;
     inline constexpr int Kingside_Castled_Rook_Column = 5;
@@ -129,9 +130,15 @@ namespace wisdom
     // Default max time spent searching.
     inline constexpr int Default_Max_Search_Seconds = 2;
 
-    // Minimum amount behind the computer must feel in order to
-    // accept a draw offer.
+    // The computer accepts a draw offer only when its evaluation is at or
+    // below this score, in pawns times the material scale.
     inline constexpr int Min_Draw_Score = -500;
+
+    // What the search scores a draw it could claim on its own move, by
+    // repetition or the fifty-move rule. Negative, so the engine plays on
+    // unless it is this far behind. Independent of Min_Draw_Score, which
+    // governs draw offers rather than search.
+    inline constexpr int Search_Draw_Contempt = -500;
 
     template <typename T>
     [[nodiscard]] constexpr auto
@@ -207,18 +214,6 @@ namespace wisdom
         static_assert (sizeof (Target) <= sizeof (Source));
 
         return static_cast<Target> (value);
-    }
-
-    // constexpr version of tolower():
-    constexpr auto
-    toLower (int ch) noexcept
-        -> int
-    {
-        if (ch >= 'A' && ch <= 'Z')
-        {
-            return ch + ('a' - 'A');
-        }
-        return ch;
     }
 
     // Errors in this application.

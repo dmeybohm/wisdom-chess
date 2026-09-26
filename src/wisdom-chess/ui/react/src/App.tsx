@@ -22,7 +22,8 @@ import {
     ChessEngineEventType,
     Game,
     GameStatus,
-    WebGameSettings
+    WebGameSettings,
+    getSettingsLimits,
 } from './lib/WisdomChess'
 import Modal from "./Modal";
 import { EngineSnapshot, initialState, reducer } from './reducer'
@@ -321,6 +322,7 @@ function App() {
                 <SettingsModal
                     flipped={flipped}
                     settings={settings}
+                    limits={getSettingsLimits()}
                     onApply={handleApplySettings}
                     onDismiss={() => setSettings(null)}
                 />

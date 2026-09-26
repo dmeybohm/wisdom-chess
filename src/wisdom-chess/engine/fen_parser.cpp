@@ -1,6 +1,7 @@
 #include <sstream>
 
 #include "wisdom-chess/engine/fen_parser.hpp"
+#include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/game.hpp"
 
@@ -18,8 +19,8 @@ namespace wisdom
     FenParser::parsePiece (char ch) 
         -> ColoredPiece
     {
-        int lower = tolower (ch);
-        Color who = islower (ch) ? Color::Black : Color::White;
+        char lower = toLower (ch);
+        Color who = isLower (ch) ? Color::Black : Color::White;
 
         switch (lower)
         {
@@ -75,7 +76,7 @@ namespace wisdom
             {
                 break;
             }
-            else if (isalpha (ch))
+            else if (isAlpha (ch))
             {
                 ColoredPiece piece = parsePiece (ch);
                 builder.addPiece (row, col, pieceColor (piece), pieceType (piece));
@@ -83,7 +84,7 @@ namespace wisdom
                 if (col > Num_Columns)
                     throw FenParserError ("Invalid columns!");
             }
-            else if (isdigit (ch))
+            else if (isDigit (ch))
             {
                 col += ch - '0';
                 if (col > Num_Columns)
