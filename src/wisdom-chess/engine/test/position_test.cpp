@@ -170,3 +170,67 @@ TEST_CASE( "Double pawn moves are more appealing" )
 
     REQUIRE( black_big_score > black_small_score );
 }
+
+// The piece-square tables are private to position.cpp, so read each cell
+// back through a board holding the kings and one extra piece.
+static auto
+squareScore (Piece piece, int row, int col)
+    -> int
+{
+    BoardBuilder builder;
+    builder.addPiece ("a1", Color::White, Piece::King);
+    builder.addPiece ("h8", Color::Black, Piece::King);
+    auto kings_only_board = Board { builder };
+    auto kings_only = kings_only_board.getPosition().individualScore (Color::White);
+
+    builder.addPiece (row, col, Color::White, piece);
+    auto board = Board { builder };
+    return board.getPosition().individualScore (Color::White) - kings_only;
+}
+
+TEST_CASE( "Piece-square tables are symmetric between the two wings" )
+{
+    // The queen's table is deliberately asymmetric. Pawns never stand on
+    // the first or last rank, and a1/h8 hold the kings.
+    for (auto piece : { Piece::Pawn, Piece::Knight, Piece::Bishop, Piece::Rook })
+    {
+        int first_row = piece == Piece::Pawn ? 1 : 0;
+        int last_row = piece == Piece::Pawn ? 6 : 7;
+
+        for (int row = first_row; row <= last_row; row++)
+        {
+            for (int col = 0; col < Num_Columns / 2; col++)
+            {
+                int mirror_col = Last_Column - col;
+                if ((row == 7 && col == 0) || (row == 0 && mirror_col == 7))
+                    continue;
+
+                INFO( "piece ", static_cast<int> (piece), " row ", row, " col ", col );
+                CHECK( squareScore (piece, row, col) == squareScore (piece, row, mirror_col) );
+            }
+        }
+    }
+}
+
+TEST_CASE( "The king's table is symmetric between the two wings" )
+{
+    for (int row = 0; row < Num_Rows; row++)
+    {
+        for (int col = 0; col < Num_Columns / 2; col++)
+        {
+            int mirror_col = Last_Column - col;
+
+            auto scoreWithKingAt = [row] (int king_col)
+            {
+                BoardBuilder builder;
+                builder.addPiece (row, king_col, Color::White, Piece::King);
+                builder.addPiece (row == 0 ? 7 : 0, 7, Color::Black, Piece::King);
+                auto board = Board { builder };
+                return board.getPosition().individualScore (Color::White);
+            };
+
+            INFO( "row ", row, " col ", col );
+            CHECK( scoreWithKingAt (col) == scoreWithKingAt (mirror_col) );
+        }
+    }
+}
