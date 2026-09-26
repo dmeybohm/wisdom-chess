@@ -141,6 +141,10 @@ if(NOT EMSCRIPTEN)
 
         add_custom_target(lint
             COMMAND wisdom-linter ${CMAKE_SOURCE_DIR}/src
+                ${CMAKE_SOURCE_DIR}/scripts/linter/main.cpp
+                ${CMAKE_SOURCE_DIR}/scripts/linter/linter.cpp
+                ${CMAKE_SOURCE_DIR}/scripts/linter/linter.hpp
+                ${CMAKE_SOURCE_DIR}/scripts/linter/rules
             DEPENDS wisdom-linter
             COMMENT "Running C++ style linter"
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
