@@ -119,3 +119,41 @@ shell script itself, which would need fake fastchess, git and builds.
     and rebuilt.
   - The feature log of the original script had one line of about 110
     columns; rewrapped.
+
+### Session #2
+
+Review comments on PR #272, all three confirmed before fixing:
+
+- **Resume skipped the engine checks.** `--resume` only built fastchess, so
+  a cached engine deleted or broken since the interrupt went unnoticed until
+  fastchess failed to start it. `engines.txt` now records each engine's
+  commit next to its name, and `--resume` passes every commit through
+  `build_engine()`, which rebuilds a missing or unresponsive engine. Tested
+  by interrupting a match, deleting one cached engine and replacing the
+  other with a script that exits at once: `--resume` rebuilt both and
+  finished the match.
+- **Draws without losses had no Elo.** The tally required both wins and
+  losses, so 9 wins and a draw printed "n/a (no losses)" for a score of
+  95%. A score has a finite Elo whenever it is strictly between 0% and
+  100%, so only all wins or all losses get "n/a" now. 9 wins and a draw
+  gives +512, range +311 to +inf.
+- **An unfinished game counted as a game.** An engine counted as present
+  when it appeared in any game, even one with the result `*`, so a PGN of
+  unfinished games printed an empty table and exited 0. An engine now needs
+  a finished game, against anyone, or the tally stops with "no finished
+  games".
+
+Found while testing the first fix:
+
+- **Resuming replays unfinished rounds.** fastchess's saved state counts
+  only completed rounds, so on `--resume` it replays a round that was half
+  played when the match was interrupted. The PGN then holds the finished
+  game twice: after an interrupt at 13 games, fastchess reported 20 games
+  and the PGN held 21. A round and its two colours name one game, and no
+  key repeats in the 1,500 and 76 games of the two unresumed matches, so
+  the tally now counts only the last game for each and prints a note when
+  it drops any. The resumed match then tallied the same 20 games and result
+  as fastchess.
+- The unit tests gave every game a round of its own for this; four new
+  tests cover all losses, wins and draws without losses, unfinished games,
+  and a replayed game. 15 tests pass.

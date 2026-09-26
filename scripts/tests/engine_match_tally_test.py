@@ -10,11 +10,17 @@ import unittest
 TALLY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "engine-match-tally.py")
 
 
-def game(white, black, result, termination="normal"):
+def game(white, black, result, termination="normal", round_number=None):
+    # Unless a test says otherwise, every game gets a round of its own.
+    game.rounds += 1
+    number = game.rounds if round_number is None else round_number
     return (
-        f'[Event "?"]\n[White "{white}"]\n[Black "{black}"]\n[Result "{result}"]\n'
-        f'[Termination "{termination}"]\n\n1. e4 e5 {result}\n\n'
+        f'[Event "?"]\n[Round "{number}"]\n[White "{white}"]\n[Black "{black}"]\n'
+        f'[Result "{result}"]\n[Termination "{termination}"]\n\n1. e4 e5 {result}\n\n'
     )
+
+
+game.rounds = 0
 
 
 class TallyTest(unittest.TestCase):
@@ -43,21 +49,33 @@ class TallyTest(unittest.TestCase):
         self.assertIn("1 / 1 / 1", self.row(games, "base", "new"))
 
     def test_an_even_score_is_zero_not_minus_zero(self):
-        games = [game("new", "base", "1-0"), game("base", "new", "1-0")] * 5
+        games = [
+            played for _ in range(5)
+            for played in (game("new", "base", "1-0"), game("base", "new", "1-0"))
+        ]
         row = self.row(games, "base", "new")
         self.assertIn(" 0  ", row)
         self.assertNotIn("-0", row)
 
     def test_a_score_of_all_wins_has_no_estimate(self):
-        row = self.row([game("new", "base", "1-0")] * 10, "base", "new")
-        self.assertIn("n/a (no losses)", row)
+        row = self.row([game("new", "base", "1-0") for _ in range(10)], "base", "new")
+        self.assertIn("n/a (all wins)", row)
         self.assertNotIn("+", row)
 
+    def test_a_score_of_all_losses_has_no_estimate(self):
+        self.assertIn("n/a (all losses)", self.row([game("new", "base", "0-1") for _ in range(10)], "base", "new"))
+
     def test_a_single_win_has_no_estimate(self):
-        self.assertIn("n/a (no losses)", self.row([game("new", "base", "1-0")], "base", "new"))
+        self.assertIn("n/a (all wins)", self.row([game("new", "base", "1-0")], "base", "new"))
+
+    def test_wins_and_draws_without_losses_have_an_estimate(self):
+        games = [game("new", "base", "1-0") for _ in range(9)] + [game("new", "base", "1/2-1/2")]
+        row = self.row(games, "base", "new")
+        self.assertIn("+512", row)
+        self.assertRegex(row, r"\+\d+ to \+inf$")
 
     def test_all_draws_have_no_range(self):
-        self.assertIn("n/a (all draws)", self.row([game("new", "base", "1/2-1/2")] * 4, "base", "new"))
+        self.assertIn("n/a (all draws)", self.row([game("new", "base", "1/2-1/2") for _ in range(4)], "base", "new"))
 
     def test_few_games_have_no_range(self):
         games = [game("new", "base", "1-0"), game("new", "base", "0-1"), game("new", "base", "1-0")]
@@ -66,7 +84,7 @@ class TallyTest(unittest.TestCase):
         self.assertIn("n/a (fewer than 10 games)", row)
 
     def test_enough_games_have_a_range_around_the_estimate(self):
-        games = [game("new", "base", "1-0")] * 6 + [game("new", "base", "0-1")] * 4
+        games = [game("new", "base", "1-0") for _ in range(6)] + [game("new", "base", "0-1") for _ in range(4)]
         row = self.row(games, "base", "new")
         self.assertIn("+70", row)
         self.assertRegex(row, r"-\d+ to \+\d+$")
@@ -89,7 +107,22 @@ class TallyTest(unittest.TestCase):
     def test_a_name_without_games_is_an_error(self):
         result = self.tally([game("new", "base", "1-0")], "base", "typo")
         self.assertEqual(result.returncode, 1)
-        self.assertIn("no games for typo", result.stderr)
+        self.assertIn("no finished games for typo", result.stderr)
+
+    def test_unfinished_games_do_not_count(self):
+        result = self.tally([game("new", "base", "*")], "base", "new")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("no finished games for base, new", result.stderr)
+
+    def test_a_game_replayed_after_a_resume_is_counted_once(self):
+        games = [
+            game("new", "base", "0-1", round_number=7),
+            game("base", "new", "1-0", round_number=7),
+            game("new", "base", "1-0", round_number=7),
+        ]
+        output = self.tally(games, "base", "new").stdout
+        self.assertIn("1 / 0 / 1", output)
+        self.assertIn("1 game(s) were replayed after a resume", output)
 
     def test_one_name_prints_the_usage(self):
         result = self.tally([game("new", "base", "1-0")], "base")

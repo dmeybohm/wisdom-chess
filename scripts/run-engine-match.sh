@@ -163,7 +163,14 @@ if [ -n "$RESUME_DIR" ]; then
         || fail "$RESUME_DIR is not the results directory of a match that can be resumed"
     RUN_DIR="$(cd "$RESUME_DIR" && pwd)"
     WORK_DIR="$(cd "$RUN_DIR/../.." && pwd)"
-    mapfile -t NAMES < "$RUN_DIR/engines.txt"
+    NAMES=()
+    COMMITS=()
+    while read -r name commit; do
+        [ -n "$name" ] && [ -n "$commit" ] \
+            || fail "$RUN_DIR/engines.txt should list each engine's name and commit"
+        NAMES+=("$name")
+        COMMITS+=("$commit")
+    done < "$RUN_DIR/engines.txt"
 else
     [ "${#ENGINE_SPECS[@]}" -ge 2 ] || fail "give at least two engines as NAME=REF (see --help)"
 fi
@@ -345,6 +352,11 @@ tally() {
 }
 
 if [ -n "$RESUME_DIR" ]; then
+    # The saved config.json names the cached engines, which may have gone or
+    # stopped answering since the match was interrupted.
+    for commit in "${COMMITS[@]}"; do
+        build_engine "$commit"
+    done
     build_fastchess
     echo "Resumed: $(date '+%Y-%m-%d %H:%M:%S')" | tee -a "$RUN_DIR/summary.txt"
     echo "Results: $RUN_DIR"
@@ -397,7 +409,9 @@ fi
 
 RUN_DIR="$WORK_DIR/results/$(date +%Y%m%d-%H%M%S)-$(IFS=-; echo "${NAMES[*]}")"
 mkdir -p "$RUN_DIR"
-printf '%s\n' "${NAMES[@]}" > "$RUN_DIR/engines.txt"
+for i in "${!NAMES[@]}"; do
+    echo "${NAMES[$i]} ${COMMITS[$i]}"
+done > "$RUN_DIR/engines.txt"
 
 ENGINE_ARGS=()
 for i in "${!NAMES[@]}"; do

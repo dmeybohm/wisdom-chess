@@ -8,12 +8,16 @@ Elo difference and a 95% range from a normal approximation over single
 games. Each pair is printed later name against earlier name, so list a
 baseline first.
 
-The Elo difference needs both wins and losses, since a score of 0% or 100%
-has no finite Elo, and the range needs at least 10 games,
+A score of 0% or 100% has no finite Elo difference, and the range needs at
+least 10 games,
 below which the normal approximation means little. Games that did not end
 normally, such as losses on time or crashes, are counted and reported,
 since they usually point to a machine or engine problem rather than to
 playing strength.
+
+A resumed match replays the rounds that were unfinished when it was
+interrupted, so the PGN can hold a game twice. A round and its two colours
+name one game, and only the last game played for each is counted.
 """
 
 import math
@@ -39,10 +43,10 @@ def estimate(wins, draws, losses):
 
     if wins == 0 and losses == 0:
         return "0", "n/a (all draws)"
-    if losses == 0:
-        return "n/a", "n/a (no losses)"
-    if wins == 0:
-        return "n/a", "n/a (no wins)"
+    if score == 1:
+        return "n/a", "n/a (all wins)"
+    if score == 0:
+        return "n/a", "n/a (all losses)"
 
     difference = signed(elo(score))
     if games < MIN_GAMES_FOR_RANGE:
@@ -76,13 +80,23 @@ def main():
     # Keyed by (earlier, later): wins, draws and losses for the later engine.
     results = {}
     abnormal = {}
-    seen = set()
+    # Every engine in the PGN, and those with at least one finished game.
+    found = set()
+    finished = set()
 
+    games = {}
     for game in re.split(r"\n(?=\[Event )", text):
         tags = dict(re.findall(r'\[(\w+) "([^"]*)"\]', game))
+        games[(tags.get("Round"), tags.get("White"), tags.get("Black"))] = (tags, game)
+    replayed = text.count("[Event ") - len(games)
+
+    for tags, game in games.values():
         white, black, result = tags.get("White"), tags.get("Black"), tags.get("Result")
-        seen.update(name for name in (white, black) if name)
-        if white not in names or black not in names or result not in ("1-0", "0-1", "1/2-1/2"):
+        found.update(name for name in (white, black) if name)
+        if result not in ("1-0", "0-1", "1/2-1/2"):
+            continue
+        finished.update((white, black))
+        if white not in names or black not in names:
             continue
 
         earlier, later = sorted((white, black), key=names.index)
@@ -98,10 +112,10 @@ def main():
             key = (earlier, later, termination)
             abnormal[key] = abnormal.get(key, 0) + 1
 
-    missing = [name for name in names if name not in seen]
+    missing = [name for name in names if name not in finished]
     if missing:
-        found = ", ".join(sorted(seen)) or "none"
-        sys.exit(f"Error: no games for {', '.join(missing)} in {path} (engines found: {found})")
+        engines = ", ".join(sorted(found)) or "none"
+        sys.exit(f"Error: no finished games for {', '.join(missing)} in {path} (engines found: {engines})")
 
     print(f"{'Pairing':<28} {'Games':>6} {'W / D / L':>16} {'Score':>7} {'Elo':>6}  95% range")
     for (earlier, later), (wins, draws, losses) in sorted(
@@ -117,6 +131,9 @@ def main():
 
     for (earlier, later, termination), count in sorted(abnormal.items()):
         print(f"Warning: {count} game(s) between {later} and {earlier} ended by {termination}")
+
+    if replayed > 0:
+        print(f"Note: {replayed} game(s) were replayed after a resume; only the last of each is counted")
 
 
 if __name__ == "__main__":
