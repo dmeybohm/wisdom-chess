@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
@@ -49,8 +50,37 @@ namespace wisdom::test
         {
         }
     };
+
+    // Tracks the depth the search is on, from its progress messages, and
+    // counts the timer's periodic calls made during each depth.
+    struct DepthTrackingLogger : Logger
+    {
+        mutable int current_depth = 0;
+        mutable std::map<int, int> periodic_calls_per_depth {};
+
+        void debug ([[maybe_unused]] const string& output) const override
+        {
+        }
+
+        void info (const string& output) const override
+        {
+            const string prefix = "Searching depth ";
+            if (output.starts_with (prefix))
+                current_depth = std::stoi (output.substr (prefix.size()));
+        }
+
+        void emergency ([[maybe_unused]] const string& output) const override
+        {
+        }
+
+        void countPeriodicCall() const
+        {
+            periodic_calls_per_depth[current_depth]++;
+        }
+    };
 }
 
+using wisdom::test::DepthTrackingLogger;
 using wisdom::test::SearchHelper;
 using wisdom::test::ThrowingLogger;
 using namespace wisdom;
@@ -558,6 +588,50 @@ TEST_CASE( "The search result counts the nodes of every depth" )
 
         CHECK( result.nodes > 20 + 20 );
     }
+}
+
+TEST_CASE( "A root move finished before the clock stops is kept" )
+{
+    // Run the same deterministic search twice: once to learn how many
+    // periodic timer calls the last depth makes, then again cancelling on
+    // that depth's final periodic call, so the iteration is cut short after
+    // most of its root moves have been searched to full depth.
+    static constexpr int Last_Depth = 4;
+    Board board { BoardBuilder::fromDefaultPosition() };
+
+    auto runSearch = [&] (int cancel_on_call) -> SearchResult
+    {
+        auto logger = make_shared<DepthTrackingLogger>();
+        MoveTimer timer { 30 };
+        timer.setPeriodicFunction (
+            [logger, cancel_on_call] (nonnull_observer_ptr<MoveTimer> timer_ptr)
+            {
+                logger->countPeriodicCall();
+                if (logger->current_depth == Last_Depth
+                    && logger->periodic_calls_per_depth[Last_Depth] == cancel_on_call)
+                {
+                    timer_ptr->setCancelled (true);
+                }
+            }
+        );
+        History history;
+        auto table = TranspositionTable::fromMegabytes (1);
+        auto search = IterativeSearch::create (board, history, logger, timer, Last_Depth, table);
+        auto result = search.iterativelyDeepen (Color::White);
+        result.nodes = logger->periodic_calls_per_depth[Last_Depth];
+        return result;
+    };
+
+    auto full = runSearch (0);
+    REQUIRE( !full.timed_out );
+    REQUIRE( full.depth == Last_Depth );
+    auto calls_in_last_depth = full.nodes;
+    REQUIRE( calls_in_last_depth > 1 );
+
+    auto cut_short = runSearch (narrow<int> (calls_in_last_depth));
+    CHECK( cut_short.timed_out );
+    REQUIRE( cut_short.move.has_value() );
+    CHECK( cut_short.depth == Last_Depth );
 }
 
 TEST_CASE( "A stalemate at the horizon is not scored as a win" )

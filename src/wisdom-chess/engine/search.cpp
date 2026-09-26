@@ -61,6 +61,10 @@ namespace wisdom
         getBestResult() const
             -> SearchResult;
 
+        // When the clock stops a root search, keep the best of the root
+        // moves it had finished, so that the iteration is not wasted.
+        void recordRootProgress (int ply, int depth, optional<Move> best_move, int best_score);
+
         [[nodiscard]] auto
         moveTimer() const&
             -> const MoveTimer&
@@ -192,11 +196,10 @@ namespace wisdom
 
         for (auto move : moves)
         {
-            int score;
-
             if (my_timer.isTriggered())
             {
                 my_current_result.timed_out = true;
+                recordRootProgress (ply, depth, best_move, best_score);
                 return -Initial_Alpha;
             }
 
@@ -209,7 +212,16 @@ namespace wisdom
 
             my_history.addTentativePosition (child_board);
 
-            score = -1 * search (child_board, colorInvert (side), depth - 1, -beta, -alpha, ply + 1);
+            int score = -1 * search (child_board, colorInvert (side), depth - 1, -beta, -alpha, ply + 1);
+
+            my_history.removeLastTentativePosition();
+
+            // A child cut short by the clock has no score to compare.
+            if (my_current_result.timed_out)
+            {
+                recordRootProgress (ply, depth, best_move, best_score);
+                return -Initial_Alpha;
+            }
 
             if (score > best_score)
             {
@@ -219,11 +231,6 @@ namespace wisdom
 
             if (best_score > alpha)
                 alpha = best_score;
-
-            my_history.removeLastTentativePosition();
-
-            if (my_current_result.timed_out)
-                return -Initial_Alpha;
 
             if (alpha >= beta)
             {
@@ -414,10 +421,23 @@ namespace wisdom
                 my_output->info (std::move (ostr).str());
 
                 iterate (side, depth);
-                if (my_current_result.timed_out)
-                    break;
-
                 auto next_result = getBestResult();
+
+                if (my_current_result.timed_out)
+                {
+                    // The clock stopped this depth part way. A root move it
+                    // had finished is kept when it is the move the previous
+                    // depth chose, now seen deeper, or scores better than
+                    // that depth's choice; otherwise the previous depth stands.
+                    bool keep_partial = next_result.move.has_value()
+                        && (!best_result.move.has_value()
+                            || next_result.move == best_result.move
+                            || next_result.score > best_result.score);
+                    if (keep_partial)
+                        best_result = next_result;
+                    break;
+                }
+
                 if (next_result.move.has_value())
                 {
                     best_result = next_result;
@@ -444,6 +464,21 @@ namespace wisdom
         -> SearchResult
     {
         return my_current_result;
+    }
+
+    void
+    IterativeSearchImpl::recordRootProgress (
+        int ply,
+        int depth,
+        optional<Move> best_move,
+        int best_score
+    ) {
+        if (ply != 0 || !best_move.has_value())
+            return;
+
+        my_current_result.move = best_move;
+        my_current_result.score = best_score;
+        my_current_result.depth = depth;
     }
 
     auto 
