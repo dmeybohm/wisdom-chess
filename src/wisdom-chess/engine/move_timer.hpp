@@ -4,49 +4,16 @@
 
 namespace wisdom
 {
-    inline constexpr int Min_Iterations_Before_Checking = 10'000;
-    inline constexpr int Max_Iterations_Before_Checking = 1'000'000;
-
-    inline constexpr chrono::milliseconds Lower_Bound_Timer_Check =
-        chrono::milliseconds { 25 };
-    inline constexpr chrono::milliseconds Upper_Bound_Timer_Check =
-        chrono::milliseconds { 50 };
-
-    class MoveTimer;
-
-    struct TimingAdjustment
-    {
-        static auto create()
-            -> TimingAdjustment;
-
-        [[nodiscard]] auto
-        getIterations() const
-            -> int
-        {
-            return current_iterations;
-        }
-
-        void setIterations (int iterations)
-        {
-            current_iterations = iterations;
-            setSavedIterations (iterations);
-        }
-
-    private:
-        static void setSavedIterations (int);
-
-        explicit TimingAdjustment (int iterations)
-            : current_iterations { iterations }
-        {}
-
-    private:
-        int current_iterations;
-    };
+    // How many calls to isTriggered() pass between looks at the clock. Small
+    // enough that a search keeps to a budget of a few milliseconds, and
+    // large enough that reading the clock costs nothing measurable, even
+    // where that is a system call. A power of two, so the test is a mask.
+    inline constexpr int Calls_Between_Clock_Checks = 1024;
+    static_assert ((Calls_Between_Clock_Checks & (Calls_Between_Clock_Checks - 1)) == 0);
 
     struct TimerState
     {
         optional<chrono::steady_clock::time_point> started_time {};
-        optional<chrono::steady_clock::time_point> last_check_time {};
 
         int check_calls = 0;
         bool triggered = false;
@@ -58,8 +25,8 @@ namespace wisdom
     public:
         using PeriodicFunction = std::function<void(nonnull_observer_ptr<MoveTimer>)>;
 
-        explicit MoveTimer (chrono::seconds seconds)
-            : my_seconds { seconds }
+        explicit MoveTimer (chrono::milliseconds time_limit)
+            : my_time_limit { time_limit }
         {
         }
 
@@ -85,15 +52,15 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        getSeconds() const noexcept
-            -> chrono::seconds
+        getTimeLimit() const noexcept
+            -> chrono::milliseconds
         {
-            return my_seconds;
+            return my_time_limit;
         }
 
-        void setSeconds (chrono::seconds new_seconds)
+        void setTimeLimit (chrono::milliseconds time_limit)
         {
-            my_seconds = new_seconds;
+            my_time_limit = time_limit;
         }
 
         void setPeriodicFunction (const PeriodicFunction& periodic_function) noexcept
@@ -114,9 +81,8 @@ namespace wisdom
             my_timer_state.triggered = triggered;
         }
 
-        chrono::seconds my_seconds;
+        chrono::milliseconds my_time_limit;
 
-        TimingAdjustment my_timing_adjustment = TimingAdjustment::create();
         optional<PeriodicFunction> my_periodic_function {};
 
         TimerState my_timer_state {};

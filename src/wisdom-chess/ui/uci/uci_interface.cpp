@@ -384,9 +384,14 @@ namespace wisdom
                 increment = binc.value_or (0);
             }
 
-            int time_for_move = (time_remaining / 30) + increment;
+            // Never more than half of what is left after the overhead, so a
+            // short clock cannot run out. A budget of zero would mean no
+            // limit, so the least is one millisecond.
+            int available = std::max (time_remaining - my_settings.move_overhead_ms, 0);
+            int time_for_move = (available / 30) + increment;
             time_for_move = std::max (time_for_move, 100);
-            search_time = std::chrono::milliseconds { time_for_move };
+            time_for_move = std::min (time_for_move, available / 2);
+            search_time = std::chrono::milliseconds { std::max (time_for_move, 1) };
         }
         else if (infinite)
         {
@@ -413,12 +418,7 @@ namespace wisdom
             {
                 game.setMaxDepth (search_depth);
                 if (search_time.count() > 0)
-                {
-                    auto seconds = std::chrono::duration_cast<std::chrono::seconds> (search_time);
-                    if (seconds.count() == 0)
-                        seconds = std::chrono::seconds { 1 };
-                    game.setSearchTimeout (seconds);
-                }
+                    game.setSearchTimeout (search_time);
                 game.setPeriodicFunction (buildNotifier (current_search_id));
 
                 auto logger = makeUciLogger (debug_mode);
@@ -478,6 +478,11 @@ namespace wisdom
         {
             my_settings.default_depth = std::clamp (*value, 1, 64);
         }
+        else if (option_name == "move overhead" && value.has_value())
+        {
+            my_settings.move_overhead_ms =
+                std::clamp (*value, 0, UciSettings::Max_Move_Overhead_Ms);
+        }
     }
 
     void UciInterface::handleStop()
@@ -512,6 +517,9 @@ namespace wisdom
         sendLine ("option name Hash type spin default 16 min 1 max 1024");
         sendLine ("option name Depth type spin default " + std::to_string (Default_Max_Depth)
                   + " min 1 max 64");
+        sendLine ("option name Move Overhead type spin default "
+                  + std::to_string (UciSettings::Default_Move_Overhead_Ms)
+                  + " min 0 max " + std::to_string (UciSettings::Max_Move_Overhead_Ms));
     }
 
     auto
@@ -590,7 +598,7 @@ namespace wisdom
             {
                 // "stop" means the time is up: the search ends through its
                 // normal timeout and keeps the last completed depth.
-                timer->setSeconds (chrono::seconds { 0 });
+                timer->setTimeLimit (chrono::milliseconds { 0 });
             }
         };
     }

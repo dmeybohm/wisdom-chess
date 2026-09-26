@@ -96,7 +96,7 @@ private slots:
         auto state = game->state();
 
         QCOMPARE( state->getMaxDepth(), 6 );
-        QCOMPARE( state->getSearchTimeout().count(), 7 );
+        QCOMPARE( state->getSearchTimeout(), std::chrono::milliseconds { std::chrono::seconds { 7 } } );
         QCOMPARE( game->config().maxDepth.userDepth(), 3 );
     }
 
@@ -137,7 +137,7 @@ private slots:
 
         auto state = game->state();
         QCOMPARE( state->getMaxDepth(), 2 );
-        QCOMPARE( state->getSearchTimeout().count(), 2 );
+        QCOMPARE( state->getSearchTimeout(), std::chrono::milliseconds { std::chrono::seconds { 2 } } );
         QVERIFY( state->getPlayer (Color::White) == Player::ChessEngine );
         QCOMPARE( game->config().debugLogging, true );
     }
@@ -179,7 +179,7 @@ private slots:
         QVERIFY( clone->state()->getPlayers() == game->state()->getPlayers() );
         QVERIFY( clone->config().players == clone->state()->getPlayers() );
         QCOMPARE( clone->state()->getMaxDepth(), game->state()->getMaxDepth() );
-        QCOMPARE( clone->state()->getSearchTimeout().count(), 7 );
+        QCOMPARE( clone->state()->getSearchTimeout(), std::chrono::milliseconds { std::chrono::seconds { 7 } } );
 
         // Documented on clone(): the moves played so far are not copied.
         QVERIFY( clone->state()->getHistory().getMoveHistory().empty() );

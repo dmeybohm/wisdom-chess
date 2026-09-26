@@ -402,14 +402,14 @@ namespace wisdom
         my_pimpl->my_max_depth = max_depth;
     }
 
-    auto Game::getSearchTimeout() const -> std::chrono::seconds
+    auto Game::getSearchTimeout() const -> std::chrono::milliseconds
     {
-        return my_pimpl->my_move_timer.getSeconds();
+        return my_pimpl->my_move_timer.getTimeLimit();
     }
 
-    void Game::setSearchTimeout (std::chrono::seconds seconds)
+    void Game::setSearchTimeout (std::chrono::milliseconds timeout)
     {
-        my_pimpl->my_move_timer.setSeconds (seconds);
+        my_pimpl->my_move_timer.setTimeLimit (timeout);
     }
 
     auto Game::mapCoordinatesToMove (Coord src, Coord dst, optional<Piece> promoted) const
