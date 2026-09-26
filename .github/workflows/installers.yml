@@ -106,7 +106,7 @@ jobs:
         run: scripts/smoke-test-installer.sh build-installer "$RUNNER_TEMP/wisdom-chess-smoke"
 
       - name: Upload installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: installer-${{ runner.os }}
           path: |
