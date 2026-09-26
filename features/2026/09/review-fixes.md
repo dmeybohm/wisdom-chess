@@ -251,11 +251,12 @@ re-verified on `c14f0e9` after the rebase. Line numbers are from
     a draw offer and the contempt `drawingScore()` returns for its own
     repetitions (`search.cpp:146-155`). Tuning one silently moves the
     other.
-37. **A phantom en passant target is set on every double push.**
-    `move.cpp:201-216` records a target whether or not an enemy pawn
-    can capture, so two otherwise identical positions differing only in
-    a phantom target hash apart, are not counted as repetitions, and
-    cost transposition hits.
+37. **A double push's FEN target and repetition identity differ.**
+    The original review treated a target without an adjacent enemy pawn
+    as phantom. The PGN/FEN specification requires the passed square
+    after every double pawn push. Repetition identity, however, should
+    ignore that target when no legal en passant capture exists. The
+    history-key change is planned on a separate branch.
 
 ## Plan
 
@@ -333,12 +334,10 @@ and an engine match.
   `Search_Draw_Contempt` for `drawingScore()`, initially equal to
   `Min_Draw_Score` so nothing changes, and document both in
   `global.hpp`.
-- **En passant target only when capturable.** Set the target in
-  `updateEnPassantEligibility()` only when an enemy pawn stands beside
-  the destination square. Add a history test that two positions
-  differing only by a phantom target count as the same for repetition,
-  and rerun the full perft suite, since capture generation reads the
-  target.
+- **En passant target after every double push.** Keep the passed square
+  for FEN and move generation even without an adjacent enemy pawn.
+  Test FEN output for both colors. A separate feature will normalize
+  repetition comparisons when the target offers no legal capture.
 
 ### 7. UCI input
 
@@ -549,6 +548,8 @@ Engine:
   two repetition tests: one gains a white pawn so its double push is
   capturable and its point survives, the other now expects the
   repetition one cycle earlier, which is the correct count. The
+  en passant portion of this step was superseded in Session #4 after
+  checking the FEN specification.
   root-timeout test runs the same search twice and cancels on the last
   depth's final periodic timer call; it fails without the change. The
   depth-6 search report against main: every position equal or fewer
@@ -635,3 +636,17 @@ That Windows run then reached the QML settings test, where Qt's
 `QVariant` headers emitted the same C4702 warning as the generated QML
 cache. The QML test helper now applies the suppression to its test
 executables on MSVC.
+
+### Session #4
+
+The PR review clarified that the PGN/FEN specification records the
+passed square after every double pawn push. Removed the adjacent-pawn
+condition and its helper. Added FEN checks for White's and Black's
+opening double pushes, neither of which has an adjacent enemy pawn.
+Removed two history subcases that relied on the old target policy;
+legal-capture normalization and its draw tests belong to the separate
+repetition-key feature.
+
+The new FEN test and all 137 fast engine tests pass in Release and
+Debug. The full Release build, all 244 CTest cases, and the lint target
+pass.

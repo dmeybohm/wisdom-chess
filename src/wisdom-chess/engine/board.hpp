@@ -190,7 +190,6 @@ namespace wisdom
         void makeMove (Color who, Move move);
 
         auto applyForEnPassant (Color who, Coord src, Coord dst) noexcept -> ColoredPiece;
-        [[nodiscard]] auto enemyPawnBeside (Color who, Coord square) const noexcept -> bool;
         void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept;
         void setEnPassantTarget (Color who, Coord target) noexcept;
         void clearEnPassantTarget() noexcept;

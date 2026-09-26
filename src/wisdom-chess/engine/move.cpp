@@ -198,29 +198,14 @@ namespace wisdom
         my_code.clearEnPassantTarget();
     }
 
-    // Whether an opponent's pawn stands beside the square, so that it could
-    // capture a pawn that has just passed there.
-    [[nodiscard]] auto
-    Board::enemyPawnBeside (Color who, Coord square) const noexcept
-        -> bool
-    {
-        auto enemy_pawn = ColoredPiece::make (colorInvert (who), Piece::Pawn);
-        auto row = square.row<int>();
-        auto col = square.column<int>();
-
-        return (isValidColumn (col - 1) && pieceAt (row, col - 1) == enemy_pawn)
-            || (isValidColumn (col + 1) && pieceAt (row, col + 1) == enemy_pawn);
-    }
-
-    // Record an en passant target only when a capture is possible, so that
-    // two positions that differ only by an uncapturable target hash alike
-    // and count as repetitions of each other.
+    // FEN records the passed square after every double pawn push, whether
+    // or not the opponent has a legal en passant capture.
     void 
     Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept
     {
         int direction = pawnDirection<int> (who);
 
-        if (isDoubleSquarePawnMove (src_piece, move) && enemyPawnBeside (who, move.getDst()))
+        if (isDoubleSquarePawnMove (src_piece, move))
         {
             Coord src = move.getSrc();
             int prev_row = nextRow (src.row<int>(), direction);
