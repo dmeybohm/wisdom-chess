@@ -95,3 +95,26 @@ Update `README.md` or `AGENTS.md` only if they describe the workflow
 layout.
 
 ## Implementation Progress
+
+### Session 1 (2026-09-26)
+
+- `cmake.yml`: the matrix is now three `include` entries, RelWithDebInfo
+  on Ubuntu, macOS and Windows. The `Lint QML` step moved to
+  `runner.os == 'Linux'` since Release is no longer in the matrix. The
+  Debug entry and `build-filc` are replaced by `build-release-debug-filc`,
+  which builds Release with the slow tests, Debug, and FIL-C in
+  `build-release`, `build-debug` and `build-filc`. No job has
+  `needs: lint`.
+- `web.yml` stays a separate workflow (step 3's fallback). Its
+  `pull_request_target: closed` trigger for the production deploy would
+  have run every native job on PR close, or needed an `if` on each. Only
+  its duplicate `lint` job and the `needs: lint` were removed.
+- Step 5 (caching the Netlify CLI) was not done.
+- Jobs per PR: `lint`, three `build`, `build-release-debug-filc`,
+  `sanitizers`, web `build`, plus the three path-filtered installers.
+  Nine to twelve, from seventeen.
+- Job names changed, so any required status checks in branch protection
+  that named `build (ubuntu-latest, Release, gcc)` or `build-filc` need
+  updating. The token used here could not read the protection settings.
+- To verify once pushed: `build-release-debug-filc` should finish within
+  about 5 min, under the web `build` job.
