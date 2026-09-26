@@ -88,7 +88,38 @@ Full Debug `ctest` (fast + slow, including both perft suites) passed
 draft PR #286 against `main` (unrebased; `review-fixes` merged as #275
 while this branch existed — see PR description).
 
-Still open for Session #3: step 1 (dedicated history/repetition tests
-for the double-push-with-no-adjacent-pawn, pinned-pawn, and
-legal-capture cases), step 4 (search/transposition table check), and a
-Release-build ctest run.
+### Session #3
+
+Implemented plan step 1. Added `withNormalizedEnPassantTarget` in
+`en_passant_test.cpp` with four subcases directly on `Board`: no target
+to begin with, no adjacent enemy pawn, an adjacent pawn pinned against
+its king (rank pin: rook behind, king on the far side, so the en passant
+capture's double removal exposes check), and a genuine legal capture.
+
+Added two `History`-level test cases covering the same scenarios end to
+end with `isThirdRepetition`/`isFifthRepetition` (so both the probable
+and certain counts are exercised, not just the fast path): "Repetition
+counts a position despite an unusable en passant target" (no-adjacent-
+pawn and pinned-pawn subcases) and "A legal en passant capture keeps a
+position distinct until the right expires". Verified each new test
+actually catches the bug by temporarily reverting `History` to use the
+raw, unnormalized board in all four call sites and confirming the first
+two failed (and the distinctness test still passed, since it doesn't
+depend on the fix) before restoring the real implementation.
+
+Step 4 needed no code change: `search()` keys the transposition table
+off `parent_board.getCode().getHashCode()` (`search.cpp:186`), never
+through `History`, while draw detection goes through the now-normalized
+`history.isProbablyNthRepetition()` (`evaluate.hpp:65`,
+`isProbablyDrawingMove`). The two are already independent, matching the
+plan's accepted trade-off.
+
+Step 5: configured and built a Release tree (`build-release`,
+`-DWISDOM_CHESS_SLOW_TESTS=On`). Full `ctest` passed 240/240 (fast +
+slow, including both perft suites, ~24s total — much faster than the
+Debug run). `cmake --build build-release --target lint` is clean. Fast
+suite is now 206 tests (was 202 before this branch; +4 new cases across
+`en_passant_test.cpp`, `history_test.cpp`, and the FEN castling
+validation from Session #2).
+
+All five plan steps are complete. PR #286 is ready to come out of draft.
