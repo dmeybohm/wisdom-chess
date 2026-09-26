@@ -69,3 +69,53 @@ shell script itself, which would need fake fastchess, git and builds.
   as "Scripts: engine match tally", labelled `fast`, when CMake finds a
   Python interpreter. The results of the two earlier matches are
   unchanged.
+- Steps 2 to 10 in `run-engine-match.sh`:
+  - Interrupts. `grep` and `tee` ignore SIGINT and the script traps it,
+    so after Ctrl-C fastchess's "Tournament was interrupted" message gets
+    through, the games so far are tallied, and the script prints
+    `run-engine-match.sh --resume <results>` and exits with 130.
+    `--resume` runs fastchess from the saved `config.json`, which carries
+    every setting, and the engine names are kept in `engines.txt` for the
+    tally. The summary keeps the partial tally, a "Resumed" line and the
+    final one.
+  - The cache. fastchess is copied and the book unpacked through temporary
+    names. A cached engine that does not answer `uci` within 10 seconds is
+    rebuilt; a freshly built one that does not is an error.
+  - The refusal names `3c48792`, where `Move Overhead` and the timer fixes
+    arrived.
+  - Arguments. Every option that takes a value checks that one is there
+    and is not the next option, the numbers must be whole numbers in range,
+    and `--tc` must look like a fastchess time control, all before any
+    building.
+  - Disk. `build/<commit>` is removed after a successful build; the build
+    log stays.
+  - CPUs. Cores are chosen from the process's `Cpus_allowed_list`, one
+    logical CPU per physical core. When the topology cannot be read the
+    games run unpinned with a warning that says so.
+  - The work directory is locked with `flock` on file descriptor 9, held
+    until the script and everything it started have exited.
+  - `--help` and `summary.txt` mention the depth limit of 64; `tar`,
+    `timeout` and `flock` are checked for; `fastchess.log` loses the
+    per-move warning when the run ends.
+- Tested:
+  - Bad arguments: `--tc` with no value, `--tc a=main`, `--concurrency
+    abc`, `--rounds 0`, `--tc 8+x`, `--resume` of a directory that is not a
+    results directory, and `--resume` with engines. Each fails at once with
+    a message.
+  - A match from an empty work directory: `build/` held only the build
+    logs (16 KB instead of about 180 MB per commit) and `fastchess.log` had
+    none of the per-move warnings.
+  - Interrupt and resume: SIGINT to the process group after 10 seconds of a
+    20-game match. fastchess's resume message came through, the 2 finished
+    games were tallied, the resume command was printed, the exit status was
+    130, no engine was left running and the sleep inhibitor was released.
+    `--resume` then played the rest: fastchess reported 20 games and the
+    PGN held 20.
+  - The lock: a second match in the same work directory failed at once,
+    and the first finished normally.
+  - `taskset -c 0,4,1`, where CPUs 0 and 4 share a core: two games at a
+    time.
+  - A cached engine replaced with a script that exits at once was reported
+    and rebuilt.
+  - The feature log of the original script had one line of about 110
+    columns; rewrapped.
