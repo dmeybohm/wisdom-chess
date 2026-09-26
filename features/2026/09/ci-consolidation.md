@@ -62,15 +62,16 @@ cache warm, checkout and CPM cache are a few seconds.
 - Do not serialize the native platforms or the sanitizer job. Sanitizers
   stay alone; anything added there lands on the critical path.
 - Reduce redundant configurations instead, keeping the wall clock at
-  about 6 min and cutting the job count from 17 to about 11.
+  about 6 min and cutting the job count from 17 to about 10.
 
 ## Plan
 
 1. **Drop Release from the native matrix** in `cmake.yml`. RelWithDebInfo
    stays on all three platforms, since it is the configuration that is
-   deployed, and Debug stays on Ubuntu. This frees one macOS slot per PR,
-   the scarcest resource. Windows RelWithDebInfo is the slower of the two
-   Windows entries, so the critical path does not change.
+   deployed. This frees one macOS slot per PR, the scarcest resource.
+   Windows RelWithDebInfo is the slower of the two Windows entries, so
+   the critical path does not change. One Release build survives in
+   step 4.
 2. **Stop gating builds on `lint`.** Remove `needs: lint` so lint runs in
    parallel. A lint failure still fails the PR; the compute wasted on a
    lint-failing push is free on a public repository.
@@ -80,9 +81,13 @@ cache warm, checkout and CPM cache are a few seconds.
    with it; check the `concurrency` block still cancels only
    `pull_request` runs. If that trigger makes the merge awkward, the
    fallback is to delete only the duplicate `lint` from `web.yml`.
-4. **Merge Debug and FIL-C into one Ubuntu job**, run serially. About
-   3 min total, well under the critical path. Marginal; do last, or skip
-   if it makes the matrix harder to read.
+4. **One Ubuntu job for Release, Debug and FIL-C**, run serially in
+   separate build directories, replacing the Debug matrix entry and
+   `build-filc`. Release and Debug share the Qt install; FIL-C builds
+   with the QML UI off as it does today. Roughly 28 s Qt, 130 s Release
+   build and tests, 70 s Debug, 80 s FIL-C: about 5 min, just under the
+   WASM job. Keep the Release step with the slow tests on so the
+   optimized engine is still tested at `-O3`.
 5. Optionally cache or `npx` the Netlify CLI in the WASM job to save
    30 s.
 
