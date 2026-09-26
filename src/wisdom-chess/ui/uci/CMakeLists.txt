@@ -24,6 +24,7 @@ if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS)
             "id name Wisdom Chess"
             "option name Hash type spin default 16 min 1 max 1024"
             "option name Depth type spin"
+            "option name Move Overhead type spin default 10 min 0 max 5000"
             "uciok.*readyok"
         FORBIDDEN "bestmove")
 
@@ -109,6 +110,13 @@ if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS)
         INPUT "position startpos moves g1f3 g8f6 f3g1 f6g8" "go depth 4" "stop"
               "position startpos" "go depth 3" "stop" "quit"
         EXPECTED "score: 90 \\][ \t\r\n]*bestmove b1c3")
+
+    # With the whole clock kept back as overhead, the search gets the least
+    # budget there is and still answers with a legal move.
+    wisdom_chess_add_cli_test("UCI: a clock inside the Move Overhead still answers" wisdom-chess-uci
+        INPUT "setoption name Move Overhead value 1000" "position startpos"
+              "go wtime 500 btime 500" "stop" "quit"
+        EXPECTED "bestmove [a-h][1-8][a-h][1-8]")
 
     wisdom_chess_add_cli_test("UCI: a search answers after the Hash option" wisdom-chess-uci
         INPUT "setoption name Hash value 1" "position startpos" "go depth 2" "stop" "quit"
