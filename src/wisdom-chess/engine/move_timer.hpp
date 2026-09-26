@@ -58,8 +58,8 @@ namespace wisdom
     public:
         using PeriodicFunction = std::function<void(nonnull_observer_ptr<MoveTimer>)>;
 
-        explicit MoveTimer (chrono::seconds seconds)
-            : my_seconds { seconds }
+        explicit MoveTimer (chrono::milliseconds time_limit)
+            : my_time_limit { time_limit }
         {
         }
 
@@ -85,15 +85,15 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        getSeconds() const noexcept
-            -> chrono::seconds
+        getTimeLimit() const noexcept
+            -> chrono::milliseconds
         {
-            return my_seconds;
+            return my_time_limit;
         }
 
-        void setSeconds (chrono::seconds new_seconds)
+        void setTimeLimit (chrono::milliseconds time_limit)
         {
-            my_seconds = new_seconds;
+            my_time_limit = time_limit;
         }
 
         void setPeriodicFunction (const PeriodicFunction& periodic_function) noexcept
@@ -114,7 +114,7 @@ namespace wisdom
             my_timer_state.triggered = triggered;
         }
 
-        chrono::seconds my_seconds;
+        chrono::milliseconds my_time_limit;
 
         TimingAdjustment my_timing_adjustment = TimingAdjustment::create();
         optional<PeriodicFunction> my_periodic_function {};

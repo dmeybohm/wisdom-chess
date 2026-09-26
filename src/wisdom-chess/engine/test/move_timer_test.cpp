@@ -28,13 +28,32 @@ TEST_CASE( "MoveTimer" )
     SUBCASE( "The time budget can be read and changed" )
     {
         MoveTimer timer { 5 };
-        CHECK( timer.getSeconds() == chrono::seconds { 5 } );
+        CHECK( timer.getTimeLimit() == chrono::seconds { 5 } );
 
-        timer.setSeconds (chrono::seconds { 7 });
-        CHECK( timer.getSeconds() == chrono::seconds { 7 } );
+        timer.setTimeLimit (chrono::seconds { 7 });
+        CHECK( timer.getTimeLimit() == chrono::seconds { 7 } );
 
         MoveTimer from_duration { chrono::seconds { 3 } };
-        CHECK( from_duration.getSeconds() == chrono::seconds { 3 } );
+        CHECK( from_duration.getTimeLimit() == chrono::seconds { 3 } );
+
+        MoveTimer from_milliseconds { chrono::milliseconds { 250 } };
+        CHECK( from_milliseconds.getTimeLimit() == chrono::milliseconds { 250 } );
+    }
+
+    SUBCASE( "A budget of less than a second is kept to" )
+    {
+        MoveTimer timer { chrono::milliseconds { 50 } };
+        auto start = chrono::steady_clock::now();
+        timer.start();
+
+        while (!timer.isTriggered())
+        {
+            REQUIRE( chrono::steady_clock::now() - start < chrono::seconds { 5 } );
+        }
+
+        auto elapsed = chrono::steady_clock::now() - start;
+        CHECK( elapsed >= chrono::milliseconds { 50 } );
+        CHECK( elapsed < chrono::milliseconds { 500 } );
     }
 
     SUBCASE( "A timer that was never started does not trigger" )
@@ -167,7 +186,7 @@ TEST_CASE( "MoveTimer periodic function" )
             [&] (nonnull_observer_ptr<MoveTimer> the_timer)
             {
                 periodic_calls++;
-                the_timer->setSeconds (chrono::seconds { 0 });
+                the_timer->setTimeLimit (chrono::milliseconds { 0 });
             }
         );
         timer.start();

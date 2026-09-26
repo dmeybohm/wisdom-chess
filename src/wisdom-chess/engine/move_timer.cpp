@@ -56,7 +56,7 @@ namespace wisdom
 
         my_timer_state.last_check_time = check_time;
 
-        if (diff_time >= my_seconds)
+        if (diff_time >= my_time_limit)
         {
             my_timer_state.triggered = true;
             return true;

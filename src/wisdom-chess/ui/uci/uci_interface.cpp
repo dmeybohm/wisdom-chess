@@ -384,9 +384,12 @@ namespace wisdom
                 increment = binc.value_or (0);
             }
 
+            // Never more than half of what is left, so a short clock
+            // cannot run out.
             int time_for_move = (time_remaining / 30) + increment;
             time_for_move = std::max (time_for_move, 100);
-            search_time = std::chrono::milliseconds { time_for_move };
+            time_for_move = std::min (time_for_move, time_remaining / 2);
+            search_time = std::chrono::milliseconds { std::max (time_for_move, 1) };
         }
         else if (infinite)
         {
@@ -413,12 +416,7 @@ namespace wisdom
             {
                 game.setMaxDepth (search_depth);
                 if (search_time.count() > 0)
-                {
-                    auto seconds = std::chrono::duration_cast<std::chrono::seconds> (search_time);
-                    if (seconds.count() == 0)
-                        seconds = std::chrono::seconds { 1 };
-                    game.setSearchTimeout (seconds);
-                }
+                    game.setSearchTimeout (search_time);
                 game.setPeriodicFunction (buildNotifier (current_search_id));
 
                 auto logger = makeUciLogger (debug_mode);
@@ -590,7 +588,7 @@ namespace wisdom
             {
                 // "stop" means the time is up: the search ends through its
                 // normal timeout and keeps the last completed depth.
-                timer->setSeconds (chrono::seconds { 0 });
+                timer->setTimeLimit (chrono::milliseconds { 0 });
             }
         };
     }

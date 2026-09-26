@@ -28,7 +28,7 @@ namespace wisdom::test
         auto build (const Board& board, int depth, int time = 30)
             -> IterativeSearch
         {
-            timer.setSeconds (chrono::seconds { time });
+            timer.setTimeLimit (chrono::seconds { time });
             return IterativeSearch::create (board, history, logger, timer, depth, transposition_table);
         }
     };
@@ -423,7 +423,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
 
     // Search from initial position (Black to move)
     {
-        timer.setSeconds (chrono::seconds { 1 });
+        timer.setTimeLimit (chrono::seconds { 1 });
         auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
         (void)search.iterativelyDeepen (Color::Black);
     }
@@ -435,7 +435,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
 
     // Search from this position (White to move)
     {
-        timer.setSeconds (chrono::seconds { 1 });
+        timer.setTimeLimit (chrono::seconds { 1 });
         auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
         (void)search.iterativelyDeepen (Color::White);
     }
@@ -447,7 +447,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
 
     // Search from this position (Black to move)
     {
-        timer.setSeconds (chrono::seconds { 1 });
+        timer.setTimeLimit (chrono::seconds { 1 });
         auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
         (void)search.iterativelyDeepen (Color::Black);
     }
@@ -460,7 +460,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // 2nd occurrence: Bd6, Ra6
     // Search from this position (White to move)
     {
-        timer.setSeconds (chrono::seconds { 1 });
+        timer.setTimeLimit (chrono::seconds { 1 });
         auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
         (void)search.iterativelyDeepen (Color::White);
     }
@@ -472,7 +472,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
 
     // Search from this position (Black to move)
     {
-        timer.setSeconds (chrono::seconds { 1 });
+        timer.setTimeLimit (chrono::seconds { 1 });
         auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
         (void)search.iterativelyDeepen (Color::Black);
     }
@@ -484,7 +484,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
 
     // Search from this position (White to move)
     {
-        timer.setSeconds (chrono::seconds { 1 });
+        timer.setTimeLimit (chrono::seconds { 1 });
         auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
         (void)search.iterativelyDeepen (Color::White);
     }
@@ -499,7 +499,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // The TT now has cached scores for these positions from earlier searches
     // that didn't have the full repetition history.
 
-    timer.setSeconds (chrono::seconds { 1 });
+    timer.setTimeLimit (chrono::seconds { 1 });
     auto search = IterativeSearch::create (board, history, logger, timer, final_depth, tt);
     auto result = search.iterativelyDeepen (Color::Black);
 
