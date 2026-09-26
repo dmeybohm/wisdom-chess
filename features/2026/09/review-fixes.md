@@ -194,8 +194,13 @@ Every item was verified by reading the code on `main` at `185c0d5`.
     `BUILD_LINTER`, `QT_DIR`; `FILC_COMPAT` appears only in prose. The
     "Running Tests" section runs the two doctest binaries by hand and
     never mentions `ctest`, the CLI, QML, view-model or React tests, or
-    the sanitizer build. Qt is stated as 6.8+ while CI uses 6.9. Let's
-    document these in a separate document linked to from README.md.
+    the sanitizer build. Qt is stated as 6.8+ while CI uses 6.9. More
+    broadly, the README is written for developers: of its 273 lines,
+    the first 17 and the last 20 are for someone who wants to play, and
+    the installer download instructions sit in the middle of the build
+    recipes. With installers attached to every tagged release, the
+    README's first reader is an end user, and the build documentation
+    belongs in a separate document linked from it.
 32. **Workflow drift.** `cmake.yml` carries a stale comment about
     MSVC 2022 above `windows-latest`; `web.yml`'s `lint` job duplicates
     `cmake.yml`'s but skips the linter self-tests; no
@@ -356,16 +361,44 @@ enums with `enum class` if Embind allows it; otherwise move them into a
 Add `WISDOM_CHESS_WERROR` (default Off) that appends `-Werror`/`/WX` in
 `Warnings.cmake`, turn it on in every `cmake.yml` and `web.yml` build
 job, and fix whatever it surfaces per platform in the same commit.
-Move the CMake option table and the test instructions out of
-`README.md` into a new `docs/building-and-testing.md` that lists all
-fourteen options and describes `ctest`, the labels, the CLI, QML,
-view-model and React suites and the sanitizer build, matching AGENTS.md;
-`README.md` keeps the per-frontend build recipes and links to it. Bump
-the stated Qt minimum to 6.9. Delete the stale MSVC comment, make `web.yml`'s lint job run the
+Delete the stale MSVC comment, make `web.yml`'s lint job run the
 linter self-tests, add `.github/dependabot.yml` for GitHub Actions and
 npm, and commit `cpm-package-lock.cmake`.
 
-### 13. Linter
+### 13. End-user README and developer docs
+
+Split `README.md` in two.
+
+`README.md` is for someone who wants to play. In order: the title and
+animation, a two-sentence description, the play-online link, a
+**Download** section, **Features**, **Screenshots**, a short
+**Building from source** paragraph that links to the developer
+document, **Contributing** and **License** with the third-party assets.
+The Download section names the three installers, links the GitHub
+Releases page, and keeps the per-OS "not code-signed" instructions
+(SmartScreen, Gatekeeper, `chmod +x`) and the uninstall note that today
+sit in the middle of the build recipes, since those are the first thing
+a downloader hits. The Linux runtime-library list and the glibc floor
+stay with it. The Features list is rewritten to say what a player gets:
+play against the engine or another person, choose colour and strength,
+draw claims for repetition and the fifty-move rule, and every platform
+the app ships on.
+
+`docs/building.md` is for developers and takes everything else:
+prerequisites, the per-frontend recipes (console, React and
+WebAssembly, Qt desktop, QML and WebAssembly, Android, FIL-C), building
+and smoke-testing an installer locally, a table of all fourteen CMake
+options, and a **Running tests** section that describes `ctest`, the
+`fast` and `slow` labels, the `UCI:`, `Console:`, `QML:`, view-model
+and React suites, and the sanitizer build, matching AGENTS.md. It
+states Qt 6.9 as the version CI uses.
+
+`AGENTS.md` currently says the build recipes are in `README.md` and
+that a new option is documented "in both"; both sentences change to
+name `docs/building.md`. The `Contributing` section of the README
+points at `docs/building.md` first and `AGENTS.md` second.
+
+### 14. Linter
 
 Track `/* */` and trailing `//` comments in the line scanner, add
 `Q_UNUSED` to the exception list, and add fixtures for each. Reformat
@@ -384,5 +417,8 @@ Track `/* */` and trailing `//` comments in the line scanner, add
 - Step 12's `-Werror` may fail on MSVC or AppleClang for warnings the
   Linux build never showed. The option stays Off by default so a local
   build is never blocked.
+- Step 13 moves text that external links may point at. The README
+  keeps a "Building from source" heading so an old anchor lands on the
+  pointer to the new location.
 
 ## Implementation Progress
