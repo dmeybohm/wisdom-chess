@@ -58,7 +58,8 @@ search change can be measured the same way.
   `games.pgn`, `fastchess.log`, `fastchess.out` (without fastchess's
   warning that the engines print no scores, one per move), `summary.txt`,
   and fastchess's saved state, `config.json`. fastchess writes that to the
-  current directory, so it runs from the results directory. The summary records the commits and settings, and ends with
+  current directory, so it runs from the results directory. The summary
+  records the commits and settings, and ends with
   `scripts/engine-match-tally.py`: wins, draws and losses for each pairing,
   an Elo difference, a 95% range from a normal approximation, and a warning
   for any game lost on time. fastchess's own standings rate each engine
