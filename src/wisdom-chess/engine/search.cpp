@@ -167,7 +167,7 @@ namespace wisdom
     )
         -> int
     {
-        if (isProbablyDrawingMove (parent_board, my_history) != DrawCategory::NoDraw)
+        if (isProbablyDrawingMove (parent_board, my_history))
         {
             my_draw_nodes++;
             return drawingScore (my_searching_color, side);
@@ -279,21 +279,6 @@ namespace wisdom
         return best_score;
     }
 
-    // Whether the side to move could be stalemated, judged by material: it
-    // has no queen or rook and at most one minor piece besides its king
-    // and pawns. Only then is a legal-move test at the horizon worth its
-    // cost.
-    [[nodiscard]] static auto
-    stalemateIsPlausible (const Board& board, Color side)
-        -> bool
-    {
-        const auto& material = board.getMaterial();
-        return material.pieceCount (side, Piece::Queen) == 0
-            && material.pieceCount (side, Piece::Rook) == 0
-            && material.pieceCount (side, Piece::Knight)
-                + material.pieceCount (side, Piece::Bishop) <= 1;
-    }
-
     auto
     IterativeSearchImpl::quiesce ( // NOLINT(misc-no-recursion)
         const Board& board,
@@ -307,7 +292,7 @@ namespace wisdom
     {
         // The main search has already checked the first node for a draw.
         if (quiescence_ply > 0
-            && isProbablyDrawingMove (board, my_history) != DrawCategory::NoDraw)
+            && isProbablyDrawingMove (board, my_history))
         {
             my_draw_nodes++;
             return drawingScore (my_searching_color, side);
@@ -330,7 +315,7 @@ namespace wisdom
         }
         else
         {
-            if (stalemateIsPlausible (board, side) && !hasLegalMove (board))
+            if (!hasLegalMove (board))
                 return evaluateWithoutLegalMoves (board, side, ply);
 
             best_score = evaluateWithoutMateTest (board, side);
