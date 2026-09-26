@@ -109,12 +109,36 @@ namespace wisdom
         try
         {
             string cstr { en_passant_str.substr (0, 2) };
-            builder.setEnPassantTarget (colorInvert (active_player), cstr);
+            Color vulnerable_color = colorInvert (active_player);
+            validateEnPassantTarget (vulnerable_color, coordParse (cstr));
+            builder.setEnPassantTarget (vulnerable_color, cstr);
         }
         catch (const CoordParseError& e)
         {
             throw FenParserError ("Error parsing en passant coordinate: " + e.message());
         }
+    }
+
+    // Move generation trusts that an en passant target was left by a pawn
+    // that just moved two squares, and never re-checks the squares itself.
+    void FenParser::validateEnPassantTarget (Color vulnerable_color, Coord target)
+    {
+        int target_row = vulnerable_color == Color::White
+            ? White_En_Passant_Row
+            : Black_En_Passant_Row;
+        if (target.row<int>() != target_row)
+            throw FenParserError ("En passant target is on the wrong rank for the side to move!");
+
+        int direction = pawnDirection<int> (vulnerable_color);
+        int column = target.column<int>();
+        auto pawn = builder.pieceAt (makeCoord (nextRow (target_row, direction), column));
+        if (pawn != ColoredPiece::make (vulnerable_color, Piece::Pawn))
+            throw FenParserError ("En passant target requires a pawn that just moved two squares!");
+
+        auto crossed = builder.pieceAt (target);
+        auto origin = builder.pieceAt (makeCoord (nextRow (target_row, -direction), column));
+        if (crossed != Piece_And_Color_None || origin != Piece_And_Color_None)
+            throw FenParserError ("En passant target requires empty squares behind the pawn!");
     }
 
     void FenParser::parseCastling (string castling_str)
@@ -146,17 +170,18 @@ namespace wisdom
             }
         }
 
-        validateCastlingRookPresent (Color::White, white_castle);
-        validateCastlingRookPresent (Color::Black, black_castle);
+        validateCastlingPieces (Color::White, white_castle);
+        validateCastlingPieces (Color::Black, black_castle);
 
         builder.setCastling (Color::White, white_castle);
         builder.setCastling (Color::Black, black_castle);
     }
 
     // Move generation trusts that a castling-eligibility bit is only set
-    // when the corresponding rook still sits on its home square; it never
-    // re-checks the square itself before applying a castling move.
-    void FenParser::validateCastlingRookPresent (Color who, CastlingEligibility eligibility)
+    // when the king and the corresponding rook still sit on their home
+    // squares; it never re-checks the squares itself before applying a
+    // castling move.
+    void FenParser::validateCastlingPieces (Color who, CastlingEligibility eligibility)
     {
         auto row = castlingRowForColor<int> (who);
 
@@ -165,6 +190,13 @@ namespace wisdom
             auto piece = builder.pieceAt (makeCoord (row, col));
             return pieceType (piece) == Piece::Rook && pieceColor (piece) == who;
         };
+
+        auto king = builder.pieceAt (makeCoord (row, King_Column));
+        if (eligibility != CastlingEligibility::Neither_Side
+            && king != ColoredPiece::make (who, Piece::King))
+        {
+            throw FenParserError ("Castling rights require the king on its home square!");
+        }
 
         if (eligibility.canCastleKingside() && !hasRookAt (King_Rook_Column))
             throw FenParserError ("Castling rights require a rook on its home square!");
