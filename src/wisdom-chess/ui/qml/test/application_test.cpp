@@ -123,6 +123,174 @@ private slots:
         QVERIFY( my_app->game_model.qmlCurrentTurn() == wisdom::ui::Color::White );
     }
 
+    void draggingAPieceMovesIt()
+    {
+        auto* pawn = my_app->pieceAt ("e2");
+
+        my_app->drag ("e2", "e4");
+
+        QVERIFY( my_app->boardPieceAt ("e4") == ColoredPiece::make (Color::White, Piece::Pawn) );
+        QCOMPARE( my_app->pieceAt ("e4"), pawn );
+        QTRY_VERIFY( drawnOn (*my_app, pawn, "e4") );
+        QVERIFY( my_app->game_model.qmlCurrentTurn() == wisdom::ui::Color::Black );
+        QCOMPARE( my_app->game_model.qmlMoveStatus(), QString {} );
+        QVERIFY( !my_app->squareAt ("e2")->hasActiveFocus() );
+    }
+
+    // The piece hangs from the pointer, wherever that is, and lands where
+    // it is let go. The press is in the middle of the square, so the piece
+    // is centred under the pointer to within the rounding of the events.
+    void aDraggedPieceFollowsThePointer()
+    {
+        auto* pawn = my_app->pieceAt ("e2");
+        auto e3 = drawnAt (my_app->squareAt ("e3"));
+
+        my_app->startDrag ("e2", "e3");
+        auto at = drawnAt (pawn);
+        QVERIFY2( qAbs (at.x() - e3.x()) < 1.5 && qAbs (at.y() - e3.y()) < 1.5,
+                  qPrintable (QStringLiteral ("pawn drawn at %1, %2").arg (at.x()).arg (at.y())) );
+
+        my_app->finishDrag ("e3");
+
+        QVERIFY( my_app->boardPieceAt ("e3") == ColoredPiece::make (Color::White, Piece::Pawn) );
+        QTRY_VERIFY( drawnOn (*my_app, pawn, "e3") );
+    }
+
+    void anIllegalDragPutsThePieceBack()
+    {
+        auto* pawn = my_app->pieceAt ("e2");
+
+        my_app->drag ("e2", "e5");
+
+        QCOMPARE( my_app->game_model.qmlMoveStatus(), QStringLiteral ("Illegal move") );
+        QCOMPARE( my_app->pieceAt ("e2"), pawn );
+        QVERIFY( my_app->game_model.qmlCurrentTurn() == wisdom::ui::Color::White );
+        QTRY_VERIFY( drawnOn (*my_app, pawn, "e2") );
+    }
+
+    void aDragOffTheBoardPutsThePieceBack()
+    {
+        auto* pawn = my_app->pieceAt ("a2");
+        auto a1 = drawnAt (my_app->squareAt ("a1"));
+
+        my_app->startDrag (drawnAt (my_app->squareAt ("a2")), a1 + QPointF { 0, my_app->squareSize() });
+        my_app->finishDrag (a1 + QPointF { 0, my_app->squareSize() });
+
+        QCOMPARE( my_app->game_model.qmlMoveStatus(), QString {} );
+        QCOMPARE( my_app->pieceAt ("a2"), pawn );
+        QTRY_VERIFY( drawnOn (*my_app, pawn, "a2") );
+    }
+
+    // A piece that is not the human's to move never leaves its square.
+    void aDragDuringTheComputersTurnDoesNothing()
+    {
+        auto* pawn = my_app->pieceAt ("e2");
+        my_app->makeCurrentPlayerComputer();
+
+        my_app->startDrag ("e2", "e4");
+        QVERIFY( drawnOn (*my_app, pawn, "e2") );
+        my_app->finishDrag ("e4");
+
+        QCOMPARE( my_app->game_model.qmlMoveStatus(), QString {} );
+        QVERIFY( my_app->boardPieceAt ("e4") == wisdom::Piece_And_Color_None );
+        QVERIFY( drawnOn (*my_app, pawn, "e2") );
+    }
+
+    void draggingTheOpponentsPieceDoesNothing()
+    {
+        auto* pawn = my_app->pieceAt ("e7");
+
+        my_app->startDrag ("e7", "e5");
+        QVERIFY( drawnOn (*my_app, pawn, "e7") );
+        my_app->finishDrag ("e5");
+
+        QCOMPARE( my_app->game_model.qmlMoveStatus(), QString {} );
+        QVERIFY( my_app->boardPieceAt ("e5") == wisdom::Piece_And_Color_None );
+        QVERIFY( my_app->game_model.qmlCurrentTurn() == wisdom::ui::Color::White );
+
+        my_app->drag ("e2", "e4");
+        QVERIFY( my_app->boardPieceAt ("e4") == ColoredPiece::make (Color::White, Piece::Pawn) );
+    }
+
+    // Lifting a piece forgets a square chosen by a click, and the two ways
+    // of moving take turns without getting in each other's way.
+    void aDragClearsAClickSelection()
+    {
+        my_app->click ("a2");
+        QVERIFY( my_app->squareAt ("a2")->hasActiveFocus() );
+
+        my_app->drag ("e2", "e4");
+
+        QVERIFY( !my_app->squareAt ("a2")->hasActiveFocus() );
+        QVERIFY( my_app->boardPieceAt ("e4") == ColoredPiece::make (Color::White, Piece::Pawn) );
+
+        my_app->move ("d7", "d5");
+        QVERIFY( my_app->boardPieceAt ("d5") == ColoredPiece::make (Color::Black, Piece::Pawn) );
+    }
+
+    void aDragToPromotionOpensTheDropdown()
+    {
+        my_app->move ("h2", "h4");
+        my_app->move ("g7", "g5");
+        my_app->move ("h4", "g5");
+        my_app->move ("h7", "h6");
+        my_app->move ("g5", "h6");
+        my_app->move ("g8", "f6");
+        my_app->move ("h6", "h7");
+        my_app->move ("f6", "g8");
+        auto* pawn = my_app->pieceAt ("h7");
+
+        // The pawn goes back to wait for the choice.
+        my_app->drag ("h7", "g8");
+        QVERIFY( my_app->boardPieceAt ("h7") == ColoredPiece::make (Color::White, Piece::Pawn) );
+        QTRY_VERIFY( drawnOn (*my_app, pawn, "h7") );
+
+        my_app->click ("g5");
+        my_app->click ("g5");
+
+        QVERIFY( my_app->boardPieceAt ("g8") == ColoredPiece::make (Color::White, Piece::Knight) );
+        QCOMPARE( my_app->pieceAt ("g8"), pawn );
+        QTRY_VERIFY( drawnOn (*my_app, pawn, "g8") );
+    }
+
+    void draggingOnTheFlippedBoardLandsOnTheRightSquare()
+    {
+        auto before = drawnAt (my_app->pieceAt ("a1"));
+        auto settings = my_app->game_model.cloneUISettings();
+        const auto& meta_object = UISettings::staticMetaObject;
+        meta_object.property (meta_object.indexOfProperty ("flipped")).writeOnGadget (&settings, true);
+        my_app->game_model.setUISettings (settings);
+        auto distance = my_app->squareSize() * 7;
+        QTRY_VERIFY( qAbs (drawnAt (my_app->pieceAt ("a1")).x() - (before.x() + distance)) < 1.0 );
+        QTRY_VERIFY( qAbs (drawnAt (my_app->pieceAt ("a1")).y() - (before.y() - distance)) < 1.0 );
+        auto* pawn = my_app->pieceAt ("e2");
+
+        my_app->drag ("e2", "e4");
+
+        QVERIFY( my_app->boardPieceAt ("e4") == ColoredPiece::make (Color::White, Piece::Pawn) );
+        QCOMPARE( my_app->pieceAt ("e4"), pawn );
+        QTRY_VERIFY( drawnOn (*my_app, pawn, "e4") );
+    }
+
+    // A finger taps the two squares; dragging is for the mouse.
+    void aFingerTapsButDoesNotDrag()
+    {
+        auto* pawn = my_app->pieceAt ("e2");
+
+        my_app->touchDrag ("e2", "e4");
+
+        QVERIFY( my_app->boardPieceAt ("e4") == wisdom::Piece_And_Color_None );
+        QCOMPARE( my_app->game_model.qmlMoveStatus(), QString {} );
+        QVERIFY( drawnOn (*my_app, pawn, "e2") );
+
+        my_app->touchTap ("e2");
+        my_app->touchTap ("e4");
+
+        QVERIFY( my_app->boardPieceAt ("e4") == ColoredPiece::make (Color::White, Piece::Pawn) );
+        QCOMPARE( my_app->pieceAt ("e4"), pawn );
+        QTRY_VERIFY( drawnOn (*my_app, pawn, "e4") );
+    }
+
     void aCaptureRemovesThePieceFromTheBoard()
     {
         my_app->move ("e2", "e4");

@@ -104,6 +104,21 @@ namespace wisdom::ui
     }
 
     auto
+    GameViewModelBase::canMoveFrom (int row, int col) const
+        -> bool
+    {
+        auto game = getGame();
+
+        if (game->status() != GameStatus::Playing || game->getCurrentPlayer() != Player::Human)
+        {
+            return false;
+        }
+
+        auto piece = game->getBoard().pieceAt (row, col);
+        return piece != Piece_And_Color_None && pieceColor (piece) == game->getCurrentTurn();
+    }
+
+    auto
     GameViewModelBase::isLegalMove (Move selectedMove) const
         -> bool
     {
