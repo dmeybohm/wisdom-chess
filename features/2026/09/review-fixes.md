@@ -500,3 +500,113 @@ Track `/* */` and trailing `//` comments in the line scanner, add
   step 10 around the singleton registration now on `main`.
 - Added the engine match script to the verification of every
   strength-affecting step.
+
+### Session #2
+
+Implemented every step, one commit each, on top of `c14f0e9`. Each
+engine step was run in Debug and Release, and every step ended with the
+full `ctest` run, the style linter and, where QML was touched, qmllint.
+The final tree passes 243 tests, builds with `WISDOM_CHESS_WERROR=On`
+under GCC and under Emscripten's Clang, and passes the React type check,
+the generated-types check and all 50 vitest cases.
+
+Engine:
+
+- **Step 1** (`7ffeb5d`): the mask is now `Piece_Hash_Mask`, derived from
+  `Total_Metadata_Bits`. The new test sets every piece on every square,
+  changes the turn and checks the hash bits survive; it fails 728
+  assertions on the old mask. A 200-game match against `main` scored
+  -3 Elo (-36 to +29): no measurable change, as expected.
+- **Step 2** (`4f3af65`): eight cells corrected, one more than the review
+  found (bishop row 0, column 7, and a queen cell that was also a slip
+  against the source table). The symmetry test reads each table back
+  through a board. None of the specific-move search tests changed.
+  Matches against the hash commit: 200 games -26 Elo (-62 to +9), then
+  500 games -5 Elo (-26 to +16). No measurable change; the tables now
+  match Michniewski's.
+- **Step 3** (`5a63319`): the helpers went into `str.hpp` rather than
+  `global.hpp`, at the author's request, as constexpr ASCII functions;
+  they also replaced the one-off constexpr `toLower (int)` that
+  `coord.hpp` used. The console's draw prompt and `fen_parser.cpp` were
+  further call sites the review had missed.
+- **Step 4** (`9a5d881`): `History::replaceLastPosition()` keeps the
+  history in step with `setCurrentTurn()`; the mutation check fails
+  without it. The guards went on the `Game` methods that take a colour
+  (`getPlayer`, `computerWantsDraw`, `setCurrentTurn`,
+  `setProposedDrawStatus`) rather than on `colorIndex()`, which is on
+  the hot path and keeps its `assert`. The console's zero check moved
+  here from step 8 so no step leaves `maxdepth 0` throwing.
+- **Step 5** (`6974125`): as planned, except that `BoardCode::fromEmptyBoard()`
+  and `Board::isEnPassantVulnerable()` stay: both are used by many
+  tests as the natural way to build or query a position, and neither
+  duplicates anything. `Board::withRandomPosition()` needed the board's
+  private members, so it and its test were deleted rather than moved.
+  The benchmark shows no slowdown from the single ray template: perft
+  16.1M nodes/s against main's 15.5M on the same machine.
+- **Step 6** (`e2459f9`, `112134b`, `9680d10`, `203dc38`): all four.
+  The stalemate test position (`k7/P7/1K6/8/8/8/8/8 w`) makes the engine
+  play the stalemating Ka6 without the gate. The en passant change moved
+  two repetition tests: one gains a white pawn so its double push is
+  capturable and its point survives, the other now expects the
+  repetition one cycle earlier, which is the correct count. The
+  root-timeout test runs the same search twice and cancels on the last
+  depth's final periodic timer call; it fails without the change. The
+  depth-6 search report against main: every position equal or fewer
+  nodes, the middlegame position 30% fewer.
+
+Frontends:
+
+- **Step 7** (`4771024`): as planned, plus an invalid FEN is now reported
+  whether or not debug mode is on; the test that pinned silence was
+  changed to expect the report, since UCI GUIs show `info string` lines.
+  Five new `UCI:` scripts.
+- **Step 8** (`a5c478d`): as planned. Three new `Console:` scripts,
+  including an empty answer to a draw offer.
+- **Step 9** (`db35acf`): `ChessEngine::my_move_awaiting_gui` is the
+  guard; `engineThreadMoved()` checks the slot with `expects`. The new
+  application test sets both players to Computer, changes a setting
+  while a move is held, and replays every shown move from the start;
+  with both guards disabled it fails on a White move played for Black.
+  Cancelled searches report `searchInterrupted`.
+- **Step 10** (`981ec6e`): every QML C++ class is in `wisdom::ui::qml`.
+  Two things the plan did not foresee: inside that namespace an
+  unqualified `Color` or `Player` finds the `wisdom::ui` mirror enums,
+  so each source file declares `using wisdom::Color; using wisdom::Player;`;
+  and qmllint could not resolve the `Q_INVOKABLE` clone methods' gadget
+  return types until they were spelled in full.
+- **Step 11** (`af1375d`): `negotiateDraw()` and `transitionGameStatus()`
+  in the view-model library, used by `ChessEngine` and the WASM worker;
+  `GameModel::handleDrawStatusChange()` calls the base. View-model tests
+  cover the negotiation and a new `QML: ChessEngine` unit test covers
+  its use. The React side still asks the WASM model for both human
+  colours and calls `setHumanDrawStatus` twice; folding that into one
+  `answerDraw` binding is left for a later branch.
+- **Step 12** (`7889811`): `wisdom::ui::GameSettings` with the ranges and
+  `applyTo()`. `ChessGame::Config` is an alias of it and `MaxDepth` is
+  gone; out-of-range values are rejected when applied. The QML sliders
+  read `GameModel.minThinkingTime` and friends; the React slider reads
+  the same numbers through four new `GameModel` bindings, so both stop
+  at 30 seconds. The WASM enums are enum classes: webidl_binder allows
+  one `::` in a value and emits it verbatim, so the IDL spells them
+  through the global aliases (`wisdom_WebPlayer::Human`), which keeps
+  the JavaScript names, and the bound methods take the enum types
+  instead of `int`. The settings restart is a `restart_requested` flag
+  the worker's timer checks, cleared when the settings arrive.
+
+Build, CI and docs:
+
+- **Step 13** (`21fa3e3`): `WISDOM_CHESS_WERROR`, on in every CI build
+  except FIL-C, whose compiler could not be checked here; the web build
+  gets it through an environment variable its script reads. GCC and
+  Emscripten's Clang were verified warning-free locally; MSVC and
+  AppleClang will be seen on the first CI run.
+- **Step 14** (`9a2e7d8`): as planned. The options table gained
+  `WISDOM_CHESS_WERROR`, `BUILD_LINTER` and `VCREDIST`.
+- **Step 15** (`3391b16`): `stripComments()` in the linter library blanks
+  comments column for column; both scanning rules use it. The reformat
+  of the linter's sources was mechanical and whitespace-only
+  (`git diff -w` shows no other change), and the lint target names the
+  sources rather than the directory so the fixtures stay out.
+
+Left for later branches: the React draw answer (step 11 above); the
+`web::` namespace was not needed once the enums became enum classes.
