@@ -60,8 +60,10 @@ calls it at every entry point (`fromInitialBoard`, `addTentativePosition`,
 `isProbablyNthRepetition` and `isCertainlyNthRepetition`.
 
 `review-fixes` merged into `main` as PR #275 while this branch existed,
-so this branch will target `main` (rebased onto it) rather than
-`review-fixes`.
+so this branch targets `main` rather than `review-fixes`. It was not
+rebased: it still starts at `0b64075`, so it lacks the two later
+`review-fixes` commits on `main` (`57e1715`, `229850f`) and merges with
+them cleanly.
 
 Normalizing the initial board this way exercises `generateLegalMoves()`
 on boards that previously never reached it, which surfaced a latent bug:
@@ -85,8 +87,7 @@ user's request — it was fine as originally written.
 
 Full Debug `ctest` (fast + slow, including both perft suites) passed
 236/236, and `cmake --build build --target lint` is clean. Opened as
-draft PR #286 against `main` (unrebased; `review-fixes` merged as #275
-while this branch existed — see PR description).
+draft PR #286 against `main` (not rebased, as above).
 
 ### Session #3
 
@@ -149,3 +150,50 @@ suite is now 206 tests (was 202 before this branch; +4 new cases across
 validation from Session #2).
 
 All five plan steps are complete. PR #286 is ready to come out of draft.
+
+### Session #4
+
+Addressed the review of PR #286.
+
+`FenParser` now rejects two more FENs that move generation would
+otherwise trust. Normalizing in `History::fromInitialBoard()` runs move
+generation while the FEN is loading, so both used to abort inside
+`createGameFromFen`, where no frontend can catch a `FenParserError`:
+
+- Castling rights with the king off its home square. Move generation
+  checks only the king's column and takes the rook's row from the king's
+  row. `validateCastlingRookPresent()` became `validateCastlingPieces()`
+  and checks the king too.
+- An en passant target that no double push could have left.
+  `validateEnPassantTarget()` requires the target on the rank that
+  matches the side to move, the vulnerable pawn in front of it, and both
+  the target and the pawn's starting square empty. The wrong rank was
+  already fatal on `main`, in Release too, through the
+  `noexcept_expects` in `BoardCode::setEnPassantTarget()`.
+
+Both repro FENs from the review now answer `Invalid FEN: ...` in the
+Debug UCI binary instead of aborting. Two fixtures in
+`fen_parser_test.cpp` had an `e6` target with no pawn on e5 and gained
+one.
+
+Tests added, each checked by removing the code it covers and watching
+it fail:
+
+- `history_test.cpp`: a position with an unusable target entering
+  through `fromInitialBoard()`, `replaceLastPosition()` and
+  `addTentativePosition()`. Before, only `addPosition()` was covered.
+- `fen_parser_test.cpp`: Black-only castling rights, a rook of the
+  other color, a non-rook on the rook's square, the king cases, and the
+  en passant cases. The rejection tests now check the message, and the
+  queenside case uses a full-width rank.
+- The two "invalid en passant square" tests claimed `KQkq` on a board
+  with one rook, so the castling check threw before the en passant
+  field was read. They now use `-` and check the message.
+
+The query-side normalization in `isProbablyNthRepetition()` and
+`isCertainlyNthRepetition()` is still untested. It is only observable
+with a repetition count of 1, and its cost is part of the follow-up on
+the `en-passant-normalization-cost` branch.
+
+Debug: full `ctest` passed 243/243 (209 fast, 34 slow). Release: full
+`ctest` passed 243/243. `lint` is clean in both.
