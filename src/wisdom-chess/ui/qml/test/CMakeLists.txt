@@ -36,6 +36,11 @@ function(wisdom_chess_add_qml_test test_name source)
     qt_add_executable(${target} ${source})
     target_link_libraries(${target} PRIVATE wisdom-chess-qml-test-support Qt6::Test)
     wisdom_chess_enable_warnings(${target})
+    if(MSVC)
+        # QVariant templates in Qt 6.9 headers emit C4702 when instantiated
+        # by the settings test; keep the Qt test targets consistent.
+        target_compile_options(${target} PRIVATE /wd4702)
+    endif()
 
     add_test(NAME "${test_name}" COMMAND ${target})
     set_tests_properties("${test_name}" PROPERTIES LABELS fast)

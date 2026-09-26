@@ -630,3 +630,8 @@ The next Windows run compiled the QML cache but reached a new `/WX`
 failure in the view-model tests: MSVC 14.51 reports C5285 for a
 `std::tuple` specialization in doctest 2.4.12. The test target now
 suppresses C5285 on MSVC; warnings remain errors for other diagnostics.
+
+That Windows run then reached the QML settings test, where Qt's
+`QVariant` headers emitted the same C4702 warning as the generated QML
+cache. The QML test helper now applies the suppression to its test
+executables on MSVC.
