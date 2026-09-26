@@ -324,12 +324,11 @@ and an engine match.
   it is the same move or scores higher; otherwise the previous depth
   stands. A test with a budget that expires after the first root move
   pins the choice.
-- **Stalemate at quiet leaves.** Checking `hasLegalMove()` at every
-  stand-pat is too slow, so check it only where stalemate is plausible:
-  the side to move has no piece other than the king and pawns, or a
-  single minor, read from `Material`. Add the KQ-vs-K stalemate trap
-  position as a search test and confirm the node rate in the bench
-  report is unchanged on the opening and middlegame positions.
+- **Stalemate at quiet leaves.** Check `hasLegalMove()` before stand-pat
+  evaluation at every non-check horizon node. A material count cannot
+  exclude stalemate: even a rook or queen can have no legal move when
+  pinned or blocked. Add the KQ-vs-K stalemate trap position as a search
+  test and measure the effect on search speed.
 - **Separate contempt from acceptance.** Introduce
   `Search_Draw_Contempt` for `drawingScore()`, initially equal to
   `Min_Draw_Score` so nothing changes, and document both in
@@ -650,3 +649,20 @@ repetition-key feature.
 The new FEN test and all 137 fast engine tests pass in Release and
 Debug. The full Release build, all 244 CTest cases, and the lint target
 pass.
+
+### Session #5
+
+The material gate on the quiet-horizon stalemate check was not a sound
+correctness condition. For example,
+`8/8/8/8/2q5/2b5/1R6/K1k5 w - - 0 1` is stalemate despite White having a
+rook: the rook is pinned to the king, and the king has no safe square.
+The project's depth-one perft reports zero legal moves. Removed
+`stalemateIsPlausible()` and checked `hasLegalMove()` at every non-check
+quiescence node before stand-pat evaluation. The feature plan above now
+records this rationale.
+
+The full Release build and all 244 CTest cases pass. The existing
+horizon-stalemate search test and all 137 fast engine tests pass in
+Debug. The full Release CTest run took 24.05 seconds, versus 23.71
+seconds before this change; that is a suite measurement, not a search
+throughput benchmark.
