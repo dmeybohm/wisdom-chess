@@ -9,6 +9,10 @@ Commit after each significant step, with a `Co-Authored-By` annotation.
 Amending the previous commit is fine; to undo anything older, prefer a new
 commit over a rebase.
 
+Keep pull request descriptions short: the title, a summary of a sentence or
+two, and optionally a bulleted list of the essential items, one line each.
+Leave the details to the feature log and link to it.
+
 ## Feature log
 
 Plans and design rationale live in `features/$year/$month/$branch.md`.
