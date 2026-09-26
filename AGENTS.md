@@ -35,7 +35,10 @@ does not make clear why something was done the way it was.
   keep plain constructors.
 - Frontends (console, QML, WASM/React) observe the game through
   `GameStatusUpdate`; a change to the `Game` API has to reach all of them.
-
+- Use `nonnull_observer_ptr<Type>` in preference to a mutable `Type&` 
+  reference, for both functions and member variables. Use `const Type&` 
+  for const references.
+  
 The style linter is built with the project and enforces the formatting
 rules (`--list-rules` names them, e.g. `foo (x)` but `bar()`, and
 `CHECK( x )` in tests):
