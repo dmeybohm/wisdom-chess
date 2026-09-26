@@ -119,3 +119,56 @@ tap-to-move.
   through the same path as a click.
 
 ## Implementation Progress
+
+### Session #1
+
+Both frontends are done; two things went differently from the plan.
+
+- **The handler is on the pieces layer, not on each piece.** A
+  `DragHandler` on every `Piece` worked until the pressed piece was
+  still sliding into its square: while a handler is below the drag
+  threshold it only stays interested in a point that is inside its
+  parent item, and the animating piece moved out from under the pointer,
+  so the handler let go before it could activate. The
+  drag-to-promotion test found this, since it drags a pawn two clicks
+  after it arrived. One handler on the layer instead reads the square
+  under the press, asks `GameModel.canMoveFrom()` about it, and finds
+  that square's delegate in the `Repeater`; the piece is then dragged
+  by its model square, whatever it is drawn doing. `Piece` keeps only
+  `lift()`, `dragTo()` and `drop()`, and its `Behavior` animations are
+  off while `dragging` is set. The drop goes through `pieceDropped`
+  before `drop()` restores the bindings, so the piece animates from
+  where it was let go to its new square, or back home.
+- **The square's `MouseArea` is a `TapHandler`.** The plan's first risk
+  came true: a `DragHandler` above a `MouseArea` kept the press from
+  reaching it, and every click test failed. A `TapHandler` beneath a
+  `DragHandler` is the pair Qt designed to cooperate: the tap fires when
+  the press does not turn into a drag, and is cancelled when it does.
+  All twenty existing tests pass unchanged.
+- `canMoveFrom()` lives on `GameViewModelBase`, beside `isLegalMove()`,
+  and `GameModel` forwards to it; it is false unless the game is being
+  played, the side to move is human, and the square holds that side's
+  piece. The held engine move needs no special case: until it is shown,
+  the model's turn is still the engine's.
+- **Tests.** The fixture gained `drag()`, split into `startDrag()` and
+  `finishDrag()` so a test can look at the piece in flight, and
+  `touchTap()` and `touchDrag()` on a `QTest::createTouchDevice()`. Ten
+  new cases in `application_test.cpp`: a legal drag, the piece following
+  the pointer, an illegal drag, a drop off the board, a drag on the
+  engine's turn, a drag of the opponent's piece, a drag clearing a click
+  selection, a drag to promotion, a drag on the flipped board, and a
+  finger that taps but does not drag. The React side has
+  `Pointer.test.ts` for the media query, stubbed both ways and absent.
+- **Lint.** `all_qmllint` has no warnings on Qt 6.11.2 or 6.9.3. It has
+  seven new informational "can be shadowed" notes in `Board.qml`, all
+  for members of the dragged `Piece` reached through a property or a
+  cast, which is the one place the board has to hold a delegate it did
+  not name by id. They are the same class of note as the `GameModel`
+  method calls [qml-shadowing.md](qml-shadowing.md) left at `info`, and
+  CI fails only on warnings.
+- Verified: `ctest` (192) in Release and the seven QML tests in Debug,
+  the C++ `lint` target, `npm test` and `tsc` in the React directory,
+  all on Qt 6.11.2. Not done: the WebAssembly build of the QML frontend
+  in a phone-emulating browser, to see a touch still tap-to-move there;
+  the offscreen touch test covers the handler's device filter but not
+  the browser's delivery of touches to Qt.
