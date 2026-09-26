@@ -73,6 +73,9 @@ TEST_CASE( "Third repetition is detected" )
         builder.addPiece ("e8", Color::Black, Piece::King);
         builder.addPiece ("e7", Color::Black, Piece::Pawn);
         builder.addPiece ("e1", Color::White, Piece::King);
+        // The white pawn makes the double push capturable en passant, so
+        // the first position carries a target the later ones do not.
+        builder.addPiece ("d5", Color::White, Piece::Pawn);
         builder.setCurrentTurn (Color::Black);
 
         auto board = Board { builder };
@@ -123,6 +126,40 @@ TEST_CASE( "Third repetition is detected" )
         board = board.withMove (Color::White, white_move);
         history.addTentativePosition (board);
         REQUIRE( history.isProbablyThirdRepetition (board) == true );
+    }
+
+    SUBCASE( "a double push nothing can capture leaves no en passant state" )
+    {
+        History history;
+        BoardBuilder builder;
+
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("e7", Color::Black, Piece::Pawn);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.setCurrentTurn (Color::Black);
+
+        auto board = Board { builder };
+        board = board.withMove (Color::Black, moveParse ("e7 e5"));
+        CHECK( !board.getEnPassantTarget().has_value() );
+        history.addTentativePosition (board);
+
+        Move white_move = moveParse ("e1 d1");
+        Move white_return_move = moveParse ("d1 e1");
+        Move black_move = moveParse ("e8 d8");
+        Move black_return_move = moveParse ("d8 e8");
+
+        for (int cycle = 0; cycle < 2; cycle++)
+        {
+            for (auto move : { white_move, black_move, white_return_move, black_return_move })
+            {
+                auto who = board.getCurrentTurn();
+                board = board.withMove (who, move);
+                history.addTentativePosition (board);
+            }
+        }
+
+        // The position after the double push has now occurred three times.
+        CHECK( history.isProbablyThirdRepetition (board) );
     }
 
     SUBCASE( "From the initial position, black gets a draw due to castle state." )
@@ -194,6 +231,8 @@ TEST_CASE( "Third repetition is detected" )
         history.addTentativePosition (board);
         REQUIRE( history.isProbablyThirdRepetition (board) == false );
 
+        // Nothing can capture e5 en passant, so this position carries no
+        // en passant state and each return of the bishops repeats it.
         board = board.withMove (Color::Black, initial_black_pawn_move);
         history.addTentativePosition (board);
         REQUIRE( history.isProbablyThirdRepetition (board) == false );
@@ -220,13 +259,8 @@ TEST_CASE( "Third repetition is detected" )
 
             board = board.withMove (Color::Black, black_return_move);
             history.addTentativePosition (board);
-            REQUIRE( history.isProbablyThirdRepetition (board) == false );
+            REQUIRE( history.isProbablyThirdRepetition (board) == (i == 1) );
         }
-
-        REQUIRE( history.isProbablyThirdRepetition (board) == false );
-        board = board.withMove (Color::White, white_move);
-        history.addTentativePosition (board);
-        REQUIRE( history.isProbablyThirdRepetition (board) == true );
     }
 }
 
