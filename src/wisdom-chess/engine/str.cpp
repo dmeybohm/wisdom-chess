@@ -11,7 +11,7 @@ namespace wisdom
     {
         string result { str };
 
-        while (!result.empty() && isspace (result.back()))
+        while (!result.empty() && isSpace (result.back()))
             result = result.substr (0, result.size() - 1);
 
         return result;

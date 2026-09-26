@@ -538,7 +538,7 @@ namespace wisdom
             if (uci_move.length() == 5)
             {
                 char promotion_char = uci_move[4];
-                switch (tolower (promotion_char))
+                switch (wisdom::toLower (promotion_char))
                 {
                     case 'q': promoted_piece = Piece::Queen; break;
                     case 'r': promoted_piece = Piece::Rook; break;
@@ -572,7 +572,7 @@ namespace wisdom
 
         if (move.isPromoting())
         {
-            char piece_char = narrow_cast<char> (tolower (pieceToChar (move.getPromotedPiece())));
+            char piece_char = wisdom::toLower (pieceToChar (move.getPromotedPiece()));
             result += piece_char;
         }
 

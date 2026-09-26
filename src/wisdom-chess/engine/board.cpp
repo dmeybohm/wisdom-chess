@@ -2,6 +2,7 @@
 #include <ostream>
 
 #include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
 
@@ -136,7 +137,7 @@ namespace wisdom
         auto convert = [color](char ch) -> char
         {
             return color == Color::Black 
-                ? narrow_cast<char> (tolower (ch))
+                ? toLower (ch)
                 : ch;
         };
 
@@ -175,9 +176,9 @@ namespace wisdom
                         row_string += std::to_string (none_count);
 
                     none_count = 0;
-                    char ch = narrow_cast<char> (toupper (pieceToChar (piece)));
+                    char ch = toUpper (pieceToChar (piece));
                     if (pieceColor (piece) == Color::Black)
-                        ch = narrow_cast<char> (tolower (ch));
+                        ch = toLower (ch);
 
                     row_string.append (1, ch);
                 }

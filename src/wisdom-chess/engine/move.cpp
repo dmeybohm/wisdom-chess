@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "wisdom-chess/engine/move.hpp"
+#include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 
@@ -342,7 +343,7 @@ namespace wisdom
             transformed.begin(),
             transformed.end(),
             transformed.begin(),
-            [](auto c) { return ::toupper (c); }
+            toUpper
         );
 
         if (transformed == "O-O-O")
@@ -368,18 +369,18 @@ namespace wisdom
         if (tmp.empty())
             return nullopt;
 
-        tmp.erase (std::remove_if (tmp.begin(), tmp.end(), isspace), tmp.end());
+        tmp.erase (std::remove_if (tmp.begin(), tmp.end(), isSpace), tmp.end());
         std::transform (
             tmp.begin(),
             tmp.end(),
             tmp.begin(),
-            [](auto c) { return ::toupper (c); }
+            toUpper
         );
 
         if (tmp.empty())
             return nullopt;
 
-        if (tolower (tmp[0]) == 'o')
+        if (toLower (tmp[0]) == 'o')
             return castleParse (tmp, who);
 
         if (tmp.size() < 4)
@@ -469,7 +470,7 @@ namespace wisdom
         if (str.empty())
             throw ParseMoveException ("Error parsing move: empty string");
 
-        if (tolower (str[0]) == 'o' && color == Color::None)
+        if (toLower (str[0]) == 'o' && color == Color::None)
             throw ParseMoveException ("Move requires color, but no color provided");
 
         auto optional_result = moveParseOptional (str, color);

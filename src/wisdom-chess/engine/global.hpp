@@ -209,18 +209,6 @@ namespace wisdom
         return static_cast<Target> (value);
     }
 
-    // constexpr version of tolower():
-    constexpr auto
-    toLower (int ch) noexcept
-        -> int
-    {
-        if (ch >= 'A' && ch <= 'Z')
-        {
-            return ch + ('a' - 'A');
-        }
-        return ch;
-    }
-
     // Errors in this application.
     class Error : public std::exception
     {

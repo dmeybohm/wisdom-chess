@@ -222,7 +222,7 @@ namespace wisdom::ui::console
         {
             string input;
 
-            while (toupper (input[0]) != 'Y' && toupper (input[0]) != 'N')
+            while (toUpper (input[0]) != 'Y' && toUpper (input[0]) != 'N')
             {
                 std::cout << msg;
 
@@ -230,7 +230,7 @@ namespace wisdom::ui::console
                     return false;
             }
 
-            return toupper (input[0]) == 'Y';
+            return toUpper (input[0]) == 'Y';
         }
 
         auto playerWantsDraw (const string& msg, Player player, Color who, bool asked_human)
