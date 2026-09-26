@@ -552,3 +552,14 @@ an odd-depth search returns the even depth before it.
   not a convention or a gotcha, so the rebase kept `main`'s file.
   `wisdom-chess-benchmarks` prints its usage on a bad argument, and
   "Search report" above describes the report.
+
+### Session #9
+
+- Fixed the review finding from PR #258: the per-iteration `nodes/sec`
+  diagnostic divided elapsed time into only main-search nodes, although
+  quiescence nodes consume part of that time. It now counts both kinds
+  of nodes, matching `SearchResult::nodes`. The rate parameter is
+  `int64_t` so their sum is not narrowed to `int`.
+- Verified with the Release build, all 218 available CTest cases, and
+  the C++ style linter. Qt was unavailable in this worktree, so the QML
+  tests were not configured.
