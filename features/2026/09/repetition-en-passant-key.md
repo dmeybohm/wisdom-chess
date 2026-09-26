@@ -114,6 +114,32 @@ through `History`, while draw detection goes through the now-normalized
 `isProbablyDrawingMove`). The two are already independent, matching the
 plan's accepted trade-off.
 
+Measured the actual node-throughput cost of normalizing, since
+`History::addTentativePosition()` runs on every candidate move at every
+search node (`search.cpp:213`), not just on real game moves. A depth-7
+search from the starting position visits 900,512 nodes; a temporary
+counter showed 263,180 of those (29%) see a `Board` with an en passant
+target at the point `withNormalizedEnPassantTarget()` runs, because a
+pawn double push is a common candidate move at almost every ply. The
+first implementation called `generateLegalMoves()` — a full move
+generation and legality pass — on every one of those, which measured at
+roughly 2.7x slower node throughput than the pre-fix baseline in a clean
+run (2.16M nodes/sec baseline vs. 791K nodes/sec).
+
+Added `hasPawnAdjacentToEnPassantTarget()`: capturing en passant requires
+a pawn of the right color on the capture row next to the target column,
+so its absence rules out a legal capture completely, with no move
+generation needed — only the presence of such a pawn (necessary but not
+sufficient, since it could be pinned) needs the full
+`generateLegalMoves()` check. Re-measured with the same counter: only
+3,178 of the 900,512 nodes (0.35% overall, 1.2% of the target-present
+nodes) still need the expensive path. Re-timed after the fix: node
+throughput lands within noise of the pre-fix baseline (both instrumented
+runs measure the same 900,512/242,325 node/quiescence-node totals, so
+the comparison is apples to apples). All the en passant repetition
+tests, including the pinned-pawn case that exercises the fallback path,
+still pass.
+
 Step 5: configured and built a Release tree (`build-release`,
 `-DWISDOM_CHESS_SLOW_TESTS=On`). Full `ctest` passed 240/240 (fast +
 slow, including both perft suites, ~24s total — much faster than the
