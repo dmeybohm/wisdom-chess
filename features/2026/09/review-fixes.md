@@ -330,7 +330,7 @@ merged by then.
 ### 10. Shared draw negotiation
 
 Move the engine-side draw negotiation into the view-model library as a
-free function `negotiateDraw (Game&, ProposedDrawType, Color, Callback)`
+free function `negotiateDraw (nonnull_observer_ptr<Game>, ProposedDrawType, Color, Callback)`
 that asks each engine player in turn and hands every answer to the
 callback; `ChessEngine` and `worker::GameState` supply the transport.
 Make `GameModel::handleDrawStatusChange()` call the base
