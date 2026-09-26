@@ -172,3 +172,21 @@ Both frontends are done; two things went differently from the plan.
   in a phone-emulating browser, to see a touch still tap-to-move there;
   the offscreen touch test covers the handler's device filter but not
   the browser's delivery of touches to Qt.
+
+### Session #2
+
+Review of the PR found the React check wrong for hybrid devices: the
+`pointer` media feature describes the device's *primary* pointer, and
+whether an attached mouse becomes primary is up to the browser, so a
+tablet with a mouse could still refuse to drag. The rule is about the
+input that starts the drag, not the device, and a native `dragstart`
+always follows a `pointerdown` on the same element, which carries that
+input as `pointerType`. `PieceOverlay` records it in a ref from
+`onPointerDown` and `canDrag` refuses `touch`. That mirrors the QML
+handler's per-device filter, closes iOS Safari's long-press drag on
+purpose rather than by accident, and lets a pen drag. The media-query
+helper and its test are gone; `Square.test.tsx` drives the real HTML5
+backend in jsdom, with a stand-in `DataTransfer` and a plain event
+carrying `pointerType`, since jsdom 23 has neither `DragEvent` nor
+`PointerEvent`: a mouse press starts a drag, a touch press does not,
+and each drag is judged by its own press.
