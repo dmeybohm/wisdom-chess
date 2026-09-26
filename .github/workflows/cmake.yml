@@ -19,7 +19,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Configure CMake
         run: >
@@ -65,7 +65,7 @@ jobs:
             cmake_generator: Ninja
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -142,7 +142,7 @@ jobs:
       FILC_VERSION: "0.678"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
@@ -247,7 +247,7 @@ jobs:
       LSAN_OPTIONS: suppressions=${{ github.workspace }}/scripts/sanitizers/lsan.supp
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
