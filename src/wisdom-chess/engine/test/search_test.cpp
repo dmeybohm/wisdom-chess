@@ -560,6 +560,25 @@ TEST_CASE( "The search result counts the nodes of every depth" )
     }
 }
 
+TEST_CASE( "A stalemate at the horizon is not scored as a win" )
+{
+    // White is a king and two pawns up, but Ka6, h3 and h4 each leave the
+    // black king without a move. Only a king move that unguards a7 keeps
+    // the game going, at the cost of that pawn.
+    FenParser fen { "k7/P7/1K6/8/8/8/7P/8 w - - 0 1" };
+    auto game = fen.build();
+    Board board { game.getBoard() };
+
+    SearchHelper helper;
+    auto search = helper.build (board, 1);
+    SearchResult result = search.iterativelyDeepen (Color::White);
+
+    REQUIRE( result.move.has_value() );
+    CHECK( *result.move != moveParse ("b6 a6", Color::White) );
+    CHECK( *result.move != moveParse ("h2 h3", Color::White) );
+    CHECK( *result.move != moveParse ("h2 h4", Color::White) );
+}
+
 TEST_CASE( "Quiescence search" )
 {
     auto boardFromFen = [](const char* fen_text) {
