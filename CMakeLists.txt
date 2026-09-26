@@ -113,6 +113,16 @@ endif()
 
 add_subdirectory(src)
 
+# The Python helpers under scripts/ are tested when an interpreter is found.
+if(WISDOM_CHESS_FAST_TESTS AND NOT EMSCRIPTEN)
+    find_package(Python3 COMPONENTS Interpreter)
+    if(Python3_Interpreter_FOUND)
+        add_test(NAME "Scripts: engine match tally"
+            COMMAND Python3::Interpreter ${CMAKE_SOURCE_DIR}/scripts/tests/engine_match_tally_test.py)
+        set_tests_properties("Scripts: engine match tally" PROPERTIES LABELS fast)
+    endif()
+endif()
+
 if(WISDOM_CHESS_INSTALLER)
     if(EMSCRIPTEN OR ANDROID OR NOT TARGET WisdomChessQml)
         message(FATAL_ERROR "-- wisdom-chess: WISDOM_CHESS_INSTALLER needs the desktop QML UI "
