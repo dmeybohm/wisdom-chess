@@ -116,5 +116,18 @@ layout.
 - Job names changed, so any required status checks in branch protection
   that named `build (ubuntu-latest, Release, gcc)` or `build-filc` need
   updating. The token used here could not read the protection settings.
-- To verify once pushed: `build-release-debug-filc` should finish within
-  about 5 min, under the web `build` job.
+- First run on PR #271 (run 36259034539), all green:
+
+  | Job | Duration |
+  |---|---|
+  | `build-release-debug-filc` | 5m48s: Release 87 s build + 28 s tests, Debug 77 s + 6 s, FIL-C 103 s + 2 s, Qt 29 s |
+  | `sanitizers` | 5m22s |
+  | web `build` | 5m05s |
+  | Windows RelWithDebInfo | 4m18s |
+  | Ubuntu / macOS RelWithDebInfo | 2m40s / 1m46s |
+
+  The combined job overshot the estimate by about 40 s, mostly the FIL-C
+  build (103 s against 77 s in the run measured above), and is now the
+  longest job by 26 s over `sanitizers`. The workflow's wall clock is
+  5m52s, the same as before the change (5m49s and 5m46s). Left as is;
+  if it grows, split FIL-C back out into its own job.
