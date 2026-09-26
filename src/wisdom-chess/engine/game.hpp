@@ -65,16 +65,18 @@ namespace wisdom
 
         // Copy constructor and assignment
         Game (const Game& other);
-        Game& operator= (const Game& other);
+        auto operator= (const Game& other) -> Game&;
 
         // Move constructor and assignment
         Game (Game&& other) noexcept;
-        Game& operator= (Game&& other) noexcept;
+        auto operator= (Game&& other) noexcept -> Game&;
 
         // Destructor
         ~Game();
 
     public:
+
+        // Throws Error when the file cannot be written.
 
         void save (const string& filename) const;
 

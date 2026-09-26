@@ -39,6 +39,10 @@ extern "C"
     // Called form the main thread to unpause the worker.
     EMSCRIPTEN_KEEPALIVE void unpauseWorker (void);
 
+    // Called from the main thread before new settings are sent, so that a
+    // search under way stops and the worker starts a fresh one with them.
+    EMSCRIPTEN_KEEPALIVE void requestSearchRestart (void);
+
     // Update the draw status.
     EMSCRIPTEN_KEEPALIVE void mainThreadReceiveDrawStatus (
         int game_id, 

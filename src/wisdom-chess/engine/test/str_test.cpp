@@ -122,3 +122,53 @@ TEST_CASE( "toInt" )
         CHECK( wisdom::toInt ("2147483647") == std::numeric_limits<int>::max() );
     }
 }
+
+using wisdom::toLower;
+using wisdom::toUpper;
+using wisdom::isAlpha;
+using wisdom::isDigit;
+using wisdom::isLower;
+using wisdom::isSpace;
+
+TEST_CASE( "Character classification" )
+{
+    SUBCASE( "ASCII letters, digits and whitespace" )
+    {
+        CHECK( toLower ('A') == 'a' );
+        CHECK( toLower ('z') == 'z' );
+        CHECK( toUpper ('q') == 'Q' );
+        CHECK( toUpper ('7') == '7' );
+        CHECK( isAlpha ('k') );
+        CHECK( isAlpha ('K') );
+        CHECK( !isAlpha ('1') );
+        CHECK( isDigit ('0') );
+        CHECK( !isDigit ('a') );
+        CHECK( isLower ('a') );
+        CHECK( !isLower ('A') );
+        CHECK( isSpace (' ') );
+        CHECK( isSpace ('\t') );
+        CHECK( isSpace ('\n') );
+        CHECK( !isSpace ('_') );
+    }
+
+    SUBCASE( "Bytes above 0x7f are neither letters, digits nor spaces" )
+    {
+        for (int byte = 0x80; byte <= 0xff; byte++)
+        {
+            char ch = static_cast<char> (byte);
+            INFO( "byte ", byte );
+            CHECK( toLower (ch) == ch );
+            CHECK( toUpper (ch) == ch );
+            CHECK( !isAlpha (ch) );
+            CHECK( !isDigit (ch) );
+            CHECK( !isLower (ch) );
+            CHECK( !isSpace (ch) );
+        }
+    }
+
+    SUBCASE( "chomp only strips ASCII whitespace" )
+    {
+        CHECK( wisdom::chomp ("abc\xa0") == "abc\xa0" );
+        CHECK( wisdom::chomp ("abc \n") == "abc" );
+    }
+}

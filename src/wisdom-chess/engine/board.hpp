@@ -113,11 +113,6 @@ namespace wisdom
         withCurrentTurn (Color who) const
             -> Board;
 
-        // Randomize and return copy of current board:
-        [[nodiscard]] auto
-        withRandomPosition() const
-            -> Board;
-
         [[nodiscard]] auto
         getKingPosition (Color who) const noexcept
             -> Coord
@@ -139,12 +134,12 @@ namespace wisdom
             auto castle_state = getCastlingEligibility (who);
             auto castle_bits = toInt<uint8_t> (castle_state);
 
-            // Use a bitmask that always fails for Neither_Side (more performant than branching)
+            // Asking about no side at all is never satisfied: check for
+            // every bit, which no state has.
             auto check_bits = castle_types == CastlingEligibility::Neither_Side
-                ? static_cast<uint8_t> (~uint8_t { 0 })  // All bits set, always fails
+                ? static_cast<uint8_t> (~uint8_t { 0 })
                 : toInt<uint8_t> (castle_types);
 
-            // Check if all requested castling rights are available
             bool has_rights = (castle_bits & check_bits) == check_bits;
 
             return has_rights;
@@ -254,8 +249,8 @@ namespace wisdom
         array<Coord, Num_Players> my_king_pos;
     };
 
-    constexpr auto 
-    coordColor (Coord coord) 
+    [[nodiscard]] constexpr auto
+    coordColor (Coord coord)
         -> Color
     {
         int parity = (coord.row() % 2 + coord.column() % 2) % 2;
@@ -264,7 +259,8 @@ namespace wisdom
 
     // white moves up (-)
     // black moves down (+)
-    template <class IntegerType = int8_t> constexpr auto 
+    template <class IntegerType = int8_t>
+    [[nodiscard]] constexpr auto
     pawnDirection (Color color)
         -> IntegerType
     {

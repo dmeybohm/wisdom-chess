@@ -33,7 +33,9 @@ namespace wisdom
 
         // Check if the king indicated by the WHO argument is in trouble
         // in this position.
-        bool checkAll() const
+        [[nodiscard]] auto
+        checkAll() const
+            -> bool
         {
             // clang-format off
             return
@@ -47,7 +49,8 @@ namespace wisdom
         }
 
         template <Piece sliding_piece>
-        constexpr auto checkSlidingThreats (int target_row, int target_col) const
+        [[nodiscard]] constexpr auto
+        checkSlidingThreats (int target_row, int target_col) const
             -> ThreatStatus
         {
             ColoredPiece piece = my_board.pieceAt (target_row, target_col);
@@ -68,54 +71,26 @@ namespace wisdom
         }
 
         // Check an entire row for any rook / queen threats.
-        bool row() const
+        [[nodiscard]] auto
+        row() const
+            -> bool
         {
-            for (auto new_col = nextColumn (my_king_col, +1); new_col <= Last_Column; new_col++)
-            {
-                auto status = checkSlidingThreats<Piece::Rook> (my_king_row, new_col);
-                if (status == ThreatStatus::Threatened)
-                    return true;
-                else if (status == ThreatStatus::Blocked)
-                    break;
-            }
-
-            for (auto new_col = nextColumn (my_king_col, -1); new_col >= First_Column; new_col--)
-            {
-                auto status = checkSlidingThreats<Piece::Rook> (my_king_row, new_col);
-                if (status == ThreatStatus::Threatened)
-                    return true;
-                else if (status == ThreatStatus::Blocked)
-                    break;
-            }
-
-            return false;
+            return checkLineThreat<Piece::Rook, +1, 0>()
+                || checkLineThreat<Piece::Rook, -1, 0>();
         }
 
         // Check an entire column for any rook / queen threats.
-        bool column() const
+        [[nodiscard]] auto
+        column() const
+            -> bool
         {
-            for (auto new_row = nextRow (my_king_row, +1); new_row <= Last_Row; new_row++)
-            {
-                auto status = checkSlidingThreats<Piece::Rook> (new_row, my_king_col);
-                if (status == ThreatStatus::Threatened)
-                    return true;
-                else if (status == ThreatStatus::Blocked)
-                    break;
-            }
-
-            for (auto new_row = nextRow (my_king_row, -1); new_row >= First_Row; new_row--)
-            {
-                auto status = checkSlidingThreats<Piece::Rook> (new_row, my_king_col);
-                if (status == ThreatStatus::Threatened)
-                    return true;
-                else if (status == ThreatStatus::Blocked)
-                    break;
-            }
-
-            return false;
+            return checkLineThreat<Piece::Rook, 0, +1>()
+                || checkLineThreat<Piece::Rook, 0, -1>();
         }
 
-        bool knight() const
+        [[nodiscard]] auto
+        knight() const
+            -> bool
         {
             static constexpr struct
             {
@@ -142,7 +117,9 @@ namespace wisdom
             return false;
         }
 
-        bool pawn() const
+        [[nodiscard]] auto
+        pawn() const
+            -> bool
         {
             int r_dir = pawnDirection<int> (my_king_color);
             int left_col = my_king_col - 1;
@@ -190,7 +167,9 @@ namespace wisdom
             return left_attack_exists | middle_attack_exists | right_attack_exists;
         }
 
-        bool king() const
+        [[nodiscard]] auto
+        king() const
+            -> bool
         {
             auto left_col = nextColumn<int> (my_king_col, -1);
             auto right_col = nextColumn<int> (my_king_col, +1);
@@ -217,10 +196,15 @@ namespace wisdom
             return top_attack_exists | center_attack_exists | bottom_attack_exists;
         }
 
-        template <int horiz_direction, int vert_direction> auto
-        checkDiagonalThreat() const
+        // Walk one line from the king, stopping at the edge or the first
+        // piece, and report a sliding piece or queen of the opponent on it.
+        template <Piece sliding_piece, int horiz_direction, int vert_direction>
+        [[nodiscard]] auto
+        checkLineThreat() const
             -> bool
         {
+            static_assert (horiz_direction != 0 || vert_direction != 0);
+
             int new_row = my_king_row;
             int new_col = my_king_col;
 
@@ -231,10 +215,10 @@ namespace wisdom
 
                 if constexpr (vert_direction < 0)
                 {
-                    if (new_row < 0)
+                    if (new_row < First_Row)
                         break;
                 }
-                else
+                else if constexpr (vert_direction > 0)
                 {
                     if (new_row > Last_Row)
                         break;
@@ -242,16 +226,16 @@ namespace wisdom
 
                 if constexpr (horiz_direction < 0)
                 {
-                    if (new_col < 0)
+                    if (new_col < First_Column)
                         break;
                 }
-                else
+                else if constexpr (horiz_direction > 0)
                 {
                     if (new_col > Last_Column)
                         break;
                 }
 
-                auto status = checkSlidingThreats<Piece::Bishop> (new_row, new_col);
+                auto status = checkSlidingThreats<sliding_piece> (new_row, new_col);
                 if (status == ThreatStatus::Threatened)
                     return true;
                 else if (status == ThreatStatus::Blocked)
@@ -262,17 +246,19 @@ namespace wisdom
         }
 
         // Check a diagonal for any bishop / queen threats.
-        bool diagonal() const
+        [[nodiscard]] auto
+        diagonal() const
+            -> bool
         {
             return
                 // northwest:
-                checkDiagonalThreat<-1, -1>() ||
+                checkLineThreat<Piece::Bishop, -1, -1>() ||
                 // northeast:
-                checkDiagonalThreat<-1, +1>() ||
+                checkLineThreat<Piece::Bishop, -1, +1>() ||
                 // southwest:
-                checkDiagonalThreat<+1, -1>() ||
+                checkLineThreat<Piece::Bishop, +1, -1>() ||
                 // southeast:
-                checkDiagonalThreat<+1, +1>();
+                checkLineThreat<Piece::Bishop, +1, +1>();
         }
     };
 }

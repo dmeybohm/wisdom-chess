@@ -97,6 +97,22 @@ TEST_CASE( "FEN notation for en passant" )
     CHECK( black_target->coord == coordParse ("e6") );
 }
 
+TEST_CASE( "FEN records a double pawn push without an adjacent enemy pawn" )
+{
+    auto game = Game::createGameFromFen (
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    );
+    Board board { game.getBoard() };
+
+    board = board.withMove (Color::White, moveParse ("e2 e4"));
+    CHECK( board.toFenString (Color::Black)
+           == "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" );
+
+    board = board.withMove (Color::Black, moveParse ("e7 e5"));
+    CHECK( board.toFenString (Color::White)
+           == "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2" );
+}
+
 TEST_CASE( "FEN notation with an invalid en passant square" )
 {
     SUBCASE( "Square outside the board" )

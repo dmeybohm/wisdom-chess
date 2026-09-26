@@ -66,8 +66,7 @@ namespace wisdom::ui
             case Black:
                 return ui::Color::Black;
             default:
-                assert (0);
-                abort();
+                throwPreconditionError (std::source_location::current());
         }
     }
 
@@ -83,8 +82,7 @@ namespace wisdom::ui
             case Black:
                 return wisdom::Color::Black;
             default:
-                assert (0);
-                abort();
+                throwPreconditionError (std::source_location::current());
         }
     }
 
@@ -100,8 +98,7 @@ namespace wisdom::ui
             case ChessEngine:
                 return ui::Player::Computer;
             default:
-                assert (0);
-                abort();
+                throwPreconditionError (std::source_location::current());
         }
     }
 
@@ -117,8 +114,7 @@ namespace wisdom::ui
             case Computer:
                 return wisdom::Player::ChessEngine;
             default:
-                assert (0);
-                abort();
+                throwPreconditionError (std::source_location::current());
         }
     }
 
@@ -144,8 +140,7 @@ namespace wisdom::ui
             case King:
                 return wisdom::Piece::King;
             default:
-                assert (0);
-                abort();
+                throwPreconditionError (std::source_location::current());
         }
     }
 
@@ -171,11 +166,10 @@ namespace wisdom::ui
             case King:
                 return PieceType::King;
             default:
-                assert (0);
-                abort();
+                throwPreconditionError (std::source_location::current());
         }
     }
-};
+}
 
 // QML sees the enums above under these names. Each is a namespace that
 // registers wisdom::ui's meta-object under its own name in the WisdomChess

@@ -375,18 +375,7 @@ TEST_CASE( "Castling penalty" )
     }
 }
 
-TEST_CASE( "DrawCategory" )
-{
-    CHECK( !static_cast<bool> (DrawCategory { DrawCategory::NoDraw }) );
-    CHECK( static_cast<bool> (DrawCategory { DrawCategory::InsufficientMaterial }) );
-    CHECK( static_cast<bool> (DrawCategory { DrawCategory::ByRepetition }) );
-    CHECK( static_cast<bool> (DrawCategory { DrawCategory::ByNoProgress }) );
-
-    CHECK( DrawCategory { DrawCategory::ByRepetition } == DrawCategory::ByRepetition );
-    CHECK( DrawCategory { DrawCategory::ByRepetition } != DrawCategory::ByNoProgress );
-}
-
-TEST_CASE( "isProbablyDrawingMove" )
+TEST_CASE( "Probable draw category and drawing predicate" )
 {
     auto shuffle_knights = [] (Game& game, int times)
     {
@@ -403,15 +392,17 @@ TEST_CASE( "isProbablyDrawingMove" )
     {
         auto game = Game::createStandardGame();
 
-        CHECK( isProbablyDrawingMove (game.getBoard(), game.getHistory()) == DrawCategory::NoDraw );
+        CHECK( probableDrawCategory (game.getBoard(), game.getHistory()) == DrawCategory::NoDraw );
+        CHECK( !isProbablyDrawingMove (game.getBoard(), game.getHistory()) );
     }
 
     SUBCASE( "Bare kings are a draw by insufficient material" )
     {
         auto game = Game::createGameFromFen ("4k3/8/8/8/8/8/8/4K3 w - - 0 1");
 
-        CHECK( isProbablyDrawingMove (game.getBoard(), game.getHistory())
+        CHECK( probableDrawCategory (game.getBoard(), game.getHistory())
                == DrawCategory::InsufficientMaterial );
+        CHECK( isProbablyDrawingMove (game.getBoard(), game.getHistory()) );
     }
 
     SUBCASE( "The third occurrence of a position is a draw by repetition" )
@@ -419,10 +410,10 @@ TEST_CASE( "isProbablyDrawingMove" )
         auto game = Game::createStandardGame();
 
         shuffle_knights (game, 1);
-        CHECK( isProbablyDrawingMove (game.getBoard(), game.getHistory()) == DrawCategory::NoDraw );
+        CHECK( probableDrawCategory (game.getBoard(), game.getHistory()) == DrawCategory::NoDraw );
 
         shuffle_knights (game, 1);
-        CHECK( isProbablyDrawingMove (game.getBoard(), game.getHistory())
+        CHECK( probableDrawCategory (game.getBoard(), game.getHistory())
                == DrawCategory::ByRepetition );
     }
 
@@ -432,10 +423,10 @@ TEST_CASE( "isProbablyDrawingMove" )
         game.getHistory().setThreefoldRepetitionStatus (DrawStatus::Declined);
 
         shuffle_knights (game, 3);
-        CHECK( isProbablyDrawingMove (game.getBoard(), game.getHistory()) == DrawCategory::NoDraw );
+        CHECK( probableDrawCategory (game.getBoard(), game.getHistory()) == DrawCategory::NoDraw );
 
         shuffle_knights (game, 1);
-        CHECK( isProbablyDrawingMove (game.getBoard(), game.getHistory())
+        CHECK( probableDrawCategory (game.getBoard(), game.getHistory())
                == DrawCategory::ByRepetition );
     }
 
@@ -444,9 +435,9 @@ TEST_CASE( "isProbablyDrawingMove" )
         auto before = Game::createGameFromFen ("4k3/8/8/8/8/8/8/R3K3 w - - 99 80");
         auto reached = Game::createGameFromFen ("4k3/8/8/8/8/8/8/R3K3 w - - 100 80");
 
-        CHECK( isProbablyDrawingMove (before.getBoard(), before.getHistory())
+        CHECK( probableDrawCategory (before.getBoard(), before.getHistory())
                == DrawCategory::NoDraw );
-        CHECK( isProbablyDrawingMove (reached.getBoard(), reached.getHistory())
+        CHECK( probableDrawCategory (reached.getBoard(), reached.getHistory())
                == DrawCategory::ByNoProgress );
     }
 
@@ -458,9 +449,9 @@ TEST_CASE( "isProbablyDrawingMove" )
         auto reached = Game::createGameFromFen ("4k3/8/8/8/8/8/8/R3K3 w - - 150 80");
         reached.getHistory().setFiftyMovesWithoutProgressStatus (DrawStatus::Declined);
 
-        CHECK( isProbablyDrawingMove (declined.getBoard(), declined.getHistory())
+        CHECK( probableDrawCategory (declined.getBoard(), declined.getHistory())
                == DrawCategory::NoDraw );
-        CHECK( isProbablyDrawingMove (reached.getBoard(), reached.getHistory())
+        CHECK( probableDrawCategory (reached.getBoard(), reached.getHistory())
                == DrawCategory::ByNoProgress );
     }
 }

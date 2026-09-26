@@ -10,7 +10,6 @@ TEST_CASE( "Move list starts empty" )
 {
     MoveList empty_list;
     REQUIRE( empty_list.isEmpty() );
-    REQUIRE( empty_list.empty() );
     REQUIRE( empty_list.size() == 0 );
 }
 

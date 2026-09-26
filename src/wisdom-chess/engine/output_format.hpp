@@ -11,6 +11,7 @@ namespace wisdom
     class OutputFormat
     {
     public:
+        // Throws Error when the file cannot be opened or written.
         virtual void save (
             const string& filename, 
             const Board& board, 

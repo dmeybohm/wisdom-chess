@@ -138,7 +138,7 @@ namespace wisdom
     };
 
     template <typename IntegerType = uint8_t>
-    constexpr auto
+    [[nodiscard]] constexpr auto
     toInt (CastlingEligibility eligibility)
         -> IntegerType
     {
@@ -158,7 +158,7 @@ namespace wisdom
     inline constexpr CastlingEligibility CastlingEligibility::Neither_Side {};
 
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     makeCastlingEligibilityFromInt (unsigned int flags)
         -> CastlingEligibility
     {

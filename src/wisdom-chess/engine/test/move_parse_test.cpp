@@ -46,4 +46,13 @@ TEST_CASE( "moveParse" )
         CHECK( !moveParseOptional ("", Color::White).has_value() );
         CHECK( !moveParseOptional ("  \t ", Color::White).has_value() );
     }
+
+    SUBCASE( "Bytes above 0x7f are rejected rather than classified" )
+    {
+        CHECK( !moveParseOptional ("\xe9", Color::White).has_value() );
+        CHECK( !moveParseOptional ("\xc3\xa9", Color::White).has_value() );
+        CHECK( !moveParseOptional ("\xa0" "e2e4", Color::White).has_value() );
+        CHECK( !moveParseOptional ("\xd0-\xd0", Color::White).has_value() );
+        CHECK_THROWS_AS( (void)moveParse ("\xff", Color::White), ParseMoveException );
+    }
 }

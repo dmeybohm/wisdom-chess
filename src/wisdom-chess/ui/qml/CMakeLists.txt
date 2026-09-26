@@ -196,6 +196,11 @@ target_link_libraries(WisdomChessQml
 target_link_libraries(WisdomChessQml
     PRIVATE wisdom::chess wisdom::viewmodel)
 wisdom_chess_enable_warnings(WisdomChessQml)
+if(MSVC)
+    # Qt 6.9's generated QML cache code instantiates Qt templates that emit
+    # C4702 inside Qt headers. /external:W0 does not suppress those warnings.
+    target_compile_options(WisdomChessQml PRIVATE /wd4702)
+endif()
 target_compile_definitions(WisdomChessQml
     PRIVATE MAIN_QML_FILE="${MAIN_QML_FILE}")
 

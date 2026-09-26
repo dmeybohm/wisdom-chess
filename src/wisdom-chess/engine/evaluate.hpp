@@ -9,41 +9,17 @@ namespace wisdom
 {
     class Board;
 
-    struct DrawCategory
+    enum class DrawCategory
     {
-        enum Value
-        {
-            NoDraw,
-            InsufficientMaterial,
-            ByRepetition,
-            ByNoProgress
-        } my_value;
-
-        DrawCategory (Value value) // NOLINT(google-explicit-constructor)
-            : my_value { value }
-        {}
-
-        explicit operator bool() const
-        {
-            return my_value != NoDraw;
-        }
-
-        friend auto
-        operator== (DrawCategory first, DrawCategory second)
-        -> bool
-        {
-            return first.my_value == second.my_value;
-        }
-
-        friend auto
-        operator!= (DrawCategory first, DrawCategory second)
-        -> bool
-        {
-            return !operator== (first, second);
-        }
+        NoDraw,
+        InsufficientMaterial,
+        ByRepetition,
+        ByNoProgress
     };
 
-    // Whether this move was a legal move for the computer_player.
+    // Whether the position reached by `who` playing `mv` is legal: the
+    // mover's king is not attacked, and a castling king did not start
+    // in, or pass through, check.
     [[nodiscard]] auto
     isLegalPositionAfterMove (const Board& board, Color who, Move mv)
         -> bool;
@@ -80,12 +56,13 @@ namespace wisdom
     isStalemated (const Board& board)
         -> bool;
 
-    // Whether this move could cause a draw.
+    // Whether the position is, or can be claimed as, a draw by repetition,
+    // by the fifty-move rule or by insufficient material.
     //
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
     [[nodiscard]] inline auto
-    isProbablyDrawingMove (const Board& board, const History& history)
+    probableDrawCategory (const Board& board, const History& history)
         -> DrawCategory
     {
         auto repetition_status = history.getThreefoldRepetitionStatus();
@@ -111,6 +88,13 @@ namespace wisdom
         return DrawCategory::NoDraw;
     }
 
+    [[nodiscard]] inline auto
+    isProbablyDrawingMove (const Board& board, const History& history)
+        -> bool
+    {
+        return probableDrawCategory (board, history) != DrawCategory::NoDraw;
+    }
+
     // Evaluate the board.
     [[nodiscard]] auto 
     evaluate (const Board& board, Color who, int moves_away) 
@@ -131,7 +115,7 @@ namespace wisdom
     // Get the score for a checkmate discovered X moves away.
     // Checkmates closer to the current position are more valuable than those
     // further away. Uses linear scoring for correct transposition table adjustment.
-    constexpr auto
+    [[nodiscard]] constexpr auto
     checkmateScoreInMoves (int moves)
         -> int
     {
@@ -139,7 +123,7 @@ namespace wisdom
     }
 
     // Whether the score indicates a checkmate of the opponent has been found.
-    constexpr auto
+    [[nodiscard]] constexpr auto
     isCheckmatingOpponentScore (int score)
         -> bool
     {

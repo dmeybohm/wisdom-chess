@@ -157,5 +157,9 @@ declare module WisdomChessModule {
         setCurrentGameSettings(newSettings: GameSettings): void;
         getFirstHumanPlayerColor(): wisdom_WebColor;
         getSecondHumanPlayerColor(): wisdom_WebColor;
+        getMinThinkingTime(): number;
+        getMaxThinkingTime(): number;
+        getMinSearchDepth(): number;
+        getMaxSearchDepth(): number;
     }
 }

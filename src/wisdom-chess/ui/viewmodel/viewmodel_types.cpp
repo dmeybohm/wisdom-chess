@@ -17,4 +17,31 @@ namespace wisdom::ui
 
         return {};
     }
+
+    auto
+    transitionGameStatus (GameStatusUpdate& update, const Game& game)
+        -> GameStatus
+    {
+        update.update (game.status());
+        return game.status();
+    }
+
+    void negotiateDraw (
+        nonnull_observer_ptr<Game> game,
+        ProposedDrawType draw_type,
+        Color who,
+        const DrawAnswerCallback& answered
+    ) {
+        expects (isColorValid (who));
+
+        for (auto player : { who, colorInvert (who) })
+        {
+            if (game->getPlayer (player) != Player::ChessEngine)
+                continue;
+
+            bool accepted = game->computerWantsDraw (player);
+            game->setProposedDrawStatus (draw_type, player, accepted);
+            answered (player, accepted);
+        }
+    }
 }

@@ -15,6 +15,8 @@
 
 namespace wisdom::ui::test
 {
+    using namespace wisdom::ui::qml;
+
     inline auto
     drawnAt (const QQuickItem* item)
         -> QPointF;
@@ -92,7 +94,7 @@ namespace wisdom::ui::test
         void changeGameSetting (const char* name, Value value)
         {
             auto settings = game_model.cloneGameSettings();
-            const auto& meta_object = GameSettings::staticMetaObject;
+            const auto& meta_object = qml::GameSettings::staticMetaObject;
             auto property = meta_object.property (meta_object.indexOfProperty (name));
 
             property.writeOnGadget (&settings, QVariant::fromValue (value));

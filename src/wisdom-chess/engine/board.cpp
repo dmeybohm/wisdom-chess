@@ -2,6 +2,7 @@
 #include <ostream>
 
 #include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
 
@@ -136,7 +137,7 @@ namespace wisdom
         auto convert = [color](char ch) -> char
         {
             return color == Color::Black 
-                ? narrow_cast<char> (tolower (ch))
+                ? toLower (ch)
                 : ch;
         };
 
@@ -175,9 +176,9 @@ namespace wisdom
                         row_string += std::to_string (none_count);
 
                     none_count = 0;
-                    char ch = narrow_cast<char> (toupper (pieceToChar (piece)));
+                    char ch = toUpper (pieceToChar (piece));
                     if (pieceColor (piece) == Color::Black)
-                        ch = narrow_cast<char> (tolower (ch));
+                        ch = toLower (ch);
 
                     row_string.append (1, ch);
                 }
@@ -211,85 +212,6 @@ namespace wisdom
 
         output += std::to_string (my_half_move_clock) + " " + std::to_string (my_full_move_clock);
         return output;
-    }
-
-    static void 
-    removeInvalidPawns (
-        int8_t source_row,
-        int8_t source_col,
-        array<ColoredPiece, Num_Squares>& shuffle_pieces
-    ) {
-        auto piece = shuffle_pieces[source_col + (source_row * Num_Columns)];
-        if (pieceType (piece) == Piece::Pawn)
-        {
-            shuffle_pieces[source_col + (source_row * Num_Columns)] = Piece_And_Color_None;
-        }
-    }
-
-    auto Board::withRandomPosition() const -> Board
-    {
-        Board result = *this;
-
-        std::random_device random_device;
-        std::mt19937 rng (random_device());
-
-        array<ColoredPiece, Num_Columns * Num_Rows> shuffle_pieces {};
-
-        using Distribution = std::uniform_int_distribution<>;
-
-        // ensure no pawns on the final rank - move same color ones,
-        // promote opposite color ones.
-        Distribution no_first_row_dist { 1, 7 };
-        Distribution no_last_row_dist { 0, 6 };
-        Distribution any_row_or_col { 0, 7 };
-        Distribution remove_chance { 0, 100 };
-
-        auto iterations = 0;
-
-        do
-        {
-            std::copy (
-                std::begin (result.my_squares),
-                std::end (result.my_squares),
-                std::begin (shuffle_pieces)
-            );
-            std::shuffle (std::begin (shuffle_pieces), std::end (shuffle_pieces), rng);
-
-            for (auto&& coord : result.allCoords())
-            {
-                ColoredPiece piece = shuffle_pieces[coord.index()];
-                if (pieceType (piece) == Piece::King)
-                    result.my_king_pos[colorIndex (piece.color())] = coord;
-
-                result.my_squares[coord.index()] = piece;
-            }
-
-            // Remove invalid pawns.
-            for (int8_t source_col = 0; source_col < Num_Columns; source_col++)
-            {
-                int8_t first_source_row = 0;
-                auto last_source_row = narrow<int8_t> (Num_Rows - 1);
-
-                removeInvalidPawns (first_source_row, source_col, result.my_squares);
-                removeInvalidPawns (last_source_row, source_col, result.my_squares);
-            }
-            // if both kings are in check, regenerate.
-        } while (isKingThreatened (result, Color::White, result.my_king_pos[Color_Index_White])
-                 && isKingThreatened (result, Color::Black, result.my_king_pos[Color_Index_Black])
-                 && ++iterations < 1000);
-
-        if (iterations >= 1000)
-            throw Error { "Too many iterations trying to generate a random board.", asString() };
-
-        // The shuffled squares share nothing with the original game state.
-        result.setCastleState (Color::White, CastlingEligibility::Neither_Side);
-        result.setCastleState (Color::Black, CastlingEligibility::Neither_Side);
-        result.my_code.clearEnPassantTarget();
-
-        result.my_code = BoardCode::fromBoard (result);
-        result.my_position = Position { result };
-        result.my_material = Material { result };
-        return result;
     }
 
     auto 

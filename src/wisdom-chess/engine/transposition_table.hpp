@@ -95,20 +95,6 @@ namespace wisdom
         void clear();
 
         [[nodiscard]] auto
-        getHitCount() const
-            -> size_t
-        {
-            return my_hits;
-        }
-
-        [[nodiscard]] auto
-        getProbeCount() const
-            -> size_t
-        {
-            return my_probes;
-        }
-
-        [[nodiscard]] auto
         getSize() const
             -> size_t
         {

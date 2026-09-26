@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(cmake/CPM.cmake)
+CPMUsePackageLock(cpm-package-lock.cmake)
 include(cmake/Warnings.cmake)
 include(cmake/CliTests.cmake)
 include(CheckCXXSourceCompiles)
@@ -37,6 +38,7 @@ else()
     set(WISDOM_CHESS_REACT_BUILD_INTEGRATED_DEFAULT OFF)
 endif()
 
+option(WISDOM_CHESS_WERROR "Treat compiler warnings as errors (on in CI)" Off)
 option(WISDOM_CHESS_ASAN "Enable AddressSanitizer and UndefinedBehaviorSanitizer")
 option(WISDOM_CHESS_TSAN "Enable ThreadSanitizer")
 option(WISDOM_CHESS_FAST_TESTS "Enable building of fast tests" On)
@@ -139,6 +141,10 @@ if(NOT EMSCRIPTEN)
 
         add_custom_target(lint
             COMMAND wisdom-linter ${CMAKE_SOURCE_DIR}/src
+                ${CMAKE_SOURCE_DIR}/scripts/linter/main.cpp
+                ${CMAKE_SOURCE_DIR}/scripts/linter/linter.cpp
+                ${CMAKE_SOURCE_DIR}/scripts/linter/linter.hpp
+                ${CMAKE_SOURCE_DIR}/scripts/linter/rules
             DEPENDS wisdom-linter
             COMMENT "Running C++ style linter"
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}

@@ -3,6 +3,7 @@
 #include "wisdom-chess/engine/game.hpp"
 
 #include "wisdom-chess/ui/wasm/web_types.hpp"
+#include "wisdom-chess/ui/viewmodel/game_settings.hpp"
 #include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
 
 namespace wisdom
@@ -26,8 +27,8 @@ namespace wisdom
         {}
 
         GameSettings (
-            enum WebPlayer whitePlayer_, 
-            enum WebPlayer blackPlayer_, 
+            WebPlayer whitePlayer_, 
+            WebPlayer blackPlayer_, 
             int thinkingTime_, 
             int searchDepth_, 
             bool debugLogging_ = false
@@ -39,22 +40,33 @@ namespace wisdom
             , debugLogging { debugLogging_ }
         {}
 
-        enum WebPlayer whitePlayer = Human;
-        enum WebPlayer blackPlayer = ChessEngine;
+        WebPlayer whitePlayer = WebPlayer::Human;
+        WebPlayer blackPlayer = WebPlayer::ChessEngine;
 
-        int thinkingTime = Default_Max_Search_Seconds;
+        int thinkingTime = ui::GameSettings::Default_Thinking_Time;
 
-        int searchDepth = Default_Max_Depth / 2;
+        int searchDepth = ui::GameSettings::Default_Search_Depth;
 
         // Whether engine output is shown live. When off it is retained in a
         // buffer and replayed once switched on.
         bool debugLogging = false;
 
-        void applyToGame (observer_ptr<wisdom::Game> game) const
+        // The same settings in the engine's terms.
+        [[nodiscard]] auto
+        toEngineSettings() const
+            -> ui::GameSettings
         {
-            game->setSearchTimeout (std::chrono::seconds { thinkingTime });
-            game->setMaxDepth (ui::fullMovesToPlyDepth (searchDepth));
-            game->setPlayers ({ mapPlayer (whitePlayer), mapPlayer (blackPlayer) });
+            return ui::GameSettings {
+                .players = { mapPlayer (whitePlayer), mapPlayer (blackPlayer) },
+                .searchDepth = searchDepth,
+                .thinkingTime = thinkingTime,
+                .debugLogging = debugLogging,
+            };
+        }
+
+        void applyToGame (nonnull_observer_ptr<wisdom::Game> game) const
+        {
+            toEngineSettings().applyTo (game);
         }
     };
 };

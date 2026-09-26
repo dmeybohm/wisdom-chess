@@ -51,7 +51,16 @@ namespace wisdom
 
         auto parsePosition (const vector<string>& tokens) -> bool;
         auto tokenizeCommand (const string& line) -> vector<string>;
-        auto parseUciMove (const string& uci_move) -> optional<Move>;
+        auto parseUciMove (const Game& game, const string& uci_move) -> optional<Move>;
+
+        // Play each move of a "position" command's list. On a move that
+        // cannot be parsed or is not legal, report it and return false,
+        // leaving the game as it was.
+        auto applyMoves (
+            Game& game,
+            vector<string>::const_iterator first,
+            vector<string>::const_iterator last
+        ) -> bool;
         auto moveToUci (const Move& move) -> string;
 
         void sendEngineInfo();
@@ -71,6 +80,7 @@ namespace wisdom
 
         shared_ptr<Logger> my_logger;
         bool my_debug_mode = false;
+        bool my_quit_requested = false;
 
         std::mutex my_game_mutex;
         std::atomic<int> my_search_id { 0 };

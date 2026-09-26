@@ -4,142 +4,98 @@
 #include <memory>
 
 #include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/ui/viewmodel/game_settings.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
 
-// The internal depth representation maps to half-moves (plies):
-//
-// Internal Depth 1 = 1 ply (half move)
-// Internal Depth 2 = 2 plies (1 full move)
-// Internal Depth 4 = 4 plies (2 full moves)
-// Internal Depth 6 = 6 plies (3 full moves)
-//
-// The UI specifies full moves, so internal depth = user depth * 2.
-//
-class MaxDepth
+namespace wisdom::ui::qml
 {
-public:
-    explicit MaxDepth (int userDepth) 
-        : myUserDepth { userDepth }
+    class GameSettings;
+
+    class ChessGame
     {
-        if (userDepth <= 0)
+    public:
+        // The configuration of the chess engine.
+        using Config = wisdom::ui::GameSettings;
+
+        explicit ChessGame (
+            std::unique_ptr<wisdom::Game> game, 
+            const Config& config
+        ) 
+            : my_engine { std::move (game) } 
+            , my_config { config }
         {
-            throw wisdom::Error { "Invalid depth" };
+            setConfig (config);
         }
-    }
 
-    [[nodiscard]] auto 
-    internalDepth() const 
-        -> int
-    {
-        return wisdom::ui::fullMovesToPlyDepth (myUserDepth);
-    }
+        static auto fromPlayers (
+            wisdom::Player whitePlayer, 
+            wisdom::Player blackPlayer, 
+            const Config& config
+        ) 
+            -> std::unique_ptr<ChessGame>;
 
-    [[nodiscard]] auto 
-    userDepth() const 
-        -> int
-    {
-        return myUserDepth;
-    }
+        static auto fromFen (
+            const std::string& input, 
+            const Config& config
+        )
+            -> std::unique_ptr<ChessGame>;
 
-private:
-    int myUserDepth;
-};
+        static auto fromEngine (
+            std::unique_ptr<wisdom::Game> game, 
+            const Config& config
+        )
+            -> std::unique_ptr<ChessGame>;
 
-class GameSettings;
+        [[nodiscard]] auto 
+        state() 
+            -> gsl::not_null<wisdom::Game*>
+        {
+            return my_engine.get();
+        }
 
-class ChessGame
-{
-public:
-    // The configuration of the chess engine.
-    struct Config
-    {
-        wisdom::Players players;
-        MaxDepth maxDepth;
-        std::chrono::seconds maxTime;
-        bool debugLogging = false;
+        [[nodiscard]] auto 
+        state() const 
+            -> gsl::not_null<const wisdom::Game*>
+        {
+            return my_engine.get();
+        }
 
-        static auto fromGameSettings (const GameSettings& gameSettings) -> Config;
+        [[nodiscard]] auto 
+        config() const 
+            -> const Config&
+        {
+            return my_config;
+        }
+
+        // Clone the current position. The move history is not copied, so this
+        // is only equivalent to the original at the start of a game.
+        [[nodiscard]] auto 
+        clone() const 
+            -> std::unique_ptr<ChessGame>;
+
+        void setConfig (const Config& config);
+        void setPeriodicFunction (
+            const wisdom::MoveTimer::PeriodicFunction& func
+        );
+        void setPlayers (
+            wisdom::Player whitePLayer, 
+            wisdom::Player blackPlayer
+        );
+
+        [[nodiscard]] auto 
+        moveFromCoordinates (
+            int srcRow, 
+            int srcColumn, 
+            int dstRow, 
+            int dstColumn, 
+            std::optional<wisdom::Piece> promoted
+        ) const
+            -> std::pair<std::optional<wisdom::Move>, wisdom::Color>;
+
+    private:
+        std::unique_ptr<wisdom::Game> my_engine;
+        Config my_config;
     };
-
-    explicit ChessGame (
-        std::unique_ptr<wisdom::Game> game, 
-        const Config& config
-    ) 
-        : my_engine { std::move (game) } 
-        , my_config { config }
-    {
-        setConfig (config);
-    }
-
-    static auto fromPlayers (
-        wisdom::Player whitePlayer, 
-        wisdom::Player blackPlayer, 
-        const Config& config
-    ) 
-        -> std::unique_ptr<ChessGame>;
-
-    static auto fromFen (
-        const std::string& input, 
-        const Config& confilg
-    )
-        -> std::unique_ptr<ChessGame>;
-
-    static auto fromEngine (
-        std::unique_ptr<wisdom::Game> game, 
-        const Config& config
-    )
-        -> std::unique_ptr<ChessGame>;
-
-    [[nodiscard]] auto 
-    state() 
-        -> gsl::not_null<wisdom::Game*>
-    {
-        return my_engine.get();
-    }
-
-    [[nodiscard]] auto 
-    state() const 
-        -> gsl::not_null<const wisdom::Game*>
-    {
-        return my_engine.get();
-    }
-
-    [[nodiscard]] auto 
-    config() const 
-        -> const Config&
-    {
-        return my_config;
-    }
-
-    // Clone the current position. The move history is not copied, so this
-    // is only equivalent to the original at the start of a game.
-    [[nodiscard]] auto 
-    clone() const 
-        -> std::unique_ptr<ChessGame>;
-
-    void setConfig (const Config& config);
-    void setPeriodicFunction (
-        const wisdom::MoveTimer::PeriodicFunction& func
-    );
-    void setPlayers (
-        wisdom::Player whitePLayer, 
-        wisdom::Player blackPlayer
-    );
-
-    [[nodiscard]] auto 
-    moveFromCoordinates (
-        int srcRow, 
-        int srcColumn, 
-        int dstRow, 
-        int dstColumn, 
-        std::optional<wisdom::Piece> promoted
-    ) const
-        -> std::pair<std::optional<wisdom::Move>, wisdom::Color>;
-
-private:
-    std::unique_ptr<wisdom::Game> my_engine;
-    Config my_config;
-};
-
+}
