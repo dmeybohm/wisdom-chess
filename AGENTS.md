@@ -88,9 +88,8 @@ test that loads the real QML, `wisdom_chess_add_qml_ui_test()` on
   macOS) as `ctest` does. CI uses Qt 6.9; `./scripts/install-ci-qt.sh`
   installs a matching one for reproducing a CI-only failure.
 - `cmake --build build --target all_qmllint` runs Qt's `qmllint` over the
-  QML module; CI runs it on Linux and it fails on any warning.
-  `src/wisdom-chess/ui/qml/.qmllint.ini` says which category is downgraded
-  meanwhile and why.
+  QML module; CI runs it on Linux and it fails on any warning
+  (`src/wisdom-chess/ui/qml/.qmllint.ini`).
 
 ### Sanitizers
 

@@ -10,18 +10,13 @@ using wisdom::Piece;
 using namespace wisdom::ui::test;
 
 // The mobile QML is only part of the Android build. It is loaded here on the
-// desktop, where Helper.isMobile() is false, so this shows that the files
+// desktop, where Platform.isMobile is false, so this shows that the files
 // work, not how they look on a phone.
 class MobileTest : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void initTestCase()
-    {
-        wisdom::ui::registerQmlTypes();
-    }
-
     void init()
     {
         my_app = std::make_unique<Application> ("main/mobile_main.qml");

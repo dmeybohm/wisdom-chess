@@ -679,14 +679,26 @@ GameModel::cloneGameSettings()
     return my_game_settings;
 }
 
-void GameModel::setQmlThirdRepetitionDrawStatus (DrawStatus draw_status)
+auto GameModel::qmlThirdRepetitionDrawStatus() const
+    -> ui::QmlDrawByRepetitionStatus
 {
-    setThirdRepetitionDrawStatus (draw_status);
+    return static_cast<ui::QmlDrawByRepetitionStatus> (thirdRepetitionDrawStatus());
 }
 
-void GameModel::setQmlFiftyMovesDrawStatus (DrawStatus draw_status)
+void GameModel::setQmlThirdRepetitionDrawStatus (ui::QmlDrawByRepetitionStatus draw_status)
 {
-    setFiftyMovesDrawStatus (draw_status);
+    setThirdRepetitionDrawStatus (static_cast<DrawStatus> (draw_status));
+}
+
+auto GameModel::qmlFiftyMovesDrawStatus() const
+    -> ui::QmlDrawByRepetitionStatus
+{
+    return static_cast<ui::QmlDrawByRepetitionStatus> (fiftyMovesDrawStatus());
+}
+
+void GameModel::setQmlFiftyMovesDrawStatus (ui::QmlDrawByRepetitionStatus draw_status)
+{
+    setFiftyMovesDrawStatus (static_cast<DrawStatus> (draw_status));
 }
 
 void

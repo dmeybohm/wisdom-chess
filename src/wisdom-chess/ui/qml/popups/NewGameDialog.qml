@@ -6,9 +6,11 @@ Dialog {
     modal: true
     standardButtons: Dialog.Yes | Dialog.No
     title: "New Game"
+    width: Math.min(400, Screen.width - 50)
+    padding: 40
 
     onAccepted: {
-        _myGameModel.restart()
+        GameModel.restart()
         visible = false
     }
     onRejected: {

@@ -9,6 +9,8 @@ cmake_policy(SET CMP0110 NEW)
 qt_add_library(wisdom-chess-qml-test-support STATIC
     ../main/pieces_model.hpp
     ../main/pieces_model.cpp
+    ../main/qml_singletons.hpp
+    ../main/qml_singletons.cpp
     ../main/chess_game.hpp
     ../main/chess_game.cpp
     ../main/game_settings.hpp
@@ -16,7 +18,6 @@ qt_add_library(wisdom-chess-qml-test-support STATIC
     ../main/ui_settings.hpp
     ../main/ui_settings.cpp
     ../main/ui_types.hpp
-    ../main/ui_types.cpp
     ../main/game_model.hpp
     ../main/game_model.cpp
     ../main/chess_engine.hpp
@@ -76,6 +77,15 @@ function(wisdom_chess_add_qml_ui_test test_name source)
     set(target "wisdom-chess-qml-${target_suffix}")
 
     target_link_libraries(${target} PRIVATE Qt6::Quick Qt6::QuickTest Qt6::Svg)
+
+    # The module's C++ types register themselves through the file
+    # qmltyperegistrar generates for the application; compiled here too, its
+    # static registration runs when the embedded module is imported.
+    set(registrations
+        "${CMAKE_CURRENT_BINARY_DIR}/../wisdomchessqml_qmltyperegistrations.cpp")
+    set_source_files_properties("${registrations}" PROPERTIES GENERATED TRUE)
+    target_sources(${target} PRIVATE "${registrations}")
+    target_include_directories(${target} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../main")
     qt_add_resources(${target} "${target_suffix}-qml"
         PREFIX "/qt/qml/WisdomChess"
         FILES ${test_resource_files})
@@ -97,3 +107,4 @@ wisdom_chess_add_qml_ui_test("QML: application" application_test.cpp)
 wisdom_chess_add_qml_ui_test("QML: dialogs" dialogs_test.cpp)
 
 wisdom_chess_add_qml_ui_test("QML: mobile" mobile_test.cpp)
+wisdom_chess_add_qml_ui_test("QML: wasm" wasm_test.cpp)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QtQmlIntegration/qqmlintegration.h>
 
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/piece.hpp"
@@ -52,9 +53,6 @@ namespace wisdom::ui
     };
 
     Q_ENUM_NS (QmlDrawByRepetitionStatus)
-
-    // Register the enums in QML:
-    void registerQmlTypes();
 
     [[nodiscard]] constexpr auto 
     mapColor (wisdom::Color color)
@@ -179,3 +177,34 @@ namespace wisdom::ui
     }
 };
 
+// QML sees the enums above under these names. Each is a namespace that
+// registers wisdom::ui's meta-object under its own name in the WisdomChess
+// module, so the same enum keys are reachable as Color.White,
+// Player.Human, PieceType.Queen and DrawByRepetitionStatus.Proposed.
+namespace wisdom::ui::qml::color
+{
+    Q_NAMESPACE
+    QML_FOREIGN_NAMESPACE (wisdom::ui)
+    QML_NAMED_ELEMENT (Color)
+}
+
+namespace wisdom::ui::qml::player
+{
+    Q_NAMESPACE
+    QML_FOREIGN_NAMESPACE (wisdom::ui)
+    QML_NAMED_ELEMENT (Player)
+}
+
+namespace wisdom::ui::qml::piece_type
+{
+    Q_NAMESPACE
+    QML_FOREIGN_NAMESPACE (wisdom::ui)
+    QML_NAMED_ELEMENT (PieceType)
+}
+
+namespace wisdom::ui::qml::draw_by_repetition_status
+{
+    Q_NAMESPACE
+    QML_FOREIGN_NAMESPACE (wisdom::ui)
+    QML_NAMED_ELEMENT (DrawByRepetitionStatus)
+}

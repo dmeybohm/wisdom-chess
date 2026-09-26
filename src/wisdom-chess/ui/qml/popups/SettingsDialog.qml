@@ -9,7 +9,7 @@ Dialog {
     title: "Settings"
     rightPadding: 25
 
-    readonly property int indicatorOffset: topWindow.isMacOS ? 2 : 6
+    readonly property int indicatorOffset: Platform.isMacOS ? 2 : 6
 
     onApplied: {
         applySettingsTimer.start()
@@ -26,11 +26,11 @@ Dialog {
         internal.resetSettings()
     }
 
-    width: topWindow.isMobile
+    width: Platform.isMobile
         ? Screen.width - 20
-        : Math.min(Screen.width - 20, topWindow.isWebAssembly ? 500 : 400)
-    topPadding: topWindow.isMobile ? padding : 30
-    bottomPadding: topWindow.isMobile ? padding : 30
+        : Math.min(Screen.width - 20, Platform.isWebAssembly ? 500 : 400)
+    topPadding: Platform.isMobile ? padding : 30
+    bottomPadding: Platform.isMobile ? padding : 30
 
     Component.onCompleted: internal.resetSettings()
 
@@ -46,25 +46,29 @@ Dialog {
     QtObject {
         id: internal
 
-        property var myUISettings
-        property var myGameSettings
-        property var toSaveUISettings
-        property var toSaveGameSettings
+        property uiSettings myUISettings
+        property gameSettings myGameSettings
+        property uiSettings toSaveUISettings
+        property gameSettings toSaveGameSettings
 
-        readonly property int fontSize: topWindow.isMobile ? 12 : 16
+        readonly property int fontSize: Platform.isMobile ? 12 : 16
 
-        function movesLabel(numMoves) {
-            return parseInt(numMoves, 10) === 1 ? "1 move" : numMoves + " moves"
+        function movesLabel(numMoves: int): string {
+            return numMoves === 1 ? "1 move" : numMoves + " moves"
         }
 
-        function resetSettings() {
-            myUISettings = _myGameModel.cloneUISettings()
-            myGameSettings = _myGameModel.cloneGameSettings()
+        function zeroPad(num: int): string {
+            return num < 10 ? "0" + num : "" + num
         }
 
-        function applySettings() {
-            _myGameModel.uiSettings = toSaveUISettings
-            _myGameModel.gameSettings = toSaveGameSettings
+        function resetSettings(): void {
+            myUISettings = GameModel.cloneUISettings()
+            myGameSettings = GameModel.cloneGameSettings()
+        }
+
+        function applySettings(): void {
+            GameModel.uiSettings = toSaveUISettings
+            GameModel.gameSettings = toSaveGameSettings
         }
 
         Component.onCompleted: {
@@ -76,7 +80,7 @@ Dialog {
         id: contentColumn
         spacing: 20
         anchors.centerIn: parent
-        width: settingsDialog.width - (topWindow.isMobile ? 30 : 60)
+        width: settingsDialog.width - (Platform.isMobile ? 30 : 60)
 
         RowLayout {
             Text {
@@ -87,7 +91,7 @@ Dialog {
 
             // Use Row instead of RowLayout to avoid alignment issues on desktop:
             RowLayout {
-                spacing: topWindow.isDesktop ? 15 : 0
+                spacing: Platform.isDesktop ? 15 : 0
                 Layout.alignment: Qt.AlignVCenter
 
                 RadioButton {
@@ -115,7 +119,7 @@ Dialog {
             }
 
             RowLayout {
-                spacing: topWindow.isDesktop ? 15 : 0
+                spacing: Platform.isDesktop ? 15 : 0
                 Layout.alignment: Qt.AlignVCenter
 
                 RadioButton {
@@ -172,7 +176,7 @@ Dialog {
 
             RowLayout {
                 Text {
-                    text: "0:" + Helper.zeroPad(thinkingTimeSlider.value.toString())
+                    text: "0:" + internal.zeroPad(thinkingTimeSlider.value)
                     font.pixelSize: internal.fontSize
                 }
 
@@ -184,11 +188,9 @@ Dialog {
                     stepSize: 1
                     from: 1
                     to: 30
-                    onValueChanged: {
-                        if (value && internal.myGameSettings) {
-                            internal.myGameSettings.maxSearchTime = value
-                        }
-                    }
+                    // moved, not valueChanged: the value is bound to the
+                    // setting, so writing it back on every change loops.
+                    onMoved: internal.myGameSettings.maxSearchTime = value
                 }
             }
         }
@@ -204,7 +206,7 @@ Dialog {
 
             RowLayout {
                 Text {
-                    text: internal.movesLabel(maxDepthSlider.value.toString())
+                    text: internal.movesLabel(maxDepthSlider.value)
                     font.pixelSize: internal.fontSize
                 }
 
@@ -216,12 +218,7 @@ Dialog {
                     from: 1
                     to: 8
                     stepSize: 1
-                    onValueChanged: {
-                        if (value && internal.myGameSettings) {
-                            internal.myGameSettings.maxDepth = parseInt(value, 10)
-                        }
-                    }
-
+                    onMoved: internal.myGameSettings.maxDepth = value
                 }
             }
         }

@@ -57,11 +57,12 @@ qt_add_executable(WisdomChessQml
         main/game_model.cpp
         main/pieces_model.hpp
         main/pieces_model.cpp
+        main/qml_singletons.hpp
+        main/qml_singletons.cpp
         main/chess_game.hpp
         main/chess_game.cpp
         main/chess_engine.hpp
         main/chess_engine.cpp
-        main/ui_types.cpp
         main/ui_types.hpp
         main/ui_settings.hpp
         main/ui_settings.cpp
@@ -84,6 +85,9 @@ else()
     set(MAIN_QML_FILE main/desktop_main.qml)
 endif()
 
+set_source_files_properties(main/BoardDimensions.qml main/Platform.qml
+    PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+
 qt_add_qml_module(WisdomChessQml
     URI WisdomChess
     VERSION 1.0
@@ -95,7 +99,6 @@ qt_add_qml_module(WisdomChessQml
         main/Piece.qml
         popups/GameMenu.qml
         popups/PromoteDropdown.qml
-        popups/PromotedPieceModel.qml
         popups/DrawProposalDialog.qml
         popups/AboutDialog.qml
         popups/NewGameDialog.qml
@@ -103,9 +106,11 @@ qt_add_qml_module(WisdomChessQml
         popups/ConfirmQuitDialog.qml
         main/StatusBar.qml
         main/ImageToolButton.qml
-        Helper.js
         # Every platform's root is in the module, whichever one MAIN_QML_FILE
         # loads, so qmllint sees them all and the tests find them.
+        main/Platform.qml
+        main/MainWindow.qml
+        main/GameRoot.qml
         main/DesktopRoot.qml
         main/MobileRoot.qml
         main/desktop_main.qml
@@ -194,7 +199,9 @@ wisdom_chess_enable_warnings(WisdomChessQml)
 target_compile_definitions(WisdomChessQml
     PRIVATE MAIN_QML_FILE="${MAIN_QML_FILE}")
 
-target_include_directories(WisdomChessQml PRIVATE ../../..)
+# The generated QML type registration includes the module's headers by
+# their base names, so their directory is on the include path.
+target_include_directories(WisdomChessQml PRIVATE ../../.. main)
 
 include(GNUInstallDirs)
 

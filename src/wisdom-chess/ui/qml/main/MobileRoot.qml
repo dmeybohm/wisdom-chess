@@ -1,31 +1,6 @@
-import QtQuick 
+import QtQuick
 
-Item {
-    width: parent.width
-    height: parent.height
-
-    readonly property bool anyDialogOpen: dialogs.anyDialogOpen
-    readonly property int animationDelay: _myGameModel.animationDelay
-    readonly property int castlingRookPause: _myGameModel.castlingRookPause
-    property int toolbarHeight
-
-    property var currentFocusedItem: null
-
-    function onFocusObjectChanged(oldFocusItem, newFocusItem) {
-        boards.onFocusObjectChanged(oldFocusItem, newFocusItem)
-    }
-
-    function showNewGameDialog() {
-        dialogs.showNewGameDialog()
-    }
-
-    function showAboutDialog() {
-        dialogs.showAboutDialog()
-    }
-
-    function showSettingsDialog() {
-        dialogs.showSettingsDialog()
-    }
+GameRoot {
 
     Flickable {
         property int totalContentHeight: boards.height + boardStatusBar.implicitHeight + 150
@@ -33,8 +8,6 @@ Item {
         anchors.fill: parent
         contentHeight: Math.max(parent.height, totalContentHeight)
         contentWidth: parent.width
-        height: parent.height
-        width: parent.width
 
         Board {
             id: boards
@@ -49,10 +22,4 @@ Item {
             anchors.right: parent.right
         }
     }
-
-    Dialogs {
-        id: dialogs
-    }
-
 }
-

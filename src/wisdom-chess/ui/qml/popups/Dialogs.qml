@@ -8,19 +8,19 @@ Item {
         || aboutDialog.visible
         || confirmQuitDialog.visible
 
-    function showNewGameDialog() {
+    function showNewGameDialog(): void {
         newGameDialog.visible = true
     }
 
-    function showAboutDialog() {
+    function showAboutDialog(): void {
         aboutDialog.visible = true
     }
 
-    function showConfirmQuitDialog() {
+    function showConfirmQuitDialog(): void {
         confirmQuitDialog.visible = true
     }
 
-    function showSettingsDialog() {
+    function showSettingsDialog(): void {
         settingsDialog.visible = true
     }
 
@@ -32,37 +32,31 @@ Item {
 
     DrawProposalDialog {
         id: threefoldRepetitionDialog
-        visible: _myGameModel.thirdRepetitionDrawStatus == DrawByRepetitionStatus.Proposed
+        visible: GameModel.thirdRepetitionDrawStatus == DrawByRepetitionStatus.Proposed
         anchors.centerIn: parent
-        width: Math.min(400, Screen.width - 50)
-        height: Math.min(250, Screen.height - 10)
-        padding: 40
         text: "The same position has been repeated three times."
 
         // hide the dialog and break the property binding:
         onAccepted: {
-            _myGameModel.thirdRepetitionDrawStatus = DrawByRepetitionStatus.Accepted
+            GameModel.thirdRepetitionDrawStatus = DrawByRepetitionStatus.Accepted
         }
         onRejected: {
-            _myGameModel.thirdRepetitionDrawStatus = DrawByRepetitionStatus.Declined
+            GameModel.thirdRepetitionDrawStatus = DrawByRepetitionStatus.Declined
         }
     }
 
     DrawProposalDialog {
         id: fiftyMovesNoProgressDrawDialog
-        visible: _myGameModel.fiftyMovesDrawStatus == DrawByRepetitionStatus.Proposed
+        visible: GameModel.fiftyMovesDrawStatus == DrawByRepetitionStatus.Proposed
         anchors.centerIn: parent
-        width: Math.min(400, Screen.width - 50)
-        height: Math.min(250, Screen.height - 10)
-        padding: 40
         text: "There have been fifty moves without a capture or pawn move."
 
         // hide the dialog and break the property binding:
         onAccepted: {
-            _myGameModel.fiftyMovesDrawStatus = DrawByRepetitionStatus.Accepted
+            GameModel.fiftyMovesDrawStatus = DrawByRepetitionStatus.Accepted
         }
         onRejected: {
-            _myGameModel.fiftyMovesDrawStatus = DrawByRepetitionStatus.Declined
+            GameModel.fiftyMovesDrawStatus = DrawByRepetitionStatus.Declined
         }
     }
 
@@ -70,8 +64,6 @@ Item {
         id: newGameDialog
         visible: false
         anchors.centerIn: parent
-        width: Math.min(400, Screen.width - 50)
-        padding: 40
     }
 
     AboutDialog {
@@ -83,8 +75,6 @@ Item {
     ConfirmQuitDialog {
         id: confirmQuitDialog
         visible: false
-        width: Math.min(500, Screen.width - 50)
-        padding: 40
         anchors.centerIn: parent
     }
 }

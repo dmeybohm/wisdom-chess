@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QQmlApplicationEngine>
-#include <QQmlContext>
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QTest>
@@ -10,37 +9,11 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/ui/qml/main/game_model.hpp"
 #include "wisdom-chess/ui/qml/main/pieces_model.hpp"
+#include "wisdom-chess/ui/qml/main/qml_singletons.hpp"
 #include "wisdom-chess/ui/qml/main/ui_types.hpp"
 
 namespace wisdom::ui::test
 {
-    // Lets the tests read the board the model holds.
-    class InspectableGameModel : public GameModel
-    {
-    public:
-        [[nodiscard]] auto
-        board() const
-            -> const wisdom::Board&
-        {
-            return getGame()->getBoard();
-        }
-
-        // Mark the side to move as computer-controlled without starting a
-        // search, so tests can exercise input during the engine's turn.
-        void makeCurrentPlayerComputer()
-        {
-            auto game = getGame();
-            auto who = game->getCurrentTurn();
-
-            if (who == wisdom::Color::White)
-                game->setWhitePlayer (wisdom::Player::ChessEngine);
-            else
-                game->setBlackPlayer (wisdom::Player::ChessEngine);
-        }
-
-        using GameModel::isHoldingAMove;
-    };
-
     // The application as main.cpp assembles it: both models, the signal
     // connections between them and the real QML, loaded from resources.
     class Application
@@ -62,9 +35,8 @@ namespace wisdom::ui::test
                         warnings << error.toString();
                 });
 
-            auto* context = my_engine.rootContext();
-            context->setContextProperty (QStringLiteral ("_myGameModel"), &game_model);
-            context->setContextProperty (QStringLiteral ("_myPiecesModel"), &pieces_model);
+            GameModelSingleton::setInstance (&game_model);
+            PiecesModelSingleton::setInstance (&pieces_model);
 
             my_engine.load (QUrl {
                 QStringLiteral ("qrc:/qt/qml/WisdomChess/") + QString::fromLatin1 (main_qml_file)
@@ -249,7 +221,7 @@ namespace wisdom::ui::test
             {
                 for (int column = 0; column < wisdom::Num_Columns; column++)
                 {
-                    if (game_model.board().pieceAt (row, column) != wisdom::Piece_And_Color_None)
+                    if (board().pieceAt (row, column) != wisdom::Piece_And_Color_None)
                         on_board++;
                 }
             }
@@ -262,17 +234,41 @@ namespace wisdom::ui::test
             {
                 auto row = piece->property ("row").toInt();
                 auto column = piece->property ("column").toInt();
-                if (game_model.board().pieceAt (row, column) == wisdom::Piece_And_Color_None)
+                if (board().pieceAt (row, column) == wisdom::Piece_And_Color_None)
                     return false;
             }
             return true;
         }
 
+        // The board the model holds.
         [[nodiscard]] auto
-        squareSize() const
+        board() const
+            -> const wisdom::Board&
+        {
+            return game_model.getGame()->getBoard();
+        }
+
+        // Mark the side to move as computer-controlled without starting a
+        // search, so tests can exercise input during the engine's turn.
+        void makeCurrentPlayerComputer()
+        {
+            auto game = game_model.getGame();
+            auto who = game->getCurrentTurn();
+
+            if (who == wisdom::Color::White)
+                game->setWhitePlayer (wisdom::Player::ChessEngine);
+            else
+                game->setBlackPlayer (wisdom::Player::ChessEngine);
+        }
+
+        [[nodiscard]] auto
+        squareSize()
             -> double
         {
-            return window()->property ("squareSize").toDouble();
+            auto* dimensions = my_engine.singletonInstance<QObject*> (
+                "WisdomChess", "BoardDimensions"
+            );
+            return dimensions->property ("squareSize").toDouble();
         }
 
         [[nodiscard]] auto
@@ -337,10 +333,10 @@ namespace wisdom::ui::test
         boardPieceAt (const char* coord_text) const
             -> ColoredPiece
         {
-            return game_model.board().pieceAt (wisdom::coordParse (coord_text));
+            return board().pieceAt (wisdom::coordParse (coord_text));
         }
 
-        InspectableGameModel game_model;
+        GameModel game_model;
         PiecesModel pieces_model;
         QStringList warnings;
 

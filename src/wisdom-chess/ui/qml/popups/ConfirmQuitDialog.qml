@@ -6,6 +6,8 @@ Dialog {
     modal: true
     standardButtons: Dialog.Yes | Dialog.No
     title: "Quit Wisdom Chess"
+    width: Math.min(500, Screen.width - 50)
+    padding: 40
 
     onAccepted: {
         Qt.quit()

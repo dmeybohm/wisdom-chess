@@ -30,11 +30,6 @@ class DialogsTest : public QObject
     Q_OBJECT
 
 private slots:
-    void initTestCase()
-    {
-        wisdom::ui::registerQmlTypes();
-    }
-
     void init()
     {
         my_app = std::make_unique<Application>();

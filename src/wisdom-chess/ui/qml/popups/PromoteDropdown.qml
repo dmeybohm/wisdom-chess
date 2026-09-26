@@ -12,19 +12,32 @@ FocusScope {
     property int drawAtColumn: 0
     property bool flipped: false
 
-    onDestinationColumnChanged: {
-        myPromotedPieceModel.setFirstRow(destinationRow)
+    // Queen first, on the target square, with the rest hanging down from
+    // it. A promotion on the far rank draws the list upwards from that
+    // square instead (drawAtRow), so the order is reversed to keep the
+    // queen on it.
+    readonly property list<int> choices: destinationRow === 7
+        ? [PieceType.Knight, PieceType.Bishop, PieceType.Rook, PieceType.Queen]
+        : [PieceType.Queen, PieceType.Rook, PieceType.Bishop, PieceType.Knight]
+
+    function imageFor(piece: int): string {
+        const letter = piece === PieceType.Queen ? "q"
+            : piece === PieceType.Rook ? "r"
+            : piece === PieceType.Bishop ? "b"
+            : "n"
+        const side = GameModel.currentTurn === Color.White ? "l" : "d"
+        return "../images/Chess_" + letter + side + "t45.svg"
     }
 
     transform: Translate {
         id: myTranslation
-        x: dropDownTop.drawAtColumn * topWindow.squareSize
-        y: dropDownTop.drawAtRow * topWindow.squareSize
+        x: dropDownTop.drawAtColumn * BoardDimensions.squareSize
+        y: dropDownTop.drawAtRow * BoardDimensions.squareSize
     }
 
     Rectangle {
-        width: topWindow.squareSize
-        height: topWindow.squareSize * 4
+        width: BoardDimensions.squareSize
+        height: BoardDimensions.squareSize * 4
         color: "lightblue"
     }
 
@@ -32,24 +45,20 @@ FocusScope {
         anchors.fill: parent
     }
 
-    PromotedPieceModel {
-        id: myPromotedPieceModel
-    }
-
     Grid {
         rows: 4
         columns: 1
 
         Repeater {
-            model: myPromotedPieceModel
+            model: 4
+
             delegate: Item {
                id: choice
-               required property string whiteImage
-               required property string blackImage
-               required property int piece
+               required property int index
+               readonly property int piece: dropDownTop.choices[index]
 
-               width: topWindow.squareSize
-               height: topWindow.squareSize
+               width: BoardDimensions.squareSize
+               height: BoardDimensions.squareSize
 
                transform: Rotation {
                     origin.x: choice.width / 2
@@ -68,10 +77,9 @@ FocusScope {
                }
 
                Image {
-                   source: _myGameModel.currentTurn === Color.White ? choice.whiteImage
-                                                                : choice.blackImage
-                   width: topWindow.squareSize
-                   height: topWindow.squareSize
+                   source: dropDownTop.imageFor(choice.piece)
+                   width: BoardDimensions.squareSize
+                   height: BoardDimensions.squareSize
                }
 
                MouseArea {
@@ -79,7 +87,7 @@ FocusScope {
 
                    onClicked: {
                        if (myRect.focus) {
-                           _myGameModel.promotePiece(
+                           GameModel.promotePiece(
                                        dropDownTop.sourceRow, dropDownTop.sourceColumn,
                                        dropDownTop.destinationRow, dropDownTop.destinationColumn,
                                        choice.piece)
@@ -93,5 +101,4 @@ FocusScope {
             }
         }
     }
-
 }

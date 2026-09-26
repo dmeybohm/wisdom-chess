@@ -2,8 +2,8 @@ import QtQuick
 
 Image {
     id: myPieceImage
-    width: topWindow.squareSize
-    height: topWindow.squareSize
+    width: BoardDimensions.squareSize
+    height: BoardDimensions.squareSize
 
     required property string pieceImage
     required property int row
@@ -17,21 +17,21 @@ Image {
     transform: [
         Translate {
             id: myTranslation
-            x: myPieceImage.column * topWindow.squareSize
-            y: myPieceImage.row * topWindow.squareSize
+            x: myPieceImage.column * BoardDimensions.squareSize
+            y: myPieceImage.row * BoardDimensions.squareSize
 
             Behavior on y {
                 enabled: !myPieceImage.isCastlingRook && !castlingRookAnimation.running
                 NumberAnimation {
                     easing.type: Easing.OutExpo
-                    duration: root.animationDelay
+                    duration: GameModel.animationDelay
                 }
             }
             Behavior on x {
                 enabled: !myPieceImage.isCastlingRook && !castlingRookAnimation.running
                 NumberAnimation {
                     easing.type: Easing.OutExpo
-                    duration: root.animationDelay
+                    duration: GameModel.animationDelay
                 }
             }
         },
@@ -44,7 +44,7 @@ Image {
             Behavior on angle {
                 NumberAnimation {
                     easing.type: Easing.OutExpo
-                    duration: root.animationDelay * .5
+                    duration: GameModel.animationDelay * .5
                 }
             }
         }
@@ -56,20 +56,20 @@ Image {
         onStopped: myPieceImage.rebindX()
 
         PauseAnimation {
-            duration: root.castlingRookPause
+            duration: GameModel.castlingRookPause
         }
         NumberAnimation {
             target: myTranslation
             property: "x"
-            to: myPieceImage.column * topWindow.squareSize
+            to: myPieceImage.column * BoardDimensions.squareSize
             easing.type: Easing.OutExpo
-            duration: root.animationDelay
+            duration: GameModel.animationDelay
         }
     }
 
-    function rebindX() {
+    function rebindX(): void {
         myTranslation.x = Qt.binding(
-            function() { return myPieceImage.column * topWindow.squareSize }
+            function(): real { return myPieceImage.column * BoardDimensions.squareSize }
         )
     }
 
@@ -80,7 +80,7 @@ Image {
 
         // Assigning a value replaces the binding, so the rook starts from
         // its old square; rebindX() restores the binding when it arrives.
-        myTranslation.x = myPieceImage.castlingSourceColumn * topWindow.squareSize
+        myTranslation.x = myPieceImage.castlingSourceColumn * BoardDimensions.squareSize
         castlingRookAnimation.stop()
         castlingRookAnimation.start()
     }

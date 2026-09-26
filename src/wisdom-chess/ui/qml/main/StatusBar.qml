@@ -13,9 +13,9 @@ ColumnLayout {
         font.pointSize: statusBar.fontSize
         Layout.fillWidth: true
         color: "#ff333333"
-        text: _myGameModel.gameOverStatus !== ""
-          ? _myGameModel.gameOverStatus :
-           _myGameModel.currentTurn === Color.White ?
+        text: GameModel.gameOverStatus !== ""
+          ? GameModel.gameOverStatus :
+           GameModel.currentTurn === Color.White ?
          "<b>White</b> to move" :
          "<b>Black</b> to move"
     }
@@ -26,13 +26,13 @@ ColumnLayout {
         Layout.fillWidth: true
         font.pointSize: statusBar.fontSize
         color: "#ff333333"
-        text: _myGameModel.moveStatus +
+        text: GameModel.moveStatus +
           (
-              Boolean(_myGameModel.moveStatus) && Boolean(_myGameModel.inCheck) ?
+              Boolean(GameModel.moveStatus) && Boolean(GameModel.inCheck) ?
               " - " : ""
           ) +
           (
-              (_myGameModel.inCheck && _myGameModel.gameOverStatus === "") ? "Check!" : ""
+              (GameModel.inCheck && GameModel.gameOverStatus === "") ? "Check!" : ""
           )
     }
 }

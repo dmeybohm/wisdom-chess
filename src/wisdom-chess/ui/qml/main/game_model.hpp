@@ -15,7 +15,7 @@
 class QmlGameStatusUpdate;
 class ChessEngine;
 
-class GameModel : public QObject, public wisdom::ui::GameViewModelBase
+class GameModel final : public QObject, public wisdom::ui::GameViewModelBase
 {
     using DrawStatus = wisdom::ui::DrawByRepetitionStatus;
 
@@ -24,42 +24,51 @@ class GameModel : public QObject, public wisdom::ui::GameViewModelBase
     Q_PROPERTY (wisdom::ui::Color currentTurn
         READ qmlCurrentTurn
         WRITE setQmlCurrentTurn
-        NOTIFY currentTurnChanged)
+        NOTIFY currentTurnChanged
+        FINAL)
 
     Q_PROPERTY (QString gameOverStatus
         READ qmlGameOverStatus
         WRITE setQmlGameOverStatus
-        NOTIFY gameOverStatusChanged)
+        NOTIFY gameOverStatusChanged
+        FINAL)
 
     Q_PROPERTY (QString moveStatus
         READ qmlMoveStatus
         WRITE setQmlMoveStatus
-        NOTIFY moveStatusChanged)
+        NOTIFY moveStatusChanged
+        FINAL)
 
     Q_PROPERTY (bool inCheck
         READ qmlInCheck
         WRITE setQmlInCheck
-        NOTIFY inCheckChanged)
+        NOTIFY inCheckChanged
+        FINAL)
 
     Q_PROPERTY (UISettings uiSettings
         READ uiSettings
         WRITE setUISettings
-        NOTIFY uiSettingsChanged)
+        NOTIFY uiSettingsChanged
+        FINAL)
 
     Q_PROPERTY (GameSettings gameSettings
         READ gameSettings
         WRITE setGameSettings
-        NOTIFY gameSettingsChanged)
+        NOTIFY gameSettingsChanged
+        FINAL)
 
-    Q_PROPERTY (wisdom::ui::DrawByRepetitionStatus thirdRepetitionDrawStatus
-        READ thirdRepetitionDrawStatus
+    // In the mirror enum QML knows; the view-model's enum has no meta-object.
+    Q_PROPERTY (wisdom::ui::QmlDrawByRepetitionStatus thirdRepetitionDrawStatus
+        READ qmlThirdRepetitionDrawStatus
         WRITE setQmlThirdRepetitionDrawStatus
-        NOTIFY thirdRepetitionDrawStatusChanged)
+        NOTIFY thirdRepetitionDrawStatusChanged
+        FINAL)
 
-    Q_PROPERTY (wisdom::ui::DrawByRepetitionStatus fiftyMovesDrawStatus
-        READ fiftyMovesDrawStatus
+    Q_PROPERTY (wisdom::ui::QmlDrawByRepetitionStatus fiftyMovesDrawStatus
+        READ qmlFiftyMovesDrawStatus
         WRITE setQmlFiftyMovesDrawStatus
-        NOTIFY fiftyMovesDrawStatusChanged)
+        NOTIFY fiftyMovesDrawStatusChanged
+        FINAL)
 
     // How long a piece takes to move, in milliseconds. The board animates
     // for this long, and a move is held back until the one before it has
@@ -67,12 +76,14 @@ class GameModel : public QObject, public wisdom::ui::GameViewModelBase
     Q_PROPERTY (int animationDelay
         READ animationDelay
         WRITE setAnimationDelay
-        NOTIFY animationDelayChanged)
+        NOTIFY animationDelayChanged
+        FINAL)
 
     // How long the rook of a castling move waits before it follows the king.
     Q_PROPERTY (int castlingRookPause
         READ castlingRookPause
-        CONSTANT)
+        CONSTANT
+        FINAL)
 
 public:
     // The board animates a move for this long, in milliseconds.
@@ -123,9 +134,17 @@ public:
     qmlInCheck() const
         -> bool;
 
-    void setQmlThirdRepetitionDrawStatus (DrawStatus draw_status);
+    [[nodiscard]] auto
+    qmlThirdRepetitionDrawStatus() const
+        -> wisdom::ui::QmlDrawByRepetitionStatus;
 
-    void setQmlFiftyMovesDrawStatus (DrawStatus draw_status);
+    void setQmlThirdRepetitionDrawStatus (wisdom::ui::QmlDrawByRepetitionStatus draw_status);
+
+    [[nodiscard]] auto
+    qmlFiftyMovesDrawStatus() const
+        -> wisdom::ui::QmlDrawByRepetitionStatus;
+
+    void setQmlFiftyMovesDrawStatus (wisdom::ui::QmlDrawByRepetitionStatus draw_status);
 
     void setUISettings (const UISettings& settings);
     [[nodiscard]] auto
@@ -234,7 +253,7 @@ public slots:
 
     void updateEngineConfig();
 
-protected:
+public:
     [[nodiscard]] auto
     getGame()
         -> wisdom::observer_ptr<wisdom::Game> override;
@@ -248,6 +267,7 @@ protected:
     isHoldingAMove() const
         -> bool;
 
+protected:
     void onInCheckChanged() override;
     void onMoveStatusChanged() override;
     void onGameOverStatusChanged() override;
