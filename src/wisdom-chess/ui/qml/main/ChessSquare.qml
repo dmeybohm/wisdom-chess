@@ -1,6 +1,8 @@
 import QtQuick
 
 Item {
+    id: chessSquare
+
     property color bgColor: "white"
     property alias boardRow: myRect.boardRow;
     property alias boardColumn: myRect.boardColumn;
@@ -14,7 +16,7 @@ Item {
         property int boardColumn: 0
         anchors.fill: parent
         focus: false
-        color: activeFocus ? "lightblue" : bgColor
+        color: activeFocus ? "lightblue" : chessSquare.bgColor
     }
 
     MouseArea {

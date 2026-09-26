@@ -1,7 +1,5 @@
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
-import "../Helper.js" as Helper
 
 ApplicationWindow {
     id: topWindow
@@ -30,8 +28,6 @@ ApplicationWindow {
         else
             _myGameModel.unpause()
     }
-
-    property var currentFocusedItem: null
 
     onFocusObjectChanged: {
         root.onFocusObjectChanged(root.currentFocusedItem, activeFocusItem)

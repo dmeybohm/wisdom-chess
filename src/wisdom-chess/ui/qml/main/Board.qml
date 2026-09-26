@@ -1,20 +1,18 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
-import QtQuick.Layouts
-import QtQuick.Controls
-import "../Helper.js" as Helper
 
 Item {
     id: myGridAndPieces
     width: topWindow.boardWidth
     height: topWindow.boardHeight
 
-    property var animateRowAndColChange: myPiecesLayer.animateRowAndColChange
     property bool flipped: _myGameModel.uiSettings.flipped
 
     transform: Rotation {
-        origin.x: width / 2
-        origin.y: height / 2
-        angle: flipped ? 180 : 0
+        origin.x: myGridAndPieces.width / 2
+        origin.y: myGridAndPieces.height / 2
+        angle: myGridAndPieces.flipped ? 180 : 0
 
         Behavior on angle {
             NumberAnimation {
@@ -58,12 +56,12 @@ Item {
         Repeater {
             model: 64
             delegate: ChessSquare {
-                boardRow: Math.floor(model.index / 8)
-                boardColumn: model.index % 8
-                bgColor: {
-                    (model.index % 2 + boardRow % 2) % 2 == 0
-                            ? "#fff3f3f3" : "#FF5F9EA0"
-                }
+                id: square
+                required property int index
+                boardRow: Math.floor(square.index / 8)
+                boardColumn: square.index % 8
+                bgColor: (square.index + square.boardRow) % 2 == 0
+                    ? "#fff3f3f3" : "#FF5F9EA0"
             }
         }
     }
@@ -89,12 +87,7 @@ Item {
         Repeater {
             model: _myPiecesModel
             delegate: Piece {
-                source: model.pieceImage
-                row: model.row
-                column: model.column
                 flipped: myGridAndPieces.flipped
-                isCastlingRook: model.isCastlingRook
-                castlingSourceColumn: model.castlingSourceColumn
             }
         }
 

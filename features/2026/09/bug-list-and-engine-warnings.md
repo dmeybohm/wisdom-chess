@@ -304,6 +304,12 @@ replacement are in
   it again (`ui/qml/main/mobile_main.qml`). Found on the `qml-tests`
   branch. Fixed on the `mobile-menu-toggle` branch; see
   [mobile-menu-toggle.md](mobile-menu-toggle.md).
+- [ ] **The promotion dropdown reverses its piece order on the wrong
+  signal.** `popups/PromoteDropdown.qml` calls `setFirstRow` from
+  `onDestinationColumnChanged`, but the order depends on the row: two
+  promotions on the same file, one per side, leave the second list drawn
+  queen-farthest from the pawn. Cosmetic. Found reviewing the QML on the
+  `qml-dialog-heights` branch; see [qml-cleanups.md](qml-cleanups.md).
 - [x] The New Game and Quit dialogs are too short for their padding
   (`popups/NewGameDialog.qml`, `popups/ConfirmQuitDialog.qml`: height at
   most 150, padding 40), so their text has no room and is drawn outside

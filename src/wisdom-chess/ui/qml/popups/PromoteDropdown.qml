@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 
 FocusScope {
@@ -16,8 +18,8 @@ FocusScope {
 
     transform: Translate {
         id: myTranslation
-        x: drawAtColumn * topWindow.squareSize
-        y: drawAtRow * topWindow.squareSize
+        x: dropDownTop.drawAtColumn * topWindow.squareSize
+        y: dropDownTop.drawAtRow * topWindow.squareSize
     }
 
     Rectangle {
@@ -41,12 +43,17 @@ FocusScope {
         Repeater {
             model: myPromotedPieceModel
             delegate: Item {
+               id: choice
+               required property string whiteImage
+               required property string blackImage
+               required property int piece
+
                width: topWindow.squareSize
                height: topWindow.squareSize
 
                transform: Rotation {
-                    origin.x: width / 2
-                    origin.y: height / 2
+                    origin.x: choice.width / 2
+                    origin.y: choice.height / 2
                     angle: dropDownTop.flipped ? 180 : 0
                     axis.x: 1
                     axis.y: 0
@@ -61,8 +68,8 @@ FocusScope {
                }
 
                Image {
-                   source: _myGameModel.currentTurn === Color.White ? model.whiteImage
-                                                                : model.blackImage
+                   source: _myGameModel.currentTurn === Color.White ? choice.whiteImage
+                                                                : choice.blackImage
                    width: topWindow.squareSize
                    height: topWindow.squareSize
                }
@@ -73,8 +80,9 @@ FocusScope {
                    onClicked: {
                        if (myRect.focus) {
                            _myGameModel.promotePiece(
-                                       sourceRow, sourceColumn,
-                                       destinationRow, destinationColumn, model.piece)
+                                       dropDownTop.sourceRow, dropDownTop.sourceColumn,
+                                       dropDownTop.destinationRow, dropDownTop.destinationColumn,
+                                       choice.piece)
                            focus = false
                            dropDownTop.focus = false
                        } else {

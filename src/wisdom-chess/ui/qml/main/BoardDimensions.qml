@@ -7,7 +7,6 @@ QtObject {
     //
     readonly property int boardWidth: squareSize * 8
     readonly property int boardHeight: boardWidth
-    readonly property int totalSquares: 8 * 8
 
     // The square size, which gets updated based on screen size.
     property int squareSize: calculateMaxSquareSize()

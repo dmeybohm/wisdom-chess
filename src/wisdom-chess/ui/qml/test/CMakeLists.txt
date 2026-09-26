@@ -68,13 +68,7 @@ foreach(qmldir qmldir main/qmldir popups/qmldir)
     list(APPEND test_resource_files "${qmldir_file}")
 endforeach()
 
-# RESOURCE_FILES, if given, replaces the list of files to embed.
 function(wisdom_chess_add_qml_ui_test test_name source)
-    cmake_parse_arguments(PARSE_ARGV 2 arg "" "" "RESOURCE_FILES")
-    if(NOT arg_RESOURCE_FILES)
-        set(arg_RESOURCE_FILES ${test_resource_files})
-    endif()
-
     wisdom_chess_add_qml_test("${test_name}" ${source})
 
     get_filename_component(target_suffix "${source}" NAME_WE)
@@ -84,7 +78,7 @@ function(wisdom_chess_add_qml_ui_test test_name source)
     target_link_libraries(${target} PRIVATE Qt6::Quick Qt6::QuickTest Qt6::Svg)
     qt_add_resources(${target} "${target_suffix}-qml"
         PREFIX "/qt/qml/WisdomChess"
-        FILES ${arg_RESOURCE_FILES})
+        FILES ${test_resource_files})
     add_dependencies(${target} WisdomChessQml)
 
     set(environment "QT_QPA_PLATFORM=offscreen" "QT_QUICK_BACKEND=software")
@@ -102,29 +96,4 @@ endfunction()
 wisdom_chess_add_qml_ui_test("QML: application" application_test.cpp)
 wisdom_chess_add_qml_ui_test("QML: dialogs" dialogs_test.cpp)
 
-# The mobile QML belongs to the Android build's module only. Its two files are
-# added here, with a module description that also names MobileRoot.
-set(mobile_qmldir "${CMAKE_CURRENT_BINARY_DIR}/mobile/qmldir")
-add_custom_command(
-    OUTPUT "${mobile_qmldir}"
-    COMMAND ${CMAKE_COMMAND}
-        "-DINPUT_FILE=${app_module_dir}/qmldir"
-        "-DOUTPUT_FILE=${mobile_qmldir}"
-        "-DEXTRA_LINES=MobileRoot 1.0 main/MobileRoot.qml"
-        -P "${CMAKE_CURRENT_SOURCE_DIR}/append_lines.cmake"
-    DEPENDS "${app_module_dir}/qmldir" "${CMAKE_CURRENT_SOURCE_DIR}/append_lines.cmake"
-    VERBATIM
-)
-set_source_files_properties("${mobile_qmldir}" PROPERTIES QT_RESOURCE_ALIAS "qmldir")
-
-set(mobile_resource_files ${test_resource_files})
-list(REMOVE_ITEM mobile_resource_files "${app_module_dir}/qmldir")
-list(APPEND mobile_resource_files "${mobile_qmldir}")
-foreach(file main/mobile_main.qml main/MobileRoot.qml)
-    set(absolute_file "${CMAKE_CURRENT_SOURCE_DIR}/../${file}")
-    set_source_files_properties("${absolute_file}" PROPERTIES QT_RESOURCE_ALIAS "${file}")
-    list(APPEND mobile_resource_files "${absolute_file}")
-endforeach()
-
-wisdom_chess_add_qml_ui_test("QML: mobile" mobile_test.cpp
-    RESOURCE_FILES ${mobile_resource_files})
+wisdom_chess_add_qml_ui_test("QML: mobile" mobile_test.cpp)

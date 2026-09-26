@@ -1,9 +1,9 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import "../Helper.js" as Helper
 
 Dialog {
+    id: settingsDialog
     modal: true
     standardButtons: Dialog.Apply | Dialog.Cancel
     title: "Settings"
@@ -26,23 +26,13 @@ Dialog {
         internal.resetSettings()
     }
 
-    Component.onCompleted: {
-        internal.resetSettings()
-        if (Helper.isMobile()) {
-            width = Screen.width - 20
-            contentColumn.width = width - 30
-        } else if (Helper.isWebAssembly()) {
-            width = Math.min(Screen.width - 20, 500)
-            contentColumn.width = width - 60
-            topPadding = 30
-            bottomPadding = 30
-        } else {
-            width = Math.min(Screen.width - 20, 400)
-            contentColumn.width = width - 60
-            topPadding = 30
-            bottomPadding = 30
-        }
-    }
+    width: topWindow.isMobile
+        ? Screen.width - 20
+        : Math.min(Screen.width - 20, topWindow.isWebAssembly ? 500 : 400)
+    topPadding: topWindow.isMobile ? padding : 30
+    bottomPadding: topWindow.isMobile ? padding : 30
+
+    Component.onCompleted: internal.resetSettings()
 
     Timer {
         id: applySettingsTimer
@@ -61,7 +51,7 @@ Dialog {
         property var toSaveUISettings
         property var toSaveGameSettings
 
-        property var fontSize: topWindow.isMobile ? "12" : "16"
+        readonly property int fontSize: topWindow.isMobile ? 12 : 16
 
         function movesLabel(numMoves) {
             return parseInt(numMoves, 10) === 1 ? "1 move" : numMoves + " moves"
@@ -86,6 +76,7 @@ Dialog {
         id: contentColumn
         spacing: 20
         anchors.centerIn: parent
+        width: settingsDialog.width - (topWindow.isMobile ? 30 : 60)
 
         RowLayout {
             Text {
@@ -101,14 +92,14 @@ Dialog {
 
                 RadioButton {
                     text: "Human"
-                    indicator.y: indicatorOffset
+                    indicator.y: settingsDialog.indicatorOffset
                     font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.whitePlayer === Player.Human
                     onClicked: internal.myGameSettings.whitePlayer = Player.Human
                 }
                 RadioButton {
                     text: "Computer"
-                    indicator.y: indicatorOffset
+                    indicator.y: settingsDialog.indicatorOffset
                     font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.whitePlayer === Player.Computer
                     onClicked: internal.myGameSettings.whitePlayer = Player.Computer
@@ -129,14 +120,14 @@ Dialog {
 
                 RadioButton {
                     text: "Human"
-                    indicator.y: indicatorOffset
+                    indicator.y: settingsDialog.indicatorOffset
                     font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.blackPlayer === Player.Human
                     onClicked: internal.myGameSettings.blackPlayer = Player.Human
                 }
                 RadioButton {
                     text: "Computer"
-                    indicator.y: indicatorOffset
+                    indicator.y: settingsDialog.indicatorOffset
                     font.pixelSize: internal.fontSize
                     checked: internal.myGameSettings.blackPlayer === Player.Computer
                     onClicked: internal.myGameSettings.blackPlayer = Player.Computer

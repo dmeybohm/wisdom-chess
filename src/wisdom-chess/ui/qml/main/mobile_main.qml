@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import "../Helper.js" as Helper
 
 ApplicationWindow {
     id: topWindow
@@ -31,7 +30,6 @@ ApplicationWindow {
             _myGameModel.unpause()
     }
 
-    property var currentFocusedItem: null
     onFocusObjectChanged: {
         root.onFocusObjectChanged(root.currentFocusedItem, activeFocusItem)
         root.currentFocusedItem = activeFocusItem
@@ -87,24 +85,17 @@ ApplicationWindow {
         toolbarHeight: toolbar.height
         anchors.fill: parent
 
-        Flickable {
-
-            visible: gameMenu.visible
-            width: gameMenu.width
-            height: Math.min(Screen.height, gameMenu.height)
-
-            GameMenu {
-                id: gameMenu
-                // A press on the menu button must not close the menu, or the
-                // button's click on release would open it again.
-                parent: toolbar
-                x: toolbar.width - gameMenu.width
-                y: toolbar.height
-                closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
-                onShowNewGameDialog: root.showNewGameDialog();
-                onShowAboutDialog: root.showAboutDialog();
-                onShowSettingsDialog: root.showSettingsDialog();
-            }
+        GameMenu {
+            id: gameMenu
+            // A press on the menu button must not close the menu, or the
+            // button's click on release would open it again.
+            parent: toolbar
+            x: toolbar.width - gameMenu.width
+            y: toolbar.height
+            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+            onShowNewGameDialog: root.showNewGameDialog();
+            onShowAboutDialog: root.showAboutDialog();
+            onShowSettingsDialog: root.showSettingsDialog();
         }
     }
 

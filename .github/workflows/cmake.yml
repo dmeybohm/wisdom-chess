@@ -135,6 +135,12 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} -j 4
 
+    - name: Lint QML
+      # The result does not depend on the platform or the configuration.
+      # src/wisdom-chess/ui/qml/.qmllint.ini makes any warning fail it.
+      if: runner.os == 'Linux' && matrix.build_type == 'Release'
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --target all_qmllint
+
     - name: Run Tests
       run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} --build-config ${{ matrix.build_type }} --output-on-failure -j 4
 

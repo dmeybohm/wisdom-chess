@@ -5,17 +5,20 @@ Image {
     width: topWindow.squareSize
     height: topWindow.squareSize
 
-    property int row: 0
-    property int column: 0
+    required property string pieceImage
+    required property int row
+    required property int column
+    required property bool isCastlingRook
+    required property int castlingSourceColumn
     property bool flipped: false
-    property bool isCastlingRook: false
-    property int castlingSourceColumn: -1
+
+    source: pieceImage
 
     transform: [
         Translate {
             id: myTranslation
-            x: column * topWindow.squareSize
-            y: row * topWindow.squareSize
+            x: myPieceImage.column * topWindow.squareSize
+            y: myPieceImage.row * topWindow.squareSize
 
             Behavior on y {
                 enabled: !myPieceImage.isCastlingRook && !castlingRookAnimation.running
@@ -50,6 +53,7 @@ Image {
     SequentialAnimation {
         id: castlingRookAnimation
         running: false
+        onStopped: myPieceImage.rebindX()
 
         PauseAnimation {
             duration: root.castlingRookPause
@@ -60,13 +64,6 @@ Image {
             to: myPieceImage.column * topWindow.squareSize
             easing.type: Easing.OutExpo
             duration: root.animationDelay
-        }
-    }
-
-    Connections {
-        target: castlingRookAnimation
-        function onStopped() {
-            rebindX()
         }
     }
 
@@ -81,9 +78,9 @@ Image {
         if (!isCastlingRook)
             return
 
-        // break the binding so we can set an absolute start
-        myTranslation.x = myTranslation.x   // this no-ops the current value but detaches a binding if any
-        myTranslation.x = castlingSourceColumn * topWindow.squareSize
+        // Assigning a value replaces the binding, so the rook starts from
+        // its old square; rebindX() restores the binding when it arrives.
+        myTranslation.x = myPieceImage.castlingSourceColumn * topWindow.squareSize
         castlingRookAnimation.stop()
         castlingRookAnimation.start()
     }
