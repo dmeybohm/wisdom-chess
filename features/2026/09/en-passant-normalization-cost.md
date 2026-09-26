@@ -201,3 +201,14 @@ Release `ctest` with slow tests passed 241 of 241, and the `lint` target
 is clean. The Debug build passed the 207 fast tests. It also compiled
 the tools and benchmarks, which the `getCode()` rename touches. The
 Debug slow tests were not run.
+
+### Session #2
+
+Merged `main` after PR #286 landed there with three more commits.
+`FenParser` now rejects an en passant target that has no pawn to take,
+so "A target without a pawn to take has none" builds its boards with
+`BoardBuilder`. `generateLegalEnPassantMoves()` keeps its own check,
+because a builder can still set such a target.
+
+After the merge, Release `ctest` with slow tests passed 244 of 244, the
+Debug build passed the 210 fast tests, and the `lint` target is clean.

@@ -365,8 +365,18 @@ TEST_CASE( "generateLegalEnPassantMoves" )
 
     SUBCASE( "A target without a pawn to take has none" )
     {
-        auto missing_pawn = boardFromFen ("4k3/8/8/8/4p3/8/8/4K3 b - d3 0 1");
-        auto occupied_target = boardFromFen ("4k3/8/8/8/3Pp3/3N4/8/4K3 b - d3 0 1");
+        // FenParser rejects these targets, so set them on the builder.
+        BoardBuilder builder;
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("e4", Color::Black, Piece::Pawn);
+        builder.setEnPassantTarget (Color::White, "d3");
+        builder.setCurrentTurn (Color::Black);
+        auto missing_pawn = Board { builder };
+
+        builder.addPiece ("d4", Color::White, Piece::Pawn);
+        builder.addPiece ("d3", Color::White, Piece::Knight);
+        auto occupied_target = Board { builder };
 
         CHECK( generateLegalEnPassantMoves (missing_pawn).isEmpty() );
         CHECK( generateLegalEnPassantMoves (occupied_target).isEmpty() );
