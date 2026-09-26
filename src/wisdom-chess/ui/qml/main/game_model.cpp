@@ -34,7 +34,7 @@ namespace wisdom::ui::qml
         my_chess_game = ChessGame::fromPlayers (
             Player::Human,
             Player::ChessEngine,
-            ChessGame::Config::fromGameSettings (my_game_settings)
+            my_game_settings.toEngineSettings()
         );
         init();
     }
@@ -512,8 +512,6 @@ namespace wisdom::ui::qml
 
     void GameModel::updateInternalGameState()
     {
-        my_chess_game->setPlayers (mapPlayer (my_game_settings.whitePlayer()),
-                                   mapPlayer (my_game_settings.blackPlayer()));
         my_chess_game->setConfig (gameConfig());
         notifyInternalGameStateUpdated();
     }
@@ -535,12 +533,7 @@ namespace wisdom::ui::qml
     GameModel::gameConfig() const
         -> ChessGame::Config
     {
-        return ChessGame::Config {
-            my_chess_game->state()->getPlayers(),
-            MaxDepth { my_game_settings.maxDepth() },
-            chrono::seconds { my_game_settings.maxSearchTime() },
-            my_game_settings.debugLogging(),
-        };
+        return my_game_settings.toEngineSettings();
     }
 
     auto

@@ -22,8 +22,8 @@ namespace
     {
         auto config = ChessGame::Config {
             .players = { white, black },
-            .maxDepth = MaxDepth { 1 },
-            .maxTime = std::chrono::seconds { 5 },
+            .searchDepth = 1,
+            .thinkingTime = 5,
         };
         return ChessGame::fromFen (Fifty_Moves_Reached, config);
     }

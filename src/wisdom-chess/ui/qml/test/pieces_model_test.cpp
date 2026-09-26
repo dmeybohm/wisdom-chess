@@ -25,8 +25,8 @@ namespace
     {
         return ChessGame::Config {
             .players = { Player::Human, Player::Human },
-            .maxDepth = MaxDepth { 2 },
-            .maxTime = std::chrono::seconds { 1 },
+            .searchDepth = 2,
+            .thinkingTime = 1,
         };
     }
 

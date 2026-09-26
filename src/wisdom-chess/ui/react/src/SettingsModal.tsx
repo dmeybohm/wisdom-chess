@@ -1,6 +1,7 @@
 import Modal from "./Modal";
 import React, { useState } from "react";
 import {
+    SettingsLimits,
     WebGameSettings,
     WisdomChess
 } from "./lib/WisdomChess";
@@ -9,6 +10,7 @@ import "./Settings.css"
 type SettingsModalProps = {
     flipped: boolean
     settings: WebGameSettings
+    limits: SettingsLimits
     onApply: (newSettings: WebGameSettings, flipped: boolean) => void
     onDismiss: () => void
 }
@@ -88,8 +90,8 @@ export function SettingsModal(props: SettingsModalProps) {
                     <input
                         type="range"
                         name="thinkingTime"
-                        min={1}
-                        max={10}
+                        min={props.limits.minThinkingTime}
+                        max={props.limits.maxThinkingTime}
                         value={thinkingTime}
                         onChange={e => update({ thinkingTime: Number(e.target.value) })}
                     />
@@ -101,8 +103,8 @@ export function SettingsModal(props: SettingsModalProps) {
                     <input
                         type="range"
                         name="searchDepth"
-                        min={1}
-                        max={8}
+                        min={props.limits.minSearchDepth}
+                        max={props.limits.maxSearchDepth}
                         value={searchDepth}
                         onChange={e => update({ searchDepth: Number(e.target.value) })}
                     />

@@ -9,7 +9,7 @@
 
 namespace wisdom
 {
-    WebGame::WebGame (int white_player, int black_player, int game_id)
+    WebGame::WebGame (WebPlayer white_player, WebPlayer black_player, int game_id)
         : my_game {
             Game::createGame (
                 mapPlayer (white_player),
@@ -92,7 +92,7 @@ namespace wisdom
     }
 
     auto
-    WebGame::makeHumanMove (const char* src, const char* dst, int promoted_piece_type)
+    WebGame::makeHumanMove (const char* src, const char* dst, WebPiece promoted_piece_type)
         -> int
     {
         auto src_coord = parseSquare (src);
@@ -121,7 +121,7 @@ namespace wisdom
         settings.applyToGame (&my_game);
     }
 
-    void WebGame::setComputerDrawStatus (int type, int who, bool accepted)
+    void WebGame::setComputerDrawStatus (WebDrawByRepetitionType type, WebColor who, bool accepted)
     {
         ProposedDrawType proposed_draw_type = mapDrawByRepetitionType (type);
         Color color = mapColor (who);

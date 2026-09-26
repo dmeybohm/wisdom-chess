@@ -17,7 +17,7 @@ namespace wisdom
     public:
         int moveNumber {};
 
-        WebGame (int white_player, int black_player, int game_id);
+        WebGame (WebPlayer white_player, WebPlayer black_player, int game_id);
 
         [[nodiscard]] static auto
         newFromSettings (const GameSettings& settings, int game_id)
@@ -36,7 +36,7 @@ namespace wisdom
         // Make the human's move and return it packed for
         // GameModel::notifyHumanMove(), or Illegal_Move.
         [[nodiscard]] auto
-        makeHumanMove (const char* src, const char* dst, int promoted_piece_type)
+        makeHumanMove (const char* src, const char* dst, WebPiece promoted_piece_type)
             -> int;
 
         void makeComputerMove (const char* move_text);
@@ -109,16 +109,16 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        getPlayerOfColor (int color) const
+        getPlayerOfColor (WebColor color) const
             -> WebPlayer
         {
             Color mapped_color = mapColor (color);
             return mapPlayer (my_game.getPlayer (mapped_color));
         }
 
-        void setComputerDrawStatus (int type, int who, bool accepted);
+        void setComputerDrawStatus (WebDrawByRepetitionType type, WebColor who, bool accepted);
 
-        void setHumanDrawStatus (int type, int who, bool accepted)
+        void setHumanDrawStatus (WebDrawByRepetitionType type, WebColor who, bool accepted)
         {
             ProposedDrawType proposed_draw_type = mapDrawByRepetitionType (type);
             Color color = mapColor (who);

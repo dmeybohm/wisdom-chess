@@ -82,10 +82,7 @@ namespace wisdom::ui::qml
 
     void ChessGame::setConfig (const Config& config)
     {
-        auto gameState = this->state();
-        gameState->setMaxDepth (config.maxDepth.internalDepth());
-        gameState->setSearchTimeout (config.maxTime);
-        gameState->setPlayers (config.players);
+        config.applyTo (this->state());
         my_config = config;
     }
 
@@ -122,20 +119,5 @@ namespace wisdom::ui::qml
     {
         auto gameState = this->state();
         gameState->setPeriodicFunction (func);
-    }
-
-    auto 
-    ChessGame::Config::fromGameSettings (
-        const GameSettings& gameSettings
-    ) 
-        -> ChessGame::Config
-    {
-        return ChessGame::Config {
-            .players = { mapPlayer (gameSettings.whitePlayer()),
-                         mapPlayer (gameSettings.blackPlayer()) },
-            .maxDepth = MaxDepth { gameSettings.maxDepth() },
-            .maxTime = std::chrono::seconds { gameSettings.maxSearchTime() },
-            .debugLogging = gameSettings.debugLogging()
-        };
     }
 }

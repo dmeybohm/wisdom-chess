@@ -186,8 +186,8 @@ Dialog {
                     implicitWidth: 150
                     value: internal.myGameSettings.maxSearchTime
                     stepSize: 1
-                    from: 1
-                    to: 30
+                    from: GameModel.minThinkingTime
+                    to: GameModel.maxThinkingTime
                     // moved, not valueChanged: the value is bound to the
                     // setting, so writing it back on every change loops.
                     onMoved: internal.myGameSettings.maxSearchTime = value
@@ -215,8 +215,8 @@ Dialog {
                     font.pixelSize: internal.fontSize
                     value: internal.myGameSettings.maxDepth
                     implicitWidth: thinkingTimeSlider.implicitWidth
-                    from: 1
-                    to: 8
+                    from: GameModel.minSearchDepth
+                    to: GameModel.maxSearchDepth
                     stepSize: 1
                     onMoved: internal.myGameSettings.maxDepth = value
                 }

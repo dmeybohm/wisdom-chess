@@ -29,6 +29,9 @@ namespace wisdom::worker
         int game_id {};
         std::atomic<int> play_status = PlayStatus::Playing;
 
+        // Set by the main thread when new settings are on their way.
+        std::atomic<bool> restart_requested = false;
+
         // Retains search output while debug logging is off and replays it
         // when the setting is switched on.
         shared_ptr<BufferedLogger> logger = makeBufferedLogger (wisdom::worker::makeLogger());
@@ -130,7 +133,7 @@ EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
 
     auto periodic_func = [state](nonnull_observer_ptr<MoveTimer> timer) {
         auto play_status = state->play_status.load();
-        if (play_status != GameState::Playing) {
+        if (play_status != GameState::Playing || state->restart_requested.load()) {
             timer->setCancelled (true);
         }
     };
@@ -199,6 +202,7 @@ workerReceiveSettings (
 ) {
     auto state = GameState::getState();
 
+    state->restart_requested.store (false);
     state->updateSettings (
         GameSettings { 
             static_cast<WebPlayer> (white_player),
@@ -242,6 +246,12 @@ EMSCRIPTEN_KEEPALIVE void unpauseWorker()
 {
     auto* state = GameState::getState();
     state->play_status.store (GameState::Playing);
+}
+
+EMSCRIPTEN_KEEPALIVE void requestSearchRestart()
+{
+    auto* state = GameState::getState();
+    state->restart_requested.store (true);
 }
 
 EM_JS (void, receiveDrawStatusFromWorker, (int game_id, int draw_type, int color, bool accepted),

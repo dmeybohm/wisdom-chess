@@ -19,8 +19,8 @@ namespace
     {
         return ChessGame::Config {
             .players = { white, black },
-            .maxDepth = MaxDepth { 3 },
-            .maxTime = std::chrono::seconds { 7 },
+            .searchDepth = 3,
+            .thinkingTime = 7,
         };
     }
 
@@ -46,31 +46,35 @@ class ChessGameTest : public QObject
     Q_OBJECT
 
 private slots:
-    void maxDepthCountsFullMoves()
+    void searchDepthCountsFullMoves()
     {
-        MaxDepth depth { 4 };
+        ChessGame::Config config { .searchDepth = 4 };
 
-        QCOMPARE( depth.userDepth(), 4 );
-        QCOMPARE( depth.internalDepth(), 8 );
+        QCOMPARE( config.searchDepth, 4 );
+        QCOMPARE( config.searchDepthInPlies(), 8 );
     }
 
-    void maxDepthMustBePositive()
+    void settingsOutOfRangeAreRejectedWhenApplied()
     {
-        QVERIFY_THROWS_EXCEPTION( wisdom::Error, MaxDepth { 0 } );
-        QVERIFY_THROWS_EXCEPTION( wisdom::Error, MaxDepth { -1 } );
+        auto game = wisdom::Game::createStandardGame();
+
+        QVERIFY_THROWS_EXCEPTION( wisdom::Error, ChessGame::Config { .searchDepth = 0 }.applyTo (&game) );
+        QVERIFY_THROWS_EXCEPTION( wisdom::Error, ChessGame::Config { .searchDepth = 9 }.applyTo (&game) );
+        QVERIFY_THROWS_EXCEPTION( wisdom::Error, ChessGame::Config { .thinkingTime = 0 }.applyTo (&game) );
+        QVERIFY_THROWS_EXCEPTION( wisdom::Error, ChessGame::Config { .thinkingTime = 31 }.applyTo (&game) );
     }
 
     void configFromDefaultGameSettings()
     {
         GameSettings settings;
 
-        auto config = ChessGame::Config::fromGameSettings (settings);
+        auto config = settings.toEngineSettings();
 
         QVERIFY( config.players[0] == Player::Human );
         QVERIFY( config.players[1] == Player::ChessEngine );
-        QCOMPARE( config.maxDepth.userDepth(), wisdom::Default_Max_Depth / 2 );
-        QCOMPARE( config.maxDepth.internalDepth(), wisdom::Default_Max_Depth );
-        QCOMPARE( config.maxTime.count(), wisdom::Default_Max_Search_Seconds );
+        QCOMPARE( config.searchDepth, wisdom::Default_Max_Depth / 2 );
+        QCOMPARE( config.searchDepthInPlies(), wisdom::Default_Max_Depth );
+        QCOMPARE( config.thinkingTime, wisdom::Default_Max_Search_Seconds );
         QCOMPARE( config.debugLogging, false );
     }
 
@@ -83,12 +87,12 @@ private slots:
         writeProperty (settings, "maxSearchTime", 9);
         writeProperty (settings, "debugLogging", true);
 
-        auto config = ChessGame::Config::fromGameSettings (settings);
+        auto config = settings.toEngineSettings();
 
         QVERIFY( config.players[0] == Player::ChessEngine );
         QVERIFY( config.players[1] == Player::Human );
-        QCOMPARE( config.maxDepth.internalDepth(), 4 );
-        QCOMPARE( config.maxTime.count(), 9 );
+        QCOMPARE( config.searchDepthInPlies(), 4 );
+        QCOMPARE( config.thinkingTime, 9 );
         QCOMPARE( config.debugLogging, true );
     }
 
@@ -99,7 +103,7 @@ private slots:
 
         QCOMPARE( state->getMaxDepth(), 6 );
         QCOMPARE( state->getSearchTimeout(), std::chrono::milliseconds { std::chrono::seconds { 7 } } );
-        QCOMPARE( game->config().maxDepth.userDepth(), 3 );
+        QCOMPARE( game->config().searchDepth, 3 );
     }
 
     // The config carries players too. The ones asked for by name win, and
@@ -132,8 +136,8 @@ private slots:
 
         game->setConfig (ChessGame::Config {
             .players = { Player::ChessEngine, Player::Human },
-            .maxDepth = MaxDepth { 1 },
-            .maxTime = std::chrono::seconds { 2 },
+            .searchDepth = 1,
+            .thinkingTime = 2,
             .debugLogging = true,
         });
 

@@ -5,6 +5,7 @@
 
 #include "wisdom-chess/engine/global.hpp"
 #include "wisdom-chess/ui/qml/main/ui_types.hpp"
+#include "wisdom-chess/ui/viewmodel/game_settings.hpp"
 
 namespace wisdom::ui::qml
 {
@@ -58,11 +59,16 @@ namespace wisdom::ui::qml
         debugLogging() const 
             -> bool;
 
+        // The same settings in the engine's terms.
+        [[nodiscard]] auto
+        toEngineSettings() const
+            -> wisdom::ui::GameSettings;
+
     private:
         wisdom::ui::Player my_white_player = wisdom::ui::Player::Human;
         wisdom::ui::Player my_black_player = wisdom::ui::Player::Computer;
-        int my_max_depth = wisdom::Default_Max_Depth / 2;
-        int my_max_search_time = wisdom::Default_Max_Search_Seconds;
+        int my_max_depth = wisdom::ui::GameSettings::Default_Search_Depth;
+        int my_max_search_time = wisdom::ui::GameSettings::Default_Thinking_Time;
         bool my_debug_logging = false;
     };
 }

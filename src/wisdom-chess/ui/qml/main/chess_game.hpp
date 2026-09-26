@@ -4,66 +4,20 @@
 #include <memory>
 
 #include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/ui/viewmodel/game_settings.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
 
 namespace wisdom::ui::qml
 {
-    // The internal depth representation maps to half-moves (plies):
-    //
-    // Internal Depth 1 = 1 ply (half move)
-    // Internal Depth 2 = 2 plies (1 full move)
-    // Internal Depth 4 = 4 plies (2 full moves)
-    // Internal Depth 6 = 6 plies (3 full moves)
-    //
-    // The UI specifies full moves, so internal depth = user depth * 2.
-    //
-    class MaxDepth
-    {
-    public:
-        explicit MaxDepth (int userDepth) 
-            : myUserDepth { userDepth }
-        {
-            if (userDepth <= 0)
-            {
-                throw wisdom::Error { "Invalid depth" };
-            }
-        }
-
-        [[nodiscard]] auto 
-        internalDepth() const 
-            -> int
-        {
-            return wisdom::ui::fullMovesToPlyDepth (myUserDepth);
-        }
-
-        [[nodiscard]] auto 
-        userDepth() const 
-            -> int
-        {
-            return myUserDepth;
-        }
-
-    private:
-        int myUserDepth;
-    };
-
     class GameSettings;
 
     class ChessGame
     {
     public:
         // The configuration of the chess engine.
-        struct Config
-        {
-            wisdom::Players players;
-            MaxDepth maxDepth;
-            std::chrono::seconds maxTime;
-            bool debugLogging = false;
-
-            static auto fromGameSettings (const GameSettings& gameSettings) -> Config;
-        };
+        using Config = wisdom::ui::GameSettings;
 
         explicit ChessGame (
             std::unique_ptr<wisdom::Game> game, 

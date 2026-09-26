@@ -1,35 +1,35 @@
 enum wisdom_WebPlayer {
-  "wisdom::Human",
-  "wisdom::ChessEngine"
+  "wisdom_WebPlayer::Human",
+  "wisdom_WebPlayer::ChessEngine"
 };
 
 enum wisdom_WebColor {
-  "wisdom::NoColor",
-  "wisdom::White",
-  "wisdom::Black",
+  "wisdom_WebColor::NoColor",
+  "wisdom_WebColor::White",
+  "wisdom_WebColor::Black",
 };
 
 enum wisdom_WebPiece {
-  "wisdom::NoPiece",
-  "wisdom::Pawn",
-  "wisdom::Knight",
-  "wisdom::Bishop",
-  "wisdom::Rook",
-  "wisdom::Queen",
-  "wisdom::King"
+  "wisdom_WebPiece::NoPiece",
+  "wisdom_WebPiece::Pawn",
+  "wisdom_WebPiece::Knight",
+  "wisdom_WebPiece::Bishop",
+  "wisdom_WebPiece::Rook",
+  "wisdom_WebPiece::Queen",
+  "wisdom_WebPiece::King"
 };
 
 enum wisdom_WebGameStatus {
-    "wisdom::Playing",
-    "wisdom::Checkmate",
-    "wisdom::Stalemate",
-    "wisdom::ThreefoldRepetitionReached",
-    "wisdom::ThreefoldRepetitionAccepted",
-    "wisdom::FivefoldRepetitionDraw",
-    "wisdom::FiftyMovesWithoutProgressReached",
-    "wisdom::FiftyMovesWithoutProgressAccepted",
-    "wisdom::SeventyFiveMovesWithoutProgressDraw",
-    "wisdom::InsufficientMaterialDraw",
+    "wisdom_WebGameStatus::Playing",
+    "wisdom_WebGameStatus::Checkmate",
+    "wisdom_WebGameStatus::Stalemate",
+    "wisdom_WebGameStatus::ThreefoldRepetitionReached",
+    "wisdom_WebGameStatus::ThreefoldRepetitionAccepted",
+    "wisdom_WebGameStatus::FivefoldRepetitionDraw",
+    "wisdom_WebGameStatus::FiftyMovesWithoutProgressReached",
+    "wisdom_WebGameStatus::FiftyMovesWithoutProgressAccepted",
+    "wisdom_WebGameStatus::SeventyFiveMovesWithoutProgressDraw",
+    "wisdom_WebGameStatus::InsufficientMaterialDraw",
 };
 
 [Prefix="wisdom::"]
@@ -62,15 +62,15 @@ interface GameSettings {
 };
 
 enum wisdom_WebDrawStatus {
-    "wisdom::NotReached",
-    "wisdom::Proposed",
-    "wisdom::Accepted",
-    "wisdom::Declined"
+    "wisdom_WebDrawStatus::NotReached",
+    "wisdom_WebDrawStatus::Proposed",
+    "wisdom_WebDrawStatus::Accepted",
+    "wisdom_WebDrawStatus::Declined"
 };
 
 enum wisdom_WebDrawByRepetitionType {
-    "wisdom::ThreefoldRepetition",
-    "wisdom::FiftyMovesWithoutProgress"
+    "wisdom_WebDrawByRepetitionType::ThreefoldRepetition",
+    "wisdom_WebDrawByRepetitionType::FiftyMovesWithoutProgress"
 };
 
 [Prefix="wisdom::"]
@@ -120,5 +120,11 @@ interface GameModel {
 
     wisdom_WebColor getFirstHumanPlayerColor();
     wisdom_WebColor getSecondHumanPlayerColor();
+
+    // The ranges the settings controls offer.
+    long getMinThinkingTime();
+    long getMaxThinkingTime();
+    long getMinSearchDepth();
+    long getMaxSearchDepth();
 };
 

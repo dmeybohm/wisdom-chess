@@ -75,6 +75,12 @@ namespace wisdom::ui::qml
         // How long a piece takes to move, in milliseconds. The board animates
         // for this long, and a move is held back until the one before it has
         // finished animating.
+        // The ranges the settings controls offer.
+        Q_PROPERTY (int minThinkingTime READ minThinkingTime CONSTANT)
+        Q_PROPERTY (int maxThinkingTime READ maxThinkingTime CONSTANT)
+        Q_PROPERTY (int minSearchDepth READ minSearchDepth CONSTANT)
+        Q_PROPERTY (int maxSearchDepth READ maxSearchDepth CONSTANT)
+
         Q_PROPERTY (int animationDelay
             READ animationDelay
             WRITE setAnimationDelay
@@ -160,6 +166,11 @@ namespace wisdom::ui::qml
             -> const GameSettings&;
         void setGameSettings (const GameSettings& new_game_settings);
         Q_INVOKABLE wisdom::ui::qml::GameSettings cloneGameSettings();
+
+        [[nodiscard]] static auto minThinkingTime() -> int { return ui::GameSettings::Min_Thinking_Time; }
+        [[nodiscard]] static auto maxThinkingTime() -> int { return ui::GameSettings::Max_Thinking_Time; }
+        [[nodiscard]] static auto minSearchDepth() -> int { return ui::GameSettings::Min_Search_Depth; }
+        [[nodiscard]] static auto maxSearchDepth() -> int { return ui::GameSettings::Max_Search_Depth; }
 
         [[nodiscard]] auto
         animationDelay() const

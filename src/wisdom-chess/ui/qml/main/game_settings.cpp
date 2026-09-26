@@ -58,4 +58,16 @@ namespace wisdom::ui::qml
     {
         return my_debug_logging;
     }
+
+    auto
+    GameSettings::toEngineSettings() const
+        -> wisdom::ui::GameSettings
+    {
+        return wisdom::ui::GameSettings {
+            .players = { mapPlayer (my_white_player), mapPlayer (my_black_player) },
+            .searchDepth = my_max_depth,
+            .thinkingTime = my_max_search_time,
+            .debugLogging = my_debug_logging,
+        };
+    }
 }
