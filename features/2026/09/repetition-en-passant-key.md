@@ -49,3 +49,39 @@ and [FIDE Laws of Chess section 9.2.3](https://handbook.fide.com/chapter/e012023
 Created `repetition-en-passant-key` in its own worktree from
 `review-fixes` at `0b64075`. No draw-detection code or tests have been
 changed yet.
+
+### Session #2
+
+Implemented plan step 2 and 3: `Board::withNormalizedEnPassantTarget()`
+returns a copy with the en passant target cleared whenever
+`generateLegalMoves()` contains no en passant capture, and `History`
+calls it at every entry point (`fromInitialBoard`, `addTentativePosition`,
+`addPosition`, `replaceLastPosition`) and on the query board in both
+`isProbablyNthRepetition` and `isCertainlyNthRepetition`.
+
+`review-fixes` merged into `main` as PR #275 while this branch existed,
+so this branch will target `main` (rebased onto it) rather than
+`review-fixes`.
+
+Normalizing the initial board this way exercises `generateLegalMoves()`
+on boards that previously never reached it, which surfaced a latent bug:
+`generateAllPotentialMoves()`'s castling code trusts that a castling-
+eligibility bit is only set when the corresponding rook is still on its
+home square, and never re-checks the square before
+`applyForCastlingMove()` applies the move — an inconsistent FEN (rights
+declared without the rook present) aborted instead of failing to parse.
+Added that missing check to `FenParser::parseCastling()`
+(`validateCastlingRookPresent()`), which throws `FenParserError` instead.
+Fixed the fen_parser_test.cpp fixtures that depended on the old,
+unchecked behavior (they declared castling rights over a board with no
+rooks on the corresponding home squares) to use a proper
+`r3k2r/.../R3K2R` fixture, and added
+"FEN parser rejects castling rights without the rook present" to cover
+the new check with `CHECK_THROWS_AS`.
+
+Step 1 (dedicated history/repetition tests for the double-push-with-no-
+adjacent-pawn, pinned-pawn, and legal-capture cases) is still open, along
+with step 4 (search/transposition table check) and step 5 (full
+Release + lint run). Fast test suite passes; a Release build and the
+slow/CTest suite are running to confirm no other regressions before those
+steps are picked up in Session #3.

@@ -62,30 +62,49 @@ TEST_CASE( "FEN parser sets the side to move on a built board" )
 
 TEST_CASE( "FEN notation for castling" )
 {
-    Game game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w KQkq - 0 1");
+    Game game = Game::createGameFromFen ("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
 
     REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligibility::Both_Sides );
     REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligibility::Both_Sides );
 
-    game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1");
+    game = Game::createGameFromFen ("r3k2r/8/8/8/8/8/8/R3K2R w KQq - 0 1");
 
     REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligibility::Both_Sides );
     REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingRights::Queenside );
 
-    game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w KQq - 0 1");
+    game = Game::createGameFromFen ("r3k2r/8/8/8/8/8/8/R3K2R w KQq - 0 1");
 
     REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligibility::Both_Sides );
     REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingRights::Queenside );
 
-    game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w - - 0 1");
+    game = Game::createGameFromFen ("r3k2r/8/8/8/8/8/8/R3K2R w - - 0 1");
 
     REQUIRE( game.getBoard().getCastlingEligibility (Color::White) == CastlingEligibility::Neither_Side );
     REQUIRE( game.getBoard().getCastlingEligibility (Color::Black) == CastlingEligibility::Neither_Side );
 }
 
+TEST_CASE( "FEN parser rejects castling rights without the rook present" )
+{
+    SUBCASE( "Queenside right claimed with no rook on the queenside square" )
+    {
+        CHECK_THROWS_AS(
+            (void)Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w Q - 0 1"),
+            FenParserError
+        );
+    }
+
+    SUBCASE( "Kingside right claimed with no rook on the kingside square" )
+    {
+        CHECK_THROWS_AS(
+            (void)Game::createGameFromFen ("r3k3/8/8/8/8/8/8/R3K3 w Kk - 0 1"),
+            FenParserError
+        );
+    }
+}
+
 TEST_CASE( "FEN notation for en passant" )
 {
-    Game game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w KQkq e6 0 1");
+    Game game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w - e6 0 1");
     auto &board = game.getBoard();
 
     REQUIRE( !board.isEnPassantVulnerable (Color::White) );
@@ -136,7 +155,7 @@ TEST_CASE( "Parsing half and full moves" )
 {
     SUBCASE( "With castling and en passant square" )
     {
-        Game game = Game::createGameFromFen ("4r2/8/8/8/8/8/k7/4K2R w Kk e6 10 5");
+        Game game = Game::createGameFromFen ("r3k2r/8/8/8/8/8/8/R3K2R w Kk e6 10 5");
         const auto& board = game.getBoard();
         CHECK( board.getHalfMoveClock() == 10 );
         CHECK( board.getFullMoveClock() == 5 );

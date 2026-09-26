@@ -42,6 +42,8 @@ namespace wisdom
 
         void parseCastling (string castling_str);
 
+        void validateCastlingRookPresent (Color who, CastlingEligibility eligibility);
+
         void parseHalfMove (int half_moves);
 
         void parseFullMove (int full_moves);

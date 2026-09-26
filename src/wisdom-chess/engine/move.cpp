@@ -218,7 +218,27 @@ namespace wisdom
         }
     }
 
-    auto 
+    auto
+    Board::withNormalizedEnPassantTarget() const
+        -> Board
+    {
+        Board result = *this;
+        if (!result.getEnPassantTarget().has_value())
+            return result;
+
+        auto legal_moves = generateLegalMoves (result, result.getCurrentTurn());
+        bool has_en_passant_capture = std::any_of (
+            legal_moves.begin(), legal_moves.end(),
+            [](Move legal_move) { return legal_move.isEnPassant(); }
+        );
+
+        if (!has_en_passant_capture)
+            result.clearEnPassantTarget();
+
+        return result;
+    }
+
+    auto
     Board::withMove (Color who, Move move) const -> Board
     {
         Board result = *this;

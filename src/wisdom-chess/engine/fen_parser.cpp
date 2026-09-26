@@ -146,8 +146,31 @@ namespace wisdom
             }
         }
 
+        validateCastlingRookPresent (Color::White, white_castle);
+        validateCastlingRookPresent (Color::Black, black_castle);
+
         builder.setCastling (Color::White, white_castle);
         builder.setCastling (Color::Black, black_castle);
+    }
+
+    // Move generation trusts that a castling-eligibility bit is only set
+    // when the corresponding rook still sits on its home square; it never
+    // re-checks the square itself before applying a castling move.
+    void FenParser::validateCastlingRookPresent (Color who, CastlingEligibility eligibility)
+    {
+        auto row = castlingRowForColor<int> (who);
+
+        auto hasRookAt = [&] (int col)
+        {
+            auto piece = builder.pieceAt (makeCoord (row, col));
+            return pieceType (piece) == Piece::Rook && pieceColor (piece) == who;
+        };
+
+        if (eligibility.canCastleKingside() && !hasRookAt (King_Rook_Column))
+            throw FenParserError ("Castling rights require a rook on its home square!");
+
+        if (eligibility.canCastleQueenside() && !hasRookAt (Queen_Rook_Column))
+            throw FenParserError ("Castling rights require a rook on its home square!");
     }
 
     // halfmove clock:
