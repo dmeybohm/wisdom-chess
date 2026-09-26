@@ -21,114 +21,121 @@ using wisdom::Move;
 using wisdom::MoveTimer;
 using wisdom::Piece;
 
-auto 
-ChessGame::fromPlayers (
-    wisdom::Player whitePlayer, 
-    wisdom::Player blackPlayer, 
-    const Config& config
-) 
-    -> unique_ptr<ChessGame>
+namespace wisdom::ui::qml
 {
-    auto config_with_players = config;
-    config_with_players.players = { whitePlayer, blackPlayer };
+    // The engine's types, not the wisdom::ui mirrors QML sees.
+    using wisdom::Color;
+    using wisdom::Player;
 
-    return fromEngine (
-        make_unique<Game> (Game::createGame (whitePlayer, blackPlayer)),
-        config_with_players
-    );
-}
+    auto 
+    ChessGame::fromPlayers (
+        wisdom::Player whitePlayer, 
+        wisdom::Player blackPlayer, 
+        const Config& config
+    ) 
+        -> unique_ptr<ChessGame>
+    {
+        auto config_with_players = config;
+        config_with_players.players = { whitePlayer, blackPlayer };
 
-auto 
-ChessGame::fromFen (
-    const string& input, 
-    const Config& config
-) 
-    -> unique_ptr<ChessGame>
-{
-    auto game = Game::createGameFromFen (input);
-    return fromEngine (std::make_unique<Game> (std::move (game)), config);
-}
+        return fromEngine (
+            make_unique<Game> (Game::createGame (whitePlayer, blackPlayer)),
+            config_with_players
+        );
+    }
 
-auto 
-ChessGame::fromEngine (
-    std::unique_ptr<wisdom::Game> game, 
-    const Config& config
-)
-    -> unique_ptr<ChessGame>
-{
-    return make_unique<ChessGame> (std::move (game), config);
-}
+    auto 
+    ChessGame::fromFen (
+        const string& input, 
+        const Config& config
+    ) 
+        -> unique_ptr<ChessGame>
+    {
+        auto game = Game::createGameFromFen (input);
+        return fromEngine (std::make_unique<Game> (std::move (game)), config);
+    }
 
-auto 
-ChessGame::clone() const 
-    -> std::unique_ptr<ChessGame>
-{
-    // Copy current game state to FEN and send on to the chess engine thread:
-    auto currentGame = this->state();
-    auto players = currentGame->getPlayers();
-    auto newConfig = my_config;
+    auto 
+    ChessGame::fromEngine (
+        std::unique_ptr<wisdom::Game> game, 
+        const Config& config
+    )
+        -> unique_ptr<ChessGame>
+    {
+        return make_unique<ChessGame> (std::move (game), config);
+    }
 
-    auto fen = currentGame->getBoard().toFenString (currentGame->getCurrentTurn());
-    auto newGame = ChessGame::fromFen (fen, newConfig);
-    newGame->state()->setPlayers (players);
-    return newGame;
-}
+    auto 
+    ChessGame::clone() const 
+        -> std::unique_ptr<ChessGame>
+    {
+        // Copy current game state to FEN and send on to the chess engine thread:
+        auto currentGame = this->state();
+        auto players = currentGame->getPlayers();
+        auto newConfig = my_config;
 
-void ChessGame::setConfig (const Config& config)
-{
-    auto gameState = this->state();
-    gameState->setMaxDepth (config.maxDepth.internalDepth());
-    gameState->setSearchTimeout (config.maxTime);
-    gameState->setPlayers (config.players);
-    my_config = config;
-}
+        auto fen = currentGame->getBoard().toFenString (currentGame->getCurrentTurn());
+        auto newGame = ChessGame::fromFen (fen, newConfig);
+        newGame->state()->setPlayers (players);
+        return newGame;
+    }
 
-void
-ChessGame::setPlayers (
-    wisdom::Player whitePlayer,
-    wisdom::Player blackPlayer
-) { // NOLINT(readability-make-member-function-const)
-    const wisdom::Players players { whitePlayer, blackPlayer };
-    this->state()->setPlayers (players);
-    my_config.players = players;
-}
+    void ChessGame::setConfig (const Config& config)
+    {
+        auto gameState = this->state();
+        gameState->setMaxDepth (config.maxDepth.internalDepth());
+        gameState->setSearchTimeout (config.maxTime);
+        gameState->setPlayers (config.players);
+        my_config = config;
+    }
 
-auto 
-ChessGame::moveFromCoordinates (
-    int srcRow, 
-    int srcColumn, 
-    int dstRow, 
-    int dstColumn,
-    optional<Piece> promoted
-) const 
-    -> pair<optional<Move>, Color>
-{
-    auto engine = this->state();
-    auto src = wisdom::makeCoord (srcRow, srcColumn);
-    auto dst = wisdom::makeCoord (dstRow, dstColumn);
+    void
+    ChessGame::setPlayers (
+        wisdom::Player whitePlayer,
+        wisdom::Player blackPlayer
+    ) { // NOLINT(readability-make-member-function-const)
+        const wisdom::Players players { whitePlayer, blackPlayer };
+        this->state()->setPlayers (players);
+        my_config.players = players;
+    }
 
-    auto who = engine->getCurrentTurn();
+    auto 
+    ChessGame::moveFromCoordinates (
+        int srcRow, 
+        int srcColumn, 
+        int dstRow, 
+        int dstColumn,
+        optional<Piece> promoted
+    ) const 
+        -> pair<optional<Move>, Color>
+    {
+        auto engine = this->state();
+        auto src = wisdom::makeCoord (srcRow, srcColumn);
+        auto dst = wisdom::makeCoord (dstRow, dstColumn);
 
-    return { engine->mapCoordinatesToMove (src, dst, promoted), who };
-}
+        auto who = engine->getCurrentTurn();
 
-void ChessGame::setPeriodicFunction (const MoveTimer::PeriodicFunction& func)
-{
-    auto gameState = this->state();
-    gameState->setPeriodicFunction (func);
-}
+        return { engine->mapCoordinatesToMove (src, dst, promoted), who };
+    }
 
-auto 
-ChessGame::Config::fromGameSettings (
-    const GameSettings& gameSettings
-) 
-    -> ChessGame::Config
-{
-    return ChessGame::Config {
-        .players = { mapPlayer (gameSettings.whitePlayer()),
-                     mapPlayer (gameSettings.blackPlayer()) },
-        .maxDepth = MaxDepth { gameSettings.maxDepth() },
-        .maxTime = std::chrono::seconds { gameSettings.maxSearchTime() },
-        .debugLogging = gameSettings.debugLogging()
-    };
+    void ChessGame::setPeriodicFunction (const MoveTimer::PeriodicFunction& func)
+    {
+        auto gameState = this->state();
+        gameState->setPeriodicFunction (func);
+    }
+
+    auto 
+    ChessGame::Config::fromGameSettings (
+        const GameSettings& gameSettings
+    ) 
+        -> ChessGame::Config
+    {
+        return ChessGame::Config {
+            .players = { mapPlayer (gameSettings.whitePlayer()),
+                         mapPlayer (gameSettings.blackPlayer()) },
+            .maxDepth = MaxDepth { gameSettings.maxDepth() },
+            .maxTime = std::chrono::seconds { gameSettings.maxSearchTime() },
+            .debugLogging = gameSettings.debugLogging()
+        };
+    }
 }

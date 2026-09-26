@@ -160,4 +160,4 @@ namespace wisdom
 
         friend class WebGameStatusUpdate;
     };
-};
+}

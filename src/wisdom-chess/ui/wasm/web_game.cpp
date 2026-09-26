@@ -159,8 +159,6 @@ namespace wisdom
             return value.id;
         }
 
-        // find first match by row/column. Otherwise, find first match by
-        // piece / color.
         return 0;
     }
 

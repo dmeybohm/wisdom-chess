@@ -15,6 +15,8 @@
 
 namespace wisdom::ui::test
 {
+    using namespace wisdom::ui::qml;
+
     inline auto
     drawnAt (const QQuickItem* item)
         -> QPointF;

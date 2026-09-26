@@ -6,6 +6,8 @@
 #include "application_fixture.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 
+using namespace wisdom::ui::qml;
+
 using wisdom::Color;
 using wisdom::ColoredPiece;
 using wisdom::Piece;

@@ -4,6 +4,8 @@
 #include "wisdom-chess/ui/qml/main/chess_game.hpp"
 #include "wisdom-chess/ui/qml/main/game_settings.hpp"
 
+using namespace wisdom::ui::qml;
+
 using wisdom::Color;
 using wisdom::moveParse;
 using wisdom::Piece;

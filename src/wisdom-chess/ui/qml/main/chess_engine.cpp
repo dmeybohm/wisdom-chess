@@ -14,225 +14,232 @@ using std::shared_ptr;
 using wisdom::GameStatus;
 using wisdom::ProposedDrawType;
 
-void ChessEngine::ChessEngineLogger::debug (const std::string& line) const
+namespace wisdom::ui::qml
 {
-    qDebug() << line.c_str();
-}
+    // The engine's types, not the wisdom::ui mirrors QML sees.
+    using wisdom::Color;
+    using wisdom::Player;
 
-void ChessEngine::ChessEngineLogger::info (const std::string& line) const
-{
-    qDebug() << line.c_str();
-}
-
-void ChessEngine::ChessEngineLogger::emergency (const std::string& line) const
-{
-    qCritical() << line.c_str();
-}
-
-ChessEngine::ChessEngine (shared_ptr<ChessGame> game, int gameId, QObject* parent) :
-        QObject { parent }, 
-        my_game { std::move (game) }, 
-        my_game_id { gameId },
-        my_logger { makeBufferedLogger (make_shared<ChessEngineLogger>()) }
-{
-    syncDebugLogging();
-}
-
-void ChessEngine::syncDebugLogging()
-{
-    my_logger->setEnabled (my_game->config().debugLogging);
-}
-
-void ChessEngine::init()
-{
-    findMove();
-}
-
-void ChessEngine::opponentMoved (Move move, [[maybe_unused]] Color who)
-{
-    auto game = my_game->state();
-    game->move (move);
-    findMove();
-}
-
-void
-ChessEngine::receiveEngineMoved (
-    [[maybe_unused]] wisdom::Move move,
-    [[maybe_unused]] wisdom::Color who,
-    int gameId
-) {
-    if (gameId == this->my_game_id)
+    void ChessEngine::ChessEngineLogger::debug (const std::string& line) const
     {
-        // The GUI has shown the move. Do another if the engine is hooked
-        // up to itself:
-        my_move_awaiting_gui = false;
-        init();
-    }
-}
-
-class QmlEngineGameStatusUpdate : public GameStatusUpdate
-{
-private:
-    nonnull_observer_ptr<ChessEngine> my_parent;
-
-public:
-    explicit QmlEngineGameStatusUpdate (
-        nonnull_observer_ptr<ChessEngine> parent
-    )
-        : my_parent { parent }
-    {
+        qDebug() << line.c_str();
     }
 
-protected:
-    void onGameEnded ([[maybe_unused]] GameStatus status) override
+    void ChessEngine::ChessEngineLogger::info (const std::string& line) const
     {
-        my_parent->my_is_game_over = true;
-        emit my_parent->noMovesAvailable();
+        qDebug() << line.c_str();
     }
 
-    void onDrawProposed (ProposedDrawType type) override
+    void ChessEngine::ChessEngineLogger::emergency (const std::string& line) const
     {
-        auto game_state = my_parent->my_game->state();
+        qCritical() << line.c_str();
+    }
+
+    ChessEngine::ChessEngine (shared_ptr<ChessGame> game, int gameId, QObject* parent) :
+            QObject { parent }, 
+            my_game { std::move (game) }, 
+            my_game_id { gameId },
+            my_logger { makeBufferedLogger (make_shared<ChessEngineLogger>()) }
+    {
+        syncDebugLogging();
+    }
+
+    void ChessEngine::syncDebugLogging()
+    {
+        my_logger->setEnabled (my_game->config().debugLogging);
+    }
+
+    void ChessEngine::init()
+    {
+        findMove();
+    }
+
+    void ChessEngine::opponentMoved (Move move, [[maybe_unused]] Color who)
+    {
+        auto game = my_game->state();
+        game->move (move);
+        findMove();
+    }
+
+    void
+    ChessEngine::receiveEngineMoved (
+        [[maybe_unused]] wisdom::Move move,
+        [[maybe_unused]] wisdom::Color who,
+        int gameId
+    ) {
+        if (gameId == this->my_game_id)
+        {
+            // The GUI has shown the move. Do another if the engine is hooked
+            // up to itself:
+            my_move_awaiting_gui = false;
+            init();
+        }
+    }
+
+    class QmlEngineGameStatusUpdate : public GameStatusUpdate
+    {
+    private:
+        nonnull_observer_ptr<ChessEngine> my_parent;
+
+    public:
+        explicit QmlEngineGameStatusUpdate (
+            nonnull_observer_ptr<ChessEngine> parent
+        )
+            : my_parent { parent }
+        {
+        }
+
+    protected:
+        void onGameEnded ([[maybe_unused]] GameStatus status) override
+        {
+            my_parent->my_is_game_over = true;
+            emit my_parent->noMovesAvailable();
+        }
+
+        void onDrawProposed (ProposedDrawType type) override
+        {
+            auto game_state = my_parent->my_game->state();
+            auto who = game_state->getCurrentTurn();
+            my_parent->handlePotentialDrawPosition (type, who);
+        }
+    };
+
+    auto 
+    ChessEngine::gameStatusTransition() 
+        -> wisdom::GameStatus
+    {
+        QmlEngineGameStatusUpdate status_manager { this };
+        status_manager.update (my_game->state()->status());
+        return my_game->state()->status();
+    }
+
+    void ChessEngine::findMove()
+    {
+        auto game_state = my_game->state();
+
+        if (my_is_game_over || my_move_awaiting_gui)
+        {
+            return;
+        }
+
+        auto player = game_state->getCurrentPlayer();
+        if (player != Player::ChessEngine)
+        {
+            return;
+        }
+
+        auto nextStatus = gameStatusTransition();
+        if (nextStatus != GameStatus::Playing)
+        {
+            // The game is now over - or we're waiting for a response on a draw proposal.
+            return;
+        }
+
         auto who = game_state->getCurrentTurn();
-        my_parent->handlePotentialDrawPosition (type, who);
-    }
-};
 
-auto 
-ChessEngine::gameStatusTransition() 
-    -> wisdom::GameStatus
-{
-    QmlEngineGameStatusUpdate status_manager { this };
-    status_manager.update (my_game->state()->status());
-    return my_game->state()->status();
-}
+        my_logger->debug ("Searching for move");
+        auto optionalMove = game_state->findBestMove (my_logger, &my_transposition_table);
 
-void ChessEngine::findMove()
-{
-    auto game_state = my_game->state();
-
-    if (my_is_game_over || my_move_awaiting_gui)
-    {
-        return;
+        // The game was playing, so there was a legal move; the search comes
+        // back empty only when it was cancelled before finishing a root move.
+        if (optionalMove.has_value())
+        {
+            game_state->move (*optionalMove);
+            my_move_awaiting_gui = true;
+            emit engineMoved (*optionalMove, who, my_game_id);
+        }
+        else
+        {
+            emit searchInterrupted();
+        }
     }
 
-    auto player = game_state->getCurrentPlayer();
-    if (player != Player::ChessEngine)
-    {
-        return;
-    }
+    void 
+    ChessEngine::handlePotentialDrawPosition (
+        wisdom::ProposedDrawType proposedDrawType, 
+        wisdom::Color who
+    ) {
+        auto game_state = my_game->state();
 
-    auto nextStatus = gameStatusTransition();
-    if (nextStatus != GameStatus::Playing)
-    {
-        // The game is now over - or we're waiting for a response on a draw proposal.
-        return;
-    }
+        auto acceptDraw = game_state->computerWantsDraw (who);
+        game_state->setProposedDrawStatus (proposedDrawType, who, acceptDraw);
 
-    auto who = game_state->getCurrentTurn();
-
-    my_logger->debug ("Searching for move");
-    auto optionalMove = game_state->findBestMove (my_logger, &my_transposition_table);
-
-    // The game was playing, so there was a legal move; the search comes
-    // back empty only when it was cancelled before finishing a root move.
-    if (optionalMove.has_value())
-    {
-        game_state->move (*optionalMove);
-        my_move_awaiting_gui = true;
-        emit engineMoved (*optionalMove, who, my_game_id);
-    }
-    else
-    {
-        emit searchInterrupted();
-    }
-}
-
-void 
-ChessEngine::handlePotentialDrawPosition (
-    wisdom::ProposedDrawType proposedDrawType, 
-    wisdom::Color who
-) {
-    auto game_state = my_game->state();
-
-    auto acceptDraw = game_state->computerWantsDraw (who);
-    game_state->setProposedDrawStatus (proposedDrawType, who, acceptDraw);
-
-    emit updateDrawStatus (proposedDrawType, who, acceptDraw);
-    if (acceptDraw)
-    {
-        my_is_game_over = true;
-        emit noMovesAvailable();
-    }
-
-    auto opponent = colorInvert (who);
-    auto opponentPlayer = game_state->getPlayer (opponent);
-    if (opponentPlayer == Player::ChessEngine)
-    {
-        auto opponentAcceptsDraw = game_state->computerWantsDraw (opponent);
-        game_state->setProposedDrawStatus (proposedDrawType, opponent, opponentAcceptsDraw);
-        emit updateDrawStatus (proposedDrawType, opponent, opponentAcceptsDraw);
-        if (opponentAcceptsDraw)
+        emit updateDrawStatus (proposedDrawType, who, acceptDraw);
+        if (acceptDraw)
         {
             my_is_game_over = true;
             emit noMovesAvailable();
         }
-        else
+
+        auto opponent = colorInvert (who);
+        auto opponentPlayer = game_state->getPlayer (opponent);
+        if (opponentPlayer == Player::ChessEngine)
         {
-            // if the computer is playing itself, resume searching:
-            if (gameStatusTransition() == GameStatus::Playing)
+            auto opponentAcceptsDraw = game_state->computerWantsDraw (opponent);
+            game_state->setProposedDrawStatus (proposedDrawType, opponent, opponentAcceptsDraw);
+            emit updateDrawStatus (proposedDrawType, opponent, opponentAcceptsDraw);
+            if (opponentAcceptsDraw)
             {
-                findMove();
+                my_is_game_over = true;
+                emit noMovesAvailable();
+            }
+            else
+            {
+                // if the computer is playing itself, resume searching:
+                if (gameStatusTransition() == GameStatus::Playing)
+                {
+                    findMove();
+                }
             }
         }
     }
-}
 
-void
-ChessEngine::receiveDrawStatus (
-    wisdom::ProposedDrawType drawType, 
-    wisdom::Color player, 
-    bool accepted
-) {
-    auto game_state = my_game->state();
-    game_state->setProposedDrawStatus (drawType, player, accepted);
+    void
+    ChessEngine::receiveDrawStatus (
+        wisdom::ProposedDrawType drawType, 
+        wisdom::Color player, 
+        bool accepted
+    ) {
+        auto game_state = my_game->state();
+        game_state->setProposedDrawStatus (drawType, player, accepted);
 
-    auto nextStatus = gameStatusTransition();
-    if (nextStatus == GameStatus::Playing)
-    {
-        findMove(); // resume playing.
+        auto nextStatus = gameStatusTransition();
+        if (nextStatus == GameStatus::Playing)
+        {
+            findMove(); // resume playing.
+        }
     }
-}
 
-void ChessEngine::reloadGame (shared_ptr<ChessGame> newGame, int newGameId)
-{
-    my_game = std::move (newGame);
-    my_game_id = newGameId;
-    my_is_game_over = false;
-    my_move_awaiting_gui = false;
-    my_transposition_table.clear();
-    syncDebugLogging();
+    void ChessEngine::reloadGame (shared_ptr<ChessGame> newGame, int newGameId)
+    {
+        my_game = std::move (newGame);
+        my_game_id = newGameId;
+        my_is_game_over = false;
+        my_move_awaiting_gui = false;
+        my_transposition_table.clear();
+        syncDebugLogging();
 
-    // Possibly resume searching for the next move:
-    init();
-}
+        // Possibly resume searching for the next move:
+        init();
+    }
 
-void 
-ChessEngine::updateConfig (
-    const ChessGame::Config& config,
-    const wisdom::MoveTimer::PeriodicFunction& notifier
-) {
-    my_game->setConfig (config);
-    syncDebugLogging();
+    void 
+    ChessEngine::updateConfig (
+        const ChessGame::Config& config,
+        const wisdom::MoveTimer::PeriodicFunction& notifier
+    ) {
+        my_game->setConfig (config);
+        syncDebugLogging();
 
-    // Update the notifier:
-    my_game->setPeriodicFunction (notifier);
+        // Update the notifier:
+        my_game->setPeriodicFunction (notifier);
 
-    // Possibly resume searching for the next move:
-    init();
-}
+        // Possibly resume searching for the next move:
+        init();
+    }
 
-void ChessEngine::quit()
-{
-    QThread::currentThread()->quit();
+    void ChessEngine::quit()
+    {
+        QThread::currentThread()->quit();
+    }
 }
