@@ -625,3 +625,8 @@ The local Release build with `WISDOM_CHESS_WERROR=On` passes, as do all
 243 CTest cases and the style linter. The console target also builds
 with Clang 18 and `WISDOM_CHESS_WERROR=On`. MSVC verification requires
 the PR's Windows CI job.
+
+The next Windows run compiled the QML cache but reached a new `/WX`
+failure in the view-model tests: MSVC 14.51 reports C5285 for a
+`std::tuple` specialization in doctest 2.4.12. The test target now
+suppresses C5285 on MSVC; warnings remain errors for other diagnostics.
