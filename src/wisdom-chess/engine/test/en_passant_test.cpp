@@ -131,3 +131,67 @@ TEST_CASE( "en passant" )
         REQUIRE( pieceType (taken_pawn) == Piece::None );
     }
 }
+
+TEST_CASE( "withNormalizedEnPassantTarget" )
+{
+    SUBCASE( "Leaves a board with no en passant target untouched" )
+    {
+        Board board;
+        REQUIRE( board.getEnPassantTarget() == nullopt );
+        REQUIRE( board.withNormalizedEnPassantTarget() == board );
+    }
+
+    SUBCASE( "Clears the target when no enemy pawn is adjacent" )
+    {
+        BoardBuilder builder;
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("a2", Color::White, Piece::Pawn);
+
+        auto board = Board { builder };
+        board = board.withMove (Color::White, moveParse ("a2 a4"));
+
+        REQUIRE( board.getEnPassantTarget().has_value() );
+        REQUIRE( !board.withNormalizedEnPassantTarget().getEnPassantTarget().has_value() );
+    }
+
+    SUBCASE( "Clears the target when the adjacent enemy pawn is pinned" )
+    {
+        // Rank 4: white rook a4, white pawn d4 (just double-pushed), black
+        // pawn e4, black king h4. Capturing en passant vacates both d4 and
+        // e4, exposing the black king to the rook along the rank.
+        BoardBuilder builder;
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("a4", Color::White, Piece::Rook);
+        builder.addPiece ("d2", Color::White, Piece::Pawn);
+        builder.addPiece ("e4", Color::Black, Piece::Pawn);
+        builder.addPiece ("h4", Color::Black, Piece::King);
+
+        auto board = Board { builder };
+        board = board.withMove (Color::White, moveParse ("d2 d4"));
+
+        REQUIRE( board.getEnPassantTarget().has_value() );
+
+        auto legal_moves = generateLegalMoves (board, Color::Black);
+        REQUIRE( std::none_of (
+            legal_moves.begin(), legal_moves.end(), std::mem_fn (&Move::isEnPassant)
+        ) );
+
+        REQUIRE( !board.withNormalizedEnPassantTarget().getEnPassantTarget().has_value() );
+    }
+
+    SUBCASE( "Keeps the target when a legal en passant capture exists" )
+    {
+        BoardBuilder builder;
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("d2", Color::White, Piece::Pawn);
+        builder.addPiece ("e4", Color::Black, Piece::Pawn);
+
+        auto board = Board { builder };
+        board = board.withMove (Color::White, moveParse ("d2 d4"));
+
+        REQUIRE( board.getEnPassantTarget().has_value() );
+        REQUIRE( board.withNormalizedEnPassantTarget() == board );
+    }
+}

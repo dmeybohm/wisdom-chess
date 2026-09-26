@@ -165,6 +165,15 @@ namespace wisdom
             return my_code.getEnPassantTarget();
         }
 
+        // FEN records the passed square after every double pawn push, but
+        // FIDE's repetition rule only distinguishes positions by the moves
+        // actually possible from them. Return a copy with the en passant
+        // target cleared when no legal en passant capture reaches it, so
+        // repetition comparisons ignore a target nothing can use.
+        [[nodiscard]] auto
+        withNormalizedEnPassantTarget() const
+            -> Board;
+
         [[nodiscard]] auto 
         getBoardCode() const 
             -> BoardCode
