@@ -18,10 +18,14 @@ namespace wisdom
     ) {
         string output = board.toFenString (turn);
 
-        std::ofstream file;
-        file.open (filename);
+        std::ofstream file { filename };
+        if (!file)
+            throw Error { "Cannot open " + filename + " for writing." };
+
         file << output << "\n";
         file.close();
+        if (!file)
+            throw Error { "Error writing " + filename + "." };
     }
 
     void 
@@ -31,10 +35,14 @@ namespace wisdom
         const History& history, 
         [[maybe_unused]] Color turn
     ) {
-        std::ofstream file;
-        file.open (filename);
+        std::ofstream file { filename };
+        if (!file)
+            throw Error { "Cannot open " + filename + " for writing." };
+
         for (auto move : history.getMoveHistory())
             file << wisdom::asString (move) << "\n";
         file.close();
+        if (!file)
+            throw Error { "Error writing " + filename + "." };
     }
 }

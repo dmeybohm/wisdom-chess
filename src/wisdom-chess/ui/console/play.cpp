@@ -15,8 +15,6 @@
 namespace wisdom::ui::console
 {
     using namespace wisdom;
-    using std::holds_alternative;
-    using std::get;
     using std::string;
 
     namespace PlayCommand
@@ -148,6 +146,13 @@ namespace wisdom::ui::console
         >;
     }
 
+    // Combines lambdas into one visitor for std::visit.
+    template <typename... Functions>
+    struct Overloaded : Functions...
+    {
+        using Functions::operator()...;
+    };
+
     class ConsoleGame : public ui::GameViewModelBase
     {
     private:
@@ -222,13 +227,13 @@ namespace wisdom::ui::console
         {
             string input;
 
-            while (toUpper (input[0]) != 'Y' && toUpper (input[0]) != 'N')
+            do
             {
                 std::cout << msg;
 
                 if (!std::getline (std::cin, input))
                     return false;
-            }
+            } while (input.empty() || (toUpper (input[0]) != 'Y' && toUpper (input[0]) != 'N'));
 
             return toUpper (input[0]) == 'Y';
         }
@@ -542,117 +547,102 @@ namespace wisdom::ui::console
                 }
                 return result;
             }
-
-            throw Error { "Invalid command." };
         }
 
         void handleCommand (const PlayCommand::AnyCommand& command)
         {
-            if (holds_alternative<PlayCommand::None> (command))
-            {
-                // do nothing
-            }
-            else if (holds_alternative<PlayCommand::Help> (command))
-            {
-                printHelp();
-            }
-            else if (holds_alternative<PlayCommand::ShowError> (command))
-            {
-                auto error_command = get<PlayCommand::ShowError> (command);
-                std::cout << "Error: \n" << error_command.message << "\n\n";
-                printHelp();
-            }
-            else if (holds_alternative<PlayCommand::ShowInfo> (command))
-            {
-                auto info_command = get<PlayCommand::ShowInfo> (command);
-                std::cout << "\n" << info_command.message << "\n\n";
-            }
-            else if (holds_alternative<PlayCommand::Pause> (command))
-            {
-                setPaused (true);
-                std::cout << "Game engine paused.\n";
-            }
-            else if (holds_alternative<PlayCommand::Unpause> (command))
-            {
-                setPaused (false);
-                std::cout << "Game engine unpaused.\n";
-            }
-            else if (holds_alternative<PlayCommand::StopGame> (command))
-            {
-                auto stop_game = get<PlayCommand::StopGame> (command);
-                setQuit (true);
-                setShowFinalPosition (stop_game.show_final_position);
-            }
-            else if (holds_alternative<PlayCommand::SaveGame> (command))
-            {
-                auto save_game = get<PlayCommand::SaveGame> (command);
+            std::visit (
+                Overloaded {
+                    [] (const PlayCommand::None&) {},
+                    [this] (const PlayCommand::Help&) { printHelp(); },
+                    [this] (const PlayCommand::ShowError& error)
+                    {
+                        std::cout << "Error: \n" << error.message << "\n\n";
+                        printHelp();
+                    },
+                    [] (const PlayCommand::ShowInfo& info)
+                    {
+                        std::cout << "\n" << info.message << "\n\n";
+                    },
+                    [this] (const PlayCommand::Pause&)
+                    {
+                        setPaused (true);
+                        std::cout << "Game engine paused.\n";
+                    },
+                    [this] (const PlayCommand::Unpause&)
+                    {
+                        setPaused (false);
+                        std::cout << "Game engine unpaused.\n";
+                    },
+                    [this] (const PlayCommand::StopGame& stop_game)
+                    {
+                        setQuit (true);
+                        setShowFinalPosition (stop_game.show_final_position);
+                    },
+                    [this] (const PlayCommand::SaveGame& save_game)
+                    {
+                        try
+                        {
+                            my_game.save (save_game.file_path);
+                            std::cout << "Game saved to " << save_game.file_path << "\n\n";
+                        }
+                        catch (const Error& error)
+                        {
+                            std::cout << "Error saving game: " << error.message() << "\n\n";
+                        }
+                    },
+                    [this] (const PlayCommand::PrintAvailableMoves&) { printAvailableMoves(); },
+                    [this] (const PlayCommand::SetMaxDepth& set_depth)
+                    {
+                        my_game.setMaxDepth (set_depth.max_depth);
+                        std::cout << "Max depth set to " << set_depth.max_depth << ".\n";
+                    },
+                    [this] (const PlayCommand::SetSearchTimeout& set_timeout)
+                    {
+                        my_game.setSearchTimeout (set_timeout.seconds);
+                        std::cout << "Timeout set to " << set_timeout.seconds.count() << " seconds.\n";
+                    },
+                    [this] (const PlayCommand::LoadNewGame& load_game)
+                    {
+                        Game new_game = load_game.new_game;
 
-                // todo: handle errors here
-                my_game.save (save_game.file_path);
-                std::cout << "Game saved to " << save_game.file_path << "\n\n";
-            }
-            else if (holds_alternative<PlayCommand::PrintAvailableMoves> (command))
-            {
-                printAvailableMoves();
-            }
-            else if (holds_alternative<PlayCommand::SetMaxDepth> (command))
-            {
-                auto max_depth_command = get<PlayCommand::SetMaxDepth> (command);
-                my_game.setMaxDepth (max_depth_command.max_depth);
-                std::cout << "Max depth set to " << max_depth_command.max_depth << ".\n";
-            }
-            else if (holds_alternative<PlayCommand::SetSearchTimeout> (command))
-            {
-                auto search_timeout = get<PlayCommand::SetSearchTimeout> (command);
-                my_game.setSearchTimeout (chrono::seconds { search_timeout.seconds });
-                std::cout << "Timeout set to " << search_timeout.seconds.count() << " seconds.\n";
-            }
-            else if (holds_alternative<PlayCommand::LoadNewGame> (command))
-            {
-                auto load_game = get<PlayCommand::LoadNewGame> (command);
+                        // Keep the same player config:
+                        copyConfig (my_game, new_game);
+                        my_game = std::move (new_game);
+                        my_transposition_table.clear();
+                        resetStateForNewGame();
 
-                // Keep the same player config:
-                copyConfig (my_game, load_game.new_game);
-                my_game = std::move (load_game.new_game);
-                my_transposition_table.clear();
-                resetStateForNewGame();
+                        std::cout << "\nNew game successfully loaded.\n\n";
+                    },
+                    [this] (const PlayCommand::SwitchSides&)
+                    {
+                        my_game.setCurrentTurn (colorInvert (my_game.getCurrentTurn()));
+                        std::cout << "Players switched.\n";
+                    },
+                    [this] (const PlayCommand::SetPlayer& set_player)
+                    {
+                        auto players = my_game.getPlayers();
+                        players[colorIndex (set_player.side)] = set_player.player_type;
+                        my_game.setPlayers (players);
 
-                std::cout << "\nNew game successfully loaded.\n\n";
-            }
-            else if (holds_alternative<PlayCommand::SwitchSides> (command))
-            {
-                my_game.setCurrentTurn (colorInvert (my_game.getCurrentTurn()));
-                std::cout << "Players switched.\n";
-            }
-            else if (holds_alternative<PlayCommand::SetPlayer> (command))
-            {
-                auto set_player = get<PlayCommand::SetPlayer> (command);
-
-                auto players = my_game.getPlayers();
-                players[colorIndex (set_player.side)] = set_player.player_type;
-                my_game.setPlayers (players);
-
-                auto player_type_str = set_player.player_type == Player::ChessEngine
-                    ? "computer"
-                    : "human";
-                std::cout << asString (set_player.side) << " player set to " <<
-                    player_type_str << ".\n";
-            }
-            else if (holds_alternative<PlayCommand::PlayMove> (command))
-            {
-                auto play_move = get<PlayCommand::PlayMove> (command);
-                my_game.move (play_move.move);
-            }
-            else if (holds_alternative<PlayCommand::SetDebugLogging> (command))
-            {
-                auto set_debug = get<PlayCommand::SetDebugLogging> (command);
-                my_logger->setEnabled (set_debug.enabled);
-                std::cout << "Debug logging " << (set_debug.enabled ? "on" : "off") << ".\n";
-            }
-            else
-            {
-                throw Error { "Undefined command." };
-            }
+                        auto player_type_str = set_player.player_type == Player::ChessEngine
+                            ? "computer"
+                            : "human";
+                        std::cout << asString (set_player.side) << " player set to "
+                                  << player_type_str << ".\n";
+                    },
+                    [this] (const PlayCommand::PlayMove& play_move)
+                    {
+                        my_game.move (play_move.move);
+                    },
+                    [this] (const PlayCommand::SetDebugLogging& set_debug)
+                    {
+                        my_logger->setEnabled (set_debug.enabled);
+                        std::cout << "Debug logging " << (set_debug.enabled ? "on" : "off") << ".\n";
+                    },
+                },
+                command
+            );
         }
     };
 

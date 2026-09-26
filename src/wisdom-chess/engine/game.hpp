@@ -76,6 +76,8 @@ namespace wisdom
 
     public:
 
+        // Throws Error when the file cannot be written.
+
         void save (const string& filename) const;
 
         // Searches for the best move using the caller's transposition table.
