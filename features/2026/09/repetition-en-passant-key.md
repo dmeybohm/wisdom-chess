@@ -79,9 +79,16 @@ rooks on the corresponding home squares) to use a proper
 "FEN parser rejects castling rights without the rook present" to cover
 the new check with `CHECK_THROWS_AS`.
 
-Step 1 (dedicated history/repetition tests for the double-push-with-no-
-adjacent-pawn, pinned-pawn, and legal-capture cases) is still open, along
-with step 4 (search/transposition table check) and step 5 (full
-Release + lint run). Fast test suite passes; a Release build and the
-slow/CTest suite are running to confirm no other regressions before those
-steps are picked up in Session #3.
+Reworded the `withNormalizedEnPassantTarget()` comment for draw
+detection, then reverted it back to the FEN-vs-FIDE framing at the
+user's request — it was fine as originally written.
+
+Full Debug `ctest` (fast + slow, including both perft suites) passed
+236/236, and `cmake --build build --target lint` is clean. Opened as
+draft PR #286 against `main` (unrebased; `review-fixes` merged as #275
+while this branch existed — see PR description).
+
+Still open for Session #3: step 1 (dedicated history/repetition tests
+for the double-push-with-no-adjacent-pawn, pinned-pawn, and
+legal-capture cases), step 4 (search/transposition table check), and a
+Release-build ctest run.
