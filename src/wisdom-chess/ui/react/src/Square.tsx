@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import "./Board.css";
 import { Piece } from "./lib/Pieces";
 import { useDrag, useDrop } from 'react-dnd';
@@ -50,10 +50,17 @@ interface PieceOverlayProps {
 export function PieceOverlay(props: PieceOverlayProps) {
     const wisdomChess = WisdomChess()
 
+    // What pressed the piece, from the pointerdown a drag always starts
+    // with. A mouse or a pen drags; a finger taps the two squares.
+    const pointerType = useRef('mouse')
+
     const [{isDragging}, drag, preview] = useDrag({
         type: 'piece',
         item: { src: props.piece.position },
         canDrag: () => {
+            if (pointerType.current === 'touch') {
+                return false
+            }
             const game = getCurrentGame()
             return props.piece.color === props.currentTurn &&
                 game.getPlayerOfColor(props.piece.color) === wisdomChess.Human
@@ -77,6 +84,7 @@ export function PieceOverlay(props: PieceOverlayProps) {
             ref={drop}
             className={`piece ${props.piece.position} ${focused} ${draggingClass}`}
             onClick={() => props.onPieceClick(props.piece.position)}
+            onPointerDown={event => { pointerType.current = event.pointerType }}
         >
             <div
                 ref={drag}

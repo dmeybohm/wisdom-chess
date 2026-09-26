@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QPointingDevice>
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
 #include <QQuickWindow>
@@ -14,6 +15,10 @@
 
 namespace wisdom::ui::test
 {
+    inline auto
+    drawnAt (const QQuickItem* item)
+        -> QPointF;
+
     // The application as main.cpp assembles it: both models, the signal
     // connections between them and the real QML, loaded from resources.
     class Application
@@ -329,6 +334,72 @@ namespace wisdom::ui::test
             click (dst_text);
         }
 
+        // The other way: press the mouse on the piece, carry it to the
+        // target in steps past the drag threshold, and let go there.
+        void drag (const char* src_text, const char* dst_text)
+        {
+            startDrag (src_text, dst_text);
+            finishDrag (dst_text);
+        }
+
+        // Everything but the release, so a test can look at the piece
+        // while it hangs from the pointer.
+        void startDrag (const char* src_text, const char* dst_text)
+        {
+            startDrag (drawnAt (squareAt (src_text)), drawnAt (squareAt (dst_text)));
+        }
+
+        void startDrag (QPointF from, QPointF to)
+        {
+            if (!QQuickTest::qWaitForPolish (window()))
+                QFAIL( "The window was not laid out in time" );
+
+            QTest::mousePress (window(), Qt::LeftButton, Qt::NoModifier, from.toPoint());
+            constexpr int steps = 8;
+            for (int step = 1; step <= steps; step++)
+            {
+                auto at = from + (to - from) * step / steps;
+                QTest::mouseMove (window(), at.toPoint(), 5);
+            }
+            QCoreApplication::processEvents();
+        }
+
+        void finishDrag (const char* dst_text)
+        {
+            finishDrag (drawnAt (squareAt (dst_text)));
+        }
+
+        void finishDrag (QPointF at)
+        {
+            QTest::mouseRelease (window(), Qt::LeftButton, Qt::NoModifier, at.toPoint());
+            QCoreApplication::processEvents();
+        }
+
+        // A finger on a touchscreen.
+        void touchTap (const char* coord_text)
+        {
+            auto at = drawnAt (squareAt (coord_text)).toPoint();
+            QTest::touchEvent (window(), touchDevice()).press (0, at, window());
+            QTest::touchEvent (window(), touchDevice()).release (0, at, window());
+            QCoreApplication::processEvents();
+        }
+
+        void touchDrag (const char* src_text, const char* dst_text)
+        {
+            auto from = drawnAt (squareAt (src_text));
+            auto to = drawnAt (squareAt (dst_text));
+
+            QTest::touchEvent (window(), touchDevice()).press (0, from.toPoint(), window());
+            constexpr int steps = 8;
+            for (int step = 1; step <= steps; step++)
+            {
+                auto at = from + (to - from) * step / steps;
+                QTest::touchEvent (window(), touchDevice()).move (0, at.toPoint(), window());
+            }
+            QTest::touchEvent (window(), touchDevice()).release (0, to.toPoint(), window());
+            QCoreApplication::processEvents();
+        }
+
         [[nodiscard]] auto
         boardPieceAt (const char* coord_text) const
             -> ColoredPiece
@@ -403,7 +474,17 @@ namespace wisdom::ui::test
                 collectItems (child, first, second, result);
         }
 
+        [[nodiscard]] auto
+        touchDevice()
+            -> QPointingDevice*
+        {
+            if (my_touch_device == nullptr)
+                my_touch_device.reset (QTest::createTouchDevice());
+            return my_touch_device.get();
+        }
+
         QQmlApplicationEngine my_engine;
+        std::unique_ptr<QPointingDevice> my_touch_device;
     };
 
     // Where the middle of an item is drawn, in window coordinates. The

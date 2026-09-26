@@ -20,8 +20,10 @@ Item {
         color: chessSquare.activeFocus ? "lightblue" : chessSquare.bgColor
     }
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: chessSquare.clicked()
+    // A handler rather than a MouseArea: the pieces layer's DragHandler
+    // above the square takes over a press that turns into a drag, and a
+    // tap is what is left when it does not.
+    TapHandler {
+        onTapped: chessSquare.clicked()
     }
 }

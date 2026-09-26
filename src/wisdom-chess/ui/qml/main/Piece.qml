@@ -12,6 +12,10 @@ Image {
     required property int castlingSourceColumn
     property bool flipped: false
 
+    // Set while the board drags the piece: it is drawn where the board
+    // puts it, without the move animation, until it is dropped.
+    property bool dragging: false
+
     source: pieceImage
 
     transform: [
@@ -22,6 +26,7 @@ Image {
 
             Behavior on y {
                 enabled: !myPieceImage.isCastlingRook && !castlingRookAnimation.running
+                    && !myPieceImage.dragging
                 NumberAnimation {
                     easing.type: Easing.OutExpo
                     duration: GameModel.animationDelay
@@ -29,6 +34,7 @@ Image {
             }
             Behavior on x {
                 enabled: !myPieceImage.isCastlingRook && !castlingRookAnimation.running
+                    && !myPieceImage.dragging
                 NumberAnimation {
                     easing.type: Easing.OutExpo
                     duration: GameModel.animationDelay
@@ -50,6 +56,25 @@ Image {
         }
     ]
 
+    function lift(): void {
+        dragging = true
+    }
+
+    // Draws the piece with its top left corner here, in the layer.
+    function dragTo(x: real, y: real): void {
+        myTranslation.x = x
+        myTranslation.y = y
+    }
+
+    // The model decides where the piece belongs, and restoring the
+    // bindings animates it there: to its new square, or back home when
+    // the move was refused.
+    function drop(): void {
+        dragging = false
+        rebindX()
+        rebindY()
+    }
+
     SequentialAnimation {
         id: castlingRookAnimation
         running: false
@@ -70,6 +95,12 @@ Image {
     function rebindX(): void {
         myTranslation.x = Qt.binding(
             function(): real { return myPieceImage.column * BoardDimensions.squareSize }
+        )
+    }
+
+    function rebindY(): void {
+        myTranslation.y = Qt.binding(
+            function(): real { return myPieceImage.row * BoardDimensions.squareSize }
         )
     }
 

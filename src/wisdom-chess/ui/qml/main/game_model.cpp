@@ -343,6 +343,13 @@ GameModel::needsPawnPromotion (
     return GameViewModelBase::needsPawnPromotion (src_row, src_column, dst_row, dst_column);
 }
 
+auto
+GameModel::canMoveFrom (int row, int column)
+    -> bool
+{
+    return GameViewModelBase::canMoveFrom (row, column);
+}
+
 void GameModel::pause()
 {
     my_paused.store (true);

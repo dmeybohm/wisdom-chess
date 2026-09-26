@@ -108,6 +108,7 @@ public:
         int dst_row,
         int dst_column
     );
+    Q_INVOKABLE bool canMoveFrom (int row, int column);
     Q_INVOKABLE void restart();
 
     Q_INVOKABLE void pause();

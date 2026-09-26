@@ -51,6 +51,12 @@ namespace wisdom::ui
         isLegalMove (Move selectedMove) const
             -> bool;
 
+        // Whether the square holds a piece the human whose turn it is
+        // could pick up: the move itself is not checked.
+        [[nodiscard]] auto
+        canMoveFrom (int row, int col) const
+            -> bool;
+
         [[nodiscard]] auto
         inCheck() const
             -> bool;
