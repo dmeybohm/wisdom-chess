@@ -71,8 +71,13 @@ signals:
     // The engine made a move.
     void engineMoved (wisdom::Move move, wisdom::Color who, int gameId);
 
-    // There are no available moves.
+    // The game is over: the engine accepted a draw.
     void noMovesAvailable();
+
+    // A search ended without a move because it was cancelled, by a new
+    // game, a settings change or a pause. Whatever cancelled it starts
+    // the next search.
+    void searchInterrupted();
 
     // Send draw response:
     void updateDrawStatus (
@@ -89,6 +94,11 @@ private:
     wisdom::TranspositionTable my_transposition_table;
 
     bool my_is_game_over = false;
+
+    // A move was sent to the GUI and has not been shown yet. Every path
+    // into init() waits for it, so at most one engine move is ever
+    // outstanding, which is what the GUI's single held-move slot needs.
+    bool my_move_awaiting_gui = false;
 
     // Identify games so that signals from them can be filtered due to being async.
     int my_game_id;

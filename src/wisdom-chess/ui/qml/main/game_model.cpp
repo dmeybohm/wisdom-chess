@@ -36,7 +36,11 @@ GameModel::GameModel (QObject* parent)
 GameModel::~GameModel()
 {
     stopEngineThread();
-    delete my_chess_engine_thread;
+
+    // On the web the thread is not joined, and deleting a running QThread
+    // is fatal. The page is going away with it anyway.
+    if (!my_chess_engine_thread->isRunning())
+        delete my_chess_engine_thread;
 }
 
 auto
@@ -67,8 +71,6 @@ void GameModel::init()
 
 void GameModel::setupNewEngineThread()
 {
-    delete my_chess_engine_thread;
-
     // Initialize a new Game for the chess engine.
     // Any changes in the game config will be updated over a signal.
     auto computer_chess_game = my_chess_game->clone();
@@ -98,6 +100,9 @@ void GameModel::setupNewEngineThread()
     // If the engine finds no moves available, check whether the game is over.
     connect (chess_engine, &ChessEngine::noMovesAvailable,
              this, [this]() { updateDisplayedGameState(); });
+
+    connect (chess_engine, &ChessEngine::searchInterrupted,
+             this, []() { qDebug() << "The engine's search was interrupted."; });
 
     // Connect the engine's move back to itself in case it's playing itself:
     // (it will return early if it's not)
@@ -223,6 +228,10 @@ GameModel::engineThreadMoved (
         showEngineMove (move, who);
         return;
     }
+
+    // The engine does not search again until the move it sent is shown,
+    // so a second move can never arrive while one is held.
+    expects (!my_held_move.has_value());
 
     my_held_move = HeldMove { move, who, game_id };
     my_hold_timer.start (remaining);

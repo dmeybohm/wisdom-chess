@@ -202,8 +202,15 @@ Why it stays correct:
   search from `GameModel::engineMoved`, through
   `ChessEngine::receiveEngineMoved`, and that signal is now emitted when
   the move is shown.
-- For the same reason only one engine move can be outstanding, so one held
-  slot is enough.
+- Only one engine move can be outstanding, so one held slot is enough.
+  That is not because `receiveEngineMoved` is the only way into a search:
+  `ChessEngine::init()` also runs when the thread starts, on every
+  settings change, on a new game and on unpause, and with two engine
+  players each of those would have started a search while a move was
+  still held, overwriting it (`review-fixes.md`, finding 21). Instead
+  `ChessEngine` records that a move is awaiting the GUI and refuses to
+  search until `receiveEngineMoved` clears it, and `engineThreadMoved`
+  checks with `expects` that the slot is free.
 - The human cannot move during a hold. The GUI's `Game` still has the
   engine to move, and `ChessGame::isLegalMove` rejects a move then.
 - A pause (an open menu or dialog) does not interact. A held move is shown

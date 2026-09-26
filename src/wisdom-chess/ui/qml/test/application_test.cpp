@@ -1,7 +1,10 @@
+#include <vector>
+#include <algorithm>
 #include <QSignalSpy>
 #include <QTest>
 
 #include "application_fixture.hpp"
+#include "wisdom-chess/engine/generate.hpp"
 
 using wisdom::Color;
 using wisdom::ColoredPiece;
@@ -31,6 +34,49 @@ private slots:
         my_app.reset();
 
         QVERIFY2( warnings.isEmpty(), qPrintable (warnings.join (QLatin1Char ('\n'))) );
+    }
+
+    // With both sides played by the engine, a move can arrive while the
+    // one before it is still held for its animation. A settings change in
+    // that window used to start a third search that overwrote the held
+    // move, so the GUI's board silently fell behind the engine's. Every
+    // move shown must replay legally from the start position.
+    void engineAgainstEngineShowsEveryMoveInOrder()
+    {
+        std::vector<wisdom::Move> shown;
+        QObject::connect (&my_app->game_model, &GameModel::engineMoved,
+            [&shown] (wisdom::Move move, wisdom::Color, int) { shown.push_back (move); });
+
+        my_app->changeGameSetting ("maxDepth", 1);
+        my_app->changeGameSetting ("maxSearchTime", 1);
+        my_app->game_model.setAnimationDelay (200);
+
+        auto settings = my_app->game_model.cloneGameSettings();
+        const auto& meta_object = GameSettings::staticMetaObject;
+        for (const char* side : { "whitePlayer", "blackPlayer" })
+        {
+            auto property = meta_object.property (meta_object.indexOfProperty (side));
+            property.writeOnGadget (&settings, QVariant::fromValue (wisdom::ui::Player::Computer));
+        }
+        my_app->game_model.setGameSettings (settings);
+
+        // The reply to the first move is held while that move animates.
+        // Changing a setting now used to start the extra search.
+        QTRY_VERIFY_WITH_TIMEOUT( my_app->game_model.isHoldingAMove(), 5000 );
+        my_app->changeGameSetting ("maxSearchTime", 2);
+
+        QTRY_VERIFY_WITH_TIMEOUT( shown.size() >= 6, 10000 );
+        my_app->makeBothPlayersHuman();
+
+        auto game = wisdom::Game::createStandardGame();
+        for (auto move : shown)
+        {
+            auto legal = wisdom::generateLegalMoves (game.getBoard(), game.getCurrentTurn());
+            QVERIFY2( std::find (legal.begin(), legal.end(), move) != legal.end(),
+                      qPrintable (QString::fromStdString (wisdom::asString (move))) );
+            game.move (move);
+        }
+        QVERIFY( my_app->piecesMatchTheBoard() );
     }
 
     // Every test here ends by destroying a GameModel whose engine thread

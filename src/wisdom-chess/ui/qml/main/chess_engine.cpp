@@ -63,7 +63,9 @@ ChessEngine::receiveEngineMoved (
 ) {
     if (gameId == this->my_game_id)
     {
-        // Do another move if the engine is hooked up to itself:
+        // The GUI has shown the move. Do another if the engine is hooked
+        // up to itself:
+        my_move_awaiting_gui = false;
         init();
     }
 }
@@ -109,7 +111,7 @@ void ChessEngine::findMove()
 {
     auto game_state = my_game->state();
 
-    if (my_is_game_over)
+    if (my_is_game_over || my_move_awaiting_gui)
     {
         return;
     }
@@ -132,17 +134,17 @@ void ChessEngine::findMove()
     my_logger->debug ("Searching for move");
     auto optionalMove = game_state->findBestMove (my_logger, &my_transposition_table);
 
-    // TODO: we could have timed out or the thread was interrupted, and we should distinguish
-    // between these two cases. If we couldn't find any move in the time, should select a move
-    // at random, and otherwise exit.
+    // The game was playing, so there was a legal move; the search comes
+    // back empty only when it was cancelled before finishing a root move.
     if (optionalMove.has_value())
     {
         game_state->move (*optionalMove);
+        my_move_awaiting_gui = true;
         emit engineMoved (*optionalMove, who, my_game_id);
     }
     else
     {
-        emit noMovesAvailable();
+        emit searchInterrupted();
     }
 }
 
@@ -207,6 +209,7 @@ void ChessEngine::reloadGame (shared_ptr<ChessGame> newGame, int newGameId)
     my_game = std::move (newGame);
     my_game_id = newGameId;
     my_is_game_over = false;
+    my_move_awaiting_gui = false;
     my_transposition_table.clear();
     syncDebugLogging();
 
