@@ -85,7 +85,7 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
 
     - name: Cache CPM downloads
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ~/cpm-cache
         key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
@@ -151,7 +151,7 @@ jobs:
         cache: true
 
     - name: Cache CPM downloads
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ~/cpm-cache
         key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
@@ -200,7 +200,7 @@ jobs:
 
     - name: Cache FIL-C installation
       id: cache-filc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: filc-${{ env.FILC_VERSION }}-linux-x86_64
         key: filc-${{ env.FILC_VERSION }}-linux-x86_64
@@ -256,7 +256,7 @@ jobs:
         cache: true
 
     - name: Cache CPM downloads
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ~/cpm-cache
         key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}

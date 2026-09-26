@@ -65,7 +65,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Cache CPM downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/cpm-cache
           key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
