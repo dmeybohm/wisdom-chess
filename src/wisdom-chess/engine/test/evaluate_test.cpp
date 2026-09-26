@@ -375,17 +375,6 @@ TEST_CASE( "Castling penalty" )
     }
 }
 
-TEST_CASE( "DrawCategory" )
-{
-    CHECK( !static_cast<bool> (DrawCategory { DrawCategory::NoDraw }) );
-    CHECK( static_cast<bool> (DrawCategory { DrawCategory::InsufficientMaterial }) );
-    CHECK( static_cast<bool> (DrawCategory { DrawCategory::ByRepetition }) );
-    CHECK( static_cast<bool> (DrawCategory { DrawCategory::ByNoProgress }) );
-
-    CHECK( DrawCategory { DrawCategory::ByRepetition } == DrawCategory::ByRepetition );
-    CHECK( DrawCategory { DrawCategory::ByRepetition } != DrawCategory::ByNoProgress );
-}
-
 TEST_CASE( "isProbablyDrawingMove" )
 {
     auto shuffle_knights = [] (Game& game, int times)

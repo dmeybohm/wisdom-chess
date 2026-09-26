@@ -311,10 +311,8 @@ TEST_CASE( "Positions cannot be committed while tentative positions are pending"
     history.addTentativePosition (board);
 
     CHECK_THROWS_AS( history.addPosition (board, move), PreconditionError );
-    CHECK_THROWS_AS( history.removeLastPosition(), PreconditionError );
 
     history.removeLastTentativePosition();
 
     CHECK_NOTHROW( history.addPosition (board, move) );
-    CHECK_NOTHROW( history.removeLastPosition() );
 }

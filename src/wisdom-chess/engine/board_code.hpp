@@ -256,10 +256,6 @@ namespace wisdom
 
         void applyMove (const Board& board, Move move) noexcept;
 
-        [[nodiscard]] auto
-        numberOfSetBits() const
-            -> std::size_t;
-
     private:
         // Private and only used for initialization.
         BoardCode();

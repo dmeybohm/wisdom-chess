@@ -284,11 +284,6 @@ namespace wisdom
             case MoveCategory::Castling:
                 applyForCastlingMove (move, src, dst);
                 break;
-
-            default:
-                throw Error {
-                    "Invalid move category: " + std::to_string (static_cast<int>(move.getMoveCategory()))
-                };
         }
 
         updateEnPassantEligibility (who, src_piece, move);
@@ -407,8 +402,6 @@ namespace wisdom
 
         string dst_coord { tmp.substr (offset, 2) };
         offset += 2;
-        if (dst_coord.empty())
-            return nullopt;
 
         optional<Coord> dst;
         try
@@ -561,18 +554,16 @@ namespace wisdom
         switch (pieceType (src_piece))
         {
             case Piece::Pawn:
-                // look for en passant:
-                if (pieceType (src_piece) == Piece::Pawn)
-                {
-                    optional<int> eligible_column
-                        = eligibleEnPassantColumn (board, src.row(), src.column(), who);
-                    if (eligible_column.has_value() && eligible_column == dst.column())
-                        return Move::makeEnPassant (src, dst);
+            {
+                optional<int> eligible_column
+                    = eligibleEnPassantColumn (board, src.row(), src.column(), who);
+                if (eligible_column.has_value() && eligible_column == dst.column())
+                    return Move::makeEnPassant (src, dst);
 
-                    if (needPawnPromotion (dst.row<int>(), who) && promoted_piece.has_value())
-                        return move.withPromotion (*promoted_piece);
-                }
+                if (needPawnPromotion (dst.row<int>(), who) && promoted_piece.has_value())
+                    return move.withPromotion (*promoted_piece);
                 break;
+            }
 
             // look for castling
             case Piece::King:

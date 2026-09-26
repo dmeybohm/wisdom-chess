@@ -82,14 +82,14 @@ namespace wisdom
             return hasBeenXHalfMovesWithoutProgress (board, 100);
         }
 
-        [[nodiscard]] bool isThirdRepetition (const Board& board) const;
+        [[nodiscard]] auto isThirdRepetition (const Board& board) const -> bool;
 
-        [[nodiscard]] bool isFifthRepetition (const Board& board) const;
+        [[nodiscard]] auto isFifthRepetition (const Board& board) const -> bool;
 
-        [[nodiscard]] bool isProbablyThirdRepetition (const Board& board) const;
-        [[nodiscard]] bool isCertainlyThirdRepetition (const Board& board) const;
-        [[nodiscard]] bool isProbablyFifthRepetition (const Board& board) const;
-        [[nodiscard]] bool isCertainlyFifthRepetition (const Board& board) const;
+        [[nodiscard]] auto isProbablyThirdRepetition (const Board& board) const -> bool;
+        [[nodiscard]] auto isCertainlyThirdRepetition (const Board& board) const -> bool;
+        [[nodiscard]] auto isProbablyFifthRepetition (const Board& board) const -> bool;
+        [[nodiscard]] auto isCertainlyFifthRepetition (const Board& board) const -> bool;
 
         [[nodiscard]] auto 
         isProbablyNthRepetition (const Board& board, int repetition_count) const
@@ -140,14 +140,6 @@ namespace wisdom
             expects (my_tentative_nesting_count == 0);
             my_stored_boards.back() = board;
             my_board_codes.back() = board.getBoardCode();
-        }
-
-        void removeLastPosition()
-        {
-            expects (my_tentative_nesting_count == 0);
-            my_stored_boards.pop_back();
-            my_board_codes.pop_back();
-            my_move_history.pop_back();
         }
 
         [[nodiscard]] auto 

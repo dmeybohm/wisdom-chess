@@ -91,7 +91,6 @@ namespace wisdom
         int8_t row = translated_pos.row();
         int8_t col = translated_pos.column();
 
-        // todo convert enum to integer index instead of using switch.
         switch (pieceType (piece))
         {
             case Piece::Pawn:
@@ -177,9 +176,6 @@ namespace wisdom
                     this->add (who, rook_move.getDst(), rook);
                 }
                 break;
-
-            default:
-                throw Error { "Invalid move type." };
         }
 
         ColoredPiece new_piece = move.isPromoting()

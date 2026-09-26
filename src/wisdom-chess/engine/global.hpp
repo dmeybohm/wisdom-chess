@@ -28,11 +28,6 @@
 #include <gsl/gsl>
 #include <gsl/narrow>
 
-namespace doctest
-{
-    class String;
-}
-
 namespace wisdom
 {
     using zstring = gsl::zstring;
@@ -89,6 +84,12 @@ namespace wisdom
     // Where the color is vulnerable to en passant:
     inline constexpr int White_En_Passant_Row = 5;
     inline constexpr int Black_En_Passant_Row = 2;
+
+    // Where a pawn starts, and the row it must stand on to capture en passant.
+    inline constexpr int White_Pawn_Start_Row = 6;
+    inline constexpr int Black_Pawn_Start_Row = 1;
+    inline constexpr int White_Pawn_En_Passant_Capture_Row = 3;
+    inline constexpr int Black_Pawn_En_Passant_Capture_Row = 4;
 
     inline constexpr int Kingside_Castled_King_Column = 6;
     inline constexpr int Queenside_Castled_King_Column = 2;

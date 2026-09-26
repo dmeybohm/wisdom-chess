@@ -56,18 +56,6 @@ namespace wisdom
         }
 
         constexpr void
-        push_back (Move move) noexcept
-        {
-            append (move);
-        }
-
-        constexpr void
-        pop_back() noexcept
-        {
-            removeLast();
-        }
-
-        constexpr void
         append (Move move) noexcept
         {
             noexcept_expects (my_size < Max_Move_List_Size);
@@ -116,13 +104,6 @@ namespace wisdom
         end() noexcept
         {
             return my_moves.begin() + my_size;
-        }
-
-        [[nodiscard]] constexpr auto
-        empty() const noexcept
-            -> bool
-        {
-            return isEmpty();
         }
 
         [[nodiscard]] constexpr auto

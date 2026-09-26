@@ -80,7 +80,7 @@ namespace wisdom
     }
 
     // Copy assignment
-    Game& Game::operator= (const Game& other)
+    auto Game::operator= (const Game& other) -> Game&
     {
         if (this != &other)
         {
@@ -93,7 +93,7 @@ namespace wisdom
     Game::Game (Game&& other) noexcept = default;
 
     // Move assignment
-    Game& Game::operator= (Game&& other) noexcept
+    auto Game::operator= (Game&& other) noexcept -> Game&
     {
         if (this != &other)
         {

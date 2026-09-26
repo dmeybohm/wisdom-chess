@@ -166,7 +166,7 @@ namespace wisdom
     )
         -> int
     {
-        if (isProbablyDrawingMove (parent_board, my_history))
+        if (isProbablyDrawingMove (parent_board, my_history) != DrawCategory::NoDraw)
         {
             my_draw_nodes++;
             return drawingScore (my_searching_color, side);
@@ -287,7 +287,8 @@ namespace wisdom
         -> int
     {
         // The main search has already checked the first node for a draw.
-        if (quiescence_ply > 0 && isProbablyDrawingMove (board, my_history))
+        if (quiescence_ply > 0
+            && isProbablyDrawingMove (board, my_history) != DrawCategory::NoDraw)
         {
             my_draw_nodes++;
             return drawingScore (my_searching_color, side);

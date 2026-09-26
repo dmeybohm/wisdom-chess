@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <bit>
 #include <iostream>
 #include <set>
 #include <sstream>
@@ -12,6 +13,13 @@
 #include "wisdom-chess-tests.hpp"
 
 using namespace wisdom;
+
+static auto
+numberOfSetBits (const BoardCode& code)
+    -> int
+{
+    return std::popcount (code.getHashCode());
+}
 
 TEST_CASE( "board code" )
 {
@@ -46,7 +54,7 @@ TEST_CASE( "board code" )
     {
         BoardCode code = BoardCode::fromDefaultPosition();
 
-        auto num_ones = code.numberOfSetBits();
+        auto num_ones = numberOfSetBits (code);
 
         CHECK( num_ones < 64 );  // ... some number less than all the bits.
     }
@@ -64,7 +72,7 @@ TEST_CASE( "board code" )
         BoardCode code  = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.numberOfSetBits() > 0 );
+        REQUIRE( numberOfSetBits (initial) > 0 );
 
         Move a8xb7 = moveParse ("a8xb7");
         code.applyMove (brd, a8xb7);
@@ -85,7 +93,7 @@ TEST_CASE( "board code" )
         BoardCode code = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.numberOfSetBits() > 0 );
+        REQUIRE( numberOfSetBits (initial) > 0 );
 
         Move b7b8_Q = moveParse ("b7b8_Q (Q)");
         code.applyMove (brd, b7b8_Q);
@@ -106,7 +114,7 @@ TEST_CASE( "board code" )
         BoardCode code  = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.numberOfSetBits() > 0 );
+        REQUIRE( numberOfSetBits (initial) > 0 );
 
         Move castle_queenside = moveParse ("o-o-o", Color::Black);
         code.applyMove (brd, castle_queenside);
@@ -127,7 +135,7 @@ TEST_CASE( "board code" )
         BoardCode code = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.numberOfSetBits() > 0 );
+        REQUIRE( numberOfSetBits (initial) > 0 );
 
         Move promote_castle_move = moveParse ("b7xa8 (Q)", Color::Black);
         REQUIRE( promote_castle_move.isPromoting() );
