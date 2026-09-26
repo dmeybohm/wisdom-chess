@@ -48,13 +48,16 @@ cache warm, checkout and CPM cache are a few seconds.
   branches were pushed at 17:10, `lint` jobs queued for 3 to 4 min before
   their dependent builds could start, and installer jobs waited 1 to
   3 min. `needs: lint` turns that queueing into a delay on every build.
-- Release and RelWithDebInfo compile the same `NDEBUG` code, at `-O3`
-  and at `-O2` with debug info. Building both on every native platform
-  adds no coverage. RelWithDebInfo is what ships: the React WASM build
-  deployed to Netlify uses it (`scripts/build-react-wasm.sh`), and the
-  `sanitizers` job builds it with Clang. Release is still compiled on
-  every PR by the Qt WASM build (`scripts/build-qml-wasm.sh`) and by the
-  installers when their paths change.
+- Release and RelWithDebInfo both define `NDEBUG`. For GCC and Clang,
+  `CMakeLists.txt` replaces RelWithDebInfo's default `-O2` with `-O3`,
+  matching Release optimization while retaining debug info. MSVC uses
+  its own configuration flags. A dedicated Ubuntu Release job still
+  tests that configuration, so repeating it on every platform adds
+  little coverage. The React WASM build deployed to Netlify uses
+  RelWithDebInfo (`scripts/build-react-wasm.sh`), and the `sanitizers`
+  job builds it with Clang. Release is still compiled on every PR by
+  the Qt WASM build (`scripts/build-qml-wasm.sh`) and by the installers
+  when their paths change.
 - `web.yml`'s `lint` is a copy of `cmake.yml`'s.
 
 ## Decisions
@@ -131,3 +134,8 @@ layout.
   longest job by 26 s over `sanitizers`. The workflow's wall clock is
   5m52s, the same as before the change (5m49s and 5m46s). Left as is;
   if it grows, split FIL-C back out into its own job.
+
+### Session 2 (2026-09-26)
+
+- Corrected the build-type rationale to reflect the project's `-O3`
+  override for GCC and Clang RelWithDebInfo builds.
