@@ -62,5 +62,5 @@ Promise.all([
 function afterWisdomChessModuleLoaded(WisdomChessWeb) {
 	window.wisdomChessWeb = WisdomChessWeb
 	window.wisdomChessGameModel = new WisdomChessWeb.GameModel()
-	window.startReact(window)
+	window.startReact()
 }

@@ -195,6 +195,14 @@ describe('App', () => {
         )
     })
 
+    it('shows the overlay behind a draw dialog', () => {
+        vi.mocked(mockGame.getGameStatus).mockReturnValue(mockWisdomChess.ThreefoldRepetitionReached)
+
+        render(<App />)
+
+        expect(document.querySelector('.modal-overlay')).not.toBeNull()
+    })
+
     it('pauses the game when a modal is open', async () => {
         const user = userEvent.setup()
         render(<App />)
@@ -259,7 +267,7 @@ describe('Engine interface', () => {
         wisdomWindow.receiveWorkerMessage = vi.fn()
     })
 
-    it('reads the settings once and frees them, however often the app renders', async () => {
+    it('reads the settings when the settings dialog opens and frees them', async () => {
         const user = userEvent.setup()
         const wasmSettings = {
             whitePlayer: wasmEnums.Human,
@@ -272,7 +280,9 @@ describe('Engine interface', () => {
 
         render(<App />)
         await user.click(screen.getByText('About'))
+        expect(mockGameModel.getCurrentGameSettings).not.toHaveBeenCalled()
 
+        await user.click(screen.getByText('Settings'))
         expect(mockGameModel.getCurrentGameSettings).toHaveBeenCalledTimes(1)
         expect(mockWisdomChess.destroy).toHaveBeenCalledWith(wasmSettings)
     })
@@ -327,6 +337,34 @@ describe('Engine interface', () => {
         expect(mockGame.makeHumanMove).not.toHaveBeenCalled()
     })
 
+    it('closes the promotion dialog once the piece is chosen', async () => {
+        const user = userEvent.setup()
+        placeWhitePawnOnE2()
+        vi.mocked(mockGame.needsPawnPromotion).mockReturnValue(true)
+
+        render(<App />)
+        await user.click(document.querySelector('.piece.e2')!)
+        await clickSquare(user, 36)
+        const queen = () => document.querySelector('.pawn-promotion-dialog__piece')!
+        await user.click(queen())
+        await user.click(queen())
+
+        expect(mockGame.makeHumanMove).toHaveBeenCalledWith('e2', 'e4', mockWisdomChess.Queen)
+        expect(document.querySelector('.pawn-promotion-dialog')).toBeNull()
+    })
+
+    it('clears the selected square after a click move', async () => {
+        const user = userEvent.setup()
+        placeWhitePawnOnE2()
+
+        render(<App />)
+        await user.click(document.querySelector('.piece.e2')!)
+        expect(document.querySelector('.piece.e2.focused')).not.toBeNull()
+        await clickSquare(user, 36)
+
+        expect(document.querySelector('.focused')).toBeNull()
+    })
+
     it('passes a computer move to the game as text', () => {
         render(<App />)
 
@@ -345,6 +383,24 @@ describe('Engine interface', () => {
         expect(mockGame.makeComputerMove).not.toHaveBeenCalled()
     })
 
+    it('drops a throttled search request when the app unmounts', () => {
+        vi.useFakeTimers()
+        try {
+            const { unmount } = render(<App />)
+            const onMessage = vi.mocked(wisdomWindow.setReceiveWorkerMessageCallback).mock.calls[0][0]
+            act(() => onMessage('computerMoved', 0, 'e2 e4'))
+            act(() => onMessage('computerMoved', 0, 'e7 e5'))
+            expect(mockGameModel.notifyComputerMove).toHaveBeenCalledTimes(1)
+
+            unmount()
+            vi.advanceTimersByTime(1000)
+
+            expect(mockGameModel.notifyComputerMove).toHaveBeenCalledTimes(1)
+        } finally {
+            vi.useRealTimers()
+        }
+    })
+
     it('frees the settings object built when settings are applied', async () => {
         const user = userEvent.setup()
         render(<App />)
@@ -355,6 +411,24 @@ describe('Engine interface', () => {
         const wasmSettings = vi.mocked(mockWisdomChess.GameSettings).mock.instances[0]
         expect(mockGameModel.setCurrentGameSettings).toHaveBeenCalledWith(wasmSettings)
         expect(mockWisdomChess.destroy).toHaveBeenCalledWith(wasmSettings)
+    })
+
+    it('applies the choices made in the settings dialog', async () => {
+        const user = userEvent.setup()
+        render(<App />)
+
+        await user.click(screen.getByText('Settings'))
+        await user.click(screen.getAllByLabelText('Computer')[0])
+        await user.click(screen.getAllByLabelText('Human')[1])
+        await user.click(document.querySelector('input[name="debugLogging"]')!)
+        await user.click(document.querySelector('input[name="flipped"]')!)
+        await user.click(screen.getByText('Apply'))
+
+        const wasmSettings = vi.mocked(mockWisdomChess.GameSettings).mock.instances[0]
+        expect(wasmSettings.whitePlayer).toBe(mockWisdomChess.ChessEngine)
+        expect(wasmSettings.blackPlayer).toBe(mockWisdomChess.Human)
+        expect(wasmSettings.debugLogging).toBe(true)
+        expect(document.querySelector('.board.flipped')).not.toBeNull()
     })
 })
 

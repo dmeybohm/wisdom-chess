@@ -12,7 +12,7 @@ import {
 let receiveWorkerMessageCallback: ReceiveWorkerMessageCallback | null = null
 let pending: Array<[ChessEngineEventType, number, string]> = []
 
-function startReact(window: ReactWindow) {
+function startReact() {
     const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
     root.render(
         <React.StrictMode>

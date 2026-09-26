@@ -8,18 +8,17 @@ import BlackRook from "./assets/Chess_rdt45.svg";
 import BlackBishop from "./assets/Chess_bdt45.svg";
 import BlackKnight from "./assets/Chess_ndt45.svg";
 
-import { PieceType, WisdomChess } from "./lib/WisdomChess";
+import { PieceColor, PieceType, WisdomChess } from "./lib/WisdomChess";
 import { useState } from "react";
 
 export type PromotablePiece = {
     type: PieceType,
-    icon: string[]
+    icon: [white: string, black: string]
 }
 
 type PawnPromotionDialogProps = {
     square: string
-    direction: number
-    color: number
+    color: PieceColor
     selectedPiece: (piece: PieceType) => void
 }
 
@@ -27,7 +26,7 @@ export default function PawnPromotionDialog(props: PawnPromotionDialogProps) {
     const wisdomChess = WisdomChess()
     const [selectedPiece, setSelectedPiece] = useState<PieceType>(wisdomChess.NoPiece)
 
-    const pieces = [
+    const pieces: PromotablePiece[] = [
         { type: wisdomChess.Queen, icon: [ WhiteQueen, BlackQueen ] },
         { type: wisdomChess.Rook, icon: [ WhiteRook, BlackRook ] },
         { type: wisdomChess.Bishop, icon: [ WhiteBishop, BlackBishop ] },
@@ -51,7 +50,7 @@ export default function PawnPromotionDialog(props: PawnPromotionDialogProps) {
             {pieces.map(piece => (
                 <div
                     key={piece.type}
-                    className={`pawn-promotion-dialog__piece ${selectedPiece === piece.type && 'selected'}`}
+                    className={`pawn-promotion-dialog__piece ${selectedPiece === piece.type ? 'selected' : ''}`}
                     onClick={() => handleSelectPiece(piece)}
                 >
                     <img

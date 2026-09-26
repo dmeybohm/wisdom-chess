@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import {WisdomChess, Game, PieceColor, pieceColorToString} from "./lib/WisdomChess";
+import React from 'react'
+import { PieceColor, pieceColorToString } from "./lib/WisdomChess";
 
 export interface StatusBarProps {
     currentTurn: PieceColor
@@ -8,51 +8,29 @@ export interface StatusBarProps {
     gameOverStatus: string
 }
 
-function splitMessageByStrong(message: string): string[] {
-    const regex = /^<strong>(.*)<\/strong>(.*)$/
-    const matches = message.match(regex)
-    if (matches && matches.length > 0) {
-        return [
-            matches[1],
-            matches[2]
-        ]
-    } else {
-        return ['', message]
-    }
-}
-
+// The engine marks bold text in its status messages with <strong> tags.
 function RenderStrongly(props: { message: string }) {
-    const [boldPrefix, rest] = splitMessageByStrong(props.message)
+    const parts = props.message.split(/<strong>(.*?)<\/strong>/)
     return (
         <>
-        {boldPrefix && <strong>{boldPrefix}</strong>}
-        {rest}
+        {parts.map((part, i) => i % 2 === 1 ? <strong key={i}>{part}</strong> : part)}
         </>
     )
 }
 
 function StatusBar(props: StatusBarProps) {
-    const gameStatus = `<strong>${pieceColorToString(props.currentTurn)}</strong> to move`
-    const moveStatus = props.moveStatus +
-        (
-            Boolean(props.moveStatus) && props.inCheck
-                ? " - " : ""
-        ) +
-        (
-            props.inCheck && !Boolean(props.gameOverStatus) ? "Check!" : ""
-        )
+    const check = props.inCheck && !props.gameOverStatus ? 'Check!' : ''
+    const moveStatus = [props.moveStatus, check].filter(Boolean).join(' - ')
 
     return (
         <div className="status-bar">
             <div>
-                {props.gameOverStatus ?
-                    (<RenderStrongly message={props.gameOverStatus} />) :
-                    (<RenderStrongly message={gameStatus} />)
+                {props.gameOverStatus
+                    ? <RenderStrongly message={props.gameOverStatus} />
+                    : <><strong>{pieceColorToString(props.currentTurn)}</strong> to move</>
                 }
             </div>
-            <div>
-                <RenderStrongly message={moveStatus} />
-            </div>
+            <div>{moveStatus}</div>
         </div>
     )
 }

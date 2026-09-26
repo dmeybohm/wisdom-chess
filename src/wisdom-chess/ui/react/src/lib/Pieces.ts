@@ -1,8 +1,8 @@
-export type Color = 'white' | 'black'
+import type { PieceColor } from './WisdomChess'
 
 export interface Piece {
     id: number
     icon: string
-    color: Color
+    color: PieceColor
     position: string
 }

@@ -6,7 +6,7 @@ type DrawDialogProps = {
     title: string
     onAccepted: () => void
     onDeclined: () => void
-    children: JSX.Element[] | JSX.Element
+    children: React.ReactNode
 }
 
 export function DrawDialog(props: DrawDialogProps) {

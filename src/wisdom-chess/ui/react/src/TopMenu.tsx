@@ -6,7 +6,7 @@ import "./TopMenu.css"
 interface TopMenuProps {
     aboutClicked: (event: React.SyntheticEvent) => void;
     newGameClicked: (event: React.SyntheticEvent) => void;
-    settingsClicked?: (event: React.SyntheticEvent) => void;
+    settingsClicked: (event: React.SyntheticEvent) => void;
 }
 
 interface ListMenuProps extends TopMenuProps {
@@ -25,7 +25,7 @@ function LogoAndBrand(props: LogoAndBrandProps) {
             ref={props.menuRef}
             onClick={props.toggleOpen}
             className={`wisdom-chess-logo ${props.isMobile ? 'is-mobile' : 'is-desktop'}`}>
-            <img src={WhiteRook} width={32} height={32} />
+            <img src={WhiteRook} alt="" width={32} height={32} />
             <div>
                 Wisdom Chess
             </div>
@@ -33,6 +33,7 @@ function LogoAndBrand(props: LogoAndBrandProps) {
                 <img
                     className="menu-arrow"
                     src={DownArrow}
+                    alt="Menu"
                     width={12}
                     height={12}
                 />
@@ -54,11 +55,11 @@ function Menu(props: ListMenuProps): JSX.Element {
 
 function TopMenu(props: TopMenuProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const menuRef : Ref<HTMLDivElement>|null = useRef(null)
+    const menuRef = useRef<HTMLDivElement>(null)
 
     const toggleOpen = (e: React.SyntheticEvent): void => {
         e.preventDefault()
-        setIsMenuOpen(!isMenuOpen)
+        setIsMenuOpen(open => !open)
     }
 
     useEffect(() => {
@@ -70,7 +71,7 @@ function TopMenu(props: TopMenuProps) {
 
         document.addEventListener('click', listener)
         return () => document.removeEventListener('click', listener)
-    }, [isMenuOpen])
+    }, [])
 
     const listMenuProps = {
         ...props,

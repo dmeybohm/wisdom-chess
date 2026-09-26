@@ -1,12 +1,15 @@
 import React from 'react'
 
 interface ModalProps {
-    children: JSX.Element[] | JSX.Element;
+    children: React.ReactNode
 }
 
 const Modal = (props: ModalProps): JSX.Element => {
     return (
-        <div className="modal">{props.children}</div>
+        <>
+            <div className="modal-overlay"></div>
+            <div className="modal">{props.children}</div>
+        </>
     );
 }
 

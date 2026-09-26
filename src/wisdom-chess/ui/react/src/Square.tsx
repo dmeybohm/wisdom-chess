@@ -3,7 +3,6 @@ import "./Board.css";
 import { Piece } from "./lib/Pieces";
 import { useDrag, useDrop } from 'react-dnd';
 import {
-    fromColorToNumber,
     getCurrentGame,
     WisdomChess,
     PieceColor
@@ -21,20 +20,16 @@ type DroppedWithPosition = {
 }
 
 export function Square(props: SquareProps) {
-    const [{isOver}, drop] = useDrop({
+    const [, drop] = useDrop({
         accept: 'piece',
         drop: (dropped) => {
             props.onDropPiece((dropped as DroppedWithPosition).src, props.position)
         },
-        collect: (monitor) => ({
-            isOver: monitor.isOver(),
-            canDrop: monitor.canDrop(),
-        })
     })
     return (
         <div
             ref={drop}
-            className={`square ${props.isOddRow ? "odd" : ""} `}
+            className={`square ${props.isOddRow ? "odd" : ""}`}
             onClick={() => {
                 props.onClick(props.position)
             }}
@@ -58,25 +53,21 @@ export function PieceOverlay(props: PieceOverlayProps) {
     const [{isDragging}, drag, preview] = useDrag({
         type: 'piece',
         item: { src: props.piece.position },
-        canDrag: monitor => {
+        canDrag: () => {
             const game = getCurrentGame()
-            const pieceColor = fromColorToNumber(props.piece.color)
-            return pieceColor === props.currentTurn &&
-                game.getPlayerOfColor(pieceColor) === wisdomChess.Human
+            return props.piece.color === props.currentTurn &&
+                game.getPlayerOfColor(props.piece.color) === wisdomChess.Human
         },
         collect: monitor => ({
             isDragging: monitor.isDragging(),
         }),
     }, [props.piece.position, props.currentTurn])
 
-    const [{isOver}, drop] = useDrop({
+    const [, drop] = useDrop({
         accept: 'piece',
         drop: (dropped) => {
             props.onDropPiece((dropped as DroppedWithPosition).src, props.piece.position)
         },
-        collect: (monitor) => ({
-            isOver: monitor.isOver(),
-        })
     }, [props.piece.position])
 
     const focused = props.piece.position === props.focusedSquare ? 'focused' : ''

@@ -1,5 +1,4 @@
-import { initialSquares } from './Squares'
-import { Color, Piece } from "./Pieces";
+import { Piece } from "./Pieces";
 import type WisdomChessModule from './wisdom-chess-module'
 
 import WhitePawn from "../assets/Chess_plt45.svg";
@@ -21,7 +20,7 @@ export type ReceiveWorkerMessageCallback =
     (type: ChessEngineEventType, gameId: number, message: string) => void;
 
 export interface ReactWindow {
-    startReact: (window: ReactWindow) => void
+    startReact: () => void
     receiveWorkerMessage: ReceiveWorkerMessageCallback
     setReceiveWorkerMessageCallback: (callback: ReceiveWorkerMessageCallback) => void
 }
@@ -32,19 +31,6 @@ export type WebGameSettings = {
     thinkingTime: number
     searchDepth: number
     debugLogging: boolean
-}
-
-export type GameState = {
-    pieces: Piece[]
-    squares: typeof initialSquares
-    focusedSquare: string
-    pawnPromotionDialogSquare: string
-    lastDroppedSquare: string
-    gameStatus: GameStatus
-    moveStatus: string
-    gameOverStatus: string
-    settings: WebGameSettings
-    hasHumanPlayer: boolean
 }
 
 // The module and its classes and enums, as described by the IDL:
@@ -136,7 +122,7 @@ export function WisdomChess(): WisdomChess {
 
 function mapPieceToIcon(piece: ColoredPiece): string {
     const wisdomChess = WisdomChess()
-    const isWhite = fromNumberToColor(piece.color) === 'white'
+    const isWhite = piece.color === wisdomChess.White
     switch (piece.piece) {
         case wisdomChess.Pawn: return isWhite ? WhitePawn : BlackPawn
         case wisdomChess.Knight: return isWhite ? WhiteKnight : BlackKnight
@@ -145,24 +131,6 @@ function mapPieceToIcon(piece: ColoredPiece): string {
         case wisdomChess.Queen: return isWhite ? WhiteQueen : BlackQueen
         case wisdomChess.King: return isWhite ? WhiteKing : BlackKing
         default: throw new Error("invalid piece type")
-    }
-}
-
-function fromNumberToColor(color: PieceColor): Color {
-    const wisdomChess = WisdomChess()
-    switch (color) {
-        case wisdomChess.White: return 'white'
-        case wisdomChess.Black: return 'black'
-        default: throw new Error("Invalid color")
-    }
-}
-
-export function fromColorToNumber(color: string): PieceColor {
-    const wisdomChess = WisdomChess()
-    switch (color) {
-        case 'white': return wisdomChess.White
-        case 'black': return wisdomChess.Black
-        default: throw new Error("Invalid color")
     }
 }
 
@@ -185,7 +153,7 @@ export function getPieces(game: Game): Piece[] {
        const newPiece : Piece = {
            id: piece.id,
            icon: mapPieceToIcon(piece),
-           color: fromNumberToColor(piece.color),
+           color: piece.color,
            position: fromRowAndColToStringCoord(piece.row, piece.col)
        }
        result.push(newPiece)

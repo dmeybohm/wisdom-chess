@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useReducer, useRef, useCallback, useState } from 'react'
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import './App.css'
 import Board from './Board'
 import TopMenu from './TopMenu'
@@ -18,26 +18,45 @@ import {
     PieceType,
     DrawByRepetitionType,
     ILLEGAL_MOVE,
-    fromColorToNumber,
     getWisdomWindow,
     ChessEngineEventType,
-    GameState,
+    Game,
+    GameStatus,
     WebGameSettings
 } from './lib/WisdomChess'
 import Modal from "./Modal";
-import {initialSquares} from "./lib/Squares";
-import { reducer } from './reducer'
+import { EngineSnapshot, initialState, reducer } from './reducer'
 
-function snapshotFromEngine() {
-    const game = getCurrentGame()
-    const gameModel = getGameModel()
+function snapshotFromEngine(game: Game): EngineSnapshot {
     const WC = WisdomChess()
     return {
         pieces: getPieces(game),
+        currentTurn: game.getCurrentTurn(),
+        inCheck: game.getInCheck(),
         gameStatus: game.getGameStatus(),
         moveStatus: game.getMoveStatus(),
         gameOverStatus: game.getGameOverStatus(),
-        hasHumanPlayer: gameModel.getFirstHumanPlayerColor() !== WC.NoColor,
+        hasHumanPlayer: getGameModel().getFirstHumanPlayerColor() !== WC.NoColor,
+    }
+}
+
+function drawOfferFor(gameStatus: GameStatus) {
+    const WC = WisdomChess()
+    switch (gameStatus) {
+        case WC.ThreefoldRepetitionReached:
+            return {
+                drawType: WC.ThreefoldRepetition,
+                title: 'Third Repetition Reached',
+                message: 'The same position was reached three times. Either player can declare a draw now.',
+            }
+        case WC.FiftyMovesWithoutProgressReached:
+            return {
+                drawType: WC.FiftyMovesWithoutProgress,
+                title: 'Fifty Moves Without Progress',
+                message: 'Fifty moves without any capture or pawn movement. Either player can declare a draw now.',
+            }
+        default:
+            return null
     }
 }
 
@@ -74,41 +93,34 @@ function throttle<T extends (...args: never[]) => void>(func: T, limit: number) 
 
 
 function App() {
-    // Engine refs (imperative, no re-renders)
     const gameRef = useRef(getCurrentGame())
-    const modelRef = useRef(getGameModel())
-    const wisdomChessRef = useRef(WisdomChess())
 
     const [flipped, setFlipped] = useState(false)
     const [showNewGame, setShowNewGame] = useState(false)
-    const [showSettings, setShowSettings] = useState(false)
+    const [settings, setSettings] = useState<WebGameSettings | null>(null)
     const [showAbout, setShowAbout] = useState(false)
+    const [answeredDraws, setAnsweredDraws] = useState<DrawByRepetitionType[]>([])
 
-    const [state, dispatch] = useReducer(reducer, null, () => ({
-        pieces: [],
-        squares: initialSquares,
-        focusedSquare: '',
-        pawnPromotionDialogSquare: '',
-        lastDroppedSquare: '',
-        gameStatus: WisdomChess().Playing,
-        gameOverStatus: '',
-        moveStatus: 'White to move',
-        settings: getCurrentGameSettings(),
-        hasHumanPlayer: false,
-    }))
+    const [state, dispatch] = useReducer(
+        reducer,
+        null,
+        () => initialState(snapshotFromEngine(gameRef.current)),
+    )
 
-    const currentTurn = gameRef.current.getCurrentTurn()
-    const inCheck = gameRef.current.getInCheck()
+    const sync = () => dispatch({ type: 'SYNC', snapshot: snapshotFromEngine(gameRef.current) })
 
-    // Bootstrap + engine message hookup:
+    // Throttled engine "computer vs computer" tick
+    const throttledComputerMove = useMemo(
+        () => throttle(() => getGameModel().notifyComputerMove(), 250),
+        [],
+    )
+    useEffect(() => () => throttledComputerMove.cancel(), [throttledComputerMove])
+
     useEffect(() => {
-        dispatch({ type: 'BOOTSTRAP', snapshot: snapshotFromEngine() })
-
         const w = getWisdomWindow()
         if (w.setReceiveWorkerMessageCallback) {
             const onMsg = (type: ChessEngineEventType, gameId: number, message: string) => {
                 const game = gameRef.current
-                const mod = wisdomChessRef.current
 
                 // Reject stale moves from previous games
                 if (gameId !== game.getGameId()) {
@@ -120,7 +132,6 @@ function App() {
                     case 'computerMoved': {
                         game.makeComputerMove(message)
                         throttledComputerMove()
-                        dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
                         break
                     }
                     case 'computerDrawStatusUpdated': {
@@ -130,83 +141,66 @@ function App() {
                             accepted: boolean
                         }
                         game.setComputerDrawStatus(params.draw_type, params.color, params.accepted)
-                        dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
                         break
                     }
                     default: {
                         console.error('Unknown message type', type)
+                        return
                     }
                 }
+                dispatch({ type: 'SYNC', snapshot: snapshotFromEngine(game) })
             }
             w.setReceiveWorkerMessageCallback(onMsg)
             return () => w.setReceiveWorkerMessageCallback(() => {})
         }
-    }, [])
-
-    // Throttled engine "computer vs computer" tick
-    const throttledComputerMove = useMemo(
-        () => throttle(() => modelRef.current.notifyComputerMove(), 250),
-        [],
-    )
+    }, [throttledComputerMove])
 
     // Modal Pausing
+    const anyModalOpen = showAbout || showNewGame || settings !== null
     useEffect(() => {
-        const anyOpen = [showAbout, showNewGame, showSettings].some(Boolean)
-        if (anyOpen) modelRef.current.sendPause()
-        else modelRef.current.sendUnpause()
-    }, [showAbout, showNewGame, showSettings])
+        if (anyModalOpen) getGameModel().sendPause()
+        else getGameModel().sendUnpause()
+    }, [anyModalOpen])
 
     // ----- UI Handlers → Engine adapter -----
 
-    const applyHumanMove = useCallback(
-        (src: string, dst: string, promote?: PieceType) => {
-            const game = gameRef.current
-            const mod = wisdomChessRef.current
-            const model = modelRef.current
+    function applyHumanMove(src: string, dst: string, promote?: PieceType) {
+        const game = gameRef.current
+        if (!src) return
 
-            if (!src) {
-                // Clear promotion dialog if any
-                dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
-                return
-            }
+        if (game.needsPawnPromotion(src, dst) && !promote) {
+            dispatch({ type: 'REQUEST_PROMOTION', src, dst })
+            return
+        }
 
-            if (game.needsPawnPromotion(src, dst) && !promote) {
-                dispatch({ type: 'REQUEST_PROMOTION', src, dst })
-                return
-            }
-
-            const move = game.makeHumanMove(src, dst, promote ?? mod.Queen)
-            if (move !== ILLEGAL_MOVE) {
-                model.notifyHumanMove(move)
-            }
-            dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
-        },
-        [],
-    )
+        const move = game.makeHumanMove(src, dst, promote ?? WisdomChess().Queen)
+        if (move !== ILLEGAL_MOVE) {
+            getGameModel().notifyHumanMove(move)
+        }
+        dispatch({ type: 'CLEAR_FOCUS' })
+        sync()
+    }
 
     function handleDropPiece(src: string, dst: string) {
         if (src === dst) return
-        // Pass src explicitly to avoid stale state issues
         applyHumanMove(src, dst)
         dispatch({ type: 'SET_LAST_DROPPED', square: dst })
     }
 
     function handlePieceClick(dst: string) {
         const game = gameRef.current
-        const wisdomChess = wisdomChessRef.current
-        if (state.gameStatus !== wisdomChessRef.current.Playing) {
+        const wisdomChess = WisdomChess()
+        if (state.gameStatus !== wisdomChess.Playing) {
             return
         }
 
         if (state.focusedSquare === '') {
-            const currentPieces = getPieces(game)
-            const srcPiece = currentPieces.find(p => p.position === dst)
+            const srcPiece = state.pieces.find(p => p.position === dst)
             if (!srcPiece) {
                 console.error(`Couldn't find piece coord: ${dst}`)
                 return
             }
-            const colorNum = fromColorToNumber(srcPiece.color)
-            if (srcPiece && game.getPlayerOfColor(colorNum) === wisdomChess.Human) {
+            if (game.getPlayerOfColor(srcPiece.color) === wisdomChess.Human) {
                 dispatch({ type: 'FOCUS', square: dst })
             }
             return
@@ -218,9 +212,8 @@ function App() {
         }
 
         // If same-color piece, switch focus; otherwise try move
-        const currentPieces = getPieces(game)
-        const dstPiece = currentPieces.find(p => p.position === dst)
-        const srcPiece = currentPieces.find(p => p.position === state.focusedSquare)
+        const dstPiece = state.pieces.find(p => p.position === dst)
+        const srcPiece = state.pieces.find(p => p.position === state.focusedSquare)
         if (!dstPiece || !srcPiece || srcPiece.color === dstPiece.color) {
             dispatch({ type: 'FOCUS', square: dst })
             return
@@ -232,15 +225,13 @@ function App() {
     function handlePromote(pieceType: PieceType) {
         if (!state.focusedSquare || !state.pawnPromotionDialogSquare) return
         applyHumanMove(state.focusedSquare, state.pawnPromotionDialogSquare, pieceType)
-        dispatch({ type: 'SET_LAST_DROPPED', square: '' })
     }
 
     function handleApplySettings(gameSettings: WebGameSettings, flipped: boolean) {
-        setShowSettings(false)
+        setSettings(null)
         setFlipped(flipped)
 
-        const wisdomChess = wisdomChessRef.current
-        const wasmGameSettings = new wisdomChess.GameSettings()
+        const wasmGameSettings = new (WisdomChess().GameSettings)()
         withWasmObjects([wasmGameSettings], () => {
             wasmGameSettings.whitePlayer = gameSettings.whitePlayer
             wasmGameSettings.blackPlayer = gameSettings.blackPlayer
@@ -248,78 +239,55 @@ function App() {
             wasmGameSettings.searchDepth = gameSettings.searchDepth
             wasmGameSettings.debugLogging = gameSettings.debugLogging
 
-            modelRef.current.setCurrentGameSettings(wasmGameSettings)
+            getGameModel().setCurrentGameSettings(wasmGameSettings)
             gameRef.current.setSettings(wasmGameSettings)
         })
 
-        dispatch({ type: 'SET_SETTINGS', settings: gameSettings })
-        dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
+        sync()
     }
 
-    function startNewGame(e: React.SyntheticEvent) {
+    function startNewGame() {
+        throttledComputerMove.cancel()
         gameRef.current = startNewGameEngine()
 
         dispatch({ type: 'CLEAR_FOCUS' })
-        dispatch({
-            type: 'ENGINE_SYNC',
-            snapshot: { ...snapshotFromEngine(), settings: getCurrentGameSettings() },
-        })
-        setThirdRepetitionDrawAnswered(false)
-        setFiftyMovesDrawAnswered(false)
+        sync()
+        setAnsweredDraws([])
         setShowNewGame(false)
     }
 
-    function setHumanDrawStatus(
-        drawType: DrawByRepetitionType,
-        who: PieceColor,
-        accepted: boolean
-    ) {
+    function answerDraw(drawType: DrawByRepetitionType, accepted: boolean) {
         const game = gameRef.current
-        const model = modelRef.current
+        const model = getGameModel()
+        const noColor = WisdomChess().NoColor
+        setAnsweredDraws(answered => [...answered, drawType])
 
         const first = model.getFirstHumanPlayerColor()
         const second = model.getSecondHumanPlayerColor()
-        if (first === wisdomChess.NoColor) return
+        if (first === noColor) return
 
         game.setHumanDrawStatus(drawType, first, accepted)
-        if (second !== wisdomChess.NoColor) {
+        if (second !== noColor) {
             game.setHumanDrawStatus(drawType, second, accepted)
         }
-
-        dispatch({ type: 'ENGINE_SYNC', snapshot: snapshotFromEngine() })
-    }
-
-    const [thirdRepetitionDrawAnswered, setThirdRepetitionDrawAnswered] = useState(false)
-    const [fiftyMovesDrawAnswered, setFiftyMovesDrawAnswered] = useState(false)
-
-    const handleThirdRepetitionDrawAnswer = (answer: boolean) => {
-        const wisdomChess = wisdomChessRef.current
-        setThirdRepetitionDrawAnswered(true)
-        setHumanDrawStatus(wisdomChess.ThreefoldRepetition, wisdomChess.White, answer)
-    }
-    const handleFiftyMovesWithoutProgressDrawAnswer = (answer: boolean) => {
-        const wisdomChess = wisdomChessRef.current
-        setFiftyMovesDrawAnswered(true)
-        setHumanDrawStatus(wisdomChess.FiftyMovesWithoutProgress, wisdomChess.White, answer)
+        sync()
     }
 
     // ----- Render -----
-    const showModalOverlay = showSettings || showAbout || showNewGame
-    const wisdomChess = wisdomChessRef.current
+    const drawOffer = state.hasHumanPlayer ? drawOfferFor(state.gameStatus) : null
 
     return (
         <div className="App">
             <TopMenu
                 newGameClicked={() => setShowNewGame(true)}
-                settingsClicked={() => setShowSettings(true)}
+                settingsClicked={() => setSettings(getCurrentGameSettings())}
                 aboutClicked={() => setShowAbout(true)}
             />
 
             <div className="container">
                 <Board
                     flipped={flipped}
-                    currentTurn={currentTurn}
-                    squares={state.squares}
+                    currentTurn={state.currentTurn}
                     focusedSquare={state.focusedSquare}
                     pieces={state.pieces}
                     droppedSquare={state.lastDroppedSquare}
@@ -331,8 +299,8 @@ function App() {
                 />
 
                 <StatusBar
-                    currentTurn={currentTurn}
-                    inCheck={inCheck}
+                    currentTurn={state.currentTurn}
+                    inCheck={state.inCheck}
                     moveStatus={state.moveStatus}
                     gameOverStatus={state.gameOverStatus}
                 />
@@ -349,12 +317,12 @@ function App() {
                 </Modal>
             )}
 
-            {showSettings && (
+            {settings && (
                 <SettingsModal
                     flipped={flipped}
-                    settings={state.settings}
+                    settings={settings}
                     onApply={handleApplySettings}
-                    onDismiss={() => setShowSettings(false)}
+                    onDismiss={() => setSettings(null)}
                 />
             )}
 
@@ -362,30 +330,14 @@ function App() {
                 <AboutModal onClick={() => setShowAbout(false)} />
             )}
 
-            {state.gameStatus === wisdomChess.ThreefoldRepetitionReached &&
-                !thirdRepetitionDrawAnswered && state.hasHumanPlayer && (
+            {drawOffer && !answeredDraws.includes(drawOffer.drawType) && (
                 <DrawDialog
-                    title={'Third Repetition Reached'}
-                    onAccepted={() => handleThirdRepetitionDrawAnswer(true)}
-                    onDeclined={() => handleThirdRepetitionDrawAnswer(false)}
+                    title={drawOffer.title}
+                    onAccepted={() => answerDraw(drawOffer.drawType, true)}
+                    onDeclined={() => answerDraw(drawOffer.drawType, false)}
                 >
-                    <p>The same position was reached three times. Either player can declare a draw now.</p>
+                    <p>{drawOffer.message}</p>
                 </DrawDialog>
-            )}
-
-            {state.gameStatus === wisdomChess.FiftyMovesWithoutProgressReached &&
-                !fiftyMovesDrawAnswered && state.hasHumanPlayer && (
-                <DrawDialog
-                    title={'Fifty Moves Without Progress'}
-                    onAccepted={() => handleFiftyMovesWithoutProgressDrawAnswer(true)}
-                    onDeclined={() => handleFiftyMovesWithoutProgressDrawAnswer(false)}
-                >
-                    <p>Fifty moves without any capture or pawn movement. Either player can declare a draw now.</p>
-                </DrawDialog>
-            )}
-
-            {showModalOverlay && (
-                <div className="modal-overlay"></div>
             )}
         </div>
     )

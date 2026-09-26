@@ -2,7 +2,7 @@ import React from 'react'
 import { Square, PieceOverlay } from "./Square";
 import "./Board.css";
 import { Piece } from "./lib/Pieces";
-import { Position } from "./lib/Squares";
+import { Position, initialSquares } from "./lib/Squares";
 import "./Positions.css"
 import PawnPromotionDialog from "./PawnPromotionDialog";
 import { PieceColor, PieceType } from "./lib/WisdomChess";
@@ -10,7 +10,6 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 export interface BoardProps {
-    squares: Array<Position>
     focusedSquare: string
     droppedSquare: string
     pieces: Array<Piece>
@@ -28,7 +27,7 @@ const Board = (props: BoardProps) => {
     return (
         <DndProvider backend={HTML5Backend}>
             <section className={`board ${props.flipped ? 'flipped' : ''}`}>
-                {props.squares.map((position: Position) => {
+                {initialSquares.map((position: Position) => {
                     return (
                         <Square
                             key={position.index}
@@ -54,7 +53,6 @@ const Board = (props: BoardProps) => {
                     <PawnPromotionDialog
                         color={props.currentTurn}
                         square={props.pawnPromotionDialogSquare}
-                        direction={-1}
                         selectedPiece={props.onPiecePromotion}
                     />}
             </section>
