@@ -48,9 +48,13 @@ cache warm, checkout and CPM cache are a few seconds.
   branches were pushed at 17:10, `lint` jobs queued for 3 to 4 min before
   their dependent builds could start, and installer jobs waited 1 to
   3 min. `needs: lint` turns that queueing into a delay on every build.
-- RelWithDebInfo compiles the same `NDEBUG` code as Release at `-O2`
-  with debug info. The `sanitizers` job already builds RelWithDebInfo
-  with Clang. The three native RelWithDebInfo entries add no coverage.
+- Release and RelWithDebInfo compile the same `NDEBUG` code, at `-O3`
+  and at `-O2` with debug info. Building both on every native platform
+  adds no coverage. RelWithDebInfo is what ships: the React WASM build
+  deployed to Netlify uses it (`scripts/build-react-wasm.sh`), and the
+  `sanitizers` job builds it with Clang. Release is still compiled on
+  every PR by the Qt WASM build (`scripts/build-qml-wasm.sh`) and by the
+  installers when their paths change.
 - `web.yml`'s `lint` is a copy of `cmake.yml`'s.
 
 ## Decisions
@@ -62,9 +66,11 @@ cache warm, checkout and CPM cache are a few seconds.
 
 ## Plan
 
-1. **Drop RelWithDebInfo from the native matrix** in `cmake.yml`. Release
-   stays on all three platforms, Debug stays on Ubuntu. This frees one
-   macOS slot per PR, the scarcest resource.
+1. **Drop Release from the native matrix** in `cmake.yml`. RelWithDebInfo
+   stays on all three platforms, since it is the configuration that is
+   deployed, and Debug stays on Ubuntu. This frees one macOS slot per PR,
+   the scarcest resource. Windows RelWithDebInfo is the slower of the two
+   Windows entries, so the critical path does not change.
 2. **Stop gating builds on `lint`.** Remove `needs: lint` so lint runs in
    parallel. A lint failure still fails the PR; the compute wasted on a
    lint-failing push is free on a public repository.
