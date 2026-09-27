@@ -31,7 +31,10 @@ else()
         endif()
     endif()
 
-    if(Qt6_FOUND)
+    if(Qt6_FOUND AND WISDOM_CHESS_WASM_EXCEPTIONS)
+        message(FATAL_ERROR "-- wisdom-chess: a WebAssembly build of the QML UI needs WISDOM_CHESS_QML_UI=ON, "
+            "which keeps Qt's exception model, or OFF to build without it.")
+    elseif(Qt6_FOUND)
         message("-- wisdom-chess: Qt6 found. Building QML UI.")
         add_subdirectory(qml)
     elseif(WISDOM_CHESS_QML_UI STREQUAL "ON")

@@ -5,7 +5,11 @@
 # case from a script makes the verdict independent of how the process dies.
 #
 # Usage: cmake -DFATAL_TEST_EXECUTABLE=<path> -DFATAL_TEST_CASE=<name>
-#              -DFATAL_TEST_EXPECTED=<regex> -P run_fatal_test.cmake
+#              -DFATAL_TEST_EXPECTED=<regex> [-DFATAL_TEST_EMULATOR=<path>]
+#              -P run_fatal_test.cmake
+#
+# FATAL_TEST_EMULATOR runs the executable when cross-compiling, such as node
+# for Emscripten.
 
 foreach(required FATAL_TEST_EXECUTABLE FATAL_TEST_CASE FATAL_TEST_EXPECTED)
     if(NOT DEFINED ${required})
@@ -15,7 +19,7 @@ endforeach()
 
 # Naming the same variable twice merges the two streams.
 execute_process(
-    COMMAND "${FATAL_TEST_EXECUTABLE}" "${FATAL_TEST_CASE}"
+    COMMAND ${FATAL_TEST_EMULATOR} "${FATAL_TEST_EXECUTABLE}" "${FATAL_TEST_CASE}"
     OUTPUT_VARIABLE output
     ERROR_VARIABLE output
     RESULT_VARIABLE result
