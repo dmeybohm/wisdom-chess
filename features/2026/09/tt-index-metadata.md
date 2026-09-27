@@ -54,3 +54,60 @@ It decides whether `en-passant-target-state` can ship its layout as is.
    (`computeHashWithTable`), so any change has to reach it too.
 
 ## Implementation Progress
+
+### Session #1
+
+Ran plan steps 1 and 2. The layout's effect is noise, so step 3 isn't
+needed and `en-passant-target-state` can keep its layout.
+
+Method:
+- Eight Release builds of `main` (2217329). Layout A keeps the castling
+  bits at 7 and 10, and layout B moves them to 11 and 13. Each layout
+  was built with four PCG initial states (`randomInitialState()`): the
+  default `0x853c49e6748fea9b`, plus `0x2545f4914f6cdd1d`,
+  `0x9e3779b97f4a7c15` and `0xd1b54a32d192ed03`. They were set through
+  a temporary `WISDOM_EXPERIMENT_INITIAL_STATE` define, which isn't
+  committed.
+- 24 positions:
+  - the start position and eleven openings, played from it
+  - the five perft positions, including kiwipete
+  - three castling endgames
+  - two middlegames
+  - a rook ending and a pawn ending
+- Each position was searched to depth 7 in a fresh UCI process with
+  `debug on`, which reports exact nodes, quiescence nodes, table probes
+  and hits for each depth. The counts are summed over all depths.
+- The default layout A build reproduced `main`'s node counts exactly.
+
+Results:
+
+| Build | Nodes, all 24 positions | Table hit rate |
+| --- | --- | --- |
+| A, default seed | 69,841,722 | 19.36% |
+| A, seed 2 | 59,157,743 | 19.42% |
+| A, seed 3 | 61,834,257 | 19.56% |
+| A, seed 4 | 58,489,784 | 19.67% |
+| B, default seed | 68,454,150 | 19.29% |
+| B, seed 2 | 63,528,921 | 19.29% |
+| B, seed 3 | 62,330,636 | 19.46% |
+| B, seed 4 | 57,964,885 | 19.64% |
+
+- Per position, B's geometric mean node count over the four seeds is
+  0.8% above A's, averaged over the 24 positions. Across positions that
+  gives t = 1.62, which isn't significant.
+- No single position's layout difference exceeds its own seed-to-seed
+  spread: |z| ≤ 0.8 everywhere.
+- The seed moves the total by up to 19% within a layout, much more than
+  the layout does. Most of that comes from a few volatile positions: the
+  Sicilian's node count varies 37% between seeds, and the Italian's 16%.
+  Thirteen positions vary less than 2%.
+- Hit rates stay between 19.3% and 19.7%.
+
+The default seed gave the highest total in both layouts. On this suite
+that's most likely chance too, given how much a few positions dominate.
+Picking a seed by this measure would just fit the suite.
+
+The 27% difference `en-passant-target-state` saw from the start position
+was at depth 8. At depth 7, the start position varies by 0.3% between
+seeds and differs by 0.1% between layouts. So that 27% was one sample of
+the same chaotic sensitivity, deeper in the search.
