@@ -257,12 +257,18 @@ namespace
             -> std::vector<LintViolation> override
         {
             std::vector<LintViolation> violations;
+            // Comments and literals blanked, for both the alias scan and the
+            // pointer scan, so neither reads text that is not code.
             auto code_lines = stripComments (context.lines);
+            for (auto& code_line : code_lines)
+            {
+                code_line = blankLiterals (std::move (code_line));
+            }
             auto aliases = localTypeAliases (code_lines);
 
             for (size_t i = 0; i < code_lines.size(); ++i)
             {
-                auto line = blankLiterals (code_lines[i]);
+                const auto& line = code_lines[i];
                 size_t first = line.find_first_not_of ( ' ' );
                 if (first == std::string::npos || line[first] == '#' )
                 {
