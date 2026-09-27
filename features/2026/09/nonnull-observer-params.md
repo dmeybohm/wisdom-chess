@@ -248,3 +248,36 @@ round trips of `getCurrentGameSettings()`, `setCurrentGameSettings()` and
 `startNewGame()` with `destroy()`. A hook on `destroy()` saw no object
 destroyed twice and no two live objects at one address, and the page
 reported no errors.
+
+**More review fixes.** Two more review comments were fixed. A `using`
+line with nothing after the keyword (`using /* ... */`, with the name on
+the next line) made `substr` throw and abort the linter; it is now
+skipped, and `using` must start a word, so `Pausing count` no longer
+makes `count` a type. The alias scan also read string literals, so
+`"using count = int;"` in a string made `count*total` a raw pointer;
+literals are now blanked once, before both scans.
+
+**Known limits, and a lexer to follow.** All four review findings came
+from the same place: each rule works out what is code from raw lines on
+its own, and `stripComments()` and `blankLiterals()` are two literal
+scanners that disagree. Probing the rule turned up more of the same:
+
+| Input | Result |
+|---|---|
+| `100'000; // Board* in a comment` | False positive. `stripComments()` takes the digit separator for a character literal and never strips the comment; this affects every rule. |
+| A raw string `R"( ... Board* ... )"` over several lines | False positive; literals are blanked one line at a time. |
+| `vector<` on one line, `Board>* boards` on the next | Missed; `<`...`>` is matched within one line. |
+| `-> Board` on one line, `*` on the next | Missed; declarations split across lines. |
+
+None of these occurs in the codebase today. The fix is a minimal C++
+lexer for the linter, in a follow-up branch: comments across lines,
+string and character literals with escapes, raw strings with delimiters
+and prefixes, numbers with digit separators, identifiers and keywords,
+operators matched longest first (`->`, `>>`, `::`, `*=`), and
+preprocessor directives with their continuation lines, each token with
+its line, column and whether whitespace precedes it. Rules would walk
+tokens instead of text. It will not settle whether `A * b` declares a
+pointer, which still needs the naming heuristic, but it gives that
+heuristic clean input. The plan: the lexer and its tests, then
+`raw-pointer` ported with its fixtures as the regression suite plus the
+cases above, then the other rules one at a time.
