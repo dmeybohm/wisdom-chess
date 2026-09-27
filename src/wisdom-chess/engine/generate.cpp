@@ -67,7 +67,7 @@ namespace wisdom
     struct MoveGeneration
     {
         const Board& board;
-        MoveList& moves;
+        nonnull_observer_ptr<MoveList> moves;
         int piece_row;
         int piece_col;
         const Color who;
@@ -181,7 +181,7 @@ namespace wisdom
         }
 
         auto transformed_move = transformMove (dst_piece, move);
-        moves.append (transformed_move);
+        moves->append (transformed_move);
     }
 
     void MoveGeneration::king()
@@ -544,7 +544,7 @@ namespace wisdom
     {
         MoveList result;
         MoveGeneration generation {
-            board, result, 0, 0, who, priority_move, captures_only
+            board, &result, 0, 0, who, priority_move, captures_only
         };
 
         for (auto coord : Board::allCoords())
