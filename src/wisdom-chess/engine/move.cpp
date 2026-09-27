@@ -29,7 +29,8 @@ namespace wisdom
         Color who,
         Piece orig_src_piece_type,
         Move move
-    ) noexcept {
+    ) noexcept
+    {
         assert (my_half_move_clock < std::numeric_limits<int>::max());
         assert (my_full_move_clock < std::numeric_limits<int>::max());
 
@@ -79,7 +80,8 @@ namespace wisdom
         Move king_move,
         [[maybe_unused]] Coord src,
         [[maybe_unused]] Coord dst
-    ) noexcept {
+    ) noexcept
+    {
         Move rook_move = castlingRookMove (king_move);
 
         assert (pieceType (pieceAt (src)) == Piece::King);
@@ -109,7 +111,8 @@ namespace wisdom
     Board::removeCastlingEligibility (
         Color who,
         CastlingEligibility removed_castle_states
-    ) noexcept {
+    ) noexcept
+    {
         CastlingEligibility orig_castle_state = getCastlingEligibility (who);
         orig_castle_state.clear (removed_castle_states);
         my_code.setCastleState (who, orig_castle_state);
@@ -133,7 +136,8 @@ namespace wisdom
         [[maybe_unused]] ColoredPiece dst_piece,
         [[maybe_unused]] Coord src,
         Coord dst
-    ) noexcept {
+    ) noexcept
+    {
         assert (pieceColor (dst_piece) == opponent);
         assert (pieceType (dst_piece) == Piece::Rook);
 
@@ -162,7 +166,8 @@ namespace wisdom
         Color player,
         [[maybe_unused]] ColoredPiece src_piece,
         Coord src
-    ) noexcept {
+    ) noexcept
+    {
         assert (pieceColor (src_piece) == player);
         assert (pieceType (src_piece) == Piece::Rook);
 

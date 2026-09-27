@@ -16,8 +16,10 @@ TEST_CASE( "A piece can be converted" )
         Piece::Pawn, Piece::Bishop, Piece::Knight, Piece::Rook, Piece::Queen, Piece::King
     };
 
-    for (auto color : colors) {
-        for (auto piece : pieces) {
+    for (auto color : colors)
+    {
+        for (auto piece : pieces)
+        {
             ColoredPiece combined = ColoredPiece::make (color, piece);
             INFO( asString (pieceType (combined)) );
             INFO( asString (piece) );

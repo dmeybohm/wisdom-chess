@@ -375,7 +375,8 @@ namespace wisdom
         int64_t nodes,
         SteadyClockTime start,
         SteadyClockTime end
-    ) {
+    )
+    {
         auto seconds_duration = chrono::duration<double> (end - start);
         auto seconds = seconds_duration.count();
         auto rate = nodes / std::max (0.000000001, seconds);
@@ -455,7 +456,8 @@ namespace wisdom
         int depth,
         optional<Move> best_move,
         int best_score
-    ) {
+    )
+    {
         if (ply != 0 || !best_move.has_value())
             return;
 

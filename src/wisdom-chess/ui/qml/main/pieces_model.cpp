@@ -167,7 +167,8 @@ namespace wisdom::ui::qml
     PiecesModel::playerMoved (
         Move selected_move,
         wisdom::Color who
-    ) {
+    )
+    {
         auto movement = ui::pieceMovement (selected_move);
 
         for (int i = 0; i < my_pieces.count(); i++)

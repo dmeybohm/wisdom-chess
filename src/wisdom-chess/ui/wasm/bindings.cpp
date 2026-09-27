@@ -18,7 +18,8 @@ namespace wisdom::worker
 {
     struct GameState
     {
-        enum PlayStatus {
+        enum PlayStatus
+        {
             Playing = 0,
             Paused = 1,
         };
@@ -97,7 +98,8 @@ namespace wisdom::worker
         handlePotentialDrawPosition (
             wisdom::ProposedDrawType proposed_draw_type,
             wisdom::Color who
-        ) {
+        )
+        {
             // The answers are recorded here; the main thread hears each one.
             ui::negotiateDraw (
                 &game,
@@ -133,7 +135,8 @@ EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
 
     auto periodic_func = [state](nonnull<MoveTimer> timer) {
         auto play_status = state->play_status.load();
-        if (play_status != GameState::Playing || state->restart_requested.load()) {
+        if (play_status != GameState::Playing || state->restart_requested.load())
+        {
             timer->setCancelled (true);
         }
     };
@@ -199,7 +202,8 @@ workerReceiveSettings (
     int thinking_time,
     int search_depth,
     int debug_logging
-) {
+)
+{
     auto state = GameState::getState();
 
     state->restart_requested.store (false);
@@ -225,7 +229,8 @@ EMSCRIPTEN_KEEPALIVE void
 mainThreadReceiveMove (
     int game_id,
     int packed_move
-) {
+)
+{
     // Validate game_id against the authoritative GameModel ID.
     // Reject stale moves from old games.
     if (game_id != GameModel::currentGameId())
@@ -273,7 +278,8 @@ mainThreadReceiveDrawStatus (
     int draw_type,
     int color,
     int accepted_draw
-) {
+)
+{
     receiveDrawStatusFromWorker (
         game_id,
         draw_type,

@@ -15,7 +15,8 @@ namespace wisdom
         const Board& board,
         [[maybe_unused]] const History& history,
         Color turn
-    ) {
+    )
+    {
         string output = board.toFenString (turn);
 
         std::ofstream file { filename };
@@ -34,7 +35,8 @@ namespace wisdom
         [[maybe_unused]] const Board& board,
         const History& history,
         [[maybe_unused]] Color turn
-    ) {
+    )
+    {
         std::ofstream file { filename };
         if (!file)
             throw Error { "Cannot open " + filename + " for writing." };

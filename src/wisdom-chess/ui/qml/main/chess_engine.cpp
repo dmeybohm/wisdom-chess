@@ -67,7 +67,8 @@ namespace wisdom::ui::qml
         [[maybe_unused]] wisdom::Move move,
         [[maybe_unused]] wisdom::Color who,
         int game_id
-    ) {
+    )
+    {
         if (game_id == my_game_id)
         {
             // The GUI has shown the move. Do another if the engine is hooked
@@ -158,7 +159,8 @@ namespace wisdom::ui::qml
     ChessEngine::handlePotentialDrawPosition (
         wisdom::ProposedDrawType proposed_draw_type,
         wisdom::Color who
-    ) {
+    )
+    {
         auto game_state = my_game->state();
         bool any_accepted = false;
 
@@ -193,7 +195,8 @@ namespace wisdom::ui::qml
         wisdom::ProposedDrawType draw_type,
         wisdom::Color player,
         bool accepted
-    ) {
+    )
+    {
         auto game_state = my_game->state();
         game_state->setProposedDrawStatus (draw_type, player, accepted);
 
@@ -221,7 +224,8 @@ namespace wisdom::ui::qml
     ChessEngine::updateConfig (
         const ChessGame::Config& config,
         const wisdom::MoveTimer::PeriodicFunction& notifier
-    ) {
+    )
+    {
         my_game->setConfig (config);
         syncDebugLogging();
 

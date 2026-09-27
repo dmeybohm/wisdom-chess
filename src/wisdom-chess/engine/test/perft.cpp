@@ -16,7 +16,8 @@ namespace wisdom
         wisdom::Color side,
         int depth,
         int max_depth
-    ) {
+    )
+    {
         if (depth >= max_depth)
             return;
 

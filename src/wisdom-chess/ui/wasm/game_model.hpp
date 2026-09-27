@@ -107,10 +107,25 @@ namespace wisdom
             sendSettings();
         }
 
-        [[nodiscard]] static auto getMinThinkingTime() -> int { return ui::GameSettings::Min_Thinking_Time; }
-        [[nodiscard]] static auto getMaxThinkingTime() -> int { return ui::GameSettings::Max_Thinking_Time; }
-        [[nodiscard]] static auto getMinSearchDepth() -> int { return ui::GameSettings::Min_Search_Depth; }
-        [[nodiscard]] static auto getMaxSearchDepth() -> int { return ui::GameSettings::Max_Search_Depth; }
+        [[nodiscard]] static auto getMinThinkingTime() -> int
+        {
+            return ui::GameSettings::Min_Thinking_Time;
+        }
+
+        [[nodiscard]] static auto getMaxThinkingTime() -> int
+        {
+            return ui::GameSettings::Max_Thinking_Time;
+        }
+
+        [[nodiscard]] static auto getMinSearchDepth() -> int
+        {
+            return ui::GameSettings::Min_Search_Depth;
+        }
+
+        [[nodiscard]] static auto getMaxSearchDepth() -> int
+        {
+            return ui::GameSettings::Max_Search_Depth;
+        }
 
         [[nodiscard]] auto
         getFirstHumanPlayerColor()
