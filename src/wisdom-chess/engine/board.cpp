@@ -50,12 +50,10 @@ namespace wisdom
 
     static void addCoords (nonnull<string> result)
     {
-        int col;
-
         *result += " ";
 
         char col_name = 'a';
-        for (col = 0; col < Num_Columns; col++)
+        for (int col = 0; col < Num_Columns; col++)
         {
             *result += " ";
             *result += col_name;

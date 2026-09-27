@@ -58,12 +58,10 @@ namespace wisdom
 
     void FenParser::parsePieces (string pieces_str)
     {
-        char ch;
-
         // read pieces
         for (int row = 0, col = 0; !pieces_str.empty(); pieces_str = pieces_str.substr (1))
         {
-            ch = pieces_str[0];
+            char ch = pieces_str[0];
 
             if (ch == '/')
             {
