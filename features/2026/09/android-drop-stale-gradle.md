@@ -152,3 +152,15 @@ the ones `main` had gained from `wasm-doctest-discovery`.
 
 After the merge, on the x86_64 emulator with Qt 6.11.2: 224 fast tests
 passed in a Release Android build, and 225 in a desktop build.
+
+### Session #6
+
+Opened PR #294. The `android` job ran for the first time and passed,
+building the arm64-v8a package in about two and a half minutes. What
+session #4 left to confirm about the runner holds: the Qt action installs
+the desktop Qt beside the Android one and sets `QT_HOST_PATH`, and the
+runner provides `ANDROID_NDK_ROOT` (NDK 27.3.13750724) and
+`JAVA_HOME_17_X64`.
+
+The job uses `actions/checkout@v7` and `actions/cache@v6`, as the other
+jobs have since `main` updated them.
