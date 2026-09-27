@@ -28,7 +28,7 @@ export function Square(props: SquareProps) {
     })
     return (
         <div
-            ref={drop}
+            ref={el => { drop(el) }}
             className={`square ${props.isOddRow ? "odd" : ""}`}
             onClick={() => {
                 props.onClick(props.position)
@@ -81,13 +81,13 @@ export function PieceOverlay(props: PieceOverlayProps) {
     const draggingClass = props.droppedSquare === props.piece.position ? "dragging" : ''
     return (
         <div
-            ref={drop}
+            ref={el => { drop(el) }}
             className={`piece ${props.piece.position} ${focused} ${draggingClass}`}
             onClick={() => props.onPieceClick(props.piece.position)}
             onPointerDown={event => { pointerType.current = event.pointerType }}
         >
             <div
-                ref={drag}
+                ref={el => { drag(el) }}
                 style={{
                     transform: 'translate(0, 0)', // workaround background showing up
                     opacity: isDragging ? 0.5 : 1,
@@ -95,7 +95,7 @@ export function PieceOverlay(props: PieceOverlayProps) {
             >
                 {!isDragging &&
                     <img
-                        ref={drag}
+                        ref={el => { drag(el) }}
                         draggable={false}
                         alt="piece"
                         src={props.piece.icon}
@@ -104,7 +104,7 @@ export function PieceOverlay(props: PieceOverlayProps) {
             </div>
         {isDragging &&
             <img
-                ref={preview}
+                ref={el => { preview(el) }}
                 alt="piece"
                 draggable={false}
                 src={props.piece.icon}
