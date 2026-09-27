@@ -161,6 +161,26 @@ direction is a choice rather than a correction.
     are named.
     `App.tsx` has one semicolon in 348 lines, which is on its one
     double-quoted import.
+30. [ ] **Braces not in Allman style.** Found in Session #5, from commit
+    `a1ace68`. A brace that opens a block is on its own line almost
+    everywhere; the exceptions are:
+    - Control statements, 5: `ui/wasm/bindings.cpp:136`,
+      `engine/test/piece_test.cpp:19-20`,
+      `engine/test/coord_test.cpp:9-10`.
+    - Types, 1: `enum PlayStatus {` at `ui/wasm/bindings.cpp:21`.
+    - Function bodies after a multi-line parameter list, 31, which is
+      item 15 recounted. Here `) {` is the majority: 15 functions put
+      the brace on its own line. Every function whose parameters fit on
+      one line uses Allman style, so a rule would decide item 15 for
+      the minority form.
+    - Lambdas: 43 put the brace on its own line and 18 on the line of
+      the parameters, such as `[] (const LintViolation& a, ...) {` in
+      the linter. A lambda written entirely on one line is neither.
+
+    Blocks written on one line, like `virtual void onInCheckChanged() {}`
+    or `struct None {};`, and brace initializers (`return Record {`,
+    `TestViewModel view_model {`) are not violations. Nothing in
+    `AGENTS.md` or `docs/` names the brace style.
 
 ### C. Out of scope here
 
@@ -182,7 +202,21 @@ direction is a choice rather than a correction.
 4. [ ] Items under B wait for a decision on each. Once decided, the
    convention goes into `AGENTS.md` next to the fix. Decided so far:
    14, 20, 21 and 29.
-5. [x] At the end: full Release build, all tests, a Debug build of the fast
+5. [ ] For item 30, an `allman-braces` linter rule, on this branch or
+   its own, alongside the `no-trailing-whitespace` rule of step 3.
+   `namespace-braces` already checks namespaces and is the model. The
+   rule would flag a `{` that is not first on its line when it opens a
+   function body, a control statement (`if`, `else`, `for`, `while`,
+   `do`, `switch`, `try`, `catch`) or a class, struct, union or enum,
+   unless the block closes on the same line. Brace initializers are
+   exempt, which the lexer's tokens can tell apart only by what
+   precedes the brace: a `)`, a specifier such as `const` or
+   `noexcept`, `else`, `do`, `try`, or a type head opens a block; `=`,
+   `return`, `throw`, `(`, `,` or a type name opens an initializer. A
+   trailing return type (`-> int {`) needs the rule to remember the
+   `->`. Decisions needed first: item 15 (the rule as described makes
+   `) {` a violation), and whether lambdas are covered.
+6. [x] At the end: full Release build, all tests, a Debug build of the fast
    tests, and the QML tests if Qt is configured in the build tree. Run
    in Session #1; the later sessions ran the Release build and the fast
    tests.
@@ -324,3 +358,10 @@ Item 29: the React frontend is formatted with Prettier.
     blocks it now that `linter-lexer` has landed, and the same holds
     for the linter's own sources, which section C excluded for that
     reason.
+
+### Session #5
+
+- Merged `main` after #299 landed.
+- Added item 30, braces that break Allman style, and plan step 5, a
+  linter rule for it. The survey used `grep`, so the counts are close
+  but not exact; the rule, once written, gives the true list.
