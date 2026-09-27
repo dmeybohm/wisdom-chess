@@ -282,7 +282,7 @@ if(EMSCRIPTEN)
     )
 endif()
 
-if (WISDOM_CHESS_FAST_TESTS AND NOT ANDROID AND NOT EMSCRIPTEN)
+if (WISDOM_CHESS_FAST_TESTS AND NOT EMSCRIPTEN)
     find_package(Qt6 COMPONENTS Test QuickTest QUIET)
     if (Qt6Test_FOUND AND Qt6QuickTest_FOUND)
         add_subdirectory(test)

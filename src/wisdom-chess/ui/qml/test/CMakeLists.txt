@@ -28,6 +28,18 @@ target_link_libraries(wisdom-chess-qml-test-support
 target_include_directories(wisdom-chess-qml-test-support PUBLIC ../../../..)
 wisdom_chess_enable_warnings(wisdom-chess-qml-test-support)
 
+if(ANDROID)
+    find_program(WISDOM_CHESS_ANDROID_TEST_RUNNER androidtestrunner
+        HINTS "${QT_HOST_PATH}/${QT6_HOST_INFO_BINDIR}" "${QT_HOST_PATH}/bin"
+        NO_CMAKE_FIND_ROOT_PATH
+        DOC "Qt's androidtestrunner, which runs the QML tests on the Android device")
+    if(NOT WISDOM_CHESS_ANDROID_TEST_RUNNER)
+        message(FATAL_ERROR "-- wisdom-chess: androidtestrunner was not found in the host Qt")
+    endif()
+
+    set(QT_ANDROID_DEPLOYMENT_TYPE Debug)
+endif()
+
 function(wisdom_chess_add_qml_test test_name source)
     get_filename_component(target_suffix "${source}" NAME_WE)
     string(REPLACE "_" "-" target_suffix "${target_suffix}")
@@ -42,7 +54,23 @@ function(wisdom_chess_add_qml_test test_name source)
         target_compile_options(${target} PRIVATE /wd4702)
     endif()
 
-    add_test(NAME "${test_name}" COMMAND ${target})
+    if(ANDROID)
+        string(REPLACE "-" "_" package_suffix "${target_suffix}")
+        target_link_libraries(${target} PRIVATE Qt6::Gui)
+        set_target_properties(${target} PROPERTIES
+            QT_ANDROID_PACKAGE_NAME "com.daveme.wisdomchess.${package_suffix}")
+
+        set(package_dir "${CMAKE_CURRENT_BINARY_DIR}/android-build-${target}")
+        add_test(NAME "${test_name}"
+            COMMAND "${WISDOM_CHESS_ANDROID_TEST_RUNNER}"
+                --path "${package_dir}"
+                --apk "${package_dir}/${target}.apk"
+                --adb "${WISDOM_CHESS_ADB}"
+                --skip-install-root
+                --make "\"${CMAKE_COMMAND}\" --build \"${CMAKE_BINARY_DIR}\" --target ${target}_make_apk")
+    else()
+        add_test(NAME "${test_name}" COMMAND ${target})
+    endif()
     set_tests_properties("${test_name}" PROPERTIES LABELS fast)
 endfunction()
 
@@ -96,6 +124,11 @@ function(wisdom_chess_add_qml_ui_test test_name source)
         PREFIX "/qt/qml/WisdomChess"
         FILES ${test_resource_files})
     add_dependencies(${target} WisdomChessQml)
+
+    # On Android the tests draw on the device's own display.
+    if (ANDROID)
+        return()
+    endif()
 
     set(environment "QT_QPA_PLATFORM=offscreen" "QT_QUICK_BACKEND=software")
 
