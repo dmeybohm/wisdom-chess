@@ -30,7 +30,7 @@ namespace wisdom::test
             -> IterativeSearch
         {
             timer.setTimeLimit (chrono::seconds { time });
-            return IterativeSearch::create (board, history, logger, timer, depth, transposition_table);
+            return IterativeSearch::create (board, history, logger, timer, depth, &transposition_table);
         }
     };
 
@@ -399,7 +399,7 @@ TEST_CASE( "Root TT hit should not bypass iterative deepening search" )
     auto logger = makeNullLogger();
     MoveTimer timer { 30 };
 
-    IterativeSearch search = IterativeSearch::create (board, history, logger, timer, 6, tt);
+    IterativeSearch search = IterativeSearch::create (board, history, logger, timer, 6, &tt);
 
     auto stats_before = tt.getStats();
     SearchResult result = search.iterativelyDeepen (Color::White);
@@ -454,7 +454,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // Search from initial position (Black to move)
     {
         timer.setTimeLimit (chrono::seconds { 1 });
-        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt);
         (void)search.iterativelyDeepen (Color::Black);
     }
 
@@ -466,7 +466,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // Search from this position (White to move)
     {
         timer.setTimeLimit (chrono::seconds { 1 });
-        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt);
         (void)search.iterativelyDeepen (Color::White);
     }
 
@@ -478,7 +478,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // Search from this position (Black to move)
     {
         timer.setTimeLimit (chrono::seconds { 1 });
-        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt);
         (void)search.iterativelyDeepen (Color::Black);
     }
 
@@ -491,7 +491,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // Search from this position (White to move)
     {
         timer.setTimeLimit (chrono::seconds { 1 });
-        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt);
         (void)search.iterativelyDeepen (Color::White);
     }
 
@@ -503,7 +503,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // Search from this position (Black to move)
     {
         timer.setTimeLimit (chrono::seconds { 1 });
-        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt);
         (void)search.iterativelyDeepen (Color::Black);
     }
 
@@ -515,7 +515,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // Search from this position (White to move)
     {
         timer.setTimeLimit (chrono::seconds { 1 });
-        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, tt);
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt);
         (void)search.iterativelyDeepen (Color::White);
     }
 
@@ -530,7 +530,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // that didn't have the full repetition history.
 
     timer.setTimeLimit (chrono::seconds { 1 });
-    auto search = IterativeSearch::create (board, history, logger, timer, final_depth, tt);
+    auto search = IterativeSearch::create (board, history, logger, timer, final_depth, &tt);
     auto result = search.iterativelyDeepen (Color::Black);
 
     REQUIRE( result.move.has_value() );
@@ -616,7 +616,7 @@ TEST_CASE( "A root move finished before the clock stops is kept" )
         );
         History history;
         auto table = TranspositionTable::fromMegabytes (1);
-        auto search = IterativeSearch::create (board, history, logger, timer, Last_Depth, table);
+        auto search = IterativeSearch::create (board, history, logger, timer, Last_Depth, &table);
         auto result = search.iterativelyDeepen (Color::White);
         result.nodes = logger->periodic_calls_per_depth[Last_Depth];
         return result;

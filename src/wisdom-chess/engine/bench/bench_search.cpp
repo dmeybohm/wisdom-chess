@@ -47,25 +47,25 @@ namespace wisdom::bench
     }
 
     // Search to a fixed depth with whatever the table already holds.
-    static auto searchWithTable (Game& game, TranspositionTable& table, int depth) -> SearchResult
+    static auto searchWithTable (nonnull_observer_ptr<Game> game, nonnull_observer_ptr<TranspositionTable> table, int depth) -> SearchResult
     {
         MoveTimer timer { 600 };
         auto search = IterativeSearch::create (
-            game.getBoard(),
-            game.getHistory(),
+            game->getBoard(),
+            game->getHistory(),
             makeNullLogger(),
             timer,
             depth,
             table
         );
 
-        return search.iterativelyDeepen (game.getCurrentTurn());
+        return search.iterativelyDeepen (game->getCurrentTurn());
     }
 
     // Search to a fixed depth with an empty transposition table.
-    static auto searchToDepth (Game& game, TranspositionTable& table, int depth) -> SearchResult
+    static auto searchToDepth (nonnull_observer_ptr<Game> game, nonnull_observer_ptr<TranspositionTable> table, int depth) -> SearchResult
     {
-        table.clear();
+        table->clear();
         return searchWithTable (game, table, depth);
     }
 
@@ -88,7 +88,7 @@ namespace wisdom::bench
 
         for (int i = 0; i < plies; i++)
         {
-            auto result = searchToDepth (game, table, script_depth);
+            auto result = searchToDepth (&game, &table, script_depth);
             if (!result.move.has_value())
                 break;
 
@@ -128,7 +128,7 @@ namespace wisdom::bench
             if (clear_before_each_search)
                 table.clear();
 
-            auto search_result = searchWithTable (game, table, depth);
+            auto search_result = searchWithTable (&game, &table, depth);
             result.chosen.push_back (search_result.move);
             game.move (scripted_move);
         }
@@ -164,7 +164,7 @@ namespace wisdom::bench
                   << cold.chosen.size() << "\n";
     }
 
-    void runSearchBenchmarks (ankerl::nanobench::Bench& bench)
+    void runSearchBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench)
     {
         struct Scenario
         {
@@ -186,21 +186,21 @@ namespace wisdom::bench
             TranspositionTable::Default_Size_In_Megabytes
         );
 
-        auto previous_iterations = bench.minEpochIterations();
-        bench.minEpochIterations (1);
+        auto previous_iterations = bench->minEpochIterations();
+        bench->minEpochIterations (1);
 
         for (auto& scenario : scenarios)
         {
             auto label = std::string { "search/" } + scenario.name
                 + "-depth" + std::to_string (scenario.depth);
 
-            bench.run (label, [&] {
-                auto result = searchToDepth (scenario.game, table, scenario.depth);
+            bench->run (label, [&] {
+                auto result = searchToDepth (&scenario.game, &table, scenario.depth);
                 ankerl::nanobench::doNotOptimizeAway (result);
             });
         }
 
-        bench.minEpochIterations (previous_iterations);
+        bench->minEpochIterations (previous_iterations);
 
         // Manual timing: one deeper search per scenario.
         for (auto& scenario : scenarios)
@@ -209,7 +209,7 @@ namespace wisdom::bench
                 + "-depth" + std::to_string (scenario.deep_depth);
 
             auto start = std::chrono::steady_clock::now();
-            auto result = searchToDepth (scenario.game, table, scenario.deep_depth);
+            auto result = searchToDepth (&scenario.game, &table, scenario.deep_depth);
             auto end = std::chrono::steady_clock::now();
             ankerl::nanobench::doNotOptimizeAway (result);
 
@@ -256,7 +256,7 @@ namespace wisdom::bench
             for (int depth = 1; depth <= max_depth; depth++)
             {
                 auto start = std::chrono::steady_clock::now();
-                auto result = searchToDepth (game, table, depth);
+                auto result = searchToDepth (&game, &table, depth);
                 auto end = std::chrono::steady_clock::now();
                 auto seconds = std::chrono::duration<double> (end - start).count();
 

@@ -8,11 +8,11 @@
 
 namespace wisdom::bench
 {
-    void runMoveGenerationBenchmarks (ankerl::nanobench::Bench& bench);
-    void runThreatBenchmarks (ankerl::nanobench::Bench& bench);
-    void runLegalityBenchmarks (ankerl::nanobench::Bench& bench);
-    void runPerftBenchmarks (ankerl::nanobench::Bench& bench);
-    void runSearchBenchmarks (ankerl::nanobench::Bench& bench);
+    void runMoveGenerationBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench);
+    void runThreatBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench);
+    void runLegalityBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench);
+    void runPerftBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench);
+    void runSearchBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench);
     void runSearchReport (int max_depth);
 }
 
@@ -49,19 +49,19 @@ auto main (int argc, char** argv) -> int
     std::cout << "=== Wisdom Chess Benchmarks ===\n\n";
 
     std::cout << "--- Move Generation ---\n";
-    wisdom::bench::runMoveGenerationBenchmarks (bench);
+    wisdom::bench::runMoveGenerationBenchmarks (&bench);
 
     std::cout << "\n--- Threat Detection ---\n";
-    wisdom::bench::runThreatBenchmarks (bench);
+    wisdom::bench::runThreatBenchmarks (&bench);
 
     std::cout << "\n--- Legality Checking ---\n";
-    wisdom::bench::runLegalityBenchmarks (bench);
+    wisdom::bench::runLegalityBenchmarks (&bench);
 
     std::cout << "\n--- Perft ---\n";
-    wisdom::bench::runPerftBenchmarks (bench);
+    wisdom::bench::runPerftBenchmarks (&bench);
 
     std::cout << "\n--- Search ---\n";
-    wisdom::bench::runSearchBenchmarks (bench);
+    wisdom::bench::runSearchBenchmarks (&bench);
 
     return 0;
 }

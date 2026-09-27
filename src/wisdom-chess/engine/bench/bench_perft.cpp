@@ -55,14 +55,14 @@ namespace wisdom::bench
                   << " (" << std::fixed << std::setprecision (0) << nps << " NPS)\n";
     }
 
-    void runPerftBenchmarks (ankerl::nanobench::Bench& bench)
+    void runPerftBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench)
     {
         // Nanobench: perft depth 4 starting position (~197K nodes).
         {
             auto board = boardFromFen (Starting_Position_Fen);
             auto color = colorFromFen (Starting_Position_Fen);
 
-            bench.run ("perft/starting-depth4", [&] {
+            bench->run ("perft/starting-depth4", [&] {
                 auto nodes = perftCount (board, color, 4);
                 ankerl::nanobench::doNotOptimizeAway (nodes);
             });
@@ -73,7 +73,7 @@ namespace wisdom::bench
             auto board = boardFromFen (Kiwipete_Fen);
             auto color = colorFromFen (Kiwipete_Fen);
 
-            bench.run ("perft/kiwipete-depth3", [&] {
+            bench->run ("perft/kiwipete-depth3", [&] {
                 auto nodes = perftCount (board, color, 3);
                 ankerl::nanobench::doNotOptimizeAway (nodes);
             });

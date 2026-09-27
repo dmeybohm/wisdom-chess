@@ -21,7 +21,7 @@ namespace wisdom::bench
         return parser.getActivePlayer();
     }
 
-    void runLegalityBenchmarks (ankerl::nanobench::Bench& bench)
+    void runLegalityBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench)
     {
         struct PositionInfo
         {
@@ -42,7 +42,7 @@ namespace wisdom::bench
             auto color = colorFromFen (pos.fen);
             auto moves = generateAllPotentialMoves (board, color);
 
-            bench.run (
+            bench->run (
                 string { "withMove+legality/" } + pos.name,
                 [&] {
                     int legal_count = 0;
@@ -64,7 +64,7 @@ namespace wisdom::bench
             auto color = colorFromFen (pos.fen);
             auto moves = generateAllPotentialMoves (board, color);
 
-            bench.run (
+            bench->run (
                 string { "withMove-only/" } + pos.name,
                 [&] {
                     Board last_board = board;
