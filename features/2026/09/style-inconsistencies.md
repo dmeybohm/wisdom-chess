@@ -189,4 +189,42 @@ merge with `-Xignore-space-at-eol` avoids most of the conflicts.
 
 ### Session #1
 
-- Wrote this document. No code changed yet.
+- Wrote this document, then fixed every item under A, one commit each.
+  Nothing under B was touched.
+- Where the fix differs from the finding:
+  - **Item 1.** The first counts for the files outside C++ were wrong
+    and are corrected above. They came from a `grep` whose `[ \t]` also
+    matched a line ending in the letter `t`.
+  - **Item 2.** Nine files, not eight: removing the trailing whitespace
+    left a second blank line in `engine/search.cpp`.
+  - **Item 4.** The file moved to the repository root. It sets four
+    spaces for C++, QML, TypeScript and `CMakeLists.txt`, and leaves the
+    indent of other file types alone, since the `.cmake`, CSS and IDL
+    files mix two and four.
+  - **Item 5.** Sixteen comments removed, not thirteen. The three extra
+    are `// Game::Impl constructors` and the two "... and assignment"
+    comments in `game.hpp`.
+  - **Item 6.** A search by identifier found more than the list above:
+    `engine/random.hpp` (`oldState`), the `PieceInfo::pieceImage` field,
+    and parameters in `ui/wasm/bindings.cpp`, `ui/wasm/web_game.hpp` and
+    `ui/wasm/game_model.hpp`. `chess_game.hpp:83` also misspelled one as
+    `whitePLayer`. The QML role is still named `"pieceImage"`, and
+    `WebGame::moveNumber` is left alone because the WebIDL file names
+    it.
+  - **Item 7.** `engine/fen_parser.cpp:260` and `:267` are read from the
+    stream on the next line, which is declaring at the point of use, so
+    they stay. `engine/move.cpp:336` also stays: both variables are set
+    by an `if` chain that throws or returns in its last branch.
+  - **Item 9.** `bench_main.cpp` keeps `std::`, because its `main()` is
+    outside the namespace.
+  - **Item 13.** The constant is now `Bytes_Per_Megabyte`.
+- Verified on Linux with GCC and Qt 6.11.2:
+  - Release, with the QML UI, benchmarks and tools on: no warnings, all
+    269 tests pass (235 fast, 34 slow).
+  - Debug, without QML: the 227 fast tests pass.
+  - The `lint` and `all_qmllint` targets pass.
+  - The WASM target `wisdom-chess-web` builds with Emscripten, which is
+    the only build that compiles `bindings.cpp` and
+    `ui/wasm/game_model.hpp`.
+  - Not run: the React tests. The only change to TypeScript is a newline
+    at the end of four files.
