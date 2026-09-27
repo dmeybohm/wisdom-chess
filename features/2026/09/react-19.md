@@ -19,8 +19,11 @@ moves all four together and replaces that PR.
   as the return value. `react-dnd` 16's connectors return a
   `ReactElement | null`, so passing `drag`, `drop` or `preview` straight to
   `ref=` no longer type-checks. `Square.tsx` wraps each in a callback that
-  discards the result. `react-dnd` is no longer maintained, so it is the
-  dependency most likely to hold back a later upgrade.
+  discards the result, memoized on its connector: an inline wrapper is a
+  new ref every render, so React would detach and reattach it and
+  react-dnd would drop and re-add its DOM listeners on every board
+  update. `react-dnd` is no longer maintained, so it is the dependency
+  most likely to hold back a later upgrade.
 
 ## Implementation Progress
 
@@ -30,3 +33,11 @@ Done as above. `tsc`, the 50 vitest tests and `vite build` pass. The unit
 tests only cover starting a drag, so the WASM build was also run in
 headless Chromium: dragging e2 to e4 moves the pawn and hands the move to
 Black, with no console warnings.
+
+### Session 2 (2026-09-27)
+
+Review on #289 pointed out that the inline ref wrappers are new
+functions on every render. A new `Square.test.tsx` case confirmed that
+re-rendering a piece removed its `dragstart` listener; the wrappers are
+now `useCallback`s on their connectors and the test passes. The headless
+drag check still moves the pawn.

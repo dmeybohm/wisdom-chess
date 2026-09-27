@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import "./Board.css";
 import { Piece } from "./lib/Pieces";
 import { useDrag, useDrop } from 'react-dnd';
@@ -26,9 +26,10 @@ export function Square(props: SquareProps) {
             props.onDropPiece((dropped as DroppedWithPosition).src, props.position)
         },
     })
+    const dropRef = useCallback((el: Element | null) => { drop(el) }, [drop])
     return (
         <div
-            ref={el => { drop(el) }}
+            ref={dropRef}
             className={`square ${props.isOddRow ? "odd" : ""}`}
             onClick={() => {
                 props.onClick(props.position)
@@ -76,18 +77,21 @@ export function PieceOverlay(props: PieceOverlayProps) {
             props.onDropPiece((dropped as DroppedWithPosition).src, props.piece.position)
         },
     }, [props.piece.position])
+    const dragRef = useCallback((el: Element | null) => { drag(el) }, [drag])
+    const dropRef = useCallback((el: Element | null) => { drop(el) }, [drop])
+    const previewRef = useCallback((el: Element | null) => { preview(el) }, [preview])
 
     const focused = props.piece.position === props.focusedSquare ? 'focused' : ''
     const draggingClass = props.droppedSquare === props.piece.position ? "dragging" : ''
     return (
         <div
-            ref={el => { drop(el) }}
+            ref={dropRef}
             className={`piece ${props.piece.position} ${focused} ${draggingClass}`}
             onClick={() => props.onPieceClick(props.piece.position)}
             onPointerDown={event => { pointerType.current = event.pointerType }}
         >
             <div
-                ref={el => { drag(el) }}
+                ref={dragRef}
                 style={{
                     transform: 'translate(0, 0)', // workaround background showing up
                     opacity: isDragging ? 0.5 : 1,
@@ -95,7 +99,7 @@ export function PieceOverlay(props: PieceOverlayProps) {
             >
                 {!isDragging &&
                     <img
-                        ref={el => { drag(el) }}
+                        ref={dragRef}
                         draggable={false}
                         alt="piece"
                         src={props.piece.icon}
@@ -104,7 +108,7 @@ export function PieceOverlay(props: PieceOverlayProps) {
             </div>
         {isDragging &&
             <img
-                ref={el => { preview(el) }}
+                ref={previewRef}
                 alt="piece"
                 draggable={false}
                 src={props.piece.icon}
