@@ -7,6 +7,9 @@
 #include "wisdom-chess/ui/wasm/bindings.hpp"
 #include "wisdom-chess/ui/wasm/web_game.hpp"
 
+// Created in main().
+extern emscripten_wasm_worker_t engine_thread;
+
 namespace wisdom
 {
     class GameModel

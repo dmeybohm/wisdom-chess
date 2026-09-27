@@ -1,5 +1,6 @@
 add_executable(wisdom-chess-viewmodel-tests
     game_viewmodel_base_test.cpp
+    piece_movement_test.cpp
     viewmodel_types_test.cpp
     test_main.cpp)
 

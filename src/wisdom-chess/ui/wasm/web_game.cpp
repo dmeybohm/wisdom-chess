@@ -6,6 +6,7 @@
 
 #include "wisdom-chess/ui/wasm/web_game.hpp"
 #include "wisdom-chess/ui/wasm/game_settings.hpp"
+#include "wisdom-chess/ui/viewmodel/piece_movement.hpp"
 
 namespace wisdom
 {
@@ -53,7 +54,7 @@ namespace wisdom
     {
         my_game.move (move);
 
-        updatePieceList (move.getPromotedPiece());
+        updatePieceList (move);
         updateDisplayedGameState();
     }
 
@@ -130,125 +131,33 @@ namespace wisdom
         updateDisplayedGameState();
     }
 
-    [[nodiscard]] auto
-    WebGame::findAndRemoveId (
-        std::unordered_map<int,
-        WebColoredPiece>& old_list,
-        Coord coord_to_find,
-        ColoredPiece piece_to_find
-    )
-        -> int
+    void WebGame::updatePieceList (Move move)
     {
-        auto found = std::find_if (
-            old_list.begin(),
-            old_list.end(),
-            [piece_to_find, coord_to_find] (const auto& it)
-                -> bool
-            {
-                auto value = it.second;
-                auto piece = mapColoredPiece (value);
-                auto piece_coord = makeCoord (value.row, value.col);
-                return piece_to_find == piece && piece_coord == coord_to_find;
-            }
-        );
+        auto movement = ui::pieceMovement (move);
 
-        if (found != old_list.end())
+        if (movement.captured.has_value())
         {
-            auto value = found->second;
-            old_list.erase (found);
-            return value.id;
+            int captured_index = my_pieces.indexOf (*movement.captured);
+            expects (captured_index >= 0);
+            my_pieces.removeAt (captured_index);
         }
 
-        return 0;
-    }
-
-    void WebGame::updatePieceList (Piece promoted_piece_type)
-    {
-        const Board& board = my_game.getBoard();
-
-        WebColoredPieceList old_pieces = my_pieces;
-        my_pieces.clear();
-
-        std::unordered_map<int, WebColoredPiece> old_list {};
-        std::unordered_map<int, ColoredPiece> deferred {};
-
-        // Index the old pieces to be able to find the old ids:
-        for (int i = 0; i < old_pieces.length; i++)
+        auto relocate = [this] (ui::PieceStep step) -> WebColoredPiece&
         {
-            WebColoredPiece piece = old_pieces.pieces[i];
-            Coord src = Coord::make (piece.row, piece.col);
-            old_list[src.index()] = piece;
-        }
+            int index = my_pieces.indexOf (step.src);
+            expects (index >= 0);
 
-        for (int i = 0; i < Num_Squares; i++)
-        {
-            Coord coord = Coord::fromIndex (i);
-            ColoredPiece piece = board.pieceAt (coord);
-            if (piece != Piece_And_Color_None)
-            {
-                int id = findAndRemoveId (old_list, coord, piece);
-                if (id != 0)
-                {
-                    WebColoredPiece new_piece = {
-                        id,
-                        mapColor (piece.color()),
-                        mapPiece (piece.type()),
-                        narrow<int8_t> (coord.row()),
-                        narrow<int8_t> (coord.column()),
-                    };
-                    my_pieces.addPiece (new_piece);
-                }
-                else
-                {
-                    deferred[i] = piece;
-                }
-            }
-        }
+            auto& piece = my_pieces.pieces[index];
+            piece.row = step.dst.row<int>();
+            piece.col = step.dst.column<int>();
+            return piece;
+        };
 
-        if (!deferred.empty())
-        {
-            for (auto& value : deferred)
-            {
-                auto new_piece = value.second;
-                auto pred = [new_piece, promoted_piece_type] (const auto& list_item) -> bool
-                {
-                    ColoredPiece old_piece = mapColoredPiece (list_item.second);
-                    const auto pieces_match = old_piece == new_piece;
-                    const auto promoted_piece_matches = (
-                        promoted_piece_type != Piece::None
-                        && old_piece.color() == new_piece.color()
-                        && old_piece.type() == Piece::Pawn
-                        && new_piece.type() != Piece::Pawn
-                    );
-                    return pieces_match || promoted_piece_matches;
-                };
-                auto it = std::find_if (old_list.begin(), old_list.end(), pred);
-                if (it == old_list.end())
-                {
-                    throw Error { "Couldn't find id." };
-                }
-                auto old_piece = it->second;
-                auto coord = Coord::fromIndex (value.first);
+        auto& mover = relocate (movement.mover);
+        if (movement.promoted_piece != Piece::None)
+            mover.piece = mapPiece (movement.promoted_piece);
 
-                my_pieces.addPiece (WebColoredPiece {
-                    old_piece.id,
-                    old_piece.color,
-                    mapPiece (new_piece.type()),
-                    coord.row<int8_t>(),
-                    coord.column<int8_t>(),
-                });
-            }
-        }
-
-        // Sort by the ID so that the pieces always have the same order
-        // CSS animations removing the CSS classes will work.
-        std::sort (
-            my_pieces.pieces,
-            my_pieces.pieces + my_pieces.length,
-            [] (const WebColoredPiece& a, const WebColoredPiece& b)
-            {
-                return a.id < b.id;
-            }
-        );
+        if (movement.castling_rook.has_value())
+            relocate (*movement.castling_rook);
     }
 }

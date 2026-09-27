@@ -70,15 +70,20 @@ namespace wisdom
         enum MetadataBits : std::size_t
         {
             CURRENT_TURN_BIT = 0,
-            EN_PASSANT_TARGET_BIT = 1,
-            CASTLING_STATE_WHITE_BIT = 7,
-            CASTLING_STATE_BLACK_BIT = 10,
+            LEGAL_EN_PASSANT_TARGET_BIT = 1,
+            ILLEGAL_EN_PASSANT_TARGET_BIT = 6,
+            CASTLING_STATE_WHITE_BIT = 11,
+            CASTLING_STATE_BLACK_BIT = 13,
             CURRENT_TURN_MASK = 0b1,
             EN_PASSANT_MASK = 0b11111,
             CASTLE_ONE_COLOR_MASK = 0b11,
             EN_PASSANT_PRESENT = 0b1000,
             EN_PASSANT_IS_WHITE = 0b10000,
         };
+
+        static constexpr std::uint16_t En_Passant_Targets_Mask =
+            (EN_PASSANT_MASK << LEGAL_EN_PASSANT_TARGET_BIT)
+            | (EN_PASSANT_MASK << ILLEGAL_EN_PASSANT_TARGET_BIT);
 
     public:
         explicit BoardCode (const Board& board);
@@ -113,59 +118,74 @@ namespace wisdom
             addPiece (coord, piece);
         }
 
-        void setEnPassantTarget (Color color, Coord coord) noexcept
+        // Store the en passant target, recording whether a legal capture
+        // of it exists. At most one target is stored at a time.
+        void setEnPassantTarget (
+            Color color,
+            Coord coord,
+            EnPassantTargetState state
+        ) noexcept
         {
-            std::size_t target_bit_shift = EN_PASSANT_TARGET_BIT;
-            auto coord_bits = coord.column<std::size_t>()
-                | EN_PASSANT_PRESENT
-                | (color == Color::White
-                       ? static_cast<std::size_t> (EN_PASSANT_IS_WHITE)
-                       : std::size_t { 0 });
-            coord_bits <<= target_bit_shift;
-
             noexcept_expects (
                 coord.row() == (color == Color::White
                                     ? White_En_Passant_Row : Black_En_Passant_Row)
             );
 
-            // clear both targets initially. There can be only one at a given time.
+            auto coord_bits = coord.column<std::size_t>()
+                | EN_PASSANT_PRESENT
+                | (color == Color::White
+                       ? static_cast<std::size_t> (EN_PASSANT_IS_WHITE)
+                       : std::size_t { 0 });
+            std::size_t target_bit_shift = state == EnPassantTargetState::Legal
+                ? LEGAL_EN_PASSANT_TARGET_BIT
+                : ILLEGAL_EN_PASSANT_TARGET_BIT;
+
             auto metadata = getMetadataBits();
-            metadata &= ~(EN_PASSANT_MASK << EN_PASSANT_TARGET_BIT);
-            metadata |= coord_bits;
+            metadata &= ~En_Passant_Targets_Mask;
+            metadata |= coord_bits << target_bit_shift;
             setMetadataBits (metadata);
         }
 
         void clearEnPassantTarget() noexcept
         {
             auto metadata = getMetadataBits();
-            metadata &= ~(EN_PASSANT_MASK << EN_PASSANT_TARGET_BIT);
+            metadata &= ~En_Passant_Targets_Mask;
             setMetadataBits (metadata);
         }
 
+        // The en passant target, whether or not a legal capture of it exists.
         [[nodiscard]] auto
-        getEnPassantTarget() const noexcept
+        getAnyEnPassantTarget() const noexcept
             -> optional<EnPassantTarget>
         {
-            auto target_bits = getMetadataBits();
-            auto target_bit_shift = EN_PASSANT_TARGET_BIT;
+            auto metadata = getMetadataBits();
+            std::size_t target_bits = (metadata >> LEGAL_EN_PASSANT_TARGET_BIT) & EN_PASSANT_MASK;
+            if ((target_bits & EN_PASSANT_PRESENT) == 0)
+                target_bits = (metadata >> ILLEGAL_EN_PASSANT_TARGET_BIT) & EN_PASSANT_MASK;
 
-            target_bits &= EN_PASSANT_MASK << EN_PASSANT_TARGET_BIT;
-            target_bits >>= target_bit_shift;
-            auto col = narrow<int8_t> (target_bits & 0x7);
-            bool is_present = ((target_bits & EN_PASSANT_PRESENT) > 0);
-            Color vulnerable_color = ((target_bits & EN_PASSANT_IS_WHITE) > 0)
-                ? Color::White
-                : Color::Black;
-            auto row = vulnerable_color == Color::White 
-                ? White_En_Passant_Row 
-                : Black_En_Passant_Row;
+            return decodeEnPassantTarget (target_bits);
+        }
 
-            return is_present
-                ? std::make_optional (EnPassantTarget {
-                      .coord = makeCoord (row, col),
-                      .vulnerable_color = vulnerable_color
-                  })
-                : nullopt;
+        // The en passant target, if a legal capture of it exists.
+        [[nodiscard]] auto
+        getLegalEnPassantTarget() const noexcept
+            -> optional<EnPassantTarget>
+        {
+            auto metadata = getMetadataBits();
+            return decodeEnPassantTarget (
+                (metadata >> LEGAL_EN_PASSANT_TARGET_BIT) & EN_PASSANT_MASK
+            );
+        }
+
+        // The code with any en passant target that has no legal capture
+        // left out.
+        [[nodiscard]] auto
+        withoutIllegalEnPassantTarget() const noexcept
+            -> BoardCode
+        {
+            BoardCode result = *this;
+            result.my_code &= ~(std::uint64_t { EN_PASSANT_MASK } << ILLEGAL_EN_PASSANT_TARGET_BIT);
+            return result;
         }
 
         void setCurrentTurn (Color who) noexcept
@@ -257,6 +277,27 @@ namespace wisdom
         void applyMove (const Board& board, Move move) noexcept;
 
     private:
+        [[nodiscard]] static auto
+        decodeEnPassantTarget (std::size_t target_bits) noexcept
+            -> optional<EnPassantTarget>
+        {
+            if ((target_bits & EN_PASSANT_PRESENT) == 0)
+                return nullopt;
+
+            auto col = narrow<int8_t> (target_bits & 0x7);
+            Color vulnerable_color = ((target_bits & EN_PASSANT_IS_WHITE) > 0)
+                ? Color::White
+                : Color::Black;
+            auto row = vulnerable_color == Color::White 
+                ? White_En_Passant_Row 
+                : Black_En_Passant_Row;
+
+            return EnPassantTarget {
+                .coord = makeCoord (row, col),
+                .vulnerable_color = vulnerable_color
+            };
+        }
+
         // Private and only used for initialization.
         BoardCode();
 

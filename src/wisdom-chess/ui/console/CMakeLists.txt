@@ -15,7 +15,13 @@ install(TARGETS wisdom-chess-console
 # Every script makes Black human first, so that no search runs and the
 # output does not depend on the engine's choice of move.
 if (WISDOM_CHESS_FAST_TESTS)
-    set(console_save_file "${CMAKE_CURRENT_BINARY_DIR}/console-save-test.txt")
+    if (ANDROID)
+        # The test runs on the device, which has no build directory. A
+        # relative path lands in the directory the test runs in.
+        set(console_save_file "console-save-test.txt")
+    else()
+        set(console_save_file "${CMAKE_CURRENT_BINARY_DIR}/console-save-test.txt")
+    endif()
 
     wisdom_chess_add_cli_test("Console: help" wisdom-chess-console
         INPUT "help" "quit"

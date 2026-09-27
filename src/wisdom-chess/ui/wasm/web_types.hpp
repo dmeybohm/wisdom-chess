@@ -1,15 +1,8 @@
 #pragma once
 
-#include <emscripten.h>
-#include <emscripten/wasm_worker.h>
-
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
-
-#include "wisdom-chess/ui/wasm/bindings.hpp"
-
-extern emscripten_wasm_worker_t engine_thread;
 
 namespace wisdom
 {
@@ -306,6 +299,27 @@ namespace wisdom
             -> WebColoredPiece
         {
             return pieces[index];
+        }
+
+        // The index of the piece on the square, or -1.
+        [[nodiscard]] auto
+        indexOf (Coord coord) const
+            -> int
+        {
+            for (int i = 0; i < length; i++)
+            {
+                if (pieces[i].row == coord.row<int>() && pieces[i].col == coord.column<int>())
+                    return i;
+            }
+            return -1;
+        }
+
+        // Removes the piece at the index, keeping the others in order.
+        void removeAt (int index)
+        {
+            for (int i = index; i < length - 1; i++)
+                pieces[i] = pieces[i + 1];
+            pieces[--length] = WebColoredPiece {};
         }
 
         void clear()

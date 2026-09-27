@@ -5,7 +5,10 @@
 #              -DCLI_TEST_INPUT=<lines separated by |>
 #              [-DCLI_TEST_EXPECTED=<regexes separated by @@>]
 #              [-DCLI_TEST_FORBIDDEN=<regexes separated by @@>]
+#              [-DCLI_TEST_EMULATOR=<path>]
 #              -P run_cli_test.cmake
+#
+# CLI_TEST_EMULATOR runs the executable when cross-compiling.
 #
 # The separators are not ";" because add_test() splits arguments there.
 
@@ -20,7 +23,7 @@ file(WRITE "${CLI_TEST_INPUT_FILE}" "${input}\n")
 
 # Naming the same variable twice merges the two streams.
 execute_process(
-    COMMAND "${CLI_TEST_EXECUTABLE}"
+    COMMAND ${CLI_TEST_EMULATOR} "${CLI_TEST_EXECUTABLE}"
     INPUT_FILE "${CLI_TEST_INPUT_FILE}"
     OUTPUT_VARIABLE output
     ERROR_VARIABLE output

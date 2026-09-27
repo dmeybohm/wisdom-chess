@@ -295,7 +295,9 @@ namespace wisdom
     }
 
     [[noreturn]] void
-    terminateOnPreconditionFailure (const std::source_location& location) noexcept;
+    terminateOnPreconditionFailure (
+        const std::source_location& location = std::source_location::current()
+    ) noexcept;
 
     // Prints the failure and terminates when the condition is false. For
     // noexcept functions, where expects() could not propagate its exception.

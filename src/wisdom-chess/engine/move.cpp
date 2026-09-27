@@ -186,12 +186,6 @@ namespace wisdom
             removeCastlingEligibility (player, *affects_castle_state);
     }
 
-    void 
-    Board::setEnPassantTarget (Color who, Coord target) noexcept
-    {
-        my_code.setEnPassantTarget (who, target);
-    }
-
     void
     Board::clearEnPassantTarget() noexcept
     {
@@ -199,39 +193,40 @@ namespace wisdom
     }
 
     // FEN records the passed square after every double pawn push, whether
-    // or not the opponent has a legal en passant capture.
+    // or not the opponent has a legal en passant capture. Legality depends
+    // on the finished position, so this runs after the rest of the move.
     void 
     Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept
     {
-        int direction = pawnDirection<int> (who);
-
-        if (isDoubleSquarePawnMove (src_piece, move))
-        {
-            Coord src = move.getSrc();
-            int prev_row = nextRow (src.row<int>(), direction);
-            Coord new_state = makeCoord (prev_row, src.column());
-            setEnPassantTarget (who, new_state);
-        }
-        else
+        if (!isDoubleSquarePawnMove (src_piece, move))
         {
             clearEnPassantTarget();
+            return;
         }
+
+        int direction = pawnDirection<int> (who);
+        Coord src = move.getSrc();
+        int prev_row = nextRow (src.row<int>(), direction);
+        Coord target = makeCoord (prev_row, src.column());
+        my_code.setEnPassantTarget (who, target, EnPassantTargetState::Illegal);
+        classifyEnPassantTarget();
     }
 
-    auto
-    Board::normalizedBoardCode() const
-        -> BoardCode
+    void
+    Board::classifyEnPassantTarget() noexcept
     {
-        BoardCode result = my_code;
+        auto target = my_code.getAnyEnPassantTarget();
+        if (!target.has_value())
+            return;
 
-        if (generateLegalEnPassantMoves (*this).isEmpty())
-            result.clearEnPassantTarget();
-
-        return result;
+        auto state = generateLegalEnPassantMoves (*this).isEmpty()
+            ? EnPassantTargetState::Illegal
+            : EnPassantTargetState::Legal;
+        my_code.setEnPassantTarget (target->vulnerable_color, target->coord, state);
     }
 
     auto
-    Board::withMove (Color who, Move move) const -> Board
+    Board::withMove (Color who, Move move) const noexcept -> Board
     {
         Board result = *this;
         result.makeMove (who, move);
@@ -244,6 +239,7 @@ namespace wisdom
     {
         Board result = *this;
         result.setCurrentTurn (who);
+        result.classifyEnPassantTarget();
         return result;
     }
 
@@ -254,7 +250,7 @@ namespace wisdom
     }
 
     void 
-    Board::makeMove (Color who, Move move)
+    Board::makeMove (Color who, Move move) noexcept
     {
         assert (who == my_code.getCurrentTurn());
 
@@ -300,8 +296,6 @@ namespace wisdom
                 break;
         }
 
-        updateEnPassantEligibility (who, src_piece, move);
-
         my_code.applyMove (*this, move);
 
         setPiece (src, Piece_And_Color_None);
@@ -332,6 +326,7 @@ namespace wisdom
 
         updateMoveClock (who, pieceType (orig_src_piece), move);
         setCurrentTurn (colorInvert (who));
+        updateEnPassantEligibility (who, src_piece, move);
     }
 
     static auto 

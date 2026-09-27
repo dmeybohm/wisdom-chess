@@ -3,6 +3,7 @@
 #include "wisdom-chess/engine/board.hpp"
 
 #include "wisdom-chess/ui/qml/main/pieces_model.hpp"
+#include "wisdom-chess/ui/viewmodel/piece_movement.hpp"
 
 using namespace wisdom;
 using namespace std;
@@ -149,21 +150,27 @@ namespace wisdom::ui::qml
         return mapping;
     }
 
+    auto
+    PiecesModel::indexOf (Coord coord) const
+        -> int
+    {
+        for (int i = 0; i < my_pieces.count(); i++)
+        {
+            const auto& piece_model = my_pieces[i];
+            if (piece_model.row == coord.row<int>() && piece_model.column == coord.column<int>())
+                return i;
+        }
+        return -1;
+    }
+
     void
     PiecesModel::playerMoved (
         Move selected_move,
         wisdom::Color who
     ) {
-        Coord src = selected_move.getSrc();
-        Coord dst = selected_move.getDst();
+        auto movement = ui::pieceMovement (selected_move);
 
-        int src_row = coordRow<int> (src);
-        int src_column = coordColumn<int> (src);
-        int dst_row = coordRow<int> (dst);
-        int dst_column = coordColumn<int> (dst);
-
-        auto count = my_pieces.count();
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < my_pieces.count(); i++)
         {
             auto& piece_model = my_pieces[i];
 
@@ -179,71 +186,53 @@ namespace wisdom::ui::qml
                     QVector<int> { IsCastlingRookRole, CastlingSourceColumnRole }
                 );
             }
+        }
 
-            if (piece_model.row == dst_row && piece_model.column == dst_column)
+        if (movement.captured.has_value())
+        {
+            int captured = indexOf (*movement.captured);
+            if (captured >= 0)
             {
-                beginRemoveRows (QModelIndex {}, i, i);
-                my_pieces.removeAt (i);
-                count--;
+                beginRemoveRows (QModelIndex {}, captured, captured);
+                my_pieces.removeAt (captured);
                 endRemoveRows();
-
-                // The next piece has shifted into this index.
-                i--;
-                continue;
             }
-            if ((piece_model.row == src_row && piece_model.column == src_column))
+        }
+
+        int mover = indexOf (movement.mover.src);
+        if (mover >= 0)
+        {
+            auto& piece_model = my_pieces[mover];
+            piece_model.row = movement.mover.dst.row<int>();
+            piece_model.column = movement.mover.dst.column<int>();
+
+            QVector<int> roles_changed { RowRole, ColumnRole };
+
+            if (movement.promoted_piece != Piece::None)
             {
-                piece_model.row = dst_row;
-                piece_model.column = dst_column;
-
-                QVector<int> roles_changed { RowRole, ColumnRole };
-                QModelIndex changed_index = index (i, 0);
-
-                if (selected_move.isPromoting())
-                {
-                    auto promotedPiece = ColoredPiece::make (who, selected_move.getPromotedPiece());
-                    auto newImagePath = my_piece_to_image_path[toInt8 (promotedPiece)];
-                    piece_model.pieceImage = newImagePath;
-                    roles_changed.append (PieceImageRole);
-                }
-
-                emit dataChanged (changed_index, changed_index, roles_changed);
+                auto promoted_piece = ColoredPiece::make (who, movement.promoted_piece);
+                piece_model.pieceImage = my_piece_to_image_path[toInt8 (promoted_piece)];
+                roles_changed.append (PieceImageRole);
             }
-            if (selected_move.isCastling())
+
+            QModelIndex changed_index = index (mover, 0);
+            emit dataChanged (changed_index, changed_index, roles_changed);
+        }
+
+        if (movement.castling_rook.has_value())
+        {
+            int rook = indexOf (movement.castling_rook->src);
+            if (rook >= 0)
             {
-                auto source_rook_row = who == wisdom::Color::White ? 7 : 0;
-                auto source_rook_column
-                    = selected_move.isCastlingOnKingside() ? King_Rook_Column : Queen_Rook_Column;
-                auto dst_rook_column = selected_move.isCastlingOnKingside()
-                    ? Kingside_Castled_Rook_Column
-                    : Queenside_Castled_Rook_Column;
+                auto& piece_model = my_pieces[rook];
+                QModelIndex changed_index = index (rook, 0);
 
-                if (piece_model.row == source_rook_row && piece_model.column == source_rook_column)
-                {
-                    QModelIndex changed_index = index (i, 0);
+                piece_model.castling_source_column = movement.castling_rook->src.column<int>();
+                emit dataChanged (changed_index, changed_index, QVector<int> { CastlingSourceColumnRole });
 
-                    piece_model.castling_source_column = source_rook_column;
-                    emit dataChanged (changed_index, changed_index, QVector<int> { CastlingSourceColumnRole });
-
-                    piece_model.column = dst_rook_column;
-                    piece_model.is_castling_rook = true;
-                    emit dataChanged (changed_index, changed_index, QVector<int> { ColumnRole, IsCastlingRookRole });
-                }
-            }
-            if (selected_move.isEnPassant())
-            {
-                int direction = pawnDirection (who) * -1;
-                int en_passant_pawn_row = dst_row + direction;
-                int en_passant_pawn_col = dst_column;
-
-                if (piece_model.row == en_passant_pawn_row && piece_model.column == en_passant_pawn_col)
-                {
-                    beginRemoveRows (QModelIndex {}, i, i);
-                    my_pieces.removeAt (i);
-                    count--;
-                    endRemoveRows();
-                    i--;
-                }
+                piece_model.column = movement.castling_rook->dst.column<int>();
+                piece_model.is_castling_rook = true;
+                emit dataChanged (changed_index, changed_index, QVector<int> { ColumnRole, IsCastlingRookRole });
             }
         }
     }

@@ -110,9 +110,10 @@ private slots:
         );
         QVERIFY( menu != nullptr );
 
-        auto top_right = menu->mapToScene (QPointF { menu->width(), 0 });
-        QCOMPARE( top_right.x(), my_app->window()->width() );
-        QVERIFY( top_right.y() >= toolbar->height() );
+        // Some styles animate the menu into place.
+        auto top_right = [&] { return menu->mapToScene (QPointF { menu->width(), 0 }); };
+        QTRY_COMPARE( top_right().x(), my_app->window()->width() );
+        QVERIFY( top_right().y() >= toolbar->height() );
     }
 
     void aNewGameCanBeStartedFromTheMenu()

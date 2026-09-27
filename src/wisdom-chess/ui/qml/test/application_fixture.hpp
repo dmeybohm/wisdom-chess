@@ -21,12 +21,19 @@ namespace wisdom::ui::test
     drawnAt (const QQuickItem* item)
         -> QPointF;
 
+    // The layout the application loads where the tests run.
+#ifdef Q_OS_ANDROID
+    inline constexpr czstring Platform_Main_Qml_File = "main/mobile_main.qml";
+#else
+    inline constexpr czstring Platform_Main_Qml_File = "main/desktop_main.qml";
+#endif
+
     // The application as main.cpp assembles it: both models, the signal
     // connections between them and the real QML, loaded from resources.
     class Application
     {
     public:
-        explicit Application (czstring main_qml_file = "main/desktop_main.qml")
+        explicit Application (czstring main_qml_file = Platform_Main_Qml_File)
         {
             QObject::connect (&game_model, &GameModel::engineMoved,
                               &pieces_model, &PiecesModel::playerMoved);

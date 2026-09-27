@@ -56,6 +56,8 @@ namespace
 
         INFO( board.toFenString (who) );
         CHECK( generateLegalEnPassantMoves (board) == enPassantMovesAmongLegalMoves (board) );
+        CHECK( board.getLegalEnPassantTarget().has_value()
+               == !generateLegalEnPassantMoves (board).isEmpty() );
 
         if (depth <= 0)
             return;

@@ -64,6 +64,16 @@ that plays in any chess GUI, next to the console binary under
 
 `scripts/build-react-wasm.sh` is what CI runs for this build.
 
+The engine's doctest suites also build under Emscripten and run through
+node, which `emcmake` sets as the cross-compiling emulator. The
+`wisdom-chess-react` target does not build them, so build everything
+first:
+
+```bash
+cmake --build build-web -j 8
+ctest --test-dir build-web -j 4
+```
+
 ## Desktop version (Qt QML)
 
 1. **Install Qt 6.8 or newer** from [qt.io](https://www.qt.io/).
@@ -128,18 +138,50 @@ for WebAssembly, a separate Qt installation:
 
 ```bash
 source ./emsdk_env.sh
-emcmake cmake -S . -B build-qml-wasm -DWISDOM_CHESS_QT_DIR=~/Qt/6.9.2/wasm_multithread -DCMAKE_BUILD_TYPE=Release
+emcmake cmake -S . -B build-qml-wasm -DWISDOM_CHESS_QT_DIR=~/Qt/6.9.2/wasm_multithread -DWISDOM_CHESS_QML_UI=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build-qml-wasm --target WisdomChessQml
 # Serve the generated files with a web server
 ```
 
 `scripts/build-qml-wasm.sh` is what CI runs for this build.
 
+`WISDOM_CHESS_QML_UI=ON` is required here: other Emscripten builds use
+native WebAssembly exceptions (`-fwasm-exceptions`), while this one keeps
+the exception model Qt's WebAssembly libraries were built with.
+
 ## Android version
 
 Use Qt Creator with the Android NDK configured. See the
 [Qt Android documentation](https://doc.qt.io/qt-6/android-getting-started.html)
 for setup details.
+
+To build from the command line instead, use the `qt-cmake` of the Qt built
+for the device's architecture, with Java 17:
+
+```bash
+export JAVA_HOME=/path/to/jdk-17
+~/Qt/6.9.3/android_arm64_v8a/bin/qt-cmake -S . -B build-android -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DQT_HOST_PATH=$HOME/Qt/6.9.3/gcc_64 \
+  -DANDROID_SDK_ROOT=$HOME/Android/Sdk \
+  -DANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/27.2.12479018
+cmake --build build-android -j8
+ctest --test-dir build-android -j 4
+```
+
+The tests run on an Android device or emulator, through `adb`. One has to
+be connected for the build as well as for `ctest`, because the build runs
+the test programs to list their tests. Set `ANDROID_SERIAL` to pick one
+when several are connected. To build without a device, turn the tests off
+with `-DWISDOM_CHESS_FAST_TESTS=Off -DWISDOM_CHESS_SLOW_TESTS=Off`; in Qt
+Creator, that is under Projects > Build > CMake.
+
+`scripts/android-tests.sh <qt-android-dir>` configures, builds and runs
+the tests in one go, as CI does on its emulator.
+
+Each `QML: ...` test is built as a package of its own and takes over the
+device's display while it runs. The packages add a few minutes to a first
+build.
 
 ## Building with FIL-C
 
@@ -182,7 +224,7 @@ All are defined in the top-level `CMakeLists.txt`.
 | `WISDOM_CHESS_QML_UI` | `AUTO` | Qt QML UI: `AUTO` builds it if Qt 6 is found, `ON` requires Qt 6, `OFF` disables it |
 | `WISDOM_CHESS_QT_DIR` | empty | Directory of the Qt installation to use |
 | `WISDOM_CHESS_CONSOLE_UI` | `ON` | Build the console game and the UCI engine |
-| `WISDOM_CHESS_REACT_UI` | `ON` | Build the React frontend's WebAssembly engine (Emscripten builds) |
+| `WISDOM_CHESS_REACT_UI` | `ON` | Build the React frontend's WebAssembly engine (Emscripten builds), and its `WebGame` tests in any build with fast tests |
 | `WISDOM_CHESS_REACT_BUILD_INTEGRATED` | `ON` for Emscripten, `OFF` otherwise | Run the Node.js build of the React frontend as part of the CMake build |
 | `WISDOM_CHESS_FAST_TESTS` | `ON` | Build the fast test suite |
 | `WISDOM_CHESS_SLOW_TESTS` | `OFF` | Build the slow test suite (perft, hash collisions, search) |

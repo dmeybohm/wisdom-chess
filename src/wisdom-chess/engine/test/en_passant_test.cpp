@@ -14,10 +14,7 @@ TEST_CASE( "en passant" )
     {
         Board board;
 
-        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
-        REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
-
-        REQUIRE( board.getEnPassantTarget() == nullopt );
+        REQUIRE( board.getAnyEnPassantTarget() == nullopt );
 
         BoardBuilder builder;
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
@@ -28,8 +25,7 @@ TEST_CASE( "en passant" )
 
         auto builder_board = Board { builder };
 
-        REQUIRE( !builder_board.isEnPassantVulnerable (Color::White) );
-        REQUIRE( !builder_board.isEnPassantVulnerable (Color::Black) );
+        REQUIRE( builder_board.getAnyEnPassantTarget() == nullopt );
     }
 
     SUBCASE( "En passant moves work on the right" )
@@ -48,8 +44,7 @@ TEST_CASE( "en passant" )
 
         auto board = Board { builder };
 
-        REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
-        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
+        REQUIRE( board.getAnyEnPassantTarget() == nullopt );
 
         Move pawn_move = moveParse ("f7f5");
         board = board.withMove (Color::Black, pawn_move);
@@ -70,8 +65,9 @@ TEST_CASE( "en passant" )
         REQUIRE( coordRow (en_passant_move.getDst()) == 2 );
         REQUIRE( coordColumn (en_passant_move.getDst()) == 5 );
 
-        REQUIRE( board.isEnPassantVulnerable (Color::Black) );
-        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
+        auto target = board.getLegalEnPassantTarget();
+        REQUIRE( target.has_value() );
+        REQUIRE( target->vulnerable_color == Color::Black );
 
         board = board.withMove (Color::White, en_passant_move);
 
@@ -97,8 +93,7 @@ TEST_CASE( "en passant" )
 
         auto board = Board { builder };
         Move pawn_move = moveParse ("d7d5");
-        REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
-        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
+        REQUIRE( board.getAnyEnPassantTarget() == nullopt );
 
         board = board.withMove (Color::Black, pawn_move);
 
@@ -118,8 +113,9 @@ TEST_CASE( "en passant" )
         REQUIRE( coordRow (en_passant_move.getDst()) == 2 );
         REQUIRE( coordColumn (en_passant_move.getDst()) == 3 );
 
-        REQUIRE( board.isEnPassantVulnerable (Color::Black) );
-        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
+        auto target = board.getLegalEnPassantTarget();
+        REQUIRE( target.has_value() );
+        REQUIRE( target->vulnerable_color == Color::Black );
 
         board = board.withMove (Color::White, en_passant_move);
 
@@ -139,7 +135,7 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
     {
         Board board;
 
-        REQUIRE( board.getEnPassantTarget() == nullopt );
+        REQUIRE( board.getAnyEnPassantTarget() == nullopt );
         CHECK( board.getBoardCode() == board.getUnnormalizedBoardCode() );
     }
 
@@ -155,8 +151,8 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
         builder.setEnPassantTarget (Color::White, "a3");
         auto board = Board { builder };
 
-        REQUIRE( board.getEnPassantTarget().has_value() );
-        CHECK( !board.getBoardCode().getEnPassantTarget().has_value() );
+        REQUIRE( board.getAnyEnPassantTarget().has_value() );
+        CHECK( !board.getBoardCode().getAnyEnPassantTarget().has_value() );
         CHECK( board.getBoardCode() == without_target.getBoardCode() );
         CHECK( board.getUnnormalizedBoardCode() != without_target.getUnnormalizedBoardCode() );
         CHECK( board == without_target );
@@ -179,8 +175,8 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
         builder.setEnPassantTarget (Color::White, "d3");
         auto board = Board { builder };
 
-        REQUIRE( board.getEnPassantTarget().has_value() );
-        CHECK( !board.getBoardCode().getEnPassantTarget().has_value() );
+        REQUIRE( board.getAnyEnPassantTarget().has_value() );
+        CHECK( !board.getBoardCode().getAnyEnPassantTarget().has_value() );
         CHECK( board.getBoardCode() == without_target.getBoardCode() );
         CHECK( board == without_target );
     }
@@ -198,7 +194,7 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
         builder.setEnPassantTarget (Color::White, "d3");
         auto board = Board { builder };
 
-        REQUIRE( board.getEnPassantTarget().has_value() );
+        REQUIRE( board.getAnyEnPassantTarget().has_value() );
         CHECK( board.getBoardCode() == board.getUnnormalizedBoardCode() );
         CHECK( board.getBoardCode() != without_target.getBoardCode() );
         CHECK( board != without_target );
@@ -229,8 +225,91 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
         FenParser fen { fen_text };
         auto board = fen.buildBoard();
 
-        CHECK( !board.getBoardCode().getEnPassantTarget().has_value() );
-        CHECK( board.getEnPassantTarget().has_value() );
+        CHECK( !board.getBoardCode().getAnyEnPassantTarget().has_value() );
+        CHECK( board.getAnyEnPassantTarget().has_value() );
         CHECK( board.toFenString (Color::Black) == fen_text );
+    }
+}
+
+TEST_CASE( "An en passant target's legality is decided when it is set" )
+{
+    SUBCASE( "A double push next to an enemy pawn leaves a legal target" )
+    {
+        BoardBuilder builder;
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("d2", Color::White, Piece::Pawn);
+        builder.addPiece ("e4", Color::Black, Piece::Pawn);
+        auto board = Board { builder }.withMove (Color::White, moveParse ("d2 d4"));
+
+        auto target = board.getLegalEnPassantTarget();
+        REQUIRE( target.has_value() );
+        CHECK( target->coord == coordParse ("d3") );
+        CHECK( target->vulnerable_color == Color::White );
+    }
+
+    SUBCASE( "A double push with no enemy pawn beside it leaves an illegal target" )
+    {
+        BoardBuilder builder;
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("a2", Color::White, Piece::Pawn);
+        auto board = Board { builder }.withMove (Color::White, moveParse ("a2 a4"));
+
+        CHECK( board.getAnyEnPassantTarget().has_value() );
+        CHECK( !board.getLegalEnPassantTarget().has_value() );
+    }
+
+    SUBCASE( "A double push beside a pinned enemy pawn leaves an illegal target" )
+    {
+        BoardBuilder builder;
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("a4", Color::White, Piece::Rook);
+        builder.addPiece ("d2", Color::White, Piece::Pawn);
+        builder.addPiece ("e4", Color::Black, Piece::Pawn);
+        builder.addPiece ("h4", Color::Black, Piece::King);
+        auto board = Board { builder }.withMove (Color::White, moveParse ("d2 d4"));
+
+        CHECK( board.getAnyEnPassantTarget().has_value() );
+        CHECK( !board.getLegalEnPassantTarget().has_value() );
+        auto potential_moves = generateAllPotentialMoves (board, Color::Black);
+        CHECK( std::none_of (
+            potential_moves.begin(), potential_moves.end(),
+            [](Move move) { return move.isEnPassant(); }
+        ) );
+    }
+
+    SUBCASE( "A board built with a target decides it" )
+    {
+        BoardBuilder builder;
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("d4", Color::White, Piece::Pawn);
+        builder.addPiece ("e4", Color::Black, Piece::Pawn);
+        builder.setCurrentTurn (Color::Black);
+        builder.setEnPassantTarget (Color::White, "d3");
+        auto board = Board { builder };
+
+        CHECK( board.getLegalEnPassantTarget().has_value() );
+    }
+
+    SUBCASE( "Changing the side to move decides it again" )
+    {
+        BoardBuilder builder;
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("d4", Color::White, Piece::Pawn);
+        builder.addPiece ("e4", Color::Black, Piece::Pawn);
+        builder.setCurrentTurn (Color::Black);
+        builder.setEnPassantTarget (Color::White, "d3");
+        auto board = Board { builder };
+
+        auto white_to_move = board.withCurrentTurn (Color::White);
+        CHECK( white_to_move.getAnyEnPassantTarget().has_value() );
+        CHECK( !white_to_move.getLegalEnPassantTarget().has_value() );
+
+        auto black_to_move = white_to_move.withCurrentTurn (Color::Black);
+        CHECK( black_to_move.getLegalEnPassantTarget().has_value() );
+        CHECK( black_to_move == board );
     }
 }

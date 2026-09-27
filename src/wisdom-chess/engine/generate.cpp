@@ -273,7 +273,7 @@ namespace wisdom
     {
         Color opponent = colorInvert (who);
 
-        auto enPassantTarget = board.getEnPassantTarget();
+        auto enPassantTarget = board.getAnyEnPassantTarget();
         if (!enPassantTarget.has_value() || enPassantTarget->vulnerable_color != opponent)
             return nullopt;
 
@@ -381,11 +381,14 @@ namespace wisdom
             return;
         }
 
-        // en passant
-        optional<int> en_passant_column
-            = eligibleEnPassantColumn (board, piece_row, piece_col, who);
-        if (en_passant_column.has_value())
-            enPassant (*en_passant_column);
+        // en passant, skipped when no capture of the target is legal
+        if (board.getLegalEnPassantTarget().has_value())
+        {
+            optional<int> en_passant_column
+                = eligibleEnPassantColumn (board, piece_row, piece_col, who);
+            if (en_passant_column.has_value())
+                enPassant (*en_passant_column);
+        }
 
         for (const auto& check_pawn_move : all_pawn_moves)
             if (check_pawn_move.has_value())
@@ -613,7 +616,7 @@ namespace wisdom
         MoveList result;
 
         Color who = board.getCurrentTurn();
-        auto target = board.getEnPassantTarget();
+        auto target = board.getAnyEnPassantTarget();
         if (!target.has_value() || target->vulnerable_color == who)
             return result;
 

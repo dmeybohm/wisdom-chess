@@ -222,10 +222,12 @@ endif()
 # .app sits at the top of the install prefix, and CPack stages installs
 # under its own prefix when building the installer.
 # COMPONENT only applies to the artifact group it follows, so it has to be
-# repeated for the bundle (macOS) and the plain executable (Linux, Windows).
+# repeated for the bundle (macOS), the plain executable (Linux, Windows) and
+# the module library (Android).
 install(TARGETS WisdomChessQml
     BUNDLE DESTINATION . COMPONENT Application
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT Application)
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT Application
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT Application)
 
 if(WISDOM_CHESS_INSTALLER)
     # Deploy the Qt runtime (libraries, plugins, QML modules, qt.conf) next
@@ -280,7 +282,15 @@ if(EMSCRIPTEN)
     )
 endif()
 
-if (WISDOM_CHESS_FAST_TESTS AND NOT ANDROID AND NOT EMSCRIPTEN)
+if (WISDOM_CHESS_FAST_TESTS AND NOT EMSCRIPTEN)
+    if (ANDROID)
+        # Every test is a package of its own. Qt gives the targets of one
+        # directory a single package directory unless told otherwise, and
+        # only reads this from the cache.
+        set(QT_USE_TARGET_ANDROID_BUILD_DIR ON CACHE BOOL
+            "Build each Android package in a directory of its own")
+    endif()
+
     find_package(Qt6 COMPONENTS Test QuickTest QUIET)
     if (Qt6Test_FOUND AND Qt6QuickTest_FOUND)
         add_subdirectory(test)

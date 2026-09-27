@@ -48,17 +48,20 @@ target_include_directories(wisdom-chess-web
                   ../../..
 )
 target_compile_options(wisdom-chess-web PRIVATE
-        $<$<CONFIG:Debug>:-sNO_DISABLE_EXCEPTION_CATCHING>
         "-sWASM_WORKERS"
 )
 target_link_options(wisdom-chess-web PRIVATE
         "SHELL:-s WASM_WORKERS"
+        # The engine is compiled with -pthread; linking without it breaks
+        # typed catches on Emscripten 3.1.70. The memory growth check it
+        # warns about is already there for the workers' shared memory.
+        -pthread
+        -Wno-pthreads-mem-growth
         "SHELL:-s MODULARIZE=1"
         "SHELL:-s INITIAL_MEMORY=33554432"
         "SHELL:-s MAXIMUM_MEMORY=1073741824"
         "SHELL:-s ALLOW_MEMORY_GROWTH=1"
         $<$<CONFIG:Debug>:-sASSERTIONS=2>
-        $<$<CONFIG:Debug>:-sNO_DISABLE_EXCEPTION_CATCHING>
         "SHELL:-s EXPORT_NAME='wisdomChessWeb'"
         "SHELL:-s EXPORTED_FUNCTIONS=['_malloc, _free, _main']"
         --post-js ${CMAKE_CURRENT_BINARY_DIR}/glue.js

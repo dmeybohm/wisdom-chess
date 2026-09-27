@@ -18,6 +18,7 @@ function(wisdom_chess_add_cli_test test_name target)
     list(JOIN arg_INPUT "|" input)
 
     set(definitions
+        "-DCLI_TEST_EMULATOR=${CMAKE_CROSSCOMPILING_EMULATOR}"
         "-DCLI_TEST_EXECUTABLE=$<TARGET_FILE:${target}>"
         "-DCLI_TEST_INPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/${file_name}.input.txt"
         "-DCLI_TEST_INPUT=${input}"
