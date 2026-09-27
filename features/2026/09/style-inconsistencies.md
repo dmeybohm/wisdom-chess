@@ -408,3 +408,16 @@ Item 29: the React frontend is formatted with Prettier.
   parameter list and a constructor's initializer list. `AGENTS.md`
   keeps the conventions about what the code does, such as the pointer
   types and `expects`.
+- Review of #300 found two gaps, both fixed with fixtures:
+  - Lambdas with template parameters (`[]<typename T>(T value) {`) or
+    specifiers before a trailing return type (`() noexcept -> int {`)
+    were read as function bodies, since the rule only looked for `]`
+    right before `(`. It now scans back over the declarator, skipping
+    balanced `()` and `[]`, and treats the body as a lambda's when it
+    finds a `[...]` that is not an attribute (`[[likely]]`) or a
+    subscript (`operator[]`, `a[i]`). `matchingBracket` had mapped `]`
+    to `{`, which went unnoticed because nothing had passed it a `]`.
+  - `inline namespace V1 { ... }` escaped both rules: `namespace-braces`
+    looked only at a `namespace` that starts its line. It now checks
+    every `namespace`, which also covers a nested one written on the
+    line of its parent.

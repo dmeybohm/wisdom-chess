@@ -25,7 +25,7 @@ namespace
 
             for (size_t i = 0; i < code.size(); ++i)
             {
-                if (!isIdentifier (code[i], "namespace") || !startsLine (code, i))
+                if (!isIdentifier (code[i], "namespace"))
                 {
                     continue;
                 }

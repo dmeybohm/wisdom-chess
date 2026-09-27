@@ -52,3 +52,14 @@ void check (bool ok)
 {
     if (ok) { return; }
 }
+
+void likely (bool ok)
+{
+    if (ok) [[likely]] {
+        step();
+    }
+}
+
+auto Table::operator[] (size_t i) -> int& {
+    return my_data[i];
+}

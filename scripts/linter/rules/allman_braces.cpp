@@ -1,24 +1,21 @@
 #include "../linter.hpp"
 
+#include <unordered_map>
 #include <unordered_set>
 
 namespace wisdom_linter
 {
 namespace
 {
-    enum class BraceKind
-    {
-        Block,
-        Lambda,
-        Initializer,
-    };
-
     // The index of the bracket that pairs with code[index], searching in
     // the direction of step, or code.size() when there is none.
     auto matchingBracket (const std::vector<Token>& code, size_t index, int step) -> size_t
     {
+        static const std::unordered_map<std::string, std::string> pairs {
+            { "(", ")" }, { ")", "(" }, { "[", "]" }, { "]", "[" }, { "{", "}" }, { "}", "{" },
+        };
         const std::string& from = code[index].text;
-        std::string to = from == "(" ? ")" : from == ")" ? "(" : from == "{" ? "}" : "{";
+        const std::string& to = pairs.at (from);
         int depth = 0;
         for (auto i = static_cast<std::ptrdiff_t> (index); i >= 0
              && i < static_cast<std::ptrdiff_t> (code.size()); i += step)
@@ -36,22 +33,17 @@ namespace
         return code.size();
     }
 
-    // Whether the parenthesized list closing at code[close] belongs to a
-    // lambda: its "(" follows the capture list's "]".
-    auto closesLambdaParameters (const std::vector<Token>& code, size_t close) -> bool
-    {
-        size_t open = matchingBracket (code, close, -1);
-        return open > 0 && open < code.size() && isPunctuator (code[open - 1], "]");
-    }
-
-    // What the "{" at code[brace] opens, judged by the tokens before it.
-    auto classify (const std::vector<Token>& code, size_t brace) -> BraceKind
+    // Whether the "{" at code[brace] opens a block rather than an
+    // initializer, judged by the tokens before it. A lambda's body counts
+    // as a block here.
+    auto opensBlock (const std::vector<Token>& code, size_t brace) -> bool
     {
         static const std::unordered_set<std::string> block_keywords {
             "else", "do", "try",
         };
-        static const std::unordered_set<std::string> function_specifiers {
-            "const", "noexcept", "override", "final", "volatile",
+        static const std::unordered_set<std::string> specifiers {
+            "const", "noexcept", "override", "final", "volatile", "mutable", "static",
+            "constexpr", "consteval",
         };
         static const std::unordered_set<std::string> type_keywords {
             "class", "struct", "union", "enum",
@@ -59,44 +51,37 @@ namespace
 
         if (brace == 0)
         {
-            return BraceKind::Block;
+            return true;
         }
         const auto& prev = code[brace - 1];
 
-        if (isPunctuator (prev, "]") || isIdentifier (prev, "mutable"))
-        {
-            return BraceKind::Lambda;
-        }
         if (isPunctuator (prev, ")"))
         {
-            if (closesLambdaParameters (code, brace - 1))
-            {
-                return BraceKind::Lambda;
-            }
             size_t open = matchingBracket (code, brace - 1, -1);
             bool requires_expression = open > 0 && open < code.size()
                 && isIdentifier (code[open - 1], "requires");
-            return requires_expression ? BraceKind::Initializer : BraceKind::Block;
+            return !requires_expression;
         }
-        if (isPunctuator (prev, "}"))
+        if (isPunctuator (prev, "}") || isPunctuator (prev, "]"))
         {
-            // The end of a constructor's initializer list.
-            return BraceKind::Block;
+            // The end of a constructor's initializer list, an attribute
+            // such as [[likely]], or a lambda's capture list.
+            return true;
         }
         if (isIdentifier (prev) && (block_keywords.count (prev.text) > 0
-                                    || function_specifiers.count (prev.text) > 0))
+                                    || specifiers.count (prev.text) > 0))
         {
-            return BraceKind::Block;
+            return true;
         }
         if (!isIdentifier (prev) && !isPunctuator (prev, ">") && !isPunctuator (prev, ">>")
             && !isPunctuator (prev, "&") && !isPunctuator (prev, "&&") && !isPunctuator (prev, "*"))
         {
-            return BraceKind::Initializer;
+            return false;
         }
 
         // A name comes before it: a type's body, a function with a trailing
-        // return type, or an initializer. Look back to the start of the
-        // statement.
+        // return type or a requires clause, or an initializer. Look back to
+        // the start of the statement.
         for (size_t i = brace; i-- > 0; )
         {
             const auto& token = code[i];
@@ -104,34 +89,78 @@ namespace
                 || isPunctuator (token, "}") || isPunctuator (token, "=")
                 || isIdentifier (token, "return") || isIdentifier (token, "throw"))
             {
-                return BraceKind::Initializer;
+                return false;
             }
             if (isPunctuator (token, ")") || isPunctuator (token, "]"))
             {
                 size_t open = matchingBracket (code, i, -1);
                 if (open >= code.size())
                 {
-                    return BraceKind::Initializer;
+                    return false;
                 }
                 i = open;
                 continue;
             }
             if (isPunctuator (token, "->"))
             {
-                return i > 0 && isPunctuator (code[i - 1], ")") && closesLambdaParameters (code, i - 1)
-                    ? BraceKind::Lambda
-                    : BraceKind::Block;
+                return true;
+            }
+            if (isIdentifier (token, "requires") && i > 0
+                && (isPunctuator (code[i - 1], ")") || isPunctuator (code[i - 1], ">")))
+            {
+                return true;
             }
             if (isIdentifier (token) && type_keywords.count (token.text) > 0)
             {
-                return BraceKind::Block;
+                return true;
             }
             if (isPunctuator (token, "(") || isPunctuator (token, ","))
             {
-                return BraceKind::Initializer;
+                return false;
             }
         }
-        return BraceKind::Initializer;
+        return false;
+    }
+
+    // Whether the block opening at code[brace] is a lambda's body: looking
+    // back to the start of the statement, past its parameters, template
+    // parameters, specifiers and return type, there is a capture list.
+    auto opensLambdaBody (const std::vector<Token>& code, size_t brace) -> bool
+    {
+        static const std::unordered_set<std::string> expression_keywords {
+            "return", "throw", "co_return", "co_yield", "co_await", "case",
+        };
+
+        for (size_t i = brace; i-- > 0; )
+        {
+            const auto& token = code[i];
+            if (isPunctuator (token, ";") || isPunctuator (token, "{") || isPunctuator (token, "}"))
+            {
+                return false;
+            }
+            if (!isPunctuator (token, ")") && !isPunctuator (token, "]"))
+            {
+                continue;
+            }
+            size_t open = matchingBracket (code, i, -1);
+            if (open >= code.size())
+            {
+                return false;
+            }
+            bool brackets = isPunctuator (token, "]");
+            bool attribute = brackets && isPunctuator (code[open + 1], "[");
+            bool subscript = open > 0
+                && ((isIdentifier (code[open - 1])
+                     && expression_keywords.count (code[open - 1].text) == 0)
+                    || isPunctuator (code[open - 1], ")")
+                    || isPunctuator (code[open - 1], "]"));
+            if (brackets && !attribute && !subscript)
+            {
+                return true;
+            }
+            i = open;
+        }
+        return false;
     }
 
     class AllmanBracesRule : public Rule
@@ -165,7 +194,7 @@ namespace
                 {
                     continue;
                 }
-                if (classify (code, i) != BraceKind::Block)
+                if (!opensBlock (code, i) || opensLambdaBody (code, i))
                 {
                     continue;
                 }
