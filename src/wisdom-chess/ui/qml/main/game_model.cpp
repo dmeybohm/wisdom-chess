@@ -50,14 +50,14 @@ namespace wisdom::ui::qml
 
     auto
     GameModel::getGame()
-        -> nullable<Game>
+        -> nonnull<Game>
     {
         return my_chess_game->state();
     }
 
     auto
     GameModel::getGame() const
-        -> nullable<const Game>
+        -> nonnull<const Game>
     {
         return my_chess_game->state();
     }

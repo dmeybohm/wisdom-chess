@@ -129,14 +129,14 @@ namespace wisdom
     protected:
         [[nodiscard]] auto
         getGame()
-            -> nullable<Game> override
+            -> nonnull<Game> override
         {
             return &my_game;
         }
 
         [[nodiscard]] auto
         getGame() const
-            -> nullable<const Game> override
+            -> nonnull<const Game> override
         {
             return &my_game;
         }

@@ -44,7 +44,7 @@ namespace wisdom::worker
 
         [[nodiscard]] static auto 
         getState() 
-            -> nullable<GameState>
+            -> nonnull<GameState>
         {
             static auto instance = std::make_unique<GameState>();
             return instance.get();
@@ -52,7 +52,7 @@ namespace wisdom::worker
 
         [[nodiscard]] static auto 
         getGame() 
-            -> nullable<Game>
+            -> nonnull<Game>
         {
             return &GameState::getState()->game;
         }
@@ -77,10 +77,10 @@ namespace wisdom::worker
         class WebEngineGameStatusUpdate : public GameStatusUpdate
         {
         private:
-            nullable<GameState> my_parent;
+            nonnull<GameState> my_parent;
 
         public:
-            explicit WebEngineGameStatusUpdate (nullable<GameState> parent)
+            explicit WebEngineGameStatusUpdate (nonnull<GameState> parent)
                 : my_parent { parent }
             {
             }
@@ -238,19 +238,19 @@ mainThreadReceiveMove (
 
 EMSCRIPTEN_KEEPALIVE void pauseWorker()
 {
-    auto* state = GameState::getState();
+    auto state = GameState::getState();
     state->play_status.store (GameState::Paused);
 }
 
 EMSCRIPTEN_KEEPALIVE void unpauseWorker()
 {
-    auto* state = GameState::getState();
+    auto state = GameState::getState();
     state->play_status.store (GameState::Playing);
 }
 
 EMSCRIPTEN_KEEPALIVE void requestSearchRestart()
 {
-    auto* state = GameState::getState();
+    auto state = GameState::getState();
     state->restart_requested.store (true);
 }
 

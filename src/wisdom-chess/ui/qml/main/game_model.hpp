@@ -270,11 +270,11 @@ namespace wisdom::ui::qml
     public:
         [[nodiscard]] auto
         getGame()
-            -> wisdom::nullable<wisdom::Game> override;
+            -> wisdom::nonnull<wisdom::Game> override;
 
         [[nodiscard]] auto
         getGame() const
-            -> wisdom::nullable<const wisdom::Game> override;
+            -> wisdom::nonnull<const wisdom::Game> override;
 
         // Whether an engine move is waiting for the board to finish animating.
         [[nodiscard]] auto

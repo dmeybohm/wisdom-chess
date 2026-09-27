@@ -126,3 +126,13 @@ hot paths, so this made no difference here.
 
 Both hot sites now use `unchecked_nonnull`, which gives back the
 reference versions' code while keeping the pointer style.
+
+**Tightening `nullable`.** None of the 18 `nullable` uses could be null:
+the `getGame()` overrides return a member or `ChessGame::state()`, which
+is already `nonnull`; the `my_parent` back-pointers are set by their
+owners; and the WASM `GameState::getState()`/`getGame()` return a static
+instance. All are `nonnull` now. No caller tested them for null, so no
+checks became dead. `nullable` is left with no users outside
+`global.hpp`. A `nullable` that cannot be dereferenced until it is
+converted to `nonnull`, with a lint rule against raw pointers, is waiting
+for the first pointer that can actually be null.

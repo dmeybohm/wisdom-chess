@@ -5,10 +5,10 @@ namespace wisdom::ui
     class ViewModelStatusUpdate : public GameStatusUpdate
     {
     private:
-        nullable<GameViewModelBase> my_parent;
+        nonnull<GameViewModelBase> my_parent;
 
     public:
-        explicit ViewModelStatusUpdate (nullable<GameViewModelBase> parent)
+        explicit ViewModelStatusUpdate (nonnull<GameViewModelBase> parent)
             : my_parent { parent }
         {}
 
