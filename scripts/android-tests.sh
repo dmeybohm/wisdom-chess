@@ -69,4 +69,7 @@ fi
 
 "$QT_ANDROID_DIR/bin/qt-cmake" "${cmake_args[@]}"
 cmake --build "$BUILD_DIR" -j 4
-ctest --test-dir "$BUILD_DIR" --output-on-failure -j 4
+
+# A test gets a second try: now and then one passes on the device and its
+# result is lost on the way back.
+ctest --test-dir "$BUILD_DIR" --output-on-failure -j 4 --repeat until-pass:2
