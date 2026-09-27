@@ -52,17 +52,17 @@ namespace wisdom::ui::qml
         void opponentMoved (wisdom::Move move, wisdom::Color who);
 
         // Receive our own move:
-        void receiveEngineMoved (wisdom::Move move, wisdom::Color who, int gameId);
+        void receiveEngineMoved (wisdom::Move move, wisdom::Color who, int game_id);
 
         // Receive the draw status:
         void receiveDrawStatus (
-            wisdom::ProposedDrawType drawType,
+            wisdom::ProposedDrawType draw_type,
             wisdom::Color player,
             bool accepted
         );
 
         // Update the whole chess game state. The ownership of the game is taken.
-        void reloadGame (std::shared_ptr<ChessGame> newGame, int newGameId);
+        void reloadGame (std::shared_ptr<ChessGame> new_game, int new_game_id);
 
         // Update the config of the game. Also update the notifier in case we
         // had to interrupt the engine.
@@ -71,7 +71,7 @@ namespace wisdom::ui::qml
 
     signals:
         // The engine made a move.
-        void engineMoved (wisdom::Move move, wisdom::Color who, int gameId);
+        void engineMoved (wisdom::Move move, wisdom::Color who, int game_id);
 
         // The game is over: the engine accepted a draw.
         void noMovesAvailable();
@@ -83,7 +83,7 @@ namespace wisdom::ui::qml
 
         // Send draw response:
         void updateDrawStatus (
-            wisdom::ProposedDrawType drawType,
+            wisdom::ProposedDrawType draw_type,
             wisdom::Color player,
             bool accepted
         );
@@ -125,7 +125,7 @@ namespace wisdom::ui::qml
         // the search.
         //
         void handlePotentialDrawPosition (
-            wisdom::ProposedDrawType proposedDrawType,
+            wisdom::ProposedDrawType proposed_draw_type,
             wisdom::Color who
         );
 

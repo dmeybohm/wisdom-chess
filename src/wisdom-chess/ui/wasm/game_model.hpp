@@ -31,15 +31,15 @@ namespace wisdom
         // Send new settings to the worker.
         void sendSettings() const
         {
-            int whitePlayer = static_cast<int> (my_game_settings.whitePlayer);
-            int blackPlayer = static_cast<int> (my_game_settings.blackPlayer);
+            int white_player = static_cast<int> (my_game_settings.whitePlayer);
+            int black_player = static_cast<int> (my_game_settings.blackPlayer);
 
             emscripten_wasm_worker_post_function_sig (
                 engine_thread,
                 (void*)workerReceiveSettings, // lint-allow(raw-pointer): Emscripten API
                 "iiiii",
-                whitePlayer,
-                blackPlayer,
+                white_player,
+                black_player,
                 my_game_settings.thinkingTime,
                 my_game_settings.searchDepth,
                 static_cast<int> (my_game_settings.debugLogging)
@@ -97,9 +97,9 @@ namespace wisdom
             return make_unique<GameSettings> (my_game_settings).release();
         }
 
-        void setCurrentGameSettings (nonnull<GameSettings> newSettings)
+        void setCurrentGameSettings (nonnull<GameSettings> new_settings)
         {
-            my_game_settings = GameSettings { *newSettings };
+            my_game_settings = GameSettings { *new_settings };
 
             // A search under way stops so the new settings take effect at
             // once; the worker starts again when the settings reach it.

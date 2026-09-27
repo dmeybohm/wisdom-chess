@@ -44,11 +44,11 @@ namespace wisdom::ui
         auto operator= (const GameViewModelBase&) -> GameViewModelBase& = delete;
 
         [[nodiscard]] auto
-        needsPawnPromotion (int srcRow, int srcCol, int dstRow, int dstCol) const
+        needsPawnPromotion (int src_row, int src_col, int dst_row, int dst_col) const
             -> bool;
 
         [[nodiscard]] auto
-        isLegalMove (Move selectedMove) const
+        isLegalMove (Move selected_move) const
             -> bool;
 
         // Whether the square holds a piece the human whose turn it is
@@ -118,7 +118,7 @@ namespace wisdom::ui
 
         // Set the proposed draw status:
         void setProposedDrawStatus (
-            wisdom::ProposedDrawType drawType,
+            wisdom::ProposedDrawType draw_type,
             DrawByRepetitionStatus status
         );
 

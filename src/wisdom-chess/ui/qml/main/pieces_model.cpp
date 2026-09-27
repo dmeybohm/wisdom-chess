@@ -79,11 +79,11 @@ namespace wisdom::ui::qml
                 auto piece = board.pieceAt (row, column);
                 if (piece != Piece_And_Color_None)
                 {
-                    PieceInfo newPiece { row, column, piece, my_piece_to_image_path[toInt8 (piece)] };
-                    auto lastRow = my_pieces.count();
-                    beginInsertRows (QModelIndex {}, wisdom::narrow<int> (lastRow),
-                                     wisdom::narrow<int> (lastRow));
-                    my_pieces.append (newPiece);
+                    PieceInfo new_piece { row, column, piece, my_piece_to_image_path[toInt8 (piece)] };
+                    auto last_row = my_pieces.count();
+                    beginInsertRows (QModelIndex {}, wisdom::narrow<int> (last_row),
+                                     wisdom::narrow<int> (last_row));
+                    my_pieces.append (new_piece);
                     endInsertRows();
                 }
             }
@@ -125,7 +125,7 @@ namespace wisdom::ui::qml
             case ColumnRole:
                 return piece_info.column;
             case PieceImageRole:
-                return piece_info.pieceImage;
+                return piece_info.piece_image;
             case IsCastlingRookRole:
                 return piece_info.is_castling_rook;
             case CastlingSourceColumnRole:
@@ -211,7 +211,7 @@ namespace wisdom::ui::qml
             if (movement.promoted_piece != Piece::None)
             {
                 auto promoted_piece = ColoredPiece::make (who, movement.promoted_piece);
-                piece_model.pieceImage = my_piece_to_image_path[toInt8 (promoted_piece)];
+                piece_model.piece_image = my_piece_to_image_path[toInt8 (promoted_piece)];
                 roles_changed.append (PieceImageRole);
             }
 

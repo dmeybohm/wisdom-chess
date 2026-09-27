@@ -192,11 +192,11 @@ namespace wisdom
         {
             auto bits = colorIndex (who);
             auto current_turn_bit = bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT);
-            auto metadataBits = getMetadataBits();
+            auto metadata_bits = getMetadataBits();
 
-            metadataBits &= ~(CURRENT_TURN_MASK << CURRENT_TURN_BIT);
-            metadataBits |= current_turn_bit;
-            setMetadataBits (metadataBits);
+            metadata_bits &= ~(CURRENT_TURN_MASK << CURRENT_TURN_BIT);
+            metadata_bits |= current_turn_bit;
+            setMetadataBits (metadata_bits);
         }
 
         [[nodiscard]] auto
@@ -221,10 +221,10 @@ namespace wisdom
                 : CASTLING_STATE_BLACK_BIT;
             std::size_t mask = CASTLE_ONE_COLOR_MASK << bit_number;
 
-            auto metadataBits = getMetadataBits();
-            metadataBits &= ~mask;
-            metadataBits |= castling_bits << bit_number;
-            setMetadataBits (metadataBits);
+            auto metadata_bits = getMetadataBits();
+            metadata_bits &= ~mask;
+            metadata_bits |= castling_bits << bit_number;
+            setMetadataBits (metadata_bits);
         }
 
         [[nodiscard]] auto

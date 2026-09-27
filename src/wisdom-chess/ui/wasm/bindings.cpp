@@ -95,21 +95,21 @@ namespace wisdom::worker
 
         void
         handlePotentialDrawPosition (
-            wisdom::ProposedDrawType proposedDrawType,
+            wisdom::ProposedDrawType proposed_draw_type,
             wisdom::Color who
         ) {
             // The answers are recorded here; the main thread hears each one.
             ui::negotiateDraw (
                 &game,
-                proposedDrawType,
+                proposed_draw_type,
                 who,
-                [this, proposedDrawType] (Color player, bool accepted)
+                [this, proposed_draw_type] (Color player, bool accepted)
                 {
                     emscripten_wasm_worker_post_function_sig (
                         EMSCRIPTEN_WASM_WORKER_ID_PARENT, (void*)mainThreadReceiveDrawStatus, // lint-allow(raw-pointer): Emscripten API
                         "iiii",
                         game_id,
-                        static_cast<int> (mapDrawByRepetitionType (proposedDrawType)),
+                        static_cast<int> (mapDrawByRepetitionType (proposed_draw_type)),
                         static_cast<int> (mapColor (player)),
                         static_cast<int> (accepted)
                     );

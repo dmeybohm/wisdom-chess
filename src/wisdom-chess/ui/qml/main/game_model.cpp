@@ -64,8 +64,8 @@ namespace wisdom::ui::qml
 
     void GameModel::init()
     {
-        auto gameState = my_chess_game->state();
-        setCurrentTurn (gameState->getCurrentTurn());
+        auto game_state = my_chess_game->state();
+        setCurrentTurn (game_state->getCurrentTurn());
 
         my_hold_timer.setSingleShot (true);
         my_hold_timer.setTimerType (Qt::PreciseTimer);
@@ -312,14 +312,14 @@ namespace wisdom::ui::qml
 
     void
     GameModel::movePieceWithPromotion (
-        int srcRow,
-        int srcColumn,
-        int dstRow,
-        int dstColumn,
-        optional<wisdom::Piece> pieceType
+        int src_row,
+        int src_column,
+        int dst_row,
+        int dst_column,
+        optional<wisdom::Piece> piece_type
     ) {
         auto [optional_move, who]
-            = my_chess_game->moveFromCoordinates (srcRow, srcColumn, dstRow, dstColumn, pieceType);
+            = my_chess_game->moveFromCoordinates (src_row, src_column, dst_row, dst_column, piece_type);
         if (!optional_move.has_value())
         {
             return;
@@ -735,8 +735,8 @@ namespace wisdom::ui::qml
         wisdom::Color who,
         bool accepted
     ) {
-        auto gameState = my_chess_game->state();
-        gameState->setProposedDrawStatus (draw_type, who, accepted);
+        auto game_state = my_chess_game->state();
+        game_state->setProposedDrawStatus (draw_type, who, accepted);
         updateDisplayedGameState();
     }
 }

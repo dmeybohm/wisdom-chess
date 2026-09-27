@@ -273,11 +273,11 @@ namespace wisdom
     {
         Color opponent = colorInvert (who);
 
-        auto enPassantTarget = board.getAnyEnPassantTarget();
-        if (!enPassantTarget.has_value() || enPassantTarget->vulnerable_color != opponent)
+        auto en_passant_target = board.getAnyEnPassantTarget();
+        if (!en_passant_target.has_value() || en_passant_target->vulnerable_color != opponent)
             return nullopt;
 
-        Coord target_coord = enPassantTarget->coord;
+        Coord target_coord = en_passant_target->coord;
 
         auto capture_row = who == Color::White
             ? White_Pawn_En_Passant_Capture_Row

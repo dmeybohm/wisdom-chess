@@ -30,8 +30,8 @@ namespace wisdom::ui::qml
         }
 
         static auto fromPlayers (
-            wisdom::Player whitePlayer,
-            wisdom::Player blackPlayer,
+            wisdom::Player white_player,
+            wisdom::Player black_player,
             const Config& config
         )
             -> std::unique_ptr<ChessGame>;
@@ -80,16 +80,16 @@ namespace wisdom::ui::qml
             const wisdom::MoveTimer::PeriodicFunction& func
         );
         void setPlayers (
-            wisdom::Player whitePLayer,
-            wisdom::Player blackPlayer
+            wisdom::Player white_player,
+            wisdom::Player black_player
         );
 
         [[nodiscard]] auto
         moveFromCoordinates (
-            int srcRow,
-            int srcColumn,
-            int dstRow,
-            int dstColumn,
+            int src_row,
+            int src_column,
+            int dst_row,
+            int dst_column,
             std::optional<wisdom::Piece> promoted
         ) const
             -> std::pair<std::optional<wisdom::Move>, wisdom::Color>;
