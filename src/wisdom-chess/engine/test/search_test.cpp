@@ -546,7 +546,6 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     CHECK( result.score > 100 );
 }
 
-
 TEST_CASE( "An error during the search is rethrown with the board" )
 {
     SearchHelper helper;

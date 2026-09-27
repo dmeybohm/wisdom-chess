@@ -517,7 +517,6 @@ namespace wisdom
             my_output->debug (std::move (progress_str).str());
         }
 
-
         if (result.timed_out)
         {
             std::stringstream progress_str;

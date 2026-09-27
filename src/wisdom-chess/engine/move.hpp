@@ -20,7 +20,6 @@ namespace wisdom
         Illegal,
     };
 
-
     class Board;
 
     enum class MoveCategory : int8_t

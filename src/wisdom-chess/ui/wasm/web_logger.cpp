@@ -33,4 +33,3 @@ void wisdom::worker::WebLogger::emergency (const std::string& output) const
     wisdom::worker::WebLogger::consoleError (output.c_str());
 }
 
-

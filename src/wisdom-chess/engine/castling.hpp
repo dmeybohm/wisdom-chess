@@ -157,7 +157,6 @@ namespace wisdom
         = CastlingRights::Kingside | CastlingRights::Queenside;
     inline constexpr CastlingEligibility CastlingEligibility::Neither_Side {};
 
-
     [[nodiscard]] constexpr auto
     makeCastlingEligibilityFromInt (unsigned int flags)
         -> CastlingEligibility

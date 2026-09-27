@@ -24,8 +24,8 @@ cannot change behaviour.
 1. **Trailing whitespace.** 440 lines in 53 C++ files; the most are
    `engine/move.cpp` (33), `engine/test/castling_eligibility_test.cpp`
    (28), `ui/qml/main/game_settings.hpp` (24) and `engine/piece.hpp`
-   (24). Outside C++: 60 lines in QML, 17 in TypeScript, 60 in CMake
-   files, 147 in shell scripts, 35 in the workflow files.
+   (24). Outside C++: 8 lines in CMake files and 5 in QML. TypeScript,
+   the shell scripts and the workflow files have none.
 2. **Two blank lines in a row.** Eight places: `engine/castling.hpp:160`,
    `engine/generate.cpp:586`, `engine/move.hpp:23`,
    `engine/test/coord_test.cpp:19`, `engine/test/search_test.cpp:549`,
@@ -171,10 +171,7 @@ direction is a choice rather than a correction.
 1. Record the findings (this document).
 2. Fix the items under A, one commit per item, in the order listed.
    Build and run the fast tests and the lint target after each commit
-   that touches code rather than whitespace. The whitespace commit
-   covers C++, QML, TypeScript and CMake. Shell scripts and workflow
-   files are left alone: a trailing space there can sit inside a
-   here-document or after a line continuation, so each needs reading.
+   that touches code rather than whitespace.
 3. For item 1, consider a `no-trailing-whitespace` linter rule so it
    stays fixed. It would be added after `linter-lexer` lands, on its own
    branch.

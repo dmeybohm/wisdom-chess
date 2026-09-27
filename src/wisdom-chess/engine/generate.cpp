@@ -583,7 +583,6 @@ namespace wisdom
         return generateAllPotentialMoves (board, who, nullopt);
     }
 
-
     auto
     generateCaptures (const Board& board, Color who)
         -> MoveList

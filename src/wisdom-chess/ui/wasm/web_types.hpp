@@ -388,7 +388,6 @@ namespace wisdom
         }
     }
 
-
 }
 
 // Map enums to the global namespace:
