@@ -94,13 +94,6 @@ private:
 
 [[nodiscard]] auto parseOutputFormat (std::string_view format_str) -> std::optional<OutputFormat>;
 
-// The lines with every comment blanked out, character for character, so
-// that columns are unchanged and rules see only code. Block comments are
-// tracked across lines, and comment markers inside string or character
-// literals are left alone.
-[[nodiscard]] auto stripComments (const std::vector<std::string>& lines)
-    -> std::vector<std::string>;
-
 [[nodiscard]] auto getDefaultConfig() -> LinterConfig;
 
 [[nodiscard]] auto getAllRules() -> std::vector<std::shared_ptr<Rule>>;
