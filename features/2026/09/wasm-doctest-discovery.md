@@ -82,7 +82,11 @@ Once discovery worked, 30 of 199 tests failed, for four reasons:
   tests. Fixed by linking the tests with `-pthread`, as above.
 - 196/196 on both 3.1.70 and 4.0.7, slow tests included. The web app
   built with 3.1.70 loads and its engine answers from the worker.
-- Still open: the web app links with `-sWASM_WORKERS` only, which on
-  3.1.70 left typed catches unmatched in the tests. Its typed catches are
-  on reporting paths (`logger.cpp`) and in `FenParser`, which the web
-  frontend does not reach.
+- The web app now links with `-pthread` as well as `-sWASM_WORKERS`,
+  which Emscripten allows together; `-sWASM_WORKERS` alone left typed
+  catches unmatched on 3.1.70. The flag's memory growth warning is
+  silenced: shared memory already puts the growth check on every
+  JavaScript heap access, such as `UTF8ToString` for log messages, so
+  the generated code for that is the same as before. The script grows
+  from 198 KB to 228 KB uncompressed. Checked in headless Chromium with
+  both 3.1.70 and 4.0.7.
