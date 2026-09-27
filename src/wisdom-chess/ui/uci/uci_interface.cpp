@@ -312,7 +312,7 @@ namespace wisdom
             return;
         }
 
-        if (moves_it != tokens.end() && !applyMoves (new_game, moves_it + 1, tokens.end()))
+        if (moves_it != tokens.end() && !applyMoves (&new_game, moves_it + 1, tokens.end()))
             return;
 
         my_game = std::move (new_game);
@@ -506,28 +506,28 @@ namespace wisdom
 
     auto
     UciInterface::applyMoves (
-        Game& game,
+        nonnull_observer_ptr<Game> game,
         vector<string>::const_iterator first,
         vector<string>::const_iterator last
     ) -> bool
     {
         for (auto it = first; it != last; ++it)
         {
-            auto move = parseUciMove (game, *it);
+            auto move = parseUciMove (*game, *it);
             if (!move.has_value())
             {
                 sendLine ("info string Unparseable move in position: " + *it);
                 return false;
             }
 
-            auto legal_moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
+            auto legal_moves = generateLegalMoves (game->getBoard(), game->getCurrentTurn());
             if (std::find (legal_moves.begin(), legal_moves.end(), *move) == legal_moves.end())
             {
                 sendLine ("info string Illegal move in position: " + *it);
                 return false;
             }
 
-            game.move (*move);
+            game->move (*move);
         }
 
         return true;

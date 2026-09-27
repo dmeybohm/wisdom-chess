@@ -57,7 +57,7 @@ namespace wisdom
         // cannot be parsed or is not legal, report it and return false,
         // leaving the game as it was.
         auto applyMoves (
-            Game& game,
+            nonnull_observer_ptr<Game> game,
             vector<string>::const_iterator first,
             vector<string>::const_iterator last
         ) -> bool;
