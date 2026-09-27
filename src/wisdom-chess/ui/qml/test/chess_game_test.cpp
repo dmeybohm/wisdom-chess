@@ -7,6 +7,7 @@
 using namespace wisdom::ui::qml;
 
 using wisdom::Color;
+using wisdom::czstring;
 using wisdom::moveParse;
 using wisdom::nonnull;
 using wisdom::Piece;
@@ -34,7 +35,7 @@ namespace
     }
 
     template <typename Value>
-    void writeProperty (nonnull<GameSettings> settings, const char* name, Value value)
+    void writeProperty (nonnull<GameSettings> settings, czstring name, Value value)
     {
         const auto& meta_object = GameSettings::staticMetaObject;
         auto property = meta_object.property (meta_object.indexOfProperty (name));
@@ -220,7 +221,7 @@ private slots:
 
     void moveFromCoordinatesRecognizesSpecialMoves()
     {
-        auto map = [] (const ChessGame& game, const char* src_text, const char* dst_text,
+        auto map = [] (const ChessGame& game, czstring src_text, czstring dst_text,
                        std::optional<Piece> promoted = std::nullopt)
         {
             auto src = wisdom::coordParse (src_text);

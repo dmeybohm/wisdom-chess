@@ -78,7 +78,7 @@ namespace wisdom
         return (my_head + my_used) % my_storage.size();
     }
 
-    void LogRingBuffer::writeBytes (const char* source, size_t length)
+    void LogRingBuffer::writeBytes (czstring source, size_t length)
     {
         auto offset = tailOffset();
         auto until_end = std::min (length, my_storage.size() - offset);

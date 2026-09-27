@@ -112,7 +112,7 @@ namespace
 }
 
 auto
-main (int argc, char* argv[])
+main (int argc, char* argv[]) // lint-allow(raw-pointer): main's signature
     -> int
 {
 #ifdef _MSC_VER

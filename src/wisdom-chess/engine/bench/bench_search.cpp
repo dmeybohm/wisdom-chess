@@ -168,7 +168,7 @@ namespace wisdom::bench
     {
         struct Scenario
         {
-            const char* name;
+            czstring name;
             Game game;
             int depth;
             int deep_depth;
@@ -223,8 +223,8 @@ namespace wisdom::bench
     {
         struct ReportPosition
         {
-            const char* name;
-            const char* fen;
+            czstring name;
+            czstring fen;
         };
 
         const ReportPosition positions[] = {

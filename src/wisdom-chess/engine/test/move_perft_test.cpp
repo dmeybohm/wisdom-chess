@@ -20,6 +20,7 @@ using wisdom::FenParser;
 using std::vector;
 using wisdom::perft::PerftResults;
 using wisdom::MoveGenerator;
+using wisdom::czstring;
 using wisdom::nonnull;
 
 //
@@ -316,7 +317,7 @@ TEST_CASE( "Perft: generateCaptures agrees with the full move list at every node
 {
     struct Position
     {
-        const char* fen;
+        czstring fen;
         int depth;
     };
 

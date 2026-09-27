@@ -85,7 +85,7 @@ TEST_CASE( "FEN notation for castling" )
 
 TEST_CASE( "FEN parser rejects castling rights without the rook present" )
 {
-    const char* missing_rook = "Castling rights require a rook on its home square!";
+    czstring missing_rook = "Castling rights require a rook on its home square!";
 
     SUBCASE( "Queenside right claimed with no rook on the queenside square" )
     {
@@ -140,7 +140,7 @@ TEST_CASE( "FEN parser rejects castling rights without the rook present" )
 
 TEST_CASE( "FEN parser rejects castling rights without the king on its home square" )
 {
-    const char* missing_king = "Castling rights require the king on its home square!";
+    czstring missing_king = "Castling rights require the king on its home square!";
 
     SUBCASE( "King on its home column but another row" )
     {
@@ -223,9 +223,9 @@ TEST_CASE( "FEN notation with an invalid en passant square" )
 
 TEST_CASE( "FEN parser rejects an en passant target no double pawn push could have left" )
 {
-    const char* missing_pawn = "En passant target requires a pawn that just moved two squares!";
-    const char* occupied = "En passant target requires empty squares behind the pawn!";
-    const char* wrong_rank = "En passant target is on the wrong rank for the side to move!";
+    czstring missing_pawn = "En passant target requires a pawn that just moved two squares!";
+    czstring occupied = "En passant target requires empty squares behind the pawn!";
+    czstring wrong_rank = "En passant target is on the wrong rank for the side to move!";
 
     SUBCASE( "No pawn in front of the target" )
     {
@@ -432,7 +432,7 @@ TEST_CASE( "FEN parser rejects malformed piece and castling fields" )
 
     SUBCASE( "Non-letter characters in the castling field" )
     {
-        for (const char* castling : { "K1", "K$", "K-", "-K", "--" })
+        for (czstring castling : { "K1", "K$", "K-", "-K", "--" })
         {
             CAPTURE( castling );
             auto fen = std::string { "4k3/8/8/8/8/8/8/4K2R w " } + castling + " - 0 1";

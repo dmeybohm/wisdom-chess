@@ -24,11 +24,11 @@ namespace wisdom::ui::qml
         QML_SINGLETON
 
     public:
-        static void setInstance (GameModel* instance);
+        static void setInstance (wisdom::nonnull<GameModel> instance);
 
         [[nodiscard]] static auto
         create (QQmlEngine* engine, QJSEngine* js_engine)
-            -> GameModel*;
+            -> GameModel*; // lint-allow(raw-pointer): QML's singleton factory
     };
 
     class PiecesModelSingleton
@@ -39,10 +39,10 @@ namespace wisdom::ui::qml
         QML_SINGLETON
 
     public:
-        static void setInstance (PiecesModel* instance);
+        static void setInstance (wisdom::nonnull<PiecesModel> instance);
 
         [[nodiscard]] static auto
         create (QQmlEngine* engine, QJSEngine* js_engine)
-            -> PiecesModel*;
+            -> PiecesModel*; // lint-allow(raw-pointer): QML's singleton factory
     };
 }

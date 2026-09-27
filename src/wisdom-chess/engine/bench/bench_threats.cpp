@@ -8,7 +8,7 @@
 
 namespace wisdom::bench
 {
-    static auto boardFromFen (const char* fen) -> Board
+    static auto boardFromFen (czstring fen) -> Board
     {
         FenParser parser { fen };
         return parser.buildBoard();

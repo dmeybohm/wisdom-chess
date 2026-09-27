@@ -106,7 +106,7 @@ namespace wisdom::worker
                 [this, proposedDrawType] (Color player, bool accepted)
                 {
                     emscripten_wasm_worker_post_function_sig (
-                        EMSCRIPTEN_WASM_WORKER_ID_PARENT, (void*)mainThreadReceiveDrawStatus,
+                        EMSCRIPTEN_WASM_WORKER_ID_PARENT, (void*)mainThreadReceiveDrawStatus, // lint-allow(raw-pointer): Emscripten API
                         "iiii",
                         game_id,
                         static_cast<int> (mapDrawByRepetitionType (proposedDrawType)),
@@ -216,7 +216,7 @@ workerReceiveSettings (
     startSearch();
 }
 
-EM_JS (void, receiveMoveFromWorker, (int game_id, const char* str),
+EM_JS (void, receiveMoveFromWorker, (int game_id, const char* str), // lint-allow(raw-pointer): EM_JS signature
 {
    receiveWorkerMessage ('computerMoved', game_id, UTF8ToString (str));
 })

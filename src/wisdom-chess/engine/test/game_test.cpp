@@ -93,7 +93,7 @@ TEST_CASE( "Loading a saved game" )
     auto path = std::filesystem::temp_directory_path() / "wisdom-chess-load-test.txt";
     auto players = Players { Player::Human, Player::Human };
 
-    auto write_file = [&path](const char* contents)
+    auto write_file = [&path](czstring contents)
     {
         std::ofstream file { path };
         file << contents;
@@ -188,7 +188,7 @@ TEST_CASE( "A draw-derived score is not reused for a position with a different c
 
     auto logger = makeNullLogger();
 
-    auto searchFen = [&] (const char* fen, nonnull<TranspositionTable> table)
+    auto searchFen = [&] (czstring fen, nonnull<TranspositionTable> table)
     {
         auto game = Game::createGameFromFen (fen);
         game.setMaxDepth (4);

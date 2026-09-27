@@ -156,10 +156,10 @@ TEST_CASE( "nullable" )
 {
     static_assert (Dereferenceable<nonnull<int>>);
     static_assert (!Dereferenceable<nullable<int>>);
-    static_assert (!std::is_convertible_v<nullable<int>, int*>);
+    static_assert (!std::is_convertible_v<nullable<int>, int*>); // lint-allow(raw-pointer)
     static_assert (!std::is_convertible_v<nullable<int>, bool>);
     static_assert (std::is_trivially_copyable_v<nullable<int>>);
-    static_assert (sizeof (nullable<int>) == sizeof (int*));
+    static_assert (sizeof (nullable<int>) == sizeof (int*)); // lint-allow(raw-pointer)
 
     SUBCASE( "A default-constructed pointer is null" )
     {

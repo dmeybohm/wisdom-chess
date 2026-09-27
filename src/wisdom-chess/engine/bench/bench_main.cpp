@@ -16,12 +16,12 @@ namespace wisdom::bench
     void runSearchReport (int max_depth);
 }
 
-static void usage (const char* program)
+static void usage (wisdom::czstring program)
 {
     std::cerr << "usage: " << program << " [--search-report [max-depth]]\n";
 }
 
-auto main (int argc, char** argv) -> int
+auto main (int argc, char** argv) -> int // lint-allow(raw-pointer): main's signature
 {
     if (argc > 1)
     {

@@ -655,7 +655,7 @@ TEST_CASE( "A stalemate at the horizon is not scored as a win" )
 
 TEST_CASE( "Quiescence search" )
 {
-    auto boardFromFen = [](const char* fen_text) {
+    auto boardFromFen = [](czstring fen_text) {
         FenParser fen { fen_text };
         auto game = fen.build();
         return Board { game.getBoard() };

@@ -7,6 +7,7 @@
 using namespace wisdom::ui::qml;
 
 using wisdom::Color;
+using wisdom::czstring;
 using wisdom::ColoredPiece;
 using wisdom::Piece;
 using namespace wisdom::ui::test;
@@ -435,7 +436,7 @@ private:
     // Makes the move and returns the milliseconds between it being shown
     // and the engine's reply being shown, or -1 if no reply came.
     [[nodiscard]] auto
-    timeTheReplyTo (const char* src_text, const char* dst_text)
+    timeTheReplyTo (czstring src_text, czstring dst_text)
         -> qint64
     {
         QElapsedTimer since_the_move;

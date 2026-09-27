@@ -10,6 +10,7 @@
 using namespace wisdom::ui::qml;
 
 using wisdom::Color;
+using wisdom::czstring;
 using wisdom::Move;
 using wisdom::moveParse;
 using wisdom::Player;
@@ -64,7 +65,7 @@ namespace
     }
 
     auto
-    listRowAt (const PiecesModel& model, const char* coord_text)
+    listRowAt (const PiecesModel& model, czstring coord_text)
         -> int
     {
         auto coord = wisdom::coordParse (coord_text);
@@ -95,12 +96,12 @@ namespace
         {
         }
 
-        explicit Fixture (const char* fen)
+        explicit Fixture (czstring fen)
             : Fixture { ChessGame::fromFen (fen, makeConfig()) }
         {
         }
 
-        void play (const char* move_text)
+        void play (czstring move_text)
         {
             auto who = game->state()->getCurrentTurn();
             auto move = moveParse (move_text, who);
@@ -433,7 +434,7 @@ private slots:
     void aLongerGameStaysInStep()
     {
         Fixture fixture;
-        const char* moves[] = {
+        czstring moves[] = {
             "e2 e4", "e7 e5", "g1 f3", "b8 c6", "f1 c4", "g8 f6", "o-o", "f6xe4",
             "d2 d4", "e5xd4", "f1 e1", "d7 d5", "c4xd5", "d8xd5", "b1 c3", "d5 a5",
             "c3xe4", "c8 e6", "e4 g5", "o-o-o",

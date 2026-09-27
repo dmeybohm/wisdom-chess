@@ -9,13 +9,13 @@
 
 namespace wisdom::bench
 {
-    static auto boardFromFen (const char* fen) -> Board
+    static auto boardFromFen (czstring fen) -> Board
     {
         FenParser parser { fen };
         return parser.buildBoard();
     }
 
-    static auto colorFromFen (const char* fen) -> Color
+    static auto colorFromFen (czstring fen) -> Color
     {
         FenParser parser { fen };
         return parser.getActivePlayer();
@@ -25,8 +25,8 @@ namespace wisdom::bench
     {
         struct PositionInfo
         {
-            const char* name;
-            const char* fen;
+            czstring name;
+            czstring fen;
         };
 
         PositionInfo positions[] = {

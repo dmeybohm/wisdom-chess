@@ -9,6 +9,7 @@
 using namespace wisdom::ui::qml;
 
 using wisdom::Color;
+using wisdom::czstring;
 using wisdom::ColoredPiece;
 using wisdom::Piece;
 using namespace wisdom::ui::test;
@@ -55,7 +56,7 @@ private slots:
 
         auto settings = my_app->game_model.cloneGameSettings();
         const auto& meta_object = GameSettings::staticMetaObject;
-        for (const char* side : { "whitePlayer", "blackPlayer" })
+        for (czstring side : { "whitePlayer", "blackPlayer" })
         {
             auto property = meta_object.property (meta_object.indexOfProperty (side));
             property.writeOnGadget (&settings, QVariant::fromValue (wisdom::ui::Player::Computer));

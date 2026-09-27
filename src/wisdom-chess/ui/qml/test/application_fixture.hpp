@@ -26,7 +26,7 @@ namespace wisdom::ui::test
     class Application
     {
     public:
-        explicit Application (const char* main_qml_file = "main/desktop_main.qml")
+        explicit Application (czstring main_qml_file = "main/desktop_main.qml")
         {
             QObject::connect (&game_model, &GameModel::engineMoved,
                               &pieces_model, &PiecesModel::playerMoved);
@@ -91,7 +91,7 @@ namespace wisdom::ui::test
 
         // Change one game setting the way the settings dialog's Apply does.
         template <typename Value>
-        void changeGameSetting (const char* name, Value value)
+        void changeGameSetting (czstring name, Value value)
         {
             auto settings = game_model.cloneGameSettings();
             const auto& meta_object = qml::GameSettings::staticMetaObject;
@@ -130,7 +130,7 @@ namespace wisdom::ui::test
         }
 
         [[nodiscard]] auto
-        shownItemsOfClass (const char* class_name) const
+        shownItemsOfClass (czstring class_name) const
             -> QList<QQuickItem*>
         {
             QList<QQuickItem*> result;
@@ -293,7 +293,7 @@ namespace wisdom::ui::test
         }
 
         [[nodiscard]] auto
-        squareAt (const char* coord_text) const
+        squareAt (czstring coord_text) const
             -> QQuickItem*
         {
             auto coord = wisdom::coordParse (coord_text);
@@ -309,7 +309,7 @@ namespace wisdom::ui::test
         }
 
         [[nodiscard]] auto
-        pieceAt (const char* coord_text) const
+        pieceAt (czstring coord_text) const
             -> QQuickItem*
         {
             auto coord = wisdom::coordParse (coord_text);
@@ -324,13 +324,13 @@ namespace wisdom::ui::test
             return nullptr;
         }
 
-        void click (const char* coord_text)
+        void click (czstring coord_text)
         {
             clickItem (squareAt (coord_text));
         }
 
         // A move the way a player makes one: click the piece, click the target.
-        void move (const char* src_text, const char* dst_text)
+        void move (czstring src_text, czstring dst_text)
         {
             click (src_text);
             click (dst_text);
@@ -338,7 +338,7 @@ namespace wisdom::ui::test
 
         // The other way: press the mouse on the piece, carry it to the
         // target in steps past the drag threshold, and let go there.
-        void drag (const char* src_text, const char* dst_text)
+        void drag (czstring src_text, czstring dst_text)
         {
             startDrag (src_text, dst_text);
             finishDrag (dst_text);
@@ -346,7 +346,7 @@ namespace wisdom::ui::test
 
         // Everything but the release, so a test can look at the piece
         // while it hangs from the pointer.
-        void startDrag (const char* src_text, const char* dst_text)
+        void startDrag (czstring src_text, czstring dst_text)
         {
             startDrag (drawnAt (squareAt (src_text)), drawnAt (squareAt (dst_text)));
         }
@@ -366,7 +366,7 @@ namespace wisdom::ui::test
             QCoreApplication::processEvents();
         }
 
-        void finishDrag (const char* dst_text)
+        void finishDrag (czstring dst_text)
         {
             finishDrag (drawnAt (squareAt (dst_text)));
         }
@@ -378,7 +378,7 @@ namespace wisdom::ui::test
         }
 
         // A finger on a touchscreen.
-        void touchTap (const char* coord_text)
+        void touchTap (czstring coord_text)
         {
             auto at = drawnAt (squareAt (coord_text)).toPoint();
             QTest::touchEvent (window(), touchDevice()).press (0, at, window());
@@ -386,7 +386,7 @@ namespace wisdom::ui::test
             QCoreApplication::processEvents();
         }
 
-        void touchDrag (const char* src_text, const char* dst_text)
+        void touchDrag (czstring src_text, czstring dst_text)
         {
             auto from = drawnAt (squareAt (src_text));
             auto to = drawnAt (squareAt (dst_text));
@@ -403,7 +403,7 @@ namespace wisdom::ui::test
         }
 
         [[nodiscard]] auto
-        boardPieceAt (const char* coord_text) const
+        boardPieceAt (czstring coord_text) const
             -> ColoredPiece
         {
             return board().pieceAt (wisdom::coordParse (coord_text));
@@ -453,7 +453,7 @@ namespace wisdom::ui::test
         }
 
         [[nodiscard]] auto
-        itemsWithProperties (const char* first, const char* second) const
+        itemsWithProperties (czstring first, czstring second) const
             -> QList<QQuickItem*>
         {
             QList<QQuickItem*> result;
@@ -465,8 +465,8 @@ namespace wisdom::ui::test
         // its parent without being its QObject children.
         static void collectItems ( // NOLINT(misc-no-recursion)
             QQuickItem* item,
-            const char* first,
-            const char* second,
+            czstring first,
+            czstring second,
             nonnull<QList<QQuickItem*>> result
         ) {
             if (item->property (first).isValid() && item->property (second).isValid())
@@ -499,7 +499,7 @@ namespace wisdom::ui::test
     }
 
     inline auto
-    drawnOn (const Application& app, const QQuickItem* piece, const char* coord_text)
+    drawnOn (const Application& app, const QQuickItem* piece, czstring coord_text)
         -> bool
     {
         auto expected = drawnAt (app.squareAt (coord_text));

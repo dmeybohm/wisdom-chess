@@ -7,13 +7,14 @@
 using namespace wisdom::ui::qml;
 
 namespace ui = wisdom::ui;
+using wisdom::czstring;
 
 namespace
 {
     // QML writes a gadget's MEMBER properties through the meta-object.
     template <typename Gadget, typename Value>
     auto
-    writeProperty (Gadget& gadget, const char* name, Value value)
+    writeProperty (Gadget& gadget, czstring name, Value value)
         -> bool
     {
         const auto& meta_object = Gadget::staticMetaObject;

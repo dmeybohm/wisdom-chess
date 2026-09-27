@@ -9,7 +9,7 @@ namespace wisdom
     namespace
     {
         auto
-        describeFailure (const char* kind, const std::source_location& location)
+        describeFailure (czstring kind, const std::source_location& location)
             -> string
         {
             return string { kind } + " failed at " + location.file_name() + ":"

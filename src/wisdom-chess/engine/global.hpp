@@ -49,7 +49,7 @@ namespace wisdom
     // A non-owning pointer is named by whether it may be null: nonnull here,
     // nullable and unchecked_nonnull below.
     template <typename T>
-    using nonnull = gsl::not_null<T*>;
+    using nonnull = gsl::not_null<T*>; // lint-allow(raw-pointer): defines the pointer types
 
     namespace chrono = std::chrono;
 
@@ -252,7 +252,7 @@ namespace wisdom
             return my_text->extra_info;
         }
 
-        [[nodiscard]] const char* what() const noexcept override
+        [[nodiscard]] czstring what() const noexcept override
         {
             return my_text->message.c_str();
         }
@@ -326,7 +326,7 @@ namespace wisdom
         {
         }
 
-        constexpr nullable (T* ptr) noexcept
+        constexpr nullable (T* ptr) noexcept // lint-allow(raw-pointer)
             : my_ptr { ptr }
         {
         }
@@ -337,7 +337,7 @@ namespace wisdom
         }
 
         template <typename U>
-            requires std::is_convertible_v<U*, T*>
+            requires std::is_convertible_v<U*, T*> // lint-allow(raw-pointer)
         constexpr nullable (nullable<U> other) noexcept
             : my_ptr { other.unsafeGet() }
         {
@@ -361,7 +361,7 @@ namespace wisdom
         // For an API that takes a raw pointer. The result may be null.
         [[nodiscard]] constexpr auto
         unsafeGet() const noexcept
-            -> T*
+            -> T* // lint-allow(raw-pointer)
         {
             return my_ptr;
         }
@@ -371,7 +371,7 @@ namespace wisdom
             -> bool = default;
 
     private:
-        T* my_ptr = nullptr;
+        T* my_ptr = nullptr; // lint-allow(raw-pointer)
     };
 
     // Like nonnull, but checks for null only when constructed, not on each
@@ -381,7 +381,7 @@ namespace wisdom
     class unchecked_nonnull
     {
     public:
-        constexpr unchecked_nonnull (T* ptr)
+        constexpr unchecked_nonnull (T* ptr) // lint-allow(raw-pointer)
             : my_ptr { ptr }
         {
             expects (ptr != nullptr);
@@ -401,14 +401,14 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto
         get() const noexcept
-            -> T*
+            -> T* // lint-allow(raw-pointer)
         {
             return my_ptr;
         }
 
         constexpr auto
         operator->() const noexcept
-            -> T*
+            -> T* // lint-allow(raw-pointer)
         {
             return my_ptr;
         }
@@ -421,6 +421,6 @@ namespace wisdom
         }
 
     private:
-        T* my_ptr;
+        T* my_ptr; // lint-allow(raw-pointer)
     };
 }

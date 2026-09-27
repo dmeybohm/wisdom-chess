@@ -123,7 +123,7 @@ TEST_CASE( "MoveTimer periodic function" )
     {
         MoveTimer timer { chrono::hours { 1 } };
         int periodic_calls = 0;
-        MoveTimer* seen_timer = nullptr;
+        nullable<MoveTimer> seen_timer;
 
         timer.setPeriodicFunction (
             [&] (nonnull<MoveTimer> the_timer)

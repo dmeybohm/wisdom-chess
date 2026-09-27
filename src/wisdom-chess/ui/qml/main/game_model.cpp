@@ -150,7 +150,7 @@ namespace wisdom::ui::qml
     auto GameModel::browserOriginUrl() -> QString
     {
 #ifdef EMSCRIPTEN
-        char* origin = reinterpret_cast<char*>(EM_ASM_PTR({
+        char* origin = reinterpret_cast<char*>(EM_ASM_PTR({ // lint-allow(raw-pointer): malloc'd by JavaScript
             var str = window.location.origin;
             var len = lengthBytesUTF8(str) + 1;
             var buf = _malloc(len);

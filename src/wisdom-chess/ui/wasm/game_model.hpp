@@ -33,7 +33,7 @@ namespace wisdom
 
             emscripten_wasm_worker_post_function_sig (
                 engine_thread,
-                (void*)workerReceiveSettings,
+                (void*)workerReceiveSettings, // lint-allow(raw-pointer): Emscripten API
                 "iiiii",
                 whitePlayer,
                 blackPlayer,
@@ -49,7 +49,7 @@ namespace wisdom
         // Initialize a new game with the default position.
         auto
         startNewGame()
-            -> WebGame*
+            -> WebGame* // lint-allow(raw-pointer): WebIDL binding, JavaScript owns it
         {
             ++my_game_id;
             auto new_game = WebGame::newFromSettings (my_game_settings, my_game_id);
@@ -89,12 +89,12 @@ namespace wisdom
 
         [[nodiscard]] auto 
         getCurrentGameSettings() const 
-            -> GameSettings*
+            -> GameSettings* // lint-allow(raw-pointer): WebIDL binding, JavaScript owns it
         {
             return new GameSettings { my_game_settings };
         }
 
-        void setCurrentGameSettings (GameSettings* newSettings)
+        void setCurrentGameSettings (GameSettings* newSettings) // lint-allow(raw-pointer): WebIDL binding
         {
             my_game_settings = GameSettings { *newSettings };
 

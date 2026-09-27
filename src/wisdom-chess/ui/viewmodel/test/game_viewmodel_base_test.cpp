@@ -407,7 +407,7 @@ TEST_CASE( "GameViewModelBase::needsPawnPromotion" )
         Game::createGameFromFen ("1n2k3/P7/8/8/8/8/4P3/4K3 w - - 0 1", Humans)
     };
 
-    auto needs_promotion = [&view_model] (const char* src_text, const char* dst_text)
+    auto needs_promotion = [&view_model] (czstring src_text, czstring dst_text)
     {
         auto src = coordParse (src_text);
         auto dst = coordParse (dst_text);

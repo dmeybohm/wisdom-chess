@@ -34,19 +34,19 @@ namespace wisdom::bench
         return nodes;
     }
 
-    static auto boardFromFen (const char* fen) -> Board
+    static auto boardFromFen (czstring fen) -> Board
     {
         FenParser parser { fen };
         return parser.buildBoard();
     }
 
-    static auto colorFromFen (const char* fen) -> Color
+    static auto colorFromFen (czstring fen) -> Color
     {
         FenParser parser { fen };
         return parser.getActivePlayer();
     }
 
-    static void printNps (const char* label, int64_t nodes, double seconds)
+    static void printNps (czstring label, int64_t nodes, double seconds)
     {
         double nps = seconds > 0.0 ? static_cast<double> (nodes) / seconds : 0.0;
         std::cout << "  " << label << ": "
