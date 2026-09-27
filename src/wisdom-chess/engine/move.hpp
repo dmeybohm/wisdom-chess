@@ -30,10 +30,10 @@ namespace wisdom
         Castling = 3,
     };
 
-    class ParseMoveException : public Error
+    class ParseMoveError : public Error
     {
     public:
-        explicit ParseMoveException (const string& message)
+        explicit ParseMoveError (const string& message)
             : Error { message }
         {
         }

@@ -161,5 +161,5 @@ TEST_CASE( "Reading the ends of an empty move list throws" )
 
 TEST_CASE( "Constructing a move list from an invalid move string throws" )
 {
-    CHECK_THROWS_AS( (MoveList { Color::White, { "e2 e4", "not a move" } }), ParseMoveException );
+    CHECK_THROWS_AS( (MoveList { Color::White, { "e2 e4", "not a move" } }), ParseMoveError );
 }

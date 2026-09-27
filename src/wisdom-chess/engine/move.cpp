@@ -340,7 +340,7 @@ namespace wisdom
         else if (who == Color::Black)
             src_row = First_Row;
         else
-            throw ParseMoveException { "Invalid color parsing castling move." };
+            throw ParseMoveError { "Invalid color parsing castling move." };
 
         string transformed { str };
         std::transform (
@@ -470,21 +470,21 @@ namespace wisdom
         -> Move
     {
         if (str.empty())
-            throw ParseMoveException ("Error parsing move: empty string");
+            throw ParseMoveError ("Error parsing move: empty string");
 
         if (toLower (str[0]) == 'o' && color == Color::None)
-            throw ParseMoveException ("Move requires color, but no color provided");
+            throw ParseMoveError ("Move requires color, but no color provided");
 
         auto optional_result = moveParseOptional (str, color);
         if (!optional_result.has_value())
-            throw ParseMoveException ("Error parsing move: " + str);
+            throw ParseMoveError ("Error parsing move: " + str);
 
         auto result = *optional_result;
         auto move_category = result.getMoveCategory();
         if (color == Color::None && move_category != MoveCategory::NormalCapturing
             && move_category != MoveCategory::Default)
         {
-            throw ParseMoveException ("Invalid type of move in moveParse");
+            throw ParseMoveError ("Invalid type of move in moveParse");
         }
 
         return result;
