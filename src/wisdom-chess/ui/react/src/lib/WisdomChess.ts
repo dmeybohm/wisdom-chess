@@ -1,23 +1,26 @@
-import { Piece } from "./Pieces";
+import { Piece } from './Pieces'
 import type WisdomChessModule from './wisdom-chess-module'
 
-import WhitePawn from "../assets/Chess_plt45.svg";
-import WhiteBishop from "../assets/Chess_blt45.svg";
-import WhiteKnight from "../assets/Chess_nlt45.svg";
-import WhiteQueen from "../assets/Chess_qlt45.svg";
-import WhiteRook from "../assets/Chess_rlt45.svg";
-import WhiteKing from "../assets/Chess_klt45.svg";
-import BlackPawn from "../assets/Chess_pdt45.svg";
-import BlackBishop from "../assets/Chess_bdt45.svg";
-import BlackKnight from "../assets/Chess_ndt45.svg";
-import BlackQueen from "../assets/Chess_qdt45.svg";
-import BlackRook from "../assets/Chess_rdt45.svg";
-import BlackKing from "../assets/Chess_kdt45.svg";
+import WhitePawn from '../assets/Chess_plt45.svg'
+import WhiteBishop from '../assets/Chess_blt45.svg'
+import WhiteKnight from '../assets/Chess_nlt45.svg'
+import WhiteQueen from '../assets/Chess_qlt45.svg'
+import WhiteRook from '../assets/Chess_rlt45.svg'
+import WhiteKing from '../assets/Chess_klt45.svg'
+import BlackPawn from '../assets/Chess_pdt45.svg'
+import BlackBishop from '../assets/Chess_bdt45.svg'
+import BlackKnight from '../assets/Chess_ndt45.svg'
+import BlackQueen from '../assets/Chess_qdt45.svg'
+import BlackRook from '../assets/Chess_rdt45.svg'
+import BlackKing from '../assets/Chess_kdt45.svg'
 
 export type ChessEngineEventType = 'computerMoved' | 'computerDrawStatusUpdated'
 
-export type ReceiveWorkerMessageCallback =
-    (type: ChessEngineEventType, gameId: number, message: string) => void;
+export type ReceiveWorkerMessageCallback = (
+    type: ChessEngineEventType,
+    gameId: number,
+    message: string,
+) => void
 
 export interface ReactWindow {
     startReact: () => void
@@ -61,20 +64,20 @@ export interface WisdomWindow extends ReactWindow {
 
 // The page's globals, set up by the WebAssembly loader and main.tsx.
 export function getWisdomWindow(): WisdomWindow {
-    return (window as unknown) as WisdomWindow
+    return window as unknown as WisdomWindow
 }
 
 export function getGameModel(): GameModel {
     return getWisdomWindow().wisdomChessGameModel
 }
 
-export function getCurrentGame (): Game {
+export function getCurrentGame(): Game {
     const wisdomWindow = getWisdomWindow()
     if (!wisdomWindow.wisdomChessCurrentGame) {
         const gameModel = getGameModel()
-        wisdomWindow.wisdomChessCurrentGame =  gameModel.startNewGame()
+        wisdomWindow.wisdomChessCurrentGame = gameModel.startNewGame()
     }
-    return wisdomWindow.wisdomChessCurrentGame;
+    return wisdomWindow.wisdomChessCurrentGame
 }
 
 export function startNewGame(): Game {
@@ -142,39 +145,46 @@ function mapPieceToIcon(piece: ColoredPiece): string {
     const wisdomChess = WisdomChess()
     const isWhite = piece.color === wisdomChess.White
     switch (piece.piece) {
-        case wisdomChess.Pawn: return isWhite ? WhitePawn : BlackPawn
-        case wisdomChess.Knight: return isWhite ? WhiteKnight : BlackKnight
-        case wisdomChess.Bishop: return isWhite ? WhiteBishop : BlackBishop
-        case wisdomChess.Rook: return isWhite ? WhiteRook : BlackRook
-        case wisdomChess.Queen: return isWhite ? WhiteQueen : BlackQueen
-        case wisdomChess.King: return isWhite ? WhiteKing : BlackKing
-        default: throw new Error("invalid piece type")
+        case wisdomChess.Pawn:
+            return isWhite ? WhitePawn : BlackPawn
+        case wisdomChess.Knight:
+            return isWhite ? WhiteKnight : BlackKnight
+        case wisdomChess.Bishop:
+            return isWhite ? WhiteBishop : BlackBishop
+        case wisdomChess.Rook:
+            return isWhite ? WhiteRook : BlackRook
+        case wisdomChess.Queen:
+            return isWhite ? WhiteQueen : BlackQueen
+        case wisdomChess.King:
+            return isWhite ? WhiteKing : BlackKing
+        default:
+            throw new Error('invalid piece type')
     }
 }
 
 function fromRowAndColToStringCoord(row: number, col: number): string {
-    let row_char = 8 - row;
-    let col_code = 'a'.charCodeAt(0);
+    let row_char = 8 - row
+    let col_code = 'a'.charCodeAt(0)
     col_code += col
     const col_char = String.fromCharCode(col_code)
-    return col_char + row_char;
+    return col_char + row_char
 }
 
 export function getPieces(game: Game): Piece[] {
-    const result : Piece[] = []
+    const result: Piece[] = []
 
     // Convert the pieces to appropriate format:
     const pieceList = game.getPieceList()
 
     for (let i = 0; i < pieceList.length; i++) {
-       const piece = pieceList.pieceAt(i);
-       const newPiece : Piece = {
-           id: piece.id,
-           icon: mapPieceToIcon(piece),
-           color: piece.color,
-           position: fromRowAndColToStringCoord(piece.row, piece.col)
-       }
-       result.push(newPiece)
+        const piece = pieceList.pieceAt(i)
+        const newPiece: Piece = {
+            id: piece.id,
+            icon: mapPieceToIcon(piece),
+            color: piece.color,
+            position: fromRowAndColToStringCoord(piece.row, piece.col),
+        }
+        result.push(newPiece)
     }
 
     return result
@@ -184,12 +194,12 @@ export function pieceColorToString(pieceColor: PieceColor) {
     const wisdom = WisdomChess()
     switch (pieceColor) {
         case wisdom.White:
-            return "White";
+            return 'White'
         case wisdom.Black:
-            return "Black";
+            return 'Black'
         case wisdom.NoColor:
-            return "No Color";
+            return 'No Color'
         default:
-            return "Unknown color";
+            return 'Unknown color'
     }
 }

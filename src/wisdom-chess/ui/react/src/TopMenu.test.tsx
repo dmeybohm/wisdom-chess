@@ -4,9 +4,10 @@ import userEvent from '@testing-library/user-event'
 import TopMenu from './TopMenu'
 
 describe('TopMenu', () => {
-    const renderMenu = () => render(
-        <TopMenu newGameClicked={vi.fn()} settingsClicked={vi.fn()} aboutClicked={vi.fn()} />
-    )
+    const renderMenu = () =>
+        render(
+            <TopMenu newGameClicked={vi.fn()} settingsClicked={vi.fn()} aboutClicked={vi.fn()} />,
+        )
     const isOpen = () => document.querySelector('.menu.is-open') !== null
     const toggle = () => document.querySelector('.wisdom-chess-logo.is-mobile')!
 

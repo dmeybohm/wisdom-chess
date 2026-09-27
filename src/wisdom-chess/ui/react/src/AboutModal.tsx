@@ -1,5 +1,5 @@
-import Modal from "./Modal";
-import "./AboutModal.css"
+import Modal from './Modal'
+import './AboutModal.css'
 
 export function AboutModal(props: { onClick: () => void }) {
     return (
@@ -11,13 +11,13 @@ export function AboutModal(props: { onClick: () => void }) {
                 <p>Images © Colin M.L. Burnett and used under creative commons license.</p>
                 <p>Box icons © boxicons.com and used under creative commons license.</p>
                 <p>
-                    <a
-                        target="_blank"
-                        href="https://github.com/dmeybohm/wisdom-chess">
+                    <a target="_blank" href="https://github.com/dmeybohm/wisdom-chess">
                         View the source
                     </a>
                 </p>
-                <button type="button" className="btn-highlight" onClick={props.onClick}>OK</button>
+                <button type="button" className="btn-highlight" onClick={props.onClick}>
+                    OK
+                </button>
             </div>
         </Modal>
     )

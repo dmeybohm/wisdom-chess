@@ -1,11 +1,7 @@
-import Modal from "./Modal";
-import React, { useState } from "react";
-import {
-    SettingsLimits,
-    WebGameSettings,
-    WisdomChess
-} from "./lib/WisdomChess";
-import "./Settings.css"
+import Modal from './Modal'
+import React, { useState } from 'react'
+import { SettingsLimits, WebGameSettings, WisdomChess } from './lib/WisdomChess'
+import './Settings.css'
 
 type SettingsModalProps = {
     flipped: boolean
@@ -84,9 +80,7 @@ export function SettingsModal(props: SettingsModalProps) {
 
                 <div>Thinking Time</div>
                 <div className="thinking-time">
-                    <label>
-                        0:{String(thinkingTime).padStart(2, '0')}
-                    </label>
+                    <label>0:{String(thinkingTime).padStart(2, '0')}</label>
                     <input
                         type="range"
                         name="thinkingTime"
@@ -99,7 +93,9 @@ export function SettingsModal(props: SettingsModalProps) {
 
                 <div>Search Depth</div>
                 <div className="search-depth">
-                    <label>{searchDepth} {searchDepth > 1 ? 'moves' : 'move'}</label>
+                    <label>
+                        {searchDepth} {searchDepth > 1 ? 'moves' : 'move'}
+                    </label>
                     <input
                         type="range"
                         name="searchDepth"
@@ -111,8 +107,12 @@ export function SettingsModal(props: SettingsModalProps) {
                 </div>
 
                 <div className="buttons grid-columns-1-3">
-                    <button type="button" className="btn-highlight" onClick={handleApply}>Apply</button>
-                    <button type="button" onClick={props.onDismiss}>Cancel</button>
+                    <button type="button" className="btn-highlight" onClick={handleApply}>
+                        Apply
+                    </button>
+                    <button type="button" onClick={props.onDismiss}>
+                        Cancel
+                    </button>
                 </div>
             </form>
         </Modal>

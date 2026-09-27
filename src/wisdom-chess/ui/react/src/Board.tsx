@@ -1,13 +1,13 @@
 import React from 'react'
-import { Square, PieceOverlay } from "./Square";
-import "./Board.css";
-import { Piece } from "./lib/Pieces";
-import { Position, initialSquares } from "./lib/Squares";
-import "./Positions.css"
-import PawnPromotionDialog from "./PawnPromotionDialog";
-import { PieceColor, PieceType } from "./lib/WisdomChess";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
+import { Square, PieceOverlay } from './Square'
+import './Board.css'
+import { Piece } from './lib/Pieces'
+import { Position, initialSquares } from './lib/Squares'
+import './Positions.css'
+import PawnPromotionDialog from './PawnPromotionDialog'
+import { PieceColor, PieceType } from './lib/WisdomChess'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 
 export interface BoardProps {
     focusedSquare: string
@@ -36,7 +36,7 @@ const Board = (props: BoardProps) => {
                             onClick={props.onMovePiece}
                             onDropPiece={props.onDropPiece}
                         />
-                    );
+                    )
                 })}
                 {props.pieces.map((piece: Piece) => (
                     <PieceOverlay
@@ -49,12 +49,13 @@ const Board = (props: BoardProps) => {
                         onDropPiece={props.onDropPiece}
                     />
                 ))}
-                {props.pawnPromotionDialogSquare &&
+                {props.pawnPromotionDialogSquare && (
                     <PawnPromotionDialog
                         color={props.currentTurn}
                         square={props.pawnPromotionDialogSquare}
                         selectedPiece={props.onPiecePromotion}
-                    />}
+                    />
+                )}
             </section>
         </DndProvider>
     )

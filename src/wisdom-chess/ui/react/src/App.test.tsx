@@ -2,63 +2,73 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
-import type { WisdomWindow, Game, GameModel, GameSettings, WasmObject, WisdomChess } from './lib/WisdomChess'
+import type {
+    WisdomWindow,
+    Game,
+    GameModel,
+    GameSettings,
+    WasmObject,
+    WisdomChess,
+} from './lib/WisdomChess'
 import { ILLEGAL_MOVE, getWisdomWindow, withWasmObjects } from './lib/WisdomChess'
 import { wasmEnums } from './test/wasmEnums'
 
-const createMockGame = (): Game => ({
-    getGameStatus: vi.fn(() => wasmEnums.Playing),
-    getMoveStatus: vi.fn(() => 'White to move'),
-    getGameOverStatus: vi.fn(() => ''),
-    getCurrentTurn: vi.fn(() => wasmEnums.White),
-    getInCheck: vi.fn(() => false),
-    getGameId: vi.fn(() => 0),
-    getPieceList: vi.fn(() => ({
-        length: 0,
-        pieceAt: vi.fn(() => null),
-    })),
-    makeHumanMove: vi.fn(() => 0),
-    makeComputerMove: vi.fn(),
-    needsPawnPromotion: vi.fn(() => false),
-    getPlayerOfColor: vi.fn(() => wasmEnums.Human),
-    setSettings: vi.fn(),
-    setHumanDrawStatus: vi.fn(),
-    setComputerDrawStatus: vi.fn(),
-} as unknown as Game)
+const createMockGame = (): Game =>
+    ({
+        getGameStatus: vi.fn(() => wasmEnums.Playing),
+        getMoveStatus: vi.fn(() => 'White to move'),
+        getGameOverStatus: vi.fn(() => ''),
+        getCurrentTurn: vi.fn(() => wasmEnums.White),
+        getInCheck: vi.fn(() => false),
+        getGameId: vi.fn(() => 0),
+        getPieceList: vi.fn(() => ({
+            length: 0,
+            pieceAt: vi.fn(() => null),
+        })),
+        makeHumanMove: vi.fn(() => 0),
+        makeComputerMove: vi.fn(),
+        needsPawnPromotion: vi.fn(() => false),
+        getPlayerOfColor: vi.fn(() => wasmEnums.Human),
+        setSettings: vi.fn(),
+        setHumanDrawStatus: vi.fn(),
+        setComputerDrawStatus: vi.fn(),
+    }) as unknown as Game
 
-const createMockGameModel = (): GameModel => ({
-    startNewGame: vi.fn(() => createMockGame()),
-    getCurrentGameSettings: vi.fn(() => ({
-        whitePlayer: wasmEnums.Human,
-        blackPlayer: wasmEnums.ChessEngine,
-        thinkingTime: 5,
-        searchDepth: 4,
-        debugLogging: false,
-    })),
-    getFirstHumanPlayerColor: vi.fn(() => wasmEnums.White),
-    getSecondHumanPlayerColor: vi.fn(() => wasmEnums.NoColor),
-    getMinThinkingTime: vi.fn(() => 1),
-    getMaxThinkingTime: vi.fn(() => 30),
-    getMinSearchDepth: vi.fn(() => 1),
-    getMaxSearchDepth: vi.fn(() => 8),
-    setCurrentGameSettings: vi.fn(),
-    notifyHumanMove: vi.fn(),
-    notifyComputerMove: vi.fn(),
-    sendPause: vi.fn(),
-    sendUnpause: vi.fn(),
-} as unknown as GameModel)
+const createMockGameModel = (): GameModel =>
+    ({
+        startNewGame: vi.fn(() => createMockGame()),
+        getCurrentGameSettings: vi.fn(() => ({
+            whitePlayer: wasmEnums.Human,
+            blackPlayer: wasmEnums.ChessEngine,
+            thinkingTime: 5,
+            searchDepth: 4,
+            debugLogging: false,
+        })),
+        getFirstHumanPlayerColor: vi.fn(() => wasmEnums.White),
+        getSecondHumanPlayerColor: vi.fn(() => wasmEnums.NoColor),
+        getMinThinkingTime: vi.fn(() => 1),
+        getMaxThinkingTime: vi.fn(() => 30),
+        getMinSearchDepth: vi.fn(() => 1),
+        getMaxSearchDepth: vi.fn(() => 8),
+        setCurrentGameSettings: vi.fn(),
+        notifyHumanMove: vi.fn(),
+        notifyComputerMove: vi.fn(),
+        sendPause: vi.fn(),
+        sendUnpause: vi.fn(),
+    }) as unknown as GameModel
 
-const createMockWisdomChess = (): WisdomChess => ({
-    ...wasmEnums,
-    GameSettings: vi.fn(function (this: GameSettings) {
-        this.whitePlayer = wasmEnums.Human
-        this.blackPlayer = wasmEnums.ChessEngine
-        this.thinkingTime = 5
-        this.searchDepth = 4
-        this.debugLogging = false
-    }),
-    destroy: vi.fn(),
-} as unknown as WisdomChess)
+const createMockWisdomChess = (): WisdomChess =>
+    ({
+        ...wasmEnums,
+        GameSettings: vi.fn(function (this: GameSettings) {
+            this.whitePlayer = wasmEnums.Human
+            this.blackPlayer = wasmEnums.ChessEngine
+            this.thinkingTime = 5
+            this.searchDepth = 4
+            this.debugLogging = false
+        }),
+        destroy: vi.fn(),
+    }) as unknown as WisdomChess
 
 describe('App', () => {
     let mockGame: Game
@@ -150,7 +160,9 @@ describe('App', () => {
     it('asks about a draw again after a new game is started', async () => {
         const createDrawnGame = (): Game => {
             const game = createMockGame()
-            vi.mocked(game.getGameStatus).mockReturnValue(mockWisdomChess.ThreefoldRepetitionReached)
+            vi.mocked(game.getGameStatus).mockReturnValue(
+                mockWisdomChess.ThreefoldRepetitionReached,
+            )
             return game
         }
         const wisdomWindow = getWisdomWindow()
@@ -171,7 +183,9 @@ describe('App', () => {
     })
 
     it('reports the answer to a threefold repetition draw with the draw type', async () => {
-        vi.mocked(mockGame.getGameStatus).mockReturnValue(mockWisdomChess.ThreefoldRepetitionReached)
+        vi.mocked(mockGame.getGameStatus).mockReturnValue(
+            mockWisdomChess.ThreefoldRepetitionReached,
+        )
 
         const user = userEvent.setup()
         render(<App />)
@@ -186,7 +200,9 @@ describe('App', () => {
     })
 
     it('reports the answer to a fifty move draw with the draw type', async () => {
-        vi.mocked(mockGame.getGameStatus).mockReturnValue(mockWisdomChess.FiftyMovesWithoutProgressReached)
+        vi.mocked(mockGame.getGameStatus).mockReturnValue(
+            mockWisdomChess.FiftyMovesWithoutProgressReached,
+        )
 
         const user = userEvent.setup()
         render(<App />)
@@ -200,7 +216,9 @@ describe('App', () => {
     })
 
     it('shows the overlay behind a draw dialog', () => {
-        vi.mocked(mockGame.getGameStatus).mockReturnValue(mockWisdomChess.ThreefoldRepetitionReached)
+        vi.mocked(mockGame.getGameStatus).mockReturnValue(
+            mockWisdomChess.ThreefoldRepetitionReached,
+        )
 
         render(<App />)
 
@@ -294,7 +312,13 @@ describe('Engine interface', () => {
     const placeWhitePawnOnE2 = () => {
         vi.mocked(mockGame.getPieceList).mockReturnValue({
             length: 1,
-            pieceAt: vi.fn(() => ({ id: 1, color: wasmEnums.White, piece: wasmEnums.Pawn, row: 6, col: 4 })),
+            pieceAt: vi.fn(() => ({
+                id: 1,
+                color: wasmEnums.White,
+                piece: wasmEnums.Pawn,
+                row: 6,
+                col: 4,
+            })),
         } as unknown as ReturnType<Game['getPieceList']>)
     }
 
@@ -391,7 +415,8 @@ describe('Engine interface', () => {
         vi.useFakeTimers()
         try {
             const { unmount } = render(<App />)
-            const onMessage = vi.mocked(wisdomWindow.setReceiveWorkerMessageCallback).mock.calls[0][0]
+            const onMessage = vi.mocked(wisdomWindow.setReceiveWorkerMessageCallback).mock
+                .calls[0][0]
             act(() => onMessage('computerMoved', 0, 'e2 e4'))
             act(() => onMessage('computerMoved', 0, 'e7 e5'))
             expect(mockGameModel.notifyComputerMove).toHaveBeenCalledTimes(1)
@@ -464,9 +489,11 @@ describe('withWasmObjects', () => {
     it('frees objects when the callback throws', () => {
         const object = {} as WasmObject
 
-        expect(() => withWasmObjects([object], () => {
-            throw new Error('failed')
-        })).toThrow('failed')
+        expect(() =>
+            withWasmObjects([object], () => {
+                throw new Error('failed')
+            }),
+        ).toThrow('failed')
 
         expect(mockWisdomChess.destroy).toHaveBeenCalledWith(object)
     })

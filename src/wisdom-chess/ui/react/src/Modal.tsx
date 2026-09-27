@@ -10,7 +10,7 @@ const Modal = (props: ModalProps): React.JSX.Element => {
             <div className="modal-overlay"></div>
             <div className="modal">{props.children}</div>
         </>
-    );
+    )
 }
 
-export default Modal;
+export default Modal

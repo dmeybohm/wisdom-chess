@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { initialState as makeInitialState, reducer, type Action, type EngineSnapshot, type GameState } from './reducer'
+import {
+    initialState as makeInitialState,
+    reducer,
+    type Action,
+    type EngineSnapshot,
+    type GameState,
+} from './reducer'
 import { wasmEnums } from './test/wasmEnums'
 
 const createSnapshot = (): EngineSnapshot => ({
@@ -210,7 +216,7 @@ describe('reducer', () => {
                 { type: 'SET_LAST_DROPPED', square: 'e4' },
             ]
 
-            actions.forEach((action) => {
+            actions.forEach(action => {
                 const newState = reducer(initialState, action)
                 expect(newState).not.toBe(initialState)
             })

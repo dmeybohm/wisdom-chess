@@ -1,18 +1,18 @@
-import WhiteQueen from "./assets/Chess_qlt45.svg";
-import WhiteRook from "./assets/Chess_rlt45.svg";
-import WhiteBishop from "./assets/Chess_blt45.svg";
-import WhiteKnight from "./assets/Chess_nlt45.svg";
+import WhiteQueen from './assets/Chess_qlt45.svg'
+import WhiteRook from './assets/Chess_rlt45.svg'
+import WhiteBishop from './assets/Chess_blt45.svg'
+import WhiteKnight from './assets/Chess_nlt45.svg'
 
-import BlackQueen from "./assets/Chess_qdt45.svg";
-import BlackRook from "./assets/Chess_rdt45.svg";
-import BlackBishop from "./assets/Chess_bdt45.svg";
-import BlackKnight from "./assets/Chess_ndt45.svg";
+import BlackQueen from './assets/Chess_qdt45.svg'
+import BlackRook from './assets/Chess_rdt45.svg'
+import BlackBishop from './assets/Chess_bdt45.svg'
+import BlackKnight from './assets/Chess_ndt45.svg'
 
-import { PieceColor, PieceType, WisdomChess } from "./lib/WisdomChess";
-import { useState } from "react";
+import { PieceColor, PieceType, WisdomChess } from './lib/WisdomChess'
+import { useState } from 'react'
 
 export type PromotablePiece = {
-    type: PieceType,
+    type: PieceType
     icon: [white: string, black: string]
 }
 
@@ -27,14 +27,14 @@ export default function PawnPromotionDialog(props: PawnPromotionDialogProps) {
     const [selectedPiece, setSelectedPiece] = useState<PieceType>(wisdomChess.NoPiece)
 
     const pieces: PromotablePiece[] = [
-        { type: wisdomChess.Queen, icon: [ WhiteQueen, BlackQueen ] },
-        { type: wisdomChess.Rook, icon: [ WhiteRook, BlackRook ] },
-        { type: wisdomChess.Bishop, icon: [ WhiteBishop, BlackBishop ] },
-        { type: wisdomChess.Knight, icon: [ WhiteKnight, BlackKnight ] },
+        { type: wisdomChess.Queen, icon: [WhiteQueen, BlackQueen] },
+        { type: wisdomChess.Rook, icon: [WhiteRook, BlackRook] },
+        { type: wisdomChess.Bishop, icon: [WhiteBishop, BlackBishop] },
+        { type: wisdomChess.Knight, icon: [WhiteKnight, BlackKnight] },
     ]
 
     const row: number = parseInt(props.square.charAt(1), 10)
-    const reversed = row === 1 ? 'reversed' : '';
+    const reversed = row === 1 ? 'reversed' : ''
 
     function handleSelectPiece(piece: PromotablePiece) {
         if (piece.type === selectedPiece) {
@@ -60,5 +60,5 @@ export default function PawnPromotionDialog(props: PawnPromotionDialogProps) {
                 </div>
             ))}
         </div>
-    );
+    )
 }
