@@ -58,3 +58,25 @@ castling and en-passant rules.
   `dataChanged` roles in the same order, so the QML delegates and
   `pieces_model_test.cpp` are unchanged. A capture is now removed by the
   move's flag rather than by whatever stood on the destination.
+
+### Session #2
+
+- `WebGame` now has native tests. `web_types.hpp` no longer includes
+  Emscripten or `bindings.hpp`, and the `engine_thread` extern moved to
+  `game_model.hpp`, its only user, so `web_game.cpp` builds without
+  Emscripten. `ui/wasm/test/` builds it into `wisdom-chess-web-tests`, added
+  from `ui/CMakeLists.txt` whenever the React UI and fast tests are on, so
+  it runs in every native CI job, the sanitizer and Debug builds included.
+- The tests replay games through `makeHumanMove` against an engine `Game`
+  fed the same moves, and after every move check that ids are unique, in
+  order, and match the board square for square. They cover castling on
+  each side for each color, en passant by each color, promotion with a
+  capture for each color, a computer move, illegal moves and checkmate.
+  Disabling the castled rook's update fails two of them.
+- The same target builds under Emscripten and passes under node. But
+  `ctest` in an Emscripten build cannot run any doctest suite, this one or
+  the engine and viewmodel ones: node reports a terminal, so doctest
+  colors the test list and `doctest_discover_tests` writes broken
+  `add_test` calls. That predates this branch and is left for a separate
+  fix. The glue and worker code in `bindings.cpp` and `game_model.hpp`
+  still has no tests.

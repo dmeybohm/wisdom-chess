@@ -1,15 +1,8 @@
 #pragma once
 
-#include <emscripten.h>
-#include <emscripten/wasm_worker.h>
-
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
-
-#include "wisdom-chess/ui/wasm/bindings.hpp"
-
-extern emscripten_wasm_worker_t engine_thread;
 
 namespace wisdom
 {
