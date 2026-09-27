@@ -143,12 +143,6 @@ namespace wisdom
             return has_rights;
         }
 
-        [[nodiscard]] auto isEnPassantVulnerable (Color who) const noexcept -> bool
-        {
-            auto target = my_code.getAnyEnPassantTarget();
-            return target.has_value() && target->vulnerable_color == who;
-        }
-
         [[nodiscard]] auto 
         getCurrentTurn() const 
             -> Color

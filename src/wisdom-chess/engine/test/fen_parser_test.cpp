@@ -175,9 +175,6 @@ TEST_CASE( "FEN notation for en passant" )
     Game game = Game::createGameFromFen ("4r3/8/8/4p3/8/8/k7/4K2R w - e6 0 1");
     auto &board = game.getBoard();
 
-    REQUIRE( !board.isEnPassantVulnerable (Color::White) );
-    REQUIRE( board.isEnPassantVulnerable (Color::Black) );
-
     auto black_target = board.getAnyEnPassantTarget();
     REQUIRE( black_target.has_value() );
     CHECK( black_target->vulnerable_color == Color::Black );

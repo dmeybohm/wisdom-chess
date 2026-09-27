@@ -14,9 +14,6 @@ TEST_CASE( "en passant" )
     {
         Board board;
 
-        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
-        REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
-
         REQUIRE( board.getAnyEnPassantTarget() == nullopt );
 
         BoardBuilder builder;
@@ -28,8 +25,7 @@ TEST_CASE( "en passant" )
 
         auto builder_board = Board { builder };
 
-        REQUIRE( !builder_board.isEnPassantVulnerable (Color::White) );
-        REQUIRE( !builder_board.isEnPassantVulnerable (Color::Black) );
+        REQUIRE( builder_board.getAnyEnPassantTarget() == nullopt );
     }
 
     SUBCASE( "En passant moves work on the right" )
@@ -48,8 +44,7 @@ TEST_CASE( "en passant" )
 
         auto board = Board { builder };
 
-        REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
-        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
+        REQUIRE( board.getAnyEnPassantTarget() == nullopt );
 
         Move pawn_move = moveParse ("f7f5");
         board = board.withMove (Color::Black, pawn_move);
@@ -70,8 +65,9 @@ TEST_CASE( "en passant" )
         REQUIRE( coordRow (en_passant_move.getDst()) == 2 );
         REQUIRE( coordColumn (en_passant_move.getDst()) == 5 );
 
-        REQUIRE( board.isEnPassantVulnerable (Color::Black) );
-        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
+        auto target = board.getLegalEnPassantTarget();
+        REQUIRE( target.has_value() );
+        REQUIRE( target->vulnerable_color == Color::Black );
 
         board = board.withMove (Color::White, en_passant_move);
 
@@ -97,8 +93,7 @@ TEST_CASE( "en passant" )
 
         auto board = Board { builder };
         Move pawn_move = moveParse ("d7d5");
-        REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
-        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
+        REQUIRE( board.getAnyEnPassantTarget() == nullopt );
 
         board = board.withMove (Color::Black, pawn_move);
 
@@ -118,8 +113,9 @@ TEST_CASE( "en passant" )
         REQUIRE( coordRow (en_passant_move.getDst()) == 2 );
         REQUIRE( coordColumn (en_passant_move.getDst()) == 3 );
 
-        REQUIRE( board.isEnPassantVulnerable (Color::Black) );
-        REQUIRE( !board.isEnPassantVulnerable (Color::White) );
+        auto target = board.getLegalEnPassantTarget();
+        REQUIRE( target.has_value() );
+        REQUIRE( target->vulnerable_color == Color::Black );
 
         board = board.withMove (Color::White, en_passant_move);
 
