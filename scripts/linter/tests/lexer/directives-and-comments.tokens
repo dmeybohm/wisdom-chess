@@ -1,0 +1,20 @@
+1:1:comment:spaced:// Comments become a single space before directives are recognized, as
+2:1:comment:spaced:// "g++ -E" and "clang++ -E" show. A '#' after a comment that spans lines
+3:1:comment:spaced:// is not at the start of a line, so it does not begin a directive:
+4:1:identifier:spaced:int
+4:5:identifier:spaced:x
+4:6:punctuator:joined:;
+4:8:comment:spaced:/* comment\n*/
+5:4:punctuator:spaced:#
+5:5:identifier:joined:define
+5:12:identifier:spaced:CHECK
+5:17:punctuator:joined:(
+5:18:identifier:joined:x
+5:19:punctuator:joined:)
+5:21:identifier:spaced:x
+6:1:comment:spaced:// And a directive goes on through a comment that spans lines, so the
+7:1:comment:spaced:// declaration after it belongs to the macro:
+8:1:preprocessor:spaced:#define FOO /* comment\n*/ int *ptr;
+10:1:identifier:spaced:int
+10:5:identifier:spaced:after
+10:10:punctuator:joined:;
