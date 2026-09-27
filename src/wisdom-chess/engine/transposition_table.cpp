@@ -14,8 +14,8 @@ namespace wisdom
         // all-ones mask, and every probe would then index out of bounds.
         expects (size_in_mb >= 1);
 
-        constexpr size_t bytes_per_mb = 1024 * 1024;
-        size_t entry_count = (static_cast<size_t> (size_in_mb) * bytes_per_mb)
+        constexpr size_t Bytes_Per_Megabyte = 1024 * 1024;
+        size_t entry_count = (static_cast<size_t> (size_in_mb) * Bytes_Per_Megabyte)
             / sizeof (TranspositionEntry);
 
         size_t power_of_2 = 1;
