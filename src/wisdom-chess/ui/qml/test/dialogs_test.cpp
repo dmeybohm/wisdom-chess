@@ -87,7 +87,7 @@ private slots:
         QVERIFY( my_app->buttonWithText (QStringLiteral ("New Game")) != nullptr );
         QVERIFY( my_app->buttonWithText (QStringLiteral ("Settings")) != nullptr );
         QVERIFY( my_app->buttonWithText (QStringLiteral ("About Wisdom Chess")) != nullptr );
-        QVERIFY( my_app->buttonWithText (QStringLiteral ("Quit")) != nullptr );
+        QCOMPARE( my_app->buttonWithText (QStringLiteral ("Quit")) != nullptr, menuHasQuit() );
 
         // Only the WebAssembly build links to the React version.
         QVERIFY( my_app->buttonWithText (QStringLiteral ("React Version")) == nullptr );
@@ -171,6 +171,9 @@ private slots:
 
     void quittingAsksFirst()
     {
+        if (!menuHasQuit())
+            QSKIP( "The mobile menu has no Quit item" );
+
         QSignalSpy quit { &my_app->engine(), &QQmlEngine::quit };
         chooseFromMenu (QStringLiteral ("Quit"));
         auto* dialog = my_app->popupWithTitle (QStringLiteral ("Quit Wisdom Chess"));
@@ -190,6 +193,9 @@ private slots:
 
     void theQuitDialogHasRoomForItsText()
     {
+        if (!menuHasQuit())
+            QSKIP( "The mobile menu has no Quit item" );
+
         chooseFromMenu (QStringLiteral ("Quit"));
         auto* dialog = my_app->popupWithTitle (QStringLiteral ("Quit Wisdom Chess"));
         QTRY_VERIFY( dialog->property ("visible").toBool() );
@@ -455,12 +461,28 @@ private:
     }
 
 
+    // An application on a phone is not quit from its menu.
+    [[nodiscard]] static auto
+    menuHasQuit()
+        -> bool
+    {
+#ifdef Q_OS_ANDROID
+        return false;
+#else
+        return true;
+#endif
+    }
+
     void openMenu()
     {
         auto tool_buttons = my_app->shownItemsOfClass ("QQuickToolButton");
         QCOMPARE( tool_buttons.size(), 1 );
         my_app->clickItem (tool_buttons[0]);
-        QTRY_VERIFY( my_app->buttonWithText (QStringLiteral ("Quit")) != nullptr );
+
+        auto last_item = menuHasQuit()
+            ? QStringLiteral ("Quit")
+            : QStringLiteral ("About Wisdom Chess");
+        QTRY_VERIFY( my_app->buttonWithText (last_item) != nullptr );
     }
 
     void clickButton (const QString& text)

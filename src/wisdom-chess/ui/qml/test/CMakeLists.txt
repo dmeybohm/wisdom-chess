@@ -28,6 +28,9 @@ target_link_libraries(wisdom-chess-qml-test-support
 target_include_directories(wisdom-chess-qml-test-support PUBLIC ../../../..)
 wisdom_chess_enable_warnings(wisdom-chess-qml-test-support)
 
+# Qt for Android only runs inside an application, so there each test is a
+# package, and Qt's androidtestrunner installs it on the device, runs it and
+# brings back the result.
 if(ANDROID)
     find_program(WISDOM_CHESS_ANDROID_TEST_RUNNER androidtestrunner
         HINTS "${QT_HOST_PATH}/${QT6_HOST_INFO_BINDIR}" "${QT_HOST_PATH}/bin"
@@ -37,6 +40,8 @@ if(ANDROID)
         message(FATAL_ERROR "-- wisdom-chess: androidtestrunner was not found in the host Qt")
     endif()
 
+    # A release package is unsigned, which the device refuses to install,
+    # and the runner can only read the results of a debuggable one.
     set(QT_ANDROID_DEPLOYMENT_TYPE Debug)
 endif()
 
@@ -55,10 +60,17 @@ function(wisdom_chess_add_qml_test test_name source)
     endif()
 
     if(ANDROID)
+        # The activity loads the platform plugin whether or not the test
+        # has a GUI, so the package needs Qt Gui.
         string(REPLACE "-" "_" package_suffix "${target_suffix}")
         target_link_libraries(${target} PRIVATE Qt6::Gui)
         set_target_properties(${target} PROPERTIES
             QT_ANDROID_PACKAGE_NAME "com.daveme.wisdomchess.${package_suffix}")
+
+        # Qt Creator leaves packages out of a build of everything, and the
+        # runner would then run a package older than the test.
+        add_custom_target(${target}-package ALL)
+        add_dependencies(${target}-package ${target}_make_apk)
 
         set(package_dir "${CMAKE_CURRENT_BINARY_DIR}/android-build-${target}")
         add_test(NAME "${test_name}"
@@ -68,6 +80,9 @@ function(wisdom_chess_add_qml_test test_name source)
                 --adb "${WISDOM_CHESS_ADB}"
                 --skip-install-root
                 --make "\"${CMAKE_COMMAND}\" --build \"${CMAKE_BINARY_DIR}\" --target ${target}_make_apk")
+
+        # Each test takes over the device's display while it runs.
+        set_tests_properties("${test_name}" PROPERTIES RESOURCE_LOCK android-display)
     else()
         add_test(NAME "${test_name}" COMMAND ${target})
     endif()

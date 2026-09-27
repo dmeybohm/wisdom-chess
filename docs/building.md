@@ -176,6 +176,10 @@ when several are connected. To build without a device, turn the tests off
 with `-DWISDOM_CHESS_FAST_TESTS=Off -DWISDOM_CHESS_SLOW_TESTS=Off`; in Qt
 Creator, that is under Projects > Build > CMake.
 
+Each `QML: ...` test is built as a package of its own and takes over the
+device's display while it runs. The packages add a few minutes to a first
+build.
+
 ## Building with FIL-C
 
 [FIL-C](https://github.com/pizlonator/fil-c) is auto-detected at configure

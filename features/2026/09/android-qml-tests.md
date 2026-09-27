@@ -63,3 +63,47 @@ Steps 1 to 4 are done, and the tests build and run on the x86_64 emulator
 Costs measured: each test is a package of about 45 MB, a clean build of
 everything takes about three minutes, and the eight tests take about 45
 seconds to run one after another.
+
+### Session #2
+
+Step 5, the two tests that failed:
+
+- **QML: dialogs** loaded the desktop layout, as it does everywhere. On a
+  phone the window is the whole screen and the system's status bar lies
+  over its top, where that layout's toolbar, 35 pixels high, has no room
+  left for its button. The layout does not ship on Android, so rather than
+  test it there, `Application` now loads the layout of the platform the
+  test runs on unless told which: `mobile_main.qml` on Android. "QML:
+  application" follows, and both now test on the device what ships on it.
+- The mobile menu has no Quit item. The dialogs test waits for the menu's
+  last item to know it is open, which is "About Wisdom Chess" there, and
+  skips the two cases about the quit dialog.
+- **QML: mobile** found the menu's right edge at 392 of 411. In the
+  application the menu is flush with the edge; the Material style, which
+  Android uses, scales a menu up from 90% as it opens, and the test
+  measured during that. It now waits with `QTRY_COMPARE`.
+
+Also:
+
+- The project sets `QT_USE_TARGET_ANDROID_BUILD_DIR` itself when the tests
+  are on, in the cache, which is the only place Qt reads it from. The
+  application's package then builds in `android-build-WisdomChessQml`, as
+  it already did under Qt Creator.
+- The tests share a `RESOURCE_LOCK`, since each takes over the display,
+  so `ctest -j` runs them one at a time beside the other tests.
+- Each test's package is part of a build of everything. Qt Creator leaves
+  packages out of one, and the runner would run a stale package.
+
+Results on the x86_64 emulator (Android 16), `ctest -j 4`, Release:
+
+| Build | Tests | Result |
+|---|---|---|
+| Android, Qt 6.11.2 | 232 | all passed |
+| Android, Qt 6.9.3 (what CI uses) | 232 | all passed |
+| Desktop, Qt 6.11.2 | 233 | all passed |
+
+A clean Android build takes three to four minutes, the tests about one.
+`all_qmllint` and the style linter pass.
+
+Not done: CI still only builds the Android package with the tests off, so
+nothing here runs there. That needs an emulator in CI.

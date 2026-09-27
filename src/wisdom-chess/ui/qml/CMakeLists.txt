@@ -283,6 +283,14 @@ if(EMSCRIPTEN)
 endif()
 
 if (WISDOM_CHESS_FAST_TESTS AND NOT EMSCRIPTEN)
+    if (ANDROID)
+        # Every test is a package of its own. Qt gives the targets of one
+        # directory a single package directory unless told otherwise, and
+        # only reads this from the cache.
+        set(QT_USE_TARGET_ANDROID_BUILD_DIR ON CACHE BOOL
+            "Build each Android package in a directory of its own")
+    endif()
+
     find_package(Qt6 COMPONENTS Test QuickTest QUIET)
     if (Qt6Test_FOUND AND Qt6QuickTest_FOUND)
         add_subdirectory(test)
