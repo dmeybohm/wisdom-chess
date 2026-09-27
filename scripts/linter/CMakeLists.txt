@@ -17,6 +17,7 @@ add_executable(wisdom-linter
     rules/function_call_spacing.cpp
     rules/no_tabs.cpp
     rules/raw_pointer.cpp
+    rules/allman_braces.cpp
 )
 
 target_compile_options(wisdom-linter PRIVATE

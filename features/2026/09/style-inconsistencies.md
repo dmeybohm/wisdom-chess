@@ -202,20 +202,11 @@ direction is a choice rather than a correction.
 4. [ ] Items under B wait for a decision on each. Once decided, the
    convention goes into `AGENTS.md` next to the fix. Decided so far:
    14, 20, 21 and 29.
-5. [ ] For item 30, an `allman-braces` linter rule, on this branch or
-   its own, alongside the `no-trailing-whitespace` rule of step 3.
-   `namespace-braces` already checks namespaces and is the model. The
-   rule would flag a `{` that is not first on its line when it opens a
-   function body, a control statement (`if`, `else`, `for`, `while`,
-   `do`, `switch`, `try`, `catch`) or a class, struct, union or enum,
-   unless the block closes on the same line. Brace initializers are
-   exempt, which the lexer's tokens can tell apart only by what
-   precedes the brace: a `)`, a specifier such as `const` or
-   `noexcept`, `else`, `do`, `try`, or a type head opens a block; `=`,
-   `return`, `throw`, `(`, `,` or a type name opens an initializer. A
-   trailing return type (`-> int {`) needs the rule to remember the
-   `->`. Decisions needed first: item 15 (the rule as described makes
-   `) {` a violation), and whether lambdas are covered.
+5. [ ] For item 30, the `allman-braces` linter rule. Written in
+   Session #5 at warning severity, so the `lint` target passes while
+   the 38 violations stand; it becomes an error once they are fixed.
+   Decisions needed first: item 15 (the rule makes `) {` a violation),
+   and whether lambdas are covered (the rule skips them).
 6. [x] At the end: full Release build, all tests, a Debug build of the fast
    tests, and the QML tests if Qt is configured in the build tree. Run
    in Session #1; the later sessions ran the Release build and the fast
@@ -365,3 +356,27 @@ Item 29: the React frontend is formatted with Prettier.
 - Added item 30, braces that break Allman style, and plan step 5, a
   linter rule for it. The survey used `grep`, so the counts are close
   but not exact; the rule, once written, gives the true list.
+- Wrote the `allman-braces` rule (`scripts/linter/rules/allman_braces.cpp`)
+  to see whether it could tell a block from a brace initializer, since
+  multi-line initializers must stay legal. It can, from the tokens
+  before the `{`:
+  - `)`, `}` (the end of a constructor's initializer list), `else`,
+    `do`, `try`, or a specifier such as `const` opens a block.
+  - A name opens a block only when the statement began with `class`,
+    `struct`, `union` or `enum`, or has a trailing return type (`->`)
+    not belonging to a lambda. Any other name, or `=`, `return`,
+    `throw`, `(` or `,`, opens an initializer.
+  - A lambda is recognized by the `]` of its capture list before its
+    parameters, and skipped for now.
+  - A block that closes on the line it opens is allowed.
+
+  A semicolon test was considered and rejected: a loop whose body is
+  another loop has no semicolon at its own level, and an initializer
+  holding a lambda has one inside.
+- Over the sources the `lint` target covers, it finds 38 violations: the
+  37 of the survey and `ui/qml/main/chess_game.cpp:92`, a `) {` whose
+  trailing comment hid it from `grep`. It flags no initializer. Tests
+  are in `scripts/linter/tests/allman-braces`, and the linter's suite
+  passes (50 tests).
+- The rule does not check a closing brace, so `} else {` is reported
+  only for its `{`.
