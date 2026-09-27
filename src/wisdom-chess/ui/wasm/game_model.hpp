@@ -49,7 +49,7 @@ namespace wisdom
         // Initialize a new game with the default position.
         auto
         startNewGame()
-            -> WebGame* // lint-allow(raw-pointer): WebIDL binding, JavaScript owns it
+            -> owning<WebGame>
         {
             ++my_game_id;
             auto new_game = WebGame::newFromSettings (my_game_settings, my_game_id);
@@ -89,12 +89,12 @@ namespace wisdom
 
         [[nodiscard]] auto 
         getCurrentGameSettings() const 
-            -> GameSettings* // lint-allow(raw-pointer): WebIDL binding, JavaScript owns it
+            -> owning<GameSettings>
         {
             return make_unique<GameSettings> (my_game_settings).release();
         }
 
-        void setCurrentGameSettings (GameSettings* newSettings) // lint-allow(raw-pointer): WebIDL binding
+        void setCurrentGameSettings (nonnull<GameSettings> newSettings)
         {
             my_game_settings = GameSettings { *newSettings };
 
