@@ -1,84 +1,84 @@
 #root {
-  margin: 0 auto;
-  text-align: center;
+    margin: 0 auto;
+    text-align: center;
 }
 
 .container {
-  display: flex;
-  place-items: center;
-  flex-direction: column;
+    display: flex;
+    place-items: center;
+    flex-direction: column;
 }
 
 .status-bar {
-  font-size: 1.25rem;
+    font-size: 1.25rem;
 }
 
 @media screen and (min-width: 48rem) {
-  .status-bar {
-    font-size: 2rem;
-  }
+    .status-bar {
+        font-size: 2rem;
+    }
 }
 
 .status-bar div {
-  margin-bottom: calc(var(--item-spacing) * .6);
+    margin-bottom: calc(var(--item-spacing) * 0.6);
 }
 
 .modal {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 3;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 1rem 0 4rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1rem 0 4rem;
 }
 
 @media screen and (min-width: 48rem) {
-  .modal {
-    position: absolute;
-    left: 50%;
-    top: 30%;
-    transform: translate(-50%, -30%);
-    z-index: 3;
-    background: #fff;
-    width: 66vw;
-    border-radius: 1rem;
-    padding: 1rem 1.5rem 4rem;
-    box-sizing: border-box;
-    max-width: 38rem;
-  }
+    .modal {
+        position: absolute;
+        left: 50%;
+        top: 30%;
+        transform: translate(-50%, -30%);
+        z-index: 3;
+        background: #fff;
+        width: 66vw;
+        border-radius: 1rem;
+        padding: 1rem 1.5rem 4rem;
+        box-sizing: border-box;
+        max-width: 38rem;
+    }
 }
 
 .modal h1 {
-  margin-bottom: 2rem;
+    margin-bottom: 2rem;
 }
 
 .modal-overlay {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background: #888;
-  opacity: 0.4;
-  z-index: 2;
-  top: 0;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: #888;
+    opacity: 0.4;
+    z-index: 2;
+    top: 0;
 }
 
 .modal h1 {
-  font-size: 2rem;
+    font-size: 2rem;
 }
 
 .modal p {
-  margin-bottom: 2rem;
+    margin-bottom: 2rem;
 }
 
 .buttons {
-  display: flex;
-  justify-content: center;
-  gap: .7rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.7rem;
 }
 
 .buttons > * {
-  flex-basis: 33%;
+    flex-basis: 33%;
 }
