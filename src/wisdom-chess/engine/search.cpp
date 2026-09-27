@@ -177,7 +177,7 @@ namespace wisdom
         }
 
         int original_alpha = alpha;
-        std::optional<Move> best_move {};
+        optional<Move> best_move {};
         int best_score = -Initial_Alpha;
         auto draw_nodes_before = my_draw_nodes;
 

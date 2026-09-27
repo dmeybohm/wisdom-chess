@@ -351,7 +351,7 @@ namespace wisdom
 
     void Game::setProposedDrawStatus (
         ProposedDrawType draw_type,
-        std::pair<DrawStatus, DrawStatus> draw_statuses
+        pair<DrawStatus, DrawStatus> draw_statuses
     ) {
         setProposedDrawStatus (draw_type, Color::White, draw_statuses.first);
         setProposedDrawStatus (draw_type, Color::Black, draw_statuses.second);

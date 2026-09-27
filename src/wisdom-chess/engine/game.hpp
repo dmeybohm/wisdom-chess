@@ -143,7 +143,7 @@ namespace wisdom
 
         void setProposedDrawStatus (
             ProposedDrawType draw_type,
-            std::pair<DrawStatus, DrawStatus> draw_statuses
+            pair<DrawStatus, DrawStatus> draw_statuses
         );
 
     private:

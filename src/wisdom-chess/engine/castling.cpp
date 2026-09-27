@@ -9,7 +9,7 @@ namespace wisdom
     operator<< (std::ostream& os, const CastlingEligibility& value)
         -> std::ostream&
     {
-        std::string result = "{ Kingside: ";
+        string result = "{ Kingside: ";
 
         result += value.isSet (CastlingRights::Kingside)
             ? "eligible, "

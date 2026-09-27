@@ -69,7 +69,7 @@ namespace wisdom::bench
         return searchWithTable (game, table, depth);
     }
 
-    static void printSeconds (const std::string& label, double seconds)
+    static void printSeconds (const string& label, double seconds)
     {
         std::cout << "  " << label << ": "
                   << std::fixed << std::setprecision (3) << seconds << "s\n";
@@ -78,13 +78,13 @@ namespace wisdom::bench
     // The moves of one game, chosen by the engine at a shallow depth. Building
     // the line this way keeps it legal and the positions realistic, and it is
     // deterministic, so both replays below walk exactly the same positions.
-    static auto scriptedGame (int plies, int script_depth) -> std::vector<Move>
+    static auto scriptedGame (int plies, int script_depth) -> vector<Move>
     {
         auto table = TranspositionTable::fromMegabytes (
             TranspositionTable::Default_Size_In_Megabytes
         );
         Game game = Game::createStandardGame();
-        std::vector<Move> script;
+        vector<Move> script;
 
         for (int i = 0; i < plies; i++)
         {
@@ -102,14 +102,14 @@ namespace wisdom::bench
     struct ReplayResult
     {
         double seconds = 0.0;
-        std::vector<optional<Move>> chosen;
+        vector<optional<Move>> chosen;
     };
 
     // Search every position of the script to a fixed depth. The scripted move
     // is played rather than the chosen one, so that clearing the table cannot
     // send the two replays down different games.
     static auto replayScript (
-        const std::vector<Move>& script,
+        const vector<Move>& script,
         int depth,
         bool clear_before_each_search
     )
@@ -191,7 +191,7 @@ namespace wisdom::bench
 
         for (auto& scenario : scenarios)
         {
-            auto label = std::string { "search/" } + scenario.name
+            auto label = string { "search/" } + scenario.name
                 + "-depth" + std::to_string (scenario.depth);
 
             bench->run (label, [&] {
@@ -205,7 +205,7 @@ namespace wisdom::bench
         // Manual timing: one deeper search per scenario.
         for (auto& scenario : scenarios)
         {
-            auto label = std::string { "search/" } + scenario.name
+            auto label = string { "search/" } + scenario.name
                 + "-depth" + std::to_string (scenario.deep_depth);
 
             auto start = std::chrono::steady_clock::now();
