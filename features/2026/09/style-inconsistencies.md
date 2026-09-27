@@ -264,7 +264,35 @@ Three of the items under B were decided and done.
   engine and its tests named it; no frontend catches it by name.
 - Verified: Release build with the QML UI on has no warnings, the 235
   fast tests pass, and the `lint` target passes.
-- Still open under B: items 15 to 19 and 22 to 29. For item 29,
-  `prettier` has no dependencies, `@biomejs/biome` has none beyond its
-  own prebuilt binary, and `eslint` has 30 before `typescript-eslint`.
-  No choice has been made.
+- Still open under B: items 15 to 19 and 22 to 28.
+
+### Session #3
+
+Item 29: the React frontend is formatted with Prettier.
+
+- Chosen over ESLint and Biome for its dependencies: `prettier` 3.9.9
+  has none, `@biomejs/biome` has none beyond its own prebuilt binary,
+  and `eslint` has 30 before `typescript-eslint`. The inconsistencies
+  found were all formatting, which is all Prettier does. The version is
+  pinned exactly, because a formatter's output can change between
+  releases.
+- The options follow what most of the code already did: no semicolons
+  (926 statement lines without, 74 with), single quotes (427 strings
+  against 61), four spaces, and no parentheses around a single arrow
+  parameter (21 against 4). The width is 100 columns, the limit the C++
+  sources had under `.clang-format`. Of twelve combinations tried, 120
+  columns gave the smallest change, 672 lines against 712 at 100; 80
+  columns gave 991.
+- `npm run format` and `npm run format:check` cover `src`, `scripts` and
+  the two configuration files. `.prettierignore` excludes the generated
+  `wisdom-chess-module.d.ts`.
+- Three commits: the tool, the TypeScript (20 files), and the style
+  sheets (8 files). The style sheets mixed two and four spaces, so most
+  of their change is indentation: ignoring whitespace it is 17 lines
+  added and 26 removed.
+- The `web` workflow runs `npm run format:check` before the tests.
+  `AGENTS.md` has a short section on it.
+- Verified: `tsc --noEmit` is clean, the 51 React tests pass,
+  `check:wasm-types` still passes with the generator script
+  reformatted, and `format:check` passes. The production build was not
+  run, since it needs the WASM artifacts.
