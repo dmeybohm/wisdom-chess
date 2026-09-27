@@ -36,11 +36,11 @@ namespace wisdom::ui::qml
         qCritical() << line.c_str();
     }
 
-    ChessEngine::ChessEngine (shared_ptr<ChessGame> game, int game_id, QObject* parent) :
-            QObject { parent },
-            my_game { std::move (game) },
-            my_game_id { game_id },
-            my_logger { makeBufferedLogger (make_shared<ChessEngineLogger>()) }
+    ChessEngine::ChessEngine (shared_ptr<ChessGame> game, int game_id, QObject* parent)
+        : QObject { parent }
+        , my_game { std::move (game) }
+        , my_game_id { game_id }
+        , my_logger { makeBufferedLogger (make_shared<ChessEngineLogger>()) }
     {
         syncDebugLogging();
     }

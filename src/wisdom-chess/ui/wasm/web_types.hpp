@@ -258,8 +258,12 @@ namespace wisdom
         {
         }
 
-        WebColoredPiece (int id_, WebColor color_, WebPiece piece_, int row_, int col_) :
-                id { id_ }, color { color_ }, piece { piece_ }, row { row_ }, col { col_ }
+        WebColoredPiece (int id_, WebColor color_, WebPiece piece_, int row_, int col_)
+            : id { id_ }
+            , color { color_ }
+            , piece { piece_ }
+            , row { row_ }
+            , col { col_ }
         {
         }
 
