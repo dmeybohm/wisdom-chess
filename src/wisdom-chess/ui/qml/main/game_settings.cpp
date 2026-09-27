@@ -1,54 +1,73 @@
 #include "wisdom-chess/ui/qml/main/game_settings.hpp"
 
-auto 
-operator== (const GameSettings& a, const GameSettings& b)
-    -> bool
+namespace wisdom::ui::qml
 {
-    return a.my_white_player == b.my_white_player && 
-        a.my_black_player == b.my_black_player && 
-        a.my_max_depth == b.my_max_depth && 
-        a.my_max_search_time == b.my_max_search_time &&
-        a.my_debug_logging == b.my_debug_logging;
-}
+    // The engine's types, not the wisdom::ui mirrors QML sees.
+    using wisdom::Color;
+    using wisdom::Player;
 
-auto 
-operator!= (const GameSettings& a, const GameSettings& b)
-    -> bool
-{
-    return !operator== (a, b);
-}
+    auto 
+    operator== (const GameSettings& a, const GameSettings& b)
+        -> bool
+    {
+        return a.my_white_player == b.my_white_player && 
+            a.my_black_player == b.my_black_player && 
+            a.my_max_depth == b.my_max_depth && 
+            a.my_max_search_time == b.my_max_search_time &&
+            a.my_debug_logging == b.my_debug_logging;
+    }
 
-auto 
-GameSettings::whitePlayer() const 
-    -> wisdom::ui::Player
-{
-    return my_white_player;
-}
+    auto 
+    operator!= (const GameSettings& a, const GameSettings& b)
+        -> bool
+    {
+        return !operator== (a, b);
+    }
 
-auto 
-GameSettings::blackPlayer() const 
-    -> wisdom::ui::Player
-{
-    return my_black_player;
-}
+    auto 
+    GameSettings::whitePlayer() const 
+        -> wisdom::ui::Player
+    {
+        return my_white_player;
+    }
 
-auto 
-GameSettings::maxDepth() const 
-    -> int
-{
-    return my_max_depth;
-}
+    auto 
+    GameSettings::blackPlayer() const 
+        -> wisdom::ui::Player
+    {
+        return my_black_player;
+    }
 
-auto 
-GameSettings::maxSearchTime() const 
-    -> int
-{
-    return my_max_search_time;
-}
+    auto 
+    GameSettings::maxDepth() const 
+        -> int
+    {
+        return my_max_depth;
+    }
 
-auto 
-GameSettings::debugLogging() const 
-    -> bool
-{
-    return my_debug_logging;
+    auto 
+    GameSettings::maxSearchTime() const 
+        -> int
+    {
+        return my_max_search_time;
+    }
+
+    auto 
+    GameSettings::debugLogging() const 
+        -> bool
+    {
+        return my_debug_logging;
+    }
+
+    auto
+    GameSettings::toEngineSettings() const
+        -> wisdom::ui::GameSettings
+    {
+        return wisdom::ui::GameSettings {
+            .players = { mapPlayer (my_white_player), mapPlayer (my_black_player) },
+            .searchDepth = my_max_depth,
+            .thinkingTime = my_max_search_time,
+            .debugLogging = my_debug_logging,
+        };
+    }
 }

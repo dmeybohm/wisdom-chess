@@ -4,14 +4,14 @@
 
 namespace wisdom
 {
-    constexpr auto
+    [[nodiscard]] constexpr auto
     randomSeed()
         -> std::uint64_t
     {
         return 0xfa082aaf7c7e212ULL;
     }
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     randomInitialState()
         -> std::uint64_t
     {
@@ -41,21 +41,21 @@ namespace wisdom
         {
         }
 
-        constexpr auto
+        [[nodiscard]] constexpr auto
         operator()()
-            -> ResultType 
+            -> ResultType
         {
             return pcg32_random_r();
         }
 
-        static auto constexpr 
+        [[nodiscard]] static constexpr auto
         min()
-            -> ResultType 
+            -> ResultType
         {
             return std::numeric_limits<ResultType>::min();
         }
 
-        static auto constexpr 
+        [[nodiscard]] static constexpr auto
         max()
             -> ResultType
         {
@@ -63,9 +63,9 @@ namespace wisdom
         }
 
     private:
-        constexpr auto 
+        [[nodiscard]] constexpr auto
         pcg32_random_r()
-            -> std::uint32_t 
+            -> std::uint32_t
         {
             std::uint64_t oldState = rng.state;
             // Advance internal state
@@ -77,8 +77,8 @@ namespace wisdom
         }
     };
 
-    constexpr auto 
-    getCompileTimeRandom48 (CompileTimeRandom& random) 
+    [[nodiscard]] constexpr auto
+    getCompileTimeRandom48 (CompileTimeRandom& random)
         -> std::uint64_t
     {
         return ((random() & 0xffff0000ULL) << 16ULL) | random();

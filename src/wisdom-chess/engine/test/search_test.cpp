@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
@@ -49,8 +50,37 @@ namespace wisdom::test
         {
         }
     };
+
+    // Tracks the depth the search is on, from its progress messages, and
+    // counts the timer's periodic calls made during each depth.
+    struct DepthTrackingLogger : Logger
+    {
+        mutable int current_depth = 0;
+        mutable std::map<int, int> periodic_calls_per_depth {};
+
+        void debug ([[maybe_unused]] const string& output) const override
+        {
+        }
+
+        void info (const string& output) const override
+        {
+            const string prefix = "Searching depth ";
+            if (output.starts_with (prefix))
+                current_depth = std::stoi (output.substr (prefix.size()));
+        }
+
+        void emergency ([[maybe_unused]] const string& output) const override
+        {
+        }
+
+        void countPeriodicCall() const
+        {
+            periodic_calls_per_depth[current_depth]++;
+        }
+    };
 }
 
+using wisdom::test::DepthTrackingLogger;
 using wisdom::test::SearchHelper;
 using wisdom::test::ThrowingLogger;
 using namespace wisdom;
@@ -361,7 +391,7 @@ TEST_CASE( "Root TT hit should not bypass iterative deepening search" )
     Board board = Board { BoardBuilder::fromDefaultPosition() };
     TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
-    auto hash = board.getCode().getHashCode();
+    auto hash = board.getBoardCode().getHashCode();
     Move fake_move = Move::make (coordParse ("e2"), coordParse ("e4"));
     tt.store (hash, 100, 10, BoundType::Exact, fake_move, 0);
 
@@ -560,6 +590,69 @@ TEST_CASE( "The search result counts the nodes of every depth" )
     }
 }
 
+TEST_CASE( "A root move finished before the clock stops is kept" )
+{
+    // Run the same deterministic search twice: once to learn how many
+    // periodic timer calls the last depth makes, then again cancelling on
+    // that depth's final periodic call, so the iteration is cut short after
+    // most of its root moves have been searched to full depth.
+    static constexpr int Last_Depth = 4;
+    Board board { BoardBuilder::fromDefaultPosition() };
+
+    auto runSearch = [&] (int cancel_on_call) -> SearchResult
+    {
+        auto logger = make_shared<DepthTrackingLogger>();
+        MoveTimer timer { 30 };
+        timer.setPeriodicFunction (
+            [logger, cancel_on_call] (nonnull_observer_ptr<MoveTimer> timer_ptr)
+            {
+                logger->countPeriodicCall();
+                if (logger->current_depth == Last_Depth
+                    && logger->periodic_calls_per_depth[Last_Depth] == cancel_on_call)
+                {
+                    timer_ptr->setCancelled (true);
+                }
+            }
+        );
+        History history;
+        auto table = TranspositionTable::fromMegabytes (1);
+        auto search = IterativeSearch::create (board, history, logger, timer, Last_Depth, table);
+        auto result = search.iterativelyDeepen (Color::White);
+        result.nodes = logger->periodic_calls_per_depth[Last_Depth];
+        return result;
+    };
+
+    auto full = runSearch (0);
+    REQUIRE( !full.timed_out );
+    REQUIRE( full.depth == Last_Depth );
+    auto calls_in_last_depth = full.nodes;
+    REQUIRE( calls_in_last_depth > 1 );
+
+    auto cut_short = runSearch (narrow<int> (calls_in_last_depth));
+    CHECK( cut_short.timed_out );
+    REQUIRE( cut_short.move.has_value() );
+    CHECK( cut_short.depth == Last_Depth );
+}
+
+TEST_CASE( "A stalemate at the horizon is not scored as a win" )
+{
+    // White is a king and two pawns up, but Ka6, h3 and h4 each leave the
+    // black king without a move. Only a king move that unguards a7 keeps
+    // the game going, at the cost of that pawn.
+    FenParser fen { "k7/P7/1K6/8/8/8/7P/8 w - - 0 1" };
+    auto game = fen.build();
+    Board board { game.getBoard() };
+
+    SearchHelper helper;
+    auto search = helper.build (board, 1);
+    SearchResult result = search.iterativelyDeepen (Color::White);
+
+    REQUIRE( result.move.has_value() );
+    CHECK( *result.move != moveParse ("b6 a6", Color::White) );
+    CHECK( *result.move != moveParse ("h2 h3", Color::White) );
+    CHECK( *result.move != moveParse ("h2 h4", Color::White) );
+}
+
 TEST_CASE( "Quiescence search" )
 {
     auto boardFromFen = [](const char* fen_text) {
@@ -620,8 +713,22 @@ TEST_CASE( "Quiescence search" )
         auto search = helper.build (board, 1);
         (void)search.iterativelyDeepen (Color::White);
 
-        auto hash = board.getCode().getHashCode();
+        auto hash = board.getBoardCode().getHashCode();
         CHECK( helper.transposition_table.probe (hash, 1, -Initial_Alpha, Initial_Alpha, 0) );
+    }
+
+    SUBCASE( "The root is stored without an en passant target nothing can capture" )
+    {
+        SearchHelper helper;
+        auto board = boardFromFen ("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1");
+        auto search = helper.build (board, 1);
+        (void)search.iterativelyDeepen (Color::Black);
+
+        auto hash = board.getBoardCode().getHashCode();
+        auto hash_with_target = board.getUnnormalizedBoardCode().getHashCode();
+        REQUIRE( hash != hash_with_target );
+        CHECK( helper.transposition_table.probe (hash, 1, -Initial_Alpha, Initial_Alpha, 0) );
+        CHECK( !helper.transposition_table.probe (hash_with_target, 1, -Initial_Alpha, Initial_Alpha, 0) );
     }
 
     SUBCASE( "A capture into insufficient material keeps the root out of the table" )
@@ -631,7 +738,7 @@ TEST_CASE( "Quiescence search" )
         auto search = helper.build (board, 1);
         (void)search.iterativelyDeepen (Color::White);
 
-        auto hash = board.getCode().getHashCode();
+        auto hash = board.getBoardCode().getHashCode();
         CHECK( !helper.transposition_table.probe (hash, 1, -Initial_Alpha, Initial_Alpha, 0) );
     }
 }

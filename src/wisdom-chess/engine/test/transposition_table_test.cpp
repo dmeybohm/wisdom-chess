@@ -241,16 +241,16 @@ TEST_CASE( "Transposition table" )
         BoardHashCode hash = 12345678ULL;
         tt.store (hash, 100, 5, BoundType::Exact, Move::make (0, 0, 1, 1), 0);
 
-        CHECK( tt.getProbeCount() == 0 );
-        CHECK( tt.getHitCount() == 0 );
+        CHECK( tt.getStats().probes == 0 );
+        CHECK( tt.getStats().hits == 0 );
 
         (void)tt.probe (hash, 5, -Initial_Alpha, Initial_Alpha, 0);
-        CHECK( tt.getProbeCount() == 1 );
-        CHECK( tt.getHitCount() == 1 );
+        CHECK( tt.getStats().probes == 1 );
+        CHECK( tt.getStats().hits == 1 );
 
         (void)tt.probe (hash, 10, -Initial_Alpha, Initial_Alpha, 0);
-        CHECK( tt.getProbeCount() == 2 );
-        CHECK( tt.getHitCount() == 1 );
+        CHECK( tt.getStats().probes == 2 );
+        CHECK( tt.getStats().hits == 1 );
     }
 }
 
@@ -292,7 +292,7 @@ TEST_CASE( "Transposition table with real board positions" )
         TranspositionTable tt = TranspositionTable::fromMegabytes (1);
         Board board = Board { BoardBuilder::fromDefaultPosition() };
 
-        auto hash = board.getCode().getHashCode();
+        auto hash = board.getBoardCode().getHashCode();
         Move move = Move::make (1, 4, 3, 4);
 
         tt.store (hash, 50, 4, BoundType::Exact, move, 0);
@@ -313,8 +313,8 @@ TEST_CASE( "Transposition table with real board positions" )
         builder.addPiece ("d4", Color::White, Piece::Pawn);
         Board board2 { builder };
 
-        auto hash1 = board1.getCode().getHashCode();
-        auto hash2 = board2.getCode().getHashCode();
+        auto hash1 = board1.getBoardCode().getHashCode();
+        auto hash2 = board2.getBoardCode().getHashCode();
 
         CHECK( hash1 != hash2 );
 
@@ -378,14 +378,22 @@ TEST_CASE( "Hash collision analysis" )
         for (int col = 0; col < 8; ++col)
         {
             code.clearEnPassantTarget();
-            code.setEnPassantTarget (Color::White, makeCoord (White_En_Passant_Row, col));
+            code.setEnPassantTarget (
+                Color::White,
+                makeCoord (White_En_Passant_Row, col),
+                EnPassantTargetState::Legal
+            );
             addHash (code);
         }
 
         for (int col = 0; col < 8; ++col)
         {
             code.clearEnPassantTarget();
-            code.setEnPassantTarget (Color::Black, makeCoord (Black_En_Passant_Row, col));
+            code.setEnPassantTarget (
+                Color::Black,
+                makeCoord (Black_En_Passant_Row, col),
+                EnPassantTargetState::Legal
+            );
             addHash (code);
         }
     }
@@ -449,7 +457,7 @@ TEST_CASE( "Hash collision analysis" )
                 builder.addPiece (row, col, Color::White, Piece::Knight);
 
                 Board board { builder };
-                auto hash = board.getCode().getHashCode();
+                auto hash = board.getBoardCode().getHashCode();
                 auto [it, inserted] = hashes.insert (hash);
                 CHECK( inserted );
             }

@@ -8,6 +8,9 @@
 
 #include "wisdom-chess/engine/logger.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
+#include "wisdom-chess/ui/viewmodel/viewmodel_types.hpp"
+
+namespace ui = wisdom::ui;
 
 using namespace wisdom;
 
@@ -25,6 +28,9 @@ namespace wisdom::worker
         wisdom::GameSettings settings {};
         int game_id {};
         std::atomic<int> play_status = PlayStatus::Playing;
+
+        // Set by the main thread when new settings are on their way.
+        std::atomic<bool> restart_requested = false;
 
         // Retains search output while debug logging is off and replays it
         // when the setting is switched on.
@@ -63,8 +69,7 @@ namespace wisdom::worker
             -> wisdom::GameStatus
         {
             WebEngineGameStatusUpdate status_manager { this };
-            status_manager.update (game.status());
-            return game.status();
+            return ui::transitionGameStatus (status_manager, game);
         }
 
         friend class WebEngineGameStatusUpdate;
@@ -89,42 +94,27 @@ namespace wisdom::worker
         };
 
         void
-        updateDrawStatus (
-            wisdom::ProposedDrawType draw_type,
-            wisdom::Color who,
-            bool accepts_draw
-        ) {
-            game.setProposedDrawStatus (
-                draw_type,
-                who,
-                accepts_draw
-            );
-
-            emscripten_wasm_worker_post_function_sig (
-                EMSCRIPTEN_WASM_WORKER_ID_PARENT, (void*)mainThreadReceiveDrawStatus,
-                "iiii",
-                game_id,
-                static_cast<int> (mapDrawByRepetitionType (draw_type)),
-                static_cast<int> (mapColor (who)),
-                static_cast<int> (accepts_draw)
-            );
-        }
-
-        void
         handlePotentialDrawPosition (
             wisdom::ProposedDrawType proposedDrawType,
             wisdom::Color who
         ) {
-            auto current_player_accept_draw = game.computerWantsDraw (who);
-
-            updateDrawStatus (proposedDrawType, who, current_player_accept_draw);
-
-            auto opponent = colorInvert (who);
-            auto opponent_player = game.getPlayer (opponent);
-            if (opponent_player == Player::ChessEngine) {
-                auto opponent_wants_draw = game.computerWantsDraw (opponent);
-                updateDrawStatus (proposedDrawType, opponent, opponent_wants_draw);
-            }
+            // The answers are recorded here; the main thread hears each one.
+            ui::negotiateDraw (
+                &game,
+                proposedDrawType,
+                who,
+                [this, proposedDrawType] (Color player, bool accepted)
+                {
+                    emscripten_wasm_worker_post_function_sig (
+                        EMSCRIPTEN_WASM_WORKER_ID_PARENT, (void*)mainThreadReceiveDrawStatus,
+                        "iiii",
+                        game_id,
+                        static_cast<int> (mapDrawByRepetitionType (proposedDrawType)),
+                        static_cast<int> (mapColor (player)),
+                        static_cast<int> (accepted)
+                    );
+                }
+            );
         }
     };
 }
@@ -143,7 +133,7 @@ EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
 
     auto periodic_func = [state](nonnull_observer_ptr<MoveTimer> timer) {
         auto play_status = state->play_status.load();
-        if (play_status != GameState::Playing) {
+        if (play_status != GameState::Playing || state->restart_requested.load()) {
             timer->setCancelled (true);
         }
     };
@@ -212,6 +202,7 @@ workerReceiveSettings (
 ) {
     auto state = GameState::getState();
 
+    state->restart_requested.store (false);
     state->updateSettings (
         GameSettings { 
             static_cast<WebPlayer> (white_player),
@@ -255,6 +246,12 @@ EMSCRIPTEN_KEEPALIVE void unpauseWorker()
 {
     auto* state = GameState::getState();
     state->play_status.store (GameState::Playing);
+}
+
+EMSCRIPTEN_KEEPALIVE void requestSearchRestart()
+{
+    auto* state = GameState::getState();
+    state->restart_requested.store (true);
 }
 
 EM_JS (void, receiveDrawStatusFromWorker, (int game_id, int draw_type, int color, bool accepted),

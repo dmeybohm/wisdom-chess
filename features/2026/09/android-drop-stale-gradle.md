@@ -142,3 +142,13 @@ pins, and produced the APK. The job itself has not run on GitHub yet, so
 what the runner provides is still to be confirmed: that the Qt action
 installs the desktop Qt beside the Android one, and the `ANDROID_NDK_ROOT`
 and `JAVA_HOME_17_X64` variables.
+
+### Session #5
+
+Merged `main`, which had moved the build instructions from `README.md` to
+`docs/building.md`; the Android command-line recipe and the note on the
+tests went there, and the README is `main`'s. The fatal-test edits matched
+the ones `main` had gained from `wasm-doctest-discovery`.
+
+After the merge, on the x86_64 emulator with Qt 6.11.2: 224 fast tests
+passed in a Release Android build, and 225 in a desktop build.

@@ -36,6 +36,13 @@ if (WISDOM_CHESS_FAST_TESTS)
     target_link_libraries(wisdom-chess-fast-tests PRIVATE doctest::doctest)
     wisdom_chess_enable_warnings(wisdom-chess-fast-tests)
 
+    if (EMSCRIPTEN)
+        # The transposition table tests outgrow the default heap. Growth
+        # slows only JavaScript's access to it, which the tests barely use.
+        target_link_options(wisdom-chess-fast-tests PRIVATE
+            "SHELL:-s ALLOW_MEMORY_GROWTH=1" -Wno-pthreads-mem-growth)
+    endif()
+
     doctest_discover_tests(wisdom-chess-fast-tests PROPERTIES LABELS fast)
 
     if (WISDOM_CHESS_FILC_COMPAT)
@@ -70,9 +77,15 @@ if (WISDOM_CHESS_FAST_TESTS)
     wisdom_chess_add_fatal_test(remove-from-empty "Precondition failed at .*move_list\\.hpp")
     wisdom_chess_add_fatal_test(bad-castling-flags "Precondition failed at .*castling\\.hpp")
     wisdom_chess_add_fatal_test(bad-en-passant-row "Precondition failed at .*board_code\\.hpp")
-    wisdom_chess_add_fatal_test(uncaught-error "Uncaught error: boom")
-    wisdom_chess_add_fatal_test(search-error "Uncaught error: boom.extra detail.[^[]*\\|")
-    wisdom_chess_add_fatal_test(expects-through-noexcept "Uncaught error: Precondition failed at")
+
+    # Under Emscripten an uncaught exception leaves main() for JavaScript
+    # without calling std::terminate(), and one thrown through noexcept
+    # reaches the terminate handler with no current exception to report.
+    if (NOT EMSCRIPTEN)
+        wisdom_chess_add_fatal_test(uncaught-error "Uncaught error: boom")
+        wisdom_chess_add_fatal_test(search-error "Uncaught error: boom.extra detail.[^[]*\\|")
+        wisdom_chess_add_fatal_test(expects-through-noexcept "Uncaught error: Precondition failed at")
+    endif()
 
 endif()
 
@@ -91,6 +104,13 @@ if (WISDOM_CHESS_SLOW_TESTS)
     target_link_libraries(wisdom-chess-slow-tests PRIVATE wisdom::chess)
     target_link_libraries(wisdom-chess-slow-tests PRIVATE doctest::doctest)
     wisdom_chess_enable_warnings(wisdom-chess-slow-tests)
+
+    if (EMSCRIPTEN)
+        # The transposition table tests outgrow the default heap. Growth
+        # slows only JavaScript's access to it, which the tests barely use.
+        target_link_options(wisdom-chess-slow-tests PRIVATE
+            "SHELL:-s ALLOW_MEMORY_GROWTH=1" -Wno-pthreads-mem-growth)
+    endif()
 
     doctest_discover_tests(wisdom-chess-slow-tests PROPERTIES LABELS slow)
 

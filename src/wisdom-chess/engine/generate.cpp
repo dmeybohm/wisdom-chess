@@ -86,6 +86,7 @@ namespace wisdom
         void knight();
         void bishop();
         void rook();
+        void slide (int row_direction, int col_direction);
         void queen();
         void king();
 
@@ -116,9 +117,9 @@ namespace wisdom
         ColoredPiece piece = board.pieceAt (row, col);
 
         if (pieceColor (piece) == Color::White)
-            return row == 6;
+            return row == White_Pawn_Start_Row;
         else
-            return row == 1;
+            return row == Black_Pawn_Start_Row;
     }
 
     static auto validCastlingMove (const Board &board, Move move) noexcept
@@ -185,12 +186,12 @@ namespace wisdom
 
     void MoveGeneration::king()
     {
-        for (int row = piece_row - 1; row < 8 && row <= piece_row + 1; row++)
+        for (int row = piece_row - 1; row <= piece_row + 1; row++)
         {
             if (!isValidRow (row))
                 continue;
 
-            for (int col = piece_col - 1; col < 8 && col <= piece_col + 1; col++)
+            for (int col = piece_col - 1; col <= piece_col + 1; col++)
             {
                 if (!isValidColumn (col))
                     continue;
@@ -221,58 +222,35 @@ namespace wisdom
         }
     }
 
+    void MoveGeneration::slide (int row_direction, int col_direction)
+    {
+        for (int row = nextRow (piece_row, row_direction), col = nextColumn (piece_col, col_direction);
+             isValidRow (row) && isValidColumn (col);
+             row = nextRow (row, row_direction), col = nextColumn (col, col_direction))
+        {
+            ColoredPiece piece = board.pieceAt (row, col);
+
+            appendMove (Move::make (piece_row, piece_col, row, col));
+
+            if (piece != Piece_And_Color_None)
+                break;
+        }
+    }
+
     void MoveGeneration::rook()
     {
-        int dir;
-        int row, col;
-
-        for (dir = -1; dir <= 1; dir += 2)
-        {
-            for (row = nextRow (piece_row, dir); isValidRow (row); row = nextRow (row, dir))
-            {
-                ColoredPiece piece = board.pieceAt (row, piece_col);
-
-                appendMove (Move::make (piece_row, piece_col, row, piece_col));
-
-                if (pieceType (piece) != Piece::None)
-                    break;
-            }
-
-            for (col = nextColumn (piece_col, dir); isValidColumn (col);
-                 col = nextColumn (col, dir))
-            {
-                ColoredPiece piece = board.pieceAt (piece_row, col);
-
-                appendMove (Move::make (piece_row, piece_col, piece_row, col));
-
-                if (pieceType (piece) != Piece::None)
-                    break;
-            }
-        }
+        slide (-1, 0);
+        slide (0, -1);
+        slide (+1, 0);
+        slide (0, +1);
     }
 
     void MoveGeneration::bishop()
     {
-        int r_dir, c_dir;
-        int row, col;
-
-        for (r_dir = -1; r_dir <= 1; r_dir += 2)
-        {
-            for (c_dir = -1; c_dir <= 1; c_dir += 2)
-            {
-                for (row = nextRow (piece_row, r_dir), col = nextColumn (piece_col, c_dir);
-                     isValidRow (row) && isValidColumn (col);
-                     row = nextRow (row, r_dir), col = nextColumn (col, c_dir))
-                {
-                    ColoredPiece piece = board.pieceAt (row, col);
-
-                    appendMove (Move::make (piece_row, piece_col, row, col));
-
-                    if (piece != Piece_And_Color_None)
-                        break;
-                }
-            }
-        }
+        slide (-1, -1);
+        slide (-1, +1);
+        slide (+1, -1);
+        slide (+1, +1);
     }
 
     void MoveGeneration::queen()
@@ -295,14 +273,16 @@ namespace wisdom
     {
         Color opponent = colorInvert (who);
 
-        auto enPassantTarget = board.getEnPassantTarget();
+        auto enPassantTarget = board.getAnyEnPassantTarget();
         if (!enPassantTarget.has_value() || enPassantTarget->vulnerable_color != opponent)
             return nullopt;
 
         Coord target_coord = enPassantTarget->coord;
 
-        // if WHITE rank 4, black rank 3
-        if ((who == Color::White ? 3 : 4) != row)
+        auto capture_row = who == Color::White
+            ? White_Pawn_En_Passant_Capture_Row
+            : Black_Pawn_En_Passant_Capture_Row;
+        if (row != capture_row)
             return nullopt;
 
         int left_column = column - 1;
@@ -401,11 +381,14 @@ namespace wisdom
             return;
         }
 
-        // en passant
-        optional<int> en_passant_column
-            = eligibleEnPassantColumn (board, piece_row, piece_col, who);
-        if (en_passant_column.has_value())
-            enPassant (*en_passant_column);
+        // en passant, skipped when no capture of the target is legal
+        if (board.getLegalEnPassantTarget().has_value())
+        {
+            optional<int> en_passant_column
+                = eligibleEnPassantColumn (board, piece_row, piece_col, who);
+            if (en_passant_column.has_value())
+                enPassant (*en_passant_column);
+        }
 
         for (const auto& check_pawn_move : all_pawn_moves)
             if (check_pawn_move.has_value())
@@ -627,6 +610,50 @@ namespace wisdom
     }
 
     auto
+    generateLegalEnPassantMoves (const Board& board)
+        -> MoveList
+    {
+        MoveList result;
+
+        Color who = board.getCurrentTurn();
+        auto target = board.getAnyEnPassantTarget();
+        if (!target.has_value() || target->vulnerable_color == who)
+            return result;
+
+        int capture_row = who == Color::White
+            ? White_Pawn_En_Passant_Capture_Row
+            : Black_Pawn_En_Passant_Capture_Row;
+        int target_row = target->coord.row<int>();
+        int target_column = target->coord.column<int>();
+
+        // A target read from a FEN may have no pawn to capture.
+        auto taken_pawn = ColoredPiece::make (target->vulnerable_color, Piece::Pawn);
+        if (board.pieceAt (capture_row, target_column) != taken_pawn
+            || board.pieceAt (target->coord) != Piece_And_Color_None)
+        {
+            return result;
+        }
+
+        auto capturing_pawn = ColoredPiece::make (who, Piece::Pawn);
+        for (int column : { target_column - 1, target_column + 1 })
+        {
+            if (!isValidColumn (column))
+                continue;
+
+            if (board.pieceAt (capture_row, column) != capturing_pawn)
+                continue;
+
+            Move move = Move::makeEnPassant (capture_row, column, target_row, target_column);
+            Board new_board = board.withMove (who, move);
+
+            if (isLegalPositionAfterMove (new_board, who, move))
+                result.append (move);
+        }
+
+        return result;
+    }
+
+    auto
     hasLegalMove (const Board& board)
         -> bool
     {
@@ -652,9 +679,9 @@ namespace wisdom
         switch (who)
         {
             case Color::White:
-                return 0 == row;
+                return row == First_Row;
             case Color::Black:
-                return 7 == row;
+                return row == Last_Row;
             default:
                 throw Error { "Invalid color in needPawnPromotion()" };
         }

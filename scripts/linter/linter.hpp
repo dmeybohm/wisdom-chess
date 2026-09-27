@@ -48,7 +48,7 @@ public:
     virtual ~Rule() = default;
     [[nodiscard]] virtual auto name() const -> std::string_view = 0;
     [[nodiscard]] virtual auto description() const -> std::string_view = 0;
-    [[nodiscard]] virtual auto check( const LintContext& context ) const
+    [[nodiscard]] virtual auto check (const LintContext& context) const
         -> std::vector<LintViolation> = 0;
 };
 
@@ -68,26 +68,33 @@ struct LinterConfig
 class Linter
 {
 public:
-    explicit Linter( const LinterConfig& config );
+    explicit Linter (const LinterConfig& config);
 
-    [[nodiscard]] auto lintFiles( const std::vector<std::string>& patterns ) const
+    [[nodiscard]] auto lintFiles (const std::vector<std::string>& patterns) const
         -> std::vector<LintResult>;
-    [[nodiscard]] auto lintFile( const std::filesystem::path& filename ) const -> LintResult;
+    [[nodiscard]] auto lintFile (const std::filesystem::path& filename) const -> LintResult;
 
 private:
-    [[nodiscard]] auto resolveFiles( const std::vector<std::string>& patterns ) const
+    [[nodiscard]] auto resolveFiles (const std::vector<std::string>& patterns) const
         -> std::vector<std::filesystem::path>;
-    [[nodiscard]] static auto isCppFile( const std::filesystem::path& path ) -> bool;
+    [[nodiscard]] static auto isCppFile (const std::filesystem::path& path) -> bool;
     [[nodiscard]] auto getEnabledRules() const -> std::vector<std::shared_ptr<Rule>>;
 
     LinterConfig my_config;
     std::vector<std::shared_ptr<Rule>> my_rules;
 };
 
-[[nodiscard]] auto formatResults( const std::vector<LintResult>& results, OutputFormat format )
+[[nodiscard]] auto formatResults (const std::vector<LintResult>& results, OutputFormat format)
     -> std::string;
 
-[[nodiscard]] auto parseOutputFormat( std::string_view format_str ) -> std::optional<OutputFormat>;
+[[nodiscard]] auto parseOutputFormat (std::string_view format_str) -> std::optional<OutputFormat>;
+
+// The lines with every comment blanked out, character for character, so
+// that columns are unchanged and rules see only code. Block comments are
+// tracked across lines, and comment markers inside string or character
+// literals are left alone.
+[[nodiscard]] auto stripComments (const std::vector<std::string>& lines)
+    -> std::vector<std::string>;
 
 [[nodiscard]] auto getDefaultConfig() -> LinterConfig;
 

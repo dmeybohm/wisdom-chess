@@ -4,7 +4,7 @@ interface ModalProps {
     children: React.ReactNode
 }
 
-const Modal = (props: ModalProps): JSX.Element => {
+const Modal = (props: ModalProps): React.JSX.Element => {
     return (
         <>
             <div className="modal-overlay"></div>

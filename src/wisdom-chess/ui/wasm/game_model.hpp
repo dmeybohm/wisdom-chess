@@ -7,6 +7,9 @@
 #include "wisdom-chess/ui/wasm/bindings.hpp"
 #include "wisdom-chess/ui/wasm/web_game.hpp"
 
+// Created in main().
+extern emscripten_wasm_worker_t engine_thread;
+
 namespace wisdom
 {
     class GameModel
@@ -97,18 +100,25 @@ namespace wisdom
         void setCurrentGameSettings (GameSettings* newSettings)
         {
             my_game_settings = GameSettings { *newSettings };
-            sendPause();
+
+            // A search under way stops so the new settings take effect at
+            // once; the worker starts again when the settings reach it.
+            requestSearchRestart();
             sendSettings();
-            sendUnpause();
         }
+
+        [[nodiscard]] static auto getMinThinkingTime() -> int { return ui::GameSettings::Min_Thinking_Time; }
+        [[nodiscard]] static auto getMaxThinkingTime() -> int { return ui::GameSettings::Max_Thinking_Time; }
+        [[nodiscard]] static auto getMinSearchDepth() -> int { return ui::GameSettings::Min_Search_Depth; }
+        [[nodiscard]] static auto getMaxSearchDepth() -> int { return ui::GameSettings::Max_Search_Depth; }
 
         [[nodiscard]] auto 
         getFirstHumanPlayerColor() 
             -> WebColor
         {
-            if (my_game_settings.whitePlayer == Human)
+            if (my_game_settings.whitePlayer == WebPlayer::Human)
                 return WebColor::White;
-            if (my_game_settings.blackPlayer == Human)
+            if (my_game_settings.blackPlayer == WebPlayer::Human)
                 return WebColor::Black;
             return WebColor::NoColor;
         }
@@ -117,8 +127,8 @@ namespace wisdom
         getSecondHumanPlayerColor() 
             -> WebColor
         {
-            if (my_game_settings.whitePlayer == Human &&
-                my_game_settings.blackPlayer == Human)
+            if (my_game_settings.whitePlayer == WebPlayer::Human &&
+                my_game_settings.blackPlayer == WebPlayer::Human)
             {
                 return WebColor::Black;
             }

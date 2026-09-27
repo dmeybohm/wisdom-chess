@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <bit>
 #include <iostream>
 #include <set>
 #include <sstream>
@@ -12,6 +13,13 @@
 #include "wisdom-chess-tests.hpp"
 
 using namespace wisdom;
+
+static auto
+numberOfSetBits (const BoardCode& code)
+    -> int
+{
+    return std::popcount (code.getHashCode());
+}
 
 TEST_CASE( "board code" )
 {
@@ -46,7 +54,7 @@ TEST_CASE( "board code" )
     {
         BoardCode code = BoardCode::fromDefaultPosition();
 
-        auto num_ones = code.numberOfSetBits();
+        auto num_ones = numberOfSetBits (code);
 
         CHECK( num_ones < 64 );  // ... some number less than all the bits.
     }
@@ -64,7 +72,7 @@ TEST_CASE( "board code" )
         BoardCode code  = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.numberOfSetBits() > 0 );
+        REQUIRE( numberOfSetBits (initial) > 0 );
 
         Move a8xb7 = moveParse ("a8xb7");
         code.applyMove (brd, a8xb7);
@@ -85,7 +93,7 @@ TEST_CASE( "board code" )
         BoardCode code = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.numberOfSetBits() > 0 );
+        REQUIRE( numberOfSetBits (initial) > 0 );
 
         Move b7b8_Q = moveParse ("b7b8_Q (Q)");
         code.applyMove (brd, b7b8_Q);
@@ -106,7 +114,7 @@ TEST_CASE( "board code" )
         BoardCode code  = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.numberOfSetBits() > 0 );
+        REQUIRE( numberOfSetBits (initial) > 0 );
 
         Move castle_queenside = moveParse ("o-o-o", Color::Black);
         code.applyMove (brd, castle_queenside);
@@ -127,7 +135,7 @@ TEST_CASE( "board code" )
         BoardCode code = BoardCode::fromBoard (brd);
         BoardCode initial = code;
 
-        REQUIRE( initial.numberOfSetBits() > 0 );
+        REQUIRE( numberOfSetBits (initial) > 0 );
 
         Move promote_castle_move = moveParse ("b7xa8 (Q)", Color::Black);
         REQUIRE( promote_castle_move.isPromoting() );
@@ -140,7 +148,7 @@ TEST_CASE( "board code" )
     SUBCASE( "Reverting board to same position gives the same board code" )
     {
         Board default_board;
-        BoardCode code = default_board.getCode();
+        BoardCode code = default_board.getUnnormalizedBoardCode();
 
         Move white_knight_ahead = moveParse ("g1f3", Color::White),
              white_knight_return = moveParse ("f3g1", Color::White);
@@ -153,7 +161,7 @@ TEST_CASE( "board code" )
             .withMove (Color::White, white_knight_return)
             .withMove (Color::Black, black_knight_return);
 
-        BoardCode new_code = new_board.getCode();
+        BoardCode new_code = new_board.getUnnormalizedBoardCode();
         REQUIRE( code == new_code );
     }
 
@@ -168,11 +176,11 @@ TEST_CASE( "board code" )
             .withMove (Color::White, white_knight_ahead)
             .withMove (Color::Black, black_knight_ahead);
 
-        BoardCode moved_code = moved_board.getCode();
+        BoardCode moved_code = moved_board.getUnnormalizedBoardCode();
 
         FenParser parser {"rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2"};
         Board fen_board = parser.buildBoard();
-        BoardCode fen_code = fen_board.getCode();
+        BoardCode fen_code = fen_board.getUnnormalizedBoardCode();
 
         REQUIRE( moved_code == fen_code );
     }
@@ -188,7 +196,7 @@ TEST_CASE( "board code" )
             .withMove (Color::White, white_knight_ahead)
             .withMove (Color::Black, black_knight_ahead);
 
-        BoardCode moved_code = moved_board.getCode();
+        BoardCode moved_code = moved_board.getUnnormalizedBoardCode();
 
         BoardBuilder builder;
         builder.addPiece ("a1", Color::White, Piece::Rook);
@@ -238,7 +246,7 @@ TEST_CASE( "board code" )
         expected_builder.setCurrentTurn (Color::Black);
 
         auto expected_code = BoardCode::fromBoardBuilder (expected_builder);
-        auto actual_code = after.getCode();
+        auto actual_code = after.getUnnormalizedBoardCode();
 
         CHECK( actual_code.getHashCode() == expected_code.getHashCode() );
     }
@@ -264,7 +272,7 @@ TEST_CASE( "board code" )
         expected_builder.setCurrentTurn (Color::Black);
 
         auto expected_code = BoardCode::fromBoardBuilder (expected_builder);
-        auto actual_code = after.getCode();
+        auto actual_code = after.getUnnormalizedBoardCode();
 
         CHECK( actual_code.getHashCode() == expected_code.getHashCode() );
     }
@@ -290,7 +298,7 @@ TEST_CASE( "board code" )
         expected_builder.setCurrentTurn (Color::Black);
 
         auto expected_code = BoardCode::fromBoardBuilder (expected_builder);
-        auto actual_code = after.getCode();
+        auto actual_code = after.getUnnormalizedBoardCode();
 
         CHECK( actual_code.getHashCode() == expected_code.getHashCode() );
     }
@@ -353,17 +361,17 @@ TEST_CASE( "Board code stores metadata" )
         code.setCastleState (Color::Black, CastlingEligibility::Both_Sides);
 
         auto initial_hash = code.getHashCode();
-        auto high_48_bits = initial_hash & 0xfffffffFFFF0000ULL;
-        auto low_16_bits = initial_hash & 0xffffULL;
+        auto high_48_bits = initial_hash & Piece_Hash_Mask;
+        auto low_16_bits = initial_hash & Metadata_Mask;
 
         code.setCurrentTurn (Color::Black);
         code.setCastleState (Color::White, CastlingEligibility::Neither_Side);
         code.setCastleState (Color::Black, CastlingRights::Queenside);
-        code.setEnPassantTarget (Color::White, coordParse ("e3"));
+        code.setEnPassantTarget (Color::White, coordParse ("e3"), EnPassantTargetState::Legal);
 
         auto modified_hash = code.getHashCode();
-        auto modified_high_48_bits = modified_hash & 0xfffffffFFFF0000ULL;
-        auto modified_low_16_bits = modified_hash & 0xffffULL;
+        auto modified_high_48_bits = modified_hash & Piece_Hash_Mask;
+        auto modified_low_16_bits = modified_hash & Metadata_Mask;
 
         CHECK( modified_high_48_bits == high_48_bits );
 
@@ -376,6 +384,34 @@ TEST_CASE( "Board code stores metadata" )
 
         auto restored_hash = code.getHashCode();
         CHECK( restored_hash == initial_hash );
+    }
+
+    SUBCASE( "setMetadataBits keeps every hash bit of every piece" )
+    {
+        std::uint64_t bits_seen = 0;
+
+        for (auto color : { Color::White, Color::Black })
+        {
+            for (auto piece : { Piece::Pawn, Piece::Knight, Piece::Bishop,
+                                Piece::Rook, Piece::Queen, Piece::King })
+            {
+                for (auto coord : Board::allCoords())
+                {
+                    BoardCode code = BoardCode::fromEmptyBoard();
+                    code.addPiece (coord, ColoredPiece::make (color, piece));
+
+                    auto piece_hash = code.getHashCode() & Piece_Hash_Mask;
+                    bits_seen |= piece_hash;
+
+                    code.setCurrentTurn (Color::Black);
+                    CHECK( (code.getHashCode() & Piece_Hash_Mask) == piece_hash );
+                }
+            }
+        }
+
+        // The Zobrist values reach every bit above the metadata, so a
+        // mask that dropped any of them would have failed above.
+        CHECK( bits_seen == Piece_Hash_Mask );
     }
 
     SUBCASE( "Board code stores en passant state for Black" )
@@ -391,11 +427,11 @@ TEST_CASE( "Board code stores metadata" )
         builder.setEnPassantTarget (Color::Black, "d6");
         auto board_with_state = Board { builder };
 
-        auto with_state_code = board_with_state.getCode();
-        auto without_state_code = board_without_state.getCode();
+        auto with_state_code = board_with_state.getUnnormalizedBoardCode();
+        auto without_state_code = board_without_state.getUnnormalizedBoardCode();
         CHECK( with_state_code != without_state_code );
 
-        auto en_passant_target = with_state_code.getEnPassantTarget();
+        auto en_passant_target = with_state_code.getAnyEnPassantTarget();
         auto expected_coord = coordParse ("d6");
         REQUIRE( en_passant_target.has_value() );
         CHECK( en_passant_target->vulnerable_color == Color::Black );
@@ -415,11 +451,11 @@ TEST_CASE( "Board code stores metadata" )
         builder.setEnPassantTarget (Color::White, "e3");
         auto board_with_state = Board { builder };
 
-        auto with_state_code = board_with_state.getCode();
-        auto without_state_code = board_without_state.getCode();
+        auto with_state_code = board_with_state.getUnnormalizedBoardCode();
+        auto without_state_code = board_without_state.getUnnormalizedBoardCode();
         CHECK( with_state_code != without_state_code );
 
-        auto en_passant_target = with_state_code.getEnPassantTarget();
+        auto en_passant_target = with_state_code.getAnyEnPassantTarget();
 
         auto expected_coord = coordParse ("e3");
         REQUIRE( en_passant_target.has_value() );
@@ -545,6 +581,72 @@ TEST_CASE( "Zobrist piece index mapping" )
                     CHECK( hash_value != 0 );
                 }
             }
+        }
+    }
+}
+
+TEST_CASE( "Board code keeps a legal and an illegal en passant target apart" )
+{
+    auto e3 = coordParse ("e3");
+
+    auto startingCode = []
+    {
+        BoardCode code = BoardCode::fromEmptyBoard();
+        code.addPiece (coordParse ("e4"), ColoredPiece::make (Color::White, Piece::Pawn));
+        code.setCurrentTurn (Color::Black);
+        code.setCastleState (Color::White, CastlingEligibility::Both_Sides);
+        code.setCastleState (Color::Black, CastlingRights::Queenside);
+        return code;
+    };
+
+    SUBCASE( "A legal target survives leaving out illegal ones" )
+    {
+        auto code = startingCode();
+        code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Legal);
+
+        REQUIRE( code.getLegalEnPassantTarget().has_value() );
+        CHECK( code.getLegalEnPassantTarget()->coord == e3 );
+        CHECK( code.getAnyEnPassantTarget()->coord == e3 );
+        CHECK( code.withoutIllegalEnPassantTarget() == code );
+    }
+
+    SUBCASE( "An illegal target is left out" )
+    {
+        auto code = startingCode();
+        code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Illegal);
+
+        REQUIRE( code.getAnyEnPassantTarget().has_value() );
+        CHECK( code.getAnyEnPassantTarget()->coord == e3 );
+        CHECK( code.getAnyEnPassantTarget()->vulnerable_color == Color::White );
+        CHECK( !code.getLegalEnPassantTarget().has_value() );
+        CHECK( code.withoutIllegalEnPassantTarget() == startingCode() );
+    }
+
+    SUBCASE( "Setting a target replaces one in the other field" )
+    {
+        auto code = startingCode();
+        code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Illegal);
+        code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Legal);
+        CHECK( code.withoutIllegalEnPassantTarget() == code );
+
+        code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Illegal);
+        CHECK( !code.getLegalEnPassantTarget().has_value() );
+        CHECK( code.withoutIllegalEnPassantTarget() == startingCode() );
+    }
+
+    SUBCASE( "Neither target disturbs the turn or castling" )
+    {
+        for (auto state : { EnPassantTargetState::Legal, EnPassantTargetState::Illegal })
+        {
+            auto code = startingCode();
+            code.setEnPassantTarget (Color::White, e3, state);
+
+            CHECK( code.getCurrentTurn() == Color::Black );
+            CHECK( code.getCastleState (Color::White) == CastlingEligibility::Both_Sides );
+            CHECK( code.getCastleState (Color::Black) == CastlingRights::Queenside );
+
+            code.clearEnPassantTarget();
+            CHECK( code == startingCode() );
         }
     }
 }

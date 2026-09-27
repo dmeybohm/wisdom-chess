@@ -40,7 +40,11 @@ namespace wisdom
 
         void parseEnPassant (string en_passant_str);
 
+        void validateEnPassantTarget (Color vulnerable_color, Coord target);
+
         void parseCastling (string castling_str);
+
+        void validateCastlingPieces (Color who, CastlingEligibility eligibility);
 
         void parseHalfMove (int half_moves);
 

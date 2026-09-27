@@ -13,6 +13,13 @@ namespace wisdom
         Color vulnerable_color;
     };
 
+    // Whether the side to move has a legal capture of an en passant target.
+    enum class EnPassantTargetState : int8_t
+    {
+        Legal,
+        Illegal,
+    };
+
 
     class Board;
 

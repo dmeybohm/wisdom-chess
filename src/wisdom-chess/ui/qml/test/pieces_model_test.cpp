@@ -7,6 +7,8 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/ui/qml/main/pieces_model.hpp"
 
+using namespace wisdom::ui::qml;
+
 using wisdom::Color;
 using wisdom::Move;
 using wisdom::moveParse;
@@ -23,8 +25,8 @@ namespace
     {
         return ChessGame::Config {
             .players = { Player::Human, Player::Human },
-            .maxDepth = MaxDepth { 2 },
-            .maxTime = std::chrono::seconds { 1 },
+            .searchDepth = 2,
+            .thinkingTime = 1,
         };
     }
 

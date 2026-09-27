@@ -1,6 +1,7 @@
 #pragma once
 
 #include "wisdom-chess/engine/global.hpp"
+#include "wisdom-chess/engine/str.hpp"
 
 namespace wisdom
 {
@@ -83,7 +84,7 @@ namespace wisdom
     static_assert (std::is_trivial_v<Coord>);
 
     template <typename IntegerType>
-    constexpr auto
+    [[nodiscard]] constexpr auto
     nextRow (IntegerType row, int direction)
         -> IntegerType
     {
@@ -92,7 +93,7 @@ namespace wisdom
     }
 
     template <typename T>
-    constexpr auto
+    [[nodiscard]] constexpr auto
     nextColumn (T col, int direction)
         -> T
     {
@@ -100,7 +101,7 @@ namespace wisdom
         return narrow_cast<T> (col + direction);
     }
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     makeCoord (int row, int col)
         -> Coord
     {
@@ -161,14 +162,14 @@ namespace wisdom
         return coord;
     }
 
-    [[nodiscard]] static constexpr auto
+    [[nodiscard]] constexpr auto
     charToRow (char chr)
         -> int
     {
         return 8 - (toLower (chr) - '0');
     }
 
-    [[nodiscard]] static constexpr auto
+    [[nodiscard]] constexpr auto
     charToCol (char chr)
         -> int
     {

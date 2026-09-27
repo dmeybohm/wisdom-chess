@@ -210,3 +210,59 @@ TEST_CASE( "A draw-derived score is not reused for a position with a different c
     REQUIRE( with_warm_table.has_value() );
     CHECK( *with_warm_table == *expected );
 }
+
+TEST_CASE( "setCurrentTurn keeps the history's current position in step" )
+{
+    SUBCASE( "Before any move" )
+    {
+        auto game = Game::createStandardGame();
+        game.setCurrentTurn (Color::Black);
+
+        CHECK( game.getHistory().isCertainlyNthRepetition (game.getBoard(), 1) );
+        CHECK( game.getHistory().isProbablyNthRepetition (game.getBoard(), 1) );
+    }
+
+    SUBCASE( "After a move, and the position recurs" )
+    {
+        auto game = Game::createStandardGame();
+        game.move (moveParse ("g1 f3"));
+        game.setCurrentTurn (Color::White);
+
+        CHECK( game.getHistory().isCertainlyNthRepetition (game.getBoard(), 1) );
+
+        game.move (moveParse ("f3 g1"));
+        game.setCurrentTurn (Color::White);
+        game.move (moveParse ("g1 f3"));
+        game.setCurrentTurn (Color::White);
+
+        CHECK( game.getHistory().isCertainlyNthRepetition (game.getBoard(), 2) );
+        CHECK( game.getHistory().isProbablyNthRepetition (game.getBoard(), 2) );
+    }
+}
+
+TEST_CASE( "Game rejects a colour that is not a player" )
+{
+    auto game = Game::createStandardGame();
+
+    CHECK_THROWS_AS( (void)game.getPlayer (Color::None), PreconditionError );
+    CHECK_THROWS_AS( (void)game.computerWantsDraw (Color::None), PreconditionError );
+    CHECK_THROWS_AS( game.setCurrentTurn (Color::None), PreconditionError );
+    CHECK_THROWS_AS(
+        game.setProposedDrawStatus (ProposedDrawType::ThreeFoldRepetition, Color::None, true),
+        PreconditionError
+    );
+}
+
+TEST_CASE( "Game rejects a search depth or timeout of zero" )
+{
+    auto game = Game::createStandardGame();
+
+    CHECK_THROWS_AS( game.setMaxDepth (0), PreconditionError );
+    CHECK_THROWS_AS( game.setMaxDepth (-1), PreconditionError );
+    CHECK_THROWS_AS( game.setSearchTimeout (std::chrono::milliseconds { 0 }), PreconditionError );
+
+    game.setMaxDepth (3);
+    game.setSearchTimeout (std::chrono::milliseconds { 1 });
+    CHECK( game.getMaxDepth() == 3 );
+    CHECK( game.getSearchTimeout() == std::chrono::milliseconds { 1 } );
+}

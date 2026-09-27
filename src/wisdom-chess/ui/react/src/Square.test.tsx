@@ -22,11 +22,11 @@ const pointerDown = (target: Element, pointerType: string) => {
     fireEvent(target, event)
 }
 
-const renderWhitePawn = () => render(
+const whitePawn = (focusedSquare = '') => (
     <DndProvider backend={HTML5Backend}>
         <PieceOverlay
             piece={{ id: 1, icon: 'pawn.svg', color: wasmEnums.White, position: 'e2' }}
-            focusedSquare=""
+            focusedSquare={focusedSquare}
             droppedSquare=""
             currentTurn={wasmEnums.White}
             onPieceClick={() => {}}
@@ -34,6 +34,8 @@ const renderWhitePawn = () => render(
         />
     </DndProvider>
 )
+
+const renderWhitePawn = () => render(whitePawn())
 
 describe('PieceOverlay', () => {
     beforeEach(() => {
@@ -76,5 +78,15 @@ describe('PieceOverlay', () => {
 
         pointerDown(image, 'mouse')
         expect(fireEvent.dragStart(image, { dataTransfer: dataTransfer() })).toBe(true)
+    })
+
+    it('keeps its drag listeners across a re-render', () => {
+        const { rerender } = renderWhitePawn()
+        const removed = vi.spyOn(HTMLElement.prototype, 'removeEventListener')
+
+        rerender(whitePawn('e2'))
+
+        expect(removed.mock.calls.filter(([type]) => type === 'dragstart')).toEqual([])
+        removed.mockRestore()
     })
 })

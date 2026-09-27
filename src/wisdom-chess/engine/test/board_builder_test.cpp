@@ -85,13 +85,14 @@ TEST_CASE( "Board builder rejects move clocks that are out of range" )
 
     CHECK_THROWS_AS( builder.setHalfMovesClock (-1), BoardBuilderError );
     CHECK_THROWS_AS( builder.setFullMoves (-1), BoardBuilderError );
+    CHECK_THROWS_AS( builder.setFullMoves (0), BoardBuilderError );
     CHECK_THROWS_AS( builder.setHalfMovesClock (Max_Half_Move_Clock + 1), BoardBuilderError );
     CHECK_THROWS_AS( builder.setFullMoves (Max_Full_Move_Number + 1), BoardBuilderError );
 
     builder.setHalfMovesClock (0);
-    builder.setFullMoves (0);
+    builder.setFullMoves (1);
     CHECK( builder.getHalfMoveClock() == 0 );
-    CHECK( builder.getFullMoveClock() == 0 );
+    CHECK( builder.getFullMoveClock() == 1 );
 
     builder.setHalfMovesClock (Max_Half_Move_Clock);
     builder.setFullMoves (Max_Full_Move_Number);
@@ -99,49 +100,3 @@ TEST_CASE( "Board builder rejects move clocks that are out of range" )
     CHECK( builder.getFullMoveClock() == Max_Full_Move_Number );
 }
 
-TEST_CASE( "Board can be randomized" )
-{
-    Board default_board;
-    auto randomized_board = default_board.withRandomPosition();
-
-    SUBCASE( "Board code is not the same as the default" )
-    {
-        REQUIRE( default_board.getCode() != randomized_board.getCode() );
-    }
-
-    SUBCASE( "No state is carried over from the original game" )
-    {
-        CHECK( randomized_board.getCastlingEligibility (Color::White) == CastlingEligibility::Neither_Side );
-        CHECK( randomized_board.getCastlingEligibility (Color::Black) == CastlingEligibility::Neither_Side );
-        CHECK( !randomized_board.getEnPassantTarget().has_value() );
-
-        Material recounted { randomized_board };
-        CHECK( randomized_board.getMaterial().individualScore (Color::White)
-               == recounted.individualScore (Color::White) );
-        CHECK( randomized_board.getMaterial().individualScore (Color::Black)
-               == recounted.individualScore (Color::Black) );
-    }
-
-    SUBCASE( "None of the pawns are in the back row" )
-    {
-        for (int8_t col = 0; col < Num_Columns; col++)
-        {
-            auto first_row_piece = randomized_board.pieceAt (7, col);
-            auto last_row_piece = randomized_board.pieceAt (0, col);
-
-            CHECK( pieceType (last_row_piece) != Piece::Pawn );
-            CHECK( pieceType (first_row_piece) != Piece::Pawn );
-        }
-    }
-
-    SUBCASE( "Both kings are not in check" )
-    {
-        auto white_king_pos = randomized_board.getKingPosition (Color::White);
-        auto black_king_pos = randomized_board.getKingPosition (Color::Black);
-        auto white_in_check = isKingThreatened (randomized_board, Color::White, white_king_pos);
-        auto black_in_check = isKingThreatened (randomized_board, Color::Black, black_king_pos);
-
-        auto invariant = !white_in_check || !black_in_check;
-        REQUIRE( invariant );
-    }
-}

@@ -54,10 +54,12 @@ cmake --build build --target lint
 
 ## Building and testing
 
-Build recipes for every frontend are in `README.md`; the CMake options are
-in the top-level `CMakeLists.txt`. Document a new option in both. For
-development, configure a Release build with the slow tests on and run
-everything through `ctest`:
+Build recipes for every frontend and the table of CMake options are in
+`docs/building.md`; the options themselves are defined in the top-level
+`CMakeLists.txt`. Document a new option in both. `README.md` is written
+for players and points at `docs/building.md`. For development, configure
+a Release build with the slow tests on and run everything through
+`ctest`:
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DWISDOM_CHESS_SLOW_TESTS=On
@@ -134,6 +136,11 @@ the caller's, and whoever runs searches (`UciInterface`, `ConsoleGame`,
 clears it on a new game. `TranspositionTable` is move-only, and a frontend
 that hands it to a search thread must not touch it until that thread is
 done.
+
+The table and `History` both key on `Board::getBoardCode()`, which leaves
+out an en passant target that no legal capture can use.
+`getUnnormalizedBoardCode()` keeps the target as FEN records it. See
+`features/2026/09/en-passant-normalization-cost.md`.
 
 Repetition and fifty-move draw scores belong to the path, not the board,
 so `search()` does not store a node whose subtree hit the draw check. The

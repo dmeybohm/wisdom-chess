@@ -12,6 +12,7 @@
 #include "wisdom-chess/ui/qml/main/ui_types.hpp"
 
 using namespace wisdom;
+using namespace wisdom::ui::qml;
 
 int main (int argc, char *argv[])
 {

@@ -1,5 +1,6 @@
 add_library(wisdom-viewmodel-base STATIC
     game_viewmodel_base.cpp
+    piece_movement.cpp
     viewmodel_types.cpp
 )
 

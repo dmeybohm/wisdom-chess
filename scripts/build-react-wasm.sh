@@ -31,6 +31,7 @@ emcmake cmake -B "$BUILD_DIR" \
     -DWISDOM_CHESS_FAST_TESTS=Off \
     -DWISDOM_CHESS_SLOW_TESTS=Off \
     -DWISDOM_CHESS_QML_UI=Off \
+    -DWISDOM_CHESS_WERROR="${WISDOM_CHESS_WERROR:-Off}" \
     -S "$SOURCE_DIR"
 
 echo ""

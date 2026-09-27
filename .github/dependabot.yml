@@ -1,0 +1,12 @@
+# Keeps the GitHub Actions and the React frontend's npm dependencies
+# current with one pull request a week each.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    directory: /src/wisdom-chess/ui/react
+    schedule:
+      interval: weekly

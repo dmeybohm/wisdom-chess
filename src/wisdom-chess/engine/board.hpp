@@ -25,11 +25,16 @@ namespace wisdom
 
         explicit Board (const BoardBuilder& builder);
 
+        // Whether the boards are the same position for repetition, as
+        // getBoardCode() identifies it.
         friend auto
         operator== (const Board& a, const Board& b)
             -> bool
         {
-            return a.my_code == b.my_code && a.my_squares == b.my_squares;
+            if (a.getBoardCode() != b.getBoardCode())
+                return false;
+
+            return a.my_squares == b.my_squares;
         }
 
         [[nodiscard]] constexpr auto
@@ -74,13 +79,6 @@ namespace wisdom
             -> string;
 
         [[nodiscard]] auto
-        getCode() const noexcept
-            -> BoardCode
-        {
-            return my_code;
-        }
-
-        [[nodiscard]] auto
         getMaterial() const& noexcept
             -> const Material&
         {
@@ -105,17 +103,12 @@ namespace wisdom
 
         // Create a new board with the move applied:
         [[nodiscard]] auto
-        withMove (Color who, Move move) const
+        withMove (Color who, Move move) const noexcept
             -> Board;
 
         // Create a new board with the current turn updated:
         [[nodiscard]] auto
         withCurrentTurn (Color who) const
-            -> Board;
-
-        // Randomize and return copy of current board:
-        [[nodiscard]] auto
-        withRandomPosition() const
             -> Board;
 
         [[nodiscard]] auto
@@ -139,21 +132,15 @@ namespace wisdom
             auto castle_state = getCastlingEligibility (who);
             auto castle_bits = toInt<uint8_t> (castle_state);
 
-            // Use a bitmask that always fails for Neither_Side (more performant than branching)
+            // Asking about no side at all is never satisfied: check for
+            // every bit, which no state has.
             auto check_bits = castle_types == CastlingEligibility::Neither_Side
-                ? static_cast<uint8_t> (~uint8_t { 0 })  // All bits set, always fails
+                ? static_cast<uint8_t> (~uint8_t { 0 })
                 : toInt<uint8_t> (castle_types);
 
-            // Check if all requested castling rights are available
             bool has_rights = (castle_bits & check_bits) == check_bits;
 
             return has_rights;
-        }
-
-        [[nodiscard]] auto isEnPassantVulnerable (Color who) const noexcept -> bool
-        {
-            auto target = my_code.getEnPassantTarget();
-            return target.has_value() && target->vulnerable_color == who;
         }
 
         [[nodiscard]] auto 
@@ -163,15 +150,40 @@ namespace wisdom
             return my_code.getCurrentTurn();
         }
 
+        // The en passant target as FEN records it, whether or not a legal
+        // capture of it exists.
         [[nodiscard]] auto
-        getEnPassantTarget() const noexcept
+        getAnyEnPassantTarget() const noexcept
             -> optional<EnPassantTarget>
         {
-            return my_code.getEnPassantTarget();
+            return my_code.getAnyEnPassantTarget();
         }
 
-        [[nodiscard]] auto 
-        getBoardCode() const 
+        // The en passant target, if the side to move has a legal capture
+        // of it.
+        [[nodiscard]] auto
+        getLegalEnPassantTarget() const noexcept
+            -> optional<EnPassantTarget>
+        {
+            return my_code.getLegalEnPassantTarget();
+        }
+
+        // FEN records the passed square after every double pawn push, but
+        // for repetition FIDE only counts an en passant capture that is
+        // actually possible (Laws of Chess 9.2.3.1). This code leaves the
+        // en passant target out when no legal capture reaches it. Castling
+        // rights stay in, since FIDE compares rights, not whether castling
+        // is possible on this move (9.2.3.2).
+        [[nodiscard]] auto
+        getBoardCode() const noexcept
+            -> BoardCode
+        {
+            return my_code.withoutIllegalEnPassantTarget();
+        }
+
+        // The code with the en passant target as FEN records it.
+        [[nodiscard]] auto
+        getUnnormalizedBoardCode() const noexcept
             -> BoardCode
         {
             return my_code;
@@ -192,11 +204,11 @@ namespace wisdom
             -> optional<Coord>;
 
     private:
-        void makeMove (Color who, Move move);
+        void makeMove (Color who, Move move) noexcept;
 
         auto applyForEnPassant (Color who, Coord src, Coord dst) noexcept -> ColoredPiece;
         void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept;
-        void setEnPassantTarget (Color who, Coord target) noexcept;
+        void classifyEnPassantTarget() noexcept;
         void clearEnPassantTarget() noexcept;
 
         void applyForCastlingMove (
@@ -254,8 +266,8 @@ namespace wisdom
         array<Coord, Num_Players> my_king_pos;
     };
 
-    constexpr auto 
-    coordColor (Coord coord) 
+    [[nodiscard]] constexpr auto
+    coordColor (Coord coord)
         -> Color
     {
         int parity = (coord.row() % 2 + coord.column() % 2) % 2;
@@ -264,7 +276,8 @@ namespace wisdom
 
     // white moves up (-)
     // black moves down (+)
-    template <class IntegerType = int8_t> constexpr auto 
+    template <class IntegerType = int8_t>
+    [[nodiscard]] constexpr auto
     pawnDirection (Color color)
         -> IntegerType
     {

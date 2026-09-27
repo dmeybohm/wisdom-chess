@@ -50,10 +50,10 @@ namespace wisdom
 
         // Copy and move constructors
         IterativeSearch (const IterativeSearch& other) = delete;
-        IterativeSearch& operator= (const IterativeSearch& other) = delete;
+        auto operator= (const IterativeSearch& other) -> IterativeSearch& = delete;
 
         IterativeSearch (IterativeSearch&& other) noexcept = default;
-        IterativeSearch& operator= (IterativeSearch&& other) noexcept = default;
+        auto operator= (IterativeSearch&& other) noexcept -> IterativeSearch& = default;
 
         ~IterativeSearch();
 

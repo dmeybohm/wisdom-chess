@@ -22,18 +22,13 @@ namespace wisdom
         auto current_turn = board.getCurrentTurn();
         setCurrentTurn (current_turn);
 
-        auto en_passant_target = board.getEnPassantTarget();
-        if (en_passant_target != nullopt)
-        {
-            setEnPassantTarget (
-                en_passant_target->vulnerable_color,
-                en_passant_target->coord
-            );
-        }
-        else
-        {
-            clearEnPassantTarget();
-        }
+        // Copy the board's target as it is, with whether a legal capture
+        // of it exists.
+        auto board_metadata = board.getUnnormalizedBoardCode().getMetadataBits();
+        setMetadataBits (narrow_cast<uint16_t> (
+            (getMetadataBits() & ~En_Passant_Targets_Mask)
+            | (board_metadata & En_Passant_Targets_Mask)
+        ));
 
         setCastleState (Color::White, board.getCastlingEligibility (Color::White));
         setCastleState (Color::Black, board.getCastlingEligibility (Color::Black));
@@ -60,9 +55,12 @@ namespace wisdom
         auto en_passant_target = builder.getEnPassantTarget();
         if (en_passant_target.has_value())
         {
+            // The builder can't tell whether a capture is legal, so
+            // Board's constructor classifies the target.
             result.setEnPassantTarget (
                 en_passant_target->vulnerable_color,
-                en_passant_target->coord
+                en_passant_target->coord,
+                EnPassantTargetState::Illegal
             );
         }
         else
@@ -126,12 +124,6 @@ namespace wisdom
         {
             addPiece (dst, src_piece);
         }
-    }
-
-    auto BoardCode::numberOfSetBits() const -> std::size_t
-    {
-        std::bitset<64> bits { my_code };
-        return bits.count();
     }
 
     auto operator<< (std::ostream& os, const BoardCode& code) -> std::ostream&

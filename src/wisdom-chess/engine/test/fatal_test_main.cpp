@@ -59,7 +59,7 @@ namespace
     void removeFromEmpty()
     {
         MoveList list;
-        list.pop_back();
+        list.removeLast();
     }
 
     void badCastlingFlags()
@@ -72,7 +72,11 @@ namespace
     {
         Board board { BoardBuilder::fromDefaultPosition() };
         BoardCode code { board };
-        code.setEnPassantTarget (Color::White, makeCoord (Black_En_Passant_Row, 0));
+        code.setEnPassantTarget (
+            Color::White,
+            makeCoord (Black_En_Passant_Row, 0),
+            EnPassantTargetState::Illegal
+        );
     }
 
     void uncaughtError()

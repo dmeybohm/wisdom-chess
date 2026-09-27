@@ -20,7 +20,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Configure CMake
         run: >
@@ -66,7 +66,7 @@ jobs:
             cmake_generator: Ninja
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -86,7 +86,7 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
 
     - name: Cache CPM downloads
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ~/cpm-cache
         key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
@@ -103,6 +103,7 @@ jobs:
         -DCPM_SOURCE_CACHE=~/cpm-cache
         -DWISDOM_CHESS_QML_UI=On
         -DWISDOM_CHESS_FAST_TESTS=On
+        -DWISDOM_CHESS_WERROR=On
         -DWISDOM_CHESS_SLOW_TESTS=On
         -S ${{ github.workspace }}
 
@@ -142,7 +143,7 @@ jobs:
       FILC_VERSION: "0.678"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
@@ -151,7 +152,7 @@ jobs:
         cache: true
 
     - name: Cache CPM downloads
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ~/cpm-cache
         key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
@@ -168,6 +169,7 @@ jobs:
         -DWISDOM_CHESS_QML_UI=On
         -DWISDOM_CHESS_BUILD_LINTER=Off
         -DWISDOM_CHESS_FAST_TESTS=On
+        -DWISDOM_CHESS_WERROR=On
         -DWISDOM_CHESS_SLOW_TESTS=On
         -S ${{ github.workspace }}
 
@@ -187,6 +189,7 @@ jobs:
         -DWISDOM_CHESS_QML_UI=On
         -DWISDOM_CHESS_BUILD_LINTER=Off
         -DWISDOM_CHESS_FAST_TESTS=On
+        -DWISDOM_CHESS_WERROR=On
         -DWISDOM_CHESS_SLOW_TESTS=Off
         -S ${{ github.workspace }}
 
@@ -198,7 +201,7 @@ jobs:
 
     - name: Cache FIL-C installation
       id: cache-filc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: filc-${{ env.FILC_VERSION }}-linux-x86_64
         key: filc-${{ env.FILC_VERSION }}-linux-x86_64
@@ -245,7 +248,7 @@ jobs:
       LSAN_OPTIONS: suppressions=${{ github.workspace }}/scripts/sanitizers/lsan.supp
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
@@ -254,7 +257,7 @@ jobs:
         cache: true
 
     - name: Cache CPM downloads
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ~/cpm-cache
         key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
@@ -271,6 +274,7 @@ jobs:
         -DWISDOM_CHESS_QML_UI=On
         -DWISDOM_CHESS_BUILD_LINTER=Off
         -DWISDOM_CHESS_FAST_TESTS=On
+        -DWISDOM_CHESS_WERROR=On
         -DWISDOM_CHESS_SLOW_TESTS=On
         -DWISDOM_CHESS_ASAN=On
         -S ${{ github.workspace }}
