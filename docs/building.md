@@ -182,7 +182,7 @@ All are defined in the top-level `CMakeLists.txt`.
 | `WISDOM_CHESS_QML_UI` | `AUTO` | Qt QML UI: `AUTO` builds it if Qt 6 is found, `ON` requires Qt 6, `OFF` disables it |
 | `WISDOM_CHESS_QT_DIR` | empty | Directory of the Qt installation to use |
 | `WISDOM_CHESS_CONSOLE_UI` | `ON` | Build the console game and the UCI engine |
-| `WISDOM_CHESS_REACT_UI` | `ON` | Build the React frontend's WebAssembly engine (Emscripten builds) |
+| `WISDOM_CHESS_REACT_UI` | `ON` | Build the React frontend's WebAssembly engine (Emscripten builds), and its `WebGame` tests in any build with fast tests |
 | `WISDOM_CHESS_REACT_BUILD_INTEGRATED` | `ON` for Emscripten, `OFF` otherwise | Run the Node.js build of the React frontend as part of the CMake build |
 | `WISDOM_CHESS_FAST_TESTS` | `ON` | Build the fast test suite |
 | `WISDOM_CHESS_SLOW_TESTS` | `OFF` | Build the slow test suite (perft, hash collisions, search) |

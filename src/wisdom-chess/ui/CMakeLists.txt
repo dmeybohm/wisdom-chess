@@ -46,3 +46,8 @@ if (EMSCRIPTEN AND WISDOM_CHESS_REACT_UI)
     add_subdirectory(wasm)
     add_subdirectory(react)
 endif()
+
+# WebGame needs no Emscripten, so its tests also run in native builds.
+if (WISDOM_CHESS_REACT_UI AND WISDOM_CHESS_FAST_TESTS AND TARGET doctest::doctest)
+    add_subdirectory(wasm/test)
+endif()

@@ -144,14 +144,9 @@ namespace wisdom
     private:
         void applyMove (Move move);
 
-        [[nodiscard]] auto findAndRemoveId (
-            std::unordered_map<int,
-            WebColoredPiece>& old_list,
-            Coord coord_to_find,
-            ColoredPiece piece_to_find
-        ) -> int;
-
-        void updatePieceList (Piece promoted_piece_type);
+        // Moves the displayed pieces the way the move moved them, so each
+        // keeps its id and the frontend can animate it.
+        void updatePieceList (Move move);
 
         void onDisplayedGameStateUpdated() override
         {
