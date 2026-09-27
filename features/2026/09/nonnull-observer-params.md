@@ -98,7 +98,31 @@ the baseline:
 The unchecked build was no faster than the checked one, and on the
 pseudo-legal move generator it was consistently a few percent slower.
 Removing a check cannot cost time, so differences of this size here are
-code layout, not the check. Both hot sites therefore keep `nonnull`, and
-`unchecked_nonnull` has no users for now. Both variants are up to a few
-percent behind the baseline. Since dropping the check does not recover
-that, the check is not the cause.
+code layout. The assembly below shows that the unchecked move generator is
+identical to the baseline's, so these benchmarks cannot resolve effects of
+a few percent. At first we kept `nonnull` at both sites on the strength of
+the numbers; the assembly reversed that.
+
+**Assembly.** `generate.cpp` and `search.cpp` were compiled with GCC 13
+and Clang 18 at `-O3` in four variants: the references (baseline),
+`nonnull`, `unchecked_nonnull`, and `unchecked_nonnull` whose dereference
+also told the optimizer the pointer is non-null (`GSL_ASSUME`).
+
+- `nonnull` adds a `test`/`je` to `std::terminate` at every dereference:
+  3 instructions in `appendMove`, up to 34 in `pawn()`, where it is inlined
+  several times. With GCC the checks also change inlining in the search:
+  `search()` grows from 428 to 3,550 instructions and `iterate()` shrinks.
+- `unchecked_nonnull` produces the same move generator as the references
+  with both compilers, apart from symbol names, and a search within two
+  instructions of theirs.
+- The assume changes nothing with Clang. With GCC it only rearranges the
+  blocks of `pawn()`. Nothing in these paths compares the pointer against
+  null, so there is no check for it to remove, and it was left out.
+
+A reference parameter carries `nonnull` and `dereferenceable` guarantees
+that a pointer does not, which lets the compiler load through it early.
+Neither hot site is a parameter, and the converted parameters are not on
+hot paths, so this made no difference here.
+
+Both hot sites now use `unchecked_nonnull`, which gives back the
+reference versions' code while keeping the pointer style.
