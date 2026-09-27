@@ -31,7 +31,6 @@ does not make clear why something was done the way it was.
   are in use: follow the file being edited.
 - `[[nodiscard]]` on factory functions and getters.
 - Private data members carry the `my_` prefix; public ones do not.
-- Exception classes are named `...Error` and derive from `Error`.
 - `wisdom::narrow` and `wisdom::narrow_cast` for narrowing conversions.
 - `expects (cond)` / `ensures (cond)` (`engine/global.hpp`) check caller
   input and throw. `noexcept_expects` aborts and belongs only in `noexcept`
