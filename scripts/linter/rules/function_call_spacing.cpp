@@ -1,16 +1,20 @@
 #include "../linter.hpp"
 
-#include <cctype>
+#include <algorithm>
 #include <unordered_set>
+#include <utility>
 
 namespace wisdom_linter
 {
 namespace
 {
-    auto isPreprocessor (std::string_view line) -> bool
+    // Whether a comment comes right after the token first, before last.
+    auto commentBetween (const std::vector<Token>& tokens, const Token& first, const Token& last) -> bool
     {
-        size_t start = line.find_first_not_of ( " \t" );
-        return start != std::string_view::npos && line[start] == '#';
+        auto position = [] (const Token& token) { return std::pair { token.line, token.column }; };
+        auto next = std::upper_bound (tokens.begin(), tokens.end(), first,
+            [&] (const Token& value, const Token& element) { return position (value) < position (element); });
+        return next != tokens.end() && next->kind == TokenKind::Comment && position (*next) < position (last);
     }
 
     class FunctionCallSpacingRule : public Rule
@@ -66,214 +70,66 @@ namespace
                 "lengthBytesUTF8", "stringToUTF8", "UTF8ToString", "_malloc", "_free",
             };
 
-            auto isInsideString = [] (const std::string& line, size_t position) -> bool {
-                bool in_string = false;
-                char string_char = 0;
+            auto code = codeTokens (context.tokens);
 
-                for (size_t i = 0; i < position; ++i)
-                {
-                    char c = line[i];
-                    char prev = (i > 0) ? line[i - 1] : 0;
-
-                    if (!in_string && (c == '"' || c == '\'' ))
-                    {
-                        in_string = true;
-                        string_char = c;
-                    }
-                    else if (in_string && c == string_char && prev != '\\' )
-                    {
-                        in_string = false;
-                    }
-                }
-                return in_string;
-            };
-
-            auto findClosingParen = [] (const std::string& line, size_t open_paren) -> int {
-                int depth = 1;
-                size_t i = open_paren + 1;
-                bool in_string = false;
-                char string_char = 0;
-
-                while (i < line.size() && depth > 0)
-                {
-                    char c = line[i];
-                    char prev = (i > 0) ? line[i - 1] : 0;
-
-                    if (!in_string && (c == '"' || c == '\'' ))
-                    {
-                        in_string = true;
-                        string_char = c;
-                    }
-                    else if (in_string && c == string_char && prev != '\\' )
-                    {
-                        in_string = false;
-                    }
-                    else if (!in_string)
-                    {
-                        if (c == '(' )
-                        {
-                            ++depth;
-                        }
-                        else if (c == ')' )
-                        {
-                            --depth;
-                            if (depth == 0)
-                            {
-                                return static_cast<int> (i);
-                            }
-                        }
-                    }
-                    ++i;
-                }
-                return -1;
-            };
-
-            auto hasArguments = [&] (size_t line_idx, size_t open_paren, int close_paren) -> bool {
-                const auto& line = context.lines[line_idx];
-
-                if (close_paren >= 0)
-                {
-                    for (size_t i = open_paren + 1; i < static_cast<size_t> (close_paren); ++i)
-                    {
-                        if (line[i] != ' ' && line[i] != '\t' )
-                        {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-
-                for (size_t i = open_paren + 1; i < line.size(); ++i)
-                {
-                    if (line[i] != ' ' && line[i] != '\t' )
-                    {
-                        return true;
-                    }
-                }
-
-                if (line_idx + 1 < context.lines.size())
-                {
-                    const auto& next_line = context.lines[line_idx + 1];
-                    size_t start = next_line.find_first_not_of ( " \t" );
-                    if (start != std::string::npos && next_line[start] != ')' )
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
-            };
-
-            auto isMultiLineCall = [&] (const std::string& line, size_t open_paren,
-                                        int close_paren) -> bool {
-                if (close_paren >= 0)
-                {
-                    return false;
-                }
-                for (size_t i = open_paren + 1; i < line.size(); ++i)
-                {
-                    if (line[i] != ' ' && line[i] != '\t' )
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            };
-
-            auto code_lines = stripComments (context.lines);
-
-            for (size_t i = 0; i < code_lines.size(); ++i)
+            for (size_t i = 0; i + 1 < code.size(); ++i)
             {
-                const auto& line = code_lines[i];
-                int line_number = static_cast<int> (i + 1);
-
-                if (isPreprocessor (line))
+                if (!isIdentifier (code[i]) || exception_keywords.count (code[i].text) > 0
+                    || !isPunctuator (code[i + 1], "(") || code[i + 1].line != code[i].line)
                 {
                     continue;
                 }
 
-                for (size_t pos = 0; pos < line.size(); ++pos)
+                const auto& func_name = code[i].text;
+                const auto& open = code[i + 1];
+
+                int depth = 0;
+                size_t close = i + 1;
+                for (; close < code.size(); ++close)
                 {
-                    if (!std::isalpha (line[pos]) && line[pos] != '_' )
+                    if (isPunctuator (code[close], "("))
                     {
-                        continue;
+                        ++depth;
                     }
-
-                    if (pos > 0 && (std::isalnum (line[pos - 1]) || line[pos - 1] == '_' ))
+                    else if (isPunctuator (code[close], ")") && --depth == 0)
                     {
-                        continue;
+                        break;
                     }
+                }
 
-                    size_t name_start = pos;
-                    size_t name_end = pos;
-                    while (name_end < line.size() &&
-                            (std::isalnum (line[name_end]) || line[name_end] == '_' ))
-                    {
-                        ++name_end;
-                    }
+                // A call whose arguments start on the next line is left alone.
+                // A comment alone between the parentheses counts as an
+                // argument, as it did before the rule read tokens.
+                bool has_args = true;
+                if (close < code.size() && code[close].line == open.line)
+                {
+                    has_args = close > i + 2 || commentBetween (context.tokens, open, code[close]);
+                }
+                else if (i + 2 >= code.size() || code[i + 2].line != open.line)
+                {
+                    continue;
+                }
 
-                    std::string func_name = line.substr (name_start, name_end - name_start);
-
-                    if (exception_keywords.count (func_name))
-                    {
-                        pos = name_end - 1;
-                        continue;
-                    }
-
-                    if (isInsideString (line, name_start))
-                    {
-                        pos = name_end - 1;
-                        continue;
-                    }
-
-                    size_t after_name = name_end;
-                    bool has_space = false;
-                    while (after_name < line.size() &&
-                            (line[after_name] == ' ' || line[after_name] == '\t' ))
-                    {
-                        has_space = true;
-                        ++after_name;
-                    }
-
-                    if (after_name >= line.size() || line[after_name] != '(' )
-                    {
-                        pos = name_end - 1;
-                        continue;
-                    }
-
-                    size_t open_paren = after_name;
-                    int close_paren = findClosingParen (line, open_paren);
-
-                    if (isMultiLineCall (line, open_paren, close_paren))
-                    {
-                        pos = name_end - 1;
-                        continue;
-                    }
-
-                    bool has_args = hasArguments (i, open_paren, close_paren);
-
-                    if (!has_space && has_args)
-                    {
-                        violations.push_back (LintViolation {
-                            std::string { name() },
-                            "Missing space before '(' in '" + func_name + "' (has arguments)",
-                            line_number,
-                            static_cast<int> (open_paren + 1),
-                            Severity::Error,
-                        });
-                    }
-                    else if (has_space && !has_args)
-                    {
-                        violations.push_back (LintViolation {
-                            std::string { name() },
-                            "Unnecessary space before '(' in '" + func_name + "' (no arguments)",
-                            line_number,
-                            static_cast<int> (open_paren + 1),
-                            Severity::Error,
-                        });
-                    }
-
-                    pos = name_end - 1;
+                bool has_space = open.spaced_before;
+                if (!has_space && has_args)
+                {
+                    violations.push_back (LintViolation {
+                        std::string { name() },
+                        "Missing space before '(' in '" + func_name + "' (has arguments)",
+                        open.line,
+                        open.column,
+                        Severity::Error,
+                    });
+                }
+                else if (has_space && !has_args)
+                {
+                    violations.push_back (LintViolation {
+                        std::string { name() },
+                        "Unnecessary space before '(' in '" + func_name + "' (no arguments)",
+                        open.line,
+                        open.column,
+                        Severity::Error,
+                    });
                 }
             }
 
