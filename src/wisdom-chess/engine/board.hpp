@@ -175,9 +175,11 @@ namespace wisdom
         }
 
         // FEN records the passed square after every double pawn push, but
-        // FIDE's repetition rule only distinguishes positions by the moves
-        // actually possible from them. This code leaves the en passant
-        // target out when no legal en passant capture reaches it.
+        // for repetition FIDE only counts an en passant capture that is
+        // actually possible (Laws of Chess 9.2.3.1). This code leaves the
+        // en passant target out when no legal capture reaches it. Castling
+        // rights stay in, since FIDE compares rights, not whether castling
+        // is possible on this move (9.2.3.2).
         [[nodiscard]] auto
         getBoardCode() const noexcept
             -> BoardCode
