@@ -584,3 +584,69 @@ TEST_CASE( "Zobrist piece index mapping" )
         }
     }
 }
+
+TEST_CASE( "Board code keeps a legal and an illegal en passant target apart" )
+{
+    auto e3 = coordParse ("e3");
+
+    auto startingCode = []
+    {
+        BoardCode code = BoardCode::fromEmptyBoard();
+        code.addPiece (coordParse ("e4"), ColoredPiece::make (Color::White, Piece::Pawn));
+        code.setCurrentTurn (Color::Black);
+        code.setCastleState (Color::White, CastlingEligibility::Both_Sides);
+        code.setCastleState (Color::Black, CastlingRights::Queenside);
+        return code;
+    };
+
+    SUBCASE( "A legal target survives leaving out illegal ones" )
+    {
+        auto code = startingCode();
+        code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Legal);
+
+        REQUIRE( code.getLegalEnPassantTarget().has_value() );
+        CHECK( code.getLegalEnPassantTarget()->coord == e3 );
+        CHECK( code.getAnyEnPassantTarget()->coord == e3 );
+        CHECK( code.withoutIllegalEnPassantTarget() == code );
+    }
+
+    SUBCASE( "An illegal target is left out" )
+    {
+        auto code = startingCode();
+        code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Illegal);
+
+        REQUIRE( code.getAnyEnPassantTarget().has_value() );
+        CHECK( code.getAnyEnPassantTarget()->coord == e3 );
+        CHECK( code.getAnyEnPassantTarget()->vulnerable_color == Color::White );
+        CHECK( !code.getLegalEnPassantTarget().has_value() );
+        CHECK( code.withoutIllegalEnPassantTarget() == startingCode() );
+    }
+
+    SUBCASE( "Setting a target replaces one in the other field" )
+    {
+        auto code = startingCode();
+        code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Illegal);
+        code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Legal);
+        CHECK( code.withoutIllegalEnPassantTarget() == code );
+
+        code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Illegal);
+        CHECK( !code.getLegalEnPassantTarget().has_value() );
+        CHECK( code.withoutIllegalEnPassantTarget() == startingCode() );
+    }
+
+    SUBCASE( "Neither target disturbs the turn or castling" )
+    {
+        for (auto state : { EnPassantTargetState::Legal, EnPassantTargetState::Illegal })
+        {
+            auto code = startingCode();
+            code.setEnPassantTarget (Color::White, e3, state);
+
+            CHECK( code.getCurrentTurn() == Color::Black );
+            CHECK( code.getCastleState (Color::White) == CastlingEligibility::Both_Sides );
+            CHECK( code.getCastleState (Color::Black) == CastlingRights::Queenside );
+
+            code.clearEnPassantTarget();
+            CHECK( code == startingCode() );
+        }
+    }
+}
