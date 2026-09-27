@@ -64,6 +64,14 @@ jobs:
         env:
           WISDOM_CHESS_WERROR: On
 
+      - name: Test Engine Under WASM
+        run: |
+          emcmake cmake -B build-wasm-tests -S . -DCMAKE_BUILD_TYPE=Release \
+            -DWISDOM_CHESS_QML_UI=Off -DWISDOM_CHESS_REACT_BUILD_INTEGRATED=Off \
+            -DWISDOM_CHESS_WERROR=On
+          cmake --build build-wasm-tests -j 4
+          ctest --test-dir build-wasm-tests --output-on-failure -j 4
+
       - name: Install Front-end Dependencies
         working-directory: src/wisdom-chess/ui/react
         run: npm ci
