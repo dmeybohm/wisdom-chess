@@ -1,0 +1,1 @@
+5:23:raw-pointer:Raw pointer to 'WeightPawn': use nonnull<WeightPawn> or nullable<WeightPawn>, or mark an interop pointer lint-allow(raw-pointer)
