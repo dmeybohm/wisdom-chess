@@ -80,9 +80,9 @@ namespace wisdom
 
     auto
     WebGame::newFromSettings (const GameSettings& settings, int game_id)
-        -> wisdom::WebGame* // lint-allow(raw-pointer): owning, handed to JavaScript
+        -> unique_ptr<WebGame>
     {
-        auto* new_game = new WebGame (settings.whitePlayer, settings.blackPlayer, game_id);
+        auto new_game = make_unique<WebGame> (settings.whitePlayer, settings.blackPlayer, game_id);
 
         const auto computer_depth = ui::fullMovesToPlyDepth (settings.searchDepth);
         new_game->setMaxDepth (computer_depth);

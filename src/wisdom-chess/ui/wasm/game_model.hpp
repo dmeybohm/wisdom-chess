@@ -58,7 +58,7 @@ namespace wisdom
                 workerReinitializeGame,
                 my_game_id
             );
-            return new_game;
+            return new_game.release();
         }
 
         // Pause the worker.
@@ -91,7 +91,7 @@ namespace wisdom
         getCurrentGameSettings() const 
             -> GameSettings* // lint-allow(raw-pointer): WebIDL binding, JavaScript owns it
         {
-            return new GameSettings { my_game_settings };
+            return make_unique<GameSettings> (my_game_settings).release();
         }
 
         void setCurrentGameSettings (GameSettings* newSettings) // lint-allow(raw-pointer): WebIDL binding

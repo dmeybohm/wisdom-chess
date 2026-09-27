@@ -381,7 +381,7 @@ namespace wisdom::ui::qml
         // deleted via QThread::finished -> deleteLater(), which only fires once
         // the thread has actually run and exited its event loop. Tracked here
         // so it can be deleted directly if the thread never started.
-        ChessEngine* my_chess_engine = nullptr; // lint-allow(raw-pointer): deleted with its QThread
+        wisdom::owning<ChessEngine> my_chess_engine = nullptr;
 
         // Whether start() has ever been called for the current engine thread.
         bool my_engine_thread_started = false;

@@ -51,6 +51,11 @@ namespace wisdom
     template <typename T>
     using nonnull = gsl::not_null<T*>; // lint-allow(raw-pointer): defines the pointer types
 
+    // An owning raw pointer, for an object whose deletion is arranged outside
+    // C++'s ownership types, as when Qt's deleteLater() takes it over.
+    template <typename T>
+    using owning = gsl::owner<T*>; // lint-allow(raw-pointer): defines the pointer types
+
     namespace chrono = std::chrono;
 
     enum MaterialWeight

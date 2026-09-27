@@ -183,3 +183,30 @@ is left for a separate change.
 
 The QML singletons now keep their instances as `nullable` and take them
 as `nonnull`, leaving only `create()`'s signature raw.
+
+**Owning pointers at the boundaries.** Four of the marked pointers owned
+their objects. Whether `unique_ptr` is safe depends on how long it would
+hold the object, not on which system takes it over:
+
+- The WASM objects handed to JavaScript (`newFromSettings()` via
+  `startNewGame()`, and `getCurrentGameSettings()`) are destroyed by
+  `WisdomChess.ts` with `destroy()`. A `unique_ptr` that lives inside the
+  function and is `release()`d in the `return` leaves JavaScript as the
+  only one that deletes. `newFromSettings()` now returns a `unique_ptr`,
+  which also stops a leak if `setMaxDepth()` or `setThinkingTime()`
+  throws. The bound functions still return a raw pointer, because that is
+  what the WebIDL glue wraps.
+- `GameModel::my_chess_engine` in the QML frontend cannot be a
+  `unique_ptr` member. Once the engine thread starts, `QThread::finished`
+  hands the engine to `deleteLater()`, and a member would delete it a
+  second time, or on the wrong thread. Only when the thread never starts
+  does `stopEngineThread()` delete it. It is now `owning<ChessEngine>`, an
+  alias for `gsl::owner<ChessEngine*>`: a class would change what moc and
+  the rest of Qt see, while an alias changes nothing but the reader's
+  understanding. The alias takes the pointee, like `nonnull`, rather than
+  `gsl::owner`'s pointer type.
+- The `_malloc`'d string in `GameModel::browserOriginUrl()`, in the QML
+  frontend's WebAssembly build, still carries its marker. The choice is
+  between a `unique_ptr` with `free` as the deleter and reading the origin
+  through `emscripten::val`, and either needs a Qt for WebAssembly build
+  to verify.

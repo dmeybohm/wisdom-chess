@@ -21,7 +21,7 @@ namespace wisdom
 
         [[nodiscard]] static auto
         newFromSettings (const GameSettings& settings, int game_id)
-            -> WebGame*; // lint-allow(raw-pointer): owning, handed to JavaScript
+            -> unique_ptr<WebGame>;
 
         void setSettings (const GameSettings& settings);
 
