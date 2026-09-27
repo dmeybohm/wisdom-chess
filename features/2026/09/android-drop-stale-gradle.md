@@ -69,4 +69,7 @@ Found along the way:
 - Gradle warns that the manifest's `package` attribute is ignored in
   favor of the namespace. Harmless: Qt reads the attribute to set that
   namespace, and Qt's own template manifest carries it too.
-- The app label is the target name, `WisdomChessQml`. Not changed.
+- The app label was the target name, `WisdomChessQml`. Fixed by writing
+  "Wisdom Chess" into the manifest's two `android:label` attributes in
+  place of Qt's placeholder, which works on every Qt version the project
+  supports. The rebuilt APK reports the new label.
