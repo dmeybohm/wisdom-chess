@@ -57,6 +57,7 @@ if (WISDOM_CHESS_FAST_TESTS)
         add_test(
             NAME "Fatal: ${test_case}"
             COMMAND ${CMAKE_COMMAND}
+                "-DFATAL_TEST_EMULATOR=${CMAKE_CROSSCOMPILING_EMULATOR}"
                 "-DFATAL_TEST_EXECUTABLE=$<TARGET_FILE:wisdom-chess-fatal-tests>"
                 "-DFATAL_TEST_CASE=${test_case}"
                 "-DFATAL_TEST_EXPECTED=${expected_output}"
