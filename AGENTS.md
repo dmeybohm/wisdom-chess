@@ -101,7 +101,8 @@ An Android build runs its tests on the connected device or emulator,
 through `adb` (`cmake/AndroidTests.cmake`). Test discovery does too, so
 without a device the build itself fails unless the tests are off. A test
 there cannot use a path from the build directory. CI runs them on an
-emulator, through `scripts/android-tests.sh`, which works locally too.
+emulator, through `scripts/android-tests.sh`, which works locally too and
+gives a failed test a second try.
 
 The `QML: ...` tests run there too, each as a package that Qt's
 `androidtestrunner` installs and runs. They draw on the device's display,
