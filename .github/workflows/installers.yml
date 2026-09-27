@@ -39,7 +39,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Check that the tag matches the project version
         if: github.ref_type == 'tag'
@@ -65,7 +65,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Cache CPM downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/cpm-cache
           key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
@@ -106,7 +106,7 @@ jobs:
         run: scripts/smoke-test-installer.sh build-installer "$RUNNER_TEMP/wisdom-chess-smoke"
 
       - name: Upload installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: installer-${{ runner.os }}
           path: |
@@ -125,7 +125,7 @@ jobs:
 
     steps:
       - name: Download installers
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: installer-*
           merge-multiple: true

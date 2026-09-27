@@ -33,6 +33,36 @@ namespace
     {
         return std::find (list.begin(), list.end(), wanted) != list.end();
     }
+
+    auto
+    enPassantMovesAmongLegalMoves (const Board& board)
+        -> MoveList
+    {
+        MoveList result;
+
+        for (auto move : generateLegalMoves (board, board.getCurrentTurn()))
+        {
+            if (move.isEnPassant())
+                result.append (move);
+        }
+
+        return result;
+    }
+
+    void
+    checkEnPassantMovesInTree (const Board& board, int depth)
+    {
+        auto who = board.getCurrentTurn();
+
+        INFO( board.toFenString (who) );
+        CHECK( generateLegalEnPassantMoves (board) == enPassantMovesAmongLegalMoves (board) );
+
+        if (depth <= 0)
+            return;
+
+        for (auto move : generateLegalMoves (board, who))
+            checkEnPassantMovesInTree (board.withMove (who, move), depth - 1);
+    }
 }
 
 TEST_CASE( "generate default moves" )
@@ -248,5 +278,132 @@ TEST_CASE( "generateCaptures" )
                 CHECK( sortedMoves (generateCaptures (board, who)) == sortedMoves (expected) );
             }
         }
+    }
+}
+
+TEST_CASE( "generateLegalEnPassantMoves" )
+{
+    auto boardFromFen = [](const char* fen_text) {
+        FenParser fen { fen_text };
+        return fen.buildBoard();
+    };
+
+    SUBCASE( "A board without a target has none" )
+    {
+        Board board;
+
+        CHECK( generateLegalEnPassantMoves (board).isEmpty() );
+    }
+
+    SUBCASE( "Both adjacent pawns can capture" )
+    {
+        auto board = boardFromFen ("4k3/8/8/8/2pPp3/8/8/4K3 b - d3 0 1");
+
+        MoveList expected { Color::Black, { "c4d3 ep" } };
+        expected.append (moveParse ("e4d3 ep", Color::Black));
+
+        CHECK( generateLegalEnPassantMoves (board) == expected );
+    }
+
+    SUBCASE( "A pawn pinned on its file is left out while the other captures" )
+    {
+        auto board = boardFromFen ("4k3/8/8/8/2pPp3/8/8/4R2K b - d3 0 1");
+
+        MoveList expected { Color::Black, { "c4d3 ep" } };
+
+        CHECK( generateLegalEnPassantMoves (board) == expected );
+    }
+
+    SUBCASE( "A pawn pinned on a diagonal cannot capture" )
+    {
+        auto board = boardFromFen ("8/1k6/8/8/3Pp3/8/8/K6B b - d3 0 1");
+
+        CHECK( generateLegalEnPassantMoves (board).isEmpty() );
+    }
+
+    SUBCASE( "The taken pawn cannot uncover a check on its diagonal" )
+    {
+        auto board = boardFromFen ("8/k7/8/8/3Pp3/8/8/K5B1 b - d3 0 1");
+
+        CHECK( generateLegalEnPassantMoves (board).isEmpty() );
+    }
+
+    SUBCASE( "Both pawns cannot leave a rank that shields the king" )
+    {
+        auto board = boardFromFen ("8/8/8/8/R2Pp2k/8/8/4K3 b - d3 0 1");
+
+        CHECK( generateLegalEnPassantMoves (board).isEmpty() );
+    }
+
+    SUBCASE( "Capturing the pawn that gives check is legal" )
+    {
+        auto board = boardFromFen ("8/8/8/4k3/3Pp3/8/8/K7 b - d3 0 1");
+
+        MoveList expected { Color::Black, { "e4d3 ep" } };
+
+        CHECK( generateLegalEnPassantMoves (board) == expected );
+    }
+
+    SUBCASE( "A capture that leaves the king in check is not legal" )
+    {
+        auto board = boardFromFen ("8/8/7k/8/3Pp3/8/8/K1B5 b - d3 0 1");
+
+        CHECK( generateLegalEnPassantMoves (board).isEmpty() );
+    }
+
+    SUBCASE( "A double push on an edge file can be captured" )
+    {
+        auto black_captures = boardFromFen ("4k3/8/8/8/Pp6/8/8/4K3 b - a3 0 1");
+        auto white_captures = boardFromFen ("4k3/8/8/6Pp/8/8/8/4K3 w - h6 0 1");
+
+        MoveList black_expected { Color::Black, { "b4a3 ep" } };
+        MoveList white_expected { Color::White, { "g5h6 ep" } };
+
+        CHECK( generateLegalEnPassantMoves (black_captures) == black_expected );
+        CHECK( generateLegalEnPassantMoves (white_captures) == white_expected );
+    }
+
+    SUBCASE( "A target without a pawn to take has none" )
+    {
+        // FenParser rejects these targets, so set them on the builder.
+        BoardBuilder builder;
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+        builder.addPiece ("e4", Color::Black, Piece::Pawn);
+        builder.setEnPassantTarget (Color::White, "d3");
+        builder.setCurrentTurn (Color::Black);
+        auto missing_pawn = Board { builder };
+
+        builder.addPiece ("d4", Color::White, Piece::Pawn);
+        builder.addPiece ("d3", Color::White, Piece::Knight);
+        auto occupied_target = Board { builder };
+
+        CHECK( generateLegalEnPassantMoves (missing_pawn).isEmpty() );
+        CHECK( generateLegalEnPassantMoves (occupied_target).isEmpty() );
+    }
+
+    SUBCASE( "A target of the player to move has none" )
+    {
+        auto board = boardFromFen ("4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1");
+        auto white_to_move = board.withCurrentTurn (Color::White);
+
+        CHECK( !generateLegalEnPassantMoves (board).isEmpty() );
+        CHECK( generateLegalEnPassantMoves (white_to_move).isEmpty() );
+    }
+
+    SUBCASE( "Agrees with generateLegalMoves" )
+    {
+        const char* fens[] = {
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+            "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",
+            "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 b - - 0 1",
+            "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
+            "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3",
+            "4k3/pppppppp/8/PPPPPPPP/pppppppp/8/PPPPPPPP/4K3 w - - 0 1",
+        };
+
+        for (auto fen_text : fens)
+            checkEnPassantMovesInTree (boardFromFen (fen_text), 3);
     }
 }

@@ -19,7 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: mymindstorm/setup-emsdk@v14
         with:
@@ -93,7 +93,7 @@ jobs:
         run: scripts/verify-deployment.sh deploy
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: combined-build
           path: deploy

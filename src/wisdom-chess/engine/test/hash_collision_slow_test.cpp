@@ -65,7 +65,7 @@ namespace
             if (!isLegalPositionAfterMove (new_board, side, move))
                 continue;
 
-            auto hash = new_board.getCode().getHashCode();
+            auto hash = new_board.getUnnormalizedBoardCode().getHashCode();
             auto full_fen = new_board.toFenString (colorInvert (side));
             auto position_fen = normalizePositionFen (full_fen);
 
@@ -97,7 +97,7 @@ namespace
         std::unordered_map<BoardHashCode, string> seen_positions;
         CollisionStats stats;
 
-        auto initial_hash = board.getCode().getHashCode();
+        auto initial_hash = board.getUnnormalizedBoardCode().getHashCode();
         auto initial_fen = normalizePositionFen (board.toFenString (active_player));
         seen_positions[initial_hash] = initial_fen;
         stats.positions_visited = 1;
@@ -205,7 +205,7 @@ namespace
             if (!isLegalPositionAfterMove (new_board, side, move))
                 continue;
 
-            hashes.push_back (new_board.getCode().getHashCode());
+            hashes.push_back (new_board.getUnnormalizedBoardCode().getHashCode());
 
             collectHashesForDistribution (
                 new_board, colorInvert (side), depth + 1, max_depth, hashes
@@ -258,7 +258,7 @@ TEST_CASE( "Transposition table index distribution" )
     std::vector<BoardHashCode> hashes;
     hashes.reserve (5000000);
 
-    hashes.push_back (board.getCode().getHashCode());
+    hashes.push_back (board.getUnnormalizedBoardCode().getHashCode());
     collectHashesForDistribution (board, Color::White, 0, 5, hashes);
 
     MESSAGE( "Collected " << hashes.size() << " hashes" );

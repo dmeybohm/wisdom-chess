@@ -131,6 +131,11 @@ clears it on a new game. `TranspositionTable` is move-only, and a frontend
 that hands it to a search thread must not touch it until that thread is
 done.
 
+The table and `History` both key on `Board::getBoardCode()`, which leaves
+out an en passant target that no legal capture can use.
+`getUnnormalizedBoardCode()` keeps the target as FEN records it. See
+`features/2026/09/en-passant-normalization-cost.md`.
+
 Repetition and fifty-move draw scores belong to the path, not the board,
 so `search()` does not store a node whose subtree hit the draw check. The
 halfmove clock is not part of the hash; `game_test.cpp` pins the cases.

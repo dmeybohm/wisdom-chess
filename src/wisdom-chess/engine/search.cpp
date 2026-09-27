@@ -183,7 +183,7 @@ namespace wisdom
         int best_score = -Initial_Alpha;
         auto draw_nodes_before = my_draw_nodes;
 
-        auto hash = parent_board.getCode().getHashCode();
+        auto hash = parent_board.getBoardCode().getHashCode();
 
         if (ply > 0)
         {

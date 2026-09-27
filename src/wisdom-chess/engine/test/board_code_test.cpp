@@ -148,7 +148,7 @@ TEST_CASE( "board code" )
     SUBCASE( "Reverting board to same position gives the same board code" )
     {
         Board default_board;
-        BoardCode code = default_board.getCode();
+        BoardCode code = default_board.getUnnormalizedBoardCode();
 
         Move white_knight_ahead = moveParse ("g1f3", Color::White),
              white_knight_return = moveParse ("f3g1", Color::White);
@@ -161,7 +161,7 @@ TEST_CASE( "board code" )
             .withMove (Color::White, white_knight_return)
             .withMove (Color::Black, black_knight_return);
 
-        BoardCode new_code = new_board.getCode();
+        BoardCode new_code = new_board.getUnnormalizedBoardCode();
         REQUIRE( code == new_code );
     }
 
@@ -176,11 +176,11 @@ TEST_CASE( "board code" )
             .withMove (Color::White, white_knight_ahead)
             .withMove (Color::Black, black_knight_ahead);
 
-        BoardCode moved_code = moved_board.getCode();
+        BoardCode moved_code = moved_board.getUnnormalizedBoardCode();
 
         FenParser parser {"rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2"};
         Board fen_board = parser.buildBoard();
-        BoardCode fen_code = fen_board.getCode();
+        BoardCode fen_code = fen_board.getUnnormalizedBoardCode();
 
         REQUIRE( moved_code == fen_code );
     }
@@ -196,7 +196,7 @@ TEST_CASE( "board code" )
             .withMove (Color::White, white_knight_ahead)
             .withMove (Color::Black, black_knight_ahead);
 
-        BoardCode moved_code = moved_board.getCode();
+        BoardCode moved_code = moved_board.getUnnormalizedBoardCode();
 
         BoardBuilder builder;
         builder.addPiece ("a1", Color::White, Piece::Rook);
@@ -246,7 +246,7 @@ TEST_CASE( "board code" )
         expected_builder.setCurrentTurn (Color::Black);
 
         auto expected_code = BoardCode::fromBoardBuilder (expected_builder);
-        auto actual_code = after.getCode();
+        auto actual_code = after.getUnnormalizedBoardCode();
 
         CHECK( actual_code.getHashCode() == expected_code.getHashCode() );
     }
@@ -272,7 +272,7 @@ TEST_CASE( "board code" )
         expected_builder.setCurrentTurn (Color::Black);
 
         auto expected_code = BoardCode::fromBoardBuilder (expected_builder);
-        auto actual_code = after.getCode();
+        auto actual_code = after.getUnnormalizedBoardCode();
 
         CHECK( actual_code.getHashCode() == expected_code.getHashCode() );
     }
@@ -298,7 +298,7 @@ TEST_CASE( "board code" )
         expected_builder.setCurrentTurn (Color::Black);
 
         auto expected_code = BoardCode::fromBoardBuilder (expected_builder);
-        auto actual_code = after.getCode();
+        auto actual_code = after.getUnnormalizedBoardCode();
 
         CHECK( actual_code.getHashCode() == expected_code.getHashCode() );
     }
@@ -427,8 +427,8 @@ TEST_CASE( "Board code stores metadata" )
         builder.setEnPassantTarget (Color::Black, "d6");
         auto board_with_state = Board { builder };
 
-        auto with_state_code = board_with_state.getCode();
-        auto without_state_code = board_without_state.getCode();
+        auto with_state_code = board_with_state.getUnnormalizedBoardCode();
+        auto without_state_code = board_without_state.getUnnormalizedBoardCode();
         CHECK( with_state_code != without_state_code );
 
         auto en_passant_target = with_state_code.getEnPassantTarget();
@@ -451,8 +451,8 @@ TEST_CASE( "Board code stores metadata" )
         builder.setEnPassantTarget (Color::White, "e3");
         auto board_with_state = Board { builder };
 
-        auto with_state_code = board_with_state.getCode();
-        auto without_state_code = board_without_state.getCode();
+        auto with_state_code = board_with_state.getUnnormalizedBoardCode();
+        auto without_state_code = board_without_state.getUnnormalizedBoardCode();
         CHECK( with_state_code != without_state_code );
 
         auto en_passant_target = with_state_code.getEnPassantTarget();

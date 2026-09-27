@@ -57,9 +57,8 @@ namespace wisdom
             -> History
         {
             auto result = History {};
-            auto normalized_board = board.withNormalizedEnPassantTarget();
-            result.my_board_codes.emplace_back (normalized_board.getBoardCode());
-            result.my_stored_boards.emplace_back (normalized_board);
+            result.my_board_codes.emplace_back (board.getBoardCode());
+            result.my_stored_boards.emplace_back (board);
             return result;
         }
 
@@ -97,10 +96,13 @@ namespace wisdom
             -> bool
         {
             // A position cannot recur across a capture or a pawn move.
-            auto code = board.withNormalizedEnPassantTarget().getCode();
             auto history_size = std::ssize (my_board_codes);
             auto clock = board.getHalfMoveClock();
             auto reversible_count = clock < history_size ? clock + 1 : history_size;
+            if (reversible_count < repetition_count)
+                return false;
+
+            auto code = board.getBoardCode();
             auto count = std::count (my_board_codes.end() - reversible_count, my_board_codes.end(), code);
             return count >= repetition_count;
         }
@@ -109,14 +111,13 @@ namespace wisdom
         isCertainlyNthRepetition (const Board& board, int repetition_count) const
             -> bool
         {
-            auto normalized_board = board.withNormalizedEnPassantTarget();
-            auto repetitions = std::count (my_stored_boards.begin(), my_stored_boards.end(), normalized_board);
+            auto repetitions = std::count (my_stored_boards.begin(), my_stored_boards.end(), board);
             return repetitions >= repetition_count;
         }
 
         void addTentativePosition (const Board& board)
         {
-            my_board_codes.emplace_back (board.withNormalizedEnPassantTarget().getBoardCode());
+            my_board_codes.emplace_back (board.getBoardCode());
             my_tentative_nesting_count++;
         }
 
@@ -129,9 +130,8 @@ namespace wisdom
         void addPosition (const Board& board, Move move)
         {
             expects (my_tentative_nesting_count == 0);
-            auto normalized_board = board.withNormalizedEnPassantTarget();
-            my_stored_boards.emplace_back (normalized_board);
-            my_board_codes.emplace_back (normalized_board.getBoardCode());
+            my_stored_boards.emplace_back (board);
+            my_board_codes.emplace_back (board.getBoardCode());
             my_move_history.push_back (move);
         }
 
@@ -141,9 +141,8 @@ namespace wisdom
         void replaceLastPosition (const Board& board)
         {
             expects (my_tentative_nesting_count == 0);
-            auto normalized_board = board.withNormalizedEnPassantTarget();
-            my_stored_boards.back() = normalized_board;
-            my_board_codes.back() = normalized_board.getBoardCode();
+            my_stored_boards.back() = board;
+            my_board_codes.back() = board.getBoardCode();
         }
 
         [[nodiscard]] auto 

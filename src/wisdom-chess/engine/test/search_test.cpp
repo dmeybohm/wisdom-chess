@@ -391,7 +391,7 @@ TEST_CASE( "Root TT hit should not bypass iterative deepening search" )
     Board board = Board { BoardBuilder::fromDefaultPosition() };
     TranspositionTable tt = TranspositionTable::fromMegabytes (1);
 
-    auto hash = board.getCode().getHashCode();
+    auto hash = board.getBoardCode().getHashCode();
     Move fake_move = Move::make (coordParse ("e2"), coordParse ("e4"));
     tt.store (hash, 100, 10, BoundType::Exact, fake_move, 0);
 
@@ -713,8 +713,22 @@ TEST_CASE( "Quiescence search" )
         auto search = helper.build (board, 1);
         (void)search.iterativelyDeepen (Color::White);
 
-        auto hash = board.getCode().getHashCode();
+        auto hash = board.getBoardCode().getHashCode();
         CHECK( helper.transposition_table.probe (hash, 1, -Initial_Alpha, Initial_Alpha, 0) );
+    }
+
+    SUBCASE( "The root is stored without an en passant target nothing can capture" )
+    {
+        SearchHelper helper;
+        auto board = boardFromFen ("rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1");
+        auto search = helper.build (board, 1);
+        (void)search.iterativelyDeepen (Color::Black);
+
+        auto hash = board.getBoardCode().getHashCode();
+        auto hash_with_target = board.getUnnormalizedBoardCode().getHashCode();
+        REQUIRE( hash != hash_with_target );
+        CHECK( helper.transposition_table.probe (hash, 1, -Initial_Alpha, Initial_Alpha, 0) );
+        CHECK( !helper.transposition_table.probe (hash_with_target, 1, -Initial_Alpha, Initial_Alpha, 0) );
     }
 
     SUBCASE( "A capture into insufficient material keeps the root out of the table" )
@@ -724,7 +738,7 @@ TEST_CASE( "Quiescence search" )
         auto search = helper.build (board, 1);
         (void)search.iterativelyDeepen (Color::White);
 
-        auto hash = board.getCode().getHashCode();
+        auto hash = board.getBoardCode().getHashCode();
         CHECK( !helper.transposition_table.probe (hash, 1, -Initial_Alpha, Initial_Alpha, 0) );
     }
 }

@@ -62,7 +62,7 @@ namespace
             hash ^= table[table_index] << Total_Metadata_Bits;
         }
 
-        hash |= board.getCode().getMetadataBits();
+        hash |= board.getUnnormalizedBoardCode().getMetadataBits();
         return hash;
     }
 
