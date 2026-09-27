@@ -378,14 +378,22 @@ TEST_CASE( "Hash collision analysis" )
         for (int col = 0; col < 8; ++col)
         {
             code.clearEnPassantTarget();
-            code.setEnPassantTarget (Color::White, makeCoord (White_En_Passant_Row, col));
+            code.setEnPassantTarget (
+                Color::White,
+                makeCoord (White_En_Passant_Row, col),
+                EnPassantTargetState::Legal
+            );
             addHash (code);
         }
 
         for (int col = 0; col < 8; ++col)
         {
             code.clearEnPassantTarget();
-            code.setEnPassantTarget (Color::Black, makeCoord (Black_En_Passant_Row, col));
+            code.setEnPassantTarget (
+                Color::Black,
+                makeCoord (Black_En_Passant_Row, col),
+                EnPassantTargetState::Legal
+            );
             addHash (code);
         }
     }

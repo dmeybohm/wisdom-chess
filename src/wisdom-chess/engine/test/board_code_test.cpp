@@ -367,7 +367,7 @@ TEST_CASE( "Board code stores metadata" )
         code.setCurrentTurn (Color::Black);
         code.setCastleState (Color::White, CastlingEligibility::Neither_Side);
         code.setCastleState (Color::Black, CastlingRights::Queenside);
-        code.setEnPassantTarget (Color::White, coordParse ("e3"));
+        code.setEnPassantTarget (Color::White, coordParse ("e3"), EnPassantTargetState::Legal);
 
         auto modified_hash = code.getHashCode();
         auto modified_high_48_bits = modified_hash & Piece_Hash_Mask;
@@ -431,7 +431,7 @@ TEST_CASE( "Board code stores metadata" )
         auto without_state_code = board_without_state.getUnnormalizedBoardCode();
         CHECK( with_state_code != without_state_code );
 
-        auto en_passant_target = with_state_code.getEnPassantTarget();
+        auto en_passant_target = with_state_code.getAnyEnPassantTarget();
         auto expected_coord = coordParse ("d6");
         REQUIRE( en_passant_target.has_value() );
         CHECK( en_passant_target->vulnerable_color == Color::Black );
@@ -455,7 +455,7 @@ TEST_CASE( "Board code stores metadata" )
         auto without_state_code = board_without_state.getUnnormalizedBoardCode();
         CHECK( with_state_code != without_state_code );
 
-        auto en_passant_target = with_state_code.getEnPassantTarget();
+        auto en_passant_target = with_state_code.getAnyEnPassantTarget();
 
         auto expected_coord = coordParse ("e3");
         REQUIRE( en_passant_target.has_value() );

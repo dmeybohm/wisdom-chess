@@ -25,6 +25,7 @@ namespace wisdom
         , my_material { Material { *this } }
         , my_king_pos { builder.getKingPositions() }
     {
+        classifyEnPassantTarget();
     }
 
     void Board::dump() const
@@ -204,7 +205,7 @@ namespace wisdom
 
         output += both_castled;
 
-        auto en_passant_target = getEnPassantTarget();
+        auto en_passant_target = getAnyEnPassantTarget();
         if (en_passant_target != nullopt)
             output += " " + wisdom::asString (en_passant_target->coord) + " ";
         else

@@ -17,7 +17,7 @@ TEST_CASE( "en passant" )
         REQUIRE( !board.isEnPassantVulnerable (Color::White) );
         REQUIRE( !board.isEnPassantVulnerable (Color::Black) );
 
-        REQUIRE( board.getEnPassantTarget() == nullopt );
+        REQUIRE( board.getAnyEnPassantTarget() == nullopt );
 
         BoardBuilder builder;
         const auto& back_rank = BoardBuilder::Default_Piece_Row;
@@ -139,7 +139,7 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
     {
         Board board;
 
-        REQUIRE( board.getEnPassantTarget() == nullopt );
+        REQUIRE( board.getAnyEnPassantTarget() == nullopt );
         CHECK( board.getBoardCode() == board.getUnnormalizedBoardCode() );
     }
 
@@ -155,8 +155,8 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
         builder.setEnPassantTarget (Color::White, "a3");
         auto board = Board { builder };
 
-        REQUIRE( board.getEnPassantTarget().has_value() );
-        CHECK( !board.getBoardCode().getEnPassantTarget().has_value() );
+        REQUIRE( board.getAnyEnPassantTarget().has_value() );
+        CHECK( !board.getBoardCode().getAnyEnPassantTarget().has_value() );
         CHECK( board.getBoardCode() == without_target.getBoardCode() );
         CHECK( board.getUnnormalizedBoardCode() != without_target.getUnnormalizedBoardCode() );
         CHECK( board == without_target );
@@ -179,8 +179,8 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
         builder.setEnPassantTarget (Color::White, "d3");
         auto board = Board { builder };
 
-        REQUIRE( board.getEnPassantTarget().has_value() );
-        CHECK( !board.getBoardCode().getEnPassantTarget().has_value() );
+        REQUIRE( board.getAnyEnPassantTarget().has_value() );
+        CHECK( !board.getBoardCode().getAnyEnPassantTarget().has_value() );
         CHECK( board.getBoardCode() == without_target.getBoardCode() );
         CHECK( board == without_target );
     }
@@ -198,7 +198,7 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
         builder.setEnPassantTarget (Color::White, "d3");
         auto board = Board { builder };
 
-        REQUIRE( board.getEnPassantTarget().has_value() );
+        REQUIRE( board.getAnyEnPassantTarget().has_value() );
         CHECK( board.getBoardCode() == board.getUnnormalizedBoardCode() );
         CHECK( board.getBoardCode() != without_target.getBoardCode() );
         CHECK( board != without_target );
@@ -229,8 +229,8 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
         FenParser fen { fen_text };
         auto board = fen.buildBoard();
 
-        CHECK( !board.getBoardCode().getEnPassantTarget().has_value() );
-        CHECK( board.getEnPassantTarget().has_value() );
+        CHECK( !board.getBoardCode().getAnyEnPassantTarget().has_value() );
+        CHECK( board.getAnyEnPassantTarget().has_value() );
         CHECK( board.toFenString (Color::Black) == fen_text );
     }
 }

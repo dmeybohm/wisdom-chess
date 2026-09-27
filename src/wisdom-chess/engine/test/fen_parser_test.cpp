@@ -178,7 +178,7 @@ TEST_CASE( "FEN notation for en passant" )
     REQUIRE( !board.isEnPassantVulnerable (Color::White) );
     REQUIRE( board.isEnPassantVulnerable (Color::Black) );
 
-    auto black_target = board.getEnPassantTarget();
+    auto black_target = board.getAnyEnPassantTarget();
     REQUIRE( black_target.has_value() );
     CHECK( black_target->vulnerable_color == Color::Black );
     CHECK( black_target->coord == coordParse ("e6") );

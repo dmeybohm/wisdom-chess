@@ -31,10 +31,10 @@ namespace wisdom
         operator== (const Board& a, const Board& b)
             -> bool
         {
-            if (a.my_squares != b.my_squares)
+            if (a.getBoardCode() != b.getBoardCode())
                 return false;
 
-            return a.my_code == b.my_code || a.getBoardCode() == b.getBoardCode();
+            return a.my_squares == b.my_squares;
         }
 
         [[nodiscard]] constexpr auto
@@ -145,7 +145,7 @@ namespace wisdom
 
         [[nodiscard]] auto isEnPassantVulnerable (Color who) const noexcept -> bool
         {
-            auto target = my_code.getEnPassantTarget();
+            auto target = my_code.getAnyEnPassantTarget();
             return target.has_value() && target->vulnerable_color == who;
         }
 
@@ -156,11 +156,22 @@ namespace wisdom
             return my_code.getCurrentTurn();
         }
 
+        // The en passant target as FEN records it, whether or not a legal
+        // capture of it exists.
         [[nodiscard]] auto
-        getEnPassantTarget() const noexcept
+        getAnyEnPassantTarget() const noexcept
             -> optional<EnPassantTarget>
         {
-            return my_code.getEnPassantTarget();
+            return my_code.getAnyEnPassantTarget();
+        }
+
+        // The en passant target, if the side to move has a legal capture
+        // of it.
+        [[nodiscard]] auto
+        getLegalEnPassantTarget() const noexcept
+            -> optional<EnPassantTarget>
+        {
+            return my_code.getLegalEnPassantTarget();
         }
 
         // FEN records the passed square after every double pawn push, but
@@ -168,12 +179,10 @@ namespace wisdom
         // actually possible from them. This code leaves the en passant
         // target out when no legal en passant capture reaches it.
         [[nodiscard]] auto
-        getBoardCode() const
+        getBoardCode() const noexcept
             -> BoardCode
         {
-            return my_code.getEnPassantTarget().has_value()
-                ? normalizedBoardCode()
-                : my_code;
+            return my_code.withoutIllegalEnPassantTarget();
         }
 
         // The code with the en passant target as FEN records it.
@@ -201,13 +210,9 @@ namespace wisdom
     private:
         void makeMove (Color who, Move move);
 
-        [[nodiscard]] auto
-        normalizedBoardCode() const
-            -> BoardCode;
-
         auto applyForEnPassant (Color who, Coord src, Coord dst) noexcept -> ColoredPiece;
-        void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept;
-        void setEnPassantTarget (Color who, Coord target) noexcept;
+        void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move);
+        void classifyEnPassantTarget();
         void clearEnPassantTarget() noexcept;
 
         void applyForCastlingMove (
