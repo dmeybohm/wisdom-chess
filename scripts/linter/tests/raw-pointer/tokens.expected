@@ -1,0 +1,3 @@
+9:5:raw-pointer:Raw pointer to 'Board': use nonnull<Board> or nullable<Board>, or mark an interop pointer lint-allow(raw-pointer)
+12:11:raw-pointer:Raw pointer to 'vector<Board>': use nonnull<vector<Board>> or nullable<vector<Board>>, or mark an interop pointer lint-allow(raw-pointer)
+14:23:raw-pointer:C string: use czstring or zstring, or span or string_view for a buffer

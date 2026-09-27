@@ -111,7 +111,8 @@ auto Linter::lintFile (const std::filesystem::path& filename) const -> LintResul
         lines.push_back (line);
     }
 
-    LintContext context { filename, std::move (lines), std::move (content) };
+    auto tokens = lex (content);
+    LintContext context { filename, std::move (lines), std::move (content), std::move (tokens) };
 
     std::vector<LintViolation> violations;
     auto enabled_rules = getEnabledRules();

@@ -1,107 +1,27 @@
 #include "../linter.hpp"
 
 #include <cctype>
+#include <optional>
 #include <unordered_set>
 
 namespace wisdom_linter
 {
 namespace
 {
-    auto isIdentifierChar (char c) -> bool
+    auto isPunctuator (const Token& token, std::string_view text) -> bool
     {
-        return std::isalnum (static_cast<unsigned char> (c)) || c == '_';
+        return token.kind == TokenKind::Punctuator && token.text == text;
     }
 
-    // Blank the contents of string and character literals, so that a '*'
-    // inside one is not taken for a pointer. A quote after a digit is a
-    // digit separator.
-    auto blankLiterals (std::string line) -> std::string
+    auto isIdentifier (const Token& token) -> bool
     {
-        char quote = 0;
-        for (size_t i = 0; i < line.size(); ++i)
-        {
-            char c = line[i];
-            if (quote == 0)
-            {
-                bool digit_separator = c == '\'' && i > 0
-                    && std::isxdigit (static_cast<unsigned char> (line[i - 1]));
-                if ((c == '"' || c == '\'') && !digit_separator)
-                {
-                    quote = c;
-                }
-                continue;
-            }
-
-            if (c == quote)
-            {
-                quote = 0;
-                continue;
-            }
-
-            if (c == '\\' && i + 1 < line.size())
-            {
-                line[i] = ' ';
-                ++i;
-            }
-            line[i] = ' ';
-        }
-        return line;
-    }
-
-    // Where the type before a '*' starts: an identifier, possibly qualified,
-    // and its template argument list if one ends at the '*'. Returns star
-    // when there is no such type.
-    auto pointeeStart (const std::string& line, size_t star) -> size_t
-    {
-        size_t end = star;
-        if (line[end - 1] == '>')
-        {
-            int depth = 0;
-            size_t j = end;
-            while (j > 0)
-            {
-                --j;
-                if (line[j] == '>')
-                {
-                    ++depth;
-                }
-                else if (line[j] == '<' && --depth == 0)
-                {
-                    break;
-                }
-            }
-            if (depth != 0)
-            {
-                return star;
-            }
-            end = j;
-        }
-
-        size_t start = end;
-        while (start > 0 && (isIdentifierChar (line[start - 1]) || line[start - 1] == ':'))
-        {
-            --start;
-        }
-        return start == end ? star : start;
-    }
-
-    // The unqualified name of a type, without template arguments.
-    auto lastComponent (const std::string& type) -> std::string
-    {
-        auto name = type.substr (0, type.find ( '<' ));
-        size_t colon = name.rfind ( ':' );
-        return colon == std::string::npos ? name : name.substr (colon + 1);
+        return token.kind == TokenKind::Identifier;
     }
 
     auto isQtType (const std::string& name) -> bool
     {
         return name.size() > 1 && name[0] == 'Q'
             && std::isupper (static_cast<unsigned char> (name[1]));
-    }
-
-    auto isIdentifierStart (char c) -> bool
-    {
-        return std::isalpha (static_cast<unsigned char> (c)) || c == '_';
     }
 
     // Words that can come just before a '*' that dereferences, rather than
@@ -116,7 +36,7 @@ namespace
     }
 
     // Lower-case type names that global.hpp brings into the wisdom namespace.
-    const std::unordered_set<std::string>& globalTypeAliases()
+    auto globalTypeAliases() -> const std::unordered_set<std::string>&
     {
         static const std::unordered_set<std::string> aliases {
             "string", "string_view", "vector", "array", "optional", "pair", "span",
@@ -125,109 +45,204 @@ namespace
         return aliases;
     }
 
-    // Names a file introduces with "using X = ..." or "using ns::X;".
-    auto localTypeAliases (const std::vector<std::string>& lines)
-        -> std::unordered_set<std::string>
+    // The tokens the rule reads: comments and preprocessor directives left out.
+    auto codeTokens (const std::vector<Token>& tokens) -> std::vector<Token>
+    {
+        std::vector<Token> code;
+        for (const auto& token : tokens)
+        {
+            if (token.kind != TokenKind::Comment && token.kind != TokenKind::Preprocessor)
+            {
+                code.push_back (token);
+            }
+        }
+        return code;
+    }
+
+    // Names the file introduces with "using X = ..." or "using ns::X;".
+    auto localTypeAliases (const std::vector<Token>& code) -> std::unordered_set<std::string>
     {
         std::unordered_set<std::string> aliases;
-        for (const auto& line : lines)
+        for (size_t i = 0; i + 1 < code.size(); ++i)
         {
-            size_t using_pos = line.find ( "using " );
-            if (using_pos == std::string::npos
-                || (using_pos > 0 && isIdentifierChar (line[using_pos - 1]))
-                || line.find ( "namespace", using_pos) != std::string::npos)
+            if (!isIdentifier (code[i]) || code[i].text != "using" || code[i + 1].text == "namespace")
             {
                 continue;
             }
 
-            // The name can be on a later line, after a comment; that alias
-            // is missed rather than guessed at.
-            size_t name_start = line.find_first_not_of ( ' ', using_pos + 6);
-            if (name_start == std::string::npos)
+            if (isIdentifier (code[i + 1]) && i + 2 < code.size() && isPunctuator (code[i + 2], "="))
             {
+                aliases.insert (code[i + 1].text);
                 continue;
             }
-            size_t name_end = name_start;
-            while (name_end < line.size() && (isIdentifierChar (line[name_end]) || line[name_end] == ':'))
+
+            std::string last_name;
+            size_t j = i + 1;
+            while (j < code.size() && (isIdentifier (code[j]) || isPunctuator (code[j], "::")))
             {
-                ++name_end;
+                if (isIdentifier (code[j]))
+                {
+                    last_name = code[j].text;
+                }
+                ++j;
             }
-            auto name = line.substr (name_start, name_end - name_start);
-            if (name.empty())
+            if (j < code.size() && isPunctuator (code[j], ";") && !last_name.empty())
             {
-                continue;
+                aliases.insert (last_name);
             }
-            size_t colon = name.rfind ( ':' );
-            aliases.insert (colon == std::string::npos ? name : name.substr (colon + 1));
         }
         return aliases;
     }
 
-    // Whether a name reads as a type by the project's naming: PascalCase,
-    // a built-in or *_t type, a known alias, or anything with template
+    // Tokens that can appear in a template argument list. Anything else, such
+    // as "&&" or ";", means a '<' before it compares rather than opens one.
+    auto isTemplateArgumentToken (const Token& token) -> bool
+    {
+        static const std::unordered_set<std::string> punctuators {
+            "::", ",", "*", "&", "<", ">", ">>", "...", "(", ")", "[", "]",
+        };
+        return isIdentifier (token) || token.kind == TokenKind::Number
+            || (token.kind == TokenKind::Punctuator && punctuators.count (token.text) > 0);
+    }
+
+    struct PointeeType
+    {
+        // As written, with template arguments and qualifiers: "vector<Board>".
+        std::string text;
+
+        // Without them: "vector".
+        std::string name;
+
+        bool qualified_or_template;
+
+        // Index of its first token.
+        size_t start;
+    };
+
+    // The type that ends at code[last]: an identifier, possibly qualified,
+    // with its template argument list when code[last] closes one.
+    auto pointeeEndingAt (const std::vector<Token>& code, size_t last) -> std::optional<PointeeType>
+    {
+        size_t name_index = last;
+        bool is_template = false;
+        if (isPunctuator (code[last], ">") || isPunctuator (code[last], ">>"))
+        {
+            int depth = 0;
+            size_t j = last + 1;
+            while (j > 0)
+            {
+                --j;
+                if (isPunctuator (code[j], ">"))
+                {
+                    depth += 1;
+                }
+                else if (isPunctuator (code[j], ">>"))
+                {
+                    depth += 2;
+                }
+                else if (isPunctuator (code[j], "<"))
+                {
+                    if (--depth == 0)
+                    {
+                        break;
+                    }
+                }
+                else if (!isTemplateArgumentToken (code[j]))
+                {
+                    return std::nullopt;
+                }
+            }
+            if (depth != 0 || j == 0)
+            {
+                return std::nullopt;
+            }
+            name_index = j - 1;
+            is_template = true;
+        }
+
+        if (!isIdentifier (code[name_index]))
+        {
+            return std::nullopt;
+        }
+
+        size_t start = name_index;
+        while (start >= 2 && isPunctuator (code[start - 1], "::") && isIdentifier (code[start - 2]))
+        {
+            start -= 2;
+        }
+        if (start >= 1 && isPunctuator (code[start - 1], "::"))
+        {
+            --start;
+        }
+
+        std::string text;
+        for (size_t k = start; k <= last; ++k)
+        {
+            text += code[k].text;
+            if (isPunctuator (code[k], ","))
+            {
+                text += ' ';
+            }
+        }
+        return PointeeType { text, code[name_index].text, is_template || start != name_index, start };
+    }
+
+    // Whether a type reads as one by the project's naming: PascalCase, a
+    // built-in or *_t type, a known alias, or anything with template
     // arguments or a namespace. Variables are snake_case and constants
     // Capitalized_Snake, so a '*' between two of those multiplies.
-    auto looksLikeType (const std::string& type, const std::unordered_set<std::string>& aliases)
+    auto looksLikeType (const PointeeType& type, const std::unordered_set<std::string>& aliases)
         -> bool
     {
         static const std::unordered_set<std::string> builtins {
             "void", "bool", "char", "short", "int", "long", "float", "double",
             "signed", "unsigned", "wchar_t", "char8_t", "char16_t", "char32_t",
-            "const", "volatile",
         };
-        if (type.find ( '<' ) != std::string::npos || type.find ( "::" ) != std::string::npos)
-        {
-            return true;
-        }
-
-        auto name = lastComponent (type);
-        return builtins.count (name) > 0 || globalTypeAliases().count (name) > 0
+        const auto& name = type.name;
+        return type.qualified_or_template
+            || builtins.count (name) > 0 || globalTypeAliases().count (name) > 0
             || aliases.count (name) > 0
             || (name.size() > 2 && name.compare (name.size() - 2, 2, "_t") == 0)
             || (std::isupper (static_cast<unsigned char> (name[0]))
                 && name.find ( '_' ) == std::string::npos);
     }
 
-    // Whether a trailing return type's "->" comes just before position.
-    auto followsArrow (const std::string& line, size_t position) -> bool
-    {
-        size_t end = line.find_last_not_of ( ' ', position == 0 ? 0 : position - 1);
-        return end != std::string::npos && end >= 1 && line[end] == '>' && line[end - 1] == '-';
-    }
-
-    // Whether the '*' at star, after the type that spans [type_start,
-    // type_end), declares a pointer rather than multiplying.
-    auto declaresPointer (const std::string& line, size_t type_start, size_t type_end, size_t star,
-                          const std::string& type, const std::unordered_set<std::string>& aliases)
+    // Whether the '*' at code[star] declares a pointer to the type before it,
+    // rather than multiplying.
+    auto declaresPointer (const std::vector<Token>& code, size_t star, const PointeeType& type,
+                          const std::unordered_set<std::string>& aliases)
         -> bool
     {
-        bool attached_left = type_end == star;
-        if (star + 1 < line.size() && line[star + 1] == '=' )
+        bool attached_left = !code[star].spaced_before;
+        bool follows_arrow = type.start > 0 && isPunctuator (code[type.start - 1], "->");
+
+        // A '*' that ends the source, or its line before a name, is a
+        // trailing return type or an expression that goes on.
+        if (star + 1 >= code.size())
+        {
+            return attached_left || follows_arrow;
+        }
+
+        const auto& next = code[star + 1];
+        bool attached_right = !next.spaced_before;
+        if (next.kind == TokenKind::Punctuator)
+        {
+            if (next.text == "*" || next.text == "&" || next.text == "&&")
+            {
+                return attached_right;
+            }
+            static const std::unordered_set<std::string> type_enders {
+                ",", ")", ">", ">>", ";", "=", "{", "[", "...",
+            };
+            return type_enders.count (next.text) > 0;
+        }
+        if (!isIdentifier (next))
         {
             return false;
         }
-
-        // At the end of a line: a trailing return type, or an expression
-        // that continues on the next line.
-        size_t next = line.find_first_not_of ( ' ', star + 1);
-        if (next == std::string::npos)
+        if (next.line > code[star].line)
         {
-            return attached_left || followsArrow (line, type_start);
-        }
-
-        char c = line[next];
-        bool attached_right = next == star + 1;
-        if (c == '*' || c == '&')
-        {
-            return attached_right;
-        }
-        if (c == ',' || c == ')' || c == '>' || c == ';' || c == '=' || c == '{' || c == '[')
-        {
-            return true;
-        }
-        if (!isIdentifierStart (c))
-        {
-            return false;
+            return attached_left || follows_arrow;
         }
 
         // A declaration is spelled "T* name" in this project, or "T *name"
@@ -257,77 +272,52 @@ namespace
             -> std::vector<LintViolation> override
         {
             std::vector<LintViolation> violations;
-            // Comments and literals blanked, for both the alias scan and the
-            // pointer scan, so neither reads text that is not code.
-            auto code_lines = stripComments (context.lines);
-            for (auto& code_line : code_lines)
-            {
-                code_line = blankLiterals (std::move (code_line));
-            }
-            auto aliases = localTypeAliases (code_lines);
+            auto code = codeTokens (context.tokens);
+            auto aliases = localTypeAliases (code);
 
-            for (size_t i = 0; i < code_lines.size(); ++i)
+            for (size_t star = 1; star < code.size(); ++star)
             {
-                const auto& line = code_lines[i];
-                size_t first = line.find_first_not_of ( ' ' );
-                if (first == std::string::npos || line[first] == '#' )
+                if (!isPunctuator (code[star], "*"))
                 {
                     continue;
                 }
 
-                for (size_t star = line.find ( '*' ); star != std::string::npos;
-                     star = line.find ( '*', star + 1))
+                // In "T const*", the type is the token before the qualifier.
+                size_t last = star - 1;
+                if (isIdentifier (code[last]) && (code[last].text == "const" || code[last].text == "volatile"))
                 {
-                    size_t type_end = star;
-                    while (type_end > 0 && line[type_end - 1] == ' ' )
-                    {
-                        --type_end;
-                    }
-                    if (type_end == 0
-                        || !(isIdentifierChar (line[type_end - 1]) || line[type_end - 1] == '>'))
+                    if (last == 0)
                     {
                         continue;
                     }
-
-                    size_t start = pointeeStart (line, type_end);
-                    auto type = line.substr (start, type_end - start);
-                    auto base_name = lastComponent (type);
-                    if (base_name == "const" || base_name == "volatile")
-                    {
-                        size_t before = start;
-                        while (before > 0 && line[before - 1] == ' ' )
-                        {
-                            --before;
-                        }
-                        size_t qualified_start = before > 0 ? pointeeStart (line, before) : before;
-                        if (qualified_start < before)
-                        {
-                            type = line.substr (qualified_start, before - qualified_start);
-                            base_name = lastComponent (type);
-                        }
-                    }
-
-                    if (base_name.empty() || !isIdentifierStart (base_name[0])
-                        || base_name == "auto" || isExpressionKeyword (base_name)
-                        || isQtType (base_name)
-                        || !declaresPointer (line, start, type_end, star, type, aliases))
-                    {
-                        continue;
-                    }
-
-                    std::string message = base_name == "char"
-                        ? "C string: use czstring or zstring, or span or string_view for a buffer"
-                        : "Raw pointer to '" + type + "': use nonnull<" + type + "> or nullable<"
-                            + type + ">, or mark an interop pointer lint-allow(raw-pointer)";
-
-                    violations.push_back (LintViolation {
-                        std::string { name() },
-                        std::move (message),
-                        static_cast<int> (i + 1),
-                        static_cast<int> (star + 1),
-                        Severity::Error,
-                    });
+                    --last;
                 }
+                if (!isIdentifier (code[last]) && !isPunctuator (code[last], ">")
+                    && !isPunctuator (code[last], ">>"))
+                {
+                    continue;
+                }
+
+                auto type = pointeeEndingAt (code, last);
+                if (!type || type->name == "auto" || isExpressionKeyword (type->name)
+                    || isQtType (type->name) || !declaresPointer (code, star, *type, aliases))
+                {
+                    continue;
+                }
+
+                std::string message = type->name == "char"
+                    ? "C string: use czstring or zstring, or span or string_view for a buffer"
+                    : "Raw pointer to '" + type->text + "': use nonnull<" + type->text
+                        + "> or nullable<" + type->text
+                        + ">, or mark an interop pointer lint-allow(raw-pointer)";
+
+                violations.push_back (LintViolation {
+                    std::string { name() },
+                    std::move (message),
+                    code[star].line,
+                    code[star].column,
+                    Severity::Error,
+                });
             }
 
             return violations;

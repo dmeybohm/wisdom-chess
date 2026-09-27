@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lexer.hpp"
+
 #include <cstdint>
 #include <filesystem>
 #include <memory>
@@ -34,6 +36,7 @@ struct LintContext
     std::filesystem::path filename;
     std::vector<std::string> lines;
     std::string content;
+    std::vector<Token> tokens;
 };
 
 struct LintResult
