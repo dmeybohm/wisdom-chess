@@ -42,7 +42,7 @@ function LogoAndBrand(props: LogoAndBrandProps) {
     )
 }
 
-function Menu(props: ListMenuProps): JSX.Element {
+function Menu(props: ListMenuProps): React.JSX.Element {
     return (
         <ul className={`menu ${props.isMenuOpen ? 'is-open' : ''}`}>
             <li><a onClick={props.newGameClicked}>New Game</a></li>
