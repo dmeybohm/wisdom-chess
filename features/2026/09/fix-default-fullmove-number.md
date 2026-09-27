@@ -30,7 +30,8 @@ Source: [PGN/FEN section 16.1.3.6](https://www.saremba.de/chessgml/standards/pgn
 1. Add a failing test first: a default `Board` writes fullmove 1, and
    the number is 2 after 1.e4 e5.
 2. Change the `BoardBuilder::my_full_moves` default to 1.
-3. Read a fullmove number of 0 in a FEN as 1.
+3. Read a fullmove number of 0 in a FEN as 1, and reject 0 in
+   `BoardBuilder::setFullMoves()`.
 4. Find the tests that depend on the old default and fix them. A board
    built by hand in a test now starts at 1 unless it calls
    `setFullMoves()`.
@@ -44,9 +45,17 @@ programs write it. `FenParser::parseFullMove()` reads it as 1 instead
 of rejecting the FEN, so those files still load and are written back
 correctly.
 
-`BoardBuilder::setFullMoves()` still accepts 0 and stores it, which
-`board_builder_test.cpp:94` pins. Only `FenParser` and tests call it, so
-no board built outside a test can hold 0.
+`BoardBuilder::setFullMoves()` rejects 0 with `BoardBuilderError`, as
+it does any other number out of range. Only our own code calls the
+builder, where 0 is a mistake. The parser remaps before it calls the
+builder, so no `Board` can hold 0.
+
+## Draw detection
+
+The fifty and seventy-five move rules are not affected. They read the
+halfmove clock, as does the repetition probe. The fullmove number is
+only incremented after Black's move and written by `toFenString()`.
+`Board::operator==` and the board code ignore both clocks.
 
 ## Implementation Progress
 
@@ -69,3 +78,12 @@ Release `ctest` with slow tests passed 244 of 244. The Debug build
 passed the 210 fast tests, and the `lint` target is clean. The QML
 tests were not built, because this machine has no Qt. Their FEN
 literals all give a fullmove number of 1 or more.
+
+### Session #3
+
+`BoardBuilder::setFullMoves()` now rejects 0. "Board builder rejects
+move clocks that are out of range" checks that, and its lower limit for
+the fullmove number is now 1.
+
+Release `ctest` with slow tests passed 244 of 244. The Debug build
+passed the 210 fast tests, and the `lint` target is clean.

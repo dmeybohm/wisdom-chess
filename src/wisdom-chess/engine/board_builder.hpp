@@ -178,7 +178,7 @@ namespace wisdom
         constexpr void
         setFullMoves (int new_full_moves)
         {
-            if (new_full_moves < 0 || new_full_moves > Max_Full_Move_Number)
+            if (new_full_moves < 1 || new_full_moves > Max_Full_Move_Number)
                 throw BoardBuilderError ("Full moves out of range!");
 
             my_full_moves = new_full_moves;
