@@ -1,0 +1,3 @@
+1:21:raw-pointer:C string: use czstring or zstring, or span or string_view for a buffer
+2:26:raw-pointer:C string: use czstring or zstring, or span or string_view for a buffer
+3:16:raw-pointer:C string: use czstring or zstring, or span or string_view for a buffer

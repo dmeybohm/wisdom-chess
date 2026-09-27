@@ -14,6 +14,7 @@ add_executable(wisdom-linter
     rules/test_macro_spacing.cpp
     rules/function_call_spacing.cpp
     rules/no_tabs.cpp
+    rules/raw_pointer.cpp
 )
 
 target_compile_options(wisdom-linter PRIVATE

@@ -7,7 +7,7 @@ using namespace wisdom_linter;
 
 namespace
 {
-    void printUsage (const char* program_name)
+    void printUsage (std::string_view program_name)
     {
         std::cerr << "Usage: " << program_name << " [options] <files...>\n\n"
                   << "Options:\n"
@@ -34,7 +34,7 @@ namespace
     }
 } // namespace
 
-auto main (int argc, char* argv[]) -> int
+auto main (int argc, char* argv[]) -> int // lint-allow(raw-pointer): main's signature
 {
     OutputFormat format = OutputFormat::Stylish;
     std::vector<std::string> files;

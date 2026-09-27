@@ -41,10 +41,16 @@ does not make clear why something was done the way it was.
   `GameStatusUpdate`; a change to the `Game` API has to reach all of them.
 - Raw pointers never own; ownership is `unique_ptr` or `shared_ptr`.
   Spell a non-owning pointer by its nullability (`engine/global.hpp`):
-  `nonnull<Type>` (`gsl::not_null<Type*>`) or `nullable<Type>` (`Type*`).
+  `nonnull<Type>` (`gsl::not_null<Type*>`) or `nullable<Type>`, which
+  cannot be dereferenced: test it, then take `value()` for a `nonnull`.
   `unchecked_nonnull<Type>` checks for null only when constructed; use it
   only where a benchmark shows the check on each dereference costs
-  something.
+  something. A C string is `czstring` or `zstring`.
+- The linter's `raw-pointer` rule enforces the pointer rules. Qt types and
+  `auto*` locals are exempt. For a pointer an API requires (`main`, QML's
+  singleton `create()`, the WebIDL bindings, `EM_JS`), end the line with
+  `// lint-allow(raw-pointer): <reason>`. `lint-allow(<rule>)` silences
+  any rule on its line.
 - Use `nonnull<Type>` in preference to a mutable `Type&` reference, for
   both functions and member variables. Use `const Type&` for const
   references.
