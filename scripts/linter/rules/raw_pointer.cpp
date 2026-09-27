@@ -133,18 +133,30 @@ namespace
         for (const auto& line : lines)
         {
             size_t using_pos = line.find ( "using " );
-            if (using_pos == std::string::npos || line.find ( "namespace", using_pos) != std::string::npos)
+            if (using_pos == std::string::npos
+                || (using_pos > 0 && isIdentifierChar (line[using_pos - 1]))
+                || line.find ( "namespace", using_pos) != std::string::npos)
             {
                 continue;
             }
 
+            // The name can be on a later line, after a comment; that alias
+            // is missed rather than guessed at.
             size_t name_start = line.find_first_not_of ( ' ', using_pos + 6);
+            if (name_start == std::string::npos)
+            {
+                continue;
+            }
             size_t name_end = name_start;
             while (name_end < line.size() && (isIdentifierChar (line[name_end]) || line[name_end] == ':'))
             {
                 ++name_end;
             }
             auto name = line.substr (name_start, name_end - name_start);
+            if (name.empty())
+            {
+                continue;
+            }
             size_t colon = name.rfind ( ':' );
             aliases.insert (colon == std::string::npos ? name : name.substr (colon + 1));
         }
