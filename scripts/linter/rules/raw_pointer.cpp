@@ -8,16 +8,6 @@ namespace wisdom_linter
 {
 namespace
 {
-    auto isPunctuator (const Token& token, std::string_view text) -> bool
-    {
-        return token.kind == TokenKind::Punctuator && token.text == text;
-    }
-
-    auto isIdentifier (const Token& token) -> bool
-    {
-        return token.kind == TokenKind::Identifier;
-    }
-
     auto isQtType (const std::string& name) -> bool
     {
         return name.size() > 1 && name[0] == 'Q'
@@ -43,20 +33,6 @@ namespace
             "unique_ptr", "shared_ptr", "czstring", "zstring",
         };
         return aliases;
-    }
-
-    // The tokens the rule reads: comments and preprocessor directives left out.
-    auto codeTokens (const std::vector<Token>& tokens) -> std::vector<Token>
-    {
-        std::vector<Token> code;
-        for (const auto& token : tokens)
-        {
-            if (token.kind != TokenKind::Comment && token.kind != TokenKind::Preprocessor)
-            {
-                code.push_back (token);
-            }
-        }
-        return code;
     }
 
     // Names the file introduces with "using X = ..." or "using ns::X;".

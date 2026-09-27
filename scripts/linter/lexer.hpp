@@ -42,4 +42,23 @@ struct Token
 
 [[nodiscard]] auto tokenKindName (TokenKind kind) -> std::string_view;
 
+// The tokens rules read: comments and preprocessor directives left out.
+[[nodiscard]] auto codeTokens (const std::vector<Token>& tokens) -> std::vector<Token>;
+
+[[nodiscard]] inline auto isIdentifier (const Token& token, std::string_view text = {}) -> bool
+{
+    return token.kind == TokenKind::Identifier && (text.empty() || token.text == text);
+}
+
+[[nodiscard]] inline auto isPunctuator (const Token& token, std::string_view text) -> bool
+{
+    return token.kind == TokenKind::Punctuator && token.text == text;
+}
+
+// Whether code[index] is the first token on its line.
+[[nodiscard]] inline auto startsLine (const std::vector<Token>& code, size_t index) -> bool
+{
+    return index == 0 || code[index - 1].line != code[index].line;
+}
+
 } // namespace wisdom_linter

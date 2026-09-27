@@ -372,6 +372,19 @@ auto lex (std::string_view source) -> std::vector<Token>
     return Lexer { source }.run();
 }
 
+auto codeTokens (const std::vector<Token>& tokens) -> std::vector<Token>
+{
+    std::vector<Token> code;
+    for (const auto& token : tokens)
+    {
+        if (token.kind != TokenKind::Comment && token.kind != TokenKind::Preprocessor)
+        {
+            code.push_back (token);
+        }
+    }
+    return code;
+}
+
 auto tokenKindName (TokenKind kind) -> std::string_view
 {
     switch (kind)
