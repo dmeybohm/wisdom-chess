@@ -207,7 +207,7 @@ TEST_CASE( "Repetition counts a position despite an unusable en passant target" 
 
         board = board.withMove (Color::White, double_push);
         history.addPosition (board, double_push);
-        REQUIRE( board.getEnPassantTarget().has_value() );
+        REQUIRE( board.getAnyEnPassantTarget().has_value() );
 
         auto shuffle_back_to_start = [&]
         {
@@ -259,7 +259,7 @@ TEST_CASE( "Repetition counts a position despite an unusable en passant target" 
 
         board = board.withMove (Color::White, double_push);
         history.addPosition (board, double_push);
-        REQUIRE( board.getEnPassantTarget().has_value() );
+        REQUIRE( board.getAnyEnPassantTarget().has_value() );
 
         auto shuffle_back_to_start = [&]
         {
@@ -307,7 +307,7 @@ TEST_CASE( "A legal en passant capture keeps a position distinct until the right
 
     board = board.withMove (Color::White, double_push);
     history.addPosition (board, double_push);
-    REQUIRE( board.getEnPassantTarget().has_value() );
+    REQUIRE( board.getAnyEnPassantTarget().has_value() );
 
     auto shuffle_back_to_start = [&]
     {
@@ -347,7 +347,7 @@ TEST_CASE( "An unusable en passant target is ignored however the position enters
 
     auto board = Board { builder };
     board = board.withMove (Color::White, moveParse ("a2 a4"));
-    REQUIRE( board.getEnPassantTarget().has_value() );
+    REQUIRE( board.getAnyEnPassantTarget().has_value() );
 
     Move black_out = moveParse ("e8 d8");
     Move black_back = moveParse ("d8 e8");
