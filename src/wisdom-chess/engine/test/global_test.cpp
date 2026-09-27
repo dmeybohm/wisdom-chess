@@ -91,3 +91,49 @@ TEST_CASE( "Copying an Error cannot throw" )
         CHECK( error.extra_info().empty() );
     }
 }
+
+namespace
+{
+    constexpr auto
+    readThroughUncheckedPointer()
+        -> int
+    {
+        int value = 42;
+        unchecked_nonnull_observer_ptr<int> ptr = &value;
+        return *ptr;
+    }
+}
+
+TEST_CASE( "unchecked_nonnull_observer_ptr" )
+{
+    SUBCASE( "Constructing from null throws" )
+    {
+        observer_ptr<int> null_ptr = nullptr;
+        CHECK_THROWS_AS( unchecked_nonnull_observer_ptr<int> { null_ptr }, PreconditionError );
+    }
+
+    SUBCASE( "Dereferencing reaches the pointed-to object" )
+    {
+        std::string text = "abc";
+        unchecked_nonnull_observer_ptr<std::string> ptr = &text;
+
+        CHECK( ptr.get() == &text );
+        CHECK( ptr->size() == 3 );
+        *ptr += "d";
+        CHECK( text == "abcd" );
+    }
+
+    SUBCASE( "Converts from nonnull_observer_ptr" )
+    {
+        int value = 7;
+        nonnull_observer_ptr<int> checked = &value;
+        unchecked_nonnull_observer_ptr<int> unchecked = checked;
+
+        CHECK( unchecked.get() == &value );
+    }
+
+    SUBCASE( "Works in a constant expression" )
+    {
+        static_assert (readThroughUncheckedPointer() == 42);
+    }
+}

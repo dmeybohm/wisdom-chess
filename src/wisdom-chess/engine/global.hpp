@@ -314,4 +314,49 @@ namespace wisdom
         if (!condition) [[unlikely]]
             throwPostconditionError (location);
     }
+
+    // A non-null observer pointer that checks for null only when constructed,
+    // not on each dereference as nonnull_observer_ptr does. For pointers
+    // dereferenced in a hot loop, where a benchmark shows the check matters.
+    template <typename T>
+    class unchecked_nonnull_observer_ptr
+    {
+    public:
+        constexpr unchecked_nonnull_observer_ptr (observer_ptr<T> ptr)
+            : my_ptr { ptr }
+        {
+            expects (ptr != nullptr);
+        }
+
+        constexpr unchecked_nonnull_observer_ptr (nonnull_observer_ptr<T> ptr) noexcept
+            : my_ptr { ptr.get() }
+        {
+        }
+
+        unchecked_nonnull_observer_ptr (std::nullptr_t) = delete;
+
+        [[nodiscard]] constexpr auto
+        get() const noexcept
+            -> observer_ptr<T>
+        {
+            return my_ptr;
+        }
+
+        constexpr auto
+        operator->() const noexcept
+            -> observer_ptr<T>
+        {
+            return my_ptr;
+        }
+
+        constexpr auto
+        operator*() const noexcept
+            -> T&
+        {
+            return *my_ptr;
+        }
+
+    private:
+        observer_ptr<T> my_ptr;
+    };
 }
