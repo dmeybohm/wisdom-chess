@@ -58,7 +58,8 @@ raw pointers never own (ownership is `unique_ptr` or `shared_ptr`), the
 need is whether the pointer may be null. The types are now:
 
 - `nonnull<T>`: `gsl::not_null<T*>`, checked on each dereference.
-- `nullable<T>`: `T*`.
+- `nullable<T>`: `T*` at first; later a class that cannot be
+  dereferenced (below).
 - `unchecked_nonnull<T>`: non-null, checked only when constructed.
 
 `nullable` replaces `observer_ptr`, not alongside it: two names for the
@@ -195,7 +196,11 @@ hold the object, not on which system takes it over:
   only one that deletes. `newFromSettings()` now returns a `unique_ptr`,
   which also stops a leak if `setMaxDepth()` or `setThinkingTime()`
   throws. The bound functions still return a raw pointer, because that is
-  what the WebIDL glue wraps.
+  what the WebIDL glue wraps. Their return type is `owning<T>`, and
+  `setCurrentGameSettings()`, which JavaScript calls with a settings
+  object it destroys afterwards, takes a `nonnull`. The glue generated
+  from `wisdom-chess.idl` still passes raw pointers, which convert, so it
+  is unchanged.
 - `GameModel::my_chess_engine` in the QML frontend cannot be a
   `unique_ptr` member. Once the engine thread starts, `QThread::finished`
   hands the engine to `deleteLater()`, and a member would delete it a
@@ -205,8 +210,10 @@ hold the object, not on which system takes it over:
   the rest of Qt see, while an alias changes nothing but the reader's
   understanding. The alias takes the pointee, like `nonnull`, rather than
   `gsl::owner`'s pointer type.
-- The `_malloc`'d string in `GameModel::browserOriginUrl()`, in the QML
-  frontend's WebAssembly build, still carries its marker. The choice is
-  between a `unique_ptr` with `free` as the deleter and reading the origin
-  through `emscripten::val`, and either needs a Qt for WebAssembly build
-  to verify.
+- `GameModel::browserOriginUrl()`, in the QML frontend's WebAssembly
+  build, had JavaScript `_malloc` a copy of the origin for C++ to `free`.
+  It now reads `emscripten::val::global ("location")["origin"]`, and no
+  pointer is left. Qt for WebAssembly 6.11.2 with emsdk 4.0.7 (the
+  version Qt recommends) built and linked it without extra flags. In
+  headless Chromium, clicking the menu's "React Version" item opened the
+  page's own origin plus `/`.
