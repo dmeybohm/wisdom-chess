@@ -146,12 +146,33 @@ plain `T*` rather than a `nullable` with friended operators. Its pointer
 is private, so friendship would have protected nothing, and the file that
 defines the pointer types needs a `lint-allow` either way.
 
-**The `raw-pointer` rule.** It works on text, like the other rules. After
-stripping comments and blanking string literals, it flags a `*` attached
-to a type name (the project writes `T* name`) and followed by something
-that can end a declared type: a name, `,`, `)`, `>`, `&`, `*`, `;`, `=`,
-`{`, `[`, or the end of the line for a trailing return type. That keeps
-`a * b`, `*=`, `*this` and `operator*` out. Exempt:
+**The `raw-pointer` rule.** It works on text, like the other rules, after
+stripping comments and blanking string literals. C++ cannot tell `A * b`
+apart without knowing whether `A` is a type, so the rule decides from
+what follows the `*`, then its spacing, then the name before it:
+
+- Followed by `,`, `)`, `>`, `;`, `=`, `{`, `[`, or an attached `*` or `&`
+  (`T**`, `T*&`), the `*` can only belong to a type. At the end of a line
+  it does when attached to its type or right after `->` (a trailing return
+  type); otherwise the expression continues on the next line. A digit,
+  `(` or another operator after it means multiplication, as does `*=`.
+- Followed by a name, `T* name` (the project's spelling) and `T *name`
+  (C's) declare a pointer. `return`, `delete`, `else` and a few other
+  keywords before a `*` dereference instead.
+- Spaced on both sides or neither (`x * y`, `x*y`), it is a type only if
+  the name before it reads as one: PascalCase without underscores, a
+  built-in or `*_t` type, anything with template arguments or a
+  namespace, the lower-case aliases `global.hpp` brings in (`string`,
+  `vector`, `czstring`, ...), or a name the file declares with
+  `using X = ...` or `using ns::X`. Variables are snake_case and
+  constants `Capitalized_Snake`, so `a*b` and `Num_Rows * col` multiply.
+
+A PascalCase value times a variable (`WeightPawn * count`) still reads as
+a declaration and needs a `lint-allow`; the linter's tests pin it. The
+first version required the `*` attached to the type, and a review of the
+PR showed it missed `int *p` and flagged `a*b` and `Num_Rows*2`. The
+fixed rule found two `main (int argc, char *argv[])` that the first
+version had missed. Exempt:
 
 - Qt types (`Q` and a capital letter). Qt's parent/child ownership and
   QML's meta-types use raw pointers throughout.
@@ -217,3 +238,13 @@ hold the object, not on which system takes it over:
   version Qt recommends) built and linked it without extra flags. In
   headless Chromium, clicking the menu's "React Version" item opened the
   page's own origin plus `/`.
+
+**React smoke test.** The WebAssembly build of the React frontend was run
+in headless Chromium, with suspend inhibited through `systemd-inhibit`,
+against the objects handed to JavaScript. It played e2-e4 and got the
+engine's reply, started three new games from the menu (each destroying
+the last), applied the settings dialog, played again, and made 200 direct
+round trips of `getCurrentGameSettings()`, `setCurrentGameSettings()` and
+`startNewGame()` with `destroy()`. A hook on `destroy()` saw no object
+destroyed twice and no two live objects at one address, and the page
+reported no errors.
