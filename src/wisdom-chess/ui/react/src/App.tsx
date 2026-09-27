@@ -25,7 +25,7 @@ import {
     WebGameSettings,
     getSettingsLimits,
 } from './lib/WisdomChess'
-import Modal from "./Modal";
+import Modal from './Modal'
 import { EngineSnapshot, initialState, reducer } from './reducer'
 
 function snapshotFromEngine(game: Game): EngineSnapshot {
@@ -48,13 +48,15 @@ function drawOfferFor(gameStatus: GameStatus) {
             return {
                 drawType: WC.ThreefoldRepetition,
                 title: 'Third Repetition Reached',
-                message: 'The same position was reached three times. Either player can declare a draw now.',
+                message:
+                    'The same position was reached three times. Either player can declare a draw now.',
             }
         case WC.FiftyMovesWithoutProgressReached:
             return {
                 drawType: WC.FiftyMovesWithoutProgress,
                 title: 'Fifty Moves Without Progress',
-                message: 'Fifty moves without any capture or pawn movement. Either player can declare a draw now.',
+                message:
+                    'Fifty moves without any capture or pawn movement. Either player can declare a draw now.',
             }
         default:
             return null
@@ -92,7 +94,6 @@ function throttle<T extends (...args: never[]) => void>(func: T, limit: number) 
     return Object.assign(throttled, { cancel })
 }
 
-
 function App() {
     const gameRef = useRef(getCurrentGame())
 
@@ -102,10 +103,8 @@ function App() {
     const [showAbout, setShowAbout] = useState(false)
     const [answeredDraws, setAnsweredDraws] = useState<DrawByRepetitionType[]>([])
 
-    const [state, dispatch] = useReducer(
-        reducer,
-        null,
-        () => initialState(snapshotFromEngine(gameRef.current)),
+    const [state, dispatch] = useReducer(reducer, null, () =>
+        initialState(snapshotFromEngine(gameRef.current)),
     )
 
     const sync = () => dispatch({ type: 'SYNC', snapshot: snapshotFromEngine(gameRef.current) })
@@ -125,7 +124,12 @@ function App() {
 
                 // Reject stale moves from previous games
                 if (gameId !== game.getGameId()) {
-                    console.debug('Ignoring message from old game:', gameId, 'current:', game.getGameId())
+                    console.debug(
+                        'Ignoring message from old game:',
+                        gameId,
+                        'current:',
+                        game.getGameId(),
+                    )
                     return
                 }
 
@@ -293,7 +297,7 @@ function App() {
                     pieces={state.pieces}
                     droppedSquare={state.lastDroppedSquare}
                     pawnPromotionDialogSquare={state.pawnPromotionDialogSquare}
-                    onMovePiece={(dst) => applyHumanMove(state.focusedSquare, dst)}
+                    onMovePiece={dst => applyHumanMove(state.focusedSquare, dst)}
                     onDropPiece={handleDropPiece}
                     onPieceClick={handlePieceClick}
                     onPiecePromotion={handlePromote}
@@ -312,8 +316,12 @@ function App() {
                     <h1>New Game</h1>
                     <p>Start a new Game?</p>
                     <div className="buttons">
-                        <button type="button" className="btn-highlight" onClick={startNewGame}>Start New Game</button>
-                        <button type="button" onClick={() => setShowNewGame(false)}>Cancel</button>
+                        <button type="button" className="btn-highlight" onClick={startNewGame}>
+                            Start New Game
+                        </button>
+                        <button type="button" onClick={() => setShowNewGame(false)}>
+                            Cancel
+                        </button>
                     </div>
                 </Modal>
             )}
@@ -328,9 +336,7 @@ function App() {
                 />
             )}
 
-            {showAbout && (
-                <AboutModal onClick={() => setShowAbout(false)} />
-            )}
+            {showAbout && <AboutModal onClick={() => setShowAbout(false)} />}
 
             {drawOffer && !answeredDraws.includes(drawOffer.drawType) && (
                 <DrawDialog

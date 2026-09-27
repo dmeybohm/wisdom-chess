@@ -37,7 +37,7 @@ namespace wisdom
         return mapColor (static_cast<WebColor> (color));
     }
 
-    [[nodiscard]] inline auto 
+    [[nodiscard]] inline auto
     mapColor (wisdom::Color color)
         -> WebColor
     {
@@ -98,7 +98,7 @@ namespace wisdom
         return mapPiece (static_cast<WebPiece> (piece));
     }
 
-    [[nodiscard]] inline auto 
+    [[nodiscard]] inline auto
     mapPiece (wisdom::Piece piece)
         -> WebPiece
     {
@@ -152,7 +152,7 @@ namespace wisdom
         return mapPlayer (static_cast<WebPlayer> (player));
     }
 
-    [[nodiscard]] inline auto 
+    [[nodiscard]] inline auto
     mapPlayer (wisdom::Player player)
         -> WebPlayer
     {
@@ -220,7 +220,7 @@ namespace wisdom
         return mapGameStatus (static_cast<WebGameStatus> (status));
     }
 
-    [[nodiscard]] inline auto 
+    [[nodiscard]] inline auto
     mapGameStatus (GameStatus status)
         -> WebGameStatus
     {
@@ -258,8 +258,12 @@ namespace wisdom
         {
         }
 
-        WebColoredPiece (int id_, WebColor color_, WebPiece piece_, int row_, int col_) :
-                id { id_ }, color { color_ }, piece { piece_ }, row { row_ }, col { col_ }
+        WebColoredPiece (int id_, WebColor color_, WebPiece piece_, int row_, int col_)
+            : id { id_ }
+            , color { color_ }
+            , piece { piece_ }
+            , row { row_ }
+            , col { col_ }
         {
         }
 
@@ -270,8 +274,8 @@ namespace wisdom
         int col;
     };
 
-    [[nodiscard]] inline auto 
-    mapColoredPiece (WebColoredPiece colored_piece) 
+    [[nodiscard]] inline auto
+    mapColoredPiece (WebColoredPiece colored_piece)
         -> ColoredPiece
     {
         auto mapped_color = mapColor (colored_piece.color);
@@ -294,8 +298,8 @@ namespace wisdom
             pieces[length++] = piece;
         }
 
-        auto 
-        pieceAt (int index) 
+        auto
+        pieceAt (int index)
             -> WebColoredPiece
         {
             return pieces[index];
@@ -372,7 +376,7 @@ namespace wisdom
         return mapDrawByRepetitionType (static_cast<WebDrawByRepetitionType> (type));
     }
 
-    [[nodiscard]] inline auto 
+    [[nodiscard]] inline auto
     mapDrawByRepetitionType (wisdom::ProposedDrawType type)
         -> WebDrawByRepetitionType
     {
@@ -387,7 +391,6 @@ namespace wisdom
                 throw Error { "Invalid draw type." };
         }
     }
-
 
 }
 

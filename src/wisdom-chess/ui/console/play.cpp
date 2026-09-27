@@ -158,9 +158,9 @@ namespace wisdom::ui::console
     private:
         Game my_game;
         TranspositionTable my_transposition_table;
-        bool quit = false;
-        bool paused = false;
-        bool show_final_position = true;
+        bool my_quit = false;
+        bool my_paused = false;
+        bool my_show_final_position = true;
 
         // Search output is retained while disabled and replayed once enabled.
         shared_ptr<BufferedLogger> my_logger = makeBufferedLogger (makeStandardLogger());
@@ -189,7 +189,7 @@ namespace wisdom::ui::console
             if (!status.empty())
             {
                 std::cout << status << "\n";
-                quit = true;
+                my_quit = true;
             }
         }
 
@@ -210,17 +210,17 @@ namespace wisdom::ui::console
 
         void setQuit (bool new_quit_game)
         {
-            quit = new_quit_game;
+            my_quit = new_quit_game;
         }
 
         void setPaused (bool new_paused)
         {
-            paused = new_paused;
+            my_paused = new_paused;
         }
 
         void setShowFinalPosition (bool new_final_position)
         {
-            show_final_position = new_final_position;
+            my_show_final_position = new_final_position;
         }
 
         static auto humanWantsDraw (const string& msg) -> bool
@@ -656,10 +656,10 @@ namespace wisdom::ui::console
             handleDrawProposals();
             updateDisplayedGameState();
 
-            if (quit)
+            if (my_quit)
                 break;
 
-            if (!paused && my_game.getCurrentPlayer() == Player::ChessEngine)
+            if (!my_paused && my_game.getCurrentPlayer() == Player::ChessEngine)
             {
                 auto optional_move = my_game.findBestMove (my_logger, &my_transposition_table);
                 if (!optional_move.has_value())
@@ -677,7 +677,7 @@ namespace wisdom::ui::console
                 auto command = readCommand();
                 handleCommand (command);
 
-                if (quit && !show_final_position)
+                if (my_quit && !my_show_final_position)
                     break;
             }
         }

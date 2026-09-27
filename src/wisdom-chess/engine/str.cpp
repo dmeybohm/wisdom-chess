@@ -18,9 +18,9 @@ namespace wisdom
     }
 
     auto split (
-        const string& source, 
+        const string& source,
         const string& separator
-    ) 
+    )
         -> vector<string>
     {
         vector<string> result;
@@ -39,9 +39,9 @@ namespace wisdom
     }
 
     auto join (
-        const vector<string>& strings, 
+        const vector<string>& strings,
         const string& separator
-    ) 
+    )
         -> string
     {
         string result;
@@ -55,8 +55,8 @@ namespace wisdom
         );
     }
 
-    auto 
-    toInt (const string& str) 
+    auto
+    toInt (const string& str)
         -> optional<int>
     {
         stringstream ss { str };

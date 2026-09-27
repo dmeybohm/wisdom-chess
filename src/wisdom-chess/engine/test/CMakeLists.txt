@@ -119,7 +119,7 @@ if (WISDOM_CHESS_SLOW_TESTS)
     endif()
 
     # For perft testing:
-    add_executable(perft 
+    add_executable(perft
         perft.cpp
         perft_main.cpp)
     target_link_libraries(perft PRIVATE wisdom::chess)

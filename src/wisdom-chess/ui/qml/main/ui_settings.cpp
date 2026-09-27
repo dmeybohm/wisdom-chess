@@ -2,21 +2,21 @@
 
 namespace wisdom::ui::qml
 {
-    auto 
+    auto
     operator== (const UISettings& a, const UISettings& b)
         -> bool
     {
         return a.my_flipped == b.my_flipped;
     }
 
-    auto 
+    auto
     operator!= (const UISettings& a, const UISettings& b)
         -> bool
     {
         return !operator== (a, b);
     }
 
-    auto 
+    auto
     UISettings::flipped() const
         -> bool
     {

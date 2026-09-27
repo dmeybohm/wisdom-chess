@@ -16,7 +16,6 @@ TEST_CASE( "A coordinate can be generated" )
     }
 }
 
-
 TEST_CASE( "Coord_parse specifying coordinates in algebraic notation" )
 {
     CHECK( coordRow (coordParse ("a8")) == 0 );

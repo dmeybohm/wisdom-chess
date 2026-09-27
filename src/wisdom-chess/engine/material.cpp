@@ -9,11 +9,11 @@ namespace wisdom
         {
             auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
-                this->add (board.pieceAt (coord));
+                add (board.pieceAt (coord));
         }
     }
 
-    [[nodiscard]] static auto 
+    [[nodiscard]] static auto
     dualBishopsAreTheSameColor (const Board& board)
         -> Material::CheckmateIsPossible
     {
@@ -61,7 +61,7 @@ namespace wisdom
             if (bishop_sum == 1)
                 return CheckmateIsPossible::No;
 
-            // King and bishop vs King and bishop with opposite colored bishops, 
+            // King and bishop vs King and bishop with opposite colored bishops,
             // or King and two bishops vs King;
             if (bishop_sum == 2)
                 return dualBishopsAreTheSameColor (board);

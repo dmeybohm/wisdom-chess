@@ -240,20 +240,25 @@ namespace wisdom
         {
         }
 
-        explicit Error (string message) :
-            Error (std::move (message), "")
-        {}
+        explicit Error (string message)
+            : Error (std::move (message), "")
+        {
+        }
 
         // Declared so that there is no move, which would leave my_text empty.
         Error (const Error& src) noexcept = default;
         auto operator= (const Error& src) noexcept -> Error& = default;
 
-        [[nodiscard]] auto message() const noexcept -> const string&
+        [[nodiscard]] auto
+        message() const noexcept
+            -> const string&
         {
             return my_text->message;
         }
 
-        [[nodiscard]] auto extra_info() const noexcept -> const string&
+        [[nodiscard]] auto
+        extra_info() const noexcept
+            -> const string&
         {
             return my_text->extra_info;
         }

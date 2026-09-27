@@ -13,9 +13,9 @@ namespace wisdom
     public:
         // Throws Error when the file cannot be opened or written.
         virtual void save (
-            const string& filename, 
-            const Board& board, 
-            const History& history, 
+            const string& filename,
+            const Board& board,
+            const History& history,
             Color turn
         ) = 0;
 
@@ -27,9 +27,9 @@ namespace wisdom
     {
     public:
         void save (
-            const string& filename, 
-            const Board& board, 
-            const History& history, 
+            const string& filename,
+            const Board& board,
+            const History& history,
             Color turn
         ) override;
     };
@@ -38,9 +38,9 @@ namespace wisdom
     {
     public:
         void save (
-            const string& str, 
-            const Board& board, 
-            const History& history, 
+            const string& str,
+            const Board& board,
+            const History& history,
             Color turn
         ) override;
     };

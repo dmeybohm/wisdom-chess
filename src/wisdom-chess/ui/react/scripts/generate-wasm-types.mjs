@@ -32,8 +32,9 @@ function fail(message) {
 function parseEnums(idl) {
     const enums = []
     for (const match of idl.matchAll(/^enum\s+(\w+)\s*\{([^}]*)\}/gm)) {
-        const members = [...match[2].matchAll(/"([^"]+)"/g)]
-            .map(member => member[1].replace(/.*::/, ''))
+        const members = [...match[2].matchAll(/"([^"]+)"/g)].map(member =>
+            member[1].replace(/.*::/, ''),
+        )
         enums.push({ name: match[1], members })
     }
     return enums
@@ -55,8 +56,7 @@ function brandEnums(declarations, enums) {
     let result = declarations
 
     const replaceOnce = (pattern, replacement, what) => {
-        if (!pattern.test(result))
-            fail(`expected ${what} in the generator's output`)
+        if (!pattern.test(result)) fail(`expected ${what} in the generator's output`)
         result = result.replace(pattern, replacement)
     }
 
@@ -89,8 +89,7 @@ function enumValuesSource(enums) {
 
 const idl = readFileSync(idlPath, 'utf8')
 const enums = parseEnums(idl)
-if (enums.length === 0)
-    fail(`no enums found in ${idlPath}`)
+if (enums.length === 0) fail(`no enums found in ${idlPath}`)
 
 const workDir = mkdtempSync(join(tmpdir(), 'wasm-types-'))
 let types
@@ -115,9 +114,9 @@ if (process.argv.includes('--check')) {
     })
     if (stale.length > 0) {
         fail(
-            `out of date with ${idlPath}:\n`
-            + stale.map(({ path }) => `  ${path}\n`).join('')
-            + 'Run: npm run generate:wasm-types'
+            `out of date with ${idlPath}:\n` +
+                stale.map(({ path }) => `  ${path}\n`).join('') +
+                'Run: npm run generate:wasm-types',
         )
     }
     console.log('generated WASM types are up to date')

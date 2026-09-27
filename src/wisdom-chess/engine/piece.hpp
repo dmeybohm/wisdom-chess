@@ -24,7 +24,7 @@ namespace wisdom
         King
     };
 
-    inline constexpr std::size_t Num_Piece_Types = 
+    inline constexpr std::size_t Num_Piece_Types =
         static_cast<std::size_t> (Piece::King) + 1;
 
     enum class Color : int8_t
@@ -40,35 +40,35 @@ namespace wisdom
     using ColorIndex = int8_t;
 
     [[nodiscard]] constexpr auto
-    pieceFromInt8 (int8_t integer) 
+    pieceFromInt8 (int8_t integer)
         -> Piece
     {
         return static_cast<Piece> (integer);
     }
 
     [[nodiscard]] constexpr auto
-    pieceFromInt (int integer) 
+    pieceFromInt (int integer)
         -> Piece
     {
         return static_cast<Piece> (integer);
     }
 
     [[nodiscard]] constexpr auto
-    colorFromInt8 (int8_t integer) 
+    colorFromInt8 (int8_t integer)
         -> Color
     {
         return static_cast<Color> (integer);
     }
 
     [[nodiscard]] constexpr auto
-    colorFromInt (int integer) 
+    colorFromInt (int integer)
         -> Color
     {
         return static_cast<Color> (integer);
     }
 
     [[nodiscard]] constexpr auto
-    colorFromColorIndex (ColorIndex index) 
+    colorFromColorIndex (ColorIndex index)
         -> Color
     {
         assert (index == Color_Index_White || index == Color_Index_Black);
@@ -76,42 +76,42 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    toInt8 (Piece piece) 
+    toInt8 (Piece piece)
         -> int8_t
     {
         return static_cast<int8_t> (piece);
     }
 
     [[nodiscard]] constexpr auto
-    toInt (Piece piece) 
+    toInt (Piece piece)
         -> int
     {
         return static_cast<int> (piece);
     }
 
     [[nodiscard]] constexpr auto
-    toInt (Color color) 
+    toInt (Color color)
         -> int
     {
         return static_cast<int> (color);
     }
 
     [[nodiscard]] constexpr auto
-    toInt8 (Color color) 
+    toInt8 (Color color)
         -> int8_t
     {
         return static_cast<int8_t> (color);
     }
 
     [[nodiscard]] constexpr auto
-    isColorValid (Color who) 
+    isColorValid (Color who)
         -> bool
     {
         return (who == Color::White || who == Color::Black);
     }
 
     [[nodiscard]] constexpr auto
-    colorIndex (Color who) 
+    colorIndex (Color who)
         -> ColorIndex
     {
         assert (who == Color::White || who == Color::Black);
@@ -147,7 +147,7 @@ namespace wisdom
     {
         int8_t piece_type_and_color;
 
-        static constexpr auto 
+        static constexpr auto
         make (Color color, Piece piece_type) noexcept
             -> ColoredPiece
         {
@@ -163,8 +163,8 @@ namespace wisdom
             return piece_with_color;
         }
 
-        [[nodiscard]] constexpr auto 
-        color() const noexcept 
+        [[nodiscard]] constexpr auto
+        color() const noexcept
             -> Color
         {
             auto result = narrow_cast<int8_t> (
@@ -173,8 +173,8 @@ namespace wisdom
             return colorFromInt8 (result);
         }
 
-        [[nodiscard]] constexpr auto 
-        type() const noexcept 
+        [[nodiscard]] constexpr auto
+        type() const noexcept
             -> Piece
         {
             auto result = narrow_cast<int8_t>(
@@ -184,7 +184,7 @@ namespace wisdom
         }
 
         [[nodiscard]] friend constexpr auto
-        operator== (ColoredPiece first, ColoredPiece second) 
+        operator== (ColoredPiece first, ColoredPiece second)
             -> bool
         {
             return first.piece_type_and_color == second.piece_type_and_color;
@@ -209,14 +209,14 @@ namespace wisdom
     };
 
     [[nodiscard]] constexpr auto
-    pieceType (ColoredPiece piece) 
+    pieceType (ColoredPiece piece)
         -> Piece
     {
         return piece.type();
     }
 
     [[nodiscard]] constexpr auto
-    pieceColor (ColoredPiece piece) 
+    pieceColor (ColoredPiece piece)
         -> Color
     {
         return piece.color();
@@ -228,14 +228,14 @@ namespace wisdom
     );
 
     [[nodiscard]] constexpr auto
-    toInt8 (ColoredPiece piece) 
+    toInt8 (ColoredPiece piece)
         -> int8_t
     {
         return piece.piece_type_and_color;
     }
 
     [[nodiscard]] constexpr auto
-    pieceFromChar (char p) 
+    pieceFromChar (char p)
         -> Piece
     {
         switch (p)
@@ -305,7 +305,7 @@ namespace wisdom
     asString (Piece piece)
         -> string;
 
-    auto 
-    operator<< (std::ostream& ostream, const ColoredPiece& value) 
+    auto
+    operator<< (std::ostream& ostream, const ColoredPiece& value)
         -> std::ostream&;
 }

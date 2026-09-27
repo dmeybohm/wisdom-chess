@@ -59,8 +59,7 @@
     color: var(--default-text-color);
 }
 
-@media (max-width: 720px), (max-height: 720px)
-{
+@media (max-width: 720px), (max-height: 720px) {
     .top-menu {
         position: initial;
         justify-content: center;
@@ -127,4 +126,3 @@
         text-decoration: none;
     }
 }
-

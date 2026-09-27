@@ -29,14 +29,14 @@ namespace wisdom
             return { initial.first, new_status };
     }
 
-    [[nodiscard]] constexpr auto 
+    [[nodiscard]] constexpr auto
     drawStatusIsReplied (DrawStatus draw_status)
         -> bool
     {
         return draw_status == DrawStatus::Accepted || draw_status == DrawStatus::Declined;
     }
 
-    [[nodiscard]] constexpr auto 
+    [[nodiscard]] constexpr auto
     bothPlayersReplied (BothPlayersDrawStatus both_players_status)
         -> bool
     {
@@ -68,14 +68,14 @@ namespace wisdom
             return board.getHalfMoveClock() >= x_half_moves;
         }
 
-        [[nodiscard]] static auto 
+        [[nodiscard]] static auto
         hasBeenSeventyFiveMovesWithoutProgress (const Board& board)
             -> bool
         {
             return hasBeenXHalfMovesWithoutProgress (board, 150);
         }
 
-        [[nodiscard]] static auto 
+        [[nodiscard]] static auto
         hasBeenFiftyMovesWithoutProgress (const Board& board)
             -> bool
         {
@@ -145,16 +145,16 @@ namespace wisdom
             my_board_codes.back() = board.getBoardCode();
         }
 
-        [[nodiscard]] auto 
-        getMoveHistory() const& 
+        [[nodiscard]] auto
+        getMoveHistory() const&
             -> const vector<Move>&
         {
             return my_move_history;
         }
         void getMoveHistory() const&& = delete;
 
-        [[nodiscard]] auto 
-        getThreefoldRepetitionStatus() const 
+        [[nodiscard]] auto
+        getThreefoldRepetitionStatus() const
             -> DrawStatus
         {
             return my_threefold_repetition_status;
@@ -165,7 +165,7 @@ namespace wisdom
             my_threefold_repetition_status = status;
         }
 
-        [[nodiscard]] auto 
+        [[nodiscard]] auto
         getFiftyMovesWithoutProgressStatus() const
             -> DrawStatus
         {
@@ -177,7 +177,7 @@ namespace wisdom
             my_fifty_moves_without_progress_status = status;
         }
 
-        friend auto 
+        friend auto
         operator<< (std::ostream& os, const History& code)
             -> std::ostream&;
 

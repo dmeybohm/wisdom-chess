@@ -191,8 +191,8 @@ namespace wisdom::ui::qml
         // Note this is subtely different from gameStarted - the pointer argument
         // here is meant for transferring ownership.
         void gameUpdated (
-            std::shared_ptr<ChessGame> chessGame,
-            int newGameId
+            std::shared_ptr<ChessGame> chess_game,
+            int new_game_id
         );
 
         void humanMoved (
@@ -206,7 +206,7 @@ namespace wisdom::ui::qml
         );
         void engineConfigChanged (
             ChessGame::Config config,
-            wisdom::MoveTimer::PeriodicFunction newFunc
+            wisdom::MoveTimer::PeriodicFunction new_func
         );
 
         void currentTurnChanged();
@@ -224,7 +224,7 @@ namespace wisdom::ui::qml
 
         // Send draw response:
         void updateDrawStatus (
-            wisdom::ProposedDrawType drawType,
+            wisdom::ProposedDrawType draw_type,
             wisdom::Color player,
             bool accepted
         );
@@ -297,10 +297,10 @@ namespace wisdom::ui::qml
         void stopEngineThread();
 
         void movePieceWithPromotion (
-            int srcRow,
-            int srcColumn,
-            int dstRow,
-            int dstColumn,
+            int src_row,
+            int src_column,
+            int dst_row,
+            int dst_column,
             std::optional<wisdom::Piece> piece
         );
 

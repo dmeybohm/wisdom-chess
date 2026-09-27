@@ -41,7 +41,7 @@ namespace wisdom
 
     // Whether the pawn needs to be promoted when it arrives at the row.
     [[nodiscard]] auto
-    needPawnPromotion (int row, Color who) 
+    needPawnPromotion (int row, Color who)
         -> bool;
 
     // Return en passant column of the board if the player is eligible.

@@ -73,7 +73,7 @@ namespace wisdom
     };
     // clang-format on
 
-    static auto 
+    static auto
     translatePosition (Coord coord, Color who)
         -> Coord
     {
@@ -83,7 +83,7 @@ namespace wisdom
         return makeCoord (narrow_cast<int8_t> (Last_Row - coord.row()), coord.column());
     }
 
-    static auto 
+    static auto
     change (Coord coord, Color who, ColoredPiece piece)
         -> int
     {
@@ -110,15 +110,15 @@ namespace wisdom
         }
     }
 
-    auto 
+    auto
     Position::overallScore (Color who) const
         -> int
     {
         ColorIndex index = colorIndex (who);
         ColorIndex inverted = colorIndex (colorInvert (who));
-        assert (this->my_score[index] < 3000 && this->my_score[index] > -3000);
-        assert (this->my_score[inverted] < 3000 && this->my_score[inverted] > -3000);
-        int result = this->my_score[index] - this->my_score[inverted];
+        assert (my_score[index] < 3000 && my_score[index] > -3000);
+        assert (my_score[inverted] < 3000 && my_score[inverted] > -3000);
+        int result = my_score[index] - my_score[inverted];
         assert (result < 3000);
         return result * Position_Score_Scale;
     }
@@ -126,13 +126,13 @@ namespace wisdom
     void Position::add (Color who, Coord coord, ColoredPiece piece)
     {
         ColorIndex index = colorIndex (who);
-        this->my_score[index] += change (coord, who, piece);
+        my_score[index] += change (coord, who, piece);
     }
 
     void Position::remove (Color who, Coord coord, ColoredPiece piece)
     {
         ColorIndex index = colorIndex (who);
-        this->my_score[index] -= change (coord, who, piece);
+        my_score[index] -= change (coord, who, piece);
     }
 
     void Position::applyMove (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece)
@@ -142,7 +142,7 @@ namespace wisdom
         Coord src = move.getSrc();
         Coord dst = move.getDst();
 
-        this->remove (who, src, src_piece);
+        remove (who, src, src_piece);
 
         switch (move.getMoveCategory())
         {
@@ -152,14 +152,14 @@ namespace wisdom
             case MoveCategory::NormalCapturing:
                 {
                     Coord taken_piece_coord = dst;
-                    this->remove (opponent, taken_piece_coord, dst_piece);
+                    remove (opponent, taken_piece_coord, dst_piece);
                 }
                 break;
 
             case MoveCategory::EnPassant:
                 {
                     Coord taken_pawn_coord = enPassantTakenPawnCoord (src, dst);
-                    this->remove (
+                    remove (
                         opponent,
                         taken_pawn_coord,
                         ColoredPiece::make (opponent, Piece::Pawn)
@@ -172,8 +172,8 @@ namespace wisdom
                     Move rook_move = castlingRookMove (move);
                     ColoredPiece rook = ColoredPiece::make (who, Piece::Rook);
 
-                    this->remove (who, rook_move.getSrc(), rook);
-                    this->add (who, rook_move.getDst(), rook);
+                    remove (who, rook_move.getSrc(), rook);
+                    add (who, rook_move.getDst(), rook);
                 }
                 break;
         }
@@ -182,10 +182,10 @@ namespace wisdom
             ? ColoredPiece::make (who, move.getPromotedPiece())
             : src_piece;
 
-        this->add (who, dst, new_piece);
+        add (who, dst, new_piece);
     }
 
-    auto 
+    auto
     Position::individualScore (Color who) const
         -> int
     {
@@ -202,7 +202,7 @@ namespace wisdom
         }
     }
 
-    auto 
+    auto
     operator<< (std::ostream& ostream, const Position& position)
         -> std::ostream&
     {

@@ -6,8 +6,8 @@ import {
     ReceiveWorkerMessageCallback,
     ChessEngineEventType,
     ReactWindow,
-    getWisdomWindow
-} from "./lib/WisdomChess"
+    getWisdomWindow,
+} from './lib/WisdomChess'
 
 let receiveWorkerMessageCallback: ReceiveWorkerMessageCallback | null = null
 let pending: Array<[ChessEngineEventType, number, string]> = []
@@ -40,7 +40,8 @@ reactWindow.receiveWorkerMessage = (type, gameId, message) => {
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        navigator.serviceWorker
+            .register('/sw.js', { scope: '/' })
             .catch(error => console.warn('Service worker registration failed:', error))
     })
 }

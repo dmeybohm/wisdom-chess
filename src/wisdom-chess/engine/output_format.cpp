@@ -9,11 +9,11 @@ namespace wisdom
     // Put destructor here to put vtable in this translation unit:
     OutputFormat::~OutputFormat() = default;
 
-    void 
+    void
     FenOutputFormat::save (
-        const string& filename, 
+        const string& filename,
         const Board& board,
-        [[maybe_unused]] const History& history, 
+        [[maybe_unused]] const History& history,
         Color turn
     ) {
         string output = board.toFenString (turn);
@@ -28,11 +28,11 @@ namespace wisdom
             throw Error { "Error writing " + filename + "." };
     }
 
-    void 
+    void
     WisdomGameOutputFormat::save (
-        const string& filename, 
+        const string& filename,
         [[maybe_unused]] const Board& board,
-        const History& history, 
+        const History& history,
         [[maybe_unused]] Color turn
     ) {
         std::ofstream file { filename };

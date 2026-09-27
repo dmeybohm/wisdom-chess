@@ -20,7 +20,6 @@ namespace wisdom
         Illegal,
     };
 
-
     class Board;
 
     enum class MoveCategory : int8_t
@@ -31,10 +30,10 @@ namespace wisdom
         Castling = 3,
     };
 
-    class ParseMoveException : public Error
+    class ParseMoveError : public Error
     {
     public:
-        explicit ParseMoveException (const string& message)
+        explicit ParseMoveError (const string& message)
             : Error { message }
         {
         }
@@ -91,7 +90,7 @@ namespace wisdom
     struct Move
     {
         // Packed layout: src(6) | dst(6) | combined(4) = 16 bits
-        uint16_t my_data;
+        uint16_t data;
 
     private:
         static constexpr int Src_Bits = 6;
@@ -117,14 +116,14 @@ namespace wisdom
         getCombined() const noexcept
             -> int
         {
-            return (my_data >> Combined_Shift) & Combined_Mask;
+            return (data >> Combined_Shift) & Combined_Mask;
         }
 
         constexpr void
         setCombined (int combined_val) noexcept
         {
-            my_data = narrow_cast<uint16_t> (
-                (my_data & 0x0fff) | ((combined_val & Combined_Mask) << Combined_Shift)
+            data = narrow_cast<uint16_t> (
+                (data & 0x0fff) | ((combined_val & Combined_Mask) << Combined_Shift)
             );
         }
 
@@ -134,7 +133,7 @@ namespace wisdom
             -> Move
         {
             Move m;
-            m.my_data = pack (src.index(), dst.index(), Combined_Default);
+            m.data = pack (src.index(), dst.index(), Combined_Default);
             return m;
         }
 
@@ -221,7 +220,7 @@ namespace wisdom
         fromInt (int packed_move) -> Move
         {
             Move m;
-            m.my_data = narrow_cast<uint16_t> (packed_move & 0xffff);
+            m.data = narrow_cast<uint16_t> (packed_move & 0xffff);
             return m;
         }
 
@@ -229,21 +228,21 @@ namespace wisdom
         toInt() const
             -> int
         {
-            return my_data;
+            return data;
         }
 
         [[nodiscard]] constexpr auto
         getSrc() const
             -> Coord
         {
-            return Coord::fromIndex (my_data & Src_Mask);
+            return Coord::fromIndex (data & Src_Mask);
         }
 
         [[nodiscard]] constexpr auto
         getDst() const
             -> Coord
         {
-            return Coord::fromIndex ((my_data >> Dst_Shift) & Dst_Mask);
+            return Coord::fromIndex ((data >> Dst_Shift) & Dst_Mask);
         }
 
         [[nodiscard]] constexpr auto
@@ -341,7 +340,7 @@ namespace wisdom
         isNullMove() const noexcept
             -> bool
         {
-            return my_data == 0;
+            return data == 0;
         }
     };
 
@@ -379,52 +378,52 @@ namespace wisdom
     operator== (Move a, Move b) noexcept
         -> bool
     {
-        return a.my_data == b.my_data;
+        return a.data == b.data;
     }
 
     constexpr auto
     operator!= (Move a, Move b) noexcept
         -> bool
     {
-        return a.my_data != b.my_data;
+        return a.data != b.data;
     }
 
     // Parse a move. Returns empty if the parse failed.
-    [[nodiscard]] auto 
-    moveParseOptional (const string& str, Color who) 
+    [[nodiscard]] auto
+    moveParseOptional (const string& str, Color who)
         -> optional<Move>;
 
     // The coordinate for the taken pawn.
-    [[nodiscard]] auto 
-    enPassantTakenPawnCoord (Coord src, Coord dst) 
+    [[nodiscard]] auto
+    enPassantTakenPawnCoord (Coord src, Coord dst)
         -> Coord;
 
     // Map source/dest coordinate to corresponding move (en passant, castling, etc)
     // This doesn't check whether the move is legal or not completely - just gets what the
     // user is intending.
-    [[nodiscard]] auto 
-    mapCoordinatesToMove ( 
-            const Board& board, 
-            Color who, 
-            Coord src, 
-            Coord dst, 
-            optional<Piece> promoted_piece = {}) 
+    [[nodiscard]] auto
+    mapCoordinatesToMove (
+            const Board& board,
+            Color who,
+            Coord src,
+            Coord dst,
+            optional<Piece> promoted_piece = {})
         -> optional<Move>;
 
     // Parse a move. Throws an exception if it could not parse the move.
-    [[nodiscard]] auto 
-    moveParse (const string& str, Color color = Color::None) 
+    [[nodiscard]] auto
+    moveParse (const string& str, Color color = Color::None)
         -> Move;
 
     // Convert the move to a string.
-    [[nodiscard]] auto 
-    asString (const Move& move) 
+    [[nodiscard]] auto
+    asString (const Move& move)
         -> string;
 
     // Send the move to the ostream.
-    auto 
+    auto
     operator<< (
-        std::ostream& os, 
+        std::ostream& os,
         const Move& value
     ) -> std::ostream&;
 }

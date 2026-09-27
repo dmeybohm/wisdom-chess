@@ -97,13 +97,11 @@ namespace wisdom
 
     IterativeSearch::~IterativeSearch() = default;
 
-    // Private constructor for factory functions
     IterativeSearch::IterativeSearch (unique_ptr<IterativeSearchImpl> impl)
-        : impl { std::move (impl) }
+        : my_pimpl { std::move (impl) }
     {
     }
 
-    // Factory function implementation
     auto IterativeSearch::create (
         const Board& board,
         const History& history,
@@ -125,28 +123,28 @@ namespace wisdom
         };
     }
 
-    auto 
+    auto
     IterativeSearch::iterativelyDeepen (Color side)
         -> SearchResult
     {
-        return impl->iterativelyDeepen (side);
+        return my_pimpl->iterativelyDeepen (side);
     }
 
-    auto 
-    IterativeSearch::isCancelled() 
+    auto
+    IterativeSearch::isCancelled()
         -> bool
     {
-        return impl->moveTimer().isCancelled();
+        return my_pimpl->moveTimer().isCancelled();
     }
 
-    auto 
-    IterativeSearch::moveTimer() const& 
+    auto
+    IterativeSearch::moveTimer() const&
         -> const MoveTimer&
     {
-        return impl->moveTimer();
+        return my_pimpl->moveTimer();
     }
 
-    static constexpr auto 
+    static constexpr auto
     drawingScore (Color searching_color, Color current_color)
         -> int
     {
@@ -179,7 +177,7 @@ namespace wisdom
         }
 
         int original_alpha = alpha;
-        std::optional<Move> best_move {};
+        optional<Move> best_move {};
         int best_score = -Initial_Alpha;
         auto draw_nodes_before = my_draw_nodes;
 
@@ -373,9 +371,9 @@ namespace wisdom
 
     static void
     logSearchTime (
-        const Logger& output, 
+        const Logger& output,
         int64_t nodes,
-        SteadyClockTime start, 
+        SteadyClockTime start,
         SteadyClockTime end
     ) {
         auto seconds_duration = chrono::duration<double> (end - start);
@@ -387,8 +385,8 @@ namespace wisdom
         output.info (std::move (progress_str).str());
     }
 
-    auto 
-    IterativeSearchImpl::iterativelyDeepen (Color side) 
+    auto
+    IterativeSearchImpl::iterativelyDeepen (Color side)
         -> SearchResult
     {
         SearchResult best_result {};
@@ -444,8 +442,8 @@ namespace wisdom
         }
     }
 
-    [[nodiscard]] auto 
-    IterativeSearchImpl::getBestResult() const 
+    [[nodiscard]] auto
+    IterativeSearchImpl::getBestResult() const
         -> SearchResult
     {
         return my_current_result;
@@ -466,8 +464,8 @@ namespace wisdom
         my_current_result.depth = depth;
     }
 
-    auto 
-    IterativeSearchImpl::iterate (Color side, int depth) 
+    auto
+    IterativeSearchImpl::iterate (Color side, int depth)
         -> SearchResult
     {
         std::stringstream outstr;
@@ -516,7 +514,6 @@ namespace wisdom
 
             my_output->debug (std::move (progress_str).str());
         }
-    
 
         if (result.timed_out)
         {

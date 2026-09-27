@@ -11,12 +11,12 @@ namespace wisdom
 
     Game FenParser::build()
     {
-        builder.setCurrentTurn (active_player);
-        return Game::createGameFromBoard (builder);
+        my_builder.setCurrentTurn (my_active_player);
+        return Game::createGameFromBoard (my_builder);
     }
 
-    auto 
-    FenParser::parsePiece (char ch) 
+    auto
+    FenParser::parsePiece (char ch)
         -> ColoredPiece
     {
         char lower = toLower (ch);
@@ -41,8 +41,8 @@ namespace wisdom
         }
     }
 
-    auto 
-    FenParser::parseActivePlayer (char ch) 
+    auto
+    FenParser::parseActivePlayer (char ch)
         -> Color
     {
         switch (ch)
@@ -58,12 +58,10 @@ namespace wisdom
 
     void FenParser::parsePieces (string pieces_str)
     {
-        char ch;
-
         // read pieces
         for (int row = 0, col = 0; !pieces_str.empty(); pieces_str = pieces_str.substr (1))
         {
-            ch = pieces_str[0];
+            char ch = pieces_str[0];
 
             if (ch == '/')
             {
@@ -79,7 +77,7 @@ namespace wisdom
             else if (isAlpha (ch))
             {
                 ColoredPiece piece = parsePiece (ch);
-                builder.addPiece (row, col, pieceColor (piece), pieceType (piece));
+                my_builder.addPiece (row, col, pieceColor (piece), pieceType (piece));
                 col++;
                 if (col > Num_Columns)
                     throw FenParserError ("Invalid columns!");
@@ -109,9 +107,9 @@ namespace wisdom
         try
         {
             string cstr { en_passant_str.substr (0, 2) };
-            Color vulnerable_color = colorInvert (active_player);
+            Color vulnerable_color = colorInvert (my_active_player);
             validateEnPassantTarget (vulnerable_color, coordParse (cstr));
-            builder.setEnPassantTarget (vulnerable_color, cstr);
+            my_builder.setEnPassantTarget (vulnerable_color, cstr);
         }
         catch (const CoordParseError& e)
         {
@@ -131,12 +129,12 @@ namespace wisdom
 
         int direction = pawnDirection<int> (vulnerable_color);
         int column = target.column<int>();
-        auto pawn = builder.pieceAt (makeCoord (nextRow (target_row, direction), column));
+        auto pawn = my_builder.pieceAt (makeCoord (nextRow (target_row, direction), column));
         if (pawn != ColoredPiece::make (vulnerable_color, Piece::Pawn))
             throw FenParserError ("En passant target requires a pawn that just moved two squares!");
 
-        auto crossed = builder.pieceAt (target);
-        auto origin = builder.pieceAt (makeCoord (nextRow (target_row, -direction), column));
+        auto crossed = my_builder.pieceAt (target);
+        auto origin = my_builder.pieceAt (makeCoord (nextRow (target_row, -direction), column));
         if (crossed != Piece_And_Color_None || origin != Piece_And_Color_None)
             throw FenParserError ("En passant target requires empty squares behind the pawn!");
     }
@@ -173,8 +171,8 @@ namespace wisdom
         validateCastlingPieces (Color::White, white_castle);
         validateCastlingPieces (Color::Black, black_castle);
 
-        builder.setCastling (Color::White, white_castle);
-        builder.setCastling (Color::Black, black_castle);
+        my_builder.setCastling (Color::White, white_castle);
+        my_builder.setCastling (Color::Black, black_castle);
     }
 
     // Move generation trusts that a castling-eligibility bit is only set
@@ -187,11 +185,11 @@ namespace wisdom
 
         auto hasRookAt = [&] (int col)
         {
-            auto piece = builder.pieceAt (makeCoord (row, col));
+            auto piece = my_builder.pieceAt (makeCoord (row, col));
             return pieceType (piece) == Piece::Rook && pieceColor (piece) == who;
         };
 
-        auto king = builder.pieceAt (makeCoord (row, King_Column));
+        auto king = my_builder.pieceAt (makeCoord (row, King_Column));
         if (eligibility != CastlingEligibility::Neither_Side
             && king != ColoredPiece::make (who, Piece::King))
         {
@@ -211,7 +209,7 @@ namespace wisdom
         if (half_moves < 0 || half_moves > Max_Half_Move_Clock)
             throw FenParserError { "Half move clock out of range parsing FEN string" };
 
-        builder.setHalfMovesClock (half_moves);
+        my_builder.setHalfMovesClock (half_moves);
     }
 
     // fullmove number:
@@ -221,7 +219,7 @@ namespace wisdom
             throw FenParserError { "Full move number out of range parsing FEN string" };
 
         // The number starts at 1, but some programs write 0.
-        builder.setFullMoves (full_moves == 0 ? 1 : full_moves);
+        my_builder.setFullMoves (full_moves == 0 ? 1 : full_moves);
     }
 
     void FenParser::parse (const string& source)
@@ -240,7 +238,7 @@ namespace wisdom
         input >> active_player_str;
         if (input.fail())
             throw FenParserError { "Missing active player parsing FEN string" };
-        active_player = parseActivePlayer (active_player_str[0]);
+        my_active_player = parseActivePlayer (active_player_str[0]);
 
         // castling:
         string castling_str;
@@ -271,11 +269,11 @@ namespace wisdom
         parseFullMove (full_moves);
     }
 
-    auto 
-    FenParser::buildBoard() 
+    auto
+    FenParser::buildBoard()
         -> Board
     {
-        builder.setCurrentTurn (active_player);
-        return Board { builder };
+        my_builder.setCurrentTurn (my_active_player);
+        return Board { my_builder };
     }
 }

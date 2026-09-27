@@ -63,15 +63,12 @@ namespace wisdom
         loadGame (const string& filename, const Players& players)
             -> optional<Game>;
 
-        // Copy constructor and assignment
         Game (const Game& other);
         auto operator= (const Game& other) -> Game&;
 
-        // Move constructor and assignment
         Game (Game&& other) noexcept;
         auto operator= (Game&& other) noexcept -> Game&;
 
-        // Destructor
         ~Game();
 
     public:
@@ -96,8 +93,13 @@ namespace wisdom
 
         void setCurrentTurn (Color new_turn);
 
-        [[nodiscard]] auto getBoard() const& -> const Board&;
-        [[nodiscard]] auto getBoard() const&& -> Board& = delete;
+        [[nodiscard]] auto
+        getBoard() const&
+            -> const Board&;
+
+        [[nodiscard]] auto
+        getBoard() const&&
+            -> Board& = delete;
 
         [[nodiscard]] auto getHistory() & -> History&;
         [[nodiscard]] auto getHistory() && -> History& = delete;
@@ -133,20 +135,20 @@ namespace wisdom
         [[nodiscard]] auto computerWantsDraw (Color who) const -> bool;
 
         void setProposedDrawStatus (
-            ProposedDrawType draw_type, 
-            Color who, 
+            ProposedDrawType draw_type,
+            Color who,
             DrawStatus draw_status
         );
 
         void setProposedDrawStatus (
-            ProposedDrawType draw_type, 
-            Color who, 
+            ProposedDrawType draw_type,
+            Color who,
             bool accepted
         );
 
         void setProposedDrawStatus (
-            ProposedDrawType draw_type, 
-            std::pair<DrawStatus, DrawStatus> draw_statuses
+            ProposedDrawType draw_type,
+            pair<DrawStatus, DrawStatus> draw_statuses
         );
 
     private:

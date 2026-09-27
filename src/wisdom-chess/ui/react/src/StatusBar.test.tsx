@@ -17,7 +17,7 @@ describe('StatusBar', () => {
                 moveStatus=""
                 gameOverStatus=""
                 {...props}
-            />
+            />,
         )
 
     it('shows whose turn it is with the color in bold', () => {
@@ -29,7 +29,8 @@ describe('StatusBar', () => {
 
     it('renders every bold part of the game over status', () => {
         const { container } = renderStatusBar({
-            gameOverStatus: '<strong>Stalemate</strong> - No legal moves for <strong>White</strong>',
+            gameOverStatus:
+                '<strong>Stalemate</strong> - No legal moves for <strong>White</strong>',
         })
 
         const bold = Array.from(container.querySelectorAll('strong')).map(e => e.textContent)

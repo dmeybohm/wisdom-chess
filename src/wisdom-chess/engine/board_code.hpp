@@ -192,11 +192,11 @@ namespace wisdom
         {
             auto bits = colorIndex (who);
             auto current_turn_bit = bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT);
-            auto metadataBits = getMetadataBits();
+            auto metadata_bits = getMetadataBits();
 
-            metadataBits &= ~(CURRENT_TURN_MASK << CURRENT_TURN_BIT);
-            metadataBits |= current_turn_bit;
-            setMetadataBits (metadataBits);
+            metadata_bits &= ~(CURRENT_TURN_MASK << CURRENT_TURN_BIT);
+            metadata_bits |= current_turn_bit;
+            setMetadataBits (metadata_bits);
         }
 
         [[nodiscard]] auto
@@ -204,7 +204,7 @@ namespace wisdom
             -> CastlingEligibility
         {
             auto target_bits = getMetadataBits();
-            auto target_bit_shift = who == Color::White 
+            auto target_bit_shift = who == Color::White
                 ? CASTLING_STATE_WHITE_BIT
                 : CASTLING_STATE_BLACK_BIT;
 
@@ -216,15 +216,15 @@ namespace wisdom
         void setCastleState (Color who, CastlingEligibility castling_states) noexcept
         {
             uint8_t castling_bits = toInt (castling_states);
-            std::size_t bit_number = who == Color::White 
+            std::size_t bit_number = who == Color::White
                 ? CASTLING_STATE_WHITE_BIT
                 : CASTLING_STATE_BLACK_BIT;
             std::size_t mask = CASTLE_ONE_COLOR_MASK << bit_number;
 
-            auto metadataBits = getMetadataBits();
-            metadataBits &= ~mask;
-            metadataBits |= castling_bits << bit_number;
-            setMetadataBits (metadataBits);
+            auto metadata_bits = getMetadataBits();
+            metadata_bits &= ~mask;
+            metadata_bits |= castling_bits << bit_number;
+            setMetadataBits (metadata_bits);
         }
 
         [[nodiscard]] auto
@@ -288,8 +288,8 @@ namespace wisdom
             Color vulnerable_color = ((target_bits & EN_PASSANT_IS_WHITE) > 0)
                 ? Color::White
                 : Color::Black;
-            auto row = vulnerable_color == Color::White 
-                ? White_En_Passant_Row 
+            auto row = vulnerable_color == Color::White
+                ? White_En_Passant_Row
                 : Black_En_Passant_Row;
 
             return EnPassantTarget {

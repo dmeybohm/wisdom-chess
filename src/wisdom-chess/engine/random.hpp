@@ -67,12 +67,12 @@ namespace wisdom
         pcg32_random_r()
             -> std::uint32_t
         {
-            std::uint64_t oldState = rng.state;
+            std::uint64_t old_state = rng.state;
             // Advance internal state
-            rng.state = oldState * 6364136223846793005ULL + (rng.inc | 1);
+            rng.state = old_state * 6364136223846793005ULL + (rng.inc | 1);
             // Calculate output function (XSH RR), uses old state for max ILP
-            auto xorshifted = truncate<std::uint32_t> (((oldState >> 18u) ^ oldState) >> 27u);
-            auto rot = truncate<std::uint32_t> (oldState >> 59u);
+            auto xorshifted = truncate<std::uint32_t> (((old_state >> 18u) ^ old_state) >> 27u);
+            auto rot = truncate<std::uint32_t> (old_state >> 59u);
             return (xorshifted >> rot) | (xorshifted << ((32u - rot) & 31u));
         }
     };

@@ -79,14 +79,14 @@ add_library(wisdom-chess-core STATIC
         generate.cpp
         global.cpp
         history.cpp
-        logger.cpp 
-        material.cpp 
+        logger.cpp
+        material.cpp
         move.cpp
         move_list.cpp
-        move_timer.cpp 
+        move_timer.cpp
         output_format.cpp
-        piece.cpp 
-        position.cpp 
+        piece.cpp
+        position.cpp
         search.cpp
         str.cpp
         transposition_table.cpp)

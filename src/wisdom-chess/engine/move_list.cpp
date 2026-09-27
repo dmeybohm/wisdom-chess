@@ -4,8 +4,8 @@
 
 namespace wisdom
 {
-    auto 
-    MoveList::asString() const 
+    auto
+    MoveList::asString() const
         -> string
     {
         string result = "{ ";
@@ -15,15 +15,15 @@ namespace wisdom
         return result;
     }
 
-    auto 
-    asString (const MoveList& list) 
+    auto
+    asString (const MoveList& list)
         -> string
     {
         return list.asString();
     }
 
-    auto 
-    operator<< (std::ostream& os, const MoveList& list) 
+    auto
+    operator<< (std::ostream& os, const MoveList& list)
         -> std::ostream&
     {
         os << asString (list);

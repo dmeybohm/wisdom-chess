@@ -26,37 +26,37 @@ namespace wisdom::ui::qml
     using wisdom::Color;
     using wisdom::Player;
 
-    auto 
+    auto
     ChessGame::fromPlayers (
-        wisdom::Player whitePlayer, 
-        wisdom::Player blackPlayer, 
+        wisdom::Player white_player,
+        wisdom::Player black_player,
         const Config& config
-    ) 
+    )
         -> unique_ptr<ChessGame>
     {
         auto config_with_players = config;
-        config_with_players.players = { whitePlayer, blackPlayer };
+        config_with_players.players = { white_player, black_player };
 
         return fromEngine (
-            make_unique<Game> (Game::createGame (whitePlayer, blackPlayer)),
+            make_unique<Game> (Game::createGame (white_player, black_player)),
             config_with_players
         );
     }
 
-    auto 
+    auto
     ChessGame::fromFen (
-        const string& input, 
+        const string& input,
         const Config& config
-    ) 
+    )
         -> unique_ptr<ChessGame>
     {
         auto game = Game::createGameFromFen (input);
         return fromEngine (std::make_unique<Game> (std::move (game)), config);
     }
 
-    auto 
+    auto
     ChessGame::fromEngine (
-        std::unique_ptr<wisdom::Game> game, 
+        std::unique_ptr<wisdom::Game> game,
         const Config& config
     )
         -> unique_ptr<ChessGame>
@@ -64,50 +64,50 @@ namespace wisdom::ui::qml
         return make_unique<ChessGame> (std::move (game), config);
     }
 
-    auto 
-    ChessGame::clone() const 
+    auto
+    ChessGame::clone() const
         -> std::unique_ptr<ChessGame>
     {
         // Copy current game state to FEN and send on to the chess engine thread:
-        auto currentGame = this->state();
-        auto players = currentGame->getPlayers();
-        auto newConfig = my_config;
+        auto current_game = state();
+        auto players = current_game->getPlayers();
+        auto new_config = my_config;
 
-        auto fen = currentGame->getBoard().toFenString (currentGame->getCurrentTurn());
-        auto newGame = ChessGame::fromFen (fen, newConfig);
-        newGame->state()->setPlayers (players);
-        return newGame;
+        auto fen = current_game->getBoard().toFenString (current_game->getCurrentTurn());
+        auto new_game = ChessGame::fromFen (fen, new_config);
+        new_game->state()->setPlayers (players);
+        return new_game;
     }
 
     void ChessGame::setConfig (const Config& config)
     {
-        config.applyTo (this->state());
+        config.applyTo (state());
         my_config = config;
     }
 
     void
     ChessGame::setPlayers (
-        wisdom::Player whitePlayer,
-        wisdom::Player blackPlayer
+        wisdom::Player white_player,
+        wisdom::Player black_player
     ) { // NOLINT(readability-make-member-function-const)
-        const wisdom::Players players { whitePlayer, blackPlayer };
-        this->state()->setPlayers (players);
+        const wisdom::Players players { white_player, black_player };
+        state()->setPlayers (players);
         my_config.players = players;
     }
 
-    auto 
+    auto
     ChessGame::moveFromCoordinates (
-        int srcRow, 
-        int srcColumn, 
-        int dstRow, 
-        int dstColumn,
+        int src_row,
+        int src_column,
+        int dst_row,
+        int dst_column,
         optional<Piece> promoted
-    ) const 
+    ) const
         -> pair<optional<Move>, Color>
     {
-        auto engine = this->state();
-        auto src = wisdom::makeCoord (srcRow, srcColumn);
-        auto dst = wisdom::makeCoord (dstRow, dstColumn);
+        auto engine = state();
+        auto src = wisdom::makeCoord (src_row, src_column);
+        auto dst = wisdom::makeCoord (dst_row, dst_column);
 
         auto who = engine->getCurrentTurn();
 
@@ -116,7 +116,7 @@ namespace wisdom::ui::qml
 
     void ChessGame::setPeriodicFunction (const MoveTimer::PeriodicFunction& func)
     {
-        auto gameState = this->state();
-        gameState->setPeriodicFunction (func);
+        auto game_state = state();
+        game_state->setPeriodicFunction (func);
     }
 }

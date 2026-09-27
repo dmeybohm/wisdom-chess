@@ -207,7 +207,7 @@ TEST_CASE( "Opponent's castling state is modified when his rook is taken" )
     builder.addPiece ("b7", Color::White, Piece::Bishop);
 
     auto board = Board { builder };
-    
+
     Move mv = Move::makeNormalCapturing (1, 1, 0, 0);
 
     CHECK( board.ableToCastle (Color::White, CastlingRights::Queenside) );

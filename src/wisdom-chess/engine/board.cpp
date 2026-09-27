@@ -50,12 +50,10 @@ namespace wisdom
 
     static void addCoords (nonnull<string> result)
     {
-        int col;
-
         *result += " ";
 
         char col_name = 'a';
-        for (col = 0; col < Num_Columns; col++)
+        for (int col = 0; col < Num_Columns; col++)
         {
             *result += " ";
             *result += col_name;
@@ -137,14 +135,17 @@ namespace wisdom
 
         auto convert = [color](char ch) -> char
         {
-            return color == Color::Black 
+            return color == Color::Black
                 ? toLower (ch)
                 : ch;
         };
 
         auto castled = getCastlingEligibility (color);
         if (castled == CastlingEligibility::Both_Sides)
-            castled_state.append (1, convert ('K')), castled_state.append (1, convert ('Q'));
+        {
+            castled_state += convert ('K');
+            castled_state += convert ('Q');
+        }
         else if (castled == CastlingRights::Kingside)
             castled_state += convert ('K');
         else if (castled == CastlingRights::Queenside)
@@ -153,8 +154,8 @@ namespace wisdom
         return castled_state;
     }
 
-    [[nodiscard]] auto 
-    Board::toFenString (Color turn) const 
+    [[nodiscard]] auto
+    Board::toFenString (Color turn) const
         -> string
     {
         string output;
@@ -215,9 +216,9 @@ namespace wisdom
         return output;
     }
 
-    auto 
+    auto
     Board::findFirstCoordWithPiece (
-        Piece piece_type, 
+        Piece piece_type,
         Coord starting_at
     ) const
         -> optional<Coord>
@@ -230,14 +231,14 @@ namespace wisdom
             return colored_piece.type() == piece_type;
         };
         auto result = std::find_if (
-            coord_begin + starting_at.index(), 
-            coord_end, 
+            coord_begin + starting_at.index(),
+            coord_end,
             finder
         );
         auto diff = narrow<int> (result - coord_begin);
 
-        return (result != coord_end) 
-            ? std::make_optional<Coord> (Coord::fromIndex (diff)) 
+        return (result != coord_end)
+            ? std::make_optional<Coord> (Coord::fromIndex (diff))
             : nullopt;
     }
 

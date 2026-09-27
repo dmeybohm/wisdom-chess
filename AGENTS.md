@@ -24,8 +24,13 @@ does not make clear why something was done the way it was.
 ## Code style
 
 - Everything is in the `wisdom::` namespace.
-- Trailing return types: `auto fn() -> ReturnType`.
+- Trailing return types: `auto fn() -> ReturnType`. With three or more
+  specifiers around it (`[[nodiscard]]`, `constexpr`, `static`, `const`,
+  `noexcept`, a ref-qualifier), put the name and `-> ReturnType` on
+  lines of their own. With fewer, either layout is accepted, and both
+  are in use: follow the file being edited.
 - `[[nodiscard]]` on factory functions and getters.
+- Private data members carry the `my_` prefix; public ones do not.
 - `wisdom::narrow` and `wisdom::narrow_cast` for narrowing conversions.
 - `expects (cond)` / `ensures (cond)` (`engine/global.hpp`) check caller
   input and throw. `noexcept_expects` aborts and belongs only in `noexcept`

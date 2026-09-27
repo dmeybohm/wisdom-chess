@@ -88,19 +88,19 @@ namespace wisdom::ui
     };
 
     auto
-    GameViewModelBase::needsPawnPromotion (int srcRow, int srcCol, int dstRow, int dstCol) const
+    GameViewModelBase::needsPawnPromotion (int src_row, int src_col, int dst_row, int dst_col) const
         -> bool
     {
         auto game = getGame();
-        auto gameSrc = makeCoord (srcRow, srcCol);
-        auto gameDst = makeCoord (dstRow, dstCol);
+        auto game_src = makeCoord (src_row, src_col);
+        auto game_dst = makeCoord (dst_row, dst_col);
 
-        auto optionalMove = game->mapCoordinatesToMove (gameSrc, gameDst, Piece::Queen);
-        if (!optionalMove.has_value())
+        auto optional_move = game->mapCoordinatesToMove (game_src, game_dst, Piece::Queen);
+        if (!optional_move.has_value())
         {
             return false;
         }
-        return optionalMove->isPromoting();
+        return optional_move->isPromoting();
     }
 
     auto
@@ -119,7 +119,7 @@ namespace wisdom::ui
     }
 
     auto
-    GameViewModelBase::isLegalMove (Move selectedMove) const
+    GameViewModelBase::isLegalMove (Move selected_move) const
         -> bool
     {
         auto game = getGame();
@@ -130,14 +130,14 @@ namespace wisdom::ui
         }
 
         auto who = game->getCurrentTurn();
-        auto legalMoves = generateLegalMoves (game->getBoard(), who);
+        auto legal_moves = generateLegalMoves (game->getBoard(), who);
 
         return std::any_of (
-            legalMoves.cbegin(),
-            legalMoves.cend(),
-            [selectedMove] (const auto& move)
+            legal_moves.cbegin(),
+            legal_moves.cend(),
+            [selected_move] (const auto& move)
             {
-                return move == selectedMove;
+                return move == selected_move;
             }
         );
     }
@@ -265,8 +265,8 @@ namespace wisdom::ui
         setGameOverStatus ("");
         setInCheck (false);
 
-        ViewModelStatusUpdate statusObserver { this };
-        statusObserver.update (game->status());
+        ViewModelStatusUpdate status_observer { this };
+        status_observer.update (game->status());
 
         if (isKingThreatened (board, who, board.getKingPosition (who)))
         {
@@ -277,22 +277,22 @@ namespace wisdom::ui
     }
 
     void GameViewModelBase::setProposedDrawStatus (
-        wisdom::ProposedDrawType drawType,
+        wisdom::ProposedDrawType draw_type,
         DrawByRepetitionStatus status
     )
     {
         auto game = getGame();
-        auto optionalColor = getFirstHumanPlayerColor (game->getPlayers());
+        auto optional_color = getFirstHumanPlayerColor (game->getPlayers());
 
-        expects (optionalColor.has_value());
-        auto who = *optionalColor;
-        auto opponentColor = colorInvert (who);
+        expects (optional_color.has_value());
+        auto who = *optional_color;
+        auto opponent_color = colorInvert (who);
 
         bool accepted = (status == DrawByRepetitionStatus::Accepted);
-        game->setProposedDrawStatus (drawType, who, accepted);
-        if (game->getPlayer (opponentColor) == Player::Human)
+        game->setProposedDrawStatus (draw_type, who, accepted);
+        if (game->getPlayer (opponent_color) == Player::Human)
         {
-            game->setProposedDrawStatus (drawType, opponentColor, accepted);
+            game->setProposedDrawStatus (draw_type, opponent_color, accepted);
         }
 
         updateDisplayedGameState();

@@ -34,8 +34,8 @@ namespace wisdom
         return isProbablyFifthRepetition (board) && isCertainlyFifthRepetition (board);
     }
 
-    auto 
-    operator<< (std::ostream& os, const History& history) 
+    auto
+    operator<< (std::ostream& os, const History& history)
         -> std::ostream&
     {
         int move_number = 1;

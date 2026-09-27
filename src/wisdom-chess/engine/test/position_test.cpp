@@ -45,7 +45,7 @@ TEST_CASE( "Center pawn elevates position overallScore" )
 
     builder.addPiece ("e4", Color::White, Piece::Pawn);
     builder.addPiece ("a6", Color::Black, Piece::Pawn);
-    
+
     auto board = Board { builder };
 
     auto white_score = board.getPosition().overallScore (Color::White);

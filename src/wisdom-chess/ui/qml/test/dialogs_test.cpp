@@ -461,7 +461,6 @@ private:
         return replied ? gap : -1;
     }
 
-
     // An application on a phone is not quit from its menu.
     [[nodiscard]] static auto
     menuHasQuit()

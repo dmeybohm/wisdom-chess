@@ -26,17 +26,15 @@ namespace wisdom
             return wisdom_game_output_format;
     }
 
-    // Game::Impl constructors
     // Main constructor that maintains all invariants
     Game::Impl::Impl (const BoardBuilder& builder, const Players& players, Color current_turn)
-        : my_current_board { builder }
-        , my_players { players }
+        : current_board { builder }
+        , players { players }
     {
-        my_current_board = my_current_board.withCurrentTurn (current_turn);
-        my_history = History::fromInitialBoard (my_current_board);
+        current_board = current_board.withCurrentTurn (current_turn);
+        history = History::fromInitialBoard (current_board);
     }
 
-    // Delegating constructors
     Game::Impl::Impl()
         : Impl { BoardBuilder::fromDefaultPosition(), Players { Player::Human, Player::ChessEngine }, Color::White }
     {
@@ -67,19 +65,16 @@ namespace wisdom
     {
     }
 
-    // Private constructor for factory functions
     Game::Game (unique_ptr<Impl> impl)
         : my_pimpl { std::move (impl) }
     {
     }
 
-    // Copy constructor
     Game::Game (const Game& other)
         : my_pimpl { make_unique<Impl> (*other.my_pimpl) }
     {
     }
 
-    // Copy assignment
     auto Game::operator= (const Game& other) -> Game&
     {
         if (this != &other)
@@ -89,10 +84,8 @@ namespace wisdom
         return *this;
     }
 
-    // Move constructor
     Game::Game (Game&& other) noexcept = default;
 
-    // Move assignment
     auto Game::operator= (Game&& other) noexcept -> Game&
     {
         if (this != &other)
@@ -102,10 +95,8 @@ namespace wisdom
         return *this;
     }
 
-    // Destructor
     Game::~Game() = default;
 
-    // Factory function implementations
     auto Game::createStandardGame() -> Game
     {
         return Game { make_unique<Impl>() };
@@ -152,27 +143,27 @@ namespace wisdom
 
     void Game::move (Move move)
     {
-        my_pimpl->my_current_board = my_pimpl->my_current_board.withMove (getCurrentTurn(), move);
-        my_pimpl->my_history.addPosition (my_pimpl->my_current_board, move);
+        my_pimpl->current_board = my_pimpl->current_board.withMove (getCurrentTurn(), move);
+        my_pimpl->history.addPosition (my_pimpl->current_board, move);
     }
 
     void Game::save (const string& input) const
     {
         OutputFormat& output = makeOutputFormat (input);
-        output.save (input, my_pimpl->my_current_board, my_pimpl->my_history, getCurrentTurn());
+        output.save (input, my_pimpl->current_board, my_pimpl->history, getCurrentTurn());
     }
 
     auto Game::status() const -> GameStatus
     {
-        if (isCheckmated (my_pimpl->my_current_board))
+        if (isCheckmated (my_pimpl->current_board))
             return GameStatus::Checkmate;
 
-        if (isStalemated (my_pimpl->my_current_board))
+        if (isStalemated (my_pimpl->current_board))
             return GameStatus::Stalemate;
 
-        if (my_pimpl->my_history.isThirdRepetition (my_pimpl->my_current_board))
+        if (my_pimpl->history.isThirdRepetition (my_pimpl->current_board))
         {
-            auto third_repetition_status = my_pimpl->my_history.getThreefoldRepetitionStatus();
+            auto third_repetition_status = my_pimpl->history.getThreefoldRepetitionStatus();
             using enum DrawStatus;
             switch (third_repetition_status)
             {
@@ -187,12 +178,12 @@ namespace wisdom
             }
         }
 
-        if (my_pimpl->my_history.isFifthRepetition (getBoard()))
+        if (my_pimpl->history.isFifthRepetition (getBoard()))
             return GameStatus::FivefoldRepetitionDraw;
 
         if (History::hasBeenFiftyMovesWithoutProgress (getBoard()))
         {
-            auto fifty_moves_status = my_pimpl->my_history.getFiftyMovesWithoutProgressStatus();
+            auto fifty_moves_status = my_pimpl->history.getFiftyMovesWithoutProgressStatus();
             using enum DrawStatus;
             switch (fifty_moves_status)
             {
@@ -210,8 +201,8 @@ namespace wisdom
         if (History::hasBeenSeventyFiveMovesWithoutProgress (getBoard()))
             return GameStatus::SeventyFiveMovesWithoutProgressDraw;
 
-        const auto& material = my_pimpl->my_current_board.getMaterial();
-        if (material.checkmateIsPossible (my_pimpl->my_current_board) == Material::CheckmateIsPossible::No)
+        const auto& material = my_pimpl->current_board.getMaterial();
+        if (material.checkmateIsPossible (my_pimpl->current_board) == Material::CheckmateIsPossible::No)
             return GameStatus::InsufficientMaterialDraw;
 
         return GameStatus::Playing;
@@ -228,11 +219,11 @@ namespace wisdom
             whom = getCurrentTurn();
 
         IterativeSearch iterative_search = IterativeSearch::create (
-            my_pimpl->my_current_board,
-            my_pimpl->my_history,
+            my_pimpl->current_board,
+            my_pimpl->history,
             std::move (logger),
-            my_pimpl->my_move_timer,
-            my_pimpl->my_max_depth,
+            my_pimpl->move_timer,
+            my_pimpl->max_depth,
             transposition_table
         );
         SearchResult result = iterative_search.iterativelyDeepen (whom);
@@ -276,34 +267,34 @@ namespace wisdom
 
     auto Game::getCurrentTurn() const -> Color
     {
-        return my_pimpl->my_current_board.getCurrentTurn();
+        return my_pimpl->current_board.getCurrentTurn();
     }
 
     void Game::setCurrentTurn (Color new_turn)
     {
         expects (isColorValid (new_turn));
-        my_pimpl->my_current_board = my_pimpl->my_current_board.withCurrentTurn (new_turn);
-        my_pimpl->my_history.replaceLastPosition (my_pimpl->my_current_board);
+        my_pimpl->current_board = my_pimpl->current_board.withCurrentTurn (new_turn);
+        my_pimpl->history.replaceLastPosition (my_pimpl->current_board);
     }
 
     auto Game::getBoard() const& -> const Board&
     {
-        return my_pimpl->my_current_board;
+        return my_pimpl->current_board;
     }
 
     auto Game::getHistory() & -> History&
     {
-        return my_pimpl->my_history;
+        return my_pimpl->history;
     }
 
     auto Game::computerWantsDraw (Color who) const -> bool
     {
         expects (isColorValid (who));
-        int score = evaluate (my_pimpl->my_current_board, who, 1);
+        int score = evaluate (my_pimpl->current_board, who, 1);
         return score <= Min_Draw_Score;
     }
 
-    static auto 
+    static auto
     drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires)
          -> DrawStatus
     {
@@ -318,14 +309,14 @@ namespace wisdom
 
     void Game::Impl::updateThreefoldRepetitionDrawStatus()
     {
-        auto status = drawDesiresToRepetitionStatus (my_third_repetition_draw);
-        my_history.setThreefoldRepetitionStatus (status);
+        auto status = drawDesiresToRepetitionStatus (third_repetition_draw);
+        history.setThreefoldRepetitionStatus (status);
     }
 
     void Game::Impl::updateFiftyMovesWithoutProgressDrawStatus()
     {
-        auto status = drawDesiresToRepetitionStatus (my_fifty_moves_without_progress_draw);
-        my_history.setFiftyMovesWithoutProgressStatus (status);
+        auto status = drawDesiresToRepetitionStatus (fifty_moves_without_progress_draw);
+        history.setFiftyMovesWithoutProgressStatus (status);
     }
 
     void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who, DrawStatus draw_status)
@@ -334,16 +325,16 @@ namespace wisdom
         switch (draw_type)
         {
             case ProposedDrawType::ThreeFoldRepetition:
-                my_pimpl->my_third_repetition_draw
-                    = updateDrawStatus (my_pimpl->my_third_repetition_draw, who, draw_status);
-                if (bothPlayersReplied (my_pimpl->my_third_repetition_draw))
+                my_pimpl->third_repetition_draw
+                    = updateDrawStatus (my_pimpl->third_repetition_draw, who, draw_status);
+                if (bothPlayersReplied (my_pimpl->third_repetition_draw))
                     my_pimpl->updateThreefoldRepetitionDrawStatus();
                 break;
 
             case ProposedDrawType::FiftyMovesWithoutProgress:
-                my_pimpl->my_fifty_moves_without_progress_draw
-                    = updateDrawStatus (my_pimpl->my_fifty_moves_without_progress_draw, who, draw_status);
-                if (bothPlayersReplied (my_pimpl->my_fifty_moves_without_progress_draw))
+                my_pimpl->fifty_moves_without_progress_draw
+                    = updateDrawStatus (my_pimpl->fifty_moves_without_progress_draw, who, draw_status);
+                if (bothPlayersReplied (my_pimpl->fifty_moves_without_progress_draw))
                     my_pimpl->updateFiftyMovesWithoutProgressDrawStatus();
                 break;
         }
@@ -360,7 +351,7 @@ namespace wisdom
 
     void Game::setProposedDrawStatus (
         ProposedDrawType draw_type,
-        std::pair<DrawStatus, DrawStatus> draw_statuses
+        pair<DrawStatus, DrawStatus> draw_statuses
     ) {
         setProposedDrawStatus (draw_type, Color::White, draw_statuses.first);
         setProposedDrawStatus (draw_type, Color::Black, draw_statuses.second);
@@ -368,65 +359,65 @@ namespace wisdom
 
     auto Game::getCurrentPlayer() const -> Player
     {
-        return my_pimpl->my_players[colorIndex (getCurrentTurn())];
+        return my_pimpl->players[colorIndex (getCurrentTurn())];
     }
 
     void Game::setWhitePlayer (Player player)
     {
-        my_pimpl->my_players[colorIndex (Color::White)] = player;
+        my_pimpl->players[colorIndex (Color::White)] = player;
     }
 
     void Game::setBlackPlayer (Player player)
     {
-        my_pimpl->my_players[colorIndex (Color::Black)] = player;
+        my_pimpl->players[colorIndex (Color::Black)] = player;
     }
 
     auto Game::getPlayer (Color color) const -> Player
     {
         expects (isColorValid (color));
-        return my_pimpl->my_players[colorIndex (color)];
+        return my_pimpl->players[colorIndex (color)];
     }
 
     void Game::setPlayers (const Players& players)
     {
-        my_pimpl->my_players = players;
+        my_pimpl->players = players;
     }
 
     auto Game::getPlayers() const -> Players
     {
-        return my_pimpl->my_players;
+        return my_pimpl->players;
     }
 
     auto Game::getMaxDepth() const -> int
     {
-        return my_pimpl->my_max_depth;
+        return my_pimpl->max_depth;
     }
 
     void Game::setMaxDepth (int max_depth)
     {
         expects (max_depth > 0);
-        my_pimpl->my_max_depth = max_depth;
+        my_pimpl->max_depth = max_depth;
     }
 
     auto Game::getSearchTimeout() const -> std::chrono::milliseconds
     {
-        return my_pimpl->my_move_timer.getTimeLimit();
+        return my_pimpl->move_timer.getTimeLimit();
     }
 
     void Game::setSearchTimeout (std::chrono::milliseconds timeout)
     {
         expects (timeout > std::chrono::milliseconds::zero());
-        my_pimpl->my_move_timer.setTimeLimit (timeout);
+        my_pimpl->move_timer.setTimeLimit (timeout);
     }
 
     auto Game::mapCoordinatesToMove (Coord src, Coord dst, optional<Piece> promoted) const
         -> optional<Move>
     {
-        return ::wisdom::mapCoordinatesToMove (my_pimpl->my_current_board, getCurrentTurn(), src, dst, promoted);
+        return ::wisdom::mapCoordinatesToMove (my_pimpl->current_board, getCurrentTurn(), src, dst, promoted);
     }
 
     void Game::setPeriodicFunction (const PeriodicFunction& periodic_function)
     {
-        my_pimpl->my_move_timer.setPeriodicFunction (periodic_function);
+        my_pimpl->move_timer.setPeriodicFunction (periodic_function);
     }
 }
