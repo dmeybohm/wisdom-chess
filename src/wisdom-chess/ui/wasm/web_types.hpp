@@ -308,6 +308,27 @@ namespace wisdom
             return pieces[index];
         }
 
+        // The index of the piece on the square, or -1.
+        [[nodiscard]] auto
+        indexOf (Coord coord) const
+            -> int
+        {
+            for (int i = 0; i < length; i++)
+            {
+                if (pieces[i].row == coord.row<int>() && pieces[i].col == coord.column<int>())
+                    return i;
+            }
+            return -1;
+        }
+
+        // Removes the piece at the index, keeping the others in order.
+        void removeAt (int index)
+        {
+            for (int i = index; i < length - 1; i++)
+                pieces[i] = pieces[i + 1];
+            pieces[--length] = WebColoredPiece {};
+        }
+
         void clear()
         {
             for (int i = 0; i < Num_Squares; i++)
