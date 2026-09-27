@@ -1,0 +1,41 @@
+1:1:identifier:spaced:auto
+1:6:identifier:spaced:a
+1:8:punctuator:spaced:=
+1:10:string:spaced:"escaped \" quote"
+1:28:punctuator:joined:;
+2:1:identifier:spaced:auto
+2:6:identifier:spaced:b
+2:8:punctuator:spaced:=
+2:10:character:spaced:'\''
+2:14:punctuator:joined:;
+3:1:identifier:spaced:auto
+3:6:identifier:spaced:c
+3:8:punctuator:spaced:=
+3:10:string:spaced:u8"prefixed"
+3:23:character:spaced:L'w'
+3:28:string:spaced:U"wide"
+3:35:punctuator:joined:;
+4:1:identifier:spaced:auto
+4:6:identifier:spaced:d
+4:8:punctuator:spaced:=
+4:10:string:spaced:R"delim(raw )" still raw\nover lines)delim"
+5:18:punctuator:joined:;
+6:1:identifier:spaced:auto
+6:6:identifier:spaced:e
+6:8:punctuator:spaced:=
+6:10:string:spaced:"text"s
+6:18:punctuator:spaced:+
+6:20:number:spaced:12_km
+6:25:punctuator:joined:;
+7:1:identifier:spaced:auto
+7:6:identifier:spaced:f
+7:8:punctuator:spaced:=
+7:10:string:spaced:"spliced \\nstring"
+8:8:punctuator:joined:;
+9:1:identifier:spaced:auto
+9:6:identifier:spaced:g
+9:8:punctuator:spaced:=
+9:10:character:spaced:'unterminated
+10:1:identifier:spaced:int
+10:5:identifier:spaced:h
+10:6:punctuator:joined:;

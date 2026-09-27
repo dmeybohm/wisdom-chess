@@ -156,6 +156,8 @@ if(NOT EMSCRIPTEN)
                 ${CMAKE_SOURCE_DIR}/scripts/linter/main.cpp
                 ${CMAKE_SOURCE_DIR}/scripts/linter/linter.cpp
                 ${CMAKE_SOURCE_DIR}/scripts/linter/linter.hpp
+                ${CMAKE_SOURCE_DIR}/scripts/linter/lexer.cpp
+                ${CMAKE_SOURCE_DIR}/scripts/linter/lexer.hpp
                 ${CMAKE_SOURCE_DIR}/scripts/linter/rules
             DEPENDS wisdom-linter
             COMMENT "Running C++ style linter"

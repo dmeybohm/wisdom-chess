@@ -1,6 +1,6 @@
 #include "../linter.hpp"
 
-#include <cctype>
+#include <unordered_set>
 
 namespace wisdom_linter
 {
@@ -24,7 +24,7 @@ namespace
         {
             std::vector<LintViolation> violations;
 
-            static const std::vector<std::string> test_macros = {
+            static const std::unordered_set<std::string> test_macros = {
                 "TEST_CASE", "SUBCASE", "CHECK", "CHECK_FALSE", "REQUIRE", "REQUIRE_FALSE",
                 "WARN", "WARN_FALSE", "INFO", "CAPTURE", "GENERATE", "SECTION",
                 "CHECK_EQ", "CHECK_NE", "CHECK_GT", "CHECK_LT", "CHECK_GE", "CHECK_LE",
@@ -52,108 +52,68 @@ namespace
                 "QTEST_MAIN", "QTEST_GUILESS_MAIN", "QTEST_APPLESS_MAIN",
             };
 
-            auto code_lines = stripComments (context.lines);
+            auto code = codeTokens (context.tokens);
 
-            for (size_t i = 0; i < code_lines.size(); ++i)
+            for (size_t i = 0; i + 1 < code.size(); ++i)
             {
-                const auto& line = code_lines[i];
-                int line_number = static_cast<int> (i + 1);
-
-                for (const auto& macro : test_macros)
+                if (!isIdentifier (code[i]) || test_macros.count (code[i].text) == 0
+                    || !isPunctuator (code[i + 1], "(") || code[i + 1].line != code[i].line)
                 {
-                    size_t pos = 0;
-                    while ((pos = line.find (macro, pos)) != std::string::npos)
+                    continue;
+                }
+
+                const auto& macro = code[i].text;
+                const auto& open = code[i + 1];
+                if (open.spaced_before)
+                {
+                    violations.push_back (LintViolation {
+                        std::string { name() },
+                        "Unexpected space before '(' in '" + macro + "'",
+                        open.line,
+                        open.column,
+                        Severity::Error,
+                    });
+                }
+
+                if (i + 2 < code.size())
+                {
+                    const auto& first = code[i + 2];
+                    if (first.line == open.line && !isPunctuator (first, ")") && !first.spaced_before)
                     {
-                        if (pos > 0 && (std::isalnum (line[pos - 1]) || line[pos - 1] == '_' ))
-                        {
-                            ++pos;
-                            continue;
-                        }
-
-                        size_t after_macro = pos + macro.size();
-                        size_t open_paren = after_macro;
-                        bool has_space_before_paren = false;
-
-                        while (open_paren < line.size() &&
-                                (line[open_paren] == ' ' || line[open_paren] == '\t' ))
-                        {
-                            has_space_before_paren = true;
-                            ++open_paren;
-                        }
-
-                        if (open_paren >= line.size() || line[open_paren] != '(' )
-                        {
-                            ++pos;
-                            continue;
-                        }
-
-                        if (has_space_before_paren)
-                        {
-                            violations.push_back (LintViolation {
-                                std::string { name() },
-                                "Unexpected space before '(' in '" + macro + "'",
-                                line_number,
-                                static_cast<int> (open_paren + 1),
-                                Severity::Error,
-                            });
-                        }
-                        if (open_paren + 1 < line.size() && line[open_paren + 1] != ' ' &&
-                             line[open_paren + 1] != ')' )
-                        {
-                            violations.push_back (LintViolation {
-                                std::string { name() },
-                                "Missing space after '(' in '" + macro + "'",
-                                line_number,
-                                static_cast<int> (open_paren + 2),
-                                Severity::Error,
-                            });
-                        }
-
-                        int depth = 1;
-                        size_t j = open_paren + 1;
-                        bool in_string = false;
-                        char string_char = 0;
-
-                        while (j < line.size() && depth > 0)
-                        {
-                            char c = line[j];
-
-                            if (!in_string && (c == '"' || c == '\'' ))
-                            {
-                                in_string = true;
-                                string_char = c;
-                            }
-                            else if (in_string && c == string_char && (j == 0 || line[j - 1] != '\\' ))
-                            {
-                                in_string = false;
-                            }
-                            else if (!in_string)
-                            {
-                                if (c == '(' )
-                                {
-                                    ++depth;
-                                }
-                                else if (c == ')' )
-                                {
-                                    --depth;
-                                    if (depth == 0 && j > 0 && line[j - 1] != ' ' &&
-                                         line[j - 1] != '\t' )
-                                    {
-                                        violations.push_back (LintViolation {
-                                            std::string { name() },
-                                            "Missing space before ')' in '" + macro + "'",
-                                            line_number,
-                                            static_cast<int> (j + 1),
-                                            Severity::Error,
-                                        });
-                                    }
-                                }
-                            }
-                            ++j;
-                        }
-
-                        pos = open_paren + 1;
+                        violations.push_back (LintViolation {
+                            std::string { name() },
+                            "Missing space after '(' in '" + macro + "'",
+                            first.line,
+                            first.column,
+                            Severity::Error,
+                        });
                     }
+                }
+
+                // The closing parenthesis is checked only when it is on the
+                // line that opens the call.
+                int depth = 0;
+                size_t close = i + 1;
+                for (; close < code.size(); ++close)
+                {
+                    if (isPunctuator (code[close], "("))
+                    {
+                        ++depth;
+                    }
+                    else if (isPunctuator (code[close], ")") && --depth == 0)
+                    {
+                        break;
+                    }
+                }
+                if (close < code.size() && code[close].line == open.line && !code[close].spaced_before)
+                {
+                    violations.push_back (LintViolation {
+                        std::string { name() },
+                        "Missing space before ')' in '" + macro + "'",
+                        code[close].line,
+                        code[close].column,
+                        Severity::Error,
+                    });
                 }
             }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lexer.hpp"
+
 #include <cstdint>
 #include <filesystem>
 #include <memory>
@@ -34,6 +36,7 @@ struct LintContext
     std::filesystem::path filename;
     std::vector<std::string> lines;
     std::string content;
+    std::vector<Token> tokens;
 };
 
 struct LintResult
@@ -90,13 +93,6 @@ private:
     -> std::string;
 
 [[nodiscard]] auto parseOutputFormat (std::string_view format_str) -> std::optional<OutputFormat>;
-
-// The lines with every comment blanked out, character for character, so
-// that columns are unchanged and rules see only code. Block comments are
-// tracked across lines, and comment markers inside string or character
-// literals are left alone.
-[[nodiscard]] auto stripComments (const std::vector<std::string>& lines)
-    -> std::vector<std::string>;
 
 [[nodiscard]] auto getDefaultConfig() -> LinterConfig;
 

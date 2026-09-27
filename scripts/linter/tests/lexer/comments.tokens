@@ -1,0 +1,20 @@
+1:1:identifier:spaced:int
+1:5:identifier:spaced:limit
+1:11:punctuator:spaced:=
+1:13:number:spaced:100'000
+1:20:punctuator:joined:;
+1:22:comment:spaced:// Board* after a digit separator
+2:1:comment:spaced:/* a block comment\n   over two lines */
+3:22:identifier:spaced:int
+3:26:identifier:spaced:after
+3:31:punctuator:joined:;
+4:1:comment:spaced:// a line comment \\n   continued by a backslash
+6:1:identifier:spaced:int
+6:5:identifier:spaced:x
+6:7:punctuator:spaced:=
+6:9:number:spaced:1
+6:10:punctuator:joined:;
+6:12:comment:spaced:/* "quotes" and 'apostrophes' */
+6:45:identifier:spaced:int
+6:49:identifier:spaced:y
+6:50:punctuator:joined:;
