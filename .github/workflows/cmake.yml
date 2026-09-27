@@ -285,9 +285,9 @@ jobs:
     - name: Run Tests
       run: ctest --test-dir ${{ github.workspace }}/build --output-on-failure -j 4
 
-  # Builds the Android package and runs nothing: the tests of an Android
-  # build run on a device (cmake/AndroidTests.cmake), and there is none
-  # here. The SDK, the NDK and Java come with the runner. The action installs
+  # Builds the Android package for a phone, arm64-v8a, and runs nothing:
+  # the runner has no such device. android-tests runs the tests, on an
+  # emulator. The SDK, the NDK and Java come with the runner. The action installs
   # the desktop Qt as well, which a cross-compiled Qt needs for its tools.
   android:
     runs-on: ubuntu-latest
@@ -332,3 +332,48 @@ jobs:
 
     - name: Build
       run: cmake --build ${{ github.workspace }}/build -j 4
+
+  # Builds for an emulator, x86_64 like the runner, and runs the tests on
+  # it. scripts/android-tests.sh does all of it inside the emulator's step:
+  # the build already needs the device, and the action runs each line of
+  # its script as a command of its own.
+  android-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.*'
+        target: android
+        arch: android_x86_64
+        cache: true
+
+    - name: Cache CPM downloads
+      uses: actions/cache@v6
+      with:
+        path: ~/cpm-cache
+        key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          cpm-${{ runner.os }}-
+
+    - name: Use Java 17
+      run: echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
+
+    - name: Let the emulator use KVM
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+          | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
+    - name: Build and test on the emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 36
+        target: google_apis
+        arch: x86_64
+        disk-size: 4096M
+        script: CPM_SOURCE_CACHE="$HOME/cpm-cache" ./scripts/android-tests.sh "$QT_ROOT_DIR" "$GITHUB_WORKSPACE/build"
