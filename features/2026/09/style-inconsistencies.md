@@ -228,3 +228,43 @@ merge with `-Xignore-space-at-eol` avoids most of the conflicts.
     `ui/wasm/game_model.hpp`.
   - Not run: the React tests. The only change to TypeScript is a newline
     at the end of four files.
+
+### Session #2
+
+Three of the items under B were decided and done.
+
+- **Item 14, layout of a trailing return type.** Neither the linter, the
+  documents nor the `.clang-format` removed in November 2025 has a rule
+  for it, and line length does not explain it: at 100 columns, 503 of
+  the 585 split declarations would fit on one line. The number of
+  specifiers does, as a tendency:
+
+  | Specifiers | One line | Split | Share on one line |
+  |---|---|---|---|
+  | 0 | 47 | 97 | 33% |
+  | 1 | 42 | 142 | 23% |
+  | 2 | 28 | 224 | 11% |
+  | 3 | 4 | 85 | 4% |
+  | 4 | 0 | 37 | 0% |
+
+  `AGENTS.md` now says to split at three or more and to follow the file
+  otherwise. The four one-line declarations with three were split:
+  `Game::getBoard()` twice, `Error::message()` and
+  `Error::extra_info()`. These counts use a wider search than the 441
+  and 109 under item 14, which missed `consteval` and `explicit`.
+- **Item 20, the `my_` prefix.** Private members have it and public ones
+  do not, which `AGENTS.md` now states.
+  - Added: `FenParser::my_builder` and `my_active_player`,
+    `IterativeSearch::my_pimpl` (the name `Game` uses), and
+    `ConsoleGame::my_quit`, `my_paused` and `my_show_final_position`.
+  - Removed: `Move::data`, the five fields of `InlineThreats`, and the
+    seven public fields of `Game::Impl`, which the list under item 20
+    had missed.
+- **Item 21.** `ParseMoveException` is now `ParseMoveError`. Only the
+  engine and its tests named it; no frontend catches it by name.
+- Verified: Release build with the QML UI on has no warnings, the 235
+  fast tests pass, and the `lint` target passes.
+- Still open under B: items 15 to 19 and 22 to 29. For item 29,
+  `prettier` has no dependencies, `@biomejs/biome` has none beyond its
+  own prebuilt binary, and `eslint` has 30 before `typescript-eslint`.
+  No choice has been made.

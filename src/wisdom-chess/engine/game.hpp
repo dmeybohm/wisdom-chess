@@ -93,8 +93,13 @@ namespace wisdom
 
         void setCurrentTurn (Color new_turn);
 
-        [[nodiscard]] auto getBoard() const& -> const Board&;
-        [[nodiscard]] auto getBoard() const&& -> Board& = delete;
+        [[nodiscard]] auto
+        getBoard() const&
+            -> const Board&;
+
+        [[nodiscard]] auto
+        getBoard() const&&
+            -> Board& = delete;
 
         [[nodiscard]] auto getHistory() & -> History&;
         [[nodiscard]] auto getHistory() && -> History& = delete;

@@ -249,12 +249,16 @@ namespace wisdom
         Error (const Error& src) noexcept = default;
         auto operator= (const Error& src) noexcept -> Error& = default;
 
-        [[nodiscard]] auto message() const noexcept -> const string&
+        [[nodiscard]] auto
+        message() const noexcept
+            -> const string&
         {
             return my_text->message;
         }
 
-        [[nodiscard]] auto extra_info() const noexcept -> const string&
+        [[nodiscard]] auto
+        extra_info() const noexcept
+            -> const string&
         {
             return my_text->extra_info;
         }
