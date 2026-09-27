@@ -34,7 +34,7 @@ namespace
 {
     void doCheck (
         const Board& board,
-        const vector<CounterExpectation> &expectations,
+        const vector<CounterExpectation>& expectations,
         Color color
     )
     {

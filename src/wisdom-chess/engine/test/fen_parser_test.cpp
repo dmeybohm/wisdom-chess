@@ -173,7 +173,7 @@ TEST_CASE( "FEN parser rejects castling rights without the king on its home squa
 TEST_CASE( "FEN notation for en passant" )
 {
     Game game = Game::createGameFromFen ("4r3/8/8/4p3/8/8/k7/4K2R w - e6 0 1");
-    auto &board = game.getBoard();
+    auto& board = game.getBoard();
 
     auto black_target = board.getAnyEnPassantTarget();
     REQUIRE( black_target.has_value() );

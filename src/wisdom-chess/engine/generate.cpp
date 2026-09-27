@@ -122,7 +122,7 @@ namespace wisdom
             return row == Black_Pawn_Start_Row;
     }
 
-    static auto validCastlingMove (const Board &board, Move move) noexcept
+    static auto validCastlingMove (const Board& board, Move move) noexcept
         -> bool
     {
         // check for an intervening piece
