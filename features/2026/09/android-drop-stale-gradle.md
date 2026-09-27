@@ -65,7 +65,7 @@ Found along the way:
   Fixed.
 - With `WISDOM_CHESS_FAST_TESTS` on (the default), the build fails on
   Android: doctest's test discovery runs the test executables on the
-  host. Not fixed; the build above turns the tests off.
+  host. Fixed in session #4.
 - Gradle warns that the manifest's `package` attribute is ignored in
   favor of the namespace. Harmless: Qt reads the attribute to set that
   namespace, and Qt's own template manifest carries it too.
@@ -86,3 +86,59 @@ use syntax accepted by Qt's JavaScript parser.
 Verified with Qt 6.11.2: `all_qmllint` passes, an Android x86_64 Debug
 configure and QML code generation for `Piece.qml` pass, and the desktop
 `QML: application` test passes (including drag, move, and castling cases).
+
+### Session #4
+
+**Tests on the device.** The test programs are plain executables that need
+only the NDK's `libc++_shared.so`, so they run from `adb shell` without
+being packaged. `cmake/AndroidTests.cmake` configures
+`cmake/android-run-test.sh.in` into the build directory and sets it as
+`CMAKE_CROSSCOMPILING_EMULATOR`, which doctest's discovery and `ctest`
+both put in front of a test program.
+
+Two ways of registering the doctest suites were considered: keep
+discovery, which lists every test case but runs the programs during the
+build, or register one test per program, which builds without a device.
+Discovery was chosen for the listing, so an Android build with the tests
+on needs a device or emulator connected. Without one the wrapper says so
+and names the options that turn the tests off.
+
+The wrapper:
+
+- keeps each file on the device in a directory named after its checksum,
+  so an unchanged program is not copied again and a rebuilt one replaces
+  the old copy;
+- copies under a temporary name and renames, because `ctest -j` starts
+  several copies of the same program at once;
+- gives every `adb` call but the last `/dev/null` for input, or the first
+  would swallow the script meant for a command-line test;
+- is a single path with no arguments, because the fatal and command-line
+  tests pass it through `add_test()`, which splits arguments at `;`.
+
+The fatal tests take the emulator the way the `wasm-doctest-discovery`
+branch passes it, with the same edit to `run_fatal_test.cmake`, so the two
+branches merge cleanly. All seven cases behave on Android as on Linux. The
+command-line tests take it the same way. The saved-game test uses a
+relative path on Android, since the device has no build directory, and the
+Python script test is left out of an Android build: CMake would have sent
+the host's interpreter to the device.
+
+Results on the x86_64 emulator (Android 16, API 36):
+
+| Build | Tests | Result |
+|---|---|---|
+| Qt 6.11.2, Release, fast and slow | 218 | all passed |
+| Qt 6.11.2, Debug, fast, Qt Creator's build directory | 186 | all passed |
+| Desktop, Release, fast (unchanged behavior) | 187 | all passed |
+
+Not covered: the QML tests, which need Qt and so an APK and Qt's
+`androidtestrunner`; a Windows host, where the wrapper's shell script does
+not run; an ARM device.
+
+**CI.** `cmake.yml` gains an `android` job that builds the arm64-v8a
+package with the tests off and runs nothing. The same configure and build
+commands were run locally against Qt 6.9.3 for Android, the version CI
+pins, and produced the APK. The job itself has not run on GitHub yet, so
+what the runner provides is still to be confirmed: that the Qt action
+installs the desktop Qt beside the Android one, and the `ANDROID_NDK_ROOT`
+and `JAVA_HOME_17_X64` variables.

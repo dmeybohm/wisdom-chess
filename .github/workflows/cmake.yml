@@ -1,7 +1,8 @@
-# Native builds, sanitizers and the linter. The WASM builds and the Netlify
-# deploy are in web.yml. The jobs do not depend on `lint`: it is short, and
-# waiting on it delays every build by a scheduling round trip, minutes when
-# several branches are pushed at once. A lint failure still fails the run.
+# Native builds, the Android package, sanitizers and the linter. The WASM
+# builds and the Netlify deploy are in web.yml. The jobs do not depend on
+# `lint`: it is short, and waiting on it delays every build by a scheduling
+# round trip, minutes when several branches are pushed at once. A lint
+# failure still fails the run.
 # See features/2026/09/ci-consolidation.md.
 name: CMake Multiplatform
 
@@ -279,3 +280,51 @@ jobs:
 
     - name: Run Tests
       run: ctest --test-dir ${{ github.workspace }}/build --output-on-failure -j 4
+
+  # Builds the Android package and runs nothing: the tests of an Android
+  # build run on a device (cmake/AndroidTests.cmake), and there is none
+  # here. The SDK, the NDK and Java come with the runner. The action installs
+  # the desktop Qt as well, which a cross-compiled Qt needs for its tools.
+  android:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.*'
+        target: android
+        arch: android_arm64_v8a
+        cache: true
+
+    - name: Cache CPM downloads
+      uses: actions/cache@v4
+      with:
+        path: ~/cpm-cache
+        key: cpm-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          cpm-${{ runner.os }}-
+
+    - name: Use Java 17
+      # Gradle runs as part of the build and takes its Java from here.
+      run: echo "JAVA_HOME=$JAVA_HOME_17_X64" >> "$GITHUB_ENV"
+
+    - name: Configure CMake
+      run: >
+        "$QT_ROOT_DIR/bin/qt-cmake" -B ${{ github.workspace }}/build
+        -G Ninja
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo
+        -DCPM_SOURCE_CACHE=~/cpm-cache
+        -DQT_HOST_PATH="${QT_HOST_PATH:-$(dirname "$QT_ROOT_DIR")/gcc_64}"
+        -DANDROID_SDK_ROOT="$ANDROID_SDK_ROOT"
+        -DANDROID_NDK_ROOT="${ANDROID_NDK_ROOT:-$ANDROID_NDK_LATEST_HOME}"
+        -DWISDOM_CHESS_QML_UI=On
+        -DWISDOM_CHESS_BUILD_LINTER=Off
+        -DWISDOM_CHESS_FAST_TESTS=Off
+        -DWISDOM_CHESS_SLOW_TESTS=Off
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: cmake --build ${{ github.workspace }}/build -j 4
