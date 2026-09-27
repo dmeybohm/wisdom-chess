@@ -25,11 +25,10 @@ Gradle configuration is ever needed (extra dependencies, signing), copy
 `build.gradle` fresh from the current Qt template, make the minimal edit,
 and re-diff it on each Qt upgrade.
 
-Still open: the manifest declares `package="org.qtproject.example"`.
-Newer Qt derives the Gradle namespace from the package name it passes in,
-so this should become a real package name, and whether Qt 6.11 still
-accepts the `package` attribute at all is to be checked on the first
-build.
+The manifest declared Qt's placeholder package `org.qtproject.example`.
+Use `com.daveme.wisdomchess`, the identifier the macOS bundle and the
+installer already use. Android package segments must be Java identifiers,
+so a hyphenated `wisdom-chess` is not possible.
 
 ## Implementation Progress
 
@@ -38,3 +37,36 @@ build.
 Removed `build.gradle`, `gradle.properties`, `gradlew`, `gradlew.bat` and
 `gradle/` from the android package directory. Not yet built for Android;
 the SDK and NDK were not installed on the development machine at the time.
+
+### Session #2
+
+Set the manifest package to `com.daveme.wisdomchess`.
+
+Built an x86_64 APK from the command line with Qt 6.11.2, NDK
+27.2.12479018 and JDK 17, using Qt's own gradle template (AGP 9.0.0,
+Gradle 9.3.1). `aapt2 dump badging` reports the new package name. Not yet
+installed or run on a device or emulator.
+
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
+~/Qt/6.11.2/android_x86_64/bin/qt-cmake -S . -B build-android-x86_64 -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release -DWISDOM_CHESS_QML_UI=ON \
+  -DWISDOM_CHESS_FAST_TESTS=Off \
+  -DQT_HOST_PATH=$HOME/Qt/6.11.2/gcc_64 \
+  -DANDROID_SDK_ROOT=$HOME/Android/Sdk \
+  -DANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/27.2.12479018
+cmake --build build-android-x86_64 -j8
+```
+
+Found along the way:
+
+- The QML app's `install(TARGETS)` had no `LIBRARY DESTINATION`, which
+  fails to configure on Android, where the app is a module library.
+  Fixed.
+- With `WISDOM_CHESS_FAST_TESTS` on (the default), the build fails on
+  Android: doctest's test discovery runs the test executables on the
+  host. Not fixed; the build above turns the tests off.
+- Gradle warns that the manifest's `package` attribute is ignored in
+  favor of the namespace. Harmless: Qt reads the attribute to set that
+  namespace, and Qt's own template manifest carries it too.
+- The app label is the target name, `WisdomChessQml`. Not changed.
