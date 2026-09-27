@@ -103,3 +103,33 @@ longer reports are:
   line. A macro body is text for substitution rather than a declaration.
 - 17 second stars of `T* const*`. The declaration is reported once, at
   its first `*`, as `char**` already was.
+
+**Step 3: the other rules.** `codeTokens()`, `isIdentifier()`,
+`isPunctuator()` and `startsLine()` moved to `lexer.hpp` for all rules.
+`no-tabs` stays on lines, since a tab is wrong anywhere in a file,
+comments included. Each port was checked against the line-based rule on
+real code, and every existing fixture passes unchanged:
+
+- `namespace-braces` read raw lines, so "namespace x {" inside a block
+  comment was reported. New fixture: `namespace-braces/comments.cpp`.
+- `test-macro-spacing` skipped comments but not string literals, so a
+  macro's name in a string was checked as a call. With the spacing
+  inside every test macro removed from 43 test files, both versions
+  report the same 4,182 violations. New fixture:
+  `test-macro-spacing/literals.cpp`.
+- `function-call-spacing` kept its own string tracker, which took a digit
+  separator for a quote; it was right about the comment after one only by
+  that accident. With `foo (x)` and `bar()` broken both ways across a
+  copy of `src`, both versions report the same 9,245 violations. A
+  comment alone between the parentheses still counts as an argument, as
+  it did, so `reset (/* unused */)` is not reported. New fixture:
+  `function-call-spacing/tokens.cpp`.
+- `trailing-return-type` read raw lines without skipping comments. Over
+  doctest, GSL and `src` it reports what the line-based rule did, except
+  3 lines inside `#define` bodies, two of which were false positives
+  (`ResultBuilder rb(at, ...);` declares a variable).
+
+No rule reads a directive now, so the bodies of multi-line macros are no
+longer checked; nothing in `src` has one. `stripComments()` is gone. The
+linter takes 0.044 s over `src`, doctest and GSL, against 0.052 s for the
+line-based one.
