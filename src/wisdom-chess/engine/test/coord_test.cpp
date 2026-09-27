@@ -6,8 +6,10 @@ using namespace wisdom;
 
 TEST_CASE( "A coordinate can be generated" )
 {
-    for (int8_t row = 0; row < 8; row++) {
-        for (int8_t col = 0; col < 8; col++) {
+    for (int8_t row = 0; row < 8; row++)
+    {
+        for (int8_t col = 0; col < 8; col++)
+        {
             Coord coord = makeCoord (row, col);
 
             CHECK( coordRow (coord) == row );

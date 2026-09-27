@@ -29,6 +29,10 @@ does not make clear why something was done the way it was.
   `noexcept`, a ref-qualifier), put the name and `-> ReturnType` on
   lines of their own. With fewer, either layout is accepted, and both
   are in use: follow the file being edited.
+- Allman braces: the brace opening a function, control statement or
+  type goes on a line of its own, also after a multi-line parameter
+  list. A block that closes on the same line, a brace initializer and
+  a lambda are exempt.
 - `[[nodiscard]]` on factory functions and getters.
 - Private data members carry the `my_` prefix; public ones do not.
 - `wisdom::narrow` and `wisdom::narrow_cast` for narrowing conversions.

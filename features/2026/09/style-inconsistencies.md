@@ -18,7 +18,7 @@ are from commit `131bb67` and exclude the linter's test fixtures in
 
 `[x]` marks an item that is fixed and `[ ]` one that is pending. The
 items under A were fixed in Session #1, items 14, 20 and 21 in Session
-#2, and item 29 in Session #3.
+#2, item 29 in Session #3, and items 15 and 30 in Session #5.
 
 ### A. One obvious direction
 
@@ -102,7 +102,7 @@ direction is a choice rather than a correction.
     form is concentrated in `engine/game.cpp` (18), `engine/history.cpp`
     (6) and the benchmarks (13). `AGENTS.md` shows the one-line form,
     and the linter accepts both.
-15. [ ] **Opening brace after a multi-line parameter list.** 29 functions
+15. [x] **Opening brace after a multi-line parameter list.** 29 functions
     put it on the line of the closing parenthesis (`) {`), most in
     `ui/qml/main/game_model.cpp` (8) and `engine/move.cpp` (5); 7 put it
     on its own line.
@@ -161,7 +161,7 @@ direction is a choice rather than a correction.
     are named.
     `App.tsx` has one semicolon in 348 lines, which is on its one
     double-quoted import.
-30. [ ] **Braces not in Allman style.** Found in Session #5, from commit
+30. [x] **Braces not in Allman style.** Found in Session #5, from commit
     `a1ace68`. A brace that opens a block is on its own line almost
     everywhere; the exceptions are:
     - Control statements, 5: `ui/wasm/bindings.cpp:136`,
@@ -201,12 +201,9 @@ direction is a choice rather than a correction.
    branch.
 4. [ ] Items under B wait for a decision on each. Once decided, the
    convention goes into `AGENTS.md` next to the fix. Decided so far:
-   14, 20, 21 and 29.
-5. [ ] For item 30, the `allman-braces` linter rule. Written in
-   Session #5 at warning severity, so the `lint` target passes while
-   the 38 violations stand; it becomes an error once they are fixed.
-   Decisions needed first: item 15 (the rule makes `) {` a violation),
-   and whether lambdas are covered (the rule skips them).
+   14, 15, 20, 21, 29 and 30.
+5. [x] For item 30, the `allman-braces` linter rule. Written and made an
+   error in Session #5.
 6. [x] At the end: full Release build, all tests, a Debug build of the fast
    tests, and the QML tests if Qt is configured in the build tree. Run
    in Session #1; the later sessions ran the Release build and the fast
@@ -380,3 +377,12 @@ Item 29: the React frontend is formatted with Prettier.
   passes (50 tests).
 - The rule does not check a closing brace, so `} else {` is reported
   only for its `{`.
+- Decided: item 15 goes to Allman style too, and lambdas stay exempt,
+  which leaves items 16 and 17 as they were.
+- Moved the 38 braces to lines of their own, at the indent of the line
+  they left; a comment after a brace stays with it. The rule is now an
+  error, and `AGENTS.md` states the brace style.
+- Verified: the Release build with the QML UI has no warnings, the 235
+  fast tests pass, the linter's 50 tests and the `lint` target pass,
+  and the WASM target `wisdom-chess-web` builds, which is the only
+  build of `ui/wasm/bindings.cpp`.

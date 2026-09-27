@@ -137,7 +137,8 @@ namespace wisdom
             string_view coord_str,
             Color who,
             const PieceRow& piece_types
-        ) {
+        )
+        {
             Coord coord = coordParse (coord_str);
 
             for (auto col = 0; col < Num_Columns; col++)

@@ -31,7 +31,8 @@ namespace wisdom::ui
         ProposedDrawType draw_type,
         Color who,
         const DrawAnswerCallback& answered
-    ) {
+    )
+    {
         expects (isColorValid (who));
 
         for (auto player : { who, colorInvert (who) })

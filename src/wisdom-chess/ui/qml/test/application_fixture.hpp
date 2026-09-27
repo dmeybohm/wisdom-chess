@@ -475,7 +475,8 @@ namespace wisdom::ui::test
             czstring first,
             czstring second,
             nonnull<QList<QQuickItem*>> result
-        ) {
+        )
+        {
             if (item->property (first).isValid() && item->property (second).isValid())
                 *result << item;
 

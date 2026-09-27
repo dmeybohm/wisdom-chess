@@ -200,7 +200,8 @@ namespace wisdom::ui::qml
         int src_column,
         int dst_row,
         int dst_column
-    ) {
+    )
+    {
         movePieceWithPromotion (src_row, src_column, dst_row, dst_column, {});
     }
 
@@ -209,7 +210,8 @@ namespace wisdom::ui::qml
         wisdom::Move move,
         wisdom::Color who,
         int game_id
-    ) {
+    )
+    {
         // validate this signal was not sent by an old thread:
         if (game_id != gameId())
         {
@@ -238,7 +240,8 @@ namespace wisdom::ui::qml
     GameModel::showEngineMove (
         Move move,
         Color who
-    ) {
+    )
+    {
         auto game = my_chess_game->state();
         game->move (move);
 
@@ -300,7 +303,8 @@ namespace wisdom::ui::qml
         int dst_row,
         int dst_column,
         ui::PieceType piece_type
-    ) {
+    )
+    {
         movePieceWithPromotion (
             src_row,
             src_column,
@@ -317,7 +321,8 @@ namespace wisdom::ui::qml
         int dst_row,
         int dst_column,
         optional<wisdom::Piece> piece_type
-    ) {
+    )
+    {
         auto [optional_move, who]
             = my_chess_game->moveFromCoordinates (src_row, src_column, dst_row, dst_column, piece_type);
         if (!optional_move.has_value())
@@ -485,7 +490,8 @@ namespace wisdom::ui::qml
         Player player_type,
         Move move,
         Color who
-    ) {
+    )
+    {
         if (player_type == wisdom::Player::ChessEngine)
         {
             emit engineMoved (move, who, gameId());
@@ -711,7 +717,8 @@ namespace wisdom::ui::qml
     GameModel::handleDrawStatusChange (
         wisdom::ProposedDrawType draw_type,
         DrawStatus status
-    ) {
+    )
+    {
         auto game_state = my_chess_game->state();
         auto optional_color = ui::getFirstHumanPlayerColor (game_state->getPlayers());
 
@@ -734,7 +741,8 @@ namespace wisdom::ui::qml
         wisdom::ProposedDrawType draw_type,
         wisdom::Color who,
         bool accepted
-    ) {
+    )
+    {
         auto game_state = my_chess_game->state();
         game_state->setProposedDrawStatus (draw_type, who, accepted);
         updateDisplayedGameState();

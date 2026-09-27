@@ -89,7 +89,8 @@ namespace wisdom::ui::qml
     ChessGame::setPlayers (
         wisdom::Player white_player,
         wisdom::Player black_player
-    ) { // NOLINT(readability-make-member-function-const)
+    )
+    { // NOLINT(readability-make-member-function-const)
         const wisdom::Players players { white_player, black_player };
         state()->setPlayers (players);
         my_config.players = players;
