@@ -37,8 +37,10 @@ if (WISDOM_CHESS_FAST_TESTS)
     wisdom_chess_enable_warnings(wisdom-chess-fast-tests)
 
     if (EMSCRIPTEN)
-        # The transposition table tests outgrow the default heap.
-        target_link_options(wisdom-chess-fast-tests PRIVATE "SHELL:-s ALLOW_MEMORY_GROWTH=1")
+        # The transposition table tests outgrow the default heap. Growth
+        # slows only JavaScript's access to it, which the tests barely use.
+        target_link_options(wisdom-chess-fast-tests PRIVATE
+            "SHELL:-s ALLOW_MEMORY_GROWTH=1" -Wno-pthreads-mem-growth)
     endif()
 
     doctest_discover_tests(wisdom-chess-fast-tests PROPERTIES LABELS fast)
@@ -104,8 +106,10 @@ if (WISDOM_CHESS_SLOW_TESTS)
     wisdom_chess_enable_warnings(wisdom-chess-slow-tests)
 
     if (EMSCRIPTEN)
-        # The transposition table tests outgrow the default heap.
-        target_link_options(wisdom-chess-slow-tests PRIVATE "SHELL:-s ALLOW_MEMORY_GROWTH=1")
+        # The transposition table tests outgrow the default heap. Growth
+        # slows only JavaScript's access to it, which the tests barely use.
+        target_link_options(wisdom-chess-slow-tests PRIVATE
+            "SHELL:-s ALLOW_MEMORY_GROWTH=1" -Wno-pthreads-mem-growth)
     endif()
 
     doctest_discover_tests(wisdom-chess-slow-tests PROPERTIES LABELS slow)

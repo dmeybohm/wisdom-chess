@@ -49,6 +49,15 @@ Once discovery worked, 30 of 199 tests failed, for four reasons:
   one thrown through `noexcept` reaches the terminate handler with no
   current exception. Those are properties of the platform, not of our
   code; the four precondition cases still run.
+- **Test executables link with `-pthread`.** The engine is compiled with
+  `-pthread` under Emscripten, and code compiled that way must be linked
+  that way. The tests were linked with no threading flag, which 4.0.7
+  tolerated but 3.1.70 did not: `thread_local` variables such as doctest's
+  assertion counter pointed at garbage ("memory access out of bounds"
+  in 144 of 162 tests). Linking with `-sWASM_WORKERS`, as the web app
+  does, set up thread-local storage but still broke typed catches on
+  3.1.70. `-pthread` goes on the `doctest` target, so every test
+  executable gets it.
 - **CI runs the fast suite under Emscripten** in the web job, with the
   same Emscripten 3.1.70 as the deployed build and warnings as errors.
 
@@ -63,3 +72,17 @@ Once discovery worked, 30 of 199 tests failed, for four reasons:
   from its worker. `build-qml-wasm.sh` against Qt 6.11.2 still builds,
   with no `-fwasm-exceptions` anywhere in its flags.
 - Not verified locally: Emscripten 3.1.70 and Qt 6.9, which CI uses.
+
+### Session #2
+
+- CI failed with "memory access out of bounds" in the new WASM test step.
+  GitHub's log storage was down, so it was reproduced locally with
+  Emscripten 3.1.70 in a separate emsdk: `main` fails the same way, so it
+  predated this branch and went unseen only because CI never ran these
+  tests. Fixed by linking the tests with `-pthread`, as above.
+- 196/196 on both 3.1.70 and 4.0.7, slow tests included. The web app
+  built with 3.1.70 loads and its engine answers from the worker.
+- Still open: the web app links with `-sWASM_WORKERS` only, which on
+  3.1.70 left typed catches unmatched in the tests. Its typed catches are
+  on reporting paths (`logger.cpp`) and in `FenParser`, which the web
+  frontend does not reach.

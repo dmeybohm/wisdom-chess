@@ -26,6 +26,10 @@ if (EMSCRIPTEN AND TARGET doctest)
     # Under node, stdout always looks like a terminal, and the color codes
     # in the test list break doctest_discover_tests().
     target_compile_definitions(doctest INTERFACE DOCTEST_CONFIG_COLORS_NONE)
+
+    # The engine is compiled with -pthread, and a test executable linked
+    # without it has no thread-local storage or typed catches.
+    target_link_options(doctest INTERFACE -pthread)
 endif()
 
 if (ANDROID OR NOT WISDOM_CHESS_PCH_ENABLED)
