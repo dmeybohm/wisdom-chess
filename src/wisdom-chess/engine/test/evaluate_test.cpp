@@ -377,7 +377,7 @@ TEST_CASE( "Castling penalty" )
 
 TEST_CASE( "Probable draw category and drawing predicate" )
 {
-    auto shuffle_knights = [] (nonnull_observer_ptr<Game> game, int times)
+    auto shuffle_knights = [] (nonnull<Game> game, int times)
     {
         for (int i = 0; i < times; i++)
         {

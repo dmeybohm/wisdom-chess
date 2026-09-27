@@ -46,7 +46,7 @@ namespace wisdom::ui
         }
 
         // Configure the engine's game. Throws when a value is out of range.
-        void applyTo (nonnull_observer_ptr<Game> game) const
+        void applyTo (nonnull<Game> game) const
         {
             expects (isInRange());
             game->setMaxDepth (searchDepthInPlies());

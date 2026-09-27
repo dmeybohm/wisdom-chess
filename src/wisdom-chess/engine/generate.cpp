@@ -67,7 +67,7 @@ namespace wisdom
     struct MoveGeneration
     {
         const Board& board;
-        nonnull_observer_ptr<MoveList> moves;
+        nonnull<MoveList> moves;
         int piece_row;
         int piece_col;
         const Color who;

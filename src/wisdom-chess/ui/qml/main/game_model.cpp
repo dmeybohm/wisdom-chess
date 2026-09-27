@@ -13,13 +13,12 @@
 
 using namespace wisdom;
 namespace ui = wisdom::ui;
-using gsl::not_null;
 using std::atomic;
 using std::make_shared;
 using std::optional;
 using std::pair;
 using std::shared_ptr;
-using wisdom::nonnull_observer_ptr;
+using wisdom::nonnull;
 
 namespace wisdom::ui::qml
 {
@@ -51,14 +50,14 @@ namespace wisdom::ui::qml
 
     auto
     GameModel::getGame()
-        -> observer_ptr<Game>
+        -> nullable<Game>
     {
         return my_chess_game->state();
     }
 
     auto
     GameModel::getGame() const
-        -> observer_ptr<const Game>
+        -> nullable<const Game>
     {
         return my_chess_game->state();
     }
@@ -451,7 +450,7 @@ namespace wisdom::ui::qml
 
         return (
             [game_id_ptr, initial_game_id, config_id_ptr,
-             initial_config_id, paused_ptr] (nonnull_observer_ptr<MoveTimer> move_timer)
+             initial_config_id, paused_ptr] (nonnull<MoveTimer> move_timer)
             {
                 // This runs in the ChessEngine thread.
 

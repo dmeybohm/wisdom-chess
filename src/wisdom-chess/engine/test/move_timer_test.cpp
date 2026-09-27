@@ -10,7 +10,7 @@ namespace
     constexpr int Enough_Calls = Calls_Between_Clock_Checks * 4;
 
     auto
-    callsUntilTriggered (nonnull_observer_ptr<MoveTimer> timer)
+    callsUntilTriggered (nonnull<MoveTimer> timer)
         -> optional<int>
     {
         for (int calls = 1; calls <= Enough_Calls; calls++)
@@ -126,7 +126,7 @@ TEST_CASE( "MoveTimer periodic function" )
         MoveTimer* seen_timer = nullptr;
 
         timer.setPeriodicFunction (
-            [&] (nonnull_observer_ptr<MoveTimer> the_timer)
+            [&] (nonnull<MoveTimer> the_timer)
             {
                 periodic_calls++;
                 seen_timer = the_timer;
@@ -145,7 +145,7 @@ TEST_CASE( "MoveTimer periodic function" )
         int periodic_calls = 0;
 
         timer.setPeriodicFunction (
-            [&] ([[maybe_unused]] nonnull_observer_ptr<MoveTimer> the_timer)
+            [&] ([[maybe_unused]] nonnull<MoveTimer> the_timer)
             {
                 periodic_calls++;
             }
@@ -161,7 +161,7 @@ TEST_CASE( "MoveTimer periodic function" )
         int periodic_calls = 0;
 
         timer.setPeriodicFunction (
-            [&] (nonnull_observer_ptr<MoveTimer> the_timer)
+            [&] (nonnull<MoveTimer> the_timer)
             {
                 periodic_calls++;
                 the_timer->setCancelled (true);
@@ -180,7 +180,7 @@ TEST_CASE( "MoveTimer periodic function" )
         int periodic_calls = 0;
 
         timer.setPeriodicFunction (
-            [&] (nonnull_observer_ptr<MoveTimer> the_timer)
+            [&] (nonnull<MoveTimer> the_timer)
             {
                 periodic_calls++;
                 the_timer->setTimeLimit (chrono::milliseconds { 0 });

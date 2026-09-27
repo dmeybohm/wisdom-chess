@@ -78,7 +78,7 @@ namespace wisdom
     };
 
     [[nodiscard]] constexpr auto
-    getCompileTimeRandom48 (nonnull_observer_ptr<CompileTimeRandom> random)
+    getCompileTimeRandom48 (nonnull<CompileTimeRandom> random)
         -> std::uint64_t
     {
         return (((*random)() & 0xffff0000ULL) << 16ULL) | (*random)();

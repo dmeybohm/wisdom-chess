@@ -39,9 +39,15 @@ does not make clear why something was done the way it was.
   keep plain constructors.
 - Frontends (console, QML, WASM/React) observe the game through
   `GameStatusUpdate`; a change to the `Game` API has to reach all of them.
-- Use `nonnull_observer_ptr<Type>` in preference to a mutable `Type&` 
-  reference, for both functions and member variables. Use `const Type&` 
-  for const references.
+- Raw pointers never own; ownership is `unique_ptr` or `shared_ptr`.
+  Spell a non-owning pointer by its nullability (`engine/global.hpp`):
+  `nonnull<Type>` (`gsl::not_null<Type*>`) or `nullable<Type>` (`Type*`).
+  `unchecked_nonnull<Type>` checks for null only when constructed; use it
+  only where a benchmark shows the check on each dereference costs
+  something.
+- Use `nonnull<Type>` in preference to a mutable `Type&` reference, for
+  both functions and member variables. Use `const Type&` for const
+  references.
   
 The style linter is built with the project and enforces the formatting
 rules (`--list-rules` names them, e.g. `foo (x)` but `bar()`, and

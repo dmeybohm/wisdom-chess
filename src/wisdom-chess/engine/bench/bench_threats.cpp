@@ -14,7 +14,7 @@ namespace wisdom::bench
         return parser.buildBoard();
     }
 
-    void runThreatBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench)
+    void runThreatBenchmarks (nonnull<ankerl::nanobench::Bench> bench)
     {
         // King NOT threatened (common fast path): starting position, white king.
         {

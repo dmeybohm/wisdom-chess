@@ -184,7 +184,7 @@ namespace wisdom::ui::qml
     signals:
         // The game object here is readonly.
         void gameStarted (
-            gsl::not_null<const ChessGame*> game
+            wisdom::nonnull<const ChessGame> game
         );
 
         // A new game state was created. This game is sent to the new thread.
@@ -270,11 +270,11 @@ namespace wisdom::ui::qml
     public:
         [[nodiscard]] auto
         getGame()
-            -> wisdom::observer_ptr<wisdom::Game> override;
+            -> wisdom::nullable<wisdom::Game> override;
 
         [[nodiscard]] auto
         getGame() const
-            -> wisdom::observer_ptr<const wisdom::Game> override;
+            -> wisdom::nullable<const wisdom::Game> override;
 
         // Whether an engine move is waiting for the board to finish animating.
         [[nodiscard]] auto

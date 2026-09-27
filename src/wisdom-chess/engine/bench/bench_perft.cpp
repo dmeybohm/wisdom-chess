@@ -55,7 +55,7 @@ namespace wisdom::bench
                   << " (" << std::fixed << std::setprecision (0) << nps << " NPS)\n";
     }
 
-    void runPerftBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench)
+    void runPerftBenchmarks (nonnull<ankerl::nanobench::Bench> bench)
     {
         // Nanobench: perft depth 4 starting position (~197K nodes).
         {

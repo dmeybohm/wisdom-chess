@@ -21,7 +21,7 @@ TEST_CASE( "Initial board position is added to history" )
     // Test that the initial board position is included in the "history", so if we
     // reach it by repetition, the draw will be detected one move sooner.
     //
-    auto run_test = [] (nonnull_observer_ptr<Game> game)
+    auto run_test = [] (nonnull<Game> game)
     {
         Move white_move = moveParse ("g1 f3");
         Move black_move = moveParse ("b8 c6");
@@ -188,7 +188,7 @@ TEST_CASE( "A draw-derived score is not reused for a position with a different c
 
     auto logger = makeNullLogger();
 
-    auto searchFen = [&] (const char* fen, nonnull_observer_ptr<TranspositionTable> table)
+    auto searchFen = [&] (const char* fen, nonnull<TranspositionTable> table)
     {
         auto game = Game::createGameFromFen (fen);
         game.setMaxDepth (4);

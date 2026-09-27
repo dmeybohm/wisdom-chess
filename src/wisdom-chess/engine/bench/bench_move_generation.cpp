@@ -20,7 +20,7 @@ namespace wisdom::bench
         return parser.getActivePlayer();
     }
 
-    void runMoveGenerationBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench)
+    void runMoveGenerationBenchmarks (nonnull<ankerl::nanobench::Bench> bench)
     {
         struct PositionInfo
         {

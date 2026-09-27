@@ -219,7 +219,7 @@ namespace wisdom
 
     auto Game::findBestMove (
         shared_ptr<Logger> logger,
-        nonnull_observer_ptr<TranspositionTable> transposition_table,
+        nonnull<TranspositionTable> transposition_table,
         Color whom
     ) const
         -> optional<Move>

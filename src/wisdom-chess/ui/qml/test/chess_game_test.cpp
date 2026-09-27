@@ -8,7 +8,7 @@ using namespace wisdom::ui::qml;
 
 using wisdom::Color;
 using wisdom::moveParse;
-using wisdom::nonnull_observer_ptr;
+using wisdom::nonnull;
 using wisdom::Piece;
 using wisdom::Player;
 
@@ -34,7 +34,7 @@ namespace
     }
 
     template <typename Value>
-    void writeProperty (nonnull_observer_ptr<GameSettings> settings, const char* name, Value value)
+    void writeProperty (nonnull<GameSettings> settings, const char* name, Value value)
     {
         const auto& meta_object = GameSettings::staticMetaObject;
         auto property = meta_object.property (meta_object.indexOfProperty (name));

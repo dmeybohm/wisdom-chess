@@ -25,7 +25,7 @@ namespace wisdom
             shared_ptr<Logger> output,
             MoveTimer timer,
             int total_depth,
-            nonnull_observer_ptr<TranspositionTable> transposition_table
+            nonnull<TranspositionTable> transposition_table
         )
             : my_original_board { Board { board } }
             , my_history { History { history } }
@@ -78,7 +78,7 @@ namespace wisdom
         SearchResult my_current_result {};
         MoveTimer my_timer;
         shared_ptr<Logger> my_output;
-        nonnull_observer_ptr<TranspositionTable> my_transposition_table;
+        nonnull<TranspositionTable> my_transposition_table;
 
         int my_total_depth;
         int my_nodes_visited = 0;
@@ -110,7 +110,7 @@ namespace wisdom
         shared_ptr<Logger> logger,
         const MoveTimer& timer,
         int max_depth,
-        nonnull_observer_ptr<TranspositionTable> transposition_table
+        nonnull<TranspositionTable> transposition_table
     ) -> IterativeSearch
     {
         return IterativeSearch {

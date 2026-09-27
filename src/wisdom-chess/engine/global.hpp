@@ -32,7 +32,6 @@ namespace wisdom
 {
     using zstring = gsl::zstring;
     using czstring = gsl::czstring;
-    using gsl::not_null;
     using std::array;
     using std::make_shared;
     using std::make_unique;
@@ -46,11 +45,13 @@ namespace wisdom
     using std::string_view;
     using std::span;
 
+    // Raw pointers never own; owning pointers are unique_ptr or shared_ptr.
+    // These name a non-owning T* by whether it may be null.
     template <typename T>
-    using observer_ptr = T*;
+    using nullable = T*;
 
     template <typename T>
-    using nonnull_observer_ptr = gsl::not_null<observer_ptr<T>>;
+    using nonnull = gsl::not_null<T*>;
 
     namespace chrono = std::chrono;
 
@@ -315,36 +316,36 @@ namespace wisdom
             throwPostconditionError (location);
     }
 
-    // A non-null observer pointer that checks for null only when constructed,
-    // not on each dereference as nonnull_observer_ptr does. For pointers
-    // dereferenced in a hot loop, where a benchmark shows the check matters.
+    // Like nonnull, but checks for null only when constructed, not on each
+    // dereference. For pointers dereferenced in a hot loop, where a
+    // benchmark shows the check matters.
     template <typename T>
-    class unchecked_nonnull_observer_ptr
+    class unchecked_nonnull
     {
     public:
-        constexpr unchecked_nonnull_observer_ptr (observer_ptr<T> ptr)
+        constexpr unchecked_nonnull (nullable<T> ptr)
             : my_ptr { ptr }
         {
             expects (ptr != nullptr);
         }
 
-        constexpr unchecked_nonnull_observer_ptr (nonnull_observer_ptr<T> ptr) noexcept
+        constexpr unchecked_nonnull (nonnull<T> ptr) noexcept
             : my_ptr { ptr.get() }
         {
         }
 
-        unchecked_nonnull_observer_ptr (std::nullptr_t) = delete;
+        unchecked_nonnull (std::nullptr_t) = delete;
 
         [[nodiscard]] constexpr auto
         get() const noexcept
-            -> observer_ptr<T>
+            -> nullable<T>
         {
             return my_ptr;
         }
 
         constexpr auto
         operator->() const noexcept
-            -> observer_ptr<T>
+            -> nullable<T>
         {
             return my_ptr;
         }
@@ -357,6 +358,6 @@ namespace wisdom
         }
 
     private:
-        observer_ptr<T> my_ptr;
+        nullable<T> my_ptr;
     };
 }

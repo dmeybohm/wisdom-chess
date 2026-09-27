@@ -8,11 +8,11 @@
 
 namespace wisdom::bench
 {
-    void runMoveGenerationBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench);
-    void runThreatBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench);
-    void runLegalityBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench);
-    void runPerftBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench);
-    void runSearchBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench);
+    void runMoveGenerationBenchmarks (nonnull<ankerl::nanobench::Bench> bench);
+    void runThreatBenchmarks (nonnull<ankerl::nanobench::Bench> bench);
+    void runLegalityBenchmarks (nonnull<ankerl::nanobench::Bench> bench);
+    void runPerftBenchmarks (nonnull<ankerl::nanobench::Bench> bench);
+    void runSearchBenchmarks (nonnull<ankerl::nanobench::Bench> bench);
     void runSearchReport (int max_depth);
 }
 

@@ -77,7 +77,7 @@ namespace wisdom::ui::qml
             wisdom::Color who
         );
         void newGame (
-            gsl::not_null<const ChessGame*> game
+            wisdom::nonnull<const ChessGame> game
         );
 
     private:

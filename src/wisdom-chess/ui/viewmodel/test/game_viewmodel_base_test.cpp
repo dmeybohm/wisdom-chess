@@ -43,14 +43,14 @@ namespace
     protected:
         [[nodiscard]] auto
         getGame()
-            -> observer_ptr<Game> override
+            -> nullable<Game> override
         {
             return &my_game;
         }
 
         [[nodiscard]] auto
         getGame() const
-            -> observer_ptr<const Game> override
+            -> nullable<const Game> override
         {
             return &my_game;
         }
@@ -86,7 +86,7 @@ namespace
 
     constexpr auto Fools_Mate = "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3";
 
-    void shuffleKnights (nonnull_observer_ptr<Game> game, int times)
+    void shuffleKnights (nonnull<Game> game, int times)
     {
         for (int i = 0; i < times; i++)
         {

@@ -392,7 +392,7 @@ namespace wisdom
         // The game is copied per search so that a later "position" cannot
         // disturb it, but the table is lent to the thread so that what one
         // search learns is available to the next.
-        nonnull_observer_ptr<TranspositionTable> table = &my_transposition_table;
+        nonnull<TranspositionTable> table = &my_transposition_table;
 
         my_search_thread = std::thread (
             [this, game = std::move (game_copy), table, search_depth, search_time,
@@ -506,7 +506,7 @@ namespace wisdom
 
     auto
     UciInterface::applyMoves (
-        nonnull_observer_ptr<Game> game,
+        nonnull<Game> game,
         vector<string>::const_iterator first,
         vector<string>::const_iterator last
     ) -> bool
@@ -599,7 +599,7 @@ namespace wisdom
     UciInterface::buildNotifier (int initial_search_id)
         -> MoveTimer::PeriodicFunction
     {
-        return [this, initial_search_id] (nonnull_observer_ptr<MoveTimer> timer)
+        return [this, initial_search_id] (nonnull<MoveTimer> timer)
         {
             if (my_search_id.load() != initial_search_id)
             {

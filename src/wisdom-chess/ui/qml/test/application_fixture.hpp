@@ -467,7 +467,7 @@ namespace wisdom::ui::test
             QQuickItem* item,
             const char* first,
             const char* second,
-            nonnull_observer_ptr<QList<QQuickItem*>> result
+            nonnull<QList<QQuickItem*>> result
         ) {
             if (item->property (first).isValid() && item->property (second).isValid())
                 *result << item;

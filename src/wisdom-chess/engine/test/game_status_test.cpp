@@ -57,7 +57,7 @@ namespace
         }
     };
 
-    void shuffleKnights (nonnull_observer_ptr<Game> game, int times)
+    void shuffleKnights (nonnull<Game> game, int times)
     {
         for (int i = 0; i < times; i++)
         {

@@ -45,7 +45,7 @@ namespace wisdom
             shared_ptr<Logger> logger,
             const MoveTimer& timer,
             int max_depth,
-            nonnull_observer_ptr<TranspositionTable> transposition_table
+            nonnull<TranspositionTable> transposition_table
         ) -> IterativeSearch;
 
         // Copy and move constructors

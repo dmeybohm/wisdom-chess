@@ -604,7 +604,7 @@ TEST_CASE( "A root move finished before the clock stops is kept" )
         auto logger = make_shared<DepthTrackingLogger>();
         MoveTimer timer { 30 };
         timer.setPeriodicFunction (
-            [logger, cancel_on_call] (nonnull_observer_ptr<MoveTimer> timer_ptr)
+            [logger, cancel_on_call] (nonnull<MoveTimer> timer_ptr)
             {
                 logger->countPeriodicCall();
                 if (logger->current_depth == Last_Depth

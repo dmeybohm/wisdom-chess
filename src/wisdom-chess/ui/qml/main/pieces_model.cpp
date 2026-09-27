@@ -59,7 +59,7 @@ namespace wisdom::ui::qml
     {
     }
 
-    void PiecesModel::newGame (gsl::not_null<const ChessGame*> game)
+    void PiecesModel::newGame (wisdom::nonnull<const ChessGame> game)
     {
         auto game_state = game->state();
         auto board = game_state->getBoard();

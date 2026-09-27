@@ -20,7 +20,7 @@ using wisdom::FenParser;
 using std::vector;
 using wisdom::perft::PerftResults;
 using wisdom::MoveGenerator;
-using wisdom::nonnull_observer_ptr;
+using wisdom::nonnull;
 
 //
 // These loaded from https://www.chessprogramming.org/Perft_Results
@@ -266,7 +266,7 @@ namespace
         const Board& board,
         Color side,
         int depth,
-        nonnull_observer_ptr<CaptureCheck> check
+        nonnull<CaptureCheck> check
     )
     {
         auto all_moves = wisdom::generateAllPotentialMoves (board, side);

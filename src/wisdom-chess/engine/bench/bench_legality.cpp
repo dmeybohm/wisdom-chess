@@ -21,7 +21,7 @@ namespace wisdom::bench
         return parser.getActivePlayer();
     }
 
-    void runLegalityBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench)
+    void runLegalityBenchmarks (nonnull<ankerl::nanobench::Bench> bench)
     {
         struct PositionInfo
         {

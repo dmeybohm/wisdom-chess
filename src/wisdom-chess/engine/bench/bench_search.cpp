@@ -47,7 +47,7 @@ namespace wisdom::bench
     }
 
     // Search to a fixed depth with whatever the table already holds.
-    static auto searchWithTable (nonnull_observer_ptr<Game> game, nonnull_observer_ptr<TranspositionTable> table, int depth) -> SearchResult
+    static auto searchWithTable (nonnull<Game> game, nonnull<TranspositionTable> table, int depth) -> SearchResult
     {
         MoveTimer timer { 600 };
         auto search = IterativeSearch::create (
@@ -63,7 +63,7 @@ namespace wisdom::bench
     }
 
     // Search to a fixed depth with an empty transposition table.
-    static auto searchToDepth (nonnull_observer_ptr<Game> game, nonnull_observer_ptr<TranspositionTable> table, int depth) -> SearchResult
+    static auto searchToDepth (nonnull<Game> game, nonnull<TranspositionTable> table, int depth) -> SearchResult
     {
         table->clear();
         return searchWithTable (game, table, depth);
@@ -164,7 +164,7 @@ namespace wisdom::bench
                   << cold.chosen.size() << "\n";
     }
 
-    void runSearchBenchmarks (nonnull_observer_ptr<ankerl::nanobench::Bench> bench)
+    void runSearchBenchmarks (nonnull<ankerl::nanobench::Bench> bench)
     {
         struct Scenario
         {

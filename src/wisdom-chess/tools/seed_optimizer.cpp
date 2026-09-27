@@ -24,7 +24,7 @@ using wisdom::foldHashTo32Bits;
 using wisdom::generateAllPotentialMoves;
 using wisdom::getCompileTimeRandom48;
 using wisdom::isLegalPositionAfterMove;
-using wisdom::nonnull_observer_ptr;
+using wisdom::nonnull;
 using wisdom::Num_Squares;
 using wisdom::randomInitialState;
 using wisdom::randomSeed;
@@ -72,7 +72,7 @@ namespace
         Color side,
         int depth,
         int max_depth,
-        nonnull_observer_ptr<std::vector<Board>> positions
+        nonnull<std::vector<Board>> positions
     )
     {
         if (depth >= max_depth)

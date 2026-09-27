@@ -32,7 +32,7 @@ namespace wisdom
         std::cerr << *this;
     }
 
-    static void addDivider (nonnull_observer_ptr<string> result)
+    static void addDivider (nonnull<string> result)
     {
         *result += " ";
 
@@ -47,7 +47,7 @@ namespace wisdom
         *result += "\n";
     }
 
-    static void addCoords (nonnull_observer_ptr<string> result)
+    static void addCoords (nonnull<string> result)
     {
         int col;
 

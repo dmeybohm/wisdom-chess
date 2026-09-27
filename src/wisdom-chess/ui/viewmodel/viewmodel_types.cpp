@@ -27,7 +27,7 @@ namespace wisdom::ui
     }
 
     void negotiateDraw (
-        nonnull_observer_ptr<Game> game,
+        nonnull<Game> game,
         ProposedDrawType draw_type,
         Color who,
         const DrawAnswerCallback& answered

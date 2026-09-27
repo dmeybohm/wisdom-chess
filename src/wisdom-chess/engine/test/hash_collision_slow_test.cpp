@@ -23,7 +23,7 @@ using wisdom::FenParser;
 using wisdom::colorInvert;
 using wisdom::generateAllPotentialMoves;
 using wisdom::isLegalPositionAfterMove;
-using wisdom::nonnull_observer_ptr;
+using wisdom::nonnull;
 
 namespace
 {
@@ -50,8 +50,8 @@ namespace
         Color side,
         int depth,
         int max_depth,
-        nonnull_observer_ptr<std::unordered_map<BoardHashCode, string>> seen_positions,
-        nonnull_observer_ptr<CollisionStats> stats
+        nonnull<std::unordered_map<BoardHashCode, string>> seen_positions,
+        nonnull<CollisionStats> stats
     )
     {
         if (depth >= max_depth)
@@ -191,7 +191,7 @@ namespace
         Color side,
         int depth,
         int max_depth,
-        nonnull_observer_ptr<std::vector<BoardHashCode>> hashes
+        nonnull<std::vector<BoardHashCode>> hashes
     )
     {
         if (depth >= max_depth)

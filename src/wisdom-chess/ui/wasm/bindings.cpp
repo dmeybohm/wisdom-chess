@@ -44,7 +44,7 @@ namespace wisdom::worker
 
         [[nodiscard]] static auto 
         getState() 
-            -> observer_ptr<GameState>
+            -> nullable<GameState>
         {
             static auto instance = std::make_unique<GameState>();
             return instance.get();
@@ -52,7 +52,7 @@ namespace wisdom::worker
 
         [[nodiscard]] static auto 
         getGame() 
-            -> observer_ptr<Game>
+            -> nullable<Game>
         {
             return &GameState::getState()->game;
         }
@@ -77,10 +77,10 @@ namespace wisdom::worker
         class WebEngineGameStatusUpdate : public GameStatusUpdate
         {
         private:
-            observer_ptr<GameState> my_parent;
+            nullable<GameState> my_parent;
 
         public:
-            explicit WebEngineGameStatusUpdate (observer_ptr<GameState> parent)
+            explicit WebEngineGameStatusUpdate (nullable<GameState> parent)
                 : my_parent { parent }
             {
             }
@@ -131,7 +131,7 @@ EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
     state->transposition_table.clear();
     state->updateSettings (state->settings);
 
-    auto periodic_func = [state](nonnull_observer_ptr<MoveTimer> timer) {
+    auto periodic_func = [state](nonnull<MoveTimer> timer) {
         auto play_status = state->play_status.load();
         if (play_status != GameState::Playing || state->restart_requested.load()) {
             timer->setCancelled (true);
