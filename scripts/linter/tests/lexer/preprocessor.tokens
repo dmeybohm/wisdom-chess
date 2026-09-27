@@ -1,0 +1,13 @@
+1:1:preprocessor:spaced:#include "board.hpp"
+1:22:comment:spaced:// the board
+2:1:preprocessor:spaced:#define MAKE(x) \\n    Board* x = nullptr
+4:3:preprocessor:spaced:#  if LIMIT > 1'000
+5:1:comment:spaced:/* before */
+5:14:preprocessor:spaced:#pragma once
+6:1:identifier:spaced:int
+6:5:identifier:spaced:y
+6:7:punctuator:spaced:=
+6:9:identifier:spaced:a
+6:11:punctuator:spaced:#
+6:13:identifier:spaced:b
+6:14:punctuator:joined:;

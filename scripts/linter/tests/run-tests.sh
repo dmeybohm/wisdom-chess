@@ -55,6 +55,18 @@ for test_dir in */; do
                 FAIL=$((FAIL + 1))
             fi
         fi
+        tokens="${input%.cpp}.tokens"
+        if [ -f "$tokens" ]; then
+            actual=$($LINTER --dump-tokens "$input" 2>&1 || true)
+            if [ "$actual" = "$(cat "$tokens")" ]; then
+                echo "PASS: $input (tokens)"
+                PASS=$((PASS + 1))
+            else
+                echo "FAIL: $input (tokens)"
+                diff <(echo "$actual") "$tokens" | sed 's/^/    /'
+                FAIL=$((FAIL + 1))
+            fi
+        fi
     done
 done
 

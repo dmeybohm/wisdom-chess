@@ -1,7 +1,10 @@
+#include "lexer.hpp"
 #include "linter.hpp"
 
 #include <cstring>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 using namespace wisdom_linter;
 
@@ -14,6 +17,7 @@ namespace
                   << "  -f, --format <format>  Output format: stylish, compact, json, simple (default: stylish)\n"
                   << "  --rules <rules>        Comma-separated list of rules to run\n"
                   << "  --list-rules           List all available rules\n"
+                  << "  --dump-tokens          Print the tokens of each file instead of linting\n"
                   << "  -h, --help             Show this help message\n"
                   << "  -v, --version          Show version\n";
     }
@@ -32,6 +36,35 @@ namespace
             std::cout << "    " << rule->description() << "\n\n";
         }
     }
+
+    // One token per line, as line:column:kind:spacing:text, with newlines
+    // and tabs in the text escaped.
+    auto dumpTokens (const std::vector<std::string>& files) -> int
+    {
+        for (const auto& file : files)
+        {
+            std::ifstream input { file };
+            if (!input)
+            {
+                std::cerr << "Error: Cannot read " << file << "\n";
+                return 1;
+            }
+            std::stringstream buffer;
+            buffer << input.rdbuf();
+
+            for (const auto& token : lex (buffer.str()))
+            {
+                std::string text;
+                for (char c : token.text)
+                {
+                    text += c == '\n' ? "\\n" : c == '\t' ? "\\t" : std::string (1, c);
+                }
+                std::cout << token.line << ':' << token.column << ':' << tokenKindName (token.kind)
+                          << ':' << (token.spaced_before ? "spaced" : "joined") << ':' << text << '\n';
+            }
+        }
+        return 0;
+    }
 } // namespace
 
 auto main (int argc, char* argv[]) -> int // lint-allow(raw-pointer): main's signature
@@ -40,6 +73,7 @@ auto main (int argc, char* argv[]) -> int // lint-allow(raw-pointer): main's sig
     std::vector<std::string> files;
     std::vector<std::string> selected_rules;
     bool list_rules = false;
+    bool dump_tokens = false;
 
     for (int i = 1; i < argc; ++i)
     {
@@ -58,6 +92,10 @@ auto main (int argc, char* argv[]) -> int // lint-allow(raw-pointer): main's sig
         else if (arg == "--list-rules" )
         {
             list_rules = true;
+        }
+        else if (arg == "--dump-tokens" )
+        {
+            dump_tokens = true;
         }
         else if (arg == "-f" || arg == "--format" )
         {
@@ -149,6 +187,11 @@ auto main (int argc, char* argv[]) -> int // lint-allow(raw-pointer): main's sig
     {
         printRules();
         return 0;
+    }
+
+    if (dump_tokens)
+    {
+        return dumpTokens (files);
     }
 
     if (files.empty())
