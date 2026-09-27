@@ -73,3 +73,16 @@ Found along the way:
   "Wisdom Chess" into the manifest's two `android:label` attributes in
   place of Qt's placeholder, which works on every Qt version the project
   supports. The rebuilt APK reports the new label.
+
+### Session #3
+
+An Android Debug configure reported "Type annotations are not permitted for
+the return value of JavaScript functions" for the anonymous callbacks passed
+to `Qt.binding()` in `Piece.qml`. Moved their calculations into named QML
+methods with `real` return annotations and passed those methods directly to
+`Qt.binding()`. The annotations remain on the calculations while the callbacks
+use syntax accepted by Qt's JavaScript parser.
+
+Verified with Qt 6.11.2: `all_qmllint` passes, an Android x86_64 Debug
+configure and QML code generation for `Piece.qml` pass, and the desktop
+`QML: application` test passes (including drag, move, and castling cases).
