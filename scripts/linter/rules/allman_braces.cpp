@@ -33,6 +33,36 @@ namespace
         return code.size();
     }
 
+    enum class Brackets
+    {
+        Attribute,
+        Capture,
+        Subscript,
+    };
+
+    // What the square brackets opening at code[open] are: an attribute
+    // such as [[likely]], a lambda's capture list, or a subscript, which
+    // includes an array's bound and operator[].
+    auto classifyBrackets (const std::vector<Token>& code, size_t open) -> Brackets
+    {
+        static const std::unordered_set<std::string> expression_keywords {
+            "return", "throw", "co_return", "co_yield", "co_await", "case",
+        };
+
+        if (open + 1 < code.size() && isPunctuator (code[open + 1], "["))
+        {
+            return Brackets::Attribute;
+        }
+        if (open == 0)
+        {
+            return Brackets::Capture;
+        }
+        const auto& before = code[open - 1];
+        bool follows_operand = (isIdentifier (before) && expression_keywords.count (before.text) == 0)
+            || isPunctuator (before, ")") || isPunctuator (before, "]");
+        return follows_operand ? Brackets::Subscript : Brackets::Capture;
+    }
+
     // Whether the "{" at code[brace] opens a block rather than an
     // initializer, judged by the tokens before it. A lambda's body counts
     // as a block here.
@@ -62,11 +92,15 @@ namespace
                 && isIdentifier (code[open - 1], "requires");
             return !requires_expression;
         }
-        if (isPunctuator (prev, "}") || isPunctuator (prev, "]"))
+        if (isPunctuator (prev, "}"))
         {
-            // The end of a constructor's initializer list, an attribute
-            // such as [[likely]], or a lambda's capture list.
+            // The end of a constructor's initializer list.
             return true;
+        }
+        if (isPunctuator (prev, "]"))
+        {
+            size_t open = matchingBracket (code, brace - 1, -1);
+            return open < code.size() && classifyBrackets (code, open) != Brackets::Subscript;
         }
         if (isIdentifier (prev) && (block_keywords.count (prev.text) > 0
                                     || specifiers.count (prev.text) > 0))
@@ -127,10 +161,6 @@ namespace
     // parameters, specifiers and return type, there is a capture list.
     auto opensLambdaBody (const std::vector<Token>& code, size_t brace) -> bool
     {
-        static const std::unordered_set<std::string> expression_keywords {
-            "return", "throw", "co_return", "co_yield", "co_await", "case",
-        };
-
         for (size_t i = brace; i-- > 0; )
         {
             const auto& token = code[i];
@@ -147,14 +177,7 @@ namespace
             {
                 return false;
             }
-            bool brackets = isPunctuator (token, "]");
-            bool attribute = brackets && isPunctuator (code[open + 1], "[");
-            bool subscript = open > 0
-                && ((isIdentifier (code[open - 1])
-                     && expression_keywords.count (code[open - 1].text) == 0)
-                    || isPunctuator (code[open - 1], ")")
-                    || isPunctuator (code[open - 1], "]"));
-            if (brackets && !attribute && !subscript)
+            if (isPunctuator (token, "]") && classifyBrackets (code, open) == Brackets::Capture)
             {
                 return true;
             }

@@ -421,3 +421,9 @@ Item 29: the React frontend is formatted with Prettier.
     looked only at a `namespace` that starts its line. It now checks
     every `namespace`, which also covers a nested one written on the
     line of its parent.
+  - The lambda fix then took an array's brace initializer
+    (`int values[2] { 1, 2 };`) for a block, by treating any `]` before
+    the brace as an attribute or a capture list. One function now sorts
+    square brackets into an attribute, a capture list, or a subscript
+    (an array bound, `operator[]`, `a[i]`), and only the first two open
+    a block.
