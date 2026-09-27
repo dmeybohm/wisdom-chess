@@ -97,13 +97,11 @@ namespace wisdom
 
     IterativeSearch::~IterativeSearch() = default;
 
-    // Private constructor for factory functions
     IterativeSearch::IterativeSearch (unique_ptr<IterativeSearchImpl> impl)
         : impl { std::move (impl) }
     {
     }
 
-    // Factory function implementation
     auto IterativeSearch::create (
         const Board& board,
         const History& history,

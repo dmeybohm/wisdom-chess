@@ -14,7 +14,6 @@ namespace wisdom
         // Main constructor that maintains all invariants
         explicit Impl (const BoardBuilder& builder, const Players& players, Color current_turn);
 
-        // Delegating constructors
         Impl();
         explicit Impl (const Players& players);
         explicit Impl (Player white_player, Player black_player);

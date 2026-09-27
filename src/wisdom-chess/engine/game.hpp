@@ -63,15 +63,12 @@ namespace wisdom
         loadGame (const string& filename, const Players& players)
             -> optional<Game>;
 
-        // Copy constructor and assignment
         Game (const Game& other);
         auto operator= (const Game& other) -> Game&;
 
-        // Move constructor and assignment
         Game (Game&& other) noexcept;
         auto operator= (Game&& other) noexcept -> Game&;
 
-        // Destructor
         ~Game();
 
     public:

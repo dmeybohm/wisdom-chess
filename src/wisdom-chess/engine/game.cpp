@@ -26,7 +26,6 @@ namespace wisdom
             return wisdom_game_output_format;
     }
 
-    // Game::Impl constructors
     // Main constructor that maintains all invariants
     Game::Impl::Impl (const BoardBuilder& builder, const Players& players, Color current_turn)
         : my_current_board { builder }
@@ -36,7 +35,6 @@ namespace wisdom
         my_history = History::fromInitialBoard (my_current_board);
     }
 
-    // Delegating constructors
     Game::Impl::Impl()
         : Impl { BoardBuilder::fromDefaultPosition(), Players { Player::Human, Player::ChessEngine }, Color::White }
     {
@@ -67,19 +65,16 @@ namespace wisdom
     {
     }
 
-    // Private constructor for factory functions
     Game::Game (unique_ptr<Impl> impl)
         : my_pimpl { std::move (impl) }
     {
     }
 
-    // Copy constructor
     Game::Game (const Game& other)
         : my_pimpl { make_unique<Impl> (*other.my_pimpl) }
     {
     }
 
-    // Copy assignment
     auto Game::operator= (const Game& other) -> Game&
     {
         if (this != &other)
@@ -89,10 +84,8 @@ namespace wisdom
         return *this;
     }
 
-    // Move constructor
     Game::Game (Game&& other) noexcept = default;
 
-    // Move assignment
     auto Game::operator= (Game&& other) noexcept -> Game&
     {
         if (this != &other)
@@ -102,10 +95,8 @@ namespace wisdom
         return *this;
     }
 
-    // Destructor
     Game::~Game() = default;
 
-    // Factory function implementations
     auto Game::createStandardGame() -> Game
     {
         return Game { make_unique<Impl>() };

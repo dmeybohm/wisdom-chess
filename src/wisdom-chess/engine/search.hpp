@@ -73,7 +73,6 @@ namespace wisdom
     private:
         unique_ptr<IterativeSearchImpl> impl;
 
-        // Private constructor for factory functions
         explicit IterativeSearch (unique_ptr<IterativeSearchImpl> impl);
     };
 }
