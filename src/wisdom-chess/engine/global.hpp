@@ -46,10 +46,8 @@ namespace wisdom
     using std::span;
 
     // Raw pointers never own; owning pointers are unique_ptr or shared_ptr.
-    // These name a non-owning T* by whether it may be null.
-    template <typename T>
-    using nullable = T*;
-
+    // A non-owning pointer is named by whether it may be null: nonnull here,
+    // nullable and unchecked_nonnull below.
     template <typename T>
     using nonnull = gsl::not_null<T*>;
 
@@ -316,6 +314,66 @@ namespace wisdom
             throwPostconditionError (location);
     }
 
+    // A non-owning pointer that may be null. It cannot be dereferenced: test
+    // it, then take value() to get a nonnull.
+    template <typename T>
+    class nullable
+    {
+    public:
+        constexpr nullable() noexcept = default;
+
+        constexpr nullable (std::nullptr_t) noexcept
+        {
+        }
+
+        constexpr nullable (T* ptr) noexcept
+            : my_ptr { ptr }
+        {
+        }
+
+        constexpr nullable (nonnull<T> ptr) noexcept
+            : my_ptr { ptr.get() }
+        {
+        }
+
+        template <typename U>
+            requires std::is_convertible_v<U*, T*>
+        constexpr nullable (nullable<U> other) noexcept
+            : my_ptr { other.unsafeGet() }
+        {
+        }
+
+        [[nodiscard]] constexpr explicit
+        operator bool() const noexcept
+        {
+            return my_ptr != nullptr;
+        }
+
+        // Throws PreconditionError when null.
+        [[nodiscard]] constexpr auto
+        value() const
+            -> nonnull<T>
+        {
+            expects (my_ptr != nullptr);
+            return my_ptr;
+        }
+
+        // For an API that takes a raw pointer. The result may be null.
+        [[nodiscard]] constexpr auto
+        unsafeGet() const noexcept
+            -> T*
+        {
+            return my_ptr;
+        }
+
+        [[nodiscard]] constexpr auto
+        operator== (const nullable& other) const noexcept
+            -> bool = default;
+
+    private:
+        T* my_ptr = nullptr;
+    };
+
     // Like nonnull, but checks for null only when constructed, not on each
     // dereference. For pointers dereferenced in a hot loop, where a
     // benchmark shows the check matters.
@@ -323,7 +381,7 @@ namespace wisdom
     class unchecked_nonnull
     {
     public:
-        constexpr unchecked_nonnull (nullable<T> ptr)
+        constexpr unchecked_nonnull (T* ptr)
             : my_ptr { ptr }
         {
             expects (ptr != nullptr);
@@ -334,18 +392,23 @@ namespace wisdom
         {
         }
 
+        constexpr unchecked_nonnull (nullable<T> ptr)
+            : my_ptr { ptr.value().get() }
+        {
+        }
+
         unchecked_nonnull (std::nullptr_t) = delete;
 
         [[nodiscard]] constexpr auto
         get() const noexcept
-            -> nullable<T>
+            -> T*
         {
             return my_ptr;
         }
 
         constexpr auto
         operator->() const noexcept
-            -> nullable<T>
+            -> T*
         {
             return my_ptr;
         }
@@ -358,6 +421,6 @@ namespace wisdom
         }
 
     private:
-        nullable<T> my_ptr;
+        T* my_ptr;
     };
 }
