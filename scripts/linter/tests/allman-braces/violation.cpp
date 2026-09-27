@@ -40,3 +40,15 @@ auto Widget::size() const -> int {
 Widget::Widget()
     : my_size { 0 } {
 }
+
+class Counter
+{
+    [[nodiscard]] auto count() const -> int { return my_count; }
+    void reset() override { my_count = 0; }
+    [[nodiscard]] static auto limit() -> int { return 10; }
+};
+
+void check (bool ok)
+{
+    if (ok) { return; }
+}

@@ -69,7 +69,14 @@ namespace
         }
         if (isPunctuator (prev, ")"))
         {
-            return closesLambdaParameters (code, brace - 1) ? BraceKind::Lambda : BraceKind::Block;
+            if (closesLambdaParameters (code, brace - 1))
+            {
+                return BraceKind::Lambda;
+            }
+            size_t open = matchingBracket (code, brace - 1, -1);
+            bool requires_expression = open > 0 && open < code.size()
+                && isIdentifier (code[open - 1], "requires");
+            return requires_expression ? BraceKind::Initializer : BraceKind::Block;
         }
         if (isPunctuator (prev, "}"))
         {
@@ -138,7 +145,7 @@ namespace
         [[nodiscard]] auto description() const -> std::string_view override
         {
             return "The brace opening a function, control statement or type body "
-                   "should be on its own line, unless the block closes on the same line";
+                   "should be on its own line, unless the block is empty";
         }
 
         [[nodiscard]] auto check (const LintContext& context) const
@@ -153,8 +160,8 @@ namespace
                 {
                     continue;
                 }
-                size_t close = matchingBracket (code, i, 1);
-                if (close < code.size() && code[close].line == code[i].line)
+                if (i + 1 < code.size() && isPunctuator (code[i + 1], "}")
+                    && code[i + 1].line == code[i].line)
                 {
                     continue;
                 }

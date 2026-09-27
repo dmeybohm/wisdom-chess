@@ -55,13 +55,40 @@ namespace
             return &my_game;
         }
 
-        void onInCheckChanged() override { changes.emplace_back ("inCheck"); }
-        void onMoveStatusChanged() override { changes.emplace_back ("moveStatus"); }
-        void onGameOverStatusChanged() override { changes.emplace_back ("gameOverStatus"); }
-        void onCurrentTurnChanged() override { changes.emplace_back ("currentTurn"); }
-        void onThirdRepetitionDrawStatusChanged() override { changes.emplace_back ("thirdRepetition"); }
-        void onFiftyMovesDrawStatusChanged() override { changes.emplace_back ("fiftyMoves"); }
-        void onDisplayedGameStateUpdated() override { changes.emplace_back ("updated"); }
+        void onInCheckChanged() override
+        {
+            changes.emplace_back ("inCheck");
+        }
+
+        void onMoveStatusChanged() override
+        {
+            changes.emplace_back ("moveStatus");
+        }
+
+        void onGameOverStatusChanged() override
+        {
+            changes.emplace_back ("gameOverStatus");
+        }
+
+        void onCurrentTurnChanged() override
+        {
+            changes.emplace_back ("currentTurn");
+        }
+
+        void onThirdRepetitionDrawStatusChanged() override
+        {
+            changes.emplace_back ("thirdRepetition");
+        }
+
+        void onFiftyMovesDrawStatusChanged() override
+        {
+            changes.emplace_back ("fiftyMoves");
+        }
+
+        void onDisplayedGameStateUpdated() override
+        {
+            changes.emplace_back ("updated");
+        }
 
     private:
         Game my_game;
@@ -472,7 +499,10 @@ TEST_CASE( "transitionGameStatus runs the update and returns the status" )
     struct CountingUpdate : GameStatusUpdate
     {
         int updates = 0;
-        void onGameEnded (GameStatus) override { updates++; }
+        void onGameEnded (GameStatus) override
+        {
+            updates++;
+        }
     };
 
     auto game = Game::createGameFromFen (Fools_Mate, Humans);

@@ -12,3 +12,7 @@
 31:8:allman-braces:Opening brace should be on its own line
 36:34:allman-braces:Opening brace should be on its own line
 41:21:allman-braces:Opening brace should be on its own line
+46:45:allman-braces:Opening brace should be on its own line
+47:27:allman-braces:Opening brace should be on its own line
+48:46:allman-braces:Opening brace should be on its own line
+53:13:allman-braces:Opening brace should be on its own line

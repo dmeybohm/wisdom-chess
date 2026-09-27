@@ -11,7 +11,10 @@ class Widget : public Base
 {
 public:
     void onChanged() override {}
-    [[nodiscard]] auto size() const -> int { return my_size; }
+    [[nodiscard]] auto size() const -> int
+    {
+        return my_size;
+    }
 
 private:
     int my_size;
@@ -28,7 +31,11 @@ auto Widget::run (
     int second
 ) const noexcept -> std::vector<int>
 {
-    if (first) { return {}; }
+    if (first)
+    {
+        return {};
+    }
+    if (second) {}
     for (int i = 0; i < second; ++i)
     {
         try

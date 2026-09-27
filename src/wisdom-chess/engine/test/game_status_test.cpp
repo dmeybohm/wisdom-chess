@@ -35,15 +35,50 @@ namespace
         vector<string> calls;
         int hook_calls = 0;
 
-        void checkmate() override { calls.emplace_back ("checkmate"); }
-        void stalemate() override { calls.emplace_back ("stalemate"); }
-        void insufficientMaterial() override { calls.emplace_back ("insufficientMaterial"); }
-        void thirdRepetitionDrawReached() override { calls.emplace_back ("thirdReached"); }
-        void thirdRepetitionDrawAccepted() override { calls.emplace_back ("thirdAccepted"); }
-        void fifthRepetitionDraw() override { calls.emplace_back ("fifth"); }
-        void fiftyMovesWithoutProgressReached() override { calls.emplace_back ("fiftyReached"); }
-        void fiftyMovesWithoutProgressAccepted() override { calls.emplace_back ("fiftyAccepted"); }
-        void seventyFiveMovesWithNoProgress() override { calls.emplace_back ("seventyFive"); }
+        void checkmate() override
+        {
+            calls.emplace_back ("checkmate");
+        }
+
+        void stalemate() override
+        {
+            calls.emplace_back ("stalemate");
+        }
+
+        void insufficientMaterial() override
+        {
+            calls.emplace_back ("insufficientMaterial");
+        }
+
+        void thirdRepetitionDrawReached() override
+        {
+            calls.emplace_back ("thirdReached");
+        }
+
+        void thirdRepetitionDrawAccepted() override
+        {
+            calls.emplace_back ("thirdAccepted");
+        }
+
+        void fifthRepetitionDraw() override
+        {
+            calls.emplace_back ("fifth");
+        }
+
+        void fiftyMovesWithoutProgressReached() override
+        {
+            calls.emplace_back ("fiftyReached");
+        }
+
+        void fiftyMovesWithoutProgressAccepted() override
+        {
+            calls.emplace_back ("fiftyAccepted");
+        }
+
+        void seventyFiveMovesWithNoProgress() override
+        {
+            calls.emplace_back ("seventyFive");
+        }
 
     protected:
         void onGameEnded ([[maybe_unused]] GameStatus status) override

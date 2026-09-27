@@ -32,3 +32,11 @@ auto make() -> Record
         1,
     };
 }
+
+template <typename P>
+concept Dereferenceable = requires (P p) { *p; } || requires { P::value; };
+
+template <typename P>
+concept Multiline = requires (P p) {
+    *p;
+};

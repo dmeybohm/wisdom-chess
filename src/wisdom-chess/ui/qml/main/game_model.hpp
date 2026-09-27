@@ -167,10 +167,25 @@ namespace wisdom::ui::qml
         void setGameSettings (const GameSettings& new_game_settings);
         Q_INVOKABLE wisdom::ui::qml::GameSettings cloneGameSettings();
 
-        [[nodiscard]] static auto minThinkingTime() -> int { return ui::GameSettings::Min_Thinking_Time; }
-        [[nodiscard]] static auto maxThinkingTime() -> int { return ui::GameSettings::Max_Thinking_Time; }
-        [[nodiscard]] static auto minSearchDepth() -> int { return ui::GameSettings::Min_Search_Depth; }
-        [[nodiscard]] static auto maxSearchDepth() -> int { return ui::GameSettings::Max_Search_Depth; }
+        [[nodiscard]] static auto minThinkingTime() -> int
+        {
+            return ui::GameSettings::Min_Thinking_Time;
+        }
+
+        [[nodiscard]] static auto maxThinkingTime() -> int
+        {
+            return ui::GameSettings::Max_Thinking_Time;
+        }
+
+        [[nodiscard]] static auto minSearchDepth() -> int
+        {
+            return ui::GameSettings::Min_Search_Depth;
+        }
+
+        [[nodiscard]] static auto maxSearchDepth() -> int
+        {
+            return ui::GameSettings::Max_Search_Depth;
+        }
 
         [[nodiscard]] auto
         animationDelay() const
