@@ -98,7 +98,7 @@ namespace wisdom
     IterativeSearch::~IterativeSearch() = default;
 
     IterativeSearch::IterativeSearch (unique_ptr<IterativeSearchImpl> impl)
-        : impl { std::move (impl) }
+        : my_pimpl { std::move (impl) }
     {
     }
 
@@ -127,21 +127,21 @@ namespace wisdom
     IterativeSearch::iterativelyDeepen (Color side)
         -> SearchResult
     {
-        return impl->iterativelyDeepen (side);
+        return my_pimpl->iterativelyDeepen (side);
     }
 
     auto
     IterativeSearch::isCancelled()
         -> bool
     {
-        return impl->moveTimer().isCancelled();
+        return my_pimpl->moveTimer().isCancelled();
     }
 
     auto
     IterativeSearch::moveTimer() const&
         -> const MoveTimer&
     {
-        return impl->moveTimer();
+        return my_pimpl->moveTimer();
     }
 
     static constexpr auto

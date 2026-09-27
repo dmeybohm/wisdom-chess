@@ -21,18 +21,18 @@ namespace wisdom
         explicit Impl (const BoardBuilder& builder);
         explicit Impl (const BoardBuilder& builder, const Players& players);
 
-        Board my_current_board {};
-        History my_history;
-        MoveTimer my_move_timer { Default_Max_Search_Seconds };
-        int my_max_depth { Default_Max_Depth };
+        Board current_board {};
+        History history;
+        MoveTimer move_timer { Default_Max_Search_Seconds };
+        int max_depth { Default_Max_Depth };
 
-        Players my_players = { Player::Human, Player::ChessEngine };
+        Players players = { Player::Human, Player::ChessEngine };
 
-        BothPlayersDrawStatus my_third_repetition_draw {
+        BothPlayersDrawStatus third_repetition_draw {
             DrawStatus::NotReached,
             DrawStatus::NotReached
         };
-        BothPlayersDrawStatus my_fifty_moves_without_progress_draw {
+        BothPlayersDrawStatus fifty_moves_without_progress_draw {
             DrawStatus::NotReached,
             DrawStatus::NotReached
         };

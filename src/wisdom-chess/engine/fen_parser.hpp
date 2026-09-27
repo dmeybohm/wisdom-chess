@@ -11,7 +11,7 @@ namespace wisdom
     {
     public:
         explicit FenParser (const string& input)
-            : active_player { Color::White }
+            : my_active_player { Color::White }
         {
             parse (input);
         }
@@ -20,7 +20,7 @@ namespace wisdom
         getActivePlayer() const
             -> Color
         {
-            return active_player;
+            return my_active_player;
         }
 
         // Build the game:
@@ -29,8 +29,8 @@ namespace wisdom
         auto buildBoard() -> Board;
 
     private:
-        BoardBuilder builder;
-        Color active_player;
+        BoardBuilder my_builder;
+        Color my_active_player;
 
         void parse (const string& input);
 

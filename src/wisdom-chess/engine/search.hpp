@@ -71,7 +71,7 @@ namespace wisdom
         void moveTimer() && = delete;
 
     private:
-        unique_ptr<IterativeSearchImpl> impl;
+        unique_ptr<IterativeSearchImpl> my_pimpl;
 
         explicit IterativeSearch (unique_ptr<IterativeSearchImpl> impl);
     };
