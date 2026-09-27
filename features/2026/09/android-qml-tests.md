@@ -106,4 +106,40 @@ A clean Android build takes three to four minutes, the tests about one.
 `all_qmllint` and the style linter pass.
 
 Not done: CI still only builds the Android package with the tests off, so
-nothing here runs there. That needs an emulator in CI.
+nothing here runs there. That needs an emulator in CI. Done in session #3.
+
+### Session #3
+
+PR #294 merged, so this branch merged `main` and is now based on it.
+Opened as PR #295.
+
+**An emulator in CI.** The new `android-tests` job in `cmake.yml` lets the
+runner's user at KVM, boots an x86_64 emulator with
+`reactivecircus/android-emulator-runner` and runs
+`scripts/android-tests.sh`, which configures, builds and runs `ctest`. The
+`android` job stays: it builds arm64-v8a, which is what a phone runs.
+
+- The build is inside the emulator's step because test discovery runs
+  the test programs. It is one script because the action runs each line
+  of its `script` as a command of its own, so nothing carries over from
+  one line to the next.
+- The emulator is API 36 with Google APIs, the level the tests were
+  developed against locally. From API 35 the system's bars lie over the
+  window, which is what the layout has to cope with on a current phone.
+- The slow tests are on, as in the other jobs.
+
+The first run passed: 266 tests, fast and slow, with Qt 6.9.3 and NDK
+27.3.13750724. Where its ten and a half minutes went:
+
+| Step | Time |
+|---|---|
+| Installing Qt, not yet cached | 1.5 minutes |
+| Installing and booting the emulator | 1.5 minutes |
+| Configuring and building | 5.5 minutes |
+| Running the tests | 2 minutes |
+
+That makes it the longest job of the workflow. Caching the emulator's
+image would save part of the second row; it is not done.
+
+The script was first run locally against the same Qt, where the same 266
+tests passed.
