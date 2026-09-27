@@ -8,6 +8,8 @@ add_executable(wisdom-linter
     main.cpp
     linter.cpp
     linter.hpp
+    lexer.cpp
+    lexer.hpp
     rules/init.cpp
     rules/namespace_braces.cpp
     rules/trailing_return_type.cpp

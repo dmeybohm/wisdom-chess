@@ -1,0 +1,15 @@
+1:1:identifier:spaced:auto
+1:6:identifier:spaced:n
+1:8:punctuator:spaced:=
+1:10:number:spaced:0x1p-3
+1:17:punctuator:spaced:+
+1:19:number:spaced:1e+5
+1:24:punctuator:spaced:+
+1:26:number:spaced:.5f
+1:30:punctuator:spaced:+
+1:32:number:spaced:0b1010'1010
+1:44:punctuator:spaced:+
+1:46:number:spaced:1.0e-3L
+1:54:punctuator:spaced:-
+1:56:number:spaced:2
+1:57:punctuator:joined:;
