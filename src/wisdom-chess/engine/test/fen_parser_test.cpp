@@ -302,6 +302,42 @@ TEST_CASE( "FEN parser rejects an en passant target no double pawn push could ha
     }
 }
 
+TEST_CASE( "FEN full move number starts at 1" )
+{
+    SUBCASE( "A default board" )
+    {
+        Board board;
+
+        CHECK( board.getFullMoveClock() == 1 );
+        CHECK( board.toFenString (Color::White)
+               == "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" );
+
+        board = board.withMove (Color::White, moveParse ("e2 e4"));
+        CHECK( board.toFenString (Color::Black)
+               == "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" );
+
+        board = board.withMove (Color::Black, moveParse ("e7 e5"));
+        CHECK( board.toFenString (Color::White)
+               == "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2" );
+    }
+
+    SUBCASE( "A standard game" )
+    {
+        auto game = Game::createStandardGame();
+
+        CHECK( game.getBoard().getFullMoveClock() == 1 );
+    }
+
+    SUBCASE( "A board from a builder that was not given one" )
+    {
+        BoardBuilder builder;
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+
+        CHECK( Board { builder }.getFullMoveClock() == 1 );
+    }
+}
+
 TEST_CASE( "Parsing half and full moves" )
 {
     SUBCASE( "With castling and en passant square" )
@@ -318,6 +354,14 @@ TEST_CASE( "Parsing half and full moves" )
         const auto& board = game.getBoard();
         CHECK( board.getHalfMoveClock() == 10 );
         CHECK( board.getFullMoveClock() == 5 );
+    }
+
+    SUBCASE( "A full move number of 0 is read as 1" )
+    {
+        Game game = Game::createGameFromFen ("4r3/8/8/8/8/8/k7/4K2R w - - 10 0");
+        const auto& board = game.getBoard();
+        CHECK( board.getFullMoveClock() == 1 );
+        CHECK( board.toFenString (Color::White) == "4r3/8/8/8/8/8/k7/4K2R w - - 10 1" );
     }
 }
 

@@ -85,13 +85,14 @@ TEST_CASE( "Board builder rejects move clocks that are out of range" )
 
     CHECK_THROWS_AS( builder.setHalfMovesClock (-1), BoardBuilderError );
     CHECK_THROWS_AS( builder.setFullMoves (-1), BoardBuilderError );
+    CHECK_THROWS_AS( builder.setFullMoves (0), BoardBuilderError );
     CHECK_THROWS_AS( builder.setHalfMovesClock (Max_Half_Move_Clock + 1), BoardBuilderError );
     CHECK_THROWS_AS( builder.setFullMoves (Max_Full_Move_Number + 1), BoardBuilderError );
 
     builder.setHalfMovesClock (0);
-    builder.setFullMoves (0);
+    builder.setFullMoves (1);
     CHECK( builder.getHalfMoveClock() == 0 );
-    CHECK( builder.getFullMoveClock() == 0 );
+    CHECK( builder.getFullMoveClock() == 1 );
 
     builder.setHalfMovesClock (Max_Half_Move_Clock);
     builder.setFullMoves (Max_Full_Move_Number);
