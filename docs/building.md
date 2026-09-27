@@ -65,9 +65,12 @@ that plays in any chess GUI, next to the console binary under
 `scripts/build-react-wasm.sh` is what CI runs for this build.
 
 The engine's doctest suites also build under Emscripten and run through
-node, which `emcmake` sets as the cross-compiling emulator:
+node, which `emcmake` sets as the cross-compiling emulator. The
+`wisdom-chess-react` target does not build them, so build everything
+first:
 
 ```bash
+cmake --build build-web -j 8
 ctest --test-dir build-web -j 4
 ```
 
