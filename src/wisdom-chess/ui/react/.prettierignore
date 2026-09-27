@@ -1,0 +1,2 @@
+# Generated from wisdom-chess.idl; CI checks it against the generator.
+src/lib/wisdom-chess-module.d.ts
