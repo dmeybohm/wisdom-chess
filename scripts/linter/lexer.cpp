@@ -210,6 +210,12 @@ namespace
                 {
                     scanBlockComment();
                 }
+                else if (isIdentifierStart (c) && !isIdentifierChar (previous()))
+                {
+                    // A word as in code, so that a prefixed or raw string,
+                    // which can hold newlines, is read whole.
+                    scanIdentifierOrPrefixedLiteral();
+                }
                 else if (c == '"' || (c == '\'' && !isIdentifierChar (previous())))
                 {
                     scanQuoted (c);
