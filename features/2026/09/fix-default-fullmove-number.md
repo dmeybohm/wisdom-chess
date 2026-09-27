@@ -87,3 +87,7 @@ the fullmove number is now 1.
 
 Release `ctest` with slow tests passed 244 of 244. The Debug build
 passed the 210 fast tests, and the `lint` target is clean.
+
+Merged `main` after PR #287 landed there. Nothing needed changing.
+Release `ctest` with slow tests passed 245 of 245, the Debug build
+passed the 211 fast tests, and the `lint` target is clean.
