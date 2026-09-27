@@ -100,8 +100,14 @@ test that loads the real QML, `wisdom_chess_add_qml_ui_test()` on
 An Android build runs its tests on the connected device or emulator,
 through `adb` (`cmake/AndroidTests.cmake`). Test discovery does too, so
 without a device the build itself fails unless the tests are off. A test
-there cannot use a path from the build directory. CI only builds the
-Android package.
+there cannot use a path from the build directory. CI runs them on an
+emulator, through `scripts/android-tests.sh`, which works locally too.
+
+The `QML: ...` tests run there too, each as a package that Qt's
+`androidtestrunner` installs and runs. They draw on the device's display,
+in the Material style, and the ones that load the application load the
+mobile layout (`Platform_Main_Qml_File`). That style animates its popups,
+so compare a popup's position with `QTRY_COMPARE`.
 
 ### Sanitizers
 
