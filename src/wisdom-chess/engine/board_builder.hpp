@@ -99,7 +99,7 @@ namespace wisdom
 
         }
 
-        constexpr void 
+        constexpr void
         addPieces (Color who, const std::initializer_list<CoordAndPiece>& pieces)
         {
             for (auto&& it : pieces)
@@ -305,13 +305,13 @@ namespace wisdom
         Color my_current_turn = Color::White;
 
         array<optional<CastlingEligibility>, Num_Players> my_castle_states {
-            nullopt, 
-            nullopt 
+            nullopt,
+            nullopt
         };
 
         array<optional<Coord>, Num_Players> my_king_positions {
-            nullopt, 
-            nullopt 
+            nullopt,
+            nullopt
         };
 
         optional<EnPassantTarget> my_en_passant_target { nullopt };

@@ -54,7 +54,7 @@ namespace wisdom::ui
 
     Q_ENUM_NS (QmlDrawByRepetitionStatus)
 
-    [[nodiscard]] constexpr auto 
+    [[nodiscard]] constexpr auto
     mapColor (wisdom::Color color)
         -> wisdom::ui::Color
     {
@@ -70,7 +70,7 @@ namespace wisdom::ui
         }
     }
 
-    [[nodiscard]] constexpr auto 
+    [[nodiscard]] constexpr auto
     mapColor (wisdom::ui::Color color)
         -> wisdom::Color
     {
@@ -86,7 +86,7 @@ namespace wisdom::ui
         }
     }
 
-    [[nodiscard]] constexpr auto 
+    [[nodiscard]] constexpr auto
     mapPlayer (wisdom::Player player)
         -> ui::Player
     {
@@ -102,7 +102,7 @@ namespace wisdom::ui
         }
     }
 
-    [[nodiscard]] constexpr auto 
+    [[nodiscard]] constexpr auto
     mapPlayer (ui::Player player)
         -> wisdom::Player
     {
@@ -118,7 +118,7 @@ namespace wisdom::ui
         }
     }
 
-    [[nodiscard]] constexpr auto 
+    [[nodiscard]] constexpr auto
     mapPiece (ui::PieceType piece)
         -> wisdom::Piece
     {
@@ -144,7 +144,7 @@ namespace wisdom::ui
         }
     }
 
-    [[nodiscard]] constexpr auto 
+    [[nodiscard]] constexpr auto
     mapPiece (wisdom::Piece piece)
         -> ui::PieceType
     {

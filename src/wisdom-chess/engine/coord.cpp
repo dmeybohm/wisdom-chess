@@ -13,8 +13,8 @@ namespace wisdom
         return result;
     }
 
-    auto 
-    operator<< (std::ostream& ostream, Coord coord) 
+    auto
+    operator<< (std::ostream& ostream, Coord coord)
         -> std::ostream&
     {
         ostream << asString (coord);

@@ -26,12 +26,12 @@ namespace wisdom::ui::qml
     using wisdom::Color;
     using wisdom::Player;
 
-    auto 
+    auto
     ChessGame::fromPlayers (
-        wisdom::Player whitePlayer, 
-        wisdom::Player blackPlayer, 
+        wisdom::Player whitePlayer,
+        wisdom::Player blackPlayer,
         const Config& config
-    ) 
+    )
         -> unique_ptr<ChessGame>
     {
         auto config_with_players = config;
@@ -43,20 +43,20 @@ namespace wisdom::ui::qml
         );
     }
 
-    auto 
+    auto
     ChessGame::fromFen (
-        const string& input, 
+        const string& input,
         const Config& config
-    ) 
+    )
         -> unique_ptr<ChessGame>
     {
         auto game = Game::createGameFromFen (input);
         return fromEngine (std::make_unique<Game> (std::move (game)), config);
     }
 
-    auto 
+    auto
     ChessGame::fromEngine (
-        std::unique_ptr<wisdom::Game> game, 
+        std::unique_ptr<wisdom::Game> game,
         const Config& config
     )
         -> unique_ptr<ChessGame>
@@ -64,8 +64,8 @@ namespace wisdom::ui::qml
         return make_unique<ChessGame> (std::move (game), config);
     }
 
-    auto 
-    ChessGame::clone() const 
+    auto
+    ChessGame::clone() const
         -> std::unique_ptr<ChessGame>
     {
         // Copy current game state to FEN and send on to the chess engine thread:
@@ -95,14 +95,14 @@ namespace wisdom::ui::qml
         my_config.players = players;
     }
 
-    auto 
+    auto
     ChessGame::moveFromCoordinates (
-        int srcRow, 
-        int srcColumn, 
-        int dstRow, 
+        int srcRow,
+        int srcColumn,
+        int dstRow,
         int dstColumn,
         optional<Piece> promoted
-    ) const 
+    ) const
         -> pair<optional<Move>, Color>
     {
         auto engine = this->state();

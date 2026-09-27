@@ -73,7 +73,7 @@ namespace wisdom
     };
     // clang-format on
 
-    static auto 
+    static auto
     translatePosition (Coord coord, Color who)
         -> Coord
     {
@@ -83,7 +83,7 @@ namespace wisdom
         return makeCoord (narrow_cast<int8_t> (Last_Row - coord.row()), coord.column());
     }
 
-    static auto 
+    static auto
     change (Coord coord, Color who, ColoredPiece piece)
         -> int
     {
@@ -110,7 +110,7 @@ namespace wisdom
         }
     }
 
-    auto 
+    auto
     Position::overallScore (Color who) const
         -> int
     {
@@ -185,7 +185,7 @@ namespace wisdom
         this->add (who, dst, new_piece);
     }
 
-    auto 
+    auto
     Position::individualScore (Color who) const
         -> int
     {
@@ -202,7 +202,7 @@ namespace wisdom
         }
     }
 
-    auto 
+    auto
     operator<< (std::ostream& ostream, const Position& position)
         -> std::ostream&
     {

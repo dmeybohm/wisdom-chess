@@ -78,8 +78,8 @@ namespace wisdom
 
         void generate (ColoredPiece piece, Coord coord);
 
-        [[nodiscard]] auto 
-        compareMoves (const Move& a, const Move& b) const 
+        [[nodiscard]] auto
+        compareMoves (const Move& a, const Move& b) const
             -> bool;
 
         void pawn();
@@ -105,7 +105,7 @@ namespace wisdom
             return { list.moves.data(), list.size };
         }
 
-        [[nodiscard]] static auto 
+        [[nodiscard]] static auto
         transformMove (ColoredPiece dst_piece, Move move) noexcept
             -> Move;
 
@@ -203,7 +203,7 @@ namespace wisdom
         if (captures_only)
             return;
 
-        if (board.ableToCastle (who, CastlingRights::Queenside) && 
+        if (board.ableToCastle (who, CastlingRights::Queenside) &&
             piece_col == King_Column)
         {
             Move queenside_castle
@@ -212,7 +212,7 @@ namespace wisdom
                 appendMove (queenside_castle);
         }
 
-        if (board.ableToCastle (who, CastlingRights::Kingside) && 
+        if (board.ableToCastle (who, CastlingRights::Kingside) &&
             piece_col == King_Column)
         {
             Move kingside_castle
@@ -445,7 +445,7 @@ namespace wisdom
         }
     }
 
-    static auto 
+    static auto
     materialDiff (const Board& board, Move move)
         -> int
     {
@@ -463,8 +463,8 @@ namespace wisdom
         }
     }
 
-    static constexpr auto 
-    promotingOrCoordCompare (const Move& a, const Move& b) 
+    static constexpr auto
+    promotingOrCoordCompare (const Move& a, const Move& b)
         -> bool
     {
         bool a_is_promoting = a.isPromoting();
@@ -591,8 +591,8 @@ namespace wisdom
         return generateSortedMoves (board, who, nullopt, true);
     }
 
-    auto 
-    generateLegalMoves (const Board& board, Color who) 
+    auto
+    generateLegalMoves (const Board& board, Color who)
         -> MoveList
     {
         MoveList non_checks;

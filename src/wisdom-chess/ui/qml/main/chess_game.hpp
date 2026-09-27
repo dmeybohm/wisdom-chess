@@ -20,50 +20,50 @@ namespace wisdom::ui::qml
         using Config = wisdom::ui::GameSettings;
 
         explicit ChessGame (
-            std::unique_ptr<wisdom::Game> game, 
+            std::unique_ptr<wisdom::Game> game,
             const Config& config
-        ) 
-            : my_engine { std::move (game) } 
+        )
+            : my_engine { std::move (game) }
             , my_config { config }
         {
             setConfig (config);
         }
 
         static auto fromPlayers (
-            wisdom::Player whitePlayer, 
-            wisdom::Player blackPlayer, 
+            wisdom::Player whitePlayer,
+            wisdom::Player blackPlayer,
             const Config& config
-        ) 
+        )
             -> std::unique_ptr<ChessGame>;
 
         static auto fromFen (
-            const std::string& input, 
+            const std::string& input,
             const Config& config
         )
             -> std::unique_ptr<ChessGame>;
 
         static auto fromEngine (
-            std::unique_ptr<wisdom::Game> game, 
+            std::unique_ptr<wisdom::Game> game,
             const Config& config
         )
             -> std::unique_ptr<ChessGame>;
 
-        [[nodiscard]] auto 
-        state() 
+        [[nodiscard]] auto
+        state()
             -> wisdom::nonnull<wisdom::Game>
         {
             return my_engine.get();
         }
 
-        [[nodiscard]] auto 
-        state() const 
+        [[nodiscard]] auto
+        state() const
             -> wisdom::nonnull<const wisdom::Game>
         {
             return my_engine.get();
         }
 
-        [[nodiscard]] auto 
-        config() const 
+        [[nodiscard]] auto
+        config() const
             -> const Config&
         {
             return my_config;
@@ -71,8 +71,8 @@ namespace wisdom::ui::qml
 
         // Clone the current position. The move history is not copied, so this
         // is only equivalent to the original at the start of a game.
-        [[nodiscard]] auto 
-        clone() const 
+        [[nodiscard]] auto
+        clone() const
             -> std::unique_ptr<ChessGame>;
 
         void setConfig (const Config& config);
@@ -80,16 +80,16 @@ namespace wisdom::ui::qml
             const wisdom::MoveTimer::PeriodicFunction& func
         );
         void setPlayers (
-            wisdom::Player whitePLayer, 
+            wisdom::Player whitePLayer,
             wisdom::Player blackPlayer
         );
 
-        [[nodiscard]] auto 
+        [[nodiscard]] auto
         moveFromCoordinates (
-            int srcRow, 
-            int srcColumn, 
-            int dstRow, 
-            int dstColumn, 
+            int srcRow,
+            int srcColumn,
+            int dstRow,
+            int dstColumn,
             std::optional<wisdom::Piece> promoted
         ) const
             -> std::pair<std::optional<wisdom::Move>, wisdom::Color>;

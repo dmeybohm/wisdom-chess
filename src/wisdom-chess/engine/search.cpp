@@ -125,28 +125,28 @@ namespace wisdom
         };
     }
 
-    auto 
+    auto
     IterativeSearch::iterativelyDeepen (Color side)
         -> SearchResult
     {
         return impl->iterativelyDeepen (side);
     }
 
-    auto 
-    IterativeSearch::isCancelled() 
+    auto
+    IterativeSearch::isCancelled()
         -> bool
     {
         return impl->moveTimer().isCancelled();
     }
 
-    auto 
-    IterativeSearch::moveTimer() const& 
+    auto
+    IterativeSearch::moveTimer() const&
         -> const MoveTimer&
     {
         return impl->moveTimer();
     }
 
-    static constexpr auto 
+    static constexpr auto
     drawingScore (Color searching_color, Color current_color)
         -> int
     {
@@ -373,9 +373,9 @@ namespace wisdom
 
     static void
     logSearchTime (
-        const Logger& output, 
+        const Logger& output,
         int64_t nodes,
-        SteadyClockTime start, 
+        SteadyClockTime start,
         SteadyClockTime end
     ) {
         auto seconds_duration = chrono::duration<double> (end - start);
@@ -387,8 +387,8 @@ namespace wisdom
         output.info (std::move (progress_str).str());
     }
 
-    auto 
-    IterativeSearchImpl::iterativelyDeepen (Color side) 
+    auto
+    IterativeSearchImpl::iterativelyDeepen (Color side)
         -> SearchResult
     {
         SearchResult best_result {};
@@ -444,8 +444,8 @@ namespace wisdom
         }
     }
 
-    [[nodiscard]] auto 
-    IterativeSearchImpl::getBestResult() const 
+    [[nodiscard]] auto
+    IterativeSearchImpl::getBestResult() const
         -> SearchResult
     {
         return my_current_result;
@@ -466,8 +466,8 @@ namespace wisdom
         my_current_result.depth = depth;
     }
 
-    auto 
-    IterativeSearchImpl::iterate (Color side, int depth) 
+    auto
+    IterativeSearchImpl::iterate (Color side, int depth)
         -> SearchResult
     {
         std::stringstream outstr;
@@ -516,7 +516,7 @@ namespace wisdom
 
             my_output->debug (std::move (progress_str).str());
         }
-    
+
 
         if (result.timed_out)
         {

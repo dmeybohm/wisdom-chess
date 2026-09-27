@@ -390,41 +390,41 @@ namespace wisdom
     }
 
     // Parse a move. Returns empty if the parse failed.
-    [[nodiscard]] auto 
-    moveParseOptional (const string& str, Color who) 
+    [[nodiscard]] auto
+    moveParseOptional (const string& str, Color who)
         -> optional<Move>;
 
     // The coordinate for the taken pawn.
-    [[nodiscard]] auto 
-    enPassantTakenPawnCoord (Coord src, Coord dst) 
+    [[nodiscard]] auto
+    enPassantTakenPawnCoord (Coord src, Coord dst)
         -> Coord;
 
     // Map source/dest coordinate to corresponding move (en passant, castling, etc)
     // This doesn't check whether the move is legal or not completely - just gets what the
     // user is intending.
-    [[nodiscard]] auto 
-    mapCoordinatesToMove ( 
-            const Board& board, 
-            Color who, 
-            Coord src, 
-            Coord dst, 
-            optional<Piece> promoted_piece = {}) 
+    [[nodiscard]] auto
+    mapCoordinatesToMove (
+            const Board& board,
+            Color who,
+            Coord src,
+            Coord dst,
+            optional<Piece> promoted_piece = {})
         -> optional<Move>;
 
     // Parse a move. Throws an exception if it could not parse the move.
-    [[nodiscard]] auto 
-    moveParse (const string& str, Color color = Color::None) 
+    [[nodiscard]] auto
+    moveParse (const string& str, Color color = Color::None)
         -> Move;
 
     // Convert the move to a string.
-    [[nodiscard]] auto 
-    asString (const Move& move) 
+    [[nodiscard]] auto
+    asString (const Move& move)
         -> string;
 
     // Send the move to the ostream.
-    auto 
+    auto
     operator<< (
-        std::ostream& os, 
+        std::ostream& os,
         const Move& value
     ) -> std::ostream&;
 }

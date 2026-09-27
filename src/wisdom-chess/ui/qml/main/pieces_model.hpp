@@ -60,20 +60,20 @@ namespace wisdom::ui::qml
             CastlingSourceColumnRole,
         };
 
-        [[nodiscard]] int 
+        [[nodiscard]] int
         rowCount (const QModelIndex& index) const override;
 
         [[nodiscard]] QVariant data (
-            const QModelIndex& index, 
+            const QModelIndex& index,
             int role = Qt::DisplayRole
-        ) const override; 
+        ) const override;
 
         [[nodiscard]] QHash<int, QByteArray>
         roleNames() const override;
 
     public slots:
         void playerMoved (
-            wisdom::Move selected_move, 
+            wisdom::Move selected_move,
             wisdom::Color who
         );
         void newGame (

@@ -90,8 +90,8 @@ namespace wisdom
             emscripten_wasm_worker_post_function_v (engine_thread, startSearch);
         }
 
-        [[nodiscard]] auto 
-        getCurrentGameSettings() const 
+        [[nodiscard]] auto
+        getCurrentGameSettings() const
             -> owning<GameSettings>
         {
             return make_unique<GameSettings> (my_game_settings).release();
@@ -112,8 +112,8 @@ namespace wisdom
         [[nodiscard]] static auto getMinSearchDepth() -> int { return ui::GameSettings::Min_Search_Depth; }
         [[nodiscard]] static auto getMaxSearchDepth() -> int { return ui::GameSettings::Max_Search_Depth; }
 
-        [[nodiscard]] auto 
-        getFirstHumanPlayerColor() 
+        [[nodiscard]] auto
+        getFirstHumanPlayerColor()
             -> WebColor
         {
             if (my_game_settings.whitePlayer == WebPlayer::Human)
@@ -123,8 +123,8 @@ namespace wisdom
             return WebColor::NoColor;
         }
 
-        [[nodiscard]] auto 
-        getSecondHumanPlayerColor() 
+        [[nodiscard]] auto
+        getSecondHumanPlayerColor()
             -> WebColor
         {
             if (my_game_settings.whitePlayer == WebPlayer::Human &&

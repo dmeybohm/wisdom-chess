@@ -303,7 +303,7 @@ namespace wisdom
         return score <= Min_Draw_Score;
     }
 
-    static auto 
+    static auto
     drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires)
          -> DrawStatus
     {

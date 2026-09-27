@@ -133,19 +133,19 @@ namespace wisdom
         [[nodiscard]] auto computerWantsDraw (Color who) const -> bool;
 
         void setProposedDrawStatus (
-            ProposedDrawType draw_type, 
-            Color who, 
+            ProposedDrawType draw_type,
+            Color who,
             DrawStatus draw_status
         );
 
         void setProposedDrawStatus (
-            ProposedDrawType draw_type, 
-            Color who, 
+            ProposedDrawType draw_type,
+            Color who,
             bool accepted
         );
 
         void setProposedDrawStatus (
-            ProposedDrawType draw_type, 
+            ProposedDrawType draw_type,
             std::pair<DrawStatus, DrawStatus> draw_statuses
         );
 

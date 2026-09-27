@@ -17,7 +17,7 @@ extern "C"
 
     // Called from the worker. Receive a move on the main thread from the chess engine.
     EMSCRIPTEN_KEEPALIVE void mainThreadReceiveMove (
-        int game_id, 
+        int game_id,
         int packed_move
     );
 
@@ -26,9 +26,9 @@ extern "C"
 
     // Receive a settings update from the main thread.
     EMSCRIPTEN_KEEPALIVE void workerReceiveSettings (
-        int white_player, 
-        int black_player, 
-        int thinking_time, 
+        int white_player,
+        int black_player,
+        int thinking_time,
         int search_depth,
         int debug_logging
     );
@@ -45,9 +45,9 @@ extern "C"
 
     // Update the draw status.
     EMSCRIPTEN_KEEPALIVE void mainThreadReceiveDrawStatus (
-        int game_id, 
-        int draw_type, 
-        int color, 
+        int game_id,
+        int draw_type,
+        int color,
         int draw_proposed
     );
 }

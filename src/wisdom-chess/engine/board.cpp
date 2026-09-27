@@ -137,7 +137,7 @@ namespace wisdom
 
         auto convert = [color](char ch) -> char
         {
-            return color == Color::Black 
+            return color == Color::Black
                 ? toLower (ch)
                 : ch;
         };
@@ -153,8 +153,8 @@ namespace wisdom
         return castled_state;
     }
 
-    [[nodiscard]] auto 
-    Board::toFenString (Color turn) const 
+    [[nodiscard]] auto
+    Board::toFenString (Color turn) const
         -> string
     {
         string output;
@@ -215,9 +215,9 @@ namespace wisdom
         return output;
     }
 
-    auto 
+    auto
     Board::findFirstCoordWithPiece (
-        Piece piece_type, 
+        Piece piece_type,
         Coord starting_at
     ) const
         -> optional<Coord>
@@ -230,14 +230,14 @@ namespace wisdom
             return colored_piece.type() == piece_type;
         };
         auto result = std::find_if (
-            coord_begin + starting_at.index(), 
-            coord_end, 
+            coord_begin + starting_at.index(),
+            coord_end,
             finder
         );
         auto diff = narrow<int> (result - coord_begin);
 
-        return (result != coord_end) 
-            ? std::make_optional<Coord> (Coord::fromIndex (diff)) 
+        return (result != coord_end)
+            ? std::make_optional<Coord> (Coord::fromIndex (diff))
             : nullopt;
     }
 

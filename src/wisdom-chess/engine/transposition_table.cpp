@@ -50,7 +50,7 @@ namespace wisdom
         expects (entry_count >= 2);
         return TranspositionTable { FromEntriesTag {}, entry_count };
     }
-    
+
     auto
     TranspositionTable::scoreToTT (int score, int ply) const
         -> int

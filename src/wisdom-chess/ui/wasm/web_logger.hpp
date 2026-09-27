@@ -20,8 +20,8 @@ namespace wisdom::worker
         static void consoleError (czstring str);
     };
 
-    [[nodiscard]] inline auto 
-    makeLogger() 
+    [[nodiscard]] inline auto
+    makeLogger()
         -> shared_ptr<WebLogger>
     {
         using namespace wisdom;

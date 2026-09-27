@@ -37,8 +37,8 @@ namespace wisdom::ui::qml
     }
 
     ChessEngine::ChessEngine (shared_ptr<ChessGame> game, int gameId, QObject* parent) :
-            QObject { parent }, 
-            my_game { std::move (game) }, 
+            QObject { parent },
+            my_game { std::move (game) },
             my_game_id { gameId },
             my_logger { makeBufferedLogger (make_shared<ChessEngineLogger>()) }
     {
@@ -105,8 +105,8 @@ namespace wisdom::ui::qml
         }
     };
 
-    auto 
-    ChessEngine::gameStatusTransition() 
+    auto
+    ChessEngine::gameStatusTransition()
         -> wisdom::GameStatus
     {
         QmlEngineGameStatusUpdate status_manager { this };
@@ -154,9 +154,9 @@ namespace wisdom::ui::qml
         }
     }
 
-    void 
+    void
     ChessEngine::handlePotentialDrawPosition (
-        wisdom::ProposedDrawType proposedDrawType, 
+        wisdom::ProposedDrawType proposedDrawType,
         wisdom::Color who
     ) {
         auto game_state = my_game->state();
@@ -190,8 +190,8 @@ namespace wisdom::ui::qml
 
     void
     ChessEngine::receiveDrawStatus (
-        wisdom::ProposedDrawType drawType, 
-        wisdom::Color player, 
+        wisdom::ProposedDrawType drawType,
+        wisdom::Color player,
         bool accepted
     ) {
         auto game_state = my_game->state();
@@ -217,7 +217,7 @@ namespace wisdom::ui::qml
         init();
     }
 
-    void 
+    void
     ChessEngine::updateConfig (
         const ChessGame::Config& config,
         const wisdom::MoveTimer::PeriodicFunction& notifier

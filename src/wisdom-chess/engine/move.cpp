@@ -7,14 +7,14 @@
 
 namespace wisdom
 {
-    auto 
-    enPassantTakenPawnCoord (Coord src, Coord dst) 
+    auto
+    enPassantTakenPawnCoord (Coord src, Coord dst)
         -> Coord
     {
         return makeCoord (src.row(), dst.column());
     }
 
-    constexpr auto 
+    constexpr auto
     isDoubleSquarePawnMove (ColoredPiece src_piece, Move move)
         -> bool
     {
@@ -26,8 +26,8 @@ namespace wisdom
 
     void
     Board::updateMoveClock (
-        Color who, 
-        Piece orig_src_piece_type, 
+        Color who,
+        Piece orig_src_piece_type,
         Move move
     ) noexcept {
         assert (my_half_move_clock < std::numeric_limits<int>::max());
@@ -42,25 +42,25 @@ namespace wisdom
             my_full_move_clock++;
     }
 
-    void 
+    void
     Board::setPiece (Coord coord, ColoredPiece piece) noexcept
     {
         my_squares[coord.index()] = piece;
     }
 
-    void 
+    void
     Board::setKingPosition (Color who, Coord pos) noexcept
     {
         my_king_pos[colorIndex (who)] = pos;
     }
 
     // Returns the taken piece
-    auto 
+    auto
     Board::applyForEnPassant (
-        Color who, 
-        Coord src, 
+        Color who,
+        Coord src,
         Coord dst
-    ) noexcept 
+    ) noexcept
         -> ColoredPiece
     {
         Coord taken_pawn_pos = enPassantTakenPawnCoord (src, dst);
@@ -99,7 +99,7 @@ namespace wisdom
         setPiece (rook_src, empty_piece);
     }
 
-    void 
+    void
     Board::setCastleState (Color who, CastlingEligibility new_state) noexcept
     {
         my_code.setCastleState (who, new_state);
@@ -115,7 +115,7 @@ namespace wisdom
         my_code.setCastleState (who, orig_castle_state);
     }
 
-    void 
+    void
     Board::updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst)
     {
         setKingPosition (who, dst);
@@ -195,7 +195,7 @@ namespace wisdom
     // FEN records the passed square after every double pawn push, whether
     // or not the opponent has a legal en passant capture. Legality depends
     // on the finished position, so this runs after the rest of the move.
-    void 
+    void
     Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept
     {
         if (!isDoubleSquarePawnMove (src_piece, move))
@@ -233,8 +233,8 @@ namespace wisdom
         return result;
     }
 
-    auto 
-    Board::withCurrentTurn (Color who) const 
+    auto
+    Board::withCurrentTurn (Color who) const
         -> Board
     {
         Board result = *this;
@@ -243,13 +243,13 @@ namespace wisdom
         return result;
     }
 
-    void 
+    void
     Board::setCurrentTurn (Color who) noexcept
     {
         my_code.setCurrentTurn (who);
     }
 
-    void 
+    void
     Board::makeMove (Color who, Move move) noexcept
     {
         assert (who == my_code.getCurrentTurn());
@@ -329,8 +329,8 @@ namespace wisdom
         updateEnPassantEligibility (who, src_piece, move);
     }
 
-    static auto 
-    castleParse (const string& str, Color who) 
+    static auto
+    castleParse (const string& str, Color who)
         -> optional<Move>
     {
         int src_row, dst_col;
@@ -360,8 +360,8 @@ namespace wisdom
         return Move::makeCastling (src_row, King_Column, src_row, dst_col);
     }
 
-    auto 
-    moveParseOptional (const string& str, Color who) 
+    auto
+    moveParseOptional (const string& str, Color who)
         -> optional<Move>
     {
         bool en_passant = false;
@@ -465,8 +465,8 @@ namespace wisdom
         return move;
     }
 
-    auto 
-    moveParse (const string& str, Color color) 
+    auto
+    moveParse (const string& str, Color color)
         -> Move
     {
         if (str.empty())
@@ -490,7 +490,7 @@ namespace wisdom
         return result;
     }
 
-    auto 
+    auto
     asString (const Move& move)
         -> string
     {
@@ -535,14 +535,14 @@ namespace wisdom
         return result;
     }
 
-    auto 
+    auto
     mapCoordinatesToMove (
-        const Board& board, 
-        Color who, 
-        Coord src, 
-        Coord dst, 
+        const Board& board,
+        Color who,
+        Coord src,
+        Coord dst,
         optional<Piece> promoted_piece
-    ) 
+    )
         -> optional<Move>
     {
         ColoredPiece src_piece = board.pieceAt (src);
@@ -592,8 +592,8 @@ namespace wisdom
         return move;
     }
 
-    auto 
-    operator<< (std::ostream& os, const Move& value) 
+    auto
+    operator<< (std::ostream& os, const Move& value)
         -> std::ostream&
     {
         os << asString (value);

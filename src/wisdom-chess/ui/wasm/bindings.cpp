@@ -42,16 +42,16 @@ namespace wisdom::worker
             updateSettings (settings);
         }
 
-        [[nodiscard]] static auto 
-        getState() 
+        [[nodiscard]] static auto
+        getState()
             -> nonnull<GameState>
         {
             static auto instance = std::make_unique<GameState>();
             return instance.get();
         }
 
-        [[nodiscard]] static auto 
-        getGame() 
+        [[nodiscard]] static auto
+        getGame()
             -> nonnull<Game>
         {
             return &GameState::getState()->game;
@@ -176,9 +176,9 @@ EMSCRIPTEN_KEEPALIVE void startSearch()
     game->move (*move);
 
     emscripten_wasm_worker_post_function_vii (
-        EMSCRIPTEN_WASM_WORKER_ID_PARENT, 
-        mainThreadReceiveMove, 
-        state->game_id, 
+        EMSCRIPTEN_WASM_WORKER_ID_PARENT,
+        mainThreadReceiveMove,
+        state->game_id,
         move->toInt()
     );
 }
@@ -194,9 +194,9 @@ EMSCRIPTEN_KEEPALIVE void workerReceiveMove (int packed_move)
 
 void
 workerReceiveSettings (
-    int white_player, 
-    int black_player, 
-    int thinking_time, 
+    int white_player,
+    int black_player,
+    int thinking_time,
     int search_depth,
     int debug_logging
 ) {
@@ -204,10 +204,10 @@ workerReceiveSettings (
 
     state->restart_requested.store (false);
     state->updateSettings (
-        GameSettings { 
+        GameSettings {
             static_cast<WebPlayer> (white_player),
-            static_cast<WebPlayer> (black_player), 
-            thinking_time, 
+            static_cast<WebPlayer> (black_player),
+            thinking_time,
             search_depth,
             debug_logging != 0
         }
@@ -267,17 +267,17 @@ EM_JS (void, receiveDrawStatusFromWorker, (int game_id, int draw_type, int color
    )
 })
 
-EMSCRIPTEN_KEEPALIVE void 
+EMSCRIPTEN_KEEPALIVE void
 mainThreadReceiveDrawStatus (
-    int game_id, 
-    int draw_type, 
-    int color, 
+    int game_id,
+    int draw_type,
+    int color,
     int accepted_draw
 ) {
     receiveDrawStatusFromWorker (
-        game_id, 
-        draw_type, 
-        color, 
+        game_id,
+        draw_type,
+        color,
         accepted_draw == 0 ? false : true
     );
 }

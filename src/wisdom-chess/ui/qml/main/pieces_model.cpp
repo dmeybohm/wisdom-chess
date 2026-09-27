@@ -16,22 +16,22 @@ namespace wisdom::ui::qml
 
     namespace
     {
-        constexpr auto 
-        whitePiece (Piece piece) 
+        constexpr auto
+        whitePiece (Piece piece)
             -> int8_t
         {
             return toInt8 (ColoredPiece::make (Color::White, piece));
         }
 
-        constexpr auto 
-        blackPiece (Piece piece) 
+        constexpr auto
+        blackPiece (Piece piece)
             -> int8_t
         {
             return toInt8 (ColoredPiece::make (Color::Black, piece));
         }
 
-        auto 
-        initPieceMap() 
+        auto
+        initPieceMap()
             -> QHash<int8_t, QString>
         {
             auto result = QHash<int8_t, QString> {

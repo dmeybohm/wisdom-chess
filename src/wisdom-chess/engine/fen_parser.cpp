@@ -15,8 +15,8 @@ namespace wisdom
         return Game::createGameFromBoard (builder);
     }
 
-    auto 
-    FenParser::parsePiece (char ch) 
+    auto
+    FenParser::parsePiece (char ch)
         -> ColoredPiece
     {
         char lower = toLower (ch);
@@ -41,8 +41,8 @@ namespace wisdom
         }
     }
 
-    auto 
-    FenParser::parseActivePlayer (char ch) 
+    auto
+    FenParser::parseActivePlayer (char ch)
         -> Color
     {
         switch (ch)
@@ -271,8 +271,8 @@ namespace wisdom
         parseFullMove (full_moves);
     }
 
-    auto 
-    FenParser::buildBoard() 
+    auto
+    FenParser::buildBoard()
         -> Board
     {
         builder.setCurrentTurn (active_player);

@@ -13,10 +13,10 @@ namespace wisdom
         GameSettings() = default;
 
         GameSettings (
-            int whitePlayer, 
-            int blackPlayer, 
-            int thinkingTime_, 
-            int searchDepth_, 
+            int whitePlayer,
+            int blackPlayer,
+            int thinkingTime_,
+            int searchDepth_,
             bool debugLogging_ = false
         )
             : whitePlayer { mapPlayer (mapPlayer (whitePlayer)) }
@@ -27,10 +27,10 @@ namespace wisdom
         {}
 
         GameSettings (
-            WebPlayer whitePlayer_, 
-            WebPlayer blackPlayer_, 
-            int thinkingTime_, 
-            int searchDepth_, 
+            WebPlayer whitePlayer_,
+            WebPlayer blackPlayer_,
+            int thinkingTime_,
+            int searchDepth_,
             bool debugLogging_ = false
         )
             : whitePlayer { whitePlayer_ }

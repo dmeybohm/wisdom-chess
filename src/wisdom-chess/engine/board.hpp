@@ -143,8 +143,8 @@ namespace wisdom
             return has_rights;
         }
 
-        [[nodiscard]] auto 
-        getCurrentTurn() const 
+        [[nodiscard]] auto
+        getCurrentTurn() const
             -> Color
         {
             return my_code.getCurrentTurn();

@@ -36,40 +36,40 @@ namespace wisdom
         {
             return (my_flags & flags.my_flags) != 0;
         }
-        
+
         constexpr void
         set (CastlingEligibility flags) noexcept
         {
             my_flags |= flags.my_flags;
         }
-        
+
         constexpr void
         clear (CastlingEligibility flags) noexcept
         {
             my_flags &= ~flags.my_flags;
         }
-        
+
         [[nodiscard]] constexpr auto
         operator| (CastlingEligibility other) const noexcept
             -> CastlingEligibility
         {
             return fromInt (my_flags | other.my_flags);
         }
-        
+
         [[nodiscard]] constexpr auto
         operator& (CastlingEligibility other) const noexcept
             -> CastlingEligibility
         {
             return fromInt (my_flags & other.my_flags);
         }
-        
+
         [[nodiscard]] constexpr auto
         operator^ (CastlingEligibility other) const noexcept
             -> CastlingEligibility
         {
             return fromInt (my_flags ^ other.my_flags);
         }
-        
+
         constexpr auto
         operator|= (CastlingEligibility flags) noexcept
             -> CastlingEligibility&
@@ -77,7 +77,7 @@ namespace wisdom
             my_flags |= flags.my_flags;
             return *this;
         }
-        
+
         constexpr auto
         operator^= (CastlingEligibility flags) noexcept
             -> CastlingEligibility&
@@ -85,7 +85,7 @@ namespace wisdom
             my_flags ^= flags.my_flags;
             return *this;
         }
-        
+
         constexpr auto
         operator&= (CastlingEligibility flags) noexcept
             -> CastlingEligibility&
@@ -93,7 +93,7 @@ namespace wisdom
             my_flags &= flags.my_flags;
             return *this;
         }
-        
+
         [[nodiscard]] constexpr auto
         operator== (CastlingEligibility other) const noexcept
             -> bool
@@ -107,7 +107,7 @@ namespace wisdom
         {
             return my_flags != other.my_flags;
         }
-        
+
         constexpr explicit
         operator bool() const noexcept
         {

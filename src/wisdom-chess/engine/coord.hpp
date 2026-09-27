@@ -37,16 +37,16 @@ namespace wisdom
         int8_t row_and_col;
 
         // Make a coordinate from an index from 0-63.
-        [[nodiscard]] static constexpr auto 
-        fromIndex (int index) 
+        [[nodiscard]] static constexpr auto
+        fromIndex (int index)
             -> Coord
         {
             assert (index >= 0 && index < Num_Squares);
             return { .row_and_col = narrow_cast<int8_t> (index) };
         }
 
-        [[nodiscard]] static constexpr auto 
-        make (int row, int col) 
+        [[nodiscard]] static constexpr auto
+        make (int row, int col)
             -> Coord
         {
             assert (isValidRow (row) && isValidColumn (col));
@@ -56,7 +56,7 @@ namespace wisdom
 
         // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
         template <typename IntegerType = int>
-        [[nodiscard]] constexpr auto 
+        [[nodiscard]] constexpr auto
         index() const
             -> IntegerType
         {
@@ -64,7 +64,7 @@ namespace wisdom
         }
 
         template <typename IntegerType = int8_t>
-        [[nodiscard]] constexpr auto 
+        [[nodiscard]] constexpr auto
         row() const
             -> IntegerType
         {
@@ -73,7 +73,7 @@ namespace wisdom
         }
 
         template <typename IntegerType = int8_t>
-        [[nodiscard]] constexpr auto 
+        [[nodiscard]] constexpr auto
         column() const
             -> IntegerType
         {

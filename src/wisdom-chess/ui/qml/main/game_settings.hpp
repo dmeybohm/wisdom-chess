@@ -14,49 +14,49 @@ namespace wisdom::ui::qml
         Q_GADGET
         QML_VALUE_TYPE (gameSettings)
 
-        Q_PROPERTY (wisdom::ui::Player whitePlayer 
-                MEMBER my_white_player 
+        Q_PROPERTY (wisdom::ui::Player whitePlayer
+                MEMBER my_white_player
                 READ whitePlayer)
-        Q_PROPERTY (wisdom::ui::Player blackPlayer 
-                MEMBER my_black_player 
+        Q_PROPERTY (wisdom::ui::Player blackPlayer
+                MEMBER my_black_player
                 READ blackPlayer)
-        Q_PROPERTY (int maxDepth 
-                MEMBER my_max_depth 
+        Q_PROPERTY (int maxDepth
+                MEMBER my_max_depth
                 READ maxDepth)
-        Q_PROPERTY (int maxSearchTime 
-                MEMBER my_max_search_time 
+        Q_PROPERTY (int maxSearchTime
+                MEMBER my_max_search_time
                 READ maxSearchTime)
-        Q_PROPERTY (bool debugLogging 
-                MEMBER my_debug_logging 
+        Q_PROPERTY (bool debugLogging
+                MEMBER my_debug_logging
                 READ debugLogging)
 
     public:
-        friend auto 
-        operator== (const GameSettings&, const GameSettings&) 
+        friend auto
+        operator== (const GameSettings&, const GameSettings&)
             -> bool;
 
-        friend auto 
-        operator!= (const GameSettings&, const GameSettings&) 
+        friend auto
+        operator!= (const GameSettings&, const GameSettings&)
             -> bool;
 
-        [[nodiscard]] auto 
-        whitePlayer() const 
+        [[nodiscard]] auto
+        whitePlayer() const
             -> wisdom::ui::Player;
 
-        [[nodiscard]] auto 
-        blackPlayer() const 
+        [[nodiscard]] auto
+        blackPlayer() const
             -> wisdom::ui::Player;
 
-        [[nodiscard]] auto 
-        maxDepth() const 
+        [[nodiscard]] auto
+        maxDepth() const
             -> int;
 
-        [[nodiscard]] auto 
-        maxSearchTime() const 
+        [[nodiscard]] auto
+        maxSearchTime() const
             -> int;
 
-        [[nodiscard]] auto 
-        debugLogging() const 
+        [[nodiscard]] auto
+        debugLogging() const
             -> bool;
 
         // The same settings in the engine's terms.

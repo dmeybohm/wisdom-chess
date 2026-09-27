@@ -53,8 +53,8 @@ namespace wisdom
         return result;
     }
 
-    auto 
-    evaluate (const Board& board, Color who, int moves_away) 
+    auto
+    evaluate (const Board& board, Color who, int moves_away)
         -> int
     {
         if (isCheckmated (board))
@@ -82,13 +82,13 @@ namespace wisdom
         return score;
     }
 
-    auto 
-    evaluateWithoutLegalMoves (const Board& board, Color who, int moves_away) 
+    auto
+    evaluateWithoutLegalMoves (const Board& board, Color who, int moves_away)
         -> int
     {
         auto king_coord = board.getKingPosition (who);
-        return isKingThreatened (board, who, king_coord) 
-            ? -1 * checkmateScoreInMoves (moves_away) 
+        return isKingThreatened (board, who, king_coord)
+            ? -1 * checkmateScoreInMoves (moves_away)
             : 0;
     }
 

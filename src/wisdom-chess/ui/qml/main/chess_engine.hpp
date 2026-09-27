@@ -26,8 +26,8 @@ namespace wisdom::ui::qml
 
     public:
         ChessEngine (
-            std::shared_ptr<ChessGame> game, 
-            int game_id, 
+            std::shared_ptr<ChessGame> game,
+            int game_id,
             QObject* parent = nullptr
         );
 
@@ -56,8 +56,8 @@ namespace wisdom::ui::qml
 
         // Receive the draw status:
         void receiveDrawStatus (
-            wisdom::ProposedDrawType drawType, 
-            wisdom::Color player, 
+            wisdom::ProposedDrawType drawType,
+            wisdom::Color player,
             bool accepted
         );
 
@@ -83,8 +83,8 @@ namespace wisdom::ui::qml
 
         // Send draw response:
         void updateDrawStatus (
-            wisdom::ProposedDrawType drawType, 
-            wisdom::Color player, 
+            wisdom::ProposedDrawType drawType,
+            wisdom::Color player,
             bool accepted
         );
 
@@ -125,7 +125,7 @@ namespace wisdom::ui::qml
         // the search.
         //
         void handlePotentialDrawPosition (
-            wisdom::ProposedDrawType proposedDrawType, 
+            wisdom::ProposedDrawType proposedDrawType,
             wisdom::Color who
         );
 
