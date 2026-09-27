@@ -30,19 +30,23 @@ Source: [PGN/FEN section 16.1.3.6](https://www.saremba.de/chessgml/standards/pgn
 1. Add a failing test first: a default `Board` writes fullmove 1, and
    the number is 2 after 1.e4 e5.
 2. Change the `BoardBuilder::my_full_moves` default to 1.
-3. Find the tests that depend on the old default and fix them. A board
+3. Read a fullmove number of 0 in a FEN as 1.
+4. Find the tests that depend on the old default and fix them. A board
    built by hand in a test now starts at 1 unless it calls
    `setFullMoves()`.
-4. Run the Release `ctest` with slow tests, the new test in Debug, and
+5. Run the Release `ctest` with slow tests, the new test in Debug, and
    the `lint` target.
 
-## Open question
+## Reading 0
 
-`FenParser::parseFullMove()` and `BoardBuilder::setFullMoves()` both
-accept 0, and `board_builder_test.cpp:94` pins that. The specification
-doesn't allow 0, but some programs write it. The plan leaves reading 0
-alone and only fixes what we write. Rejecting it, or reading it as 1,
-would be a separate change.
+The specification doesn't allow a fullmove number of 0, but some
+programs write it. `FenParser::parseFullMove()` reads it as 1 instead
+of rejecting the FEN, so those files still load and are written back
+correctly.
+
+`BoardBuilder::setFullMoves()` still accepts 0 and stores it, which
+`board_builder_test.cpp:94` pins. Only `FenParser` and tests call it, so
+no board built outside a test can hold 0.
 
 ## Implementation Progress
 
@@ -51,3 +55,17 @@ would be a separate change.
 Created `fix-default-fullmove-number` in its own worktree from `main`
 at `65e56e5`. Found while testing `en-passant-normalization-cost`. No
 code or tests have been changed yet.
+
+### Session #2
+
+Implemented all five plan steps.
+
+"FEN full move number starts at 1" and the subcase "A full move number
+of 0 is read as 1" in `fen_parser_test.cpp` failed before the fix with
+`0 == 1`, and pass after it. No existing test depended on the old
+default, and no FEN literal in the source tree ends in a fullmove of 0.
+
+Release `ctest` with slow tests passed 244 of 244. The Debug build
+passed the 210 fast tests, and the `lint` target is clean. The QML
+tests were not built, because this machine has no Qt. Their FEN
+literals all give a fullmove number of 1 or more.

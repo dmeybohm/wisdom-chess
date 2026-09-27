@@ -301,7 +301,7 @@ namespace wisdom
         array<ColoredPiece, Num_Squares> my_squares;
 
         int my_half_moves_clock = 0;
-        int my_full_moves = 0;
+        int my_full_moves = 1;
         Color my_current_turn = Color::White;
 
         array<optional<CastlingEligibility>, Num_Players> my_castle_states {

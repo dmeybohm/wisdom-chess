@@ -220,7 +220,8 @@ namespace wisdom
         if (full_moves < 0 || full_moves > Max_Full_Move_Number)
             throw FenParserError { "Full move number out of range parsing FEN string" };
 
-        builder.setFullMoves (full_moves);
+        // The number starts at 1, but some programs write 0.
+        builder.setFullMoves (full_moves == 0 ? 1 : full_moves);
     }
 
     void FenParser::parse (const string& source)
