@@ -81,6 +81,11 @@ namespace wisdom::ui::qml
         );
 
     private:
+        // The list row of the piece on the square, or -1.
+        [[nodiscard]] auto
+        indexOf (wisdom::Coord coord) const
+            -> int;
+
         QHash<int8_t, QString> my_piece_to_image_path;
         QVector<PieceInfo> my_pieces;
     };

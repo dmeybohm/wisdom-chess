@@ -53,3 +53,8 @@ castling and en-passant rules.
   without a capture. After every move the ids stayed unique, sorted, one
   per square, bound to the same color, and the mover's id was on its
   destination.
+- `PiecesModel::playerMoved` now applies `pieceMovement()` too. It still
+  clears the previous castling roles first and emits the same
+  `dataChanged` roles in the same order, so the QML delegates and
+  `pieces_model_test.cpp` are unchanged. A capture is now removed by the
+  move's flag rather than by whatever stood on the destination.
