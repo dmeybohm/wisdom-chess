@@ -123,10 +123,12 @@ if(WISDOM_CHESS_INSTALLER AND WIN32)
     endif()
 endif()
 
+include(cmake/AndroidTests.cmake)
+
 add_subdirectory(src)
 
 # The Python helpers under scripts/ are tested when an interpreter is found.
-if(WISDOM_CHESS_FAST_TESTS AND NOT EMSCRIPTEN)
+if(WISDOM_CHESS_FAST_TESTS AND NOT EMSCRIPTEN AND NOT ANDROID)
     find_package(Python3 COMPONENTS Interpreter)
     if(Python3_Interpreter_FOUND)
         add_test(NAME "Scripts: engine match tally"

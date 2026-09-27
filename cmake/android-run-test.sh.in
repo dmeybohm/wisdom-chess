@@ -1,0 +1,84 @@
+#!/bin/bash
+# Runs a program built for Android on the connected device or emulator.
+# CMake configures this as CMAKE_CROSSCOMPILING_EMULATOR (see
+# AndroidTests.cmake): it copies the program over with adb, runs it with the
+# arguments and standard input given, and exits with its status.
+#
+# Usage: android-run-test.sh <executable> [argument...]
+#
+# Set ANDROID_SERIAL to pick a device when several are connected.
+
+ADB="@WISDOM_CHESS_ADB@"
+LIBCXX="@WISDOM_CHESS_ANDROID_LIBCXX@"
+DEVICE_DIR=/data/local/tmp/wisdom-chess-tests
+
+fail() {
+    echo "android-run-test: $*" >&2
+    exit 125
+}
+
+quote() {
+    printf "'%s'" "${1//\'/\'\\\'\'}"
+}
+
+# Every adb call but the last reads from /dev/null, so that none of them
+# swallows the standard input meant for the program.
+device_shell() {
+    "$ADB" shell "$1" < /dev/null
+}
+
+# Where a file goes on the device. The checksum in the directory name tells
+# a stale copy from a current one.
+device_path() {
+    local name sum
+    name="$(basename "$1")"
+    sum="$(cksum < "$1" | tr -s ' \t' '-')" || fail "cannot read $1"
+    echo "$DEVICE_DIR/$name.$sum/$name"
+}
+
+# Copies a file to its place on the device and removes the older copies.
+# Tests run in parallel, so the copy only gets its name once it is complete,
+# and whichever of several copies of the same file lands last wins.
+push() {
+    local file="$1" target="$2"
+    local target_dir name staging output
+    target_dir="$(dirname "$target")"
+    name="$(basename "$target")"
+    staging="$target.staging.$$"
+
+    output="$(device_shell "mkdir -p $(quote "$target_dir")" 2>&1 \
+        && "$ADB" push "$file" "$staging" < /dev/null 2>&1)" \
+        || fail "cannot copy $file to the device: $output"
+
+    device_shell "
+        chmod 755 $(quote "$staging") && mv -f $(quote "$staging") $(quote "$target") || exit 1
+        for old in $(quote "$DEVICE_DIR/$name").*; do
+            [ \"\$old\" = $(quote "$target_dir") ] || rm -rf \"\$old\"
+        done
+    " || fail "cannot install $file on the device"
+}
+
+[ $# -ge 1 ] || fail "usage: $0 <executable> [argument...]"
+executable="$1"
+shift
+
+[ -f "$executable" ] || fail "no such file: $executable"
+
+if [ "$("$ADB" get-state < /dev/null 2> /dev/null)" != "device" ]; then
+    fail "no Android device or emulator is ready ($("$ADB" get-state < /dev/null 2>&1 | head -1))." \
+        "Start one, or set ANDROID_SERIAL if several are connected." \
+        "Configure with -DWISDOM_CHESS_FAST_TESTS=Off -DWISDOM_CHESS_SLOW_TESTS=Off to build without the tests."
+fi
+
+device_executable="$(device_path "$executable")" || exit
+device_libcxx="$(device_path "$LIBCXX")" || exit
+
+device_shell "[ -e $(quote "$device_executable") ]" || push "$executable" "$device_executable"
+device_shell "[ -e $(quote "$device_libcxx") ]" || push "$LIBCXX" "$device_libcxx"
+
+command="cd $(quote "$DEVICE_DIR") && LD_LIBRARY_PATH=$(quote "$(dirname "$device_libcxx")") exec $(quote "$device_executable")"
+for argument in "$@"; do
+    command="$command $(quote "$argument")"
+done
+
+exec "$ADB" shell "$command"

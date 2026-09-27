@@ -92,16 +92,20 @@ Image {
         }
     }
 
+    function boundX(): real {
+        return myPieceImage.column * BoardDimensions.squareSize
+    }
+
+    function boundY(): real {
+        return myPieceImage.row * BoardDimensions.squareSize
+    }
+
     function rebindX(): void {
-        myTranslation.x = Qt.binding(
-            function(): real { return myPieceImage.column * BoardDimensions.squareSize }
-        )
+        myTranslation.x = Qt.binding(myPieceImage.boundX)
     }
 
     function rebindY(): void {
-        myTranslation.y = Qt.binding(
-            function(): real { return myPieceImage.row * BoardDimensions.squareSize }
-        )
+        myTranslation.y = Qt.binding(myPieceImage.boundY)
     }
 
     onIsCastlingRookChanged: {

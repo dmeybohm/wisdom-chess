@@ -97,6 +97,12 @@ test that loads the real QML, `wisdom_chess_add_qml_ui_test()` on
   QML module; CI runs it on Linux and it fails on any warning
   (`src/wisdom-chess/ui/qml/.qmllint.ini`).
 
+An Android build runs its tests on the connected device or emulator,
+through `adb` (`cmake/AndroidTests.cmake`). Test discovery does too, so
+without a device the build itself fails unless the tests are off. A test
+there cannot use a path from the build directory. CI only builds the
+Android package.
+
 ### Sanitizers
 
 CI runs AddressSanitizer and UndefinedBehaviorSanitizer with Clang over the

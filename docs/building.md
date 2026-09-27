@@ -155,6 +155,27 @@ Use Qt Creator with the Android NDK configured. See the
 [Qt Android documentation](https://doc.qt.io/qt-6/android-getting-started.html)
 for setup details.
 
+To build from the command line instead, use the `qt-cmake` of the Qt built
+for the device's architecture, with Java 17:
+
+```bash
+export JAVA_HOME=/path/to/jdk-17
+~/Qt/6.9.3/android_arm64_v8a/bin/qt-cmake -S . -B build-android -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DQT_HOST_PATH=$HOME/Qt/6.9.3/gcc_64 \
+  -DANDROID_SDK_ROOT=$HOME/Android/Sdk \
+  -DANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/27.2.12479018
+cmake --build build-android -j8
+ctest --test-dir build-android -j 4
+```
+
+The tests run on an Android device or emulator, through `adb`. One has to
+be connected for the build as well as for `ctest`, because the build runs
+the test programs to list their tests. Set `ANDROID_SERIAL` to pick one
+when several are connected. To build without a device, turn the tests off
+with `-DWISDOM_CHESS_FAST_TESTS=Off -DWISDOM_CHESS_SLOW_TESTS=Off`; in Qt
+Creator, that is under Projects > Build > CMake.
+
 ## Building with FIL-C
 
 [FIL-C](https://github.com/pizlonator/fil-c) is auto-detected at configure
