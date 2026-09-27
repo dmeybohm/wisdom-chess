@@ -457,7 +457,7 @@ namespace wisdom::ui::test
             -> QList<QQuickItem*>
         {
             QList<QQuickItem*> result;
-            collectItems (window()->contentItem(), first, second, result);
+            collectItems (window()->contentItem(), first, second, &result);
             return result;
         }
 
@@ -467,10 +467,10 @@ namespace wisdom::ui::test
             QQuickItem* item,
             const char* first,
             const char* second,
-            QList<QQuickItem*>& result
+            nonnull_observer_ptr<QList<QQuickItem*>> result
         ) {
             if (item->property (first).isValid() && item->property (second).isValid())
-                result << item;
+                *result << item;
 
             for (auto* child : item->childItems())
                 collectItems (child, first, second, result);

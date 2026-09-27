@@ -377,14 +377,14 @@ TEST_CASE( "Castling penalty" )
 
 TEST_CASE( "Probable draw category and drawing predicate" )
 {
-    auto shuffle_knights = [] (Game& game, int times)
+    auto shuffle_knights = [] (nonnull_observer_ptr<Game> game, int times)
     {
         for (int i = 0; i < times; i++)
         {
-            game.move (moveParse ("g1 f3", Color::White));
-            game.move (moveParse ("g8 f6", Color::Black));
-            game.move (moveParse ("f3 g1", Color::White));
-            game.move (moveParse ("f6 g8", Color::Black));
+            game->move (moveParse ("g1 f3", Color::White));
+            game->move (moveParse ("g8 f6", Color::Black));
+            game->move (moveParse ("f3 g1", Color::White));
+            game->move (moveParse ("f6 g8", Color::Black));
         }
     };
 
@@ -409,10 +409,10 @@ TEST_CASE( "Probable draw category and drawing predicate" )
     {
         auto game = Game::createStandardGame();
 
-        shuffle_knights (game, 1);
+        shuffle_knights (&game, 1);
         CHECK( probableDrawCategory (game.getBoard(), game.getHistory()) == DrawCategory::NoDraw );
 
-        shuffle_knights (game, 1);
+        shuffle_knights (&game, 1);
         CHECK( probableDrawCategory (game.getBoard(), game.getHistory())
                == DrawCategory::ByRepetition );
     }
@@ -422,10 +422,10 @@ TEST_CASE( "Probable draw category and drawing predicate" )
         auto game = Game::createStandardGame();
         game.getHistory().setThreefoldRepetitionStatus (DrawStatus::Declined);
 
-        shuffle_knights (game, 3);
+        shuffle_knights (&game, 3);
         CHECK( probableDrawCategory (game.getBoard(), game.getHistory()) == DrawCategory::NoDraw );
 
-        shuffle_knights (game, 1);
+        shuffle_knights (&game, 1);
         CHECK( probableDrawCategory (game.getBoard(), game.getHistory())
                == DrawCategory::ByRepetition );
     }

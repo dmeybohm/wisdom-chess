@@ -10,12 +10,12 @@ namespace
     constexpr int Enough_Calls = Calls_Between_Clock_Checks * 4;
 
     auto
-    callsUntilTriggered (MoveTimer& timer)
+    callsUntilTriggered (nonnull_observer_ptr<MoveTimer> timer)
         -> optional<int>
     {
         for (int calls = 1; calls <= Enough_Calls; calls++)
         {
-            if (timer.isTriggered())
+            if (timer->isTriggered())
                 return calls;
         }
         return nullopt;
@@ -59,7 +59,7 @@ TEST_CASE( "MoveTimer" )
     {
         MoveTimer timer { 0 };
 
-        CHECK( !callsUntilTriggered (timer).has_value() );
+        CHECK( !callsUntilTriggered (&timer).has_value() );
         CHECK( !timer.isCancelled() );
     }
 
@@ -68,7 +68,7 @@ TEST_CASE( "MoveTimer" )
         MoveTimer timer { 0 };
         timer.start();
 
-        auto calls = callsUntilTriggered (timer);
+        auto calls = callsUntilTriggered (&timer);
 
         REQUIRE( calls.has_value() );
         CHECK( *calls == Calls_Between_Clock_Checks );
@@ -79,7 +79,7 @@ TEST_CASE( "MoveTimer" )
     {
         MoveTimer timer { 0 };
         timer.start();
-        REQUIRE( callsUntilTriggered (timer).has_value() );
+        REQUIRE( callsUntilTriggered (&timer).has_value() );
 
         CHECK( timer.isTriggered() );
         CHECK( timer.isTriggered() );
@@ -90,7 +90,7 @@ TEST_CASE( "MoveTimer" )
         MoveTimer timer { chrono::hours { 1 } };
         timer.start();
 
-        CHECK( !callsUntilTriggered (timer).has_value() );
+        CHECK( !callsUntilTriggered (&timer).has_value() );
     }
 
     SUBCASE( "Cancelling triggers at once" )
@@ -134,7 +134,7 @@ TEST_CASE( "MoveTimer periodic function" )
         );
         timer.start();
 
-        CHECK( !callsUntilTriggered (timer).has_value() );
+        CHECK( !callsUntilTriggered (&timer).has_value() );
         CHECK( periodic_calls == Enough_Calls / Calls_Between_Clock_Checks );
         CHECK( seen_timer == &timer );
     }
@@ -151,7 +151,7 @@ TEST_CASE( "MoveTimer periodic function" )
             }
         );
 
-        CHECK( !callsUntilTriggered (timer).has_value() );
+        CHECK( !callsUntilTriggered (&timer).has_value() );
         CHECK( periodic_calls == 0 );
     }
 
@@ -169,7 +169,7 @@ TEST_CASE( "MoveTimer periodic function" )
         );
         timer.start();
 
-        REQUIRE( callsUntilTriggered (timer).has_value() );
+        REQUIRE( callsUntilTriggered (&timer).has_value() );
         CHECK( periodic_calls == 1 );
         CHECK( timer.isCancelled() );
     }
@@ -188,7 +188,7 @@ TEST_CASE( "MoveTimer periodic function" )
         );
         timer.start();
 
-        REQUIRE( callsUntilTriggered (timer).has_value() );
+        REQUIRE( callsUntilTriggered (&timer).has_value() );
         CHECK( periodic_calls == 1 );
         CHECK( !timer.isCancelled() );
     }

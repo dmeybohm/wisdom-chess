@@ -8,6 +8,7 @@ using namespace wisdom::ui::qml;
 
 using wisdom::Color;
 using wisdom::moveParse;
+using wisdom::nonnull_observer_ptr;
 using wisdom::Piece;
 using wisdom::Player;
 
@@ -33,11 +34,11 @@ namespace
     }
 
     template <typename Value>
-    void writeProperty (GameSettings& settings, const char* name, Value value)
+    void writeProperty (nonnull_observer_ptr<GameSettings> settings, const char* name, Value value)
     {
         const auto& meta_object = GameSettings::staticMetaObject;
         auto property = meta_object.property (meta_object.indexOfProperty (name));
-        QVERIFY( property.writeOnGadget (&settings, QVariant::fromValue (value)) );
+        QVERIFY( property.writeOnGadget (settings.get(), QVariant::fromValue (value)) );
     }
 }
 
@@ -81,11 +82,11 @@ private slots:
     void configFromChangedGameSettings()
     {
         GameSettings settings;
-        writeProperty (settings, "whitePlayer", wisdom::ui::Player::Computer);
-        writeProperty (settings, "blackPlayer", wisdom::ui::Player::Human);
-        writeProperty (settings, "maxDepth", 2);
-        writeProperty (settings, "maxSearchTime", 9);
-        writeProperty (settings, "debugLogging", true);
+        writeProperty (&settings, "whitePlayer", wisdom::ui::Player::Computer);
+        writeProperty (&settings, "blackPlayer", wisdom::ui::Player::Human);
+        writeProperty (&settings, "maxDepth", 2);
+        writeProperty (&settings, "maxSearchTime", 9);
+        writeProperty (&settings, "debugLogging", true);
 
         auto config = settings.toEngineSettings();
 
