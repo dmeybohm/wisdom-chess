@@ -64,6 +64,16 @@ that plays in any chess GUI, next to the console binary under
 
 `scripts/build-react-wasm.sh` is what CI runs for this build.
 
+The engine's doctest suites also build under Emscripten and run through
+node, which `emcmake` sets as the cross-compiling emulator. The
+`wisdom-chess-react` target does not build them, so build everything
+first:
+
+```bash
+cmake --build build-web -j 8
+ctest --test-dir build-web -j 4
+```
+
 ## Desktop version (Qt QML)
 
 1. **Install Qt 6.8 or newer** from [qt.io](https://www.qt.io/).
@@ -128,12 +138,16 @@ for WebAssembly, a separate Qt installation:
 
 ```bash
 source ./emsdk_env.sh
-emcmake cmake -S . -B build-qml-wasm -DWISDOM_CHESS_QT_DIR=~/Qt/6.9.2/wasm_multithread -DCMAKE_BUILD_TYPE=Release
+emcmake cmake -S . -B build-qml-wasm -DWISDOM_CHESS_QT_DIR=~/Qt/6.9.2/wasm_multithread -DWISDOM_CHESS_QML_UI=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build-qml-wasm --target WisdomChessQml
 # Serve the generated files with a web server
 ```
 
 `scripts/build-qml-wasm.sh` is what CI runs for this build.
+
+`WISDOM_CHESS_QML_UI=ON` is required here: other Emscripten builds use
+native WebAssembly exceptions (`-fwasm-exceptions`), while this one keeps
+the exception model Qt's WebAssembly libraries were built with.
 
 ## Android version
 

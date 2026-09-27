@@ -94,6 +94,16 @@ if (WISDOM_CHESS_FILC_COMPAT)
     message("-- wisdom-chess: Enabling FIL-c runtime compatibility")
 endif()
 
+# Emscripten compiles out catch blocks unless told otherwise. Every object
+# must use the same exception model, so it is set for all code, except in
+# the QML build, which takes the one Qt's WebAssembly libraries were built
+# with.
+if (EMSCRIPTEN AND NOT WISDOM_CHESS_QML_UI STREQUAL "ON")
+    set(WISDOM_CHESS_WASM_EXCEPTIONS ON)
+    add_compile_options(-fwasm-exceptions)
+    add_link_options(-fwasm-exceptions)
+endif()
+
 if(WISDOM_CHESS_INSTALLER AND WIN32)
     # The Windows installer bundles and runs the MSVC redistributable, so
     # resolve it here where src/wisdom-chess/ui/qml can pick it up.
