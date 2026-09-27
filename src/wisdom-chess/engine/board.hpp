@@ -25,11 +25,16 @@ namespace wisdom
 
         explicit Board (const BoardBuilder& builder);
 
+        // Whether the boards are the same position for repetition, as
+        // getBoardCode() identifies it.
         friend auto
         operator== (const Board& a, const Board& b)
             -> bool
         {
-            return a.my_code == b.my_code && a.my_squares == b.my_squares;
+            if (a.my_squares != b.my_squares)
+                return false;
+
+            return a.my_code == b.my_code || a.getBoardCode() == b.getBoardCode();
         }
 
         [[nodiscard]] constexpr auto
@@ -72,13 +77,6 @@ namespace wisdom
         [[nodiscard]] auto
         asString() const
             -> string;
-
-        [[nodiscard]] auto
-        getCode() const noexcept
-            -> BoardCode
-        {
-            return my_code;
-        }
 
         [[nodiscard]] auto
         getMaterial() const& noexcept
@@ -167,15 +165,20 @@ namespace wisdom
 
         // FEN records the passed square after every double pawn push, but
         // FIDE's repetition rule only distinguishes positions by the moves
-        // actually possible from them. Return a copy with the en passant
-        // target cleared when no legal en passant capture reaches it, so
-        // repetition comparisons ignore a target nothing can use.
+        // actually possible from them. This code leaves the en passant
+        // target out when no legal en passant capture reaches it.
         [[nodiscard]] auto
-        withNormalizedEnPassantTarget() const
-            -> Board;
+        getBoardCode() const
+            -> BoardCode
+        {
+            return my_code.getEnPassantTarget().has_value()
+                ? normalizedBoardCode()
+                : my_code;
+        }
 
-        [[nodiscard]] auto 
-        getBoardCode() const 
+        // The code with the en passant target as FEN records it.
+        [[nodiscard]] auto
+        getUnnormalizedBoardCode() const noexcept
             -> BoardCode
         {
             return my_code;
@@ -197,6 +200,10 @@ namespace wisdom
 
     private:
         void makeMove (Color who, Move move);
+
+        [[nodiscard]] auto
+        normalizedBoardCode() const
+            -> BoardCode;
 
         auto applyForEnPassant (Color who, Coord src, Coord dst) noexcept -> ColoredPiece;
         void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept;

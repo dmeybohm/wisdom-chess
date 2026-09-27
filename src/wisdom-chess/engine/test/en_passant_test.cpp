@@ -1,5 +1,6 @@
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/coord.hpp"
 
@@ -132,30 +133,36 @@ TEST_CASE( "en passant" )
     }
 }
 
-TEST_CASE( "withNormalizedEnPassantTarget" )
+TEST_CASE( "Board code and equality leave out an unusable en passant target" )
 {
-    SUBCASE( "Leaves a board with no en passant target untouched" )
+    SUBCASE( "A board with no en passant target has the same code either way" )
     {
         Board board;
+
         REQUIRE( board.getEnPassantTarget() == nullopt );
-        REQUIRE( board.withNormalizedEnPassantTarget() == board );
+        CHECK( board.getBoardCode() == board.getUnnormalizedBoardCode() );
     }
 
-    SUBCASE( "Clears the target when no enemy pawn is adjacent" )
+    SUBCASE( "No enemy pawn is adjacent" )
     {
         BoardBuilder builder;
         builder.addPiece ("e1", Color::White, Piece::King);
         builder.addPiece ("e8", Color::Black, Piece::King);
-        builder.addPiece ("a2", Color::White, Piece::Pawn);
+        builder.addPiece ("a4", Color::White, Piece::Pawn);
+        builder.setCurrentTurn (Color::Black);
+        auto without_target = Board { builder };
 
+        builder.setEnPassantTarget (Color::White, "a3");
         auto board = Board { builder };
-        board = board.withMove (Color::White, moveParse ("a2 a4"));
 
         REQUIRE( board.getEnPassantTarget().has_value() );
-        REQUIRE( !board.withNormalizedEnPassantTarget().getEnPassantTarget().has_value() );
+        CHECK( !board.getBoardCode().getEnPassantTarget().has_value() );
+        CHECK( board.getBoardCode() == without_target.getBoardCode() );
+        CHECK( board.getUnnormalizedBoardCode() != without_target.getUnnormalizedBoardCode() );
+        CHECK( board == without_target );
     }
 
-    SUBCASE( "Clears the target when the adjacent enemy pawn is pinned" )
+    SUBCASE( "The adjacent enemy pawn is pinned" )
     {
         // Rank 4: white rook a4, white pawn d4 (just double-pushed), black
         // pawn e4, black king h4. Capturing en passant vacates both d4 and
@@ -163,35 +170,67 @@ TEST_CASE( "withNormalizedEnPassantTarget" )
         BoardBuilder builder;
         builder.addPiece ("e1", Color::White, Piece::King);
         builder.addPiece ("a4", Color::White, Piece::Rook);
-        builder.addPiece ("d2", Color::White, Piece::Pawn);
+        builder.addPiece ("d4", Color::White, Piece::Pawn);
         builder.addPiece ("e4", Color::Black, Piece::Pawn);
         builder.addPiece ("h4", Color::Black, Piece::King);
+        builder.setCurrentTurn (Color::Black);
+        auto without_target = Board { builder };
 
+        builder.setEnPassantTarget (Color::White, "d3");
         auto board = Board { builder };
-        board = board.withMove (Color::White, moveParse ("d2 d4"));
 
         REQUIRE( board.getEnPassantTarget().has_value() );
-
-        auto legal_moves = generateLegalMoves (board, Color::Black);
-        REQUIRE( std::none_of (
-            legal_moves.begin(), legal_moves.end(), std::mem_fn (&Move::isEnPassant)
-        ) );
-
-        REQUIRE( !board.withNormalizedEnPassantTarget().getEnPassantTarget().has_value() );
+        CHECK( !board.getBoardCode().getEnPassantTarget().has_value() );
+        CHECK( board.getBoardCode() == without_target.getBoardCode() );
+        CHECK( board == without_target );
     }
 
-    SUBCASE( "Keeps the target when a legal en passant capture exists" )
+    SUBCASE( "A legal en passant capture keeps the target" )
     {
         BoardBuilder builder;
         builder.addPiece ("e1", Color::White, Piece::King);
         builder.addPiece ("e8", Color::Black, Piece::King);
-        builder.addPiece ("d2", Color::White, Piece::Pawn);
+        builder.addPiece ("d4", Color::White, Piece::Pawn);
         builder.addPiece ("e4", Color::Black, Piece::Pawn);
+        builder.setCurrentTurn (Color::Black);
+        auto without_target = Board { builder };
 
+        builder.setEnPassantTarget (Color::White, "d3");
         auto board = Board { builder };
-        board = board.withMove (Color::White, moveParse ("d2 d4"));
 
         REQUIRE( board.getEnPassantTarget().has_value() );
-        REQUIRE( board.withNormalizedEnPassantTarget() == board );
+        CHECK( board.getBoardCode() == board.getUnnormalizedBoardCode() );
+        CHECK( board.getBoardCode() != without_target.getBoardCode() );
+        CHECK( board != without_target );
+    }
+
+    SUBCASE( "Double pushes made in either order reach the same position" )
+    {
+        Board start;
+
+        auto queen_pawn_last = start
+            .withMove (Color::White, moveParse ("e2 e4"))
+            .withMove (Color::Black, moveParse ("a7 a6"))
+            .withMove (Color::White, moveParse ("d2 d4"));
+        auto king_pawn_last = start
+            .withMove (Color::White, moveParse ("d2 d4"))
+            .withMove (Color::Black, moveParse ("a7 a6"))
+            .withMove (Color::White, moveParse ("e2 e4"));
+
+        CHECK( queen_pawn_last.getUnnormalizedBoardCode()
+               != king_pawn_last.getUnnormalizedBoardCode() );
+        CHECK( queen_pawn_last.getBoardCode() == king_pawn_last.getBoardCode() );
+        CHECK( queen_pawn_last == king_pawn_last );
+    }
+
+    SUBCASE( "The target stays on the board for FEN output" )
+    {
+        const char* fen_text = "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1";
+        FenParser fen { fen_text };
+        auto board = fen.buildBoard();
+
+        CHECK( !board.getBoardCode().getEnPassantTarget().has_value() );
+        CHECK( board.getEnPassantTarget().has_value() );
+        CHECK( board.toFenString (Color::Black) == fen_text );
     }
 }

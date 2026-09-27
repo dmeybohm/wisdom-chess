@@ -607,6 +607,50 @@ namespace wisdom
     }
 
     auto
+    generateLegalEnPassantMoves (const Board& board)
+        -> MoveList
+    {
+        MoveList result;
+
+        Color who = board.getCurrentTurn();
+        auto target = board.getEnPassantTarget();
+        if (!target.has_value() || target->vulnerable_color == who)
+            return result;
+
+        int capture_row = who == Color::White
+            ? White_Pawn_En_Passant_Capture_Row
+            : Black_Pawn_En_Passant_Capture_Row;
+        int target_row = target->coord.row<int>();
+        int target_column = target->coord.column<int>();
+
+        // A target read from a FEN may have no pawn to capture.
+        auto taken_pawn = ColoredPiece::make (target->vulnerable_color, Piece::Pawn);
+        if (board.pieceAt (capture_row, target_column) != taken_pawn
+            || board.pieceAt (target->coord) != Piece_And_Color_None)
+        {
+            return result;
+        }
+
+        auto capturing_pawn = ColoredPiece::make (who, Piece::Pawn);
+        for (int column : { target_column - 1, target_column + 1 })
+        {
+            if (!isValidColumn (column))
+                continue;
+
+            if (board.pieceAt (capture_row, column) != capturing_pawn)
+                continue;
+
+            Move move = Move::makeEnPassant (capture_row, column, target_row, target_column);
+            Board new_board = board.withMove (who, move);
+
+            if (isLegalPositionAfterMove (new_board, who, move))
+                result.append (move);
+        }
+
+        return result;
+    }
+
+    auto
     hasLegalMove (const Board& board)
         -> bool
     {

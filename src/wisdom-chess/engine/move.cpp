@@ -218,56 +218,13 @@ namespace wisdom
         }
     }
 
-    // Whether a pawn able to capture the current en passant target sits
-    // next to it. Necessary but not sufficient for a legal capture (that
-    // pawn could still be pinned), but its absence rules a legal capture
-    // out completely, letting the common case skip a full
-    // generateLegalMoves() call.
-    static auto
-    hasPawnAdjacentToEnPassantTarget (const Board& board, EnPassantTarget target)
-        -> bool
-    {
-        Color capturer = colorInvert (target.vulnerable_color);
-        int capture_row = capturer == Color::White
-            ? White_Pawn_En_Passant_Capture_Row
-            : Black_Pawn_En_Passant_Capture_Row;
-        int target_column = target.coord.column<int>();
-
-        for (int column : { target_column - 1, target_column + 1 })
-        {
-            if (!isValidColumn (column))
-                continue;
-
-            auto piece = board.pieceAt (capture_row, column);
-            if (pieceType (piece) == Piece::Pawn && pieceColor (piece) == capturer)
-                return true;
-        }
-
-        return false;
-    }
-
     auto
-    Board::withNormalizedEnPassantTarget() const
-        -> Board
+    Board::normalizedBoardCode() const
+        -> BoardCode
     {
-        Board result = *this;
-        auto target = result.getEnPassantTarget();
-        if (!target.has_value())
-            return result;
+        BoardCode result = my_code;
 
-        if (!hasPawnAdjacentToEnPassantTarget (result, *target))
-        {
-            result.clearEnPassantTarget();
-            return result;
-        }
-
-        auto legal_moves = generateLegalMoves (result, result.getCurrentTurn());
-        bool has_en_passant_capture = std::any_of (
-            legal_moves.begin(), legal_moves.end(),
-            [](Move legal_move) { return legal_move.isEnPassant(); }
-        );
-
-        if (!has_en_passant_capture)
+        if (generateLegalEnPassantMoves (*this).isEmpty())
             result.clearEnPassantTarget();
 
         return result;

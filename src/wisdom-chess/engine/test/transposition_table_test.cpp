@@ -292,7 +292,7 @@ TEST_CASE( "Transposition table with real board positions" )
         TranspositionTable tt = TranspositionTable::fromMegabytes (1);
         Board board = Board { BoardBuilder::fromDefaultPosition() };
 
-        auto hash = board.getCode().getHashCode();
+        auto hash = board.getBoardCode().getHashCode();
         Move move = Move::make (1, 4, 3, 4);
 
         tt.store (hash, 50, 4, BoundType::Exact, move, 0);
@@ -313,8 +313,8 @@ TEST_CASE( "Transposition table with real board positions" )
         builder.addPiece ("d4", Color::White, Piece::Pawn);
         Board board2 { builder };
 
-        auto hash1 = board1.getCode().getHashCode();
-        auto hash2 = board2.getCode().getHashCode();
+        auto hash1 = board1.getBoardCode().getHashCode();
+        auto hash2 = board2.getBoardCode().getHashCode();
 
         CHECK( hash1 != hash2 );
 
@@ -449,7 +449,7 @@ TEST_CASE( "Hash collision analysis" )
                 builder.addPiece (row, col, Color::White, Piece::Knight);
 
                 Board board { builder };
-                auto hash = board.getCode().getHashCode();
+                auto hash = board.getBoardCode().getHashCode();
                 auto [it, inserted] = hashes.insert (hash);
                 CHECK( inserted );
             }
