@@ -68,7 +68,7 @@ namespace wisdom::ui::qml
         [[maybe_unused]] wisdom::Color who,
         int game_id
     ) {
-        if (game_id == this->my_game_id)
+        if (game_id == my_game_id)
         {
             // The GUI has shown the move. Do another if the engine is hooked
             // up to itself:

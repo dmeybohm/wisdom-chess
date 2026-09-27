@@ -69,7 +69,7 @@ namespace wisdom::ui::qml
         -> std::unique_ptr<ChessGame>
     {
         // Copy current game state to FEN and send on to the chess engine thread:
-        auto current_game = this->state();
+        auto current_game = state();
         auto players = current_game->getPlayers();
         auto new_config = my_config;
 
@@ -81,7 +81,7 @@ namespace wisdom::ui::qml
 
     void ChessGame::setConfig (const Config& config)
     {
-        config.applyTo (this->state());
+        config.applyTo (state());
         my_config = config;
     }
 
@@ -91,7 +91,7 @@ namespace wisdom::ui::qml
         wisdom::Player black_player
     ) { // NOLINT(readability-make-member-function-const)
         const wisdom::Players players { white_player, black_player };
-        this->state()->setPlayers (players);
+        state()->setPlayers (players);
         my_config.players = players;
     }
 
@@ -105,7 +105,7 @@ namespace wisdom::ui::qml
     ) const
         -> pair<optional<Move>, Color>
     {
-        auto engine = this->state();
+        auto engine = state();
         auto src = wisdom::makeCoord (src_row, src_column);
         auto dst = wisdom::makeCoord (dst_row, dst_column);
 
@@ -116,7 +116,7 @@ namespace wisdom::ui::qml
 
     void ChessGame::setPeriodicFunction (const MoveTimer::PeriodicFunction& func)
     {
-        auto game_state = this->state();
+        auto game_state = state();
         game_state->setPeriodicFunction (func);
     }
 }

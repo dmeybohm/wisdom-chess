@@ -407,8 +407,8 @@ namespace wisdom
 
     void MoveGeneration::generate (ColoredPiece piece, Coord coord)
     {
-        this->piece_row = coord.row<int>();
-        this->piece_col = coord.column<int>();
+        piece_row = coord.row<int>();
+        piece_col = coord.column<int>();
 
         switch (pieceType (piece))
         {

@@ -9,7 +9,7 @@ namespace wisdom
         {
             auto piece = board.pieceAt (coord);
             if (piece != Piece_And_Color_None)
-                this->add (board.pieceAt (coord));
+                add (board.pieceAt (coord));
         }
     }
 
