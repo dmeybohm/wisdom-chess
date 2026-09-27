@@ -132,7 +132,54 @@ the `getGame()` overrides return a member or `ChessGame::state()`, which
 is already `nonnull`; the `my_parent` back-pointers are set by their
 owners; and the WASM `GameState::getState()`/`getGame()` return a static
 instance. All are `nonnull` now. No caller tested them for null, so no
-checks became dead. `nullable` is left with no users outside
-`global.hpp`. A `nullable` that cannot be dereferenced until it is
-converted to `nonnull`, with a lint rule against raw pointers, is waiting
-for the first pointer that can actually be null.
+checks became dead.
+
+**`nullable` as a class.** Rather than wait for the first pointer that can
+really be null, `nullable<T>` became a class with no `->` or `*`. It is
+tested with `explicit operator bool`, and `value()` returns a `nonnull`
+(throwing `PreconditionError` on null). `unsafeGet()` is the exit for an
+API that takes a raw pointer. It converts from `T*`, `nullptr`, `nonnull`
+and a `nullable` of a derived or less-const type, is trivially copyable
+and pointer-sized, and compares by address. `unchecked_nonnull` holds a
+plain `T*` rather than a `nullable` with friended operators. Its pointer
+is private, so friendship would have protected nothing, and the file that
+defines the pointer types needs a `lint-allow` either way.
+
+**The `raw-pointer` rule.** It works on text, like the other rules. After
+stripping comments and blanking string literals, it flags a `*` attached
+to a type name (the project writes `T* name`) and followed by something
+that can end a declared type: a name, `,`, `)`, `>`, `&`, `*`, `;`, `=`,
+`{`, `[`, or the end of the line for a trailing return type. That keeps
+`a * b`, `*=`, `*this` and `operator*` out. Exempt:
+
+- Qt types (`Q` and a capital letter). Qt's parent/child ownership and
+  QML's meta-types use raw pointers throughout.
+- `auto*` locals. Once our own functions return `nonnull` or `nullable`,
+  an `auto*` can only hold a pointer a library returned.
+
+A pointer to `char` gets its own message. `const char*` does not say
+whether it points to a NUL-terminated string, one character or a buffer,
+so the rule asks for `czstring`/`zstring`, or `span`/`string_view` for a
+buffer. The 121 `const char*` declarations were all NUL-terminated
+strings and became `czstring`.
+
+The linter gained `lint-allow(<rule>)`: a violation is dropped when its
+line contains the marker, which by convention sits in a comment with the
+reason. About 30 lines carry one. They are the pointer types in
+`global.hpp` and two type traits in their test, `main`'s `argv`, the
+`EM_JS` signatures (Emscripten also reads their parameter lists, and a
+`czstring` at file scope does not resolve), the WebIDL-bound
+`startNewGame()`, `getCurrentGameSettings()` and `setCurrentGameSettings()`,
+`WebGame::newFromSettings()`, the Emscripten worker callbacks, QML's
+singleton `create()`, two `std::streambuf*` members set from
+`std::ios::rdbuf()`, a string JavaScript allocates with `_malloc`, and
+`GameModel::my_chess_engine`. Some of these own what they point to: the
+`_malloc` string, `my_chess_engine`, and the objects that
+`newFromSettings()`, `startNewGame()` and `getCurrentGameSettings()` hand
+to JavaScript. Moving `newFromSettings()` and `my_chess_engine` to
+`unique_ptr` would
+change how ownership crosses the WebIDL boundary and a `QThread`, so that
+is left for a separate change.
+
+The QML singletons now keep their instances as `nullable` and take them
+as `nonnull`, leaving only `create()`'s signature raw.
