@@ -157,12 +157,6 @@ The React frontend's TypeScript types are generated from
 `npm run generate:wasm-types` in `src/wisdom-chess/ui/react` and commit the result; CI
 fails if it is stale. Use enum types in the IDL, not `long`.
 
-### React formatting
-
-Prettier formats the TypeScript and CSS in `src/wisdom-chess/ui/react`
-(`.prettierrc.json`). Run `npm run format` there before committing; CI
-runs `npm run format:check`. The generated types are excluded.
-
 ## Transposition table
 
 The table is search state, not game state: `Game::findBestMove()` borrows

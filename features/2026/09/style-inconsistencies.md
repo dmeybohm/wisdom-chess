@@ -291,7 +291,8 @@ Item 29: the React frontend is formatted with Prettier.
   of their change is indentation: ignoring whitespace it is 17 lines
   added and 26 removed.
 - The `web` workflow runs `npm run format:check` before the tests.
-  `AGENTS.md` has a short section on it.
+  `AGENTS.md` does not mention Prettier: the configuration file and the
+  two scripts say what there is to say.
 - Verified: `tsc --noEmit` is clean, the 51 React tests pass,
   `check:wasm-types` still passes with the generator script
   reformatted, and `format:check` passes. The production build was not
