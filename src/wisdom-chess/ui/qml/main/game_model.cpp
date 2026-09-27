@@ -1,7 +1,7 @@
 #include <QDebug>
 
 #ifdef EMSCRIPTEN
-#include <emscripten.h>
+#include <emscripten/val.h>
 #endif
 
 #include "wisdom-chess/engine/evaluate.hpp"
@@ -150,16 +150,8 @@ namespace wisdom::ui::qml
     auto GameModel::browserOriginUrl() -> QString
     {
 #ifdef EMSCRIPTEN
-        char* origin = reinterpret_cast<char*>(EM_ASM_PTR({ // lint-allow(raw-pointer): malloc'd by JavaScript
-            var str = window.location.origin;
-            var len = lengthBytesUTF8(str) + 1;
-            var buf = _malloc(len);
-            stringToUTF8(str, buf, len);
-            return buf;
-        }));
-        QString result = QString::fromUtf8 (origin);
-        free (origin);
-        return result;
+        auto origin = emscripten::val::global ("location")["origin"].as<std::string>();
+        return QString::fromStdString (origin);
 #else
         return QString {};
 #endif
