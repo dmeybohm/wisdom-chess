@@ -23,18 +23,12 @@ does not make clear why something was done the way it was.
 
 ## Code style
 
+The layout, naming and the style linter that enforces them are in
+`docs/coding-style.md`. Run `cmake --build build --target lint` before
+committing C++. The conventions below are about what the code does.
+
 - Everything is in the `wisdom::` namespace.
-- Trailing return types: `auto fn() -> ReturnType`. With three or more
-  specifiers around it (`[[nodiscard]]`, `constexpr`, `static`, `const`,
-  `noexcept`, a ref-qualifier), put the name and `-> ReturnType` on
-  lines of their own. With fewer, either layout is accepted, and both
-  are in use: follow the file being edited.
-- Allman braces: the brace opening a function, control statement or
-  type goes on a line of its own, also after a multi-line parameter
-  list. A block that closes on the same line, a brace initializer and
-  a lambda are exempt.
 - `[[nodiscard]]` on factory functions and getters.
-- Private data members carry the `my_` prefix; public ones do not.
 - `wisdom::narrow` and `wisdom::narrow_cast` for narrowing conversions.
 - `expects (cond)` / `ensures (cond)` (`engine/global.hpp`) check caller
   input and throw. `noexcept_expects` aborts and belongs only in `noexcept`
@@ -67,15 +61,6 @@ does not make clear why something was done the way it was.
 - Use `nonnull<Type>` in preference to a mutable `Type&` reference, for
   both functions and member variables. Use `const Type&` for const
   references.
-  
-The style linter is built with the project and enforces the formatting
-rules (`--list-rules` names them, e.g. `foo (x)` but `bar()`, and
-`CHECK( x )` in tests):
-
-```bash
-./build/scripts/linter/wisdom-linter <cppfile>
-cmake --build build --target lint
-```
 
 ## Building and testing
 

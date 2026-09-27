@@ -200,7 +200,7 @@ direction is a choice rather than a correction.
    stays fixed. It would be added after `linter-lexer` lands, on its own
    branch.
 4. [ ] Items under B wait for a decision on each. Once decided, the
-   convention goes into `AGENTS.md` next to the fix. Decided so far:
+   convention goes into `docs/coding-style.md` next to the fix. Decided so far:
    14, 15, 20, 21, 29 and 30.
 5. [x] For item 30, the `allman-braces` linter rule. Written and made an
    error in Session #5.
@@ -365,7 +365,8 @@ Item 29: the React frontend is formatted with Prettier.
     `throw`, `(` or `,`, opens an initializer.
   - A lambda is recognized by the `]` of its capture list before its
     parameters, and skipped for now.
-  - A block that closes on the line it opens is allowed.
+  - A block that closes on the line it opens is allowed. (Narrowed
+    later in the session to an empty block; see below.)
 
   A semicolon test was considered and rejected: a loop whose body is
   another loop has no semicolon at its own level, and an initializer
@@ -386,3 +387,24 @@ Item 29: the React frontend is formatted with Prettier.
   fast tests pass, the linter's 50 tests and the `lint` target pass,
   and the WASM target `wisdom-chess-web` builds, which is the only
   build of `ui/wasm/bindings.cpp`.
+- Narrowed the exemption for one-line blocks to an empty one, `{}`,
+  after the one-line getters in `ui/qml/main/game_model.hpp` came up.
+  About 2,300 function bodies span lines, 25 with statements were on one
+  line, and no control statement or type body was. The 25 are the four
+  settings getters in each `game_model.hpp` and test doubles in
+  `engine/test/game_status_test.cpp` and
+  `ui/viewmodel/test/game_viewmodel_base_test.cpp`; each is now split.
+  Empty bodies, like the no-op virtual hooks in
+  `ui/viewmodel/game_viewmodel_base.hpp` and `struct None {};`, stay.
+- That change also exposed a requires-expression, `requires (P p) { *p; }`
+  in `engine/test/global_test.cpp`, which the rule had read as a
+  function body. A `(` after `requires` now marks an expression.
+- Moved the layout and naming conventions out of `AGENTS.md` into a new
+  `docs/coding-style.md`, which `AGENTS.md` points to. That page also
+  covers conventions the code already followed without a written rule,
+  each checked against the tree: indented namespace contents and `case`
+  labels (40 of 40 switches), spaces inside brace initializers (593 to
+  0), `&` bound to the type (573 to 7), and the layouts of a long
+  parameter list and a constructor's initializer list. `AGENTS.md`
+  keeps the conventions about what the code does, such as the pointer
+  types and `expects`.
