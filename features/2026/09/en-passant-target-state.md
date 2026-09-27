@@ -137,3 +137,22 @@ Times are medians. Every build chose the same move in each position.
 - The perft suites (`ctest -R Perft`, three runs) took a median 26.02 s
   against 25.77 s on `main`, about 1% slower. That's the eager
   classification's cost for boards nobody asks a code for.
+
+### Session #2
+
+- Removed `Board::isEnPassantVulnerable()`. Only tests called it, and
+  they now use `getAnyEnPassantTarget()` or `getLegalEnPassantTarget()`,
+  so each one says which it checks.
+- `Board::makeMove()`, `withMove()`, `updateEnPassantEligibility()` and
+  `classifyEnPassantTarget()` are `noexcept`. Everything they reach is
+  `noexcept` or checks with `noexcept_expects`, except the `default:`
+  case in `position.cpp`'s `change()`. That case is reached only for an
+  empty source square, so it now calls `terminateOnPreconditionFailure()`
+  instead of throwing `Error`. Every frontend checks a move against the
+  legal moves before `Game::move()`, so reaching it would be an engine
+  bug.
+- `terminateOnPreconditionFailure()` defaults its location to
+  `std::source_location::current()`, like `expects`.
+
+Release `ctest` with slow tests passed 247 of 247, Debug passed 213 of
+213, and `lint` is clean.

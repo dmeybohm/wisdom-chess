@@ -196,7 +196,7 @@ namespace wisdom
     // or not the opponent has a legal en passant capture. Legality depends
     // on the finished position, so this runs after the rest of the move.
     void 
-    Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move)
+    Board::updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept
     {
         if (!isDoubleSquarePawnMove (src_piece, move))
         {
@@ -213,7 +213,7 @@ namespace wisdom
     }
 
     void
-    Board::classifyEnPassantTarget()
+    Board::classifyEnPassantTarget() noexcept
     {
         auto target = my_code.getAnyEnPassantTarget();
         if (!target.has_value())
@@ -226,7 +226,7 @@ namespace wisdom
     }
 
     auto
-    Board::withMove (Color who, Move move) const -> Board
+    Board::withMove (Color who, Move move) const noexcept -> Board
     {
         Board result = *this;
         result.makeMove (who, move);
@@ -250,7 +250,7 @@ namespace wisdom
     }
 
     void 
-    Board::makeMove (Color who, Move move)
+    Board::makeMove (Color who, Move move) noexcept
     {
         assert (who == my_code.getCurrentTurn());
 

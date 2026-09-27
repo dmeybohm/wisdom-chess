@@ -106,7 +106,7 @@ namespace wisdom
             case Piece::King:
                 return king_positions[row][col];
             default:
-                throw Error ("Invalid position of piece to change.");
+                terminateOnPreconditionFailure();
         }
     }
 

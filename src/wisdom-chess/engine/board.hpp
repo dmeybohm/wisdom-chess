@@ -103,7 +103,7 @@ namespace wisdom
 
         // Create a new board with the move applied:
         [[nodiscard]] auto
-        withMove (Color who, Move move) const
+        withMove (Color who, Move move) const noexcept
             -> Board;
 
         // Create a new board with the current turn updated:
@@ -204,11 +204,11 @@ namespace wisdom
             -> optional<Coord>;
 
     private:
-        void makeMove (Color who, Move move);
+        void makeMove (Color who, Move move) noexcept;
 
         auto applyForEnPassant (Color who, Coord src, Coord dst) noexcept -> ColoredPiece;
-        void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move);
-        void classifyEnPassantTarget();
+        void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept;
+        void classifyEnPassantTarget() noexcept;
         void clearEnPassantTarget() noexcept;
 
         void applyForCastlingMove (
