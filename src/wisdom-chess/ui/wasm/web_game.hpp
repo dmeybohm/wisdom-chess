@@ -21,7 +21,7 @@ namespace wisdom
 
         [[nodiscard]] static auto
         newFromSettings (const GameSettings& settings, int game_id)
-            -> WebGame*;
+            -> unique_ptr<WebGame>;
 
         void setSettings (const GameSettings& settings);
 
@@ -30,16 +30,16 @@ namespace wisdom
 
         // Squares are given in algebraic notation, such as "e2".
         [[nodiscard]] auto
-        needsPawnPromotion (const char* src, const char* dst) const
+        needsPawnPromotion (czstring src, czstring dst) const
             -> bool;
 
         // Make the human's move and return it packed for
         // GameModel::notifyHumanMove(), or Illegal_Move.
         [[nodiscard]] auto
-        makeHumanMove (const char* src, const char* dst, WebPiece promoted_piece_type)
+        makeHumanMove (czstring src, czstring dst, WebPiece promoted_piece_type)
             -> int;
 
-        void makeComputerMove (const char* move_text);
+        void makeComputerMove (czstring move_text);
 
         void setMaxDepth (int max_depth)
         {
@@ -75,14 +75,14 @@ namespace wisdom
 
         [[nodiscard]] auto
         getMoveStatus() const
-            -> const char*
+            -> czstring
         {
             return moveStatus().c_str();
         }
 
         [[nodiscard]] auto
         getGameOverStatus() const
-            -> const char*
+            -> czstring
         {
             return gameOverStatus().c_str();
         }
@@ -129,14 +129,14 @@ namespace wisdom
     protected:
         [[nodiscard]] auto
         getGame()
-            -> observer_ptr<Game> override
+            -> nonnull<Game> override
         {
             return &my_game;
         }
 
         [[nodiscard]] auto
         getGame() const
-            -> observer_ptr<const Game> override
+            -> nonnull<const Game> override
         {
             return &my_game;
         }

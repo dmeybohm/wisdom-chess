@@ -84,11 +84,11 @@ namespace wisdom::ui
     protected:
         [[nodiscard]] virtual auto
         getGame()
-            -> observer_ptr<Game> = 0;
+            -> nonnull<Game> = 0;
 
         [[nodiscard]] virtual auto
         getGame() const
-            -> observer_ptr<const Game> = 0;
+            -> nonnull<const Game> = 0;
 
         // Formatting hook for status messages. Override to change bold formatting.
         [[nodiscard]] virtual auto

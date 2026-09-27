@@ -11,7 +11,7 @@ using namespace wisdom;
 namespace
 {
     auto
-    boardFromFen (const char* fen_text)
+    boardFromFen (czstring fen_text)
         -> Board
     {
         FenParser parser { fen_text };
@@ -124,7 +124,7 @@ TEST_CASE( "Stalemate detection" )
 
 TEST_CASE( "isLegalPositionAfterMove" )
 {
-    auto is_legal = [] (const Board& board, Color who, const char* move_text)
+    auto is_legal = [] (const Board& board, Color who, czstring move_text)
     {
         auto move = moveParse (move_text, who);
         auto after = board.withMove (who, move);
@@ -262,7 +262,7 @@ TEST_CASE( "Evaluating a position" )
 
     SUBCASE( "One player's score is the negation of the other's" )
     {
-        const char* fens[] = {
+        czstring fens[] = {
             "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
             "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",
             "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
@@ -377,14 +377,14 @@ TEST_CASE( "Castling penalty" )
 
 TEST_CASE( "Probable draw category and drawing predicate" )
 {
-    auto shuffle_knights = [] (Game& game, int times)
+    auto shuffle_knights = [] (nonnull<Game> game, int times)
     {
         for (int i = 0; i < times; i++)
         {
-            game.move (moveParse ("g1 f3", Color::White));
-            game.move (moveParse ("g8 f6", Color::Black));
-            game.move (moveParse ("f3 g1", Color::White));
-            game.move (moveParse ("f6 g8", Color::Black));
+            game->move (moveParse ("g1 f3", Color::White));
+            game->move (moveParse ("g8 f6", Color::Black));
+            game->move (moveParse ("f3 g1", Color::White));
+            game->move (moveParse ("f6 g8", Color::Black));
         }
     };
 
@@ -409,10 +409,10 @@ TEST_CASE( "Probable draw category and drawing predicate" )
     {
         auto game = Game::createStandardGame();
 
-        shuffle_knights (game, 1);
+        shuffle_knights (&game, 1);
         CHECK( probableDrawCategory (game.getBoard(), game.getHistory()) == DrawCategory::NoDraw );
 
-        shuffle_knights (game, 1);
+        shuffle_knights (&game, 1);
         CHECK( probableDrawCategory (game.getBoard(), game.getHistory())
                == DrawCategory::ByRepetition );
     }
@@ -422,10 +422,10 @@ TEST_CASE( "Probable draw category and drawing predicate" )
         auto game = Game::createStandardGame();
         game.getHistory().setThreefoldRepetitionStatus (DrawStatus::Declined);
 
-        shuffle_knights (game, 3);
+        shuffle_knights (&game, 3);
         CHECK( probableDrawCategory (game.getBoard(), game.getHistory()) == DrawCategory::NoDraw );
 
-        shuffle_knights (game, 1);
+        shuffle_knights (&game, 1);
         CHECK( probableDrawCategory (game.getBoard(), game.getHistory())
                == DrawCategory::ByRepetition );
     }

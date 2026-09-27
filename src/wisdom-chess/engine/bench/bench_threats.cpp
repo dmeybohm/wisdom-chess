@@ -8,20 +8,20 @@
 
 namespace wisdom::bench
 {
-    static auto boardFromFen (const char* fen) -> Board
+    static auto boardFromFen (czstring fen) -> Board
     {
         FenParser parser { fen };
         return parser.buildBoard();
     }
 
-    void runThreatBenchmarks (ankerl::nanobench::Bench& bench)
+    void runThreatBenchmarks (nonnull<ankerl::nanobench::Bench> bench)
     {
         // King NOT threatened (common fast path): starting position, white king.
         {
             auto board = boardFromFen (Starting_Position_Fen);
             auto king_coord = board.getKingPosition (Color::White);
 
-            bench.run ("isKingThreatened/not-threatened", [&] {
+            bench->run ("isKingThreatened/not-threatened", [&] {
                 auto result = isKingThreatened (board, Color::White, king_coord);
                 ankerl::nanobench::doNotOptimizeAway (result);
             });
@@ -33,7 +33,7 @@ namespace wisdom::bench
             // In position 4, black's king on e8 is threatened.
             auto king_coord = board.getKingPosition (Color::Black);
 
-            bench.run ("isKingThreatened/threatened", [&] {
+            bench->run ("isKingThreatened/threatened", [&] {
                 auto result = isKingThreatened (board, Color::Black, king_coord);
                 ankerl::nanobench::doNotOptimizeAway (result);
             });
@@ -43,7 +43,7 @@ namespace wisdom::bench
         {
             auto board = boardFromFen (Kiwipete_Fen);
 
-            bench.run ("isKingThreatened/sweep-64-squares", [&] {
+            bench->run ("isKingThreatened/sweep-64-squares", [&] {
                 int count = 0;
                 for (auto coord : Board::allCoords())
                 {
@@ -58,7 +58,7 @@ namespace wisdom::bench
             auto board = boardFromFen (Many_Queens_Fen);
             auto king_coord = board.getKingPosition (Color::Black);
 
-            bench.run ("isKingThreatened/many-queens", [&] {
+            bench->run ("isKingThreatened/many-queens", [&] {
                 auto result = isKingThreatened (board, Color::Black, king_coord);
                 ankerl::nanobench::doNotOptimizeAway (result);
             });

@@ -125,7 +125,7 @@ TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
 
 TEST_CASE( "hasLegalMove" )
 {
-    auto boardFromFen = [](const char* fen_text) {
+    auto boardFromFen = [](czstring fen_text) {
         FenParser fen { fen_text };
         auto game = fen.build();
         return Board { game.getBoard() };
@@ -187,7 +187,7 @@ TEST_CASE( "hasLegalMove" )
 
     SUBCASE( "Agrees with generateLegalMoves" )
     {
-        const char* fens[] = {
+        czstring fens[] = {
             "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
             "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",
             "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
@@ -211,7 +211,7 @@ TEST_CASE( "hasLegalMove" )
 
 TEST_CASE( "generateCaptures" )
 {
-    auto boardFromFen = [](const char* fen_text) {
+    auto boardFromFen = [](czstring fen_text) {
         FenParser fen { fen_text };
         auto game = fen.build();
         return Board { game.getBoard() };
@@ -248,7 +248,7 @@ TEST_CASE( "generateCaptures" )
 
     SUBCASE( "Matches the captures and queen promotions of all moves" )
     {
-        const char* fens[] = {
+        czstring fens[] = {
             "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
             "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",
             "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
@@ -285,7 +285,7 @@ TEST_CASE( "generateCaptures" )
 
 TEST_CASE( "generateLegalEnPassantMoves" )
 {
-    auto boardFromFen = [](const char* fen_text) {
+    auto boardFromFen = [](czstring fen_text) {
         FenParser fen { fen_text };
         return fen.buildBoard();
     };
@@ -395,7 +395,7 @@ TEST_CASE( "generateLegalEnPassantMoves" )
 
     SUBCASE( "Agrees with generateLegalMoves" )
     {
-        const char* fens[] = {
+        czstring fens[] = {
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
             "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
             "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",

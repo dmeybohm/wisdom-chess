@@ -7,7 +7,9 @@
 using namespace wisdom::ui::qml;
 
 using wisdom::Color;
+using wisdom::czstring;
 using wisdom::moveParse;
+using wisdom::nonnull;
 using wisdom::Piece;
 using wisdom::Player;
 
@@ -33,11 +35,11 @@ namespace
     }
 
     template <typename Value>
-    void writeProperty (GameSettings& settings, const char* name, Value value)
+    void writeProperty (nonnull<GameSettings> settings, czstring name, Value value)
     {
         const auto& meta_object = GameSettings::staticMetaObject;
         auto property = meta_object.property (meta_object.indexOfProperty (name));
-        QVERIFY( property.writeOnGadget (&settings, QVariant::fromValue (value)) );
+        QVERIFY( property.writeOnGadget (settings.get(), QVariant::fromValue (value)) );
     }
 }
 
@@ -81,11 +83,11 @@ private slots:
     void configFromChangedGameSettings()
     {
         GameSettings settings;
-        writeProperty (settings, "whitePlayer", wisdom::ui::Player::Computer);
-        writeProperty (settings, "blackPlayer", wisdom::ui::Player::Human);
-        writeProperty (settings, "maxDepth", 2);
-        writeProperty (settings, "maxSearchTime", 9);
-        writeProperty (settings, "debugLogging", true);
+        writeProperty (&settings, "whitePlayer", wisdom::ui::Player::Computer);
+        writeProperty (&settings, "blackPlayer", wisdom::ui::Player::Human);
+        writeProperty (&settings, "maxDepth", 2);
+        writeProperty (&settings, "maxSearchTime", 9);
+        writeProperty (&settings, "debugLogging", true);
 
         auto config = settings.toEngineSettings();
 
@@ -219,7 +221,7 @@ private slots:
 
     void moveFromCoordinatesRecognizesSpecialMoves()
     {
-        auto map = [] (const ChessGame& game, const char* src_text, const char* dst_text,
+        auto map = [] (const ChessGame& game, czstring src_text, czstring dst_text,
                        std::optional<Piece> promoted = std::nullopt)
         {
             auto src = wisdom::coordParse (src_text);

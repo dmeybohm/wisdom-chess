@@ -19,21 +19,21 @@ namespace
 
     // The id of each piece, keyed by its square.
     auto
-    idsBySquare (WebGame& game)
+    idsBySquare (nonnull<WebGame> game)
         -> std::map<std::string, int>
     {
         std::map<std::string, int> result;
-        auto& list = game.getPieceList();
+        auto& list = game->getPieceList();
         for (int i = 0; i < list.length; i++)
             result[squareName (list.pieceAt (i))] = list.pieceAt (i).id;
         return result;
     }
 
     auto
-    pieceOn (WebGame& game, const char* square)
+    pieceOn (nonnull<WebGame> game, czstring square)
         -> WebColoredPiece
     {
-        auto& list = game.getPieceList();
+        auto& list = game->getPieceList();
         for (int i = 0; i < list.length; i++)
         {
             if (squareName (list.pieceAt (i)) == square)
@@ -49,7 +49,7 @@ namespace
         WebGame game { WebPlayer::Human, WebPlayer::Human, 1 };
         Game shadow = Game::createGame (Player::Human, Player::Human);
 
-        void play (const char* src, const char* dst, WebPiece promoted = WebPiece::NoPiece)
+        void play (czstring src, czstring dst, WebPiece promoted = WebPiece::NoPiece)
         {
             CAPTURE( src );
             CAPTURE( dst );
@@ -59,7 +59,7 @@ namespace
             checkPieceList();
         }
 
-        void playAll (std::initializer_list<std::pair<const char*, const char*>> moves)
+        void playAll (std::initializer_list<std::pair<czstring, czstring>> moves)
         {
             for (auto [src, dst] : moves)
                 play (src, dst);
@@ -110,11 +110,11 @@ TEST_CASE( "The starting position lists every piece in square order" )
 TEST_CASE( "A move keeps every piece's id" )
 {
     Fixture fixture;
-    auto before = idsBySquare (fixture.game);
+    auto before = idsBySquare (&fixture.game);
 
     fixture.play ("e2", "e4");
 
-    auto after = idsBySquare (fixture.game);
+    auto after = idsBySquare (&fixture.game);
     CHECK( after.at ("e4") == before.at ("e2") );
     CHECK( after.count ("e2") == 0 );
     after.erase ("e4");
@@ -126,14 +126,14 @@ TEST_CASE( "A capture removes the captured piece's id" )
 {
     Fixture fixture;
     fixture.playAll ({ { "e2", "e4" }, { "d7", "d5" } });
-    auto mover = pieceOn (fixture.game, "e4").id;
-    auto captured = pieceOn (fixture.game, "d5").id;
+    auto mover = pieceOn (&fixture.game, "e4").id;
+    auto captured = pieceOn (&fixture.game, "d5").id;
 
     fixture.play ("e4", "d5");
 
-    CHECK( pieceOn (fixture.game, "d5").id == mover );
+    CHECK( pieceOn (&fixture.game, "d5").id == mover );
     CHECK( fixture.game.getPieceList().length == 31 );
-    for (auto [square, id] : idsBySquare (fixture.game))
+    for (auto [square, id] : idsBySquare (&fixture.game))
         CHECK( id != captured );
 }
 
@@ -141,12 +141,12 @@ TEST_CASE( "Castling moves the rook's id with the king's" )
 {
     struct Case
     {
-        const char* name;
-        std::initializer_list<std::pair<const char*, const char*>> setup;
-        const char* king_src;
-        const char* king_dst;
-        const char* rook_src;
-        const char* rook_dst;
+        czstring name;
+        std::initializer_list<std::pair<czstring, czstring>> setup;
+        czstring king_src;
+        czstring king_dst;
+        czstring rook_src;
+        czstring rook_dst;
     };
 
     const Case cases[] = {
@@ -172,14 +172,14 @@ TEST_CASE( "Castling moves the rook's id with the king's" )
         CAPTURE( test.name );
         Fixture fixture;
         fixture.playAll (test.setup);
-        auto king = pieceOn (fixture.game, test.king_src).id;
-        auto rook = pieceOn (fixture.game, test.rook_src).id;
+        auto king = pieceOn (&fixture.game, test.king_src).id;
+        auto rook = pieceOn (&fixture.game, test.rook_src).id;
 
         fixture.play (test.king_src, test.king_dst);
 
-        CHECK( pieceOn (fixture.game, test.king_dst).id == king );
-        CHECK( pieceOn (fixture.game, test.rook_dst).id == rook );
-        CHECK( pieceOn (fixture.game, test.rook_src).id == 0 );
+        CHECK( pieceOn (&fixture.game, test.king_dst).id == king );
+        CHECK( pieceOn (&fixture.game, test.rook_dst).id == rook );
+        CHECK( pieceOn (&fixture.game, test.rook_src).id == 0 );
     }
 }
 
@@ -189,12 +189,12 @@ TEST_CASE( "En passant removes the pawn beside the destination" )
     {
         Fixture fixture;
         fixture.playAll ({ { "e2", "e4" }, { "a7", "a6" }, { "e4", "e5" }, { "d7", "d5" } });
-        auto mover = pieceOn (fixture.game, "e5").id;
+        auto mover = pieceOn (&fixture.game, "e5").id;
 
         fixture.play ("e5", "d6");
 
-        CHECK( pieceOn (fixture.game, "d6").id == mover );
-        CHECK( pieceOn (fixture.game, "d5").id == 0 );
+        CHECK( pieceOn (&fixture.game, "d6").id == mover );
+        CHECK( pieceOn (&fixture.game, "d5").id == 0 );
         CHECK( fixture.game.getPieceList().length == 31 );
     }
 
@@ -202,12 +202,12 @@ TEST_CASE( "En passant removes the pawn beside the destination" )
     {
         Fixture fixture;
         fixture.playAll ({ { "a2", "a3" }, { "d7", "d5" }, { "a3", "a4" }, { "d5", "d4" }, { "e2", "e4" } });
-        auto mover = pieceOn (fixture.game, "d4").id;
+        auto mover = pieceOn (&fixture.game, "d4").id;
 
         fixture.play ("d4", "e3");
 
-        CHECK( pieceOn (fixture.game, "e3").id == mover );
-        CHECK( pieceOn (fixture.game, "e4").id == 0 );
+        CHECK( pieceOn (&fixture.game, "e3").id == mover );
+        CHECK( pieceOn (&fixture.game, "e4").id == 0 );
         CHECK( fixture.game.getPieceList().length == 31 );
     }
 }
@@ -221,24 +221,24 @@ TEST_CASE( "A promoted pawn keeps its id and changes its type" )
     });
     CHECK( fixture.game.needsPawnPromotion ("g7", "h8") );
     CHECK( !fixture.game.needsPawnPromotion ("e2", "e4") );
-    auto white_pawn = pieceOn (fixture.game, "g7").id;
+    auto white_pawn = pieceOn (&fixture.game, "g7").id;
 
     fixture.play ("g7", "h8", WebPiece::Queen);
 
-    CHECK( pieceOn (fixture.game, "h8").id == white_pawn );
-    CHECK( pieceOn (fixture.game, "h8").piece == WebPiece::Queen );
+    CHECK( pieceOn (&fixture.game, "h8").id == white_pawn );
+    CHECK( pieceOn (&fixture.game, "h8").piece == WebPiece::Queen );
 
     fixture.playAll ({
         { "a6", "a5" }, { "b2", "b4" }, { "a5", "b4" }, { "c2", "c3" },
         { "b4", "c3" }, { "a2", "a3" }, { "c3", "c2" }, { "a3", "a4" },
     });
-    auto black_pawn = pieceOn (fixture.game, "c2").id;
+    auto black_pawn = pieceOn (&fixture.game, "c2").id;
 
     fixture.play ("c2", "b1", WebPiece::Knight);
 
-    CHECK( pieceOn (fixture.game, "b1").id == black_pawn );
-    CHECK( pieceOn (fixture.game, "b1").piece == WebPiece::Knight );
-    CHECK( pieceOn (fixture.game, "b1").color == WebColor::Black );
+    CHECK( pieceOn (&fixture.game, "b1").id == black_pawn );
+    CHECK( pieceOn (&fixture.game, "b1").piece == WebPiece::Knight );
+    CHECK( pieceOn (&fixture.game, "b1").color == WebColor::Black );
 }
 
 TEST_CASE( "The piece list follows a longer game" )
@@ -257,18 +257,18 @@ TEST_CASE( "The piece list follows a longer game" )
 TEST_CASE( "A computer move updates the piece list" )
 {
     Fixture fixture;
-    auto mover = pieceOn (fixture.game, "g1").id;
+    auto mover = pieceOn (&fixture.game, "g1").id;
 
     fixture.game.makeComputerMove ("g1 f3");
 
-    CHECK( pieceOn (fixture.game, "f3").id == mover );
+    CHECK( pieceOn (&fixture.game, "f3").id == mover );
     CHECK( fixture.game.getCurrentTurn() == WebColor::Black );
 }
 
 TEST_CASE( "An illegal human move changes nothing" )
 {
     Fixture fixture;
-    auto before = idsBySquare (fixture.game);
+    auto before = idsBySquare (&fixture.game);
 
     SUBCASE( "A move the piece cannot make" )
     {
@@ -287,7 +287,7 @@ TEST_CASE( "An illegal human move changes nothing" )
         CHECK( fixture.game.makeHumanMove ("e7", "e5", WebPiece::NoPiece) == WebGame::Illegal_Move );
     }
 
-    CHECK( idsBySquare (fixture.game) == before );
+    CHECK( idsBySquare (&fixture.game) == before );
     CHECK( fixture.game.getCurrentTurn() == WebColor::White );
 }
 

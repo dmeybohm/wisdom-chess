@@ -41,7 +41,7 @@ namespace wisdom::ui
     using DrawAnswerCallback = std::function<void (Color who, bool accepted)>;
 
     void negotiateDraw (
-        nonnull_observer_ptr<Game> game,
+        nonnull<Game> game,
         ProposedDrawType draw_type,
         Color who,
         const DrawAnswerCallback& answered

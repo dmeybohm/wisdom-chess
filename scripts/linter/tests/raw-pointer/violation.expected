@@ -1,0 +1,5 @@
+6:20:raw-pointer:Raw pointer to 'Board': use nonnull<Board> or nullable<Board>, or mark an interop pointer lint-allow(raw-pointer)
+10:30:raw-pointer:Raw pointer to 'TranspositionTable': use nonnull<TranspositionTable> or nullable<TranspositionTable>, or mark an interop pointer lint-allow(raw-pointer)
+13:9:raw-pointer:Raw pointer to 'Game': use nonnull<Game> or nullable<Game>, or mark an interop pointer lint-allow(raw-pointer)
+14:22:raw-pointer:Raw pointer to 'Board': use nonnull<Board> or nullable<Board>, or mark an interop pointer lint-allow(raw-pointer)
+15:18:raw-pointer:Raw pointer to 'nonnull<Game>': use nonnull<nonnull<Game>> or nullable<nonnull<Game>>, or mark an interop pointer lint-allow(raw-pointer)

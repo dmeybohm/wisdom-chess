@@ -24,6 +24,7 @@ using wisdom::foldHashTo32Bits;
 using wisdom::generateAllPotentialMoves;
 using wisdom::getCompileTimeRandom48;
 using wisdom::isLegalPositionAfterMove;
+using wisdom::nonnull;
 using wisdom::Num_Squares;
 using wisdom::randomInitialState;
 using wisdom::randomSeed;
@@ -42,7 +43,7 @@ namespace
         CompileTimeRandom rng { CompileTimeRandom::RandomState { randomInitialState(), seed } };
 
         for (std::size_t i = 0; i < Zobrist_Table_Size; i++)
-            table[i] = getCompileTimeRandom48 (rng);
+            table[i] = getCompileTimeRandom48 (&rng);
 
         return table;
     }
@@ -71,7 +72,7 @@ namespace
         Color side,
         int depth,
         int max_depth,
-        std::vector<Board>& positions
+        nonnull<std::vector<Board>> positions
     )
     {
         if (depth >= max_depth)
@@ -86,7 +87,7 @@ namespace
             if (!isLegalPositionAfterMove (new_board, side, move))
                 continue;
 
-            positions.push_back (new_board);
+            positions->push_back (new_board);
 
             collectPositions (
                 new_board, colorInvert (side), depth + 1, max_depth, positions
@@ -103,7 +104,7 @@ namespace
         positions.push_back (board);
 
         std::cout << "Collecting positions from depth-5 perft..." << std::endl;
-        collectPositions (board, Color::White, 0, 5, positions);
+        collectPositions (board, Color::White, 0, 5, &positions);
         std::cout << "Collected " << positions.size() << " positions" << std::endl;
 
         return positions;

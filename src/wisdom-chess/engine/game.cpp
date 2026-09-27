@@ -219,7 +219,7 @@ namespace wisdom
 
     auto Game::findBestMove (
         shared_ptr<Logger> logger,
-        nonnull_observer_ptr<TranspositionTable> transposition_table,
+        nonnull<TranspositionTable> transposition_table,
         Color whom
     ) const
         -> optional<Move>
@@ -233,7 +233,7 @@ namespace wisdom
             std::move (logger),
             my_pimpl->my_move_timer,
             my_pimpl->my_max_depth,
-            *transposition_table
+            transposition_table
         );
         SearchResult result = iterative_search.iterativelyDeepen (whom);
 

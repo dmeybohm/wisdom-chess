@@ -44,7 +44,7 @@ namespace wisdom::worker
 
         [[nodiscard]] static auto 
         getState() 
-            -> observer_ptr<GameState>
+            -> nonnull<GameState>
         {
             static auto instance = std::make_unique<GameState>();
             return instance.get();
@@ -52,7 +52,7 @@ namespace wisdom::worker
 
         [[nodiscard]] static auto 
         getGame() 
-            -> observer_ptr<Game>
+            -> nonnull<Game>
         {
             return &GameState::getState()->game;
         }
@@ -77,10 +77,10 @@ namespace wisdom::worker
         class WebEngineGameStatusUpdate : public GameStatusUpdate
         {
         private:
-            observer_ptr<GameState> my_parent;
+            nonnull<GameState> my_parent;
 
         public:
-            explicit WebEngineGameStatusUpdate (observer_ptr<GameState> parent)
+            explicit WebEngineGameStatusUpdate (nonnull<GameState> parent)
                 : my_parent { parent }
             {
             }
@@ -106,7 +106,7 @@ namespace wisdom::worker
                 [this, proposedDrawType] (Color player, bool accepted)
                 {
                     emscripten_wasm_worker_post_function_sig (
-                        EMSCRIPTEN_WASM_WORKER_ID_PARENT, (void*)mainThreadReceiveDrawStatus,
+                        EMSCRIPTEN_WASM_WORKER_ID_PARENT, (void*)mainThreadReceiveDrawStatus, // lint-allow(raw-pointer): Emscripten API
                         "iiii",
                         game_id,
                         static_cast<int> (mapDrawByRepetitionType (proposedDrawType)),
@@ -131,7 +131,7 @@ EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
     state->transposition_table.clear();
     state->updateSettings (state->settings);
 
-    auto periodic_func = [state](nonnull_observer_ptr<MoveTimer> timer) {
+    auto periodic_func = [state](nonnull<MoveTimer> timer) {
         auto play_status = state->play_status.load();
         if (play_status != GameState::Playing || state->restart_requested.load()) {
             timer->setCancelled (true);
@@ -216,7 +216,7 @@ workerReceiveSettings (
     startSearch();
 }
 
-EM_JS (void, receiveMoveFromWorker, (int game_id, const char* str),
+EM_JS (void, receiveMoveFromWorker, (int game_id, const char* str), // lint-allow(raw-pointer): EM_JS signature
 {
    receiveWorkerMessage ('computerMoved', game_id, UTF8ToString (str));
 })
@@ -238,19 +238,19 @@ mainThreadReceiveMove (
 
 EMSCRIPTEN_KEEPALIVE void pauseWorker()
 {
-    auto* state = GameState::getState();
+    auto state = GameState::getState();
     state->play_status.store (GameState::Paused);
 }
 
 EMSCRIPTEN_KEEPALIVE void unpauseWorker()
 {
-    auto* state = GameState::getState();
+    auto state = GameState::getState();
     state->play_status.store (GameState::Playing);
 }
 
 EMSCRIPTEN_KEEPALIVE void requestSearchRestart()
 {
-    auto* state = GameState::getState();
+    auto state = GameState::getState();
     state->restart_requested.store (true);
 }
 

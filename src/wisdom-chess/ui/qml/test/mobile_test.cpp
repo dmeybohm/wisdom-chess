@@ -5,6 +5,7 @@
 #include "application_fixture.hpp"
 
 using wisdom::Color;
+using wisdom::czstring;
 using wisdom::ColoredPiece;
 using wisdom::Piece;
 using namespace wisdom::ui::test;
@@ -138,7 +139,7 @@ private slots:
 
 private:
     [[nodiscard]] static auto
-    ancestorOfClass (QQuickItem* item, const char* class_name)
+    ancestorOfClass (QQuickItem* item, czstring class_name)
         -> QQuickItem*
     {
         while (item != nullptr && !item->inherits (class_name))

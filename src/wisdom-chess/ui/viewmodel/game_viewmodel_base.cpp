@@ -5,10 +5,10 @@ namespace wisdom::ui
     class ViewModelStatusUpdate : public GameStatusUpdate
     {
     private:
-        observer_ptr<GameViewModelBase> my_parent;
+        nonnull<GameViewModelBase> my_parent;
 
     public:
-        explicit ViewModelStatusUpdate (observer_ptr<GameViewModelBase> parent)
+        explicit ViewModelStatusUpdate (nonnull<GameViewModelBase> parent)
             : my_parent { parent }
         {}
 

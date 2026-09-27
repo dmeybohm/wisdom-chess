@@ -38,7 +38,7 @@ namespace wisdom
             {
                 auto piece_index = zobristPieceIndex (color, piece);
                 for (auto square = 0; square < Num_Squares; square++)
-                    code_array[piece_index * Num_Squares + square] = getCompileTimeRandom48 (random);
+                    code_array[piece_index * Num_Squares + square] = getCompileTimeRandom48 (&random);
             }
         }
 

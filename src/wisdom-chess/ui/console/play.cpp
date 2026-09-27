@@ -166,12 +166,12 @@ namespace wisdom::ui::console
         shared_ptr<BufferedLogger> my_logger = makeBufferedLogger (makeStandardLogger());
 
     protected:
-        [[nodiscard]] auto getGame() -> observer_ptr<Game> override
+        [[nodiscard]] auto getGame() -> nonnull<Game> override
         {
             return &my_game;
         }
 
-        [[nodiscard]] auto getGame() const -> observer_ptr<const Game> override
+        [[nodiscard]] auto getGame() const -> nonnull<const Game> override
         {
             return &my_game;
         }

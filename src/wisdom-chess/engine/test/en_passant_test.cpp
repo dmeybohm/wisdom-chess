@@ -221,7 +221,7 @@ TEST_CASE( "Board code and equality leave out an unusable en passant target" )
 
     SUBCASE( "The target stays on the board for FEN output" )
     {
-        const char* fen_text = "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1";
+        czstring fen_text = "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1";
         FenParser fen { fen_text };
         auto board = fen.buildBoard();
 

@@ -43,14 +43,14 @@ namespace
     protected:
         [[nodiscard]] auto
         getGame()
-            -> observer_ptr<Game> override
+            -> nonnull<Game> override
         {
             return &my_game;
         }
 
         [[nodiscard]] auto
         getGame() const
-            -> observer_ptr<const Game> override
+            -> nonnull<const Game> override
         {
             return &my_game;
         }
@@ -86,14 +86,14 @@ namespace
 
     constexpr auto Fools_Mate = "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3";
 
-    void shuffleKnights (Game& game, int times)
+    void shuffleKnights (nonnull<Game> game, int times)
     {
         for (int i = 0; i < times; i++)
         {
-            game.move (moveParse ("g1 f3", Color::White));
-            game.move (moveParse ("g8 f6", Color::Black));
-            game.move (moveParse ("f3 g1", Color::White));
-            game.move (moveParse ("f6 g8", Color::Black));
+            game->move (moveParse ("g1 f3", Color::White));
+            game->move (moveParse ("g8 f6", Color::Black));
+            game->move (moveParse ("f3 g1", Color::White));
+            game->move (moveParse ("f6 g8", Color::Black));
         }
     }
 }
@@ -231,7 +231,7 @@ TEST_CASE( "Draw proposals" )
     SUBCASE( "Threefold repetition is proposed to a human player" )
     {
         TestViewModel view_model { Game::createGame (Humans) };
-        shuffleKnights (view_model.game(), 2);
+        shuffleKnights (&view_model.game(), 2);
 
         view_model.updateDisplayedGameState();
 
@@ -244,7 +244,7 @@ TEST_CASE( "Draw proposals" )
     SUBCASE( "Nothing is proposed when two engines play" )
     {
         TestViewModel view_model { Game::createGame (Engines) };
-        shuffleKnights (view_model.game(), 2);
+        shuffleKnights (&view_model.game(), 2);
 
         view_model.updateDisplayedGameState();
 
@@ -254,7 +254,7 @@ TEST_CASE( "Draw proposals" )
     SUBCASE( "An accepted threefold repetition ends the game" )
     {
         TestViewModel view_model { Game::createGame (Humans) };
-        shuffleKnights (view_model.game(), 2);
+        shuffleKnights (&view_model.game(), 2);
         view_model.updateDisplayedGameState();
 
         view_model.setProposedDrawStatus (
@@ -268,7 +268,7 @@ TEST_CASE( "Draw proposals" )
     SUBCASE( "A declined threefold repetition lets play go on to the fifth" )
     {
         TestViewModel view_model { Game::createGame (Humans) };
-        shuffleKnights (view_model.game(), 2);
+        shuffleKnights (&view_model.game(), 2);
         view_model.updateDisplayedGameState();
 
         view_model.setProposedDrawStatus (
@@ -278,7 +278,7 @@ TEST_CASE( "Draw proposals" )
         CHECK( view_model.game().status() == GameStatus::Playing );
         CHECK( view_model.gameOverStatus().empty() );
 
-        shuffleKnights (view_model.game(), 2);
+        shuffleKnights (&view_model.game(), 2);
         view_model.updateDisplayedGameState();
 
         CHECK( view_model.gameOverStatus() == "<strong>Draw</strong> - Fivefold repetition rule." );
@@ -289,7 +289,7 @@ TEST_CASE( "Draw proposals" )
         TestViewModel view_model {
             Game::createGame (Player::Human, Player::ChessEngine)
         };
-        shuffleKnights (view_model.game(), 2);
+        shuffleKnights (&view_model.game(), 2);
         view_model.updateDisplayedGameState();
 
         view_model.setProposedDrawStatus (
@@ -407,7 +407,7 @@ TEST_CASE( "GameViewModelBase::needsPawnPromotion" )
         Game::createGameFromFen ("1n2k3/P7/8/8/8/8/4P3/4K3 w - - 0 1", Humans)
     };
 
-    auto needs_promotion = [&view_model] (const char* src_text, const char* dst_text)
+    auto needs_promotion = [&view_model] (czstring src_text, czstring dst_text)
     {
         auto src = coordParse (src_text);
         auto dst = coordParse (dst_text);

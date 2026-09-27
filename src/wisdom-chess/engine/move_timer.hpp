@@ -23,7 +23,7 @@ namespace wisdom
     class MoveTimer
     {
     public:
-        using PeriodicFunction = std::function<void(nonnull_observer_ptr<MoveTimer>)>;
+        using PeriodicFunction = std::function<void(nonnull<MoveTimer>)>;
 
         explicit MoveTimer (chrono::milliseconds time_limit)
             : my_time_limit { time_limit }

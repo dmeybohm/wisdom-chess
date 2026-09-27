@@ -9,24 +9,24 @@
 
 namespace wisdom::bench
 {
-    static auto boardFromFen (const char* fen) -> Board
+    static auto boardFromFen (czstring fen) -> Board
     {
         FenParser parser { fen };
         return parser.buildBoard();
     }
 
-    static auto colorFromFen (const char* fen) -> Color
+    static auto colorFromFen (czstring fen) -> Color
     {
         FenParser parser { fen };
         return parser.getActivePlayer();
     }
 
-    void runLegalityBenchmarks (ankerl::nanobench::Bench& bench)
+    void runLegalityBenchmarks (nonnull<ankerl::nanobench::Bench> bench)
     {
         struct PositionInfo
         {
-            const char* name;
-            const char* fen;
+            czstring name;
+            czstring fen;
         };
 
         PositionInfo positions[] = {
@@ -42,7 +42,7 @@ namespace wisdom::bench
             auto color = colorFromFen (pos.fen);
             auto moves = generateAllPotentialMoves (board, color);
 
-            bench.run (
+            bench->run (
                 string { "withMove+legality/" } + pos.name,
                 [&] {
                     int legal_count = 0;
@@ -64,7 +64,7 @@ namespace wisdom::bench
             auto color = colorFromFen (pos.fen);
             auto moves = generateAllPotentialMoves (board, color);
 
-            bench.run (
+            bench->run (
                 string { "withMove-only/" } + pos.name,
                 [&] {
                     Board last_board = board;

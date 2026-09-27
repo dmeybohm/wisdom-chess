@@ -14,7 +14,7 @@
 using namespace wisdom;
 using namespace wisdom::ui::qml;
 
-int main (int argc, char *argv[])
+int main (int argc, char *argv[]) // lint-allow(raw-pointer): main's signature
 {
     wisdom::setEmergencyLogger (std::make_shared<ChessEngine::ChessEngineLogger>());
     wisdom::installEmergencyTerminateHandler();

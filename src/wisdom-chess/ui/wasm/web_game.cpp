@@ -41,7 +41,7 @@ namespace wisdom
     }
 
     static auto
-    parseSquare (const char* text) noexcept
+    parseSquare (czstring text) noexcept
         -> optional<Coord>
     {
         if (text == nullptr)
@@ -59,7 +59,7 @@ namespace wisdom
     }
 
     auto
-    WebGame::needsPawnPromotion (const char* src, const char* dst) const
+    WebGame::needsPawnPromotion (czstring src, czstring dst) const
         -> bool
     {
         auto src_coord = parseSquare (src);
@@ -74,16 +74,16 @@ namespace wisdom
         );
     }
 
-    void WebGame::makeComputerMove (const char* move_text)
+    void WebGame::makeComputerMove (czstring move_text)
     {
         applyMove (moveParse (move_text, my_game.getCurrentTurn()));
     }
 
     auto
     WebGame::newFromSettings (const GameSettings& settings, int game_id)
-        -> wisdom::WebGame*
+        -> unique_ptr<WebGame>
     {
-        auto* new_game = new WebGame (settings.whitePlayer, settings.blackPlayer, game_id);
+        auto new_game = make_unique<WebGame> (settings.whitePlayer, settings.blackPlayer, game_id);
 
         const auto computer_depth = ui::fullMovesToPlyDepth (settings.searchDepth);
         new_game->setMaxDepth (computer_depth);
@@ -93,7 +93,7 @@ namespace wisdom
     }
 
     auto
-    WebGame::makeHumanMove (const char* src, const char* dst, WebPiece promoted_piece_type)
+    WebGame::makeHumanMove (czstring src, czstring dst, WebPiece promoted_piece_type)
         -> int
     {
         auto src_coord = parseSquare (src);

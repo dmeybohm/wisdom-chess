@@ -20,6 +20,8 @@ using wisdom::FenParser;
 using std::vector;
 using wisdom::perft::PerftResults;
 using wisdom::MoveGenerator;
+using wisdom::czstring;
+using wisdom::nonnull;
 
 //
 // These loaded from https://www.chessprogramming.org/Perft_Results
@@ -31,7 +33,7 @@ using wisdom::MoveGenerator;
 namespace
 {
     void doCheck (
-        Board &board,
+        const Board& board,
         const vector<CounterExpectation> &expectations,
         Color color
     )
@@ -265,7 +267,7 @@ namespace
         const Board& board,
         Color side,
         int depth,
-        CaptureCheck& check
+        nonnull<CaptureCheck> check
     )
     {
         auto all_moves = wisdom::generateAllPotentialMoves (board, side);
@@ -282,20 +284,20 @@ namespace
             }
         }
 
-        check.positions++;
+        check->positions++;
         if (sortedByValue (captures) != sortedByValue (expected))
         {
-            if (check.mismatches == 0)
-                check.first_mismatch = board.toFenString (side);
-            check.mismatches++;
+            if (check->mismatches == 0)
+                check->first_mismatch = board.toFenString (side);
+            check->mismatches++;
         }
 
         for (auto move : captures)
         {
             if (move.isEnPassant())
-                check.en_passants++;
+                check->en_passants++;
             if (move.isPromoting())
-                check.promotions++;
+                check->promotions++;
         }
 
         if (depth == 0)
@@ -315,7 +317,7 @@ TEST_CASE( "Perft: generateCaptures agrees with the full move list at every node
 {
     struct Position
     {
-        const char* fen;
+        czstring fen;
         int depth;
     };
 
@@ -335,7 +337,7 @@ TEST_CASE( "Perft: generateCaptures agrees with the full move list at every node
         auto board = parser.buildBoard();
 
         CaptureCheck check;
-        checkCapturesAtEveryNode (board, board.getCurrentTurn(), position.depth, check);
+        checkCapturesAtEveryNode (board, board.getCurrentTurn(), position.depth, &check);
 
         INFO( position.fen );
         INFO( "first mismatch: ", check.first_mismatch );

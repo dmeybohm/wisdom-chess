@@ -42,6 +42,8 @@ struct LintResult
     std::vector<LintViolation> violations;
 };
 
+// A rule's violation is dropped when its line contains lint-allow(<rule name>),
+// normally in a comment giving the reason.
 class Rule
 {
 public:

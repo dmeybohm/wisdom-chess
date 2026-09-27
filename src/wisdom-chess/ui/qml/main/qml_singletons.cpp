@@ -13,40 +13,40 @@ namespace wisdom::ui::qml
 
     namespace
     {
-        GameModel* game_model_instance = nullptr;
-        PiecesModel* pieces_model_instance = nullptr;
+        nullable<GameModel> game_model_instance;
+        nullable<PiecesModel> pieces_model_instance;
 
         // The instance stays owned by C++; the engine must not delete it.
         template <typename T>
-        auto instanceFor (T* instance, QJSEngine* js_engine)
-            -> T*
+        auto instanceFor (nullable<T> maybe_instance, QJSEngine* js_engine)
+            -> nonnull<T>
         {
-            expects (instance != nullptr);
+            auto instance = maybe_instance.value();
             expects (js_engine->thread() == instance->thread());
             QJSEngine::setObjectOwnership (instance, QJSEngine::CppOwnership);
             return instance;
         }
     }
 
-    void GameModelSingleton::setInstance (GameModel* instance)
+    void GameModelSingleton::setInstance (nonnull<GameModel> instance)
     {
         game_model_instance = instance;
     }
 
     auto GameModelSingleton::create ([[maybe_unused]] QQmlEngine* engine, QJSEngine* js_engine)
-        -> GameModel*
+        -> GameModel* // lint-allow(raw-pointer): QML's singleton factory
     {
-        return instanceFor (game_model_instance, js_engine);
+        return instanceFor (game_model_instance, js_engine).get();
     }
 
-    void PiecesModelSingleton::setInstance (PiecesModel* instance)
+    void PiecesModelSingleton::setInstance (nonnull<PiecesModel> instance)
     {
         pieces_model_instance = instance;
     }
 
     auto PiecesModelSingleton::create ([[maybe_unused]] QQmlEngine* engine, QJSEngine* js_engine)
-        -> PiecesModel*
+        -> PiecesModel* // lint-allow(raw-pointer): QML's singleton factory
     {
-        return instanceFor (pieces_model_instance, js_engine);
+        return instanceFor (pieces_model_instance, js_engine).get();
     }
 }

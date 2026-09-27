@@ -64,7 +64,7 @@ namespace wisdom
             };
         }
 
-        void applyToGame (nonnull_observer_ptr<wisdom::Game> game) const
+        void applyToGame (nonnull<wisdom::Game> game) const
         {
             toEngineSettings().applyTo (game);
         }

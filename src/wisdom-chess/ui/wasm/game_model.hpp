@@ -36,7 +36,7 @@ namespace wisdom
 
             emscripten_wasm_worker_post_function_sig (
                 engine_thread,
-                (void*)workerReceiveSettings,
+                (void*)workerReceiveSettings, // lint-allow(raw-pointer): Emscripten API
                 "iiiii",
                 whitePlayer,
                 blackPlayer,
@@ -52,7 +52,7 @@ namespace wisdom
         // Initialize a new game with the default position.
         auto
         startNewGame()
-            -> WebGame*
+            -> owning<WebGame>
         {
             ++my_game_id;
             auto new_game = WebGame::newFromSettings (my_game_settings, my_game_id);
@@ -61,7 +61,7 @@ namespace wisdom
                 workerReinitializeGame,
                 my_game_id
             );
-            return new_game;
+            return new_game.release();
         }
 
         // Pause the worker.
@@ -92,12 +92,12 @@ namespace wisdom
 
         [[nodiscard]] auto 
         getCurrentGameSettings() const 
-            -> GameSettings*
+            -> owning<GameSettings>
         {
-            return new GameSettings { my_game_settings };
+            return make_unique<GameSettings> (my_game_settings).release();
         }
 
-        void setCurrentGameSettings (GameSettings* newSettings)
+        void setCurrentGameSettings (nonnull<GameSettings> newSettings)
         {
             my_game_settings = GameSettings { *newSettings };
 

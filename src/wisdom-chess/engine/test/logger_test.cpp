@@ -445,7 +445,7 @@ namespace
     struct CapturedCerr
     {
         std::ostringstream captured;
-        std::streambuf* original = std::cerr.rdbuf (captured.rdbuf());
+        std::streambuf* original = std::cerr.rdbuf (captured.rdbuf()); // lint-allow(raw-pointer): std::ios API
 
         ~CapturedCerr()
         {
@@ -461,7 +461,7 @@ namespace
         };
 
         RejectingBuffer rejecting;
-        std::streambuf* original_buffer = std::cerr.rdbuf (&rejecting);
+        std::streambuf* original_buffer = std::cerr.rdbuf (&rejecting); // lint-allow(raw-pointer): std::ios API
         std::ios::iostate original_exceptions = std::cerr.exceptions();
 
         FailingCerr()

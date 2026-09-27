@@ -312,7 +312,7 @@ namespace wisdom
             return;
         }
 
-        if (moves_it != tokens.end() && !applyMoves (new_game, moves_it + 1, tokens.end()))
+        if (moves_it != tokens.end() && !applyMoves (&new_game, moves_it + 1, tokens.end()))
             return;
 
         my_game = std::move (new_game);
@@ -392,7 +392,7 @@ namespace wisdom
         // The game is copied per search so that a later "position" cannot
         // disturb it, but the table is lent to the thread so that what one
         // search learns is available to the next.
-        nonnull_observer_ptr<TranspositionTable> table = &my_transposition_table;
+        nonnull<TranspositionTable> table = &my_transposition_table;
 
         my_search_thread = std::thread (
             [this, game = std::move (game_copy), table, search_depth, search_time,
@@ -506,28 +506,28 @@ namespace wisdom
 
     auto
     UciInterface::applyMoves (
-        Game& game,
+        nonnull<Game> game,
         vector<string>::const_iterator first,
         vector<string>::const_iterator last
     ) -> bool
     {
         for (auto it = first; it != last; ++it)
         {
-            auto move = parseUciMove (game, *it);
+            auto move = parseUciMove (*game, *it);
             if (!move.has_value())
             {
                 sendLine ("info string Unparseable move in position: " + *it);
                 return false;
             }
 
-            auto legal_moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
+            auto legal_moves = generateLegalMoves (game->getBoard(), game->getCurrentTurn());
             if (std::find (legal_moves.begin(), legal_moves.end(), *move) == legal_moves.end())
             {
                 sendLine ("info string Illegal move in position: " + *it);
                 return false;
             }
 
-            game.move (*move);
+            game->move (*move);
         }
 
         return true;
@@ -599,7 +599,7 @@ namespace wisdom
     UciInterface::buildNotifier (int initial_search_id)
         -> MoveTimer::PeriodicFunction
     {
-        return [this, initial_search_id] (nonnull_observer_ptr<MoveTimer> timer)
+        return [this, initial_search_id] (nonnull<MoveTimer> timer)
         {
             if (my_search_id.load() != initial_search_id)
             {

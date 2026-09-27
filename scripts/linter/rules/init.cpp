@@ -8,6 +8,7 @@ extern auto createTrailingReturnTypeRule() -> std::shared_ptr<Rule>;
 extern auto createTestMacroSpacingRule() -> std::shared_ptr<Rule>;
 extern auto createFunctionCallSpacingRule() -> std::shared_ptr<Rule>;
 extern auto createNoTabsRule() -> std::shared_ptr<Rule>;
+extern auto createRawPointerRule() -> std::shared_ptr<Rule>;
 
 auto registerAllRules() -> std::vector<std::shared_ptr<Rule>>
 {
@@ -17,6 +18,7 @@ auto registerAllRules() -> std::vector<std::shared_ptr<Rule>>
         createTestMacroSpacingRule(),
         createFunctionCallSpacingRule(),
         createNoTabsRule(),
+        createRawPointerRule(),
     };
 }
 

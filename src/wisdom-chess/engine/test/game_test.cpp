@@ -21,49 +21,49 @@ TEST_CASE( "Initial board position is added to history" )
     // Test that the initial board position is included in the "history", so if we
     // reach it by repetition, the draw will be detected one move sooner.
     //
-    auto run_test = [](Game& game)
+    auto run_test = [] (nonnull<Game> game)
     {
         Move white_move = moveParse ("g1 f3");
         Move black_move = moveParse ("b8 c6");
         Move white_return_move = moveParse ("f3 g1");
         Move black_return_move = moveParse ("c6 b8");
-        auto& history = game.getHistory();
+        auto& history = game->getHistory();
 
         for (int i = 0; i < 2; i++)
         {
             INFO( i );
-            game.move (white_move);
-            CHECK( history.isThirdRepetition (game.getBoard()) == false );
+            game->move (white_move);
+            CHECK( history.isThirdRepetition (game->getBoard()) == false );
 
-            game.move (black_move);
-            CHECK( history.isThirdRepetition (game.getBoard()) == false );
+            game->move (black_move);
+            CHECK( history.isThirdRepetition (game->getBoard()) == false );
 
-            game.move (white_return_move);
-            CHECK( history.isThirdRepetition (game.getBoard()) == false );
+            game->move (white_return_move);
+            CHECK( history.isThirdRepetition (game->getBoard()) == false );
 
-            game.move (black_return_move);
+            game->move (black_return_move);
 
             bool is_draw = (i == 1) ? true : false;
-            CHECK( history.isThirdRepetition (game.getBoard()) == is_draw );
+            CHECK( history.isThirdRepetition (game->getBoard()) == is_draw );
         }
     };
 
     SUBCASE( "When a default game is initialized" )
     {
         Game game = Game::createStandardGame();
-        run_test (game);
+        run_test (&game);
     }
 
     SUBCASE( "When game is created from two players" )
     {
         Game game = Game::createGame (Player::Human, Player::Human);
-        run_test (game);
+        run_test (&game);
     }
 
     SUBCASE( "When game is created from an array of two players" )
     {
         Game game = Game::createGame (Players { Player::ChessEngine, Player::ChessEngine });
-        run_test (game);
+        run_test (&game);
     }
 
     SUBCASE( "When game is created from the current turn" )
@@ -71,20 +71,20 @@ TEST_CASE( "Initial board position is added to history" )
         // Note: No direct factory for Color, but we can create standard and set turn
         Game game = Game::createStandardGame();
         game.setCurrentTurn (Color::White);
-        run_test (game);
+        run_test (&game);
     }
 
     SUBCASE( "When game is initialized from a board builder" )
     {
         BoardBuilder builder = BoardBuilder::fromDefaultPosition();
         Game game = Game::createGameFromBoard (builder);
-        run_test (game);
+        run_test (&game);
     }
 
     SUBCASE( "From FEN string" )
     {
         Game game = Game::createGameFromFen ("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        run_test (game);
+        run_test (&game);
     }
 }
 
@@ -93,7 +93,7 @@ TEST_CASE( "Loading a saved game" )
     auto path = std::filesystem::temp_directory_path() / "wisdom-chess-load-test.txt";
     auto players = Players { Player::Human, Player::Human };
 
-    auto write_file = [&path](const char* contents)
+    auto write_file = [&path](czstring contents)
     {
         std::ofstream file { path };
         file << contents;
@@ -188,24 +188,24 @@ TEST_CASE( "A draw-derived score is not reused for a position with a different c
 
     auto logger = makeNullLogger();
 
-    auto searchFen = [&] (const char* fen, TranspositionTable& table)
+    auto searchFen = [&] (czstring fen, nonnull<TranspositionTable> table)
     {
         auto game = Game::createGameFromFen (fen);
         game.setMaxDepth (4);
         game.setSearchTimeout (std::chrono::seconds { 30 });
-        return game.findBestMove (logger, &table);
+        return game.findBestMove (logger, table);
     };
 
     TranspositionTable cold = TranspositionTable::fromMegabytes (1);
-    auto expected = searchFen (fresh_clock_fen, cold);
+    auto expected = searchFen (fresh_clock_fen, &cold);
     REQUIRE( expected.has_value() );
 
     TranspositionTable shared = TranspositionTable::fromMegabytes (1);
-    auto near_fifty_move = searchFen (near_fifty_move_fen, shared);
+    auto near_fifty_move = searchFen (near_fifty_move_fen, &shared);
     REQUIRE( near_fifty_move.has_value() );
 
     // The drawing scores the first search produced must not decide this one.
-    auto with_warm_table = searchFen (fresh_clock_fen, shared);
+    auto with_warm_table = searchFen (fresh_clock_fen, &shared);
 
     REQUIRE( with_warm_table.has_value() );
     CHECK( *with_warm_table == *expected );

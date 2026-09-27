@@ -26,7 +26,7 @@ namespace wisdom
 
     using Players = array<Player, Num_Players>;
     // Type alias to avoid needing complete MoveTimer definition in header
-    using PeriodicFunction = std::function<void(nonnull_observer_ptr<MoveTimer>)>;
+    using PeriodicFunction = std::function<void(nonnull<MoveTimer>)>;
 
     class Game
     {
@@ -85,7 +85,7 @@ namespace wisdom
         // decides when it is cleared or reused between searches.
         [[nodiscard]] auto findBestMove (
             shared_ptr<Logger> logger,
-            nonnull_observer_ptr<TranspositionTable> transposition_table,
+            nonnull<TranspositionTable> transposition_table,
             Color whom = Color::None
         ) const
             -> optional<Move>;

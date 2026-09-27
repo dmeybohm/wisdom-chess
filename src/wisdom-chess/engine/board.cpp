@@ -33,37 +33,37 @@ namespace wisdom
         std::cerr << *this;
     }
 
-    static void addDivider (string& result)
+    static void addDivider (nonnull<string> result)
     {
-        result += " ";
+        *result += " ";
 
         for (int col = 0; col < Board_Length_In_Chars; col += 4)
         {
             for (int i = 0; i < 3; i++)
-                result += '-';
+                *result += '-';
 
-            result += ' ';
+            *result += ' ';
         }
 
-        result += "\n";
+        *result += "\n";
     }
 
-    static void addCoords (string& result)
+    static void addCoords (nonnull<string> result)
     {
         int col;
 
-        result += " ";
+        *result += " ";
 
         char col_name = 'a';
         for (col = 0; col < Num_Columns; col++)
         {
-            result += " ";
-            result += col_name;
-            result += "  ";
+            *result += " ";
+            *result += col_name;
+            *result += "  ";
             col_name++;
         }
 
-        result += "\n";
+        *result += "\n";
     }
 
     auto Board::asString() const -> string
@@ -72,7 +72,7 @@ namespace wisdom
 
         char row_coord = '8';
 
-        addDivider (result);
+        addDivider (&result);
         for (int8_t row = 0; row < Num_Rows; row++)
         {
             for (int8_t col = 0; col < Num_Columns; col++)
@@ -124,10 +124,10 @@ namespace wisdom
             row_coord--;
             result += "\n";
 
-            addDivider (result);
+            addDivider (&result);
         }
 
-        addCoords (result);
+        addCoords (&result);
         return result;
     }
 

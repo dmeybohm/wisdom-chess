@@ -42,11 +42,11 @@ TEST_CASE( "pieceMovement" )
     {
         struct Case
         {
-            const char* move;
+            czstring move;
             Color who;
-            const char* king_dst;
-            const char* rook_src;
-            const char* rook_dst;
+            czstring king_dst;
+            czstring rook_src;
+            czstring rook_dst;
         };
 
         const Case cases[] = {

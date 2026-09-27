@@ -4,16 +4,16 @@
 
 extern "C"
 {
-    EM_JS (void, consoleLog, (const char* str), { console.log (UTF8ToString (str)) })
-    EM_JS (void, consoleError, (const char* str), { console.error (UTF8ToString (str)) })
+    EM_JS (void, consoleLog, (const char* str), { console.log (UTF8ToString (str)) }) // lint-allow(raw-pointer): EM_JS signature
+    EM_JS (void, consoleError, (const char* str), { console.error (UTF8ToString (str)) }) // lint-allow(raw-pointer): EM_JS signature
 };
 
-void wisdom::worker::WebLogger::consoleLog (const char* message)
+void wisdom::worker::WebLogger::consoleLog (czstring message)
 {
    ::consoleLog (message);
 }
 
-void wisdom::worker::WebLogger::consoleError (const char* message)
+void wisdom::worker::WebLogger::consoleError (czstring message)
 {
     ::consoleError (message);
 }

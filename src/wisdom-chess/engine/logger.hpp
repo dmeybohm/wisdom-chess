@@ -99,7 +99,7 @@ namespace wisdom
         readText (size_t offset, size_t length) const
             -> string;
 
-        void writeBytes (const char* source, size_t length);
+        void writeBytes (czstring source, size_t length);
         void popFront();
 
         template <typename Visitor>

@@ -122,8 +122,15 @@ auto Linter::lintFile (const std::filesystem::path& filename) const -> LintResul
         auto it = my_config.rules.find (std::string { rule->name() });
         Severity severity = (it != my_config.rules.end()) ? it->second : Severity::Error;
 
+        std::string allow_marker = "lint-allow(" + std::string { rule->name() } + ")";
         for (auto& violation : rule_violations)
         {
+            auto line_index = static_cast<size_t> (violation.line - 1);
+            if (line_index < context.lines.size()
+                && context.lines[line_index].find (allow_marker) != std::string::npos)
+            {
+                continue;
+            }
             violation.severity = severity;
             violations.push_back (std::move (violation));
         }
@@ -405,6 +412,7 @@ auto getDefaultConfig() -> LinterConfig
             { "trailing-return-type", Severity::Warning },
             { "namespace-braces", Severity::Error },
             { "no-tabs", Severity::Error },
+            { "raw-pointer", Severity::Error },
         },
     };
 }

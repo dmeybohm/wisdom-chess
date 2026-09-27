@@ -57,14 +57,14 @@ namespace
         }
     };
 
-    void shuffleKnights (Game& game, int times)
+    void shuffleKnights (nonnull<Game> game, int times)
     {
         for (int i = 0; i < times; i++)
         {
-            game.move (moveParse ("g1 f3", Color::White));
-            game.move (moveParse ("g8 f6", Color::Black));
-            game.move (moveParse ("f3 g1", Color::White));
-            game.move (moveParse ("f6 g8", Color::Black));
+            game->move (moveParse ("g1 f3", Color::White));
+            game->move (moveParse ("g8 f6", Color::Black));
+            game->move (moveParse ("f3 g1", Color::White));
+            game->move (moveParse ("f6 g8", Color::Black));
         }
     }
 }
@@ -204,10 +204,10 @@ TEST_CASE( "Game::status" )
     {
         auto game = Game::createStandardGame();
 
-        shuffleKnights (game, 1);
+        shuffleKnights (&game, 1);
         CHECK( game.status() == GameStatus::Playing );
 
-        shuffleKnights (game, 1);
+        shuffleKnights (&game, 1);
         CHECK( game.status() == GameStatus::ThreefoldRepetitionReached );
 
         SUBCASE( "Accepted by both players" )
@@ -251,10 +251,10 @@ TEST_CASE( "Game::status" )
             );
             CHECK( game.status() == GameStatus::Playing );
 
-            shuffleKnights (game, 1);
+            shuffleKnights (&game, 1);
             CHECK( game.status() == GameStatus::Playing );
 
-            shuffleKnights (game, 1);
+            shuffleKnights (&game, 1);
             CHECK( game.status() == GameStatus::FivefoldRepetitionDraw );
         }
     }

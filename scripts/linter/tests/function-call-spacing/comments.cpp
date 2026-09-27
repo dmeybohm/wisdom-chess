@@ -8,6 +8,6 @@ void example (int x)
      */
     good (x); /* and a block that starts here
        and ends here */ good (x);
-    const char* text = "a string with bad(x) and // a fake comment";
+    auto text = "a string with bad(x) and // a fake comment";
     bad(x); // this one is real
 }

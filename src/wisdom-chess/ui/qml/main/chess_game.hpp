@@ -50,14 +50,14 @@ namespace wisdom::ui::qml
 
         [[nodiscard]] auto 
         state() 
-            -> gsl::not_null<wisdom::Game*>
+            -> wisdom::nonnull<wisdom::Game>
         {
             return my_engine.get();
         }
 
         [[nodiscard]] auto 
         state() const 
-            -> gsl::not_null<const wisdom::Game*>
+            -> wisdom::nonnull<const wisdom::Game>
         {
             return my_engine.get();
         }

@@ -10,7 +10,6 @@
 
 using namespace wisdom;
 namespace ui = wisdom::ui;
-using gsl::not_null;
 using std::optional;
 using std::shared_ptr;
 using wisdom::GameStatus;
@@ -81,11 +80,11 @@ namespace wisdom::ui::qml
     class QmlEngineGameStatusUpdate : public GameStatusUpdate
     {
     private:
-        nonnull_observer_ptr<ChessEngine> my_parent;
+        nonnull<ChessEngine> my_parent;
 
     public:
         explicit QmlEngineGameStatusUpdate (
-            nonnull_observer_ptr<ChessEngine> parent
+            nonnull<ChessEngine> parent
         )
             : my_parent { parent }
         {

@@ -15,7 +15,7 @@ using wisdom::Color;
 using wisdom::perft::Stats;
 using wisdom::perft::PerftResults;
 
-int main (int argc, char *argv[])
+int main (int argc, char *argv[]) // lint-allow(raw-pointer): main's signature
 {
     if (argc != 3 && argc != 4)
     {

@@ -15,7 +15,7 @@ namespace
     class TemporaryFile
     {
     public:
-        explicit TemporaryFile (const char* name)
+        explicit TemporaryFile (czstring name)
             : my_path { std::filesystem::temp_directory_path() / name }
         {
             std::filesystem::remove (my_path);
@@ -60,7 +60,7 @@ namespace
         -> Game
     {
         auto game = Game::createGame (Player::Human, Player::Human);
-        const char* move_texts[] = {
+        czstring move_texts[] = {
             "e2 e4", "a7 a6", "e4 e5", "d7 d5", "e5 d6 ep", "c7xd6",
             "g1 f3", "b8 c6", "f1 c4", "c8 g4", "o-o", "d8 d7",
             "d2 d3", "o-o-o",

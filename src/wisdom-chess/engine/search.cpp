@@ -25,7 +25,7 @@ namespace wisdom
             shared_ptr<Logger> output,
             MoveTimer timer,
             int total_depth,
-            TranspositionTable& transposition_table
+            nonnull<TranspositionTable> transposition_table
         )
             : my_original_board { Board { board } }
             , my_history { History { history } }
@@ -78,7 +78,7 @@ namespace wisdom
         SearchResult my_current_result {};
         MoveTimer my_timer;
         shared_ptr<Logger> my_output;
-        TranspositionTable& my_transposition_table;
+        unchecked_nonnull<TranspositionTable> my_transposition_table;
 
         int my_total_depth;
         int my_nodes_visited = 0;
@@ -110,7 +110,7 @@ namespace wisdom
         shared_ptr<Logger> logger,
         const MoveTimer& timer,
         int max_depth,
-        TranspositionTable& transposition_table
+        nonnull<TranspositionTable> transposition_table
     ) -> IterativeSearch
     {
         return IterativeSearch {
@@ -187,11 +187,11 @@ namespace wisdom
 
         if (ply > 0)
         {
-            if (auto tt_score = my_transposition_table.probe (hash, depth, alpha, beta, ply))
+            if (auto tt_score = my_transposition_table->probe (hash, depth, alpha, beta, ply))
                 return *tt_score;
         }
 
-        auto tt_move = my_transposition_table.getBestMove (hash);
+        auto tt_move = my_transposition_table->getBestMove (hash);
         auto moves = generateAllPotentialMoves (parent_board, side, tt_move);
 
         for (auto move : moves)
@@ -266,7 +266,7 @@ namespace wisdom
             BoundType bound_type = (best_score <= original_alpha) ? BoundType::UpperBound
                                  : (best_score >= beta) ? BoundType::LowerBound
                                  : BoundType::Exact;
-            my_transposition_table.store (
+            my_transposition_table->store (
                 hash,
                 best_score,
                 depth,
@@ -478,7 +478,7 @@ namespace wisdom
         my_alpha_beta_cutoffs = 0;
         my_quiescence_nodes_visited = 0;
 
-        auto tt_stats_start = my_transposition_table.getStats();
+        auto tt_stats_start = my_transposition_table->getStats();
         auto start = std::chrono::steady_clock::now();
 
         my_current_result = SearchResult {};
@@ -504,12 +504,12 @@ namespace wisdom
             progress_str << "nodes visited = " << my_nodes_visited
                          << ", quiescence nodes = " << my_quiescence_nodes_visited
                          << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs << "\n";
-            auto tt_stats_end = my_transposition_table.getStats();
+            auto tt_stats_end = my_transposition_table->getStats();
             auto hit_rate = computeHitRate (tt_stats_start, tt_stats_end);
             auto probes_this_iteration = tt_stats_end.probes - tt_stats_start.probes;
             auto hits_this_iteration = tt_stats_end.hits - tt_stats_start.hits;
             progress_str << "transposition table: entries = " << tt_stats_end.stored_entries
-                << "/" << my_transposition_table.getSize()
+                << "/" << my_transposition_table->getSize()
                 << ", probes = " << probes_this_iteration
                 << ", hits = "  << hits_this_iteration
                 << ", hit rate = " << hit_rate << "%";

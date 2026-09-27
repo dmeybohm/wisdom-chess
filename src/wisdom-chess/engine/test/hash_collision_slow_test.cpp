@@ -23,6 +23,7 @@ using wisdom::FenParser;
 using wisdom::colorInvert;
 using wisdom::generateAllPotentialMoves;
 using wisdom::isLegalPositionAfterMove;
+using wisdom::nonnull;
 
 namespace
 {
@@ -49,8 +50,8 @@ namespace
         Color side,
         int depth,
         int max_depth,
-        std::unordered_map<BoardHashCode, string>& seen_positions,
-        CollisionStats& stats
+        nonnull<std::unordered_map<BoardHashCode, string>> seen_positions,
+        nonnull<CollisionStats> stats
     )
     {
         if (depth >= max_depth)
@@ -69,21 +70,21 @@ namespace
             auto full_fen = new_board.toFenString (colorInvert (side));
             auto position_fen = normalizePositionFen (full_fen);
 
-            stats.positions_visited++;
+            stats->positions_visited++;
 
-            auto it = seen_positions.find (hash);
-            if (it != seen_positions.end())
+            auto it = seen_positions->find (hash);
+            if (it != seen_positions->end())
             {
                 if (it->second != position_fen)
                 {
-                    stats.collisions_found++;
-                    if (stats.collision_examples.size() < 5)
-                        stats.collision_examples.emplace_back (it->second, position_fen);
+                    stats->collisions_found++;
+                    if (stats->collision_examples.size() < 5)
+                        stats->collision_examples.emplace_back (it->second, position_fen);
                 }
             }
             else
             {
-                seen_positions[hash] = position_fen;
+                (*seen_positions)[hash] = position_fen;
             }
 
             searchForCollisions (
@@ -102,7 +103,7 @@ namespace
         seen_positions[initial_hash] = initial_fen;
         stats.positions_visited = 1;
 
-        searchForCollisions (board, active_player, 0, depth, seen_positions, stats);
+        searchForCollisions (board, active_player, 0, depth, &seen_positions, &stats);
 
         return stats;
     }
@@ -190,7 +191,7 @@ namespace
         Color side,
         int depth,
         int max_depth,
-        std::vector<BoardHashCode>& hashes
+        nonnull<std::vector<BoardHashCode>> hashes
     )
     {
         if (depth >= max_depth)
@@ -205,7 +206,7 @@ namespace
             if (!isLegalPositionAfterMove (new_board, side, move))
                 continue;
 
-            hashes.push_back (new_board.getUnnormalizedBoardCode().getHashCode());
+            hashes->push_back (new_board.getUnnormalizedBoardCode().getHashCode());
 
             collectHashesForDistribution (
                 new_board, colorInvert (side), depth + 1, max_depth, hashes
@@ -259,7 +260,7 @@ TEST_CASE( "Transposition table index distribution" )
     hashes.reserve (5000000);
 
     hashes.push_back (board.getUnnormalizedBoardCode().getHashCode());
-    collectHashesForDistribution (board, Color::White, 0, 5, hashes);
+    collectHashesForDistribution (board, Color::White, 0, 5, &hashes);
 
     MESSAGE( "Collected " << hashes.size() << " hashes" );
 

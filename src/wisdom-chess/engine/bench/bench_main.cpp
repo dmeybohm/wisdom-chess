@@ -8,20 +8,20 @@
 
 namespace wisdom::bench
 {
-    void runMoveGenerationBenchmarks (ankerl::nanobench::Bench& bench);
-    void runThreatBenchmarks (ankerl::nanobench::Bench& bench);
-    void runLegalityBenchmarks (ankerl::nanobench::Bench& bench);
-    void runPerftBenchmarks (ankerl::nanobench::Bench& bench);
-    void runSearchBenchmarks (ankerl::nanobench::Bench& bench);
+    void runMoveGenerationBenchmarks (nonnull<ankerl::nanobench::Bench> bench);
+    void runThreatBenchmarks (nonnull<ankerl::nanobench::Bench> bench);
+    void runLegalityBenchmarks (nonnull<ankerl::nanobench::Bench> bench);
+    void runPerftBenchmarks (nonnull<ankerl::nanobench::Bench> bench);
+    void runSearchBenchmarks (nonnull<ankerl::nanobench::Bench> bench);
     void runSearchReport (int max_depth);
 }
 
-static void usage (const char* program)
+static void usage (wisdom::czstring program)
 {
     std::cerr << "usage: " << program << " [--search-report [max-depth]]\n";
 }
 
-auto main (int argc, char** argv) -> int
+auto main (int argc, char** argv) -> int // lint-allow(raw-pointer): main's signature
 {
     if (argc > 1)
     {
@@ -49,19 +49,19 @@ auto main (int argc, char** argv) -> int
     std::cout << "=== Wisdom Chess Benchmarks ===\n\n";
 
     std::cout << "--- Move Generation ---\n";
-    wisdom::bench::runMoveGenerationBenchmarks (bench);
+    wisdom::bench::runMoveGenerationBenchmarks (&bench);
 
     std::cout << "\n--- Threat Detection ---\n";
-    wisdom::bench::runThreatBenchmarks (bench);
+    wisdom::bench::runThreatBenchmarks (&bench);
 
     std::cout << "\n--- Legality Checking ---\n";
-    wisdom::bench::runLegalityBenchmarks (bench);
+    wisdom::bench::runLegalityBenchmarks (&bench);
 
     std::cout << "\n--- Perft ---\n";
-    wisdom::bench::runPerftBenchmarks (bench);
+    wisdom::bench::runPerftBenchmarks (&bench);
 
     std::cout << "\n--- Search ---\n";
-    wisdom::bench::runSearchBenchmarks (bench);
+    wisdom::bench::runSearchBenchmarks (&bench);
 
     return 0;
 }

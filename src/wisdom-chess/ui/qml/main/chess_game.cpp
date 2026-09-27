@@ -7,7 +7,6 @@
 #include "wisdom-chess/ui/qml/main/chess_game.hpp"
 #include "wisdom-chess/ui/qml/main/game_settings.hpp"
 
-using gsl::not_null;
 using std::atomic;
 using std::make_unique;
 using std::optional;
