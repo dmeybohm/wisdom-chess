@@ -53,11 +53,11 @@ namespace wisdom
     //  10: Promote Knight + capture
     //  11: Promote Bishop + capture
     inline constexpr int8_t Combined_Default = 0;
-    inline constexpr int8_t Combined_NormalCapture = 1;
-    inline constexpr int8_t Combined_EnPassant = 2;
+    inline constexpr int8_t Combined_Normal_Capture = 1;
+    inline constexpr int8_t Combined_En_Passant = 2;
     inline constexpr int8_t Combined_Castling = 3;
-    inline constexpr int8_t Combined_PromoteBase = 4;
-    inline constexpr int8_t Combined_PromoteCaptureBase = 8;
+    inline constexpr int8_t Combined_Promote_Base = 4;
+    inline constexpr int8_t Combined_Promote_Capture_Base = 8;
 
     [[nodiscard]] constexpr auto
     promotionPieceOffset (Piece piece_type) noexcept
@@ -159,7 +159,7 @@ namespace wisdom
             -> Move
         {
             Move move = Move::make (src_row, src_col, dst_row, dst_col);
-            move.setCombined (Combined_NormalCapture);
+            move.setCombined (Combined_Normal_Capture);
             return move;
         }
 
@@ -202,7 +202,7 @@ namespace wisdom
             -> Move
         {
             Move move = make (src_row, src_col, dst_row, dst_col);
-            move.setCombined (Combined_EnPassant);
+            move.setCombined (Combined_En_Passant);
             return move;
         }
 
@@ -251,8 +251,8 @@ namespace wisdom
         {
             assert (piece_type != Piece::None);
             Move result = *this;
-            bool is_capture = (result.getCombined() == Combined_NormalCapture);
-            auto base = is_capture ? Combined_PromoteCaptureBase : Combined_PromoteBase;
+            bool is_capture = (result.getCombined() == Combined_Normal_Capture);
+            auto base = is_capture ? Combined_Promote_Capture_Base : Combined_Promote_Base;
             result.setCombined (base + promotionPieceOffset (piece_type));
             return result;
         }
@@ -263,7 +263,7 @@ namespace wisdom
         {
             assert (getCombined() == Combined_Default);
             Move result = *this;
-            result.setCombined (Combined_NormalCapture);
+            result.setCombined (Combined_Normal_Capture);
             return result;
         }
 
@@ -274,7 +274,7 @@ namespace wisdom
             auto c = getCombined();
             if (c <= Combined_Castling)
                 return static_cast<MoveCategory> (c);
-            if (c >= Combined_PromoteCaptureBase)
+            if (c >= Combined_Promote_Capture_Base)
                 return MoveCategory::NormalCapturing;
             return MoveCategory::Default;
         }
@@ -284,15 +284,15 @@ namespace wisdom
             -> bool
         {
             auto c = getCombined();
-            return c == Combined_NormalCapture
-                || c >= Combined_PromoteCaptureBase;
+            return c == Combined_Normal_Capture
+                || c >= Combined_Promote_Capture_Base;
         }
 
         [[nodiscard]] constexpr auto
         isPromoting() const
             -> bool
         {
-            return getCombined() >= Combined_PromoteBase;
+            return getCombined() >= Combined_Promote_Base;
         }
 
         [[nodiscard]] constexpr auto
@@ -300,11 +300,11 @@ namespace wisdom
             -> Piece
         {
             auto c = getCombined();
-            if (c < Combined_PromoteBase)
+            if (c < Combined_Promote_Base)
                 return Piece::None;
-            int8_t offset = (c >= Combined_PromoteCaptureBase)
-                ? narrow_cast<int8_t> (c - Combined_PromoteCaptureBase)
-                : narrow_cast<int8_t> (c - Combined_PromoteBase);
+            int8_t offset = (c >= Combined_Promote_Capture_Base)
+                ? narrow_cast<int8_t> (c - Combined_Promote_Capture_Base)
+                : narrow_cast<int8_t> (c - Combined_Promote_Base);
             return pieceFromPromotionOffset (offset);
         }
 
@@ -312,7 +312,7 @@ namespace wisdom
         isEnPassant() const noexcept
             -> bool
         {
-            return getCombined() == Combined_EnPassant;
+            return getCombined() == Combined_En_Passant;
         }
 
         [[nodiscard]] constexpr auto
