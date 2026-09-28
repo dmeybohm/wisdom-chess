@@ -66,7 +66,7 @@ namespace wisdom
         void recordRootProgress (int ply, int depth, optional<Move> best_move, int best_score);
 
         [[nodiscard]] auto
-        moveTimer() const&
+        getMoveTimer() const&
             -> const MoveTimer&
         {
             return my_timer;
@@ -134,14 +134,14 @@ namespace wisdom
     IterativeSearch::isCancelled()
         -> bool
     {
-        return my_pimpl->moveTimer().isCancelled();
+        return my_pimpl->getMoveTimer().isCancelled();
     }
 
     auto
-    IterativeSearch::moveTimer() const&
+    IterativeSearch::getMoveTimer() const&
         -> const MoveTimer&
     {
-        return my_pimpl->moveTimer();
+        return my_pimpl->getMoveTimer();
     }
 
     namespace

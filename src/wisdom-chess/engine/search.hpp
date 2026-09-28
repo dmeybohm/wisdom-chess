@@ -66,9 +66,9 @@ namespace wisdom
             -> bool;
 
         [[nodiscard]] auto
-        moveTimer() const&
+        getMoveTimer() const&
             -> const MoveTimer&;
-        void moveTimer() && = delete;
+        void getMoveTimer() && = delete;
 
     private:
         unique_ptr<IterativeSearchImpl> my_pimpl;
