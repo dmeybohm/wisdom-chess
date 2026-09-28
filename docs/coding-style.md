@@ -24,6 +24,7 @@ reason in the same comment, as in
 
 - Four spaces, never tabs [`no-tabs`]. `.editorconfig` sets this up for
   C++, QML, TypeScript and `CMakeLists.txt`.
+- No whitespace at the end of a line [`no-trailing-whitespace`].
 - Allman braces [`allman-braces`, `namespace-braces`]: the brace that
   opens a namespace, type, function or control statement goes on a line
   of its own, at the indent of the line before it. This holds after a

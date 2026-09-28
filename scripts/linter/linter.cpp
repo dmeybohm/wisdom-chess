@@ -347,6 +347,7 @@ auto getDefaultConfig() -> LinterConfig
             { "no-tabs", Severity::Error },
             { "raw-pointer", Severity::Error },
             { "allman-braces", Severity::Error },
+            { "no-trailing-whitespace", Severity::Error },
         },
     };
 }

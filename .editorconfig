@@ -13,3 +13,8 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
+
+# The linter's fixtures hold the whitespace its rules report.
+[scripts/linter/tests/**]
+trim_trailing_whitespace = false
+end_of_line = unset

@@ -18,6 +18,7 @@ add_executable(wisdom-linter
     rules/no_tabs.cpp
     rules/raw_pointer.cpp
     rules/allman_braces.cpp
+    rules/no_trailing_whitespace.cpp
 )
 
 target_compile_options(wisdom-linter PRIVATE

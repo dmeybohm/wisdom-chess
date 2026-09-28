@@ -10,6 +10,7 @@ extern auto createFunctionCallSpacingRule() -> std::shared_ptr<Rule>;
 extern auto createNoTabsRule() -> std::shared_ptr<Rule>;
 extern auto createRawPointerRule() -> std::shared_ptr<Rule>;
 extern auto createAllmanBracesRule() -> std::shared_ptr<Rule>;
+extern auto createNoTrailingWhitespaceRule() -> std::shared_ptr<Rule>;
 
 auto registerAllRules() -> std::vector<std::shared_ptr<Rule>>
 {
@@ -21,6 +22,7 @@ auto registerAllRules() -> std::vector<std::shared_ptr<Rule>>
         createNoTabsRule(),
         createRawPointerRule(),
         createAllmanBracesRule(),
+        createNoTrailingWhitespaceRule(),
     };
 }
 
