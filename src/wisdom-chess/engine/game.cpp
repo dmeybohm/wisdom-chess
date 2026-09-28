@@ -400,14 +400,14 @@ namespace wisdom
         my_pimpl->max_depth = max_depth;
     }
 
-    auto Game::getSearchTimeout() const -> std::chrono::milliseconds
+    auto Game::getSearchTimeout() const -> chrono::milliseconds
     {
         return my_pimpl->move_timer.getTimeLimit();
     }
 
-    void Game::setSearchTimeout (std::chrono::milliseconds timeout)
+    void Game::setSearchTimeout (chrono::milliseconds timeout)
     {
-        expects (timeout > std::chrono::milliseconds::zero());
+        expects (timeout > chrono::milliseconds::zero());
         my_pimpl->move_timer.setTimeLimit (timeout);
     }
 

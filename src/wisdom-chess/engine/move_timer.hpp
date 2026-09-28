@@ -31,7 +31,7 @@ namespace wisdom
         }
 
         explicit MoveTimer (int seconds)
-            : MoveTimer (std::chrono::seconds { seconds })
+            : MoveTimer (chrono::seconds { seconds })
         {
         }
 

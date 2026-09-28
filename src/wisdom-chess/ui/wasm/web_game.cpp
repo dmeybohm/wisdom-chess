@@ -87,7 +87,7 @@ namespace wisdom
 
         const auto computer_depth = ui::fullMovesToPlyDepth (settings.searchDepth);
         new_game->setMaxDepth (computer_depth);
-        new_game->setThinkingTime (std::chrono::seconds { settings.thinkingTime });
+        new_game->setThinkingTime (chrono::seconds { settings.thinkingTime });
 
         return new_game;
     }

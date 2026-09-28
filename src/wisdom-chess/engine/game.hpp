@@ -120,9 +120,9 @@ namespace wisdom
 
         void setMaxDepth (int max_depth);
 
-        [[nodiscard]] auto getSearchTimeout() const -> std::chrono::milliseconds;
+        [[nodiscard]] auto getSearchTimeout() const -> chrono::milliseconds;
 
-        void setSearchTimeout (std::chrono::milliseconds timeout);
+        void setSearchTimeout (chrono::milliseconds timeout);
 
         [[nodiscard]] auto
         mapCoordinatesToMove (Coord src, Coord dst, optional<Piece> promoted) const

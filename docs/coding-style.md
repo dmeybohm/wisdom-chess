@@ -109,3 +109,12 @@ reason in the same comment, as in
 | Public data members | `snake_case`, no prefix | `data` |
 | Constants | `Snake_Title_Case` | `Max_Search_Depth` |
 | Exception classes | ending in `Error` | `ParseMoveError` |
+
+## Standard library names
+
+`engine/global.hpp` brings the common standard types into the namespace
+(`string`, `optional`, `vector`, `unique_ptr`, ...) and aliases
+`chrono`. Inside `wisdom`, write them without `std::`:
+`optional<Move>`, `chrono::milliseconds`. Code outside the namespace,
+such as a `main()` or a test that only uses `wisdom::ui::qml`, keeps
+`std::`.

@@ -121,7 +121,7 @@ namespace wisdom::bench
         Game game = Game::createStandardGame();
         ReplayResult result;
 
-        auto start = std::chrono::steady_clock::now();
+        auto start = chrono::steady_clock::now();
 
         for (auto scripted_move : script)
         {
@@ -133,8 +133,8 @@ namespace wisdom::bench
             game.move (scripted_move);
         }
 
-        auto end = std::chrono::steady_clock::now();
-        result.seconds = std::chrono::duration<double> (end - start).count();
+        auto end = chrono::steady_clock::now();
+        result.seconds = chrono::duration<double> (end - start).count();
 
         return result;
     }
@@ -208,12 +208,12 @@ namespace wisdom::bench
             auto label = string { "search/" } + scenario.name
                 + "-depth" + std::to_string (scenario.deep_depth);
 
-            auto start = std::chrono::steady_clock::now();
+            auto start = chrono::steady_clock::now();
             auto result = searchToDepth (&scenario.game, &table, scenario.deep_depth);
-            auto end = std::chrono::steady_clock::now();
+            auto end = chrono::steady_clock::now();
             ankerl::nanobench::doNotOptimizeAway (result);
 
-            printSeconds (label, std::chrono::duration<double> (end - start).count());
+            printSeconds (label, chrono::duration<double> (end - start).count());
         }
 
         runWarmTableBenchmark (30, 6);
@@ -255,10 +255,10 @@ namespace wisdom::bench
 
             for (int depth = 1; depth <= max_depth; depth++)
             {
-                auto start = std::chrono::steady_clock::now();
+                auto start = chrono::steady_clock::now();
                 auto result = searchToDepth (&game, &table, depth);
-                auto end = std::chrono::steady_clock::now();
-                auto seconds = std::chrono::duration<double> (end - start).count();
+                auto end = chrono::steady_clock::now();
+                auto seconds = chrono::duration<double> (end - start).count();
 
                 std::cout << std::left << std::setw (12) << position.name
                           << std::right << std::setw (6) << depth

@@ -479,12 +479,12 @@ namespace wisdom
         my_quiescence_nodes_visited = 0;
 
         auto tt_stats_start = my_transposition_table->getStats();
-        auto start = std::chrono::steady_clock::now();
+        auto start = chrono::steady_clock::now();
 
         my_current_result = SearchResult {};
         search (my_original_board, side, depth, -Initial_Alpha, Initial_Alpha, 0);
 
-        auto end = std::chrono::steady_clock::now();
+        auto end = chrono::steady_clock::now();
 
         auto result = getBestResult();
 

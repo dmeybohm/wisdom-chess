@@ -84,11 +84,11 @@ namespace wisdom::bench
             auto board = boardFromFen (Starting_Position_Fen);
             auto color = colorFromFen (Starting_Position_Fen);
 
-            auto start = std::chrono::steady_clock::now();
+            auto start = chrono::steady_clock::now();
             auto nodes = perftCount (board, color, 5);
-            auto end = std::chrono::steady_clock::now();
+            auto end = chrono::steady_clock::now();
 
-            double seconds = std::chrono::duration<double> (end - start).count();
+            double seconds = chrono::duration<double> (end - start).count();
             printNps ("perft/starting-depth5", nodes, seconds);
         }
 
@@ -97,11 +97,11 @@ namespace wisdom::bench
             auto board = boardFromFen (Kiwipete_Fen);
             auto color = colorFromFen (Kiwipete_Fen);
 
-            auto start = std::chrono::steady_clock::now();
+            auto start = chrono::steady_clock::now();
             auto nodes = perftCount (board, color, 4);
-            auto end = std::chrono::steady_clock::now();
+            auto end = chrono::steady_clock::now();
 
-            double seconds = std::chrono::duration<double> (end - start).count();
+            double seconds = chrono::duration<double> (end - start).count();
             printNps ("perft/kiwipete-depth4", nodes, seconds);
         }
     }
