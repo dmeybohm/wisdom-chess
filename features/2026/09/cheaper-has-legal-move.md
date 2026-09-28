@@ -117,3 +117,27 @@ picking.
   The six depth-8 searches together: 644.0s before, 175.6s after.
 - Not measured: play at a time limit, where the saving becomes depth
   instead of time, and the engine-match script.
+
+### Session #2
+
+- Measured the same shortcut for `isLegalPositionAfterMove()` in the
+  search loops, as a prototype outside the repository. Not adopted.
+  - The prototype: `search()` finds out once per node whether the side
+    is in check, which `quiesce()` already knows. A move from a square
+    off the king's lines, other than en passant, skips the test.
+  - `--search-report 7`, seven alternating rounds, medians, against
+    this branch: 7.92s to 7.75s for the six depth-7 searches, 2.1%
+    faster, between 0% and 4.1% by position. The moves, scores and
+    node counts were the same.
+  - Counted at depth 6: 6.64 million tests, of which 2.30 million (35%)
+    could skip, and the shortcut was never wrong.
+  - Why it is small: the board is still copied for every move, so the
+    shortcut saves one `isKingThreatened()` and nothing else, and
+    `search()` pays one more per node to use it. `hasLegalMove()` was
+    different: it generated and sorted a whole list to try one move.
+  - What the count did show: 2.30 million of the tests (35%) found the
+    move illegal, after a board copy made for nothing. Most of those
+    are at nodes in check, where every pseudo-legal move is tried for
+    the few evasions. Testing a move before making it, or generating
+    only evasions when in check, is where that cost would go. Not
+    measured.
