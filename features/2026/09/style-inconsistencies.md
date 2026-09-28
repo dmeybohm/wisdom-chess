@@ -502,8 +502,15 @@ Item 29: the React frontend is formatted with Prettier.
   - The WASM target `wisdom-chess-web` builds.
   - Not run: the React tests, since no TypeScript changed, and the
     benchmarks.
-- Seen on the way and left alone, as outside the items:
-  - `copy_moves()` in `engine/test/move_list_test.cpp` is a function in
-    `snake_case`.
-  - `find ( '\t' )` in the linter's `no_tabs.cpp` has spaces inside the
-    parentheses, which only test macros take.
+- Seen on the way, outside the items, and fixed afterwards:
+  - `copy_moves()` in `engine/test/move_list_test.cpp` was a function in
+    `snake_case`, and is now `copyMoves()`.
+  - The linter's sources had spaces inside the parentheses beside a
+    string or character literal, which only test macros take:
+    `find ( '\t' )`, `if (c == '\n' )`. There were 59 such spaces on 47
+    lines of `lexer.cpp`, `main.cpp`, `linter.cpp`, `no_tabs.cpp` and
+    `raw_pointer.cpp`, and none in `src`. The change is whitespace
+    only. `function-call-spacing` does not report them.
+  - Verified: the Release build has no warnings, the 235 fast tests
+    pass, as do the 227 of the Debug build, the linter's suite and the
+    `lint` target.
