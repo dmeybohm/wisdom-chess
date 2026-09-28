@@ -220,7 +220,7 @@ TEST_CASE( "The king's table is symmetric between the two wings" )
         {
             int mirror_col = Last_Column - col;
 
-            auto scoreWithKingAt = [row] (int king_col)
+            auto score_with_king_at = [row] (int king_col)
             {
                 BoardBuilder builder;
                 builder.addPiece (row, king_col, Color::White, Piece::King);
@@ -230,7 +230,7 @@ TEST_CASE( "The king's table is symmetric between the two wings" )
             };
 
             INFO( "row ", row, " col ", col );
-            CHECK( scoreWithKingAt (col) == scoreWithKingAt (mirror_col) );
+            CHECK( score_with_king_at (col) == score_with_king_at (mirror_col) );
         }
     }
 }

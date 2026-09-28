@@ -104,6 +104,7 @@ reason in the same comment, as in
 | Types, enumerators | `PascalCase` | `ColoredPiece`, `Color::White` |
 | Functions | `camelCase` | `generateLegalMoves()` |
 | Variables, parameters | `snake_case` | `search_depth` |
+| Lambdas held in a variable | `snake_case` | `board_from_fen` |
 | Private data members | `my_` and `snake_case` | `my_pimpl` |
 | Public data members | `snake_case`, no prefix | `data` |
 | Constants | `Snake_Title_Case` | `Max_Search_Depth` |

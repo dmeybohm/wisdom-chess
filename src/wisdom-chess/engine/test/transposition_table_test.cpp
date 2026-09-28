@@ -347,31 +347,31 @@ TEST_CASE( "Hash collision analysis" )
 
         std::unordered_set<BoardHashCode> hashes;
 
-        auto addHash = [&hashes] (const BoardCode& code) {
+        auto add_hash = [&hashes] (const BoardCode& code) {
             auto hash = code.getHashCode();
             auto [it, inserted] = hashes.insert (hash);
             CHECK( inserted );
         };
 
         BoardCode code = BoardCode::fromBoardBuilder (builder);
-        addHash (code);
+        add_hash (code);
 
         code.setCurrentTurn (Color::Black);
-        addHash (code);
+        add_hash (code);
         code.setCurrentTurn (Color::White);
 
         code.setCastleState (Color::White, CastlingEligibility::Neither_Side);
-        addHash (code);
+        add_hash (code);
 
         code.setCastleState (Color::White, CastlingRights::Kingside);
-        addHash (code);
+        add_hash (code);
 
         code.setCastleState (Color::White, CastlingRights::Queenside);
-        addHash (code);
+        add_hash (code);
 
         code.setCastleState (Color::White, CastlingEligibility::Both_Sides);
         code.setCastleState (Color::Black, CastlingEligibility::Neither_Side);
-        addHash (code);
+        add_hash (code);
 
         code.setCastleState (Color::Black, CastlingEligibility::Both_Sides);
 
@@ -383,7 +383,7 @@ TEST_CASE( "Hash collision analysis" )
                 makeCoord (White_En_Passant_Row, col),
                 EnPassantTargetState::Legal
             );
-            addHash (code);
+            add_hash (code);
         }
 
         for (int col = 0; col < 8; ++col)
@@ -394,7 +394,7 @@ TEST_CASE( "Hash collision analysis" )
                 makeCoord (Black_En_Passant_Row, col),
                 EnPassantTargetState::Legal
             );
-            addHash (code);
+            add_hash (code);
         }
     }
 

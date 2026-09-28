@@ -188,7 +188,7 @@ TEST_CASE( "A draw-derived score is not reused for a position with a different c
 
     auto logger = makeNullLogger();
 
-    auto searchFen = [&] (czstring fen, nonnull<TranspositionTable> table)
+    auto search_fen = [&] (czstring fen, nonnull<TranspositionTable> table)
     {
         auto game = Game::createGameFromFen (fen);
         game.setMaxDepth (4);
@@ -197,15 +197,15 @@ TEST_CASE( "A draw-derived score is not reused for a position with a different c
     };
 
     TranspositionTable cold = TranspositionTable::fromMegabytes (1);
-    auto expected = searchFen (fresh_clock_fen, &cold);
+    auto expected = search_fen (fresh_clock_fen, &cold);
     REQUIRE( expected.has_value() );
 
     TranspositionTable shared = TranspositionTable::fromMegabytes (1);
-    auto near_fifty_move = searchFen (near_fifty_move_fen, &shared);
+    auto near_fifty_move = search_fen (near_fifty_move_fen, &shared);
     REQUIRE( near_fifty_move.has_value() );
 
     // The drawing scores the first search produced must not decide this one.
-    auto with_warm_table = searchFen (fresh_clock_fen, &shared);
+    auto with_warm_table = search_fen (fresh_clock_fen, &shared);
 
     REQUIRE( with_warm_table.has_value() );
     CHECK( *with_warm_table == *expected );
