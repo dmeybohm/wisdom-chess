@@ -100,3 +100,20 @@ picking.
   the test. The change is faster than the build without the test in
   four positions, because that build kept the old function at nodes in
   check at the evasion limit, and the new one is cheaper there too.
+- Measured with `--search-report 8`, one run of each build, the same
+  way. The depth-7 times are from the same runs. The moves, scores and
+  node counts were again the same at every depth. The build without the
+  test is the run recorded in the other document, from `6e2ef7f`.
+
+  | Position | Move | Score | Nodes | Before | After | Faster by | Without the test | Depth 7 before | After | Faster by |
+  |---|---|---|---|---|---|---|---|---|---|---|
+  | starting | e2 e4 | 0 | 3,801,392 | 4.08s | 1.48s | 2.8x | 1.36s | 0.81s | 0.28s | 2.9x |
+  | kiwipete | d5xe6 | 48 | 8,144,988 | 15.42s | 3.73s | 4.1x | 3.77s | 3.21s | 0.68s | 4.7x |
+  | italian | d1 e2 | -54 | 40,692,807 | 65.07s | 22.55s | 2.9x | 22.97s | 2.79s | 1.04s | 2.7x |
+  | position3 | b4xf4 | 81 | 261,172 | 0.22s | 0.10s | 2.3x | 0.08s | 0.08s | 0.04s | 1.9x |
+  | position4 | c4 c5 | -928 | 2,620,947 | 4.52s | 1.02s | 4.5x | 1.31s | 1.67s | 0.34s | 5.0x |
+  | middlegame | f3 g5 | 48 | 309,896,444 | 554.72s | 146.73s | 3.8x | 158.68s | 24.30s | 5.79s | 4.2x |
+
+  The six depth-8 searches together: 644.0s before, 175.6s after.
+- Not measured: play at a time limit, where the saving becomes depth
+  instead of time, and the engine-match script.
