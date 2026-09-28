@@ -93,7 +93,7 @@ TEST_CASE( "Loading a saved game" )
     auto path = std::filesystem::temp_directory_path() / "wisdom-chess-load-test.txt";
     auto players = Players { Player::Human, Player::Human };
 
-    auto write_file = [&path](czstring contents)
+    auto write_file = [&path] (czstring contents)
     {
         std::ofstream file { path };
         file << contents;

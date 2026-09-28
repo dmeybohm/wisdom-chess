@@ -275,7 +275,7 @@ TEST_CASE( "An en passant target's legality is decided when it is set" )
         auto potential_moves = generateAllPotentialMoves (board, Color::Black);
         CHECK( std::none_of (
             potential_moves.begin(), potential_moves.end(),
-            [](Move move) { return move.isEnPassant(); }
+            [] (Move move) { return move.isEnPassant(); }
         ) );
     }
 

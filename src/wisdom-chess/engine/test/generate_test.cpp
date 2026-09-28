@@ -125,7 +125,7 @@ TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
 
 TEST_CASE( "hasLegalMove" )
 {
-    auto boardFromFen = [](czstring fen_text) {
+    auto boardFromFen = [] (czstring fen_text) {
         FenParser fen { fen_text };
         auto game = fen.build();
         return Board { game.getBoard() };
@@ -211,7 +211,7 @@ TEST_CASE( "hasLegalMove" )
 
 TEST_CASE( "generateCaptures" )
 {
-    auto boardFromFen = [](czstring fen_text) {
+    auto boardFromFen = [] (czstring fen_text) {
         FenParser fen { fen_text };
         auto game = fen.build();
         return Board { game.getBoard() };
@@ -285,7 +285,7 @@ TEST_CASE( "generateCaptures" )
 
 TEST_CASE( "generateLegalEnPassantMoves" )
 {
-    auto boardFromFen = [](czstring fen_text) {
+    auto boardFromFen = [] (czstring fen_text) {
         FenParser fen { fen_text };
         return fen.buildBoard();
     };

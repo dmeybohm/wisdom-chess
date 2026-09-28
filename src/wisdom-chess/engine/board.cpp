@@ -133,7 +133,7 @@ namespace wisdom
     {
         string castled_state;
 
-        auto convert = [color](char ch) -> char
+        auto convert = [color] (char ch) -> char
         {
             return color == Color::Black
                 ? toLower (ch)
@@ -226,7 +226,7 @@ namespace wisdom
         auto coord_begin = std::begin (my_squares);
         auto coord_end = std::end (my_squares);
 
-        auto finder = [piece_type](const ColoredPiece& colored_piece)
+        auto finder = [piece_type] (const ColoredPiece& colored_piece)
         {
             return colored_piece.type() == piece_type;
         };

@@ -133,7 +133,7 @@ EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
     state->transposition_table.clear();
     state->updateSettings (state->settings);
 
-    auto periodic_func = [state](nonnull<MoveTimer> timer) {
+    auto periodic_func = [state] (nonnull<MoveTimer> timer) {
         auto play_status = state->play_status.load();
         if (play_status != GameState::Playing || state->restart_requested.load())
         {

@@ -553,7 +553,7 @@ namespace wisdom
         std::sort (
             result.begin(),
             result.end(),
-            [&generation](const Move& a, const Move& b) { return generation.compareMoves (a, b); }
+            [&generation] (const Move& a, const Move& b) { return generation.compareMoves (a, b); }
         );
 
         return result;

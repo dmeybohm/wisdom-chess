@@ -396,7 +396,7 @@ namespace wisdom
 
         my_search_thread = std::thread (
             [this, game = std::move (game_copy), table, search_depth, search_time,
-             current_search_id, debug_mode = my_debug_mode] () mutable
+             current_search_id, debug_mode = my_debug_mode]() mutable
             {
                 game.setMaxDepth (search_depth);
                 if (search_time.count() > 0)
