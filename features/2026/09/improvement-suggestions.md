@@ -258,8 +258,8 @@ a redesign of the search loop and not part of this item.
 
 ### Recommendation
 
-Option 3 with option 2 as its fallback, unless the measurements say
-otherwise. It removes the cost at nodes that cut off and nodes that do
+Option 3 with option 2 as its fallback. The measurements below support
+it. It removes the cost at nodes that cut off and nodes that do
 not, cannot change a move, score or node count, and stays inside
 `generate.cpp`. Option 5 is the alternative that adds no chess logic.
 Option 9 is worth its larger change if the single walk of the board is
@@ -273,6 +273,143 @@ Before choosing:
   node is stalemate.
 - Test any new function against `generateLegalMoves()` at every node of
   a perft walk, in Debug and Release.
+
+### Measurements
+
+Taken on 2026-09-28 from `main` at `6e2ef7f`, Release, GCC, on the
+laptop (i5-1145G7, `powersave` governor), each run pinned to one core.
+Three builds of `wisdom-chess-benchmarks` from copies of the source
+outside the repository:
+
+- **Baseline:** `main` unchanged.
+- **Without the test:** the `hasLegalMove()` call at a node not in check
+  removed. This is the review's suggestion and is wrong at a stalemate;
+  it is here only as the ceiling on what a cheaper test can save.
+- **Counting probe:** the baseline with counters in `quiesce()`, and a
+  prototype of option 3 that is run and counted but not acted on.
+
+All three returned the same move, score and node counts in every
+search, at every depth.
+
+#### Depth 6
+
+`--search-report 6`, seven alternating rounds, medians. The counts are
+totals across the depths of the search, as in
+[quiescence-search.md](quiescence-search.md).
+
+| Position | Move | Score | Nodes | Quiescence nodes | Baseline | Without the test | Ceiling | Rounds faster |
+|---|---|---|---|---|---|---|---|---|
+| starting | b1 c3 | 0 | 81,883 | 22,727 | 0.074s | 0.028s | 62% | 7 of 7 |
+| kiwipete | e2xa6 | 102 | 489,295 | 338,366 | 0.950s | 0.243s | 74% | 7 of 7 |
+| italian | b1 c3 | -32 | 502,318 | 335,875 | 0.768s | 0.296s | 61% | 7 of 7 |
+| position3 | b4xf4 | 182 | 18,999 | 7,672 | 0.014s | 0.007s | 50% | 6 of 7 |
+| position4 | c4 c5 | -984 | 281,179 | 222,866 | 0.469s | 0.146s | 69% | 7 of 7 |
+| middlegame | f3 g5 | 54 | 1,972,588 | 1,581,997 | 3.494s | 1.098s | 69% | 7 of 7 |
+
+The six searches together take 5.77s, and 1.82s without the test. The
+stalemate test is about two thirds of the search time.
+
+Per quiescence node not in check:
+
+| Position | Nodes | Stalemate | Moves generated | Legality tests | First move legal | Stand-pat cutoff |
+|---|---|---|---|---|---|---|
+| starting | 63,821 | 0 | 25.6 | 1.001 | 99.9% | 51% |
+| kiwipete | 401,462 | 0 | 44.1 | 1.007 | 99.5% | 78% |
+| italian | 389,581 | 0 | 36.5 | 1.009 | 99.3% | 59% |
+| position3 | 13,321 | 0 | 17.1 | 1.078 | 92.5% | 56% |
+| position4 | 234,159 | 0 | 36.9 | 1.010 | 99.3% | 58% |
+| middlegame | 1,618,154 | 0 | 40.7 | 1.001 | 99.9% | 50% |
+
+"Moves generated" and "legality tests" are per call of
+`hasLegalMove()`: it generates and sorts 17 to 44 moves to try one.
+
+What options 3 and 5 would find at the same nodes:
+
+| Position | Legal capture exists: cutoff nodes | Other nodes | All | Option 3 answers | Pieces it examines | Wrong answers |
+|---|---|---|---|---|---|---|
+| starting | 56.2% | 49.3% | 52.8% | 100.00% | 1.17 | 0 |
+| kiwipete | 99.9% | 97.0% | 99.2% | 99.86% | 1.32 | 0 |
+| italian | 93.0% | 86.7% | 90.4% | 100.00% | 1.05 | 0 |
+| position3 | 51.1% | 58.8% | 54.4% | 92.54% | 0.95 | 0 |
+| position4 | 98.6% | 95.7% | 97.4% | 99.94% | 1.21 | 0 |
+| middlegame | 94.6% | 91.3% | 92.9% | 99.98% | 1.02 | 0 |
+
+Between 4% and 16% of the calls to `quiesce()` are in check, and 0.2%
+to 12% are in check at the evasion limit, where `hasLegalMove()` runs
+as well. No node returned a draw score.
+
+#### Depth 8
+
+`--search-report 8`, one run of each build. The depth-7 times are from
+the same runs.
+
+| Position | Move | Score | Nodes | Quiescence nodes | Baseline | Without the test | Ceiling | Depth 7 | Without the test | Ceiling |
+|---|---|---|---|---|---|---|---|---|---|---|
+| starting | e2 e4 | 0 | 3,801,392 | 1,575,160 | 3.97s | 1.36s | 66% | 0.79s | 0.25s | 69% |
+| kiwipete | d5xe6 | 48 | 8,144,988 | 4,967,098 | 15.43s | 3.77s | 76% | 3.19s | 0.73s | 77% |
+| italian | d1 e2 | -54 | 40,692,807 | 27,356,519 | 62.42s | 22.97s | 63% | 2.72s | 0.88s | 68% |
+| position3 | b4xf4 | 81 | 261,172 | 94,521 | 0.17s | 0.08s | 51% | 0.07s | 0.03s | 52% |
+| position4 | c4 c5 | -928 | 2,620,947 | 1,732,595 | 4.20s | 1.31s | 69% | 1.51s | 0.45s | 70% |
+| middlegame | f3 g5 | 48 | 309,896,444 | 249,231,094 | 544.51s | 158.68s | 71% | 23.56s | 6.09s | 74% |
+
+The six depth-8 searches together take 630.7s, and 188.2s without the
+test. Session #7 of [quiescence-search.md](quiescence-search.md) timed
+the middlegame at 186.5s before the test was added.
+
+Per quiescence node not in check:
+
+| Position | Nodes | Stalemate | Moves generated | Legality tests | First move legal | Stand-pat cutoff |
+|---|---|---|---|---|---|---|
+| starting | 3,096,343 | 0 | 28.9 | 1.002 | 99.9% | 49% |
+| kiwipete | 6,640,917 | 0 | 44.7 | 1.010 | 99.3% | 81% |
+| italian | 32,070,458 | 0 | 36.6 | 1.008 | 99.5% | 56% |
+| position3 | 183,425 | 0 | 17.8 | 1.063 | 94.8% | 56% |
+| position4 | 2,135,416 | 0 | 38.2 | 1.013 | 99.0% | 67% |
+| middlegame | 249,517,610 | 0 | 41.1 | 1.001 | 99.9% | 52% |
+
+| Position | Legal capture exists: cutoff nodes | Other nodes | All | Option 3 answers | Pieces it examines | Wrong answers |
+|---|---|---|---|---|---|---|
+| starting | 72.5% | 64.3% | 68.3% | 100.00% | 1.22 | 0 |
+| kiwipete | 99.8% | 97.3% | 99.3% | 99.92% | 1.21 | 0 |
+| italian | 94.9% | 87.4% | 91.6% | 100.00% | 1.07 | 0 |
+| position3 | 46.4% | 57.2% | 51.1% | 91.93% | 0.95 | 0 |
+| position4 | 98.8% | 96.3% | 98.0% | 99.92% | 1.26 | 0 |
+| middlegame | 96.9% | 93.3% | 95.2% | 99.97% | 1.03 | 0 |
+
+The counting probe does more work per node, and its middlegame search
+reached the report's 600-second limit at depth 8 with 296.3M of the
+309.9M nodes visited. The middlegame counts are from those nodes.
+Every other search of the probe matched the baseline.
+
+Between 5% and 15% of the calls to `quiesce()` are in check, and 0.1%
+to 10% are in check at the evasion limit. Five nodes returned a draw
+score.
+
+#### What the measurements say
+
+- The test is 50 to 76% of the search time, and about 70% where the
+  time is longest. It cost more than the quiescence search it was added
+  to.
+- The cost is the generation and the sort. The legality loop runs 1.00
+  to 1.08 times per call.
+- No node was a stalemate, out of 293.6 million at depth 8. These
+  positions do not exercise the case the test exists for, so
+  correctness rests on the unit tests, not on the report.
+- Option 3 answers at least 99.86% of the nodes in five positions and
+  92% in position 3, where the pieces are few and often on a line with
+  the king. It looks at about one piece per node. Its answer was never
+  wrong.
+- Option 5 covers less. A legal capture exists at 91 to 99% of the
+  nodes in four positions, but at 53 to 68% in the starting position
+  and 51 to 54% in position 3. About half the nodes cut off on
+  stand-pat and generate no captures today, so option 5 adds a capture
+  generation there.
+- Options 1, 2 and 9 were not measured apart. How the cost divides
+  between generation and sort is not known.
+- The call at the evasion limit is up to 12% of the calls to
+  `quiesce()`. The ceiling build kept it, so the ceiling leaves it out.
+  That node is in check, where option 3 does not apply and option 2
+  tries the king first.
 
 ## Plan
 
@@ -306,3 +443,18 @@ Before choosing:
   `search.cpp`, `generate.cpp`, `evaluate.cpp` and `threats.hpp`. The
   options were read from `main`; the line numbers in the suggestions
   are still those of `131bb67`.
+
+### Session #3
+
+- Took the baseline of step 2 of the plan, and the counts for item 3,
+  from `main` at `6e2ef7f`. No code in the repository changed: the
+  three builds came from copies of the source in a scratch directory.
+- The stalemate test in quiescence is about 70% of the search time.
+  The tables are under "Measurements".
+- `perf` was not usable (`perf_event_paranoid` is 4), so the share of
+  time comes from a build without the call, not from a profile.
+- The report's 600-second limit is close: the baseline's middlegame
+  search at depth 8 took 544.5s, and the counting probe's reached the
+  limit.
+- Not measured: the options themselves, other than option 3's
+  answers, and any position where a stalemate occurs.
