@@ -177,7 +177,7 @@ auto formatCompact (const std::vector<LintResult>& results) -> std::string
         {
             output << result.filename.string() << ':' << violation.line << ':'
                    << violation.column << ": "
-                   << (violation.severity == Severity::Error ? "error" : "warning" ) << ": "
+                   << (violation.severity == Severity::Error ? "error" : "warning") << ": "
                    << violation.message << " [" << violation.rule << "]\n";
         }
     }
@@ -237,7 +237,7 @@ auto formatStylish (const std::vector<LintResult>& results) -> std::string
         output << '\n' << "  ";
         if (total_errors > 0)
         {
-            output << total_errors << " error" << (total_errors == 1 ? "" : "s" );
+            output << total_errors << " error" << (total_errors == 1 ? "" : "s");
             if (total_warnings > 0)
             {
                 output << ", ";
@@ -245,7 +245,7 @@ auto formatStylish (const std::vector<LintResult>& results) -> std::string
         }
         if (total_warnings > 0)
         {
-            output << total_warnings << " warning" << (total_warnings == 1 ? "" : "s" );
+            output << total_warnings << " warning" << (total_warnings == 1 ? "" : "s");
         }
         output << '\n';
     }
@@ -286,7 +286,7 @@ auto formatJson (const std::vector<LintResult>& results) -> std::string
             output << "        \"line\": " << violation.line << ",\n";
             output << "        \"column\": " << violation.column << ",\n";
             output << "        \"severity\": \""
-                   << (violation.severity == Severity::Error ? "error" : "warning" )
+                   << (violation.severity == Severity::Error ? "error" : "warning")
                    << "\"\n";
             output << "      }";
         }
@@ -317,19 +317,19 @@ auto formatResults (const std::vector<LintResult>& results, OutputFormat format)
 
 auto parseOutputFormat (std::string_view format_str) -> std::optional<OutputFormat>
 {
-    if (format_str == "simple" )
+    if (format_str == "simple")
     {
         return OutputFormat::Simple;
     }
-    if (format_str == "compact" )
+    if (format_str == "compact")
     {
         return OutputFormat::Compact;
     }
-    if (format_str == "json" )
+    if (format_str == "json")
     {
         return OutputFormat::Json;
     }
-    if (format_str == "stylish" )
+    if (format_str == "stylish")
     {
         return OutputFormat::Stylish;
     }
