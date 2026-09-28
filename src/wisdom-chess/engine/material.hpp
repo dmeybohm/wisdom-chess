@@ -21,13 +21,13 @@ namespace wisdom
             // clang-format off
             switch (piece)
             {
-                case Piece::None: return WeightNone;
-                case Piece::King: return WeightKing;
-                case Piece::Queen: return WeightQueen;
-                case Piece::Rook: return WeightRook;
-                case Piece::Bishop: return WeightBishop;
-                case Piece::Knight: return WeightKnight;
-                case Piece::Pawn: return WeightPawn;
+                case Piece::None: return Weight_None;
+                case Piece::King: return Weight_King;
+                case Piece::Queen: return Weight_Queen;
+                case Piece::Rook: return Weight_Rook;
+                case Piece::Bishop: return Weight_Bishop;
+                case Piece::Knight: return Weight_Knight;
+                case Piece::Pawn: return Weight_Pawn;
             }
             // clang-format on
 
@@ -114,8 +114,8 @@ namespace wisdom
             // clang-format on
 
             // clang-format off
-            if (individualScore (Color::White) > scaledScore (WeightKing + 2 * WeightBishop) ||
-                individualScore (Color::Black) > scaledScore (WeightKing + 2 * WeightBishop))
+            if (individualScore (Color::White) > scaledScore (Weight_King + 2 * Weight_Bishop) ||
+                individualScore (Color::Black) > scaledScore (Weight_King + 2 * Weight_Bishop))
             {
                 return CheckmateIsPossible::Yes;
             }

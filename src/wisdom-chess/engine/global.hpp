@@ -59,16 +59,13 @@ namespace wisdom
 
     namespace chrono = std::chrono;
 
-    enum MaterialWeight
-    {
-        WeightNone = 0,
-        WeightKing = 1500,
-        WeightQueen = 1000,
-        WeightRook = 500,
-        WeightBishop = 320,
-        WeightKnight = 305,
-        WeightPawn = 100,
-    };
+    inline constexpr int Weight_None = 0;
+    inline constexpr int Weight_King = 1500;
+    inline constexpr int Weight_Queen = 1000;
+    inline constexpr int Weight_Rook = 500;
+    inline constexpr int Weight_Bishop = 320;
+    inline constexpr int Weight_Knight = 305;
+    inline constexpr int Weight_Pawn = 100;
 
     inline constexpr int Num_Players = 2;
 
@@ -117,7 +114,7 @@ namespace wisdom
     // Checkmates are scored above this, depending on how far
     // away from the current position they are.
     inline constexpr int Max_Non_Checkmate_Score
-        = Num_Squares * WeightQueen *
+        = Num_Squares * Weight_Queen *
         std::max (Material_Score_Scale, Position_Score_Scale);
     static_assert (Max_Non_Checkmate_Score > 100'000);
     static_assert (Max_Non_Checkmate_Score * 2 < Initial_Alpha);
