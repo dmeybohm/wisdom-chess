@@ -123,3 +123,6 @@ such as a `main()` or a test that only uses `wisdom::ui::qml`, keeps
 
 - A function that only its own source file uses goes in an unnamed
   namespace, not `static`. So does a variable beside it.
+- No `using namespace std;`. `using namespace wisdom;`, or one of its
+  nested namespaces, is for a test and for a frontend source whose code
+  sits outside the namespace; the engine's sources have none.
