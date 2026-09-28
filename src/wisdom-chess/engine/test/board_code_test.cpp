@@ -308,7 +308,7 @@ TEST_CASE( "Board code can be converted" )
 {
     SUBCASE( "to a string" )
     {
-        std::stringstream stream;
+        std::ostringstream stream;
         BoardCode code = BoardCode::fromEmptyBoard();
 
         code.addPiece(
@@ -325,7 +325,7 @@ TEST_CASE( "Board code can be converted" )
 
     SUBCASE( "to an ostream" )
     {
-        std::stringstream stream;
+        std::ostringstream stream;
         BoardCode code = BoardCode::fromEmptyBoard();
 
         code.addPiece(

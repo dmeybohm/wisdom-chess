@@ -381,7 +381,7 @@ namespace wisdom
         auto seconds = seconds_duration.count();
         auto rate = nodes / std::max (0.000000001, seconds);
 
-        std::stringstream progress_str;
+        std::ostringstream progress_str;
         progress_str << "search took " << seconds << "s, " << rate << " nodes/sec";
         output.info (std::move (progress_str).str());
     }
@@ -470,7 +470,7 @@ namespace wisdom
     IterativeSearchImpl::iterate (Color side, int depth)
         -> SearchResult
     {
-        std::stringstream outstr;
+        std::ostringstream outstr;
         outstr << "finding moves for " << asString (side);
         my_output->debug (std::move (outstr).str());
 
@@ -500,7 +500,7 @@ namespace wisdom
         my_total_quiescence_nodes_visited += my_quiescence_nodes_visited;
 
         {
-            std::stringstream progress_str;
+            std::ostringstream progress_str;
             progress_str << "nodes visited = " << my_nodes_visited
                          << ", quiescence nodes = " << my_quiescence_nodes_visited
                          << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs << "\n";
@@ -519,7 +519,7 @@ namespace wisdom
 
         if (result.timed_out)
         {
-            std::stringstream progress_str;
+            std::ostringstream progress_str;
             progress_str << "Search timed out"
                          << "\n";
             my_output->info (std::move (progress_str).str());
@@ -527,7 +527,7 @@ namespace wisdom
         else if (result.move.has_value())
         {
             Move best_move = *result.move;
-            std::stringstream progress_str;
+            std::ostringstream progress_str;
             progress_str << "move selected = " << asString (best_move)
                          << " [ score: " << result.score << " ]\n";
             my_output->info (std::move (progress_str).str());
