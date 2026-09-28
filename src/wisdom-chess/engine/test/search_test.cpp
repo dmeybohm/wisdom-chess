@@ -562,7 +562,7 @@ TEST_CASE( "An error during the search is rethrown with the board" )
     catch (const SearchError& e)
     {
         CHECK( e.message() == "boom" );
-        CHECK( e.extra_info() == "extra detail\n" + board.asString() );
+        CHECK( e.extraInfo() == "extra detail\n" + board.asString() );
     }
 }
 

@@ -438,7 +438,7 @@ namespace wisdom
         {
             throw SearchError {
                 e.message(),
-                e.extra_info() + "\n" + my_original_board.asString()
+                e.extraInfo() + "\n" + my_original_board.asString()
             };
         }
     }

@@ -257,7 +257,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        extra_info() const noexcept
+        extraInfo() const noexcept
             -> const string&
         {
             return my_text->extra_info;

@@ -381,8 +381,8 @@ namespace wisdom
             catch (const Error& e)
             {
                 auto result = "Uncaught error: " + e.message();
-                if (!e.extra_info().empty())
-                    result += "\n" + e.extra_info();
+                if (!e.extraInfo().empty())
+                    result += "\n" + e.extraInfo();
                 return result;
             }
             catch (const std::exception& e)
