@@ -1,3 +1,6 @@
+#include <bitset>
+#include <unordered_set>
+
 #include "wisdom-chess/engine/transposition_table.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
@@ -6,9 +9,6 @@
 #include "wisdom-chess/engine/global.hpp"
 
 #include "wisdom-chess-tests.hpp"
-
-#include <bitset>
-#include <unordered_set>
 
 using namespace wisdom;
 

@@ -1,17 +1,17 @@
 #pragma once
 
-#include "wisdom-chess/engine/global.hpp"
-#include "wisdom-chess/engine/game.hpp"
-#include "wisdom-chess/engine/move.hpp"
-#include "wisdom-chess/engine/move_timer.hpp"
-#include "wisdom-chess/engine/transposition_table.hpp"
-
 #include <atomic>
 #include <iostream>
 #include <mutex>
 #include <sstream>
 #include <thread>
 #include <vector>
+
+#include "wisdom-chess/engine/global.hpp"
+#include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/engine/move.hpp"
+#include "wisdom-chess/engine/move_timer.hpp"
+#include "wisdom-chess/engine/transposition_table.hpp"
 
 namespace wisdom
 {

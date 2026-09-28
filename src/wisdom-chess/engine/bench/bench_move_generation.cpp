@@ -4,7 +4,7 @@
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 
-#include "bench_positions.hpp"
+#include "wisdom-chess/engine/bench/bench_positions.hpp"
 
 namespace wisdom::bench
 {

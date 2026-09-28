@@ -1,3 +1,8 @@
+#include <algorithm>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
+
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
@@ -7,11 +12,6 @@
 #include "wisdom-chess/engine/transposition_table.hpp"
 
 #include "wisdom-chess-tests.hpp"
-
-#include <algorithm>
-#include <chrono>
-#include <filesystem>
-#include <fstream>
 
 using namespace wisdom;
 

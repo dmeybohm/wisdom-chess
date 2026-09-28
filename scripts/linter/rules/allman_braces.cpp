@@ -1,7 +1,7 @@
-#include "../linter.hpp"
-
 #include <unordered_map>
 #include <unordered_set>
+
+#include "../linter.hpp"
 
 namespace wisdom_linter
 {

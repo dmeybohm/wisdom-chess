@@ -126,3 +126,8 @@ such as a `main()` or a test that only uses `wisdom::ui::qml`, keeps
 - No `using namespace std;`. `using namespace wisdom;`, or one of its
   nested namespaces, is for a test and for a frontend source whose code
   sits outside the namespace; the engine's sources have none.
+- Includes go in groups with a blank line between: the standard library
+  and other `<...>` headers first, then the project's headers. A project
+  header is named by its full path, `"wisdom-chess/engine/board.hpp"`. A
+  test includes the helpers of its own directory by bare name
+  (`"wisdom-chess-tests.hpp"`), as the linter does throughout.

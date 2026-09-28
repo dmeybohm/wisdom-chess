@@ -14,7 +14,7 @@
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 
-#include "bench_positions.hpp"
+#include "wisdom-chess/engine/bench/bench_positions.hpp"
 
 namespace wisdom::bench
 {

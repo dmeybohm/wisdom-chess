@@ -1,14 +1,14 @@
-#include "uci_interface.hpp"
+#include <algorithm>
+#include <chrono>
+#include <random>
+
+#include "wisdom-chess/ui/uci/uci_interface.hpp"
 #include "wisdom-chess/engine/logger.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/generate.hpp"
-
-#include <algorithm>
-#include <chrono>
-#include <random>
 
 namespace wisdom
 {

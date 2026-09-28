@@ -1,5 +1,6 @@
-#include "wisdom-chess/engine/castling.hpp"
 #include <sstream>
+
+#include "wisdom-chess/engine/castling.hpp"
 
 #include "wisdom-chess-tests.hpp"
 

@@ -1,10 +1,10 @@
-#include "lexer.hpp"
-#include "linter.hpp"
-
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+
+#include "lexer.hpp"
+#include "linter.hpp"
 
 using namespace wisdom_linter;
 

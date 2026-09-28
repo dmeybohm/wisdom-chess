@@ -1,11 +1,11 @@
-#include "linter.hpp"
-
 #include <algorithm>
 #include <cctype>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
+
+#include "linter.hpp"
 
 namespace wisdom_linter
 {

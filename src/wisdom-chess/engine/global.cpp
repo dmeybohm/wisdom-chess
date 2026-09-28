@@ -1,8 +1,8 @@
-#include "wisdom-chess/engine/global.hpp"
-#include "wisdom-chess/engine/logger.hpp"
-
 #include <cstdlib>
 #include <iostream>
+
+#include "wisdom-chess/engine/global.hpp"
+#include "wisdom-chess/engine/logger.hpp"
 
 namespace wisdom
 {

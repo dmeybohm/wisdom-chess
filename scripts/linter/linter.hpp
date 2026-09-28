@@ -1,7 +1,5 @@
 #pragma once
 
-#include "lexer.hpp"
-
 #include <cstdint>
 #include <filesystem>
 #include <memory>
@@ -11,6 +9,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#include "lexer.hpp"
 
 namespace wisdom_linter
 {

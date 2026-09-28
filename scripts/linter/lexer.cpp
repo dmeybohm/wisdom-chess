@@ -1,7 +1,7 @@
-#include "lexer.hpp"
-
 #include <array>
 #include <cctype>
+
+#include "lexer.hpp"
 
 namespace wisdom_linter
 {
