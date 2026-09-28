@@ -18,7 +18,8 @@ are from commit `131bb67` and exclude the linter's test fixtures in
 
 `[x]` marks an item that is fixed and `[ ]` one that is pending. The
 items under A were fixed in Session #1, items 14, 20 and 21 in Session
-#2, item 29 in Session #3, and items 15 and 30 in Session #5.
+#2, item 29 in Session #3, items 15 and 30 in Session #5, and the rest
+in Session #6.
 
 ### A. One obvious direction
 
@@ -106,15 +107,15 @@ direction is a choice rather than a correction.
     put it on the line of the closing parenthesis (`) {`), most in
     `ui/qml/main/game_model.cpp` (8) and `engine/move.cpp` (5); 7 put it
     on its own line.
-16. [ ] **Space after a lambda's capture list.** `[] (` 48 times, `[](` 12.
-17. [ ] **Names of lambdas.** About 20 are camelCase, like functions
+16. [x] **Space after a lambda's capture list.** `[] (` 48 times, `[](` 12.
+17. [x] **Names of lambdas.** About 20 are camelCase, like functions
     (`hasRookAt`, `boardFromFen`), and about 16 are `snake_case`, like
     variables (`shuffle_back_to_start`, `periodic_func`). Most of both
     are in tests.
-18. [ ] **`std::chrono::` or `chrono::`.** `global.hpp` aliases the
+18. [x] **`std::chrono::` or `chrono::`.** `global.hpp` aliases the
     namespace. The engine uses the long form 24 times and the short form
     18, and `engine/game.cpp`, `game.hpp` and `search.cpp` use both.
-19. [ ] **`std::stringstream` for output only.** Seven uses, against one
+19. [x] **`std::stringstream` for output only.** Seven uses, against one
     `std::ostringstream`, which is what all eight need.
 20. [x] **Private members without `my_`.** `FenParser` (`builder`,
     `active_player`, `engine/fen_parser.hpp:32-33`), `IterativeSearch`
@@ -125,14 +126,14 @@ direction is a choice rather than a correction.
 21. [x] **`ParseMoveException`** (`engine/move.hpp:34`) is the one exception
     class not named `...Error`; there are seven of those. Renaming it
     reaches every frontend that catches it.
-22. [ ] **`Error::extra_info()`** (`engine/global.hpp:256`) is the one
+22. [x] **`Error::extra_info()`** (`engine/global.hpp:256`) is the one
     `snake_case` member function.
-23. [ ] **Getters with and without `get`.** `Game::getBoard()`,
+23. [x] **Getters with and without `get`.** `Game::getBoard()`,
     `Board::getKingPosition()` against `IterativeSearch::moveTimer()`,
     `ColoredPiece::color()`, `Coord::row()`. Names taken from the
     standard containers (`size()`, `begin()`) are a separate case and
     should stay.
-24. [ ] **Constants and enumerators in other forms.** `Combined_NormalCapture`
+24. [x] **Constants and enumerators in other forms.** `Combined_NormalCapture`
     and the five beside it (`engine/move.hpp:56-61`) join words without
     an underscore. The unscoped `enum MaterialWeight`
     (`engine/global.hpp:62`) has enumerators like `WeightKing`. Other
@@ -140,19 +141,19 @@ direction is a choice rather than a correction.
     (`engine/board_code.hpp:70`), `PlayStatus`
     (`ui/wasm/bindings.cpp:21`). `Roles` in `pieces_model.hpp:54` is the
     usual Qt form and should stay.
-25. [ ] **File-local functions.** Thirteen source files use `static`; five
+25. [x] **File-local functions.** Thirteen source files use `static`; five
     use an unnamed namespace (`engine/global.cpp`, `engine/logger.cpp`,
     `ui/uci/uci_interface.cpp`, `ui/qml/main/pieces_model.cpp`,
     `qml_singletons.cpp`), as does the linter.
-26. [ ] **`using namespace` at file scope.** Seven frontend files, including
+26. [x] **`using namespace` at file scope.** Seven frontend files, including
     `using namespace std;` in `ui/qml/main/pieces_model.cpp:9`. The
     engine has none.
-27. [ ] **Order of includes.** 33 source files include the standard headers
+27. [x] **Order of includes.** 33 source files include the standard headers
     first and 17 the project's first. The UCI frontend and the
     benchmarks include their own headers by bare name
     (`"uci_interface.hpp"`, `"bench_positions.hpp"`); everything else
     uses the full `wisdom-chess/...` path.
-28. [ ] **Settings field names.** See the exception under item 6. Renaming
+28. [x] **Settings field names.** See the exception under item 6. Renaming
     them changes the WebIDL file and the generated TypeScript types.
 29. [x] **The React sources have no formatter or linter.** `package.json`
     has neither ESLint nor Prettier. Of the import lines, 44 end in a
@@ -196,12 +197,11 @@ direction is a choice rather than a correction.
 2. [x] Fix the items under A, one commit per item, in the order listed.
    Build and run the fast tests and the lint target after each commit
    that touches code rather than whitespace.
-3. [ ] For item 1, consider a `no-trailing-whitespace` linter rule so it
-   stays fixed. It would be added after `linter-lexer` lands, on its own
-   branch.
-4. [ ] Items under B wait for a decision on each. Once decided, the
-   convention goes into `docs/coding-style.md` next to the fix. Decided so far:
-   14, 15, 20, 21, 29 and 30.
+3. [x] For item 1, a `no-trailing-whitespace` linter rule so it stays
+   fixed. Written in Session #6, on this branch after all.
+4. [x] Items under B wait for a decision on each. Once decided, the
+   convention goes into `docs/coding-style.md` next to the fix. All are
+   decided as of Session #6.
 5. [x] For item 30, the `allman-braces` linter rule. Written and made an
    error in Session #5.
 6. [x] At the end: full Release build, all tests, a Debug build of the fast
@@ -427,3 +427,83 @@ Item 29: the React frontend is formatted with Prettier.
     square brackets into an attribute, a capture list, or a subscript
     (an array bound, `operator[]`, `a[i]`), and only the first two open
     a block.
+
+### Session #6
+
+- Fast-forwarded to `main` after #300 landed, then took a decision on
+  each item still open. Every convention below is in
+  `docs/coding-style.md`. One commit per item.
+- **Item 16.** `[] (x)`, as a call is spaced: 11 lambdas gained the
+  space. Before empty parentheses there is none, which three lambdas
+  already had and `uci_interface.cpp` now has.
+- **Item 17.** Lambdas are named in `snake_case`, as variables. Nine
+  names changed in 12 places, all but `has_rook_at` in tests.
+- **Item 18.** `chrono::`, the rule of item 9. 36 lines changed in 11
+  files. `ui/qml/test/chess_game_test.cpp` keeps `std::chrono::`: it
+  uses only `wisdom::ui::qml`, where the alias is not visible.
+- **Item 19.** The seven streams that are only written are
+  `std::ostringstream`. Those in `fen_parser.cpp` and `str.cpp` are
+  read, and stay.
+- **Item 22.** `Error::extraInfo()`. The constructor's parameter and
+  the field behind it stay `extra_info`.
+- **Item 24.** Three of the four parts:
+  - The constants are `Combined_Normal_Capture`, `Combined_En_Passant`,
+    `Combined_Promote_Base` and `Combined_Promote_Capture_Base`.
+  - `MaterialWeight` became constants, `Weight_King` and the rest.
+    Nothing used the enum as a type, only its values in arithmetic.
+  - `PlayStatus` is an `enum class`, held in a
+    `std::atomic<PlayStatus>`.
+  - `LogLevel` and `MetadataBits` stay unscoped, by decision.
+- **Item 25.** File-local functions go in an unnamed namespace. 40
+  functions in 18 files were `static`; each run of them is wrapped where
+  it stood, so nothing moved within its file. Four variables beside them
+  went in too (`game.cpp`, `generate.cpp`, `evaluate.cpp`). Ignoring
+  whitespace, the change is the wrappers and the removed keyword.
+  Left alone: `static constexpr` constants standing by themselves
+  (`board.cpp:12`, `search.cpp:17`), which are not functions.
+- **Item 26.** `using namespace std;` is gone from `pieces_model.cpp`.
+  `using namespace wisdom;` stays in the tests and the frontends.
+- **Item 27.** Standard headers first: 17 files reordered, nine of them
+  the linter's. The UCI frontend and the benchmarks name their headers
+  by full path. Tests keep the bare names of their own helpers, the
+  linter has no other kind, and `webidl_glue_wrapper.cpp` includes a
+  generated file from the build directory.
+- **Item 28.** The settings fields keep the names the WebIDL file and
+  QML use; the style page records the exception.
+- **Item 23.** The style page describes what the code does: `getX()` in
+  the engine's classes, no prefix in value types, Qt classes and the
+  shared view model, the WebIDL names in classes bound to JavaScript.
+  Against that, renamed:
+  - `Game::status()` to `getStatus()`.
+  - `IterativeSearch::moveTimer()` to `getMoveTimer()`.
+  - `LogRingBuffer`: `getEntries()`, `getSizeBytes()`,
+    `getCapacityBytes()` and the private `getTailOffset()`. `count()`
+    and `empty()` stay.
+
+  `GameViewModelBase::getGame()` stays. It is the protected hook every
+  frontend overrides, not a getter of displayed state; `game()` would
+  also make `auto game = getGame();` ill-formed in nine places and
+  collide with `TestViewModel::game()`.
+- **Plan step 3.** The `no-trailing-whitespace` rule
+  (`scripts/linter/rules/no_trailing_whitespace.cpp`), an error from the
+  start since the tree has none.
+  - A line that ends inside a raw string is exempt: the whitespace is
+    part of the string.
+  - The carriage return of a CRLF line ending is not counted, or every
+    line of a Windows checkout would be reported.
+  - `.gitattributes` is new and keeps the CRLF fixture from being
+    converted; `.editorconfig` stops trimming in the linter's fixtures.
+- Verified on Linux with GCC and Qt 6.11.2:
+  - Release with the QML UI, benchmarks and tools: no warnings, all 269
+    tests pass (235 fast, 34 slow).
+  - Debug, without QML: the 227 fast tests pass.
+  - The `lint` and `all_qmllint` targets pass, and the linter's suite
+    (54 fixtures).
+  - The WASM target `wisdom-chess-web` builds.
+  - Not run: the React tests, since no TypeScript changed, and the
+    benchmarks.
+- Seen on the way and left alone, as outside the items:
+  - `copy_moves()` in `engine/test/move_list_test.cpp` is a function in
+    `snake_case`.
+  - `find ( '\t' )` in the linter's `no_tabs.cpp` has spaces inside the
+    parentheses, which only test macros take.
