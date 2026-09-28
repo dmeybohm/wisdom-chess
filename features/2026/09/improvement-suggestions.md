@@ -63,7 +63,8 @@ number for it, and the first step is to get one.
    time without sorting, was left unmeasured because it could save
    little then. The only figure since is a test-suite time (24.05s
    against 23.71s), which is not a search measurement. Measure with
-   `--search-report` first.
+   `--search-report` first. The candidates are listed under
+   [Item 3](#item-3-options-for-a-cheaper-haslegalmove) below.
 4. **Pruning and reductions.** None of null-move pruning, late-move
    reductions, principal-variation search, aspiration windows or check
    extensions are present, and no feature log has considered them. Each
@@ -152,6 +153,127 @@ number for it, and the first step is to get one.
     (`engine/transposition_table.cpp:157`). A position that hashes to
     zero is counted again on every store. Statistics only.
 
+## Item 3: options for a cheaper `hasLegalMove()`
+
+Read from `main` at `6e2ef7f`. Nothing in this section is measured.
+
+### What a quiescence node not in check does today
+
+1. One `isKingThreatened()` call.
+2. `hasLegalMove()`: `generateAllPotentialMoves()` walks the board,
+   generates every pseudo-legal move and sorts them with
+   `compareMoves()`. Each move is then applied to a copy of the board
+   and tested, until one is legal.
+3. The static evaluation and the stand-pat test.
+4. Without a cutoff, `generateCaptures()` walks the board and sorts a
+   second time.
+
+A side not in check can only make an illegal move with a pinned piece,
+with the king, or by en passant. The first move tried is therefore
+expected to be legal nearly always, which would put the cost in the
+generation and the sort, not in the legality loop.
+
+### Two questions
+
+- *Is this move legal?* Asked of every move the search plays. No option
+  below removes a legality test from the loop in `quiesce()`.
+- *Does the side have any legal move?* The stalemate test. One legal
+  move answers it, so this is the only test that may stop early.
+
+The stalemate test is needed at every node not in check, not only at
+the first one below the horizon: a capture further down can leave the
+opponent stalemated.
+
+### Options
+
+| # | Option | Size | Search results |
+|---|---|---|---|
+| 1 | Skip the sort | Tiny | Identical |
+| 2 | One piece at a time, unsorted | About 15 lines | Identical |
+| 3 | Alignment fast path, then option 2 | 20 to 30 lines | Identical |
+| 4 | Pin detection from the king | Larger | Identical |
+| 5 | The capture loop as the proof | Moderate, in `quiesce()` | Identical |
+| 6 | Generate once per node | Moderate | Identical |
+| 7 | Test only when the window needs it | Small, subtle | Node counts change |
+| 8 | Probe the table in quiescence | Item 5 | Change |
+| 9 | A callback in place of the list | Moderate, in the generator | Identical if captures stay sorted |
+
+1. **Skip the sort.** An unsorted entry point into the generator for
+   `hasLegalMove()`. Still generates about 35 moves.
+2. **One piece at a time.** Option 2 of
+   [faster-legal-move-test.md](faster-legal-move-test.md):
+   `MoveGeneration::generate (piece, coord)` for one piece, test its
+   moves, return at the first legal one. Other pieces before the king
+   when not in check, the king first when in check.
+3. **Alignment fast path.** When not in check, a piece other than the
+   king that shares no row, column or diagonal with its own king cannot
+   be pinned, so any pseudo-legal move it has is legal. No board copy
+   and no threat test. En passant is excluded, because it takes a second
+   pawn off another square. Falls back to option 2 when no such piece
+   has a move. This is a sound form of the material gate that Session #5
+   of [review-fixes.md](review-fixes.md) removed.
+4. **Pin detection.** Walk the eight rays from the king once and collect
+   the pinned pieces. Exact in more positions than option 3, but new
+   code: `InlineThreats` only returns a `bool`.
+5. **The capture loop as the proof.** The first capture that passes its
+   legality test in `quiesce()` shows the node is not stalemate. Two
+   cases still need a test of their own: a node with no legal capture,
+   where the quiet moves have to be tried, and a stand-pat cutoff, which
+   returns before the loop runs.
+6. **Generate once per node.** Captures sort first, so one list serves
+   the stalemate test and the capture loop. It does not help a node that
+   cuts off on stand-pat, and it overlaps with item 6.
+7. **Test only when the window needs it.** Stalemate changes the result
+   from the static score to 0, which matters only when the window tells
+   the two apart. The returned values would need clamping to stay valid
+   bounds for the parent's table entry. Ranked low.
+8. **Probe the table in quiescence.** A hit skips the node. Not a fix
+   for this call.
+9. **A callback in place of the list.** `appendMove()` hands each move
+   to a callback. Captures are tested for legality as they are
+   generated, quiet moves are stored, and the stored moves are tested
+   only when no capture was legal. It is option 2 at the granularity of
+   one move instead of one piece, in the shape of options 5 and 6: one
+   walk of the board, captures first, quiet moves as the fallback.
+   To settle:
+   - Stopping early means each generator function (`slide()`, `pawn()`
+     and the rest) passes a stop signal up. Option 2 leaves them alone.
+   - For the stalemate test alone a quiet move proves as much as a
+     capture, so storing the quiet moves gains nothing over testing each
+     move as it is generated. Storing them pays when the capture tests
+     are the search's own, as in option 5.
+   - The search wants captures in `compareMoves()` order and a callback
+     sees them in board order. Searching from the callback would change
+     the node counts. Keeping the order means collecting and sorting the
+     captures first, which leaves the single walk of the board as the
+     saving.
+   - The callback is a template parameter, not a `std::function`, so
+     that it inlines.
+   - [faster-legal-move-test.md](faster-legal-move-test.md) rejected a
+     resumable iterator because the generation loops would become a
+     state machine. A callback keeps the loops as they are.
+
+Cheaper legality testing everywhere, without a board copy per move, is
+a redesign of the search loop and not part of this item.
+
+### Recommendation
+
+Option 3 with option 2 as its fallback, unless the measurements say
+otherwise. It removes the cost at nodes that cut off and nodes that do
+not, cannot change a move, score or node count, and stays inside
+`generate.cpp`. Option 5 is the alternative that adds no chess logic.
+Option 9 is worth its larger change if the single walk of the board is
+wanted for item 6 as well.
+
+Before choosing:
+
+- Take the `--search-report` baseline, and count per quiescence node
+  not in check: how often stand-pat cuts off, how often a legal capture
+  exists, how often the first move tried is legal, and how often the
+  node is stalemate.
+- Test any new function against `generateLegalMoves()` at every node of
+  a perft walk, in Debug and Release.
+
 ## Plan
 
 1. Record the suggestions (this document).
@@ -175,3 +297,12 @@ number for it, and the first step is to get one.
 - Measured `sizeof (Board)` = 120, `MoveList` = 512,
   `TranspositionEntry` = 24, `Move` = 2, with a throwaway program
   outside the repository.
+
+### Session #2
+
+- Listed nine options for item 3, with a recommendation and the
+  measurements to take first. No code changed and nothing measured.
+- The branch is 35 commits behind `main`, which has since changed
+  `search.cpp`, `generate.cpp`, `evaluate.cpp` and `threats.hpp`. The
+  options were read from `main`; the line numbers in the suggestions
+  are still those of `131bb67`.
