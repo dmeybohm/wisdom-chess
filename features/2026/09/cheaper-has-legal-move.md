@@ -115,8 +115,8 @@ picking.
   | middlegame | f3 g5 | 48 | 309,896,444 | 554.72s | 146.73s | 3.8x | 158.68s | 24.30s | 5.79s | 4.2x |
 
   The six depth-8 searches together: 644.0s before, 175.6s after.
-- Not measured: play at a time limit, where the saving becomes depth
-  instead of time, and the engine-match script.
+- Not measured here: play at a time limit, where the saving becomes
+  depth instead of time. Session #3 has the engine match.
 
 ### Session #2
 
@@ -141,3 +141,47 @@ picking.
     the few evasions. Testing a move before making it, or generating
     only evasions when in check, is where that cost would go. Not
     measured.
+
+### Session #3
+
+- Played the change against the commit before it, with
+  `./scripts/run-engine-match.sh base=132cd5e new=b39f33f` and the
+  script's defaults. The prototype of Session #2 is in neither engine.
+
+  | | |
+  |---|---|
+  | Engines | base `132cd5e`, new `b39f33f` |
+  | Time control | 8+0.08 |
+  | Games | 500: 250 openings from `8moves_v3.pgn`, each with both colours |
+  | Concurrency | 4, each game pinned to a core |
+  | Move Overhead, hash, depth limit | 30 ms, 16 MB, 64 |
+  | Seed | 1 |
+  | fastchess | `60d7a7a` |
+  | Duration | 45 minutes 42 seconds, on 2026-09-28 |
+
+  | Pairing | Games | W / D / L | Score | Elo | 95% range |
+  |---|---|---|---|---|---|
+  | new vs base | 500 | 209 / 242 / 49 | 66.0% | +115 | +94 to +138 |
+
+- The score was steady through the match: 67.1% after 35 games, 67.3%
+  after 110, 66.2% after 198, 67.8% after 298 and 67.9% after 400.
+- With White the new engine scored 107 / 117 / 26, and the old one
+  23 / 125 / 102.
+- How the games ended:
+
+  | Ending | Games |
+  |---|---|
+  | Threefold repetition | 205 |
+  | White mates | 130 |
+  | Black mates | 128 |
+  | Fifty-move rule | 29 |
+  | Insufficient material | 7 |
+  | Stalemate | 1 |
+
+- Every game ended normally: none was lost on time or to an illegal
+  move, no engine disconnected, and fastchess logged no warning.
+- The results are in
+  `~/.cache/wisdom-chess/match/results/20260928-110628-base-new`.
+- Not measured: other time controls. The engines are the same program
+  apart from this change, so the gain is what the extra speed buys at
+  8+0.08, and may differ at a longer or shorter one.
