@@ -65,6 +65,24 @@ namespace
         for (auto move : generateLegalMoves (board, who))
             checkEnPassantMovesInTree (board.withMove (who, move), depth - 1);
     }
+
+    void
+    checkHasLegalMoveInTree (const Board& board, int depth)
+    {
+        auto who = board.getCurrentTurn();
+        auto legal_moves = generateLegalMoves (board, who);
+        bool in_check = isKingThreatened (board, who, board.getKingPosition (who));
+
+        INFO( board.toFenString (who) );
+        CHECK( hasLegalMove (board) == !legal_moves.isEmpty() );
+        CHECK( hasLegalMove (board, in_check) == !legal_moves.isEmpty() );
+
+        if (depth <= 0)
+            return;
+
+        for (auto move : legal_moves)
+            checkHasLegalMoveInTree (board.withMove (who, move), depth - 1);
+    }
 }
 
 TEST_CASE( "generate default moves" )
@@ -183,6 +201,44 @@ TEST_CASE( "hasLegalMove" )
 
         CHECK( legal_moves.size() == 1 );
         CHECK( hasLegalMove (with_check) );
+        CHECK( hasLegalMove (with_check, true) );
+    }
+
+    SUBCASE( "A pinned piece is the only one that could move" )
+    {
+        auto board = boardFromFen ("8/8/8/8/2q5/2b5/1R6/K1k5 w - - 0 1");
+
+        CHECK( !hasLegalMove (board) );
+        CHECK( !hasLegalMove (board, false) );
+        CHECK( isStalemated (board) );
+    }
+
+    SUBCASE( "A blocked pawn away from the king's lines is no legal move" )
+    {
+        auto board = boardFromFen ("k7/2Q5/8/8/7p/7P/8/6K1 b - - 0 1");
+
+        CHECK( !hasLegalMove (board) );
+        CHECK( !hasLegalMove (board, false) );
+        CHECK( isStalemated (board) );
+    }
+
+    SUBCASE( "A capture by a pawn away from the king's lines is a legal move" )
+    {
+        auto board = boardFromFen ("k7/2Q5/8/8/7p/6NP/8/6K1 b - - 0 1");
+
+        CHECK( generateLegalMoves (board, Color::Black).size() == 1 );
+        CHECK( hasLegalMove (board) );
+        CHECK( hasLegalMove (board, false) );
+    }
+
+    SUBCASE( "An en passant capture that exposes the king is no legal move" )
+    {
+        // Taking the pawn opens the diagonal from h1 to the king.
+        auto board = boardFromFen ("K7/7r/4p3/3pP3/8/8/8/1r4kb w - d6 0 1");
+
+        CHECK( generateLegalMoves (board, Color::White).isEmpty() );
+        CHECK( !hasLegalMove (board) );
+        CHECK( !hasLegalMove (board, false) );
     }
 
     SUBCASE( "Agrees with generateLegalMoves" )
@@ -206,6 +262,25 @@ TEST_CASE( "hasLegalMove" )
             CHECK( hasLegalMove (board)
                    == !generateLegalMoves (board, who).isEmpty() );
         }
+    }
+
+    SUBCASE( "Agrees with generateLegalMoves in every position of a tree" )
+    {
+        czstring fens[] = {
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+            "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",
+            "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
+            "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8",
+            "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 b - - 0 10",
+            // Endgames with a stalemate inside the tree.
+            "8/8/8/8/4k3/8/4p3/4K3 b - - 0 1",
+            "8/8/8/4b3/2q5/8/1R6/K1k5 b - - 0 1",
+            "7k/8/6K1/8/8/8/8/5Q2 w - - 0 1",
+        };
+
+        for (auto fen_text : fens)
+            checkHasLegalMoveInTree (boardFromFen (fen_text), 2);
     }
 }
 
