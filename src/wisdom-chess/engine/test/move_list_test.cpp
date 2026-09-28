@@ -30,7 +30,7 @@ TEST_CASE( "Initializing move list" )
 
 namespace
 {
-    auto copy_moves() -> MoveList
+    auto copyMoves() -> MoveList
     {
         Board board;
         MoveList moves = generateAllPotentialMoves (board, Color::White);
@@ -47,7 +47,7 @@ TEST_CASE( "Converting moves to a string" )
 
 TEST_CASE( "Returning move list moves ptr" )
 {
-    MoveList result = copy_moves();
+    MoveList result = copyMoves();
 //    std::cout << "Moves first" << &result.get_my_moves()[0] << "\n";
 
     REQUIRE( result.size() > 0 );
