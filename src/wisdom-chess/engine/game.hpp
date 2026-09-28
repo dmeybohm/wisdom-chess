@@ -130,7 +130,7 @@ namespace wisdom
 
         void setPeriodicFunction (const PeriodicFunction& periodic_function);
 
-        [[nodiscard]] auto status() const -> GameStatus;
+        [[nodiscard]] auto getStatus() const -> GameStatus;
 
         [[nodiscard]] auto computerWantsDraw (Color who) const -> bool;
 

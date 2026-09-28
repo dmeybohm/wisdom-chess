@@ -109,7 +109,7 @@ namespace wisdom::ui
     {
         auto game = getGame();
 
-        if (game->status() != GameStatus::Playing || game->getCurrentPlayer() != Player::Human)
+        if (game->getStatus() != GameStatus::Playing || game->getCurrentPlayer() != Player::Human)
         {
             return false;
         }
@@ -266,7 +266,7 @@ namespace wisdom::ui
         setInCheck (false);
 
         ViewModelStatusUpdate status_observer { this };
-        status_observer.update (game->status());
+        status_observer.update (game->getStatus());
 
         if (isKingThreatened (board, who, board.getKingPosition (who)))
         {

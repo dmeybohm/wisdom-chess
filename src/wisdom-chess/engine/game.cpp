@@ -156,7 +156,7 @@ namespace wisdom
         output.save (input, my_pimpl->current_board, my_pimpl->history, getCurrentTurn());
     }
 
-    auto Game::status() const -> GameStatus
+    auto Game::getStatus() const -> GameStatus
     {
         if (isCheckmated (my_pimpl->current_board))
             return GameStatus::Checkmate;

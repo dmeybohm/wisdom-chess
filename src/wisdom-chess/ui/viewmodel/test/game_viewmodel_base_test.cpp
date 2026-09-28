@@ -288,7 +288,7 @@ TEST_CASE( "Draw proposals" )
             ProposedDrawType::ThreeFoldRepetition, DrawByRepetitionStatus::Accepted
         );
 
-        CHECK( view_model.game().status() == GameStatus::ThreefoldRepetitionAccepted );
+        CHECK( view_model.game().getStatus() == GameStatus::ThreefoldRepetitionAccepted );
         CHECK( view_model.gameOverStatus() == "<strong>Draw</strong> - Threefold repetition rule." );
     }
 
@@ -302,7 +302,7 @@ TEST_CASE( "Draw proposals" )
             ProposedDrawType::ThreeFoldRepetition, DrawByRepetitionStatus::Declined
         );
 
-        CHECK( view_model.game().status() == GameStatus::Playing );
+        CHECK( view_model.game().getStatus() == GameStatus::Playing );
         CHECK( view_model.gameOverStatus().empty() );
 
         shuffleKnights (&view_model.game(), 2);
@@ -324,12 +324,12 @@ TEST_CASE( "Draw proposals" )
         );
 
         // The engine has yet to answer for itself.
-        CHECK( view_model.game().status() == GameStatus::ThreefoldRepetitionReached );
+        CHECK( view_model.game().getStatus() == GameStatus::ThreefoldRepetitionReached );
 
         view_model.game().setProposedDrawStatus (
             ProposedDrawType::ThreeFoldRepetition, Color::Black, false
         );
-        CHECK( view_model.game().status() == GameStatus::ThreefoldRepetitionAccepted );
+        CHECK( view_model.game().getStatus() == GameStatus::ThreefoldRepetitionAccepted );
     }
 
     SUBCASE( "Fifty moves without progress is proposed and can be accepted" )
@@ -469,7 +469,7 @@ TEST_CASE( "negotiateDraw answers for the engine players" )
         CHECK( answers[1].second == game.computerWantsDraw (Color::Black) );
 
         // Both answers were recorded in the game before the callback ran.
-        CHECK( game.status() != GameStatus::FiftyMovesWithoutProgressReached );
+        CHECK( game.getStatus() != GameStatus::FiftyMovesWithoutProgressReached );
     }
 
     SUBCASE( "Only the engine answers when its opponent is human" )
@@ -480,7 +480,7 @@ TEST_CASE( "negotiateDraw answers for the engine players" )
 
         REQUIRE( answers.size() == 1 );
         CHECK( answers[0].first == Color::White );
-        CHECK( game.status() == GameStatus::FiftyMovesWithoutProgressReached );
+        CHECK( game.getStatus() == GameStatus::FiftyMovesWithoutProgressReached );
     }
 
     SUBCASE( "A human side to move is skipped and the engine opponent answers" )

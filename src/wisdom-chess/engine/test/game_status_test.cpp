@@ -183,7 +183,7 @@ TEST_CASE( "Game::status" )
     {
         auto game = Game::createStandardGame();
 
-        CHECK( game.status() == GameStatus::Playing );
+        CHECK( game.getStatus() == GameStatus::Playing );
     }
 
     SUBCASE( "Checkmate, reached by playing the moves" )
@@ -193,10 +193,10 @@ TEST_CASE( "Game::status" )
         game.move (moveParse ("f2 f3", Color::White));
         game.move (moveParse ("e7 e5", Color::Black));
         game.move (moveParse ("g2 g4", Color::White));
-        CHECK( game.status() == GameStatus::Playing );
+        CHECK( game.getStatus() == GameStatus::Playing );
 
         game.move (moveParse ("d8 h4", Color::Black));
-        CHECK( game.status() == GameStatus::Checkmate );
+        CHECK( game.getStatus() == GameStatus::Checkmate );
     }
 
     SUBCASE( "Checkmate of Black" )
@@ -205,7 +205,7 @@ TEST_CASE( "Game::status" )
             "r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"
         );
 
-        CHECK( game.status() == GameStatus::Checkmate );
+        CHECK( game.getStatus() == GameStatus::Checkmate );
     }
 
     SUBCASE( "Stalemate of the player to move" )
@@ -213,15 +213,15 @@ TEST_CASE( "Game::status" )
         auto black_to_move = Game::createGameFromFen ("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
         auto white_to_move = Game::createGameFromFen ("7K/5q2/6k1/8/8/8/8/8 w - - 0 1");
 
-        CHECK( black_to_move.status() == GameStatus::Stalemate );
-        CHECK( white_to_move.status() == GameStatus::Stalemate );
+        CHECK( black_to_move.getStatus() == GameStatus::Stalemate );
+        CHECK( white_to_move.getStatus() == GameStatus::Stalemate );
     }
 
     SUBCASE( "A check is still playing" )
     {
         auto game = Game::createGameFromFen ("4k3/8/8/8/8/8/4r3/4K3 w - - 0 1");
 
-        CHECK( game.status() == GameStatus::Playing );
+        CHECK( game.getStatus() == GameStatus::Playing );
     }
 
     SUBCASE( "Insufficient material" )
@@ -230,9 +230,9 @@ TEST_CASE( "Game::status" )
         auto lone_knight = Game::createGameFromFen ("4k3/8/8/8/8/8/8/4KN2 w - - 0 1");
         auto lone_pawn = Game::createGameFromFen ("4k3/8/8/8/8/8/4P3/4K3 w - - 0 1");
 
-        CHECK( bare_kings.status() == GameStatus::InsufficientMaterialDraw );
-        CHECK( lone_knight.status() == GameStatus::InsufficientMaterialDraw );
-        CHECK( lone_pawn.status() == GameStatus::Playing );
+        CHECK( bare_kings.getStatus() == GameStatus::InsufficientMaterialDraw );
+        CHECK( lone_knight.getStatus() == GameStatus::InsufficientMaterialDraw );
+        CHECK( lone_pawn.getStatus() == GameStatus::Playing );
     }
 
     SUBCASE( "Threefold repetition" )
@@ -240,10 +240,10 @@ TEST_CASE( "Game::status" )
         auto game = Game::createStandardGame();
 
         shuffleKnights (&game, 1);
-        CHECK( game.status() == GameStatus::Playing );
+        CHECK( game.getStatus() == GameStatus::Playing );
 
         shuffleKnights (&game, 1);
-        CHECK( game.status() == GameStatus::ThreefoldRepetitionReached );
+        CHECK( game.getStatus() == GameStatus::ThreefoldRepetitionReached );
 
         SUBCASE( "Accepted by both players" )
         {
@@ -252,7 +252,7 @@ TEST_CASE( "Game::status" )
                 { DrawStatus::Accepted, DrawStatus::Accepted }
             );
 
-            CHECK( game.status() == GameStatus::ThreefoldRepetitionAccepted );
+            CHECK( game.getStatus() == GameStatus::ThreefoldRepetitionAccepted );
         }
 
         SUBCASE( "One player claiming the draw is enough" )
@@ -262,7 +262,7 @@ TEST_CASE( "Game::status" )
                 { DrawStatus::Declined, DrawStatus::Accepted }
             );
 
-            CHECK( game.status() == GameStatus::ThreefoldRepetitionAccepted );
+            CHECK( game.getStatus() == GameStatus::ThreefoldRepetitionAccepted );
         }
 
         SUBCASE( "Nothing changes until both players have replied" )
@@ -270,12 +270,12 @@ TEST_CASE( "Game::status" )
             game.setProposedDrawStatus (
                 ProposedDrawType::ThreeFoldRepetition, Color::White, true
             );
-            CHECK( game.status() == GameStatus::ThreefoldRepetitionReached );
+            CHECK( game.getStatus() == GameStatus::ThreefoldRepetitionReached );
 
             game.setProposedDrawStatus (
                 ProposedDrawType::ThreeFoldRepetition, Color::Black, false
             );
-            CHECK( game.status() == GameStatus::ThreefoldRepetitionAccepted );
+            CHECK( game.getStatus() == GameStatus::ThreefoldRepetitionAccepted );
         }
 
         SUBCASE( "Declined, play goes on until the fifth repetition" )
@@ -284,23 +284,23 @@ TEST_CASE( "Game::status" )
                 ProposedDrawType::ThreeFoldRepetition,
                 { DrawStatus::Declined, DrawStatus::Declined }
             );
-            CHECK( game.status() == GameStatus::Playing );
+            CHECK( game.getStatus() == GameStatus::Playing );
 
             shuffleKnights (&game, 1);
-            CHECK( game.status() == GameStatus::Playing );
+            CHECK( game.getStatus() == GameStatus::Playing );
 
             shuffleKnights (&game, 1);
-            CHECK( game.status() == GameStatus::FivefoldRepetitionDraw );
+            CHECK( game.getStatus() == GameStatus::FivefoldRepetitionDraw );
         }
     }
 
     SUBCASE( "Fifty moves without progress" )
     {
         auto before = Game::createGameFromFen ("4k3/8/8/8/8/8/8/R3K3 w - - 99 80");
-        CHECK( before.status() == GameStatus::Playing );
+        CHECK( before.getStatus() == GameStatus::Playing );
 
         before.move (moveParse ("a1 a2", Color::White));
-        CHECK( before.status() == GameStatus::FiftyMovesWithoutProgressReached );
+        CHECK( before.getStatus() == GameStatus::FiftyMovesWithoutProgressReached );
 
         SUBCASE( "Accepted by both players" )
         {
@@ -309,7 +309,7 @@ TEST_CASE( "Game::status" )
                 { DrawStatus::Accepted, DrawStatus::Accepted }
             );
 
-            CHECK( before.status() == GameStatus::FiftyMovesWithoutProgressAccepted );
+            CHECK( before.getStatus() == GameStatus::FiftyMovesWithoutProgressAccepted );
         }
 
         SUBCASE( "Declined" )
@@ -319,7 +319,7 @@ TEST_CASE( "Game::status" )
                 { DrawStatus::Declined, DrawStatus::Declined }
             );
 
-            CHECK( before.status() == GameStatus::Playing );
+            CHECK( before.getStatus() == GameStatus::Playing );
         }
     }
 
@@ -330,10 +330,10 @@ TEST_CASE( "Game::status" )
             ProposedDrawType::FiftyMovesWithoutProgress,
             { DrawStatus::Declined, DrawStatus::Declined }
         );
-        CHECK( game.status() == GameStatus::Playing );
+        CHECK( game.getStatus() == GameStatus::Playing );
 
         game.move (moveParse ("a1 a2", Color::White));
-        CHECK( game.status() == GameStatus::SeventyFiveMovesWithoutProgressDraw );
+        CHECK( game.getStatus() == GameStatus::SeventyFiveMovesWithoutProgressDraw );
     }
 
     SUBCASE( "A capture resets the fifty-move count" )
@@ -342,7 +342,7 @@ TEST_CASE( "Game::status" )
 
         game.move (moveParse ("a1xa2", Color::White));
 
-        CHECK( game.status() == GameStatus::Playing );
+        CHECK( game.getStatus() == GameStatus::Playing );
     }
 
     SUBCASE( "Checkmate takes precedence over a draw by the move count" )
@@ -351,7 +351,7 @@ TEST_CASE( "Game::status" )
 
         game.move (moveParse ("a1 a8", Color::White));
 
-        CHECK( game.status() == GameStatus::Checkmate );
+        CHECK( game.getStatus() == GameStatus::Checkmate );
     }
 }
 

@@ -105,7 +105,7 @@ namespace wisdom
         getGameStatus() const
             -> WebGameStatus
         {
-            return mapGameStatus (my_game.status());
+            return mapGameStatus (my_game.getStatus());
         }
 
         [[nodiscard]] auto

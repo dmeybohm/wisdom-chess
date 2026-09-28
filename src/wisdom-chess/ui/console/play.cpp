@@ -267,7 +267,7 @@ namespace wisdom::ui::console
         // Handle draw proposals synchronously before calling updateDisplayedGameState().
         void handleDrawProposals()
         {
-            auto status = my_game.status();
+            auto status = my_game.getStatus();
 
             if (status == GameStatus::ThreefoldRepetitionReached)
             {
