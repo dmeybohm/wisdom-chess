@@ -13,46 +13,49 @@
 
 namespace wisdom::bench
 {
-    // Stripped-down perft: no capture/EP tracking, pure node count for speed.
-    static auto perftCount (const Board& board, Color side, int depth) -> int64_t
+    namespace
     {
-        if (depth == 0)
-            return 1;
-
-        int64_t nodes = 0;
-        auto moves = generateAllPotentialMoves (board, side);
-
-        for (auto move : moves)
+        // Stripped-down perft: no capture/EP tracking, pure node count for speed.
+        auto perftCount (const Board& board, Color side, int depth) -> int64_t
         {
-            Board new_board = board.withMove (side, move);
-            if (!isLegalPositionAfterMove (new_board, side, move))
-                continue;
+            if (depth == 0)
+                return 1;
 
-            nodes += perftCount (new_board, colorInvert (side), depth - 1);
+            int64_t nodes = 0;
+            auto moves = generateAllPotentialMoves (board, side);
+
+            for (auto move : moves)
+            {
+                Board new_board = board.withMove (side, move);
+                if (!isLegalPositionAfterMove (new_board, side, move))
+                    continue;
+
+                nodes += perftCount (new_board, colorInvert (side), depth - 1);
+            }
+
+            return nodes;
         }
 
-        return nodes;
-    }
+        auto boardFromFen (czstring fen) -> Board
+        {
+            FenParser parser { fen };
+            return parser.buildBoard();
+        }
 
-    static auto boardFromFen (czstring fen) -> Board
-    {
-        FenParser parser { fen };
-        return parser.buildBoard();
-    }
+        auto colorFromFen (czstring fen) -> Color
+        {
+            FenParser parser { fen };
+            return parser.getActivePlayer();
+        }
 
-    static auto colorFromFen (czstring fen) -> Color
-    {
-        FenParser parser { fen };
-        return parser.getActivePlayer();
-    }
-
-    static void printNps (czstring label, int64_t nodes, double seconds)
-    {
-        double nps = seconds > 0.0 ? static_cast<double> (nodes) / seconds : 0.0;
-        std::cout << "  " << label << ": "
-                  << nodes << " nodes in "
-                  << std::fixed << std::setprecision (3) << seconds << "s"
-                  << " (" << std::fixed << std::setprecision (0) << nps << " NPS)\n";
+        void printNps (czstring label, int64_t nodes, double seconds)
+        {
+            double nps = seconds > 0.0 ? static_cast<double> (nodes) / seconds : 0.0;
+            std::cout << "  " << label << ": "
+                      << nodes << " nodes in "
+                      << std::fixed << std::setprecision (3) << seconds << "s"
+                      << " (" << std::fixed << std::setprecision (0) << nps << " NPS)\n";
+        }
     }
 
     void runPerftBenchmarks (nonnull<ankerl::nanobench::Bench> bench)

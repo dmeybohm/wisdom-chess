@@ -73,40 +73,43 @@ namespace wisdom
     };
     // clang-format on
 
-    static auto
-    translatePosition (Coord coord, Color who)
-        -> Coord
+    namespace
     {
-        if (who == Color::White)
-            return coord;
-
-        return makeCoord (narrow_cast<int8_t> (Last_Row - coord.row()), coord.column());
-    }
-
-    static auto
-    change (Coord coord, Color who, ColoredPiece piece)
-        -> int
-    {
-        Coord translated_pos = translatePosition (coord, who);
-        int8_t row = translated_pos.row();
-        int8_t col = translated_pos.column();
-
-        switch (pieceType (piece))
+        auto
+        translatePosition (Coord coord, Color who)
+            -> Coord
         {
-            case Piece::Pawn:
-                return pawn_positions[row][col];
-            case Piece::Knight:
-                return knight_positions[row][col];
-            case Piece::Bishop:
-                return bishop_positions[row][col];
-            case Piece::Rook:
-                return rook_positions[row][col];
-            case Piece::Queen:
-                return queen_positions[row][col];
-            case Piece::King:
-                return king_positions[row][col];
-            default:
-                terminateOnPreconditionFailure();
+            if (who == Color::White)
+                return coord;
+
+            return makeCoord (narrow_cast<int8_t> (Last_Row - coord.row()), coord.column());
+        }
+
+        auto
+        change (Coord coord, Color who, ColoredPiece piece)
+            -> int
+        {
+            Coord translated_pos = translatePosition (coord, who);
+            int8_t row = translated_pos.row();
+            int8_t col = translated_pos.column();
+
+            switch (pieceType (piece))
+            {
+                case Piece::Pawn:
+                    return pawn_positions[row][col];
+                case Piece::Knight:
+                    return knight_positions[row][col];
+                case Piece::Bishop:
+                    return bishop_positions[row][col];
+                case Piece::Rook:
+                    return rook_positions[row][col];
+                case Piece::Queen:
+                    return queen_positions[row][col];
+                case Piece::King:
+                    return king_positions[row][col];
+                default:
+                    terminateOnPreconditionFailure();
+            }
         }
     }
 

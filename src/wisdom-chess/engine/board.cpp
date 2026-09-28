@@ -33,35 +33,38 @@ namespace wisdom
         std::cerr << *this;
     }
 
-    static void addDivider (nonnull<string> result)
+    namespace
     {
-        *result += " ";
-
-        for (int col = 0; col < Board_Length_In_Chars; col += 4)
-        {
-            for (int i = 0; i < 3; i++)
-                *result += '-';
-
-            *result += ' ';
-        }
-
-        *result += "\n";
-    }
-
-    static void addCoords (nonnull<string> result)
-    {
-        *result += " ";
-
-        char col_name = 'a';
-        for (int col = 0; col < Num_Columns; col++)
+        void addDivider (nonnull<string> result)
         {
             *result += " ";
-            *result += col_name;
-            *result += "  ";
-            col_name++;
+
+            for (int col = 0; col < Board_Length_In_Chars; col += 4)
+            {
+                for (int i = 0; i < 3; i++)
+                    *result += '-';
+
+                *result += ' ';
+            }
+
+            *result += "\n";
         }
 
-        *result += "\n";
+        void addCoords (nonnull<string> result)
+        {
+            *result += " ";
+
+            char col_name = 'a';
+            for (int col = 0; col < Num_Columns; col++)
+            {
+                *result += " ";
+                *result += col_name;
+                *result += "  ";
+                col_name++;
+            }
+
+            *result += "\n";
+        }
     }
 
     auto Board::asString() const -> string

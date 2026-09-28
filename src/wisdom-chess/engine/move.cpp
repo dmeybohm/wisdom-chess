@@ -334,35 +334,38 @@ namespace wisdom
         updateEnPassantEligibility (who, src_piece, move);
     }
 
-    static auto
-    castleParse (const string& str, Color who)
-        -> optional<Move>
+    namespace
     {
-        int src_row, dst_col;
+        auto
+        castleParse (const string& str, Color who)
+            -> optional<Move>
+        {
+            int src_row, dst_col;
 
-        if (who == Color::White)
-            src_row = Last_Row;
-        else if (who == Color::Black)
-            src_row = First_Row;
-        else
-            throw ParseMoveError { "Invalid color parsing castling move." };
+            if (who == Color::White)
+                src_row = Last_Row;
+            else if (who == Color::Black)
+                src_row = First_Row;
+            else
+                throw ParseMoveError { "Invalid color parsing castling move." };
 
-        string transformed { str };
-        std::transform (
-            transformed.begin(),
-            transformed.end(),
-            transformed.begin(),
-            toUpper
-        );
+            string transformed { str };
+            std::transform (
+                transformed.begin(),
+                transformed.end(),
+                transformed.begin(),
+                toUpper
+            );
 
-        if (transformed == "O-O-O")
-            dst_col = King_Column - 2;
-        else if (transformed == "O-O")
-            dst_col = King_Column + 2;
-        else
-            return nullopt;
+            if (transformed == "O-O-O")
+                dst_col = King_Column - 2;
+            else if (transformed == "O-O")
+                dst_col = King_Column + 2;
+            else
+                return nullopt;
 
-        return Move::makeCastling (src_row, King_Column, src_row, dst_col);
+            return Move::makeCastling (src_row, King_Column, src_row, dst_col);
+        }
     }
 
     auto

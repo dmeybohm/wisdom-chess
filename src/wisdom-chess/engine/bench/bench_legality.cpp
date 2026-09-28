@@ -9,16 +9,19 @@
 
 namespace wisdom::bench
 {
-    static auto boardFromFen (czstring fen) -> Board
+    namespace
     {
-        FenParser parser { fen };
-        return parser.buildBoard();
-    }
+        auto boardFromFen (czstring fen) -> Board
+        {
+            FenParser parser { fen };
+            return parser.buildBoard();
+        }
 
-    static auto colorFromFen (czstring fen) -> Color
-    {
-        FenParser parser { fen };
-        return parser.getActivePlayer();
+        auto colorFromFen (czstring fen) -> Color
+        {
+            FenParser parser { fen };
+            return parser.getActivePlayer();
+        }
     }
 
     void runLegalityBenchmarks (nonnull<ankerl::nanobench::Bench> bench)

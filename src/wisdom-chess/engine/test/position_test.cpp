@@ -171,21 +171,24 @@ TEST_CASE( "Double pawn moves are more appealing" )
     REQUIRE( black_big_score > black_small_score );
 }
 
-// The piece-square tables are private to position.cpp, so read each cell
-// back through a board holding the kings and one extra piece.
-static auto
-squareScore (Piece piece, int row, int col)
-    -> int
+namespace
 {
-    BoardBuilder builder;
-    builder.addPiece ("a1", Color::White, Piece::King);
-    builder.addPiece ("h8", Color::Black, Piece::King);
-    auto kings_only_board = Board { builder };
-    auto kings_only = kings_only_board.getPosition().individualScore (Color::White);
+    // The piece-square tables are private to position.cpp, so read each cell
+    // back through a board holding the kings and one extra piece.
+    auto
+    squareScore (Piece piece, int row, int col)
+        -> int
+    {
+        BoardBuilder builder;
+        builder.addPiece ("a1", Color::White, Piece::King);
+        builder.addPiece ("h8", Color::Black, Piece::King);
+        auto kings_only_board = Board { builder };
+        auto kings_only = kings_only_board.getPosition().individualScore (Color::White);
 
-    builder.addPiece (row, col, Color::White, piece);
-    auto board = Board { builder };
-    return board.getPosition().individualScore (Color::White) - kings_only;
+        builder.addPiece (row, col, Color::White, piece);
+        auto board = Board { builder };
+        return board.getPosition().individualScore (Color::White) - kings_only;
+    }
 }
 
 TEST_CASE( "Piece-square tables are symmetric between the two wings" )

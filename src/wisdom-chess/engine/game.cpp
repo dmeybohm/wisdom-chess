@@ -13,17 +13,20 @@
 
 namespace wisdom
 {
-    static FenOutputFormat fen_output_format;
-    static WisdomGameOutputFormat wisdom_game_output_format;
-
-    static auto
-    makeOutputFormat (const string& filename)
-        -> OutputFormat&
+    namespace
     {
-        if (filename.find (".fen") != string::npos)
-            return fen_output_format;
-        else
-            return wisdom_game_output_format;
+        FenOutputFormat fen_output_format;
+        WisdomGameOutputFormat wisdom_game_output_format;
+
+        auto
+        makeOutputFormat (const string& filename)
+            -> OutputFormat&
+        {
+            if (filename.find (".fen") != string::npos)
+                return fen_output_format;
+            else
+                return wisdom_game_output_format;
+        }
     }
 
     // Main constructor that maintains all invariants
@@ -294,17 +297,20 @@ namespace wisdom
         return score <= Min_Draw_Score;
     }
 
-    static auto
-    drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires)
-         -> DrawStatus
+    namespace
     {
-        assert (bothPlayersReplied (draw_desires));
+        auto
+        drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires)
+             -> DrawStatus
+        {
+            assert (bothPlayersReplied (draw_desires));
 
-        bool white_wants_draw = draw_desires.first == DrawStatus::Accepted;
-        bool black_wants_draw = draw_desires.second == DrawStatus::Accepted;
+            bool white_wants_draw = draw_desires.first == DrawStatus::Accepted;
+            bool black_wants_draw = draw_desires.second == DrawStatus::Accepted;
 
-        bool accepted = white_wants_draw || black_wants_draw;
-        return accepted ? DrawStatus::Accepted : DrawStatus::Declined;
+            bool accepted = white_wants_draw || black_wants_draw;
+            return accepted ? DrawStatus::Accepted : DrawStatus::Declined;
+        }
     }
 
     void Game::Impl::updateThreefoldRepetitionDrawStatus()

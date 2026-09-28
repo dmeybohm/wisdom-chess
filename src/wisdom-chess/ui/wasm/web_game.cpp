@@ -40,14 +40,17 @@ namespace wisdom
         updateDisplayedGameState();
     }
 
-    static auto
-    parseSquare (czstring text) noexcept
-        -> optional<Coord>
+    namespace
     {
-        if (text == nullptr)
-            return nullopt;
+        auto
+        parseSquare (czstring text) noexcept
+            -> optional<Coord>
+        {
+            if (text == nullptr)
+                return nullopt;
 
-        return coordParseOptional (text);
+            return coordParseOptional (text);
+        }
     }
 
     void WebGame::applyMove (Move move)

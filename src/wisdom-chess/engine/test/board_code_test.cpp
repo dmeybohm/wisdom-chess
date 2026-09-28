@@ -14,11 +14,14 @@
 
 using namespace wisdom;
 
-static auto
-numberOfSetBits (const BoardCode& code)
-    -> int
+namespace
 {
-    return std::popcount (code.getHashCode());
+    auto
+    numberOfSetBits (const BoardCode& code)
+        -> int
+    {
+        return std::popcount (code.getHashCode());
+    }
 }
 
 TEST_CASE( "board code" )

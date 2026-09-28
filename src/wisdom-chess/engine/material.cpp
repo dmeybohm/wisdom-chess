@@ -13,22 +13,25 @@ namespace wisdom
         }
     }
 
-    [[nodiscard]] static auto
-    dualBishopsAreTheSameColor (const Board& board)
-        -> Material::CheckmateIsPossible
+    namespace
     {
-        auto first_coord = board.findFirstCoordWithPiece (Piece::Bishop);
-        assert (first_coord.has_value());
+        [[nodiscard]] auto
+        dualBishopsAreTheSameColor (const Board& board)
+            -> Material::CheckmateIsPossible
+        {
+            auto first_coord = board.findFirstCoordWithPiece (Piece::Bishop);
+            assert (first_coord.has_value());
 
-        auto starting_at = nextCoord (*first_coord);
-        assert (starting_at.has_value());
+            auto starting_at = nextCoord (*first_coord);
+            assert (starting_at.has_value());
 
-        auto second_coord = board.findFirstCoordWithPiece (Piece::Bishop, *starting_at);
-        assert (second_coord.has_value());
+            auto second_coord = board.findFirstCoordWithPiece (Piece::Bishop, *starting_at);
+            assert (second_coord.has_value());
 
-        return (coordColor (*first_coord) == coordColor (*second_coord))
-            ? Material::CheckmateIsPossible::No
-            : Material::CheckmateIsPossible::Yes;
+            return (coordColor (*first_coord) == coordColor (*second_coord))
+                ? Material::CheckmateIsPossible::No
+                : Material::CheckmateIsPossible::Yes;
+        }
     }
 
     auto Material::checkInsufficientMaterialScenarios (const Board& board) const

@@ -118,3 +118,8 @@ reason in the same comment, as in
 `optional<Move>`, `chrono::milliseconds`. Code outside the namespace,
 such as a `main()` or a test that only uses `wisdom::ui::qml`, keeps
 `std::`.
+
+## Source files
+
+- A function that only its own source file uses goes in an unnamed
+  namespace, not `static`. So does a variable beside it.

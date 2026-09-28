@@ -28,11 +28,14 @@ TEST_CASE( "Initializing move list" )
     REQUIRE( moves == expected );
 }
 
-static auto copy_moves() -> MoveList
+namespace
 {
-    Board board;
-    MoveList moves = generateAllPotentialMoves (board, Color::White);
-    return moves;
+    auto copy_moves() -> MoveList
+    {
+        Board board;
+        MoveList moves = generateAllPotentialMoves (board, Color::White);
+        return moves;
+    }
 }
 
 TEST_CASE( "Converting moves to a string" )

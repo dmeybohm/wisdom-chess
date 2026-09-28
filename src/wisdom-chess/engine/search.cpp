@@ -144,14 +144,17 @@ namespace wisdom
         return my_pimpl->moveTimer();
     }
 
-    static constexpr auto
-    drawingScore (Color searching_color, Color current_color)
-        -> int
+    namespace
     {
-        // The engine would rather play on than claim a draw, so a draw on
-        // its own move counts against it; a draw its opponent could claim
-        // is neutral.
-        return current_color == searching_color ? Search_Draw_Contempt : 0;
+        constexpr auto
+        drawingScore (Color searching_color, Color current_color)
+            -> int
+        {
+            // The engine would rather play on than claim a draw, so a draw on
+            // its own move counts against it; a draw its opponent could claim
+            // is neutral.
+            return current_color == searching_color ? Search_Draw_Contempt : 0;
+        }
     }
 
     auto
@@ -369,21 +372,24 @@ namespace wisdom
         return best_score;
     }
 
-    static void
-    logSearchTime (
-        const Logger& output,
-        int64_t nodes,
-        SteadyClockTime start,
-        SteadyClockTime end
-    )
+    namespace
     {
-        auto seconds_duration = chrono::duration<double> (end - start);
-        auto seconds = seconds_duration.count();
-        auto rate = nodes / std::max (0.000000001, seconds);
+        void
+        logSearchTime (
+            const Logger& output,
+            int64_t nodes,
+            SteadyClockTime start,
+            SteadyClockTime end
+        )
+        {
+            auto seconds_duration = chrono::duration<double> (end - start);
+            auto seconds = seconds_duration.count();
+            auto rate = nodes / std::max (0.000000001, seconds);
 
-        std::ostringstream progress_str;
-        progress_str << "search took " << seconds << "s, " << rate << " nodes/sec";
-        output.info (std::move (progress_str).str());
+            std::ostringstream progress_str;
+            progress_str << "search took " << seconds << "s, " << rate << " nodes/sec";
+            output.info (std::move (progress_str).str());
+        }
     }
 
     auto
