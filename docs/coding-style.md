@@ -110,6 +110,26 @@ reason in the same comment, as in
 | Constants | `Snake_Title_Case` | `Max_Search_Depth` |
 | Exception classes | ending in `Error` | `ParseMoveError` |
 
+A name that JavaScript or QML also uses is spelled as that side spells
+it. The fields of the settings structs are the case: `searchDepth`,
+`thinkingTime` and `debugLogging` are named in
+`ui/wasm/wisdom-chess.idl` and in the QML settings dialog.
+
+Getters:
+
+- A class of the engine names a getter `getX()`: `Game::getBoard()`,
+  `Board::getKingPosition()`.
+- A small value type names the part it returns: `Coord::row()`,
+  `ColoredPiece::color()`, `Error::message()`. Names the standard
+  containers use stay as they are: `size()`, `empty()`, `begin()`.
+- A Qt class follows Qt, where the getter of a property has no prefix:
+  `GameModel::inCheck()`. The view model the frontends share does the
+  same.
+- A class bound to JavaScript uses the names in the WebIDL file:
+  `WebGame::getCurrentTurn()`.
+- A predicate starts with `is`, `has` or `can`, and a conversion with
+  `as` or `to`: `isCastling()`, `asString()`.
+
 ## Standard library names
 
 `engine/global.hpp` brings the common standard types into the namespace
@@ -124,8 +144,8 @@ such as a `main()` or a test that only uses `wisdom::ui::qml`, keeps
 - A function that only its own source file uses goes in an unnamed
   namespace, not `static`. So does a variable beside it.
 - No `using namespace std;`. `using namespace wisdom;`, or one of its
-  nested namespaces, is for a test and for a frontend source whose code
-  sits outside the namespace; the engine's sources have none.
+  nested namespaces, is for the tests and the frontends' sources; the
+  engine's sources have none.
 - Includes go in groups with a blank line between: the standard library
   and other `<...>` headers first, then the project's headers. A project
   header is named by its full path, `"wisdom-chess/engine/board.hpp"`. A
