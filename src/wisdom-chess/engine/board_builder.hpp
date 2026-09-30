@@ -89,6 +89,12 @@ namespace wisdom
                 return;
 
             auto coord = Coord::make (row, col);
+
+            // Replacing a king would leave its recorded position pointing
+            // at another piece.
+            if (pieceType (my_squares[coord.index()]) == Piece::King)
+                throw BoardBuilderError ("A king is already on that square!");
+
             my_squares[coord.index()] = ColoredPiece::make (who, piece_type);
 
             if (piece_type == Piece::King)

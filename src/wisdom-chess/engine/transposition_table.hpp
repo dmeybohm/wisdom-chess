@@ -71,6 +71,7 @@ namespace wisdom
         fromMegabytes (int size)
             -> TranspositionTable;
 
+        // The entry count must be a power of two, and at least two.
         [[nodiscard]] static auto
         fromEntries (size_t entry_count)
             -> TranspositionTable;

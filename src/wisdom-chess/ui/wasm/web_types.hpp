@@ -290,7 +290,7 @@ namespace wisdom
             clear();
         }
 
-        WebColoredPiece pieces[Num_Squares] {};
+        array<WebColoredPiece, Num_Squares> pieces {};
         int length = 0;
 
         void addPiece (WebColoredPiece piece)

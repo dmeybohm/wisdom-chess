@@ -26,6 +26,16 @@ namespace wisdom
         , my_king_pos { builder.getKingPositions() }
     {
         classifyEnPassantTarget();
+
+        ENSURES( hasKingsAtKingPositions() );
+    }
+
+    auto
+    Board::hasKingsAtKingPositions() const noexcept
+        -> bool
+    {
+        return pieceAt (getKingPosition (Color::White)) == ColoredPiece::make (Color::White, Piece::King)
+            && pieceAt (getKingPosition (Color::Black)) == ColoredPiece::make (Color::Black, Piece::King);
     }
 
     void Board::dump() const

@@ -29,6 +29,10 @@ namespace wisdom
         // Apply the move to the position.
         void applyMove (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece);
 
+        [[nodiscard]] friend auto
+        operator== (const Position& first, const Position& second) noexcept
+            -> bool = default;
+
         friend auto
         operator<< (std::ostream& ostream, const Position& position)
             -> std::ostream&;
