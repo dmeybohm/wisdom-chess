@@ -9,22 +9,28 @@ namespace
 {
     // The lines that end inside a string literal, where whitespace before
     // the line break is part of the string. Only a raw string spans lines.
-    [[nodiscard]] auto linesEndingInsideString (const std::vector<Token>& tokens)
+    // A directive is a single token, so the text past its '#' is lexed
+    // again for the strings inside it; first_line is where that text starts.
+    [[nodiscard]] auto linesEndingInsideString (const std::vector<Token>& tokens, int first_line = 1)
         -> std::unordered_set<int>
     {
         std::unordered_set<int> result;
 
         for (const auto& token : tokens)
         {
-            if (token.kind != TokenKind::String)
+            int line = first_line + token.line - 1;
+            if (token.kind == TokenKind::Preprocessor)
             {
-                continue;
+                auto directive = std::string_view { token.text }.substr (1);
+                result.merge (linesEndingInsideString (lex (directive), line));
             }
-
-            auto line_breaks = std::count (token.text.begin(), token.text.end(), '\n');
-            for (int i = 0; i < line_breaks; ++i)
+            else if (token.kind == TokenKind::String)
             {
-                result.insert (token.line + i);
+                auto line_breaks = std::count (token.text.begin(), token.text.end(), '\n');
+                for (int i = 0; i < line_breaks; ++i)
+                {
+                    result.insert (line + i);
+                }
             }
         }
 

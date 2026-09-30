@@ -493,6 +493,10 @@ Item 29: the React frontend is formatted with Prettier.
     line of a Windows checkout would be reported.
   - `.gitattributes` is new and keeps the CRLF fixture from being
     converted; `.editorconfig` stops trimming in the linter's fixtures.
+  - Review of #301: a directive is one `Preprocessor` token, so a raw
+    string inside a `#define` was not seen and its lines were reported.
+    The rule now lexes a directive's text past the `#` and exempts the
+    strings it finds; `directives.cpp` is the fixture.
 - Verified on Linux with GCC and Qt 6.11.2:
   - Release with the QML UI, benchmarks and tools: no warnings, all 269
     tests pass (235 fast, 34 slow).
