@@ -162,5 +162,34 @@ namespace wisdom
 
         if (movement.castling_rook.has_value())
             relocate (*movement.castling_rook);
+
+        ASSERT( hasPieceListMatchingBoard() );
+    }
+
+    auto
+    WebGame::hasPieceListMatchingBoard() const
+        -> bool
+    {
+        const auto& board = my_game.getBoard();
+        int pieces_on_board = 0;
+
+        for (auto coord : Board::allCoords())
+        {
+            auto piece = board.pieceAt (coord);
+            if (piece == Piece_And_Color_None)
+                continue;
+
+            pieces_on_board++;
+
+            int index = my_pieces.indexOf (coord);
+            if (index < 0)
+                return false;
+
+            const auto& displayed = my_pieces.pieces[index];
+            if (displayed.color != mapColor (piece.color()) || displayed.piece != mapPiece (piece.type()))
+                return false;
+        }
+
+        return pieces_on_board == my_pieces.length;
     }
 }

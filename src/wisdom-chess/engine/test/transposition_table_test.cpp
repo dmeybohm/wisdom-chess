@@ -283,6 +283,12 @@ TEST_CASE( "Transposition table sizing" )
         CHECK_THROWS_AS( (void)TranspositionTable::fromEntries (0), PreconditionError );
         CHECK_THROWS_AS( (void)TranspositionTable::fromEntries (1), PreconditionError );
     }
+
+    SUBCASE( "An entry count must be a power of two" )
+    {
+        CHECK_THROWS_AS( (void)TranspositionTable::fromEntries (6), PreconditionError );
+        CHECK( TranspositionTable::fromEntries (4).getSize() == 4 );
+    }
 }
 
 TEST_CASE( "Transposition table with real board positions" )

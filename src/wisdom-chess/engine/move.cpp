@@ -332,6 +332,8 @@ namespace wisdom
         updateMoveClock (who, pieceType (orig_src_piece), move);
         setCurrentTurn (colorInvert (who));
         updateEnPassantEligibility (who, src_piece, move);
+
+        ASSERT( hasKingsAtKingPositions() );
     }
 
     namespace

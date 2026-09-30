@@ -206,6 +206,11 @@ namespace wisdom
     private:
         void makeMove (Color who, Move move) noexcept;
 
+        // Whether each stored king position holds that color's king.
+        [[nodiscard]] auto
+        hasKingsAtKingPositions() const noexcept
+            -> bool;
+
         auto applyForEnPassant (Color who, Coord src, Coord dst) noexcept -> ColoredPiece;
         void updateEnPassantEligibility (Color who, ColoredPiece src_piece, Move move) noexcept;
         void classifyEnPassantTarget() noexcept;

@@ -100,3 +100,11 @@ TEST_CASE( "Board builder rejects move clocks that are out of range" )
     CHECK( builder.getFullMoveClock() == Max_Full_Move_Number );
 }
 
+TEST_CASE( "Board builder rejects a piece placed on a king's square" )
+{
+    BoardBuilder builder;
+    builder.addPiece ("a8", Color::Black, Piece::King);
+
+    CHECK_THROWS_AS( builder.addPiece ("a8", Color::White, Piece::Bishop), BoardBuilderError );
+    CHECK_THROWS_AS( builder.addPiece ("a8", Color::White, Piece::King), BoardBuilderError );
+}

@@ -235,7 +235,7 @@ TEST_CASE( "checkmateIsPossible()" )
 
     SUBCASE( "Returns yes if there is a king and bishop vs. a king and bishop of opposite colors" )
     {
-        builder.addPiece ("a8", Color::White, Piece::Bishop);
+        builder.addPiece ("c8", Color::White, Piece::Bishop);
         builder.addPiece ("a7", Color::Black, Piece::Bishop);
 
         auto brd = Board { builder };
@@ -246,7 +246,7 @@ TEST_CASE( "checkmateIsPossible()" )
 
     SUBCASE( "Returns no if there is a king and bishop vs. a king and bishop of the same color" )
     {
-        builder.addPiece ("a8", Color::White, Piece::Bishop);
+        builder.addPiece ("c8", Color::White, Piece::Bishop);
         builder.addPiece ("b7", Color::Black, Piece::Bishop);
 
         auto brd = Board { builder };
@@ -257,7 +257,7 @@ TEST_CASE( "checkmateIsPossible()" )
 
     SUBCASE( "Returns yes if there is a king two bishops of opposite color vs. a king" )
     {
-        builder.addPiece ("a8", Color::White, Piece::Bishop);
+        builder.addPiece ("c8", Color::White, Piece::Bishop);
         builder.addPiece ("b8", Color::White, Piece::Bishop);
 
         auto brd = Board { builder };
@@ -268,7 +268,7 @@ TEST_CASE( "checkmateIsPossible()" )
 
     SUBCASE( "Returns no if there is a king two bishops of the same color vs. a king" )
     {
-        builder.addPiece ("a8", Color::White, Piece::Bishop);
+        builder.addPiece ("c8", Color::White, Piece::Bishop);
         builder.addPiece ("b7", Color::White, Piece::Bishop);
 
         auto brd = Board { builder };

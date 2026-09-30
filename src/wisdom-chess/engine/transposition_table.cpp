@@ -1,3 +1,5 @@
+#include <bit>
+
 #include "wisdom-chess/engine/transposition_table.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 
@@ -39,6 +41,9 @@ namespace wisdom
     TranspositionTable::TranspositionTable (FromEntriesTag, size_t entry_count)
     {
         EXPECTS( entry_count >= 2 );
+
+        // The index mask below would otherwise leave entries unreachable.
+        EXPECTS( std::has_single_bit (entry_count) );
         my_entries.resize (entry_count);
         my_size_mask = entry_count - 1;
     }

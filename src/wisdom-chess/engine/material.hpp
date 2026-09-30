@@ -98,6 +98,10 @@ namespace wisdom
             Yes
         };
 
+        [[nodiscard]] friend auto
+        operator== (const Material& first, const Material& second) noexcept
+            -> bool = default;
+
         // Whether there is insufficient material remaining for a checkmate.
         [[nodiscard]] auto
         checkmateIsPossible (const Board& board) const

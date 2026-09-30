@@ -148,6 +148,11 @@ namespace wisdom
         // keeps its id and the frontend can animate it.
         void updatePieceList (Move move);
 
+        // Whether the displayed pieces are exactly the pieces on the board.
+        [[nodiscard]] auto
+        hasPieceListMatchingBoard() const
+            -> bool;
+
         void onDisplayedGameStateUpdated() override
         {
             moveNumber = narrow<int> (getGame()->getHistory().getMoveHistory().size());
