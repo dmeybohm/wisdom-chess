@@ -185,3 +185,14 @@ picking.
 - Not measured: other time controls. The engines are the same program
   apart from this change, so the gain is what the extra speed buys at
   8+0.08, and may differ at a longer or shorter one.
+
+### Session #4
+
+- Brought the new code in line with the conventions the
+  `style-inconsistencies` branch added since this branch was made, so
+  that the later merge has nothing to fix: the file-local helpers are in
+  an unnamed namespace instead of `static`, and the tests' lambda is
+  `board_from_fen`. That branch's linter, with its `allman-braces` and
+  `no-trailing-whitespace` rules, passes the changed files. A dry-run
+  merge of the two branches has no conflicts, and the merged tree
+  builds, lints and passes the fast tests.
