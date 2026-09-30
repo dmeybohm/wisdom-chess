@@ -14,89 +14,92 @@
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 
-#include "bench_positions.hpp"
+#include "wisdom-chess/engine/bench/bench_positions.hpp"
 
 namespace wisdom::bench
 {
-    // Play a fixed sequence of non-capturing moves from the starting position,
-    // so the search runs against a long game history.
-    static auto gameWithHistory (int plies) -> Game
+    namespace
     {
-        Game game = Game::createStandardGame();
-        std::mt19937_64 random { 20260919 };
-
-        for (int i = 0; i < plies; i++)
+        // Play a fixed sequence of non-capturing moves from the starting position,
+        // so the search runs against a long game history.
+        auto gameWithHistory (int plies) -> Game
         {
-            auto legal_moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
-            MoveList quiet_moves;
+            Game game = Game::createStandardGame();
+            std::mt19937_64 random { 20260919 };
 
-            for (auto move : legal_moves)
+            for (int i = 0; i < plies; i++)
             {
-                if (!move.isAnyCapturing())
-                    quiet_moves.append (move);
+                auto legal_moves = generateLegalMoves (game.getBoard(), game.getCurrentTurn());
+                MoveList quiet_moves;
+
+                for (auto move : legal_moves)
+                {
+                    if (!move.isAnyCapturing())
+                        quiet_moves.append (move);
+                }
+
+                if (quiet_moves.isEmpty())
+                    break;
+
+                auto index = random() % quiet_moves.size();
+                game.move (*(quiet_moves.begin() + index));
             }
 
-            if (quiet_moves.isEmpty())
-                break;
-
-            auto index = random() % quiet_moves.size();
-            game.move (*(quiet_moves.begin() + index));
+            return game;
         }
 
-        return game;
-    }
-
-    // Search to a fixed depth with whatever the table already holds.
-    static auto searchWithTable (nonnull<Game> game, nonnull<TranspositionTable> table, int depth) -> SearchResult
-    {
-        MoveTimer timer { 600 };
-        auto search = IterativeSearch::create (
-            game->getBoard(),
-            game->getHistory(),
-            makeNullLogger(),
-            timer,
-            depth,
-            table
-        );
-
-        return search.iterativelyDeepen (game->getCurrentTurn());
-    }
-
-    // Search to a fixed depth with an empty transposition table.
-    static auto searchToDepth (nonnull<Game> game, nonnull<TranspositionTable> table, int depth) -> SearchResult
-    {
-        table->clear();
-        return searchWithTable (game, table, depth);
-    }
-
-    static void printSeconds (const string& label, double seconds)
-    {
-        std::cout << "  " << label << ": "
-                  << std::fixed << std::setprecision (3) << seconds << "s\n";
-    }
-
-    // The moves of one game, chosen by the engine at a shallow depth. Building
-    // the line this way keeps it legal and the positions realistic, and it is
-    // deterministic, so both replays below walk exactly the same positions.
-    static auto scriptedGame (int plies, int script_depth) -> vector<Move>
-    {
-        auto table = TranspositionTable::fromMegabytes (
-            TranspositionTable::Default_Size_In_Megabytes
-        );
-        Game game = Game::createStandardGame();
-        vector<Move> script;
-
-        for (int i = 0; i < plies; i++)
+        // Search to a fixed depth with whatever the table already holds.
+        auto searchWithTable (nonnull<Game> game, nonnull<TranspositionTable> table, int depth) -> SearchResult
         {
-            auto result = searchToDepth (&game, &table, script_depth);
-            if (!result.move.has_value())
-                break;
+            MoveTimer timer { 600 };
+            auto search = IterativeSearch::create (
+                game->getBoard(),
+                game->getHistory(),
+                makeNullLogger(),
+                timer,
+                depth,
+                table
+            );
 
-            script.push_back (*result.move);
-            game.move (*result.move);
+            return search.iterativelyDeepen (game->getCurrentTurn());
         }
 
-        return script;
+        // Search to a fixed depth with an empty transposition table.
+        auto searchToDepth (nonnull<Game> game, nonnull<TranspositionTable> table, int depth) -> SearchResult
+        {
+            table->clear();
+            return searchWithTable (game, table, depth);
+        }
+
+        void printSeconds (const string& label, double seconds)
+        {
+            std::cout << "  " << label << ": "
+                      << std::fixed << std::setprecision (3) << seconds << "s\n";
+        }
+
+        // The moves of one game, chosen by the engine at a shallow depth. Building
+        // the line this way keeps it legal and the positions realistic, and it is
+        // deterministic, so both replays below walk exactly the same positions.
+        auto scriptedGame (int plies, int script_depth) -> vector<Move>
+        {
+            auto table = TranspositionTable::fromMegabytes (
+                TranspositionTable::Default_Size_In_Megabytes
+            );
+            Game game = Game::createStandardGame();
+            vector<Move> script;
+
+            for (int i = 0; i < plies; i++)
+            {
+                auto result = searchToDepth (&game, &table, script_depth);
+                if (!result.move.has_value())
+                    break;
+
+                script.push_back (*result.move);
+                game.move (*result.move);
+            }
+
+            return script;
+        }
     }
 
     struct ReplayResult
@@ -105,63 +108,66 @@ namespace wisdom::bench
         vector<optional<Move>> chosen;
     };
 
-    // Search every position of the script to a fixed depth. The scripted move
-    // is played rather than the chosen one, so that clearing the table cannot
-    // send the two replays down different games.
-    static auto replayScript (
-        const vector<Move>& script,
-        int depth,
-        bool clear_before_each_search
-    )
-        -> ReplayResult
+    namespace
     {
-        auto table = TranspositionTable::fromMegabytes (
-            TranspositionTable::Default_Size_In_Megabytes
-        );
-        Game game = Game::createStandardGame();
-        ReplayResult result;
-
-        auto start = std::chrono::steady_clock::now();
-
-        for (auto scripted_move : script)
+        // Search every position of the script to a fixed depth. The scripted move
+        // is played rather than the chosen one, so that clearing the table cannot
+        // send the two replays down different games.
+        auto replayScript (
+            const vector<Move>& script,
+            int depth,
+            bool clear_before_each_search
+        )
+            -> ReplayResult
         {
-            if (clear_before_each_search)
-                table.clear();
+            auto table = TranspositionTable::fromMegabytes (
+                TranspositionTable::Default_Size_In_Megabytes
+            );
+            Game game = Game::createStandardGame();
+            ReplayResult result;
 
-            auto search_result = searchWithTable (&game, &table, depth);
-            result.chosen.push_back (search_result.move);
-            game.move (scripted_move);
+            auto start = chrono::steady_clock::now();
+
+            for (auto scripted_move : script)
+            {
+                if (clear_before_each_search)
+                    table.clear();
+
+                auto search_result = searchWithTable (&game, &table, depth);
+                result.chosen.push_back (search_result.move);
+                game.move (scripted_move);
+            }
+
+            auto end = chrono::steady_clock::now();
+            result.seconds = chrono::duration<double> (end - start).count();
+
+            return result;
         }
 
-        auto end = std::chrono::steady_clock::now();
-        result.seconds = std::chrono::duration<double> (end - start).count();
-
-        return result;
-    }
-
-    // Measures what a table that survives between moves is worth: the same
-    // consecutive positions searched with a table cleared before every search
-    // and with one cleared only before the first.
-    static void runWarmTableBenchmark (int plies, int depth)
-    {
-        auto script = scriptedGame (plies, 3);
-
-        auto cold = replayScript (script, depth, true);
-        auto warm = replayScript (script, depth, false);
-
-        size_t differing = 0;
-        for (size_t i = 0; i < cold.chosen.size(); i++)
+        // Measures what a table that survives between moves is worth: the same
+        // consecutive positions searched with a table cleared before every search
+        // and with one cleared only before the first.
+        void runWarmTableBenchmark (int plies, int depth)
         {
-            if (cold.chosen[i] != warm.chosen[i])
-                differing++;
-        }
+            auto script = scriptedGame (plies, 3);
 
-        std::cout << "search/warm-table (" << script.size() << " positions at depth "
-                  << depth << "):\n";
-        printSeconds ("cleared before every search", cold.seconds);
-        printSeconds ("cleared only before the first", warm.seconds);
-        std::cout << "  moves chosen differently: " << differing << " of "
-                  << cold.chosen.size() << "\n";
+            auto cold = replayScript (script, depth, true);
+            auto warm = replayScript (script, depth, false);
+
+            size_t differing = 0;
+            for (size_t i = 0; i < cold.chosen.size(); i++)
+            {
+                if (cold.chosen[i] != warm.chosen[i])
+                    differing++;
+            }
+
+            std::cout << "search/warm-table (" << script.size() << " positions at depth "
+                      << depth << "):\n";
+            printSeconds ("cleared before every search", cold.seconds);
+            printSeconds ("cleared only before the first", warm.seconds);
+            std::cout << "  moves chosen differently: " << differing << " of "
+                      << cold.chosen.size() << "\n";
+        }
     }
 
     void runSearchBenchmarks (nonnull<ankerl::nanobench::Bench> bench)
@@ -208,12 +214,12 @@ namespace wisdom::bench
             auto label = string { "search/" } + scenario.name
                 + "-depth" + std::to_string (scenario.deep_depth);
 
-            auto start = std::chrono::steady_clock::now();
+            auto start = chrono::steady_clock::now();
             auto result = searchToDepth (&scenario.game, &table, scenario.deep_depth);
-            auto end = std::chrono::steady_clock::now();
+            auto end = chrono::steady_clock::now();
             ankerl::nanobench::doNotOptimizeAway (result);
 
-            printSeconds (label, std::chrono::duration<double> (end - start).count());
+            printSeconds (label, chrono::duration<double> (end - start).count());
         }
 
         runWarmTableBenchmark (30, 6);
@@ -255,10 +261,10 @@ namespace wisdom::bench
 
             for (int depth = 1; depth <= max_depth; depth++)
             {
-                auto start = std::chrono::steady_clock::now();
+                auto start = chrono::steady_clock::now();
                 auto result = searchToDepth (&game, &table, depth);
-                auto end = std::chrono::steady_clock::now();
-                auto seconds = std::chrono::duration<double> (end - start).count();
+                auto end = chrono::steady_clock::now();
+                auto seconds = chrono::duration<double> (end - start).count();
 
                 std::cout << std::left << std::setw (12) << position.name
                           << std::right << std::setw (6) << depth

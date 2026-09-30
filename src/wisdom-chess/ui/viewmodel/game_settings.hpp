@@ -50,7 +50,7 @@ namespace wisdom::ui
         {
             expects (isInRange());
             game->setMaxDepth (searchDepthInPlies());
-            game->setSearchTimeout (std::chrono::seconds { thinkingTime });
+            game->setSearchTimeout (chrono::seconds { thinkingTime });
             game->setPlayers (players);
         }
     };

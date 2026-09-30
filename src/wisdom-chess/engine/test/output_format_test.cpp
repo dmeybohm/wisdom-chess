@@ -1,12 +1,12 @@
+#include <filesystem>
+#include <fstream>
+
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/output_format.hpp"
 
 #include "wisdom-chess-tests.hpp"
-
-#include <filesystem>
-#include <fstream>
 
 using namespace wisdom;
 

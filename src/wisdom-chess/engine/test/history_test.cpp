@@ -465,7 +465,7 @@ TEST_CASE( "Many moves without progress are detected" )
     Move third = moveParse ("d1 e1");
     Move fourth = moveParse ("d8 e8");
 
-    auto make_useless_moves = [&board, first, second, third, fourth](int count)
+    auto make_useless_moves = [&board, first, second, third, fourth] (int count)
     {
         for (int i = 0; i < count; i++)
         {

@@ -1,5 +1,6 @@
-#include "wisdom-chess/engine/castling.hpp"
 #include <sstream>
+
+#include "wisdom-chess/engine/castling.hpp"
 
 #include "wisdom-chess-tests.hpp"
 
@@ -262,7 +263,7 @@ TEST_CASE( "Global constants" )
 
 TEST_CASE( "CastlingEligibility - Stream output" )
 {
-    auto asStreamed = [] (CastlingEligibility eligibility) -> std::string
+    auto as_streamed = [] (CastlingEligibility eligibility) -> std::string
     {
         std::ostringstream out;
         out << eligibility;
@@ -271,25 +272,25 @@ TEST_CASE( "CastlingEligibility - Stream output" )
 
     SUBCASE( "Both sides eligible" )
     {
-        CHECK( asStreamed (CastlingEligibility::Both_Sides)
+        CHECK( as_streamed (CastlingEligibility::Both_Sides)
                == "{ Kingside: eligible, Queenside: eligible }" );
     }
 
     SUBCASE( "Kingside only" )
     {
-        CHECK( asStreamed (CastlingRights::Kingside)
+        CHECK( as_streamed (CastlingRights::Kingside)
                == "{ Kingside: eligible, Queenside: not eligible }" );
     }
 
     SUBCASE( "Queenside only" )
     {
-        CHECK( asStreamed (CastlingRights::Queenside)
+        CHECK( as_streamed (CastlingRights::Queenside)
                == "{ Kingside: not eligible, Queenside: eligible }" );
     }
 
     SUBCASE( "Neither side" )
     {
-        CHECK( asStreamed (CastlingEligibility::Neither_Side)
+        CHECK( as_streamed (CastlingEligibility::Neither_Side)
                == "{ Kingside: not eligible, Queenside: not eligible }" );
     }
 }

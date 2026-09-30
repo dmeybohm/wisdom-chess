@@ -13,56 +13,59 @@ namespace wisdom
 
     using KnightMoveLists = array<KnightMoveList, Num_Squares>;
 
-    static consteval auto
-    absoluteValue (auto integer)
-        -> decltype (integer)
+    namespace
     {
-        static_assert (std::is_integral_v<decltype (integer)>);
-        return integer < 0 ? integer * -1 : integer;
-    }
-
-    static consteval auto
-    knightMoveListInit()
-        -> KnightMoveLists
-    {
-        KnightMoveLists result {};
-
-        for (auto coord : Board::allCoords())
+        consteval auto
+        absoluteValue (auto integer)
+            -> decltype (integer)
         {
-            auto row = coord.row<int>();
-            auto col = coord.column<int>();
+            static_assert (std::is_integral_v<decltype (integer)>);
+            return integer < 0 ? integer * -1 : integer;
+        }
 
-            for (int k_row = -2; k_row <= 2; k_row++)
+        consteval auto
+        knightMoveListInit()
+            -> KnightMoveLists
+        {
+            KnightMoveLists result {};
+
+            for (auto coord : Board::allCoords())
             {
-                if (!k_row)
-                    continue;
+                auto row = coord.row<int>();
+                auto col = coord.column<int>();
 
-                if (!isValidRow (k_row + row))
-                    continue;
-
-                for (auto k_col = 3 - absoluteValue (k_row); k_col >= -2;
-                     k_col -= 2 * absoluteValue (k_col))
+                for (int k_row = -2; k_row <= 2; k_row++)
                 {
-                    if (!isValidColumn (k_col + col))
+                    if (!k_row)
                         continue;
 
-                    Move knight_move = Move::make (k_row + row, k_col + col, row, col);
-                    auto index = knight_move.getSrc().index();
+                    if (!isValidRow (k_row + row))
+                        continue;
 
-                    auto& size_ref = result[index].size;
-                    auto& array_ref = result[index].moves;
-                    array_ref[size_ref] = knight_move;
-                    size_ref++;
+                    for (auto k_col = 3 - absoluteValue (k_row); k_col >= -2;
+                         k_col -= 2 * absoluteValue (k_col))
+                    {
+                        if (!isValidColumn (k_col + col))
+                            continue;
+
+                        Move knight_move = Move::make (k_row + row, k_col + col, row, col);
+                        auto index = knight_move.getSrc().index();
+
+                        auto& size_ref = result[index].size;
+                        auto& array_ref = result[index].moves;
+                        array_ref[size_ref] = knight_move;
+                        size_ref++;
+                    }
                 }
             }
+            return result;
         }
-        return result;
-    }
 
-    // Store a list of knight moves and their sizes, generated at
-    // compile-time:
-    static constexpr KnightMoveLists Knight_Moves =
-        knightMoveListInit();
+        // Store a list of knight moves and their sizes, generated at
+        // compile-time:
+        constexpr KnightMoveLists Knight_Moves =
+            knightMoveListInit();
+    }
 
     struct MoveGeneration
     {
@@ -112,40 +115,43 @@ namespace wisdom
         void appendMove (Move move) noexcept;
     };
 
-    static auto isPawnUnmoved (const Board& board, int row, int col) -> bool
+    namespace
     {
-        ColoredPiece piece = board.pieceAt (row, col);
-
-        if (pieceColor (piece) == Color::White)
-            return row == White_Pawn_Start_Row;
-        else
-            return row == Black_Pawn_Start_Row;
-    }
-
-    static auto validCastlingMove (const Board& board, Move move) noexcept
-        -> bool
-    {
-        // check for an intervening piece
-        Coord src = move.getSrc();
-        Coord dst = move.getDst();
-
-        ColoredPiece piece3 = ColoredPiece::make (Color::None, Piece::None);
-
-        // find which direction the king was castling in
-        int direction = (dst.column() - src.column()) / 2;
-
-        ColoredPiece piece1 = board.pieceAt (src.row(), dst.column() - direction);
-        ColoredPiece piece2 = board.pieceAt (src.row(), dst.column());
-
-        if (direction < 0)
+        auto isPawnUnmoved (const Board& board, int row, int col) -> bool
         {
-            // check for piece next to rook on queenside
-            piece3 = board.pieceAt (src.row(), dst.column() - 1);
+            ColoredPiece piece = board.pieceAt (row, col);
+
+            if (pieceColor (piece) == Color::White)
+                return row == White_Pawn_Start_Row;
+            else
+                return row == Black_Pawn_Start_Row;
         }
 
-        return pieceType (piece1) == Piece::None
-            && pieceType (piece2) == Piece::None
-            && pieceType (piece3) == Piece::None;
+        auto validCastlingMove (const Board& board, Move move) noexcept
+            -> bool
+        {
+            // check for an intervening piece
+            Coord src = move.getSrc();
+            Coord dst = move.getDst();
+
+            ColoredPiece piece3 = ColoredPiece::make (Color::None, Piece::None);
+
+            // find which direction the king was castling in
+            int direction = (dst.column() - src.column()) / 2;
+
+            ColoredPiece piece1 = board.pieceAt (src.row(), dst.column() - direction);
+            ColoredPiece piece2 = board.pieceAt (src.row(), dst.column());
+
+            if (direction < 0)
+            {
+                // check for piece next to rook on queenside
+                piece3 = board.pieceAt (src.row(), dst.column() - 1);
+            }
+
+            return pieceType (piece1) == Piece::None
+                && pieceType (piece2) == Piece::None
+                && pieceType (piece3) == Piece::None;
+        }
     }
 
     auto MoveGeneration::transformMove (ColoredPiece dst_piece, Move move) noexcept
@@ -435,53 +441,56 @@ namespace wisdom
         }
     }
 
-    static auto
-    materialDiff (const Board& board, Move move)
-        -> int
+    namespace
     {
-        assert (move.isAnyCapturing());
+        auto
+        materialDiff (const Board& board, Move move)
+            -> int
+        {
+            assert (move.isAnyCapturing());
 
-        if (move.isEnPassant())
-        {
-            return 0;
-        }
-        else
-        {
-            int a_material_src = Material::weight (pieceType (board.pieceAt (move.getSrc())));
-            int a_material_dst = Material::weight (pieceType (board.pieceAt (move.getDst())));
-            return a_material_dst - a_material_src;
-        }
-    }
-
-    static constexpr auto
-    promotingOrCoordCompare (const Move& a, const Move& b)
-        -> bool
-    {
-        bool a_is_promoting = a.isPromoting();
-        bool b_is_promoting = b.isPromoting();
-
-        if (a_is_promoting && b_is_promoting)
-        {
-            return Material::weight (a.getPromotedPiece()) >
-                Material::weight (b.getPromotedPiece());
-        }
-        else if (a_is_promoting && !b_is_promoting)
-        {
-            return true;
-        }
-        else if (b_is_promoting && !a_is_promoting)
-        {
-            return false;
+            if (move.isEnPassant())
+            {
+                return 0;
+            }
+            else
+            {
+                int a_material_src = Material::weight (pieceType (board.pieceAt (move.getSrc())));
+                int a_material_dst = Material::weight (pieceType (board.pieceAt (move.getDst())));
+                return a_material_dst - a_material_src;
+            }
         }
 
-        // return coordinate diff so order is consistent:
-        Coord a_coord = a.getSrc();
-        Coord b_coord = b.getSrc();
+        constexpr auto
+        promotingOrCoordCompare (const Move& a, const Move& b)
+            -> bool
+        {
+            bool a_is_promoting = a.isPromoting();
+            bool b_is_promoting = b.isPromoting();
 
-        if (a_coord != b_coord)
-            return a_coord.index() < b_coord.index();
-        else
-            return a.getDst().index() < b.getDst().index();
+            if (a_is_promoting && b_is_promoting)
+            {
+                return Material::weight (a.getPromotedPiece()) >
+                    Material::weight (b.getPromotedPiece());
+            }
+            else if (a_is_promoting && !b_is_promoting)
+            {
+                return true;
+            }
+            else if (b_is_promoting && !a_is_promoting)
+            {
+                return false;
+            }
+
+            // return coordinate diff so order is consistent:
+            Coord a_coord = a.getSrc();
+            Coord b_coord = b.getSrc();
+
+            if (a_coord != b_coord)
+                return a_coord.index() < b_coord.index();
+            else
+                return a.getDst().index() < b.getDst().index();
+        }
     }
 
     auto
@@ -526,37 +535,40 @@ namespace wisdom
             return promotingOrCoordCompare (a, b);
     }
 
-    static auto
-    generateSortedMoves (
-        const Board& board,
-        Color who,
-        optional<Move> priority_move,
-        bool captures_only
-    )
-        -> MoveList
+    namespace
     {
-        MoveList result;
-        MoveGeneration generation {
-            board, &result, 0, 0, who, priority_move, captures_only
-        };
-
-        for (auto coord : Board::allCoords())
+        auto
+        generateSortedMoves (
+            const Board& board,
+            Color who,
+            optional<Move> priority_move,
+            bool captures_only
+        )
+            -> MoveList
         {
-            ColoredPiece piece = board.pieceAt (coord);
+            MoveList result;
+            MoveGeneration generation {
+                board, &result, 0, 0, who, priority_move, captures_only
+            };
 
-            if (pieceColor (piece) != who)
-                continue;
+            for (auto coord : Board::allCoords())
+            {
+                ColoredPiece piece = board.pieceAt (coord);
 
-            generation.generate (piece, coord);
+                if (pieceColor (piece) != who)
+                    continue;
+
+                generation.generate (piece, coord);
+            }
+
+            std::sort (
+                result.begin(),
+                result.end(),
+                [&generation] (const Move& a, const Move& b) { return generation.compareMoves (a, b); }
+            );
+
+            return result;
         }
-
-        std::sort (
-            result.begin(),
-            result.end(),
-            [&generation](const Move& a, const Move& b) { return generation.compareMoves (a, b); }
-        );
-
-        return result;
     }
 
     auto

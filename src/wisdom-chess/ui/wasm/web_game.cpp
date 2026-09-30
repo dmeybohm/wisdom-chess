@@ -40,14 +40,17 @@ namespace wisdom
         updateDisplayedGameState();
     }
 
-    static auto
-    parseSquare (czstring text) noexcept
-        -> optional<Coord>
+    namespace
     {
-        if (text == nullptr)
-            return nullopt;
+        auto
+        parseSquare (czstring text) noexcept
+            -> optional<Coord>
+        {
+            if (text == nullptr)
+                return nullopt;
 
-        return coordParseOptional (text);
+            return coordParseOptional (text);
+        }
     }
 
     void WebGame::applyMove (Move move)
@@ -87,7 +90,7 @@ namespace wisdom
 
         const auto computer_depth = ui::fullMovesToPlyDepth (settings.searchDepth);
         new_game->setMaxDepth (computer_depth);
-        new_game->setThinkingTime (std::chrono::seconds { settings.thinkingTime });
+        new_game->setThinkingTime (chrono::seconds { settings.thinkingTime });
 
         return new_game;
     }

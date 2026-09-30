@@ -22,8 +22,8 @@ namespace wisdom::ui
     transitionGameStatus (GameStatusUpdate& update, const Game& game)
         -> GameStatus
     {
-        update.update (game.status());
-        return game.status();
+        update.update (game.getStatus());
+        return game.getStatus();
     }
 
     void negotiateDraw (

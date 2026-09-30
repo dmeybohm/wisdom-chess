@@ -66,7 +66,7 @@ namespace wisdom
         void recordRootProgress (int ply, int depth, optional<Move> best_move, int best_score);
 
         [[nodiscard]] auto
-        moveTimer() const&
+        getMoveTimer() const&
             -> const MoveTimer&
         {
             return my_timer;
@@ -134,24 +134,27 @@ namespace wisdom
     IterativeSearch::isCancelled()
         -> bool
     {
-        return my_pimpl->moveTimer().isCancelled();
+        return my_pimpl->getMoveTimer().isCancelled();
     }
 
     auto
-    IterativeSearch::moveTimer() const&
+    IterativeSearch::getMoveTimer() const&
         -> const MoveTimer&
     {
-        return my_pimpl->moveTimer();
+        return my_pimpl->getMoveTimer();
     }
 
-    static constexpr auto
-    drawingScore (Color searching_color, Color current_color)
-        -> int
+    namespace
     {
-        // The engine would rather play on than claim a draw, so a draw on
-        // its own move counts against it; a draw its opponent could claim
-        // is neutral.
-        return current_color == searching_color ? Search_Draw_Contempt : 0;
+        constexpr auto
+        drawingScore (Color searching_color, Color current_color)
+            -> int
+        {
+            // The engine would rather play on than claim a draw, so a draw on
+            // its own move counts against it; a draw its opponent could claim
+            // is neutral.
+            return current_color == searching_color ? Search_Draw_Contempt : 0;
+        }
     }
 
     auto
@@ -369,21 +372,24 @@ namespace wisdom
         return best_score;
     }
 
-    static void
-    logSearchTime (
-        const Logger& output,
-        int64_t nodes,
-        SteadyClockTime start,
-        SteadyClockTime end
-    )
+    namespace
     {
-        auto seconds_duration = chrono::duration<double> (end - start);
-        auto seconds = seconds_duration.count();
-        auto rate = nodes / std::max (0.000000001, seconds);
+        void
+        logSearchTime (
+            const Logger& output,
+            int64_t nodes,
+            SteadyClockTime start,
+            SteadyClockTime end
+        )
+        {
+            auto seconds_duration = chrono::duration<double> (end - start);
+            auto seconds = seconds_duration.count();
+            auto rate = nodes / std::max (0.000000001, seconds);
 
-        std::stringstream progress_str;
-        progress_str << "search took " << seconds << "s, " << rate << " nodes/sec";
-        output.info (std::move (progress_str).str());
+            std::ostringstream progress_str;
+            progress_str << "search took " << seconds << "s, " << rate << " nodes/sec";
+            output.info (std::move (progress_str).str());
+        }
     }
 
     auto
@@ -438,7 +444,7 @@ namespace wisdom
         {
             throw SearchError {
                 e.message(),
-                e.extra_info() + "\n" + my_original_board.asString()
+                e.extraInfo() + "\n" + my_original_board.asString()
             };
         }
     }
@@ -470,7 +476,7 @@ namespace wisdom
     IterativeSearchImpl::iterate (Color side, int depth)
         -> SearchResult
     {
-        std::stringstream outstr;
+        std::ostringstream outstr;
         outstr << "finding moves for " << asString (side);
         my_output->debug (std::move (outstr).str());
 
@@ -479,12 +485,12 @@ namespace wisdom
         my_quiescence_nodes_visited = 0;
 
         auto tt_stats_start = my_transposition_table->getStats();
-        auto start = std::chrono::steady_clock::now();
+        auto start = chrono::steady_clock::now();
 
         my_current_result = SearchResult {};
         search (my_original_board, side, depth, -Initial_Alpha, Initial_Alpha, 0);
 
-        auto end = std::chrono::steady_clock::now();
+        auto end = chrono::steady_clock::now();
 
         auto result = getBestResult();
 
@@ -500,7 +506,7 @@ namespace wisdom
         my_total_quiescence_nodes_visited += my_quiescence_nodes_visited;
 
         {
-            std::stringstream progress_str;
+            std::ostringstream progress_str;
             progress_str << "nodes visited = " << my_nodes_visited
                          << ", quiescence nodes = " << my_quiescence_nodes_visited
                          << ", alpha-beta cutoffs = " << my_alpha_beta_cutoffs << "\n";
@@ -519,7 +525,7 @@ namespace wisdom
 
         if (result.timed_out)
         {
-            std::stringstream progress_str;
+            std::ostringstream progress_str;
             progress_str << "Search timed out"
                          << "\n";
             my_output->info (std::move (progress_str).str());
@@ -527,7 +533,7 @@ namespace wisdom
         else if (result.move.has_value())
         {
             Move best_move = *result.move;
-            std::stringstream progress_str;
+            std::ostringstream progress_str;
             progress_str << "move selected = " << asString (best_move)
                          << " [ score: " << result.score << " ]\n";
             my_output->info (std::move (progress_str).str());

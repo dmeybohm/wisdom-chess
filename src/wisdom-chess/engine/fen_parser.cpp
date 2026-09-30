@@ -183,7 +183,7 @@ namespace wisdom
     {
         auto row = castlingRowForColor<int> (who);
 
-        auto hasRookAt = [&] (int col)
+        auto has_rook_at = [&] (int col)
         {
             auto piece = my_builder.pieceAt (makeCoord (row, col));
             return pieceType (piece) == Piece::Rook && pieceColor (piece) == who;
@@ -196,10 +196,10 @@ namespace wisdom
             throw FenParserError ("Castling rights require the king on its home square!");
         }
 
-        if (eligibility.canCastleKingside() && !hasRookAt (King_Rook_Column))
+        if (eligibility.canCastleKingside() && !has_rook_at (King_Rook_Column))
             throw FenParserError ("Castling rights require a rook on its home square!");
 
-        if (eligibility.canCastleQueenside() && !hasRookAt (Queen_Rook_Column))
+        if (eligibility.canCastleQueenside() && !has_rook_at (Queen_Rook_Column))
             throw FenParserError ("Castling rights require a rook on its home square!");
     }
 

@@ -1,14 +1,14 @@
-#include "uci_interface.hpp"
+#include <algorithm>
+#include <chrono>
+#include <random>
+
+#include "wisdom-chess/ui/uci/uci_interface.hpp"
 #include "wisdom-chess/engine/logger.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/generate.hpp"
-
-#include <algorithm>
-#include <chrono>
-#include <random>
 
 namespace wisdom
 {
@@ -27,7 +27,7 @@ namespace wisdom
 
         // How long a fatal message waits for the output lock. The process is
         // about to abort, so it must not hang behind a writer that is blocked.
-        constexpr auto Emergency_Output_Lock_Wait = std::chrono::milliseconds { 250 };
+        constexpr auto Emergency_Output_Lock_Wait = chrono::milliseconds { 250 };
 
         // Writes every line of the message as its own "info string", under the
         // output lock when it can be had in time, and without allocating.
@@ -336,7 +336,7 @@ namespace wisdom
         bool infinite = hasToken (tokens, "infinite");
 
         int search_depth = my_settings.default_depth;
-        std::chrono::milliseconds search_time { 0 };
+        chrono::milliseconds search_time { 0 };
 
         if (depth.has_value())
         {
@@ -345,7 +345,7 @@ namespace wisdom
 
         if (movetime.has_value())
         {
-            search_time = std::chrono::milliseconds { *movetime };
+            search_time = chrono::milliseconds { *movetime };
         }
         else if (wtime.has_value() || btime.has_value())
         {
@@ -373,11 +373,11 @@ namespace wisdom
             int time_for_move = (available / 30) + increment;
             time_for_move = std::max (time_for_move, 100);
             time_for_move = std::min (time_for_move, available / 2);
-            search_time = std::chrono::milliseconds { std::max (time_for_move, 1) };
+            search_time = chrono::milliseconds { std::max (time_for_move, 1) };
         }
         else if (infinite)
         {
-            search_time = std::chrono::hours { 24 };
+            search_time = chrono::hours { 24 };
         }
 
         int current_search_id = my_search_id.fetch_add (1) + 1;
@@ -396,7 +396,7 @@ namespace wisdom
 
         my_search_thread = std::thread (
             [this, game = std::move (game_copy), table, search_depth, search_time,
-             current_search_id, debug_mode = my_debug_mode] () mutable
+             current_search_id, debug_mode = my_debug_mode]() mutable
             {
                 game.setMaxDepth (search_depth);
                 if (search_time.count() > 0)

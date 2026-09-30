@@ -1,10 +1,10 @@
-#include "lexer.hpp"
-#include "linter.hpp"
-
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+
+#include "lexer.hpp"
+#include "linter.hpp"
 
 using namespace wisdom_linter;
 
@@ -79,25 +79,25 @@ auto main (int argc, char* argv[]) -> int // lint-allow(raw-pointer): main's sig
     {
         std::string arg = argv[i];
 
-        if (arg == "-h" || arg == "--help" )
+        if (arg == "-h" || arg == "--help")
         {
             printUsage (argv[0]);
             return 0;
         }
-        else if (arg == "-v" || arg == "--version" )
+        else if (arg == "-v" || arg == "--version")
         {
             printVersion();
             return 0;
         }
-        else if (arg == "--list-rules" )
+        else if (arg == "--list-rules")
         {
             list_rules = true;
         }
-        else if (arg == "--dump-tokens" )
+        else if (arg == "--dump-tokens")
         {
             dump_tokens = true;
         }
-        else if (arg == "-f" || arg == "--format" )
+        else if (arg == "-f" || arg == "--format")
         {
             if (i + 1 >= argc)
             {
@@ -113,7 +113,7 @@ auto main (int argc, char* argv[]) -> int // lint-allow(raw-pointer): main's sig
             }
             format = *parsed_format;
         }
-        else if (arg.starts_with ( "--format=" ))
+        else if (arg.starts_with ("--format="))
         {
             std::string format_str = arg.substr (9);
             auto parsed_format = parseOutputFormat (format_str);
@@ -124,7 +124,7 @@ auto main (int argc, char* argv[]) -> int // lint-allow(raw-pointer): main's sig
             }
             format = *parsed_format;
         }
-        else if (arg == "--rules" )
+        else if (arg == "--rules")
         {
             if (i + 1 >= argc)
             {
@@ -136,14 +136,14 @@ auto main (int argc, char* argv[]) -> int // lint-allow(raw-pointer): main's sig
             size_t pos = 0;
             while (pos < rules_arg.size())
             {
-                size_t comma = rules_arg.find ( ',', pos);
+                size_t comma = rules_arg.find (',', pos);
                 if (comma == std::string::npos)
                 {
                     comma = rules_arg.size();
                 }
                 std::string rule = rules_arg.substr (pos, comma - pos);
-                size_t start = rule.find_first_not_of ( " \t" );
-                size_t end = rule.find_last_not_of ( " \t" );
+                size_t start = rule.find_first_not_of (" \t");
+                size_t end = rule.find_last_not_of (" \t");
                 if (start != std::string::npos && end != std::string::npos)
                 {
                     selected_rules.push_back (rule.substr (start, end - start + 1));
@@ -151,20 +151,20 @@ auto main (int argc, char* argv[]) -> int // lint-allow(raw-pointer): main's sig
                 pos = comma + 1;
             }
         }
-        else if (arg.starts_with ( "--rules=" ))
+        else if (arg.starts_with ("--rules="))
         {
             std::string rules_arg = arg.substr (8);
             size_t pos = 0;
             while (pos < rules_arg.size())
             {
-                size_t comma = rules_arg.find ( ',', pos);
+                size_t comma = rules_arg.find (',', pos);
                 if (comma == std::string::npos)
                 {
                     comma = rules_arg.size();
                 }
                 std::string rule = rules_arg.substr (pos, comma - pos);
-                size_t start = rule.find_first_not_of ( " \t" );
-                size_t end = rule.find_last_not_of ( " \t" );
+                size_t start = rule.find_first_not_of (" \t");
+                size_t end = rule.find_last_not_of (" \t");
                 if (start != std::string::npos && end != std::string::npos)
                 {
                     selected_rules.push_back (rule.substr (start, end - start + 1));
@@ -172,7 +172,7 @@ auto main (int argc, char* argv[]) -> int // lint-allow(raw-pointer): main's sig
                 pos = comma + 1;
             }
         }
-        else if (arg.starts_with ( "-" ))
+        else if (arg.starts_with ("-"))
         {
             std::cerr << "Error: Unknown option: " << arg << "\n";
             return 1;
@@ -223,7 +223,7 @@ auto main (int argc, char* argv[]) -> int // lint-allow(raw-pointer): main's sig
     if (!output.empty())
     {
         std::cout << output;
-        if (format != OutputFormat::Simple && output.back() != '\n' )
+        if (format != OutputFormat::Simple && output.back() != '\n')
         {
             std::cout << '\n';
         }

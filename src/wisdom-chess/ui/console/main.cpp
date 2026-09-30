@@ -19,7 +19,7 @@ int main()
     }
     catch (const wisdom::Error& e)
     {
-        wisdom::logEmergency ("Uncaught error: " + e.message() + "\n" + e.extra_info());
+        wisdom::logEmergency ("Uncaught error: " + e.message() + "\n" + e.extraInfo());
         std::abort();
     }
 

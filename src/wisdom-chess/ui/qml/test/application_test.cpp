@@ -375,7 +375,7 @@ private slots:
 
         auto f1 = drawnAt (my_app->squareAt ("f1"));
         auto h1 = drawnAt (my_app->squareAt ("h1"));
-        auto watchRook = [&] (int milliseconds, double leftmost, double rightmost)
+        auto watch_rook = [&] (int milliseconds, double leftmost, double rightmost)
         {
             for (int elapsed = 0; elapsed < milliseconds; elapsed += 10)
             {
@@ -387,7 +387,7 @@ private slots:
             }
         };
 
-        watchRook (700, f1.x(), h1.x());
+        watch_rook (700, f1.x(), h1.x());
         if (QTest::currentTestFailed())
             return;
         QVERIFY( drawnOn (*my_app, rook, "f1") );
@@ -395,14 +395,14 @@ private slots:
 
         // The move after castling must not disturb the rook.
         my_app->move ("g8", "f6");
-        watchRook (500, f1.x(), f1.x());
+        watch_rook (500, f1.x(), f1.x());
         if (QTest::currentTestFailed())
             return;
 
         // And the rook still goes where it is told afterwards.
         my_app->move ("f1", "e1");
         auto e1 = drawnAt (my_app->squareAt ("e1"));
-        watchRook (500, e1.x(), f1.x());
+        watch_rook (500, e1.x(), f1.x());
         if (QTest::currentTestFailed())
             return;
         QCOMPARE( my_app->pieceAt ("e1"), rook );

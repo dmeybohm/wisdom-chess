@@ -71,7 +71,7 @@ TEST_CASE( "Copying an Error cannot throw" )
         original.reset();
 
         CHECK( copy.message() == "the message" );
-        CHECK( copy.extra_info() == "the extra info" );
+        CHECK( copy.extraInfo() == "the extra info" );
         CHECK( string { copy.what() } == "the message" );
     }
 
@@ -88,7 +88,7 @@ TEST_CASE( "Copying an Error cannot throw" )
     {
         Error error { "the message" };
 
-        CHECK( error.extra_info().empty() );
+        CHECK( error.extraInfo().empty() );
     }
 }
 

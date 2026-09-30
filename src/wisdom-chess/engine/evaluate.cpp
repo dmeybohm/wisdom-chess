@@ -5,52 +5,55 @@
 
 namespace wisdom
 {
-    static constexpr int Castle_Penalty = 50;
-
-    [[nodiscard]] static auto
-    heuristicIsCastled (const Board& board, Color who)
-        -> bool
+    namespace
     {
-        auto king_pos = board.getKingPosition (who);
-        auto king_column = king_pos.column<int>();
-        auto king_row = king_pos.row<int>();
+        constexpr int Castle_Penalty = 50;
 
-        auto rook_piece = ColoredPiece::make (who, Piece::Rook);
+        [[nodiscard]] auto
+        heuristicIsCastled (const Board& board, Color who)
+            -> bool
+        {
+            auto king_pos = board.getKingPosition (who);
+            auto king_column = king_pos.column<int>();
+            auto king_row = king_pos.row<int>();
 
-        if (king_row != castlingRowForColor (who))
+            auto rook_piece = ColoredPiece::make (who, Piece::Rook);
+
+            if (king_row != castlingRowForColor (who))
+                return false;
+
+            // check kingside castle:
+            if (king_column == Kingside_Castled_King_Column)
+            {
+                if (board.pieceAt (king_row, Kingside_Castled_Rook_Column) == rook_piece)
+                    return true;
+            }
+            else if (king_column == Queenside_Castled_King_Column)
+            {
+                if (board.pieceAt (king_row, Queenside_Castled_Rook_Column) == rook_piece)
+                    return true;
+            }
+
             return false;
-
-        // check kingside castle:
-        if (king_column == Kingside_Castled_King_Column)
-        {
-            if (board.pieceAt (king_row, Kingside_Castled_Rook_Column) == rook_piece)
-                return true;
-        }
-        else if (king_column == Queenside_Castled_King_Column)
-        {
-            if (board.pieceAt (king_row, Queenside_Castled_Rook_Column) == rook_piece)
-                return true;
         }
 
-        return false;
-    }
-
-    [[nodiscard]] static auto
-    unableToCastlePenalty (const Board& board, Color who)
-        -> int
-    {
-        auto castle_state = board.getCastlingEligibility (who);
-        int result = 0;
-        if (castle_state != CastlingEligibility::Both_Sides)
+        [[nodiscard]] auto
+        unableToCastlePenalty (const Board& board, Color who)
+            -> int
         {
-            if (!castle_state.canCastleKingside())
-                result += Castle_Penalty;
-            if (!castle_state.canCastleQueenside())
-                result += Castle_Penalty;
-            if (heuristicIsCastled (board, who))
-                result -= 2 * Castle_Penalty;
+            auto castle_state = board.getCastlingEligibility (who);
+            int result = 0;
+            if (castle_state != CastlingEligibility::Both_Sides)
+            {
+                if (!castle_state.canCastleKingside())
+                    result += Castle_Penalty;
+                if (!castle_state.canCastleQueenside())
+                    result += Castle_Penalty;
+                if (heuristicIsCastled (board, who))
+                    result -= 2 * Castle_Penalty;
+            }
+            return result;
         }
-        return result;
     }
 
     auto

@@ -1,8 +1,8 @@
-#include "../linter.hpp"
-
 #include <cctype>
 #include <optional>
 #include <unordered_set>
+
+#include "../linter.hpp"
 
 namespace wisdom_linter
 {

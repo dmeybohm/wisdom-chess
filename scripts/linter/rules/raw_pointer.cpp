@@ -1,8 +1,8 @@
-#include "../linter.hpp"
-
 #include <cctype>
 #include <optional>
 #include <unordered_set>
+
+#include "../linter.hpp"
 
 namespace wisdom_linter
 {
@@ -180,7 +180,7 @@ namespace
             || aliases.count (name) > 0
             || (name.size() > 2 && name.compare (name.size() - 2, 2, "_t") == 0)
             || (std::isupper (static_cast<unsigned char> (name[0]))
-                && name.find ( '_' ) == std::string::npos);
+                && name.find ('_') == std::string::npos);
     }
 
     // Whether the '*' at code[star] declares a pointer to the type before it,

@@ -1,3 +1,8 @@
+#include <algorithm>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
+
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
@@ -7,11 +12,6 @@
 #include "wisdom-chess/engine/transposition_table.hpp"
 
 #include "wisdom-chess-tests.hpp"
-
-#include <algorithm>
-#include <chrono>
-#include <filesystem>
-#include <fstream>
 
 using namespace wisdom;
 
@@ -93,7 +93,7 @@ TEST_CASE( "Loading a saved game" )
     auto path = std::filesystem::temp_directory_path() / "wisdom-chess-load-test.txt";
     auto players = Players { Player::Human, Player::Human };
 
-    auto write_file = [&path](czstring contents)
+    auto write_file = [&path] (czstring contents)
     {
         std::ofstream file { path };
         file << contents;
@@ -132,7 +132,7 @@ TEST_CASE( "findBestMove searches with the caller's transposition table" )
 {
     auto game = Game::createStandardGame();
     game.setMaxDepth (3);
-    game.setSearchTimeout (std::chrono::seconds { 30 });
+    game.setSearchTimeout (chrono::seconds { 30 });
 
     auto logger = makeNullLogger();
     TranspositionTable table = TranspositionTable::fromMegabytes (1);
@@ -188,24 +188,24 @@ TEST_CASE( "A draw-derived score is not reused for a position with a different c
 
     auto logger = makeNullLogger();
 
-    auto searchFen = [&] (czstring fen, nonnull<TranspositionTable> table)
+    auto search_fen = [&] (czstring fen, nonnull<TranspositionTable> table)
     {
         auto game = Game::createGameFromFen (fen);
         game.setMaxDepth (4);
-        game.setSearchTimeout (std::chrono::seconds { 30 });
+        game.setSearchTimeout (chrono::seconds { 30 });
         return game.findBestMove (logger, table);
     };
 
     TranspositionTable cold = TranspositionTable::fromMegabytes (1);
-    auto expected = searchFen (fresh_clock_fen, &cold);
+    auto expected = search_fen (fresh_clock_fen, &cold);
     REQUIRE( expected.has_value() );
 
     TranspositionTable shared = TranspositionTable::fromMegabytes (1);
-    auto near_fifty_move = searchFen (near_fifty_move_fen, &shared);
+    auto near_fifty_move = search_fen (near_fifty_move_fen, &shared);
     REQUIRE( near_fifty_move.has_value() );
 
     // The drawing scores the first search produced must not decide this one.
-    auto with_warm_table = searchFen (fresh_clock_fen, &shared);
+    auto with_warm_table = search_fen (fresh_clock_fen, &shared);
 
     REQUIRE( with_warm_table.has_value() );
     CHECK( *with_warm_table == *expected );
@@ -259,10 +259,10 @@ TEST_CASE( "Game rejects a search depth or timeout of zero" )
 
     CHECK_THROWS_AS( game.setMaxDepth (0), PreconditionError );
     CHECK_THROWS_AS( game.setMaxDepth (-1), PreconditionError );
-    CHECK_THROWS_AS( game.setSearchTimeout (std::chrono::milliseconds { 0 }), PreconditionError );
+    CHECK_THROWS_AS( game.setSearchTimeout (chrono::milliseconds { 0 }), PreconditionError );
 
     game.setMaxDepth (3);
-    game.setSearchTimeout (std::chrono::milliseconds { 1 });
+    game.setSearchTimeout (chrono::milliseconds { 1 });
     CHECK( game.getMaxDepth() == 3 );
-    CHECK( game.getSearchTimeout() == std::chrono::milliseconds { 1 } );
+    CHECK( game.getSearchTimeout() == chrono::milliseconds { 1 } );
 }

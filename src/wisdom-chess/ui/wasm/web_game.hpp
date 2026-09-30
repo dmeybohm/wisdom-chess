@@ -46,7 +46,7 @@ namespace wisdom
             my_game.setMaxDepth (max_depth);
         }
 
-        void setThinkingTime (std::chrono::seconds thinking_time)
+        void setThinkingTime (chrono::seconds thinking_time)
         {
             my_game.setSearchTimeout (thinking_time);
         }
@@ -105,7 +105,7 @@ namespace wisdom
         getGameStatus() const
             -> WebGameStatus
         {
-            return mapGameStatus (my_game.status());
+            return mapGameStatus (my_game.getStatus());
         }
 
         [[nodiscard]] auto

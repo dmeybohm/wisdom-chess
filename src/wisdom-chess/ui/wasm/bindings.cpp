@@ -18,7 +18,7 @@ namespace wisdom::worker
 {
     struct GameState
     {
-        enum PlayStatus
+        enum class PlayStatus
         {
             Playing = 0,
             Paused = 1,
@@ -28,7 +28,7 @@ namespace wisdom::worker
         wisdom::TranspositionTable transposition_table;
         wisdom::GameSettings settings {};
         int game_id {};
-        std::atomic<int> play_status = PlayStatus::Playing;
+        std::atomic<PlayStatus> play_status = PlayStatus::Playing;
 
         // Set by the main thread when new settings are on their way.
         std::atomic<bool> restart_requested = false;
@@ -133,9 +133,9 @@ EMSCRIPTEN_KEEPALIVE void workerReinitializeGame (int new_game_id)
     state->transposition_table.clear();
     state->updateSettings (state->settings);
 
-    auto periodic_func = [state](nonnull<MoveTimer> timer) {
+    auto periodic_func = [state] (nonnull<MoveTimer> timer) {
         auto play_status = state->play_status.load();
-        if (play_status != GameState::Playing || state->restart_requested.load())
+        if (play_status != GameState::PlayStatus::Playing || state->restart_requested.load())
         {
             timer->setCancelled (true);
         }
@@ -155,7 +155,7 @@ EMSCRIPTEN_KEEPALIVE void startSearch()
         return;
 
     auto play_status = state->play_status.load();
-    if (play_status != GameState::Playing)
+    if (play_status != GameState::PlayStatus::Playing)
         return;
 
     auto new_status = state->statusTransition();
@@ -244,13 +244,13 @@ mainThreadReceiveMove (
 EMSCRIPTEN_KEEPALIVE void pauseWorker()
 {
     auto state = GameState::getState();
-    state->play_status.store (GameState::Paused);
+    state->play_status.store (GameState::PlayStatus::Paused);
 }
 
 EMSCRIPTEN_KEEPALIVE void unpauseWorker()
 {
     auto state = GameState::getState();
-    state->play_status.store (GameState::Playing);
+    state->play_status.store (GameState::PlayStatus::Playing);
 }
 
 EMSCRIPTEN_KEEPALIVE void requestSearchRestart()

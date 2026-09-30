@@ -6,7 +6,6 @@
 #include "wisdom-chess/ui/viewmodel/piece_movement.hpp"
 
 using namespace wisdom;
-using namespace std;
 
 namespace wisdom::ui::qml
 {

@@ -33,35 +33,38 @@ namespace wisdom
         std::cerr << *this;
     }
 
-    static void addDivider (nonnull<string> result)
+    namespace
     {
-        *result += " ";
-
-        for (int col = 0; col < Board_Length_In_Chars; col += 4)
-        {
-            for (int i = 0; i < 3; i++)
-                *result += '-';
-
-            *result += ' ';
-        }
-
-        *result += "\n";
-    }
-
-    static void addCoords (nonnull<string> result)
-    {
-        *result += " ";
-
-        char col_name = 'a';
-        for (int col = 0; col < Num_Columns; col++)
+        void addDivider (nonnull<string> result)
         {
             *result += " ";
-            *result += col_name;
-            *result += "  ";
-            col_name++;
+
+            for (int col = 0; col < Board_Length_In_Chars; col += 4)
+            {
+                for (int i = 0; i < 3; i++)
+                    *result += '-';
+
+                *result += ' ';
+            }
+
+            *result += "\n";
         }
 
-        *result += "\n";
+        void addCoords (nonnull<string> result)
+        {
+            *result += " ";
+
+            char col_name = 'a';
+            for (int col = 0; col < Num_Columns; col++)
+            {
+                *result += " ";
+                *result += col_name;
+                *result += "  ";
+                col_name++;
+            }
+
+            *result += "\n";
+        }
     }
 
     auto Board::asString() const -> string
@@ -133,7 +136,7 @@ namespace wisdom
     {
         string castled_state;
 
-        auto convert = [color](char ch) -> char
+        auto convert = [color] (char ch) -> char
         {
             return color == Color::Black
                 ? toLower (ch)
@@ -226,7 +229,7 @@ namespace wisdom
         auto coord_begin = std::begin (my_squares);
         auto coord_end = std::end (my_squares);
 
-        auto finder = [piece_type](const ColoredPiece& colored_piece)
+        auto finder = [piece_type] (const ColoredPiece& colored_piece)
         {
             return colored_piece.type() == piece_type;
         };

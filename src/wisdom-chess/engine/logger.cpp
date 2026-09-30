@@ -72,7 +72,7 @@ namespace wisdom
     {}
 
     auto
-    LogRingBuffer::tailOffset() const
+    LogRingBuffer::getTailOffset() const
         -> size_t
     {
         return (my_head + my_used) % my_storage.size();
@@ -80,7 +80,7 @@ namespace wisdom
 
     void LogRingBuffer::writeBytes (czstring source, size_t length)
     {
-        auto offset = tailOffset();
+        auto offset = getTailOffset();
         auto until_end = std::min (length, my_storage.size() - offset);
 
         std::memcpy (&my_storage[offset], source, until_end);
@@ -191,7 +191,7 @@ namespace wisdom
     }
 
     auto
-    LogRingBuffer::entries() const
+    LogRingBuffer::getEntries() const
         -> vector<LogEntry>
     {
         vector<LogEntry> result;
@@ -213,14 +213,14 @@ namespace wisdom
     }
 
     auto
-    LogRingBuffer::sizeBytes() const
+    LogRingBuffer::getSizeBytes() const
         -> size_t
     {
         return my_used;
     }
 
     auto
-    LogRingBuffer::capacityBytes() const
+    LogRingBuffer::getCapacityBytes() const
         -> size_t
     {
         return my_storage.size();
@@ -381,8 +381,8 @@ namespace wisdom
             catch (const Error& e)
             {
                 auto result = "Uncaught error: " + e.message();
-                if (!e.extra_info().empty())
-                    result += "\n" + e.extra_info();
+                if (!e.extraInfo().empty())
+                    result += "\n" + e.extraInfo();
                 return result;
             }
             catch (const std::exception& e)

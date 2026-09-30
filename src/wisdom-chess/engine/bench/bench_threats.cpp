@@ -4,14 +4,17 @@
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 
-#include "bench_positions.hpp"
+#include "wisdom-chess/engine/bench/bench_positions.hpp"
 
 namespace wisdom::bench
 {
-    static auto boardFromFen (czstring fen) -> Board
+    namespace
     {
-        FenParser parser { fen };
-        return parser.buildBoard();
+        auto boardFromFen (czstring fen) -> Board
+        {
+            FenParser parser { fen };
+            return parser.buildBoard();
+        }
     }
 
     void runThreatBenchmarks (nonnull<ankerl::nanobench::Bench> bench)

@@ -1,0 +1,2 @@
+# A fixture for line endings, which git must not convert.
+scripts/linter/tests/no-trailing-whitespace/crlf.cpp -text

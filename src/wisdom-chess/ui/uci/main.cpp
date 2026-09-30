@@ -1,4 +1,4 @@
-#include "uci_interface.hpp"
+#include "wisdom-chess/ui/uci/uci_interface.hpp"
 #include "wisdom-chess/engine/logger.hpp"
 
 auto

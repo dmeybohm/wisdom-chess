@@ -54,7 +54,7 @@ namespace wisdom
 
         // Copy the retained lines out, oldest first.
         [[nodiscard]] auto
-        entries() const
+        getEntries() const
             -> vector<LogEntry>;
 
         // Number of retained lines.
@@ -64,11 +64,11 @@ namespace wisdom
 
         // Bytes in use, including the per-line headers.
         [[nodiscard]] auto
-        sizeBytes() const
+        getSizeBytes() const
             -> size_t;
 
         [[nodiscard]] auto
-        capacityBytes() const
+        getCapacityBytes() const
             -> size_t;
 
         [[nodiscard]] auto
@@ -88,7 +88,7 @@ namespace wisdom
         };
 
         [[nodiscard]] auto
-        tailOffset() const
+        getTailOffset() const
             -> size_t;
 
         [[nodiscard]] auto

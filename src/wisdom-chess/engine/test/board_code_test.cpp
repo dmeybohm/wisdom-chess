@@ -14,11 +14,14 @@
 
 using namespace wisdom;
 
-static auto
-numberOfSetBits (const BoardCode& code)
-    -> int
+namespace
 {
-    return std::popcount (code.getHashCode());
+    auto
+    numberOfSetBits (const BoardCode& code)
+        -> int
+    {
+        return std::popcount (code.getHashCode());
+    }
 }
 
 TEST_CASE( "board code" )
@@ -308,7 +311,7 @@ TEST_CASE( "Board code can be converted" )
 {
     SUBCASE( "to a string" )
     {
-        std::stringstream stream;
+        std::ostringstream stream;
         BoardCode code = BoardCode::fromEmptyBoard();
 
         code.addPiece(
@@ -325,7 +328,7 @@ TEST_CASE( "Board code can be converted" )
 
     SUBCASE( "to an ostream" )
     {
-        std::stringstream stream;
+        std::ostringstream stream;
         BoardCode code = BoardCode::fromEmptyBoard();
 
         code.addPiece(
@@ -589,7 +592,7 @@ TEST_CASE( "Board code keeps a legal and an illegal en passant target apart" )
 {
     auto e3 = coordParse ("e3");
 
-    auto startingCode = []
+    auto starting_code = []
     {
         BoardCode code = BoardCode::fromEmptyBoard();
         code.addPiece (coordParse ("e4"), ColoredPiece::make (Color::White, Piece::Pawn));
@@ -601,7 +604,7 @@ TEST_CASE( "Board code keeps a legal and an illegal en passant target apart" )
 
     SUBCASE( "A legal target survives leaving out illegal ones" )
     {
-        auto code = startingCode();
+        auto code = starting_code();
         code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Legal);
 
         REQUIRE( code.getLegalEnPassantTarget().has_value() );
@@ -612,33 +615,33 @@ TEST_CASE( "Board code keeps a legal and an illegal en passant target apart" )
 
     SUBCASE( "An illegal target is left out" )
     {
-        auto code = startingCode();
+        auto code = starting_code();
         code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Illegal);
 
         REQUIRE( code.getAnyEnPassantTarget().has_value() );
         CHECK( code.getAnyEnPassantTarget()->coord == e3 );
         CHECK( code.getAnyEnPassantTarget()->vulnerable_color == Color::White );
         CHECK( !code.getLegalEnPassantTarget().has_value() );
-        CHECK( code.withoutIllegalEnPassantTarget() == startingCode() );
+        CHECK( code.withoutIllegalEnPassantTarget() == starting_code() );
     }
 
     SUBCASE( "Setting a target replaces one in the other field" )
     {
-        auto code = startingCode();
+        auto code = starting_code();
         code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Illegal);
         code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Legal);
         CHECK( code.withoutIllegalEnPassantTarget() == code );
 
         code.setEnPassantTarget (Color::White, e3, EnPassantTargetState::Illegal);
         CHECK( !code.getLegalEnPassantTarget().has_value() );
-        CHECK( code.withoutIllegalEnPassantTarget() == startingCode() );
+        CHECK( code.withoutIllegalEnPassantTarget() == starting_code() );
     }
 
     SUBCASE( "Neither target disturbs the turn or castling" )
     {
         for (auto state : { EnPassantTargetState::Legal, EnPassantTargetState::Illegal })
         {
-            auto code = startingCode();
+            auto code = starting_code();
             code.setEnPassantTarget (Color::White, e3, state);
 
             CHECK( code.getCurrentTurn() == Color::Black );
@@ -646,7 +649,7 @@ TEST_CASE( "Board code keeps a legal and an illegal en passant target apart" )
             CHECK( code.getCastleState (Color::Black) == CastlingRights::Queenside );
 
             code.clearEnPassantTarget();
-            CHECK( code == startingCode() );
+            CHECK( code == starting_code() );
         }
     }
 }

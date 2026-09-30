@@ -24,7 +24,7 @@ namespace
 
             for (size_t i = 0; i < context.lines.size(); ++i)
             {
-                size_t tab_pos = context.lines[i].find ( '\t' );
+                size_t tab_pos = context.lines[i].find ('\t');
                 if (tab_pos == std::string::npos)
                 {
                     continue;

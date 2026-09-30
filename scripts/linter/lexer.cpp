@@ -1,7 +1,7 @@
-#include "lexer.hpp"
-
 #include <array>
 #include <cctype>
+
+#include "lexer.hpp"
 
 namespace wisdom_linter
 {
@@ -48,20 +48,20 @@ namespace
             while (my_pos < my_source.size())
             {
                 char c = peek();
-                if (c == '\n' )
+                if (c == '\n')
                 {
                     advance();
                     spaced = true;
                     line_start = true;
                     continue;
                 }
-                if (c == ' ' || c == '\t' || c == '\r' || c == '\f' || c == '\v' )
+                if (c == ' ' || c == '\t' || c == '\r' || c == '\f' || c == '\v')
                 {
                     advance();
                     spaced = true;
                     continue;
                 }
-                if (c == '\\' && peek (1) == '\n' )
+                if (c == '\\' && peek (1) == '\n')
                 {
                     advance (2);
                     spaced = true;
@@ -106,7 +106,7 @@ namespace
         {
             for (size_t i = 0; i < count && !atEnd(); ++i)
             {
-                if (my_source[my_pos] == '\n' )
+                if (my_source[my_pos] == '\n')
                 {
                     ++my_line;
                     my_column = 1;
@@ -122,12 +122,12 @@ namespace
         auto scan (bool line_start) -> TokenKind
         {
             char c = peek();
-            if (c == '/' && peek (1) == '/' )
+            if (c == '/' && peek (1) == '/')
             {
                 scanLineComment();
                 return TokenKind::Comment;
             }
-            if (c == '/' && peek (1) == '*' )
+            if (c == '/' && peek (1) == '*')
             {
                 scanBlockComment();
                 return TokenKind::Comment;
@@ -146,15 +146,15 @@ namespace
                 scanNumber();
                 return TokenKind::Number;
             }
-            if (c == '"' )
+            if (c == '"')
             {
-                scanQuoted ( '"' );
+                scanQuoted ('"');
                 scanSuffix();
                 return TokenKind::String;
             }
-            if (c == '\'' )
+            if (c == '\'')
             {
-                scanQuoted ( '\'' );
+                scanQuoted ('\'');
                 scanSuffix();
                 return TokenKind::Character;
             }
@@ -170,7 +170,7 @@ namespace
         // To the end of the line, which a backslash before it continues.
         void scanLineComment()
         {
-            while (!atEnd() && peek() != '\n' )
+            while (!atEnd() && peek() != '\n')
             {
                 advance (peek() == '\\' && peek (1) == '\n' ? 2 : 1);
             }
@@ -193,20 +193,20 @@ namespace
             while (!atEnd())
             {
                 char c = peek();
-                if (c == '\n' )
+                if (c == '\n')
                 {
                     return;
                 }
-                if (c == '\\' && peek (1) == '\n' )
+                if (c == '\\' && peek (1) == '\n')
                 {
                     advance (2);
                 }
-                else if (c == '/' && peek (1) == '/' )
+                else if (c == '/' && peek (1) == '/')
                 {
                     trimTrailingSpace();
                     return;
                 }
-                else if (c == '/' && peek (1) == '*' )
+                else if (c == '/' && peek (1) == '*')
                 {
                     scanBlockComment();
                 }
@@ -236,7 +236,7 @@ namespace
         // so that they separate the two tokens instead.
         void trimTrailingSpace()
         {
-            while (my_pos > 0 && (previous() == ' ' || previous() == '\t' ))
+            while (my_pos > 0 && (previous() == ' ' || previous() == '\t'))
             {
                 --my_pos;
                 --my_column;
@@ -260,7 +260,7 @@ namespace
                 scanSuffix();
                 return TokenKind::String;
             }
-            if ((next == '"' || next == '\'' )
+            if ((next == '"' || next == '\'')
                 && (word == "L" || word == "u" || word == "U" || word == "u8"))
             {
                 scanQuoted (next);
@@ -279,7 +279,7 @@ namespace
             {
                 char c = peek();
                 char next = peek (1);
-                if ((c == 'e' || c == 'E' || c == 'p' || c == 'P') && (next == '+' || next == '-' ))
+                if ((c == 'e' || c == 'E' || c == 'p' || c == 'P') && (next == '+' || next == '-'))
                 {
                     advance (2);
                 }
@@ -300,10 +300,10 @@ namespace
         void scanQuoted (char quote)
         {
             advance();
-            while (!atEnd() && peek() != '\n' )
+            while (!atEnd() && peek() != '\n')
             {
                 char c = peek();
-                if (c == '\\' )
+                if (c == '\\')
                 {
                     advance (2);
                     continue;
@@ -330,7 +330,7 @@ namespace
             }
             if (open >= my_source.size() || my_source[open] != '(' || open - delimiter_start > 16)
             {
-                scanQuoted ( '"' );
+                scanQuoted ('"');
                 return;
             }
 
