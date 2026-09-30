@@ -197,7 +197,7 @@ namespace wisdom
         pieceAt (Coord coord) const
             -> ColoredPiece
         {
-            assert (coord.index() < Num_Squares);
+            ASSERT( coord.index() < Num_Squares );
             return my_squares[coord.index()];
         }
 

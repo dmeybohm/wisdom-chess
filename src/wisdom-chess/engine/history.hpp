@@ -22,7 +22,7 @@ namespace wisdom
     updateDrawStatus (BothPlayersDrawStatus initial, Color player, DrawStatus new_status)
         -> BothPlayersDrawStatus
     {
-        assert (player == Color::White || player == Color::Black);
+        ASSERT( player == Color::White || player == Color::Black );
         if (player == Color::White)
             return { new_status, initial.second };
         else
@@ -129,7 +129,7 @@ namespace wisdom
 
         void addPosition (const Board& board, Move move)
         {
-            expects (my_tentative_nesting_count == 0);
+            EXPECTS( my_tentative_nesting_count == 0 );
             my_stored_boards.emplace_back (board);
             my_board_codes.emplace_back (board.getBoardCode());
             my_move_history.push_back (move);
@@ -140,7 +140,7 @@ namespace wisdom
         // board with the other side to move.
         void replaceLastPosition (const Board& board)
         {
-            expects (my_tentative_nesting_count == 0);
+            EXPECTS( my_tentative_nesting_count == 0 );
             my_stored_boards.back() = board;
             my_board_codes.back() = board.getBoardCode();
         }

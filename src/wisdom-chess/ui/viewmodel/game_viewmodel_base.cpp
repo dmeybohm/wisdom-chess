@@ -284,7 +284,7 @@ namespace wisdom::ui
         auto game = getGame();
         auto optional_color = getFirstHumanPlayerColor (game->getPlayers());
 
-        expects (optional_color.has_value());
+        EXPECTS( optional_color.has_value() );
         auto who = *optional_color;
         auto opponent_color = colorInvert (who);
 

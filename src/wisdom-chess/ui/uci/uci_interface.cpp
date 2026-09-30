@@ -86,7 +86,7 @@ namespace wisdom
                 sendLine ("info " + output);
             }
 
-            void emergency (const string& output) const override
+            void emergency (string_view output) const override
             {
                 sendEmergencyLines (output);
             }

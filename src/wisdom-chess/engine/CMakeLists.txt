@@ -48,6 +48,7 @@ add_library(wisdom-chess-core STATIC
         board.hpp
         castling.hpp
         coord.hpp
+        error.hpp
         evaluate.hpp
         fen_parser.hpp
         game.hpp
@@ -60,9 +61,11 @@ add_library(wisdom-chess-core STATIC
         move.hpp
         move_list.hpp
         move_timer.hpp
+        narrow.hpp
         output_format.hpp
         piece.hpp
         position.hpp
+        ptr.hpp
         random.hpp
         search.hpp
         str.hpp

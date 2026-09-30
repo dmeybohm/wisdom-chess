@@ -31,9 +31,9 @@ namespace wisdom::ui::qml
         qDebug() << line.c_str();
     }
 
-    void ChessEngine::ChessEngineLogger::emergency (const std::string& line) const
+    void ChessEngine::ChessEngineLogger::emergency (std::string_view line) const
     {
-        qCritical() << line.c_str();
+        qCritical().noquote() << QString::fromUtf8 (line.data(), narrow_cast<qsizetype> (line.size()));
     }
 
     ChessEngine::ChessEngine (shared_ptr<ChessGame> game, int game_id, QObject* parent)

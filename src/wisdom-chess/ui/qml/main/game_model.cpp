@@ -230,7 +230,7 @@ namespace wisdom::ui::qml
 
         // The engine does not search again until the move it sent is shown,
         // so a second move can never arrive while one is held.
-        expects (!my_held_move.has_value());
+        EXPECTS( !my_held_move.has_value() );
 
         my_held_move = HeldMove { move, who, game_id };
         my_hold_timer.start (remaining);
@@ -722,7 +722,7 @@ namespace wisdom::ui::qml
         auto game_state = my_chess_game->state();
         auto optional_color = ui::getFirstHumanPlayerColor (game_state->getPlayers());
 
-        expects (optional_color.has_value());
+        EXPECTS( optional_color.has_value() );
         auto who = *optional_color;
         auto opponent_color = colorInvert (who);
         bool accepted = (status == DrawStatus::Accepted);

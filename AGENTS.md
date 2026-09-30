@@ -30,9 +30,12 @@ committing C++. The conventions below are about what the code does.
 - Everything is in the `wisdom::` namespace.
 - `[[nodiscard]]` on factory functions and getters.
 - `wisdom::narrow` and `wisdom::narrow_cast` for narrowing conversions.
-- `expects (cond)` / `ensures (cond)` (`engine/global.hpp`) check caller
-  input and throw. `noexcept_expects` aborts and belongs only in `noexcept`
-  functions.
+- `EXPECTS( cond )` / `ENSURES( cond )` (`engine/error.hpp`) check caller
+  input and throw. `NOEXCEPT_EXPECTS( cond )` aborts and belongs only in
+  `noexcept` functions. `ASSERT( cond )` replaces `assert()`: it aborts
+  only when `Debugging` is on, and otherwise the condition is not
+  evaluated. The macros quote the condition in the failure message, so
+  the functions under them (`expects()`, ...) are not called directly.
 - Report through `logEmergency()` (`engine/logger.hpp`) before
   terminating, never raw `std::cerr`. Every `Logger` implements
   `emergency()` without buffering, and every frontend's `main()` starts by
@@ -43,7 +46,7 @@ committing C++. The conventions below are about what the code does.
 - Frontends (console, QML, WASM/React) observe the game through
   `GameStatusUpdate`; a change to the `Game` API has to reach all of them.
 - Raw pointers never own; ownership is `unique_ptr` or `shared_ptr`.
-  Spell a non-owning pointer by its nullability (`engine/global.hpp`):
+  Spell a non-owning pointer by its nullability (`engine/ptr.hpp`):
   `nonnull<Type>` (`gsl::not_null<Type*>`) or `nullable<Type>`, which
   cannot be dereferenced: test it, then take `value()` for a `nonnull`.
   `unchecked_nonnull<Type>` checks for null only when constructed; use it

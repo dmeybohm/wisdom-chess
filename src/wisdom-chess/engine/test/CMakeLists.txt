@@ -73,7 +73,8 @@ if (WISDOM_CHESS_FAST_TESTS)
         set_tests_properties("Fatal: ${test_case}" PROPERTIES LABELS fast)
     endfunction()
 
-    wisdom_chess_add_fatal_test(append-overflow "Precondition failed at .*move_list\\.hpp")
+    wisdom_chess_add_fatal_test(append-overflow
+        "Precondition failed at .*move_list\\.hpp:[0-9]+: my_size < Max_Move_List_Size")
     wisdom_chess_add_fatal_test(remove-from-empty "Precondition failed at .*move_list\\.hpp")
     wisdom_chess_add_fatal_test(bad-castling-flags "Precondition failed at .*castling\\.hpp")
     wisdom_chess_add_fatal_test(bad-en-passant-row "Precondition failed at .*board_code\\.hpp")
@@ -85,6 +86,12 @@ if (WISDOM_CHESS_FAST_TESTS)
         wisdom_chess_add_fatal_test(uncaught-error "Uncaught error: boom")
         wisdom_chess_add_fatal_test(search-error "Uncaught error: boom.extra detail.[^[]*\\|")
         wisdom_chess_add_fatal_test(expects-through-noexcept "Uncaught error: Precondition failed at")
+    endif()
+
+    # ASSERT() only checks when NDEBUG is off, so the case aborts only in a
+    # Debug build.
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        wisdom_chess_add_fatal_test(assert-failure "Assertion failed at .*fatal_test_main\\.cpp:[0-9]+: condition")
     endif()
 
 endif()

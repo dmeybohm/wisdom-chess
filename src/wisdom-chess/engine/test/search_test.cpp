@@ -46,7 +46,7 @@ namespace wisdom::test
             throw Error { "boom", "extra detail" };
         }
 
-        void emergency ([[maybe_unused]] const string& output) const override
+        void emergency ([[maybe_unused]] string_view output) const override
         {
         }
     };
@@ -69,7 +69,7 @@ namespace wisdom::test
                 current_depth = std::stoi (output.substr (prefix.size()));
         }
 
-        void emergency ([[maybe_unused]] const string& output) const override
+        void emergency ([[maybe_unused]] string_view output) const override
         {
         }
 

@@ -22,7 +22,7 @@ namespace wisdom::ui::qml
             -> nonnull<T>
         {
             auto instance = maybe_instance.value();
-            expects (js_engine->thread() == instance->thread());
+            EXPECTS( js_engine->thread() == instance->thread() );
             QJSEngine::setObjectOwnership (instance, QJSEngine::CppOwnership);
             return instance;
         }

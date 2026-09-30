@@ -141,14 +141,14 @@ namespace wisdom
         if (movement.captured.has_value())
         {
             int captured_index = my_pieces.indexOf (*movement.captured);
-            expects (captured_index >= 0);
+            EXPECTS( captured_index >= 0 );
             my_pieces.removeAt (captured_index);
         }
 
         auto relocate = [this] (ui::PieceStep step) -> WebColoredPiece&
         {
             int index = my_pieces.indexOf (step.src);
-            expects (index >= 0);
+            EXPECTS( index >= 0 );
 
             auto& piece = my_pieces.pieces[index];
             piece.row = step.dst.row<int>();

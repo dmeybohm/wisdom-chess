@@ -71,7 +71,7 @@ namespace wisdom
     colorFromColorIndex (ColorIndex index)
         -> Color
     {
-        assert (index == Color_Index_White || index == Color_Index_Black);
+        ASSERT( index == Color_Index_White || index == Color_Index_Black );
         return static_cast<Color> (index + 1);
     }
 
@@ -114,7 +114,7 @@ namespace wisdom
     colorIndex (Color who)
         -> ColorIndex
     {
-        assert (who == Color::White || who == Color::Black);
+        ASSERT( who == Color::White || who == Color::Black );
         return narrow_cast<int8_t> (toInt8 (who) - 1);
     }
 
@@ -122,7 +122,7 @@ namespace wisdom
     colorInvert (Color who)
         -> Color
     {
-        assert (isColorValid (who));
+        ASSERT( isColorValid (who) );
         uint8_t inverted = !colorIndex (who);
         return colorFromColorIndex (narrow_cast<int8_t> (inverted));
     }
@@ -132,7 +132,7 @@ namespace wisdom
         -> int
     {
         auto piece_as_int = static_cast<int8_t> (piece);
-        assert (piece_as_int >= toInt8 (Piece::None) && piece_as_int <= toInt8 (Piece::King));
+        ASSERT( piece_as_int >= toInt8 (Piece::None) && piece_as_int <= toInt8 (Piece::King) );
         return piece_as_int;
     }
 
@@ -151,8 +151,8 @@ namespace wisdom
         make (Color color, Piece piece_type) noexcept
             -> ColoredPiece
         {
-            assert ((piece_type == Piece::None && color == Color::None) ||
-                (piece_type != Piece::None && color != Color::None));
+            ASSERT( (piece_type == Piece::None && color == Color::None) ||
+                (piece_type != Piece::None && color != Color::None) );
             auto color_as_int = toInt8 (color);
             auto piece_as_int = toInt8 (piece_type);
             auto result = narrow_cast<int8_t>(
