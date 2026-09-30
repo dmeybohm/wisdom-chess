@@ -642,65 +642,68 @@ namespace wisdom
         return result;
     }
 
-    static auto
-    generatePieceMoves (const Board& board, Color who, Coord coord)
-        -> MoveList
+    namespace
     {
-        MoveList result;
-        MoveGeneration generation { board, &result, 0, 0, who, nullopt };
-
-        generation.generate (board.pieceAt (coord), coord);
-
-        return result;
-    }
-
-    static auto
-    pieceHasLegalMove (const Board& board, Color who, Coord coord)
-        -> bool
-    {
-        for (auto move : generatePieceMoves (board, who, coord))
+        auto
+        generatePieceMoves (const Board& board, Color who, Coord coord)
+            -> MoveList
         {
-            Board new_board = board.withMove (who, move);
+            MoveList result;
+            MoveGeneration generation { board, &result, 0, 0, who, nullopt };
 
-            if (isLegalPositionAfterMove (new_board, who, move))
-                return true;
+            generation.generate (board.pieceAt (coord), coord);
+
+            return result;
         }
 
-        return false;
-    }
-
-    static auto
-    sharesLine (Coord a, Coord b)
-        -> bool
-    {
-        int row_diff = a.row<int>() - b.row<int>();
-        int col_diff = a.column<int>() - b.column<int>();
-
-        return row_diff == 0 || col_diff == 0
-            || row_diff == col_diff || row_diff == -col_diff;
-    }
-
-    // When the king is not in check, a move can only leave it attacked by
-    // opening one of its lines: the piece leaves a square on a line, or an
-    // en passant capture takes the pawn off one. Any other move is legal
-    // without a test.
-    static auto
-    hasMoveThatCannotExposeKing (const Board& board, Color who, Coord king_coord)
-        -> bool
-    {
-        for (auto coord : Board::allCoords())
+        auto
+        pieceHasLegalMove (const Board& board, Color who, Coord coord)
+            -> bool
         {
-            if (pieceColor (board.pieceAt (coord)) != who || sharesLine (coord, king_coord))
-                continue;
-
             for (auto move : generatePieceMoves (board, who, coord))
             {
-                if (!move.isEnPassant())
+                Board new_board = board.withMove (who, move);
+
+                if (isLegalPositionAfterMove (new_board, who, move))
                     return true;
             }
+
+            return false;
         }
 
-        return false;
+        auto
+        sharesLine (Coord a, Coord b)
+            -> bool
+        {
+            int row_diff = a.row<int>() - b.row<int>();
+            int col_diff = a.column<int>() - b.column<int>();
+
+            return row_diff == 0 || col_diff == 0
+                || row_diff == col_diff || row_diff == -col_diff;
+        }
+
+        // When the king is not in check, a move can only leave it attacked by
+        // opening one of its lines: the piece leaves a square on a line, or an
+        // en passant capture takes the pawn off one. Any other move is legal
+        // without a test.
+        auto
+        hasMoveThatCannotExposeKing (const Board& board, Color who, Coord king_coord)
+            -> bool
+        {
+            for (auto coord : Board::allCoords())
+            {
+                if (pieceColor (board.pieceAt (coord)) != who || sharesLine (coord, king_coord))
+                    continue;
+
+                for (auto move : generatePieceMoves (board, who, coord))
+                {
+                    if (!move.isEnPassant())
+                        return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     auto

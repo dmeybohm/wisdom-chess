@@ -143,7 +143,7 @@ TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
 
 TEST_CASE( "hasLegalMove" )
 {
-    auto boardFromFen = [](czstring fen_text) {
+    auto board_from_fen = [] (czstring fen_text) {
         FenParser fen { fen_text };
         auto game = fen.build();
         return Board { game.getBoard() };
@@ -162,7 +162,7 @@ TEST_CASE( "hasLegalMove" )
 
     SUBCASE( "A checkmated player has no legal move" )
     {
-        auto board = boardFromFen (
+        auto board = board_from_fen (
             "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3"
         );
 
@@ -175,7 +175,7 @@ TEST_CASE( "hasLegalMove" )
 
     SUBCASE( "A stalemated player has no legal move" )
     {
-        auto board = boardFromFen ("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
+        auto board = board_from_fen ("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
 
         CHECK( !hasLegalMove (board) );
         CHECK( isStalemated (board) );
@@ -184,7 +184,7 @@ TEST_CASE( "hasLegalMove" )
 
     SUBCASE( "A player in check with an evasion has a legal move" )
     {
-        auto board = boardFromFen ("4k3/8/8/8/8/8/4r3/4K3 w - - 0 1");
+        auto board = board_from_fen ("4k3/8/8/8/8/8/4r3/4K3 w - - 0 1");
 
         CHECK( hasLegalMove (board) );
         CHECK( !isCheckmated (board) );
@@ -193,7 +193,7 @@ TEST_CASE( "hasLegalMove" )
 
     SUBCASE( "A player in check whose only evasion is a block has a legal move" )
     {
-        auto board = boardFromFen ("6rk/6pp/8/8/8/8/1B6/K6R b - - 0 1");
+        auto board = board_from_fen ("6rk/6pp/8/8/8/8/1B6/K6R b - - 0 1");
         auto with_check = board.withMove (Color::Black, moveParse ("g7 g6", Color::Black));
         with_check = with_check.withMove (Color::White, moveParse ("b2 f6", Color::White));
 
@@ -206,7 +206,7 @@ TEST_CASE( "hasLegalMove" )
 
     SUBCASE( "A pinned piece is the only one that could move" )
     {
-        auto board = boardFromFen ("8/8/8/8/2q5/2b5/1R6/K1k5 w - - 0 1");
+        auto board = board_from_fen ("8/8/8/8/2q5/2b5/1R6/K1k5 w - - 0 1");
 
         CHECK( !hasLegalMove (board) );
         CHECK( !hasLegalMove (board, false) );
@@ -215,7 +215,7 @@ TEST_CASE( "hasLegalMove" )
 
     SUBCASE( "A blocked pawn away from the king's lines is no legal move" )
     {
-        auto board = boardFromFen ("k7/2Q5/8/8/7p/7P/8/6K1 b - - 0 1");
+        auto board = board_from_fen ("k7/2Q5/8/8/7p/7P/8/6K1 b - - 0 1");
 
         CHECK( !hasLegalMove (board) );
         CHECK( !hasLegalMove (board, false) );
@@ -224,7 +224,7 @@ TEST_CASE( "hasLegalMove" )
 
     SUBCASE( "A capture by a pawn away from the king's lines is a legal move" )
     {
-        auto board = boardFromFen ("k7/2Q5/8/8/7p/6NP/8/6K1 b - - 0 1");
+        auto board = board_from_fen ("k7/2Q5/8/8/7p/6NP/8/6K1 b - - 0 1");
 
         CHECK( generateLegalMoves (board, Color::Black).size() == 1 );
         CHECK( hasLegalMove (board) );
@@ -234,7 +234,7 @@ TEST_CASE( "hasLegalMove" )
     SUBCASE( "An en passant capture that exposes the king is no legal move" )
     {
         // Taking the pawn opens the diagonal from h1 to the king.
-        auto board = boardFromFen ("K7/7r/4p3/3pP3/8/8/8/1r4kb w - d6 0 1");
+        auto board = board_from_fen ("K7/7r/4p3/3pP3/8/8/8/1r4kb w - d6 0 1");
 
         CHECK( generateLegalMoves (board, Color::White).isEmpty() );
         CHECK( !hasLegalMove (board) );
@@ -255,7 +255,7 @@ TEST_CASE( "hasLegalMove" )
 
         for (auto fen_text : fens)
         {
-            auto board = boardFromFen (fen_text);
+            auto board = board_from_fen (fen_text);
             auto who = board.getCurrentTurn();
 
             INFO( fen_text );
@@ -280,13 +280,13 @@ TEST_CASE( "hasLegalMove" )
         };
 
         for (auto fen_text : fens)
-            checkHasLegalMoveInTree (boardFromFen (fen_text), 2);
+            checkHasLegalMoveInTree (board_from_fen (fen_text), 2);
     }
 }
 
 TEST_CASE( "generateCaptures" )
 {
-    auto boardFromFen = [](czstring fen_text) {
+    auto board_from_fen = [] (czstring fen_text) {
         FenParser fen { fen_text };
         auto game = fen.build();
         return Board { game.getBoard() };
@@ -302,7 +302,7 @@ TEST_CASE( "generateCaptures" )
 
     SUBCASE( "En passant is a capture" )
     {
-        auto board = boardFromFen (
+        auto board = board_from_fen (
             "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3"
         );
         auto captures = generateCaptures (board, Color::White);
@@ -313,7 +313,7 @@ TEST_CASE( "generateCaptures" )
 
     SUBCASE( "Only promotions to a queen are included" )
     {
-        auto board = boardFromFen ("1n6/P7/8/8/8/8/8/k6K w - - 0 1");
+        auto board = board_from_fen ("1n6/P7/8/8/8/8/8/k6K w - - 0 1");
         auto captures = generateCaptures (board, Color::White);
 
         CHECK( captures.size() == 2 );
@@ -335,7 +335,7 @@ TEST_CASE( "generateCaptures" )
 
         for (auto fen_text : fens)
         {
-            auto board = boardFromFen (fen_text);
+            auto board = board_from_fen (fen_text);
 
             for (auto who : { Color::White, Color::Black })
             {
@@ -360,7 +360,7 @@ TEST_CASE( "generateCaptures" )
 
 TEST_CASE( "generateLegalEnPassantMoves" )
 {
-    auto boardFromFen = [](czstring fen_text) {
+    auto board_from_fen = [] (czstring fen_text) {
         FenParser fen { fen_text };
         return fen.buildBoard();
     };
@@ -374,7 +374,7 @@ TEST_CASE( "generateLegalEnPassantMoves" )
 
     SUBCASE( "Both adjacent pawns can capture" )
     {
-        auto board = boardFromFen ("4k3/8/8/8/2pPp3/8/8/4K3 b - d3 0 1");
+        auto board = board_from_fen ("4k3/8/8/8/2pPp3/8/8/4K3 b - d3 0 1");
 
         MoveList expected { Color::Black, { "c4d3 ep" } };
         expected.append (moveParse ("e4d3 ep", Color::Black));
@@ -384,7 +384,7 @@ TEST_CASE( "generateLegalEnPassantMoves" )
 
     SUBCASE( "A pawn pinned on its file is left out while the other captures" )
     {
-        auto board = boardFromFen ("4k3/8/8/8/2pPp3/8/8/4R2K b - d3 0 1");
+        auto board = board_from_fen ("4k3/8/8/8/2pPp3/8/8/4R2K b - d3 0 1");
 
         MoveList expected { Color::Black, { "c4d3 ep" } };
 
@@ -393,28 +393,28 @@ TEST_CASE( "generateLegalEnPassantMoves" )
 
     SUBCASE( "A pawn pinned on a diagonal cannot capture" )
     {
-        auto board = boardFromFen ("8/1k6/8/8/3Pp3/8/8/K6B b - d3 0 1");
+        auto board = board_from_fen ("8/1k6/8/8/3Pp3/8/8/K6B b - d3 0 1");
 
         CHECK( generateLegalEnPassantMoves (board).isEmpty() );
     }
 
     SUBCASE( "The taken pawn cannot uncover a check on its diagonal" )
     {
-        auto board = boardFromFen ("8/k7/8/8/3Pp3/8/8/K5B1 b - d3 0 1");
+        auto board = board_from_fen ("8/k7/8/8/3Pp3/8/8/K5B1 b - d3 0 1");
 
         CHECK( generateLegalEnPassantMoves (board).isEmpty() );
     }
 
     SUBCASE( "Both pawns cannot leave a rank that shields the king" )
     {
-        auto board = boardFromFen ("8/8/8/8/R2Pp2k/8/8/4K3 b - d3 0 1");
+        auto board = board_from_fen ("8/8/8/8/R2Pp2k/8/8/4K3 b - d3 0 1");
 
         CHECK( generateLegalEnPassantMoves (board).isEmpty() );
     }
 
     SUBCASE( "Capturing the pawn that gives check is legal" )
     {
-        auto board = boardFromFen ("8/8/8/4k3/3Pp3/8/8/K7 b - d3 0 1");
+        auto board = board_from_fen ("8/8/8/4k3/3Pp3/8/8/K7 b - d3 0 1");
 
         MoveList expected { Color::Black, { "e4d3 ep" } };
 
@@ -423,15 +423,15 @@ TEST_CASE( "generateLegalEnPassantMoves" )
 
     SUBCASE( "A capture that leaves the king in check is not legal" )
     {
-        auto board = boardFromFen ("8/8/7k/8/3Pp3/8/8/K1B5 b - d3 0 1");
+        auto board = board_from_fen ("8/8/7k/8/3Pp3/8/8/K1B5 b - d3 0 1");
 
         CHECK( generateLegalEnPassantMoves (board).isEmpty() );
     }
 
     SUBCASE( "A double push on an edge file can be captured" )
     {
-        auto black_captures = boardFromFen ("4k3/8/8/8/Pp6/8/8/4K3 b - a3 0 1");
-        auto white_captures = boardFromFen ("4k3/8/8/6Pp/8/8/8/4K3 w - h6 0 1");
+        auto black_captures = board_from_fen ("4k3/8/8/8/Pp6/8/8/4K3 b - a3 0 1");
+        auto white_captures = board_from_fen ("4k3/8/8/6Pp/8/8/8/4K3 w - h6 0 1");
 
         MoveList black_expected { Color::Black, { "b4a3 ep" } };
         MoveList white_expected { Color::White, { "g5h6 ep" } };
@@ -461,7 +461,7 @@ TEST_CASE( "generateLegalEnPassantMoves" )
 
     SUBCASE( "A target of the player to move has none" )
     {
-        auto board = boardFromFen ("4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1");
+        auto board = board_from_fen ("4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1");
         auto white_to_move = board.withCurrentTurn (Color::White);
 
         CHECK( !generateLegalEnPassantMoves (board).isEmpty() );
@@ -481,6 +481,6 @@ TEST_CASE( "generateLegalEnPassantMoves" )
         };
 
         for (auto fen_text : fens)
-            checkEnPassantMovesInTree (boardFromFen (fen_text), 3);
+            checkEnPassantMovesInTree (board_from_fen (fen_text), 3);
     }
 }
