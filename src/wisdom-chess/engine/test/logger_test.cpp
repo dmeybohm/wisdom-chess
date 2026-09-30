@@ -26,9 +26,9 @@ namespace
             lines.push_back (LogEntry { LogLevel_Info, output });
         }
 
-        void emergency (const string& output) const override
+        void emergency (string_view output) const override
         {
-            emergencies.push_back (output);
+            emergencies.emplace_back (output);
         }
 
         mutable vector<string> emergencies;
@@ -480,7 +480,7 @@ namespace
 
     struct ThrowingLogger : RecordingLogger
     {
-        void emergency (const string& output) const override
+        void emergency (string_view output) const override
         {
             RecordingLogger::emergency (output);
             throw std::runtime_error { "logger failed" };
@@ -489,7 +489,7 @@ namespace
 
     struct ReentrantLogger : RecordingLogger
     {
-        void emergency (const string& output) const override
+        void emergency (string_view output) const override
         {
             RecordingLogger::emergency (output);
             logEmergency ("nested");

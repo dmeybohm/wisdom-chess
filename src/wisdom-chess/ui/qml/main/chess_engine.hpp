@@ -38,7 +38,7 @@ namespace wisdom::ui::qml
 
             void info (const std::string& string) const override;
 
-            void emergency (const std::string& string) const override;
+            void emergency (std::string_view line) const override;
         };
 
     public slots:

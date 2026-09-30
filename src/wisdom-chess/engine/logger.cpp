@@ -26,7 +26,7 @@ namespace wisdom
         {
         }
 
-        void emergency ([[maybe_unused]] const string& output) const override
+        void emergency ([[maybe_unused]] string_view output) const override
         {
         }
     };
@@ -52,7 +52,7 @@ namespace wisdom
                 write (output);
         }
 
-        void emergency (const string& output) const override
+        void emergency (string_view output) const override
         {
             std::cerr << output << '\n';
         }
@@ -299,12 +299,13 @@ namespace wisdom
         log (LogLevel_Info, output);
     }
 
-    void BufferedLogger::emergency (const string& output) const
+    void BufferedLogger::emergency (string_view output) const
     {
         string line;
         try
         {
-            line = formatLogTimestamp (chrono::system_clock::now()) + output;
+            line = formatLogTimestamp (chrono::system_clock::now());
+            line += output;
         }
         catch (...)
         {
@@ -423,7 +424,7 @@ namespace wisdom
         emergency_logger.swap (logger);
     }
 
-    void logEmergency (const string& message) noexcept
+    void logEmergency (string_view message) noexcept
     {
         // Each sink gets its own attempt, so a failure in one cannot cost the other.
         try

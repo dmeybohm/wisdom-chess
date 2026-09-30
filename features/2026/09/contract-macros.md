@@ -84,3 +84,32 @@ callee cannot see its caller's exception specification, so
   tests pass including all eight fatal cases. The slow tests and the
   WebAssembly build were not run; the only change there is the spelling
   of two `EXPECTS` calls in `web_game.cpp`.
+
+### Session #2
+
+The abort path no longer touches the heap. `terminateOnCheckFailure`
+builds its message in a fixed 1024-byte buffer on the stack, with
+`std::to_chars` for the line number, dropping text that does not fit,
+and hands it to `logEmergency()` as a `string_view`. The `try` around
+the old `string` concatenation, and its `std::cerr` fallback, went with
+it: nothing on the path can throw now.
+
+For that, `logEmergency()` and the virtual `Logger::emergency()` take
+`string_view` instead of `const string&`. The eleven implementations
+changed signature; two needed a body change. The QML logger converts
+the view with `QString::fromUtf8 (data, size)`, and the WebAssembly
+logger calls a new `consoleErrorBytes (str, length)` `EM_JS` function,
+since `UTF8ToString` needs either a terminator or a length. Both sinks
+still allocate on their own side, which is theirs to decide; the
+engine side is allocation-free up to the sink.
+
+The throw path (`EXPECTS`, `ENSURES`) still formats a `string` and
+`Error` still stores it in a `shared_ptr`, as before this branch.
+Making exceptions carry the location and condition as constants would
+change `Error::message()` for every caller, and is left for a branch
+of its own.
+
+- Verified: GCC Release build with the QML UI and Clang 18 Debug build,
+  no warnings, lint clean, all tests pass in both, including the nine
+  emergency and fatal cases. The React WASM target builds with
+  Emscripten; the browser console output was not checked by hand.

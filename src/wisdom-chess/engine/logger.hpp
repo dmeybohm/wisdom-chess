@@ -19,8 +19,10 @@ namespace wisdom
         virtual void debug (const string& output) const = 0;
         virtual void info (const string& output) const = 0;
 
-        // A fatal message, sent just before the process terminates. Must not buffer.
-        virtual void emergency (const string& output) const = 0;
+        // A fatal message, sent just before the process terminates. Must not
+        // buffer. The view may point into the caller's stack and is not
+        // null-terminated.
+        virtual void emergency (string_view output) const = 0;
     };
 
     // How much log output to retain while debug logging is switched off.
@@ -139,7 +141,7 @@ namespace wisdom
 
         void debug (const string& output) const override;
         void info (const string& output) const override;
-        void emergency (const string& output) const override;
+        void emergency (string_view output) const override;
 
     private:
         shared_ptr<Logger> my_sink;
@@ -166,7 +168,7 @@ namespace wisdom
     void setEmergencyLogger (shared_ptr<Logger> logger);
 
     // Writes the message to std::cerr and to the registered logger's emergency().
-    void logEmergency (const string& message) noexcept;
+    void logEmergency (string_view message) noexcept;
 
     // Reports uncaught exceptions through logEmergency() before terminating.
     void installEmergencyTerminateHandler();

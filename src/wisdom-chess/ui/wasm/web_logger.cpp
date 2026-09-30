@@ -6,6 +6,7 @@ extern "C"
 {
     EM_JS (void, consoleLog, (const char* str), { console.log (UTF8ToString (str)) }) // lint-allow(raw-pointer): EM_JS signature
     EM_JS (void, consoleError, (const char* str), { console.error (UTF8ToString (str)) }) // lint-allow(raw-pointer): EM_JS signature
+    EM_JS (void, consoleErrorBytes, (const char* str, int length), { console.error (UTF8ToString (str, length)) }) // lint-allow(raw-pointer): EM_JS signature
 };
 
 void wisdom::worker::WebLogger::consoleLog (czstring message)
@@ -28,8 +29,8 @@ void wisdom::worker::WebLogger::info (const std::string& output) const
     wisdom::worker::WebLogger::consoleLog (output.c_str());
 }
 
-void wisdom::worker::WebLogger::emergency (const std::string& output) const
+void wisdom::worker::WebLogger::emergency (std::string_view output) const
 {
-    wisdom::worker::WebLogger::consoleError (output.c_str());
+    ::consoleErrorBytes (output.data(), wisdom::narrow_cast<int> (output.size()));
 }
 

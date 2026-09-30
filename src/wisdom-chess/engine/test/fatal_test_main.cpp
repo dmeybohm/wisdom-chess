@@ -31,7 +31,7 @@ namespace
         {
         }
 
-        void emergency (const string& output) const override
+        void emergency (string_view output) const override
         {
             std::cout << "[emergency] " << output << std::endl;
         }

@@ -97,7 +97,8 @@ namespace wisdom
     );
 
     // Reports through logEmergency() and aborts. The kind names the check
-    // that failed, such as "Precondition".
+    // that failed, such as "Precondition". Allocates nothing: the message
+    // is built on the stack, since the heap may be what failed.
     [[noreturn]] void
     terminateOnCheckFailure (
         std::string_view kind,
