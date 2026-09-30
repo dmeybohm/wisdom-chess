@@ -117,7 +117,7 @@ namespace wisdom
 
         if (move.isPromoting())
         {
-            assert (pieceType (src_piece) == Piece::Pawn);
+            ASSERT( pieceType (src_piece) == Piece::Pawn );
             addPiece (dst, ColoredPiece::make (src_piece_color, move.getPromotedPiece()));
         }
         else

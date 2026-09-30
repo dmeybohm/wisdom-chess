@@ -33,7 +33,7 @@ namespace wisdom::ui
         const DrawAnswerCallback& answered
     )
     {
-        expects (isColorValid (who));
+        EXPECTS( isColorValid (who) );
 
         for (auto player : { who, colorInvert (who) })
         {

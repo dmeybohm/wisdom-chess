@@ -126,7 +126,7 @@ namespace wisdom
             EnPassantTargetState state
         ) noexcept
         {
-            noexcept_expects (
+            NOEXCEPT_EXPECTS(
                 coord.row() == (color == Color::White
                                     ? White_En_Passant_Row : Black_En_Passant_Row)
             );

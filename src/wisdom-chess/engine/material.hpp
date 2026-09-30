@@ -50,7 +50,7 @@ namespace wisdom
             my_score[color_idx] += weight (type);
             my_piece_count[color_idx][type_idx]++;
 
-            assert (my_piece_count[color_idx][type_idx] > 0);
+            ASSERT( my_piece_count[color_idx][type_idx] > 0 );
         }
 
         void remove (ColoredPiece piece)
@@ -62,7 +62,7 @@ namespace wisdom
             my_score[color_idx] -= weight (type);
             my_piece_count[color_idx][type_idx]--;
 
-            assert (my_piece_count[color_idx][type_idx] >= 0);
+            ASSERT( my_piece_count[color_idx][type_idx] >= 0 );
         }
 
         [[nodiscard]] auto

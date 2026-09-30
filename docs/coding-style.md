@@ -48,7 +48,9 @@ reason in the same comment, as in
   `if (x)`, `for (...)`. So does a lambda's capture list:
   `[&board] (int count)` but `[this]()`.
 - Test macros put spaces inside the parentheses instead:
-  `CHECK( x == y )`, `REQUIRE( ... )`, and Qt Test's `QCOMPARE( a, b )`
+  `CHECK( x == y )`, `REQUIRE( ... )`, and Qt Test's `QCOMPARE( a, b )`.
+  So do the contract macros of `engine/error.hpp`: `EXPECTS( x > 0 )`,
+  `ENSURES( ... )`, `NOEXCEPT_EXPECTS( ... )` and `ASSERT( ... )`
   [`test-macro-spacing`].
 - Brace initializers have spaces inside the braces:
   `Coord coord { row, col }`.

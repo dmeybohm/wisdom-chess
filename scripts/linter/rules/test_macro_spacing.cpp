@@ -16,7 +16,7 @@ namespace
 
         [[nodiscard]] auto description() const -> std::string_view override
         {
-            return "Test macros should have spaces inside parentheses: MACRO( content )";
+            return "Test and contract macros should have spaces inside parentheses: MACRO( content )";
         }
 
         [[nodiscard]] auto check (const LintContext& context) const
@@ -25,6 +25,7 @@ namespace
             std::vector<LintViolation> violations;
 
             static const std::unordered_set<std::string> test_macros = {
+                "EXPECTS", "NOEXCEPT_EXPECTS", "ENSURES", "ASSERT",
                 "TEST_CASE", "SUBCASE", "CHECK", "CHECK_FALSE", "REQUIRE", "REQUIRE_FALSE",
                 "WARN", "WARN_FALSE", "INFO", "CAPTURE", "GENERATE", "SECTION",
                 "CHECK_EQ", "CHECK_NE", "CHECK_GT", "CHECK_LT", "CHECK_GE", "CHECK_LE",

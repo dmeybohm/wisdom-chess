@@ -275,7 +275,7 @@ namespace wisdom
 
     void Game::setCurrentTurn (Color new_turn)
     {
-        expects (isColorValid (new_turn));
+        EXPECTS( isColorValid (new_turn) );
         my_pimpl->current_board = my_pimpl->current_board.withCurrentTurn (new_turn);
         my_pimpl->history.replaceLastPosition (my_pimpl->current_board);
     }
@@ -292,7 +292,7 @@ namespace wisdom
 
     auto Game::computerWantsDraw (Color who) const -> bool
     {
-        expects (isColorValid (who));
+        EXPECTS( isColorValid (who) );
         int score = evaluate (my_pimpl->current_board, who, 1);
         return score <= Min_Draw_Score;
     }
@@ -303,7 +303,7 @@ namespace wisdom
         drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires)
              -> DrawStatus
         {
-            assert (bothPlayersReplied (draw_desires));
+            ASSERT( bothPlayersReplied (draw_desires) );
 
             bool white_wants_draw = draw_desires.first == DrawStatus::Accepted;
             bool black_wants_draw = draw_desires.second == DrawStatus::Accepted;
@@ -327,7 +327,7 @@ namespace wisdom
 
     void Game::setProposedDrawStatus (ProposedDrawType draw_type, Color who, DrawStatus draw_status)
     {
-        expects (isColorValid (who));
+        EXPECTS( isColorValid (who) );
         switch (draw_type)
         {
             case ProposedDrawType::ThreeFoldRepetition:
@@ -381,7 +381,7 @@ namespace wisdom
 
     auto Game::getPlayer (Color color) const -> Player
     {
-        expects (isColorValid (color));
+        EXPECTS( isColorValid (color) );
         return my_pimpl->players[colorIndex (color)];
     }
 
@@ -402,7 +402,7 @@ namespace wisdom
 
     void Game::setMaxDepth (int max_depth)
     {
-        expects (max_depth > 0);
+        EXPECTS( max_depth > 0 );
         my_pimpl->max_depth = max_depth;
     }
 
@@ -413,7 +413,7 @@ namespace wisdom
 
     void Game::setSearchTimeout (chrono::milliseconds timeout)
     {
-        expects (timeout > chrono::milliseconds::zero());
+        EXPECTS( timeout > chrono::milliseconds::zero() );
         my_pimpl->move_timer.setTimeLimit (timeout);
     }
 

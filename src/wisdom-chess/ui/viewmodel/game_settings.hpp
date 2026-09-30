@@ -48,7 +48,7 @@ namespace wisdom::ui
         // Configure the engine's game. Throws when a value is out of range.
         void applyTo (nonnull<Game> game) const
         {
-            expects (isInRange());
+            EXPECTS( isInRange() );
             game->setMaxDepth (searchDepthInPlies());
             game->setSearchTimeout (chrono::seconds { thinkingTime });
             game->setPlayers (players);

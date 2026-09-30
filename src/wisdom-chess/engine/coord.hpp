@@ -41,7 +41,7 @@ namespace wisdom
         fromIndex (int index)
             -> Coord
         {
-            assert (index >= 0 && index < Num_Squares);
+            ASSERT( index >= 0 && index < Num_Squares );
             return { .row_and_col = narrow_cast<int8_t> (index) };
         }
 
@@ -49,7 +49,7 @@ namespace wisdom
         make (int row, int col)
             -> Coord
         {
-            assert (isValidRow (row) && isValidColumn (col));
+            ASSERT( isValidRow (row) && isValidColumn (col) );
             Coord result = { .row_and_col = narrow_cast<int8_t> (row << 3 | col) };
             return result;
         }
@@ -180,7 +180,7 @@ namespace wisdom
     rowToChar (int8_t row)
         -> char
     {
-        assert (isValidRow (row));
+        ASSERT( isValidRow (row) );
         return narrow<char> (8 - row + '0');
     }
 
@@ -188,7 +188,7 @@ namespace wisdom
     colToChar (int8_t col)
         -> char
     {
-        assert (isValidColumn (col));
+        ASSERT( isValidColumn (col) );
         return narrow<char> (col + 'a');
     }
 

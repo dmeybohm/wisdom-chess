@@ -221,3 +221,58 @@ TEST_CASE( "nullable" )
         CHECK( ptr.get() == &value );
     }
 }
+
+TEST_CASE( "EXPECTS quotes the condition and the location in the error" )
+{
+    try
+    {
+        EXPECTS( 1 + 1 == 3 );
+        FAIL( "EXPECTS did not throw" );
+    }
+    catch (const PreconditionError& error)
+    {
+        CHECK( error.message().find ("Precondition failed at ") == 0 );
+        CHECK( error.message().find ("global_test.cpp:") != string::npos );
+        CHECK( error.message().find (": 1 + 1 == 3") != string::npos );
+        CHECK( !error.extraInfo().empty() );
+    }
+}
+
+TEST_CASE( "ENSURES quotes the condition in the error" )
+{
+    try
+    {
+        ENSURES( 2 * 2 == 5 );
+        FAIL( "ENSURES did not throw" );
+    }
+    catch (const PostconditionError& error)
+    {
+        CHECK( error.message().find ("Postcondition failed at ") == 0 );
+        CHECK( error.message().find (": 2 * 2 == 5") != string::npos );
+    }
+}
+
+TEST_CASE( "ASSERT" )
+{
+    SUBCASE( "A true condition passes" )
+    {
+        ASSERT( 1 + 1 == 2 );
+    }
+
+    SUBCASE( "Evaluates the condition only when Debugging is on" )
+    {
+        int evaluations = 0;
+        ASSERT( ++evaluations > 0 );
+        CHECK( evaluations == (Debugging ? 1 : 0) );
+    }
+
+    SUBCASE( "A true condition works in a constant expression" )
+    {
+        constexpr auto checked = []
+        {
+            ASSERT( Num_Rows == 8 );
+            return true;
+        }();
+        static_assert (checked);
+    }
+}

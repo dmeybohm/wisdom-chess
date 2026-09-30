@@ -58,14 +58,14 @@ namespace wisdom
         constexpr void
         append (Move move) noexcept
         {
-            noexcept_expects (my_size < Max_Move_List_Size);
+            NOEXCEPT_EXPECTS( my_size < Max_Move_List_Size );
             my_moves[my_size++] = move;
         }
 
         constexpr void
         removeLast() noexcept
         {
-            noexcept_expects (my_size > 0);
+            NOEXCEPT_EXPECTS( my_size > 0 );
             my_size--;
         }
 
@@ -141,7 +141,7 @@ namespace wisdom
         front() const
             -> Move
         {
-            expects (my_size > 0);
+            EXPECTS( my_size > 0 );
             return my_moves[0];
         }
 
@@ -149,7 +149,7 @@ namespace wisdom
         back() const
             -> Move
         {
-            expects (my_size > 0);
+            EXPECTS( my_size > 0 );
             return my_moves[my_size - 1];
         }
 

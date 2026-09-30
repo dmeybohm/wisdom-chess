@@ -31,8 +31,8 @@ namespace wisdom
         Move move
     ) noexcept
     {
-        assert (my_half_move_clock < std::numeric_limits<int>::max());
-        assert (my_full_move_clock < std::numeric_limits<int>::max());
+        ASSERT( my_half_move_clock < std::numeric_limits<int>::max() );
+        ASSERT( my_full_move_clock < std::numeric_limits<int>::max() );
 
         if (move.isAnyCapturing() || orig_src_piece_type == Piece::Pawn)
             my_half_move_clock = 0;
@@ -67,8 +67,8 @@ namespace wisdom
         Coord taken_pawn_pos = enPassantTakenPawnCoord (src, dst);
         [[maybe_unused]] ColoredPiece taken_piece = pieceAt (taken_pawn_pos);
 
-        assert (pieceType (taken_piece) == Piece::Pawn);
-        assert (pieceColor (taken_piece) == colorInvert (who));
+        ASSERT( pieceType (taken_piece) == Piece::Pawn );
+        ASSERT( pieceColor (taken_piece) == colorInvert (who) );
 
         setPiece (taken_pawn_pos, Piece_And_Color_None);
 
@@ -84,13 +84,13 @@ namespace wisdom
     {
         Move rook_move = castlingRookMove (king_move);
 
-        assert (pieceType (pieceAt (src)) == Piece::King);
-        assert (abs (src.column() - dst.column()) == 2);
+        ASSERT( pieceType (pieceAt (src)) == Piece::King );
+        ASSERT( abs (src.column() - dst.column()) == 2 );
 
         auto rook_src = rook_move.getSrc();
         auto rook_dst = rook_move.getDst();
 
-        assert (pieceType (pieceAt (rook_src)) == Piece::Rook);
+        ASSERT( pieceType (pieceAt (rook_src)) == Piece::Rook );
 
         auto empty_piece = ColoredPiece::make (Color::None, Piece::None);
 
@@ -138,8 +138,8 @@ namespace wisdom
         Coord dst
     ) noexcept
     {
-        assert (pieceColor (dst_piece) == opponent);
-        assert (pieceType (dst_piece) == Piece::Rook);
+        ASSERT( pieceColor (dst_piece) == opponent );
+        ASSERT( pieceType (dst_piece) == Piece::Rook );
 
         optional<CastlingEligibility> castle_state = nullopt;
 
@@ -168,8 +168,8 @@ namespace wisdom
         Coord src
     ) noexcept
     {
-        assert (pieceColor (src_piece) == player);
-        assert (pieceType (src_piece) == Piece::Rook);
+        ASSERT( pieceColor (src_piece) == player );
+        ASSERT( pieceType (src_piece) == Piece::Rook );
 
         optional<CastlingEligibility> affects_castle_state = nullopt;
         int castle_src_row = player == Color::White ? Last_Row : First_Row;
@@ -257,7 +257,7 @@ namespace wisdom
     void
     Board::makeMove (Color who, Move move) noexcept
     {
-        assert (who == my_code.getCurrentTurn());
+        ASSERT( who == my_code.getCurrentTurn() );
 
         Coord src = move.getSrc();
         Coord dst = move.getDst();
@@ -266,13 +266,13 @@ namespace wisdom
         auto orig_src_piece = src_piece;
         auto dst_piece = pieceAt (dst);
 
-        assert (pieceType (src_piece) != Piece::None);
-        assert (pieceColor (src_piece) == who);
+        ASSERT( pieceType (src_piece) != Piece::None );
+        ASSERT( pieceColor (src_piece) == who );
         if (pieceType (dst_piece) != Piece::None)
-            assert (move.isNormalCapturing());
+            ASSERT( move.isNormalCapturing() );
 
         if (pieceType (dst_piece) != Piece::None)
-            assert (pieceColor (src_piece) != pieceColor (dst_piece));
+            ASSERT( pieceColor (src_piece) != pieceColor (dst_piece) );
 
         if (move.isPromoting())
         {
@@ -284,12 +284,12 @@ namespace wisdom
         switch (move.getMoveCategory())
         {
             case MoveCategory::Default:
-                assert (pieceType (dst_piece) == Piece::None);
+                ASSERT( pieceType (dst_piece) == Piece::None );
                 break;
 
             case MoveCategory::NormalCapturing:
-                assert (move.isNormalCapturing());
-                assert (pieceColor (src_piece) != pieceColor (dst_piece));
+                ASSERT( move.isNormalCapturing() );
+                ASSERT( pieceColor (src_piece) != pieceColor (dst_piece) );
                 break;
 
             case MoveCategory::EnPassant:

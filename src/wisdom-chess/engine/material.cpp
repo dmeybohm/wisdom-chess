@@ -20,13 +20,13 @@ namespace wisdom
             -> Material::CheckmateIsPossible
         {
             auto first_coord = board.findFirstCoordWithPiece (Piece::Bishop);
-            assert (first_coord.has_value());
+            ASSERT( first_coord.has_value() );
 
             auto starting_at = nextCoord (*first_coord);
-            assert (starting_at.has_value());
+            ASSERT( starting_at.has_value() );
 
             auto second_coord = board.findFirstCoordWithPiece (Piece::Bishop, *starting_at);
-            assert (second_coord.has_value());
+            ASSERT( second_coord.has_value() );
 
             return (coordColor (*first_coord) == coordColor (*second_coord))
                 ? Material::CheckmateIsPossible::No

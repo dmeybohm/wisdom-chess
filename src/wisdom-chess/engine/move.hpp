@@ -249,7 +249,7 @@ namespace wisdom
         withPromotion (Piece piece_type) const noexcept
             -> Move
         {
-            assert (piece_type != Piece::None);
+            ASSERT( piece_type != Piece::None );
             Move result = *this;
             bool is_capture = (result.getCombined() == Combined_Normal_Capture);
             auto base = is_capture ? Combined_Promote_Capture_Base : Combined_Promote_Base;
@@ -261,7 +261,7 @@ namespace wisdom
         withCapture() const noexcept
             -> Move
         {
-            assert (getCombined() == Combined_Default);
+            ASSERT( getCombined() == Combined_Default );
             Move result = *this;
             result.setCombined (Combined_Normal_Capture);
             return result;
@@ -361,7 +361,7 @@ namespace wisdom
     castlingRookMove (Move king_move) noexcept
         -> Move
     {
-        assert (king_move.isCastling());
+        ASSERT( king_move.isCastling() );
 
         auto row = king_move.getSrc().row<int>();
         bool is_kingside = king_move.isCastlingOnKingside();

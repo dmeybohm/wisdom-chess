@@ -108,7 +108,7 @@ namespace wisdom
                 case Piece::King:
                     return king_positions[row][col];
                 default:
-                    terminateOnPreconditionFailure();
+                    terminateOnCheckFailure ("Precondition", "a piece type", std::source_location::current());
             }
         }
     }
@@ -119,10 +119,10 @@ namespace wisdom
     {
         ColorIndex index = colorIndex (who);
         ColorIndex inverted = colorIndex (colorInvert (who));
-        assert (my_score[index] < 3000 && my_score[index] > -3000);
-        assert (my_score[inverted] < 3000 && my_score[inverted] > -3000);
+        ASSERT( my_score[index] < 3000 && my_score[index] > -3000 );
+        ASSERT( my_score[inverted] < 3000 && my_score[inverted] > -3000 );
         int result = my_score[index] - my_score[inverted];
-        assert (result < 3000);
+        ASSERT( result < 3000 );
         return result * Position_Score_Scale;
     }
 

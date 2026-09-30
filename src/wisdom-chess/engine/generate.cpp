@@ -172,8 +172,8 @@ namespace wisdom
         ColoredPiece src_piece = board.pieceAt (src);
         ColoredPiece dst_piece = board.pieceAt (dst);
 
-        assert (pieceType (src_piece) != Piece::None);
-        assert (pieceColor (src_piece) != Color::None);
+        ASSERT( pieceType (src_piece) != Piece::None );
+        ASSERT( pieceColor (src_piece) != Color::None );
 
         if (pieceColor (src_piece) == pieceColor (dst_piece))
             return;
@@ -295,13 +295,13 @@ namespace wisdom
 
         if (left_column == target_column)
         {
-            assert (isValidColumn (left_column));
+            ASSERT( isValidColumn (left_column) );
             return left_column;
         }
 
         if (right_column == target_column)
         {
-            assert (isValidColumn (right_column));
+            ASSERT( isValidColumn (right_column) );
             return right_column;
         }
 
@@ -315,10 +315,10 @@ namespace wisdom
         // row is _guaranteed_ to be on the board, because
         // a pawn on the eight rank can't remain a pawn, and that's
         // the only direction moved in
-        assert (isValidRow (piece_row));
+        ASSERT( isValidRow (piece_row) );
 
         int row = nextRow (piece_row, dir);
-        assert (isValidRow (row));
+        ASSERT( isValidRow (row) );
 
         array<optional<Move>, 4> all_pawn_moves { nullopt, nullopt, nullopt, nullopt };
 
@@ -403,8 +403,8 @@ namespace wisdom
 
         [[maybe_unused]] ColoredPiece take_piece = board.pieceAt (piece_row, take_col);
 
-        assert (pieceType (take_piece) == Piece::Pawn);
-        assert (pieceColor (take_piece) == colorInvert (who));
+        ASSERT( pieceType (take_piece) == Piece::Pawn );
+        ASSERT( pieceColor (take_piece) == colorInvert (who) );
 
         Move new_move = Move::makeEnPassant (piece_row, piece_col, take_row, take_col);
 
@@ -447,7 +447,7 @@ namespace wisdom
         materialDiff (const Board& board, Move move)
             -> int
         {
-            assert (move.isAnyCapturing());
+            ASSERT( move.isAnyCapturing() );
 
             if (move.isEnPassant())
             {
@@ -725,7 +725,7 @@ namespace wisdom
         Color who = board.getCurrentTurn();
         Coord king_coord = board.getKingPosition (who);
 
-        assert (in_check == isKingThreatened (board, who, king_coord));
+        ASSERT( in_check == isKingThreatened (board, who, king_coord) );
 
         if (!in_check && hasMoveThatCannotExposeKing (board, who, king_coord))
             return true;
@@ -759,7 +759,7 @@ namespace wisdom
     needPawnPromotion (int row, Color who)
         -> bool
     {
-        assert (isColorValid (who));
+        ASSERT( isColorValid (who) );
         switch (who)
         {
             case Color::White:

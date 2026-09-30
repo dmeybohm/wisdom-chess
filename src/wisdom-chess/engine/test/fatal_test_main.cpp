@@ -109,9 +109,15 @@ namespace
         volatile bool condition = false;
         auto checked = [&]() noexcept
         {
-            expects (condition);
+            EXPECTS( condition );
         };
         checked();
+    }
+
+    void assertFailure()
+    {
+        volatile bool condition = false;
+        ASSERT( condition );
     }
 }
 
@@ -146,6 +152,8 @@ main (int argc, char* argv[]) // lint-allow(raw-pointer): main's signature
         searchError();
     else if (test_case == "expects-through-noexcept")
         expectsThroughNoexcept();
+    else if (test_case == "assert-failure")
+        assertFailure();
     else
     {
         std::cout << "Unknown case: " << test_case << "\n";

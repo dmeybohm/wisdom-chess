@@ -20,13 +20,15 @@
 #include <chrono>
 #include <iosfwd>
 #include <cctype>
-#include <cassert>
 #include <type_traits>
 #include <random>
 #include <source_location>
 
 #include <gsl/gsl>
 #include <gsl/narrow>
+
+#include "wisdom-chess/engine/error.hpp"
+#include "wisdom-chess/engine/ptr.hpp"
 
 namespace wisdom
 {
@@ -44,18 +46,6 @@ namespace wisdom
     using std::vector;
     using std::string_view;
     using std::span;
-
-    // Raw pointers never own; owning pointers are unique_ptr or shared_ptr.
-    // A non-owning pointer is named by whether it may be null: nonnull here,
-    // nullable and unchecked_nonnull below.
-    template <typename T>
-    using nonnull = gsl::not_null<T*>; // lint-allow(raw-pointer): defines the pointer types
-
-    // An owning raw pointer, for an object whose deletion is arranged outside
-    // C++'s ownership types: Qt's deleteLater() takes it over, or it is
-    // returned to JavaScript, which destroys it.
-    template <typename T>
-    using owning = gsl::owner<T*>; // lint-allow(raw-pointer): defines the pointer types
 
     namespace chrono = std::chrono;
 
@@ -217,220 +207,4 @@ namespace wisdom
 
         return static_cast<Target> (value);
     }
-
-    // Errors in this application.
-    class Error : public std::exception
-    {
-    private:
-        struct Text
-        {
-            string message;
-            string extra_info;
-        };
-
-        // Shared, so that copying the exception cannot throw.
-        shared_ptr<const Text> my_text;
-
-    public:
-        Error (string message, string extra_info)
-            : my_text { make_shared<const Text> (Text { std::move (message), std::move (extra_info) }) }
-        {
-        }
-
-        explicit Error (string message)
-            : Error (std::move (message), "")
-        {
-        }
-
-        // Declared so that there is no move, which would leave my_text empty.
-        Error (const Error& src) noexcept = default;
-        auto operator= (const Error& src) noexcept -> Error& = default;
-
-        [[nodiscard]] auto
-        message() const noexcept
-            -> const string&
-        {
-            return my_text->message;
-        }
-
-        [[nodiscard]] auto
-        extraInfo() const noexcept
-            -> const string&
-        {
-            return my_text->extra_info;
-        }
-
-        [[nodiscard]] czstring what() const noexcept override
-        {
-            return my_text->message.c_str();
-        }
-    };
-
-    class PreconditionError : public Error
-    {
-    public:
-        using Error::Error;
-    };
-
-    class PostconditionError : public Error
-    {
-    public:
-        using Error::Error;
-    };
-
-    [[noreturn]] void
-    throwPreconditionError (const std::source_location& location);
-
-    [[noreturn]] void
-    throwPostconditionError (const std::source_location& location);
-
-    // Throws PreconditionError when the condition is false. In a constant
-    // expression, a false condition is a compile error instead.
-    constexpr void
-    expects (
-        bool condition,
-        const std::source_location& location = std::source_location::current()
-    )
-    {
-        if (!condition) [[unlikely]]
-            throwPreconditionError (location);
-    }
-
-    [[noreturn]] void
-    terminateOnPreconditionFailure (
-        const std::source_location& location = std::source_location::current()
-    ) noexcept;
-
-    // Prints the failure and terminates when the condition is false. For
-    // noexcept functions, where expects() could not propagate its exception.
-    constexpr void
-    noexcept_expects (
-        bool condition,
-        const std::source_location& location = std::source_location::current()
-    ) noexcept
-    {
-        if (!condition) [[unlikely]]
-            terminateOnPreconditionFailure (location);
-    }
-
-    // Throws PostconditionError when the condition is false.
-    constexpr void
-    ensures (
-        bool condition,
-        const std::source_location& location = std::source_location::current()
-    )
-    {
-        if (!condition) [[unlikely]]
-            throwPostconditionError (location);
-    }
-
-    // A non-owning pointer that may be null. It cannot be dereferenced: test
-    // it, then take value() to get a nonnull.
-    template <typename T>
-    class nullable
-    {
-    public:
-        constexpr nullable() noexcept = default;
-
-        constexpr nullable (std::nullptr_t) noexcept
-        {
-        }
-
-        constexpr nullable (T* ptr) noexcept // lint-allow(raw-pointer)
-            : my_ptr { ptr }
-        {
-        }
-
-        constexpr nullable (nonnull<T> ptr) noexcept
-            : my_ptr { ptr.get() }
-        {
-        }
-
-        template <typename U>
-            requires std::is_convertible_v<U*, T*> // lint-allow(raw-pointer)
-        constexpr nullable (nullable<U> other) noexcept
-            : my_ptr { other.unsafeGet() }
-        {
-        }
-
-        [[nodiscard]] constexpr explicit
-        operator bool() const noexcept
-        {
-            return my_ptr != nullptr;
-        }
-
-        // Throws PreconditionError when null.
-        [[nodiscard]] constexpr auto
-        value() const
-            -> nonnull<T>
-        {
-            expects (my_ptr != nullptr);
-            return my_ptr;
-        }
-
-        // For an API that takes a raw pointer. The result may be null.
-        [[nodiscard]] constexpr auto
-        unsafeGet() const noexcept
-            -> T* // lint-allow(raw-pointer)
-        {
-            return my_ptr;
-        }
-
-        [[nodiscard]] constexpr auto
-        operator== (const nullable& other) const noexcept
-            -> bool = default;
-
-    private:
-        T* my_ptr = nullptr; // lint-allow(raw-pointer)
-    };
-
-    // Like nonnull, but checks for null only when constructed, not on each
-    // dereference. For pointers dereferenced in a hot loop, where a
-    // benchmark shows the check matters.
-    template <typename T>
-    class unchecked_nonnull
-    {
-    public:
-        constexpr unchecked_nonnull (T* ptr) // lint-allow(raw-pointer)
-            : my_ptr { ptr }
-        {
-            expects (ptr != nullptr);
-        }
-
-        constexpr unchecked_nonnull (nonnull<T> ptr) noexcept
-            : my_ptr { ptr.get() }
-        {
-        }
-
-        constexpr unchecked_nonnull (nullable<T> ptr)
-            : my_ptr { ptr.value().get() }
-        {
-        }
-
-        unchecked_nonnull (std::nullptr_t) = delete;
-
-        [[nodiscard]] constexpr auto
-        get() const noexcept
-            -> T* // lint-allow(raw-pointer)
-        {
-            return my_ptr;
-        }
-
-        constexpr auto
-        operator->() const noexcept
-            -> T* // lint-allow(raw-pointer)
-        {
-            return my_ptr;
-        }
-
-        constexpr auto
-        operator*() const noexcept
-            -> T&
-        {
-            return *my_ptr;
-        }
-
-    private:
-        T* my_ptr; // lint-allow(raw-pointer)
-    };
 }
