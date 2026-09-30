@@ -65,6 +65,9 @@ number for it, and the first step is to get one.
    against 23.71s), which is not a search measurement. Measure with
    `--search-report` first. The candidates are listed under
    [Item 3](#item-3-options-for-a-cheaper-haslegalmove) below.
+   **Done** on the `cheaper-has-legal-move` branch
+   ([cheaper-has-legal-move.md](cheaper-has-legal-move.md)): 2.3 to
+   4.5 times faster at depth 8 and +115 Elo over 500 games at 8+0.08.
 4. **Pruning and reductions.** None of null-move pruning, late-move
    reductions, principal-variation search, aspiration windows or check
    extensions are present, and no feature log has considered them. Each
@@ -89,6 +92,21 @@ number for it, and the first step is to get one.
    generator redesign and the piece of work shared with item 3. Not
    measured; a profile of the `search/*` benchmarks would show what the
    sort costs.
+17. **Board copies for moves that turn out illegal.** Added after item
+    3 landed. Both search loops make every pseudo-legal move with
+    `Board::withMove()` and then test it with
+    `isLegalPositionAfterMove()`. Session #2 of
+    [cheaper-has-legal-move.md](cheaper-has-legal-move.md) counted 6.64
+    million tests in the depth-6 report, of which 2.30 million (35%)
+    found the move illegal, each after a board copy made for nothing.
+    Most of those should be at nodes in check, where every pseudo-legal
+    move is tried for the 3 to 8 evasions, but the count was not split
+    by node type. Two ways to spend less: an evasion generator for nodes
+    in check, or a legality test that runs before the move is made,
+    from the pins and the attacked squares. Not measured. Already
+    measured and not worth a branch: item 3's shortcut applied to
+    `isLegalPositionAfterMove()` gains 2%, because the copy stays and
+    only the threat test is saved.
 
 ### Engine: evaluation
 
@@ -458,3 +476,12 @@ score.
   limit.
 - Not measured: the options themselves, other than option 3's
   answers, and any position where a stalemate occurs.
+
+### Session #4
+
+- Item 3 is done on the `cheaper-has-legal-move` branch, with option 3
+  and option 2 as its fallback. Marked it so.
+- Added item 17 from what that branch's Session #2 measured: the board
+  copies made for moves that turn out illegal. The same shortcut on
+  `isLegalPositionAfterMove()` was measured there at 2% and is not an
+  item.
