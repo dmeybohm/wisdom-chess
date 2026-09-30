@@ -24,9 +24,10 @@ anyway (the turn not flipping after a move), was left out.
   per board built.
 - **`Board::makeMove`.** The same king check, as `ASSERT`, since the
   function is `noexcept` and on the hot path.
-- **`evaluateWithoutMateTest`.** `ASSERT` that the score stays inside
+- **`evaluateWithoutMateTest`.** `ENSURES` that the score stays inside
   `Max_Non_Checkmate_Score`. The constants were pinned by
-  `static_assert`; the computed sum was not.
+  `static_assert`; the computed sum was not. It is on in Release, at
+  every evaluation; "Benchmarks" below has what that costs.
 - **`TranspositionTable::fromEntries`.** A precondition rather than a
   postcondition: `EXPECTS( std::has_single_bit (entry_count) )`. The
   index mask is the count minus one, so a count that is not a power of
