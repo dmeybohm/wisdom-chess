@@ -654,22 +654,105 @@ namespace wisdom
         return result;
     }
 
+    namespace
+    {
+        auto
+        generatePieceMoves (const Board& board, Color who, Coord coord)
+            -> MoveList
+        {
+            MoveList result;
+            MoveGeneration generation { board, &result, 0, 0, who, nullopt };
+
+            generation.generate (board.pieceAt (coord), coord);
+
+            return result;
+        }
+
+        auto
+        pieceHasLegalMove (const Board& board, Color who, Coord coord)
+            -> bool
+        {
+            for (auto move : generatePieceMoves (board, who, coord))
+            {
+                Board new_board = board.withMove (who, move);
+
+                if (isLegalPositionAfterMove (new_board, who, move))
+                    return true;
+            }
+
+            return false;
+        }
+
+        auto
+        sharesLine (Coord a, Coord b)
+            -> bool
+        {
+            int row_diff = a.row<int>() - b.row<int>();
+            int col_diff = a.column<int>() - b.column<int>();
+
+            return row_diff == 0 || col_diff == 0
+                || row_diff == col_diff || row_diff == -col_diff;
+        }
+
+        // When the king is not in check, a move can only leave it attacked by
+        // opening one of its lines: the piece leaves a square on a line, or an
+        // en passant capture takes the pawn off one. Any other move is legal
+        // without a test.
+        auto
+        hasMoveThatCannotExposeKing (const Board& board, Color who, Coord king_coord)
+            -> bool
+        {
+            for (auto coord : Board::allCoords())
+            {
+                if (pieceColor (board.pieceAt (coord)) != who || sharesLine (coord, king_coord))
+                    continue;
+
+                for (auto move : generatePieceMoves (board, who, coord))
+                {
+                    if (!move.isEnPassant())
+                        return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    auto
+    hasLegalMove (const Board& board, bool in_check)
+        -> bool
+    {
+        Color who = board.getCurrentTurn();
+        Coord king_coord = board.getKingPosition (who);
+
+        assert (in_check == isKingThreatened (board, who, king_coord));
+
+        if (!in_check && hasMoveThatCannotExposeKing (board, who, king_coord))
+            return true;
+
+        if (pieceHasLegalMove (board, who, king_coord))
+            return true;
+
+        for (auto coord : Board::allCoords())
+        {
+            if (pieceColor (board.pieceAt (coord)) != who || coord == king_coord)
+                continue;
+
+            if (pieceHasLegalMove (board, who, coord))
+                return true;
+        }
+
+        return false;
+    }
+
     auto
     hasLegalMove (const Board& board)
         -> bool
     {
         Color who = board.getCurrentTurn();
+        bool in_check = isKingThreatened (board, who, board.getKingPosition (who));
 
-        MoveList all_moves = generateAllPotentialMoves (board, who);
-        for (auto move : all_moves)
-        {
-            Board new_board = board.withMove (who, move);
-
-            if (isLegalPositionAfterMove (new_board, who, move))
-                return true;
-        }
-
-        return false;
+        return hasLegalMove (board, in_check);
     }
 
     auto

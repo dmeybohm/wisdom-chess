@@ -39,6 +39,12 @@ namespace wisdom
     hasLegalMove (const Board& board)
         -> bool;
 
+    // The same, for a caller that already knows whether the player to move
+    // is in check.
+    [[nodiscard]] auto
+    hasLegalMove (const Board& board, bool in_check)
+        -> bool;
+
     // Whether the pawn needs to be promoted when it arrives at the row.
     [[nodiscard]] auto
     needPawnPromotion (int row, Color who)

@@ -307,7 +307,7 @@ namespace wisdom
         {
             if (quiescence_ply >= Max_Quiescence_Evasion_Ply)
             {
-                return hasLegalMove (board)
+                return hasLegalMove (board, in_check)
                     ? evaluateWithoutMateTest (board, side)
                     : evaluateWithoutLegalMoves (board, side, ply);
             }
@@ -316,7 +316,7 @@ namespace wisdom
         }
         else
         {
-            if (!hasLegalMove (board))
+            if (!hasLegalMove (board, in_check))
                 return evaluateWithoutLegalMoves (board, side, ply);
 
             best_score = evaluateWithoutMateTest (board, side);
