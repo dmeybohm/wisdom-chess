@@ -1,7 +1,7 @@
 # Exception safety at the Qt boundary
 
-Branch: `qt-exception-safety`. Session #1 is an investigation: it
-changes no code.
+Branch: `qt-exception-safety`. Session #1 is the investigation and
+Session #2 implements its recommendation.
 
 ## Motivation
 
@@ -191,3 +191,78 @@ on the C++ side would stop relying on that.
   table above; a second build declares those functions `noexcept`, and
   a flag swaps in a `QGuiApplication` whose `notify()` catches. It was
   run offscreen with the software backend. It is not in the repository.
+
+### Session #2
+
+Options A and B, as recommended.
+
+**`noexcept` on everything Qt calls.** In `GameModel`: the nine
+invokables, the six public slots and `showHeldMove`, every property
+reader and writer, and the two lambdas given to `connect`. In
+`PiecesModel`: both slots and `rowCount`, `data` and `roleNames`. All
+seven `ChessEngine` slots. The accessors of the `GameSettings` and
+`UISettings` gadgets, the two singleton `create()` functions and the
+lambda connected in `main()`. The `EXPECTS` that sat directly in
+`engineThreadMoved` became `NOEXCEPT_EXPECTS`. Functions that our own
+code calls, such as the view-model base and the `on...Changed`
+overrides, are unchanged: their caller stops the exception.
+
+**The engine thread contains its failures.** Each `ChessEngine` slot
+that can throw runs its body through `guarded()`, which catches `Error`
+and `std::exception`, reports through `logEmergency()`, sets
+`my_has_failed` and emits `engineFailed (message, game_id)`. While the
+flag is set `guarded()` runs nothing, because the engine's copy of the
+game may no longer match the GUI's. `reloadGame()` clears the flag
+before it replaces the game.
+
+There is no `catch (...)`: on Linux a thread cancellation unwinds as an
+exception that must not be swallowed, and anything that is not a
+`std::exception` should reach the `noexcept` boundary and the terminate
+handler.
+
+`GameModel::engineThreadFailed` ignores a failure from an earlier game,
+and otherwise sets `my_engine_failed`. While that is set the
+`gameOverStatus` property reads "Engine error - Start a new game to
+continue.", `canMoveFrom` answers no and a move is refused. `restart()`
+clears it. It is held beside the view-model's own game-over status
+rather than in it, because `updateDisplayedGameState()` recomputes that
+one from the game.
+
+The message stays out of the status bar: it is a file, line and
+condition, which is for the log. The signal carries it for whoever
+wants it later.
+
+Tests:
+
+- `QML: ChessEngine`: a slot that throws emits `engineFailed` with the
+  message and the game id; afterwards the engine ignores `init()` and
+  `updateConfig()`, and a `reloadGame()` has it move again. The failure
+  is a search depth out of range, which breaks a precondition in every
+  build type.
+- `QML: application`: a failure shows the status, refuses moves, and a
+  new game clears it; a failure from an earlier game is ignored.
+
+Not tested: the queued connection between the two, which only compiles
+against both signatures, and a main-thread slot reaching the terminate
+handler, which the probe showed but which would need a test that ends
+its own process.
+
+Not done: the linter rule for `noexcept` on slots and invokables. The
+convention is in `AGENTS.md` for now.
+
+**A correction to two earlier logs.** A default configure on the
+machine used does not find Qt, and then disables the QML frontend
+without failing. So the local builds recorded in `contract-macros.md`
+and `postconditions.md` as including the QML UI did not. Both logs are
+corrected, CI had built and tested the QML frontend for both, and
+`AGENTS.md` now says how to point the build at Qt.
+
+- Verified, both with `WISDOM_CHESS_QML_UI=ON` and a configure that
+  reported "Qt6 found. Building QML UI.":
+  - GCC Release with `-Werror` against Qt 6.9.3: lint and `all_qmllint`
+    clean, all 275 fast and slow tests pass, including the eight `QML:`
+    programs.
+  - Clang 18 Debug with `-Werror` against Qt 6.11.2: all 241 tests
+    pass.
+- Not run: Windows, macOS, Android and the WebAssembly builds. CI
+  covers the first three.

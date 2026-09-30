@@ -61,24 +61,25 @@ namespace wisdom::ui::qml
         };
 
         [[nodiscard]] int
-        rowCount (const QModelIndex& index) const override;
+        rowCount (const QModelIndex& index) const noexcept override;
 
-        [[nodiscard]] QVariant data (
+        [[nodiscard]] QVariant
+        data (
             const QModelIndex& index,
             int role = Qt::DisplayRole
-        ) const override;
+        ) const noexcept override;
 
         [[nodiscard]] QHash<int, QByteArray>
-        roleNames() const override;
+        roleNames() const noexcept override;
 
     public slots:
         void playerMoved (
             wisdom::Move selected_move,
             wisdom::Color who
-        );
+        ) noexcept;
         void newGame (
             wisdom::nonnull<const ChessGame> game
-        );
+        ) noexcept;
 
     private:
         // The list row of the piece on the square, or -1.

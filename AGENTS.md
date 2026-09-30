@@ -40,6 +40,13 @@ committing C++. The conventions below are about what the code does.
   terminating, never raw `std::cerr`. Every `Logger` implements
   `emergency()` without buffering, and every frontend's `main()` starts by
   calling `setEmergencyLogger()` and `installEmergencyTerminateHandler()`.
+- Qt is not exception-safe, so no exception may enter it. Every
+  function Qt calls in the QML frontend is `noexcept`: slots,
+  `Q_INVOKABLE`s, property accessors, model overrides, singleton
+  `create()` functions and lambdas given to `connect`. `ChessEngine`'s
+  slots run their bodies through `guarded()`, which reports a failure
+  with `engineFailed` instead. See
+  `features/2026/09/qt-exception-safety.md`.
 - Create a `Game` through its factory functions (`createStandardGame`,
   `createGameFromFen`, ...); its constructors are private. Other classes
   keep plain constructors.
@@ -66,6 +73,10 @@ committing C++. The conventions below are about what the code does.
   references.
 
 ## Building and testing
+
+A configure that does not find Qt 6 disables the QML frontend and its
+tests without failing. To build them, pass `-DWISDOM_CHESS_QML_UI=ON`
+and `-DWISDOM_CHESS_QT_DIR=<Qt>/gcc_64`.
 
 Build recipes for every frontend and the table of CMake options are in
 `docs/building.md`; the options themselves are defined in the top-level

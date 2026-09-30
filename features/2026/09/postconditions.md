@@ -120,8 +120,10 @@ search result.
 
 - The checks above, the builder change, and tests: the recompute walk,
   the power-of-two count, and the builder rejecting a king's square.
-- Verified: GCC Release build with `-Werror` and the QML UI, lint
-  clean, 232 fast and 35 slow tests pass. Clang 18 Debug build with
+- Verified: GCC Release build with `-Werror`, lint
+  clean, 232 fast and 35 slow tests pass. It did not include the QML
+  frontend, which a default configure disables when it does not find
+  Qt; CI built and tested that. Clang 18 Debug build with
   `-Werror`, 233 tests pass in 15 s, including the web game tests that
   drive the piece-list check. The React WASM target builds in Debug
   with `-Werror`.

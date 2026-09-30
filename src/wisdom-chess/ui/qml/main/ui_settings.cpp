@@ -17,7 +17,7 @@ namespace wisdom::ui::qml
     }
 
     auto
-    UISettings::flipped() const
+    UISettings::flipped() const noexcept
         -> bool
     {
         return my_flipped;

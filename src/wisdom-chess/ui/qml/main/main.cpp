@@ -48,7 +48,7 @@ int main (int argc, char *argv[]) // lint-allow(raw-pointer): main's signature
     PiecesModelSingleton::setInstance (&pieces_model);
 
     QObject::connect (&engine, &QQmlApplicationEngine::objectCreationFailed,
-                      &app, [] { QCoreApplication::exit (-1); }, Qt::QueuedConnection);
+                      &app, []() noexcept { QCoreApplication::exit (-1); }, Qt::QueuedConnection);
 
     engine.load (url);
 

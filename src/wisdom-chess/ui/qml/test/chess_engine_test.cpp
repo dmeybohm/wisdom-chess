@@ -27,6 +27,24 @@ namespace
         };
         return ChessGame::fromFen (Fifty_Moves_Reached, config);
     }
+
+    const ChessGame::Config Quick_Search {
+        .players = { Player::ChessEngine, Player::Human },
+        .searchDepth = 1,
+        .thinkingTime = 5,
+    };
+
+    // The starting position, with the engine to move.
+    auto
+    makeStartingGame()
+        -> std::shared_ptr<ChessGame>
+    {
+        return ChessGame::fromPlayers (Player::ChessEngine, Player::Human, Quick_Search);
+    }
+
+    void ignoreTimer ([[maybe_unused]] wisdom::nonnull<wisdom::MoveTimer> timer)
+    {
+    }
 }
 
 class ChessEngineTest : public QObject
@@ -72,6 +90,46 @@ private slots:
 
         engine.receiveDrawStatus (ProposedDrawType::FiftyMovesWithoutProgress, Color::Black, false);
         QCOMPARE( moves.count(), 1 );
+    }
+
+    // A search depth out of range breaks a precondition of the settings.
+    void aSlotThatThrowsReportsTheFailure()
+    {
+        ChessEngine engine { makeStartingGame(), 7 };
+        QSignalSpy failures { &engine, &ChessEngine::engineFailed };
+
+        auto out_of_range = Quick_Search;
+        out_of_range.searchDepth = wisdom::ui::GameSettings::Max_Search_Depth + 1;
+        engine.updateConfig (out_of_range, ignoreTimer);
+
+        QCOMPARE( failures.count(), 1 );
+
+        auto message = failures.at (0).at (0).toString();
+        QVERIFY( message.contains (QStringLiteral ("Precondition failed")) );
+        QCOMPARE( failures.at (0).at (1).toInt(), 7 );
+    }
+
+    void afterAFailureTheEngineDoesNothingUntilANewGame()
+    {
+        ChessEngine engine { makeStartingGame(), 1 };
+        QSignalSpy failures { &engine, &ChessEngine::engineFailed };
+        QSignalSpy moves { &engine, &ChessEngine::engineMoved };
+
+        auto out_of_range = Quick_Search;
+        out_of_range.searchDepth = wisdom::ui::GameSettings::Max_Search_Depth + 1;
+        engine.updateConfig (out_of_range, ignoreTimer);
+        QCOMPARE( failures.count(), 1 );
+
+        // It is the engine's turn, but it stays stopped.
+        engine.init();
+        engine.updateConfig (Quick_Search, ignoreTimer);
+        QCOMPARE( moves.count(), 0 );
+        QCOMPARE( failures.count(), 1 );
+
+        engine.reloadGame (makeStartingGame(), 2);
+        QCOMPARE( moves.count(), 1 );
+        QCOMPARE( moves.at (0).at (2).toInt(), 2 );
+        QCOMPARE( failures.count(), 1 );
     }
 };
 

@@ -108,92 +108,104 @@ namespace wisdom::ui::qml
         gameId() const
             -> int;
 
-        Q_INVOKABLE void start();
-        Q_INVOKABLE QString browserOriginUrl();
+        Q_INVOKABLE void start() noexcept;
+        Q_INVOKABLE QString browserOriginUrl() noexcept;
         Q_INVOKABLE bool needsPawnPromotion (
             int src_row,
             int src_column,
             int dst_row,
             int dst_column
-        );
-        Q_INVOKABLE bool canMoveFrom (int row, int column);
-        Q_INVOKABLE void restart();
+        ) noexcept;
+        Q_INVOKABLE bool canMoveFrom (int row, int column) noexcept;
+        Q_INVOKABLE void restart() noexcept;
 
-        Q_INVOKABLE void pause();
-        Q_INVOKABLE void unpause();
+        Q_INVOKABLE void pause() noexcept;
+        Q_INVOKABLE void unpause() noexcept;
 
         [[nodiscard]] auto
-        qmlCurrentTurn() const
+        qmlCurrentTurn() const noexcept
             -> wisdom::ui::Color;
 
-        void setQmlCurrentTurn (wisdom::ui::Color new_color);
+        void setQmlCurrentTurn (wisdom::ui::Color new_color) noexcept;
 
-        void setQmlGameOverStatus (const QString& new_status);
+        void setQmlGameOverStatus (const QString& new_status) noexcept;
         [[nodiscard]] auto
-        qmlGameOverStatus() const
+        qmlGameOverStatus() const noexcept
             -> QString;
 
-        void setQmlMoveStatus (const QString& new_status);
+        void setQmlMoveStatus (const QString& new_status) noexcept;
         [[nodiscard]] auto
-        qmlMoveStatus() const
+        qmlMoveStatus() const noexcept
             -> QString;
 
-        void setQmlInCheck (bool new_in_check);
+        void setQmlInCheck (bool new_in_check) noexcept;
         [[nodiscard]] auto
-        qmlInCheck() const
+        qmlInCheck() const noexcept
             -> bool;
 
         [[nodiscard]] auto
-        qmlThirdRepetitionDrawStatus() const
+        qmlThirdRepetitionDrawStatus() const noexcept
             -> wisdom::ui::QmlDrawByRepetitionStatus;
 
-        void setQmlThirdRepetitionDrawStatus (wisdom::ui::QmlDrawByRepetitionStatus draw_status);
+        void setQmlThirdRepetitionDrawStatus (
+            wisdom::ui::QmlDrawByRepetitionStatus draw_status
+        ) noexcept;
 
         [[nodiscard]] auto
-        qmlFiftyMovesDrawStatus() const
+        qmlFiftyMovesDrawStatus() const noexcept
             -> wisdom::ui::QmlDrawByRepetitionStatus;
 
-        void setQmlFiftyMovesDrawStatus (wisdom::ui::QmlDrawByRepetitionStatus draw_status);
+        void setQmlFiftyMovesDrawStatus (
+            wisdom::ui::QmlDrawByRepetitionStatus draw_status
+        ) noexcept;
 
-        void setUISettings (const UISettings& settings);
+        void setUISettings (const UISettings& settings) noexcept;
         [[nodiscard]] auto
-        uiSettings() const
+        uiSettings() const noexcept
             -> const UISettings&;
-        Q_INVOKABLE wisdom::ui::qml::UISettings cloneUISettings();
+        Q_INVOKABLE wisdom::ui::qml::UISettings cloneUISettings() noexcept;
 
         [[nodiscard]] auto
-        gameSettings() const
+        gameSettings() const noexcept
             -> const GameSettings&;
-        void setGameSettings (const GameSettings& new_game_settings);
-        Q_INVOKABLE wisdom::ui::qml::GameSettings cloneGameSettings();
+        void setGameSettings (const GameSettings& new_game_settings) noexcept;
+        Q_INVOKABLE wisdom::ui::qml::GameSettings cloneGameSettings() noexcept;
 
-        [[nodiscard]] static auto minThinkingTime() -> int
+        [[nodiscard]] static auto
+        minThinkingTime() noexcept
+            -> int
         {
             return ui::GameSettings::Min_Thinking_Time;
         }
 
-        [[nodiscard]] static auto maxThinkingTime() -> int
+        [[nodiscard]] static auto
+        maxThinkingTime() noexcept
+            -> int
         {
             return ui::GameSettings::Max_Thinking_Time;
         }
 
-        [[nodiscard]] static auto minSearchDepth() -> int
+        [[nodiscard]] static auto
+        minSearchDepth() noexcept
+            -> int
         {
             return ui::GameSettings::Min_Search_Depth;
         }
 
-        [[nodiscard]] static auto maxSearchDepth() -> int
+        [[nodiscard]] static auto
+        maxSearchDepth() noexcept
+            -> int
         {
             return ui::GameSettings::Max_Search_Depth;
         }
 
         [[nodiscard]] auto
-        animationDelay() const
+        animationDelay() const noexcept
             -> int;
-        void setAnimationDelay (int new_delay);
+        void setAnimationDelay (int new_delay) noexcept;
 
         [[nodiscard]] auto
-        castlingRookPause() const
+        castlingRookPause() const noexcept
             -> int;
 
     signals:
@@ -256,13 +268,13 @@ namespace wisdom::ui::qml
             int src_column,
             int dst_row,
             int dst_column
-        );
+        ) noexcept;
 
         void engineThreadMoved (
             wisdom::Move move,
             wisdom::Color who,
             int game_id
-        );
+        ) noexcept;
 
         void promotePiece (
             int src_row,
@@ -270,17 +282,23 @@ namespace wisdom::ui::qml
             int dst_row,
             int dst_column,
             wisdom::ui::PieceType piece_type
-        );
+        ) noexcept;
 
         void receiveChessEngineDrawStatus (
             wisdom::ProposedDrawType draw_type,
             wisdom::Color who,
             bool accepted
-        );
+        ) noexcept;
 
-        void applicationExiting();
+        void applicationExiting() noexcept;
 
-        void updateEngineConfig();
+        void updateEngineConfig() noexcept;
+
+        // The engine thread hit an error and stopped until the next game.
+        void engineThreadFailed (
+            const QString& message,
+            int game_id
+        ) noexcept;
 
     public:
         [[nodiscard]] auto
@@ -351,7 +369,7 @@ namespace wisdom::ui::qml
             -> int;
 
         // Show the move that was held back, if it still belongs to this game.
-        void showHeldMove();
+        void showHeldMove() noexcept;
 
         // Set up and trigger the state update.
         void notifyInternalGameStateUpdated();
@@ -400,6 +418,10 @@ namespace wisdom::ui::qml
 
         // Whether start() has ever been called for the current engine thread.
         bool my_engine_thread_started = false;
+
+        // The engine stopped on an error. Shown in place of the game-over
+        // status, and no move is accepted, until the next game.
+        bool my_engine_failed = false;
 
         // Whether the game is paused (e.g. menu or dialog is open).
         // Read by the engine thread's periodic function to cancel searches.

@@ -83,11 +83,14 @@ callee cannot see its caller's exception specification, so
   Debug-only fatal test `assert-failure` checks that `ASSERT` reports
   and aborts. It is registered only when `CMAKE_BUILD_TYPE` is `Debug`,
   so a multi-config generator does not get it.
-- Verified: GCC Release build with the QML UI, lint clean, 230 fast
+- Verified: GCC Release build, lint clean, 230 fast
   tests pass. Clang 18 Debug build of the engine, no warnings, 220
   tests pass including all eight fatal cases. The slow tests and the
   WebAssembly build were not run; the only change there is the spelling
   of two `EXPECTS` calls in `web_game.cpp`.
+  Correction: that local build did not include the QML frontend. A
+  default configure does not find Qt on the machine used, and
+  disables it. CI built and tested the QML frontend.
 
 ### Session #2
 
@@ -113,7 +116,8 @@ Making exceptions carry the location and condition as constants would
 change `Error::message()` for every caller, and is left for a branch
 of its own.
 
-- Verified: GCC Release build with the QML UI and Clang 18 Debug build,
+- Verified: GCC Release build, without the QML frontend as corrected
+  above, and Clang 18 Debug build,
   no warnings, lint clean, all tests pass in both, including the nine
   emergency and fatal cases. The React WASM target builds with
   Emscripten; the browser console output was not checked by hand.

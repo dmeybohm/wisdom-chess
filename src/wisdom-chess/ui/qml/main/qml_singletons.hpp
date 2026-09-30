@@ -27,7 +27,7 @@ namespace wisdom::ui::qml
         static void setInstance (wisdom::nonnull<GameModel> instance);
 
         [[nodiscard]] static auto
-        create (QQmlEngine* engine, QJSEngine* js_engine)
+        create (QQmlEngine* engine, QJSEngine* js_engine) noexcept
             -> GameModel*; // lint-allow(raw-pointer): QML's singleton factory
     };
 
@@ -42,7 +42,7 @@ namespace wisdom::ui::qml
         static void setInstance (wisdom::nonnull<PiecesModel> instance);
 
         [[nodiscard]] static auto
-        create (QQmlEngine* engine, QJSEngine* js_engine)
+        create (QQmlEngine* engine, QJSEngine* js_engine) noexcept
             -> PiecesModel*; // lint-allow(raw-pointer): QML's singleton factory
     };
 }

@@ -579,6 +579,36 @@ private slots:
         QVERIFY( my_app->boardPieceAt ("d4") == ColoredPiece::make (Color::White, Piece::Pawn) );
     }
 
+    void anEngineFailureStopsTheGameUntilANewOne()
+    {
+        auto& model = my_app->game_model;
+        auto white_pawn = ColoredPiece::make (Color::White, Piece::Pawn);
+
+        model.engineThreadFailed (QStringLiteral ("boom"), model.gameId());
+
+        QVERIFY( model.qmlGameOverStatus().contains (QStringLiteral ("Engine error")) );
+        QVERIFY( !model.canMoveFrom (6, 4) );
+
+        model.movePiece (6, 4, 4, 4);
+        QVERIFY( my_app->boardPieceAt ("e2") == white_pawn );
+
+        model.restart();
+
+        QCOMPARE( model.qmlGameOverStatus(), QString {} );
+        my_app->move ("e2", "e4");
+        QVERIFY( my_app->boardPieceAt ("e4") == white_pawn );
+    }
+
+    void anEngineFailureFromAnEarlierGameIsIgnored()
+    {
+        auto& model = my_app->game_model;
+
+        model.engineThreadFailed (QStringLiteral ("boom"), model.gameId() - 1);
+
+        QCOMPARE( model.qmlGameOverStatus(), QString {} );
+        QVERIFY( model.canMoveFrom (6, 4) );
+    }
+
     void flippingTheBoardTurnsItAround()
     {
         auto before = drawnAt (my_app->pieceAt ("a1"));

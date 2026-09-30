@@ -33,7 +33,11 @@ namespace wisdom::ui::qml
         game_model_instance = instance;
     }
 
-    auto GameModelSingleton::create ([[maybe_unused]] QQmlEngine* engine, QJSEngine* js_engine)
+    auto
+    GameModelSingleton::create (
+        [[maybe_unused]] QQmlEngine* engine,
+        QJSEngine* js_engine
+    ) noexcept
         -> GameModel* // lint-allow(raw-pointer): QML's singleton factory
     {
         return instanceFor (game_model_instance, js_engine).get();
@@ -44,7 +48,11 @@ namespace wisdom::ui::qml
         pieces_model_instance = instance;
     }
 
-    auto PiecesModelSingleton::create ([[maybe_unused]] QQmlEngine* engine, QJSEngine* js_engine)
+    auto
+    PiecesModelSingleton::create (
+        [[maybe_unused]] QQmlEngine* engine,
+        QJSEngine* js_engine
+    ) noexcept
         -> PiecesModel* // lint-allow(raw-pointer): QML's singleton factory
     {
         return instanceFor (pieces_model_instance, js_engine).get();
