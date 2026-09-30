@@ -61,6 +61,7 @@ add_library(wisdom-chess-core STATIC
         move.hpp
         move_list.hpp
         move_timer.hpp
+        narrow.hpp
         output_format.hpp
         piece.hpp
         position.hpp

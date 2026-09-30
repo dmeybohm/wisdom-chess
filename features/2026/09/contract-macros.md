@@ -54,6 +54,10 @@ expected instead of a condition. `terminateOnPreconditionFailure` became
 `terminateOnCheckFailure`, which takes the kind of check so that
 `ASSERT` reports "Assertion failed".
 
+`engine/narrow.hpp` holds `narrow`, `narrow_cast`, `truncate` and their
+two helpers, named after `<gsl/narrow>`, which it wraps. `global.hpp`
+keeps only the standard names and the constants.
+
 `engine/ptr.hpp` holds `nonnull`, `nullable`, `unchecked_nonnull` and
 `owning`. It includes `error.hpp` for `EXPECTS`, so `error.hpp` cannot
 include it and writes `gsl::czstring` in full. `global.hpp` includes
@@ -113,3 +117,9 @@ of its own.
   no warnings, lint clean, all tests pass in both, including the nine
   emergency and fatal cases. The React WASM target builds with
   Emscripten; the browser console output was not checked by hand.
+
+### Session #3
+
+- The narrowing templates moved to `narrow.hpp`, so `global.hpp` is
+  names and constants only. Same verification as before, in the GCC
+  Release and Clang Debug builds.
