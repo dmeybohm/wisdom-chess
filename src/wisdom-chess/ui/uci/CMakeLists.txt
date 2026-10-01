@@ -132,6 +132,17 @@ if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS)
               "position startpos" "go depth 3" "stop" "quit"
         EXPECTED "score: 90 \\][ \t\r\n]*bestmove b1c3")
 
+    # UCI cannot claim a draw, so a position where one could be claimed is
+    # searched like any other. Only the capture resets the move count.
+    wisdom_chess_add_cli_test("UCI: a position past fifty moves without progress is searched" wisdom-chess-uci
+        INPUT "position fen 6k1/5pp1/7p/8/8/8/8/Rn2K3 w - - 120 90" "go depth 2" "stop" "quit"
+        EXPECTED "bestmove a1b1")
+
+    wisdom_chess_add_cli_test("UCI: the third occurrence of a position is searched" wisdom-chess-uci
+        INPUT "position fen 6k1/5ppp/8/8/8/8/8/R3K3 w - - 0 1 moves e1e2 g8h8 e2e1 h8g8 e1e2 g8h8 e2e1 h8g8"
+              "go depth 2" "stop" "quit"
+        EXPECTED "bestmove a1a8")
+
     # With the whole clock kept back as overhead, the search gets the least
     # budget there is and still answers with a legal move.
     wisdom_chess_add_cli_test("UCI: a clock inside the Move Overhead still answers" wisdom-chess-uci
