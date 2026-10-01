@@ -12,9 +12,58 @@ namespace wisdom
 {
     // Raw pointers never own; owning pointers are unique_ptr or shared_ptr.
     // A non-owning pointer is named by whether it may be null: nonnull here,
-    // nullable and unchecked_nonnull below.
+    // nullable below.
+    //
+    // A nonnull checks for null when constructed, not when dereferenced.
     template <typename T>
-    using nonnull = gsl::not_null<T*>; // lint-allow(raw-pointer): defines the pointer types
+    class nonnull
+    {
+    public:
+        // Throws PreconditionError when null.
+        constexpr nonnull (T* ptr) // lint-allow(raw-pointer): wraps a raw pointer
+            : my_ptr { ptr }
+        {
+            EXPECTS( ptr != nullptr );
+        }
+
+        template <typename U>
+            requires std::is_convertible_v<U*, T*> // lint-allow(raw-pointer): type trait
+        constexpr nonnull (nonnull<U> other) noexcept
+            : my_ptr { other.get() }
+        {
+        }
+
+        nonnull (std::nullptr_t) = delete;
+
+        // For an API that takes a raw pointer.
+        [[nodiscard]] constexpr auto
+        get() const noexcept
+            -> T* // lint-allow(raw-pointer): unwraps for a raw-pointer API
+        {
+            return my_ptr;
+        }
+
+        constexpr auto
+        operator->() const noexcept
+            -> T* // lint-allow(raw-pointer): operator-> returns a pointer
+        {
+            return my_ptr;
+        }
+
+        constexpr auto
+        operator*() const noexcept
+            -> T&
+        {
+            return *my_ptr;
+        }
+
+        [[nodiscard]] constexpr auto
+        operator== (const nonnull& other) const noexcept
+            -> bool = default;
+
+    private:
+        T* my_ptr; // lint-allow(raw-pointer): the wrapped pointer
+    };
 
     // An owning raw pointer, for an object whose deletion is arranged outside
     // C++'s ownership types: Qt's deleteLater() takes it over, or it is
@@ -62,7 +111,6 @@ namespace wisdom
         value() const
             -> nonnull<T>
         {
-            EXPECTS( my_ptr != nullptr );
             return my_ptr;
         }
 
@@ -80,55 +128,5 @@ namespace wisdom
 
     private:
         T* my_ptr = nullptr; // lint-allow(raw-pointer): the wrapped pointer
-    };
-
-    // Like nonnull, but checks for null only when constructed, not on each
-    // dereference. For pointers dereferenced in a hot loop, where a
-    // benchmark shows the check matters.
-    template <typename T>
-    class unchecked_nonnull
-    {
-    public:
-        constexpr unchecked_nonnull (T* ptr) // lint-allow(raw-pointer): wraps a raw pointer
-            : my_ptr { ptr }
-        {
-            EXPECTS( ptr != nullptr );
-        }
-
-        constexpr unchecked_nonnull (nonnull<T> ptr) noexcept
-            : my_ptr { ptr.get() }
-        {
-        }
-
-        constexpr unchecked_nonnull (nullable<T> ptr)
-            : my_ptr { ptr.value().get() }
-        {
-        }
-
-        unchecked_nonnull (std::nullptr_t) = delete;
-
-        [[nodiscard]] constexpr auto
-        get() const noexcept
-            -> T* // lint-allow(raw-pointer): unwraps for a raw-pointer API
-        {
-            return my_ptr;
-        }
-
-        constexpr auto
-        operator->() const noexcept
-            -> T* // lint-allow(raw-pointer): operator-> returns a pointer
-        {
-            return my_ptr;
-        }
-
-        constexpr auto
-        operator*() const noexcept
-            -> T&
-        {
-            return *my_ptr;
-        }
-
-    private:
-        T* my_ptr; // lint-allow(raw-pointer): the wrapped pointer
     };
 }

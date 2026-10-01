@@ -54,15 +54,15 @@ committing C++. The conventions below are about what the code does.
   `GameStatusUpdate`; a change to the `Game` API has to reach all of them.
 - Raw pointers never own; ownership is `unique_ptr` or `shared_ptr`.
   Spell a non-owning pointer by its nullability (`engine/ptr.hpp`):
-  `nonnull<Type>` (`gsl::not_null<Type*>`) or `nullable<Type>`, which
-  cannot be dereferenced: test it, then take `value()` for a `nonnull`.
-  `unchecked_nonnull<Type>` checks for null only when constructed; use it
-  only where a benchmark shows the check on each dereference costs
-  something. A C string is `czstring` or `zstring`. `owning<Type>`
-  (`gsl::owner<Type*>`) is an owning raw pointer, only where something
-  outside C++ arranges the deletion, such as Qt's `deleteLater()`. For
-  an object handed to JavaScript, hold a `unique_ptr` and `release()` it
-  in the `return`.
+  `nonnull<Type>` or `nullable<Type>`, which cannot be dereferenced: test
+  it, then take `value()` for a `nonnull`. A `nonnull` checks for null
+  when constructed, throwing `PreconditionError`, and not when
+  dereferenced; pass `get()` to an API that takes a raw pointer. See
+  `features/2026/10/single-nonnull.md`. A C string is `czstring` or
+  `zstring`. `owning<Type>` (`gsl::owner<Type*>`) is an owning raw
+  pointer, only where something outside C++ arranges the deletion, such
+  as Qt's `deleteLater()`. For an object handed to JavaScript, hold a
+  `unique_ptr` and `release()` it in the `return`.
 - The linter's `raw-pointer` rule enforces the pointer rules. Qt types and
   `auto*` locals are exempt. For a pointer an API requires (`main`, QML's
   singleton `create()`, the WebIDL bindings, `EM_JS`), end the line with

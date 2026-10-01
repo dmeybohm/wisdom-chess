@@ -116,7 +116,7 @@ reason in the same comment, as in
 
 The vocabulary that extends the GSL is spelled as the GSL spells its own,
 in lower-case `snake_case`: the pointer types of `engine/ptr.hpp`
-(`nonnull`, `nullable`, `unchecked_nonnull`, `owning`), `narrow_cast`, and
+(`nonnull`, `nullable`, `owning`), `narrow_cast`, and
 the functions under the contract macros (`noexcept_expects`).
 
 A name that JavaScript or QML also uses is spelled as that side spells
