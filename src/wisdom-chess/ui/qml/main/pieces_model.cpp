@@ -59,7 +59,7 @@ namespace wisdom::ui::qml
     {
     }
 
-    void PiecesModel::newGame (wisdom::nonnull<const ChessGame> game)
+    void PiecesModel::newGame (wisdom::nonnull<const ChessGame> game) noexcept
     {
         auto game_state = game->state();
         auto board = game_state->getBoard();
@@ -89,7 +89,7 @@ namespace wisdom::ui::qml
         }
     }
 
-    int PiecesModel::rowCount (const QModelIndex& index) const
+    int PiecesModel::rowCount (const QModelIndex& index) const noexcept
     {
         if (index.isValid())
         {
@@ -107,7 +107,7 @@ namespace wisdom::ui::qml
     PiecesModel::data (
         const QModelIndex& index,
         int role
-    ) const
+    ) const noexcept
         -> QVariant
     {
         if (!index.isValid())
@@ -135,7 +135,7 @@ namespace wisdom::ui::qml
     }
 
     auto
-    PiecesModel::roleNames() const
+    PiecesModel::roleNames() const noexcept
         -> QHash<int, QByteArray>
     {
         static QHash<int, QByteArray> mapping {
@@ -166,7 +166,7 @@ namespace wisdom::ui::qml
     PiecesModel::playerMoved (
         Move selected_move,
         wisdom::Color who
-    )
+    ) noexcept
     {
         auto movement = ui::pieceMovement (selected_move);
 

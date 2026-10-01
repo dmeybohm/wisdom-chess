@@ -50,16 +50,57 @@ namespace wisdom::ui::qml
         my_logger->setEnabled (my_game->config().debugLogging);
     }
 
-    void ChessEngine::init()
+    template <typename Body>
+    void ChessEngine::guarded (Body&& body) noexcept
     {
-        findMove();
+        if (my_has_failed)
+            return;
+
+        try
+        {
+            std::forward<Body> (body)();
+        }
+        catch (const Error& error)
+        {
+            fail (error.message(), error.extraInfo());
+        }
+        catch (const std::exception& error)
+        {
+            fail (error.what(), "");
+        }
     }
 
-    void ChessEngine::opponentMoved (Move move, [[maybe_unused]] Color who)
+    void ChessEngine::fail (const string& message, const string& extra_info) noexcept
     {
-        auto game = my_game->state();
-        game->move (move);
-        findMove();
+        auto report = "Engine error: " + message;
+        if (!extra_info.empty())
+            report += "\n" + extra_info;
+        logEmergency (report);
+
+        my_has_failed = true;
+        emit engineFailed (QString::fromStdString (message), my_game_id);
+    }
+
+    void ChessEngine::init() noexcept
+    {
+        guarded (
+            [this]()
+            {
+                findMove();
+            }
+        );
+    }
+
+    void ChessEngine::opponentMoved (Move move, [[maybe_unused]] Color who) noexcept
+    {
+        guarded (
+            [this, move]()
+            {
+                auto game = my_game->state();
+                game->move (move);
+                findMove();
+            }
+        );
     }
 
     void
@@ -67,7 +108,7 @@ namespace wisdom::ui::qml
         [[maybe_unused]] wisdom::Move move,
         [[maybe_unused]] wisdom::Color who,
         int game_id
-    )
+    ) noexcept
     {
         if (game_id == my_game_id)
         {
@@ -195,48 +236,66 @@ namespace wisdom::ui::qml
         wisdom::ProposedDrawType draw_type,
         wisdom::Color player,
         bool accepted
-    )
+    ) noexcept
     {
-        auto game_state = my_game->state();
-        game_state->setProposedDrawStatus (draw_type, player, accepted);
+        guarded (
+            [this, draw_type, player, accepted]()
+            {
+                auto game_state = my_game->state();
+                game_state->setProposedDrawStatus (draw_type, player, accepted);
 
-        auto next_status = gameStatusTransition();
-        if (next_status == GameStatus::Playing)
-        {
-            findMove(); // resume playing.
-        }
+                auto next_status = gameStatusTransition();
+                if (next_status == GameStatus::Playing)
+                {
+                    findMove(); // resume playing.
+                }
+            }
+        );
     }
 
-    void ChessEngine::reloadGame (shared_ptr<ChessGame> new_game, int new_game_id)
+    void ChessEngine::reloadGame (shared_ptr<ChessGame> new_game, int new_game_id) noexcept
     {
-        my_game = std::move (new_game);
-        my_game_id = new_game_id;
-        my_is_game_over = false;
-        my_move_awaiting_gui = false;
-        my_transposition_table.clear();
-        syncDebugLogging();
+        // A new game replaces whatever state a failure left behind.
+        my_has_failed = false;
 
-        // Possibly resume searching for the next move:
-        init();
+        guarded (
+            [this, &new_game, new_game_id]()
+            {
+                my_game = std::move (new_game);
+                my_game_id = new_game_id;
+                my_is_game_over = false;
+                my_move_awaiting_gui = false;
+                my_transposition_table.clear();
+                syncDebugLogging();
+
+                // Possibly resume searching for the next move:
+                findMove();
+            }
+        );
     }
 
     void
     ChessEngine::updateConfig (
         const ChessGame::Config& config,
         const wisdom::MoveTimer::PeriodicFunction& notifier
-    )
+    ) noexcept
     {
-        my_game->setConfig (config);
-        syncDebugLogging();
+        guarded (
+            [this, &config, &notifier]()
+            {
+                my_game->setConfig (config);
+                syncDebugLogging();
 
-        // Update the notifier:
-        my_game->setPeriodicFunction (notifier);
+                // Update the notifier:
+                my_game->setPeriodicFunction (notifier);
 
-        // Possibly resume searching for the next move:
-        init();
+                // Possibly resume searching for the next move:
+                findMove();
+            }
+        );
     }
 
-    void ChessEngine::quit()
+    void ChessEngine::quit() noexcept
     {
         QThread::currentThread()->quit();
     }

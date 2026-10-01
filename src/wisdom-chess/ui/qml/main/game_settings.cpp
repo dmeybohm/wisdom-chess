@@ -25,35 +25,35 @@ namespace wisdom::ui::qml
     }
 
     auto
-    GameSettings::whitePlayer() const
+    GameSettings::whitePlayer() const noexcept
         -> wisdom::ui::Player
     {
         return my_white_player;
     }
 
     auto
-    GameSettings::blackPlayer() const
+    GameSettings::blackPlayer() const noexcept
         -> wisdom::ui::Player
     {
         return my_black_player;
     }
 
     auto
-    GameSettings::maxDepth() const
+    GameSettings::maxDepth() const noexcept
         -> int
     {
         return my_max_depth;
     }
 
     auto
-    GameSettings::maxSearchTime() const
+    GameSettings::maxSearchTime() const noexcept
         -> int
     {
         return my_max_search_time;
     }
 
     auto
-    GameSettings::debugLogging() const
+    GameSettings::debugLogging() const noexcept
         -> bool
     {
         return my_debug_logging;

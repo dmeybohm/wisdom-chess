@@ -428,6 +428,21 @@ private slots:
         QVERIFY( my_app->piecesMatchTheBoard() );
     }
 
+    void anEngineFailureDropsAReplyThatIsStillHeld()
+    {
+        letTheEngineAnswer (Held_Animation_Delay);
+        QSignalSpy engine_moved { &my_app->game_model, &GameModel::engineMoved };
+
+        my_app->move ("e2", "e4");
+        QTRY_VERIFY( my_app->game_model.isHoldingAMove() );
+
+        my_app->game_model.engineThreadFailed (QStringLiteral ("boom"), my_app->game_model.gameId());
+
+        QVERIFY( !my_app->game_model.isHoldingAMove() );
+        QVERIFY( !engine_moved.wait (Engine_Reply_Time) );
+        QVERIFY( my_app->piecesMatchTheBoard() );
+    }
+
 private:
     // Black answers with the engine, as fast as it can, holding each move
     // for the given animation delay.

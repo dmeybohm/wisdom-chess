@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QString>
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -43,31 +44,31 @@ namespace wisdom::ui::qml
 
     public slots:
         // Startup the engine. If it's the engine's turn to move, make a move.
-        void init();
+        void init() noexcept;
 
         // Exit the thread. Called upon application exit to cleanup.
-        void quit();
+        void quit() noexcept;
 
         // Receive events about the opponent move.
-        void opponentMoved (wisdom::Move move, wisdom::Color who);
+        void opponentMoved (wisdom::Move move, wisdom::Color who) noexcept;
 
         // Receive our own move:
-        void receiveEngineMoved (wisdom::Move move, wisdom::Color who, int game_id);
+        void receiveEngineMoved (wisdom::Move move, wisdom::Color who, int game_id) noexcept;
 
         // Receive the draw status:
         void receiveDrawStatus (
             wisdom::ProposedDrawType draw_type,
             wisdom::Color player,
             bool accepted
-        );
+        ) noexcept;
 
         // Update the whole chess game state. The ownership of the game is taken.
-        void reloadGame (std::shared_ptr<ChessGame> new_game, int new_game_id);
+        void reloadGame (std::shared_ptr<ChessGame> new_game, int new_game_id) noexcept;
 
         // Update the config of the game. Also update the notifier in case we
         // had to interrupt the engine.
         void updateConfig (const ChessGame::Config& config,
-                           const wisdom::MoveTimer::PeriodicFunction& notifier);
+                           const wisdom::MoveTimer::PeriodicFunction& notifier) noexcept;
 
     signals:
         // The engine made a move.
@@ -88,6 +89,10 @@ namespace wisdom::ui::qml
             bool accepted
         );
 
+        // A slot threw. The engine ignores everything but reloadGame()
+        // from here on.
+        void engineFailed (QString message, int game_id);
+
     private:
         std::shared_ptr<ChessGame> my_game;
 
@@ -96,6 +101,10 @@ namespace wisdom::ui::qml
         wisdom::TranspositionTable my_transposition_table;
 
         bool my_is_game_over = false;
+
+        // A slot threw, so the game here may no longer match the GUI's.
+        // Reset by reloadGame().
+        bool my_has_failed = false;
 
         // A move was sent to the GUI and has not been shown yet. Every path
         // into init() waits for it, so at most one engine move is ever
@@ -110,6 +119,13 @@ namespace wisdom::ui::qml
         std::shared_ptr<wisdom::BufferedLogger> my_logger;
 
         void findMove();
+
+        // Runs the body of a slot. An exception becomes fail(), so that
+        // none reaches Qt.
+        template <typename Body>
+        void guarded (Body&& body) noexcept;
+
+        void fail (const std::string& message, const std::string& extra_info) noexcept;
 
         // Keep the logger in sync with the game's config.
         void syncDebugLogging();

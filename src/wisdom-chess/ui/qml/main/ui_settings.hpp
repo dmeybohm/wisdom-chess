@@ -23,7 +23,7 @@ namespace wisdom::ui::qml
             -> bool;
 
         [[nodiscard]] auto
-        flipped() const
+        flipped() const noexcept
             -> bool;
 
     private:

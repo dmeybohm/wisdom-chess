@@ -104,10 +104,13 @@ namespace wisdom::ui::qml
 
         // If the engine finds no moves available, check whether the game is over.
         connect (chess_engine, &ChessEngine::noMovesAvailable,
-                 this, [this]() { updateDisplayedGameState(); });
+                 this, [this]() noexcept { updateDisplayedGameState(); });
 
         connect (chess_engine, &ChessEngine::searchInterrupted,
-                 this, []() { qDebug() << "The engine's search was interrupted."; });
+                 this, []() noexcept { qDebug() << "The engine's search was interrupted."; });
+
+        connect (chess_engine, &ChessEngine::engineFailed,
+                 this, &GameModel::engineThreadFailed);
 
         // Connect the engine's move back to itself in case it's playing itself:
         // (it will return early if it's not)
@@ -138,7 +141,7 @@ namespace wisdom::ui::qml
         chess_engine->moveToThread (my_chess_engine_thread);
     }
 
-    void GameModel::start()
+    void GameModel::start() noexcept
     {
         emit gameStarted (my_chess_game.get());
 
@@ -147,7 +150,7 @@ namespace wisdom::ui::qml
         my_chess_engine_thread->start();
     }
 
-    auto GameModel::browserOriginUrl() -> QString
+    auto GameModel::browserOriginUrl() noexcept -> QString
     {
 #ifdef EMSCRIPTEN
         auto origin = emscripten::val::global ("location")["origin"].as<std::string>();
@@ -157,7 +160,7 @@ namespace wisdom::ui::qml
 #endif
     }
 
-    void GameModel::restart()
+    void GameModel::restart() noexcept
     {
         qDebug() << "Creating new chess game";
 
@@ -189,6 +192,12 @@ namespace wisdom::ui::qml
         // Update the config to update the notifier to use the new game Id:
         updateEngineConfig();
 
+        if (my_engine_failed)
+        {
+            my_engine_failed = false;
+            emit gameOverStatusChanged();
+        }
+
         setCurrentTurn (my_chess_game->state()->getCurrentTurn());
         resetStateForNewGame();
         updateDisplayedGameState();
@@ -200,7 +209,7 @@ namespace wisdom::ui::qml
         int src_column,
         int dst_row,
         int dst_column
-    )
+    ) noexcept
     {
         movePieceWithPromotion (src_row, src_column, dst_row, dst_column, {});
     }
@@ -210,7 +219,7 @@ namespace wisdom::ui::qml
         wisdom::Move move,
         wisdom::Color who,
         int game_id
-    )
+    ) noexcept
     {
         // validate this signal was not sent by an old thread:
         if (game_id != gameId())
@@ -218,6 +227,10 @@ namespace wisdom::ui::qml
             qDebug() << "engineThreadMoved(): Ignored signal from invalid engine.";
             return;
         }
+
+        // A move the engine sent before it failed may still arrive.
+        if (my_engine_failed)
+            return;
 
         // Hold the move back until the move before it has finished animating,
         // so that two pieces are never moving at once.
@@ -230,7 +243,7 @@ namespace wisdom::ui::qml
 
         // The engine does not search again until the move it sent is shown,
         // so a second move can never arrive while one is held.
-        EXPECTS( !my_held_move.has_value() );
+        NOEXCEPT_EXPECTS( !my_held_move.has_value() );
 
         my_held_move = HeldMove { move, who, game_id };
         my_hold_timer.start (remaining);
@@ -277,7 +290,7 @@ namespace wisdom::ui::qml
         return my_held_move.has_value();
     }
 
-    void GameModel::showHeldMove()
+    void GameModel::showHeldMove() noexcept
     {
         if (!my_held_move.has_value())
         {
@@ -303,7 +316,7 @@ namespace wisdom::ui::qml
         int dst_row,
         int dst_column,
         ui::PieceType piece_type
-    )
+    ) noexcept
     {
         movePieceWithPromotion (
             src_row,
@@ -323,6 +336,9 @@ namespace wisdom::ui::qml
         optional<wisdom::Piece> piece_type
     )
     {
+        if (my_engine_failed)
+            return;
+
         auto [optional_move, who]
             = my_chess_game->moveFromCoordinates (src_row, src_column, dst_row, dst_column, piece_type);
         if (!optional_move.has_value())
@@ -348,31 +364,31 @@ namespace wisdom::ui::qml
         int src_column,
         int dst_row,
         int dst_column
-    )
+    ) noexcept
         -> bool
     {
         return GameViewModelBase::needsPawnPromotion (src_row, src_column, dst_row, dst_column);
     }
 
     auto
-    GameModel::canMoveFrom (int row, int column)
+    GameModel::canMoveFrom (int row, int column) noexcept
         -> bool
     {
-        return GameViewModelBase::canMoveFrom (row, column);
+        return !my_engine_failed && GameViewModelBase::canMoveFrom (row, column);
     }
 
-    void GameModel::pause()
+    void GameModel::pause() noexcept
     {
         my_paused.store (true);
     }
 
-    void GameModel::unpause()
+    void GameModel::unpause() noexcept
     {
         my_paused.store (false);
         emit resumeSearching();
     }
 
-    void GameModel::applicationExiting()
+    void GameModel::applicationExiting() noexcept
     {
         qDebug() << "Trying to exit application...";
         stopEngineThread();
@@ -404,7 +420,7 @@ namespace wisdom::ui::qml
 #endif
     }
 
-    void GameModel::updateEngineConfig()
+    void GameModel::updateEngineConfig() noexcept
     {
         my_config_id++;
 
@@ -534,48 +550,55 @@ namespace wisdom::ui::qml
     }
 
     auto
-    GameModel::qmlCurrentTurn() const
+    GameModel::qmlCurrentTurn() const noexcept
         -> ui::Color
     {
         return ui::mapColor (GameViewModelBase::currentTurn());
     }
 
-    void GameModel::setQmlCurrentTurn (ui::Color new_color)
+    void GameModel::setQmlCurrentTurn (ui::Color new_color) noexcept
     {
         setCurrentTurn (ui::mapColor (new_color));
     }
 
-    void GameModel::setQmlGameOverStatus (const QString& new_status)
+    void GameModel::setQmlGameOverStatus (const QString& new_status) noexcept
     {
         setGameOverStatus (new_status.toStdString());
     }
 
     auto
-    GameModel::qmlGameOverStatus() const
+    GameModel::qmlGameOverStatus() const noexcept
         -> QString
     {
+        if (my_engine_failed)
+        {
+            return QString::fromStdString (
+                formatBold ("Engine error") + " - Start a new game to continue."
+            );
+        }
+
         return QString::fromStdString (gameOverStatus());
     }
 
-    void GameModel::setQmlMoveStatus (const QString& new_status)
+    void GameModel::setQmlMoveStatus (const QString& new_status) noexcept
     {
         setMoveStatus (new_status.toStdString());
     }
 
     auto
-    GameModel::qmlMoveStatus() const
+    GameModel::qmlMoveStatus() const noexcept
         -> QString
     {
         return QString::fromStdString (moveStatus());
     }
 
-    void GameModel::setQmlInCheck (bool new_in_check)
+    void GameModel::setQmlInCheck (bool new_in_check) noexcept
     {
         setInCheck (new_in_check);
     }
 
     auto
-    GameModel::qmlInCheck() const
+    GameModel::qmlInCheck() const noexcept
         -> bool
     {
         return inCheck();
@@ -622,13 +645,13 @@ namespace wisdom::ui::qml
     }
 
     auto
-    GameModel::uiSettings() const
+    GameModel::uiSettings() const noexcept
         -> const UISettings&
     {
         return my_ui_settings;
     }
 
-    void GameModel::setUISettings (const UISettings& settings)
+    void GameModel::setUISettings (const UISettings& settings) noexcept
     {
         if (my_ui_settings != settings)
         {
@@ -638,13 +661,13 @@ namespace wisdom::ui::qml
     }
 
     auto
-    GameModel::gameSettings() const
+    GameModel::gameSettings() const noexcept
         -> const GameSettings&
     {
         return my_game_settings;
     }
 
-    void GameModel::setGameSettings (const GameSettings& new_game_settings)
+    void GameModel::setGameSettings (const GameSettings& new_game_settings) noexcept
     {
         if (my_game_settings != new_game_settings)
         {
@@ -655,13 +678,13 @@ namespace wisdom::ui::qml
     }
 
     auto
-    GameModel::animationDelay() const
+    GameModel::animationDelay() const noexcept
         -> int
     {
         return my_animation_delay;
     }
 
-    void GameModel::setAnimationDelay (int new_delay)
+    void GameModel::setAnimationDelay (int new_delay) noexcept
     {
         if (my_animation_delay != new_delay)
         {
@@ -671,44 +694,50 @@ namespace wisdom::ui::qml
     }
 
     auto
-    GameModel::castlingRookPause() const
+    GameModel::castlingRookPause() const noexcept
         -> int
     {
         return Castling_Rook_Pause;
     }
 
     auto
-    GameModel::cloneUISettings()
+    GameModel::cloneUISettings() noexcept
         -> UISettings
     {
         return my_ui_settings;
     }
 
     auto
-    GameModel::cloneGameSettings()
+    GameModel::cloneGameSettings() noexcept
         -> GameSettings
     {
         return my_game_settings;
     }
 
-    auto GameModel::qmlThirdRepetitionDrawStatus() const
+    auto GameModel::qmlThirdRepetitionDrawStatus() const noexcept
         -> ui::QmlDrawByRepetitionStatus
     {
         return static_cast<ui::QmlDrawByRepetitionStatus> (thirdRepetitionDrawStatus());
     }
 
-    void GameModel::setQmlThirdRepetitionDrawStatus (ui::QmlDrawByRepetitionStatus draw_status)
+    void
+    GameModel::setQmlThirdRepetitionDrawStatus (
+        ui::QmlDrawByRepetitionStatus draw_status
+    ) noexcept
     {
         setThirdRepetitionDrawStatus (static_cast<DrawStatus> (draw_status));
     }
 
-    auto GameModel::qmlFiftyMovesDrawStatus() const
+    auto GameModel::qmlFiftyMovesDrawStatus() const noexcept
         -> ui::QmlDrawByRepetitionStatus
     {
         return static_cast<ui::QmlDrawByRepetitionStatus> (fiftyMovesDrawStatus());
     }
 
-    void GameModel::setQmlFiftyMovesDrawStatus (ui::QmlDrawByRepetitionStatus draw_status)
+    void
+    GameModel::setQmlFiftyMovesDrawStatus (
+        ui::QmlDrawByRepetitionStatus draw_status
+    ) noexcept
     {
         setFiftyMovesDrawStatus (static_cast<DrawStatus> (draw_status));
     }
@@ -741,10 +770,28 @@ namespace wisdom::ui::qml
         wisdom::ProposedDrawType draw_type,
         wisdom::Color who,
         bool accepted
-    )
+    ) noexcept
     {
         auto game_state = my_chess_game->state();
         game_state->setProposedDrawStatus (draw_type, who, accepted);
         updateDisplayedGameState();
+    }
+
+    void
+    GameModel::engineThreadFailed (
+        [[maybe_unused]] const QString& message,
+        int game_id
+    ) noexcept
+    {
+        if (game_id != gameId())
+            return;
+
+        my_engine_failed = true;
+
+        // A move held for an animation would otherwise still be shown.
+        my_hold_timer.stop();
+        my_held_move.reset();
+
+        emit gameOverStatusChanged();
     }
 }

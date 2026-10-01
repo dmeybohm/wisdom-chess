@@ -40,23 +40,23 @@ namespace wisdom::ui::qml
             -> bool;
 
         [[nodiscard]] auto
-        whitePlayer() const
+        whitePlayer() const noexcept
             -> wisdom::ui::Player;
 
         [[nodiscard]] auto
-        blackPlayer() const
+        blackPlayer() const noexcept
             -> wisdom::ui::Player;
 
         [[nodiscard]] auto
-        maxDepth() const
+        maxDepth() const noexcept
             -> int;
 
         [[nodiscard]] auto
-        maxSearchTime() const
+        maxSearchTime() const noexcept
             -> int;
 
         [[nodiscard]] auto
-        debugLogging() const
+        debugLogging() const noexcept
             -> bool;
 
         // The same settings in the engine's terms.
