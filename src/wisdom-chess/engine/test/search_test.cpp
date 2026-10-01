@@ -652,12 +652,10 @@ TEST_CASE( "A stalemate at the horizon is not scored as a win" )
     CHECK( *result.move != moveParse ("h2 h4", Color::White) );
 }
 
-// A known defect: the search tests for the draw before it looks for a
-// mate, so it takes the knight instead of playing Ra8#. Fixing it fails
-// this test, and should_fail() is to be removed then.
-TEST_CASE( "A checkmate that completes the move count is not scored as a draw"
-           * doctest::should_fail() )
+TEST_CASE( "A checkmate that completes the move count is not scored as a draw" )
 {
+    // Taking the knight resets the count, so it outscores Ra8# if the
+    // mate is read as a draw.
     auto find_move = [] (czstring fen_string, DrawStatus fifty_moves_status)
     {
         FenParser fen { fen_string };

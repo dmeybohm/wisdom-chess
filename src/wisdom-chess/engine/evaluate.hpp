@@ -57,7 +57,8 @@ namespace wisdom
         -> bool;
 
     // Whether the position is, or can be claimed as, a draw by repetition,
-    // by the fifty-move rule or by insufficient material.
+    // by the fifty-move rule or by insufficient material. A checkmate takes
+    // precedence over the move count.
     //
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
@@ -78,7 +79,7 @@ namespace wisdom
             return DrawCategory::ByRepetition;
 
         if (History::hasBeenXHalfMovesWithoutProgress (board, without_progress_count))
-            return DrawCategory::ByNoProgress;
+            return isCheckmated (board) ? DrawCategory::NoDraw : DrawCategory::ByNoProgress;
 
         const auto& material_ref = board.getMaterial();
 
