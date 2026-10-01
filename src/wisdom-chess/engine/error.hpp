@@ -64,7 +64,9 @@ namespace wisdom
             return my_text->extra_info;
         }
 
-        [[nodiscard]] gsl::czstring what() const noexcept override
+        [[nodiscard]] auto
+        what() const noexcept
+            -> gsl::czstring override
         {
             return my_text->message.c_str();
         }
