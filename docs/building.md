@@ -14,7 +14,7 @@ the web version needs no install at all.
 - **Emscripten SDK** for either web build
 - **Node.js** for the React frontend
 
-The engine's other dependencies (GSL, doctest, nanobench) are fetched by
+The engine's other dependencies (doctest, nanobench) are fetched by
 [CPM](https://github.com/cpm-cmake/CPM.cmake) at configure time, pinned
 by `cpm-package-lock.cmake`.
 

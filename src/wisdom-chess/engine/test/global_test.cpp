@@ -47,8 +47,31 @@ TEST_CASE( "narrow throws at runtime when the value does not fit" )
     int negative = -1;
 
     CHECK( narrow<int8_t> (100) == 100 );
-    CHECK_THROWS( (void)narrow<int8_t> (too_big) );
-    CHECK_THROWS( (void)narrow<std::size_t> (negative) );
+    CHECK_THROWS_AS( (void)narrow<int8_t> (too_big), PreconditionError );
+    CHECK_THROWS_AS( (void)narrow<std::size_t> (negative), PreconditionError );
+}
+
+TEST_CASE( "narrow names its caller in the error" )
+{
+    int too_big = 300;
+
+    try
+    {
+        (void)narrow<int8_t> (too_big);
+        FAIL( "narrow did not throw" );
+    }
+    catch (const PreconditionError& error)
+    {
+        CHECK( error.message().find ("global_test.cpp:") != string::npos );
+    }
+}
+
+TEST_CASE( "narrow_cast converts without a check at runtime" )
+{
+    static_assert (narrow_cast<int8_t> (100) == 100);
+
+    int too_big = 300;
+    CHECK( narrow_cast<uint8_t> (too_big) == 44 );
 }
 
 TEST_CASE( "CompileTimeRandom reports the full range of its result type" )

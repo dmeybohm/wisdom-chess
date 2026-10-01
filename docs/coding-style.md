@@ -114,10 +114,11 @@ reason in the same comment, as in
 | Constants | `Snake_Title_Case` | `Max_Search_Depth` |
 | Exception classes | ending in `Error` | `ParseMoveError` |
 
-The vocabulary that extends the GSL is spelled as the GSL spells its own,
+The vocabulary modelled on the GSL is spelled as the GSL spells its own,
 in lower-case `snake_case`: the pointer types of `engine/ptr.hpp`
-(`nonnull`, `nullable`, `owning`), `narrow_cast`, and
-the functions under the contract macros (`noexcept_expects`).
+(`nonnull`, `nullable`, `owning`), `czstring`, `narrow_cast`, and the
+functions under the contract macros (`noexcept_expects`). The GSL itself
+is not a dependency.
 
 A name that JavaScript or QML also uses is spelled as that side spells
 it. The fields of the settings structs are the case: `searchDepth`,

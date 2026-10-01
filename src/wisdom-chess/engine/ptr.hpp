@@ -3,8 +3,6 @@
 #include <cstddef>
 #include <type_traits>
 
-#include <gsl/gsl>
-
 #include "wisdom-chess/engine/error.hpp"
 #include "wisdom-chess/engine/types.hpp"
 
@@ -69,7 +67,7 @@ namespace wisdom
     // C++'s ownership types: Qt's deleteLater() takes it over, or it is
     // returned to JavaScript, which destroys it.
     template <typename T>
-    using owning = gsl::owner<T*>; // lint-allow(raw-pointer): defines the pointer types
+    using owning = T*; // lint-allow(raw-pointer): defines the pointer types
 
     // A non-owning pointer that may be null. It cannot be dereferenced: test
     // it, then take value() to get a nonnull.

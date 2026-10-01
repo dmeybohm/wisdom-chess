@@ -1,7 +1,7 @@
 class Error : public std::exception
 {
 public:
-    [[nodiscard]] gsl::czstring what() const noexcept override
+    [[nodiscard]] wisdom::czstring what() const noexcept override
     {
         return "error";
     }

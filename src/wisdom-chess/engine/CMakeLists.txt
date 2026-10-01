@@ -7,7 +7,6 @@ project(WisdomEngine CXX)
 
 find_package(Threads REQUIRED)
 
-CPMAddPackage("gh:microsoft/GSL@4.0.0")
 CPMAddPackage(
   NAME doctest
   GITHUB_REPOSITORY doctest/doctest
@@ -104,7 +103,6 @@ endif()
 target_include_directories(wisdom-chess-core PUBLIC ../..)
 add_library(wisdom::chess ALIAS wisdom-chess-core)
 
-target_link_libraries(wisdom-chess-core PUBLIC Microsoft.GSL::GSL)
 target_link_libraries(wisdom-chess-core PUBLIC Threads::Threads)
 
 wisdom_chess_enable_warnings(wisdom-chess-core)
