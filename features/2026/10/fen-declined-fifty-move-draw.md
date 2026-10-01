@@ -18,9 +18,8 @@ example:
   block first and only reaches the seventy-five move test once the draw
   has been declined, so a game that is already drawn asks whether to
   draw.
-- The search has nothing to say. `search()` tests
-  `isProbablyDrawingMove()` on the root as on any other node, returns
-  the draw score at ply 0, and `Game::findBestMove()` comes back empty.
+- The search scores every move that is not a capture or a pawn move as
+  a draw, because the limit it applies is still 100.
 
 ## Proposal
 
@@ -75,32 +74,21 @@ benchmarks:
 The React frontend does not load FEN.
 
 `Game::load()` replays a saved move list on a standard game. A replay
-that crosses 100 ends at `NotReached` too, and this change does not
-reach it, because the clock is 0 when the game is constructed.
+that crosses 100 ends at `NotReached` too, and the constructor does not
+reach it, because the clock is 0 when the game is constructed. It makes
+the same inference once the replay is done.
 
-## Related finding: UCI plays random moves in a claimable draw
+## UCI
 
-Found while checking the above, with the UCI binary of the
-`seventy-five-move-checkmate` branch. Not part of this change.
+Checking the above turned up that UCI played a random move in any
+position where a draw could be claimed, because the search returned no
+move for a root that was a draw. That is fixed on its own branch; see
+`search-root-draw-move.md`. It does not depend on this change.
 
-When the search returns no move, `UciInterface` sends
-`pickRandomLegalMove()` (`uci_interface.cpp:412`). UCI never answers a
-draw proposal, so both statuses stay at `NotReached` and the root is a
-draw from the moment one can be claimed:
-
-- `position fen 6k1/5ppp/8/8/8/8/8/R3K3 w - - <clock> 90`, then
-  `go depth 3`, three runs each. Ra8 is mate. Clock 98: `a1a8` every
-  time. Clock 100: `a1a2`, `a1d1`, `a1a6`. Clock 120: `a1a8`, `a1c1`,
-  `e1f1`.
-- `position startpos moves g1f3 g8f6 f3g1 f6g8 g1f3 g8f6 f3g1 f6g8`,
-  the third occurrence of the starting position: seven different moves
-  in eight runs. After one shuffle fewer it is `b1c3` every time.
-
-This proposal fixes only the FEN case above 100. A clock of exactly
-100, a game that reaches 100 through `moves`, and a third repetition
-stay random. UCI has no way to claim a draw, so it should decline both
-draws whenever it builds a game. With that in place UCI no longer
-depends on this change.
+This change still reaches UCI through `position fen`: with a clock
+above 100 the search applies the limit of 150 instead of 100. A GUI
+that adjudicates the fifty-move rule never sends such a position, and
+under one that does not, the game has in fact gone on.
 
 ## Plan
 
@@ -111,23 +99,25 @@ depends on this change.
    - at 120, one player's answer to a fifty-move proposal leaves the
      status at `Playing`;
    - a `BoardBuilder` with a clock of 120 behaves like the FEN.
-2. A failing test in `game_test.cpp`: `findBestMove()` returns a move
-   for a FEN at clock 120.
-3. Add the check to the main `Game::Impl` constructor.
-4. Leave the tests that decline explicitly after loading a clock above
+2. A failing test in `evaluate_test.cpp`: `probableDrawCategory()` is
+   `NoDraw` for a game built from a FEN at clock 120.
+3. A failing test under "Loading a saved game" in `game_test.cpp`: a
+   saved game whose replay ends above 100 loads as `Playing`.
+4. Add the check as a `Game::Impl` member function, called from the
+   main constructor and from `Game::load()` after the replay.
+5. Leave the tests that decline explicitly after loading a clock above
    100 (`game_status_test.cpp`, `evaluate_test.cpp`,
    `game_viewmodel_base_test.cpp:215`). They still pass; the explicit
    answer becomes redundant.
-5. Say in the comment on `createGameFromFen()` in `game.hpp` what a
+6. Say in the comment on `createGameFromFen()` in `game.hpp` what a
    clock above 100 means.
-6. Run the Release `ctest` with slow tests, the new tests in Debug, and
+7. Run the Release `ctest` with slow tests, the new tests in Debug, and
    the `lint` target.
 
-## Open questions
+## Decisions
 
-- Should `Game::load()` make the same inference after its replay?
-- Should the UCI fix come first? It is the larger defect, and it takes
-  UCI out of this change's reach.
+- `Game::load()` makes the same inference after its replay.
+- The UCI defect is fixed first, on `search-root-draw-move`.
 
 ## Implementation Progress
 
@@ -136,3 +126,11 @@ depends on this change.
 Created `fen-declined-fifty-move-draw` in its own worktree from
 `origin/main` at `b64bf5b0`. Wrote this plan. No code or tests have
 been changed yet.
+
+### Session #2
+
+Recorded the two decisions above and reworked the plan around them:
+`Game::load()` is in, and the search test gave way to one on
+`probableDrawCategory()`, since `search-root-draw-move` makes
+`findBestMove()` return a move here on its own. Still no code or tests
+changed.
