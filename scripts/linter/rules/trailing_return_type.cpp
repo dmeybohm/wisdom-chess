@@ -35,6 +35,99 @@ namespace
         return open;
     }
 
+    // The index past the attributes, such as [[nodiscard]], that start at
+    // code[start], or end when one is not closed on the line.
+    auto skipAttributes (const std::vector<Token>& code, size_t start, size_t end) -> size_t
+    {
+        while (start + 1 < end && isPunctuator (code[start], "[") && isPunctuator (code[start + 1], "["))
+        {
+            size_t close = start + 2;
+            while (close + 1 < end
+                   && !(isPunctuator (code[close], "]") && isPunctuator (code[close + 1], "]")))
+            {
+                ++close;
+            }
+            if (close + 1 >= end)
+            {
+                return end;
+            }
+            start = close + 2;
+        }
+        return start;
+    }
+
+    // Whether the "{" at code[brace] opens a namespace, a type or a linkage
+    // block, where functions are declared, judged by the tokens back to the
+    // start of the statement.
+    auto opensDeclarationScope (const std::vector<Token>& code, size_t brace) -> bool
+    {
+        static const std::unordered_set<std::string> type_keywords {
+            "class", "struct", "union", "enum",
+        };
+
+        if (brace >= 2 && code[brace - 1].kind == TokenKind::String
+            && isIdentifier (code[brace - 2], "extern"))
+        {
+            return true;
+        }
+
+        int depth = 0;
+        for (size_t i = brace; i-- > 0; )
+        {
+            const auto& token = code[i];
+            if (isPunctuator (token, ")"))
+            {
+                ++depth;
+            }
+            else if (isPunctuator (token, "(") && --depth < 0)
+            {
+                return false;
+            }
+            if (depth > 0)
+            {
+                continue;
+            }
+            if (isPunctuator (token, ";") || isPunctuator (token, "{") || isPunctuator (token, "}"))
+            {
+                return false;
+            }
+            if (isIdentifier (token, "namespace"))
+            {
+                return true;
+            }
+            bool template_parameter = i > 0
+                && (isPunctuator (code[i - 1], "<") || isPunctuator (code[i - 1], ","));
+            if (isIdentifier (token) && type_keywords.count (token.text) > 0 && !template_parameter)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // For each token, whether it is inside a function's body or an
+    // initializer, where a name followed by parentheses declares a variable
+    // and not a function.
+    auto findTokensInBodies (const std::vector<Token>& code) -> std::vector<bool>
+    {
+        std::vector<bool> in_body;
+        std::vector<bool> scopes;
+        in_body.reserve (code.size());
+        for (size_t i = 0; i < code.size(); ++i)
+        {
+            if (isPunctuator (code[i], "}") && !scopes.empty())
+            {
+                scopes.pop_back();
+            }
+            in_body.push_back (!scopes.empty() && scopes.back());
+            if (isPunctuator (code[i], "{"))
+            {
+                scopes.push_back (!opensDeclarationScope (code, i));
+            }
+        }
+        return in_body;
+    }
+
     class TrailingReturnTypeRule : public Rule
     {
     public:
@@ -53,6 +146,7 @@ namespace
         {
             std::vector<LintViolation> violations;
             auto code = codeTokens (context.tokens);
+            auto in_body = findTokensInBodies (code);
 
             for (size_t line_start = 0; line_start < code.size(); )
             {
@@ -62,7 +156,9 @@ namespace
                     ++line_end;
                 }
 
-                auto violation = checkLine (context, code, line_start, line_end);
+                auto violation = in_body[line_start]
+                    ? std::nullopt
+                    : checkLine (context, code, line_start, line_end);
                 if (violation)
                 {
                     violations.push_back (std::move (*violation));
@@ -97,9 +193,14 @@ namespace
                 "wstring",
             };
 
+            start = skipAttributes (code, start, end);
+            if (start >= end)
+            {
+                return std::nullopt;
+            }
+
             const auto& first = code[start];
-            if ((isIdentifier (first) && skip_starts.count (first.text) > 0) || isPunctuator (first, "*")
-                || (isPunctuator (first, "[") && start + 1 < end && isPunctuator (code[start + 1], "[")))
+            if ((isIdentifier (first) && skip_starts.count (first.text) > 0) || isPunctuator (first, "*"))
             {
                 return std::nullopt;
             }
@@ -129,28 +230,33 @@ namespace
             }
 
             // The return type: one of the common types, possibly a pointer or
-            // reference, or a PascalCase type with any template arguments.
+            // reference, or a PascalCase or qualified type with any template
+            // arguments.
             size_t type_end = type_start + 1;
-            size_t name_index = type_end;
-            const auto& type_name = code[type_start].text;
-            if (common_types.count (type_name) > 0)
+            bool qualified = false;
+            while (type_end + 1 < end && isPunctuator (code[type_end], "::")
+                   && isIdentifier (code[type_end + 1]))
             {
-                if (type_end < end && isPunctuator (code[type_end], "::"))
-                {
-                    return std::nullopt;
-                }
+                type_end += 2;
+                qualified = true;
+            }
+            size_t name_index = type_end;
+            const auto& type_name = code[type_end - 1].text;
+            if (!qualified && common_types.count (type_name) > 0)
+            {
                 while (name_index < end && (isPunctuator (code[name_index], "*")
                        || isPunctuator (code[name_index], "&") || isPunctuator (code[name_index], "&&")))
                 {
                     ++name_index;
                 }
             }
-            else if (std::isupper (static_cast<unsigned char> (type_name[0])))
+            else if (qualified || std::isupper (static_cast<unsigned char> (type_name[0])))
             {
                 if (type_end < end && isPunctuator (code[type_end], "<"))
                 {
-                    type_end = skipTemplateArguments (code, type_end);
-                    if (type_end == type_start + 1 || type_end > end)
+                    size_t open = type_end;
+                    type_end = skipTemplateArguments (code, open);
+                    if (type_end == open || type_end > end)
                     {
                         return std::nullopt;
                     }

@@ -1,0 +1,3 @@
+11:1:trailing-return-type:Function 'name' should use trailing return type: auto name(...) -> std::string
+35:1:trailing-return-type:Function 'describe' should use trailing return type: auto describe(...) -> std::string
+44:1:trailing-return-type:Function 'countAll' should use trailing return type: auto countAll(...) -> std::size_t
