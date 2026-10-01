@@ -353,6 +353,21 @@ TEST_CASE( "Game::status" )
 
         CHECK( game.getStatus() == GameStatus::Checkmate );
     }
+
+    SUBCASE( "Checkmate takes precedence over the seventy-five move draw" )
+    {
+        auto game = Game::createGameFromFen ("6k1/5ppp/8/8/8/8/8/R3K3 w - - 149 110");
+        game.setProposedDrawStatus (
+            ProposedDrawType::FiftyMovesWithoutProgress,
+            { DrawStatus::Declined, DrawStatus::Declined }
+        );
+        CHECK( game.getStatus() == GameStatus::Playing );
+
+        game.move (moveParse ("a1 a8", Color::White));
+
+        REQUIRE( History::hasBeenSeventyFiveMovesWithoutProgress (game.getBoard()) );
+        CHECK( game.getStatus() == GameStatus::Checkmate );
+    }
 }
 
 TEST_CASE( "Game::computerWantsDraw" )

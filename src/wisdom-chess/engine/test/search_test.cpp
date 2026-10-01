@@ -652,6 +652,42 @@ TEST_CASE( "A stalemate at the horizon is not scored as a win" )
     CHECK( *result.move != moveParse ("h2 h4", Color::White) );
 }
 
+// A known defect: the search tests for the draw before it looks for a
+// mate, so it takes the knight instead of playing Ra8#. Fixing it fails
+// this test, and should_fail() is to be removed then.
+TEST_CASE( "A checkmate that completes the move count is not scored as a draw"
+           * doctest::should_fail() )
+{
+    auto find_move = [] (czstring fen_string, DrawStatus fifty_moves_status)
+    {
+        FenParser fen { fen_string };
+        auto game = fen.build();
+
+        SearchHelper helper;
+        helper.history.setFiftyMovesWithoutProgressStatus (fifty_moves_status);
+        auto search = helper.build (game.getBoard(), 2);
+        return search.iterativelyDeepen (Color::White);
+    };
+
+    SUBCASE( "Fifty moves" )
+    {
+        auto result = find_move ("6k1/5ppp/8/8/8/8/8/Rn2K3 w - - 99 80", DrawStatus::NotReached);
+
+        REQUIRE( result.move.has_value() );
+        CHECK( *result.move == moveParse ("a1 a8", Color::White) );
+        CHECK( isCheckmatingOpponentScore (result.score) );
+    }
+
+    SUBCASE( "Seventy-five moves" )
+    {
+        auto result = find_move ("6k1/5ppp/8/8/8/8/8/Rn2K3 w - - 149 110", DrawStatus::Declined);
+
+        REQUIRE( result.move.has_value() );
+        CHECK( *result.move == moveParse ("a1 a8", Color::White) );
+        CHECK( isCheckmatingOpponentScore (result.score) );
+    }
+}
+
 TEST_CASE( "Quiescence search" )
 {
     auto board_from_fen = [] (czstring fen_text) {
