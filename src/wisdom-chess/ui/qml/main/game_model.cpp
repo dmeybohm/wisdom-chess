@@ -228,6 +228,10 @@ namespace wisdom::ui::qml
             return;
         }
 
+        // A move the engine sent before it failed may still arrive.
+        if (my_engine_failed)
+            return;
+
         // Hold the move back until the move before it has finished animating,
         // so that two pieces are never moving at once.
         auto remaining = remainingAnimation();
@@ -783,6 +787,11 @@ namespace wisdom::ui::qml
             return;
 
         my_engine_failed = true;
+
+        // A move held for an animation would otherwise still be shown.
+        my_hold_timer.stop();
+        my_held_move.reset();
+
         emit gameOverStatusChanged();
     }
 }

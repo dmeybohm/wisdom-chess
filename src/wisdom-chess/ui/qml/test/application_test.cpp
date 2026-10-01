@@ -599,6 +599,18 @@ private slots:
         QVERIFY( my_app->boardPieceAt ("e4") == white_pawn );
     }
 
+    void anEngineMoveThatArrivesAfterAFailureIsNotShown()
+    {
+        auto& model = my_app->game_model;
+        QSignalSpy engine_moved { &model, &GameModel::engineMoved };
+
+        model.engineThreadFailed (QStringLiteral ("boom"), model.gameId());
+        model.engineThreadMoved (wisdom::moveParse ("e2 e4", Color::White), Color::White, model.gameId());
+
+        QCOMPARE( engine_moved.count(), 0 );
+        QVERIFY( my_app->boardPieceAt ("e2") == ColoredPiece::make (Color::White, Piece::Pawn) );
+    }
+
     void anEngineFailureFromAnEarlierGameIsIgnored()
     {
         auto& model = my_app->game_model;

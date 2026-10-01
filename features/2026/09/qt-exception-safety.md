@@ -266,3 +266,13 @@ corrected, CI had built and tested the QML frontend for both, and
     pass.
 - Not run: Windows, macOS, Android and the WebAssembly builds. CI
   covers the first three.
+
+### Session #3
+
+From review: a failure did not freeze the board completely. An engine
+move that `GameModel` was holding back for an animation was still shown
+when the hold timer fired, and a move the engine had sent before it
+failed could still arrive. `engineThreadFailed` now stops the timer and
+drops the held move, and `engineThreadMoved` ignores a move while the
+failure is set. Two tests cover them: `QML: dialogs` for the held move,
+`QML: application` for the late one.
