@@ -119,6 +119,7 @@ TEST_CASE( "nonnull" )
 {
     static_assert (Dereferenceable<nonnull<int>>);
     static_assert (!std::is_default_constructible_v<nonnull<int>>);
+    static_assert (std::is_nothrow_constructible_v<nonnull<int>, int*>); // lint-allow(raw-pointer)
     static_assert (!std::is_constructible_v<nonnull<int>, std::nullptr_t>);
     static_assert (!std::is_assignable_v<nonnull<int>&, std::nullptr_t>);
     static_assert (!std::is_constructible_v<nonnull<int>, nullable<int>>);
@@ -126,12 +127,6 @@ TEST_CASE( "nonnull" )
     static_assert (!std::is_convertible_v<nonnull<int>, bool>);
     static_assert (std::is_trivially_copyable_v<nonnull<int>>);
     static_assert (sizeof (nonnull<int>) == sizeof (int*)); // lint-allow(raw-pointer)
-
-    SUBCASE( "Constructing from null throws" )
-    {
-        int* null_ptr = nullptr; // lint-allow(raw-pointer)
-        CHECK_THROWS_AS( nonnull<int> { null_ptr }, PreconditionError );
-    }
 
     SUBCASE( "Dereferencing reaches the pointed-to object" )
     {

@@ -79,6 +79,12 @@ namespace
         );
     }
 
+    void nullNonnull()
+    {
+        int* volatile null_ptr = nullptr; // lint-allow(raw-pointer): the null under test
+        [[maybe_unused]] nonnull<int> ptr { null_ptr };
+    }
+
     void uncaughtError()
     {
         throw Error { "boom", "extra detail" };
@@ -146,6 +152,8 @@ main (int argc, char* argv[]) // lint-allow(raw-pointer): main's signature
         badCastlingFlags();
     else if (test_case == "bad-en-passant-row")
         badEnPassantRow();
+    else if (test_case == "null-nonnull")
+        nullNonnull();
     else if (test_case == "uncaught-error")
         uncaughtError();
     else if (test_case == "search-error")

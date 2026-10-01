@@ -78,6 +78,7 @@ if (WISDOM_CHESS_FAST_TESTS)
     wisdom_chess_add_fatal_test(remove-from-empty "Precondition failed at .*move_list\\.hpp")
     wisdom_chess_add_fatal_test(bad-castling-flags "Precondition failed at .*castling\\.hpp")
     wisdom_chess_add_fatal_test(bad-en-passant-row "Precondition failed at .*board_code\\.hpp")
+    wisdom_chess_add_fatal_test(null-nonnull "Precondition failed at .*ptr\\.hpp:[0-9]+: ptr != nullptr")
 
     # Under Emscripten an uncaught exception leaves main() for JavaScript
     # without calling std::terminate(), and one thrown through noexcept

@@ -19,11 +19,11 @@ namespace wisdom
     class nonnull
     {
     public:
-        // Throws PreconditionError when null.
-        constexpr nonnull (T* ptr) // lint-allow(raw-pointer): wraps a raw pointer
+        // Reports the failure and aborts when null.
+        constexpr nonnull (T* ptr) noexcept // lint-allow(raw-pointer): wraps a raw pointer
             : my_ptr { ptr }
         {
-            EXPECTS( ptr != nullptr );
+            NOEXCEPT_EXPECTS( ptr != nullptr );
         }
 
         template <typename U>
@@ -111,6 +111,7 @@ namespace wisdom
         value() const
             -> nonnull<T>
         {
+            EXPECTS( my_ptr != nullptr );
             return my_ptr;
         }
 

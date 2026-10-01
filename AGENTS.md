@@ -55,10 +55,10 @@ committing C++. The conventions below are about what the code does.
 - Raw pointers never own; ownership is `unique_ptr` or `shared_ptr`.
   Spell a non-owning pointer by its nullability (`engine/ptr.hpp`):
   `nonnull<Type>` or `nullable<Type>`, which cannot be dereferenced: test
-  it, then take `value()` for a `nonnull`. A `nonnull` checks for null
-  when constructed, throwing `PreconditionError`, and not when
-  dereferenced; pass `get()` to an API that takes a raw pointer. See
-  `features/2026/10/single-nonnull.md`. A C string is `czstring` or
+  it, then take `value()` for a `nonnull`, which throws when null. A
+  `nonnull` checks for null when constructed, where a null aborts, and
+  not when dereferenced; pass `get()` to an API that takes a raw pointer.
+  See `features/2026/10/single-nonnull.md`. A C string is `czstring` or
   `zstring`. `owning<Type>` (`gsl::owner<Type*>`) is an owning raw
   pointer, only where something outside C++ arranges the deletion, such
   as Qt's `deleteLater()`. For an object handed to JavaScript, hold a
