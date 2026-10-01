@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <gsl/gsl>
+#include "wisdom-chess/engine/types.hpp"
 
 namespace wisdom
 {
@@ -26,22 +26,22 @@ namespace wisdom
     private:
         struct Text
         {
-            std::string message;
-            std::string extra_info;
+            string message;
+            string extra_info;
         };
 
         // Shared, so that copying the exception cannot throw.
-        std::shared_ptr<const Text> my_text;
+        shared_ptr<const Text> my_text;
 
     public:
-        Error (std::string message, std::string extra_info)
+        Error (string message, string extra_info)
             : my_text {
-                std::make_shared<const Text> (Text { std::move (message), std::move (extra_info) })
+                make_shared<const Text> (Text { std::move (message), std::move (extra_info) })
             }
         {
         }
 
-        explicit Error (std::string message)
+        explicit Error (string message)
             : Error (std::move (message), "")
         {
         }
@@ -52,21 +52,21 @@ namespace wisdom
 
         [[nodiscard]] auto
         message() const noexcept
-            -> const std::string&
+            -> const string&
         {
             return my_text->message;
         }
 
         [[nodiscard]] auto
         extraInfo() const noexcept
-            -> const std::string&
+            -> const string&
         {
             return my_text->extra_info;
         }
 
         [[nodiscard]] auto
         what() const noexcept
-            -> gsl::czstring override
+            -> czstring override
         {
             return my_text->message.c_str();
         }
@@ -88,13 +88,13 @@ namespace wisdom
     // of what was expected.
     [[noreturn]] void
     throwPreconditionError (
-        std::string_view expression,
+        string_view expression,
         const std::source_location& location
     );
 
     [[noreturn]] void
     throwPostconditionError (
-        std::string_view expression,
+        string_view expression,
         const std::source_location& location
     );
 
@@ -103,8 +103,8 @@ namespace wisdom
     // is built on the stack, since the heap may be what failed.
     [[noreturn]] void
     terminateOnCheckFailure (
-        std::string_view kind,
-        std::string_view expression,
+        string_view kind,
+        string_view expression,
         const std::source_location& location
     ) noexcept;
 
@@ -117,7 +117,7 @@ namespace wisdom
     constexpr void
     expects (
         bool condition,
-        std::string_view expression,
+        string_view expression,
         const std::source_location& location = std::source_location::current()
     )
     {
@@ -130,7 +130,7 @@ namespace wisdom
     constexpr void
     noexcept_expects (
         bool condition,
-        std::string_view expression,
+        string_view expression,
         const std::source_location& location = std::source_location::current()
     ) noexcept
     {
@@ -142,7 +142,7 @@ namespace wisdom
     constexpr void
     ensures (
         bool condition,
-        std::string_view expression,
+        string_view expression,
         const std::source_location& location = std::source_location::current()
     )
     {
@@ -155,7 +155,7 @@ namespace wisdom
     constexpr void
     debug_expects (
         bool condition,
-        std::string_view expression,
+        string_view expression,
         const std::source_location& location = std::source_location::current()
     ) noexcept
     {

@@ -141,13 +141,13 @@ Getters:
 
 ## Standard library names
 
-`engine/global.hpp` brings the common standard types into the namespace
+`engine/types.hpp` brings the common standard types into the namespace
 (`string`, `optional`, `vector`, `unique_ptr`, ...) and aliases
-`chrono`. Inside `wisdom`, write them without `std::`:
-`optional<Move>`, `chrono::milliseconds`. Code outside the namespace,
-such as a `main()` or a test that only uses `wisdom::ui::qml`, keeps
-`std::`. So do the headers `global.hpp` itself includes (`error.hpp`,
-`narrow.hpp`, `ptr.hpp`), which come before those declarations.
+`chrono`. `engine/global.hpp` includes it, and so do the headers
+`global.hpp` is built on, such as `error.hpp`. Inside `wisdom`, write
+them without `std::`: `optional<Move>`, `chrono::milliseconds`. Code
+outside the namespace, such as a `main()` or a test that only uses
+`wisdom::ui::qml`, keeps `std::`.
 
 ## Source files
 

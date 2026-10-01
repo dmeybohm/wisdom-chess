@@ -6,6 +6,7 @@
 #include <gsl/gsl>
 
 #include "wisdom-chess/engine/error.hpp"
+#include "wisdom-chess/engine/types.hpp"
 
 namespace wisdom
 {
