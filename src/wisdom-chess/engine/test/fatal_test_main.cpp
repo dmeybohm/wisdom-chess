@@ -1,5 +1,7 @@
 // Each case triggers one fatal error, so it has to run in its own process.
 // run_fatal_test.cmake launches it and checks the output and the exit result.
+// To add a case, write its function and list it in Fatal_Cases: the build
+// asks this program for the list (discover_fatal_tests.cmake).
 
 #include <csignal>
 #include <cstdlib>
@@ -125,6 +127,65 @@ namespace
         volatile bool condition = false;
         ASSERT( condition );
     }
+
+    struct FatalCase
+    {
+        string_view name;
+
+        // A CMake regular expression for what the emergency logger reports.
+        string_view expected;
+
+        nonnull<void()> run;
+
+        // Whether this build reports the error at all.
+        bool listed = true;
+    };
+
+    // Under Emscripten an uncaught exception leaves main() for JavaScript
+    // without calling std::terminate(), and one thrown through noexcept
+    // reaches the terminate handler with no current exception to report.
+#ifdef __EMSCRIPTEN__
+    constexpr bool Reports_Uncaught_Errors = false;
+#else
+    constexpr bool Reports_Uncaught_Errors = true;
+#endif
+
+    const FatalCase Fatal_Cases[] = {
+        {
+            "append-overflow",
+            "Precondition failed at .*move_list\\.hpp:[0-9]+: my_size < Max_Move_List_Size",
+            &appendOverflow,
+        },
+        { "remove-from-empty", "Precondition failed at .*move_list\\.hpp", &removeFromEmpty },
+        { "bad-castling-flags", "Precondition failed at .*castling\\.hpp", &badCastlingFlags },
+        { "bad-en-passant-row", "Precondition failed at .*board_code\\.hpp", &badEnPassantRow },
+        {
+            "null-nonnull",
+            "Precondition failed at .*ptr\\.hpp:[0-9]+: ptr != nullptr",
+            &nullNonnull,
+        },
+        { "uncaught-error", "Uncaught error: boom", &uncaughtError, Reports_Uncaught_Errors },
+        {
+            "search-error",
+            "Uncaught error: boom.extra detail.[^[]*\\|",
+            &searchError,
+            Reports_Uncaught_Errors,
+        },
+        {
+            "expects-through-noexcept",
+            "Uncaught error: Precondition failed at",
+            &expectsThroughNoexcept,
+            Reports_Uncaught_Errors,
+        },
+
+        // ASSERT() only checks when Debugging is on.
+        {
+            "assert-failure",
+            "Assertion failed at .*fatal_test_main\\.cpp:[0-9]+: condition",
+            &assertFailure,
+            Debugging,
+        },
+    };
 }
 
 auto
@@ -142,32 +203,29 @@ main (int argc, char* argv[]) // lint-allow(raw-pointer): main's signature
     setEmergencyLogger (std::make_shared<MarkedLogger>());
     installEmergencyTerminateHandler();
 
-    std::string_view test_case = argc > 1 ? argv[1] : "";
+    std::string_view requested = argc > 1 ? argv[1] : "";
 
-    if (test_case == "append-overflow")
-        appendOverflow();
-    else if (test_case == "remove-from-empty")
-        removeFromEmpty();
-    else if (test_case == "bad-castling-flags")
-        badCastlingFlags();
-    else if (test_case == "bad-en-passant-row")
-        badEnPassantRow();
-    else if (test_case == "null-nonnull")
-        nullNonnull();
-    else if (test_case == "uncaught-error")
-        uncaughtError();
-    else if (test_case == "search-error")
-        searchError();
-    else if (test_case == "expects-through-noexcept")
-        expectsThroughNoexcept();
-    else if (test_case == "assert-failure")
-        assertFailure();
-    else
+    if (requested == "--list")
     {
-        std::cout << "Unknown case: " << test_case << "\n";
-        return EXIT_FAILURE;
+        for (const auto& fatal_case : Fatal_Cases)
+        {
+            if (fatal_case.listed)
+                std::cout << fatal_case.name << "\n";
+        }
+        return EXIT_SUCCESS;
     }
 
-    std::cout << "[survived] " << test_case << "\n";
-    return EXIT_SUCCESS;
+    for (const auto& fatal_case : Fatal_Cases)
+    {
+        if (fatal_case.name != requested)
+            continue;
+
+        std::cout << "[expecting] " << fatal_case.expected << std::endl;
+        (*fatal_case.run)();
+        std::cout << "[survived] " << requested << "\n";
+        return EXIT_SUCCESS;
+    }
+
+    std::cout << "Unknown case: " << requested << "\n";
+    return EXIT_FAILURE;
 }

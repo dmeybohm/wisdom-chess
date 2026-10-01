@@ -5,13 +5,13 @@
 # case from a script makes the verdict independent of how the process dies.
 #
 # Usage: cmake -DFATAL_TEST_EXECUTABLE=<path> -DFATAL_TEST_CASE=<name>
-#              -DFATAL_TEST_EXPECTED=<regex> [-DFATAL_TEST_EMULATOR=<path>]
-#              -P run_fatal_test.cmake
+#              [-DFATAL_TEST_EMULATOR=<path>] -P run_fatal_test.cmake
 #
 # FATAL_TEST_EMULATOR runs the executable when cross-compiling, such as node
-# for Emscripten.
+# for Emscripten. The case prints the message it expects, as a regular
+# expression, before it triggers the error.
 
-foreach(required FATAL_TEST_EXECUTABLE FATAL_TEST_CASE FATAL_TEST_EXPECTED)
+foreach(required FATAL_TEST_EXECUTABLE FATAL_TEST_CASE)
     if(NOT DEFINED ${required})
         message(FATAL_ERROR "${required} is not set")
     endif()
@@ -28,6 +28,11 @@ execute_process(
 message(STATUS "Result: ${result}")
 message(STATUS "Output:\n${output}")
 
+if(NOT output MATCHES "\\[expecting\\] ([^\r\n]*)")
+    message(FATAL_ERROR "The process did not run the case.")
+endif()
+set(expected "${CMAKE_MATCH_1}")
+
 if(output MATCHES "\\[survived\\]")
     message(FATAL_ERROR "The process carried on past the fatal error.")
 endif()
@@ -36,7 +41,6 @@ if(result STREQUAL "0")
     message(FATAL_ERROR "The process exited normally instead of terminating.")
 endif()
 
-if(NOT output MATCHES "\\[emergency\\] ${FATAL_TEST_EXPECTED}")
-    message(FATAL_ERROR
-        "The emergency logger did not report: ${FATAL_TEST_EXPECTED}")
+if(NOT output MATCHES "\\[emergency\\] ${expected}")
+    message(FATAL_ERROR "The emergency logger did not report: ${expected}")
 endif()

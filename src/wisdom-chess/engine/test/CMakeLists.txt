@@ -60,40 +60,31 @@ if (WISDOM_CHESS_FAST_TESTS)
         target_compile_definitions(wisdom-chess-fatal-tests PRIVATE WISDOM_CHESS_FILC_COMPAT)
     endif()
 
-    function(wisdom_chess_add_fatal_test test_case expected_output)
-        add_test(
-            NAME "Fatal: ${test_case}"
-            COMMAND ${CMAKE_COMMAND}
-                "-DFATAL_TEST_EMULATOR=${CMAKE_CROSSCOMPILING_EMULATOR}"
-                "-DFATAL_TEST_EXECUTABLE=$<TARGET_FILE:wisdom-chess-fatal-tests>"
-                "-DFATAL_TEST_CASE=${test_case}"
-                "-DFATAL_TEST_EXPECTED=${expected_output}"
-                -P "${CMAKE_CURRENT_SOURCE_DIR}/run_fatal_test.cmake"
-        )
-        set_tests_properties("Fatal: ${test_case}" PROPERTIES LABELS fast)
-    endfunction()
+    # The cases are listed in fatal_test_main.cpp. Each build of the program
+    # asks it for them and writes the tests for CTest to include.
+    set(fatal_tests_file "${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-fatal-tests_tests.cmake")
+    set(fatal_include_file "${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-fatal-tests_include.cmake")
 
-    wisdom_chess_add_fatal_test(append-overflow
-        "Precondition failed at .*move_list\\.hpp:[0-9]+: my_size < Max_Move_List_Size")
-    wisdom_chess_add_fatal_test(remove-from-empty "Precondition failed at .*move_list\\.hpp")
-    wisdom_chess_add_fatal_test(bad-castling-flags "Precondition failed at .*castling\\.hpp")
-    wisdom_chess_add_fatal_test(bad-en-passant-row "Precondition failed at .*board_code\\.hpp")
-    wisdom_chess_add_fatal_test(null-nonnull "Precondition failed at .*ptr\\.hpp:[0-9]+: ptr != nullptr")
+    add_custom_command(
+        TARGET wisdom-chess-fatal-tests POST_BUILD
+        BYPRODUCTS "${fatal_tests_file}"
+        COMMAND ${CMAKE_COMMAND}
+            "-DFATAL_TEST_EMULATOR=${CMAKE_CROSSCOMPILING_EMULATOR}"
+            "-DFATAL_TEST_EXECUTABLE=$<TARGET_FILE:wisdom-chess-fatal-tests>"
+            "-DFATAL_TEST_RUNNER=${CMAKE_CURRENT_SOURCE_DIR}/run_fatal_test.cmake"
+            "-DFATAL_TEST_FILE=${fatal_tests_file}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/discover_fatal_tests.cmake"
+        VERBATIM
+    )
 
-    # Under Emscripten an uncaught exception leaves main() for JavaScript
-    # without calling std::terminate(), and one thrown through noexcept
-    # reaches the terminate handler with no current exception to report.
-    if (NOT EMSCRIPTEN)
-        wisdom_chess_add_fatal_test(uncaught-error "Uncaught error: boom")
-        wisdom_chess_add_fatal_test(search-error "Uncaught error: boom.extra detail.[^[]*\\|")
-        wisdom_chess_add_fatal_test(expects-through-noexcept "Uncaught error: Precondition failed at")
-    endif()
-
-    # ASSERT() only checks when NDEBUG is off, so the case aborts only in a
-    # Debug build.
-    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        wisdom_chess_add_fatal_test(assert-failure "Assertion failed at .*fatal_test_main\\.cpp:[0-9]+: condition")
-    endif()
+    file(WRITE "${fatal_include_file}"
+        "if(EXISTS \"${fatal_tests_file}\")\n"
+        "  include(\"${fatal_tests_file}\")\n"
+        "else()\n"
+        "  add_test(wisdom-chess-fatal-tests_NOT_BUILT wisdom-chess-fatal-tests_NOT_BUILT)\n"
+        "endif()\n"
+    )
+    set_property(DIRECTORY APPEND PROPERTY TEST_INCLUDE_FILES "${fatal_include_file}")
 
 endif()
 

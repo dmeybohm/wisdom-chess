@@ -100,6 +100,12 @@ The `UCI: ...` and `Console: ...` tests (`cmake/CliTests.cmake`) script the
 binaries' standard input. A UCI script that starts a search must send
 `stop` before `quit`, or no `bestmove` is printed.
 
+The `Fatal: ...` tests cover what doctest cannot catch because it ends
+the process: a failed `NOEXCEPT_EXPECTS` or `ASSERT`, a null `nonnull`, an
+uncaught exception. Add one as a function and an entry in `Fatal_Cases`
+in `engine/test/fatal_test_main.cpp`; the build asks the program for the
+list.
+
 The `QML: ...` tests (`src/wisdom-chess/ui/qml/test`) use Qt Test, styled like doctest:
 `QCOMPARE( a, b )`. Add one with `wisdom_chess_add_qml_test()` or, for a
 test that loads the real QML, `wisdom_chess_add_qml_ui_test()` on
