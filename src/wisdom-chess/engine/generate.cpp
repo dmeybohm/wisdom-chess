@@ -70,7 +70,7 @@ namespace wisdom
     struct MoveGeneration
     {
         const Board& board;
-        unchecked_nonnull<MoveList> moves;
+        nonnull<MoveList> moves;
         int piece_row;
         int piece_col;
         const Color who;

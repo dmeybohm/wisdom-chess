@@ -1,13 +1,6 @@
 # CPM Package Lock
 # This file should be committed to version control
 
-# GSL
-CPMDeclarePackage(GSL
-  VERSION 4.0.0
-  GITHUB_REPOSITORY microsoft/GSL
-  SYSTEM YES
-  EXCLUDE_FROM_ALL YES
-)
 # doctest
 CPMDeclarePackage(doctest
   NAME doctest

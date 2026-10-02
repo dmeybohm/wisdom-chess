@@ -81,7 +81,7 @@ namespace wisdom
         SearchResult my_current_result {};
         MoveTimer my_timer;
         shared_ptr<Logger> my_output;
-        unchecked_nonnull<TranspositionTable> my_transposition_table;
+        nonnull<TranspositionTable> my_transposition_table;
 
         int my_total_depth;
         int my_nodes_visited = 0;

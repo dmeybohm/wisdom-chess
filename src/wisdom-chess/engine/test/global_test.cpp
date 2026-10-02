@@ -47,8 +47,31 @@ TEST_CASE( "narrow throws at runtime when the value does not fit" )
     int negative = -1;
 
     CHECK( narrow<int8_t> (100) == 100 );
-    CHECK_THROWS( (void)narrow<int8_t> (too_big) );
-    CHECK_THROWS( (void)narrow<std::size_t> (negative) );
+    CHECK_THROWS_AS( (void)narrow<int8_t> (too_big), PreconditionError );
+    CHECK_THROWS_AS( (void)narrow<std::size_t> (negative), PreconditionError );
+}
+
+TEST_CASE( "narrow names its caller in the error" )
+{
+    int too_big = 300;
+
+    try
+    {
+        (void)narrow<int8_t> (too_big);
+        FAIL( "narrow did not throw" );
+    }
+    catch (const PreconditionError& error)
+    {
+        CHECK( error.message().find ("global_test.cpp:") != string::npos );
+    }
+}
+
+TEST_CASE( "narrow_cast converts without a check at runtime" )
+{
+    static_assert (narrow_cast<int8_t> (100) == 100);
+
+    int too_big = 300;
+    CHECK( narrow_cast<uint8_t> (too_big) == 44 );
 }
 
 TEST_CASE( "CompileTimeRandom reports the full range of its result type" )
@@ -95,51 +118,14 @@ TEST_CASE( "Copying an Error cannot throw" )
 namespace
 {
     constexpr auto
-    readThroughUncheckedPointer()
+    readThroughNonnull()
         -> int
     {
         int value = 42;
-        unchecked_nonnull<int> ptr = &value;
+        nonnull<int> ptr = &value;
         return *ptr;
     }
-}
 
-TEST_CASE( "unchecked_nonnull" )
-{
-    SUBCASE( "Constructing from null throws" )
-    {
-        nullable<int> null_ptr = nullptr;
-        CHECK_THROWS_AS( unchecked_nonnull<int> { null_ptr }, PreconditionError );
-    }
-
-    SUBCASE( "Dereferencing reaches the pointed-to object" )
-    {
-        std::string text = "abc";
-        unchecked_nonnull<std::string> ptr = &text;
-
-        CHECK( ptr.get() == &text );
-        CHECK( ptr->size() == 3 );
-        *ptr += "d";
-        CHECK( text == "abcd" );
-    }
-
-    SUBCASE( "Converts from nonnull" )
-    {
-        int value = 7;
-        nonnull<int> checked = &value;
-        unchecked_nonnull<int> unchecked = checked;
-
-        CHECK( unchecked.get() == &value );
-    }
-
-    SUBCASE( "Works in a constant expression" )
-    {
-        static_assert (readThroughUncheckedPointer() == 42);
-    }
-}
-
-namespace
-{
     template <typename P>
     concept Dereferenceable = requires (P p) { *p; } || requires (P p) { p.operator->(); };
 
@@ -152,9 +138,71 @@ namespace
     };
 }
 
-TEST_CASE( "nullable" )
+TEST_CASE( "nonnull" )
 {
     static_assert (Dereferenceable<nonnull<int>>);
+    static_assert (!std::is_default_constructible_v<nonnull<int>>);
+    static_assert (std::is_nothrow_constructible_v<nonnull<int>, int*>); // lint-allow(raw-pointer)
+    static_assert (!std::is_constructible_v<nonnull<int>, std::nullptr_t>);
+    static_assert (!std::is_assignable_v<nonnull<int>&, std::nullptr_t>);
+    static_assert (!std::is_constructible_v<nonnull<int>, nullable<int>>);
+    static_assert (!std::is_convertible_v<nonnull<int>, int*>); // lint-allow(raw-pointer)
+    static_assert (!std::is_convertible_v<nonnull<int>, bool>);
+    static_assert (std::is_trivially_copyable_v<nonnull<int>>);
+    static_assert (sizeof (nonnull<int>) == sizeof (int*)); // lint-allow(raw-pointer)
+
+    SUBCASE( "Dereferencing reaches the pointed-to object" )
+    {
+        std::string text = "abc";
+        nonnull<std::string> ptr = &text;
+
+        CHECK( ptr.get() == &text );
+        CHECK( ptr->size() == 3 );
+        *ptr += "d";
+        CHECK( text == "abcd" );
+    }
+
+    SUBCASE( "A moved-from pointer keeps its value" )
+    {
+        int value = 7;
+        nonnull<int> original = &value;
+        nonnull<int> moved_to = std::move (original);
+
+        CHECK( moved_to.get() == &value );
+        CHECK( original.get() == &value );
+    }
+
+    SUBCASE( "Converts to a pointer to a base class or to const" )
+    {
+        Derived derived;
+        nonnull<Derived> derived_ptr = &derived;
+        nonnull<Base> base_ptr = derived_ptr;
+        nonnull<const Derived> const_ptr = derived_ptr;
+
+        CHECK( base_ptr.get() == &derived );
+        CHECK( const_ptr.get() == &derived );
+        static_assert (!std::is_constructible_v<nonnull<Derived>, nonnull<Base>>);
+        static_assert (!std::is_constructible_v<nonnull<int>, nonnull<const int>>);
+    }
+
+    SUBCASE( "Compares by address" )
+    {
+        int first = 1;
+        int second = 1;
+        nonnull<int> first_ptr = &first;
+
+        CHECK( first_ptr == nonnull<int> { &first } );
+        CHECK( first_ptr != nonnull<int> { &second } );
+    }
+
+    SUBCASE( "Works in a constant expression" )
+    {
+        static_assert (readThroughNonnull() == 42);
+    }
+}
+
+TEST_CASE( "nullable" )
+{
     static_assert (!Dereferenceable<nullable<int>>);
     static_assert (!std::is_convertible_v<nullable<int>, int*>); // lint-allow(raw-pointer)
     static_assert (!std::is_convertible_v<nullable<int>, bool>);
@@ -211,14 +259,6 @@ TEST_CASE( "nullable" )
         CHECK( first_ptr == nullable<int> { &first } );
         CHECK( first_ptr != nullable<int> { &second } );
         CHECK( first_ptr != nullptr );
-    }
-
-    SUBCASE( "unchecked_nonnull checks a nullable once, on construction" )
-    {
-        int value = 3;
-        unchecked_nonnull<int> ptr = nullable<int> { &value };
-
-        CHECK( ptr.get() == &value );
     }
 }
 

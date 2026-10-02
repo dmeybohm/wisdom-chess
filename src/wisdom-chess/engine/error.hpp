@@ -85,17 +85,18 @@ namespace wisdom
     };
 
     // The expression is the text of the failed condition, or a description
-    // of what was expected.
+    // of what was expected. The location is taken by value throughout: a
+    // reference would put a temporary on the stack of every checking caller.
     [[noreturn]] void
     throwPreconditionError (
         string_view expression,
-        const std::source_location& location
+        std::source_location location
     );
 
     [[noreturn]] void
     throwPostconditionError (
         string_view expression,
-        const std::source_location& location
+        std::source_location location
     );
 
     // Reports through logEmergency() and aborts. The kind names the check
@@ -105,7 +106,7 @@ namespace wisdom
     terminateOnCheckFailure (
         string_view kind,
         string_view expression,
-        const std::source_location& location
+        std::source_location location
     ) noexcept;
 
     // The checks below are called through the macros at the end of this
@@ -118,7 +119,7 @@ namespace wisdom
     expects (
         bool condition,
         string_view expression,
-        const std::source_location& location = std::source_location::current()
+        std::source_location location = std::source_location::current()
     )
     {
         if (!condition) [[unlikely]]
@@ -131,7 +132,7 @@ namespace wisdom
     noexcept_expects (
         bool condition,
         string_view expression,
-        const std::source_location& location = std::source_location::current()
+        std::source_location location = std::source_location::current()
     ) noexcept
     {
         if (!condition) [[unlikely]]
@@ -143,7 +144,7 @@ namespace wisdom
     ensures (
         bool condition,
         string_view expression,
-        const std::source_location& location = std::source_location::current()
+        std::source_location location = std::source_location::current()
     )
     {
         if (!condition) [[unlikely]]
@@ -156,7 +157,7 @@ namespace wisdom
     debug_expects (
         bool condition,
         string_view expression,
-        const std::source_location& location = std::source_location::current()
+        std::source_location location = std::source_location::current()
     ) noexcept
     {
         if (!condition) [[unlikely]]

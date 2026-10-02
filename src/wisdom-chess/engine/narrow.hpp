@@ -1,10 +1,10 @@
 #pragma once
 
 #include <exception>
-#include <stdexcept>
+#include <source_location>
 #include <type_traits>
 
-#include <gsl/narrow>
+#include "wisdom-chess/engine/error.hpp"
 
 namespace wisdom
 {
@@ -30,7 +30,8 @@ namespace wisdom
             && isNegative (converted) == isNegative (value);
     }
 
-    // constexpr version of narrow_cast (no exception at runtime):
+    // A static_cast that names a narrowing conversion. Unchecked at runtime;
+    // in a constant expression, a value that does not fit is a compile error.
     template <typename Target, typename Source> constexpr auto
     narrow_cast (Source value) noexcept
         -> Target
@@ -48,28 +49,22 @@ namespace wisdom
             }
         }
 
-        return gsl::narrow_cast<Target> (value);
+        return static_cast<Target> (value);
     }
 
-    // constexpr version of narrow (exception at runtime):
+    // Throws PreconditionError, naming the caller, when the value does not
+    // fit in Target. In a constant expression, that is a compile error.
     template <typename Target, typename Source> constexpr auto
-    narrow (Source value)
+    narrow (Source value, std::source_location location = std::source_location::current())
         -> Target
     {
         static_assert (std::is_arithmetic_v<Source>);
         static_assert (std::is_arithmetic_v<Target>);
 
-        // Check if Source can fit into Target without truncation
-        if (std::is_constant_evaluated())
-        {
-            if (!isLosslessConversion<Target> (value))
-            {
-                // At compile-time, trigger an error if there's truncation
-                throw std::runtime_error ("narrow_cast: narrowing occurred");
-            }
-        }
+        if (!isLosslessConversion<Target> (value)) [[unlikely]]
+            throwPreconditionError ("narrow: the value fits in the target type", location);
 
-        return gsl::narrow<Target> (value);
+        return static_cast<Target> (value);
     }
 
     // Converts to a narrower unsigned type, deliberately discarding the high bits.
