@@ -454,4 +454,17 @@ TEST_CASE( "Probable draw category and drawing predicate" )
         CHECK( probableDrawCategory (reached.getBoard(), reached.getHistory())
                == DrawCategory::ByNoProgress );
     }
+
+    SUBCASE( "A checkmate is not a draw by the move count" )
+    {
+        auto fifty = Game::createGameFromFen ("R5k1/5ppp/8/8/8/8/8/4K3 b - - 100 80");
+
+        auto seventy_five = Game::createGameFromFen ("R5k1/5ppp/8/8/8/8/8/4K3 b - - 150 110");
+        seventy_five.getHistory().setFiftyMovesWithoutProgressStatus (DrawStatus::Declined);
+
+        CHECK( probableDrawCategory (fifty.getBoard(), fifty.getHistory())
+               == DrawCategory::NoDraw );
+        CHECK( probableDrawCategory (seventy_five.getBoard(), seventy_five.getHistory())
+               == DrawCategory::NoDraw );
+    }
 }
