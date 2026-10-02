@@ -35,7 +35,7 @@ namespace wisdom
         {
         }
 
-        auto isTriggered() -> bool;
+        [[nodiscard]] auto isTriggered() -> bool;
 
         // Whether the search as a whole was cancelled.
         [[nodiscard]] auto

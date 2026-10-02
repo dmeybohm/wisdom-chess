@@ -155,7 +155,7 @@ namespace wisdom
         // Private implementation functions
         class Impl;
         explicit Game (unique_ptr<Impl> impl);
-        static auto load (const string& filename, const Players& players) -> optional<Game>;
+        [[nodiscard]] static auto load (const string& filename, const Players& players) -> optional<Game>;
 
     private:
         unique_ptr<Impl> my_pimpl;

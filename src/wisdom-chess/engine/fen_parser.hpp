@@ -24,9 +24,9 @@ namespace wisdom
         }
 
         // Build the game:
-        auto build() -> Game;
+        [[nodiscard]] auto build() -> Game;
 
-        auto buildBoard() -> Board;
+        [[nodiscard]] auto buildBoard() -> Board;
 
     private:
         BoardBuilder my_builder;
@@ -34,7 +34,7 @@ namespace wisdom
 
         void parse (const string& input);
 
-        static auto parsePiece (char ch) -> ColoredPiece;
+        [[nodiscard]] static auto parsePiece (char ch) -> ColoredPiece;
 
         void parsePieces (string pieces_str);
 
@@ -50,7 +50,7 @@ namespace wisdom
 
         void parseFullMove (int full_moves);
 
-        static auto parseActivePlayer (char ch) -> Color;
+        [[nodiscard]] static auto parseActivePlayer (char ch) -> Color;
     };
 
     class FenParserError : public Error

@@ -147,7 +147,7 @@ namespace wisdom
     {
         int8_t piece_type_and_color;
 
-        static constexpr auto
+        [[nodiscard]] static constexpr auto
         make (Color color, Piece piece_type) noexcept
             -> ColoredPiece
         {

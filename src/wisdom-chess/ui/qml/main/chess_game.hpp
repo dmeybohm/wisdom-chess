@@ -29,20 +29,20 @@ namespace wisdom::ui::qml
             setConfig (config);
         }
 
-        static auto fromPlayers (
+        [[nodiscard]] static auto fromPlayers (
             wisdom::Player white_player,
             wisdom::Player black_player,
             const Config& config
         )
             -> std::unique_ptr<ChessGame>;
 
-        static auto fromFen (
+        [[nodiscard]] static auto fromFen (
             const std::string& input,
             const Config& config
         )
             -> std::unique_ptr<ChessGame>;
 
-        static auto fromEngine (
+        [[nodiscard]] static auto fromEngine (
             std::unique_ptr<wisdom::Game> game,
             const Config& config
         )

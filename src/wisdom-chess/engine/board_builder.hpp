@@ -49,7 +49,7 @@ namespace wisdom
             Piece::King, Piece::Bishop, Piece::Knight, Piece::Rook,
         };
 
-        static constexpr auto
+        [[nodiscard]] static constexpr auto
         fromDefaultPosition()
             -> BoardBuilder
         {
@@ -324,7 +324,7 @@ namespace wisdom
         optional<EnPassantTarget> my_en_passant_target { nullopt };
     };
 
-    consteval auto
+    [[nodiscard]] consteval auto
     initDefaultBoardBuilder()
         -> BoardBuilder
     {

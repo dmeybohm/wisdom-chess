@@ -27,7 +27,7 @@ namespace wisdom
 
         // Whether the boards are the same position for repetition, as
         // getBoardCode() identifies it.
-        friend auto
+        [[nodiscard]] friend auto
         operator== (const Board& a, const Board& b)
             -> bool
         {

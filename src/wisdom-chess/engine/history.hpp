@@ -52,7 +52,7 @@ namespace wisdom
             my_board_codes.reserve (64);
         }
 
-        static auto
+        [[nodiscard]] static auto
         fromInitialBoard (const Board& board)
             -> History
         {

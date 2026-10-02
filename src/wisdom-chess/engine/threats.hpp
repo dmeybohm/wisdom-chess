@@ -143,7 +143,7 @@ namespace wisdom
             CheckMiddle,
             DoNotCheckMiddle
         };
-        template <KingThreatCheck squares_to_check> auto
+        template <KingThreatCheck squares_to_check> [[nodiscard]] auto
         checkKingThreatRow (int target_row, int starting_col, int ending_col) const
             -> bool
         {

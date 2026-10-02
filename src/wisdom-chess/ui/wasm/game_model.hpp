@@ -50,7 +50,7 @@ namespace wisdom
         GameModel() = default;
 
         // Initialize a new game with the default position.
-        auto
+        [[nodiscard]] auto
         startNewGame()
             -> owning<WebGame>
         {
