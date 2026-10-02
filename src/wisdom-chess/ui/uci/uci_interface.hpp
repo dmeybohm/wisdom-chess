@@ -50,8 +50,8 @@ namespace wisdom
         void handleQuit();
 
         auto parsePosition (const vector<string>& tokens) -> bool;
-        auto tokenizeCommand (const string& line) -> vector<string>;
-        auto parseUciMove (const Game& game, const string& uci_move) -> optional<Move>;
+        [[nodiscard]] auto tokenizeCommand (const string& line) -> vector<string>;
+        [[nodiscard]] auto parseUciMove (const Game& game, const string& uci_move) -> optional<Move>;
 
         // Play each move of a "position" command's list. On a move that
         // cannot be parsed or is not legal, report it and return false,
@@ -61,7 +61,7 @@ namespace wisdom
             vector<string>::const_iterator first,
             vector<string>::const_iterator last
         ) -> bool;
-        auto moveToUci (const Move& move) -> string;
+        [[nodiscard]] auto moveToUci (const Move& move) -> string;
 
         void sendEngineInfo();
         void sendBestMove (const optional<Move>& move);

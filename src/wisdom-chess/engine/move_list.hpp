@@ -160,7 +160,7 @@ namespace wisdom
         }
     };
 
-    auto asString (const MoveList& list) -> string;
+    [[nodiscard]] auto asString (const MoveList& list) -> string;
 
     auto operator<< (std::ostream& os, const MoveList& list) -> std::ostream&;
 }

@@ -6,7 +6,7 @@
 namespace wisdom
 {
     template <typename IntegerType>
-    constexpr auto
+    [[nodiscard]] constexpr auto
     isValidRow (IntegerType row)
         -> bool
     {
@@ -15,7 +15,7 @@ namespace wisdom
     }
 
     template <typename IntegerType>
-    constexpr auto
+    [[nodiscard]] constexpr auto
     isValidColumn (IntegerType col)
         -> bool
     {

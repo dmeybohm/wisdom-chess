@@ -298,7 +298,7 @@ namespace wisdom
             pieces[length++] = piece;
         }
 
-        auto
+        [[nodiscard]] auto
         pieceAt (int index)
             -> WebColoredPiece
         {

@@ -32,7 +32,7 @@ namespace wisdom
 
     // A static_cast that names a narrowing conversion. Unchecked at runtime;
     // in a constant expression, a value that does not fit is a compile error.
-    template <typename Target, typename Source> constexpr auto
+    template <typename Target, typename Source> [[nodiscard]] constexpr auto
     narrow_cast (Source value) noexcept
         -> Target
     {
@@ -54,7 +54,7 @@ namespace wisdom
 
     // Throws PreconditionError, naming the caller, when the value does not
     // fit in Target. In a constant expression, that is a compile error.
-    template <typename Target, typename Source> constexpr auto
+    template <typename Target, typename Source> [[nodiscard]] constexpr auto
     narrow (Source value, std::source_location location = std::source_location::current())
         -> Target
     {

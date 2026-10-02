@@ -374,14 +374,14 @@ namespace wisdom
         );
     }
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     operator== (Move a, Move b) noexcept
         -> bool
     {
         return a.data == b.data;
     }
 
-    constexpr auto
+    [[nodiscard]] constexpr auto
     operator!= (Move a, Move b) noexcept
         -> bool
     {

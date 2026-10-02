@@ -317,7 +317,7 @@ namespace std
     template <>
     struct hash<wisdom::BoardCode>
     {
-        auto
+        [[nodiscard]] auto
         operator() (const wisdom::BoardCode& code) const noexcept
             -> std::size_t
         {

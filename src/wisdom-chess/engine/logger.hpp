@@ -151,15 +151,15 @@ namespace wisdom
         void log (LogLevel level, const string& output) const;
     };
 
-    auto
+    [[nodiscard]] auto
     makeNullLogger()
         -> shared_ptr<Logger>;
 
-    auto
+    [[nodiscard]] auto
     makeStandardLogger (Logger::LogLevel level = Logger::LogLevel_Debug)
         -> shared_ptr<Logger>;
 
-    auto
+    [[nodiscard]] auto
     makeBufferedLogger (shared_ptr<Logger> sink, bool enabled = false)
         -> shared_ptr<BufferedLogger>;
 

@@ -12,7 +12,7 @@ namespace wisdom
     private:
         uint8_t my_flags;
 
-        static constexpr auto
+        [[nodiscard]] static constexpr auto
         fromInt (unsigned int flags)
             -> CastlingEligibility
         {
@@ -108,7 +108,7 @@ namespace wisdom
             return my_flags != other.my_flags;
         }
 
-        constexpr explicit
+        [[nodiscard]] constexpr explicit
         operator bool() const noexcept
         {
             return my_flags != 0;
