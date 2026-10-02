@@ -18,6 +18,12 @@ public:
 
 std::string_view describe (int code);
 
+std::vector<int>::iterator findValue();
+
+std::map<std::string, std::vector<int>>::const_iterator findEntry (int code);
+
+Holder<int>::Value getHeld();
+
 Error::Error (int code)
     : my_code { code }
 {

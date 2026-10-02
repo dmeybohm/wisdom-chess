@@ -35,6 +35,110 @@ namespace
         return open;
     }
 
+    struct TypeName
+    {
+        // The index past the name.
+        size_t end;
+        bool qualified;
+    };
+
+    // The type name that starts at code[start], with its qualifying names
+    // and template arguments, as in std::vector<int>::iterator. Nothing when
+    // a template argument list is not closed before end.
+    auto readTypeName (const std::vector<Token>& code, size_t start, size_t end)
+        -> std::optional<TypeName>
+    {
+        TypeName name { start + 1, false };
+        while (name.end < end)
+        {
+            if (isPunctuator (code[name.end], "<"))
+            {
+                size_t close = skipTemplateArguments (code, name.end);
+                if (close == name.end || close > end)
+                {
+                    return std::nullopt;
+                }
+                name.end = close;
+            }
+            else if (name.end + 1 < end && isPunctuator (code[name.end], "::")
+                     && isIdentifier (code[name.end + 1]))
+            {
+                name.end += 2;
+                name.qualified = true;
+            }
+            else
+            {
+                break;
+            }
+        }
+        return name;
+    }
+
+    auto isDeclarator (const Token& token) -> bool
+    {
+        return isPunctuator (token, "*") || isPunctuator (token, "&") || isPunctuator (token, "&&");
+    }
+
+    // Whether the parentheses opening at code[open] hold a function's
+    // parameters and not a variable's initializer, judged by the first one:
+    // they are empty, or start with a type keyword or with a type and a
+    // name. A single name is taken for an initializer.
+    auto holdsParameters (const std::vector<Token>& code, size_t open) -> bool
+    {
+        static const std::unordered_set<std::string> type_keywords {
+            "const", "volatile", "unsigned", "signed", "void", "bool", "char", "short", "int",
+            "long", "float", "double", "auto", "typename", "struct", "class", "enum", "union",
+        };
+        static const std::unordered_set<std::string> expression_keywords {
+            "new", "delete", "sizeof", "alignof", "typeid", "throw", "co_await", "not", "compl",
+            "and", "or", "xor", "not_eq", "bitand", "bitor", "and_eq", "or_eq", "xor_eq",
+        };
+
+        size_t close = open + 1;
+        for (int depth = 1; close < code.size(); ++close)
+        {
+            if (isPunctuator (code[close], "("))
+            {
+                ++depth;
+            }
+            else if (isPunctuator (code[close], ")") && --depth == 0)
+            {
+                break;
+            }
+        }
+
+        size_t first = open + 1;
+        if (first >= close)
+        {
+            return close < code.size();
+        }
+        if (!isIdentifier (code[first]) || expression_keywords.count (code[first].text) > 0)
+        {
+            return false;
+        }
+        if (type_keywords.count (code[first].text) > 0)
+        {
+            return true;
+        }
+
+        auto type = readTypeName (code, first, close);
+        if (!type)
+        {
+            return false;
+        }
+        size_t next = type->end;
+        while (next < close && isDeclarator (code[next]) && !code[next].spaced_before)
+        {
+            ++next;
+        }
+        if (next < close && isIdentifier (code[next]))
+        {
+            return code[next].spaced_before && expression_keywords.count (code[next].text) == 0;
+        }
+        bool has_declarator = next > type->end;
+        return has_declarator && (next == close || isPunctuator (code[next], ","));
+    }
+
     // The index past the attributes, such as [[nodiscard]], that start at
     // code[start], or end when one is not closed on the line.
     auto skipAttributes (const std::vector<Token>& code, size_t start, size_t end) -> size_t
@@ -106,8 +210,8 @@ namespace
     }
 
     // For each token, whether it is inside a function's body or an
-    // initializer, where a name followed by parentheses declares a variable
-    // and not a function.
+    // initializer, where a name followed by parentheses usually declares a
+    // variable and not a function.
     auto findTokensInBodies (const std::vector<Token>& code) -> std::vector<bool>
     {
         std::vector<bool> in_body;
@@ -156,9 +260,8 @@ namespace
                     ++line_end;
                 }
 
-                auto violation = in_body[line_start]
-                    ? std::nullopt
-                    : checkLine (context, code, line_start, line_end);
+                auto violation = checkLine (context, code, line_start, line_end,
+                                            in_body[line_start]);
                 if (violation)
                 {
                     violations.push_back (std::move (*violation));
@@ -171,9 +274,10 @@ namespace
 
     private:
         // A declaration of a function with a leading return type, on the line
-        // of tokens code[start, end).
+        // of tokens code[start, end). In a function's body, only one whose
+        // parentheses hold parameters.
         [[nodiscard]] auto checkLine (const LintContext& context, const std::vector<Token>& code,
-                                      size_t start, size_t end) const
+                                      size_t start, size_t end, bool in_body) const
             -> std::optional<LintViolation>
         {
             static const std::unordered_set<std::string> skip_starts {
@@ -232,36 +336,23 @@ namespace
             // The return type: one of the common types, possibly a pointer or
             // reference, or a PascalCase or qualified type with any template
             // arguments.
-            size_t type_end = type_start + 1;
-            bool qualified = false;
-            while (type_end + 1 < end && isPunctuator (code[type_end], "::")
-                   && isIdentifier (code[type_end + 1]))
+            auto type = readTypeName (code, type_start, end);
+            if (!type)
             {
-                type_end += 2;
-                qualified = true;
+                return std::nullopt;
             }
+            size_t type_end = type->end;
             size_t name_index = type_end;
-            const auto& type_name = code[type_end - 1].text;
-            if (!qualified && common_types.count (type_name) > 0)
+            const auto& type_name = code[type_start].text;
+            if (type_end == type_start + 1 && common_types.count (type_name) > 0)
             {
-                while (name_index < end && (isPunctuator (code[name_index], "*")
-                       || isPunctuator (code[name_index], "&") || isPunctuator (code[name_index], "&&")))
+                while (name_index < end && isDeclarator (code[name_index]))
                 {
                     ++name_index;
                 }
             }
-            else if (qualified || std::isupper (static_cast<unsigned char> (type_name[0])))
+            else if (type->qualified || std::isupper (static_cast<unsigned char> (type_name[0])))
             {
-                if (type_end < end && isPunctuator (code[type_end], "<"))
-                {
-                    size_t open = type_end;
-                    type_end = skipTemplateArguments (code, open);
-                    if (type_end == open || type_end > end)
-                    {
-                        return std::nullopt;
-                    }
-                }
-                name_index = type_end;
                 if (name_index >= end || !code[name_index].spaced_before)
                 {
                     return std::nullopt;
@@ -274,6 +365,11 @@ namespace
 
             if (name_index + 1 >= end || !isIdentifier (code[name_index])
                 || !isPunctuator (code[name_index + 1], "("))
+            {
+                return std::nullopt;
+            }
+
+            if (in_body && !holdsParameters (code, name_index + 1))
             {
                 return std::nullopt;
             }

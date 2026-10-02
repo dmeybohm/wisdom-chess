@@ -2,3 +2,6 @@
 9:1:trailing-return-type:Function 'getCodes' should use trailing return type: auto getCodes(...) -> std::vector<int>
 11:1:trailing-return-type:Function 'getKind' should use trailing return type: auto getKind(...) -> Error::Kind
 19:1:trailing-return-type:Function 'describe' should use trailing return type: auto describe(...) -> std::string_view
+21:1:trailing-return-type:Function 'findValue' should use trailing return type: auto findValue(...) -> std::vector<int>::iterator
+23:1:trailing-return-type:Function 'findEntry' should use trailing return type: auto findEntry(...) -> std::map<std::string, std::vector<int>>::const_iterator
+25:1:trailing-return-type:Function 'getHeld' should use trailing return type: auto getHeld(...) -> Holder<int>::Value

@@ -1,0 +1,9 @@
+4:1:trailing-return-type:Function 'first' should use trailing return type: auto first(...) -> char
+5:1:trailing-return-type:Function 'second' should use trailing return type: auto second(...) -> CustomType
+6:1:trailing-return-type:Function 'third' should use trailing return type: auto third(...) -> std::string
+7:1:trailing-return-type:Function 'fourth' should use trailing return type: auto fourth(...) -> std::string
+8:1:trailing-return-type:Function 'fifth' should use trailing return type: auto fifth(...) -> CustomType
+9:1:trailing-return-type:Function 'sixth' should use trailing return type: auto sixth(...) -> CustomType
+10:1:trailing-return-type:Function 'seventh' should use trailing return type: auto seventh(...) -> CustomType
+11:1:trailing-return-type:Function 'eighth' should use trailing return type: auto eighth(...) -> CustomType
+12:1:trailing-return-type:Function 'ninth' should use trailing return type: auto ninth(...) -> std::vector<int>::iterator
