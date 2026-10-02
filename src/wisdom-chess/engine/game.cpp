@@ -398,27 +398,36 @@ namespace wisdom
 
     auto Game::getDrawArbiter() const -> DrawArbiter
     {
-        return my_pimpl->draw_arbiter;
+        return my_pimpl->external_draw_limits.has_value()
+            ? DrawArbiter::External
+            : DrawArbiter::GameEngine;
     }
 
-    void Game::setDrawArbiter (DrawArbiter draw_arbiter)
+    void Game::setExternalDrawArbiter (DrawLimits draw_limits)
     {
-        my_pimpl->draw_arbiter = draw_arbiter;
+        EXPECTS( draw_limits.repetitions > 0 );
+        EXPECTS( draw_limits.half_moves_without_progress > 0 );
+        my_pimpl->external_draw_limits = draw_limits;
     }
 
     auto Game::getDrawLimits() const -> DrawLimits
     {
-        if (my_pimpl->draw_arbiter == DrawArbiter::External)
-            return {};
+        if (my_pimpl->external_draw_limits.has_value())
+            return *my_pimpl->external_draw_limits;
 
+        // A declined draw stands until the game is drawn without a claim.
         const auto& history = my_pimpl->history;
         bool repetition_declined = history.getThreefoldRepetitionStatus() == DrawStatus::Declined;
         bool no_progress_declined
             = history.getFiftyMovesWithoutProgressStatus() == DrawStatus::Declined;
+        const auto& repetition_limits
+            = repetition_declined ? Automatic_Draw_Limits : Claimable_Draw_Limits;
+        const auto& no_progress_limits
+            = no_progress_declined ? Automatic_Draw_Limits : Claimable_Draw_Limits;
 
         return {
-            .repetitions = repetition_declined ? 5 : 3,
-            .half_moves_without_progress = no_progress_declined ? 150 : 100,
+            .repetitions = repetition_limits.repetitions,
+            .half_moves_without_progress = no_progress_limits.half_moves_without_progress,
         };
     }
 

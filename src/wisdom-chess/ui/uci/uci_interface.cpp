@@ -9,6 +9,7 @@
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/history.hpp"
 
 namespace wisdom
 {
@@ -51,12 +52,14 @@ namespace wisdom
             std::cout.flush();
         }
 
-        // The GUI decides when a game is drawn.
+        // The GUI decides when a game is drawn, and does not say by what
+        // rules. Most end it as soon as a draw can be claimed, so the search
+        // counts a draw from there.
         auto
         withExternalArbiter (Game game)
             -> Game
         {
-            game.setDrawArbiter (DrawArbiter::External);
+            game.setExternalDrawArbiter (Claimable_Draw_Limits);
             return game;
         }
 

@@ -63,7 +63,7 @@ namespace wisdom
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
     [[nodiscard]] inline auto
-    probableDrawCategory (const Board& board, const History& history, DrawLimits limits = {})
+    probableDrawCategory (const Board& board, const History& history, DrawLimits limits)
         -> DrawCategory
     {
         if (history.isProbablyNthRepetition (board, limits.repetitions))
@@ -81,7 +81,7 @@ namespace wisdom
     }
 
     [[nodiscard]] inline auto
-    isProbablyDrawingMove (const Board& board, const History& history, DrawLimits limits = {})
+    isProbablyDrawingMove (const Board& board, const History& history, DrawLimits limits)
         -> bool
     {
         return probableDrawCategory (board, history, limits) != DrawCategory::NoDraw;

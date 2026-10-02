@@ -19,12 +19,27 @@ namespace wisdom
     using BothPlayersDrawStatus = pair<DrawStatus, DrawStatus>;
 
     // The occurrences of a position, and the halfmoves without progress,
-    // at which a position counts as a draw. The defaults are the points at
-    // which a player may claim one.
+    // at which a position counts as a draw.
     struct DrawLimits
     {
-        int repetitions = 3;
-        int half_moves_without_progress = 100;
+        int repetitions;
+        int half_moves_without_progress;
+
+        [[nodiscard]] friend auto
+        operator== (const DrawLimits&, const DrawLimits&)
+            -> bool = default;
+    };
+
+    // The limits at which a player may claim a draw.
+    inline constexpr DrawLimits Claimable_Draw_Limits {
+        .repetitions = 3,
+        .half_moves_without_progress = 100,
+    };
+
+    // The limits at which a game is drawn without a claim.
+    inline constexpr DrawLimits Automatic_Draw_Limits {
+        .repetitions = 5,
+        .half_moves_without_progress = 150,
     };
 
     [[nodiscard]] constexpr auto

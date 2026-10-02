@@ -27,7 +27,9 @@ namespace wisdom
         int max_depth { Default_Max_Depth };
 
         Players players = { Player::Human, Player::ChessEngine };
-        DrawArbiter draw_arbiter = DrawArbiter::GameEngine;
+
+        // Set when the caller arbitrates the draws.
+        optional<DrawLimits> external_draw_limits {};
 
         BothPlayersDrawStatus third_repetition_draw {
             DrawStatus::NotReached,

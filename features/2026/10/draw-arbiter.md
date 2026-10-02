@@ -25,12 +25,22 @@ the accident ran out, UCI played random moves; see
 
 - `GameEngine`, the default: the game does. The limits follow the
   players' answers, as before.
-- `External`: the caller does. The limits stay where a draw can be
-  claimed, at the third occurrence and at 100 halfmoves, whatever the
-  answers are.
+- `External`: the caller does, and it names the limits. They hold
+  whatever the answers are.
 
-`Game::setDrawArbiter()` sets it, and `UciInterface` sets `External` on
-every game it builds.
+`Game::setExternalDrawArbiter()` takes the caller's `DrawLimits`.
+`UciInterface` calls it on every game it builds, with
+`Claimable_Draw_Limits`.
+
+There are two named sets of limits, and no default:
+
+- `Claimable_Draw_Limits`: the third occurrence and 100 halfmoves, at
+  which a player may claim a draw.
+- `Automatic_Draw_Limits`: the fifth occurrence and 150 halfmoves, at
+  which the game is drawn without a claim.
+
+Under `GameEngine` each limit is the claimable one until that draw is
+declined, and the automatic one after.
 
 The search is given limits, not the arbiter. `Game::getDrawLimits()`
 turns the arbiter and the answers into a `DrawLimits`, and
@@ -39,16 +49,28 @@ turns the arbiter and the answers into a `DrawLimits`, and
 as an argument and no longer read the answers from the history. The
 search knows nothing of arbiters or proposals.
 
-`DrawLimits` defaults to the limits for a claim, and the new
-parameters default to it, so a search built without a `Game` behaves
-as it did with a fresh history.
+The limits are a required argument all the way down. A search built
+without a `Game`, as in the tests, says which limits it wants.
+
+### Why UCI uses the claimable limits
+
+UCI does not tell the engine the GUI's rules. A GUI that adjudicates
+ends the game at the third occurrence and at fifty moves, and under one
+that does not the opponent may still claim there. With the automatic
+limits the engine would count on a third occurrence being safe, and
+give away a draw when ahead.
+
+Under these limits the game does not end on the engine's side. A
+position below the root that reaches a limit is scored as a draw and
+not searched further; the root is always searched.
 
 ## What does not change
 
 - No frontend behaves differently. Under UCI the answers were never
-  given, so `External` yields the limits it already had. The value is
-  that this is now decided, not incidental: a later change to how a
-  `Game` infers or records an answer cannot reach UCI's search.
+  given, so the claimable limits are the ones it already had. The value
+  is that this is now stated in the UCI code, not incidental: a later
+  change to how a `Game` infers or records an answer cannot reach
+  UCI's search.
 - The root is searched under either arbiter. That is
   `search-root-draw-move`, on which this branch is built.
 - `Game::getStatus()` reports the same statuses under either arbiter.
@@ -71,10 +93,11 @@ as it did with a fresh history.
 ## Tests
 
 - `game_test.cpp`, "The draw arbiter decides the limits of the search":
-  the default, a declined draw raising its own limit, `External`
-  ignoring the answers, a copied game keeping its arbiter, and
-  `findBestMove()` choosing a different move under each arbiter in a
-  position past 100 halfmoves with the draw declined.
+  the default, a declined draw raising its own limit, an external
+  arbiter's limits holding whatever the answers, a copied game keeping
+  its arbiter and limits, limits that are not positive being rejected,
+  and `findBestMove()` choosing a different move under each arbiter in
+  a position past 100 halfmoves with the draw declined.
 - `search_test.cpp`, "The search applies the draw limits it is given":
   a position a rook down scores 0 at the limit of 100 and below 0 at
   150.
@@ -114,3 +137,24 @@ to resolve by hand.
 Release `ctest` with slow tests passed 276 of 276 on the merged tree.
 The new and changed tests pass in a Debug build, and the `lint` target
 is clean.
+
+### Session #3
+
+Made the limits explicit. `External` used to mean the default
+`DrawLimits`, which were the claimable limits only because of the
+struct's default member values, so nothing in the UCI code said what
+rules it searched by.
+
+- `DrawLimits` has no default values. `Claimable_Draw_Limits` and
+  `Automatic_Draw_Limits` name the two sets.
+- `Game::setDrawArbiter()` gave way to `setExternalDrawArbiter()`,
+  which takes the limits and rejects ones that are not positive.
+  `Game::Impl` holds them as an optional, so there is no external
+  arbiter without limits.
+- `IterativeSearch::create()`, `probableDrawCategory()` and
+  `isProbablyDrawingMove()` require the limits. The tests, the fatal
+  test and the search benchmark pass them.
+
+Behaviour is unchanged. Release `ctest` with slow tests passed 276 of
+276. The new and changed tests and the UCI script tests pass in a Debug
+build, the `lint` target is clean, and the benchmarks target builds.

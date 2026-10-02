@@ -32,8 +32,8 @@ namespace wisdom
         // goes by what the players answered.
         GameEngine,
 
-        // The caller, which never answers a proposal. The search takes any
-        // draw that can be claimed as one.
+        // The caller, which never answers a proposal and gives the search
+        // its limits.
         External
     };
 
@@ -147,7 +147,9 @@ namespace wisdom
 
         [[nodiscard]] auto getDrawArbiter() const -> DrawArbiter;
 
-        void setDrawArbiter (DrawArbiter draw_arbiter);
+        // Leaves the draws to the caller, with the limits at which the
+        // search is to count one.
+        void setExternalDrawArbiter (DrawLimits draw_limits);
 
         // The limits the search applies to this game.
         [[nodiscard]] auto getDrawLimits() const -> DrawLimits;

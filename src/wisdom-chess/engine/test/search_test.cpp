@@ -22,7 +22,7 @@ namespace wisdom::test
     struct SearchHelper
     {
         History history {};
-        DrawLimits draw_limits {};
+        DrawLimits draw_limits = Claimable_Draw_Limits;
         shared_ptr<Logger> logger = makeNullLogger();
         MoveTimer timer = MoveTimer { 30 };
         TranspositionTable transposition_table = TranspositionTable::fromMegabytes (TranspositionTable::Default_Size_In_Megabytes);
@@ -402,7 +402,7 @@ TEST_CASE( "Root TT hit should not bypass iterative deepening search" )
     auto logger = makeNullLogger();
     MoveTimer timer { 30 };
 
-    IterativeSearch search = IterativeSearch::create (board, history, logger, timer, 6, &tt);
+    IterativeSearch search = IterativeSearch::create (board, history, logger, timer, 6, &tt, Claimable_Draw_Limits);
 
     auto stats_before = tt.getStats();
     SearchResult result = search.iterativelyDeepen (Color::White);
@@ -457,7 +457,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // Search from initial position (Black to move)
     {
         timer.setTimeLimit (chrono::seconds { 1 });
-        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt);
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt, Claimable_Draw_Limits);
         (void)search.iterativelyDeepen (Color::Black);
     }
 
@@ -469,7 +469,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // Search from this position (White to move)
     {
         timer.setTimeLimit (chrono::seconds { 1 });
-        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt);
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt, Claimable_Draw_Limits);
         (void)search.iterativelyDeepen (Color::White);
     }
 
@@ -481,7 +481,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // Search from this position (Black to move)
     {
         timer.setTimeLimit (chrono::seconds { 1 });
-        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt);
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt, Claimable_Draw_Limits);
         (void)search.iterativelyDeepen (Color::Black);
     }
 
@@ -494,7 +494,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // Search from this position (White to move)
     {
         timer.setTimeLimit (chrono::seconds { 1 });
-        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt);
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt, Claimable_Draw_Limits);
         (void)search.iterativelyDeepen (Color::White);
     }
 
@@ -506,7 +506,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // Search from this position (Black to move)
     {
         timer.setTimeLimit (chrono::seconds { 1 });
-        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt);
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt, Claimable_Draw_Limits);
         (void)search.iterativelyDeepen (Color::Black);
     }
 
@@ -518,7 +518,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // Search from this position (White to move)
     {
         timer.setTimeLimit (chrono::seconds { 1 });
-        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt);
+        auto search = IterativeSearch::create (board, history, logger, timer, intermediate_depth, &tt, Claimable_Draw_Limits);
         (void)search.iterativelyDeepen (Color::White);
     }
 
@@ -533,7 +533,7 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     // that didn't have the full repetition history.
 
     timer.setTimeLimit (chrono::seconds { 1 });
-    auto search = IterativeSearch::create (board, history, logger, timer, final_depth, &tt);
+    auto search = IterativeSearch::create (board, history, logger, timer, final_depth, &tt, Claimable_Draw_Limits);
     auto result = search.iterativelyDeepen (Color::Black);
 
     REQUIRE( result.move.has_value() );
@@ -618,7 +618,7 @@ TEST_CASE( "A root move finished before the clock stops is kept" )
         );
         History history;
         auto table = TranspositionTable::fromMegabytes (1);
-        auto search = IterativeSearch::create (board, history, logger, timer, Last_Depth, &table);
+        auto search = IterativeSearch::create (board, history, logger, timer, Last_Depth, &table, Claimable_Draw_Limits);
         auto result = search.iterativelyDeepen (Color::White);
         result.nodes = logger->periodic_calls_per_depth[Last_Depth];
         return result;
@@ -672,7 +672,7 @@ TEST_CASE( "A checkmate that completes the move count is not scored as a draw" )
 
     SUBCASE( "Fifty moves" )
     {
-        auto result = find_move ("6k1/5ppp/8/8/8/8/8/Rn2K3 w - - 99 80", {});
+        auto result = find_move ("6k1/5ppp/8/8/8/8/8/Rn2K3 w - - 99 80", Claimable_Draw_Limits);
 
         REQUIRE( result.move.has_value() );
         CHECK( *result.move == moveParse ("a1 a8", Color::White) );
@@ -681,9 +681,7 @@ TEST_CASE( "A checkmate that completes the move count is not scored as a draw" )
 
     SUBCASE( "Seventy-five moves" )
     {
-        auto result = find_move (
-            "6k1/5ppp/8/8/8/8/8/Rn2K3 w - - 149 110", { .half_moves_without_progress = 150 }
-        );
+        auto result = find_move ("6k1/5ppp/8/8/8/8/8/Rn2K3 w - - 149 110", Automatic_Draw_Limits);
 
         REQUIRE( result.move.has_value() );
         CHECK( *result.move == moveParse ("a1 a8", Color::White) );
@@ -705,8 +703,8 @@ TEST_CASE( "The search applies the draw limits it is given" )
         return search.iterativelyDeepen (Color::White);
     };
 
-    auto at_fifty_moves = search_with ({});
-    auto at_seventy_five_moves = search_with ({ .half_moves_without_progress = 150 });
+    auto at_fifty_moves = search_with (Claimable_Draw_Limits);
+    auto at_seventy_five_moves = search_with (Automatic_Draw_Limits);
 
     REQUIRE( at_fifty_moves.move.has_value() );
     CHECK( at_fifty_moves.score == 0 );

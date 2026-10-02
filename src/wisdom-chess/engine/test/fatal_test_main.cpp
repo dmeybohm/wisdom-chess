@@ -107,7 +107,13 @@ namespace
         MoveTimer timer { 30 };
         auto transposition_table = TranspositionTable::fromMegabytes (1);
         auto search = IterativeSearch::create (
-            board, history, std::make_shared<ThrowingLogger>(), timer, 1, &transposition_table
+            board,
+            history,
+            std::make_shared<ThrowingLogger>(),
+            timer,
+            1,
+            &transposition_table,
+            Claimable_Draw_Limits
         );
         (void)search.iterativelyDeepen (Color::White);
     }

@@ -46,7 +46,7 @@ namespace wisdom
             const MoveTimer& timer,
             int max_depth,
             nonnull<TranspositionTable> transposition_table,
-            DrawLimits draw_limits = {}
+            DrawLimits draw_limits
         ) -> IterativeSearch;
 
         // Copy and move constructors
