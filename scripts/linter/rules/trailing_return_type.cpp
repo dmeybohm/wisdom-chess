@@ -82,7 +82,9 @@ namespace
     // Whether the parentheses opening at code[open] hold a function's
     // parameters and not a variable's initializer, judged by the first one:
     // they are empty, or start with a type keyword or with a type and a
-    // name. A single name is taken for an initializer.
+    // name. A single name is taken for an initializer, and so is a cast
+    // from a type keyword, int { 5 } or int (5), except for int (name)
+    // alone, which declares a parameter to the compiler too.
     auto holdsParameters (const std::vector<Token>& code, size_t open) -> bool
     {
         static const std::unordered_set<std::string> type_keywords {
@@ -118,6 +120,21 @@ namespace
         }
         if (type_keywords.count (code[first].text) > 0)
         {
+            size_t after = first + 1;
+            while (after < close && isIdentifier (code[after])
+                   && type_keywords.count (code[after].text) > 0)
+            {
+                ++after;
+            }
+            if (after < close && isPunctuator (code[after], "{"))
+            {
+                return false;
+            }
+            if (after < close && isPunctuator (code[after], "("))
+            {
+                return after + 3 == close && isIdentifier (code[after + 1])
+                    && isPunctuator (code[after + 2], ")");
+            }
             return true;
         }
 

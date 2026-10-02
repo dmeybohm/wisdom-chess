@@ -10,6 +10,8 @@ auto outer (size_t table_size) -> void
     CustomType seventh (Board& board);
     CustomType eighth (Board*); // lint-allow(raw-pointer): an unnamed pointer parameter
     std::vector<int>::iterator ninth (std::vector<int>& values);
+    CustomType tenth (int (value));
+    CustomType eleventh (unsigned int count);
 
     // Variables.
     Buckets buckets (table_size);
@@ -25,6 +27,13 @@ auto outer (size_t table_size) -> void
     CustomType converted (static_cast<int> (table_size));
     CustomType moved (std::move (other));
     CustomType sized (sizeof table_size);
+    std::vector<int> braced (int { 5 });
+    std::vector<int> braced_tight (int{5});
+    std::vector<int> literal (int (5));
+    std::vector<int> arithmetic (int (ratio) + 1);
+    std::vector<int> member (int (other.size()));
+    std::vector<int> two_words (unsigned int (count) * 2);
+    CustomType flagged (bool (count), 2);
     std::thread worker ([this] (int value)
     {
         run (value);
