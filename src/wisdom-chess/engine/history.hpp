@@ -18,6 +18,15 @@ namespace wisdom
 
     using BothPlayersDrawStatus = pair<DrawStatus, DrawStatus>;
 
+    // The occurrences of a position, and the halfmoves without progress,
+    // at which a position counts as a draw. The defaults are the points at
+    // which a player may claim one.
+    struct DrawLimits
+    {
+        int repetitions = 3;
+        int half_moves_without_progress = 100;
+    };
+
     [[nodiscard]] constexpr auto
     updateDrawStatus (BothPlayersDrawStatus initial, Color player, DrawStatus new_status)
         -> BothPlayersDrawStatus

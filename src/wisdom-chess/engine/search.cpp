@@ -25,10 +25,12 @@ namespace wisdom
             shared_ptr<Logger> output,
             MoveTimer timer,
             int total_depth,
-            nonnull<TranspositionTable> transposition_table
+            nonnull<TranspositionTable> transposition_table,
+            DrawLimits draw_limits
         )
             : my_original_board { Board { board } }
             , my_history { History { history } }
+            , my_draw_limits { draw_limits }
             , my_timer { std::move (timer) }
             , my_output { std::move (output) }
             , my_transposition_table { transposition_table }
@@ -75,6 +77,7 @@ namespace wisdom
     private:
         Board my_original_board;
         History my_history;
+        DrawLimits my_draw_limits;
         SearchResult my_current_result {};
         MoveTimer my_timer;
         shared_ptr<Logger> my_output;
@@ -108,7 +111,8 @@ namespace wisdom
         shared_ptr<Logger> logger,
         const MoveTimer& timer,
         int max_depth,
-        nonnull<TranspositionTable> transposition_table
+        nonnull<TranspositionTable> transposition_table,
+        DrawLimits draw_limits
     ) -> IterativeSearch
     {
         return IterativeSearch {
@@ -118,7 +122,8 @@ namespace wisdom
                 std::move (logger),
                 timer,
                 max_depth,
-                transposition_table
+                transposition_table,
+                draw_limits
             )
         };
     }
@@ -178,7 +183,7 @@ namespace wisdom
     {
         // The root is searched even when it is a draw: the caller asked for
         // a move, and a draw that nobody claims leaves the game going.
-        if (ply > 0 && isProbablyDrawingMove (parent_board, my_history))
+        if (ply > 0 && isProbablyDrawingMove (parent_board, my_history, my_draw_limits))
         {
             my_draw_nodes++;
             return drawingScore (my_searching_color, side);
@@ -303,7 +308,7 @@ namespace wisdom
     {
         // The main search has already checked the first node for a draw.
         if (quiescence_ply > 0
-            && isProbablyDrawingMove (board, my_history))
+            && isProbablyDrawingMove (board, my_history, my_draw_limits))
         {
             my_draw_nodes++;
             return drawingScore (my_searching_color, side);

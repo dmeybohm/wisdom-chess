@@ -52,6 +52,10 @@ committing C++. The conventions below are about what the code does.
   keep plain constructors.
 - Frontends (console, QML, WASM/React) observe the game through
   `GameStatusUpdate`; a change to the `Game` API has to reach all of them.
+- A `Game` decides its own draws (`DrawArbiter::GameEngine`) unless the
+  caller does, as UCI's GUI does (`DrawArbiter::External`). The search
+  knows neither: `Game::getDrawLimits()` gives it the `DrawLimits` to
+  apply. See `features/2026/10/draw-arbiter.md`.
 - Raw pointers never own; ownership is `unique_ptr` or `shared_ptr`.
   Spell a non-owning pointer by its nullability (`engine/ptr.hpp`):
   `nonnull<Type>` (`gsl::not_null<Type*>`) or `nullable<Type>`, which

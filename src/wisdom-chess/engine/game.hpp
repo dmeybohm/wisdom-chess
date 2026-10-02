@@ -17,11 +17,24 @@ namespace wisdom
 
     enum class DrawStatus;
     enum class ProposedDrawType;
+    struct DrawLimits;
 
     enum class Player
     {
         Human,
         ChessEngine
+    };
+
+    // Who decides that the game is drawn.
+    enum class DrawArbiter
+    {
+        // The game. It proposes a draw that can be claimed, and the search
+        // goes by what the players answered.
+        GameEngine,
+
+        // The caller, which never answers a proposal. The search takes any
+        // draw that can be claimed as one.
+        External
     };
 
     using Players = array<Player, Num_Players>;
@@ -131,6 +144,13 @@ namespace wisdom
         void setPeriodicFunction (const PeriodicFunction& periodic_function);
 
         [[nodiscard]] auto getStatus() const -> GameStatus;
+
+        [[nodiscard]] auto getDrawArbiter() const -> DrawArbiter;
+
+        void setDrawArbiter (DrawArbiter draw_arbiter);
+
+        // The limits the search applies to this game.
+        [[nodiscard]] auto getDrawLimits() const -> DrawLimits;
 
         [[nodiscard]] auto computerWantsDraw (Color who) const -> bool;
 

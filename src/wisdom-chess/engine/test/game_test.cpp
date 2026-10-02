@@ -260,6 +260,80 @@ TEST_CASE( "findBestMove finds a move in a position that can be claimed as a dra
     }
 }
 
+TEST_CASE( "The draw arbiter decides the limits of the search" )
+{
+    const pair<DrawStatus, DrawStatus> both_declined { DrawStatus::Declined, DrawStatus::Declined };
+
+    SUBCASE( "The game arbitrates by default, at the limits for a claim" )
+    {
+        auto game = Game::createStandardGame();
+
+        CHECK( game.getDrawArbiter() == DrawArbiter::GameEngine );
+        CHECK( game.getDrawLimits().repetitions == 3 );
+        CHECK( game.getDrawLimits().half_moves_without_progress == 100 );
+    }
+
+    SUBCASE( "A declined draw raises its own limit" )
+    {
+        auto game = Game::createStandardGame();
+
+        game.setProposedDrawStatus (ProposedDrawType::ThreeFoldRepetition, both_declined);
+        CHECK( game.getDrawLimits().repetitions == 5 );
+        CHECK( game.getDrawLimits().half_moves_without_progress == 100 );
+
+        game.setProposedDrawStatus (ProposedDrawType::FiftyMovesWithoutProgress, both_declined);
+        CHECK( game.getDrawLimits().repetitions == 5 );
+        CHECK( game.getDrawLimits().half_moves_without_progress == 150 );
+    }
+
+    SUBCASE( "Under an external arbiter the limits stay where a draw can be claimed" )
+    {
+        auto game = Game::createStandardGame();
+        game.setDrawArbiter (DrawArbiter::External);
+
+        game.setProposedDrawStatus (ProposedDrawType::ThreeFoldRepetition, both_declined);
+        game.setProposedDrawStatus (ProposedDrawType::FiftyMovesWithoutProgress, both_declined);
+
+        CHECK( game.getDrawLimits().repetitions == 3 );
+        CHECK( game.getDrawLimits().half_moves_without_progress == 100 );
+    }
+
+    SUBCASE( "A copy of the game keeps the arbiter" )
+    {
+        auto game = Game::createStandardGame();
+        game.setDrawArbiter (DrawArbiter::External);
+
+        Game copy = game;
+
+        CHECK( copy.getDrawArbiter() == DrawArbiter::External );
+    }
+
+    SUBCASE( "findBestMove searches at the game's limits" )
+    {
+        // White stays well behind after taking the pawn, so it only takes
+        // it when the other moves are not draws.
+        auto game = Game::createGameFromFen ("1n4k1/p1pppppp/8/8/8/8/8/R3K3 w - - 120 90");
+        game.setProposedDrawStatus (ProposedDrawType::FiftyMovesWithoutProgress, both_declined);
+        game.setMaxDepth (2);
+
+        auto logger = makeNullLogger();
+        auto takes_pawn = moveParse ("a1xa7", Color::White);
+
+        TranspositionTable table = TranspositionTable::fromMegabytes (1);
+        auto under_the_game = game.findBestMove (logger, &table);
+
+        game.setDrawArbiter (DrawArbiter::External);
+        table.clear();
+        auto under_the_caller = game.findBestMove (logger, &table);
+
+        REQUIRE( under_the_game.has_value() );
+        CHECK( *under_the_game == takes_pawn );
+
+        REQUIRE( under_the_caller.has_value() );
+        CHECK( *under_the_caller != takes_pawn );
+    }
+}
+
 TEST_CASE( "setCurrentTurn keeps the history's current position in step" )
 {
     SUBCASE( "Before any move" )

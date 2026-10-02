@@ -423,10 +423,11 @@ TEST_CASE( "Probable draw category and drawing predicate" )
         game.getHistory().setThreefoldRepetitionStatus (DrawStatus::Declined);
 
         shuffle_knights (&game, 3);
-        CHECK( probableDrawCategory (game.getBoard(), game.getHistory()) == DrawCategory::NoDraw );
+        CHECK( probableDrawCategory (game.getBoard(), game.getHistory(), game.getDrawLimits())
+               == DrawCategory::NoDraw );
 
         shuffle_knights (&game, 1);
-        CHECK( probableDrawCategory (game.getBoard(), game.getHistory())
+        CHECK( probableDrawCategory (game.getBoard(), game.getHistory(), game.getDrawLimits())
                == DrawCategory::ByRepetition );
     }
 
@@ -449,9 +450,13 @@ TEST_CASE( "Probable draw category and drawing predicate" )
         auto reached = Game::createGameFromFen ("4k3/8/8/8/8/8/8/R3K3 w - - 150 80");
         reached.getHistory().setFiftyMovesWithoutProgressStatus (DrawStatus::Declined);
 
-        CHECK( probableDrawCategory (declined.getBoard(), declined.getHistory())
+        CHECK( probableDrawCategory (
+                   declined.getBoard(), declined.getHistory(), declined.getDrawLimits()
+               )
                == DrawCategory::NoDraw );
-        CHECK( probableDrawCategory (reached.getBoard(), reached.getHistory())
+        CHECK( probableDrawCategory (
+                   reached.getBoard(), reached.getHistory(), reached.getDrawLimits()
+               )
                == DrawCategory::ByNoProgress );
     }
 
@@ -464,7 +469,9 @@ TEST_CASE( "Probable draw category and drawing predicate" )
 
         CHECK( probableDrawCategory (fifty.getBoard(), fifty.getHistory())
                == DrawCategory::NoDraw );
-        CHECK( probableDrawCategory (seventy_five.getBoard(), seventy_five.getHistory())
+        CHECK( probableDrawCategory (
+                   seventy_five.getBoard(), seventy_five.getHistory(), seventy_five.getDrawLimits()
+               )
                == DrawCategory::NoDraw );
     }
 }

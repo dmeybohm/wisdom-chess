@@ -227,7 +227,8 @@ namespace wisdom
             std::move (logger),
             my_pimpl->move_timer,
             my_pimpl->max_depth,
-            transposition_table
+            transposition_table,
+            getDrawLimits()
         );
         SearchResult result = iterative_search.iterativelyDeepen (whom);
 
@@ -393,6 +394,32 @@ namespace wisdom
     auto Game::getPlayers() const -> Players
     {
         return my_pimpl->players;
+    }
+
+    auto Game::getDrawArbiter() const -> DrawArbiter
+    {
+        return my_pimpl->draw_arbiter;
+    }
+
+    void Game::setDrawArbiter (DrawArbiter draw_arbiter)
+    {
+        my_pimpl->draw_arbiter = draw_arbiter;
+    }
+
+    auto Game::getDrawLimits() const -> DrawLimits
+    {
+        if (my_pimpl->draw_arbiter == DrawArbiter::External)
+            return {};
+
+        const auto& history = my_pimpl->history;
+        bool repetition_declined = history.getThreefoldRepetitionStatus() == DrawStatus::Declined;
+        bool no_progress_declined
+            = history.getFiftyMovesWithoutProgressStatus() == DrawStatus::Declined;
+
+        return {
+            .repetitions = repetition_declined ? 5 : 3,
+            .half_moves_without_progress = no_progress_declined ? 150 : 100,
+        };
     }
 
     auto Game::getMaxDepth() const -> int

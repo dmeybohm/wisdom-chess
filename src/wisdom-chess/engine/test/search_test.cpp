@@ -22,6 +22,7 @@ namespace wisdom::test
     struct SearchHelper
     {
         History history {};
+        DrawLimits draw_limits {};
         shared_ptr<Logger> logger = makeNullLogger();
         MoveTimer timer = MoveTimer { 30 };
         TranspositionTable transposition_table = TranspositionTable::fromMegabytes (TranspositionTable::Default_Size_In_Megabytes);
@@ -30,7 +31,9 @@ namespace wisdom::test
             -> IterativeSearch
         {
             timer.setTimeLimit (chrono::seconds { time });
-            return IterativeSearch::create (board, history, logger, timer, depth, &transposition_table);
+            return IterativeSearch::create (
+                board, history, logger, timer, depth, &transposition_table, draw_limits
+            );
         }
     };
 
@@ -656,20 +659,20 @@ TEST_CASE( "A checkmate that completes the move count is not scored as a draw" )
 {
     // Taking the knight resets the count, so it outscores Ra8# if the
     // mate is read as a draw.
-    auto find_move = [] (czstring fen_string, DrawStatus fifty_moves_status)
+    auto find_move = [] (czstring fen_string, DrawLimits draw_limits)
     {
         FenParser fen { fen_string };
         auto game = fen.build();
 
         SearchHelper helper;
-        helper.history.setFiftyMovesWithoutProgressStatus (fifty_moves_status);
+        helper.draw_limits = draw_limits;
         auto search = helper.build (game.getBoard(), 2);
         return search.iterativelyDeepen (Color::White);
     };
 
     SUBCASE( "Fifty moves" )
     {
-        auto result = find_move ("6k1/5ppp/8/8/8/8/8/Rn2K3 w - - 99 80", DrawStatus::NotReached);
+        auto result = find_move ("6k1/5ppp/8/8/8/8/8/Rn2K3 w - - 99 80", {});
 
         REQUIRE( result.move.has_value() );
         CHECK( *result.move == moveParse ("a1 a8", Color::White) );
@@ -678,12 +681,38 @@ TEST_CASE( "A checkmate that completes the move count is not scored as a draw" )
 
     SUBCASE( "Seventy-five moves" )
     {
-        auto result = find_move ("6k1/5ppp/8/8/8/8/8/Rn2K3 w - - 149 110", DrawStatus::Declined);
+        auto result = find_move (
+            "6k1/5ppp/8/8/8/8/8/Rn2K3 w - - 149 110", { .half_moves_without_progress = 150 }
+        );
 
         REQUIRE( result.move.has_value() );
         CHECK( *result.move == moveParse ("a1 a8", Color::White) );
         CHECK( isCheckmatingOpponentScore (result.score) );
     }
+}
+
+TEST_CASE( "The search applies the draw limits it is given" )
+{
+    // White is a rook down, and neither of its two moves resets the count.
+    FenParser fen { "4k3/8/8/8/8/8/r7/4K3 w - - 120 90" };
+    auto game = fen.build();
+
+    auto search_with = [&game] (DrawLimits draw_limits)
+    {
+        SearchHelper helper;
+        helper.draw_limits = draw_limits;
+        auto search = helper.build (game.getBoard(), 2);
+        return search.iterativelyDeepen (Color::White);
+    };
+
+    auto at_fifty_moves = search_with ({});
+    auto at_seventy_five_moves = search_with ({ .half_moves_without_progress = 150 });
+
+    REQUIRE( at_fifty_moves.move.has_value() );
+    CHECK( at_fifty_moves.score == 0 );
+
+    REQUIRE( at_seventy_five_moves.move.has_value() );
+    CHECK( at_seventy_five_moves.score < 0 );
 }
 
 TEST_CASE( "Quiescence search" )

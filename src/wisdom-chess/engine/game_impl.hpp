@@ -27,6 +27,7 @@ namespace wisdom
         int max_depth { Default_Max_Depth };
 
         Players players = { Player::Human, Player::ChessEngine };
+        DrawArbiter draw_arbiter = DrawArbiter::GameEngine;
 
         BothPlayersDrawStatus third_repetition_draw {
             DrawStatus::NotReached,

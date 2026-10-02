@@ -51,6 +51,15 @@ namespace wisdom
             std::cout.flush();
         }
 
+        // The GUI decides when a game is drawn.
+        auto
+        withExternalArbiter (Game game)
+            -> Game
+        {
+            game.setDrawArbiter (DrawArbiter::External);
+            return game;
+        }
+
         // For a search that ended before completing any depth.
         auto
         pickRandomLegalMove (const Game& game)
@@ -164,7 +173,7 @@ namespace wisdom
     }
 
     UciInterface::UciInterface()
-        : my_game { Game::createStandardGame() }
+        : my_game { withExternalArbiter (Game::createStandardGame()) }
         , my_logger { makeNullLogger() }
         , my_transposition_table { TranspositionTable::fromMegabytes (my_settings.hash_size_mb) }
     {
@@ -263,7 +272,7 @@ namespace wisdom
         my_transposition_table.clear();
         my_position_tokens.clear();
         std::lock_guard<std::mutex> lock { my_game_mutex };
-        my_game = Game::createStandardGame();
+        my_game = withExternalArbiter (Game::createStandardGame());
     }
 
     void UciInterface::handlePosition (const vector<string>& tokens)
@@ -315,7 +324,7 @@ namespace wisdom
         if (moves_it != tokens.end() && !applyMoves (&new_game, moves_it + 1, tokens.end()))
             return;
 
-        my_game = std::move (new_game);
+        my_game = withExternalArbiter (std::move (new_game));
 
         if (!continuesPosition (my_position_tokens, tokens))
             my_transposition_table.clear();

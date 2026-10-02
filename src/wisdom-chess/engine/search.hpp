@@ -4,6 +4,7 @@
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/history.hpp"
 
 namespace wisdom
 {
@@ -11,7 +12,6 @@ namespace wisdom
 
     class Board;
     class Logger;
-    class History;
     class TranspositionTable;
 
     struct SearchResult
@@ -45,7 +45,8 @@ namespace wisdom
             shared_ptr<Logger> logger,
             const MoveTimer& timer,
             int max_depth,
-            nonnull<TranspositionTable> transposition_table
+            nonnull<TranspositionTable> transposition_table,
+            DrawLimits draw_limits = {}
         ) -> IterativeSearch;
 
         // Copy and move constructors
