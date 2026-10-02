@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: mymindstorm/setup-emsdk@v14
+      - uses: mymindstorm/setup-emsdk@v16
         with:
           # Qt 6.9 prebuilt WASM binaries require Emscripten 3.1.70
           version: 3.1.70

@@ -29,26 +29,10 @@
 #include "wisdom-chess/engine/error.hpp"
 #include "wisdom-chess/engine/narrow.hpp"
 #include "wisdom-chess/engine/ptr.hpp"
+#include "wisdom-chess/engine/types.hpp"
 
 namespace wisdom
 {
-    using zstring = gsl::zstring;
-    using czstring = gsl::czstring;
-    using std::array;
-    using std::make_shared;
-    using std::make_unique;
-    using std::nullopt;
-    using std::optional;
-    using std::pair;
-    using std::string;
-    using std::unique_ptr;
-    using std::shared_ptr;
-    using std::vector;
-    using std::string_view;
-    using std::span;
-
-    namespace chrono = std::chrono;
-
     inline constexpr int Weight_None = 0;
     inline constexpr int Weight_King = 1500;
     inline constexpr int Weight_Queen = 1000;

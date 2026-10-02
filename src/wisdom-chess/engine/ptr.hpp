@@ -6,6 +6,7 @@
 #include <gsl/gsl>
 
 #include "wisdom-chess/engine/error.hpp"
+#include "wisdom-chess/engine/types.hpp"
 
 namespace wisdom
 {
@@ -33,7 +34,7 @@ namespace wisdom
         {
         }
 
-        constexpr nullable (T* ptr) noexcept // lint-allow(raw-pointer)
+        constexpr nullable (T* ptr) noexcept // lint-allow(raw-pointer): wraps a raw pointer
             : my_ptr { ptr }
         {
         }
@@ -44,7 +45,7 @@ namespace wisdom
         }
 
         template <typename U>
-            requires std::is_convertible_v<U*, T*> // lint-allow(raw-pointer)
+            requires std::is_convertible_v<U*, T*> // lint-allow(raw-pointer): type trait
         constexpr nullable (nullable<U> other) noexcept
             : my_ptr { other.unsafeGet() }
         {
@@ -68,7 +69,7 @@ namespace wisdom
         // For an API that takes a raw pointer. The result may be null.
         [[nodiscard]] constexpr auto
         unsafeGet() const noexcept
-            -> T* // lint-allow(raw-pointer)
+            -> T* // lint-allow(raw-pointer): unwraps for a raw-pointer API
         {
             return my_ptr;
         }
@@ -78,7 +79,7 @@ namespace wisdom
             -> bool = default;
 
     private:
-        T* my_ptr = nullptr; // lint-allow(raw-pointer)
+        T* my_ptr = nullptr; // lint-allow(raw-pointer): the wrapped pointer
     };
 
     // Like nonnull, but checks for null only when constructed, not on each
@@ -88,7 +89,7 @@ namespace wisdom
     class unchecked_nonnull
     {
     public:
-        constexpr unchecked_nonnull (T* ptr) // lint-allow(raw-pointer)
+        constexpr unchecked_nonnull (T* ptr) // lint-allow(raw-pointer): wraps a raw pointer
             : my_ptr { ptr }
         {
             EXPECTS( ptr != nullptr );
@@ -108,14 +109,14 @@ namespace wisdom
 
         [[nodiscard]] constexpr auto
         get() const noexcept
-            -> T* // lint-allow(raw-pointer)
+            -> T* // lint-allow(raw-pointer): unwraps for a raw-pointer API
         {
             return my_ptr;
         }
 
         constexpr auto
         operator->() const noexcept
-            -> T* // lint-allow(raw-pointer)
+            -> T* // lint-allow(raw-pointer): operator-> returns a pointer
         {
             return my_ptr;
         }
@@ -128,6 +129,6 @@ namespace wisdom
         }
 
     private:
-        T* my_ptr; // lint-allow(raw-pointer)
+        T* my_ptr; // lint-allow(raw-pointer): the wrapped pointer
     };
 }

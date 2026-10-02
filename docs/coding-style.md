@@ -86,7 +86,8 @@ reason in the same comment, as in
 ## Functions
 
 - Trailing return types: `auto fn() -> ReturnType`
-  [`trailing-return-type`, a warning].
+  [`trailing-return-type`, a warning]. A function that returns nothing
+  keeps the leading `void`.
 - With three or more specifiers around it (`[[nodiscard]]`, `constexpr`,
   `static`, `const`, `noexcept`, a ref-qualifier), the name and
   `-> ReturnType` go on lines of their own:
@@ -113,6 +114,11 @@ reason in the same comment, as in
 | Constants | `Snake_Title_Case` | `Max_Search_Depth` |
 | Exception classes | ending in `Error` | `ParseMoveError` |
 
+The vocabulary that extends the GSL is spelled as the GSL spells its own,
+in lower-case `snake_case`: the pointer types of `engine/ptr.hpp`
+(`nonnull`, `nullable`, `unchecked_nonnull`, `owning`), `narrow_cast`, and
+the functions under the contract macros (`noexcept_expects`).
+
 A name that JavaScript or QML also uses is spelled as that side spells
 it. The fields of the settings structs are the case: `searchDepth`,
 `thinkingTime` and `debugLogging` are named in
@@ -135,12 +141,13 @@ Getters:
 
 ## Standard library names
 
-`engine/global.hpp` brings the common standard types into the namespace
+`engine/types.hpp` brings the common standard types into the namespace
 (`string`, `optional`, `vector`, `unique_ptr`, ...) and aliases
-`chrono`. Inside `wisdom`, write them without `std::`:
-`optional<Move>`, `chrono::milliseconds`. Code outside the namespace,
-such as a `main()` or a test that only uses `wisdom::ui::qml`, keeps
-`std::`.
+`chrono`. `engine/global.hpp` includes it, and so do the headers
+`global.hpp` is built on, such as `error.hpp`. Inside `wisdom`, write
+them without `std::`: `optional<Move>`, `chrono::milliseconds`. Code
+outside the namespace, such as a `main()` or a test that only uses
+`wisdom::ui::qml`, keeps `std::`.
 
 ## Source files
 

@@ -71,6 +71,7 @@ add_library(wisdom-chess-core STATIC
         str.hpp
         threats.hpp
         transposition_table.hpp
+        types.hpp
         board.cpp
         board_code.cpp
         castling.cpp
