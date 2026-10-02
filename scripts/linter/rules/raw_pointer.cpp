@@ -25,7 +25,7 @@ namespace
         return keywords.count (word) > 0;
     }
 
-    // Lower-case type names that global.hpp brings into the wisdom namespace.
+    // Lower-case type names that types.hpp brings into the wisdom namespace.
     auto globalTypeAliases() -> const std::unordered_set<std::string>&
     {
         static const std::unordered_set<std::string> aliases {

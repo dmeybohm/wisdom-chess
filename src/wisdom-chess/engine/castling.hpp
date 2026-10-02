@@ -165,14 +165,14 @@ namespace wisdom
     }
 
     // Inline definitions for helper methods
-    inline constexpr auto
+    constexpr auto
     CastlingEligibility::canCastleKingside() const noexcept
         -> bool
     {
         return isSet (CastlingRights::Kingside);
     }
 
-    inline constexpr auto
+    constexpr auto
     CastlingEligibility::canCastleQueenside() const noexcept
         -> bool
     {

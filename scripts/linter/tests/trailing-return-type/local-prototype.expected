@@ -1,0 +1,15 @@
+4:1:trailing-return-type:Function 'first' should use trailing return type: auto first(...) -> char
+5:1:trailing-return-type:Function 'second' should use trailing return type: auto second(...) -> CustomType
+6:1:trailing-return-type:Function 'third' should use trailing return type: auto third(...) -> std::string
+7:1:trailing-return-type:Function 'fourth' should use trailing return type: auto fourth(...) -> std::string
+8:1:trailing-return-type:Function 'fifth' should use trailing return type: auto fifth(...) -> CustomType
+9:1:trailing-return-type:Function 'sixth' should use trailing return type: auto sixth(...) -> CustomType
+10:1:trailing-return-type:Function 'seventh' should use trailing return type: auto seventh(...) -> CustomType
+11:1:trailing-return-type:Function 'eighth' should use trailing return type: auto eighth(...) -> CustomType
+12:1:trailing-return-type:Function 'ninth' should use trailing return type: auto ninth(...) -> std::vector<int>::iterator
+13:1:trailing-return-type:Function 'tenth' should use trailing return type: auto tenth(...) -> CustomType
+14:1:trailing-return-type:Function 'eleventh' should use trailing return type: auto eleventh(...) -> CustomType
+15:1:trailing-return-type:Function 'twelfth' should use trailing return type: auto twelfth(...) -> char
+16:1:trailing-return-type:Function 'thirteenth' should use trailing return type: auto thirteenth(...) -> char
+17:1:trailing-return-type:Function 'fourteenth' should use trailing return type: auto fourteenth(...) -> char
+18:1:trailing-return-type:Function 'fifteenth' should use trailing return type: auto fifteenth(...) -> char
