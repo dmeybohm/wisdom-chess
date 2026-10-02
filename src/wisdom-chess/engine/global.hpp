@@ -24,8 +24,6 @@
 #include <random>
 #include <source_location>
 
-#include <gsl/gsl>
-
 #include "wisdom-chess/engine/error.hpp"
 #include "wisdom-chess/engine/narrow.hpp"
 #include "wisdom-chess/engine/ptr.hpp"

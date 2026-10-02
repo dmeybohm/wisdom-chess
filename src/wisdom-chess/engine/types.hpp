@@ -10,13 +10,12 @@
 #include <utility>
 #include <vector>
 
-#include <gsl/gsl>
-
 // The standard library names used without std:: inside the namespace.
 namespace wisdom
 {
-    using zstring = gsl::zstring;
-    using czstring = gsl::czstring;
+    // A null-terminated C string.
+    using zstring = char*; // lint-allow(raw-pointer): defines the C string types
+    using czstring = const char*; // lint-allow(raw-pointer): defines the C string types
     using std::array;
     using std::make_shared;
     using std::make_unique;

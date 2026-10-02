@@ -30,6 +30,8 @@ committing C++. The conventions below are about what the code does.
 - Everything is in the `wisdom::` namespace.
 - `[[nodiscard]]` on factory functions and getters.
 - `wisdom::narrow` and `wisdom::narrow_cast` for narrowing conversions.
+  `narrow` throws `PreconditionError` when the value does not fit;
+  `narrow_cast` is a `static_cast`.
 - `EXPECTS( cond )` / `ENSURES( cond )` (`engine/error.hpp`) check caller
   input and throw. `NOEXCEPT_EXPECTS( cond )` aborts and belongs only in
   `noexcept` functions. `ASSERT( cond )` replaces `assert()`: it aborts
@@ -54,15 +56,15 @@ committing C++. The conventions below are about what the code does.
   `GameStatusUpdate`; a change to the `Game` API has to reach all of them.
 - Raw pointers never own; ownership is `unique_ptr` or `shared_ptr`.
   Spell a non-owning pointer by its nullability (`engine/ptr.hpp`):
-  `nonnull<Type>` (`gsl::not_null<Type*>`) or `nullable<Type>`, which
-  cannot be dereferenced: test it, then take `value()` for a `nonnull`.
-  `unchecked_nonnull<Type>` checks for null only when constructed; use it
-  only where a benchmark shows the check on each dereference costs
-  something. A C string is `czstring` or `zstring`. `owning<Type>`
-  (`gsl::owner<Type*>`) is an owning raw pointer, only where something
-  outside C++ arranges the deletion, such as Qt's `deleteLater()`. For
-  an object handed to JavaScript, hold a `unique_ptr` and `release()` it
-  in the `return`.
+  `nonnull<Type>` or `nullable<Type>`, which cannot be dereferenced: test
+  it, then take `value()` for a `nonnull`, which throws when null. A
+  `nonnull` checks for null when constructed, where a null aborts, and
+  not when dereferenced; pass `get()` to an API that takes a raw pointer.
+  See `features/2026/10/single-nonnull.md`. A C string is `czstring` or
+  `zstring`. `owning<Type>` is an owning raw pointer, only where
+  something outside C++ arranges the deletion, such as Qt's
+  `deleteLater()`. For an object handed to JavaScript, hold a
+  `unique_ptr` and `release()` it in the `return`.
 - The linter's `raw-pointer` rule enforces the pointer rules. Qt types and
   `auto*` locals are exempt. For a pointer an API requires (`main`, QML's
   singleton `create()`, the WebIDL bindings, `EM_JS`), end the line with
@@ -99,6 +101,12 @@ Debug builds assert it; `isCheckmated()`, `isStalemated()` and
 The `UCI: ...` and `Console: ...` tests (`cmake/CliTests.cmake`) script the
 binaries' standard input. A UCI script that starts a search must send
 `stop` before `quit`, or no `bestmove` is printed.
+
+The `Fatal: ...` tests cover what doctest cannot catch because it ends
+the process: a failed `NOEXCEPT_EXPECTS` or `ASSERT`, a null `nonnull`, an
+uncaught exception. Add one as a function and an entry in `Fatal_Cases`
+in `engine/test/fatal_test_main.cpp`; the build asks the program for the
+list.
 
 The `QML: ...` tests (`src/wisdom-chess/ui/qml/test`) use Qt Test, styled like doctest:
 `QCOMPARE( a, b )`. Add one with `wisdom_chess_add_qml_test()` or, for a

@@ -57,7 +57,7 @@ namespace wisdom
     }
 
     void
-    throwPreconditionError (string_view expression, const std::source_location& location)
+    throwPreconditionError (string_view expression, std::source_location location)
     {
         throw PreconditionError {
             describeFailure ("Precondition", expression, location),
@@ -66,7 +66,7 @@ namespace wisdom
     }
 
     void
-    throwPostconditionError (string_view expression, const std::source_location& location)
+    throwPostconditionError (string_view expression, std::source_location location)
     {
         throw PostconditionError {
             describeFailure ("Postcondition", expression, location),
@@ -78,7 +78,7 @@ namespace wisdom
     terminateOnCheckFailure (
         string_view kind,
         string_view expression,
-        const std::source_location& location
+        std::source_location location
     ) noexcept
     {
         FixedMessage message;
