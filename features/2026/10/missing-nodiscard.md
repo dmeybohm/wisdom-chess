@@ -7,8 +7,9 @@ headers mostly follow it: of the 417 functions declared in a header that
 return a value, operators aside, 384 have the attribute. This branch adds
 it to the ones the rule covers that were missed.
 
-The branch is based on `remove-gsl`, which rewrites `ptr.hpp` and
-`narrow.hpp`, so that the two do not conflict.
+The branch was started on `remove-gsl`, which rewrites `ptr.hpp` and
+`narrow.hpp`, so that the two would not conflict, and was moved onto
+`main` once that had merged.
 
 ## How they were found
 
@@ -50,6 +51,8 @@ Beyond the letter of the rule, for consistency with their neighbours:
   operators already had it.
 - `narrow()` and `narrow_cast()`. The other functions in `narrow.hpp` have
   it, and no caller discards the result.
+- `std::hash<BoardCode>::operator()`. The other function call operator,
+  `CompileTimeRandom`'s, has it.
 
 Out of scope:
 
@@ -64,7 +67,7 @@ Out of scope:
   `ChessEngine::gameStatusTransition()`.
 - `UciInterface::parsePosition()` and `applyMoves()`, which return a
   success `bool`. Not getters, though ignoring the result would be a bug.
-- `unchecked_nonnull`'s `operator->` and `operator*`.
+- `nonnull`'s `operator->` and `operator*`.
 - The three `Q_INVOKABLE`s of `GameModel` that return a value. Only QML
   calls them, where the attribute does nothing.
 - Functions local to a source file. The rule is not applied there: 159
@@ -82,3 +85,18 @@ warning, the linter passes, and all 278 tests pass.
 The QML frontend (Qt 6.11) and the WASM frontend
 (`wisdom-chess-react`) also compile without a warning; their tests were
 not run.
+
+### Session #2
+
+Moved the branch onto `main` and scanned again, this time with the
+operators included. `main` had added no declaration to a header since.
+The scan found one that the first had skipped as an operator,
+`std::hash<BoardCode>::operator()`, and it now has the attribute. Of the
+466 declarations in a header that return a value, operators included, 428
+have it. Of the 38 without, 36 are under Out of scope and two are the
+definitions of `CastlingEligibility::canCastleKingside()` and
+`canCastleQueenside()`, which carry it on their declarations in the class.
+
+Verification: a Release build with the slow tests and the QML frontend
+compiles without a warning, the linter passes, and all 282 tests pass,
+the `QML: ...` ones among them. The WASM frontend was not rebuilt.
