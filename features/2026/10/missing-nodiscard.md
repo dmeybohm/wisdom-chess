@@ -100,3 +100,17 @@ definitions of `CastlingEligibility::canCastleKingside()` and
 Verification: a Release build with the slow tests and the QML frontend
 compiles without a warning, the linter passes, and all 282 tests pass,
 the `QML: ...` ones among them. The WASM frontend was not rebuilt.
+
+### Session #3
+
+CI failed to compile on macOS, on Windows and under the sanitizers: one
+caller did discard a result. `chess_game_test.cpp` calls
+`ChessGame::fromFen()` inside `QVERIFY_THROWS_EXCEPTION` to see it throw,
+and that macro expands its argument as a statement. Clang and MSVC report
+the discard. GCC does not, because the statement comes from a macro in a
+system header, which is why the local builds and the Linux job passed.
+The call is now cast to `void`, as `global_test.cpp` does for `narrow()`.
+
+Verification: a Clang 18 build with the QML frontend compiles without a
+warning and all 282 tests pass. Build with Clang as well as GCC when
+adding `[[nodiscard]]`.

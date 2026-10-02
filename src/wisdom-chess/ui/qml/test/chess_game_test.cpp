@@ -172,7 +172,7 @@ private slots:
 
     void fromFenRejectsNonsense()
     {
-        QVERIFY_THROWS_EXCEPTION( wisdom::Error, ChessGame::fromFen ("not a fen", makeConfig()) );
+        QVERIFY_THROWS_EXCEPTION( wisdom::Error, (void)ChessGame::fromFen ("not a fen", makeConfig()) );
     }
 
     void aCloneHasThePositionPlayersAndConfig()
