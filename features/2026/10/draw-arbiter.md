@@ -103,3 +103,14 @@ tests pass in a Debug build, and the `lint` target is clean. The QML
 tests were not built, because this machine has no Qt. The search speed
 was not measured; the limits are two integers read where two status
 comparisons were made before.
+
+### Session #2
+
+Merged `origin/main` at `088810a5`, after `search-root-draw-move`,
+`remove-gsl` and `single-nonnull` were merged there. GitHub reported
+conflicts with the pull request; the merge itself applied without any
+to resolve by hand.
+
+Release `ctest` with slow tests passed 276 of 276 on the merged tree.
+The new and changed tests pass in a Debug build, and the `lint` target
+is clean.
