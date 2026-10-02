@@ -211,6 +211,55 @@ TEST_CASE( "A draw-derived score is not reused for a position with a different c
     CHECK( *with_warm_table == *expected );
 }
 
+TEST_CASE( "findBestMove finds a move in a position that can be claimed as a draw" )
+{
+    auto logger = makeNullLogger();
+    TranspositionTable table = TranspositionTable::fromMegabytes (1);
+
+    SUBCASE( "Past fifty moves without progress" )
+    {
+        // Only the capture resets the count.
+        auto game = Game::createGameFromFen ("6k1/5pp1/7p/8/8/8/8/Rn2K3 w - - 120 90");
+        REQUIRE( game.getStatus() == GameStatus::FiftyMovesWithoutProgressReached );
+        game.setMaxDepth (2);
+
+        auto move = game.findBestMove (logger, &table);
+
+        REQUIRE( move.has_value() );
+        CHECK( *move == moveParse ("a1xb1", Color::White) );
+    }
+
+    SUBCASE( "On the third occurrence of the position" )
+    {
+        auto game = Game::createGameFromFen ("6k1/5ppp/8/8/8/8/8/R3K3 w - - 0 1");
+        for (int i = 0; i < 2; i++)
+        {
+            game.move (moveParse ("e1 e2", Color::White));
+            game.move (moveParse ("g8 h8", Color::Black));
+            game.move (moveParse ("e2 e1", Color::White));
+            game.move (moveParse ("h8 g8", Color::Black));
+        }
+        REQUIRE( game.getStatus() == GameStatus::ThreefoldRepetitionReached );
+        game.setMaxDepth (2);
+
+        auto move = game.findBestMove (logger, &table);
+
+        REQUIRE( move.has_value() );
+        CHECK( *move == moveParse ("a1 a8", Color::White) );
+    }
+
+    SUBCASE( "With insufficient material" )
+    {
+        auto game = Game::createGameFromFen ("4k3/8/8/8/8/8/8/4K3 w - - 0 1");
+        REQUIRE( game.getStatus() == GameStatus::InsufficientMaterialDraw );
+        game.setMaxDepth (2);
+
+        auto move = game.findBestMove (logger, &table);
+
+        CHECK( move.has_value() );
+    }
+}
+
 TEST_CASE( "setCurrentTurn keeps the history's current position in step" )
 {
     SUBCASE( "Before any move" )

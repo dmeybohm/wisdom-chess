@@ -176,7 +176,9 @@ namespace wisdom
     )
         -> int
     {
-        if (isProbablyDrawingMove (parent_board, my_history))
+        // The root is searched even when it is a draw: the caller asked for
+        // a move, and a draw that nobody claims leaves the game going.
+        if (ply > 0 && isProbablyDrawingMove (parent_board, my_history))
         {
             my_draw_nodes++;
             return drawingScore (my_searching_color, side);
