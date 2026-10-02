@@ -126,7 +126,7 @@ namespace wisdom
             -> string
         {
             std::transform (str.begin(), str.end(), str.begin(),
-                [] (unsigned char c) { return std::tolower (c); });
+                [] (unsigned char c) { return narrow_cast<char> (std::tolower (c)); });
             return str;
         }
 

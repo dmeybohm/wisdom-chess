@@ -45,10 +45,11 @@ The names stay, so no caller changes.
 
 ### What `narrow` throws
 
-`gsl::narrowing_error` was a `std::exception` with no message, and not an
-`Error`. So the handlers that catch `Error` missed it: the search did
-not wrap it in a `SearchError` with the board, and the console's `main()`
-did not catch it.
+`gsl::narrowing_error` was a `std::exception` whose `what()` is the fixed
+text `"narrowing_error"`, with nothing about the call that failed, and it
+was not an `Error`. So the handlers that catch `Error` missed it: the
+search did not wrap it in a `SearchError` with the board, and the
+console's `main()` did not catch it.
 
 A value that does not fit is a broken precondition of the call, so
 `narrow` now throws `PreconditionError`. It takes a
@@ -102,3 +103,28 @@ spelled its qualified return type `gsl::czstring`; it is now
 Not run: Android, Windows and macOS builds, ThreadSanitizer, and the
 React frontend in a browser. MSVC's standard library is the one most
 likely to miss a header that the GSL used to include.
+
+### Session #2
+
+**Windows.** CI's MSVC build failed, not on a missing header but on a
+warning the GSL had been hiding. `toLower()` in `uci_interface.cpp`
+returned `std::tolower()`'s `int` from the lambda it gives
+`std::transform`, which assigns it to a `char`: C4244, reported inside
+`<algorithm>`. The same toolset built `small-fixups` without it.
+
+The likely reason is how the GSL was included. The package lock declared
+it `SYSTEM`, so CMake passed its directory with `/external:I` and added
+`/external:W0`. MSVC's own headers are external too, through the
+`EXTERNAL_INCLUDE` variable of the developer environment, so that flag
+also silenced warnings from standard library templates instantiated by
+our code. The failing command line has no `/external` option. This was
+read from that command line and the documentation, not confirmed by
+building both ways.
+
+The lambda now returns `narrow_cast<char>`. The Qt targets still get
+`/external:W0` from Qt's own `SYSTEM` includes, so the engine, the
+console and UCI frontends and their tests are the ones that gained the
+warnings.
+
+**Review.** The log said `gsl::narrowing_error` had no message. Its
+`what()` returns `"narrowing_error"`; the text above is corrected.
