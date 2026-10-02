@@ -58,7 +58,8 @@ namespace wisdom::bench
                 makeNullLogger(),
                 timer,
                 depth,
-                table
+                table,
+                game->getDrawLimits()
             );
 
             return search.iterativelyDeepen (game->getCurrentTurn());

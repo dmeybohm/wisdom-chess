@@ -28,6 +28,9 @@ namespace wisdom
 
         Players players = { Player::Human, Player::ChessEngine };
 
+        // Set when the caller arbitrates the draws.
+        optional<DrawLimits> external_draw_limits {};
+
         BothPlayersDrawStatus third_repetition_draw {
             DrawStatus::NotReached,
             DrawStatus::NotReached

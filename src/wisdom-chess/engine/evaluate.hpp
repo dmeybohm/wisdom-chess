@@ -56,29 +56,20 @@ namespace wisdom
     isStalemated (const Board& board)
         -> bool;
 
-    // Whether the position is, or can be claimed as, a draw by repetition,
-    // by the fifty-move rule or by insufficient material. A checkmate takes
+    // Whether the position is a draw by repetition or by the move count,
+    // at the limits given, or by insufficient material. A checkmate takes
     // precedence over the move count.
     //
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
     [[nodiscard]] inline auto
-    probableDrawCategory (const Board& board, const History& history)
+    probableDrawCategory (const Board& board, const History& history, DrawLimits limits)
         -> DrawCategory
     {
-        auto repetition_status = history.getThreefoldRepetitionStatus();
-        auto no_progress_status = history.getFiftyMovesWithoutProgressStatus();
-        int repetition_count =
-            repetition_status == DrawStatus::Declined ?
-            5 : 3;
-        int without_progress_count =
-            no_progress_status == DrawStatus::Declined ?
-            150 : 100;
-
-        if (history.isProbablyNthRepetition (board, repetition_count))
+        if (history.isProbablyNthRepetition (board, limits.repetitions))
             return DrawCategory::ByRepetition;
 
-        if (History::hasBeenXHalfMovesWithoutProgress (board, without_progress_count))
+        if (History::hasBeenXHalfMovesWithoutProgress (board, limits.half_moves_without_progress))
             return isCheckmated (board) ? DrawCategory::NoDraw : DrawCategory::ByNoProgress;
 
         const auto& material_ref = board.getMaterial();
@@ -90,10 +81,10 @@ namespace wisdom
     }
 
     [[nodiscard]] inline auto
-    isProbablyDrawingMove (const Board& board, const History& history)
+    isProbablyDrawingMove (const Board& board, const History& history, DrawLimits limits)
         -> bool
     {
-        return probableDrawCategory (board, history) != DrawCategory::NoDraw;
+        return probableDrawCategory (board, history, limits) != DrawCategory::NoDraw;
     }
 
     // Evaluate the board.

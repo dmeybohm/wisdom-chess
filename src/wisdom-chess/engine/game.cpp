@@ -227,7 +227,8 @@ namespace wisdom
             std::move (logger),
             my_pimpl->move_timer,
             my_pimpl->max_depth,
-            transposition_table
+            transposition_table,
+            getDrawLimits()
         );
         SearchResult result = iterative_search.iterativelyDeepen (whom);
 
@@ -393,6 +394,41 @@ namespace wisdom
     auto Game::getPlayers() const -> Players
     {
         return my_pimpl->players;
+    }
+
+    auto Game::getDrawArbiter() const -> DrawArbiter
+    {
+        return my_pimpl->external_draw_limits.has_value()
+            ? DrawArbiter::External
+            : DrawArbiter::GameEngine;
+    }
+
+    void Game::setExternalDrawArbiter (DrawLimits draw_limits)
+    {
+        EXPECTS( draw_limits.repetitions > 0 );
+        EXPECTS( draw_limits.half_moves_without_progress > 0 );
+        my_pimpl->external_draw_limits = draw_limits;
+    }
+
+    auto Game::getDrawLimits() const -> DrawLimits
+    {
+        if (my_pimpl->external_draw_limits.has_value())
+            return *my_pimpl->external_draw_limits;
+
+        // A declined draw stands until the game is drawn without a claim.
+        const auto& history = my_pimpl->history;
+        bool repetition_declined = history.getThreefoldRepetitionStatus() == DrawStatus::Declined;
+        bool no_progress_declined
+            = history.getFiftyMovesWithoutProgressStatus() == DrawStatus::Declined;
+        const auto& repetition_limits
+            = repetition_declined ? Automatic_Draw_Limits : Claimable_Draw_Limits;
+        const auto& no_progress_limits
+            = no_progress_declined ? Automatic_Draw_Limits : Claimable_Draw_Limits;
+
+        return {
+            .repetitions = repetition_limits.repetitions,
+            .half_moves_without_progress = no_progress_limits.half_moves_without_progress,
+        };
     }
 
     auto Game::getMaxDepth() const -> int

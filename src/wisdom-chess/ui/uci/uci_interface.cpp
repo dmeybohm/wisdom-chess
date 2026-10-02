@@ -9,6 +9,7 @@
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/history.hpp"
 
 namespace wisdom
 {
@@ -49,6 +50,17 @@ namespace wisdom
                 message.remove_prefix (line_end + 1);
             }
             std::cout.flush();
+        }
+
+        // The GUI decides when a game is drawn, and does not say by what
+        // rules. Most end it as soon as a draw can be claimed, so the search
+        // counts a draw from there.
+        auto
+        withExternalArbiter (Game game)
+            -> Game
+        {
+            game.setExternalDrawArbiter (Claimable_Draw_Limits);
+            return game;
         }
 
         // For a search that ended before completing any depth.
@@ -164,7 +176,7 @@ namespace wisdom
     }
 
     UciInterface::UciInterface()
-        : my_game { Game::createStandardGame() }
+        : my_game { withExternalArbiter (Game::createStandardGame()) }
         , my_logger { makeNullLogger() }
         , my_transposition_table { TranspositionTable::fromMegabytes (my_settings.hash_size_mb) }
     {
@@ -263,7 +275,7 @@ namespace wisdom
         my_transposition_table.clear();
         my_position_tokens.clear();
         std::lock_guard<std::mutex> lock { my_game_mutex };
-        my_game = Game::createStandardGame();
+        my_game = withExternalArbiter (Game::createStandardGame());
     }
 
     void UciInterface::handlePosition (const vector<string>& tokens)
@@ -315,7 +327,7 @@ namespace wisdom
         if (moves_it != tokens.end() && !applyMoves (&new_game, moves_it + 1, tokens.end()))
             return;
 
-        my_game = std::move (new_game);
+        my_game = withExternalArbiter (std::move (new_game));
 
         if (!continuesPosition (my_position_tokens, tokens))
             my_transposition_table.clear();
