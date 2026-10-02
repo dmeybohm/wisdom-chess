@@ -85,10 +85,12 @@ position where a draw could be claimed, because the search returned no
 move for a root that was a draw. That is fixed on its own branch; see
 `search-root-draw-move.md`. It does not depend on this change.
 
-This change still reaches UCI through `position fen`: with a clock
-above 100 the search applies the limit of 150 instead of 100. A GUI
-that adjudicates the fifty-move rule never sends such a position, and
-under one that does not, the game has in fact gone on.
+On its own this change would still reach UCI through `position fen`:
+with a clock above 100 the search would apply the limit of 150 instead
+of 100. The `draw-arbiter` branch closes that. UCI's games have an
+external arbiter, whose limits ignore the players' answers, so the
+inference only affects a game that arbitrates its own draws. This
+change is to be built on that branch; see `draw-arbiter.md`.
 
 ## Plan
 
@@ -99,8 +101,9 @@ under one that does not, the game has in fact gone on.
    - at 120, one player's answer to a fifty-move proposal leaves the
      status at `Playing`;
    - a `BoardBuilder` with a clock of 120 behaves like the FEN.
-2. A failing test in `evaluate_test.cpp`: `probableDrawCategory()` is
-   `NoDraw` for a game built from a FEN at clock 120.
+2. A failing test in `game_test.cpp`: `getDrawLimits()` gives 150
+   halfmoves for a game built from a FEN at clock 120, and 100 for the
+   same game under `DrawArbiter::External`.
 3. A failing test under "Loading a saved game" in `game_test.cpp`: a
    saved game whose replay ends above 100 loads as `Playing`.
 4. Add the check as a `Game::Impl` member function, called from the
@@ -134,3 +137,10 @@ Recorded the two decisions above and reworked the plan around them:
 `probableDrawCategory()`, since `search-root-draw-move` makes
 `findBestMove()` return a move here on its own. Still no code or tests
 changed.
+
+### Session #3
+
+`draw-arbiter` now exists, and the plan builds on it: the UCI section
+says the inference stops at an external arbiter, and the second test
+is on `Game::getDrawLimits()`, which replaced the status the search
+used to read from the history. Still no code or tests changed.
