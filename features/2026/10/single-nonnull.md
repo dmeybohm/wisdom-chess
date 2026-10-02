@@ -95,6 +95,12 @@ table. `assert-failure` follows `Debugging`, where it followed
 `CMAKE_BUILD_TYPE`, so it now also runs in the Debug configuration of a
 multi-configuration generator.
 
+The list and the program's path belong to one configuration. With a
+multi-configuration generator the build writes a file for each
+(`..._tests-Debug.cmake`), and the file CTest includes picks the one
+named by `-C` through `CTEST_CONFIGURATION_TYPE`. A single-configuration
+build keeps one file.
+
 ## Implementation Progress
 
 ### Session #1
@@ -158,3 +164,11 @@ effect on speed was not measured.
 
 Not run: Android, Windows and macOS builds, ThreadSanitizer, and the
 React frontend in a browser.
+
+**Review of PR #312.** The first version of the discovery wrote one test
+file for all configurations. With Ninja Multi-Config, building Release
+after Debug left `ctest -C Debug` with Release's 8 cases, run against the
+Release program. Reproduced, then fixed with a file per configuration:
+after both builds `-C Debug` lists 9 cases and `-C Release` 8, each
+against its own program, and both pass. The Release and Debug
+single-configuration builds were rerun: 276 of 276, and 9 fatal cases.

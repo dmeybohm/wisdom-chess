@@ -61,9 +61,21 @@ if (WISDOM_CHESS_FAST_TESTS)
     endif()
 
     # The cases are listed in fatal_test_main.cpp. Each build of the program
-    # asks it for them and writes the tests for CTest to include.
-    set(fatal_tests_file "${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-fatal-tests_tests.cmake")
+    # asks it for them and writes the tests for CTest to include. The cases
+    # and the program's path differ between configurations, so a generator
+    # with several keeps a file for each, and CTest includes the one that -C
+    # names.
+    set(fatal_tests_base "${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-fatal-tests_tests")
     set(fatal_include_file "${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-fatal-tests_include.cmake")
+
+    get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+    if (is_multi_config)
+        set(fatal_tests_file "${fatal_tests_base}-$<CONFIG>.cmake")
+        set(fatal_tests_included "${fatal_tests_base}-\${CTEST_CONFIGURATION_TYPE}.cmake")
+    else()
+        set(fatal_tests_file "${fatal_tests_base}.cmake")
+        set(fatal_tests_included "${fatal_tests_file}")
+    endif()
 
     add_custom_command(
         TARGET wisdom-chess-fatal-tests POST_BUILD
@@ -78,8 +90,8 @@ if (WISDOM_CHESS_FAST_TESTS)
     )
 
     file(WRITE "${fatal_include_file}"
-        "if(EXISTS \"${fatal_tests_file}\")\n"
-        "  include(\"${fatal_tests_file}\")\n"
+        "if(EXISTS \"${fatal_tests_included}\")\n"
+        "  include(\"${fatal_tests_included}\")\n"
         "else()\n"
         "  add_test(wisdom-chess-fatal-tests_NOT_BUILT wisdom-chess-fatal-tests_NOT_BUILT)\n"
         "endif()\n"
