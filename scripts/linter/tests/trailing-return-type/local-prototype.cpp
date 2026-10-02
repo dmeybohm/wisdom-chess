@@ -12,6 +12,10 @@ auto outer (size_t table_size) -> void
     std::vector<int>::iterator ninth (std::vector<int>& values);
     CustomType tenth (int (value));
     CustomType eleventh (unsigned int count);
+    char twelfth (int (*callback)(int)); // lint-allow(raw-pointer): a function pointer parameter
+    char thirteenth (int (&values)[3]);
+    char fourteenth (int (*value)); // lint-allow(raw-pointer): a parenthesized pointer parameter
+    char fifteenth (int (*callback)(int), int count); // lint-allow(raw-pointer): a function pointer parameter
 
     // Variables.
     Buckets buckets (table_size);
@@ -34,6 +38,8 @@ auto outer (size_t table_size) -> void
     std::vector<int> member (int (other.size()));
     std::vector<int> two_words (unsigned int (count) * 2);
     CustomType flagged (bool (count), 2);
+    std::vector<int> dereferenced (int (*value) + 1);
+    std::vector<int> called (int (other.size()) * 2);
     std::thread worker ([this] (int value)
     {
         run (value);

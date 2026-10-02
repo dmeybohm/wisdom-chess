@@ -79,12 +79,33 @@ namespace
         return isPunctuator (token, "*") || isPunctuator (token, "&") || isPunctuator (token, "&&");
     }
 
+    // The index of the ")" that closes the "(" at code[open], or
+    // code.size() when there is none.
+    auto closingParenthesis (const std::vector<Token>& code, size_t open) -> size_t
+    {
+        int depth = 0;
+        for (size_t i = open; i < code.size(); ++i)
+        {
+            if (isPunctuator (code[i], "("))
+            {
+                ++depth;
+            }
+            else if (isPunctuator (code[i], ")") && --depth == 0)
+            {
+                return i;
+            }
+        }
+        return code.size();
+    }
+
     // Whether the parentheses opening at code[open] hold a function's
     // parameters and not a variable's initializer, judged by the first one:
     // they are empty, or start with a type keyword or with a type and a
     // name. A single name is taken for an initializer, and so is a cast
-    // from a type keyword, int { 5 } or int (5), except for int (name)
-    // alone, which declares a parameter to the compiler too.
+    // from a type keyword, int { 5 } or int (5). Parentheses after the
+    // keyword are a declarator instead when a parameter list or an array
+    // bound follows them, int (*callback) (int), or when they hold only a
+    // name and are alone, int (name), as they are to the compiler.
     auto holdsParameters (const std::vector<Token>& code, size_t open) -> bool
     {
         static const std::unordered_set<std::string> type_keywords {
@@ -96,19 +117,7 @@ namespace
             "and", "or", "xor", "not_eq", "bitand", "bitor", "and_eq", "or_eq", "xor_eq",
         };
 
-        size_t close = open + 1;
-        for (int depth = 1; close < code.size(); ++close)
-        {
-            if (isPunctuator (code[close], "("))
-            {
-                ++depth;
-            }
-            else if (isPunctuator (code[close], ")") && --depth == 0)
-            {
-                break;
-            }
-        }
-
+        size_t close = closingParenthesis (code, open);
         size_t first = open + 1;
         if (first >= close)
         {
@@ -132,8 +141,18 @@ namespace
             }
             if (after < close && isPunctuator (code[after], "("))
             {
-                return after + 3 == close && isIdentifier (code[after + 1])
-                    && isPunctuator (code[after + 2], ")");
+                size_t inner_close = closingParenthesis (code, after);
+                if (inner_close + 1 < close)
+                {
+                    return isPunctuator (code[inner_close + 1], "(")
+                        || isPunctuator (code[inner_close + 1], "[");
+                }
+                size_t name = after + 1;
+                while (name < inner_close && isDeclarator (code[name]))
+                {
+                    ++name;
+                }
+                return name + 1 == inner_close && isIdentifier (code[name]);
             }
             return true;
         }
