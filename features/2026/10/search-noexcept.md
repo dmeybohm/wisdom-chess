@@ -69,13 +69,14 @@ measurement is recorded whatever it shows.
 - The `SearchError` class and the `catch` in `iterativelyDeepen()` go.
 
 - The root position is logged once per search, at the start of
-  `iterativelyDeepen()`, through `debug()`, so that a `BufferedLogger`
-  holds it when an emergency drains the buffer. That is what the
-  `SearchError` carried; it is the fact needed to reproduce a
-  termination mid-search. One board string per search, against the
-  string builds each depth already does for "Searching depth" and
-  "finding moves for", so it costs nothing a measurement can see.
-  Nothing is logged per node.
+  `iterativelyDeepen()`, through `debug()`, as a FEN on one line, so
+  that a `BufferedLogger` holds it when an emergency drains the buffer.
+  That is what the `SearchError` carried; it is the fact needed to
+  reproduce a termination mid-search, and a FEN is what a UCI
+  `position fen` command takes. One line per search, against the string
+  builds each depth already does for "Searching depth" and "finding
+  moves for", so it costs nothing a measurement can see. Nothing is
+  logged per node.
 
 ## Tests
 
@@ -143,3 +144,20 @@ The six positions at depth 7 range from +0.0% to +1.1%, all within
 that spread. As expected, there is nothing to measure: the frame has no
 cleanups, so removing the unwinding paths changes no code the hot loop
 runs. The branch stands on the contract.
+
+### Session #2
+
+Review of the pull request: the root position was logged as
+`Board::asString()`, which spans many lines, and `UciLogger::debug()`
+prefixes only the first with `info string`, so in UCI debug mode the
+other rows reached the GUI bare. The line is now a FEN, which is one
+line and is what `position fen` takes to reproduce the search.
+
+A `UCI: ...` test that runs `debug on` and a search and forbids any
+output line without a UCI prefix then found a second offender that
+predates this branch: the search's statistics message spans two lines,
+and its "transposition table" line reached the GUI bare too. So
+`UciLogger::debug()` and `info()` now write every line of a message
+with the prefix, through `sendPrefixedLines()`, under one hold of the
+output lock, as `sendEmergencyLines()` already did for emergencies.
+`wisdom-chess-uci-tests` pins it.

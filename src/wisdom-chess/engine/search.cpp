@@ -426,10 +426,10 @@ namespace wisdom
 
         my_searching_color = side;
 
-        // The position searched, once, so that a log holds what reproduces a
-        // failure in the search; the recursion itself is noexcept and logs
-        // nothing.
-        my_output->debug (my_original_board.asString());
+        // The position searched, once, as a FEN, so that a log holds the one
+        // line that reproduces a failure in the search; the recursion itself
+        // is noexcept and logs nothing.
+        my_output->debug ("Searching position " + my_original_board.toFenString (side));
 
         my_timer.start();
 

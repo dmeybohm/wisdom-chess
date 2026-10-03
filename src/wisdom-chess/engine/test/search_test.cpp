@@ -564,7 +564,8 @@ TEST_CASE( "The search logs the position it was asked about, once" )
     auto search = helper.build (board, 2);
     (void)search.iterativelyDeepen (Color::White);
 
-    auto board_lines = std::count (logger->lines.begin(), logger->lines.end(), board.asString());
+    auto expected = "Searching position " + board.toFenString (Color::White);
+    auto board_lines = std::count (logger->lines.begin(), logger->lines.end(), expected);
     CHECK( board_lines == 1 );
 }
 
