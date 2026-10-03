@@ -25,7 +25,7 @@ namespace wisdom
         // Copy the board's target as it is, with whether a legal capture
         // of it exists.
         auto board_metadata = board.getUnnormalizedBoardCode().getMetadataBits();
-        setMetadataBits (narrow_cast<uint16_t> (
+        setMetadataBits (narrow_debug<uint16_t> (
             (getMetadataBits() & ~En_Passant_Targets_Mask)
             | (board_metadata & En_Passant_Targets_Mask)
         ));

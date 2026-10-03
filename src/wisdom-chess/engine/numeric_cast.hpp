@@ -1,6 +1,5 @@
 #pragma once
 
-#include <exception>
 #include <source_location>
 #include <type_traits>
 
@@ -28,29 +27,6 @@ namespace wisdom
         auto converted = static_cast<Target> (value);
         return static_cast<Source> (converted) == value
             && isNegative (converted) == isNegative (value);
-    }
-
-    // A static_cast that names a narrowing conversion. Unchecked at runtime;
-    // in a constant expression, a value that does not fit is a compile error.
-    template <typename Target, typename Source>
-    [[nodiscard]] constexpr auto
-    narrow_cast (Source value) noexcept
-        -> Target
-    {
-        static_assert (std::is_arithmetic_v<Source>);
-        static_assert (std::is_arithmetic_v<Target>);
-
-        // Check if Source can fit into Target without truncation
-        if (std::is_constant_evaluated())
-        {
-            if (!isLosslessConversion<Target> (value))
-            {
-                // At compile-time, trigger an error if there's truncation
-                std::terminate();
-            }
-        }
-
-        return static_cast<Target> (value);
     }
 
     // Throws PreconditionError, naming the caller, when the value does not
@@ -85,47 +61,37 @@ namespace wisdom
         return static_cast<Target> (value);
     }
 
-    // Converts to a wider integer type that holds every value of the source,
-    // so no check is needed. A signed source needs a signed target.
+    // Like narrow_noexcept(), but checked only when Debugging is on or in a
+    // constant expression, as ASSERT() is. Release and RelWithDebInfo builds
+    // do a plain static_cast.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
-    widen_cast (Source value) noexcept
+    narrow_debug (Source value, std::source_location location = std::source_location::current()) noexcept
+        -> Target
+    {
+        static_assert (std::is_arithmetic_v<Source>);
+        static_assert (std::is_arithmetic_v<Target>);
+
+        if (Debugging || std::is_constant_evaluated())
+        {
+            if (!isLosslessConversion<Target> (value)) [[unlikely]]
+                terminateOnCheckFailure ("Precondition", "narrow_debug: the value fits in the target type", location);
+        }
+
+        return static_cast<Target> (value);
+    }
+
+    // Converts to a wider integer type that holds every value of the source,
+    // so it cannot fail. A signed source needs a signed target; to_unsigned()
+    // converts a signed value to an unsigned type.
+    template <typename Target, typename Source>
+    [[nodiscard]] constexpr auto
+    widen (Source value) noexcept
         -> Target
     {
         static_assert (std::is_integral_v<Source> && std::is_integral_v<Target>);
         static_assert (sizeof (Target) > sizeof (Source));
         static_assert (std::is_unsigned_v<Source> || std::is_signed_v<Target>);
-
-        return static_cast<Target> (value);
-    }
-
-    // Converts to a strictly wider integer type, rejecting values that do
-    // not fit (including negative values when Target is unsigned).
-    template <typename Target, typename Source>
-    [[nodiscard]] constexpr auto
-    widen (Source value, std::source_location location = std::source_location::current())
-        -> Target
-    {
-        static_assert (std::is_integral_v<Source> && std::is_integral_v<Target>);
-        static_assert (sizeof (Target) > sizeof (Source));
-
-        if (!isLosslessConversion<Target> (value)) [[unlikely]]
-            throwPreconditionError ("widen: the value fits in the target type", location);
-
-        return static_cast<Target> (value);
-    }
-
-    // Like widen(), but aborts instead of throwing for a failed invariant.
-    template <typename Target, typename Source>
-    [[nodiscard]] constexpr auto
-    widen_noexcept (Source value, std::source_location location = std::source_location::current()) noexcept
-        -> Target
-    {
-        static_assert (std::is_integral_v<Source> && std::is_integral_v<Target>);
-        static_assert (sizeof (Target) > sizeof (Source));
-
-        if (!isLosslessConversion<Target> (value)) [[unlikely]]
-            terminateOnCheckFailure ("Precondition", "widen_noexcept: the value fits in the target type", location);
 
         return static_cast<Target> (value);
     }
@@ -163,21 +129,22 @@ namespace wisdom
         return static_cast<Target> (value);
     }
 
-    // Like to_unsigned(), but unchecked at runtime; in a constant expression,
-    // a negative value is a compile error.
+    // Like to_unsigned_noexcept(), but checked only when Debugging is on or in
+    // a constant expression, as ASSERT() is. Release and RelWithDebInfo builds
+    // do a plain static_cast.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
-    to_unsigned_cast (Source value) noexcept
+    to_unsigned_debug (Source value, std::source_location location = std::source_location::current()) noexcept
         -> Target
     {
         static_assert (std::is_integral_v<Source> && std::is_signed_v<Source>);
         static_assert (std::is_integral_v<Target> && std::is_unsigned_v<Target>);
         static_assert (sizeof (Target) >= sizeof (Source));
 
-        if (std::is_constant_evaluated())
+        if (Debugging || std::is_constant_evaluated())
         {
-            if (value < 0)
-                std::terminate();
+            if (value < 0) [[unlikely]]
+                terminateOnCheckFailure ("Precondition", "to_unsigned_debug: the value is nonnegative", location);
         }
 
         return static_cast<Target> (value);

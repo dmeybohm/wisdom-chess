@@ -106,10 +106,16 @@ namespace
         [[maybe_unused]] auto narrowed = narrow_noexcept<int8_t> (too_big);
     }
 
-    void widenNoexceptNegative()
+    void narrowDebugOverflow()
     {
-        int32_t volatile negative = -1;
-        [[maybe_unused]] auto widened = widen_noexcept<uint64_t> (negative);
+        int volatile too_big = 300;
+        [[maybe_unused]] auto narrowed = narrow_debug<int8_t> (too_big);
+    }
+
+    void toUnsignedDebugNegative()
+    {
+        int volatile negative = -1;
+        [[maybe_unused]] auto converted = to_unsigned_debug<std::size_t> (negative);
     }
 
     void toUnsignedNoexceptNegative()
@@ -219,11 +225,6 @@ namespace
             &narrowNoexceptOverflow,
         },
         {
-            "widen-noexcept-negative",
-            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: widen_noexcept: the value fits",
-            &widenNoexceptNegative,
-        },
-        {
             "to-unsigned-noexcept-negative",
             "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: to_unsigned_noexcept: the value is nonnegative",
             &toUnsignedNoexceptNegative,
@@ -252,11 +253,23 @@ namespace
             Reports_Uncaught_Errors,
         },
 
-        // ASSERT() only checks when Debugging is on.
+        // ASSERT() and the _debug conversions only check when Debugging is on.
         {
             "assert-failure",
             "Assertion failed at .*fatal_test_main\\.cpp:[0-9]+: condition",
             &assertFailure,
+            Debugging,
+        },
+        {
+            "narrow-debug-overflow",
+            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: narrow_debug: the value fits",
+            &narrowDebugOverflow,
+            Debugging,
+        },
+        {
+            "to-unsigned-debug-negative",
+            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: to_unsigned_debug: the value is nonnegative",
+            &toUnsignedDebugNegative,
             Debugging,
         },
     };

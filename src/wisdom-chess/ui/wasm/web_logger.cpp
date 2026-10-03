@@ -31,5 +31,5 @@ void wisdom::worker::WebLogger::info (const std::string& output) noexcept
 
 void wisdom::worker::WebLogger::emergency (std::string_view output) noexcept
 {
-    ::consoleErrorBytes (output.data(), wisdom::narrow_cast<int> (output.size()));
+    ::consoleErrorBytes (output.data(), wisdom::narrow_debug<int> (output.size()));
 }

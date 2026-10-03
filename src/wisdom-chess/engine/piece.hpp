@@ -115,7 +115,7 @@ namespace wisdom
         -> ColorIndex
     {
         ASSERT( who == Color::White || who == Color::Black );
-        return narrow_cast<int8_t> (toInt8 (who) - 1);
+        return narrow_debug<int8_t> (toInt8 (who) - 1);
     }
 
     [[nodiscard]] constexpr auto
@@ -124,7 +124,7 @@ namespace wisdom
     {
         ASSERT( isColorValid (who) );
         uint8_t inverted = !colorIndex (who);
-        return colorFromColorIndex (narrow_cast<int8_t> (inverted));
+        return colorFromColorIndex (narrow_debug<int8_t> (inverted));
     }
 
     [[nodiscard]] constexpr auto
@@ -155,7 +155,7 @@ namespace wisdom
                 (piece_type != Piece::None && color != Color::None) );
             auto color_as_int = toInt8 (color);
             auto piece_as_int = toInt8 (piece_type);
-            auto result = narrow_cast<int8_t>(
+            auto result = narrow_debug<int8_t>(
                 (color_as_int << Piece_Color_Shift) |
                     (piece_as_int & Piece_Type_Mask)
             );
@@ -167,7 +167,7 @@ namespace wisdom
         color() const noexcept
             -> Color
         {
-            auto result = narrow_cast<int8_t> (
+            auto result = narrow_debug<int8_t> (
                 (piece_type_and_color & Piece_Color_Mask) >> Piece_Color_Shift
             );
             return colorFromInt8 (result);
@@ -177,7 +177,7 @@ namespace wisdom
         type() const noexcept
             -> Piece
         {
-            auto result = narrow_cast<int8_t>(
+            auto result = narrow_debug<int8_t>(
                 (piece_type_and_color & Piece_Type_Mask)
             );
             return pieceFromInt8 (result);

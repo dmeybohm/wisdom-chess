@@ -20,6 +20,7 @@ if (WISDOM_CHESS_FAST_TESTS)
         history_test.cpp
         generate_test.cpp
         evaluate_test.cpp
+        search_test.cpp
         game_status_test.cpp
         move_timer_test.cpp
         game_file_test.cpp
@@ -104,7 +105,6 @@ endif()
 if (WISDOM_CHESS_SLOW_TESTS)
 
     add_executable(wisdom-chess-slow-tests
-        search_test.cpp
         perft.cpp
         perft_test.cpp
         move_perft_test.cpp

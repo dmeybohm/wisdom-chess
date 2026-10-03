@@ -77,37 +77,24 @@ TEST_CASE( "narrow_noexcept converts a value that fits" )
     CHECK( narrow_noexcept<int> (zero) == 0 );
 }
 
-TEST_CASE( "narrow_cast converts without a check at runtime" )
+TEST_CASE( "narrow_debug converts a value that fits" )
 {
-    static_assert (narrow_cast<int8_t> (100) == 100);
+    static_assert (narrow_debug<int8_t> (100) == 100);
+    static_assert (noexcept (narrow_debug<int8_t> (100)));
 
-    int too_big = 300;
-    CHECK( narrow_cast<uint8_t> (too_big) == 44 );
+    if constexpr (!Debugging)
+    {
+        int too_big = 300;
+        CHECK( narrow_debug<uint8_t> (too_big) == 44 );
+    }
 }
 
-TEST_CASE( "widen converts wider integer types and checks signedness" )
+TEST_CASE( "widen converts to a type that holds every value" )
 {
     static_assert (widen<int64_t> (int32_t { -1 }) == -1);
     static_assert (widen<int64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffLL);
-    static_assert (widen<uint64_t> (int32_t { 0 }) == 0);
-    static_assert (widen<uint64_t> (int32_t { 42 }) == 42);
-
-    int32_t negative = -1;
-    CHECK_THROWS_AS( (void)widen<uint64_t> (negative), PreconditionError );
-}
-
-TEST_CASE( "widen_noexcept checks values that fit" )
-{
-    static_assert (widen_noexcept<uint64_t> (int32_t { 42 }) == 42);
-    static_assert (noexcept (widen_noexcept<uint64_t> (int32_t { 42 })));
-}
-
-TEST_CASE( "widen_cast converts to a type that holds every value" )
-{
-    static_assert (widen_cast<int64_t> (int32_t { -1 }) == -1);
-    static_assert (widen_cast<int64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffLL);
-    static_assert (widen_cast<uint64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffULL);
-    static_assert (noexcept (widen_cast<int64_t> (int32_t { 42 })));
+    static_assert (widen<uint64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffULL);
+    static_assert (noexcept (widen<int64_t> (int32_t { 42 })));
 }
 
 TEST_CASE( "to_unsigned converts a nonnegative value and rejects a negative one" )
@@ -137,13 +124,16 @@ TEST_CASE( "to_unsigned_noexcept converts a nonnegative value" )
     static_assert (noexcept (to_unsigned_noexcept<uint64_t> (int32_t { 42 })));
 }
 
-TEST_CASE( "to_unsigned_cast converts without a check at runtime" )
+TEST_CASE( "to_unsigned_debug converts a nonnegative value" )
 {
-    static_assert (to_unsigned_cast<uint32_t> (int32_t { 42 }) == 42);
-    static_assert (noexcept (to_unsigned_cast<uint64_t> (int32_t { 42 })));
+    static_assert (to_unsigned_debug<uint32_t> (int32_t { 42 }) == 42);
+    static_assert (noexcept (to_unsigned_debug<uint64_t> (int32_t { 42 })));
 
-    int32_t negative = -1;
-    CHECK( to_unsigned_cast<uint32_t> (negative) == 0xffff'ffffU );
+    if constexpr (!Debugging)
+    {
+        int32_t negative = -1;
+        CHECK( to_unsigned_debug<uint32_t> (negative) == 0xffff'ffffU );
+    }
 }
 
 TEST_CASE( "CompileTimeRandom reports the full range of its result type" )

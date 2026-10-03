@@ -82,7 +82,7 @@ namespace wisdom
             if (who == Color::White)
                 return coord;
 
-            return makeCoord (narrow_cast<int8_t> (Last_Row - coord.row()), coord.column());
+            return makeCoord (narrow_debug<int8_t> (Last_Row - coord.row()), coord.column());
         }
 
         auto

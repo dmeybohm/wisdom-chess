@@ -280,7 +280,7 @@ namespace wisdom::ui::qml
             return 0;
         }
 
-        return narrow_cast<int> (my_animation_duration - elapsed);
+        return narrow_debug<int> (my_animation_duration - elapsed);
     }
 
     auto

@@ -105,7 +105,7 @@ namespace wisdom
         pack (int src_idx, int dst_idx, int combined_val) noexcept
             -> uint16_t
         {
-            return narrow_cast<uint16_t> (
+            return narrow_debug<uint16_t> (
                 (src_idx & Src_Mask)
                 | ((dst_idx & Dst_Mask) << Dst_Shift)
                 | ((combined_val & Combined_Mask) << Combined_Shift)
@@ -122,7 +122,7 @@ namespace wisdom
         constexpr void
         setCombined (int combined_val) noexcept
         {
-            data = narrow_cast<uint16_t> (
+            data = narrow_debug<uint16_t> (
                 (data & 0x0fff) | ((combined_val & Combined_Mask) << Combined_Shift)
             );
         }
@@ -220,7 +220,7 @@ namespace wisdom
         fromInt (int packed_move) noexcept -> Move
         {
             Move m;
-            m.data = narrow_cast<uint16_t> (packed_move & 0xffff);
+            m.data = narrow_debug<uint16_t> (packed_move & 0xffff);
             return m;
         }
 
@@ -303,8 +303,8 @@ namespace wisdom
             if (c < Combined_Promote_Base)
                 return Piece::None;
             int8_t offset = (c >= Combined_Promote_Capture_Base)
-                ? narrow_cast<int8_t> (c - Combined_Promote_Capture_Base)
-                : narrow_cast<int8_t> (c - Combined_Promote_Base);
+                ? narrow_debug<int8_t> (c - Combined_Promote_Capture_Base)
+                : narrow_debug<int8_t> (c - Combined_Promote_Base);
             return pieceFromPromotionOffset (offset);
         }
 
@@ -353,7 +353,7 @@ namespace wisdom
         -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
-        return narrow_cast<IntegerType> (who == Color::White ? Last_Row : First_Row);
+        return narrow_debug<IntegerType> (who == Color::White ? Last_Row : First_Row);
     }
 
     // The rook's half of a castling move, derived from the king's half.
