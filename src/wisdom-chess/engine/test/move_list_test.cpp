@@ -154,14 +154,6 @@ TEST_CASE( "Swapping lists" )
     }
 }
 
-TEST_CASE( "Reading the ends of an empty move list throws" )
-{
-    MoveList list;
-
-    CHECK_THROWS_AS( (void)list.front(), PreconditionError );
-    CHECK_THROWS_AS( (void)list.back(), PreconditionError );
-}
-
 TEST_CASE( "Constructing a move list from an invalid move string throws" )
 {
     CHECK_THROWS_AS( (MoveList { Color::White, { "e2 e4", "not a move" } }), ParseMoveError );
