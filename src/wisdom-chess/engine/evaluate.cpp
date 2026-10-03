@@ -57,7 +57,7 @@ namespace wisdom
     }
 
     auto
-    evaluate (const Board& board, Color who, int moves_away)
+    evaluate (const Board& board, Color who, int moves_away) noexcept
         -> int
     {
         if (isCheckmated (board))
@@ -70,7 +70,7 @@ namespace wisdom
     }
 
     auto
-    evaluateWithoutMateTest (const Board& board, Color who)
+    evaluateWithoutMateTest (const Board& board, Color who) noexcept
         -> int
     {
         int score = 0;
@@ -83,7 +83,7 @@ namespace wisdom
         score += unableToCastlePenalty (board, opponent);
 
         // Anything larger would read as a checkmate score.
-        ENSURES( score < Max_Non_Checkmate_Score && score > -Max_Non_Checkmate_Score );
+        NOEXCEPT_ENSURES( score < Max_Non_Checkmate_Score && score > -Max_Non_Checkmate_Score );
         return score;
     }
 

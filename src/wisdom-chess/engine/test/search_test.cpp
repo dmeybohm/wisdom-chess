@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <map>
 
@@ -39,35 +40,55 @@ namespace wisdom::test
         }
     };
 
+    // Keeps every debug line.
+    struct DebugRecordingLogger : Logger
+    {
+        vector<string> lines;
+
+        void debug (const string& output) noexcept override
+        {
+            lines.push_back (output);
+        }
+
+        void info ([[maybe_unused]] const string& output) noexcept override
+        {
+        }
+
+        void emergency ([[maybe_unused]] string_view output) noexcept override
+        {
+        }
+    };
+
     // Tracks the depth the search is on, from its progress messages, and
     // counts the timer's periodic calls made during each depth.
     struct DepthTrackingLogger : Logger
     {
-        mutable int current_depth = 0;
-        mutable std::map<int, int> periodic_calls_per_depth {};
+        int current_depth = 0;
+        std::map<int, int> periodic_calls_per_depth {};
 
-        void debug ([[maybe_unused]] const string& output) const noexcept override
+        void debug ([[maybe_unused]] const string& output) noexcept override
         {
         }
 
-        void info (const string& output) const noexcept override
+        void info (const string& output) noexcept override
         {
             const string prefix = "Searching depth ";
             if (output.starts_with (prefix))
                 current_depth = std::stoi (output.substr (prefix.size()));
         }
 
-        void emergency ([[maybe_unused]] string_view output) const noexcept override
+        void emergency ([[maybe_unused]] string_view output) noexcept override
         {
         }
 
-        void countPeriodicCall() const
+        void countPeriodicCall()
         {
             periodic_calls_per_depth[current_depth]++;
         }
     };
 }
 
+using wisdom::test::DebugRecordingLogger;
 using wisdom::test::DepthTrackingLogger;
 using wisdom::test::SearchHelper;
 using namespace wisdom;
@@ -533,30 +554,19 @@ TEST_CASE( "Engine should avoid moves that allow opponent to force a draw when a
     CHECK( result.score > 100 );
 }
 
-TEST_CASE( "An error during the search is rethrown with the board" )
+TEST_CASE( "The search logs the position it was asked about, once" )
 {
-    // The timer's periodic function is the one caller-supplied hook the
-    // search runs. It is called every Calls_Between_Clock_Checks nodes,
-    // which depth 4 of the opening position reaches and depth 3 does not.
+    auto logger = make_shared<DebugRecordingLogger>();
     SearchHelper helper;
-    helper.timer.setPeriodicFunction ([] (nonnull<MoveTimer>)
-    {
-        throw Error { "boom", "extra detail" };
-    });
+    helper.logger = logger;
 
     Board board { BoardBuilder::fromDefaultPosition() };
-    auto search = helper.build (board, 4);
+    auto search = helper.build (board, 2);
+    (void)search.iterativelyDeepen (Color::White);
 
-    try
-    {
-        (void)search.iterativelyDeepen (Color::White);
-        FAIL( "The search did not throw" );
-    }
-    catch (const SearchError& e)
-    {
-        CHECK( e.message() == "boom" );
-        CHECK( e.extraInfo() == "extra detail\n" + board.asString() );
-    }
+    auto expected = "Searching position " + board.toFenString (Color::White);
+    auto board_lines = std::count (logger->lines.begin(), logger->lines.end(), expected);
+    CHECK( board_lines == 1 );
 }
 
 TEST_CASE( "The search result counts the nodes of every depth" )

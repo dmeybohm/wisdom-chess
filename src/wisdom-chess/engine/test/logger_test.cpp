@@ -14,24 +14,24 @@ namespace
 {
     struct RecordingLogger : Logger
     {
-        mutable vector<LogEntry> lines;
+        vector<LogEntry> lines;
 
-        void debug (const string& output) const noexcept override
+        void debug (const string& output) noexcept override
         {
             lines.push_back (LogEntry { LogLevel_Debug, output });
         }
 
-        void info (const string& output) const noexcept override
+        void info (const string& output) noexcept override
         {
             lines.push_back (LogEntry { LogLevel_Info, output });
         }
 
-        void emergency (string_view output) const noexcept override
+        void emergency (string_view output) noexcept override
         {
             emergencies.emplace_back (output);
         }
 
-        mutable vector<string> emergencies;
+        vector<string> emergencies;
     };
 
     const std::regex Timestamp_Prefix { R"(^\[\d{2}:\d{2}:\d{2}\.\d{3}\] )" };
@@ -219,7 +219,7 @@ TEST_CASE( "LogRingBuffer" )
         buffer.push (Logger::LogLevel_Debug, "second");
         buffer.push (Logger::LogLevel_Info, "third");
 
-        buffer.drainTo (sink);
+        buffer.drainTo (&sink);
 
         REQUIRE( sink.lines.size() == 3 );
         CHECK( sink.lines[0].level == Logger::LogLevel_Info );
@@ -239,7 +239,7 @@ TEST_CASE( "LogRingBuffer" )
         LogRingBuffer buffer { 100 };
         RecordingLogger sink;
 
-        buffer.drainTo (sink);
+        buffer.drainTo (&sink);
 
         CHECK( sink.lines.empty() );
     }
@@ -480,7 +480,7 @@ namespace
 
     struct ReentrantLogger : RecordingLogger
     {
-        void emergency (string_view output) const noexcept override
+        void emergency (string_view output) noexcept override
         {
             RecordingLogger::emergency (output);
             logEmergency ("nested");

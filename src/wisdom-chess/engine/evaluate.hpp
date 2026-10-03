@@ -50,13 +50,13 @@ namespace wisdom
 
     // Evaluate the board.
     [[nodiscard]] auto
-    evaluate (const Board& board, Color who, int moves_away)
+    evaluate (const Board& board, Color who, int moves_away) noexcept
         -> int;
 
     // Evaluate the board without testing whether the side to move is
     // checkmated, for callers that already know it is not.
     [[nodiscard]] auto
-    evaluateWithoutMateTest (const Board& board, Color who)
+    evaluateWithoutMateTest (const Board& board, Color who) noexcept
         -> int;
 
     // When there are no legal moves present, return the score of this move, which
