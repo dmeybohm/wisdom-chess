@@ -96,9 +96,13 @@ measurement is recorded whatever it shows.
 
 ## Measurement
 
-One match with the pinned alternating-rounds recipe, before and after,
-on the same build type. The result goes under Implementation Progress
-whether or not it shows a difference.
+The pinned alternating-rounds time share, before and after: a
+`noexcept` change must leave moves, scores and node counts identical,
+so only the time can differ, and a percent or two would not show in a
+match. `wisdom-chess-benchmarks --search-report 7` from a scratch
+build of each revision, `taskset -c 2`, eight rounds each, alternating.
+The result goes under Implementation Progress whether or not it shows
+a difference.
 
 ## Out of scope
 
@@ -129,3 +133,13 @@ linter passes, all 284 Release tests and all 248 Debug tests pass, the
 fourteen `Fatal: ...` cases among them. The frontends were not rebuilt:
 nothing they define changed its signature, and none caught
 `SearchError`.
+
+Measurement, `noexcept-mechanical` (`9b69ad93`) against this branch:
+every row's move, score and node counts are identical between the two
+builds. The whole report takes a median 10.01 s before and 10.07 s
+after; depth 7 alone 7.96 s and 8.00 s. The rounds spread about 2%
+either side of their medians, so a change of half a percent is noise.
+The six positions at depth 7 range from +0.0% to +1.1%, all within
+that spread. As expected, there is nothing to measure: the frame has no
+cleanups, so removing the unwinding paths changes no code the hot loop
+runs. The branch stands on the contract.
