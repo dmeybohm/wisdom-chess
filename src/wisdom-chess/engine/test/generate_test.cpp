@@ -743,17 +743,24 @@ TEST_CASE( "generateLegalEnPassantMoves" )
 
     SUBCASE( "Agrees with generateLegalMoves" )
     {
-        czstring fens[] = {
-            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
-            "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",
-            "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 b - - 0 1",
-            "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
-            "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3",
-            "4k3/pppppppp/8/PPPPPPPP/pppppppp/8/PPPPPPPP/4K3 w - - 0 1",
+        // Each tree is as deep as it needs to be to reach en passant
+        // targets. The slow suite checks deeper trees.
+        struct Position
+        {
+            czstring fen;
+            int depth;
         };
 
-        for (auto fen_text : fens)
-            checkEnPassantMovesInTree (board_from_fen (fen_text), 3);
+        const Position positions[] = {
+            { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 2 },
+            { "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", 3 },
+            { "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 b - - 0 1", 3 },
+            { "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1", 2 },
+            { "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3", 3 },
+            { "4k3/pppppppp/8/PPPPPPPP/pppppppp/8/PPPPPPPP/4K3 w - - 0 1", 3 },
+        };
+
+        for (const auto& position : positions)
+            checkEnPassantMovesInTree (board_from_fen (position.fen), position.depth);
     }
 }

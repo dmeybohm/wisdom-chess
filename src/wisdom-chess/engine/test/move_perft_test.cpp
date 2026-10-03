@@ -364,6 +364,52 @@ namespace
         std::string first_mismatch;
     };
 
+    struct EnPassantCheck
+    {
+        int64_t positions = 0;
+        int64_t mismatches = 0;
+        int64_t en_passant_positions = 0;
+        std::string first_mismatch;
+    };
+
+    // Compare generateLegalEnPassantMoves() with the en passant moves among
+    // generateLegalMoves() at every node of the perft tree, down to the given
+    // depth.
+    void checkEnPassantMovesAtEveryNode ( // NOLINT(misc-no-recursion)
+        const Board& board,
+        int depth,
+        nonnull<EnPassantCheck> check
+    )
+    {
+        auto side = board.getCurrentTurn();
+        auto legal_moves = wisdom::generateLegalMoves (board, side);
+        auto en_passant_moves = wisdom::generateLegalEnPassantMoves (board);
+
+        wisdom::MoveList expected;
+        for (auto move : legal_moves)
+        {
+            if (move.isEnPassant())
+                expected.append (move);
+        }
+
+        check->positions++;
+        if (!en_passant_moves.isEmpty())
+            check->en_passant_positions++;
+        if (en_passant_moves != expected
+            || board.getLegalEnPassantTarget().has_value() == en_passant_moves.isEmpty())
+        {
+            if (check->mismatches == 0)
+                check->first_mismatch = board.toFenString (side);
+            check->mismatches++;
+        }
+
+        if (depth == 0)
+            return;
+
+        for (auto move : legal_moves)
+            checkEnPassantMovesAtEveryNode (board.withMove (side, move), depth - 1, check);
+    }
+
     // Compare hasLegalMove() with generateLegalMoves() at every node of the
     // perft tree, down to the given depth.
     void checkHasLegalMoveAtEveryNode ( // NOLINT(misc-no-recursion)
@@ -444,4 +490,42 @@ TEST_CASE( "Perft: hasLegalMove agrees with generateLegalMoves at every node" )
     INFO( "positions checked: ", total.positions );
     CHECK( total.checkmates > 0 );
     CHECK( total.stalemates > 0 );
+}
+
+TEST_CASE( "Perft: generateLegalEnPassantMoves agrees with generateLegalMoves at every node" )
+{
+    struct Position
+    {
+        czstring fen;
+        int depth;
+    };
+
+    const Position positions[] = {
+        { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 3 },
+        { "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", 5 },
+        { "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 b - - 0 1", 5 },
+        { "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1", 3 },
+        { "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3", 3 },
+        { "4k3/pppppppp/8/PPPPPPPP/pppppppp/8/PPPPPPPP/4K3 w - - 0 1", 4 },
+    };
+
+    EnPassantCheck total;
+
+    for (const auto& position : positions)
+    {
+        FenParser parser { position.fen };
+        auto board = parser.buildBoard();
+
+        EnPassantCheck check;
+        checkEnPassantMovesAtEveryNode (board, position.depth, &check);
+
+        INFO( position.fen );
+        INFO( "first mismatch: ", check.first_mismatch );
+        CHECK( check.mismatches == 0 );
+        CHECK( check.en_passant_positions > 0 );
+
+        total.positions += check.positions;
+    }
+
+    INFO( "positions checked: ", total.positions );
 }
