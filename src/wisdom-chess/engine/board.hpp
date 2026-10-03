@@ -269,25 +269,4 @@ namespace wisdom
         // positions of the kings.
         array<Coord, Num_Players> my_king_pos;
     };
-
-    [[nodiscard]] constexpr auto
-    coordColor (Coord coord)
-        -> Color
-    {
-        int parity = (coord.row() % 2 + coord.column() % 2) % 2;
-        return colorFromColorIndex (narrow_cast<int8_t> (parity));
-    }
-
-    // white moves up (-)
-    // black moves down (+)
-    template <class IntegerType = int8_t>
-    [[nodiscard]] constexpr auto
-    pawnDirection (Color color)
-        -> IntegerType
-    {
-        static_assert (std::is_integral_v<IntegerType>);
-        ASSERT( color == Color::Black || color == Color::White );
-        int8_t color_as_int = toInt8 (color);
-        return narrow_cast<IntegerType> (-1 + 2 * (color_as_int - 1));
-    }
 }

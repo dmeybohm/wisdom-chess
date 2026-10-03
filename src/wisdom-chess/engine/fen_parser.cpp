@@ -3,6 +3,7 @@
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/coord.hpp"
 #include "wisdom-chess/engine/game.hpp"
 
 namespace wisdom

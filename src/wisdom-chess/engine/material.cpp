@@ -1,5 +1,6 @@
 #include "wisdom-chess/engine/material.hpp"
 #include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/coord.hpp"
 
 namespace wisdom
 {
