@@ -85,6 +85,16 @@ reason in the same comment, as in
 
 ## Functions
 
+- Put a template declaration on its own line when the function has
+  specifiers such as `[[nodiscard]]` or `constexpr`:
+
+  ```cpp
+  template <typename Target, typename Source>
+  [[nodiscard]] constexpr auto
+  widen_cast (Source value) noexcept
+      -> Target
+  ```
+
 - Trailing return types: `auto fn() -> ReturnType`
   [`trailing-return-type`, a warning]. A function that returns nothing
   keeps the leading `void`.

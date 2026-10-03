@@ -106,6 +106,12 @@ namespace
         [[maybe_unused]] auto narrowed = noexcept_narrow<int8_t> (too_big);
     }
 
+    void noexceptWidenNegative()
+    {
+        int32_t volatile negative = -1;
+        [[maybe_unused]] auto widened = noexcept_widen<uint64_t> (negative);
+    }
+
     void needPawnPromotionBadColor()
     {
         Color volatile color = Color::None;
@@ -205,6 +211,11 @@ namespace
             "noexcept-narrow-overflow",
             "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: noexcept_narrow: the value fits",
             &noexceptNarrowOverflow,
+        },
+        {
+            "noexcept-widen-negative",
+            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: noexcept_widen: the value fits",
+            &noexceptWidenNegative,
         },
         {
             "need-pawn-promotion-bad-color",
