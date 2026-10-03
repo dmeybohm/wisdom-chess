@@ -7,7 +7,7 @@
 namespace wisdom
 {
     [[nodiscard]] consteval auto
-    emptySquares()
+    emptySquares() noexcept
         -> array<ColoredPiece, Num_Squares>
     {
         array<ColoredPiece, Num_Squares> result {};
@@ -39,7 +39,7 @@ namespace wisdom
             Piece piece_type;
         };
 
-        constexpr BoardBuilder()
+        constexpr BoardBuilder() noexcept
             : my_squares { emptySquares() }
         {
         }
@@ -152,7 +152,7 @@ namespace wisdom
         }
 
         constexpr void
-        setCurrentTurn (Color who)
+        setCurrentTurn (Color who) noexcept
         {
             my_current_turn = who;
         }
@@ -167,7 +167,7 @@ namespace wisdom
         }
 
         constexpr void
-        setCastling (Color who, CastlingEligibility state)
+        setCastling (Color who, CastlingEligibility state) noexcept
         {
             auto index = colorIndex (who);
             my_castle_states[index] = state;
@@ -192,7 +192,7 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto
-        getSquares() const&
+        getSquares() const& noexcept
                 -> const array<ColoredPiece, Num_Squares>&
         {
             return my_squares;
@@ -200,7 +200,7 @@ namespace wisdom
         void getSquares() const&& = delete;
 
         [[nodiscard]] constexpr auto
-        pieceAt (Coord coord) const
+        pieceAt (Coord coord) const noexcept
             -> ColoredPiece
         {
             ASSERT( coord.index() < Num_Squares );
@@ -208,21 +208,21 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto
-        getCurrentTurn() const
+        getCurrentTurn() const noexcept
             -> Color
         {
             return my_current_turn;
         }
 
         [[nodiscard]] constexpr auto
-        getEnPassantTarget() const
+        getEnPassantTarget() const noexcept
             -> optional<EnPassantTarget>
         {
             return my_en_passant_target;
         }
 
         [[nodiscard]] constexpr auto
-        getCastleState (Color who) const
+        getCastleState (Color who) const noexcept
             -> CastlingEligibility
         {
             auto index = colorIndex (who);
@@ -262,14 +262,14 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto
-        getHalfMoveClock() const
+        getHalfMoveClock() const noexcept
             -> int
         {
             return my_half_moves_clock;
         }
 
         [[nodiscard]] constexpr auto
-        getFullMoveClock() const
+        getFullMoveClock() const noexcept
             -> int
         {
             return my_full_moves;
@@ -277,7 +277,7 @@ namespace wisdom
 
     private:
         [[nodiscard]] constexpr auto
-        calculateCastleStateFromPosition (Color who) const
+        calculateCastleStateFromPosition (Color who) const noexcept
             -> CastlingEligibility
         {
             auto row = castlingRowForColor (who);

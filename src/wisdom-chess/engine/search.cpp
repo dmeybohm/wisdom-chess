@@ -62,15 +62,15 @@ namespace wisdom
 
         // Get the best result the search found.
         [[nodiscard]] auto
-        getBestResult() const
+        getBestResult() const noexcept
             -> SearchResult;
 
         // When the clock stops a root search, keep the best of the root
         // moves it had finished, so that the iteration is not wasted.
-        void recordRootProgress (int ply, int depth, optional<Move> best_move, int best_score);
+        void recordRootProgress (int ply, int depth, optional<Move> best_move, int best_score) noexcept;
 
         [[nodiscard]] auto
-        getMoveTimer() const&
+        getMoveTimer() const& noexcept
             -> const MoveTimer&
         {
             return my_timer;
@@ -102,7 +102,7 @@ namespace wisdom
 
     IterativeSearch::~IterativeSearch() = default;
 
-    IterativeSearch::IterativeSearch (unique_ptr<IterativeSearchImpl> impl)
+    IterativeSearch::IterativeSearch (unique_ptr<IterativeSearchImpl> impl) noexcept
         : my_pimpl { std::move (impl) }
     {
     }
@@ -138,14 +138,14 @@ namespace wisdom
     }
 
     auto
-    IterativeSearch::isCancelled()
+    IterativeSearch::isCancelled() noexcept
         -> bool
     {
         return my_pimpl->getMoveTimer().isCancelled();
     }
 
     auto
-    IterativeSearch::getMoveTimer() const&
+    IterativeSearch::getMoveTimer() const& noexcept
         -> const MoveTimer&
     {
         return my_pimpl->getMoveTimer();
@@ -154,7 +154,7 @@ namespace wisdom
     namespace
     {
         constexpr auto
-        drawingScore (Color searching_color, Color current_color)
+        drawingScore (Color searching_color, Color current_color) noexcept
             -> int
         {
             // The engine would rather play on than claim a draw, so a draw on
@@ -473,7 +473,7 @@ namespace wisdom
     }
 
     [[nodiscard]] auto
-    IterativeSearchImpl::getBestResult() const
+    IterativeSearchImpl::getBestResult() const noexcept
         -> SearchResult
     {
         return my_current_result;
@@ -485,7 +485,7 @@ namespace wisdom
         int depth,
         optional<Move> best_move,
         int best_score
-    )
+    ) noexcept
     {
         if (ply != 0 || !best_move.has_value())
             return;

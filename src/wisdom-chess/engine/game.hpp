@@ -94,58 +94,58 @@ namespace wisdom
 
         void move (Move move);
 
-        [[nodiscard]] auto getCurrentTurn() const -> Color;
+        [[nodiscard]] auto getCurrentTurn() const noexcept -> Color;
 
         void setCurrentTurn (Color new_turn);
 
         [[nodiscard]] auto
-        getBoard() const&
+        getBoard() const& noexcept
             -> const Board&;
 
         [[nodiscard]] auto
         getBoard() const&&
             -> Board& = delete;
 
-        [[nodiscard]] auto getHistory() & -> History&;
-        [[nodiscard]] auto getHistory() const& -> const History&;
+        [[nodiscard]] auto getHistory() & noexcept -> History&;
+        [[nodiscard]] auto getHistory() const& noexcept -> const History&;
         [[nodiscard]] auto getHistory() && -> History& = delete;
 
-        [[nodiscard]] auto getCurrentPlayer() const -> Player;
+        [[nodiscard]] auto getCurrentPlayer() const noexcept -> Player;
 
-        void setWhitePlayer (Player player);
+        void setWhitePlayer (Player player) noexcept;
 
-        void setBlackPlayer (Player player);
+        void setBlackPlayer (Player player) noexcept;
 
         [[nodiscard]] auto getPlayer (Color color) const -> Player;
 
-        void setPlayers (const Players& players);
+        void setPlayers (const Players& players) noexcept;
 
-        [[nodiscard]] auto getPlayers() const -> Players;
+        [[nodiscard]] auto getPlayers() const noexcept -> Players;
 
-        [[nodiscard]] auto getMaxDepth() const -> int;
+        [[nodiscard]] auto getMaxDepth() const noexcept -> int;
 
         void setMaxDepth (int max_depth);
 
-        [[nodiscard]] auto getSearchTimeout() const -> chrono::milliseconds;
+        [[nodiscard]] auto getSearchTimeout() const noexcept -> chrono::milliseconds;
 
         void setSearchTimeout (chrono::milliseconds timeout);
 
         [[nodiscard]] auto
-        mapCoordinatesToMove (Coord src, Coord dst, optional<Piece> promoted) const
+        mapCoordinatesToMove (Coord src, Coord dst, optional<Piece> promoted) const noexcept
             -> optional<Move>;
 
         void setPeriodicFunction (const PeriodicFunction& periodic_function);
 
-        [[nodiscard]] auto getStatus() const -> GameStatus;
+        [[nodiscard]] auto getStatus() const noexcept -> GameStatus;
 
-        [[nodiscard]] auto getDrawArbiter() const -> DrawArbiter;
+        [[nodiscard]] auto getDrawArbiter() const noexcept -> DrawArbiter;
 
         // Leaves the draws to the caller, with the limits at which the
         // search is to count one.
         void setExternalDrawArbiter (DrawLimits draw_limits);
 
         // The limits the search applies to this game.
-        [[nodiscard]] auto getDrawLimits() const -> DrawLimits;
+        [[nodiscard]] auto getDrawLimits() const noexcept -> DrawLimits;
 
         [[nodiscard]] auto computerWantsDraw (Color who) const -> bool;
 
@@ -169,7 +169,7 @@ namespace wisdom
     private:
         // Private implementation functions
         class Impl;
-        explicit Game (unique_ptr<Impl> impl);
+        explicit Game (unique_ptr<Impl> impl) noexcept;
 
     private:
         unique_ptr<Impl> my_pimpl;

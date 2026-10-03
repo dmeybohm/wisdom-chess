@@ -12,7 +12,7 @@ namespace wisdom
     public:
         Material() = default;
 
-        explicit Material (const Board& board);
+        explicit Material (const Board& board) noexcept;
 
         [[nodiscard]] static auto
         weight (Piece piece) noexcept
@@ -35,13 +35,13 @@ namespace wisdom
         }
 
         [[nodiscard]] static auto
-        scaledScore (int score)
+        scaledScore (int score) noexcept
             -> int
         {
             return score * Material_Score_Scale;
         }
 
-        void add (ColoredPiece piece)
+        void add (ColoredPiece piece) noexcept
         {
             auto color_idx = colorIndex (pieceColor (piece));
             auto type = pieceType (piece);
@@ -53,7 +53,7 @@ namespace wisdom
             ASSERT( my_piece_count[color_idx][type_idx] > 0 );
         }
 
-        void remove (ColoredPiece piece)
+        void remove (ColoredPiece piece) noexcept
         {
             auto color_idx = colorIndex (pieceColor (piece));
             auto type = pieceType (piece);
@@ -66,7 +66,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        individualScore (Color who) const
+        individualScore (Color who) const noexcept
             -> int
         {
             ColorIndex my_index = colorIndex (who);
@@ -74,7 +74,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        overallScore (Color who) const
+        overallScore (Color who) const noexcept
             -> int
         {
             ColorIndex my_index = colorIndex (who);
@@ -83,7 +83,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        pieceCount (Color who, Piece type) const
+        pieceCount (Color who, Piece type) const noexcept
             -> int
         {
             auto color_idx = colorIndex (who);
@@ -104,7 +104,7 @@ namespace wisdom
 
         // Whether there is insufficient material remaining for a checkmate.
         [[nodiscard]] auto
-        checkmateIsPossible (const Board& board) const
+        checkmateIsPossible (const Board& board) const noexcept
             -> CheckmateIsPossible
         {
             // clang-format off
@@ -132,7 +132,7 @@ namespace wisdom
         // Check for more detailed scenarios of sufficient material. This assumes there are
         // only minor pieces and king left, with no pawns.
         [[nodiscard]] auto
-        checkInsufficientMaterialScenarios (const Board& board) const
+        checkInsufficientMaterialScenarios (const Board& board) const noexcept
             -> CheckmateIsPossible;
 
     private:

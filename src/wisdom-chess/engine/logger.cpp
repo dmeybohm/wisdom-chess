@@ -80,13 +80,13 @@ namespace wisdom
     {}
 
     auto
-    LogRingBuffer::getTailOffset() const
+    LogRingBuffer::getTailOffset() const noexcept
         -> size_t
     {
         return (my_head + my_used) % my_storage.size();
     }
 
-    void LogRingBuffer::writeBytes (czstring source, size_t length)
+    void LogRingBuffer::writeBytes (czstring source, size_t length) noexcept
     {
         auto offset = getTailOffset();
         auto until_end = std::min (length, my_storage.size() - offset);
@@ -99,7 +99,7 @@ namespace wisdom
     }
 
     auto
-    LogRingBuffer::readRecord (size_t offset) const
+    LogRingBuffer::readRecord (size_t offset) const noexcept
         -> Record
     {
         uint8_t level_byte = 0;
@@ -132,7 +132,7 @@ namespace wisdom
         return text;
     }
 
-    void LogRingBuffer::popFront()
+    void LogRingBuffer::popFront() noexcept
     {
         auto record = readRecord (my_head);
         auto record_size = Record_Overhead + record.length;
@@ -191,7 +191,7 @@ namespace wisdom
         clear();
     }
 
-    void LogRingBuffer::clear()
+    void LogRingBuffer::clear() noexcept
     {
         my_head = 0;
         my_used = 0;
@@ -214,28 +214,28 @@ namespace wisdom
     }
 
     auto
-    LogRingBuffer::count() const
+    LogRingBuffer::count() const noexcept
         -> size_t
     {
         return my_count;
     }
 
     auto
-    LogRingBuffer::getSizeBytes() const
+    LogRingBuffer::getSizeBytes() const noexcept
         -> size_t
     {
         return my_used;
     }
 
     auto
-    LogRingBuffer::getCapacityBytes() const
+    LogRingBuffer::getCapacityBytes() const noexcept
         -> size_t
     {
         return my_storage.size();
     }
 
     auto
-    LogRingBuffer::empty() const
+    LogRingBuffer::empty() const noexcept
         -> bool
     {
         return my_count == 0;
@@ -291,7 +291,7 @@ namespace wisdom
     }
 
     auto
-    BufferedLogger::isEnabled() const
+    BufferedLogger::isEnabled() const noexcept
         -> bool
     {
         return my_enabled;
@@ -464,7 +464,7 @@ namespace wisdom
         }
     }
 
-    void installEmergencyTerminateHandler()
+    void installEmergencyTerminateHandler() noexcept
     {
         std::set_terminate (emergencyTerminateHandler);
     }

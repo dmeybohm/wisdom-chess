@@ -49,7 +49,7 @@ namespace wisdom
     {
     }
 
-    Game::Game (unique_ptr<Impl> impl)
+    Game::Game (unique_ptr<Impl> impl) noexcept
         : my_pimpl { std::move (impl) }
     {
     }
@@ -126,7 +126,7 @@ namespace wisdom
         my_pimpl->history.addPosition (my_pimpl->current_board, move);
     }
 
-    auto Game::getStatus() const -> GameStatus
+    auto Game::getStatus() const noexcept -> GameStatus
     {
         if (isCheckmated (my_pimpl->current_board))
             return GameStatus::Checkmate;
@@ -209,7 +209,7 @@ namespace wisdom
         return result.move;
     }
 
-    auto Game::getCurrentTurn() const -> Color
+    auto Game::getCurrentTurn() const noexcept -> Color
     {
         return my_pimpl->current_board.getCurrentTurn();
     }
@@ -221,17 +221,17 @@ namespace wisdom
         my_pimpl->history.replaceLastPosition (my_pimpl->current_board);
     }
 
-    auto Game::getBoard() const& -> const Board&
+    auto Game::getBoard() const& noexcept -> const Board&
     {
         return my_pimpl->current_board;
     }
 
-    auto Game::getHistory() & -> History&
+    auto Game::getHistory() & noexcept -> History&
     {
         return my_pimpl->history;
     }
 
-    auto Game::getHistory() const& -> const History&
+    auto Game::getHistory() const& noexcept -> const History&
     {
         return my_pimpl->history;
     }
@@ -246,7 +246,7 @@ namespace wisdom
     namespace
     {
         auto
-        drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires)
+        drawDesiresToRepetitionStatus (BothPlayersDrawStatus draw_desires) noexcept
              -> DrawStatus
         {
             ASSERT( bothPlayersReplied (draw_desires) );
@@ -259,13 +259,13 @@ namespace wisdom
         }
     }
 
-    void Game::Impl::updateThreefoldRepetitionDrawStatus()
+    void Game::Impl::updateThreefoldRepetitionDrawStatus() noexcept
     {
         auto status = drawDesiresToRepetitionStatus (third_repetition_draw);
         history.setThreefoldRepetitionStatus (status);
     }
 
-    void Game::Impl::updateFiftyMovesWithoutProgressDrawStatus()
+    void Game::Impl::updateFiftyMovesWithoutProgressDrawStatus() noexcept
     {
         auto status = drawDesiresToRepetitionStatus (fifty_moves_without_progress_draw);
         history.setFiftyMovesWithoutProgressStatus (status);
@@ -310,17 +310,17 @@ namespace wisdom
         setProposedDrawStatus (draw_type, Color::Black, draw_statuses.second);
     }
 
-    auto Game::getCurrentPlayer() const -> Player
+    auto Game::getCurrentPlayer() const noexcept -> Player
     {
         return my_pimpl->players[colorIndex (getCurrentTurn())];
     }
 
-    void Game::setWhitePlayer (Player player)
+    void Game::setWhitePlayer (Player player) noexcept
     {
         my_pimpl->players[colorIndex (Color::White)] = player;
     }
 
-    void Game::setBlackPlayer (Player player)
+    void Game::setBlackPlayer (Player player) noexcept
     {
         my_pimpl->players[colorIndex (Color::Black)] = player;
     }
@@ -331,17 +331,17 @@ namespace wisdom
         return my_pimpl->players[colorIndex (color)];
     }
 
-    void Game::setPlayers (const Players& players)
+    void Game::setPlayers (const Players& players) noexcept
     {
         my_pimpl->players = players;
     }
 
-    auto Game::getPlayers() const -> Players
+    auto Game::getPlayers() const noexcept -> Players
     {
         return my_pimpl->players;
     }
 
-    auto Game::getDrawArbiter() const -> DrawArbiter
+    auto Game::getDrawArbiter() const noexcept -> DrawArbiter
     {
         return my_pimpl->external_draw_limits.has_value()
             ? DrawArbiter::External
@@ -355,7 +355,7 @@ namespace wisdom
         my_pimpl->external_draw_limits = draw_limits;
     }
 
-    auto Game::getDrawLimits() const -> DrawLimits
+    auto Game::getDrawLimits() const noexcept -> DrawLimits
     {
         if (my_pimpl->external_draw_limits.has_value())
             return *my_pimpl->external_draw_limits;
@@ -376,7 +376,7 @@ namespace wisdom
         };
     }
 
-    auto Game::getMaxDepth() const -> int
+    auto Game::getMaxDepth() const noexcept -> int
     {
         return my_pimpl->max_depth;
     }
@@ -387,7 +387,7 @@ namespace wisdom
         my_pimpl->max_depth = max_depth;
     }
 
-    auto Game::getSearchTimeout() const -> chrono::milliseconds
+    auto Game::getSearchTimeout() const noexcept -> chrono::milliseconds
     {
         return my_pimpl->move_timer.getTimeLimit();
     }
@@ -398,7 +398,7 @@ namespace wisdom
         my_pimpl->move_timer.setTimeLimit (timeout);
     }
 
-    auto Game::mapCoordinatesToMove (Coord src, Coord dst, optional<Piece> promoted) const
+    auto Game::mapCoordinatesToMove (Coord src, Coord dst, optional<Piece> promoted) const noexcept
         -> optional<Move>
     {
         return ::wisdom::mapCoordinatesToMove (my_pimpl->current_board, getCurrentTurn(), src, dst, promoted);

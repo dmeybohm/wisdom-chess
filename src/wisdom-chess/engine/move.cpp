@@ -8,7 +8,7 @@
 namespace wisdom
 {
     auto
-    enPassantTakenPawnCoord (Coord src, Coord dst)
+    enPassantTakenPawnCoord (Coord src, Coord dst) noexcept
         -> Coord
     {
         return makeCoord (src.row(), dst.column());
@@ -119,7 +119,7 @@ namespace wisdom
     }
 
     void
-    Board::updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst)
+    Board::updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst) noexcept
     {
         setKingPosition (who, dst);
 
@@ -239,7 +239,7 @@ namespace wisdom
     }
 
     auto
-    Board::withCurrentTurn (Color who) const
+    Board::withCurrentTurn (Color who) const noexcept
         -> Board
     {
         Board result = *this;
@@ -552,7 +552,7 @@ namespace wisdom
         Coord src,
         Coord dst,
         optional<Piece> promoted_piece
-    )
+    ) noexcept
         -> optional<Move>
     {
         ColoredPiece src_piece = board.pieceAt (src);

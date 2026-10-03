@@ -10,7 +10,7 @@ namespace wisdom
         constexpr int Castle_Penalty = 50;
 
         [[nodiscard]] auto
-        heuristicIsCastled (const Board& board, Color who)
+        heuristicIsCastled (const Board& board, Color who) noexcept
             -> bool
         {
             auto king_pos = board.getKingPosition (who);
@@ -38,7 +38,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        unableToCastlePenalty (const Board& board, Color who)
+        unableToCastlePenalty (const Board& board, Color who) noexcept
             -> int
         {
             auto castle_state = board.getCastlingEligibility (who);
@@ -88,7 +88,7 @@ namespace wisdom
     }
 
     auto
-    evaluateWithoutLegalMoves (const Board& board, Color who, int moves_away)
+    evaluateWithoutLegalMoves (const Board& board, Color who, int moves_away) noexcept
         -> int
     {
         auto king_coord = board.getKingPosition (who);

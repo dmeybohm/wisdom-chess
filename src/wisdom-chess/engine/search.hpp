@@ -63,17 +63,17 @@ namespace wisdom
             -> SearchResult;
 
         [[nodiscard]] auto
-        isCancelled()
+        isCancelled() noexcept
             -> bool;
 
         [[nodiscard]] auto
-        getMoveTimer() const&
+        getMoveTimer() const& noexcept
             -> const MoveTimer&;
         void getMoveTimer() && = delete;
 
     private:
         unique_ptr<IterativeSearchImpl> my_pimpl;
 
-        explicit IterativeSearch (unique_ptr<IterativeSearchImpl> impl);
+        explicit IterativeSearch (unique_ptr<IterativeSearchImpl> impl) noexcept;
     };
 }

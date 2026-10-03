@@ -7,7 +7,7 @@
 namespace wisdom
 {
     [[nodiscard]] constexpr auto
-    foldHashTo32Bits (BoardHashCode hash)
+    foldHashTo32Bits (BoardHashCode hash) noexcept
         -> uint32_t
     {
         return static_cast<uint32_t> ((hash >> 32) ^ hash);
@@ -21,7 +21,7 @@ namespace wisdom
     };
 
     [[nodiscard]] inline auto
-    computeHitRate (const TranspositionTableStats& start, const TranspositionTableStats& end)
+    computeHitRate (const TranspositionTableStats& start, const TranspositionTableStats& end) noexcept
         -> double
     {
         auto delta_probes = end.probes - start.probes;
@@ -77,11 +77,11 @@ namespace wisdom
             -> TranspositionTable;
 
         [[nodiscard]] auto
-        probe (BoardHashCode hash, int depth, int alpha, int beta, int ply)
+        probe (BoardHashCode hash, int depth, int alpha, int beta, int ply) noexcept
             -> optional<int>;
 
         [[nodiscard]] auto
-        getBestMove (BoardHashCode hash)
+        getBestMove (BoardHashCode hash) noexcept
             -> optional<Move>;
 
         void store (
@@ -93,17 +93,17 @@ namespace wisdom
             int ply
         );
 
-        void clear();
+        void clear() noexcept;
 
         [[nodiscard]] auto
-        getSize() const
+        getSize() const noexcept
             -> size_t
         {
             return my_entries.size();
         }
 
         [[nodiscard]] auto
-        getStats() const
+        getStats() const noexcept
             -> TranspositionTableStats
         {
             return TranspositionTableStats { my_probes, my_hits, my_stored_entries };
@@ -111,11 +111,11 @@ namespace wisdom
 
     private:
         [[nodiscard]] auto
-        scoreToTT (int score, int ply) const
+        scoreToTT (int score, int ply) const noexcept
             -> int;
 
         [[nodiscard]] auto
-        scoreFromTT (int score, int ply) const
+        scoreFromTT (int score, int ply) const noexcept
             -> int;
 
         vector<TranspositionEntry> my_entries;

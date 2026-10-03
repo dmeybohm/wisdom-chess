@@ -57,7 +57,7 @@ namespace wisdom
     }
 
     auto
-    TranspositionTable::scoreToTT (int score, int ply) const
+    TranspositionTable::scoreToTT (int score, int ply) const noexcept
         -> int
     {
         if (isCheckmatingOpponentScore (score))
@@ -68,7 +68,7 @@ namespace wisdom
     }
 
     auto
-    TranspositionTable::scoreFromTT (int score, int ply) const
+    TranspositionTable::scoreFromTT (int score, int ply) const noexcept
         -> int
     {
         if (isCheckmatingOpponentScore (score))
@@ -85,7 +85,7 @@ namespace wisdom
         int alpha,
         int beta,
         int ply
-    )
+    ) noexcept
         -> optional<int>
     {
         my_probes++;
@@ -128,7 +128,7 @@ namespace wisdom
     }
 
     auto
-    TranspositionTable::getBestMove (BoardHashCode hash)
+    TranspositionTable::getBestMove (BoardHashCode hash) noexcept
         -> optional<Move>
     {
         auto index = foldHashTo32Bits (hash) & my_size_mask;
@@ -170,7 +170,7 @@ namespace wisdom
     }
 
     void
-    TranspositionTable::clear()
+    TranspositionTable::clear() noexcept
     {
         std::fill (my_entries.begin(), my_entries.end(), TranspositionEntry {});
         my_hits = 0;

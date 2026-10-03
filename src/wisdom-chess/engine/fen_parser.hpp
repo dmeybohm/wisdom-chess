@@ -17,7 +17,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        getActivePlayer() const
+        getActivePlayer() const noexcept
             -> Color
         {
             return my_active_player;

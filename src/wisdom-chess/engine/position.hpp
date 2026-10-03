@@ -14,20 +14,20 @@ namespace wisdom
     public:
         Position() = default;
 
-        explicit Position (const Board& board);
+        explicit Position (const Board& board) noexcept;
 
         // My score minus my oppponent's score
         [[nodiscard]] auto
-        overallScore (Color who) const
+        overallScore (Color who) const noexcept
             -> int;
 
         // The score for the individual player.
         [[nodiscard]] auto
-        individualScore (Color who) const
+        individualScore (Color who) const noexcept
             -> int;
 
         // Apply the move to the position.
-        void applyMove (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece);
+        void applyMove (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece) noexcept;
 
         [[nodiscard]] friend auto
         operator== (const Position& first, const Position& second) noexcept
@@ -38,8 +38,8 @@ namespace wisdom
             -> std::ostream&;
 
     private:
-        void add (Color who, Coord coord, ColoredPiece piece);
-        void remove (Color who, Coord coord, ColoredPiece piece);
+        void add (Color who, Coord coord, ColoredPiece piece) noexcept;
+        void remove (Color who, Coord coord, ColoredPiece piece) noexcept;
 
     private:
         int my_score[Num_Players]{};

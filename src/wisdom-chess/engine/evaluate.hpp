@@ -24,7 +24,7 @@ namespace wisdom
     // NOTE: this doesn't check for stalemate - that is evaluated through coming up empty
     // in the search process to efficiently overlap that processing which needs to occur anyway.
     [[nodiscard]] inline auto
-    probableDrawCategory (const Board& board, const History& history, DrawLimits limits)
+    probableDrawCategory (const Board& board, const History& history, DrawLimits limits) noexcept
         -> DrawCategory
     {
         if (history.isProbablyNthRepetition (board, limits.repetitions))
@@ -42,7 +42,7 @@ namespace wisdom
     }
 
     [[nodiscard]] inline auto
-    isProbablyDrawingMove (const Board& board, const History& history, DrawLimits limits)
+    isProbablyDrawingMove (const Board& board, const History& history, DrawLimits limits) noexcept
         -> bool
     {
         return probableDrawCategory (board, history, limits) != DrawCategory::NoDraw;
@@ -62,14 +62,14 @@ namespace wisdom
     // When there are no legal moves present, return the score of this move, which
     // checks for either a stalemate or checkmate position.
     [[nodiscard]] auto
-    evaluateWithoutLegalMoves (const Board& board, Color who, int moves_away)
+    evaluateWithoutLegalMoves (const Board& board, Color who, int moves_away) noexcept
         -> int;
 
     // Get the score for a checkmate discovered X moves away.
     // Checkmates closer to the current position are more valuable than those
     // further away. Uses linear scoring for correct transposition table adjustment.
     [[nodiscard]] constexpr auto
-    checkmateScoreInMoves (int moves)
+    checkmateScoreInMoves (int moves) noexcept
         -> int
     {
         return Checkmate_Score - moves;
@@ -77,7 +77,7 @@ namespace wisdom
 
     // Whether the score indicates a checkmate of the opponent has been found.
     [[nodiscard]] constexpr auto
-    isCheckmatingOpponentScore (int score)
+    isCheckmatingOpponentScore (int score) noexcept
         -> bool
     {
         return score > Max_Non_Checkmate_Score && score <= Checkmate_Score;

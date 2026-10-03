@@ -217,7 +217,7 @@ namespace wisdom
         }
 
         [[nodiscard]] static constexpr auto
-        fromInt (int packed_move) -> Move
+        fromInt (int packed_move) noexcept -> Move
         {
             Move m;
             m.data = narrow_cast<uint16_t> (packed_move & 0xffff);
@@ -225,21 +225,21 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto
-        toInt() const
+        toInt() const noexcept
             -> int
         {
             return data;
         }
 
         [[nodiscard]] constexpr auto
-        getSrc() const
+        getSrc() const noexcept
             -> Coord
         {
             return Coord::fromIndex (data & Src_Mask);
         }
 
         [[nodiscard]] constexpr auto
-        getDst() const
+        getDst() const noexcept
             -> Coord
         {
             return Coord::fromIndex ((data >> Dst_Shift) & Dst_Mask);
@@ -268,7 +268,7 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto
-        getMoveCategory() const
+        getMoveCategory() const noexcept
             -> MoveCategory
         {
             auto c = getCombined();
@@ -280,7 +280,7 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto
-        isNormalCapturing() const
+        isNormalCapturing() const noexcept
             -> bool
         {
             auto c = getCombined();
@@ -289,14 +289,14 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto
-        isPromoting() const
+        isPromoting() const noexcept
             -> bool
         {
             return getCombined() >= Combined_Promote_Base;
         }
 
         [[nodiscard]] constexpr auto
-        getPromotedPiece() const
+        getPromotedPiece() const noexcept
             -> Piece
         {
             auto c = getCombined();
@@ -349,7 +349,7 @@ namespace wisdom
 
     template <class IntegerType = int8_t>
     [[nodiscard]] constexpr auto
-    castlingRowForColor (Color who)
+    castlingRowForColor (Color who) noexcept
         -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
@@ -395,7 +395,7 @@ namespace wisdom
 
     // The coordinate for the taken pawn.
     [[nodiscard]] auto
-    enPassantTakenPawnCoord (Coord src, Coord dst)
+    enPassantTakenPawnCoord (Coord src, Coord dst) noexcept
         -> Coord;
 
     // Map source/dest coordinate to corresponding move (en passant, castling, etc)
@@ -407,7 +407,7 @@ namespace wisdom
             Color who,
             Coord src,
             Coord dst,
-            optional<Piece> promoted_piece = {})
+            optional<Piece> promoted_piece = {}) noexcept
         -> optional<Move>;
 
     // Parse a move. Throws an exception if it could not parse the move.

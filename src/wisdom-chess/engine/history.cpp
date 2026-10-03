@@ -4,32 +4,32 @@
 
 namespace wisdom
 {
-    auto History::isProbablyThirdRepetition (const Board& board) const -> bool
+    auto History::isProbablyThirdRepetition (const Board& board) const noexcept -> bool
     {
         return isProbablyNthRepetition (board, 3);
     }
 
-    auto History::isCertainlyThirdRepetition (const Board& board) const -> bool
+    auto History::isCertainlyThirdRepetition (const Board& board) const noexcept -> bool
     {
         return isCertainlyNthRepetition (board, 3);
     }
 
-    auto History::isProbablyFifthRepetition (const Board& board) const -> bool
+    auto History::isProbablyFifthRepetition (const Board& board) const noexcept -> bool
     {
         return isProbablyNthRepetition (board, 5);
     }
 
-    auto History::isCertainlyFifthRepetition (const Board& board) const -> bool
+    auto History::isCertainlyFifthRepetition (const Board& board) const noexcept -> bool
     {
         return isCertainlyNthRepetition (board, 5);
     }
 
-    auto History::isThirdRepetition (const Board& board) const -> bool
+    auto History::isThirdRepetition (const Board& board) const noexcept -> bool
     {
         return isProbablyThirdRepetition (board) && isCertainlyThirdRepetition (board);
     }
 
-    auto History::isFifthRepetition (const Board& board) const -> bool
+    auto History::isFifthRepetition (const Board& board) const noexcept -> bool
     {
         return isProbablyFifthRepetition (board) && isCertainlyFifthRepetition (board);
     }

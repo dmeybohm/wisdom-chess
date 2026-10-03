@@ -18,14 +18,14 @@ namespace wisdom
     using BoardCodeArray = array<uint64_t, Zobrist_Table_Size>;
 
     [[nodiscard]] constexpr auto
-    zobristPieceIndex (Color piece_color, Piece piece_type)
+    zobristPieceIndex (Color piece_color, Piece piece_type) noexcept
         -> int
     {
         return colorIndex (piece_color) * Num_Piece_Types + (pieceIndex (piece_type) - 1);
     }
 
     [[nodiscard]] consteval auto
-    initializeBoardCodes()
+    initializeBoardCodes() noexcept
         -> BoardCodeArray
     {
         BoardCodeArray code_array {};
@@ -55,7 +55,7 @@ namespace wisdom
     inline constexpr std::uint64_t Piece_Hash_Mask = ~Metadata_Mask;
 
     [[nodiscard]] constexpr auto
-    boardCodeHash (Coord coord, ColoredPiece piece)
+    boardCodeHash (Coord coord, ColoredPiece piece) noexcept
         -> std::uint64_t
     {
         auto coord_index = coord.index();
@@ -86,14 +86,14 @@ namespace wisdom
             | (EN_PASSANT_MASK << ILLEGAL_EN_PASSANT_TARGET_BIT);
 
     public:
-        explicit BoardCode (const Board& board);
+        explicit BoardCode (const Board& board) noexcept;
 
         [[nodiscard]] static auto
-        fromBoard (const Board& board)
+        fromBoard (const Board& board) noexcept
             -> BoardCode;
 
         [[nodiscard]] static auto
-        fromBoardBuilder (const BoardBuilder& builder)
+        fromBoardBuilder (const BoardBuilder& builder) noexcept
             -> BoardCode;
 
         [[nodiscard]] static auto
@@ -101,7 +101,7 @@ namespace wisdom
             -> BoardCode;
 
         [[nodiscard]] static auto
-        fromEmptyBoard()
+        fromEmptyBoard() noexcept
             -> BoardCode;
 
         void addPiece (Coord coord, ColoredPiece piece) noexcept
@@ -200,7 +200,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        getCastleState (Color who) const
+        getCastleState (Color who) const noexcept
             -> CastlingEligibility
         {
             auto target_bits = getMetadataBits();
