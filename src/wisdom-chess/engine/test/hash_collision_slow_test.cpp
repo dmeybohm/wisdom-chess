@@ -229,7 +229,7 @@ namespace
         }
 
         IndexDistributionStats stats;
-        stats.total_hashes = wisdom::narrow_cast<int64_t> (hashes.size());
+        stats.total_hashes = wisdom::narrow_cast<int64_t> (std::uint64_t { hashes.size() });
         stats.num_buckets = table_size;
 
         auto [min_it, max_it] = std::minmax_element (

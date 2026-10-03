@@ -120,7 +120,10 @@ namespace wisdom
             -> IntegerType
         {
             static_assert (std::is_unsigned_v<IntegerType>);
-            return narrow_cast<IntegerType> (my_flags);
+            if constexpr (sizeof (IntegerType) > sizeof (my_flags))
+                return widen_cast<IntegerType> (my_flags);
+            else
+                return narrow_cast<IntegerType> (my_flags);
         }
 
         [[nodiscard]] constexpr auto

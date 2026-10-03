@@ -61,7 +61,10 @@ namespace wisdom
         index() const noexcept
             -> IntegerType
         {
-            return narrow_cast<IntegerType> (row_and_col);
+            if constexpr (sizeof (IntegerType) > sizeof (row_and_col))
+                return widen_cast<IntegerType> (row_and_col);
+            else
+                return narrow_cast<IntegerType> (row_and_col);
         }
 
         template <typename IntegerType = int8_t>
@@ -70,7 +73,10 @@ namespace wisdom
             -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
-            return narrow_cast<IntegerType> (row_and_col >> 3);
+            if constexpr (sizeof (IntegerType) > sizeof (int))
+                return widen_cast<IntegerType> (row_and_col >> 3);
+            else
+                return narrow_cast<IntegerType> (row_and_col >> 3);
         }
 
         template <typename IntegerType = int8_t>
@@ -79,7 +85,10 @@ namespace wisdom
             -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
-            return narrow_cast<IntegerType> (row_and_col & 0b111);
+            if constexpr (sizeof (IntegerType) > sizeof (int))
+                return widen_cast<IntegerType> (row_and_col & 0b111);
+            else
+                return narrow_cast<IntegerType> (row_and_col & 0b111);
         }
     };
     static_assert (std::is_trivial_v<Coord>);
@@ -320,6 +329,9 @@ namespace wisdom
         static_assert (std::is_integral_v<IntegerType>);
         ASSERT( color == Color::Black || color == Color::White );
         int8_t color_as_int = toInt8 (color);
-        return narrow_cast<IntegerType> (-1 + 2 * (color_as_int - 1));
+        if constexpr (sizeof (IntegerType) > sizeof (int))
+            return widen_cast<IntegerType> (-1 + 2 * (color_as_int - 1));
+        else
+            return narrow_cast<IntegerType> (-1 + 2 * (color_as_int - 1));
     }
 }

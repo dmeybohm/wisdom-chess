@@ -48,7 +48,7 @@ TEST_CASE( "narrow throws at runtime when the value does not fit" )
 
     CHECK( narrow<int8_t> (100) == 100 );
     CHECK_THROWS_AS( (void)narrow<int8_t> (too_big), PreconditionError );
-    CHECK_THROWS_AS( (void)narrow<std::size_t> (negative), PreconditionError );
+    CHECK_THROWS_AS( (void)widen<uint64_t> (negative), PreconditionError );
 }
 
 TEST_CASE( "narrow names its caller in the error" )
@@ -83,6 +83,31 @@ TEST_CASE( "narrow_cast converts without a check at runtime" )
 
     int too_big = 300;
     CHECK( narrow_cast<uint8_t> (too_big) == 44 );
+}
+
+TEST_CASE( "widen converts wider integer types and checks signedness" )
+{
+    static_assert (widen<int64_t> (int32_t { -1 }) == -1);
+    static_assert (widen<int64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffLL);
+    static_assert (widen<uint64_t> (int32_t { 0 }) == 0);
+    static_assert (widen<uint64_t> (int32_t { 42 }) == 42);
+
+    int32_t negative = -1;
+    CHECK_THROWS_AS( (void)widen<uint64_t> (negative), PreconditionError );
+}
+
+TEST_CASE( "noexcept_widen checks values that fit" )
+{
+    static_assert (noexcept_widen<uint64_t> (int32_t { 42 }) == 42);
+    static_assert (noexcept (noexcept_widen<uint64_t> (int32_t { 42 })));
+}
+
+TEST_CASE( "widen_cast converts without a check at runtime" )
+{
+    static_assert (widen_cast<uint64_t> (int32_t { 42 }) == 42);
+
+    int32_t negative = -1;
+    CHECK( widen_cast<uint64_t> (negative) == std::numeric_limits<uint64_t>::max() );
 }
 
 TEST_CASE( "CompileTimeRandom reports the full range of its result type" )
