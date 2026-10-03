@@ -29,9 +29,19 @@ committing C++. The conventions below are about what the code does.
 
 - Everything is in the `wisdom::` namespace.
 - `[[nodiscard]]` on factory functions and getters.
-- `wisdom::narrow` and `wisdom::narrow_cast` for narrowing conversions.
-  `narrow` throws `PreconditionError` when the value does not fit;
-  `narrow_cast` is a `static_cast`.
+- Integer conversions go through `engine/numeric_cast.hpp`. Each family
+  has a checked form that throws `PreconditionError`, a `noexcept_` form
+  that terminates instead, for an invariant in a `noexcept` function, and
+  a `_cast` form that is a `static_cast` at runtime:
+  - `narrow`, `noexcept_narrow` and `narrow_cast` for a value that may
+    not fit the target type.
+  - `widen`, `noexcept_widen` and `widen_cast` for a strictly wider
+    target. `widen_cast` also needs a signed target for a signed source,
+    so it holds every value.
+  - `to_unsigned`, `noexcept_to_unsigned` and `to_unsigned_cast` for a
+    nonnegative signed value, such as an array index, into an unsigned
+    type at least as wide.
+  - `truncate` discards an unsigned value's high bits on purpose.
 - `EXPECTS( cond )` / `ENSURES( cond )` (`engine/error.hpp`) check caller
   input and throw. `NOEXCEPT_EXPECTS( cond )` and `NOEXCEPT_ENSURES( cond )`
   abort and belong only in `noexcept` functions. `ASSERT( cond )` replaces `assert()`: it aborts

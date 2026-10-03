@@ -130,19 +130,56 @@ namespace wisdom
         return static_cast<Target> (value);
     }
 
-    // Converts a nonnegative signed value to an unsigned type at least as wide.
-    // Like ASSERT(), the sign is checked only when Debugging is on or in a
-    // constant expression.
+    // Converts a nonnegative signed value to an unsigned type at least as
+    // wide. Throws PreconditionError, naming the caller, for a negative value.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
-    to_unsigned (Source value) noexcept
+    to_unsigned (Source value, std::source_location location = std::source_location::current())
         -> Target
     {
         static_assert (std::is_integral_v<Source> && std::is_signed_v<Source>);
         static_assert (std::is_integral_v<Target> && std::is_unsigned_v<Target>);
         static_assert (sizeof (Target) >= sizeof (Source));
 
-        ASSERT( value >= 0 );
+        if (value < 0) [[unlikely]]
+            throwPreconditionError ("to_unsigned: the value is nonnegative", location);
+
+        return static_cast<Target> (value);
+    }
+
+    // Like to_unsigned(), but aborts instead of throwing for a failed invariant.
+    template <typename Target, typename Source>
+    [[nodiscard]] constexpr auto
+    noexcept_to_unsigned (Source value, std::source_location location = std::source_location::current()) noexcept
+        -> Target
+    {
+        static_assert (std::is_integral_v<Source> && std::is_signed_v<Source>);
+        static_assert (std::is_integral_v<Target> && std::is_unsigned_v<Target>);
+        static_assert (sizeof (Target) >= sizeof (Source));
+
+        if (value < 0) [[unlikely]]
+            terminateOnCheckFailure ("Precondition", "noexcept_to_unsigned: the value is nonnegative", location);
+
+        return static_cast<Target> (value);
+    }
+
+    // Like to_unsigned(), but unchecked at runtime; in a constant expression,
+    // a negative value is a compile error.
+    template <typename Target, typename Source>
+    [[nodiscard]] constexpr auto
+    to_unsigned_cast (Source value) noexcept
+        -> Target
+    {
+        static_assert (std::is_integral_v<Source> && std::is_signed_v<Source>);
+        static_assert (std::is_integral_v<Target> && std::is_unsigned_v<Target>);
+        static_assert (sizeof (Target) >= sizeof (Source));
+
+        if (std::is_constant_evaluated())
+        {
+            if (value < 0)
+                std::terminate();
+        }
+
         return static_cast<Target> (value);
     }
 
