@@ -21,7 +21,7 @@ namespace wisdom
         constexpr nonnull (T* ptr) noexcept // lint-allow(raw-pointer): wraps a raw pointer
             : my_ptr { ptr }
         {
-            NOEXCEPT_EXPECTS( ptr != nullptr );
+            EXPECTS_NOEXCEPT( ptr != nullptr );
         }
 
         template <typename U>

@@ -73,21 +73,20 @@ namespace wisdom
     // invariant inside a noexcept function.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
-    noexcept_narrow (Source value, std::source_location location = std::source_location::current()) noexcept
+    narrow_noexcept (Source value, std::source_location location = std::source_location::current()) noexcept
         -> Target
     {
         static_assert (std::is_arithmetic_v<Source>);
         static_assert (std::is_arithmetic_v<Target>);
 
         if (!isLosslessConversion<Target> (value)) [[unlikely]]
-            terminateOnCheckFailure ("Precondition", "noexcept_narrow: the value fits in the target type", location);
+            terminateOnCheckFailure ("Precondition", "narrow_noexcept: the value fits in the target type", location);
 
         return static_cast<Target> (value);
     }
 
-    // Converts to a strictly wider integer type without a runtime check.
-    // A signed negative value converted to an unsigned type wraps; in a
-    // constant expression, a value that does not fit is a compile error.
+    // Converts to a wider integer type that holds every value of the source,
+    // so no check is needed. A signed source needs a signed target.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
     widen_cast (Source value) noexcept
@@ -95,12 +94,7 @@ namespace wisdom
     {
         static_assert (std::is_integral_v<Source> && std::is_integral_v<Target>);
         static_assert (sizeof (Target) > sizeof (Source));
-
-        if (std::is_constant_evaluated())
-        {
-            if (!isLosslessConversion<Target> (value))
-                std::terminate();
-        }
+        static_assert (std::is_unsigned_v<Source> || std::is_signed_v<Target>);
 
         return static_cast<Target> (value);
     }
@@ -124,14 +118,67 @@ namespace wisdom
     // Like widen(), but aborts instead of throwing for a failed invariant.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
-    noexcept_widen (Source value, std::source_location location = std::source_location::current()) noexcept
+    widen_noexcept (Source value, std::source_location location = std::source_location::current()) noexcept
         -> Target
     {
         static_assert (std::is_integral_v<Source> && std::is_integral_v<Target>);
         static_assert (sizeof (Target) > sizeof (Source));
 
         if (!isLosslessConversion<Target> (value)) [[unlikely]]
-            terminateOnCheckFailure ("Precondition", "noexcept_widen: the value fits in the target type", location);
+            terminateOnCheckFailure ("Precondition", "widen_noexcept: the value fits in the target type", location);
+
+        return static_cast<Target> (value);
+    }
+
+    // Converts a nonnegative signed value to an unsigned type at least as
+    // wide. Throws PreconditionError, naming the caller, for a negative value.
+    template <typename Target, typename Source>
+    [[nodiscard]] constexpr auto
+    to_unsigned (Source value, std::source_location location = std::source_location::current())
+        -> Target
+    {
+        static_assert (std::is_integral_v<Source> && std::is_signed_v<Source>);
+        static_assert (std::is_integral_v<Target> && std::is_unsigned_v<Target>);
+        static_assert (sizeof (Target) >= sizeof (Source));
+
+        if (value < 0) [[unlikely]]
+            throwPreconditionError ("to_unsigned: the value is nonnegative", location);
+
+        return static_cast<Target> (value);
+    }
+
+    // Like to_unsigned(), but aborts instead of throwing for a failed invariant.
+    template <typename Target, typename Source>
+    [[nodiscard]] constexpr auto
+    to_unsigned_noexcept (Source value, std::source_location location = std::source_location::current()) noexcept
+        -> Target
+    {
+        static_assert (std::is_integral_v<Source> && std::is_signed_v<Source>);
+        static_assert (std::is_integral_v<Target> && std::is_unsigned_v<Target>);
+        static_assert (sizeof (Target) >= sizeof (Source));
+
+        if (value < 0) [[unlikely]]
+            terminateOnCheckFailure ("Precondition", "to_unsigned_noexcept: the value is nonnegative", location);
+
+        return static_cast<Target> (value);
+    }
+
+    // Like to_unsigned(), but unchecked at runtime; in a constant expression,
+    // a negative value is a compile error.
+    template <typename Target, typename Source>
+    [[nodiscard]] constexpr auto
+    to_unsigned_cast (Source value) noexcept
+        -> Target
+    {
+        static_assert (std::is_integral_v<Source> && std::is_signed_v<Source>);
+        static_assert (std::is_integral_v<Target> && std::is_unsigned_v<Target>);
+        static_assert (sizeof (Target) >= sizeof (Source));
+
+        if (std::is_constant_evaluated())
+        {
+            if (value < 0)
+                std::terminate();
+        }
 
         return static_cast<Target> (value);
     }

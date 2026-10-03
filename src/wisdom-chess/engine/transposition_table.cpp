@@ -164,7 +164,7 @@ namespace wisdom
 
         entry.hash_code = hash;
         entry.score = scoreToTT (score, ply);
-        entry.depth = noexcept_narrow<int16_t> (depth);
+        entry.depth = narrow_noexcept<int16_t> (depth);
         entry.bound_type = bound_type;
         entry.best_move = best_move;
     }

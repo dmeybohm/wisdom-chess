@@ -27,7 +27,7 @@ namespace wisdom
         CastlingEligibility (uint8_t flags) noexcept
             : my_flags { flags }
         {
-            NOEXCEPT_EXPECTS( (flags &~ (0x1|0x2)) == 0 );
+            EXPECTS_NOEXCEPT( (flags &~ (0x1|0x2)) == 0 );
         }
 
         [[nodiscard]] constexpr auto
@@ -161,7 +161,7 @@ namespace wisdom
     makeCastlingEligibilityFromInt (unsigned int flags) noexcept
         -> CastlingEligibility
     {
-        return CastlingEligibility { noexcept_narrow<uint8_t> (flags) };
+        return CastlingEligibility { narrow_noexcept<uint8_t> (flags) };
     }
 
     // Inline definitions for helper methods

@@ -66,15 +66,15 @@ TEST_CASE( "narrow names its caller in the error" )
     }
 }
 
-TEST_CASE( "noexcept_narrow converts a value that fits" )
+TEST_CASE( "narrow_noexcept converts a value that fits" )
 {
-    static_assert (noexcept_narrow<int8_t> (100) == 100);
-    static_assert (noexcept (noexcept_narrow<int8_t> (100)));
+    static_assert (narrow_noexcept<int8_t> (100) == 100);
+    static_assert (noexcept (narrow_noexcept<int8_t> (100)));
 
     int fits = 127;
     std::size_t zero = 0;
-    CHECK( noexcept_narrow<int8_t> (fits) == 127 );
-    CHECK( noexcept_narrow<int> (zero) == 0 );
+    CHECK( narrow_noexcept<int8_t> (fits) == 127 );
+    CHECK( narrow_noexcept<int> (zero) == 0 );
 }
 
 TEST_CASE( "narrow_cast converts without a check at runtime" )
@@ -96,18 +96,54 @@ TEST_CASE( "widen converts wider integer types and checks signedness" )
     CHECK_THROWS_AS( (void)widen<uint64_t> (negative), PreconditionError );
 }
 
-TEST_CASE( "noexcept_widen checks values that fit" )
+TEST_CASE( "widen_noexcept checks values that fit" )
 {
-    static_assert (noexcept_widen<uint64_t> (int32_t { 42 }) == 42);
-    static_assert (noexcept (noexcept_widen<uint64_t> (int32_t { 42 })));
+    static_assert (widen_noexcept<uint64_t> (int32_t { 42 }) == 42);
+    static_assert (noexcept (widen_noexcept<uint64_t> (int32_t { 42 })));
 }
 
-TEST_CASE( "widen_cast converts without a check at runtime" )
+TEST_CASE( "widen_cast converts to a type that holds every value" )
 {
-    static_assert (widen_cast<uint64_t> (int32_t { 42 }) == 42);
+    static_assert (widen_cast<int64_t> (int32_t { -1 }) == -1);
+    static_assert (widen_cast<int64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffLL);
+    static_assert (widen_cast<uint64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffULL);
+    static_assert (noexcept (widen_cast<int64_t> (int32_t { 42 })));
+}
+
+TEST_CASE( "to_unsigned converts a nonnegative value and rejects a negative one" )
+{
+    static_assert (to_unsigned<uint32_t> (int32_t { 0 }) == 0);
+    static_assert (to_unsigned<uint32_t> (std::numeric_limits<int32_t>::max()) == 0x7fff'ffffU);
+    static_assert (to_unsigned<std::size_t> (int8_t { 1 }) == 1);
+
+    int ply = 63;
+    CHECK( to_unsigned<std::size_t> (ply) == 63 );
+
+    int negative = -1;
+    try
+    {
+        (void)to_unsigned<std::size_t> (negative);
+        FAIL( "to_unsigned did not throw" );
+    }
+    catch (const PreconditionError& error)
+    {
+        CHECK( error.message().find ("global_test.cpp:") != string::npos );
+    }
+}
+
+TEST_CASE( "to_unsigned_noexcept converts a nonnegative value" )
+{
+    static_assert (to_unsigned_noexcept<uint64_t> (int32_t { 42 }) == 42);
+    static_assert (noexcept (to_unsigned_noexcept<uint64_t> (int32_t { 42 })));
+}
+
+TEST_CASE( "to_unsigned_cast converts without a check at runtime" )
+{
+    static_assert (to_unsigned_cast<uint32_t> (int32_t { 42 }) == 42);
+    static_assert (noexcept (to_unsigned_cast<uint64_t> (int32_t { 42 })));
 
     int32_t negative = -1;
-    CHECK( widen_cast<uint64_t> (negative) == std::numeric_limits<uint64_t>::max() );
+    CHECK( to_unsigned_cast<uint32_t> (negative) == 0xffff'ffffU );
 }
 
 TEST_CASE( "CompileTimeRandom reports the full range of its result type" )
@@ -298,11 +334,11 @@ TEST_CASE( "nullable" )
     }
 }
 
-TEST_CASE( "NOEXCEPT_ENSURES passes a true condition" )
+TEST_CASE( "ENSURES_NOEXCEPT passes a true condition" )
 {
     auto checked = []() noexcept
     {
-        NOEXCEPT_ENSURES( 1 + 1 == 2 );
+        ENSURES_NOEXCEPT( 1 + 1 == 2 );
         return true;
     };
     CHECK( checked() );
