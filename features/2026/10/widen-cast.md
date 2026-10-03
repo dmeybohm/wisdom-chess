@@ -11,9 +11,10 @@ require an integral target strictly wider than the source. A checked
 signed-to-unsigned conversion accepts nonnegative values and rejects
 negative ones.
 
-The existing `narrow`, `noexcept_narrow`, and `narrow_cast` now require a
-target no wider than the source. This makes the two families' width rules
-explicit at compile time.
+The narrow family retains its value-based behavior without a width constraint.
+Generic functions such as `pawnDirection<IntegerType>()` accept both narrow
+and wide result types; a strict width rule would force a branch between cast
+helpers without changing the conversion result.
 
 The header is renamed from `narrow.hpp` to `numeric_cast.hpp` because it
 also contains `truncate()`. `truncate()` intentionally discards high bits
@@ -34,4 +35,14 @@ from unsigned integers; its same-width case remains valid and tested.
 - Migrated existing wider conversions in `Coord`, castling rights, the WASM
   view, and tests to the widening family.
 - Verified `lint`, the full Release build and all 286 Release tests. Built
+  the Debug engine tests and ran all eight conversion tests there.
+
+### Session #2
+
+- Removed the new width assertions from the narrow family. They caused
+  width-based branching in generic functions without improving their checks.
+- Restored the earlier conversions in `Coord`, castling rights, the WASM view,
+  and tests. The widening helpers and their tests remain available for call
+  sites that want to express widening explicitly.
+- Verified lint, the full Release build and all 286 Release tests. Rebuilt
   the Debug engine tests and ran all eight conversion tests there.

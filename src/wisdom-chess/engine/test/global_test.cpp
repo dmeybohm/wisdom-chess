@@ -48,7 +48,7 @@ TEST_CASE( "narrow throws at runtime when the value does not fit" )
 
     CHECK( narrow<int8_t> (100) == 100 );
     CHECK_THROWS_AS( (void)narrow<int8_t> (too_big), PreconditionError );
-    CHECK_THROWS_AS( (void)widen<uint64_t> (negative), PreconditionError );
+    CHECK_THROWS_AS( (void)narrow<std::size_t> (negative), PreconditionError );
 }
 
 TEST_CASE( "narrow names its caller in the error" )

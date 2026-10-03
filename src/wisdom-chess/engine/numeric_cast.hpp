@@ -39,7 +39,6 @@ namespace wisdom
     {
         static_assert (std::is_arithmetic_v<Source>);
         static_assert (std::is_arithmetic_v<Target>);
-        static_assert (sizeof (Target) <= sizeof (Source));
 
         // Check if Source can fit into Target without truncation
         if (std::is_constant_evaluated())
@@ -63,7 +62,6 @@ namespace wisdom
     {
         static_assert (std::is_arithmetic_v<Source>);
         static_assert (std::is_arithmetic_v<Target>);
-        static_assert (sizeof (Target) <= sizeof (Source));
 
         if (!isLosslessConversion<Target> (value)) [[unlikely]]
             throwPreconditionError ("narrow: the value fits in the target type", location);
@@ -80,7 +78,6 @@ namespace wisdom
     {
         static_assert (std::is_arithmetic_v<Source>);
         static_assert (std::is_arithmetic_v<Target>);
-        static_assert (sizeof (Target) <= sizeof (Source));
 
         if (!isLosslessConversion<Target> (value)) [[unlikely]]
             terminateOnCheckFailure ("Precondition", "noexcept_narrow: the value fits in the target type", location);
