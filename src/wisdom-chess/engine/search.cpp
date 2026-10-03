@@ -95,7 +95,9 @@ namespace wisdom
         shared_ptr<Logger> my_output;
         nonnull<TranspositionTable> my_transposition_table;
 
-        // Rebuilt by every search and shared by its iterations.
+        // Rebuilt by every search and shared by its iterations. The history
+        // table is 32 KB, half of the default WASM stack, so this class is
+        // only created on the heap.
         KillerTable my_killers;
         CutoffHistory my_cutoff_history;
 
