@@ -85,9 +85,8 @@ namespace wisdom
         return static_cast<Target> (value);
     }
 
-    // Converts to a strictly wider integer type without a runtime check.
-    // A signed negative value converted to an unsigned type wraps; in a
-    // constant expression, a value that does not fit is a compile error.
+    // Converts to a wider integer type that holds every value of the source,
+    // so no check is needed. A signed source needs a signed target.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
     widen_cast (Source value) noexcept
@@ -95,12 +94,7 @@ namespace wisdom
     {
         static_assert (std::is_integral_v<Source> && std::is_integral_v<Target>);
         static_assert (sizeof (Target) > sizeof (Source));
-
-        if (std::is_constant_evaluated())
-        {
-            if (!isLosslessConversion<Target> (value))
-                std::terminate();
-        }
+        static_assert (std::is_unsigned_v<Source> || std::is_signed_v<Target>);
 
         return static_cast<Target> (value);
     }
@@ -133,6 +127,22 @@ namespace wisdom
         if (!isLosslessConversion<Target> (value)) [[unlikely]]
             terminateOnCheckFailure ("Precondition", "noexcept_widen: the value fits in the target type", location);
 
+        return static_cast<Target> (value);
+    }
+
+    // Converts a nonnegative signed value to an unsigned type at least as wide.
+    // Like ASSERT(), the sign is checked only when Debugging is on or in a
+    // constant expression.
+    template <typename Target, typename Source>
+    [[nodiscard]] constexpr auto
+    to_unsigned (Source value) noexcept
+        -> Target
+    {
+        static_assert (std::is_integral_v<Source> && std::is_signed_v<Source>);
+        static_assert (std::is_integral_v<Target> && std::is_unsigned_v<Target>);
+        static_assert (sizeof (Target) >= sizeof (Source));
+
+        ASSERT( value >= 0 );
         return static_cast<Target> (value);
     }
 
