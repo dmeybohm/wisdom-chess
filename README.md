@@ -88,8 +88,9 @@ cmake --build build -j8
 ## Contributing
 
 [docs/building.md](docs/building.md) covers building and testing every
-part of the project, and `AGENTS.md` records the code conventions and
-the things to know before changing each frontend.
+part of the project, [docs/engine-architecture.md](docs/engine-architecture.md)
+describes how the engine fits together, and `AGENTS.md` records the
+code conventions and the things to know before changing each frontend.
 
 ## License
 

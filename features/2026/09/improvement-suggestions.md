@@ -42,7 +42,7 @@ number for it, and the first step is to get one.
 
 ### Engine: search
 
-1. **Move ordering in the main search.** `compareMoves()`
+1. [ ] **Move ordering in the main search.** `compareMoves()`
    (`engine/generate.cpp:497`) orders by the table move, then captures
    by material difference, then promotions, then coordinates. Quiet
    moves are in coordinate order. Session #7 of
@@ -50,10 +50,15 @@ number for it, and the first step is to get one.
    search visiting 2.4 times the baseline's nodes in the Italian game
    and named killer moves or a history heuristic as the remedy. This is
    the item with evidence behind it, so it goes first.
-2. **Static exchange evaluation in quiescence.** Also named in Session
+2. [ ] **Static exchange evaluation in quiescence.** Also named in Session
    #7: in the middlegame position quiescence is the whole cost, 297.8M
    of 364.7M nodes. Losing captures are searched in full today.
-3. **A cheaper `hasLegalMove()`.** `quiesce()` calls it at every node
+   **Tried** on the local `static-exchange-evaluation` branch
+   (2026-09-26, before item 3): its log records a 500-game match at
+   8+0.08 against plain quiescence at +3 Elo, range -16 to +23, so it
+   was not merged. The branch predates item 3 and `DrawArbiter`, and
+   its measurements would have to be taken again.
+3. [x] **A cheaper `hasLegalMove()`.** `quiesce()` calls it at every node
    not in check (`engine/search.cpp:318`). It generates every
    pseudo-legal move and sorts them (`engine/generate.cpp:657`) to
    answer a yes or no question. When
@@ -68,13 +73,16 @@ number for it, and the first step is to get one.
    **Done** on the `cheaper-has-legal-move` branch
    ([cheaper-has-legal-move.md](cheaper-has-legal-move.md)): 2.3 to
    4.5 times faster at depth 8 and +115 Elo over 500 games at 8+0.08.
-4. **Pruning and reductions.** None of null-move pruning, late-move
+4. [ ] **Pruning and reductions.** None of null-move pruning, late-move
    reductions, principal-variation search, aspiration windows or check
    extensions are present, and no feature log has considered them. Each
    depends on good move ordering, so they come after item 1. Each
    changes what the search returns and needs its own branch and
-   measurement. Not measured.
-5. **Transposition table.** One entry per index, replaced by any other
+   measurement. Not measured. Delta pruning in quiescence was tried
+   and rejected (Session #6 of
+   [quiescence-search.md](quiescence-search.md)): it dropped the lines
+   quiescence exists to search.
+5. [ ] **Transposition table.** One entry per index, replaced by any other
    position (`engine/transposition_table.cpp:154`), and quiescence does
    not probe or store. [tt-index-metadata.md](tt-index-metadata.md)
    measured a hit rate of 19.3 to 19.7%. Candidates: buckets of two or
@@ -84,7 +92,7 @@ number for it, and the first step is to get one.
 
 ### Engine: move generation
 
-6. **Staged move picking.** Every node sorts its whole move list with
+6. [ ] **Staged move picking.** Every node sorts its whole move list with
    `std::sort` (`engine/generate.cpp:563`), though a cutoff usually
    comes within the first few moves. The usual design tries the table
    move before generating anything, then captures, then quiet moves.
@@ -92,7 +100,7 @@ number for it, and the first step is to get one.
    generator redesign and the piece of work shared with item 3. Not
    measured; a profile of the `search/*` benchmarks would show what the
    sort costs.
-17. **Board copies for moves that turn out illegal.** Added after item
+17. [ ] **Board copies for moves that turn out illegal.** Added after item
     3 landed. Both search loops make every pseudo-legal move with
     `Board::withMove()` and then test it with
     `isLegalPositionAfterMove()`. Session #2 of
@@ -110,7 +118,7 @@ number for it, and the first step is to get one.
 
 ### Engine: evaluation
 
-7. **Evaluation terms.** `evaluateWithoutMateTest()`
+7. [ ] **Evaluation terms.** `evaluateWithoutMateTest()`
    (`engine/evaluate.cpp:70`) sums material, piece-square tables and a
    castling term. There is no pawn structure, mobility, king safety, or
    separate endgame table for the king. This affects playing strength,
@@ -120,22 +128,27 @@ number for it, and the first step is to get one.
 
 ### Layering
 
-8. **`global.hpp` holds unrelated things.** Standard-library aliases,
+8. [x] **`global.hpp` holds unrelated things.** Standard-library aliases,
    the pointer types, contracts, `Error`, board dimensions, material
    weights and search constants (`engine/global.hpp`). Splitting out the
    pointer types and contracts would let a file that needs `nonnull`
    avoid the score constants. It is precompiled, so expect no build-time
-   gain.
-9. **Legality functions live in `evaluate.cpp`.**
+   gain. **Done** on other branches: `error.hpp`, `ptr.hpp` and
+   `narrow.hpp` were split out on 2026-09-30
+   ([contract-macros.md](contract-macros.md)) and `types.hpp` on
+   2026-10-01 (`small-fixups`, PR #311). None of the four includes
+   `global.hpp`, which now includes them and keeps the board
+   dimensions, the material weights and the search constants.
+9. [ ] **Legality functions live in `evaluate.cpp`.**
    `isLegalPositionAfterMove()`, `isCheckmated()` and `isStalemated()`
    (`engine/evaluate.cpp:95-142`) are rules, not evaluation. The move
    generator calls them, so `generate.cpp` includes `evaluate.hpp`.
-10. **Includes that nothing needs.** `board.hpp:7` includes
+10. [ ] **Includes that nothing needs.** `board.hpp:7` includes
     `generate.hpp` and uses nothing from it; `evaluate.cpp:4` includes
     `search.hpp` and uses nothing from it. Other files may rely on the
     first one transitively, so removing it means adding the include
     where it is used.
-11. **File formats in `Game`.** `Game::save()` and `Game::load()`
+11. [ ] **File formats in `Game`.** `Game::save()` and `Game::load()`
     (`engine/game.cpp:159`, `:247`) pick a format from the file name
     through two mutable file-scope objects (`engine/game.cpp:16-17`).
     Free functions taking a `Game` would keep file handling out of the
@@ -143,30 +156,30 @@ number for it, and the first step is to get one.
 
 ### Frontends
 
-12. **`GameModel` is 742 lines** (`ui/qml/main/game_model.cpp`), and
+12. [ ] **`GameModel` is 742 lines** (`ui/qml/main/game_model.cpp`), and
     `setupNewEngineThread()` makes 13 signal connections by hand. The
     thread is created with `new` and deleted only when it is not running
     (`game_model.cpp:41-49`), which is deliberate on the web. The
     move-holding timer and the engine-thread wiring are separable from
     the model.
-13. **`App.tsx` holds the whole engine adapter** (348 lines): the worker
+13. [ ] **`App.tsx` holds the whole engine adapter** (348 lines): the worker
     message handler, the move and draw handlers, the settings transfer
     and a `throttle` helper. A `useEngine` hook would leave the
     component with rendering.
-14. **Unvalidated worker message.** `App.tsx:139` casts the result of
+14. [ ] **Unvalidated worker message.** `App.tsx:139` casts the result of
     `JSON.parse` to the draw-status shape. The sender is the project's
     own worker, so the risk is a silent mismatch after a change, not
     hostile input.
 
 ### Small items
 
-15. **Node counters mix widths.** `my_nodes_visited` and the cutoff
+15. [ ] **Node counters mix widths.** `my_nodes_visited` and the cutoff
     counters are `int`; the totals are `int64_t`
     (`engine/search.cpp:84-89`). An `int` holds 2.1 billion; the
     depth-8 middlegame search in
     [quiescence-search.md](quiescence-search.md) counted 365 million, so
     two more plies would pass it.
-16. **Zero as the empty marker.** `TranspositionTable::store()` counts
+16. [ ] **Zero as the empty marker.** `TranspositionTable::store()` counts
     an entry as new when `hash_code == 0`
     (`engine/transposition_table.cpp:157`). A position that hashes to
     zero is counted again on every store. Statistics only.
@@ -485,3 +498,22 @@ score.
   copies made for moves that turn out illegal. The same shortcut on
   `isLegalPositionAfterMove()` was measured there at 2% and is not an
   item.
+
+### Session #5
+
+- Added a tickmark to every suggestion and checked each against `main`
+  at `1111e81c`. Items 3 and 8 are done, item 8 as a side effect of
+  other branches.
+- Item 2 was tried on the local `static-exchange-evaluation` branch
+  before this document existed, and its 500-game match showed no
+  measurable gain at 8+0.08. The item stays open: the branch is stale,
+  and exchange evaluation should matter more at longer time controls,
+  which were not measured.
+- Everything else is unchanged in the code: no killer or history
+  tables, no pruning or reductions, one table slot per index with the
+  zero sentinel (`transposition_table.cpp:162`), the full sort at every
+  node (`generate.cpp:564`), the legality functions in `evaluate.hpp`,
+  both stray includes, the format objects in `game.cpp`, the `int` node
+  counters, and the `JSON.parse` cast in `App.tsx`. `GameModel` has
+  grown to 797 lines and `App.tsx` to 354.
+- The plan's order stands. Item 1 is next.
