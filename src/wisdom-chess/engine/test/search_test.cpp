@@ -43,18 +43,18 @@ namespace wisdom::test
     // Keeps every debug line.
     struct DebugRecordingLogger : Logger
     {
-        mutable vector<string> lines;
+        vector<string> lines;
 
-        void debug (const string& output) const noexcept override
+        void debug (const string& output) noexcept override
         {
             lines.push_back (output);
         }
 
-        void info ([[maybe_unused]] const string& output) const noexcept override
+        void info ([[maybe_unused]] const string& output) noexcept override
         {
         }
 
-        void emergency ([[maybe_unused]] string_view output) const noexcept override
+        void emergency ([[maybe_unused]] string_view output) noexcept override
         {
         }
     };
@@ -63,25 +63,25 @@ namespace wisdom::test
     // counts the timer's periodic calls made during each depth.
     struct DepthTrackingLogger : Logger
     {
-        mutable int current_depth = 0;
-        mutable std::map<int, int> periodic_calls_per_depth {};
+        int current_depth = 0;
+        std::map<int, int> periodic_calls_per_depth {};
 
-        void debug ([[maybe_unused]] const string& output) const noexcept override
+        void debug ([[maybe_unused]] const string& output) noexcept override
         {
         }
 
-        void info (const string& output) const noexcept override
+        void info (const string& output) noexcept override
         {
             const string prefix = "Searching depth ";
             if (output.starts_with (prefix))
                 current_depth = std::stoi (output.substr (prefix.size()));
         }
 
-        void emergency ([[maybe_unused]] string_view output) const noexcept override
+        void emergency ([[maybe_unused]] string_view output) noexcept override
         {
         }
 
-        void countPeriodicCall() const
+        void countPeriodicCall()
         {
             periodic_calls_per_depth[current_depth]++;
         }

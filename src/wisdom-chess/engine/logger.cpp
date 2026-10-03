@@ -18,15 +18,15 @@ namespace wisdom
         NullLogger() = default;
         ~NullLogger() override = default;
 
-        void debug ([[maybe_unused]] const string& output) const noexcept override
+        void debug ([[maybe_unused]] const string& output) noexcept override
         {
         }
 
-        void info ([[maybe_unused]] const string& output) const noexcept override
+        void info ([[maybe_unused]] const string& output) noexcept override
         {
         }
 
-        void emergency ([[maybe_unused]] string_view output) const noexcept override
+        void emergency ([[maybe_unused]] string_view output) noexcept override
         {
         }
     };
@@ -40,19 +40,19 @@ namespace wisdom
 
         ~StandardLogger() override = default;
 
-        void debug (const string& output) const noexcept override
+        void debug (const string& output) noexcept override
         {
             if (my_log_level >= LogLevel_Debug)
                 write (output);
         }
 
-        void info (const string& output) const noexcept override
+        void info (const string& output) noexcept override
         {
             if (my_log_level >= LogLevel_Info)
                 write (output);
         }
 
-        void emergency (string_view output) const noexcept override
+        void emergency (string_view output) noexcept override
         {
             // The process is ending; a stream that fails must not stop the
             // message reaching the other sinks.
@@ -178,14 +178,14 @@ namespace wisdom
         }
     }
 
-    void LogRingBuffer::drainTo (const Logger& sink)
+    void LogRingBuffer::drainTo (nonnull<Logger> sink)
     {
-        forEachEntry ([&sink] (Logger::LogLevel level, const string& text)
+        forEachEntry ([sink] (Logger::LogLevel level, const string& text)
         {
             if (level >= Logger::LogLevel_Debug)
-                sink.debug (text);
+                sink->debug (text);
             else
-                sink.info (text);
+                sink->info (text);
         });
 
         clear();
@@ -285,7 +285,7 @@ namespace wisdom
     void BufferedLogger::setEnabled (bool enabled)
     {
         if (enabled && !my_enabled)
-            my_buffer.drainTo (*my_sink);
+            my_buffer.drainTo (my_sink.get());
 
         my_enabled = enabled;
     }
@@ -297,17 +297,17 @@ namespace wisdom
         return my_enabled;
     }
 
-    void BufferedLogger::debug (const string& output) const noexcept
+    void BufferedLogger::debug (const string& output) noexcept
     {
         log (LogLevel_Debug, output);
     }
 
-    void BufferedLogger::info (const string& output) const noexcept
+    void BufferedLogger::info (const string& output) noexcept
     {
         log (LogLevel_Info, output);
     }
 
-    void BufferedLogger::emergency (string_view output) const noexcept
+    void BufferedLogger::emergency (string_view output) noexcept
     {
         string line;
         try
@@ -324,7 +324,7 @@ namespace wisdom
         my_sink->emergency (line);
     }
 
-    void BufferedLogger::log (LogLevel level, const string& output) const
+    void BufferedLogger::log (LogLevel level, const string& output)
     {
         auto line = formatLogTimestamp (chrono::system_clock::now()) + output;
 

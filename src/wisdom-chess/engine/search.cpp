@@ -402,7 +402,7 @@ namespace wisdom
     {
         void
         logSearchTime (
-            const Logger& output,
+            nonnull<Logger> output,
             int64_t nodes,
             SteadyClockTime start,
             SteadyClockTime end
@@ -414,7 +414,7 @@ namespace wisdom
 
             std::ostringstream progress_str;
             progress_str << "search took " << seconds << "s, " << rate << " nodes/sec";
-            output.info (std::move (progress_str).str());
+            output->info (std::move (progress_str).str());
         }
     }
 
@@ -522,7 +522,7 @@ namespace wisdom
         auto result = getBestResult();
 
         logSearchTime (
-            *my_output,
+            my_output.get(),
             my_nodes_visited + my_quiescence_nodes_visited,
             start,
             end

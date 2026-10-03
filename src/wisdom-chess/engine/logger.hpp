@@ -20,13 +20,13 @@ namespace wisdom
         // that cannot deliver a message terminates the process: an exception
         // escaping one of these reaches the terminate handler, which reports
         // it through logEmergency().
-        virtual void debug (const string& output) const noexcept = 0;
-        virtual void info (const string& output) const noexcept = 0;
+        virtual void debug (const string& output) noexcept = 0;
+        virtual void info (const string& output) noexcept = 0;
 
         // A fatal message, sent just before the process terminates. Must not
         // buffer. The view may point into the caller's stack and is not
         // null-terminated.
-        virtual void emergency (string_view output) const noexcept = 0;
+        virtual void emergency (string_view output) noexcept = 0;
     };
 
     // How much log output to retain while debug logging is switched off.
@@ -54,7 +54,7 @@ namespace wisdom
         void push (Logger::LogLevel level, string_view text) noexcept;
 
         // Replay every line in order through the sink, then clear the buffer.
-        void drainTo (const Logger& sink);
+        void drainTo (nonnull<Logger> sink);
 
         void clear() noexcept;
 
@@ -143,16 +143,16 @@ namespace wisdom
         isEnabled() const noexcept
             -> bool;
 
-        void debug (const string& output) const noexcept override;
-        void info (const string& output) const noexcept override;
-        void emergency (string_view output) const noexcept override;
+        void debug (const string& output) noexcept override;
+        void info (const string& output) noexcept override;
+        void emergency (string_view output) noexcept override;
 
     private:
         shared_ptr<Logger> my_sink;
-        mutable LogRingBuffer my_buffer;
+        LogRingBuffer my_buffer;
         bool my_enabled;
 
-        void log (LogLevel level, const string& output) const;
+        void log (LogLevel level, const string& output);
     };
 
     [[nodiscard]] auto
