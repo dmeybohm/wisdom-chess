@@ -23,6 +23,8 @@ namespace wisdom
     class MoveTimer
     {
     public:
+        // Called every Calls_Between_Clock_Checks checks while a search runs.
+        // It runs inside the noexcept search, so it must not throw.
         using PeriodicFunction = std::function<void(nonnull<MoveTimer>)>;
 
         explicit MoveTimer (chrono::milliseconds time_limit) noexcept
@@ -35,7 +37,7 @@ namespace wisdom
         {
         }
 
-        [[nodiscard]] auto isTriggered() -> bool;
+        [[nodiscard]] auto isTriggered() noexcept -> bool;
 
         // Whether the search as a whole was cancelled.
         [[nodiscard]] auto

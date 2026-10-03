@@ -26,6 +26,28 @@ namespace wisdom
             std::cout.flush();
         }
 
+        // Writes every line of the message as its own line with the prefix,
+        // under the output lock, so that a message spanning lines keeps its
+        // UCI prefix on each.
+        void sendPrefixedLines (string_view prefix, string_view message)
+        {
+            std::lock_guard<std::timed_mutex> lock { output_mutex };
+
+            if (!message.empty() && message.back() == '\n')
+                message.remove_suffix (1);
+
+            while (true)
+            {
+                auto line_end = message.find ('\n');
+                std::cout << prefix << message.substr (0, line_end) << '\n';
+
+                if (line_end == string_view::npos)
+                    break;
+                message.remove_prefix (line_end + 1);
+            }
+            std::cout.flush();
+        }
+
         // How long a fatal message waits for the output lock. The process is
         // about to abort, so it must not hang behind a writer that is blocked.
         constexpr auto Emergency_Output_Lock_Wait = chrono::milliseconds { 250 };
@@ -90,12 +112,12 @@ namespace wisdom
             void debug (const string& output) noexcept override
             {
                 if (my_debug_enabled)
-                    sendLine ("info string " + output);
+                    sendPrefixedLines ("info string ", output);
             }
 
             void info (const string& output) noexcept override
             {
-                sendLine ("info " + output);
+                sendPrefixedLines ("info ", output);
             }
 
             void emergency (string_view output) noexcept override

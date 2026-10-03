@@ -24,3 +24,12 @@ Updated the engine and frontend loggers, the two helper parameters, and
 the logger test fixtures. The Release build and C++ style linter pass;
 all 282 configured tests pass. Qt 6 was not available to this build, so
 the QML frontend and its tests were disabled by CMake.
+
+### Session #2
+
+Merged the current `main` after PR CI exposed a new `DebugRecordingLogger`
+fixture from the search changes. Made its output methods non-const and
+removed `mutable` from its recorded lines, matching the updated `Logger`
+interface. The merged Release build and C++ style linter pass; all 286
+configured tests pass. Qt 6 remains unavailable locally, so CI will verify
+the QML targets.

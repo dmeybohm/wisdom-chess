@@ -151,6 +151,19 @@ namespace wisdom
             throwPostconditionError (expression, location);
     }
 
+    // Reports the failure and aborts when the condition is false. For
+    // noexcept functions, where ensures() could not propagate its exception.
+    constexpr void
+    noexcept_ensures (
+        bool condition,
+        string_view expression,
+        std::source_location location = std::source_location::current()
+    ) noexcept
+    {
+        if (!condition) [[unlikely]]
+            terminateOnCheckFailure ("Postcondition", expression, location);
+    }
+
     // Reports the failure and aborts when the condition is false. ASSERT()
     // calls it only when Debugging is on or in a constant expression.
     constexpr void
@@ -170,6 +183,7 @@ namespace wisdom
 #define EXPECTS(condition) ::wisdom::expects ((condition), #condition)
 #define NOEXCEPT_EXPECTS(condition) ::wisdom::noexcept_expects ((condition), #condition)
 #define ENSURES(condition) ::wisdom::ensures ((condition), #condition)
+#define NOEXCEPT_ENSURES(condition) ::wisdom::noexcept_ensures ((condition), #condition)
 
 // A replacement for assert(): in a build without Debugging the condition is
 // type-checked but not evaluated, except in a constant expression, where a
