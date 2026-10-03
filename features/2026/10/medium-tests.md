@@ -67,3 +67,37 @@ trees to depth 3. Counting nodes and en passant targets per tree:
 
 - Verified lint, all 295 Release tests with the slow suite, and the
   Debug fast and medium suites.
+
+### Session #3
+
+Mutation testing of the en passant tests: eight bugs injected one at a
+time into `generateLegalEnPassantMoves`, on a copy, against each group of
+tests.
+
+| Mutant | Fast tree | Explicit subcases | Other fast | Slow every-node | Perft counts |
+|---|---|---|---|---|---|
+| legality filter skipped | caught | caught | caught | caught | missed |
+| left capturer only | caught | caught | caught | caught | caught |
+| always empty | **caught** | caught | caught | caught | caught |
+| stops after the first legal capture | caught | caught | missed | caught | missed |
+| no check for the taken pawn | missed | caught | missed | missed | missed |
+| legality checked for the wrong side | caught | caught | caught | caught | caught |
+| a- and h-file capturers skipped | caught | missed | missed | caught | caught |
+| target of the side to move kept | missed | **caught** | missed | missed | missed |
+
+- The trimmed tree caught exactly what the depth-3 tree from `main` did.
+- Both trees missed "always empty": `generateLegalMoves` offers en passant
+  only where the board classified the target legal, which it does with
+  this generator (`Board::classifyEnPassantTarget()`), so a generator
+  that finds nothing agrees with it. The tree helper now counts the
+  positions with a capture, and each tree has to reach one, as the slow
+  test already required.
+- No test caught a missing check that the target belongs to the other
+  side: the subcase for it used a position where the check changed
+  nothing. Its position now has White pawns on c5 and d5, so without the
+  check c5 would capture d5 en passant.
+- Perft counts see only bugs that change a target's classification,
+  since that is all the board uses the generator for.
+- With both changes, the fast `generateLegalEnPassantMoves` test case
+  catches all eight. "No check for the taken pawn" is reachable only
+  through `BoardBuilder`, and its explicit subcase is the guard.

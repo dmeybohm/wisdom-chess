@@ -51,21 +51,25 @@ namespace
         return result;
     }
 
-    void
+    // Returns the number of positions in the tree with an en passant capture.
+    auto
     checkEnPassantMovesInTree (const Board& board, int depth)
+        -> int
     {
         auto who = board.getCurrentTurn();
+        auto en_passant_moves = generateLegalEnPassantMoves (board);
 
         INFO( board.toFenString (who) );
-        CHECK( generateLegalEnPassantMoves (board) == enPassantMovesAmongLegalMoves (board) );
-        CHECK( board.getLegalEnPassantTarget().has_value()
-               == !generateLegalEnPassantMoves (board).isEmpty() );
+        CHECK( en_passant_moves == enPassantMovesAmongLegalMoves (board) );
+        CHECK( board.getLegalEnPassantTarget().has_value() == !en_passant_moves.isEmpty() );
 
+        int found = en_passant_moves.isEmpty() ? 0 : 1;
         if (depth <= 0)
-            return;
+            return found;
 
         for (auto move : generateLegalMoves (board, who))
-            checkEnPassantMovesInTree (board.withMove (who, move), depth - 1);
+            found += checkEnPassantMovesInTree (board.withMove (who, move), depth - 1);
+        return found;
     }
 
     auto
@@ -734,7 +738,9 @@ TEST_CASE( "generateLegalEnPassantMoves" )
 
     SUBCASE( "A target of the player to move has none" )
     {
-        auto board = board_from_fen ("4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1");
+        // If White's own target counted for White, c5 would capture the pawn
+        // on d5 en passant.
+        auto board = board_from_fen ("4k3/8/8/2PP4/3Pp3/8/8/4K3 b - d3 0 1");
         auto white_to_move = board.withCurrentTurn (Color::White);
 
         CHECK( !generateLegalEnPassantMoves (board).isEmpty() );
@@ -760,7 +766,13 @@ TEST_CASE( "generateLegalEnPassantMoves" )
             { "4k3/pppppppp/8/PPPPPPPP/pppppppp/8/PPPPPPPP/4K3 w - - 0 1", 3 },
         };
 
+        // generateLegalMoves() offers en passant only where this generator
+        // found a capture, so a generator that finds none agrees with it.
+        // Each tree has to reach a capture.
         for (const auto& position : positions)
-            checkEnPassantMovesInTree (board_from_fen (position.fen), position.depth);
+        {
+            INFO( position.fen );
+            CHECK( checkEnPassantMovesInTree (board_from_fen (position.fen), position.depth) > 0 );
+        }
     }
 }
