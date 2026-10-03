@@ -79,26 +79,26 @@ namespace wisdom
         // Generate only captures and promotions to a queen.
         bool captures_only = false;
 
-        void generate (ColoredPiece piece, Coord coord);
+        void generate (ColoredPiece piece, Coord coord) noexcept;
 
         [[nodiscard]] auto
-        compareMoves (const Move& a, const Move& b) const
+        compareMoves (const Move& a, const Move& b) const noexcept
             -> bool;
 
-        void pawn();
-        void knight();
-        void bishop();
-        void rook();
-        void slide (int row_direction, int col_direction);
-        void queen();
-        void king();
+        void pawn() noexcept;
+        void knight() noexcept;
+        void bishop() noexcept;
+        void rook() noexcept;
+        void slide (int row_direction, int col_direction) noexcept;
+        void queen() noexcept;
+        void king() noexcept;
 
-        void enPassant (int en_passant_column);
+        void enPassant (int en_passant_column) noexcept;
 
         // Get a std::span of the knight move list and the compile-time
         // calculated length:
         [[nodiscard]] static auto
-        getKnightMoveList (int row, int col)
+        getKnightMoveList (int row, int col) noexcept
             -> span<const Move>
         {
             auto coord = Coord::make (row, col);
@@ -117,7 +117,7 @@ namespace wisdom
 
     namespace
     {
-        auto isPawnUnmoved (const Board& board, int row, int col) -> bool
+        auto isPawnUnmoved (const Board& board, int row, int col) noexcept -> bool
         {
             ColoredPiece piece = board.pieceAt (row, col);
 
@@ -188,7 +188,7 @@ namespace wisdom
         moves->append (transformed_move);
     }
 
-    void MoveGeneration::king()
+    void MoveGeneration::king() noexcept
     {
         for (int row = piece_row - 1; row <= piece_row + 1; row++)
         {
@@ -226,7 +226,7 @@ namespace wisdom
         }
     }
 
-    void MoveGeneration::slide (int row_direction, int col_direction)
+    void MoveGeneration::slide (int row_direction, int col_direction) noexcept
     {
         for (int row = nextRow (piece_row, row_direction), col = nextColumn (piece_col, col_direction);
              isValidRow (row) && isValidColumn (col);
@@ -241,7 +241,7 @@ namespace wisdom
         }
     }
 
-    void MoveGeneration::rook()
+    void MoveGeneration::rook() noexcept
     {
         slide (-1, 0);
         slide (0, -1);
@@ -249,7 +249,7 @@ namespace wisdom
         slide (0, +1);
     }
 
-    void MoveGeneration::bishop()
+    void MoveGeneration::bishop() noexcept
     {
         slide (-1, -1);
         slide (-1, +1);
@@ -257,13 +257,13 @@ namespace wisdom
         slide (+1, +1);
     }
 
-    void MoveGeneration::queen()
+    void MoveGeneration::queen() noexcept
     {
         bishop();
         rook();
     }
 
-    void MoveGeneration::knight()
+    void MoveGeneration::knight() noexcept
     {
         const auto& kt_moves = getKnightMoveList (piece_row, piece_col);
 
@@ -272,7 +272,7 @@ namespace wisdom
     }
 
     auto
-    eligibleEnPassantColumn (const Board& board, int row, int column, Color who)
+    eligibleEnPassantColumn (const Board& board, int row, int column, Color who) noexcept
         -> optional<int>
     {
         Color opponent = colorInvert (who);
@@ -308,7 +308,7 @@ namespace wisdom
         return nullopt;
     }
 
-    void MoveGeneration::pawn()
+    void MoveGeneration::pawn() noexcept
     {
         int dir = pawnDirection<int> (who);
 
@@ -394,7 +394,7 @@ namespace wisdom
                 appendMove (*check_pawn_move);
     }
 
-    void MoveGeneration::enPassant (int en_passant_column)
+    void MoveGeneration::enPassant (int en_passant_column) noexcept
     {
         int direction = pawnDirection<int> (who);
 
@@ -411,7 +411,7 @@ namespace wisdom
         appendMove (new_move);
     }
 
-    void MoveGeneration::generate (ColoredPiece piece, Coord coord)
+    void MoveGeneration::generate (ColoredPiece piece, Coord coord) noexcept
     {
         piece_row = coord.row<int>();
         piece_col = coord.column<int>();
@@ -444,7 +444,7 @@ namespace wisdom
     namespace
     {
         auto
-        materialDiff (const Board& board, Move move)
+        materialDiff (const Board& board, Move move) noexcept
             -> int
         {
             ASSERT( move.isAnyCapturing() );
@@ -462,7 +462,7 @@ namespace wisdom
         }
 
         constexpr auto
-        promotingOrCoordCompare (const Move& a, const Move& b)
+        promotingOrCoordCompare (const Move& a, const Move& b) noexcept
             -> bool
         {
             bool a_is_promoting = a.isPromoting();
@@ -494,7 +494,7 @@ namespace wisdom
     }
 
     auto
-    MoveGeneration::compareMoves (const Move& a, const Move& b) const
+    MoveGeneration::compareMoves (const Move& a, const Move& b) const noexcept
         -> bool
     {
         if (priority_move.has_value())
@@ -543,7 +543,7 @@ namespace wisdom
             Color who,
             optional<Move> priority_move,
             bool captures_only
-        )
+        ) noexcept
             -> MoveList
         {
             MoveList result;
@@ -572,28 +572,28 @@ namespace wisdom
     }
 
     auto
-    generateAllPotentialMoves (const Board& board, Color who, optional<Move> priority_move)
+    generateAllPotentialMoves (const Board& board, Color who, optional<Move> priority_move) noexcept
         -> MoveList
     {
         return generateSortedMoves (board, who, priority_move, false);
     }
 
     auto
-    generateAllPotentialMoves (const Board& board, Color who)
+    generateAllPotentialMoves (const Board& board, Color who) noexcept
         -> MoveList
     {
         return generateAllPotentialMoves (board, who, nullopt);
     }
 
     auto
-    generateCaptures (const Board& board, Color who)
+    generateCaptures (const Board& board, Color who) noexcept
         -> MoveList
     {
         return generateSortedMoves (board, who, nullopt, true);
     }
 
     auto
-    generateLegalMoves (const Board& board, Color who)
+    generateLegalMoves (const Board& board, Color who) noexcept
         -> MoveList
     {
         MoveList non_checks;
@@ -611,7 +611,7 @@ namespace wisdom
     }
 
     auto
-    generateLegalEnPassantMoves (const Board& board)
+    generateLegalEnPassantMoves (const Board& board) noexcept
         -> MoveList
     {
         MoveList result;
@@ -657,7 +657,7 @@ namespace wisdom
     namespace
     {
         auto
-        generatePieceMoves (const Board& board, Color who, Coord coord)
+        generatePieceMoves (const Board& board, Color who, Coord coord) noexcept
             -> MoveList
         {
             MoveList result;
@@ -669,7 +669,7 @@ namespace wisdom
         }
 
         auto
-        pieceHasLegalMove (const Board& board, Color who, Coord coord)
+        pieceHasLegalMove (const Board& board, Color who, Coord coord) noexcept
             -> bool
         {
             for (auto move : generatePieceMoves (board, who, coord))
@@ -684,7 +684,7 @@ namespace wisdom
         }
 
         auto
-        sharesLine (Coord a, Coord b)
+        sharesLine (Coord a, Coord b) noexcept
             -> bool
         {
             int row_diff = a.row<int>() - b.row<int>();
@@ -699,7 +699,7 @@ namespace wisdom
         // en passant capture takes the pawn off one. Any other move is legal
         // without a test.
         auto
-        hasMoveThatCannotExposeKing (const Board& board, Color who, Coord king_coord)
+        hasMoveThatCannotExposeKing (const Board& board, Color who, Coord king_coord) noexcept
             -> bool
         {
             for (auto coord : Board::allCoords())
@@ -719,7 +719,7 @@ namespace wisdom
     }
 
     auto
-    hasLegalMove (const Board& board, bool in_check)
+    hasLegalMove (const Board& board, bool in_check) noexcept
         -> bool
     {
         Color who = board.getCurrentTurn();
@@ -746,7 +746,7 @@ namespace wisdom
     }
 
     auto
-    hasLegalMove (const Board& board)
+    hasLegalMove (const Board& board) noexcept
         -> bool
     {
         Color who = board.getCurrentTurn();
@@ -756,7 +756,7 @@ namespace wisdom
     }
 
     auto
-    isLegalPositionAfterMove (const Board& board, Color who, Move mv)
+    isLegalPositionAfterMove (const Board& board, Color who, Move mv) noexcept
         -> bool
     {
         auto king_coord = board.getKingPosition (who);
@@ -788,7 +788,7 @@ namespace wisdom
         return true;
     }
 
-    auto isCheckmated (const Board& board) -> bool
+    auto isCheckmated (const Board& board) noexcept -> bool
     {
         auto who = board.getCurrentTurn();
         auto coord = board.getKingPosition (who);
@@ -796,7 +796,7 @@ namespace wisdom
         return isKingThreatened (board, who, coord) && !hasLegalMove (board);
     }
 
-    auto isStalemated (const Board& board) -> bool
+    auto isStalemated (const Board& board) noexcept -> bool
     {
         auto who = board.getCurrentTurn();
         auto coord = board.getKingPosition (who);

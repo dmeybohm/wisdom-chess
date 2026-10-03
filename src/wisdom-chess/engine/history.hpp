@@ -43,7 +43,7 @@ namespace wisdom
     };
 
     [[nodiscard]] constexpr auto
-    updateDrawStatus (BothPlayersDrawStatus initial, Color player, DrawStatus new_status)
+    updateDrawStatus (BothPlayersDrawStatus initial, Color player, DrawStatus new_status) noexcept
         -> BothPlayersDrawStatus
     {
         ASSERT( player == Color::White || player == Color::Black );
@@ -54,14 +54,14 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    drawStatusIsReplied (DrawStatus draw_status)
+    drawStatusIsReplied (DrawStatus draw_status) noexcept
         -> bool
     {
         return draw_status == DrawStatus::Accepted || draw_status == DrawStatus::Declined;
     }
 
     [[nodiscard]] constexpr auto
-    bothPlayersReplied (BothPlayersDrawStatus both_players_status)
+    bothPlayersReplied (BothPlayersDrawStatus both_players_status) noexcept
         -> bool
     {
         return drawStatusIsReplied (both_players_status.first)
@@ -87,36 +87,36 @@ namespace wisdom
         }
 
         [[nodiscard]] static auto
-        hasBeenXHalfMovesWithoutProgress (const Board& board, int x_half_moves) -> bool
+        hasBeenXHalfMovesWithoutProgress (const Board& board, int x_half_moves) noexcept -> bool
         {
             return board.getHalfMoveClock() >= x_half_moves;
         }
 
         [[nodiscard]] static auto
-        hasBeenSeventyFiveMovesWithoutProgress (const Board& board)
+        hasBeenSeventyFiveMovesWithoutProgress (const Board& board) noexcept
             -> bool
         {
             return hasBeenXHalfMovesWithoutProgress (board, 150);
         }
 
         [[nodiscard]] static auto
-        hasBeenFiftyMovesWithoutProgress (const Board& board)
+        hasBeenFiftyMovesWithoutProgress (const Board& board) noexcept
             -> bool
         {
             return hasBeenXHalfMovesWithoutProgress (board, 100);
         }
 
-        [[nodiscard]] auto isThirdRepetition (const Board& board) const -> bool;
+        [[nodiscard]] auto isThirdRepetition (const Board& board) const noexcept -> bool;
 
-        [[nodiscard]] auto isFifthRepetition (const Board& board) const -> bool;
+        [[nodiscard]] auto isFifthRepetition (const Board& board) const noexcept -> bool;
 
-        [[nodiscard]] auto isProbablyThirdRepetition (const Board& board) const -> bool;
-        [[nodiscard]] auto isCertainlyThirdRepetition (const Board& board) const -> bool;
-        [[nodiscard]] auto isProbablyFifthRepetition (const Board& board) const -> bool;
-        [[nodiscard]] auto isCertainlyFifthRepetition (const Board& board) const -> bool;
+        [[nodiscard]] auto isProbablyThirdRepetition (const Board& board) const noexcept -> bool;
+        [[nodiscard]] auto isCertainlyThirdRepetition (const Board& board) const noexcept -> bool;
+        [[nodiscard]] auto isProbablyFifthRepetition (const Board& board) const noexcept -> bool;
+        [[nodiscard]] auto isCertainlyFifthRepetition (const Board& board) const noexcept -> bool;
 
         [[nodiscard]] auto
-        isProbablyNthRepetition (const Board& board, int repetition_count) const
+        isProbablyNthRepetition (const Board& board, int repetition_count) const noexcept
             -> bool
         {
             // A position cannot recur across a capture or a pawn move.
@@ -132,7 +132,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        isCertainlyNthRepetition (const Board& board, int repetition_count) const
+        isCertainlyNthRepetition (const Board& board, int repetition_count) const noexcept
             -> bool
         {
             auto repetitions = std::count (my_stored_boards.begin(), my_stored_boards.end(), board);
@@ -145,7 +145,7 @@ namespace wisdom
             my_tentative_nesting_count++;
         }
 
-        void removeLastTentativePosition()
+        void removeLastTentativePosition() noexcept
         {
             my_board_codes.pop_back();
             my_tentative_nesting_count--;
@@ -170,7 +170,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        getMoveHistory() const&
+        getMoveHistory() const& noexcept
             -> const vector<Move>&
         {
             return my_move_history;
@@ -178,25 +178,25 @@ namespace wisdom
         void getMoveHistory() const&& = delete;
 
         [[nodiscard]] auto
-        getThreefoldRepetitionStatus() const
+        getThreefoldRepetitionStatus() const noexcept
             -> DrawStatus
         {
             return my_threefold_repetition_status;
         }
 
-        void setThreefoldRepetitionStatus (DrawStatus status)
+        void setThreefoldRepetitionStatus (DrawStatus status) noexcept
         {
             my_threefold_repetition_status = status;
         }
 
         [[nodiscard]] auto
-        getFiftyMovesWithoutProgressStatus() const
+        getFiftyMovesWithoutProgressStatus() const noexcept
             -> DrawStatus
         {
             return my_fifty_moves_without_progress_status;
         }
 
-        void setFiftyMovesWithoutProgressStatus (DrawStatus status)
+        void setFiftyMovesWithoutProgressStatus (DrawStatus status) noexcept
         {
             my_fifty_moves_without_progress_status = status;
         }

@@ -4,7 +4,7 @@
 
 namespace wisdom
 {
-    Material::Material (const wisdom::Board& board)
+    Material::Material (const wisdom::Board& board) noexcept
     {
         for (auto&& coord : Board::allCoords())
         {
@@ -35,7 +35,7 @@ namespace wisdom
         }
     }
 
-    auto Material::checkInsufficientMaterialScenarios (const Board& board) const
+    auto Material::checkInsufficientMaterialScenarios (const Board& board) const noexcept
         -> CheckmateIsPossible
     {
         auto white_knight_count = pieceCount (Color::White, Piece::Knight);

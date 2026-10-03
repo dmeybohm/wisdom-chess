@@ -10,7 +10,7 @@ namespace wisdom
 {
     BoardCode::BoardCode() = default;
 
-    BoardCode::BoardCode (const Board& board)
+    BoardCode::BoardCode (const Board& board) noexcept
         : BoardCode::BoardCode {}
     {
         for (auto coord : Board::allCoords())
@@ -34,12 +34,12 @@ namespace wisdom
         setCastleState (Color::Black, board.getCastlingEligibility (Color::Black));
     }
 
-    auto BoardCode::fromBoard (const Board& board) -> BoardCode
+    auto BoardCode::fromBoard (const Board& board) noexcept -> BoardCode
     {
         return BoardCode { board };
     }
 
-    auto BoardCode::fromBoardBuilder (const BoardBuilder& builder) -> BoardCode
+    auto BoardCode::fromBoardBuilder (const BoardBuilder& builder) noexcept -> BoardCode
     {
         auto result = BoardCode {};
 
@@ -79,7 +79,7 @@ namespace wisdom
         return BoardCode::fromBoardBuilder (builder);
     }
 
-    auto BoardCode::fromEmptyBoard() -> BoardCode
+    auto BoardCode::fromEmptyBoard() noexcept -> BoardCode
     {
         return BoardCode {};
     }

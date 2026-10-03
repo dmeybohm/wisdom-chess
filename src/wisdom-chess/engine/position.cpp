@@ -114,7 +114,7 @@ namespace wisdom
     }
 
     auto
-    Position::overallScore (Color who) const
+    Position::overallScore (Color who) const noexcept
         -> int
     {
         ColorIndex index = colorIndex (who);
@@ -126,19 +126,19 @@ namespace wisdom
         return result * Position_Score_Scale;
     }
 
-    void Position::add (Color who, Coord coord, ColoredPiece piece)
+    void Position::add (Color who, Coord coord, ColoredPiece piece) noexcept
     {
         ColorIndex index = colorIndex (who);
         my_score[index] += change (coord, who, piece);
     }
 
-    void Position::remove (Color who, Coord coord, ColoredPiece piece)
+    void Position::remove (Color who, Coord coord, ColoredPiece piece) noexcept
     {
         ColorIndex index = colorIndex (who);
         my_score[index] -= change (coord, who, piece);
     }
 
-    void Position::applyMove (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece)
+    void Position::applyMove (Color who, ColoredPiece src_piece, Move move, ColoredPiece dst_piece) noexcept
     {
         Color opponent = colorInvert (who);
 
@@ -189,13 +189,13 @@ namespace wisdom
     }
 
     auto
-    Position::individualScore (Color who) const
+    Position::individualScore (Color who) const noexcept
         -> int
     {
         return my_score[colorIndex (who)];
     }
 
-    Position::Position (const Board& board)
+    Position::Position (const Board& board) noexcept
     {
         for (auto coord : Board::allCoords())
         {

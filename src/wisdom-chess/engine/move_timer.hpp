@@ -25,12 +25,12 @@ namespace wisdom
     public:
         using PeriodicFunction = std::function<void(nonnull<MoveTimer>)>;
 
-        explicit MoveTimer (chrono::milliseconds time_limit)
+        explicit MoveTimer (chrono::milliseconds time_limit) noexcept
             : my_time_limit { time_limit }
         {
         }
 
-        explicit MoveTimer (int seconds)
+        explicit MoveTimer (int seconds) noexcept
             : MoveTimer (chrono::seconds { seconds })
         {
         }
@@ -39,7 +39,7 @@ namespace wisdom
 
         // Whether the search as a whole was cancelled.
         [[nodiscard]] auto
-        isCancelled() const
+        isCancelled() const noexcept
             -> bool
         {
             return my_timer_state.cancelled;
@@ -58,7 +58,7 @@ namespace wisdom
             return my_time_limit;
         }
 
-        void setTimeLimit (chrono::milliseconds time_limit)
+        void setTimeLimit (chrono::milliseconds time_limit) noexcept
         {
             my_time_limit = time_limit;
         }

@@ -23,7 +23,7 @@ namespace wisdom
         int king_row;
         int king_col;
 
-        InlineThreats (const Board& board, Color king_color, Coord king_coord)
+        InlineThreats (const Board& board, Color king_color, Coord king_coord) noexcept
             : board { board }
             , opponent { colorInvert (king_color) }
             , king_color { king_color }
@@ -35,7 +35,7 @@ namespace wisdom
         // Check if the king indicated by the WHO argument is in trouble
         // in this position.
         [[nodiscard]] auto
-        checkAll() const
+        checkAll() const noexcept
             -> bool
         {
             // clang-format off
@@ -51,7 +51,7 @@ namespace wisdom
 
         template <Piece sliding_piece>
         [[nodiscard]] constexpr auto
-        checkSlidingThreats (int target_row, int target_col) const
+        checkSlidingThreats (int target_row, int target_col) const noexcept
             -> ThreatStatus
         {
             ColoredPiece piece = board.pieceAt (target_row, target_col);
@@ -73,7 +73,7 @@ namespace wisdom
 
         // Check an entire row for any rook / queen threats.
         [[nodiscard]] auto
-        row() const
+        row() const noexcept
             -> bool
         {
             return checkLineThreat<Piece::Rook, +1, 0>()
@@ -82,7 +82,7 @@ namespace wisdom
 
         // Check an entire column for any rook / queen threats.
         [[nodiscard]] auto
-        column() const
+        column() const noexcept
             -> bool
         {
             return checkLineThreat<Piece::Rook, 0, +1>()
@@ -90,7 +90,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        knight() const
+        knight() const noexcept
             -> bool
         {
             static constexpr struct
@@ -119,7 +119,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        pawn() const
+        pawn() const noexcept
             -> bool
         {
             int r_dir = pawnDirection<int> (king_color);
@@ -145,7 +145,7 @@ namespace wisdom
             DoNotCheckMiddle
         };
         template <KingThreatCheck squares_to_check> [[nodiscard]] auto
-        checkKingThreatRow (int target_row, int starting_col, int ending_col) const
+        checkKingThreatRow (int target_row, int starting_col, int ending_col) const noexcept
             -> bool
         {
             int middle_col = nextColumn<int> (starting_col, +1);
@@ -169,7 +169,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        king() const
+        king() const noexcept
             -> bool
         {
             auto left_col = nextColumn<int> (king_col, -1);
@@ -201,7 +201,7 @@ namespace wisdom
         // piece, and report a sliding piece or queen of the opponent on it.
         template <Piece sliding_piece, int horiz_direction, int vert_direction>
         [[nodiscard]] auto
-        checkLineThreat() const
+        checkLineThreat() const noexcept
             -> bool
         {
             static_assert (horiz_direction != 0 || vert_direction != 0);
@@ -248,7 +248,7 @@ namespace wisdom
 
         // Check a diagonal for any bishop / queen threats.
         [[nodiscard]] auto
-        diagonal() const
+        diagonal() const noexcept
             -> bool
         {
             return
@@ -268,7 +268,7 @@ namespace wisdom
         const Board& board,
         Color who,
         Coord king_coord
-    )
+    ) noexcept
         -> bool
     {
         InlineThreats threats { board, who, king_coord };
@@ -280,7 +280,7 @@ namespace wisdom
         Color who,
         int8_t king_row,
         int8_t king_col
-    )
+    ) noexcept
         -> bool
     {
         return isKingThreatened (board, who, makeCoord (king_row, king_col));

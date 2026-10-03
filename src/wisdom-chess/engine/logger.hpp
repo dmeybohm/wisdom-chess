@@ -56,7 +56,7 @@ namespace wisdom
         // Replay every line in order through the sink, then clear the buffer.
         void drainTo (const Logger& sink);
 
-        void clear();
+        void clear() noexcept;
 
         // Copy the retained lines out, oldest first.
         [[nodiscard]] auto
@@ -65,20 +65,20 @@ namespace wisdom
 
         // Number of retained lines.
         [[nodiscard]] auto
-        count() const
+        count() const noexcept
             -> size_t;
 
         // Bytes in use, including the per-line headers.
         [[nodiscard]] auto
-        getSizeBytes() const
+        getSizeBytes() const noexcept
             -> size_t;
 
         [[nodiscard]] auto
-        getCapacityBytes() const
+        getCapacityBytes() const noexcept
             -> size_t;
 
         [[nodiscard]] auto
-        empty() const
+        empty() const noexcept
             -> bool;
 
     private:
@@ -94,19 +94,19 @@ namespace wisdom
         };
 
         [[nodiscard]] auto
-        getTailOffset() const
+        getTailOffset() const noexcept
             -> size_t;
 
         [[nodiscard]] auto
-        readRecord (size_t offset) const
+        readRecord (size_t offset) const noexcept
             -> Record;
 
         [[nodiscard]] auto
         readText (size_t offset, size_t length) const
             -> string;
 
-        void writeBytes (czstring source, size_t length);
-        void popFront();
+        void writeBytes (czstring source, size_t length) noexcept;
+        void popFront() noexcept;
 
         template <typename Visitor>
         void forEachEntry (Visitor&& visit) const;
@@ -140,7 +140,7 @@ namespace wisdom
         void setEnabled (bool enabled);
 
         [[nodiscard]] auto
-        isEnabled() const
+        isEnabled() const noexcept
             -> bool;
 
         void debug (const string& output) const noexcept override;
@@ -175,5 +175,5 @@ namespace wisdom
     void logEmergency (string_view message) noexcept;
 
     // Reports uncaught exceptions through logEmergency() before terminating.
-    void installEmergencyTerminateHandler();
+    void installEmergencyTerminateHandler() noexcept;
 }

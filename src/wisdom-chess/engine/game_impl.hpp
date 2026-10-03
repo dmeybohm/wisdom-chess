@@ -40,7 +40,7 @@ namespace wisdom
             DrawStatus::NotReached
         };
 
-        void updateThreefoldRepetitionDrawStatus();
-        void updateFiftyMovesWithoutProgressDrawStatus();
+        void updateThreefoldRepetitionDrawStatus() noexcept;
+        void updateFiftyMovesWithoutProgressDrawStatus() noexcept;
     };
 }

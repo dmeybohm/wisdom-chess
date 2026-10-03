@@ -27,7 +27,7 @@ namespace wisdom
         // Whether the boards are the same position for repetition, as
         // getBoardCode() identifies it.
         [[nodiscard]] friend auto
-        operator== (const Board& a, const Board& b)
+        operator== (const Board& a, const Board& b) noexcept
             -> bool
         {
             if (a.getBoardCode() != b.getBoardCode())
@@ -37,7 +37,7 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto
-        pieceAt (int row, int col) const
+        pieceAt (int row, int col) const noexcept
             -> ColoredPiece
         {
             Coord coord = Coord::make (row, col);
@@ -45,7 +45,7 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto
-        pieceAt (Coord coord) const
+        pieceAt (Coord coord) const noexcept
             -> ColoredPiece
         {
             return my_squares[coord.index()];
@@ -107,7 +107,7 @@ namespace wisdom
 
         // Create a new board with the current turn updated:
         [[nodiscard]] auto
-        withCurrentTurn (Color who) const
+        withCurrentTurn (Color who) const noexcept
             -> Board;
 
         [[nodiscard]] auto
@@ -143,7 +143,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        getCurrentTurn() const
+        getCurrentTurn() const noexcept
             -> Color
         {
             return my_code.getCurrentTurn();
@@ -189,7 +189,7 @@ namespace wisdom
         }
 
         [[nodiscard]] static constexpr auto
-        allCoords()
+        allCoords() noexcept
             -> CoordIterator
         {
             return CoordIterator {};
@@ -220,7 +220,7 @@ namespace wisdom
             [[maybe_unused]] Coord src,
             [[maybe_unused]] Coord dst
         ) noexcept;
-        void updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst);
+        void updateAfterKingMove (Color who, [[maybe_unused]] Coord src, Coord dst) noexcept;
         void setCastleState (Color who, CastlingEligibility new_state) noexcept;
 
         void removeCastlingEligibility (

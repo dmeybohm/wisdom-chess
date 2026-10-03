@@ -40,35 +40,35 @@ namespace wisdom
     using ColorIndex = int8_t;
 
     [[nodiscard]] constexpr auto
-    pieceFromInt8 (int8_t integer)
+    pieceFromInt8 (int8_t integer) noexcept
         -> Piece
     {
         return static_cast<Piece> (integer);
     }
 
     [[nodiscard]] constexpr auto
-    pieceFromInt (int integer)
+    pieceFromInt (int integer) noexcept
         -> Piece
     {
         return static_cast<Piece> (integer);
     }
 
     [[nodiscard]] constexpr auto
-    colorFromInt8 (int8_t integer)
+    colorFromInt8 (int8_t integer) noexcept
         -> Color
     {
         return static_cast<Color> (integer);
     }
 
     [[nodiscard]] constexpr auto
-    colorFromInt (int integer)
+    colorFromInt (int integer) noexcept
         -> Color
     {
         return static_cast<Color> (integer);
     }
 
     [[nodiscard]] constexpr auto
-    colorFromColorIndex (ColorIndex index)
+    colorFromColorIndex (ColorIndex index) noexcept
         -> Color
     {
         ASSERT( index == Color_Index_White || index == Color_Index_Black );
@@ -76,42 +76,42 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    toInt8 (Piece piece)
+    toInt8 (Piece piece) noexcept
         -> int8_t
     {
         return static_cast<int8_t> (piece);
     }
 
     [[nodiscard]] constexpr auto
-    toInt (Piece piece)
+    toInt (Piece piece) noexcept
         -> int
     {
         return static_cast<int> (piece);
     }
 
     [[nodiscard]] constexpr auto
-    toInt (Color color)
+    toInt (Color color) noexcept
         -> int
     {
         return static_cast<int> (color);
     }
 
     [[nodiscard]] constexpr auto
-    toInt8 (Color color)
+    toInt8 (Color color) noexcept
         -> int8_t
     {
         return static_cast<int8_t> (color);
     }
 
     [[nodiscard]] constexpr auto
-    isColorValid (Color who)
+    isColorValid (Color who) noexcept
         -> bool
     {
         return (who == Color::White || who == Color::Black);
     }
 
     [[nodiscard]] constexpr auto
-    colorIndex (Color who)
+    colorIndex (Color who) noexcept
         -> ColorIndex
     {
         ASSERT( who == Color::White || who == Color::Black );
@@ -119,7 +119,7 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    colorInvert (Color who)
+    colorInvert (Color who) noexcept
         -> Color
     {
         ASSERT( isColorValid (who) );
@@ -128,7 +128,7 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    pieceIndex (Piece piece)
+    pieceIndex (Piece piece) noexcept
         -> int
     {
         auto piece_as_int = static_cast<int8_t> (piece);
@@ -184,14 +184,14 @@ namespace wisdom
         }
 
         [[nodiscard]] friend constexpr auto
-        operator== (ColoredPiece first, ColoredPiece second)
+        operator== (ColoredPiece first, ColoredPiece second) noexcept
             -> bool
         {
             return first.piece_type_and_color == second.piece_type_and_color;
         }
 
         [[nodiscard]] friend constexpr auto
-        operator!= (ColoredPiece first, ColoredPiece second)
+        operator!= (ColoredPiece first, ColoredPiece second) noexcept
             -> bool
         {
             return !operator== (first, second);
@@ -209,14 +209,14 @@ namespace wisdom
     };
 
     [[nodiscard]] constexpr auto
-    pieceType (ColoredPiece piece)
+    pieceType (ColoredPiece piece) noexcept
         -> Piece
     {
         return piece.type();
     }
 
     [[nodiscard]] constexpr auto
-    pieceColor (ColoredPiece piece)
+    pieceColor (ColoredPiece piece) noexcept
         -> Color
     {
         return piece.color();
@@ -228,7 +228,7 @@ namespace wisdom
     );
 
     [[nodiscard]] constexpr auto
-    toInt8 (ColoredPiece piece)
+    toInt8 (ColoredPiece piece) noexcept
         -> int8_t
     {
         return piece.piece_type_and_color;
@@ -264,7 +264,7 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    pieceToChar (Piece type)
+    pieceToChar (Piece type) noexcept
         -> char
     {
         switch (type)
@@ -287,7 +287,7 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    pieceToChar (ColoredPiece piece)
+    pieceToChar (ColoredPiece piece) noexcept
         -> char
     {
         return pieceToChar (pieceType (piece));

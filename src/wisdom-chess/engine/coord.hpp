@@ -8,7 +8,7 @@ namespace wisdom
 {
     template <typename IntegerType>
     [[nodiscard]] constexpr auto
-    isValidRow (IntegerType row)
+    isValidRow (IntegerType row) noexcept
         -> bool
     {
         static_assert (std::is_integral_v<IntegerType>);
@@ -17,7 +17,7 @@ namespace wisdom
 
     template <typename IntegerType>
     [[nodiscard]] constexpr auto
-    isValidColumn (IntegerType col)
+    isValidColumn (IntegerType col) noexcept
         -> bool
     {
         static_assert (std::is_integral_v<IntegerType>);
@@ -39,7 +39,7 @@ namespace wisdom
 
         // Make a coordinate from an index from 0-63.
         [[nodiscard]] static constexpr auto
-        fromIndex (int index)
+        fromIndex (int index) noexcept
             -> Coord
         {
             ASSERT( index >= 0 && index < Num_Squares );
@@ -47,7 +47,7 @@ namespace wisdom
         }
 
         [[nodiscard]] static constexpr auto
-        make (int row, int col)
+        make (int row, int col) noexcept
             -> Coord
         {
             ASSERT( isValidRow (row) && isValidColumn (col) );
@@ -58,7 +58,7 @@ namespace wisdom
         // Return square index from zero to sixty-three, with a8 as 0 and h1 as 63.
         template <typename IntegerType = int>
         [[nodiscard]] constexpr auto
-        index() const
+        index() const noexcept
             -> IntegerType
         {
             return narrow_cast<IntegerType> (row_and_col);
@@ -66,7 +66,7 @@ namespace wisdom
 
         template <typename IntegerType = int8_t>
         [[nodiscard]] constexpr auto
-        row() const
+        row() const noexcept
             -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
@@ -75,7 +75,7 @@ namespace wisdom
 
         template <typename IntegerType = int8_t>
         [[nodiscard]] constexpr auto
-        column() const
+        column() const noexcept
             -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
@@ -86,7 +86,7 @@ namespace wisdom
 
     template <typename IntegerType>
     [[nodiscard]] constexpr auto
-    nextRow (IntegerType row, int direction)
+    nextRow (IntegerType row, int direction) noexcept
         -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
@@ -95,7 +95,7 @@ namespace wisdom
 
     template <typename T>
     [[nodiscard]] constexpr auto
-    nextColumn (T col, int direction)
+    nextColumn (T col, int direction) noexcept
         -> T
     {
         static_assert (std::is_integral_v<T>);
@@ -103,7 +103,7 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    makeCoord (int row, int col)
+    makeCoord (int row, int col) noexcept
         -> Coord
     {
         return Coord::make (row, col);
@@ -114,7 +114,7 @@ namespace wisdom
 
     template <typename IntegerType = int8_t>
     [[nodiscard]] constexpr auto
-    coordRow (Coord pos)
+    coordRow (Coord pos) noexcept
         -> IntegerType
     {
         return pos.row<IntegerType>();
@@ -122,14 +122,14 @@ namespace wisdom
 
     template <typename IntegerType = int8_t>
     [[nodiscard]] constexpr auto
-    coordColumn (Coord pos)
+    coordColumn (Coord pos) noexcept
         -> IntegerType
     {
         return pos.column<IntegerType>();
     }
 
     [[nodiscard]] constexpr auto
-    nextCoord (Coord coord)
+    nextCoord (Coord coord) noexcept
         -> optional<Coord>
     {
         int index = coord.index();
@@ -142,21 +142,21 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    operator== (Coord first, Coord second)
+    operator== (Coord first, Coord second) noexcept
         -> bool
     {
         return first.row_and_col == second.row_and_col;
     }
 
     [[nodiscard]] constexpr auto
-    operator!= (Coord first, Coord second)
+    operator!= (Coord first, Coord second) noexcept
         -> bool
     {
         return !operator== (first, second);
     }
 
     constexpr auto
-    operator++ (Coord& coord)
+    operator++ (Coord& coord) noexcept
         -> Coord&
     {
         coord.row_and_col++;
@@ -164,14 +164,14 @@ namespace wisdom
     }
 
     [[nodiscard]] constexpr auto
-    charToRow (char chr)
+    charToRow (char chr) noexcept
         -> int
     {
         return 8 - (toLower (chr) - '0');
     }
 
     [[nodiscard]] constexpr auto
-    charToCol (char chr)
+    charToCol (char chr) noexcept
         -> int
     {
         return toLower (chr) - 'a';
@@ -235,38 +235,38 @@ namespace wisdom
         using iterator_category = std::forward_iterator_tag;
 
         constexpr
-        CoordIterator()
+        CoordIterator() noexcept
             : my_coord { First_Coord }
         {}
 
         explicit constexpr
-        CoordIterator (Coord coord)
+        CoordIterator (Coord coord) noexcept
             : my_coord (coord)
         {}
 
         [[nodiscard]] constexpr auto
-        begin() const
+        begin() const noexcept
             -> CoordIterator
         {
             return *this;
         }
 
         [[nodiscard]] constexpr auto
-        end() const  // NOLINT(readability-convert-member-functions-to-static)
+        end() const noexcept  // NOLINT(readability-convert-member-functions-to-static)
             -> CoordIterator
         {
             return CoordIterator { End_Coord };
         }
 
         [[nodiscard]] constexpr auto
-        operator*() const
+        operator*() const noexcept
             -> Coord
         {
             return my_coord;
         }
 
         constexpr auto
-        operator++()
+        operator++() noexcept
             -> CoordIterator&
         {
             ++my_coord;
@@ -274,7 +274,7 @@ namespace wisdom
         }
 
         constexpr auto
-        operator++ (int)
+        operator++ (int) noexcept
             -> CoordIterator
         {
             auto previous = *this;
@@ -283,14 +283,14 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto
-        operator== (const CoordIterator& other) const
+        operator== (const CoordIterator& other) const noexcept
             -> bool
         {
             return other.my_coord == my_coord;
         }
 
         [[nodiscard]] constexpr auto
-        operator!= (const CoordIterator& other) const
+        operator!= (const CoordIterator& other) const noexcept
             -> bool
         {
             return !(*this == other);
@@ -303,7 +303,7 @@ namespace wisdom
 
     // The color of the square.
     [[nodiscard]] constexpr auto
-    coordColor (Coord coord)
+    coordColor (Coord coord) noexcept
         -> Color
     {
         int parity = (coord.row() % 2 + coord.column() % 2) % 2;
@@ -314,7 +314,7 @@ namespace wisdom
     // moves down (+).
     template <class IntegerType = int8_t>
     [[nodiscard]] constexpr auto
-    pawnDirection (Color color)
+    pawnDirection (Color color) noexcept
         -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
