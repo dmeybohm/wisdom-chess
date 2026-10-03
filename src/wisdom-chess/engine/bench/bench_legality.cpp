@@ -1,7 +1,6 @@
 #include <nanobench.h>
 
 #include "wisdom-chess/engine/board.hpp"
-#include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 

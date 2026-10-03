@@ -72,10 +72,6 @@ namespace wisdom
         createGameFromBoard (const BoardBuilder& builder, const Players& players)
             -> Game;
 
-        [[nodiscard]] static auto
-        loadGame (const string& filename, const Players& players)
-            -> optional<Game>;
-
         Game (const Game& other);
         auto operator= (const Game& other) -> Game&;
 
@@ -85,10 +81,6 @@ namespace wisdom
         ~Game();
 
     public:
-
-        // Throws Error when the file cannot be written.
-
-        void save (const string& filename) const;
 
         // Searches for the best move using the caller's transposition table.
         // The table is search state, not game state: the caller owns it and
@@ -115,6 +107,7 @@ namespace wisdom
             -> Board& = delete;
 
         [[nodiscard]] auto getHistory() & -> History&;
+        [[nodiscard]] auto getHistory() const& -> const History&;
         [[nodiscard]] auto getHistory() && -> History& = delete;
 
         [[nodiscard]] auto getCurrentPlayer() const -> Player;
@@ -177,7 +170,6 @@ namespace wisdom
         // Private implementation functions
         class Impl;
         explicit Game (unique_ptr<Impl> impl);
-        [[nodiscard]] static auto load (const string& filename, const Players& players) -> optional<Game>;
 
     private:
         unique_ptr<Impl> my_pimpl;

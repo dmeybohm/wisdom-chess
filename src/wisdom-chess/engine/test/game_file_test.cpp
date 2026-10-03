@@ -4,7 +4,7 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/game.hpp"
-#include "wisdom-chess/engine/output_format.hpp"
+#include "wisdom-chess/engine/game_file.hpp"
 
 #include "wisdom-chess-tests.hpp"
 
@@ -80,16 +80,15 @@ namespace
     }
 }
 
-TEST_CASE( "WisdomGameOutputFormat" )
+TEST_CASE( "saveGame() writes the moves to a file without .fen in its name" )
 {
-    TemporaryFile file { "wisdom-chess-output-format-moves-test.txt" };
+    TemporaryFile file { "wisdom-chess-game-file-moves-test.txt" };
     auto game = playSampleGame();
     auto players = Players { Player::Human, Player::Human };
 
     SUBCASE( "It writes one move per line" )
     {
-        WisdomGameOutputFormat format;
-        format.save (file.path(), game.getBoard(), game.getHistory(), game.getCurrentTurn());
+        saveGame (game, file.path());
 
         auto lines = file.lines();
         const auto& moves = game.getHistory().getMoveHistory();
@@ -101,10 +100,9 @@ TEST_CASE( "WisdomGameOutputFormat" )
 
     SUBCASE( "A saved game loads back to the same position" )
     {
-        WisdomGameOutputFormat format;
-        format.save (file.path(), game.getBoard(), game.getHistory(), game.getCurrentTurn());
+        saveGame (game, file.path());
 
-        auto loaded = Game::loadGame (file.path(), players);
+        auto loaded = loadGame (file.path(), players);
 
         REQUIRE( loaded.has_value() );
         CHECK( fenOf (*loaded) == fenOf (game) );
@@ -114,27 +112,23 @@ TEST_CASE( "WisdomGameOutputFormat" )
     SUBCASE( "A game without moves saves an empty file" )
     {
         auto new_game = Game::createStandardGame();
-        WisdomGameOutputFormat format;
 
-        format.save (
-            file.path(), new_game.getBoard(), new_game.getHistory(), new_game.getCurrentTurn()
-        );
+        saveGame (new_game, file.path());
 
         CHECK( file.lines().empty() );
 
-        auto loaded = Game::loadGame (file.path(), players);
+        auto loaded = loadGame (file.path(), players);
         REQUIRE( loaded.has_value() );
         CHECK( fenOf (*loaded) == fenOf (new_game) );
     }
 }
 
-TEST_CASE( "FenOutputFormat" )
+TEST_CASE( "saveGame() writes FEN to a .fen file" )
 {
-    TemporaryFile file { "wisdom-chess-output-format-fen-test.txt" };
+    TemporaryFile file { "wisdom-chess-game-file-fen-test.fen" };
     auto game = playSampleGame();
 
-    FenOutputFormat format;
-    format.save (file.path(), game.getBoard(), game.getHistory(), game.getCurrentTurn());
+    saveGame (game, file.path());
 
     auto lines = file.lines();
 
@@ -150,27 +144,46 @@ TEST_CASE( "FenOutputFormat" )
     }
 }
 
-TEST_CASE( "Game::save chooses the format from the file name" )
+TEST_CASE( "saveGame() reports a file it cannot write" )
 {
     auto game = playSampleGame();
 
-    SUBCASE( "A .fen file holds the position" )
+    CHECK_THROWS_AS( saveGame (game, "/nonexistent-directory/game.txt"), Error );
+    CHECK_THROWS_AS( saveGame (game, "/nonexistent-directory/game.fen"), Error );
+}
+
+TEST_CASE( "loadGame()" )
+{
+    TemporaryFile file { "wisdom-chess-game-file-load-test.txt" };
+    auto players = Players { Player::Human, Player::Human };
+
+    auto write_file = [&file] (czstring contents)
     {
-        TemporaryFile file { "wisdom-chess-game-save-test.fen" };
+        std::ofstream stream { file.path() };
+        stream << contents;
+    };
 
-        game.save (file.path());
-
-        auto lines = file.lines();
-        REQUIRE( lines.size() == 1 );
-        CHECK( lines[0] == fenOf (game) );
+    SUBCASE( "A missing file yields no game" )
+    {
+        CHECK( !loadGame (file.path(), players).has_value() );
     }
 
-    SUBCASE( "Any other file holds the moves" )
+    SUBCASE( "Moves are replayed up to the stop marker" )
     {
-        TemporaryFile file { "wisdom-chess-game-save-test.txt" };
+        write_file ("e2 e4\ne7 e5\nstop\ng1 f3\n");
 
-        game.save (file.path());
+        auto game = loadGame (file.path(), players);
 
-        CHECK( file.lines().size() == game.getHistory().getMoveHistory().size() );
+        REQUIRE( game.has_value() );
+        CHECK( game->getCurrentTurn() == Color::White );
+        CHECK( game->getBoard().pieceAt (coordParse ("e5")) == ColoredPiece::make (Color::Black, Piece::Pawn) );
+        CHECK( game->getBoard().pieceAt (coordParse ("g1")) == ColoredPiece::make (Color::White, Piece::Knight) );
+    }
+
+    SUBCASE( "An unparseable move yields no game" )
+    {
+        write_file ("e2 e4\nnot a move\n");
+
+        CHECK( !loadGame (file.path(), players).has_value() );
     }
 }

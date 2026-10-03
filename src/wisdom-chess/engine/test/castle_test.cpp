@@ -1,6 +1,7 @@
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/board.hpp"
+#include "wisdom-chess/engine/move_list.hpp"
 
 #include "wisdom-chess-tests.hpp"
 

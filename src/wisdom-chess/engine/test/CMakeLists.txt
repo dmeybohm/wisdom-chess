@@ -21,7 +21,7 @@ if (WISDOM_CHESS_FAST_TESTS)
         evaluate_test.cpp
         game_status_test.cpp
         move_timer_test.cpp
-        output_format_test.cpp
+        game_file_test.cpp
         str_test.cpp
         board_test.cpp
         game_test.cpp

@@ -1,7 +1,5 @@
 #include <algorithm>
 #include <chrono>
-#include <filesystem>
-#include <fstream>
 
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/game.hpp"
@@ -86,46 +84,6 @@ TEST_CASE( "Initial board position is added to history" )
         Game game = Game::createGameFromFen ("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         run_test (&game);
     }
-}
-
-TEST_CASE( "Loading a saved game" )
-{
-    auto path = std::filesystem::temp_directory_path() / "wisdom-chess-load-test.txt";
-    auto players = Players { Player::Human, Player::Human };
-
-    auto write_file = [&path] (czstring contents)
-    {
-        std::ofstream file { path };
-        file << contents;
-    };
-
-    SUBCASE( "A missing file yields no game" )
-    {
-        std::filesystem::remove (path);
-
-        CHECK( !Game::loadGame (path.string(), players).has_value() );
-    }
-
-    SUBCASE( "Moves are replayed up to the stop marker" )
-    {
-        write_file ("e2 e4\ne7 e5\nstop\ng1 f3\n");
-
-        auto game = Game::loadGame (path.string(), players);
-
-        REQUIRE( game.has_value() );
-        CHECK( game->getCurrentTurn() == Color::White );
-        CHECK( game->getBoard().pieceAt (coordParse ("e5")) == ColoredPiece::make (Color::Black, Piece::Pawn) );
-        CHECK( game->getBoard().pieceAt (coordParse ("g1")) == ColoredPiece::make (Color::White, Piece::Knight) );
-    }
-
-    SUBCASE( "An unparseable move yields no game" )
-    {
-        write_file ("e2 e4\nnot a move\n");
-
-        CHECK( !Game::loadGame (path.string(), players).has_value() );
-    }
-
-    std::filesystem::remove (path);
 }
 
 TEST_CASE( "findBestMove searches with the caller's transposition table" )

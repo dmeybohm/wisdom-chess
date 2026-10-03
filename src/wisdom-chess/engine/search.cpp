@@ -4,6 +4,8 @@
 #include "wisdom-chess/engine/piece.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/threats.hpp"
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/logger.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"

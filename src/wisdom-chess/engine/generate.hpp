@@ -45,6 +45,23 @@ namespace wisdom
     hasLegalMove (const Board& board, bool in_check)
         -> bool;
 
+    // Whether the position reached by `who` playing `mv` is legal: the
+    // mover's king is not attacked, and a castling king did not start
+    // in, or pass through, check.
+    [[nodiscard]] auto
+    isLegalPositionAfterMove (const Board& board, Color who, Move mv)
+        -> bool;
+
+    // Whether the player to move is checkmated.
+    [[nodiscard]] auto
+    isCheckmated (const Board& board)
+        -> bool;
+
+    // Whether the player to move is stalemated.
+    [[nodiscard]] auto
+    isStalemated (const Board& board)
+        -> bool;
+
     // Whether the pawn needs to be promoted when it arrives at the row.
     [[nodiscard]] auto
     needPawnPromotion (int row, Color who)

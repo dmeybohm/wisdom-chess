@@ -13,7 +13,6 @@
 // The standard library names used without std:: inside the namespace.
 namespace wisdom
 {
-    // A null-terminated C string.
     using zstring = char*; // lint-allow(raw-pointer): defines the C string types
     using czstring = const char*; // lint-allow(raw-pointer): defines the C string types
     using std::array;
