@@ -126,7 +126,7 @@ namespace wisdom
             EnPassantTargetState state
         ) noexcept
         {
-            NOEXCEPT_EXPECTS(
+            EXPECTS_NOEXCEPT(
                 coord.row() == (color == Color::White
                                     ? White_En_Passant_Row : Black_En_Passant_Row)
             );
@@ -284,7 +284,7 @@ namespace wisdom
             if ((target_bits & EN_PASSANT_PRESENT) == 0)
                 return nullopt;
 
-            auto col = noexcept_narrow<int8_t> (target_bits & 0x7);
+            auto col = narrow_noexcept<int8_t> (target_bits & 0x7);
             Color vulnerable_color = ((target_bits & EN_PASSANT_IS_WHITE) > 0)
                 ? Color::White
                 : Color::Black;

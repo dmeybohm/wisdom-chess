@@ -83,7 +83,7 @@ namespace wisdom
         score += unableToCastlePenalty (board, opponent);
 
         // Anything larger would read as a checkmate score.
-        NOEXCEPT_ENSURES( score < Max_Non_Checkmate_Score && score > -Max_Non_Checkmate_Score );
+        ENSURES_NOEXCEPT( score < Max_Non_Checkmate_Score && score > -Max_Non_Checkmate_Score );
         return score;
     }
 

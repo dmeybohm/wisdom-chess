@@ -152,8 +152,8 @@ namespace wisdom
         while (my_count > 0 && my_used + record_size > my_storage.size())
             popFront();
 
-        auto level_byte = noexcept_narrow<uint8_t> (static_cast<int> (level));
-        auto length = noexcept_narrow<uint32_t> (text.size());
+        auto level_byte = narrow_noexcept<uint8_t> (static_cast<int> (level));
+        auto length = narrow_noexcept<uint32_t> (text.size());
         char header[Record_Overhead];
         std::memcpy (header, &level_byte, sizeof level_byte);
         std::memcpy (header + sizeof level_byte, &length, sizeof length);
@@ -262,10 +262,10 @@ namespace wisdom
             result,
             sizeof result,
             "[%02d:%02d:%02d.%03d] ",
-            noexcept_narrow<int> (hours.count()),
-            noexcept_narrow<int> (minutes.count()),
-            noexcept_narrow<int> (seconds.count()),
-            noexcept_narrow<int> (millis.count())
+            narrow_noexcept<int> (hours.count()),
+            narrow_noexcept<int> (minutes.count()),
+            narrow_noexcept<int> (seconds.count()),
+            narrow_noexcept<int> (millis.count())
         );
         return result;
     }

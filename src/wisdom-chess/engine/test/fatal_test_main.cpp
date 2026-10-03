@@ -100,22 +100,22 @@ namespace
         [[maybe_unused]] nonnull<int> ptr { null_ptr };
     }
 
-    void noexceptNarrowOverflow()
+    void narrowNoexceptOverflow()
     {
         int volatile too_big = 300;
-        [[maybe_unused]] auto narrowed = noexcept_narrow<int8_t> (too_big);
+        [[maybe_unused]] auto narrowed = narrow_noexcept<int8_t> (too_big);
     }
 
-    void noexceptWidenNegative()
+    void widenNoexceptNegative()
     {
         int32_t volatile negative = -1;
-        [[maybe_unused]] auto widened = noexcept_widen<uint64_t> (negative);
+        [[maybe_unused]] auto widened = widen_noexcept<uint64_t> (negative);
     }
 
-    void noexceptToUnsignedNegative()
+    void toUnsignedNoexceptNegative()
     {
         int volatile negative = -1;
-        [[maybe_unused]] auto converted = noexcept_to_unsigned<std::size_t> (negative);
+        [[maybe_unused]] auto converted = to_unsigned_noexcept<std::size_t> (negative);
     }
 
     void needPawnPromotionBadColor()
@@ -153,10 +153,10 @@ namespace
         (void)search.iterativelyDeepen (Color::White);
     }
 
-    void noexceptEnsuresFailure()
+    void ensuresNoexceptFailure()
     {
         volatile bool condition = false;
-        NOEXCEPT_ENSURES( condition );
+        ENSURES_NOEXCEPT( condition );
     }
 
     void expectsThroughNoexcept()
@@ -214,19 +214,19 @@ namespace
             &nullNonnull,
         },
         {
-            "noexcept-narrow-overflow",
-            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: noexcept_narrow: the value fits",
-            &noexceptNarrowOverflow,
+            "narrow-noexcept-overflow",
+            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: narrow_noexcept: the value fits",
+            &narrowNoexceptOverflow,
         },
         {
-            "noexcept-widen-negative",
-            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: noexcept_widen: the value fits",
-            &noexceptWidenNegative,
+            "widen-noexcept-negative",
+            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: widen_noexcept: the value fits",
+            &widenNoexceptNegative,
         },
         {
-            "noexcept-to-unsigned-negative",
-            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: noexcept_to_unsigned: the value is nonnegative",
-            &noexceptToUnsignedNegative,
+            "to-unsigned-noexcept-negative",
+            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: to_unsigned_noexcept: the value is nonnegative",
+            &toUnsignedNoexceptNegative,
         },
         {
             "need-pawn-promotion-bad-color",
@@ -241,9 +241,9 @@ namespace
             Reports_Uncaught_Errors,
         },
         {
-            "noexcept-ensures-failure",
+            "ensures-noexcept-failure",
             "Postcondition failed at .*fatal_test_main\\.cpp:[0-9]+: condition",
-            &noexceptEnsuresFailure,
+            &ensuresNoexceptFailure,
         },
         {
             "expects-through-noexcept",
