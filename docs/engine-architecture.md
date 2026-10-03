@@ -74,11 +74,15 @@ empty squares and the rook are there.
 
 The entry points are:
 
-- `generateAllPotentialMoves()`, which sorts the whole list: the
-  caller's priority move first, then captures by the material they win,
-  then promotions, then by coordinates. Quiet moves therefore come out
-  in board order. The search passes the table's best move as the
-  priority move.
+- `generateAllPotentialMoves()`, which sorts the whole list by the
+  caller's `MoveOrdering`: its priority move first, then captures by the
+  material they win, then promotions, then its two killer moves, then
+  the other quiet moves by their `CutoffHistory` score, with the source
+  and destination squares breaking every tie. Each move gets one sort
+  key, so the sort compares integers. The search passes the table's
+  best move, the killers of the node's ply and its history of quiet
+  cutoffs; both tables live for one search, across its iterations.
+  Without an ordering, quiet moves come out in board order.
 - `generateCaptures()`, the same list restricted to captures and
   promotions to a queen, for the quiescence search.
 - `generateLegalMoves()`, which filters the pseudo-legal list.

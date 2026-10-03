@@ -247,3 +247,84 @@ The branch is `move-ordering`, from `origin/main` at `e613ef39`.
   2 removes it before spending time on it.
 - Not measured yet: the engine match, which is step 3, after the
   history table.
+
+### Session #3
+
+- Step 2 of the plan. The table is `CutoffHistory`, so that it is not
+  confused with the game's `History`. `MoveOrdering` holds it as a
+  `nullable<const CutoffHistory>`, null for the plain order. A counter
+  stops at `Max_Score` (2^30) rather than overflowing; the design's
+  argument that a search cannot get there stands, and the cap costs
+  one comparison per cutoff.
+- Measured against `main` and the killers alone, seven alternating
+  rounds of `--search-report 7`, pinned, medians. Moves and scores were
+  `main`'s at every depth.
+
+  | Position | Nodes, main | Killers | Killers and history | Time, main | Killers and history |
+  |---|---|---|---|---|---|
+  | starting | 862,023 | 378,524 | 354,803 | 0.278s | 0.134s |
+  | kiwipete | 1,717,412 | 1,707,762 | 1,705,192 | 0.676s | 0.789s |
+  | italian | 1,831,708 | 1,710,775 | 1,670,231 | 0.838s | 0.918s |
+  | position3 | 112,520 | 73,156 | 79,449 | 0.040s | 0.032s |
+  | position4 | 925,565 | 872,645 | 851,219 | 0.335s | 0.349s |
+  | middlegame | 14,655,186 | 19,211,770 | 6,359,105 | 5.622s | 2.613s |
+
+  The history table removes the middlegame's depth-7 regression of
+  Session #2, so it was not traced further. The first-move share of
+  cutoffs there rose to 86.0%, from 78.3% on `main` and 83.0% with the
+  killers alone.
+- The sort cost more than the nodes saved: kiwipete visited `main`'s
+  nodes and took 17% longer, and the Italian game was slower than
+  `main` with fewer nodes. The comparator worked out the capture test,
+  both pieces' weights, the killer slots and two history lookups again
+  for every pair it compared.
+- So each move now gets one 64-bit sort key, computed once, and
+  `std::sort` compares keys (`MoveGeneration::sortKey()`). From the
+  most significant bits: the kind of move (priority, capture,
+  promotion, first killer, second killer, other quiet), a score within
+  the kind (the material difference of a capture, or the inverted
+  history counter), the promoted piece, then the source and
+  destination squares. It is still one sort over the whole list; item
+  6's staged picking is untouched.
+- The key orders as the comparator did, with one difference: two
+  promotions to the same piece with the same material difference were
+  equal to the comparator, and `std::sort` left them in whatever order
+  it reached. The key puts them in square order. Node counts moved by
+  4 in kiwipete and 27 in position 4, the two report positions with
+  promotions in reach, and nowhere else.
+- A new test walks two plies from three positions with promotions,
+  gives each node a priority move, killers and history scores, and
+  checks every pair of the sorted list against the rules stated one
+  pair at a time. Swapping the first killer's kind for a quiet move's
+  fails it 85 times.
+- Verified: Release, 289 of 289 tests; Debug, 253 of 253 fast tests; no
+  warnings; the lint target passes. Qt was not configured.
+- The finished branch against `main`, seven alternating rounds of
+  `--search-report 7`, pinned, medians:
+
+  | Position | Move | Score | Nodes before | After | Nodes | Before | After | Faster by | Rounds faster |
+  |---|---|---|---|---|---|---|---|---|---|
+  | starting | e2 e4 | 63 | 862,023 | 354,803 | 0.41x | 0.294s | 0.108s | 2.72x | 7 of 7 |
+  | kiwipete | e2xa6 | 66 | 1,717,412 | 1,705,188 | 0.99x | 0.727s | 0.566s | 1.28x | 7 of 7 |
+  | italian | b1 c3 | -32 | 1,831,708 | 1,670,231 | 0.91x | 0.911s | 0.684s | 1.33x | 7 of 7 |
+  | position3 | b4xf4 | 81 | 112,520 | 79,449 | 0.71x | 0.044s | 0.028s | 1.57x | 7 of 7 |
+  | position4 | c4 c5 | -928 | 925,565 | 851,246 | 0.92x | 0.366s | 0.298s | 1.23x | 7 of 7 |
+  | middlegame | f3 g5 | 57 | 14,655,186 | 6,359,105 | 0.43x | 6.085s | 1.994s | 3.05x | 7 of 7 |
+
+  The six searches together: 8.43s before, 3.68s after. Kiwipete and
+  position 4, where the ordering saves almost no nodes, are now faster
+  than `main` too: the keys made the sort cheaper than `main`'s.
+- And at depth 8, one run, against the baseline of Session #2:
+
+  | Position | Move | Score | Nodes before | After | Nodes | Before | After | Faster by |
+  |---|---|---|---|---|---|---|---|---|
+  | starting | e2 e4 | 0 | 3,801,392 | 1,202,514 | 0.32x | 1.46s | 0.46s | 3.2x |
+  | kiwipete | d5xe6 | 48 | 8,144,988 | 7,993,490 | 0.98x | 3.66s | 3.04s | 1.2x |
+  | italian | d1 e2 | -54 | 40,692,807 | 12,831,964 | 0.32x | 21.64s | 5.83s | 3.7x |
+  | position3 | b4xf4 | 81 | 261,172 | 159,554 | 0.61x | 0.10s | 0.06s | 1.7x |
+  | position4 | c4 c5 | -928 | 2,620,947 | 2,528,112 | 0.96x | 1.00s | 0.90s | 1.1x |
+  | middlegame | f3 g5 | 48 | 309,896,444 | 69,023,405 | 0.22x | 142.76s | 28.92s | 4.9x |
+
+  The six depth-8 searches together: 170.6s before, 39.2s after.
+- Step 4: updated the ordering paragraph of
+  [engine-architecture.md](../../../docs/engine-architecture.md).
