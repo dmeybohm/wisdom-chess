@@ -382,7 +382,7 @@ namespace wisdom
 
         if (depth.has_value())
         {
-            search_depth = std::clamp (*depth, 1, 64);
+            search_depth = std::clamp (*depth, 1, Max_Search_Depth);
         }
 
         if (movetime.has_value())
@@ -500,7 +500,7 @@ namespace wisdom
         }
         else if (option_name == "depth" && value.has_value())
         {
-            my_settings.default_depth = std::clamp (*value, 1, 64);
+            my_settings.default_depth = std::clamp (*value, 1, Max_Search_Depth);
         }
         else if (option_name == "move overhead" && value.has_value())
         {
@@ -540,7 +540,7 @@ namespace wisdom
     {
         sendLine ("option name Hash type spin default 16 min 1 max 1024");
         sendLine ("option name Depth type spin default " + std::to_string (Default_Max_Depth)
-                  + " min 1 max 64");
+                  + " min 1 max " + std::to_string (Max_Search_Depth));
         sendLine ("option name Move Overhead type spin default "
                   + std::to_string (UciSettings::Default_Move_Overhead_Ms)
                   + " min 0 max " + std::to_string (UciSettings::Max_Move_Overhead_Ms));

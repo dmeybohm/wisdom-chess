@@ -42,14 +42,21 @@ number for it, and the first step is to get one.
 
 ### Engine: search
 
-1. [ ] **Move ordering in the main search.** `compareMoves()`
-   (`engine/generate.cpp:497`) orders by the table move, then captures
-   by material difference, then promotions, then coordinates. Quiet
-   moves are in coordinate order. Session #7 of
-   [quiescence-search.md](quiescence-search.md) already found the main
-   search visiting 2.4 times the baseline's nodes in the Italian game
-   and named killer moves or a history heuristic as the remedy. This is
-   the item with evidence behind it, so it goes first.
+1. [x] **Move ordering in the main search.** Before this item,
+   `compareMoves()` in `engine/generate.cpp` ordered by the table move,
+   then captures by material difference, then promotions, then
+   coordinates, so quiet moves were in coordinate order. Session #7 of
+   [quiescence-search.md](quiescence-search.md) found the main search
+   visiting 2.4 times the baseline's nodes in the Italian game and named
+   killer moves or a history heuristic as the remedy. This was the item
+   with evidence behind it, so it went first.
+   **Done** on the `move-ordering` branch
+   ([move-ordering.md](../10/move-ordering.md)): `compareMoves()` is
+   gone. `sortKey()` gives each move one key, which orders the table
+   move, then captures by material difference, then promotions, then
+   the ply's two killer moves, then the other quiet moves by a history
+   of the cutoffs they caused. It is 1.1 to 4.9 times faster at depth 8
+   and +67 Elo over 500 games at 8+0.08.
 2. [ ] **Static exchange evaluation in quiescence.** Also named in Session
    #7: in the middlegame position quiescence is the whole cost, 297.8M
    of 364.7M nodes. Losing captures are searched in full today.

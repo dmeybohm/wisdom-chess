@@ -15,6 +15,7 @@ if (WISDOM_CHESS_FAST_TESTS)
         move_parse_test.cpp
         fen_parser_test.cpp
         move_list_test.cpp
+        move_ordering_test.cpp
         board_code_test.cpp
         history_test.cpp
         generate_test.cpp

@@ -60,6 +60,7 @@ add_library(wisdom-chess-core STATIC
         material.hpp
         move.hpp
         move_list.hpp
+        move_ordering.hpp
         move_timer.hpp
         numeric_cast.hpp
         piece.hpp
@@ -87,6 +88,7 @@ add_library(wisdom-chess-core STATIC
         material.cpp
         move.cpp
         move_list.cpp
+        move_ordering.cpp
         move_timer.cpp
         piece.cpp
         position.cpp

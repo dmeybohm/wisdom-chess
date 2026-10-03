@@ -7,6 +7,7 @@
 #include "wisdom-chess/engine/threats.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/engine/material.hpp"
 
 #include "wisdom-chess-tests.hpp"
 
@@ -65,6 +66,102 @@ namespace
 
         for (auto move : generateLegalMoves (board, who))
             checkEnPassantMovesInTree (board.withMove (who, move), depth - 1);
+    }
+
+    auto
+    materialGain (const Board& board, Move move)
+        -> int
+    {
+        if (move.isEnPassant())
+            return 0;
+        return Material::weight (pieceType (board.pieceAt (move.getDst())))
+            - Material::weight (pieceType (board.pieceAt (move.getSrc())));
+    }
+
+    // Whether the ordering must put `a` before `b`, by its rules stated one
+    // pair at a time. Pairs it does not rank either way may come in any order.
+    auto
+    mustComeBefore (const Board& board, Color who, const MoveOrdering& ordering, Move a, Move b)
+        -> bool
+    {
+        if (a == ordering.priority_move || b == ordering.priority_move)
+            return a == ordering.priority_move && b != ordering.priority_move;
+
+        if (a.isAnyCapturing() != b.isAnyCapturing())
+            return a.isAnyCapturing();
+
+        if (a.isAnyCapturing() && materialGain (board, a) != materialGain (board, b))
+            return materialGain (board, a) > materialGain (board, b);
+
+        if (a.isPromoting() != b.isPromoting())
+            return a.isPromoting();
+
+        if (a.isPromoting())
+            return Material::weight (a.getPromotedPiece()) > Material::weight (b.getPromotedPiece());
+
+        if (a.isAnyCapturing())
+            return a.getSrc().index() * Num_Squares + a.getDst().index()
+                < b.getSrc().index() * Num_Squares + b.getDst().index();
+
+        auto killer_slot = [&ordering] (Move move) {
+            auto found = std::find (ordering.killers.begin(), ordering.killers.end(), move);
+            return found - ordering.killers.begin();
+        };
+        if (killer_slot (a) != killer_slot (b))
+            return killer_slot (a) < killer_slot (b);
+
+        auto a_score = ordering.history ? ordering.history.value()->getScore (who, a) : 0;
+        auto b_score = ordering.history ? ordering.history.value()->getScore (who, b) : 0;
+        if (a_score != b_score)
+            return a_score > b_score;
+
+        return a.getSrc().index() * Num_Squares + a.getDst().index()
+            < b.getSrc().index() * Num_Squares + b.getDst().index();
+    }
+
+    void
+    checkOrderingInTree (const Board& board, int depth)
+    {
+        auto who = board.getCurrentTurn();
+        auto plain = generateAllPotentialMoves (board, who);
+
+        // Name some quiet moves as the priority move and killers, and give
+        // others history scores, so every rule has something to rank.
+        vector<Move> quiet;
+        for (auto move : plain)
+        {
+            if (!move.isAnyCapturing() && !move.isPromoting())
+                quiet.push_back (move);
+        }
+
+        auto history = make_unique<CutoffHistory>();
+        MoveOrdering ordering { nullopt, {}, history.get() };
+
+        if (quiet.size() >= 3)
+        {
+            ordering.priority_move = quiet[quiet.size() - 1];
+            ordering.killers = { quiet[quiet.size() - 2], quiet[0] };
+        }
+        for (size_t i = 0; i < quiet.size(); i += 2)
+            history->store (who, quiet[i], narrow_cast<int> (1 + i % 3));
+
+        auto ordered = generateAllPotentialMoves (board, who, ordering);
+
+        INFO( board.toFenString (who) );
+        INFO( ordered );
+        CHECK( sortedMoves (ordered) == sortedMoves (plain) );
+
+        for (auto first = ordered.begin(); first != ordered.end(); first++)
+        {
+            for (auto later = first + 1; later != ordered.end(); later++)
+                CHECK( !mustComeBefore (board, who, ordering, *later, *first) );
+        }
+
+        if (depth <= 0)
+            return;
+
+        for (auto move : generateLegalMoves (board, who))
+            checkOrderingInTree (board.withMove (who, move), depth - 1);
     }
 
     void
@@ -140,6 +237,181 @@ TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
     REQUIRE( move_list.size() >= 2 );
     CHECK( *move_list.begin() == moveParse ("c4xd3", Color::Black) );
     CHECK( *(move_list.begin() + 1) == moveParse ("c4xb3", Color::Black) );
+}
+
+TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
+{
+    SUBCASE( "The priority move is first, then the killers in slot order" )
+    {
+        Board board;
+        Move priority = moveParse ("d2 d4", Color::White);
+        Move first_killer = moveParse ("g1 f3", Color::White);
+        Move second_killer = moveParse ("e2 e4", Color::White);
+
+        auto move_list = generateAllPotentialMoves (
+            board, Color::White,
+            MoveOrdering { priority, { first_killer, second_killer }, nullptr }
+        );
+
+        INFO( move_list );
+        REQUIRE( move_list.size() == 20 );
+        CHECK( *move_list.begin() == priority );
+        CHECK( *(move_list.begin() + 1) == first_killer );
+        CHECK( *(move_list.begin() + 2) == second_killer );
+        CHECK( sortedMoves (move_list)
+               == sortedMoves (generateAllPotentialMoves (board, Color::White)) );
+    }
+
+    SUBCASE( "Captures come before a killer" )
+    {
+        BoardBuilder builder;
+
+        builder.addPiece ("c4", Color::Black, Piece::Pawn);
+        builder.addPiece ("e4", Color::Black, Piece::Queen);
+        builder.addPiece ("d3", Color::White, Piece::Queen);
+        builder.addPiece ("b3", Color::White, Piece::Bishop);
+        builder.addPiece ("a1", Color::White, Piece::King);
+        builder.addPiece ("e1", Color::Black, Piece::King);
+        builder.setCurrentTurn (Color::Black);
+
+        auto board = Board { builder };
+        Move killer = moveParse ("e1 d1", Color::Black);
+
+        auto move_list = generateAllPotentialMoves (
+            board, Color::Black, MoveOrdering { nullopt, { killer, nullopt }, nullptr }
+        );
+
+        INFO( move_list );
+        REQUIRE( move_list.size() >= 4 );
+        CHECK( *move_list.begin() == moveParse ("c4xd3", Color::Black) );
+        CHECK( *(move_list.begin() + 1) == moveParse ("c4xb3", Color::Black) );
+        CHECK( *(move_list.begin() + 2) == moveParse ("e4xd3", Color::Black) );
+        CHECK( *(move_list.begin() + 3) == killer );
+    }
+
+    SUBCASE( "Promotions come before a killer" )
+    {
+        BoardBuilder builder;
+
+        builder.addPiece ("a7", Color::White, Piece::Pawn);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+
+        auto board = Board { builder };
+        Move killer = moveParse ("e1 d1", Color::White);
+
+        auto move_list = generateAllPotentialMoves (
+            board, Color::White, MoveOrdering { nullopt, { killer, nullopt }, nullptr }
+        );
+
+        INFO( move_list );
+        REQUIRE( move_list.size() >= 5 );
+        CHECK( *move_list.begin() == moveParse ("a7 a8 (Q)", Color::White) );
+        CHECK( (move_list.begin() + 3)->isPromoting() );
+        CHECK( *(move_list.begin() + 4) == killer );
+    }
+
+    SUBCASE( "A killer that is not in the list changes nothing" )
+    {
+        Board board;
+        Move absent = moveParse ("a1 h8", Color::White);
+
+        auto plain = generateAllPotentialMoves (board, Color::White);
+        auto ordered = generateAllPotentialMoves (
+            board, Color::White, MoveOrdering { nullopt, { absent, absent }, nullptr }
+        );
+
+        CHECK( std::vector<Move> (ordered.begin(), ordered.end())
+               == std::vector<Move> (plain.begin(), plain.end()) );
+    }
+
+    SUBCASE( "Quiet moves that are not killers go by their history score" )
+    {
+        Board board;
+        auto history = make_unique<CutoffHistory>();
+        Move killer = moveParse ("d2 d4", Color::White);
+        Move often = moveParse ("g1 f3", Color::White);
+        Move seldom = moveParse ("h2 h3", Color::White);
+
+        history->store (Color::White, seldom, 2);
+        history->store (Color::White, often, 3);
+        history->store (Color::White, killer, 1);
+
+        auto move_list = generateAllPotentialMoves (
+            board, Color::White, MoveOrdering { nullopt, { killer, nullopt }, history.get() }
+        );
+
+        INFO( move_list );
+        REQUIRE( move_list.size() == 20 );
+        CHECK( *move_list.begin() == killer );
+        CHECK( *(move_list.begin() + 1) == often );
+        CHECK( *(move_list.begin() + 2) == seldom );
+    }
+
+    SUBCASE( "Moves with the same history score keep the square order" )
+    {
+        Board board;
+        auto history = make_unique<CutoffHistory>();
+        Move scored = moveParse ("h2 h3", Color::White);
+
+        history->store (Color::White, scored, 2);
+
+        auto plain = generateAllPotentialMoves (board, Color::White);
+        auto ordered = generateAllPotentialMoves (
+            board, Color::White, MoveOrdering { nullopt, {}, history.get() }
+        );
+
+        std::vector<Move> expected { scored };
+        for (auto move : plain)
+        {
+            if (move != scored)
+                expected.push_back (move);
+        }
+
+        CHECK( std::vector<Move> (ordered.begin(), ordered.end()) == expected );
+    }
+
+    SUBCASE( "The other side's history does not reorder the moves" )
+    {
+        Board board;
+        auto history = make_unique<CutoffHistory>();
+
+        history->store (Color::Black, moveParse ("h2 h3", Color::White), 5);
+
+        auto plain = generateAllPotentialMoves (board, Color::White);
+        auto ordered = generateAllPotentialMoves (
+            board, Color::White, MoveOrdering { nullopt, {}, history.get() }
+        );
+
+        CHECK( std::vector<Move> (ordered.begin(), ordered.end())
+               == std::vector<Move> (plain.begin(), plain.end()) );
+    }
+
+    SUBCASE( "Every pair in a tree of positions follows the ordering rules" )
+    {
+        const czstring fens[] = {
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+            "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
+            "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1",
+        };
+
+        for (auto fen : fens)
+        {
+            auto game = Game::createGameFromFen (fen);
+            checkOrderingInTree (game.getBoard(), 1);
+        }
+    }
+
+    SUBCASE( "An empty ordering gives the plain order" )
+    {
+        Board board;
+
+        auto plain = generateAllPotentialMoves (board, Color::White);
+        auto ordered = generateAllPotentialMoves (board, Color::White, MoveOrdering {});
+
+        CHECK( std::vector<Move> (ordered.begin(), ordered.end())
+               == std::vector<Move> (plain.begin(), plain.end()) );
+    }
 }
 
 TEST_CASE( "hasLegalMove" )

@@ -101,6 +101,11 @@ namespace wisdom
     // Default absolute max depth searched.
     inline constexpr int Default_Max_Depth = 16;
 
+    // The deepest search a caller may ask for, in plies. The search's
+    // per-ply tables are this long.
+    inline constexpr int Max_Search_Depth = 64;
+    static_assert (Default_Max_Depth <= Max_Search_Depth);
+
     // Default max time spent searching.
     inline constexpr int Default_Max_Search_Seconds = 2;
 

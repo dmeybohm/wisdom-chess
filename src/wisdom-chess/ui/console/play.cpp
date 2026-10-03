@@ -471,7 +471,7 @@ namespace wisdom::ui::console
             {
                 optional<int> max_depth = readInt ("Max depth");
 
-                if (max_depth.has_value() && *max_depth > 0)
+                if (max_depth.has_value() && *max_depth > 0 && *max_depth <= Max_Search_Depth)
                     return PlayCommand::SetMaxDepth { *max_depth };
                 else
                     return PlayCommand::ShowError { "Invalid search depth." };

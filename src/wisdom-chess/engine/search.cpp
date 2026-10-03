@@ -5,6 +5,7 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/generate.hpp"
+#include "wisdom-chess/engine/move_ordering.hpp"
 #include "wisdom-chess/engine/threats.hpp"
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/logger.hpp"
@@ -94,6 +95,12 @@ namespace wisdom
         shared_ptr<Logger> my_output;
         nonnull<TranspositionTable> my_transposition_table;
 
+        // Rebuilt by every search and shared by its iterations. The history
+        // table is 32 KB, half of the default WASM stack, so this class is
+        // only created on the heap.
+        KillerTable my_killers;
+        CutoffHistory my_cutoff_history;
+
         int my_total_depth;
         int my_nodes_visited = 0;
         int my_alpha_beta_cutoffs = 0;
@@ -126,6 +133,8 @@ namespace wisdom
         DrawLimits draw_limits
     ) -> IterativeSearch
     {
+        EXPECTS( max_depth >= 1 && max_depth <= Max_Search_Depth );
+
         return IterativeSearch {
             make_unique<IterativeSearchImpl> (
                 Board { board },
@@ -218,8 +227,12 @@ namespace wisdom
                 return *tt_score;
         }
 
-        auto tt_move = my_transposition_table->getBestMove (hash);
-        auto moves = generateAllPotentialMoves (parent_board, side, tt_move);
+        MoveOrdering ordering {
+            my_transposition_table->getBestMove (hash),
+            my_killers.getKillers (ply),
+            &my_cutoff_history
+        };
+        auto moves = generateAllPotentialMoves (parent_board, side, ordering);
 
         for (auto move : moves)
         {
@@ -262,6 +275,8 @@ namespace wisdom
             if (alpha >= beta)
             {
                 my_alpha_beta_cutoffs++;
+                my_killers.store (ply, move);
+                my_cutoff_history.store (side, move, depth);
                 break;
             }
         }
