@@ -4,7 +4,6 @@
 
 #include "wisdom-chess/engine/board_code.hpp"
 #include "wisdom-chess/engine/coord.hpp"
-#include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/material.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/piece.hpp"
