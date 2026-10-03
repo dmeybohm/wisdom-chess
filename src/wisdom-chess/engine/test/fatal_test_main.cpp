@@ -26,15 +26,15 @@ namespace
 {
     struct MarkedLogger : Logger
     {
-        void debug ([[maybe_unused]] const string& output) const noexcept override
+        void debug ([[maybe_unused]] const string& output) noexcept override
         {
         }
 
-        void info ([[maybe_unused]] const string& output) const noexcept override
+        void info ([[maybe_unused]] const string& output) noexcept override
         {
         }
 
-        void emergency (string_view output) const noexcept override
+        void emergency (string_view output) noexcept override
         {
             std::cout << "[emergency] " << output << std::endl;
         }

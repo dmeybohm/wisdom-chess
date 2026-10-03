@@ -21,17 +21,17 @@ namespace wisdom::ui::qml
     using wisdom::Color;
     using wisdom::Player;
 
-    void ChessEngine::ChessEngineLogger::debug (const std::string& line) const noexcept
+    void ChessEngine::ChessEngineLogger::debug (const std::string& line) noexcept
     {
         qDebug() << line.c_str();
     }
 
-    void ChessEngine::ChessEngineLogger::info (const std::string& line) const noexcept
+    void ChessEngine::ChessEngineLogger::info (const std::string& line) noexcept
     {
         qDebug() << line.c_str();
     }
 
-    void ChessEngine::ChessEngineLogger::emergency (std::string_view line) const noexcept
+    void ChessEngine::ChessEngineLogger::emergency (std::string_view line) noexcept
     {
         qCritical().noquote() << QString::fromUtf8 (line.data(), narrow_cast<qsizetype> (line.size()));
     }
