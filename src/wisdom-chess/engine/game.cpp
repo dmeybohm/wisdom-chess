@@ -383,7 +383,7 @@ namespace wisdom
 
     void Game::setMaxDepth (int max_depth)
     {
-        EXPECTS( max_depth > 0 );
+        EXPECTS( max_depth > 0 && max_depth <= Max_Search_Depth );
         my_pimpl->max_depth = max_depth;
     }
 

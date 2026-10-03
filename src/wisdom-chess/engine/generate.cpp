@@ -74,16 +74,23 @@ namespace wisdom
         int piece_row;
         int piece_col;
         const Color who;
-        optional<Move> priority_move;
+        MoveOrdering ordering;
 
         // Generate only captures and promotions to a queen.
         bool captures_only = false;
 
         void generate (ColoredPiece piece, Coord coord) noexcept;
 
+        // The sort key of a move: a lower key is tried first.
         [[nodiscard]] auto
-        compareMoves (const Move& a, const Move& b) const noexcept
-            -> bool;
+        sortKey (Move move) const noexcept
+            -> uint64_t;
+
+        // The killer slot a quiet move is in, or the slot count when it is
+        // in none, so that a lower rank sorts first.
+        [[nodiscard]] auto
+        killerRank (const Move& move) const noexcept
+            -> size_t;
 
         void pawn() noexcept;
         void knight() noexcept;
@@ -461,78 +468,102 @@ namespace wisdom
             }
         }
 
+        // Ranks a promotion by its piece, highest first, and puts any
+        // promotion ahead of a move that is not one.
         constexpr auto
-        promotingOrCoordCompare (const Move& a, const Move& b) noexcept
-            -> bool
+        promotionRank (Move move) noexcept
+            -> uint64_t
         {
-            bool a_is_promoting = a.isPromoting();
-            bool b_is_promoting = b.isPromoting();
-
-            if (a_is_promoting && b_is_promoting)
+            switch (move.getPromotedPiece())
             {
-                return Material::weight (a.getPromotedPiece()) >
-                    Material::weight (b.getPromotedPiece());
+                case Piece::Queen: return 0;
+                case Piece::Rook: return 1;
+                case Piece::Bishop: return 2;
+                case Piece::Knight: return 3;
+                default: return 4;
             }
-            else if (a_is_promoting && !b_is_promoting)
-            {
-                return true;
-            }
-            else if (b_is_promoting && !a_is_promoting)
-            {
-                return false;
-            }
+        }
 
-            // return coordinate diff so order is consistent:
-            Coord a_coord = a.getSrc();
-            Coord b_coord = b.getSrc();
+        // The fields of a sort key, from the most significant: the kind of
+        // move, then a score within the kind, then the promotion, then the
+        // source and destination squares, which make the order total.
+        constexpr int Sort_Key_Kind_Shift = 48;
+        constexpr int Sort_Key_Score_Shift = 16;
+        constexpr int Sort_Key_Promotion_Shift = 12;
 
-            if (a_coord != b_coord)
-                return a_coord.index() < b_coord.index();
-            else
-                return a.getDst().index() < b.getDst().index();
+        enum class SortKind : uint64_t
+        {
+            Priority,
+            Capture,
+            Promotion,
+            FirstKiller,
+            SecondKiller,
+            Quiet,
+        };
+
+        // Keeps a capture's material difference, which can be negative,
+        // within the unsigned score field.
+        constexpr int Material_Diff_Offset = 2 * Weight_King;
+
+        static_assert (CutoffHistory::Max_Score < (int64_t { 1 } << (Sort_Key_Kind_Shift - Sort_Key_Score_Shift)));
+
+        constexpr auto
+        makeSortKey (SortKind kind, uint64_t score, Move move) noexcept
+            -> uint64_t
+        {
+            auto squares = narrow_cast<uint64_t> (
+                move.getSrc().index() * Num_Squares + move.getDst().index()
+            );
+            return (static_cast<uint64_t> (kind) << Sort_Key_Kind_Shift)
+                | (score << Sort_Key_Score_Shift)
+                | (promotionRank (move) << Sort_Key_Promotion_Shift)
+                | squares;
         }
     }
 
     auto
-    MoveGeneration::compareMoves (const Move& a, const Move& b) const noexcept
-        -> bool
+    MoveGeneration::killerRank (const Move& move) const noexcept
+        -> size_t
     {
-        if (priority_move.has_value())
+        for (size_t slot = 0; slot < ordering.killers.size(); slot++)
         {
-            bool a_is_priority = (a == *priority_move);
-            bool b_is_priority = (b == *priority_move);
+            if (ordering.killers[slot] == move)
+                return slot;
+        }
+        return ordering.killers.size();
+    }
 
-            if (a_is_priority && !b_is_priority)
-                return true;
-            if (b_is_priority && !a_is_priority)
-                return false;
+    auto
+    MoveGeneration::sortKey (Move move) const noexcept
+        -> uint64_t
+    {
+        if (move == ordering.priority_move)
+            return makeSortKey (SortKind::Priority, 0, move);
+
+        if (move.isAnyCapturing())
+        {
+            auto score = narrow_cast<uint64_t> (Material_Diff_Offset - materialDiff (board, move));
+            return makeSortKey (SortKind::Capture, score, move);
         }
 
-        bool a_is_capturing = a.isAnyCapturing();
-        bool b_is_capturing = b.isAnyCapturing();
+        if (move.isPromoting())
+            return makeSortKey (SortKind::Promotion, 0, move);
 
-        if (!a_is_capturing && !b_is_capturing)
+        switch (killerRank (move))
         {
-            return promotingOrCoordCompare (a, b);
+            case 0: return makeSortKey (SortKind::FirstKiller, 0, move);
+            case 1: return makeSortKey (SortKind::SecondKiller, 0, move);
+            default: break;
         }
 
-        if (a_is_capturing && !b_is_capturing)
+        uint64_t score = 0;
+        if (ordering.history)
         {
-            return true;
+            score = narrow_cast<uint64_t> (
+                CutoffHistory::Max_Score - ordering.history.value()->getScore (who, move)
+            );
         }
-        else if (b_is_capturing && !a_is_capturing)
-        {
-            return false;
-        }
-
-        // both are capturing: return the biggest diff between source piece and dst piece:
-        auto material_diff_a = materialDiff (board, a);
-        auto material_diff_b = materialDiff (board, b);
-
-        if (material_diff_a != material_diff_b)
-            return material_diff_a > material_diff_b;
-        else
-            return promotingOrCoordCompare (a, b);
+        return makeSortKey (SortKind::Quiet, score, move);
     }
 
     namespace
@@ -541,14 +572,14 @@ namespace wisdom
         generateSortedMoves (
             const Board& board,
             Color who,
-            optional<Move> priority_move,
+            const MoveOrdering& ordering,
             bool captures_only
         ) noexcept
             -> MoveList
         {
             MoveList result;
             MoveGeneration generation {
-                board, &result, 0, 0, who, priority_move, captures_only
+                board, &result, 0, 0, who, ordering, captures_only
             };
 
             for (auto coord : Board::allCoords())
@@ -561,35 +592,53 @@ namespace wisdom
                 generation.generate (piece, coord);
             }
 
+            struct KeyedMove
+            {
+                uint64_t key;
+                Move move;
+            };
+
+            array<KeyedMove, Max_Move_List_Size> keyed; // NOLINT(*-pro-type-member-init)
+            auto count = narrow_cast<size_t> (result.size());
+
+            for (size_t i = 0; i < count; i++)
+            {
+                auto move = *(result.begin() + i);
+                keyed[i] = KeyedMove { generation.sortKey (move), move };
+            }
+
             std::sort (
-                result.begin(),
-                result.end(),
-                [&generation] (const Move& a, const Move& b) { return generation.compareMoves (a, b); }
+                keyed.begin(),
+                keyed.begin() + count,
+                [] (const KeyedMove& a, const KeyedMove& b) { return a.key < b.key; }
             );
+
+            for (size_t i = 0; i < count; i++)
+                *(result.begin() + i) = keyed[i].move;
 
             return result;
         }
     }
 
     auto
-    generateAllPotentialMoves (const Board& board, Color who, optional<Move> priority_move) noexcept
+    generateAllPotentialMoves (const Board& board, Color who, const MoveOrdering& ordering) noexcept
         -> MoveList
     {
-        return generateSortedMoves (board, who, priority_move, false);
+        return generateSortedMoves (board, who, ordering, false);
     }
 
     auto
     generateAllPotentialMoves (const Board& board, Color who) noexcept
         -> MoveList
     {
-        return generateAllPotentialMoves (board, who, nullopt);
+        return generateAllPotentialMoves (board, who, MoveOrdering {});
     }
 
     auto
     generateCaptures (const Board& board, Color who) noexcept
         -> MoveList
     {
-        return generateSortedMoves (board, who, nullopt, true);
+        return generateSortedMoves (board, who, MoveOrdering {}, true);
     }
 
     auto
@@ -661,7 +710,7 @@ namespace wisdom
             -> MoveList
         {
             MoveList result;
-            MoveGeneration generation { board, &result, 0, 0, who, nullopt };
+            MoveGeneration generation { board, &result, 0, 0, who, MoveOrdering {} };
 
             generation.generate (board.pieceAt (coord), coord);
 
