@@ -62,7 +62,6 @@ add_library(wisdom-chess-core STATIC
         move_list.hpp
         move_timer.hpp
         narrow.hpp
-        output_format.hpp
         piece.hpp
         position.hpp
         ptr.hpp
@@ -89,7 +88,6 @@ add_library(wisdom-chess-core STATIC
         move.cpp
         move_list.cpp
         move_timer.cpp
-        output_format.cpp
         piece.cpp
         position.cpp
         search.cpp

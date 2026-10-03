@@ -66,11 +66,22 @@ loadGame (const string& filename, const Players& players)
     -> optional<Game>;
 ```
 
-`saveGame()` constructs the `OutputFormat` it needs on the stack, so
-the file-scope objects go. `loadGame()` is `Game::load()` moved, built
-on the public `createGame()` and `move()`. `Game::save()`,
-`Game::loadGame()` and `Game::load()` are removed, along with
-`game.cpp`'s includes of `<fstream>` and `output_format.hpp`.
+`saveGame()` picks the writer by file name; `loadGame()` is
+`Game::load()` moved, built on the public `createGame()` and `move()`.
+`Game::save()`, `Game::loadGame()` and `Game::load()` are removed,
+along with `game.cpp`'s includes of `<fstream>` and
+`output_format.hpp`.
+
+The `OutputFormat` hierarchy (`FenOutputFormat`,
+`WisdomGameOutputFormat`) existed so that `Game::save()` could hold a
+reference to whichever format the file name picked. With the choice
+inside `saveGame()` it is an if/else between two short functions, so
+the classes and `output_format.hpp` go, and the two writers become
+functions in `game_file.cpp`'s unnamed namespace. A third format, if
+one comes, is a third branch; a hierarchy would not make a reader for
+it any easier. The tests move with them to `game_file_test.cpp` and
+run through `saveGame()` and `loadGame()` only, which also takes the
+loading cases out of `game_test.cpp`.
 
 The console frontend is the only caller of either. The QML and
 WebAssembly frontends do not save or load files, so the API change
@@ -110,8 +121,11 @@ The search is not touched, so there is nothing to measure.
   calls the free functions as `wisdom::saveGame()` and
   `wisdom::loadGame()`. The save and load tests stayed in
   `output_format_test.cpp` and `game_test.cpp`, with the calls updated.
-- Not done: renaming `output_format.hpp`, whose classes now serve only
-  `saveGame()`; and the UI sources that include `evaluate.hpp` without
-  using it (`game_viewmodel_base.hpp`, `web_types.hpp`,
-  `game_model.cpp`, `chess_engine.cpp`, `play.cpp`), which need a Qt or
-  Emscripten build to check.
+- A fifth commit removed `output_format.hpp` and its classes as the
+  design above says, after the review asked whether to rename it. The
+  tests gained a case for a file that cannot be written.
+- The QML frontend was built against Qt 6.11.2 and its tests pass, so
+  the `Game` API change reaches it cleanly.
+- Not done: the UI sources that include `evaluate.hpp` without using it
+  (`game_viewmodel_base.hpp`, `web_types.hpp`, `game_model.cpp`,
+  `chess_engine.cpp`, `play.cpp`).

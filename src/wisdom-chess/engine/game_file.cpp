@@ -3,28 +3,55 @@
 #include "wisdom-chess/engine/game_file.hpp"
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/history.hpp"
-#include "wisdom-chess/engine/output_format.hpp"
 #include "wisdom-chess/engine/str.hpp"
 
 namespace wisdom
 {
+    namespace
+    {
+        auto
+        openForWriting (const string& filename)
+            -> std::ofstream
+        {
+            std::ofstream file { filename };
+            if (!file)
+                throw Error { "Cannot open " + filename + " for writing." };
+            return file;
+        }
+
+        void
+        closeAfterWriting (std::ofstream& file, const string& filename)
+        {
+            file.close();
+            if (!file)
+                throw Error { "Error writing " + filename + "." };
+        }
+
+        void
+        saveFen (const Game& game, const string& filename)
+        {
+            auto file = openForWriting (filename);
+            file << game.getBoard().toFenString (game.getCurrentTurn()) << "\n";
+            closeAfterWriting (file, filename);
+        }
+
+        // One move per line, as loadGame() reads them.
+        void
+        saveMoveList (const Game& game, const string& filename)
+        {
+            auto file = openForWriting (filename);
+            for (auto move : game.getHistory().getMoveHistory())
+                file << asString (move) << "\n";
+            closeAfterWriting (file, filename);
+        }
+    }
+
     void saveGame (const Game& game, const string& filename)
     {
-        auto save_with = [&] (OutputFormat& format)
-        {
-            format.save (filename, game.getBoard(), game.getHistory(), game.getCurrentTurn());
-        };
-
         if (filename.find (".fen") != string::npos)
-        {
-            FenOutputFormat format;
-            save_with (format);
-        }
+            saveFen (game, filename);
         else
-        {
-            WisdomGameOutputFormat format;
-            save_with (format);
-        }
+            saveMoveList (game, filename);
     }
 
     auto
