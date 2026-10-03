@@ -261,4 +261,27 @@ namespace wisdom
                 checkLineThreat<Piece::Bishop, +1, +1>();
         }
     };
+
+    // Whether the king of `who` on `king_coord` is attacked.
+    [[nodiscard]] inline auto isKingThreatened (
+        const Board& board,
+        Color who,
+        Coord king_coord
+    )
+        -> bool
+    {
+        InlineThreats threats { board, who, king_coord };
+        return threats.checkAll();
+    }
+
+    [[nodiscard]] inline auto isKingThreatened (
+        const Board& board,
+        Color who,
+        int8_t king_row,
+        int8_t king_col
+    )
+        -> bool
+    {
+        return isKingThreatened (board, who, makeCoord (king_row, king_col));
+    }
 }

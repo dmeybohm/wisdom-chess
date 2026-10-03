@@ -3,7 +3,7 @@
 #include "wisdom-chess/engine/global.hpp"
 #include "wisdom-chess/engine/piece.hpp"
 #include "wisdom-chess/engine/history.hpp"
-#include "wisdom-chess/engine/threats.hpp"
+#include "wisdom-chess/engine/generate.hpp"
 
 namespace wisdom
 {
@@ -16,45 +16,6 @@ namespace wisdom
         ByRepetition,
         ByNoProgress
     };
-
-    // Whether the position reached by `who` playing `mv` is legal: the
-    // mover's king is not attacked, and a castling king did not start
-    // in, or pass through, check.
-    [[nodiscard]] auto
-    isLegalPositionAfterMove (const Board& board, Color who, Move mv)
-        -> bool;
-
-    [[nodiscard]] inline auto isKingThreatened (
-        const Board& board,
-        Color who,
-        Coord king_coord
-    )
-        -> bool
-    {
-        InlineThreats threats { board, who, king_coord };
-        return threats.checkAll();
-    }
-
-    [[nodiscard]] inline auto isKingThreatened (
-        const Board& board,
-        Color who,
-        int8_t king_row,
-        int8_t king_col
-    )
-        -> bool
-    {
-        return isKingThreatened (board, who, makeCoord (king_row, king_col));
-    }
-
-    // Whether the player to move is checkmated.
-    [[nodiscard]] auto
-    isCheckmated (const Board& board)
-        -> bool;
-
-    // Whether the player to move is stalemated.
-    [[nodiscard]] auto
-    isStalemated (const Board& board)
-        -> bool;
 
     // Whether the position is a draw by repetition or by the move count,
     // at the limits given, or by insufficient material. A checkmate takes

@@ -8,6 +8,7 @@
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 

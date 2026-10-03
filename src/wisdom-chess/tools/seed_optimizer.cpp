@@ -9,7 +9,6 @@
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/board_code.hpp"
 #include "wisdom-chess/engine/board.hpp"
-#include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/random.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"

@@ -1,6 +1,6 @@
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/board.hpp"
-#include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/threats.hpp"
 
 #include "wisdom-chess-tests.hpp"
 

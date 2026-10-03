@@ -9,8 +9,10 @@
 #include "wisdom-chess/engine/logger.hpp"
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
+#include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/evaluate.hpp"
+#include "wisdom-chess/engine/threats.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
 
 #include "wisdom-chess-tests.hpp"

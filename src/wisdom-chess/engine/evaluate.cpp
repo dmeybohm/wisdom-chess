@@ -2,6 +2,7 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/position.hpp"
 #include "wisdom-chess/engine/search.hpp"
+#include "wisdom-chess/engine/threats.hpp"
 
 namespace wisdom
 {
@@ -97,52 +98,4 @@ namespace wisdom
             : 0;
     }
 
-    auto isCheckmated (const Board& board) -> bool
-    {
-        auto who = board.getCurrentTurn();
-        auto coord = board.getKingPosition (who);
-
-        return isKingThreatened (board, who, coord) && !hasLegalMove (board);
-    }
-
-    auto
-    isLegalPositionAfterMove (const Board& board, Color who, Move mv)
-        -> bool
-    {
-        auto king_coord = board.getKingPosition (who);
-
-        if (isKingThreatened (board, who, king_coord))
-            return false;
-
-        if (mv.isCastling())
-        {
-            Coord castled_pos = mv.getDst();
-            auto castled_row = castled_pos.row();
-            auto castled_col = castled_pos.column();
-
-            ASSERT( king_coord.row() == castled_row );
-            ASSERT( king_coord.column() == castled_col );
-
-            int8_t direction = mv.isCastlingOnKingside() ? -1 : 1;
-
-            int8_t plus_one_column = nextColumn (castled_col, direction);
-            int8_t plus_two_column = nextColumn (plus_one_column, direction);
-
-            if (isKingThreatened (board, who, castled_row, plus_one_column)
-                || isKingThreatened (board, who, castled_row, plus_two_column))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    auto isStalemated (const Board& board) -> bool
-    {
-        auto who = board.getCurrentTurn();
-        auto coord = board.getKingPosition (who);
-
-        return !isKingThreatened (board, who, coord) && !hasLegalMove (board);
-    }
 }

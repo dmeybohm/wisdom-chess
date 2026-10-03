@@ -1,4 +1,5 @@
 #include "wisdom-chess/ui/viewmodel/game_viewmodel_base.hpp"
+#include "wisdom-chess/engine/threats.hpp"
 
 namespace wisdom::ui
 {
