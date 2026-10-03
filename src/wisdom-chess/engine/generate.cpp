@@ -74,7 +74,7 @@ namespace wisdom
         int piece_row;
         int piece_col;
         const Color who;
-        optional<Move> priority_move;
+        MoveOrdering ordering;
 
         // Generate only captures and promotions to a queen.
         bool captures_only = false;
@@ -84,6 +84,12 @@ namespace wisdom
         [[nodiscard]] auto
         compareMoves (const Move& a, const Move& b) const noexcept
             -> bool;
+
+        // The killer slot a quiet move is in, or the slot count when it is
+        // in none, so that a lower rank sorts first.
+        [[nodiscard]] auto
+        killerRank (const Move& move) const noexcept
+            -> size_t;
 
         void pawn() noexcept;
         void knight() noexcept;
@@ -494,13 +500,25 @@ namespace wisdom
     }
 
     auto
+    MoveGeneration::killerRank (const Move& move) const noexcept
+        -> size_t
+    {
+        for (size_t slot = 0; slot < ordering.killers.size(); slot++)
+        {
+            if (ordering.killers[slot] == move)
+                return slot;
+        }
+        return ordering.killers.size();
+    }
+
+    auto
     MoveGeneration::compareMoves (const Move& a, const Move& b) const noexcept
         -> bool
     {
-        if (priority_move.has_value())
+        if (ordering.priority_move.has_value())
         {
-            bool a_is_priority = (a == *priority_move);
-            bool b_is_priority = (b == *priority_move);
+            bool a_is_priority = (a == *ordering.priority_move);
+            bool b_is_priority = (b == *ordering.priority_move);
 
             if (a_is_priority && !b_is_priority)
                 return true;
@@ -513,6 +531,14 @@ namespace wisdom
 
         if (!a_is_capturing && !b_is_capturing)
         {
+            if (!a.isPromoting() && !b.isPromoting())
+            {
+                auto a_rank = killerRank (a);
+                auto b_rank = killerRank (b);
+
+                if (a_rank != b_rank)
+                    return a_rank < b_rank;
+            }
             return promotingOrCoordCompare (a, b);
         }
 
@@ -541,14 +567,14 @@ namespace wisdom
         generateSortedMoves (
             const Board& board,
             Color who,
-            optional<Move> priority_move,
+            const MoveOrdering& ordering,
             bool captures_only
         ) noexcept
             -> MoveList
         {
             MoveList result;
             MoveGeneration generation {
-                board, &result, 0, 0, who, priority_move, captures_only
+                board, &result, 0, 0, who, ordering, captures_only
             };
 
             for (auto coord : Board::allCoords())
@@ -572,24 +598,24 @@ namespace wisdom
     }
 
     auto
-    generateAllPotentialMoves (const Board& board, Color who, optional<Move> priority_move) noexcept
+    generateAllPotentialMoves (const Board& board, Color who, const MoveOrdering& ordering) noexcept
         -> MoveList
     {
-        return generateSortedMoves (board, who, priority_move, false);
+        return generateSortedMoves (board, who, ordering, false);
     }
 
     auto
     generateAllPotentialMoves (const Board& board, Color who) noexcept
         -> MoveList
     {
-        return generateAllPotentialMoves (board, who, nullopt);
+        return generateAllPotentialMoves (board, who, MoveOrdering {});
     }
 
     auto
     generateCaptures (const Board& board, Color who) noexcept
         -> MoveList
     {
-        return generateSortedMoves (board, who, nullopt, true);
+        return generateSortedMoves (board, who, MoveOrdering {}, true);
     }
 
     auto
@@ -661,7 +687,7 @@ namespace wisdom
             -> MoveList
         {
             MoveList result;
-            MoveGeneration generation { board, &result, 0, 0, who, nullopt };
+            MoveGeneration generation { board, &result, 0, 0, who, MoveOrdering {} };
 
             generation.generate (board.pieceAt (coord), coord);
 

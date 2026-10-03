@@ -4,6 +4,7 @@
 #include "wisdom-chess/engine/move.hpp"
 #include "wisdom-chess/engine/board_code.hpp"
 #include "wisdom-chess/engine/move_list.hpp"
+#include "wisdom-chess/engine/move_ordering.hpp"
 
 namespace wisdom
 {
@@ -12,9 +13,10 @@ namespace wisdom
     generateAllPotentialMoves (const Board& board, Color who) noexcept
         -> MoveList;
 
-    // Generate all potential moves with priority move sorted first.
+    // Generate all potential moves, with the moves the ordering names
+    // sorted ahead of the rest.
     [[nodiscard]] auto
-    generateAllPotentialMoves (const Board& board, Color who, optional<Move> priority_move) noexcept
+    generateAllPotentialMoves (const Board& board, Color who, const MoveOrdering& ordering) noexcept
         -> MoveList;
 
     // Generate the potential captures and promotions to a queen for the

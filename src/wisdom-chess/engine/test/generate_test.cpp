@@ -142,6 +142,104 @@ TEST_CASE( "Generated moves are sorted by capturing difference of pieces" )
     CHECK( *(move_list.begin() + 1) == moveParse ("c4xb3", Color::Black) );
 }
 
+TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
+{
+    SUBCASE( "The priority move is first, then the killers in slot order" )
+    {
+        Board board;
+        Move priority = moveParse ("d2 d4", Color::White);
+        Move first_killer = moveParse ("g1 f3", Color::White);
+        Move second_killer = moveParse ("e2 e4", Color::White);
+
+        auto move_list = generateAllPotentialMoves (
+            board, Color::White,
+            MoveOrdering { priority, { first_killer, second_killer } }
+        );
+
+        INFO( move_list );
+        REQUIRE( move_list.size() == 20 );
+        CHECK( *move_list.begin() == priority );
+        CHECK( *(move_list.begin() + 1) == first_killer );
+        CHECK( *(move_list.begin() + 2) == second_killer );
+        CHECK( sortedMoves (move_list)
+               == sortedMoves (generateAllPotentialMoves (board, Color::White)) );
+    }
+
+    SUBCASE( "Captures come before a killer" )
+    {
+        BoardBuilder builder;
+
+        builder.addPiece ("c4", Color::Black, Piece::Pawn);
+        builder.addPiece ("e4", Color::Black, Piece::Queen);
+        builder.addPiece ("d3", Color::White, Piece::Queen);
+        builder.addPiece ("b3", Color::White, Piece::Bishop);
+        builder.addPiece ("a1", Color::White, Piece::King);
+        builder.addPiece ("e1", Color::Black, Piece::King);
+        builder.setCurrentTurn (Color::Black);
+
+        auto board = Board { builder };
+        Move killer = moveParse ("e1 d1", Color::Black);
+
+        auto move_list = generateAllPotentialMoves (
+            board, Color::Black, MoveOrdering { nullopt, { killer, nullopt } }
+        );
+
+        INFO( move_list );
+        REQUIRE( move_list.size() >= 4 );
+        CHECK( *move_list.begin() == moveParse ("c4xd3", Color::Black) );
+        CHECK( *(move_list.begin() + 1) == moveParse ("c4xb3", Color::Black) );
+        CHECK( *(move_list.begin() + 2) == moveParse ("e4xd3", Color::Black) );
+        CHECK( *(move_list.begin() + 3) == killer );
+    }
+
+    SUBCASE( "Promotions come before a killer" )
+    {
+        BoardBuilder builder;
+
+        builder.addPiece ("a7", Color::White, Piece::Pawn);
+        builder.addPiece ("e1", Color::White, Piece::King);
+        builder.addPiece ("e8", Color::Black, Piece::King);
+
+        auto board = Board { builder };
+        Move killer = moveParse ("e1 d1", Color::White);
+
+        auto move_list = generateAllPotentialMoves (
+            board, Color::White, MoveOrdering { nullopt, { killer, nullopt } }
+        );
+
+        INFO( move_list );
+        REQUIRE( move_list.size() >= 5 );
+        CHECK( *move_list.begin() == moveParse ("a7 a8 (Q)", Color::White) );
+        CHECK( (move_list.begin() + 3)->isPromoting() );
+        CHECK( *(move_list.begin() + 4) == killer );
+    }
+
+    SUBCASE( "A killer that is not in the list changes nothing" )
+    {
+        Board board;
+        Move absent = moveParse ("a1 h8", Color::White);
+
+        auto plain = generateAllPotentialMoves (board, Color::White);
+        auto ordered = generateAllPotentialMoves (
+            board, Color::White, MoveOrdering { nullopt, { absent, absent } }
+        );
+
+        CHECK( std::vector<Move> (ordered.begin(), ordered.end())
+               == std::vector<Move> (plain.begin(), plain.end()) );
+    }
+
+    SUBCASE( "An empty ordering gives the plain order" )
+    {
+        Board board;
+
+        auto plain = generateAllPotentialMoves (board, Color::White);
+        auto ordered = generateAllPotentialMoves (board, Color::White, MoveOrdering {});
+
+        CHECK( std::vector<Move> (ordered.begin(), ordered.end())
+               == std::vector<Move> (plain.begin(), plain.end()) );
+    }
+}
+
 TEST_CASE( "hasLegalMove" )
 {
     auto board_from_fen = [] (czstring fen_text) {
