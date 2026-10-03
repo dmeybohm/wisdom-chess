@@ -65,11 +65,12 @@ of it, from the bottom up:
 ## Move generation and legality
 
 The generator produces pseudo-legal moves, and legality is tested by
-making the move. The generator walks the 64 squares and, for each piece of the side to move, runs that piece's
-generator. Sliding pieces step along their rays; knight destinations
-come from a table computed at compile time; pawns handle the single and
-double push, captures, promotions and en passant; the king adds castling
-when the rights, the empty squares and the rook are there.
+making the move. The generator walks the 64 squares and, for each
+piece of the side to move, runs that piece's generator. Sliding pieces
+step along their rays; knight destinations come from a table computed
+at compile time; pawns handle the single and double push, captures,
+promotions and en passant; the king adds castling when the rights, the
+empty squares and the rook are there.
 
 The entry points are:
 
