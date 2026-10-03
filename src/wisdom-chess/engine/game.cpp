@@ -1,9 +1,5 @@
-#include <fstream>
-
 #include "wisdom-chess/engine/game.hpp"
 #include "wisdom-chess/engine/game_impl.hpp"
-#include "wisdom-chess/engine/str.hpp"
-#include "wisdom-chess/engine/output_format.hpp"
 #include "wisdom-chess/engine/move_timer.hpp"
 #include "wisdom-chess/engine/search.hpp"
 #include "wisdom-chess/engine/transposition_table.hpp"
@@ -14,22 +10,6 @@
 
 namespace wisdom
 {
-    namespace
-    {
-        FenOutputFormat fen_output_format;
-        WisdomGameOutputFormat wisdom_game_output_format;
-
-        auto
-        makeOutputFormat (const string& filename)
-            -> OutputFormat&
-        {
-            if (filename.find (".fen") != string::npos)
-                return fen_output_format;
-            else
-                return wisdom_game_output_format;
-        }
-    }
-
     // Main constructor that maintains all invariants
     Game::Impl::Impl (const BoardBuilder& builder, const Players& players, Color current_turn)
         : current_board { builder }
@@ -140,21 +120,10 @@ namespace wisdom
         return Game { make_unique<Impl> (builder, players) };
     }
 
-    auto Game::loadGame (const string& filename, const Players& players) -> optional<Game>
-    {
-        return load (filename, players);
-    }
-
     void Game::move (Move move)
     {
         my_pimpl->current_board = my_pimpl->current_board.withMove (getCurrentTurn(), move);
         my_pimpl->history.addPosition (my_pimpl->current_board, move);
-    }
-
-    void Game::save (const string& input) const
-    {
-        OutputFormat& output = makeOutputFormat (input);
-        output.save (input, my_pimpl->current_board, my_pimpl->history, getCurrentTurn());
     }
 
     auto Game::getStatus() const -> GameStatus
@@ -240,36 +209,6 @@ namespace wisdom
         return result.move;
     }
 
-    auto Game::load (const string& filename, const Players& players)
-        -> optional<Game>
-    {
-        string input_buf;
-        std::ifstream istream;
-
-        istream.open (filename, std::ios::in);
-
-        if (istream.fail())
-            return {};
-
-        Game result = Game::createGame (players);
-
-        while (std::getline (istream, input_buf))
-        {
-            input_buf = chomp (input_buf);
-
-            if (input_buf == "stop")
-                break;
-
-            auto move = moveParseOptional (input_buf, result.getCurrentTurn());
-            if (!move.has_value())
-                return {};
-
-            result.move (*move);
-        }
-
-        return result;
-    }
-
     auto Game::getCurrentTurn() const -> Color
     {
         return my_pimpl->current_board.getCurrentTurn();
@@ -288,6 +227,11 @@ namespace wisdom
     }
 
     auto Game::getHistory() & -> History&
+    {
+        return my_pimpl->history;
+    }
+
+    auto Game::getHistory() const& -> const History&
     {
         return my_pimpl->history;
     }

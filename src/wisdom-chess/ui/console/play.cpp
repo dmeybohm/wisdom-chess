@@ -7,6 +7,7 @@
 #include "wisdom-chess/engine/evaluate.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/engine/game_file.hpp"
 #include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/str.hpp"
 #include "wisdom-chess/engine/logger.hpp"
@@ -333,7 +334,7 @@ namespace wisdom::ui::console
             if (input.empty())
                 return nullopt;
 
-            auto optional_game = Game::loadGame (input, my_game.getPlayers());
+            auto optional_game = wisdom::loadGame (input, my_game.getPlayers());
             if (!optional_game.has_value())
                 return nullopt;
 
@@ -584,7 +585,7 @@ namespace wisdom::ui::console
                     {
                         try
                         {
-                            my_game.save (save_game.file_path);
+                            wisdom::saveGame (my_game, save_game.file_path);
                             std::cout << "Game saved to " << save_game.file_path << "\n\n";
                         }
                         catch (const Error& error)

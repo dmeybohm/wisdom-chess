@@ -51,6 +51,7 @@ add_library(wisdom-chess-core STATIC
         evaluate.hpp
         fen_parser.hpp
         game.hpp
+        game_file.hpp
         game_status.hpp
         generate.hpp
         global.hpp
@@ -78,6 +79,7 @@ add_library(wisdom-chess-core STATIC
         evaluate.cpp
         fen_parser.cpp
         game.cpp
+        game_file.cpp
         game_status.cpp
         generate.cpp
         global.cpp

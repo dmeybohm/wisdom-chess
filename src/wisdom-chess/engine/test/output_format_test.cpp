@@ -4,6 +4,7 @@
 #include "wisdom-chess/engine/board.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/engine/game_file.hpp"
 #include "wisdom-chess/engine/output_format.hpp"
 
 #include "wisdom-chess-tests.hpp"
@@ -104,7 +105,7 @@ TEST_CASE( "WisdomGameOutputFormat" )
         WisdomGameOutputFormat format;
         format.save (file.path(), game.getBoard(), game.getHistory(), game.getCurrentTurn());
 
-        auto loaded = Game::loadGame (file.path(), players);
+        auto loaded = loadGame (file.path(), players);
 
         REQUIRE( loaded.has_value() );
         CHECK( fenOf (*loaded) == fenOf (game) );
@@ -122,7 +123,7 @@ TEST_CASE( "WisdomGameOutputFormat" )
 
         CHECK( file.lines().empty() );
 
-        auto loaded = Game::loadGame (file.path(), players);
+        auto loaded = loadGame (file.path(), players);
         REQUIRE( loaded.has_value() );
         CHECK( fenOf (*loaded) == fenOf (new_game) );
     }
@@ -150,7 +151,7 @@ TEST_CASE( "FenOutputFormat" )
     }
 }
 
-TEST_CASE( "Game::save chooses the format from the file name" )
+TEST_CASE( "saveGame() chooses the format from the file name" )
 {
     auto game = playSampleGame();
 
@@ -158,7 +159,7 @@ TEST_CASE( "Game::save chooses the format from the file name" )
     {
         TemporaryFile file { "wisdom-chess-game-save-test.fen" };
 
-        game.save (file.path());
+        saveGame (game, file.path());
 
         auto lines = file.lines();
         REQUIRE( lines.size() == 1 );
@@ -169,7 +170,7 @@ TEST_CASE( "Game::save chooses the format from the file name" )
     {
         TemporaryFile file { "wisdom-chess-game-save-test.txt" };
 
-        game.save (file.path());
+        saveGame (game, file.path());
 
         CHECK( file.lines().size() == game.getHistory().getMoveHistory().size() );
     }

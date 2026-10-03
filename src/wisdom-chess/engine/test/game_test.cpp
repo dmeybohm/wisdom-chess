@@ -5,6 +5,7 @@
 
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/game.hpp"
+#include "wisdom-chess/engine/game_file.hpp"
 #include "wisdom-chess/engine/fen_parser.hpp"
 #include "wisdom-chess/engine/history.hpp"
 #include "wisdom-chess/engine/generate.hpp"
@@ -103,14 +104,14 @@ TEST_CASE( "Loading a saved game" )
     {
         std::filesystem::remove (path);
 
-        CHECK( !Game::loadGame (path.string(), players).has_value() );
+        CHECK( !loadGame (path.string(), players).has_value() );
     }
 
     SUBCASE( "Moves are replayed up to the stop marker" )
     {
         write_file ("e2 e4\ne7 e5\nstop\ng1 f3\n");
 
-        auto game = Game::loadGame (path.string(), players);
+        auto game = loadGame (path.string(), players);
 
         REQUIRE( game.has_value() );
         CHECK( game->getCurrentTurn() == Color::White );
@@ -122,7 +123,7 @@ TEST_CASE( "Loading a saved game" )
     {
         write_file ("e2 e4\nnot a move\n");
 
-        CHECK( !Game::loadGame (path.string(), players).has_value() );
+        CHECK( !loadGame (path.string(), players).has_value() );
     }
 
     std::filesystem::remove (path);
