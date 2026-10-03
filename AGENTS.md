@@ -33,8 +33,8 @@ committing C++. The conventions below are about what the code does.
   `narrow` throws `PreconditionError` when the value does not fit;
   `narrow_cast` is a `static_cast`.
 - `EXPECTS( cond )` / `ENSURES( cond )` (`engine/error.hpp`) check caller
-  input and throw. `NOEXCEPT_EXPECTS( cond )` aborts and belongs only in
-  `noexcept` functions. `ASSERT( cond )` replaces `assert()`: it aborts
+  input and throw. `NOEXCEPT_EXPECTS( cond )` and `NOEXCEPT_ENSURES( cond )`
+  abort and belong only in `noexcept` functions. `ASSERT( cond )` replaces `assert()`: it aborts
   only when `Debugging` is on, and otherwise the condition is not
   evaluated. The macros quote the condition in the failure message, so
   the functions under them (`expects()`, ...) are not called directly.

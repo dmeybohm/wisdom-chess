@@ -151,7 +151,7 @@ namespace wisdom
         BoundType bound_type,
         Move best_move,
         int ply
-    )
+    ) noexcept
     {
         auto index = foldHashTo32Bits (hash) & my_size_mask;
         auto& entry = my_entries[index];
@@ -164,7 +164,7 @@ namespace wisdom
 
         entry.hash_code = hash;
         entry.score = scoreToTT (score, ply);
-        entry.depth = narrow<int16_t> (depth);
+        entry.depth = noexcept_narrow<int16_t> (depth);
         entry.bound_type = bound_type;
         entry.best_move = best_move;
     }

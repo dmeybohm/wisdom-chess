@@ -139,7 +139,14 @@ namespace wisdom
             return repetitions >= repetition_count;
         }
 
-        void addTentativePosition (const Board& board)
+        // Make room for this many more tentative positions, so that adding
+        // them does not allocate.
+        void reserveTentativePositions (size_t count)
+        {
+            my_board_codes.reserve (my_board_codes.size() + count);
+        }
+
+        void addTentativePosition (const Board& board) noexcept
         {
             my_board_codes.emplace_back (board.getBoardCode());
             my_tentative_nesting_count++;

@@ -2,7 +2,7 @@
 
 namespace wisdom
 {
-    auto MoveTimer::isTriggered() -> bool
+    auto MoveTimer::isTriggered() noexcept -> bool
     {
         if (!my_timer_state.started_time.has_value())
             return false;

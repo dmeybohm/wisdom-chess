@@ -117,8 +117,9 @@ namespace
         throw Error { "boom", "extra detail" };
     }
 
-    // Fails on the timer's first periodic call, which depth 4 reaches.
-    void searchError()
+    // The periodic function runs inside the noexcept search, so a throw
+    // from it ends the process. Depth 4 reaches the first periodic call.
+    void periodicFunctionThrows()
     {
         Board board { BoardBuilder::fromDefaultPosition() };
         History history;
@@ -138,6 +139,12 @@ namespace
             Claimable_Draw_Limits
         );
         (void)search.iterativelyDeepen (Color::White);
+    }
+
+    void noexceptEnsuresFailure()
+    {
+        volatile bool condition = false;
+        NOEXCEPT_ENSURES( condition );
     }
 
     void expectsThroughNoexcept()
@@ -206,10 +213,15 @@ namespace
         },
         { "uncaught-error", "Uncaught error: boom", &uncaughtError, Reports_Uncaught_Errors },
         {
-            "search-error",
-            "Uncaught error: boom.extra detail.[^[]*\\|",
-            &searchError,
+            "periodic-function-throws",
+            "Uncaught error: boom.extra detail",
+            &periodicFunctionThrows,
             Reports_Uncaught_Errors,
+        },
+        {
+            "noexcept-ensures-failure",
+            "Postcondition failed at .*fatal_test_main\\.cpp:[0-9]+: condition",
+            &noexceptEnsuresFailure,
         },
         {
             "expects-through-noexcept",

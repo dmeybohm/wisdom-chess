@@ -91,7 +91,7 @@ namespace wisdom
             BoundType bound_type,
             Move best_move,
             int ply
-        );
+        ) noexcept;
 
         void clear() noexcept;
 

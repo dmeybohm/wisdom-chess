@@ -273,6 +273,16 @@ TEST_CASE( "nullable" )
     }
 }
 
+TEST_CASE( "NOEXCEPT_ENSURES passes a true condition" )
+{
+    auto checked = []() noexcept
+    {
+        NOEXCEPT_ENSURES( 1 + 1 == 2 );
+        return true;
+    };
+    CHECK( checked() );
+}
+
 TEST_CASE( "EXPECTS quotes the condition and the location in the error" )
 {
     try
