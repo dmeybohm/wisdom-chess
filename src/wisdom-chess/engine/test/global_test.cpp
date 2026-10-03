@@ -66,15 +66,15 @@ TEST_CASE( "narrow names its caller in the error" )
     }
 }
 
-TEST_CASE( "noexcept_narrow converts a value that fits" )
+TEST_CASE( "narrow_noexcept converts a value that fits" )
 {
-    static_assert (noexcept_narrow<int8_t> (100) == 100);
-    static_assert (noexcept (noexcept_narrow<int8_t> (100)));
+    static_assert (narrow_noexcept<int8_t> (100) == 100);
+    static_assert (noexcept (narrow_noexcept<int8_t> (100)));
 
     int fits = 127;
     std::size_t zero = 0;
-    CHECK( noexcept_narrow<int8_t> (fits) == 127 );
-    CHECK( noexcept_narrow<int> (zero) == 0 );
+    CHECK( narrow_noexcept<int8_t> (fits) == 127 );
+    CHECK( narrow_noexcept<int> (zero) == 0 );
 }
 
 TEST_CASE( "narrow_cast converts without a check at runtime" )
@@ -96,10 +96,10 @@ TEST_CASE( "widen converts wider integer types and checks signedness" )
     CHECK_THROWS_AS( (void)widen<uint64_t> (negative), PreconditionError );
 }
 
-TEST_CASE( "noexcept_widen checks values that fit" )
+TEST_CASE( "widen_noexcept checks values that fit" )
 {
-    static_assert (noexcept_widen<uint64_t> (int32_t { 42 }) == 42);
-    static_assert (noexcept (noexcept_widen<uint64_t> (int32_t { 42 })));
+    static_assert (widen_noexcept<uint64_t> (int32_t { 42 }) == 42);
+    static_assert (noexcept (widen_noexcept<uint64_t> (int32_t { 42 })));
 }
 
 TEST_CASE( "widen_cast converts to a type that holds every value" )
@@ -131,10 +131,10 @@ TEST_CASE( "to_unsigned converts a nonnegative value and rejects a negative one"
     }
 }
 
-TEST_CASE( "noexcept_to_unsigned converts a nonnegative value" )
+TEST_CASE( "to_unsigned_noexcept converts a nonnegative value" )
 {
-    static_assert (noexcept_to_unsigned<uint64_t> (int32_t { 42 }) == 42);
-    static_assert (noexcept (noexcept_to_unsigned<uint64_t> (int32_t { 42 })));
+    static_assert (to_unsigned_noexcept<uint64_t> (int32_t { 42 }) == 42);
+    static_assert (noexcept (to_unsigned_noexcept<uint64_t> (int32_t { 42 })));
 }
 
 TEST_CASE( "to_unsigned_cast converts without a check at runtime" )
@@ -334,11 +334,11 @@ TEST_CASE( "nullable" )
     }
 }
 
-TEST_CASE( "NOEXCEPT_ENSURES passes a true condition" )
+TEST_CASE( "ENSURES_NOEXCEPT passes a true condition" )
 {
     auto checked = []() noexcept
     {
-        NOEXCEPT_ENSURES( 1 + 1 == 2 );
+        ENSURES_NOEXCEPT( 1 + 1 == 2 );
         return true;
     };
     CHECK( checked() );

@@ -857,7 +857,7 @@ namespace wisdom
     needPawnPromotion (int row, Color who) noexcept
         -> bool
     {
-        NOEXCEPT_EXPECTS( isColorValid (who) );
+        EXPECTS_NOEXCEPT( isColorValid (who) );
         return who == Color::White ? row == First_Row : row == Last_Row;
     }
 }

@@ -129,7 +129,7 @@ namespace wisdom
     // Reports the failure and aborts when the condition is false. For
     // noexcept functions, where expects() could not propagate its exception.
     constexpr void
-    noexcept_expects (
+    expects_noexcept (
         bool condition,
         string_view expression,
         std::source_location location = std::source_location::current()
@@ -154,7 +154,7 @@ namespace wisdom
     // Reports the failure and aborts when the condition is false. For
     // noexcept functions, where ensures() could not propagate its exception.
     constexpr void
-    noexcept_ensures (
+    ensures_noexcept (
         bool condition,
         string_view expression,
         std::source_location location = std::source_location::current()
@@ -181,9 +181,9 @@ namespace wisdom
 // Written with spaces inside the parentheses, like the test macros:
 // EXPECTS( index < size ). The failure message quotes the condition.
 #define EXPECTS(condition) ::wisdom::expects ((condition), #condition)
-#define NOEXCEPT_EXPECTS(condition) ::wisdom::noexcept_expects ((condition), #condition)
+#define EXPECTS_NOEXCEPT(condition) ::wisdom::expects_noexcept ((condition), #condition)
 #define ENSURES(condition) ::wisdom::ensures ((condition), #condition)
-#define NOEXCEPT_ENSURES(condition) ::wisdom::noexcept_ensures ((condition), #condition)
+#define ENSURES_NOEXCEPT(condition) ::wisdom::ensures_noexcept ((condition), #condition)
 
 // A replacement for assert(): in a build without Debugging the condition is
 // type-checked but not evaluated, except in a constant expression, where a

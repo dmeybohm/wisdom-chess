@@ -73,14 +73,14 @@ namespace wisdom
     // invariant inside a noexcept function.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
-    noexcept_narrow (Source value, std::source_location location = std::source_location::current()) noexcept
+    narrow_noexcept (Source value, std::source_location location = std::source_location::current()) noexcept
         -> Target
     {
         static_assert (std::is_arithmetic_v<Source>);
         static_assert (std::is_arithmetic_v<Target>);
 
         if (!isLosslessConversion<Target> (value)) [[unlikely]]
-            terminateOnCheckFailure ("Precondition", "noexcept_narrow: the value fits in the target type", location);
+            terminateOnCheckFailure ("Precondition", "narrow_noexcept: the value fits in the target type", location);
 
         return static_cast<Target> (value);
     }
@@ -118,14 +118,14 @@ namespace wisdom
     // Like widen(), but aborts instead of throwing for a failed invariant.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
-    noexcept_widen (Source value, std::source_location location = std::source_location::current()) noexcept
+    widen_noexcept (Source value, std::source_location location = std::source_location::current()) noexcept
         -> Target
     {
         static_assert (std::is_integral_v<Source> && std::is_integral_v<Target>);
         static_assert (sizeof (Target) > sizeof (Source));
 
         if (!isLosslessConversion<Target> (value)) [[unlikely]]
-            terminateOnCheckFailure ("Precondition", "noexcept_widen: the value fits in the target type", location);
+            terminateOnCheckFailure ("Precondition", "widen_noexcept: the value fits in the target type", location);
 
         return static_cast<Target> (value);
     }
@@ -150,7 +150,7 @@ namespace wisdom
     // Like to_unsigned(), but aborts instead of throwing for a failed invariant.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
-    noexcept_to_unsigned (Source value, std::source_location location = std::source_location::current()) noexcept
+    to_unsigned_noexcept (Source value, std::source_location location = std::source_location::current()) noexcept
         -> Target
     {
         static_assert (std::is_integral_v<Source> && std::is_signed_v<Source>);
@@ -158,7 +158,7 @@ namespace wisdom
         static_assert (sizeof (Target) >= sizeof (Source));
 
         if (value < 0) [[unlikely]]
-            terminateOnCheckFailure ("Precondition", "noexcept_to_unsigned: the value is nonnegative", location);
+            terminateOnCheckFailure ("Precondition", "to_unsigned_noexcept: the value is nonnegative", location);
 
         return static_cast<Target> (value);
     }

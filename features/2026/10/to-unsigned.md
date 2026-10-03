@@ -18,12 +18,12 @@ an `int` ply and square.
 - `widen_cast` now accepts only conversions that hold every value of the
   source: a strictly wider target, and a signed target for a signed
   source. It needs no check, so its constant-expression check is gone.
-- `to_unsigned`, `noexcept_to_unsigned` and `to_unsigned_cast` convert a
+- `to_unsigned`, `to_unsigned_noexcept` and `to_unsigned_cast` convert a
   nonnegative signed value to an unsigned type at least as wide. They
   follow the narrow family: the first throws `PreconditionError` for a
   negative value, the second terminates, and the third is a `static_cast`
   at runtime and a compile error for a negative constant.
-- The checked `widen` and `noexcept_widen` are unchanged, since they
+- The checked `widen` and `widen_noexcept` are unchanged, since they
   check the value.
 
 ## Implementation Progress
@@ -40,7 +40,7 @@ an `int` ply and square.
 
 - Replaced the `ASSERT`-only `to_unsigned` with the three-form family, so
   it matches `narrow` and `widen`. The Debug-only fatal case became one
-  for `noexcept_to_unsigned` in every build.
+  for `to_unsigned_noexcept` in every build.
 - Switched the move ordering code's 11 sign conversions from `narrow_cast`
   to `to_unsigned_cast`: 8 table indexes in `move_ordering.cpp` and 3 sort
   key fields in `generate.cpp`. They are in `noexcept` search code, where
