@@ -190,6 +190,13 @@ if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS)
         INPUT "debug on" "position fen not a fen at all ok" "isready" "quit"
         EXPECTED "info string Invalid FEN: not a fen at all ok" "readyok")
 
+    # The search logs the position it was asked about as a FEN on one line,
+    # so every line of debug output keeps its "info" prefix.
+    wisdom_chess_add_cli_test("UCI: debug mode logs the searched position as a FEN" wisdom-chess-uci
+        INPUT "debug on" "position startpos" "go depth 1" "stop" "quit"
+        EXPECTED "info string Searching position rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+        FORBIDDEN "\n[^ib\n]")
+
     wisdom_chess_add_cli_test("UCI: an invalid FEN is reported without debug mode too" wisdom-chess-uci
         INPUT "position fen not a fen at all ok" "isready" "quit"
         EXPECTED "info string Invalid FEN: not a fen at all ok" "readyok")

@@ -18,6 +18,12 @@ namespace wisdom
     // searching its evasions, so a series of checks cannot run on.
     static constexpr int Max_Quiescence_Evasion_Ply = 4;
 
+    // The tentative positions a quiescence line can add beyond the search
+    // depth. A capture-only line has at most one ply per piece taken, and
+    // past Max_Quiescence_Evasion_Ply a check ends the line. Generous, so
+    // that a search never grows the history's vector.
+    static constexpr int Max_Quiescence_Line = Num_Squares;
+
     class IterativeSearchImpl
     {
     public:
@@ -38,6 +44,9 @@ namespace wisdom
             , my_transposition_table { transposition_table }
             , my_total_depth { total_depth }
         {
+            my_history.reserveTentativePositions (
+                narrow_cast<size_t> (total_depth + Max_Quiescence_Line)
+            );
         }
 
         [[nodiscard]] auto
@@ -51,13 +60,13 @@ namespace wisdom
         // Search for the best move, and return the best score.
         auto
         search (const Board& parent_board, Color side, int depth,
-                int alpha, int beta, int ply)
+                int alpha, int beta, int ply) noexcept
             -> int;
 
         // Search captures until the position is quiet, and return the best score.
         auto
         quiesce (const Board& board, Color side, int alpha, int beta, int ply,
-                 int quiescence_ply)
+                 int quiescence_ply) noexcept
             -> int;
 
         // Get the best result the search found.
@@ -164,7 +173,7 @@ namespace wisdom
         }
 
         auto
-        isLegalMove (const Board& board, Color who, Move move)
+        isLegalMove (const Board& board, Color who, Move move) noexcept
             -> bool
         {
             auto legal_moves = generateLegalMoves (board, who);
@@ -180,7 +189,7 @@ namespace wisdom
         int alpha,
         int beta,
         int ply
-    )
+    ) noexcept
         -> int
     {
         // The root is searched even when it is a draw: the caller asked for
@@ -305,7 +314,7 @@ namespace wisdom
         int beta,
         int ply,
         int quiescence_ply
-    )
+    ) noexcept
         -> int
     {
         // The main search has already checked the first node for a draw.
@@ -417,59 +426,54 @@ namespace wisdom
 
         my_searching_color = side;
 
-        try
+        // The position searched, once, as a FEN, so that a log holds the one
+        // line that reproduces a failure in the search; the recursion itself
+        // is noexcept and logs nothing.
+        my_output->debug ("Searching position " + my_original_board.toFenString (side));
+
+        my_timer.start();
+
+        for (int depth = 1; depth <= my_total_depth; depth++)
         {
-            my_timer.start();
+            std::ostringstream ostr;
+            ostr << "Searching depth " << depth;
+            my_output->info (std::move (ostr).str());
 
-            for (int depth = 1; depth <= my_total_depth; depth++)
+            iterate (side, depth);
+            auto next_result = getBestResult();
+
+            if (my_current_result.timed_out)
             {
-                std::ostringstream ostr;
-                ostr << "Searching depth " << depth;
-                my_output->info (std::move (ostr).str());
-
-                iterate (side, depth);
-                auto next_result = getBestResult();
-
-                if (my_current_result.timed_out)
-                {
-                    // The clock stopped this depth part way. A root move it
-                    // had finished is kept when it is the move the previous
-                    // depth chose, now seen deeper, or scores better than
-                    // that depth's choice; otherwise the previous depth stands.
-                    bool keep_partial = next_result.move.has_value()
-                        && (!best_result.move.has_value()
-                            || next_result.move == best_result.move
-                            || next_result.score > best_result.score);
-                    if (keep_partial)
-                        best_result = next_result;
-                    break;
-                }
-
-                if (next_result.move.has_value())
-                {
+                // The clock stopped this depth part way. A root move it
+                // had finished is kept when it is the move the previous
+                // depth chose, now seen deeper, or scores better than
+                // that depth's choice; otherwise the previous depth stands.
+                bool keep_partial = next_result.move.has_value()
+                    && (!best_result.move.has_value()
+                        || next_result.move == best_result.move
+                        || next_result.score > best_result.score);
+                if (keep_partial)
                     best_result = next_result;
-                    if (isCheckmatingOpponentScore (next_result.score))
-                        break;
-                }
+                break;
             }
 
-            best_result.nodes = my_total_nodes_visited + my_total_quiescence_nodes_visited;
-            best_result.quiescence_nodes = my_total_quiescence_nodes_visited;
-
-            if (best_result.move.has_value())
+            if (next_result.move.has_value())
             {
-                ENSURES( isLegalMove (my_original_board, side, *best_result.move) );
-                ENSURES( best_result.score <= Checkmate_Score && best_result.score >= -Checkmate_Score );
+                best_result = next_result;
+                if (isCheckmatingOpponentScore (next_result.score))
+                    break;
             }
-            return best_result;
         }
-        catch (const Error& e)
+
+        best_result.nodes = my_total_nodes_visited + my_total_quiescence_nodes_visited;
+        best_result.quiescence_nodes = my_total_quiescence_nodes_visited;
+
+        if (best_result.move.has_value())
         {
-            throw SearchError {
-                e.message(),
-                e.extraInfo() + "\n" + my_original_board.asString()
-            };
+            ENSURES( isLegalMove (my_original_board, side, *best_result.move) );
+            ENSURES( best_result.score <= Checkmate_Score && best_result.score >= -Checkmate_Score );
         }
+        return best_result;
     }
 
     [[nodiscard]] auto

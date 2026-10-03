@@ -69,6 +69,17 @@ TEST_CASE( "The UCI emergency logger writes each line as an info string" )
     CHECK( cout.captured.str() == "info string first\ninfo string second\n" );
 }
 
+TEST_CASE( "The UCI logger prefixes every line of a message" )
+{
+    CapturedStream cout { std::cout };
+    auto logger = makeUciLogger (true);
+
+    logger->debug ("first\nsecond");
+    logger->info ("third\nfourth\n");
+
+    CHECK( cout.captured.str() == "info string first\ninfo string second\ninfo third\ninfo fourth\n" );
+}
+
 TEST_CASE( "A failing standard output does not escape the UCI emergency logger" )
 {
     CapturedStream cerr { std::cerr };

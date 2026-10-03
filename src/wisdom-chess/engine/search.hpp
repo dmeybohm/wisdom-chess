@@ -28,13 +28,6 @@ namespace wisdom
         int64_t quiescence_nodes { 0 };
     };
 
-    // An error raised while searching. The extra info ends with the board searched.
-    class SearchError : public Error
-    {
-    public:
-        using Error::Error;
-    };
-
     class IterativeSearch
     {
     public:
