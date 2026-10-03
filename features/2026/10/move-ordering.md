@@ -328,3 +328,12 @@ The branch is `move-ordering`, from `origin/main` at `e613ef39`.
   The six depth-8 searches together: 170.6s before, 39.2s after.
 - Step 4: updated the ordering paragraph of
   [engine-architecture.md](../../../docs/engine-architecture.md).
+- Step 3: `./scripts/run-engine-match.sh base=7bcff428 new=97729105`
+  with its defaults, 500 games at 8+0.08, four at a time; 47 minutes.
+
+  | Pairing | Games | W / D / L | Score | Elo | 95% range |
+  |---|---|---|---|---|---|
+  | new vs base | 500 | 170 / 255 / 75 | 59.5% | +67 | +46 to +88 |
+
+  Of the 250 opening pairs, `main` won both games of 1 and the branch
+  won both of 28. No game was lost on time or to an illegal move.
