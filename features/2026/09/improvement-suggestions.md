@@ -139,20 +139,22 @@ number for it, and the first step is to get one.
    2026-10-01 (`small-fixups`, PR #311). None of the four includes
    `global.hpp`, which now includes them and keeps the board
    dimensions, the material weights and the search constants.
-9. [ ] **Legality functions live in `evaluate.cpp`.**
+9. [x] **Legality functions live in `evaluate.cpp`.**
    `isLegalPositionAfterMove()`, `isCheckmated()` and `isStalemated()`
    (`engine/evaluate.cpp:95-142`) are rules, not evaluation. The move
    generator calls them, so `generate.cpp` includes `evaluate.hpp`.
-10. [ ] **Includes that nothing needs.** `board.hpp:7` includes
+10. [x] **Includes that nothing needs.** `board.hpp:7` includes
     `generate.hpp` and uses nothing from it; `evaluate.cpp:4` includes
     `search.hpp` and uses nothing from it. Other files may rely on the
     first one transitively, so removing it means adding the include
     where it is used.
-11. [ ] **File formats in `Game`.** `Game::save()` and `Game::load()`
+11. [x] **File formats in `Game`.** `Game::save()` and `Game::load()`
     (`engine/game.cpp:159`, `:247`) pick a format from the file name
     through two mutable file-scope objects (`engine/game.cpp:16-17`).
     Free functions taking a `Game` would keep file handling out of the
     class every frontend depends on.
+    **Items 9, 10 and 11 done** on the `layering-improvements` branch
+    ([layering-improvements.md](../10/layering-improvements.md)).
 
 ### Frontends
 
@@ -517,3 +519,10 @@ score.
   counters, and the `JSON.parse` cast in `App.tsx`. `GameModel` has
   grown to 797 lines and `App.tsx` to 354.
 - The plan's order stands. Item 1 is next.
+
+### Session #6
+
+- Items 9, 10 and 11 are done on the `layering-improvements` branch and
+  marked so. That branch also moved `coordColor()` and
+  `pawnDirection()` from `board.hpp` to `coord.hpp`, which was not an
+  item.

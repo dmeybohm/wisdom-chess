@@ -76,6 +76,13 @@ The console frontend is the only caller of either. The QML and
 WebAssembly frontends do not save or load files, so the API change
 reaches them only as a removal they never used.
 
+### Two square functions move to `coord.hpp`
+
+Found on the way: `coordColor()` and `pawnDirection()` were defined at
+the bottom of `board.hpp`, though they are about squares and rows and
+use nothing of `Board`. They go to `coord.hpp`, which includes
+`piece.hpp` for `Color`, and their tests go to `coord_test.cpp`.
+
 ## Plan
 
 1. Item 9, then item 10, then item 11, each as its own commit, with
@@ -84,3 +91,27 @@ reaches them only as a removal they never used.
 2. Tick items 9, 10 and 11 in the suggestion list.
 
 The search is not touched, so there is nothing to measure.
+
+## Implementation Progress
+
+### Session #1
+
+- Items 9, 10 and 11 landed as one commit each, and the square
+  functions as a fourth. Release: 276 of 276 tests pass; Debug: the
+  fast suite passes. The linter is clean.
+- Item 10's sweep found that `board.cpp` also included `evaluate.hpp`
+  without using it; it came out with the other two. Two tests had
+  reached `MoveList` and `needPawnPromotion()` through `board.hpp`, and
+  the console had reached `generateLegalMoves()` through
+  `evaluate.hpp`; each now includes what it uses.
+- Item 11 needed a `const` overload of `Game::getHistory()`, since the
+  saver takes a `const Game&` and the only overload was mutable. The
+  console's class has members named `saveGame()` and `loadGame()`, so it
+  calls the free functions as `wisdom::saveGame()` and
+  `wisdom::loadGame()`. The save and load tests stayed in
+  `output_format_test.cpp` and `game_test.cpp`, with the calls updated.
+- Not done: renaming `output_format.hpp`, whose classes now serve only
+  `saveGame()`; and the UI sources that include `evaluate.hpp` without
+  using it (`game_viewmodel_base.hpp`, `web_types.hpp`,
+  `game_model.cpp`, `chess_engine.cpp`, `play.cpp`), which need a Qt or
+  Emscripten build to check.
