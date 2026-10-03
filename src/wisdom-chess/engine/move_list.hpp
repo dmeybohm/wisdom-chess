@@ -29,7 +29,7 @@ namespace wisdom
             }
         }
 
-        constexpr MoveList (const MoveList& other) // NOLINT(*-pro-type-member-init)
+        constexpr MoveList (const MoveList& other) noexcept // NOLINT(*-pro-type-member-init)
         {
             std::copy (
                 other.my_moves.begin(),
@@ -40,7 +40,7 @@ namespace wisdom
         }
 
         constexpr auto
-        operator= (const MoveList& other)
+        operator= (const MoveList& other) noexcept
             -> MoveList&
         {
             if (&other != this)
@@ -123,7 +123,7 @@ namespace wisdom
         [[nodiscard]] auto asString() const -> string;
 
         [[nodiscard]] constexpr auto
-        operator== (const MoveList& other) const
+        operator== (const MoveList& other) const noexcept
             -> bool
         {
             return size() == other.size() &&
@@ -131,25 +131,25 @@ namespace wisdom
         }
 
         [[nodiscard]] constexpr auto
-        operator!= (const MoveList& other) const
+        operator!= (const MoveList& other) const noexcept
             -> bool
         {
             return !(*this == other);
         }
 
         [[nodiscard]] constexpr auto
-        front() const
+        front() const noexcept
             -> Move
         {
-            EXPECTS( my_size > 0 );
+            NOEXCEPT_EXPECTS( my_size > 0 );
             return my_moves[0];
         }
 
         [[nodiscard]] constexpr auto
-        back() const
+        back() const noexcept
             -> Move
         {
-            EXPECTS( my_size > 0 );
+            NOEXCEPT_EXPECTS( my_size > 0 );
             return my_moves[my_size - 1];
         }
 

@@ -64,6 +64,18 @@ namespace
         list.removeLast();
     }
 
+    void frontOfEmpty()
+    {
+        MoveList list;
+        [[maybe_unused]] Move move = list.front();
+    }
+
+    void backOfEmpty()
+    {
+        MoveList list;
+        [[maybe_unused]] Move move = list.back();
+    }
+
     void badCastlingFlags()
     {
         volatile uint8_t flags = 0x4;
@@ -163,6 +175,8 @@ namespace
             &appendOverflow,
         },
         { "remove-from-empty", "Precondition failed at .*move_list\\.hpp", &removeFromEmpty },
+        { "front-of-empty", "Precondition failed at .*move_list\\.hpp", &frontOfEmpty },
+        { "back-of-empty", "Precondition failed at .*move_list\\.hpp", &backOfEmpty },
         { "bad-castling-flags", "Precondition failed at .*castling\\.hpp", &badCastlingFlags },
         { "bad-en-passant-row", "Precondition failed at .*board_code\\.hpp", &badEnPassantRow },
         {
