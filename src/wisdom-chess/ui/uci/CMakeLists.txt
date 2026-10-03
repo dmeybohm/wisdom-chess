@@ -14,6 +14,27 @@ if (WISDOM_CHESS_CONSOLE_UI)
     endif()
 endif()
 
+if (WISDOM_CHESS_CONSOLE_UI AND WISDOM_CHESS_FAST_TESTS AND TARGET doctest::doctest)
+    add_executable(wisdom-chess-uci-tests
+        test/uci_logger_test.cpp
+        test/test_main.cpp
+        uci_interface.cpp
+    )
+    target_link_libraries(wisdom-chess-uci-tests PRIVATE wisdom::chess doctest::doctest)
+    wisdom_chess_enable_warnings(wisdom-chess-uci-tests)
+    if(MSVC)
+        # doctest 2.4.12 specializes std::tuple, which MSVC 14.51 warns about
+        # with C5285 even though the specialization is in a dependency header.
+        target_compile_options(wisdom-chess-uci-tests PRIVATE /wd5285)
+    endif()
+
+    doctest_discover_tests(wisdom-chess-uci-tests PROPERTIES LABELS fast)
+
+    if (WISDOM_CHESS_FILC_COMPAT)
+        target_compile_definitions(wisdom-chess-uci-tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
+    endif()
+endif()
+
 # Each script ends with "stop" before "quit". Both "quit" and the end of input
 # supersede a running search, which then prints nothing. After "stop" the
 # search owes its "bestmove" and "quit" waits for it.

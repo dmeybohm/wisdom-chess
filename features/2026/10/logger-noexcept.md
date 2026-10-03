@@ -28,8 +28,12 @@ terminating by hand would only duplicate it.
 `emergency()` is different. The process is already ending, and the
 message should reach as many sinks as it can, so a sink that fails is
 swallowed, not fatal. `BufferedLogger::emergency()` already did this for
-its timestamp; `StandardLogger::emergency()` now does it for its stream
-write.
+its timestamp; `StandardLogger::emergency()` and `UciLogger::emergency()`
+now do it for their stream writes. The UCI one matters most: it is the
+emergency logger of a running engine, and `std::cout` throws
+`std::ios_base::failure` once stream exceptions are on and a write has
+failed, which without the `try` would have ended the process before
+`logEmergency()` could contain it.
 
 `BufferedLogger` was the one implementation with throwing expressions on
 the `debug()` and `info()` path: six `narrow` calls in
@@ -42,8 +46,9 @@ cannot fail. They are `noexcept_narrow` now, and `push()` is `noexcept`.
 - Engine: `NullLogger`, `StandardLogger`, `BufferedLogger`.
 - Frontends: `UciLogger` in `uci_interface.cpp`, `ChessEngineLogger` in
   the QML frontend, `WebLogger` in the WASM frontend. Qt and `EM_JS` do
-  not throw; the UCI logger builds a string and takes a lock, which
-  terminate on failure like any other logger.
+  not throw; the UCI logger's `debug()` and `info()` build a string and
+  take a lock, which terminate on failure like any other logger, and its
+  `emergency()` swallows, as above.
 - Tests: `RecordingLogger` and `ReentrantLogger` in `logger_test.cpp`,
   `DepthTrackingLogger` in `search_test.cpp`, `MarkedLogger` in
   `fatal_test_main.cpp`.
@@ -63,6 +68,13 @@ which the contract now forbids.
   search still runs. It is called every `Calls_Between_Clock_Checks`
   nodes, 1024, which depths 1 to 3 of the opening position do not
   reach, so both searches run to depth 4.
+
+- `uci_logger_test.cpp`, a new doctest suite `wisdom-chess-uci-tests`
+  that links `uci_interface.cpp` without `main.cpp`. It checks that the
+  UCI emergency logger writes each line as an `info string`, and that a
+  `std::cout` made to throw neither escapes the `noexcept` override nor
+  stops `logEmergency()` reaching `std::cerr`, nor leaves the emergency
+  path locked out afterwards.
 
 ## Out of scope
 
@@ -89,3 +101,11 @@ all 244 Debug tests; the WASM engine and its fast and fatal test suites
 build under Emscripten, and the logger and fatal tests pass there under
 node. The React frontend was not rebuilt; only `web_logger` changed on
 that side.
+
+### Session #2
+
+Review of the pull request: `UciLogger::emergency()` wrote through
+`sendEmergencyLines()` to `std::cout` with no handling, so a stream
+failure would have terminated the process inside the `noexcept`
+override. It now swallows the failure like `StandardLogger`, and the
+new `wisdom-chess-uci-tests` suite pins it with a throwing `std::cout`.

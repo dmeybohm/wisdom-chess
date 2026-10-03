@@ -100,7 +100,15 @@ namespace wisdom
 
             void emergency (string_view output) const noexcept override
             {
-                sendEmergencyLines (output);
+                // The process is ending; a stream that fails must not stop the
+                // message reaching the other sinks.
+                try
+                {
+                    sendEmergencyLines (output);
+                }
+                catch (...)
+                {
+                }
             }
 
         private:
