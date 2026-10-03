@@ -112,6 +112,12 @@ namespace
         [[maybe_unused]] auto widened = noexcept_widen<uint64_t> (negative);
     }
 
+    void toUnsignedNegative()
+    {
+        int volatile negative = -1;
+        [[maybe_unused]] auto converted = to_unsigned<std::size_t> (negative);
+    }
+
     void needPawnPromotionBadColor()
     {
         Color volatile color = Color::None;
@@ -246,6 +252,12 @@ namespace
             "assert-failure",
             "Assertion failed at .*fatal_test_main\\.cpp:[0-9]+: condition",
             &assertFailure,
+            Debugging,
+        },
+        {
+            "to-unsigned-negative",
+            "Assertion failed at .*numeric_cast\\.hpp:[0-9]+: value >= 0",
+            &toUnsignedNegative,
             Debugging,
         },
     };

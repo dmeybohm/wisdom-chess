@@ -102,12 +102,23 @@ TEST_CASE( "noexcept_widen checks values that fit" )
     static_assert (noexcept (noexcept_widen<uint64_t> (int32_t { 42 })));
 }
 
-TEST_CASE( "widen_cast converts without a check at runtime" )
+TEST_CASE( "widen_cast converts to a type that holds every value" )
 {
-    static_assert (widen_cast<uint64_t> (int32_t { 42 }) == 42);
+    static_assert (widen_cast<int64_t> (int32_t { -1 }) == -1);
+    static_assert (widen_cast<int64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffLL);
+    static_assert (widen_cast<uint64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffULL);
+    static_assert (noexcept (widen_cast<int64_t> (int32_t { 42 })));
+}
 
-    int32_t negative = -1;
-    CHECK( widen_cast<uint64_t> (negative) == std::numeric_limits<uint64_t>::max() );
+TEST_CASE( "to_unsigned converts a nonnegative value" )
+{
+    static_assert (to_unsigned<uint32_t> (int32_t { 0 }) == 0);
+    static_assert (to_unsigned<uint32_t> (std::numeric_limits<int32_t>::max()) == 0x7fff'ffffU);
+    static_assert (to_unsigned<std::size_t> (int8_t { 1 }) == 1);
+    static_assert (noexcept (to_unsigned<uint64_t> (int32_t { 42 })));
+
+    int ply = 63;
+    CHECK( to_unsigned<std::size_t> (ply) == 63 );
 }
 
 TEST_CASE( "CompileTimeRandom reports the full range of its result type" )
