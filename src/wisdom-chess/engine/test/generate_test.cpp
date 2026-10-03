@@ -153,7 +153,7 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
 
         auto move_list = generateAllPotentialMoves (
             board, Color::White,
-            MoveOrdering { priority, { first_killer, second_killer } }
+            MoveOrdering { priority, { first_killer, second_killer }, nullptr }
         );
 
         INFO( move_list );
@@ -181,7 +181,7 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
         Move killer = moveParse ("e1 d1", Color::Black);
 
         auto move_list = generateAllPotentialMoves (
-            board, Color::Black, MoveOrdering { nullopt, { killer, nullopt } }
+            board, Color::Black, MoveOrdering { nullopt, { killer, nullopt }, nullptr }
         );
 
         INFO( move_list );
@@ -204,7 +204,7 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
         Move killer = moveParse ("e1 d1", Color::White);
 
         auto move_list = generateAllPotentialMoves (
-            board, Color::White, MoveOrdering { nullopt, { killer, nullopt } }
+            board, Color::White, MoveOrdering { nullopt, { killer, nullopt }, nullptr }
         );
 
         INFO( move_list );
@@ -221,7 +221,69 @@ TEST_CASE( "generateAllPotentialMoves with a MoveOrdering" )
 
         auto plain = generateAllPotentialMoves (board, Color::White);
         auto ordered = generateAllPotentialMoves (
-            board, Color::White, MoveOrdering { nullopt, { absent, absent } }
+            board, Color::White, MoveOrdering { nullopt, { absent, absent }, nullptr }
+        );
+
+        CHECK( std::vector<Move> (ordered.begin(), ordered.end())
+               == std::vector<Move> (plain.begin(), plain.end()) );
+    }
+
+    SUBCASE( "Quiet moves that are not killers go by their history score" )
+    {
+        Board board;
+        CutoffHistory history;
+        Move killer = moveParse ("d2 d4", Color::White);
+        Move often = moveParse ("g1 f3", Color::White);
+        Move seldom = moveParse ("h2 h3", Color::White);
+
+        history.store (Color::White, seldom, 2);
+        history.store (Color::White, often, 3);
+        history.store (Color::White, killer, 1);
+
+        auto move_list = generateAllPotentialMoves (
+            board, Color::White, MoveOrdering { nullopt, { killer, nullopt }, &history }
+        );
+
+        INFO( move_list );
+        REQUIRE( move_list.size() == 20 );
+        CHECK( *move_list.begin() == killer );
+        CHECK( *(move_list.begin() + 1) == often );
+        CHECK( *(move_list.begin() + 2) == seldom );
+    }
+
+    SUBCASE( "Moves with the same history score keep the square order" )
+    {
+        Board board;
+        CutoffHistory history;
+        Move scored = moveParse ("h2 h3", Color::White);
+
+        history.store (Color::White, scored, 2);
+
+        auto plain = generateAllPotentialMoves (board, Color::White);
+        auto ordered = generateAllPotentialMoves (
+            board, Color::White, MoveOrdering { nullopt, {}, &history }
+        );
+
+        std::vector<Move> expected { scored };
+        for (auto move : plain)
+        {
+            if (move != scored)
+                expected.push_back (move);
+        }
+
+        CHECK( std::vector<Move> (ordered.begin(), ordered.end()) == expected );
+    }
+
+    SUBCASE( "The other side's history does not reorder the moves" )
+    {
+        Board board;
+        CutoffHistory history;
+
+        history.store (Color::Black, moveParse ("h2 h3", Color::White), 5);
+
+        auto plain = generateAllPotentialMoves (board, Color::White);
+        auto ordered = generateAllPotentialMoves (
+            board, Color::White, MoveOrdering { nullopt, {}, &history }
         );
 
         CHECK( std::vector<Move> (ordered.begin(), ordered.end())

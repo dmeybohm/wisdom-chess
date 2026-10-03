@@ -97,6 +97,7 @@ namespace wisdom
 
         // Rebuilt by every search and shared by its iterations.
         KillerTable my_killers;
+        CutoffHistory my_cutoff_history;
 
         int my_total_depth;
         int my_nodes_visited = 0;
@@ -226,7 +227,8 @@ namespace wisdom
 
         MoveOrdering ordering {
             my_transposition_table->getBestMove (hash),
-            my_killers.getKillers (ply)
+            my_killers.getKillers (ply),
+            &my_cutoff_history
         };
         auto moves = generateAllPotentialMoves (parent_board, side, ordering);
 
@@ -272,6 +274,7 @@ namespace wisdom
             {
                 my_alpha_beta_cutoffs++;
                 my_killers.store (ply, move);
+                my_cutoff_history.store (side, move, depth);
                 break;
             }
         }

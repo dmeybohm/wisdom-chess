@@ -77,3 +77,54 @@ TEST_CASE( "KillerTable" )
         CHECK( table.getKillers (3) == KillerMoves { castle, nullopt } );
     }
 }
+
+TEST_CASE( "CutoffHistory" )
+{
+    CutoffHistory history;
+    Move knight = moveParse ("g1 f3", Color::White);
+    Move pawn = moveParse ("e2 e4", Color::White);
+
+    SUBCASE( "A new table scores every move zero" )
+    {
+        CHECK( history.getScore (Color::White, knight) == 0 );
+        CHECK( history.getScore (Color::Black, knight) == 0 );
+    }
+
+    SUBCASE( "A cutoff adds the square of the depth left" )
+    {
+        history.store (Color::White, knight, 3);
+        CHECK( history.getScore (Color::White, knight) == 9 );
+
+        history.store (Color::White, knight, 2);
+        CHECK( history.getScore (Color::White, knight) == 13 );
+
+        CHECK( history.getScore (Color::White, pawn) == 0 );
+    }
+
+    SUBCASE( "Each side has its own counters" )
+    {
+        history.store (Color::White, knight, 3);
+        CHECK( history.getScore (Color::Black, knight) == 0 );
+    }
+
+    SUBCASE( "A capture or a promotion is not counted" )
+    {
+        Move capture = moveParse ("e4xd5", Color::White);
+        Move promotion = moveParse ("b7 b8 (Q)", Color::White);
+
+        history.store (Color::White, capture, 3);
+        history.store (Color::White, promotion, 3);
+
+        CHECK( history.getScore (Color::White, capture) == 0 );
+        CHECK( history.getScore (Color::White, promotion) == 0 );
+    }
+
+    SUBCASE( "A counter stops at its maximum" )
+    {
+        int cutoffs_to_reach_max = CutoffHistory::Max_Score / (Max_Search_Depth * Max_Search_Depth);
+        for (int i = 0; i <= cutoffs_to_reach_max; i++)
+            history.store (Color::White, knight, Max_Search_Depth);
+
+        CHECK( history.getScore (Color::White, knight) == CutoffHistory::Max_Score );
+    }
+}

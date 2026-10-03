@@ -538,6 +538,16 @@ namespace wisdom
 
                 if (a_rank != b_rank)
                     return a_rank < b_rank;
+
+                if (ordering.history)
+                {
+                    auto history = ordering.history.value();
+                    auto a_score = history->getScore (who, a);
+                    auto b_score = history->getScore (who, b);
+
+                    if (a_score != b_score)
+                        return a_score > b_score;
+                }
             }
             return promotingOrCoordCompare (a, b);
         }
