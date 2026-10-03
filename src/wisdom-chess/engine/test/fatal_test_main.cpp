@@ -112,10 +112,10 @@ namespace
         [[maybe_unused]] auto widened = noexcept_widen<uint64_t> (negative);
     }
 
-    void toUnsignedNegative()
+    void noexceptToUnsignedNegative()
     {
         int volatile negative = -1;
-        [[maybe_unused]] auto converted = to_unsigned<std::size_t> (negative);
+        [[maybe_unused]] auto converted = noexcept_to_unsigned<std::size_t> (negative);
     }
 
     void needPawnPromotionBadColor()
@@ -224,6 +224,11 @@ namespace
             &noexceptWidenNegative,
         },
         {
+            "noexcept-to-unsigned-negative",
+            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: noexcept_to_unsigned: the value is nonnegative",
+            &noexceptToUnsignedNegative,
+        },
+        {
             "need-pawn-promotion-bad-color",
             "Precondition failed at .*generate\\.cpp:[0-9]+: isColorValid \\(who\\)",
             &needPawnPromotionBadColor,
@@ -252,12 +257,6 @@ namespace
             "assert-failure",
             "Assertion failed at .*fatal_test_main\\.cpp:[0-9]+: condition",
             &assertFailure,
-            Debugging,
-        },
-        {
-            "to-unsigned-negative",
-            "Assertion failed at .*numeric_cast\\.hpp:[0-9]+: value >= 0",
-            &toUnsignedNegative,
             Debugging,
         },
     };
