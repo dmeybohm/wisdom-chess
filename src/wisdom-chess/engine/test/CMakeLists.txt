@@ -20,7 +20,6 @@ if (WISDOM_CHESS_FAST_TESTS)
         history_test.cpp
         generate_test.cpp
         evaluate_test.cpp
-        search_test.cpp
         game_status_test.cpp
         move_timer_test.cpp
         game_file_test.cpp
@@ -49,6 +48,29 @@ if (WISDOM_CHESS_FAST_TESTS)
 
     if (WISDOM_CHESS_FILC_COMPAT)
         target_compile_definitions(wisdom-chess-fast-tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
+    endif()
+
+    # Search scenarios, some run on the clock, so they take seconds where the
+    # fast tests take one. Built with the fast tests.
+    add_executable(wisdom-chess-medium-tests
+        search_test.cpp
+        test_main.cpp)
+
+    target_precompile_headers(wisdom-chess-medium-tests PRIVATE ../global.hpp)
+
+    target_link_libraries(wisdom-chess-medium-tests PRIVATE wisdom::chess)
+    target_link_libraries(wisdom-chess-medium-tests PRIVATE doctest::doctest)
+    wisdom_chess_enable_warnings(wisdom-chess-medium-tests)
+
+    if (EMSCRIPTEN)
+        target_link_options(wisdom-chess-medium-tests PRIVATE
+            "SHELL:-s ALLOW_MEMORY_GROWTH=1" -Wno-pthreads-mem-growth)
+    endif()
+
+    doctest_discover_tests(wisdom-chess-medium-tests PROPERTIES LABELS medium)
+
+    if (WISDOM_CHESS_FILC_COMPAT)
+        target_compile_definitions(wisdom-chess-medium-tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
     endif()
 
     # Fatal errors end the process, so each case runs as its own test, through
