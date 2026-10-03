@@ -81,8 +81,8 @@ namespace wisdom
     getCompileTimeRandom48 (nonnull<CompileTimeRandom> random) noexcept
         -> std::uint64_t
     {
-        auto upper = widen_cast<std::uint64_t> ((*random)());
-        auto lower = widen_cast<std::uint64_t> ((*random)());
+        auto upper = noexcept_widen<std::uint64_t> ((*random)());
+        auto lower = noexcept_widen<std::uint64_t> ((*random)());
         return ((upper & 0xffff0000ULL) << 16ULL) | lower;
     }
 }

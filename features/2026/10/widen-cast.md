@@ -55,3 +55,12 @@ from unsigned integers; its same-width case remains valid and tested.
 - Kept generic conversions and `size_t` casts unchanged because their widths
   depend on the template argument or target platform.
 - Verified lint, the full Release build, and all 286 Release tests.
+
+### Session #4
+
+- Changed the WASM coordinate conversions to checked `widen<int>`, preserving
+  the original `narrow<int>` calls' failure policy.
+- Changed the random helper's 32-to-64-bit conversions to
+  `noexcept_widen<std::uint64_t>`, matching its `noexcept` contract while
+  retaining a range check.
+- Verified lint, the full Release build, and all 286 Release tests.

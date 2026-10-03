@@ -30,8 +30,8 @@ namespace wisdom
             {
                 WebColoredPiece new_piece
                     = WebColoredPiece { id, mapColor (piece.color()), mapPiece (piece.type()),
-                                        widen_cast<int> (coord.row()),
-                                        widen_cast<int> (coord.column()) };
+                                        widen<int> (coord.row()),
+                                        widen<int> (coord.column()) };
                 my_pieces.addPiece (new_piece);
                 id++;
             }
