@@ -246,7 +246,7 @@ namespace wisdom
         }
 
         [[nodiscard]] auto
-        asString() const noexcept
+        asString() const
             -> string;
 
         [[nodiscard]] constexpr auto
@@ -284,7 +284,7 @@ namespace wisdom
             if ((target_bits & EN_PASSANT_PRESENT) == 0)
                 return nullopt;
 
-            auto col = narrow<int8_t> (target_bits & 0x7);
+            auto col = noexcept_narrow<int8_t> (target_bits & 0x7);
             Color vulnerable_color = ((target_bits & EN_PASSANT_IS_WHITE) > 0)
                 ? Color::White
                 : Color::Black;

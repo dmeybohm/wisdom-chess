@@ -63,7 +63,7 @@ namespace wisdom
             my_time_limit = time_limit;
         }
 
-        void setPeriodicFunction (const PeriodicFunction& periodic_function) noexcept
+        void setPeriodicFunction (const PeriodicFunction& periodic_function)
         {
             my_periodic_function = periodic_function;
         }

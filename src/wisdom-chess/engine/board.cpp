@@ -232,7 +232,7 @@ namespace wisdom
     Board::findFirstCoordWithPiece (
         Piece piece_type,
         Coord starting_at
-    ) const
+    ) const noexcept
         -> optional<Coord>
     {
         auto coord_begin = std::begin (my_squares);
@@ -247,7 +247,7 @@ namespace wisdom
             coord_end,
             finder
         );
-        auto diff = narrow<int> (result - coord_begin);
+        auto diff = noexcept_narrow<int> (result - coord_begin);
 
         return (result != coord_end)
             ? std::make_optional<Coord> (Coord::fromIndex (diff))

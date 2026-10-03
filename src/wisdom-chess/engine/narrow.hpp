@@ -67,6 +67,22 @@ namespace wisdom
         return static_cast<Target> (value);
     }
 
+    // Like narrow(), but aborts instead of throwing, naming the caller. For an
+    // invariant inside a noexcept function.
+    template <typename Target, typename Source> 
+    [[nodiscard]] constexpr auto
+    noexcept_narrow (Source value, std::source_location location = std::source_location::current()) noexcept
+        -> Target
+    {
+        static_assert (std::is_arithmetic_v<Source>);
+        static_assert (std::is_arithmetic_v<Target>);
+
+        if (!isLosslessConversion<Target> (value)) [[unlikely]]
+            terminateOnCheckFailure ("Precondition", "noexcept_narrow: the value fits in the target type", location);
+
+        return static_cast<Target> (value);
+    }
+
     // Converts to a narrower unsigned type, deliberately discarding the high bits.
     template <typename Target, typename Source>
     [[nodiscard]] constexpr auto

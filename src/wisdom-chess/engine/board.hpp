@@ -199,7 +199,7 @@ namespace wisdom
         findFirstCoordWithPiece (
             Piece piece,
             Coord starting_at = First_Coord
-        ) const
+        ) const noexcept
             -> optional<Coord>;
 
     private:

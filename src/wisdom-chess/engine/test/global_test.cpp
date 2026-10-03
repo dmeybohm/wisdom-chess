@@ -66,6 +66,17 @@ TEST_CASE( "narrow names its caller in the error" )
     }
 }
 
+TEST_CASE( "noexcept_narrow converts a value that fits" )
+{
+    static_assert (noexcept_narrow<int8_t> (100) == 100);
+    static_assert (noexcept (noexcept_narrow<int8_t> (100)));
+
+    int fits = 127;
+    std::size_t zero = 0;
+    CHECK( noexcept_narrow<int8_t> (fits) == 127 );
+    CHECK( noexcept_narrow<int> (zero) == 0 );
+}
+
 TEST_CASE( "narrow_cast converts without a check at runtime" )
 {
     static_assert (narrow_cast<int8_t> (100) == 100);

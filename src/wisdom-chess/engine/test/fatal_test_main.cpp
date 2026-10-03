@@ -12,6 +12,7 @@
 #include "wisdom-chess/engine/board_builder.hpp"
 #include "wisdom-chess/engine/board_code.hpp"
 #include "wisdom-chess/engine/castling.hpp"
+#include "wisdom-chess/engine/generate.hpp"
 #include "wisdom-chess/engine/logger.hpp"
 #include "wisdom-chess/engine/history.hpp"
 #include "wisdom-chess/engine/move_list.hpp"
@@ -99,6 +100,18 @@ namespace
         [[maybe_unused]] nonnull<int> ptr { null_ptr };
     }
 
+    void noexceptNarrowOverflow()
+    {
+        int volatile too_big = 300;
+        [[maybe_unused]] auto narrowed = noexcept_narrow<int8_t> (too_big);
+    }
+
+    void needPawnPromotionBadColor()
+    {
+        Color volatile color = Color::None;
+        [[maybe_unused]] bool promote = needPawnPromotion (0, color);
+    }
+
     void uncaughtError()
     {
         throw Error { "boom", "extra detail" };
@@ -183,6 +196,16 @@ namespace
             "null-nonnull",
             "Precondition failed at .*ptr\\.hpp:[0-9]+: ptr != nullptr",
             &nullNonnull,
+        },
+        {
+            "noexcept-narrow-overflow",
+            "Precondition failed at .*fatal_test_main\\.cpp:[0-9]+: noexcept_narrow: the value fits",
+            &noexceptNarrowOverflow,
+        },
+        {
+            "need-pawn-promotion-bad-color",
+            "Precondition failed at .*generate\\.cpp:[0-9]+: isColorValid \\(who\\)",
+            &needPawnPromotionBadColor,
         },
         { "uncaught-error", "Uncaught error: boom", &uncaughtError, Reports_Uncaught_Errors },
         {
