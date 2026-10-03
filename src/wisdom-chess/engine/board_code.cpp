@@ -132,7 +132,7 @@ namespace wisdom
         return os;
     }
 
-    auto BoardCode::asString() const noexcept
+    auto BoardCode::asString() const
         -> string
     {
         std::bitset<64> bits { my_code };

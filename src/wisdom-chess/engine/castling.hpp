@@ -158,10 +158,10 @@ namespace wisdom
     inline constexpr CastlingEligibility CastlingEligibility::Neither_Side {};
 
     [[nodiscard]] constexpr auto
-    makeCastlingEligibilityFromInt (unsigned int flags)
+    makeCastlingEligibilityFromInt (unsigned int flags) noexcept
         -> CastlingEligibility
     {
-        return CastlingEligibility { narrow<uint8_t> (flags) };
+        return CastlingEligibility { noexcept_narrow<uint8_t> (flags) };
     }
 
     // Inline definitions for helper methods

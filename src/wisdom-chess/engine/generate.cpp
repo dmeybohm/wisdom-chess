@@ -805,18 +805,10 @@ namespace wisdom
     }
 
     auto
-    needPawnPromotion (int row, Color who)
+    needPawnPromotion (int row, Color who) noexcept
         -> bool
     {
-        ASSERT( isColorValid (who) );
-        switch (who)
-        {
-            case Color::White:
-                return row == First_Row;
-            case Color::Black:
-                return row == Last_Row;
-            default:
-                throw Error { "Invalid color in needPawnPromotion()" };
-        }
+        NOEXCEPT_EXPECTS( isColorValid (who) );
+        return who == Color::White ? row == First_Row : row == Last_Row;
     }
 }
