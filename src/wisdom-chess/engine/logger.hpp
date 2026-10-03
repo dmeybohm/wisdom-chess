@@ -16,13 +16,17 @@ namespace wisdom
         // Put virtual destructor in the .cpp file to put vtable there:
         virtual ~Logger();
 
-        virtual void debug (const string& output) const = 0;
-        virtual void info (const string& output) const = 0;
+        // Every function is noexcept, so that any context can log. A logger
+        // that cannot deliver a message terminates the process: an exception
+        // escaping one of these reaches the terminate handler, which reports
+        // it through logEmergency().
+        virtual void debug (const string& output) const noexcept = 0;
+        virtual void info (const string& output) const noexcept = 0;
 
         // A fatal message, sent just before the process terminates. Must not
         // buffer. The view may point into the caller's stack and is not
         // null-terminated.
-        virtual void emergency (string_view output) const = 0;
+        virtual void emergency (string_view output) const noexcept = 0;
     };
 
     // How much log output to retain while debug logging is switched off.
@@ -47,7 +51,7 @@ namespace wisdom
         explicit LogRingBuffer (size_t capacity_bytes = Default_Log_Buffer_Bytes);
 
         // Append a line. A line that cannot fit on its own is truncated.
-        void push (Logger::LogLevel level, string_view text);
+        void push (Logger::LogLevel level, string_view text) noexcept;
 
         // Replay every line in order through the sink, then clear the buffer.
         void drainTo (const Logger& sink);
@@ -139,9 +143,9 @@ namespace wisdom
         isEnabled() const
             -> bool;
 
-        void debug (const string& output) const override;
-        void info (const string& output) const override;
-        void emergency (string_view output) const override;
+        void debug (const string& output) const noexcept override;
+        void info (const string& output) const noexcept override;
+        void emergency (string_view output) const noexcept override;
 
     private:
         shared_ptr<Logger> my_sink;

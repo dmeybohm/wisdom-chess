@@ -87,18 +87,18 @@ namespace wisdom
             {
             }
 
-            void debug (const string& output) const override
+            void debug (const string& output) const noexcept override
             {
                 if (my_debug_enabled)
                     sendLine ("info string " + output);
             }
 
-            void info (const string& output) const override
+            void info (const string& output) const noexcept override
             {
                 sendLine ("info " + output);
             }
 
-            void emergency (string_view output) const override
+            void emergency (string_view output) const noexcept override
             {
                 sendEmergencyLines (output);
             }

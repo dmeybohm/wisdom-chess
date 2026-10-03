@@ -39,9 +39,12 @@ committing C++. The conventions below are about what the code does.
   evaluated. The macros quote the condition in the failure message, so
   the functions under them (`expects()`, ...) are not called directly.
 - Report through `logEmergency()` (`engine/logger.hpp`) before
-  terminating, never raw `std::cerr`. Every `Logger` implements
+  terminating, never raw `std::cerr`. Every `Logger` function is
+  `noexcept`, so any context can log; a logger that cannot deliver a
+  message terminates the process. Every `Logger` implements
   `emergency()` without buffering, and every frontend's `main()` starts by
   calling `setEmergencyLogger()` and `installEmergencyTerminateHandler()`.
+  See `features/2026/10/logger-noexcept.md`.
 - Qt is not exception-safe, so no exception may enter it. Every
   function Qt calls in the QML frontend is `noexcept`: slots,
   `Q_INVOKABLE`s, property accessors, model overrides, singleton

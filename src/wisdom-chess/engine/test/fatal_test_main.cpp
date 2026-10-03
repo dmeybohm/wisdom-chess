@@ -26,15 +26,15 @@ namespace
 {
     struct MarkedLogger : Logger
     {
-        void debug ([[maybe_unused]] const string& output) const override
+        void debug ([[maybe_unused]] const string& output) const noexcept override
         {
         }
 
-        void info ([[maybe_unused]] const string& output) const override
+        void info ([[maybe_unused]] const string& output) const noexcept override
         {
         }
 
-        void emergency (string_view output) const override
+        void emergency (string_view output) const noexcept override
         {
             std::cout << "[emergency] " << output << std::endl;
         }
@@ -117,26 +117,23 @@ namespace
         throw Error { "boom", "extra detail" };
     }
 
-    struct ThrowingLogger : MarkedLogger
-    {
-        void info ([[maybe_unused]] const string& output) const override
-        {
-            throw Error { "boom", "extra detail" };
-        }
-    };
-
+    // Fails on the timer's first periodic call, which depth 4 reaches.
     void searchError()
     {
         Board board { BoardBuilder::fromDefaultPosition() };
         History history;
         MoveTimer timer { 30 };
+        timer.setPeriodicFunction ([] (nonnull<MoveTimer>)
+        {
+            throw Error { "boom", "extra detail" };
+        });
         auto transposition_table = TranspositionTable::fromMegabytes (1);
         auto search = IterativeSearch::create (
             board,
             history,
-            std::make_shared<ThrowingLogger>(),
+            std::make_shared<MarkedLogger>(),
             timer,
-            1,
+            4,
             &transposition_table,
             Claimable_Draw_Limits
         );
