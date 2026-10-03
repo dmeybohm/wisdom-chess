@@ -27,9 +27,11 @@ RelWithDebInfo do not check.
   signed source. It cannot fail, so it needs no other form. A checked
   signed-to-unsigned widening is `to_unsigned`.
 - `toLower()` in the UCI frontend narrowed `std::tolower`'s `int` to
-  `char`, which wraps a byte above 127 on purpose. It is a plain
-  `static_cast<char>` now, as in `str.hpp`, so Debug builds do not abort
-  on non-ASCII input.
+  `char`, which wraps a byte above 127 on purpose, so `narrow_debug`
+  would abort Debug builds on non-ASCII input. It calls
+  `wisdom::toLower (char)` from `str.hpp` instead, which needs no
+  conversion and maps the same characters, since the program runs in
+  the "C" locale.
 - Unsigned-to-signed conversions, mostly container sizes into `int` or
   `ptrdiff_t`, stay with `narrow`, which checks the value at any width.
 
