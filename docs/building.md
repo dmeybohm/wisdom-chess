@@ -227,7 +227,7 @@ All are defined in the top-level `CMakeLists.txt`.
 | `WISDOM_CHESS_REACT_UI` | `ON` | Build the React frontend's WebAssembly engine (Emscripten builds), and its `WebGame` tests in any build with fast tests |
 | `WISDOM_CHESS_REACT_BUILD_INTEGRATED` | `ON` for Emscripten, `OFF` otherwise | Run the Node.js build of the React frontend as part of the CMake build |
 | `WISDOM_CHESS_FAST_TESTS` | `ON` | Build the fast test suite |
-| `WISDOM_CHESS_SLOW_TESTS` | `OFF` | Build the slow test suite (perft, hash collisions, search) |
+| `WISDOM_CHESS_SLOW_TESTS` | `OFF` | Build the slow test suite (perft, hash collisions) |
 | `WISDOM_CHESS_BUILD_LINTER` | `ON` | Build the C++ style linter and the `lint` target |
 | `WISDOM_CHESS_WERROR` | `OFF` | Treat compiler warnings as errors, as CI does |
 | `WISDOM_CHESS_ASAN` | `OFF` | Build with AddressSanitizer and UndefinedBehaviorSanitizer |
@@ -265,12 +265,12 @@ ctest --test-dir build -j 4          # -L fast / -L slow to pick one
 The suites, by the labels and name prefixes `ctest -N` shows:
 
 - **Engine** (`wisdom-chess-fast-tests`, label `fast`): doctest cases for
-  the board, move generation, rules, search, transposition table and
-  logger. Run new engine tests in a Debug build as well, since only Debug
+  the board, move generation, rules, search and its scenarios,
+  transposition table and logger. Run new engine tests in a Debug build as well, since only Debug
   builds assert that a move is played by the side to move.
 - **Engine, slow** (`wisdom-chess-slow-tests`, label `slow`): perft against
-  the published node counts, the hash-collision sweep and the search
-  scenarios. Needs `WISDOM_CHESS_SLOW_TESTS=On`.
+  the published node counts and the hash-collision sweep. Needs
+  `WISDOM_CHESS_SLOW_TESTS=On`.
 - **`Fatal: ...`**: runs the engine's emergency-logging paths as separate
   processes and checks that they report before aborting. The cases are
   listed in `engine/test/fatal_test_main.cpp`.

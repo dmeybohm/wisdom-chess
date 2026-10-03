@@ -45,3 +45,32 @@ RelWithDebInfo do not check.
   that does not fit a `_debug` form, no longer compile with `NDEBUG`.
 - Verified lint, all 294 Release tests and the 260 fast Debug tests. The
   QML frontend was not configured; its two renamed calls are left to CI.
+
+### Session #2
+
+Measured what the Debug CI job, which runs only the fast tests, checks,
+with a Debug `--coverage` build and `gcovr`:
+
+| Run | Wall time | Engine lines |
+|---|---|---|
+| Fast tests | 30 s | 92.3% |
+| Slow tests | 17 min, 13.5 of it kiwipete perft | 68.3% |
+| `search_test.cpp` alone | 13 s | |
+
+- The fast tests run every one of the engine's 99 `ASSERT` and `_debug`
+  sites, the busiest millions of times. The whole slow suite passes in
+  Debug as well, so no other conversion wraps on purpose.
+- What the fast tests missed was the search's harder paths: quiescence's
+  evasion limit, a stalemate inside quiescence, the clock stopping inside
+  quiescence, and keeping a partial root result. `search_test.cpp` covers
+  18 of the 25 engine lines the slow suite adds, all but one of them in
+  the search; perft adds only some parsing and two `Board` lines.
+- `search_test.cpp` had been in the slow executable since 2020, which
+  `error-hygiene.md` notes keeps it out of the Debug job. It takes 7.75 s
+  in Release run serially, 7 s of it one test that runs on the clock.
+  It moves to the fast executable, so the Debug, sanitizer, WASM and
+  Android jobs run it too. The Debug fast suite is 281 tests in 20.6 s.
+- Still uncovered in `search.cpp`: line 398, the clock stopping after a
+  quiescence child returns, and the unused
+  `IterativeSearch::getMoveTimer()`.
+- Verified lint, all 294 Release tests and the 281 fast Debug tests.
