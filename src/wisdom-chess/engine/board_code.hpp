@@ -232,7 +232,7 @@ namespace wisdom
             -> Color
         {
             auto bits = getMetadataBits();
-            auto index = narrow_cast<int8_t> (
+            auto index = narrow_debug<int8_t> (
                 bits & (CURRENT_TURN_MASK << CURRENT_TURN_BIT)
             );
             return colorFromColorIndex (index);
@@ -242,7 +242,7 @@ namespace wisdom
         getMetadataBits() const noexcept
             -> std::uint16_t
         {
-            return narrow_cast<uint16_t> (my_code & Metadata_Mask);
+            return narrow_debug<uint16_t> (my_code & Metadata_Mask);
         }
 
         [[nodiscard]] auto

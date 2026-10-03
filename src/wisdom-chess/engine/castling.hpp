@@ -16,7 +16,7 @@ namespace wisdom
         fromInt (unsigned int flags) noexcept
             -> CastlingEligibility
         {
-            return CastlingEligibility (narrow_cast<uint8_t> (flags));
+            return CastlingEligibility (narrow_debug<uint8_t> (flags));
         }
 
     public:
@@ -120,7 +120,7 @@ namespace wisdom
             -> IntegerType
         {
             static_assert (std::is_unsigned_v<IntegerType>);
-            return narrow_cast<IntegerType> (my_flags);
+            return narrow_debug<IntegerType> (my_flags);
         }
 
         [[nodiscard]] constexpr auto

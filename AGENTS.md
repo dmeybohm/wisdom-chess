@@ -29,18 +29,19 @@ committing C++. The conventions below are about what the code does.
 
 - Everything is in the `wisdom::` namespace.
 - `[[nodiscard]]` on factory functions and getters.
-- Integer conversions go through `engine/numeric_cast.hpp`. Each family
-  has a checked form that throws `PreconditionError`, a `_noexcept` form
-  that terminates instead, for an invariant in a `noexcept` function, and
-  a `_cast` form that is a `static_cast` at runtime:
-  - `narrow`, `narrow_noexcept` and `narrow_cast` for a value that may
+- Integer conversions go through `engine/numeric_cast.hpp`. A conversion
+  that can lose a value has three forms: a checked form that throws
+  `PreconditionError`, a `_noexcept` form that terminates instead, for an
+  invariant in a `noexcept` function, and a `_debug` form that terminates
+  but checks only when `Debugging` is on, like `ASSERT`, so not in Release
+  or RelWithDebInfo:
+  - `narrow`, `narrow_noexcept` and `narrow_debug` for a value that may
     not fit the target type.
-  - `widen`, `widen_noexcept` and `widen_cast` for a strictly wider
-    target. `widen_cast` also needs a signed target for a signed source,
-    so it holds every value.
-  - `to_unsigned`, `to_unsigned_noexcept` and `to_unsigned_cast` for a
+  - `to_unsigned`, `to_unsigned_noexcept` and `to_unsigned_debug` for a
     nonnegative signed value, such as an array index, into an unsigned
     type at least as wide.
+  - `widen` for a wider type that holds every value of the source, which
+    cannot fail: a signed source needs a signed target.
   - `truncate` discards an unsigned value's high bits on purpose.
 - `EXPECTS( cond )` / `ENSURES( cond )` (`engine/error.hpp`) check caller
   input and throw. `EXPECTS_NOEXCEPT( cond )` and `ENSURES_NOEXCEPT( cond )`

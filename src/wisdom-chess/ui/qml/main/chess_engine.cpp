@@ -33,7 +33,7 @@ namespace wisdom::ui::qml
 
     void ChessEngine::ChessEngineLogger::emergency (std::string_view line) noexcept
     {
-        qCritical().noquote() << QString::fromUtf8 (line.data(), narrow_cast<qsizetype> (line.size()));
+        qCritical().noquote() << QString::fromUtf8 (line.data(), narrow_debug<qsizetype> (line.size()));
     }
 
     ChessEngine::ChessEngine (shared_ptr<ChessGame> game, int game_id, QObject* parent)

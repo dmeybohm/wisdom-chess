@@ -43,7 +43,7 @@ namespace wisdom
             -> Coord
         {
             ASSERT( index >= 0 && index < Num_Squares );
-            return { .row_and_col = narrow_cast<int8_t> (index) };
+            return { .row_and_col = narrow_debug<int8_t> (index) };
         }
 
         [[nodiscard]] static constexpr auto
@@ -51,7 +51,7 @@ namespace wisdom
             -> Coord
         {
             ASSERT( isValidRow (row) && isValidColumn (col) );
-            Coord result = { .row_and_col = narrow_cast<int8_t> (row << 3 | col) };
+            Coord result = { .row_and_col = narrow_debug<int8_t> (row << 3 | col) };
             return result;
         }
 
@@ -61,7 +61,7 @@ namespace wisdom
         index() const noexcept
             -> IntegerType
         {
-            return narrow_cast<IntegerType> (row_and_col);
+            return narrow_debug<IntegerType> (row_and_col);
         }
 
         template <typename IntegerType = int8_t>
@@ -70,7 +70,7 @@ namespace wisdom
             -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
-            return narrow_cast<IntegerType> (row_and_col >> 3);
+            return narrow_debug<IntegerType> (row_and_col >> 3);
         }
 
         template <typename IntegerType = int8_t>
@@ -79,7 +79,7 @@ namespace wisdom
             -> IntegerType
         {
             static_assert (std::is_integral_v<IntegerType>);
-            return narrow_cast<IntegerType> (row_and_col & 0b111);
+            return narrow_debug<IntegerType> (row_and_col & 0b111);
         }
     };
     static_assert (std::is_trivial_v<Coord>);
@@ -90,7 +90,7 @@ namespace wisdom
         -> IntegerType
     {
         static_assert (std::is_integral_v<IntegerType>);
-        return narrow_cast<IntegerType> (row + direction);
+        return narrow_debug<IntegerType> (row + direction);
     }
 
     template <typename T>
@@ -99,7 +99,7 @@ namespace wisdom
         -> T
     {
         static_assert (std::is_integral_v<T>);
-        return narrow_cast<T> (col + direction);
+        return narrow_debug<T> (col + direction);
     }
 
     [[nodiscard]] constexpr auto
@@ -307,7 +307,7 @@ namespace wisdom
         -> Color
     {
         int parity = (coord.row() % 2 + coord.column() % 2) % 2;
-        return colorFromColorIndex (narrow_cast<int8_t> (parity));
+        return colorFromColorIndex (narrow_debug<int8_t> (parity));
     }
 
     // The row direction a pawn moves in: white moves up (-), black
@@ -320,6 +320,6 @@ namespace wisdom
         static_assert (std::is_integral_v<IntegerType>);
         ASSERT( color == Color::Black || color == Color::White );
         int8_t color_as_int = toInt8 (color);
-        return narrow_cast<IntegerType> (-1 + 2 * (color_as_int - 1));
+        return narrow_debug<IntegerType> (-1 + 2 * (color_as_int - 1));
     }
 }

@@ -511,7 +511,7 @@ namespace wisdom
         makeSortKey (SortKind kind, uint64_t score, Move move) noexcept
             -> uint64_t
         {
-            auto squares = to_unsigned_cast<uint64_t> (
+            auto squares = to_unsigned_debug<uint64_t> (
                 move.getSrc().index() * Num_Squares + move.getDst().index()
             );
             return (static_cast<uint64_t> (kind) << Sort_Key_Kind_Shift)
@@ -542,7 +542,7 @@ namespace wisdom
 
         if (move.isAnyCapturing())
         {
-            auto score = to_unsigned_cast<uint64_t> (Material_Diff_Offset - materialDiff (board, move));
+            auto score = to_unsigned_debug<uint64_t> (Material_Diff_Offset - materialDiff (board, move));
             return makeSortKey (SortKind::Capture, score, move);
         }
 
@@ -559,7 +559,7 @@ namespace wisdom
         uint64_t score = 0;
         if (ordering.history)
         {
-            score = to_unsigned_cast<uint64_t> (
+            score = to_unsigned_debug<uint64_t> (
                 CutoffHistory::Max_Score - ordering.history.value()->getScore (who, move)
             );
         }
@@ -599,7 +599,7 @@ namespace wisdom
             };
 
             array<KeyedMove, Max_Move_List_Size> keyed; // NOLINT(*-pro-type-member-init)
-            auto count = narrow_cast<size_t> (result.size());
+            auto count = narrow_debug<size_t> (result.size());
 
             for (size_t i = 0; i < count; i++)
             {

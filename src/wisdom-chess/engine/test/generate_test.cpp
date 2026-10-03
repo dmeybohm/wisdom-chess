@@ -143,7 +143,7 @@ namespace
             ordering.killers = { quiet[quiet.size() - 2], quiet[0] };
         }
         for (size_t i = 0; i < quiet.size(); i += 2)
-            history->store (who, quiet[i], narrow_cast<int> (1 + i % 3));
+            history->store (who, quiet[i], narrow_debug<int> (1 + i % 3));
 
         auto ordered = generateAllPotentialMoves (board, who, ordering);
 

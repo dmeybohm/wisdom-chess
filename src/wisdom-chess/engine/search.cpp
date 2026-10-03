@@ -46,7 +46,7 @@ namespace wisdom
             , my_total_depth { total_depth }
         {
             my_history.reserveTentativePositions (
-                narrow_cast<size_t> (total_depth + Max_Quiescence_Line)
+                narrow_debug<size_t> (total_depth + Max_Quiescence_Line)
             );
         }
 
