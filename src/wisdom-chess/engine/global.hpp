@@ -25,7 +25,7 @@
 #include <source_location>
 
 #include "wisdom-chess/engine/error.hpp"
-#include "wisdom-chess/engine/narrow.hpp"
+#include "wisdom-chess/engine/numeric_cast.hpp"
 #include "wisdom-chess/engine/ptr.hpp"
 #include "wisdom-chess/engine/types.hpp"
 

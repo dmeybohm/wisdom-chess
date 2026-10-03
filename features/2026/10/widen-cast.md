@@ -1,0 +1,66 @@
+# Wider integer conversions
+
+## Motivation
+
+Before this change, `narrow<Target>()` checked signed-to-unsigned conversions
+even when the target type was wider. The name `narrow` obscured that use.
+Wider integer conversions get a separate family with the same failure
+policies: `widen` throws `PreconditionError`, `noexcept_widen` terminates
+on a failed invariant, and `widen_cast` is unchecked at runtime. All three
+require an integral target strictly wider than the source. A checked
+signed-to-unsigned conversion accepts nonnegative values and rejects
+negative ones.
+
+The narrow family retains its value-based behavior without a width constraint.
+Generic functions such as `pawnDirection<IntegerType>()` accept both narrow
+and wide result types; a strict width rule would force a branch between cast
+helpers without changing the conversion result.
+
+The header is renamed from `narrow.hpp` to `numeric_cast.hpp` because it
+also contains `truncate()`. `truncate()` intentionally discards high bits
+from unsigned integers; its same-width case remains valid and tested.
+
+## Implementation Progress
+
+### Session #1
+
+- Added the three widening helpers and tests for safe widening, negative
+  signed-to-unsigned input, unchecked runtime wrapping, and termination on
+  a failed `noexcept_widen` invariant.
+- Renamed the conversion header and updated its include in `global.hpp`.
+- Reviewed `truncate()` and kept its existing contract.
+- Put template declarations on separate lines from function specifiers in
+  `numeric_cast.hpp` and documented that preference in `coding-style.md`.
+- Constrained the narrow family to targets no wider than their sources.
+- Migrated existing wider conversions in `Coord`, castling rights, the WASM
+  view, and tests to the widening family.
+- Verified `lint`, the full Release build and all 286 Release tests. Built
+  the Debug engine tests and ran all eight conversion tests there.
+
+### Session #2
+
+- Removed the new width assertions from the narrow family. They caused
+  width-based branching in generic functions without improving their checks.
+- Restored the earlier conversions in `Coord`, castling rights, the WASM view,
+  and tests. The widening helpers and their tests remain available for call
+  sites that want to express widening explicitly.
+- Verified lint, the full Release build and all 286 Release tests. Rebuilt
+  the Debug engine tests and ran all eight conversion tests there.
+
+### Session #3
+
+- Reviewed explicit casts for fixed-width widening. `getCompileTimeRandom48()`
+  now marks both 32-to-64-bit conversions with `widen_cast`, and the WASM
+  piece view marks its 8-bit-to-`int` coordinate conversions the same way.
+- Kept generic conversions and `size_t` casts unchanged because their widths
+  depend on the template argument or target platform.
+- Verified lint, the full Release build, and all 286 Release tests.
+
+### Session #4
+
+- Changed the WASM coordinate conversions to checked `widen<int>`, preserving
+  the original `narrow<int>` calls' failure policy.
+- Changed the random helper's 32-to-64-bit conversions to
+  `noexcept_widen<std::uint64_t>`, matching its `noexcept` contract while
+  retaining a range check.
+- Verified lint, the full Release build, and all 286 Release tests.
