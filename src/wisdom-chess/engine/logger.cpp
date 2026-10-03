@@ -18,15 +18,15 @@ namespace wisdom
         NullLogger() = default;
         ~NullLogger() override = default;
 
-        void debug ([[maybe_unused]] const string& output) const override
+        void debug ([[maybe_unused]] const string& output) const noexcept override
         {
         }
 
-        void info ([[maybe_unused]] const string& output) const override
+        void info ([[maybe_unused]] const string& output) const noexcept override
         {
         }
 
-        void emergency ([[maybe_unused]] string_view output) const override
+        void emergency ([[maybe_unused]] string_view output) const noexcept override
         {
         }
     };
@@ -40,21 +40,29 @@ namespace wisdom
 
         ~StandardLogger() override = default;
 
-        void debug (const string& output) const override
+        void debug (const string& output) const noexcept override
         {
             if (my_log_level >= LogLevel_Debug)
                 write (output);
         }
 
-        void info (const string& output) const override
+        void info (const string& output) const noexcept override
         {
             if (my_log_level >= LogLevel_Info)
                 write (output);
         }
 
-        void emergency (string_view output) const override
+        void emergency (string_view output) const noexcept override
         {
-            std::cerr << output << '\n';
+            // The process is ending; a stream that fails must not stop the
+            // message reaching the other sinks.
+            try
+            {
+                std::cerr << output << '\n';
+            }
+            catch (...)
+            {
+            }
         }
 
     private:
@@ -134,7 +142,7 @@ namespace wisdom
         my_count--;
     }
 
-    void LogRingBuffer::push (Logger::LogLevel level, string_view text)
+    void LogRingBuffer::push (Logger::LogLevel level, string_view text) noexcept
     {
         auto max_text = my_storage.size() - Record_Overhead;
         if (text.size() > max_text)
@@ -144,8 +152,8 @@ namespace wisdom
         while (my_count > 0 && my_used + record_size > my_storage.size())
             popFront();
 
-        auto level_byte = narrow<uint8_t> (static_cast<int> (level));
-        auto length = narrow<uint32_t> (text.size());
+        auto level_byte = noexcept_narrow<uint8_t> (static_cast<int> (level));
+        auto length = noexcept_narrow<uint32_t> (text.size());
         char header[Record_Overhead];
         std::memcpy (header, &level_byte, sizeof level_byte);
         std::memcpy (header + sizeof level_byte, &length, sizeof length);
@@ -254,10 +262,10 @@ namespace wisdom
             result,
             sizeof result,
             "[%02d:%02d:%02d.%03d] ",
-            narrow<int> (hours.count()),
-            narrow<int> (minutes.count()),
-            narrow<int> (seconds.count()),
-            narrow<int> (millis.count())
+            noexcept_narrow<int> (hours.count()),
+            noexcept_narrow<int> (minutes.count()),
+            noexcept_narrow<int> (seconds.count()),
+            noexcept_narrow<int> (millis.count())
         );
         return result;
     }
@@ -289,17 +297,17 @@ namespace wisdom
         return my_enabled;
     }
 
-    void BufferedLogger::debug (const string& output) const
+    void BufferedLogger::debug (const string& output) const noexcept
     {
         log (LogLevel_Debug, output);
     }
 
-    void BufferedLogger::info (const string& output) const
+    void BufferedLogger::info (const string& output) const noexcept
     {
         log (LogLevel_Info, output);
     }
 
-    void BufferedLogger::emergency (string_view output) const
+    void BufferedLogger::emergency (string_view output) const noexcept
     {
         string line;
         try

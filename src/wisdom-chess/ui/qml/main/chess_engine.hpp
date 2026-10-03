@@ -35,11 +35,11 @@ namespace wisdom::ui::qml
         // Forwards engine output to qDebug(), and fatal messages to qCritical().
         struct ChessEngineLogger : wisdom::Logger
         {
-            void debug (const std::string& string) const override;
+            void debug (const std::string& string) const noexcept override;
 
-            void info (const std::string& string) const override;
+            void info (const std::string& string) const noexcept override;
 
-            void emergency (std::string_view line) const override;
+            void emergency (std::string_view line) const noexcept override;
         };
 
     public slots:

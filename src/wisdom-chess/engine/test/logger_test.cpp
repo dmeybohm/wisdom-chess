@@ -16,17 +16,17 @@ namespace
     {
         mutable vector<LogEntry> lines;
 
-        void debug (const string& output) const override
+        void debug (const string& output) const noexcept override
         {
             lines.push_back (LogEntry { LogLevel_Debug, output });
         }
 
-        void info (const string& output) const override
+        void info (const string& output) const noexcept override
         {
             lines.push_back (LogEntry { LogLevel_Info, output });
         }
 
-        void emergency (string_view output) const override
+        void emergency (string_view output) const noexcept override
         {
             emergencies.emplace_back (output);
         }
@@ -478,18 +478,9 @@ namespace
         }
     };
 
-    struct ThrowingLogger : RecordingLogger
-    {
-        void emergency (string_view output) const override
-        {
-            RecordingLogger::emergency (output);
-            throw std::runtime_error { "logger failed" };
-        }
-    };
-
     struct ReentrantLogger : RecordingLogger
     {
-        void emergency (string_view output) const override
+        void emergency (string_view output) const noexcept override
         {
             RecordingLogger::emergency (output);
             logEmergency ("nested");
@@ -521,19 +512,6 @@ TEST_CASE( "Emergency logger" )
         logEmergency ("fatal");
 
         CHECK( cerr.captured.str() == "fatal\n" );
-    }
-
-    SUBCASE( "a logger that throws does not let the exception escape" )
-    {
-        auto logger = std::make_shared<ThrowingLogger>();
-        setEmergencyLogger (logger);
-
-        CHECK_NOTHROW( logEmergency ("fatal") );
-        CHECK( logger->emergencies.size() == 1 );
-
-        // The failure must not leave the logger locked out.
-        logEmergency ("again");
-        CHECK( logger->emergencies.size() == 2 );
     }
 
     SUBCASE( "a logger that reports another emergency does not recurse" )

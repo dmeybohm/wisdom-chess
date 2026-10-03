@@ -19,17 +19,17 @@ void wisdom::worker::WebLogger::consoleError (czstring message)
     ::consoleError (message);
 }
 
-void wisdom::worker::WebLogger::debug (const std::string& output) const
+void wisdom::worker::WebLogger::debug (const std::string& output) const noexcept
 {
    wisdom::worker::WebLogger::consoleLog (output.c_str());
 }
 
-void wisdom::worker::WebLogger::info (const std::string& output) const
+void wisdom::worker::WebLogger::info (const std::string& output) const noexcept
 {
     wisdom::worker::WebLogger::consoleLog (output.c_str());
 }
 
-void wisdom::worker::WebLogger::emergency (std::string_view output) const
+void wisdom::worker::WebLogger::emergency (std::string_view output) const noexcept
 {
     ::consoleErrorBytes (output.data(), wisdom::narrow_cast<int> (output.size()));
 }

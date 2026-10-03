@@ -69,7 +69,7 @@ namespace wisdom
 
     // Like narrow(), but aborts instead of throwing, naming the caller. For an
     // invariant inside a noexcept function.
-    template <typename Target, typename Source> 
+    template <typename Target, typename Source>
     [[nodiscard]] constexpr auto
     noexcept_narrow (Source value, std::source_location location = std::source_location::current()) noexcept
         -> Target

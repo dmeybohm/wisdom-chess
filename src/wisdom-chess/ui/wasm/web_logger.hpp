@@ -12,9 +12,9 @@ namespace wisdom::worker
     public:
         WebLogger() = default;
 
-        void debug (const std::string& output) const override;
-        void info (const std::string& output) const override;
-        void emergency (std::string_view output) const override;
+        void debug (const std::string& output) const noexcept override;
+        void info (const std::string& output) const noexcept override;
+        void emergency (std::string_view output) const noexcept override;
 
         static void consoleLog (czstring str);
         static void consoleError (czstring str);
