@@ -337,3 +337,15 @@ The branch is `move-ordering`, from `origin/main` at `e613ef39`.
 
   Of the 250 opening pairs, `main` won both games of 1 and the branch
   won both of 28. No game was lost on time or to an illegal move.
+
+### Session #4
+
+- The WASM CI job failed the ordering tree test with "memory access out
+  of bounds". A `CutoffHistory` is 32 KB, and the test kept one on the
+  stack in each recursive frame, which exhausts Emscripten's 64 KB
+  default stack. The search keeps its table in the heap-allocated
+  `IterativeSearchImpl`, so only the tests change: they allocate it
+  with `make_unique`. Reproduced locally; all 166 fast WASM tests pass
+  with the fix.
+- Rewrote item 1 of `improvement-suggestions.md` to describe the old
+  ordering in the past tense and the current one in its "Done" note.
