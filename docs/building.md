@@ -259,15 +259,19 @@ development, configure a Release build with the slow tests on:
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DWISDOM_CHESS_SLOW_TESTS=On
 cmake --build build -j8
-ctest --test-dir build -j 4          # -L fast / -L slow to pick one
+ctest --test-dir build -j 4          # -L fast / -L medium / -L slow to pick one
 ```
 
 The suites, by the labels and name prefixes `ctest -N` shows:
 
 - **Engine** (`wisdom-chess-fast-tests`, label `fast`): doctest cases for
-  the board, move generation, rules, search and its scenarios,
-  transposition table and logger. Run new engine tests in a Debug build as well, since only Debug
-  builds assert that a move is played by the side to move.
+  the board, move generation, rules, search, transposition table and
+  logger, in about a second in Release. Run new engine tests in a Debug
+  build as well, since only Debug builds assert that a move is played by
+  the side to move.
+- **Engine, medium** (`wisdom-chess-medium-tests`, label `medium`): the
+  search scenarios, some of which search on the clock, in several
+  seconds. Built with the fast tests.
 - **Engine, slow** (`wisdom-chess-slow-tests`, label `slow`): perft against
   the published node counts and the hash-collision sweep. Needs
   `WISDOM_CHESS_SLOW_TESTS=On`.

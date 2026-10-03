@@ -109,7 +109,7 @@ a Release build with the slow tests on and run everything through
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DWISDOM_CHESS_SLOW_TESTS=On
 cmake --build build -j8
-ctest --test-dir build -j 4          # -L fast / -L slow to pick one
+ctest --test-dir build -j 4          # -L fast / -L medium / -L slow to pick one
 ```
 
 Run new engine tests in a Debug build as well. `Board::withMove()` and

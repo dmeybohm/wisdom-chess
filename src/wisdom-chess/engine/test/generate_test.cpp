@@ -51,21 +51,25 @@ namespace
         return result;
     }
 
-    void
+    // Returns the number of positions in the tree with an en passant capture.
+    auto
     checkEnPassantMovesInTree (const Board& board, int depth)
+        -> int
     {
         auto who = board.getCurrentTurn();
+        auto en_passant_moves = generateLegalEnPassantMoves (board);
 
         INFO( board.toFenString (who) );
-        CHECK( generateLegalEnPassantMoves (board) == enPassantMovesAmongLegalMoves (board) );
-        CHECK( board.getLegalEnPassantTarget().has_value()
-               == !generateLegalEnPassantMoves (board).isEmpty() );
+        CHECK( en_passant_moves == enPassantMovesAmongLegalMoves (board) );
+        CHECK( board.getLegalEnPassantTarget().has_value() == !en_passant_moves.isEmpty() );
 
+        int found = en_passant_moves.isEmpty() ? 0 : 1;
         if (depth <= 0)
-            return;
+            return found;
 
         for (auto move : generateLegalMoves (board, who))
-            checkEnPassantMovesInTree (board.withMove (who, move), depth - 1);
+            found += checkEnPassantMovesInTree (board.withMove (who, move), depth - 1);
+        return found;
     }
 
     auto
@@ -734,7 +738,9 @@ TEST_CASE( "generateLegalEnPassantMoves" )
 
     SUBCASE( "A target of the player to move has none" )
     {
-        auto board = board_from_fen ("4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1");
+        // If White's own target counted for White, c5 would capture the pawn
+        // on d5 en passant.
+        auto board = board_from_fen ("4k3/8/8/2PP4/3Pp3/8/8/4K3 b - d3 0 1");
         auto white_to_move = board.withCurrentTurn (Color::White);
 
         CHECK( !generateLegalEnPassantMoves (board).isEmpty() );
@@ -743,17 +749,30 @@ TEST_CASE( "generateLegalEnPassantMoves" )
 
     SUBCASE( "Agrees with generateLegalMoves" )
     {
-        czstring fens[] = {
-            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
-            "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",
-            "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 b - - 0 1",
-            "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
-            "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3",
-            "4k3/pppppppp/8/PPPPPPPP/pppppppp/8/PPPPPPPP/4K3 w - - 0 1",
+        // Each tree is as deep as it needs to be to reach en passant
+        // targets. The slow suite checks deeper trees.
+        struct Position
+        {
+            czstring fen;
+            int depth;
         };
 
-        for (auto fen_text : fens)
-            checkEnPassantMovesInTree (board_from_fen (fen_text), 3);
+        const Position positions[] = {
+            { "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 2 },
+            { "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", 3 },
+            { "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 b - - 0 1", 3 },
+            { "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1", 2 },
+            { "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3", 3 },
+            { "4k3/pppppppp/8/PPPPPPPP/pppppppp/8/PPPPPPPP/4K3 w - - 0 1", 3 },
+        };
+
+        // generateLegalMoves() offers en passant only where this generator
+        // found a capture, so a generator that finds none agrees with it.
+        // Each tree has to reach a capture.
+        for (const auto& position : positions)
+        {
+            INFO( position.fen );
+            CHECK( checkEnPassantMovesInTree (board_from_fen (position.fen), position.depth) > 0 );
+        }
     }
 }
