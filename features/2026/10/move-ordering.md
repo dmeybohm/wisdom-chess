@@ -172,3 +172,78 @@ The branch is `move-ordering`, from `origin/main` at `e613ef39`.
 ### Session #1
 
 - Wrote this document. No code changed and nothing measured.
+
+### Session #2
+
+- Merged `origin/main` at `7bcff428`, which brought the search's
+  `noexcept` work and the logger changes.
+- Baseline: `--search-report 8` from `origin/main` at `7bcff428`, pinned
+  to one core. Its moves, scores and node counts at depths 6 and 8 are
+  those of Session #1 of
+  [cheaper-has-legal-move.md](../09/cheaper-has-legal-move.md), so the
+  `DrawArbiter` and root-draw changes did not move the report.
+- Step 1 of the plan: `Max_Search_Depth` (64) in `global.hpp`, now the
+  bound of the UCI clamp and the `Depth` option, of `Game::setMaxDepth()`,
+  of the console's depth command and of `IterativeSearch::create()`.
+  `KillerTable` and `MoveOrdering` are in `move_ordering.hpp`.
+  `generateAllPotentialMoves()` takes a `MoveOrdering` in place of the
+  priority move. The table is a member of `IterativeSearchImpl` and is
+  written on every beta cutoff of `search()`, not `quiesce()`.
+- Verified: Release, 288 of 288 tests; Debug, 252 of 252 fast tests; no
+  warnings; the lint target passes. Qt was not configured, so the QML
+  tests did not run.
+- Measured with `--search-report 7`, seven alternating rounds, pinned,
+  medians. Moves and scores are those of `main` at every depth from 1
+  to 8 in every position, so none of the three causes in "What should
+  and should not change" came up.
+
+  | Position | Move | Score | Nodes before | After | Nodes | Before | After | Faster by | Rounds faster |
+  |---|---|---|---|---|---|---|---|---|---|
+  | starting | e2 e4 | 63 | 862,023 | 378,524 | 0.44x | 0.293s | 0.127s | 2.31x | 7 of 7 |
+  | kiwipete | e2xa6 | 66 | 1,717,412 | 1,707,762 | 0.99x | 0.703s | 0.704s | 1.00x | 3 of 7 |
+  | italian | b1 c3 | -32 | 1,831,708 | 1,710,775 | 0.93x | 0.881s | 0.824s | 1.07x | 7 of 7 |
+  | position3 | b4xf4 | 81 | 112,520 | 73,156 | 0.65x | 0.043s | 0.027s | 1.59x | 7 of 7 |
+  | position4 | c4 c5 | -928 | 925,565 | 872,645 | 0.94x | 0.355s | 0.341s | 1.04x | 7 of 7 |
+  | middlegame | f3 g5 | 57 | 14,655,186 | 19,211,770 | 1.31x | 5.922s | 7.932s | 0.75x | 0 of 7 |
+
+  The six searches together: 8.20s before, 9.96s after, all of the
+  loss in the middlegame.
+- Measured with `--search-report 8`, one run of each build.
+
+  | Position | Move | Score | Nodes before | After | Nodes | Before | After | Faster by |
+  |---|---|---|---|---|---|---|---|---|
+  | starting | e2 e4 | 0 | 3,801,392 | 1,290,214 | 0.34x | 1.46s | 0.56s | 2.6x |
+  | kiwipete | d5xe6 | 48 | 8,144,988 | 8,099,877 | 0.99x | 3.66s | 3.89s | 0.94x |
+  | italian | d1 e2 | -54 | 40,692,807 | 15,421,626 | 0.38x | 21.64s | 8.53s | 2.5x |
+  | position3 | b4xf4 | 81 | 261,172 | 161,154 | 0.62x | 0.10s | 0.07s | 1.5x |
+  | position4 | c4 c5 | -928 | 2,620,947 | 2,542,537 | 0.97x | 1.00s | 1.04s | 0.96x |
+  | middlegame | f3 g5 | 48 | 309,896,444 | 117,455,329 | 0.38x | 142.76s | 55.97s | 2.6x |
+
+  The six depth-8 searches together: 170.6s before, 70.1s after. The
+  Italian game's depth-8 count, the figure this change exists for,
+  fell to 0.38 of `main`'s.
+- Ordering quality, from a throwaway build of each that counts the
+  cutoffs made by the first legal move tried at a node, over the whole
+  iterative search to depth 7:
+
+  | Position | Cutoffs before | First move | Share | Cutoffs after | First move | Share |
+  |---|---|---|---|---|---|---|
+  | starting | 56,190 | 29,986 | 53.4% | 32,311 | 24,235 | 75.0% |
+  | kiwipete | 87,251 | 86,454 | 99.1% | 87,251 | 86,455 | 99.1% |
+  | italian | 85,151 | 74,648 | 87.7% | 85,890 | 74,701 | 87.0% |
+  | position3 | 10,605 | 8,672 | 81.8% | 6,981 | 6,278 | 89.9% |
+  | position4 | 33,162 | 32,728 | 98.7% | 33,051 | 32,666 | 98.8% |
+  | middlegame | 532,076 | 416,830 | 78.3% | 851,183 | 706,489 | 83.0% |
+
+- Kiwipete and position 4 are tactical: nearly every cutoff there is a
+  capture already, and the killers change neither the count nor the
+  order. What they cost there, 4 to 6% at depth 8, is the extra
+  comparisons in the sort.
+- Not explained: the middlegame at depth 7 visits 1.31 times `main`'s
+  nodes although its first-move share rose, and every other depth of
+  the same position fell. The order changed what the transposition
+  table holds when depth 7 starts, which is the likeliest place to
+  look, but it was not traced. Check whether the history table of step
+  2 removes it before spending time on it.
+- Not measured yet: the engine match, which is step 3, after the
+  history table.
