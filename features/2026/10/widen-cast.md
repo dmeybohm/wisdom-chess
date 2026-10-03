@@ -46,3 +46,12 @@ from unsigned integers; its same-width case remains valid and tested.
   sites that want to express widening explicitly.
 - Verified lint, the full Release build and all 286 Release tests. Rebuilt
   the Debug engine tests and ran all eight conversion tests there.
+
+### Session #3
+
+- Reviewed explicit casts for fixed-width widening. `getCompileTimeRandom48()`
+  now marks both 32-to-64-bit conversions with `widen_cast`, and the WASM
+  piece view marks its 8-bit-to-`int` coordinate conversions the same way.
+- Kept generic conversions and `size_t` casts unchanged because their widths
+  depend on the template argument or target platform.
+- Verified lint, the full Release build, and all 286 Release tests.
