@@ -13,7 +13,7 @@ namespace wisdom
         uint8_t my_flags;
 
         [[nodiscard]] static constexpr auto
-        fromInt (unsigned int flags) noexcept
+        fromPacked (unsigned int flags) noexcept
             -> CastlingEligibility
         {
             return CastlingEligibility (narrow_debug<uint8_t> (flags));
@@ -53,21 +53,21 @@ namespace wisdom
         operator| (CastlingEligibility other) const noexcept
             -> CastlingEligibility
         {
-            return fromInt (my_flags | other.my_flags);
+            return fromPacked (my_flags | other.my_flags);
         }
 
         [[nodiscard]] constexpr auto
         operator& (CastlingEligibility other) const noexcept
             -> CastlingEligibility
         {
-            return fromInt (my_flags & other.my_flags);
+            return fromPacked (my_flags & other.my_flags);
         }
 
         [[nodiscard]] constexpr auto
         operator^ (CastlingEligibility other) const noexcept
             -> CastlingEligibility
         {
-            return fromInt (my_flags ^ other.my_flags);
+            return fromPacked (my_flags ^ other.my_flags);
         }
 
         constexpr auto

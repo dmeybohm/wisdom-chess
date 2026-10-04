@@ -54,3 +54,5 @@ too.
   template like `CastlingEligibility`'s. The Release build passed; the
   tests were not re-run before committing.
 - Renamed `Move::toInt()`/`fromInt()` to `toPacked()`/`fromPacked()`.
+- Renamed the private `CastlingEligibility::fromInt()` to `fromPacked()`
+  to match.
