@@ -344,6 +344,15 @@ TEST_CASE( "Transposition table sizing" )
         CHECK( by_default.getSize() >= 2 );
     }
 
+    SUBCASE( "A size that is a whole number of entries uses all of it" )
+    {
+        auto entries_per_megabyte = 1024 * 1024 / sizeof (TranspositionEntry);
+        REQUIRE( std::has_single_bit (entries_per_megabyte) );
+
+        CHECK( TranspositionTable::fromMegabytes (1).getSize() == entries_per_megabyte );
+        CHECK( TranspositionTable::fromMegabytes (16).getSize() == 16 * entries_per_megabyte );
+    }
+
     SUBCASE( "An entry count that is a power of two is kept" )
     {
         CHECK( TranspositionTable::fromEntries (4).getSize() == 4 );

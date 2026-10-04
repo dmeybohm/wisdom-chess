@@ -17,13 +17,10 @@ namespace wisdom
         EXPECTS( size_in_mb >= 1 );
 
         constexpr size_t Bytes_Per_Megabyte = 1024 * 1024;
-        size_t entry_count = (static_cast<size_t> (size_in_mb) * Bytes_Per_Megabyte)
+        size_t entry_count = (to_unsigned<size_t> (size_in_mb) * Bytes_Per_Megabyte)
             / sizeof (TranspositionEntry);
 
-        size_t power_of_2 = 1;
-        while (power_of_2 < entry_count)
-            power_of_2 <<= 1;
-        power_of_2 >>= 1;
+        size_t power_of_2 = std::bit_floor (entry_count);
 
         ENSURES( power_of_2 >= 2 );
 
