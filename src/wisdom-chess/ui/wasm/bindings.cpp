@@ -113,7 +113,7 @@ namespace wisdom::worker
                         game_id,
                         to_underlying (mapDrawByRepetitionType (proposed_draw_type)),
                         to_underlying (mapColor (player)),
-                        static_cast<int> (accepted)
+                        widen<int> (accepted)
                     );
                 }
             );

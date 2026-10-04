@@ -42,7 +42,7 @@ namespace wisdom
                 black_player,
                 my_game_settings.thinkingTime,
                 my_game_settings.searchDepth,
-                static_cast<int> (my_game_settings.debugLogging)
+                widen<int> (my_game_settings.debugLogging)
             );
         }
 
