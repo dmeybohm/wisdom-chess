@@ -7,6 +7,7 @@ include(cmake/CPM.cmake)
 CPMUsePackageLock(cpm-package-lock.cmake)
 include(cmake/Warnings.cmake)
 include(cmake/CliTests.cmake)
+include(cmake/FatalTests.cmake)
 include(CheckCXXSourceCompiles)
 
 project(WisdomChess

@@ -2,8 +2,9 @@
 
 // Each case triggers one fatal error, so it has to run in its own process.
 // run_fatal_test.cmake launches it and checks the output and the exit result.
-// To add a case, write it with FATAL_CASE() in one of the fatal_*_test.cpp
-// files: the build asks this program for the list (discover_fatal_tests.cmake).
+// To add a case, write it with FATAL_CASE() in a source file of a program
+// made with wisdom_chess_add_fatal_tests() (cmake/FatalTests.cmake): the build
+// asks the program for the list (discover_fatal_tests.cmake).
 
 #include <iostream>
 #include <span>

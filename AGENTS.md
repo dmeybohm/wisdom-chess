@@ -130,8 +130,12 @@ The `Fatal: ...` tests cover what doctest cannot catch because it ends
 the process: a failed `EXPECTS` or `ASSERT`, a null `nonnull`, an
 uncaught exception. Add one with `FATAL_CASE( name, expected [, listed] )`
 (`engine/test/fatal_test.hpp`) in the `fatal_*_test.cpp` file for its
-area, and list a new file in the `wisdom-chess-fatal-tests` target; the
-build asks the program for the list.
+area, and list a new file in the program's
+`wisdom_chess_add_fatal_tests()` call (`cmake/FatalTests.cmake`); the
+build asks the program for the list. The engine's cases are in
+`wisdom-chess-fatal-tests`, the view model's in
+`wisdom-chess-viewmodel-fatal-tests`. Case names must be unique across
+the programs.
 
 The `QML: ...` tests (`src/wisdom-chess/ui/qml/test`) use Qt Test, styled like doctest:
 `QCOMPARE( a, b )`. Add one with `wisdom_chess_add_qml_test()` or, for a

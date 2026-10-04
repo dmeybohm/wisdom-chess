@@ -1,5 +1,5 @@
-# Writes the CTest file that adds one test for each case of
-# wisdom-chess-fatal-tests.
+# Writes the CTest file that adds one test for each case of a fatal test
+# program (FatalTests.cmake).
 #
 # The program lists its own cases, so this runs after each build of it, as
 # doctest's discovery does for the other test programs.

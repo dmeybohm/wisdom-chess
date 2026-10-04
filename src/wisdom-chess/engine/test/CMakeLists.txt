@@ -73,65 +73,25 @@ if (WISDOM_CHESS_FAST_TESTS)
         target_compile_definitions(wisdom-chess-medium-tests PRIVATE DOCTEST_CONFIG_NO_POSIX_SIGNALS)
     endif()
 
-    # Fatal errors end the process, so each case runs as its own test, through
-    # run_fatal_test.cmake. A case passes when the emergency logger reported the
-    # expected message and the process then terminated abnormally.
-    # The cases register themselves, so they are compiled into the program
-    # rather than linked from a library, which could drop them.
-    add_executable(wisdom-chess-fatal-tests
+    # The main() and case registry of every fatal test program
+    # (cmake/FatalTests.cmake).
+    add_library(wisdom-chess-fatal-main STATIC fatal_test_main.cpp)
+    target_link_libraries(wisdom-chess-fatal-main PUBLIC wisdom::chess)
+    wisdom_chess_enable_warnings(wisdom-chess-fatal-main)
+
+    if (WISDOM_CHESS_FILC_COMPAT)
+        target_compile_definitions(wisdom-chess-fatal-main PRIVATE WISDOM_CHESS_FILC_COMPAT)
+    endif()
+
+    wisdom_chess_add_fatal_tests(wisdom-chess-fatal-tests
         fatal_board_test.cpp
         fatal_contract_test.cpp
         fatal_game_test.cpp
         fatal_move_list_test.cpp
         fatal_numeric_cast_test.cpp
         fatal_parse_test.cpp
-        fatal_test_main.cpp
         fatal_transposition_table_test.cpp
         fatal_uncaught_test.cpp)
-    target_link_libraries(wisdom-chess-fatal-tests PRIVATE wisdom::chess)
-    wisdom_chess_enable_warnings(wisdom-chess-fatal-tests)
-
-    if (WISDOM_CHESS_FILC_COMPAT)
-        target_compile_definitions(wisdom-chess-fatal-tests PRIVATE WISDOM_CHESS_FILC_COMPAT)
-    endif()
-
-    # The cases are written with FATAL_CASE() in fatal_*_test.cpp. Each
-    # build of the program asks it for them and writes the tests for CTest
-    # to include. The cases and the program's path differ between
-    # configurations, so a generator with several keeps a file for each, and
-    # CTest includes the one that -C names.
-    set(fatal_tests_base "${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-fatal-tests_tests")
-    set(fatal_include_file "${CMAKE_CURRENT_BINARY_DIR}/wisdom-chess-fatal-tests_include.cmake")
-
-    get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-    if (is_multi_config)
-        set(fatal_tests_file "${fatal_tests_base}-$<CONFIG>.cmake")
-        set(fatal_tests_included "${fatal_tests_base}-\${CTEST_CONFIGURATION_TYPE}.cmake")
-    else()
-        set(fatal_tests_file "${fatal_tests_base}.cmake")
-        set(fatal_tests_included "${fatal_tests_file}")
-    endif()
-
-    add_custom_command(
-        TARGET wisdom-chess-fatal-tests POST_BUILD
-        BYPRODUCTS "${fatal_tests_file}"
-        COMMAND ${CMAKE_COMMAND}
-            "-DFATAL_TEST_EMULATOR=${CMAKE_CROSSCOMPILING_EMULATOR}"
-            "-DFATAL_TEST_EXECUTABLE=$<TARGET_FILE:wisdom-chess-fatal-tests>"
-            "-DFATAL_TEST_RUNNER=${CMAKE_CURRENT_SOURCE_DIR}/run_fatal_test.cmake"
-            "-DFATAL_TEST_FILE=${fatal_tests_file}"
-            -P "${CMAKE_CURRENT_SOURCE_DIR}/discover_fatal_tests.cmake"
-        VERBATIM
-    )
-
-    file(WRITE "${fatal_include_file}"
-        "if(EXISTS \"${fatal_tests_included}\")\n"
-        "  include(\"${fatal_tests_included}\")\n"
-        "else()\n"
-        "  add_test(wisdom-chess-fatal-tests_NOT_BUILT wisdom-chess-fatal-tests_NOT_BUILT)\n"
-        "endif()\n"
-    )
-    set_property(DIRECTORY APPEND PROPERTY TEST_INCLUDE_FILES "${fatal_include_file}")
 
 endif()
 

@@ -31,9 +31,12 @@ throwing.
   which now aborts, so they throw through `runGuarded()` instead, a
   private member the test class reaches as a friend.
 - `chess_game_test.cpp` no longer checks that out-of-range settings and a
-  bad FEN throw. The engine's checks under them have fatal cases, apart
-  from `GameSettings::applyTo()`'s `EXPECTS( isInRange() )`, whose
-  library the fatal test program does not link.
+  bad FEN throw. The bad FEN has fatal cases in the engine. The settings
+  needed their own, since the engine allows a deeper search and a longer
+  timeout than `GameSettings::isInRange()`, so the view model has a fatal
+  test program too: `cmake/FatalTests.cmake` builds one from any sources,
+  sharing `main()` through the `wisdom-chess-fatal-main` library, and the
+  two scripts it runs moved from `engine/test` to `cmake/`.
 - `Error` is gone too, since only `saveGame()` and the perft tool still
   threw it. `saveGame()` returns `expected<void, string>`, and the perft
   tool throws `std::runtime_error`. `guarded()`, the terminate handler
