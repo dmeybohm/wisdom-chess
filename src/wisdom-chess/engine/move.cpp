@@ -469,12 +469,7 @@ namespace wisdom
         auto optional_result = parseMove (str, color);
         EXPECTS( optional_result.has_value() );
 
-        auto result = *optional_result;
-        auto move_category = result.getMoveCategory();
-        EXPECTS( color != Color::None || move_category == MoveCategory::NormalCapturing
-            || move_category == MoveCategory::Default );
-
-        return result;
+        return *optional_result;
     }
 
     auto

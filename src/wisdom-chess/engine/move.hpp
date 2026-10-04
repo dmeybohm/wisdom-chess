@@ -403,8 +403,8 @@ namespace wisdom
         -> optional<Move>;
 
     // Parse a move. A move that does not parse is a precondition failure, and
-    // without a color it must be a normal move or capture. Text from outside
-    // the program goes through parseMove().
+    // a castling move needs a color. Text from outside the program goes
+    // through parseMove().
     [[nodiscard]] auto
     toMove (const string& str, Color color = Color::None)
         -> Move;

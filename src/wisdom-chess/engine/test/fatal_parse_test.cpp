@@ -35,14 +35,6 @@ namespace
     }
 
     FATAL_CASE(
-        "move-parse-en-passant-without-color",
-        "Precondition failed at .*move\\.cpp:[0-9]+: color != Color::None"
-    )
-    {
-        [[maybe_unused]] Move move = toMove ("e5 d6 ep");
-    }
-
-    FATAL_CASE(
         "move-list-invalid-move",
         "Precondition failed at .*move\\.cpp:[0-9]+: optional_result\\.has_value\\(\\)"
     )
