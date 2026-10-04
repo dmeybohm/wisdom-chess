@@ -40,6 +40,8 @@ committing C++. The conventions below are about what the code does.
   - `widen` for a wider type that holds every value of the source, which
     cannot fail: a signed source needs a signed target.
   - `truncate` discards an unsigned value's high bits on purpose.
+  - `to_underlying` converts an enum to its underlying type, as C++23's
+    `std::to_underlying` does. Integer to enum stays a `static_cast`.
 - Text from outside the program (a FEN string, a move, a coordinate) goes
   through a parser that returns `optional` or `expected<T, ParseError>`
   (`engine/expected.hpp`): `Game::tryCreateGameFromFen()`,

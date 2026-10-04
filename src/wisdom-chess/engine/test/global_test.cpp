@@ -69,6 +69,23 @@ TEST_CASE( "widen converts to a type that holds every value" )
     static_assert (widen<uint64_t> (uint32_t { 0xffff'ffffU }) == 0xffff'ffffULL);
 }
 
+TEST_CASE( "to_underlying gives the enum's underlying type" )
+{
+    enum class Small : int8_t
+    {
+        Value = -3
+    };
+    enum class Default
+    {
+        Value = 7
+    };
+
+    static_assert (std::is_same_v<decltype (to_underlying (Small::Value)), int8_t>);
+    static_assert (std::is_same_v<decltype (to_underlying (Default::Value)), int>);
+    static_assert (to_underlying (Small::Value) == -3);
+    static_assert (to_underlying (Default::Value) == 7);
+}
+
 TEST_CASE( "to_unsigned converts a nonnegative value" )
 {
     static_assert (to_unsigned<uint32_t> (int32_t { 0 }) == 0);

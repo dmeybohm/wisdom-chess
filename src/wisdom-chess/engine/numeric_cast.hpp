@@ -129,4 +129,15 @@ namespace wisdom
 
         return static_cast<Target> (value);
     }
+
+    // Converts an enum to its underlying type, as C++23's std::to_underlying.
+    template <typename Enum>
+    [[nodiscard]] constexpr auto
+    to_underlying (Enum value) noexcept
+        -> std::underlying_type_t<Enum>
+    {
+        static_assert (std::is_enum_v<Enum>);
+
+        return static_cast<std::underlying_type_t<Enum>> (value);
+    }
 }
