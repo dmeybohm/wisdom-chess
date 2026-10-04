@@ -21,7 +21,10 @@ wrote and fails its precondition on a bad one.
 | `coordParse` | `toCoord` |
 | `moveParseOptional` | `parseMove` |
 | `moveParse` | `toMove` |
-| `castleParse` (`move.cpp`, file-local, returns `optional`) | `parseCastle` |
+| `castleParse` (`move.cpp`, file-local, returns `optional`) | `parseCastlingMove` |
+
+`castleParse` turns `O-O` or `O-O-O` into a castling `Move` for the
+given color, so `parseCastlingMove` names what it returns.
 
 `toCoord` and `toMove` are camelCase domain functions; they sit beside
 the snake_case generic conversions in `cast.hpp` (`to_int`, `to_uint`,
