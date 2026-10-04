@@ -91,17 +91,101 @@ own before the next.
    first measurement is the doubled entry count at the same megabytes.
    The generation byte is added here, unused, because a padding byte in
    its place made `clear()` slow (Session #2).
-2. **Buckets.** Four 16-byte entries in a 64-byte, cache-line-aligned
-   bucket. Probe all four. Store over the same position (keeping the
-   rule for a greater depth), else an empty entry, else one from an
-   older generation, else the shallowest. A one-byte generation is
-   advanced per search, from `IterativeSearch`, and cleared with the
-   table.
+2. **Buckets.** Four entries in a cache line, replaced by depth and
+   age. See [Step 2: buckets](#step-2-buckets).
 3. **Quiescence probe and store.** Probing in quiescence was left as a
    later experiment in [quiescence-search.md](../09/quiescence-search.md).
    It stores at depth 0, so a main-search probe at depth ≥ 1 never takes
    one. A quiescence node needs the same path-dependent-score rule as the
    main search, if any draw check can reach it.
+
+## Step 2: buckets
+
+### Layout
+
+A `TranspositionBucket` is `alignas (64)` and holds four entries, so a
+bucket is one cache line and a probe reads one line, as it does today.
+The table is a `vector` of buckets; `std::allocator` honours the
+alignment since C++17, Emscripten included. The bucket index is
+`foldHashTo32Bits (hash) & my_bucket_mask`. A 16 MB table is 262,144
+buckets.
+
+`getSize()` keeps counting entries, so the search's
+"entries = stored/size" line keeps its meaning. `fromEntries()` requires
+a power of two of at least four, one bucket. The tests that use two
+entries move to four, and the fatal case for one entry changes its
+message.
+
+### Finding a position
+
+All three operations scan the bucket's four entries for an entry whose
+`hash_code` matches and whose bound is not `Empty`. The bound test keeps
+an empty entry from matching a position that hashes to zero.
+
+`probe()` and `getBestMove()` each scan the bucket, one after the other,
+from `search()`. The second scan hits the same cache line. Merging the
+two calls is a separate change.
+
+### Generations
+
+`TranspositionTable::startSearch()` advances an 8-bit generation, and
+`IterativeSearchImpl::iterativelyDeepen()` calls it once, before the
+first iteration, so the iterations of one search share a generation.
+`clear()` sets it back to 0. An entry's age is
+`(generation - entry.generation)` in 8 bits, so wrapping is harmless.
+An entry 256 searches old looks new, and only competes on depth.
+
+A store sets the entry's generation. So does any scan that finds the
+position, in `probe()` or `store()`, even when it returns nothing or
+keeps the deeper entry: the position is in this search's tree, so its
+entry is current.
+
+### Replacement in `store()`
+
+1. **The same position:** today's rule. Keep a deeper entry, else
+   overwrite.
+2. **Else an empty entry**, the first one.
+3. **Else the entry worth least**, by `depth - Age_Weight * age`, the
+   first on a tie.
+
+The alternative to step 3 evicts by age first and depth second. It
+throws out a depth-12 entry from the last move before a depth-1 entry
+from this one. Two plies later, the last move's deep entries cover much
+of the new tree, which is what `runWarmTableBenchmark` measures. The
+weighted rule keeps them while they are deep enough. `Age_Weight` starts
+at 8, so each search an entry has outlived counts as 8 plies of depth: a
+depth-10 entry from the last search ranks with a depth-2 entry from this
+one. If the match is close, the other rule and other weights are the first
+things to try.
+
+`stored_entries` keeps its meaning: an empty entry filled.
+
+### Tests
+
+One bucket, from `fromEntries (4)`, makes every hash collide:
+
+- four positions fill the four entries, and a probe finds each
+- a fifth replaces the shallowest, all of one generation
+- after `startSearch()`, a fifth replaces an older entry over a newer
+  one of the same depth, and keeps an older one deep enough to outweigh
+  its age
+- a store of a position already in the bucket replaces it, or keeps it
+  when deeper, without touching the others
+- a probe that finds a position refreshes its generation, so it
+  survives the next replacement
+- a zero hash does not match an empty entry
+- `clear()` empties every entry and resets the generation
+
+### Measuring step 2
+
+Base is step 1 (`bf326419`).
+
+- `--search-report 7`: every row clears the table, so this measures the
+  buckets alone, without ages.
+- `runWarmTableBenchmark` (part of the default benchmark run): 30
+  plies at depth 6 with the table kept, which is where the generation
+  matters.
+- The engine match, which decides.
 
 ## Measuring
 
@@ -167,3 +251,7 @@ rounds 1 and 2 are usable:
   21 to 24% faster in both rounds. The others are within the noise of
   two rounds.
 - Not yet run: the engine match, which decides the step.
+
+### Session #3
+
+- Planned step 2 while step 1's match ran. No code changed.
